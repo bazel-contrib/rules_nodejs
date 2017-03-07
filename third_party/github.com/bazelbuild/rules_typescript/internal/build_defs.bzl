@@ -37,8 +37,12 @@ def _compile_action(ctx, inputs, outputs, config_file_path):
   for externs_file in externs_files:
     ctx.file_action(output=externs_file, content="")
 
+  action_inputs = inputs
+  if ctx.file.tsconfig:
+    action_inputs += [ctx.file.tsconfig]
+
   ctx.action(
-      inputs=inputs + [ctx.file.tsconfig],
+      inputs=action_inputs,
       outputs=non_externs_files,
       arguments=["-p", config_file_path],
       executable=ctx.executable._tsc)
