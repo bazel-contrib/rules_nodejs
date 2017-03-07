@@ -23,5 +23,4 @@ ts_library(
     module_name = "some-lib",
     # The imported path should be the library.d.ts file
     module_root = "library",
-    tsconfig = "//examples:tsconfig.json",
 )
