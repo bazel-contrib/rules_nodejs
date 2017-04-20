@@ -1,3 +1,5 @@
+load(":executables.bzl", "get_tsc", "get_node")
+
 def _outputs(ctx, label, input_file):
   """Returns typescript output files for |input_file|.
 
@@ -31,8 +33,8 @@ def _ts_library_impl(ctx):
   ctx.action(
     inputs = ctx.files.srcs + [ctx.file._tsc, ctx.file._lib],
     outputs = transpiled + gen_declarations,
-    executable = ctx.file._node,
-    arguments = [ctx.file._tsc.path, "--noLib", "--declaration", "--rootDir", ".",  "--outDir", ctx.bin_dir.path, ctx.file._lib.path] + [s.path for s in ctx.files.srcs]
+    executable = ctx.file._tsc,
+    arguments = ["--noLib", "--declaration", "--rootDir", ".",  "--outDir", ctx.bin_dir.path, ctx.file._lib.path] + [s.path for s in ctx.files.srcs]
     )
   return struct(
     files=set(transpiled),
@@ -43,11 +45,11 @@ ts_library = rule(
   attrs = {
     "srcs": attr.label_list(allow_files = True),
     "_node": attr.label(
-        default = Label("@io_bazel_typescript_node//:bin/node"),
+        default = get_node(),
         allow_files = True,
         single_file = True),
     "_tsc": attr.label(
-        default = Label("@yarn//node_modules:typescript/lib/tsc.js"),
+        default = get_tsc(),
         allow_files = True,
         single_file = True),
     "_lib": attr.label(

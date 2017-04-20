@@ -12,7 +12,7 @@ def _yarn_install_impl(ctx):
   ctx.file("node_modules/BUILD", """
 # Export some specific helpers we will need
 exports_files(["typescript/lib/tsc.js", "typescript/lib/lib.es5.d.ts"])
-filegroup(name = "node_modules", srcs = glob(["**/*"]))
+filegroup(name = "node_modules", srcs = glob(["**/*"]), visibility = ["//visibility:public"])
 """)
 
 _yarn_install = repository_rule(
