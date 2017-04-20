@@ -1,1 +1,1 @@
-export let a: number;
+export let a: string;

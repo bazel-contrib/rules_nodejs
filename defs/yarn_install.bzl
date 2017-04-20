@@ -5,12 +5,13 @@ def _yarn_install_impl(ctx):
   if result.return_code > 0:
     print(result.stdout)
     print(result.stderr)
+
   # symlink the node_module directory from the user's workspace
-  # TODO: only if it exists!
   ctx.symlink(project_dir.get_child("node_modules"), "node_modules")
+  # add a BUILD file inside the user's node_modules folder
   ctx.file("node_modules/BUILD", """
 # Export some specific helpers we will need
-exports_files(["typescript/lib/tsc.js"])
+exports_files(["typescript/lib/tsc.js", "typescript/lib/lib.es5.d.ts"])
 filegroup(name = "node_modules", srcs = glob(["**/*"]))
 """)
 
