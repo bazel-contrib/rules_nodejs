@@ -1,0 +1,11 @@
+{
+    "name": "hello-world",
+    "description": "Build TypeScript with Bazel",
+    "version": "0.0.0",
+    "dependencies": {
+        "typescript": "2.2.2"
+    },
+    "scripts": {
+        "test": "bazel build :all"
+    }
+}
