@@ -16,7 +16,6 @@ def _outputs(ctx, label, input_file):
   return (ctx.new_file(basename + ".js"),
           ctx.new_file(basename + ".d.ts"))
 
-
 def _ts_library_impl(ctx):
 
   ### Collect srcs and outputs.
@@ -30,10 +29,10 @@ def _ts_library_impl(ctx):
       gen_declarations += [outs[1]]
 
   ctx.action(
-    inputs = ctx.files.srcs + [ctx.file._tsc],
+    inputs = ctx.files.srcs + [ctx.file._tsc, ctx.file._lib],
     outputs = transpiled + gen_declarations,
     executable = ctx.file._node,
-    arguments = [ctx.file._tsc.path, "--declaration", "--outDir", ctx.bin_dir.path] + [s.path for s in ctx.files.srcs]
+    arguments = [ctx.file._tsc.path, "--noLib", "--declaration", "--rootDir", ".",  "--outDir", ctx.bin_dir.path, ctx.file._lib.path] + [s.path for s in ctx.files.srcs]
     )
   return struct(
     files=set(transpiled),
@@ -49,6 +48,10 @@ ts_library = rule(
         single_file = True),
     "_tsc": attr.label(
         default = Label("@yarn//node_modules:typescript/lib/tsc.js"),
+        allow_files = True,
+        single_file = True),
+    "_lib": attr.label(
+        default = Label("@yarn//node_modules:typescript/lib/lib.es5.d.ts"),
         allow_files = True,
         single_file = True),
   }
