@@ -1,6 +1,6 @@
 def _yarn_install_impl(ctx):
   project_dir = ctx.path(ctx.attr.package_json).dirname
-  ctx.template("yarn_install.sh", Label("//defs:yarn_install.sh"))
+  ctx.template("yarn_install.sh", Label("//internal:yarn_install.sh"))
   result = ctx.execute(["./yarn_install.sh", ctx.path(ctx.attr.package_json), ctx.path(ctx.attr._yarn)])
   if result.return_code > 0:
     print(result.stdout)
@@ -35,7 +35,7 @@ exports_files(["bin/yarn"])
 """,
     )
 
-    # Call this workspace "yarn" so there will be targets like
+    # Name this workspace so there will be targets like
     # @yarn//node_modules:all
     # Within the user's project, they can refer to //node_modules:all
     # but from other repositories, like the @io_bazel_rules_typescript

@@ -7,5 +7,8 @@
     },
     "scripts": {
         "test": "bazel build :all"
+    },
+    "devDependencies": {
+        "clang-format": "^1.0.49"
     }
 }
