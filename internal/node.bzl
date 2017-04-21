@@ -29,7 +29,7 @@ node_binary = rule(
         "data": attr.label_list(allow_files = True, cfg = "data"),
         "templated_args": attr.string_list(default = []),
         "_node": attr.label(default = get_node(), allow_files = True, single_file = True),
-        "_node_modules": attr.label(default = Label("@yarn//node_modules")),
+        "_node_modules": attr.label(default = Label("@yarn//installed:node_modules")),
         "_launcher_template": attr.label(default = Label("//internal:node_launcher.sh"), allow_files = True, single_file = True)
     },
     executable = True,

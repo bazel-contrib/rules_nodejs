@@ -134,7 +134,7 @@ ts_library = rule(
                 allow_files=True,
                 executable=True,
                 cfg="host",),
-        "_node_modules": attr.label(default = Label("@yarn//node_modules"))
+        "_node_modules": attr.label(default = Label("@yarn//installed:node_modules"))
     },
     fragments=["js"],
     outputs={"_js_typings": "_%{name}_js_typings.d.ts"},)

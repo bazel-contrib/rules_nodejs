@@ -6,14 +6,18 @@ def _yarn_install_impl(ctx):
     print(result.stdout)
     print(result.stderr)
 
-  # symlink the node_module directory from the user's workspace
-  ctx.symlink(project_dir.get_child("node_modules"), "node_modules")
-  # add a BUILD file inside the user's node_modules folder
-  ctx.file("node_modules/BUILD", """
-# Export some specific helpers we will need
-exports_files(["typescript/lib/tsc.js", "typescript/lib/lib.es5.d.ts"])
-filegroup(name = "node_modules", srcs = glob(["**/*"]), visibility = ["//visibility:public"])
-""")
+  # WORKAROUND for https://github.com/bazelbuild/bazel/issues/374#issuecomment-296217940
+  # We would rather point the symlink at project_dir.get_child("node_modules")
+  # and write the BUILD file into node_modules
+  # symlink the root directory from the user's workspace
+  ctx.symlink(project_dir, "installed")
+
+  # Disabled due to above: users must instead write their own BUILD file on setup:
+
+  # add a BUILD file inside the user's node_modules project folder
+  # ctx.file("installed/BUILD", """
+  #   filegroup(name = "node_modules", srcs = glob(["node_modules/**/*"]), visibility = ["//visibility:public"])
+  # """)
 
 _yarn_install = repository_rule(
     _yarn_install_impl,
@@ -36,8 +40,8 @@ exports_files(["bin/yarn"])
     )
 
     # Name this workspace so there will be targets like
-    # @yarn//node_modules:all
-    # Within the user's project, they can refer to //node_modules:all
+    # @yarn//installed:node_modules
+    # Within the user's project, they can refer to //:node_modules
     # but from other repositories, like the @io_bazel_rules_typescript
     # repository, we also need to find some labels under node_modules.
     _yarn_install(name = "yarn", package_json = package_json)
