@@ -6,14 +6,16 @@ set -e
 # Resolve to 'this' node instance if other scripts
 # have '/usr/bin/env node' shebangs
 export PATH={node_bin_path}:$PATH
+export NODE_PATH="{runfiles}"
 
 # Uncomment for debugging
+#ls -R
 #echo "Node running in $(pwd)"
 #echo "Running script {script_path}"
-#ls {script_path} || ls -R
+#env
 
 # Run it
-"{node_bin}" "{script_path}" $@
+"{runfiles}/{node_bin}" "{runfiles}/{script_path}" $@
 """
 
 def _node_binary_impl(ctx):
@@ -25,9 +27,10 @@ def _node_binary_impl(ctx):
         output = ctx.outputs.executable,
         executable = True,
         content = BASH_TEMPLATE.format(
-            node_bin = node.path,
+            node_bin = node.short_path,
             script_path = script,
             node_bin_path = node.dirname,
+            runfiles = ctx.bin_dir.path + "/internal/tsc_wrapped.runfiles/io_bazel_rules_typescript"
         ),
     )
 

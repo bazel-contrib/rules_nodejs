@@ -23,9 +23,7 @@ def _compile_action(ctx, inputs, outputs, config_file_path):
     ctx.file_action(output=externs_file, content="")
 
   ctx.action(
-      # FIXME(alexeagle): this should only need inputs - the _tsc runfiles should contain
-      # all the inputs needed to run tsc, not repeat them here
-      inputs=inputs + ctx.files._node_modules + [ctx.executable._tsc, ctx.executable._node],
+      inputs = inputs,
       outputs=non_externs_files,
       arguments=["-p", config_file_path],
       executable=ctx.executable._tsc)
