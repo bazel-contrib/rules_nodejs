@@ -23,7 +23,7 @@ def _compile_action(ctx, inputs, outputs, config_file_path):
     ctx.file_action(output=externs_file, content="")
 
   ctx.action(
-      inputs = inputs,
+      inputs=inputs + [ctx.file.tsconfig],
       outputs=non_externs_files,
       arguments=["-p", config_file_path],
       executable=ctx.executable._tsc)
@@ -32,6 +32,10 @@ def _compile_action(ctx, inputs, outputs, config_file_path):
 def _devmode_compile_action(ctx, inputs, outputs, config_file_path):
   _compile_action(ctx, inputs, outputs, config_file_path)
 
+
+def _dots(path):
+  num_levels_up = len(path.split("/")) - 1
+  return "../" * num_levels_up
 
 def _files_to_json_array(tsconfig_path, files):
   """Returns a string with files in JSON array format.
@@ -51,8 +55,7 @@ def _files_to_json_array(tsconfig_path, files):
   Returns:
     file entry of JSON tsconfig.
   """
-  num_levels_up = len(tsconfig_path.split("/")) - 1
-  parent_dir = "../" * num_levels_up
+  parent_dir = _dots(tsconfig_path)
   return ("[\n" + ",\n".join(
       ["        \"%s%s\"" % (parent_dir, f.path) for f in files]) + "]")
 
@@ -68,18 +71,34 @@ def _tsc_wrapped_tsconfig(ctx,
                           ngc_out=[]):
   template = """
 {{
+  {extends_tsconfig}
   "compilerOptions": {{
-    "outDir": "."
+    "outDir": ".",
+    "typeRoots": [
+       "{dots}/bazel-out/host/bin/external/io_bazel_rules_typescript/internal/tsc_wrapped.runfiles/yarn/installed/node_modules/@types"
+    ],
+    "baseUrl": "{dots}",
+    "paths": {{
+      "*": [
+        "bazel-out/host/bin/external/io_bazel_rules_typescript/internal/tsc_wrapped.runfiles/yarn/installed/node_modules/*",
+        "bazel-out/host/bin/external/io_bazel_rules_typescript/internal/tsc_wrapped.runfiles/yarn/installed/node_modules/@types/*"
+      ]
+    }}
   }},
   {files_array}
 }}
   """
   tsconfig_json = ctx.new_file("tsconfig.json")
   files_array = ("\"files\": " + _files_to_json_array(tsconfig_json.path, files) + "\n")
+  dots = _dots(tsconfig_json.path)
+  extends_tsconfig = "\"extends\": \"" + dots + ctx.file.tsconfig.path[:-5] + "\"," if ctx.file.tsconfig else ""
   ctx.file_action(
       output=tsconfig_json,
       content=template.format(
-          bin_dir_path=ctx.configuration.bin_dir.path, files_array=files_array))
+        extends_tsconfig=extends_tsconfig,
+        bin_dir_path=ctx.configuration.bin_dir.path,
+        dots=dots,
+        files_array=files_array))
   return tsconfig_json
 
 # ************ #
@@ -118,6 +137,8 @@ ts_library = rule(
         # TODO(evanm): make this the default and remove the option.
         "runtime":
             attr.string(default="browser"),
+        "tsconfig":
+            attr.label(allow_files = True, single_file=True),
         "_additional_d_ts":
             attr.label_list(),
         "_tsc":
