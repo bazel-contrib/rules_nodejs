@@ -29,8 +29,9 @@ load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 git_repository(
     name = "io_bazel_rules_typescript",
-    remote = "sso://bazel/rules_typescript",
-    commit = "b25f535a7fdb4382dc67ed455c54b7ba23995c85")
+    remote = "https://github.com/bazelbuild/rules_typescript.git",
+    tag = "0.0.1",
+)
 
 load("@io_bazel_rules_typescript//:defs.bzl", "node_repositories", "yarn_install")
 
