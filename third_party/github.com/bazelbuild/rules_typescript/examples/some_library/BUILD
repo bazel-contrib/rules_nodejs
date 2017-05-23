@@ -17,17 +17,11 @@ package(default_visibility = ["//visibility:public"])
 load("//:defs.bzl", "ts_library")
 
 ts_library(
-    name = "foo_ts_library",
-    srcs = ["foo.ts"],
-    tsconfig = ":tsconfig.json",
-)
-
-ts_library(
-    name = "bar_ts_library",
-    srcs = ["bar.ts"],
-    tsconfig = ":tsconfig.json",
-    deps = [
-        ":foo_ts_library",
-        "//examples/some_library:lib",
-    ],
+    name = "lib",
+    srcs = ["library.ts"],
+    # Allow this library to be imported from `some-lib`
+    module_name = "some-lib",
+    # The imported path should be the library.d.ts file
+    module_root = "library",
+    tsconfig = "//examples:tsconfig.json",
 )
