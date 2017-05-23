@@ -16,10 +16,11 @@
 """
 # pylint: disable=unused-argument
 # pylint: disable=missing-docstring
-load("//internal:common/compilation.bzl", "compile_ts")
-load("//internal:executables.bzl", "get_tsc", "get_node")
-load("//internal:common/json_marshal.bzl", "json_marshal")
-load("//internal:common/tsconfig.bzl", "create_tsconfig")
+load(":common/compilation.bzl", "compile_ts")
+load(":executables.bzl", "get_tsc", "get_node")
+load(":common/json_marshal.bzl", "json_marshal")
+load(":common/tsconfig.bzl", "create_tsconfig")
+load(":common/module_mappings.bzl", "module_mappings_aspect")
 
 def _compile_action(ctx, inputs, outputs, config_file_path):
   externs_files = []
@@ -75,28 +76,29 @@ def _tsc_wrapped_tsconfig(ctx,
   else:
     runfiles = "external/io_bazel_rules_typescript/internal/tsc_wrapped.runfiles"
 
+  module_roots = {
+      "*": [
+          "/".join([host_bin, runfiles, "yarn/installed/node_modules/*"]),
+          "/".join([host_bin, runfiles, "yarn/installed/node_modules/@types/*"]),
+      ],
+      # Workaround https://github.com/Microsoft/TypeScript/issues/15962
+      # Needed for Angular to build with Bazel.
+      # TODO(alexeagle): fix the bug upstream or find a better place for
+      # this workaround.
+      "zone.js": [
+          "/".join([host_bin, runfiles, "yarn/installed/node_modules/zone.js/dist/zone.js.d.ts"]),
+      ]
+  }
+
   config = create_tsconfig(ctx, files, srcs, tsconfig_json.dirname,
-                           devmode_manifest=devmode_manifest)
+                           devmode_manifest=devmode_manifest,
+                           module_roots=module_roots)
 
   config["compilerOptions"].update({
       "typeRoots": ["/".join([
           workspace_path, host_bin, runfiles,
           "yarn/installed/node_modules/@types"]
       )],
-      "baseUrl": workspace_path,
-      "paths": {
-          "*": [
-              "/".join([host_bin, runfiles, "yarn/installed/node_modules/*"]),
-              "/".join([host_bin, runfiles, "yarn/installed/node_modules/@types/*"]),
-          ],
-          # Workaround https://github.com/Microsoft/TypeScript/issues/15962
-          # Needed for Angular to build with Bazel.
-          # TODO(alexeagle): fix the bug upstream or find a better place for
-          # this workaround.
-          "zone.js": [
-              "/".join([host_bin, runfiles, "yarn/installed/node_modules/zone.js/dist/zone.js.d.ts"]),
-          ]
-      },
   })
 
   # If the user gives a tsconfig attribute, the generated file should extend
@@ -142,7 +144,11 @@ ts_library = rule(
                 ]),
                 mandatory=True,),
         "deps":
-            attr.label_list(),
+            attr.label_list(aspects = [module_mappings_aspect]),
+        # Used to determine module mappings, see below.
+        "module_name": attr.string(),
+        "module_root": attr.string(),
+
         # TODO(evanm): make this the default and remove the option.
         "runtime":
             attr.string(default="browser"),

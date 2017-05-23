@@ -16,10 +16,12 @@
 """
 _DEBUG = False
 
-def create_tsconfig(ctx, files, srcs, tsconfig_path,
+load(":common/module_mappings.bzl", "get_module_mappings")
+
+def create_tsconfig(ctx, files, srcs, tsconfig_dir,
                     devmode_manifest=None, tsickle_externs=None, type_blacklisted_declarations=[],
                     out_dir=None, disable_strict_deps=False, allowed_deps=set(),
-                    extra_root_dirs=[]):
+                    extra_root_dirs=[], module_path_prefixes=None, module_roots=None):
   """Creates an object representing the TypeScript configuration
       to run the compiler under Bazel.
 
@@ -27,7 +29,7 @@ def create_tsconfig(ctx, files, srcs, tsconfig_path,
         ctx: the skylark execution context
         files: Labels of all TypeScript compiler inputs
         srcs: Immediate sources being compiled, as opposed to transitive deps.
-        tsconfig_path: where the resulting config will be written; paths will be relative
+        tsconfig_dir: where the resulting config will be written; paths will be relative
             to this folder
         devmode_manifest: path to the manifest file to write for --target=es5
         tsickle_externs: path to write tsickle-generated externs.js.
@@ -39,7 +41,32 @@ def create_tsconfig(ctx, files, srcs, tsconfig_path,
         extra_root_dirs: Extra root dirs to be passed to tsc_wrapped.
   """
   outdir_path = out_dir if out_dir != None else ctx.configuration.bin_dir.path
-  workspace_path = "/".join([".."] * len(tsconfig_path.split("/")))
+  workspace_path = "/".join([".."] * len(tsconfig_dir.split("/")))
+  if module_path_prefixes == None:
+    module_path_prefixes = [
+        "",
+        ctx.configuration.genfiles_dir.path + "/",
+        ctx.configuration.bin_dir.path + "/"
+    ]
+  if module_roots == None:
+    base_path_mappings = ["%s/*" % p for p in [
+        ".",
+        ctx.configuration.genfiles_dir.path,
+        ctx.configuration.bin_dir.path
+    ]]
+    module_roots = {
+        "*": base_path_mappings,
+    }
+  module_mappings = get_module_mappings(ctx.label, ctx.attr, srcs = srcs)
+
+  for name, path in module_mappings.items():
+    # Each module name maps to the immediate path, to resolve "index(.d).ts",
+    # or module mappings that directly point to files (like index.d.ts).
+    module_roots[name] = ["%s%s" % (p, path.replace(".d.ts", "")) for p in module_path_prefixes]
+    if not path.endswith(".d.ts"):
+      # If not just mapping to a single .d.ts file, include a path glob that
+      # maps the entire module root.
+      module_roots["{}/*".format(name)] = ["%s%s/*" % (p, path) for p in module_path_prefixes]
 
   perf_trace_path = "/".join([ctx.configuration.bin_dir.path, ctx.label.package,
                               ctx.label.name + ".trace"])
@@ -80,7 +107,6 @@ def create_tsconfig(ctx, files, srcs, tsconfig_path,
       # Do not type-check the lib.*.d.ts.
       # We think this shouldn't be necessary but haven't figured out why yet
       # and builds are faster with the setting on.
-      # http://b/30709121
       "skipDefaultLibCheck": True,
 
       # Always produce commonjs modules (might get translated to goog.module).
@@ -109,6 +135,12 @@ def create_tsconfig(ctx, files, srcs, tsconfig_path,
           "/".join([workspace_path, ctx.configuration.bin_dir.path]),
       ],
 
+      # Root for non-relative module names
+      "baseUrl": workspace_path,
+
+      # "short name" mappings for npm packages, such as "@angular/core"
+      "paths": module_roots,
+
       "traceResolution": _DEBUG,
       "diagnostics": _DEBUG,
 
@@ -130,6 +162,8 @@ def create_tsconfig(ctx, files, srcs, tsconfig_path,
       # Embed source maps and sources in .js outputs
       "inlineSourceMap": True,
       "inlineSources": True,
+      # Implied by inlineSourceMap: True
+      "sourceMap": False,
 
       # Don't emit decorate/metadata helper code, we provide our own helpers.js.
       "noEmitHelpers": ctx.attr.runtime == "browser",
