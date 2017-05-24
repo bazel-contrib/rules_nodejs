@@ -83,7 +83,6 @@ def _tsc_wrapped_tsconfig(ctx,
   module_roots = {
       "*": [
           "/".join([host_bin, runfiles, "yarn/installed/node_modules/*"]),
-          "/".join([host_bin, runfiles, "yarn/installed/node_modules/@types/*"]),
       ],
       # Workaround https://github.com/Microsoft/TypeScript/issues/15962
       # Needed for Angular to build with Bazel.
