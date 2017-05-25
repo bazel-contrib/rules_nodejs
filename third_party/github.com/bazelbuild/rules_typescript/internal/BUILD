@@ -14,11 +14,4 @@
 
 package(default_visibility = ["//visibility:public"])
 
-load(":node.bzl", "node_binary")
-
-node_binary(
-    name = "tsc_wrapped",
-    data = ["@yarn//installed:node_modules"],
-    # TODO(alexeagle): plug in tsc_wrapped.js instead
-    main = "yarn/installed/node_modules/typescript/lib/tsc.js",
-)
+exports_files(["node_launcher.sh"])
