@@ -45,7 +45,7 @@ def _compile_action(ctx, inputs, outputs, config_file_path):
       inputs=action_inputs,
       outputs=non_externs_files,
       arguments=["-p", config_file_path],
-      executable=ctx.executable._tsc)
+      executable=ctx.executable.tsc)
 
 
 def _devmode_compile_action(ctx, inputs, outputs, config_file_path):
@@ -75,11 +75,7 @@ def _tsc_wrapped_tsconfig(ctx,
   workspace_path = "/".join([".."] * len(tsconfig_json.dirname.split("/")))
   host_bin = "bazel-out/host/bin"
 
-  if ctx.workspace_name == "io_bazel_rules_typescript":
-    runfiles = "internal/tsc_wrapped.runfiles"
-  else:
-    runfiles = "external/io_bazel_rules_typescript/internal/tsc_wrapped.runfiles"
-
+  runfiles = ctx.executable.tsc.short_path + ".runfiles"
   module_roots = {
       "*": [
           "/".join([host_bin, runfiles, "yarn/installed/node_modules/*"]),
@@ -162,7 +158,7 @@ ts_library = rule(
             attr.label(allow_files = True, single_file=True),
         "_additional_d_ts":
             attr.label_list(),
-        "_tsc":
+        "tsc":
             attr.label(
                 default=get_tsc(),
                 single_file=False,
