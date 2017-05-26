@@ -164,9 +164,6 @@ def create_tsconfig(ctx, files, srcs, tsconfig_dir,
       "inlineSources": True,
       # Implied by inlineSourceMap: True
       "sourceMap": False,
-
-      # Don't emit decorate/metadata helper code, we provide our own helpers.js.
-      "noEmitHelpers": ctx.attr.runtime == "browser",
   }
 
   return {
