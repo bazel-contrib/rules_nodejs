@@ -16,10 +16,29 @@
 """
 load(":executables.bzl", "get_node")
 
+def _sources_aspect_impl(target, ctx):
+  result = set()
+  if hasattr(ctx.rule.attr, "deps"):
+    for dep in ctx.rule.attr.deps:
+      if hasattr(dep, "node_sources"):
+        result += dep.node_sources
+  if hasattr(target, "typescript"):
+    result += target.typescript.es5_sources
+  return struct(node_sources = result)
+
+_sources_aspect = aspect(
+    _sources_aspect_impl,
+    attr_aspects = ["deps"],
+)
+
 def _node_binary_impl(ctx):
     node = ctx.file._node
     script = ctx.attr.main
     node_modules = ctx.files._node_modules
+    sources = set()
+    for d in ctx.attr.data:
+      if hasattr(d, "node_sources"):
+        sources += d.node_sources
 
     ctx.template_action(
         template=ctx.file._launcher_template,
@@ -34,7 +53,7 @@ def _node_binary_impl(ctx):
 
     return struct(
         runfiles = ctx.runfiles(
-            files = [node] + node_modules,
+            files = [node] + node_modules + sources.to_list(),
             collect_data = True,
         ),
     )
@@ -45,7 +64,8 @@ node_binary = rule(
         "main": attr.string(),
         "data": attr.label_list(
             allow_files = True,
-            cfg = "data"),
+            cfg = "data",
+            aspects=[_sources_aspect]),
         "_node": attr.label(
             default = get_node(),
             allow_files = True,
