@@ -25,7 +25,7 @@ node_binary(
 # Build our custom compiler using the vanilla one
 ts_library(
   name = "tsc_wrapped",
-  srcs = glob(["*.ts"]),
+  srcs = glob(["*.ts"], exclude = ["*_test.ts"]),
   tsconfig = ":tsconfig.json",
   tsc = ":tsc",
 )
