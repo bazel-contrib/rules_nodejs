@@ -38,7 +38,6 @@ node_binary(
       ":tsc_wrapped",
       "@yarn//installed:node_modules",
     ],
-    # TODO(alexeagle): plug in tsc_wrapped.js instead
-    main = "yarn/installed/node_modules/typescript/lib/tsc.js",
+    main = "io_bazel_rules_typescript/internal/tsc_wrapped/tsc_wrapped.js",
     visibility = ["//visibility:public"],
 )

@@ -78,7 +78,7 @@ else
   fi
 fi
 export RUNFILES
-export NODE_PATH="${RUNFILES}"
+export NODE_PATH="${RUNFILES}":${RUNFILES}/yarn/installed/node_modules
 
 ARGS=()
 NODE_OPTIONS=()
