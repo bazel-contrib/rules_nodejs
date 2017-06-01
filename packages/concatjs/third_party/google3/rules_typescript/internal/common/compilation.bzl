@@ -52,11 +52,15 @@ def _outputs(ctx, label, input_file):
   Returns:
     A three-tuple of files (.closure.js, .js, .d.ts).
   """
-  dot = input_file.short_path.rfind(".")
-  beginning = len(label.package)
-  if label.package:
-    beginning += 1
-  basename = input_file.short_path[beginning:dot]
+  if input_file.path.endswith(".d.ts"):
+    fail("srcs must not contain any type declarations (.d.ts files), " +
+          "but %s contains %s" % (label, input_file.short_path), "srcs")
+  workspace_segments = label.workspace_root.split("/") if label.workspace_root else []
+  package_segments = label.package.split("/") if label.package else []
+  trim = len(workspace_segments) + len(package_segments)
+  basename = "/".join(input_file.short_path.split("/")[trim:])
+  dot = basename.rfind(".")
+  basename = basename[:dot]
   return (ctx.new_file(basename + ".closure.js"),
           ctx.new_file(basename + ".js"),
           ctx.new_file(basename + ".d.ts"))
@@ -108,9 +112,6 @@ def compile_ts(ctx,
     for f in src.files:
       has_sources = True
       if is_library:
-        if f.path.endswith(".d.ts"):
-          fail("srcs must not contain any type declarations (.d.ts files), " +
-               "but %s contains %s" % (src.label, f.short_path), "srcs")
         outs = _outputs(ctx, src.label, f)
         transpiled_closure_js += [outs[0]]
         transpiled_devmode_js += [outs[1]]
