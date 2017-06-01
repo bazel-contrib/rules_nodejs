@@ -14,17 +14,26 @@ export function main() {
 }
 
 class CompilerHost implements ts.CompilerHost {
+
+  /**
+   * Lookup table to answer file stat's without looking on disk.
+   */
+  private knownFiles = new Set<string>();
+
   /**
    * rootDirs relative to the rootDir, eg "bazel-out/local-fastbuild/bin"
    */
   private relativeRoots: string[];
 
-  constructor(
+  constructor(public inputFiles: string[],
       readonly options: ts.CompilerOptions, private delegate: ts.CompilerHost) {
     // Try longest include directories first.
     this.options.rootDirs.sort((a, b) => b.length - a.length);
     this.relativeRoots =
         this.options.rootDirs.map(r => path.relative(this.options.rootDir, r));
+    inputFiles.forEach((f) => {
+      this.knownFiles.add(f);
+    });
   }
 
   /**
@@ -55,6 +64,7 @@ class CompilerHost implements ts.CompilerHost {
     }
     return result;
   }
+
   writeFile(
       fileName: string, content: string, writeByteOrderMark: boolean,
       onError?: (message: string) => void,
@@ -71,10 +81,23 @@ class CompilerHost implements ts.CompilerHost {
     }
   }
 
-  // Delegate everything else to the original compiler host.
+  /**
+   * Performance optimization: don't try to stat files we weren't explicitly
+   * given as inputs.
+   * This also allows us to disable Bazel sandboxing, without accidentally
+   * reading .ts inputs when .d.ts inputs are intended.
+   */
   fileExists(filePath: string): boolean {
-    return this.delegate.fileExists(filePath);
+    // Allow moduleResolution=node to behave normally.
+    // TODO(alexeagle): make a bazelOptions.node_modules_prefix option in the
+    // tsconfig that gives us a specific root where TS can look around the disk.
+    if (filePath.indexOf('/node_modules/') >= 0) {
+      return this.delegate.fileExists(filePath);
+    }
+    return this.knownFiles.has(filePath);
   }
+
+  // Delegate everything else to the original compiler host.
 
   getSourceFile(
       fileName: string, languageVersion: ts.ScriptTarget,
@@ -142,7 +165,7 @@ function runOneBuild(
   const compilerHostDelegate =
       ts.createCompilerHost({target: ts.ScriptTarget.ES5});
 
-  const compilerHost = new CompilerHost(options, compilerHostDelegate);
+  const compilerHost = new CompilerHost(files, options, compilerHostDelegate);
   const program = ts.createProgram(files, options, compilerHost);
 
   function isCompilationTarget(sf: ts.SourceFile): boolean {

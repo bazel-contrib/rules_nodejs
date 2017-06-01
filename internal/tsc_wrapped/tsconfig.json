@@ -4,6 +4,7 @@
       "node"
     ],
     "lib": [
+      "dom",
       "es5",
       "es2015.core",
       "es2015.collection",

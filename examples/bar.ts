@@ -17,3 +17,4 @@
 
 import {greeter} from './foo';
 import {cool} from 'some-lib';
+import * as ts from 'typescript';
