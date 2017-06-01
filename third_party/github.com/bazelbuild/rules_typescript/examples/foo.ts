@@ -17,10 +17,10 @@
 
 export class Greeter {
   constructor(public greeting: string) {}
-  greet() {
-    return '<h1>' + this.greeting + '</h1>';
+  greet(): Promise<string> {
+    return Promise.resolve('<h1>' + this.greeting + '</h1>');
   }
 };
 
 export const greeter = new Greeter('Hello, world!');
-document.body.innerHTML = greeter.greet();
+greeter.greet().then(msg => { document.body.innerHTML = msg; });
