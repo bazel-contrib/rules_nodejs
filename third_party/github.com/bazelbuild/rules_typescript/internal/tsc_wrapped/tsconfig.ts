@@ -118,24 +118,22 @@ export function parseTsconfig(
 
   const bazelOpts: BazelOptions = config.bazelOptions;
   const target = bazelOpts.target;
-  const {options, errors} =
-      // All paths in the compilerOptions will be converted to absolute.
-      ts.convertCompilerOptionsFromJson(
-          config.compilerOptions, path.dirname(tsconfigFile));
+  const {options, errors, fileNames} = ts.parseJsonConfigFileContent(
+    config, host, path.dirname(tsconfigFile));
   if (errors && errors.length) {
     return [null, errors, {target}];
   }
 
-  // The file list in the tsconfig is relative to the tsconfig dir
-  // and aren't transformed by convertCompilerOptionsFromJson.
-  // Transform them to be absolute here.
-  const files = config.files.map(f => {
-    return path.resolve(path.dirname(tsconfigFile), f);
-  });
+  // TypeScript's parseJsonConfigFileContent returns paths that are joined, eg.
+  // /path/to/project/bazel-out/arch/bin/path/to/package/../../../../../../path
+  // We normalize them to remove the intermediate parent directories.
+  // This improves error messages and also matches logic in tsc_wrapped where we
+  // expect normalized paths.
+  const files = fileNames.map(f => path.normalize(f));
 
   // The bazelOpts paths in the tsconfig are relative to
   // options.rootDir (the google3 root) and aren't transformed by
-  // convertCompilerOptionsFromJson (because TypeScript doesn't know
+  // parseJsonConfigFileContent (because TypeScript doesn't know
   // about them). Transform them to also be absolute here.
   bazelOpts.compilationTargetSrc =
       bazelOpts.compilationTargetSrc.map(f => path.resolve(options.rootDir, f));
