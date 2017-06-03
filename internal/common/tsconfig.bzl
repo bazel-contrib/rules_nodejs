@@ -141,9 +141,6 @@ def create_tsconfig(ctx, files, srcs, tsconfig_dir,
       # "short name" mappings for npm packages, such as "@angular/core"
       "paths": module_roots,
 
-      "traceResolution": _DEBUG,
-      "diagnostics": _DEBUG,
-
       # Inline const enums.
       "preserveConstEnums": False,
 
@@ -165,6 +162,10 @@ def create_tsconfig(ctx, files, srcs, tsconfig_dir,
       # Implied by inlineSourceMap: True
       "sourceMap": False,
   }
+
+  if _DEBUG:
+    compiler_options["traceResolution"] = True
+    compiler_options["diagnostics"] = True
 
   return {
     "compilerOptions": compiler_options,
