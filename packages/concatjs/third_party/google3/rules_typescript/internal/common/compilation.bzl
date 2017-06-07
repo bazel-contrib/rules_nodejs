@@ -25,7 +25,7 @@ def assert_js_or_typescript_deps(ctx):
           # TODO(plf): Leaving this here for now, but this message does not
           # make sense in opensource.
           "JavaScript library rules (js_library, pinto_library, etc, but " +
-          "also proto_library, soy_js).\n")
+          "also proto_library and some others).\n")
 
 def _collect_transitive_dts(ctx):
   all_deps_declarations = set()
