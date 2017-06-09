@@ -31,7 +31,7 @@ _sources_aspect = aspect(
     attr_aspects = ["deps"],
 )
 
-def _node_binary_impl(ctx):
+def _nodejs_binary_impl(ctx):
     node = ctx.file._node
     script = ctx.attr.main
     node_modules = ctx.files._node_modules
@@ -58,8 +58,8 @@ def _node_binary_impl(ctx):
         ),
     )
 
-node_binary = rule(
-    _node_binary_impl,
+nodejs_binary = rule(
+    _nodejs_binary_impl,
     attrs = {
         "main": attr.string(),
         "data": attr.label_list(
