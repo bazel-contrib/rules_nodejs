@@ -13,10 +13,10 @@
 # limitations under the License.
 
 load("//:defs.bzl", "ts_library")
-load("//internal:node.bzl", "node_binary")
+load("//internal:node.bzl", "nodejs_binary")
 
 # Vanilla typescript compiler: run the tsc.js binary distributed by TypeScript
-node_binary(
+nodejs_binary(
     name = "tsc",
     data = ["@yarn//installed:node_modules"],
     main = "yarn/installed/node_modules/typescript/lib/tsc.js",
@@ -32,7 +32,7 @@ ts_library(
 
 # Other ts_library rules will use this custom compiler, which calls the
 # TypeScript APIs to act like tsc, but adds capabilities like Bazel workers.
-node_binary(
+nodejs_binary(
     name = "tsc_wrapped_bin",
     data = [
       ":tsc_wrapped",
