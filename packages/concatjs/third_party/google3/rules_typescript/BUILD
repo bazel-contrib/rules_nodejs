@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# The node_modules directory is created by `yarn install`
+# The node_modules directory is created by `yarn install` or `npm install`
 # WORKAROUND for https://github.com/bazelbuild/bazel/issues/374#issuecomment-296217940
 # see notes in internal/yarn_install.bzl
 filegroup(

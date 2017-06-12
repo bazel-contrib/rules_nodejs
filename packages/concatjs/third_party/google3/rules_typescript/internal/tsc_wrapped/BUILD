@@ -18,8 +18,8 @@ load("//internal:node.bzl", "nodejs_binary")
 # Vanilla typescript compiler: run the tsc.js binary distributed by TypeScript
 nodejs_binary(
     name = "tsc",
-    data = ["@yarn//installed:node_modules"],
-    main = "yarn/installed/node_modules/typescript/lib/tsc.js",
+    data = ["@npm//installed:node_modules"],
+    main = "npm/installed/node_modules/typescript/lib/tsc.js",
 )
 
 # Build our custom compiler using the vanilla one
@@ -36,7 +36,7 @@ nodejs_binary(
     name = "tsc_wrapped_bin",
     data = [
       ":tsc_wrapped",
-      "@yarn//installed:node_modules",
+      "@npm//installed:node_modules",
     ],
     main = "io_bazel_rules_typescript/internal/tsc_wrapped/tsc_wrapped.js",
     visibility = ["//visibility:public"],
