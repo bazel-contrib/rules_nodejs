@@ -88,7 +88,7 @@ def create_tsconfig(ctx, files, srcs, tsconfig_dir,
       # Substitute commonjs with googmodule.
       "googmodule": ctx.attr.runtime == "browser",
       "es5Mode": devmode_manifest != None,
-      "manifest": devmode_manifest.path if devmode_manifest else "",
+      "manifest": devmode_manifest if devmode_manifest else "",
       # Explicitly tell the compiler which sources we're interested in (emitting
       # and type checking).
       "compilationTargetSrc": [s.path for s in srcs],
@@ -102,7 +102,8 @@ def create_tsconfig(ctx, files, srcs, tsconfig_dir,
   compiler_options = {
       # De-sugar to this language level
       "target": "es5" if devmode_manifest or ctx.attr.runtime == "nodejs" else "es6",
-      "downlevelIteration": devmode_manifest != None or ctx.attr.runtime == "nodejs",
+      # Has no effect in closure/ES2015 mode. Always true just for simplicity.
+      "downlevelIteration": True,
 
       # Do not type-check the lib.*.d.ts.
       # We think this shouldn't be necessary but haven't figured out why yet
