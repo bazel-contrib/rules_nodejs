@@ -166,7 +166,7 @@ def compile_ts(ctx,
         compilation_inputs,
         srcs,
         jsx_factory=jsx_factory,
-        devmode_manifest=devmode_manifest,
+        devmode_manifest=devmode_manifest.path,
         allowed_deps=allowed_deps)
     inputs = compilation_inputs + [tsconfig_json_es5]
     outputs = (
