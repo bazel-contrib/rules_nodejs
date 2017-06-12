@@ -71,7 +71,7 @@ nodejs_binary = rule(
             allow_files = True,
             single_file = True),
         "_node_modules": attr.label(
-            default = Label("@yarn//installed:node_modules")),
+            default = Label("@npm//installed:node_modules")),
         "_launcher_template": attr.label(
             default = Label("//internal:node_launcher.sh"),
             allow_files = True,

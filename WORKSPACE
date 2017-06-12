@@ -21,6 +21,7 @@ load("//:defs.bzl", "node_repositories", "yarn_install")
 node_repositories()
 
 # Install yarn, and run yarn install to create node_modules.
-# After this is run, label @yarn//installed:node_modules will exist.
+# After this is run, label @npm//installed:node_modules will exist.
 # (But your rules can reference //:node_modules instead)
+# Note, you could use npm_install as an alternative
 yarn_install(package_json = "//:package.json")
