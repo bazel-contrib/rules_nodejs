@@ -8,9 +8,7 @@ export function main() {
   const args = process.argv.slice(2);
   if (args.length === 0) throw new Error('Not enough arguments');
   const result = runOneBuild(args);
-  result.then((s) => {
-    process.exit(s ? 0 : 1);
-  });
+  process.exit(result ? 0 : 1);
 }
 
 class CompilerHost implements ts.CompilerHost {
@@ -154,12 +152,12 @@ function format(target: string, diagnostics: ts.Diagnostic[]): string {
  * Any encountered errors are written to stderr.
  */
 function runOneBuild(
-    args: string[], inputs?: {[path: string]: string}): Promise<boolean> {
+    args: string[], inputs?: {[path: string]: string}): boolean {
   const tsconfigFile = args[1];
   const [parsed, errors, {target}] = parseTsconfig(tsconfigFile);
   if (errors) {
     console.error(format(target, errors));
-    return Promise.resolve(false);
+    return false;
   }
   const {options, bazelOpts, files} = parsed;
   const compilerHostDelegate =
@@ -183,7 +181,7 @@ function runOneBuild(
   }
   if (diagnostics.length > 0) {
     console.error(format(bazelOpts.target, diagnostics));
-    return Promise.resolve(false);
+    return false;
   }
   for (const sf of program.getSourceFiles().filter(isCompilationTarget)) {
     const emitResult = program.emit(sf);
@@ -191,9 +189,9 @@ function runOneBuild(
   }
   if (diagnostics.length > 0) {
     console.error(format(bazelOpts.target, diagnostics));
-    return Promise.resolve(false);
+    return false;
   }
-  return Promise.resolve(true);
+  return true;
 }
 
 if (require.main === module) {
