@@ -86,14 +86,14 @@ def _tsc_wrapped_tsconfig(ctx,
 
   module_roots = {
       "*": [
-          "/".join([host_bin, runfiles, "yarn/installed/node_modules/*"]),
+          "/".join([host_bin, runfiles, "npm/installed/node_modules/*"]),
       ],
       # Workaround https://github.com/Microsoft/TypeScript/issues/15962
       # Needed for Angular to build with Bazel.
       # TODO(alexeagle): fix the bug upstream or find a better place for
       # this workaround.
       "zone.js": [
-          "/".join([host_bin, runfiles, "yarn/installed/node_modules/zone.js/dist/zone.js.d.ts"]),
+          "/".join([host_bin, runfiles, "npm/installed/node_modules/zone.js/dist/zone.js.d.ts"]),
       ]
   }
 
@@ -104,7 +104,7 @@ def _tsc_wrapped_tsconfig(ctx,
   config["compilerOptions"].update({
       "typeRoots": ["/".join([
           workspace_path, host_bin, runfiles,
-          "yarn/installed/node_modules/@types"]
+          "npm/installed/node_modules/@types"]
       )],
   })
 
@@ -180,7 +180,7 @@ ts_library = rule(
                 allow_files=True,
                 executable=True,
                 cfg="host",),
-        "_node_modules": attr.label(default = Label("@yarn//installed:node_modules"))
+        "_node_modules": attr.label(default = Label("@npm//installed:node_modules"))
     },
     fragments=["js"],
     outputs={"_js_typings": "_%{name}_js_typings.d.ts"},)

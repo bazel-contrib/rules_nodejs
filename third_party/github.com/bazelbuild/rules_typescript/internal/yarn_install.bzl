@@ -21,8 +21,8 @@ We download a specific version of Yarn to ensure a hermetic build.
 Then, using the package.json file supplied by the user, we call `yarn install`
 to create or update a node_modules folder next to the package.json.
 Finally we create a workspace that symlinks to the user's project.
-We name this workspace "yarn" so there will be targets like
-@yarn//installed:node_modules
+We name this workspace "npm" so there will be targets like
+@npm//installed:node_modules
 
 Within the user's project, they can refer to //:node_modules
 but from other repositories, like the @io_bazel_rules_typescript
@@ -37,8 +37,8 @@ def _yarn_install_impl(ctx):
 set -ex
 ROOT=$(dirname $1)
 NODE=$2
-YARN=$3
-(cd $ROOT; $NODE $YARN install)
+SCRIPT=$3
+(cd $ROOT; $NODE $SCRIPT install)
 """)
   result = ctx.execute(["./yarn_install.sh",
                         ctx.path(ctx.attr.package_json),
@@ -88,5 +88,5 @@ exports_files(["bin/yarn"])
 """,
     )
 
-    _yarn_install(name = "yarn", package_json = package_json)
+    _yarn_install(name = "npm", package_json = package_json)
 
