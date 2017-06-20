@@ -12,14 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Install Yarn and run `yarn install` when the user calls yarn_install() from their WORKSPACE.
+"""Install Yarn and run `yarn check` when the user calls yarn_check() from their
+WORKSPACE.
 
-Yarn is a package manager that downloads dependencies. Yarn is an improvement over the `npm` tool in
-speed and correctness.
+Yarn is a package manager that downloads dependencies. Yarn is an improvement
+over the `npm` tool in speed and correctness.
 
 We download a specific version of Yarn to ensure a hermetic build.
-Then, using the package.json file supplied by the user, we call `yarn install`
-to create or update a node_modules folder next to the package.json.
+Then, using the yarn.lock file supplied by the user, we call `yarn check`
+to verify the node_modules folder next to the package.json.
 Finally we create a workspace that symlinks to the user's project.
 We name this workspace "npm" so there will be targets like
 @npm//installed:node_modules
@@ -31,22 +32,23 @@ repository, we also need to find some labels under node_modules.
 
 load(":executables.bzl", "get_node")
 
-def _yarn_install_impl(ctx):
-  project_dir = ctx.path(ctx.attr.package_json).dirname
-  ctx.file("yarn_install.sh", """#!/bin/bash
+def _yarn_check_impl(ctx):
+  project_dir = ctx.path(ctx.attr.yarn_lock).dirname
+  ctx.file("yarn_check.sh", """#!/bin/bash
 set -ex
 ROOT=$(dirname $1)
 NODE=$2
 SCRIPT=$3
-(cd $ROOT; $NODE $SCRIPT install)
+(cd $ROOT; $NODE $SCRIPT check --integrity)
 """)
-  result = ctx.execute(["./yarn_install.sh",
-                        ctx.path(ctx.attr.package_json),
+  result = ctx.execute(["./yarn_check.sh",
+                        ctx.path(ctx.attr.yarn_lock),
                         ctx.path(ctx.attr._node),
                         ctx.path(ctx.attr._yarn)])
   if result.return_code > 0:
     print(result.stdout)
     print(result.stderr)
+    print("Maybe you need to run 'bazel run @yarn//:yarn'")
 
   # WORKAROUND for https://github.com/bazelbuild/bazel/issues/374#issuecomment-296217940
   # Bazel does not allow labels to start with `@`, so when installing eg. the `@types/node`
@@ -64,18 +66,18 @@ SCRIPT=$3
   ctx.symlink(project_dir, "installed")
 
 
-_yarn_install = repository_rule(
-    _yarn_install_impl,
+_yarn_check = repository_rule(
+    _yarn_check_impl,
     attrs = {
-        "package_json": attr.label(),
+        "yarn_lock": attr.label(),
         "_node": attr.label(default = get_node(), allow_files=True, single_file=True),
-        "_yarn": attr.label(default = Label("@yarn_pkg//:bin/yarn.js")),
+        "_yarn": attr.label(default = Label("@yarn//:bin/yarn.js")),
     },
 )
 
-def yarn_install(package_json):
+def yarn_check(yarn_lock):
     native.new_http_archive(
-        name = "yarn_pkg",
+        name = "yarn",
         urls = [
             "http://mirror.bazel.build/github.com/yarnpkg/yarn/releases/download/v0.22.0/yarn-v0.22.0.tar.gz",
             "https://github.com/yarnpkg/yarn/releases/download/v0.22.0/yarn-v0.22.0.tar.gz",
@@ -85,8 +87,10 @@ def yarn_install(package_json):
         build_file_content = """
 package(default_visibility = ["//visibility:public"])
 exports_files(["bin/yarn"])
+alias(name = "yarn", actual = ":bin/yarn")
 """,
     )
 
-    _yarn_install(name = "npm", package_json = package_json)
-
+    # This repo is named "npm" since that's the namespace of packages.
+    # See explanation at the top of this file.
+    _yarn_check(name = "npm", yarn_lock = yarn_lock)
