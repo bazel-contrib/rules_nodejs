@@ -8,7 +8,7 @@ The TypeScript rules integrate the TypeScript compiler with Bazel.
 
 First, install a current Bazel distribution.
 
-Create a `BUILD` file in your project root:
+Create a `BUILD.bazel` file in your project root:
 
 ```python
 package(default_visibility = ["//visibility:public"])
@@ -17,9 +17,6 @@ exports_files(["tsconfig.json"])
 # NOTE: this will move to node_modules/BUILD in a later release
 filegroup(name = "node_modules", srcs = glob(["node_modules/**/*"]))
 ```
-
-> Note, on Mac file paths are case-insensitive, so make sure there isn't already
-a `build` folder in the project root.
 
 Next create a `WORKSPACE` file in your project root (or edit the existing one)
 containing:
@@ -30,14 +27,20 @@ load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 git_repository(
     name = "io_bazel_rules_typescript",
     remote = "https://github.com/bazelbuild/rules_typescript.git",
-    tag = "0.0.1",
+    tag = "0.0.3", # check for the latest tag when you install
 )
 
-load("@io_bazel_rules_typescript//:defs.bzl", "node_repositories", "yarn_install")
+load("@io_bazel_rules_typescript//:defs.bzl", "node_repositories")
 
-node_repositories()
-yarn_install(package_json = "//:package.json")
+node_repositories(package_json = "//:package.json")
+```
 
+We recommend using the Yarn package manager, because it has a built-in command
+to verify the integrity of your `node_modules` directory.
+You can run the version Bazel has already installed:
+
+```sh
+$ bazel run @yarn//:yarn
 ```
 
 ## Usage
@@ -58,9 +61,6 @@ ts_library(
     tsconfig = "//:tsconfig.json",
 )
 ```
-
-(Note that you may want to name the ts_library target the same as the enclosing
-directory, making it the default target in the package.)
 
 Then build it:
 

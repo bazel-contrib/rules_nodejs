@@ -14,14 +14,16 @@
 
 workspace(name = "io_bazel_rules_typescript")
 
-load("//:defs.bzl", "node_repositories", "yarn_check")
+load("//:defs.bzl", "node_repositories")
 
 # Install a hermetic version of node.
-# After this is run, label @io_bazel_rules_typescript_node//:bin/node will exist
-node_repositories()
-
-# Install yarn, and check the node_modules directory.
-# After this is run, label @npm//installed:node_modules will exist.
-# (But your rules can reference //:node_modules instead)
-# Note, you could use npm_install as an alternative
-yarn_check(yarn_lock = "//:yarn.lock")
+# After this is run, these labels will be available:
+# - The nodejs install:
+#   @io_bazel_rules_typescript_node//:bin/node
+#   @io_bazel_rules_typescript_node//:bin/npm
+# - The yarn package manager:
+#   @yarn//:yarn
+# - An external repo symlink to the installed packages:
+#   @npm//installed:node_modules
+#   (User's rules can reference //:node_modules instead)
+node_repositories(package_json = "//:package.json")
