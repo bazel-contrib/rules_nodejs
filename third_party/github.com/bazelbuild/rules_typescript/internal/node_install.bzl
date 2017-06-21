@@ -17,6 +17,14 @@
 We fetch a specific version of Node, to ensure builds are hermetic.
 We then create a repository @io_bazel_rules_typescript_node which provides the
 node binary to other rules.
+
+Finally we create a workspace that symlinks to the user's project.
+We name this workspace "npm" so there will be targets like
+@npm//installed:node_modules
+
+Within the user's project, they can refer to //:node_modules
+but from other repositories, like the @io_bazel_rules_typescript
+repository, we also need to find some labels under node_modules.
 """
 
 def _node_impl(repository_ctx):
@@ -66,5 +74,47 @@ exports_files([
 
 _node_repo = repository_rule(_node_impl, attrs = {})
 
-def node_repositories():
+def _symlink_node_modules_impl(ctx):
+  # WORKAROUND for https://github.com/bazelbuild/bazel/issues/374#issuecomment-296217940
+  # Bazel does not allow labels to start with `@`, so when installing eg. the `@types/node`
+  # module from the @types scoped package, you'll get an error.
+  # The workaround is to move the rule up one level, from /node_modules to the project root.
+  # For now, users must instead write their own /BUILD file on setup.
+
+  # ctx.symlink(project_dir.get_child("node_modules"), "node_modules")
+  # add a BUILD file inside the user's node_modules project folder
+  # ctx.file("installed/BUILD", """
+  #   filegroup(name = "node_modules", srcs = glob(["node_modules/**/*"]), visibility = ["//visibility:public"])
+  # """)
+
+  # Instead symlink the root directory from the user's workspace
+  project_dir = ctx.path(ctx.attr.package_json).dirname
+  ctx.symlink(project_dir, "installed")
+
+_symlink_node_modules = repository_rule(
+    _symlink_node_modules_impl,
+    attrs = { "package_json": attr.label() },
+)
+
+def node_repositories(package_json):
   _node_repo(name = "io_bazel_rules_typescript_node")
+
+  # Yarn is a package manager that downloads dependencies. Yarn is an improvement over the `npm` tool in
+  # speed and correctness. We download a specific version of Yarn to ensure a hermetic build.
+  native.new_http_archive(
+      name = "yarn",
+      urls = [
+          "http://mirror.bazel.build/github.com/yarnpkg/yarn/releases/download/v0.22.0/yarn-v0.22.0.tar.gz",
+          "https://github.com/yarnpkg/yarn/releases/download/v0.22.0/yarn-v0.22.0.tar.gz",
+      ],
+      strip_prefix = "dist",
+      type = "tar.gz",
+      build_file_content = """
+package(default_visibility = ["//visibility:public"])
+exports_files(["bin/yarn", "bin/yarn.js"])
+alias(name = "yarn", actual = ":bin/yarn")
+""",
+  )
+
+  # This repo is named "npm" since that's the namespace of packages.
+  _symlink_node_modules(name = "npm", package_json = package_json)
