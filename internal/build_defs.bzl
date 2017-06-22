@@ -45,21 +45,21 @@ def _compile_action(ctx, inputs, outputs, config_file_path):
       inputs=action_inputs,
       outputs=non_externs_files,
       arguments=["-p", config_file_path],
-      executable=ctx.executable.tsc)
+      executable=ctx.executable.compiler)
 
 
 def _devmode_compile_action(ctx, inputs, outputs, config_file_path):
   _compile_action(ctx, inputs, outputs, config_file_path)
 
-def _tsc_wrapped_tsconfig(ctx,
-                          files,
-                          srcs,
-                          devmode_manifest=None,
-                          tsickle_externs=None,
-                          type_blacklisted_declarations=[],
-                          allowed_deps=set(),
-                          jsx_factory=None,
-                          ngc_out=[]):
+def tsc_wrapped_tsconfig(ctx,
+                         files,
+                         srcs,
+                         devmode_manifest=None,
+                         tsickle_externs=None,
+                         type_blacklisted_declarations=[],
+                         allowed_deps=set(),
+                         jsx_factory=None,
+                         ngc_out=[]):
   variant = ""
   if devmode_manifest: variant += "_es5"
   tsconfig_json = ctx.new_file(ctx.label.name + variant + "_tsconfig.json")
@@ -75,13 +75,13 @@ def _tsc_wrapped_tsconfig(ctx,
   workspace_path = "/".join([".."] * len(tsconfig_json.dirname.split("/")))
   host_bin = "bazel-out/host/bin"
 
-  runfiles = ctx.executable.tsc.short_path + ".runfiles"
+  runfiles = ctx.executable.compiler.short_path + ".runfiles"
   # When building within this repo, the executable comes from the local path
   # like bazel-bin/internal/tsc_wrapped/tsc.runfiles
   # But when building in some user's repo that depends on this one, the path in
   # that repo has extra segments to point into Bazel's "external" directory.
   # like bazel-bin/external/io_bazel_rules_typescript/internal/tsc_wrapped/tsc.runfiles
-  if ctx.workspace_name != "io_bazel_rules_typescript":
+  if ctx.executable.compiler.short_path.startswith(".."):
     runfiles = "/".join(["external/io_bazel_rules_typescript", runfiles])
 
   module_roots = {
@@ -138,7 +138,7 @@ def _ts_library_impl(ctx):
 
   return compile_ts(ctx, is_library=True, compile_action=_compile_action,
                     devmode_compile_action=_devmode_compile_action,
-                    tsc_wrapped_tsconfig=_tsc_wrapped_tsconfig)
+                    tsc_wrapped_tsconfig=tsc_wrapped_tsconfig)
 
 ts_library = rule(
     _ts_library_impl,
@@ -166,7 +166,7 @@ ts_library = rule(
             attr.label(allow_files = True, single_file=True),
         "_additional_d_ts":
             attr.label_list(),
-        "tsc":
+        "compiler":
             attr.label(
                 default=get_tsc(),
                 single_file=False,
