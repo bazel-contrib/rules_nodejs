@@ -78,7 +78,10 @@ else
   fi
 fi
 export RUNFILES
-export NODE_PATH="${RUNFILES}":${RUNFILES}/npm/installed/node_modules
+# TODO(alexeagle): don't hard-code rules_typescript/internal here, generalize
+# by walking up the dependency graph and finding external packages that want to
+# contribute js files at runtime.
+export NODE_PATH="${RUNFILES}":${RUNFILES}/npm/installed/node_modules:${RUNFILES}/io_bazel_rules_typescript/internal
 
 ARGS=()
 NODE_OPTIONS=()
