@@ -27,7 +27,10 @@ ts_library(
   name = "tsc_wrapped",
   srcs = glob(["*.ts"], exclude = ["*_test.ts"]),
   tsconfig = ":tsconfig.json",
-  tsc = ":tsc",
+  compiler = ":tsc",
+  module_name = "tsc_wrapped",
+  module_root = "index.d.ts",
+  visibility = ["//visibility:public"], # Should just be build_bazel_rules_angular
 )
 
 # Other ts_library rules will use this custom compiler, which calls the

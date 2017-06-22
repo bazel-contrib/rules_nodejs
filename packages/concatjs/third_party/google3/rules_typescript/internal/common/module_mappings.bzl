@@ -58,6 +58,8 @@ def get_module_mappings(label, attrs, srcs = []):
     if not mn:
       mn = label.name
     mr = label.package
+    if label.workspace_root:
+      mr = "%s/%s" % (label.workspace_root, mr)
     if attrs.module_root and attrs.module_root != ".":
       mr = "%s/%s" % (mr, attrs.module_root)
       # Validate that sources are underneath the module root.
