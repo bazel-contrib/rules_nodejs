@@ -88,6 +88,12 @@ export interface BazelOptions {
    * "TS1234:regexp". If empty, compilation is expected to succeed.
    */
   expectedDiagnostics: string[];
+
+  /**
+   * To support node_module resolution, allow TypeScript to make arbitrary
+   * file system access to paths under this prefix.
+   */
+  nodeModulesPrefix: string;
 }
 
 export interface ParsedTsConfig {
