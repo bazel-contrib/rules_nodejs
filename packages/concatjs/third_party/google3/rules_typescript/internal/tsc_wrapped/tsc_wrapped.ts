@@ -2,14 +2,28 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as ts from 'typescript';
 
-import {parseTsconfig} from './tsconfig';
+import {CachedFileLoader, FileCache, FileLoader, UncachedFileLoader} from './file_cache';
+import {BazelOptions, parseTsconfig} from './tsconfig';
+import {debug, log, runAsWorker, runWorkerLoop} from './worker';
 
-export function main() {
-  const args = process.argv.slice(2);
-  if (args.length === 0) throw new Error('Not enough arguments');
-  const result = runOneBuild(args);
-  process.exit(result ? 0 : 1);
+export function main(args) {
+  if (runAsWorker(args)) {
+    log('Starting TypeScript compiler persistent worker...');
+    runWorkerLoop(runOneBuild);
+    // Note: intentionally don't process.exit() here, because runWorkerLoop
+    // is waiting for async callbacks from node.
+  } else {
+    debug('Running a single build...');
+    if (args.length === 0) throw new Error('Not enough arguments');
+    if (!runOneBuild(args)) {
+      return 1;
+    }
+  }
+  return 0;
 }
+
+// The one FileCache instance used in this process.
+const fileCache = new FileCache<ts.SourceFile>(debug);
 
 class CompilerHost implements ts.CompilerHost {
 
@@ -23,8 +37,10 @@ class CompilerHost implements ts.CompilerHost {
    */
   private relativeRoots: string[];
 
-  constructor(public inputFiles: string[],
-      readonly options: ts.CompilerOptions, private delegate: ts.CompilerHost) {
+  constructor(
+      public inputFiles: string[], readonly options: ts.CompilerOptions,
+      readonly bazelOpts: BazelOptions, private delegate: ts.CompilerHost,
+      private fileLoader: FileLoader) {
     // Try longest include directories first.
     this.options.rootDirs.sort((a, b) => b.length - a.length);
     this.relativeRoots =
@@ -63,6 +79,27 @@ class CompilerHost implements ts.CompilerHost {
     return result;
   }
 
+  /**
+   * Allow moduleResolution=node to behave normally.
+   * Since we don't require users declare their dependencies within node_modules
+   * we may need to read files that weren't explicit inputs.
+   */
+  allowNonHermeticRead(filePath: string) {
+    return this.bazelOpts.nodeModulesPrefix &&
+        path.relative(this.bazelOpts.nodeModulesPrefix, filePath)[0] !== '.';
+  }
+
+  /** Loads a source file from disk (or the cache). */
+  getSourceFile(
+      fileName: string, languageVersion: ts.ScriptTarget,
+      onError?: (message: string) => void) {
+    if (this.allowNonHermeticRead(fileName)) {
+      // TODO(alexeagle): we could add these to the cache also
+      return this.delegate.getSourceFile(fileName, languageVersion, onError);
+    }
+    return this.fileLoader.loadFile(fileName, fileName, languageVersion);
+  }
+
   writeFile(
       fileName: string, content: string, writeByteOrderMark: boolean,
       onError?: (message: string) => void,
@@ -84,28 +121,28 @@ class CompilerHost implements ts.CompilerHost {
    * given as inputs.
    * This also allows us to disable Bazel sandboxing, without accidentally
    * reading .ts inputs when .d.ts inputs are intended.
+   * Note that in worker mode, the file cache will also guard against arbitrary
+   * file reads.
    */
   fileExists(filePath: string): boolean {
     // Allow moduleResolution=node to behave normally.
-    // TODO(alexeagle): make a bazelOptions.node_modules_prefix option in the
-    // tsconfig that gives us a specific root where TS can look around the disk.
-    if (filePath.indexOf('/node_modules/') >= 0) {
-      return this.delegate.fileExists(filePath);
+    if (this.allowNonHermeticRead(filePath) &&
+        this.delegate.fileExists(filePath)) {
+      return true;
     }
     return this.knownFiles.has(filePath);
   }
 
-  // Delegate everything else to the original compiler host.
-
-  getSourceFile(
-      fileName: string, languageVersion: ts.ScriptTarget,
-      onError?: (message: string) => void) {
-    return this.delegate.getSourceFile(fileName, languageVersion, onError);
-  }
-
   getDefaultLibFileName(options: ts.CompilerOptions): string {
+    if (this.bazelOpts.nodeModulesPrefix) {
+      return path.join(
+          this.bazelOpts.nodeModulesPrefix, 'typescript/lib',
+          ts.getDefaultLibFileName({target: ts.ScriptTarget.ES5}));
+    }
     return this.delegate.getDefaultLibFileName(options);
   }
+
+  // Delegate everything else to the original compiler host.
 
   getCanonicalFileName(path: string) {
     return this.delegate.getCanonicalFileName(path);
@@ -153,7 +190,29 @@ function format(target: string, diagnostics: ts.Diagnostic[]): string {
  */
 function runOneBuild(
     args: string[], inputs?: {[path: string]: string}): boolean {
-  const tsconfigFile = args[1];
+  // Reset cache stats.
+  fileCache.resetStats();
+  fileCache.traceStats();
+  let fileLoader: FileLoader;
+  if (inputs) {
+    fileLoader = new CachedFileLoader(fileCache);
+    // Resolve the inputs to absolute paths to match TypeScript internals
+    const resolvedInputs: {[path: string]: string} = {};
+    for (const key of Object.keys(inputs)) {
+      resolvedInputs[path.resolve(key)] = inputs[key];
+    }
+    fileCache.updateCache(resolvedInputs);
+  } else {
+    fileLoader = new UncachedFileLoader();
+  }
+
+  if (args.length !== 1) {
+    console.error('Expected one argument: path to tsconfig.json');
+    return false;
+  }
+  // Strip leading at-signs, used in build_defs.bzl to indicate a params file
+  const tsconfigFile = args[0].replace(/^@+/, '');
+
   const [parsed, errors, {target}] = parseTsconfig(tsconfigFile);
   if (errors) {
     console.error(format(target, errors));
@@ -163,8 +222,11 @@ function runOneBuild(
   const compilerHostDelegate =
       ts.createCompilerHost({target: ts.ScriptTarget.ES5});
 
-  const compilerHost = new CompilerHost(files, options, compilerHostDelegate);
+  const compilerHost = new CompilerHost(
+      files, options, bazelOpts, compilerHostDelegate, fileLoader);
   const program = ts.createProgram(files, options, compilerHost);
+
+  fileCache.traceStats();
 
   function isCompilationTarget(sf: ts.SourceFile): boolean {
     return (bazelOpts.compilationTargetSrc.indexOf(sf.fileName) !== -1);
@@ -195,5 +257,5 @@ function runOneBuild(
 }
 
 if (require.main === module) {
-  main();
+  process.exitCode = main(process.argv.slice(2));
 }

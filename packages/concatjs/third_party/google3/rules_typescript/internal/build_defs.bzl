@@ -41,11 +41,25 @@ def _compile_action(ctx, inputs, outputs, config_file_path):
   if ctx.file.tsconfig:
     action_inputs += [ctx.file.tsconfig]
 
+  # One at-sign makes this a params-file, enabling the worker strategy.
+  # Two at-signs escapes the argument so it's passed through to tsc_wrapped
+  # rather than the contents getting expanded.
+  if ctx.attr.supports_workers:
+    arguments = ["@@" + config_file_path]
+  else:
+    arguments = ["-p", config_file_path]
+
   ctx.action(
-      inputs=action_inputs,
-      outputs=non_externs_files,
-      arguments=["-p", config_file_path],
-      executable=ctx.executable.compiler)
+      progress_message = "Compiling TypeScript (devmode) %s" % ctx,
+      mnemonic = "TypeScriptCompile",
+      inputs = action_inputs,
+      outputs = non_externs_files,
+      arguments = arguments,
+      executable = ctx.executable.compiler,
+      execution_requirements = {
+          "supports-workers": str(int(ctx.attr.supports_workers)),
+      },
+  )
 
 
 def _devmode_compile_action(ctx, inputs, outputs, config_file_path):
@@ -107,6 +121,7 @@ def tsc_wrapped_tsconfig(ctx,
           "npm/installed/node_modules/@types"]
       )],
   })
+  config["bazelOptions"]["nodeModulesPrefix"] = "/".join([host_bin, runfiles, "npm/installed/node_modules"])
 
   # If the user gives a tsconfig attribute, the generated file should extend
   # from the user's tsconfig.
@@ -173,6 +188,7 @@ ts_library = rule(
                 allow_files=True,
                 executable=True,
                 cfg="host",),
+        "supports_workers": attr.bool(default = True),
         "_node":
             attr.label(
                 default=get_node(),
@@ -180,7 +196,7 @@ ts_library = rule(
                 allow_files=True,
                 executable=True,
                 cfg="host",),
-        "_node_modules": attr.label(default = Label("@npm//installed:node_modules"))
+        "_node_modules": attr.label(default = Label("@npm//installed:node_modules")),
     },
     fragments=["js"],
     outputs={"_js_typings": "_%{name}_js_typings.d.ts"},)

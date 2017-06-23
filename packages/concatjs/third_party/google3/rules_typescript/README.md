@@ -78,3 +78,4 @@ At some point, we plan to release a tool similar to [gazelle] to generate the
 BUILD files from your source code.
 
 [gazelle]: https://github.com/bazelbuild/rules_go/tree/master/go/tools/gazelle
+

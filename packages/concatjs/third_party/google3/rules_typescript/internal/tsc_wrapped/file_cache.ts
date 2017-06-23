@@ -36,7 +36,7 @@ export interface LRUCache<CachedType> {
 const MAX_CACHE_SIZE = 300 * (1 << 20 /* 1 MB */);
 
 /**
- * FileCache is a trivial LRU cache for blaze outputs.
+ * FileCache is a trivial LRU cache for bazel outputs.
  *
  * Cache entries are keyed off by an opaque, bazel-supplied digest.
  *
