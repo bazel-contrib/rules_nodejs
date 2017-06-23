@@ -28,6 +28,7 @@ ts_library(
   srcs = glob(["*.ts"], exclude = ["*_test.ts"]),
   tsconfig = ":tsconfig.json",
   compiler = ":tsc",
+  supports_workers = False,
   module_name = "tsc_wrapped",
   module_root = "index.d.ts",
   visibility = ["//visibility:public"], # Should just be build_bazel_rules_angular
@@ -40,7 +41,12 @@ nodejs_binary(
     data = [
       ":tsc_wrapped",
       "@npm//installed:node_modules",
+
+      # Should be @bazel_tools//src/main/protobuf:worker_protocol.proto
+      # see https://github.com/bazelbuild/bazel/issues/3155#issuecomment-308156976
+      "//internal:worker_protocol.proto",
     ],
+    args = ["--node_options=--expose-gc"],
     main = "io_bazel_rules_typescript/internal/tsc_wrapped/tsc_wrapped.js",
     visibility = ["//visibility:public"],
 )
