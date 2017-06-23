@@ -85,8 +85,7 @@ class CompilerHost implements ts.CompilerHost {
    * we may need to read files that weren't explicit inputs.
    */
   allowNonHermeticRead(filePath: string) {
-    return this.bazelOpts.nodeModulesPrefix &&
-        path.relative(this.bazelOpts.nodeModulesPrefix, filePath)[0] !== '.';
+    return filePath.split(path.sep).indexOf('node_modules') != -1;
   }
 
   /** Loads a source file from disk (or the cache). */
@@ -170,6 +169,10 @@ class CompilerHost implements ts.CompilerHost {
 
   trace(s: string): void {
     console.error(s);
+  }
+
+  realpath(s: string): string {
+    return ts.sys.realpath(s);
   }
 }
 
