@@ -185,9 +185,8 @@ def compile_ts(ctx,
     es5_sources = set(tsickle_externs)
     devmode_manifest = None
 
-  # Downstream rules see the .d.ts files produced or declared by this rule
+  # Downstream rules see the .d.ts files produced or declared by this rule.
   declarations = gen_declarations + src_declarations
-
   if not srcs:
     # Re-export sources from deps.
     # TODO(b/30018387): introduce an "exports" attribute.
@@ -195,8 +194,18 @@ def compile_ts(ctx,
       if hasattr(dep, "typescript"):
         declarations += dep.typescript.declarations
 
+  # Construct the list of output files, which are the files that are
+  # always built (including e.g. if you "blaze build :the_target"
+  # directly).  If this is a ts_declaration, add tsickle_externs to the
+  # outputs list to force compilation of d.ts files.  (tsickle externs
+  # are produced by running a compilation over the d.ts file and
+  # extracting type information.)
+  files = set(declarations)
+  if not is_library:
+    files += set(tsickle_externs)
+
   return struct(
-      files=set(declarations),
+      files=files,
       runfiles=ctx.runfiles(
           # Note: don't include files=... here, or they will *always* be built
           # by any dependent rule, regardless of whether it needs them.
