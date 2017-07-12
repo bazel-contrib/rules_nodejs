@@ -52,9 +52,6 @@ def _outputs(ctx, label, input_file):
   Returns:
     A three-tuple of files (.closure.js, .js, .d.ts).
   """
-  if input_file.path.endswith(".d.ts"):
-    fail("srcs must not contain any type declarations (.d.ts files), " +
-          "but %s contains %s" % (label, input_file.short_path), "srcs")
   workspace_segments = label.workspace_root.split("/") if label.workspace_root else []
   package_segments = label.package.split("/") if label.package else []
   trim = len(workspace_segments) + len(package_segments)
@@ -111,19 +108,20 @@ def compile_ts(ctx,
 
     for f in src.files:
       has_sources = True
-      if is_library:
-        outs = _outputs(ctx, src.label, f)
-        transpiled_closure_js += [outs[0]]
-        transpiled_devmode_js += [outs[1]]
-        gen_declarations += [outs[2]]
-      else:
-        if not f.path.endswith(".d.ts"):
+      if not is_library and not f.path.endswith(".d.ts"):
           fail("srcs must contain only type declarations (.d.ts files), " +
                "but %s contains %s" % (src.label, f.short_path), "srcs")
+      if f.path.endswith(".d.ts"):
         src_declarations += [f]
+        continue
+
+      outs = _outputs(ctx, src.label, f)
+      transpiled_closure_js += [outs[0]]
+      transpiled_devmode_js += [outs[1]]
+      gen_declarations += [outs[2]]
 
   if has_sources and ctx.attr.runtime != "nodejs":
-    # Note: setting this variable controls whether sickle is run at all.
+    # Note: setting this variable controls whether tsickle is run at all.
     tsickle_externs = [ctx.new_file(ctx.label.name + ".externs.js")]
 
   transitive_dts = _collect_transitive_dts(ctx)
