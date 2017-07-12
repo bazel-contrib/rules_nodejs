@@ -15,12 +15,14 @@
  * limitations under the License.
  */
 
-export class Greeter {
+import {Polite} from './types';
+
+export class Greeter implements Polite {
   constructor(public greeting: string) {}
   greet(): Promise<string> {
     return Promise.resolve('<h1>' + this.greeting + '</h1>');
   }
-};
+}
 
 export const greeter = new Greeter('Hello, world!');
 greeter.greet().then(msg => { document.body.innerHTML = msg; });
