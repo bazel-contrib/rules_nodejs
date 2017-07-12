@@ -18,7 +18,10 @@ load("//:defs.bzl", "ts_library")
 
 ts_library(
     name = "foo_ts_library",
-    srcs = ["foo.ts"],
+    srcs = [
+        "foo.ts",
+        "types.d.ts",
+    ],
     tsconfig = ":tsconfig.json",
 )
 
