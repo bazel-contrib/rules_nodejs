@@ -96,25 +96,46 @@ _symlink_node_modules = repository_rule(
     attrs = { "package_json": attr.label() },
 )
 
-def node_repositories(package_json):
-  _node_repo(name = "io_bazel_rules_typescript_node")
-
+def _yarn_impl(ctx):
   # Yarn is a package manager that downloads dependencies. Yarn is an improvement over the `npm` tool in
   # speed and correctness. We download a specific version of Yarn to ensure a hermetic build.
-  native.new_http_archive(
-      name = "yarn",
-      urls = [
+  ctx.file("BUILD.bazel", """
+package(default_visibility = ["//visibility:public"])
+exports_files(['yarn.sh'])
+alias(name = "yarn", actual = ":yarn.sh")
+""")
+  ctx.file("yarn.sh", """#!/bin/bash
+ROOT="$(dirname "{}")"
+NODE="{}"
+SCRIPT="{}"
+(cd "$ROOT"; "$NODE" "$SCRIPT" "$@")
+""".format(
+    ctx.path(ctx.attr.package_json),
+    ctx.path(ctx.attr._node),
+    ctx.path("bin/yarn.js")), executable = True)
+  ctx.download_and_extract(
+      [
           "http://mirror.bazel.build/github.com/yarnpkg/yarn/releases/download/v0.22.0/yarn-v0.22.0.tar.gz",
           "https://github.com/yarnpkg/yarn/releases/download/v0.22.0/yarn-v0.22.0.tar.gz",
       ],
-      strip_prefix = "dist",
-      type = "tar.gz",
-      build_file_content = """
-package(default_visibility = ["//visibility:public"])
-exports_files(["bin/yarn", "bin/yarn.js"])
-alias(name = "yarn", actual = ":bin/yarn")
-""",
+      stripPrefix = "dist",
+      sha256 = "e295042279b644f2bc3ea3407a2b2fb417a200d35590b0ec535422d21cf19a09"
   )
+
+load(":executables.bzl", "get_node")
+
+_yarn_repo = repository_rule(
+    _yarn_impl,
+    attrs = {
+        "package_json": attr.label(),
+        "_node": attr.label(default = get_node(), allow_files=True, single_file=True),
+     },
+)
+
+def node_repositories(package_json):
+  _node_repo(name = "io_bazel_rules_typescript_node")
+
+  _yarn_repo(name = "yarn", package_json = package_json)
 
   # This repo is named "npm" since that's the namespace of packages.
   _symlink_node_modules(name = "npm", package_json = package_json)
