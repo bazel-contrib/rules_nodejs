@@ -16,6 +16,7 @@
 """
 
 load(":common/module_mappings.bzl", "module_mappings_aspect")
+load(":common/json_marshal.bzl", "json_marshal")
 
 BASE_ATTRIBUTES = dict()
 
@@ -115,7 +116,7 @@ def compile_ts(ctx,
     devmode_compile_action: function. Creates the compilation action
       for devmode.
     jsx_factory: optional string. Enables overriding jsx pragma.
-    tsc_wrapped_tsconfig: function.
+    tsc_wrapped_tsconfig: function that produces a tsconfig object.
   Returns:
     struct that will be returned by the rule implementation.
   """
@@ -178,27 +179,32 @@ def compile_ts(ctx,
         allowed_deps += dep.typescript.declarations
     allowed_deps += extra_dts_files
 
-    tsconfig_json_es6 = tsc_wrapped_tsconfig(
-        ctx,
-        compilation_inputs,
-        srcs,
-        jsx_factory=jsx_factory,
-        tsickle_externs=tsickle_externs_path,
-        type_blacklisted_declarations=type_blacklisted_declarations,
-        allowed_deps=allowed_deps)
+    tsconfig_json_es6 = ctx.new_file(ctx.label.name + "_tsconfig.json")
+    ctx.file_action(output=tsconfig_json_es6, content=json_marshal(
+        tsc_wrapped_tsconfig(
+            ctx,
+            compilation_inputs,
+            srcs,
+            jsx_factory=jsx_factory,
+            tsickle_externs=tsickle_externs_path,
+            type_blacklisted_declarations=type_blacklisted_declarations,
+            allowed_deps=allowed_deps)))
 
     inputs = compilation_inputs + [tsconfig_json_es6]
     outputs = transpiled_closure_js + tsickle_externs
     compile_action(ctx, inputs, outputs, tsconfig_json_es6.path)
 
     devmode_manifest = ctx.new_file(ctx.label.name + ".es5.MF")
-    tsconfig_json_es5 = tsc_wrapped_tsconfig(
-        ctx,
-        compilation_inputs,
-        srcs,
-        jsx_factory=jsx_factory,
-        devmode_manifest=devmode_manifest.path,
-        allowed_deps=allowed_deps)
+    tsconfig_json_es5 = ctx.new_file(ctx.label.name + "_es5_tsconfig.json")
+    ctx.file_action(output=tsconfig_json_es5, content=json_marshal(
+        tsc_wrapped_tsconfig(
+            ctx,
+            compilation_inputs,
+            srcs,
+            jsx_factory=jsx_factory,
+            devmode_manifest=devmode_manifest.path,
+            allowed_deps=allowed_deps)))
+
     inputs = compilation_inputs + [tsconfig_json_es5]
     outputs = (
         transpiled_devmode_js + gen_declarations + [devmode_manifest])
