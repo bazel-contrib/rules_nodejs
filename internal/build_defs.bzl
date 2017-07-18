@@ -18,7 +18,6 @@
 # pylint: disable=missing-docstring
 load(":common/compilation.bzl", "COMMON_ATTRIBUTES", "compile_ts", "ts_providers_dict_to_struct")
 load(":executables.bzl", "get_tsc", "get_node")
-load(":common/json_marshal.bzl", "json_marshal")
 load(":common/tsconfig.bzl", "create_tsconfig")
 
 def _compile_action(ctx, inputs, outputs, config_file_path):
@@ -73,9 +72,6 @@ def tsc_wrapped_tsconfig(ctx,
                          allowed_deps=set(),
                          jsx_factory=None,
                          **kwargs):
-  variant = ""
-  if devmode_manifest: variant += "_es5"
-  tsconfig_json = ctx.new_file(ctx.label.name + variant + "_tsconfig.json")
 
   # The location of tsconfig.json is interpreted as the root of the project
   # when it is passed to the TS compiler with the `-p` option:
@@ -84,18 +80,11 @@ def tsc_wrapped_tsconfig(ctx,
   # because it's generated in the execution phase. However, our source files are in
   # bazel-foo/ and therefore we need to strip some parent directories for each
   # f.path.
-
-  workspace_path = "/".join([".."] * len(tsconfig_json.dirname.split("/")))
   host_bin = "bazel-out/host/bin"
 
-  runfiles = ctx.executable.compiler.short_path + ".runfiles"
-  # When building within this repo, the executable comes from the local path
-  # like bazel-bin/internal/tsc_wrapped/tsc.runfiles
-  # But when building in some user's repo that depends on this one, the path in
-  # that repo has extra segments to point into Bazel's "external" directory.
-  # like bazel-bin/external/build_bazel_rules_typescript/internal/tsc_wrapped/tsc.runfiles
-  if ctx.executable.compiler.short_path.startswith(".."):
-    runfiles = "/".join(["external/build_bazel_rules_typescript", runfiles])
+  runfiles = "/".join([p for p in [
+      ctx.attr.compiler.label.workspace_root,
+      ctx.executable.compiler.short_path + ".runfiles"] if p])
 
   module_roots = {
       "*": [
@@ -110,11 +99,11 @@ def tsc_wrapped_tsconfig(ctx,
       ]
   }
 
-  config = create_tsconfig(ctx, files, srcs, tsconfig_json.dirname,
+  config = create_tsconfig(ctx, files, srcs,
                            devmode_manifest=devmode_manifest,
                            module_roots=module_roots,
                            **kwargs)
-
+  workspace_path = config["compilerOptions"]["rootDir"]
   config["compilerOptions"].update({
       "typeRoots": ["/".join([
           workspace_path, host_bin, runfiles,
@@ -131,8 +120,7 @@ def tsc_wrapped_tsconfig(ctx,
   if ctx.file.tsconfig:
     config["extends"] = "/".join([workspace_path, ctx.file.tsconfig.path[:-5]])
 
-  ctx.file_action(output=tsconfig_json, content=json_marshal(config))
-  return tsconfig_json
+  return config
 
 # ************ #
 # ts_library   #

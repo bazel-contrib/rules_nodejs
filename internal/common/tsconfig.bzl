@@ -18,11 +18,10 @@ _DEBUG = False
 
 load(":common/module_mappings.bzl", "get_module_mappings")
 
-def create_tsconfig(ctx, files, srcs, tsconfig_dir,
+def create_tsconfig(ctx, files, srcs,
                     devmode_manifest=None, tsickle_externs=None, type_blacklisted_declarations=[],
                     out_dir=None, disable_strict_deps=False, allowed_deps=set(),
-                    extra_root_dirs=[], module_path_prefixes=None, module_roots=None,
-                    ngc_out=[]):
+                    extra_root_dirs=[], module_path_prefixes=None, module_roots=None):
   """Creates an object representing the TypeScript configuration
       to run the compiler under Bazel.
 
@@ -30,8 +29,6 @@ def create_tsconfig(ctx, files, srcs, tsconfig_dir,
         ctx: the skylark execution context
         files: Labels of all TypeScript compiler inputs
         srcs: Immediate sources being compiled, as opposed to transitive deps.
-        tsconfig_dir: where the resulting config will be written; paths will be relative
-            to this folder
         devmode_manifest: path to the manifest file to write for --target=es5
         tsickle_externs: path to write tsickle-generated externs.js.
         type_blacklisted_declarations: types declared in these files will never be
@@ -40,9 +37,18 @@ def create_tsconfig(ctx, files, srcs, tsconfig_dir,
         disable_strict_deps: whether to disable the strict deps check
         allowed_deps: the set of files that code in srcs may depend on (strict deps)
         extra_root_dirs: Extra root dirs to be passed to tsc_wrapped.
-        ngc_out: output files to be produced by the Angular template compiler
   """
   outdir_path = out_dir if out_dir != None else ctx.configuration.bin_dir.path
+  # Callers can choose the filename for the tsconfig, but it must always live
+  # in the output directory corresponding with the label where it's declared.
+  tsconfig_dir = "/".join([p
+      for p in [
+          ctx.bin_dir.path,
+          ctx.label.workspace_root,
+          ctx.label.package
+      ] + ctx.label.name.split("/")[:-1]
+      # Skip empty path segments (eg. workspace_root when in same repo)
+      if p])
   workspace_path = "/".join([".."] * len(tsconfig_dir.split("/")))
   if module_path_prefixes == None:
     module_path_prefixes = [
@@ -170,17 +176,9 @@ def create_tsconfig(ctx, files, srcs, tsconfig_dir,
     compiler_options["traceResolution"] = True
     compiler_options["diagnostics"] = True
 
-  result = {
+  return {
     "compilerOptions": compiler_options,
     "bazelOptions": bazel_options,
     "files": [workspace_path + "/" + f.path for f in files],
     "compileOnSave": False,
   }
-
-  if ngc_out:
-    result["angularCompilerOptions"] = {
-        "genDir": ctx.configuration.genfiles_dir.path,
-        "expectedOut": ngc_out,
-    }
-
-  return result
