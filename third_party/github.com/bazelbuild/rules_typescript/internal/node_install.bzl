@@ -15,7 +15,7 @@
 """Install NodeJS when the user runs node_repositories() from their WORKSPACE.
 
 We fetch a specific version of Node, to ensure builds are hermetic.
-We then create a repository @io_bazel_rules_typescript_node which provides the
+We then create a repository @build_bazel_rules_typescript_node which provides the
 node binary to other rules.
 
 Finally we create a workspace that symlinks to the user's project.
@@ -23,7 +23,7 @@ We name this workspace "npm" so there will be targets like
 @npm//installed:node_modules
 
 Within the user's project, they can refer to //:node_modules
-but from other repositories, like the @io_bazel_rules_typescript
+but from other repositories, like the @build_bazel_rules_typescript
 repository, we also need to find some labels under node_modules.
 """
 
@@ -133,7 +133,7 @@ _yarn_repo = repository_rule(
 )
 
 def node_repositories(package_json):
-  _node_repo(name = "io_bazel_rules_typescript_node")
+  _node_repo(name = "build_bazel_rules_typescript_node")
 
   _yarn_repo(name = "yarn", package_json = package_json)
 

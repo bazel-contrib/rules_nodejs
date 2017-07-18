@@ -25,12 +25,12 @@ containing:
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 git_repository(
-    name = "io_bazel_rules_typescript",
+    name = "build_bazel_rules_typescript",
     remote = "https://github.com/bazelbuild/rules_typescript.git",
     tag = "0.0.4", # check for the latest tag when you install
 )
 
-load("@io_bazel_rules_typescript//:defs.bzl", "node_repositories")
+load("@build_bazel_rules_typescript//:defs.bzl", "node_repositories")
 
 node_repositories(package_json = "//:package.json")
 ```
@@ -52,7 +52,7 @@ Create a `BUILD` file next to your sources:
 
 ```
 package(default_visibility=["//visibility:public"])
-load("@io_bazel_rules_typescript//:defs.bzl", "ts_library")
+load("@build_bazel_rules_typescript//:defs.bzl", "ts_library")
 
 ts_library(
     name = "my_code",
