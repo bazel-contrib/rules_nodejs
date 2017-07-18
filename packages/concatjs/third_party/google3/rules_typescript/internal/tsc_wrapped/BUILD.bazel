@@ -47,6 +47,6 @@ nodejs_binary(
       "//internal:worker_protocol.proto",
     ],
     args = ["--node_options=--expose-gc"],
-    main = "io_bazel_rules_typescript/internal/tsc_wrapped/tsc_wrapped.js",
+    main = "build_bazel_rules_typescript/internal/tsc_wrapped/tsc_wrapped.js",
     visibility = ["//visibility:public"],
 )

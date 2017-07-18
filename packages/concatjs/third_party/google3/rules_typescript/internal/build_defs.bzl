@@ -93,9 +93,9 @@ def tsc_wrapped_tsconfig(ctx,
   # like bazel-bin/internal/tsc_wrapped/tsc.runfiles
   # But when building in some user's repo that depends on this one, the path in
   # that repo has extra segments to point into Bazel's "external" directory.
-  # like bazel-bin/external/io_bazel_rules_typescript/internal/tsc_wrapped/tsc.runfiles
+  # like bazel-bin/external/build_bazel_rules_typescript/internal/tsc_wrapped/tsc.runfiles
   if ctx.executable.compiler.short_path.startswith(".."):
-    runfiles = "/".join(["external/io_bazel_rules_typescript", runfiles])
+    runfiles = "/".join(["external/build_bazel_rules_typescript", runfiles])
 
   module_roots = {
       "*": [

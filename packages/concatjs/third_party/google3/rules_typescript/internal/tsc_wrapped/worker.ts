@@ -27,7 +27,7 @@ const workerpb = (function loadWorkerPb() {
   // This doesn't work due to a Bazel bug, see comments in build_defs.bzl
   // let protoPath =
   // 'external/bazel_tools/src/main/protobuf/worker_protocol.proto';
-  let protoPath = 'io_bazel_rules_typescript/internal/worker_protocol.proto';
+  let protoPath = 'build_bazel_rules_typescript/internal/worker_protocol.proto';
 
   const protoNamespace = protobufjs.loadProtoFile({
     // RUNFILES env includes the workspace_root, see
