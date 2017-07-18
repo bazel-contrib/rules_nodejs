@@ -100,6 +100,7 @@ export interface ParsedTsConfig {
   options: ts.CompilerOptions;
   bazelOpts: BazelOptions;
   files: string[];
+  config: {};
 }
 
 /**
@@ -148,5 +149,5 @@ export function parseTsconfig(
   bazelOpts.typeBlackListPaths =
       bazelOpts.typeBlackListPaths.map(f => path.resolve(options.rootDir, f));
 
-  return [{options, bazelOpts, files}, null, {target}];
+  return [{options, bazelOpts, files, config}, null, {target}];
 }

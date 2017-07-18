@@ -27,7 +27,7 @@ load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 git_repository(
     name = "io_bazel_rules_typescript",
     remote = "https://github.com/bazelbuild/rules_typescript.git",
-    tag = "0.0.3", # check for the latest tag when you install
+    tag = "0.0.4", # check for the latest tag when you install
 )
 
 load("@io_bazel_rules_typescript//:defs.bzl", "node_repositories")
@@ -76,6 +76,9 @@ If you'd like a "watch mode", try https://github.com/bazelbuild/bazel-watcher
 
 At some point, we plan to release a tool similar to [gazelle] to generate the
 BUILD files from your source code.
+
+In the meantime, we suggest associating the `.bazel` extension with Python in
+your editor, so that you get useful syntax highlighting.
 
 [gazelle]: https://github.com/bazelbuild/rules_go/tree/master/go/tools/gazelle
 

@@ -15,6 +15,39 @@
 """Used for compilation by the different implementations of build_defs.bzl.
 """
 
+load(":common/module_mappings.bzl", "module_mappings_aspect")
+
+BASE_ATTRIBUTES = dict()
+
+# Attributes shared by any typescript-compatible rule (ts_library, ng_module)
+COMMON_ATTRIBUTES = dict(BASE_ATTRIBUTES, **{
+    "deps": attr.label_list(aspects = [
+      module_mappings_aspect,
+    ]),
+    "data": attr.label_list(
+        default = [],
+        allow_files = True,
+        cfg = "data",
+    ),
+    # TODO(evanm): make this the default and remove the option.
+    "runtime": attr.string(default="browser"),
+    # Used to determine module mappings
+    "module_name": attr.string(),
+    "module_root": attr.string(),
+    # TODO(radokirov): remove this attr when clutz is stable enough to consume
+    # any closure JS code.
+    "runtime_deps": attr.label_list(
+        default = [],
+        providers = ["js"],
+    ),
+    # Override _additional_d_ts to specify google3 stdlibs
+    "_additional_d_ts": attr.label_list(
+        allow_files = True,
+    ),
+    # Whether to generate externs.js from any "declare" statement.
+    "generate_externs": attr.bool(default = True),
+})
+
 # TODO(plf): Enforce this at analysis time.
 def assert_js_or_typescript_deps(ctx):
   for dep in ctx.attr.deps:
@@ -202,9 +235,9 @@ def compile_ts(ctx,
   if not is_library:
     files += set(tsickle_externs)
 
-  return struct(
-      files=files,
-      runfiles=ctx.runfiles(
+  return {
+      "files": files,
+      "runfiles": ctx.runfiles(
           # Note: don't include files=... here, or they will *always* be built
           # by any dependent rule, regardless of whether it needs them.
           # But these attributes are needed to pass along any input runfiles:
@@ -212,19 +245,29 @@ def compile_ts(ctx,
           collect_data=True,
       ),
       # TODO(martinprobst): Prune transitive deps, only re-export what's needed.
-      typescript=struct(
-          declarations=declarations,
-          transitive_declarations=transitive_decls,
-          es6_sources=es6_sources,
-          es5_sources=es5_sources,
-          devmode_manifest=devmode_manifest,
-          js_typings=ctx.outputs._js_typings,
-          type_blacklisted_declarations=type_blacklisted_declarations,
-          tsickle_externs=tsickle_externs,
-      ),
+      "typescript": {
+          "declarations": declarations,
+          "transitive_declarations": transitive_decls,
+          "es6_sources": es6_sources,
+          "es5_sources": es5_sources,
+          "devmode_manifest": devmode_manifest,
+          "type_blacklisted_declarations": type_blacklisted_declarations,
+          "tsickle_externs": tsickle_externs,
+      },
       # Expose the tags so that a Skylark aspect can access them.
-      tags=ctx.attr.tags,
-      instrumented_files=struct(
-          extensions=["ts"],
-          source_attributes=["srcs"],
-          dependency_attributes=["deps", "runtime_deps"]))
+      "tags": ctx.attr.tags,
+      "instrumented_files": {
+          "extensions": ["ts"],
+          "source_attributes": ["srcs"],
+          "dependency_attributes": ["deps", "runtime_deps"],
+      },
+  }
+
+# Converts a dict to a struct, recursing into a single level of nested dicts.
+# This allows users of compile_ts to modify or augment the returned dict before
+# converting it to an immutable struct.
+def ts_providers_dict_to_struct(d):
+  for key, value in d.items():
+    if type(value) == type({}):
+      d[key] = struct(**value)
+  return struct(**d)

@@ -21,7 +21,8 @@ load(":common/module_mappings.bzl", "get_module_mappings")
 def create_tsconfig(ctx, files, srcs, tsconfig_dir,
                     devmode_manifest=None, tsickle_externs=None, type_blacklisted_declarations=[],
                     out_dir=None, disable_strict_deps=False, allowed_deps=set(),
-                    extra_root_dirs=[], module_path_prefixes=None, module_roots=None):
+                    extra_root_dirs=[], module_path_prefixes=None, module_roots=None,
+                    ngc_out=[]):
   """Creates an object representing the TypeScript configuration
       to run the compiler under Bazel.
 
@@ -39,6 +40,7 @@ def create_tsconfig(ctx, files, srcs, tsconfig_dir,
         disable_strict_deps: whether to disable the strict deps check
         allowed_deps: the set of files that code in srcs may depend on (strict deps)
         extra_root_dirs: Extra root dirs to be passed to tsc_wrapped.
+        ngc_out: output files to be produced by the Angular template compiler
   """
   outdir_path = out_dir if out_dir != None else ctx.configuration.bin_dir.path
   workspace_path = "/".join([".."] * len(tsconfig_dir.split("/")))
@@ -168,9 +170,17 @@ def create_tsconfig(ctx, files, srcs, tsconfig_dir,
     compiler_options["traceResolution"] = True
     compiler_options["diagnostics"] = True
 
-  return {
+  result = {
     "compilerOptions": compiler_options,
     "bazelOptions": bazel_options,
     "files": [workspace_path + "/" + f.path for f in files],
-    "compileOnSave": False
+    "compileOnSave": False,
   }
+
+  if ngc_out:
+    result["angularCompilerOptions"] = {
+        "genDir": ctx.configuration.genfiles_dir.path,
+        "expectedOut": ngc_out,
+    }
+
+  return result
