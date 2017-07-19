@@ -92,8 +92,7 @@ def tsc_wrapped_tsconfig(ctx,
       ],
       # Workaround https://github.com/Microsoft/TypeScript/issues/15962
       # Needed for Angular to build with Bazel.
-      # TODO(alexeagle): fix the bug upstream or find a better place for
-      # this workaround.
+      # TODO(alexeagle): Remove workaround after upgrade to TS 2.4
       "zone.js": [
           "/".join([host_bin, runfiles, "npm/installed/node_modules/zone.js/dist/zone.js.d.ts"]),
       ]

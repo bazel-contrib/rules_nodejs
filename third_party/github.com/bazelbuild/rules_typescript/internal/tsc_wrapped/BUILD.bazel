@@ -19,7 +19,7 @@ load("//internal:node.bzl", "nodejs_binary")
 nodejs_binary(
     name = "tsc",
     data = ["@npm//installed:node_modules"],
-    main = "npm/installed/node_modules/typescript/lib/tsc.js",
+    entry_point = "npm/installed/node_modules/typescript/lib/tsc.js",
 )
 
 # Build our custom compiler using the vanilla one
@@ -47,6 +47,6 @@ nodejs_binary(
       "//internal:worker_protocol.proto",
     ],
     args = ["--node_options=--expose-gc"],
-    main = "build_bazel_rules_typescript/internal/tsc_wrapped/tsc_wrapped.js",
+    entry_point = "build_bazel_rules_typescript/internal/tsc_wrapped/tsc_wrapped.js",
     visibility = ["//visibility:public"],
 )
