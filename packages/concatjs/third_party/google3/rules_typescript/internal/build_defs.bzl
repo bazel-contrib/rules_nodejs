@@ -35,7 +35,8 @@ def _compile_action(ctx, inputs, outputs, config_file_path):
   for externs_file in externs_files:
     ctx.file_action(output=externs_file, content="")
 
-  action_inputs = inputs
+  action_inputs = inputs + [f for f in ctx.files.node_modules
+                            if f.path.endswith(".ts") or f.path.endswith(".json")]
   if ctx.file.tsconfig:
     action_inputs += [ctx.file.tsconfig]
 
@@ -80,21 +81,13 @@ def tsc_wrapped_tsconfig(ctx,
   # because it's generated in the execution phase. However, our source files are in
   # bazel-foo/ and therefore we need to strip some parent directories for each
   # f.path.
-  host_bin = "bazel-out/host/bin"
-
-  runfiles = "/".join([p for p in [
-      ctx.attr.compiler.label.workspace_root,
-      ctx.executable.compiler.short_path + ".runfiles"] if p])
 
   module_roots = {
-      "*": [
-          "/".join([host_bin, runfiles, "npm/installed/node_modules/*"]),
-      ],
       # Workaround https://github.com/Microsoft/TypeScript/issues/15962
       # Needed for Angular to build with Bazel.
       # TODO(alexeagle): Remove workaround after upgrade to TS 2.4
       "zone.js": [
-          "/".join([host_bin, runfiles, "npm/installed/node_modules/zone.js/dist/zone.js.d.ts"]),
+          "node_modules/zone.js/dist/zone.js.d.ts",
       ]
   }
 
@@ -102,14 +95,7 @@ def tsc_wrapped_tsconfig(ctx,
                            devmode_manifest=devmode_manifest,
                            module_roots=module_roots,
                            **kwargs)
-  workspace_path = config["compilerOptions"]["rootDir"]
-  config["compilerOptions"].update({
-      "typeRoots": ["/".join([
-          workspace_path, host_bin, runfiles,
-          "npm/installed/node_modules/@types"]
-      )],
-  })
-  config["bazelOptions"]["nodeModulesPrefix"] = "/".join([host_bin, runfiles, "npm/installed/node_modules"])
+  config["bazelOptions"]["nodeModulesPrefix"] = "node_modules"
 
   # If the user gives a tsconfig attribute, the generated file should extend
   # from the user's tsconfig.
@@ -117,6 +103,7 @@ def tsc_wrapped_tsconfig(ctx,
   # We subtract the ".json" from the end before handing to TypeScript because
   # this gives extra error-checking.
   if ctx.file.tsconfig:
+    workspace_path = config["compilerOptions"]["rootDir"]
     config["extends"] = "/".join([workspace_path, ctx.file.tsconfig.path[:-5]])
 
   return config
@@ -164,6 +151,9 @@ ts_library = rule(
                 executable=True,
                 cfg="host",),
         "supports_workers": attr.bool(default = True),
-        "_node_modules": attr.label(default = Label("@npm//installed:node_modules")),
+        # @// is special syntax for the "main" repository
+        # The default assumes the user specified a target "node_modules" in their
+        # root BUILD file.
+        "node_modules": attr.label(default = Label("@//:node_modules")),
     }),
 )
