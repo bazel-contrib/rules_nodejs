@@ -78,11 +78,10 @@ else
   fi
 fi
 export RUNFILES
-export NODE_PATH="${RUNFILES}":${RUNFILES}/npm/installed/node_modules
 
 ARGS=()
 NODE_OPTIONS=()
-ALL_ARGS=(TEMPLATED_args $@)
+ALL_ARGS=(TEMPLATED_args "$@")
 for ARG in "${ALL_ARGS[@]}"; do
   case "$ARG" in
     --node_options=*) NODE_OPTIONS+=( "${ARG#--node_options=}" ) ;;

@@ -23,7 +23,4 @@ load("//:defs.bzl", "node_repositories")
 #   @build_bazel_rules_typescript_node//:bin/npm
 # - The yarn package manager:
 #   @yarn//:yarn
-# - An external repo symlink to the installed packages:
-#   @npm//installed:node_modules
-#   (User's rules can reference //:node_modules instead)
 node_repositories(package_json = "//:package.json")

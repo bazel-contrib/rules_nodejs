@@ -6,6 +6,7 @@
  * @see https://github.com/nodejs/node/blob/master/lib/module.js
  */
 'use strict';
+var path = require('path');
 
 /**
  * The module roots as pairs of a RegExp to match the require path, and a
@@ -40,7 +41,7 @@ function resolveToModuleRoot(path) {
 }
 
 function runfilesDir() {
-  return (process.env.RUNFILES || process.env.TEST_SRCDIR) + '/';
+  return process.env.RUNFILES || process.env.TEST_SRCDIR;
 }
 
 var originalResolveFilename = module.constructor._resolveFilename;
@@ -51,13 +52,20 @@ module.constructor._resolveFilename =
   } catch (e) {
   }
   try {
-    return originalResolveFilename(runfilesDir() + request, parent);
+    return originalResolveFilename(path.join(runfilesDir(), request), parent);
+  } catch (e) {
+  }
+  try {
+    return originalResolveFilename(
+        path.join(
+            runfilesDir(), 'TEMPLATED_workspace_name', 'node_modules', request),
+        parent);
   } catch (e) {
   }
 
   var moduleRoot = resolveToModuleRoot(request);
   if (moduleRoot) {
-    var moduleRootInRunfiles = runfilesDir() + moduleRoot;
+    var moduleRootInRunfiles = path.join(runfilesDir(), moduleRoot);
     var filename = module.constructor._findPath(moduleRootInRunfiles, []);
     if (!filename) {
       throw new Error(`No file ${request} found in module root ${moduleRoot}`);
