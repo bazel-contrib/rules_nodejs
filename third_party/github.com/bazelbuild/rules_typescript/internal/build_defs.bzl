@@ -82,18 +82,8 @@ def tsc_wrapped_tsconfig(ctx,
   # bazel-foo/ and therefore we need to strip some parent directories for each
   # f.path.
 
-  module_roots = {
-      # Workaround https://github.com/Microsoft/TypeScript/issues/15962
-      # Needed for Angular to build with Bazel.
-      # TODO(alexeagle): Remove workaround after upgrade to TS 2.4
-      "zone.js": [
-          "node_modules/zone.js/dist/zone.js.d.ts",
-      ]
-  }
-
   config = create_tsconfig(ctx, files, srcs,
                            devmode_manifest=devmode_manifest,
-                           module_roots=module_roots,
                            **kwargs)
   config["bazelOptions"]["nodeModulesPrefix"] = "node_modules"
 

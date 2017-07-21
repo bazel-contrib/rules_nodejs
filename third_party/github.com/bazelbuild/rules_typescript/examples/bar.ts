@@ -16,5 +16,6 @@
  */
 
 import {greeter} from './foo';
+import {Greeter} from 'examples/foo';
 import {cool} from 'some-lib';
 import * as ts from 'typescript';
