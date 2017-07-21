@@ -17,14 +17,6 @@
 We fetch a specific version of Node, to ensure builds are hermetic.
 We then create a repository @build_bazel_rules_typescript_node which provides the
 node binary to other rules.
-
-Finally we create a workspace that symlinks to the user's project.
-We name this workspace "npm" so there will be targets like
-@npm//installed:node_modules
-
-Within the user's project, they can refer to //:node_modules
-but from other repositories, like the @build_bazel_rules_typescript
-repository, we also need to find some labels under node_modules.
 """
 
 def _node_impl(repository_ctx):
@@ -74,7 +66,7 @@ exports_files([
 
 _node_repo = repository_rule(_node_impl, attrs = {})
 
-def _symlink_node_modules_impl(ctx):
+# def _write_node_modules_impl(ctx):
   # WORKAROUND for https://github.com/bazelbuild/bazel/issues/374#issuecomment-296217940
   # Bazel does not allow labels to start with `@`, so when installing eg. the `@types/node`
   # module from the @types scoped package, you'll get an error.
@@ -87,14 +79,10 @@ def _symlink_node_modules_impl(ctx):
   #   filegroup(name = "node_modules", srcs = glob(["node_modules/**/*"]), visibility = ["//visibility:public"])
   # """)
 
-  # Instead symlink the root directory from the user's workspace
-  project_dir = ctx.path(ctx.attr.package_json).dirname
-  ctx.symlink(project_dir, "installed")
-
-_symlink_node_modules = repository_rule(
-    _symlink_node_modules_impl,
-    attrs = { "package_json": attr.label() },
-)
+# _write_node_modules = repository_rule(
+#     _write_node_modules_impl,
+#     attrs = { "package_json": attr.label() },
+# )
 
 def _yarn_impl(ctx):
   # Yarn is a package manager that downloads dependencies. Yarn is an improvement over the `npm` tool in
@@ -136,6 +124,3 @@ def node_repositories(package_json):
   _node_repo(name = "build_bazel_rules_typescript_node")
 
   _yarn_repo(name = "yarn", package_json = package_json)
-
-  # This repo is named "npm" since that's the namespace of packages.
-  _symlink_node_modules(name = "npm", package_json = package_json)

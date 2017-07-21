@@ -49,6 +49,7 @@ def _write_loader_script(ctx):
       substitutions={
           "TEMPLATED_module_roots": "\n  " + ",\n  ".join(module_mappings),
           "TEMPLATED_entry_point": ctx.attr.entry_point,
+          "TEMPLATED_workspace_name": ctx.workspace_name,
       },
       executable=True,
   )
@@ -97,7 +98,7 @@ nodejs_binary = rule(
             allow_files = True,
             single_file = True),
         "_node_modules": attr.label(
-            default = Label("@npm//installed:node_modules")),
+            default = Label("@//:node_modules")),
         "_launcher_template": attr.label(
             default = Label("//internal:node_launcher.sh"),
             allow_files = True,
