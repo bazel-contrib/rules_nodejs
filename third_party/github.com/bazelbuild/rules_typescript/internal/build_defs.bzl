@@ -45,12 +45,14 @@ def _compile_action(ctx, inputs, outputs, config_file_path):
   # rather than the contents getting expanded.
   if ctx.attr.supports_workers:
     arguments = ["@@" + config_file_path]
+    mnemonic = "TypeScriptCompile"
   else:
     arguments = ["-p", config_file_path]
+    mnemonic = "tsc"
 
   ctx.action(
       progress_message = "Compiling TypeScript (devmode) %s" % ctx.label,
-      mnemonic = "TypeScriptCompile",
+      mnemonic = mnemonic,
       inputs = action_inputs,
       outputs = non_externs_files,
       arguments = arguments,
