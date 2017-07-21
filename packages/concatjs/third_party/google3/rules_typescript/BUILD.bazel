@@ -20,6 +20,12 @@
 # see notes in internal/yarn_install.bzl
 filegroup(
     name = "node_modules",
-    srcs = glob(["node_modules/**/*.js"]),
+    # Reduce the number of inputs to avoid hitting File Descriptor limit on Mac
+    srcs = glob([
+        "node_modules/**/*.js",
+        "node_modules/@types/**/*.d.ts",
+        "node_modules/typescript/**/*.d.ts",
+        "node_modules/typescript/**/*.json"
+    ]),
     visibility = ["//visibility:public"],
 )
