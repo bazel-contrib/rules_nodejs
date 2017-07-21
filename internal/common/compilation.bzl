@@ -180,15 +180,19 @@ def compile_ts(ctx,
     allowed_deps += extra_dts_files
 
     tsconfig_json_es6 = ctx.new_file(ctx.label.name + "_tsconfig.json")
-    ctx.file_action(output=tsconfig_json_es6, content=json_marshal(
-        tsc_wrapped_tsconfig(
-            ctx,
-            compilation_inputs,
-            srcs,
-            jsx_factory=jsx_factory,
-            tsickle_externs=tsickle_externs_path,
-            type_blacklisted_declarations=type_blacklisted_declarations,
-            allowed_deps=allowed_deps)))
+    tsconfig_es6 = tsc_wrapped_tsconfig(
+        ctx,
+        compilation_inputs,
+        srcs,
+        jsx_factory=jsx_factory,
+        tsickle_externs=tsickle_externs_path,
+        type_blacklisted_declarations=type_blacklisted_declarations,
+        allowed_deps=allowed_deps)
+    # Do not produce declarations in ES6 mode, tsickle cannot produce correct
+    # .d.ts (or even errors) from the altered Closure-style JS emit.
+    tsconfig_es6["compilerOptions"]["declaration"] = False
+    ctx.file_action(output=tsconfig_json_es6,
+                    content=json_marshal(tsconfig_es6))
 
     inputs = compilation_inputs + [tsconfig_json_es6]
     outputs = transpiled_closure_js + tsickle_externs
