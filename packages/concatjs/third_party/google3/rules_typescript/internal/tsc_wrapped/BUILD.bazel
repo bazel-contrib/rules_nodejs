@@ -18,8 +18,8 @@ load("//internal:node.bzl", "nodejs_binary")
 # Vanilla typescript compiler: run the tsc.js binary distributed by TypeScript
 nodejs_binary(
     name = "tsc",
-    data = ["@npm//installed:node_modules"],
-    entry_point = "npm/installed/node_modules/typescript/lib/tsc.js",
+    data = ["@//:node_modules"],
+    entry_point = "typescript/lib/tsc.js",
 )
 
 # Build our custom compiler using the vanilla one
@@ -40,7 +40,7 @@ nodejs_binary(
     name = "tsc_wrapped_bin",
     data = [
       ":tsc_wrapped",
-      "@npm//installed:node_modules",
+      "@//:node_modules",
 
       # Should be @bazel_tools//src/main/protobuf:worker_protocol.proto
       # see https://github.com/bazelbuild/bazel/issues/3155#issuecomment-308156976
