@@ -49,7 +49,7 @@ def _compile_action(ctx, inputs, outputs, config_file_path):
     arguments = ["-p", config_file_path]
 
   ctx.action(
-      progress_message = "Compiling TypeScript (devmode) %s" % ctx,
+      progress_message = "Compiling TypeScript (devmode) %s" % ctx.label,
       mnemonic = "TypeScriptCompile",
       inputs = action_inputs,
       outputs = non_externs_files,
