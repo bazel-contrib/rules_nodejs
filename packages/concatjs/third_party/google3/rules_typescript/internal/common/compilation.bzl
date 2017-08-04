@@ -173,7 +173,7 @@ def compile_ts(ctx,
     tsickle_externs_path = tsickle_externs[0] if tsickle_externs else None
 
     # Calculate allowed dependencies for strict deps enforcement.
-    allowed_deps = srcs  # A target's sources may depend on each other.
+    allowed_deps = srcs[:]  # A target's sources may depend on each other.
     for dep in ctx.attr.deps:
       if hasattr(dep, "typescript"):
         allowed_deps += dep.typescript.declarations
