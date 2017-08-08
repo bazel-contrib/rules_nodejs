@@ -62,10 +62,10 @@ def assert_js_or_typescript_deps(ctx):
           "also proto_library and some others).\n")
 
 def _collect_transitive_dts(ctx):
-  all_deps_declarations = set()
-  type_blacklisted_declarations = set()
+  all_deps_declarations = depset()
+  type_blacklisted_declarations = depset()
   for extra in ctx.files._additional_d_ts:
-    all_deps_declarations += set([extra])
+    all_deps_declarations += depset([extra])
   for dep in ctx.attr.deps:
     if hasattr(dep, "typescript"):
       all_deps_declarations += dep.typescript.transitive_declarations
@@ -219,11 +219,11 @@ def compile_ts(ctx,
   transitive_decls = input_declarations + gen_declarations
 
   if is_library:
-    es6_sources = set(transpiled_closure_js + tsickle_externs)
-    es5_sources = set(transpiled_devmode_js)
+    es6_sources = depset(transpiled_closure_js + tsickle_externs)
+    es5_sources = depset(transpiled_devmode_js)
   else:
-    es6_sources = set(tsickle_externs)
-    es5_sources = set(tsickle_externs)
+    es6_sources = depset(tsickle_externs)
+    es5_sources = depset(tsickle_externs)
     devmode_manifest = None
 
   # Downstream rules see the .d.ts files produced or declared by this rule.
@@ -241,9 +241,9 @@ def compile_ts(ctx,
   # outputs list to force compilation of d.ts files.  (tsickle externs
   # are produced by running a compilation over the d.ts file and
   # extracting type information.)
-  files = set(declarations)
+  files = depset(declarations)
   if not is_library:
-    files += set(tsickle_externs)
+    files += depset(tsickle_externs)
 
   return {
       "files": files,

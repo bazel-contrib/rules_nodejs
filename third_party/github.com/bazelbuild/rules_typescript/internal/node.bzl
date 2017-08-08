@@ -18,7 +18,7 @@ load(":executables.bzl", "get_node")
 load(":common/module_mappings.bzl", "module_mappings_runtime_aspect")
 
 def _sources_aspect_impl(target, ctx):
-  result = set()
+  result = depset()
   if hasattr(ctx.rule.attr, "deps"):
     for dep in ctx.rule.attr.deps:
       if hasattr(dep, "node_sources"):
@@ -57,7 +57,7 @@ def _write_loader_script(ctx):
 def _nodejs_binary_impl(ctx):
     node = ctx.file._node
     node_modules = ctx.files._node_modules
-    sources = set()
+    sources = depset()
     for d in ctx.attr.data:
       if hasattr(d, "node_sources"):
         sources += d.node_sources

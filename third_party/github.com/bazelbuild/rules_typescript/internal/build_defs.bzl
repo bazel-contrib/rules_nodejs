@@ -72,7 +72,7 @@ def tsc_wrapped_tsconfig(ctx,
                          devmode_manifest=None,
                          tsickle_externs=None,
                          type_blacklisted_declarations=[],
-                         allowed_deps=set(),
+                         allowed_deps=depset(),
                          jsx_factory=None,
                          **kwargs):
 
