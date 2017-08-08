@@ -90,7 +90,6 @@ def create_tsconfig(ctx, files, srcs,
       "tsickle": tsickle_externs != None,
       "tsickleGenerateExterns": getattr(ctx.attr, "generate_externs", True),
       "tsickleExternsPath": tsickle_externs.path if tsickle_externs else "",
-      "downlevelDecorators": True,
       "untyped": not getattr(ctx.attr, "tsickle_typed", False),
       "typeBlackListPaths": [f.path for f in type_blacklisted_declarations],
 
@@ -156,7 +155,6 @@ def create_tsconfig(ctx, files, srcs,
 
       # permit `@Decorator` syntax and allow runtime reflection on their types.
       "experimentalDecorators": True,
-      # TODO(alexeagle): try removing this option
       "emitDecoratorMetadata": True,
 
       # Interpret JSX as React calls (until someone asks for something different)
