@@ -20,7 +20,7 @@ load(":common/module_mappings.bzl", "get_module_mappings")
 
 def create_tsconfig(ctx, files, srcs,
                     devmode_manifest=None, tsickle_externs=None, type_blacklisted_declarations=[],
-                    out_dir=None, disable_strict_deps=False, allowed_deps=set(),
+                    out_dir=None, disable_strict_deps=False, allowed_deps=depset(),
                     extra_root_dirs=[], module_path_prefixes=None, module_roots=None):
   """Creates an object representing the TypeScript configuration
       to run the compiler under Bazel.
