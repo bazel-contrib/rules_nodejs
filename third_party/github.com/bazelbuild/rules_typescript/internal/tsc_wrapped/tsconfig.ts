@@ -33,6 +33,9 @@ export interface BazelOptions {
   /** If true, emit ES5 into filename.es5.js. */
   es5Mode: boolean;
 
+  /** If true, downlevel compatible decorators into annotations. */
+  downlevelDecorators: boolean;
+
   /** If true, convert TypeScript code into a Closure-compatible variant. */
   tsickle: boolean;
 
