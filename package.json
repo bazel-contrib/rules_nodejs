@@ -1,13 +1,9 @@
 {
-    "name": "bazel-ts",
-    "description": "Build TypeScript with Bazel",
+    "name": "bazel-nodejs",
+    "description": "Use nodejs with Bazel",
     "version": "0.0.0",
     "dependencies": {
-        "typescript": "2.3",
-        "protobufjs": "5.0.0"
     },
     "devDependencies": {
-        "@types/node": "^7.0.18",
-        "clang-format": "1.0.49"
     }
 }

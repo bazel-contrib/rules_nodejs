@@ -15,7 +15,7 @@
 """Install NodeJS when the user runs node_repositories() from their WORKSPACE.
 
 We fetch a specific version of Node, to ensure builds are hermetic.
-We then create a repository @build_bazel_rules_typescript_node which provides the
+We then create a repository @build_bazel_rules_nodejs_node which provides the
 node binary to other rules.
 """
 
@@ -121,6 +121,6 @@ _yarn_repo = repository_rule(
 )
 
 def node_repositories(package_json):
-  _node_repo(name = "build_bazel_rules_typescript_node")
+  _node_repo(name = "build_bazel_rules_nodejs_node")
 
   _yarn_repo(name = "yarn", package_json = package_json)
