@@ -51,6 +51,7 @@ def _write_loader_script(ctx):
       substitutions={
           "TEMPLATED_module_roots": "\n  " + ",\n  ".join(module_mappings),
           "TEMPLATED_entry_point": ctx.attr.entry_point,
+          "TEMPLATED_label_package": ctx.label.package,
           "TEMPLATED_workspace_name": ctx.workspace_name,
       },
       executable=True,
@@ -58,7 +59,7 @@ def _write_loader_script(ctx):
 
 def _nodejs_binary_impl(ctx):
     node = ctx.file._node
-    node_modules = ctx.files._node_modules
+    node_modules = ctx.files.node_modules
     sources = set()
     for d in ctx.attr.data:
       if hasattr(d, "node_sources"):
@@ -99,7 +100,7 @@ nodejs_binary = rule(
             default = get_node(),
             allow_files = True,
             single_file = True),
-        "_node_modules": attr.label(
+        "node_modules": attr.label(
             default = Label("@//:node_modules")),
         "_launcher_template": attr.label(
             default = Label("//internal:node_launcher.sh"),

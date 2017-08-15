@@ -23,4 +23,4 @@ load("//:defs.bzl", "node_repositories")
 #   @build_bazel_rules_nodejs_node//:bin/npm
 # - The yarn package manager:
 #   @yarn//:yarn
-node_repositories(package_json = "//:package.json")
+node_repositories(package_json = ["//:package.json"])

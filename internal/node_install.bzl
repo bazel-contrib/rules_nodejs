@@ -92,15 +92,16 @@ package(default_visibility = ["//visibility:public"])
 exports_files(['yarn.sh'])
 alias(name = "yarn", actual = ":yarn.sh")
 """)
-  ctx.file("yarn.sh", """#!/bin/bash
+  ctx.file("yarn.sh", "#!/bin/bash" + "".join(["""
 ROOT="$(dirname "{}")"
 NODE="{}"
 SCRIPT="{}"
 (cd "$ROOT"; "$NODE" "$SCRIPT" "$@")
 """.format(
-    ctx.path(ctx.attr.package_json),
+    ctx.path(package_json),
     ctx.path(ctx.attr._node),
-    ctx.path("bin/yarn.js")), executable = True)
+    ctx.path("bin/yarn.js"))
+    for package_json in ctx.attr.package_json]), executable = True)
   ctx.download_and_extract(
       [
           "http://mirror.bazel.build/github.com/yarnpkg/yarn/releases/download/v0.22.0/yarn-v0.22.0.tar.gz",
@@ -115,7 +116,7 @@ load(":executables.bzl", "get_node")
 _yarn_repo = repository_rule(
     _yarn_impl,
     attrs = {
-        "package_json": attr.label(),
+        "package_json": attr.label_list(),
         "_node": attr.label(default = get_node(), allow_files=True, single_file=True),
      },
 )

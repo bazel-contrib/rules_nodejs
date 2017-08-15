@@ -58,7 +58,7 @@ module.constructor._resolveFilename =
   try {
     return originalResolveFilename(
         path.join(
-            runfilesDir(), 'TEMPLATED_workspace_name', 'node_modules', request),
+            runfilesDir(), 'TEMPLATED_workspace_name', 'TEMPLATED_label_package', 'node_modules', request),
         parent);
   } catch (e) {
   }
