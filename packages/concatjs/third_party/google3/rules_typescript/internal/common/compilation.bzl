@@ -21,7 +21,7 @@ load(":common/json_marshal.bzl", "json_marshal")
 BASE_ATTRIBUTES = dict()
 
 # Attributes shared by any typescript-compatible rule (ts_library, ng_module)
-COMMON_ATTRIBUTES = BASE_ATTRIBUTES + {
+COMMON_ATTRIBUTES = dict(BASE_ATTRIBUTES, **{
     "deps": attr.label_list(aspects = [
       module_mappings_aspect,
     ]),
@@ -47,7 +47,7 @@ COMMON_ATTRIBUTES = BASE_ATTRIBUTES + {
     ),
     # Whether to generate externs.js from any "declare" statement.
     "generate_externs": attr.bool(default = True),
-}
+})
 
 # TODO(plf): Enforce this at analysis time.
 def assert_js_or_typescript_deps(ctx):
