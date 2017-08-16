@@ -1,9 +1,0 @@
-{
-    "name": "bazel-nodejs",
-    "description": "Use nodejs with Bazel",
-    "version": "0.0.0",
-    "dependencies": {
-    },
-    "devDependencies": {
-    }
-}
