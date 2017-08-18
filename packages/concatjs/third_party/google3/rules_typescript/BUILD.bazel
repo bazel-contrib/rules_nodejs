@@ -17,15 +17,13 @@
 # You may need to include more files in the glob() depending on what needs to
 # be loaded at runtime.
 # WORKAROUND for https://github.com/bazelbuild/bazel/issues/374#issuecomment-296217940
-# see notes in internal/yarn_install.bzl
 filegroup(
     name = "node_modules",
-    # Reduce the number of inputs to avoid hitting File Descriptor limit on Mac
+    # Only include files needed for type-checking and runtime
     srcs = glob([
         "node_modules/**/*.js",
-        "node_modules/@types/**/*.d.ts",
-        "node_modules/typescript/**/*.d.ts",
-        "node_modules/typescript/**/*.json"
+        "node_modules/**/*.d.ts",
+        "node_modules/**/*.json"
     ]),
     visibility = ["//visibility:public"],
 )

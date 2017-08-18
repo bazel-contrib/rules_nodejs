@@ -4,7 +4,8 @@
     "version": "0.0.0",
     "dependencies": {
         "typescript": "2.3",
-        "protobufjs": "5.0.0"
+        "protobufjs": "5.0.0",
+        "tsickle": "0.23.6"
     },
     "devDependencies": {
         "@types/node": "^7.0.18",
