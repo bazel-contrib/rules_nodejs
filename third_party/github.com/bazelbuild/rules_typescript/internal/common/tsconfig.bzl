@@ -86,6 +86,7 @@ def create_tsconfig(ctx, files, srcs,
   # Unlike compiler_options, the paths here are relative to the rootDir,
   # not the location of the tsconfig.json file.
   bazel_options = {
+      "workspaceName": ctx.workspace_name,
       "target": str(ctx.label),
       "tsickle": tsickle_externs != None,
       "tsickleGenerateExterns": getattr(ctx.attr, "generate_externs", True),

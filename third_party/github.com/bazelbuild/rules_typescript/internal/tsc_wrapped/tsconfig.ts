@@ -24,6 +24,9 @@ import * as ts from 'typescript';
  * relative to the location containing the tsconfig file.
  */
 export interface BazelOptions {
+  /** Name of the bazel workspace where we are building. */
+  workspaceName: string;
+
   /** The full bazel target that is being built, e.g. //my/pkg:library. */
   target: string;
 
@@ -94,6 +97,11 @@ export interface BazelOptions {
    * file system access to paths under this prefix.
    */
   nodeModulesPrefix: string;
+
+  /**
+   * List of regexes on file paths for which we suppress tsickle's warnings.
+   */
+  ignoreWarningPaths: string[];
 }
 
 export interface ParsedTsConfig {
