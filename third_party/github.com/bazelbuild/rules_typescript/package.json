@@ -1,7 +1,7 @@
 {
-    "name": "bazel-ts",
+    "name": "@bazel/typescript",
     "description": "Build TypeScript with Bazel",
-    "version": "0.0.0",
+    "version": "0.0.6",
     "dependencies": {
         "typescript": "2.3",
         "protobufjs": "5.0.0",
