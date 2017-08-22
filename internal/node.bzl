@@ -51,7 +51,7 @@ def _write_loader_script(ctx):
       substitutions={
           "TEMPLATED_module_roots": "\n  " + ",\n  ".join(module_mappings),
           "TEMPLATED_entry_point": ctx.attr.entry_point,
-          "TEMPLATED_label_package": ctx.label.package,
+          "TEMPLATED_label_package": ctx.attr.node_modules.label.package,
           "TEMPLATED_workspace_name": ctx.workspace_name,
       },
       executable=True,
