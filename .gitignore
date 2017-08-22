@@ -1,2 +1,3 @@
 .idea
 /bazel-*
+node_modules

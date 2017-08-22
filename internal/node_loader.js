@@ -63,20 +63,20 @@ function runfilesDir() {
 var originalResolveFilename = module.constructor._resolveFilename;
 module.constructor._resolveFilename =
     function(request, parent) {
-  try {
-    return originalResolveFilename(request, parent);
-  } catch (e) {
-  }
-  try {
-    return originalResolveFilename(path.join(runfilesDir(), request), parent);
-  } catch (e) {
-  }
-  try {
-    return originalResolveFilename(
-        path.join(
-            runfilesDir(), 'TEMPLATED_workspace_name', 'TEMPLATED_label_package', 'node_modules', request),
-        parent);
-  } catch (e) {
+  var failedResolutions = [];
+  var resolveLocations = [
+    request,
+    path.join(runfilesDir(), request),
+    path.join(
+      runfilesDir(), 'TEMPLATED_workspace_name', 'TEMPLATED_label_package',
+      'node_modules', request),
+  ];
+  for (var location of resolveLocations) {
+    try {
+      return originalResolveFilename(location, parent);
+    } catch (e) {
+      failedResolutions.push(location);
+    }
   }
 
   var moduleRoot = resolveToModuleRoot(request);
@@ -88,6 +88,10 @@ module.constructor._resolveFilename =
     }
     return filename;
   }
+  var error = new Error(`Cannot find module '${request}'\n  looked in:` +
+    failedResolutions.map(r => '\n   ' + r));
+  error.code = 'MODULE_NOT_FOUND';
+  throw error;
 }
 
 if (require.main === module) {

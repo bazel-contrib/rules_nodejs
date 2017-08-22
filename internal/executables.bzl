@@ -16,4 +16,4 @@
 """
 
 def get_node():
-  return Label("@build_bazel_rules_nodejs_node//:bin/node")
+  return Label("@nodejs//:bin/node")

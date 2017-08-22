@@ -19,8 +19,13 @@ load("//:defs.bzl", "node_repositories")
 # Install a hermetic version of node.
 # After this is run, these labels will be available:
 # - The nodejs install:
-#   @build_bazel_rules_nodejs_node//:bin/node
-#   @build_bazel_rules_nodejs_node//:bin/npm
+#   @nodejs//:bin/node
+#   @nodejs//:bin/npm
 # - The yarn package manager:
 #   @yarn//:yarn
-node_repositories(package_json = ["//:package.json"])
+node_repositories(package_json = ["//examples/rollup:package.json"])
+
+# Now the user must run either
+# bazel run @yarn//:yarn
+# or
+# bazel run @nodejs//:npm

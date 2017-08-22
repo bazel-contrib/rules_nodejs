@@ -50,7 +50,7 @@ $ bazel run @yarn//:yarn
 If you use npm instead, run:
 
 ```sh
-$ bazel run @build_bazel_rules_nodejs_node//:bin/npm install
+$ bazel run @nodejs//:npm install
 ```
 
 [bazel instructions]: https://docs.bazel.build/versions/master/install.html

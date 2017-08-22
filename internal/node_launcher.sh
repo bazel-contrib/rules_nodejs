@@ -89,4 +89,7 @@ for ARG in "${ALL_ARGS[@]}"; do
   esac
 done
 
+# Note: for debugging it is useful to see what files are actually present, eg:
+# find . -name thingImLookingFor
+
 exec "${RUNFILES}/TEMPLATED_node" "${NODE_OPTIONS[@]}" "${RUNFILES}/TEMPLATED_script_path" "${ARGS[@]}"

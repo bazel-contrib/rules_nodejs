@@ -1,0 +1,17 @@
+# NOTE: the example uses //:defs.bzl because it lives in the same WORKSPACE
+# as the rule declarations.
+# Users should use @build_bazel_rules_nodejs//:defs.bzl
+load("//:defs.bzl", "nodejs_binary")
+
+filegroup(
+    name = "node_modules",
+    srcs = glob([
+        "node_modules/**/*",
+    ]),
+)
+
+nodejs_binary(
+    name = "rollup",
+    entry_point = "rollup/bin/rollup",
+    node_modules = ":node_modules",
+)

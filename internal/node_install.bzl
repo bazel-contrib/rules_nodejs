@@ -15,24 +15,18 @@
 """Install NodeJS when the user runs node_repositories() from their WORKSPACE.
 
 We fetch a specific version of Node, to ensure builds are hermetic.
-We then create a repository @build_bazel_rules_nodejs_node which provides the
+We then create a repository @nodejs which provides the
 node binary to other rules.
 """
 
 def _node_impl(repository_ctx):
-  repository_ctx.file("BUILD", content="""
-package(default_visibility = ["//visibility:public"])
-exports_files([
-  "bin/node",
-  "bin/npm",
-])
-""")
   repository_ctx.file("BUILD.bazel", content="""
 package(default_visibility = ["//visibility:public"])
 exports_files([
   "bin/node",
   "bin/npm",
 ])
+alias(name = "npm", actual = "bin/npm")
 """)
 
   os_name = repository_ctx.os.name.lower()
@@ -122,6 +116,6 @@ _yarn_repo = repository_rule(
 )
 
 def node_repositories(package_json):
-  _node_repo(name = "build_bazel_rules_nodejs_node")
+  _node_repo(name = "nodejs")
 
   _yarn_repo(name = "yarn", package_json = package_json)
