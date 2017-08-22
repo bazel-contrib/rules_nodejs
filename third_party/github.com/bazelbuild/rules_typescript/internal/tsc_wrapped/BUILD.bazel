@@ -13,7 +13,7 @@
 # limitations under the License.
 
 load("//:defs.bzl", "ts_library")
-load("//internal:node.bzl", "nodejs_binary")
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
 
 # Vanilla typescript compiler: run the tsc.js binary distributed by TypeScript
 nodejs_binary(
@@ -31,7 +31,7 @@ ts_library(
   supports_workers = False,
   module_name = "@bazel/typescript",
   module_root = "index.d.ts",
-  visibility = ["//visibility:public"], # Should just be build_bazel_rules_angular
+  visibility = ["//visibility:public"],
 )
 
 # Other ts_library rules will use this custom compiler, which calls the

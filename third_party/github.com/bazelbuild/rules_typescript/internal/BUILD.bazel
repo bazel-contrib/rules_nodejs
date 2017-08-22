@@ -14,4 +14,4 @@
 
 package(default_visibility = ["//visibility:public"])
 
-exports_files(["node_launcher.sh", "node_loader.js", "worker_protocol.proto"])
+exports_files(["worker_protocol.proto"])

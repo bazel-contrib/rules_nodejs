@@ -17,5 +17,3 @@
 Users should not load files under "/internal"
 """
 load("//internal:build_defs.bzl", "ts_library")
-load("//internal:node.bzl", "nodejs_binary")
-load("//internal:node_install.bzl", "node_repositories")
