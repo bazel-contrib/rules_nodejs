@@ -29,7 +29,7 @@ ts_library(
   tsconfig = ":tsconfig.json",
   compiler = ":tsc",
   supports_workers = False,
-  module_name = "tsc_wrapped",
+  module_name = "@bazel/typescript",
   module_root = "index.d.ts",
   visibility = ["//visibility:public"], # Should just be build_bazel_rules_angular
 )
