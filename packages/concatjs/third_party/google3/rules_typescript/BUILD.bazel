@@ -13,9 +13,6 @@
 # limitations under the License.
 
 # The node_modules directory is created by `yarn install`
-# This rule gives access for nodejs binaries to find all installed packages.
-# You may need to include more files in the glob() depending on what needs to
-# be loaded at runtime.
 # WORKAROUND for https://github.com/bazelbuild/bazel/issues/374#issuecomment-296217940
 filegroup(
     name = "node_modules",

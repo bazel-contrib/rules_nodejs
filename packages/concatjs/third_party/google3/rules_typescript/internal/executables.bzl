@@ -12,11 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""node and TypeScript compiler labels.
+"""TypeScript compiler label.
 """
 
 def get_tsc():
   return Label("//internal/tsc_wrapped:tsc_wrapped_bin")
-
-def get_node():
-  return Label("@build_bazel_rules_typescript_node//:bin/node")

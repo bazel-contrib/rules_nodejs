@@ -17,7 +17,7 @@
 # pylint: disable=unused-argument
 # pylint: disable=missing-docstring
 load(":common/compilation.bzl", "COMMON_ATTRIBUTES", "compile_ts", "ts_providers_dict_to_struct")
-load(":executables.bzl", "get_tsc", "get_node")
+load(":executables.bzl", "get_tsc")
 load(":common/tsconfig.bzl", "create_tsconfig")
 
 def _compile_action(ctx, inputs, outputs, config_file_path):

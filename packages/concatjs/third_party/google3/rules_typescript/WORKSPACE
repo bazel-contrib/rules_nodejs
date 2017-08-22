@@ -14,7 +14,13 @@
 
 workspace(name = "build_bazel_rules_typescript")
 
-load("//:defs.bzl", "node_repositories")
+git_repository(
+    name = "build_bazel_rules_nodejs",
+    remote = "https://github.com/bazelbuild/rules_nodejs",
+    tag = "0.0.2",
+)
+
+load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
 
 # Install a hermetic version of node.
 # After this is run, these labels will be available:
@@ -23,4 +29,4 @@ load("//:defs.bzl", "node_repositories")
 #   @build_bazel_rules_typescript_node//:bin/npm
 # - The yarn package manager:
 #   @yarn//:yarn
-node_repositories(package_json = "//:package.json")
+node_repositories(package_json = ["//:package.json"])
