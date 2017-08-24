@@ -34,7 +34,7 @@ git_repository(
     tag = "0.0.1", # check for the latest tag when you install
 )
 
-load("@build_bazel_rules_typescript//:defs.bzl", "node_repositories")
+load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
 
 node_repositories(package_json = ["//:package.json"])
 
