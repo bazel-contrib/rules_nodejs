@@ -18,7 +18,7 @@ load(":executables.bzl", "get_node")
 load(":common/module_mappings.bzl", "module_mappings_runtime_aspect")
 
 def _sources_aspect_impl(target, ctx):
-  result = set()
+  result = depset()
   if hasattr(ctx.rule.attr, "deps"):
     for dep in ctx.rule.attr.deps:
       if hasattr(dep, "node_sources"):
