@@ -60,7 +60,7 @@ def _write_loader_script(ctx):
 def _nodejs_binary_impl(ctx):
     node = ctx.file._node
     node_modules = ctx.files.node_modules
-    sources = set()
+    sources = depset()
     for d in ctx.attr.data:
       if hasattr(d, "node_sources"):
         sources += d.node_sources
