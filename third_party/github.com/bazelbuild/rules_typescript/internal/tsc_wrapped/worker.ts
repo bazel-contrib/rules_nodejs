@@ -28,13 +28,8 @@ const workerpb = (function loadWorkerPb() {
   // let protoPath =
   // 'external/bazel_tools/src/main/protobuf/worker_protocol.proto';
   let protoPath = 'build_bazel_rules_typescript/internal/worker_protocol.proto';
-
-  const protoNamespace = protobufjs.loadProtoFile({
-    // RUNFILES env includes the workspace_root, see
-    // internal/node_launcher.sh
-    root: process.env['RUNFILES'],
-    file: protoPath,
-  });
+  // Use node module resolution so we can find the .proto file in any of the root dirs
+  const protoNamespace = protobufjs.loadProtoFile(require.resolve(protoPath));
   if (!protoNamespace) {
     throw new Error('Cannot find ' + path.resolve(protoPath));
   }
