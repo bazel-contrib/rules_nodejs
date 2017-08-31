@@ -174,9 +174,18 @@ def compile_ts(ctx,
   if not is_library and not ctx.attr.generate_externs:
     type_blacklisted_declarations += ctx.files.srcs
 
+  # The list of output files. These are the files that are always built
+  # (including e.g. if you "blaze build :the_target" directly).
+  files = depset()
+
   # A manifest listing the order of this rule's *.ts files (non-transitive)
   # Only generated if the rule has any sources.
   devmode_manifest = None
+
+  # Enable to produce a performance trace when compiling TypeScript to JS.
+  # The trace file location will be printed as a build result and can be read
+  # in Chrome's chrome://tracing/ UI.
+  perf_trace = False
 
   if has_sources:
     compilation_inputs = input_declarations + extra_dts_files + srcs
@@ -201,27 +210,36 @@ def compile_ts(ctx,
     # Do not produce declarations in ES6 mode, tsickle cannot produce correct
     # .d.ts (or even errors) from the altered Closure-style JS emit.
     tsconfig_es6["compilerOptions"]["declaration"] = False
+    outputs = transpiled_closure_js + tsickle_externs
+    if perf_trace:
+      perf_trace_file = ctx.new_file(ctx.label.name + ".es6.trace")
+      tsconfig_es6["bazelOptions"]["perfTracePath"] = perf_trace_file.path
+      outputs.append(perf_trace_file)
+      files += [perf_trace_file]
     ctx.file_action(output=tsconfig_json_es6,
                     content=json_marshal(tsconfig_es6))
 
     inputs = compilation_inputs + [tsconfig_json_es6]
-    outputs = transpiled_closure_js + tsickle_externs
     compile_action(ctx, inputs, outputs, tsconfig_json_es6.path)
 
     devmode_manifest = ctx.new_file(ctx.label.name + ".es5.MF")
     tsconfig_json_es5 = ctx.new_file(ctx.label.name + "_es5_tsconfig.json")
-    ctx.file_action(output=tsconfig_json_es5, content=json_marshal(
-        tsc_wrapped_tsconfig(
-            ctx,
-            compilation_inputs,
-            srcs,
-            jsx_factory=jsx_factory,
-            devmode_manifest=devmode_manifest.path,
-            allowed_deps=allowed_deps)))
-
-    inputs = compilation_inputs + [tsconfig_json_es5]
     outputs = (
         transpiled_devmode_js + gen_declarations + [devmode_manifest])
+    tsconfig_es5 = tsc_wrapped_tsconfig(ctx,
+                                        compilation_inputs,
+                                        srcs,
+                                        jsx_factory=jsx_factory,
+                                        devmode_manifest=devmode_manifest.path,
+                                        allowed_deps=allowed_deps)
+    if perf_trace:
+      perf_trace_file = ctx.new_file(ctx.label.name + ".es5.trace")
+      tsconfig_es5["bazelOptions"]["perfTracePath"] = perf_trace_file.path
+      outputs.append(perf_trace_file)
+      files += [perf_trace_file]
+    ctx.file_action(output=tsconfig_json_es5, content=json_marshal(
+        tsconfig_es5))
+    inputs = compilation_inputs + [tsconfig_json_es5]
     devmode_compile_action(ctx, inputs, outputs, tsconfig_json_es5.path)
 
   # TODO(martinprobst): Merge the generated .d.ts files, and enforce strict
@@ -244,14 +262,11 @@ def compile_ts(ctx,
     for dep in ctx.attr.deps:
       if hasattr(dep, "typescript"):
         declarations += dep.typescript.declarations
+  files += declarations
 
-  # Construct the list of output files, which are the files that are
-  # always built (including e.g. if you "blaze build :the_target"
-  # directly).  If this is a ts_declaration, add tsickle_externs to the
-  # outputs list to force compilation of d.ts files.  (tsickle externs
-  # are produced by running a compilation over the d.ts file and
-  # extracting type information.)
-  files = depset(declarations)
+  # If this is a ts_declaration, add tsickle_externs to the outputs list to
+  # force compilation of d.ts files.  (tsickle externs are produced by running a
+  # compilation over the d.ts file and extracting type information.)
   if not is_library:
     files += depset(tsickle_externs)
 
