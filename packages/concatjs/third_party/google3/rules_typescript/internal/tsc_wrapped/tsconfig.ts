@@ -139,6 +139,11 @@ export function parseTsconfig(
     return [null, errors, {target}];
   }
 
+  // Sort rootDirs with longest include directories first.
+  // When canonicalizing paths, we always want to strip
+  // `workspace/bazel-bin/file` to just `file`, not to `bazel-bin/file`.
+  if (options.rootDirs) options.rootDirs.sort((a, b) => b.length - a.length);
+
   // TypeScript's parseJsonConfigFileContent returns paths that are joined, eg.
   // /path/to/project/bazel-out/arch/bin/path/to/package/../../../../../../path
   // We normalize them to remove the intermediate parent directories.
@@ -147,7 +152,7 @@ export function parseTsconfig(
   const files = fileNames.map(f => path.normalize(f));
 
   // The bazelOpts paths in the tsconfig are relative to
-  // options.rootDir (the google3 root) and aren't transformed by
+  // options.rootDir (the workspace root) and aren't transformed by
   // parseJsonConfigFileContent (because TypeScript doesn't know
   // about them). Transform them to also be absolute here.
   bazelOpts.compilationTargetSrc =
