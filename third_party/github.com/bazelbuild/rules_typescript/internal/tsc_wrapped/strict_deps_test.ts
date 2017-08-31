@@ -18,7 +18,6 @@
 // taze: jasmine from //third_party/javascript/typings/jasmine:jasmine_without_externs
 import * as ts from 'typescript';
 
-import {format as formatDiagnostics} from './g3_diagnostics';
 import {checkModuleDeps} from './strict_deps';
 
 describe('strict deps', () => {
@@ -54,7 +53,11 @@ describe('strict deps', () => {
     const p = ts.createProgram(Object.keys(files), options, host);
     const diags = [...ts.getPreEmitDiagnostics(p)];
     if (diags.length > 0) {
-      throw new Error(formatDiagnostics('//test:pkg', diags));
+      throw new Error(ts.formatDiagnostics(diags, {
+        getCurrentDirectory: () => ts.sys.getCurrentDirectory(),
+        getNewLine: () => ts.sys.newLine,
+        getCanonicalFileName: (f: string) => f,
+      }));
     }
     return p;
   }

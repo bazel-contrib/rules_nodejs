@@ -33,7 +33,7 @@ describe('FileCache', () => {
 
   it('caches files', () => {
     const fileCache = new FileCache<ts.SourceFile>(fauxDebug);
-    const fileLoader = new CachedFileLoader(fileCache);
+    const fileLoader = new CachedFileLoader(fileCache, true);
     const fn = writeTempFile('file_cache_test', 'let x: number = 12;\n');
     invalidateFileCache(fileCache, fn);
 
@@ -52,7 +52,7 @@ describe('FileCache', () => {
   it('caches in LRU order', () => {
     let free = false;
     const fileCache = new FileCache<ts.SourceFile>(fauxDebug);
-    const fileLoader = new CachedFileLoader(fileCache);
+    const fileLoader = new CachedFileLoader(fileCache, true);
     fileCache.shouldFreeMemory = () => free;
 
     function load(name: string, fn: string) {

@@ -4,6 +4,7 @@ import * as ts from 'typescript';
 
 import {CompilerHost} from './compiler_host';
 import {CachedFileLoader, FileCache, FileLoader, UncachedFileLoader} from './file_cache';
+import {wrap} from './perf_trace';
 import {BazelOptions, parseTsconfig} from './tsconfig';
 import {debug, log, runAsWorker, runWorkerLoop} from './worker';
 
@@ -26,7 +27,6 @@ export function main(args) {
 // The one FileCache instance used in this process.
 const fileCache = new FileCache<ts.SourceFile>(debug);
 
-
 function format(target: string, diagnostics: ts.Diagnostic[]): string {
   const diagnosticsHost: ts.FormatDiagnosticsHost = {
     ...ts.sys,
@@ -48,8 +48,9 @@ function runOneBuild(
   fileCache.resetStats();
   fileCache.traceStats();
   let fileLoader: FileLoader;
+  const allowNonHermeticReads = true;
   if (inputs) {
-    fileLoader = new CachedFileLoader(fileCache);
+    fileLoader = new CachedFileLoader(fileCache, allowNonHermeticReads);
     // Resolve the inputs to absolute paths to match TypeScript internals
     const resolvedInputs: {[path: string]: string} = {};
     for (const key of Object.keys(inputs)) {
@@ -77,7 +78,8 @@ function runOneBuild(
       ts.createCompilerHost({target: ts.ScriptTarget.ES5});
 
   const compilerHost = new CompilerHost(
-      files, options, bazelOpts, compilerHostDelegate, fileLoader);
+      files, options, bazelOpts, compilerHostDelegate, fileLoader,
+      allowNonHermeticReads);
   const program = ts.createProgram(files, options, compilerHost);
 
   fileCache.traceStats();
@@ -89,11 +91,15 @@ function runOneBuild(
   // These checks mirror ts.getPreEmitDiagnostics, with the important
   // exception that if you call program.getDeclarationDiagnostics() it somehow
   // corrupts the emit.
-  diagnostics.push(...program.getOptionsDiagnostics());
-  diagnostics.push(...program.getGlobalDiagnostics());
+  wrap(`global diagnostics`, () => {
+    diagnostics.push(...program.getOptionsDiagnostics());
+    diagnostics.push(...program.getGlobalDiagnostics());
+  });
   for (const sf of program.getSourceFiles().filter(isCompilationTarget)) {
-    diagnostics.push(...program.getSyntacticDiagnostics(sf));
-    diagnostics.push(...program.getSemanticDiagnostics(sf));
+    wrap(`check ${sf.fileName}`, () => {
+      diagnostics.push(...program.getSyntacticDiagnostics(sf));
+      diagnostics.push(...program.getSemanticDiagnostics(sf));
+    });
   }
   if (diagnostics.length > 0) {
     console.error(format(bazelOpts.target, diagnostics));
