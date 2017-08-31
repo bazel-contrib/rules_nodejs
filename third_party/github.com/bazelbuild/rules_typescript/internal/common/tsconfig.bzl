@@ -94,8 +94,6 @@ def create_tsconfig(ctx, files, srcs,
       "untyped": not getattr(ctx.attr, "tsickle_typed", False),
       "typeBlackListPaths": [f.path for f in type_blacklisted_declarations],
 
-      # Substitute commonjs with googmodule.
-      "googmodule": ctx.attr.runtime == "browser",
       "es5Mode": devmode_manifest != None,
       "manifest": devmode_manifest if devmode_manifest else "",
       # Explicitly tell the compiler which sources we're interested in (emitting
