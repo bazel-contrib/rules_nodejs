@@ -76,11 +76,6 @@ def create_tsconfig(ctx, files, srcs,
       # maps the entire module root.
       module_roots["{}/*".format(name)] = ["%s%s/*" % (p, path) for p in module_path_prefixes]
 
-  perf_trace_path = "/".join([ctx.configuration.bin_dir.path, ctx.label.package,
-                              ctx.label.name + ".trace"])
-  # TODO(alexeagle): a better way to ask for the perf trace than editing here?
-  perf_trace_path = ""  # Comment out => receive perf trace!
-
   # Options for running the TypeScript compiler under Bazel.
   # See javascript/typescript/compiler/tsc_wrapped.ts:BazelOptions.
   # Unlike compiler_options, the paths here are relative to the rootDir,
@@ -101,7 +96,6 @@ def create_tsconfig(ctx, files, srcs,
       "compilationTargetSrc": [s.path for s in srcs],
       "disableStrictDeps": disable_strict_deps,
       "allowedStrictDeps": [f.path for f in allowed_deps],
-      "perfTracePath": perf_trace_path,
       "enableConformance": getattr(ctx.attr, "enable_conformance", False),
   }
 
