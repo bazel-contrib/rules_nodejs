@@ -33,8 +33,6 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
       readonly bazelOpts: BazelOptions, private delegate: ts.CompilerHost,
       private fileLoader: FileLoader,
       private moduleResolver: ModuleResolver = ts.resolveModuleName) {
-    // Try longest include directories first.
-    this.options.rootDirs.sort((a, b) => b.length - a.length);
     this.relativeRoots =
         this.options.rootDirs.map(r => path.relative(this.options.rootDir, r));
     inputFiles.forEach((f) => {
