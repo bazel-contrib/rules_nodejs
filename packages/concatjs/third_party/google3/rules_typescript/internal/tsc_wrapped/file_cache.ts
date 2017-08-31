@@ -16,6 +16,7 @@
  */
 
 import * as fs from 'fs';
+import * as path from 'path';
 import * as ts from 'typescript';
 import * as perfTrace from './perf_trace';
 
@@ -127,6 +128,14 @@ export class FileCache<CachedType> implements LRUCache<CachedType> {
     this.debug('Loaded', filePath, 'dropped', dropped, 'cache entries');
   }
 
+  /**
+   * Returns true if the given filePath was reported as an input up front and
+   * has a known cache digest. FileCache can only cache known files.
+   */
+  isKnownInput(filePath: string): boolean {
+    return !!this.lastDigests[filePath];
+  }
+
   inCache(filePath: string): boolean {
     return !!this.getCache(filePath);
   }
@@ -140,8 +149,13 @@ export class FileCache<CachedType> implements LRUCache<CachedType> {
   }
 
   printStats() {
-    const percentage =
-        (this.cacheStats.hits / this.cacheStats.reads * 100).toFixed(2);
+    let percentage;
+    if (this.cacheStats.reads === 0) {
+      percentage = 100.00;  // avoid "NaN %"
+    } else {
+      percentage =
+          (this.cacheStats.hits / this.cacheStats.reads * 100).toFixed(2);
+    }
     this.debug('Cache stats:', percentage, '% hits', this.cacheStats);
   }
 
@@ -168,6 +182,16 @@ export class FileCache<CachedType> implements LRUCache<CachedType> {
   };
 }
 
+/**
+ * Returns true if the given filePath points to a file that should be read
+ * non-hermetically.
+ */
+export function isNonHermeticInput(filePath: string) {
+  // TODO(alexeagle): the indexOf(node_modules) is a hack, find a better
+  // way to identify these undeclared inputs.
+  return filePath.split(path.sep).indexOf('node_modules') !== -1;
+}
+
 export interface FileLoader {
   loadFile(fileName: string, filePath: string, langVer: ts.ScriptTarget):
       ts.SourceFile;
@@ -177,7 +201,9 @@ export interface FileLoader {
  * Load a source file from disk, or possibly return a cached version.
  */
 export class CachedFileLoader implements FileLoader {
-  constructor(private cache: FileCache<ts.SourceFile>) {}
+  constructor(
+      private readonly cache: FileCache<ts.SourceFile>,
+      private readonly allowNonHermeticReads: boolean) {}
 
   loadFile(fileName: string, filePath: string, langVer: ts.ScriptTarget):
       ts.SourceFile {
@@ -185,6 +211,15 @@ export class CachedFileLoader implements FileLoader {
     if (!sourceFile) {
       const sourceText = fs.readFileSync(filePath, 'utf8');
       sourceFile = ts.createSourceFile(fileName, sourceText, langVer, true);
+      if (this.allowNonHermeticReads && !this.cache.isKnownInput(filePath) &&
+          isNonHermeticInput(filePath)) {
+        // The cache can only hold and invalidate files with known digests. Non-
+        // hermetic inputs thus cannot be cached.
+        // TODO(alexeagle): this includes the expensive-to-check lib.d.ts & co,
+        // which will largely defeat the performance advantages of this cache.
+        // Find a way to express files from node_modules as a proper input.
+        return sourceFile;
+      }
       const entry = {
         digest: this.cache.getLastDigest(filePath),
         value: sourceFile

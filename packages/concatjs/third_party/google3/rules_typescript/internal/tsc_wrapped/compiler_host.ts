@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as tsickle from 'tsickle';
 import * as ts from 'typescript';
 
-import {FileLoader} from './file_cache';
+import {FileLoader, isNonHermeticInput} from './file_cache';
 import * as perfTrace from './perf_trace';
 import {BazelOptions} from './tsconfig';
 
@@ -32,6 +32,7 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
       public inputFiles: string[], readonly options: ts.CompilerOptions,
       readonly bazelOpts: BazelOptions, private delegate: ts.CompilerHost,
       private fileLoader: FileLoader,
+      private readonly allowNonHermeticReads: boolean,
       private moduleResolver: ModuleResolver = ts.resolveModuleName) {
     this.relativeRoots =
         this.options.rootDirs.map(r => path.relative(this.options.rootDir, r));
@@ -77,15 +78,6 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
     return result;
   }
 
-  /**
-   * Allow moduleResolution=node to behave normally.
-   * Since we don't require users declare their dependencies within node_modules
-   * we may need to read files that weren't explicit inputs.
-   */
-  allowNonHermeticRead(filePath: string) {
-    return filePath.split(path.sep).indexOf('node_modules') != -1;
-  }
-
   /** Avoid using tsickle on files that aren't in srcs[] */
   shouldSkipTsickleProcessing(fileName: string): boolean {
     return this.bazelOpts.compilationTargetSrc.indexOf(fileName) === -1;
@@ -93,7 +85,8 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
 
   /** Allows suppressing warnings for specific known libraries */
   shouldIgnoreWarningsForPath(filePath: string): boolean {
-    return this.bazelOpts.ignoreWarningPaths.some(p => !!filePath.match(new RegExp(p)));
+    return this.bazelOpts.ignoreWarningPaths.some(
+        p => !!filePath.match(new RegExp(p)));
   }
 
   fileNameToModuleId(fileName: string): string {
@@ -180,10 +173,6 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
       fileName: string, languageVersion: ts.ScriptTarget,
       onError?: (message: string) => void) {
     return perfTrace.wrap(`getSourceFile ${fileName}`, () => {
-      if (this.allowNonHermeticRead(fileName)) {
-        // TODO(alexeagle): we could add these to the cache also
-        return this.delegate.getSourceFile(fileName, languageVersion, onError);
-      }
       return this.fileLoader.loadFile(fileName, fileName, languageVersion);
     });
   }
@@ -236,7 +225,7 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
    */
   fileExists(filePath: string): boolean {
     // Allow moduleResolution=node to behave normally.
-    if (this.allowNonHermeticRead(filePath) &&
+    if (this.allowNonHermeticReads && isNonHermeticInput(filePath) &&
         this.delegate.fileExists(filePath)) {
       return true;
     }
