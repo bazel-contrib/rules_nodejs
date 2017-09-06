@@ -14,7 +14,6 @@
 
 """Rules for executing programs in the nodejs runtime.
 """
-load(":executables.bzl", "get_node")
 load(":common/module_mappings.bzl", "module_mappings_runtime_aspect")
 
 def _sources_aspect_impl(target, ctx):
@@ -97,7 +96,7 @@ nodejs_binary = rule(
             cfg = "data",
             aspects=[_sources_aspect, module_mappings_runtime_aspect]),
         "_node": attr.label(
-            default = get_node(),
+            default = "@nodejs//:node",
             allow_files = True,
             single_file = True),
         "node_modules": attr.label(
