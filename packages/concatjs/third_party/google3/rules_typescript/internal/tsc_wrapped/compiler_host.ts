@@ -28,6 +28,14 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
 
   getCancelationToken?: () => ts.CancellationToken;
 
+  googmodule: boolean;
+  es5Mode: boolean;
+  prelude: string;
+  untyped: boolean;
+  typeBlackListPaths: Set<string>;
+  transformDecorators: boolean;
+  transformTypesToClosure: boolean;
+
   constructor(
       public inputFiles: string[], readonly options: ts.CompilerOptions,
       readonly bazelOpts: BazelOptions, private delegate: ts.CompilerHost,
@@ -47,6 +55,14 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
     if (delegate && delegate.getCancellationToken) {
       this.getCancelationToken = delegate.getCancellationToken.bind(delegate);
     }
+
+    this.googmodule = bazelOpts.googmodule;
+    this.es5Mode = bazelOpts.es5Mode;
+    this.prelude = bazelOpts.prelude;
+    this.untyped = bazelOpts.untyped;
+    this.typeBlackListPaths = new Set(bazelOpts.typeBlackListPaths);
+    this.transformDecorators = bazelOpts.tsickle;
+    this.transformTypesToClosure = bazelOpts.tsickle;
   }
 
   /**
