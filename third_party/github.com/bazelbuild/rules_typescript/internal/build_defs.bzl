@@ -148,4 +148,7 @@ ts_library = rule(
         # root BUILD file.
         "node_modules": attr.label(default = Label("@//:node_modules")),
     }),
+    outputs = {
+        "tsconfig": "%{name}_tsconfig.json"
+    }
 )
