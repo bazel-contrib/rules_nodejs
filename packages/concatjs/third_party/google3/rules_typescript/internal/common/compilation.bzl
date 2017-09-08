@@ -187,40 +187,39 @@ def compile_ts(ctx,
   # in Chrome's chrome://tracing/ UI.
   perf_trace = False
 
+  compilation_inputs = input_declarations + extra_dts_files + srcs
+  tsickle_externs_path = tsickle_externs[0] if tsickle_externs else None
+
+  # Calculate allowed dependencies for strict deps enforcement.
+  allowed_deps = srcs[:]  # A target's sources may depend on each other.
+  for dep in ctx.attr.deps:
+    if hasattr(dep, "typescript"):
+      allowed_deps += dep.typescript.declarations
+  allowed_deps += extra_dts_files
+
+  tsconfig_es6 = tsc_wrapped_tsconfig(
+      ctx,
+      compilation_inputs,
+      srcs,
+      jsx_factory=jsx_factory,
+      tsickle_externs=tsickle_externs_path,
+      type_blacklisted_declarations=type_blacklisted_declarations,
+      allowed_deps=allowed_deps)
+  # Do not produce declarations in ES6 mode, tsickle cannot produce correct
+  # .d.ts (or even errors) from the altered Closure-style JS emit.
+  tsconfig_es6["compilerOptions"]["declaration"] = False
+  outputs = transpiled_closure_js + tsickle_externs
+  if perf_trace:
+    perf_trace_file = ctx.new_file(ctx.label.name + ".es6.trace")
+    tsconfig_es6["bazelOptions"]["perfTracePath"] = perf_trace_file.path
+    outputs.append(perf_trace_file)
+    files += [perf_trace_file]
+  ctx.file_action(output=ctx.outputs.tsconfig,
+                  content=json_marshal(tsconfig_es6))
+
   if has_sources:
-    compilation_inputs = input_declarations + extra_dts_files + srcs
-    tsickle_externs_path = tsickle_externs[0] if tsickle_externs else None
-
-    # Calculate allowed dependencies for strict deps enforcement.
-    allowed_deps = srcs[:]  # A target's sources may depend on each other.
-    for dep in ctx.attr.deps:
-      if hasattr(dep, "typescript"):
-        allowed_deps += dep.typescript.declarations
-    allowed_deps += extra_dts_files
-
-    tsconfig_json_es6 = ctx.new_file(ctx.label.name + "_tsconfig.json")
-    tsconfig_es6 = tsc_wrapped_tsconfig(
-        ctx,
-        compilation_inputs,
-        srcs,
-        jsx_factory=jsx_factory,
-        tsickle_externs=tsickle_externs_path,
-        type_blacklisted_declarations=type_blacklisted_declarations,
-        allowed_deps=allowed_deps)
-    # Do not produce declarations in ES6 mode, tsickle cannot produce correct
-    # .d.ts (or even errors) from the altered Closure-style JS emit.
-    tsconfig_es6["compilerOptions"]["declaration"] = False
-    outputs = transpiled_closure_js + tsickle_externs
-    if perf_trace:
-      perf_trace_file = ctx.new_file(ctx.label.name + ".es6.trace")
-      tsconfig_es6["bazelOptions"]["perfTracePath"] = perf_trace_file.path
-      outputs.append(perf_trace_file)
-      files += [perf_trace_file]
-    ctx.file_action(output=tsconfig_json_es6,
-                    content=json_marshal(tsconfig_es6))
-
-    inputs = compilation_inputs + [tsconfig_json_es6]
-    compile_action(ctx, inputs, outputs, tsconfig_json_es6.path)
+    inputs = compilation_inputs + [ctx.outputs.tsconfig]
+    compile_action(ctx, inputs, outputs, ctx.outputs.tsconfig.path)
 
     devmode_manifest = ctx.new_file(ctx.label.name + ".es5.MF")
     tsconfig_json_es5 = ctx.new_file(ctx.label.name + "_es5_tsconfig.json")
