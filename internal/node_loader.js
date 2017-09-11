@@ -23,6 +23,8 @@
  */
 'use strict';
 var path = require('path');
+var fs = require('fs');
+var readline = require('readline');
 
 /**
  * The module roots as pairs of a RegExp to match the require path, and a
@@ -56,8 +58,28 @@ function resolveToModuleRoot(path) {
   return null;
 }
 
-function runfilesDir() {
-  return process.env.RUNFILES || process.env.TEST_SRCDIR;
+/**
+ * The runfiles manifest maps from short_path
+ * https://docs.bazel.build/versions/master/skylark/lib/File.html#short_path
+ * to the actual location on disk where the file can be read.
+ */
+const runfilesManifest = Object.create(null);
+function loadRunfilesManifest(manifestPath) {
+  return new Promise((resolve, reject) => {
+    try {
+      const input = fs.createReadStream(manifestPath, {encoding: 'utf-8'});
+      const manifest = readline.createInterface({input});
+      manifest.on('line', line => {
+        if (!line) return;
+        const [runfilesPath, realPath] = line.split(" ");
+        runfilesManifest[runfilesPath] = realPath;
+      }).on('close', () => {
+        resolve(runfilesManifest);
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
 }
 
 var originalResolveFilename = module.constructor._resolveFilename;
@@ -66,10 +88,12 @@ module.constructor._resolveFilename =
   var failedResolutions = [];
   var resolveLocations = [
     request,
-    path.join(runfilesDir(), request),
-    path.join(
-      runfilesDir(), 'TEMPLATED_workspace_name', 'TEMPLATED_label_package',
-      'node_modules', request),
+    runfilesManifest[request],
+    // Join on forward slash, because even on Windows the runfiles_manifest
+    // file is written with forward slash.
+    runfilesManifest[[
+      'TEMPLATED_workspace_name', 'TEMPLATED_label_package',
+      'node_modules', request].join('/')],
   ];
   for (var location of resolveLocations) {
     try {
@@ -100,7 +124,9 @@ if (require.main === module) {
   // NB: entry_point below is replaced during the build process.
   var mainScript = process.argv[1] = 'TEMPLATED_entry_point';
   try {
-    module.constructor._load(mainScript, this, /*isMain=*/true);
+    loadRunfilesManifest(process.env.RUNFILES).then(mf => {
+      module.constructor._load(mainScript, this, /*isMain=*/true);
+    });
   } catch (e) {
     console.error('failed to load main ', e.stack || e);
     process.exit(1);
