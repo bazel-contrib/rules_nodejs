@@ -121,6 +121,10 @@ _yarn_repo = repository_rule(
 )
 
 def node_repositories(package_json):
+  print("\n" +
+        "rules_nodejs is experimental. Do not depend on this for production code.\n" +
+        "Tracking issue: https://github.com/bazelbuild/rules_nodejs/issues/13")
+
   _node_repo(name = "nodejs")
 
   _yarn_repo(name = "yarn", package_json = package_json)
