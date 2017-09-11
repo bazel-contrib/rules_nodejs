@@ -88,8 +88,10 @@ def _yarn_impl(ctx):
   # speed and correctness. We download a specific version of Yarn to ensure a hermetic build.
   ctx.file("BUILD.bazel", """
 package(default_visibility = ["//visibility:public"])
-exports_files(['yarn.sh'])
-alias(name = "yarn", actual = ":yarn.sh")
+sh_binary(
+  name = "yarn",
+  srcs = ["yarn.sh"],
+)
 """)
   if ctx.os.name.lower().find("windows") != -1:
     node = Label("@nodejs//:node.exe")
