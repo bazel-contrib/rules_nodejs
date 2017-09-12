@@ -24,7 +24,6 @@
 'use strict';
 var path = require('path');
 var fs = require('fs');
-var readline = require('readline');
 
 /**
  * The module roots as pairs of a RegExp to match the require path, and a
@@ -63,24 +62,17 @@ function resolveToModuleRoot(path) {
  * https://docs.bazel.build/versions/master/skylark/lib/File.html#short_path
  * to the actual location on disk where the file can be read.
  */
-const runfilesManifest = Object.create(null);
 function loadRunfilesManifest(manifestPath) {
-  return new Promise((resolve, reject) => {
-    try {
-      const input = fs.createReadStream(manifestPath, {encoding: 'utf-8'});
-      const manifest = readline.createInterface({input});
-      manifest.on('line', line => {
-        if (!line) return;
-        const [runfilesPath, realPath] = line.split(" ");
-        runfilesManifest[runfilesPath] = realPath;
-      }).on('close', () => {
-        resolve(runfilesManifest);
-      });
-    } catch (e) {
-      reject(e);
-    }
-  });
+  const result = Object.create(null);
+  const input = fs.readFileSync(manifestPath, {encoding: 'utf-8'});
+  for (const line of input.split("\n")) {
+    if (!line) continue;
+    const [runfilesPath, realPath] = line.split(" ");
+    result[runfilesPath] = realPath;
+  }
+  return result;
 }
+const runfilesManifest = loadRunfilesManifest(process.env.RUNFILES);
 
 var originalResolveFilename = module.constructor._resolveFilename;
 module.constructor._resolveFilename =
@@ -124,9 +116,7 @@ if (require.main === module) {
   // NB: entry_point below is replaced during the build process.
   var mainScript = process.argv[1] = 'TEMPLATED_entry_point';
   try {
-    loadRunfilesManifest(process.env.RUNFILES).then(mf => {
-      module.constructor._load(mainScript, this, /*isMain=*/true);
-    });
+    module.constructor._load(mainScript, this, /*isMain=*/true);
   } catch (e) {
     console.error('failed to load main ', e.stack || e);
     process.exit(1);
