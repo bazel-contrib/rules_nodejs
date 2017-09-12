@@ -1,5 +1,7 @@
 # NodeJS rules for Bazel
 
+[![CircleCI](https://circleci.com/gh/bazelbuild/rules_nodejs.svg?style=svg)](https://circleci.com/gh/bazelbuild/rules_nodejs)
+
 **This is an alpha-quality release. Breaking changes are likely.**
 
 The nodejs rules integrate NodeJS development and runtime with bazel.
