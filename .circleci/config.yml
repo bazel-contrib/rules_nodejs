@@ -12,6 +12,7 @@ jobs:
       - run: bazel info release
       - run: bazel run @yarn//:yarn
       - run: bazel build ...
+      - run: bazel test ...
       - run: bazel run examples/rollup -- --help
 
       - save_cache:

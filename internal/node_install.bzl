@@ -122,7 +122,12 @@ _yarn_repo = repository_rule(
     attrs = { "package_json": attr.label_list() },
 )
 
+load(":check_bazel_version.bzl", "check_bazel_version")
+
 def node_repositories(package_json):
+  # Windows users need sh_binary wrapped as an .exe
+  check_bazel_version("0.5.4")
+
   _node_repo(name = "nodejs")
 
   _yarn_repo(name = "yarn", package_json = package_json)

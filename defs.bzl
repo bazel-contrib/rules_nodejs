@@ -16,5 +16,6 @@
 
 Users should not load files under "/internal"
 """
+load("//internal:check_bazel_version.bzl", "check_bazel_version")
 load("//internal:node.bzl", "nodejs_binary")
 load("//internal:node_install.bzl", "node_repositories")
