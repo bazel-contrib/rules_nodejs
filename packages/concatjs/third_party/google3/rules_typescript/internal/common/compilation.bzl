@@ -208,6 +208,7 @@ def compile_ts(ctx,
   # Do not produce declarations in ES6 mode, tsickle cannot produce correct
   # .d.ts (or even errors) from the altered Closure-style JS emit.
   tsconfig_es6["compilerOptions"]["declaration"] = False
+  tsconfig_es6["compilerOptions"].pop("declarationDir")
   outputs = transpiled_closure_js + tsickle_externs
   if perf_trace:
     perf_trace_file = ctx.new_file(ctx.label.name + ".es6.trace")

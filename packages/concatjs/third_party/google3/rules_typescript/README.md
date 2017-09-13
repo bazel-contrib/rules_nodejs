@@ -78,7 +78,11 @@ Then build it:
 `bazel build //path/to/package:target`
 
 The resulting `.d.ts` file paths will be printed. Additionally, the `.js`
-outputs from TypeScript will be written to disk, next to the `.d.ts` files.
+outputs from TypeScript will be written to disk, next to the `.d.ts` files <sup>1</sup>.
+
+> <sup>1</sup> The
+> [declarationDir](https://www.typescriptlang.org/docs/handbook/compiler-options.html)
+> compiler option will be silently overwritten if present.
 
 ## Notes
 

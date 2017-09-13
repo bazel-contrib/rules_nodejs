@@ -156,6 +156,10 @@ def create_tsconfig(ctx, files, srcs,
 
       "noEmitOnError": False,
       "declaration": True,
+
+      # We don't support this compiler option (See github #32), so
+      # always emit declaration files in the same location as outDir.
+      "declarationDir": "/".join([workspace_path, outdir_path]),
       "stripInternal": True,
 
       # Embed source maps and sources in .js outputs
