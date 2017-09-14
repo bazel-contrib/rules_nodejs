@@ -61,8 +61,15 @@ function resolveToModuleRoot(path) {
  * The runfiles manifest maps from short_path
  * https://docs.bazel.build/versions/master/skylark/lib/File.html#short_path
  * to the actual location on disk where the file can be read.
+ *
+ * In a sandboxed execution, it does not exist. In that case, runfiles must be
+ * resolved from a symlink tree under the runfiles dir.
+ * See https://github.com/bazelbuild/bazel/issues/3726
  */
 function loadRunfilesManifest(manifestPath) {
+  if (!fs.existsSync(manifestPath)) {
+    return;
+  }
   const result = Object.create(null);
   const input = fs.readFileSync(manifestPath, {encoding: 'utf-8'});
   for (const line of input.split("\n")) {
@@ -72,7 +79,17 @@ function loadRunfilesManifest(manifestPath) {
   }
   return result;
 }
-const runfilesManifest = loadRunfilesManifest(process.env.RUNFILES);
+const runfilesManifest = loadRunfilesManifest(`${process.env.RUNFILES}_manifest`);
+
+function resolveRunfiles(...pathSegments) {
+  if (runfilesManifest) {
+    // Join on forward slash, because even on Windows the runfiles_manifest
+    // file is written with forward slash.
+    return runfilesManifest[pathSegments.join('/')];
+  } else {
+    return path.join(process.env.RUNFILES, ...pathSegments);
+  }
+}
 
 var originalResolveFilename = module.constructor._resolveFilename;
 module.constructor._resolveFilename =
@@ -80,12 +97,10 @@ module.constructor._resolveFilename =
   var failedResolutions = [];
   var resolveLocations = [
     request,
-    runfilesManifest[request],
-    // Join on forward slash, because even on Windows the runfiles_manifest
-    // file is written with forward slash.
-    runfilesManifest[[
+    resolveRunfiles(request),
+    resolveRunfiles(
       'TEMPLATED_workspace_name', 'TEMPLATED_label_package',
-      'node_modules', request].join('/')],
+      'node_modules', request),
   ];
   for (var location of resolveLocations) {
     try {
