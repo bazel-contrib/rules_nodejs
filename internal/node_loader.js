@@ -112,7 +112,7 @@ module.constructor._resolveFilename =
 
   var moduleRoot = resolveToModuleRoot(request);
   if (moduleRoot) {
-    var moduleRootInRunfiles = path.join(runfilesDir(), moduleRoot);
+    var moduleRootInRunfiles = resolveRunfiles(moduleRoot);
     var filename = module.constructor._findPath(moduleRootInRunfiles, []);
     if (!filename) {
       throw new Error(`No file ${request} found in module root ${moduleRoot}`);
