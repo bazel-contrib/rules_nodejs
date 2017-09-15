@@ -88,6 +88,8 @@ def tsc_wrapped_tsconfig(ctx,
                            devmode_manifest=devmode_manifest,
                            **kwargs)
   config["bazelOptions"]["nodeModulesPrefix"] = "node_modules"
+  if config["compilerOptions"]["target"] == "es6":
+    config["compilerOptions"]["module"] = "es2015"
 
   # If the user gives a tsconfig attribute, the generated file should extend
   # from the user's tsconfig.
