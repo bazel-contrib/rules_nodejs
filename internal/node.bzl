@@ -66,16 +66,21 @@ def _nodejs_binary_impl(ctx):
 
     _write_loader_script(ctx)
 
+    # Avoid writing non-normalized paths (workspace/../other_workspace/path)
+    if ctx.outputs.loader.short_path.startswith("../"):
+      script_path = ctx.outputs.loader.short_path[len("../"):]
+    else:
+      script_path = "/".join([
+          ctx.workspace_name,
+          ctx.outputs.loader.short_path,
+      ])
     ctx.template_action(
         template=ctx.file._launcher_template,
         output=ctx.outputs.executable,
         substitutions={
             "TEMPLATED_node": ctx.workspace_name + "/" + node.path,
             "TEMPLATED_args": " ".join(ctx.attr.args),
-            "TEMPLATED_script_path": "/".join([
-                ctx.workspace_name,
-                ctx.outputs.loader.short_path,
-            ]),
+            "TEMPLATED_script_path": script_path,
         },
         executable=True,
     )
