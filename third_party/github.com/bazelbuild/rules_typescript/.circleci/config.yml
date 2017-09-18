@@ -1,0 +1,69 @@
+# Configuration file for https://circleci.com/gh/bazelbuild/rules_typescript
+
+# Note: YAML anchors allow an object to be re-used, reducing duplication.
+# The ampersand declares an alias for an object, then later the `<<: *name`
+# syntax dereferences it.
+# See http://blog.daemonl.com/2016/02/yaml.html
+# To validate changes, use an online parser, eg.
+# http://yaml-online-parser.appspot.com/
+
+# Settings common to each job
+anchor_1: &job_defaults
+  working_directory: ~/ts
+  # Use a docker image with bazel already installed
+  docker:
+    - image: angular/ngcontainer:0.0.1
+
+# After checkout, rebase on top of master.
+# Similar to travis behavior, but not quite the same.
+# See https://discuss.circleci.com/t/1662
+anchor_2: &post_checkout
+  post: git pull --ff-only origin "refs/pull/${CI_PULL_REQUEST//*pull\//}/merge"
+
+version: 2
+jobs:
+  build:
+    <<: *job_defaults
+    steps:
+      - checkout:
+          <<: *post_checkout
+
+      - restore_cache:
+          key: rules_typescript-{{ checksum "yarn.lock" }}
+      - run: bazel info release
+      - run: bazel run @yarn//:yarn
+      - run: bazel build ...
+      - run: bazel test ...
+
+      - save_cache:
+          key: rules_typescript-{{ checksum "yarn.lock" }}
+          paths:
+            - "node_modules"
+
+  # This job tests the same stuff, but without the .bazelrc file.
+  # It disables worker mode, for example.
+  build_no_bazelrc:
+    <<: *job_defaults
+    steps:
+      - checkout:
+          <<: *post_checkout
+
+      - restore_cache:
+          key: rules_typescript-{{ checksum "yarn.lock" }}
+      - run: bazel --bazelrc=/dev/null info release
+      - run: bazel --bazelrc=/dev/null run @yarn//:yarn
+      - run: bazel --bazelrc=/dev/null build ...
+      - run: bazel --bazelrc=/dev/null test ...
+
+      - save_cache:
+          key: rules_typescript-{{ checksum "yarn.lock" }}
+          paths:
+            - "node_modules"
+
+workflows:
+  version: 2
+  # Run the two builds in parallel, reporting separate status to github PRs.
+  default_workflow:
+    jobs:
+      - build
+      - build_no_bazelrc
