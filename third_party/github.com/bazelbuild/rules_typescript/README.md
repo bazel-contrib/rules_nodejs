@@ -1,5 +1,7 @@
 # TypeScript rules for Bazel
 
+[![CircleCI](https://circleci.com/gh/bazelbuild/rules_typescript.svg?style=svg)](https://circleci.com/gh/bazelbuild/rules_typescript)
+
 **WARNING: this is an early release with limited features. Breaking changes are likely. Not recommended for general use.**
 
 The TypeScript rules integrate the TypeScript compiler with Bazel.
