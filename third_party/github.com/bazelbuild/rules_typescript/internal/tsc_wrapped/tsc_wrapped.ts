@@ -6,6 +6,7 @@ import {CompilerHost} from './compiler_host';
 import {CachedFileLoader, FileCache, FileLoader, UncachedFileLoader} from './file_cache';
 import {wrap} from './perf_trace';
 import {BazelOptions, parseTsconfig} from './tsconfig';
+import {fixUmdModuleDeclarations} from './umd_module_declaration_transform';
 import {debug, log, runAsWorker, runWorkerLoop} from './worker';
 
 export function main(args) {
@@ -106,7 +107,12 @@ function runOneBuild(
     return false;
   }
   for (const sf of program.getSourceFiles().filter(isCompilationTarget)) {
-    const emitResult = program.emit(sf);
+    const emitResult = program.emit(
+        sf, /*writeFile*/ undefined,
+        /*cancellationToken*/ undefined, /*emitOnlyDtsFiles*/ undefined, {
+          after: [fixUmdModuleDeclarations(
+              (sf: ts.SourceFile) => compilerHost.amdModuleName(sf))]
+        });
     diagnostics.push(...emitResult.diagnostics);
   }
   if (diagnostics.length > 0) {

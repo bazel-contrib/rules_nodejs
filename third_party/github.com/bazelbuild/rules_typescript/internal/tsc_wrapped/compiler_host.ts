@@ -110,6 +110,21 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
   }
 
   /**
+   * TypeScript SourceFile's have a path with the rootDirs[i] still present, eg.
+   * /build/work/bazel-out/local-fastbuild/bin/path/to/file
+   * @return the path without any rootDirs, eg. path/to/file
+   */
+  private rootDirsRelative(fileName: string): string {
+    for (const root of this.options.rootDirs) {
+      if (fileName.startsWith(root)) {
+        // rootDirs are sorted longest-first, so short-circuit the iteration
+        return path.relative(root, fileName);
+      }
+    }
+    return fileName;
+  }
+
+  /**
    * Massages file names into valid goog.module names:
    * - resolves relative paths to the given context
    * - resolves non-relative paths which takes module_root into account
@@ -135,15 +150,9 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
         resolved.resolvedModule.resolvedFileName) {
       let resolvedFileName = resolved.resolvedModule.resolvedFileName;
 
-      // TypeScript gives us a path with the rootDirs[i] still present, eg.
-      // /build/work/bazel-out/local-fastbuild/bin/path/to/file
-      // We want path/to/file.
-      for (const root of this.options.rootDirs) {
-        if (resolvedFileName.startsWith(root)) {
-          resolvedFileName = path.relative(root, resolvedFileName);
-          break;  // rootDirs are sorted longest-first
-        }
-      }
+      // /build/work/bazel-out/local-fastbuild/bin/path/to/file ->
+      // path/to/file
+      resolvedFileName = this.rootDirsRelative(resolvedFileName);
 
       // Set the importPath to the resolved filename minus the extension.
       // Extension can either be '.d.ts' or anything after the last '.'.
@@ -184,12 +193,47 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
     return moduleName;
   }
 
+  /**
+   * Converts file path into a valid AMD module name.
+   *
+   * An AMD module can have an arbitrary name, so that it is require'd by name
+   * rather than by path. See http://requirejs.org/docs/whyamd.html#namedmodules
+   *
+   * "However, tools that combine multiple modules together for performance need
+   *  a way to give names to each module in the optimized file. For that, AMD
+   *  allows a string as the first argument to define()"
+   */
+  amdModuleName(sf: ts.SourceFile) {
+    // /build/work/bazel-out/local-fastbuild/bin/path/to/file.ts
+    // -> path/to/file.ts
+    const fileName = this.rootDirsRelative(sf.fileName);
+    // path/to/file.ts ->
+    // myWorkspace/path/to/file
+    return path.join(
+        this.bazelOpts.workspaceName, fileName.replace(/(\.d)?\.tsx?$/, ''));
+  }
+
   /** Loads a source file from disk (or the cache). */
   getSourceFile(
       fileName: string, languageVersion: ts.ScriptTarget,
       onError?: (message: string) => void) {
     return perfTrace.wrap(`getSourceFile ${fileName}`, () => {
-      return this.fileLoader.loadFile(fileName, fileName, languageVersion);
+      const sf = this.fileLoader.loadFile(fileName, fileName, languageVersion);
+      if (this.options.module === ts.ModuleKind.AMD ||
+          this.options.module === ts.ModuleKind.UMD) {
+        const moduleName = this.amdModuleName(sf);
+        if (sf.moduleName === moduleName) return sf;
+        if (sf.moduleName) {
+          throw new Error(
+              `ERROR: ${sf.fileName} ` +
+              `contains a module name declaration ${sf.moduleName} ` +
+              `which would be overwritten by Bazel's TypeScript compiler.`);
+        }
+        // Setting the moduleName is equivalent to the original source having a
+        // ///<amd-module name="some/name"/> directive
+        sf.moduleName = moduleName;
+      }
+      return sf;
     });
   }
 

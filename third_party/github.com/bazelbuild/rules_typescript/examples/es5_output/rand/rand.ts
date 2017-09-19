@@ -1,0 +1,3 @@
+export function rand(): number {
+  return 1;  // Well, not that random...
+}
