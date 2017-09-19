@@ -15,3 +15,16 @@ nodejs_binary(
     entry_point = "rollup/bin/rollup",
     node_modules = ":node_modules",
 )
+
+load(":rollup.bzl", "rollup")
+rollup(
+    name = "bundle",
+    entry_point = "examples/rollup/foo.js",
+    srcs = ["foo.js", "bar.js"],
+)
+
+sh_test(
+    name = "test",
+    srcs = ["test.sh"],
+    data = [":bundle.js"],
+)
