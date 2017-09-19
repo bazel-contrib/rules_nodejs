@@ -1,0 +1,25 @@
+load("//:defs.bzl", "ts_library")
+load(":es5_consumer.bzl", "es5_consumer")
+
+genrule(
+  name = "generated_ts",
+  outs = ["generated.ts"],
+  cmd = "echo 'export const gen = 1;' > $@",
+)
+
+ts_library(
+    name = "lib",
+    srcs = glob(["*.ts"]) + [":generated.ts"],
+    deps = ["//examples/es5_output/rand"],
+)
+
+es5_consumer(
+    name = "es5_output",
+    deps = [":lib"],
+)
+
+sh_test(
+    name = "es5_output_test",
+    srcs = ["es5_output_test.sh"],
+    data = [":es5_output"],
+)

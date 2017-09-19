@@ -3,3 +3,4 @@ export * from './compiler_host';
 export * from './file_cache';
 export * from './worker';
 export * from './manifest';
+export * from './umd_module_declaration_transform';
