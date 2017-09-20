@@ -1,0 +1,20 @@
+[
+  {
+    "node": "windows-x86_64",
+    "toolchain": "msys",
+    "parameters": {
+      "build_opts": [
+        "--cpu=x64_windows_msys",
+        "--host_cpu=x64_windows_msys"
+      ],
+      "test_tag_filters": [
+        "-no_windows",
+        "-slow"
+      ],
+      "configure": [
+        "%BAZEL% run @yarn//:yarn"
+      ]
+    }
+  }
+
+]
