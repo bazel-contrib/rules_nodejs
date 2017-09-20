@@ -51,6 +51,11 @@ COMMON_ATTRIBUTES = dict(BASE_ATTRIBUTES, **{
     "generate_externs": attr.bool(default = True),
 })
 
+COMMON_OUTPUTS = {
+    # Allow the tsconfig.json to be generated without running compile actions.
+    "tsconfig": "%{name}_tsconfig.json"
+}
+
 # TODO(plf): Enforce this at analysis time.
 def assert_js_or_typescript_deps(ctx):
   for dep in ctx.attr.deps:
