@@ -85,7 +85,9 @@ function resolveRunfiles(...pathSegments) {
   if (runfilesManifest) {
     // Join on forward slash, because even on Windows the runfiles_manifest
     // file is written with forward slash.
-    return runfilesManifest[pathSegments.join('/')];
+    const runfilesEntry = pathSegments.join('/');
+    // Add .js as a workaround for https://github.com/bazelbuild/rules_nodejs/issues/25
+    return runfilesManifest[runfilesEntry] || runfilesManifest[runfilesEntry + '.js'];
   } else {
     return path.join(process.env.RUNFILES, ...pathSegments);
   }
@@ -113,11 +115,16 @@ module.constructor._resolveFilename =
   var moduleRoot = resolveToModuleRoot(request);
   if (moduleRoot) {
     var moduleRootInRunfiles = resolveRunfiles(moduleRoot);
-    var filename = module.constructor._findPath(moduleRootInRunfiles, []);
-    if (!filename) {
-      throw new Error(`No file ${request} found in module root ${moduleRoot}`);
+    try {
+      var filename = module.constructor._findPath(moduleRootInRunfiles, []);
+      if (!filename) {
+        throw new Error(`No file ${request} found in module root ${moduleRoot}`);
+      }
+      return filename;
+    } catch (e) {
+      console.error(`Failed to findPath for ${moduleRootInRunfiles}`);
+      throw e;
     }
-    return filename;
   }
   var error = new Error(`Cannot find module '${request}'\n  looked in:` +
     failedResolutions.map(r => '\n   ' + r));
