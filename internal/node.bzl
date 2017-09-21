@@ -92,31 +92,43 @@ def _nodejs_binary_impl(ctx):
         ),
     )
 
+_NODEJS_EXECUTABLE_ATTRS = {
+    "entry_point": attr.string(mandatory = True),
+    "data": attr.label_list(
+        allow_files = True,
+        cfg = "data",
+        aspects=[_sources_aspect, module_mappings_runtime_aspect]),
+    "_node": attr.label(
+        default = "@nodejs//:node",
+        allow_files = True,
+        single_file = True),
+    "node_modules": attr.label(
+        default = Label("@//:node_modules")),
+    "_launcher_template": attr.label(
+        default = Label("//internal:node_launcher.sh"),
+        allow_files = True,
+        single_file = True),
+    "_loader_template": attr.label(
+        default = Label("//internal:node_loader.js"),
+        allow_files = True,
+        single_file = True),
+}
+
+_NODEJS_EXECUTABLE_OUTPUTS = {
+    "loader": "%{name}_loader.js"
+}
+
 nodejs_binary = rule(
-    _nodejs_binary_impl,
-    attrs = {
-        "entry_point": attr.string(),
-        "data": attr.label_list(
-            allow_files = True,
-            cfg = "data",
-            aspects=[_sources_aspect, module_mappings_runtime_aspect]),
-        "_node": attr.label(
-            default = "@nodejs//:node",
-            allow_files = True,
-            single_file = True),
-        "node_modules": attr.label(
-            default = Label("@//:node_modules")),
-        "_launcher_template": attr.label(
-            default = Label("//internal:node_launcher.sh"),
-            allow_files = True,
-            single_file = True),
-        "_loader_template": attr.label(
-            default = Label("//internal:node_loader.js"),
-            allow_files = True,
-            single_file = True),
-    },
+    implementation = _nodejs_binary_impl,
+    attrs = _NODEJS_EXECUTABLE_ATTRS,
     executable = True,
-    outputs = {
-        "loader": "%{name}_loader.js"
-    },
+    outputs = _NODEJS_EXECUTABLE_OUTPUTS,
+)
+
+# A nodejs_test is just a nodejs_binary with "test=true".
+nodejs_test = rule(
+    implementation = _nodejs_binary_impl,
+    attrs = _NODEJS_EXECUTABLE_ATTRS,
+    test = True,
+    outputs = _NODEJS_EXECUTABLE_OUTPUTS,
 )

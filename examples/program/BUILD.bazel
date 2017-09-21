@@ -1,0 +1,26 @@
+load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
+
+# Make the jasmine library available at runtime by exposing our node_modules
+# directory.
+filegroup(
+    name = "node_modules",
+    srcs = glob([
+        "node_modules/**/*.js",
+        "node_modules/**/*.d.ts",
+        "node_modules/**/*.json"
+    ]),
+    visibility = ["//visibility:public"],
+)
+
+# This is like a "js_library", but there are no actions to run on JS files so a
+# filegroup is semantically equivalent.
+filegroup(
+    name = "program",
+    srcs = glob(["*.js"], exclude = ["*.spec.js"]),
+)
+
+jasmine_node_test(
+    name = "test",
+    srcs = glob(["*.spec.js"]),
+    deps = [":program"],
+)
