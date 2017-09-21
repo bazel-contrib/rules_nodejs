@@ -30,3 +30,10 @@ if [[ "$B_JS" != *"require(\"build_bazel_rules_typescript/examples/es5_output/ge
   echo "$B_JS"
   exit 1
 fi
+
+# should not give a module name to external modules
+if [[ "$B_JS" != *"require(\"tsickle\")"* ]]; then
+  echo "Expected b.js to require tsickle by its original name, but was"
+  echo "$B_JS"
+  exit 1
+fi

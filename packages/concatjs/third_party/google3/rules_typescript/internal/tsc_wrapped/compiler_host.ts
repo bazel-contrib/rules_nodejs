@@ -204,6 +204,9 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
    *  allows a string as the first argument to define()"
    */
   amdModuleName(sf: ts.SourceFile) {
+    if (this.bazelOpts.compilationTargetSrc.indexOf(sf.fileName) === -1) {
+      return undefined;
+    }
     // /build/work/bazel-out/local-fastbuild/bin/path/to/file.ts
     // -> path/to/file.ts
     const fileName = this.rootDirsRelative(sf.fileName);
@@ -222,12 +225,13 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
       if (this.options.module === ts.ModuleKind.AMD ||
           this.options.module === ts.ModuleKind.UMD) {
         const moduleName = this.amdModuleName(sf);
-        if (sf.moduleName === moduleName) return sf;
+        if (sf.moduleName === moduleName || !moduleName) return sf;
         if (sf.moduleName) {
           throw new Error(
               `ERROR: ${sf.fileName} ` +
               `contains a module name declaration ${sf.moduleName} ` +
-              `which would be overwritten by Bazel's TypeScript compiler.`);
+              `which would be overwritten with ${moduleName} ` +
+              `by Bazel's TypeScript compiler.`);
         }
         // Setting the moduleName is equivalent to the original source having a
         // ///<amd-module name="some/name"/> directive
@@ -251,6 +255,14 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
       fileName: string, content: string, writeByteOrderMark: boolean,
       onError?: (message: string) => void,
       sourceFiles?: ts.SourceFile[]): void {
+    // Workaround https://github.com/Microsoft/TypeScript/issues/18648
+    if (fileName.endsWith('.d.ts') && sourceFiles && sourceFiles.length > 0 &&
+        sourceFiles[0].moduleName &&
+        (this.options.module === ts.ModuleKind.AMD ||
+         this.options.module === ts.ModuleKind.UMD)) {
+      content =
+          `/// <amd-module name="${sourceFiles[0].moduleName}" />\n${content}`;
+    }
     fileName = this.flattenOutDir(fileName);
     if (!this.bazelOpts.es5Mode) {
       // Write ES6 transpiled files to *.closure.js.
