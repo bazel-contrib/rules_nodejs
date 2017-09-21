@@ -19,6 +19,7 @@
 load(":common/compilation.bzl", "COMMON_ATTRIBUTES", "compile_ts", "ts_providers_dict_to_struct")
 load(":executables.bzl", "get_tsc")
 load(":common/tsconfig.bzl", "create_tsconfig")
+load(":ts_config.bzl", "TsConfig")
 
 def _compile_action(ctx, inputs, outputs, config_file_path):
   externs_files = []
@@ -39,6 +40,8 @@ def _compile_action(ctx, inputs, outputs, config_file_path):
                             if f.path.endswith(".ts") or f.path.endswith(".json")]
   if ctx.file.tsconfig:
     action_inputs += [ctx.file.tsconfig]
+    if TsConfig in ctx.attr.tsconfig:
+      action_inputs += ctx.attr.tsconfig[TsConfig].deps
 
   # One at-sign makes this a params-file, enabling the worker strategy.
   # Two at-signs escapes the argument so it's passed through to tsc_wrapped
@@ -103,7 +106,7 @@ def tsc_wrapped_tsconfig(ctx,
   # this gives extra error-checking.
   if ctx.file.tsconfig:
     workspace_path = config["compilerOptions"]["rootDir"]
-    config["extends"] = "/".join([workspace_path, ctx.file.tsconfig.path[:-5]])
+    config["extends"] = "/".join([workspace_path, ctx.file.tsconfig.path[:-len(".json")]])
 
   return config
 
@@ -141,14 +144,14 @@ ts_library = rule(
         # be portable across internal/external, so we need this attribute
         # internally as well.
         "tsconfig":
-            attr.label(allow_files = True, single_file=True),
+            attr.label(allow_files = True, single_file = True),
         "compiler":
             attr.label(
                 default=get_tsc(),
                 single_file=False,
                 allow_files=True,
                 executable=True,
-                cfg="host",),
+                cfg="host"),
         "supports_workers": attr.bool(default = True),
         # @// is special syntax for the "main" repository
         # The default assumes the user specified a target "node_modules" in their

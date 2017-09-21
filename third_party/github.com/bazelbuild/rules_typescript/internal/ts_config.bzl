@@ -12,9 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-""" Public API surface is re-exported here.
-
-Users should not load files under "/internal"
+"""The ts_config rule allows users to express tsconfig.json file groups.
 """
-load("//internal:build_defs.bzl", "ts_library")
-load("//internal:ts_config.bzl", "ts_config")
+
+TsConfig = provider()
+
+def _ts_config_impl(ctx):
+  files = depset()
+  files += [ctx.file.src]
+  return [DefaultInfo(files = files), TsConfig(deps = ctx.files.deps)]
+
+ts_config = rule(
+    implementation = _ts_config_impl,
+    attrs = {
+      "src": attr.label(allow_files = True, single_file = True, mandatory = True),
+      "deps": attr.label_list(allow_files = True, mandatory = True),
+    },
+)
