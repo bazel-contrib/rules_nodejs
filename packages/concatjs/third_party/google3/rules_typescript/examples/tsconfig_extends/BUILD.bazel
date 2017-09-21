@@ -12,9 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-""" Public API surface is re-exported here.
+package(default_visibility = ["//visibility:public"])
 
-Users should not load files under "/internal"
-"""
-load("//internal:build_defs.bzl", "ts_library")
-load("//internal:ts_config.bzl", "ts_config")
+load("//:defs.bzl", "ts_config", "ts_library")
+
+# Because our tsconfig.json has an extends property, we must also tell the
+# ts_library to include the extended tsconfig file in compilations.
+# The ts_library rule will generate its own tsconfig which extends from the
+# src file.
+ts_config(
+    name = "tsconfig",
+    src = "tsconfig.json",
+    deps = ["tsconfig-base.json"],
+)
+
+ts_library(
+    name = "tsconfig_extends",
+    srcs = [
+        "uses_promise.ts",
+    ],
+    tsconfig = ":tsconfig",
+)
