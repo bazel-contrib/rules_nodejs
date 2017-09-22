@@ -99,7 +99,7 @@ _NODEJS_EXECUTABLE_ATTRS = {
         cfg = "data",
         aspects=[_sources_aspect, module_mappings_runtime_aspect]),
     "_node": attr.label(
-        default = "@nodejs//:node",
+        default = Label("@nodejs//:node"),
         allow_files = True,
         single_file = True),
     "node_modules": attr.label(
