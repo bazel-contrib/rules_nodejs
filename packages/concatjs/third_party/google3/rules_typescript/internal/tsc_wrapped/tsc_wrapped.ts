@@ -9,7 +9,7 @@ import {BazelOptions, parseTsconfig} from './tsconfig';
 import {fixUmdModuleDeclarations} from './umd_module_declaration_transform';
 import {debug, log, runAsWorker, runWorkerLoop} from './worker';
 
-export function main(args) {
+export function main(args: string[]) {
   if (runAsWorker(args)) {
     log('Starting TypeScript compiler persistent worker...');
     runWorkerLoop(runOneBuild);
@@ -73,6 +73,10 @@ function runOneBuild(
   if (errors) {
     console.error(format(target, errors));
     return false;
+  }
+  if (!parsed) {
+    throw new Error(
+        'Impossible state: if parseTsconfig returns no errors, then parsed should be non-null');
   }
   const {options, bazelOpts, files} = parsed;
   const compilerHostDelegate =

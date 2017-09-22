@@ -31,9 +31,12 @@ import * as ts from 'typescript';
  */
 export function fixUmdModuleDeclarations(
     moduleNamer: (sf: ts.SourceFile) =>
-        string): ts.TransformerFactory<ts.SourceFile> {
+        string | undefined): ts.TransformerFactory<ts.SourceFile> {
   return (context: ts.TransformationContext) =>
              (sf: ts.SourceFile): ts.SourceFile => {
+               const moduleName = moduleNamer(sf);
+               if (!moduleName) return sf;
+
                const visitor = (node: ts.Node): ts.Node => {
                  if (node.kind === ts.SyntaxKind.CallExpression) {
                    const ce = node as ts.CallExpression;
@@ -43,7 +46,7 @@ export function fixUmdModuleDeclarations(
                        ce.arguments[1].kind === ts.SyntaxKind.Identifier &&
                        (ce.arguments[1] as ts.Identifier).text === 'factory') {
                      const newArguments =
-                         [ts.createLiteral(moduleNamer(sf)), ...ce.arguments];
+                         [ts.createLiteral(moduleName), ...ce.arguments];
                      return ts.updateCall(
                          ce, ce.expression, ce.typeArguments, newArguments);
                    }

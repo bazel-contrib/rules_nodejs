@@ -121,7 +121,7 @@ export interface ParsedTsConfig {
  */
 export function parseTsconfig(
     tsconfigFile: string, host: ts.ParseConfigHost = ts.sys):
-    [ParsedTsConfig, ts.Diagnostic[], {target: string}] {
+    [ParsedTsConfig|null, ts.Diagnostic[]|null, {target: string}] {
   // TypeScript expects an absolute path for the tsconfig.json file
   tsconfigFile = path.resolve(tsconfigFile);
 
