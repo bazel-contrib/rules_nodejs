@@ -13,6 +13,26 @@ export type ModuleResolver =
         ts.ResolvedModuleWithFailedLookupLocations;
 
 /**
+ * Narrows down the type of some properties from non-optional to required, so
+ * that we do not need to check presence before each access.
+ */
+export interface BazelTsOptions extends ts.CompilerOptions {
+  rootDirs: string[];
+  rootDir: string;
+  outDir: string;
+}
+
+export function narrowTsOptions(options: ts.CompilerOptions): BazelTsOptions {
+  if (!options.rootDirs)
+    throw new Error(`compilerOptions.rootDirs should be set by tsconfig.bzl`);
+  if (!options.rootDir)
+    throw new Error(`compilerOptions.rootDirs should be set by tsconfig.bzl`);
+  if (!options.outDir)
+    throw new Error(`compilerOptions.rootDirs should be set by tsconfig.bzl`);
+  return options as BazelTsOptions;
+}
+
+/**
  * CompilerHost that knows how to cache parsed files to improve compile times.
  */
 export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
@@ -35,13 +55,15 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
   typeBlackListPaths: Set<string>;
   transformDecorators: boolean;
   transformTypesToClosure: boolean;
+  private options: BazelTsOptions;
 
   constructor(
-      public inputFiles: string[], readonly options: ts.CompilerOptions,
+      public inputFiles: string[], options: ts.CompilerOptions,
       readonly bazelOpts: BazelOptions, private delegate: ts.CompilerHost,
       private fileLoader: FileLoader,
       private readonly allowNonHermeticReads: boolean,
       private moduleResolver: ModuleResolver = ts.resolveModuleName) {
+    this.options = narrowTsOptions(options);
     this.relativeRoots =
         this.options.rootDirs.map(r => path.relative(this.options.rootDir, r));
     inputFiles.forEach((f) => {
@@ -203,7 +225,7 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
    *  a way to give names to each module in the optimized file. For that, AMD
    *  allows a string as the first argument to define()"
    */
-  amdModuleName(sf: ts.SourceFile) {
+  amdModuleName(sf: ts.SourceFile): string|undefined {
     if (this.bazelOpts.compilationTargetSrc.indexOf(sf.fileName) === -1) {
       return undefined;
     }
@@ -256,10 +278,10 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
       onError?: (message: string) => void,
       sourceFiles?: ts.SourceFile[]): void {
     // Workaround https://github.com/Microsoft/TypeScript/issues/18648
-    if (fileName.endsWith('.d.ts') && sourceFiles && sourceFiles.length > 0 &&
-        sourceFiles[0].moduleName &&
-        (this.options.module === ts.ModuleKind.AMD ||
-         this.options.module === ts.ModuleKind.UMD)) {
+    if ((this.options.module === ts.ModuleKind.AMD ||
+         this.options.module === ts.ModuleKind.UMD) &&
+        fileName.endsWith('.d.ts') && sourceFiles && sourceFiles.length > 0 &&
+        sourceFiles[0].moduleName) {
       content =
           `/// <amd-module name="${sourceFiles[0].moduleName}" />\n${content}`;
     }
@@ -344,6 +366,6 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
   }
 
   realpath(s: string): string {
-    return ts.sys.realpath(s);
+    return ts.sys.realpath!(s);
   }
 }

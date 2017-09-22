@@ -4,9 +4,10 @@
     "version": "0.1.0",
     "dependencies": {
         "@types/node": "7.0.18",
-        "typescript": "2.4.x",
+        "@types/source-map": "^0.5.1",
         "protobufjs": "5.0.0",
-        "tsickle": "0.24.x"
+        "tsickle": "0.24.x",
+        "typescript": "2.4.x"
     },
     "devDependencies": {
         "clang-format": "1.0.49"

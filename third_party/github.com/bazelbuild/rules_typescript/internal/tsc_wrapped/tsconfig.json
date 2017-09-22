@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
+    "strict": true,
     "types": [
-      "node"
+      "node",
+      "source-map"
     ],
     "lib": [
       "dom",
