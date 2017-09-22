@@ -14,7 +14,7 @@
 
 package(default_visibility = ["//visibility:public"])
 
-exports_files(["node_launcher.sh", "node_loader.js"])
+exports_files(["node_launcher.sh", "node_loader.js", "jasmine_runner.js"])
 
 py_test(
     name = "check_bazel_version_test",

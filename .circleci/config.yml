@@ -3,17 +3,24 @@ jobs:
   build:
     working_directory: ~/ng
     docker:
-      - image: angular/ngcontainer:0.0.1
+      - image: angular/ngcontainer:0.0.2
     steps:
       - checkout
 
       - restore_cache:
           key: angular_bazel_example-{{ .Branch }}-{{ checksum "examples/rollup/yarn.lock" }}
       - run: bazel info release
+
       - run: bazel run @yarn//:yarn
-      - run: bazel build ...
-      - run: bazel test ...
+      # We must subtract any targets under examples/program because it is a separate Workspace
+      # TODO(alexeagle): understand better why bazel doesn't always do this
+      - run: bazel build -- ... -examples/program/...
+      - run: bazel test  -- ... -examples/program/...
+      # TODO(alexeagle): move this into the example proper
       - run: bazel run examples/rollup -- --help
+
+      # This is a separate workspace
+      - run: (cd examples/program; bazel run @yarn//:yarn && bazel build ... && bazel test ...)
 
       - save_cache:
           key: angular_bazel_example-{{ .Branch }}-{{ checksum "examples/rollup/yarn.lock" }}
