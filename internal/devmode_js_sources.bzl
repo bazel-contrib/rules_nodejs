@@ -1,16 +1,24 @@
+load(":node.bzl", "sources_aspect")
+
 def _devmode_js_sources_impl(ctx):
   files = depset()
-  files += ctx.files.deps
+
+  for d in ctx.attr.deps:
+    if hasattr(d, "node_sources"):
+      files += d.node_sources
 
   ctx.actions.write(ctx.outputs.manifest, "".join([
-    "/".join([ctx.workspace_name, f.path]) + "\n" for f in files
+    "/".join([ctx.workspace_name, f.short_path]) + "\n" for f in files
   ]))
   return [DefaultInfo(files = files)]
 
 devmode_js_sources = rule(
     implementation = _devmode_js_sources_impl,
     attrs = {
-        "deps": attr.label_list(allow_files = True),
+        "deps": attr.label_list(
+            allow_files = True,
+            aspects=[sources_aspect],
+          ),
     },
     outputs = {
         "manifest": "%{name}.MF",
