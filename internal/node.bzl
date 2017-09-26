@@ -26,9 +26,11 @@ def _sources_aspect_impl(target, ctx):
   # get TypeScript outputs.
   if hasattr(target, "typescript"):
     result += target.typescript.es5_sources
+  elif hasattr(target, "files"):
+    result += target.files
   return struct(node_sources = result)
 
-_sources_aspect = aspect(
+sources_aspect = aspect(
     _sources_aspect_impl,
     attr_aspects = ["deps"],
 )
@@ -97,7 +99,7 @@ _NODEJS_EXECUTABLE_ATTRS = {
     "data": attr.label_list(
         allow_files = True,
         cfg = "data",
-        aspects=[_sources_aspect, module_mappings_runtime_aspect]),
+        aspects=[sources_aspect, module_mappings_runtime_aspect]),
     "_node": attr.label(
         default = Label("@nodejs//:node"),
         allow_files = True,
