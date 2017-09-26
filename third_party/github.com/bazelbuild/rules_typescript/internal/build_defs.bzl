@@ -73,9 +73,6 @@ def tsc_wrapped_tsconfig(ctx,
                          files,
                          srcs,
                          devmode_manifest=None,
-                         tsickle_externs=None,
-                         type_blacklisted_declarations=[],
-                         allowed_deps=depset(),
                          jsx_factory=None,
                          **kwargs):
 
@@ -107,6 +104,9 @@ def tsc_wrapped_tsconfig(ctx,
   if ctx.file.tsconfig:
     workspace_path = config["compilerOptions"]["rootDir"]
     config["extends"] = "/".join([workspace_path, ctx.file.tsconfig.path[:-len(".json")]])
+
+  if jsx_factory:
+    config["compilerOptions"]["jsxFactory"] = jsx_factory
 
   return config
 
