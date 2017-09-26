@@ -6,6 +6,8 @@ def _devmode_js_sources_impl(ctx):
   for d in ctx.attr.deps:
     if hasattr(d, "node_sources"):
       files += d.node_sources
+    elif hasattr(d, "files"):
+      files += d.files
 
   ctx.actions.write(ctx.outputs.manifest, "".join([
     "/".join([ctx.workspace_name, f.short_path]) + "\n" for f in files
