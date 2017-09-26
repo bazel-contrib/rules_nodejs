@@ -14,7 +14,7 @@ filegroup(
 )
 
 mock_typescript_lib(
-    name = "tots_typescript",
+    name = "mock_ts_lib",
     srcs = ["decrement.js"],
 )
 
@@ -28,5 +28,5 @@ filegroup(
 jasmine_node_test(
     name = "test",
     srcs = glob(["*.spec.js"]),
-    deps = [":program", ":tots_typescript"],
+    deps = [":program", ":mock_ts_lib"],
 )
