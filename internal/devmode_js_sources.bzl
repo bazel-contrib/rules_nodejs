@@ -19,7 +19,7 @@ devmode_js_sources = rule(
     attrs = {
         "deps": attr.label_list(
             allow_files = True,
-            aspects=[sources_aspect],
+            aspects = [sources_aspect],
           ),
     },
     outputs = {
