@@ -223,9 +223,13 @@ def compile_ts(ctx,
   ctx.file_action(output=ctx.outputs.tsconfig,
                   content=json_marshal(tsconfig_es6))
 
+  # Parameters of this compiler invocation in case we need to replay this with different
+  # settings for I18N.
+  replay_params = None
+
   if has_sources:
     inputs = compilation_inputs + [ctx.outputs.tsconfig]
-    compile_action(ctx, inputs, outputs, ctx.outputs.tsconfig.path)
+    replay_params = compile_action(ctx, inputs, outputs, ctx.outputs.tsconfig.path)
 
     devmode_manifest = ctx.new_file(ctx.label.name + ".es5.MF")
     tsconfig_json_es5 = ctx.new_file(ctx.label.name + "_es5_tsconfig.json")
@@ -293,6 +297,7 @@ def compile_ts(ctx,
           "devmode_manifest": devmode_manifest,
           "type_blacklisted_declarations": type_blacklisted_declarations,
           "tsickle_externs": tsickle_externs,
+          "replay_params": replay_params,
       },
       # Expose the tags so that a Skylark aspect can access them.
       "tags": ctx.attr.tags,
