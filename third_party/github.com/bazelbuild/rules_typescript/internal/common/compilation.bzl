@@ -76,11 +76,10 @@ def _collect_transitive_dts(ctx):
   for dep in ctx.attr.deps:
     if hasattr(dep, "typescript"):
       all_deps_declarations += dep.typescript.transitive_declarations
-      type_blacklisted_declarations += (
-          dep.typescript.type_blacklisted_declarations)
+      type_blacklisted_declarations += dep.typescript.type_blacklisted_declarations
   return struct(
-      transitive_declarations=list(all_deps_declarations),
-      type_blacklisted_declarations=list(type_blacklisted_declarations)
+      transitive_declarations=all_deps_declarations,
+      type_blacklisted_declarations=type_blacklisted_declarations
   )
 
 def _outputs(ctx, label):
@@ -196,7 +195,8 @@ def compile_ts(ctx,
   tsickle_externs_path = tsickle_externs[0] if tsickle_externs else None
 
   # Calculate allowed dependencies for strict deps enforcement.
-  allowed_deps = srcs[:]  # A target's sources may depend on each other.
+  allowed_deps = depset()
+  allowed_deps += srcs[:]  # A target's sources may depend on each other.
   for dep in ctx.attr.deps:
     if hasattr(dep, "typescript"):
       allowed_deps += dep.typescript.declarations
@@ -264,7 +264,9 @@ def compile_ts(ctx,
     devmode_manifest = None
 
   # Downstream rules see the .d.ts files produced or declared by this rule.
-  declarations = gen_declarations + src_declarations
+  declarations = depset()
+  declarations += gen_declarations
+  declarations += src_declarations
   if not srcs:
     # Re-export sources from deps.
     # TODO(b/30018387): introduce an "exports" attribute.
