@@ -90,7 +90,7 @@ def _nodejs_binary_impl(ctx):
     runfiles = depset(sources)
     runfiles += [node]
     runfiles += [ctx.outputs.loader]
-    runfiles += node_modules    
+    runfiles += node_modules
 
     return struct(
         runfiles = ctx.runfiles(
@@ -146,14 +146,13 @@ def nodejs_binary(name, args=[], **kwargs):
         data = [":%s_loader" % name],
     )
 
-# nodejs_test is just a nodejs_binary with "sh_test".
 def nodejs_test(name, args=[], **kwargs):
-    nodejs_binary_rule(
+    nodejs_binary_rule_test(
         name = "%s_loader" % name,
         **kwargs
     )
 
-    native.sh_test(
+    native.sh_binary(
         name = name,
         args = args,
         srcs = [":%s_loader_launcher.sh" % name],
