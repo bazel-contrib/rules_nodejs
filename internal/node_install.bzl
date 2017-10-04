@@ -98,12 +98,12 @@ sh_binary(
   else:
     node = Label("@nodejs//:bin/node")
   ctx.file("yarn.sh", "#!/bin/bash" + "".join(["""
-ROOT="$(dirname "{}")"
+ROOT="{}"
 NODE="{}"
 SCRIPT="{}"
 (cd "$ROOT"; "$NODE" "$SCRIPT" "$@")
 """.format(
-    ctx.path(package_json),
+    ctx.path(package_json).dirname,
     ctx.path(node),
     ctx.path("bin/yarn.js"))
     for package_json in ctx.attr.package_json]), executable = True)

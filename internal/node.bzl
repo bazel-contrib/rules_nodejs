@@ -81,17 +81,23 @@ def _nodejs_binary_impl(ctx):
       ])
     ctx.template_action(
         template=ctx.file._launcher_template,
-        output=ctx.outputs.executable,
+        output=ctx.outputs.main,
         substitutions={
             "TEMPLATED_node": ctx.workspace_name + "/" + node.path,
-            "TEMPLATED_args": " ".join(ctx.attr.args),
+            "TEMPLATED_args": "",
             "TEMPLATED_script_path": script_path,
         },
         executable=True,
     )
 
+    runfiles = depset(sources)
+    runfiles += [node]
+    runfiles += [ctx.outputs.loader]
+    runfiles += node_modules
+
     return struct(
         runfiles = ctx.runfiles(
+            transitive_files = runfiles,
             files = [node, ctx.outputs.loader] + node_modules + sources.to_list(),
             collect_data = True,
         ),
@@ -120,20 +126,38 @@ _NODEJS_EXECUTABLE_ATTRS = {
 }
 
 _NODEJS_EXECUTABLE_OUTPUTS = {
-    "loader": "%{name}_loader.js"
+    "loader": "%{name}_loader.js",
+    "main": "%{name}_launcher.sh"
 }
 
-nodejs_binary = rule(
+nodejs_binary_rule = rule(
     implementation = _nodejs_binary_impl,
     attrs = _NODEJS_EXECUTABLE_ATTRS,
-    executable = True,
     outputs = _NODEJS_EXECUTABLE_OUTPUTS,
 )
 
-# A nodejs_test is just a nodejs_binary with "test=true".
-nodejs_test = rule(
-    implementation = _nodejs_binary_impl,
-    attrs = _NODEJS_EXECUTABLE_ATTRS,
-    test = True,
-    outputs = _NODEJS_EXECUTABLE_OUTPUTS,
-)
+def nodejs_binary(name, args=[], **kwargs):
+    nodejs_binary_rule(
+        name = "%s_loader" % name,
+        **kwargs
+    )
+
+    native.sh_binary(
+        name = name,
+        args = args,
+        srcs = [":%s_loader_launcher.sh" % name],
+        data = [":%s_loader" % name],
+    )
+
+def nodejs_test(name, args=[], **kwargs):
+    nodejs_binary_rule_test(
+        name = "%s_loader" % name,
+        **kwargs
+    )
+
+    native.sh_binary(
+        name = name,
+        args = args,
+        srcs = [":%s_loader_launcher.sh" % name],
+        data = [":%s_loader" % name],
+    )
