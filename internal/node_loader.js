@@ -67,9 +67,8 @@ function resolveToModuleRoot(path) {
  * See https://github.com/bazelbuild/bazel/issues/3726
  */
 function loadRunfilesManifest(manifestPath) {
-  // If the runfiles directory exists, we're not running on Windows, so
-  // we don't need the runfiles manifest
-  if (fs.existsSync(process.env.RUNFILES)) {
+  // If the runfiles directory doesn't exist, we're not running on Windows.
+  if (!fs.existsSync(manifestPath)) {
     return;
   }
   const result = Object.create(null);
@@ -81,13 +80,13 @@ function loadRunfilesManifest(manifestPath) {
   }
   return result;
 }
-const runfilesManifest = loadRunfilesManifest(`${process.env.RUNFILES}_manifest`);
+const runfilesManifest = loadRunfilesManifest(`${process.env.RUNFILES}/MANIFEST`);
 
 function resolveRunfiles(...pathSegments) {
   if (runfilesManifest) {
     // Join on forward slash, because even on Windows the runfiles_manifest
     // file is written with forward slash.
-    const runfilesEntry = pathSegments.join('/');
+    const runfilesEntry = pathSegments.filter(s => !!s).join('/');
     // Add .js as a workaround for https://github.com/bazelbuild/rules_nodejs/issues/25
     return runfilesManifest[runfilesEntry] || runfilesManifest[runfilesEntry + '.js'];
   } else {

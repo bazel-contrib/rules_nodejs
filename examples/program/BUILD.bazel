@@ -29,4 +29,5 @@ jasmine_node_test(
     name = "test",
     srcs = glob(["*.spec.js"]),
     deps = [":program", ":mock_ts_lib"],
+    node_modules = ":node_modules",
 )
