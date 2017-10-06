@@ -147,12 +147,12 @@ def nodejs_binary(name, args=[], **kwargs):
     )
 
 def nodejs_test(name, args=[], **kwargs):
-    nodejs_binary_rule_test(
+    nodejs_binary_rule(
         name = "%s_loader" % name,
         **kwargs
     )
 
-    native.sh_binary(
+    native.sh_test(
         name = name,
         args = args,
         srcs = [":%s_loader_launcher.sh" % name],

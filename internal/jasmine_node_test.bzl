@@ -7,11 +7,9 @@ def jasmine_node_test(name, srcs, data = [], args = [], deps = [], **kwargs):
       deps = srcs + deps,
       testonly = 1,
   )
+  manifest = Label("//%s:%s_devmode_srcs.MF" % (PACKAGE_NAME, name))
 
-  args = ["/".join([p
-      for p in [".", PACKAGE_NAME, "%s_devmode_srcs.MF" % name]
-      if p
-  ])] + args
+  args = ["/".join([manifest.workspace_root.split("/")[1], manifest.package, manifest.name])] + args
 
   data += srcs + deps
   data += [Label("//internal:jasmine_runner.js")]

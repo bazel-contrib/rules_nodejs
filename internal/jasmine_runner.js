@@ -9,7 +9,6 @@ const UTF8 = {encoding: 'utf-8'};
 const BAZEL_EXIT_TESTS_FAILED = 3;
 const BAZEL_EXIT_NO_TESTS_FOUND = 4;
 
-
 function main(args) {
   if (!args.length) {
     throw new Error('Spec file manifest expected argument missing');
