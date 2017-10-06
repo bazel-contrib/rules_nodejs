@@ -23,7 +23,10 @@ load("//:defs.bzl", "node_repositories")
 #   @nodejs//:bin/npm
 # - The yarn package manager:
 #   @yarn//:yarn
-node_repositories(package_json = ["//examples/rollup:package.json"])
+node_repositories(package_json = [
+  "//examples/program:package.json",
+  "//examples/rollup:package.json",
+])
 
 # Now the user must run either
 # bazel run @yarn//:yarn

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # Copyright 2017 The Bazel Authors. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -44,7 +44,10 @@ case "$0" in
  *) self="$PWD/$0" ;;
 esac
 
-if [[ -n "$TEST_SRCDIR" ]]; then
+if [[ -n "$RUNFILES_MANIFEST_ONLY" ]]; then
+  # Windows only has a manifest file instead of symlinks.
+  RUNFILES=${RUNFILES_MANIFEST_FILE%/MANIFEST}
+elif [[ -n "$TEST_SRCDIR" ]]; then
   # Case 4, bazel has identified runfiles for us.
   RUNFILES="${TEST_SRCDIR}"
 else
@@ -95,7 +98,7 @@ done
 # On Windows, the runfiles symlink tree does not exist, so we must resolve paths
 # using the mapping in the runfiles_manifest file.
 # See https://github.com/bazelbuild/bazel/issues/3726
-readonly MANIFEST="${RUNFILES}_manifest"
+readonly MANIFEST="${RUNFILES}/MANIFEST"
 if [ -e "${MANIFEST}" ]; then
   # Lookup the real paths from the runfiles manifest with no dependency on posix
   while read line; do
