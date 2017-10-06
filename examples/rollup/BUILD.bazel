@@ -1,7 +1,8 @@
 # NOTE: the example uses //:defs.bzl because it lives in the same WORKSPACE
 # as the rule declarations.
 # Users should use @build_bazel_rules_nodejs//:defs.bzl
-load("//:defs.bzl", "nodejs_binary")
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
 
 filegroup(
     name = "node_modules",
@@ -23,8 +24,9 @@ rollup(
     srcs = ["foo.js", "bar.js"],
 )
 
-sh_test(
+jasmine_node_test(
     name = "test",
-    srcs = ["test.sh"],
-    data = [":bundle.js"],
+    srcs = glob(["*.spec.js"]),
+    deps = [":bundle"],
+    node_modules = ":node_modules",
 )
