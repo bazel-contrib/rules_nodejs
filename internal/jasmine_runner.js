@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const JasmineRunner = require('jasmine');
+const JasmineRunner = require('jasmine/lib/jasmine.js');
 
 const UTF8 = {encoding: 'utf-8'};
 
@@ -9,16 +9,14 @@ const UTF8 = {encoding: 'utf-8'};
 const BAZEL_EXIT_TESTS_FAILED = 3;
 const BAZEL_EXIT_NO_TESTS_FOUND = 4;
 
-
 function main(args) {
   if (!args.length) {
     throw new Error('Spec file manifest expected argument missing');
   }
-  const specFilesManifest = args[0];
+  const specFilesManifest = require.resolve(args[0]);
   // Remove the manifest, some tested code may process the argv.
   process.argv.splice(2, 1)[0];
 
-  let testFilesBaseDir = process.env['RUNFILES'];
   let testFiles =
       fs.readFileSync(specFilesManifest, UTF8)
       .split('\n')
