@@ -68,7 +68,8 @@ def assert_js_or_typescript_deps(ctx):
           "JavaScript library rules (js_library, pinto_library, etc, but " +
           "also proto_library and some others).\n")
 
-def _collect_transitive_dts(ctx):
+# Deep flag will be turned on with launch of b/66467516.
+def _collect_transitive_dts(ctx, deep=False):
   all_deps_declarations = depset()
   type_blacklisted_declarations = depset()
   for extra in ctx.files._additional_d_ts:
@@ -77,6 +78,9 @@ def _collect_transitive_dts(ctx):
     if hasattr(dep, "typescript"):
       all_deps_declarations += dep.typescript.transitive_declarations
       type_blacklisted_declarations += dep.typescript.type_blacklisted_declarations
+    else:
+      if deep and hasattr(dep, "clutz_transitive_dts"):
+        all_deps_declarations += dep.clutz_transitive_dts
   return struct(
       transitive_declarations=all_deps_declarations,
       type_blacklisted_declarations=type_blacklisted_declarations
