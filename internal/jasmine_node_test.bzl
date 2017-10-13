@@ -8,8 +8,10 @@ def jasmine_node_test(name, srcs, data = [], args = [], deps = [], **kwargs):
       testonly = 1,
   )
 
+  # Note: REPOSITORY_NAME is something like "@angular"
   args = ["/".join([p
-      for p in [".", PACKAGE_NAME, "%s_devmode_srcs.MF" % name]
+      for p in [".", "external" if len(REPOSITORY_NAME)>1 else "", REPOSITORY_NAME[len("@"):],
+                PACKAGE_NAME, "%s_devmode_srcs.MF" % name]
       if p
   ])] + args
 
