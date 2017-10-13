@@ -84,15 +84,21 @@ function loadRunfilesManifest(manifestPath) {
 const runfilesManifest = loadRunfilesManifest(`${process.env.RUNFILES}_manifest`);
 
 function resolveRunfiles(...pathSegments) {
+  // Remove any empty strings from pathSegments
+  pathSegments = pathSegments.filter(segment => segment);
+
+  const defaultPath = path.join(process.env.RUNFILES, ...pathSegments);
+
   if (runfilesManifest) {
-    // Join on forward slash, because even on Windows the runfiles_manifest
-    // file is written with forward slash.
+    // Join on forward slash, because even on Windows the runfiles_manifest file
+    // is written with forward slash.
     const runfilesEntry = pathSegments.join('/');
+
     // Add .js as a workaround for https://github.com/bazelbuild/rules_nodejs/issues/25
-    return runfilesManifest[runfilesEntry] || runfilesManifest[runfilesEntry + '.js'];
-  } else {
-    return path.join(process.env.RUNFILES, ...pathSegments);
+    return runfilesManifest[runfilesEntry] || runfilesManifest[runfilesEntry + '.js'] || defaultPath;
   }
+
+  return defaultPath;
 }
 
 var originalResolveFilename = module.constructor._resolveFilename;
