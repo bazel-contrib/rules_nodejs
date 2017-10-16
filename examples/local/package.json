@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "minimist": "1.2.0"
+  }
+}

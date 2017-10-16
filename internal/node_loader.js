@@ -109,6 +109,10 @@ module.constructor._resolveFilename =
     request,
     resolveRunfiles(request),
     resolveRunfiles(
+      'TEMPLATED_workspace_name',
+      path.dirname('TEMPLATED_build_file_path'),
+      request),
+    resolveRunfiles(
       'TEMPLATED_workspace_name', 'TEMPLATED_label_package',
       'node_modules', request),
   ];
