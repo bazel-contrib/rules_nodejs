@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const JasmineRunner = require('jasmine/lib/jasmine.js');
+const JasmineRunner = require('jasmine/lib/jasmine');
 
 const UTF8 = {encoding: 'utf-8'};
 

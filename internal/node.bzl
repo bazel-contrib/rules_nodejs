@@ -79,16 +79,29 @@ def _nodejs_binary_impl(ctx):
           ctx.workspace_name,
           ctx.outputs.loader.short_path,
       ])
+    substitutions = {
+        "TEMPLATED_node": ctx.workspace_name + "/" + node.path,
+        "TEMPLATED_args": " ".join(ctx.attr.args),
+        "TEMPLATED_script_path": script_path,
+    }
+    # Write the output twice.
+    # In order to have the name "nodejs_test", the rule must be declared
+    # with test = True, which means we must write an output called "executable".
+    # However, in order to wrap with a sh_test for Windows, we must be able to
+    # get a single output file with a ".sh" extension.
     ctx.template_action(
         template=ctx.file._launcher_template,
-        output=ctx.outputs.main,
-        substitutions={
-            "TEMPLATED_node": ctx.workspace_name + "/" + node.path,
-            "TEMPLATED_args": "",
-            "TEMPLATED_script_path": script_path,
-        },
+        output=ctx.outputs.executable,
+        substitutions=substitutions,
         executable=True,
     )
+    ctx.template_action(
+        template=ctx.file._launcher_template,
+        output=ctx.outputs.script,
+        substitutions=substitutions,
+        executable=True,
+    )
+
 
     runfiles = depset(sources)
     runfiles += [node]
@@ -127,37 +140,50 @@ _NODEJS_EXECUTABLE_ATTRS = {
 
 _NODEJS_EXECUTABLE_OUTPUTS = {
     "loader": "%{name}_loader.js",
-    "main": "%{name}_launcher.sh"
+    "script": "%{name}.sh",
 }
 
-nodejs_binary_rule = rule(
+# The name of the declared rule appears in
+# bazel query --output=label_kind
+# So we make these match what the user types in their BUILD file
+# and duplicate the definitions to give two distinct symbols.
+nodejs_binary = rule(
     implementation = _nodejs_binary_impl,
     attrs = _NODEJS_EXECUTABLE_ATTRS,
     outputs = _NODEJS_EXECUTABLE_OUTPUTS,
+    executable = True,
+)
+nodejs_test = rule(
+    implementation = _nodejs_binary_impl,
+    attrs = _NODEJS_EXECUTABLE_ATTRS,
+    outputs = _NODEJS_EXECUTABLE_OUTPUTS,
+    test = True,
 )
 
-def nodejs_binary(name, args=[], **kwargs):
-    nodejs_binary_rule(
-        name = "%s_loader" % name,
-        **kwargs
-    )
+# Wrap in an sh_binary for windows .exe wrapper.
+def nodejs_binary_macro(name, args=[], **kwargs):
+  nodejs_binary(
+      name = "%s_bin" % name,
+      **kwargs
+  )
 
-    native.sh_binary(
-        name = name,
-        args = args,
-        srcs = [":%s_loader_launcher.sh" % name],
-        data = [":%s_loader" % name],
-    )
+  native.sh_binary(
+      name = name,
+      args = args,
+      srcs = [":%s_bin.sh" % name],
+      data = [":%s_bin" % name],
+  )
 
-def nodejs_test(name, args=[], **kwargs):
-    nodejs_binary_rule_test(
-        name = "%s_loader" % name,
-        **kwargs
-    )
+# Wrap in an sh_test for windows .exe wrapper.
+def nodejs_test_macro(name, args=[], **kwargs):
+  nodejs_test(
+      name = "%s_bin" % name,
+      **kwargs
+  )
 
-    native.sh_binary(
-        name = name,
-        args = args,
-        srcs = [":%s_loader_launcher.sh" % name],
-        data = [":%s_loader" % name],
-    )
+  native.sh_test(
+      name = name,
+      args = args,
+      srcs = [":%s_bin.sh" % name],
+      data = [":%s_bin" % name],
+  )

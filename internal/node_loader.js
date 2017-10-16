@@ -107,7 +107,6 @@ module.constructor._resolveFilename =
   var resolveLocations = [
     request,
     resolveRunfiles(request),
-    resolveRunfiles('TEMPLATED_workspace_name', 'TEMPLATED_label_package', request),
     resolveRunfiles(
       'TEMPLATED_workspace_name', 'TEMPLATED_label_package',
       'node_modules', request),
