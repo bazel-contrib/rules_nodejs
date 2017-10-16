@@ -15,7 +15,10 @@
  * limitations under the License.
  */
 
-import {greeter} from './foo';
 import {Greeter} from 'examples/foo';
+// Repro for #31, should automatically discover @types/node
+import * as fs from 'fs';
 import {cool} from 'some-lib';
 import * as ts from 'typescript';
+
+import {greeter} from './foo';
