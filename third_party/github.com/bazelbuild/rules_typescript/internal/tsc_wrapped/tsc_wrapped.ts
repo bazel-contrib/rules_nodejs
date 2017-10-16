@@ -85,6 +85,11 @@ function runOneBuild(
   const compilerHost = new CompilerHost(
       files, options, bazelOpts, compilerHostDelegate, fileLoader,
       allowNonHermeticReads);
+  if (allowNonHermeticReads) {
+    (compilerHost as ts.CompilerHost).directoryExists =
+        (directoryName: string) =>
+            compilerHostDelegate.directoryExists!(directoryName);
+  }
   const program = ts.createProgram(files, options, compilerHost);
 
   fileCache.traceStats();
