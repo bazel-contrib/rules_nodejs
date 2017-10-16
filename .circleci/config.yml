@@ -12,17 +12,16 @@ jobs:
       - run: bazel info release
 
       - run: bazel run @yarn//:yarn
-      # We must subtract any targets under examples/program because it is a separate Workspace
-      # TODO(alexeagle): understand better why bazel doesn't always do this
-      - run: bazel build -- ... -examples/program/...
-      - run: bazel test  -- ... -examples/program/...
+      - run: bazel build ...
+      - run: bazel test ...
       # TODO(alexeagle): move this into the example proper
       - run: bazel run examples/rollup -- --help
 
-      # This is a separate workspace
-      - run: (cd examples/program; bazel run @yarn//:yarn && bazel build ... && bazel test ...)
+      # We should also be able to test targets in a different workspace
+      - run: bazel test @program_example//...
 
       - save_cache:
           key: angular_bazel_example-{{ .Branch }}-{{ checksum "examples/rollup/yarn.lock" }}
           paths:
             - "examples/rollup/node_modules"
+            - "examples/program/node_modules"
