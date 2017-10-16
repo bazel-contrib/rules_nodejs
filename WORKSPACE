@@ -16,6 +16,10 @@ workspace(name = "build_bazel_rules_nodejs")
 
 load("//:defs.bzl", "node_repositories")
 
+local_repository(
+    name = "program_example",
+    path = "examples/program",
+)
 # Install a hermetic version of node.
 # After this is run, these labels will be available:
 # - The nodejs install:
