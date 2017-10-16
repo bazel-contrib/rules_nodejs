@@ -11,9 +11,11 @@
         "-no_windows",
         "-slow"
       ],
+      "targets": ["//...", "@program_example/..."],
       "configure": [
         "%BAZEL% run @yarn//:yarn"
       ]
     }
   }
+
 ]

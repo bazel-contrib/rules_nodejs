@@ -1,8 +1,5 @@
-# NOTE: the example uses //:defs.bzl because it lives in the same WORKSPACE
-# as the rule declarations.
-# Users should use @build_bazel_rules_nodejs//:defs.bzl
-load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
-load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
+load("@build_bazel_rules_nodejs//:defs.bzl",
+     "jasmine_node_test", "nodejs_binary")
 
 filegroup(
     name = "node_modules",

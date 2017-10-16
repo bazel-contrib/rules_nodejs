@@ -6,18 +6,26 @@ def jasmine_node_test(name, srcs, data = [], args = [], deps = [], **kwargs):
       name = "%s_devmode_srcs" % name,
       deps = srcs + deps,
       testonly = 1,
+      visibility = ["//visibility:public"]
   )
 
-  # Note: REPOSITORY_NAME is something like "@angular"
+  context_repository = REPOSITORY_NAME.lstrip("@")
+  manifest = Label("{}//{}:{}".format(
+      REPOSITORY_NAME if len(REPOSITORY_NAME)>1 else "",
+      PACKAGE_NAME,
+      "%s_devmode_srcs.MF" % name))
+  target_repository = manifest.workspace_root.split("/")[1] if manifest.workspace_root else context_repository
+  is_external = target_repository != context_repository and target_repository != "build_bazel_rules_nodejs"
+  # Note: REPOSITORY_NAME is something like "@angular" or "@"
   args = ["/".join([p
-      for p in [".", "external" if len(REPOSITORY_NAME)>1 else "", REPOSITORY_NAME[len("@"):],
-                PACKAGE_NAME, "%s_devmode_srcs.MF" % name]
+      for p in [".", "external" if is_external else "",
+                target_repository, PACKAGE_NAME, "%s_devmode_srcs.MF" % name]
       if p
   ])] + args
 
   data += srcs + deps
   data += [Label("//internal:jasmine_runner.js")]
-  data += [":%s_devmode_srcs.MF" % name]
+  data += [manifest]
   entry_point = "build_bazel_rules_nodejs/internal/jasmine_runner.js"
 
   nodejs_test(
