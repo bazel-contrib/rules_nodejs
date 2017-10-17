@@ -67,7 +67,7 @@ function resolveToModuleRoot(path) {
  * See https://github.com/bazelbuild/bazel/issues/3726
  */
 function loadRunfilesManifest(manifestPath) {
-  // If the runfiles directory doesn't exist, we're not running on Windows.
+  // If the manifest doesn't exist, we're not running on Windows, and don't need it.
   if (!fs.existsSync(manifestPath)) {
     return;
   }
@@ -80,7 +80,7 @@ function loadRunfilesManifest(manifestPath) {
   }
   return result;
 }
-const runfilesManifest = loadRunfilesManifest(`${process.env.RUNFILES}/MANIFEST`);
+const runfilesManifest = loadRunfilesManifest(process.env.RUNFILES_MANIFEST_FILE);
 
 function resolveRunfiles(...pathSegments) {
   // Remove any empty strings from pathSegments
