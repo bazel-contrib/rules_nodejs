@@ -1,4 +1,4 @@
-load(":node.bzl", "sources_aspect")
+load(":node.bzl", "sources_aspect", "expand_location_into_runfiles")
 
 def _devmode_js_sources_impl(ctx):
   files = depset()
@@ -10,7 +10,7 @@ def _devmode_js_sources_impl(ctx):
       files += d.files
 
   ctx.actions.write(ctx.outputs.manifest, "".join([
-    "/".join([ctx.workspace_name, f.short_path]) + "\n" for f in files
+    expand_location_into_runfiles(ctx, f.path) + "\n" for f in files
   ]))
   return [DefaultInfo(files = files)]
 
