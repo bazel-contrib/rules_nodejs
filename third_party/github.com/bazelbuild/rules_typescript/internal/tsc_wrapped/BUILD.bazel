@@ -46,7 +46,7 @@ nodejs_binary(
       # see https://github.com/bazelbuild/bazel/issues/3155#issuecomment-308156976
       "//internal:worker_protocol.proto",
     ],
-    args = ["--node_options=--expose-gc"],
+    templated_args = ["--node_options=--expose-gc"],
     entry_point = "build_bazel_rules_typescript/internal/tsc_wrapped/tsc_wrapped.js",
     visibility = ["//visibility:public"],
 )
