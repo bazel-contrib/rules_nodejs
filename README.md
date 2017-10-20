@@ -1,6 +1,9 @@
 # NodeJS rules for Bazel
 
-[![CircleCI](https://circleci.com/gh/bazelbuild/rules_nodejs.svg?style=svg)](https://circleci.com/gh/bazelbuild/rules_nodejs)
+
+Circle CI | Bazel CI
+:---: | :---:
+[![CircleCI](https://circleci.com/gh/bazelbuild/rules_nodejs.svg?style=svg)](https://circleci.com/gh/bazelbuild/rules_nodejs) | [![Build Status](http://ci.bazel.io/buildStatus/icon?job=rules_nodejs)](http://ci.bazel.io/job/rules_nodejs)
 
 **This is an alpha-quality release. Breaking changes are likely.**
 
