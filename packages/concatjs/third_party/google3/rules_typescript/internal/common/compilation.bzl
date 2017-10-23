@@ -68,8 +68,10 @@ def assert_js_or_typescript_deps(ctx):
           "JavaScript library rules (js_library, pinto_library, etc, but " +
           "also proto_library and some others).\n")
 
-# Deep flag will be turned on with launch of b/66467516.
-def _collect_transitive_dts(ctx, deep=False):
+# Deep flag controls whether we grab d.ts's from ts_libraries that are imported
+# by js libraries (which usually use clutz to create a single .d.ts for their
+# entire set of transitive dependencies).
+def _collect_transitive_dts(ctx, deep=True):
   all_deps_declarations = depset()
   type_blacklisted_declarations = depset()
   for extra in ctx.files._additional_d_ts:
