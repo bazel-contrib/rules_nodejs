@@ -8,14 +8,14 @@ def jasmine_node_test(name, srcs, data = [], deps = [], **kwargs):
       testonly = 1,
   )
 
-  data += srcs + deps
-  data += [Label("//internal:jasmine_runner.js")]
-  data += [":%s_devmode_srcs.MF" % name]
+  all_data = data + srcs + deps
+  all_data += [Label("//internal:jasmine_runner.js")]
+  all_data += [":%s_devmode_srcs.MF" % name]
   entry_point = "build_bazel_rules_nodejs/internal/jasmine_runner.js"
 
   nodejs_test(
       name = name,
-      data = data,
+      data = all_data,
       entry_point = entry_point,
       templated_args = ["$(location :%s_devmode_srcs.MF)" % name],
       testonly = 1,
