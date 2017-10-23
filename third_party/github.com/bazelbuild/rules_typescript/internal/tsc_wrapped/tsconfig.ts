@@ -102,6 +102,12 @@ export interface BazelOptions {
    * List of regexes on file paths for which we suppress tsickle's warnings.
    */
   ignoreWarningPaths: string[];
+
+  /**
+   * Whether to add aliases to the .d.ts files to add the exports to the
+   * ಠ_ಠ.clutz namespace.
+   */
+  addDtsClutzAliases: true;
 }
 
 export interface ParsedTsConfig {

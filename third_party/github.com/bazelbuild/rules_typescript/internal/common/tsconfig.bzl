@@ -97,6 +97,7 @@ def create_tsconfig(ctx, files, srcs,
       "disableStrictDeps": disable_strict_deps,
       "allowedStrictDeps": [f.path for f in allowed_deps],
       "enableConformance": getattr(ctx.attr, "enable_conformance", False),
+      "addDtsClutzAliases": getattr(ctx.attr, "add_dts_clutz_aliases", False),
   }
 
   # Keep these options in sync with those in playground/playground.ts.

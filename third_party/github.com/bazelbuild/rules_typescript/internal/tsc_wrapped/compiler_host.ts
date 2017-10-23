@@ -55,6 +55,7 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
   typeBlackListPaths: Set<string>;
   transformDecorators: boolean;
   transformTypesToClosure: boolean;
+  addDtsClutzAliases: boolean;
   private options: BazelTsOptions;
 
   constructor(
@@ -85,6 +86,7 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
     this.typeBlackListPaths = new Set(bazelOpts.typeBlackListPaths);
     this.transformDecorators = bazelOpts.tsickle;
     this.transformTypesToClosure = bazelOpts.tsickle;
+    this.addDtsClutzAliases = bazelOpts.addDtsClutzAliases;
   }
 
   /**
