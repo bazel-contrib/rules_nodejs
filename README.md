@@ -59,11 +59,16 @@ $ bazel run @nodejs//:npm install
 
 [bazel instructions]: https://docs.bazel.build/versions/master/install.html
 
-# Usage
+## Usage
 
-Currently, the only available rule is `nodejs_binary` which allows you to run an application, either from sources you author or from those fetched from npm.
+The `nodejs_binary` rule allows you to run an application by giving the entry point.
+The entry point can come from an external dependency installed by the package manager,
+or it can be a `.js` file from a package built by Bazel.
 
-## Running a program from npm
+The `jasmine_node_test` rule allows you to write a test that executes in NodeJS.
+
+### Running a program from npm
+
 If you have installed the [rollup] package, you could write this rule:
 
 ```python
@@ -81,9 +86,13 @@ and run it with
 $ bazel run :rollup -- --help
 ```
 
+See the `examples/rollup` directory in this repository.
+
 [rollup]: https://www.npmjs.com/package/rollup
 
-## Running a program from local sources
+### Running a program from local sources
+
+We can reference a path in the local workspace to run a program we write.
 
 ```python
 load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
@@ -103,6 +112,20 @@ This example illustrates how to pass arguments to nodejs (as opposed to passing 
 
 The `data` attribute is optional, by default it includes the `node_modules` directory. To include your own
 sources, include a file or target that produces JavaScript.
+
+See the `examples/program` directory in this repository.
+
+### Testing
+
+The `jasmine_node_test` rule can be used to run unit tests in NodeJS, using the Jasmine framework.
+Targets declared with this rule can be run with `bazel test`.
+
+Attributes:
+
+The `srcs` of a `jasmine_node_test` should include the test `.js` files.
+The `deps` should include the production `.js` sources, or other rules which produce `.js` files, such as TypeScript.
+
+The `examples/program/index.spec.js` file illustrates this. Another usage is in https://github.com/angular/tsickle/blob/master/test/BUILD
 
 # Design
 
