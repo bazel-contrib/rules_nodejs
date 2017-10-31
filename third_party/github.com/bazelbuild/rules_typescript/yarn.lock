@@ -221,18 +221,18 @@ strip-ansi@^3.0.0, strip-ansi@^3.0.1:
   dependencies:
     ansi-regex "^2.0.0"
 
-tsickle@0.24.x:
-  version "0.24.1"
-  resolved "https://registry.yarnpkg.com/tsickle/-/tsickle-0.24.1.tgz#039343b205bf517a333b0703978892f80a7d848e"
+tsickle@0.25.x:
+  version "0.25.0"
+  resolved "https://registry.yarnpkg.com/tsickle/-/tsickle-0.25.0.tgz#4ba51e79e9333ab7baec6f374c789b0bc1dba36c"
   dependencies:
     minimist "^1.2.0"
     mkdirp "^0.5.1"
     source-map "^0.5.6"
     source-map-support "^0.4.2"
 
-typescript@2.4.x:
-  version "2.4.2"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.4.2.tgz#f8395f85d459276067c988aa41837a8f82870844"
+typescript@2.5.x:
+  version "2.5.3"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.5.3.tgz#df3dcdc38f3beb800d4bc322646b04a3f6ca7f0d"
 
 window-size@^0.1.4:
   version "0.1.4"

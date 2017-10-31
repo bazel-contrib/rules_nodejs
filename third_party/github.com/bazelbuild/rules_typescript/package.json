@@ -1,13 +1,13 @@
 {
     "name": "@bazel/typescript",
     "description": "Build TypeScript with Bazel",
-    "version": "0.2.3",
+    "version": "0.3.0",
     "dependencies": {
         "@types/node": "7.0.18",
         "@types/source-map": "^0.5.1",
         "protobufjs": "5.0.0",
-        "tsickle": "0.24.x",
-        "typescript": "2.4.x"
+        "tsickle": "0.25.x",
+        "typescript": "2.5.x"
     },
     "devDependencies": {
         "clang-format": "1.0.49"

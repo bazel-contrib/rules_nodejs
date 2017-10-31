@@ -359,7 +359,7 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
     return this.delegate.getDirectories(path);
   }
 
-  readFile(fileName: string): string {
+  readFile(fileName: string): string|undefined {
     return this.delegate.readFile(fileName);
   }
 
