@@ -65,6 +65,9 @@ The `nodejs_binary` rule allows you to run an application by giving the entry po
 The entry point can come from an external dependency installed by the package manager,
 or it can be a `.js` file from a package built by Bazel.
 
+`nodejs_test` is the same as nodejs_binary, but instead of calling it with `bazel run`, 
+you call it with `bazel test`. The test passes if the program exits with a zero exit code.
+
 The `jasmine_node_test` rule allows you to write a test that executes in NodeJS.
 
 ### Running a program from npm
