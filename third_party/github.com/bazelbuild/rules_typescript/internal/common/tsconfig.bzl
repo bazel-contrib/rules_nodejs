@@ -96,7 +96,7 @@ def create_tsconfig(ctx, files, srcs,
       "compilationTargetSrc": [s.path for s in srcs],
       "disableStrictDeps": disable_strict_deps,
       "allowedStrictDeps": [f.path for f in allowed_deps],
-      "enableConformance": getattr(ctx.attr, "enable_conformance", False),
+      "enableConformance": getattr(ctx.attr, "enable_conformance", True),
       "addDtsClutzAliases": getattr(ctx.attr, "add_dts_clutz_aliases", False),
   }
 
