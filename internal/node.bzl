@@ -53,6 +53,8 @@ def _write_loader_script(ctx):
           "TEMPLATED_module_roots": "\n  " + ",\n  ".join(module_mappings),
           "TEMPLATED_entry_point": ctx.attr.entry_point,
           "TEMPLATED_label_package": ctx.attr.node_modules.label.package,
+          # If the label being built is in another workspace, look for runfiles
+          # produced by that workspace
           "TEMPLATED_workspace_name": (
               ctx.label.workspace_root.split("/")[1]
               if ctx.label.workspace_root
@@ -143,6 +145,15 @@ _NODEJS_EXECUTABLE_ATTRS = {
         allow_files = True,
         single_file = True),
     "node_modules": attr.label(
+        # We expect most users declare a binary/test and run it within the same
+        # repository, so this is a convenient default to pick up the deps
+        # installed in the repository where the user runs the rule.
+        # However, binaries that are distributed from one workspace and
+        # intended to be called from a different workspace should override this
+        # attribute and point to their local dependencies, eg.
+        # "@my_repo//:node_modules" so that we'll look for the dependencies in
+        # that repository, and not expect users to install the dependencies of
+        # tools they depend on.
         default = Label("@//:node_modules")),
     "_launcher_template": attr.label(
         default = Label("//internal:node_launcher.sh"),
