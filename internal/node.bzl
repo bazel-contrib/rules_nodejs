@@ -53,12 +53,37 @@ def _write_loader_script(ctx):
           "TEMPLATED_module_roots": "\n  " + ",\n  ".join(module_mappings),
           "TEMPLATED_entry_point": ctx.attr.entry_point,
           "TEMPLATED_label_package": ctx.attr.node_modules.label.package,
-          # If the label being built is in another workspace, look for runfiles
-          # produced by that workspace
-          "TEMPLATED_workspace_name": (
+          # There are two workspaces in general:
+          # A) The user's workspace is the one where the bazel command is run
+          # B) The label's workspace contains the target being built/run
+          #
+          # If A has an npm dependency on B, then we'll look in the node_modules
+          # to find B's dependency D. It could be in two different places
+          # depending on hoisting [1]:
+          # A/node_modules/B/node_modules/D
+          # A/node_modules/D
+          # That means we must resolve runfiles relative to A.
+          #
+          # However if A has a bazel dependency on B, then B is not under A's
+          # node_modules directory.
+          # A
+          # B/node_modules/D
+          # That means we must resolve runfiles relative to B.
+          #
+          # Since Bazel does not tell us whether the label's workspace was
+          # created with `local_repository(path="node_modules/blah")` we can't
+          # distinguish the two cases. Therefore we add both workspaces to the
+          # resolution search paths.
+          #
+          # [1] https://yarnpkg.com/lang/en/docs/workspaces/#toc-limitations-caveats
+          "TEMPLATED_user_workspace_name": ctx.workspace_name,
+          "TEMPLATED_label_workspace_name": (
               ctx.label.workspace_root.split("/")[1]
               if ctx.label.workspace_root
-              else ctx.workspace_name),
+              # If the label is in the same workspace as the user, we don't
+              # need another search location.
+              else ""
+          ),
       },
       executable=True,
   )
@@ -152,15 +177,11 @@ _NODEJS_EXECUTABLE_ATTRS = {
         allow_files = True,
         single_file = True),
     "node_modules": attr.label(
-        # We expect most users declare a binary/test and run it within the same
-        # repository, so this is a convenient default to pick up the deps
-        # installed in the repository where the user runs the rule.
-        # However, binaries that are distributed from one workspace and
-        # intended to be called from a different workspace should override this
-        # attribute and point to their local dependencies, eg.
-        # "@my_repo//:node_modules" so that we'll look for the dependencies in
-        # that repository, and not expect users to install the dependencies of
-        # tools they depend on.
+        # By default, binaries use the node_modules in the workspace
+        # where the bazel command is run. This assumes that any needed
+        # dependencies are installed there, commonly due to a transitive
+        # dependency on a package like @bazel/typescript.
+        # See discussion: https://github.com/bazelbuild/rules_typescript/issues/13
         default = Label("@//:node_modules")),
     "_launcher_template": attr.label(
         default = Label("//internal:node_launcher.sh"),
