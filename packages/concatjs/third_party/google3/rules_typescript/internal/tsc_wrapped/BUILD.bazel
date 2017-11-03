@@ -20,6 +20,8 @@ nodejs_binary(
     name = "tsc",
     data = ["@//:node_modules"],
     entry_point = "typescript/lib/tsc.js",
+    # Compile tsc_wrapped using the version of TS in this repo, not the user's
+    node_modules = "@build_bazel_rules_typescript//:node_modules",
 )
 
 # Build our custom compiler using the vanilla one
@@ -49,4 +51,10 @@ nodejs_binary(
     templated_args = ["--node_options=--expose-gc"],
     entry_point = "build_bazel_rules_typescript/internal/tsc_wrapped/tsc_wrapped.js",
     visibility = ["//visibility:public"],
+    # Use the node_modules installed by the user.
+    # This lets them treat TypeScript as a "peerDependency"
+    # and picks up the version they installed.
+    # That's important so that the editor uses the same version as Bazel.
+    # Note: this value is the default of the attribute; just being explicit.
+    node_modules = "@//:node_modules",
 )
