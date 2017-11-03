@@ -108,9 +108,18 @@ module.constructor._resolveFilename =
     request,
     resolveRunfiles(request),
     resolveRunfiles(
-      'TEMPLATED_workspace_name', 'TEMPLATED_label_package',
+      'TEMPLATED_user_workspace_name', 'TEMPLATED_label_package',
       'node_modules', request),
-  ];
+    ];
+  // Additional search path in case the build is across workspaces.
+  // See comment in node.bzl.
+  if ('TEMPLATED_label_workspace_name') {
+    resolveLocations.push(
+      resolveRunfiles(
+        'TEMPLATED_label_workspace_name', 'TEMPLATED_label_package',
+        'node_modules', request)
+    );
+  }
   for (var location of resolveLocations) {
     try {
       return originalResolveFilename(location, parent);
