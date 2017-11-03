@@ -72,8 +72,8 @@ export interface BazelOptions {
   /** Write a performance trace to this path. Disabled when falsy. */
   perfTracePath?: string;
 
-  /** If true, enable the conformance check plugin in TSC. */
-  enableConformance: boolean;
+  /** A list of conformance rule names that should not run on this target. */
+  disabledConformanceRules: string[];
 
   /**
    * An additional prelude to insert after the `goog.module` call,
