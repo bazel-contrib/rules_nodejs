@@ -49,6 +49,11 @@ COMMON_ATTRIBUTES = dict(BASE_ATTRIBUTES, **{
     ),
     # Whether to generate externs.js from any "declare" statement.
     "generate_externs": attr.bool(default = True),
+    # A list of diagnostics expected when compiling this library, in the form of
+    # "diagnostic:regexp", e.g. "TS1234:failed to quizzle the .* wobble".
+    # Useful to test for expected compilation errors.
+    "expected_diagnostics": attr.string_list(),
+
 })
 
 COMMON_OUTPUTS = {
