@@ -81,7 +81,7 @@ def _collect_transitive_dts(ctx, deep=True):
   type_blacklisted_declarations = depset()
   for extra in ctx.files._additional_d_ts:
     all_deps_declarations += depset([extra])
-  for dep in ctx.attr.deps:
+  for dep in ctx.attr.deps + getattr(ctx.attr, '_helpers', []):
     if hasattr(dep, "typescript"):
       all_deps_declarations += dep.typescript.transitive_declarations
       type_blacklisted_declarations += dep.typescript.type_blacklisted_declarations
