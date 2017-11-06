@@ -24,14 +24,17 @@ nodejs_binary(
 
 # Build our custom compiler using the vanilla one
 ts_library(
-  name = "tsc_wrapped",
-  srcs = glob(["*.ts"], exclude = ["*_test.ts"]),
-  tsconfig = ":tsconfig.json",
-  compiler = ":tsc",
-  supports_workers = False,
-  module_name = "@bazel/typescript",
-  module_root = "index.d.ts",
-  visibility = ["//visibility:public"],
+    name = "tsc_wrapped",
+    srcs = glob(
+        ["*.ts"],
+        exclude = ["*_test.ts"],
+    ),
+    compiler = ":tsc",
+    module_name = "@bazel/typescript",
+    module_root = "index.d.ts",
+    supports_workers = False,
+    tsconfig = ":tsconfig.json",
+    visibility = ["//visibility:public"],
 )
 
 # Other ts_library rules will use this custom compiler, which calls the
@@ -39,14 +42,14 @@ ts_library(
 nodejs_binary(
     name = "tsc_wrapped_bin",
     data = [
-      ":tsc_wrapped",
-      "@//:node_modules",
+        ":tsc_wrapped",
+        "@//:node_modules",
 
-      # Should be @bazel_tools//src/main/protobuf:worker_protocol.proto
-      # see https://github.com/bazelbuild/bazel/issues/3155#issuecomment-308156976
-      "//internal:worker_protocol.proto",
+        # Should be @bazel_tools//src/main/protobuf:worker_protocol.proto
+        # see https://github.com/bazelbuild/bazel/issues/3155#issuecomment-308156976
+        "//internal:worker_protocol.proto",
     ],
-    templated_args = ["--node_options=--expose-gc"],
     entry_point = "build_bazel_rules_typescript/internal/tsc_wrapped/tsc_wrapped.js",
+    templated_args = ["--node_options=--expose-gc"],
     visibility = ["//visibility:public"],
 )

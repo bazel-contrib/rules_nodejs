@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as ts from 'typescript';
 
 import {CompilerHost} from './compiler_host';
+import * as diagnostics from './diagnostics';
 import {CachedFileLoader, FileCache, FileLoader, UncachedFileLoader} from './file_cache';
 import {wrap} from './perf_trace';
 import {BazelOptions, parseTsconfig} from './tsconfig';
@@ -27,16 +28,6 @@ export function main(args: string[]) {
 
 // The one FileCache instance used in this process.
 const fileCache = new FileCache<ts.SourceFile>(debug);
-
-function format(target: string, diagnostics: ts.Diagnostic[]): string {
-  const diagnosticsHost: ts.FormatDiagnosticsHost = {
-    getCurrentDirectory: () => ts.sys.getCurrentDirectory(),
-    getNewLine: () => ts.sys.newLine,
-    getCanonicalFileName: (f: string) =>
-        ts.sys.useCaseSensitiveFileNames ? f : f.toLowerCase()
-  };
-  return ts.formatDiagnostics(diagnostics, diagnosticsHost);
-}
 
 /**
  * Runs a single build, returning false on failure.  This is potentially called
@@ -71,7 +62,7 @@ function runOneBuild(
 
   const [parsed, errors, {target}] = parseTsconfig(tsconfigFile);
   if (errors) {
-    console.error(format(target, errors));
+    console.error(diagnostics.format(target, errors));
     return false;
   }
   if (!parsed) {
@@ -97,24 +88,30 @@ function runOneBuild(
   function isCompilationTarget(sf: ts.SourceFile): boolean {
     return (bazelOpts.compilationTargetSrc.indexOf(sf.fileName) !== -1);
   }
-  const diagnostics: ts.Diagnostic[] = [];
+  let diags: ts.Diagnostic[] = [];
   // These checks mirror ts.getPreEmitDiagnostics, with the important
   // exception that if you call program.getDeclarationDiagnostics() it somehow
   // corrupts the emit.
   wrap(`global diagnostics`, () => {
-    diagnostics.push(...program.getOptionsDiagnostics());
-    diagnostics.push(...program.getGlobalDiagnostics());
+    diags.push(...program.getOptionsDiagnostics());
+    diags.push(...program.getGlobalDiagnostics());
   });
   for (const sf of program.getSourceFiles().filter(isCompilationTarget)) {
     wrap(`check ${sf.fileName}`, () => {
-      diagnostics.push(...program.getSyntacticDiagnostics(sf));
-      diagnostics.push(...program.getSemanticDiagnostics(sf));
+      diags.push(...program.getSyntacticDiagnostics(sf));
+      diags.push(...program.getSemanticDiagnostics(sf));
     });
   }
-  if (diagnostics.length > 0) {
-    console.error(format(bazelOpts.target, diagnostics));
+
+  // If there are any TypeScript type errors abort now, so the error
+  // messages refer to the original source.  After any subsequent passes
+  // (decorator downleveling or tsickle) we do not type check.
+  diags = diagnostics.filterExpected(bazelOpts, diags);
+  if (diags.length > 0) {
+    console.error(diagnostics.format(bazelOpts.target, diags));
     return false;
   }
+
   for (const sf of program.getSourceFiles().filter(isCompilationTarget)) {
     const emitResult = program.emit(
         sf, /*writeFile*/ undefined,
@@ -122,10 +119,10 @@ function runOneBuild(
           after: [fixUmdModuleDeclarations(
               (sf: ts.SourceFile) => compilerHost.amdModuleName(sf))]
         });
-    diagnostics.push(...emitResult.diagnostics);
+    diags.push(...emitResult.diagnostics);
   }
-  if (diagnostics.length > 0) {
-    console.error(format(bazelOpts.target, diagnostics));
+  if (diags.length > 0) {
+    console.error(diagnostics.format(bazelOpts.target, diags));
     return false;
   }
   return true;
