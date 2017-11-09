@@ -216,7 +216,7 @@ nodejs_test = rule(
 )
 
 # Wrap in an sh_binary for windows .exe wrapper.
-def nodejs_binary_macro(name, args=[], visibility=None, **kwargs):
+def nodejs_binary_macro(name, args=[], visibility=None, tags=[], **kwargs):
   nodejs_binary(
       name = "%s_bin" % name,
       **kwargs
@@ -225,13 +225,14 @@ def nodejs_binary_macro(name, args=[], visibility=None, **kwargs):
   native.sh_binary(
       name = name,
       args = args,
+      tags = tags,
       srcs = [":%s_bin.sh" % name],
       data = [":%s_bin" % name],
       visibility = visibility,
   )
 
 # Wrap in an sh_test for windows .exe wrapper.
-def nodejs_test_macro(name, args=[], visibility=None, **kwargs):
+def nodejs_test_macro(name, args=[], visibility=None, tags=[], **kwargs):
   nodejs_test(
       name = "%s_bin" % name,
       testonly = 1,
@@ -241,6 +242,7 @@ def nodejs_test_macro(name, args=[], visibility=None, **kwargs):
   native.sh_test(
       name = name,
       args = args,
+      tags = tags,
       visibility = visibility,
       srcs = [":%s_bin.sh" % name],
       data = [":%s_bin" % name],
