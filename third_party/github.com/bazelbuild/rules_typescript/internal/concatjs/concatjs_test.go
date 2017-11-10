@@ -11,25 +11,6 @@ import (
 	"time"
 )
 
-// BEGIN_INTERNAL
-// This test is mostly verifying that we drop javascript/closure/deps.js,
-// which we only do internally.
-func TestManifestFiles(t *testing.T) {
-	files, err := manifestFilesFromReader(strings.NewReader(`foo.js
-
-javascript/closure/deps.js
-bar.js
-`))
-	if err != nil {
-		t.Fatal(err)
-	}
-	want := []string{"foo.js", "bar.js"}
-	if !reflect.DeepEqual(files, want) {
-		t.Errorf("Parse incorrect, got %v, want %v", files, want)
-	}
-}
-
-// END_INTERNAL
 
 func TestWriteJSEscaped(t *testing.T) {
 	var b bytes.Buffer
