@@ -133,9 +133,6 @@ type cacheEntry struct {
 }
 
 // manifestFiles parses a manifest, returning a list of the files in the manifest.
-// BEGIN_INTERNAL
-// It skips blank lines and javascript/closure/deps.js.
-// END_INTERNAL
 func manifestFiles(manifest string) ([]string, error) {
 	f, err := os.Open(manifest)
 	if err != nil {
@@ -154,13 +151,6 @@ func manifestFilesFromReader(r io.Reader) ([]string, error) {
 		if path == "" {
 			continue
 		}
-		// BEGIN_INTERNAL
-		if path == "javascript/closure/deps.js" {
-			// Ignore/skip deps.js, it is unused due to CLOSURE_NO_DEPS = true and superseded by the
-			// dependency handling in this file. It's harmless, but a large download (>450 KB).
-			continue
-		}
-		// END_INTERNAL
 		lines = append(lines, path)
 	}
 	if err := s.Err(); err != nil {
