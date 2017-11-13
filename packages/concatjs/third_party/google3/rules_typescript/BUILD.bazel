@@ -12,6 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# To update BUILD.bazel files after changing Go code, run
+# bazel run //:gazelle
+#
+# Exclude node_modules, see
+# https://github.com/bazelbuild/rules_go/blob/master/go/tools/gazelle/README.rst#directives
+# gazelle:exclude node_modules
+load("@io_bazel_rules_go//go:def.bzl", "gazelle")
+
+gazelle(
+    name = "gazelle",
+    prefix = "github.com/bazelbuild/rules_typescript",
+)
+
 # The node_modules directory is created by `yarn install`
 # WORKAROUND for https://github.com/bazelbuild/bazel/issues/374#issuecomment-296217940
 filegroup(
