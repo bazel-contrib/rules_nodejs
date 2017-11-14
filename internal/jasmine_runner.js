@@ -27,8 +27,27 @@ function main(args) {
   }
 
   const jrunner = new JasmineRunner();
+
+  // Unless the user overrides the timeout for a test, base the Jasmine timeout
+  // on the Bazel one.
+  //
+  // Jasmine's timeout is per-test, not for the whole process. Also Jasmine
+  // takes additional time to start. So setting Jasmine's timeout the same as
+  // Bazel's should guarantee that users will see Bazel's timeout status, not a
+  // failed status due to Jasmine internally throwing
+  // "Async callback was not invoked within timeout specified by
+  // jasmine.DEFAULT_TIMEOUT_INTERVAL"
+  // This allows users to have a simpler mental model between languages: test
+  // timeouts look similar, and you can increase the `timeout` attribute on any
+  // `*_test` target to give it more time.
+  //
+  // This environment variable is set by Bazel, see
+  // https://docs.bazel.build/versions/master/test-encyclopedia.html#initial-conditions
+  if (process.env['TEST_TIMEOUT']) {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = process.env['TEST_TIMEOUT'] * 1000;
+  }
+
   for (file of testFiles) {
-    console.error('file', file);
     jrunner.addSpecFile(file);
   }
 
