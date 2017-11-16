@@ -112,6 +112,7 @@ SCRIPT="{}"
           "https://mirror.bazel.build/github.com/yarnpkg/yarn/releases/download/v1.3.2/yarn-v1.3.2.tar.gz",
           "https://github.com/yarnpkg/yarn/releases/download/v1.3.2/yarn-v1.3.2.tar.gz",
       ],
+      stripPrefix = "yarn-v1.3.2",
       sha256 = "6cfe82e530ef0837212f13e45c1565ba53f5199eec2527b85ecbcd88bf26821d"
   )
 
