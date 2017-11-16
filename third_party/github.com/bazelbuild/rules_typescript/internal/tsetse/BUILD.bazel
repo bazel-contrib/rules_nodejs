@@ -1,0 +1,35 @@
+package(default_visibility = [
+    "//internal/tsc_wrapped:__pkg__",
+    "//internal/tsetse:__subpackages__",
+])
+
+licenses(["notice"])  # Apache 2.0
+
+load("//:defs.bzl", "ts_library")
+
+ts_library(
+    name = "tsetse_lib",
+    srcs = [
+        "checker.ts",
+        "failure.ts",
+        "rule.ts",
+    ],
+    compiler = "//internal/tsc_wrapped:tsc",
+    supports_workers = False,
+    tsconfig = ":tsconfig.json",
+)
+
+ts_library(
+    name = "runner",
+    srcs = [
+        "runner.ts",
+    ],
+    compiler = "//internal/tsc_wrapped:tsc",
+    supports_workers = False,
+    deps = [
+        ":tsetse_lib",
+        "//internal/tsc_wrapped:perf_trace",
+        "//internal/tsc_wrapped:plugin_api",
+        "//internal/tsetse/rules",
+    ],
+)

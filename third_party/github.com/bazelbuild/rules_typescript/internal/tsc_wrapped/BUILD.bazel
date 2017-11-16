@@ -20,21 +20,50 @@ nodejs_binary(
     name = "tsc",
     data = ["@//:node_modules"],
     entry_point = "typescript/lib/tsc.js",
+    visibility = ["//internal:__subpackages__"],
 )
 
 # Build our custom compiler using the vanilla one
 ts_library(
     name = "tsc_wrapped",
-    srcs = glob(
-        ["*.ts"],
-        exclude = ["*_test.ts"],
-    ),
+    srcs = [
+        "compiler_host.ts",
+        "diagnostics.ts",
+        "file_cache.ts",
+        "manifest.ts",
+        "strict_deps.ts",
+        "tsc_wrapped.ts",
+        "tsconfig.ts",
+        "umd_module_declaration_transform.ts",
+        "worker.ts",
+    ],
     compiler = ":tsc",
     module_name = "@bazel/typescript",
     module_root = "index.d.ts",
     supports_workers = False,
     tsconfig = ":tsconfig.json",
     visibility = ["//visibility:public"],
+    deps = [
+        ":perf_trace",
+        ":plugin_api",
+        "//internal/tsetse:runner",
+    ],
+)
+
+ts_library(
+    name = "plugin_api",
+    srcs = ["plugin_api.ts"],
+    compiler = ":tsc",
+    supports_workers = False,
+    visibility = ["//internal/tsetse:__pkg__"],
+)
+
+ts_library(
+    name = "perf_trace",
+    srcs = ["perf_trace.ts"],
+    compiler = ":tsc",
+    supports_workers = False,
+    visibility = ["//internal/tsetse:__pkg__"],
 )
 
 # Other ts_library rules will use this custom compiler, which calls the

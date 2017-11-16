@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import * as path from 'path';  // from //third_party/javascript/typings/node
+import * as path from 'path';
 import * as ts from 'typescript';
 
 /**
@@ -72,8 +72,10 @@ export interface BazelOptions {
   /** Write a performance trace to this path. Disabled when falsy. */
   perfTracePath?: string;
 
-  /** A list of conformance rule names that should not run on this target. */
-  disabledConformanceRules: string[];
+  /**
+   * A list of Tsetse rule names that should not run on this target.
+   */
+  disabledTsetseRules: string[];
 
   /**
    * An additional prelude to insert after the `goog.module` call,
