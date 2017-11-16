@@ -1,4 +1,4 @@
-// taze: jasmine from //third_party/javascript/typings/jasmine:jasmine_without_externs
+
 import * as ts from 'typescript';
 
 import * as diagnostics from './diagnostics';

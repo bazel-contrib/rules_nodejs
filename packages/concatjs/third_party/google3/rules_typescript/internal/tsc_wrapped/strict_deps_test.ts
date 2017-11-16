@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-// taze: jasmine from //third_party/javascript/typings/jasmine:jasmine_without_externs
+
 import * as ts from 'typescript';
 
 import {checkModuleDeps} from './strict_deps';

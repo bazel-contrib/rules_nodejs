@@ -2,6 +2,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as ts from 'typescript';
 
+import {PLUGIN as tsetsePlugin} from '../tsetse/runner';
+
 import {CompilerHost} from './compiler_host';
 import * as diagnostics from './diagnostics';
 import {CachedFileLoader, FileCache, FileLoader, UncachedFileLoader} from './file_cache';
@@ -81,7 +83,7 @@ function runOneBuild(
         (directoryName: string) =>
             compilerHostDelegate.directoryExists!(directoryName);
   }
-  const program = ts.createProgram(files, options, compilerHost);
+  let program = ts.createProgram(files, options, compilerHost);
 
   fileCache.traceStats();
 
@@ -89,6 +91,9 @@ function runOneBuild(
     return (bazelOpts.compilationTargetSrc.indexOf(sf.fileName) !== -1);
   }
   let diags: ts.Diagnostic[] = [];
+  // Install extra diagnostic plugins
+  program = tsetsePlugin.wrap(program, bazelOpts.disabledTsetseRules);
+
   // These checks mirror ts.getPreEmitDiagnostics, with the important
   // exception that if you call program.getDeclarationDiagnostics() it somehow
   // corrupts the emit.

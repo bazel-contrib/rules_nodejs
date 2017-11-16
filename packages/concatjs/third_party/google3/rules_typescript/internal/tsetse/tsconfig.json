@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "types": [
+      "node",
+      "source-map"
+    ],
+    "lib": [
+      "dom",
+      "es5",
+      "es2015.core",
+      "es2015.collection"
+    ]
+  }
+}
