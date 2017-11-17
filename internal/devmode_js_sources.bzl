@@ -12,7 +12,12 @@ def _devmode_js_sources_impl(ctx):
   ctx.actions.write(ctx.outputs.manifest, "".join([
     expand_path_into_runfiles(ctx, f.path) + "\n" for f in files
   ]))
-  return [DefaultInfo(files = files)]
+  return [DefaultInfo(
+    files = depset([ctx.outputs.manifest]),
+    runfiles = ctx.runfiles(
+        transitive_files = files,
+    ),
+  )]
 
 devmode_js_sources = rule(
     implementation = _devmode_js_sources_impl,
