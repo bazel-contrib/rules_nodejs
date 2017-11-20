@@ -105,7 +105,7 @@ module.constructor._resolveFilename =
     function(request, parent) {
   var failedResolutions = [];
   // Locations to search for require'd modules.
-  var resolveLocations = [];
+  var resolveLocations = [request];
   // First we look in more specific paths under the label being built
   // This allows a test to specify a subdirectory where we should find modules
   resolveLocations.push(resolveRunfiles(
@@ -123,7 +123,6 @@ module.constructor._resolveFilename =
   // Finally we look in the current working directory
   // and in the runfiles manifest
   resolveLocations.push(
-    request,
     resolveRunfiles(request)
   );
 
