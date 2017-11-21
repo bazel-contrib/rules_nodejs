@@ -62,6 +62,11 @@ describe('strict deps', () => {
     return p;
   }
 
+  it('ignores files that are not in the program', () => {
+    const p = createProgram({});
+    expect(checkModuleDeps(p, ['does-not-exist'], [], '/src').length).toBe(0);
+  });
+
   it('reports errors for transitive dependencies', () => {
     const p = createProgram({
       '/src/p/sd1.ts': 'export let x = 1;',
