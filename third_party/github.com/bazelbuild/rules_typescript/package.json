@@ -1,7 +1,10 @@
 {
     "name": "@bazel/typescript",
     "description": "Build TypeScript with Bazel",
-    "version": "0.3.0",
+    "version": "0.4.1",
+    "keywords": ["typescript", "bazel"],
+    "homepage": "https://github.com/bazelbuild/rules_typescript",
+    "license": "Apache-2.0",
     "dependencies": {
         "@types/node": "7.0.18",
         "@types/source-map": "^0.5.1",
