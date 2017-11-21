@@ -64,6 +64,7 @@ def create_tsconfig(ctx, files, srcs,
     ]]
     module_roots = {
         "*": base_path_mappings,
+        ctx.workspace_name + "/*": base_path_mappings,
     }
   module_mappings = get_module_mappings(ctx.label, ctx.attr, srcs = srcs)
 

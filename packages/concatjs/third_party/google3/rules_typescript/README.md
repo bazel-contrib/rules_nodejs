@@ -54,8 +54,6 @@ You can run the version Bazel has already installed:
 
 ```sh
 $ bazel run @yarn//:yarn
-# Install this package as a dev dependency
-$ bazel run @yarn//:yarn -- add -D @bazel/typescript
 ```
 
 ## Usage
