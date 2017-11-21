@@ -123,6 +123,11 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
     return this.bazelOpts.compilationTargetSrc.indexOf(fileName) === -1;
   }
 
+  /** Whether the file is expected to be imported using a named module */
+  shouldNameModule(fileName: string): boolean {
+    return this.bazelOpts.compilationTargetSrc.indexOf(fileName) !== -1;
+  }
+
   /** Allows suppressing warnings for specific known libraries */
   shouldIgnoreWarningsForPath(filePath: string): boolean {
     return this.bazelOpts.ignoreWarningPaths.some(
@@ -228,9 +233,7 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
    *  allows a string as the first argument to define()"
    */
   amdModuleName(sf: ts.SourceFile): string|undefined {
-    if (this.bazelOpts.compilationTargetSrc.indexOf(sf.fileName) === -1) {
-      return undefined;
-    }
+    if (!this.shouldNameModule(sf.fileName)) return undefined;
     // /build/work/bazel-out/local-fastbuild/bin/path/to/file.ts
     // -> path/to/file.ts
     const fileName = this.rootDirsRelative(sf.fileName);
