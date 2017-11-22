@@ -6,8 +6,8 @@ import {Checker} from './checker';
  * files.
  */
 export abstract class AbstractRule {
-  readonly ruleName: string;
-  readonly code: number;
+  abstract readonly ruleName: string;
+  abstract readonly code: number;
 
   /**
    * Registers handler functions on nodes in Checker.
