@@ -6,6 +6,7 @@ ts_library(
     name = "rules",
     srcs = [
         "check_return_value_rule.ts",
+        "equals_nan_rule.ts",
     ],
     compiler = "//internal/tsc_wrapped:tsc",
     supports_workers = False,

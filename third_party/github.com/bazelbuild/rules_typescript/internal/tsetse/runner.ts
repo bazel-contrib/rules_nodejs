@@ -10,6 +10,7 @@ import * as pluginApi from '../tsc_wrapped/plugin_api';
 import {Checker} from './checker';
 import {AbstractRule} from './rule';
 import {Rule as CheckReturnValueRule} from './rules/check_return_value_rule';
+import {Rule as EqualsNanRule} from './rules/equals_nan_rule';
 
 /**
  * The Tsetse check plugin performs compile-time static analysis for TypeScript
@@ -20,6 +21,7 @@ export const PLUGIN: pluginApi.Plugin = {
             ts.Program => {
     const enabledRules: AbstractRule[] = [
       new CheckReturnValueRule(),
+      new EqualsNanRule(),
     ];
     const checker = new Checker(program);
     for (const rule of enabledRules) {
