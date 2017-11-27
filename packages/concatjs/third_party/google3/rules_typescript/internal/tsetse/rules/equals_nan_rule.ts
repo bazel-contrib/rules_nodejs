@@ -1,6 +1,6 @@
 /**
- * @fileoverview Bans `== NaN` and `=== NaN` in TypeScript code, since it is
- * always false for any value.
+ * @fileoverview Bans `== NaN`, `=== NaN`, `!= NaN`, and `!== NaN` in TypeScript
+ * code, since no value (including NaN) is equal to NaN.
  */
 
 import * as ts from 'typescript';
@@ -8,9 +8,6 @@ import * as ts from 'typescript';
 import {Checker} from '../checker';
 import {ErrorCode} from '../error_code';
 import {AbstractRule} from '../rule';
-
-const FAILURE_STRING =
-    'x == NaN and x === NaN are always false; use isNaN(x) instead';
 
 export class Rule extends AbstractRule {
   readonly ruleName = 'equals-nan';
@@ -23,9 +20,19 @@ export class Rule extends AbstractRule {
 }
 
 function checkBinaryExpression(checker: Checker, node: ts.BinaryExpression) {
-  if ((node.left.getText() === 'NaN' || node.right.getText() === 'NaN') &&
-      (node.operatorToken.kind === ts.SyntaxKind.EqualsEqualsToken ||
-       node.operatorToken.kind === ts.SyntaxKind.EqualsEqualsEqualsToken)) {
-    checker.addFailureAtNode(node, FAILURE_STRING);
+  if (node.left.getText() === 'NaN' || node.right.getText() === 'NaN') {
+    const operator = node.operatorToken;
+    if (operator.kind == ts.SyntaxKind.EqualsEqualsToken ||
+        operator.kind === ts.SyntaxKind.EqualsEqualsEqualsToken) {
+      checker.addFailureAtNode(
+          node,
+          `x ${operator.getText()} NaN is always false; use isNaN(x) instead`);
+    }
+    if (operator.kind === ts.SyntaxKind.ExclamationEqualsEqualsToken ||
+        operator.kind === ts.SyntaxKind.ExclamationEqualsToken) {
+      checker.addFailureAtNode(
+          node,
+          `x ${operator.getText()} NaN is always true; use !isNaN(x) instead`);
+    }
   }
 }
