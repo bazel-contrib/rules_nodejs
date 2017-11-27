@@ -2,8 +2,6 @@ licenses(["notice"])  # Apache 2.0
 
 load("//:defs.bzl", "ts_library")
 
-error_message = "TS21223: x == NaN and x === NaN are always false; use isNaN\(x\) instead"
-
 ts_library(
     name = "positives",
     testonly = 1,
@@ -11,11 +9,13 @@ ts_library(
         "positives.ts",
     ],
     expected_diagnostics = [
-        "\(2,19\).*" + error_message,
-        "\(6,5\).*" + error_message,
-        "\(7,5\).*" + error_message,
-        "\(9,1\).*" + error_message,
-        "\(10,1\).*" + error_message,
+        "\(2,19\): error TS21223: x === NaN is always false; use isNaN\(x\) instead",
+        "\(6,5\): error TS21223: x === NaN is always false; use isNaN\(x\) instead",
+        "\(7,5\): error TS21223: x == NaN is always false; use isNaN\(x\) instead",
+        "\(8,5\): error TS21223: x !== NaN is always true; use !isNaN\(x\) instead",
+        "\(9,5\): error TS21223: x != NaN is always true; use !isNaN\(x\) instead",
+        "\(11,1\): error TS21223: x === NaN is always false; use isNaN\(x\) instead",
+        "\(12,1\): error TS21223: x === NaN is always false; use isNaN\(x\) instead",
     ],
 )
 
