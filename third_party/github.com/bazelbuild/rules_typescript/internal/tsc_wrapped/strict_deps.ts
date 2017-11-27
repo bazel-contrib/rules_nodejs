@@ -51,7 +51,7 @@ export const PLUGIN: pluginApi.Plugin = {
   wrap: (program: ts.Program, config: StrictDepsPluginConfig): ts.Program => {
     const proxy = pluginApi.createProxy(program);
     proxy.getSemanticDiagnostics = function(sourceFile: ts.SourceFile) {
-      const result = program.getSemanticDiagnostics(sourceFile);
+      const result = [...program.getSemanticDiagnostics(sourceFile)];
       perfTrace.wrap('checkModuleDeps', () => {
         result.push(...checkModuleDeps(
             program, config.compilationTargetSrc, config.allowedStrictDeps,
