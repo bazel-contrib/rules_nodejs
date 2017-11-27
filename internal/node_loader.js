@@ -104,13 +104,13 @@ var originalResolveFilename = module.constructor._resolveFilename;
 module.constructor._resolveFilename =
     function(request, parent) {
   var failedResolutions = [];
-  // Locations to search for require'd modules.
-  var resolveLocations = [];
-  // First we look in more specific paths under the label being built
-  // This allows a test to specify a subdirectory where we should find modules
-  resolveLocations.push(resolveRunfiles(
+  var resolveLocations = [
+    request,
+    resolveRunfiles(request),
+    resolveRunfiles(
       'TEMPLATED_user_workspace_name', 'TEMPLATED_label_package',
-      'node_modules', request));
+      'node_modules', request),
+    ];
   // Additional search path in case the build is across workspaces.
   // See comment in node.bzl.
   if ('TEMPLATED_label_workspace_name') {
@@ -120,13 +120,6 @@ module.constructor._resolveFilename =
         'node_modules', request)
     );
   }
-  // Finally we look in the current working directory
-  // and in the runfiles manifest
-  resolveLocations.push(
-    request,
-    resolveRunfiles(request)
-  );
-
   for (var location of resolveLocations) {
     try {
       return originalResolveFilename(location, parent);
