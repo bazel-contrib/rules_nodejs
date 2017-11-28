@@ -1,0 +1,27 @@
+load("@build_bazel_rules_nodejs//:defs.bzl",
+     "nodejs_binary")
+
+filegroup(
+    name = "node_modules",
+    srcs = glob([
+        "node_modules/**/*",
+    ]),
+)
+
+nodejs_binary(
+    name = "express",
+    entry_point = "express_example/express.js",
+    data = [
+        "//:node_modules",
+        "express.js",
+    ]
+)
+
+nodejs_binary(
+    name = "http",
+    entry_point = "express_example/http.js",
+    data = [
+        "//:node_modules",
+        "http.js",
+    ]
+)
