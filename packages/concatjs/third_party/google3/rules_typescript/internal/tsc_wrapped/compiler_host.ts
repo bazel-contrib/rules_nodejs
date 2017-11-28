@@ -270,18 +270,18 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
 
   writeFile(
       fileName: string, content: string, writeByteOrderMark: boolean,
-      onError?: (message: string) => void,
-      sourceFiles?: ts.SourceFile[]): void {
+      onError: ((message: string) => void) | undefined,
+      sourceFiles: ReadonlyArray<ts.SourceFile>): void {
     perfTrace.wrap(
         `writeFile ${fileName}`,
         () => this.writeFileImpl(
-            fileName, content, writeByteOrderMark, onError, sourceFiles));
+            fileName, content, writeByteOrderMark, onError, sourceFiles || []));
   }
 
   writeFileImpl(
       fileName: string, content: string, writeByteOrderMark: boolean,
-      onError?: (message: string) => void,
-      sourceFiles?: ts.SourceFile[]): void {
+      onError: ((message: string) => void) | undefined,
+      sourceFiles: ReadonlyArray<ts.SourceFile>): void {
     // Workaround https://github.com/Microsoft/TypeScript/issues/18648
     if ((this.options.module === ts.ModuleKind.AMD ||
          this.options.module === ts.ModuleKind.UMD) &&
