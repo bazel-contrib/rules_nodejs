@@ -67,6 +67,15 @@ describe('strict deps', () => {
     expect(checkModuleDeps(p, ['does-not-exist'], [], '/src').length).toBe(0);
   });
 
+  it('permits dependencies on ignored files', () => {
+    const p = createProgram({
+      '/node_modules/somepkg/index.d.ts': 'export const a = 1;',
+      '/p/sd1.ts': 'import {a} from "somepkg";',
+    });
+    const diags = checkModuleDeps(p, ['p/sd1.ts'], [], '/', 'node_modules');
+    expect(diags.length).toBe(0, diags);
+  });
+
   it('reports errors for transitive dependencies', () => {
     const p = createProgram({
       '/src/p/sd1.ts': 'export let x = 1;',

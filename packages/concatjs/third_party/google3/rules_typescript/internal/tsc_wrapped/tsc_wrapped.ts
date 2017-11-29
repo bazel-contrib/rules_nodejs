@@ -8,6 +8,7 @@ import {CompilerHost} from './compiler_host';
 import * as diagnostics from './diagnostics';
 import {CachedFileLoader, FileCache, FileLoader, UncachedFileLoader} from './file_cache';
 import {wrap} from './perf_trace';
+import {PLUGIN as strictDepsPlugin} from './strict_deps';
 import {BazelOptions, parseTsconfig} from './tsconfig';
 import {fixUmdModuleDeclarations} from './umd_module_declaration_transform';
 import {debug, log, runAsWorker, runWorkerLoop} from './worker';
@@ -92,6 +93,16 @@ function runOneBuild(
   }
   let diags: ts.Diagnostic[] = [];
   // Install extra diagnostic plugins
+  if (!bazelOpts.disableStrictDeps) {
+    program = strictDepsPlugin.wrap(program, {
+      ...bazelOpts,
+      rootDir: options.rootDir,
+      // The strict deps plugin will compare this path with the fileName of a
+      // sourceFile found in the symbol table. These paths have their symlinks
+      // resolved by TypeScript, so we must resolve this prefix the same way.
+      ignoredFilesPrefix: compilerHost.realpath(bazelOpts.nodeModulesPrefix)
+    });
+  }
   program = tsetsePlugin.wrap(program, bazelOpts.disabledTsetseRules);
 
   // These checks mirror ts.getPreEmitDiagnostics, with the important

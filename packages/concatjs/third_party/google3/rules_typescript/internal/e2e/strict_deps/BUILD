@@ -12,12 +12,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-""" Public API surface is re-exported here.
+licenses(["notice"])  # Apache 2.0
 
-Users should not load files under "/internal"
-"""
-load("//internal:build_defs.bzl", _ts_library = "ts_library")
-load("//internal:ts_config.bzl", _ts_config = "ts_config")
+package(default_visibility = ["//visibility:public"])
 
-ts_library = _ts_library
-ts_config = _ts_config
+load("//:defs.bzl", "ts_library")
+
+ts_library(
+    name = "grandparent",
+    srcs = ["grandparent.ts"],
+)
+
+ts_library(
+    name = "parent",
+    srcs = ["parent.ts"],
+    deps = [":grandparent"],
+)
+
+ts_library(
+    name = "strict_deps",
+    srcs = ["child.ts"],
+    expected_diagnostics = [
+        "TS2307:child\.ts\(2,.*transitive dependency.*not allowed",
+    ],
+    deps = [":parent"],
+)
