@@ -86,6 +86,23 @@ outputs from TypeScript will be written to disk, next to the `.d.ts` files <sup>
 > [declarationDir](https://www.typescriptlang.org/docs/handbook/compiler-options.html)
 > compiler option will be silently overwritten if present.
 
+## Writing TypeScript code for Bazel
+
+Bazel's TypeScript compiler has your workspace path mapped, so you can import
+from an absolute path starting from your workspace.
+
+`/WORKSPACE`:
+```python
+workspace(name = "myworkspace")
+```
+
+`/some/long/path/to/deeply/nested/subdirectory.ts`:
+```javascript
+import {thing} from 'myworkspace/place';
+```
+
+will import from `/place.ts`.
+
 ## Notes
 
 If you'd like a "watch mode", try https://github.com/bazelbuild/bazel-watcher
