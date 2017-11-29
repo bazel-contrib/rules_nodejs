@@ -226,7 +226,7 @@ def compile_ts(ctx,
   tsconfig_es6["compilerOptions"]["declaration"] = False
   tsconfig_es6["compilerOptions"].pop("declarationDir")
   outputs = transpiled_closure_js + tsickle_externs
-  if perf_trace:
+  if perf_trace and has_sources:
     perf_trace_file = ctx.new_file(ctx.label.name + ".es6.trace")
     tsconfig_es6["bazelOptions"]["perfTracePath"] = perf_trace_file.path
     outputs.append(perf_trace_file)
