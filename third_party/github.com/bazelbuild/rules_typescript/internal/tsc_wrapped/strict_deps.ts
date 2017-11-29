@@ -25,6 +25,9 @@ export interface StrictDepsPluginConfig {
   compilationTargetSrc: string[];
   allowedStrictDeps: string[];
   rootDir: string;
+  // Paths where users may freely import without declared dependencies.
+  // This is used in Bazel where dependencies on node_modules may be undeclared.
+  ignoredFilesPrefix?: string;
 }
 
 /** The TypeScript diagnostic code for "Cannot find module ...". */
@@ -55,7 +58,7 @@ export const PLUGIN: pluginApi.Plugin = {
       perfTrace.wrap('checkModuleDeps', () => {
         result.push(...checkModuleDeps(
             program, config.compilationTargetSrc, config.allowedStrictDeps,
-            config.rootDir));
+            config.rootDir, config.ignoredFilesPrefix));
       });
       return result;
     };
@@ -66,7 +69,7 @@ export const PLUGIN: pluginApi.Plugin = {
 // Exported for testing
 export function checkModuleDeps(
     program: ts.Program, filesToCheck: string[], allowedDeps: string[],
-    rootDir: string): ts.Diagnostic[] {
+    rootDir: string, ignoredFilesPrefix?: string): ts.Diagnostic[] {
   function stripExt(fn: string) {
     return fn.replace(/(\.d)?\.tsx?$/, '');
   }
@@ -93,7 +96,10 @@ export function checkModuleDeps(
       }
       // Module imports can only have one declaration location.
       const declFileName = sym.declarations[0].getSourceFile().fileName;
-      if (allowedMap[stripExt(declFileName)]) continue;
+      if (allowedMap[stripExt(declFileName)] ||
+          (ignoredFilesPrefix && declFileName.startsWith(ignoredFilesPrefix))) {
+        continue;
+      }
       const importName = path.relative(rootDir, declFileName);
       result.push({
         file: sf,

@@ -169,6 +169,10 @@ export function parseTsconfig(
       bazelOpts.allowedStrictDeps.map(f => path.resolve(options.rootDir, f));
   bazelOpts.typeBlackListPaths =
       bazelOpts.typeBlackListPaths.map(f => path.resolve(options.rootDir, f));
+  if (bazelOpts.nodeModulesPrefix) {
+    bazelOpts.nodeModulesPrefix =
+        path.resolve(options.rootDir, bazelOpts.nodeModulesPrefix);
+  }
 
   return [{options, bazelOpts, files, config}, null, {target}];
 }
