@@ -236,11 +236,27 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
     if (!this.shouldNameModule(sf.fileName)) return undefined;
     // /build/work/bazel-out/local-fastbuild/bin/path/to/file.ts
     // -> path/to/file.ts
-    const fileName = this.rootDirsRelative(sf.fileName);
+    let fileName = this.rootDirsRelative(sf.fileName);
+    let workspace = this.bazelOpts.workspaceName;
+
+    // Workaround https://github.com/bazelbuild/bazel/issues/1262
+    //
+    // When the file comes from an external bazel repository,
+    // and TypeScript resolves runfiles symlinks, then the path will look like
+    // output_base/execroot/local_repo/external/another_repo/foo/bar
+    // We want to name such a module "another_repo/foo/bar" just as it would be
+    // named by code in that repository.
+    // As a workaround, check for the /external/ path segment, and fix up the
+    // workspace name to be the name of the external repository.
+    if (fileName.startsWith('external/')) {
+      const parts = fileName.split('/');
+      workspace = parts[1];
+      fileName = parts.slice(2).join('/');
+    }
+    
     // path/to/file.ts ->
     // myWorkspace/path/to/file
-    return path.join(
-        this.bazelOpts.workspaceName, fileName.replace(/(\.d)?\.tsx?$/, ''));
+    return path.join(workspace, fileName.replace(/(\.d)?\.tsx?$/, ''));
   }
 
   /** Loads a source file from disk (or the cache). */
