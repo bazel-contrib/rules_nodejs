@@ -12,14 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-""" Public API surface is re-exported here.
+licenses(["notice"])  # Apache 2.0
 
-Users should not load files under "/internal"
-"""
-load("//internal:build_defs.bzl", _ts_library = "ts_library")
-load("//internal:ts_config.bzl", _ts_config = "ts_config")
-load("//internal/devserver:ts_devserver.bzl", _ts_devserver = "ts_devserver_macro")
+filegroup(
+    name = "source_tree",
+    srcs = glob(["**/*"]),
+    visibility = [
+        "//internal:__subpackages__",
+    ],
+)
 
-ts_library = _ts_library
-ts_config = _ts_config
-ts_devserver = _ts_devserver
+load("@io_bazel_rules_go//go:def.bzl", "go_binary")
+
+go_binary(
+    name = "main",
+    srcs = ["main.go"],
+    visibility = ["//visibility:public"],
+    # See https://github.com/bazelbuild/rules_go/issues/721
+    importpath = "do_not_import",
+    deps = [
+        "//internal/concatjs",
+        "//internal/devserver",
+    ],
+)

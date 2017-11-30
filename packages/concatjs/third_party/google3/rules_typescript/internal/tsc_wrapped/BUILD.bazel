@@ -30,6 +30,7 @@ ts_library(
         "compiler_host.ts",
         "diagnostics.ts",
         "file_cache.ts",
+        "index.ts",
         "manifest.ts",
         "strict_deps.ts",
         "tsc_wrapped.ts",
