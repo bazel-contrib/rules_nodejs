@@ -13,23 +13,22 @@ import {Rule as CheckReturnValueRule} from './rules/check_return_value_rule';
 import {Rule as EqualsNanRule} from './rules/equals_nan_rule';
 
 /**
+ * List of Tsetse rules. Shared between the program plugin and the language
+ * service plugin.
+ */
+const ENABLED_RULES: AbstractRule[] = [
+  new CheckReturnValueRule(),
+  new EqualsNanRule(),
+];
+
+/**
  * The Tsetse check plugin performs compile-time static analysis for TypeScript
  * code.
  */
 export const PLUGIN: pluginApi.Plugin = {
-  wrap: (program: ts.Program, disabledTsetseRules: string[] = []):
-            ts.Program => {
-    const enabledRules: AbstractRule[] = [
-      new CheckReturnValueRule(),
-      new EqualsNanRule(),
-    ];
+  wrap(program: ts.Program, disabledTsetseRules: string[] = []): ts.Program {
     const checker = new Checker(program);
-    for (const rule of enabledRules) {
-      if (disabledTsetseRules.indexOf(rule.ruleName) === -1) {
-        rule.register(checker);
-      }
-    }
-
+    registerRules(checker, disabledTsetseRules);
     const proxy = pluginApi.createProxy(program);
     proxy.getSemanticDiagnostics = (sourceFile: ts.SourceFile) => {
       const result = [...program.getSemanticDiagnostics(sourceFile)];
@@ -40,5 +39,13 @@ export const PLUGIN: pluginApi.Plugin = {
       return result;
     };
     return proxy;
-  }
+  },
 };
+
+export function registerRules(checker: Checker, disabledTsetseRules: string[]) {
+  for (const rule of ENABLED_RULES) {
+    if (disabledTsetseRules.indexOf(rule.ruleName) === -1) {
+      rule.register(checker);
+    }
+  }
+}

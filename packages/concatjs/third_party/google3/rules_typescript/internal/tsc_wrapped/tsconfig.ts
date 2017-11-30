@@ -75,6 +75,7 @@ export interface BazelOptions {
   /**
    * A list of Tsetse rule names that should not run on this target.
    */
+  // TODO(calebegg): Remove this and consolidate with plugin disabled rules
   disabledTsetseRules: string[];
 
   /**

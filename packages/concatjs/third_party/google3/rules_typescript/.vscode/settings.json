@@ -3,6 +3,7 @@
     "files.exclude": {
         "**/.git": true,
         "bazel-*": true
-    }
+    },
+    "typescript.tsdk": "node_modules/typescript/lib"
 }
 

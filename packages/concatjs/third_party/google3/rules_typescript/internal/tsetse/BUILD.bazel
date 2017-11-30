@@ -34,3 +34,16 @@ ts_library(
         "//internal/tsetse/rules",
     ],
 )
+
+ts_library(
+    name = "language_service_plugin",
+    srcs = [
+        "language_service_plugin.ts",
+    ],
+    compiler = "//internal/tsc_wrapped:tsc",
+    supports_workers = False,
+    deps = [
+        ":runner",
+        ":tsetse_lib",
+    ],
+)
