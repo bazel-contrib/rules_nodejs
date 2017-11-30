@@ -14,6 +14,13 @@
         "tsutils": "2.12.1"
     },
     "devDependencies": {
-        "clang-format": "1.0.49"
+        "@types/jasmine": "^2.8.2",
+        "clang-format": "1.0.49",
+        "concurrently": "^3.5.1",
+        "protractor": "^5.2.0"
+    },
+    "scripts": {
+        "pretest": "webdriver-manager update && bazel build examples/app:all",
+        "test": "concurrently \"bazel run examples/app:devserver\" protractor --kill-others --success first"
     }
 }
