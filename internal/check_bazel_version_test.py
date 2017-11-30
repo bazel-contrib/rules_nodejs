@@ -55,5 +55,10 @@ class CheckBazelVersionTest(unittest.TestCase):
     self.globals['check_bazel_version']('1.2.1')
     self.assertIsNone(self.mock.failure)
 
+  def testReleaseCandidate(self):
+    self.mock.setVersion('0.8.0rc2')
+    self.globals['check_bazel_version']('0.8.0')
+    self.assertIsNone(self.mock.failure)
+
 if __name__ == '__main__':
   unittest.main()
