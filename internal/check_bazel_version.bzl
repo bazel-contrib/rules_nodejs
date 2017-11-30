@@ -21,6 +21,11 @@ def _parse_bazel_version(bazel_version):
   # Remove commit from version.
   version = bazel_version.split(" ", 1)[0]
 
+  # If release is an RC strip that from the release number.
+  if "rc" in version:
+    rc_position = version.find("rc")
+    version = version[0:rc_position]
+
   # Split into (release, date) parts and only return the release
   # as a tuple of integers.
   parts = version.split("-", 1)
@@ -30,7 +35,6 @@ def _parse_bazel_version(bazel_version):
   for number in parts[0].split("."):
     version_tuple += (int(number),)
   return version_tuple
-
 
 # Check that a specific bazel version is being used.
 # Args: bazel_version in the form "<major>.<minor>.<patch>"
