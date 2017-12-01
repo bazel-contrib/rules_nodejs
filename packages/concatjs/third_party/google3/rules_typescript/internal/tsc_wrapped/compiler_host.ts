@@ -147,6 +147,7 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
     for (const root of this.options.rootDirs) {
       if (fileName.startsWith(root)) {
         // rootDirs are sorted longest-first, so short-circuit the iteration
+        // see tsconfig.ts.
         return path.relative(root, fileName);
       }
     }
@@ -173,27 +174,29 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
 
     // Try to get the resolved path name from TS compiler host which can
     // handle resolution for libraries with module_root like rxjs and @angular.
+    let resolvedPath: string|null = null;
     const resolved =
         this.moduleResolver(importPath, context, this.options, this);
     if (resolved && resolved.resolvedModule &&
         resolved.resolvedModule.resolvedFileName) {
-      let resolvedFileName = resolved.resolvedModule.resolvedFileName;
-
+      resolvedPath = resolved.resolvedModule.resolvedFileName;
       // /build/work/bazel-out/local-fastbuild/bin/path/to/file ->
       // path/to/file
-      resolvedFileName = this.rootDirsRelative(resolvedFileName);
-
-      // Set the importPath to the resolved filename minus the extension.
-      // Extension can either be '.d.ts' or anything after the last '.'.
-      let index: number;
-      if (resolvedFileName.match(/\.d\.ts$/)) {
-        index = resolvedFileName.length - 5;
-      } else {
-        index = resolvedFileName.lastIndexOf('.');
+      resolvedPath = this.rootDirsRelative(resolvedPath);
+    } else {
+      // importPath can be an absolute file path in google3.
+      // Try to trim it as a path relative to bin and genfiles, and if so,
+      // handle its file extension in the block below and prepend the workspace
+      // name.
+      const trimmed = this.rootDirsRelative(importPath);
+      if (trimmed !== importPath) {
+        resolvedPath = trimmed;
       }
-      importPath =
-          index >= 0 ? resolvedFileName.substring(0, index) : resolvedFileName;
-
+    }
+    if (resolvedPath) {
+      // Strip file extensions.
+      importPath = resolvedPath.replace(/(\.d)?\.tsx?$/, '');
+      // Make sure all module names include the workspace name.
       if (importPath.indexOf(this.bazelOpts.workspaceName) !== 0) {
         importPath = path.join(this.bazelOpts.workspaceName, importPath);
       }
@@ -253,7 +256,7 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
       workspace = parts[1];
       fileName = parts.slice(2).join('/');
     }
-    
+
     // path/to/file.ts ->
     // myWorkspace/path/to/file
     return path.join(workspace, fileName.replace(/(\.d)?\.tsx?$/, ''));
