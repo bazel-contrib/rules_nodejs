@@ -131,3 +131,42 @@ def node_repositories(package_json):
   _node_repo(name = "nodejs")
 
   _yarn_repo(name = "yarn", package_json = package_json)
+
+
+def _npm_install_impl(repository_ctx):
+  """Core implementation of npm_install."""
+
+  repository_ctx.file("BUILD", """
+package(default_visibility = ["//visibility:public"])
+filegroup(name = "node_modules", srcs = glob(["node_modules/**/*"]))
+""")
+
+  # Put our package descriptor in the right place.
+  repository_ctx.symlink(
+      repository_ctx.attr.packages,
+      repository_ctx.path("package.json"))
+
+  # To see the output, pass: quiet=False
+  result = repository_ctx.execute(
+    [repository_ctx.path(repository_ctx.attr._npm),
+     "install", repository_ctx.path("")],
+    quiet = False)
+
+  if result.return_code:
+    fail("npm_install failed: %s (%s)" % (result.stdout, result.stderr))
+
+npm_install = repository_rule(
+    attrs = {
+        "packages": attr.label(
+            allow_files = True,
+            mandatory = True,
+            single_file = True,
+        ),
+        "_npm": attr.label(
+            executable = True,
+            default = Label("@nodejs//:bin/npm"),
+            cfg = "host",
+        ),
+    },
+    implementation = _npm_install_impl,
+)

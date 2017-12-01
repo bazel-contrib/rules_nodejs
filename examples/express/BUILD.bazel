@@ -1,0 +1,20 @@
+load("@build_bazel_rules_nodejs//:defs.bzl",
+     "nodejs_binary")
+
+nodejs_binary(
+    name = "express",
+    entry_point = "express_example/express.js",
+    node_modules = "@nodez//:node_modules",
+    data = [
+        "express.js",
+    ]
+)
+
+nodejs_binary(
+    name = "http",
+    entry_point = "express_example/http.js",
+    node_modules = "@nodez//:node_modules",
+    data = [
+        "http.js",
+    ]
+)
