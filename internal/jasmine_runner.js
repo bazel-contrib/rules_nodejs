@@ -20,26 +20,25 @@ function main(args) {
   if (!args.length) {
     throw new Error('Spec file manifest expected argument missing');
   }
-  const specFilesManifest = require.resolve(args[0]);
+  const manifest = require.resolve(args[0]);
   // Remove the manifest, some tested code may process the argv.
   process.argv.splice(2, 1)[0];
 
-  let testFiles =
-      fs.readFileSync(specFilesManifest, UTF8)
-      .split('\n')
-      .filter(l => l.length > 0);
-  if (!testFiles.length) {
-    return BLAZE_EXIT_NO_TESTS_FOUND;
-  }
-
   const jrunner = new JasmineRunner();
-  for (file of testFiles) {
-    console.error('file', file);
-    jrunner.addSpecFile(file);
-  }
+  fs.readFileSync(manifest, UTF8)
+      .split('\n')
+      .filter(l => l.length > 0)
+      .forEach(f => jrunner.addSpecFile(f));
+
+  var noSpecsFound = true;
+  jrunner.addReporter({
+    specDone: () => { noSpecsFound = false },
+  });
 
   jrunner.onComplete((passed) => {
-    process.exit(passed ? 0 : BAZEL_EXIT_TESTS_FAILED);
+    let exitCode = passed ? 0 : BAZEL_EXIT_TESTS_FAILED;
+    if (noSpecsFound) exitCode = BAZEL_EXIT_NO_TESTS_FOUND;
+    process.exit(exitCode);
   });
 
   jrunner.execute();
