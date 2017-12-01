@@ -4,7 +4,7 @@ local_repository(
     name = "build_bazel_rules_nodejs",
     path = "../..",
 )
-load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
+load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "npm_install")
 
 # Install a hermetic version of node.
 # After this is run, these labels will be available:
@@ -19,3 +19,8 @@ node_repositories(package_json = ["//:package.json"])
 # bazel run @yarn//:yarn
 # or
 # bazel run @nodejs//:npm
+
+npm_install(
+    name = "nodez",
+    packages = "//:package.json",
+)
