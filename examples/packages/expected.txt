@@ -1,0 +1,1 @@
+foo \uD834\uDF06 bar

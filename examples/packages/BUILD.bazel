@@ -1,0 +1,31 @@
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+
+VARIANTS = ["npm_json", "npm_lock"]
+
+[nodejs_binary(
+    name = "escape_" + variant,
+    entry_point = "packages_example/escape.js",
+    node_modules = "@" + variant + "//:node_modules",
+    data = [":escape.js"],
+) for variant in VARIANTS]
+
+TARGETS = ["escape_" + variant for variant in VARIANTS]
+
+# Run each of the targets to produce actual_{target}.txt
+[genrule(
+    name = "run_" + target,
+    cmd = """set -e
+$(location :{target}) > $(location :actual_{target}.txt)
+""".format(target=target),
+    outs = ["actual_" + target + ".txt"],
+    testonly = 1,
+    tools = [":" + target],
+) for target in TARGETS]
+
+# Diff each actual_{target}.txt against expected.txt
+[py_test(
+    name = "test_" + target,
+    main = ":diff_test.py",
+    srcs = [":diff_test.py"],
+    data = ["expected.txt", "actual_" + target + ".txt"],
+) for target in TARGETS]
