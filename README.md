@@ -13,16 +13,7 @@ The nodejs rules integrate NodeJS development and runtime with bazel.
 
 First, install a current bazel distribution, following the [bazel instructions].
 
-Create a `BUILD.bazel` file in your project root:
-
-```python
-package(default_visibility = ["//visibility:public"])
-
-# NOTE: this will move to node_modules/BUILD in a later release
-filegroup(name = "node_modules", srcs = glob(["node_modules/**/*"]))
-```
-
-Next create a `WORKSPACE` file in your project root (or edit the existing one)
+Next, create a `WORKSPACE` file in your project root (or edit the existing one)
 containing:
 
 ```python
@@ -41,11 +32,23 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
 node_repositories(package_json = ["//:package.json"])
 ```
 
-You must now run the package manager to install the npm dependencies.
+### Using self-managed dependencies
 
-We recommend using the Yarn package manager, because it has a built-in command
-to verify the integrity of your `node_modules` directory.
-You can run the version Bazel has already installed:
+If you'd like to have Bazel use the `node_modules` directory you are managing,
+then next you will create a `BUILD.bazel` file in your project root containing:
+
+```python
+package(default_visibility = ["//visibility:public"])
+
+# NOTE: this will move to node_modules/BUILD in a later release
+filegroup(name = "node_modules", srcs = glob(["node_modules/**/*"]))
+```
+
+We recommend using the version of the package management tools installed by
+Bazel to ensure everything is compatible.
+
+To use the Yarn package manager, which we recommend for its built-in
+verification command, you can run:
 
 ```sh
 $ bazel run @yarn//:yarn
@@ -58,6 +61,47 @@ $ bazel run @nodejs//:npm install
 ```
 
 [bazel instructions]: https://docs.bazel.build/versions/master/install.html
+
+### Using auto-managed dependencies
+
+To have Bazel manage its own copy of `node_modules`, which is useful to avoid
+juggling multiple toolchains, you can add the following to your `WORKSPACE`
+file:
+
+```python
+load("@build_bazel_rules_nodejs//:defs.bzl", "npm_install")
+
+npm_install(
+    name = "foo",
+    # This can also take package.json
+    packages = "//:package-lock.json",
+)
+```
+
+You can then reference this version of `node_modules` in your `BUILD` rules via:
+
+```python
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+
+nodejs_binary(
+    name = "bar",
+    # Ordinarily this defaults to //:node_modules
+    node_modules = "@foo//:node_modules",
+    ...
+)
+```
+
+With this approach, Bazel is responsible for making sure that `node_modules` is
+up to date with `package[-lock].json`.  This means Bazel will set it up when the
+repo is first cloned, and rebuild it whenever it changes.
+
+For Bazel to provide the strongest guarantees about reproducibility and the
+fidelity of your build, it is recommended that you let Bazel take responsibility
+for this.
+
+However, this approach manages a second copy of `node_modules`, so if you are
+juggling Bazel and other tooling, or sensitive to the additional network traffic
+this might incur, consider self-managing.
 
 ## Usage
 

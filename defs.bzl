@@ -22,3 +22,4 @@ load("//internal:node.bzl",
      nodejs_test = "nodejs_test_macro")
 load("//internal:jasmine_node_test.bzl", "jasmine_node_test")
 load("//internal:node_install.bzl", "node_repositories")
+load("//internal:packages.bzl", "npm_install")
