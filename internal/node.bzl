@@ -78,8 +78,8 @@ def _write_loader_script(ctx):
           # [1] https://yarnpkg.com/lang/en/docs/workspaces/#toc-limitations-caveats
           "TEMPLATED_user_workspace_name": ctx.workspace_name,
           "TEMPLATED_label_workspace_name": (
-              ctx.label.workspace_root.split("/")[1]
-              if ctx.label.workspace_root
+              ctx.attr.node_modules.label.workspace_root.split("/")[1]
+              if ctx.attr.node_modules.label.workspace_root
               # If the label is in the same workspace as the user, we don't
               # need another search location.
               else ""
