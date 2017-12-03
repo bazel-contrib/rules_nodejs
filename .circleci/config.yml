@@ -19,6 +19,7 @@ jobs:
 
       # We should also be able to test targets in a different workspace
       - run: bazel test @program_example//...
+      - run: cd examples/packages && bazel test //...
 
       - save_cache:
           key: angular_bazel_example-{{ .Branch }}-{{ checksum "examples/rollup/yarn.lock" }}
