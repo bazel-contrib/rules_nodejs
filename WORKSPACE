@@ -20,6 +20,10 @@ local_repository(
     name = "program_example",
     path = "examples/program",
 )
+local_repository(
+    name = "packages_example",
+    path = "examples/packages",
+)
 # Install a hermetic version of node.
 # After this is run, these labels will be available:
 # - The nodejs install:
