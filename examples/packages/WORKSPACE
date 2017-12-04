@@ -1,0 +1,40 @@
+workspace(name = "packages_example")
+
+local_repository(
+    name = "build_bazel_rules_nodejs",
+    path = "../..",
+)
+load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
+
+# Install a hermetic version of node.
+# After this is run, these labels will be available:
+# - The nodejs install:
+#   @nodejs//:bin/node
+#   @nodejs//:bin/npm
+# - The yarn package manager:
+#   @yarn//:yarn
+node_repositories(package_json = ["//:package.json"])
+
+load("@build_bazel_rules_nodejs//:defs.bzl", "npm_install")
+
+npm_install(
+    name = "npm_json",
+    packages = "//:package.json",
+)
+
+npm_install(
+    name = "npm_lock",
+    packages = "//:package-lock.json",
+)
+
+# load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
+#
+# yarn_install(
+#     name = "yarn_json",
+#     packages = "//:package.json",
+# )
+#
+# yarn_install(
+#     name = "yarn_lock",
+#     packages = "//:yarn.lock",
+# )
