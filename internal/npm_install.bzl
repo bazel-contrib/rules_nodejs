@@ -19,12 +19,17 @@ def _npm_install_impl(repository_ctx):
 
   repository_ctx.file("BUILD", """
 package(default_visibility = ["//visibility:public"])
-filegroup(name = "node_modules", srcs = glob(["node_modules/**/*"]))
+filegroup(
+    name = "node_modules",
+    srcs = glob(["node_modules/**/*"],
+        # Exclude directories that commonly contain filenames which are
+        # illegal bazel labels
+        exclude = ["node_modules/*/test/**"]))
 """)
 
   # Put our package descriptor in the right place.
   repository_ctx.symlink(
-      repository_ctx.attr.packages,
+      repository_ctx.attr.package_json,
       repository_ctx.path("package.json"))
 
   # To see the output, pass: quiet=False
@@ -37,7 +42,7 @@ filegroup(name = "node_modules", srcs = glob(["node_modules/**/*"]))
 
 npm_install = repository_rule(
     attrs = {
-        "packages": attr.label(
+        "package_json": attr.label(
             allow_files = True,
             mandatory = True,
             single_file = True,
