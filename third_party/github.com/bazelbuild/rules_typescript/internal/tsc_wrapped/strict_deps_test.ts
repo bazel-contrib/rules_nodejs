@@ -61,17 +61,13 @@ describe('strict deps', () => {
     return p;
   }
 
-  it('ignores files that are not in the program', () => {
-    const p = createProgram({});
-    expect(checkModuleDeps(p, ['does-not-exist'], [], '/src').length).toBe(0);
-  });
-
   it('permits dependencies on ignored files', () => {
     const p = createProgram({
-      '/node_modules/somepkg/index.d.ts': 'export const a = 1;',
-      '/p/sd1.ts': 'import {a} from "somepkg";',
+      '/src/node_modules/somepkg/index.d.ts': 'export const a = 1;',
+      '/src/p/sd1.ts': 'import {a} from "somepkg";',
     });
-    const diags = checkModuleDeps(p, ['p/sd1.ts'], [], '/', ['node_modules']);
+    const diags =
+        checkModuleDeps(p, ['p/sd1.ts'], [], '/src', ['/src/node_modules']);
     expect(diags.length).toBe(0, diags);
   });
 
