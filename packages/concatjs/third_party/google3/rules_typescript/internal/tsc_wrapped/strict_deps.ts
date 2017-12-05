@@ -80,7 +80,6 @@ export function checkModuleDeps(
   const result: ts.Diagnostic[] = [];
   for (const fileName of filesToCheck) {
     const sf = program.getSourceFile(fileName);
-    if (!sf) continue;
     for (const stmt of sf.statements) {
       if (stmt.kind !== ts.SyntaxKind.ImportDeclaration &&
           stmt.kind !== ts.SyntaxKind.ExportDeclaration) {
