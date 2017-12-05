@@ -3,7 +3,8 @@
     "strict": true,
     "types": [
       "node",
-      "source-map"
+      "source-map",
+      "jasmine"
     ],
     "lib": [
       "dom",

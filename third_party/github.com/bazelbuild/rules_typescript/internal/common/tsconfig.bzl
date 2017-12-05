@@ -95,11 +95,14 @@ def create_tsconfig(ctx, files, srcs,
       # Explicitly tell the compiler which sources we're interested in (emitting
       # and type checking).
       "compilationTargetSrc": [s.path for s in srcs],
-      "disableStrictDeps": disable_strict_deps,
-      "allowedStrictDeps": [f.path for f in allowed_deps],
       "addDtsClutzAliases": getattr(ctx.attr, "add_dts_clutz_aliases", False),
       "expectedDiagnostics": getattr(ctx.attr, "expected_diagnostics", []),
   }
+
+  if disable_strict_deps:
+    bazel_options["disableStrictDeps"] = disable_strict_deps
+  else:
+    bazel_options["allowedStrictDeps"] = [f.path for f in allowed_deps]
 
   # Keep these options in sync with those in playground/playground.ts.
   compiler_options = {
