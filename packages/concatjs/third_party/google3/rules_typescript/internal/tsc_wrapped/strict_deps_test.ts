@@ -72,7 +72,7 @@ describe('strict deps', () => {
       '/node_modules/somepkg/index.d.ts': 'export const a = 1;',
       '/p/sd1.ts': 'import {a} from "somepkg";',
     });
-    const diags = checkModuleDeps(p, ['p/sd1.ts'], [], '/', 'node_modules');
+    const diags = checkModuleDeps(p, ['p/sd1.ts'], [], '/', ['node_modules']);
     expect(diags.length).toBe(0, diags);
   });
 

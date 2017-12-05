@@ -98,9 +98,13 @@ function runOneBuild(
       ...bazelOpts,
       rootDir: options.rootDir,
       // The strict deps plugin will compare this path with the fileName of a
-      // sourceFile found in the symbol table. These paths have their symlinks
-      // resolved by TypeScript, so we must resolve this prefix the same way.
-      ignoredFilesPrefix: compilerHost.realpath(bazelOpts.nodeModulesPrefix)
+      // sourceFile found in the symbol table. Some paths have their symlinks
+      // resolved by TypeScript, so we might need to resolve this prefix the
+      // same way.
+      ignoredFilesPrefixes: [
+        bazelOpts.nodeModulesPrefix,
+        compilerHost.realpath(bazelOpts.nodeModulesPrefix)
+      ],
     });
   }
   program = tsetsePlugin.wrap(program, bazelOpts.disabledTsetseRules);
