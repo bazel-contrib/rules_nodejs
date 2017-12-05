@@ -87,7 +87,12 @@ def tsc_wrapped_tsconfig(ctx,
   config = create_tsconfig(ctx, files, srcs,
                            devmode_manifest=devmode_manifest,
                            **kwargs)
-  config["bazelOptions"]["nodeModulesPrefix"] = "node_modules"
+  config["bazelOptions"]["nodeModulesPrefix"] = "/".join([p for p in [
+    ctx.attr.node_modules.label.workspace_root,
+    ctx.attr.node_modules.label.package,
+    "node_modules"
+  ] if p])
+
   if config["compilerOptions"]["target"] == "es6":
     config["compilerOptions"]["module"] = "es2015"
   else:
