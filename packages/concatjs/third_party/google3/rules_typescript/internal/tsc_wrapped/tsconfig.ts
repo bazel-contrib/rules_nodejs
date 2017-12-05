@@ -142,8 +142,30 @@ export function parseTsconfig(
 
   const bazelOpts: BazelOptions = config.bazelOptions;
   const target = bazelOpts.target;
-  const {options, errors, fileNames} = ts.parseJsonConfigFileContent(
-    config, host, path.dirname(tsconfigFile));
+  bazelOpts.allowedStrictDeps = bazelOpts.allowedStrictDeps || [];
+  bazelOpts.typeBlackListPaths = bazelOpts.typeBlackListPaths || [];
+  bazelOpts.compilationTargetSrc = bazelOpts.compilationTargetSrc || [];
+
+  // Allow Bazel users to control some of the bazel options.
+  // Since TypeScript's "extends" mechanism applies only to "compilerOptions"
+  // we have to repeat some of their logic to get the user's bazelOptions.
+  if (config.extends) {
+    let userConfigFile =
+        path.resolve(path.dirname(tsconfigFile), config.extends);
+    if (!userConfigFile.endsWith('.json')) userConfigFile += '.json';
+    const {config: userConfig, error} =
+        ts.readConfigFile(userConfigFile, host.readFile);
+    if (error) {
+      return [null, [error], {target}];
+    }
+    if (userConfig.bazelOptions) {
+      bazelOpts.disableStrictDeps = bazelOpts.disableStrictDeps ||
+          userConfig.bazelOptions.disableStrictDeps;
+    }
+  }
+
+  const {options, errors, fileNames} =
+      ts.parseJsonConfigFileContent(config, host, path.dirname(tsconfigFile));
   if (errors && errors.length) {
     return [null, errors, {target}];
   }

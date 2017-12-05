@@ -13,7 +13,7 @@
 # limitations under the License.
 
 load("//:defs.bzl", "ts_library")
-load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary", "jasmine_node_test")
 
 # Vanilla typescript compiler: run the tsc.js binary distributed by TypeScript
 nodejs_binary(
@@ -44,6 +44,11 @@ ts_library(
     supports_workers = False,
     tsconfig = ":tsconfig.json",
     visibility = ["//visibility:public"],
+    data = [ 
+        # Should be @bazel_tools//src/main/protobuf:worker_protocol.proto
+        # see https://github.com/bazelbuild/bazel/issues/3155#issuecomment-308156976
+        "//internal:worker_protocol.proto",
+    ],
     deps = [
         ":perf_trace",
         ":plugin_api",
@@ -74,12 +79,21 @@ nodejs_binary(
     data = [
         ":tsc_wrapped",
         "@//:node_modules",
-
-        # Should be @bazel_tools//src/main/protobuf:worker_protocol.proto
-        # see https://github.com/bazelbuild/bazel/issues/3155#issuecomment-308156976
-        "//internal:worker_protocol.proto",
     ],
     entry_point = "build_bazel_rules_typescript/internal/tsc_wrapped/tsc_wrapped.js",
     templated_args = ["--node_options=--expose-gc"],
     visibility = ["//visibility:public"],
+)
+
+ts_library(
+    name = "test_lib",
+    srcs = glob(["*_test.ts"]) + ["test_support.ts"],
+    deps = [":tsc_wrapped"],
+    tsconfig = ":tsconfig.json",
+)
+
+jasmine_node_test(
+    name = "test",
+    srcs = [],
+    deps = [":test_lib"],
 )

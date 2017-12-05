@@ -27,7 +27,6 @@ describe('strict deps', () => {
       baseUrl: '/src',
       rootDirs: ['/src', '/src/blaze-bin'],
       paths: {'*': ['*', 'blaze-bin/*']},
-      traceResolution: true
     };
 
     // Fake compiler host relying on `files` above.
