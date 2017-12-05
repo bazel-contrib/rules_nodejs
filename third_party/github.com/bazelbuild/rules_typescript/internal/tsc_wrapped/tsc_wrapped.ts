@@ -102,6 +102,8 @@ function runOneBuild(
       // resolved by TypeScript, so we might need to resolve this prefix the
       // same way.
       ignoredFilesPrefixes: [
+        path.resolve(options.rootDir, 'node_modules'),
+        compilerHost.realpath(path.resolve(options.rootDir, 'node_modules')),
         bazelOpts.nodeModulesPrefix,
         compilerHost.realpath(bazelOpts.nodeModulesPrefix)
       ],
