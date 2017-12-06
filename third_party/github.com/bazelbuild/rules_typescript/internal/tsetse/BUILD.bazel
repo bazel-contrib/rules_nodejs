@@ -5,7 +5,7 @@ package(default_visibility = [
 
 licenses(["notice"])  # Apache 2.0
 
-load("//:defs.bzl", "ts_library")
+load("//internal:build_defs.bzl", ts_library = "tsc_library")
 
 ts_library(
     name = "tsetse_lib",
@@ -15,8 +15,6 @@ ts_library(
         "failure.ts",
         "rule.ts",
     ],
-    compiler = "//internal/tsc_wrapped:tsc",
-    supports_workers = False,
     tsconfig = ":tsconfig.json",
 )
 
@@ -25,8 +23,6 @@ ts_library(
     srcs = [
         "runner.ts",
     ],
-    compiler = "//internal/tsc_wrapped:tsc",
-    supports_workers = False,
     deps = [
         ":tsetse_lib",
         "//internal/tsc_wrapped:perf_trace",
@@ -40,8 +36,6 @@ ts_library(
     srcs = [
         "language_service_plugin.ts",
     ],
-    compiler = "//internal/tsc_wrapped:tsc",
-    supports_workers = False,
     deps = [
         ":runner",
         ":tsetse_lib",

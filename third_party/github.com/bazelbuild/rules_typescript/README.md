@@ -48,6 +48,10 @@ local_repository(
     name = "build_bazel_rules_typescript",
     path = "node_modules/@bazel/typescript",
 )
+
+load("@build_bazel_rules_typescript//:defs.bzl", "ts_repositories")
+
+ts_repositories()
 ```
 
 We recommend using the Yarn package manager, because it has a built-in command

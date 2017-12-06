@@ -62,8 +62,17 @@ def create_tsconfig(ctx, files, srcs,
         ctx.configuration.genfiles_dir.path,
         ctx.configuration.bin_dir.path
     ]]
+
+    node_modules_mappings = []
+    if (hasattr(ctx.attr, "node_modules")):
+      node_modules_mappings.append("/".join([p for p in [
+          ctx.attr.node_modules.label.workspace_root,
+          ctx.attr.node_modules.label.package,
+          "node_modules",
+          "*"] if p]))
+
     module_roots = {
-        "*": base_path_mappings,
+        "*": base_path_mappings + node_modules_mappings,
         ctx.workspace_name + "/*": base_path_mappings,
     }
   module_mappings = get_module_mappings(ctx.label, ctx.attr, srcs = srcs)
@@ -171,6 +180,14 @@ def create_tsconfig(ctx, files, srcs,
       # Implied by inlineSourceMap: True
       "sourceMap": False,
   }
+
+  if hasattr(ctx.attr, "node_modules"):
+    compiler_options["typeRoots"] = ["/".join([p for p in [
+        workspace_path,
+        ctx.attr.node_modules.label.workspace_root,
+        ctx.attr.node_modules.label.package,
+        "node_modules",
+        "@types"] if p])]
 
   if _DEBUG:
     compiler_options["traceResolution"] = True

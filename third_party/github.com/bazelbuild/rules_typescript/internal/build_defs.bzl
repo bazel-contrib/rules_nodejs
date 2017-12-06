@@ -36,7 +36,7 @@ def _compile_action(ctx, inputs, outputs, config_file_path):
   for externs_file in externs_files:
     ctx.file_action(output=externs_file, content="")
 
-  action_inputs = inputs + [f for f in ctx.files.node_modules
+  action_inputs = inputs + [f for f in ctx.files.node_modules + ctx.files._tsc_wrapped_deps
                             if f.path.endswith(".ts") or f.path.endswith(".json")]
   if ctx.file.tsconfig:
     action_inputs += [ctx.file.tsconfig]
@@ -158,6 +158,7 @@ ts_library = rule(
                 executable=True,
                 cfg="host"),
         "supports_workers": attr.bool(default = True),
+        "_tsc_wrapped_deps": attr.label(default = Label("@build_bazel_rules_typescript_deps//:node_modules")),
         # @// is special syntax for the "main" repository
         # The default assumes the user specified a target "node_modules" in their
         # root BUILD file.
@@ -167,3 +168,12 @@ ts_library = rule(
         "tsconfig": "%{name}_tsconfig.json"
     }
 )
+
+# Helper that compiles typescript libraries using the vanilla tsc compiler
+# Only used in Bazel - this file is not intended for use with Blaze.
+def tsc_library(**kwargs):
+  ts_library(
+      supports_workers = False,
+      compiler = "//internal/tsc_wrapped:tsc",
+      node_modules = "@build_bazel_rules_typescript_deps//:node_modules",
+      **kwargs)

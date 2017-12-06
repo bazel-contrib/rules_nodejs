@@ -12,16 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-""" Public API surface is re-exported here.
-
-Users should not load files under "/internal"
+"""The ts_repositories rule installs build-time dependencies.
 """
-load("//internal:build_defs.bzl", _ts_library = "ts_library")
-load("//internal:ts_config.bzl", _ts_config = "ts_config")
-load("//internal/devserver:ts_devserver.bzl", _ts_devserver = "ts_devserver_macro")
-load("//internal:ts_repositories.bzl", _ts_repositories = "ts_repositories")
 
-ts_library = _ts_library
-ts_config = _ts_config
-ts_repositories = _ts_repositories
-ts_devserver = _ts_devserver
+load("@build_bazel_rules_nodejs//:defs.bzl", "npm_install")
+
+def ts_repositories():
+  npm_install(
+      name = "build_bazel_rules_typescript_deps",
+      package_json = "@build_bazel_rules_typescript//:package.json",
+  )
