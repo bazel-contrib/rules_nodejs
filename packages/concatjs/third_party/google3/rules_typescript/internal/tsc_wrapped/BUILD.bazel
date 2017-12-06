@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("//:defs.bzl", "ts_library")
+load("//internal:build_defs.bzl", ts_library = "tsc_library")
 load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary", "jasmine_node_test")
 
 # Vanilla typescript compiler: run the tsc.js binary distributed by TypeScript
 nodejs_binary(
     name = "tsc",
-    data = ["@//:node_modules"],
+    node_modules = "@build_bazel_rules_typescript_deps//:node_modules",
     entry_point = "typescript/lib/tsc.js",
     visibility = ["//internal:__subpackages__"],
 )
@@ -38,10 +38,8 @@ ts_library(
         "umd_module_declaration_transform.ts",
         "worker.ts",
     ],
-    compiler = ":tsc",
     module_name = "@bazel/typescript",
     module_root = "index.d.ts",
-    supports_workers = False,
     tsconfig = ":tsconfig.json",
     visibility = ["//visibility:public"],
     data = [ 
@@ -59,16 +57,12 @@ ts_library(
 ts_library(
     name = "plugin_api",
     srcs = ["plugin_api.ts"],
-    compiler = ":tsc",
-    supports_workers = False,
     visibility = ["//internal/tsetse:__pkg__"],
 )
 
 ts_library(
     name = "perf_trace",
     srcs = ["perf_trace.ts"],
-    compiler = ":tsc",
-    supports_workers = False,
     visibility = ["//internal/tsetse:__pkg__"],
 )
 
@@ -78,8 +72,8 @@ nodejs_binary(
     name = "tsc_wrapped_bin",
     data = [
         ":tsc_wrapped",
-        "@//:node_modules",
     ],
+    node_modules = "@build_bazel_rules_typescript_deps//:node_modules",
     entry_point = "build_bazel_rules_typescript/internal/tsc_wrapped/tsc_wrapped.js",
     templated_args = ["--node_options=--expose-gc"],
     visibility = ["//visibility:public"],

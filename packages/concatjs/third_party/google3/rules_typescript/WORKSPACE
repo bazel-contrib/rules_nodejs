@@ -17,7 +17,7 @@ workspace(name = "build_bazel_rules_typescript")
 git_repository(
     name = "build_bazel_rules_nodejs",
     remote = "https://github.com/bazelbuild/rules_nodejs",
-    tag = "0.2.2",
+    commit = "6b498e36095350bd88d2ea89e1a87ce791e51d82",
 )
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
@@ -30,6 +30,10 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
 # - The yarn package manager:
 #   @yarn//:yarn
 node_repositories(package_json = ["//:package.json"])
+
+load("@build_bazel_rules_typescript//:defs.bzl", "ts_repositories")
+
+ts_repositories()
 
 http_archive(
     name = "io_bazel_rules_go",
