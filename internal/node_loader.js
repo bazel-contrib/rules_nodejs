@@ -32,6 +32,11 @@ var fs = require('fs');
  */
 var MODULE_ROOTS = [TEMPLATED_module_roots];
 
+/**
+ * Array of bootstrap modules that need to be loaded before the entry point.
+ */
+var BOOTSTRAP = [TEMPLATED_bootstrap];
+
 function resolveToModuleRoot(path) {
   if (!path) {
     throw new Error('resolveToModuleRoot missing path: ' + path);
@@ -146,6 +151,16 @@ module.constructor._resolveFilename =
     failedResolutions.map(r => '\n   ' + r));
   error.code = 'MODULE_NOT_FOUND';
   throw error;
+}
+
+// Load all bootstrap modules before loading the entrypoint.
+for (var i = 0; i < BOOTSTRAP.length; i++) {
+  try {
+    module.constructor._load(BOOTSTRAP[i], this);
+  } catch (e) {
+    console.error('bootstrap failure ' + e.stack || e);
+    process.exit(1);
+  }
 }
 
 if (require.main === module) {

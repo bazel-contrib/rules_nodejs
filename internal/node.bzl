@@ -51,6 +51,8 @@ def _write_loader_script(ctx):
       output=ctx.outputs.loader,
       substitutions={
           "TEMPLATED_module_roots": "\n  " + ",\n  ".join(module_mappings),
+          "TEMPLATED_bootstrap": "\n  " + ",\n  ".join(
+              ["\"" + d + "\"" for d in ctx.attr.bootstrap]),
           "TEMPLATED_entry_point": ctx.attr.entry_point,
           "TEMPLATED_label_package": ctx.attr.node_modules.label.package,
           # There are two workspaces in general:
@@ -167,6 +169,7 @@ def _nodejs_binary_impl(ctx):
 
 _NODEJS_EXECUTABLE_ATTRS = {
     "entry_point": attr.string(mandatory = True),
+    "bootstrap": attr.string_list(default = []),
     "data": attr.label_list(
         allow_files = True,
         cfg = "data",
