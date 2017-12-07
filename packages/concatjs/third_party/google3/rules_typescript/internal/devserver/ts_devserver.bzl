@@ -59,7 +59,8 @@ RUNFILES="$PWD/.."
 {main} {serving_arg} \
   -base "$RUNFILES" \
   -packages={workspace}/{package} \
-  -manifest={workspace}/{manifest}
+  -manifest={workspace}/{manifest} \
+  "$@"
 """.format(
     main = ctx.executable._devserver.short_path,
     serving_arg = serving_arg,
