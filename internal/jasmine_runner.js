@@ -34,6 +34,9 @@ function main(args) {
   jrunner.addReporter({
     specDone: () => { noSpecsFound = false },
   });
+  // addReporter throws away the default console reporter
+  // so we need to add it back
+  jrunner.configureDefaultReporter({});
 
   jrunner.onComplete((passed) => {
     let exitCode = passed ? 0 : BAZEL_EXIT_TESTS_FAILED;
