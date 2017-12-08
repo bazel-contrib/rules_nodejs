@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/ng
     docker:
-      - image: angular/ngcontainer:0.0.2
+      - image: angular/ngcontainer:0.0.8
     steps:
       - checkout
 
@@ -12,13 +12,13 @@ jobs:
       - run: bazel info release
 
       - run: bazel run @yarn//:yarn
-      - run: bazel build ...
-      - run: bazel test ...
+      - run: bazel build --config=ci ...
+      - run: bazel test --config=ci ...
       # TODO(alexeagle): move this into the example proper
       - run: bazel run examples/rollup -- --help
 
       # We should also be able to test targets in a different workspace
-      - run: bazel test @program_example//...
+      - run: bazel test --config=ci @program_example//...
       # TODO(mattmoor): figure out why other tests in this example fail
       - run: cd examples/packages && bazel test //:test_escape_npm_json
 
