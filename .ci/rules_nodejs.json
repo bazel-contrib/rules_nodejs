@@ -7,13 +7,23 @@
         "--cpu=x64_windows_msys",
         "--host_cpu=x64_windows_msys"
       ],
-      "test_tag_filters": [
-        "-no_windows",
-        "-slow"
-      ],
       "targets": ["//...", "@program_example//...", "@packages_example/..."],
-      "tests": ["//...", "@program_example//..."],
+      "tests": ["//...", "@program_example//...", "@packages_example//:test_escape_npm_json"],
       "configure": [
+        "%BAZEL% run @yarn//:yarn"
+      ]
+    }
+  },
+  {
+    "node": "windows-x86_64",
+    "toolchain": "msys",
+    "parameters": {
+      "build_opts": [
+        "--cpu=x64_windows_msys",
+        "--host_cpu=x64_windows_msys"
+      ],
+      "configure": [
+        "cd examples/packages",
         "%BAZEL% run @yarn//:yarn"
       ]
     }
