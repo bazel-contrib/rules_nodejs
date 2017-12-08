@@ -49,7 +49,7 @@ npm_install = repository_rule(
         ),
         "_npm": attr.label(
             executable = True,
-            default = Label("@nodejs//:bin/npm"),
+            default = Label("@nodejs//:npm"),
             cfg = "host",
         ),
     },
