@@ -12,7 +12,7 @@ anchor_1: &job_defaults
   working_directory: ~/ts
   # Use a docker image with bazel already installed
   docker:
-    - image: angular/ngcontainer:0.0.4
+    - image: angular/ngcontainer:0.0.8
 
 # After checkout, rebase on top of master.
 # Similar to travis behavior, but not quite the same.
