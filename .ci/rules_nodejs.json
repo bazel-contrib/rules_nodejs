@@ -11,12 +11,22 @@
         "-no_windows",
         "-slow"
       ],
-      "targets": ["//...", "@program_example//...", "@packages_example/..."],
+      "targets": ["//...", "@program_example//..."],
       "tests": ["//...", "@program_example//..."],
       "configure": [
         "%BAZEL% run @yarn//:yarn"
       ]
     }
+  },
+  {
+    "node": "windows-x86_64",
+    "toolchain": "msys",
+    "workspace": "examples/packages",
+    "parameters": {
+      "build_opts": [
+        "--cpu=x64_windows_msys",
+        "--host_cpu=x64_windows_msys"
+      ]
+    }
   }
-
 ]
