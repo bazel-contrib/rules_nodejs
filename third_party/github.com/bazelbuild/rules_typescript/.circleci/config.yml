@@ -7,12 +7,18 @@
 # To validate changes, use an online parser, eg.
 # http://yaml-online-parser.appspot.com/
 
+## IMPORTANT
+# If you change the `docker_image` version, also change the `cache_key` suffix
+var_1: &docker_image angular/ngcontainer:0.0.8
+var_2: &cache_key rules_typescript-{{ checksum "yarn.lock" }}-0.0.8
+
+
 # Settings common to each job
 anchor_1: &job_defaults
   working_directory: ~/ts
   # Use a docker image with bazel already installed
   docker:
-    - image: angular/ngcontainer:0.0.8
+    - image: *docker_image
 
 # After checkout, rebase on top of master.
 # Similar to travis behavior, but not quite the same.
@@ -29,16 +35,11 @@ jobs:
           <<: *post_checkout
 
       - restore_cache:
-          key: rules_typescript-{{ checksum "yarn.lock" }}
+          key: *cache_key
       - run: bazel info release
       - run: bazel run @yarn//:yarn
       - run: bazel build ...
       - run: bazel test ...
-
-      - save_cache:
-          key: rules_typescript-{{ checksum "yarn.lock" }}
-          paths:
-            - "node_modules"
 
   # This job tests the same stuff, but without the .bazelrc file.
   # It disables worker mode, for example.
@@ -49,14 +50,14 @@ jobs:
           <<: *post_checkout
 
       - restore_cache:
-          key: rules_typescript-{{ checksum "yarn.lock" }}
+          key: *cache_key
       - run: bazel --bazelrc=/dev/null info release
       - run: bazel --bazelrc=/dev/null run @yarn//:yarn
       - run: bazel --bazelrc=/dev/null build ...
       - run: bazel --bazelrc=/dev/null test ...
 
       - save_cache:
-          key: rules_typescript-{{ checksum "yarn.lock" }}
+          key: *cache_key
           paths:
             - "node_modules"
 
@@ -67,7 +68,7 @@ jobs:
       - checkout:
           <<: *post_checkout
       - restore_cache:
-          key: rules_typescript-{{ checksum "yarn.lock" }}
+          key: *cache_key
       - run: bazel run @yarn//:yarn
       # Don't occupy the bazel server, as this test wants to run Bazel itself
       - run: bazel run @yarn//:yarn test --script_path=yarn_test.sh
