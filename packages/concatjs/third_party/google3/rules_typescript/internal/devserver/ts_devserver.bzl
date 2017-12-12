@@ -127,7 +127,13 @@ ts_devserver = rule(
 
 def ts_devserver_macro(tags = [], **kwargs):
   ts_devserver(
-      # Users don't need to know that this tag is required to run under ibazel
-      tags = tags + ["ibazel_notify_changes"],
+      # Users don't need to know that these tags are required to run under ibazel
+      tags = tags + [
+          # Tell ibazel not to restart the devserver when its deps change.
+          "ibazel_notify_changes",
+          # Tell ibazel to serve the live reload script, since we expect a browser will connect to
+          # this program.
+          "ibazel_live_reload",
+      ],
       **kwargs
   )
