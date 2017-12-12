@@ -18,7 +18,6 @@ See the README.md.
 """
 
 load("@build_bazel_rules_nodejs//internal:node.bzl",
-    "expand_path_into_runfiles",
     "sources_aspect",
 )
 
@@ -30,14 +29,6 @@ def _ts_devserver(ctx):
     elif hasattr(d, "files"):
       files += d.files
 
-  # Create a manifest file with the sources in arbitrary order, and without
-  # bazel-bin prefixes ("root-relative paths").
-  # TODO(alexeagle): we should experiment with keeping the files toposorted, to
-  # see if we can get performance gains out of the module loader.
-  ctx.actions.write(ctx.outputs.manifest, "".join([
-    # TODO: change to $(rootpath) after upgrading users to Bazel 0.8
-    expand_path_into_runfiles(ctx, f.path) + "\n" for f in files
-  ]))
   if ctx.label.workspace_root:
     # We need the workspace_name for the target being visited.
     # Skylark doesn't have this - instead they have a workspace_root
@@ -46,6 +37,32 @@ def _ts_devserver(ctx):
     workspace_name = ctx.label.workspace_root.split("/")[1]
   else:
     workspace_name = ctx.workspace_name
+
+  # Create a manifest file with the sources in arbitrary order, and without
+  # bazel-bin prefixes ("root-relative paths").
+  # TODO(alexeagle): we should experiment with keeping the files toposorted, to
+  # see if we can get performance gains out of the module loader.
+  ctx.actions.write(ctx.outputs.manifest, "".join([
+    workspace_name + "/" + f.short_path + "\n" for f in files
+  ]))
+
+  # Requirejs is always needed so its included as the first script
+  # in script_files before any user specified scripts for the devserver
+  # to concat in order.
+  script_files = depset()
+  script_files += ctx.files._requirejs_script
+  script_files += ctx.files.scripts
+  ctx.actions.write(ctx.outputs.scripts_manifest, "".join([
+    workspace_name + "/" + f.short_path + "\n" for f in script_files
+  ]))
+
+  devserver_runfiles = [
+    ctx.executable._devserver,
+    ctx.outputs.manifest,
+    ctx.outputs.scripts_manifest,
+    ctx.file._requirejs_script]
+  devserver_runfiles += ctx.files.static_files
+  devserver_runfiles += ctx.files.scripts
 
   serving_arg = ""
   if ctx.attr.serving_path:
@@ -60,16 +77,20 @@ RUNFILES="$PWD/.."
   -base "$RUNFILES" \
   -packages={workspace}/{package} \
   -manifest={workspace}/{manifest} \
+  -scripts_manifest={workspace}/{scripts_manifest} \
+  -entry_module={entry_module} \
   "$@"
 """.format(
     main = ctx.executable._devserver.short_path,
     serving_arg = serving_arg,
     workspace = workspace_name,
     package = ctx.label.package,
-    manifest = ctx.outputs.manifest.short_path))
+    manifest = ctx.outputs.manifest.short_path,
+    scripts_manifest = ctx.outputs.scripts_manifest.short_path,
+    entry_module = ctx.attr.entry_module))
   return [DefaultInfo(
       runfiles = ctx.runfiles(
-          files = [ctx.executable._devserver, ctx.outputs.manifest] + ctx.files.static_files,
+          files = devserver_runfiles,
           # We don't expect executable targets to depend on the devserver, but if they do,
           # they can see the JavaScript code.
           transitive_files = depset(ctx.files.data) + files,
@@ -85,6 +106,12 @@ ts_devserver = rule(
         "serving_path": attr.string(),
         "data": attr.label_list(allow_files = True, cfg = "data"),
         "static_files": attr.label_list(allow_files = True),
+        # User scripts for the devserver to concat before the source files
+        "scripts": attr.label_list(allow_files = True),
+        # The entry_module should be the AMD module name of the entry module such as "__main__/src/index"
+        # Devserver concats the following snippet after the bundle to load the application: require(["entry_module"]);
+        "entry_module": attr.string(),
+        "_requirejs_script": attr.label(allow_files = True, single_file = True, default = Label("@build_bazel_rules_typescript_devserver_deps//:node_modules/requirejs/require.js")),
         "_devserver": attr.label(
             default = Label("//internal/devserver/main"),
             executable = True,
@@ -93,6 +120,7 @@ ts_devserver = rule(
     },
     outputs = {
         "manifest": "%{name}.MF",
+        "scripts_manifest": "scripts_%{name}.MF",
     },
     executable = True,
 )

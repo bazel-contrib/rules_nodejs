@@ -17,11 +17,11 @@
         "@types/source-map": "^0.5.1",
         "clang-format": "1.0.49",
         "concurrently": "^3.5.1",
-        "protractor": "^5.2.0",
         "protobufjs": "5.0.0",
+        "protractor": "^5.2.0",
         "tsickle": "0.25.x",
-        "typescript": "2.5.x",
-        "tsutils": "2.12.1"
+        "tsutils": "2.12.1",
+        "typescript": "2.5.x"
     },
     "scripts": {
         "pretest": "webdriver-manager update && bazel build examples/app:all",

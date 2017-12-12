@@ -20,5 +20,9 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "npm_install")
 def ts_repositories():
   npm_install(
       name = "build_bazel_rules_typescript_deps",
-      package_json = "@build_bazel_rules_typescript//:package.json",
+      package_json = "@build_bazel_rules_typescript//internal/tsc_wrapped:package.json",
+  )
+  npm_install(
+      name = "build_bazel_rules_typescript_devserver_deps",
+      package_json = "@build_bazel_rules_typescript//internal/devserver:package.json",
   )
