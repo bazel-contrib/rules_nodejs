@@ -17,11 +17,44 @@
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "npm_install")
 
-def ts_repositories():
+def _ts_install_impl(repository_ctx):
+  repository_ctx.file("BUILD", content="# Marker that this is a package")
+
+  default_tsconfig = repository_ctx.attr.default_tsconfig
+  if default_tsconfig != None:
+    if not default_tsconfig.workspace_root:
+      fail("""ts_repositories failed to install:
+      default_tsconfig must be an absolute label, including workspace.
+      For example, @my_project//:tsconfig.json""")
+
+    # Wrap string value in quotes, but not None
+    default_tsconfig = "Label(\"%s\")" % default_tsconfig
+  repository_ctx.file("tsconfig.bzl", content="""
+def get_default_tsconfig():
+  return %s
+""" % default_tsconfig)
+
+_ts_install = repository_rule(implementation = _ts_install_impl, attrs = {
+  "default_tsconfig": attr.label(allow_files = True, single_file = True),
+})
+
+def ts_repositories(default_tsconfig = None):
+  """Installs the dependencies for TypeScript build rules.
+
+  Args:
+    default_tsconfig: a label pointing to a tsconfig.json file which will be
+                      used for any ts_library rule which doesn't specify one.
+  """
+  _ts_install(
+      name = "build_bazel_rules_typescript_install",
+      default_tsconfig = default_tsconfig,
+  )
+
   npm_install(
       name = "build_bazel_rules_typescript_deps",
       package_json = "@build_bazel_rules_typescript//internal/tsc_wrapped:package.json",
   )
+
   npm_install(
       name = "build_bazel_rules_typescript_devserver_deps",
       package_json = "@build_bazel_rules_typescript//internal/devserver:package.json",
