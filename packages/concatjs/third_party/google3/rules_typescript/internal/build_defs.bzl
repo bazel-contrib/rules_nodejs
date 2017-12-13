@@ -18,6 +18,8 @@
 # pylint: disable=missing-docstring
 load(":common/compilation.bzl", "COMMON_ATTRIBUTES", "compile_ts", "ts_providers_dict_to_struct")
 load(":executables.bzl", "get_tsc")
+# This is created by the ts_repositories() repository rule
+load("@build_bazel_rules_typescript_install//:tsconfig.bzl", "get_default_tsconfig")
 load(":common/tsconfig.bzl", "create_tsconfig")
 load(":ts_config.bzl", "TsConfig")
 
@@ -119,7 +121,6 @@ def tsc_wrapped_tsconfig(ctx,
 # ts_library   #
 # ************ #
 
-
 def _ts_library_impl(ctx):
   """Implementation of ts_library.
 
@@ -149,7 +150,10 @@ ts_library = rule(
         # be portable across internal/external, so we need this attribute
         # internally as well.
         "tsconfig":
-            attr.label(allow_files = True, single_file = True),
+            attr.label(
+                default = get_default_tsconfig(),
+                allow_files = True,
+                single_file = True),
         "compiler":
             attr.label(
                 default=get_tsc(),

@@ -42,7 +42,7 @@ ts_library(
     module_root = "index.d.ts",
     tsconfig = ":tsconfig.json",
     visibility = ["//visibility:public"],
-    data = [ 
+    data = [
         # Should be @bazel_tools//src/main/protobuf:worker_protocol.proto
         # see https://github.com/bazelbuild/bazel/issues/3155#issuecomment-308156976
         "//internal:worker_protocol.proto",
@@ -57,12 +57,14 @@ ts_library(
 ts_library(
     name = "plugin_api",
     srcs = ["plugin_api.ts"],
+    tsconfig = ":tsconfig.json",
     visibility = ["//internal/tsetse:__pkg__"],
 )
 
 ts_library(
     name = "perf_trace",
     srcs = ["perf_trace.ts"],
+    tsconfig = ":tsconfig.json",
     visibility = ["//internal/tsetse:__pkg__"],
 )
 
