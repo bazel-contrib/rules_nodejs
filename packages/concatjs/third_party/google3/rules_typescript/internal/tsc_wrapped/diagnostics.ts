@@ -137,7 +137,8 @@ export function filterExpected(
  * Formats the given diagnostics.
  * @param target The bazel target, e.g. //my/package:target
  */
-export function format(target: string, diagnostics: ts.Diagnostic[]): string {
+export function format(
+    target: string, diagnostics: ReadonlyArray<ts.Diagnostic>): string {
   const diagnosticsHost: ts.FormatDiagnosticsHost = {
     getCurrentDirectory: () => ts.sys.getCurrentDirectory(),
     getNewLine: () => ts.sys.newLine,
@@ -149,5 +150,7 @@ export function format(target: string, diagnostics: ts.Diagnostic[]): string {
   let formatter = ts.formatDiagnostics;
 
 
-  return formatter(diagnostics, diagnosticsHost);
+  // TODO(b/68225357): remove the as any case once TS 2.6 has landed.
+  // tslint:disable-next-line:no-any Working around a TS 2.5 vs 2.6 difference.
+  return formatter(diagnostics as any, diagnosticsHost);
 }
