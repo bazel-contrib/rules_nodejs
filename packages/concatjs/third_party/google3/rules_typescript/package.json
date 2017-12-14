@@ -12,6 +12,7 @@
         "typescript": ">=2.4.2"
     },
     "devDependencies": {
+        "@bazel/ibazel": "^0.2.0",
         "@types/jasmine": "^2.8.2",
         "@types/node": "7.0.18",
         "@types/source-map": "^0.5.1",
