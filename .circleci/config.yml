@@ -1,14 +1,19 @@
+## IMPORTANT
+# If you change the `docker_image` version, also change the `cache_key` suffix
+var_1: &docker_image angular/ngcontainer:0.0.8
+var_2: &cache_key angular-{{ .Branch }}-{{ checksum "yarn.lock" }}-0.0.8
+
 version: 2
 jobs:
   build:
     working_directory: ~/ng
     docker:
-      - image: angular/ngcontainer:0.0.8
+      - image: *docker_image
     steps:
       - checkout
 
       - restore_cache:
-          key: angular_bazel_example-{{ .Branch }}-{{ checksum "examples/rollup/yarn.lock" }}
+          key: *cache_key
       - run: bazel info release
 
       - run: bazel run @yarn//:yarn
@@ -23,7 +28,7 @@ jobs:
       - run: cd examples/packages && bazel test //:test_escape_npm_json
 
       - save_cache:
-          key: angular_bazel_example-{{ .Branch }}-{{ checksum "examples/rollup/yarn.lock" }}
+          key: *cache_key
           paths:
             - "examples/rollup/node_modules"
             - "examples/program/node_modules"
