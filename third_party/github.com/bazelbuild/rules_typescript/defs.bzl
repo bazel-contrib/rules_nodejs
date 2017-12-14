@@ -20,8 +20,10 @@ load("//internal:build_defs.bzl", _ts_library = "ts_library")
 load("//internal:ts_config.bzl", _ts_config = "ts_config")
 load("//internal/devserver:ts_devserver.bzl", _ts_devserver = "ts_devserver_macro")
 load("//internal:ts_repositories.bzl", _ts_repositories = "ts_repositories")
+load("//internal/karma:ts_web_test.bzl", _ts_web_test = "ts_web_test_macro")
 
 ts_library = _ts_library
 ts_config = _ts_config
-ts_repositories = _ts_repositories
 ts_devserver = _ts_devserver
+# TODO(alexeagle): make ts_web_test work in google3
+ts_web_test = _ts_web_test
