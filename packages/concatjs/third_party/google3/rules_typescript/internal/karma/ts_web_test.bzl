@@ -19,7 +19,6 @@ load("@build_bazel_rules_nodejs//internal:node.bzl",
 )
 
 _CONF_TMPL = "//internal/karma:karma.conf.js"
-_LOADER = "@build_bazel_rules_typescript_karma_deps//:node_modules/karma/requirejs.config.tpl.js"
 
 def _ts_web_test_impl(ctx):
   conf = ctx.actions.declare_file(
@@ -33,8 +32,32 @@ def _ts_web_test_impl(ctx):
     elif hasattr(d, "files"):
       files += d.files
 
+  # The files in the bootstrap attribute come before the require.js support.
+  # Note that due to frameworks = ['jasmine'], a few scripts will come before
+  # the bootstrap entries:
+  # build_bazel_rules_typescript_karma_deps/node_modules/jasmine-core/lib/jasmine-core/jasmine.js
+  # build_bazel_rules_typescript_karma_deps/node_modules/karma-jasmine/lib/boot.js
+  # build_bazel_rules_typescript_karma_deps/node_modules/karma-jasmine/lib/adapter.js
+  # This is desired so that the bootstrap entries can patch jasmine, as zone.js does.
   files_entries = [
-      "      '%s'," % expand_path_into_runfiles(ctx, f.short_path)
+      expand_path_into_runfiles(ctx, f.short_path)
+      for f in ctx.files.bootstrap
+  ]
+  # Explicitly list the requirejs library files here, rather than use
+  # `frameworks: ['requirejs']`
+  # so that we control the script order, and the bootstrap files come before
+  # require.js.
+  # That allows bootstrap files to have anonymous AMD modules, or to do some
+  # polyfilling before test libraries load.
+  # See https://github.com/karma-runner/karma/issues/699
+  files_entries += [
+    "build_bazel_rules_typescript_karma_deps/node_modules/requirejs/require.js",
+    "build_bazel_rules_typescript_karma_deps/node_modules/karma-requirejs/lib/adapter.js",
+    "build_bazel_rules_typescript_karma_deps/node_modules/karma/requirejs.config.tpl.js",
+  ]
+  # Finally we load the user's srcs and deps
+  files_entries += [
+      expand_path_into_runfiles(ctx, f.short_path)
       for f in files
   ]
 
@@ -46,7 +69,7 @@ def _ts_web_test_impl(ctx):
       template =  ctx.file._conf_tmpl,
       substitutions = {
           "TMPL_runfiles_path": "/".join([".."] * config_segments),
-          "TMPL_files": "\n".join(files_entries),
+          "TMPL_files": "\n".join(["      '%s'," % e for e in files_entries]),
           "TMPL_workspace_name": ctx.workspace_name,
       })
 
@@ -70,9 +93,8 @@ $KARMA ${{ARGV[@]}}
            TMPL_conf = conf.short_path))
   return [DefaultInfo(
       runfiles = ctx.runfiles(
-          files = ctx.files.srcs + ctx.files.deps + [
+          files = ctx.files.srcs + ctx.files.deps + ctx.files.bootstrap + [
               conf,
-              ctx.file._loader,
           ],
           transitive_files = files,
           # Propagate karma_bin and its runfiles
@@ -90,6 +112,9 @@ ts_web_test = rule(
           allow_files = True,
           aspects = [sources_aspect],
         ),
+        "bootstrap": attr.label_list(
+            allow_files = True,
+        ),
         "data": attr.label_list(cfg = "data"),
         "_karma": attr.label(
             default = Label("//internal/karma:karma_bin"),
@@ -99,9 +124,6 @@ ts_web_test = rule(
             allow_files = True),
         "_conf_tmpl": attr.label(
             default = Label(_CONF_TMPL),
-            allow_files = True, single_file = True),
-        "_loader": attr.label(
-            default = Label(_LOADER),
             allow_files = True, single_file = True),
     },
 )

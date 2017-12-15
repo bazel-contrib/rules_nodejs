@@ -12,11 +12,10 @@ module.exports = function(config) {
     // base path that will be used to resolve all patterns (eg. files, exclude)
     basePath: 'TMPL_runfiles_path',
     files: [
-      'build_bazel_rules_typescript_karma_deps/node_modules/karma/requirejs.config.tpl.js',
 TMPL_files
     ],
     plugins: ['karma-*', 'karma-concat-js'],
-    frameworks: ['jasmine', 'concat_js', 'requirejs'],
+    frameworks: ['jasmine', 'concat_js'],
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
@@ -42,7 +41,7 @@ TMPL_files
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['DISPLAY' in Object.keys(process.env) ? 'Chrome': 'ChromeHeadless'],
+    browsers: [process.env['DISPLAY'] ? 'Chrome': 'ChromeHeadless'],
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
