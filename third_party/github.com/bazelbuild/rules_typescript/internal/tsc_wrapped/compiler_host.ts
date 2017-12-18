@@ -56,7 +56,8 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
   transformDecorators: boolean;
   transformTypesToClosure: boolean;
   addDtsClutzAliases: boolean;
-  private options: BazelTsOptions;
+  options: BazelTsOptions;
+  host: ts.ModuleResolutionHost = this;
 
   constructor(
       public inputFiles: string[], options: ts.CompilerOptions,
