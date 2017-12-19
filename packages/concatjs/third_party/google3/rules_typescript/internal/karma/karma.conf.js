@@ -9,11 +9,6 @@ module.exports = function(config) {
   }
 
   config.set({
-    // base path that will be used to resolve all patterns (eg. files, exclude)
-    basePath: 'TMPL_runfiles_path',
-    files: [
-TMPL_files
-    ],
     plugins: ['karma-*', 'karma-concat-js'],
     frameworks: ['jasmine', 'concat_js'],
 
@@ -41,7 +36,7 @@ TMPL_files
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: [process.env['DISPLAY'] ? 'Chrome': 'ChromeHeadless'],
+    browsers: [process.env['DISPLAY'] ? 'TMPL_browser': 'TMPL_headlessbrowser'],
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
@@ -50,6 +45,12 @@ TMPL_files
 
     // Concurrency level
     // how many browser should be started simultaneous
-    concurrency: Infinity
+    concurrency: Infinity,
+
+    // base path that will be used to resolve all patterns (eg. files, exclude)
+    basePath: 'TMPL_runfiles_path',
+    files: [
+TMPL_files
+    ]
   })
 }

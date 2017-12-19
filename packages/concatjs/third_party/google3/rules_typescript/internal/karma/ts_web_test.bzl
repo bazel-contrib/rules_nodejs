@@ -19,6 +19,8 @@ load("@build_bazel_rules_nodejs//internal:node.bzl",
 )
 
 _CONF_TMPL = "//internal/karma:karma.conf.js"
+# TODO(alexeagle): users will need some control over browser; needs design
+_BROWSER = "Chrome"
 
 def _ts_web_test_impl(ctx):
   conf = ctx.actions.declare_file(
@@ -71,6 +73,8 @@ def _ts_web_test_impl(ctx):
           "TMPL_runfiles_path": "/".join([".."] * config_segments),
           "TMPL_files": "\n".join(["      '%s'," % e for e in files_entries]),
           "TMPL_workspace_name": ctx.workspace_name,
+          "TMPL_browser": _BROWSER,
+          "TMPL_headlessbrowser": "%sHeadless" % _BROWSER,
       })
 
   ctx.actions.write(
@@ -132,8 +136,12 @@ ts_web_test = rule(
 # DO NOT add composition of additional rules here.
 def ts_web_test_macro(tags = [], data = [], **kwargs):
   ts_web_test(
-      # Users don't need to know that this tag is required to run under ibazel
-      tags = tags + ["ibazel_notify_changes"],
+      tags = tags + [
+          # Users don't need to know that this tag is required to run under ibazel
+          "ibazel_notify_changes",
+          # Always attach this label to allow filtering, eg. envs w/ no browser
+          "browser:%s" % _BROWSER,
+      ],
       # Our binary dependency must be in data[] for collect_data to pick it up
       # FIXME: maybe we can just ask the attr._karma for its runfiles attr
       data = data + ["@build_bazel_rules_typescript//internal/karma:karma_bin"],
