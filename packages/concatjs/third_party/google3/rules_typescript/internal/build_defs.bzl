@@ -21,7 +21,7 @@ load(":executables.bzl", "get_tsc")
 # This is created by the ts_repositories() repository rule
 load("@build_bazel_rules_typescript_install//:tsconfig.bzl", "get_default_tsconfig")
 load(":common/tsconfig.bzl", "create_tsconfig")
-load(":ts_config.bzl", "TsConfig")
+load(":ts_config.bzl", "TsConfigInfo")
 
 def _compile_action(ctx, inputs, outputs, config_file_path):
   externs_files = []
@@ -42,8 +42,8 @@ def _compile_action(ctx, inputs, outputs, config_file_path):
                             if f.path.endswith(".ts") or f.path.endswith(".json")]
   if ctx.file.tsconfig:
     action_inputs += [ctx.file.tsconfig]
-    if TsConfig in ctx.attr.tsconfig:
-      action_inputs += ctx.attr.tsconfig[TsConfig].deps
+    if TsConfigInfo in ctx.attr.tsconfig:
+      action_inputs += ctx.attr.tsconfig[TsConfigInfo].deps
 
   # One at-sign makes this a params-file, enabling the worker strategy.
   # Two at-signs escapes the argument so it's passed through to tsc_wrapped
@@ -77,6 +77,8 @@ def tsc_wrapped_tsconfig(ctx,
                          devmode_manifest=None,
                          jsx_factory=None,
                          **kwargs):
+  """Produce a tsconfig.json that sets options required under Bazel.
+  """
 
   # The location of tsconfig.json is interpreted as the root of the project
   # when it is passed to the TS compiler with the `-p` option:
@@ -126,6 +128,7 @@ def _ts_library_impl(ctx):
 
   Args:
     ctx: the context.
+
   Returns:
     the struct returned by the call to compile_ts.
   """

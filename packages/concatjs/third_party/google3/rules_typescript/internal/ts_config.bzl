@@ -15,12 +15,12 @@
 """The ts_config rule allows users to express tsconfig.json file groups.
 """
 
-TsConfig = provider()
+TsConfigInfo = provider()
 
 def _ts_config_impl(ctx):
   files = depset()
   files += [ctx.file.src]
-  return [DefaultInfo(files = files), TsConfig(deps = ctx.files.deps)]
+  return [DefaultInfo(files = files), TsConfigInfo(deps = ctx.files.deps)]
 
 ts_config = rule(
     implementation = _ts_config_impl,
