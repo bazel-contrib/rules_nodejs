@@ -1,6 +1,5 @@
 [
     {
-        "variation": "linux",
         "configurations": [
             {"node": "linux-x86_64"},
             {"node": "ubuntu_16.04-x86_64"}
@@ -11,12 +10,11 @@
         }
     },
     {
-        "variation": "mac",
         "configurations": [
             {"node": "darwin-x86_64"}
         ],
         "parameters": {
-            "configure": ["$BAZEL run @yarn//:yarn"],
+            "configure": ["$BAZEL run @yarn//:yarn"]
         }
     }
 ]
