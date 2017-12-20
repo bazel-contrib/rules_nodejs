@@ -99,6 +99,7 @@ def _outputs(ctx, label):
   Args:
     ctx: ctx.
     label: Label. package label.
+
   Returns:
     A struct of file lists for different output types.
   """
@@ -147,6 +148,7 @@ def compile_ts(ctx,
     jsx_factory: optional string. Enables overriding jsx pragma.
     tsc_wrapped_tsconfig: function that produces a tsconfig object.
     outputs: function from a ctx to the expected compilation outputs.
+
   Returns:
     struct that will be returned by the rule implementation.
   """

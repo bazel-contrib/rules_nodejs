@@ -14,29 +14,34 @@
 
 """Helpers for configuring the TypeScript compiler.
 """
-_DEBUG = False
 
 load(":common/module_mappings.bzl", "get_module_mappings")
+
+_DEBUG = False
 
 def create_tsconfig(ctx, files, srcs,
                     devmode_manifest=None, tsickle_externs=None, type_blacklisted_declarations=[],
                     out_dir=None, disable_strict_deps=False, allowed_deps=depset(),
                     extra_root_dirs=[], module_path_prefixes=None, module_roots=None):
-  """Creates an object representing the TypeScript configuration
-      to run the compiler under Bazel.
+  """Creates an object representing the TypeScript configuration to run the compiler under Bazel.
 
-      Args:
-        ctx: the skylark execution context
-        files: Labels of all TypeScript compiler inputs
-        srcs: Immediate sources being compiled, as opposed to transitive deps.
-        devmode_manifest: path to the manifest file to write for --target=es5
-        tsickle_externs: path to write tsickle-generated externs.js.
-        type_blacklisted_declarations: types declared in these files will never be
-            mentioned in generated .d.ts.
-        out_dir: directory for generated output. Default is ctx.bin_dir
-        disable_strict_deps: whether to disable the strict deps check
-        allowed_deps: the set of files that code in srcs may depend on (strict deps)
-        extra_root_dirs: Extra root dirs to be passed to tsc_wrapped.
+  Args:
+    ctx: the skylark execution context
+    files: Labels of all TypeScript compiler inputs
+    srcs: Immediate sources being compiled, as opposed to transitive deps.
+    devmode_manifest: path to the manifest file to write for --target=es5
+    tsickle_externs: path to write tsickle-generated externs.js.
+    type_blacklisted_declarations: types declared in these files will never be
+        mentioned in generated .d.ts.
+    out_dir: directory for generated output. Default is ctx.bin_dir
+    disable_strict_deps: whether to disable the strict deps check
+    allowed_deps: the set of files that code in srcs may depend on (strict deps)
+    extra_root_dirs: Extra root dirs to be passed to tsc_wrapped.
+    module_path_prefixes: additional locations to resolve modules
+    module_roots: standard locations to resolve modules
+
+  Returns:
+    A nested dict that corresponds to a tsconfig.json structure
   """
   outdir_path = out_dir if out_dir != None else ctx.configuration.bin_dir.path
   # Callers can choose the filename for the tsconfig, but it must always live

@@ -19,6 +19,9 @@
 # the transitive closure, rolling these up to provide a mapping to the
 # TypeScript compiler and to editors.
 #
+"""Module mappings.
+"""
+
 
 def _get_deps(attrs, names):
   return [d for n in names if hasattr(attrs, n)
@@ -41,6 +44,16 @@ def get_module_mappings(label, attrs, srcs = [], workspace_name = None, mappings
   checking for collisions. If a module has a non-empty `module_root` attribute,
   all sources underneath it are treated as if they were rooted at a folder
   `module_name`.
+
+  Args:
+    label: The label declaring a module mapping
+    attrs: Attributes on that label
+    srcs: The srcs attribute, used to validate that these are under the root
+    workspace_name: name of the workspace where the user is building
+    mappings_attr: name of the attribute we use to hand down transitive data
+
+  Returns:
+    the module_mappings from the given attrs.
   """
   mappings = dict()
   all_deps =  _get_deps(attrs, names = _MODULE_MAPPINGS_DEPS_NAMES)
