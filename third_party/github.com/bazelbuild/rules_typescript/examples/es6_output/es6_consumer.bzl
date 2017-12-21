@@ -15,20 +15,19 @@
 """Example of a rule that requires ES6 inputs.
 """
 
+load("@build_bazel_rules_nodejs//:internal/collect_es6_sources.bzl", "collect_es6_sources")
+
 def _es6_consumer(ctx):
-  sources = depset()
-  for d in ctx.attr.deps:
-    if hasattr(d, "typescript"):
-      sources += d.typescript.es6_sources
+  es6_sources = collect_es6_sources(ctx)
 
   return [DefaultInfo(
-      files = sources,
-      runfiles = ctx.runfiles(sources.to_list()),
+      files = es6_sources,
+      runfiles = ctx.runfiles(es6_sources.to_list()),
   )]
 
 es6_consumer = rule(
     implementation = _es6_consumer,
     attrs = {
-        "deps": attr.label_list()
+        "deps": attr.label_list(),
     }
 )

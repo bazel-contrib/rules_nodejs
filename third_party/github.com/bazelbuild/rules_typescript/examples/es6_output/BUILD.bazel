@@ -14,17 +14,11 @@
 
 package(default_visibility = ["//visibility:public"])
 
-load("//:defs.bzl", "ts_library")
 load(":es6_consumer.bzl", "es6_consumer")
-
-ts_library(
-    name = "es6_output_lib",
-    srcs = glob(["*.ts"]),
-)
 
 es6_consumer(
     name = "es6_output",
-    deps = [":es6_output_lib"],
+    deps = ["//examples:bar_ts_library"],
 )
 
 sh_test(
