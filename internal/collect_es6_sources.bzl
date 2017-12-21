@@ -27,17 +27,32 @@ def collect_es6_sources(ctx):
   Returns:
     A file tree containing only production files.
   """
-
   non_rerooted_files = depset()
   for dep in ctx.attr.deps:
     if hasattr(dep, "typescript"):
       non_rerooted_files = depset(transitive = [non_rerooted_files, dep.typescript.transitive_es6_sources])
+    elif hasattr(dep, "closure_js_library"):
+      non_rerooted_files = depset(transitive = [non_rerooted_files, dep.closure_js_library.srcs])
+    elif hasattr(dep, "files"):
+      non_rerooted_files = depset(transitive = [non_rerooted_files, dep.files])
+    else:
+      fail(
+          ("%s is neither a TypeScript nor a Closure JS library producing rule." % dep.label) +
+          "\nDependencies must be ts_library, ts_declaration, or closure_js_library.") 
+  
+  if hasattr(ctx.files, "srcs"):
+    non_rerooted_files += depset(transitive = [non_rerooted_files, depset(ctx.files.srcs)])
 
   rerooted_files = []
-  for file in non_rerooted_files.to_list():
+  for file in non_rerooted_files:
+    # TODO(mrmeku): Exercise this line in CI. 
+    workspace_name = file.owner.workspace_root.replace("external/", "")
+    if workspace_name == "":
+      workspace_name = ctx.workspace_name
     rerooted_file = ctx.actions.declare_file(
-      "%s.es6/%s" % (
+      "%s.es6/node_modules/%s/%s" % (
         ctx.label.name,
+        workspace_name,
         # the .closure.js filename is an artifact of the rules_typescript layout
         # TODO(mrmeku): pin to end of string, eg. don't match foo.closure.jso.js
         file.short_path.replace(".closure.js", ".js")))

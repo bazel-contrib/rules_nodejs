@@ -12,3 +12,21 @@ mock_typescript_lib = rule(
     "srcs": attr.label_list(allow_files = True),
   }
 )
+
+def _mock_es6_typescript_lib(ctx):
+  transitive_es6_sources = depset()
+  for s in ctx.attr.srcs:
+    transitive_es6_sources = depset(transitive = [transitive_es6_sources, s.files])
+  return struct(typescript = struct(
+    es5_sources = depset(),
+    transitive_es6_sources = depset(transitive_es6_sources)
+  ))
+  
+# allows testing that rules are consuming es6_sources from a typescript
+# provider.
+mock_es6_typescript_lib = rule(
+  implementation = _mock_es6_typescript_lib,
+  attrs = {
+    "srcs": attr.label_list(allow_files = True),
+  }
+)
