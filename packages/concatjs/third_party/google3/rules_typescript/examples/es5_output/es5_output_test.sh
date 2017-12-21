@@ -2,38 +2,39 @@
 set -e
 
 # should produce named UMD modules
-readonly A_JS=$(cat $TEST_SRCDIR/build_bazel_rules_typescript/examples/es5_output/a.js)
-if [[ "$A_JS" != *"define(\"build_bazel_rules_typescript/examples/es5_output/a\","* ]]; then
-  echo "Expected a.js to declare named module, but was"
+readonly LIBRARY_JS=$(cat $TEST_SRCDIR/build_bazel_rules_typescript/examples/some_library/library.js)
+if [[ "$LIBRARY_JS" != *"define(\"build_bazel_rules_typescript/examples/some_library/library\""* ]]; then
+  echo "Expected library.js to declare named module, but was"
   echo "$A_JS"
   exit 1
 fi
 
 # should give a name to required modules
-readonly B_JS=$(cat $TEST_SRCDIR/build_bazel_rules_typescript/examples/es5_output/b.js)
-if [[ "$B_JS" != *"require(\"build_bazel_rules_typescript/examples/es5_output/a\")"* ]]; then
-  echo "Expected b.js to require named module a, but was"
-  echo "$B_JS"
+readonly BAR_JS=$(cat $TEST_SRCDIR/build_bazel_rules_typescript/examples/bar.js)
+if [[ "$BAR_JS" != *"require(\"build_bazel_rules_typescript/examples/foo\")"* ]]; then
+  echo "Expected bar.js to require named module foo, but was"
+  echo "$BAR_JS"
   exit 1
 fi
 
 # should give a name to required modules from other compilation unit
-if [[ "$A_JS" != *"require(\"build_bazel_rules_typescript/examples/es5_output/rand/rand\")"* ]]; then
-  echo "Expected a.js to require named module c, but was"
-  echo "$A_JS"
+readonly FOO_JS=$(cat $TEST_SRCDIR/build_bazel_rules_typescript/examples/bar.js)
+if [[ "$FOO_JS" != *"require(\"build_bazel_rules_typescript/examples/some_library/library\")"* ]]; then
+  echo "Expected bar.js to require named module library, but was"
+  echo "$FOO_JS"
   exit 1
 fi
 
 # should give a name to required generated modules without bazel-bin
-if [[ "$B_JS" != *"require(\"build_bazel_rules_typescript/examples/es5_output/generated\")"* ]]; then
-  echo "Expected b.js to require named module generated, but was"
-  echo "$B_JS"
+if [[ "$FOO_JS" != *"require(\"build_bazel_rules_typescript/examples/generated_ts/foo\")"* ]]; then
+  echo "Expected foo.js to require generated named module foo, but was"
+  echo "$FOO_JS"
   exit 1
 fi
 
 # should not give a module name to external modules
-if [[ "$B_JS" != *"require(\"tsickle\")"* ]]; then
-  echo "Expected b.js to require tsickle by its original name, but was"
-  echo "$B_JS"
+if [[ "$FOO_JS" != *"require(\"typescript\")"* ]]; then
+  echo "Expected foo.js to require typescript by its original name, but was"
+  echo "$FOO_JS"
   exit 1
 fi

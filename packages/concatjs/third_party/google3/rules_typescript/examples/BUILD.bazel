@@ -23,6 +23,7 @@ ts_library(
         "types.d.ts",
     ],
     tsconfig = ":tsconfig.json",
+    deps = ["//examples/generated_ts"],
 )
 
 ts_library(
@@ -32,5 +33,6 @@ ts_library(
     deps = [
         ":foo_ts_library",
         "//examples/some_library:lib",
+        "//examples/generated_ts",
     ],
 )

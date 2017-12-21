@@ -1,7 +1,0 @@
-load("//:defs.bzl", "ts_library")
-
-ts_library(
-    name = "rand",
-    srcs = ["rand.ts"],
-    visibility = ["//examples/es5_output:__subpackages__"],
-)

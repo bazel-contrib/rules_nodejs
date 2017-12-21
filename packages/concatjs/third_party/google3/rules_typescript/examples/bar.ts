@@ -16,9 +16,12 @@
  */
 
 import {Greeter} from 'examples/foo';
+import {a} from 'examples/generated_ts/foo';
 // Repro for #31, should automatically discover @types/node
 import * as fs from 'fs';
 import {cool} from 'some-lib';
 import * as ts from 'typescript';
 
 import {greeter} from './foo';
+
+console.log(Greeter, fs, cool, ts, greeter, a);

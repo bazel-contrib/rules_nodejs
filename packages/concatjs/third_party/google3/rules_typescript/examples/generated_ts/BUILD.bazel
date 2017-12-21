@@ -1,5 +1,7 @@
 load("//:defs.bzl", "ts_library")
 
+package(default_visibility = ["//visibility:public"])
+
 genrule(
   name = "foo_ts",
   outs = ["foo.ts"],
