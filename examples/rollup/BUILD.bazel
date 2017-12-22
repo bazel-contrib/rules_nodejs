@@ -1,11 +1,17 @@
 load("@build_bazel_rules_nodejs//:defs.bzl",
      "jasmine_node_test", "nodejs_binary")
+load("@build_bazel_rules_nodejs//:internal/typescript_mock.bzl", "mock_es6_typescript_lib")
 
 filegroup(
     name = "node_modules",
     srcs = glob([
         "node_modules/**/*",
     ]),
+)
+
+mock_es6_typescript_lib(
+    name = "mock_ts_lib",
+    srcs = ["some_ts_file.js"],
 )
 
 nodejs_binary(
@@ -21,8 +27,9 @@ nodejs_binary(
 load(":rollup.bzl", "rollup")
 rollup(
     name = "bundle",
-    entry_point = "examples/rollup/foo.js",
+    entry_point = "build_bazel_rules_nodejs/examples/rollup/foo.js",
     srcs = ["foo.js", "bar.js"],
+    deps = [":mock_ts_lib"],
 )
 
 jasmine_node_test(
