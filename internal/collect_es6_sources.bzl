@@ -36,11 +36,11 @@ def collect_es6_sources(ctx):
   rerooted_files = []
   for file in non_rerooted_files.to_list():
     rerooted_file = ctx.actions.declare_file(
-      "%s.es6/%s" % (
-        ctx.label.name,
+      "%s/%s" % (
         # the .closure.js filename is an artifact of the rules_typescript layout
         # TODO(mrmeku): pin to end of string, eg. don't match foo.closure.jso.js
-        file.short_path.replace(".closure.js", ".js")))
+        file.dirname.replace("/external", "/node_modules"),
+        file.basename.replace(".closure.js", ".js")))
     # Cheap way to create an action that copies a file
     # TODO(alexeagle): discuss with Bazel team how we can do something like
     # runfiles to create a re-rooted tree. This has performance implications.
