@@ -9,7 +9,7 @@ describe('Devserver', () => {
     // Don't run any specs until we see a <div> on the page.
     browser.wait(
         ExpectedConditions.presenceOf(element(by.css('div.ts1'))),
-        /*timeout, must include server build/startup */ 30 * 1000);
+        /*timeout, must include server build/startup */ 90 * 1000);
   });
 
   it('should display: Hello world!', (done) => {
