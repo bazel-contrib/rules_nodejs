@@ -12,9 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""TODO(alexeagle)
+
+"""
+
 def _rollup(ctx):
-  """This is not a full-featured Rollup bazel rule, just enough to test the
-     other rules in this repo.
+  """This is not a full-featured Rollup bazel rule, just enough to test the other rules in this repo.
+  
+  Args:
+    ctx: TODO(alexeagle)
+
+  Returns:
+    TODO(alexeagle)
+
   """
   args = ["--input", ctx.attr.entry_point]
   args += ["--output.file", ctx.outputs.bundle.path]

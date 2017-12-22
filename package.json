@@ -1,0 +1,15 @@
+{
+  "name": "@bazel/nodejs",
+  "description": "Build JS binaries with Bazel",
+  "version": "0.3.1",
+  "keywords": [
+    "node",
+    "javascript",
+    "bazel"
+  ],
+  "homepage": "https://github.com/bazelbuild/rules_nodejs",
+  "license": "Apache-2.0",
+  "scripts": {
+    "skylint": "bazel build @io_bazel//src/tools/skylark/java/com/google/devtools/skylark/skylint:Skylint && find . -type f -name \"*.bzl\" ! -path \"*/node_modules/*\" | xargs $(bazel info bazel-bin)/external/io_bazel/src/tools/skylark/java/com/google/devtools/skylark/skylint/Skylint"
+  }
+}
