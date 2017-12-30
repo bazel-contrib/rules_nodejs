@@ -28,8 +28,8 @@ def _get_deps(attrs, names):
           for d in getattr(attrs, n)]
 
 # Traverse 'srcs' in addition so that we can go across a genrule
-_MODULE_MAPPINGS_DEPS_NAMES = (["deps", "srcs", "_helpers"]
-)
+_MODULE_MAPPINGS_DEPS_NAMES = depset(["deps", "srcs", "_helpers"]
+).to_list()
 
 _DEBUG = False
 
