@@ -19,37 +19,33 @@ The tree will be flattened, such that all the es6 files are under a single tree.
 """
 
 def collect_es6_sources(ctx):
-  """Returns a file tree containing only production files.
+  """Creates a file tree containing only production es6 sources.
 
   Args:
     ctx: ctx.
 
   Returns:
-    A file tree containing only production files.
+    A file tree containing only production es6 sources.
   """
-
-  non_rerooted_files = depset()
+  rerooted_es6_sources = depset()
   for dep in ctx.attr.deps:
     if hasattr(dep, "typescript"):
-      non_rerooted_files = depset(transitive = [non_rerooted_files, dep.typescript.transitive_es6_sources])
-
-  rerooted_files = []
-  for file in non_rerooted_files.to_list():
-    rerooted_file = ctx.actions.declare_file(
-      "%s.es6/%s" % (
-        ctx.label.name,
-        # the .closure.js filename is an artifact of the rules_typescript layout
-        # TODO(mrmeku): pin to end of string, eg. don't match foo.closure.jso.js
-        file.short_path.replace(".closure.js", ".js")))
-    # Cheap way to create an action that copies a file
-    # TODO(alexeagle): discuss with Bazel team how we can do something like
-    # runfiles to create a re-rooted tree. This has performance implications.
-    ctx.actions.expand_template(
-      output = rerooted_file,
-      template = file,
-      substitutions = {}
-    )
-    rerooted_files += [rerooted_file]
-
-  #TODO(mrmeku): we should include the files and closure_js_library contents too
-  return depset(direct = rerooted_files)
+      for es6_source in dep.typescript.transitive_es6_sources:
+        rerooted_es6_source = ctx.actions.declare_file("/".join([f for f in [
+          ctx.label.name + ".es6",
+          "node_modules",
+          "" if es6_source.owner.workspace_root else ctx.workspace_name,
+          es6_source.short_path.replace("../", "").replace(".closure.js", ".js")
+        ] if f]))
+        ctx.actions.expand_template(
+          output = rerooted_es6_source,
+          template = es6_source,
+          substitutions = {}
+        )
+        rerooted_es6_sources += [rerooted_es6_source]
+    if hasattr(dep, "closure_js_library"):
+      rerooted_es6_sources += dep.closure_js_library.srcs
+    if hasattr(dep, "files"):
+      rerooted_es6_sources += dep.files
+    
+  return rerooted_es6_sources
