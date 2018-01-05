@@ -128,6 +128,7 @@ def create_tsconfig(ctx, files, srcs,
       # Do not type-check the lib.*.d.ts.
       # We think this shouldn't be necessary but haven't figured out why yet
       # and builds are faster with the setting on.
+      # See http://b/30709121
       "skipDefaultLibCheck": True,
 
       "moduleResolution": "node",

@@ -13,7 +13,7 @@ import {ErrorCode} from '../error_code';
 import {AbstractRule} from '../rule';
 
 const FAILURE_STRING = 'return value is unused.'
-+ '\n\tSee http://tsetse.info/check-return-value';
+    + '\n\tSee http://tsetse.info/check-return-value';
 
 // A list of well-known functions that the return value must be used. If unused
 // then the function call is either a no-op (e.g. 'foo.trim()' foo is unchanged)
