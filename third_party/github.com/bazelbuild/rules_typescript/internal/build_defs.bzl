@@ -25,18 +25,23 @@ load(":ts_config.bzl", "TsConfigInfo")
 
 def _compile_action(ctx, inputs, outputs, config_file_path):
   externs_files = []
-  non_externs_files = []
+  action_outputs = []
   for output in outputs:
     if output.basename.endswith(".externs.js"):
       externs_files.append(output)
     elif output.basename.endswith(".es5.MF"):
       ctx.file_action(output, content="")
     else:
-      non_externs_files.append(output)
+      action_outputs.append(output)
 
   # TODO(plf): For now we mock creation of files other than {name}.js.
   for externs_file in externs_files:
     ctx.file_action(output=externs_file, content="")
+
+  # A ts_library that has only .d.ts inputs will have no outputs,
+  # therefore there are no actions to execute
+  if not action_outputs:
+    return
 
   action_inputs = inputs + [f for f in ctx.files.node_modules + ctx.files._tsc_wrapped_deps
                             if f.path.endswith(".ts") or f.path.endswith(".json")]
@@ -59,7 +64,7 @@ def _compile_action(ctx, inputs, outputs, config_file_path):
       progress_message = "Compiling TypeScript (devmode) %s" % ctx.label,
       mnemonic = mnemonic,
       inputs = action_inputs,
-      outputs = non_externs_files,
+      outputs = action_outputs,
       arguments = arguments,
       executable = ctx.executable.compiler,
       execution_requirements = {
