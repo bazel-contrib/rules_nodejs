@@ -165,6 +165,7 @@ ts_library = rule(
                 executable=True,
                 cfg="host"),
         "supports_workers": attr.bool(default = True),
+        "tsickle_typed": attr.bool(default = True),
         "_tsc_wrapped_deps": attr.label(default = Label("@build_bazel_rules_typescript_deps//:node_modules")),
         # @// is special syntax for the "main" repository
         # The default assumes the user specified a target "node_modules" in their
