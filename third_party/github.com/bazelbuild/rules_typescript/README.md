@@ -196,4 +196,3 @@ In the meantime, we suggest associating the `.bazel` extension with Python in
 your editor, so that you get useful syntax highlighting.
 
 [gazelle]: https://github.com/bazelbuild/rules_go/tree/master/go/tools/gazelle
-
