@@ -9,8 +9,8 @@
 
 ## IMPORTANT
 # If you change the `docker_image` version, also change the `cache_key` suffix
-var_1: &docker_image angular/ngcontainer:0.0.8
-var_2: &cache_key rules_typescript-{{ checksum "yarn.lock" }}-0.0.8
+var_1: &docker_image angular/ngcontainer:0.1.0
+var_2: &cache_key rules_typescript-{{ checksum "yarn.lock" }}-0.1.0
 
 
 # Settings common to each job
@@ -74,6 +74,13 @@ jobs:
       - run: bazel run @yarn//:yarn test --script_path=yarn_test.sh
       - run: xvfb-run -a ./yarn_test.sh
 
+  lint:
+    <<: *job_defaults
+    steps:
+      - checkout:
+          <<: *post_checkout
+      - run: find . -type f -name \"*.bzl\" ! -path \"*/node_modules/*\" | xargs java -jar /usr/local/bin/Skylint_deploy.jar
+
 workflows:
   version: 2
   # Run the two builds in parallel, reporting separate status to github PRs.
@@ -82,3 +89,4 @@ workflows:
       - build
       - build_no_bazelrc
       - test
+      - lint
