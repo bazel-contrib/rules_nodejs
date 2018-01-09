@@ -30,8 +30,6 @@ Next create a `WORKSPACE` file in your project root (or edit the existing one)
 containing:
 
 ```python
-workspace(name = "my_workspace")
-
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 git_repository(
@@ -51,12 +49,9 @@ local_repository(
     path = "node_modules/@bazel/typescript",
 )
 
-load("@build_bazel_rules_typescript//:setup.bzl", "ts_setup_workspace")
+load("@build_bazel_rules_typescript//:defs.bzl", "ts_setup_workspace")
 
-# This points all `ts_library` rules at your normal tsconfig.json file, which
-# should also be the one your editor uses so that settings match.
-# Update this value to match where your tsconfig.json file lives.
-ts_setup_workspace(default_tsconfig = "@my_workspace//:tsconfig.json")
+ts_setup_workspace()
 
 # ts_devserver needs the Go rules.
 # See https://github.com/bazelbuild/rules_go#setup for the latest version.
