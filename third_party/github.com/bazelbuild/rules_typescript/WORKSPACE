@@ -31,7 +31,7 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
 #   @yarn//:yarn
 node_repositories(package_json = ["//:package.json"])
 
-load("@build_bazel_rules_typescript//:setup.bzl", "ts_setup_workspace")
+load("@build_bazel_rules_typescript//:defs.bzl", "ts_setup_workspace")
 
 ts_setup_workspace()
 
