@@ -35,6 +35,10 @@ def collect_es6_sources(ctx):
 
   rerooted_files = []
   for file in non_rerooted_files.to_list():
+    # TODO(alexeagle): how can we represent external repositories
+    # in this re-rooted tree?
+    if file.short_path.startswith(".."): continue
+
     rerooted_file = ctx.actions.declare_file(
       "%s.es6/%s" % (
         ctx.label.name,
