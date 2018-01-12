@@ -98,9 +98,16 @@ def expand_location_into_runfiles(ctx, path):
   return expand_path_into_runfiles(ctx, path)
 
 def expand_path_into_runfiles(ctx, path):
-  """Given a file path that might contain a $(location) label expansion,
-   provide the path to the file in runfiles.
-   See https://docs.bazel.build/versions/master/skylark/lib/ctx.html#expand_location
+  """Given a file path that might contain a $(location) label expansion, provide the path to the file in runfiles.
+  
+  See https://docs.bazel.build/versions/master/skylark/lib/ctx.html#expand_location
+  
+  Args:
+    ctx: TODO(alexeagle)
+    path: TODO(alexeagle)
+
+  Returns:
+    TODO(alexeagle)
   """
   targets = ctx.attr.data if hasattr(ctx.attr, "data") else []
   expanded = ctx.expand_location(path, targets)

@@ -19,6 +19,8 @@ We then create a repository @nodejs which provides the
 node binary to other rules.
 """
 
+load(":check_bazel_version.bzl", "check_bazel_version")
+
 def get_executables(repository_ctx):
   if repository_ctx.os.name.lower().find("windows") != -1:
     # The windows distribution of nodejs has the binaries in different paths
@@ -124,8 +126,6 @@ _yarn_repo = repository_rule(
     _yarn_impl,
     attrs = { "package_json": attr.label_list() },
 )
-
-load(":check_bazel_version.bzl", "check_bazel_version")
 
 def node_repositories(package_json):
   # Windows users need sh_binary wrapped as an .exe

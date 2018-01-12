@@ -1,3 +1,7 @@
+"""TODO(alexeagle)
+
+"""
+
 load(":node.bzl", "sources_aspect", "expand_path_into_runfiles")
 
 def _devmode_js_sources_impl(ctx):

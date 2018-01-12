@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""TODO(alexeagle)
+
+"""
+
 # Definitions for handling path re-mapping, to support short module names.
 # See pathMapping doc: https://github.com/Microsoft/TypeScript/issues/5039
 #
@@ -41,6 +45,16 @@ def get_module_mappings(label, attrs, srcs = [], workspace_name = None, mappings
   checking for collisions. If a module has a non-empty `module_root` attribute,
   all sources underneath it are treated as if they were rooted at a folder
   `module_name`.
+
+  Args:
+    label: TODO(alexeagle)
+    attrs: TODO(alexeagle)
+    srcs: TODO(alexeagle)
+    workspace_name: TODO(alexeagle)
+    mappings_attr: TODO(alexeagle)
+
+  Returns:
+    TODO(alexeagle)
   """
   mappings = dict()
   all_deps =  _get_deps(attrs, names = _MODULE_MAPPINGS_DEPS_NAMES)

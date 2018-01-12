@@ -1,3 +1,7 @@
+"""TODO(alexeagle)
+
+"""
+
 def _mock_typescript_lib(ctx):
   es5_sources = depset()
   for s in ctx.attr.srcs:
