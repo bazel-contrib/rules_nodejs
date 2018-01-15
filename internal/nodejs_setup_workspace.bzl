@@ -12,16 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-""" Public API surface is re-exported here.
-
-Users should not load files under "/internal"
+"""The nodejs_setup_workspace rule installs build-time dependencies.
 """
-load("//internal:check_bazel_version.bzl", "check_bazel_version")
-load("//internal:node.bzl",
-     nodejs_binary = "nodejs_binary_macro",
-     nodejs_test = "nodejs_test_macro")
-load("//internal:jasmine_node_test.bzl", "jasmine_node_test")
-load("//internal:node_install.bzl", "node_repositories")
-load("//internal:npm_install.bzl", "npm_install")
-load("//internal:nodejs_setup_workspace.bzl", "nodejs_setup_workspace")
-load("//internal/rollup:rollup_bundle.bzl", "rollup_bundle")
+
+load(":npm_install.bzl", "npm_install")
+
+def nodejs_setup_workspace():
+  npm_install(
+      name = "build_bazel_rules_nodejs_rollup_deps",
+      package_json = "@build_bazel_rules_nodejs//internal/rollup:package.json",
+  )
