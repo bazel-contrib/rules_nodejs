@@ -1,0 +1,24 @@
+load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
+
+filegroup(
+    name = "node_modules",
+    srcs = glob([
+        "node_modules/**/*",
+    ]),
+)
+
+load("//:defs.bzl", "rollup_bundle")
+
+rollup_bundle(
+    name = "bundle",
+    entry_point = "internal/e2e/rollup/foo.js",
+    node_modules = ":node_modules",
+    deps = ["foo.js", "bar.js"],
+)
+
+jasmine_node_test(
+    name = "test",
+    srcs = glob(["*.spec.js"]),
+    deps = [":bundle"],
+    node_modules = ":node_modules",
+)

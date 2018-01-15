@@ -32,6 +32,9 @@ def collect_es6_sources(ctx):
   for dep in ctx.attr.deps:
     if hasattr(dep, "typescript"):
       non_rerooted_files = depset(transitive = [non_rerooted_files, dep.typescript.transitive_es6_sources])
+  for dep in ctx.files.deps:
+    if dep.is_source:
+      non_rerooted_files = non_rerooted_files + [dep]
 
   rerooted_files = []
   for file in non_rerooted_files.to_list():

@@ -14,6 +14,10 @@
 
 workspace(name = "build_bazel_rules_nodejs")
 
+load("//:defs.bzl", "nodejs_setup_workspace")
+
+nodejs_setup_workspace()
+
 load("//:defs.bzl", "node_repositories")
 
 local_repository(
@@ -34,6 +38,7 @@ local_repository(
 node_repositories(package_json = [
     "//examples/rollup:package.json",
     "@program_example//:package.json",
+    "//internal/e2e/rollup:package.json",
 ])
 
 # Now the user must run either
