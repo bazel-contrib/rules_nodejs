@@ -12,8 +12,6 @@ class NormalizePaths {
 
     const firstSegment = importee.split('/')[0]
     const importerDir = importer ? path.dirname(importer) : ""
-    const buildFileMatch = importerDir.match(`rollup\\.runfiles\\/${workspaceName}/([\\w\\-. \\/]+)\\/bazel\\-out`)
-    const buildFilePath = buildFileMatch ? buildFileMatch[1] : "";
 
     if (firstSegment === 'bazel-out') {
       // entry point is a relative path from the execroot
@@ -21,8 +19,8 @@ class NormalizePaths {
     } else if (firstSegment === '.' || firstSegment === '..') {
       // relative import
       return `${importerDir}/${importee}.js`;
-    } else if (firstSegment === workspaceName || (buildFilePath && firstSegment === buildFilePath)) {
-      // most imports start with the workspace name but some start with the build file path
+    } else if (firstSegment === workspaceName) {
+      // import start with the workspace name
       // need to get down to the base es6 output path
       const importerSegments = importerDir.split("/")
       while (importerSegments.length) {
@@ -36,15 +34,11 @@ class NormalizePaths {
         importerSegments.pop();
       }
       const basePath = importerSegments.join("/")
-      if (firstSegment === workspaceName) {
-        // drop the workspace name from the importee
-        var importPath = importee.split("/");
-        importPath.shift();
-        importPath = importPath.join("/")
-        return `${basePath}/${importPath}.js`;
-      } else {
-        return `${basePath}/${importee}.js`;
-      }
+      // drop the workspace name from the importee
+      var importPath = importee.split("/");
+      importPath.shift();
+      importPath = importPath.join("/")
+      return `${basePath}/${importPath}.js`;
     }
   }
 }

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The ts_setup_workspace rule installs build-time dependencies.
+"""The nodejs_setup_workspace rule installs build-time dependencies.
 """
 
 load(":npm_install.bzl", "npm_install")
