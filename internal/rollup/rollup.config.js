@@ -7,20 +7,18 @@ class NormalizePaths {
   resolveId(importee, importer) {
     // process.cwd() is the execroot and ends up looking something like /.../2c2a834fcea131eff2d962ffe20e1c87/bazel-sandbox/872535243457386053/execroot/<workspace_name>
     // from that path to the es6 output is <bin_dir_path>/<build_file_path>/<label_name>.es6
-    const binDirPath = "TMPL_bin_dir_path"
-    const workspaceName = "TMPL_workspace_name"
-    const buildFilePath = "TMPL_build_file_path"
-    const labelName = "TMPL_label_name"
-    const firstSegment = importee.split('/')[0]
-    const importerDir = importer ? path.dirname(importer) : "";
+    const binDirPath = "TMPL_bin_dir_path";
+    const workspaceName = "TMPL_workspace_name";
+    const buildFilePath = "TMPL_build_file_path";
+    const labelName = "TMPL_label_name";
 
-    if (firstSegment === 'bazel-out') {
+    if (importee.startsWith(`${binDirPath}/`)) {
       // entry point is a relative path from the execroot
       return `${process.cwd()}/${importee}.js`;
-    } else if (firstSegment === '.' || firstSegment === '..') {
+    } else if (importee.startsWith(`./`) || importee.startsWith(`../`)) {
       // relative import
-      return `${importerDir}/${importee}.js`;
-    } else if (firstSegment === workspaceName) {
+      return `${importer ? path.dirname(importer) : ""}/${importee}.js`;
+    } else if (importee.startsWith(`${workspaceName}/`)) {
       // workspace import
       return `${process.cwd()}/${binDirPath}/${buildFilePath}/${labelName}.es6/${importee.replace(`${workspaceName}/`, "")}.js`;
     }
