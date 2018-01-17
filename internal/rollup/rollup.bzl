@@ -14,43 +14,7 @@
 
 """Rules for production rollup bundling.
 """
-load("//internal:node.bzl", nodejs_binary = "nodejs_binary_macro")
-load("//internal:common/module_mappings.bzl", "module_mappings_runtime_aspect")
 load("//internal:collect_es6_sources.bzl", "collect_es6_sources")
-
-def _es6_consumer(ctx):
-  sources = collect_es6_sources(ctx)
-  
-  return [DefaultInfo(
-      files = sources,
-      runfiles = ctx.runfiles(sources.to_list()),
-  )]
-
-es6 = rule(
-    implementation = _es6_consumer,
-    attrs = {
-        "deps": attr.label_list()
-    }
-)
-
-def _sources_aspect_impl(target, ctx):
-  result = depset()
-  if hasattr(ctx.rule.attr, "deps"):
-    for dep in ctx.rule.attr.deps:
-      if hasattr(dep, "node_sources"):
-        result += dep.node_sources
-  # Note layering: until we have JS interop providers, this needs to know how to
-  # get TypeScript outputs.
-  if hasattr(target, "typescript"):
-    result += target.typescript.es5_sources
-  elif hasattr(target, "files"):
-    result += target.files
-  return struct(node_sources = result)
-
-sources_aspect = aspect(
-    _sources_aspect_impl,
-    attr_aspects = ["deps"],
-)
 
 def _rollup(ctx):
   rollup_config = ctx.actions.declare_file("%s.rollup.conf.js" % ctx.label.name)
@@ -61,20 +25,23 @@ def _rollup(ctx):
       output = rollup_config,
       template =  ctx.file._rollup_config_tmpl,
       substitutions = {
+          "TMPL_bin_dir_path": ctx.bin_dir.path,
           "TMPL_workspace_name": ctx.workspace_name,
           "TMPL_build_file_path": buildFilePath,
-          "TMPL_es6_label_name": "es6",
+          "TMPL_label_name": ctx.label.name,
       })
 
-  entryPoint = "bazel-out/host/bin/{0}/rollup.runfiles/{1}/{2}/es6.es6/{3}".format(buildFilePath, ctx.workspace_name, buildFilePath, ctx.attr.entry_point)
+  entryPoint = "{0}/{1}/{2}.es6/{3}".format(ctx.bin_dir.path, buildFilePath, ctx.label.name, ctx.attr.entry_point)
 
   args = ["--config", rollup_config.path]
   args += ["--output.file", ctx.outputs.build_es6.path]
   args += ["--input", entryPoint]
 
+  es6_sources = collect_es6_sources(ctx)
+
   ctx.action(
-      executable = ctx.executable.rollup,
-      inputs = [rollup_config],
+      executable = ctx.executable._rollup,
+      inputs = es6_sources + [rollup_config] + ctx.files.node_modules,
       outputs = [ctx.outputs.build_es6],
       arguments = args
   )
@@ -85,7 +52,7 @@ def _rollup(ctx):
   argsTS += ["--outFile", ctx.outputs.build_es5.path]
 
   ctx.action(
-      executable = ctx.executable.typescript,
+      executable = ctx.executable._es5,
       inputs = [ctx.outputs.build_es6],
       outputs = [ctx.outputs.build_es5],
       arguments = argsTS
@@ -95,7 +62,7 @@ def _rollup(ctx):
   argsUglify += ["--output", ctx.outputs.build_es5_min.path]
 
   ctx.action(
-      executable = ctx.executable.uglify,
+      executable = ctx.executable._uglify,
       inputs = [ctx.outputs.build_es5],
       outputs = [ctx.outputs.build_es5_min],
       arguments = argsUglify
@@ -107,10 +74,7 @@ rollup = rule(
     implementation = _rollup,
     attrs = {
         "entry_point": attr.string(mandatory=True),
-        "data": attr.label_list(
-            allow_files = True,
-            cfg = "data",
-            aspects=[sources_aspect, module_mappings_runtime_aspect]),
+        "deps": attr.label_list(allow_files = True),
         "node_modules": attr.label(
             # By default, binaries use the node_modules in the workspace
             # where the bazel command is run. This assumes that any needed
@@ -118,9 +82,18 @@ rollup = rule(
             # dependency on a package like @bazel/typescript.
             # See discussion: https://github.com/bazelbuild/rules_typescript/issues/13
             default = Label("@//:node_modules")),
-        "rollup": attr.label(executable=True, cfg="host", allow_files=True),
-        "typescript": attr.label(executable=True, cfg="host", allow_files=True),
-        "uglify": attr.label(executable=True, cfg="host", allow_files=True),
+        "_rollup": attr.label(
+            executable = True,
+            cfg="host",
+            default = Label("@build_bazel_rules_nodejs//internal/rollup:rollup")),
+        "_es5": attr.label(
+            executable = True,
+            cfg="host",
+            default = Label("@build_bazel_rules_nodejs//internal/rollup:es5")),
+        "_uglify": attr.label(
+            executable = True,
+            cfg="host",
+            default = Label("@build_bazel_rules_nodejs//internal/rollup:uglify")),
         "_rollup_config_tmpl": attr.label(
             default = Label("@build_bazel_rules_nodejs//internal/rollup:rollup.config.js"),
             allow_files = True,
@@ -132,39 +105,3 @@ rollup = rule(
         "build_es5_min": "%{name}.min.js"
     }
 )
-
-def rollup_macro(data = [], node_modules = Label("@//:node_modules"), **kwargs):
-  es6(
-      name = "es6",
-      deps = data,
-  )
-
-  nodejs_binary(
-      name = "rollup",
-      entry_point = "build_bazel_rules_nodejs_rollup_deps/node_modules/rollup/bin/rollup",
-      data = [
-        ":es6",
-        node_modules,
-        "@build_bazel_rules_nodejs//internal/rollup:rollup.config.js",
-      ],
-      node_modules = "@build_bazel_rules_nodejs_rollup_deps//:node_modules"
-  )
-
-  nodejs_binary(
-      name = "es5",
-      entry_point = "build_bazel_rules_nodejs_rollup_deps/node_modules/typescript/bin/tsc",
-      node_modules = "@build_bazel_rules_nodejs_rollup_deps//:node_modules"
-  )
-
-  nodejs_binary(
-      name = "uglify",
-      entry_point = "build_bazel_rules_nodejs_rollup_deps/node_modules/uglify-js/bin/uglifyjs",
-      node_modules = "@build_bazel_rules_nodejs_rollup_deps//:node_modules"
-  )
-
-  rollup(
-      rollup = ":rollup",
-      typescript = ":es5",
-      uglify = ":uglify",
-      **kwargs
-  )

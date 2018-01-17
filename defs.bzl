@@ -24,6 +24,4 @@ load("//internal:jasmine_node_test.bzl", "jasmine_node_test")
 load("//internal:node_install.bzl", "node_repositories")
 load("//internal:npm_install.bzl", "npm_install")
 load("//internal:nodejs_setup_workspace.bzl", "nodejs_setup_workspace")
-load("//internal/rollup:rollup.bzl", _rollup = "rollup_macro")
-
-rollup = _rollup
+load("//internal/rollup:rollup.bzl", "rollup")
