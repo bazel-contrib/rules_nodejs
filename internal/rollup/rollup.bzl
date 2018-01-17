@@ -63,9 +63,10 @@ def _rollup(ctx):
       substitutions = {
           "TMPL_workspace_name": ctx.workspace_name,
           "TMPL_build_file_path": buildFilePath,
+          "TMPL_es6_label_name": "es6",
       })
 
-  entryPoint = "bazel-out/host/bin/{0}/rollup.runfiles/{1}/{2}/bazel-out/host/bin/{3}".format(buildFilePath, ctx.workspace_name, buildFilePath, ctx.attr.entry_point)
+  entryPoint = "bazel-out/host/bin/{0}/rollup.runfiles/{1}/{2}/es6.es6/{3}".format(buildFilePath, ctx.workspace_name, buildFilePath, ctx.attr.entry_point)
 
   args = ["--config", rollup_config.path]
   args += ["--output.file", ctx.outputs.build_es6.path]
