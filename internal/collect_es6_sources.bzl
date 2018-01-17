@@ -41,10 +41,10 @@ def collect_es6_sources(ctx):
 
     rerooted_file = ctx.actions.declare_file(
       "%s.es6/%s/%s" % (
-        # the .closure.js filename is an artifact of the rules_typescript layout
-        # TODO(mrmeku): pin to end of string, eg. don't match foo.closure.jso.js
         ctx.label.name,
         file.dirname.replace(file.root.path + "/", ""),
+        # the .closure.js filename is an artifact of the rules_typescript layout
+        # TODO(mrmeku): pin to end of string, eg. don't match foo.closure.jso.js
         file.basename.replace(".closure.js", ".js")))
 
     # Cheap way to create an action that copies a file
