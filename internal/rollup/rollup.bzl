@@ -31,7 +31,7 @@ def _rollup(ctx):
           "TMPL_label_name": ctx.label.name,
       })
 
-  entryPoint = "{0}/{1}/{2}.es6/{3}".format(ctx.bin_dir.path, buildFilePath, ctx.label.name, ctx.attr.entry_point)
+  entryPoint = "{0}/{1}".format(ctx.workspace_name, ctx.attr.entry_point)
 
   args = ["--config", rollup_config.path]
   args += ["--output.file", ctx.outputs.build_es6.path]

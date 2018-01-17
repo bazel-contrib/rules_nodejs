@@ -12,15 +12,12 @@ class NormalizePaths {
     const buildFilePath = "TMPL_build_file_path";
     const labelName = "TMPL_label_name";
 
-    if (importee.startsWith(`${binDirPath}/`)) {
-      // entry point is a relative path from the execroot
-      return `${process.cwd()}/${importee}.js`;
+    if (importee.startsWith(`${workspaceName}/`)) {
+      // workspace import
+      return `${process.cwd()}/${binDirPath}/${buildFilePath}/${labelName}.es6/${importee.replace(`${workspaceName}/`, "")}.js`;
     } else if (importee.startsWith(`./`) || importee.startsWith(`../`)) {
       // relative import
       return `${importer ? path.dirname(importer) : ""}/${importee}.js`;
-    } else if (importee.startsWith(`${workspaceName}/`)) {
-      // workspace import
-      return `${process.cwd()}/${binDirPath}/${buildFilePath}/${labelName}.es6/${importee.replace(`${workspaceName}/`, "")}.js`;
     }
   }
 }
