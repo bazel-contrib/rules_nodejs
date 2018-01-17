@@ -16,10 +16,11 @@
 """
 load("//internal:collect_es6_sources.bzl", "collect_es6_sources")
 
-def _rollup(ctx):
+def _rollup_bundle(ctx):
   rollup_config = ctx.actions.declare_file("%s.rollup.conf.js" % ctx.label.name)
 
-  buildFilePath = "/".join(ctx.build_file_path.split("/")[:-1])
+  # build_file_path includes the BUILD.bazel file, transform here to only include the dirname
+  buildFileDirname = "/".join(ctx.build_file_path.split("/")[:-1])
 
   ctx.actions.expand_template(
       output = rollup_config,
@@ -27,7 +28,7 @@ def _rollup(ctx):
       substitutions = {
           "TMPL_bin_dir_path": ctx.bin_dir.path,
           "TMPL_workspace_name": ctx.workspace_name,
-          "TMPL_build_file_path": buildFilePath,
+          "TMPL_build_file_dirname": buildFileDirname,
           "TMPL_label_name": ctx.label.name,
       })
 
@@ -70,18 +71,12 @@ def _rollup(ctx):
 
   return struct()
 
-rollup = rule(
-    implementation = _rollup,
+rollup_bundle = rule(
+    implementation = _rollup_bundle,
     attrs = {
         "entry_point": attr.string(mandatory=True),
         "deps": attr.label_list(allow_files = True),
-        "node_modules": attr.label(
-            # By default, binaries use the node_modules in the workspace
-            # where the bazel command is run. This assumes that any needed
-            # dependencies are installed there, commonly due to a transitive
-            # dependency on a package like @bazel/typescript.
-            # See discussion: https://github.com/bazelbuild/rules_typescript/issues/13
-            default = Label("@//:node_modules")),
+        "node_modules": attr.label(default = Label("@//:node_modules")),
         "_rollup": attr.label(
             executable = True,
             cfg="host",
