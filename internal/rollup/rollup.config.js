@@ -1,17 +1,16 @@
 const rollup = require('rollup');
 const nodeResolve = require('rollup-plugin-node-resolve');
 const commonjs = require('rollup-plugin-commonjs');
-const fs = require('fs');
 const path = require('path');
 
 class NormalizePaths {
   resolveId(importee, importer) {
     // process.cwd() is the execroot and ends up looking something like /.../2c2a834fcea131eff2d962ffe20e1c87/bazel-sandbox/872535243457386053/execroot/<workspace_name>
     // from the path to the es6 output is bazel-out/host/bin/<build_file_path>/rollup.runfiles/<workspace_name>/<build_file_path>/bazel-out/host/bin
-    const workspaceName = process.cwd().split('/').pop();
-
+    const workspaceName = "TMPL_workspace_name"
+    const buildFilePath = "TMPL_build_file_path"
     const firstSegment = importee.split('/')[0]
-    const importerDir = importer ? path.dirname(importer) : ""
+    const importerDir = importer ? path.dirname(importer) : "";
 
     if (firstSegment === 'bazel-out') {
       // entry point is a relative path from the execroot
@@ -20,25 +19,10 @@ class NormalizePaths {
       // relative import
       return `${importerDir}/${importee}.js`;
     } else if (firstSegment === workspaceName) {
-      // import start with the workspace name
-      // need to get down to the base es6 output path
-      const importerSegments = importerDir.split("/")
-      while (importerSegments.length) {
-        const search = importerSegments.slice(-3);
-        if (search.length == 3 &&
-          search[0] === 'bazel-out' &&
-          search[1] === 'host' &&
-          search[2] === 'bin') {
-          break;
-        }
-        importerSegments.pop();
-      }
-      const basePath = importerSegments.join("/")
-      // drop the workspace name from the importee
-      var importPath = importee.split("/");
-      importPath.shift();
-      importPath = importPath.join("/")
-      return `${basePath}/${importPath}.js`;
+      // workspace import
+      return require.resolve(importee, importer).replace(
+        "bazel-out/host/bin/",
+        `bazel-out/host/bin/${buildFilePath}/rollup.runfiles/${workspaceName}/${buildFilePath}/bazel-out/host/bin/`);
     }
   }
 }

@@ -53,16 +53,27 @@ sources_aspect = aspect(
 )
 
 def _rollup(ctx):
-  rollupConfig = "{0}/rollup.runfiles/build_bazel_rules_nodejs/internal/rollup/rollup.config.js".format(ctx.executable.rollup.dirname)
+  rollup_config = ctx.actions.declare_file("%s.rollup.conf.js" % ctx.label.name)
+
   buildFilePath = "/".join(ctx.build_file_path.split("/")[:-1])
+
+  ctx.actions.expand_template(
+      output = rollup_config,
+      template =  ctx.file._rollup_config_tmpl,
+      substitutions = {
+          "TMPL_workspace_name": ctx.workspace_name,
+          "TMPL_build_file_path": buildFilePath,
+      })
+
   entryPoint = "bazel-out/host/bin/{0}/rollup.runfiles/{1}/{2}/bazel-out/host/bin/{3}".format(buildFilePath, ctx.workspace_name, buildFilePath, ctx.attr.entry_point)
 
-  args = ["--config", rollupConfig]
+  args = ["--config", rollup_config.path]
   args += ["--output.file", ctx.outputs.build_es6.path]
   args += ["--input", entryPoint]
 
   ctx.action(
       executable = ctx.executable.rollup,
+      inputs = [rollup_config],
       outputs = [ctx.outputs.build_es6],
       arguments = args
   )
@@ -108,7 +119,11 @@ rollup = rule(
             default = Label("@//:node_modules")),
         "rollup": attr.label(executable=True, cfg="host", allow_files=True),
         "typescript": attr.label(executable=True, cfg="host", allow_files=True),
-        "uglify": attr.label(executable=True, cfg="host", allow_files=True)
+        "uglify": attr.label(executable=True, cfg="host", allow_files=True),
+        "_rollup_config_tmpl": attr.label(
+            default = Label("@build_bazel_rules_nodejs//internal/rollup:rollup.config.js"),
+            allow_files = True,
+            single_file = True),
     },
     outputs = {
         "build_es6": "%{name}.es6.js",
