@@ -31,10 +31,11 @@ export interface LRUCache<CachedType> {
   inCache(key: string): boolean;
 }
 
-// Cache at most to this amount of memory use.  It appears that
-// without the cache involved, our steady state size after parsing is
-// in the ~150mb range.
-const MAX_CACHE_SIZE = 300 * (1 << 20 /* 1 MB */);
+/**
+ * Default cache size. Without the cache involved, our steady state size
+ * after parsing is in the ~150mb range.
+ */
+const DEFAULT_MAX_CACHE_SIZE = 300 * (1 << 20 /* 1 MB */);
 
 /**
  * FileCache is a trivial LRU cache for bazel outputs.
@@ -53,13 +54,29 @@ export class FileCache<CachedType> implements LRUCache<CachedType> {
    * digest to assign to a newly loaded file.
    */
   private lastDigests: {[filePath: string]: string} = {};
-  public cacheStats = {
+
+  cacheStats = {
     hits: 0,
     reads: 0,
     readTimeMs: 0,
   };
 
-  constructor(private debug: (...msg: any[]) => void) {}
+  private maxCacheSize = DEFAULT_MAX_CACHE_SIZE;
+
+  constructor(private debug: (...msg: Array<{}>) => void) {}
+
+  setMaxCacheSize(maxCacheSize: number) {
+    if (maxCacheSize < 0) {
+      throw new Error(`FileCache max size is negative: ${maxCacheSize}`);
+    }
+    this.debug('FileCache max size is', maxCacheSize >> 20, 'MB');
+    this.maxCacheSize = maxCacheSize;
+    this.maybeFreeMemory();
+  }
+
+  resetMaxCacheSize() {
+    this.setMaxCacheSize(DEFAULT_MAX_CACHE_SIZE);
+  }
 
   /**
    * Updates the cache with the given digests.
@@ -112,18 +129,7 @@ export class FileCache<CachedType> implements LRUCache<CachedType> {
   putCache(filePath: string, entry: CacheEntry<CachedType>): void {
     const readStart = Date.now();
     this.cacheStats.readTimeMs += Date.now() - readStart;
-
-    let dropped = 0;
-    if (this.shouldFreeMemory()) {
-      // Drop half the cache, the least recently used entry == the first
-      // entry.
-      this.debug('Evicting from the cache');
-      const keys = Object.keys(this.fileCache);
-      dropped = Math.round(keys.length / 2);
-      for (let i = 0; i < dropped; i++) {
-        delete this.fileCache[keys[i]];
-      }
-    }
+    const dropped = this.maybeFreeMemory();
     this.fileCache[filePath] = entry;
     this.debug('Loaded', filePath, 'dropped', dropped, 'cache entries');
   }
@@ -178,8 +184,25 @@ export class FileCache<CachedType> implements LRUCache<CachedType> {
    * Defined as a property so it can be overridden in tests.
    */
   shouldFreeMemory: () => boolean = () => {
-    return process.memoryUsage().heapUsed > MAX_CACHE_SIZE;
+    return process.memoryUsage().heapUsed > this.maxCacheSize;
   };
+
+  /**
+   * Frees memory if required. Returns the number of dropped entries.
+   */
+  private maybeFreeMemory() {
+    if (!this.shouldFreeMemory()) {
+      return 0;
+    }
+    // Drop half the cache, the least recently used entry == the first entry.
+    this.debug('Evicting from the cache');
+    const keys = Object.keys(this.fileCache);
+    const dropped = Math.round(keys.length / 2);
+    for (let i = 0; i < dropped; i++) {
+      delete this.fileCache[keys[i]];
+    }
+    return dropped;
+  }
 }
 
 /**

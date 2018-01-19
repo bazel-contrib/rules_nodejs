@@ -50,10 +50,11 @@ describe('FileCache', () => {
   });
 
   it('caches in LRU order', () => {
-    let free = false;
     const fileCache = new FileCache<ts.SourceFile>(fauxDebug);
-    const fileLoader = new CachedFileLoader(fileCache, true);
+    let free = false;
     fileCache.shouldFreeMemory = () => free;
+
+    const fileLoader = new CachedFileLoader(fileCache, true);
 
     function load(name: string, fn: string) {
       return fileLoader.loadFile(name, fn, ts.ScriptTarget.ES5);
