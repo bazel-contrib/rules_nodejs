@@ -237,12 +237,12 @@ def compile_ts(ctx,
                   content=json_marshal(tsconfig_es6))
 
   # Parameters of this compiler invocation in case we need to replay this with different
-  # settings for I18N.
+  # settings.
   replay_params = None
 
   if has_sources:
     inputs = compilation_inputs + [ctx.outputs.tsconfig]
-    replay_params = compile_action(ctx, inputs, outputs, ctx.outputs.tsconfig.path)
+    replay_params = compile_action(ctx, inputs, outputs, ctx.outputs.tsconfig)
 
     devmode_manifest = ctx.new_file(ctx.label.name + ".es5.MF")
     tsconfig_json_es5 = ctx.new_file(ctx.label.name + "_es5_tsconfig.json")
@@ -262,7 +262,7 @@ def compile_ts(ctx,
     ctx.file_action(output=tsconfig_json_es5, content=json_marshal(
         tsconfig_es5))
     inputs = compilation_inputs + [tsconfig_json_es5]
-    devmode_compile_action(ctx, inputs, outputs, tsconfig_json_es5.path)
+    devmode_compile_action(ctx, inputs, outputs, tsconfig_json_es5)
 
   # TODO(martinprobst): Merge the generated .d.ts files, and enforce strict
   # deps (do not re-export transitive types from the transitive closure).
