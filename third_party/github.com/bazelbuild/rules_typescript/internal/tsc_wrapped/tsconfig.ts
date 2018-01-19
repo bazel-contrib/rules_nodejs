@@ -111,6 +111,11 @@ export interface BazelOptions {
    * ಠ_ಠ.clutz namespace.
    */
   addDtsClutzAliases: true;
+
+  /**
+   * The maximum cache size for bazel outputs, in megabytes.
+   */
+  maxCacheSizeMb?: number;
 }
 
 export interface ParsedTsConfig {

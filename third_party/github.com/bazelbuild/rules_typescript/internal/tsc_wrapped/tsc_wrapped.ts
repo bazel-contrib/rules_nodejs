@@ -39,11 +39,33 @@ const fileCache = new FileCache<ts.SourceFile>(debug);
  */
 function runOneBuild(
     args: string[], inputs?: {[path: string]: string}): boolean {
+  // Strip leading at-signs, used in build_defs.bzl to indicate a params file
+  const tsconfigFile = args[0].replace(/^@+/, '');
+
+  const [parsed, errors, {target}] = parseTsconfig(tsconfigFile);
+  if (errors) {
+    console.error(diagnostics.format(target, errors));
+    return false;
+  }
+  if (!parsed) {
+    throw new Error(
+        'Impossible state: if parseTsconfig returns no errors, then parsed should be non-null');
+  }
+  const {options, bazelOpts, files} = parsed;
+
   // Reset cache stats.
   fileCache.resetStats();
   fileCache.traceStats();
+  if (bazelOpts.maxCacheSizeMb !== undefined) {
+    const maxCacheSizeBytes = bazelOpts.maxCacheSizeMb * 1 << 20;
+    fileCache.setMaxCacheSize(maxCacheSizeBytes);
+  } else {
+    fileCache.resetMaxCacheSize();
+  }
+
   let fileLoader: FileLoader;
   const allowNonHermeticReads = true;
+
   if (inputs) {
     fileLoader = new CachedFileLoader(fileCache, allowNonHermeticReads);
     // Resolve the inputs to absolute paths to match TypeScript internals
@@ -60,19 +82,7 @@ function runOneBuild(
     console.error('Expected one argument: path to tsconfig.json');
     return false;
   }
-  // Strip leading at-signs, used in build_defs.bzl to indicate a params file
-  const tsconfigFile = args[0].replace(/^@+/, '');
 
-  const [parsed, errors, {target}] = parseTsconfig(tsconfigFile);
-  if (errors) {
-    console.error(diagnostics.format(target, errors));
-    return false;
-  }
-  if (!parsed) {
-    throw new Error(
-        'Impossible state: if parseTsconfig returns no errors, then parsed should be non-null');
-  }
-  const {options, bazelOpts, files} = parsed;
   const compilerHostDelegate =
       ts.createCompilerHost({target: ts.ScriptTarget.ES5});
 

@@ -118,6 +118,12 @@ def create_tsconfig(ctx, files, srcs,
   else:
     bazel_options["allowedStrictDeps"] = [f.path for f in allowed_deps]
 
+  if "TYPESCRIPT_WORKER_CACHE_SIZE_MB" in ctx.var:
+    max_cache_size_mb = int(ctx.var["TYPESCRIPT_WORKER_CACHE_SIZE_MB"])
+    if max_cache_size_mb < 0:
+      fail("TYPESCRIPT_WORKER_CACHE_SIZE_MB set to a negative value (%d)." % max_cache_size_mb)
+    bazel_options["maxCacheSizeMb"] = max_cache_size_mb
+
   # Keep these options in sync with those in playground/playground.ts.
   compiler_options = {
       # De-sugar to this language level
