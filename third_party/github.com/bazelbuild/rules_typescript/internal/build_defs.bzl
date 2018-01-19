@@ -21,7 +21,7 @@ load(":executables.bzl", "get_tsc")
 load(":common/tsconfig.bzl", "create_tsconfig")
 load(":ts_config.bzl", "TsConfigInfo")
 
-def _compile_action(ctx, inputs, outputs, config_file_path):
+def _compile_action(ctx, inputs, outputs, tsconfig_file):
   externs_files = []
   action_outputs = []
   for output in outputs:
@@ -52,10 +52,10 @@ def _compile_action(ctx, inputs, outputs, config_file_path):
   # Two at-signs escapes the argument so it's passed through to tsc_wrapped
   # rather than the contents getting expanded.
   if ctx.attr.supports_workers:
-    arguments = ["@@" + config_file_path]
+    arguments = ["@@" + tsconfig_file.path]
     mnemonic = "TypeScriptCompile"
   else:
-    arguments = ["-p", config_file_path]
+    arguments = ["-p", tsconfig_file.path]
     mnemonic = "tsc"
 
   ctx.action(
@@ -70,9 +70,18 @@ def _compile_action(ctx, inputs, outputs, config_file_path):
       },
   )
 
+  # Enable the replay_params in case an aspect needs to re-build this library.
+  return struct(
+      label = ctx.label,
+      tsconfig = tsconfig_file,
+      inputs = action_inputs,
+      outputs = action_outputs,
+      compiler = ctx.executable.compiler,
+  )
 
-def _devmode_compile_action(ctx, inputs, outputs, config_file_path):
-  _compile_action(ctx, inputs, outputs, config_file_path)
+
+def _devmode_compile_action(ctx, inputs, outputs, tsconfig_file):
+  _compile_action(ctx, inputs, outputs, tsconfig_file)
 
 def tsc_wrapped_tsconfig(ctx,
                          files,
