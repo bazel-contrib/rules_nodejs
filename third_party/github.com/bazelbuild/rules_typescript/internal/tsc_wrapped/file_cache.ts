@@ -59,6 +59,7 @@ export class FileCache<CachedType> implements LRUCache<CachedType> {
     hits: 0,
     reads: 0,
     readTimeMs: 0,
+    evictions: 0,
   };
 
   private maxCacheSize = DEFAULT_MAX_CACHE_SIZE;
@@ -151,6 +152,7 @@ export class FileCache<CachedType> implements LRUCache<CachedType> {
       hits: 0,
       reads: 0,
       readTimeMs: 0,
+      evictions: 0,
     };
   }
 
@@ -172,6 +174,7 @@ export class FileCache<CachedType> implements LRUCache<CachedType> {
     perfTrace.counter('file cache hit rate', {
       'hits': this.cacheStats.hits,
       'misses': this.cacheStats.reads - this.cacheStats.hits,
+      'evictions': this.cacheStats.evictions,
     });
     perfTrace.counter('file cache time', {
       'read': this.cacheStats.readTimeMs,
@@ -201,6 +204,7 @@ export class FileCache<CachedType> implements LRUCache<CachedType> {
     for (let i = 0; i < dropped; i++) {
       delete this.fileCache[keys[i]];
     }
+    this.cacheStats.evictions += dropped;
     return dropped;
   }
 }
