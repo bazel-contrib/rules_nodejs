@@ -176,7 +176,6 @@ def create_tsconfig(ctx, files, srcs,
 
       # Interpret JSX as React calls (until someone asks for something different)
       "jsx": "react",
-      "jsxFactory": "React.createElement",
 
       "noEmitOnError": False,
       "declaration": True,
