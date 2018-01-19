@@ -51,7 +51,7 @@ function runOneBuild(
     throw new Error(
         'Impossible state: if parseTsconfig returns no errors, then parsed should be non-null');
   }
-  const {options, bazelOpts, files} = parsed;
+  const {options, bazelOpts, files, disabledTsetseRules} = parsed;
 
   // Reset cache stats.
   fileCache.resetStats();
@@ -130,7 +130,7 @@ function runOneBuild(
           ignoredFilesPrefixes.map(p => compilerHost.realpath(p))),
     });
   }
-  program = tsetsePlugin.wrap(program, bazelOpts.disabledTsetseRules);
+  program = tsetsePlugin.wrap(program, disabledTsetseRules);
 
   // These checks mirror ts.getPreEmitDiagnostics, with the important
   // exception that if you call program.getDeclarationDiagnostics() it somehow

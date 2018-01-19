@@ -73,12 +73,6 @@ export interface BazelOptions {
   perfTracePath?: string;
 
   /**
-   * A list of Tsetse rule names that should not run on this target.
-   */
-  // TODO(calebegg): Remove this and consolidate with plugin disabled rules
-  disabledTsetseRules: string[];
-
-  /**
    * An additional prelude to insert after the `goog.module` call,
    * e.g. with additional imports or requires.
    */
@@ -122,7 +116,13 @@ export interface ParsedTsConfig {
   options: ts.CompilerOptions;
   bazelOpts: BazelOptions;
   files: string[];
+  disabledTsetseRules: string[];
   config: {};
+}
+
+// TODO(calebegg): Upstream?
+interface PluginImportWithConfig extends ts.PluginImport {
+  [optionName: string]: string|{};
 }
 
 /**
@@ -202,5 +202,20 @@ export function parseTsconfig(
         path.resolve(options.rootDir, bazelOpts.nodeModulesPrefix);
   }
 
-  return [{options, bazelOpts, files, config}, null, {target}];
+  let disabledTsetseRules: string[] = [];
+  for (const pluginConfig of options['plugins'] as PluginImportWithConfig[] ||
+       []) {
+    if (pluginConfig.name && pluginConfig.name === '@bazel/tsetse') {
+      const disabledRules = pluginConfig['disabledRules'];
+      if (disabledRules && !Array.isArray(disabledRules)) {
+        throw new Error('Disabled tsetse rules must be an array of rule names');
+      }
+      disabledTsetseRules = disabledRules as string[];
+      break;
+    }
+  }
+
+  return [
+    {options, bazelOpts, files, config, disabledTsetseRules}, null, {target}
+  ];
 }
