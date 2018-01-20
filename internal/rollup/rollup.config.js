@@ -4,6 +4,7 @@ const rollup = require('rollup');
 const nodeResolve = require('rollup-plugin-node-resolve');
 const commonjs = require('rollup-plugin-commonjs');
 const path = require('path');
+const fs = require('fs');
 
 const binDirPath = "TMPL_bin_dir_path";
 const workspaceName = "TMPL_workspace_name";
@@ -15,13 +16,19 @@ class NormalizePaths {
     // process.cwd() is the execroot and ends up looking something like /.../2c2a834fcea131eff2d962ffe20e1c87/bazel-sandbox/872535243457386053/execroot/<workspace_name>
     // from that path to the es6 output is <bin_dir_path>/<build_file_path>/<label_name>.es6
     var resolved;
-    if (importee.startsWith(`${workspaceName}/`)) {
-      // workspace import
-      resolved = `${process.cwd()}/${binDirPath}/${buildFileDirname}/${labelName}.es6/${importee.replace(`${workspaceName}/`, "")}`;
-    } else if (importee.startsWith(`./`) || importee.startsWith(`../`)) {
+    if (importee.startsWith(`./`) || importee.startsWith(`../`)) {
       // relative import
       resolved = path.join(importer ? path.dirname(importer) : '', importee);
     }
+    else {
+      // workspace import?
+      let es6CollectedPath = path.join(process.cwd(), binDirPath, buildFileDirname, `${labelName}.es6`, importee);
+      if (!es6CollectedPath.endsWith(".js")) es6CollectedPath += ".js";
+      if (fs.existsSync(es6CollectedPath)) {
+        resolved = es6CollectedPath;
+      }
+    }
+
     // add .js extension if needed
     if (resolved) {
       if (!resolved.endsWith(".js")) {
