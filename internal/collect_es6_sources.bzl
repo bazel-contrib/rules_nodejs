@@ -28,26 +28,24 @@ def collect_es6_sources(ctx):
     A file tree containing only production files.
   """
 
-  non_rerooted_files = depset()
+  non_rerooted_files = depset([d for d in ctx.files.deps if d.is_source])
   for dep in ctx.attr.deps:
     if hasattr(dep, "typescript"):
       non_rerooted_files = depset(transitive = [non_rerooted_files, dep.typescript.transitive_es6_sources])
-  for dep in ctx.files.deps:
-    if dep.is_source:
-      non_rerooted_files = non_rerooted_files + [dep]
 
   rerooted_files = []
   for file in non_rerooted_files.to_list():
-    # TODO(alexeagle): how can we represent external repositories
-    # in this re-rooted tree?
-    if file.short_path.startswith(".."): continue
+    if file.short_path.startswith(".."):
+      rerooted_path = "/".join(file.short_path.split("/")[1:])
+    else:
+      rerooted_path = "/".join([ctx.workspace_name, file.short_path])
 
     rerooted_file = ctx.actions.declare_file(
       "%s.es6/%s" % (
         ctx.label.name,
         # the .closure.js filename is an artifact of the rules_typescript layout
         # TODO(mrmeku): pin to end of string, eg. don't match foo.closure.jso.js
-        file.short_path.replace(".closure.js", ".js")))
+        rerooted_path.replace(".closure.js", ".js")))
     # Cheap way to create an action that copies a file
     # TODO(alexeagle): discuss with Bazel team how we can do something like
     # runfiles to create a re-rooted tree. This has performance implications.
