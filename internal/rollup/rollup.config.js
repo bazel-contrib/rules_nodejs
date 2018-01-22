@@ -20,7 +20,7 @@ class NormalizePaths {
       resolved = `${process.cwd()}/${binDirPath}/${buildFileDirname}/${labelName}.es6/${importee.replace(`${workspaceName}/`, "")}`;
     } else if (importee.startsWith(`./`) || importee.startsWith(`../`)) {
       // relative import
-      resolved = `${importer ? path.dirname(importer) : ""}/${importee}`;
+      resolved = path.join(importer ? path.dirname(importer) : '', importee);
     }
     // add .js extension if needed
     if (resolved) {
