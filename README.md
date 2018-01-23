@@ -7,7 +7,10 @@ Circle CI | Bazel CI
 
 **This is an alpha-quality release. Breaking changes are likely.**
 
-The nodejs rules integrate NodeJS development and runtime with bazel.
+The nodejs rules integrate NodeJS development toolchain and runtime with Bazel.
+
+This toolchain can be used to build applications that target a browser runtime,
+so this repo can be thought of as "JavaScript rules for Bazel" as well.
 
 ## Installation
 
@@ -17,18 +20,17 @@ Next, create a `WORKSPACE` file in your project root (or edit the existing one)
 containing:
 
 ```python
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
-
 git_repository(
     name = "build_bazel_rules_nodejs",
     remote = "https://github.com/bazelbuild/rules_nodejs.git",
-    tag = "0.1.0", # check for the latest tag when you install
+    tag = "0.3.1", # check for the latest tag when you install
 )
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
 
 # NOTE: this rule installs nodejs, npm, and yarn, but does NOT install
-# your npm dependencies. You must still run the package manager.
+# your npm dependencies into your node_modules folder.
+# You must still run the package manager to do this.
 node_repositories(package_json = ["//:package.json"])
 ```
 
@@ -40,7 +42,7 @@ then next you will create a `BUILD.bazel` file in your project root containing:
 ```python
 package(default_visibility = ["//visibility:public"])
 
-# NOTE: this will move to node_modules/BUILD in a later release
+# NOTE: this may move to node_modules/BUILD in a later release
 filegroup(name = "node_modules", srcs = glob(["node_modules/**/*"]))
 ```
 
@@ -173,6 +175,40 @@ The `srcs` of a `jasmine_node_test` should include the test `.js` files.
 The `deps` should include the production `.js` sources, or other rules which produce `.js` files, such as TypeScript.
 
 The `examples/program/index.spec.js` file illustrates this. Another usage is in https://github.com/angular/tsickle/blob/master/test/BUILD
+
+### Bundling/optimizing
+
+A `rollup_bundle` rule produces three bundle files:
+
+1. ES5 syntax, minified by uglify. This is the default output of the rule, meaning this file will be provided when this rule appears in the `deps[]` of another rule.
+
+```sh
+$ bazel build internal/e2e/rollup:bundle
+```
+
+2. ES5 syntax, un-minified.
+
+```sh
+$ bazel build internal/e2e/rollup:bundle.js
+```
+
+3. ES2015 syntax, un-minified.
+
+```
+$ bazel build internal/e2e/rollup:bundle.es6.js
+```
+
+Attributes:
+
+`srcs` are `.js` files to be included in the bundle
+
+`deps` are other rules which produce `.js` files, such as `ts_library`
+
+`entry_point` is the main file of the application that will be executed. Only
+sources reachable from the import graph of this file will be included in the
+bundle.
+
+> Note: we expect other bundling rules will follow later, such as Closure compiler and Webpack.
 
 # Design
 

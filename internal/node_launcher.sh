@@ -92,8 +92,9 @@ for ARG in "${ALL_ARGS[@]}"; do
   esac
 done
 
-# Note: for debugging it is useful to see what files are actually present, eg:
-# find . -name thingImLookingFor
+# Note: for debugging it is useful to see what files are actually present
+# This redirects to stderr so it doesn't interfere with Bazel's worker protocol
+# find . -name thingImLookingFor 1>&2
 
 # On Windows, the runfiles symlink tree does not exist, so we must resolve paths
 # using the mapping in the runfiles_manifest file.

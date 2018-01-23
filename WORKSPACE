@@ -14,10 +14,6 @@
 
 workspace(name = "build_bazel_rules_nodejs")
 
-load("//:defs.bzl", "nodejs_setup_workspace")
-
-nodejs_setup_workspace()
-
 load("//:defs.bzl", "node_repositories")
 
 local_repository(
