@@ -13,7 +13,7 @@ rollup_bundle(
     name = "bundle",
     entry_point = "internal/e2e/rollup/foo.js",
     node_modules = ":node_modules",
-    deps = ["foo.js", "bar.js"],
+    deps = ["foo.js", "bar.js", "fum/index.js"],
 )
 
 jasmine_node_test(

@@ -22,12 +22,9 @@ class NormalizePaths {
       // relative import
       resolved = path.join(importer ? path.dirname(importer) : '', importee);
     }
-    // add .js extension if needed
     if (resolved) {
-      if (!resolved.endsWith(".js")) {
-        resolved += ".js";
-      }
-      return resolved;
+      // resolve with node path resolution (it will handle index.js)
+      return require.resolve(resolved);
     }
   }
 }
