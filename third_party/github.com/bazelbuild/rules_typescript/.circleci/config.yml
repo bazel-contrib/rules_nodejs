@@ -11,7 +11,11 @@
 # If you change the `docker_image` version, also change the `cache_key` suffix
 var_1: &docker_image angular/ngcontainer:0.1.0
 var_2: &cache_key rules_typescript-{{ checksum "yarn.lock" }}-0.1.0
-
+var_3: &setup-bazel-remote-cache
+  run:
+    name: Start up bazel remote cache proxy
+    command: ~/bazel-remote-proxy -backend circleci://
+    background: true
 
 # Settings common to each job
 anchor_1: &job_defaults
@@ -33,13 +37,15 @@ jobs:
     steps:
       - checkout:
           <<: *post_checkout
+      - run: .circleci/setup_cache.sh
+      - *setup-bazel-remote-cache
 
       - restore_cache:
           key: *cache_key
       - run: bazel info release
       - run: bazel run @yarn//:yarn
-      - run: bazel build ...
-      - run: bazel test ...
+      - run: bazel build --config=ci ...
+      - run: bazel test --config=ci ...
 
   # This job tests the same stuff, but without the .bazelrc file.
   # It disables worker mode, for example.
@@ -48,13 +54,15 @@ jobs:
     steps:
       - checkout:
           <<: *post_checkout
+      - run: .circleci/setup_cache.sh
+      - *setup-bazel-remote-cache
 
       - restore_cache:
           key: *cache_key
       - run: bazel --bazelrc=/dev/null info release
       - run: bazel --bazelrc=/dev/null run @yarn//:yarn
-      - run: bazel --bazelrc=/dev/null build ...
-      - run: bazel --bazelrc=/dev/null test ...
+      - run: bazel --bazelrc=/dev/null build --config=ci ...
+      - run: bazel --bazelrc=/dev/null test --config=ci ...
 
       - save_cache:
           key: *cache_key
@@ -67,6 +75,8 @@ jobs:
     steps:
       - checkout:
           <<: *post_checkout
+      - run: .circleci/setup_cache.sh
+      - *setup-bazel-remote-cache
       - restore_cache:
           key: *cache_key
       - run: bazel run @yarn//:yarn
@@ -79,7 +89,14 @@ jobs:
     steps:
       - checkout:
           <<: *post_checkout
-      - run: find . -type f -name \"*.bzl\" ! -path \"*/node_modules/*\" | xargs java -jar /usr/local/bin/Skylint_deploy.jar
+      - run: .circleci/setup_cache.sh
+      - *setup-bazel-remote-cache
+      # To get the skylint binary from the cache, we need to build with --config=ci
+      # Since we do the build in the preskylint step, we first need to explicitly
+      # run that with the --config bazel option.
+      - run: yarn preskylint --config=ci
+      # Now the execution of preskylint should get a local cache hit on the binary.
+      - run: yarn skylint
 
 workflows:
   version: 2
