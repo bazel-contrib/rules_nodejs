@@ -68,7 +68,7 @@ def _rollup_bundle(ctx):
 
   ctx.action(
       executable = ctx.executable._rollup,
-      inputs = es6_sources + [rollup_config] + ctx.files.node_modules,
+      inputs = es6_sources + ctx.files.node_modules + [rollup_config],
       outputs = [ctx.outputs.build_es6],
       arguments = [argsRollup]
   )
@@ -106,7 +106,8 @@ rollup_bundle = rule(
     implementation = _rollup_bundle,
     attrs = {
         "entry_point": attr.string(mandatory=True),
-        "deps": attr.label_list(allow_files = True, aspects = [rollup_module_mappings_aspect]),
+        "srcs": attr.label_list(allow_files = [".js"]),
+        "deps": attr.label_list(aspects = [rollup_module_mappings_aspect]),
         "node_modules": attr.label(default = Label("@//:node_modules")),
         "_rollup": attr.label(
             executable = True,
