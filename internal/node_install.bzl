@@ -126,6 +126,7 @@ _yarn_repo = repository_rule(
 )
 
 load(":check_bazel_version.bzl", "check_bazel_version")
+load(":npm_install.bzl", "npm_install")
 
 def node_repositories(package_json):
   # Windows users need sh_binary wrapped as an .exe
@@ -134,3 +135,8 @@ def node_repositories(package_json):
   _node_repo(name = "nodejs")
 
   _yarn_repo(name = "yarn", package_json = package_json)
+
+  npm_install(
+      name = "build_bazel_rules_nodejs_rollup_deps",
+      package_json = "@build_bazel_rules_nodejs//internal/rollup:package.json",
+  )
