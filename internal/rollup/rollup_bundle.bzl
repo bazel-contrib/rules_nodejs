@@ -15,12 +15,33 @@
 """Rules for production rollup bundling.
 """
 load("//internal:collect_es6_sources.bzl", "collect_es6_sources")
+load("//internal/common:module_mappings.bzl", "get_module_mappings")
+
+_ROLLUP_MODULE_MAPPINGS_ATTR = "rollup_module_mappings"
+
+def _rollup_module_mappings_aspect_impl(target, ctx):
+  mappings = get_module_mappings(target.label, ctx.rule.attr)
+  return struct(rollup_module_mappings = mappings)
+
+rollup_module_mappings_aspect = aspect(
+    _rollup_module_mappings_aspect_impl,
+    attr_aspects = ["deps"],
+)
 
 def _rollup_bundle(ctx):
   rollup_config = ctx.actions.declare_file("%s.rollup.conf.js" % ctx.label.name)
 
   # build_file_path includes the BUILD.bazel file, transform here to only include the dirname
   buildFileDirname = "/".join(ctx.build_file_path.split("/")[:-1])
+
+  mappings = dict()
+  for dep in ctx.attr.deps:
+    if hasattr(dep, _ROLLUP_MODULE_MAPPINGS_ATTR):
+      for k, v in getattr(dep, _ROLLUP_MODULE_MAPPINGS_ATTR).items():
+        if k in mappings and mappings[k] != v:
+          fail(("duplicate module mapping at %s: %s maps to both %s and %s" %
+                (dep.label, k, mappings[k], v)), "deps")
+        mappings[k] = v
 
   ctx.actions.expand_template(
       output = rollup_config,
@@ -30,6 +51,7 @@ def _rollup_bundle(ctx):
           "TMPL_workspace_name": ctx.workspace_name,
           "TMPL_build_file_dirname": buildFileDirname,
           "TMPL_label_name": ctx.label.name,
+          "TMPL_module_mappings": str(mappings),
       })
 
   entryPoint = "/".join([ctx.workspace_name, ctx.attr.entry_point])
@@ -84,7 +106,7 @@ rollup_bundle = rule(
     implementation = _rollup_bundle,
     attrs = {
         "entry_point": attr.string(mandatory=True),
-        "deps": attr.label_list(allow_files = True),
+        "deps": attr.label_list(allow_files = True, aspects = [rollup_module_mappings_aspect]),
         "node_modules": attr.label(default = Label("@//:node_modules")),
         "_rollup": attr.label(
             executable = True,
