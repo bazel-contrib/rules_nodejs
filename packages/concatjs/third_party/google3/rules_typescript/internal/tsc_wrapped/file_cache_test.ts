@@ -33,7 +33,7 @@ describe('FileCache', () => {
 
   it('caches files', () => {
     const fileCache = new FileCache<ts.SourceFile>(fauxDebug);
-    const fileLoader = new CachedFileLoader(fileCache, true);
+    const fileLoader = new CachedFileLoader(fileCache);
     const fn = writeTempFile('file_cache_test', 'let x: number = 12;\n');
     invalidateFileCache(fileCache, fn);
 
@@ -54,7 +54,7 @@ describe('FileCache', () => {
     let free = false;
     fileCache.shouldFreeMemory = () => free;
 
-    const fileLoader = new CachedFileLoader(fileCache, true);
+    const fileLoader = new CachedFileLoader(fileCache);
 
     function load(name: string, fn: string) {
       return fileLoader.loadFile(name, fn, ts.ScriptTarget.ES5);
