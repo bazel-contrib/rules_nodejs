@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as tsickle from 'tsickle';
 import * as ts from 'typescript';
 
-import {FileLoader, isNonHermeticInput} from './file_cache';
+import {FileLoader} from './file_cache';
 import * as perfTrace from './perf_trace';
 import {BazelOptions} from './tsconfig';
 
@@ -63,7 +63,7 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
       public inputFiles: string[], options: ts.CompilerOptions,
       readonly bazelOpts: BazelOptions, private delegate: ts.CompilerHost,
       private fileLoader: FileLoader,
-      private readonly allowNonHermeticReads: boolean,
+      private readonly allowActionInputReads: boolean,
       private moduleResolver: ModuleResolver = ts.resolveModuleName) {
     this.options = narrowTsOptions(options);
     this.relativeRoots =
@@ -343,10 +343,16 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
    * file reads.
    */
   fileExists(filePath: string): boolean {
-    // Allow moduleResolution=node to behave normally.
-    if (this.allowNonHermeticReads && isNonHermeticInput(filePath) &&
-        this.delegate.fileExists(filePath)) {
-      return true;
+    // Under Bazel, users do not declare deps[] on their node_modules.
+    // This means that we do not list all the needed .d.ts files in the files[]
+    // section of tsconfig.json, and that is what populates the knownFiles set.
+    // In addition, the node module resolver may need to read package.json files
+    // and these are not permitted in the files[] section.
+    // So we permit reading any files from the action inputs, even though this
+    // can include data[] dependencies and is broader than we would like.
+    // This should only be enabled under Bazel, not Blaze.
+    if (this.allowActionInputReads) {
+      return this.fileLoader.fileExists(filePath);
     }
     return this.knownFiles.has(filePath);
   }
@@ -358,6 +364,17 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
           ts.getDefaultLibFileName({target: ts.ScriptTarget.ES5}));
     }
     return this.delegate.getDefaultLibFileName(options);
+  }
+
+  realpath(s: string): string {
+    // tsc-wrapped relies on string matching of file paths for things like the
+    // file cache and for strict deps checking.
+    // TypeScript will try to resolve symlinks during module resolution which
+    // makes our checks fail: the path we resolved as an input isn't the same
+    // one the module resolver will look for.
+    // See https://github.com/Microsoft/TypeScript/pull/12020
+    // So we simply turn off symlink resolution.
+    return s;
   }
 
   // Delegate everything else to the original compiler host.
@@ -388,9 +405,5 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
 
   trace(s: string): void {
     console.error(s);
-  }
-
-  realpath(s: string): string {
-    return ts.sys.realpath!(s);
   }
 }
