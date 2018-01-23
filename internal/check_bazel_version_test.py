@@ -38,7 +38,7 @@ class CheckBazelVersionTest(unittest.TestCase):
         'fail': self.mock.fail.__get__(self.mock, MockSkylark),
     }
 
-    execfile(resolve_runfile(self.BZL_PATH), self.globals)
+    exec(open(resolve_runfile(self.BZL_PATH)).read(), self.globals)
 
   def testVeryOldBazel(self):
     # Don't call setVersion, so there is no bazel_version property
