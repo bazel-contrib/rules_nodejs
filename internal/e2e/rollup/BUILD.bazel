@@ -13,12 +13,13 @@ rollup_bundle(
     name = "bundle",
     entry_point = "internal/e2e/rollup/foo.js",
     node_modules = ":node_modules",
-    srcs = ["foo.js", "bar.js", "fum/index.js"],
+    srcs = ["foo.js", "bar.js"],
+    deps = ["//internal/e2e/rollup/fum:fumlib"],
 )
 
 jasmine_node_test(
     name = "test",
     srcs = glob(["*.spec.js"]),
-    deps = [":bundle"],
+    data = [":bundle"],
     node_modules = ":node_modules",
 )

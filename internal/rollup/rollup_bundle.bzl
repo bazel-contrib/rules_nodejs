@@ -35,7 +35,8 @@ def _rollup_bundle(ctx):
   buildFileDirname = "/".join(ctx.build_file_path.split("/")[:-1])
 
   mappings = dict()
-  for dep in ctx.attr.deps:
+  all_deps = ctx.attr.deps + ctx.attr.srcs
+  for dep in all_deps:
     if hasattr(dep, _ROLLUP_MODULE_MAPPINGS_ATTR):
       for k, v in getattr(dep, _ROLLUP_MODULE_MAPPINGS_ATTR).items():
         if k in mappings and mappings[k] != v:
