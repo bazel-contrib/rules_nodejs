@@ -8,5 +8,5 @@ test:debug --test_arg=--node_options=--inspect-brk --test_output=streamed --test
 build:ci --experimental_remote_spawn_cache --remote_rest_cache=http://localhost:7643
 
 # Workaround https://github.com/bazelbuild/bazel/issues/3645
-# Limit Bazel to consuming 3072K of RAM
+# Limit Bazel to consuming 3072M of RAM
 build:ci --local_resources=3072,2.0,1.0
