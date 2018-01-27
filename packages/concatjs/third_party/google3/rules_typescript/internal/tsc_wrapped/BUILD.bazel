@@ -18,7 +18,7 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary", "jasmine_node_test
 # Vanilla typescript compiler: run the tsc.js binary distributed by TypeScript
 nodejs_binary(
     name = "tsc",
-    node_modules = "@build_bazel_rules_typescript_deps//:node_modules",
+    node_modules = "@build_bazel_rules_typescript_tsc_wrapped_deps//:node_modules",
     entry_point = "typescript/lib/tsc.js",
     visibility = ["//internal:__subpackages__"],
 )
@@ -42,7 +42,7 @@ ts_library(
     module_root = "index.d.ts",
     tsconfig = ":tsconfig.json",
     visibility = ["//visibility:public"],
-    data = [ 
+    data = [
         # Should be @bazel_tools//src/main/protobuf:worker_protocol.proto
         # see https://github.com/bazelbuild/bazel/issues/3155#issuecomment-308156976
         "//internal:worker_protocol.proto",
@@ -73,7 +73,7 @@ nodejs_binary(
     data = [
         ":tsc_wrapped",
     ],
-    node_modules = "@build_bazel_rules_typescript_deps//:node_modules",
+    node_modules = "@build_bazel_rules_typescript_tsc_wrapped_deps//:node_modules",
     entry_point = "build_bazel_rules_typescript/internal/tsc_wrapped/tsc_wrapped.js",
     templated_args = ["--node_options=--expose-gc"],
     visibility = ["//visibility:public"],

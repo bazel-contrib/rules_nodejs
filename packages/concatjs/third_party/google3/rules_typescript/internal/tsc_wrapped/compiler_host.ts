@@ -6,6 +6,7 @@ import * as ts from 'typescript';
 import {FileLoader} from './file_cache';
 import * as perfTrace from './perf_trace';
 import {BazelOptions} from './tsconfig';
+import {DEBUG, debug} from './worker';
 
 export type ModuleResolver =
     (moduleName: string, containingFile: string,
@@ -352,7 +353,16 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
     // can include data[] dependencies and is broader than we would like.
     // This should only be enabled under Bazel, not Blaze.
     if (this.allowActionInputReads) {
-      return this.fileLoader.fileExists(filePath);
+      const result = this.fileLoader.fileExists(filePath);
+      if (DEBUG && !result && this.delegate.fileExists(filePath)) {
+        debug("Path exists, but is not registered in the cache", filePath);
+        Object.keys((this.fileLoader as any).cache.lastDigests).forEach(k => {
+          if (k.endsWith(path.basename(filePath))) {
+            debug("  Maybe you meant to load from", k);
+          }
+        });
+      }
+      return result;
     }
     return this.knownFiles.has(filePath);
   }

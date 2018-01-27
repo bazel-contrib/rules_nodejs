@@ -5,7 +5,7 @@ const ByteBuffer = require('bytebuffer');
 
 protobufjs.convertFieldsToCamelCase = true;
 
-const DEBUG = false;
+export const DEBUG = false;
 
 export function debug(...args: Array<{}>) {
   if (DEBUG) console.error.apply(console, args);
