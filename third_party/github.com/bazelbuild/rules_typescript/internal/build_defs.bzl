@@ -42,7 +42,7 @@ def _compile_action(ctx, inputs, outputs, tsconfig_file):
     return struct()
 
   action_inputs = inputs + [f for f in ctx.files.node_modules + ctx.files._tsc_wrapped_deps
-                            if f.path.endswith(".ts") or f.path.endswith(".json")]
+                            if f.path.endswith(".js") or f.path.endswith(".ts") or f.path.endswith(".json")]
   if ctx.file.tsconfig:
     action_inputs += [ctx.file.tsconfig]
     if TsConfigInfo in ctx.attr.tsconfig:
@@ -176,7 +176,7 @@ ts_library = rule(
                 cfg="host"),
         "supports_workers": attr.bool(default = True),
         "tsickle_typed": attr.bool(default = True),
-        "_tsc_wrapped_deps": attr.label(default = Label("@build_bazel_rules_typescript_deps//:node_modules")),
+        "_tsc_wrapped_deps": attr.label(default = Label("@build_bazel_rules_typescript_tsc_wrapped_deps//:node_modules")),
         # @// is special syntax for the "main" repository
         # The default assumes the user specified a target "node_modules" in their
         # root BUILD file.
@@ -193,5 +193,5 @@ def tsc_library(**kwargs):
   ts_library(
       supports_workers = False,
       compiler = "//internal/tsc_wrapped:tsc",
-      node_modules = "@build_bazel_rules_typescript_deps//:node_modules",
+      node_modules = "@build_bazel_rules_typescript_tsc_wrapped_deps//:node_modules",
       **kwargs)

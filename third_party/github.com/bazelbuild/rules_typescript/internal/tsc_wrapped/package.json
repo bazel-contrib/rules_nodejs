@@ -1,12 +1,14 @@
 {
-  "description": "runtime dependencies to compile and run tsc_wrapped",
+  "description": "build-time dependencies to compile and run tsc_wrapped",
   "devDependencies": {
     "@types/jasmine": "2.8.2",
     "@types/node": "7.0.18",
     "@types/source-map": "0.5.2",
+    "@types/tmp": "0.0.33",
     "protobufjs": "5.0.0",
     "tsickle": "0.25.5",
     "typescript": "2.5.3",
-    "tsutils": "2.12.1"
+    "tsutils": "2.12.1",
+    "tmp": "0.0.33"
   }
 }

@@ -19,7 +19,7 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "npm_install")
 
 def ts_setup_workspace():
   npm_install(
-      name = "build_bazel_rules_typescript_deps",
+      name = "build_bazel_rules_typescript_tsc_wrapped_deps",
       package_json = "@build_bazel_rules_typescript//internal/tsc_wrapped:package.json",
   )
   npm_install(
