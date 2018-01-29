@@ -48,6 +48,7 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
   private relativeRoots: string[];
 
   getCancelationToken?: () => ts.CancellationToken;
+  directoryExists?: (dir: string) => boolean;
 
   googmodule: boolean;
   es5Mode: boolean;
@@ -79,6 +80,15 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
     // Instead, we optionally set a function to a field with the same name.
     if (delegate && delegate.getCancellationToken) {
       this.getCancelationToken = delegate.getCancellationToken.bind(delegate);
+    }
+
+    // Override directoryExists so that TypeScript can automatically
+    // include global typings from node_modules/@types
+    // see getAutomaticTypeDirectiveNames in
+    // TypeScript:src/compiler/moduleNameResolver
+    // Do this for Bazel only - under Blaze we don't support such discovery.
+    if (allowActionInputReads && delegate && delegate.directoryExists) {
+      this.directoryExists = delegate.directoryExists.bind(delegate);
     }
 
     this.googmodule = bazelOpts.googmodule;
