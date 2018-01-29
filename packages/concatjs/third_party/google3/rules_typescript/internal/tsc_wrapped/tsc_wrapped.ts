@@ -89,14 +89,6 @@ function runOneBuild(
   const compilerHost = new CompilerHost(
       files, options, bazelOpts, compilerHostDelegate, fileLoader, allowActionInputReads);
 
-  // Override directoryExists so that TypeScript can automatically
-  // include global typings from node_modules/@types
-  // see getAutomaticTypeDirectiveNames in
-  // TypeScript:src/compiler/moduleNameResolver
-  (compilerHost as ts.CompilerHost).directoryExists =
-      (directoryName: string) =>
-          compilerHostDelegate.directoryExists!(directoryName);
-
   let program = ts.createProgram(files, options, compilerHost);
 
   fileCache.traceStats();
