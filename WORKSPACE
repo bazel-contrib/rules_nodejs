@@ -41,3 +41,16 @@ node_repositories(package_json = [
 # bazel run @yarn//:yarn
 # or
 # bazel run @nodejs//:npm
+local_repository(
+    name = "angular_devkit",
+    path = "../devkit",
+)
+git_repository(
+    name = "build_bazel_rules_typescript",
+    remote = "https://github.com/bazelbuild/rules_typescript.git",
+    tag = "0.10.0",
+)
+
+load("@build_bazel_rules_typescript//:defs.bzl", "ts_setup_workspace")
+
+ts_setup_workspace()
