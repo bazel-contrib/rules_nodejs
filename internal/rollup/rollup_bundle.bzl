@@ -89,16 +89,35 @@ def _rollup_bundle(ctx):
       arguments = [argsES5]
   )
 
+  uglify_config = ctx.actions.declare_file("%s.uglify.json" % ctx.label.name)
+
+  ctx.actions.expand_template(
+      output = uglify_config,
+      template =  ctx.file._uglify_config_tmpl,
+      substitutions = {},
+  )
+
   argsUglify = ctx.actions.args()
   argsUglify.add(ctx.outputs.build_es5.path)
-  argsUglify.add("--output")
-  argsUglify.add(ctx.outputs.build_es5_min.path)
+  argsUglify.add(["--config-file", uglify_config.path])
+  #compress", "passes=3,pure_getters=true,pure_funcs=[\"Object.defineProperty\"]"])
+  argsUglify.add(["--output", ctx.outputs.build_es5_min.path])
+
+  ctx.action(
+      executable = ctx.executable._uglify,
+      inputs = [ctx.outputs.build_es5, uglify_config],
+      outputs = [ctx.outputs.build_es5_min],
+      arguments = [argsUglify]
+  )
+
+  argsUglify.add("--beautify")
+  argsUglify.add(["--output", ctx.outputs.build_es5_min_debug.path])
 
   ctx.action(
       executable = ctx.executable._uglify,
       inputs = [ctx.outputs.build_es5],
-      outputs = [ctx.outputs.build_es5_min],
-      arguments = [argsUglify]
+      outputs = [ctx.outputs.build_es5_min_debug],
+      arguments = [argsUglify],
   )
 
   return DefaultInfo(files=depset([ctx.outputs.build_es5_min]))
@@ -126,10 +145,15 @@ rollup_bundle = rule(
             default = Label("@build_bazel_rules_nodejs//internal/rollup:rollup.config.js"),
             allow_files = True,
             single_file = True),
+        "_uglify_config_tmpl": attr.label(
+            default = Label("@build_bazel_rules_nodejs//internal/rollup:uglify.config.json"),
+            allow_files = True,
+            single_file = True),
     },
     outputs = {
         "build_es6": "%{name}.es6.js",
         "build_es5": "%{name}.js",
-        "build_es5_min": "%{name}.min.js"
+        "build_es5_min": "%{name}.min.js",
+        "build_es5_min_debug": "%{name}.min_debug.js",
     }
 )
