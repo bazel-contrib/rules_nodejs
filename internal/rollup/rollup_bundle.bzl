@@ -28,8 +28,8 @@ rollup_module_mappings_aspect = aspect(
     attr_aspects = ["deps"],
 )
 
-def _rollup_bundle(ctx):
-  rollup_config = ctx.actions.declare_file("%s.rollup.conf.js" % ctx.label.name)
+def write_rollup_config(ctx, plugins=[]):
+  config = ctx.actions.declare_file("_%s.rollup.conf.js" % ctx.label.name)
 
   # build_file_path includes the BUILD.bazel file, transform here to only include the dirname
   buildFileDirname = "/".join(ctx.build_file_path.split("/")[:-1])
@@ -45,7 +45,7 @@ def _rollup_bundle(ctx):
         mappings[k] = v
 
   ctx.actions.expand_template(
-      output = rollup_config,
+      output = config,
       template =  ctx.file._rollup_config_tmpl,
       substitutions = {
           "TMPL_bin_dir_path": ctx.bin_dir.path,
@@ -53,107 +53,112 @@ def _rollup_bundle(ctx):
           "TMPL_build_file_dirname": buildFileDirname,
           "TMPL_label_name": ctx.label.name,
           "TMPL_module_mappings": str(mappings),
+          "TMPL_additional_plugins": str(plugins),
       })
 
+  return config
+
+def run_rollup(ctx, config, output):
   entryPoint = "/".join([ctx.workspace_name, ctx.attr.entry_point])
 
-  argsRollup = ctx.actions.args()
-  argsRollup.add("--config")
-  argsRollup.add(rollup_config.path)
-  argsRollup.add("--output.file")
-  argsRollup.add(ctx.outputs.build_es6.path)
-  argsRollup.add("--input")
-  argsRollup.add(entryPoint)
+  args = ctx.actions.args()
+  args.add(["--config", config.path])
+  args.add(["--output.file", output.path])
+  args.add(["--input", entryPoint])
 
   es6_sources = collect_es6_sources(ctx)
 
   ctx.action(
       executable = ctx.executable._rollup,
-      inputs = es6_sources + ctx.files.node_modules + [rollup_config],
-      outputs = [ctx.outputs.build_es6],
-      arguments = [argsRollup]
+      inputs = es6_sources + ctx.files.node_modules + [config],
+      outputs = [output],
+      arguments = [args]
   )
 
-  argsES5 = ctx.actions.args()
-  argsES5.add("--target")
-  argsES5.add("es5")
-  argsES5.add("--allowJS")
-  argsES5.add(ctx.outputs.build_es6.path)
-  argsES5.add("--outFile")
-  argsES5.add(ctx.outputs.build_es5.path)
+def run_tsc(ctx, input, output):
+  args = ctx.actions.args()
+  args.add(["--target", "es5"])
+  args.add("--allowJS")
+  args.add(input.path)
+  args.add(["--outFile", output.path])
 
   ctx.action(
-      executable = ctx.executable._es5,
-      inputs = [ctx.outputs.build_es6],
-      outputs = [ctx.outputs.build_es5],
-      arguments = [argsES5]
+      executable = ctx.executable._tsc,
+      inputs = [input],
+      outputs = [output],
+      arguments = [args]
   )
 
-  uglify_config = ctx.actions.declare_file("%s.uglify.json" % ctx.label.name)
+def run_uglify(ctx, input, output, debug = False):
+  config = ctx.actions.declare_file("_%s%s.uglify.json" % (
+      ctx.label.name, ".debug" if debug else ""))
 
   ctx.actions.expand_template(
-      output = uglify_config,
+      output = config,
       template =  ctx.file._uglify_config_tmpl,
-      substitutions = {},
+      substitutions = {
+          "TMPL_mangle": "false" if debug else "true"
+      },
   )
 
-  argsUglify = ctx.actions.args()
-  argsUglify.add(ctx.outputs.build_es5.path)
-  argsUglify.add(["--config-file", uglify_config.path])
-  #compress", "passes=3,pure_getters=true,pure_funcs=[\"Object.defineProperty\"]"])
-  argsUglify.add(["--output", ctx.outputs.build_es5_min.path])
+  args = ctx.actions.args()
+  args.add(input.path)
+  args.add(["--config-file", config.path])
+  args.add(["--output", output.path])
+  if debug:
+    args.add("--beautify")
 
   ctx.action(
       executable = ctx.executable._uglify,
-      inputs = [ctx.outputs.build_es5, uglify_config],
-      outputs = [ctx.outputs.build_es5_min],
-      arguments = [argsUglify]
+      inputs = [input, config],
+      outputs = [output],
+      arguments = [args]
   )
 
-  argsUglify.add("--beautify")
-  argsUglify.add(["--output", ctx.outputs.build_es5_min_debug.path])
-
-  ctx.action(
-      executable = ctx.executable._uglify,
-      inputs = [ctx.outputs.build_es5, uglify_config],
-      outputs = [ctx.outputs.build_es5_min_debug],
-      arguments = [argsUglify],
-  )
-
+def _rollup_bundle(ctx):
+  rollup_config = write_rollup_config(ctx)
+  run_rollup(ctx, rollup_config, ctx.outputs.build_es6)
+  run_tsc(ctx, ctx.outputs.build_es6, ctx.outputs.build_es5)
+  run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min)
+  run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min_debug, debug = True)
   return DefaultInfo(files=depset([ctx.outputs.build_es5_min]))
+
+ROLLUP_ATTRS = {
+    "entry_point": attr.string(mandatory = True),
+    "srcs": attr.label_list(allow_files = [".js"]),
+    "deps": attr.label_list(aspects = [rollup_module_mappings_aspect]),
+    "node_modules": attr.label(default = Label("@//:node_modules")),
+    "_rollup": attr.label(
+        executable = True,
+        cfg="host",
+        default = Label("@build_bazel_rules_nodejs//internal/rollup:rollup")),
+    "_tsc": attr.label(
+        executable = True,
+        cfg="host",
+        default = Label("@build_bazel_rules_nodejs//internal/rollup:tsc")),
+    "_uglify": attr.label(
+        executable = True,
+        cfg="host",
+        default = Label("@build_bazel_rules_nodejs//internal/rollup:uglify")),
+    "_rollup_config_tmpl": attr.label(
+        default = Label("@build_bazel_rules_nodejs//internal/rollup:rollup.config.js"),
+        allow_files = True,
+        single_file = True),
+    "_uglify_config_tmpl": attr.label(
+        default = Label("@build_bazel_rules_nodejs//internal/rollup:uglify.config.json"),
+        allow_files = True,
+        single_file = True),
+}
+
+ROLLUP_OUTPUTS = {
+    "build_es6": "%{name}.es6.js",
+    "build_es5": "%{name}.js",
+    "build_es5_min": "%{name}.min.js",
+    "build_es5_min_debug": "%{name}.min_debug.js",
+}
 
 rollup_bundle = rule(
     implementation = _rollup_bundle,
-    attrs = {
-        "entry_point": attr.string(mandatory=True),
-        "srcs": attr.label_list(allow_files = [".js"]),
-        "deps": attr.label_list(aspects = [rollup_module_mappings_aspect]),
-        "node_modules": attr.label(default = Label("@//:node_modules")),
-        "_rollup": attr.label(
-            executable = True,
-            cfg="host",
-            default = Label("@build_bazel_rules_nodejs//internal/rollup:rollup")),
-        "_es5": attr.label(
-            executable = True,
-            cfg="host",
-            default = Label("@build_bazel_rules_nodejs//internal/rollup:es5")),
-        "_uglify": attr.label(
-            executable = True,
-            cfg="host",
-            default = Label("@build_bazel_rules_nodejs//internal/rollup:uglify")),
-        "_rollup_config_tmpl": attr.label(
-            default = Label("@build_bazel_rules_nodejs//internal/rollup:rollup.config.js"),
-            allow_files = True,
-            single_file = True),
-        "_uglify_config_tmpl": attr.label(
-            default = Label("@build_bazel_rules_nodejs//internal/rollup:uglify.config.json"),
-            allow_files = True,
-            single_file = True),
-    },
-    outputs = {
-        "build_es6": "%{name}.es6.js",
-        "build_es5": "%{name}.js",
-        "build_es5_min": "%{name}.min.js",
-        "build_es5_min_debug": "%{name}.min_debug.js",
-    }
+    attrs = ROLLUP_ATTRS,
+    outputs = ROLLUP_OUTPUTS,
 )

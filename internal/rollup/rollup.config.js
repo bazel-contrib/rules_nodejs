@@ -6,7 +6,6 @@
 const rollup = require('rollup/dist/rollup');
 const nodeResolve = require('rollup-plugin-node-resolve/dist/rollup-plugin-node-resolve.cjs');
 const commonjs = require('rollup-plugin-commonjs/dist/rollup-plugin-commonjs.cjs');
-const optimizer = require('angular_devkit/packages/angular_devkit/build_optimizer/src/build-optimizer/rollup-plugin.js').default;
 const path = require('path');
 
 const binDirPath = "TMPL_bin_dir_path";
@@ -55,10 +54,9 @@ class NormalizePaths {
 
 export default {
   output: {format: 'iife'},
-  plugins: [
+  plugins: TMPL_additional_plugins.concat([
       new NormalizePaths(),
-      optimizer(),
       commonjs(),
       nodeResolve({jsnext: true, module: true}),
-    ]
+    ])
 }
