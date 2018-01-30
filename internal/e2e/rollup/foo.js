@@ -20,3 +20,5 @@ var ReflectiveInjector_ = /** @class */ (function () {
   Object.defineProperty(ReflectiveInjector_, "displayName", "foo");
   return ReflectiveInjector_;
 }());
+
+ngDevMode && console.log("Should have been tree-shaken");

@@ -115,7 +115,7 @@ def _rollup_bundle(ctx):
 
   ctx.action(
       executable = ctx.executable._uglify,
-      inputs = [ctx.outputs.build_es5],
+      inputs = [ctx.outputs.build_es5, uglify_config],
       outputs = [ctx.outputs.build_es5_min_debug],
       arguments = [argsUglify],
   )
