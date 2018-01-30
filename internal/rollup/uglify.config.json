@@ -6,5 +6,6 @@
     "global_defs": {
       "ngDevMode": false
     }
-  }
+  },
+  "mangle": TMPL_mangle
 }

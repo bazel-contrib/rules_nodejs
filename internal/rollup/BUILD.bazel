@@ -24,12 +24,11 @@ nodejs_binary(
     name = "rollup",
     entry_point = "build_bazel_rules_nodejs_rollup_deps/node_modules/rollup/bin/rollup",
     node_modules = "@build_bazel_rules_nodejs_rollup_deps//:node_modules",
-    data = ["@angular_devkit//packages/angular_devkit/build_optimizer:lib"],
     visibility = ["//visibility:public"],
 )
 
 nodejs_binary(
-    name = "es5",
+    name = "tsc",
     entry_point = "build_bazel_rules_nodejs_rollup_deps/node_modules/typescript/bin/tsc",
     node_modules = "@build_bazel_rules_nodejs_rollup_deps//:node_modules",
     visibility = ["//visibility:public"],
