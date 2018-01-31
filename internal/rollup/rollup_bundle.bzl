@@ -28,8 +28,8 @@ rollup_module_mappings_aspect = aspect(
     attr_aspects = ["deps"],
 )
 
-def write_rollup_config(ctx, plugins=[]):
-  config = ctx.actions.declare_file("_%s.rollup.conf.js" % ctx.label.name)
+def write_rollup_config(ctx, plugins=[], rootDirs=None, filename="_%s.rollup.conf.js"):
+  config = ctx.actions.declare_file(filename % ctx.label.name)
 
   # build_file_path includes the BUILD.bazel file, transform here to only include the dirname
   buildFileDirname = "/".join(ctx.build_file_path.split("/")[:-1])
@@ -44,13 +44,14 @@ def write_rollup_config(ctx, plugins=[]):
                 (dep.label, k, mappings[k], v)), "deps")
         mappings[k] = v
 
+  if not rootDirs:
+    rootDirs = ["/".join([ctx.bin_dir.path, buildFileDirname, ctx.label.name + ".es6"])]
+
   ctx.actions.expand_template(
       output = config,
       template =  ctx.file._rollup_config_tmpl,
       substitutions = {
-          "TMPL_bin_dir_path": ctx.bin_dir.path,
-          "TMPL_workspace_name": ctx.workspace_name,
-          "TMPL_build_file_dirname": buildFileDirname,
+          "TMPL_rootDirs": str(rootDirs),
           "TMPL_label_name": ctx.label.name,
           "TMPL_module_mappings": str(mappings),
           "TMPL_additional_plugins": ",\n".join(plugins),
@@ -58,19 +59,15 @@ def write_rollup_config(ctx, plugins=[]):
 
   return config
 
-def run_rollup(ctx, config, output):
-  entryPoint = "/".join([ctx.workspace_name, ctx.attr.entry_point])
-
+def run_rollup(ctx, sources, config, output):
   args = ctx.actions.args()
   args.add(["--config", config.path])
   args.add(["--output.file", output.path])
-  args.add(["--input", entryPoint])
-
-  es6_sources = collect_es6_sources(ctx)
+  args.add(["--input", ctx.attr.entry_point])
 
   ctx.action(
       executable = ctx.executable._rollup,
-      inputs = es6_sources + ctx.files.node_modules + [config],
+      inputs = sources + ctx.files.node_modules + [config],
       outputs = [output],
       arguments = [args]
   )
@@ -117,7 +114,7 @@ def run_uglify(ctx, input, output, debug = False):
 
 def _rollup_bundle(ctx):
   rollup_config = write_rollup_config(ctx)
-  run_rollup(ctx, rollup_config, ctx.outputs.build_es6)
+  run_rollup(ctx, collect_es6_sources(ctx), rollup_config, ctx.outputs.build_es6)
   run_tsc(ctx, ctx.outputs.build_es6, ctx.outputs.build_es5)
   run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min)
   run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min_debug, debug = True)
