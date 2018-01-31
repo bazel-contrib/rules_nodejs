@@ -14,7 +14,7 @@
 
 licenses(["notice"])  # Apache 2.0
 
-load("//internal:node.bzl", nodejs_binary = "nodejs_binary_macro")
+load("//:defs.bzl", "jasmine_node_test", "nodejs_binary")
 
 package(default_visibility = ["//internal:__subpackages__"])
 
@@ -39,4 +39,11 @@ nodejs_binary(
     entry_point = "build_bazel_rules_nodejs_rollup_deps/node_modules/uglify-js/bin/uglifyjs",
     node_modules = "@build_bazel_rules_nodejs_rollup_deps//:node_modules",
     visibility = ["//visibility:public"],
+)
+
+jasmine_node_test(
+    name = "test",
+    srcs = glob(["*.spec.js"]),
+    data = glob(["*.js"], exclude=["*.spec.js"]),
+    node_modules = "//internal/e2e/rollup:node_modules",
 )

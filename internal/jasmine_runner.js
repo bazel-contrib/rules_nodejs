@@ -5,7 +5,8 @@ try {
   require('source-map-support').install();
 } catch (e) {
   console.error(`WARNING: source-map-support module not installed.
-   Stack traces from languages like TypeScript will point to generated .js files.`);
+   Stack traces from languages like TypeScript will point to generated .js files.
+   `);
 }
 
 const UTF8 = {encoding: 'utf-8'};

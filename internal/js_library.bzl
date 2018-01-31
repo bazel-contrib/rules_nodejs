@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""js_library allows defining a set of javascript sources and assigning a module_name and module_root
+"""js_library allows defining a set of javascript sources and assigning a module_name and module_root.
+
+DO NOT USE - this is not fully designed, and exists only to enable testing within this repo.
 """
 
 def _js_library(ctx):

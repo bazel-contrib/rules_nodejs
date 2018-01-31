@@ -5,6 +5,7 @@ filegroup(
     srcs = glob([
         "node_modules/**/*",
     ]),
+    visibility = ["//internal:__subpackages__"],
 )
 
 load("//:defs.bzl", "rollup_bundle")
