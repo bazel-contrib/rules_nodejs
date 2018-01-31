@@ -203,6 +203,8 @@ def compile_ts(ctx,
   # The trace file location will be printed as a build result and can be read
   # in Chrome's chrome://tracing/ UI.
   perf_trace = False
+  if "TYPESCRIPT_PERF_TRACE_TARGET" in ctx.var:
+    perf_trace = str(ctx.label) == ctx.var["TYPESCRIPT_PERF_TRACE_TARGET"]
 
   compilation_inputs = input_declarations + extra_dts_files + srcs
   tsickle_externs_path = tsickle_externs[0] if tsickle_externs else None
