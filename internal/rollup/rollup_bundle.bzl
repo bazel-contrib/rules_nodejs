@@ -53,7 +53,7 @@ def write_rollup_config(ctx, plugins=[]):
           "TMPL_build_file_dirname": buildFileDirname,
           "TMPL_label_name": ctx.label.name,
           "TMPL_module_mappings": str(mappings),
-          "TMPL_additional_plugins": str(plugins),
+          "TMPL_additional_plugins": ",\n".join(plugins),,
       })
 
   return config

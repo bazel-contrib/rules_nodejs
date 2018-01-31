@@ -54,7 +54,9 @@ class NormalizePaths {
 
 export default {
   output: {format: 'iife'},
-  plugins: TMPL_additional_plugins.concat([
+  plugins: [
+      TMPL_additional_plugins
+  ].concat([
       new NormalizePaths(),
       commonjs(),
       nodeResolve({jsnext: true, module: true}),
