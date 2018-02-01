@@ -22,3 +22,9 @@ var ReflectiveInjector_ = /** @class */ (function () {
 }());
 
 ngDevMode && console.log("Should have been tree-shaken");
+
+// Test for sequences = false
+class A {
+  a() { return document.a; }
+}
+console.error(new A().a());

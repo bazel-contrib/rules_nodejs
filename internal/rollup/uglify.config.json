@@ -5,7 +5,8 @@
     "passes": 3,
     "global_defs": {
       "ngDevMode": false
-    }
+    },
+    "sequences": TMPL_notdebug
   },
-  "mangle": TMPL_mangle
+  "mangle": TMPL_notdebug
 }
