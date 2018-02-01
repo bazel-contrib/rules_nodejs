@@ -97,7 +97,7 @@ def run_uglify(ctx, input, output, debug = False):
       output = config,
       template =  ctx.file._uglify_config_tmpl,
       substitutions = {
-          "TMPL_mangle": "false" if debug else "true"
+          "TMPL_notdebug": "false" if debug else "true"
       },
   )
 
