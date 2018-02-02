@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "target": "es5",
+        "lib": ["es6"],
+        "allowJs": true,
+        "outDir": "TMPL_out_dir"
+    },
+    "include": [
+        "TMPL_include_path"
+    ],
+    "exclude": []
+}

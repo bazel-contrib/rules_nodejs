@@ -5,7 +5,6 @@
 // For Windows, we must deep-import the actual .js file, not rely on reading the "main" from package.json
 const rollup = require('rollup/dist/rollup');
 const nodeResolve = require('rollup-plugin-node-resolve/dist/rollup-plugin-node-resolve.cjs');
-const commonjs = require('rollup-plugin-commonjs/dist/rollup-plugin-commonjs.cjs');
 const path = require('path');
 
 const binDirPath = "TMPL_bin_dir_path";
@@ -53,12 +52,14 @@ class NormalizePaths {
 }
 
 export default {
-  output: {format: 'iife'},
+  input: [TMPL_inputs],
+  output: {dir: path.join(process.cwd(), binDirPath, buildFileDirname, 'bundles.es6'), format: 'cjs'},
+  experimentalCodeSplitting: true,
+  experimentalDynamicImport: true,
   plugins: [
       TMPL_additional_plugins
   ].concat([
       new NormalizePaths(),
-      commonjs(),
       nodeResolve({jsnext: true, module: true}),
     ])
 }

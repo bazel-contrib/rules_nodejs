@@ -32,7 +32,12 @@ def write_rollup_config(ctx, plugins=[]):
   config = ctx.actions.declare_file("_%s.rollup.conf.js" % ctx.label.name)
 
   # build_file_path includes the BUILD.bazel file, transform here to only include the dirname
-  buildFileDirname = "/".join(ctx.build_file_path.split("/")[:-1])
+  build_file_dirname = "/".join(ctx.build_file_path.split("/")[:-1])
+
+  entry_points = []
+  for e in ctx.attr.entry_points:
+    entry_points = entry_points + ["\""+"/".join([ctx.workspace_name, e])+"\""]
+  entry_points = ",".join(entry_points)
 
   mappings = dict()
   all_deps = ctx.attr.deps + ctx.attr.srcs
@@ -48,9 +53,10 @@ def write_rollup_config(ctx, plugins=[]):
       output = config,
       template =  ctx.file._rollup_config_tmpl,
       substitutions = {
+          "TMPL_inputs": entry_points,
           "TMPL_bin_dir_path": ctx.bin_dir.path,
           "TMPL_workspace_name": ctx.workspace_name,
-          "TMPL_build_file_dirname": buildFileDirname,
+          "TMPL_build_file_dirname": build_file_dirname,
           "TMPL_label_name": ctx.label.name,
           "TMPL_module_mappings": str(mappings),
           "TMPL_additional_plugins": ",\n".join(plugins),
@@ -58,36 +64,51 @@ def write_rollup_config(ctx, plugins=[]):
 
   return config
 
-def run_rollup(ctx, config, output):
-  entryPoint = "/".join([ctx.workspace_name, ctx.attr.entry_point])
-
+def run_rollup(ctx, config):
   args = ctx.actions.args()
   args.add(["--config", config.path])
-  args.add(["--output.file", output.path])
-  args.add(["--input", entryPoint])
 
   es6_sources = collect_es6_sources(ctx)
+
+  output_dir = ctx.actions.declare_directory("bundles.es6")
 
   ctx.action(
       executable = ctx.executable._rollup,
       inputs = es6_sources + ctx.files.node_modules + [config],
-      outputs = [output],
+      outputs = [output_dir],
       arguments = [args]
   )
 
-def run_tsc(ctx, input, output):
+  return output_dir
+
+def run_tsc(ctx, input_dir):
+  config = ctx.actions.declare_file("_%s.tsconfig.json" % ctx.label.name)
+
+  output_dir = ctx.actions.declare_directory("bundles")
+
+  build_file_dirname = ctx.build_file_path.split("/")[:-1]
+  input_dir_rerooted = "/".join(input_dir.short_path.split("/")[len(build_file_dirname):])
+  output_dir_rerooted = "/".join(output_dir.short_path.split("/")[len(build_file_dirname):])
+
+  ctx.actions.expand_template(
+      output = config,
+      template =  ctx.file._tsconfig_tmpl,
+      substitutions = {
+          "TMPL_include_path": input_dir_rerooted + "/*",
+          "TMPL_out_dir": output_dir_rerooted,
+      })
+
   args = ctx.actions.args()
-  args.add(["--target", "es5"])
-  args.add("--allowJS")
-  args.add(input.path)
-  args.add(["--outFile", output.path])
+  args.add(["--project", config.path])
 
   ctx.action(
       executable = ctx.executable._tsc,
-      inputs = [input],
-      outputs = [output],
+      inputs = [input_dir, config],
+      outputs = [output_dir],
       arguments = [args]
   )
+
+  return output_dir
 
 def run_uglify(ctx, input, output, debug = False):
   config = ctx.actions.declare_file("_%s%s.uglify.json" % (
@@ -117,14 +138,14 @@ def run_uglify(ctx, input, output, debug = False):
 
 def _rollup_bundle(ctx):
   rollup_config = write_rollup_config(ctx)
-  run_rollup(ctx, rollup_config, ctx.outputs.build_es6)
-  run_tsc(ctx, ctx.outputs.build_es6, ctx.outputs.build_es5)
-  run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min)
-  run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min_debug, debug = True)
-  return DefaultInfo(files=depset([ctx.outputs.build_es5_min]))
+  output_dir_es6 = run_rollup(ctx, rollup_config)
+  output_dir_es5 = run_tsc(ctx, output_dir_es6)
+  #run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min)
+  #run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min_debug, debug = True)
+  return DefaultInfo(runfiles=ctx.runfiles([output_dir_es6, output_dir_es5]), files=depset([]))
 
 ROLLUP_ATTRS = {
-    "entry_point": attr.string(mandatory = True),
+    "entry_points": attr.string_list(mandatory = True),
     "srcs": attr.label_list(allow_files = [".js"]),
     "deps": attr.label_list(aspects = [rollup_module_mappings_aspect]),
     "node_modules": attr.label(default = Label("@//:node_modules")),
@@ -140,6 +161,10 @@ ROLLUP_ATTRS = {
         executable = True,
         cfg="host",
         default = Label("@build_bazel_rules_nodejs//internal/rollup:uglify")),
+    "_tsconfig_tmpl": attr.label(
+        default = Label("@build_bazel_rules_nodejs//internal/rollup:tsconfig.json"),
+        allow_files = True,
+        single_file = True),
     "_rollup_config_tmpl": attr.label(
         default = Label("@build_bazel_rules_nodejs//internal/rollup:rollup.config.js"),
         allow_files = True,
@@ -150,15 +175,7 @@ ROLLUP_ATTRS = {
         single_file = True),
 }
 
-ROLLUP_OUTPUTS = {
-    "build_es6": "%{name}.es6.js",
-    "build_es5": "%{name}.js",
-    "build_es5_min": "%{name}.min.js",
-    "build_es5_min_debug": "%{name}.min_debug.js",
-}
-
 rollup_bundle = rule(
     implementation = _rollup_bundle,
     attrs = ROLLUP_ATTRS,
-    outputs = ROLLUP_OUTPUTS,
 )
