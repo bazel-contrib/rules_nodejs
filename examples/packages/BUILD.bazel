@@ -1,15 +1,15 @@
 load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
 
-VARIANTS = ["npm_json", "npm_lock"]
+VARIANTS = ["npm_install", "npm_no_lockfile", "yarn_install"]
 
 [nodejs_binary(
-    name = "escape_" + variant,
-    entry_point = "packages_example/escape.js",
+    name = "version_" + variant,
+    entry_point = "packages_example/version.js",
     node_modules = "@" + variant + "//:node_modules",
-    data = [":escape.js"],
+    data = [":version.js"],
 ) for variant in VARIANTS]
 
-TARGETS = ["escape_" + variant for variant in VARIANTS]
+TARGETS = ["version_" + variant for variant in VARIANTS]
 
 # Run each of the targets to produce actual_{target}.txt
 [genrule(
@@ -27,5 +27,5 @@ $(location :{target}) > $(location :actual_{target}.txt)
     name = "test_" + target,
     main = ":diff_test.py",
     srcs = [":diff_test.py"],
-    data = ["expected.txt", "actual_" + target + ".txt"],
+    data = ["expected_" + target + ".txt", "actual_" + target + ".txt"],
 ) for target in TARGETS]

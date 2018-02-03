@@ -24,8 +24,9 @@ jobs:
 
       # We should also be able to test targets in a different workspace
       - run: bazel test --config=ci @program_example//...
-      # TODO(mattmoor): figure out why other tests in this example fail
-      - run: cd examples/packages && bazel test //:test_escape_npm_json
+      - run: cd examples/packages && bazel test //:test_version_npm_install
+      - run: cd examples/packages && bazel test //:test_version_npm_no_lockfile
+      - run: cd examples/packages && bazel test //:test_version_yarn_install
 
       - save_cache:
           key: *cache_key

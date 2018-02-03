@@ -100,14 +100,14 @@ sh_binary(
 """)
   node = get_node_label(ctx)
   ctx.file("yarn.sh", "#!/bin/bash" + "".join(["""
-ROOT="{}"
 NODE="{}"
 SCRIPT="{}"
-(cd "$ROOT"; "$NODE" "$SCRIPT" "$@")
+ROOT="{}"
+"$NODE" "$SCRIPT" --cwd "$ROOT" "$@"
 """.format(
-    ctx.path(package_json).dirname,
     ctx.path(node),
-    ctx.path("bin/yarn.js"))
+    ctx.path("bin/yarn.js"),
+    ctx.path(package_json).dirname)
     for package_json in ctx.attr.package_json]), executable = True)
   ctx.download_and_extract(
       [
@@ -125,7 +125,7 @@ _yarn_repo = repository_rule(
 )
 
 load(":check_bazel_version.bzl", "check_bazel_version")
-load(":npm_install.bzl", "npm_install")
+load(":yarn_install.bzl", "yarn_install")
 
 def node_repositories(package_json):
   # Windows users need sh_binary wrapped as an .exe
@@ -135,7 +135,8 @@ def node_repositories(package_json):
 
   _yarn_repo(name = "yarn", package_json = package_json)
 
-  npm_install(
+  yarn_install(
       name = "build_bazel_rules_nodejs_rollup_deps",
       package_json = "@build_bazel_rules_nodejs//internal/rollup:package.json",
+      yarn_lock = "@build_bazel_rules_nodejs//internal/rollup:yarn.lock",
   )

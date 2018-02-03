@@ -14,10 +14,10 @@
 
 """Rules to install NodeJS dependencies during WORKSPACE evaluation."""
 
-load(":node_labels.bzl", "get_node_label", "get_npm_label")
+load(":node_labels.bzl", "get_node_label")
 
-def _npm_install_impl(repository_ctx):
-  """Core implementation of npm_install."""
+def _yarn_install_impl(repository_ctx):
+  """Core implementation of yarn_install."""
 
   repository_ctx.file("BUILD", """
 package(default_visibility = ["//visibility:public"])
@@ -33,37 +33,38 @@ filegroup(
   repository_ctx.symlink(
       repository_ctx.attr.package_json,
       repository_ctx.path("package.json"))
-  if repository_ctx.attr.package_lock_json:
+  if repository_ctx.attr.yarn_lock:
       repository_ctx.symlink(
-          repository_ctx.attr.package_lock_json,
-          repository_ctx.path("package-lock.json"))
+          repository_ctx.attr.yarn_lock,
+          repository_ctx.path("yarn.lock"))
 
   node = get_node_label(repository_ctx)
-  npm = get_npm_label(repository_ctx)
+  yarn = Label("@yarn//:bin/yarn.js")
 
-  # This runs node, not npm directly, as the latter will
-  # use #!/usr/bin/node (see https://github.com/bazelbuild/rules_nodejs/issues/77)
+  # This runs node, not yarn directly, as the latter will
+  # look for a local node install (related to https://github.com/bazelbuild/rules_nodejs/issues/77)
   # To see the output, pass: quiet=False
-  result = repository_ctx.execute(
-    [repository_ctx.path(node), repository_ctx.path(npm), "install", repository_ctx.path("")])
-
-  if not repository_ctx.attr.package_lock_json:
-    print("\n***********WARNING***********\n%s: npm_install will require a package_lock_json attribute in future versions\n*****************************" % repository_ctx.name)
+  result = repository_ctx.execute([
+    repository_ctx.path(node),
+    repository_ctx.path(yarn),
+    "--cwd",
+    repository_ctx.path("")])
 
   if result.return_code:
-    fail("npm_install failed: %s (%s)" % (result.stdout, result.stderr))
+    fail("yarn_install failed: %s (%s)" % (result.stdout, result.stderr))
 
-npm_install = repository_rule(
+yarn_install = repository_rule(
     attrs = {
         "package_json": attr.label(
             allow_files = True,
             mandatory = True,
             single_file = True,
         ),
-        "package_lock_json": attr.label(
+        "yarn_lock": attr.label(
             allow_files = True,
+            mandatory = True,
             single_file = True,
         ),
     },
-    implementation = _npm_install_impl,
+    implementation = _yarn_install_impl,
 )
