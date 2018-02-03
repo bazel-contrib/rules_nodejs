@@ -86,6 +86,8 @@ _node_repo = repository_rule(_node_impl, attrs = {})
 #     attrs = { "package_json": attr.label() },
 # )
 
+load(":node_labels.bzl", "get_node_label")
+
 def _yarn_impl(ctx):
   # Yarn is a package manager that downloads dependencies. Yarn is an improvement over the `npm` tool in
   # speed and correctness. We download a specific version of Yarn to ensure a hermetic build.
@@ -96,10 +98,7 @@ sh_binary(
   srcs = ["yarn.sh"],
 )
 """)
-  if ctx.os.name.lower().find("windows") != -1:
-    node = Label("@nodejs//:node.exe")
-  else:
-    node = Label("@nodejs//:bin/node")
+  node = get_node_label(ctx)
   ctx.file("yarn.sh", "#!/bin/bash" + "".join(["""
 ROOT="{}"
 NODE="{}"
