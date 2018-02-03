@@ -14,6 +14,8 @@
 
 """Rules to install NodeJS dependencies during WORKSPACE evaluation."""
 
+load(":node_labels.bzl", "get_node_label", "get_npm_label")
+
 def _npm_install_impl(repository_ctx):
   """Core implementation of npm_install."""
 
@@ -32,16 +34,14 @@ filegroup(
       repository_ctx.attr.package_json,
       repository_ctx.path("package.json"))
 
-  # TODO(https://github.com/bazelbuild/rules_nodejs/issues/77) this should run
-  # node, not npm directly, as the latter will use #!/usr/bin/node
-  if repository_ctx.os.name.lower().find("windows") != -1:
-    npm = Label("@nodejs//:npm.cmd")
-  else:
-    npm = Label("@nodejs//:bin/npm")
+  node = get_node_label(repository_ctx)
+  npm = get_npm_label(repository_ctx)
 
+  # This runs node, not npm directly, as the latter will
+  # use #!/usr/bin/node (see https://github.com/bazelbuild/rules_nodejs/issues/77)
   # To see the output, pass: quiet=False
   result = repository_ctx.execute(
-    [repository_ctx.path(npm), "install", repository_ctx.path("")])
+    [repository_ctx.path(node), repository_ctx.path(npm), "install", repository_ctx.path("")])
 
   if result.return_code:
     fail("npm_install failed: %s (%s)" % (result.stdout, result.stderr))
