@@ -18,11 +18,20 @@ node_repositories(package_json = ["//:package.json"])
 load("@build_bazel_rules_nodejs//:defs.bzl", "npm_install")
 
 npm_install(
-    name = "npm_json",
+    name = "npm_install",
     package_json = "//:package.json",
+    package_lock_json = "//:package-lock.json",
 )
 
 npm_install(
-    name = "npm_lock",
-    package_json = "//:package-lock.json",
+    name = "npm_no_lockfile",
+    package_json = "//:package.json",
+)
+
+load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
+
+yarn_install(
+    name = "yarn_install",
+    package_json = "//:package.json",
+    yarn_lock = "//:yarn.lock"
 )
