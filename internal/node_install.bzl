@@ -22,7 +22,7 @@ node binary to other rules.
 def get_executables(repository_ctx):
   if repository_ctx.os.name.lower().find("windows") != -1:
     # The windows distribution of nodejs has the binaries in different paths
-    return {"node": "node.exe", "npm": "npm.cmd"}
+    return {"node": "node.exe", "npm": "node_modules/npm/bin/npm-cli.js"}
   else:
     return {"node": "bin/node", "npm": "bin/npm"}
 

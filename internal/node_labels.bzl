@@ -23,7 +23,7 @@ def get_node_label(repository_ctx):
 def get_npm_label(repository_ctx):
   if repository_ctx.os.name.lower().find("windows") != -1:
     # The windows distribution of nodejs has the binaries in different paths
-    npm = Label("@nodejs//:npm.cmd")
+    npm = Label("@nodejs//:node_modules/npm/bin/npm-cli.js")
   else:
     npm = Label("@nodejs//:bin/npm")
   return npm
