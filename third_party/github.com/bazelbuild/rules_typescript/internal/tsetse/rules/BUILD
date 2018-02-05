@@ -19,6 +19,7 @@ load("//internal:build_defs.bzl", ts_library = "tsc_library")
 ts_library(
     name = "rules",
     srcs = [
+        "ban_expect_truthy_promise_rule.ts",
         "check_return_value_rule.ts",
         "equals_nan_rule.ts",
     ],
@@ -26,6 +27,7 @@ ts_library(
     visibility = ["//internal/tsetse:__pkg__"],
     deps = [
         "//internal/tsetse:tsetse_lib",
+
 
 
 

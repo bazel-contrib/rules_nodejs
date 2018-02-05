@@ -9,6 +9,7 @@ import * as pluginApi from '../tsc_wrapped/plugin_api';
 
 import {Checker} from './checker';
 import {AbstractRule} from './rule';
+import {Rule as BanExpectTruthyPromiseRule} from './rules/ban_expect_truthy_promise_rule';
 import {Rule as CheckReturnValueRule} from './rules/check_return_value_rule';
 import {Rule as EqualsNanRule} from './rules/equals_nan_rule';
 
@@ -19,6 +20,7 @@ import {Rule as EqualsNanRule} from './rules/equals_nan_rule';
 const ENABLED_RULES: AbstractRule[] = [
   new CheckReturnValueRule(),
   new EqualsNanRule(),
+  new BanExpectTruthyPromiseRule(),
 ];
 
 /**
