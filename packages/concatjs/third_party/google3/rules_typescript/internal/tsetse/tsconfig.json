@@ -9,7 +9,8 @@
       "dom",
       "es5",
       "es2015.core",
-      "es2015.collection"
+      "es2015.collection",
+      "es2015.promise"
     ],
     "plugins": [
       // Run `bazel build internal/tsetse:language_service_plugin` for this to work.

@@ -1,4 +1,5 @@
 export enum ErrorCode {
   CHECK_RETURN_VALUE = 21222,
   EQUALS_NAN = 21223,
+  BAN_EXPECT_TRUTHY_PROMISE = 21224,
 }
