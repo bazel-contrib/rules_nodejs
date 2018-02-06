@@ -55,6 +55,8 @@ def write_rollup_config(ctx, plugins=[], rootDirs=None, filename="_%s.rollup.con
           "TMPL_label_name": ctx.label.name,
           "TMPL_module_mappings": str(mappings),
           "TMPL_additional_plugins": ",\n".join(plugins),
+          "TMPL_banner_file": "\"%s\"" % ctx.file.license_banner.path if ctx.file.license_banner else "undefined",
+          "TMPL_stamp_data": "\"%s\"" % ctx.file.stamp_data.path if ctx.file.stamp_data else "undefined",
       })
 
   return config
@@ -64,10 +66,15 @@ def run_rollup(ctx, sources, config, output):
   args.add(["--config", config.path])
   args.add(["--output.file", output.path])
   args.add(["--input", ctx.attr.entry_point])
+  inputs = sources + ctx.files.node_modules + [config]
+  if ctx.file.license_banner:
+    inputs += [ctx.file.license_banner]
+  if ctx.file.stamp_data:
+    inputs += [ctx.file.stamp_data]
 
   ctx.action(
       executable = ctx.executable._rollup,
-      inputs = sources + ctx.files.node_modules + [config],
+      inputs = inputs,
       outputs = [output],
       arguments = [args]
   )
@@ -102,6 +109,7 @@ def run_uglify(ctx, input, output, debug = False):
   args.add(input.path)
   args.add(["--config-file", config.path])
   args.add(["--output", output.path])
+  args.add("--comments")
   if debug:
     args.add("--beautify")
 
@@ -125,6 +133,8 @@ ROLLUP_ATTRS = {
     "srcs": attr.label_list(allow_files = [".js"]),
     "deps": attr.label_list(aspects = [rollup_module_mappings_aspect]),
     "node_modules": attr.label(default = Label("@//:node_modules")),
+    "license_banner": attr.label(allow_single_file = FileType([".txt"])),
+    "stamp_data": attr.label(allow_single_file = FileType([".txt"])),
     "_rollup": attr.label(
         executable = True,
         cfg="host",

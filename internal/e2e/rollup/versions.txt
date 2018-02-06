@@ -1,0 +1,23 @@
+# Normally this file should be generated via Bazel as follows:
+#
+# 1) tools/bazel.rc should set this command
+#   build --workspace_status_command=./tools/bazel_stamp_vars.sh
+#
+# 2) tools/bazel_stamp_vars.sh is a script that exports some variables:
+#   #!/usr/bin/env bash
+#   BUILD_SCM_VERSION=$(git describe --abbrev=7 --tags HEAD)
+#
+# 3) a genrule() with stamp=True can read the result
+#   native.genrule(
+#     name = "my_stamp_data",
+#     outs = ["stamp_data.txt"],
+#     stamp = True,
+#     cmd = "cat bazel-out/volatile-status.txt > $@",
+#   )
+# 4) Now you can pass this value to the stamp_data attribute of rollup_bundle:
+#    stamp_data = ":stamp_data.txt"
+#
+# See https://www.kchodorow.com/blog/2017/03/27/stamping-your-builds/
+
+# For this test, we just hard-code a value:
+BUILD_SCM_VERSION 1.2.3

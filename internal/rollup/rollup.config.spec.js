@@ -8,6 +8,8 @@ TMPL_module_mappings = {
 TMPL_rootDirs = ["bazel-bin/path/to/a.esm5", "bazel-bin/path/to/b.esm5"];
 TMPL_workspace_name = "my_workspace";
 TMPL_additional_plugins = [];
+TMPL_banner_file = "";
+TMPL_stamp_data = "";
 
 const baseDir = "/root/base";
 const files = [
