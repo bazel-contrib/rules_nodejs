@@ -6,11 +6,15 @@
 const rollup = require('rollup/dist/rollup');
 const nodeResolve = require('rollup-plugin-node-resolve/dist/rollup-plugin-node-resolve.cjs');
 const path = require('path');
+const fs = require('fs');
 
 const DEBUG = false;
 
 const moduleMappings = TMPL_module_mappings;
 const rootDirs = TMPL_rootDirs;
+const banner_file = TMPL_banner_file;
+const stamp_data = TMPL_stamp_data;
+
 if (DEBUG) console.error(`
 Rollup: running with
   rootDirs: ${rootDirs}
@@ -64,8 +68,21 @@ function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = req
   return resolved;
 }
 
+let banner = '';
+if (banner_file) {
+  banner = fs.readFileSync(banner_file, {encoding: 'utf-8'});
+  if (stamp_data) {
+    const version = fs.readFileSync(stamp_data, {encoding: 'utf-8'})
+      .split('\n')
+      .find(l => l.startsWith('BUILD_SCM_VERSION'))
+      .split(' ')[1];
+    banner = banner.replace(/0.0.0-PLACEHOLDER/, version);
+  }
+}
+
 module.exports = {
   resolveBazel,
+  banner,
   output: {format: 'iife'},
   plugins: [
       TMPL_additional_plugins

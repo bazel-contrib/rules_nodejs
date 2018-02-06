@@ -16,6 +16,8 @@ rollup_bundle(
     node_modules = ":node_modules",
     srcs = ["foo.js", "bar.js"],
     deps = ["//internal/e2e/rollup/fum:fumlib"],
+    license_banner = ":license.txt",
+    stamp_data = ":versions.txt",
 )
 
 jasmine_node_test(
