@@ -11,6 +11,7 @@ const fs = require('fs');
 const DEBUG = false;
 
 const moduleMappings = TMPL_module_mappings;
+const workspaceName = "TMPL_workspace_name";
 const rootDirs = TMPL_rootDirs;
 const banner_file = TMPL_banner_file;
 const stamp_data = TMPL_stamp_data;
@@ -62,7 +63,8 @@ function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = req
 
   if (!resolved) {
     // workspace import
-    resolved = resolveInRootDirs(importee);
+    const userWorkspacePath = path.relative(workspaceName, importee);
+    resolved = resolveInRootDirs(userWorkspacePath.startsWith('..') ? importee : userWorkspacePath);
   }
 
   return resolved;

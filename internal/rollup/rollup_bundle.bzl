@@ -51,6 +51,7 @@ def write_rollup_config(ctx, plugins=[], rootDirs=None, filename="_%s.rollup.con
       output = config,
       template =  ctx.file._rollup_config_tmpl,
       substitutions = {
+          "TMPL_workspace_name": ctx.workspace_name,
           "TMPL_rootDirs": str(rootDirs),
           "TMPL_label_name": ctx.label.name,
           "TMPL_module_mappings": str(mappings),
