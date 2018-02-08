@@ -81,6 +81,7 @@ else
   fi
 fi
 export RUNFILES
+TEMPLATED_env_vars
 
 ARGS=()
 NODE_OPTIONS=()
