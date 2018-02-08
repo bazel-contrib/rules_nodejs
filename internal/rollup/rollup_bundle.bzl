@@ -94,7 +94,7 @@ def run_tsc(ctx, input, output):
       arguments = [args]
   )
 
-def run_uglify(ctx, input, output, debug = False):
+def run_uglify(ctx, input, output, debug = False, comments = True):
   config = ctx.actions.declare_file("_%s%s.uglify.json" % (
       ctx.label.name, ".debug" if debug else ""))
 
@@ -110,7 +110,8 @@ def run_uglify(ctx, input, output, debug = False):
   args.add(input.path)
   args.add(["--config-file", config.path])
   args.add(["--output", output.path])
-  args.add("--comments")
+  if comments:
+    args.add("--comments")
   if debug:
     args.add("--beautify")
 
