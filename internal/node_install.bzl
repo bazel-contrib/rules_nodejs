@@ -136,6 +136,12 @@ def node_repositories(package_json):
   _yarn_repo(name = "yarn", package_json = package_json)
 
   yarn_install(
+      name = "build_bazel_rules_nodejs_npm_install_deps",
+      package_json = "@build_bazel_rules_nodejs//internal/npm_install:package.json",
+      yarn_lock = "@build_bazel_rules_nodejs//internal/npm_install:yarn.lock",
+  )
+
+  yarn_install(
       name = "build_bazel_rules_nodejs_rollup_deps",
       package_json = "@build_bazel_rules_nodejs//internal/rollup:package.json",
       yarn_lock = "@build_bazel_rules_nodejs//internal/rollup:yarn.lock",
