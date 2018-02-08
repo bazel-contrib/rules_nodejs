@@ -15,19 +15,22 @@
 """The ts_setup_workspace rule installs build-time dependencies.
 """
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "npm_install")
+load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
 
 def ts_setup_workspace():
-  npm_install(
+  yarn_install(
       name = "build_bazel_rules_typescript_tsc_wrapped_deps",
       package_json = "@build_bazel_rules_typescript//internal/tsc_wrapped:package.json",
+      yarn_lock = "@build_bazel_rules_typescript//internal/tsc_wrapped:yarn.lock",
   )
-  npm_install(
+  yarn_install(
       name = "build_bazel_rules_typescript_devserver_deps",
       package_json = "@build_bazel_rules_typescript//internal/devserver:package.json",
+      yarn_lock = "@build_bazel_rules_typescript//internal/devserver:yarn.lock",
   )
 
-  npm_install(
+  yarn_install(
       name = "build_bazel_rules_typescript_karma_deps",
       package_json = "@build_bazel_rules_typescript//internal/karma:package.json",
+      yarn_lock = "@build_bazel_rules_typescript//internal/karma:yarn.lock",
   )
