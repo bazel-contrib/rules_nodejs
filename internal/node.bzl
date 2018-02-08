@@ -128,12 +128,17 @@ def _nodejs_binary_impl(ctx):
           ctx.workspace_name,
           ctx.outputs.loader.short_path,
       ])
+    env_vars = "export BAZEL_TARGET=%s\n" % ctx.label
+    for k in ctx.var.keys():
+      env_vars += "export %s=%s\n" % (k, ctx.var[k])
+
     substitutions = {
         "TEMPLATED_node": ctx.workspace_name + "/" + node.path,
         "TEMPLATED_args": " ".join([
             expand_location_into_runfiles(ctx, a)
             for a in ctx.attr.templated_args]),
         "TEMPLATED_script_path": script_path,
+        "TEMPLATED_env_vars": env_vars,
     }
     # Write the output twice.
     # In order to have the name "nodejs_test", the rule must be declared
