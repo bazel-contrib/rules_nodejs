@@ -130,7 +130,7 @@ def _nodejs_binary_impl(ctx):
       ])
     env_vars = "export BAZEL_TARGET=%s\n" % ctx.label
     for k in ctx.var.keys():
-      env_vars += "export %s=%s\n" % (k, ctx.var[k])
+      env_vars += "export %s=\"%s\"\n" % (k, ctx.var[k])
 
     substitutions = {
         "TEMPLATED_node": ctx.workspace_name + "/" + node.path,
