@@ -42,11 +42,15 @@ filegroup(
   yarn = Label("@yarn//:bin/yarn.js")
 
   # This runs node, not yarn directly, as the latter will
-  # look for a local node install (related to https://github.com/bazelbuild/rules_nodejs/issues/77)
+  # look for a local node install (related to https://github.com/bazelbuild/rules_nodejs/issues/77).
+  # A local cache is used as multiple yarn rules cannot run simultaneously using a shared
+  # cache and a shared cache is non-hermetic.
   # To see the output, pass: quiet=False
   result = repository_ctx.execute([
     repository_ctx.path(node),
     repository_ctx.path(yarn),
+    "--cache-folder",
+    repository_ctx.path("_yarn_cache"),
     "--cwd",
     repository_ctx.path("")])
 
