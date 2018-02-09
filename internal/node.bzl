@@ -132,11 +132,21 @@ def _nodejs_binary_impl(ctx):
     for k in ctx.var.keys():
       env_vars += "export %s=\"%s\"\n" % (k, ctx.var[k])
 
+    templated_args = [a for a in ctx.attr.templated_args]
+
+    # We expect all users will benefit from --preserve-symlinks
+    # but in case it breaks something, allow users a way to disable that option
+    disable_preserve_symlinks = "--node_options=--nopreserve-symlinks"
+    if disable_preserve_symlinks in templated_args:
+      templated_args.remove(disable_preserve_symlinks)
+    else:
+      templated_args.append("--node_options=--preserve-symlinks")
+
     substitutions = {
         "TEMPLATED_node": ctx.workspace_name + "/" + node.path,
         "TEMPLATED_args": " ".join([
             expand_location_into_runfiles(ctx, a)
-            for a in ctx.attr.templated_args]),
+            for a in templated_args]),
         "TEMPLATED_script_path": script_path,
         "TEMPLATED_env_vars": env_vars,
     }
