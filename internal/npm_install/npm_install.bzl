@@ -26,7 +26,14 @@ filegroup(
     srcs = glob(["node_modules/**/*"],
         # Exclude directories that commonly contain filenames which are
         # illegal bazel labels
-        exclude = ["node_modules/*/test/**"]))
+        exclude = [
+            # e.g. node_modules/adm-zip/test/assets/attributes_test/New folder/hidden.txt
+            "node_modules/**/test/**",
+            # e.g. node_modules/xpath/docs/function resolvers.md
+            "node_modules/**/docs/**",
+        ],
+    ),
+)
 """)
 
   # Put our package descriptors in the right place.
