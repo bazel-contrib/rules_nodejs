@@ -9,7 +9,7 @@ function read(relativePath) {
 
 // These keys are arbitrary and local to this test.
 const update_var = 'UPDATE_GOLDEN'
-const update_val = 1
+const update_val = '1'
 
 if (process.env[update_var] && process.env['TEST_SRCDIR']) {
   throw new Error(`Cannot use ${update_var} when run as a test. Use bazel run instead.`);
