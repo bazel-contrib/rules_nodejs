@@ -110,6 +110,11 @@ export interface BazelOptions {
    * The maximum cache size for bazel outputs, in megabytes.
    */
   maxCacheSizeMb?: number;
+
+  /**
+   * Suppress warnings about tsconfig.json properties that are overridden.
+   */
+  suppressTsconfigOverrideWarnings: boolean;
 }
 
 export interface ParsedTsConfig {
@@ -233,8 +238,13 @@ export function parseTsconfig(
     if (userConfig.bazelOptions) {
       bazelOpts.disableStrictDeps = bazelOpts.disableStrictDeps ||
           userConfig.bazelOptions.disableStrictDeps;
+      bazelOpts.suppressTsconfigOverrideWarnings =
+          bazelOpts.suppressTsconfigOverrideWarnings ||
+          userConfig.bazelOptions.suppressTsconfigOverrideWarnings;
     }
-    warnOnOverriddenOptions(userConfig);
+    if (!bazelOpts.suppressTsconfigOverrideWarnings) {
+      warnOnOverriddenOptions(userConfig);
+    }
   }
 
   const {options, errors, fileNames} =
