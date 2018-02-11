@@ -87,6 +87,36 @@ function loadRunfilesManifest(manifestPath) {
 }
 const runfilesManifest = loadRunfilesManifest(process.env.RUNFILES_MANIFEST_FILE);
 
+function resolveManifestFile(res) {
+  return runfilesManifest[res] || runfilesManifest[res + '.js'];
+}
+
+function resolveManifestDirectory(res) {
+  const pkgfile = runfilesManifest[`${res}/package.json`];
+  if (pkgfile) {
+    try {
+      const pkg = JSON.parse(fs.readFileSync(pkgfile, 'UTF-8'));
+      const main = pkg['main'];
+      if (main) {
+        if (main === '.' || main === './') {
+          main = 'index';
+        }
+
+        let maybe = resolveManifestFile(`${res}/${main}`);
+        if (maybe) {
+          return maybe;
+        }
+  
+        maybe = resolveManifestDirectory(`${res}/${main}`);
+        if (maybe) {
+          return maybe;
+        }
+      }
+    } catch (e) {}
+  }
+  return resolveManifestFile(`${res}/index`)
+}
+
 function resolveRunfiles(...pathSegments) {
   // Remove any empty strings from pathSegments
   pathSegments = pathSegments.filter(segment => segment);
@@ -98,8 +128,15 @@ function resolveRunfiles(...pathSegments) {
     // is written with forward slash.
     const runfilesEntry = pathSegments.join('/');
 
-    // Add .js as a workaround for https://github.com/bazelbuild/rules_nodejs/issues/25
-    return runfilesManifest[runfilesEntry] || runfilesManifest[runfilesEntry + '.js'] || defaultPath;
+    let maybe = resolveManifestFile(runfilesEntry);
+    if (maybe) {
+      return maybe;
+    }
+
+    maybe = resolveManifestDirectory(runfilesEntry);
+    if (maybe) {
+      return maybe;
+    }
   }
 
   return defaultPath;
