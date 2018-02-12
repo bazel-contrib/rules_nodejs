@@ -1,4 +1,5 @@
 {
+  "description": "runtime dependencies for tests",
   "devDependencies": {
     "jasmine": "~2.8.0",
     "rollup": "0.52.3",

@@ -34,7 +34,7 @@ local_repository(
 node_repositories(package_json = [
     "//examples/rollup:package.json",
     "@program_example//:package.json",
-    "//internal/e2e/rollup:package.json",
+    "//internal/test:package.json",
 ])
 
 # Now the user must run either
