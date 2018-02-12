@@ -25,6 +25,8 @@
 var path = require('path');
 var fs = require('fs');
 
+const DEBUG = false;
+
 /**
  * The module roots as pairs of a RegExp to match the require path, and a
  * module_root to substitute for the require path.
@@ -36,6 +38,12 @@ var MODULE_ROOTS = [TEMPLATED_module_roots];
  * Array of bootstrap modules that need to be loaded before the entry point.
  */
 var BOOTSTRAP = [TEMPLATED_bootstrap];
+
+if (DEBUG) console.error(`
+node_loader: running with
+  MODULE_ROOTS: ${MODULE_ROOTS}
+  BOOTSTRAP: ${BOOTSTRAP}
+`);
 
 function resolveToModuleRoot(path) {
   if (!path) {
@@ -121,6 +129,8 @@ function resolveRunfiles(...pathSegments) {
   // Remove any empty strings from pathSegments
   pathSegments = pathSegments.filter(segment => segment);
 
+  if (DEBUG) console.error("node_loader: try to resolve", pathSegments.join('/'));
+
   const defaultPath = path.join(process.env.RUNFILES, ...pathSegments);
 
   if (runfilesManifest) {
@@ -130,15 +140,18 @@ function resolveRunfiles(...pathSegments) {
 
     let maybe = resolveManifestFile(runfilesEntry);
     if (maybe) {
+      if (DEBUG) console.error("node_loader: resolved manifest file", maybe);
       return maybe;
     }
 
     maybe = resolveManifestDirectory(runfilesEntry);
     if (maybe) {
+      if (DEBUG) console.error("node_loader: resolved manifest directory", maybe);
       return maybe;
     }
   }
 
+  if (DEBUG) console.error("node_loader: resolved to default path", defaultPath);
   return defaultPath;
 }
 
