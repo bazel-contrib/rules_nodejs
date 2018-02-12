@@ -14,26 +14,9 @@
 
 """Rules for executing programs in the nodejs runtime.
 """
-load(":common/module_mappings.bzl", "module_mappings_runtime_aspect")
-
-def _sources_aspect_impl(target, ctx):
-  result = depset()
-  if hasattr(ctx.rule.attr, "deps"):
-    for dep in ctx.rule.attr.deps:
-      if hasattr(dep, "node_sources"):
-        result += dep.node_sources
-  # Note layering: until we have JS interop providers, this needs to know how to
-  # get TypeScript outputs.
-  if hasattr(target, "typescript"):
-    result += target.typescript.es5_sources
-  elif hasattr(target, "files"):
-    result += target.files
-  return struct(node_sources = result)
-
-sources_aspect = aspect(
-    _sources_aspect_impl,
-    attr_aspects = ["deps"],
-)
+load("//internal/common:module_mappings.bzl", "module_mappings_runtime_aspect")
+load("//internal/common:sources_aspect.bzl", "sources_aspect")
+load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
 
 def _write_loader_script(ctx):
   # Generates the JavaScript snippet of module roots mappings, with each entry
@@ -89,26 +72,6 @@ def _write_loader_script(ctx):
       },
       executable=True,
   )
-
-def expand_location_into_runfiles(ctx, path):
-  """If the path has a location expansion, expand it. Otherwise return as-is.
-  """
-  if path.find('$(location') < 0:
-    return path
-  return expand_path_into_runfiles(ctx, path)
-
-def expand_path_into_runfiles(ctx, path):
-  """Given a file path that might contain a $(location) label expansion,
-   provide the path to the file in runfiles.
-   See https://docs.bazel.build/versions/master/skylark/lib/ctx.html#expand_location
-  """
-  targets = ctx.attr.data if hasattr(ctx.attr, "data") else []
-  expanded = ctx.expand_location(path, targets)
-  if expanded.startswith(ctx.bin_dir.path):
-    expanded = expanded[len(ctx.bin_dir.path + "/"):]
-  if expanded.startswith(ctx.genfiles_dir.path):
-    expanded = expanded[len(ctx.genfiles_dir.path + "/"):]
-  return ctx.workspace_name + "/" + expanded
 
 def _nodejs_binary_impl(ctx):
     node = ctx.file._node
@@ -192,11 +155,11 @@ _NODEJS_EXECUTABLE_ATTRS = {
         # See discussion: https://github.com/bazelbuild/rules_typescript/issues/13
         default = Label("@//:node_modules")),
     "_launcher_template": attr.label(
-        default = Label("//internal:node_launcher.sh"),
+        default = Label("//internal/node:node_launcher.sh"),
         allow_files = True,
         single_file = True),
     "_loader_template": attr.label(
-        default = Label("//internal:node_loader.js"),
+        default = Label("//internal/node:node_loader.js"),
         allow_files = True,
         single_file = True),
 }

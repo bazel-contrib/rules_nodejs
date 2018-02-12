@@ -14,7 +14,7 @@
 
 """Rules for production rollup bundling.
 """
-load("//internal:collect_es6_sources.bzl", "collect_es6_sources")
+load("//internal/common:collect_es6_sources.bzl", "collect_es6_sources")
 load("//internal/common:module_mappings.bzl", "get_module_mappings")
 
 _ROLLUP_MODULE_MAPPINGS_ATTR = "rollup_module_mappings"
@@ -140,21 +140,21 @@ ROLLUP_ATTRS = {
     "_rollup": attr.label(
         executable = True,
         cfg="host",
-        default = Label("@build_bazel_rules_nodejs//internal/rollup:rollup")),
+        default = Label("@build_bazel_rules_nodejs//internal/rollup_bundle:rollup")),
     "_tsc": attr.label(
         executable = True,
         cfg="host",
-        default = Label("@build_bazel_rules_nodejs//internal/rollup:tsc")),
+        default = Label("@build_bazel_rules_nodejs//internal/rollup_bundle:tsc")),
     "_uglify": attr.label(
         executable = True,
         cfg="host",
-        default = Label("@build_bazel_rules_nodejs//internal/rollup:uglify")),
+        default = Label("@build_bazel_rules_nodejs//internal/rollup_bundle:uglify")),
     "_rollup_config_tmpl": attr.label(
-        default = Label("@build_bazel_rules_nodejs//internal/rollup:rollup.config.js"),
+        default = Label("@build_bazel_rules_nodejs//internal/rollup_bundle:rollup.config.js"),
         allow_files = True,
         single_file = True),
     "_uglify_config_tmpl": attr.label(
-        default = Label("@build_bazel_rules_nodejs//internal/rollup:uglify.config.json"),
+        default = Label("@build_bazel_rules_nodejs//internal/rollup_bundle:uglify.config.json"),
         allow_files = True,
         single_file = True),
 }

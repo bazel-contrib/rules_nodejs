@@ -29,7 +29,7 @@ class MockSkylark:
 
 
 class CheckBazelVersionTest(unittest.TestCase):
-  BZL_PATH = 'build_bazel_rules_nodejs/internal/check_bazel_version.bzl'
+  BZL_PATH = 'build_bazel_rules_nodejs/internal/common/check_bazel_version.bzl'
 
   def setUp(self):
     self.mock = MockSkylark()

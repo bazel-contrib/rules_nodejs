@@ -1,4 +1,5 @@
-load(":node.bzl", "sources_aspect", "expand_path_into_runfiles")
+load(":sources_aspect.bzl", "sources_aspect")
+load(":expand_into_runfiles.bzl", "expand_path_into_runfiles")
 
 def _devmode_js_sources_impl(ctx):
   files = depset()

@@ -24,9 +24,7 @@ jobs:
 
       # We should also be able to test targets in a different workspace
       - run: bazel test --config=ci @program_example//...
-      - run: cd examples/packages && bazel test //:test_version_npm_install
-      - run: cd examples/packages && bazel test //:test_version_npm_no_lockfile
-      - run: cd examples/packages && bazel test //:test_version_yarn_install
+      - run: cd examples/packages && bazel test --config=ci ...
 
       - save_cache:
           key: *cache_key
