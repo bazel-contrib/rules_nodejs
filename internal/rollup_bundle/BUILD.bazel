@@ -18,7 +18,10 @@ load("//:defs.bzl", "jasmine_node_test", "nodejs_binary")
 
 package(default_visibility = ["//internal:__subpackages__"])
 
-exports_files(["rollup.config.js", "uglify.config.json"])
+exports_files([
+    "rollup.config.js",
+    "uglify.config.json",
+])
 
 nodejs_binary(
     name = "rollup",
@@ -44,6 +47,9 @@ nodejs_binary(
 jasmine_node_test(
     name = "test",
     srcs = glob(["*.spec.js"]),
-    data = glob(["*.js"], exclude=["*.spec.js"]),
+    data = glob(
+        ["*.js"],
+        exclude = ["*.spec.js"],
+    ),
     node_modules = "//internal/test:node_modules",
 )

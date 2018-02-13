@@ -1,5 +1,6 @@
-import {name} from './bar';
 import {fum} from 'fumlib';
+
+import {name} from './bar';
 
 console.log(`Hello, ${name} in ${fum}`);
 

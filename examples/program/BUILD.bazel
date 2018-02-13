@@ -8,7 +8,7 @@ filegroup(
     srcs = glob([
         "node_modules/**/*.js",
         "node_modules/**/*.d.ts",
-        "node_modules/**/*.json"
+        "node_modules/**/*.json",
     ]),
     visibility = ["//visibility:public"],
 )
@@ -28,6 +28,9 @@ filegroup(
 jasmine_node_test(
     name = "test",
     srcs = glob(["*.spec.js"]),
-    deps = [":program", ":mock_ts_lib"],
-    node_modules = "//:node_modules"
+    node_modules = "//:node_modules",
+    deps = [
+        ":mock_ts_lib",
+        ":program",
+    ],
 )

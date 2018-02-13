@@ -14,4 +14,7 @@
 
 package(default_visibility = ["//visibility:public"])
 
-exports_files(["node_launcher.sh", "node_loader.js"])
+exports_files([
+    "node_launcher.sh",
+    "node_loader.js",
+])

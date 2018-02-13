@@ -1,14 +1,32 @@
 ## IMPORTANT
 # If you change the `docker_image` version, also change the `cache_key` version
-var_1: &docker_image angular/ngcontainer:0.0.8
-var_2: &cache_key angular/ngcontainer:0.0.8-{{ .Branch }}-examples/rollup:{{ checksum "examples/rollup/yarn.lock" }}-examples/program:{{ checksum "examples/program/yarn.lock" }}-internal/test:{{ checksum "internal/test/yarn.lock" }}
+var_1: &docker_image angular/ngcontainer:0.1.0
+var_2: &cache_key angular/ngcontainer:0.1.0-{{ .Branch }}-{{ checksum "yarn.lock" }}-examples/rollup:{{ checksum "examples/rollup/yarn.lock" }}-examples/program:{{ checksum "examples/program/yarn.lock" }}-internal/test:{{ checksum "internal/test/yarn.lock" }}
 
+# Each job will inherit these defaults
+anchor_1: &job_defaults
+  working_directory: ~/ng
+  docker:
+    - image: *docker_image
+
+# Opt-in to the new goodness
 version: 2
+
+# These jobs will run in parallel, and report separate statuses to GitHub PRs
 jobs:
+  lint:
+    <<: *job_defaults
+    steps:
+      - checkout
+
+      # Enforce that BUILD files are formatted. Note that this uses the version of buildifier
+      # from the docker image above - take care that you use the same version when you run
+      # buildifier locally on your change.
+      - run: 'buildifier -mode=check $(find . -type f \( -name BUILD.bazel -or -name BUILD \)) ||
+              (echo "BUILD files not formatted. Please run ''yarn buildifier''" ; exit 1)'
+
   build:
-    working_directory: ~/ng
-    docker:
-      - image: *docker_image
+    <<: *job_defaults
     steps:
       - checkout
 
@@ -29,6 +47,14 @@ jobs:
       - save_cache:
           key: *cache_key
           paths:
+            - "node_modules"
             - "examples/rollup/node_modules"
             - "examples/program/node_modules"
             - "internal/test/node_modules"
+
+workflows:
+  version: 2
+  default_workflow:
+    jobs:
+      - lint
+      - build

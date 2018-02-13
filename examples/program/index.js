@@ -1,5 +1,3 @@
-function increment(n) {
-  return n + 1;
-}
+function increment(n) { return n + 1; }
 
 exports.increment = increment;

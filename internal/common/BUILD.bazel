@@ -18,7 +18,7 @@ package(default_visibility = ["//internal:__subpackages__"])
 
 py_test(
     name = "check_bazel_version_test",
+    size = "small",
     srcs = ["check_bazel_version_test.py"],
     data = [":check_bazel_version.bzl"],
-    size = "small",
 )
