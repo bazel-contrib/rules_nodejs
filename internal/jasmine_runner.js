@@ -1,13 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const JasmineRunner = require('jasmine/lib/jasmine');
-try {
-  require('source-map-support').install();
-} catch (e) {
-  console.error(`WARNING: source-map-support module not installed.
-   Stack traces from languages like TypeScript will point to generated .js files.
-   `);
-}
 
 const UTF8 = {encoding: 'utf-8'};
 
