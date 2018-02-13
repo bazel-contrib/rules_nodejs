@@ -27,6 +27,10 @@ concat-map@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/concat-map/-/concat-map-0.0.1.tgz#d8a96bd77fd68df7793a73036a3ba0d5405d477b"
 
+diff@^2.2.2:
+  version "2.2.3"
+  resolved "https://registry.yarnpkg.com/diff/-/diff-2.2.3.tgz#60eafd0d28ee906e4e8ff0a52c1229521033bf99"
+
 exit@^0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/exit/-/exit-0.1.2.tgz#0632638f8d877cc82107d30a0fff1a17cba1cd0c"
@@ -136,6 +140,12 @@ rollup-plugin-node-resolve@3.0.0:
 rollup@0.52.3:
   version "0.52.3"
   resolved "https://registry.yarnpkg.com/rollup/-/rollup-0.52.3.tgz#020d99fffe9619351e47b3894fd397c26f5e1bf6"
+
+unidiff@^0.0.4:
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/unidiff/-/unidiff-0.0.4.tgz#257fc346ac6f134b0b75d08895320872a737e222"
+  dependencies:
+    diff "^2.2.2"
 
 wrappy@1:
   version "1.0.2"
