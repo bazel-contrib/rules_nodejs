@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const unidiff = require('unidiff')
 
 function read(relativePath) {
   // TODO(#32) Can shorten the path if https://github.com/bazelbuild/rules_nodejs/issues/32 is resolved
@@ -16,16 +17,24 @@ if (process.env[update_var] && process.env['TEST_SRCDIR']) {
 }
 
 function check(actual, expected) {
-  if (read(actual) !== read(expected)) {
+  const actualContents = read(actual);
+  const expectedContents = read(expected);
+  if (actualContents !== expectedContents) {
     if (process.env[update_var] === update_val) {
       writePath = path.join(__dirname, expected);
-      fs.writeFileSync(writePath, read(actual));
+      fs.writeFileSync(writePath, actualContents);
       console.error('Replaced ', writePath);
     } else {
+      const diff = unidiff.diffLines(actualContents, expectedContents);
+      const prettyDiff = unidiff.formatLines(diff);
       fail(`Actual output in ${actual} doesn't match golden file ${expected}.
-      Update the golden file:
 
-            bazel run --define ${update_var}=${update_val} ${process.env['BAZEL_TARGET']}`);
+Diff:
+${prettyDiff}
+
+Update the golden file:
+
+      bazel run --define ${update_var}=${update_val} ${process.env['BAZEL_TARGET']}`);
     }
   }
 }

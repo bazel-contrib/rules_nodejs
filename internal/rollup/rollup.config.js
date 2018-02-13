@@ -75,7 +75,8 @@ if (banner_file) {
     const version = fs.readFileSync(stamp_data, {encoding: 'utf-8'})
       .split('\n')
       .find(l => l.startsWith('BUILD_SCM_VERSION'))
-      .split(' ')[1];
+      .split(' ')[1]
+      .trim(); // trim() is needed so result is the same on windows as in linux/osx
     banner = banner.replace(/0.0.0-PLACEHOLDER/, version);
   }
 }
