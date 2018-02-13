@@ -25,6 +25,8 @@
 var path = require('path');
 var fs = require('fs');
 
+const DEBUG = false;
+
 /**
  * The module roots as pairs of a RegExp to match the require path, and a
  * module_root to substitute for the require path.
@@ -36,6 +38,12 @@ var MODULE_ROOTS = [TEMPLATED_module_roots];
  * Array of bootstrap modules that need to be loaded before the entry point.
  */
 var BOOTSTRAP = [TEMPLATED_bootstrap];
+
+if (DEBUG) console.error(`
+node_loader: running with
+  MODULE_ROOTS: ${MODULE_ROOTS}
+  BOOTSTRAP: ${BOOTSTRAP}
+`);
 
 function resolveToModuleRoot(path) {
   if (!path) {
@@ -87,9 +95,83 @@ function loadRunfilesManifest(manifestPath) {
 }
 const runfilesManifest = loadRunfilesManifest(process.env.RUNFILES_MANIFEST_FILE);
 
+function isFile(res) {
+  try {
+    return fs.statSync(res).isFile();
+  } catch (e) { return false; }
+}
+
+function loadAsFileSync(res) {
+  if (isFile(res)) {
+    return res;
+  }
+  if (isFile(res + '.js')) {
+    return res;
+  }
+  return null;
+}
+
+function loadAsDirectorySync(res) {
+  const pkgfile = path.join(res, 'package.json');
+  if (isFile(pkgfile)) {
+    try {
+      const pkg = JSON.parse(fs.readFileSync(pkgfile, 'UTF-8'));
+      const main = pkg['main'];
+      if (main) {
+        if (main === '.' || main === './') {
+          main = 'index';
+        }
+
+        let maybe = loadAsFileSync(path.resolve(res, main));
+        if (maybe) {
+          return maybe;
+        }
+  
+        maybe = loadAsDirectorySync(path.resolve(res, main));
+        if (maybe) {
+          return maybe;
+        }
+      }
+    } catch (e) {}
+  }
+  return loadAsFileSync(path.resolve(res, 'index'));
+}
+
+function resolveManifestFile(res) {
+  return runfilesManifest[res] || runfilesManifest[res + '.js'];
+}
+
+function resolveManifestDirectory(res) {
+  const pkgfile = runfilesManifest[`${res}/package.json`];
+  if (pkgfile) {
+    try {
+      const pkg = JSON.parse(fs.readFileSync(pkgfile, 'UTF-8'));
+      const main = pkg['main'];
+      if (main) {
+        if (main === '.' || main === './') {
+          main = 'index';
+        }
+
+        let maybe = resolveManifestFile(`${res}/${main}`);
+        if (maybe) {
+          return maybe;
+        }
+  
+        maybe = resolveManifestDirectory(`${res}/${main}`);
+        if (maybe) {
+          return maybe;
+        }
+      }
+    } catch (e) {}
+  }
+  return resolveManifestFile(`${res}/index`)
+}
+
 function resolveRunfiles(...pathSegments) {
   // Remove any empty strings from pathSegments
   pathSegments = pathSegments.filter(segment => segment);
+
+  if (DEBUG) console.error("node_loader: try to resolve", pathSegments.join('/'));
 
   const defaultPath = path.join(process.env.RUNFILES, ...pathSegments);
 
@@ -98,10 +180,32 @@ function resolveRunfiles(...pathSegments) {
     // is written with forward slash.
     const runfilesEntry = pathSegments.join('/');
 
-    // Add .js as a workaround for https://github.com/bazelbuild/rules_nodejs/issues/25
-    return runfilesManifest[runfilesEntry] || runfilesManifest[runfilesEntry + '.js'] || defaultPath;
+    let maybe = resolveManifestFile(runfilesEntry);
+    if (maybe) {
+      if (DEBUG) console.error("node_loader: resolved manifest file", maybe);
+      return maybe;
+    }
+
+    maybe = resolveManifestDirectory(runfilesEntry);
+    if (maybe) {
+      if (DEBUG) console.error("node_loader: resolved manifest directory", maybe);
+      return maybe;
+    }
+  } else {
+    let maybe = loadAsFileSync(defaultPath);
+    if (maybe) {
+      if (DEBUG) console.error("node_loader: resolved file", maybe);
+      return maybe;
+    }
+
+    maybe = loadAsDirectorySync(defaultPath);
+    if (maybe) {
+      if (DEBUG) console.error("node_loader: resolved directory", maybe);
+      return maybe;
+    }
   }
 
+  if (DEBUG) console.error("node_loader: resolved to default path", defaultPath);
   return defaultPath;
 }
 

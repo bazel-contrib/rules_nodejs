@@ -1,5 +1,5 @@
 {
-    "description": "runtime dependencies for rollup",
+    "description": "runtime dependencies for rollup_bundle",
     "devDependencies": {
         "rollup": "0.52.3",
         "rollup-plugin-node-resolve": "3.0.0",

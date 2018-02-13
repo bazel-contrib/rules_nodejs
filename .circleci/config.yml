@@ -1,7 +1,7 @@
 ## IMPORTANT
-# If you change the `docker_image` version, also change the `cache_key` suffix
+# If you change the `docker_image` version, also change the `cache_key` version
 var_1: &docker_image angular/ngcontainer:0.0.8
-var_2: &cache_key angular-{{ .Branch }}-{{ checksum "examples/rollup/yarn.lock" }}-{{ checksum "examples/program/yarn.lock" }}-{{ checksum "internal/e2e/rollup/yarn.lock" }}-0.0.8
+var_2: &cache_key angular/ngcontainer:0.0.8-{{ .Branch }}-examples/rollup:{{ checksum "examples/rollup/yarn.lock" }}-examples/program:{{ checksum "examples/program/yarn.lock" }}-internal/test:{{ checksum "internal/test/yarn.lock" }}
 
 version: 2
 jobs:
@@ -33,4 +33,4 @@ jobs:
           paths:
             - "examples/rollup/node_modules"
             - "examples/program/node_modules"
-            - "internal/e2e/rollup/node_modules"
+            - "internal/test/node_modules"

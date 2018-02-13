@@ -1,31 +1,17 @@
-load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
+
+# This is like a "js_library", but there are no actions to run on JS files so a
+# filegroup is semantically equivalent.
+filegroup(
+    name = "test_version",
+    srcs = ["test_version.js"],
+)
 
 VARIANTS = ["npm_install", "npm_no_lockfile", "yarn_install"]
 
-[nodejs_binary(
-    name = "version_" + variant,
-    entry_point = "packages_example/version.js",
+[jasmine_node_test(
+    name = "test_version_" + variant,
+    srcs = [variant + ".spec.js"],
+    deps = [":test_version"],
     node_modules = "@" + variant + "//:node_modules",
-    data = [":version.js"],
 ) for variant in VARIANTS]
-
-TARGETS = ["version_" + variant for variant in VARIANTS]
-
-# Run each of the targets to produce actual_{target}.txt
-[genrule(
-    name = "run_" + target,
-    cmd = """set -e
-$(location :{target}) > $(location :actual_{target}.txt)
-""".format(target=target),
-    outs = ["actual_" + target + ".txt"],
-    testonly = 1,
-    tools = [":" + target],
-) for target in TARGETS]
-
-# Diff each actual_{target}.txt against expected.txt
-[py_test(
-    name = "test_" + target,
-    main = ":diff_test.py",
-    srcs = [":diff_test.py"],
-    data = ["expected_" + target + ".txt", "actual_" + target + ".txt"],
-) for target in TARGETS]

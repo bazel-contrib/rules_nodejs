@@ -45,5 +45,5 @@ jasmine_node_test(
     name = "test",
     srcs = glob(["*.spec.js"]),
     data = glob(["*.js"], exclude=["*.spec.js"]),
-    node_modules = "//internal/e2e/rollup:node_modules",
+    node_modules = "//internal/test:node_modules",
 )
