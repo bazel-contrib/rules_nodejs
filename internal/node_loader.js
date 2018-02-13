@@ -95,6 +95,48 @@ function loadRunfilesManifest(manifestPath) {
 }
 const runfilesManifest = loadRunfilesManifest(process.env.RUNFILES_MANIFEST_FILE);
 
+function isFile(res) {
+  try {
+    return fs.statSync(res).isFile();
+  } catch (e) { return false; }
+}
+
+function loadAsFileSync(res) {
+  if (isFile(res)) {
+    return res;
+  }
+  if (isFile(res + '.js')) {
+    return res;
+  }
+  return null;
+}
+
+function loadAsDirectorySync(res) {
+  const pkgfile = path.join(res, 'package.json');
+  if (isFile(pkgfile)) {
+    try {
+      const pkg = JSON.parse(fs.readFileSync(pkgfile, 'UTF-8'));
+      const main = pkg['main'];
+      if (main) {
+        if (main === '.' || main === './') {
+          main = 'index';
+        }
+
+        let maybe = loadAsFileSync(path.resolve(res, main));
+        if (maybe) {
+          return maybe;
+        }
+  
+        maybe = loadAsDirectorySync(path.resolve(res, main));
+        if (maybe) {
+          return maybe;
+        }
+      }
+    } catch (e) {}
+  }
+  return loadAsFileSync(path.resolve(res, 'index'));
+}
+
 function resolveManifestFile(res) {
   return runfilesManifest[res] || runfilesManifest[res + '.js'];
 }
@@ -147,6 +189,18 @@ function resolveRunfiles(...pathSegments) {
     maybe = resolveManifestDirectory(runfilesEntry);
     if (maybe) {
       if (DEBUG) console.error("node_loader: resolved manifest directory", maybe);
+      return maybe;
+    }
+  } else {
+    let maybe = loadAsFileSync(defaultPath);
+    if (maybe) {
+      if (DEBUG) console.error("node_loader: resolved file", maybe);
+      return maybe;
+    }
+
+    maybe = loadAsDirectorySync(defaultPath);
+    if (maybe) {
+      if (DEBUG) console.error("node_loader: resolved directory", maybe);
       return maybe;
     }
   }
