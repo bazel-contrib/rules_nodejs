@@ -142,7 +142,11 @@ def _rollup_bundle(ctx):
   output_dir_es5 = run_tsc(ctx, output_dir_es6)
   #run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min)
   #run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min_debug, debug = True)
-  return DefaultInfo(runfiles=ctx.runfiles([output_dir_es6, output_dir_es5]), files=depset([]))
+  ctx.actions.expand_template(
+    output = ctx.outputs.systemjs,
+    template = ctx.file._systemjs,
+    substitutions = {})
+  return DefaultInfo(runfiles=ctx.runfiles([output_dir_es6, output_dir_es5, ctx.outputs.systemjs]), files=depset([]))
 
 ROLLUP_ATTRS = {
     "entry_points": attr.string_list(mandatory = True),
@@ -161,6 +165,10 @@ ROLLUP_ATTRS = {
         executable = True,
         cfg="host",
         default = Label("@build_bazel_rules_nodejs//internal/rollup:uglify")),
+    "_systemjs": attr.label(
+        default = Label("@build_bazel_rules_nodejs_rollup_deps//:node_modules/systemjs/dist/system.js"),
+        allow_files = True,
+        single_file = True),
     "_tsconfig_tmpl": attr.label(
         default = Label("@build_bazel_rules_nodejs//internal/rollup:tsconfig.json"),
         allow_files = True,
@@ -178,4 +186,7 @@ ROLLUP_ATTRS = {
 rollup_bundle = rule(
     implementation = _rollup_bundle,
     attrs = ROLLUP_ATTRS,
+    outputs = {
+        "systemjs": "system.js",
+    }
 )

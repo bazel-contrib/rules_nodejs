@@ -3,6 +3,7 @@
     "devDependencies": {
         "rollup": "0.55.3",
         "rollup-plugin-node-resolve": "3.0.0",
+        "systemjs": "0.20.19",
         "typescript": "2.6.2",
         "uglify-js": "3.3.9"
     }
