@@ -14,23 +14,24 @@
 
 licenses(["notice"])  # Apache 2.0
 
-load("//internal:build_defs.bzl", ts_library = "tsc_library")
+load("//:defs.bzl", "ts_library")
+
+
+error_message = "TS21225: All Promises in async functions must either be awaited or used in an expression."
 
 ts_library(
-    name = "rules",
+    name = "positives",
+    testonly = 1,
     srcs = [
-        "ban_expect_truthy_promise_rule.ts",
-        "check_return_value_rule.ts",
-        "equals_nan_rule.ts",
-        "must_use_promises_rule.ts",
+        "positives.ts",
     ],
     tsconfig = "//internal/tsetse:tsconfig.json",
-    visibility = ["//internal/tsetse:__pkg__"],
-    deps = [
-        "//internal/tsetse:tsetse_lib",
-
-
-
-
+    expected_diagnostics = [
+        "\(29,3\)" + error_message,
+        "\(30,3\)" + error_message,
+        "\(31,3\)" + error_message,
+        "\(32,3\)" + error_message,
+        "\(34,3\)" + error_message,
     ],
+
 )

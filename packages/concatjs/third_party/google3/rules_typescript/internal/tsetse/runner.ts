@@ -12,6 +12,7 @@ import {AbstractRule} from './rule';
 import {Rule as BanExpectTruthyPromiseRule} from './rules/ban_expect_truthy_promise_rule';
 import {Rule as CheckReturnValueRule} from './rules/check_return_value_rule';
 import {Rule as EqualsNanRule} from './rules/equals_nan_rule';
+import {Rule as MustUsePromisesRule} from './rules/must_use_promises_rule';
 
 /**
  * List of Tsetse rules. Shared between the program plugin and the language
@@ -21,6 +22,7 @@ const ENABLED_RULES: AbstractRule[] = [
   new CheckReturnValueRule(),
   new EqualsNanRule(),
   new BanExpectTruthyPromiseRule(),
+  new MustUsePromisesRule(),
 ];
 
 /**
