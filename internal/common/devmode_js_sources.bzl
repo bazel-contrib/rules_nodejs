@@ -33,9 +33,9 @@ def _devmode_js_sources_impl(ctx):
 
   for d in ctx.attr.deps:
     if hasattr(d, "node_sources"):
-      files += d.node_sources
+      files = depset(transitive=[files, d.node_sources])
     elif hasattr(d, "files"):
-      files += d.files
+      files = depset(transitive=[files, d.files])
 
   ctx.actions.write(ctx.outputs.manifest, "".join([
     expand_path_into_runfiles(ctx, f.path) + "\n" for f in files

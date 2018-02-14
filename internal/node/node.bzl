@@ -76,10 +76,10 @@ def _write_loader_script(ctx):
 def _nodejs_binary_impl(ctx):
     node = ctx.file._node
     node_modules = ctx.files.node_modules
-    sources = depset()
+    sources = []
     for d in ctx.attr.data:
       if hasattr(d, "node_sources"):
-        sources += d.node_sources
+        sources += d.node_sources.to_list()
 
     _write_loader_script(ctx)
 
@@ -121,16 +121,12 @@ def _nodejs_binary_impl(ctx):
         executable=True,
     )
 
-
-    runfiles = depset(sources)
-    runfiles += [node]
-    runfiles += [ctx.outputs.loader]
-    runfiles += node_modules
+    runfiles = depset(sources + [node, ctx.outputs.loader] + node_modules)
 
     return struct(
         runfiles = ctx.runfiles(
             transitive_files = runfiles,
-            files = [node, ctx.outputs.loader] + node_modules + sources.to_list(),
+            files = [node, ctx.outputs.loader] + node_modules + sources,
             collect_data = True,
         ),
     )

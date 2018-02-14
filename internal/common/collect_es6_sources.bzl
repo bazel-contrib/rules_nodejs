@@ -28,15 +28,15 @@ def collect_es6_sources(ctx):
     A file tree containing only production files.
   """
 
-  non_rerooted_files = depset([d for d in ctx.files.deps if d.is_source])
+  non_rerooted_files = [d for d in ctx.files.deps if d.is_source]
   if hasattr(ctx.attr, "srcs"):
-    non_rerooted_files += depset(ctx.files.srcs)
+    non_rerooted_files += ctx.files.srcs
   for dep in ctx.attr.deps:
     if hasattr(dep, "typescript"):
-      non_rerooted_files = depset(transitive = [non_rerooted_files, dep.typescript.transitive_es6_sources])
+      non_rerooted_files += dep.typescript.transitive_es6_sources
 
   rerooted_files = []
-  for file in non_rerooted_files.to_list():
+  for file in non_rerooted_files:
     path = file.short_path
     if (path.startswith("../")):
       path = "external/" + path[3:]
