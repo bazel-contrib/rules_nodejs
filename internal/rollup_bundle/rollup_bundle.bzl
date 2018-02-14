@@ -28,11 +28,11 @@ rollup_module_mappings_aspect = aspect(
     attr_aspects = ["deps"],
 )
 
-def write_rollup_config(ctx, plugins=[], rootDirs=None, filename="_%s.rollup.conf.js"):
+def _write_rollup_config(ctx, plugins=[], root_dirs=None, filename="_%s.rollup.conf.js"):
   config = ctx.actions.declare_file(filename % ctx.label.name)
 
   # build_file_path includes the BUILD.bazel file, transform here to only include the dirname
-  buildFileDirname = "/".join(ctx.build_file_path.split("/")[:-1])
+  build_file_dirname = "/".join(ctx.build_file_path.split("/")[:-1])
 
   mappings = dict()
   all_deps = ctx.attr.deps + ctx.attr.srcs
@@ -44,15 +44,15 @@ def write_rollup_config(ctx, plugins=[], rootDirs=None, filename="_%s.rollup.con
                 (dep.label, k, mappings[k], v)), "deps")
         mappings[k] = v
 
-  if not rootDirs:
-    rootDirs = ["/".join([ctx.bin_dir.path, buildFileDirname, ctx.label.name + ".es6"])]
+  if not root_dirs:
+    root_dirs = ["/".join([ctx.bin_dir.path, build_file_dirname, ctx.label.name + ".es6"])]
 
   ctx.actions.expand_template(
       output = config,
       template =  ctx.file._rollup_config_tmpl,
       substitutions = {
           "TMPL_workspace_name": ctx.workspace_name,
-          "TMPL_rootDirs": str(rootDirs),
+          "TMPL_rootDirs": str(root_dirs),
           "TMPL_label_name": ctx.label.name,
           "TMPL_module_mappings": str(mappings),
           "TMPL_additional_plugins": ",\n".join(plugins),
@@ -62,7 +62,7 @@ def write_rollup_config(ctx, plugins=[], rootDirs=None, filename="_%s.rollup.con
 
   return config
 
-def run_rollup(ctx, sources, config, output):
+def _run_rollup(ctx, sources, config, output):
   args = ctx.actions.args()
   args.add(["--config", config.path])
   args.add(["--output.file", output.path])
@@ -80,7 +80,7 @@ def run_rollup(ctx, sources, config, output):
       arguments = [args]
   )
 
-def run_tsc(ctx, input, output):
+def _run_tsc(ctx, input, output):
   args = ctx.actions.args()
   args.add(["--target", "es5"])
   args.add("--allowJS")
@@ -94,7 +94,7 @@ def run_tsc(ctx, input, output):
       arguments = [args]
   )
 
-def run_uglify(ctx, input, output, debug = False, comments = True):
+def _run_uglify(ctx, input, output, debug = False, comments = True):
   config = ctx.actions.declare_file("_%s%s.uglify.json" % (
       ctx.label.name, ".debug" if debug else ""))
 
@@ -123,11 +123,11 @@ def run_uglify(ctx, input, output, debug = False, comments = True):
   )
 
 def _rollup_bundle(ctx):
-  rollup_config = write_rollup_config(ctx)
-  run_rollup(ctx, collect_es6_sources(ctx), rollup_config, ctx.outputs.build_es6)
-  run_tsc(ctx, ctx.outputs.build_es6, ctx.outputs.build_es5)
-  run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min)
-  run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min_debug, debug = True)
+  rollup_config = _write_rollup_config(ctx)
+  _run_rollup(ctx, collect_es6_sources(ctx), rollup_config, ctx.outputs.build_es6)
+  _run_tsc(ctx, ctx.outputs.build_es6, ctx.outputs.build_es5)
+  _run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min)
+  _run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min_debug, debug = True)
   return DefaultInfo(files=depset([ctx.outputs.build_es5_min]))
 
 ROLLUP_ATTRS = {

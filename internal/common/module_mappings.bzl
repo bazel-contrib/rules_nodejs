@@ -20,6 +20,9 @@
 # TypeScript compiler and to editors.
 #
 
+"""Helper function and aspect to get module mappings from deps
+"""
+
 def _get_deps(attrs, names):
   return [d for n in names if hasattr(attrs, n)
           for d in getattr(attrs, n)]
@@ -30,7 +33,7 @@ _MODULE_MAPPINGS_DEPS_NAMES = (["deps", "srcs"]
 
 _DEBUG = False
 
-def debug(msg, values=()):
+def _debug(msg, values=()):
   if _DEBUG:
     print(msg % values)
 
@@ -41,6 +44,16 @@ def get_module_mappings(label, attrs, srcs = [], workspace_name = None, mappings
   checking for collisions. If a module has a non-empty `module_root` attribute,
   all sources underneath it are treated as if they were rooted at a folder
   `module_name`.
+
+  Args:
+    label: label
+    attrs: attributes
+    srcs: sources (defaults to [])
+    workspace_name: workspace name (defaults to None)
+    mappings_attr: mappings attribute to look for (defaults to "es6_module_mappings")
+
+  Returns:
+    The module mappings
   """
   mappings = dict()
   all_deps =  _get_deps(attrs, names = _MODULE_MAPPINGS_DEPS_NAMES)
@@ -81,7 +94,7 @@ def get_module_mappings(label, attrs, srcs = [], workspace_name = None, mappings
       fail(("duplicate module mapping at %s: %s maps to both %s and %s" %
             (label, mn, mappings[mn], mr)), "deps")
     mappings[mn] = mr
-  debug("Mappings at %s: %s", (label, mappings))
+  _debug("Mappings at %s: %s", (label, mappings))
   return mappings
 
 def _module_mappings_aspect_impl(target, ctx):

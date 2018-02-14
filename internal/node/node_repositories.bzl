@@ -20,6 +20,8 @@ node binary to other rules.
 """
 
 load(":node_labels.bzl", "get_node_label")
+load("//internal/common:check_bazel_version.bzl", "check_bazel_version")
+load("//internal/yarn_install:yarn_install.bzl", "yarn_install")
 
 def _node_impl(repository_ctx):
   os_name = repository_ctx.os.name.lower()
@@ -139,10 +141,9 @@ _yarn_repo = repository_rule(
     attrs = { "package_json": attr.label_list() },
 )
 
-load("//internal/common:check_bazel_version.bzl", "check_bazel_version")
-load("//internal/yarn_install:yarn_install.bzl", "yarn_install")
-
 def node_repositories(package_json):
+  """To be run in user's WORKSPACE to install NodeJS and rules_nodejs npm dependencies.
+  """
   # Windows users need sh_binary wrapped as an .exe
   check_bazel_version("0.5.4")
 

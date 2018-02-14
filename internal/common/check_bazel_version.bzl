@@ -12,6 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Helper function to check the bazel version
+"""
+
 # From https://github.com/tensorflow/tensorflow/blob/5541ef4fbba56cf8930198373162dd3119e6ee70/tensorflow/workspace.bzl#L44
 
 # Parse the bazel version string from `native.bazel_version`.
@@ -32,7 +35,6 @@ def _parse_bazel_version(bazel_version):
   for number in parts[0].split("."):
     version_tuple += (int(number),)
   return version_tuple
-
 
 # Check that a specific bazel version is being used.
 # Args: bazel_version in the form "<major>.<minor>.<patch>"

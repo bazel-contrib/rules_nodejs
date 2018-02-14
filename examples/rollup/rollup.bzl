@@ -12,10 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Example rollup rule
+
+This is not a full-featured Rollup bazel rule, just enough to test the
+other rules in this repo.
+"""
+
 def _rollup(ctx):
-  """This is not a full-featured Rollup bazel rule, just enough to test the
-     other rules in this repo.
-  """
   args = ["--input", ctx.attr.entry_point]
   args += ["--output.file", ctx.outputs.bundle.path]
   args += ["--output.format", "es"]
