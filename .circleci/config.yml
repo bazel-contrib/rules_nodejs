@@ -1,13 +1,33 @@
+# Configuration file for https://circleci.com/gh/bazelbuild/rules_nodejs
+
+# Note: YAML anchors allow an object to be re-used, reducing duplication.
+# The ampersand declares an alias for an object, then later the `<<: *name`
+# syntax dereferences it.
+# See http://blog.daemonl.com/2016/02/yaml.html
+# To validate changes, use an online parser, eg.
+# http://yaml-online-parser.appspot.com/
+
 ## IMPORTANT
 # If you change the `docker_image` version, also change the `cache_key` version
 var_1: &docker_image angular/ngcontainer:0.1.0
 var_2: &cache_key angular/ngcontainer:0.1.0-{{ .Branch }}-{{ checksum "yarn.lock" }}-examples/rollup:{{ checksum "examples/rollup/yarn.lock" }}-examples/program:{{ checksum "examples/program/yarn.lock" }}-internal/test:{{ checksum "internal/test/yarn.lock" }}
+var_3: &setup-bazel-remote-cache
+  run:
+    name: Start up bazel remote cache proxy
+    command: ~/bazel-remote-proxy -backend circleci://
+    background: true
 
-# Each job will inherit these defaults
+# Settings common to each job
 anchor_1: &job_defaults
   working_directory: ~/ng
   docker:
     - image: *docker_image
+
+# After checkout, rebase on top of master.
+# Similar to travis behavior, but not quite the same.
+# See https://discuss.circleci.com/t/1662
+anchor_2: &post_checkout
+  post: git pull --ff-only origin "refs/pull/${CI_PULL_REQUEST//*pull\//}/merge"
 
 # Opt-in to the new goodness
 version: 2
@@ -17,7 +37,15 @@ jobs:
   lint:
     <<: *job_defaults
     steps:
-      - checkout
+      - checkout:
+          <<: *post_checkout
+      - run: .circleci/setup_cache.sh
+      - *setup-bazel-remote-cache
+
+      # Run the skylark linter to check our Bazel rules
+      - run: 'find . -type f -name "*.bzl" |
+              xargs java -jar /usr/local/bin/Skylint_deploy.jar ||
+              (echo -e "\n.bzl files have lint errors. Please run ''yarn skylint''"; exit 1)'
 
       # Enforce that BUILD files are formatted. Note that this uses the version of buildifier
       # from the docker image above - take care that you use the same version when you run
@@ -28,10 +56,13 @@ jobs:
   build:
     <<: *job_defaults
     steps:
-      - checkout
-
+      - checkout:
+          <<: *post_checkout
+      - run: .circleci/setup_cache.sh
+      - *setup-bazel-remote-cache
       - restore_cache:
           key: *cache_key
+
       - run: bazel info release
 
       - run: bazel run @yarn//:yarn
