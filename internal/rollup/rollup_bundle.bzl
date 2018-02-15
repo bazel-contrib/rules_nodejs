@@ -136,20 +136,55 @@ def run_uglify(ctx, input, output, debug = False):
       arguments = [args]
   )
 
+def _generate_html(ctx):
+  if len(ctx.attr.entry_points) == 0:
+    fail("\n%s: at least one entry_point must be specified\n" % ctx.label.name)
+  build_file_prefix = "/".join(ctx.build_file_path.split("/")[:-1]) + "/"
+  main_entry_point = ctx.attr.entry_points[0].lstrip(build_file_prefix)
+  entry_points = {}
+  for e in ctx.attr.entry_points:
+    entry_point = e.lstrip(build_file_prefix)
+    entry_points["./" + entry_point] = "bundles/" + entry_point.split("/")[-1]
+  rollup_scripts = """<script src="/system.js"></script>
+<script>
+  (function (global) {
+    System.config({
+      packages: {
+        '' : {
+          map: """ + str(entry_points) + """,
+          defaultExtension: 'js'
+        },
+      }
+    });
+  })(this);
+</script>
+<script>
+  System.import('""" + main_entry_point + """').catch(function(err){ console.error(err); });
+</script>
+"""
+  ctx.actions.expand_template(
+    output = ctx.outputs.index_html,
+    template = ctx.file.index_html_template,
+    substitutions = {
+      "TEMPLATED_rollup_scripts": rollup_scripts,
+    })
+
 def _rollup_bundle(ctx):
   rollup_config = write_rollup_config(ctx)
   output_dir_es6 = run_rollup(ctx, rollup_config)
   output_dir_es5 = run_tsc(ctx, output_dir_es6)
   #run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min)
   #run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min_debug, debug = True)
+  _generate_html(ctx)
   ctx.actions.expand_template(
-    output = ctx.outputs.systemjs,
+    output = ctx.outputs.system_js,
     template = ctx.file._systemjs,
     substitutions = {})
-  return DefaultInfo(runfiles=ctx.runfiles([output_dir_es6, output_dir_es5, ctx.outputs.systemjs]), files=depset([]))
+  return DefaultInfo(runfiles=ctx.runfiles([output_dir_es6, output_dir_es5, ctx.outputs.system_js, ctx.outputs.index_html]), files=depset([]))
 
 ROLLUP_ATTRS = {
     "entry_points": attr.string_list(mandatory = True),
+    "index_html_template": attr.label(allow_files = [".template.html"], single_file = True),
     "srcs": attr.label_list(allow_files = [".js"]),
     "deps": attr.label_list(aspects = [rollup_module_mappings_aspect]),
     "node_modules": attr.label(default = Label("@//:node_modules")),
@@ -187,6 +222,7 @@ rollup_bundle = rule(
     implementation = _rollup_bundle,
     attrs = ROLLUP_ATTRS,
     outputs = {
-        "systemjs": "system.js",
+        "system_js": "system.js",
+        "index_html": "index.html",
     }
 )
