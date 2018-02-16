@@ -9,7 +9,7 @@ const fs = require('fs');
 const DEBUG = false;
 
 const moduleMappings = TMPL_module_mappings;
-const workspaceName = "TMPL_workspace_name";
+const workspaceName = 'TMPL_workspace_name';
 const rootDirs = TMPL_rootDirs;
 const banner_file = TMPL_banner_file;
 const stamp_data = TMPL_stamp_data;
@@ -21,14 +21,12 @@ Rollup: running with
   moduleMappings: ${JSON.stringify(moduleMappings)}
 `);
 
-function resolveBazel(importee, importer, baseDir = process.cwd(),
-                      resolve = require.resolve) {
+function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = require.resolve) {
   function resolveInRootDirs(importee) {
     for (var i = 0; i < rootDirs.length; i++) {
       var root = rootDirs[i];
       var candidate = path.join(baseDir, root, importee);
-      if (DEBUG)
-        console.error("Rollup: try to resolve at", candidate);
+      if (DEBUG) console.error('Rollup: try to resolve at', candidate);
       try {
         var result = resolve(candidate);
         return result;
@@ -46,12 +44,10 @@ function resolveBazel(importee, importer, baseDir = process.cwd(),
   // and sources from external workspaces are under
   // <external_workspace_name>/<path_to_source>
   var resolved;
-  if (importee.startsWith('.' + path.sep) ||
-      importee.startsWith('..' + path.sep)) {
+  if (importee.startsWith('.' + path.sep) || importee.startsWith('..' + path.sep)) {
     // relative import
     resolved = path.join(importer ? path.dirname(importer) : '', importee);
-    if (resolved)
-      resolved = resolve(resolved);
+    if (resolved) resolved = resolve(resolved);
   }
 
   if (!resolved) {
@@ -71,8 +67,7 @@ function resolveBazel(importee, importer, baseDir = process.cwd(),
   if (!resolved) {
     // workspace import
     const userWorkspacePath = path.relative(workspaceName, importee);
-    resolved = resolveInRootDirs(
-        userWorkspacePath.startsWith('..') ? importee : userWorkspacePath);
+    resolved = resolveInRootDirs(userWorkspacePath.startsWith('..') ? importee : userWorkspacePath);
   }
 
   return resolved;
@@ -80,14 +75,14 @@ function resolveBazel(importee, importer, baseDir = process.cwd(),
 
 let banner = '';
 if (banner_file) {
-  banner = fs.readFileSync(banner_file, {encoding : 'utf-8'});
+  banner = fs.readFileSync(banner_file, {encoding: 'utf-8'});
   if (stamp_data) {
-    const version = fs.readFileSync(stamp_data, {encoding : 'utf-8'})
+    const version = fs.readFileSync(stamp_data, {encoding: 'utf-8'})
                         .split('\n')
                         .find(l => l.startsWith('BUILD_SCM_VERSION'))
                         .split(' ')[1]
-                        .trim(); // trim() is needed so result is the same on
-                                 // windows as in linux/osx
+                        .trim();  // trim() is needed so result is the same on
+                                  // windows as in linux/osx
     banner = banner.replace(/0.0.0-PLACEHOLDER/, version);
   }
 }
@@ -95,9 +90,9 @@ if (banner_file) {
 module.exports = {
   resolveBazel,
   banner,
-  output : {format : 'iife'},
-  plugins : [ TMPL_additional_plugins ].concat([
-    {resolveId : resolveBazel},
-    nodeResolve({jsnext : true, module : true}),
+  output: {format: 'iife'},
+  plugins: [TMPL_additional_plugins].concat([
+    {resolveId: resolveBazel},
+    nodeResolve({jsnext: true, module: true}),
   ])
 }

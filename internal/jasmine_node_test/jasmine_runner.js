@@ -3,7 +3,7 @@ const path = require('path');
 const JasmineRunner = require('jasmine/lib/jasmine');
 
 const UTF8 = {
-  encoding : 'utf-8'
+  encoding: 'utf-8'
 };
 
 // These exit codes are handled specially by Bazel:
@@ -27,7 +27,9 @@ function main(args) {
 
   var noSpecsFound = true;
   jrunner.addReporter({
-    specDone : () => { noSpecsFound = false },
+    specDone: () => {
+      noSpecsFound = false
+    },
   });
   // addReporter throws away the default console reporter
   // so we need to add it back
@@ -35,8 +37,7 @@ function main(args) {
 
   jrunner.onComplete((passed) => {
     let exitCode = passed ? 0 : BAZEL_EXIT_TESTS_FAILED;
-    if (noSpecsFound)
-      exitCode = BAZEL_EXIT_NO_TESTS_FOUND;
+    if (noSpecsFound) exitCode = BAZEL_EXIT_NO_TESTS_FOUND;
     process.exit(exitCode);
   });
 

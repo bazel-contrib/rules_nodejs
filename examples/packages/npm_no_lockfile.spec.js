@@ -1,1 +1,1 @@
-require('./test_version').test("1.2.1");
+require('./test_version').test('1.2.1');
