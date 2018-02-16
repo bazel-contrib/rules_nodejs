@@ -12,16 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-""" Public API surface is re-exported here.
+"""Public API surface is re-exported here.
 
 Users should not load files under "/internal"
 """
-load("//internal:check_bazel_version.bzl", "check_bazel_version")
-load("//internal:node.bzl",
-     nodejs_binary = "nodejs_binary_macro",
-     nodejs_test = "nodejs_test_macro")
-load("//internal:jasmine_node_test.bzl", "jasmine_node_test")
-load("//internal:node_install.bzl", "node_repositories")
-load("//internal/npm_install:npm_install.bzl", "npm_install")
-load("//internal:yarn_install.bzl", "yarn_install")
-load("//internal/rollup:rollup_bundle.bzl", "rollup_bundle")
+
+load("//internal/common:check_bazel_version.bzl", _check_bazel_version = "check_bazel_version")
+load("//internal/node:node.bzl",
+     _nodejs_binary = "nodejs_binary_macro",
+     _nodejs_test = "nodejs_test_macro")
+load("//internal/node:node_repositories.bzl", _node_repositories = "node_repositories")
+load("//internal/jasmine_node_test:jasmine_node_test.bzl", _jasmine_node_test = "jasmine_node_test")
+load("//internal/npm_install:npm_install.bzl", _npm_install = "npm_install")
+load("//internal/yarn_install:yarn_install.bzl", _yarn_install = "yarn_install")
+load("//internal/rollup:rollup_bundle.bzl", _rollup_bundle = "rollup_bundle")
+
+check_bazel_version = _check_bazel_version
+nodejs_binary = _nodejs_binary
+nodejs_test = _nodejs_test
+node_repositories = _node_repositories
+jasmine_node_test = _jasmine_node_test
+npm_install = _npm_install
+yarn_install = _yarn_install
+rollup_bundle = _rollup_bundle

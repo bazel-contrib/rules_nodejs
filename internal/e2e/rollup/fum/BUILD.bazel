@@ -1,9 +1,9 @@
 package(default_visibility = ["//internal:__subpackages__"])
 
-load("//internal:js_library.bzl", "js_library")
+load("//internal/js_library:js_library.bzl", "js_library")
 
 js_library(
     name = "fumlib",
     srcs = ["index.js"],
-    module_name = "fumlib"
+    module_name = "fumlib",
 )

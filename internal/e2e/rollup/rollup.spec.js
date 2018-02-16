@@ -3,9 +3,10 @@ const path = require('path');
 const unidiff = require('unidiff')
 
 function read(relativePath) {
-  // TODO(#32) Can shorten the path if https://github.com/bazelbuild/rules_nodejs/issues/32 is resolved
+  // TODO(#32) Can shorten the path if
+  // https://github.com/bazelbuild/rules_nodejs/issues/32 is resolved
   const path = `build_bazel_rules_nodejs/internal/e2e/rollup/${relativePath}`;
-  return fs.readFileSync(require.resolve(path), { encoding: 'utf-8' }).replace(/\r\n/g, '\n');
+  return fs.readFileSync(require.resolve(path), {encoding: 'utf-8'}).replace(/\r\n/g, '\n');
 }
 
 // These keys are arbitrary and local to this test.
@@ -41,9 +42,9 @@ Update the golden file:
 
 describe('bundling', () => {
   it('should work', () => {
-    check('bundle.min.js', 'bundle-min_golden.js');
+    check('bundle.min.js', 'bundle-min_golden.js_');
   });
   it('should produce a debug bundle', () => {
-    check('bundle.min_debug.js', 'bundle-min-debug_golden.js');
+    check('bundle.min_debug.js', 'bundle-min-debug_golden.js_');
   });
 });

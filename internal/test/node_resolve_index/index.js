@@ -1,1 +1,1 @@
-module.exports = "node_resolve_index";
+module.exports = 'node_resolve_index';

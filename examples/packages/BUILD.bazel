@@ -7,11 +7,15 @@ filegroup(
     srcs = ["test_version.js"],
 )
 
-VARIANTS = ["npm_install", "npm_no_lockfile", "yarn_install"]
+VARIANTS = [
+    "npm_install",
+    "npm_no_lockfile",
+    "yarn_install",
+]
 
 [jasmine_node_test(
     name = "test_version_" + variant,
     srcs = [variant + ".spec.js"],
-    deps = [":test_version"],
     node_modules = "@" + variant + "//:node_modules",
+    deps = [":test_version"],
 ) for variant in VARIANTS]

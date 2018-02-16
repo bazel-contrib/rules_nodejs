@@ -1,22 +1,25 @@
 load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
-
 load("//:defs.bzl", "rollup_bundle")
 
 rollup_bundle(
     name = "bundle",
+    srcs = [
+        "bar.js",
+        "foo.js",
+    ],
     entry_point = "internal/e2e/rollup/foo.js",
-    node_modules = "//internal/test:node_modules",
-    srcs = ["foo.js", "bar.js"],
-    deps = ["//internal/e2e/rollup/fum:fumlib"],
     license_banner = ":license.txt",
+    node_modules = "//internal/test:node_modules",
     stamp_data = ":versions.txt",
+    deps = ["//internal/e2e/rollup/fum:fumlib"],
 )
 
 jasmine_node_test(
     name = "test",
     srcs = glob(["*.spec.js"]),
-    data = glob(["*_golden.js"]) + [
+    data = glob(["*_golden.js_"]) + [
         ":bundle",
-        ":bundle.min_debug.js"],
+        ":bundle.min_debug.js",
+    ],
     node_modules = "//internal/test:node_modules",
 )

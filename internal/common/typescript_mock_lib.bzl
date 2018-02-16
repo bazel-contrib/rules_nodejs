@@ -12,11 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Private API surfaced for https://github.com/angular/angular backward-compatability
+"""A mock typescript_lib rule.
 
-Users should not load files under "/internal"
+Allows testing that node_jasmine_test will work with ts_library from
+rules_typescript without introducing a circular dependency.
 """
 
-load("//internal/common:collect_es6_sources.bzl", _collect_es6_sources = "collect_es6_sources")
+def _mock_typescript_lib(ctx):
+  es5_sources = depset()
+  for s in ctx.attr.srcs:
+    es5_sources = depset(transitive=[es5_sources, s.files])
+  return struct(typescript = struct(es5_sources = es5_sources))
 
-collect_es6_sources = _collect_es6_sources
+mock_typescript_lib = rule(
+  implementation = _mock_typescript_lib,
+  attrs = {
+    "srcs": attr.label_list(allow_files = True),
+  }
+)

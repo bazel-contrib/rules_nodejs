@@ -12,11 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Private API surfaced for https://github.com/angular/angular backward-compatability
+package(default_visibility = ["//visibility:public"])
 
-Users should not load files under "/internal"
-"""
-
-load("//internal/common:collect_es6_sources.bzl", _collect_es6_sources = "collect_es6_sources")
-
-collect_es6_sources = _collect_es6_sources
+exports_files([
+    "node_launcher.sh",
+    "node_loader.js",
+])

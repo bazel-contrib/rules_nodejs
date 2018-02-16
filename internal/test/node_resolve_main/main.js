@@ -1,1 +1,1 @@
-module.exports = "node_resolve_main";
+module.exports = 'node_resolve_main';

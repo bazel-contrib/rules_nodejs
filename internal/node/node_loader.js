@@ -39,7 +39,8 @@ var MODULE_ROOTS = [TEMPLATED_module_roots];
  */
 var BOOTSTRAP = [TEMPLATED_bootstrap];
 
-if (DEBUG) console.error(`
+if (DEBUG)
+  console.error(`
 node_loader: running with
   MODULE_ROOTS: ${MODULE_ROOTS}
   BOOTSTRAP: ${BOOTSTRAP}
@@ -80,15 +81,16 @@ function resolveToModuleRoot(path) {
  * See https://github.com/bazelbuild/bazel/issues/3726
  */
 function loadRunfilesManifest(manifestPath) {
-  // If the manifest doesn't exist, we're not running on Windows, and don't need it.
+  // If the manifest doesn't exist, we're not running on Windows, and don't need
+  // it.
   if (!fs.existsSync(manifestPath)) {
     return;
   }
   const result = Object.create(null);
   const input = fs.readFileSync(manifestPath, {encoding: 'utf-8'});
-  for (const line of input.split("\n")) {
+  for (const line of input.split('\n')) {
     if (!line) continue;
-    const [runfilesPath, realPath] = line.split(" ");
+    const [runfilesPath, realPath] = line.split(' ');
     result[runfilesPath] = realPath;
   }
   return result;
@@ -98,7 +100,9 @@ const runfilesManifest = loadRunfilesManifest(process.env.RUNFILES_MANIFEST_FILE
 function isFile(res) {
   try {
     return fs.statSync(res).isFile();
-  } catch (e) { return false; }
+  } catch (e) {
+    return false;
+  }
 }
 
 function loadAsFileSync(res) {
@@ -126,13 +130,14 @@ function loadAsDirectorySync(res) {
         if (maybe) {
           return maybe;
         }
-  
+
         maybe = loadAsDirectorySync(path.resolve(res, main));
         if (maybe) {
           return maybe;
         }
       }
-    } catch (e) {}
+    } catch (e) {
+    }
   }
   return loadAsFileSync(path.resolve(res, 'index'));
 }
@@ -156,13 +161,14 @@ function resolveManifestDirectory(res) {
         if (maybe) {
           return maybe;
         }
-  
+
         maybe = resolveManifestDirectory(`${res}/${main}`);
         if (maybe) {
           return maybe;
         }
       }
-    } catch (e) {}
+    } catch (e) {
+    }
   }
   return resolveManifestFile(`${res}/index`)
 }
@@ -171,7 +177,7 @@ function resolveRunfiles(...pathSegments) {
   // Remove any empty strings from pathSegments
   pathSegments = pathSegments.filter(segment => segment);
 
-  if (DEBUG) console.error("node_loader: try to resolve", pathSegments.join('/'));
+  if (DEBUG) console.error('node_loader: try to resolve', pathSegments.join('/'));
 
   const defaultPath = path.join(process.env.RUNFILES, ...pathSegments);
 
@@ -182,30 +188,30 @@ function resolveRunfiles(...pathSegments) {
 
     let maybe = resolveManifestFile(runfilesEntry);
     if (maybe) {
-      if (DEBUG) console.error("node_loader: resolved manifest file", maybe);
+      if (DEBUG) console.error('node_loader: resolved manifest file', maybe);
       return maybe;
     }
 
     maybe = resolveManifestDirectory(runfilesEntry);
     if (maybe) {
-      if (DEBUG) console.error("node_loader: resolved manifest directory", maybe);
+      if (DEBUG) console.error('node_loader: resolved manifest directory', maybe);
       return maybe;
     }
   } else {
     let maybe = loadAsFileSync(defaultPath);
     if (maybe) {
-      if (DEBUG) console.error("node_loader: resolved file", maybe);
+      if (DEBUG) console.error('node_loader: resolved file', maybe);
       return maybe;
     }
 
     maybe = loadAsDirectorySync(defaultPath);
     if (maybe) {
-      if (DEBUG) console.error("node_loader: resolved directory", maybe);
+      if (DEBUG) console.error('node_loader: resolved directory', maybe);
       return maybe;
     }
   }
 
-  if (DEBUG) console.error("node_loader: resolved to default path", defaultPath);
+  if (DEBUG) console.error('node_loader: resolved to default path', defaultPath);
   return defaultPath;
 }
 
@@ -217,17 +223,13 @@ module.constructor._resolveFilename =
     request,
     resolveRunfiles(request),
     resolveRunfiles(
-      'TEMPLATED_user_workspace_name', 'TEMPLATED_label_package',
-      'node_modules', request),
-    ];
+        'TEMPLATED_user_workspace_name', 'TEMPLATED_label_package', 'node_modules', request),
+  ];
   // Additional search path in case the build is across workspaces.
   // See comment in node.bzl.
   if ('TEMPLATED_label_workspace_name') {
-    resolveLocations.push(
-      resolveRunfiles(
-        'TEMPLATED_label_workspace_name', 'TEMPLATED_label_package',
-        'node_modules', request)
-    );
+    resolveLocations.push(resolveRunfiles(
+        'TEMPLATED_label_workspace_name', 'TEMPLATED_label_package', 'node_modules', request));
   }
   for (var location of resolveLocations) {
     try {
@@ -251,14 +253,13 @@ module.constructor._resolveFilename =
       throw e;
     }
   }
-  var error = new Error(`Cannot find module '${request}'\n  looked in:` +
-    failedResolutions.map(r => '\n   ' + r));
+  var error = new Error(
+      `Cannot find module '${request}'\n  looked in:` + failedResolutions.map(r => '\n   ' + r));
   error.code = 'MODULE_NOT_FOUND';
   throw error;
 }
 
-
-// Before loading anything that might print a stack, install the 
+// Before loading anything that might print a stack, install the
 // source-map-support.
 try {
   require('source-map-support').install();

@@ -12,6 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Helper functions to get node and npm labels in @nodejs repository.
+
+Labels are different on windows and linux/OSX.
+"""
+
 def get_node_label(repository_ctx):
   if repository_ctx.os.name.lower().find("windows") != -1:
     # The windows distribution of nodejs has the binaries in different paths

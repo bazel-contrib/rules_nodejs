@@ -14,7 +14,7 @@
 
 """Rules to install NodeJS dependencies during WORKSPACE evaluation."""
 
-load("//internal:node_labels.bzl", "get_node_label", "get_npm_label")
+load("//internal/node:node_labels.bzl", "get_node_label", "get_npm_label")
 
 def _npm_install_impl(repository_ctx):
   """Core implementation of npm_install."""
