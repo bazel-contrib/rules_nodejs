@@ -28,7 +28,7 @@ rollup_module_mappings_aspect = aspect(
     attr_aspects = ["deps"],
 )
 
-def _write_rollup_config(ctx, plugins=[], root_dirs=None, filename="_%s.rollup.conf.js"):
+def write_rollup_config(ctx, plugins=[], root_dirs=None, filename="_%s.rollup.conf.js"):
   config = ctx.actions.declare_file(filename % ctx.label.name)
 
   # build_file_path includes the BUILD.bazel file, transform here to only include the dirname
@@ -62,7 +62,17 @@ def _write_rollup_config(ctx, plugins=[], root_dirs=None, filename="_%s.rollup.c
 
   return config
 
-def _run_rollup(ctx, sources, config, output):
+def run_rollup(ctx, sources, config, output):
+  """Runs rollup on set of sources
+
+  This is also used by https://github.com/angular/angular.
+
+  Args:
+    ctx: context
+    sources: sources to rollup
+    config: rollup config file
+    output: output file
+  """
   args = ctx.actions.args()
   args.add(["--config", config.path])
   args.add(["--output.file", output.path])
@@ -94,7 +104,18 @@ def _run_tsc(ctx, input, output):
       arguments = [args]
   )
 
-def _run_uglify(ctx, input, output, debug = False, comments = True):
+def run_uglify(ctx, input, output, debug = False, comments = True):
+  """Runs uglify on an input file
+
+  This is also used by https://github.com/angular/angular.
+
+  Args:
+    ctx: context
+    input: input file
+    output: output file
+    debug: if True then output is beautified (defaults to False)
+    comments: if True then copyright comments are preserved in output file (defaults to True)
+  """
   config = ctx.actions.declare_file("_%s%s.uglify.json" % (
       ctx.label.name, ".debug" if debug else ""))
 
@@ -123,11 +144,11 @@ def _run_uglify(ctx, input, output, debug = False, comments = True):
   )
 
 def _rollup_bundle(ctx):
-  rollup_config = _write_rollup_config(ctx)
-  _run_rollup(ctx, collect_es6_sources(ctx), rollup_config, ctx.outputs.build_es6)
+  rollup_config = write_rollup_config(ctx)
+  run_rollup(ctx, collect_es6_sources(ctx), rollup_config, ctx.outputs.build_es6)
   _run_tsc(ctx, ctx.outputs.build_es6, ctx.outputs.build_es5)
-  _run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min)
-  _run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min_debug, debug = True)
+  run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min)
+  run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min_debug, debug = True)
   return DefaultInfo(files=depset([ctx.outputs.build_es5_min]))
 
 ROLLUP_ATTRS = {
@@ -140,21 +161,21 @@ ROLLUP_ATTRS = {
     "_rollup": attr.label(
         executable = True,
         cfg="host",
-        default = Label("@build_bazel_rules_nodejs//internal/rollup_bundle:rollup")),
+        default = Label("@build_bazel_rules_nodejs//internal/rollup:rollup")),
     "_tsc": attr.label(
         executable = True,
         cfg="host",
-        default = Label("@build_bazel_rules_nodejs//internal/rollup_bundle:tsc")),
+        default = Label("@build_bazel_rules_nodejs//internal/rollup:tsc")),
     "_uglify": attr.label(
         executable = True,
         cfg="host",
-        default = Label("@build_bazel_rules_nodejs//internal/rollup_bundle:uglify")),
+        default = Label("@build_bazel_rules_nodejs//internal/rollup:uglify")),
     "_rollup_config_tmpl": attr.label(
-        default = Label("@build_bazel_rules_nodejs//internal/rollup_bundle:rollup.config.js"),
+        default = Label("@build_bazel_rules_nodejs//internal/rollup:rollup.config.js"),
         allow_files = True,
         single_file = True),
     "_uglify_config_tmpl": attr.label(
-        default = Label("@build_bazel_rules_nodejs//internal/rollup_bundle:uglify.config.json"),
+        default = Label("@build_bazel_rules_nodejs//internal/rollup:uglify.config.json"),
         allow_files = True,
         single_file = True),
 }

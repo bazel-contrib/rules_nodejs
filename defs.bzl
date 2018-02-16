@@ -25,7 +25,7 @@ load("//internal/node:node_repositories.bzl", _node_repositories = "node_reposit
 load("//internal/jasmine_node_test:jasmine_node_test.bzl", _jasmine_node_test = "jasmine_node_test")
 load("//internal/npm_install:npm_install.bzl", _npm_install = "npm_install")
 load("//internal/yarn_install:yarn_install.bzl", _yarn_install = "yarn_install")
-load("//internal/rollup_bundle:rollup_bundle.bzl", _rollup_bundle = "rollup_bundle")
+load("//internal/rollup:rollup_bundle.bzl", _rollup_bundle = "rollup_bundle")
 
 check_bazel_version = _check_bazel_version
 nodejs_binary = _nodejs_binary
