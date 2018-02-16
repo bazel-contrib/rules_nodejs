@@ -230,11 +230,24 @@ def compile_ts(ctx,
   tsconfig_es6["compilerOptions"]["declaration"] = False
   tsconfig_es6["compilerOptions"].pop("declarationDir")
   outputs = transpiled_closure_js + tsickle_externs
+
+  node_profile_args = []
   if perf_trace and has_sources:
     perf_trace_file = ctx.new_file(ctx.label.name + ".es6.trace")
     tsconfig_es6["bazelOptions"]["perfTracePath"] = perf_trace_file.path
     outputs.append(perf_trace_file)
-    files += [perf_trace_file]
+
+    profile_file =  ctx.new_file(ctx.label.name + ".es6.v8.log")
+    node_profile_args = ["--prof",
+                         # Without nologfile_per_isolate, v8 embeds an
+                         # unpredictable hash code in the file name, which
+                         # doesn't work with blaze.
+                         "--nologfile_per_isolate",
+                         "--logfile=" + profile_file.path]
+    outputs.append(profile_file)
+
+    files += [perf_trace_file, profile_file]
+
   ctx.file_action(output=ctx.outputs.tsconfig,
                   content=json_marshal(tsconfig_es6))
 
@@ -244,7 +257,8 @@ def compile_ts(ctx,
 
   if has_sources:
     inputs = compilation_inputs + [ctx.outputs.tsconfig]
-    replay_params = compile_action(ctx, inputs, outputs, ctx.outputs.tsconfig)
+    replay_params = compile_action(ctx, inputs, outputs, ctx.outputs.tsconfig,
+                                   node_profile_args)
 
     devmode_manifest = ctx.new_file(ctx.label.name + ".es5.MF")
     tsconfig_json_es5 = ctx.new_file(ctx.label.name + "_es5_tsconfig.json")
@@ -256,15 +270,28 @@ def compile_ts(ctx,
                                         jsx_factory=jsx_factory,
                                         devmode_manifest=devmode_manifest.path,
                                         allowed_deps=allowed_deps)
+    node_profile_args = []
     if perf_trace:
       perf_trace_file = ctx.new_file(ctx.label.name + ".es5.trace")
       tsconfig_es5["bazelOptions"]["perfTracePath"] = perf_trace_file.path
       outputs.append(perf_trace_file)
-      files += [perf_trace_file]
+
+      profile_file =  ctx.new_file(ctx.label.name + ".es5.v8.log")
+      node_profile_args = ["--prof",
+                           # Without nologfile_per_isolate, v8 embeds an
+                           # unpredictable hash code in the file name, which
+                           # doesn't work with blaze.
+                           "--nologfile_per_isolate",
+                           "--logfile=" + profile_file.path]
+      outputs.append(profile_file)
+
+      files += [perf_trace_file, profile_file]
+
     ctx.file_action(output=tsconfig_json_es5, content=json_marshal(
         tsconfig_es5))
     inputs = compilation_inputs + [tsconfig_json_es5]
-    devmode_compile_action(ctx, inputs, outputs, tsconfig_json_es5)
+    devmode_compile_action(ctx, inputs, outputs, tsconfig_json_es5,
+                           node_profile_args)
 
   # TODO(martinprobst): Merge the generated .d.ts files, and enforce strict
   # deps (do not re-export transitive types from the transitive closure).
