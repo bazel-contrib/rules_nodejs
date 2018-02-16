@@ -1,0 +1,12 @@
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+
+nodejs_binary(
+    name = "packager",
+    data = [
+        "packager.js",
+        "@nodejs//:run_npm.sh.template",
+    ],
+    entry_point = "build_bazel_rules_nodejs/internal/npm_package/packager.js",
+    node_modules = "@build_bazel_rules_nodejs_npm_install_deps//:node_modules",
+    visibility = ["//visibility:public"],
+)
