@@ -29,6 +29,19 @@ rollup_module_mappings_aspect = aspect(
 )
 
 def write_rollup_config(ctx, plugins=[], root_dirs=None, filename="_%s.rollup.conf.js"):
+  """Generate a rollup config file
+
+  This is also used by https://github.com/angular/angular.
+
+  Args:
+    ctx: context
+    plugins: extra plugins (defaults to [])
+    root_dirs: root directories for module resolution (defaults to None)
+    filename: output filename pattern (defaults to "_%s.rollup.conf.js")
+
+  Returns:
+    The rollup config file
+  """
   config = ctx.actions.declare_file(filename % ctx.label.name)
 
   # build_file_path includes the BUILD.bazel file, transform here to only include the dirname
