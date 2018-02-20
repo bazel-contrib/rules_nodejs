@@ -3,10 +3,9 @@
   "devDependencies": {
     "@types/jasmine": "2.8.2",
     "@types/node": "7.0.18",
-    "@types/source-map": "0.5.2",
     "@types/tmp": "0.0.33",
     "protobufjs": "5.0.0",
-    "tsickle": "0.25.5",
+    "tsickle": "0.27.2",
     "typescript": "2.6.2",
     "tsutils": "2.20.0",
     "tmp": "0.0.33"
