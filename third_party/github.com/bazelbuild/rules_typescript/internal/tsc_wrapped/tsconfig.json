@@ -3,7 +3,6 @@
     "strict": true,
     "types": [
       "node",
-      "source-map",
       "jasmine"
     ],
     "lib": [
