@@ -119,9 +119,10 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
     }
 
     for (const dir of this.relativeRoots) {
-      if (result.startsWith(dir + '/')) {
-        // relativeRoots[i]/path/to/file -> path/to/file
-        result = path.relative(dir, result);
+      // relativeRoots[i]/path/to/file -> path/to/file
+      const rel = path.relative(dir, result);
+      if (!rel.startsWith('..')) {
+        result = rel;
         // relativeRoots is sorted longest first so we can short-circuit
         // after the first match
         break;
