@@ -73,24 +73,39 @@ def assert_js_or_typescript_deps(ctx):
           "JavaScript library rules (js_library, pinto_library, etc, but " +
           "also proto_library and some others).\n")
 
-# Deep flag controls whether we grab d.ts's from ts_libraries that are imported
-# by js libraries (which usually use clutz to create a single .d.ts for their
-# entire set of transitive dependencies).
-def _collect_transitive_dts(ctx, deep=True):
-  all_deps_declarations = depset()
+def _collect_dep_declarations(ctx):
+  """Collects .d.ts files from typescript and javascript dependencies.
+
+  Args:
+    ctx: ctx.
+
+  Returns:
+    A struct of depsets for direct, transitive, passthrough and type-blacklisted declarations.
+  """
+  # .d.ts files from direct dependencies, ok for strict deps
+  direct_deps_declarations = depset()
+  # all reachable .d.ts files from dependencies.
+  transitive_deps_declarations = depset([extra for extra in ctx.files._additional_d_ts])
+  # .d.ts files whose types tsickle will not emit (used for ts_declaration(generate_externs=False).
   type_blacklisted_declarations = depset()
-  for extra in ctx.files._additional_d_ts:
-    all_deps_declarations += depset([extra])
+
   for dep in ctx.attr.deps + getattr(ctx.attr, '_helpers', []):
     if hasattr(dep, "typescript"):
-      all_deps_declarations += dep.typescript.transitive_declarations
+      direct_deps_declarations += dep.typescript.declarations
+      transitive_deps_declarations += dep.typescript.transitive_declarations
       type_blacklisted_declarations += dep.typescript.type_blacklisted_declarations
-    else:
-      if deep and hasattr(dep, "clutz_transitive_dts"):
-        all_deps_declarations += dep.clutz_transitive_dts
+
+  # .d.ts files that would be passed into the subsequent typescript compilations
+  # TODO(radokirov): Merge with transitive_deps_declarations after iclutz lands.
+  passthrough_declarations = depset(transitive=[transitive_deps_declarations])
+  # If a tool like github.com/angular/clutz can create .d.ts from type annotated .js
+  # its output will be collected here.
+
   return struct(
-      transitive_declarations=all_deps_declarations,
-      type_blacklisted_declarations=type_blacklisted_declarations
+      direct=direct_deps_declarations,
+      transitive=transitive_deps_declarations,
+      passthrough=passthrough_declarations,
+      type_blacklisted=type_blacklisted_declarations
   )
 
 def _outputs(ctx, label):
@@ -127,7 +142,6 @@ def _outputs(ctx, label):
 
 def compile_ts(ctx,
                is_library,
-               extra_dts_files=[],
                compile_action=None,
                devmode_compile_action=None,
                jsx_factory=None,
@@ -140,8 +154,6 @@ def compile_ts(ctx,
   Args:
     ctx: ctx.
     is_library: boolean. False if only compiling .dts files.
-    extra_dts_files: list. Additional dts files to pass for compilation,
-      not included in the transitive closure of declarations.
     compile_action: function. Creates the compilation action.
     devmode_compile_action: function. Creates the compilation action
       for devmode.
@@ -185,9 +197,9 @@ def compile_ts(ctx,
     # Note: setting this variable controls whether tsickle is run at all.
     tsickle_externs = [ctx.new_file(ctx.label.name + ".externs.js")]
 
-  transitive_dts = _collect_transitive_dts(ctx)
-  input_declarations = transitive_dts.transitive_declarations + src_declarations
-  type_blacklisted_declarations = transitive_dts.type_blacklisted_declarations
+  dep_declarations = _collect_dep_declarations(ctx)
+  input_declarations = dep_declarations.transitive + src_declarations
+  type_blacklisted_declarations = dep_declarations.type_blacklisted
   if not is_library and not ctx.attr.generate_externs:
     type_blacklisted_declarations += ctx.files.srcs
 
@@ -206,16 +218,15 @@ def compile_ts(ctx,
   if "TYPESCRIPT_PERF_TRACE_TARGET" in ctx.var:
     perf_trace = str(ctx.label) == ctx.var["TYPESCRIPT_PERF_TRACE_TARGET"]
 
-  compilation_inputs = input_declarations + extra_dts_files + srcs
+  compilation_inputs = input_declarations + srcs
   tsickle_externs_path = tsickle_externs[0] if tsickle_externs else None
 
   # Calculate allowed dependencies for strict deps enforcement.
   allowed_deps = depset()
-  allowed_deps += srcs[:]  # A target's sources may depend on each other.
-  for dep in ctx.attr.deps:
-    if hasattr(dep, "typescript"):
-      allowed_deps += dep.typescript.declarations
-  allowed_deps += extra_dts_files
+  # A target's sources may depend on each other,
+  allowed_deps += srcs[:]
+  # or on a .d.ts from a direct dependency
+  allowed_deps += dep_declarations.direct
 
   tsconfig_es6 = tsc_wrapped_tsconfig(
       ctx,
@@ -268,7 +279,7 @@ def compile_ts(ctx,
 
   # TODO(martinprobst): Merge the generated .d.ts files, and enforce strict
   # deps (do not re-export transitive types from the transitive closure).
-  transitive_decls = input_declarations + gen_declarations
+  transitive_decls = dep_declarations.passthrough + src_declarations + gen_declarations
 
   if is_library:
     es6_sources = depset(transpiled_closure_js + tsickle_externs)
