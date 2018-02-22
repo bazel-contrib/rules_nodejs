@@ -128,7 +128,12 @@ def run_uglify(ctx, input, output, debug = False, comments = True):
     output: output file
     debug: if True then output is beautified (defaults to False)
     comments: if True then copyright comments are preserved in output file (defaults to True)
+
+  Returns:
+    The sourcemap file
   """
+  map_output = ctx.actions.declare_file(output.basename + ".map", sibling = output)
+
   config = ctx.actions.declare_file("_%s%s.uglify.json" % (
       ctx.label.name, ".debug" if debug else ""))
 
@@ -136,7 +141,8 @@ def run_uglify(ctx, input, output, debug = False, comments = True):
       output = config,
       template =  ctx.file._uglify_config_tmpl,
       substitutions = {
-          "TMPL_notdebug": "false" if debug else "true"
+          "TMPL_notdebug": "false" if debug else "true",
+          "TMPL_sourcemap": map_output.path,
       },
   )
 
@@ -144,6 +150,8 @@ def run_uglify(ctx, input, output, debug = False, comments = True):
   args.add(input.path)
   args.add(["--config-file", config.path])
   args.add(["--output", output.path])
+  # This option doesn't work in the config file, only on the CLI
+  args.add(["--source-map", "includeSources,base=" + ctx.bin_dir.path])
   if comments:
     args.add("--comments")
   if debug:
@@ -152,17 +160,18 @@ def run_uglify(ctx, input, output, debug = False, comments = True):
   ctx.action(
       executable = ctx.executable._uglify,
       inputs = [input, config],
-      outputs = [output],
+      outputs = [output, map_output],
       arguments = [args]
   )
+  return map_output
 
 def _rollup_bundle(ctx):
   rollup_config = write_rollup_config(ctx)
   run_rollup(ctx, collect_es6_sources(ctx), rollup_config, ctx.outputs.build_es6)
   _run_tsc(ctx, ctx.outputs.build_es6, ctx.outputs.build_es5)
-  run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min)
+  source_map = run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min)
   run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min_debug, debug = True)
-  return DefaultInfo(files=depset([ctx.outputs.build_es5_min]))
+  return DefaultInfo(files=depset([ctx.outputs.build_es5_min, source_map]))
 
 ROLLUP_ATTRS = {
     "entry_point": attr.string(mandatory = True),

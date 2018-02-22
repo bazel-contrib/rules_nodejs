@@ -1,4 +1,7 @@
 {
+  "sourceMap": {
+    "filename": "TMPL_sourcemap"
+  },
   "compress": {
     "pure_getters": true,
     "passes": 3,
