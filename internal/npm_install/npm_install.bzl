@@ -31,6 +31,8 @@ filegroup(
             "node_modules/**/test/**",
             # e.g. node_modules/xpath/docs/function resolvers.md
             "node_modules/**/docs/**",
+            # e.g. node_modules/puppeteer/.local-chromium/mac-536395/chrome-mac/Chromium.app/Contents/Versions/66.0.3347.0/Chromium Framework.framework/Chromium Framework
+            "node_modules/**/.*/**"
         ],
     ),
 )
