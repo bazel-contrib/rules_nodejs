@@ -21,7 +21,7 @@ load(":executables.bzl", "get_tsc")
 load(":common/tsconfig.bzl", "create_tsconfig")
 load(":ts_config.bzl", "TsConfigInfo")
 
-def _compile_action(ctx, inputs, outputs, tsconfig_file):
+def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts):
   externs_files = []
   action_outputs = []
   for output in outputs:
@@ -48,14 +48,17 @@ def _compile_action(ctx, inputs, outputs, tsconfig_file):
     if TsConfigInfo in ctx.attr.tsconfig:
       action_inputs += ctx.attr.tsconfig[TsConfigInfo].deps
 
+  # Pass actual options for the node binary in the special "--node_options" argument.
+  arguments = ["--node_options=%s" % opt for opt in node_opts]
   # One at-sign makes this a params-file, enabling the worker strategy.
   # Two at-signs escapes the argument so it's passed through to tsc_wrapped
   # rather than the contents getting expanded.
   if ctx.attr.supports_workers:
-    arguments = ["@@" + tsconfig_file.path]
+    arguments.append("@@" + tsconfig_file.path)
     mnemonic = "TypeScriptCompile"
   else:
-    arguments = ["-p", tsconfig_file.path]
+    arguments.append("-p")
+    arguments.append(tsconfig_file.path)
     mnemonic = "tsc"
 
   ctx.action(
@@ -80,8 +83,8 @@ def _compile_action(ctx, inputs, outputs, tsconfig_file):
   )
 
 
-def _devmode_compile_action(ctx, inputs, outputs, tsconfig_file):
-  _compile_action(ctx, inputs, outputs, tsconfig_file)
+def _devmode_compile_action(ctx, inputs, outputs, tsconfig_file, node_opts):
+  _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts)
 
 def tsc_wrapped_tsconfig(ctx,
                          files,
