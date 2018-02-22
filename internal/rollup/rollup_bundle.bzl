@@ -117,7 +117,7 @@ def _run_tsc(ctx, input, output):
       arguments = [args]
   )
 
-def run_uglify(ctx, input, output, debug = False, comments = True):
+def run_uglify(ctx, input, output, debug = False, comments = True, config_name = None):
   """Runs uglify on an input file
 
   This is also used by https://github.com/angular/angular.
@@ -128,14 +128,20 @@ def run_uglify(ctx, input, output, debug = False, comments = True):
     output: output file
     debug: if True then output is beautified (defaults to False)
     comments: if True then copyright comments are preserved in output file (defaults to True)
+    config_name: allows callers to control the name of the generated uglify configuration,
+        which will be _[config_name].uglify.json in the package where the target is declared
 
   Returns:
     The sourcemap file
   """
   map_output = ctx.actions.declare_file(output.basename + ".map", sibling = output)
 
-  config = ctx.actions.declare_file("_%s%s.uglify.json" % (
-      ctx.label.name, ".debug" if debug else ""))
+  if not config_name:
+    config_name = ctx.label.name
+    if debug:
+      config_name += ".debug"
+
+  config = ctx.actions.declare_file("_%s.uglify.json" % config_name)
 
   ctx.actions.expand_template(
       output = config,
