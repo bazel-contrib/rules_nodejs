@@ -17,7 +17,10 @@ rollup_bundle(
 jasmine_node_test(
     name = "test",
     srcs = glob(["*.spec.js"]),
-    data = glob(["*_golden.js_"]) + [
+    data = glob([
+        "*_golden.js_",
+        "*_golden.js.map",
+    ]) + [
         ":bundle",
         ":bundle.min_debug.js",
     ],
