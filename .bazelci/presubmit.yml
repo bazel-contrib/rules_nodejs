@@ -1,0 +1,23 @@
+---
+platforms:
+  ubuntu1404:
+    run_targets:
+    - "@yarn//:yarn"
+    build_targets:
+    - "..."
+    test_targets:
+    - "..."
+  ubuntu1604:
+    run_targets:
+    - "@yarn//:yarn"
+    build_targets:
+    - "..."
+    test_targets:
+    - "..."
+  macos:
+    run_targets:
+    - "@yarn//:yarn"
+    build_targets:
+    - "..."
+    test_targets:
+    - "..."
