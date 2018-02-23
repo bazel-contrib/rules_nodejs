@@ -269,15 +269,15 @@ export function parseTsconfig(
   // options.rootDir (the workspace root) and aren't transformed by
   // parseJsonConfigFileContent (because TypeScript doesn't know
   // about them). Transform them to also be absolute here.
-  bazelOpts.compilationTargetSrc =
-      bazelOpts.compilationTargetSrc.map(f => path.resolve(options.rootDir, f));
+  bazelOpts.compilationTargetSrc = bazelOpts.compilationTargetSrc.map(
+      f => path.resolve(options.rootDir!, f));
   bazelOpts.allowedStrictDeps =
-      bazelOpts.allowedStrictDeps.map(f => path.resolve(options.rootDir, f));
+      bazelOpts.allowedStrictDeps.map(f => path.resolve(options.rootDir!, f));
   bazelOpts.typeBlackListPaths =
-      bazelOpts.typeBlackListPaths.map(f => path.resolve(options.rootDir, f));
+      bazelOpts.typeBlackListPaths.map(f => path.resolve(options.rootDir!, f));
   if (bazelOpts.nodeModulesPrefix) {
     bazelOpts.nodeModulesPrefix =
-        path.resolve(options.rootDir, bazelOpts.nodeModulesPrefix);
+        path.resolve(options.rootDir!, bazelOpts.nodeModulesPrefix);
   }
 
   let disabledTsetseRules: string[] = [];
