@@ -21,6 +21,8 @@ Rollup: running with
   moduleMappings: ${JSON.stringify(moduleMappings)}
 `);
 
+// This resolver mimics the TypeScript `rootDirs` feature, which lets us pretend
+// that multiple roots are logically merged into a single tree.
 function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = require.resolve) {
   function resolveInRootDirs(importee) {
     for (var i = 0; i < rootDirs.length; i++) {
@@ -46,8 +48,20 @@ function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = req
   var resolved;
   if (importee.startsWith('.' + path.sep) || importee.startsWith('..' + path.sep)) {
     // relative import
-    resolved = path.join(importer ? path.dirname(importer) : '', importee);
-    if (resolved) resolved = resolve(resolved);
+    if (importer) {
+      let importerRootRelative = path.dirname(importer);
+      for (var i = 0; i < rootDirs.length; i++) {
+        var root = rootDirs[i];
+        const relative = path.relative(path.join(baseDir, root), importerRootRelative);
+        if (!relative.startsWith('.')) {
+          importerRootRelative = relative;
+        }
+      }
+      resolved = path.join(importerRootRelative, importee);
+    } else {
+      throw new Error('cannot resolve relative paths without an importer');
+    }
+    if (resolved) resolved = resolveInRootDirs(resolved);
   }
 
   if (!resolved) {
@@ -59,7 +73,7 @@ function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = req
         var v = moduleMappings[k];
         importee = path.join(v, importee.slice(k.length + 1));
         resolved = resolveInRootDirs(importee);
-        break;
+        if (resolved) break;
       }
     }
   }
