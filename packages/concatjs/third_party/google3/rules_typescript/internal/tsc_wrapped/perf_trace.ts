@@ -81,16 +81,11 @@ export function write(path: string) {
   reset();
 }
 
-/**
- * Given an event name, return the total duration of all events of this name in
- * microseconds. If the event didn't happen then throw an error.
- */
-export function getTotalDuration(name: string): number {
-  const durations = events.filter(event => event.name === name && !!event.dur)
-                        .map(event => event.dur as number);
-  if (durations.length === 0) {
-    throw new Error(`${name} event didn't happen.`);
-  }
-
-  return durations.reduce((dur1, dur2) => dur1 + dur2);
+/** Record the current heap usage to the performance trace. */
+export function snapshotMemoryUsage() {
+  const snapshot = process.memoryUsage();
+  // The counter displays as a stacked bar graph, so compute metrics
+  // that sum to the appropriate total.
+  const unused = snapshot.heapTotal - snapshot.heapUsed;
+  counter('memory', {'used': snapshot.heapUsed, 'unused': unused});
 }
