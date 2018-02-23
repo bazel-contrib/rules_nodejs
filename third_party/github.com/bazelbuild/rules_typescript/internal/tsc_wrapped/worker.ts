@@ -88,11 +88,11 @@ export function runWorkerLoop(
                                  .setOutput(consoleOutput)
                                  .encodeDelimited()
                                  .toBuffer());
-
-        // Force a garbage collection pass.  This keeps our memory
-        // usage consistent across multiple compilations, and allows
-        // the file cache to use the current memory usage as a
-        // guideline for expiring data.
+        // Force a garbage collection pass.  This keeps our memory usage
+        // consistent across multiple compilations, and allows the file
+        // cache to use the current memory usage as a guideline for expiring
+        // data.  Note: this is intentionally not within runOneBuild(), as
+        // we want to gc only after all its locals have gone out of scope.
         global.gc();
       }
       // Avoid growing the buffer indefinitely.

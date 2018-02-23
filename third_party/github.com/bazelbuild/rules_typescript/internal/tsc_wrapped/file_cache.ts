@@ -27,7 +27,8 @@ export interface CacheEntry<CachedType> {
 
 export interface LRUCache<CachedType> {
   getCache(key: string): CachedType|undefined;
-  putCache(key: string, value: CacheEntry<CachedType>): void;
+  putCache(key: string, value: CacheEntry<CachedType>, loadTimeMs: number):
+      void;
   inCache(key: string): boolean;
 }
 
@@ -113,9 +114,9 @@ export class FileCache<CachedType> implements LRUCache<CachedType> {
     this.cacheStats.reads++;
 
     const entry = this.fileCache[filePath];
+    let value: CachedType|undefined;
     if (!entry) {
       this.debug('Cache miss:', filePath);
-      return undefined;
     } else {
       this.debug('Cache hit:', filePath);
       this.cacheStats.hits++;
@@ -123,15 +124,17 @@ export class FileCache<CachedType> implements LRUCache<CachedType> {
       // it.
       delete this.fileCache[filePath];
       this.fileCache[filePath] = entry;
-      return entry.value;
+      value = entry.value;
     }
+    this.traceStats();
+    return value;
   }
 
-  putCache(filePath: string, entry: CacheEntry<CachedType>): void {
-    const readStart = Date.now();
-    this.cacheStats.readTimeMs += Date.now() - readStart;
+  putCache(filePath: string, entry: CacheEntry<CachedType>, loadTimeMs: number):
+      void {
     const dropped = this.maybeFreeMemory();
     this.fileCache[filePath] = entry;
+    this.cacheStats.readTimeMs += loadTimeMs;
     this.debug('Loaded', filePath, 'dropped', dropped, 'cache entries');
   }
 
@@ -174,10 +177,15 @@ export class FileCache<CachedType> implements LRUCache<CachedType> {
     perfTrace.counter('file cache hit rate', {
       'hits': this.cacheStats.hits,
       'misses': this.cacheStats.reads - this.cacheStats.hits,
+    });
+    perfTrace.counter('file cache evictions', {
       'evictions': this.cacheStats.evictions,
     });
     perfTrace.counter('file cache time', {
       'read': this.cacheStats.readTimeMs,
+    });
+    perfTrace.counter('file cache size', {
+      'files': Object.keys(this.fileCache).length,
     });
   }
 
@@ -232,13 +240,16 @@ export class CachedFileLoader implements FileLoader {
       ts.SourceFile {
     let sourceFile = this.cache.getCache(filePath);
     if (!sourceFile) {
+      const readStart = Date.now();
       const sourceText = fs.readFileSync(filePath, 'utf8');
       sourceFile = ts.createSourceFile(fileName, sourceText, langVer, true);
       const entry = {
         digest: this.cache.getLastDigest(filePath),
         value: sourceFile
       };
-      this.cache.putCache(filePath, entry);
+      const readEnd = Date.now();
+      this.cache.putCache(filePath, entry, readEnd - readStart);
+      perfTrace.snapshotMemoryUsage();
     }
 
     return sourceFile;
