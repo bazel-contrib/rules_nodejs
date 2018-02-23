@@ -14,10 +14,15 @@
 
 workspace(name = "build_bazel_rules_typescript")
 
-git_repository(
+# Using a pre-release snapshot to pick up a commit that makes all nodejs_binary
+# programs produce source-mapped stack traces.
+RULES_NODEJS_VERSION = "926349cea4cd360afcd5647ccdd09d2d2fb471aa"
+
+http_archive(
     name = "build_bazel_rules_nodejs",
-    remote = "https://github.com/bazelbuild/rules_nodejs",
-    commit = "7d4e13a7d1bbc5eded35df631338e9f0719a1737",
+    url = "https://github.com/bazelbuild/rules_nodejs/archive/%s.zip" % RULES_NODEJS_VERSION,
+    strip_prefix = "rules_nodejs-%s" % RULES_NODEJS_VERSION,
+    sha256 = "5ba3c8c209078c2e3f0c6aa4abd01a1a561f92a5bfda04e25604af5f4734d69d",
 )
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
