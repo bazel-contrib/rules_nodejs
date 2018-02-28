@@ -84,7 +84,7 @@ def run_rollup(ctx, config):
 def run_tsc(ctx, input_dir):
   config = ctx.actions.declare_file("_%s.tsconfig.json" % ctx.label.name)
 
-  output_dir = ctx.actions.declare_directory("bundles")
+  output_dir = ctx.actions.declare_directory("bundles.es5")
 
   build_file_dirname = ctx.build_file_path.split("/")[:-1]
   input_dir_rerooted = "/".join(input_dir.short_path.split("/")[len(build_file_dirname):])
@@ -110,29 +110,17 @@ def run_tsc(ctx, input_dir):
 
   return output_dir
 
-def run_uglify(ctx, input, output, debug = False):
-  config = ctx.actions.declare_file("_%s%s.uglify.json" % (
-      ctx.label.name, ".debug" if debug else ""))
-
-  ctx.actions.expand_template(
-      output = config,
-      template =  ctx.file._uglify_config_tmpl,
-      substitutions = {
-          "TMPL_mangle": "false" if debug else "true"
-      },
-  )
-
+def run_uglify(ctx, input_dir, output_dir, debug = False):
   args = ctx.actions.args()
-  args.add(input.path)
-  args.add(["--config-file", config.path])
-  args.add(["--output", output.path])
+  args.add(input_dir.path)
+  args.add(output_dir.path)
   if debug:
-    args.add("--beautify")
+    args.add("--debug")
 
   ctx.action(
       executable = ctx.executable._uglify,
-      inputs = [input, config],
-      outputs = [output],
+      inputs = [input_dir],
+      outputs = [output_dir],
       arguments = [args]
   )
 
@@ -144,7 +132,7 @@ def _generate_html(ctx):
   entry_points = {}
   for e in ctx.attr.entry_points:
     entry_point = e.lstrip(build_file_prefix)
-    entry_points["./" + entry_point] = "bundles/" + entry_point.split("/")[-1]
+    entry_points["./" + entry_point] = "bundles.es5_min/" + entry_point.split("/")[-1]
   rollup_scripts = """<script src="/system.js"></script>
 <script>
   (function (global) {
@@ -173,14 +161,16 @@ def _rollup_bundle(ctx):
   rollup_config = write_rollup_config(ctx)
   output_dir_es6 = run_rollup(ctx, rollup_config)
   output_dir_es5 = run_tsc(ctx, output_dir_es6)
-  #run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min)
-  #run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min_debug, debug = True)
+  output_dir_es5_min = ctx.actions.declare_directory("bundles.es5_min")
+  output_dir_es5_min_debug = ctx.actions.declare_directory("bundles.es5_min_debug")
+  run_uglify(ctx, output_dir_es5, output_dir_es5_min)
+  run_uglify(ctx, output_dir_es5, output_dir_es5_min_debug, debug = True)
   _generate_html(ctx)
   ctx.actions.expand_template(
     output = ctx.outputs.system_js,
     template = ctx.file._systemjs,
     substitutions = {})
-  return DefaultInfo(runfiles=ctx.runfiles([output_dir_es6, output_dir_es5, ctx.outputs.system_js, ctx.outputs.index_html]), files=depset([]))
+  return DefaultInfo(runfiles=ctx.runfiles([output_dir_es6, output_dir_es5, output_dir_es5_min, output_dir_es5_min_debug, ctx.outputs.system_js, ctx.outputs.index_html]), files=depset([]))
 
 ROLLUP_ATTRS = {
     "entry_points": attr.string_list(mandatory = True),
