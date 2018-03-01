@@ -195,6 +195,6 @@ ts_library = rule(
 def tsc_library(**kwargs):
   ts_library(
       supports_workers = False,
-      compiler = "//internal/tsc_wrapped:tsc",
+      compiler = "//internal:tsc",
       node_modules = "@build_bazel_rules_typescript_tsc_wrapped_deps//:node_modules",
       **kwargs)

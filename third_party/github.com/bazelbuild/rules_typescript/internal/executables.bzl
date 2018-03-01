@@ -16,4 +16,4 @@
 """
 
 def get_tsc():
-  return Label("//internal/tsc_wrapped:tsc_wrapped_bin")
+  return Label("//internal:tsc_wrapped_bin")

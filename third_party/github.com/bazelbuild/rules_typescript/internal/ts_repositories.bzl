@@ -20,8 +20,8 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
 def ts_setup_workspace():
   yarn_install(
       name = "build_bazel_rules_typescript_tsc_wrapped_deps",
-      package_json = "@build_bazel_rules_typescript//internal/tsc_wrapped:package.json",
-      yarn_lock = "@build_bazel_rules_typescript//internal/tsc_wrapped:yarn.lock",
+      package_json = "@build_bazel_rules_typescript//internal:tsc_wrapped/package.json",
+      yarn_lock = "@build_bazel_rules_typescript//internal:tsc_wrapped/yarn.lock",
   )
   yarn_install(
       name = "build_bazel_rules_typescript_devserver_deps",
