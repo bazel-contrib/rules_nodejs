@@ -28,8 +28,10 @@ def create_package(ctx, devmode_sources):
 
   args = ctx.actions.args()
   args.add(package_dir.path)
+  args.add(ctx.label.package)
   args.add([s.path for s in ctx.files.srcs], join_with=",")
   args.add(ctx.bin_dir.path)
+  args.add(ctx.genfiles_dir.path)
   args.add([s.path for s in devmode_sources], join_with=",")
   args.add([ctx.outputs.pack.path, ctx.outputs.publish.path])
 

@@ -34,19 +34,27 @@ function write(p, content) {
 // overwrite the version in package.json)
 
 function main(args) {
-  const [outDir, srcsArg, binDir, depsArg, packPath, publishPath] = args;
+  const [outDir, baseDir, srcsArg, binDir, genDir, depsArg, packPath, publishPath] = args;
 
-  // src like my/path is just copied to outDir/my/path
+  // src like baseDir/my/path is just copied to outDir/my/path
   for (src of srcsArg.split(',').filter(s => !!s)) {
     const content = fs.readFileSync(src, {encoding: 'utf-8'});
-    const outPath = path.join(outDir, src);
+    const outPath = path.join(outDir, path.relative(baseDir, src));
     write(outPath, content);
   }
 
-  // deps like bazel-bin/my/path is copied to outDir/my/path
+  // deps like bazel-bin/baseDir/my/path is copied to outDir/my/path
   for (dep of depsArg.split(',').filter(s => !!s)) {
-    const content = fs.readFileSync(dep, {encoding: 'utf-8'})
-    const outPath = path.join(outDir, path.relative(binDir, dep));
+    const content = fs.readFileSync(dep, {encoding: 'utf-8'});
+    let rootDir;
+    if (!path.relative(binDir, dep).startsWith('..')) {
+      rootDir = binDir;
+    } else if (!path.relative(genDir, dep).startsWith('..')) {
+      rootDir = genDir;
+    } else {
+      throw new Error(`dependency ${dep} is not under bazel-bin or bazel-genfiles`);
+    }
+    const outPath = path.join(outDir, path.relative(path.join(rootDir, baseDir), dep));
     write(outPath, content);
   }
 
