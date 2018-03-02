@@ -98,6 +98,7 @@ def create_tsconfig(ctx, files, srcs,
   bazel_options = {
       "workspaceName": ctx.workspace_name,
       "target": str(ctx.label),
+      "package": ctx.label.package,
       "tsickle": tsickle_externs != None,
       "tsickleGenerateExterns": getattr(ctx.attr, "generate_externs", True),
       "tsickleExternsPath": tsickle_externs.path if tsickle_externs else "",
@@ -117,6 +118,9 @@ def create_tsconfig(ctx, files, srcs,
     bazel_options["disableStrictDeps"] = disable_strict_deps
   else:
     bazel_options["allowedStrictDeps"] = [f.path for f in allowed_deps]
+
+  if hasattr(ctx.attr, "module_name") and ctx.attr.module_name:
+    bazel_options["moduleName"] = ctx.attr.module_name
 
   if "TYPESCRIPT_WORKER_CACHE_SIZE_MB" in ctx.var:
     max_cache_size_mb = int(ctx.var["TYPESCRIPT_WORKER_CACHE_SIZE_MB"])
