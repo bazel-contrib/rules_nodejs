@@ -38,7 +38,7 @@ ts_library(
       "tsetse/rules/*.ts"
     ], exclude=["**/test_support.ts", "**/*_test.ts"]),
     module_name = "@bazel/typescript",
-    module_root = "index.d.ts",
+    module_root = "tsc_wrapped/index.d.ts",
     tsconfig = "//internal:tsc_wrapped/tsconfig.json",
     visibility = ["//visibility:public"],
     data = [
