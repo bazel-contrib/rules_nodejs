@@ -255,7 +255,10 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
     let fileName = this.rootDirsRelative(sf.fileName).replace(/(\.d)?\.tsx?$/, '');
 
     if (this.bazelOpts.moduleName) {
-      return path.join(this.bazelOpts.moduleName, path.relative(this.bazelOpts.package, fileName));
+      const relativeFileName = path.relative(this.bazelOpts.package, fileName);
+      if (!relativeFileName.startsWith('..')) {
+        return path.join(this.bazelOpts.moduleName, relativeFileName);
+      }
     }
 
     let workspace = this.bazelOpts.workspaceName;
@@ -286,8 +289,9 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
       onError?: (message: string) => void) {
     return perfTrace.wrap(`getSourceFile ${fileName}`, () => {
       const sf = this.fileLoader.loadFile(fileName, fileName, languageVersion);
-      if (this.options.module === ts.ModuleKind.AMD ||
-          this.options.module === ts.ModuleKind.UMD) {
+      if (!/\.d\.tsx?$/.test(fileName) &&
+          (this.options.module === ts.ModuleKind.AMD ||
+           this.options.module === ts.ModuleKind.UMD)) {
         const moduleName = this.amdModuleName(sf);
         if (sf.moduleName === moduleName || !moduleName) return sf;
         if (sf.moduleName) {
