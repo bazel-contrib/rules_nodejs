@@ -30,6 +30,9 @@ export interface BazelOptions {
   /** The full bazel target that is being built, e.g. //my/pkg:library. */
   target: string;
 
+  /** The bazel package, eg my/pkg */
+  package: string;
+
   /** If true, convert require()s into goog.module(). */
   googmodule: boolean;
 
@@ -115,6 +118,12 @@ export interface BazelOptions {
    * Suppress warnings about tsconfig.json properties that are overridden.
    */
   suppressTsconfigOverrideWarnings: boolean;
+
+  /**
+   * An explicit name for this module, given by the module_name attribute on a
+   * ts_library.
+   */
+  moduleName?: string;
 }
 
 export interface ParsedTsConfig {

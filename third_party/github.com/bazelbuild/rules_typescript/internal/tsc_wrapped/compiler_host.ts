@@ -251,8 +251,13 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
   amdModuleName(sf: ts.SourceFile): string|undefined {
     if (!this.shouldNameModule(sf.fileName)) return undefined;
     // /build/work/bazel-out/local-fastbuild/bin/path/to/file.ts
-    // -> path/to/file.ts
-    let fileName = this.rootDirsRelative(sf.fileName);
+    // -> path/to/file
+    let fileName = this.rootDirsRelative(sf.fileName).replace(/(\.d)?\.tsx?$/, '');
+
+    if (this.bazelOpts.moduleName) {
+      return path.join(this.bazelOpts.moduleName, path.relative(this.bazelOpts.package, fileName));
+    }
+
     let workspace = this.bazelOpts.workspaceName;
 
     // Workaround https://github.com/bazelbuild/bazel/issues/1262
@@ -270,9 +275,9 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
       fileName = parts.slice(2).join('/');
     }
 
-    // path/to/file.ts ->
+    // path/to/file ->
     // myWorkspace/path/to/file
-    return path.join(workspace, fileName.replace(/(\.d)?\.tsx?$/, ''));
+    return path.join(workspace, fileName);
   }
 
   /** Loads a source file from disk (or the cache). */
