@@ -252,14 +252,8 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
     if (!this.shouldNameModule(sf.fileName)) return undefined;
     // /build/work/bazel-out/local-fastbuild/bin/path/to/file.ts
     // -> path/to/file
-    let fileName = this.rootDirsRelative(sf.fileName).replace(/(\.d)?\.tsx?$/, '');
-
-    if (this.bazelOpts.moduleName) {
-      const relativeFileName = path.relative(this.bazelOpts.package, fileName);
-      if (!relativeFileName.startsWith('..')) {
-        return path.join(this.bazelOpts.moduleName, relativeFileName);
-      }
-    }
+    let fileName =
+        this.rootDirsRelative(sf.fileName).replace(/(\.d)?\.tsx?$/, '');
 
     let workspace = this.bazelOpts.workspaceName;
 
@@ -276,6 +270,13 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
       const parts = fileName.split('/');
       workspace = parts[1];
       fileName = parts.slice(2).join('/');
+    }
+
+    if (this.bazelOpts.moduleName) {
+      const relativeFileName = path.relative(this.bazelOpts.package, fileName);
+      if (!relativeFileName.startsWith('..')) {
+        return path.join(this.bazelOpts.moduleName, relativeFileName);
+      }
     }
 
     // path/to/file ->
