@@ -17,14 +17,6 @@
 Labels are different on windows and linux/OSX.
 """
 
-def get_node_label(repository_ctx):
-  if repository_ctx.os.name.lower().find("windows") != -1:
-    # The windows distribution of nodejs has the binaries in different paths
-    node = Label("@nodejs//:node.exe")
-  else:
-    node = Label("@nodejs//:bin/node")
-  return node
-
 def get_npm_label(repository_ctx):
   if repository_ctx.os.name.lower().find("windows") != -1:
     # The windows distribution of nodejs has the binaries in different paths

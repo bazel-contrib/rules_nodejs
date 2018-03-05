@@ -14,8 +14,6 @@
 
 """Rules to install NodeJS dependencies during WORKSPACE evaluation."""
 
-load("//internal/node:node_labels.bzl", "get_node_label")
-
 def _yarn_install_impl(repository_ctx):
   """Core implementation of yarn_install."""
 
@@ -47,7 +45,7 @@ filegroup(
           repository_ctx.attr.yarn_lock,
           repository_ctx.path("yarn.lock"))
 
-  node = get_node_label(repository_ctx)
+  node = Label("@nodejs//:node")
   yarn = Label("@yarn//:bin/yarn.js")
 
   # This runs node, not yarn directly, as the latter will
