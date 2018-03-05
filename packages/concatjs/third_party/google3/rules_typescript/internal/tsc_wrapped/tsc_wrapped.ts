@@ -9,7 +9,7 @@ import * as diagnostics from './diagnostics';
 import {CachedFileLoader, FileCache, FileLoader, UncachedFileLoader} from './file_cache';
 import {wrap} from './perf_trace';
 import {PLUGIN as strictDepsPlugin} from './strict_deps';
-import {BazelOptions, parseTsconfig} from './tsconfig';
+import {BazelOptions, parseTsconfig, resolveNormalizedPath} from './tsconfig';
 import {fixUmdModuleDeclarations} from './umd_module_declaration_transform';
 import {debug, log, runAsWorker, runWorkerLoop} from './worker';
 
@@ -71,7 +71,7 @@ function runOneBuild(
     // Resolve the inputs to absolute paths to match TypeScript internals
     const resolvedInputs: {[path: string]: string} = {};
     for (const key of Object.keys(inputs)) {
-      resolvedInputs[path.resolve(key)] = inputs[key];
+      resolvedInputs[resolveNormalizedPath(key)] = inputs[key];
     }
     fileCache.updateCache(resolvedInputs);
   } else {

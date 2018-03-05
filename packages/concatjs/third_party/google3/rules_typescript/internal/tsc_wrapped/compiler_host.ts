@@ -275,13 +275,13 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
     if (this.bazelOpts.moduleName) {
       const relativeFileName = path.relative(this.bazelOpts.package, fileName);
       if (!relativeFileName.startsWith('..')) {
-        return path.join(this.bazelOpts.moduleName, relativeFileName);
+        return path.posix.join(this.bazelOpts.moduleName, relativeFileName);
       }
     }
 
     // path/to/file ->
     // myWorkspace/path/to/file
-    return path.join(workspace, fileName);
+    return path.posix.join(workspace, fileName);
   }
 
   /** Loads a source file from disk (or the cache). */
@@ -386,6 +386,14 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
       return result;
     }
     return this.knownFiles.has(filePath);
+  }
+
+  // Since we override getDefaultLibFileName below, we must also provide the
+  // directory containing the file.
+  // Otherwise TypeScript looks in C:\lib.xxx.d.ts for the default lib.
+  getDefaultLibLocation(): string {
+    return path.dirname(
+        this.getDefaultLibFileName({target: ts.ScriptTarget.ES5}));
   }
 
   getDefaultLibFileName(options: ts.CompilerOptions): string {

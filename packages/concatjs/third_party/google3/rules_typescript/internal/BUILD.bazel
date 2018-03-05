@@ -18,7 +18,7 @@ package(default_visibility = ["//visibility:public"])
 
 exports_files(["worker_protocol.proto"])
 
-load("//internal:build_defs.bzl", ts_library = "tsc_library")
+load("//internal:build_defs.bzl", "ts_library")
 load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary", "jasmine_node_test")
 
 # Vanilla typescript compiler: run the tsc.js binary distributed by TypeScript
@@ -37,6 +37,9 @@ ts_library(
       "tsetse/*.ts",
       "tsetse/rules/*.ts"
     ], exclude=["**/test_support.ts", "**/*_test.ts"]),
+    supports_workers = False,
+    compiler = ":tsc",
+    node_modules = "@build_bazel_rules_typescript_tsc_wrapped_deps//:node_modules",
     module_name = "@bazel/typescript",
     module_root = "tsc_wrapped/index.d.ts",
     tsconfig = "//internal:tsc_wrapped/tsconfig.json",

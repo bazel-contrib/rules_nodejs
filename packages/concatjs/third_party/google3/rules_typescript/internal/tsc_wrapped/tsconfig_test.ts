@@ -18,7 +18,7 @@
 import * as path from 'path';
 import * as ts from 'typescript';
 
-import {parseTsconfig} from './tsconfig';
+import {parseTsconfig, resolveNormalizedPath} from './tsconfig';
 
 describe('tsconfig', () => {
   it('honors bazelOptions in the users tsconfig', () => {
@@ -31,9 +31,9 @@ describe('tsconfig', () => {
       bazelOptions: {},
     };
     const files = {
-      [path.resolve('path/to/user.tsconfig.json')]:
+      [resolveNormalizedPath('path/to/user.tsconfig.json')]:
           '/*some comment*/\n' + JSON.stringify(userTsconfig),
-      [path.resolve('path/to/generated.tsconfig.json')]:
+      [resolveNormalizedPath('path/to/generated.tsconfig.json')]:
           JSON.stringify(generatedTsconfig),
     };
     const host: ts.ParseConfigHost = {
