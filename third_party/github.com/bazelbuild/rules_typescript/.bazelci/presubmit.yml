@@ -25,3 +25,11 @@ platforms:
     - "..."
     test_targets:
     - "..."
+  windows:
+    run_targets:
+    - "@yarn//:yarn"
+    # TODO(alexeagle): expand to all targets when rules_go is fixed
+    build_targets:
+    - "//examples:all"
+    # TODO(alexeagle): include test_targets when karma fixes land
+    # and we have Bazel 0.12
