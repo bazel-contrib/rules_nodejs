@@ -189,12 +189,3 @@ ts_library = rule(
         "tsconfig": "%{name}_tsconfig.json"
     }
 )
-
-# Helper that compiles typescript libraries using the vanilla tsc compiler
-# Only used in Bazel - this file is not intended for use with Blaze.
-def tsc_library(**kwargs):
-  ts_library(
-      supports_workers = False,
-      compiler = "//internal:tsc",
-      node_modules = "@build_bazel_rules_typescript_tsc_wrapped_deps//:node_modules",
-      **kwargs)
