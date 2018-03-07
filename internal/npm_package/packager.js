@@ -24,8 +24,12 @@ function mkdirp(p) {
   }
 }
 
-function write(p, content) {
+function write(p, content, replacements) {
   mkdirp(path.dirname(p));
+  replacements.forEach(r => {
+    const [regexp, newvalue] = r;
+    content = content.replace(regexp, newvalue);
+  });
   fs.writeFileSync(p, content);
 }
 
@@ -34,13 +38,22 @@ function write(p, content) {
 // overwrite the version in package.json)
 
 function main(args) {
-  const [outDir, baseDir, srcsArg, binDir, genDir, depsArg, packPath, publishPath] = args;
+  const [outDir, baseDir, srcsArg, binDir, genDir, depsArg, replacementsArg, packPath, publishPath] = args;
+
+  const replacements = [
+    // Strip content between BEGIN-INTERNAL / END-INTERNAL comments
+    [/(#|\/\/)\s+BEGIN-INTERNAL[\w\W]+END-INTERNAL/g, ''],
+  ];
+  const rawReplacements = JSON.parse(replacementsArg);
+  for (let key of Object.keys(rawReplacements)) {
+    replacements.push([new RegExp(key, 'g'), rawReplacements[key]])
+  }
 
   // src like baseDir/my/path is just copied to outDir/my/path
   for (src of srcsArg.split(',').filter(s => !!s)) {
     const content = fs.readFileSync(src, {encoding: 'utf-8'});
     const outPath = path.join(outDir, path.relative(baseDir, src));
-    write(outPath, content);
+    write(outPath, content, replacements);
   }
 
   // deps like bazel-bin/baseDir/my/path is copied to outDir/my/path
@@ -55,7 +68,7 @@ function main(args) {
       throw new Error(`dependency ${dep} is not under bazel-bin or bazel-genfiles`);
     }
     const outPath = path.join(outDir, path.relative(path.join(rootDir, baseDir), dep));
-    write(outPath, content);
+    write(outPath, content, replacements);
   }
 
   const npmTemplate =

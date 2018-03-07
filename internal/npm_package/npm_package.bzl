@@ -33,6 +33,7 @@ def create_package(ctx, devmode_sources):
   args.add(ctx.bin_dir.path)
   args.add(ctx.genfiles_dir.path)
   args.add([s.path for s in devmode_sources], join_with=",")
+  args.add(ctx.attr.replacements)
   args.add([ctx.outputs.pack.path, ctx.outputs.publish.path])
 
   ctx.action(
@@ -57,6 +58,7 @@ def _npm_package(ctx):
 NPM_PACKAGE_ATTRS = {
     "srcs": attr.label_list(allow_files = True),
     "deps": attr.label_list(aspects = [sources_aspect]),
+    "replacements": attr.string_dict(),
     "_packager": attr.label(
         default = Label("//internal/npm_package:packager"),
         cfg = "host", executable = True),
