@@ -14,7 +14,7 @@
 
 """Rules to install NodeJS dependencies during WORKSPACE evaluation."""
 
-load("//internal/node:node_labels.bzl", "get_node_label", "get_npm_label")
+load("//internal/node:node_labels.bzl", "get_npm_label")
 
 def _npm_install_impl(repository_ctx):
   """Core implementation of npm_install."""
@@ -47,7 +47,7 @@ filegroup(
           repository_ctx.attr.package_lock_json,
           repository_ctx.path("package-lock.json"))
 
-  node = get_node_label(repository_ctx)
+  node = Label("@nodejs//:node")
   npm = get_npm_label(repository_ctx)
 
   # This runs node, not npm directly, as the latter will
