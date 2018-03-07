@@ -64,7 +64,7 @@ $ bazel run @nodejs//:npm install
 
 [bazel instructions]: https://docs.bazel.build/versions/master/install.html
 
-### Using auto-managed dependencies
+### Using Bazel-managed dependencies
 
 To have Bazel manage its own copy of `node_modules`, which is useful to avoid
 juggling multiple toolchains, you can add the following to your `WORKSPACE`
@@ -209,6 +209,74 @@ sources reachable from the import graph of this file will be included in the
 bundle.
 
 > Note: we expect other bundling rules will follow later, such as Closure compiler and Webpack.
+
+### Publishing to npm
+
+The `npm_package` rule is used to create a package to publish to external users who do not use Bazel.
+
+> For those downstream dependencies that use Bazel, they can simply write BUILD files to consume your library.
+
+You can use a pair of `// BEGIN-INTERNAL ... // END-INTERNAL` comments to mark regions of files that should be elided during publishing.
+For example:
+
+```javascript
+function doThing() {
+    // BEGIN-INTERNAL
+    // This is a secret internal-only comment
+    doInternalOnlyThing();
+    // END-INTERNAL
+}
+```
+
+Attributes:
+
+`srcs` are files in your input tree
+
+`deps` are other rules which produce arbitrary files
+
+`replacements` is a dictionary of JS regexp to new string, in addition to the BEGIN/END-INTERNAL replacement.
+
+Example:
+
+```python
+load("@build_bazel_rules_nodejs//:defs.bzl", "npm_package")
+
+npm_package(
+    name = "my_package",
+    srcs = ["package.json"],
+    deps = [":my_typescript_lib"],
+    replacements = {"//internal/": "//"},
+)
+```
+
+Usage:
+
+`npm_package` yields three labels. Build the package directory using the default label:
+
+```sh
+$ bazel build :my_package
+Target //:my_package up-to-date:
+  bazel-out/fastbuild/bin/my_package
+$ ls -R bazel-out/fastbuild/bin/my_package
+```
+
+Dry-run of publishing to npm, calling `npm pack` (it builds the package first if needed):
+
+```sh
+$ bazel run :my_package.pack
+INFO: Running command line: bazel-out/fastbuild/bin/my_package.pack
+my-package-name-1.2.3.tgz
+$ tar -tzf my-package-name-1.2.3.tgz
+```
+
+Actually publish the package with `npm publish` (also builds first):
+
+```sh
+# Check login credentials
+$ bazel run @nodejs//:npm who
+# Publishes the package
+$ bazel run :my_package.publish
+```
 
 # Design
 
