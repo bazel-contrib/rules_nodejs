@@ -116,6 +116,10 @@ you call it with `bazel test`. The test passes if the program exits with a zero 
 
 The `jasmine_node_test` rule allows you to write a test that executes in NodeJS.
 
+`rollup_bundle` runs the Rollup and Uglify toolchain to produce a single JavaScript bundle.
+
+`npm_package` packages up a library to publish to npm.
+
 ### Running a program from npm
 
 If you have installed the [rollup] package, you could write this rule:
@@ -176,6 +180,57 @@ The `deps` should include the production `.js` sources, or other rules which pro
 
 The `examples/program/index.spec.js` file illustrates this. Another usage is in https://github.com/angular/tsickle/blob/master/test/BUILD
 
+### Stamping
+
+Bazel is generally only a build tool, and is unaware of your version control system.
+However, when publishing releases, you typically want to embed version information in the resulting distribution.
+Bazel supports this natively, using the following approach:
+
+1) Your `tools/bazel.rc` should pass the `workspace_status_command` argument to `bazel build`.
+   This tells Bazel how to interact with the version control system when needed.
+
+    ```
+    build --workspace_status_command=./tools/bazel_stamp_vars.sh
+    ```
+
+
+1) Create `tools/bazel_stamp_vars.sh`.
+   This is a script that prints variable/value pairs.
+   Make sure you set the executable bit, eg. `chmod 755 tools/bazel_stamp_vars.sh`.
+   For example, we could run `git describe` to get the current tag:
+
+    ```bash
+    #!/usr/bin/env bash
+    echo BUILD_SCM_VERSION $(git describe --abbrev=7 --tags HEAD)
+    ```
+
+   For a more full-featured script, take a look at the [bazel_stamp_vars in Angular]
+
+1) A `genrule()` with `stamp=True` can read the result.
+   Bazel puts the output of the `bazel_stamp_vars.sh` in the magic location `bazel-out/volatile-status.txt`.
+   (Note, this doesn't require that you actually have a `bazel-out` folder in your project.)
+   We recommend adding this target to your `tools/BAZEL.build`:
+
+    ```python
+    genrule(
+        name = "stamp_data",
+        outs = ["stamp_data.txt"],
+        cmd = "cat bazel-out/volatile-status.txt > $@",
+        stamp = True,
+        visibility = ["//:__subpackages__"],
+    )
+    ```
+
+1) Now you can pass this target to the `stamp_data` attribute of `rollup_bundle` or `npm_package`:
+
+    ```python
+    stamp_data = "//tools:stamp_data"
+    ```
+
+See https://www.kchodorow.com/blog/2017/03/27/stamping-your-builds/ for more background.
+
+[bazel_stamp_vars in Angular]: https://github.com/angular/angular/blob/master/tools/bazel_stamp_vars.sh
+
 ### Bundling/optimizing
 
 A `rollup_bundle` rule produces three bundle files:
@@ -208,6 +263,8 @@ Attributes:
 sources reachable from the import graph of this file will be included in the
 bundle.
 
+`stamp_data` is a label of a file containing version info. See the Stamping section above.
+
 > Note: we expect other bundling rules will follow later, such as Closure compiler and Webpack.
 
 ### Publishing to npm
@@ -235,6 +292,8 @@ Attributes:
 `deps` are other rules which produce arbitrary files
 
 `replacements` is a dictionary of JS regexp to new string, in addition to the BEGIN/END-INTERNAL replacement.
+
+`stamp_data` is a label of a file containing version info. See the Stamping section above.
 
 Example:
 
