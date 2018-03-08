@@ -53,12 +53,14 @@ function main(args) {
     // BUILD_SCM_LOCAL_CHANGES true
     // BUILD_SCM_VERSION 6.0.0-beta.6+12.sha-83c699d.with-local-changes
     // BUILD_TIMESTAMP 1520021990506
-    const version = fs.readFileSync(stampFile, {encoding: 'utf-8'})
-                        .split('\n')
-                        .find(s => s.startsWith('BUILD_SCM_VERSION'))
-                        .split(' ')[1]
-                        .trim();
-    replacements.push([/0.0.0-PLACEHOLDER/g, version]);
+    const versionTag = fs.readFileSync(stampFile, {encoding: 'utf-8'})
+                           .split('\n')
+                           .find(s => s.startsWith('BUILD_SCM_VERSION'));
+    // Don't assume BUILD_SCM_VERSION exists
+    if (versionTag) {
+      const version = versionTag.split(' ')[1].trim();
+      replacements.push([/0.0.0-PLACEHOLDER/g, version]);
+    }
   }
   const rawReplacements = JSON.parse(replacementsArg);
   for (let key of Object.keys(rawReplacements)) {
