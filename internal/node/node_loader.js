@@ -182,9 +182,9 @@ function resolveRunfiles(...pathSegments) {
   const defaultPath = path.join(process.env.RUNFILES, ...pathSegments);
 
   if (runfilesManifest) {
-    // Join on forward slash, because even on Windows the runfiles_manifest file
+    // Normalize to forward slash, because even on Windows the runfiles_manifest file
     // is written with forward slash.
-    const runfilesEntry = pathSegments.join('/');
+    const runfilesEntry = pathSegments.join('/').replace(/\\/g, '/');
 
     let maybe = resolveManifestFile(runfilesEntry);
     if (maybe) {
