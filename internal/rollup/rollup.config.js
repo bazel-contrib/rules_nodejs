@@ -91,13 +91,14 @@ let banner = '';
 if (banner_file) {
   banner = fs.readFileSync(banner_file, {encoding: 'utf-8'});
   if (stamp_data) {
-    const version = fs.readFileSync(stamp_data, {encoding: 'utf-8'})
-                        .split('\n')
-                        .find(l => l.startsWith('BUILD_SCM_VERSION'))
-                        .split(' ')[1]
-                        .trim();  // trim() is needed so result is the same on
-                                  // windows as in linux/osx
-    banner = banner.replace(/0.0.0-PLACEHOLDER/, version);
+    const versionTag = fs.readFileSync(stamp_data, {encoding: 'utf-8'})
+                           .split('\n')
+                           .find(s => s.startsWith('BUILD_SCM_VERSION'));
+    // Don't assume BUILD_SCM_VERSION exists
+    if (versionTag) {
+      const version = versionTag.split(' ')[1].trim();
+      banner = banner.replace(/0.0.0-PLACEHOLDER/, version);
+    }
   }
 }
 
