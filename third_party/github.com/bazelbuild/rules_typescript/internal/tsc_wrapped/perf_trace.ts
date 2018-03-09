@@ -67,18 +67,9 @@ export function counter(name: string, counts: {[name: string]: number}) {
   events.push({name, ph: 'C', pid: 1, ts: now(), args: counts});
 }
 
-/**
- * reset deletes all recorded entries. It should be called before a logical
- * unit of work, e.g. before compiling one target.
- */
-export function reset() {
-  events = [];
-}
-
 /** write writes the trace in Chrome Trace format to a given path. */
 export function write(path: string) {
   fs.writeFileSync(path, JSON.stringify(events), {encoding: 'utf8'});
-  reset();
 }
 
 /** Record the current heap usage to the performance trace. */
