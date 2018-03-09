@@ -24,6 +24,12 @@ npm_install(
 )
 
 npm_install(
+    name = "npm_install_duplicate_for_determinism_testing",
+    package_json = "//:package.json",
+    package_lock_json = "//:package-lock.json",
+)
+
+npm_install(
     name = "npm_no_lockfile",
     package_json = "//:package.json",
 )
@@ -32,6 +38,12 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
 
 yarn_install(
     name = "yarn_install",
+    package_json = "//:package.json",
+    yarn_lock = "//:yarn.lock"
+)
+
+yarn_install(
+    name = "yarn_install_duplicate_for_determinism_testing",
     package_json = "//:package.json",
     yarn_lock = "//:yarn.lock"
 )
