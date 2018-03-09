@@ -63,6 +63,10 @@ jobs:
       - restore_cache:
           key: *cache_key
 
+      - run: 'sudo mv /usr/local/bin/node /usr/local/bin/node_ &&
+              sudo mv /usr/local/bin/npm /usr/local/bin/npm_ &&
+              sudo mv /usr/local/bin/yarn /usr/local/bin/yarn_'
+
       - run: bazel info release
 
       - run: bazel run @yarn//:yarn
