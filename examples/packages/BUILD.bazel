@@ -19,3 +19,17 @@ VARIANTS = [
     node_modules = "@" + variant + "//:node_modules",
     deps = [":test_version"],
 ) for variant in VARIANTS]
+
+jasmine_node_test(
+    name = "test_npm_determinism",
+    srcs = ["test_npm_determinism.spec.js"],
+    data = ["@npm_install//:node_modules"],
+    node_modules = "@npm_install_duplicate_for_determinism_testing//:node_modules",
+)
+
+jasmine_node_test(
+    name = "test_yarn_determinism",
+    srcs = ["test_yarn_determinism.spec.js"],
+    data = ["@yarn_install//:node_modules"],
+    node_modules = "@yarn_install_duplicate_for_determinism_testing//:node_modules",
+)
