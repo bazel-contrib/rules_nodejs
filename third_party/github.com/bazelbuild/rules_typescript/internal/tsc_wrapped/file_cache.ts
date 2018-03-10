@@ -27,8 +27,7 @@ export interface CacheEntry<CachedType> {
 
 export interface LRUCache<CachedType> {
   getCache(key: string): CachedType|undefined;
-  putCache(key: string, value: CacheEntry<CachedType>, loadTimeMs: number):
-      void;
+  putCache(key: string, value: CacheEntry<CachedType>): void;
   inCache(key: string): boolean;
 }
 
@@ -58,7 +57,6 @@ export class FileCache<CachedType> implements LRUCache<CachedType> {
   cacheStats = {
     hits: 0,
     reads: 0,
-    readTimeMs: 0,
     evictions: 0,
   };
 
@@ -133,11 +131,10 @@ export class FileCache<CachedType> implements LRUCache<CachedType> {
     return value;
   }
 
-  putCache(filePath: string, entry: CacheEntry<CachedType>, loadTimeMs: number):
+  putCache(filePath: string, entry: CacheEntry<CachedType>):
       void {
     const dropped = this.maybeFreeMemory();
     this.fileCache.set(filePath, entry);
-    this.cacheStats.readTimeMs += loadTimeMs;
     this.debug('Loaded', filePath, 'dropped', dropped, 'cache entries');
   }
 
@@ -157,7 +154,6 @@ export class FileCache<CachedType> implements LRUCache<CachedType> {
     this.cacheStats = {
       hits: 0,
       reads: 0,
-      readTimeMs: 0,
       evictions: 0,
     };
   }
@@ -183,9 +179,6 @@ export class FileCache<CachedType> implements LRUCache<CachedType> {
     });
     perfTrace.counter('file cache evictions', {
       'evictions': this.cacheStats.evictions,
-    });
-    perfTrace.counter('file cache time', {
-      'read': this.cacheStats.readTimeMs,
     });
     perfTrace.counter('file cache size', {
       'files': this.fileCache.size,
@@ -235,6 +228,9 @@ export interface FileLoader {
  * Load a source file from disk, or possibly return a cached version.
  */
 export class CachedFileLoader implements FileLoader {
+  /** Total amount of time spent loading files, for the perf trace. */
+  private totalReadTimeMs = 0;
+
   // TODO(alexeagle): remove unused param after usages updated:
   // angular:packages/bazel/src/ngc-wrapped/index.ts
   constructor(
@@ -256,7 +252,12 @@ export class CachedFileLoader implements FileLoader {
         value: sourceFile
       };
       const readEnd = Date.now();
-      this.cache.putCache(filePath, entry, readEnd - readStart);
+      this.cache.putCache(filePath, entry);
+
+      this.totalReadTimeMs += readEnd - readStart;
+      perfTrace.counter('file load time', {
+        'read': this.totalReadTimeMs,
+      });
       perfTrace.snapshotMemoryUsage();
     }
 
