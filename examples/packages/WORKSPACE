@@ -15,35 +15,6 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
 #   @yarn//:yarn
 node_repositories(package_json = ["//:package.json"])
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "npm_install")
+load(":setup_workspace.bzl", "packages_example_setup_workspace")
 
-npm_install(
-    name = "npm_install",
-    package_json = "//:package.json",
-    package_lock_json = "//:package-lock.json",
-)
-
-npm_install(
-    name = "npm_install_duplicate_for_determinism_testing",
-    package_json = "//:package.json",
-    package_lock_json = "//:package-lock.json",
-)
-
-npm_install(
-    name = "npm_no_lockfile",
-    package_json = "//:package.json",
-)
-
-load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
-
-yarn_install(
-    name = "yarn_install",
-    package_json = "//:package.json",
-    yarn_lock = "//:yarn.lock"
-)
-
-yarn_install(
-    name = "yarn_install_duplicate_for_determinism_testing",
-    package_json = "//:package.json",
-    yarn_lock = "//:yarn.lock"
-)
+packages_example_setup_workspace()

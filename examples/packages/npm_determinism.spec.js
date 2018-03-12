@@ -4,8 +4,9 @@ const path = require('path');
 const packageJsonPath = require.resolve('jsesc').replace('jsesc.js', 'package.json');
 const packageJson = JSON.parse(fs.readFileSync(packageJsonPath));
 
-const packageJsonPath2 =
-    packageJsonPath.replace('/npm_install_duplicate_for_determinism_testing/', '/npm_install/');
+const packageJsonPath2 = packageJsonPath.replace(
+    '/packages_example_npm_install_duplicate_for_determinism_testing/',
+    '/packages_example_npm_install/');
 const packageJson2 = JSON.parse(fs.readFileSync(packageJsonPath));
 
 describe('jsesc package.json files', () => {
