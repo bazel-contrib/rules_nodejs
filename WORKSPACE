@@ -43,6 +43,10 @@ node_repositories(package_json = [
 # or
 # bazel run @nodejs//:npm
 
+load("@packages_example//:setup_workspace.bzl", "packages_example_setup_workspace")
+
+packages_example_setup_workspace()
+
 http_archive(
     name = "io_bazel_rules_go",
     url = "https://github.com/bazelbuild/rules_go/releases/download/0.7.1/rules_go-0.7.1.tar.gz",
