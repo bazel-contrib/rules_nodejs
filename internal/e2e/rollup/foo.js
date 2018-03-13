@@ -10,4 +10,7 @@ class A {
     return document.a;
   }
 }
-console.error(new A().a());
+function inline_me() {
+  return 'abc';
+}
+console.error(new A().a(), inline_me());
