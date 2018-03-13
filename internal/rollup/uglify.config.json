@@ -11,7 +11,6 @@
     "keep_fnames": TMPL_notdebug,
     "reduce_funcs": TMPL_notdebug,
     "reduce_vars": TMPL_notdebug,
-    "top_retain": TMPL_notdebug,
     "sequences": TMPL_notdebug
   },
   "mangle": TMPL_notdebug
