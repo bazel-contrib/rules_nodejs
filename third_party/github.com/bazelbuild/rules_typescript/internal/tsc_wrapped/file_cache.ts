@@ -34,7 +34,7 @@ export interface LRUCache<CachedType> {
 /**
  * Default memory size, beyond which we evict from the cache.
  */
-const DEFAULT_MAX_MEM_USAGE = 300 * (1 << 20 /* 1 MB */);
+const DEFAULT_MAX_MEM_USAGE = 1024 * (1 << 20 /* 1 MB */);
 
 /**
  * FileCache is a trivial LRU cache for bazel outputs.
