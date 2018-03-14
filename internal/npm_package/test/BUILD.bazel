@@ -1,0 +1,27 @@
+load("//:defs.bzl", "npm_package", "jasmine_node_test")
+
+genrule(
+    name = "produces_files",
+    outs = ["a_dep"],
+    cmd = "echo \"a_dep content\" > $@",
+)
+
+npm_package(
+    name = "dependent_pkg",
+    srcs = ["dependent_file"],
+)
+
+npm_package(
+    name = "test_pkg",
+    srcs = ["some_file"],
+    packages = [":dependent_pkg"],
+    replacements = {"replace_me": "replaced"},
+    deps = [":produces_files"],
+)
+
+jasmine_node_test(
+    name = "test",
+    srcs = ["npm_package.spec.js"],
+    data = [":test_pkg"],
+    node_modules = "//internal/test:node_modules",
+)

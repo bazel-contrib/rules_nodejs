@@ -40,8 +40,8 @@ function unquoteArgs(s) {
 function main(args) {
   args = fs.readFileSync(args[0], {encoding: 'utf-8'}).split('\n').map(unquoteArgs);
   const
-      [outDir, baseDir, srcsArg, binDir, genDir, depsArg, replacementsArg, packPath, publishPath,
-       stampFile] = args;
+      [outDir, baseDir, srcsArg, binDir, genDir, depsArg, packagesArg, replacementsArg, packPath,
+       publishPath, stampFile] = args;
 
   const replacements = [
     // Strip content between BEGIN-INTERNAL / END-INTERNAL comments
@@ -72,19 +72,42 @@ function main(args) {
     write(outPath, content, replacements);
   }
 
+  function outPath(f) {
+    let rootDir;
+    if (!path.relative(binDir, f).startsWith('..')) {
+      rootDir = binDir;
+    } else if (!path.relative(genDir, f).startsWith('..')) {
+      rootDir = genDir;
+    } else {
+      throw new Error(`dependency ${f} is not under bazel-bin or bazel-genfiles`);
+    }
+    return path.join(outDir, path.relative(path.join(rootDir, baseDir), f));
+  }
+
   // deps like bazel-bin/baseDir/my/path is copied to outDir/my/path
   for (dep of depsArg.split(',').filter(s => !!s)) {
     const content = fs.readFileSync(dep, {encoding: 'utf-8'});
-    let rootDir;
-    if (!path.relative(binDir, dep).startsWith('..')) {
-      rootDir = binDir;
-    } else if (!path.relative(genDir, dep).startsWith('..')) {
-      rootDir = genDir;
-    } else {
-      throw new Error(`dependency ${dep} is not under bazel-bin or bazel-genfiles`);
+    write(outPath(dep), content, replacements);
+  }
+
+  // package contents like bazel-bin/baseDir/my/directory/* is
+  // recursively copied to outDir/my/*
+  for (pkg of packagesArg.split(',').filter(s => !!s)) {
+    const outDir = outPath(path.dirname(pkg));
+    function copyRecursive(base, file) {
+      if (fs.lstatSync(path.join(base, file)).isDirectory()) {
+        const files = fs.readdirSync(path.join(base, file));
+        files.forEach(f => {
+          copyRecursive(base, path.join(file, f));
+        });
+      } else {
+        const content = fs.readFileSync(path.join(base, file), {encoding: 'utf-8'});
+        write(path.join(outDir, file), content, replacements);
+      }
     }
-    const outPath = path.join(outDir, path.relative(path.join(rootDir, baseDir), dep));
-    write(outPath, content, replacements);
+    fs.readdirSync(pkg).forEach(f => {
+      copyRecursive(pkg, f);
+    });
   }
 
   const npmTemplate =
