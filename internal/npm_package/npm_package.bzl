@@ -10,7 +10,7 @@ the package to the npm registry, respectively.
 
 load("//internal:node.bzl", "sources_aspect")
 
-def create_package(ctx, devmode_sources):
+def create_package(ctx, devmode_sources, nested_packages):
   """Creates an action that produces the npm package.
 
   It copies srcs and deps into the artifact and produces the .pack and .publish
@@ -19,6 +19,8 @@ def create_package(ctx, devmode_sources):
   Args:
     ctx: the skylark rule context
     devmode_sources: the .js files which belong in the package
+    nested_packages: list of TreeArtifact outputs from other actions which are
+                     to be nested inside this package
 
   Returns:
     The tree artifact which is the publishable directory.
@@ -34,12 +36,12 @@ def create_package(ctx, devmode_sources):
   args.add(ctx.bin_dir.path)
   args.add(ctx.genfiles_dir.path)
   args.add([s.path for s in devmode_sources], join_with=",")
-  args.add([p.path for p in ctx.files.packages], join_with=",")
+  args.add([p.path for p in nested_packages], join_with=",")
   args.add(ctx.attr.replacements)
   args.add([ctx.outputs.pack.path, ctx.outputs.publish.path])
   args.add(ctx.file.stamp_data.path if ctx.file.stamp_data else '')
 
-  inputs = ctx.files.srcs + devmode_sources + ctx.files.packages + [ctx.file._run_npm_template]
+  inputs = ctx.files.srcs + devmode_sources + nested_packages + [ctx.file._run_npm_template]
   if ctx.file.stamp_data:
     inputs.append(ctx.file.stamp_data)
 
@@ -56,7 +58,7 @@ def _npm_package(ctx):
   for d in ctx.attr.deps:
     files = depset(transitive = [files, d.files, d.node_sources])
 
-  package_dir = create_package(ctx, files.to_list())
+  package_dir = create_package(ctx, files.to_list(), ctx.files.packages)
 
   return [DefaultInfo(
       files = depset([package_dir]),
