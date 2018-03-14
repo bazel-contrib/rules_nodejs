@@ -34,11 +34,12 @@ def create_package(ctx, devmode_sources):
   args.add(ctx.bin_dir.path)
   args.add(ctx.genfiles_dir.path)
   args.add([s.path for s in devmode_sources], join_with=",")
+  args.add([p.path for p in ctx.files.packages], join_with=",")
   args.add(ctx.attr.replacements)
   args.add([ctx.outputs.pack.path, ctx.outputs.publish.path])
   args.add(ctx.file.stamp_data.path if ctx.file.stamp_data else '')
 
-  inputs = ctx.files.srcs + devmode_sources + [ctx.file._run_npm_template]
+  inputs = ctx.files.srcs + devmode_sources + ctx.files.packages + [ctx.file._run_npm_template]
   if ctx.file.stamp_data:
     inputs.append(ctx.file.stamp_data)
 
@@ -64,6 +65,7 @@ def _npm_package(ctx):
 NPM_PACKAGE_ATTRS = {
     "srcs": attr.label_list(allow_files = True),
     "deps": attr.label_list(aspects = [sources_aspect]),
+    "packages": attr.label_list(allow_files = True),
     "replacements": attr.string_dict(),
     "stamp_data": attr.label(allow_single_file = FileType([".txt"])),
     "_packager": attr.label(
