@@ -2,7 +2,7 @@
  * @license A dummy license banner that goes at the top of the file.
  * This is version v1.2.3
  */
-!function() {
+var bundle = function(exports) {
     "use strict";
     console.log("Hello, Alice in Wonderland");
     var A = function() {
@@ -16,4 +16,6 @@
         return "abc";
     }
     console.error(new A().a(), inline_me());
-}();
+    exports.A = A;
+    return exports;
+}({});

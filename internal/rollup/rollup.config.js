@@ -105,7 +105,7 @@ if (banner_file) {
 module.exports = {
   resolveBazel,
   banner,
-  output: {format: 'iife'},
+  output: {format: 'iife', name: 'TMPL_label_name'},
   plugins: [TMPL_additional_plugins].concat([
     {resolveId: resolveBazel},
     nodeResolve({jsnext: true, module: true}),
