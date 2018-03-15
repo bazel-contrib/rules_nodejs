@@ -108,8 +108,4 @@ export function runWorkerLoop(
       buf = null;
     }
   });
-  process.stdin.on('end', () => {
-    log('Exiting TypeScript compiler persistent worker.');
-    process.exit(0);
-  });
 }
