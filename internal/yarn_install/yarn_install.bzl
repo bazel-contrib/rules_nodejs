@@ -48,7 +48,9 @@ filegroup(
           repository_ctx.path("yarn.lock"))
 
   node = get_node_label(repository_ctx)
-  yarn = Label("@yarn//:bin/yarn.js")
+
+  # Use @yarn//:yarn.js, which adds node to the path before calling @yarn//:bin/yarn.js
+  yarn = Label("@yarn//:yarn.js")
 
   # This runs node, not yarn directly, as the latter will
   # look for a local node install (related to https://github.com/bazelbuild/rules_nodejs/issues/77).
