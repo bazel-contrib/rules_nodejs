@@ -53,8 +53,10 @@ filegroup(
   # This runs node, not npm directly, as the latter will
   # use #!/usr/bin/node (see https://github.com/bazelbuild/rules_nodejs/issues/77)
   # To see the output, pass: quiet=False
+  # --scripts-prepend-node-path=true is added so that any child npm processes use the
+  # correct node binary (see https://github.com/bazelbuild/rules_nodejs/issues/151)
   result = repository_ctx.execute(
-    [repository_ctx.path(node), repository_ctx.path(npm), "install", repository_ctx.path("")])
+    [repository_ctx.path(node), repository_ctx.path(npm), "install", "--scripts-prepend-node-path=true", repository_ctx.path("")])
 
   if not repository_ctx.attr.package_lock_json:
     print("\n***********WARNING***********\n%s: npm_install will require a package_lock_json attribute in future versions\n*****************************" % repository_ctx.name)
