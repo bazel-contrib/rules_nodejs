@@ -5,7 +5,7 @@ import {name} from './bar';
 console.log(`Hello, ${name} in ${fum}`);
 
 // Test for sequences = false
-class A {
+export class A {
   a() {
     return document.a;
   }
