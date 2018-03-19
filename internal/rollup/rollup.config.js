@@ -17,9 +17,12 @@ const stamp_data = TMPL_stamp_data;
 if (DEBUG)
   console.error(`
 Rollup: running with
-  rootDirs: ${rootDirs}
-  moduleMappings: ${JSON.stringify(moduleMappings)}
-`);
+  rootDirs: ${rootDirs},
+  moduleMappings: ${JSON.stringify(moduleMappings)},
+  cwd: ${process.cwd()},
+  argv: ${process.argv.join(" ")},
+  env:
+`, process.env);
 
 // This resolver mimics the TypeScript `rootDirs` feature, which lets us pretend
 // that multiple roots are logically merged into a single tree.
@@ -102,12 +105,21 @@ if (banner_file) {
   }
 }
 
+
+const customResolveOptions = {};
+if (process.env.NODE_PATH) {
+  customResolveOptions.customResolveOptions = {
+    paths: process.env.NODE_PATH.split(/[:]/)
+  };
+}
+
 module.exports = {
   resolveBazel,
   banner,
   output: {format: 'iife'},
   plugins: [TMPL_additional_plugins].concat([
     {resolveId: resolveBazel},
-    nodeResolve({jsnext: true, module: true}),
+    nodeResolve(
+      Object.assign({jsnext: true, module: true}, customResolveOptions))
   ])
 }

@@ -96,11 +96,22 @@ def run_rollup(ctx, sources, config, output):
   if ctx.file.stamp_data:
     inputs += [ctx.file.stamp_data]
 
+  node_paths = []
+  for f in ctx.files.node_modules:
+    # This is a bit of a hack, assuming the node_modules label is
+    # actually referencing a directory called "node_modules".
+    idx = f.path.find("node_modules")
+    if idx >= 0:
+      # Resolve paths relative to execroot.
+      node_paths.append("./%snode_modules" % f.path[0:idx])
+  uniq_node_paths = {el: None for el in node_paths}.keys()
+
   ctx.action(
       executable = ctx.executable._rollup,
       inputs = inputs,
       outputs = [output],
-      arguments = [args]
+      arguments = [args],
+      env = {"NODE_PATH": (":".join(uniq_node_paths))}
   )
 
 def _run_tsc(ctx, input, output):

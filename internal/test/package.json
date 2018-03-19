@@ -13,5 +13,7 @@
     "rollup-plugin-node-resolve": "3.0.0",
     "unidiff": "^0.0.4"
   },
-  "dependencies": {}
+  "dependencies": {
+    "node_rollup_npm": "file:./node_rollup_npm"
+  }
 }
