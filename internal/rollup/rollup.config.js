@@ -105,7 +105,16 @@ if (banner_file) {
 module.exports = {
   resolveBazel,
   banner,
-  output: {format: 'iife', name: 'TMPL_label_name'},
+  output: {
+    format: 'iife',
+    // The IIFE bundle requires a name if top-level symbols are exported.
+    // We don't yet know if that name needs to be configurable by the user, so we
+    // intentionally limit the API for now by naming this variable after the name
+    // of this rule.
+    // TODO(alexeagle): when we understand the use cases better, consider how a
+    // user might get control over this name.
+    name: 'TMPL_label_name',
+  },
   plugins: [TMPL_additional_plugins].concat([
     {resolveId: resolveBazel},
     nodeResolve({jsnext: true, module: true}),
