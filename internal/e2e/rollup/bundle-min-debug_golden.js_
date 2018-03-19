@@ -4,7 +4,7 @@
  */
 !function() {
     "use strict";
-    console.log("Hello, Alice in Wonderland");
+    console.log("Hello, Alice in Wonderland, is your npm from an npm?");
     var A = function() {
         function A() {}
         A.prototype.a = function() {
