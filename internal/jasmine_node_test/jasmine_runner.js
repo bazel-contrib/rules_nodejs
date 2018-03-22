@@ -11,6 +11,11 @@ const UTF8 = {
 const BAZEL_EXIT_TESTS_FAILED = 3;
 const BAZEL_EXIT_NO_TESTS_FOUND = 4;
 
+// Set the StackTraceLimit to infinity. This will make stack capturing slower, but more useful.
+// Since we are running tests having proper stack traces is very useful and should be always set to
+// the maximum (See: https://nodejs.org/api/errors.html#errors_error_stacktracelimit)
+Error.stackTraceLimit = Infinity;
+
 function main(args) {
   if (!args.length) {
     throw new Error('Spec file manifest expected argument missing');
