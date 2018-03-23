@@ -1,1 +1,2 @@
-# Marker that this directory is a bazel package
+# Exported to be consumed for generating skydoc.
+exports_files(["npm_install.bzl"])

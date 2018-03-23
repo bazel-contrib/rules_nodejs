@@ -21,6 +21,8 @@ package(default_visibility = ["//internal:__subpackages__"])
 exports_files([
     "rollup.config.js",
     "uglify.config.json",
+    # Exported to be consumed for generating skydoc.
+    "rollup_bundle.bzl",
 ])
 
 nodejs_binary(
