@@ -1,4 +1,0 @@
-# Normally this file should be generated via Bazel as described in the README.md
-
-# For this test, we just hard-code a value:
-BUILD_SCM_VERSION 1.2.3

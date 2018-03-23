@@ -10,7 +10,6 @@ rollup_bundle(
     entry_point = "internal/e2e/rollup/foo.js",
     license_banner = ":license.txt",
     node_modules = "//internal/test:node_modules",
-    stamp_data = ":versions.txt",
     deps = ["//internal/e2e/rollup/fum:fumlib"],
 )
 

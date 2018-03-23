@@ -206,26 +206,9 @@ Bazel supports this natively, using the following approach:
 
    For a more full-featured script, take a look at the [bazel_stamp_vars in Angular]
 
-1) A `genrule()` with `stamp=True` can read the result.
-   Bazel puts the output of the `bazel_stamp_vars.sh` in the magic location `bazel-out/volatile-status.txt`.
-   (Note, this doesn't require that you actually have a `bazel-out` folder in your project.)
-   We recommend adding this target to your `tools/BAZEL.build`:
+Ideally, `rollup_bundle` and `npm_package` should honor the `--stamp` argument to `bazel build`. However this is not currently possible, see https://github.com/bazelbuild/bazel/issues/1054
 
-    ```python
-    genrule(
-        name = "stamp_data",
-        outs = ["stamp_data.txt"],
-        cmd = "cat bazel-out/volatile-status.txt > $@",
-        stamp = True,
-        visibility = ["//:__subpackages__"],
-    )
-    ```
-
-1) Now you can pass this target to the `stamp_data` attribute of `rollup_bundle` or `npm_package`:
-
-    ```python
-    stamp_data = "//tools:stamp_data"
-    ```
+> WARNING: Bazel doesn't rebuild a target if only the result of the workspace_status_command has changed. That means changes to the version information may not be reflected if you re-build the package or bundle, and nothing in the package or bundle has changed.
 
 See https://www.kchodorow.com/blog/2017/03/27/stamping-your-builds/ for more background.
 

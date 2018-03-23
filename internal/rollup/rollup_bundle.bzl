@@ -70,7 +70,7 @@ def write_rollup_config(ctx, plugins=[], root_dirs=None, filename="_%s.rollup.co
           "TMPL_module_mappings": str(mappings),
           "TMPL_additional_plugins": ",\n".join(plugins),
           "TMPL_banner_file": "\"%s\"" % ctx.file.license_banner.path if ctx.file.license_banner else "undefined",
-          "TMPL_stamp_data": "\"%s\"" % ctx.file.stamp_data.path if ctx.file.stamp_data else "undefined",
+          "TMPL_stamp_data": "\"%s\"" % ctx.version_file.path if ctx.version_file else "undefined",
       })
 
   return config
@@ -93,8 +93,8 @@ def run_rollup(ctx, sources, config, output):
   inputs = sources + ctx.files.node_modules + [config]
   if ctx.file.license_banner:
     inputs += [ctx.file.license_banner]
-  if ctx.file.stamp_data:
-    inputs += [ctx.file.stamp_data]
+  if ctx.version_file:
+    inputs += [ctx.version_file]
 
   ctx.action(
       executable = ctx.executable._rollup,
@@ -185,7 +185,6 @@ ROLLUP_ATTRS = {
     "deps": attr.label_list(aspects = [rollup_module_mappings_aspect]),
     "node_modules": attr.label(default = Label("@//:node_modules")),
     "license_banner": attr.label(allow_single_file = FileType([".txt"])),
-    "stamp_data": attr.label(allow_single_file = FileType([".txt"])),
     "_rollup": attr.label(
         executable = True,
         cfg="host",
