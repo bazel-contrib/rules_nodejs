@@ -2,3 +2,6 @@ test --test_output=errors
 build --symlink_prefix=/
 
 build:ci --noshow_progress
+
+# Mock versoning command to test the --stamp behavior
+build --workspace_status_command="echo BUILD_SCM_VERSION 1.2.3"

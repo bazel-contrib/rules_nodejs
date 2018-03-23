@@ -39,11 +39,15 @@ def create_package(ctx, devmode_sources, nested_packages):
   args.add([p.path for p in nested_packages], join_with=",")
   args.add(ctx.attr.replacements)
   args.add([ctx.outputs.pack.path, ctx.outputs.publish.path])
-  args.add(ctx.file.stamp_data.path if ctx.file.stamp_data else '')
+  args.add(ctx.version_file.path if ctx.version_file else '')
 
   inputs = ctx.files.srcs + devmode_sources + nested_packages + [ctx.file._run_npm_template]
-  if ctx.file.stamp_data:
-    inputs.append(ctx.file.stamp_data)
+  # The version_file is an undocumented attribute of the ctx that lets us read the volatile-status.txt file
+  # produced by the --workspace_status_command. That command will be executed whenever
+  # this action runs, so we get the latest version info on each execution.
+  # See https://github.com/bazelbuild/bazel/issues/1054
+  if ctx.version_file:
+    inputs.append(ctx.version_file)
 
   ctx.action(
       executable = ctx.executable._packager,
@@ -69,7 +73,6 @@ NPM_PACKAGE_ATTRS = {
     "deps": attr.label_list(aspects = [sources_aspect]),
     "packages": attr.label_list(allow_files = True),
     "replacements": attr.string_dict(),
-    "stamp_data": attr.label(allow_single_file = FileType([".txt"])),
     "_packager": attr.label(
         default = Label("//internal/npm_package:packager"),
         cfg = "host", executable = True),
