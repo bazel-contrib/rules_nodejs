@@ -23,4 +23,5 @@ skylark_doc(
         "//internal/rollup:rollup_bundle.bzl",
     ],
     format = "html",
+    site_root = "/rules_nodejs",
 )
