@@ -21,7 +21,7 @@ node binary to other rules.
 
 load(":node_labels.bzl", "get_node_label")
 load("//internal/common:check_bazel_version.bzl", "check_bazel_version")
-load("//internal/yarn_install:yarn_install.bzl", "yarn_install")
+load("//internal/npm_install:npm_install.bzl", "yarn_install")
 
 def _node_impl(repository_ctx):
   os_name = repository_ctx.os.name.lower()

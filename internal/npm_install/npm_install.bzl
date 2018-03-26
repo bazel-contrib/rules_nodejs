@@ -12,7 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Rules to install NodeJS dependencies during WORKSPACE evaluation."""
+"""Install npm packages
+
+Rules to install NodeJS dependencies during WORKSPACE evaluation.
+This happens before the first build or test runs, allowing you to use Bazel
+as the package manager.
+
+See discussion in the README.
+"""
 
 load("//internal/node:node_labels.bzl", "get_node_label", "get_npm_label")
 
@@ -89,3 +96,75 @@ npm_install = repository_rule(
     },
     implementation = _npm_install_impl,
 )
+"""Runs npm install during workspace setup.
+"""
+
+def _yarn_install_impl(repository_ctx):
+  """Core implementation of yarn_install."""
+
+  repository_ctx.file("BUILD", """
+package(default_visibility = ["//visibility:public"])
+filegroup(
+    name = "node_modules",
+    srcs = glob(["node_modules/**/*"],
+        # Exclude directories that commonly contain filenames which are
+        # illegal bazel labels
+        exclude = [
+            # e.g. node_modules/adm-zip/test/assets/attributes_test/New folder/hidden.txt
+            "node_modules/**/test/**",
+            # e.g. node_modules/xpath/docs/function resolvers.md
+            "node_modules/**/docs/**",
+            # e.g. node_modules/puppeteer/.local-chromium/mac-536395/chrome-mac/Chromium.app/Contents/Versions/66.0.3347.0/Chromium Framework.framework/Chromium Framework
+            "node_modules/**/.*/**"
+        ],
+    ),
+)
+""")
+
+  # Put our package descriptors in the right place.
+  repository_ctx.symlink(
+      repository_ctx.attr.package_json,
+      repository_ctx.path("package.json"))
+  if repository_ctx.attr.yarn_lock:
+      repository_ctx.symlink(
+          repository_ctx.attr.yarn_lock,
+          repository_ctx.path("yarn.lock"))
+
+  node = get_node_label(repository_ctx)
+
+  # Use @yarn//:yarn.js, which adds node to the path before calling @yarn//:bin/yarn.js
+  yarn = Label("@yarn//:yarn.js")
+
+  # This runs node, not yarn directly, as the latter will
+  # look for a local node install (related to https://github.com/bazelbuild/rules_nodejs/issues/77).
+  # A local cache is used as multiple yarn rules cannot run simultaneously using a shared
+  # cache and a shared cache is non-hermetic.
+  # To see the output, pass: quiet=False
+  result = repository_ctx.execute([
+    repository_ctx.path(node),
+    repository_ctx.path(yarn),
+    "--cache-folder",
+    repository_ctx.path("_yarn_cache"),
+    "--cwd",
+    repository_ctx.path("")])
+
+  if result.return_code:
+    fail("yarn_install failed: %s (%s)" % (result.stdout, result.stderr))
+
+yarn_install = repository_rule(
+    attrs = {
+        "package_json": attr.label(
+            allow_files = True,
+            mandatory = True,
+            single_file = True,
+        ),
+        "yarn_lock": attr.label(
+            allow_files = True,
+            mandatory = True,
+            single_file = True,
+        ),
+    },
+    implementation = _yarn_install_impl,
+)
+"""Runs yarn install during workspace setup.
+"""

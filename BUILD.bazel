@@ -12,4 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Marker file that this directory is a bazel package
+load("@io_bazel_skydoc//skylark:skylark.bzl", "skylark_doc")
+
+skylark_doc(
+    name = "docs",
+    srcs = [
+        "//internal/jasmine_node_test:jasmine_node_test.bzl",
+        "//internal/npm_install:npm_install.bzl",
+        "//internal/npm_package:npm_package.bzl",
+        "//internal/rollup:rollup_bundle.bzl",
+    ],
+    format = "html",
+)

@@ -1,6 +1,13 @@
 load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
 load("//:defs.bzl", "rollup_bundle")
 
+# rollup_bundle requires some label for dependencies
+# We don't need to require() anything from npm during rollup execution, so we
+# have an empty filegroup.
+# This makes it more clear that rollup_bundle doesn't resolve rollup/uglify from
+# the users' npm dependencies.
+filegroup(name = "no_deps")
+
 rollup_bundle(
     name = "bundle",
     srcs = [
@@ -9,7 +16,7 @@ rollup_bundle(
     ],
     entry_point = "internal/e2e/rollup/foo.js",
     license_banner = ":license.txt",
-    node_modules = "//internal/test:node_modules",
+    node_modules = ":no_deps",
     deps = ["//internal/e2e/rollup/fum:fumlib"],
 )
 

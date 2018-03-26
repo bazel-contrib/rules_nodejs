@@ -1,11 +1,9 @@
-"""The npm_package rule creates a directory containing a publishable npm artifact.
+"""npm packaging
 
-It also produces two named outputs:
-:label.pack
-:label.publish
+Note, this is intended for sharing library code with non-Bazel consumers.
 
-These can be used with `bazel run` to create a .tgz of the package and to publish
-the package to the npm registry, respectively.
+If all users of your library code use Bazel, they should just add your library
+to the `deps` of one of their targets.
 """
 
 load("//internal:node.bzl", "sources_aspect")
@@ -69,10 +67,20 @@ def _npm_package(ctx):
   )]
 
 NPM_PACKAGE_ATTRS = {
-    "srcs": attr.label_list(allow_files = True),
-    "deps": attr.label_list(aspects = [sources_aspect]),
-    "packages": attr.label_list(allow_files = True),
-    "replacements": attr.string_dict(),
+    "srcs": attr.label_list(
+        doc = """Files inside this directory which are simply copied into the package.""",
+        allow_files = True),
+    "deps": attr.label_list(
+        doc = """Other targets which produce files that should be included in the package, such as `rollup_bundle`""",
+        aspects = [sources_aspect]),
+    "packages": attr.label_list(
+        doc = """Other npm_package rules whose content is copied into this package.""",
+        allow_files = True),
+    "replacements": attr.string_dict(
+        doc = """Key-value pairs which are replaced in all the files while building the package.
+        Note that the special value 0.0.0-PLACEHOLDER is always replaced with the version stamp data.
+        See the section on stamping in the README.
+        """),
     "_packager": attr.label(
         default = Label("//internal/npm_package:packager"),
         cfg = "host", executable = True),
@@ -91,3 +99,20 @@ npm_package = rule(
     attrs = NPM_PACKAGE_ATTRS,
     outputs = NPM_PACKAGE_OUTPUTS,
 )
+"""
+The npm_package rule creates a directory containing a publishable npm artifact.
+
+Load it with
+`load("@build_bazel_rules_nodejs//:defs.bzl", "npm_package")`
+
+The default output is a directory containing the package contents.
+
+It also produces two named outputs, `[name].pack` and `[name].publish`. These can be used with `bazel run`.
+
+For an `npm_package` rule named `my_package`, you can use
+
+- `bazel run :my_package:pack` to create a .tgz of the package which will be written to the current working directory
+- `bazel run :my_package.publish` to publish the package to the npm registry
+
+Pass arguments to npm by escaping them from Bazel using a double-hyphen `bazel run my_package.publish -- --tag=next`
+"""

@@ -10,6 +10,7 @@
         "skylint": "find . -type f -name \"*.bzl\" ! -path \"*/node_modules/*\" | xargs $(bazel info bazel-bin)/external/io_bazel/src/tools/skylark/java/com/google/devtools/skylark/skylint/Skylint",
         "format": "git-clang-format",
         "format-all": "clang-format --glob='{internal/**/,examples/**/}*.{js,ts}' -i",
-        "precommit": "check-clang-format \"yarn format\""
+        "precommit": "check-clang-format \"yarn format\"",
+        "skydoc": "bazel build //:docs && unzip -o -d docs bazel-bin/docs-skydoc.zip"
     }
 }

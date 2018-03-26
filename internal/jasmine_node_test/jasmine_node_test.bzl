@@ -12,13 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Runs jasmine
+"""NodeJS testing
+
+These rules let you run tests outside of a browser. This is typically faster
+than launching a test in Karma, for example.
 """
 load("//internal/node:node.bzl", "nodejs_test")
 load("//internal/common:devmode_js_sources.bzl", "devmode_js_sources")
 
 def jasmine_node_test(name, srcs = [], data = [], deps = [], **kwargs):
-  """Runs jasmine
+  """Runs tests in NodeJS using the Jasmine test runner.
+
+  Args:
+    name: name of the resulting label
+    srcs: JavaScript source files containing Jasmine specs
+    data: Runtime dependencies which will be loaded while the test executes
+    deps: Other targets which produce JavaScript, such as ts_library
+    **kwargs: remaining arguments are passed to nodejs_test
   """
 
   devmode_js_sources(

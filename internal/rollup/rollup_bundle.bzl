@@ -12,7 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Rules for production rollup bundling.
+"""Rollup bundling
+
+The versions of Rollup and Uglify are controlled by the Bazel toolchain.
+You do not need to install them into your project.
 """
 load("//internal/common:collect_es6_sources.bzl", "collect_es6_sources")
 load("//internal/common:module_mappings.bzl", "get_module_mappings")
@@ -29,18 +32,19 @@ rollup_module_mappings_aspect = aspect(
 )
 
 def write_rollup_config(ctx, plugins=[], root_dirs=None, filename="_%s.rollup.conf.js"):
-  """Generate a rollup config file
+  """Generate a rollup config file.
 
-  This is also used by https://github.com/angular/angular.
+  This is also used by the ng_rollup_bundle and ng_package rules in @angular/bazel.
 
   Args:
-    ctx: context
+    ctx: Bazel rule execution context
     plugins: extra plugins (defaults to [])
+             See the ng_rollup_bundle in @angular/bazel for example of usage.
     root_dirs: root directories for module resolution (defaults to None)
-    filename: output filename pattern (defaults to "_%s.rollup.conf.js")
+    filename: output filename pattern (defaults to `_%s.rollup.conf.js`)
 
   Returns:
-    The rollup config file
+    The rollup config file. See https://rollupjs.org/guide/en#configuration-files
   """
   config = ctx.actions.declare_file(filename % ctx.label.name)
 
@@ -76,13 +80,13 @@ def write_rollup_config(ctx, plugins=[], root_dirs=None, filename="_%s.rollup.co
   return config
 
 def run_rollup(ctx, sources, config, output):
-  """Runs rollup on set of sources
+  """Creates an Action that can run rollup on set of sources.
 
-  This is also used by https://github.com/angular/angular.
+  This is also used by ng_package and ng_rollup_bundle rules in @angular/bazel.
 
   Args:
-    ctx: context
-    sources: sources to rollup
+    ctx: Bazel rule execution context
+    sources: JS sources to rollup
     config: rollup config file
     output: output file
   """
@@ -118,18 +122,18 @@ def _run_tsc(ctx, input, output):
   )
 
 def run_uglify(ctx, input, output, debug = False, comments = True, config_name = None):
-  """Runs uglify on an input file
+  """Runs uglify on an input file.
 
   This is also used by https://github.com/angular/angular.
 
   Args:
-    ctx: context
+    ctx: Bazel rule execution context
     input: input file
     output: output file
     debug: if True then output is beautified (defaults to False)
     comments: if True then copyright comments are preserved in output file (defaults to True)
     config_name: allows callers to control the name of the generated uglify configuration,
-        which will be _[config_name].uglify.json in the package where the target is declared
+        which will be `_[config_name].uglify.json` in the package where the target is declared
 
   Returns:
     The sourcemap file
@@ -180,11 +184,27 @@ def _rollup_bundle(ctx):
   return DefaultInfo(files=depset([ctx.outputs.build_es5_min, source_map]))
 
 ROLLUP_ATTRS = {
-    "entry_point": attr.string(mandatory = True),
-    "srcs": attr.label_list(allow_files = [".js"]),
-    "deps": attr.label_list(aspects = [rollup_module_mappings_aspect]),
-    "node_modules": attr.label(default = Label("@//:node_modules")),
-    "license_banner": attr.label(allow_single_file = FileType([".txt"])),
+    "entry_point": attr.string(
+        doc = """The starting point of the application, passed as the `--input` flag to rollup.
+        This should be a path relative to the workspace root.
+        """,
+        mandatory = True),
+    "srcs": attr.label_list(
+        doc = """JavaScript source files from the workspace.
+        These can use ES2015 syntax and ES Modules (import/export)""",
+        allow_files = [".js"]),
+    "deps": attr.label_list(
+        doc = """Other rules that produce JavaScript outputs, such as `ts_library`.""",
+        aspects = [rollup_module_mappings_aspect]),
+    "node_modules": attr.label(
+        doc = """Dependencies from npm that provide some modules that must be resolved by rollup.""",
+        default = Label("@//:node_modules")),
+    "license_banner": attr.label(
+        doc = """A .txt file passed to the `banner` config option of rollup.
+        The contents of the file will be copied to the top of the resulting bundles.
+        Note that you can replace a version placeholder in the license file, by using
+        the special version `0.0.0-PLACEHOLDER`. See the section on stamping in the README.""",
+        allow_single_file = FileType([".txt"])),
     "_rollup": attr.label(
         executable = True,
         cfg="host",
@@ -219,3 +239,27 @@ rollup_bundle = rule(
     attrs = ROLLUP_ATTRS,
     outputs = ROLLUP_OUTPUTS,
 )
+"""
+Produces several bundled JavaScript files using Rollup and Uglify.
+
+Load it with
+`load("@build_bazel_rules_nodejs//:defs.bzl", "rollup_bundle")`
+
+It performs this work in several separate processes:
+1. Call rollup on the original sources
+2. Downlevel the resulting code to es5 syntax for older browsers
+3. Minify the bundle with Uglify, possibly with pretty output for human debugging.
+
+The default output of a `rollup_bundle` rule is the non-debug-minified es5 bundle.
+
+However you can request one of the other outputs with a dot-suffix on the target's name.
+For example, if your `rollup_bundle` is named `my_rollup_bundle`, you can use one of these labels:
+
+To request the ES2015 syntax (e.g. `class` keyword) without downleveling or minification, use the `:my_rollup_bundle.es6.js` label.
+To request the ES5 downleveled bundle without minification, use the `:my_rollup_bundle.js` label
+To request the debug-minified es5 bundle, use the `:my_rollup_bundle.min_debug.js` label.
+
+For debugging, note that the `rollup.config.js` and `uglify.config.json` files can be found in the bazel-bin folder next to the resulting bundle.
+
+An example usage can be found in https://github.com/bazelbuild/rules_nodejs/tree/master/internal/e2e/rollup
+"""

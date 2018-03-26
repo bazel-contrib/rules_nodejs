@@ -5,3 +5,7 @@ build:ci --noshow_progress
 
 # Mock versoning command to test the --stamp behavior
 build --workspace_status_command="echo BUILD_SCM_VERSION 1.2.3"
+
+# Workaround https://github.com/bazelbuild/bazel/issues/3645
+# Limit Bazel to consuming 3072K of RAM
+build:ci --local_resources=3072,2.0,1.0
