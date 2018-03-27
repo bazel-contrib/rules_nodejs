@@ -3,9 +3,9 @@ set -e
 
 # should produce named UMD modules
 readonly LIBRARY_JS=$(cat $TEST_SRCDIR/build_bazel_rules_typescript/examples/some_library/library.js)
-if [[ "$LIBRARY_JS" != *"define(\"some-lib/library\""* ]]; then
-  echo "Expected library.js to declare named module, but was"
-  echo "$A_JS"
+if [[ "$LIBRARY_JS" != *"define(\"some-lib\""* ]]; then
+  echo "Expected library.js to declare module named some-lib, but was"
+  echo "$LIBRARY_JS"
   exit 1
 fi
 
@@ -19,7 +19,7 @@ fi
 
 # should give a name to required modules from other compilation unit
 readonly FOO_JS=$(cat $TEST_SRCDIR/build_bazel_rules_typescript/examples/bar.js)
-if [[ "$FOO_JS" != *"require(\"some-lib/library\")"* ]]; then
+if [[ "$FOO_JS" != *"require(\"some-lib\")"* ]]; then
   echo "Expected bar.js to require named module library, but was"
   echo "$FOO_JS"
   exit 1

@@ -121,6 +121,8 @@ def create_tsconfig(ctx, files, srcs,
 
   if hasattr(ctx.attr, "module_name") and ctx.attr.module_name:
     bazel_options["moduleName"] = ctx.attr.module_name
+  if hasattr(ctx.attr, "module_root") and ctx.attr.module_root:
+    bazel_options["moduleRoot"] = ctx.attr.module_root
 
   if "TYPESCRIPT_WORKER_CACHE_SIZE_MB" in ctx.var:
     max_cache_size_mb = int(ctx.var["TYPESCRIPT_WORKER_CACHE_SIZE_MB"])

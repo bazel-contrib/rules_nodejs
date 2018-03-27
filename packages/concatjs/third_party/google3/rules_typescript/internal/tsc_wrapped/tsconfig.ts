@@ -124,6 +124,12 @@ export interface BazelOptions {
    * ts_library.
    */
   moduleName?: string;
+
+  /**
+   * An explicit entry point for this module, given by the module_root attribute
+   * on a ts_library.
+   */
+  moduleRoot?: string;
 }
 
 export interface ParsedTsConfig {
