@@ -33,6 +33,8 @@ export function narrowTsOptions(options: ts.CompilerOptions): BazelTsOptions {
   return options as BazelTsOptions;
 }
 
+const TS_EXT = /(\.d)?\.tsx?$/;
+
 /**
  * CompilerHost that knows how to cache parsed files to improve compile times.
  */
@@ -208,7 +210,7 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
     }
     if (resolvedPath) {
       // Strip file extensions.
-      importPath = resolvedPath.replace(/(\.d)?\.tsx?$/, '');
+      importPath = resolvedPath.replace(TS_EXT, '');
       // Make sure all module names include the workspace name.
       if (importPath.indexOf(this.bazelOpts.workspaceName) !== 0) {
         importPath = path.join(this.bazelOpts.workspaceName, importPath);
@@ -252,8 +254,7 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
     if (!this.shouldNameModule(sf.fileName)) return undefined;
     // /build/work/bazel-out/local-fastbuild/bin/path/to/file.ts
     // -> path/to/file
-    let fileName =
-        this.rootDirsRelative(sf.fileName).replace(/(\.d)?\.tsx?$/, '');
+    let fileName = this.rootDirsRelative(sf.fileName).replace(TS_EXT, '');
 
     let workspace = this.bazelOpts.workspaceName;
 
@@ -275,6 +276,11 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
     if (this.bazelOpts.moduleName) {
       const relativeFileName = path.relative(this.bazelOpts.package, fileName);
       if (!relativeFileName.startsWith('..')) {
+        if (this.bazelOpts.moduleRoot &&
+            this.bazelOpts.moduleRoot.replace(TS_EXT, '') ===
+                relativeFileName) {
+          return this.bazelOpts.moduleName;
+        }
         return path.posix.join(this.bazelOpts.moduleName, relativeFileName);
       }
     }
