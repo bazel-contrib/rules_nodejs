@@ -36,6 +36,7 @@ npm_install = _npm_install
 yarn_install = _yarn_install
 rollup_bundle = _rollup_bundle
 npm_package = _npm_package
+# ANY RULES ADDED HERE SHOULD BE DOCUMENTED, run yarn skydoc to verify
 
 def node_modules_filegroup(packages, **kwargs):
   native.filegroup(

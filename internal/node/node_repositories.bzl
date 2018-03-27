@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Install NodeJS when the user runs node_repositories() from their WORKSPACE.
+"""Install NodeJS
 
-We fetch a specific version of Node, to ensure builds are hermetic.
-We then create a repository @nodejs which provides the
-node binary to other rules.
+This is a repository rule, see https://docs.bazel.build/versions/master/skylark/repository_rules.html
+
+This runs when the user invokes node_repositories() from their WORKSPACE.
 """
 
 load(":node_labels.bzl", "get_node_label")
@@ -171,7 +171,33 @@ _yarn_repo = repository_rule(
 )
 
 def node_repositories(package_json):
-  """To be run in user's WORKSPACE to install NodeJS and rules_nodejs npm dependencies.
+  """To be run in user's WORKSPACE to install rules_nodejs dependencies.
+
+  When the rule executes, it downloads node, npm, and yarn.
+  We fetch a specific version of Node, to ensure builds are hermetic, and to allow developers to skip installation of node if the entire toolchain is built on Bazel.
+
+  It exposes workspaces `@nodejs` and `@yarn` containing some rules the user can call later:
+
+  - Run node: `bazel run @nodejs//:node path/to/program.js`
+  - Install dependencies using npm: `bazel run @nodejs//:npm install`
+  - Install dependencies using yarn: `bazel run @yarn//:yarn`
+
+  Note that the dependency installation scripts will run in each subpackage indicated by the `package_json` attribute.
+
+  This approach uses npm/yarn as the package manager. You could instead have Bazel act as the package manager, running the install behind the scenes.
+  See the `npm_install` and `yarn_install` rules, and the discussion in the README.
+
+  Example:
+
+  ```
+  load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
+  node_repositories(package_json = ["//:package.json", "//subpkg:package.json"])
+  ```
+
+  Running `bazel run @yarn//:yarn` in this repo would create `/node_modules` and `/subpkg/node_modules`.
+
+  Args:
+    package_json: a list of labels, which indicate the package.json files that need to be installed.
   """
   # Windows users need sh_binary wrapped as an .exe
   check_bazel_version("0.5.4")

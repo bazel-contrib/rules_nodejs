@@ -86,8 +86,8 @@ http_archive(
 
 http_archive(
     name = "io_bazel_skydoc",
-    url = "https://github.com/alexeagle/skydoc/archive/77d490c80813d69e4e269086b81008cd6d3e89f3.zip",
-    strip_prefix = "skydoc-77d490c80813d69e4e269086b81008cd6d3e89f3",
+    url = "https://github.com/bazelbuild/skydoc/archive/0ef7695c9d70084946a3e99b89ad5a99ede79580.zip",
+    strip_prefix = "skydoc-0ef7695c9d70084946a3e99b89ad5a99ede79580",
 )
 load("@io_bazel_skydoc//skylark:skylark.bzl", "skydoc_repositories")
 skydoc_repositories()

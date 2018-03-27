@@ -16,6 +16,9 @@ licenses(["notice"])  # Apache 2.0
 
 package(default_visibility = ["//internal:__subpackages__"])
 
+# Exported to be consumed for generating skydoc.
+exports_files(["check_bazel_version.bzl"])
+
 py_test(
     name = "check_bazel_version_test",
     size = "small",

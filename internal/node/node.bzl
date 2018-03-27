@@ -12,7 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Rules for executing programs in the nodejs runtime.
+"""Executing programs
+
+These rules run the node binary with the given sources.
+
+They support module mapping: any targets in the transitive dependencies with
+a `module_name` attribute can be `require`d by that name.
 """
 load("//internal/common:module_mappings.bzl", "module_mappings_runtime_aspect")
 load("//internal/common:sources_aspect.bzl", "sources_aspect")
@@ -132,24 +137,42 @@ def _nodejs_binary_impl(ctx):
     )
 
 _NODEJS_EXECUTABLE_ATTRS = {
-    "entry_point": attr.string(mandatory = True),
-    "bootstrap": attr.string_list(default = []),
+    "entry_point": attr.string(
+        doc = """The script which should be executed first, usually containing a main function.
+        This attribute expects a string starting with the workspace name, so that it's not ambiguous
+        in cases where a script with the same name appears in another directory or external workspace.
+        """,
+        mandatory = True),
+    "bootstrap": attr.string_list(
+        doc = """JavaScript modules to be loaded before the entry point.
+        For example, Angular uses this to patch the Jasmine async primitives for
+        zone.js before the first `describe`.
+        """,
+        default = []),
     "data": attr.label_list(
+        doc = """Runtime dependencies which may be loaded during execution.""",
         allow_files = True,
         cfg = "data",
         aspects=[sources_aspect, module_mappings_runtime_aspect]),
-    "templated_args": attr.string_list(),
-    "_node": attr.label(
-        default = Label("@nodejs//:node"),
-        allow_files = True,
-        single_file = True),
+    "templated_args": attr.string_list(
+        doc = """Arguments which are passed to every execution of the program.
+        To pass a node startup option, prepend it with `--node_options=`, e.g.
+        `--node_options=--preserve-symlinks`
+        """,
+    ),
     "node_modules": attr.label(
+        doc = """The npm packages which should be available to `require()` during
+        execution.""",
         # By default, binaries use the node_modules in the workspace
         # where the bazel command is run. This assumes that any needed
         # dependencies are installed there, commonly due to a transitive
         # dependency on a package like @bazel/typescript.
         # See discussion: https://github.com/bazelbuild/rules_typescript/issues/13
         default = Label("@//:node_modules")),
+    "_node": attr.label(
+        default = Label("@nodejs//:node"),
+        allow_files = True,
+        single_file = True),
     "_launcher_template": attr.label(
         default = Label("//internal/node:node_launcher.sh"),
         allow_files = True,
@@ -175,15 +198,42 @@ nodejs_binary = rule(
     executable = True,
     outputs = _NODEJS_EXECUTABLE_OUTPUTS,
 )
+"""
+Runs some JavaScript code in NodeJS.
+"""
+
 nodejs_test = rule(
     implementation = _nodejs_binary_impl,
     attrs = _NODEJS_EXECUTABLE_ATTRS,
     test = True,
     outputs = _NODEJS_EXECUTABLE_OUTPUTS,
 )
+"""
+Identical to `nodejs_binary`, except this can be used with `bazel test` as well.
+When the binary returns zero exit code, the test passes; otherwise it fails.
 
-# Wrap in an sh_binary for windows .exe wrapper.
+`nodejs_test` is a convenient way to write a novel kind of test based on running
+your own test runner. For example, the `ts-api-guardian` library has a way to
+assert the public API of a TypeScript program, and uses `nodejs_test` here:
+https://github.com/angular/angular/blob/master/tools/ts-api-guardian/index.bzl
+
+If you just want to run a standard test using a test runner like Karma or Jasmine,
+use the specific rules for those test runners, e.g. `jasmine_node_test`.
+"""
+
 def nodejs_binary_macro(name, args=[], visibility=None, tags=[], **kwargs):
+  """This macro exists only to wrap the nodejs_binary as an .exe for Windows.
+
+  This is exposed in the public API at `//:defs.bzl` as `nodejs_binary`, so most
+  users loading `nodejs_binary` are actually executing this macro.
+
+  Args:
+    name: name of the label
+    args: applied to the wrapper binary
+    visibility: applied to the wrapper binary
+    tags: applied to the wrapper binary
+    **kwargs: passed to the nodejs_binary
+  """
   nodejs_binary(
       name = "%s_bin" % name,
       **kwargs
@@ -198,8 +248,20 @@ def nodejs_binary_macro(name, args=[], visibility=None, tags=[], **kwargs):
       visibility = visibility,
   )
 
-# Wrap in an sh_test for windows .exe wrapper.
 def nodejs_test_macro(name, args=[], visibility=None, tags=[], **kwargs):
+  """This macro exists only to wrap the nodejs_test as an .exe for Windows.
+
+  This is exposed in the public API at `//:defs.bzl` as `nodejs_test`, so most
+  users loading `nodejs_test` are actually executing this macro.
+
+  Args:
+    name: name of the label
+    args: applied to the wrapper binary
+    visibility: applied to the wrapper binary
+    tags: applied to the wrapper binary
+    **kwargs: passed to the nodejs_test
+  """
+
   nodejs_test(
       name = "%s_bin" % name,
       testonly = 1,
