@@ -12,7 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Helper function to check the bazel version
+"""Check Bazel version
+
+We recommend forcing all users to update to at least the same version of Bazel
+as the continuous integration, so they don't trip over incompatibilities with
+rules used in the project.
 """
 
 # From https://github.com/tensorflow/tensorflow/blob/5541ef4fbba56cf8930198373162dd3119e6ee70/tensorflow/workspace.bzl#L44
@@ -39,6 +43,21 @@ def _parse_bazel_version(bazel_version):
 # Check that a specific bazel version is being used.
 # Args: bazel_version in the form "<major>.<minor>.<patch>"
 def check_bazel_version(bazel_version):
+  """
+  Verify the users Bazel version is at least the given one.
+
+  This should be called from the `WORKSPACE` file so that the build fails as
+  early as possible. For example:
+
+  ```
+  # in WORKSPACE:
+  load("@build_bazel_rules_nodejs//:defs.bzl", "check_bazel_version")
+  check_bazel_version("0.11.0")
+  ```
+
+  Args:
+    bazel_version: a string indicating the minimum version
+  """
   if "bazel_version" not in dir(native):
     fail("\nCurrent Bazel version is lower than 0.2.1, expected at least %s\n" %
          bazel_version)
