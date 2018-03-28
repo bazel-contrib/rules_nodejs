@@ -351,6 +351,10 @@ def compile_ts(ctx,
 
   return {
       "files": files,
+      "output_groups": {
+          "es6_sources": es6_sources,
+          "es5_sources": es5_sources,
+      },
       "runfiles": ctx.runfiles(
           # Note: don't include files=... here, or they will *always* be built
           # by any dependent rule, regardless of whether it needs them.
@@ -385,6 +389,6 @@ def compile_ts(ctx,
 # converting it to an immutable struct.
 def ts_providers_dict_to_struct(d):
   for key, value in d.items():
-    if type(value) == type({}):
+    if key != "output_groups" and type(value) == type({}):
       d[key] = struct(**value)
   return struct(**d)
