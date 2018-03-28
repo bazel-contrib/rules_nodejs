@@ -119,7 +119,13 @@ function runOneBuild(
     diags.push(...program.getOptionsDiagnostics());
     diags.push(...program.getGlobalDiagnostics());
   });
-  for (const sf of program.getSourceFiles().filter(isCompilationTarget)) {
+  let sourceFilesToCheck: ReadonlyArray<ts.SourceFile>;
+  if (bazelOpts.typeCheckDependencies) {
+    sourceFilesToCheck = program.getSourceFiles();
+  } else {
+    sourceFilesToCheck = program.getSourceFiles().filter(isCompilationTarget);
+  }
+  for (const sf of sourceFilesToCheck) {
     wrap(`check ${sf.fileName}`, () => {
       diags.push(...program.getSyntacticDiagnostics(sf));
       diags.push(...program.getSemanticDiagnostics(sf));

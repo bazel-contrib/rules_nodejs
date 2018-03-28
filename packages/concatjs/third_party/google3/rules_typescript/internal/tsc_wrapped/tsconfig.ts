@@ -110,6 +110,13 @@ export interface BazelOptions {
   addDtsClutzAliases: true;
 
   /**
+   * Whether to type check inputs that aren't srcs.  Differs from
+   * --skipLibCheck, which skips all .d.ts files, even those which are
+   * srcs.
+   */
+  typeCheckDependencies: boolean;
+
+  /**
    * The maximum cache size for bazel outputs, in megabytes.
    */
   maxCacheSizeMb?: number;
