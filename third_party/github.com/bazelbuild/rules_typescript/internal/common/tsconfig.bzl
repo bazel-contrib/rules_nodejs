@@ -111,6 +111,7 @@ def create_tsconfig(ctx, files, srcs,
       # and type checking).
       "compilationTargetSrc": [s.path for s in srcs],
       "addDtsClutzAliases": getattr(ctx.attr, "add_dts_clutz_aliases", False),
+      "typeCheckDependencies": getattr(ctx.attr, "internal_testing_type_check_dependencies", False),
       "expectedDiagnostics": getattr(ctx.attr, "expected_diagnostics", []),
   }
 

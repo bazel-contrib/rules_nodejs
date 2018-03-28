@@ -179,6 +179,7 @@ ts_library = rule(
                 cfg="host"),
         "supports_workers": attr.bool(default = True),
         "tsickle_typed": attr.bool(default = True),
+        "internal_testing_type_check_dependencies": attr.bool(default = False, doc="Testing only, whether to type check inputs that aren't srcs."),
         "_tsc_wrapped_deps": attr.label(default = Label("@build_bazel_rules_typescript_tsc_wrapped_deps//:node_modules")),
         # @// is special syntax for the "main" repository
         # The default assumes the user specified a target "node_modules" in their
