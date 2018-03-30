@@ -31,7 +31,7 @@ rollup_module_mappings_aspect = aspect(
     attr_aspects = ["deps"],
 )
 
-def write_rollup_config(ctx, plugins=[], root_dir=None, filename="_%s.rollup.conf.js"):
+def write_rollup_config(ctx, plugins=[], root_dir=None, filename="_%s.rollup.conf.js", output_format="iife"):
   """Generate a rollup config file.
 
   This is also used by the ng_rollup_bundle and ng_package rules in @angular/bazel.
@@ -42,6 +42,7 @@ def write_rollup_config(ctx, plugins=[], root_dir=None, filename="_%s.rollup.con
              See the ng_rollup_bundle in @angular/bazel for example of usage.
     root_dir: root directory for module resolution (defaults to None)
     filename: output filename pattern (defaults to `_%s.rollup.conf.js`)
+    output_format: passed to rollup output.format option, e.g. "umd"
 
   Returns:
     The rollup config file. See https://rollupjs.org/guide/en#configuration-files
@@ -75,6 +76,7 @@ def write_rollup_config(ctx, plugins=[], root_dir=None, filename="_%s.rollup.con
           "TMPL_additional_plugins": ",\n".join(plugins),
           "TMPL_banner_file": "\"%s\"" % ctx.file.license_banner.path if ctx.file.license_banner else "undefined",
           "TMPL_stamp_data": "\"%s\"" % ctx.version_file.path if ctx.version_file else "undefined",
+          "TMPL_output_format": output_format,
       })
 
   return config
@@ -94,6 +96,16 @@ def run_rollup(ctx, sources, config, output):
   args.add(["--config", config.path])
   args.add(["--output.file", output.path])
   args.add(["--input", ctx.attr.entry_point])
+  # We will produce errors as needed. Anything else is spammy: a well-behaved
+  # bazel rule prints nothing on success.
+  args.add("--silent")
+
+  args.add("--external")
+  args.add(ctx.attr.globals.keys(), join_with=",")
+
+  args.add("--globals")
+  args.add(["%s:%s" % g for g in ctx.attr.globals.items()], join_with=",")
+
   inputs = sources + ctx.files.node_modules + [config]
   if ctx.file.license_banner:
     inputs += [ctx.file.license_banner]
@@ -181,6 +193,8 @@ def _rollup_bundle(ctx):
   _run_tsc(ctx, ctx.outputs.build_es6, ctx.outputs.build_es5)
   source_map = run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min)
   run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min_debug, debug = True)
+  umd_rollup_config = write_rollup_config(ctx, filename = "_%s_umd.rollup.conf.js", output_format = "umd")
+  run_rollup(ctx, collect_es6_sources(ctx), umd_rollup_config, ctx.outputs.build_umd)
   return DefaultInfo(files=depset([ctx.outputs.build_es5_min, source_map]))
 
 ROLLUP_ATTRS = {
@@ -205,6 +219,14 @@ ROLLUP_ATTRS = {
         Note that you can replace a version placeholder in the license file, by using
         the special version `0.0.0-PLACEHOLDER`. See the section on stamping in the README.""",
         allow_single_file = FileType([".txt"])),
+    "globals": attr.string_dict(
+        doc = """A dict of symbols that reference external scripts.
+        The keys are variable names that appear in the program,
+        and the values are the symbol to reference at runtime in a global context (UMD bundles).
+        For example, a program referencing @angular/core should use ng.core
+        as the global reference, so Angular users should include the mapping
+        `"@angular/core":"ng.core"` in the globals.""",
+        default={}),
     "_rollup": attr.label(
         executable = True,
         cfg="host",
@@ -232,6 +254,7 @@ ROLLUP_OUTPUTS = {
     "build_es5": "%{name}.js",
     "build_es5_min": "%{name}.min.js",
     "build_es5_min_debug": "%{name}.min_debug.js",
+    "build_umd": "%{name}.umd.js",
 }
 
 rollup_bundle = rule(
@@ -258,6 +281,7 @@ For example, if your `rollup_bundle` is named `my_rollup_bundle`, you can use on
 To request the ES2015 syntax (e.g. `class` keyword) without downleveling or minification, use the `:my_rollup_bundle.es6.js` label.
 To request the ES5 downleveled bundle without minification, use the `:my_rollup_bundle.js` label
 To request the debug-minified es5 bundle, use the `:my_rollup_bundle.min_debug.js` label.
+To request a UMD-bundle, use the `:my_rollup_bundle.umd.js` label.
 
 For debugging, note that the `rollup.config.js` and `uglify.config.json` files can be found in the bazel-bin folder next to the resulting bundle.
 

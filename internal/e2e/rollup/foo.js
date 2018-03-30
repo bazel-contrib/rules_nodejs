@@ -1,4 +1,5 @@
 import {fum} from 'fumlib';
+import {thing} from 'some_global_var';
 
 import {name} from './bar';
 
@@ -13,4 +14,4 @@ export class A {
 function inline_me() {
   return 'abc';
 }
-console.error(new A().a(), inline_me());
+console.error(new A().a(), inline_me(), thing);
