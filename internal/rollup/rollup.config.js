@@ -10,31 +10,28 @@ const DEBUG = false;
 
 const moduleMappings = TMPL_module_mappings;
 const workspaceName = 'TMPL_workspace_name';
-const rootDirs = TMPL_rootDirs;
+const rootDir = TMPL_rootDir;
 const banner_file = TMPL_banner_file;
 const stamp_data = TMPL_stamp_data;
 
 if (DEBUG)
   console.error(`
 Rollup: running with
-  rootDirs: ${rootDirs}
+  rootDir: ${rootDir}
   moduleMappings: ${JSON.stringify(moduleMappings)}
 `);
 
-// This resolver mimics the TypeScript `rootDirs` feature, which lets us pretend
-// that multiple roots are logically merged into a single tree.
+// This resolver mimics the TypeScript Path Mapping feature, which lets us resolve
+// modules based on a mapping of short names to paths.
 function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = require.resolve) {
-  function resolveInRootDirs(importee) {
-    for (var i = 0; i < rootDirs.length; i++) {
-      var root = rootDirs[i];
-      var candidate = path.join(baseDir, root, importee);
-      if (DEBUG) console.error('Rollup: try to resolve at', candidate);
-      try {
-        var result = resolve(candidate);
-        return result;
-      } catch (e) {
-        continue;
-      }
+  function resolveInRootDir(importee) {
+    var candidate = path.join(baseDir, rootDir, importee);
+    if (DEBUG) console.error('Rollup: try to resolve at', candidate);
+    try {
+      var result = resolve(candidate);
+      return result;
+    } catch (e) {
+      return undefined;
     }
   }
 
@@ -50,18 +47,15 @@ function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = req
     // relative import
     if (importer) {
       let importerRootRelative = path.dirname(importer);
-      for (var i = 0; i < rootDirs.length; i++) {
-        var root = rootDirs[i];
-        const relative = path.relative(path.join(baseDir, root), importerRootRelative);
-        if (!relative.startsWith('.')) {
-          importerRootRelative = relative;
-        }
+      const relative = path.relative(path.join(baseDir, rootDir), importerRootRelative);
+      if (!relative.startsWith('.')) {
+        importerRootRelative = relative;
       }
       resolved = path.join(importerRootRelative, importee);
     } else {
       throw new Error('cannot resolve relative paths without an importer');
     }
-    if (resolved) resolved = resolveInRootDirs(resolved);
+    if (resolved) resolved = resolveInRootDir(resolved);
   }
 
   if (!resolved) {
@@ -70,9 +64,12 @@ function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = req
     for (const k in moduleMappings) {
       if (importee == k || importee.startsWith(k + path.sep)) {
         // replace the root module name on a mappings match
-        var v = moduleMappings[k];
+        // note that the module_root attribute is intended to be used for type-checking
+        // so it uses eg. "index.d.ts". At runtime, we have only index.js, so we strip the
+        // .d.ts suffix and let node require.resolve do its thing.
+        var v = moduleMappings[k].replace(/\.d\.ts$/, '');
         importee = path.join(v, importee.slice(k.length + 1));
-        resolved = resolveInRootDirs(importee);
+        resolved = resolveInRootDir(importee);
         if (resolved) break;
       }
     }
@@ -81,7 +78,7 @@ function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = req
   if (!resolved) {
     // workspace import
     const userWorkspacePath = path.relative(workspaceName, importee);
-    resolved = resolveInRootDirs(userWorkspacePath.startsWith('..') ? importee : userWorkspacePath);
+    resolved = resolveInRootDir(userWorkspacePath.startsWith('..') ? importee : userWorkspacePath);
   }
 
   return resolved;

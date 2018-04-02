@@ -31,7 +31,7 @@ rollup_module_mappings_aspect = aspect(
     attr_aspects = ["deps"],
 )
 
-def write_rollup_config(ctx, plugins=[], root_dirs=None, filename="_%s.rollup.conf.js"):
+def write_rollup_config(ctx, plugins=[], root_dir=None, filename="_%s.rollup.conf.js"):
   """Generate a rollup config file.
 
   This is also used by the ng_rollup_bundle and ng_package rules in @angular/bazel.
@@ -40,7 +40,7 @@ def write_rollup_config(ctx, plugins=[], root_dirs=None, filename="_%s.rollup.co
     ctx: Bazel rule execution context
     plugins: extra plugins (defaults to [])
              See the ng_rollup_bundle in @angular/bazel for example of usage.
-    root_dirs: root directories for module resolution (defaults to None)
+    root_dir: root directory for module resolution (defaults to None)
     filename: output filename pattern (defaults to `_%s.rollup.conf.js`)
 
   Returns:
@@ -61,15 +61,15 @@ def write_rollup_config(ctx, plugins=[], root_dirs=None, filename="_%s.rollup.co
                 (dep.label, k, mappings[k], v)), "deps")
         mappings[k] = v
 
-  if not root_dirs:
-    root_dirs = ["/".join([ctx.bin_dir.path, build_file_dirname, ctx.label.name + ".es6"])]
+  if not root_dir:
+    root_dir = "/".join([ctx.bin_dir.path, build_file_dirname, ctx.label.name + ".es6"])
 
   ctx.actions.expand_template(
       output = config,
       template =  ctx.file._rollup_config_tmpl,
       substitutions = {
           "TMPL_workspace_name": ctx.workspace_name,
-          "TMPL_rootDirs": str(root_dirs),
+          "TMPL_rootDir": "\"%s\"" % root_dir,
           "TMPL_label_name": ctx.label.name,
           "TMPL_module_mappings": str(mappings),
           "TMPL_additional_plugins": ",\n".join(plugins),
