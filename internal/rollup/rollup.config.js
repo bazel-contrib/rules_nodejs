@@ -70,7 +70,10 @@ function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = req
     for (const k in moduleMappings) {
       if (importee == k || importee.startsWith(k + path.sep)) {
         // replace the root module name on a mappings match
-        var v = moduleMappings[k];
+        // note that the module_root attribute is intended to be used for type-checking
+        // so it uses eg. "index.d.ts". At runtime, we have only index.js, so we strip the
+        // .d.ts suffix and let node require.resolve do its thing.
+        var v = moduleMappings[k].replace(/\.d\.ts$/, '');
         importee = path.join(v, importee.slice(k.length + 1));
         resolved = resolveInRootDirs(importee);
         if (resolved) break;
