@@ -10,19 +10,14 @@ const DEBUG = false;
 
 const moduleMappings = TMPL_module_mappings;
 const workspaceName = 'TMPL_workspace_name';
-const rootDirs = TMPL_rootDirs;
+const rootDir = TMPL_rootDir;
 const banner_file = TMPL_banner_file;
 const stamp_data = TMPL_stamp_data;
-
-if (rootDirs.length > 1) {
-  throw new Error(`rollup config no longer supports multiple rootDirs, see
-      https://github.com/bazelbuild/rules_nodejs/issues/171`);
-}
 
 if (DEBUG)
   console.error(`
 Rollup: running with
-  rootDirs: ${rootDirs}
+  rootDir: ${rootDir}
   moduleMappings: ${JSON.stringify(moduleMappings)}
 `);
 
@@ -30,9 +25,7 @@ Rollup: running with
 // modules based on a mapping of short names to paths.
 function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = require.resolve) {
   function resolveInRootDir(importee) {
-    // rootDirs is checked to be length 1 earlier
-    var root = rootDirs[0];
-    var candidate = path.join(baseDir, root, importee);
+    var candidate = path.join(baseDir, rootDir, importee);
     if (DEBUG) console.error('Rollup: try to resolve at', candidate);
     try {
       var result = resolve(candidate);
@@ -54,12 +47,9 @@ function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = req
     // relative import
     if (importer) {
       let importerRootRelative = path.dirname(importer);
-      for (var i = 0; i < rootDirs.length; i++) {
-        var root = rootDirs[i];
-        const relative = path.relative(path.join(baseDir, root), importerRootRelative);
-        if (!relative.startsWith('.')) {
-          importerRootRelative = relative;
-        }
+      const relative = path.relative(path.join(baseDir, rootDir), importerRootRelative);
+      if (!relative.startsWith('.')) {
+        importerRootRelative = relative;
       }
       resolved = path.join(importerRootRelative, importee);
     } else {
