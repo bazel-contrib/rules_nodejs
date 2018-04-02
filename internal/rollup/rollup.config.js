@@ -14,6 +14,11 @@ const rootDirs = TMPL_rootDirs;
 const banner_file = TMPL_banner_file;
 const stamp_data = TMPL_stamp_data;
 
+if (rootDirs.length > 1) {
+  throw new Error(`rollup config no longer supports multiple rootDirs, see
+      https://github.com/bazelbuild/rules_nodejs/issues/171`);
+}
+
 if (DEBUG)
   console.error(`
 Rollup: running with
@@ -21,20 +26,19 @@ Rollup: running with
   moduleMappings: ${JSON.stringify(moduleMappings)}
 `);
 
-// This resolver mimics the TypeScript `rootDirs` feature, which lets us pretend
-// that multiple roots are logically merged into a single tree.
+// This resolver mimics the TypeScript Path Mapping feature, which lets us resolve
+// modules based on a mapping of short names to paths.
 function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = require.resolve) {
-  function resolveInRootDirs(importee) {
-    for (var i = 0; i < rootDirs.length; i++) {
-      var root = rootDirs[i];
-      var candidate = path.join(baseDir, root, importee);
-      if (DEBUG) console.error('Rollup: try to resolve at', candidate);
-      try {
-        var result = resolve(candidate);
-        return result;
-      } catch (e) {
-        continue;
-      }
+  function resolveInRootDir(importee) {
+    // rootDirs is checked to be length 1 earlier
+    var root = rootDirs[0];
+    var candidate = path.join(baseDir, root, importee);
+    if (DEBUG) console.error('Rollup: try to resolve at', candidate);
+    try {
+      var result = resolve(candidate);
+      return result;
+    } catch (e) {
+      return undefined;
     }
   }
 
@@ -61,7 +65,7 @@ function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = req
     } else {
       throw new Error('cannot resolve relative paths without an importer');
     }
-    if (resolved) resolved = resolveInRootDirs(resolved);
+    if (resolved) resolved = resolveInRootDir(resolved);
   }
 
   if (!resolved) {
@@ -75,7 +79,7 @@ function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = req
         // .d.ts suffix and let node require.resolve do its thing.
         var v = moduleMappings[k].replace(/\.d\.ts$/, '');
         importee = path.join(v, importee.slice(k.length + 1));
-        resolved = resolveInRootDirs(importee);
+        resolved = resolveInRootDir(importee);
         if (resolved) break;
       }
     }
@@ -84,7 +88,7 @@ function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = req
   if (!resolved) {
     // workspace import
     const userWorkspacePath = path.relative(workspaceName, importee);
-    resolved = resolveInRootDirs(userWorkspacePath.startsWith('..') ? importee : userWorkspacePath);
+    resolved = resolveInRootDir(userWorkspacePath.startsWith('..') ? importee : userWorkspacePath);
   }
 
   return resolved;
