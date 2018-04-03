@@ -102,8 +102,14 @@ if (banner_file) {
 module.exports = {
   resolveBazel,
   banner,
+  onwarn: (warning) => {
+    // Always fail on warnings, assuming we don't know which are harmless.
+    // We can add exclusions here based on warning.code, if we discover some
+    // types of warning should always be ignored under bazel.
+    throw new Error(warning.message);
+  },
   output: {
-    format: 'iife',
+    format: 'TMPL_output_format',
     // The IIFE bundle requires a name if top-level symbols are exported.
     // We don't yet know if that name needs to be configurable by the user, so we
     // intentionally limit the API for now by naming this variable after the name

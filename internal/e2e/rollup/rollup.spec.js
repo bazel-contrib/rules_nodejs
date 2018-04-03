@@ -56,4 +56,7 @@ describe('bundling', () => {
   it('should produce a debug bundle', () => {
     check('bundle.min_debug.js', 'bundle-min-debug_golden.js_');
   });
+  it('should rewrite global imports', () => {
+    check('bundle.umd.js', 'bundle-umd_golden.js_');
+  });
 });
