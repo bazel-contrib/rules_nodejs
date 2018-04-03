@@ -6,6 +6,7 @@
     "karma-chrome-launcher": "2.2.0",
     "karma-jasmine": "1.1.1",
     "karma-requirejs": "1.1.0",
+    "puppeteer": "1.1.0",
     "requirejs": "2.3.5",
     "tmp": "0.0.33"
   }

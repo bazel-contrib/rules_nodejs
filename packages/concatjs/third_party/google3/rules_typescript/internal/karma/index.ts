@@ -41,7 +41,8 @@ function initConcatJs(logger, emitter, basePath) {
         // Preserve all non-JS that were there in the included list.
         included.push(file);
       } else {
-        const relativePath = path.relative(basePath, file.originalPath);
+        const relativePath =
+            path.relative(basePath, file.originalPath).replace(/\\/g, '/');
 
         // Remove 'use strict'.
         let content = file.content.replace(/('use strict'|"use strict");?/,
