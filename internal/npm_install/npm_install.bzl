@@ -54,6 +54,14 @@ filegroup(
           repository_ctx.attr.package_lock_json,
           repository_ctx.path("package-lock.json"))
 
+  # Add data dependencies to the repository
+  for f in repository_ctx.attr.data:
+    to = []
+    if f.package:
+      to += [f.package]
+    to += [f.name]
+    repository_ctx.symlink(f, repository_ctx.path("/".join(to)))
+
   node = get_node_label(repository_ctx)
   npm = get_npm_label(repository_ctx)
 
@@ -93,6 +101,7 @@ npm_install = repository_rule(
             allow_files = True,
             single_file = True,
         ),
+        "data": attr.label_list(),
     },
     implementation = _npm_install_impl,
 )
@@ -130,6 +139,14 @@ filegroup(
           repository_ctx.attr.yarn_lock,
           repository_ctx.path("yarn.lock"))
 
+  # Add data dependencies to the repository
+  for f in repository_ctx.attr.data:
+    to = []
+    if f.package:
+      to += [f.package]
+    to += [f.name]
+    repository_ctx.symlink(f, repository_ctx.path("/".join(to)))
+
   node = get_node_label(repository_ctx)
 
   # Use @yarn//:yarn.js, which adds node to the path before calling @yarn//:bin/yarn.js
@@ -163,6 +180,7 @@ yarn_install = repository_rule(
             mandatory = True,
             single_file = True,
         ),
+        "data": attr.label_list(),
     },
     implementation = _yarn_install_impl,
 )
