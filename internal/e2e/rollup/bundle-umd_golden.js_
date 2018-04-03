@@ -11,9 +11,11 @@
 
 const fum = 'Wonderland';
 
+var hello = 'Hello';
+
 const name = 'Alice';
 
-console.log(`Hello, ${name} in ${fum}`);
+console.log(`${hello}, ${name} in ${fum}`);
 
 // Test for sequences = false
 class A {

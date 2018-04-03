@@ -1,0 +1,6 @@
+{
+  "description": "e2e rollup dependencies for testing import from non-WORKSPACE-root node_modules",
+  "dependencies": {
+    "hello": "file:./hello"
+  }
+}
