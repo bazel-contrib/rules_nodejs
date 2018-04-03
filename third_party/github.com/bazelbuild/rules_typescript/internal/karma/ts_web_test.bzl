@@ -55,7 +55,6 @@ def _ts_web_test_impl(ctx):
   files_entries += [
     "build_bazel_rules_typescript_karma_deps/node_modules/requirejs/require.js",
     "build_bazel_rules_typescript_karma_deps/node_modules/karma-requirejs/lib/adapter.js",
-    "build_bazel_rules_typescript_karma_deps/node_modules/karma/requirejs.config.tpl.js",
   ]
   # Finally we load the user's srcs and deps
   files_entries += [
@@ -77,12 +76,29 @@ def _ts_web_test_impl(ctx):
           "TMPL_headlessbrowser": "%sHeadless" % _BROWSER,
       })
 
+  karma_executable_path = ctx.executable._karma.short_path
+  if karma_executable_path.startswith('..'):
+    karma_executable_path = "external" + karma_executable_path[2:]
+
   ctx.actions.write(
       output = ctx.outputs.executable,
       is_executable = True,
       content = """#!/usr/bin/env bash
-readonly KARMA={TMPL_karma}
-readonly CONF={TMPL_conf}
+MANIFEST="$TEST_SRCDIR/MANIFEST"
+if [ -e "$MANIFEST" ]; then
+  while read line; do
+    declare -a PARTS=($line)
+    if [ "${{PARTS[0]}}" == "build_bazel_rules_typescript/{TMPL_karma}" ]; then
+      readonly KARMA=${{PARTS[1]}}
+    elif [ "${{PARTS[0]}}" == "build_bazel_rules_typescript/{TMPL_conf}" ]; then
+      readonly CONF=${{PARTS[1]}}
+    fi
+  done < $MANIFEST
+else
+  readonly KARMA={TMPL_karma}
+  readonly CONF={TMPL_conf}
+fi
+
 export HOME=$(mktemp -d)
 ARGV=( "start" $CONF )
 
@@ -93,7 +109,7 @@ if [ ! -z "$TEST_TMPDIR" ]; then
 fi
 
 $KARMA ${{ARGV[@]}}
-""".format(TMPL_karma = ctx.executable._karma.short_path,
+""".format(TMPL_karma = karma_executable_path,
            TMPL_conf = conf.short_path))
   return [DefaultInfo(
       runfiles = ctx.runfiles(
