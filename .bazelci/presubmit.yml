@@ -27,6 +27,7 @@ platforms:
     build_targets:
     # Cannot build the docsite on Windows, see
     # https://github.com/bazelbuild/skydoc/issues/58
-    - "//... -//:docs"
+    - "//..."
+    - "-//:docs"
     test_targets:
     - "//..."
