@@ -65,12 +65,11 @@ def write_rollup_config(ctx, plugins=[], root_dir=None, filename="_%s.rollup.con
   if not root_dir:
     root_dir = "/".join([ctx.bin_dir.path, build_file_dirname, ctx.label.name + ".es6"])
 
-  node_modules_path = ["."]
-  if ctx.attr.node_modules.label.workspace_root:
-    node_modules_path += [ctx.attr.node_modules.label.workspace_root]
-  node_modules_path += ctx.attr.node_modules.label.package.split("/")
-  node_modules_path += ["node_modules"]
-  node_modules_path = "/".join(node_modules_path)
+  node_modules_path = "/".join([f for f in [
+    ctx.attr.node_modules.label.workspace_root,
+    ctx.attr.node_modules.label.package,
+    "node_modules"
+  ] if f])
 
   ctx.actions.expand_template(
       output = config,

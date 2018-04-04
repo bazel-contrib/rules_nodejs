@@ -35,7 +35,6 @@ node_repositories(package_json = [
     "//:package.json",
     "//examples/rollup:package.json",
     "@program_example//:package.json",
-    "//internal/e2e/rollup:package.json",
     "//internal/test:package.json",
 ])
 
