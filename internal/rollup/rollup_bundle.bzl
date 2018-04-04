@@ -65,6 +65,12 @@ def write_rollup_config(ctx, plugins=[], root_dir=None, filename="_%s.rollup.con
   if not root_dir:
     root_dir = "/".join([ctx.bin_dir.path, build_file_dirname, ctx.label.name + ".es6"])
 
+  node_modules_path = "/".join([f for f in [
+    ctx.attr.node_modules.label.workspace_root,
+    ctx.attr.node_modules.label.package,
+    "node_modules"
+  ] if f])
+
   ctx.actions.expand_template(
       output = config,
       template =  ctx.file._rollup_config_tmpl,
@@ -77,6 +83,7 @@ def write_rollup_config(ctx, plugins=[], root_dir=None, filename="_%s.rollup.con
           "TMPL_banner_file": "\"%s\"" % ctx.file.license_banner.path if ctx.file.license_banner else "undefined",
           "TMPL_stamp_data": "\"%s\"" % ctx.version_file.path if ctx.version_file else "undefined",
           "TMPL_output_format": output_format,
+          "TMPL_node_modules_path": node_modules_path,
       })
 
   return config

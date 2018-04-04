@@ -120,6 +120,10 @@ module.exports = {
   },
   plugins: [TMPL_additional_plugins].concat([
     {resolveId: resolveBazel},
-    nodeResolve({jsnext: true, module: true}),
+    nodeResolve({
+      jsnext: true,
+      module: true,
+      customResolveOptions: {moduleDirectory: 'TMPL_node_modules_path'}
+    }),
   ])
 }
