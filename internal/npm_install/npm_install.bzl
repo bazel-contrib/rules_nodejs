@@ -23,9 +23,7 @@ See discussion in the README.
 
 load("//internal/node:node_labels.bzl", "get_node_label", "get_npm_label")
 
-def _npm_install_impl(repository_ctx):
-  """Core implementation of npm_install."""
-
+def _create_build_file(repository_ctx):
   repository_ctx.file("BUILD", """
 package(default_visibility = ["//visibility:public"])
 filegroup(
@@ -45,6 +43,20 @@ filegroup(
 )
 """)
 
+def _add_data_dependencies(repository_ctx):
+  """Add data dependencies to the repository."""
+  for f in repository_ctx.attr.data:
+    to = []
+    if f.package:
+      to += [f.package]
+    to += [f.name]
+    repository_ctx.symlink(f, repository_ctx.path("/".join(to)))
+
+def _npm_install_impl(repository_ctx):
+  """Core implementation of npm_install."""
+
+  _create_build_file(repository_ctx)
+
   # Put our package descriptors in the right place.
   repository_ctx.symlink(
       repository_ctx.attr.package_json,
@@ -54,13 +66,7 @@ filegroup(
           repository_ctx.attr.package_lock_json,
           repository_ctx.path("package-lock.json"))
 
-  # Add data dependencies to the repository
-  for f in repository_ctx.attr.data:
-    to = []
-    if f.package:
-      to += [f.package]
-    to += [f.name]
-    repository_ctx.symlink(f, repository_ctx.path("/".join(to)))
+  _add_data_dependencies(repository_ctx)
 
   node = get_node_label(repository_ctx)
   npm = get_npm_label(repository_ctx)
@@ -111,24 +117,7 @@ npm_install = repository_rule(
 def _yarn_install_impl(repository_ctx):
   """Core implementation of yarn_install."""
 
-  repository_ctx.file("BUILD", """
-package(default_visibility = ["//visibility:public"])
-filegroup(
-    name = "node_modules",
-    srcs = glob(["node_modules/**/*"],
-        # Exclude directories that commonly contain filenames which are
-        # illegal bazel labels
-        exclude = [
-            # e.g. node_modules/adm-zip/test/assets/attributes_test/New folder/hidden.txt
-            "node_modules/**/test/**",
-            # e.g. node_modules/xpath/docs/function resolvers.md
-            "node_modules/**/docs/**",
-            # e.g. node_modules/puppeteer/.local-chromium/mac-536395/chrome-mac/Chromium.app/Contents/Versions/66.0.3347.0/Chromium Framework.framework/Chromium Framework
-            "node_modules/**/.*/**"
-        ],
-    ),
-)
-""")
+  _create_build_file(repository_ctx)
 
   # Put our package descriptors in the right place.
   repository_ctx.symlink(
@@ -139,13 +128,7 @@ filegroup(
           repository_ctx.attr.yarn_lock,
           repository_ctx.path("yarn.lock"))
 
-  # Add data dependencies to the repository
-  for f in repository_ctx.attr.data:
-    to = []
-    if f.package:
-      to += [f.package]
-    to += [f.name]
-    repository_ctx.symlink(f, repository_ctx.path("/".join(to)))
+  _add_data_dependencies(repository_ctx)
 
   node = get_node_label(repository_ctx)
 
