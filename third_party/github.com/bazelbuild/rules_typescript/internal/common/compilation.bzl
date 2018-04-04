@@ -43,7 +43,6 @@ COMMON_ATTRIBUTES = dict(BASE_ATTRIBUTES, **{
         default = [],
         providers = ["js"],
     ),
-    # Override _additional_d_ts to specify google3 stdlibs
     "_additional_d_ts": attr.label_list(
         allow_files = True,
     ),
