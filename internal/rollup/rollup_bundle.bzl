@@ -31,6 +31,16 @@ rollup_module_mappings_aspect = aspect(
     attr_aspects = ["deps"],
 )
 
+def _commonprefix(a):
+  "Returns the longest common string in 'a', which must be a list of strings."
+  if not a: return ''
+  shortest = min(a)
+  longest = max(a)
+  for i in range(0, len(shortest)):
+    if shortest[i] != longest[i]:
+      return shortest[:i]
+  return shortest
+
 def write_rollup_config(ctx, plugins=[], root_dir=None, filename="_%s.rollup.conf.js", output_format="iife"):
   """Generate a rollup config file.
 
@@ -51,6 +61,14 @@ def write_rollup_config(ctx, plugins=[], root_dir=None, filename="_%s.rollup.con
 
   # build_file_path includes the BUILD.bazel file, transform here to only include the dirname
   build_file_dirname = "/".join(ctx.build_file_path.split("/")[:-1])
+
+  # Find the common prefix of all files in 'node_modules'. We need to pass this
+  # to rollup-plugin-node-resolve so that it finds the external modules.
+  node_modules_common_prefix = _commonprefix([f.path for f in ctx.files.node_modules])
+  if node_modules_common_prefix:
+    tmpl_node_modules_common_prefix = "['" + node_modules_common_prefix + "']"
+  else:
+    tmpl_node_modules_common_prefix = "[]"
 
   mappings = dict()
   all_deps = ctx.attr.deps + ctx.attr.srcs
@@ -77,6 +95,7 @@ def write_rollup_config(ctx, plugins=[], root_dir=None, filename="_%s.rollup.con
           "TMPL_banner_file": "\"%s\"" % ctx.file.license_banner.path if ctx.file.license_banner else "undefined",
           "TMPL_stamp_data": "\"%s\"" % ctx.version_file.path if ctx.version_file else "undefined",
           "TMPL_output_format": output_format,
+          "TMPL_node_modules_common_prefix": tmpl_node_modules_common_prefix,
       })
 
   return config
