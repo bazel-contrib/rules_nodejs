@@ -33,3 +33,4 @@ exports.A = A;
 Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
+//# sourceMappingURL=bundle.umd.js.map

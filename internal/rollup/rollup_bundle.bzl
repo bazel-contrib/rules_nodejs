@@ -98,10 +98,16 @@ def run_rollup(ctx, sources, config, output):
     sources: JS sources to rollup
     config: rollup config file
     output: output file
+
+  Returns:
+    the sourcemap output file
   """
+  map_output = ctx.actions.declare_file(output.basename + ".map", sibling = output)
+
   args = ctx.actions.args()
   args.add(["--config", config.path])
   args.add(["--output.file", output.path])
+  args.add(["--output.sourcemap", "--output.sourcemapFile", map_output.path])
   args.add(["--input", ctx.attr.entry_point])
   # We will produce errors as needed. Anything else is spammy: a well-behaved
   # bazel rule prints nothing on success.
@@ -122,9 +128,10 @@ def run_rollup(ctx, sources, config, output):
   ctx.action(
       executable = ctx.executable._rollup,
       inputs = inputs,
-      outputs = [output],
+      outputs = [output, map_output],
       arguments = [args]
   )
+  return map_output
 
 def _run_tsc(ctx, input, output):
   args = ctx.actions.args()
@@ -140,7 +147,7 @@ def _run_tsc(ctx, input, output):
       arguments = [args]
   )
 
-def run_uglify(ctx, input, output, debug = False, comments = True, config_name = None):
+def run_uglify(ctx, input, output, debug = False, comments = True, config_name = None, in_source_map = None):
   """Runs uglify on an input file.
 
   This is also used by https://github.com/angular/angular.
@@ -153,6 +160,8 @@ def run_uglify(ctx, input, output, debug = False, comments = True, config_name =
     comments: if True then copyright comments are preserved in output file (defaults to True)
     config_name: allows callers to control the name of the generated uglify configuration,
         which will be `_[config_name].uglify.json` in the package where the target is declared
+    in_source_map: sourcemap file for the input file, passed to the "--source-map content="
+        option of rollup.
 
   Returns:
     The sourcemap file
@@ -176,11 +185,21 @@ def run_uglify(ctx, input, output, debug = False, comments = True, config_name =
   )
 
   args = ctx.actions.args()
+  inputs = [input, config]
+
   args.add(input.path)
   args.add(["--config-file", config.path])
   args.add(["--output", output.path])
+
+  # Source mapping options are comma-packed into one argv
+  # see https://github.com/mishoo/UglifyJS2#command-line-usage
+  source_map_opts = ["includeSources", "base=" + ctx.bin_dir.path]
+  if in_source_map:
+    source_map_opts.append("content=" + in_source_map.path)
+    inputs.append(in_source_map)
   # This option doesn't work in the config file, only on the CLI
-  args.add(["--source-map", "includeSources,base=" + ctx.bin_dir.path])
+  args.add(["--source-map", ",".join(source_map_opts)])
+
   if comments:
     args.add("--comments")
   if debug:
@@ -188,11 +207,33 @@ def run_uglify(ctx, input, output, debug = False, comments = True, config_name =
 
   ctx.action(
       executable = ctx.executable._uglify,
-      inputs = [input, config],
+      inputs = inputs,
       outputs = [output, map_output],
       arguments = [args]
   )
   return map_output
+
+def run_sourcemapexplorer(ctx, js, map, output):
+  """Runs source-map-explorer to produce an HTML visualization of the sourcemap.
+
+  Args:
+    ctx: bazel rule execution context
+    js: Javascript bundle
+    map: sourcemap from the bundle back to original sources
+    output: file where the HTML report is written
+  """
+  # We must run in a shell in order to redirect stdout.
+  # TODO(alexeagle): file a feature request on ctx.actions.run so that stdout
+  # could be natively redirected to produce the output file
+  ctx.actions.run_shell(
+      inputs = [js, map, ctx.executable._source_map_explorer],
+      outputs = [output],
+      command = "$1 --html $2 $3 > $4",
+      arguments = [
+          ctx.executable._source_map_explorer.path,
+          js.path, map.path, output.path,
+      ],
+  )
 
 def _rollup_bundle(ctx):
   rollup_config = write_rollup_config(ctx)
@@ -202,6 +243,7 @@ def _rollup_bundle(ctx):
   run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min_debug, debug = True)
   umd_rollup_config = write_rollup_config(ctx, filename = "_%s_umd.rollup.conf.js", output_format = "umd")
   run_rollup(ctx, collect_es6_sources(ctx), umd_rollup_config, ctx.outputs.build_umd)
+  run_sourcemapexplorer(ctx, ctx.outputs.build_es5_min, source_map, ctx.outputs.explore_html)
   return DefaultInfo(files=depset([ctx.outputs.build_es5_min, source_map]))
 
 ROLLUP_ATTRS = {
@@ -246,6 +288,10 @@ ROLLUP_ATTRS = {
         executable = True,
         cfg="host",
         default = Label("@build_bazel_rules_nodejs//internal/rollup:uglify")),
+    "_source_map_explorer": attr.label(
+        executable = True,
+        cfg = "host",
+        default = Label("@build_bazel_rules_nodejs//internal/rollup:source-map-explorer")),
     "_rollup_config_tmpl": attr.label(
         default = Label("@build_bazel_rules_nodejs//internal/rollup:rollup.config.js"),
         allow_files = True,
@@ -262,6 +308,7 @@ ROLLUP_OUTPUTS = {
     "build_es5_min": "%{name}.min.js",
     "build_es5_min_debug": "%{name}.min_debug.js",
     "build_umd": "%{name}.umd.js",
+    "explore_html": "%{name}.explore.html",
 }
 
 rollup_bundle = rule(

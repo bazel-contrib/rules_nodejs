@@ -41,7 +41,14 @@ nodejs_binary(
 
 nodejs_binary(
     name = "uglify",
-    entry_point = "build_bazel_rules_nodejs_rollup_deps/node_modules/uglify-js/bin/uglifyjs",
+    entry_point = "build_bazel_rules_nodejs_rollup_deps/node_modules/uglify-es/bin/uglifyjs",
+    node_modules = "@build_bazel_rules_nodejs_rollup_deps//:node_modules",
+    visibility = ["//visibility:public"],
+)
+
+nodejs_binary(
+    name = "source-map-explorer",
+    entry_point = "build_bazel_rules_nodejs_rollup_deps/node_modules/source-map-explorer",
     node_modules = "@build_bazel_rules_nodejs_rollup_deps//:node_modules",
     visibility = ["//visibility:public"],
 )
