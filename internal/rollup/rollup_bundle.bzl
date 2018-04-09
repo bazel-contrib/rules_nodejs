@@ -77,7 +77,7 @@ def write_rollup_config(ctx, plugins=[], root_dir=None, filename="_%s.rollup.con
       substitutions = {
           "TMPL_workspace_name": ctx.workspace_name,
           "TMPL_rootDir": "\"%s\"" % root_dir,
-          "TMPL_label_name": ctx.label.name,
+          "TMPL_global_name": ctx.attr.global_name if ctx.attr.global_name else ctx.label.name,
           "TMPL_module_mappings": str(mappings),
           "TMPL_additional_plugins": ",\n".join(plugins),
           "TMPL_banner_file": "\"%s\"" % ctx.file.license_banner.path if ctx.file.license_banner else "undefined",
@@ -234,6 +234,15 @@ ROLLUP_ATTRS = {
         as the global reference, so Angular users should include the mapping
         `"@angular/core":"ng.core"` in the globals.""",
         default={}),
+    "global_name": attr.string(
+        doc = """A name given to this package when referenced as a global variable.
+        This name appears in the bundle module incantation at the beginning of the file,
+        and governs the global symbol added to the global context (e.g. `window`) as a side-
+        effect of loading the UMD/IIFE JS bundle.
+
+        Rollup doc: "The variable name, representing your iife/umd bundle, by which other scripts on the same page can access it."
+
+        This is passed to the `output.name` setting in Rollup.""",),
     "_rollup": attr.label(
         executable = True,
         cfg="host",
