@@ -25,8 +25,11 @@ platforms:
     run_targets:
     - "@yarn//:yarn"
     build_targets:
+    # Escape hyphens on later args
+    - "--"
+    - "//..."
     # Cannot build the docsite on Windows, see
     # https://github.com/bazelbuild/skydoc/issues/58
-    - "//... -//:docs"
+    - "-//:docs"
     test_targets:
     - "//..."
