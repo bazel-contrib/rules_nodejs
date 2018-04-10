@@ -14,7 +14,7 @@ import {BazelOptions} from './tsconfig';
  */
 export function filterExpected(
     bazelOpts: BazelOptions, diagnostics: ts.Diagnostic[],
-    formatFn = format): ts.Diagnostic[] {
+    formatFn = uglyFormat): ts.Diagnostic[] {
   if (!bazelOpts.expectedDiagnostics.length) return diagnostics;
 
   // The regex contains two parts:
@@ -134,7 +134,25 @@ export function filterExpected(
 }
 
 /**
- * Formats the given diagnostics.
+ * Formats the given diagnostics, without pretty printing.  Without colors, it's
+ * better for matching against programmatically.
+ * @param target The bazel target, e.g. //my/package:target
+ */
+export function uglyFormat(
+    target: string, diagnostics: ReadonlyArray<ts.Diagnostic>): string {
+  const diagnosticsHost: ts.FormatDiagnosticsHost = {
+    getCurrentDirectory: () => ts.sys.getCurrentDirectory(),
+    getNewLine: () => ts.sys.newLine,
+    // Print filenames including their relativeRoot, so they can be located on
+    // disk
+    getCanonicalFileName: (f: string) => f
+  };
+
+  return ts.formatDiagnostics(diagnostics, diagnosticsHost);
+}
+
+/**
+ * Pretty formats the given diagnostics (matching the --pretty tsc flag).
  * @param target The bazel target, e.g. //my/package:target
  */
 export function format(
