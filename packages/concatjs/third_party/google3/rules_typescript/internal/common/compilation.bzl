@@ -376,6 +376,10 @@ def compile_ts(ctx,
       },
       # Expose the tags so that a Skylark aspect can access them.
       "tags": ctx.attr.tags,
+      # Expose the module_name so that packaging rules can access it.
+      # e.g. rollup_bundle under Bazel needs to convert this into a UMD global
+      # name in the Rollup configuration.
+      "module_name": ctx.attr.module_name,
       "instrumented_files": {
           "extensions": ["ts"],
           "source_attributes": ["srcs"],
