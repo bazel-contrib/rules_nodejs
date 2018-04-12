@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-
+import 'jasmine';
 import * as ts from 'typescript';
 
 import {CachedFileLoader, FileCache} from './file_cache';
