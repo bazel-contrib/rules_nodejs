@@ -1,4 +1,4 @@
-
+import 'jasmine';
 import * as ts from 'typescript';
 
 import * as diagnostics from './diagnostics';
