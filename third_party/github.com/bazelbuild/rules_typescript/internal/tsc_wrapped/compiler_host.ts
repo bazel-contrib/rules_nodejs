@@ -60,6 +60,7 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
   transformDecorators: boolean;
   transformTypesToClosure: boolean;
   addDtsClutzAliases: boolean;
+  isJsTranspilation: boolean;
   options: BazelTsOptions;
   host: ts.ModuleResolutionHost = this;
 
@@ -101,6 +102,7 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
     this.transformDecorators = bazelOpts.tsickle;
     this.transformTypesToClosure = bazelOpts.tsickle;
     this.addDtsClutzAliases = bazelOpts.addDtsClutzAliases;
+    this.isJsTranspilation = Boolean(bazelOpts.isJsTranspilation);
   }
 
   /**
@@ -135,7 +137,8 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
 
   /** Avoid using tsickle on files that aren't in srcs[] */
   shouldSkipTsickleProcessing(fileName: string): boolean {
-    return this.bazelOpts.compilationTargetSrc.indexOf(fileName) === -1;
+    return this.bazelOpts.isJsTranspilation ||
+           this.bazelOpts.compilationTargetSrc.indexOf(fileName) === -1;
   }
 
   /** Whether the file is expected to be imported using a named module */
@@ -339,7 +342,11 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
           `/// <amd-module name="${sourceFiles[0].moduleName}" />\n${content}`;
     }
     fileName = this.flattenOutDir(fileName);
-    if (!this.bazelOpts.es5Mode) {
+
+    if (this.bazelOpts.isJsTranspilation) {
+      // Write transpiled JS to *.dev_es5.js.
+      fileName = fileName.replace(/\.js$/, '.dev_es5.js');
+    } else if (!this.bazelOpts.es5Mode) {
       // Write ES6 transpiled files to *.closure.js.
       if (this.bazelOpts.locale) {
         // i18n paths are required to end with __locale.js so we put

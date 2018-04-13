@@ -137,6 +137,11 @@ export interface BazelOptions {
    * on a ts_library.
    */
   moduleRoot?: string;
+
+  /**
+   * If true, indicates that this job is transpiling JS sources.
+   */
+  isJsTranspilation?: boolean;
 }
 
 export interface ParsedTsConfig {
