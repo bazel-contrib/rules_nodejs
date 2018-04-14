@@ -11,7 +11,7 @@ const DEBUG = false;
 
 const moduleMappings = TMPL_module_mappings;
 const workspaceName = 'TMPL_workspace_name';
-const rootDir = TMPL_rootDir;
+const rootDir = 'TMPL_rootDir';
 const banner_file = TMPL_banner_file;
 const stamp_data = TMPL_stamp_data;
 
