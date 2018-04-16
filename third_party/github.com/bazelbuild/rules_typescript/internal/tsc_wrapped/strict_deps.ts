@@ -57,7 +57,7 @@ export const PLUGIN: pluginApi.Plugin = {
       const result = [...program.getSemanticDiagnostics(sourceFile)];
       perfTrace.wrap('checkModuleDeps', () => {
         result.push(...checkModuleDeps(
-            program, config.compilationTargetSrc, config.allowedStrictDeps,
+            sourceFile, program.getTypeChecker(), config.allowedStrictDeps,
             config.rootDir, config.ignoredFilesPrefixes));
       });
       return result;
@@ -68,7 +68,7 @@ export const PLUGIN: pluginApi.Plugin = {
 
 // Exported for testing
 export function checkModuleDeps(
-    program: ts.Program, filesToCheck: string[], allowedDeps: string[],
+    sf: ts.SourceFile, tc: ts.TypeChecker, allowedDeps: string[],
     rootDir: string, ignoredFilesPrefixes: string[] = []): ts.Diagnostic[] {
   function stripExt(fn: string) {
     return fn.replace(/(\.d)?\.tsx?$/, '');
@@ -76,39 +76,35 @@ export function checkModuleDeps(
   const allowedMap: {[fileName: string]: boolean} = {};
   for (const d of allowedDeps) allowedMap[stripExt(d)] = true;
 
-  const tc = program.getTypeChecker();
   const result: ts.Diagnostic[] = [];
-  for (const fileName of filesToCheck) {
-    const sf = program.getSourceFile(fileName);
-    for (const stmt of sf.statements) {
-      if (stmt.kind !== ts.SyntaxKind.ImportDeclaration &&
-          stmt.kind !== ts.SyntaxKind.ExportDeclaration) {
-        continue;
-      }
-      const id = stmt as ts.ImportDeclaration | ts.ExportDeclaration;
-      const modSpec = id.moduleSpecifier;
-      if (!modSpec) continue;  // E.g. a bare "export {x};"
-
-      const sym = tc.getSymbolAtLocation(modSpec);
-      if (!sym || !sym.declarations || sym.declarations.length < 1) {
-        continue;
-      }
-      // Module imports can only have one declaration location.
-      const declFileName = sym.declarations[0].getSourceFile().fileName;
-      if (allowedMap[stripExt(declFileName)]) continue;
-      if (ignoredFilesPrefixes.some(p => declFileName.startsWith(p))) continue;
-      const importName = path.posix.relative(rootDir, declFileName);
-      result.push({
-        file: sf,
-        start: modSpec.getStart(),
-        length: modSpec.getEnd() - modSpec.getStart(),
-        messageText: `transitive dependency on ${importName} not allowed. ` +
-            `Please add the BUILD target to your rule's deps.`,
-        category: ts.DiagnosticCategory.Error,
-        // semantics are close enough, needs taze.
-        code: TS_ERR_CANNOT_FIND_MODULE,
-      });
+  for (const stmt of sf.statements) {
+    if (stmt.kind !== ts.SyntaxKind.ImportDeclaration &&
+        stmt.kind !== ts.SyntaxKind.ExportDeclaration) {
+      continue;
     }
+    const id = stmt as ts.ImportDeclaration | ts.ExportDeclaration;
+    const modSpec = id.moduleSpecifier;
+    if (!modSpec) continue;  // E.g. a bare "export {x};"
+
+    const sym = tc.getSymbolAtLocation(modSpec);
+    if (!sym || !sym.declarations || sym.declarations.length < 1) {
+      continue;
+    }
+    // Module imports can only have one declaration location.
+    const declFileName = sym.declarations[0].getSourceFile().fileName;
+    if (allowedMap[stripExt(declFileName)]) continue;
+    if (ignoredFilesPrefixes.some(p => declFileName.startsWith(p))) continue;
+    const importName = path.posix.relative(rootDir, declFileName);
+    result.push({
+      file: sf,
+      start: modSpec.getStart(),
+      length: modSpec.getEnd() - modSpec.getStart(),
+      messageText: `transitive dependency on ${importName} not allowed. ` +
+          `Please add the BUILD target to your rule's deps.`,
+      category: ts.DiagnosticCategory.Error,
+      // semantics are close enough, needs taze.
+      code: TS_ERR_CANNOT_FIND_MODULE,
+    });
   }
   return result;
 }
