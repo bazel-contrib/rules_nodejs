@@ -26,6 +26,7 @@ load("//internal/jasmine_node_test:jasmine_node_test.bzl", _jasmine_node_test = 
 load("//internal/npm_install:npm_install.bzl", _npm_install = "npm_install", _yarn_install = "yarn_install")
 load("//internal/rollup:rollup_bundle.bzl", _rollup_bundle = "rollup_bundle")
 load("//internal/npm_package:npm_package.bzl", _npm_package = "npm_package")
+load("//internal/http_server:http_server.bzl", _http_server = "http_server")
 
 check_bazel_version = _check_bazel_version
 nodejs_binary = _nodejs_binary
@@ -36,6 +37,7 @@ npm_install = _npm_install
 yarn_install = _yarn_install
 rollup_bundle = _rollup_bundle
 npm_package = _npm_package
+http_server = _http_server
 # ANY RULES ADDED HERE SHOULD BE DOCUMENTED, run yarn skydoc to verify
 
 def node_modules_filegroup(packages, **kwargs):
