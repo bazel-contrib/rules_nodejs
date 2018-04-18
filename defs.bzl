@@ -21,7 +21,12 @@ load("//internal/common:check_bazel_version.bzl", _check_bazel_version = "check_
 load("//internal/node:node.bzl",
      _nodejs_binary = "nodejs_binary_macro",
      _nodejs_test = "nodejs_test_macro")
-load("//internal/node:node_repositories.bzl", _node_repositories = "node_repositories")
+load("//internal/node:node_repositories.bzl",
+     _node_repositories = "node_repositories",
+     _node_download_runtime = "node_download_runtime",
+     _node_local_runtime = "node_local_runtime",
+     _yarn_download = "yarn_download",
+     _yarn_local = "yarn_local")
 load("//internal/jasmine_node_test:jasmine_node_test.bzl", _jasmine_node_test = "jasmine_node_test")
 load("//internal/npm_install:npm_install.bzl", _npm_install = "npm_install", _yarn_install = "yarn_install")
 load("//internal/rollup:rollup_bundle.bzl", _rollup_bundle = "rollup_bundle")
@@ -31,6 +36,10 @@ check_bazel_version = _check_bazel_version
 nodejs_binary = _nodejs_binary
 nodejs_test = _nodejs_test
 node_repositories = _node_repositories
+node_download_runtime = _node_download_runtime
+node_local_runtime = _node_local_runtime
+yarn_download = _yarn_download
+yarn_local = _yarn_local
 jasmine_node_test = _jasmine_node_test
 npm_install = _npm_install
 yarn_install = _yarn_install
