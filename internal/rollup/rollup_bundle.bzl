@@ -76,7 +76,7 @@ def write_rollup_config(ctx, plugins=[], root_dir=None, filename="_%s.rollup.con
       template =  ctx.file._rollup_config_tmpl,
       substitutions = {
           "TMPL_workspace_name": ctx.workspace_name,
-          "TMPL_rootDir": "\"%s\"" % root_dir,
+          "TMPL_rootDir": root_dir,
           "TMPL_global_name": ctx.attr.global_name if ctx.attr.global_name else ctx.label.name,
           "TMPL_module_mappings": str(mappings),
           "TMPL_additional_plugins": ",\n".join(plugins),
