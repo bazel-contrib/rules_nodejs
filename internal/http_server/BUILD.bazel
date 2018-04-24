@@ -1,0 +1,2 @@
+# Exported to be consumed for generating skydoc.
+exports_files(["http_server.bzl"])
