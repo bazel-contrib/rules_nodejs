@@ -383,10 +383,10 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
     // section of tsconfig.json, and that is what populates the knownFiles set.
     // In addition, the node module resolver may need to read package.json files
     // and these are not permitted in the files[] section.
-    // So we permit reading any files from the action inputs, even though this
+    // So we permit reading node_modules/* from action inputs, even though this
     // can include data[] dependencies and is broader than we would like.
     // This should only be enabled under Bazel, not Blaze.
-    if (this.allowActionInputReads) {
+    if (this.allowActionInputReads && filePath.indexOf('/node_modules/') >= 0) {
       const result = this.fileLoader.fileExists(filePath);
       if (DEBUG && !result && this.delegate.fileExists(filePath)) {
         debug("Path exists, but is not registered in the cache", filePath);
