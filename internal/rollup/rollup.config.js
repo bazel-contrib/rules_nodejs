@@ -24,9 +24,9 @@ Rollup: running with
 
 // This resolver mimics the TypeScript Path Mapping feature, which lets us resolve
 // modules based on a mapping of short names to paths.
-function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = require.resolve) {
+function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = require.resolve, root = rootDir) {
   function resolveInRootDir(importee) {
-    var candidate = path.join(baseDir, rootDir, importee);
+    var candidate = path.join(baseDir, root, importee);
     if (DEBUG) console.error('Rollup: try to resolve at', candidate);
     try {
       var result = resolve(candidate);
@@ -48,7 +48,7 @@ function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = req
     // relative import
     if (importer) {
       let importerRootRelative = path.dirname(importer);
-      const relative = path.relative(path.join(baseDir, rootDir), importerRootRelative);
+      const relative = path.relative(path.join(baseDir, root), importerRootRelative);
       if (!relative.startsWith('.')) {
         importerRootRelative = relative;
       }
@@ -123,3 +123,4 @@ module.exports = {
     sourcemaps(),
   ])
 }
+v
