@@ -5,7 +5,7 @@ TMPL_module_mappings = {
   'other': 'external/other_wksp/path/to/other_lib',
 };
 
-TMPL_rootDir = 'bazel-bin/path/to/a.esm5';
+const rootDir = 'bazel-bin/path/to/a.esm5';
 TMPL_workspace_name = 'my_workspace';
 TMPL_additional_plugins = [];
 TMPL_banner_file = '';
@@ -30,7 +30,7 @@ const resolve =
 const rollupConfig = require('./rollup.config');
 
 function doResolve(importee, importer) {
-  const resolved = rollupConfig.resolveBazel(importee, importer, baseDir, resolve);
+  const resolved = rollupConfig.resolveBazel(importee, importer, baseDir, resolve, rootDir);
   if (resolved) {
     return resolved.replace(/\\/g, '/');
   } else {
