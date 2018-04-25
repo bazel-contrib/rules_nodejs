@@ -20,7 +20,7 @@ let files = [
 // variable which is set to the runfiles folder during test execution.
 // If a MANIFEST file is found, we remap the test files to their
 // location on disk using the MANIFEST file.
-const manifestFile = path.join(process.env.TEST_SRCDIR, 'MANIFEST');
+const manifestFile = path.join(process.env.TEST_SRCDIR || '', 'MANIFEST');
 if (fs.existsSync(manifestFile)) {
   // MANIFEST file contains the one runfile mapping per line seperated
   // a space. For example:
