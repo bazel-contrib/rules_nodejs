@@ -75,6 +75,17 @@ def create_tsconfig(ctx, files, srcs,
           ctx.attr.node_modules.label.package,
           "node_modules",
           "*"] if p]))
+      # TypeScript needs to look up ambient types from a 'node_modules'
+      # directory, but when Bazel manages the dependencies, this directory
+      # isn't in the project so TypeScript won't find it.
+      # We can add it to the path mapping to make this lookup work.
+      # See https://github.com/bazelbuild/rules_typescript/issues/179
+      node_modules_mappings.append("/".join([p for p in [
+          ctx.attr.node_modules.label.workspace_root,
+          ctx.attr.node_modules.label.package,
+          "node_modules",
+          "@types",
+          "*"] if p]))
 
     module_roots = {
         "*": node_modules_mappings,

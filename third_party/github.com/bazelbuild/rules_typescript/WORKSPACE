@@ -21,7 +21,14 @@ http_archive(
     sha256 = "17a5515f59777b00cb25dbc710017a14273f825029b2ec60e0969d28914870be",
 )
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
+load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "yarn_install")
+
+# Use a bazel-managed npm dependency, allowing us to test resolution to these paths
+yarn_install(
+    name = "build_bazel_rules_typescript_internal_bazel_managed_deps",
+    package_json = "//examples/bazel_managed_deps:package.json",
+    yarn_lock = "//examples/bazel_managed_deps:yarn.lock",
+)
 
 # Install a hermetic version of node.
 # After this is run, these labels will be available:
