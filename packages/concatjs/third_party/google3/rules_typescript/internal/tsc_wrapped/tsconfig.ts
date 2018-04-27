@@ -302,7 +302,7 @@ export function parseTsconfig(
   // We normalize them to remove the intermediate parent directories.
   // This improves error messages and also matches logic in tsc_wrapped where we
   // expect normalized paths.
-  const files = fileNames.map(f => path.normalize(f));
+  const files = fileNames.map(f => path.posix.normalize(f));
 
   // The bazelOpts paths in the tsconfig are relative to
   // options.rootDir (the workspace root) and aren't transformed by
