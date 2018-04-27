@@ -11,7 +11,8 @@ const tmp = require('tmp');
 process.env.CHROME_BIN = require('puppeteer').executablePath();
 
 let files = [
-  TMPL_files
+  TMPL_bootstrap_files
+  TMPL_user_files
 ];
 
 // On Windows, runfiles will not be in the runfiles folder but inteaad
@@ -42,12 +43,12 @@ if (fs.existsSync(manifestFile)) {
 
 var requireConfigContent = `
 // A simplified version of Karma's requirejs.config.tpl.js for use with Karma under Bazel.
-// This does an explicit \`require\` on each script in the files, otherwise nothing will be loaded.
+// This does an explicit \`require\` on each test script in the files, otherwise nothing will be loaded.
 (function(){
-  var allFiles = ${JSON.stringify([TMPL_files])};
+  var allFiles = [TMPL_user_files];
   var allTestFiles = [];
   allFiles.forEach(function (file) {
-    if (/(spec|test)\\.js$/i.test(file)) {
+    if (/(spec|test)\\.js$/i.test(file) && !/\\/node_modules\\//.test(file)) {
       allTestFiles.push(file.replace(/\\.js$/, ''))
     }
   });

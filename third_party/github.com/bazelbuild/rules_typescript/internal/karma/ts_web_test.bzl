@@ -41,7 +41,7 @@ def _ts_web_test_impl(ctx):
   # build_bazel_rules_typescript_karma_deps/node_modules/karma-jasmine/lib/boot.js
   # build_bazel_rules_typescript_karma_deps/node_modules/karma-jasmine/lib/adapter.js
   # This is desired so that the bootstrap entries can patch jasmine, as zone.js does.
-  files_entries = [
+  bootstrap_entries = [
       expand_path_into_runfiles(ctx, f.short_path)
       for f in ctx.files.bootstrap
   ]
@@ -52,12 +52,12 @@ def _ts_web_test_impl(ctx):
   # That allows bootstrap files to have anonymous AMD modules, or to do some
   # polyfilling before test libraries load.
   # See https://github.com/karma-runner/karma/issues/699
-  files_entries += [
+  bootstrap_entries += [
     "build_bazel_rules_typescript_karma_deps/node_modules/requirejs/require.js",
     "build_bazel_rules_typescript_karma_deps/node_modules/karma-requirejs/lib/adapter.js",
   ]
   # Finally we load the user's srcs and deps
-  files_entries += [
+  user_entries = [
       expand_path_into_runfiles(ctx, f.short_path)
       for f in files
   ]
@@ -70,7 +70,8 @@ def _ts_web_test_impl(ctx):
       template =  ctx.file._conf_tmpl,
       substitutions = {
           "TMPL_runfiles_path": "/".join([".."] * config_segments),
-          "TMPL_files": "\n".join(["      '%s'," % e for e in files_entries]),
+          "TMPL_bootstrap_files": "\n".join(["      '%s'," % e for e in bootstrap_entries]),
+          "TMPL_user_files": "\n".join(["      '%s'," % e for e in user_entries]),
           "TMPL_workspace_name": ctx.workspace_name,
           "TMPL_browser": _BROWSER,
           "TMPL_headlessbrowser": "%sHeadless" % _BROWSER,
