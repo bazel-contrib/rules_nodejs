@@ -21,7 +21,7 @@ load(":executables.bzl", "get_tsc")
 load(":common/tsconfig.bzl", "create_tsconfig")
 load(":ts_config.bzl", "TsConfigInfo")
 
-def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts):
+def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description = "prodmode"):
   externs_files = []
   action_outputs = []
   for output in outputs:
@@ -62,7 +62,7 @@ def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts):
     mnemonic = "tsc"
 
   ctx.action(
-      progress_message = "Compiling TypeScript (devmode) %s" % ctx.label,
+      progress_message = "Compiling TypeScript (%s) %s" % (description, ctx.label),
       mnemonic = mnemonic,
       inputs = action_inputs,
       outputs = action_outputs,
@@ -84,7 +84,8 @@ def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts):
 
 
 def _devmode_compile_action(ctx, inputs, outputs, tsconfig_file, node_opts):
-  _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts)
+  _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts,
+                  description = "devmode")
 
 def tsc_wrapped_tsconfig(ctx,
                          files,
