@@ -70,11 +70,10 @@ def get_module_mappings(label, attrs, srcs = [], workspace_name = None, mappings
     mn = attrs.module_name
     if not mn:
       mn = label.name
-    mr = label.package
-    if workspace_name:
-      mr = "%s/%s" % (workspace_name, mr)
-    elif label.workspace_root:
-      mr = "%s/%s" % (label.workspace_root, mr)
+    mr = "/".join([p for p in [
+        workspace_name or label.workspace_root,
+        label.package
+    ] if p])
     if attrs.module_root and attrs.module_root != ".":
       mr = "%s/%s" % (mr, attrs.module_root)
       if attrs.module_root.endswith(".ts"):
