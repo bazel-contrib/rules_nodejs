@@ -53,6 +53,12 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
 node_repositories(package_json = ["//:package.json"], node_version = "8.11.1", yarn_version = "1.5.1")
 ```
 
+#### Currently supported versions
+
+* 9.11.1
+* 8.11.1
+* 8.9.1
+
 ### Installation with a manually specified version of NodeJS and Yarn
 
 If you'd like to use a version of NodeJS and/or Yarn that are not currently supported here, you can manually

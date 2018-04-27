@@ -353,9 +353,11 @@ def node_repositories(package_json, node_version=DEFAULT_NODE_VERSION, yarn_vers
     You can select the version of NodeJS and/or Yarn to download & use by specifying it when you call node_repositories,
     but you must use a value that matches a known version.
   - Using a custom version:
-    You can call node_download_runtime or node_local_runtime to setup a particular NodeJS version or 
-    yarn_download or yarn_local to setup a particular Yarn version before calling node_repositories.
-    The "local" versions of these rules enable a repo to use vendored copies of tools rather than requiring a download.
+    You can call node_download_runtime to setup a particular NodeJS version and yarn_download to setup a particular
+    Yarn version before calling node_repositories.
+  - Using a local version:
+    To avoid downloads, you can check in vendored copies of NodeJS and/or Yarn and use rules node_local_runtime and
+    yarn_local to point to those before calling node_repositories.
 
   This rule exposes workspaces `@nodejs` and `@yarn` containing some rules the user can call later:
 
