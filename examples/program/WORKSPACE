@@ -13,7 +13,7 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
 #   @nodejs//:bin/npm
 # - The yarn package manager:
 #   @yarn//:yarn
-node_repositories(package_json = ["//:package.json"])
+node_repositories(package_json = ["//:package.json"], node_version = "8.11.1", yarn_version = "1.5.1")
 
 # Now the user must run either
 # bazel run @yarn//:yarn

@@ -34,6 +34,102 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
 node_repositories(package_json = ["//:package.json"])
 ```
 
+### Installation with a specific supported version of NodejS and Yarn
+
+In your `WORKSPACE` file, use the following:
+
+```python
+git_repository(
+    name = "build_bazel_rules_nodejs",
+    remote = "https://github.com/bazelbuild/rules_nodejs.git",
+    tag = "0.3.1", # check for the latest tag when you install
+)
+
+load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
+
+# NOTE: this rule installs nodejs, npm, and yarn, but does NOT install
+# your npm dependencies into your node_modules folder.
+# You must still run the package manager to do this.
+node_repositories(package_json = ["//:package.json"], node_version = "8.11.1", yarn_version = "1.5.1")
+```
+
+#### Currently supported versions
+
+* 9.11.1
+* 8.11.1
+* 8.9.1
+
+### Installation with a manually specified version of NodeJS and Yarn
+
+If you'd like to use a version of NodeJS and/or Yarn that are not currently supported here, you can manually
+specify those via:
+
+```python
+git_repository(
+    name = "build_bazel_rules_nodejs",
+    remote = "https://github.com/bazelbuild/rules_nodejs.git",
+    tag = "0.3.1", # check for the latest tag when you install
+)
+
+load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "node_download_runtime", "yarn_download")
+
+node_download_runtime(
+    name = "nodejs",
+    version = "8.10.0",
+    packages = {
+        "darwin_amd64": ("node-v8.10.0-darwin-x64.tar.gz", "node-v8.10.0-darwin-x64", "7d77bd35bc781f02ba7383779da30bd529f21849b86f14d87e097497671b0271"),
+        "linux_amd64": ("node-v8.10.0-linux-x64.tar.xz", "node-v8.10.0-linux-x64", "92220638d661a43bd0fee2bf478cb283ead6524f231aabccf14c549ebc2bc338"),
+        "windows_amd64": ("node-v8.10.0-win-x64.zip", "node-v8.10.0-win-x64", "936ada36cb6f09a5565571e15eb8006e45c5a513529c19e21d070acf0e50321b"),
+    },
+    package_json = ["//:package.json"])
+
+yarn_download(
+    name = "yarn",
+    version = "1.5.1",
+    filename = "yarn-v1.5.1.tar.gz",
+    strip_prefix = "yarn-v1.5.1",
+    sha256 = "cd31657232cf48d57fdbff55f38bfa058d2fb4950450bd34af72dac796af4de1",
+    package_json = ["//:package.json"])
+
+# This rule will see the previously installed versions of NodeJS and Yarn from above and will skip attempting to set
+# them up.
+# NOTE: this rule does NOT install your npm dependencies into your node_modules folder.
+# You must still run the package manager to do this.
+node_repositories(package_json = ["//:package.json"])
+```
+
+### Installation with local vendored versions of NodeJS and Yarn
+
+```python
+git_repository(
+    name = "build_bazel_rules_nodejs",
+    remote = "https://github.com/bazelbuild/rules_nodejs.git",
+    tag = "0.3.1", # check for the latest tag when you install
+)
+
+load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "node_local_runtime", "yarn_local")
+
+node_local_runtime(
+    name = "nodejs",
+    path = "path/to/node/base",
+    package_json = ["//:package.json"])
+
+yarn_local(
+    name = "yarn",
+    path = "path/to/yarn/base",
+    package_json = ["//:package.json"])
+
+# This rule will see the previously installed versions of NodeJS and Yarn from above and will skip attempting to set
+# them up.
+# NOTE: this rule does NOT install your npm dependencies into your node_modules folder.
+# You must still run the package manager to do this.
+node_repositories(package_json = ["//:package.json"])
+```
+
+## Dependencies
+
+You have two options for managing your `node_modules` dependencies.
+
 ### Using self-managed dependencies
 
 If you'd like to have Bazel use the `node_modules` directory you are managing,
@@ -67,16 +163,30 @@ $ bazel run @nodejs//:npm install
 ### Using Bazel-managed dependencies
 
 To have Bazel manage its own copy of `node_modules`, which is useful to avoid
-juggling multiple toolchains, you can add the following to your `WORKSPACE`
+juggling multiple toolchains, you can add one of the following to your `WORKSPACE`
 file:
+
+Using Yarn (preferred):
+
+```python
+load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
+
+yarn_install(
+    name = "foo",
+    package_json = "//:package.json",
+    yarn_lock = "//:yarn.lock",
+)
+```
+
+Using NPM:
 
 ```python
 load("@build_bazel_rules_nodejs//:defs.bzl", "npm_install")
 
 npm_install(
     name = "foo",
-    # This can also take package.json
-    package_json = "//:package-lock.json",
+    package_json = "//:package.json",
+    package_lock_json = "//:package-lock.json",
 )
 ```
 
@@ -94,7 +204,7 @@ nodejs_binary(
 ```
 
 With this approach, Bazel is responsible for making sure that `node_modules` is
-up to date with `package[-lock].json`.  This means Bazel will set it up when the
+up to date with `package[-lock].json` or `yarn.lock`.  This means Bazel will set it up when the
 repo is first cloned, and rebuild it whenever it changes.
 
 For Bazel to provide the strongest guarantees about reproducibility and the
