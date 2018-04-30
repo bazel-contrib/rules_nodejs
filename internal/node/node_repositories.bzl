@@ -23,35 +23,80 @@ load(":node_labels.bzl", "get_node_label")
 load("//internal/common:check_bazel_version.bzl", "check_bazel_version")
 load("//internal/npm_install:npm_install.bzl", "yarn_install")
 
+_node_versions = {
+  "v8.9.1": {
+    "mac": {
+      "repos": [
+        "https://mirror.bazel.build/nodejs.org/dist/v8.9.1/node-v8.9.1-darwin-x64.tar.gz",
+        "https://nodejs.org/dist/v8.9.1/node-v8.9.1-darwin-x64.tar.gz",
+      ],
+      "stripPrefix": "node-v8.9.1-darwin-x64",
+      "sha256": "05c992a6621d28d564b92bf3051a5dc0adf83839237c0d4653a8cdb8a1c73b94"
+    },
+    "windows": {
+      "repos": [
+        "https://mirror.bazel.build/nodejs.org/dist/v8.9.1/node-v8.9.1-win-x64.zip",
+        "http://nodejs.org/dist/v8.9.1/node-v8.9.1-win-x64.zip",
+      ],
+      "stripPrefix": "node-v8.9.1-win-x64",
+      "sha256": "db89c6e041da359561fbe7da075bb4f9881a0f7d3e98c203e83732cfb283fa4a"
+    },
+    "linux": {
+      "repos": [
+        "https://mirror.bazel.build/nodejs.org/dist/v8.9.1/node-v8.9.1-linux-x64.tar.xz",
+        "http://nodejs.org/dist/v8.9.1/node-v8.9.1-linux-x64.tar.xz",
+      ],
+      "stripPrefix": "node-v8.9.1-linux-x64",
+      "sha256": "8be82805f7c1ab3e64d4569fb9a90ded2de78dd27cadbb91bad1bf975dae1e2d"
+    }
+  },
+  "v8.9.4": {
+    "mac": {
+      "repos": [
+        "https://mirror.bazel.build/nodejs.org/dist/v8.9.4/node-v8.9.4-darwin-x64.tar.gz",
+        "https://nodejs.org/dist/v8.9.4/node-v8.9.4-darwin-x64.tar.gz",
+      ],
+      "stripPrefix": "node-v8.9.4-darwin-x64",
+      "sha256": "ca50f7d2035eb805306e303b644bb1cde170ce2615e0a2c6e95fb80881c48c24"
+    },
+    "windows": {
+      "repos": [
+        "https://mirror.bazel.build/nodejs.org/dist/v8.9.4/node-v8.9.4-win-x64.zip",
+        "http://nodejs.org/dist/v8.9.4/node-v8.9.4-win-x64.zip",
+      ],
+      "stripPrefix": "node-v8.9.4-win-x64",
+      "sha256": "48946e99ac4484e071df25741d2300f3a656f476c5ff3f8116a4746c07ebe3b7"
+    },
+    "linux": {
+      "repos": [
+        "https://mirror.bazel.build/nodejs.org/dist/v8.9.4/node-v8.9.4-linux-x64.tar.xz",
+        "http://nodejs.org/dist/v8.9.4/node-v8.9.4-linux-x64.tar.xz",
+      ],
+      "stripPrefix": "node-v8.9.4-linux-x64",
+      "sha256": "68b94aac38cd5d87ab79c5b38306e34a20575f31a3ea788d117c20fffcca3370"
+    }
+  },
+}
+
 def _node_impl(repository_ctx):
+  # Ideally, we would read node_version from package.json's "engines.node" field, but that requires a JSON parser.
+  node_version = repository_ctx.attr.node_version
+
   os_name = repository_ctx.os.name.lower()
   if os_name.startswith("mac os"):
-    repository_ctx.download_and_extract(
-        [
-            "https://mirror.bazel.build/nodejs.org/dist/v8.9.1/node-v8.9.1-darwin-x64.tar.gz",
-            "https://nodejs.org/dist/v8.9.1/node-v8.9.1-darwin-x64.tar.gz",
-        ],
-        stripPrefix = "node-v8.9.1-darwin-x64",
-        sha256 = "05c992a6621d28d564b92bf3051a5dc0adf83839237c0d4653a8cdb8a1c73b94"
-    )
+    platform = "mac"
   elif os_name.find("windows") != -1:
-    repository_ctx.download_and_extract(
-        [
-            "https://mirror.bazel.build/nodejs.org/dist/v8.9.1/node-v8.9.1-win-x64.zip",
-            "http://nodejs.org/dist/v8.9.1/node-v8.9.1-win-x64.zip",
-        ],
-        stripPrefix = "node-v8.9.1-win-x64",
-        sha256 = "db89c6e041da359561fbe7da075bb4f9881a0f7d3e98c203e83732cfb283fa4a"
-    )
+    platform = "windows"
   else:
-    repository_ctx.download_and_extract(
-        [
-            "https://mirror.bazel.build/nodejs.org/dist/v8.9.1/node-v8.9.1-linux-x64.tar.xz",
-            "http://nodejs.org/dist/v8.9.1/node-v8.9.1-linux-x64.tar.xz",
-        ],
-        stripPrefix = "node-v8.9.1-linux-x64",
-        sha256 = "8be82805f7c1ab3e64d4569fb9a90ded2de78dd27cadbb91bad1bf975dae1e2d"
-    )
+    platform = "linux"
+
+  version_info = _node_versions[node_version][platform]
+  repository_ctx.download_and_extract(
+    version_info["repos"],
+    stripPrefix = version_info["stripPrefix"],
+    sha256 = version_info["sha256"]
+  )
+
   if os_name.lower().find("windows") != -1:
     # The windows distribution of nodejs has the binaries in different paths
     node = "node.exe"
@@ -91,7 +136,10 @@ SCRIPT="{}"
 
 _node_repo = repository_rule(
     _node_impl,
-    attrs = { "package_json": attr.label_list() },
+    attrs = {
+      "package_json": attr.label_list(),
+      "node_version": attr.string(values=_node_versions.keys())
+    },
 )
 
 # def _write_node_modules_impl(repository_ctx):
@@ -170,7 +218,7 @@ _yarn_repo = repository_rule(
     attrs = { "package_json": attr.label_list() },
 )
 
-def node_repositories(package_json):
+def node_repositories(package_json, node_version = "v8.9.1"):
   """To be run in user's WORKSPACE to install rules_nodejs dependencies.
 
   When the rule executes, it downloads node, npm, and yarn.
@@ -198,11 +246,12 @@ def node_repositories(package_json):
 
   Args:
     package_json: a list of labels, which indicate the package.json files that need to be installed.
+    node_version: the version of NodeJS to install.
   """
   # Windows users need sh_binary wrapped as an .exe
   check_bazel_version("0.5.4")
 
-  _node_repo(name = "nodejs", package_json = package_json)
+  _node_repo(name = "nodejs", package_json = package_json, node_version = node_version)
 
   _yarn_repo(name = "yarn", package_json = package_json)
 
