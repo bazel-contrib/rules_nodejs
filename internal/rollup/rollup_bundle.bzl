@@ -244,7 +244,8 @@ def _rollup_bundle(ctx):
   umd_rollup_config = write_rollup_config(ctx, filename = "_%s_umd.rollup.conf.js", output_format = "umd")
   run_rollup(ctx, collect_es6_sources(ctx), umd_rollup_config, ctx.outputs.build_umd)
   run_sourcemapexplorer(ctx, ctx.outputs.build_es5_min, source_map, ctx.outputs.explore_html)
-  return DefaultInfo(files=depset([ctx.outputs.build_es5_min, source_map]))
+  files = [ctx.outputs.build_es5_min, source_map]
+  return DefaultInfo(files = depset(files), runfiles = ctx.runfiles(files))
 
 ROLLUP_ATTRS = {
     "entry_point": attr.string(
