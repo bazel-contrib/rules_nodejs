@@ -25,7 +25,7 @@ function init() {
       proxy.getSemanticDiagnostics = (fileName: string) => {
         const result = [...oldService.getSemanticDiagnostics(fileName)];
         result.push(
-            ...checker.execute(oldService.getProgram().getSourceFile(fileName))
+            ...checker.execute(oldService.getProgram().getSourceFile(fileName)!)
                 .map(failure => failure.toDiagnostic()));
         return result;
       };

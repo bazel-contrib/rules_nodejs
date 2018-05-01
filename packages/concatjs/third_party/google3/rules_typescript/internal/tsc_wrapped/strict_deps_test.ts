@@ -67,7 +67,7 @@ describe('strict deps', () => {
       '/src/p/sd1.ts': 'import {a} from "somepkg";',
     });
     const diags = checkModuleDeps(
-        p.getSourceFile('p/sd1.ts'), p.getTypeChecker(), [], '/src',
+        p.getSourceFile('p/sd1.ts')!, p.getTypeChecker(), [], '/src',
         ['/src/node_modules']);
     expect(diags.length).toBe(0, diags);
   });
@@ -82,7 +82,7 @@ describe('strict deps', () => {
           export let z = x + y;`,
     });
     const diags = checkModuleDeps(
-        p.getSourceFile('p/sd3.ts'), p.getTypeChecker(), ['/src/p/sd2.ts'],
+        p.getSourceFile('p/sd3.ts')!, p.getTypeChecker(), ['/src/p/sd2.ts'],
         '/src');
     expect(diags.length).toBe(1);
     expect(diags[0].messageText)
@@ -97,7 +97,7 @@ describe('strict deps', () => {
       '/src/p/sd3.ts': `export {x} from "./sd1";`,
     });
     const diags = checkModuleDeps(
-        p.getSourceFile('p/sd3.ts'), p.getTypeChecker(), ['/src/p/sd2.ts'],
+        p.getSourceFile('p/sd3.ts')!, p.getTypeChecker(), ['/src/p/sd2.ts'],
         '/src');
     expect(diags.length).toBe(1);
     expect(diags[0].messageText)
@@ -114,7 +114,7 @@ describe('strict deps', () => {
           export let z = x + y;`,
     });
     const diags = checkModuleDeps(
-        p.getSourceFile('/src/p/sd3.ts'), p.getTypeChecker(),
+        p.getSourceFile('/src/p/sd3.ts')!, p.getTypeChecker(),
         ['/src/blaze-bin/p/sd2.ts'], '/src');
     expect(diags.length).toBe(1);
     expect(diags[0].messageText)
@@ -131,7 +131,7 @@ describe('strict deps', () => {
           export let z = x + y;`,
     });
     const diags = checkModuleDeps(
-        p.getSourceFile('/src/p/sd3.ts'), p.getTypeChecker(),
+        p.getSourceFile('/src/p/sd3.ts')!, p.getTypeChecker(),
         ['/src/blaze-bin/p/sd2.d.ts'], '/src');
     expect(diags.length).toBe(1);
     expect(diags[0].messageText)
