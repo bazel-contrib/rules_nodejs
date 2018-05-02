@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Implementation of the ts_web_test rule."""
+"Unit testing in Chrome"
 
 load("@build_bazel_rules_nodejs//internal:node.bzl",
     "sources_aspect",
@@ -128,15 +128,23 @@ ts_web_test = rule(
     implementation = _ts_web_test_impl,
     test = True,
     attrs = {
-        "srcs": attr.label_list(allow_files = ["js"]),
+        "srcs": attr.label_list(
+            doc = "JavaScript source files",
+            allow_files = [".js"]),
         "deps": attr.label_list(
-          allow_files = True,
-          aspects = [sources_aspect],
+            doc = "Other targets which produce JavaScript such as `ts_library`",
+            allow_files = True,
+            aspects = [sources_aspect],
         ),
         "bootstrap": attr.label_list(
-            allow_files = True,
+            doc = """JavaScript files to include *before* the module loader (require.js).
+            For example, you can include Reflect,js for TypeScript decorator metadata reflection,
+            or UMD bundles for third-party libraries.""",
+            allow_files = [".js"],
         ),
-        "data": attr.label_list(cfg = "data"),
+        "data": attr.label_list(
+            doc = "Runtime dependencies",
+            cfg = "data"),
         "_karma": attr.label(
             default = Label("//internal/karma:karma_bin"),
             executable = True,
@@ -152,6 +160,20 @@ ts_web_test = rule(
 # This macro exists only to modify the users rule definition a bit.
 # DO NOT add composition of additional rules here.
 def ts_web_test_macro(tags = [], data = [], **kwargs):
+  """ibazel wrapper for `ts_web_test`
+
+  This macro re-exposes the `ts_web_test` rule with some extra tags so that
+  it behaves correctly under ibazel.
+
+  This is re-exported in `//:defs.bzl` as `ts_web_test` so if you load the rule
+  from there, you actually get this macro.
+
+  Args:
+    tags: standard Bazel tags, this macro adds a couple for ibazel
+    data: runtime dependencies
+    **kwargs: passed through to `ts_web_test`
+  """
+
   ts_web_test(
       tags = tags + [
           # Users don't need to know that this tag is required to run under ibazel

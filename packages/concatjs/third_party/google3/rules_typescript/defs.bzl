@@ -28,3 +28,5 @@ ts_config = _ts_config
 ts_devserver = _ts_devserver
 # TODO(alexeagle): make ts_web_test work in google3
 ts_web_test = _ts_web_test
+# DO NOT ADD MORE rules here unless they appear in the generated docsite.
+# Run yarn skydoc to re-generate the docsite.

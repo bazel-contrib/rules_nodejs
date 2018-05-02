@@ -18,6 +18,11 @@ package(default_visibility = [
     "//internal:__subpackages__",
 ])
 
+exports_files([
+    # Exported to be consumed for generating skydoc.
+    "ts_devserver.bzl",
+])
+
 filegroup(
     name = "source_tree",
     srcs = [
