@@ -140,7 +140,21 @@ from there, you actually get this macro.</p>
 
           <pre>ts_web_test(<a href="#ts_web_test.name">name</a>, <a href="#ts_web_test.deps">deps</a>, <a href="#ts_web_test.data">data</a>, <a href="#ts_web_test.srcs">srcs</a>, <a href="#ts_web_test.bootstrap">bootstrap</a>)</pre>
 
-          
+          <p>Runs unit tests in a browser.</p>
+<p>When executed under <code>bazel test</code>, this uses a headless Chrome browser for speed.
+This is also because <code>bazel test</code> allows multiple targets to be tested together,
+and we don't want to open a Chrome window on your machine for each one. Also,
+under <code>bazel test</code> the test will execute and immediately terminate.</p>
+<p>Running under <code>ibazel test</code> gives you a "watch mode" for your tests. The rule is
+optimized for this case - the test runner server will stay running and just
+re-serve the up-to-date JavaScript source bundle.</p>
+<p>To debug a single test target, run it with <code>bazel run</code> instead. This will open a
+browser window on your computer. Also you can use any other browser by opening
+the URL printed when the test starts up. The test will remain running until you
+cancel the <code>bazel run</code> command.</p>
+<p>Currently this rule uses Karma as the test runner, but this is an implementation
+detail. We might switch to another runner like Jest in the future.</p>
+
 
           <h3 id="ts_web_test_args">Attributes</h3>
 
