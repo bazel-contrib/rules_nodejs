@@ -156,6 +156,25 @@ ts_web_test = rule(
             allow_files = True, single_file = True),
     },
 )
+"""Runs unit tests in a browser.
+
+When executed under `bazel test`, this uses a headless Chrome browser for speed.
+This is also because `bazel test` allows multiple targets to be tested together,
+and we don't want to open a Chrome window on your machine for each one. Also,
+under `bazel test` the test will execute and immediately terminate.
+
+Running under `ibazel test` gives you a "watch mode" for your tests. The rule is
+optimized for this case - the test runner server will stay running and just
+re-serve the up-to-date JavaScript source bundle.
+
+To debug a single test target, run it with `bazel run` instead. This will open a
+browser window on your computer. Also you can use any other browser by opening
+the URL printed when the test starts up. The test will remain running until you
+cancel the `bazel run` command.
+
+Currently this rule uses Karma as the test runner, but this is an implementation
+detail. We might switch to another runner like Jest in the future.
+"""
 
 # This macro exists only to modify the users rule definition a bit.
 # DO NOT add composition of additional rules here.
