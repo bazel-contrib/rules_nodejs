@@ -85,6 +85,8 @@ def _nodejs_binary_impl(ctx):
     for d in ctx.attr.data:
       if hasattr(d, "node_sources"):
         sources += d.node_sources.to_list()
+      if hasattr(d, "files"):
+        sources += d.files.to_list()
 
     _write_loader_script(ctx)
 
