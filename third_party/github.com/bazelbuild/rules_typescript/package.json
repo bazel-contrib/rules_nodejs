@@ -29,6 +29,7 @@
         "pretest": "webdriver-manager update && bazel build examples/app:all",
         "test": "concurrently \"bazel run examples/app:devserver\" protractor --kill-others --success first",
         "preskylint": "bazel build --noshow_progress @io_bazel//src/tools/skylark/java/com/google/devtools/skylark/skylint:Skylint",
-        "skylint": "find . -type f -name \"*.bzl\" ! -path \"*/node_modules/*\" | xargs $(bazel info bazel-bin)/external/io_bazel/src/tools/skylark/java/com/google/devtools/skylark/skylint/Skylint"
+        "skylint": "find . -type f -name \"*.bzl\" ! -path \"*/node_modules/*\" | xargs $(bazel info bazel-bin)/external/io_bazel/src/tools/skylark/java/com/google/devtools/skylark/skylint/Skylint",
+        "skydoc": "bazel build //:docs && unzip -o -d docs/api bazel-bin/docs-skydoc.zip"
     }
 }

@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The ts_config rule allows users to express tsconfig.json file groups.
-"""
+"tsconfig.json files using extends"
 
 TsConfigInfo = provider()
 
@@ -25,7 +24,18 @@ def _ts_config_impl(ctx):
 ts_config = rule(
     implementation = _ts_config_impl,
     attrs = {
-      "src": attr.label(allow_files = True, single_file = True, mandatory = True),
-      "deps": attr.label_list(allow_files = True, mandatory = True),
+      "src": attr.label(
+          doc = """The tsconfig.json file passed to the TypeScript compiler""",
+          allow_single_file = True, mandatory = True),
+      "deps": attr.label_list(
+          doc = """Additional tsconfig.json files referenced via extends""",
+          allow_files = True, mandatory = True),
     },
 )
+"""Allows a tsconfig.json file to extend another file.
+
+Normally, you just give a single `tsconfig.json` file as the tsconfig attribute
+of a `ts_library` rule. However, if your `tsconfig.json` uses the `extends`
+feature from TypeScript, then the Bazel implementation needs to know about that
+extended configuration file as well, to pass them both to the TypeScript compiler.
+"""

@@ -1,6 +1,11 @@
 package(default_visibility=["//visibility:public"])
 
-exports_files(["test-main.js", "karma.conf.js"])
+exports_files([
+    "test-main.js",
+    "karma.conf.js",
+    # Exported to be consumed for generating skydoc.
+    "ts_web_test.bzl",
+])
 
 load("@build_bazel_rules_typescript//:defs.bzl", "ts_library")
 

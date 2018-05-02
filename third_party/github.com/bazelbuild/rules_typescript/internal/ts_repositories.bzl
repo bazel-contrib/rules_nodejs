@@ -12,12 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The ts_setup_workspace rule installs build-time dependencies.
-"""
+"Install toolchain dependencies"
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
 
 def ts_setup_workspace():
+  """This repository rule should be called from your WORKSPACE file.
+
+  It creates some additional Bazel external repositories that are used internally
+  by the TypeScript rules.
+  """
   yarn_install(
       name = "build_bazel_rules_typescript_tsc_wrapped_deps",
       package_json = "@build_bazel_rules_typescript//internal:tsc_wrapped/package.json",

@@ -12,10 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The ts_devserver rule brings up our "getting started" devserver.
-
-See the README.md.
-"""
+"Simple development server"
 
 load("@build_bazel_rules_nodejs//internal:node.bzl",
     "sources_aspect",
@@ -102,15 +99,27 @@ RUNFILES="$PWD/.."
 ts_devserver = rule(
     implementation = _ts_devserver,
     attrs = {
-        "deps": attr.label_list(allow_files = True, aspects = [sources_aspect]),
-        "serving_path": attr.string(),
-        "data": attr.label_list(allow_files = True, cfg = "data"),
-        "static_files": attr.label_list(allow_files = True),
-        # User scripts for the devserver to concat before the source files
-        "scripts": attr.label_list(allow_files = True),
-        # The entry_module should be the AMD module name of the entry module such as "__main__/src/index"
-        # Devserver concats the following snippet after the bundle to load the application: require(["entry_module"]);
-        "entry_module": attr.string(),
+        "deps": attr.label_list(
+            doc = "Targets that produce JavaScript, such as `ts_library`",
+            allow_files = True, aspects = [sources_aspect]),
+        "serving_path": attr.string(
+            doc = """The path you can request from the client HTML which serves the JavaScript bundle.
+            If you don't specify one, the JavaScript can be loaded at /_/ts_scripts.js"""),
+        "data": attr.label_list(
+            doc = "Dependencies that can be require'd while the server is running",
+            allow_files = True, cfg = "data"),
+        "static_files": attr.label_list(
+            doc = """Arbitrary files which to be served, such as index.html.
+            They are served relative to the package where this rule is declared.""",
+            allow_files = True),
+        "scripts": attr.label_list(
+            doc = "User scripts to include in the JS bundle before the application sources",
+            allow_files = [".js"]),
+        "entry_module": attr.string(
+            doc = """The entry_module should be the AMD module name of the entry module such as `"__main__/src/index"`
+            ts_devserver concats the following snippet after the bundle to load the application:
+            `require(["entry_module"]);`
+            """),
         "_requirejs_script": attr.label(allow_files = True, single_file = True, default = Label("@build_bazel_rules_typescript_devserver_deps//:node_modules/requirejs/require.js")),
         "_devserver": attr.label(
             default = Label("//internal/devserver/main"),
@@ -124,8 +133,24 @@ ts_devserver = rule(
     },
     executable = True,
 )
+"""ts_devserver is a simple development server intended for a quick "getting started" experience.
+
+Additional documentation at https://github.com/alexeagle/angular-bazel-example/wiki/Running-a-devserver-under-Bazel
+"""
 
 def ts_devserver_macro(tags = [], **kwargs):
+  """ibazel wrapper for `ts_devserver`
+
+  This macro re-exposes the `ts_devserver` rule with some extra tags so that
+  it behaves correctly under ibazel.
+
+  This is re-exported in `//:defs.bzl` as `ts_devserver` so if you load the rule
+  from there, you actually get this macro.
+
+  Args:
+    tags: standard Bazel tags, this macro adds a couple for ibazel
+    **kwargs: passed through to `ts_devserver`
+  """
   ts_devserver(
       # Users don't need to know that these tags are required to run under ibazel
       tags = tags + [

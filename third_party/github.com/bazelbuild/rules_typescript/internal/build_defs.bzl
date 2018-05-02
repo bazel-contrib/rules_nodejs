@@ -12,12 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""TypeScript rules.
-"""
+"TypeScript compilation"
+
 # pylint: disable=unused-argument
 # pylint: disable=missing-docstring
 load(":common/compilation.bzl", "COMMON_ATTRIBUTES", "compile_ts", "ts_providers_dict_to_struct")
-load(":executables.bzl", "get_tsc")
 load(":common/tsconfig.bzl", "create_tsconfig")
 load(":ts_config.bzl", "TsConfigInfo")
 
@@ -158,27 +157,35 @@ def _ts_library_impl(ctx):
 ts_library = rule(
     _ts_library_impl,
     attrs = dict(COMMON_ATTRIBUTES, **{
-        "srcs":
-            attr.label_list(
-                allow_files=FileType([
-                    ".ts",
-                    ".tsx",
-                ]),
-                mandatory=True,),
+        "srcs": attr.label_list(
+            doc = "The TypeScript source files to compile.",
+            allow_files = [".ts", ".tsx"],
+            mandatory = True),
 
         # TODO(alexeagle): reconcile with google3: ts_library rules should
         # be portable across internal/external, so we need this attribute
         # internally as well.
-        "tsconfig":
-            attr.label(allow_files = True, single_file = True),
-        "compiler":
-            attr.label(
-                default=get_tsc(),
-                single_file=False,
-                allow_files=True,
-                executable=True,
-                cfg="host"),
-        "supports_workers": attr.bool(default = True),
+        "tsconfig": attr.label(
+            doc = """A tsconfig.json file containing settings for TypeScript compilation.
+            Note that some properties in the tsconfig are governed by Bazel and will be
+            overridden, such as `target` and `module`.""",
+            allow_files = True, single_file = True),
+        "compiler": attr.label(
+            doc = """Intended for internal use only.
+            Sets a different TypeScript compiler binary to use for this library.
+            For example, we use the vanilla TypeScript tsc.js for bootstrapping,
+            and Angular compilations can replace this with `ngc`.""",
+            default = Label("//internal:tsc_wrapped_bin"),
+            single_file = False,
+            allow_files = True,
+            executable = True,
+            cfg = "host"),
+        "supports_workers": attr.bool(
+            doc = """Intended for internal use only.
+            Allows you to disable the Bazel Worker strategy for this library.
+            Typically used together with the "compiler" setting when using a
+            non-worker aware compiler binary.""",
+            default = True),
         "tsickle_typed": attr.bool(default = True),
         "internal_testing_type_check_dependencies": attr.bool(default = False, doc="Testing only, whether to type check inputs that aren't srcs."),
         "_tsc_wrapped_deps": attr.label(default = Label("@build_bazel_rules_typescript_tsc_wrapped_deps//:node_modules")),
@@ -191,3 +198,9 @@ ts_library = rule(
         "tsconfig": "%{name}_tsconfig.json"
     }
 )
+"""
+`ts_library` type-checks and compiles a set of TypeScript sources to JavaScript.
+
+It produces declarations files (`.d.ts`) which are used for compiling downstream
+TypeScript targets and JavaScript for the browser and Closure compiler.
+"""
