@@ -52,7 +52,7 @@ skylark_doc(
     format = "html",
     # The site is served at http://tsetse.info so the URL doesn't include a
     # /rules_typescript segment.
-    # TODO(alexeagle): separate Tsetse docs from the rest of rules_typescript.
+    # TODO(alexeagle): separate Tsetse docs from the rest of rules_typescript
     site_root = "/api",
     strip_prefix = "internal/",
 )
