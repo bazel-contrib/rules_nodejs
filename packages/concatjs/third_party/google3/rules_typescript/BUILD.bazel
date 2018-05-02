@@ -50,6 +50,9 @@ skylark_doc(
         "//internal/karma:ts_web_test.bzl",
     ],
     format = "html",
-    site_root = "/rules_typescript/api",
+    # The site is served at http://tsetse.info so the URL doesn't include a
+    # /rules_typescript segment.
+    # TODO(alexeagle): separate Tsetse docs from the rest of rules_typescript.
+    site_root = "/api",
     strip_prefix = "internal/",
 )
