@@ -70,7 +70,10 @@ module.exports = function(config) {
   }
 
   config.set({
-    plugins: ['karma-*', 'karma-concat-js'],
+    plugins: ['karma-*', 'karma-concat-js', 'karma-sourcemap-loader'],
+    preprocessors: {
+      '**/*.js': ['sourcemap']
+    },
     frameworks: ['jasmine', 'concat_js'],
 
     // test results reporter to use
