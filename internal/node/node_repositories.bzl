@@ -161,7 +161,13 @@ def _node_download_runtime_impl(repository_ctx):
 
     package_json: a list of labels, which indicate the package.json files that the npm label will point to.
 
-    preserve_symlinks: Turn on --node_options=--preserve-symlinks for nodejs_binary and nodejs_test rules
+    preserve_symlinks: Turn on --node_options=--preserve-symlinks for nodejs_binary and nodejs_test rules.
+    The default for this is currently False but will be switched to True in the future. When this option is
+    turned on, node will preserve the symlinked path for resolves instead of the default behavior of resolving
+    to the real path. This means that all required files must be in be included in your runfiles as it
+    prevents the default behavior of potentially resolving outside of the runfiles. For example, all required
+    files need to be included in your node_modules filegroup. This option is desirable as it gives a stronger
+    guarantee of hermiticity which is required for remote execution.
 
   Args:
     repository_ctx: The repository rule context
@@ -191,6 +197,7 @@ node_download_runtime = repository_rule(
     "packages": attr.string_list_dict(),
     "urls": attr.string_list(default = ["https://nodejs.org/dist/v{}/{}"]),
     "package_json": attr.label_list(),
+    # TODO: change preserve_symlinks default to true all issues with preserve-symlinks resolved
     "preserve_symlinks": attr.bool(default = False),
   },
 )
@@ -206,7 +213,13 @@ def _node_local_runtime_impl(repository_ctx):
 
     package_json: a list of labels, which indicate the package.json files that the npm label will point to.
 
-    preserve_symlinks: Turn on --node_options=--preserve-symlinks for nodejs_binary and nodejs_test rules
+    preserve_symlinks: Turn on --node_options=--preserve-symlinks for nodejs_binary and nodejs_test rules.
+    The default for this is currently False but will be switched to True in the future. When this option is
+    turned on, node will preserve the symlinked path for resolves instead of the default behavior of resolving
+    to the real path. This means that all required files must be in be included in your runfiles as it
+    prevents the default behavior of potentially resolving outside of the runfiles. For example, all required
+    files need to be included in your node_modules filegroup. This option is desirable as it gives a stronger
+    guarantee of hermiticity which is required for remote execution.
 
   Args:
     repository_ctx: The repository rule context
@@ -221,6 +234,7 @@ node_local_runtime = repository_rule(
   attrs = {
     "path": attr.string(),
     "package_json": attr.label_list(),
+    # TODO: change preserve_symlinks default to true all issues with preserve-symlinks resolved
     "preserve_symlinks": attr.bool(default = False),
   },
 )
@@ -297,7 +311,13 @@ def _yarn_download_impl(repository_ctx):
 
     package_json: a list of labels, which indicate the package.json files that the npm label will point to.
 
-    preserve_symlinks: Turn on --node_options=--preserve-symlinks for nodejs_binary and nodejs_test rules
+    preserve_symlinks: Turn on --node_options=--preserve-symlinks for nodejs_binary and nodejs_test rules.
+    The default for this is currently False but will be switched to True in the future. When this option is
+    turned on, node will preserve the symlinked path for resolves instead of the default behavior of resolving
+    to the real path. This means that all required files must be in be included in your runfiles as it
+    prevents the default behavior of potentially resolving outside of the runfiles. For example, all required
+    files need to be included in your node_modules filegroup. This option is desirable as it gives a stronger
+    guarantee of hermiticity which is required for remote execution.
 
   Args:
     repository_ctx: The repository rule context
@@ -325,6 +345,7 @@ yarn_download = repository_rule(
     "sha256": attr.string(),
     "urls": attr.string_list(default = ["https://github.com/yarnpkg/yarn/releases/download/v{}/{}"]),
     "package_json": attr.label_list(),
+    # TODO: change preserve_symlinks default to true all issues with preserve-symlinks resolved
     "preserve_symlinks": attr.bool(default = False),
   },
 )
@@ -340,7 +361,13 @@ def _yarn_local_impl(repository_ctx):
 
     package_json: a list of labels, which indicate the package.json files that the yarn label will point to.
 
-    preserve_symlinks: Turn on --node_options=--preserve-symlinks for nodejs_binary and nodejs_test rules
+    preserve_symlinks: Turn on --node_options=--preserve-symlinks for nodejs_binary and nodejs_test rules.
+    The default for this is currently False but will be switched to True in the future. When this option is
+    turned on, node will preserve the symlinked path for resolves instead of the default behavior of resolving
+    to the real path. This means that all required files must be in be included in your runfiles as it
+    prevents the default behavior of potentially resolving outside of the runfiles. For example, all required
+    files need to be included in your node_modules filegroup. This option is desirable as it gives a stronger
+    guarantee of hermiticity which is required for remote execution.
 
   Args:
     repository_ctx: The repository rule context
@@ -353,6 +380,7 @@ yarn_local = repository_rule(
   attrs = {
     "path": attr.string(),
     "package_json": attr.label_list(),
+    # TODO: change preserve_symlinks default to true all issues with preserve-symlinks resolved
     "preserve_symlinks": attr.bool(default = False),
   },
 )
@@ -398,9 +426,18 @@ def node_repositories(package_json, node_version=DEFAULT_NODE_VERSION, yarn_vers
 
   Args:
     package_json: a list of labels, which indicate the package.json files that need to be installed.
+
     node_version: optional; the specific version of NodeJS to install.
+
     yarn_version: optional; the specific version of Yarn to install.
-    preserve_symlinks: Turn on --node_options=--preserve-symlinks for nodejs_binary and nodejs_test rules
+
+    preserve_symlinks: Turn on --node_options=--preserve-symlinks for nodejs_binary and nodejs_test rules.
+    The default for this is currently False but will be switched to True in the future. When this option is
+    turned on, node will preserve the symlinked path for resolves instead of the default behavior of resolving
+    to the real path. This means that all required files must be in be included in your runfiles as it
+    prevents the default behavior of potentially resolving outside of the runfiles. For example, all required
+    files need to be included in your node_modules filegroup. This option is desirable as it gives a stronger
+    guarantee of hermiticity which is required for remote execution.
   """
   # Windows users need sh_binary wrapped as an .exe
   check_bazel_version("0.5.4")
