@@ -31,12 +31,15 @@ local_repository(
 #   @nodejs//:bin/npm
 # - The yarn package manager:
 #   @yarn//:yarn
-node_repositories(package_json = [
-    "//:package.json",
-    "//examples/rollup:package.json",
-    "@program_example//:package.json",
-    "//internal/test:package.json",
-])
+node_repositories(
+    package_json = [
+        "//:package.json",
+        "//examples/rollup:package.json",
+        "@program_example//:package.json",
+        "//internal/test:package.json"
+    ],
+    preserve_symlinks = True,
+)
 
 # Now the user must run either
 # bazel run @yarn//:yarn
