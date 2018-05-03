@@ -147,27 +147,27 @@ def _node_download_runtime_impl(repository_ctx):
 
   Repository Rule Args:
     name: A unique name for this runtime. This should almost always be nodejs if you want the runtime to be used by
-    this rule set.
+      this rule set.
 
     version: The version of the NodeJS runtime to download.
 
     urls: A list of mirror urls to the binary distribution of a NodeJS runtime. These must contain the {}s used to
-    substitute the version and runtime download filename being fetched (using .format).
-    It defaults to the official repository "https://nodejs.org/dist/v{}/{}".
+      substitute the version and runtime download filename being fetched (using .format).
+      It defaults to the official repository "https://nodejs.org/dist/v{}/{}".
 
     packages: This consists of a set of mappings from the host platform to a list of filename, strip_prefix, and sha256
-    for that file. The version & filename is combined with the mirror urls to produce the final download
-    urls to use.
+      for that file. The version & filename is combined with the mirror urls to produce the final download
+      urls to use.
 
     package_json: a list of labels, which indicate the package.json files that the npm label will point to.
 
     preserve_symlinks: Turn on --node_options=--preserve-symlinks for nodejs_binary and nodejs_test rules.
-    The default for this is currently False but will be switched to True in the future. When this option is
-    turned on, node will preserve the symlinked path for resolves instead of the default behavior of resolving
-    to the real path. This means that all required files must be in be included in your runfiles as it
-    prevents the default behavior of potentially resolving outside of the runfiles. For example, all required
-    files need to be included in your node_modules filegroup. This option is desirable as it gives a stronger
-    guarantee of hermiticity which is required for remote execution.
+      The default for this is currently False but will be switched to True in the future. When this option is
+      turned on, node will preserve the symlinked path for resolves instead of the default behavior of resolving
+      to the real path. This means that all required files must be in be included in your runfiles as it
+      prevents the default behavior of potentially resolving outside of the runfiles. For example, all required
+      files need to be included in your node_modules filegroup. This option is desirable as it gives a stronger
+      guarantee of hermiticity which is required for remote execution.
 
   Args:
     repository_ctx: The repository rule context
@@ -207,19 +207,19 @@ def _node_local_runtime_impl(repository_ctx):
 
   Repository Rule Args:
     name - A unique name for this runtime. This should almost always be nodejs if you want the runtime to be used by
-    this rule set.
+      this rule set.
 
     path - The local path to a pre-installed NodeJS runtime.
 
     package_json: a list of labels, which indicate the package.json files that the npm label will point to.
 
     preserve_symlinks: Turn on --node_options=--preserve-symlinks for nodejs_binary and nodejs_test rules.
-    The default for this is currently False but will be switched to True in the future. When this option is
-    turned on, node will preserve the symlinked path for resolves instead of the default behavior of resolving
-    to the real path. This means that all required files must be in be included in your runfiles as it
-    prevents the default behavior of potentially resolving outside of the runfiles. For example, all required
-    files need to be included in your node_modules filegroup. This option is desirable as it gives a stronger
-    guarantee of hermiticity which is required for remote execution.
+      The default for this is currently False but will be switched to True in the future. When this option is
+      turned on, node will preserve the symlinked path for resolves instead of the default behavior of resolving
+      to the real path. This means that all required files must be in be included in your runfiles as it
+      prevents the default behavior of potentially resolving outside of the runfiles. For example, all required
+      files need to be included in your node_modules filegroup. This option is desirable as it gives a stronger
+      guarantee of hermiticity which is required for remote execution.
 
   Args:
     repository_ctx: The repository rule context
@@ -297,27 +297,27 @@ def _yarn_download_impl(repository_ctx):
 
   Repository Rule Args:
     name: A unique name for this tool repo. This should almost always be yarn if you want the tool to be used by
-    this rule set.
+      this rule set.
 
     version: The version of Yarn to download.
 
     urls: A list of mirror urls to the binary distribution of a Yarn release. These must contain the {}s used to
-    substitute the version and download filename being fetched (using .format).
-    It defaults to the official repository "https://nodejs.org/dist/v{}/{}".
+      substitute the version and download filename being fetched (using .format).
+      It defaults to the official repository "https://nodejs.org/dist/v{}/{}".
 
     packages: This consists of a set of mappings from the host platform to a list of filename, strip_prefix, and sha256
-    for that file. The version & filename is combined with the mirror urls to produce the final download
-    urls to use.
+      for that file. The version & filename is combined with the mirror urls to produce the final download
+      urls to use.
 
     package_json: a list of labels, which indicate the package.json files that the npm label will point to.
 
     preserve_symlinks: Turn on --node_options=--preserve-symlinks for nodejs_binary and nodejs_test rules.
-    The default for this is currently False but will be switched to True in the future. When this option is
-    turned on, node will preserve the symlinked path for resolves instead of the default behavior of resolving
-    to the real path. This means that all required files must be in be included in your runfiles as it
-    prevents the default behavior of potentially resolving outside of the runfiles. For example, all required
-    files need to be included in your node_modules filegroup. This option is desirable as it gives a stronger
-    guarantee of hermiticity which is required for remote execution.
+      The default for this is currently False but will be switched to True in the future. When this option is
+      turned on, node will preserve the symlinked path for resolves instead of the default behavior of resolving
+      to the real path. This means that all required files must be in be included in your runfiles as it
+      prevents the default behavior of potentially resolving outside of the runfiles. For example, all required
+      files need to be included in your node_modules filegroup. This option is desirable as it gives a stronger
+      guarantee of hermiticity which is required for remote execution.
 
   Args:
     repository_ctx: The repository rule context
@@ -355,19 +355,19 @@ def _yarn_local_impl(repository_ctx):
 
   Repository Rule Args:
     name - A unique name for this tool repo. This should almost always be yarn if you want the tool to be used by
-    this rule set.
+      this rule set.
 
     path - The local path to a pre-installed yarn tool.
 
     package_json: a list of labels, which indicate the package.json files that the yarn label will point to.
 
     preserve_symlinks: Turn on --node_options=--preserve-symlinks for nodejs_binary and nodejs_test rules.
-    The default for this is currently False but will be switched to True in the future. When this option is
-    turned on, node will preserve the symlinked path for resolves instead of the default behavior of resolving
-    to the real path. This means that all required files must be in be included in your runfiles as it
-    prevents the default behavior of potentially resolving outside of the runfiles. For example, all required
-    files need to be included in your node_modules filegroup. This option is desirable as it gives a stronger
-    guarantee of hermiticity which is required for remote execution.
+      The default for this is currently False but will be switched to True in the future. When this option is
+      turned on, node will preserve the symlinked path for resolves instead of the default behavior of resolving
+      to the real path. This means that all required files must be in be included in your runfiles as it
+      prevents the default behavior of potentially resolving outside of the runfiles. For example, all required
+      files need to be included in your node_modules filegroup. This option is desirable as it gives a stronger
+      guarantee of hermiticity which is required for remote execution.
 
   Args:
     repository_ctx: The repository rule context
@@ -432,12 +432,12 @@ def node_repositories(package_json, node_version=DEFAULT_NODE_VERSION, yarn_vers
     yarn_version: optional; the specific version of Yarn to install.
 
     preserve_symlinks: Turn on --node_options=--preserve-symlinks for nodejs_binary and nodejs_test rules.
-    The default for this is currently False but will be switched to True in the future. When this option is
-    turned on, node will preserve the symlinked path for resolves instead of the default behavior of resolving
-    to the real path. This means that all required files must be in be included in your runfiles as it
-    prevents the default behavior of potentially resolving outside of the runfiles. For example, all required
-    files need to be included in your node_modules filegroup. This option is desirable as it gives a stronger
-    guarantee of hermiticity which is required for remote execution.
+      The default for this is currently False but will be switched to True in the future. When this option is
+      turned on, node will preserve the symlinked path for resolves instead of the default behavior of resolving
+      to the real path. This means that all required files must be in be included in your runfiles as it
+      prevents the default behavior of potentially resolving outside of the runfiles. For example, all required
+      files need to be included in your node_modules filegroup. This option is desirable as it gives a stronger
+      guarantee of hermiticity which is required for remote execution.
   """
   # Windows users need sh_binary wrapped as an .exe
   check_bazel_version("0.5.4")
