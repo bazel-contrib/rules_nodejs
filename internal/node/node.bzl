@@ -107,6 +107,7 @@ def _nodejs_binary_impl(ctx):
         "TEMPLATED_args": " ".join([
             expand_location_into_runfiles(ctx, a)
             for a in ctx.attr.templated_args]),
+        "TEMPLATED_repository_args": ctx.workspace_name + "/" + ctx.file._repository_args.path,
         "TEMPLATED_script_path": script_path,
         "TEMPLATED_env_vars": env_vars,
     }
@@ -128,7 +129,7 @@ def _nodejs_binary_impl(ctx):
         executable=True,
     )
 
-    runfiles = depset(sources + [node, ctx.outputs.loader] + node_modules)
+    runfiles = depset(sources + [node, ctx.outputs.loader, ctx.file._repository_args] + node_modules)
 
     return struct(
         runfiles = ctx.runfiles(
@@ -173,6 +174,10 @@ _NODEJS_EXECUTABLE_ATTRS = {
         default = Label("@//:node_modules")),
     "_node": attr.label(
         default = Label("@nodejs//:node"),
+        allow_files = True,
+        single_file = True),
+    "_repository_args": attr.label(
+        default = Label("@nodejs//:args.sh"),
         allow_files = True,
         single_file = True),
     "_launcher_template": attr.label(

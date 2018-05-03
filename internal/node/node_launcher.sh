@@ -83,16 +83,6 @@ fi
 export RUNFILES
 TEMPLATED_env_vars
 
-ARGS=()
-NODE_OPTIONS=()
-ALL_ARGS=(TEMPLATED_args "$@")
-for ARG in "${ALL_ARGS[@]}"; do
-  case "$ARG" in
-    --node_options=*) NODE_OPTIONS+=( "${ARG#--node_options=}" ) ;;
-    *) ARGS+=( "$ARG" )
-  esac
-done
-
 # Note: for debugging it is useful to see what files are actually present
 # This redirects to stderr so it doesn't interfere with Bazel's worker protocol
 # find . -name thingImLookingFor 1>&2
@@ -107,6 +97,8 @@ if [ -e "${MANIFEST}" ]; then
     declare -a PARTS=($line)
     if [ "${PARTS[0]}" == "TEMPLATED_node" ]; then
       readonly node="${PARTS[1]}"
+    elif [ "${PARTS[0]}" == "TEMPLATED_repository_args" ]; then
+      readonly repository_args="${PARTS[1]}"
     elif [ "${PARTS[0]}" == "TEMPLATED_script_path" ]; then
       readonly script="${PARTS[1]}"
     fi
@@ -121,7 +113,20 @@ if [ -e "${MANIFEST}" ]; then
   fi
 else
   readonly node="${RUNFILES}/TEMPLATED_node"
+  readonly repository_args="${RUNFILES}/TEMPLATED_repository_args"
   readonly script="${RUNFILES}/TEMPLATED_script_path"
 fi
+
+source $repository_args
+
+ARGS=()
+NODE_OPTIONS=()
+ALL_ARGS=(TEMPLATED_args $NODE_REPOSITORY_ARGS "$@")
+for ARG in "${ALL_ARGS[@]}"; do
+  case "$ARG" in
+    --node_options=*) NODE_OPTIONS+=( "${ARG#--node_options=}" ) ;;
+    *) ARGS+=( "$ARG" )
+  esac
+done
 
 exec "${node}" "${NODE_OPTIONS[@]}" "${script}" "${ARGS[@]}"
