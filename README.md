@@ -111,7 +111,7 @@ node_repositories(
   package_json = ["//:package.json"])
 ```
 
-Specifying `node_urls` and `yarn_urls` is optional. If ommitted, the default values will be used. You may also use a custom NodeJS version and the default Yarn version or vice-versa.
+Specifying `node_urls` and `yarn_urls` is optional. If omitted, the default values will be used. You may also use a custom NodeJS version and the default Yarn version or vice-versa.
 
 ### Installation with local vendored versions of NodeJS and Yarn
 
