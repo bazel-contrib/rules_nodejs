@@ -27,7 +27,7 @@ that it will be possible to plug into the standard `tsc` compiler later.
 
 Tsetse is modelled on the [Error Prone] project for Java.
 
-[Error Prone]: http://errorprone.info
+[Error Prone]: https://errorprone.info
 
 ## Example
 
