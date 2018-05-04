@@ -106,8 +106,12 @@ node_repositories(
   yarn_repositories = {
     "1.5.1": ("yarn-v1.5.1.tar.gz", "yarn-v1.5.1", "cd31657232cf48d57fdbff55f38bfa058d2fb4950450bd34af72dac796af4de1"),
   },
+  node_urls = ["https://nodejs.org/dist/v{version}/{filename}"],
+  yarn_urls = ["https://github.com/yarnpkg/yarn/releases/download/v{version}/{filename}"],
   package_json = ["//:package.json"])
 ```
+
+Specifying `node_urls` and `yarn_urls` is optional. If ommitted, the default values will be used. You may also use a custom NodeJS version and the default Yarn version or vice-versa.
 
 ### Installation with local vendored versions of NodeJS and Yarn
 
