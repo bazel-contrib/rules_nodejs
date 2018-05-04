@@ -8,11 +8,12 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
 
 # Install a hermetic version of node.
 # After this is run, these labels will be available:
-# - The nodejs install:
-#   @nodejs//:bin/node
-#   @nodejs//:bin/npm
+# - NodeJS:
+#   @nodejs//:node
+# - NPM:
+#   @nodejs//:npm
 # - The yarn package manager:
-#   @yarn//:yarn
+#   @nodejs//:yarn
 node_repositories(package_json = ["//:package.json"])
 
 load(":setup_workspace.bzl", "packages_example_setup_workspace")

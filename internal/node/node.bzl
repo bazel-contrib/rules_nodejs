@@ -177,7 +177,7 @@ _NODEJS_EXECUTABLE_ATTRS = {
         allow_files = True,
         single_file = True),
     "_repository_args": attr.label(
-        default = Label("@nodejs//:args.sh"),
+        default = Label("@nodejs//:repository_bin/node_args.sh"),
         allow_files = True,
         single_file = True),
     "_launcher_template": attr.label(

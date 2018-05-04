@@ -21,7 +21,7 @@ as the package manager.
 See discussion in the README.
 """
 
-load("//internal/node:node_labels.bzl", "get_node_label", "get_npm_label")
+load("//internal/node:node_labels.bzl", "get_node_label", "get_npm_label", "get_yarn_label")
 
 def _create_build_file(repository_ctx):
   repository_ctx.file("BUILD", """
@@ -71,13 +71,9 @@ def _npm_install_impl(repository_ctx):
   node = get_node_label(repository_ctx)
   npm = get_npm_label(repository_ctx)
 
-  # This runs node, not npm directly, as the latter will
-  # use #!/usr/bin/node (see https://github.com/bazelbuild/rules_nodejs/issues/77)
   # To see the output, pass: quiet=False
-  # --scripts-prepend-node-path=true is added so that any child npm processes use the
-  # correct node binary (see https://github.com/bazelbuild/rules_nodejs/issues/151)
   result = repository_ctx.execute(
-    [repository_ctx.path(node), repository_ctx.path(npm), "install", "--scripts-prepend-node-path=true", repository_ctx.path("")])
+    [repository_ctx.path(npm), "install", repository_ctx.path("")])
 
   if not repository_ctx.attr.package_lock_json:
     print("\n***********WARNING***********\n%s: npm_install will require a package_lock_json attribute in future versions\n*****************************" % repository_ctx.name)
@@ -130,18 +126,12 @@ def _yarn_install_impl(repository_ctx):
 
   _add_data_dependencies(repository_ctx)
 
-  node = get_node_label(repository_ctx)
+  yarn = get_yarn_label(repository_ctx)
 
-  # Use @yarn//:yarn.js, which adds node to the path before calling @yarn//:bin/yarn.js
-  yarn = Label("@yarn//:yarn.js")
-
-  # This runs node, not yarn directly, as the latter will
-  # look for a local node install (related to https://github.com/bazelbuild/rules_nodejs/issues/77).
   # A local cache is used as multiple yarn rules cannot run simultaneously using a shared
   # cache and a shared cache is non-hermetic.
   # To see the output, pass: quiet=False
   result = repository_ctx.execute([
-    repository_ctx.path(node),
     repository_ctx.path(yarn),
     "--cache-folder",
     repository_ctx.path("_yarn_cache"),

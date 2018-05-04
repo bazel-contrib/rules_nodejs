@@ -71,7 +71,7 @@ jobs:
 
       - run: bazel info release
 
-      - run: bazel run @yarn//:yarn
+      - run: bazel run @nodejs//:yarn
       - run: bazel build --config=ci ...
       - run: bazel test --config=ci ...
       # TODO(alexeagle): move this into the example proper

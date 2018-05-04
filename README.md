@@ -65,6 +65,13 @@ Currently these versions are:
 * 8.11.1
 * 8.9.1
 
+You can also choose a specific version of Yarn.
+Currently these versions are:
+
+* 1.6.0
+* 1.5.1
+* 1.3.2
+
 Add to `WORKSPACE`:
 
 ```python
@@ -84,31 +91,22 @@ If you'd like to use a version of NodeJS and/or Yarn that are not currently supp
 specify those in your `WORKSPACE`:
 
 ```python
-load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "node_download_runtime", "yarn_download")
+load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
 
-node_download_runtime(
-    name = "nodejs",
-    version = "8.10.0",
-    packages = {
-        "darwin_amd64": ("node-v8.10.0-darwin-x64.tar.gz", "node-v8.10.0-darwin-x64", "7d77bd35bc781f02ba7383779da30bd529f21849b86f14d87e097497671b0271"),
-        "linux_amd64": ("node-v8.10.0-linux-x64.tar.xz", "node-v8.10.0-linux-x64", "92220638d661a43bd0fee2bf478cb283ead6524f231aabccf14c549ebc2bc338"),
-        "windows_amd64": ("node-v8.10.0-win-x64.zip", "node-v8.10.0-win-x64", "936ada36cb6f09a5565571e15eb8006e45c5a513529c19e21d070acf0e50321b"),
-    },
-    package_json = ["//:package.json"])
-
-yarn_download(
-    name = "yarn",
-    version = "1.5.1",
-    filename = "yarn-v1.5.1.tar.gz",
-    strip_prefix = "yarn-v1.5.1",
-    sha256 = "cd31657232cf48d57fdbff55f38bfa058d2fb4950450bd34af72dac796af4de1",
-    package_json = ["//:package.json"])
-
-# This rule will see the previously installed versions of NodeJS and Yarn from above and will skip attempting to set
-# them up.
 # NOTE: this rule does NOT install your npm dependencies into your node_modules folder.
 # You must still run the package manager to do this.
-node_repositories(package_json = ["//:package.json"])
+node_repositories(
+  node_version = "8.10.0",
+  yarn_version = "1.5.1",
+  node_repositories = {
+    "8.10.0-darwin_amd64": ("node-v8.10.0-darwin-x64.tar.gz", "node-v8.10.0-darwin-x64", "7d77bd35bc781f02ba7383779da30bd529f21849b86f14d87e097497671b0271"),
+    "8.10.0-linux_amd64": ("node-v8.10.0-linux-x64.tar.xz", "node-v8.10.0-linux-x64", "92220638d661a43bd0fee2bf478cb283ead6524f231aabccf14c549ebc2bc338"),
+    "8.10.0-windows_amd64": ("node-v8.10.0-win-x64.zip", "node-v8.10.0-win-x64", "936ada36cb6f09a5565571e15eb8006e45c5a513529c19e21d070acf0e50321b"),
+  },
+  yarn_repositories = {
+    "1.5.1": ("yarn-v1.5.1.tar.gz", "yarn-v1.5.1", "cd31657232cf48d57fdbff55f38bfa058d2fb4950450bd34af72dac796af4de1"),
+  },
+  package_json = ["//:package.json"])
 ```
 
 ### Installation with local vendored versions of NodeJS and Yarn
@@ -117,23 +115,14 @@ Finally, you could check Node.js and Yarn into your repository, and not fetch
 them from the internet. This is what we do internally at Google.
 
 ```python
-load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "node_local_runtime", "yarn_local")
+load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
 
-node_local_runtime(
-    name = "nodejs",
-    path = "path/to/node/base",
-    package_json = ["//:package.json"])
-
-yarn_local(
-    name = "yarn",
-    path = "path/to/yarn/base",
-    package_json = ["//:package.json"])
-
-# This rule will see the previously installed versions of NodeJS and Yarn from above and will skip attempting to set
-# them up.
 # NOTE: this rule does NOT install your npm dependencies into your node_modules folder.
 # You must still run the package manager to do this.
-node_repositories(package_json = ["//:package.json"])
+node_repositories(
+  node_path = "path/to/node/base",
+  yarn_path = "path/to/yarn/base",
+  package_json = ["//:package.json"])
 ```
 
 ## Dependencies
@@ -159,7 +148,7 @@ To use the Yarn package manager, which we recommend for its built-in
 verification command, you can run:
 
 ```sh
-$ bazel run @yarn//:yarn
+$ bazel run @nodejs//:yarn
 ```
 
 If you use npm instead, run:
