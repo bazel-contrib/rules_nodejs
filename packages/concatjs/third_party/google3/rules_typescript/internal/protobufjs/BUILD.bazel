@@ -1,0 +1,19 @@
+package(default_visibility=["//visibility:public"])
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+
+exports_files([
+    "node_modules/protobufjs/dist/minimal/protobuf.min.js",
+    # Exported to be consumed for generating skydoc.
+    "ts_proto_library.bzl",
+])
+
+nodejs_binary(
+    name = "pbjs",
+    node_modules = "@build_bazel_rules_typescript_protobufs_compiletime_deps//:node_modules",
+    entry_point = "protobufjs/bin/pbjs",
+)
+nodejs_binary(
+    name = "pbts",
+    node_modules = "@build_bazel_rules_typescript_protobufs_compiletime_deps//:node_modules",
+    entry_point = "protobufjs/bin/pbts",
+)

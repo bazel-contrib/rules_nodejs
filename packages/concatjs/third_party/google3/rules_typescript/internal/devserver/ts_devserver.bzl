@@ -17,6 +17,9 @@
 load("@build_bazel_rules_nodejs//internal:node.bzl",
     "sources_aspect",
 )
+load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl",
+    "write_amd_names_shim",
+)
 
 def _ts_devserver(ctx):
   files = depset()
@@ -43,12 +46,19 @@ def _ts_devserver(ctx):
     workspace_name + "/" + f.short_path + "\n" for f in files
   ]))
 
+  amd_names_shim = ctx.actions.declare_file(
+      "_%s.amd_names_shim.js" % ctx.label.name,
+      sibling = ctx.outputs.executable)
+  write_amd_names_shim(ctx.actions, amd_names_shim, ctx.attr.bootstrap)
+
   # Requirejs is always needed so its included as the first script
   # in script_files before any user specified scripts for the devserver
   # to concat in order.
-  script_files = depset()
-  script_files += ctx.files._requirejs_script
-  script_files += ctx.files.scripts
+  script_files = []
+  script_files.extend(ctx.files.bootstrap)
+  script_files.append(ctx.file._requirejs_script)
+  script_files.append(amd_names_shim)
+  script_files.extend(ctx.files.scripts)
   ctx.actions.write(ctx.outputs.scripts_manifest, "".join([
     workspace_name + "/" + f.short_path + "\n" for f in script_files
   ]))
@@ -57,9 +67,9 @@ def _ts_devserver(ctx):
     ctx.executable._devserver,
     ctx.outputs.manifest,
     ctx.outputs.scripts_manifest,
-    ctx.file._requirejs_script]
+  ]
   devserver_runfiles += ctx.files.static_files
-  devserver_runfiles += ctx.files.scripts
+  devserver_runfiles += script_files
 
   serving_arg = ""
   if ctx.attr.serving_path:
@@ -120,6 +130,9 @@ ts_devserver = rule(
             ts_devserver concats the following snippet after the bundle to load the application:
             `require(["entry_module"]);`
             """),
+        "bootstrap": attr.label_list(
+            doc = "Scripts to include in the JS bundle before the module loader (require.js)",
+	    allow_files = [".js"]),
         "_requirejs_script": attr.label(allow_files = True, single_file = True, default = Label("@build_bazel_rules_typescript_devserver_deps//:node_modules/requirejs/require.js")),
         "_devserver": attr.label(
             default = Label("//internal/devserver/main"),
