@@ -127,27 +127,35 @@ Example:
 ```
 load("@build_bazel_rules_typescript//:defs.bzl", "ts_library", "ts_proto_library")
 
-ts_proto_library(
+proto_library(
     name = "car_proto",
     srcs = ["car.proto"],
+)
+
+ts_proto_library(
+    name = "car",
+    deps = [":car_proto"],
 )
 
 ts_library(
     name = "test_lib",
     testonly = True,
     srcs = ["car.spec.ts"],
-    deps = [":car_proto"],
+    deps = [":car"],
 )
 ```
+
+Note in this example we named the `ts_proto_library` rule `car` so that the
+result will be `car.d.ts`. This means our TypeScript code can just
+`import {symbols} from './car'`. Use the `output_name` attribute if you want to
+name the rule differently from the output file.
 
 The JavaScript produced by protobuf.js has a runtime dependency on a support library.
 Under devmode (e.g. `ts_devserver`, `ts_web_test`) you'll need to include these scripts
 in the `bootstrap` phase (before Require.js loads). You can use the label
-`@build_bazel_rules_typescript//:protobufjs_bootstrap_scripts` to reference these scripts.
+`@build_bazel_rules_typescript//:protobufjs_bootstrap_scripts` to reference these scripts
+in the `bootstrap` attribute of `ts_web_test` or `ts_devserver`.
 
-After Require.js loads, we need to provide a name for the `protobufjs` global symbol
-so that it can be require'd. Put this code somewhere in your app:
-`define("protobufjs/minimal", () => protobuf);`
 
 To complete the example above, you could write a `ts_web_test`:
 
@@ -158,9 +166,6 @@ ts_web_test(
     name = "test",
     deps = ["test_lib"],
     bootstrap = ["@build_bazel_rules_typescript//:protobufjs_bootstrap_scripts"],
-    srcs = ["require.config.js"],
 )
 ```
-
-where require.config.js contains the `define` statement above.
 """
