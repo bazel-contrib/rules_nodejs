@@ -304,6 +304,14 @@ assert the public API of a TypeScript program, and uses <code>nodejs_test</code>
 <a href="https://github.com/angular/angular/blob/master/tools/ts-api-guardian/index.bzl">https://github.com/angular/angular/blob/master/tools/ts-api-guardian/index.bzl</a></p>
 <p>If you just want to run a standard test using a test runner like Karma or Jasmine,
 use the specific rules for those test runners, e.g. <code>jasmine_node_test</code>.</p>
+<p>To debug a Node.js test, we recommend saving a group of flags together in a "config".
+Put this in your <code>tools/bazel.rc</code> so it's shared with your team:</p>
+<pre><code># Enable debugging tests with --config=debug
+test:debug --test_arg=--node_options=--inspect-brk --test_output=streamed --test_strategy=exclusive --test_timeout=9999 --nocache_test_results
+</code></pre>
+<p>Now you can add <code>--config=debug</code> to any <code>bazel test</code> command line.
+The runtime will pause before executing the program, allowing you to connect a
+remote debugger.</p>
 
 
           <h3 id="nodejs_test_args">Attributes</h3>

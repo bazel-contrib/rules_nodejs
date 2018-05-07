@@ -23,6 +23,8 @@ load("//internal/common:devmode_js_sources.bzl", "devmode_js_sources")
 def jasmine_node_test(name, srcs = [], data = [], deps = [], **kwargs):
   """Runs tests in NodeJS using the Jasmine test runner.
 
+  To debug the test, see debugging notes in `nodejs_test`.
+
   Args:
     name: name of the resulting label
     srcs: JavaScript source files containing Jasmine specs

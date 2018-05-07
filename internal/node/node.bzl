@@ -226,6 +226,17 @@ https://github.com/angular/angular/blob/master/tools/ts-api-guardian/index.bzl
 
 If you just want to run a standard test using a test runner like Karma or Jasmine,
 use the specific rules for those test runners, e.g. `jasmine_node_test`.
+
+To debug a Node.js test, we recommend saving a group of flags together in a "config".
+Put this in your `tools/bazel.rc` so it's shared with your team:
+```
+# Enable debugging tests with --config=debug
+test:debug --test_arg=--node_options=--inspect-brk --test_output=streamed --test_strategy=exclusive --test_timeout=9999 --nocache_test_results
+```
+
+Now you can add `--config=debug` to any `bazel test` command line.
+The runtime will pause before executing the program, allowing you to connect a
+remote debugger.
 """
 
 def nodejs_binary_macro(name, args=[], visibility=None, tags=[], **kwargs):
