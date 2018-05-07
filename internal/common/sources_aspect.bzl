@@ -33,6 +33,7 @@ def _sources_aspect_impl(target, ctx):
   # get TypeScript outputs.
   if hasattr(target, "typescript"):
     result = depset(transitive=[result, target.typescript.es5_sources])
+    result = depset(transitive=[result, target.typescript.declarations])
   elif hasattr(target, "files"):
     result = depset([f for f in target.files if f.path.endswith(".js")],
                     transitive=[result])

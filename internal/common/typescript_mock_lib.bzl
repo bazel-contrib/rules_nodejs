@@ -20,9 +20,14 @@ rules_typescript without introducing a circular dependency.
 
 def _mock_typescript_lib(ctx):
   es5_sources = depset()
+  declarations = depset()
   for s in ctx.attr.srcs:
-    es5_sources = depset(transitive=[es5_sources, s.files])
-  return struct(typescript = struct(es5_sources = es5_sources))
+    declarations = depset([f for f in s.files if f.path.endswith("d.ts")], transitive=[declarations])
+    es5_sources = depset([f for f in s.files if f.path.endswith("js")], transitive=[es5_sources])
+  return struct(typescript = struct(
+    es5_sources = es5_sources,
+    declarations = declarations
+  ))
 
 mock_typescript_lib = rule(
   implementation = _mock_typescript_lib,
