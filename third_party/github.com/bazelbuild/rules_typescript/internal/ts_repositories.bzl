@@ -38,3 +38,9 @@ def ts_setup_workspace():
       package_json = "@build_bazel_rules_typescript//internal/karma:package.json",
       yarn_lock = "@build_bazel_rules_typescript//internal/karma:yarn.lock",
   )
+
+  yarn_install(
+      name = "build_bazel_rules_typescript_protobufs_compiletime_deps",
+      package_json = "@build_bazel_rules_typescript//internal/protobufjs:package.json",
+      yarn_lock = "@build_bazel_rules_typescript//internal/protobufjs:yarn.lock",
+  )

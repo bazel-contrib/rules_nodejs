@@ -1,0 +1,60 @@
+load("@build_bazel_rules_typescript//:defs.bzl",
+    "ts_library",
+    "ts_proto_library",
+    "ts_web_test",
+    "ts_devserver",
+)
+
+proto_library(
+    name = "tire_proto",
+    srcs = ["tire.proto"],
+)
+
+proto_library(
+    name = "car_proto",
+    srcs = ["car.proto"],
+    deps = [":tire_proto"],
+)
+
+ts_proto_library(
+    # The result will be "car.d.ts" named after this target.
+    # We could use the output_name attribute if we want the output named
+    # differently than the target.
+    name = "car",
+    deps = [":car_proto"],
+)
+
+ts_library(
+    name = "test_lib",
+    testonly = True,
+    srcs = ["car.spec.ts"],
+    deps = [":car"],
+)
+
+ts_web_test(
+    name = "test",
+    deps = ["test_lib"],
+    bootstrap = ["@build_bazel_rules_typescript//:protobufjs_bootstrap_scripts"],
+)
+
+ts_library(
+    name = "app",
+    srcs = ["app.ts"],
+    deps = [":car"],
+)
+
+ts_devserver(
+    name = "devserver",
+    deps = [":app"],
+    entry_module = "build_bazel_rules_typescript/examples/protocol_buffers/app",
+    bootstrap = ["@build_bazel_rules_typescript//:protobufjs_bootstrap_scripts"],
+)
+
+# Test for production mode
+load("@build_bazel_rules_nodejs//:defs.bzl", "rollup_bundle")
+
+rollup_bundle(
+    name = "bundle",
+    deps = [":app"],
+    entry_point = "examples/protocol_buffers/app",
+)

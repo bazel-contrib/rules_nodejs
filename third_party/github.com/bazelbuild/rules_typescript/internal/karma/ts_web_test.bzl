@@ -17,6 +17,7 @@ load("@build_bazel_rules_nodejs//internal:node.bzl",
     "sources_aspect",
     "expand_path_into_runfiles",
 )
+load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "write_amd_names_shim")
 
 _CONF_TMPL = "//internal/karma:karma.conf.js"
 # TODO(alexeagle): users will need some control over browser; needs design
@@ -45,6 +46,12 @@ def _ts_web_test_impl(ctx):
       expand_path_into_runfiles(ctx, f.short_path)
       for f in ctx.files.bootstrap
   ]
+
+  amd_names_shim = ctx.actions.declare_file(
+      "_%s.amd_names_shim.js" % ctx.label.name,
+      sibling = ctx.outputs.executable)
+  write_amd_names_shim(ctx.actions, amd_names_shim, ctx.attr.bootstrap)
+
   # Explicitly list the requirejs library files here, rather than use
   # `frameworks: ['requirejs']`
   # so that we control the script order, and the bootstrap files come before
@@ -55,6 +62,7 @@ def _ts_web_test_impl(ctx):
   bootstrap_entries += [
     "build_bazel_rules_typescript_karma_deps/node_modules/requirejs/require.js",
     "build_bazel_rules_typescript_karma_deps/node_modules/karma-requirejs/lib/adapter.js",
+    "/".join([ctx.workspace_name, amd_names_shim.short_path]),
   ]
   # Finally we load the user's srcs and deps
   user_entries = [
@@ -115,7 +123,7 @@ $KARMA ${{ARGV[@]}}
   return [DefaultInfo(
       runfiles = ctx.runfiles(
           files = ctx.files.srcs + ctx.files.deps + ctx.files.bootstrap + [
-              conf,
+              conf, amd_names_shim
           ],
           transitive_files = files,
           # Propagate karma_bin and its runfiles

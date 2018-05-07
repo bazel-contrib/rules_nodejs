@@ -19,6 +19,7 @@
 # https://github.com/bazelbuild/rules_go/blob/master/go/tools/gazelle/README.rst#directives
 # gazelle:exclude node_modules
 load("@io_bazel_rules_go//go:def.bzl", "gazelle")
+load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
 
 gazelle(
     name = "gazelle",
@@ -48,6 +49,7 @@ skylark_doc(
         "//internal:ts_config.bzl",
         "//internal/devserver:ts_devserver.bzl",
         "//internal/karma:ts_web_test.bzl",
+        "//internal/protobufjs:ts_proto_library.bzl",
     ],
     format = "html",
     # The site is served at http://tsetse.info so the URL doesn't include a
@@ -55,4 +57,21 @@ skylark_doc(
     # TODO(alexeagle): separate Tsetse docs from the rest of rules_typescript
     site_root = "/api",
     strip_prefix = "internal/",
+)
+
+# Runtime libraries needed by the protobufjs library.
+# Any JS code produced by the ts_proto_library rule has a runtime dependency on these scripts.
+js_library(
+    name = "protobufjs_bootstrap_scripts",
+    srcs = [
+        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:node_modules/long/dist/long.js",
+        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:node_modules/protobufjs/dist/minimal/protobuf.min.js",
+    ],
+    # Make devmode loading work when it does require("protobufjs/minimal")
+    # so this is shimmed to define it to equal global.protobuf
+    amd_names = {
+        "long": "Long",
+        "protobufjs/minimal": "protobuf",
+    },
+    visibility = ["//visibility:public"],
 )
