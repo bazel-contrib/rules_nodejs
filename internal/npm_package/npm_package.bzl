@@ -102,17 +102,59 @@ npm_package = rule(
 """
 The npm_package rule creates a directory containing a publishable npm artifact.
 
-Load it with
-`load("@build_bazel_rules_nodejs//:defs.bzl", "npm_package")`
+Example:
 
-The default output is a directory containing the package contents.
+```python
+load("@build_bazel_rules_nodejs//:defs.bzl", "npm_package")
 
-It also produces two named outputs, `[name].pack` and `[name].publish`. These can be used with `bazel run`.
+npm_package(
+    name = "my_package",
+    srcs = ["package.json"],
+    deps = [":my_typescript_lib"],
+    replacements = {"//internal/": "//"},
+)
+```
 
-For an `npm_package` rule named `my_package`, you can use
+You can use a pair of `// BEGIN-INTERNAL ... // END-INTERNAL` comments to mark regions of files that should be elided during publishing.
+For example:
 
-- `bazel run :my_package:pack` to create a .tgz of the package which will be written to the current working directory
-- `bazel run :my_package.publish` to publish the package to the npm registry
+```javascript
+function doThing() {
+    // BEGIN-INTERNAL
+    // This is a secret internal-only comment
+    doInternalOnlyThing();
+    // END-INTERNAL
+}
+```
 
-Pass arguments to npm by escaping them from Bazel using a double-hyphen `bazel run my_package.publish -- --tag=next`
+Usage:
+
+`npm_package` yields three labels. Build the package directory using the default label:
+
+```sh
+$ bazel build :my_package
+Target //:my_package up-to-date:
+  bazel-out/fastbuild/bin/my_package
+$ ls -R bazel-out/fastbuild/bin/my_package
+```
+
+Dry-run of publishing to npm, calling `npm pack` (it builds the package first if needed):
+
+```sh
+$ bazel run :my_package.pack
+INFO: Running command line: bazel-out/fastbuild/bin/my_package.pack
+my-package-name-1.2.3.tgz
+$ tar -tzf my-package-name-1.2.3.tgz
+```
+
+Actually publish the package with `npm publish` (also builds first):
+
+```sh
+# Check login credentials
+$ bazel run @nodejs//:npm who
+# Publishes the package
+$ bazel run :my_package.publish
+```
+
+You can pass arguments to npm by escaping them from Bazel using a double-hyphen `bazel run my_package.publish -- --tag=next`
 """

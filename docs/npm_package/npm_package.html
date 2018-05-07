@@ -172,16 +172,44 @@ to be nested inside this package</p>
           <pre>npm_package(<a href="#npm_package.name">name</a>, <a href="#npm_package.deps">deps</a>, <a href="#npm_package.srcs">srcs</a>, <a href="#npm_package.packages">packages</a>, <a href="#npm_package.replacements">replacements</a>)</pre>
 
           <p>The npm_package rule creates a directory containing a publishable npm artifact.</p>
-<p>Load it with
-<code>load("@build_bazel_rules_nodejs//:defs.bzl", "npm_package")</code></p>
-<p>The default output is a directory containing the package contents.</p>
-<p>It also produces two named outputs, <code>[name].pack</code> and <code>[name].publish</code>. These can be used with <code>bazel run</code>.</p>
-<p>For an <code>npm_package</code> rule named <code>my_package</code>, you can use</p>
-<ul>
-<li><code>bazel run :my_package:pack</code> to create a .tgz of the package which will be written to the current working directory</li>
-<li><code>bazel run :my_package.publish</code> to publish the package to the npm registry</li>
-</ul>
-<p>Pass arguments to npm by escaping them from Bazel using a double-hyphen <code>bazel run my_package.publish -- --tag=next</code></p>
+<pre><code class="lang-python">load(&quot;@build_bazel_rules_nodejs//:defs.bzl&quot;, &quot;npm_package&quot;)
+
+npm_package(
+    name = &quot;my_package&quot;,
+    srcs = [&quot;package.json&quot;],
+    deps = [&quot;:my_typescript_lib&quot;],
+    replacements = {&quot;//internal/&quot;: &quot;//&quot;},
+)
+</code></pre>
+<p>You can use a pair of <code>// BEGIN-INTERNAL ... // END-INTERNAL</code> comments to mark regions of files that should be elided during publishing.
+For example:</p>
+<pre><code class="lang-javascript">function doThing() {
+    // BEGIN-INTERNAL
+    // This is a secret internal-only comment
+    doInternalOnlyThing();
+    // END-INTERNAL
+}
+</code></pre>
+<p>Usage:</p>
+<p><code>npm_package</code> yields three labels. Build the package directory using the default label:</p>
+<pre><code class="lang-sh">$ bazel build :my_package
+Target //:my_package up-to-date:
+  bazel-out/fastbuild/bin/my_package
+$ ls -R bazel-out/fastbuild/bin/my_package
+</code></pre>
+<p>Dry-run of publishing to npm, calling <code>npm pack</code> (it builds the package first if needed):</p>
+<pre><code class="lang-sh">$ bazel run :my_package.pack
+INFO: Running command line: bazel-out/fastbuild/bin/my_package.pack
+my-package-name-1.2.3.tgz
+$ tar -tzf my-package-name-1.2.3.tgz
+</code></pre>
+<p>Actually publish the package with <code>npm publish</code> (also builds first):</p>
+<pre><code class="lang-sh"># Check login credentials
+$ bazel run @nodejs//:npm who
+# Publishes the package
+$ bazel run :my_package.publish
+</code></pre>
+<p>You can pass arguments to npm by escaping them from Bazel using a double-hyphen <code>bazel run my_package.publish -- --tag=next</code></p>
 
 
           <h3 id="npm_package_args">Attributes</h3>
