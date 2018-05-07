@@ -44,8 +44,8 @@ load("@io_bazel_skydoc//skylark:skylark.bzl", "skylark_doc")
 skylark_doc(
     name = "docs",
     srcs = [
-        "//internal:build_defs.bzl",
         "//internal:ts_repositories.bzl",
+        "//internal:build_defs.bzl",
         "//internal:ts_config.bzl",
         "//internal/devserver:ts_devserver.bzl",
         "//internal/karma:ts_web_test.bzl",
