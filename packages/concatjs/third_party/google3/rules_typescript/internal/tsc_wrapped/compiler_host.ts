@@ -106,6 +106,19 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
   }
 
   /**
+   * For the given potentially absolute input file path (typically .ts), returns
+   * the relative output path. For example, for
+   * /path/to/root/blaze-out/k8-fastbuild/genfiles/my/file.ts, will return
+   * my/file.js or my/file.closure.js (depending on ES5 mode).
+   */
+  relativeOutputPath(fileName: string) {
+    let result = this.rootDirsRelative(fileName);
+    result = result.replace(/(\.d)?\.[jt]sx?$/, '');
+    if (!this.bazelOpts.es5Mode) result += '.closure';
+    return result + '.js';
+  }
+
+  /**
    * Workaround https://github.com/Microsoft/TypeScript/issues/8245
    * We use the `rootDirs` property both for module resolution,
    * and *also* to flatten the structure of the output directory
@@ -152,8 +165,15 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
         p => !!filePath.match(new RegExp(p)));
   }
 
+  /**
+   * fileNameToModuleId gives the module ID for an input source file name.
+   * @param fileName an input source file name, e.g.
+   *     /root/dir/bazel-out/host/bin/my/file.ts.
+   * @return the canonical path of a file within blaze, without /genfiles/ or
+   *     /bin/ path parts, excluding a file extension. For example, "my/file".
+   */
   fileNameToModuleId(fileName: string): string {
-    return this.flattenOutDir(fileName.substring(0, fileName.lastIndexOf('.')));
+    return this.relativeOutputPath(fileName.substring(0, fileName.lastIndexOf('.')));
   }
 
   /**
