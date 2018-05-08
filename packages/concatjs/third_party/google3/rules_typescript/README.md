@@ -8,6 +8,11 @@ Circle CI | Bazel CI
 
 The TypeScript rules integrate the TypeScript compiler with Bazel.
 
+## API Docs
+
+Generated documentation for using each rule is at:
+http://tsetse.info/api/
+
 ## Installation
 
 First, install a current Bazel distribution.
