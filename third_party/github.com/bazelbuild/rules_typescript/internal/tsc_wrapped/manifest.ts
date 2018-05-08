@@ -42,13 +42,13 @@ function topologicalSort(
  */
 export function constructManifest(
     modulesManifest: tsickle.ModulesManifest,
-    host: {flattenOutDir: (f: string) => string}): string {
+    host: {relativeOutputPath: (f: string) => string}): string {
   const result: tsickle.FileMap<boolean> = {};
   for (const file of modulesManifest.fileNames) {
     topologicalSort(result, file, modulesManifest, {});
   }
 
   // NB: The object literal maintains insertion order.
-  return Object.keys(result).map(fn => host.flattenOutDir(fn)).join('\n') +
+  return Object.keys(result).map(fn => host.relativeOutputPath(fn)).join('\n') +
       '\n';
 }
