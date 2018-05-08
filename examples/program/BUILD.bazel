@@ -15,7 +15,10 @@ filegroup(
 
 mock_typescript_lib(
     name = "mock_ts_lib",
-    srcs = ["decrement.js"],
+    srcs = [
+        "decrement.d.ts",
+        "decrement.js",
+    ],
 )
 
 # This is like a "js_library", but there are no actions to run on JS files so a
