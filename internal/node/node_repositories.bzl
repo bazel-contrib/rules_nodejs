@@ -50,8 +50,14 @@ YARN_REPOSITORIES = {
 }
 
 # Urls patterns for downloading node & yarn distributions
-NODE_URLS = ["https://nodejs.org/dist/v{version}/{filename}"]
-YARN_URLS = ["https://github.com/yarnpkg/yarn/releases/download/v{version}/{filename}"]
+NODE_URLS = [
+  "https://mirror.bazel.build/nodejs.org/dist/v{version}/{filename}",
+  "https://nodejs.org/dist/v{version}/{filename}",
+]
+YARN_URLS = [
+  "https://mirror.bazel.build/github.com/yarnpkg/yarn/releases/download/v{version}/{filename}",
+  "https://github.com/yarnpkg/yarn/releases/download/v{version}/{filename}",
+]
 
 # def _write_node_modules_impl(repository_ctx):
   # WORKAROUND for https://github.com/bazelbuild/bazel/issues/374#issuecomment-296217940
