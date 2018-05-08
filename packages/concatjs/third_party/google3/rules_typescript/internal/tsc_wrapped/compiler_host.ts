@@ -33,6 +33,21 @@ export function narrowTsOptions(options: ts.CompilerOptions): BazelTsOptions {
   return options as BazelTsOptions;
 }
 
+function validateBazelOptions(bazelOpts: BazelOptions) {
+  if (!bazelOpts.isJsTranspilation) return;
+
+  if (bazelOpts.compilationTargetSrc &&
+      bazelOpts.compilationTargetSrc.length > 1) {
+    throw new Error("In JS transpilation mode, only one file can appear in " +
+                    "bazelOptions.compilationTargetSrc.");
+  }
+
+  if (!bazelOpts.transpiledJsOutputFileName) {
+    throw new Error("In JS transpilation mode, transpiledJsOutputFileName " +
+                    "must be specified in tsconfig.");
+  }
+}
+
 const TS_EXT = /(\.d)?\.tsx?$/;
 
 /**
@@ -94,6 +109,7 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
       this.directoryExists = delegate.directoryExists.bind(delegate);
     }
 
+    validateBazelOptions(bazelOpts);
     this.googmodule = bazelOpts.googmodule;
     this.es5Mode = bazelOpts.es5Mode;
     this.prelude = bazelOpts.prelude;
@@ -344,8 +360,7 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
     fileName = this.flattenOutDir(fileName);
 
     if (this.bazelOpts.isJsTranspilation) {
-      // Write transpiled JS to *.dev_es5.js.
-      fileName = fileName.replace(/\.js$/, '.dev_es5.js');
+      fileName = this.bazelOpts.transpiledJsOutputFileName!;
     } else if (!this.bazelOpts.es5Mode) {
       // Write ES6 transpiled files to *.closure.js.
       if (this.bazelOpts.locale) {

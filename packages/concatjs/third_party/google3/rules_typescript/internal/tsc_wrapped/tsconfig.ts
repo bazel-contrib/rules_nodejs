@@ -139,9 +139,17 @@ export interface BazelOptions {
   moduleRoot?: string;
 
   /**
-   * If true, indicates that this job is transpiling JS sources.
+   * If true, indicates that this job is transpiling JS sources. If true, only
+   * one file can appear in compilationTargetSrc, and transpiledJsOutputFileName
+   * must be set.
    */
   isJsTranspilation?: boolean;
+
+  /**
+   * The path where the file containing the JS transpiled output should
+   * be written. Ignored if isJsTranspilation is false.
+   */
+  transpiledJsOutputFileName?: string;
 }
 
 export interface ParsedTsConfig {
