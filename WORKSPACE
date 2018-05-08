@@ -26,11 +26,12 @@ local_repository(
 )
 # Install a hermetic version of node.
 # After this is run, these labels will be available:
-# - The nodejs install:
-#   @nodejs//:bin/node
-#   @nodejs//:bin/npm
+# - NodeJS:
+#   @nodejs//:node
+# - NPM:
+#   @nodejs//:npm
 # - The yarn package manager:
-#   @yarn//:yarn
+#   @nodejs//:yarn
 node_repositories(
     package_json = [
         "//:package.json",
@@ -42,7 +43,7 @@ node_repositories(
 )
 
 # Now the user must run either
-# bazel run @yarn//:yarn
+# bazel run @nodejs//:yarn
 # or
 # bazel run @nodejs//:npm
 
