@@ -69,8 +69,8 @@ def _npm_package(ctx):
     # ts_library doesn't include .d.ts outputs in the runfiles
     # see comment in rules_typescript/internal/common/compilation.bzl
     if hasattr(d, "typescript"):
-      transitive.append(d.typescript.transitive_declarations)    
-     
+      transitive.append(d.typescript.transitive_declarations)
+
     files = depset(transitive = transitive)
 
   package_dir = create_package(ctx, files.to_list(), ctx.files.packages)
