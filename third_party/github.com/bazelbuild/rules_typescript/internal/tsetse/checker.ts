@@ -53,6 +53,12 @@ export class Checker {
   on(nodeKind: ts.SyntaxKind.CallExpression,
      handlerFunction: (checker: Checker, node: ts.CallExpression) => void,
      code: number): void;
+  on(nodeKind: ts.SyntaxKind.PropertyDeclaration,
+     handlerFunction: (checker: Checker, node: ts.PropertyDeclaration) => void,
+     code: number): void;
+  on(nodeKind: ts.SyntaxKind.ElementAccessExpression,
+     handlerFunction: (checker: Checker, node: ts.ElementAccessExpression) => void,
+     code: number): void;
   on(nodeKind: ts.SyntaxKind,
      handlerFunction: (checker: Checker, node: ts.Node) => void,
      code: number): void;
