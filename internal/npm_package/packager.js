@@ -81,7 +81,13 @@ function main(args) {
     } else if (!path.relative(genDir, f).startsWith('..')) {
       rootDir = genDir;
     } else {
-      throw new Error(`dependency ${f} is not under bazel-bin or bazel-genfiles`);
+      // It might be nice to enforce here that deps don't contain sources
+      // since those belong in srcs above.
+      // The `deps` attribute should typically be outputs of other rules.
+      // However, things like .d.ts sources of a ts_library or data attributes
+      // of ts_library will result in source files that appear in the deps
+      // so we have to allow this.
+      rootDir = '.';
     }
     return path.join(outDir, path.relative(path.join(rootDir, baseDir), f));
   }

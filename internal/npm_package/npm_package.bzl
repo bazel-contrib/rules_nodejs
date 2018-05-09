@@ -58,7 +58,20 @@ def create_package(ctx, devmode_sources, nested_packages):
 def _npm_package(ctx):
   files = depset()
   for d in ctx.attr.deps:
-    files = depset(transitive = [files, d.files, d.node_sources])
+    transitive = [
+        files,
+        # Collect whatever is in the "data"
+        d.data_runfiles.files,
+        # For JavaScript-producing rules, gather up the devmode Node.js sources
+        d.node_sources,
+    ]
+
+    # ts_library doesn't include .d.ts outputs in the runfiles
+    # see comment in rules_typescript/internal/common/compilation.bzl
+    if hasattr(d, "typescript"):
+      transitive.append(d.typescript.transitive_declarations)
+
+    files = depset(transitive = transitive)
 
   package_dir = create_package(ctx, files.to_list(), ctx.files.packages)
 

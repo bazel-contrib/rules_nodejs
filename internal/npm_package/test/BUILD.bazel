@@ -1,9 +1,19 @@
 load("//:defs.bzl", "npm_package", "jasmine_node_test")
+load("//internal/common:typescript_mock_lib.bzl", "mock_typescript_lib")
 
 genrule(
     name = "produces_files",
     outs = ["a_dep"],
     cmd = "echo \"a_dep content\" > $@",
+)
+
+mock_typescript_lib(
+    name = "ts_library",
+    srcs = [
+        "foo.d.ts",
+        "foo.js",
+    ],
+    data = ["data.json"],
 )
 
 npm_package(
@@ -16,7 +26,10 @@ npm_package(
     srcs = ["some_file"],
     packages = [":dependent_pkg"],
     replacements = {"replace_me": "replaced"},
-    deps = [":produces_files"],
+    deps = [
+        ":produces_files",
+        ":ts_library",
+    ],
 )
 
 jasmine_node_test(

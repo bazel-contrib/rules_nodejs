@@ -21,4 +21,10 @@ describe('npm_package srcs', () => {
   it('copies files from other packages', () => {
     expect(read('dependent_file')).toEqual('dependent_file content');
   });
+  it('copies declaration files from ts_library', () => {
+    expect(read('foo.d.ts')).toEqual('export const a: string;');
+  });
+  it('copies data dependencies', () => {
+    expect(read('data.json')).toEqual('[]');
+  });
 });
