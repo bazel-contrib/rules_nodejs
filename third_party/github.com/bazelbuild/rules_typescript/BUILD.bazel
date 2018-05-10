@@ -49,7 +49,6 @@ skylark_doc(
         "//internal:ts_config.bzl",
         "//internal/devserver:ts_devserver.bzl",
         "//internal/karma:ts_web_test.bzl",
-        "//internal/karma:ts_web_test_suite.bzl",
         "//internal/protobufjs:ts_proto_library.bzl",
     ],
     format = "html",
