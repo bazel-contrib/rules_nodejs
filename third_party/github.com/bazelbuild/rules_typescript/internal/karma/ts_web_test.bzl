@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"Unit testing in Chrome"
+"Unit testing in with Karma"
 
 load("@build_bazel_rules_nodejs//internal:node.bzl",
     "sources_aspect",
@@ -20,8 +20,6 @@ load("@build_bazel_rules_nodejs//internal:node.bzl",
 load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "write_amd_names_shim")
 
 _CONF_TMPL = "//internal/karma:karma.conf.js"
-# TODO(alexeagle): users will need some control over browser; needs design
-_BROWSER = "Chrome"
 
 def _ts_web_test_impl(ctx):
   conf = ctx.actions.declare_file(
@@ -81,8 +79,6 @@ def _ts_web_test_impl(ctx):
           "TMPL_bootstrap_files": "\n".join(["      '%s'," % e for e in bootstrap_entries]),
           "TMPL_user_files": "\n".join(["      '%s'," % e for e in user_entries]),
           "TMPL_workspace_name": ctx.workspace_name,
-          "TMPL_browser": _BROWSER,
-          "TMPL_headlessbrowser": "%sHeadless" % _BROWSER,
       })
 
   karma_executable_path = ctx.executable._karma.short_path
@@ -121,6 +117,7 @@ $KARMA ${{ARGV[@]}}
 """.format(TMPL_karma = karma_executable_path,
            TMPL_conf = conf.short_path))
   return [DefaultInfo(
+      files = depset([ctx.outputs.executable]),
       runfiles = ctx.runfiles(
           files = ctx.files.srcs + ctx.files.deps + ctx.files.bootstrap + [
               conf, amd_names_shim
@@ -130,11 +127,13 @@ $KARMA ${{ARGV[@]}}
           collect_data = True,
           collect_default = True,
       ),
+      executable = ctx.outputs.executable,
   )]
 
 ts_web_test = rule(
     implementation = _ts_web_test_impl,
     test = True,
+    executable = True,
     attrs = {
         "srcs": attr.label_list(
             doc = "JavaScript source files",
@@ -166,7 +165,7 @@ ts_web_test = rule(
 )
 """Runs unit tests in a browser.
 
-When executed under `bazel test`, this uses a headless Chrome browser for speed.
+When executed under `bazel test`, this uses a headless browser for speed.
 This is also because `bazel test` allows multiple targets to be tested together,
 and we don't want to open a Chrome window on your machine for each one. Also,
 under `bazel test` the test will execute and immediately terminate.
@@ -206,7 +205,7 @@ def ts_web_test_macro(tags = [], data = [], **kwargs):
           # Users don't need to know that this tag is required to run under ibazel
           "ibazel_notify_changes",
           # Always attach this label to allow filtering, eg. envs w/ no browser
-          "browser:%s" % _BROWSER,
+          "browser:chromium-system",
       ],
       # Our binary dependency must be in data[] for collect_data to pick it up
       # FIXME: maybe we can just ask the attr._karma for its runfiles attr

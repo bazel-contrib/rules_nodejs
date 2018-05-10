@@ -6,7 +6,7 @@
         ],
         "parameters": {
             "configure": ["$BAZEL run @yarn//:yarn"],
-            "test_tag_filters": ["-browser:Chrome"]
+            "test_tag_filters": ["-browser:chromium-local"]
         }
     },
     {

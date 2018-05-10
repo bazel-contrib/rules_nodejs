@@ -4,11 +4,27 @@ const path = require('path');
 const fs = require('fs');
 const tmp = require('tmp');
 
-// When karma is configured to use Chrome it will look for a CHROME_BIN
-// environment variable. This line points Karma to use puppeteer instead.
-// See
-// https://github.com/karma-runner/karma-chrome-launcher/blob/master/README.md#headless-chromium-with-puppeteer
-process.env.CHROME_BIN = require('puppeteer').executablePath();
+const browsers = [];
+if (process.env['WEB_TEST_METADATA']) {
+  const webTestMetadata = require(process.env['WEB_TEST_METADATA']);
+  const webTestNamedFiles = webTestMetadata['webTestFiles'][0]['namedFiles'];
+  if (webTestNamedFiles['CHROMIUM']) {
+    // When karma is configured to use Chrome it will look for a CHROME_BIN
+    // environment variable.
+    process.env.CHROME_BIN = path.join("external", webTestNamedFiles['CHROMIUM']);
+    browsers.push(process.env['DISPLAY'] ? 'Chrome': 'ChromeHeadless');
+  }
+  if (webTestNamedFiles['FIREFOX']) {
+    // When karma is configured to use Firefox it will look for a FIREFOX_BIN
+    // environment variable.
+    process.env.FIREFOX_BIN = path.join("external", webTestNamedFiles['FIREFOX']);
+    browsers.push(process.env['DISPLAY'] ? 'Firefox': 'FirefoxHeadless');
+  }
+}
+if (!browsers.length) {
+  console.warn('No browsers configured. Configuring Karma to use system Chrome.');
+  browsers.push(process.env['DISPLAY'] ? 'Chrome': 'ChromeHeadless');
+}
 
 let files = [
   TMPL_bootstrap_files
@@ -70,7 +86,7 @@ module.exports = function(config) {
   }
 
   config.set({
-    plugins: ['karma-*', 'karma-concat-js', 'karma-sourcemap-loader'],
+    plugins: ['karma-*', 'karma-concat-js', 'karma-sourcemap-loader', 'karma-chrome-launcher', 'karma-firefox-launcher'],
     preprocessors: {
       '**/*.js': ['sourcemap']
     },
@@ -100,7 +116,7 @@ module.exports = function(config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: [process.env['DISPLAY'] ? 'TMPL_browser': 'TMPL_headlessbrowser'],
+    browsers: browsers,
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits

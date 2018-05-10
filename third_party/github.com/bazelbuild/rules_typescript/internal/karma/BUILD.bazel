@@ -5,6 +5,7 @@ exports_files([
     "karma.conf.js",
     # Exported to be consumed for generating skydoc.
     "ts_web_test.bzl",
+    "ts_web_test_suite.bzl",
 ])
 
 load("@build_bazel_rules_typescript//:defs.bzl", "ts_library")
