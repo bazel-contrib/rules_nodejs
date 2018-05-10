@@ -321,6 +321,13 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
                 relativeFileName) {
           return this.bazelOpts.moduleName;
         }
+        // Support the common case of commonjs convention that index is the
+        // default module in a directory.
+        // This makes our module naming scheme more conventional and lets users
+        // refer to modules with the natural name they're used to.
+        if (relativeFileName === 'index') {
+          return this.bazelOpts.moduleName;
+        }
         return path.posix.join(this.bazelOpts.moduleName, relativeFileName);
       }
     }
