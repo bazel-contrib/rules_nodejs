@@ -126,7 +126,8 @@ def create_tsconfig(ctx, files, srcs,
       "tsickleExternsPath": tsickle_externs.path if tsickle_externs else "",
       "untyped": not getattr(ctx.attr, "tsickle_typed", False),
       "typeBlackListPaths": [f.path for f in type_blacklisted_declarations],
-
+      # This is overridden by first-party javascript/typescript/tsconfig.bzl
+      "ignoreWarningPaths": [],
       "es5Mode": devmode_manifest != None,
       "manifest": devmode_manifest if devmode_manifest else "",
       # Explicitly tell the compiler which sources we're interested in (emitting
@@ -139,6 +140,7 @@ def create_tsconfig(ctx, files, srcs,
 
   if disable_strict_deps:
     bazel_options["disableStrictDeps"] = disable_strict_deps
+    bazel_options["allowedStrictDeps"] = []
   else:
     bazel_options["allowedStrictDeps"] = [f.path for f in allowed_deps]
 
