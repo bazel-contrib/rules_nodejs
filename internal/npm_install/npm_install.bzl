@@ -22,17 +22,7 @@ See discussion in the README.
 """
 
 load("//internal/node:node_labels.bzl", "get_node_label", "get_npm_label", "get_yarn_label")
-
-def _get_host(repository_ctx):
-  os_name = repository_ctx.os.name.lower()
-  if os_name.startswith("mac os"):
-    return 'darwin_amd64'
-  elif os_name.find("windows") != -1:
-    return 'windows_amd64'
-  elif os_name.startswith('linux'):
-    return "linux_amd64"
-  else:
-    fail("Unsupported operating system: " + os_name)
+load("//internal/common:get_host.bzl", "get_host")
 
 def _create_build_file(repository_ctx):
   repository_ctx.file("BUILD", """
@@ -68,7 +58,7 @@ def _npm_install_impl(repository_ctx):
 
   _create_build_file(repository_ctx)
 
-  is_windows = _get_host(repository_ctx).find("windows") != -1
+  is_windows = get_host(repository_ctx).find("windows") != -1
   node = get_node_label(repository_ctx)
   npm = get_npm_label(repository_ctx)
 
