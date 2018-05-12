@@ -2,7 +2,10 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test", "xjasmine_node
 
 jasmine_node_test(
     name = "test",
-    srcs = ["jasmine_node_test.spec.js", "rollup.spec.js"],
+    srcs = [
+        "jasmine_node_test.spec.js",
+        "rollup.spec.js",
+    ],
     node_modules = "//internal/test:node_modules",
 )
 
