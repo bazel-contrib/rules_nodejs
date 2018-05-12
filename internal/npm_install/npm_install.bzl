@@ -23,6 +23,17 @@ See discussion in the README.
 
 load("//internal/node:node_labels.bzl", "get_node_label", "get_npm_label", "get_yarn_label")
 
+def _get_host(repository_ctx):
+  os_name = repository_ctx.os.name.lower()
+  if os_name.startswith("mac os"):
+    return 'darwin_amd64'
+  elif os_name.find("windows") != -1:
+    return 'windows_amd64'
+  elif os_name.startswith('linux'):
+    return "linux_amd64"
+  else:
+    fail("Unsupported operating system: " + os_name)
+
 def _create_build_file(repository_ctx):
   repository_ctx.file("BUILD", """
 package(default_visibility = ["//visibility:public"])
@@ -57,6 +68,26 @@ def _npm_install_impl(repository_ctx):
 
   _create_build_file(repository_ctx)
 
+  is_windows = _get_host(repository_ctx).find("windows") != -1
+  node = get_node_label(repository_ctx)
+  npm = get_npm_label(repository_ctx)
+
+  # The entry points for npm install for osx/linux and windows
+  if not is_windows:
+    repository_ctx.file("npm", content="""#!/bin/bash
+(cd "{root}"; "{npm}" install)
+""".format(
+    root = repository_ctx.path(""),
+    npm = repository_ctx.path(npm)),
+    executable = True)
+  else:
+    repository_ctx.file("npm.cmd", content="""@echo off
+cd "{root}" && "{npm}" install
+""".format(
+    root = repository_ctx.path(""),
+    node = repository_ctx.path(npm)),
+    executable = True)
+
   # Put our package descriptors in the right place.
   repository_ctx.symlink(
       repository_ctx.attr.package_json,
@@ -68,12 +99,9 @@ def _npm_install_impl(repository_ctx):
 
   _add_data_dependencies(repository_ctx)
 
-  node = get_node_label(repository_ctx)
-  npm = get_npm_label(repository_ctx)
-
   # To see the output, pass: quiet=False
   result = repository_ctx.execute(
-    [repository_ctx.path(npm), "install", repository_ctx.path("")])
+    [repository_ctx.path("npm.cmd" if is_windows else "npm")])
 
   if not repository_ctx.attr.package_lock_json:
     print("\n***********WARNING***********\n%s: npm_install will require a package_lock_json attribute in future versions\n*****************************" % repository_ctx.name)
