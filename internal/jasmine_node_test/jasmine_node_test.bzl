@@ -17,22 +17,10 @@
 These rules let you run tests outside of a browser. This is typically faster
 than launching a test in Karma, for example.
 """
-load("//internal/node:node.bzl", "nodejs_test")
+load("//internal/node:node.bzl", "nodejs_test", "nodejs_binary")
 load("//internal/common:devmode_js_sources.bzl", "devmode_js_sources")
 
-def jasmine_node_test(name, srcs = [], data = [], deps = [], **kwargs):
-  """Runs tests in NodeJS using the Jasmine test runner.
-
-  To debug the test, see debugging notes in `nodejs_test`.
-
-  Args:
-    name: name of the resulting label
-    srcs: JavaScript source files containing Jasmine specs
-    data: Runtime dependencies which will be loaded while the test executes
-    deps: Other targets which produce JavaScript, such as ts_library
-    **kwargs: remaining arguments are passed to nodejs_test
-  """
-
+def _jasmine_node_test(name, srcs = [], data = [], deps = [], nodejs_rule = nodejs_test, **kwargs):
   devmode_js_sources(
       name = "%s_devmode_srcs" % name,
       deps = srcs + deps,
@@ -44,7 +32,7 @@ def jasmine_node_test(name, srcs = [], data = [], deps = [], **kwargs):
   all_data += [":%s_devmode_srcs.MF" % name]
   entry_point = "build_bazel_rules_nodejs/internal/jasmine_node_test/jasmine_runner.js"
 
-  nodejs_test(
+  nodejs_rule(
       name = name,
       data = all_data,
       entry_point = entry_point,
@@ -52,3 +40,63 @@ def jasmine_node_test(name, srcs = [], data = [], deps = [], **kwargs):
       testonly = 1,
       **kwargs
   )
+
+def jasmine_node_test(name, srcs = [], data = [], deps = [], **kwargs):
+  """Runs tests in NodeJS using the Jasmine test runner and expects it to fail.
+
+  To debug the test, see debugging notes in `nodejs_test`.
+
+  Args:
+    name: name of the resulting label
+    srcs: JavaScript source files containing Jasmine specs
+    data: Runtime dependencies which will be loaded while the test executes
+    deps: Other targets which produce JavaScript, such as ts_library
+    **kwargs: remaining arguments are passed to the test rule
+  """
+  _jasmine_node_test(name = name, srcs = srcs, data = data, deps = deps, nodejs_rule = nodejs_test, **kwargs)
+
+def _xjasmine_node_test(
+  name,
+  size = None,
+  timeout = None,
+  shard_count = None,
+  visibility = None,
+  **kwargs):
+  if 'flaky' in kwargs:
+    fail('not supported for xfail_tests', 'flaky')
+  if 'args' in kwargs:
+    fail('not yet implemented for xfail_tests', 'args')
+  if 'shard_count' in kwargs:
+    fail('not yet implemented for xfail_tests', 'shard_count')
+
+  _jasmine_node_test(
+    name = "%s__wrapped" % name,
+    visibility = ["//visibility:private"],
+    nodejs_rule = nodejs_binary,
+    **kwargs
+  )
+
+  native.sh_test(
+    name = name,
+    visibility = visibility,
+    size = size,
+    timeout = timeout,
+    shard_count = shard_count,
+    srcs = ["//internal/jasmine_node_test:xtest.sh"],
+    data = [":%s__wrapped" % name],
+    args = ['$(location :%s__wrapped)' % name],
+  )
+
+def xjasmine_node_test(name, srcs = [], data = [], deps = [], **kwargs):
+  """Runs tests in NodeJS using the Jasmine test runner and expects it to fail.
+
+  To debug the test, see debugging notes in `nodejs_test`.
+
+  Args:
+    name: name of the resulting label
+    srcs: JavaScript source files containing Jasmine specs
+    data: Runtime dependencies which will be loaded while the test executes
+    deps: Other targets which produce JavaScript, such as ts_library
+    **kwargs: remaining arguments are passed to the test rule
+  """
+  _xjasmine_node_test(name = name, srcs = srcs, data = data, deps = deps, **kwargs)
