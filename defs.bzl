@@ -18,7 +18,6 @@ Users should not load files under "/internal"
 """
 
 load("//internal/common:check_bazel_version.bzl", _check_bazel_version = "check_bazel_version")
-load("//internal/common:get_host.bzl", _get_host = "get_host")
 load("//internal/node:node.bzl",
      _nodejs_binary = "nodejs_binary_macro",
      _nodejs_test = "nodejs_test_macro")
