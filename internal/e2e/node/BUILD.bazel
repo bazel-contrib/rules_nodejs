@@ -1,4 +1,5 @@
-load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test", "xjasmine_node_test")
+load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
+load("//internal/jasmine_node_test:jasmine_node_test.bzl", "xjasmine_node_test")
 
 jasmine_node_test(
     name = "test",

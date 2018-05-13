@@ -12,12 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Get the host for a repository rule
-
-Returns a string describing the host for a repository rule
+"""Helper function for repository rules
 """
 
 def get_host(repository_ctx):
+  """Get the host for a repository rule
+
+  Returns a string describing the host for a repository rule
+  """
   os_name = repository_ctx.os.name.lower()
   if os_name.startswith("mac os"):
     return 'darwin_amd64'
