@@ -22,6 +22,14 @@ Rollup: running with
   moduleMappings: ${JSON.stringify(moduleMappings)}
 `);
 
+function fileExists(filePath) {
+  try {
+    return fs.statSync(filePath).isFile();
+  } catch (e) {
+    return false;
+  }
+}
+
 // This resolver mimics the TypeScript Path Mapping feature, which lets us resolve
 // modules based on a mapping of short names to paths.
 function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = require.resolve, root = rootDir) {
@@ -34,6 +42,11 @@ function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = req
     } catch (e) {
       return undefined;
     }
+  }
+
+  // If import is fully qualified then resolve it directly
+  if (fileExists(importee)) {
+    return importee;
   }
 
   // process.cwd() is the execroot and ends up looking something like
@@ -100,6 +113,10 @@ if (banner_file) {
   }
 }
 
+function notResolved(importee, importer) {
+  throw new Error(`Could not resolve import '${importee}' from '${importer}'`);
+}
+
 module.exports = {
   resolveBazel,
   banner,
@@ -120,6 +137,7 @@ module.exports = {
       module: true,
       customResolveOptions: {moduleDirectory: 'TMPL_node_modules_path'}
     }),
+    {resolveId: notResolved},
     sourcemaps(),
   ])
 }
