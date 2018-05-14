@@ -22,7 +22,8 @@ _DEBUG = False
 def create_tsconfig(ctx, files, srcs,
                     devmode_manifest=None, tsickle_externs=None, type_blacklisted_declarations=[],
                     out_dir=None, disable_strict_deps=False, allowed_deps=depset(),
-                    extra_root_dirs=[], module_path_prefixes=None, module_roots=None):
+                    extra_root_dirs=[], module_path_prefixes=None, module_roots=None,
+                    skip_goog_scheme_deps_checking=False):
   """Creates an object representing the TypeScript configuration to run the compiler under Bazel.
 
   Args:
@@ -39,6 +40,7 @@ def create_tsconfig(ctx, files, srcs,
     extra_root_dirs: Extra root dirs to be passed to tsc_wrapped.
     module_path_prefixes: additional locations to resolve modules
     module_roots: standard locations to resolve modules
+    skip_goog_scheme_deps_checking: whether imports from 'goog:*' should be strict deps checked
 
   Returns:
     A nested dict that corresponds to a tsconfig.json structure
@@ -136,6 +138,7 @@ def create_tsconfig(ctx, files, srcs,
       "addDtsClutzAliases": getattr(ctx.attr, "add_dts_clutz_aliases", False),
       "typeCheckDependencies": getattr(ctx.attr, "internal_testing_type_check_dependencies", False),
       "expectedDiagnostics": getattr(ctx.attr, "expected_diagnostics", []),
+      "skipGoogSchemeDepsChecking": skip_goog_scheme_deps_checking,
   }
 
   if disable_strict_deps:
