@@ -12,6 +12,6 @@ jasmine_node_test(
 jasmine_node_test(
     name = "fail_test",
     srcs = ["jasmine_node_fail_test.spec.js"],
-    node_modules = "//internal/test:node_modules",
     expected_exit_code = 3,
+    node_modules = "//internal/test:node_modules",
 )
