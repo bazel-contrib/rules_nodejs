@@ -34,6 +34,9 @@ def _write_loader_script(ctx):
         escaped = mn.replace("/", r"\/").replace(".", r"\.")
         mapping = r"{module_name: /^%s\b/, module_root: '%s'}" % (escaped, mr)
         module_mappings.append(mapping)
+  location_targets = [ctx.attr.node_modules] + (
+      ctx.attr.data if hasattr(ctx.attr, "data") else []
+  )
   ctx.template_action(
       template=ctx.file._loader_template,
       output=ctx.outputs.loader,
@@ -41,7 +44,7 @@ def _write_loader_script(ctx):
           "TEMPLATED_module_roots": "\n  " + ",\n  ".join(module_mappings),
           "TEMPLATED_bootstrap": "\n  " + ",\n  ".join(
               ["\"" + d + "\"" for d in ctx.attr.bootstrap]),
-          "TEMPLATED_entry_point": ctx.attr.entry_point,
+          "TEMPLATED_entry_point": ctx.expand_location(ctx.attr.entry_point, location_targets),
           "TEMPLATED_label_package": ctx.attr.node_modules.label.package,
           # There are two workspaces in general:
           # A) The user's workspace is the one where the bazel command is run
@@ -239,7 +242,7 @@ The runtime will pause before executing the program, allowing you to connect a
 remote debugger.
 """
 
-def nodejs_binary_macro(name, args=[], visibility=None, tags=[], **kwargs):
+def nodejs_binary_macro(name, args=[], entry_point=None, data=[], entry_module=None, visibility=None, tags=[], **kwargs):
   """This macro exists only to wrap the nodejs_binary as an .exe for Windows.
 
   This is exposed in the public API at `//:defs.bzl` as `nodejs_binary`, so most
@@ -252,8 +255,15 @@ def nodejs_binary_macro(name, args=[], visibility=None, tags=[], **kwargs):
     tags: applied to the wrapper binary
     **kwargs: passed to the nodejs_binary
   """
+  if entry_module:
+    entry_point = "$(rootpath %s)" % entry_module
+    all_data = data + [entry_module]
+  else:
+    all_data = data
   nodejs_binary(
       name = "%s_bin" % name,
+      entry_point = entry_point,
+      data = all_data,
       **kwargs
   )
 

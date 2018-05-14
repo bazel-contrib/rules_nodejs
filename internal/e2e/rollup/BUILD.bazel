@@ -18,7 +18,7 @@ rollup_bundle(
         "bar.js",
         "foo.js",
     ],
-    entry_point = "internal/e2e/rollup/foo.js",
+    entry_point = "$(rootpath foo.js)",
     globals = {"some_global_var": "runtime_name_of_global_var"},
     license_banner = ":license.txt",
     node_modules = ":node_modules",

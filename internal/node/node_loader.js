@@ -221,7 +221,12 @@ module.constructor._resolveFilename =
   var failedResolutions = [];
   var resolveLocations = [
     request,
-    resolveRunfiles(request),
+    // See https://github.com/bazelbuild/rules_nodejs/issues/84 for discussion of paths
+    // The request should have either external/other_wksp/path/to/thing
+    // or just path/to/thing with the implied local workspace
+    // This matches Bazel semantics for cwd of toolchain processes
+    // and helpers like ctx.expand_location("$(rootpath foo)")
+    resolveRunfiles('TEMPLATED_user_workspace_name', request),
     resolveRunfiles(
         'TEMPLATED_user_workspace_name', 'TEMPLATED_label_package', 'node_modules', request),
   ];

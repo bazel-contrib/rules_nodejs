@@ -276,7 +276,8 @@ nodejs_binary(
         "@//:node_modules",
         "main.js",
     ],
-    entry_point = "workspace_name/main.js",
+    # the rootpath function looks up the runtime location of the script
+    entry_point = "$(rootpath main.js)",
     args = ["--node_options=--expose-gc"],
 )
 ```

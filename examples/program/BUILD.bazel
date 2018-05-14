@@ -1,4 +1,18 @@
-load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
+# Copyright 2017 The Bazel Authors. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test", "nodejs_binary")
 load("@build_bazel_rules_nodejs//:internal/common/typescript_mock_lib.bzl", "mock_typescript_lib")
 
 # Make the jasmine library available at runtime by exposing our node_modules
@@ -13,16 +27,24 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
+# Mock out the ts_library rule from rules_typescript
+# We want to test that TypeScript outputs can be used in nodejs rules, but
+# don't want a cyclical dependency between this repository and rules_typescript.
 mock_typescript_lib(
     name = "mock_ts_lib",
     srcs = ["decrement.js"],
 )
 
-# This is like a "js_library", but there are no actions to run on JS files so a
-# filegroup is semantically equivalent.
-filegroup(
+# This binary wraps up our program in a way that can be `bazel run`, and also
+# produces a .exe file on windows.
+nodejs_binary(
     name = "program",
-    srcs = ["index.js"],
+    # The script we'll ask node to run
+    # Note, the label given here must exactly match an entry in "data"
+    # so that the script is a runtime dependency.
+    entry_point = "$(rootpath index.js)",
+    # Runtime dependencies (in this case, the script doesn't require any other deps)
+    data = ["index.js"],
 )
 
 jasmine_node_test(

@@ -119,7 +119,7 @@ function main(args) {
   }
 
   const npmTemplate =
-      fs.readFileSync(require.resolve('nodejs/run_npm.sh.template'), {encoding: 'utf-8'});
+      fs.readFileSync(require.resolve('external/nodejs/run_npm.sh.template'), {encoding: 'utf-8'});
   fs.writeFileSync(packPath, npmTemplate.replace('TMPL_args', `pack ${outDir}`));
   fs.writeFileSync(publishPath, npmTemplate.replace('TMPL_args', `publish ${outDir}`));
 }

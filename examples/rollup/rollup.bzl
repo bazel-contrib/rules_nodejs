@@ -19,7 +19,7 @@ other rules in this repo.
 """
 
 def _rollup(ctx):
-  args = ["--input", ctx.attr.entry_point]
+  args = ["--input", ctx.expand_location(ctx.attr.entry_point)]
   args += ["--output.file", ctx.outputs.bundle.path]
   args += ["--output.format", "es"]
 

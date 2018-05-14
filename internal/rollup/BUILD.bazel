@@ -27,21 +27,22 @@ exports_files([
 
 nodejs_binary(
     name = "rollup",
-    entry_point = "build_bazel_rules_nodejs_rollup_deps/node_modules/rollup/bin/rollup",
+    # should just be "rollup" see #205
+    entry_module = "@build_bazel_rules_nodejs_rollup_deps//:node_modules/rollup/bin/rollup",
     node_modules = "@build_bazel_rules_nodejs_rollup_deps//:node_modules",
     visibility = ["//visibility:public"],
 )
 
 nodejs_binary(
     name = "tsc",
-    entry_point = "build_bazel_rules_nodejs_rollup_deps/node_modules/typescript/bin/tsc",
+    entry_module = "@build_bazel_rules_nodejs_rollup_deps//:node_modules/typescript/bin/tsc",
     node_modules = "@build_bazel_rules_nodejs_rollup_deps//:node_modules",
     visibility = ["//visibility:public"],
 )
 
 nodejs_binary(
     name = "uglify",
-    entry_point = "build_bazel_rules_nodejs_rollup_deps/node_modules/uglify-es/bin/uglifyjs",
+    entry_module = "@build_bazel_rules_nodejs_rollup_deps//:node_modules/uglify-es/bin/uglifyjs",
     node_modules = "@build_bazel_rules_nodejs_rollup_deps//:node_modules",
     visibility = ["//visibility:public"],
 )

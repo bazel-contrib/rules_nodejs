@@ -108,7 +108,7 @@ def run_rollup(ctx, sources, config, output):
   args.add(["--config", config.path])
   args.add(["--output.file", output.path])
   args.add(["--output.sourcemap", "--output.sourcemapFile", map_output.path])
-  args.add(["--input", ctx.attr.entry_point])
+  args.add(["--input", ctx.expand_location(ctx.attr.entry_point)])
   # We will produce errors as needed. Anything else is spammy: a well-behaved
   # bazel rule prints nothing on success.
   args.add("--silent")

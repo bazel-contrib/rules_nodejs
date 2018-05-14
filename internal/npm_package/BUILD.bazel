@@ -9,7 +9,7 @@ nodejs_binary(
         "packager.js",
         "@nodejs//:run_npm.sh.template",
     ],
-    entry_point = "build_bazel_rules_nodejs/internal/npm_package/packager.js",
+    entry_point = "$(rootpath packager.js)",
     node_modules = "@build_bazel_rules_nodejs_npm_install_deps//:node_modules",
     visibility = ["//visibility:public"],
 )
