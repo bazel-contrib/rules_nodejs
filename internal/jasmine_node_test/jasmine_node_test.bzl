@@ -39,12 +39,6 @@ def jasmine_node_test(
     expected_exit_code: The expected exit code for the test. Defaults to 0.
     **kwargs: remaining arguments are passed to the test rule
   """
-  if expected_exit_code != 0:
-    if 'flaky' in kwargs:
-      fail('not supported for non-zero exit codes', 'flaky')
-    if 'shard_count' in kwargs:
-      fail('not yet implemented for non-zero exit codes', 'shard_count')
-
   devmode_js_sources(
       name = "%s_devmode_srcs" % name,
       deps = srcs + deps,
