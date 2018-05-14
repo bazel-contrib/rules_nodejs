@@ -21,7 +21,6 @@ a `module_name` attribute can be `require`d by that name.
 """
 load("//internal/common:module_mappings.bzl", "module_mappings_runtime_aspect")
 load("//internal/common:sources_aspect.bzl", "sources_aspect")
-load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
 
 def _write_loader_script(ctx):
   # Generates the JavaScript snippet of module roots mappings, with each entry
@@ -34,9 +33,6 @@ def _write_loader_script(ctx):
         escaped = mn.replace("/", r"\/").replace(".", r"\.")
         mapping = r"{module_name: /^%s\b/, module_root: '%s'}" % (escaped, mr)
         module_mappings.append(mapping)
-  location_targets = [ctx.attr.node_modules] + (
-      ctx.attr.data if hasattr(ctx.attr, "data") else []
-  )
   ctx.template_action(
       template=ctx.file._loader_template,
       output=ctx.outputs.loader,
@@ -44,7 +40,7 @@ def _write_loader_script(ctx):
           "TEMPLATED_module_roots": "\n  " + ",\n  ".join(module_mappings),
           "TEMPLATED_bootstrap": "\n  " + ",\n  ".join(
               ["\"" + d + "\"" for d in ctx.attr.bootstrap]),
-          "TEMPLATED_entry_point": ctx.expand_location(ctx.attr.entry_point, location_targets),
+          "TEMPLATED_entry_point": ctx.expand_location(ctx.attr.entry_point, ctx.attr.data if hasattr(ctx.attr, "data") else []),
           "TEMPLATED_label_package": ctx.attr.node_modules.label.package,
           # There are two workspaces in general:
           # A) The user's workspace is the one where the bazel command is run
@@ -108,7 +104,7 @@ def _nodejs_binary_impl(ctx):
     substitutions = {
         "TEMPLATED_node": ctx.workspace_name + "/" + node.path,
         "TEMPLATED_args": " ".join([
-            expand_location_into_runfiles(ctx, a)
+            ctx.expand_location(a, ctx.attr.data if hasattr(ctx.attr, "data") else [])
             for a in ctx.attr.templated_args]),
         "TEMPLATED_repository_args": ctx.workspace_name + "/" + ctx.file._repository_args.path,
         "TEMPLATED_script_path": script_path,

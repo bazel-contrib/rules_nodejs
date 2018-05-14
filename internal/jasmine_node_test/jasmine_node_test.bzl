@@ -49,7 +49,7 @@ def jasmine_node_test(name, srcs = [], data = [], deps = [], **kwargs):
       name = name,
       data = all_data,
       entry_point = "$(rootpath %s)" % runner_js,
-      templated_args = ["$(location :%s_devmode_srcs.MF)" % name],
+      templated_args = ["$(rootpath :%s_devmode_srcs.MF)" % name],
       testonly = 1,
       **kwargs
   )

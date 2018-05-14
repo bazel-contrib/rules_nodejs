@@ -26,7 +26,6 @@ Outputs a manifest file with the sources listed.
 """
 
 load(":sources_aspect.bzl", "sources_aspect")
-load(":expand_into_runfiles.bzl", "expand_path_into_runfiles")
 
 def _devmode_js_sources_impl(ctx):
   files = depset()
@@ -38,7 +37,7 @@ def _devmode_js_sources_impl(ctx):
       files = depset(transitive=[files, d.files])
 
   ctx.actions.write(ctx.outputs.manifest, "".join([
-    expand_path_into_runfiles(ctx, f.path) + "\n" for f in files
+    ctx.expand_location(f.path) + "\n" for f in files
   ]))
   return [DefaultInfo(files = files)]
 
