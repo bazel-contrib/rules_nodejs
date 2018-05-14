@@ -16,13 +16,13 @@
 """
 
 def os_name(repository_ctx):
-  """Get the host for a repository rule
+  """Get the os name for a repository rule
 
   Args:
     repository_ctx: The repository rule context
 
   Returns:
-    A string describing the host for a repository rule
+    A string describing the os for a repository rule
   """
   os_name = repository_ctx.os.name.lower()
   if os_name.startswith("mac os"):
