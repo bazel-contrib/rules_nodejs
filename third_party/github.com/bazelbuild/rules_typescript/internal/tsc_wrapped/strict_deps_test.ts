@@ -67,7 +67,7 @@ describe('strict deps', () => {
       '/src/p/sd1.ts': 'import {a} from "somepkg";',
     });
     const diags = checkModuleDeps(
-        p.getSourceFile('p/sd1.ts')!, p.getTypeChecker(), [], '/src',
+        p.getSourceFile('p/sd1.ts')!, p.getTypeChecker(), [], '/src', false,
         ['/src/node_modules']);
     expect(diags.length).toBe(0, diags);
   });
@@ -83,7 +83,7 @@ describe('strict deps', () => {
     });
     const diags = checkModuleDeps(
         p.getSourceFile('p/sd3.ts')!, p.getTypeChecker(), ['/src/p/sd2.ts'],
-        '/src');
+        '/src', false);
     expect(diags.length).toBe(1);
     expect(diags[0].messageText)
         .toMatch(/transitive dependency on p\/sd1.ts not allowed/);
@@ -98,7 +98,7 @@ describe('strict deps', () => {
     });
     const diags = checkModuleDeps(
         p.getSourceFile('p/sd3.ts')!, p.getTypeChecker(), ['/src/p/sd2.ts'],
-        '/src');
+        '/src', false);
     expect(diags.length).toBe(1);
     expect(diags[0].messageText)
         .toMatch(/transitive dependency on p\/sd1.ts not allowed/);
@@ -115,7 +115,7 @@ describe('strict deps', () => {
     });
     const diags = checkModuleDeps(
         p.getSourceFile('/src/p/sd3.ts')!, p.getTypeChecker(),
-        ['/src/blaze-bin/p/sd2.ts'], '/src');
+        ['/src/blaze-bin/p/sd2.ts'], '/src', false);
     expect(diags.length).toBe(1);
     expect(diags[0].messageText)
         .toMatch(/dependency on blaze-bin\/p\/sd1.ts not allowed/);
@@ -132,9 +132,21 @@ describe('strict deps', () => {
     });
     const diags = checkModuleDeps(
         p.getSourceFile('/src/p/sd3.ts')!, p.getTypeChecker(),
-        ['/src/blaze-bin/p/sd2.d.ts'], '/src');
+        ['/src/blaze-bin/p/sd2.d.ts'], '/src', false);
     expect(diags.length).toBe(1);
     expect(diags[0].messageText)
         .toMatch(/dependency on blaze-bin\/p\/sd1.d.ts not allowed/);
+  });
+
+  it('skips failures on goog: schema deep imports when flag is set', () => {
+    const p = createProgram({
+      '/src/blaze-bin/p/clutz.d.ts':
+          `declare module 'goog:x' { export let x:string; }`,
+      '/src/p/prog.ts': `import {x} from 'goog:x';`
+    });
+    const diags = checkModuleDeps(
+        p.getSourceFile('/src/p/prog.ts')!, p.getTypeChecker(), [], '/src',
+        true);
+    expect(diags.length).toBe(0);
   });
 });
