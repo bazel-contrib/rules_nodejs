@@ -17,7 +17,7 @@
 These rules let you run tests outside of a browser. This is typically faster
 than launching a test in Karma, for example.
 """
-load("//internal/node:node.bzl", "nodejs_test", "nodejs_binary")
+load("//internal/node:node.bzl", "nodejs_test")
 load("//internal/common:devmode_js_sources.bzl", "devmode_js_sources")
 
 def jasmine_node_test(
@@ -27,7 +27,7 @@ def jasmine_node_test(
   deps = [],
   expected_exit_code = 0,
   **kwargs):
-  """Runs tests in NodeJS using the Jasmine test runner and expects it to fail.
+  """Runs tests in NodeJS using the Jasmine test runner.
 
   To debug the test, see debugging notes in `nodejs_test`.
 
