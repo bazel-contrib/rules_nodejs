@@ -15,7 +15,7 @@
 """Helper function for repository rules
 """
 
-def get_host(repository_ctx):
+def os_name(repository_ctx):
   """Get the host for a repository rule
 
   Args:

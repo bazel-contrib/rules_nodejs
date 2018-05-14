@@ -20,7 +20,7 @@ See https://docs.bazel.build/versions/master/skylark/repository_rules.html
 
 load(":node_labels.bzl", "get_yarn_label")
 load("//internal/common:check_bazel_version.bzl", "check_bazel_version")
-load("//internal/common:get_host.bzl", "get_host")
+load("//internal/common:os_name.bzl", "os_name")
 load("//internal/npm_install:npm_install.bzl", "yarn_install")
 
 # Callers that don't specify a particular version will get these.
@@ -87,7 +87,7 @@ def _download_node(repository_ctx):
   if repository_ctx.attr.node_path != "":
     return
 
-  host = get_host(repository_ctx)
+  host = os_name(repository_ctx)
   node_version = repository_ctx.attr.node_version
   node_repositories = repository_ctx.attr.node_repositories
   node_urls = repository_ctx.attr.node_urls
@@ -144,7 +144,7 @@ def _prepare_node(repository_ctx):
   Args:
     repository_ctx: The repository rule context
   """
-  is_windows = get_host(repository_ctx).find("windows") != -1
+  is_windows = os_name(repository_ctx).find("windows") != -1
   node_path = repository_ctx.path("node") if repository_ctx.attr.node_path == "" else repository_ctx.attr.node_path
   yarn_path = repository_ctx.path("yarn") if repository_ctx.attr.yarn_path == "" else repository_ctx.attr.yarn_path
   node_exec = "{}/bin/node".format(node_path) if not is_windows else  "{}/node.exe".format(node_path)

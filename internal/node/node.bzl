@@ -102,6 +102,10 @@ def _nodejs_binary_impl(ctx):
     for k in ctx.var.keys():
       env_vars += "export %s=\"%s\"\n" % (k, ctx.var[k])
 
+    expected_exit_code = 0
+    if hasattr(ctx.attr, 'expected_exit_code'):
+      expected_exit_code = ctx.attr.expected_exit_code
+
     substitutions = {
         "TEMPLATED_node": ctx.workspace_name + "/" + node.path,
         "TEMPLATED_args": " ".join([
@@ -110,6 +114,7 @@ def _nodejs_binary_impl(ctx):
         "TEMPLATED_repository_args": ctx.workspace_name + "/" + ctx.file._repository_args.path,
         "TEMPLATED_script_path": script_path,
         "TEMPLATED_env_vars": env_vars,
+        "TEMPLATED_expected_exit_code": str(expected_exit_code),
     }
     # Write the output twice.
     # In order to have the name "nodejs_test", the rule must be declared
@@ -211,7 +216,11 @@ Runs some JavaScript code in NodeJS.
 
 nodejs_test = rule(
     implementation = _nodejs_binary_impl,
-    attrs = _NODEJS_EXECUTABLE_ATTRS,
+    attrs = dict(_NODEJS_EXECUTABLE_ATTRS, **{
+      "expected_exit_code": attr.int(
+        doc = "The expected exit code for the test. Defaults to 0.",
+        default = 0)
+    }),
     test = True,
     outputs = _NODEJS_EXECUTABLE_OUTPUTS,
 )
