@@ -140,7 +140,7 @@ if [ "${EXPECTED_EXIT_CODE}" -ne "0" ]; then
     echo "Expected exit code to be ${EXPECTED_EXIT_CODE}, but got ${RESULT}" >&2
     # This exit code is handled specially by Bazel:
     # https://github.com/bazelbuild/bazel/blob/486206012a664ecb20bdb196a681efc9a9825049/src/main/java/com/google/devtools/build/lib/util/ExitCode.java#L44
-    BAZEL_EXIT_TESTS_FAILED = 3;
+    readonly BAZEL_EXIT_TESTS_FAILED = 3;
     exit ${BAZEL_EXIT_TESTS_FAILED}
   else
     exit 0
