@@ -30,11 +30,26 @@ const workerpb = (function loadWorkerPb() {
   const protoPath = 'build_bazel_rules_typescript/internal/worker_protocol.proto';
 
   // Use node module resolution so we can find the .proto file in any of the root dirs
-  const protoNamespace = protobufjs.loadProtoFile(require.resolve(protoPath));
-  if (!protoNamespace) {
-    throw new Error('Cannot find ' + path.resolve(protoPath));
+  const protofile = require.resolve(protoPath);
+
+  // Under Bazel, we use the version of TypeScript installed in the user's
+  // workspace This means we also use their version of protobuf.js. Handle both.
+  // v5 and v6 by checking which one is present.
+  if (protobufjs.loadProtoFile) {
+    // Protobuf.js v5
+    const protoNamespace = protobufjs.loadProtoFile(protofile);
+    if (!protoNamespace) {
+      throw new Error('Cannot find ' + path.resolve(protoPath));
+    }
+    return protoNamespace.build('blaze.worker');
+  } else {
+    // Protobuf.js v6
+    const protoNamespace = protobufjs.loadSync(protofile);
+    if (!protoNamespace) {
+      throw new Error('Cannot find ' + path.resolve(protoPath));
+    }
+    return protoNamespace.lookup('blaze.worker');
   }
-  return protoNamespace.build('blaze.worker');
 })();
 
 interface Input {
