@@ -24,7 +24,7 @@
         "protractor": "^5.2.0",
         "tsickle": "0.25.x",
         "tsutils": "2.20.0",
-        "typescript": "2.6.x"
+        "typescript": "2.7.x"
     },
     "scripts": {
         "pretest": "webdriver-manager update && bazel build examples/app:all",
