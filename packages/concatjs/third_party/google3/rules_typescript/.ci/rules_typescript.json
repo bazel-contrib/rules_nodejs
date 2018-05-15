@@ -14,7 +14,8 @@
             {"node": "darwin-x86_64"}
         ],
         "parameters": {
-            "configure": ["$BAZEL run @yarn//:yarn"]
+            "configure": ["$BAZEL run @yarn//:yarn"],
+            "test_tag_filters": ["-browser:chromium-local"]
         }
     }
 ]

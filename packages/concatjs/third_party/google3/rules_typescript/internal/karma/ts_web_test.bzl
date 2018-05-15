@@ -18,6 +18,8 @@ load("@build_bazel_rules_nodejs//internal:node.bzl",
     "expand_path_into_runfiles",
 )
 load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "write_amd_names_shim")
+load("@io_bazel_rules_webtesting//web:web.bzl", "web_test_suite")
+load("@io_bazel_rules_webtesting//web/internal:constants.bzl", "DEFAULT_WRAPPED_TEST_TAGS")
 
 _CONF_TMPL = "//internal/karma:karma.conf.js"
 
@@ -211,9 +213,6 @@ def ts_web_test_macro(tags = [], data = [], **kwargs):
       # FIXME: maybe we can just ask the attr._karma for its runfiles attr
       data = data + ["@build_bazel_rules_typescript//internal/karma:karma_bin"],
       **kwargs)
-
-load("@io_bazel_rules_webtesting//web:web.bzl", "web_test_suite")
-load("@io_bazel_rules_webtesting//web/internal:constants.bzl", "DEFAULT_WRAPPED_TEST_TAGS")
 
 def ts_web_test_suite(
   name,

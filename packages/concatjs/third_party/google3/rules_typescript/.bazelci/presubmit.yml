@@ -26,8 +26,8 @@ platforms:
     build_targets:
     - "..."
     test_flags:
-    # TODO(gregmagolan): firefox unknown breakage on macos target here; does work locally on mac
-    - "--test_tag_filters=-browser:firefox-local"
+    # TODO(gregmagolan): chrome & firefox unknown breakage on macos target here; does work locally on mac
+    - "--test_tag_filters=-browser:chromium-local,-browser:firefox-local"
     test_targets:
     - "..."
   windows:

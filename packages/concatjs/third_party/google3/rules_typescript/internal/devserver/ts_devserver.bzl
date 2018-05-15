@@ -74,6 +74,9 @@ def _ts_devserver(ctx):
   serving_arg = ""
   if ctx.attr.serving_path:
     serving_arg = "-serving_path=%s" % ctx.attr.serving_path
+
+  packages = depset(["/".join([workspace_name, ctx.label.package])] + ctx.attr.additional_root_paths)
+
   # FIXME: more bash dependencies makes Windows support harder
   ctx.actions.write(
       output = ctx.outputs.executable,
@@ -82,7 +85,7 @@ def _ts_devserver(ctx):
 RUNFILES="$PWD/.."
 {main} {serving_arg} \
   -base "$RUNFILES" \
-  -packages={workspace}/{package} \
+  -packages={packages} \
   -manifest={workspace}/{manifest} \
   -scripts_manifest={workspace}/{scripts_manifest} \
   -entry_module={entry_module} \
@@ -91,7 +94,7 @@ RUNFILES="$PWD/.."
     main = ctx.executable._devserver.short_path,
     serving_arg = serving_arg,
     workspace = workspace_name,
-    package = ctx.label.package,
+    packages = ",".join(packages.to_list()),
     manifest = ctx.outputs.manifest.short_path,
     scripts_manifest = ctx.outputs.scripts_manifest.short_path,
     entry_module = ctx.attr.entry_module))
@@ -132,7 +135,11 @@ ts_devserver = rule(
             """),
         "bootstrap": attr.label_list(
             doc = "Scripts to include in the JS bundle before the module loader (require.js)",
-	    allow_files = [".js"]),
+            allow_files = [".js"]),
+        "additional_root_paths": attr.string_list(
+            doc = """Additional root paths to serve static_files from.
+            Paths should include the workspace name such as [\"__main__/resources\"]
+            """),
         "_requirejs_script": attr.label(allow_files = True, single_file = True, default = Label("@build_bazel_rules_typescript_devserver_deps//:node_modules/requirejs/require.js")),
         "_devserver": attr.label(
             default = Label("//internal/devserver/main"),
