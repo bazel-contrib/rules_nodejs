@@ -20,7 +20,13 @@ than launching a test in Karma, for example.
 load("//internal/node:node.bzl", "nodejs_test")
 load("//internal/common:devmode_js_sources.bzl", "devmode_js_sources")
 
-def jasmine_node_test(name, srcs = [], data = [], deps = [], **kwargs):
+def jasmine_node_test(
+  name,
+  srcs = [],
+  data = [],
+  deps = [],
+  expected_exit_code = 0,
+  **kwargs):
   """Runs tests in NodeJS using the Jasmine test runner.
 
   To debug the test, see debugging notes in `nodejs_test`.
@@ -30,9 +36,9 @@ def jasmine_node_test(name, srcs = [], data = [], deps = [], **kwargs):
     srcs: JavaScript source files containing Jasmine specs
     data: Runtime dependencies which will be loaded while the test executes
     deps: Other targets which produce JavaScript, such as ts_library
-    **kwargs: remaining arguments are passed to nodejs_test
+    expected_exit_code: The expected exit code for the test. Defaults to 0.
+    **kwargs: remaining arguments are passed to the test rule
   """
-
   devmode_js_sources(
       name = "%s_devmode_srcs" % name,
       deps = srcs + deps,
@@ -50,5 +56,6 @@ def jasmine_node_test(name, srcs = [], data = [], deps = [], **kwargs):
       entry_point = entry_point,
       templated_args = ["$(location :%s_devmode_srcs.MF)" % name],
       testonly = 1,
+      expected_exit_code = expected_exit_code,
       **kwargs
   )

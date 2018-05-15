@@ -2,6 +2,16 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
 
 jasmine_node_test(
     name = "test",
-    srcs = glob(["*.spec.js"]),
+    srcs = [
+        "jasmine_node_test.spec.js",
+        "rollup.spec.js",
+    ],
+    node_modules = "//internal/test:node_modules",
+)
+
+jasmine_node_test(
+    name = "fail_test",
+    srcs = ["jasmine_node_fail_test.spec.js"],
+    expected_exit_code = 3,
     node_modules = "//internal/test:node_modules",
 )
