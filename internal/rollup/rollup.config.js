@@ -4,6 +4,7 @@
 const rollup = require('rollup');
 const nodeResolve = require('rollup-plugin-node-resolve');
 const sourcemaps = require('rollup-plugin-sourcemaps');
+const isBuiltinModule = require('is-builtin-module');
 const path = require('path');
 const fs = require('fs');
 
@@ -114,6 +115,9 @@ if (banner_file) {
 }
 
 function notResolved(importee, importer) {
+  if (isBuiltinModule(importee)) {
+    return null;
+  }
   throw new Error(`Could not resolve import '${importee}' from '${importer}'`);
 }
 
