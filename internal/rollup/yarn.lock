@@ -53,6 +53,10 @@ builtin-modules@^1.1.0:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/builtin-modules/-/builtin-modules-1.1.1.tgz#270f076c5a72c02f5b65a47df94c5fe3a278892f"
 
+builtin-modules@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/builtin-modules/-/builtin-modules-2.0.0.tgz#60b7ef5ae6546bd7deefa74b08b62a43a232648e"
+
 commander@~2.13.0:
   version "2.13.0"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.13.0.tgz#6964bca67685df7c1f1430c584f07d7597885b9c"
@@ -161,6 +165,12 @@ inherits@2:
 is-buffer@^1.1.5:
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/is-buffer/-/is-buffer-1.1.6.tgz#efaa2ea9daa0d7ab2ea13a97b2b8ad51fefbe8be"
+
+is-builtin-module@2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/is-builtin-module/-/is-builtin-module-2.0.0.tgz#431104b3b4ba838ec7a17d82bb3bccd2233e8cd9"
+  dependencies:
+    builtin-modules "^2.0.0"
 
 is-dotfile@^1.0.0:
   version "1.0.3"

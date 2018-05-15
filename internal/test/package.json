@@ -1,6 +1,7 @@
 {
   "description": "runtime dependencies for tests",
   "devDependencies": {
+    "is-builtin-module": "^2.0.0",
     "jasmine": "~2.8.0",
     "node_resolve_index": "file:./node_resolve_index",
     "node_resolve_index_2": "file:./node_resolve_index_2",
