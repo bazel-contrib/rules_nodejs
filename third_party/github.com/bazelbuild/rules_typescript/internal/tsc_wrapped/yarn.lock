@@ -198,9 +198,9 @@ tmp@0.0.33:
   dependencies:
     os-tmpdir "~1.0.2"
 
-tsickle@0.27.2:
-  version "0.27.2"
-  resolved "https://registry.yarnpkg.com/tsickle/-/tsickle-0.27.2.tgz#f33d46d046f73dd5c155a37922e422816e878736"
+tsickle@0.28.0:
+  version "0.28.0"
+  resolved "https://registry.yarnpkg.com/tsickle/-/tsickle-0.28.0.tgz#6cd6fa004766c6ad9261b599c83866ee97cc7875"
   dependencies:
     minimist "^1.2.0"
     mkdirp "^0.5.1"
@@ -217,9 +217,9 @@ tsutils@2.20.0:
   dependencies:
     tslib "^1.8.1"
 
-typescript@2.6.2:
-  version "2.6.2"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.6.2.tgz#3c5b6fd7f6de0914269027f03c0946758f7673a4"
+typescript@2.7.2:
+  version "2.7.2"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.7.2.tgz#2d615a1ef4aee4f574425cdff7026edf81919836"
 
 window-size@^0.1.4:
   version "0.1.4"
