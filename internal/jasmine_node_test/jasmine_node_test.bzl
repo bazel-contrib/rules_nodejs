@@ -48,6 +48,7 @@ def jasmine_node_test(
   all_data = data + srcs + deps
   all_data += [Label("//internal/jasmine_node_test:jasmine_runner.js")]
   all_data += [":%s_devmode_srcs.MF" % name]
+  all_data += [Label("@bazel_tools//tools/bash/runfiles")]
   entry_point = "build_bazel_rules_nodejs/internal/jasmine_node_test/jasmine_runner.js"
 
   nodejs_test(

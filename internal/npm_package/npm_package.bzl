@@ -47,7 +47,7 @@ def create_package(ctx, devmode_sources, nested_packages):
   if ctx.version_file:
     inputs.append(ctx.version_file)
 
-  ctx.action(
+  ctx.actions.run(
       executable = ctx.executable._packager,
       inputs = inputs,
       outputs = [package_dir, ctx.outputs.pack, ctx.outputs.publish],
