@@ -103,8 +103,6 @@ func CreateFileHandler(servingPath, manifest string, pkgs []string, base string)
 
 	fileHandler := http.FileServer(pkgPaths).ServeHTTP
 
-	// defaultIndex is not cached, so that a user's edits will be reflected.
-	defaultIndex := filepath.Join(base, pkgs[0], "index.html")
 	defaultPage := []byte(fmt.Sprintf(`<!doctype html>
 		<html>
 			<head>
@@ -119,9 +117,14 @@ func CreateFileHandler(servingPath, manifest string, pkgs []string, base string)
 	// indexHandler serves an index.html if present, or otherwise serves a minimal
 	// generated index.html with a script tag to include the bundled js source.
 	indexHandler := func(w http.ResponseWriter, r *http.Request) {
-		if _, err := os.Stat(defaultIndex); err == nil {
-			http.ServeFile(w, r, defaultIndex)
-			return
+		// search through pkgs for the first index.html file found if any exists
+		for _, pkg := range pkgs {
+			// defaultIndex is not cached, so that a user's edits will be reflected.
+			defaultIndex := filepath.Join(base, pkg, "index.html")
+			if _, err := os.Stat(defaultIndex); err == nil {
+				http.ServeFile(w, r, defaultIndex)
+				break
+			}
 		}
 		content := bytes.NewReader(defaultPage)
 		http.ServeContent(w, r, "index.html", time.Now(), content)
