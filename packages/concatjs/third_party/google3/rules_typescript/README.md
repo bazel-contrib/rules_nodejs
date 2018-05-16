@@ -196,3 +196,20 @@ In the meantime, we suggest associating the `.bazel` extension with Python in
 your editor, so that you get useful syntax highlighting.
 
 [gazelle]: https://github.com/bazelbuild/rules_go/tree/master/go/tools/gazelle
+
+### Releasing
+
+Start from a clean checkout at master/HEAD. Check if there are any breaking
+changes since the last tag - if so, this will be a minor, if not, it's a patch.
+(This may not sound like semver - but since our major version is a zero, the
+rule is that minors are breaking changes and patches are new features).
+
+```sh
+yarn skydoc
+git commit -a -m 'Update docs for release'
+npm config set tag-version-prefix ''
+npm version minor -m 'rel: %s' # Replace minor with patch if no breaking changes
+git push
+git push --tags
+npm publish
+```
