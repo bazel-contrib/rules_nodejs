@@ -79,7 +79,7 @@ def _write_loader_script(ctx):
   )
 
 def _nodejs_binary_impl(ctx):
-    node = ctx.file._node
+    node = ctx.file.node
     node_modules = ctx.files.node_modules
     sources = []
     for d in ctx.attr.data:
@@ -177,12 +177,13 @@ _NODEJS_EXECUTABLE_ATTRS = {
         # dependency on a package like @bazel/typescript.
         # See discussion: https://github.com/bazelbuild/rules_typescript/issues/13
         default = Label("@//:node_modules")),
-    "_node": attr.label(
+    "node": attr.label(
+        doc = """The node entry point target.""",
         default = Label("@nodejs//:node"),
         allow_files = True,
         single_file = True),
     "_repository_args": attr.label(
-        default = Label("@nodejs//:repository_bin/node_args.sh"),
+        default = Label("@nodejs//:bin/node_args.sh"),
         allow_files = True,
         single_file = True),
     "_launcher_template": attr.label(
