@@ -159,7 +159,9 @@ def _prepare_node(repository_ctx):
 package(default_visibility = ["//visibility:public"])
 exports_files([
   "run_npm.sh.template",
+  "node/bin/node",
   "bin/node",
+  "bin/node.js",
   "bin/node.cmd",
   "bin/node_args.sh",
   "bin/npm",
