@@ -19,21 +19,21 @@ Labels are different on windows and linux/OSX.
 
 def get_node_label(repository_ctx):
   if repository_ctx.os.name.lower().find("windows") != -1:
-    label = Label("@nodejs//:repository_bin/node.cmd")
+    label = Label("@nodejs//:bin/node.cmd")
   else:
-    label = Label("@nodejs//:repository_bin/node")
+    label = Label("@nodejs//:bin/node")
   return label
 
 def get_npm_label(repository_ctx):
   if repository_ctx.os.name.lower().find("windows") != -1:
-    label = Label("@nodejs//:repository_bin/npm.cmd")
+    label = Label("@nodejs//:bin/npm.cmd")
   else:
-    label = Label("@nodejs//:repository_bin/npm")
+    label = Label("@nodejs//:bin/npm")
   return label
 
 def get_yarn_label(repository_ctx):
   if repository_ctx.os.name.lower().find("windows") != -1:
-    label = Label("@nodejs//:repository_bin/yarn.cmd")
+    label = Label("@nodejs//:bin/yarn.cmd")
   else:
-    label = Label("@nodejs//:repository_bin/yarn")
+    label = Label("@nodejs//:bin/yarn")
   return label
