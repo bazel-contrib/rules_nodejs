@@ -293,6 +293,7 @@ def nodejs_test_macro(name, args=[], visibility=None, tags=[], **kwargs):
   nodejs_test(
       name = "%s_bin" % name,
       testonly = 1,
+      tags = ["manual"],
       **kwargs
   )
 
