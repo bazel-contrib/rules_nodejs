@@ -1,0 +1,9 @@
+{
+    "description": "runtime dependencies for js_library",
+    "devDependencies": {
+        "@babel/cli": "^7.0.0-beta.49",
+        "@babel/core": "^v7.0.0-beta.49",
+        "@babel/plugin-transform-modules-amd": "git://github.com/globegitter/babel-plugin-transform-modules-amd.git#036a1f356b4db1d164699005347e42c3c8b581b2",
+        "source-map-support": "^0.5.6"
+    }
+}

@@ -1,0 +1,14 @@
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+
+# package(default_visibility = ["//internal:__subpackages__"])
+# TODO(Markus): Remove public visibility
+package(default_visibility = ["//visibility:public"])
+
+
+exports_files(["babel.rc.js"])
+
+nodejs_binary(
+    name = "babel",
+    entry_point = "build_bazel_rules_nodejs_js_library_deps/node_modules/@babel/cli/bin/babel",
+    node_modules = "@build_bazel_rules_nodejs_js_library_deps//:node_modules",
+)
