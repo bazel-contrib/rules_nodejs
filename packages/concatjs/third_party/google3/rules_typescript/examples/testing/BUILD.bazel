@@ -7,8 +7,9 @@ ts_library(
 
 ts_library(
     name = "tests",
-    srcs = ["decrement.spec.ts"],
+    srcs = glob(["*.spec.ts"]),
     deps = [":lib"],
+    tsconfig = ":tsconfig.json",
     testonly = 1,
 )
 
@@ -16,6 +17,9 @@ ts_web_test_suite(
     name = "testing",
     deps = [
       ":tests",
+    ],
+    static_files = [
+      "static_script.js",
     ],
     browsers = [
       "@io_bazel_rules_webtesting//browsers:chromium-local",
