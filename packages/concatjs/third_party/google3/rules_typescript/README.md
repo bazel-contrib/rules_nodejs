@@ -4,7 +4,7 @@ Circle CI | Bazel CI
 :---: | :---:
 [![CircleCI](https://circleci.com/gh/bazelbuild/rules_typescript.svg?style=svg)](https://circleci.com/gh/bazelbuild/rules_typescript) | [![Build status](https://badge.buildkite.com/7f98e137cd86baa5a4040a7e750bef87ef5fd293092fdaf878.svg)](https://buildkite.com/bazel/typescript-rules-typescript-postsubmit)
 
-**WARNING: this is an early release with limited features. Breaking changes are likely. Not recommended for general use.**
+**WARNING: this is beta-quality software. Breaking changes are likely. Not recommended for production use without expert support.**
 
 The TypeScript rules integrate the TypeScript compiler with Bazel.
 
@@ -35,30 +35,23 @@ Next create a `WORKSPACE` file in your project root (or edit the existing one)
 containing:
 
 ```python
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
-
-git_repository(
+# TypeScript rules depend on running Node.js.
+http_archive(
     name = "build_bazel_rules_nodejs",
-    remote = "https://github.com/bazelbuild/rules_nodejs.git",
-    tag = "0.0.2", # check for the latest tag when you install
+    url = "https://github.com/bazelbuild/rules_nodejs/archive/0.8.0.zip",
+    strip_prefix = "rules_nodejs-0.8.0",
+    sha256 = "4e40dd49ae7668d245c3107645f2a138660fcfd975b9310b91eda13f0c973953",
 )
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
-
-node_repositories(package_json = ["//:package.json"])
-
-
-# Include @bazel/typescript in package.json#devDependencies
-local_repository(
-    name = "build_bazel_rules_typescript",
-    path = "node_modules/@bazel/typescript",
+# ts_web_test depends on the web testing rules to provision browsers.
+http_archive(
+    name = "io_bazel_rules_webtesting",
+    url = "https://github.com/bazelbuild/rules_webtesting/archive/cfcaaf98553fee8e7063b5f5c11fd1b77e43d683.zip",
+    strip_prefix = "rules_webtesting-cfcaaf98553fee8e7063b5f5c11fd1b77e43d683",
+    sha256 = "636c7a9ac2ca13a04d982c2f9c874876ecc90a7b9ccfe4188156122b26ada7b3",
 )
 
-load("@build_bazel_rules_typescript//:defs.bzl", "ts_setup_workspace")
-
-ts_setup_workspace()
-
-# ts_devserver needs the Go rules.
+# ts_devserver depends on the Go rules.
 # See https://github.com/bazelbuild/rules_go#setup for the latest version.
 http_archive(
     name = "io_bazel_rules_go",
@@ -66,10 +59,32 @@ http_archive(
     sha256 = "90bb270d0a92ed5c83558b2797346917c46547f6f7103e648941ecdb6b9d0e72",
 )
 
+# Include @bazel/typescript in package.json#devDependencies
+local_repository(
+    name = "build_bazel_rules_typescript",
+    path = "node_modules/@bazel/typescript",
+)
+
+load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
+
+# Point to the package.json file so Bazel can run the package manager for you.
+node_repositories(package_json = ["//:package.json"])
+
 load("@io_bazel_rules_go//go:def.bzl", "go_rules_dependencies", "go_register_toolchains")
 
 go_rules_dependencies()
 go_register_toolchains()
+
+load("@io_bazel_rules_webtesting//web:repositories.bzl", "browser_repositories", "web_test_repositories")
+
+web_test_repositories()
+browser_repositories(
+    chromium = True,
+)
+
+load("@build_bazel_rules_typescript//:defs.bzl", "ts_setup_workspace")
+
+ts_setup_workspace()
 ```
 
 We recommend using the Yarn package manager, because it has a built-in command
