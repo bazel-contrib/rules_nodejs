@@ -69,6 +69,10 @@ def _ts_web_test_impl(ctx):
       expand_path_into_runfiles(ctx, f.short_path)
       for f in files
   ]
+  static_files = [
+      expand_path_into_runfiles(ctx, f.short_path)
+      for f in ctx.files.static_files
+  ]
 
   # root-relative (runfiles) path to the directory containing karma.conf
   config_segments = len(conf.short_path.split("/"))
@@ -80,12 +84,22 @@ def _ts_web_test_impl(ctx):
           "TMPL_runfiles_path": "/".join([".."] * config_segments),
           "TMPL_bootstrap_files": "\n".join(["      '%s'," % e for e in bootstrap_entries]),
           "TMPL_user_files": "\n".join(["      '%s'," % e for e in user_entries]),
+          "TMPL_static_files": "\n".join(["      '%s'," % e for e in static_files]),
           "TMPL_workspace_name": ctx.workspace_name,
       })
 
   karma_executable_path = ctx.executable._karma.short_path
   if karma_executable_path.startswith('..'):
     karma_executable_path = "external" + karma_executable_path[2:]
+
+  karma_runfiles = [
+    conf,
+    amd_names_shim,
+  ]
+  karma_runfiles += ctx.files.srcs
+  karma_runfiles += ctx.files.deps
+  karma_runfiles += ctx.files.bootstrap
+  karma_runfiles += ctx.files.static_files
 
   ctx.actions.write(
       output = ctx.outputs.executable,
@@ -121,9 +135,7 @@ $KARMA ${{ARGV[@]}}
   return [DefaultInfo(
       files = depset([ctx.outputs.executable]),
       runfiles = ctx.runfiles(
-          files = ctx.files.srcs + ctx.files.deps + ctx.files.bootstrap + [
-              conf, amd_names_shim
-          ],
+          files = karma_runfiles,
           transitive_files = files,
           # Propagate karma_bin and its runfiles
           collect_data = True,
@@ -154,6 +166,9 @@ ts_web_test = rule(
         "data": attr.label_list(
             doc = "Runtime dependencies",
             cfg = "data"),
+        "static_files": attr.label_list(
+            doc = """Arbitrary files which to be served.""",
+            allow_files = True),
         "_karma": attr.label(
             default = Label("//internal/karma:karma_bin"),
             executable = True,
