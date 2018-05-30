@@ -1,0 +1,29 @@
+# These options are enabled when running on CI
+# We do this by copying this file to /etc/bazel.bazelrc at the start of the build.
+
+# Don't be spammy in the logs
+build --noshow_progress
+
+# Don't run manual tests
+test --test_tag_filters=-manual
+
+# Print all the options that apply to the build.
+# This helps us diagnose which options override others
+# (e.g. /etc/bazel.bazelrc vs. tools/bazel.rc)
+build --announce_rc
+
+# Enable experimental CircleCI bazel remote cache proxy
+build --experimental_remote_spawn_cache --remote_rest_cache=http://localhost:7643
+
+# Prevent unstable environment variables from tainting cache keys
+build --experimental_strict_action_env
+
+# Save downloaded repositories such as the go toolchain
+# This directory can then be included in the CircleCI cache
+# It should save time running the first build
+build --experimental_repository_cache=/home/circleci/bazel_repository_cache
+
+# Workaround https://github.com/bazelbuild/bazel/issues/3645
+# Bazel doesn't calculate the memory ceiling correctly when running under Docker.
+# Limit Bazel to consuming 3072M of RAM
+build --local_resources=3072,2.0,1.0

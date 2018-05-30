@@ -26,3 +26,18 @@ ts_web_test_suite(
       "@io_bazel_rules_webtesting//browsers:firefox-local",
     ],
 )
+
+ts_web_test_suite(
+    name = "testing_sauce",
+    deps = [
+      ":tests",
+    ],
+    browsers = [
+      "@io_bazel_rules_webtesting//browsers/sauce:chrome-win10",
+    ],
+    tags = [
+        "sauce",
+        # TODO(alexeagle): enable on CI once we have set the SAUCE env variables
+        "manual",
+    ],
+)
