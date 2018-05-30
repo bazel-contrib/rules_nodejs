@@ -35,6 +35,9 @@ filegroup(
         "node_modules/**/*.js",
         "node_modules/**/*.d.ts",
         "node_modules/**/*.json"
+    ] + [
+        # Needed because http-server has a bin with no .js extension
+        "node_modules/http-server/**",
     ]),
     visibility = ["//visibility:public"],
 )

@@ -8,7 +8,7 @@ browser.waitForAngularEnabled(false);
 // compiling the application as well as starting the server.
 const timeoutMs = 90 * 1000;
 
-describe('app', () => {
+describe('protocol_buffers', () => {
   beforeAll(() => {
     browser.get('');
     // Don't run any specs until we see a <div> on the page.
@@ -17,9 +17,9 @@ describe('app', () => {
         timeoutMs);
   }, timeoutMs);
 
-  it('should display: Hello, TypeScript', (done) => {
+  it('should display: Car from server: Porsche', (done) => {
     const div = element(by.css('div.ts1'));
-    div.getText().then(t => expect(t).toEqual(`Hello, TypeScript`));
+    div.getText().then(t => expect(t).toEqual(`Car from server: Porsche`));
     done();
   });
 });

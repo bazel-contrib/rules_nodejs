@@ -9,13 +9,22 @@
 
 ## IMPORTANT
 # If you change the `docker_image` version, also change the `cache_key` suffix
-var_1: &docker_image angular/ngcontainer:0.1.0
-var_2: &cache_key rules_typescript-{{ checksum "yarn.lock" }}-0.1.0
+var_1: &docker_image angular/ngcontainer:0.3.0
+var_2: &cache_key rules_typescript-{{ checksum "yarn.lock" }}-0.3.0
 var_3: &setup-bazel-remote-cache
   run:
     name: Start up bazel remote cache proxy
     command: ~/bazel-remote-proxy -backend circleci://
     background: true
+# Move node binaries out of the way to enforce that Bazel uses
+# only the hermetic ones it downloads
+var_4: &hide_node_and_yarn_local_binaries
+  run:
+    name: Move node, npm, and yarn binaries
+    command: |
+      sudo mv /usr/local/bin/node /usr/local/bin/node_
+      sudo mv /usr/local/bin/npm /usr/local/bin/npm_
+      sudo mv /usr/local/bin/yarn /usr/local/bin/yarn_
 
 # Settings common to each job
 anchor_1: &job_defaults
@@ -40,11 +49,12 @@ jobs:
       - run: .circleci/setup_cache.sh
       - run: sudo cp .circleci/bazel.rc /etc/bazel.bazelrc
       - *setup-bazel-remote-cache
+      - *hide_node_and_yarn_local_binaries
 
       - restore_cache:
           key: *cache_key
       - run: bazel info release
-      - run: bazel run @yarn//:yarn
+      - run: bazel run @nodejs//:yarn
       - run: bazel build ...
       - run: bazel test ...
 
@@ -58,11 +68,12 @@ jobs:
       - run: .circleci/setup_cache.sh
       - run: sudo cp .circleci/bazel.rc /etc/bazel.bazelrc
       - *setup-bazel-remote-cache
+      - *hide_node_and_yarn_local_binaries
 
       - restore_cache:
           key: *cache_key
       - run: bazel --bazelrc=/dev/null info release
-      - run: bazel --bazelrc=/dev/null run @yarn//:yarn
+      - run: bazel --bazelrc=/dev/null run @nodejs//:yarn
       - run: bazel --bazelrc=/dev/null build ...
       - run: bazel --bazelrc=/dev/null test ...
 
@@ -80,12 +91,13 @@ jobs:
       - run: .circleci/setup_cache.sh
       - run: sudo cp .circleci/bazel.rc /etc/bazel.bazelrc
       - *setup-bazel-remote-cache
+      - *hide_node_and_yarn_local_binaries
       - restore_cache:
           key: *cache_key
-      - run: bazel run @yarn//:yarn
+      - run: bazel run @nodejs//:yarn
       # Don't occupy the bazel server, as this test wants to run Bazel itself
-      - run: bazel run @yarn//:yarn test --script_path=yarn_test.sh
-      - run: xvfb-run -a ./yarn_test.sh
+      - run: bazel run @nodejs//:yarn e2e --script_path=yarn_e2e.sh
+      - run: xvfb-run -a ./yarn_e2e.sh
 
   lint:
     <<: *job_defaults

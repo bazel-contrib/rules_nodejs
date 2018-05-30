@@ -2,7 +2,7 @@
 platforms:
   ubuntu1404:
     run_targets:
-    - "@yarn//:yarn"
+    - "@nodejs//:yarn"
     build_targets:
     - "..."
     test_flags:
@@ -12,7 +12,7 @@ platforms:
     - "..."
   ubuntu1604:
     run_targets:
-    - "@yarn//:yarn"
+    - "@nodejs//:yarn"
     build_targets:
     - "..."
     test_flags:
@@ -22,7 +22,7 @@ platforms:
     - "..."
   macos:
     run_targets:
-    - "@yarn//:yarn"
+    - "@nodejs//:yarn"
     build_targets:
     - "..."
     test_flags:
@@ -32,7 +32,7 @@ platforms:
     - "..."
   windows:
     run_targets:
-    - "@yarn//:yarn"
+    - "@nodejs//:yarn"
     # TODO(alexeagle): expand to all targets when rules_go is fixed
     build_targets:
     - "//examples:all"
