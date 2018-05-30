@@ -92,7 +92,7 @@ to verify the integrity of your `node_modules` directory.
 You can run the version Bazel has already installed:
 
 ```sh
-$ bazel run @yarn//:yarn
+$ bazel run @nodejs//:yarn
 ```
 
 ## Usage

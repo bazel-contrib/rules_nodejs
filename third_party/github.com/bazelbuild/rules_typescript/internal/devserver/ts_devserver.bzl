@@ -84,11 +84,12 @@ def _ts_devserver(ctx):
       content = """#!/bin/sh
 RUNFILES="$PWD/.."
 {main} {serving_arg} \
-  -base "$RUNFILES" \
+  -base="$RUNFILES" \
   -packages={packages} \
   -manifest={workspace}/{manifest} \
   -scripts_manifest={workspace}/{scripts_manifest} \
   -entry_module={entry_module} \
+  -port={port} \
   "$@"
 """.format(
     main = ctx.executable._devserver.short_path,
@@ -97,7 +98,8 @@ RUNFILES="$PWD/.."
     packages = ",".join(packages.to_list()),
     manifest = ctx.outputs.manifest.short_path,
     scripts_manifest = ctx.outputs.scripts_manifest.short_path,
-    entry_module = ctx.attr.entry_module))
+    entry_module = ctx.attr.entry_module,
+    port = str(ctx.attr.port)))
   return [DefaultInfo(
       runfiles = ctx.runfiles(
           files = devserver_runfiles,
@@ -140,6 +142,9 @@ ts_devserver = rule(
             doc = """Additional root paths to serve static_files from.
             Paths should include the workspace name such as [\"__main__/resources\"]
             """),
+        "port": attr.int(
+            doc = """The port that the devserver will listen on.""",
+            default = 5432),
         "_requirejs_script": attr.label(allow_files = True, single_file = True, default = Label("@build_bazel_rules_typescript_devserver_deps//:node_modules/requirejs/require.js")),
         "_devserver": attr.label(
             default = Label("//internal/devserver/main"),

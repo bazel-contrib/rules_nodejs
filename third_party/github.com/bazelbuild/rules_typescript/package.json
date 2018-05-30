@@ -20,6 +20,7 @@
         "@types/tmp": "^0.0.33",
         "clang-format": "1.0.49",
         "concurrently": "^3.5.1",
+        "http-server": "^0.11.1",
         "protobufjs": "5.0.0",
         "protractor": "^5.2.0",
         "tsickle": "0.25.x",
@@ -27,8 +28,12 @@
         "typescript": "2.7.x"
     },
     "scripts": {
-        "pretest": "webdriver-manager update && bazel build examples/app:all",
-        "test": "concurrently \"bazel run examples/app:devserver\" protractor --kill-others --success first",
+        "pree2e": "webdriver-manager update $CHROMEDRIVER_VERSION_ARG && bazel build examples/app:e2e && bazel build examples/protocol_buffers:e2e",
+        "e2e": "yarn e2e-examples-app-devserver && yarn e2e-examples-app-prodserver && yarn e2e-examples-protobuf-devserver && yarn e2e-examples-protobuf-prodserver",
+        "e2e-examples-app-devserver": "concurrently \"bazel run examples/app:devserver\" \"while ! nc -z 127.0.0.1 8080; do sleep 1; done && protractor --suite app\" --kill-others --success first",
+        "e2e-examples-app-prodserver": "concurrently \"bazel run examples/app:prodserver\" \"while ! nc -z 127.0.0.1 8080; do sleep 1; done && protractor --suite app\" --kill-others --success first",
+        "e2e-examples-protobuf-devserver": "concurrently \"bazel run examples/protocol_buffers:devserver\" \"while ! nc -z 127.0.0.1 8080; do sleep 1; done && protractor --suite protocol_buffers\" --kill-others --success first",
+        "e2e-examples-protobuf-prodserver": "concurrently \"bazel run examples/protocol_buffers:prodserver\" \"while ! nc -z 127.0.0.1 8080; do sleep 1; done && protractor --suite protocol_buffers\" --kill-others --success first",
         "preskylint": "bazel build --noshow_progress @io_bazel//src/tools/skylark/java/com/google/devtools/skylark/skylint:Skylint",
         "skylint": "find . -type f -name \"*.bzl\" ! -path \"*/node_modules/*\" | xargs $(bazel info bazel-bin)/external/io_bazel/src/tools/skylark/java/com/google/devtools/skylark/skylint/Skylint",
         "skydoc": "bazel build //:docs && unzip -o -d docs/api bazel-bin/docs-skydoc.zip"
