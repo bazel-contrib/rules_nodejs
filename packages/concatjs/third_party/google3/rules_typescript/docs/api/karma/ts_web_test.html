@@ -280,7 +280,7 @@ This macro adds a couple for ibazel.</p>
 
           <h2 id="ts_web_test">ts_web_test</h2>
 
-          <pre>ts_web_test(<a href="#ts_web_test.name">name</a>, <a href="#ts_web_test.deps">deps</a>, <a href="#ts_web_test.data">data</a>, <a href="#ts_web_test.srcs">srcs</a>, <a href="#ts_web_test.bootstrap">bootstrap</a>)</pre>
+          <pre>ts_web_test(<a href="#ts_web_test.name">name</a>, <a href="#ts_web_test.deps">deps</a>, <a href="#ts_web_test.data">data</a>, <a href="#ts_web_test.srcs">srcs</a>, <a href="#ts_web_test.bootstrap">bootstrap</a>, <a href="#ts_web_test.static_files">static_files</a>)</pre>
 
           <p>Runs unit tests in a browser.</p>
 <p>When executed under <code>bazel test</code>, this uses a headless browser for speed.
@@ -341,6 +341,13 @@ detail. We might switch to another runner like Jest in the future.</p>
         <p>JavaScript files to include <em>before</em> the module loader (require.js).
             For example, you can include Reflect,js for TypeScript decorator metadata reflection,
             or UMD bundles for third-party libraries.</p>
+      </td>
+    </tr>
+    <tr id="ts_web_test.static_files">
+      <td><code>static_files</code></td>
+      <td>
+        <p><code>List of <a href="https://bazel.build/docs/build-ref.html#labels">labels</a>; Optional; Default is []</code></p>
+        <p>Arbitrary files which to be served.</p>
       </td>
     </tr>
   </tbody>
