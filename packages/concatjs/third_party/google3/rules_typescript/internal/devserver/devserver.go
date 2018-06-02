@@ -123,7 +123,7 @@ func CreateFileHandler(servingPath, manifest string, pkgs []string, base string)
 			defaultIndex := filepath.Join(base, pkg, "index.html")
 			if _, err := os.Stat(defaultIndex); err == nil {
 				http.ServeFile(w, r, defaultIndex)
-				break
+				return
 			}
 		}
 		content := bytes.NewReader(defaultPage)
