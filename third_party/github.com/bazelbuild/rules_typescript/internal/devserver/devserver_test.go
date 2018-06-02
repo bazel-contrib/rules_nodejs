@@ -61,6 +61,7 @@ func TestDevserverFileHandling(t *testing.T) {
 
 	handler := CreateFileHandler("/app.js", "manifest.MF", []string{"pkg1", "pkg2"},
 		filepath.Join(os.Getenv("TEST_TMPDIR"), "TestIndexServing"))
+	defaultPageContent := `<script src="/app.js">`
 
 	tests := []struct {
 		code    int
@@ -91,9 +92,9 @@ func TestDevserverFileHandling(t *testing.T) {
 		// generated index for root.
 		{http.StatusOK, "/", `<script src="/app.js">`, true},
 		// generated index as a response to not found handler.
-		{http.StatusNotFound, "/no/such/dir", `<script src="/app.js">`, true},
+		{http.StatusNotFound, "/no/such/dir", defaultPageContent, true},
 		// generated index file as a response to a directory that is found.
-		{http.StatusNotFound, "/pkg2/", `<script src="/app.js">`, true},
+		{http.StatusNotFound, "/pkg2/", defaultPageContent, true},
 	}
 
 	for _, tst := range tests {
@@ -106,6 +107,9 @@ func TestDevserverFileHandling(t *testing.T) {
 		}
 		if !strings.Contains(body, tst.content) {
 			t.Errorf("expected %q to contain %q, got %q", tst.url, tst.content, body)
+		}
+		if !tst.delIdx && strings.Contains(body, defaultPageContent) {
+			t.Errorf("got %q, default page shouldn't be part of response", body)
 		}
 	}
 }
