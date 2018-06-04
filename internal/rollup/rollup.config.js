@@ -21,6 +21,7 @@ if (DEBUG)
 Rollup: running with
   rootDir: ${rootDir}
   moduleMappings: ${JSON.stringify(moduleMappings)}
+  cwd: ${process.cwd()}
 `);
 
 function fileExists(filePath) {
@@ -36,7 +37,7 @@ function fileExists(filePath) {
 function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = require.resolve, root = rootDir) {
   function resolveInRootDir(importee) {
     var candidate = path.join(baseDir, root, importee);
-    if (DEBUG) console.error('Rollup: try to resolve at', candidate);
+    if (DEBUG) console.error(`Rollup: try to resolve '${importee}' at '${candidate}'`);
     try {
       var result = resolve(candidate);
       return result;
@@ -47,8 +48,11 @@ function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = req
 
   // If import is fully qualified then resolve it directly
   if (fileExists(importee)) {
+    if (DEBUG) console.error(`Rollup: resolved fully qualified '${importee}'`);
     return importee;
   }
+
+  if (DEBUG) console.error(`Rollup: resolving '${importee}'`);
 
   // process.cwd() is the execroot and ends up looking something like
   // /.../2c2a834fcea131eff2d962ffe20e1c87/bazel-sandbox/872535243457386053/execroot/<workspace_name>
@@ -83,8 +87,9 @@ function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = req
         // so it uses eg. "index.d.ts". At runtime, we have only index.js, so we strip the
         // .d.ts suffix and let node require.resolve do its thing.
         var v = moduleMappings[k].replace(/\.d\.ts$/, '');
-        importee = path.join(v, importee.slice(k.length + 1));
-        resolved = resolveInRootDir(importee);
+        const mappedImportee = path.join(v, importee.slice(k.length + 1));
+        if (DEBUG) console.error(`Rollup: module mapped '${importee}' to '${mappedImportee}'`);
+        resolved = resolveInRootDir(mappedImportee);
         if (resolved) break;
       }
     }
@@ -95,6 +100,9 @@ function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = req
     const userWorkspacePath = path.relative(workspaceName, importee);
     resolved = resolveInRootDir(userWorkspacePath.startsWith('..') ? importee : userWorkspacePath);
   }
+
+  if (DEBUG && !resolved)
+    console.error(`Rollup: allowing rollup to resolve '${importee}' with node module resolution`);
 
   return resolved;
 }
