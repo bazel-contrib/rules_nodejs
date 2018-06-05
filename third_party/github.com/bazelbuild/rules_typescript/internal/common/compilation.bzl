@@ -79,7 +79,7 @@ def _collect_dep_declarations(ctx):
     ctx: ctx.
 
   Returns:
-    A struct of depsets for direct, transitive, passthrough and type-blacklisted declarations.
+    A struct of depsets for direct, transitive and type-blacklisted declarations.
   """
   # .d.ts files from direct dependencies, ok for strict deps
   direct_deps_declarations = depset()
@@ -94,16 +94,12 @@ def _collect_dep_declarations(ctx):
       transitive_deps_declarations += dep.typescript.transitive_declarations
       type_blacklisted_declarations += dep.typescript.type_blacklisted_declarations
 
-  # .d.ts files that would be passed into the subsequent typescript compilations
-  # TODO(radokirov): Merge with transitive_deps_declarations after iclutz lands.
-  passthrough_declarations = depset(transitive=[transitive_deps_declarations])
   # If a tool like github.com/angular/clutz can create .d.ts from type annotated .js
   # its output will be collected here.
 
   return struct(
       direct=direct_deps_declarations,
       transitive=transitive_deps_declarations,
-      passthrough=passthrough_declarations,
       type_blacklisted=type_blacklisted_declarations
   )
 
@@ -305,7 +301,7 @@ def compile_ts(ctx,
 
   # TODO(martinprobst): Merge the generated .d.ts files, and enforce strict
   # deps (do not re-export transitive types from the transitive closure).
-  transitive_decls = dep_declarations.passthrough + src_declarations + gen_declarations
+  transitive_decls = dep_declarations.transitive + src_declarations + gen_declarations
 
   if is_library:
     es6_sources = depset(transpiled_closure_js + tsickle_externs)
