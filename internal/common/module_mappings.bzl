@@ -76,16 +76,30 @@ def get_module_mappings(label, attrs, srcs = [], workspace_name = None, mappings
     elif label.workspace_root:
       mr = "%s/%s" % (label.workspace_root, mr)
     if attrs.module_root and attrs.module_root != ".":
-      mr = "%s/%s" % (mr, attrs.module_root)
       if attrs.module_root.endswith(".ts"):
         if workspace_name:
-          mr = mr.replace(".d.ts", "")
+          # workspace_name is set only when doing module mapping for runtime.
+          # .d.ts module_root means we should be able to load in two ways:
+          #   module_name -> module_path/module_root.js
+          #   module_name/foo -> module_path/foo
+          # So we add two mappings. The one with the trailing slash is longer,
+          # so the loader should prefer it for any deep imports. The mapping
+          # without the trailing slash will be used only when importing from the
+          # bare module_name.
+          mappings[mn + "/"] = mr + "/"
+          mr = "%s/%s" % (mr, attrs.module_root.replace(".d.ts", ".js"))
+        else:
+          # This is the type-checking module mapping. Strip the trailing .d.ts
+          # as it doesn't belong in TypeScript's path mapping.
+          mr = "%s/%s" % (mr, attrs.module_root.replace(".d.ts", ""))
+
       # Validate that sources are underneath the module root.
       # module_roots ending in .ts are a special case, they are used to
       # restrict what's exported from a build rule, e.g. only exports from a
       # specific index.d.ts file. For those, not every source must be under the
       # given module root.
       else:
+        mr = "%s/%s" % (mr, attrs.module_root)
         for s in srcs:
           if not s.short_path.startswith(mr):
             fail(("all sources must be under module root: %s, but found: %s" %
