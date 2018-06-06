@@ -1,0 +1,11 @@
+package(default_visibility = ["//internal:__subpackages__"])
+
+load("//internal/js_library:js_library.bzl", "js_library")
+
+js_library(
+    name = "lib1",
+    srcs = glob(["**/*.js"]),
+    module_name = "lib1",
+    # Don't allow deep imports under here
+    module_root = "src/index.d.ts",
+)

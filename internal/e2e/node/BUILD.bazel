@@ -4,9 +4,10 @@ jasmine_node_test(
     name = "test",
     srcs = [
         "jasmine_node_test.spec.js",
-        "rollup.spec.js",
+        "module_resolution.spec.js",
     ],
     node_modules = "//internal/test:node_modules",
+    deps = ["//internal/e2e/node/lib1"],
 )
 
 jasmine_node_test(
