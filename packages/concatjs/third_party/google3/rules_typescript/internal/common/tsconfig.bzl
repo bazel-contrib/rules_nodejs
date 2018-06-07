@@ -211,7 +211,12 @@ def create_tsconfig(ctx, files, srcs,
       # Interpret JSX as React calls (until someone asks for something different)
       "jsx": "react",
 
+      # Print out full errors. By default TS truncates errors >100 chars. This can make it
+      # impossible to understand some errors.
+      "noErrorTruncation": True,
+      # Do not emit files if they had errors (avoid accidentally serving broken code).
       "noEmitOnError": False,
+      # Create .d.ts files as part of compilation.
       "declaration": True,
 
       # We don't support this compiler option (See github #32), so
