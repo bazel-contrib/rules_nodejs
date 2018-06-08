@@ -20,10 +20,12 @@ local_repository(
     name = "program_example",
     path = "examples/program",
 )
+
 local_repository(
     name = "packages_example",
     path = "examples/packages",
 )
+
 # Install a hermetic version of node.
 # After this is run, these labels will be available:
 # - NodeJS:
@@ -79,6 +81,7 @@ http_archive(
     strip_prefix = "rules_sass-0.0.3",
     sha256 = "8fa98e7b48a5837c286a1ea254b5a5c592fced819ee9fe4fdd759768d97be868",
 )
+
 load("@io_bazel_rules_sass//sass:sass.bzl", "sass_repositories")
 sass_repositories()
 
@@ -86,12 +89,15 @@ http_archive(
     name = "bazel_skylib",
     url = "https://github.com/bazelbuild/bazel-skylib/archive/0.3.1.zip",
     strip_prefix = "bazel-skylib-0.3.1",
+    sha256 = "95518adafc9a2b656667bbf517a952e54ce7f350779d0dd95133db4eb5c27fb1",
 )
 
 http_archive(
     name = "io_bazel_skydoc",
     url = "https://github.com/bazelbuild/skydoc/archive/0ef7695c9d70084946a3e99b89ad5a99ede79580.zip",
     strip_prefix = "skydoc-0ef7695c9d70084946a3e99b89ad5a99ede79580",
+    sha256 = "491f9e142b870b18a0ec8eb3d66636eeceabe5f0c73025706c86f91a1a2acb4d",
 )
+
 load("@io_bazel_skydoc//skylark:skylark.bzl", "skydoc_repositories")
 skydoc_repositories()
