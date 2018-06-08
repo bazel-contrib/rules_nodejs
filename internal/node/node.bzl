@@ -249,7 +249,7 @@ The runtime will pause before executing the program, allowing you to connect a
 remote debugger.
 """
 
-def nodejs_binary_macro(name, args=[], visibility=None, tags=[], **kwargs):
+def nodejs_binary_macro(name, args=[], visibility=None, tags=[], testonly=0, **kwargs):
   """This macro exists only to wrap the nodejs_binary as an .exe for Windows.
 
   This is exposed in the public API at `//:defs.bzl` as `nodejs_binary`, so most
@@ -260,10 +260,13 @@ def nodejs_binary_macro(name, args=[], visibility=None, tags=[], **kwargs):
     args: applied to the wrapper binary
     visibility: applied to the wrapper binary
     tags: applied to the wrapper binary
+    testonly: applied to nodejs_binary and wrapper binary
     **kwargs: passed to the nodejs_binary
   """
   nodejs_binary(
       name = "%s_bin" % name,
+      testonly = testonly,
+      visibility = ["//visibility:private"],
       **kwargs
   )
 
@@ -273,6 +276,7 @@ def nodejs_binary_macro(name, args=[], visibility=None, tags=[], **kwargs):
       tags = tags,
       srcs = [":%s_bin.sh" % name],
       data = [":%s_bin" % name],
+      testonly = testonly,
       visibility = visibility,
   )
 
