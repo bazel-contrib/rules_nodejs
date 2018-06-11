@@ -105,8 +105,7 @@ def _ts_web_test_impl(ctx):
       output = ctx.outputs.executable,
       is_executable = True,
       content = """#!/usr/bin/env bash
-MANIFEST="$TEST_SRCDIR/MANIFEST"
-if [ -e "$MANIFEST" ]; then
+if [ -e "$RUNFILE_MANIFEST_FILE" ]; then
   while read line; do
     declare -a PARTS=($line)
     if [ "${{PARTS[0]}}" == "build_bazel_rules_typescript/{TMPL_karma}" ]; then
@@ -114,7 +113,7 @@ if [ -e "$MANIFEST" ]; then
     elif [ "${{PARTS[0]}}" == "build_bazel_rules_typescript/{TMPL_conf}" ]; then
       readonly CONF=${{PARTS[1]}}
     fi
-  done < $MANIFEST
+  done < $RUNFILE_MANIFEST_FILE
 else
   readonly KARMA={TMPL_karma}
   readonly CONF={TMPL_conf}
