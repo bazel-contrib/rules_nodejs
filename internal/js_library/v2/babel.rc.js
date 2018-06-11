@@ -7,7 +7,7 @@ module.exports = {
   },
   "plugins": [
     // Note: For some reason this plugin can not be properly loaded from node_modules so have to load relatively
-    ["../../../external/build_bazel_rules_nodejs_js_library_deps/node_modules/@babel/plugin-transform-modules-amd", {
+    ["../../../../../external/build_bazel_rules_nodejs_js_library_deps/node_modules/@babel/plugin-transform-modules-amd", {
       "strict": true,
       "noInterop": true
     }]
