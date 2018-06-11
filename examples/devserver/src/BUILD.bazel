@@ -3,6 +3,8 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "rollup_bundle")
 load("@build_bazel_rules_typescript//:defs.bzl", "ts_devserver")
 
 js_library(
+  # FIXME: should be named differently?
+  # this produces an output whose path collides with an input
   name = "module",
   srcs = ["module.js"],
 )
@@ -28,6 +30,11 @@ ts_devserver(
 rollup_bundle(
     name = "bundle",
     entry_point = "src/test.js",
+    # srcs = [
+    #   "module.js",
+    #   "test.js",
+    #   "//src/dir:module.js",
+    # ],
     deps = [
       ":test",
     ],

@@ -3,5 +3,13 @@ load("@build_bazel_rules_nodejs//internal/js_library/v2:js_library.bzl", "js_lib
 js_library(
   name = "module",
   srcs = ["module.js"],
+  #node_modules = "@place_I_installed_from_npm//:node_modules",
   visibility = ["//src:__subpackages__"]
 )
+
+exports_files(
+  ["module.js"]
+)
+
+# -> devmode (babel)
+# -> production (filegroup)

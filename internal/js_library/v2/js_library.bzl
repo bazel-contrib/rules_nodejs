@@ -23,8 +23,19 @@ def _js_library(ctx):
     arguments = [args],
   )
 
+  transitive_es6_sources = depset(ctx.files.srcs,
+      transitive = [
+          dep.typescript.transitive_es6_sources
+          for dep in ctx.attr.deps
+          if hasattr(dep, "typescript")
+      ],
+  )
+
   # Return legacy providers as ts_devserver still uses legacy format
   return struct(
+    typescript = struct(
+      transitive_es6_sources = transitive_es6_sources,
+    ),
     legacy_info = struct(
       files = outputs,
     ),
