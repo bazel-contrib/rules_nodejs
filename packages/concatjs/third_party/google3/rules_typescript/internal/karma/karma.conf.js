@@ -66,19 +66,18 @@ if (!browsers.length) {
 
 // On Windows, runfiles will not be in the runfiles folder but inteaad
 // there is a MANIFEST file which maps the runfiles for the test
-// to their location on disk. Bazel provides a TEST_SRCDIR environment
-// variable which is set to the runfiles folder during test execution.
+// to their location on disk. Bazel provides a RUNFILE_MANIFEST_FILE environment
+// variable which is set the location of the MANIFEST file during test execution.
 // If a MANIFEST file is found, we remap the test files to their
 // location on disk using the MANIFEST file.
 let manifest = null;
-const manifestFile = path.join(process.env.TEST_SRCDIR || '', 'MANIFEST');
-if (fs.existsSync(manifestFile)) {
+if (process.env.RUNFILE_MANIFEST_FILE && fs.existsSync(process.env.RUNFILE_MANIFEST_FILE)) {
   // MANIFEST file contains the one runfile mapping per line seperated
   // a space. For example:
   // rxjs/operators.js /private/var/tmp/.../external/rxjs/operators.js
   // The file is parsed here into a map of for easy lookup
   manifest = {};
-  for (l of fs.readFileSync(manifestFile, 'utf8').split('\n')) {
+  for (l of fs.readFileSync(process.env.RUNFILE_MANIFEST_FILE, 'utf8').split('\n')) {
     const m = l.split(' ');
     manifest[m[0]] = m[1];
   }
