@@ -1,0 +1,5 @@
+{
+    "dependencies": {
+        "jsesc": "~1.2.0"
+      }
+}

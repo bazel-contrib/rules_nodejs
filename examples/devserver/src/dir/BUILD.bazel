@@ -1,0 +1,7 @@
+load("@build_bazel_rules_nodejs//internal/js_library/v2:js_library.bzl", "js_library")
+
+js_library(
+  name = "module",
+  srcs = ["module.js"],
+  visibility = ["//src:__subpackages__"]
+)

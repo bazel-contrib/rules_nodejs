@@ -123,9 +123,9 @@
   version "7.0.0-beta.49"
   resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.0.0-beta.49.tgz#944d0c5ba2812bb159edbd226743afd265179bdc"
 
-"@babel/plugin-transform-modules-amd@git://github.com/globegitter/babel-plugin-transform-modules-amd.git#036a1f356b4db1d164699005347e42c3c8b581b2":
+"@babel/plugin-transform-modules-amd@^v7.0.0-beta.49":
   version "7.0.0-beta.49"
-  resolved "git://github.com/globegitter/babel-plugin-transform-modules-amd.git#036a1f356b4db1d164699005347e42c3c8b581b2"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-transform-modules-amd/-/plugin-transform-modules-amd-7.0.0-beta.49.tgz#16d07480954b0415ea70f1ec3edbd0597bd3ddfe"
   dependencies:
     "@babel/helper-module-transforms" "7.0.0-beta.49"
     "@babel/helper-plugin-utils" "7.0.0-beta.49"

@@ -3,7 +3,7 @@
     "devDependencies": {
         "@babel/cli": "^7.0.0-beta.49",
         "@babel/core": "^v7.0.0-beta.49",
-        "@babel/plugin-transform-modules-amd": "git://github.com/globegitter/babel-plugin-transform-modules-amd.git#036a1f356b4db1d164699005347e42c3c8b581b2",
+        "@babel/plugin-transform-modules-amd": "^v7.0.0-beta.49",
         "source-map-support": "^0.5.6"
     }
 }

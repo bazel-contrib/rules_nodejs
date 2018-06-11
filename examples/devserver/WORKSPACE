@@ -1,0 +1,60 @@
+workspace(name = "devserver_example")
+
+local_repository(
+    name = "build_bazel_rules_nodejs",
+    path = "../..",
+)
+
+http_archive(
+    name = "io_bazel_rules_webtesting",
+    url = "https://github.com/bazelbuild/rules_webtesting/archive/v0.2.0.zip",
+    strip_prefix = "rules_webtesting-0.2.0",
+    sha256 = "cecc12f07e95740750a40d38e8b14b76fefa1551bef9332cb432d564d693723c",
+)
+
+http_archive(
+    name = "io_bazel_rules_go",
+    url = "https://github.com/bazelbuild/rules_go/releases/download/0.8.1/rules_go-0.8.1.tar.gz",
+    sha256 = "90bb270d0a92ed5c83558b2797346917c46547f6f7103e648941ecdb6b9d0e72",
+)
+
+http_archive(
+    name = "build_bazel_rules_typescript",
+    url = "https://github.com/bazelbuild/rules_typescript/archive/v0.14.0.zip",
+    strip_prefix = "rules_typescript-0.14.0",
+    sha256 = "90aa6e1996a14cedfbe64445d5dcf8bbaeec8292cbb177bc9002e77543bc731f",
+)
+
+load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
+
+# Install a hermetic version of node.
+# After this is run, these labels will be available:
+# - NodeJS:
+#   @nodejs//:node
+# - NPM:
+#   @nodejs//:npm
+# - The yarn package manager:
+#   @nodejs//:yarn
+node_repositories(package_json = ["//:package.json"], node_version = "8.11.1", yarn_version = "1.6.0")
+
+# Now the user must run either
+# bazel run @nodejs//:yarn
+# or
+# bazel run @nodejs//:npm
+
+load("@io_bazel_rules_go//go:def.bzl", "go_rules_dependencies", "go_register_toolchains")
+
+go_rules_dependencies()
+go_register_toolchains()
+
+load("@io_bazel_rules_webtesting//web:repositories.bzl", "browser_repositories", "web_test_repositories")
+
+web_test_repositories()
+browser_repositories(
+    chromium = True,
+)
+
+
+load("@build_bazel_rules_typescript//:defs.bzl", "ts_setup_workspace")
+
+ts_setup_workspace()

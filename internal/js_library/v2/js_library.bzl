@@ -6,20 +6,21 @@ load("@bazel_skylib//:lib.bzl", "paths")
 def _js_library(ctx):
 
   outputs = [ctx.actions.declare_file(src.basename) for src in ctx.files.srcs]
+  srcs = [src.path for src in ctx.files.srcs]
 
   out_dir = paths.join(ctx.bin_dir.path, paths.dirname(ctx.build_file_path))
   args = ctx.actions.args()
   args.add(["--out-dir", out_dir])
   args.add(["--config-file", "./" + ctx.file._babelrc.path])
-  args.add(paths.dirname(ctx.build_file_path))
+  args.add(srcs)
 
-  inputs = ctx.files.srcs + ctx.files.deps + ctx.files.node_modules + [ctx.file._babelrc] + ctx.files._babel_node_modules
+  inputs = ctx.files.srcs + ctx.files.node_modules + [ctx.file._babelrc] + ctx.files._babel_node_modules
 
   ctx.actions.run(
     executable = ctx.executable._babel,
     inputs = inputs,
     outputs = outputs,
-    arguments = [args]
+    arguments = [args],
   )
 
   # Return legacy providers as ts_devserver still uses legacy format

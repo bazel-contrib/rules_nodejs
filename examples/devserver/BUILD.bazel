@@ -1,0 +1,7 @@
+filegroup(
+    name = "node_modules",
+    srcs = glob([
+        "node_modules/**/*",
+    ]),
+    visibility = ["//:__subpackages__"],
+)
