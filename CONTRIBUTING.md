@@ -19,7 +19,9 @@ possibly guide you.
 
 ### Code reviews and other contributions.
 **All submissions, including submissions by project members, require review.**
-TODO(alexeagle): document how external contributions are handled.
+We use GitHub's code review system to suggest changes, then merge the changes
+to master when the PR is green and reviewed. The changes will then be in the
+next release.
 
 ### The small print
 Contributions made by corporations are covered by a different agreement than
