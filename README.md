@@ -375,5 +375,5 @@ Check if there are any breaking changes since the last tag - if so, this will be
 
 1. Re-generate the API docs: `yarn skydoc`
 1. `git commit -a -m 'Update docs for release'`
-1. `git tag -m 0.x.y`
+1. Write some brief release notes (manual for now): `git tag -a 0.x.y`
 1. `git push && git push --tags`
