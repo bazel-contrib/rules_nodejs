@@ -13,6 +13,7 @@
 # limitations under the License.
 
 workspace(name = "build_bazel_rules_nodejs")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 #
 # Download Bazel toolchain dependencies as needed by build actions
