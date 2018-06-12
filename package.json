@@ -4,8 +4,8 @@
         "husky": "^0.14.3"
     },
     "scripts": {
-        "prebuildifier": "bazel build @com_github_bazelbuild_buildtools//buildifier",
-        "buildifier": "find . -type f \\( -name BUILD -or -name BUILD.bazel \\) ! -path \"./node_modules/*\" | xargs $(bazel info bazel-bin)/external/com_github_bazelbuild_buildtools/buildifier/buildifier",
+        "prebuildifier": "bazel build --noshow_progress @com_github_bazelbuild_buildtools//buildifier",
+        "buildifier": "find . -type f \\( -name BUILD -or -name BUILD.bazel \\) ! -path \"*/node_modules/*\" | xargs $(bazel info bazel-bin)/external/com_github_bazelbuild_buildtools/buildifier/*/buildifier",
         "preskylint": "bazel build --noshow_progress @io_bazel//src/tools/skylark/java/com/google/devtools/skylark/skylint:Skylint",
         "skylint": "find . -type f -name \"*.bzl\" ! -path \"*/node_modules/*\" | xargs $(bazel info bazel-bin)/external/io_bazel/src/tools/skylark/java/com/google/devtools/skylark/skylint/Skylint",
         "format": "git-clang-format",

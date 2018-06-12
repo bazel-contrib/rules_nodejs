@@ -125,7 +125,7 @@ def run_rollup(ctx, sources, config, output):
   if ctx.version_file:
     inputs += [ctx.version_file]
 
-  ctx.action(
+  ctx.actions.run(
       executable = ctx.executable._rollup,
       inputs = inputs,
       outputs = [output, map_output],
@@ -140,7 +140,7 @@ def _run_tsc(ctx, input, output):
   args.add(input.path)
   args.add(["--outFile", output.path])
 
-  ctx.action(
+  ctx.actions.run(
       executable = ctx.executable._tsc,
       inputs = [input],
       outputs = [output],
@@ -205,7 +205,7 @@ def run_uglify(ctx, input, output, debug = False, comments = True, config_name =
   if debug:
     args.add("--beautify")
 
-  ctx.action(
+  ctx.actions.run(
       executable = ctx.executable._uglify,
       inputs = inputs,
       outputs = [output, map_output],
@@ -268,7 +268,7 @@ ROLLUP_ATTRS = {
         The contents of the file will be copied to the top of the resulting bundles.
         Note that you can replace a version placeholder in the license file, by using
         the special version `0.0.0-PLACEHOLDER`. See the section on stamping in the README.""",
-        allow_single_file = FileType([".txt"])),
+        allow_single_file = [".txt"]),
     "globals": attr.string_dict(
         doc = """A dict of symbols that reference external scripts.
         The keys are variable names that appear in the program,
