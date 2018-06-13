@@ -3,12 +3,12 @@ load("//:defs.bzl", "ts_library")
 package(default_visibility = ["//visibility:public"])
 
 genrule(
-    name = "foo_ts",
-    outs = ["foo.ts"],
-    cmd = "echo 'export const a = 1;' > $@",
+  name = "foo_ts",
+  outs = ["foo.ts"],
+  cmd = "echo 'export const a = 1;' > $@",
 )
 
 ts_library(
-    name = "generated_ts",
-    srcs = [":foo.ts"],
+  name = "generated_ts",
+  srcs = [":foo.ts"],
 )

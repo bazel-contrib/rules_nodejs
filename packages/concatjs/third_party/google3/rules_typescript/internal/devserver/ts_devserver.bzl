@@ -25,9 +25,9 @@ def _ts_devserver(ctx):
   files = depset()
   for d in ctx.attr.deps:
     if hasattr(d, "node_sources"):
-      files = depset(transitive=[files, d.node_sources])
+      files += d.node_sources
     elif hasattr(d, "files"):
-      files = depset(transitive=[files, d.files])
+      files += d.files
 
   if ctx.label.workspace_root:
     # We need the workspace_name for the target being visited.
@@ -48,7 +48,7 @@ def _ts_devserver(ctx):
 
   amd_names_shim = ctx.actions.declare_file(
       "_%s.amd_names_shim.js" % ctx.label.name,
-      sibling = ctx.outputs.script)
+      sibling = ctx.outputs.executable)
   write_amd_names_shim(ctx.actions, amd_names_shim, ctx.attr.bootstrap)
 
   # Requirejs is always needed so its included as the first script
@@ -79,7 +79,7 @@ def _ts_devserver(ctx):
 
   # FIXME: more bash dependencies makes Windows support harder
   ctx.actions.write(
-      output = ctx.outputs.script,
+      output = ctx.outputs.executable,
       is_executable = True,
       content = """#!/bin/sh
 RUNFILES="$PWD/.."
@@ -101,12 +101,11 @@ RUNFILES="$PWD/.."
     entry_module = ctx.attr.entry_module,
     port = str(ctx.attr.port)))
   return [DefaultInfo(
-      executable = ctx.outputs.script,
       runfiles = ctx.runfiles(
           files = devserver_runfiles,
           # We don't expect executable targets to depend on the devserver, but if they do,
           # they can see the JavaScript code.
-          transitive_files = depset(ctx.files.data, transitive=[files]),
+          transitive_files = depset(ctx.files.data) + files,
           collect_data = True,
           collect_default = True,
       )
@@ -154,7 +153,6 @@ ts_devserver = rule(
         ),
     },
     outputs = {
-        "script": "%{name}.sh",
         "manifest": "%{name}.MF",
         "scripts_manifest": "scripts_%{name}.MF",
     },
