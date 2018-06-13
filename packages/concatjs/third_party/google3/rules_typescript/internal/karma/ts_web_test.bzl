@@ -26,14 +26,14 @@ _CONF_TMPL = "//internal/karma:karma.conf.js"
 def _ts_web_test_impl(ctx):
   conf = ctx.actions.declare_file(
       "%s.conf.js" % ctx.label.name,
-      sibling=ctx.outputs.executable)
+      sibling=ctx.outputs.script)
 
   files = depset(ctx.files.srcs)
   for d in ctx.attr.deps:
     if hasattr(d, "node_sources"):
-      files += d.node_sources
+      files = depset(transitive=[files, d.node_sources])
     elif hasattr(d, "files"):
-      files += d.files
+      files = depset(transitive=[files, d.files])
 
   # The files in the bootstrap attribute come before the require.js support.
   # Note that due to frameworks = ['jasmine'], a few scripts will come before
@@ -49,7 +49,7 @@ def _ts_web_test_impl(ctx):
 
   amd_names_shim = ctx.actions.declare_file(
       "_%s.amd_names_shim.js" % ctx.label.name,
-      sibling = ctx.outputs.executable)
+      sibling = ctx.outputs.script)
   write_amd_names_shim(ctx.actions, amd_names_shim, ctx.attr.bootstrap)
 
   # Explicitly list the requirejs library files here, rather than use
@@ -102,7 +102,7 @@ def _ts_web_test_impl(ctx):
   karma_runfiles += ctx.files.static_files
 
   ctx.actions.write(
-      output = ctx.outputs.executable,
+      output = ctx.outputs.script,
       is_executable = True,
       content = """#!/usr/bin/env bash
 if [ -e "$RUNFILE_MANIFEST_FILE" ]; then
@@ -132,7 +132,7 @@ $KARMA ${{ARGV[@]}}
 """.format(TMPL_karma = karma_executable_path,
            TMPL_conf = conf.short_path))
   return [DefaultInfo(
-      files = depset([ctx.outputs.executable]),
+      files = depset([ctx.outputs.script]),
       runfiles = ctx.runfiles(
           files = karma_runfiles,
           transitive_files = files,
@@ -140,7 +140,7 @@ $KARMA ${{ARGV[@]}}
           collect_data = True,
           collect_default = True,
       ),
-      executable = ctx.outputs.executable,
+      executable = ctx.outputs.script,
   )]
 
 ts_web_test = rule(
@@ -177,6 +177,9 @@ ts_web_test = rule(
         "_conf_tmpl": attr.label(
             default = Label(_CONF_TMPL),
             allow_files = True, single_file = True),
+    },
+    outputs = {
+        "script": "%{name}.sh",
     },
 )
 """Runs unit tests in a browser.

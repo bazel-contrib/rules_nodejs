@@ -17,8 +17,7 @@
 TsConfigInfo = provider()
 
 def _ts_config_impl(ctx):
-  files = depset()
-  files += [ctx.file.src]
+  files = depset([ctx.file.src])
   return [DefaultInfo(files = files), TsConfigInfo(deps = ctx.files.deps)]
 
 ts_config = rule(

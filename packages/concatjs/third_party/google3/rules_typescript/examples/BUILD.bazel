@@ -24,8 +24,8 @@ ts_library(
 ts_library(
     name = "foo_ts_library",
     srcs = [
-        ":types",
         "foo.ts",
+        ":types",
     ],
     tsconfig = ":tsconfig.json",
     deps = ["//examples/generated_ts"],
@@ -37,7 +37,7 @@ ts_library(
     tsconfig = ":tsconfig.json",
     deps = [
         ":foo_ts_library",
-        "//examples/some_library:lib",
         "//examples/generated_ts",
+        "//examples/some_library:lib",
     ],
 )

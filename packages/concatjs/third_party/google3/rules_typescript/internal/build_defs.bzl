@@ -27,13 +27,13 @@ def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description 
     if output.basename.endswith(".externs.js"):
       externs_files.append(output)
     elif output.basename.endswith(".es5.MF"):
-      ctx.file_action(output, content="")
+      ctx.actions.write(output, content="")
     else:
       action_outputs.append(output)
 
   # TODO(plf): For now we mock creation of files other than {name}.js.
   for externs_file in externs_files:
-    ctx.file_action(output=externs_file, content="")
+    ctx.actions.write(output=externs_file, content="")
 
   # A ts_library that has only .d.ts inputs will have no outputs,
   # therefore there are no actions to execute
@@ -60,7 +60,7 @@ def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description 
     arguments.append(tsconfig_file.path)
     mnemonic = "tsc"
 
-  ctx.action(
+  ctx.actions.run(
       progress_message = "Compiling TypeScript (%s) %s" % (description, ctx.label),
       mnemonic = mnemonic,
       inputs = action_inputs,
