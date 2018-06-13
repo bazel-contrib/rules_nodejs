@@ -18,7 +18,6 @@
         "@types/node": "7.0.18",
         "@types/source-map": "^0.5.1",
         "@types/tmp": "^0.0.33",
-        "clang-format": "1.0.49",
         "concurrently": "^3.5.1",
         "http-server": "^0.11.1",
         "protobufjs": "5.0.0",
@@ -34,6 +33,8 @@
         "e2e-examples-app-prodserver": "concurrently \"bazel run examples/app:prodserver\" \"while ! nc -z 127.0.0.1 8080; do sleep 1; done && protractor --suite app\" --kill-others --success first",
         "e2e-examples-protobuf-devserver": "concurrently \"bazel run examples/protocol_buffers:devserver\" \"while ! nc -z 127.0.0.1 8080; do sleep 1; done && protractor --suite protocol_buffers\" --kill-others --success first",
         "e2e-examples-protobuf-prodserver": "concurrently \"bazel run examples/protocol_buffers:prodserver\" \"while ! nc -z 127.0.0.1 8080; do sleep 1; done && protractor --suite protocol_buffers\" --kill-others --success first",
+        "prebuildifier": "bazel build --noshow_progress @com_github_bazelbuild_buildtools//buildifier",
+        "buildifier": "find . -type f -name BUILD.bazel ! -path \"*/node_modules/*\" | xargs $(bazel info bazel-bin)/external/com_github_bazelbuild_buildtools/buildifier/*/buildifier",
         "preskylint": "bazel build --noshow_progress @io_bazel//src/tools/skylark/java/com/google/devtools/skylark/skylint:Skylint",
         "skylint": "find . -type f -name \"*.bzl\" ! -path \"*/node_modules/*\" | xargs $(bazel info bazel-bin)/external/io_bazel/src/tools/skylark/java/com/google/devtools/skylark/skylint/Skylint",
         "skydoc": "bazel build //:docs && unzip -o -d docs/api bazel-bin/docs-skydoc.zip"

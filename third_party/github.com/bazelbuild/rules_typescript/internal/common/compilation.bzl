@@ -90,9 +90,11 @@ def _collect_dep_declarations(ctx):
 
   for dep in ctx.attr.deps + getattr(ctx.attr, '_helpers', []):
     if hasattr(dep, "typescript"):
-      direct_deps_declarations += dep.typescript.declarations
-      transitive_deps_declarations += dep.typescript.transitive_declarations
-      type_blacklisted_declarations += dep.typescript.type_blacklisted_declarations
+      # The TypeScript provider sometimes gives list and sometimes depset,
+      # so we wrap these in an extra depset() constructor
+      direct_deps_declarations = depset(transitive=[direct_deps_declarations, depset(dep.typescript.declarations)])
+      transitive_deps_declarations = depset(transitive=[transitive_deps_declarations, depset(dep.typescript.transitive_declarations)])
+      type_blacklisted_declarations = depset(transitive=[type_blacklisted_declarations, depset(dep.typescript.type_blacklisted_declarations)])
 
   # If a tool like github.com/angular/clutz can create .d.ts from type annotated .js
   # its output will be collected here.
@@ -125,9 +127,9 @@ def _outputs(ctx, label):
     basename = "/".join(input_file.short_path.split("/")[trim:])
     dot = basename.rfind(".")
     basename = basename[:dot]
-    closure_js_files += [ctx.new_file(basename + ".closure.js")]
-    devmode_js_files += [ctx.new_file(basename + ".js")]
-    declaration_files += [ctx.new_file(basename + ".d.ts")]
+    closure_js_files += [ctx.actions.declare_file(basename + ".closure.js")]
+    devmode_js_files += [ctx.actions.declare_file(basename + ".js")]
+    declaration_files += [ctx.actions.declare_file(basename + ".d.ts")]
   return struct(
     closure_js = closure_js_files,
     devmode_js = devmode_js_files,
@@ -190,7 +192,7 @@ def compile_ts(ctx,
 
   if has_sources and ctx.attr.runtime != "nodejs":
     # Note: setting this variable controls whether tsickle is run at all.
-    tsickle_externs = [ctx.new_file(ctx.label.name + ".externs.js")]
+    tsickle_externs = [ctx.actions.declare_file(ctx.label.name + ".externs.js")]
 
   dep_declarations = _collect_dep_declarations(ctx)
   input_declarations = dep_declarations.transitive + src_declarations
@@ -217,11 +219,12 @@ def compile_ts(ctx,
   tsickle_externs_path = tsickle_externs[0] if tsickle_externs else None
 
   # Calculate allowed dependencies for strict deps enforcement.
-  allowed_deps = depset()
-  # A target's sources may depend on each other,
-  allowed_deps += srcs[:]
-  # or on a .d.ts from a direct dependency
-  allowed_deps += dep_declarations.direct
+  allowed_deps = depset(
+      # A target's sources may depend on each other,
+      srcs[:],
+      # or on a .d.ts from a direct dependency
+      transitive = [dep_declarations.direct],
+  )
 
   tsconfig_es6 = tsc_wrapped_tsconfig(
       ctx,
@@ -239,11 +242,11 @@ def compile_ts(ctx,
 
   node_profile_args = []
   if perf_trace and has_sources:
-    perf_trace_file = ctx.new_file(ctx.label.name + ".es6.trace")
+    perf_trace_file = ctx.actions.declare_file(ctx.label.name + ".es6.trace")
     tsconfig_es6["bazelOptions"]["perfTracePath"] = perf_trace_file.path
     outputs.append(perf_trace_file)
 
-    profile_file =  ctx.new_file(ctx.label.name + ".es6.v8.log")
+    profile_file =  ctx.actions.declare_file(ctx.label.name + ".es6.v8.log")
     node_profile_args = ["--prof",
                          # Without nologfile_per_isolate, v8 embeds an
                          # unpredictable hash code in the file name, which
@@ -252,9 +255,9 @@ def compile_ts(ctx,
                          "--logfile=" + profile_file.path]
     outputs.append(profile_file)
 
-    files += [perf_trace_file, profile_file]
+    files = depset(transitive=[files, [perf_trace_file, profile_file]])
 
-  ctx.file_action(output=ctx.outputs.tsconfig,
+  ctx.actions.write(output=ctx.outputs.tsconfig,
                   content=json_marshal(tsconfig_es6))
 
   # Parameters of this compiler invocation in case we need to replay this with different
@@ -266,8 +269,8 @@ def compile_ts(ctx,
     replay_params = compile_action(ctx, inputs, outputs, ctx.outputs.tsconfig,
                                    node_profile_args)
 
-    devmode_manifest = ctx.new_file(ctx.label.name + ".es5.MF")
-    tsconfig_json_es5 = ctx.new_file(ctx.label.name + "_es5_tsconfig.json")
+    devmode_manifest = ctx.actions.declare_file(ctx.label.name + ".es5.MF")
+    tsconfig_json_es5 = ctx.actions.declare_file(ctx.label.name + "_es5_tsconfig.json")
     outputs = (
         transpiled_devmode_js + gen_declarations + [devmode_manifest])
     tsconfig_es5 = tsc_wrapped_tsconfig(ctx,
@@ -278,11 +281,11 @@ def compile_ts(ctx,
                                         allowed_deps=allowed_deps)
     node_profile_args = []
     if perf_trace:
-      perf_trace_file = ctx.new_file(ctx.label.name + ".es5.trace")
+      perf_trace_file = ctx.actions.declare_file(ctx.label.name + ".es5.trace")
       tsconfig_es5["bazelOptions"]["perfTracePath"] = perf_trace_file.path
       outputs.append(perf_trace_file)
 
-      profile_file =  ctx.new_file(ctx.label.name + ".es5.v8.log")
+      profile_file =  ctx.actions.declare_file(ctx.label.name + ".es5.v8.log")
       node_profile_args = ["--prof",
                            # Without nologfile_per_isolate, v8 embeds an
                            # unpredictable hash code in the file name, which
@@ -291,9 +294,9 @@ def compile_ts(ctx,
                            "--logfile=" + profile_file.path]
       outputs.append(profile_file)
 
-      files += [perf_trace_file, profile_file]
+      files = depset(transitive=[files, [perf_trace_file, profile_file]])
 
-    ctx.file_action(output=tsconfig_json_es5, content=json_marshal(
+    ctx.actions.write(output=tsconfig_json_es5, content=json_marshal(
         tsconfig_es5))
     inputs = compilation_inputs + [tsconfig_json_es5]
     devmode_compile_action(ctx, inputs, outputs, tsconfig_json_es5,
@@ -312,22 +315,20 @@ def compile_ts(ctx,
     devmode_manifest = None
 
   # Downstream rules see the .d.ts files produced or declared by this rule.
-  declarations = depset()
-  declarations += gen_declarations
-  declarations += src_declarations
+  declarations = depset(gen_declarations + src_declarations)
   if not srcs:
     # Re-export sources from deps.
     # TODO(b/30018387): introduce an "exports" attribute.
     for dep in ctx.attr.deps:
       if hasattr(dep, "typescript"):
-        declarations += dep.typescript.declarations
-  files += declarations
+        declarations = depset(transitive=[declarations, dep.typescript.declarations])
+  files = depset(transitive=[files, declarations])
 
   # If this is a ts_declaration, add tsickle_externs to the outputs list to
   # force compilation of d.ts files.  (tsickle externs are produced by running a
   # compilation over the d.ts file and extracting type information.)
   if not is_library:
-    files += depset(tsickle_externs)
+    files = depset(tsickle_externs, transitive=[files])
 
   transitive_es5_sources = depset()
   transitive_es6_sources = depset()

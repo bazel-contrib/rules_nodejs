@@ -9,8 +9,8 @@
 
 ## IMPORTANT
 # If you change the `docker_image` version, also change the `cache_key` suffix
-var_1: &docker_image angular/ngcontainer:0.3.0
-var_2: &cache_key rules_typescript-{{ checksum "yarn.lock" }}-0.3.0
+var_1: &docker_image angular/ngcontainer:0.3.1
+var_2: &cache_key rules_typescript-{{ checksum "yarn.lock" }}-0.3.1
 var_3: &setup-bazel-remote-cache
   run:
     name: Start up bazel remote cache proxy
@@ -107,7 +107,19 @@ jobs:
       - run: .circleci/setup_cache.sh
       - run: sudo cp .circleci/bazel.rc /etc/bazel.bazelrc
       - *setup-bazel-remote-cache
-      - run: yarn skylint
+
+      # Run the skylark linter to check our Bazel rules
+      # deprecated-api is disabled because we legacy providers for typescript
+      # which cannot be upgraded to modern providers without breaking compatability
+      - run: 'find . -type f -name "*.bzl" |
+              xargs java -jar /usr/local/bin/Skylint_deploy.jar --disable-checks=deprecated-api ||
+              (echo -e "\n.bzl files have lint errors. Please run ''yarn skylint''"; exit 1)'
+
+      # Enforce that BUILD files are formatted. Note that this uses the version of buildifier
+      # from the docker image above - take care that you use the same version when you run
+      # buildifier locally on your change.
+      - run: 'buildifier -mode=check $(find . -type f -name BUILD.bazel ) ||
+              (echo "BUILD files not formatted. Please run ''yarn buildifier''" ; exit 1)'
 
 workflows:
   version: 2
