@@ -9,10 +9,18 @@ if [[ "$FOO_JS" != *"class Greeter"* ]]; then
   exit 1
 fi
 
-# should not down-level ES2015 syntax, eg. `class`
+# should not down-level ES Modules
 readonly LIBRARY_JS=$(cat $TEST_SRCDIR/build_bazel_rules_typescript/examples/es6_output/es6_output.es6/examples/some_library/library.js)
 if [[ "$LIBRARY_JS" != *"export const cool = 1;"* ]]; then
   echo "Expected library.js to contain 'export const cool = 1;' but was"
   echo "$LIBRARY_JS"
+  exit 1
+fi
+
+# should not down-level dynamic import
+readonly BAR_JS=$(cat $TEST_SRCDIR/build_bazel_rules_typescript/examples/es6_output/es6_output.es6/examples/bar.js)
+if [[ "$BAR_JS" != *"import('./foo')"* ]]; then
+  echo "Expected bar.js to contain 'import('./foo')' but was"
+  echo "$BAR_JS"
   exit 1
 fi
