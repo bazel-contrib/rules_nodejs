@@ -9,8 +9,8 @@
 
 ## IMPORTANT
 # If you change the `docker_image` version, also change the `cache_key` version
-var_1: &docker_image angular/ngcontainer:0.3.0
-var_2: &cache_key angular/ngcontainer:0.3.0-{{ .Branch }}-{{ checksum "yarn.lock" }}-examples/rollup:{{ checksum "examples/rollup/yarn.lock" }}-examples/program:{{ checksum "examples/program/yarn.lock" }}-internal/test:{{ checksum "internal/test/yarn.lock" }}
+var_1: &docker_image angular/ngcontainer:0.3.1
+var_2: &cache_key angular/ngcontainer:0.3.1-{{ .Branch }}-{{ checksum "yarn.lock" }}-examples/rollup:{{ checksum "examples/rollup/yarn.lock" }}-examples/program:{{ checksum "examples/program/yarn.lock" }}-internal/test:{{ checksum "internal/test/yarn.lock" }}
 var_3: &setup-bazel-remote-cache
   run:
     name: Start up bazel remote cache proxy

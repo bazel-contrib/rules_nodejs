@@ -15,6 +15,32 @@
 
 set -e
 
+# --- begin runfiles.bash initialization ---
+# Source the runfiles library:
+# https://github.com/bazelbuild/bazel/blob/master/tools/bash/runfiles/runfiles.bash
+# The runfiles library defines rlocation, which is a platform independent function
+# used to lookup the runfiles locations. This code snippet is needed at the top
+# of scripts that use rlocation to lookup the location of runfiles.bash and source it
+if [[ ! -d "${RUNFILES_DIR:-/dev/null}" && ! -f "${RUNFILES_MANIFEST_FILE:-/dev/null}" ]]; then
+    if [[ -f "$0.runfiles_manifest" ]]; then
+      export RUNFILES_MANIFEST_FILE="$0.runfiles_manifest"
+    elif [[ -f "$0.runfiles/MANIFEST" ]]; then
+      export RUNFILES_MANIFEST_FILE="$0.runfiles/MANIFEST"
+    elif [[ -f "$0.runfiles/bazel_tools/tools/bash/runfiles/runfiles.bash" ]]; then
+      export RUNFILES_DIR="$0.runfiles"
+    fi
+fi
+if [[ -f "${RUNFILES_DIR:-/dev/null}/bazel_tools/tools/bash/runfiles/runfiles.bash" ]]; then
+  source "${RUNFILES_DIR}/bazel_tools/tools/bash/runfiles/runfiles.bash"
+elif [[ -f "${RUNFILES_MANIFEST_FILE:-/dev/null}" ]]; then
+  source "$(grep -m1 "^bazel_tools/tools/bash/runfiles/runfiles.bash " \
+            "$RUNFILES_MANIFEST_FILE" | cut -d ' ' -f 2-)"
+else
+  echo >&2 "ERROR: cannot find @bazel_tools//tools/bash/runfiles:runfiles.bash"
+  exit 1
+fi
+# --- end runfiles.bash initialization ---
+
 # Launcher for NodeJS applications.
 # Find our runfiles. We need this to launch node with the correct
 # entry point.
@@ -87,35 +113,9 @@ TEMPLATED_env_vars
 # This redirects to stderr so it doesn't interfere with Bazel's worker protocol
 # find . -name thingImLookingFor 1>&2
 
-# On Windows, the runfiles symlink tree does not exist, so we must resolve paths
-# using the mapping in the runfiles_manifest file.
-# See https://github.com/bazelbuild/bazel/issues/3726
-readonly MANIFEST="${RUNFILES}/MANIFEST"
-if [ -e "${MANIFEST}" ]; then
-  # Lookup the real paths from the runfiles manifest with no dependency on posix
-  while read line; do
-    declare -a PARTS=($line)
-    if [ "${PARTS[0]}" == "TEMPLATED_node" ]; then
-      readonly node="${PARTS[1]}"
-    elif [ "${PARTS[0]}" == "TEMPLATED_repository_args" ]; then
-      readonly repository_args="${PARTS[1]}"
-    elif [ "${PARTS[0]}" == "TEMPLATED_script_path" ]; then
-      readonly script="${PARTS[1]}"
-    fi
-  done < ${MANIFEST}
-  if [ -z "${node}" ]; then
-    echo "Failed to find node binary TEMPLATED_node in manifest ${MANIFEST}"
-    exit 1
-  fi
-  if [ -z "${script}" ]; then
-    echo "Failed to find script TEMPLATED_script_path in manifest ${MANIFEST}"
-    exit 1
-  fi
-else
-  readonly node="${RUNFILES}/TEMPLATED_node"
-  readonly repository_args="${RUNFILES}/TEMPLATED_repository_args"
-  readonly script="${RUNFILES}/TEMPLATED_script_path"
-fi
+readonly node=$(rlocation "TEMPLATED_node")
+readonly repository_args=$(rlocation "TEMPLATED_repository_args")
+readonly script=$(rlocation "TEMPLATED_script_path")
 
 source $repository_args
 
