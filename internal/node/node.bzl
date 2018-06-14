@@ -239,7 +239,7 @@ The runtime will pause before executing the program, allowing you to connect a
 remote debugger.
 """
 
-def nodejs_binary_macro(name, data=[], args=[], visibility=None, tags=[], testonly=0, **kwargs):
+def nodejs_binary_macro(name, args=[], visibility=None, tags=[], testonly=0, **kwargs):
   """This macro exists only to wrap the nodejs_binary as an .exe for Windows.
 
   This is exposed in the public API at `//:defs.bzl` as `nodejs_binary`, so most
@@ -247,7 +247,6 @@ def nodejs_binary_macro(name, data=[], args=[], visibility=None, tags=[], teston
 
   Args:
     name: name of the label
-    data: runtime dependencies
     args: applied to the wrapper binary
     visibility: applied to the wrapper binary
     tags: applied to the wrapper binary
@@ -256,7 +255,6 @@ def nodejs_binary_macro(name, data=[], args=[], visibility=None, tags=[], teston
   """
   nodejs_binary(
       name = "%s_bin" % name,
-      data = data + ["@bazel_tools//tools/bash/runfiles"],
       testonly = testonly,
       visibility = ["//visibility:private"],
       **kwargs
@@ -272,7 +270,7 @@ def nodejs_binary_macro(name, data=[], args=[], visibility=None, tags=[], teston
       visibility = visibility,
   )
 
-def nodejs_test_macro(name, data=[], args=[], visibility=None, tags=[], **kwargs):
+def nodejs_test_macro(name, args=[], visibility=None, tags=[], **kwargs):
   """This macro exists only to wrap the nodejs_test as an .exe for Windows.
 
   This is exposed in the public API at `//:defs.bzl` as `nodejs_test`, so most
@@ -280,7 +278,6 @@ def nodejs_test_macro(name, data=[], args=[], visibility=None, tags=[], **kwargs
 
   Args:
     name: name of the label
-    data: runtime dependencies
     args: applied to the wrapper binary
     visibility: applied to the wrapper binary
     tags: applied to the wrapper binary
@@ -288,7 +285,6 @@ def nodejs_test_macro(name, data=[], args=[], visibility=None, tags=[], **kwargs
   """
   nodejs_test(
       name = "%s_bin" % name,
-      data = data + ["@bazel_tools//tools/bash/runfiles"],
       testonly = 1,
       tags = ["manual"],
       **kwargs
