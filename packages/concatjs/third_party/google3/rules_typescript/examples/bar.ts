@@ -22,6 +22,6 @@ import * as fs from 'fs';
 import {cool} from 'some-lib';
 import * as ts from 'typescript';
 
-import {greeter} from './foo';
-
-console.log(Greeter, fs, cool, ts, greeter, a);
+import('./foo').then(({greeter}) => {
+  console.log(Greeter, fs, cool, ts, greeter, a);
+});
