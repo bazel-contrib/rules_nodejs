@@ -112,14 +112,6 @@ def tsc_wrapped_tsconfig(ctx,
     "node_modules"
   ] if p])
 
-  if config["compilerOptions"]["target"] == "es6":
-    config["compilerOptions"]["module"] = "es2015"
-  else:
-    # The "typescript.es5_sources" provider is expected to work
-    # in both nodejs and in browsers.
-    # NOTE: tsc-wrapped will always name the enclosed AMD modules
-    config["compilerOptions"]["module"] = "umd"
-
   # If the user gives a tsconfig attribute, the generated file should extend
   # from the user's tsconfig.
   # See https://github.com/Microsoft/TypeScript/issues/9876
