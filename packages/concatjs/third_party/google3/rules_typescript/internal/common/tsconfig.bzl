@@ -161,7 +161,19 @@ def create_tsconfig(ctx, files, srcs,
   # Keep these options in sync with those in playground/playground.ts.
   compiler_options = {
       # De-sugar to this language level
-      "target": "es5" if devmode_manifest or ctx.attr.runtime == "nodejs" else "es6",
+      "target": "es5" if devmode_manifest or ctx.attr.runtime == "nodejs" else "es2015",
+
+      # The "typescript.es5_sources" provider is expected to work
+      # in both nodejs and in browsers, so we use umd in devmode.
+      # NOTE: tsc-wrapped will always name the enclosed AMD modules
+      # For production mode, we leave the module syntax at ES2015 and let the
+      # bundler handle it.
+      # TODO(alexeagle): production mode should use "esnext" allowing the bundler
+      # to see dynamic import statements.
+      # Note, in google3 we override this option with "commonjs" since Tsickle
+      # will convert that to goog.module syntax.
+      "module": "umd" if devmode_manifest or ctx.attr.runtime == "nodejs" else "es2015",
+
       # Has no effect in closure/ES2015 mode. Always true just for simplicity.
       "downlevelIteration": True,
 
