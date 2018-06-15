@@ -80,6 +80,7 @@ def write_rollup_config(ctx, plugins=[], root_dir=None, filename="_%s.rollup.con
           "TMPL_global_name": ctx.attr.global_name if ctx.attr.global_name else ctx.label.name,
           "TMPL_module_mappings": str(mappings),
           "TMPL_additional_plugins": ",\n".join(plugins),
+          "TMPL_plugin_user_config": "\"./%s\"" % ctx.file.tmpl_plugins_config.basename[:-3] if ctx.file.tmpl_plugins_config else "undefined",
           "TMPL_banner_file": "\"%s\"" % ctx.file.license_banner.path if ctx.file.license_banner else "undefined",
           "TMPL_stamp_data": "\"%s\"" % ctx.version_file.path if ctx.version_file else "undefined",
           "TMPL_output_format": output_format,
@@ -124,6 +125,16 @@ def run_rollup(ctx, sources, config, output):
     inputs += [ctx.file.license_banner]
   if ctx.version_file:
     inputs += [ctx.version_file]
+  if ctx.file.tmpl_plugins_config:
+    # We have to declare the file and use expand_template to copy the user-passed-in file to make it
+    # available to the action and possible for rollup to require it.
+    plugins_config = ctx.actions.declare_file(ctx.file.tmpl_plugins_config.basename, sibling = output)
+    ctx.actions.expand_template(
+        output = plugins_config,
+        template =  ctx.file.tmpl_plugins_config,
+        substitutions = {}
+    )
+    inputs += [plugins_config]
 
   ctx.actions.run(
       executable = ctx.executable._rollup,
@@ -286,6 +297,9 @@ ROLLUP_ATTRS = {
         Rollup doc: "The variable name, representing your iife/umd bundle, by which other scripts on the same page can access it."
 
         This is passed to the `output.name` setting in Rollup.""",),
+    "tmpl_plugins_config": attr.label(
+        doc = """Additional plugin configuration exported as an Array to be passed to the rollup config""",
+        allow_single_file = FileType([".js"])),
     "_rollup": attr.label(
         executable = True,
         cfg="host",
