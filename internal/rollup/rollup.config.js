@@ -7,6 +7,11 @@ const sourcemaps = require('rollup-plugin-sourcemaps');
 const isBuiltinModule = require('is-builtin-module');
 const path = require('path');
 const fs = require('fs');
+const plugins_config_file = TMPL_plugin_user_config;
+let userPlugins = [];
+if (plugins_config_file) {
+  userPlugins = require(plugins_config_file);
+}
 
 const DEBUG = false;
 
@@ -142,7 +147,7 @@ module.exports = {
     format: 'TMPL_output_format',
     name: 'TMPL_global_name',
   },
-  plugins: [TMPL_additional_plugins].concat([
+  plugins: userPlugins.concat([TMPL_additional_plugins]).concat([
     {resolveId: resolveBazel},
     nodeResolve({
       preferBuiltins: false,
