@@ -145,6 +145,7 @@ module.exports = {
   plugins: [TMPL_additional_plugins].concat([
     {resolveId: resolveBazel},
     nodeResolve({
+      preferBuiltins: false,
       jsnext: true,
       module: true,
       customResolveOptions: {moduleDirectory: 'TMPL_node_modules_path'}
