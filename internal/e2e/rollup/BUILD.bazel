@@ -1,5 +1,5 @@
 load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
-load("//:defs.bzl", "rollup_bundle")
+load("//:defs.bzl", "rollup_bundle", "nodejs_binary")
 
 # The local package node_modules filegroup contains just one depenedency to test
 # importing from a non-WORKSPACE-root node_modules folder. This makes it more clear
@@ -12,17 +12,32 @@ filegroup(
     visibility = ["//internal:__subpackages__"],
 )
 
+nodejs_binary(
+    name = "rollup",
+    entry_point = "build_bazel_rules_nodejs_rollup_deps/node_modules/rollup/bin/rollup",
+    node_modules = "@build_bazel_rules_nodejs_rollup_deps//:node_modules",
+    data = [
+        ':node_modules',
+    ],
+    visibility = ["//visibility:public"],
+)
+
 rollup_bundle(
     name = "bundle",
     srcs = [
         "bar.js",
         "foo.js",
+        "blob.json",
     ],
     entry_point = "internal/e2e/rollup/foo.js",
     globals = {"some_global_var": "runtime_name_of_global_var"},
     license_banner = ":license.txt",
     node_modules = ":node_modules",
-    deps = ["//internal/e2e/rollup/fum:fumlib"],
+    deps = [
+        "//internal/e2e/rollup/fum:fumlib",
+    ],
+    tmpl_plugins_config = "rollup-plugins.js",
+    rollup = ":rollup",
 )
 
 jasmine_node_test(

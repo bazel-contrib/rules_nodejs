@@ -1,1 +1,2 @@
-export const name = 'Alice';
+
+export { name } from './blob.json'

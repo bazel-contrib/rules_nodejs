@@ -1,10 +1,10 @@
 import {fum} from 'fumlib';
-import hello from 'hello';
+import five from 'hello';
 import {thing} from 'some_global_var';
 
 import {name} from './bar';
 
-console.log(`${hello}, ${name} in ${fum}`);
+console.log(`${five()}, ${name} in ${fum}`);
 
 // Test for sequences = false
 export class A {
