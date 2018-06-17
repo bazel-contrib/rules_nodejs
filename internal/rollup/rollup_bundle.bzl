@@ -127,15 +127,12 @@ def run_rollup(ctx, sources, config, output):
     inputs += [ctx.version_file]
   if ctx.file.tmpl_plugins_config:
     print(ctx.attr.node_modules.label.workspace_root)
-    node_modules_path = "/".join([f for f in [
+    node_modules_path = "./" + "/".join([f for f in [
         ctx.attr.node_modules.label.workspace_root,
         ctx.workspace_name,
         ctx.attr.node_modules.label.package,
         "node_modules"
-    ] if f])
-    # print(node_modules_path)
-    build_file_dirname = "/".join(ctx.build_file_path.split("/")[:-1])
-    root_dir = "/".join([ctx.bin_dir.path, build_file_dirname, ctx.label.name + ".es6"])
+    ] if f]) + "/rollup-plugin-"
     # We have to declare the file and use expand_template to copy the user-passed-in file to make it
     # available to the action and possible for rollup to require it.
     plugins_config = ctx.actions.declare_file(ctx.file.tmpl_plugins_config.basename, sibling = output)
@@ -143,8 +140,7 @@ def run_rollup(ctx, sources, config, output):
         output = plugins_config,
         template =  ctx.file.tmpl_plugins_config,
         substitutions = {
-            "TMPL_node_modules_path": node_modules_path,
-            "TMPL_rootDir": root_dir,
+            "rollup-plugin-": node_modules_path,
         },
     )
     inputs += [plugins_config]
@@ -280,7 +276,7 @@ ROLLUP_ATTRS = {
     "srcs": attr.label_list(
         doc = """JavaScript source files from the workspace.
         These can use ES2015 syntax and ES Modules (import/export)""",
-        allow_files = [".js", ".json"]),
+        allow_files = [".js"]),
     "deps": attr.label_list(
         doc = """Other rules that produce JavaScript outputs, such as `ts_library`.""",
         aspects = [rollup_module_mappings_aspect]),

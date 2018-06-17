@@ -16,7 +16,7 @@
 // console.log('-------!!!!!!!!');
 // console.log(out4.stdout.toString('utf8'));
 
-const json = require('./TMPL_node_modules_path/rollup-plugin-json');
+const json = require('rollup-plugin-json');
 // const json2 = require('rollup-plugin-json');
 
 
