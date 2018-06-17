@@ -24,5 +24,9 @@ console.log(json);
 // console.log(json2);
 
 module.exports = [
-    json(),
+  json({
+    preferConst: true,
+    exclude: ['node_modules/**'],
+    indent: '  ',
+  }),
 ];
