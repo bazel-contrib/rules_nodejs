@@ -303,7 +303,7 @@ ROLLUP_ATTRS = {
         cfg="host",
         default = Label("@build_bazel_rules_nodejs//internal/rollup:rollup")),
     "rollup_config_tmpl": attr.label(
-        doc = """The rollup config template which can be overriden if needed."""
+        doc = """The rollup config template which can be overriden if needed.""",
         default = Label("@build_bazel_rules_nodejs//internal/rollup:rollup.config.js"),
         allow_files = True,
         single_file = True),
@@ -382,26 +382,27 @@ def rollup_bundle_macro(**kwargs):
 
   This is re-exported in `//:defs.bzl` as `rollup_bundle` so if you load the rule
   from there, you actually get this macro.
+
   Args:
     **kwargs: rollup_config_node_modules and rollup_config_entry_point is passed to the binary, everything else is passed through to `rollup_bundle`
   """
-    node_modules = kwargs.pop('rollup_config_node_modules', "@build_bazel_rules_nodejs_rollup_deps//:node_modules")
-    entry_point = kwargs.pop('rollup_config_entry_point', "build_bazel_rules_nodejs_rollup_deps/node_modules/rollup/bin/rollup")
+  node_modules = kwargs.pop('rollup_config_node_modules', "@build_bazel_rules_nodejs_rollup_deps//:node_modules")
+  entry_point = kwargs.pop('rollup_config_entry_point', "build_bazel_rules_nodejs_rollup_deps/node_modules/rollup/bin/rollup")
 
-    _nodejs_binary(
-        name = "%s_rollup" % kwargs['name'],
-        entry_point = entry_point,
-        node_modules = node_modules,
-        visibility = ["//visibility:public"],
-    )
+  _nodejs_binary(
+    name = "%s_rollup" % kwargs['name'],
+    entry_point = entry_point,
+    node_modules = node_modules,
+    visibility = ["//visibility:public"]
+  )
 
-    r = native.existing_rule("%s_rollup" % kwargs['name'])
-    # In the root of the workspace bazel returns an absolute path, otherwise a relative one
-    if r['generator_location'].startswith("/"):
-        rollup = native.repository_name() + "//:" + r['name']
-    else:
-        rollup = native.repository_name() + "//" + r['generator_location'].rsplit("/", maxsplit=1)[0] + ":" + r['name']
+  r = native.existing_rule("%s_rollup" % kwargs['name'])
+  # In the root of the workspace bazel returns an absolute path, otherwise a relative one
+  if r['generator_location'].startswith("/"):
+    rollup = native.repository_name() + "//:" + r['name']
+  else:
+    rollup = native.repository_name() + "//" + r['generator_location'].rsplit("/", maxsplit=1)[0] + ":" + r['name']
 
-    kwargs["rollup"] = rollup
+  kwargs["rollup"] = rollup
 
-    rollup_bundle(**kwargs)
+  rollup_bundle(**kwargs)
