@@ -298,7 +298,7 @@ ROLLUP_ATTRS = {
 
         This is passed to the `output.name` setting in Rollup.""",),
     "rollup": attr.label(
-        doc = """The rollup executable which can be overriden if a custom config is needed."""
+        doc = """The rollup executable which can be overriden if a custom config is needed.""",
         executable = True,
         cfg="host",
         default = Label("@build_bazel_rules_nodejs//internal/rollup:rollup")),
@@ -375,6 +375,16 @@ An example usage can be found in https://github.com/bazelbuild/rules_nodejs/tree
 """
 
 def rollup_bundle_macro(**kwargs):
+  """rollup binary wrapper for `rollup_bundle`
+
+  This macro re-exposes the `rollup_bundle` rule with its corresponding rollup nodejs_binary
+  so it can be overriden when a custom rollup config is used.
+
+  This is re-exported in `//:defs.bzl` as `rollup_bundle` so if you load the rule
+  from there, you actually get this macro.
+  Args:
+    **kwargs: rollup_config_node_modules and rollup_config_entry_point is passed to the binary, everything else is passed through to `rollup_bundle`
+  """
     node_modules = kwargs.pop('rollup_config_node_modules', "@build_bazel_rules_nodejs_rollup_deps//:node_modules")
     entry_point = kwargs.pop('rollup_config_entry_point', "build_bazel_rules_nodejs_rollup_deps/node_modules/rollup/bin/rollup")
 
