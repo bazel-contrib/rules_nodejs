@@ -5,7 +5,7 @@ const rollup = require('rollup');
 const nodeResolve = require('rollup-plugin-node-resolve');
 const sourcemaps = require('rollup-plugin-sourcemaps');
 const {resolveBazel, notResolved, banner, onwarn, moduleDirectory} =
-    require('TMPL_bazel_rollup_conf_path');
+    require(TMPL_bazel_rollup_conf_path);
 
 module.exports = {
   resolveBazel,

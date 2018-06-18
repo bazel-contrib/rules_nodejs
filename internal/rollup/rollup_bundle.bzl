@@ -94,7 +94,7 @@ def write_rollup_config(ctx, plugins=[], root_dir=None, filename="_%s.rollup.con
       substitutions = {
           "TMPL_global_name": ctx.attr.global_name if ctx.attr.global_name else ctx.label.name,
           "TMPL_output_format": output_format,
-          "TMPL_bazel_rollup_conf_path": "./%s" % bazel_conf_filename,
+          "TMPL_bazel_rollup_conf_path": "\"./%s\"" % bazel_conf_filename,
       })
 
   return [config, bazel_config]

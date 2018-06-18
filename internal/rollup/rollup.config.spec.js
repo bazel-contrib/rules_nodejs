@@ -5,6 +5,8 @@ TMPL_module_mappings = {
   'other': 'external/other_wksp/path/to/other_lib',
 };
 
+TMPL_bazel_rollup_conf_path = './bazel.rollup.config';
+
 const rootDir = 'bazel-bin/path/to/a.esm5';
 TMPL_additional_plugins = [];
 TMPL_banner_file = '';
