@@ -21,16 +21,10 @@ package(default_visibility = ["//internal:__subpackages__"])
 exports_files([
     "rollup.config.js",
     "uglify.config.json",
+    "bazel.rollup.config.js",
     # Exported to be consumed for generating skydoc.
     "rollup_bundle.bzl",
 ])
-
-nodejs_binary(
-    name = "rollup",
-    entry_point = "build_bazel_rules_nodejs_rollup_deps/node_modules/rollup/bin/rollup",
-    node_modules = "@build_bazel_rules_nodejs_rollup_deps//:node_modules",
-    visibility = ["//visibility:public"],
-)
 
 nodejs_binary(
     name = "tsc",

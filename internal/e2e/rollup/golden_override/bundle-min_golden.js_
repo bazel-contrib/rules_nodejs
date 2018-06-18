@@ -1,0 +1,5 @@
+/**
+ * @license A dummy license banner that goes at the top of the file.
+ * This is version v1.2.3
+ */
+var bundle_override=function(n,e){"use strict";console.log("Hello, Alice in Wonderland");var o=function(){function n(){}return n.prototype.a=function(){return document.a},n}();return console.error((new o).a(),"abc",e.thing),n.A=o,n}({},runtime_name_of_global_var);

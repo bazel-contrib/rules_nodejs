@@ -46,17 +46,17 @@ Update the golden file:
 
 describe('bundling', () => {
   it('should work', () => {
-    check('bundle.min.js', 'golden/bundle-min_golden.js_');
+    check('bundle_override.min.js', 'golden_override/bundle-min_golden.js_');
   });
   it('should produce a sourcemap', () => {
     // TODO(alexeagle): the right assertion is to load up the source-map library
     // and assert that the sourcemap actually maps back to the sources
-    check('bundle.min.js.map', 'golden/bundle-min_golden.js.map');
+    check('bundle_override.min.js.map', 'golden_override/bundle-min_golden.js.map');
   });
   it('should produce a debug bundle', () => {
-    check('bundle.min_debug.js', 'golden/bundle-min-debug_golden.js_');
+    check('bundle_override.min_debug.js', 'golden_override/bundle-min-debug_golden.js_');
   });
   it('should rewrite global imports', () => {
-    check('bundle.umd.js', 'golden/bundle-umd_golden.js_');
+    check('bundle_override.umd.js', 'golden_override/bundle-umd_golden.js_');
   });
 });

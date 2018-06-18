@@ -12,22 +12,11 @@ filegroup(
     visibility = ["//internal:__subpackages__"],
 )
 
-nodejs_binary(
-    name = "rollup",
-    entry_point = "build_bazel_rules_nodejs_rollup_deps/node_modules/rollup/bin/rollup",
-    node_modules = "@build_bazel_rules_nodejs_rollup_deps//:node_modules",
-    data = [
-        ':node_modules',
-    ],
-    visibility = ["//visibility:public"],
-)
-
 rollup_bundle(
-    name = "bundle",
+    name = "bundle_override",
     srcs = [
         "bar.js",
         "foo.js",
-        "blob.json",
     ],
     entry_point = "internal/e2e/rollup/foo.js",
     globals = {"some_global_var": "runtime_name_of_global_var"},
@@ -36,20 +25,49 @@ rollup_bundle(
     deps = [
         "//internal/e2e/rollup/fum:fumlib",
     ],
-    tmpl_plugins_config = "rollup-plugins.js",
-    rollup = ":rollup",
+    # These attributes can be used to override the default rollup setup/config
+    rollup_config_node_modules = "@build_bazel_rules_nodejs_rollup_deps//:node_modules",
+    rollup_config_entry_point = "build_bazel_rules_nodejs_rollup_deps/node_modules/rollup/bin/rollup",
+    rollup_config_tmpl = "rollup.config.js",
+)
+
+rollup_bundle(
+    name = "bundle",
+    srcs = [
+        "bar.js",
+        "foo.js",
+    ],
+    entry_point = "internal/e2e/rollup/foo.js",
+    globals = {"some_global_var": "runtime_name_of_global_var"},
+    license_banner = ":license.txt",
+    node_modules = ":node_modules",
+    deps = [
+        "//internal/e2e/rollup/fum:fumlib",
+    ],
 )
 
 jasmine_node_test(
     name = "test",
-    srcs = glob(["*.spec.js"]),
+    srcs = glob(["rollup.spec.js"]),
     data = glob([
-        "*_golden.js_",
-        "*_golden.js.map",
+        "golden/*",
     ]) + [
         ":bundle",
         ":bundle.umd.js",
         ":bundle.min_debug.js",
+    ],
+    node_modules = "//internal/test:node_modules",
+)
+
+jasmine_node_test(
+    name = "test_override",
+    srcs = glob(["rollup_override.spec.js"]),
+    data = glob([
+        "golden_override/*",
+    ]) + [
+        ":bundle_override",
+        ":bundle_override.umd.js",
+        ":bundle_override.min_debug.js",
     ],
     node_modules = "//internal/test:node_modules",
 )
