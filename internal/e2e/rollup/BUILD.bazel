@@ -22,9 +22,7 @@ rollup_bundle(
     globals = {"some_global_var": "runtime_name_of_global_var"},
     license_banner = ":license.txt",
     node_modules = ":node_modules",
-    deps = [
-        "//internal/e2e/rollup/fum:fumlib",
-    ],
+    deps = ["//internal/e2e/rollup/fum:fumlib"],
     # These attributes can be used to override the default rollup setup/config
     rollup_config_node_modules = "@build_bazel_rules_nodejs_rollup_deps//:node_modules",
     rollup_config_entry_point = "build_bazel_rules_nodejs_rollup_deps/node_modules/rollup/bin/rollup",
@@ -41,14 +39,12 @@ rollup_bundle(
     globals = {"some_global_var": "runtime_name_of_global_var"},
     license_banner = ":license.txt",
     node_modules = ":node_modules",
-    deps = [
-        "//internal/e2e/rollup/fum:fumlib",
-    ],
+    deps = ["//internal/e2e/rollup/fum:fumlib"],
 )
 
 jasmine_node_test(
     name = "test",
-    srcs = glob(["rollup.spec.js"]),
+    srcs = ["rollup.spec.js"],
     data = glob([
         "golden/*",
     ]) + [
@@ -61,7 +57,7 @@ jasmine_node_test(
 
 jasmine_node_test(
     name = "test_override",
-    srcs = glob(["rollup_override.spec.js"]),
+    srcs = ["rollup_override.spec.js"],
     data = glob([
         "golden_override/*",
     ]) + [
