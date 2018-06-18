@@ -1,5 +1,5 @@
 load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
-load("//:defs.bzl", "rollup_bundle", "nodejs_binary")
+load("//:defs.bzl", "nodejs_binary", "rollup_bundle")
 
 # The local package node_modules filegroup contains just one depenedency to test
 # importing from a non-WORKSPACE-root node_modules folder. This makes it more clear
@@ -22,11 +22,11 @@ rollup_bundle(
     globals = {"some_global_var": "runtime_name_of_global_var"},
     license_banner = ":license.txt",
     node_modules = ":node_modules",
-    deps = ["//internal/e2e/rollup/fum:fumlib"],
     # These attributes can be used to override the default rollup setup/config
-    rollup_config_node_modules = "@build_bazel_rules_nodejs_rollup_deps//:node_modules",
     rollup_config_entry_point = "build_bazel_rules_nodejs_rollup_deps/node_modules/rollup/bin/rollup",
+    rollup_config_node_modules = "@build_bazel_rules_nodejs_rollup_deps//:node_modules",
     rollup_config_tmpl = "rollup.config.js",
+    deps = ["//internal/e2e/rollup/fum:fumlib"],
 )
 
 rollup_bundle(
