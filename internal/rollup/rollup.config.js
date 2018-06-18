@@ -150,7 +150,11 @@ module.exports = {
       module: true,
       customResolveOptions: {moduleDirectory: 'TMPL_node_modules_path'}
     }),
-    buble(),
+    buble({
+      transforms: {
+        dangerousForOf: true,
+      },
+    }),
     {resolveId: notResolved},
     sourcemaps(),
   ])
