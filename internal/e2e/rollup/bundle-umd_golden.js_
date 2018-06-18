@@ -9,20 +9,20 @@
   (factory((global.bundle = {}),global.runtime_name_of_global_var));
 }(this, (function (exports,some_global_var) { 'use strict';
 
-  const fum = 'Wonderland';
+  var fum = 'Wonderland';
 
   var hello = 'Hello';
 
-  const name = 'Alice';
+  var name = 'Alice';
 
-  console.log(`${hello}, ${name} in ${fum}`);
+  console.log((hello + ", " + name + " in " + fum));
 
   // Test for sequences = false
-  class A {
-    a() {
-      return document.a;
-    }
-  }
+  var A = function A () {};
+
+  A.prototype.a = function a () {
+    return document.a;
+  };
   function inline_me() {
     return 'abc';
   }

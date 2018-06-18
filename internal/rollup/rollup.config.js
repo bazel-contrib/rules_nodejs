@@ -4,6 +4,7 @@
 const rollup = require('rollup');
 const nodeResolve = require('rollup-plugin-node-resolve');
 const sourcemaps = require('rollup-plugin-sourcemaps');
+const buble = require('rollup-plugin-buble');
 const isBuiltinModule = require('is-builtin-module');
 const path = require('path');
 const fs = require('fs');
@@ -149,6 +150,7 @@ module.exports = {
       module: true,
       customResolveOptions: {moduleDirectory: 'TMPL_node_modules_path'}
     }),
+    buble(),
     {resolveId: notResolved},
     sourcemaps(),
   ])

@@ -2,4 +2,4 @@
  * @license A dummy license banner that goes at the top of the file.
  * This is version v1.2.3
  */
-var bundle=function(n,o){"use strict";console.log("Hello, Alice in Wonderland");var e=function(){function n(){}return n.prototype.a=function(){return document.a},n}();return console.error((new e).a(),"abc",o.thing),n.A=e,n}({},runtime_name_of_global_var);
+var bundle=function(n,o){"use strict";console.log("Hello, Alice in Wonderland");var e=function n(){};return e.prototype.a=function n(){return document.a},console.error((new e).a(),"abc",o.thing),n.A=e,n}({},runtime_name_of_global_var);

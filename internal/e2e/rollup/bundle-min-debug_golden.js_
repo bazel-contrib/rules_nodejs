@@ -5,13 +5,10 @@
 var bundle = function(exports, some_global_var) {
     "use strict";
     console.log("Hello, Alice in Wonderland");
-    var A = function() {
-        function A() {}
-        A.prototype.a = function() {
-            return document.a;
-        };
-        return A;
-    }();
+    var A = function() {};
+    A.prototype.a = function() {
+        return document.a;
+    };
     function inline_me() {
         return "abc";
     }

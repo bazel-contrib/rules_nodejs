@@ -133,20 +133,6 @@ def run_rollup(ctx, sources, config, output):
   )
   return map_output
 
-def _run_tsc(ctx, input, output):
-  args = ctx.actions.args()
-  args.add(["--target", "es5"])
-  args.add("--allowJS")
-  args.add(input.path)
-  args.add(["--outFile", output.path])
-
-  ctx.actions.run(
-      executable = ctx.executable._tsc,
-      inputs = [input],
-      outputs = [output],
-      arguments = [args]
-  )
-
 def run_uglify(ctx, input, output, debug = False, comments = True, config_name = None, in_source_map = None):
   """Runs uglify on an input file.
 
@@ -237,8 +223,7 @@ def run_sourcemapexplorer(ctx, js, map, output):
 
 def _rollup_bundle(ctx):
   rollup_config = write_rollup_config(ctx)
-  run_rollup(ctx, collect_es6_sources(ctx), rollup_config, ctx.outputs.build_es6)
-  _run_tsc(ctx, ctx.outputs.build_es6, ctx.outputs.build_es5)
+  run_rollup(ctx, collect_es6_sources(ctx), rollup_config, ctx.outputs.build_es5)
   source_map = run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min)
   run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min_debug, debug = True)
   umd_rollup_config = write_rollup_config(ctx, filename = "_%s_umd.rollup.conf.js", output_format = "umd")
@@ -290,10 +275,6 @@ ROLLUP_ATTRS = {
         executable = True,
         cfg="host",
         default = Label("@build_bazel_rules_nodejs//internal/rollup:rollup")),
-    "_tsc": attr.label(
-        executable = True,
-        cfg="host",
-        default = Label("@build_bazel_rules_nodejs//internal/rollup:tsc")),
     "_uglify": attr.label(
         executable = True,
         cfg="host",
@@ -313,7 +294,6 @@ ROLLUP_ATTRS = {
 }
 
 ROLLUP_OUTPUTS = {
-    "build_es6": "%{name}.es6.js",
     "build_es5": "%{name}.js",
     "build_es5_min": "%{name}.min.js",
     "build_es5_min_debug": "%{name}.min_debug.js",
@@ -342,15 +322,11 @@ The default output of a `rollup_bundle` rule is the non-debug-minified es5 bundl
 However you can request one of the other outputs with a dot-suffix on the target's name.
 For example, if your `rollup_bundle` is named `my_rollup_bundle`, you can use one of these labels:
 
-To request the ES2015 syntax (e.g. `class` keyword) without downleveling or minification, use the `:my_rollup_bundle.es6.js` label.
 To request the ES5 downleveled bundle without minification, use the `:my_rollup_bundle.js` label
 To request the debug-minified es5 bundle, use the `:my_rollup_bundle.min_debug.js` label.
 To request a UMD-bundle, use the `:my_rollup_bundle.umd.js` label.
 
 You can also request an analysis from source-map-explorer by buildng the `:my_rollup_bundle.explore.html` label.
-However this is currently broken for `rollup_bundle` ES5 mode because we use tsc for downleveling and
-it doesn't compose the resulting sourcemaps with an input sourcemap.
-See https://github.com/bazelbuild/rules_nodejs/issues/175
 
 For debugging, note that the `rollup.config.js` and `uglify.config.json` files can be found in the bazel-bin folder next to the resulting bundle.
 
