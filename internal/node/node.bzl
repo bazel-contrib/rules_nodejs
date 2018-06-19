@@ -125,12 +125,18 @@ def _nodejs_binary_impl(ctx):
 
     runfiles = depset(sources + [node, ctx.outputs.loader, ctx.file._repository_args] + node_modules)
 
+    symlinks = {}
+    for f in ctx.files.node_modules:
+      actual = f.short_path[f.short_path.find("node_modules/"):]
+      symlinks[actual] = f
+
     return [DefaultInfo(
         executable = ctx.outputs.script,
         runfiles = ctx.runfiles(
             transitive_files = runfiles,
             files = [node, ctx.outputs.loader] + node_modules + sources,
             collect_data = True,
+            symlinks = symlinks,
         ),
     )]
 
