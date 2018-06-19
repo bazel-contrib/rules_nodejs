@@ -14,7 +14,6 @@ def _declare_file(ctx, path):
     return ctx.actions.declare_file(paths.join("amd", path))
 
 def _write_config(ctx):
-  print(ctx.file._babelrc_tmpl.path)
   output = ctx.actions.declare_file(paths.join(ctx.file._babelrc_tmpl.dirname, "_" + ctx.file._babelrc_tmpl.basename))
   ctx.actions.expand_template(
     output = output,
@@ -23,7 +22,6 @@ def _write_config(ctx):
         "TMPL_bin_dir_path": ctx.bin_dir.path,
     }
   )
-  print(output.path)
   return output
 
 def _js_library(ctx):
