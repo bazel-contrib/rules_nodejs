@@ -5,15 +5,15 @@ module.exports = {
   getModuleId(name) {
     const path = require("path");
     const process = require("process");
-    return path.relative(process.cwd(), name)
+    const binDirPath = 'TMPL_bin_dir_path';
+    // TODO: Add workspace name to the id
+    moduleId = path.relative(process.cwd(), name);
+    if (moduleId.startsWith(binDirPath)) {
+      // For generated files we take out the bin dir path
+      return moduleId.slice(binDirPath.length + 1);
+    } else {
+      return moduleId
+    }
   },
-
-  'plugins': [
-    // Note: For some reason this plugin can not be properly loaded from node_modules so have to
-    // load relatively
-    [
-      // bazel_resolve_plugin,
-      amd_plugin, {'strict': true, 'noInterop': true}
-    ]
-  ]
+  'plugins': [amd_plugin]
 };
