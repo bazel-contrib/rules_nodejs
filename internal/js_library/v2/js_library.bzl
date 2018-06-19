@@ -32,6 +32,7 @@ def _js_library(ctx):
 
   out_dir = paths.join(ctx.bin_dir.path, "amd")
   args = ctx.actions.args()
+  args.add(["--ignore", config.path])
   args.add(["--out-dir", out_dir])
   args.add(["--config-file", "./" + config.path])
   args.add(ctx.bin_dir.path)
