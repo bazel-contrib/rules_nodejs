@@ -158,10 +158,13 @@ def create_tsconfig(ctx, files, srcs,
       fail("TYPESCRIPT_WORKER_CACHE_SIZE_MB set to a negative value (%d)." % max_cache_size_mb)
     bazel_options["maxCacheSizeMb"] = max_cache_size_mb
 
+  has_node_runtime = getattr(ctx.attr, "runtime", "browser") == "nodejs"
+  target_language_level = "es5" if devmode_manifest or has_node_runtime else "es2015"
+
   # Keep these options in sync with those in playground/playground.ts.
   compiler_options = {
       # De-sugar to this language level
-      "target": "es5" if devmode_manifest or ctx.attr.runtime == "nodejs" else "es2015",
+      "target": target_language_level,
 
       # The "typescript.es5_sources" provider is expected to work
       # in both nodejs and in browsers, so we use umd in devmode.
@@ -170,7 +173,7 @@ def create_tsconfig(ctx, files, srcs,
       # bundler handle it (including dynamic import).
       # Note, in google3 we override this option with "commonjs" since Tsickle
       # will convert that to goog.module syntax.
-      "module": "umd" if devmode_manifest or ctx.attr.runtime == "nodejs" else "esnext",
+      "module": "umd" if devmode_manifest or has_node_runtime else "esnext",
 
       # Has no effect in closure/ES2015 mode. Always true just for simplicity.
       "downlevelIteration": True,
