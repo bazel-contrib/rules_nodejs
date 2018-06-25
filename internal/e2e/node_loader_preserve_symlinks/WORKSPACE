@@ -1,0 +1,24 @@
+workspace(name = "node_loader_e2e_preserve_symlinks")
+
+local_repository(
+    name = "build_bazel_rules_nodejs",
+    path = "../../..",
+)
+
+load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "yarn_install")
+
+node_repositories(
+  package_json = ["//:package.json"],
+  preserve_symlinks = True,
+)
+
+local_repository(
+    name = "node_resolve_dep",
+    path = "node_modules/node-resolve-dep",
+)
+
+yarn_install(
+    name = "node_loader_e2e_preserve_symlinks_deps",
+    package_json = "//deps:package.json",
+    yarn_lock = "//deps:yarn.lock",
+)
