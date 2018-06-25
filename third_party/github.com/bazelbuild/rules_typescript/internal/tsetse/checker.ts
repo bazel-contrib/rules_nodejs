@@ -59,6 +59,9 @@ export class Checker {
   on(nodeKind: ts.SyntaxKind.ElementAccessExpression,
      handlerFunction: (checker: Checker, node: ts.ElementAccessExpression) => void,
      code: number): void;
+  on(nodeKind: ts.SyntaxKind.ImportDeclaration,
+     handlerFunction: (checker: Checker, node: ts.ImportDeclaration) => void,
+     code: number): void;
   on(nodeKind: ts.SyntaxKind,
      handlerFunction: (checker: Checker, node: ts.Node) => void,
      code: number): void;
