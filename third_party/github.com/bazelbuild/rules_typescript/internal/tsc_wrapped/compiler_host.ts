@@ -378,7 +378,12 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
       onError: ((message: string) => void) | undefined,
       sourceFiles: ReadonlyArray<ts.SourceFile>): void {
     // Workaround https://github.com/Microsoft/TypeScript/issues/18648
-    if ((this.options.module === ts.ModuleKind.AMD ||
+    // This bug is fixed in TS 2.9
+    const version = ts.versionMajorMinor;
+    const [major, minor] = version.split('.').map(s => Number(s));
+    const workaroundNeeded = major <= 2 && minor <= 8;
+    if (workaroundNeeded &&
+        (this.options.module === ts.ModuleKind.AMD ||
          this.options.module === ts.ModuleKind.UMD) &&
         fileName.endsWith('.d.ts') && sourceFiles && sourceFiles.length > 0 &&
         sourceFiles[0].moduleName) {
