@@ -1,0 +1,8 @@
+{
+    "description": "e2e node_loader testing dependencies",
+    "devDependencies": {},
+    "dependencies": {
+        "jasmine": "~2.8.0",
+        "tmp": "0.0.33"
+    }
+}

@@ -40,12 +40,15 @@ var MODULE_ROOTS = [TEMPLATED_module_roots];
 var BOOTSTRAP = [TEMPLATED_bootstrap];
 
 const NODE_MODULES_ROOTS = [TEMPLATED_node_modules_roots];
+const ALLOW_NON_HERMETIC_RESOLVES = TEMPLATED_allow_non_hermetic_resolves;
 
 if (DEBUG)
   console.error(`
 node_loader: running with
   MODULE_ROOTS: ${MODULE_ROOTS}
   BOOTSTRAP: ${BOOTSTRAP}
+  NODE_MODULES_ROOTS: ${NODE_MODULES_ROOTS}
+  ALLOW_NON_HERMETIC_RESOLVES: ${ALLOW_NON_HERMETIC_RESOLVES}
 `);
 
 function resolveToModuleRoot(path) {
@@ -295,26 +298,29 @@ module.constructor._resolveFilename =
     }
   }
 
-  // For backward compatabilty, allow non-hermetic resolves to the user workspace
-  // node_modules and print a warning if this resolve succeeds
-  try {
-    const resolved = originalResolveFilename(request, parent);
-    if (resolved.replace(/\\/g, '/').split('/').indexOf('node_modules') !== -1) {
-      if (DEBUG)
+  if (ALLOW_NON_HERMETIC_RESOLVES) {
+    // For backward compatabilty, allow non-hermetic resolves to the user workspace
+    // node_modules and print a warning if this resolve succeeds
+    try {
+      const resolved = originalResolveFilename(request, parent);
+      if (resolved.replace(/\\/g, '/').split('/').indexOf('node_modules') !== -1) {
+        if (DEBUG)
+          console.error(
+              `node_loader: resolved ${request} within non-hermetic node_modules to ` +
+              `${resolved} from ${parent && parent.filename ? parent.filename : ''}`);
+        console.error(request, JSON.stringify(parent.paths, null, 2));
         console.error(
-            `node_loader: resolved ${request} within non-hermetic node_modules to ` +
-            `${resolved} from ${parent && parent.filename ? parent.filename : ''}`);
-      console.error(
-          `WARNING: non-hermetic node_modules resolve of ${request} to ${resolved} while ` +
-          `running TEMPLATED_target. If this is intentional, you may need to set the ` +
-          `node_modules attribute for this target to @//:node_modules or add @//:node_modules ` +
-          `to the node_modules_list attribute.`);
-      return resolved;
-    } else {
-      throw new Error('Resolve failed');
+            `WARNING: non-hermetic node_modules resolve of ${request} to ${resolved} while ` +
+            `running TEMPLATED_target. If this is intentional, you may need to set the ` +
+            `node_modules attribute for this target to @//:node_modules or add @//:node_modules ` +
+            `to the node_modules_list attribute.`);
+        return resolved;
+      } else {
+        throw new Error('Resolve failed');
+      }
+    } catch (e) {
+      failedResolutions.push(`${request} (non-hermetic node_modules) - ${e.toString()}`);
     }
-  } catch (e) {
-    failedResolutions.push(`${request} (non-hermetic node_modules) - ${e.toString()}`);
   }
 
   // Finally, attempt to resolve to module root

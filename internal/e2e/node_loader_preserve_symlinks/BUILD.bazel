@@ -1,0 +1,25 @@
+package(default_visibility = ["//visibility:public"])
+
+load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test", "nodejs_binary")
+
+jasmine_node_test(
+    name = "test",
+    srcs = [
+        "node_loader_test.spec.js",
+    ],
+    allow_non_hermetic_resolves = False,
+    node_modules = "@node_loader_e2e_preserve_symlinks_deps//:node_modules",
+)
+
+# With preserve_symlinks on, setting allow_non_hermetic_resolves to True
+# will still result in the resolve of minimist failing since node module
+# resolution will not follow the actual path of the runfiles back
+# to the workspace node_modules
+jasmine_node_test(
+    name = "allow_non_hermetic_test",
+    srcs = [
+        "node_loader_test.spec.js",
+    ],
+    allow_non_hermetic_resolves = True,
+    node_modules = "@node_loader_e2e_preserve_symlinks_deps//:node_modules",
+)

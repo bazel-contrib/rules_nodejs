@@ -52,6 +52,7 @@ def _write_loader_script(ctx):
       template=ctx.file._loader_template,
       output=ctx.outputs.loader,
       substitutions={
+          "TEMPLATED_allow_non_hermetic_resolves": "true" if ctx.attr.allow_non_hermetic_resolves else "false",
           "TEMPLATED_target": "%s/%s:%s" % (ctx.label.workspace_root, ctx.label.package, ctx.label.name),
           "TEMPLATED_module_roots": "\n  " + ",\n  ".join(module_mappings),
           "TEMPLATED_bootstrap": "\n  " + ",\n  ".join(
@@ -159,6 +160,9 @@ _NODEJS_EXECUTABLE_ATTRS = {
     "node_modules_list": attr.label_list(
         doc = """Optional list of npm packages which should be available to `require()`
         during execution. If set, the node_modules attribute is ignored."""),
+    "allow_non_hermetic_resolves": attr.bool(
+        doc = """Allow non-hermetic resolves in node_loader for backward compabilitity.""",
+        default = True),
     "node": attr.label(
         doc = """The node entry point target.""",
         default = Label("@nodejs//:node"),
