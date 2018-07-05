@@ -2,6 +2,20 @@
 # yarn lockfile v1
 
 
+"@gregmagolan/test-a@0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@gregmagolan/test-a/-/test-a-0.0.1.tgz#c90ebc0676f13b34400da8d1e55ffe5aa76655b4"
+
+"@gregmagolan/test-a@0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@gregmagolan/test-a/-/test-a-0.0.2.tgz#86ab79a55f44860b02d8275e22d282a1f82b8768"
+
+"@gregmagolan/test-b@0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@gregmagolan/test-b/-/test-b-0.0.2.tgz#7549fb9f39895c0d744c2c24c98b0e5817e46bd7"
+  dependencies:
+    "@gregmagolan/test-a" "0.0.1"
+
 balanced-match@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.0.tgz#89b4d199ab2bee49de164ea02b89ce462d71b767"
