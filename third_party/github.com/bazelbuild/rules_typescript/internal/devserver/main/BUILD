@@ -28,8 +28,6 @@ go_binary(
     name = "main",
     srcs = ["main.go"],
     visibility = ["//visibility:public"],
-    # See https://github.com/bazelbuild/rules_go/issues/721
-    importpath = "do_not_import",
     deps = [
         "//internal/concatjs",
         "//internal/devserver",
