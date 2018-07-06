@@ -45,5 +45,8 @@ nodejs_binary(
 sh_test(
     name = "module_load_test",
     srcs = ["module_load_test.sh"],
-    data = [":bin"],
+    data = [
+      ":bin",
+      "@bazel_tools//tools/bash/runfiles",
+    ],
 )

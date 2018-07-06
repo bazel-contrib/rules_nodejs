@@ -14,7 +14,7 @@
 
 "Install toolchain dependencies"
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
+load("@build_bazel_rules_nodejs//:defs.bzl", "check_bazel_version", "yarn_install")
 
 def ts_setup_workspace():
   """This repository rule should be called from your WORKSPACE file.
@@ -22,6 +22,9 @@ def ts_setup_workspace():
   It creates some additional Bazel external repositories that are used internally
   by the TypeScript rules.
   """
+  # @bazel_tools//tools/bash/runfiles is required
+  check_bazel_version("0.14.0")
+
   yarn_install(
       name = "build_bazel_rules_typescript_tsc_wrapped_deps",
       package_json = "@build_bazel_rules_typescript//internal:tsc_wrapped/package.json",
