@@ -24,6 +24,10 @@ local_repository(
     name = "packages_example",
     path = "examples/packages",
 )
+local_repository(
+    name = "devserver_example",
+    path = "examples/devserver",
+)
 # Install a hermetic version of node.
 # After this is run, these labels will be available:
 # - NodeJS:

@@ -81,6 +81,8 @@ js_library = rule(
         "deps": attr.label_list(
             doc = """Other rules that produce JavaScript outputs, such as `ts_library`.""",),
             # aspects = [rollup_module_mappings_aspect]),
+        "module_name": attr.string(),
+        "module_root": attr.string(),
         "node_modules": attr.label(
             doc = """Dependencies from npm that provide some modules that must be resolved by babel.""",
             default = Label("@//:node_modules")),
