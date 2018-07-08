@@ -31,9 +31,23 @@ def get_npm_label(repository_ctx):
     label = Label("@nodejs//:bin/npm")
   return label
 
+def get_npm_node_repositories_label(repository_ctx):
+  if repository_ctx.os.name.lower().find("windows") != -1:
+    label = Label("@nodejs//:bin/npm_node_repositories.cmd")
+  else:
+    label = Label("@nodejs//:bin/npm_node_repositories")
+  return label
+
 def get_yarn_label(repository_ctx):
   if repository_ctx.os.name.lower().find("windows") != -1:
     label = Label("@nodejs//:bin/yarn.cmd")
   else:
     label = Label("@nodejs//:bin/yarn")
+  return label
+
+def get_yarn_node_repositories_label(repository_ctx):
+  if repository_ctx.os.name.lower().find("windows") != -1:
+    label = Label("@nodejs//:bin/yarn_node_repositories.cmd")
+  else:
+    label = Label("@nodejs//:bin/yarn_node_repositories")
   return label

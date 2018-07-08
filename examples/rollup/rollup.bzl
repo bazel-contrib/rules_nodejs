@@ -23,13 +23,13 @@ def _rollup(ctx):
   args += ["--output.file", ctx.outputs.bundle.path]
   args += ["--output.format", "es"]
 
-  ctx.action(
+  ctx.actions.run(
       inputs = ctx.files.srcs,
       executable = ctx.executable.rollup,
       outputs = [ctx.outputs.bundle],
       arguments = args,
   )
-  return struct()
+  return [DefaultInfo()]
 
 rollup = rule(
     implementation = _rollup,

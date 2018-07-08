@@ -34,7 +34,7 @@ def _write_loader_script(ctx):
         escaped = mn.replace("/", r"\/").replace(".", r"\.")
         mapping = r"{module_name: /^%s\b/, module_root: '%s'}" % (escaped, mr)
         module_mappings.append(mapping)
-  ctx.template_action(
+  ctx.actions.expand_template(
       template=ctx.file._loader_template,
       output=ctx.outputs.loader,
       substitutions={
@@ -75,7 +75,7 @@ def _write_loader_script(ctx):
               else ""
           ),
       },
-      executable=True,
+      is_executable=True,
   )
 
 def _nodejs_binary_impl(ctx):
@@ -116,33 +116,23 @@ def _nodejs_binary_impl(ctx):
         "TEMPLATED_env_vars": env_vars,
         "TEMPLATED_expected_exit_code": str(expected_exit_code),
     }
-    # Write the output twice.
-    # In order to have the name "nodejs_test", the rule must be declared
-    # with test = True, which means we must write an output called "executable".
-    # However, in order to wrap with a sh_test for Windows, we must be able to
-    # get a single output file with a ".sh" extension.
-    ctx.template_action(
-        template=ctx.file._launcher_template,
-        output=ctx.outputs.executable,
-        substitutions=substitutions,
-        executable=True,
-    )
-    ctx.template_action(
+    ctx.actions.expand_template(
         template=ctx.file._launcher_template,
         output=ctx.outputs.script,
         substitutions=substitutions,
-        executable=True,
+        is_executable=True,
     )
 
     runfiles = depset(sources + [node, ctx.outputs.loader, ctx.file._repository_args] + node_modules)
 
-    return struct(
+    return [DefaultInfo(
+        executable = ctx.outputs.script,
         runfiles = ctx.runfiles(
             transitive_files = runfiles,
             files = [node, ctx.outputs.loader] + node_modules + sources,
             collect_data = True,
         ),
-    )
+    )]
 
 _NODEJS_EXECUTABLE_ATTRS = {
     "entry_point": attr.string(
@@ -249,7 +239,7 @@ The runtime will pause before executing the program, allowing you to connect a
 remote debugger.
 """
 
-def nodejs_binary_macro(name, args=[], visibility=None, tags=[], **kwargs):
+def nodejs_binary_macro(name, data=[], args=[], visibility=None, tags=[], testonly=0, **kwargs):
   """This macro exists only to wrap the nodejs_binary as an .exe for Windows.
 
   This is exposed in the public API at `//:defs.bzl` as `nodejs_binary`, so most
@@ -257,13 +247,18 @@ def nodejs_binary_macro(name, args=[], visibility=None, tags=[], **kwargs):
 
   Args:
     name: name of the label
+    data: runtime dependencies
     args: applied to the wrapper binary
     visibility: applied to the wrapper binary
     tags: applied to the wrapper binary
+    testonly: applied to nodejs_binary and wrapper binary
     **kwargs: passed to the nodejs_binary
   """
   nodejs_binary(
       name = "%s_bin" % name,
+      data = data + ["@bazel_tools//tools/bash/runfiles"],
+      testonly = testonly,
+      visibility = ["//visibility:private"],
       **kwargs
   )
 
@@ -273,10 +268,11 @@ def nodejs_binary_macro(name, args=[], visibility=None, tags=[], **kwargs):
       tags = tags,
       srcs = [":%s_bin.sh" % name],
       data = [":%s_bin" % name],
+      testonly = testonly,
       visibility = visibility,
   )
 
-def nodejs_test_macro(name, args=[], visibility=None, tags=[], **kwargs):
+def nodejs_test_macro(name, data=[], args=[], visibility=None, tags=[], **kwargs):
   """This macro exists only to wrap the nodejs_test as an .exe for Windows.
 
   This is exposed in the public API at `//:defs.bzl` as `nodejs_test`, so most
@@ -284,15 +280,17 @@ def nodejs_test_macro(name, args=[], visibility=None, tags=[], **kwargs):
 
   Args:
     name: name of the label
+    data: runtime dependencies
     args: applied to the wrapper binary
     visibility: applied to the wrapper binary
     tags: applied to the wrapper binary
     **kwargs: passed to the nodejs_test
   """
-
   nodejs_test(
       name = "%s_bin" % name,
+      data = data + ["@bazel_tools//tools/bash/runfiles"],
       testonly = 1,
+      tags = ["manual"],
       **kwargs
   )
 

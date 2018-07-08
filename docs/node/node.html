@@ -126,7 +126,7 @@ a <code>module_name</code> attribute can be <code>require</code>d by that name.<
 
           <h2 id="nodejs_binary_macro">nodejs_binary_macro</h2>
 
-          <pre>nodejs_binary_macro(<a href="#nodejs_binary_macro.name">name</a>, <a href="#nodejs_binary_macro.args">args</a>, <a href="#nodejs_binary_macro.visibility">visibility</a>, <a href="#nodejs_binary_macro.tags">tags</a>)</pre>
+          <pre>nodejs_binary_macro(<a href="#nodejs_binary_macro.name">name</a>, <a href="#nodejs_binary_macro.data">data</a>, <a href="#nodejs_binary_macro.args">args</a>, <a href="#nodejs_binary_macro.visibility">visibility</a>, <a href="#nodejs_binary_macro.tags">tags</a>, <a href="#nodejs_binary_macro.testonly">testonly</a>)</pre>
 
           <p>This macro exists only to wrap the nodejs_binary as an .exe for Windows.</p>
 <p>This is exposed in the public API at <code>//:defs.bzl</code> as <code>nodejs_binary</code>, so most
@@ -148,6 +148,13 @@ users loading <code>nodejs_binary</code> are actually executing this macro.</p>
         <p>name of the label</p>
       </td>
     </tr>
+    <tr id="nodejs_binary_macro.data">
+      <td><code>data</code></td>
+      <td>
+        <p><code>List of strings; Optional</code></p>
+        <p>runtime dependencies</p>
+      </td>
+    </tr>
     <tr id="nodejs_binary_macro.args">
       <td><code>args</code></td>
       <td>
@@ -166,7 +173,14 @@ users loading <code>nodejs_binary</code> are actually executing this macro.</p>
       <td><code>tags</code></td>
       <td>
         <p><code>List of strings; Optional</code></p>
-        <p>applied to the wrapper binary
+        <p>applied to the wrapper binary</p>
+      </td>
+    </tr>
+    <tr id="nodejs_binary_macro.testonly">
+      <td><code>testonly</code></td>
+      <td>
+        <p><code>Integer; Optional</code></p>
+        <p>applied to nodejs_binary and wrapper binary
 **kwargs: passed to the nodejs_binary</p>
       </td>
     </tr>
@@ -176,7 +190,7 @@ users loading <code>nodejs_binary</code> are actually executing this macro.</p>
 
           <h2 id="nodejs_test_macro">nodejs_test_macro</h2>
 
-          <pre>nodejs_test_macro(<a href="#nodejs_test_macro.name">name</a>, <a href="#nodejs_test_macro.args">args</a>, <a href="#nodejs_test_macro.visibility">visibility</a>, <a href="#nodejs_test_macro.tags">tags</a>)</pre>
+          <pre>nodejs_test_macro(<a href="#nodejs_test_macro.name">name</a>, <a href="#nodejs_test_macro.data">data</a>, <a href="#nodejs_test_macro.args">args</a>, <a href="#nodejs_test_macro.visibility">visibility</a>, <a href="#nodejs_test_macro.tags">tags</a>)</pre>
 
           <p>This macro exists only to wrap the nodejs_test as an .exe for Windows.</p>
 <p>This is exposed in the public API at <code>//:defs.bzl</code> as <code>nodejs_test</code>, so most
@@ -196,6 +210,13 @@ users loading <code>nodejs_test</code> are actually executing this macro.</p>
       <td>
         <p><code><a href="https://bazel.build/docs/build-ref.html#name">Name</a>; Required</code></p>
         <p>name of the label</p>
+      </td>
+    </tr>
+    <tr id="nodejs_test_macro.data">
+      <td><code>data</code></td>
+      <td>
+        <p><code>List of strings; Optional</code></p>
+        <p>runtime dependencies</p>
       </td>
     </tr>
     <tr id="nodejs_test_macro.args">
@@ -226,7 +247,7 @@ users loading <code>nodejs_test</code> are actually executing this macro.</p>
 
           <h2 id="nodejs_binary">nodejs_binary</h2>
 
-          <pre>nodejs_binary(<a href="#nodejs_binary.name">name</a>, <a href="#nodejs_binary.data">data</a>, <a href="#nodejs_binary.bootstrap">bootstrap</a>, <a href="#nodejs_binary.entry_point">entry_point</a>, <a href="#nodejs_binary.node_modules">node_modules</a>, <a href="#nodejs_binary.templated_args">templated_args</a>)</pre>
+          <pre>nodejs_binary(<a href="#nodejs_binary.name">name</a>, <a href="#nodejs_binary.data">data</a>, <a href="#nodejs_binary.bootstrap">bootstrap</a>, <a href="#nodejs_binary.entry_point">entry_point</a>, <a href="#nodejs_binary.node">node</a>, <a href="#nodejs_binary.node_modules">node_modules</a>, <a href="#nodejs_binary.templated_args">templated_args</a>)</pre>
 
           <p>Runs some JavaScript code in NodeJS.</p>
 
@@ -271,6 +292,13 @@ users loading <code>nodejs_test</code> are actually executing this macro.</p>
         in cases where a script with the same name appears in another directory or external workspace.</p>
       </td>
     </tr>
+    <tr id="nodejs_binary.node">
+      <td><code>node</code></td>
+      <td>
+        <p><code><a href="https://bazel.build/docs/build-ref.html#labels">Label</a>; Optional; Default is @nodejs//:node</code></p>
+        <p>The node entry point target.</p>
+      </td>
+    </tr>
     <tr id="nodejs_binary.node_modules">
       <td><code>node_modules</code></td>
       <td>
@@ -294,7 +322,7 @@ users loading <code>nodejs_test</code> are actually executing this macro.</p>
 
           <h2 id="nodejs_test">nodejs_test</h2>
 
-          <pre>nodejs_test(<a href="#nodejs_test.name">name</a>, <a href="#nodejs_test.data">data</a>, <a href="#nodejs_test.bootstrap">bootstrap</a>, <a href="#nodejs_test.entry_point">entry_point</a>, <a href="#nodejs_test.node_modules">node_modules</a>, <a href="#nodejs_test.templated_args">templated_args</a>)</pre>
+          <pre>nodejs_test(<a href="#nodejs_test.name">name</a>, <a href="#nodejs_test.data">data</a>, <a href="#nodejs_test.bootstrap">bootstrap</a>, <a href="#nodejs_test.entry_point">entry_point</a>, <a href="#nodejs_test.expected_exit_code">expected_exit_code</a>, <a href="#nodejs_test.node">node</a>, <a href="#nodejs_test.node_modules">node_modules</a>, <a href="#nodejs_test.templated_args">templated_args</a>)</pre>
 
           <p>Identical to <code>nodejs_binary</code>, except this can be used with <code>bazel test</code> as well.
 When the binary returns zero exit code, the test passes; otherwise it fails.</p>
@@ -352,6 +380,20 @@ remote debugger.</p>
         <p>The script which should be executed first, usually containing a main function.
         This attribute expects a string starting with the workspace name, so that it's not ambiguous
         in cases where a script with the same name appears in another directory or external workspace.</p>
+      </td>
+    </tr>
+    <tr id="nodejs_test.expected_exit_code">
+      <td><code>expected_exit_code</code></td>
+      <td>
+        <p><code>Integer; Optional; Default is 0</code></p>
+        <p>The expected exit code for the test. Defaults to 0.</p>
+      </td>
+    </tr>
+    <tr id="nodejs_test.node">
+      <td><code>node</code></td>
+      <td>
+        <p><code><a href="https://bazel.build/docs/build-ref.html#labels">Label</a>; Optional; Default is @nodejs//:node</code></p>
+        <p>The node entry point target.</p>
       </td>
     </tr>
     <tr id="nodejs_test.node_modules">

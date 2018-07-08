@@ -231,8 +231,15 @@ module.constructor._resolveFilename =
     resolveLocations.push(resolveRunfiles(
         'TEMPLATED_label_workspace_name', 'TEMPLATED_label_package', 'node_modules', request));
   }
+  var manifestLocation = resolveRunfiles('manifest');
   for (var location of resolveLocations) {
     try {
+      // Do not resolve the MANIFEST file in runfiles
+      // This can occur unintentially from a require('manifest') if there
+      // is a manifest.js file or manifest npm package to be resolved
+      if (runfilesManifest && location.toLowerCase() == manifestLocation.toLowerCase()) {
+        continue;
+      }
       return originalResolveFilename(location, parent);
     } catch (e) {
       failedResolutions.push(location);

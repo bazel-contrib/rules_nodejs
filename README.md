@@ -28,7 +28,7 @@ containing:
 git_repository(
     name = "build_bazel_rules_nodejs",
     remote = "https://github.com/bazelbuild/rules_nodejs.git",
-    tag = "0.8.0", # check for the latest tag when you install
+    tag = "0.10.0", # check for the latest tag when you install
 )
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
@@ -364,3 +364,16 @@ References:
 - yarn: https://yarnpkg.com/lang/en/docs/yarn-lock/
 
 Note that https://github.com/bazelbuild/rules_nodejs/issues/1 will take the guarantee further: by using the lockfile as an input to Bazel, the nodejs rules can verify the integrity of the dependencies. This would make it impossible for a build to be non-reproducible, so long as you have the same lockfile.
+
+# For Developers
+
+## Releasing
+
+Start from a clean checkout at master/HEAD.
+Check if there are any breaking changes since the last tag - if so, this will be a minor, if not it's a patch.
+(This may not sound like semver, but since our major version is a zero, the rule is that minors are breaking changes and patches are new features.)
+
+1. Re-generate the API docs: `yarn skydoc`
+1. `git commit -a -m 'Update docs for release'`
+1. Write some brief release notes (manual for now): `git tag -a 0.x.y`
+1. `git push && git push --tags`
