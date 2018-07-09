@@ -30,7 +30,6 @@ COMMON_ATTRIBUTES = dict(BASE_ATTRIBUTES, **{
     "data": attr.label_list(
         default = [],
         allow_files = True,
-        cfg = "data",
     ),
     # TODO(evanm): make this the default and remove the option.
     "runtime": attr.string(default="browser"),

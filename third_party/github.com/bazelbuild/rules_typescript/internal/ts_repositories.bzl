@@ -22,8 +22,9 @@ def ts_setup_workspace():
   It creates some additional Bazel external repositories that are used internally
   by the TypeScript rules.
   """
-  # @bazel_tools//tools/bash/runfiles is required
-  check_bazel_version("0.14.0")
+  # 0.14.0: @bazel_tools//tools/bash/runfiles is required
+  # 0.15.0: "data" attributes don't need 'cfg = "data"'
+  check_bazel_version("0.15.0")
 
   yarn_install(
       name = "build_bazel_rules_typescript_tsc_wrapped_deps",
