@@ -163,15 +163,14 @@ ts_web_test = rule(
             allow_files = [".js"],
         ),
         "data": attr.label_list(
-            doc = "Runtime dependencies",
-            cfg = "data"),
+            doc = "Runtime dependencies"),
         "static_files": attr.label_list(
             doc = """Arbitrary files which to be served.""",
             allow_files = True),
         "_karma": attr.label(
             default = Label("//internal/karma:karma_bin"),
             executable = True,
-            cfg = "data",
+            cfg = "target",
             single_file = False,
             allow_files = True),
         "_conf_tmpl": attr.label(

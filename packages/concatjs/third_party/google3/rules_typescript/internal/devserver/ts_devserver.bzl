@@ -122,7 +122,7 @@ ts_devserver = rule(
             If you don't specify one, the JavaScript can be loaded at /_/ts_scripts.js"""),
         "data": attr.label_list(
             doc = "Dependencies that can be require'd while the server is running",
-            allow_files = True, cfg = "data"),
+            allow_files = True),
         "static_files": attr.label_list(
             doc = """Arbitrary files which to be served, such as index.html.
             They are served relative to the package where this rule is declared.""",
