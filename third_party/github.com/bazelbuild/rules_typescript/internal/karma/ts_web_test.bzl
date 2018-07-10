@@ -122,9 +122,11 @@ fi
 export HOME=$(mktemp -d)
 ARGV=( "start" $CONF )
 
-# Detect that we are running as a test, by using a well-known environment
-# variable. See go/test-encyclopedia
-if [ ! -z "$TEST_TMPDIR" ]; then
+# Detect that we are running as a test, by using well-known environment
+# variables. See go/test-encyclopedia
+# Note: in Bazel 0.14 and later, TEST_TMPDIR is set for both bazel test and bazel run
+# so we also check for the BUILD_WORKSPACE_DIRECTORY which is set only for bazel run
+if [[ ! -z "${{TEST_TMPDIR}}" && ! -n "${{BUILD_WORKSPACE_DIRECTORY}}" ]]; then
   ARGV+=( "--single-run" )
 fi
 
