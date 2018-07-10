@@ -25,7 +25,12 @@ load("//internal/node:node_labels.bzl", "get_node_label", "get_npm_label", "get_
 load("//internal/common:os_name.bzl", "os_name")
 
 def _create_build_file(repository_ctx):
-  repository_ctx.file("BUILD", """
+  if repository_ctx.attr.node_modules_filegroup:
+    repository_ctx.file("BUILD", """
+package(default_visibility = ["//visibility:public"])
+""" + repository_ctx.attr.node_modules_filegroup)
+  else:
+    repository_ctx.file("BUILD", """
 package(default_visibility = ["//visibility:public"])
 filegroup(
     name = "node_modules",
@@ -122,6 +127,7 @@ npm_install = repository_rule(
             single_file = True,
         ),
         "data": attr.label_list(),
+        "node_modules_filegroup": attr.string(),
     },
     implementation = _npm_install_impl,
 )
@@ -172,6 +178,7 @@ yarn_install = repository_rule(
             single_file = True,
         ),
         "data": attr.label_list(),
+        "node_modules_filegroup": attr.string(),
     },
     implementation = _yarn_install_impl,
 )
