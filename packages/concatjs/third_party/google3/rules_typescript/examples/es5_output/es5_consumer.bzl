@@ -18,22 +18,23 @@
 load("@build_bazel_rules_nodejs//internal:node.bzl", "sources_aspect")
 
 def _es5_consumer(ctx):
-  files = depset()
-  # Since we apply the sources_aspect to our deps below, we can iterate through
-  # the deps and grab the attribute attached by that aspect, which is called
-  # "node_sources".
-  # See https://github.com/bazelbuild/rules_nodejs/blob/master/internal/node.bzl
-  for d in ctx.attr.deps:
-    files = depset(transitive=[files, d.node_sources])
+    files = depset()
 
-  return [DefaultInfo(
-      files = files,
-      runfiles = ctx.runfiles(files.to_list()),
-  )]
+    # Since we apply the sources_aspect to our deps below, we can iterate through
+    # the deps and grab the attribute attached by that aspect, which is called
+    # "node_sources".
+    # See https://github.com/bazelbuild/rules_nodejs/blob/master/internal/node.bzl
+    for d in ctx.attr.deps:
+        files = depset(transitive = [files, d.node_sources])
+
+    return [DefaultInfo(
+        files = files,
+        runfiles = ctx.runfiles(files.to_list()),
+    )]
 
 es5_consumer = rule(
     implementation = _es5_consumer,
     attrs = {
-        "deps": attr.label_list(aspects = [sources_aspect])
-    }
+        "deps": attr.label_list(aspects = [sources_aspect]),
+    },
 )

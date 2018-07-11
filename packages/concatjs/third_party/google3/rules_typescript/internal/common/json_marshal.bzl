@@ -13,23 +13,24 @@
 # limitations under the License.
 
 """Marshal an arbitrary Skylark object to JSON."""
+
 def json_marshal(data):
-  """Serializes arbitrary data to JSON.
+    """Serializes arbitrary data to JSON.
 
-  Args:
-    data: any object
+    Args:
+      data: any object
 
-  Returns:
-    JSON string representing the data
-  """
-  if type(data) == "dict" or type(data) == "list":
-    return str(data).replace(": True", ": true").replace(": False", ": false").replace(": None", ": false")
-  elif type(data) == "int":
-    return str(data)
-  elif type(data) == "string":
-    return "\"" + data + "\""
-  elif type(data) == "Label":
-    return "\"//{}:{}\"".format(data.package, data.name)
-  elif type(data) == "bool":
-    return "true" if data else "false"
-  return "unknown type {}: {}".format(type(data), data)
+    Returns:
+      JSON string representing the data
+    """
+    if type(data) == "dict" or type(data) == "list":
+        return str(data).replace(": True", ": true").replace(": False", ": false").replace(": None", ": false")
+    elif type(data) == "int":
+        return str(data)
+    elif type(data) == "string":
+        return "\"" + data + "\""
+    elif type(data) == "Label":
+        return "\"//{}:{}\"".format(data.package, data.name)
+    elif type(data) == "bool":
+        return "true" if data else "false"
+    return "unknown type {}: {}".format(type(data), data)

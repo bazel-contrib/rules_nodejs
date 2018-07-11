@@ -18,16 +18,16 @@
 load("@build_bazel_rules_nodejs//:internal/collect_es6_sources.bzl", "collect_es6_sources")
 
 def _es6_consumer(ctx):
-  es6_sources = collect_es6_sources(ctx)
+    es6_sources = collect_es6_sources(ctx)
 
-  return [DefaultInfo(
-      files = es6_sources,
-      runfiles = ctx.runfiles(es6_sources.to_list()),
-  )]
+    return [DefaultInfo(
+        files = es6_sources,
+        runfiles = ctx.runfiles(es6_sources.to_list()),
+    )]
 
 es6_consumer = rule(
     implementation = _es6_consumer,
     attrs = {
         "deps": attr.label_list(),
-    }
+    },
 )

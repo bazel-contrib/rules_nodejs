@@ -17,34 +17,35 @@
 load("@build_bazel_rules_nodejs//:defs.bzl", "check_bazel_version", "yarn_install")
 
 def ts_setup_workspace():
-  """This repository rule should be called from your WORKSPACE file.
+    """This repository rule should be called from your WORKSPACE file.
 
-  It creates some additional Bazel external repositories that are used internally
-  by the TypeScript rules.
-  """
-  # 0.14.0: @bazel_tools//tools/bash/runfiles is required
-  # 0.15.0: "data" attributes don't need 'cfg = "data"'
-  check_bazel_version("0.15.0")
+    It creates some additional Bazel external repositories that are used internally
+    by the TypeScript rules.
+    """
 
-  yarn_install(
-      name = "build_bazel_rules_typescript_tsc_wrapped_deps",
-      package_json = "@build_bazel_rules_typescript//internal:tsc_wrapped/package.json",
-      yarn_lock = "@build_bazel_rules_typescript//internal:tsc_wrapped/yarn.lock",
-  )
-  yarn_install(
-      name = "build_bazel_rules_typescript_devserver_deps",
-      package_json = "@build_bazel_rules_typescript//internal/devserver:package.json",
-      yarn_lock = "@build_bazel_rules_typescript//internal/devserver:yarn.lock",
-  )
+    # 0.14.0: @bazel_tools//tools/bash/runfiles is required
+    # 0.15.0: "data" attributes don't need 'cfg = "data"'
+    check_bazel_version("0.15.0")
 
-  yarn_install(
-      name = "build_bazel_rules_typescript_karma_deps",
-      package_json = "@build_bazel_rules_typescript//internal/karma:package.json",
-      yarn_lock = "@build_bazel_rules_typescript//internal/karma:yarn.lock",
-  )
+    yarn_install(
+        name = "build_bazel_rules_typescript_tsc_wrapped_deps",
+        package_json = "@build_bazel_rules_typescript//internal:tsc_wrapped/package.json",
+        yarn_lock = "@build_bazel_rules_typescript//internal:tsc_wrapped/yarn.lock",
+    )
+    yarn_install(
+        name = "build_bazel_rules_typescript_devserver_deps",
+        package_json = "@build_bazel_rules_typescript//internal/devserver:package.json",
+        yarn_lock = "@build_bazel_rules_typescript//internal/devserver:yarn.lock",
+    )
 
-  yarn_install(
-      name = "build_bazel_rules_typescript_protobufs_compiletime_deps",
-      package_json = "@build_bazel_rules_typescript//internal/protobufjs:package.json",
-      yarn_lock = "@build_bazel_rules_typescript//internal/protobufjs:yarn.lock",
-  )
+    yarn_install(
+        name = "build_bazel_rules_typescript_karma_deps",
+        package_json = "@build_bazel_rules_typescript//internal/karma:package.json",
+        yarn_lock = "@build_bazel_rules_typescript//internal/karma:yarn.lock",
+    )
+
+    yarn_install(
+        name = "build_bazel_rules_typescript_protobufs_compiletime_deps",
+        package_json = "@build_bazel_rules_typescript//internal/protobufjs:package.json",
+        yarn_lock = "@build_bazel_rules_typescript//internal/protobufjs:yarn.lock",
+    )
