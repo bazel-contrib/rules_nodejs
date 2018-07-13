@@ -127,7 +127,13 @@ npm_install = repository_rule(
             single_file = True,
         ),
         "data": attr.label_list(),
-        "node_modules_filegroup": attr.string(),
+        "node_modules_filegroup": attr.string(
+            doc = """Experimental attribute that can be used to work-around
+            a bazel performance issue if the default node_modules filegroup
+            has too many files in it. Use it to define the node_modules
+            filegroup used by this rule such as
+            "filegroup(name = "node_modules", srcs = glob([...]))". See
+            https://github.com/bazelbuild/bazel/issues/5153."""),
     },
     implementation = _npm_install_impl,
 )
@@ -178,7 +184,13 @@ yarn_install = repository_rule(
             single_file = True,
         ),
         "data": attr.label_list(),
-        "node_modules_filegroup": attr.string(),
+        "node_modules_filegroup": attr.string(
+            doc = """Experimental attribute that can be used to work-around
+            a bazel performance issue if the default node_modules filegroup
+            has too many files in it. Use it to define the node_modules
+            filegroup used by this rule such as
+            "filegroup(name = "node_modules", srcs = glob([...]))". See
+            https://github.com/bazelbuild/bazel/issues/5153."""),
     },
     implementation = _yarn_install_impl,
 )
