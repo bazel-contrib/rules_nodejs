@@ -15,7 +15,7 @@
 licenses(["notice"])  # Apache 2.0
 
 package(default_visibility = [
-    "//internal:__subpackages__",
+    "//third_party/bazel_rules/rules_typescript/internal:__subpackages__",
 ])
 
 exports_files([
@@ -25,22 +25,5 @@ exports_files([
 
 filegroup(
     name = "source_tree",
-    srcs = [
-        "//internal/devserver/main:source_tree",
-    ] + glob(["**/*"]),
-)
-
-load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
-
-go_library(
-    name = "devserver",
-    importpath = "github.com/bazelbuild/rules_typescript/internal/devserver/devserver",
-    srcs = ["devserver.go"],
-)
-
-go_test(
-    name = "devserver_test",
-    size = "small",
-    srcs = ["devserver_test.go"],
-    embed = [":devserver"],
+    srcs = glob(["**/*"]),
 )

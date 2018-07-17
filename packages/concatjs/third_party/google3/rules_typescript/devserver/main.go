@@ -11,8 +11,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/bazelbuild/rules_typescript/internal/concatjs/concatjs"
-	"github.com/bazelbuild/rules_typescript/internal/devserver/devserver"
+	"github.com/bazelbuild/rules_typescript/devserver/concatjs"
+	"github.com/bazelbuild/rules_typescript/devserver/devserver"
 )
 
 var (
