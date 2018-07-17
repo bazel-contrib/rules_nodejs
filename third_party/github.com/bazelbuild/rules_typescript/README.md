@@ -234,6 +234,11 @@ rule is that minors are breaking changes and patches are new features).
 
 ```sh
 yarn skydoc
+
+# May be necessary if Go code has changed
+# though probably it was already necessary to run this to keep CI green.
+bazel run :gazelle
+
 git commit -a -m 'Update docs for release'
 npm config set tag-version-prefix ''
 npm version minor -m 'rel: %s' # Replace minor with patch if no breaking changes
