@@ -203,7 +203,7 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
       if (fileName.startsWith(root)) {
         // rootDirs are sorted longest-first, so short-circuit the iteration
         // see tsconfig.ts.
-        return path.relative(root, fileName);
+        return path.posix.relative(root, fileName);
       }
     }
     return fileName;
@@ -314,7 +314,7 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
     }
 
     if (this.bazelOpts.moduleName) {
-      const relativeFileName = path.relative(this.bazelOpts.package, fileName);
+      const relativeFileName = path.posix.relative(this.bazelOpts.package, fileName);
       if (!relativeFileName.startsWith('..')) {
         if (this.bazelOpts.moduleRoot &&
             this.bazelOpts.moduleRoot.replace(TS_EXT, '') ===
