@@ -27,7 +27,7 @@ const workerpb = (function loadWorkerPb() {
   // This doesn't work due to a Bazel bug, see comments in build_defs.bzl
   // let protoPath =
   // 'external/bazel_tools/src/main/protobuf/worker_protocol.proto';
-  const protoPath = 'build_bazel_rules_typescript/internal/worker_protocol.proto';
+  const protoPath = 'build_bazel_rules_typescript/third_party/github.com/bazelbuild/bazel/src/main/protobuf/worker_protocol.proto';
 
   // Use node module resolution so we can find the .proto file in any of the root dirs
   const protofile = require.resolve(protoPath);
