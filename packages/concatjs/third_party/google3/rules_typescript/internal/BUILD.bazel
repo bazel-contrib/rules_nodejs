@@ -17,7 +17,6 @@
 package(default_visibility = ["//visibility:public"])
 
 exports_files([
-    "worker_protocol.proto",
     # Exported to be consumed for generating skydoc.
     "build_defs.bzl", "ts_config.bzl", "ts_repositories.bzl",
 ])
@@ -49,9 +48,7 @@ ts_library(
     tsconfig = "//internal:tsc_wrapped/tsconfig.json",
     visibility = ["//visibility:public"],
     data = [
-        # Should be @bazel_tools//src/main/protobuf:worker_protocol.proto
-        # see https://github.com/bazelbuild/bazel/issues/3155#issuecomment-308156976
-        ":worker_protocol.proto",
+        "//third_party/github.com/bazelbuild/bazel/src/main/protobuf:worker_protocol.proto",
     ],
     # Cannot have any deps because it doesn't work with vanilla tsc
     # Workaround for https://github.com/Microsoft/TypeScript/issues/22208
