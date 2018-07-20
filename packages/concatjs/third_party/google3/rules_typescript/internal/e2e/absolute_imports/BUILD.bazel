@@ -20,6 +20,6 @@ ts_library(
     name = "absolute_imports",
     srcs = glob(["*.ts"]),
     expected_diagnostics = [
-        "TS2307: Cannot find module 'internal/e2e/absolute_imports/foo'"
+        "TS2307: Cannot find module 'internal/e2e/absolute_imports/foo'",
     ],
 )

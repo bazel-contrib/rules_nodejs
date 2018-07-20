@@ -16,7 +16,6 @@ licenses(["notice"])  # Apache 2.0
 
 package(default_visibility = ["//visibility:public"])
 
-
 load("//:defs.bzl", "ts_library")
 
 ts_library(
