@@ -135,11 +135,15 @@ _term() {
   kill -TERM "$child" 2>/dev/null
 }
 
+_int() {
+  kill -INT "$child" 2>/dev/null
+}
+
 set +e
 "${node}" "${NODE_OPTIONS[@]}" "${script}" "${ARGS[@]}" &
 child=$!
 trap _term SIGTERM
-trap _term SIGINT
+trap _int SIGINT
 wait "$child"
 RESULT="$?"
 set -e
