@@ -34,7 +34,7 @@ filegroup(
     srcs = glob([
         "node_modules/**/*.js",
         "node_modules/**/*.d.ts",
-        "node_modules/**/*.json"
+        "node_modules/**/*.json",
     ] + [
         # Needed because http-server has a bin with no .js extension
         "node_modules/http-server/**",
@@ -47,9 +47,9 @@ load("@io_bazel_skydoc//skylark:skylark.bzl", "skylark_doc")
 skylark_doc(
     name = "docs",
     srcs = [
-        "//internal:ts_repositories.bzl",
         "//internal:build_defs.bzl",
         "//internal:ts_config.bzl",
+        "//internal:ts_repositories.bzl",
         "//internal/devserver:ts_devserver.bzl",
         "//internal/karma:ts_web_test.bzl",
         "//internal/protobufjs:ts_proto_library.bzl",

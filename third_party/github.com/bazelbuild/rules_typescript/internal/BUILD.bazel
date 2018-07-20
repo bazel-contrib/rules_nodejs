@@ -18,7 +18,9 @@ package(default_visibility = ["//visibility:public"])
 
 exports_files([
     # Exported to be consumed for generating skydoc.
-    "build_defs.bzl", "ts_config.bzl", "ts_repositories.bzl",
+    "build_defs.bzl",
+    "ts_config.bzl",
+    "ts_repositories.bzl",
 ])
 
 load("//internal:build_defs.bzl", "ts_library")
@@ -27,29 +29,35 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary", "jasmine_node_test
 # Vanilla typescript compiler: run the tsc.js binary distributed by TypeScript
 nodejs_binary(
     name = "tsc",
-    node_modules = "@build_bazel_rules_typescript_tsc_wrapped_deps//:node_modules",
     entry_point = "typescript/lib/tsc.js",
+    node_modules = "@build_bazel_rules_typescript_tsc_wrapped_deps//:node_modules",
     visibility = ["//internal:__subpackages__"],
 )
 
 # Build our custom compiler using the vanilla one
 ts_library(
     name = "tsc_wrapped",
-    srcs = glob([
-      "tsc_wrapped/*.ts",
-      "tsetse/*.ts",
-      "tsetse/rules/*.ts"
-    ], exclude=["**/test_support.ts", "**/*_test.ts"]),
-    supports_workers = False,
+    srcs = glob(
+        [
+            "tsc_wrapped/*.ts",
+            "tsetse/*.ts",
+            "tsetse/rules/*.ts",
+        ],
+        exclude = [
+            "**/test_support.ts",
+            "**/*_test.ts",
+        ],
+    ),
     compiler = ":tsc",
-    node_modules = "@build_bazel_rules_typescript_tsc_wrapped_deps//:node_modules",
-    module_name = "@bazel/typescript",
-    module_root = "tsc_wrapped/index.d.ts",
-    tsconfig = "//internal:tsc_wrapped/tsconfig.json",
-    visibility = ["//visibility:public"],
     data = [
         "//third_party/github.com/bazelbuild/bazel/src/main/protobuf:worker_protocol.proto",
     ],
+    module_name = "@bazel/typescript",
+    module_root = "tsc_wrapped/index.d.ts",
+    node_modules = "@build_bazel_rules_typescript_tsc_wrapped_deps//:node_modules",
+    supports_workers = False,
+    tsconfig = "//internal:tsc_wrapped/tsconfig.json",
+    visibility = ["//visibility:public"],
     # Cannot have any deps because it doesn't work with vanilla tsc
     # Workaround for https://github.com/Microsoft/TypeScript/issues/22208
     deps = [
@@ -63,8 +71,8 @@ nodejs_binary(
     data = [
         ":tsc_wrapped",
     ],
-    node_modules = "@build_bazel_rules_typescript_tsc_wrapped_deps//:node_modules",
     entry_point = "build_bazel_rules_typescript/internal/tsc_wrapped/tsc_wrapped.js",
+    node_modules = "@build_bazel_rules_typescript_tsc_wrapped_deps//:node_modules",
     templated_args = ["--node_options=--expose-gc"],
     visibility = ["//visibility:public"],
 )
@@ -72,8 +80,8 @@ nodejs_binary(
 ts_library(
     name = "test_lib",
     srcs = glob(["tsc_wrapped/*_test.ts"]) + ["tsc_wrapped/test_support.ts"],
-    deps = [":tsc_wrapped"],
     tsconfig = "//internal:tsc_wrapped/tsconfig.json",
+    deps = [":tsc_wrapped"],
 )
 
 jasmine_node_test(

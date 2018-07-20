@@ -46,7 +46,7 @@ sh_test(
     name = "module_load_test",
     srcs = ["module_load_test.sh"],
     data = [
-      ":bin",
-      "@bazel_tools//tools/bash/runfiles",
+        ":bin",
+        "@bazel_tools//tools/bash/runfiles",
     ],
 )

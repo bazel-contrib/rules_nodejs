@@ -7,13 +7,13 @@ ts_library(
 
 ts_devserver(
     name = "devserver",
-    # We'll collect all the devmode JS sources from these TypeScript libraries
-    deps = [":app"],
+    port = 8080,
     # This is the path we'll request from the browser, see index.html
     serving_path = "/bundle.min.js",
     # The devserver can serve our static files too
     static_files = ["index.html"],
-    port = 8080,
+    # We'll collect all the devmode JS sources from these TypeScript libraries
+    deps = [":app"],
 )
 
 # Test for production mode
@@ -21,8 +21,8 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "rollup_bundle", "nodejs_binary")
 
 rollup_bundle(
     name = "bundle",
-    deps = [":app"],
     entry_point = "examples/app/app",
+    deps = [":app"],
 )
 
 nodejs_binary(

@@ -25,7 +25,7 @@ sh_test(
     name = "es6_output_test",
     srcs = ["es6_output_test.sh"],
     data = [
-      ":es6_output",
-      "@bazel_tools//tools/bash/runfiles",
+        ":es6_output",
+        "@bazel_tools//tools/bash/runfiles",
     ],
 )

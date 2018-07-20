@@ -7,37 +7,37 @@ ts_library(
 
 ts_library(
     name = "tests",
-    srcs = glob(["*.spec.ts"]),
-    deps = [":lib"],
-    tsconfig = ":tsconfig.json",
     testonly = 1,
+    srcs = glob(["*.spec.ts"]),
+    tsconfig = ":tsconfig.json",
+    deps = [":lib"],
 )
 
 ts_web_test_suite(
     name = "testing",
-    deps = [
-      ":tests",
+    browsers = [
+        "@io_bazel_rules_webtesting//browsers:chromium-local",
+        "@io_bazel_rules_webtesting//browsers:firefox-local",
     ],
     static_files = [
-      "static_script.js",
+        "static_script.js",
     ],
-    browsers = [
-      "@io_bazel_rules_webtesting//browsers:chromium-local",
-      "@io_bazel_rules_webtesting//browsers:firefox-local",
+    deps = [
+        ":tests",
     ],
 )
 
 ts_web_test_suite(
     name = "testing_sauce",
-    deps = [
-      ":tests",
-    ],
     browsers = [
-      "@io_bazel_rules_webtesting//browsers/sauce:chrome-win10",
+        "@io_bazel_rules_webtesting//browsers/sauce:chrome-win10",
     ],
     tags = [
         "sauce",
         # TODO(alexeagle): enable on CI once we have set the SAUCE env variables
         "manual",
+    ],
+    deps = [
+        ":tests",
     ],
 )

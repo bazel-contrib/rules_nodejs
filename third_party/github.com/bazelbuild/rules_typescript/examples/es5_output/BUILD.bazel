@@ -9,7 +9,7 @@ sh_test(
     name = "es5_output_test",
     srcs = ["es5_output_test.sh"],
     data = [
-      ":es5_output",
-      "@bazel_tools//tools/bash/runfiles",
+        ":es5_output",
+        "@bazel_tools//tools/bash/runfiles",
     ],
 )

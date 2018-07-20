@@ -1,4 +1,4 @@
-package(default_visibility=["//visibility:public"])
+package(default_visibility = ["//visibility:public"])
 
 exports_files([
     "test-main.js",
@@ -21,7 +21,7 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
 
 nodejs_binary(
     name = "karma_bin",
-    entry_point = "karma/bin/karma",
     data = [":karma_concat_js"],
+    entry_point = "karma/bin/karma",
     node_modules = "@build_bazel_rules_typescript_karma_deps//:node_modules",
 )
