@@ -161,12 +161,18 @@ def _yarn_install_impl(repository_ctx):
   # A local cache is used as multiple yarn rules cannot run simultaneously using a shared
   # cache and a shared cache is non-hermetic.
   # To see the output, pass: quiet=False
-  result = repository_ctx.execute([
+  args = [
     repository_ctx.path(yarn),
     "--cache-folder",
     repository_ctx.path("_yarn_cache"),
     "--cwd",
-    repository_ctx.path("")])
+    repository_ctx.path(""),
+  ]
+
+  if repository_ctx.attr.prod_only:
+    args.append("--prod")
+
+  result = repository_ctx.execute(args)
 
   if result.return_code:
     fail("yarn_install failed: %s (%s)" % (result.stdout, result.stderr))
@@ -182,6 +188,9 @@ yarn_install = repository_rule(
             allow_files = True,
             mandatory = True,
             single_file = True,
+        ),
+        "prod_only": attr.bool(
+            default = False,
         ),
         "data": attr.label_list(),
         "node_modules_filegroup": attr.string(
