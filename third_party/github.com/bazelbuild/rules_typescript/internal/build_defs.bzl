@@ -162,7 +162,7 @@ def _ts_library_impl(ctx):
     )
     return ts_providers_dict_to_struct(ts_providers)
 
-_ts_library = rule(
+ts_library = rule(
     _ts_library_impl,
     attrs = dict(COMMON_ATTRIBUTES, **{
         "srcs": attr.label_list(
@@ -177,7 +177,16 @@ _ts_library = rule(
         "tsconfig": attr.label(
             doc = """A tsconfig.json file containing settings for TypeScript compilation.
             Note that some properties in the tsconfig are governed by Bazel and will be
-            overridden, such as `target` and `module`.""",
+            overridden, such as `target` and `module`.
+
+            The default value is set to `//:tsconfig.json` by a macro. This means you must
+            either:
+
+            - Have your `tsconfig.json` file in the workspace root directory
+            - Use an alias in the root BUILD.bazel file to point to the location of tsconfig:
+              `alias(name="tsconfig.json", actual="//path/to:tsconfig-something.json")`
+            - Give an explicit `tsconfig` attribute to all `ts_library` targets
+            """,
             allow_files = True,
             single_file = True,
         ),
@@ -219,7 +228,19 @@ TypeScript targets and JavaScript for the browser and Closure compiler.
 """
 
 def ts_library_macro(tsconfig = None, **kwargs):
+    """Wraps `ts_library` to set the default for the `tsconfig` attribute.
+
+    This must be a macro so that the string is converted to a label in the context of the
+    workspace that declares the `ts_library` target, rather than the workspace that defines
+    `ts_library`, or the workspace where the build is taking place.
+
+    This macro is re-exported as `ts_library` in the public API.
+
+    Args:
+      tsconfig: the label pointing to a tsconfig.json file
+      **kwargs: remaining args to pass to the ts_library rule
+    """
     if not tsconfig:
         tsconfig = "//:tsconfig.json"
 
-    _ts_library(tsconfig = tsconfig, **kwargs)
+    ts_library(tsconfig = tsconfig, **kwargs)

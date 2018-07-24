@@ -112,7 +112,6 @@ ts_library(
     name = "my_code",
     srcs = glob(["*.ts"]),
     deps = ["//path/to/other:library"],
-    tsconfig = "//:tsconfig.json",
 )
 ```
 
@@ -123,9 +122,16 @@ Then build it:
 The resulting `.d.ts` file paths will be printed. Additionally, the `.js`
 outputs from TypeScript will be written to disk, next to the `.d.ts` files <sup>1</sup>.
 
+Note that the `tsconfig.json` file used for compilation should be the same one
+your editor references, to keep consistent settings for the TypeScript compiler.
+By default, `ts_library` uses the `tsconfig.json` file in the workspace root
+directory. See the notes about the `tsconfig` attribute in the [ts_library API docs].
+
 > <sup>1</sup> The
 > [declarationDir](https://www.typescriptlang.org/docs/handbook/compiler-options.html)
 > compiler option will be silently overwritten if present.
+
+[ts_library API docs]: http://tsetse.info/api/build_defs.html#ts_library
 
 ### Serving TypeScript for development
 
