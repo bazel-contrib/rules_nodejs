@@ -16,6 +16,7 @@
  */
 
 /** @fileoverview Helper functions for tests. */
+
 import * as fs from 'fs';
 
 import {FileCache} from './file_cache';
@@ -30,11 +31,11 @@ export function writeTempFile(name: string, contents: string): string {
 
 let digestNumber = 0;
 
-export function invalidateFileCache(fc: FileCache<{}>, ...fileNames: string[]) {
-  const digests: {[filePath: string]: string} = {};
+export function invalidateFileCache(fc: FileCache, ...fileNames: string[]) {
+  const digests = new Map<string, string>();
   for (const fp of fileNames) {
     digestNumber++;
-    digests[fp] = fp + digestNumber;
+    digests.set(fp, `${fp}${digestNumber}`);
   }
   fc.updateCache(digests);
 }

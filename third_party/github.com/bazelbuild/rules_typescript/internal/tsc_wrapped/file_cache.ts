@@ -16,19 +16,16 @@
  */
 
 import * as fs from 'fs';
-import * as path from 'path';
 import * as ts from 'typescript';
 import * as perfTrace from './perf_trace';
 
-export interface CacheEntry<CachedType> {
+/**
+ * An entry in FileCache consists of blaze's digest of the file and the parsed
+ * ts.SourceFile AST.
+ */
+export interface CacheEntry {
   digest: string;
-  value: CachedType;
-}
-
-export interface LRUCache<CachedType> {
-  getCache(key: string): CachedType|undefined;
-  putCache(key: string, value: CacheEntry<CachedType>): void;
-  inCache(key: string): boolean;
+  value: ts.SourceFile;
 }
 
 /**
@@ -45,14 +42,21 @@ const DEFAULT_MAX_MEM_USAGE = 1024 * (1 << 20 /* 1 MB */);
  * reaching the cache size limit, it deletes the oldest (first) entries. Used
  * cache entries are moved to the end of the list by deleting and re-inserting.
  */
-export class FileCache<CachedType> implements LRUCache<CachedType> {
-  private fileCache = new Map<string, CacheEntry<CachedType>>();
+// TODO(martinprobst): Drop the <T> parameter, it's no longer used.
+export class FileCache<T = {}> {
+  private fileCache = new Map<string, CacheEntry>();
   /**
    * FileCache does not know how to construct bazel's opaque digests. This
-   * field caches the last compile run's digests, so that code below knows what
-   * digest to assign to a newly loaded file.
+   * field caches the last (or current) compile run's digests, so that code
+   * below knows what digest to assign to a newly loaded file.
    */
-  private lastDigests: {[filePath: string]: string} = {};
+  private lastDigests = new Map<string, string>();
+  /**
+   * FileCache can enter a degenerate state, where all cache entries are pinned
+   * by lastDigests, but the system is still out of memory. In that case, do not
+   * attempt to free memory until lastDigests has changed.
+   */
+  private cannotEvict = false;
 
   cacheStats = {
     hits: 0,
@@ -87,35 +91,44 @@ export class FileCache<CachedType> implements LRUCache<CachedType> {
    * updateCache must be called before loading files - only files that were
    * updated (with a digest) previously can be loaded.
    */
-  updateCache(digests: {[filePath: string]: string}) {
+  updateCache(digests: {[k: string]: string}): void;
+  updateCache(digests: Map<string, string>): void;
+  updateCache(digests: Map<string, string>|{[k: string]: string}) {
+    // TODO(martinprobst): drop the Object based version, it's just here for
+    // backwards compatibility.
+    if (!(digests instanceof Map)) {
+      digests = new Map(Object.keys(digests).map(
+          (k): [string, string] => [k, (digests as {[k: string]: string})[k]]));
+    }
     this.debug('updating digests:', digests);
     this.lastDigests = digests;
-    for (const fp of Object.keys(digests)) {
-      const entry = this.fileCache.get(fp);
-      if (entry && entry.digest !== digests[fp]) {
+    this.cannotEvict = false;
+    for (const [filePath, newDigest] of digests.entries()) {
+      const entry = this.fileCache.get(filePath);
+      if (entry && entry.digest !== newDigest) {
         this.debug(
-            'dropping file cache entry for', fp, 'digests', entry.digest,
-            digests[fp]);
-        this.fileCache.delete(fp);
+            'dropping file cache entry for', filePath, 'digests', entry.digest,
+            newDigest);
+        this.fileCache.delete(filePath);
       }
     }
   }
 
   getLastDigest(filePath: string): string {
-    const digest = this.lastDigests[filePath];
+    const digest = this.lastDigests.get(filePath);
     if (!digest) {
       throw new Error(
           `missing input digest for ${filePath}.` +
-          `(only have ${Object.keys(this.lastDigests)})`);
+          `(only have ${Array.from(this.lastDigests.keys())})`);
     }
     return digest;
   }
 
-  getCache(filePath: string): CachedType|undefined {
+  getCache(filePath: string): ts.SourceFile|undefined {
     this.cacheStats.reads++;
 
     const entry = this.fileCache.get(filePath);
-    let value: CachedType|undefined;
+    let value: ts.SourceFile|undefined;
     if (!entry) {
       this.debug('Cache miss:', filePath);
     } else {
@@ -131,8 +144,7 @@ export class FileCache<CachedType> implements LRUCache<CachedType> {
     return value;
   }
 
-  putCache(filePath: string, entry: CacheEntry<CachedType>):
-      void {
+  putCache(filePath: string, entry: CacheEntry): void {
     const dropped = this.maybeFreeMemory();
     this.fileCache.set(filePath, entry);
     this.debug('Loaded', filePath, 'dropped', dropped, 'cache entries');
@@ -143,7 +155,7 @@ export class FileCache<CachedType> implements LRUCache<CachedType> {
    * has a known cache digest. FileCache can only cache known files.
    */
   isKnownInput(filePath: string): boolean {
-    return !!this.lastDigests[filePath];
+    return this.lastDigests.has(filePath);
   }
 
   inCache(filePath: string): boolean {
@@ -197,24 +209,46 @@ export class FileCache<CachedType> implements LRUCache<CachedType> {
   /**
    * Frees memory if required. Returns the number of dropped entries.
    */
-  private maybeFreeMemory() {
-    if (!this.shouldFreeMemory()) {
+  maybeFreeMemory() {
+    if (!this.shouldFreeMemory() || this.cannotEvict) {
       return 0;
     }
     // Drop half the cache, the least recently used entry == the first entry.
-    this.debug('Evicting from the cache');
-    let numberKeysToDrop = this.fileCache.size / 2;
-    let keysDropped = numberKeysToDrop;
+    this.debug('Evicting from the cache...');
+    const originalSize = this.fileCache.size;
+    let numberKeysToDrop = originalSize / 2;
+    if (numberKeysToDrop === 0) {
+      this.debug('Out of memory with an empty cache.');
+      return 0;
+    }
     // Map keys are iterated in insertion order, since we reinsert on access
     // this is indeed a LRU strategy.
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/keys
     for (const key of this.fileCache.keys()) {
-      if (numberKeysToDrop == 0) break;
+      if (numberKeysToDrop === 0) break;
+      // Do not attempt to drop files that are part of the current compilation
+      // unit. They are hard-retained by TypeScript compiler anyway, so they
+      // cannot be freed in either case.
+      if (this.lastDigests.has(key)) continue;
       this.fileCache.delete(key);
       numberKeysToDrop--;
     }
+    const keysDropped = originalSize - this.fileCache.size;
     this.cacheStats.evictions += keysDropped;
+    this.debug('Evicted', keysDropped, 'cache entries');
+    if (keysDropped === 0) {
+      // Freeing memory did not drop any cache entries, because all are pinned.
+      // Stop evicting until the pinned list changes again. This prevents
+      // degenerating into an O(n^2) situation where each file load iterates
+      // through the list of all files, trying to evict cache keys in vain
+      // because all are pinned.
+      this.cannotEvict = true;
+    }
     return keysDropped;
+  }
+
+  getCacheKeysForTest() {
+    return Array.from(this.fileCache.keys());
   }
 }
 
@@ -233,8 +267,7 @@ export class CachedFileLoader implements FileLoader {
 
   // TODO(alexeagle): remove unused param after usages updated:
   // angular:packages/bazel/src/ngc-wrapped/index.ts
-  constructor(
-      private readonly cache: FileCache<ts.SourceFile>, unused?: boolean) {}
+  constructor(private readonly cache: FileCache, unused?: boolean) {}
 
   fileExists(filePath: string) {
     return this.cache.isKnownInput(filePath);

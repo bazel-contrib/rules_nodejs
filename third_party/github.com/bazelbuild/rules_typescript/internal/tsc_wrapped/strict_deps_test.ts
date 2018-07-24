@@ -21,6 +21,10 @@ import * as ts from 'typescript';
 import {checkModuleDeps} from './strict_deps';
 
 describe('strict deps', () => {
+  // Cache ASTs that are not part of the test to avoid parsing lib.d.ts over and
+  // over again.
+  const astCache = new Map<string, ts.SourceFile>();
+
   function createProgram(files: ts.MapLike<string>) {
     const options: ts.CompilerOptions = {
       noResolve: true,
@@ -28,13 +32,15 @@ describe('strict deps', () => {
       rootDirs: ['/src', '/src/blaze-bin'],
       paths: {'*': ['*', 'blaze-bin/*']},
     };
-
     // Fake compiler host relying on `files` above.
     const host = ts.createCompilerHost(options);
     const originalGetSourceFile = host.getSourceFile.bind(host);
-    host.getSourceFile = function(fileName: string) {
+    host.getSourceFile = (fileName: string) => {
       if (!files[fileName]) {
-        return originalGetSourceFile(fileName, ts.ScriptTarget.Latest);
+        if (astCache.has(fileName)) return astCache.get(fileName);
+        const file = originalGetSourceFile(fileName, ts.ScriptTarget.Latest);
+        astCache.set(fileName, file);
+        return file;
       }
       return ts.createSourceFile(
           fileName, files[fileName], ts.ScriptTarget.Latest);

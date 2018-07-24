@@ -2,7 +2,6 @@ import 'jasmine';
 import * as ts from 'typescript';
 
 import * as diagnostics from './diagnostics';
-import {TS_ERR_CANNOT_FIND_MODULE} from './strict_deps';
 import {BazelOptions} from './tsconfig';
 
 describe('diagnostics', () => {
