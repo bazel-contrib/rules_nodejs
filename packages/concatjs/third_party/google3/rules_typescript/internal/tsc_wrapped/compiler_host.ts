@@ -24,12 +24,15 @@ export interface BazelTsOptions extends ts.CompilerOptions {
 }
 
 export function narrowTsOptions(options: ts.CompilerOptions): BazelTsOptions {
-  if (!options.rootDirs)
+  if (!options.rootDirs) {
     throw new Error(`compilerOptions.rootDirs should be set by tsconfig.bzl`);
-  if (!options.rootDir)
+  }
+  if (!options.rootDir) {
     throw new Error(`compilerOptions.rootDirs should be set by tsconfig.bzl`);
-  if (!options.outDir)
+  }
+  if (!options.outDir) {
     throw new Error(`compilerOptions.rootDirs should be set by tsconfig.bzl`);
+  }
   return options as BazelTsOptions;
 }
 

@@ -1,6 +1,7 @@
 import * as path from 'path';
 /* tslint:disable:no-require-imports */
 const protobufjs = require('protobufjs');
+// tslint:disable-next-line:variable-name: ByteBuffer is instantiatable.
 const ByteBuffer = require('bytebuffer');
 
 protobufjs.convertFieldsToCamelCase = true;

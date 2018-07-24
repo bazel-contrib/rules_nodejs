@@ -1,4 +1,3 @@
-import * as fs from 'fs';
 import * as path from 'path';
 import * as ts from 'typescript';
 
@@ -30,7 +29,7 @@ export function main(args: string[]) {
 }
 
 // The one FileCache instance used in this process.
-const fileCache = new FileCache<ts.SourceFile>(debug);
+const fileCache = new FileCache(debug);
 
 /**
  * Runs a single build, returning false on failure.  This is potentially called
@@ -39,6 +38,10 @@ const fileCache = new FileCache<ts.SourceFile>(debug);
  */
 function runOneBuild(
     args: string[], inputs?: {[path: string]: string}): boolean {
+  if (args.length !== 1) {
+    console.error('Expected one argument: path to tsconfig.json');
+    return false;
+  }
   // Strip leading at-signs, used in build_defs.bzl to indicate a params file
   const tsconfigFile = args[0].replace(/^@+/, '');
 
@@ -69,25 +72,21 @@ function runOneBuild(
   if (inputs) {
     fileLoader = new CachedFileLoader(fileCache);
     // Resolve the inputs to absolute paths to match TypeScript internals
-    const resolvedInputs: {[path: string]: string} = {};
+    const resolvedInputs = new Map<string, string>();
     for (const key of Object.keys(inputs)) {
-      resolvedInputs[resolveNormalizedPath(key)] = inputs[key];
+      resolvedInputs.set(resolveNormalizedPath(key), inputs[key]);
     }
     fileCache.updateCache(resolvedInputs);
   } else {
     fileLoader = new UncachedFileLoader();
   }
 
-  if (args.length !== 1) {
-    console.error('Expected one argument: path to tsconfig.json');
-    return false;
-  }
-
   const compilerHostDelegate =
       ts.createCompilerHost({target: ts.ScriptTarget.ES5});
 
   const compilerHost = new CompilerHost(
-      files, options, bazelOpts, compilerHostDelegate, fileLoader, allowActionInputReads);
+      files, options, bazelOpts, compilerHostDelegate, fileLoader,
+      allowActionInputReads);
 
   let program = ts.createProgram(files, options, compilerHost);
 
@@ -101,8 +100,7 @@ function runOneBuild(
   if (!bazelOpts.disableStrictDeps) {
     const ignoredFilesPrefixes = [bazelOpts.nodeModulesPrefix];
     if (options.rootDir) {
-      ignoredFilesPrefixes.push(
-          path.resolve(options.rootDir, 'node_modules'));
+      ignoredFilesPrefixes.push(path.resolve(options.rootDir, 'node_modules'));
     }
     program = strictDepsPlugin.wrap(program, {
       ...bazelOpts,
