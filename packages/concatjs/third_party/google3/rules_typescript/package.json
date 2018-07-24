@@ -31,7 +31,8 @@
     },
     "scripts": {
         "pree2e": "webdriver-manager update $CHROMEDRIVER_VERSION_ARG && bazel build examples/app:e2e && bazel build examples/protocol_buffers:e2e",
-        "e2e": "yarn e2e-examples-app-devserver && yarn e2e-examples-app-prodserver && yarn e2e-examples-protobuf-devserver && yarn e2e-examples-protobuf-prodserver",
+        "e2e": "yarn e2e-bazel-external && yarn e2e-examples-app-devserver && yarn e2e-examples-app-prodserver && yarn e2e-examples-protobuf-devserver && yarn e2e-examples-protobuf-prodserver",
+        "e2e-bazel-external": "jasmine internal/e2e/default_tsconfig_test.js",
         "e2e-examples-app-devserver": "concurrently \"bazel run examples/app:devserver\" \"while ! nc -z 127.0.0.1 8080; do sleep 1; done && protractor --suite app\" --kill-others --success first",
         "e2e-examples-app-prodserver": "concurrently \"bazel run examples/app:prodserver\" \"while ! nc -z 127.0.0.1 8080; do sleep 1; done && protractor --suite app\" --kill-others --success first",
         "e2e-examples-protobuf-devserver": "concurrently \"bazel run examples/protocol_buffers:devserver\" \"while ! nc -z 127.0.0.1 8080; do sleep 1; done && protractor --suite protocol_buffers\" --kill-others --success first",

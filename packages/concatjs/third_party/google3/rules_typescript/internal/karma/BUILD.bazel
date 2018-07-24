@@ -15,6 +15,7 @@ ts_library(
     srcs = glob(["*.ts"]),
     module_name = "karma-concat-js",
     node_modules = "@build_bazel_rules_typescript_tsc_wrapped_deps//:node_modules",
+    tsconfig = "//internal:tsconfig.json",
 )
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")

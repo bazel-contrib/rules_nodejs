@@ -162,7 +162,7 @@ def _ts_library_impl(ctx):
     )
     return ts_providers_dict_to_struct(ts_providers)
 
-ts_library = rule(
+_ts_library = rule(
     _ts_library_impl,
     attrs = dict(COMMON_ATTRIBUTES, **{
         "srcs": attr.label_list(
@@ -217,3 +217,9 @@ ts_library = rule(
 It produces declarations files (`.d.ts`) which are used for compiling downstream
 TypeScript targets and JavaScript for the browser and Closure compiler.
 """
+
+def ts_library_macro(tsconfig = None, **kwargs):
+    if not tsconfig:
+        tsconfig = "//:tsconfig.json"
+
+    _ts_library(tsconfig = tsconfig, **kwargs)

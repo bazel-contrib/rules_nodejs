@@ -17,13 +17,14 @@
 package(default_visibility = ["//visibility:public"])
 
 exports_files([
+    "tsconfig.json",
     # Exported to be consumed for generating skydoc.
     "build_defs.bzl",
     "ts_config.bzl",
     "ts_repositories.bzl",
 ])
 
-load("//internal:build_defs.bzl", "ts_library")
+load("//:defs.bzl", "ts_library")
 load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary", "jasmine_node_test")
 
 # Vanilla typescript compiler: run the tsc.js binary distributed by TypeScript
