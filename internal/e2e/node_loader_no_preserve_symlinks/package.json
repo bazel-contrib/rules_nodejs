@@ -1,0 +1,9 @@
+{
+    "description": "e2e node_loader testing dependencies",
+    "devDependencies": {},
+    "dependencies": {
+        "@gregmagolan/test-a": "0.0.1",
+        "jasmine": "~2.8.0",
+        "minimist": "1.2.0"
+    }
+}

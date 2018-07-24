@@ -1,0 +1,7 @@
+{
+    "description": "runtime dependencies for node_loader",
+    "devDependencies": {},
+    "dependencies": {
+        "source-map-support": "0.4.18"
+    }
+}

@@ -1,0 +1,50 @@
+package(default_visibility = ["//visibility:public"])
+
+load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test", "nodejs_binary")
+
+filegroup(
+    name = "node_modules",
+    srcs = glob(["node_modules/**/*"]),
+)
+
+jasmine_node_test(
+    name = "test",
+    srcs = [
+        "node_loader_test.spec.js",
+    ],
+    allow_non_hermetic_resolves = False,
+    node_modules = "@node_loader_e2e_no_preserve_symlinks_deps//:node_modules",
+)
+
+jasmine_node_test(
+    name = "allow_non_hermetic_test",
+    srcs = [
+        "node_loader_non_hermetic_test.spec.js",
+    ],
+    allow_non_hermetic_resolves = True,
+    node_modules = "@node_loader_e2e_no_preserve_symlinks_deps//:node_modules",
+)
+
+jasmine_node_test(
+    name = "list_1_test",
+    srcs = [
+        "node_loader_list_1_test.spec.js",
+    ],
+    allow_non_hermetic_resolves = False,
+    node_modules_list = [
+        "@node_loader_e2e_no_preserve_symlinks_deps//:node_modules",
+        "//:node_modules",
+    ],
+)
+
+jasmine_node_test(
+    name = "list_2_test",
+    srcs = [
+        "node_loader_list_2_test.spec.js",
+    ],
+    allow_non_hermetic_resolves = False,
+    node_modules_list = [
+        "//:node_modules",
+        "@node_loader_e2e_no_preserve_symlinks_deps//:node_modules",
+    ],
+)

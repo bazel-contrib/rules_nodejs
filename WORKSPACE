@@ -87,6 +87,16 @@ local_repository(
     path = "examples/packages",
 )
 
+local_repository(
+    name = "node_loader_e2e_no_preserve_symlinks",
+    path = "internal/e2e/node_loader_no_preserve_symlinks",
+)
+
+local_repository(
+    name = "node_loader_e2e_preserve_symlinks",
+    path = "internal/e2e/node_loader_preserve_symlinks",
+)
+
 load("//:defs.bzl", "node_repositories")
 
 # Install a hermetic version of node.

@@ -34,53 +34,43 @@ def _write_loader_script(ctx):
         escaped = mn.replace("/", r"\/").replace(".", r"\.")
         mapping = r"{module_name: /^%s\b/, module_root: '%s'}" % (escaped, mr)
         module_mappings.append(mapping)
+  node_modules_roots = []
+  if ctx.attr.node_modules_list:
+    for nm in ctx.attr.node_modules_list:
+      workspace = nm.label.workspace_root.split("/")[1] if nm.label.workspace_root else ctx.workspace_name
+      node_modules_roots += ["/".join([f for f in [
+          workspace,
+          nm.label.package,
+          "node_modules"] if f])]
+  else:
+    workspace = ctx.attr.node_modules.label.workspace_root.split("/")[1] if ctx.attr.node_modules.label.workspace_root else ctx.workspace_name
+    node_modules_roots += ["/".join([f for f in [
+        workspace,
+        ctx.attr.node_modules.label.package,
+        "node_modules"] if f])]
   ctx.actions.expand_template(
       template=ctx.file._loader_template,
       output=ctx.outputs.loader,
       substitutions={
+          "TEMPLATED_allow_non_hermetic_resolves": "true" if ctx.attr.allow_non_hermetic_resolves else "false",
+          "TEMPLATED_target": "%s/%s:%s" % (ctx.label.workspace_root, ctx.label.package, ctx.label.name),
           "TEMPLATED_module_roots": "\n  " + ",\n  ".join(module_mappings),
           "TEMPLATED_bootstrap": "\n  " + ",\n  ".join(
               ["\"" + d + "\"" for d in ctx.attr.bootstrap]),
           "TEMPLATED_entry_point": ctx.attr.entry_point,
-          "TEMPLATED_label_package": ctx.attr.node_modules.label.package,
-          # There are two workspaces in general:
-          # A) The user's workspace is the one where the bazel command is run
-          # B) The label's workspace contains the target being built/run
-          #
-          # If A has an npm dependency on B, then we'll look in the node_modules
-          # to find B's dependency D. It could be in two different places
-          # depending on hoisting [1]:
-          # A/node_modules/B/node_modules/D
-          # A/node_modules/D
-          # That means we must resolve runfiles relative to A.
-          #
-          # However if A has a bazel dependency on B, then B is not under A's
-          # node_modules directory.
-          # A
-          # B/node_modules/D
-          # That means we must resolve runfiles relative to B.
-          #
-          # Since Bazel does not tell us whether the label's workspace was
-          # created with `local_repository(path="node_modules/blah")` we can't
-          # distinguish the two cases. Therefore we add both workspaces to the
-          # resolution search paths.
-          #
-          # [1] https://yarnpkg.com/lang/en/docs/workspaces/#toc-limitations-caveats
-          "TEMPLATED_user_workspace_name": ctx.workspace_name,
-          "TEMPLATED_label_workspace_name": (
-              ctx.attr.node_modules.label.workspace_root.split("/")[1]
-              if ctx.attr.node_modules.label.workspace_root
-              # If the label is in the same workspace as the user, we don't
-              # need another search location.
-              else ""
-          ),
+          "TEMPLATED_node_modules_roots": "\n  " + ",\n  ".join(
+              ["\"" + d + "\"" for d in node_modules_roots]),
       },
       is_executable=True,
   )
 
 def _nodejs_binary_impl(ctx):
     node = ctx.file.node
-    node_modules = ctx.files.node_modules
+    node_modules = []
+    if ctx.attr.node_modules_list:
+      node_modules += ctx.files.node_modules_list
+    else:
+      node_modules += ctx.files.node_modules
     sources = []
     for d in ctx.attr.data:
       if hasattr(d, "node_sources"):
@@ -167,6 +157,12 @@ _NODEJS_EXECUTABLE_ATTRS = {
         # dependency on a package like @bazel/typescript.
         # See discussion: https://github.com/bazelbuild/rules_typescript/issues/13
         default = Label("@//:node_modules")),
+    "node_modules_list": attr.label_list(
+        doc = """Optional list of npm packages which should be available to `require()`
+        during execution. If set, the node_modules attribute is ignored."""),
+    "allow_non_hermetic_resolves": attr.bool(
+        doc = """Allow non-hermetic resolves in node_loader for backward compabilitity.""",
+        default = True),
     "node": attr.label(
         doc = """The node entry point target.""",
         default = Label("@nodejs//:node"),
@@ -239,7 +235,7 @@ The runtime will pause before executing the program, allowing you to connect a
 remote debugger.
 """
 
-def nodejs_binary_macro(name, data=[], args=[], visibility=None, tags=[], testonly=0, **kwargs):
+def nodejs_binary_macro(name, data=[], args=[], visibility=None, tags=[], testonly=0, node_modules=Label("@//:node_modules"), node_modules_list=[], **kwargs):
   """This macro exists only to wrap the nodejs_binary as an .exe for Windows.
 
   This is exposed in the public API at `//:defs.bzl` as `nodejs_binary`, so most
@@ -252,13 +248,23 @@ def nodejs_binary_macro(name, data=[], args=[], visibility=None, tags=[], teston
     visibility: applied to the wrapper binary
     tags: applied to the wrapper binary
     testonly: applied to nodejs_binary and wrapper binary
+    node_modules: The npm packages which should be available to `require()` during execution.
+    node_modules_list: Optional list of npm packages which should be available to `require()`
+        during execution. If set, the node_modules attribute is ignored.
     **kwargs: passed to the nodejs_binary
   """
+  if node_modules_list:
+    node_modules_list += [Label("@build_bazel_rules_nodejs_node_loader_deps//:node_modules")]
+  else:
+    node_modules_list = [node_modules, Label("@build_bazel_rules_nodejs_node_loader_deps//:node_modules")]
+
   nodejs_binary(
       name = "%s_bin" % name,
       data = data + ["@bazel_tools//tools/bash/runfiles"],
       testonly = testonly,
       visibility = ["//visibility:private"],
+      node_modules = node_modules,
+      node_modules_list = node_modules_list,
       **kwargs
   )
 
@@ -272,7 +278,7 @@ def nodejs_binary_macro(name, data=[], args=[], visibility=None, tags=[], teston
       visibility = visibility,
   )
 
-def nodejs_test_macro(name, data=[], args=[], visibility=None, tags=[], **kwargs):
+def nodejs_test_macro(name, data=[], args=[], visibility=None, tags=[], node_modules=Label("@//:node_modules"), node_modules_list=[], **kwargs):
   """This macro exists only to wrap the nodejs_test as an .exe for Windows.
 
   This is exposed in the public API at `//:defs.bzl` as `nodejs_test`, so most
@@ -284,13 +290,23 @@ def nodejs_test_macro(name, data=[], args=[], visibility=None, tags=[], **kwargs
     args: applied to the wrapper binary
     visibility: applied to the wrapper binary
     tags: applied to the wrapper binary
+    node_modules: The npm packages which should be available to `require()` during execution.
+    node_modules_list: Optional list of npm packages which should be available to `require()`
+        during execution. If set, the node_modules attribute is ignored.
     **kwargs: passed to the nodejs_test
   """
+  if node_modules_list:
+    node_modules_list += [Label("@build_bazel_rules_nodejs_node_loader_deps//:node_modules")]
+  else:
+    node_modules_list = [node_modules, Label("@build_bazel_rules_nodejs_node_loader_deps//:node_modules")]
+
   nodejs_test(
       name = "%s_bin" % name,
       data = data + ["@bazel_tools//tools/bash/runfiles"],
       testonly = 1,
       tags = ["manual"],
+      node_modules = node_modules,
+      node_modules_list = node_modules_list,
       **kwargs
   )
 

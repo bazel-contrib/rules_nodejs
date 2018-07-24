@@ -459,6 +459,12 @@ def node_repositories(
   )
 
   yarn_install(
+      name = "build_bazel_rules_nodejs_node_loader_deps",
+      package_json = "@build_bazel_rules_nodejs//internal/node:package.json",
+      yarn_lock = "@build_bazel_rules_nodejs//internal/node:yarn.lock",
+  )
+
+  yarn_install(
       name = "build_bazel_rules_nodejs_npm_install_deps",
       package_json = "@build_bazel_rules_nodejs//internal/npm_install:package.json",
       yarn_lock = "@build_bazel_rules_nodejs//internal/npm_install:yarn.lock",

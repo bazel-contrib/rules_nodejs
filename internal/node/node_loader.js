@@ -39,11 +39,16 @@ var MODULE_ROOTS = [TEMPLATED_module_roots];
  */
 var BOOTSTRAP = [TEMPLATED_bootstrap];
 
+const NODE_MODULES_ROOTS = [TEMPLATED_node_modules_roots];
+const ALLOW_NON_HERMETIC_RESOLVES = TEMPLATED_allow_non_hermetic_resolves;
+
 if (DEBUG)
   console.error(`
 node_loader: running with
   MODULE_ROOTS: ${MODULE_ROOTS}
   BOOTSTRAP: ${BOOTSTRAP}
+  NODE_MODULES_ROOTS: ${NODE_MODULES_ROOTS}
+  ALLOW_NON_HERMETIC_RESOLVES: ${ALLOW_NON_HERMETIC_RESOLVES}
 `);
 
 function resolveToModuleRoot(path) {
@@ -178,14 +183,13 @@ function resolveRunfiles(...pathSegments) {
   // Remove any empty strings from pathSegments
   pathSegments = pathSegments.filter(segment => segment);
 
-  if (DEBUG) console.error('node_loader: try to resolve', pathSegments.join('/'));
-
   const defaultPath = path.join(process.env.RUNFILES, ...pathSegments);
 
   if (runfilesManifest) {
     // Normalize to forward slash, because even on Windows the runfiles_manifest file
     // is written with forward slash.
     const runfilesEntry = pathSegments.join('/').replace(/\\/g, '/');
+    if (DEBUG) console.error('node_loader: try to resolve in runfiles manifest', runfilesEntry);
 
     let maybe = resolveManifestFile(runfilesEntry);
     if (maybe) {
@@ -195,10 +199,12 @@ function resolveRunfiles(...pathSegments) {
 
     maybe = resolveManifestDirectory(runfilesEntry);
     if (maybe) {
-      if (DEBUG) console.error('node_loader: resolved manifest directory', maybe);
+      if (DEBUG) console.error('node_loader: resolved via manifest directory', maybe);
       return maybe;
     }
   } else {
+    if (DEBUG) console.error('node_loader: try to resolve in runfiles', defaultPath);
+
     let maybe = loadAsFileSync(defaultPath);
     if (maybe) {
       if (DEBUG) console.error('node_loader: resolved file', maybe);
@@ -207,51 +213,122 @@ function resolveRunfiles(...pathSegments) {
 
     maybe = loadAsDirectorySync(defaultPath);
     if (maybe) {
-      if (DEBUG) console.error('node_loader: resolved directory', maybe);
+      if (DEBUG) console.error('node_loader: resolved via directory', maybe);
       return maybe;
     }
   }
 
-  if (DEBUG) console.error('node_loader: resolved to default path', defaultPath);
   return defaultPath;
 }
 
 var originalResolveFilename = module.constructor._resolveFilename;
 module.constructor._resolveFilename =
     function(request, parent) {
-  var failedResolutions = [];
-  var resolveLocations = [
-    request,
-    resolveRunfiles(request),
-    resolveRunfiles(
-        'TEMPLATED_user_workspace_name', 'TEMPLATED_label_package', 'node_modules', request),
-  ];
-  // Additional search path in case the build is across workspaces.
-  // See comment in node.bzl.
-  if ('TEMPLATED_label_workspace_name') {
-    resolveLocations.push(resolveRunfiles(
-        'TEMPLATED_label_workspace_name', 'TEMPLATED_label_package', 'node_modules', request));
-  }
-  var manifestLocation = resolveRunfiles('manifest');
-  for (var location of resolveLocations) {
-    try {
-      // Do not resolve the MANIFEST file in runfiles
-      // This can occur unintentially from a require('manifest') if there
-      // is a manifest.js file or manifest npm package to be resolved
-      if (runfilesManifest && location.toLowerCase() == manifestLocation.toLowerCase()) {
-        continue;
+  if (DEBUG)
+    console.error(
+        `node_loader: resolve ${request} from ` +
+        `${parent && parent.filename ? parent.filename : ''}`);
+
+  const failedResolutions = [];
+
+  // Built-in modules, relative, absolute imports and npm dependencies
+  // can be resolved using request
+  try {
+    const resolved = originalResolveFilename(request, parent);
+    if (resolved === request || request.startsWith('.') || request.startsWith('/') ||
+        request.match(/^[A-Z]\:[\\\/]/i)) {
+      if (DEBUG)
+        console.error(
+            `node_loader: resolved ${request} to built-in, relative or absolute import ` +
+            `${resolved} from ${parent && parent.filename ? parent.filename : ''}`);
+      return resolved;
+    } else {
+      // Resolved is not a built-in module, relative or absolute import
+      // but also allow imports within npm packages that are within the parent files
+      // node_modules, meaning it is a dependency of the npm package making the import.
+      const parentSegments =
+          (parent && parent.filename) ? parent.filename.replace(/\\/g, '/').split('/') : [];
+      const parentNodeModulesSegment = parentSegments.indexOf('node_modules');
+      if (parentNodeModulesSegment != -1) {
+        const parentRoot = parentSegments.slice(0, parentNodeModulesSegment).join('/');
+        const relative = path.relative(parentRoot, resolved);
+        if (!relative.startsWith('..')) {
+          // Resolved within parent node_modules
+          if (DEBUG)
+            console.error(
+                `node_loader: resolved ${request} within parent node_modules to ` +
+                `${resolved} from ${parent && parent.filename ? parent.filename : ''}`);
+          return resolved;
+        } else {
+          throw new Error(
+              `Resolved outside of parent node_modules ${request} ${resolved} ${parent.filename}`);
+        }
       }
-      return originalResolveFilename(location, parent);
+      throw new Error('Not a built-in module, relative or absolute import');
+    }
+  } catch (e) {
+    failedResolutions.push(`${request} (built-in, relative or absolute) - ${e.toString()}`);
+  }
+
+  // If the import is not a built-in module, an absolute, relative import or a
+  // dependecy of an npm package, attempt to resolve against the runfiles location
+  try {
+    const resolved = originalResolveFilename(resolveRunfiles(request), parent);
+    if (DEBUG)
+      console.error(
+          `node_loader: resolved ${request} within runfiles to ${resolved} from ` +
+          `${parent && parent.filename ? parent.filename : ''}`);
+    return resolved;
+  } catch (e) {
+    failedResolutions.push(`${request} (in runfiles) - ${e.toString()}`);
+  }
+
+  // If import was not resolved above then attempt to resolve
+  // within the node_modules filegroups in use
+  for (var location of NODE_MODULES_ROOTS) {
+    try {
+      const resolved = originalResolveFilename(resolveRunfiles(location, request), parent);
+      if (DEBUG)
+        console.error(
+            `node_loader: resolved ${request} within node_modules (${location}) to ` +
+            `${resolved} from ${parent && parent.filename ? parent.filename : ''}`);
+      return resolved;
     } catch (e) {
-      failedResolutions.push(location);
+      failedResolutions.push(`${request} (in node_modules ${location}) - ${e.toString()}`);
     }
   }
 
-  var moduleRoot = resolveToModuleRoot(request);
-  if (moduleRoot) {
-    var moduleRootInRunfiles = resolveRunfiles(moduleRoot);
+  if (ALLOW_NON_HERMETIC_RESOLVES) {
+    // For backward compatabilty, allow non-hermetic resolves to the user workspace
+    // node_modules and print a warning if this resolve succeeds
     try {
-      var filename = module.constructor._findPath(moduleRootInRunfiles, []);
+      const resolved = originalResolveFilename(request, parent);
+      if (resolved.replace(/\\/g, '/').split('/').indexOf('node_modules') !== -1) {
+        if (DEBUG)
+          console.error(
+              `node_loader: resolved ${request} within non-hermetic node_modules to ` +
+              `${resolved} from ${parent && parent.filename ? parent.filename : ''}`);
+        console.error(request, JSON.stringify(parent.paths, null, 2));
+        console.error(
+            `WARNING: non-hermetic node_modules resolve of ${request} to ${resolved} while ` +
+            `running TEMPLATED_target. If this is intentional, you may need to set the ` +
+            `node_modules attribute for this target to @//:node_modules or add @//:node_modules ` +
+            `to the node_modules_list attribute.`);
+        return resolved;
+      } else {
+        throw new Error('Resolve failed');
+      }
+    } catch (e) {
+      failedResolutions.push(`${request} (non-hermetic node_modules) - ${e.toString()}`);
+    }
+  }
+
+  // Finally, attempt to resolve to module root
+  const moduleRoot = resolveToModuleRoot(request);
+  if (moduleRoot) {
+    const moduleRootInRunfiles = resolveRunfiles(moduleRoot);
+    try {
+      const filename = module.constructor._findPath(moduleRootInRunfiles, []);
       if (!filename) {
         throw new Error(`No file ${request} found in module root ${moduleRoot}`);
       }
@@ -261,8 +338,10 @@ module.constructor._resolveFilename =
       throw e;
     }
   }
-  var error = new Error(
-      `Cannot find module '${request}'\n  looked in:` + failedResolutions.map(r => '\n   ' + r));
+
+  const error = new Error(
+      `Cannot find module '${request}' (target TEMPLATED_target)\n  looked in:` +
+      failedResolutions.map(r => '\n   ' + r));
   error.code = 'MODULE_NOT_FOUND';
   throw error;
 }
