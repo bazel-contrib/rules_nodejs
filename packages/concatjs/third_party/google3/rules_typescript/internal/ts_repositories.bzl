@@ -32,6 +32,7 @@ def ts_setup_workspace():
         package_json = "@build_bazel_rules_typescript//internal:tsc_wrapped/package.json",
         yarn_lock = "@build_bazel_rules_typescript//internal:tsc_wrapped/yarn.lock",
     )
+
     yarn_install(
         name = "build_bazel_rules_typescript_devserver_deps",
         package_json = "@build_bazel_rules_typescript//internal/devserver:package.json",

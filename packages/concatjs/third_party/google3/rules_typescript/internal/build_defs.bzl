@@ -42,7 +42,7 @@ def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description 
 
     action_inputs = inputs + [
         f
-        for f in ctx.files.node_modules + ctx.files._tsc_wrapped_deps
+        for f in ctx.files.node_modules
         if f.path.endswith(".js") or f.path.endswith(".ts") or f.path.endswith(".json")
     ]
     if ctx.file.tsconfig:
@@ -214,7 +214,6 @@ ts_library = rule(
         ),
         "tsickle_typed": attr.bool(default = True),
         "internal_testing_type_check_dependencies": attr.bool(default = False, doc = "Testing only, whether to type check inputs that aren't srcs."),
-        "_tsc_wrapped_deps": attr.label(default = Label("@build_bazel_rules_typescript_tsc_wrapped_deps//:node_modules")),
         # @// is special syntax for the "main" repository
         # The default assumes the user specified a target "node_modules" in their
         # root BUILD file.
