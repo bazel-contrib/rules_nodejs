@@ -16,6 +16,15 @@ var_3: &setup-bazel-remote-cache
     name: Start up bazel remote cache proxy
     command: ~/bazel-remote-proxy -backend circleci://
     background: true
+# Move node binaries out of the way to enforce that Bazel uses
+# only the hermetic ones it downloads
+var_4: &hide_node_and_yarn_local_binaries
+  run:
+    name: Move node, npm, and yarn binaries
+    command: |
+      sudo mv /usr/local/bin/node /usr/local/bin/node_
+      sudo mv /usr/local/bin/npm /usr/local/bin/npm_
+      sudo mv /usr/local/bin/yarn /usr/local/bin/yarn_
 
 # Settings common to each job
 anchor_1: &job_defaults
@@ -40,6 +49,7 @@ jobs:
       - checkout:
           <<: *post_checkout
       - run: .circleci/setup_cache.sh
+      - run: sudo cp .circleci/bazel.rc /etc/bazel.bazelrc
       - *setup-bazel-remote-cache
 
       # Run the skylark linter to check our Bazel rules
@@ -61,27 +71,23 @@ jobs:
       - checkout:
           <<: *post_checkout
       - run: .circleci/setup_cache.sh
+      - run: sudo cp .circleci/bazel.rc /etc/bazel.bazelrc
       - *setup-bazel-remote-cache
+      - *hide_node_and_yarn_local_binaries
       - restore_cache:
           key: *cache_key
-
-      # Move node binaries out of the way to enforce that Bazel uses
-      # only the hermetic ones it downloads
-      - run: 'sudo mv /usr/local/bin/node /usr/local/bin/node_ &&
-              sudo mv /usr/local/bin/npm /usr/local/bin/npm_ &&
-              sudo mv /usr/local/bin/yarn /usr/local/bin/yarn_'
 
       - run: bazel info release
 
       - run: bazel run @nodejs//:yarn
-      - run: bazel build --config=ci ...
-      - run: bazel test --config=ci ...
+      - run: bazel build ...
+      - run: bazel test ...
       # TODO(alexeagle): move this into the example proper
       - run: bazel run examples/rollup -- --help
 
       # We should also be able to test targets in a different workspace
-      - run: bazel test --config=ci @program_example//...
-      - run: bazel test --config=ci @packages_example//...
+      - run: bazel test @program_example//...
+      - run: bazel test @packages_example//...
 
       - save_cache:
           key: *cache_key
