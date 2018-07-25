@@ -69,6 +69,10 @@ def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description 
         mnemonic = mnemonic,
         inputs = action_inputs,
         outputs = action_outputs,
+        # Use the built-in shell environment
+        # Allow for users who set a custom shell that can locate standard binaries like tr and uname
+        # See https://github.com/NixOS/nixpkgs/issues/43955#issuecomment-407546331
+        use_default_shell_env = True,
         arguments = arguments,
         executable = ctx.executable.compiler,
         execution_requirements = {
