@@ -133,7 +133,7 @@ def _download_yarn(repository_ctx):
 
 def _prepare_node(repository_ctx):
   """Sets up BUILD files and shell wrappers for the versions of NodeJS, npm & yarn just set up.
-  
+
   Windows and other OSes set up the node runtime with different names and paths, which we hide away via
   the BUILD file here.
   In addition, we create a bash script wrapper around NPM that passes a given NPM command to all package.json labels
@@ -358,7 +358,7 @@ _yarn_repo = repository_rule(
 
 # TODO: change preserve_symlinks default to true all issues with preserve-symlinks resolved
 def node_repositories(
-  package_json,
+  package_json=[],
   node_version=DEFAULT_NODE_VERSION,
   yarn_version=DEFAULT_YARN_VERSION,
   node_path="",
@@ -371,7 +371,7 @@ def node_repositories(
   """To be run in user's WORKSPACE to install rules_nodejs dependencies.
 
   This rule sets up node, npm, and yarn.
-  
+
   The versions of these tools can be specified in one of three ways:
   - Normal Usage:
     Specify no explicit versions. This will download and use the latest NodeJS & Yarn that were available when the
@@ -391,7 +391,7 @@ def node_repositories(
   - Install dependencies using npm: `bazel run @nodejs//:npm install`
   - Install dependencies using yarn: `bazel run @nodejs//:yarn`
 
-  This rule also exposes the `@yarn` workspace for backwards compatabilty:
+  This rule also exposes the `@yarn` workspace for backwards compatibility:
 
   - Alternately install dependencies using yarn: `bazel run @yarn//:yarn`
 
@@ -410,7 +410,10 @@ def node_repositories(
   Running `bazel run @nodejs//:yarn` in this repo would create `/node_modules` and `/subpkg/node_modules`.
 
   Args:
-    package_json: a list of labels, which indicate the package.json files that need to be installed.
+    package_json: a list of labels, which indicate the package.json files that will be installed
+                  when you manually run the package manager, e.g. with
+                  `bazel run @nodejs//:yarn` or `bazel run @nodejs//:npm install`.
+                  If you use bazel-managed dependencies, you can omit this attribute.
 
     node_version: optional; the specific version of NodeJS to install.
 
