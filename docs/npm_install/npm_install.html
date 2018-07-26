@@ -122,7 +122,7 @@ as the package manager.</p>
 
           <h2 id="npm_install">npm_install</h2>
 
-          <pre>npm_install(<a href="#npm_install.name">name</a>, <a href="#npm_install.data">data</a>, <a href="#npm_install.package_json">package_json</a>, <a href="#npm_install.package_lock_json">package_lock_json</a>)</pre>
+          <pre>npm_install(<a href="#npm_install.name">name</a>, <a href="#npm_install.data">data</a>, <a href="#npm_install.node_modules_filegroup">node_modules_filegroup</a>, <a href="#npm_install.package_json">package_json</a>, <a href="#npm_install.package_lock_json">package_lock_json</a>)</pre>
 
           <p>Runs npm install during workspace setup.</p>
 
@@ -149,6 +149,18 @@ as the package manager.</p>
         
       </td>
     </tr>
+    <tr id="npm_install.node_modules_filegroup">
+      <td><code>node_modules_filegroup</code></td>
+      <td>
+        <p><code>String; Optional; Default is ''</code></p>
+        <p>Experimental attribute that can be used to work-around
+            a bazel performance issue if the default node_modules filegroup
+            has too many files in it. Use it to define the node_modules
+            filegroup used by this rule such as
+            "filegroup(name = "node_modules", srcs = glob([...]))". See
+            <a href="https://github.com/bazelbuild/bazel/issues/5153">https://github.com/bazelbuild/bazel/issues/5153</a>.</p>
+      </td>
+    </tr>
     <tr id="npm_install.package_json">
       <td><code>package_json</code></td>
       <td>
@@ -169,7 +181,7 @@ as the package manager.</p>
 
           <h2 id="yarn_install">yarn_install</h2>
 
-          <pre>yarn_install(<a href="#yarn_install.name">name</a>, <a href="#yarn_install.data">data</a>, <a href="#yarn_install.package_json">package_json</a>, <a href="#yarn_install.yarn_lock">yarn_lock</a>)</pre>
+          <pre>yarn_install(<a href="#yarn_install.name">name</a>, <a href="#yarn_install.data">data</a>, <a href="#yarn_install.node_modules_filegroup">node_modules_filegroup</a>, <a href="#yarn_install.package_json">package_json</a>, <a href="#yarn_install.yarn_lock">yarn_lock</a>)</pre>
 
           <p>Runs yarn install during workspace setup.</p>
 
@@ -194,6 +206,18 @@ as the package manager.</p>
       <td>
         <p><code>List of <a href="https://bazel.build/docs/build-ref.html#labels">labels</a>; Optional; Default is []</code></p>
         
+      </td>
+    </tr>
+    <tr id="yarn_install.node_modules_filegroup">
+      <td><code>node_modules_filegroup</code></td>
+      <td>
+        <p><code>String; Optional; Default is ''</code></p>
+        <p>Experimental attribute that can be used to work-around
+            a bazel performance issue if the default node_modules filegroup
+            has too many files in it. Use it to define the node_modules
+            filegroup used by this rule such as
+            "filegroup(name = "node_modules", srcs = glob([...]))". See
+            <a href="https://github.com/bazelbuild/bazel/issues/5153">https://github.com/bazelbuild/bazel/issues/5153</a>.</p>
       </td>
     </tr>
     <tr id="yarn_install.package_json">
