@@ -129,8 +129,22 @@ for ARG in "${ALL_ARGS[@]}"; do
   esac
 done
 
+# Note: Bash does not forward termination signals to any child process when
+# running in docker so need to manually trap and forward the signals
+_term() {
+  kill -TERM "$child" 2>/dev/null
+}
+
+_int() {
+  kill -INT "$child" 2>/dev/null
+}
+
 set +e
-"${node}" "${NODE_OPTIONS[@]}" "${script}" "${ARGS[@]}"
+"${node}" "${NODE_OPTIONS[@]}" "${script}" "${ARGS[@]}" &
+child=$!
+trap _term SIGTERM
+trap _int SIGINT
+wait "$child"
 RESULT="$?"
 set -e
 
