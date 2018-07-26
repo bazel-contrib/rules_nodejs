@@ -57,7 +57,6 @@ function resolveToModuleRoot(path) {
 
   var match;
   var lengthOfMatch = 0;
-  var matchedEntry;
   for (var i = 0; i < MODULE_ROOTS.length; i++) {
     var m = MODULE_ROOTS[i];
     var p = path.replace(m.module_name, m.module_root);
@@ -66,7 +65,6 @@ function resolveToModuleRoot(path) {
     if (p !== path && len > lengthOfMatch) {
       lengthOfMatch = len;
       match = p;
-      matchedEntry = m;
     }
   }
   if (match) {
@@ -266,8 +264,7 @@ module.constructor._resolveFilename =
       throw new Error('Not a built-in module, relative or absolute import');
     }
   } catch (e) {
-    failedResolutions.push(
-        `built-in, relative, absolute or nested node_modules import - ${e.toString()}`);
+    failedResolutions.push(`built-in, relative, absolute, nested node_modules - ${e.toString()}`);
   }
 
   // If the import is not a built-in module, an absolute, relative import or a
@@ -321,7 +318,7 @@ module.constructor._resolveFilename =
           `${resolved} from ${parent && parent.filename ? parent.filename : ''}`);
     return resolved;
   } catch (e) {
-    failedResolutions.push(`${NODE_MODULES_ROOT} - ${e.toString()}`);
+    failedResolutions.push(`node_modules attribute (${NODE_MODULES_ROOT}) - ${e.toString()}`);
   }
 
   // Finally, attempt to resolve to module root
@@ -341,8 +338,8 @@ module.constructor._resolveFilename =
   }
 
   const error = new Error(
-      `Cannot find module '${request}' (target TEMPLATED_target)\n  looked in:` +
-      failedResolutions.map(r => '\n   ' + r));
+      `TEMPLATED_target cannot find module '${request}'\n  looked in:` +
+      failedResolutions.map(r => `\n   ${r}\n`));
   error.code = 'MODULE_NOT_FOUND';
   throw error;
 }

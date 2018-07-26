@@ -1,5 +1,12 @@
 workspace(name = "node_loader_e2e_preserve_symlinks")
 
+http_archive(
+    name = "bazel_skylib",
+    url = "https://github.com/bazelbuild/bazel-skylib/archive/0.3.1.zip",
+    strip_prefix = "bazel-skylib-0.3.1",
+    sha256 = "95518adafc9a2b656667bbf517a952e54ce7f350779d0dd95133db4eb5c27fb1",
+)
+
 local_repository(
     name = "build_bazel_rules_nodejs",
     path = "../../..",

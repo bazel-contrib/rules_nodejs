@@ -43,7 +43,7 @@ def _write_loader_script(ctx):
       template=ctx.file._loader_template,
       output=ctx.outputs.loader,
       substitutions={
-          "TEMPLATED_target": "%s/%s:%s" % (ctx.label.workspace_root, ctx.label.package, ctx.label.name),
+          "TEMPLATED_target": str(ctx.label),
           "TEMPLATED_module_roots": "\n  " + ",\n  ".join(module_mappings),
           "TEMPLATED_bootstrap": "\n  " + ",\n  ".join(
               ["\"" + d + "\"" for d in ctx.attr.bootstrap]),
