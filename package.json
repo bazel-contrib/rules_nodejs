@@ -4,6 +4,11 @@
         "husky": "^0.14.3"
     },
     "scripts": {
+        "//": "Special case for this test. We need to run bazel from within the WORKSPACE to ensure that the preserve_symlinks setting is honored.",
+        "internal-e2e-node_loader_no_preserve_symlinks": "cd internal/e2e/node_loader_no_preserve_symlinks && bazel run @nodejs//:yarn && bazel test ... && bazel test @node_resolve_dep//:test",
+        "//": "Special case for this test. We need to run bazel from within the WORKSPACE to ensure that the preserve_symlinks setting is honored.",
+        "internal-e2e-node_loader_preserve_symlinks": "cd internal/e2e/node_loader_preserve_symlinks && bazel run @nodejs//:yarn && bazel test ... && bazel test @node_resolve_dep//:test",
+        "test": "yarn internal-e2e-node_loader_no_preserve_symlinks && yarn internal-e2e-node_loader_preserve_symlinks",
         "prebuildifier": "bazel build --noshow_progress @com_github_bazelbuild_buildtools//buildifier",
         "buildifier": "find . -type f \\( -name BUILD -or -name BUILD.bazel \\) ! -path \"*/node_modules/*\" | xargs $(bazel info bazel-bin)/external/com_github_bazelbuild_buildtools/buildifier/*/buildifier",
         "preskylint": "bazel build --noshow_progress @io_bazel//src/tools/skylark/java/com/google/devtools/skylark/skylint:Skylint",
