@@ -160,12 +160,12 @@ function resolveManifestDirectory(res) {
           main = 'index';
         }
 
-        let maybe = resolveManifestFile(`${res}/${main}`);
+        let maybe = resolveManifestFile(path.posix.join(res, main));
         if (maybe) {
           return maybe;
         }
 
-        maybe = resolveManifestDirectory(`${res}/${main}`);
+        maybe = resolveManifestDirectory(path.posix.join(res, main));
         if (maybe) {
           return maybe;
         }
