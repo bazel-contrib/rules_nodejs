@@ -129,40 +129,35 @@ for ARG in "${ALL_ARGS[@]}"; do
   esac
 done
 
-# Note: Bash does not forward termination signals to any child process when
-# running in docker so need to manually trap and forward the signals
-_term() {
-  kill -TERM "$child" 2>/dev/null
-}
-
-_int() {
-  kill -INT "$child" 2>/dev/null
-}
-
+# The EXPECTED_EXIT_CODE lets us write bazel tests which assert that
+# a binary fails to run. Otherwise any failure would make such a test
+# fail before we could assert that we expected that failure.
 readonly EXPECTED_EXIT_CODE="TEMPLATED_expected_exit_code"
-if [ "${EXPECTED_EXIT_CODE}" -ne "0" ]; then
-  set +e
-  "${node}" "${NODE_OPTIONS[@]}" "${script}" "${ARGS[@]}" &
-  child=$!
-  trap _term SIGTERM
-  trap _int SIGINT
-  wait "$child"
-  RESULT="$?"
-  set -e
-
-  if (( ${RESULT} != ${EXPECTED_EXIT_CODE} )); then
-    echo "Expected exit code to be ${EXPECTED_EXIT_CODE}, but got ${RESULT}" >&2
-    if [ "${RESULT}" -eq "0" ]; then
-      # This exit code is handled specially by Bazel:
-      # https://github.com/bazelbuild/bazel/blob/486206012a664ecb20bdb196a681efc9a9825049/src/main/java/com/google/devtools/build/lib/util/ExitCode.java#L44
-      readonly BAZEL_EXIT_TESTS_FAILED = 3;
-      exit ${BAZEL_EXIT_TESTS_FAILED}
-    fi
-  else
-    exit 0
-  fi
-
-  exit ${RESULT}
-else
+if [ "${EXPECTED_EXIT_CODE}" -eq "0" ]; then
+  # Replace the current process (bash) with a node process.
+  # This means that stdin, stdout, signals, etc will be transparently
+  # handled by the node process.
+  # If we had merely forked a child process here, we'd be responsible
+  # for forwarding those OS interactions.
   exec "${node}" "${NODE_OPTIONS[@]}" "${script}" "${ARGS[@]}"
+  # exec terminates execution of this shell script, nothing later will run.
 fi
+
+set +e
+"${node}" "${NODE_OPTIONS[@]}" "${script}" "${ARGS[@]}"
+RESULT="$?"
+set -e
+
+if (( ${RESULT} != ${EXPECTED_EXIT_CODE} )); then
+  echo "Expected exit code to be ${EXPECTED_EXIT_CODE}, but got ${RESULT}" >&2
+  if [ "${RESULT}" -eq "0" ]; then
+    # This exit code is handled specially by Bazel:
+    # https://github.com/bazelbuild/bazel/blob/486206012a664ecb20bdb196a681efc9a9825049/src/main/java/com/google/devtools/build/lib/util/ExitCode.java#L44
+    readonly BAZEL_EXIT_TESTS_FAILED = 3;
+    exit ${BAZEL_EXIT_TESTS_FAILED}
+  fi
+else
+  exit 0
+fi
+
+exit ${RESULT}
