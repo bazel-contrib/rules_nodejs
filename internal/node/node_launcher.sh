@@ -140,7 +140,7 @@ _int() {
 }
 
 set +e
-"${node}" "${NODE_OPTIONS[@]}" "${script}" "${ARGS[@]}" &
+"${node}" "${NODE_OPTIONS[@]}" "${script}" "${ARGS[@]}" <&0 &
 child=$!
 trap _term SIGTERM
 trap _int SIGINT
