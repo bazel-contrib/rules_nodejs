@@ -38,15 +38,23 @@ containing:
 # TypeScript rules depend on running Node.js.
 http_archive(
     name = "build_bazel_rules_nodejs",
-    url = "https://github.com/bazelbuild/rules_nodejs/archive/0.8.0.zip",
-    strip_prefix = "rules_nodejs-0.8.0",
-    sha256 = "4e40dd49ae7668d245c3107645f2a138660fcfd975b9310b91eda13f0c973953",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/archive/0.11.2.zip"],
+    strip_prefix = "rules_nodejs-0.11.2",
+    sha256 = "c00d5381adeefb56e0ef959a7b168cae628535dab933cfad1c2cd1870cd7c9de"
+)
+
+# build_bazel_rules_nodejs depends on skylib
+http_archive(
+    name = "bazel_skylib",
+    urls = ["https://github.com/bazelbuild/bazel-skylib/archive/0.3.1.zip"],
+    strip_prefix = "bazel-skylib-0.3.1",
+    sha256 = "95518adafc9a2b656667bbf517a952e54ce7f350779d0dd95133db4eb5c27fb1",
 )
 
 # ts_web_test depends on the web testing rules to provision browsers.
 http_archive(
     name = "io_bazel_rules_webtesting",
-    url = "https://github.com/bazelbuild/rules_webtesting/archive/v0.2.0.zip",
+    urls = ["https://github.com/bazelbuild/rules_webtesting/archive/v0.2.0.zip"],
     strip_prefix = "rules_webtesting-0.2.0",
     sha256 = "cecc12f07e95740750a40d38e8b14b76fefa1551bef9332cb432d564d693723c",
 )
@@ -55,8 +63,11 @@ http_archive(
 # See https://github.com/bazelbuild/rules_go#setup for the latest version.
 http_archive(
     name = "io_bazel_rules_go",
-    url = "https://github.com/bazelbuild/rules_go/releases/download/0.8.1/rules_go-0.8.1.tar.gz",
-    sha256 = "90bb270d0a92ed5c83558b2797346917c46547f6f7103e648941ecdb6b9d0e72",
+    urls = [
+        "http://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/0.10.3/rules_go-0.10.3.tar.gz",
+        "https://github.com/bazelbuild/rules_go/releases/download/0.10.3/rules_go-0.10.3.tar.gz"
+    ],
+    sha256 = "feba3278c13cde8d67e341a837f69a029f698d7a27ddbb2a202be7a10b22142a",
 )
 
 # Include @bazel/typescript in package.json#devDependencies
