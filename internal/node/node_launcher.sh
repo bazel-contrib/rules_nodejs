@@ -139,17 +139,17 @@ _int() {
   kill -INT "$child" 2>/dev/null
 }
 
-set +e
-"${node}" "${NODE_OPTIONS[@]}" "${script}" "${ARGS[@]}" &
-child=$!
-trap _term SIGTERM
-trap _int SIGINT
-wait "$child"
-RESULT="$?"
-set -e
-
 readonly EXPECTED_EXIT_CODE="TEMPLATED_expected_exit_code"
 if [ "${EXPECTED_EXIT_CODE}" -ne "0" ]; then
+  set +e
+  "${node}" "${NODE_OPTIONS[@]}" "${script}" "${ARGS[@]}" &
+  child=$!
+  trap _term SIGTERM
+  trap _int SIGINT
+  wait "$child"
+  RESULT="$?"
+  set -e
+
   if (( ${RESULT} != ${EXPECTED_EXIT_CODE} )); then
     echo "Expected exit code to be ${EXPECTED_EXIT_CODE}, but got ${RESULT}" >&2
     if [ "${RESULT}" -eq "0" ]; then
@@ -161,6 +161,8 @@ if [ "${EXPECTED_EXIT_CODE}" -ne "0" ]; then
   else
     exit 0
   fi
-fi
 
-exit ${RESULT}
+  exit ${RESULT}
+else
+  exec "${node}" "${NODE_OPTIONS[@]}" "${script}" "${ARGS[@]}"
+fi
