@@ -50,6 +50,7 @@ def _write_loader_script(ctx):
           "TEMPLATED_entry_point": ctx.attr.entry_point,
           "TEMPLATED_user_workspace_name": ctx.workspace_name,
           "TEMPLATED_node_modules_root": node_modules_root,
+          "TEMPLATED_install_source_map_support": str(ctx.attr.install_source_map_support).lower(),
       },
       is_executable=True,
   )
@@ -123,6 +124,11 @@ _NODEJS_EXECUTABLE_ATTRS = {
         zone.js before the first `describe`.
         """,
         default = []),
+    "install_source_map_support": attr.bool(
+        doc = """Install the source-map-support package.
+        Enable this to get stack traces that point to original sources, e.g. if the program was written
+        in TypeScript.""",
+        default = True),
     "data": attr.label_list(
         doc = """Runtime dependencies which may be loaded during execution.""",
         allow_files = True,
