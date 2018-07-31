@@ -11,7 +11,7 @@ local_repository(
     name = "build_bazel_rules_nodejs",
     path = "../..",
 )
-load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
+load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "check_rules_nodejs_version")
 
 # Install a hermetic version of node.
 # After this is run, these labels will be available:
@@ -22,6 +22,9 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
 # - The yarn package manager:
 #   @nodejs//:yarn
 node_repositories(package_json = ["//:package.json"])
+
+# Test that check_rules_nodejs_version works as expected
+check_rules_nodejs_version("0.11.2")
 
 load(":setup_workspace.bzl", "packages_example_setup_workspace")
 
