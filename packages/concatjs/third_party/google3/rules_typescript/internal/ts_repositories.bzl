@@ -15,6 +15,7 @@
 "Install toolchain dependencies"
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "check_bazel_version", "yarn_install")
+load("@io_bazel_rules_go//go:def.bzl", "go_repository")
 
 def ts_setup_workspace():
     """This repository rule should be called from your WORKSPACE file.
@@ -26,6 +27,12 @@ def ts_setup_workspace():
     # 0.14.0: @bazel_tools//tools/bash/runfiles is required
     # 0.15.0: "data" attributes don't need 'cfg = "data"'
     check_bazel_version("0.15.0")
+
+    go_repository(
+        name = "com_github_kylelemons_godebug",
+        commit = "d65d576e9348f5982d7f6d83682b694e731a45c6",
+        importpath = "github.com/kylelemons/godebug",
+    )
 
     yarn_install(
         name = "build_bazel_rules_typescript_tsc_wrapped_deps",
