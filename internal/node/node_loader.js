@@ -346,14 +346,16 @@ module.constructor._resolveFilename =
 
 // Before loading anything that might print a stack, install the
 // source-map-support.
-try {
-  require('source-map-support').install();
-} catch (e) {
-  console.error(`WARNING: source-map-support module not installed.
-   Stack traces from languages like TypeScript will point to generated .js files.
-   `);
+if (TEMPLATED_install_source_map_support) {
+  try {
+    require('source-map-support').install();
+  } catch (e) {
+    console.error(`WARNING: source-map-support module not installed.
+    Stack traces from languages like TypeScript will point to generated .js files.
+    Set install_source_map_support = False in TEMPLATED_target to turn off this warning.
+    `);
+  }
 }
-
 // Load all bootstrap modules before loading the entrypoint.
 for (var i = 0; i < BOOTSTRAP.length; i++) {
   try {
