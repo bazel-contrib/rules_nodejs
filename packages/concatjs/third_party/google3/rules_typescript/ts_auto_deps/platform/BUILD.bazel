@@ -1,0 +1,11 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "file.go",
+        "log.go",
+    ],
+    importpath = "github.com/bazelbuild/rules_typescript/ts_auto_deps/platform",
+    visibility = ["//visibility:public"],
+)
