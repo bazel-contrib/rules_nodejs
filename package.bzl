@@ -22,7 +22,7 @@ load("//internal/common:check_version.bzl", "check_version")
 
 # This version needs to be synced with the version in package.json
 # TODO(gmagolan): remove this duplication in the future for the release process
-VERSION = "0.11.2"
+VERSION = "0.11.3"
 
 def check_rules_nodejs_version(minimum_version_string):
   """
