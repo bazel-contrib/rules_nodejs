@@ -2,6 +2,7 @@
 platforms:
   ubuntu1404:
     run_targets:
+    - "//:gazelle"
     - "@nodejs//:yarn"
     build_targets:
     - "..."
@@ -12,6 +13,7 @@ platforms:
     - "..."
   ubuntu1604:
     run_targets:
+    - "//:gazelle"
     - "@nodejs//:yarn"
     build_targets:
     - "..."
@@ -22,6 +24,7 @@ platforms:
     - "..."
   macos:
     run_targets:
+    - "//:gazelle"
     - "@nodejs//:yarn"
     build_targets:
     - "..."
@@ -32,6 +35,8 @@ platforms:
     - "..."
   windows:
     run_targets:
+    # TODO(alexeagle): add go build generation when rules_go is fixed
+    # - "//:gazelle"
     - "@nodejs//:yarn"
     # TODO(alexeagle): expand to all targets when rules_go is fixed
     build_targets:
