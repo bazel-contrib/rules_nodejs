@@ -1,0 +1,45 @@
+# Copyright 2018 The Bazel Authors. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""Package file which defines build_bazel_rules_nodejs version in skylark
+
+check_rules_nodejs_version can be used in downstream WORKSPACES to check
+against a minimum dependent build_bazel_rules_nodejs version.
+"""
+
+load("//internal/common:check_version.bzl", "check_version")
+
+# This version needs to be synced with the version in package.json
+# TODO(gmagolan): remove this duplication in the future for the release process
+VERSION = "0.11.2"
+
+def check_rules_nodejs_version(minimum_version_string):
+  """
+  Verify that a minimum build_bazel_rules_nodejs is loaded a WORKSPACE.
+
+  This should be called from the `WORKSPACE` file so that the build fails as
+  early as possible. For example:
+
+  ```
+  # in WORKSPACE:
+  load("@build_bazel_rules_nodejs//:package.bzl", "check_rules_nodejs_version")
+  check_rules_nodejs_version("0.11.2")
+  ```
+
+  Args:
+    minimum_version_string: a string indicating the minimum version
+  """
+  if not check_version(VERSION, minimum_version_string):
+    fail("\nCurrent build_bazel_rules_nodejs version is {}, expected at least {}\n".format(
+        VERSION, minimum_version_string))

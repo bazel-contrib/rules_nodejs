@@ -20,8 +20,8 @@ package(default_visibility = ["//internal:__subpackages__"])
 exports_files(["check_bazel_version.bzl"])
 
 py_test(
-    name = "check_bazel_version_test",
+    name = "check_version_test",
     size = "small",
-    srcs = ["check_bazel_version_test.py"],
-    data = [":check_bazel_version.bzl"],
+    srcs = ["check_version_test.py"],
+    data = [":check_version.bzl"],
 )
