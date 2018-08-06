@@ -14,7 +14,7 @@
 
 "Install toolchain dependencies"
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "check_bazel_version", "yarn_install")
+load("@build_bazel_rules_nodejs//:defs.bzl", "check_bazel_version", "check_rules_nodejs_version", "yarn_install")
 load("@io_bazel_rules_go//go:def.bzl", "go_repository")
 
 def ts_setup_workspace():
@@ -33,6 +33,9 @@ def ts_setup_workspace():
         commit = "d65d576e9348f5982d7f6d83682b694e731a45c6",
         importpath = "github.com/kylelemons/godebug",
     )
+
+    # 0.11.3: node module resolution fixes & check_rules_nodejs_version
+    check_rules_nodejs_version("0.11.3")
 
     yarn_install(
         name = "build_bazel_rules_typescript_tsc_wrapped_deps",
