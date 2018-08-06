@@ -66,21 +66,27 @@ def _npm_install_impl(repository_ctx):
   is_windows = os_name(repository_ctx).find("windows") != -1
   node = get_node_label(repository_ctx)
   npm = get_npm_label(repository_ctx)
+  npm_args = ["install"]
+
+  if repository_ctx.attr.prod_only:
+    npm_args.append("--production")
 
   # The entry points for npm install for osx/linux and windows
   if not is_windows:
     repository_ctx.file("npm", content="""#!/bin/bash
-(cd "{root}"; "{npm}" install)
+(cd "{root}"; "{npm}" {npm_args})
 """.format(
     root = repository_ctx.path(""),
-    npm = repository_ctx.path(npm)),
+    npm = repository_ctx.path(npm),
+    npm_args = " ".join(npm_args)),
     executable = True)
   else:
     repository_ctx.file("npm.cmd", content="""@echo off
-cd "{root}" && "{npm}" install
+cd "{root}" && "{npm}" {npm_args}
 """.format(
     root = repository_ctx.path(""),
-    node = repository_ctx.path(npm)),
+    node = repository_ctx.path(npm),
+    npm_args = " ".join(npm_args)),
     executable = True)
 
   # Put our package descriptors in the right place.
@@ -125,6 +131,10 @@ npm_install = repository_rule(
         "package_lock_json": attr.label(
             allow_files = True,
             single_file = True,
+        ),
+        "prod_only": attr.bool(
+            default = False,
+            doc = "Don't install devDependencies",
         ),
         "data": attr.label_list(),
         "node_modules_filegroup": attr.string(
@@ -191,6 +201,7 @@ yarn_install = repository_rule(
         ),
         "prod_only": attr.bool(
             default = False,
+            doc = "Don't install devDependencies",
         ),
         "data": attr.label_list(),
         "node_modules_filegroup": attr.string(
