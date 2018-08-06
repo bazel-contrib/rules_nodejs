@@ -122,7 +122,7 @@ as the package manager.</p>
 
           <h2 id="npm_install">npm_install</h2>
 
-          <pre>npm_install(<a href="#npm_install.name">name</a>, <a href="#npm_install.data">data</a>, <a href="#npm_install.node_modules_filegroup">node_modules_filegroup</a>, <a href="#npm_install.package_json">package_json</a>, <a href="#npm_install.package_lock_json">package_lock_json</a>)</pre>
+          <pre>npm_install(<a href="#npm_install.name">name</a>, <a href="#npm_install.data">data</a>, <a href="#npm_install.node_modules_filegroup">node_modules_filegroup</a>, <a href="#npm_install.package_json">package_json</a>, <a href="#npm_install.package_lock_json">package_lock_json</a>, <a href="#npm_install.prod_only">prod_only</a>)</pre>
 
           <p>Runs npm install during workspace setup.</p>
 
@@ -175,13 +175,20 @@ as the package manager.</p>
         
       </td>
     </tr>
+    <tr id="npm_install.prod_only">
+      <td><code>prod_only</code></td>
+      <td>
+        <p><code>Boolean; Optional; Default is False</code></p>
+        <p>Don't install devDependencies</p>
+      </td>
+    </tr>
   </tbody>
 </table>
           <hr>
 
           <h2 id="yarn_install">yarn_install</h2>
 
-          <pre>yarn_install(<a href="#yarn_install.name">name</a>, <a href="#yarn_install.data">data</a>, <a href="#yarn_install.node_modules_filegroup">node_modules_filegroup</a>, <a href="#yarn_install.package_json">package_json</a>, <a href="#yarn_install.yarn_lock">yarn_lock</a>)</pre>
+          <pre>yarn_install(<a href="#yarn_install.name">name</a>, <a href="#yarn_install.data">data</a>, <a href="#yarn_install.node_modules_filegroup">node_modules_filegroup</a>, <a href="#yarn_install.package_json">package_json</a>, <a href="#yarn_install.prod_only">prod_only</a>, <a href="#yarn_install.yarn_lock">yarn_lock</a>)</pre>
 
           <p>Runs yarn install during workspace setup.</p>
 
@@ -225,6 +232,13 @@ as the package manager.</p>
       <td>
         <p><code><a href="https://bazel.build/docs/build-ref.html#labels">Label</a>; Required</code></p>
         
+      </td>
+    </tr>
+    <tr id="yarn_install.prod_only">
+      <td><code>prod_only</code></td>
+      <td>
+        <p><code>Boolean; Optional; Default is False</code></p>
+        <p>Don't install devDependencies</p>
       </td>
     </tr>
     <tr id="yarn_install.yarn_lock">
