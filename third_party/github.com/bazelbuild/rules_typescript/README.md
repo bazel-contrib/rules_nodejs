@@ -38,9 +38,9 @@ containing:
 # TypeScript rules depend on running Node.js.
 http_archive(
     name = "build_bazel_rules_nodejs",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/archive/0.11.2.zip"],
-    strip_prefix = "rules_nodejs-0.11.2",
-    sha256 = "c00d5381adeefb56e0ef959a7b168cae628535dab933cfad1c2cd1870cd7c9de"
+    urls = ["https://github.com/bazelbuild/rules_nodejs/archive/0.11.3.zip"],
+    strip_prefix = "rules_nodejs-0.11.3",
+    sha256 = "e8842fa5f5e38f2c826167ff94323d4b5aabd13217cee867d971d6f860cfd730"
 )
 
 # build_bazel_rules_nodejs depends on skylib
@@ -249,17 +249,10 @@ changes since the last tag - if so, this will be a minor, if not, it's a patch.
 (This may not sound like semver - but since our major version is a zero, the
 rule is that minors are breaking changes and patches are new features).
 
-```sh
-yarn skydoc
-
-# May be necessary if Go code has changed
-# though probably it was already necessary to run this to keep CI green.
-bazel run :gazelle
-
-git commit -a -m 'Update docs for release'
-npm config set tag-version-prefix ''
-npm version minor -m 'rel: %s' # Replace minor with patch if no breaking changes
-git push
-git push --tags
-npm publish
-```
+1. Re-generate the API docs: `yarn skydoc`
+1. May be necessary if Go code has changed though probably it was already necessary to run this to keep CI green: `bazel run :gazelle`
+1. `git commit -a -m 'Update docs for release'`
+1. `npm config set tag-version-prefix ''`
+1. `npm version minor -m 'rel: %s'` (replace `minor` with `patch` if no breaking changes)
+1. `git push && git push --tags`
+1. Publish to npm: `npm publish`

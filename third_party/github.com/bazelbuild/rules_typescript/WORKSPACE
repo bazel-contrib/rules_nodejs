@@ -17,9 +17,9 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "build_bazel_rules_nodejs",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/archive/0.11.2.zip"],
-    strip_prefix = "rules_nodejs-0.11.2",
-    sha256 = "c00d5381adeefb56e0ef959a7b168cae628535dab933cfad1c2cd1870cd7c9de"
+    urls = ["https://github.com/bazelbuild/rules_nodejs/archive/0.11.3.zip"],
+    strip_prefix = "rules_nodejs-0.11.3",
+    sha256 = "e8842fa5f5e38f2c826167ff94323d4b5aabd13217cee867d971d6f860cfd730"
 )
 
 http_archive(
@@ -106,9 +106,12 @@ browser_repositories(
     firefox = True,
 )
 
-load("@build_bazel_rules_typescript//:defs.bzl", "ts_setup_workspace")
+load("@build_bazel_rules_typescript//:defs.bzl", "ts_setup_workspace", "check_rules_typescript_version")
 
 ts_setup_workspace()
+
+# Test that check_rules_typescript_version works as expected
+check_rules_typescript_version("0.15.3")
 
 #############################################
 # Dependencies for generating documentation #

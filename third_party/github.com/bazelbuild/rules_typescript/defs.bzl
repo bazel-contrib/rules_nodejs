@@ -24,6 +24,7 @@ load("//internal/karma:ts_web_test.bzl",
      _ts_web_test = "ts_web_test_macro",
      _ts_web_test_suite = "ts_web_test_suite")
 load("//internal/protobufjs:ts_proto_library.bzl", _ts_proto_library = "ts_proto_library")
+load("//:package.bzl", _check_rules_typescript_version = "check_rules_typescript_version")
 
 ts_setup_workspace = _ts_setup_workspace
 ts_library = _ts_library
@@ -35,3 +36,5 @@ ts_web_test_suite = _ts_web_test_suite
 ts_proto_library = _ts_proto_library
 # DO NOT ADD MORE rules here unless they appear in the generated docsite.
 # Run yarn skydoc to re-generate the docsite.
+
+check_rules_typescript_version = _check_rules_typescript_version
