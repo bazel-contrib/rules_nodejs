@@ -20,8 +20,10 @@ against a minimum dependent build_bazel_rules_nodejs version.
 
 load("//internal/common:check_version.bzl", "check_version")
 
-# This version needs to be synced with the version in package.json
-# TODO(gmagolan): remove this duplication in the future for the release process
+# This version is synced with the version in package.json.
+# It will be automatically synced via the npm "version" script
+# that is run when running `npm version` during the release
+# process. See `Releasing` section in README.md.
 VERSION = "0.11.3"
 
 def check_rules_nodejs_version(minimum_version_string):
