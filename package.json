@@ -10,14 +10,17 @@
     "license": "Apache-2.0",
     "devDependencies": {
         "clang-format": "1.2.2",
-        "husky": "^0.14.3"
+        "husky": "^0.14.3",
+        "shelljs": "^0.8.2"
     },
     "scripts": {
-        "examples-program": "cd examples/program; bazel run @nodejs//:yarn && bazel test --test_output=errors :all",
-        "examples-packages": "cd examples/packages; bazel run @nodejs//:yarn && bazel test --test_output=errors :all",
-        "//": "Special case for this test. We need to run bazel from within the WORKSPACE to ensure that the preserve_symlinks setting is honored.",
+        "//examples-program": "Run bazel from within the folder containing the WORKSPACE so that the WORKSPACE files is tested.",
+        "examples-program": "cd examples/program && bazel run @nodejs//:yarn && bazel test --test_output=errors :all",
+        "//examples-packages": "Run bazel from within the folder containing the WORKSPACE so that the WORKSPACE files is tested.",
+        "examples-packages": "cd examples/packages && bazel run @nodejs//:yarn && bazel test --test_output=errors :all",
+        "//internal-e2e-node_loader_no_preserve_symlinks": "Run bazel from within the folder containing the WORKSPACE so that the WORKSPACE files is tested & its preserve-symlinks value is used.",
         "internal-e2e-node_loader_no_preserve_symlinks": "cd internal/e2e/node_loader_no_preserve_symlinks && bazel run @nodejs//:yarn && bazel test ... && bazel test @node_resolve_dep//:test",
-        "//": "Special case for this test. We need to run bazel from within the WORKSPACE to ensure that the preserve_symlinks setting is honored.",
+        "//internal-e2e-node_loader_preserve_symlinks": "Run bazel from within the folder containing the WORKSPACE so that the WORKSPACE files is tested & its preserve-symlinks value is used.",
         "internal-e2e-node_loader_preserve_symlinks": "cd internal/e2e/node_loader_preserve_symlinks && bazel run @nodejs//:yarn && bazel test ... && bazel test @node_resolve_dep//:test",
         "test": "yarn internal-e2e-node_loader_no_preserve_symlinks && yarn internal-e2e-node_loader_preserve_symlinks && yarn examples-packages && yarn examples-program",
         "prebuildifier": "bazel build --noshow_progress @com_github_bazelbuild_buildtools//buildifier",
@@ -27,6 +30,7 @@
         "format": "git-clang-format",
         "format-all": "clang-format --glob='{internal/**/,examples/**/}*.{js,ts}' -i",
         "precommit": "check-clang-format \"yarn format\"",
-        "skydoc": "bazel build //:docs && unzip -o -d docs bazel-bin/docs-skydoc.zip"
+        "skydoc": "bazel build //:docs && unzip -o -d docs bazel-bin/docs-skydoc.zip",
+        "version": "node ./on-version.js && git stage package.bzl"
     }
 }

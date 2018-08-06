@@ -384,7 +384,6 @@ Check if there are any breaking changes since the last tag - if so, this will be
 
 1. Re-generate the API docs: `yarn skydoc`
 1. `git commit -a -m 'Update docs for release'`
-1. Manually update the versions in `package.json` and `package.bzl` for release
-1. `git commit -a -m 'Update version for release'`
-1. Write some brief release notes (manual for now): `git tag -a 0.x.y`
+1. `npm config set tag-version-prefix ''`
+1. `npm version minor -m 'rel: %s'` (replace `minor` with `patch` if no breaking changes)
 1. `git push && git push --tags`
