@@ -66,21 +66,27 @@ def _npm_install_impl(repository_ctx):
   is_windows = os_name(repository_ctx).find("windows") != -1
   node = get_node_label(repository_ctx)
   npm = get_npm_label(repository_ctx)
+  npm_args = ["install"]
+
+  if repository_ctx.attr.prod_only:
+    npm_args.append("--production")
 
   # The entry points for npm install for osx/linux and windows
   if not is_windows:
     repository_ctx.file("npm", content="""#!/bin/bash
-(cd "{root}"; "{npm}" install)
+(cd "{root}"; "{npm}" {npm_args})
 """.format(
     root = repository_ctx.path(""),
-    npm = repository_ctx.path(npm)),
+    npm = repository_ctx.path(npm),
+    npm_args = " ".join(npm_args)),
     executable = True)
   else:
     repository_ctx.file("npm.cmd", content="""@echo off
-cd "{root}" && "{npm}" install
+cd "{root}" && "{npm}" {npm_args}
 """.format(
     root = repository_ctx.path(""),
-    node = repository_ctx.path(npm)),
+    node = repository_ctx.path(npm),
+    npm_args = " ".join(npm_args)),
     executable = True)
 
   # Put our package descriptors in the right place.
@@ -126,6 +132,10 @@ npm_install = repository_rule(
             allow_files = True,
             single_file = True,
         ),
+        "prod_only": attr.bool(
+            default = False,
+            doc = "Don't install devDependencies",
+        ),
         "data": attr.label_list(),
         "node_modules_filegroup": attr.string(
             doc = """Experimental attribute that can be used to work-around
@@ -161,12 +171,18 @@ def _yarn_install_impl(repository_ctx):
   # A local cache is used as multiple yarn rules cannot run simultaneously using a shared
   # cache and a shared cache is non-hermetic.
   # To see the output, pass: quiet=False
-  result = repository_ctx.execute([
+  args = [
     repository_ctx.path(yarn),
     "--cache-folder",
     repository_ctx.path("_yarn_cache"),
     "--cwd",
-    repository_ctx.path("")])
+    repository_ctx.path(""),
+  ]
+
+  if repository_ctx.attr.prod_only:
+    args.append("--prod")
+
+  result = repository_ctx.execute(args)
 
   if result.return_code:
     fail("yarn_install failed: %s (%s)" % (result.stdout, result.stderr))
@@ -182,6 +198,10 @@ yarn_install = repository_rule(
             allow_files = True,
             mandatory = True,
             single_file = True,
+        ),
+        "prod_only": attr.bool(
+            default = False,
+            doc = "Don't install devDependencies",
         ),
         "data": attr.label_list(),
         "node_modules_filegroup": attr.string(
