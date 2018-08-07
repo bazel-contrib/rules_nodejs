@@ -15,7 +15,7 @@
 "Install toolchain dependencies"
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "check_bazel_version", "check_rules_nodejs_version", "yarn_install")
-load("@io_bazel_rules_go//go:def.bzl", "go_repository")
+load("@bazel_gazelle//:deps.bzl", "go_repository")
 
 def ts_setup_workspace():
     """This repository rule should be called from your WORKSPACE file.
