@@ -54,9 +54,9 @@ http_archive(
 
 http_archive(
     name = "io_bazel_rules_sass",
-    url = "https://github.com/bazelbuild/rules_sass/archive/0.0.3.zip",
-    strip_prefix = "rules_sass-0.0.3",
-    sha256 = "8fa98e7b48a5837c286a1ea254b5a5c592fced819ee9fe4fdd759768d97be868",
+    url = "https://github.com/bazelbuild/rules_sass/archive/0.1.0.zip",
+    strip_prefix = "rules_sass-0.1.0",
+    sha256 = "b243c4d64f054c174051785862ab079050d90b37a1cef7da93821c6981cb9ad4",
 )
 
 http_archive(
@@ -136,7 +136,7 @@ load("@io_bazel_rules_go//go:def.bzl", "go_rules_dependencies", "go_register_too
 go_rules_dependencies()
 go_register_toolchains()
 
-load("@io_bazel_rules_sass//sass:sass.bzl", "sass_repositories")
+load("@io_bazel_rules_sass//sass:sass_repositories.bzl", "sass_repositories")
 sass_repositories()
 
 load("@io_bazel_skydoc//skylark:skylark.bzl", "skydoc_repositories")
