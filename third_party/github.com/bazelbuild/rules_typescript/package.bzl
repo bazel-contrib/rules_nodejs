@@ -24,7 +24,7 @@ load("@build_bazel_rules_nodejs//internal/common:check_version.bzl", "check_vers
 # It will be automatically synced via the npm "version" script
 # that is run when running `npm version` during the release
 # process. See `Releasing` section in README.md.
-VERSION = "0.16.0"
+VERSION = "0.15.3"
 
 def check_rules_typescript_version(minimum_version_string):
     """
