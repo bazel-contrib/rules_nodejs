@@ -256,7 +256,7 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
       importPath = resolvedPath.replace(TS_EXT, '');
       // Make sure all module names include the workspace name.
       if (importPath.indexOf(this.bazelOpts.workspaceName) !== 0) {
-        importPath = path.join(this.bazelOpts.workspaceName, importPath);
+        importPath = path.posix.join(this.bazelOpts.workspaceName, importPath);
       }
     }
 

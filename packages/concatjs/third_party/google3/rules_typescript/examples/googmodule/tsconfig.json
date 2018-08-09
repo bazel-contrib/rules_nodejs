@@ -1,0 +1,6 @@
+{
+    "bazelOptions": {
+        "tsickle": true,
+        "googmodule": true
+    }
+}

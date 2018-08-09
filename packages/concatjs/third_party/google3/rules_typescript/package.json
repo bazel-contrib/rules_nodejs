@@ -13,7 +13,7 @@
     },
     "dependencies": {
         "protobufjs": "5.0.0",
-        "tsickle": "0.25.x",
+        "tsickle": "0.32.1",
         "tsutils": "2.20.0"
     },
     "devDependencies": {
