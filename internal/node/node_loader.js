@@ -45,8 +45,8 @@ const NODE_MODULES_ROOT = 'TEMPLATED_node_modules_root';
 if (DEBUG)
   console.error(`
 node_loader: running TEMPLATED_target with
-  MODULE_ROOTS: ${MODULE_ROOTS}
-  BOOTSTRAP: ${BOOTSTRAP}
+  MODULE_ROOTS: ${JSON.stringify(MODULE_ROOTS, undefined, 2)}
+  BOOTSTRAP: ${JSON.stringify(BOOTSTRAP, undefined, 2)}
   NODE_MODULES_ROOT: ${NODE_MODULES_ROOT}
 `);
 
