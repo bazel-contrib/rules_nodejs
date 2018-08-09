@@ -142,7 +142,6 @@ def create_tsconfig(
         "workspaceName": ctx.workspace_name,
         "target": str(ctx.label),
         "package": ctx.label.package,
-        "tsickle": tsickle_externs != None,
         "tsickleGenerateExterns": getattr(ctx.attr, "generate_externs", True),
         "tsickleExternsPath": tsickle_externs.path if tsickle_externs else "",
         "untyped": not getattr(ctx.attr, "tsickle_typed", False),

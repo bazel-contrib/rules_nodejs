@@ -1,0 +1,24 @@
+load("//:defs.bzl", "ts_library")
+
+ts_library(
+    name = "googmodule",
+    srcs = ["a.ts"],
+    tsconfig = "tsconfig.json",
+)
+
+load("//examples/es5_output:es5_consumer.bzl", "es5_consumer")
+
+es5_consumer(
+    name = "es5_output",
+    deps = [":googmodule"],
+)
+
+load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
+
+jasmine_node_test(
+    name = "googmodule_output_test",
+    srcs = ["googmodule_output_test.js"],
+    data = [
+        ":es5_output",
+    ],
+)

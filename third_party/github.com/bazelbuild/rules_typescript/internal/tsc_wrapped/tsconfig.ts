@@ -288,6 +288,9 @@ export function parseTsconfig(
       bazelOpts.suppressTsconfigOverrideWarnings =
           bazelOpts.suppressTsconfigOverrideWarnings ||
           userConfig.bazelOptions.suppressTsconfigOverrideWarnings;
+      bazelOpts.tsickle = bazelOpts.tsickle || userConfig.bazelOptions.tsickle;
+      bazelOpts.googmodule =
+          bazelOpts.googmodule || userConfig.bazelOptions.googmodule;
     }
     if (!bazelOpts.suppressTsconfigOverrideWarnings) {
       warnOnOverriddenOptions(userConfig);
@@ -304,6 +307,10 @@ export function parseTsconfig(
   // When canonicalizing paths, we always want to strip
   // `workspace/bazel-bin/file` to just `file`, not to `bazel-bin/file`.
   if (options.rootDirs) options.rootDirs.sort((a, b) => b.length - a.length);
+
+  // If the user requested goog.module, we need to produce that output even if
+  // the generated tsconfig indicates otherwise.
+  if (bazelOpts.googmodule) options.module = ts.ModuleKind.CommonJS;
 
   // TypeScript's parseJsonConfigFileContent returns paths that are joined, eg.
   // /path/to/project/bazel-out/arch/bin/path/to/package/../../../../../../path
