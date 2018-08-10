@@ -85,7 +85,7 @@ def _npm_install_impl(repository_ctx):
 cd "{root}" && "{npm}" {npm_args}
 """.format(
     root = repository_ctx.path(""),
-    node = repository_ctx.path(npm),
+    npm = repository_ctx.path(npm),
     npm_args = " ".join(npm_args)),
     executable = True)
 
