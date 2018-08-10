@@ -53,67 +53,61 @@ func (q *QueryBasedTargetLoader) LoadLabels(labels []string) (map[string]*appb.R
 // LoadImportPaths uses Bazel Query to load targets associated with import
 // paths from BUILD files.
 func (q *QueryBasedTargetLoader) LoadImportPaths(ctx context.Context, workspaceRoot string, paths []string) (map[string]*appb.Rule, error) {
-	var remainingImportPaths []string
 	results := make(map[string]*appb.Rule)
+
+	addedPaths := make(map[string]bool)
+	var possiblePaths []string
 	for _, path := range paths {
-		if trim := strings.TrimPrefix(path, workspace.Name()+"/"); trim != path {
-			// TODO(jdhamlik): Optimize by grouping the queries into one larger query.
-			// TODO(jdhamlik): Handle .d.ts and .tsx files.
-			r, err := q.query(trim + ".ts")
-			if err != nil {
-				return nil, err
-			}
-			targets := r.GetTarget()
-			// Expecting to get one, and only one, target per query.
-			n := len(targets)
-			if n < 1 {
-				return nil, fmt.Errorf("failed to resolved a target for file %q", trim+".ts")
-			}
-			if n > 1 {
-				return nil, fmt.Errorf("got %d targets when only one was expected", n)
-			}
-			t, err := q.loadRuleIncludingFile(targets[0].GetSourceFile().GetName())
-			if err != nil {
-				return nil, err
-			}
-			results[path] = t
-		} else if trim := strings.TrimPrefix(path, "goog:"); trim != path {
-			// There are no current heuristics in this implementation for
-			// 'goog:' imports. That is handled by the ts_auto_deps binary proper.
+		if strings.HasPrefix(path, "goog:") {
+			// 'goog:' imports are resolved using an sstable.
 			results[path] = nil
-		} else {
-			// The import is not explicitly under google3 or a closure-style
-			// import.
-			remainingImportPaths = append(remainingImportPaths, path)
+			continue
+		}
+		if !strings.HasPrefix(path, "@") {
+			if _, ok := addedPaths[path]; !ok {
+				addedPaths[path] = true
+
+				// If the path has a suffix of ".ngfactory" or ".ngsummary", it might
+				// be an Angular AOT generated file. We can infer the target as we
+				// infer its corresponding ngmodule target by simply stripping the
+				// ".ngfactory" / ".ngsummary" suffix
+				path = strings.TrimSuffix(strings.TrimSuffix(path, ".ngsummary"), ".ngfactory")
+				path = strings.TrimPrefix(path, workspace.Name()+"/")
+
+				possiblePaths = append(possiblePaths, pathWithExtensions(path)...)
+				possiblePaths = append(possiblePaths, pathWithExtensions(filepath.Join(path, "index"))...)
+			}
 		}
 	}
 
-	// Attempt to locate the file rooted in the workspace even though it isn't
-	// prefixed by 'google3/'.
-	for _, imp := range remainingImportPaths {
-		// If the path has a suffix of ".ngfactory" or ".ngsummary", it might
-		// be an Angular AOT generated file. We can infer the target as we
-		// infer its corresponding ngmodule target by simply stripping the
-		// ".ngfactory" / ".ngsummary" suffix
-		path := strings.TrimSuffix(strings.TrimSuffix(imp, ".ngsummary"), ".ngfactory")
-		res, err := q.batchQuery(pathWithExtensions(path))
+	r, err := q.batchQuery(possiblePaths)
+	if err != nil {
+		return nil, err
+	}
+	var sourceFileLabels []string
+	for _, target := range r.GetTarget() {
+		label, err := q.sourceFileLabel(target)
 		if err != nil {
 			return nil, err
 		}
-		if len(res.GetTarget()) > 0 {
-			target := res.GetTarget()[0]
-			label, err := q.sourceFileLabel(target)
-			if err != nil {
-				return nil, err
+		sourceFileLabels = append(sourceFileLabels, label)
+	}
+	sourceLabelToRule, err := q.loadRulesIncludingSourceFiles(workspaceRoot, sourceFileLabels)
+	if err != nil {
+		return nil, err
+	}
+	for sourceLabel, rule := range sourceLabelToRule {
+		_, pkg, file := edit.ParseLabel(sourceLabel)
+		pathWithoutExtension := strings.TrimSuffix(filepath.Join(pkg, stripTSExtension(file)), string(filepath.Separator)+"index")
+		for _, path := range paths {
+			if pathWithoutExtension == path {
+				results[path] = rule
+			} else if pathWithoutExtension == strings.TrimSuffix(path, ".ngsummary") {
+				results[path] = rule
+			} else if pathWithoutExtension == strings.TrimSuffix(path, ".ngfactory") {
+				results[path] = rule
 			}
-			rule, err := q.loadRuleIncludingFile(label)
-			if err != nil {
-				return nil, err
-			}
-			results[imp] = rule
-			continue
 		}
-
 	}
 
 	return results, nil
@@ -133,27 +127,41 @@ func (q *QueryBasedTargetLoader) sourceFileLabel(target *appb.Target) (string, e
 	return target.GetSourceFile().GetName(), nil
 }
 
-// loadRuleIncludingFile loads the target associated with a file label.
-func (q *QueryBasedTargetLoader) loadRuleIncludingFile(fileLabel string) (*appb.Rule, error) {
-	_, pkg, file := edit.ParseLabel(fileLabel)
-	// Filter the targets in the file label's package to only targets which
-	// include the file in their 'srcs' attribute.
-	r, err := q.query(fmt.Sprintf("attr('srcs', %s, //%s:*)", file, pkg))
+// loadRuleIncludingSourceFiles loads all rules which include labels in
+// sourceFileLabels, Returns a map from source file label to the rule which
+// includes it.
+func (q *QueryBasedTargetLoader) loadRulesIncludingSourceFiles(workspaceRoot string, sourceFileLabels []string) (map[string]*appb.Rule, error) {
+	pkgToLabels := make(map[string][]string)
+	queries := make([]string, 0, len(sourceFileLabels))
+	for _, label := range sourceFileLabels {
+		_, pkg, file := edit.ParseLabel(label)
+		pkgToLabels[pkg] = append(pkgToLabels[pkg], label)
+		// Query for all targets in the package which use file.
+		queries = append(queries, fmt.Sprintf("attr('srcs', %s, //%s:*)", file, pkg))
+	}
+	r, err := q.batchQuery(queries)
 	if err != nil {
 		return nil, err
 	}
+	labelToRule := make(map[string]*appb.Rule)
 	for _, target := range r.GetTarget() {
+		label, err := q.ruleLabel(target)
+		if err != nil {
+			return nil, err
+		}
 		rule := target.GetRule()
+		_, pkg, _ := edit.ParseLabel(label)
+		labels := pkgToLabels[pkg]
 		for _, src := range listAttribute(rule, "srcs") {
-			_, _, path := edit.ParseLabel(src)
-			// Return the first rule which has a source file exactly matching
-			// the requested file path.
-			if path == file {
-				return rule, nil
+			for _, l := range labels {
+				if src == l {
+					labelToRule[l] = rule
+					break
+				}
 			}
 		}
 	}
-	return nil, fmt.Errorf("failed to resolved a target for file label %q", fileLabel)
+	return labelToRule, nil
 }
 
 // batchQuery runs a set of queries with a single call to Bazel query and the
