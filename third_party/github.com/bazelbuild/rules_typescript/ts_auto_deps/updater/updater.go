@@ -525,7 +525,7 @@ func QueryBasedBazelAnalyze(buildFilePath string, args []string) ([]byte, []byte
 	if err != nil {
 		return nil, nil, err
 	}
-	reports, err := analyze.New(analyze.NewQueryBasedTargetLoader(root, bazelBinary())).Analyze(buildFilePath, targets)
+	reports, err := analyze.New(analyze.NewQueryBasedTargetLoader(root, bazelBinary())).Analyze(context.Background(), buildFilePath, targets)
 	if err != nil {
 		return nil, nil, err
 	}

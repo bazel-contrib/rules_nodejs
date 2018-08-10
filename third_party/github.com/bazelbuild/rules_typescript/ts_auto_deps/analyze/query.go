@@ -3,6 +3,7 @@
 package analyze
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -50,7 +51,7 @@ type TargetLoader interface {
 	// no target is found associated with a provided import path, the import
 	// path should be excluded from the returned mapping but an error should
 	// not be returned.
-	LoadImportPaths(root string, paths []string) (map[string]*appb.Rule, error)
+	LoadImportPaths(ctx context.Context, root string, paths []string) (map[string]*appb.Rule, error)
 }
 
 // Analyzer uses a BuildLoader to generate dependency reports.
@@ -67,7 +68,7 @@ func New(loader TargetLoader) *Analyzer {
 //
 // dir is the directory that ts_auto_deps should execute in. Must be a sub-directory
 // of google3.
-func (a *Analyzer) Analyze(dir string, labels []string) ([]*arpb.DependencyReport, error) {
+func (a *Analyzer) Analyze(ctx context.Context, dir string, labels []string) ([]*arpb.DependencyReport, error) {
 	root, err := workspace.Root(dir)
 	if err != nil {
 		return nil, err
@@ -76,7 +77,7 @@ func (a *Analyzer) Analyze(dir string, labels []string) ([]*arpb.DependencyRepor
 	if err != nil {
 		return nil, err
 	}
-	resolved, err := a.resolveImportsForTargets(root, targets)
+	resolved, err := a.resolveImportsForTargets(ctx, root, targets)
 	if err != nil {
 		return nil, err
 	}
@@ -137,7 +138,7 @@ func newResolvedTarget(r *appb.Rule) *resolvedTarget {
 
 // resolveImportsForTargets attempts to resolve the imports in the sources of
 // each target in targets.
-func (a *Analyzer) resolveImportsForTargets(root string, allTargets map[string]*appb.Rule) (map[string]*resolvedTarget, error) {
+func (a *Analyzer) resolveImportsForTargets(ctx context.Context, root string, allTargets map[string]*appb.Rule) (map[string]*resolvedTarget, error) {
 	targets := make(map[string]*resolvedTarget)
 	var allDeps, allSrcs []string
 	for _, t := range allTargets {
@@ -185,7 +186,7 @@ func (a *Analyzer) resolveImportsForTargets(root string, allTargets map[string]*
 			}
 		}
 	}
-	if err := a.resolveImports(root, targets); err != nil {
+	if err := a.resolveImports(ctx, root, targets); err != nil {
 		return nil, err
 	}
 	return targets, nil
@@ -193,7 +194,7 @@ func (a *Analyzer) resolveImportsForTargets(root string, allTargets map[string]*
 
 // resolveImports finds targets which provide the imported file or library
 // for imports without known targets.
-func (a *Analyzer) resolveImports(root string, targets map[string]*resolvedTarget) error {
+func (a *Analyzer) resolveImports(ctx context.Context, root string, targets map[string]*resolvedTarget) error {
 	var paths []string
 	needingResolution := make(map[string][]*ts_auto_depsImport)
 	for _, target := range targets {
@@ -226,7 +227,7 @@ func (a *Analyzer) resolveImports(root string, targets map[string]*resolvedTarge
 	if len(needingResolution) == 0 {
 		return nil
 	}
-	res, err := a.loader.LoadImportPaths(root, paths)
+	res, err := a.loader.LoadImportPaths(ctx, root, paths)
 	if err != nil {
 		return err
 	}
@@ -287,7 +288,7 @@ func stripTSExtension(path string) string {
 
 // redirectedLabel looks in the target's tags for a tag starting with
 // 'alt_dep=' followed by a label. If such a tag is found, the label is
-// returned. Otherwise, the target's own label is shortened and returned.
+// returned. Otherwise, the target's own label is returned.
 func redirectedLabel(target *appb.Rule) string {
 	for _, tag := range listAttribute(target, "tags") {
 		if trimmedTag := strings.TrimPrefix(tag, "alt_dep="); trimmedTag != tag {
@@ -295,7 +296,7 @@ func redirectedLabel(target *appb.Rule) string {
 		}
 	}
 	// No 'alt_dep=' tag was present on the target so no redirects need to occur.
-	return edit.ShortenLabel(target.GetName(), "")
+	return target.GetName()
 }
 
 // sources creates an array of all sources listed in the 'srcs' attribute

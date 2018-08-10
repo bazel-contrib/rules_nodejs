@@ -2,8 +2,10 @@ package analyze
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/bazelbuild/buildtools/edit"
@@ -11,17 +13,6 @@ import (
 	"github.com/golang/protobuf/proto"
 
 	appb "github.com/bazelbuild/buildtools/build_proto"
-)
-
-var (
-	commonModuleLocations = []string{}
-
-	ts_auto_depsManagedRuleClasses = []string{
-		"ts_library",
-		"ts_declaration",
-		"ng_module",
-		"js_library",
-	}
 )
 
 // QueryBasedTargetLoader uses Bazel query to load targets from BUILD files.
@@ -61,7 +52,7 @@ func (q *QueryBasedTargetLoader) LoadLabels(labels []string) (map[string]*appb.R
 
 // LoadImportPaths uses Bazel Query to load targets associated with import
 // paths from BUILD files.
-func (q *QueryBasedTargetLoader) LoadImportPaths(_ string, paths []string) (map[string]*appb.Rule, error) {
+func (q *QueryBasedTargetLoader) LoadImportPaths(ctx context.Context, workspaceRoot string, paths []string) (map[string]*appb.Rule, error) {
 	var remainingImportPaths []string
 	results := make(map[string]*appb.Rule)
 	for _, path := range paths {
@@ -96,7 +87,7 @@ func (q *QueryBasedTargetLoader) LoadImportPaths(_ string, paths []string) (map[
 			remainingImportPaths = append(remainingImportPaths, path)
 		}
 	}
-	var potentialCommonImports []string
+
 	// Attempt to locate the file rooted in the workspace even though it isn't
 	// prefixed by 'google3/'.
 	for _, imp := range remainingImportPaths {
@@ -122,11 +113,9 @@ func (q *QueryBasedTargetLoader) LoadImportPaths(_ string, paths []string) (map[
 			results[imp] = rule
 			continue
 		}
-		potentialCommonImports = append(potentialCommonImports, imp)
+
 	}
-	if err := q.resolveImportsInCommonLocations(results, potentialCommonImports); err != nil {
-		return nil, err
-	}
+
 	return results, nil
 }
 
@@ -165,49 +154,6 @@ func (q *QueryBasedTargetLoader) loadRuleIncludingFile(fileLabel string) (*appb.
 		}
 	}
 	return nil, fmt.Errorf("failed to resolved a target for file label %q", fileLabel)
-}
-
-// searchCommonLocations searches through common locations like third_party to
-// find a target providing imports which cannot be resolved using other
-// techniques.
-func (q *QueryBasedTargetLoader) resolveImportsInCommonLocations(results map[string]*appb.Rule, paths []string) error {
-	var queries []string
-	labelToPath := make(map[string]string)
-
-	for _, path := range paths {
-		// third_party uses '_' instead of '-' since the latter is not allowed
-		// in target labels
-		underscored := strings.Replace(path, "-", "_", -1)
-		file := underscored
-		module := underscored
-		if i := strings.Index(underscored, "/"); i >= 0 {
-			// Use the slash in the import path as a separator between the
-			// module name and the path under the module.
-			file = underscored[i+1:]
-			module = commonModuleName(underscored[:i])
-		}
-		for _, l := range commonModuleLocations {
-			// Construct the potential target label in the common location.
-			target := fmt.Sprintf("%s:%s", fmt.Sprintf(l, module), file)
-			queries = append(queries, target)
-			labelToPath[target] = path
-		}
-	}
-	r, err := q.batchQuery(queries)
-	if err != nil {
-		return err
-	}
-	for _, target := range r.GetTarget() {
-		r := target.GetRule()
-		// TODO(jdhamlik): Determine if it's required that the alias resolves to
-		// an allowedRuleClass.
-		// Allow alias rules to provide imports. Alias rules should only appear
-		// in this context if they are special-cased above.
-		if c := r.GetRuleClass(); isTazeManagedRuleClass(c) || c == "alias" {
-			results[labelToPath[r.GetName()]] = r
-		}
-	}
-	return nil
 }
 
 // batchQuery runs a set of queries with a single call to Bazel query and the
@@ -265,18 +211,62 @@ func dedupeLabels(labels []string) []string {
 	return uniqueLabels
 }
 
-// commonModuleName maps module names to their common names. If no common name
-// is set for a module, it returns the module's name as is.
-func commonModuleName(path string) string {
-	return path
-}
-
 // isTazeManagedRuleClass checks if a class is a ts_auto_deps-managed rule class.
 func isTazeManagedRuleClass(class string) bool {
-	for _, c := range ts_auto_depsManagedRuleClasses {
+	for _, c := range []string{
+		"ts_library",
+		"ts_declaration",
+		"ng_module",
+		"js_library",
+	} {
 		if c == class {
 			return true
 		}
 	}
 	return false
+}
+
+// typeScriptRules returns all TypeScript rules in rules.
+func typeScriptRules(rules []*appb.Rule) []*appb.Rule {
+	var tsRules []*appb.Rule
+	for _, rule := range rules {
+		for _, supportedRuleClass := range []string{
+			"ts_library",
+			"ts_declaration",
+			"ng_module",
+		} {
+			if rule.GetRuleClass() == supportedRuleClass {
+				tsRules = append(tsRules, rule)
+				break
+			}
+		}
+	}
+	return tsRules
+}
+
+// resolveAgainstModuleRoot resolves imported against moduleRoot and moduleName.
+func resolveAgainstModuleRoot(label, moduleRoot, moduleName, imported string) string {
+	if moduleRoot == "" && moduleName == "" {
+		return imported
+	}
+	trim := strings.TrimPrefix(imported, moduleName)
+	if trim == imported {
+		return imported
+	}
+	_, pkg, _ := edit.ParseLabel(label)
+	return filepath.Join(pkg, moduleRoot, trim)
+}
+
+// parsePackageName parses and returns the scope and package of imported. For
+// example, "@foo/bar" would have a scope of "@foo" and a package of "bar".
+func parsePackageName(imported string) (string, string) {
+	firstSlash := strings.Index(imported, "/")
+	if firstSlash == -1 {
+		return imported, ""
+	}
+	afterSlash := imported[firstSlash+1:]
+	if secondSlash := strings.Index(afterSlash, "/"); secondSlash > -1 {
+		return imported[:firstSlash], afterSlash[:secondSlash]
+	}
+	return imported[:firstSlash], afterSlash
 }
