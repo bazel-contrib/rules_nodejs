@@ -1,6 +1,7 @@
 package analyze
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -51,7 +52,7 @@ func (bl *fakeTargetLoader) byLabel(label, value string) {
 	bl.targetsByLabels[label] = value
 }
 
-func (bl *fakeTargetLoader) LoadImportPaths(_ string, paths []string) (map[string]*appb.Rule, error) {
+func (bl *fakeTargetLoader) LoadImportPaths(_ context.Context, _ string, paths []string) (map[string]*appb.Rule, error) {
 	return bl.loadTargets(bl.targetsByImportPaths, paths)
 }
 
@@ -112,7 +113,7 @@ func analyzeTargets(t *testing.T, labels []string, targets []*testTarget, files 
 			loader.byImportPath(i, r)
 		}
 	}
-	r, err := New(loader).Analyze(testTmpDir, labels)
+	r, err := New(loader).Analyze(context.Background(), testTmpDir, labels)
 	if err != nil {
 		t.Errorf("Analyze(%q): failed to generate reports: %q", labels, err)
 		return nil
