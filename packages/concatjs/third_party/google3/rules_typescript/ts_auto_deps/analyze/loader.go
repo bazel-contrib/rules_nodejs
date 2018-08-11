@@ -84,20 +84,60 @@ func (q *QueryBasedTargetLoader) LoadImportPaths(ctx context.Context, workspaceR
 	if err != nil {
 		return nil, err
 	}
-	var sourceFileLabels []string
+	var sourceFileLabels, generators []string
+	generatorsToFiles := make(map[string][]*appb.GeneratedFile)
 	for _, target := range r.GetTarget() {
-		label, err := q.sourceFileLabel(target)
+		label, err := q.fileLabel(target)
 		if err != nil {
 			return nil, err
 		}
-		sourceFileLabels = append(sourceFileLabels, label)
+		switch target.GetType() {
+		case appb.Target_GENERATED_FILE:
+			file := target.GetGeneratedFile()
+			generator := file.GetGeneratingRule()
+
+			generators = append(generators, generator)
+			generatorsToFiles[generator] = append(generatorsToFiles[generator], file)
+		case appb.Target_SOURCE_FILE:
+			sourceFileLabels = append(sourceFileLabels, label)
+		}
 	}
+
+	labelToRule := make(map[string]*appb.Rule)
+	for len(generators) > 0 {
+		generatorToRule, err := q.LoadLabels(generators)
+		if err != nil {
+			return nil, err
+		}
+		var newGenerators []string
+		for label, rule := range generatorToRule {
+			_, _, target := edit.ParseLabel(label)
+			if generator := stringAttribute(rule, "generator_name"); generator != "" && generator != target {
+				// Located rule is also a generated rule. Look for the rule
+				// that generates it.
+				_, pkg, _ := edit.ParseLabel(label)
+				newLabel := "//" + pkg + ":" + generator
+				newGenerators = append(newGenerators, newLabel)
+				generatorsToFiles[newLabel] = generatorsToFiles[label]
+			} else {
+				for _, generated := range generatorsToFiles[label] {
+					labelToRule[generated.GetName()] = rule
+				}
+			}
+		}
+		generators = newGenerators
+	}
+
 	sourceLabelToRule, err := q.loadRulesIncludingSourceFiles(workspaceRoot, sourceFileLabels)
 	if err != nil {
 		return nil, err
 	}
-	for sourceLabel, rule := range sourceLabelToRule {
-		_, pkg, file := edit.ParseLabel(sourceLabel)
+	for label, rule := range sourceLabelToRule {
+		labelToRule[label] = rule
+	}
+
+	for label, rule := range labelToRule {
+		_, pkg, file := edit.ParseLabel(label)
 		pathWithoutExtension := strings.TrimSuffix(filepath.Join(pkg, stripTSExtension(file)), string(filepath.Separator)+"index")
 		for _, path := range paths {
 			if pathWithoutExtension == path {
@@ -120,11 +160,15 @@ func (q *QueryBasedTargetLoader) ruleLabel(target *appb.Target) (string, error) 
 	return target.GetRule().GetName(), nil
 }
 
-func (q *QueryBasedTargetLoader) sourceFileLabel(target *appb.Target) (string, error) {
-	if t := target.GetType(); t != appb.Target_SOURCE_FILE {
-		return "", fmt.Errorf("target contains object of type %q instead of type %q", t, appb.Target_SOURCE_FILE)
+func (q *QueryBasedTargetLoader) fileLabel(target *appb.Target) (string, error) {
+	switch t := target.GetType(); t {
+	case appb.Target_GENERATED_FILE:
+		return target.GetGeneratedFile().GetName(), nil
+	case appb.Target_SOURCE_FILE:
+		return target.GetSourceFile().GetName(), nil
+	default:
+		return "", fmt.Errorf("target contains object of type %q instead of type %q or %q", t, appb.Target_SOURCE_FILE, appb.Target_GENERATED_FILE)
 	}
-	return target.GetSourceFile().GetName(), nil
 }
 
 // loadRuleIncludingSourceFiles loads all rules which include labels in
