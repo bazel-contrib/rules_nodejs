@@ -315,10 +315,10 @@ func sources(target *appb.Rule) ([]string, error) {
 }
 
 // generateReports generates reports for each label in labels.
-func (a *Analyzer) generateReports(labels []string, targets map[string]*resolvedTarget) ([]*arpb.DependencyReport, error) {
-	var reports []*arpb.DependencyReport
+func (a *Analyzer) generateReports(labels []string, labelToTarget map[string]*resolvedTarget) ([]*arpb.DependencyReport, error) {
+	reports := make([]*arpb.DependencyReport, 0, len(labels))
 	for _, label := range labels {
-		target, ok := targets[label]
+		target, ok := labelToTarget[label]
 		if !ok {
 			// This case should never happen.
 			platform.Fatalf("target %s no longer loaded", label)
@@ -345,15 +345,17 @@ func (a *Analyzer) generateReports(labels []string, targets map[string]*resolved
 func (a *Analyzer) generateReport(target *resolvedTarget) (*arpb.DependencyReport, error) {
 	usedDeps := make(map[string]bool)
 	report := &arpb.DependencyReport{
-		Rule: proto.String(target.label),
+		Rule:              proto.String(target.label),
+		MissingSourceFile: target.missingSources,
 	}
 	for _, imports := range target.imports {
-	addingImports:
-		for _, i := range imports {
-			if i.knownTarget == "" {
-				// The import could not be resolved into a target. A ts_auto_deps
-				// comment needs to be added to the source by the user.
-				if strings.HasPrefix(i.importPath, "goog:") {
+	handlingImports:
+		for _, imp := range imports {
+			if imp.knownTarget == target.label {
+				continue
+			}
+			if imp.knownTarget == "" {
+				if strings.HasPrefix(imp.importPath, "goog:") {
 					// This feedback needs to be phrased this way since the
 					// updater.go relies on parsing the feedback strings to
 					// determine which 'goog:' imports to add.
@@ -362,28 +364,25 @@ func (a *Analyzer) generateReport(target *resolvedTarget) (*arpb.DependencyRepor
 							"ERROR: %s:%d:%d: missing comment for 'goog:' import, "+
 								"please add a trailing comment to the import. E.g.\n  "+
 								"import Bar from '%s'; // from //foo:bar",
-							i.location.sourcePath, i.location.line, i.location.offset, i.importPath))
+							imp.location.sourcePath, imp.location.line, imp.location.offset, imp.importPath))
 				}
-				report.UnresolvedImport = append(report.UnresolvedImport, i.resolvedPath())
-			} else if i.knownTarget == target.label {
-				// The knownTarget for an import is the target it is a member of.
-				continue addingImports
-			} else {
-				for _, dep := range target.deps() {
-					if dep == i.knownTarget {
-						usedDeps[dep] = true
-						report.NecessaryDependency = append(report.NecessaryDependency, i.knownTarget)
-						continue addingImports
-					}
-				}
-				report.MissingDependencyGroup = append(report.MissingDependencyGroup, &arpb.DependencyGroup{
-					Dependency: []string{edit.ShortenLabel(i.knownTarget, "")},
-					ImportPath: []string{i.resolvedPath()},
-				})
+				report.UnresolvedImport = append(report.UnresolvedImport, imp.resolvedPath())
+				continue
 			}
+
+			for _, dep := range target.deps() {
+				if dep == imp.knownTarget {
+					usedDeps[dep] = true
+					report.NecessaryDependency = append(report.NecessaryDependency, imp.knownTarget)
+					continue handlingImports
+				}
+			}
+			report.MissingDependencyGroup = append(report.MissingDependencyGroup, &arpb.DependencyGroup{
+				Dependency: []string{edit.ShortenLabel(imp.knownTarget, "")},
+				ImportPath: []string{imp.importPath},
+			})
 		}
 	}
-	report.MissingSourceFile = target.missingSources
 
 	var unusedDeps []string
 	for _, dep := range target.deps() {
@@ -391,16 +390,13 @@ func (a *Analyzer) generateReport(target *resolvedTarget) (*arpb.DependencyRepor
 			unusedDeps = append(unusedDeps, dep)
 		}
 	}
-	// Check if the unused deps are TypeScript rules. Only report non-
-	// TypeScript rules as unnecessary deps.
-	res, err := a.loader.LoadLabels(unusedDeps)
+	labelToRule, err := a.loader.LoadLabels(unusedDeps)
 	if err != nil {
 		return nil, err
 	}
-	for _, dep := range unusedDeps {
-		target := res[dep]
-		if c := target.GetRuleClass(); isTazeManagedRuleClass(c) {
-			report.UnnecessaryDependency = append(report.UnnecessaryDependency, dep)
+	for label, rule := range labelToRule {
+		if isTazeManagedRuleClass(rule.GetRuleClass()) || isGenerated(rule) {
+			report.UnnecessaryDependency = append(report.UnnecessaryDependency, label)
 		}
 	}
 	return report, nil
@@ -436,4 +432,8 @@ func attribute(target *appb.Rule, name string) *appb.Attribute {
 		}
 	}
 	return nil
+}
+
+func isGenerated(rule *appb.Rule) bool {
+	return stringAttribute(rule, "generator_name") != ""
 }
