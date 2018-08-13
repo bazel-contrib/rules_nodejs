@@ -30,5 +30,5 @@ genrule(
     name = "lib",
     srcs = ["module_resolution.spec.js"],
     outs = ["module_resolution_copy.spec.js"],
-    cmd = "cat $< > $@",
+    cmd = "cp $< $@",
 )
