@@ -219,12 +219,10 @@ function resolveRunfiles(...pathSegments) {
 }
 
 var originalResolveFilename = module.constructor._resolveFilename;
-module.constructor._resolveFilename =
-    function(request, parent) {
+module.constructor._resolveFilename = function(request, parent) {
+  const parentFilename = (parent && parent.filename) ? parent.filename : undefined;
   if (DEBUG)
-    console.error(
-        `node_loader: resolve ${request} from ` +
-        `${parent && parent.filename ? parent.filename : ''}`);
+    console.error(`node_loader: resolve ${request} from ${parentFilename}`);
 
   const failedResolutions = [];
 
@@ -237,14 +235,14 @@ module.constructor._resolveFilename =
       if (DEBUG)
         console.error(
             `node_loader: resolved ${request} to built-in, relative or absolute import ` +
-            `${resolved} from ${parent && parent.filename ? parent.filename : ''}`);
+            `${resolved} from ${parentFilename}`
+        );
       return resolved;
     } else {
       // Resolved is not a built-in module, relative or absolute import
       // but also allow imports within npm packages that are within the parent files
       // node_modules, meaning it is a dependency of the npm package making the import.
-      const parentSegments =
-          (parent && parent.filename) ? parent.filename.replace(/\\/g, '/').split('/') : [];
+      const parentSegments = parentFilename ? parentFilename.replace(/\\/g, '/').split('/') : [];
       const parentNodeModulesSegment = parentSegments.indexOf('node_modules');
       if (parentNodeModulesSegment != -1) {
         const parentRoot = parentSegments.slice(0, parentNodeModulesSegment).join('/');
@@ -254,11 +252,12 @@ module.constructor._resolveFilename =
           if (DEBUG)
             console.error(
                 `node_loader: resolved ${request} within parent node_modules to ` +
-                `${resolved} from ${parent && parent.filename ? parent.filename : ''}`);
+                `${resolved} from ${parentFilename}`
+            );
           return resolved;
         } else {
           throw new Error(
-              `Resolved to ${resolved} outside of parent node_modules ${parent.filename}`);
+              `Resolved to ${resolved} outside of parent node_modules ${parentFilename}`);
         }
       }
       throw new Error('Not a built-in module, relative or absolute import');
@@ -273,8 +272,8 @@ module.constructor._resolveFilename =
     const resolved = originalResolveFilename(resolveRunfiles(request), parent);
     if (DEBUG)
       console.error(
-          `node_loader: resolved ${request} within runfiles to ${resolved} from ` +
-          `${parent && parent.filename ? parent.filename : ''}`);
+          `node_loader: resolved ${request} within runfiles to ${resolved} from ${parentFilename}`
+      );
     return resolved;
   } catch (e) {
     failedResolutions.push(`runfiles - ${e.toString()}`);
@@ -282,16 +281,16 @@ module.constructor._resolveFilename =
 
   // If the parent file is from an external repository, attempt to resolve against
   // the external repositories node_modules (if they exist)
-  let parentFilename =
-      parent && parent.filename ? path.relative(process.env.RUNFILES, parent.filename) : undefined;
-  if (parentFilename && !parentFilename.startsWith('..')) {
+  let relativeParentFilename =
+      parentFilename ? path.relative(process.env.RUNFILES, parent.filename) : undefined;
+  if (relativeParentFilename && !relativeParentFilename.startsWith('..')) {
     // Remove leading USER_WORKSPACE_NAME/external so that external workspace name is
     // always the first segment
     const externalPrefix = `${USER_WORKSPACE_NAME}/external/`;
-    if (parentFilename.startsWith(externalPrefix)) {
-      parentFilename = parentFilename.substr(externalPrefix.length);
+    if (relativeParentFilename.startsWith(externalPrefix)) {
+      relativeParentFilename = relativeParentFilename.substr(externalPrefix.length);
     }
-    const parentSegments = parentFilename.split('/');
+    const parentSegments = relativeParentFilename.split('/');
     if (parentSegments[0] !== USER_WORKSPACE_NAME) {
       try {
         const resolved = originalResolveFilename(
@@ -299,8 +298,8 @@ module.constructor._resolveFilename =
         if (DEBUG)
           console.error(
               `node_loader: resolved ${request} within node_modules ` +
-              `(${parentSegments[0]}/node_modules) to ${resolved} from ` +
-              `${parent && parent.filename ? parent.filename : ''}`);
+              `(${parentSegments[0]}/node_modules) to ${resolved} from ${relativeParentFilename}`
+          );
         return resolved;
       } catch (e) {
         failedResolutions.push(`${parentSegments[0]}/node_modules - ${e.toString()}`);
@@ -315,7 +314,8 @@ module.constructor._resolveFilename =
     if (DEBUG)
       console.error(
           `node_loader: resolved ${request} within node_modules (${NODE_MODULES_ROOT}) to ` +
-          `${resolved} from ${parent && parent.filename ? parent.filename : ''}`);
+          `${resolved} from ${parentFilename}`
+      );
     return resolved;
   } catch (e) {
     failedResolutions.push(`node_modules attribute (${NODE_MODULES_ROOT}) - ${e.toString()}`);
