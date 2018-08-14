@@ -1,0 +1,19 @@
+load("@io_bazel_skydoc//skylark:skylark.bzl", "skylark_doc")
+
+skylark_doc(
+    name = "docs",
+    srcs = [
+        "//internal:build_defs.bzl",
+        "//internal:ts_config.bzl",
+        "//internal:ts_repositories.bzl",
+        "//internal/devserver:ts_devserver.bzl",
+        "//internal/karma:ts_web_test.bzl",
+        "//internal/protobufjs:ts_proto_library.bzl",
+    ],
+    format = "html",
+    # The site is served at http://tsetse.info so the URL doesn't include a
+    # /rules_typescript segment.
+    # TODO(alexeagle): separate Tsetse docs from the rest of rules_typescript
+    site_root = "/api",
+    strip_prefix = "internal/",
+)
