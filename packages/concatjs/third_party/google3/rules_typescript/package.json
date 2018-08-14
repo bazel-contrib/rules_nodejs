@@ -40,7 +40,7 @@
         "e2e-examples-protobuf-prodserver": "concurrently \"bazel run examples/protocol_buffers:prodserver\" \"while ! nc -z 127.0.0.1 8080; do sleep 1; done && protractor --suite protocol_buffers\" --kill-others --success first",
         "preskylint": "bazel build --noshow_progress @io_bazel//src/tools/skylark/java/com/google/devtools/skylark/skylint:Skylint",
         "skylint": "find . -type f -name \"*.bzl\" ! -path \"*/node_modules/*\" | xargs $(bazel info bazel-bin)/external/io_bazel/src/tools/skylark/java/com/google/devtools/skylark/skylint/Skylint",
-        "skydoc": "bazel build //:docs && unzip -o -d docs/api bazel-bin/docs-skydoc.zip",
+        "skydoc": "bazel build //docs && unzip -o -d docs/api bazel-bin/docs/docs-skydoc.zip",
         "version": "node ./on-version.js && git stage package.bzl"
     }
 }
