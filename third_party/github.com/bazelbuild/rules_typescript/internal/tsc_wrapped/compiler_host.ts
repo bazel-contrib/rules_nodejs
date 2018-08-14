@@ -79,6 +79,7 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
   transformTypesToClosure: boolean;
   addDtsClutzAliases: boolean;
   isJsTranspilation: boolean;
+  provideExternalModuleDtsNamespace: boolean;
   options: BazelTsOptions;
   host: ts.ModuleResolutionHost = this;
 
@@ -122,6 +123,7 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
     this.transformTypesToClosure = bazelOpts.tsickle;
     this.addDtsClutzAliases = bazelOpts.addDtsClutzAliases;
     this.isJsTranspilation = Boolean(bazelOpts.isJsTranspilation);
+    this.provideExternalModuleDtsNamespace = !bazelOpts.hasImplementation;
   }
 
   /**

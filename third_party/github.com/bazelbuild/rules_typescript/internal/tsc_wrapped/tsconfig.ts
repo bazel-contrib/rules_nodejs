@@ -150,6 +150,12 @@ export interface BazelOptions {
    * be written. Ignored if isJsTranspilation is false.
    */
   transpiledJsOutputFileName?: string;
+
+  /**
+   * Whether the user provided an implementation shim for .d.ts files in the
+   * compilation unit.
+   */
+  hasImplementation?: boolean;
 }
 
 export interface ParsedTsConfig {
