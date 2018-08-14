@@ -93,9 +93,9 @@ def rules_nodejs_dev_dependencies():
 
     http_archive(
         name = "io_bazel_rules_sass",
-        url = "https://github.com/bazelbuild/rules_sass/archive/0.0.3.zip",
-        strip_prefix = "rules_sass-0.0.3",
-        sha256 = "8fa98e7b48a5837c286a1ea254b5a5c592fced819ee9fe4fdd759768d97be868",
+        url = "https://github.com/bazelbuild/rules_sass/archive/1.11.0.zip",
+        strip_prefix = "rules_sass-1.11.0",
+        sha256 = "dbe9fb97d5a7833b2a733eebc78c9c1e3880f676ac8af16e58ccf2139cbcad03",
     )
 
     http_archive(
