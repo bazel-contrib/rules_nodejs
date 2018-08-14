@@ -118,18 +118,24 @@ def _outputs(ctx, label):
     workspace_segments = label.workspace_root.split("/") if label.workspace_root else []
     package_segments = label.package.split("/") if label.package else []
     trim = len(workspace_segments) + len(package_segments)
+    create_shim_files = False
+
     closure_js_files = []
     devmode_js_files = []
     declaration_files = []
     for input_file in ctx.files.srcs:
-        if (input_file.short_path.endswith(".d.ts")):
+        is_dts = input_file.short_path.endswith(".d.ts")
+        if is_dts and not create_shim_files:
             continue
         basename = "/".join(input_file.short_path.split("/")[trim:])
-        dot = basename.rfind(".")
-        basename = basename[:dot]
+        for ext in [".d.ts", ".tsx", ".ts"]:
+            if basename.endswith(ext):
+                basename = basename[:-len(ext)]
+                break
         closure_js_files += [ctx.new_file(basename + ".closure.js")]
-        devmode_js_files += [ctx.new_file(basename + ".js")]
-        declaration_files += [ctx.new_file(basename + ".d.ts")]
+        if not is_dts:
+            devmode_js_files += [ctx.new_file(basename + ".js")]
+            declaration_files += [ctx.new_file(basename + ".d.ts")]
     return struct(
         closure_js = closure_js_files,
         devmode_js = devmode_js_files,

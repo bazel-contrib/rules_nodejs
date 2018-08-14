@@ -23,12 +23,12 @@ ts_library(
 
 ts_library(
     name = "foo_ts_library",
-    srcs = [
-        "foo.ts",
-        ":types",
-    ],
+    srcs = ["foo.ts"],
     tsconfig = ":tsconfig.json",
-    deps = ["//examples/generated_ts"],
+    deps = [
+        ":types",
+        "//examples/generated_ts",
+    ],
 )
 
 ts_library(
