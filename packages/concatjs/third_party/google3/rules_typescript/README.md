@@ -225,3 +225,4 @@ rule is that minors are breaking changes and patches are new features).
 1. `npm version minor -m 'rel: %s'` (replace `minor` with `patch` if no breaking changes)
 1. `git push && git push --tags`
 1. Publish to npm: `npm publish`
+1. (Temporary): submit a google3 CL to update the versions in package.bzl and package.json
