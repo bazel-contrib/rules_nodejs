@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Package file which defines build_bazel_rules_nodejs version in skylark
+"""Dependency-related rules defining our version and dependency versions.
 
-check_rules_nodejs_version can be used in downstream WORKSPACES to check
-against a minimum dependent build_bazel_rules_nodejs version.
+Fulfills similar role as the package.json file.
 """
 
 load("//internal/common:check_version.bzl", "check_version")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 # This version is synced with the version in package.json.
 # It will be automatically synced via the npm "version" script
@@ -45,3 +45,16 @@ def check_rules_nodejs_version(minimum_version_string):
   if not check_version(VERSION, minimum_version_string):
     fail("\nCurrent build_bazel_rules_nodejs version is {}, expected at least {}\n".format(
         VERSION, minimum_version_string))
+
+def rules_nodejs_dependencies():
+    _maybe(
+        http_archive,
+        name = "bazel_skylib",
+        url = "https://github.com/bazelbuild/bazel-skylib/archive/0.3.1.zip",
+        strip_prefix = "bazel-skylib-0.3.1",
+        sha256 = "95518adafc9a2b656667bbf517a952e54ce7f350779d0dd95133db4eb5c27fb1",
+    )
+
+def _maybe(repo_rule, name, **kwargs):
+    if name not in native.existing_rules():
+        repo_rule(name = name, **kwargs)

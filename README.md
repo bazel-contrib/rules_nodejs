@@ -25,20 +25,14 @@ Next, create a `WORKSPACE` file in your project root (or edit the existing one)
 containing:
 
 ```python
-# rules_nodejs depends on bazel_skylib
-# Bazel doesn't support transitive workspace deps so you must copy this.
-http_archive(
-    name = "bazel_skylib",
-    url = "https://github.com/bazelbuild/bazel-skylib/archive/0.3.1.zip",
-    strip_prefix = "bazel-skylib-0.3.1",
-    sha256 = "95518adafc9a2b656667bbf517a952e54ce7f350779d0dd95133db4eb5c27fb1",
-)
-
 git_repository(
     name = "build_bazel_rules_nodejs",
     remote = "https://github.com/bazelbuild/rules_nodejs.git",
     tag = "0.11.3", # check for the latest tag when you install
 )
+
+load("@build_bazel_rules_nodejs//:package.bzl", "rules_nodejs_dependencies")
+rules_nodejs_dependencies()
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
 ```

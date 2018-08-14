@@ -14,6 +14,9 @@
 
 workspace(name = "build_bazel_rules_nodejs")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("//:package.bzl", "rules_nodejs_dependencies")
+
+rules_nodejs_dependencies()
 
 #
 # Download Bazel toolchain dependencies as needed by build actions
@@ -57,13 +60,6 @@ http_archive(
     url = "https://github.com/bazelbuild/rules_sass/archive/0.0.3.zip",
     strip_prefix = "rules_sass-0.0.3",
     sha256 = "8fa98e7b48a5837c286a1ea254b5a5c592fced819ee9fe4fdd759768d97be868",
-)
-
-http_archive(
-    name = "bazel_skylib",
-    url = "https://github.com/bazelbuild/bazel-skylib/archive/0.3.1.zip",
-    strip_prefix = "bazel-skylib-0.3.1",
-    sha256 = "95518adafc9a2b656667bbf517a952e54ce7f350779d0dd95133db4eb5c27fb1",
 )
 
 http_archive(

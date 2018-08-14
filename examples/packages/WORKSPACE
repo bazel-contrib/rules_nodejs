@@ -1,17 +1,16 @@
 workspace(name = "packages_example")
 
-http_archive(
-    name = "bazel_skylib",
-    url = "https://github.com/bazelbuild/bazel-skylib/archive/0.3.1.zip",
-    strip_prefix = "bazel-skylib-0.3.1",
-    sha256 = "95518adafc9a2b656667bbf517a952e54ce7f350779d0dd95133db4eb5c27fb1",
-)
-
 local_repository(
     name = "build_bazel_rules_nodejs",
     path = "../..",
 )
-load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "check_rules_nodejs_version")
+load("@build_bazel_rules_nodejs//:package.bzl", "check_rules_nodejs_version", "rules_nodejs_dependencies")
+rules_nodejs_dependencies()
+
+# Test that check_rules_nodejs_version works as expected
+check_rules_nodejs_version("0.11.2")
+
+load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
 
 # Install a hermetic version of node.
 # After this is run, these labels will be available:
@@ -22,9 +21,6 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "check_rules_n
 # - The yarn package manager:
 #   @nodejs//:yarn
 node_repositories(package_json = ["//:package.json"])
-
-# Test that check_rules_nodejs_version works as expected
-check_rules_nodejs_version("0.11.2")
 
 load(":setup_workspace.bzl", "packages_example_setup_workspace")
 
