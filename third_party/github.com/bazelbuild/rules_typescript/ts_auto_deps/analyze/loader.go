@@ -138,9 +138,10 @@ func (q *QueryBasedTargetLoader) LoadImportPaths(ctx context.Context, workspaceR
 
 	for label, rule := range labelToRule {
 		_, pkg, file := edit.ParseLabel(label)
+		// Trim "/index" suffixes that were added to path in the queries above.
 		pathWithoutExtension := strings.TrimSuffix(filepath.Join(pkg, stripTSExtension(file)), string(filepath.Separator)+"index")
 		for _, path := range paths {
-			if pathWithoutExtension == path {
+			if pathWithoutExtension == strings.TrimSuffix(path, string(filepath.Separator)+"index") {
 				results[path] = rule
 			} else if pathWithoutExtension == strings.TrimSuffix(path, ".ngsummary") {
 				results[path] = rule
