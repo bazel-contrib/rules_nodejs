@@ -51,6 +51,8 @@ def _write_loader_script(ctx):
           "TEMPLATED_user_workspace_name": ctx.workspace_name,
           "TEMPLATED_node_modules_root": node_modules_root,
           "TEMPLATED_install_source_map_support": str(ctx.attr.install_source_map_support).lower(),
+          "TEMPLATED_bin_dir": ctx.bin_dir.path,
+          "TEMPLATED_gen_dir": ctx.genfiles_dir.path,
       },
       is_executable=True,
   )

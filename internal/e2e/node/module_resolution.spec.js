@@ -9,6 +9,7 @@ const lib1 = require('lib1');
 const lib1some = require('lib1/src/some');
 const data_resolve_relative = require.resolve('./data/data.json');
 const fs = require('fs');
+const path = require('path');
 
 describe('node npm resolution', () => {
   it('should resolve to index.js by default', () => {
@@ -41,8 +42,12 @@ describe('node npm resolution', () => {
 });
 
 describe('node data resolution', () => {
-  it('should be able to resolve data files', () => {
+  it('should be able to resolve data files through relative paths', () => {
     const dataContent = fs.readFileSync(data_resolve_relative);
+    expect(JSON.parse(dataContent)).toEqual({ "value": 42 });
+  });
+  it('should be able to resolve data files through absolute paths', () => {
+    const dataContent = fs.readFileSync(require.resolve(path.join(__dirname, './data/data.json')));
     expect(JSON.parse(dataContent)).toEqual({ "value": 42 });
   });
   it('should throw when resolving files that are outside the sandbox', () => {

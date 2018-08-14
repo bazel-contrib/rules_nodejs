@@ -41,6 +41,8 @@ var BOOTSTRAP = [TEMPLATED_bootstrap];
 
 const USER_WORKSPACE_NAME = 'TEMPLATED_user_workspace_name';
 const NODE_MODULES_ROOT = 'TEMPLATED_node_modules_root';
+const BIN_DIR = 'TEMPLATED_bin_dir';
+const GEN_DIR = 'TEMPLATED_gen_dir';
 
 if (DEBUG)
   console.error(`
@@ -48,6 +50,8 @@ node_loader: running TEMPLATED_target with
   MODULE_ROOTS: ${JSON.stringify(MODULE_ROOTS, undefined, 2)}
   BOOTSTRAP: ${JSON.stringify(BOOTSTRAP, undefined, 2)}
   NODE_MODULES_ROOT: ${NODE_MODULES_ROOT}
+  BIN_DIR: ${BIN_DIR}
+  GEN_DIR: ${GEN_DIR}
 `);
 
 function resolveToModuleRoot(path) {
@@ -84,6 +88,8 @@ function resolveToModuleRoot(path) {
  */
 function loadRunfilesManifest(manifestPath) {
   if (DEBUG) console.error(`node_loader: using manifest ${manifestPath}`);
+
+  // Create the manifest and reverse manifest maps.
   const runfilesManifest = Object.create(null);
   const reverseRunfilesManifest = Object.create(null);
   const input = fs.readFileSync(manifestPath, {encoding: 'utf-8'});
@@ -93,9 +99,19 @@ function loadRunfilesManifest(manifestPath) {
     runfilesManifest[runfilesPath] = realPath;
     reverseRunfilesManifest[realPath] = runfilesPath;
   }
-  return {runfilesManifest, reverseRunfilesManifest};
+
+  // Determine bin and gen root to convert absolute paths into runfile paths.
+  const binRootIdx = manifestPath.indexOf(BIN_DIR);
+  let binRoot, genRoot;
+  if (binRootIdx !== -1) {
+    const execRoot = manifestPath.slice(0, binRootIdx);
+    binRoot = `${execRoot}${BIN_DIR}/`;
+    genRoot = `${execRoot}${GEN_DIR}/`;
+  }
+
+  return { runfilesManifest, reverseRunfilesManifest, binRoot, genRoot };
 }
-const { runfilesManifest, reverseRunfilesManifest } =
+const { runfilesManifest, reverseRunfilesManifest, binRoot, genRoot } =
     // On Windows, Bazel sets RUNFILES_MANIFEST_ONLY=1.
     // On every platform, Bazel also sets RUNFILES_MANIFEST_FILE, but on Linux
     // and macOS it's faster to use the symlinks in RUNFILES_DIR rather than resolve
@@ -188,18 +204,24 @@ function resolveRunfiles(parent, ...pathSegments) {
   const defaultPath = path.join(process.env.RUNFILES, ...pathSegments);
 
   if (runfilesManifest) {
-    // Resolve relative paths from manifest files.
-    if (parent && pathSegments[0] && pathSegments[0].startsWith('.')) {
+    // Normalize to forward slash, because even on Windows the runfiles_manifest file
+    // is written with forward slash.
+    let runfilesEntry = pathSegments.join('/').replace(/\\/g, '/');
+
+    if (parent && runfilesEntry.startsWith('.')) {
+      // Resolve relative paths from manifest files.
       const normalizedParent = parent.replace(/\\/g, '/');
       const parentRunfile = reverseRunfilesManifest[normalizedParent];
       if (parentRunfile) {
-        pathSegments = [path.dirname(parentRunfile), ...pathSegments];
+        runfilesEntry = path.join(path.dirname(parentRunfile), runfilesEntry).replace(/\\/g, '/');
       }
+    } else if (runfilesEntry.startsWith(binRoot) || runfilesEntry.startsWith(genRoot)) {
+      // For absolute paths, replace binRoot or genRoot with USER_WORKSPACE_NAME to enable lookups.
+      runfilesEntry = runfilesEntry
+        .replace(binRoot, `${USER_WORKSPACE_NAME}/`)
+        .replace(genRoot, `${USER_WORKSPACE_NAME}/`);
     }
 
-    // Normalize to forward slash, because even on Windows the runfiles_manifest file
-    // is written with forward slash.
-    const runfilesEntry = path.join(...pathSegments).replace(/\\/g, '/');
     if (DEBUG) console.error('node_loader: try to resolve in runfiles manifest', runfilesEntry);
 
     let maybe = resolveManifestFile(runfilesEntry);
