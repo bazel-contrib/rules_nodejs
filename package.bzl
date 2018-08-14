@@ -47,12 +47,62 @@ def check_rules_nodejs_version(minimum_version_string):
         VERSION, minimum_version_string))
 
 def rules_nodejs_dependencies():
+    """
+    Fetch our transitive dependencies.
+
+    If the user wants to get a different version of these, they can just fetch it
+    from their WORKSPACE before calling this function, or not call this function at all.
+    """
     _maybe(
         http_archive,
         name = "bazel_skylib",
         url = "https://github.com/bazelbuild/bazel-skylib/archive/0.3.1.zip",
         strip_prefix = "bazel-skylib-0.3.1",
         sha256 = "95518adafc9a2b656667bbf517a952e54ce7f350779d0dd95133db4eb5c27fb1",
+    )
+
+def rules_nodejs_dev_dependencies():
+    """
+    Fetch dependencies needed for local development, but not needed by users.
+
+    These are in this file to keep version information in one place, and make the WORKSPACE
+    shorter.
+    """
+    # Needed for Remote Build Execution
+    http_archive(
+        name = "bazel_toolchains",
+        sha256 = "c3b08805602cd1d2b67ebe96407c1e8c6ed3d4ce55236ae2efe2f1948f38168d",
+        strip_prefix = "bazel-toolchains-5124557861ebf4c0b67f98180bff1f8551e0b421",
+        urls = [
+            "https://mirror.bazel.build/github.com/bazelbuild/bazel-toolchains/archive/5124557861ebf4c0b67f98180bff1f8551e0b421.tar.gz",
+            "https://github.com/bazelbuild/bazel-toolchains/archive/5124557861ebf4c0b67f98180bff1f8551e0b421.tar.gz",
+        ],
+    )
+
+    # This commit matches the version of buildifier in angular/ngcontainer
+    # If you change this, also check if it matches the version in the angular/ngcontainer
+    # version in /.circleci/config.yml
+    BAZEL_BUILDTOOLS_VERSION = "82b21607e00913b16fe1c51bec80232d9d6de31c"
+
+    http_archive(
+        name = "com_github_bazelbuild_buildtools",
+        url = "https://github.com/bazelbuild/buildtools/archive/%s.zip" % BAZEL_BUILDTOOLS_VERSION,
+        strip_prefix = "buildtools-%s" % BAZEL_BUILDTOOLS_VERSION,
+        sha256 = "edb24c2f9c55b10a820ec74db0564415c0cf553fa55e9fc709a6332fb6685eff",
+    )
+
+    http_archive(
+        name = "io_bazel_rules_sass",
+        url = "https://github.com/bazelbuild/rules_sass/archive/0.0.3.zip",
+        strip_prefix = "rules_sass-0.0.3",
+        sha256 = "8fa98e7b48a5837c286a1ea254b5a5c592fced819ee9fe4fdd759768d97be868",
+    )
+
+    http_archive(
+        name = "io_bazel_skydoc",
+        url = "https://github.com/bazelbuild/skydoc/archive/0ef7695c9d70084946a3e99b89ad5a99ede79580.zip",
+        strip_prefix = "skydoc-0ef7695c9d70084946a3e99b89ad5a99ede79580",
+        sha256 = "491f9e142b870b18a0ec8eb3d66636eeceabe5f0c73025706c86f91a1a2acb4d",
     )
 
 def _maybe(repo_rule, name, **kwargs):
