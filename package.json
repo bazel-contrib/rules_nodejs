@@ -30,7 +30,7 @@
         "format": "git-clang-format",
         "format-all": "clang-format --glob='{internal/**/,examples/**/}*.{js,ts}' -i",
         "precommit": "check-clang-format \"yarn format\"",
-        "skydoc": "bazel build --symlink_prefix=bazel- //:docs && unzip -o -d docs bazel-bin/docs-skydoc.zip",
+        "skydoc": "bazel build --symlink_prefix=bazel- //docs && unzip -o -d docs bazel-bin/docs/docs-skydoc.zip",
         "version": "node ./on-version.js && git stage package.bzl"
     }
 }

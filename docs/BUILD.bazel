@@ -1,0 +1,31 @@
+# Copyright 2017 The Bazel Authors. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+load("@io_bazel_skydoc//skylark:skylark.bzl", "skylark_doc")
+
+skylark_doc(
+    name = "docs",
+    srcs = [
+        "//internal/common:check_bazel_version.bzl",
+        "//internal/jasmine_node_test:jasmine_node_test.bzl",
+        "//internal/node:node.bzl",
+        "//internal/node:node_repositories.bzl",
+        "//internal/npm_install:npm_install.bzl",
+        "//internal/npm_package:npm_package.bzl",
+        "//internal/rollup:rollup_bundle.bzl",
+    ],
+    format = "html",
+    site_root = "/rules_nodejs",
+    strip_prefix = "internal/",
+)
