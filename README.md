@@ -135,7 +135,119 @@ node_repositories(
 
 ## Dependencies
 
-You have two options for managing your `node_modules` dependencies.
+### Bazel-managed vs self-managed dependencies
+
+You have two options for managing your `node_modules` dependencies: Bazel-managed or self-managed.
+
+With the Bazel-managed dependencies approach, Bazel is responsible for making sure that `node_modules` is
+up to date with your `package[-lock].json` or `yarn.lock` files. This means Bazel will set it up when the
+repository is first cloned, and rebuild it whenever it changes. With the `yarn_install` or `npm_install`
+repository rules, Bazel will setup your `node_modules` for you in an external workspace named after the
+repository rule. For example, a `yarn_install(name = "npm", ...)` will setup an external
+workspace named `@npm` with the `node_modules` folder inside of it as well as generating targets for each
+root npm package in `node_modules` for use as dependencies to other rules.
+
+For Bazel to provide the strongest guarantees about reproducibility and the
+fidelity of your build, it is recommended that you use Bazel-managed dependencies.
+This approach also allows you to use the generated fine-grained npm package dependencies
+which can significantly reduce the number of inputs to actions, making Bazel sand-boxing and
+remote-execution faster if there are a large number of files under `node_modules`.
+
+It is important to note that with Bazel-managed dependencies, Bazel will manage the `node_modules`
+folder it uses for your build outside of your workspace. Typically, you'll also want to manually
+setup a `node_modules` folder in your workspace for editor support or other tooling. This means that you'll
+typically have two copies of `node_modules`, with only the external Bazel-managed copy used by Bazel for
+your build. If you are sensitive to the additional network traffic this might incur, consider self-managing,
+keeping in mind that if your `node_modules` filegroup has too many files it may negatively impact the
+performance of your build due to the large number of inputs to all actions that use the `node_modules`
+filegroup. See https://github.com/bazelbuild/bazel/issues/5153.
+
+### Using Bazel-managed dependencies
+
+To have Bazel manage its own copy of `node_modules`, which is useful to avoid
+juggling multiple toolchains, you can add one of the following to your `WORKSPACE`
+file:
+
+Using Yarn (preferred):
+
+```python
+load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
+
+yarn_install(
+    name = "npm",
+    package_json = "//:package.json",
+    yarn_lock = "//:yarn.lock",
+)
+```
+
+Using NPM:
+
+```python
+load("@build_bazel_rules_nodejs//:defs.bzl", "npm_install")
+
+npm_install(
+    name = "npm",
+    package_json = "//:package.json",
+    package_lock_json = "//:package-lock.json",
+)
+```
+
+#### Fine-grained npm package dependencies
+
+You can then reference individual npm packages in your `BUILD` rules via:
+
+```python
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+
+nodejs_binary(
+    name = "bar",
+    data = [
+      "@npm//:foo",
+      "@npm//:baz",
+    ]
+    ...
+)
+```
+
+In this case, the `bar` nodejs_binary depends only the `foo` and `baz` npm packages
+and all of their transitive deps.
+
+For other rules such as `jasmine_node_test`, fine grained
+npm dependencies are specified in the `deps` attribute:
+
+```python
+jasmine_node_test(
+    name = "test",
+    ...
+    deps = [
+        "@npm//:jasmine",
+        "@npm//:foo",
+        "@npm//:baz",
+        ...
+    ],
+)
+```
+
+#### Coarse node_modules dependencies
+
+Using fine grained npm dependencies is recommended to minimize
+the number of inputs to your rules. However, for backward compatibility
+there are also filegroups defined by `yarn_install` and `npm_install`
+that include all packages under `node_modules` and which can be used
+with the `node_modules` attribute of nodejs rules.
+
+* `@npm//:node_modules` is includes **all** files under `node_modules`
+* `@npm//:node_modules_lite` is includes only `.js`, `.d.ts`, `.json` and `./bin/*` under `node_modules` (this reduces the number of input files)
+* `@npm//:node_modules_none` is an empty file group which is useful when a nodejs_binary has no node_module dependencies but it still requires its `node_modules` attribute set
+
+```python
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+
+nodejs_binary(
+    name = "bar",
+    node_modules = "@npm//:node_modules_lite",
+)
+```
 
 ### Using self-managed dependencies
 
@@ -145,8 +257,17 @@ then next you will create a `BUILD.bazel` file in your project root containing:
 ```python
 package(default_visibility = ["//visibility:public"])
 
-# NOTE: this may move to node_modules/BUILD in a later release
-filegroup(name = "node_modules", srcs = glob(["node_modules/**/*"]))
+filegroup(
+    name = "node_modules",
+    srcs = glob(
+        include = ["node_modules/**/*"],
+        # Files with spaces in the name are not legal Bazel labels
+        exclude = [
+          "node_modules/**/* */**",
+          "node_modules/**/* *",
+        ],
+    ),
+)
 ```
 
 We recommend using the version of the package management tools installed by
@@ -196,66 +317,11 @@ Note: the arguments passed to `bazel run` after `--` are forwarded to the execut
 
 [bazel instructions]: https://docs.bazel.build/versions/master/install.html
 
-### Using Bazel-managed dependencies
-
-To have Bazel manage its own copy of `node_modules`, which is useful to avoid
-juggling multiple toolchains, you can add one of the following to your `WORKSPACE`
-file:
-
-Using Yarn (preferred):
-
-```python
-load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
-
-yarn_install(
-    name = "foo",
-    package_json = "//:package.json",
-    yarn_lock = "//:yarn.lock",
-)
-```
-
-Using NPM:
-
-```python
-load("@build_bazel_rules_nodejs//:defs.bzl", "npm_install")
-
-npm_install(
-    name = "foo",
-    package_json = "//:package.json",
-    package_lock_json = "//:package-lock.json",
-)
-```
-
-You can then reference this version of `node_modules` in your `BUILD` rules via:
-
-```python
-load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
-
-nodejs_binary(
-    name = "bar",
-    # Ordinarily this defaults to //:node_modules
-    node_modules = "@foo//:node_modules",
-    ...
-)
-```
-
-With this approach, Bazel is responsible for making sure that `node_modules` is
-up to date with `package[-lock].json` or `yarn.lock`.  This means Bazel will set it up when the
-repo is first cloned, and rebuild it whenever it changes.
-
-For Bazel to provide the strongest guarantees about reproducibility and the
-fidelity of your build, it is recommended that you let Bazel take responsibility
-for this.
-
-However, this approach manages a second copy of `node_modules`, so if you are
-juggling Bazel and other tooling, or sensitive to the additional network traffic
-this might incur, consider self-managing.
-
 ## Usage
 
 The complete API documentation is at https://bazelbuild.github.io/rules_nodejs/
 
-A few example rules contained in this repo:
+A few examples of rules contained in this repository:
 
 The `nodejs_binary` rule allows you to run an application by giving the entry point.
 The entry point can come from an external dependency installed by the package manager,
@@ -387,7 +453,7 @@ Instead, our philosophy is: in the NodeJS ecosystem, Bazel is only a build tool.
 
 ## Hermeticity and reproducibility
 
-Bazel generally guarantees builds are correct with respect to their inputs. For example, this means that given the same source tree, you can re-build the same artifacts as an earlier release of your program. In the nodejs rules, Bazel is not the package manager, so some reponsibility falls to the developer to avoid builds that use the wrong dependencies. This problem exists with any build system in the JavaScript ecosystem.
+Bazel generally guarantees builds are correct with respect to their inputs. For example, this means that given the same source tree, you can re-build the same artifacts as an earlier release of your program. In the nodejs rules, Bazel is not the package manager, so some responsibility falls to the developer to avoid builds that use the wrong dependencies. This problem exists with any build system in the JavaScript ecosystem.
 
 Both NPM and Yarn have a lockfile, which ensures that dependencies only change when the lockfile changes. Users are *strongly encouraged* to use the locking mechanism in their package manager.
 

@@ -18,10 +18,12 @@ nodejs_binary(
     name = "run",
     data = ["index.js"],
     entry_point = "node_resolve_dep/index.js",
+    node_modules = "@//:node_modules",
 )
 
 jasmine_node_test(
     name = "test",
     srcs = ["test.spec.js"],
     data = ["index.js"],
+    node_modules = "@//:node_modules",
 )
