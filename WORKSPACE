@@ -76,7 +76,7 @@ load("@packages_example//:setup_workspace.bzl", "packages_example_setup_workspac
 
 packages_example_setup_workspace()
 
-load("@io_bazel_rules_sass//sass:sass.bzl", "sass_repositories")
+load("@io_bazel_rules_sass//sass:sass_repositories.bzl", "sass_repositories")
 sass_repositories()
 
 load("@io_bazel_skydoc//skylark:skylark.bzl", "skydoc_repositories")
