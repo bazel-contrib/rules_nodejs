@@ -20,7 +20,8 @@ Users should not load files under "/internal"
 load("//internal/common:check_bazel_version.bzl", _check_bazel_version = "check_bazel_version")
 load("//internal/node:node.bzl",
      _nodejs_binary = "nodejs_binary_macro",
-     _nodejs_test = "nodejs_test_macro")
+     _nodejs_test = "nodejs_test_macro",
+     _sources_info = "SourcesInfo")
 load("//internal/node:node_repositories.bzl",_node_repositories = "node_repositories")
 load("//internal/jasmine_node_test:jasmine_node_test.bzl", _jasmine_node_test = "jasmine_node_test")
 load("//internal/npm_install:npm_install.bzl", _npm_install = "npm_install", _yarn_install = "yarn_install")
@@ -41,6 +42,7 @@ rollup_bundle = _rollup_bundle
 npm_package = _npm_package
 history_server = _history_server
 http_server = _http_server
+SourcesInfo = _sources_info
 # ANY RULES ADDED HERE SHOULD BE DOCUMENTED, run yarn skydoc to verify
 
 check_rules_nodejs_version = _check_rules_nodejs_version
