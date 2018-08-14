@@ -45,8 +45,8 @@ const NODE_MODULES_ROOT = 'TEMPLATED_node_modules_root';
 if (DEBUG)
   console.error(`
 node_loader: running TEMPLATED_target with
-  MODULE_ROOTS: ${MODULE_ROOTS}
-  BOOTSTRAP: ${BOOTSTRAP}
+  MODULE_ROOTS: ${JSON.stringify(MODULE_ROOTS, undefined, 2)}
+  BOOTSTRAP: ${JSON.stringify(BOOTSTRAP, undefined, 2)}
   NODE_MODULES_ROOT: ${NODE_MODULES_ROOT}
 `);
 
@@ -83,20 +83,25 @@ function resolveToModuleRoot(path) {
  * See https://github.com/bazelbuild/bazel/issues/3726
  */
 function loadRunfilesManifest(manifestPath) {
-  const result = Object.create(null);
+  if (DEBUG) console.error(`node_loader: using manifest ${manifestPath}`);
+  const runfilesManifest = Object.create(null);
+  const reverseRunfilesManifest = Object.create(null);
   const input = fs.readFileSync(manifestPath, {encoding: 'utf-8'});
   for (const line of input.split('\n')) {
     if (!line) continue;
     const [runfilesPath, realPath] = line.split(' ');
-    result[runfilesPath] = realPath;
+    runfilesManifest[runfilesPath] = realPath;
+    reverseRunfilesManifest[realPath] = runfilesPath;
   }
-  return result;
+  return {runfilesManifest, reverseRunfilesManifest};
 }
-const runfilesManifest =
+const { runfilesManifest, reverseRunfilesManifest } =
     // On Windows, Bazel sets RUNFILES_MANIFEST_ONLY=1.
     // On every platform, Bazel also sets RUNFILES_MANIFEST_FILE, but on Linux
     // and macOS it's faster to use the symlinks in RUNFILES_DIR rather than resolve
-    // through the indirection of the manifest file
+    // through the indirection of the manifest file.
+    // We also need to construct a reverse map to resolve relative files from existing
+    // manifest entries.
     process.env.RUNFILES_MANIFEST_ONLY === '1' &&
     loadRunfilesManifest(process.env.RUNFILES_MANIFEST_FILE);
 
@@ -176,16 +181,25 @@ function resolveManifestDirectory(res) {
   return resolveManifestFile(`${res}/index`)
 }
 
-function resolveRunfiles(...pathSegments) {
+function resolveRunfiles(parent, ...pathSegments) {
   // Remove any empty strings from pathSegments
   pathSegments = pathSegments.filter(segment => segment);
 
   const defaultPath = path.join(process.env.RUNFILES, ...pathSegments);
 
   if (runfilesManifest) {
+    // Resolve relative paths from manifest files.
+    if (parent && pathSegments[0] && pathSegments[0].startsWith('.')) {
+      const normalizedParent = parent.replace(/\\/g, '/');
+      const parentRunfile = reverseRunfilesManifest[normalizedParent];
+      if (parentRunfile) {
+        pathSegments = [path.dirname(parentRunfile), ...pathSegments];
+      }
+    }
+
     // Normalize to forward slash, because even on Windows the runfiles_manifest file
     // is written with forward slash.
-    const runfilesEntry = pathSegments.join('/').replace(/\\/g, '/');
+    const runfilesEntry = path.join(...pathSegments).replace(/\\/g, '/');
     if (DEBUG) console.error('node_loader: try to resolve in runfiles manifest', runfilesEntry);
 
     let maybe = resolveManifestFile(runfilesEntry);
@@ -219,12 +233,10 @@ function resolveRunfiles(...pathSegments) {
 }
 
 var originalResolveFilename = module.constructor._resolveFilename;
-module.constructor._resolveFilename =
-    function(request, parent) {
+module.constructor._resolveFilename = function(request, parent) {
+  const parentFilename = (parent && parent.filename) ? parent.filename : undefined;
   if (DEBUG)
-    console.error(
-        `node_loader: resolve ${request} from ` +
-        `${parent && parent.filename ? parent.filename : ''}`);
+    console.error(`node_loader: resolve ${request} from ${parentFilename}`);
 
   const failedResolutions = [];
 
@@ -237,14 +249,14 @@ module.constructor._resolveFilename =
       if (DEBUG)
         console.error(
             `node_loader: resolved ${request} to built-in, relative or absolute import ` +
-            `${resolved} from ${parent && parent.filename ? parent.filename : ''}`);
+            `${resolved} from ${parentFilename}`
+        );
       return resolved;
     } else {
       // Resolved is not a built-in module, relative or absolute import
       // but also allow imports within npm packages that are within the parent files
       // node_modules, meaning it is a dependency of the npm package making the import.
-      const parentSegments =
-          (parent && parent.filename) ? parent.filename.replace(/\\/g, '/').split('/') : [];
+      const parentSegments = parentFilename ? parentFilename.replace(/\\/g, '/').split('/') : [];
       const parentNodeModulesSegment = parentSegments.indexOf('node_modules');
       if (parentNodeModulesSegment != -1) {
         const parentRoot = parentSegments.slice(0, parentNodeModulesSegment).join('/');
@@ -254,11 +266,12 @@ module.constructor._resolveFilename =
           if (DEBUG)
             console.error(
                 `node_loader: resolved ${request} within parent node_modules to ` +
-                `${resolved} from ${parent && parent.filename ? parent.filename : ''}`);
+                `${resolved} from ${parentFilename}`
+            );
           return resolved;
         } else {
           throw new Error(
-              `Resolved to ${resolved} outside of parent node_modules ${parent.filename}`);
+              `Resolved to ${resolved} outside of parent node_modules ${parentFilename}`);
         }
       }
       throw new Error('Not a built-in module, relative or absolute import');
@@ -270,11 +283,11 @@ module.constructor._resolveFilename =
   // If the import is not a built-in module, an absolute, relative import or a
   // dependency of an npm package, attempt to resolve against the runfiles location
   try {
-    const resolved = originalResolveFilename(resolveRunfiles(request), parent);
+    const resolved = originalResolveFilename(resolveRunfiles(parentFilename, request), parent);
     if (DEBUG)
       console.error(
-          `node_loader: resolved ${request} within runfiles to ${resolved} from ` +
-          `${parent && parent.filename ? parent.filename : ''}`);
+          `node_loader: resolved ${request} within runfiles to ${resolved} from ${parentFilename}`
+      );
     return resolved;
   } catch (e) {
     failedResolutions.push(`runfiles - ${e.toString()}`);
@@ -282,25 +295,25 @@ module.constructor._resolveFilename =
 
   // If the parent file is from an external repository, attempt to resolve against
   // the external repositories node_modules (if they exist)
-  let parentFilename =
-      parent && parent.filename ? path.relative(process.env.RUNFILES, parent.filename) : undefined;
-  if (parentFilename && !parentFilename.startsWith('..')) {
+  let relativeParentFilename =
+      parentFilename ? path.relative(process.env.RUNFILES, parent.filename) : undefined;
+  if (relativeParentFilename && !relativeParentFilename.startsWith('..')) {
     // Remove leading USER_WORKSPACE_NAME/external so that external workspace name is
     // always the first segment
     const externalPrefix = `${USER_WORKSPACE_NAME}/external/`;
-    if (parentFilename.startsWith(externalPrefix)) {
-      parentFilename = parentFilename.substr(externalPrefix.length);
+    if (relativeParentFilename.startsWith(externalPrefix)) {
+      relativeParentFilename = relativeParentFilename.substr(externalPrefix.length);
     }
-    const parentSegments = parentFilename.split('/');
+    const parentSegments = relativeParentFilename.split('/');
     if (parentSegments[0] !== USER_WORKSPACE_NAME) {
       try {
         const resolved = originalResolveFilename(
-            resolveRunfiles(parentSegments[0], 'node_modules', request), parent);
+            resolveRunfiles(undefined, parentSegments[0], 'node_modules', request), parent);
         if (DEBUG)
           console.error(
               `node_loader: resolved ${request} within node_modules ` +
-              `(${parentSegments[0]}/node_modules) to ${resolved} from ` +
-              `${parent && parent.filename ? parent.filename : ''}`);
+              `(${parentSegments[0]}/node_modules) to ${resolved} from ${relativeParentFilename}`
+          );
         return resolved;
       } catch (e) {
         failedResolutions.push(`${parentSegments[0]}/node_modules - ${e.toString()}`);
@@ -311,11 +324,13 @@ module.constructor._resolveFilename =
   // If import was not resolved above then attempt to resolve
   // within the node_modules filegroup in use
   try {
-    const resolved = originalResolveFilename(resolveRunfiles(NODE_MODULES_ROOT, request), parent);
+    const resolved = originalResolveFilename(
+        resolveRunfiles(undefined, NODE_MODULES_ROOT, request), parent);
     if (DEBUG)
       console.error(
           `node_loader: resolved ${request} within node_modules (${NODE_MODULES_ROOT}) to ` +
-          `${resolved} from ${parent && parent.filename ? parent.filename : ''}`);
+          `${resolved} from ${parentFilename}`
+      );
     return resolved;
   } catch (e) {
     failedResolutions.push(`node_modules attribute (${NODE_MODULES_ROOT}) - ${e.toString()}`);
@@ -324,7 +339,7 @@ module.constructor._resolveFilename =
   // Finally, attempt to resolve to module root
   const moduleRoot = resolveToModuleRoot(request);
   if (moduleRoot) {
-    const moduleRootInRunfiles = resolveRunfiles(moduleRoot);
+    const moduleRootInRunfiles = resolveRunfiles(undefined, moduleRoot);
     try {
       const filename = module.constructor._findPath(moduleRootInRunfiles, []);
       if (!filename) {
