@@ -83,6 +83,7 @@ function resolveToModuleRoot(path) {
  * See https://github.com/bazelbuild/bazel/issues/3726
  */
 function loadRunfilesManifest(manifestPath) {
+  if (DEBUG) console.error(`node_loader: using manifest ${manifestPath}`);
   const runfilesManifest = Object.create(null);
   const reverseRunfilesManifest = Object.create(null);
   const input = fs.readFileSync(manifestPath, {encoding: 'utf-8'});
