@@ -25,29 +25,43 @@ load("//internal/node:node_labels.bzl", "get_node_label", "get_npm_label", "get_
 load("//internal/common:os_name.bzl", "os_name")
 
 def _create_build_file(repository_ctx):
-  if repository_ctx.attr.node_modules_filegroup:
-    repository_ctx.file("BUILD", """
-package(default_visibility = ["//visibility:public"])
-""" + repository_ctx.attr.node_modules_filegroup)
-  else:
-    repository_ctx.file("BUILD", """
-package(default_visibility = ["//visibility:public"])
-filegroup(
-    name = "node_modules",
-    srcs = glob(["node_modules/**/*"],
-        # Exclude directories that commonly contain filenames which are
-        # illegal bazel labels
-        exclude = [
-            # e.g. node_modules/adm-zip/test/assets/attributes_test/New folder/hidden.txt
-            "node_modules/**/test/**",
-            # e.g. node_modules/xpath/docs/function resolvers.md
-            "node_modules/**/docs/**",
-            # e.g. node_modules/puppeteer/.local-chromium/mac-536395/chrome-mac/Chromium.app/Contents/Versions/66.0.3347.0/Chromium Framework.framework/Chromium Framework
-            "node_modules/**/.*/**"
-        ],
-    ) + glob(["node_modules/.bin/*"]),
-)
-""")
+#   if repository_ctx.attr.node_modules_filegroup:
+#     repository_ctx.file("BUILD", """
+# package(default_visibility = ["//visibility:public"])
+# """ + repository_ctx.attr.node_modules_filegroup)
+#   else:
+#     repository_ctx.file("BUILD", """
+# package(default_visibility = ["//visibility:public"])
+# filegroup(
+#     name = "node_modules",
+#     srcs = glob(["node_modules/**/*"],
+#         # Exclude directories that commonly contain filenames which are
+#         # illegal bazel labels
+#         exclude = [
+#             # e.g. node_modules/adm-zip/test/assets/attributes_test/New folder/hidden.txt
+#             "node_modules/**/test/**",
+#             # e.g. node_modules/xpath/docs/function resolvers.md
+#             "node_modules/**/docs/**",
+#             # e.g. node_modules/puppeteer/.local-chromium/mac-536395/chrome-mac/Chromium.app/Contents/Versions/66.0.3347.0/Chromium Framework.framework/Chromium Framework
+#             "node_modules/**/.*/**"
+#         ],
+#     ) + glob(["node_modules/.bin/*"]),
+# )
+# """)
+  node = repository_ctx.path(get_node_label(repository_ctx))
+  # Grab the @yarnpkg/lockfile dependency
+  repository_ctx.download_and_extract(
+      url = "https://registry.yarnpkg.com/@yarnpkg/lockfile/-/lockfile-1.0.0.tgz",
+      output = "node_modules/@yarnpkg/lockfile",
+      sha256 = "472add7ad141c75811f93dca421e2b7456045504afacec814b0565f092156250",
+      stripPrefix = "package",
+  )
+  repository_ctx.template("parse_yarn_lock.js",
+      repository_ctx.path(repository_ctx.attr._parse_yarn_lock_js), {})
+  result = repository_ctx.execute([node, "parse_yarn_lock.js"])
+  if result.return_code:
+    fail("node failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
+  repository_ctx.file("BUILD.bazel", result.stdout)
 
 def _add_data_dependencies(repository_ctx):
   """Add data dependencies to the repository."""
@@ -153,8 +167,6 @@ npm_install = repository_rule(
 def _yarn_install_impl(repository_ctx):
   """Core implementation of yarn_install."""
 
-  _create_build_file(repository_ctx)
-
   # Put our package descriptors in the right place.
   repository_ctx.symlink(
       repository_ctx.attr.package_json,
@@ -187,6 +199,8 @@ def _yarn_install_impl(repository_ctx):
   if result.return_code:
     fail("yarn_install failed: %s (%s)" % (result.stdout, result.stderr))
 
+  _create_build_file(repository_ctx)
+
 yarn_install = repository_rule(
     attrs = {
         "package_json": attr.label(
@@ -211,6 +225,10 @@ yarn_install = repository_rule(
             filegroup used by this rule such as
             "filegroup(name = "node_modules", srcs = glob([...]))". See
             https://github.com/bazelbuild/bazel/issues/5153."""),
+        "_parse_yarn_lock_js": attr.label(
+            allow_single_file = True,
+            default = Label("//internal/npm_install:parse_yarn_lock.js"),
+        ),
     },
     implementation = _yarn_install_impl,
 )
