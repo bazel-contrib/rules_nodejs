@@ -371,7 +371,7 @@ func (a *Analyzer) generateReport(target *resolvedTarget) (*arpb.DependencyRepor
 			}
 
 			for _, dep := range target.deps() {
-				if dep == imp.knownTarget {
+				if edit.LabelsEqual(dep, imp.knownTarget, "") {
 					usedDeps[dep] = true
 					report.NecessaryDependency = append(report.NecessaryDependency, imp.knownTarget)
 					continue handlingImports
