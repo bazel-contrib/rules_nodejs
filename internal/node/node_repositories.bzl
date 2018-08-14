@@ -255,6 +255,20 @@ filegroup(
     ],
   ),
 )
+
+filegroup(
+  name = "minimal_node_runfiles",
+  srcs = glob(
+    [
+      "bin/node.js",
+      "{node_dir}/bin/node",
+    ],
+    exclude = [
+      "**/*.md",
+      "**/*.html",
+    ],
+  ),
+)
 """.format(
     node = node_entry,
     npm = npm_node_repositories_entry,

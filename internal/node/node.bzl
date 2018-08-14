@@ -35,6 +35,10 @@ def _trim_package_node_modules(package_name):
         segments += [n]
     return "/".join(segments)
 
+SourcesInfo = provider(fields = [
+    "data",
+])
+
 def _write_loader_script(ctx):
   # Generates the JavaScript snippet of module roots mappings, with each entry
   # in the form:
@@ -143,14 +147,17 @@ def _nodejs_binary_impl(ctx):
 
     runfiles = depset(sources + [node, ctx.outputs.loader, ctx.file._repository_args] + node_modules + ctx.files._node_runfiles)
 
-    return [DefaultInfo(
-        executable = ctx.outputs.script,
-        runfiles = ctx.runfiles(
-            transitive_files = runfiles,
-            files = [node, ctx.outputs.loader] + node_modules + sources,
-            collect_data = True,
+    return [
+        DefaultInfo(
+            executable = ctx.outputs.script,
+            runfiles = ctx.runfiles(
+                transitive_files = runfiles,
+            ),
         ),
-    )]
+        SourcesInfo(
+            data = sources + [ctx.outputs.loader, ctx.outputs.script]
+        )
+    ]
 
 _NODEJS_EXECUTABLE_ATTRS = {
     "entry_point": attr.string(
@@ -261,7 +268,7 @@ _NODEJS_EXECUTABLE_ATTRS = {
         allow_files = True,
         single_file = True),
     "_node_runfiles": attr.label(
-        default = Label("@nodejs//:node_runfiles"),
+        default = Label("@nodejs//:minimal_node_runfiles"),
         allow_files = True),
     "_repository_args": attr.label(
         default = Label("@nodejs//:bin/node_args.sh"),
