@@ -25,12 +25,7 @@ platforms:
     run_targets:
     - "@nodejs//:yarn"
     build_targets:
-    # Escape hyphens on later args
-    - "--"
     - "//..."
-    # Cannot build the docsite on Windows, see
-    # https://github.com/bazelbuild/skydoc/issues/58
-    - "-//:docs"
     test_targets:
     - "//..."
   rbe_ubuntu1604:
