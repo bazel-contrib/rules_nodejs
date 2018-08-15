@@ -124,14 +124,10 @@ cd "{root}" && "{npm}" {npm_args}
 npm_install = repository_rule(
     attrs = {
         "package_json": attr.label(
-            allow_files = True,
+            allow_single_file = True,
             mandatory = True,
-            single_file = True,
         ),
-        "package_lock_json": attr.label(
-            allow_files = True,
-            single_file = True,
-        ),
+        "package_lock_json": attr.label(allow_single_file = True),
         "prod_only": attr.bool(
             default = False,
             doc = "Don't install devDependencies",
@@ -190,14 +186,12 @@ def _yarn_install_impl(repository_ctx):
 yarn_install = repository_rule(
     attrs = {
         "package_json": attr.label(
-            allow_files = True,
+            allow_single_file = True,
             mandatory = True,
-            single_file = True,
         ),
         "yarn_lock": attr.label(
-            allow_files = True,
+            allow_single_file = True,
             mandatory = True,
-            single_file = True,
         ),
         "prod_only": attr.bool(
             default = False,

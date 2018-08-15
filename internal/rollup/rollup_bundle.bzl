@@ -304,12 +304,10 @@ ROLLUP_ATTRS = {
         default = Label("@build_bazel_rules_nodejs//internal/rollup:source-map-explorer")),
     "_rollup_config_tmpl": attr.label(
         default = Label("@build_bazel_rules_nodejs//internal/rollup:rollup.config.js"),
-        allow_files = True,
-        single_file = True),
+        allow_single_file = True),
     "_uglify_config_tmpl": attr.label(
         default = Label("@build_bazel_rules_nodejs//internal/rollup:uglify.config.json"),
-        allow_files = True,
-        single_file = True),
+        allow_single_file = True),
 }
 
 ROLLUP_OUTPUTS = {
