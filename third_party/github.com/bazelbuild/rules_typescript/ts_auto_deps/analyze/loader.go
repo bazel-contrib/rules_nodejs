@@ -32,10 +32,16 @@ func NewQueryBasedTargetLoader(workdir, bazelBinary string) *QueryBasedTargetLoa
 
 // LoadLabels uses Bazel query to load targets associated with labels from BUILD
 // files.
-func (q *QueryBasedTargetLoader) LoadLabels(labels []string) (map[string]*appb.Rule, error) {
-	// Ensure the labels are unique to minimize the total number of targets that
-	// need to be loaded.
-	r, err := q.batchQuery(dedupeLabels(labels))
+func (q *QueryBasedTargetLoader) LoadLabels(pkg string, labels []string) (map[string]*appb.Rule, error) {
+	var queries []string
+	if pkg == "" {
+		queries = labels
+	} else {
+		for _, label := range labels {
+			queries = append(queries, fmt.Sprintf("visible(%s:*, %s)", pkg, label))
+		}
+	}
+	r, err := q.batchQuery(queries)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +58,7 @@ func (q *QueryBasedTargetLoader) LoadLabels(labels []string) (map[string]*appb.R
 
 // LoadImportPaths uses Bazel Query to load targets associated with import
 // paths from BUILD files.
-func (q *QueryBasedTargetLoader) LoadImportPaths(ctx context.Context, workspaceRoot string, paths []string) (map[string]*appb.Rule, error) {
+func (q *QueryBasedTargetLoader) LoadImportPaths(ctx context.Context, currentPkg, workspaceRoot string, paths []string) (map[string]*appb.Rule, error) {
 	results := make(map[string]*appb.Rule)
 
 	addedPaths := make(map[string]bool)
@@ -105,7 +111,7 @@ func (q *QueryBasedTargetLoader) LoadImportPaths(ctx context.Context, workspaceR
 
 	labelToRule := make(map[string]*appb.Rule)
 	for len(generators) > 0 {
-		generatorToRule, err := q.LoadLabels(generators)
+		generatorToRule, err := q.LoadLabels(currentPkg, generators)
 		if err != nil {
 			return nil, err
 		}
