@@ -60,6 +60,10 @@ message DependencyReport {
   // the build.
   repeated string unnecessary_dependency = 3;
 
+  // Can't tell. These may be dependencies where no corresponding imports
+  // were found, but alwayslink=1.
+  repeated string ambiguous_dependency = 4;
+
   // Needed but not declared. If there are imports which can be satisfied
   // by more than one dependency declared in a best-matching package, list
   // all of them. If this list is not empty, we expect the build to break.
