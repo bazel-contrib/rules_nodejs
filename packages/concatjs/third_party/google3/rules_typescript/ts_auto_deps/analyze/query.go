@@ -39,7 +39,10 @@ type TargetLoader interface {
 	// will result in undefined behavior. If no target is found associated
 	// with a provided label, the label should be excluded from the returned
 	// mapping but an error should not be returned.
-	LoadLabels(labels []string) (map[string]*appb.Rule, error)
+	//
+	// Only returns rules visible to currentPkg. If currentPkg is an empty string
+	// returns all targets regardless of visibility.
+	LoadLabels(currentPkg string, labels []string) (map[string]*appb.Rule, error)
 	// LoadImportPaths loads targets from BUILD files associated with import
 	// paths relative to a root directory. It returns a mapping from import
 	// paths to targets or an error, if any occurred.
@@ -51,7 +54,10 @@ type TargetLoader interface {
 	// no target is found associated with a provided import path, the import
 	// path should be excluded from the returned mapping but an error should
 	// not be returned.
-	LoadImportPaths(ctx context.Context, root string, paths []string) (map[string]*appb.Rule, error)
+	//
+	// Only returns rules visible to currentPkg. If currentPkg is an empty string
+	// returns all targets regardless of visibility.
+	LoadImportPaths(ctx context.Context, currentPkg, root string, paths []string) (map[string]*appb.Rule, error)
 }
 
 // Analyzer uses a BuildLoader to generate dependency reports.
@@ -69,15 +75,24 @@ func New(loader TargetLoader) *Analyzer {
 // dir is the directory that ts_auto_deps should execute in. Must be a sub-directory
 // of google3.
 func (a *Analyzer) Analyze(ctx context.Context, dir string, labels []string) ([]*arpb.DependencyReport, error) {
+	if len(labels) == 0 {
+		return nil, nil
+	}
+	_, currentPkg, _ := edit.ParseLabel(labels[0])
+	for _, label := range labels {
+		if _, pkg, _ := edit.ParseLabel(label); pkg != currentPkg {
+			return nil, fmt.Errorf("can't analyze targets in different packages")
+		}
+	}
 	root, err := workspace.Root(dir)
 	if err != nil {
 		return nil, err
 	}
-	targets, err := a.loader.LoadLabels(labels)
+	targets, err := a.loader.LoadLabels(currentPkg, labels)
 	if err != nil {
 		return nil, err
 	}
-	resolved, err := a.resolveImportsForTargets(ctx, root, targets)
+	resolved, err := a.resolveImportsForTargets(ctx, currentPkg, root, targets)
 	if err != nil {
 		return nil, err
 	}
@@ -138,7 +153,7 @@ func newResolvedTarget(r *appb.Rule) *resolvedTarget {
 
 // resolveImportsForTargets attempts to resolve the imports in the sources of
 // each target in targets.
-func (a *Analyzer) resolveImportsForTargets(ctx context.Context, root string, allTargets map[string]*appb.Rule) (map[string]*resolvedTarget, error) {
+func (a *Analyzer) resolveImportsForTargets(ctx context.Context, currentPkg, root string, allTargets map[string]*appb.Rule) (map[string]*resolvedTarget, error) {
 	targets := make(map[string]*resolvedTarget)
 	var allDeps, allSrcs []string
 	for _, t := range allTargets {
@@ -151,7 +166,7 @@ func (a *Analyzer) resolveImportsForTargets(ctx context.Context, root string, al
 		allDeps = append(allDeps, target.deps()...)
 		allSrcs = append(allSrcs, srcs...)
 	}
-	deps, err := a.loader.LoadLabels(allDeps)
+	deps, err := a.loader.LoadLabels(currentPkg, allDeps)
 	if err != nil {
 		return nil, err
 	}
@@ -186,7 +201,7 @@ func (a *Analyzer) resolveImportsForTargets(ctx context.Context, root string, al
 			}
 		}
 	}
-	if err := a.resolveImports(ctx, root, targets); err != nil {
+	if err := a.resolveImports(ctx, currentPkg, root, targets); err != nil {
 		return nil, err
 	}
 	return targets, nil
@@ -194,7 +209,7 @@ func (a *Analyzer) resolveImportsForTargets(ctx context.Context, root string, al
 
 // resolveImports finds targets which provide the imported file or library
 // for imports without known targets.
-func (a *Analyzer) resolveImports(ctx context.Context, root string, targets map[string]*resolvedTarget) error {
+func (a *Analyzer) resolveImports(ctx context.Context, currentPkg, root string, targets map[string]*resolvedTarget) error {
 	var paths []string
 	needingResolution := make(map[string][]*ts_auto_depsImport)
 	for _, target := range targets {
@@ -227,7 +242,7 @@ func (a *Analyzer) resolveImports(ctx context.Context, root string, targets map[
 	if len(needingResolution) == 0 {
 		return nil
 	}
-	res, err := a.loader.LoadImportPaths(ctx, root, paths)
+	res, err := a.loader.LoadImportPaths(ctx, currentPkg, root, paths)
 	if err != nil {
 		return err
 	}
@@ -390,7 +405,7 @@ func (a *Analyzer) generateReport(target *resolvedTarget) (*arpb.DependencyRepor
 			unusedDeps = append(unusedDeps, dep)
 		}
 	}
-	labelToRule, err := a.loader.LoadLabels(unusedDeps)
+	labelToRule, err := a.loader.LoadLabels("", unusedDeps)
 	if err != nil {
 		return nil, err
 	}

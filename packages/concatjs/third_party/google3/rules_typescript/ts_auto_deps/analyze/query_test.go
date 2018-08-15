@@ -44,7 +44,7 @@ func newFakeTargetLoader() *fakeTargetLoader {
 	}
 }
 
-func (bl *fakeTargetLoader) LoadLabels(labels []string) (map[string]*appb.Rule, error) {
+func (bl *fakeTargetLoader) LoadLabels(_ string, labels []string) (map[string]*appb.Rule, error) {
 	return bl.loadTargets(bl.targetsByLabels, labels)
 }
 
@@ -52,7 +52,7 @@ func (bl *fakeTargetLoader) byLabel(label, value string) {
 	bl.targetsByLabels[label] = value
 }
 
-func (bl *fakeTargetLoader) LoadImportPaths(_ context.Context, _ string, paths []string) (map[string]*appb.Rule, error) {
+func (bl *fakeTargetLoader) LoadImportPaths(_ context.Context, _, _ string, paths []string) (map[string]*appb.Rule, error) {
 	return bl.loadTargets(bl.targetsByImportPaths, paths)
 }
 
