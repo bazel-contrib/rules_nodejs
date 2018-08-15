@@ -268,7 +268,8 @@ func dedupeLabels(labels []string) []string {
 func isTazeManagedRuleClass(class string) bool {
 	for _, c := range []string{
 		"ts_library",
-		"ts_declaration",
+		// TODO(alexeagle): Add ts_declaration once it can be determined
+		// if they are unused.
 		"ng_module",
 		"js_library",
 	} {
