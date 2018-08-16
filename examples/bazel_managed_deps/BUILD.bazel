@@ -1,0 +1,11 @@
+load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
+
+alias(
+    name = "node_modules",
+    actual = "@npm//:node_modules",
+)
+
+jasmine_node_test(
+    name = "test",
+    srcs = ["spec.js"],
+)

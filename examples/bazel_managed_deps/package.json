@@ -1,0 +1,10 @@
+{
+  "name": "bazel_managed_deps",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "jasmine": "^3.2.0",
+    "typescript": "^3.0.1"
+  }
+}
