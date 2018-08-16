@@ -5,7 +5,7 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
 jasmine_node_test(
     name = "test",
     srcs = ["spec.js"],
-    node_modules = ["@npm//:node_modules"],
+    node_modules = "@npm//:node_modules",
 )
 
 # FIXME(alexeagle): there should be a way to specify that we don't want a
@@ -33,18 +33,23 @@ jasmine_node_test(
 
     # WAY1 DOESN'T WORK
     # We don't know how to load from deps the same way as node_modules
-    node_modules = [":empty_node_modules"],
-    deps = ["@npm//:jasmine"],
+    #node_modules = ":empty_node_modules",
+    deps = [
+        "@npm//:jasmine",
+        "@npm//:typescript",
+    ],
 
     # WAY2 DOESN'T WORK
     # we end up with
     # node_modules_root bazel_managed_deps/node_modules
     # but needs to be
     # node_modules_root npm/node_modules
-    #node_modules = [":shim"],
+    #node_modules = ":shim",
 
-    node_modules = [
-        "@npm//:jasmine",
-        "@npm//:typescript",
-    ],
+    # Works, but we don't really want to change node_modules to be a list, too
+    # achy breaky (especially since macros/rules might need to change too)
+    # node_modules = [
+    #     "@npm//:jasmine",
+    #     "@npm//:typescript",
+    # ],
 )

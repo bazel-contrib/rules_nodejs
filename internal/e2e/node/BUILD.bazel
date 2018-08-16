@@ -7,7 +7,7 @@ jasmine_node_test(
         "module_resolution.spec.js",
     ],
     data = ["data/data.json"],
-    node_modules = ["//internal/test:node_modules"],
+    node_modules = "//internal/test:node_modules",
     deps = ["//internal/e2e/node/lib1"],
 )
 
@@ -15,14 +15,14 @@ jasmine_node_test(
     name = "fail_test",
     srcs = ["jasmine_node_fail_test.spec.js"],
     expected_exit_code = 3,
-    node_modules = ["//internal/test:node_modules"],
+    node_modules = "//internal/test:node_modules",
 )
 
 jasmine_node_test(
     name = "lib_test",
     srcs = [":lib"],
     data = ["data/data.json"],
-    node_modules = ["//internal/test:node_modules"],
+    node_modules = "//internal/test:node_modules",
     deps = ["//internal/e2e/node/lib1"],
 )
 

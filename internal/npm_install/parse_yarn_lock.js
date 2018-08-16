@@ -279,6 +279,11 @@ filegroup(
         "**/*.d.ts",
         "**/*.json",
     ]),
+    # Probably we should have a node_modules rule that acts like filegroup
+    # but also exposes a Provider so we know they are in the deps and can
+    # find them.
+    # Quicky version for prototyping:
+    tags = ["HACKY_MARKER_IS_NODE_MODULE"],
     visibility = ["//visibility:public"],
 )
 `;

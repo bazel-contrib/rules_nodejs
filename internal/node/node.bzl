@@ -23,6 +23,8 @@ load("//internal/common:module_mappings.bzl", "module_mappings_runtime_aspect")
 load("//internal/common:sources_aspect.bzl", "sources_aspect")
 load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
 
+NodeModule = provider(doc = "FIXME")
+
 def _write_loader_script(ctx):
   # Generates the JavaScript snippet of module roots mappings, with each entry
   # in the form:
@@ -34,27 +36,20 @@ def _write_loader_script(ctx):
         escaped = mn.replace("/", r"\/").replace(".", r"\.")
         mapping = r"{module_name: /^%s\b/, module_root: '%s'}" % (escaped, mr)
         module_mappings.append(mapping)
-  workspace = None
-  for nm in ctx.attr.node_modules:
-    if nm.label.workspace_root:
-
-      nm_wksp = nm.label.workspace_root.split("/")[1]
-      print("ao", nm_wksp)
-      if not workspace:
-        workspace = nm_wksp
-      elif workspace != nm_wksp:
-        fail("All node_modules must come from the same workspace, found", workspace, "and", nm_wksp)
-  if not workspace:
-    workspace = ctx.workspace_name
-
-  #workspace = ctx.attr.node_modules[0].label.workspace_root.split("/")[1] if ctx.attr.node_modules[0].label.workspace_root else ctx.workspace_name
-  node_modules_root = "/".join([f for f in [
-      workspace,
-      #ctx.attr.node_modules[0].label.package,
-      "node_modules"] if f])
-  print("node_modules_root", node_modules_root)
-  # HACK FOR WAY2
-  #node_modules_root = "npm/node_modules"
+  node_modules_root = None
+  if ctx.attr.node_modules:
+    workspace = ctx.attr.node_modules.label.workspace_root.split("/")[1] if ctx.attr.node_modules.label.workspace_root else ctx.workspace_name
+    node_modules_root = "/".join([f for f in [
+        workspace,
+        ctx.attr.node_modules.label.package,
+        "node_modules"] if f])
+  for d in ctx.attr.data:
+    if NodeModule in d:
+      possible_root = "/".join([d[NodeModule].workspace, "node_modules"])
+      if not node_modules_root:
+        node_modules_root = possible_root
+      elif node_modules_root != possible_root:
+        fail("All node_modules need to come from a single workspace. found", [node_modules_root, possible_root])
 
   ctx.actions.expand_template(
       template=ctx.file._loader_template,
@@ -128,6 +123,21 @@ def _nodejs_binary_impl(ctx):
         ),
     )]
 
+def _collect_node_modules_aspect_impl(target, ctx):
+  nm_wksp = None
+
+  if hasattr(ctx.rule.attr, "tags") and "HACKY_MARKER_IS_NODE_MODULE" in ctx.rule.attr.tags:
+      nm_wksp = target.label.workspace_root.split("/")[1] if target.label.workspace_root else ctx.workspace_name
+      print(nm_wksp)
+      return [NodeModule(workspace = nm_wksp)]
+
+  return []
+
+_collect_node_modules_aspect = aspect(
+    implementation = _collect_node_modules_aspect_impl,
+    attr_aspects = ["deps"],
+)
+
 _NODEJS_EXECUTABLE_ATTRS = {
     "entry_point": attr.string(
         doc = """The script which should be executed first, usually containing a main function.
@@ -150,22 +160,18 @@ _NODEJS_EXECUTABLE_ATTRS = {
         doc = """Runtime dependencies which may be loaded during execution.""",
         allow_files = True,
         cfg = "data",
-        aspects=[sources_aspect, module_mappings_runtime_aspect]),
+        aspects = [sources_aspect, module_mappings_runtime_aspect, _collect_node_modules_aspect]),
     "templated_args": attr.string_list(
         doc = """Arguments which are passed to every execution of the program.
         To pass a node startup option, prepend it with `--node_options=`, e.g.
         `--node_options=--preserve-symlinks`
         """,
     ),
-    "node_modules": attr.label_list(
+    "node_modules": attr.label(
         doc = """The npm packages which should be available to `require()` during
-        execution.""",
-        # By default, binaries use the node_modules in the workspace
-        # where the bazel command is run. This assumes that any needed
-        # dependencies are installed there, commonly due to a transitive
-        # dependency on a package like @bazel/typescript.
-        # See discussion: https://github.com/bazelbuild/rules_typescript/issues/13
-        default = [Label("@//:node_modules")]),
+        execution.
+        TODO(alexeagle): add docs about migrating to npm packages in deps[] instead""",
+    ),
     "node": attr.label(
         doc = """The node entry point target.""",
         default = Label("@nodejs//:node"),

@@ -28,6 +28,9 @@ function main(args) {
   fs.readFileSync(manifest, UTF8)
       .split('\n')
       .filter(l => l.length > 0)
+      // OOPS! If we don't do any filtering, and you have deps=["@npm//:typescript"]
+      // then we will try to execute tsc, print its help, and process.exit(1)
+      .filter(f => f.endsWith('spec.js') || f.endsWith('test.js'))
       .forEach(f => jrunner.addSpecFile(f));
 
   var noSpecsFound = true;

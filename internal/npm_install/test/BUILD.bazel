@@ -13,5 +13,5 @@ jasmine_node_test(
         ":node_modules",
         ":yarn.lock",
     ],
-    node_modules = [":node_modules"],
+    node_modules = ":node_modules",
 )

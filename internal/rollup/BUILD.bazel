@@ -29,7 +29,7 @@ nodejs_binary(
     name = "rollup",
     entry_point = "build_bazel_rules_nodejs_rollup_deps/node_modules/rollup/bin/rollup",
     install_source_map_support = False,
-    node_modules = ["@build_bazel_rules_nodejs_rollup_deps//:node_modules"],
+    node_modules = "@build_bazel_rules_nodejs_rollup_deps//:node_modules",
     visibility = ["//visibility:public"],
 )
 
@@ -37,7 +37,7 @@ nodejs_binary(
     name = "tsc",
     entry_point = "build_bazel_rules_nodejs_rollup_deps/node_modules/typescript/bin/tsc",
     install_source_map_support = False,
-    node_modules = ["@build_bazel_rules_nodejs_rollup_deps//:node_modules"],
+    node_modules = "@build_bazel_rules_nodejs_rollup_deps//:node_modules",
     visibility = ["//visibility:public"],
 )
 
@@ -45,7 +45,7 @@ nodejs_binary(
     name = "uglify",
     entry_point = "build_bazel_rules_nodejs_rollup_deps/node_modules/uglify-es/bin/uglifyjs",
     install_source_map_support = False,
-    node_modules = ["@build_bazel_rules_nodejs_rollup_deps//:node_modules"],
+    node_modules = "@build_bazel_rules_nodejs_rollup_deps//:node_modules",
     visibility = ["//visibility:public"],
 )
 
@@ -53,7 +53,7 @@ nodejs_binary(
     name = "source-map-explorer",
     entry_point = "build_bazel_rules_nodejs_rollup_deps/node_modules/source-map-explorer",
     install_source_map_support = False,
-    node_modules = ["@build_bazel_rules_nodejs_rollup_deps//:node_modules"],
+    node_modules = "@build_bazel_rules_nodejs_rollup_deps//:node_modules",
     visibility = ["//visibility:public"],
 )
 
@@ -64,5 +64,5 @@ jasmine_node_test(
         ["*.js"],
         exclude = ["*.spec.js"],
     ),
-    node_modules = ["//internal/test:node_modules"],
+    node_modules = "//internal/test:node_modules",
 )

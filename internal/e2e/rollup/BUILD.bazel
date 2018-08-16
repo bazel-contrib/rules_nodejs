@@ -38,5 +38,5 @@ jasmine_node_test(
         ":bundle.umd.js",
         ":bundle.min_debug.js",
     ],
-    node_modules = ["//internal/test:node_modules"],
+    node_modules = "//internal/test:node_modules",
 )
