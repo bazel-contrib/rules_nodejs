@@ -15,10 +15,31 @@ import (
 	appb "github.com/bazelbuild/buildtools/build_proto"
 )
 
+// pkgCacheEntry represents a set of loaded rules and a mapping from alias
+// to rules from a package.
+type pkgCacheEntry struct {
+	// rules is all rules in a package.
+	rules []*appb.Rule
+	// aliases is a map from an alias label to the actual rule of the alias.
+	aliases map[string]*appb.Rule
+}
+
 // QueryBasedTargetLoader uses Bazel query to load targets from BUILD files.
 type QueryBasedTargetLoader struct {
 	workdir     string
 	bazelBinary string
+
+	// pkgCache is a mapping from a package to all of the rules in said
+	// package along with a map from aliases to actual rules.
+	//
+	// Keys are of the form of "<visibility>|<package>" where visibility
+	// is the package that rules in package must be visible to and package
+	// is the actual package that has been loaded and cached.
+	//
+	// Since a new target loader is constructed for each directory being
+	// analyzed in the "-recursive" case, this cache will be garbage
+	// collected between directories.
+	pkgCache map[string]*pkgCacheEntry
 }
 
 // NewQueryBasedTargetLoader constructs a new QueryBasedTargetLoader rooted
@@ -27,6 +48,8 @@ func NewQueryBasedTargetLoader(workdir, bazelBinary string) *QueryBasedTargetLoa
 	return &QueryBasedTargetLoader{
 		workdir:     workdir,
 		bazelBinary: bazelBinary,
+
+		pkgCache: make(map[string]*pkgCacheEntry),
 	}
 }
 
