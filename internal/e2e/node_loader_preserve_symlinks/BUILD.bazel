@@ -12,5 +12,5 @@ jasmine_node_test(
     srcs = [
         "node_loader_test.spec.js",
     ],
-    node_modules = "@node_loader_e2e_preserve_symlinks_deps//:node_modules",
+    node_modules = ["@node_loader_e2e_preserve_symlinks_deps//:node_modules"],
 )

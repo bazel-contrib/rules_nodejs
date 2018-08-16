@@ -204,7 +204,7 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
 nodejs_binary(
     name = "bar",
     # Ordinarily this defaults to //:node_modules
-    node_modules = "@foo//:node_modules",
+    node_modules = ["@foo//:node_modules"],
     ...
 )
 ```

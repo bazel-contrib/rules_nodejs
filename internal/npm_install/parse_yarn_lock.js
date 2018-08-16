@@ -335,6 +335,10 @@ filegroup(
 function printNodeModuleAll(modules) {
   const moduleNames = modules.map(m => m.yarn ? m.yarn.label : m.name);
   return `${generatedHeader}
+
+# All rules in other repositories can use these targets
+package(default_visibility = ["//visibility:public"])
+
 ${
       moduleNames
           .map(m => `
@@ -351,7 +355,6 @@ filegroup(
     srcs = [
       ${moduleNames.map(s => `":${s}"`)}
     ],
-    visibility = ["//visibility:public"],
 )
 `;
 }

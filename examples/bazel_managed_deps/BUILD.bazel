@@ -1,11 +1,50 @@
 load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
 
-alias(
-    name = "node_modules",
-    actual = "@npm//:node_modules",
-)
-
+# Test what happens when we depend on the catch-all "node_modules" rule rather
+# than declare our dependencies on individual npm packages.
 jasmine_node_test(
     name = "test",
     srcs = ["spec.js"],
+    node_modules = ["@npm//:node_modules"],
+)
+
+# FIXME(alexeagle): there should be a way to specify that we don't want a
+# single node_modules label to be the dependency
+# Maybe we just don't specify a node_modules attribute, and the default is to
+# have none, but this is a big breaking change.
+# Maybe there's a new attribute and we require either node_modules or
+# new_attribute, but we don't want a different attribute, we want `deps`
+filegroup(name = "empty_node_modules", srcs = [":spec.js"])
+
+# Do we actually want these to resolve with our "node_modules" resolve? probably
+filegroup(
+    name = "shim",
+    srcs = [
+        "@npm//:jasmine",
+        "@npm//:typescript",
+    ],
+)
+
+
+
+jasmine_node_test(
+    name = "fine_grained_test",
+    srcs = ["spec.js"],
+
+    # WAY1 DOESN'T WORK
+    # We don't know how to load from deps the same way as node_modules
+    node_modules = [":empty_node_modules"],
+    deps = ["@npm//:jasmine"],
+
+    # WAY2 DOESN'T WORK
+    # we end up with
+    # node_modules_root bazel_managed_deps/node_modules
+    # but needs to be
+    # node_modules_root npm/node_modules
+    #node_modules = [":shim"],
+
+    node_modules = [
+        "@npm//:jasmine",
+        "@npm//:typescript",
+    ],
 )

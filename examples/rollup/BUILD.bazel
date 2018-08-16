@@ -14,7 +14,7 @@ filegroup(
 nodejs_binary(
     name = "rollup",
     entry_point = "rollup/bin/rollup",
-    node_modules = ":node_modules",
+    node_modules = [":node_modules"],
     # Tests that templated_args works
     # NB: Space before the / is needed to prevent shell on Windows from
     # converting this argument to a path under C:\
@@ -38,6 +38,6 @@ rollup(
 jasmine_node_test(
     name = "test",
     srcs = glob(["*.spec.js"]),
-    node_modules = ":node_modules",
+    node_modules = [":node_modules"],
     deps = [":bundle"],
 )

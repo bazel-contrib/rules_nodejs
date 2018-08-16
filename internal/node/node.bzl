@@ -34,11 +34,28 @@ def _write_loader_script(ctx):
         escaped = mn.replace("/", r"\/").replace(".", r"\.")
         mapping = r"{module_name: /^%s\b/, module_root: '%s'}" % (escaped, mr)
         module_mappings.append(mapping)
-  workspace = ctx.attr.node_modules.label.workspace_root.split("/")[1] if ctx.attr.node_modules.label.workspace_root else ctx.workspace_name
+  workspace = None
+  for nm in ctx.attr.node_modules:
+    if nm.label.workspace_root:
+
+      nm_wksp = nm.label.workspace_root.split("/")[1]
+      print("ao", nm_wksp)
+      if not workspace:
+        workspace = nm_wksp
+      elif workspace != nm_wksp:
+        fail("All node_modules must come from the same workspace, found", workspace, "and", nm_wksp)
+  if not workspace:
+    workspace = ctx.workspace_name
+
+  #workspace = ctx.attr.node_modules[0].label.workspace_root.split("/")[1] if ctx.attr.node_modules[0].label.workspace_root else ctx.workspace_name
   node_modules_root = "/".join([f for f in [
       workspace,
-      ctx.attr.node_modules.label.package,
+      #ctx.attr.node_modules[0].label.package,
       "node_modules"] if f])
+  print("node_modules_root", node_modules_root)
+  # HACK FOR WAY2
+  #node_modules_root = "npm/node_modules"
+
   ctx.actions.expand_template(
       template=ctx.file._loader_template,
       output=ctx.outputs.loader,
@@ -140,7 +157,7 @@ _NODEJS_EXECUTABLE_ATTRS = {
         `--node_options=--preserve-symlinks`
         """,
     ),
-    "node_modules": attr.label(
+    "node_modules": attr.label_list(
         doc = """The npm packages which should be available to `require()` during
         execution.""",
         # By default, binaries use the node_modules in the workspace
@@ -148,7 +165,7 @@ _NODEJS_EXECUTABLE_ATTRS = {
         # dependencies are installed there, commonly due to a transitive
         # dependency on a package like @bazel/typescript.
         # See discussion: https://github.com/bazelbuild/rules_typescript/issues/13
-        default = Label("@//:node_modules")),
+        default = [Label("@//:node_modules")]),
     "node": attr.label(
         doc = """The node entry point target.""",
         default = Label("@nodejs//:node"),
