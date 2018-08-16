@@ -1,0 +1,17 @@
+load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
+
+filegroup(
+    name = "node_modules",
+    srcs = glob(["node_modules/**"]),
+)
+
+jasmine_node_test(
+    name = "test",
+    srcs = glob(["*.js"]),
+    deps = ["//internal/npm_install:parse_yarn_lock"],
+    data = [
+        ":node_modules",
+        ":yarn.lock",
+    ],
+    node_modules = ":node_modules",
+)

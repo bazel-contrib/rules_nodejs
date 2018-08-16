@@ -1,2 +1,8 @@
 # Exported to be consumed for generating skydoc.
 exports_files(["npm_install.bzl"])
+
+filegroup(
+    name = "parse_yarn_lock",
+    srcs = ["parse_yarn_lock.js"],
+    visibility = ["//internal:__subpackages__"],
+)

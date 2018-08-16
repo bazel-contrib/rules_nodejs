@@ -4,16 +4,18 @@ const fs = require('fs');
 const lockfile = require('@yarnpkg/lockfile');
 const path = require('path')
 
-main();
+if (require.main === module) {
+  main('yarn.lock');
+}
 
 /**
- * Main entrypoint.  Write to stdout that will be captured into a
- * BUILD file.
+ * Main entrypoint.
+ * Given a lockfile, write BUILD files in the appropriate directories under node_modules.
  */
-function main() {
+function main(lockfilePath) {
   // Read the yarn.lock file and parse it.
   //
-  let file = fs.readFileSync('yarn.lock', 'utf8');
+  let file = fs.readFileSync(lockfilePath, 'utf8');
   let yarn = lockfile.parse(file);
 
   if (yarn.type !== 'success') {
@@ -45,28 +47,21 @@ function main() {
   // circular references, but apparently it can.
   breakCircularDependencies(modules)
 
-  // Print output
-  //
-  print("");
-  print("package(default_visibility = ['//visibility:public'])");
-  print("load('@org_pubref_rules_node//node:rules.bzl', 'node_module', 'node_binary')");
+  // modules.forEach(module => printNodeModule(module));
 
-  modules.forEach(module => printNodeModule(module));
-
-  printNodeModuleAll(modules);
+  fs.writeFileSync('BUILD.bazel', printNodeModuleAll(modules));
 
   // Create an executable rule all executable entryies in the modules
-  modules.forEach(module => {
-    if (module.executables) {
-      for (const [name, path] of module.executables.entries()) {
-        printNodeBinary(module, name, path);
-      }
-    }
-  });
-
-  print("");
-  print("# EOF");
+  // modules.forEach(module => {
+  //   if (module.executables) {
+  //     for (const [name, path] of module.executables.entries()) {
+  //       printNodeBinary(module, name, path);
+  //     }
+  //   }
+  // });
 }
+
+module.exports = {main};
 
 function isPackage(p, s, f) {
   let dir = s ? path.join(p, s, f) : path.join(p, f);
@@ -246,7 +241,7 @@ function parseName(key, entry) {
   const at = key.indexOf("@", 1);
   entry.name = key.slice(0, at);
 
-  const label = entry.name.replace('@', 'at-');
+  const label = entry.name;
   entry.label = label;
 }
 
@@ -261,22 +256,6 @@ function parseResolved(entry) {
     entry.url = tokens[0];
     entry.sha1 = tokens[1];
   }
-}
-
-
-/**
- * Reformat/pretty-print a json object as a skylark comment (each line
- * starts with '# ').
- */
-function printJson(entry) {
-  // Hacky workaround to avoic circular issues when JSONifying
-  const deps = entry.deps;
-  const referrer = entry.referrer;
-
-  JSON.stringify(entry, null, 2).split("\n").forEach(line => print("# " + line));
-
-  entry.deps = deps;
-  entry.referrer = referrer;
 }
 
 
@@ -337,16 +316,14 @@ function printNodeModule(module) {
  * exports all its deps.
  */
 function printNodeModuleAll(modules) {
-  print(``);
-  print(`# Pseudo-module that basically acts as a module collection for the entire set`);
-  print(`node_module(`);
-  print(`    name = "_all_",`);
-  print(`    deps = [`);
-  modules.forEach(module => {
-    print(`        ":${module.yarn ? module.yarn.label : module.name}",`);
-  });
-  print(`    ],`);
-  print(`)`);
+  return `# Re-export the entire node_modules directory
+    filegroup(
+      name = "node_modules",
+      srcs = [
+        ${modules.map(m => m.yarn ? m.yarn.label : m.name + ',')}
+      ],
+    )
+`;
 }
 
 
@@ -357,9 +334,9 @@ function printNodeModuleAll(modules) {
 function printNodeBinary(module, key, path) {
   const name = module.name === key ? key : `${module.name}_${key}`;
   print(``);
-  print(`node_binary(`);
+  print(`nodejs_binary(`);
   print(`    name = "${name}_bin",`);
-  print(`    entrypoint = ":${module.name}",`);
+  print(`    entry_point = ":${module.name}",`);
   print(`    executable = "${key}", # Refers to './${path}' inside the module`);
   print(`)`);
 }
@@ -370,7 +347,7 @@ function printNodeBinary(module, key, path) {
  * package json and return it as an object.
  */
 function parseNodeModulePackageJson(name) {
-  const module = require(`node_modules/${name}/package.json`);
+  const module = JSON.parse(fs.readFileSync(`node_modules/${name}/package.json`));
 
   // Take this opportunity to cleanup the module.bin entries
   // into a new Map called 'executables'

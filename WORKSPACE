@@ -62,7 +62,8 @@ node_repositories(
         "//:package.json",
         "//examples/rollup:package.json",
         "@program_example//:package.json",
-        "//internal/test:package.json"
+        "//internal/test:package.json",
+        "//internal/npm_install/test:package.json",
     ],
     preserve_symlinks = True,
 )
