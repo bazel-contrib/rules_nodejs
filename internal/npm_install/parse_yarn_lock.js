@@ -270,15 +270,22 @@ function parseResolved(entry) {
  * Given a module, print a skylark `node_module` rule.
  */
 function printNodeModule(module) {
-  const deps = module.deps;
+  const deps = module.deps || new Set();
+  console.error(deps);
   return `${generatedHeader}
 filegroup(
-    name = "${module.name}",
+    name = "${module.name.split('/').pop()}",
     srcs = glob([
         "**/*.js",
         "**/*.d.ts",
         "**/*.json",
-    ]),
+    ]) + [
+        ${
+      Array.from(deps)
+          .map(dep => dep.yarn ? dep.yarn.label : dep.name)
+          .map(d => `"//:${d}",`)
+          .join('\n        ')}
+    ],
     # Probably we should have a node_modules rule that acts like filegroup
     # but also exposes a Provider so we know they are in the deps and can
     # find them.
