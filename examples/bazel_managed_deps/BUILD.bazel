@@ -14,6 +14,7 @@ jasmine_node_test(
     deps = [
         "@npm//:jasmine",
         "@npm//:typescript",
+        # Note, test-b depends on test-a
         "@npm//:@gregmagolan/test-b",
     ],
 )

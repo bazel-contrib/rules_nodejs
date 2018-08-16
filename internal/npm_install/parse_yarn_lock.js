@@ -8,7 +8,9 @@ const DEBUG = console.error;
 
 const generatedHeader = `"""Generated file from yarn_install rule.
 See $(bazel info output_base)/external/build_bazel_rules_nodejs/internal/npm_install/parse_yarn_lock.js
-"""`;
+"""
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+`;
 
 
 if (require.main === module) {
@@ -272,17 +274,23 @@ function parseResolved(entry) {
 function printNodeModule(module) {
   const deps = module.deps || new Set();
   console.error(deps);
-  return `${generatedHeader}
+  const filegroup = `
 filegroup(
-    name = "${module.name.split('/').pop()}",
-    srcs = glob([
-        "**/*.js",
-        "**/*.d.ts",
-        "**/*.json",
+    name = "${module.name.split('/').pop()}_contents",
+    srcs = glob(["**/*"
+        # FIXME: is missing files with no extension
+        #"**/*.js",
+        #"**/*.d.ts",
+        #"**/*.json",
+    ], exclude = [
+        "**/* *",
     ]) + [
         ${
       Array.from(deps)
           .map(dep => dep.yarn ? dep.yarn.label : dep.name)
+          // HMM, assumes the dep was hoisted to the root.
+          // It happens to work because we'll naturally get our nested deps
+          // in the glob above.
           .map(d => `"//:${d}",`)
           .join('\n        ')}
     ],
@@ -294,6 +302,21 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 `;
+
+  const binaries = [];
+  if (module.executables) {
+    for (const [name, path] of module.executables.entries()) {
+      binaries.push(`# Quick utility to run the ${name} ${path}
+nodejs_binary(
+    name = "${name}",
+    entry_point = "${module.name}/${path}",
+    data = [":${module.name.split('/').pop()}_contents"],
+)
+`);
+    }
+  }
+
+  return generatedHeader + filegroup + binaries.join('\n');
   // print(``);
   // printJson(module);
   // print(`node_module(`);
@@ -357,7 +380,7 @@ ${
 # Alias the top-level ${m} package to the versioned one inside the package.
 alias(
     name = "${m}",
-    actual = "//node_modules/${m}",
+    actual = "//node_modules/${m}:${m.split('/').pop()}_contents",
 )`).join('\n')}
 
 # Re-export the entire node_modules directory in one catch-all rule.
