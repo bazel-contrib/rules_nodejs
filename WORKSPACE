@@ -33,6 +33,11 @@ local_repository(
 )
 
 local_repository(
+    name = "bazel_managed_deps",
+    path = "examples/bazel_managed_deps",
+)
+
+local_repository(
     name = "node_loader_e2e_no_preserve_symlinks",
     path = "internal/e2e/node_loader_no_preserve_symlinks",
 )

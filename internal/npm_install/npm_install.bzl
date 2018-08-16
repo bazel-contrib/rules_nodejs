@@ -52,16 +52,15 @@ def _create_build_file(repository_ctx):
   # Grab the @yarnpkg/lockfile dependency
   repository_ctx.download_and_extract(
       url = "https://registry.yarnpkg.com/@yarnpkg/lockfile/-/lockfile-1.0.0.tgz",
-      output = "node_modules/@yarnpkg/lockfile",
+      output = "internal/node_modules/@yarnpkg/lockfile",
       sha256 = "472add7ad141c75811f93dca421e2b7456045504afacec814b0565f092156250",
       stripPrefix = "package",
   )
-  repository_ctx.template("parse_yarn_lock.js",
+  repository_ctx.template("internal/parse_yarn_lock.js",
       repository_ctx.path(repository_ctx.attr._parse_yarn_lock_js), {})
-  result = repository_ctx.execute([node, "parse_yarn_lock.js"])
+  result = repository_ctx.execute([node, "internal/parse_yarn_lock.js"])
   if result.return_code:
     fail("node failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
-  repository_ctx.file("BUILD.bazel", result.stdout)
 
 def _add_data_dependencies(repository_ctx):
   """Add data dependencies to the repository."""

@@ -2,21 +2,26 @@
 
 const fs = require('fs');
 const lockfile = require('@yarnpkg/lockfile');
-const path = require('path')
+const path = require('path');
+
+const DEBUG = console.error;
+
+const generatedHeader = `"""Generated file from yarn_install rule.
+See $(bazel info output_base)/external/build_bazel_rules_nodejs/internal/npm_install/parse_yarn_lock.js
+"""`;
+
 
 if (require.main === module) {
-  main('yarn.lock');
+  main('yarn.lock', fs.writeFileSync);
 }
 
 /**
  * Main entrypoint.
  * Given a lockfile, write BUILD files in the appropriate directories under node_modules.
  */
-function main(lockfilePath) {
+function main(lockfilePath, write) {
   // Read the yarn.lock file and parse it.
-  //
-  let file = fs.readFileSync(lockfilePath, 'utf8');
-  let yarn = lockfile.parse(file);
+  let yarn = lockfile.parse(fs.readFileSync(lockfilePath, {encoding: 'utf8'}));
 
   if (yarn.type !== 'success') {
     throw new Error('Lockfile parse failed: ' + JSON.stringify(yarn, null, 2));
@@ -26,6 +31,8 @@ function main(lockfilePath) {
   // supplement/merge this with information from the package.json file
   // in a moment...
   //
+  DEBUG('yarn.lock contains packages', Object.keys(yarn.object));
+
   const entries = Object.keys(yarn.object).map(key => makeYarnEntry(key, yarn.object[key]));
 
   // Scan the node_modules directory and find all top-level ('foo') or scoped (@bar/baz)
@@ -47,9 +54,10 @@ function main(lockfilePath) {
   // circular references, but apparently it can.
   breakCircularDependencies(modules)
 
-  // modules.forEach(module => printNodeModule(module));
+  modules.forEach(
+      module => write(`node_modules/${module.name}/BUILD.bazel`, printNodeModule(module)));
 
-  fs.writeFileSync('BUILD.bazel', printNodeModuleAll(modules));
+  write('BUILD.bazel', printNodeModuleAll(modules));
 
   // Create an executable rule all executable entryies in the modules
   // modules.forEach(module => {
@@ -258,71 +266,93 @@ function parseResolved(entry) {
   }
 }
 
-
 /**
  * Given a module, print a skylark `node_module` rule.
  */
 function printNodeModule(module) {
   const deps = module.deps;
+  return `${generatedHeader}
+filegroup(
+    name = "${module.name}",
+    srcs = glob([
+        "**/*.js",
+        "**/*.d.ts",
+        "**/*.json",
+    ]),
+    visibility = ["//visibility:public"],
+)
+`;
+  // print(``);
+  // printJson(module);
+  // print(`node_module(`);
+  // print(`    name = "${module.yarn ? module.yarn.label : module.name}",`);
 
-  print(``);
-  printJson(module);
-  print(`node_module(`);
-  print(`    name = "${module.yarn ? module.yarn.label : module.name}",`);
+  // // SCC pseudomodule wont have 'yarn' property
+  // if (module.yarn) {
+  //   const url = module.yarn.url || module.url;
+  //   const sha1 = module.yarn.sha1;
+  //   const executables = module.executables;
 
-  // SCC pseudomodule wont have 'yarn' property
-  if (module.yarn) {
-    const url = module.yarn.url || module.url;
-    const sha1 = module.yarn.sha1;
-    const executables = module.executables;
+  //   print(`    module_name = "${module.name}",`);
+  //   print(`    version = "${module.version}",`);
+  //   print(`    package_json = "node_modules/${module.name}/package.json",`);
+  //   // Exclude filenames with spaces: Bazel can't cope with them (we just have to hope they
+  //   aren't needed later...) print(`    srcs = glob(["node_modules/${module.name}/**/*"], exclude
+  //   = [
+  // 	"node_modules/${module.name}/package.json",
+  // 	"**/* *",
+  // ]),`);
+  //   if (url) {
+  //     print(`    url = "${url}",`);
+  //   }
+  //   if (sha1) {
+  //     print(`    sha1 = "${sha1}",`);
+  //   }
 
-    print(`    module_name = "${module.name}",`);
-    print(`    version = "${module.version}",`);
-    print(`    package_json = "node_modules/${module.name}/package.json",`);
-    // Exclude filenames with spaces: Bazel can't cope with them (we just have to hope they aren't needed later...)
-    print(`    srcs = glob(["node_modules/${module.name}/**/*"], exclude = [
-		"node_modules/${module.name}/package.json",
-		"**/* *",
-	]),`);
-    if (url) {
-      print(`    url = "${url}",`);
-    }
-    if (sha1) {
-      print(`    sha1 = "${sha1}",`);
-    }
+  //   if (executables.size > 0) {
+  //     print(`    executables = {`);
+  //     for (const [name, val] of executables.entries()) {
+  //       print(`        "${name}": "${val}",`);
+  //     }
+  //     print(`    },`);
+  //   }
+  // }
 
-    if (executables.size > 0) {
-      print(`    executables = {`);
-      for (const [name, val] of executables.entries()) {
-        print(`        "${name}": "${val}",`);
-      }
-      print(`    },`);
-    }
-  }
-
-  if (deps && deps.size) {
-    print(`    deps = [`);
-    deps.forEach(dep => {
-      print(`        ":${dep.yarn ? dep.yarn.label : dep.name}",`);
-    });
-    print(`    ],`);
-  }
-  print(`)`);
+  // if (deps && deps.size) {
+  //   print(`    deps = [`);
+  //   deps.forEach(dep => {
+  //     print(`        ":${dep.yarn ? dep.yarn.label : dep.name}",`);
+  //   });
+  //   print(`    ],`);
+  // }
+  // print(`)`);
 }
 
 
 /**
- * Given a list of modules, print a skylark `node_module` rule that
- * exports all its deps.
+ * Print a top-level build file that defines the @my_deps// package.
  */
 function printNodeModuleAll(modules) {
-  return `# Re-export the entire node_modules directory
-    filegroup(
-      name = "node_modules",
-      srcs = [
-        ${modules.map(m => m.yarn ? m.yarn.label : m.name + ',')}
-      ],
-    )
+  const moduleNames = modules.map(m => m.yarn ? m.yarn.label : m.name);
+  return `${generatedHeader}
+${
+      moduleNames
+          .map(m => `
+# Alias the top-level ${m} package to the versioned one inside the package.
+alias(
+    name = "${m}",
+    actual = "//node_modules/${m}",
+)`).join('\n')}
+
+# Re-export the entire node_modules directory in one catch-all rule.
+# NB. this has bad performance implications if there are many files.
+filegroup(
+    name = "node_modules",
+    srcs = [
+      ${moduleNames.map(s => `":${s}"`)}
+    ],
+    visibility = ["//visibility:public"],
+)
 `;
 }
 
@@ -377,13 +407,6 @@ function stripBinPrefix(path) {
     path = path.slice(2);
   }
   return path;
-}
-
-/**
- * Write a string to stdout (console.log).
- */
-function print(msg) {
-  console.log(msg);
 }
 
 /**
