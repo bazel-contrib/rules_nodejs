@@ -7,9 +7,6 @@ const node_resolve_main_2 = require('node_resolve_main_2');
 const node_resolve_nested_main = require('node_resolve_nested_main');
 const lib1 = require('lib1');
 const lib1some = require('lib1/src/some');
-const data_resolve_relative = require.resolve('./data/data.json');
-const fs = require('fs');
-const path = require('path');
 
 describe('node npm resolution', () => {
   it('should resolve to index.js by default', () => {
@@ -38,25 +35,5 @@ describe('node npm resolution', () => {
   });
   it('should be able to deep-import from a nested src dir', () => {
     expect(lib1some.a).toEqual('lib1 content');
-  });
-});
-
-describe('node data resolution', () => {
-  it('should be able to resolve data files through relative paths', () => {
-    const dataContent = fs.readFileSync(data_resolve_relative);
-    expect(JSON.parse(dataContent)).toEqual({ "value": 42 });
-  });
-  it('should be able to resolve data files through absolute paths', () => {
-    const dataContent = fs.readFileSync(require.resolve(path.join(__dirname, './data/data.json')));
-    expect(JSON.parse(dataContent)).toEqual({ "value": 42 });
-  });
-  it('should throw when resolving files that are outside the sandbox', () => {
-    if (process.platform.startsWith('win')) {
-      // On Windows, file location is the original one and not sandboxed.
-      // This means we cannot correctly exclude relative paths that aren't part of the runfiles.
-      return;
-    }
-    // This file exists in the source folder but is not in the data array.
-    expect(() => require.resolve('./data/missing-data.json')).toThrow();
   });
 });

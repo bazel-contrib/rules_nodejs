@@ -3,6 +3,7 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
 jasmine_node_test(
     name = "test",
     srcs = [
+        "data_resolution.spec.js",
         "jasmine_node_test.spec.js",
         "module_resolution.spec.js",
     ],
@@ -18,17 +19,28 @@ jasmine_node_test(
     node_modules = "//internal/test:node_modules",
 )
 
+# Also test resolution from built files.
 jasmine_node_test(
     name = "lib_test",
-    srcs = [":lib"],
+    srcs = [
+        ":data_resolution_lib",
+        ":module_resolution_lib",
+    ],
     data = ["data/data.json"],
     node_modules = "//internal/test:node_modules",
     deps = ["//internal/e2e/node/lib1"],
 )
 
 genrule(
-    name = "lib",
+    name = "module_resolution_lib",
     srcs = ["module_resolution.spec.js"],
-    outs = ["module_resolution_copy.spec.js"],
+    outs = ["module_resolution_built.spec.js"],
+    cmd = "cp $< $@",
+)
+
+genrule(
+    name = "data_resolution_lib",
+    srcs = ["data_resolution.spec.js"],
+    outs = ["data_resolution_built.spec.js"],
     cmd = "cp $< $@",
 )
