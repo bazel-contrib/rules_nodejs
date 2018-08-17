@@ -25,29 +25,6 @@ load("//internal/node:node_labels.bzl", "get_node_label", "get_npm_label", "get_
 load("//internal/common:os_name.bzl", "os_name")
 
 def _create_build_file(repository_ctx):
-#   if repository_ctx.attr.node_modules_filegroup:
-#     repository_ctx.file("BUILD", """
-# package(default_visibility = ["//visibility:public"])
-# """ + repository_ctx.attr.node_modules_filegroup)
-#   else:
-#     repository_ctx.file("BUILD", """
-# package(default_visibility = ["//visibility:public"])
-# filegroup(
-#     name = "node_modules",
-#     srcs = glob(["node_modules/**/*"],
-#         # Exclude directories that commonly contain filenames which are
-#         # illegal bazel labels
-#         exclude = [
-#             # e.g. node_modules/adm-zip/test/assets/attributes_test/New folder/hidden.txt
-#             "node_modules/**/test/**",
-#             # e.g. node_modules/xpath/docs/function resolvers.md
-#             "node_modules/**/docs/**",
-#             # e.g. node_modules/puppeteer/.local-chromium/mac-536395/chrome-mac/Chromium.app/Contents/Versions/66.0.3347.0/Chromium Framework.framework/Chromium Framework
-#             "node_modules/**/.*/**"
-#         ],
-#     ) + glob(["node_modules/.bin/*"]),
-# )
-# """)
   node = repository_ctx.path(get_node_label(repository_ctx))
   # Grab the @yarnpkg/lockfile dependency
   repository_ctx.download_and_extract(

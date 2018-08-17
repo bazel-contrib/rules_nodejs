@@ -21,8 +21,6 @@ rollup_bundle(
     entry_point = "internal/e2e/rollup/foo.js",
     globals = {"some_global_var": "runtime_name_of_global_var"},
     license_banner = ":license.txt",
-    # OUCH: rollup_bundle assumed node_modules was a string, not a list
-    # Maybe we need a different attribute during transition?
     node_modules = ":node_modules",
     deps = ["//internal/e2e/rollup/fum:fumlib"],
 )

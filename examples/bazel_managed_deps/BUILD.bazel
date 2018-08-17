@@ -2,12 +2,17 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
 
 # Test what happens when we depend on the catch-all "node_modules" rule rather
 # than declare our dependencies on individual npm packages.
+# This is the legacy behavior, so it also proves our backwards-compatibility
+# story.
 jasmine_node_test(
     name = "test",
     srcs = ["spec.js"],
     node_modules = "@npm//:node_modules",
 )
 
+# Test what happens when only certain NPM packages are in our dependencies.
+# These packages and their dependencies are copied to the execroot, but
+# the rest are not.
 jasmine_node_test(
     name = "fine_grained_test",
     srcs = ["spec.js"],
