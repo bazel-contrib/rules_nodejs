@@ -9,6 +9,10 @@ const DEBUG = console.error;
 const generatedHeader = `"""Generated file from yarn_install rule.
 See $(bazel info output_base)/external/build_bazel_rules_nodejs/internal/npm_install/parse_yarn_lock.js
 """
+
+# All rules in other repositories can use these targets
+package(default_visibility = ["//visibility:public"])
+
 load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
 `;
 
@@ -32,9 +36,6 @@ function main(lockfilePath, write) {
   // Foreach entry in the lockfile, create an entry object.  We'll
   // supplement/merge this with information from the package.json file
   // in a moment...
-  //
-  DEBUG('yarn.lock contains packages', Object.keys(yarn.object));
-
   const entries = Object.keys(yarn.object).map(key => makeYarnEntry(key, yarn.object[key]));
 
   // Scan the node_modules directory and find all top-level ('foo') or scoped (@bar/baz)
@@ -52,23 +53,10 @@ function main(lockfilePath, write) {
   // Iterate all the modules and merge the information from yarn into the module
   modules.forEach(module => mergePackageJsonWithYarnEntry(entries, module));
 
-  // Didn't realize that the nodejs module ecosystem can contain
-  // circular references, but apparently it can.
-  breakCircularDependencies(modules)
-
   modules.forEach(
       module => write(`node_modules/${module.name}/BUILD.bazel`, printNodeModule(module)));
 
   write('BUILD.bazel', printNodeModuleAll(modules));
-
-  // Create an executable rule all executable entryies in the modules
-  // modules.forEach(module => {
-  //   if (module.executables) {
-  //     for (const [name, path] of module.executables.entries()) {
-  //       printNodeBinary(module, name, path);
-  //     }
-  //   }
-  // });
 }
 
 module.exports = {main};
@@ -110,121 +98,6 @@ function mergePackageJsonWithYarnEntry(entries, module) {
   module.name = entry.name
   // Store everything else here
   module.yarn = entry;
-}
-
-/**
- * Given a list of modules, build a graph of their dependencies and
- * collapse it according to Tarjan's SCC algorithm.  For any strongly
- * connected components, break out the cluster into it's own module
- * and rewrite the dependency graph to point to the cluster rather
- * than the individual module entries.
- */
-function breakCircularDependencies(modules) {
-
-  const byName = new Map();
-  modules.forEach(module => byName.set(module.name, module));
-
-  // Make a list of nodes
-  const nodes = Array.from(byName.keys());
-  // An Array<Array<number>> array for the edges
-  const edges = [];
-  // And a mapping for backreferences mapped by name
-  const backrefs = new Map();
-
-  // Build the adjacencyList
-  nodes.forEach((node, index) => {
-    const list = [];
-    edges[index] = list;
-    const entry = byName.get(node);
-    // Make a set of deps rather than using the entry.dependencies
-    // mapping.
-    entry.deps = new Set();
-
-    if (entry.dependencies) {
-
-      Object.keys(entry.dependencies).forEach(name => {
-
-        // Save this in the deps set
-        const dependency = byName.get(name);
-        entry.deps.add(dependency);
-
-        // Populate the adjacency list
-        const depIndex = nodes.indexOf(name);
-        list.push(depIndex);
-
-        // Compute referrer backreferences for later use.
-        let referrer = dependency.referrer;
-        if (!referrer) {
-          referrer = dependency.referrer = new Set();
-        }
-        referrer.add(entry);
-
-      });
-    }
-  });
-
-  const clusters = stronglyConnectedComponents(edges);
-
-  // Foreach non-trivial cluster in the SCC, create a pseudo-module
-  // for the cluster and re-link each entry to point to the cluster
-  // rather than the dependency.
-  clusters.components.forEach((component, index) => {
-
-    if (component.length > 1) {
-      // console.log("SCC: ", component);
-      // component.forEach(element => {
-      //   console.log(`Component ${index} contains ${nodes[element]} (${element})`);
-      // });
-
-      // Create a name for the pseudo-module
-      const name = '_scc' + index;
-      // The dependencies in this cluster component
-      const deps = new Set();
-      // The pseudo-module for the cluster
-      const pseudo = {
-        name: name,
-        deps: deps
-      };
-
-      // A list of entries in this component
-      const list = [];
-      // Last entry in the component can be standalone
-      for (let i = 0; i < component.length; i++) {
-        list.push(byName.get(nodes[component[i]]) );
-      }
-
-      // A description for the module
-      pseudo.description = "Strongly connected component containing " + list.map(e => e.name).join(", ")
-
-      list.forEach(entry => {
-        // Add this to the pseudo-module
-        deps.add(entry);
-
-        // Iterate the set of items that link to this entry.  Replace
-        // their deps set with the psudo-module rather than the entry
-        // itself.
-        entry.referrer.forEach(ref => {
-          ref.deps.delete(entry);
-
-          // Add an entry to the scc component (unless it is a member
-          // of it).
-          if (!deps.has(ref)) {
-            ref.deps.add(pseudo);
-          }
-        });
-
-        // Each entry in the cluster must have no connections to other
-        // dependencies in the cluster, or on the cluster pseudo-dep
-        pseudo.deps.forEach(circ => entry.deps.delete(circ));
-        entry.deps.delete(pseudo);
-      });
-
-      // Store this new pseudo-module in the modules list
-      modules.push(pseudo);
-    }
-
-  });
-
 }
 
 /**
@@ -299,7 +172,6 @@ filegroup(
     # find them.
     # Quicky version for prototyping:
     tags = ["HACKY_MARKER_IS_NODE_MODULE"],
-    visibility = ["//visibility:public"],
 )
 `;
 
@@ -370,9 +242,6 @@ nodejs_binary(
 function printNodeModuleAll(modules) {
   const moduleNames = modules.map(m => m.yarn ? m.yarn.label : m.name);
   return `${generatedHeader}
-
-# All rules in other repositories can use these targets
-package(default_visibility = ["//visibility:public"])
 
 ${
       moduleNames

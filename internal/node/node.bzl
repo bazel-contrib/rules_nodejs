@@ -50,7 +50,13 @@ def _write_loader_script(ctx):
         node_modules_root = possible_root
       elif node_modules_root != possible_root:
         fail("All node_modules need to come from a single workspace. found", [node_modules_root, possible_root])
+  if not node_modules_root:
+    fail("""
+         Due to a breaking change in rules_nodejs, target %s
+         must now declare either an explicit node_modules attribute, or
+         list explicit deps[] on npm labels.
 
+         See http://FIXME""" % ctx.label)
   ctx.actions.expand_template(
       template=ctx.file._loader_template,
       output=ctx.outputs.loader,
