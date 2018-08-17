@@ -23,4 +23,19 @@ describe('node data resolution', () => {
     // This file exists in the source folder but is not in the data array.
     expect(() => require.resolve('./data/missing-data.json')).toThrow();
   });
+  it('should be able to resolve paths relative to data files', () => {
+    if (process.platform.startsWith('win')) {
+      // On Windows, file location is the original one and not sandboxed.
+      // This means we cannot resolve paths relative to data files back to built files.
+      return;
+    }
+
+    const resolvedRelativeDataPath = require.resolve(relativeDataPath);
+    const thisFilePath = __filename;
+    const relativePathFromDataToThisFile = path.join('../', path.basename(thisFilePath));
+    const resolvedPathFromDataToThisFile = require.resolve(path.join(
+      path.dirname(resolvedRelativeDataPath), relativePathFromDataToThisFile));
+
+    expect(resolvedPathFromDataToThisFile).toEqual(thisFilePath);
+  });
 });
