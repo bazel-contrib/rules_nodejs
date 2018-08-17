@@ -37,9 +37,11 @@ type QueryBasedTargetLoader struct {
 	// is the actual package that has been loaded and cached.
 	//
 	// Since a new target loader is constructed for each directory being
-	// analyzed in the "-recursive" case, this cache will be garbage
+	// analyzed in the "-recursive" case, these caches will be garbage
 	// collected between directories.
 	pkgCache map[string]*pkgCacheEntry
+	// labelCache is a mapping from a label to its loaded rule.
+	labelCache map[string]*appb.Rule
 }
 
 // NewQueryBasedTargetLoader constructs a new QueryBasedTargetLoader rooted
@@ -49,34 +51,60 @@ func NewQueryBasedTargetLoader(workdir, bazelBinary string) *QueryBasedTargetLoa
 		workdir:     workdir,
 		bazelBinary: bazelBinary,
 
-		pkgCache: make(map[string]*pkgCacheEntry),
+		pkgCache:   make(map[string]*pkgCacheEntry),
+		labelCache: make(map[string]*appb.Rule),
 	}
 }
 
 // LoadLabels uses Bazel query to load targets associated with labels from BUILD
 // files.
 func (q *QueryBasedTargetLoader) LoadLabels(pkg string, labels []string) (map[string]*appb.Rule, error) {
-	var queries []string
-	if pkg == "" {
-		queries = labels
-	} else {
-		for _, label := range labels {
-			queries = append(queries, fmt.Sprintf("visible(%s:*, %s)", pkg, label))
+	var labelCacheMisses []string
+	for _, label := range labels {
+		if _, ok := q.labelCache[labelCacheKey(pkg, label)]; !ok {
+			labelCacheMisses = append(labelCacheMisses, label)
 		}
 	}
-	r, err := q.batchQuery(queries)
-	if err != nil {
-		return nil, err
-	}
-	labelToRule := make(map[string]*appb.Rule)
-	for _, target := range r.GetTarget() {
-		label, err := q.ruleLabel(target)
+	if len(labelCacheMisses) > 0 {
+		var queries []string
+		if pkg == "" {
+			queries = labelCacheMisses
+		} else {
+			for _, label := range labelCacheMisses {
+				queries = append(queries, fmt.Sprintf("visible(%s:*, %s)", pkg, label))
+			}
+		}
+		r, err := q.batchQuery(queries)
 		if err != nil {
 			return nil, err
 		}
-		labelToRule[label] = target.GetRule()
+		for _, target := range r.GetTarget() {
+			label, err := q.ruleLabel(target)
+			if err != nil {
+				return nil, err
+			}
+			q.labelCache[labelCacheKey(pkg, label)] = target.GetRule()
+		}
+		for _, label := range labelCacheMisses {
+			key := labelCacheKey(pkg, label)
+			if _, ok := q.labelCache[key]; !ok {
+				// Set to nil so the result exists in the cache and is not
+				// loaded again. If the nil is not added at the appropriate
+				// cache key, LoadLabels will attempt to load it again when
+				// next requested instead of getting a cache hit.
+				q.labelCache[key] = nil
+			}
+		}
+	}
+	labelToRule := make(map[string]*appb.Rule)
+	for _, label := range labels {
+		labelToRule[label] = q.labelCache[labelCacheKey(pkg, label)]
 	}
 	return labelToRule, nil
+}
+
+func labelCacheKey(currentPkg, label string) string {
+	return currentPkg + "^" + label
 }
 
 // LoadImportPaths uses Bazel Query to load targets associated with import
