@@ -93,11 +93,26 @@ function loadRunfilesManifest(manifestPath) {
   const runfilesManifest = Object.create(null);
   const reverseRunfilesManifest = Object.create(null);
   const input = fs.readFileSync(manifestPath, {encoding: 'utf-8'});
+  let workspaceRoot;
   for (const line of input.split('\n')) {
     if (!line) continue;
     const [runfilesPath, realPath] = line.split(' ');
     runfilesManifest[runfilesPath] = realPath;
     reverseRunfilesManifest[realPath] = runfilesPath;
+
+    // Determine workspace root to convert absolute paths into runfile paths.
+    // This only works if there is at least one runfile in the workspace root, but that is
+    // also the only case when we need to map back to the runfiles.
+    // See https://github.com/bazelbuild/bazel/issues/5926 for more information.
+    if (!workspaceRoot && runfilesPath.startsWith(USER_WORKSPACE_NAME) 
+        && !runfilesPath.startsWith(`${USER_WORKSPACE_NAME}/external/`) ) {
+
+      // Plus one to include the slash at the end.
+      const runfilesPathRemainder = runfilesPath.slice(USER_WORKSPACE_NAME.length + 1);
+      if (realPath.endsWith(runfilesPathRemainder)) {
+        workspaceRoot = realPath.slice(0, realPath.length - runfilesPathRemainder.length);
+      }
+    }
   }
 
   // Determine bin and gen root to convert absolute paths into runfile paths.
@@ -109,9 +124,13 @@ function loadRunfilesManifest(manifestPath) {
     genRoot = `${execRoot}${GEN_DIR}/`;
   }
 
-  return { runfilesManifest, reverseRunfilesManifest, binRoot, genRoot };
+  if (DEBUG) console.error(`node_loader: using binRoot ${binRoot}`);
+  if (DEBUG) console.error(`node_loader: using genRoot ${genRoot}`);
+  if (DEBUG) console.error(`node_loader: using workspaceRoot ${workspaceRoot}`);
+
+  return { runfilesManifest, reverseRunfilesManifest, binRoot, genRoot, workspaceRoot };
 }
-const { runfilesManifest, reverseRunfilesManifest, binRoot, genRoot } =
+const { runfilesManifest, reverseRunfilesManifest, binRoot, genRoot, workspaceRoot } =
     // On Windows, Bazel sets RUNFILES_MANIFEST_ONLY=1.
     // On every platform, Bazel also sets RUNFILES_MANIFEST_FILE, but on Linux
     // and macOS it's faster to use the symlinks in RUNFILES_DIR rather than resolve
@@ -215,11 +234,16 @@ function resolveRunfiles(parent, ...pathSegments) {
       if (parentRunfile) {
         runfilesEntry = path.join(path.dirname(parentRunfile), runfilesEntry).replace(/\\/g, '/');
       }
-    } else if (runfilesEntry.startsWith(binRoot) || runfilesEntry.startsWith(genRoot)) {
-      // For absolute paths, replace binRoot or genRoot with USER_WORKSPACE_NAME to enable lookups.
+    } else if (runfilesEntry.startsWith(binRoot) || runfilesEntry.startsWith(genRoot)
+        || runfilesEntry.startsWith(workspaceRoot)) {
+      // For absolute paths, replace binRoot, genRoot or workspaceRoot with USER_WORKSPACE_NAME 
+      // to enable lookups.
+      // It's OK to do multiple replacements because all of these are absolute paths with drive
+      // names (e.g. C:\), and on Windows you can't have drive names in the middle of paths.
       runfilesEntry = runfilesEntry
         .replace(binRoot, `${USER_WORKSPACE_NAME}/`)
-        .replace(genRoot, `${USER_WORKSPACE_NAME}/`);
+        .replace(genRoot, `${USER_WORKSPACE_NAME}/`)
+        .replace(workspaceRoot, `${USER_WORKSPACE_NAME}/`);       
     }
 
     if (DEBUG) console.error('node_loader: try to resolve in runfiles manifest', runfilesEntry);

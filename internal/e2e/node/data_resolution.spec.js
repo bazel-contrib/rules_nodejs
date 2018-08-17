@@ -31,15 +31,8 @@ describe('node data resolution', () => {
     const relativePathFromDataToThisFile = path.join('../', path.basename(thisFilePath));
     const joinedPathFromDataToThisFile = path.join(path.dirname(resolvedRelativeDataPath), 
       relativePathFromDataToThisFile)
-
-    if (process.platform.startsWith('win') && isBuiltFile) {
-      // On Windows, file location for data files is the original one and not sandboxed.
-      // This means we cannot resolve paths relative to data files back to built files.
-      expect(() => require.resolve(joinedPathFromDataToThisFile)).toThrow();
-    } else {
-      const resolvedPathFromDataToThisFile = require.resolve(joinedPathFromDataToThisFile);
-
-      expect(resolvedPathFromDataToThisFile).toEqual(thisFilePath);
-    }
+    
+    const resolvedPathFromDataToThisFile = require.resolve(joinedPathFromDataToThisFile);
+    expect(resolvedPathFromDataToThisFile).toEqual(thisFilePath);
   });
 });
