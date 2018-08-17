@@ -174,6 +174,7 @@ func (q *QueryBasedTargetLoader) LoadImportPaths(ctx context.Context, currentPkg
 		var newGenerators []string
 		for label, rule := range generatorToRule {
 			_, _, target := edit.ParseLabel(label)
+
 			if generator := stringAttribute(rule, "generator_name"); generator != "" && generator != target {
 				// Located rule is also a generated rule. Look for the rule
 				// that generates it.
