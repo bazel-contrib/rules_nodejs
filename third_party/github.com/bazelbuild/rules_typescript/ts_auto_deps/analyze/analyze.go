@@ -28,6 +28,20 @@ var (
 	}
 )
 
+const (
+	// debug enables/disables debug logging. Set to true to have debug statements
+	// print to stdout, set to false to disable debug statements.
+	debug = false
+)
+
+// debugf prints a formatted message prefixed with "DEBUG:" if the debug
+// flag is enabled.
+func debugf(format string, v ...interface{}) {
+	if debug {
+		fmt.Printf(fmt.Sprintf("DEBUG: %s\n", format), v...)
+	}
+}
+
 // TargetLoader provides methods for loading targets from BUILD files.
 type TargetLoader interface {
 	// LoadLabels loads targets from BUILD files associated with labels.

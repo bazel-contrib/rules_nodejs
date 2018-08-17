@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/bazelbuild/buildtools/edit"
 	"github.com/bazelbuild/rules_typescript/ts_auto_deps/workspace"
@@ -42,6 +43,9 @@ type QueryBasedTargetLoader struct {
 	pkgCache map[string]*pkgCacheEntry
 	// labelCache is a mapping from a label to its loaded rule.
 	labelCache map[string]*appb.Rule
+
+	// queryCount is the total number of queries executed by the target loader.
+	queryCount int
 }
 
 // NewQueryBasedTargetLoader constructs a new QueryBasedTargetLoader rooted
@@ -110,6 +114,7 @@ func labelCacheKey(currentPkg, label string) string {
 // LoadImportPaths uses Bazel Query to load targets associated with import
 // paths from BUILD files.
 func (q *QueryBasedTargetLoader) LoadImportPaths(ctx context.Context, currentPkg, workspaceRoot string, paths []string) (map[string]*appb.Rule, error) {
+	debugf("loading imports visible to %q relative to %q: %q", currentPkg, workspaceRoot, paths)
 	results := make(map[string]*appb.Rule)
 
 	addedPaths := make(map[string]bool)
@@ -279,17 +284,21 @@ func (q *QueryBasedTargetLoader) query(args ...string) (*appb.QueryResult, error
 	if n < 1 {
 		return nil, fmt.Errorf("expected at least one argument")
 	}
-	if query := args[n-1]; query == "" {
+	query := args[n-1]
+	if query == "" {
 		// An empty query was provided so return an empty result without
 		// making a call to Bazel.
 		return &appb.QueryResult{}, nil
 	}
 	var stdout, stderr bytes.Buffer
 	args = append([]string{"query", "--output=proto"}, args...)
+	q.queryCount++
+	debugf("executing query #%d in %q: %s %s %q", q.queryCount, q.workdir, q.bazelBinary, strings.Join(args[:len(args)-1], " "), query)
 	cmd := exec.Command(q.bazelBinary, args...)
 	cmd.Dir = q.workdir
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
+	startTime := time.Now()
 	if err := cmd.Run(); err != nil {
 		// Exit status 3 is a direct result of one or more queries in a set of
 		// queries not returning a result while running with the '--keep_going'
@@ -301,6 +310,7 @@ func (q *QueryBasedTargetLoader) query(args ...string) (*appb.QueryResult, error
 			return nil, fmt.Errorf(stderr.String())
 		}
 	}
+	debugf("query #%d took %v", q.queryCount, time.Since(startTime))
 	var result appb.QueryResult
 	if err := proto.Unmarshal(stdout.Bytes(), &result); err != nil {
 		return nil, err

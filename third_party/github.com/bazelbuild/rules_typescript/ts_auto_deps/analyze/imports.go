@@ -55,6 +55,7 @@ type sourceLocation struct {
 // paths should be relative to root. The root will be joined to each path
 // to construct a physical path to each file.
 func extractAllImports(root string, paths []string) (map[string][]*ts_auto_depsImport, []error) {
+	debugf("extracting imports from TypeScript files relative to %q: %q", root, paths)
 	allImports := make(map[string][]*ts_auto_depsImport)
 	var (
 		errors []error
