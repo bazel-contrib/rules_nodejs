@@ -335,12 +335,19 @@ def compile_ts(
     # deps (do not re-export transitive types from the transitive closure).
     transitive_decls = dep_declarations.transitive + src_declarations + gen_declarations
 
+    # both ts_library and ts_declarations generate .closure.js files:
+    # - for libraries, this is the ES6/production code
+    # - for declarations, these are generated shims
+    es6_sources = depset(transpiled_closure_js + tsickle_externs)
     if is_library:
-        es6_sources = depset(transpiled_closure_js + tsickle_externs)
         es5_sources = depset(transpiled_devmode_js)
     else:
-        es6_sources = depset(tsickle_externs)
+        # In development mode, no code ever references shims as they only
+        # contain types, and the ES5 code does not get type annotated.
         es5_sources = depset(tsickle_externs)
+
+        # Similarly, in devmode these sources do not get loaded, so do not need
+        # to be in a manifest.
         devmode_manifest = None
 
     # Downstream rules see the .d.ts files produced or declared by this rule.
