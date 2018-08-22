@@ -22,8 +22,8 @@ func usage() {
 usage: %s [flags] [path...]
 
 ts_auto_deps generates and updates BUILD rules for each of the given package paths.
-Paths are expected to reside underneath google3. If none is given, ts_auto_deps runs on
-the current working directory.
+Paths are expected to reside underneath the workspace root. If none is given,
+ts_auto_deps runs on the current working directory.
 
 For each of the given package paths, ts_auto_deps finds all TypeScript sources in the
 package and adds sources that are not currently built to the appropriate
