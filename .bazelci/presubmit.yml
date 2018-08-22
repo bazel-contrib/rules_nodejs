@@ -30,6 +30,13 @@ platforms:
     - "//..."
     # Cannot build the docsite on Windows, see
     # https://github.com/bazelbuild/skydoc/issues/58
-    - "-//:docs"
+    - "-//docs"
     test_targets:
     - "//..."
+  rbe_ubuntu1604:
+    build_targets:
+    - "--"
+    - "//..."
+    - "-//examples/rollup:bundle"
+    - "-//examples/rollup:test"
+    - "-//examples/rollup:test_devmode_srcs"

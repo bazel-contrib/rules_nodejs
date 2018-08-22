@@ -247,7 +247,7 @@ users loading <code>nodejs_test</code> are actually executing this macro.</p>
 
           <h2 id="nodejs_binary">nodejs_binary</h2>
 
-          <pre>nodejs_binary(<a href="#nodejs_binary.name">name</a>, <a href="#nodejs_binary.data">data</a>, <a href="#nodejs_binary.bootstrap">bootstrap</a>, <a href="#nodejs_binary.entry_point">entry_point</a>, <a href="#nodejs_binary.node">node</a>, <a href="#nodejs_binary.node_modules">node_modules</a>, <a href="#nodejs_binary.templated_args">templated_args</a>)</pre>
+          <pre>nodejs_binary(<a href="#nodejs_binary.name">name</a>, <a href="#nodejs_binary.data">data</a>, <a href="#nodejs_binary.bootstrap">bootstrap</a>, <a href="#nodejs_binary.entry_point">entry_point</a>, <a href="#nodejs_binary.install_source_map_support">install_source_map_support</a>, <a href="#nodejs_binary.node">node</a>, <a href="#nodejs_binary.node_modules">node_modules</a>, <a href="#nodejs_binary.templated_args">templated_args</a>)</pre>
 
           <p>Runs some JavaScript code in NodeJS.</p>
 
@@ -292,6 +292,15 @@ users loading <code>nodejs_test</code> are actually executing this macro.</p>
         in cases where a script with the same name appears in another directory or external workspace.</p>
       </td>
     </tr>
+    <tr id="nodejs_binary.install_source_map_support">
+      <td><code>install_source_map_support</code></td>
+      <td>
+        <p><code>Boolean; Optional; Default is True</code></p>
+        <p>Install the source-map-support package.
+        Enable this to get stack traces that point to original sources, e.g. if the program was written
+        in TypeScript.</p>
+      </td>
+    </tr>
     <tr id="nodejs_binary.node">
       <td><code>node</code></td>
       <td>
@@ -322,7 +331,7 @@ users loading <code>nodejs_test</code> are actually executing this macro.</p>
 
           <h2 id="nodejs_test">nodejs_test</h2>
 
-          <pre>nodejs_test(<a href="#nodejs_test.name">name</a>, <a href="#nodejs_test.data">data</a>, <a href="#nodejs_test.bootstrap">bootstrap</a>, <a href="#nodejs_test.entry_point">entry_point</a>, <a href="#nodejs_test.expected_exit_code">expected_exit_code</a>, <a href="#nodejs_test.node">node</a>, <a href="#nodejs_test.node_modules">node_modules</a>, <a href="#nodejs_test.templated_args">templated_args</a>)</pre>
+          <pre>nodejs_test(<a href="#nodejs_test.name">name</a>, <a href="#nodejs_test.data">data</a>, <a href="#nodejs_test.bootstrap">bootstrap</a>, <a href="#nodejs_test.entry_point">entry_point</a>, <a href="#nodejs_test.expected_exit_code">expected_exit_code</a>, <a href="#nodejs_test.install_source_map_support">install_source_map_support</a>, <a href="#nodejs_test.node">node</a>, <a href="#nodejs_test.node_modules">node_modules</a>, <a href="#nodejs_test.templated_args">templated_args</a>)</pre>
 
           <p>Identical to <code>nodejs_binary</code>, except this can be used with <code>bazel test</code> as well.
 When the binary returns zero exit code, the test passes; otherwise it fails.</p>
@@ -387,6 +396,15 @@ remote debugger.</p>
       <td>
         <p><code>Integer; Optional; Default is 0</code></p>
         <p>The expected exit code for the test. Defaults to 0.</p>
+      </td>
+    </tr>
+    <tr id="nodejs_test.install_source_map_support">
+      <td><code>install_source_map_support</code></td>
+      <td>
+        <p><code>Boolean; Optional; Default is True</code></p>
+        <p>Install the source-map-support package.
+        Enable this to get stack traces that point to original sources, e.g. if the program was written
+        in TypeScript.</p>
       </td>
     </tr>
     <tr id="nodejs_test.node">

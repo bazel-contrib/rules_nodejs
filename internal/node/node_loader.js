@@ -39,11 +39,19 @@ var MODULE_ROOTS = [TEMPLATED_module_roots];
  */
 var BOOTSTRAP = [TEMPLATED_bootstrap];
 
+const USER_WORKSPACE_NAME = 'TEMPLATED_user_workspace_name';
+const NODE_MODULES_ROOT = 'TEMPLATED_node_modules_root';
+const BIN_DIR = 'TEMPLATED_bin_dir';
+const GEN_DIR = 'TEMPLATED_gen_dir';
+
 if (DEBUG)
   console.error(`
-node_loader: running with
-  MODULE_ROOTS: ${MODULE_ROOTS}
-  BOOTSTRAP: ${BOOTSTRAP}
+node_loader: running TEMPLATED_target with
+  MODULE_ROOTS: ${JSON.stringify(MODULE_ROOTS, undefined, 2)}
+  BOOTSTRAP: ${JSON.stringify(BOOTSTRAP, undefined, 2)}
+  NODE_MODULES_ROOT: ${NODE_MODULES_ROOT}
+  BIN_DIR: ${BIN_DIR}
+  GEN_DIR: ${GEN_DIR}
 `);
 
 function resolveToModuleRoot(path) {
@@ -53,7 +61,6 @@ function resolveToModuleRoot(path) {
 
   var match;
   var lengthOfMatch = 0;
-  var matchedEntry;
   for (var i = 0; i < MODULE_ROOTS.length; i++) {
     var m = MODULE_ROOTS[i];
     var p = path.replace(m.module_name, m.module_root);
@@ -62,7 +69,6 @@ function resolveToModuleRoot(path) {
     if (p !== path && len > lengthOfMatch) {
       lengthOfMatch = len;
       match = p;
-      matchedEntry = m;
     }
   }
   if (match) {
@@ -81,21 +87,57 @@ function resolveToModuleRoot(path) {
  * See https://github.com/bazelbuild/bazel/issues/3726
  */
 function loadRunfilesManifest(manifestPath) {
-  // If the manifest doesn't exist, we're not running on Windows, and don't need
-  // it.
-  if (!fs.existsSync(manifestPath)) {
-    return;
-  }
-  const result = Object.create(null);
+  if (DEBUG) console.error(`node_loader: using manifest ${manifestPath}`);
+
+  // Create the manifest and reverse manifest maps.
+  const runfilesManifest = Object.create(null);
+  const reverseRunfilesManifest = Object.create(null);
   const input = fs.readFileSync(manifestPath, {encoding: 'utf-8'});
+  let workspaceRoot;
   for (const line of input.split('\n')) {
     if (!line) continue;
     const [runfilesPath, realPath] = line.split(' ');
-    result[runfilesPath] = realPath;
+    runfilesManifest[runfilesPath] = realPath;
+    reverseRunfilesManifest[realPath] = runfilesPath;
+
+    // Determine workspace root to convert absolute paths into runfile paths.
+    // This only works if there is at least one runfile in the workspace root, but that is
+    // also the only case when we need to map back to the runfiles.
+    // See https://github.com/bazelbuild/bazel/issues/5926 for more information.
+    if (!workspaceRoot && runfilesPath.startsWith(USER_WORKSPACE_NAME) &&
+        !runfilesPath.startsWith(`${USER_WORKSPACE_NAME}/external/`)) {
+      // Plus one to include the slash at the end.
+      const runfilesPathRemainder = runfilesPath.slice(USER_WORKSPACE_NAME.length + 1);
+      if (realPath.endsWith(runfilesPathRemainder)) {
+        workspaceRoot = realPath.slice(0, realPath.length - runfilesPathRemainder.length);
+      }
+    }
   }
-  return result;
+
+  // Determine bin and gen root to convert absolute paths into runfile paths.
+  const binRootIdx = manifestPath.indexOf(BIN_DIR);
+  let binRoot, genRoot;
+  if (binRootIdx !== -1) {
+    const execRoot = manifestPath.slice(0, binRootIdx);
+    binRoot = `${execRoot}${BIN_DIR}/`;
+    genRoot = `${execRoot}${GEN_DIR}/`;
+  }
+
+  if (DEBUG) console.error(`node_loader: using binRoot ${binRoot}`);
+  if (DEBUG) console.error(`node_loader: using genRoot ${genRoot}`);
+  if (DEBUG) console.error(`node_loader: using workspaceRoot ${workspaceRoot}`);
+
+  return {runfilesManifest, reverseRunfilesManifest, binRoot, genRoot, workspaceRoot};
 }
-const runfilesManifest = loadRunfilesManifest(process.env.RUNFILES_MANIFEST_FILE);
+const {runfilesManifest, reverseRunfilesManifest, binRoot, genRoot, workspaceRoot} =
+    // On Windows, Bazel sets RUNFILES_MANIFEST_ONLY=1.
+    // On every platform, Bazel also sets RUNFILES_MANIFEST_FILE, but on Linux
+    // and macOS it's faster to use the symlinks in RUNFILES_DIR rather than resolve
+    // through the indirection of the manifest file.
+    // We also need to construct a reverse map to resolve relative files from existing
+    // manifest entries.
+    process.env.RUNFILES_MANIFEST_ONLY === '1' &&
+    loadRunfilesManifest(process.env.RUNFILES_MANIFEST_FILE);
 
 function isFile(res) {
   try {
@@ -157,12 +199,12 @@ function resolveManifestDirectory(res) {
           main = 'index';
         }
 
-        let maybe = resolveManifestFile(`${res}/${main}`);
+        let maybe = resolveManifestFile(path.posix.join(res, main));
         if (maybe) {
           return maybe;
         }
 
-        maybe = resolveManifestDirectory(`${res}/${main}`);
+        maybe = resolveManifestDirectory(path.posix.join(res, main));
         if (maybe) {
           return maybe;
         }
@@ -173,18 +215,37 @@ function resolveManifestDirectory(res) {
   return resolveManifestFile(`${res}/index`)
 }
 
-function resolveRunfiles(...pathSegments) {
+function resolveRunfiles(parent, ...pathSegments) {
   // Remove any empty strings from pathSegments
   pathSegments = pathSegments.filter(segment => segment);
-
-  if (DEBUG) console.error('node_loader: try to resolve', pathSegments.join('/'));
 
   const defaultPath = path.join(process.env.RUNFILES, ...pathSegments);
 
   if (runfilesManifest) {
     // Normalize to forward slash, because even on Windows the runfiles_manifest file
     // is written with forward slash.
-    const runfilesEntry = pathSegments.join('/').replace(/\\/g, '/');
+    let runfilesEntry = pathSegments.join('/').replace(/\\/g, '/');
+
+    if (parent && runfilesEntry.startsWith('.')) {
+      // Resolve relative paths from manifest files.
+      const normalizedParent = parent.replace(/\\/g, '/');
+      const parentRunfile = reverseRunfilesManifest[normalizedParent];
+      if (parentRunfile) {
+        runfilesEntry = path.join(path.dirname(parentRunfile), runfilesEntry).replace(/\\/g, '/');
+      }
+    } else if (
+        runfilesEntry.startsWith(binRoot) || runfilesEntry.startsWith(genRoot) ||
+        runfilesEntry.startsWith(workspaceRoot)) {
+      // For absolute paths, replace binRoot, genRoot or workspaceRoot with USER_WORKSPACE_NAME
+      // to enable lookups.
+      // It's OK to do multiple replacements because all of these are absolute paths with drive
+      // names (e.g. C:\), and on Windows you can't have drive names in the middle of paths.
+      runfilesEntry = runfilesEntry.replace(binRoot, `${USER_WORKSPACE_NAME}/`)
+                          .replace(genRoot, `${USER_WORKSPACE_NAME}/`)
+                          .replace(workspaceRoot, `${USER_WORKSPACE_NAME}/`);
+    }
+
+    if (DEBUG) console.error('node_loader: try to resolve in runfiles manifest', runfilesEntry);
 
     let maybe = resolveManifestFile(runfilesEntry);
     if (maybe) {
@@ -194,10 +255,12 @@ function resolveRunfiles(...pathSegments) {
 
     maybe = resolveManifestDirectory(runfilesEntry);
     if (maybe) {
-      if (DEBUG) console.error('node_loader: resolved manifest directory', maybe);
+      if (DEBUG) console.error('node_loader: resolved via manifest directory', maybe);
       return maybe;
     }
   } else {
+    if (DEBUG) console.error('node_loader: try to resolve in runfiles', defaultPath);
+
     let maybe = loadAsFileSync(defaultPath);
     if (maybe) {
       if (DEBUG) console.error('node_loader: resolved file', maybe);
@@ -206,44 +269,119 @@ function resolveRunfiles(...pathSegments) {
 
     maybe = loadAsDirectorySync(defaultPath);
     if (maybe) {
-      if (DEBUG) console.error('node_loader: resolved directory', maybe);
+      if (DEBUG) console.error('node_loader: resolved via directory', maybe);
       return maybe;
     }
   }
 
-  if (DEBUG) console.error('node_loader: resolved to default path', defaultPath);
   return defaultPath;
 }
 
 var originalResolveFilename = module.constructor._resolveFilename;
 module.constructor._resolveFilename =
     function(request, parent) {
-  var failedResolutions = [];
-  var resolveLocations = [
-    request,
-    resolveRunfiles(request),
-    resolveRunfiles(
-        'TEMPLATED_user_workspace_name', 'TEMPLATED_label_package', 'node_modules', request),
-  ];
-  // Additional search path in case the build is across workspaces.
-  // See comment in node.bzl.
-  if ('TEMPLATED_label_workspace_name') {
-    resolveLocations.push(resolveRunfiles(
-        'TEMPLATED_label_workspace_name', 'TEMPLATED_label_package', 'node_modules', request));
+  const parentFilename = (parent && parent.filename) ? parent.filename : undefined;
+  if (DEBUG) console.error(`node_loader: resolve ${request} from ${parentFilename}`);
+
+  const failedResolutions = [];
+
+  // Built-in modules, relative, absolute imports and npm dependencies
+  // can be resolved using request
+  try {
+    const resolved = originalResolveFilename(request, parent);
+    if (resolved === request || request.startsWith('.') || request.startsWith('/') ||
+        request.match(/^[A-Z]\:[\\\/]/i)) {
+      if (DEBUG)
+        console.error(
+            `node_loader: resolved ${request} to built-in, relative or absolute import ` +
+            `${resolved} from ${parentFilename}`);
+      return resolved;
+    } else {
+      // Resolved is not a built-in module, relative or absolute import
+      // but also allow imports within npm packages that are within the parent files
+      // node_modules, meaning it is a dependency of the npm package making the import.
+      const parentSegments = parentFilename ? parentFilename.replace(/\\/g, '/').split('/') : [];
+      const parentNodeModulesSegment = parentSegments.indexOf('node_modules');
+      if (parentNodeModulesSegment != -1) {
+        const parentRoot = parentSegments.slice(0, parentNodeModulesSegment).join('/');
+        const relative = path.relative(parentRoot, resolved);
+        if (!relative.startsWith('..')) {
+          // Resolved within parent node_modules
+          if (DEBUG)
+            console.error(
+                `node_loader: resolved ${request} within parent node_modules to ` +
+                `${resolved} from ${parentFilename}`);
+          return resolved;
+        } else {
+          throw new Error(
+              `Resolved to ${resolved} outside of parent node_modules ${parentFilename}`);
+        }
+      }
+      throw new Error('Not a built-in module, relative or absolute import');
+    }
+  } catch (e) {
+    failedResolutions.push(`built-in, relative, absolute, nested node_modules - ${e.toString()}`);
   }
-  for (var location of resolveLocations) {
-    try {
-      return originalResolveFilename(location, parent);
-    } catch (e) {
-      failedResolutions.push(location);
+
+  // If the import is not a built-in module, an absolute, relative import or a
+  // dependency of an npm package, attempt to resolve against the runfiles location
+  try {
+    const resolved = originalResolveFilename(resolveRunfiles(parentFilename, request), parent);
+    if (DEBUG)
+      console.error(
+          `node_loader: resolved ${request} within runfiles to ${resolved} from ${parentFilename}`);
+    return resolved;
+  } catch (e) {
+    failedResolutions.push(`runfiles - ${e.toString()}`);
+  }
+
+  // If the parent file is from an external repository, attempt to resolve against
+  // the external repositories node_modules (if they exist)
+  let relativeParentFilename =
+      parentFilename ? path.relative(process.env.RUNFILES, parent.filename) : undefined;
+  if (relativeParentFilename && !relativeParentFilename.startsWith('..')) {
+    // Remove leading USER_WORKSPACE_NAME/external so that external workspace name is
+    // always the first segment
+    const externalPrefix = `${USER_WORKSPACE_NAME}/external/`;
+    if (relativeParentFilename.startsWith(externalPrefix)) {
+      relativeParentFilename = relativeParentFilename.substr(externalPrefix.length);
+    }
+    const parentSegments = relativeParentFilename.split('/');
+    if (parentSegments[0] !== USER_WORKSPACE_NAME) {
+      try {
+        const resolved = originalResolveFilename(
+            resolveRunfiles(undefined, parentSegments[0], 'node_modules', request), parent);
+        if (DEBUG)
+          console.error(
+              `node_loader: resolved ${request} within node_modules ` +
+              `(${parentSegments[0]}/node_modules) to ${resolved} from ${relativeParentFilename}`);
+        return resolved;
+      } catch (e) {
+        failedResolutions.push(`${parentSegments[0]}/node_modules - ${e.toString()}`);
+      }
     }
   }
 
-  var moduleRoot = resolveToModuleRoot(request);
+  // If import was not resolved above then attempt to resolve
+  // within the node_modules filegroup in use
+  try {
+    const resolved =
+        originalResolveFilename(resolveRunfiles(undefined, NODE_MODULES_ROOT, request), parent);
+    if (DEBUG)
+      console.error(
+          `node_loader: resolved ${request} within node_modules (${NODE_MODULES_ROOT}) to ` +
+          `${resolved} from ${parentFilename}`);
+    return resolved;
+  } catch (e) {
+    failedResolutions.push(`node_modules attribute (${NODE_MODULES_ROOT}) - ${e.toString()}`);
+  }
+
+  // Finally, attempt to resolve to module root
+  const moduleRoot = resolveToModuleRoot(request);
   if (moduleRoot) {
-    var moduleRootInRunfiles = resolveRunfiles(moduleRoot);
+    const moduleRootInRunfiles = resolveRunfiles(undefined, moduleRoot);
     try {
-      var filename = module.constructor._findPath(moduleRootInRunfiles, []);
+      const filename = module.constructor._findPath(moduleRootInRunfiles, []);
       if (!filename) {
         throw new Error(`No file ${request} found in module root ${moduleRoot}`);
       }
@@ -253,22 +391,26 @@ module.constructor._resolveFilename =
       throw e;
     }
   }
-  var error = new Error(
-      `Cannot find module '${request}'\n  looked in:` + failedResolutions.map(r => '\n   ' + r));
+
+  const error = new Error(
+      `TEMPLATED_target cannot find module '${request}'\n  looked in:` +
+      failedResolutions.map(r => `\n   ${r}\n`));
   error.code = 'MODULE_NOT_FOUND';
   throw error;
 }
 
 // Before loading anything that might print a stack, install the
 // source-map-support.
-try {
-  require('source-map-support').install();
-} catch (e) {
-  console.error(`WARNING: source-map-support module not installed.
-   Stack traces from languages like TypeScript will point to generated .js files.
-   `);
+if (TEMPLATED_install_source_map_support) {
+  try {
+    require('source-map-support').install();
+  } catch (e) {
+    console.error(`WARNING: source-map-support module not installed.
+    Stack traces from languages like TypeScript will point to generated .js files.
+    Set install_source_map_support = False in TEMPLATED_target to turn off this warning.
+    `);
+  }
 }
-
 // Load all bootstrap modules before loading the entrypoint.
 for (var i = 0; i < BOOTSTRAP.length; i++) {
   try {

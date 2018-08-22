@@ -34,46 +34,25 @@ def _write_loader_script(ctx):
         escaped = mn.replace("/", r"\/").replace(".", r"\.")
         mapping = r"{module_name: /^%s\b/, module_root: '%s'}" % (escaped, mr)
         module_mappings.append(mapping)
+  workspace = ctx.attr.node_modules.label.workspace_root.split("/")[1] if ctx.attr.node_modules.label.workspace_root else ctx.workspace_name
+  node_modules_root = "/".join([f for f in [
+      workspace,
+      ctx.attr.node_modules.label.package,
+      "node_modules"] if f])
   ctx.actions.expand_template(
       template=ctx.file._loader_template,
       output=ctx.outputs.loader,
       substitutions={
+          "TEMPLATED_target": str(ctx.label),
           "TEMPLATED_module_roots": "\n  " + ",\n  ".join(module_mappings),
           "TEMPLATED_bootstrap": "\n  " + ",\n  ".join(
               ["\"" + d + "\"" for d in ctx.attr.bootstrap]),
           "TEMPLATED_entry_point": ctx.attr.entry_point,
-          "TEMPLATED_label_package": ctx.attr.node_modules.label.package,
-          # There are two workspaces in general:
-          # A) The user's workspace is the one where the bazel command is run
-          # B) The label's workspace contains the target being built/run
-          #
-          # If A has an npm dependency on B, then we'll look in the node_modules
-          # to find B's dependency D. It could be in two different places
-          # depending on hoisting [1]:
-          # A/node_modules/B/node_modules/D
-          # A/node_modules/D
-          # That means we must resolve runfiles relative to A.
-          #
-          # However if A has a bazel dependency on B, then B is not under A's
-          # node_modules directory.
-          # A
-          # B/node_modules/D
-          # That means we must resolve runfiles relative to B.
-          #
-          # Since Bazel does not tell us whether the label's workspace was
-          # created with `local_repository(path="node_modules/blah")` we can't
-          # distinguish the two cases. Therefore we add both workspaces to the
-          # resolution search paths.
-          #
-          # [1] https://yarnpkg.com/lang/en/docs/workspaces/#toc-limitations-caveats
           "TEMPLATED_user_workspace_name": ctx.workspace_name,
-          "TEMPLATED_label_workspace_name": (
-              ctx.attr.node_modules.label.workspace_root.split("/")[1]
-              if ctx.attr.node_modules.label.workspace_root
-              # If the label is in the same workspace as the user, we don't
-              # need another search location.
-              else ""
-          ),
+          "TEMPLATED_node_modules_root": node_modules_root,
+          "TEMPLATED_install_source_map_support": str(ctx.attr.install_source_map_support).lower(),
+          "TEMPLATED_bin_dir": ctx.bin_dir.path,
+          "TEMPLATED_gen_dir": ctx.genfiles_dir.path,
       },
       is_executable=True,
   )
@@ -123,7 +102,7 @@ def _nodejs_binary_impl(ctx):
         is_executable=True,
     )
 
-    runfiles = depset(sources + [node, ctx.outputs.loader, ctx.file._repository_args] + node_modules)
+    runfiles = depset(sources + [node, ctx.outputs.loader, ctx.file._repository_args] + node_modules + ctx.files._node_runfiles)
 
     return [DefaultInfo(
         executable = ctx.outputs.script,
@@ -147,6 +126,11 @@ _NODEJS_EXECUTABLE_ATTRS = {
         zone.js before the first `describe`.
         """,
         default = []),
+    "install_source_map_support": attr.bool(
+        doc = """Install the source-map-support package.
+        Enable this to get stack traces that point to original sources, e.g. if the program was written
+        in TypeScript.""",
+        default = True),
     "data": attr.label_list(
         doc = """Runtime dependencies which may be loaded during execution.""",
         allow_files = True,
@@ -172,6 +156,9 @@ _NODEJS_EXECUTABLE_ATTRS = {
         default = Label("@nodejs//:node"),
         allow_files = True,
         single_file = True),
+    "_node_runfiles": attr.label(
+        default = Label("@nodejs//:node_runfiles"),
+        allow_files = True),
     "_repository_args": attr.label(
         default = Label("@nodejs//:bin/node_args.sh"),
         allow_files = True,

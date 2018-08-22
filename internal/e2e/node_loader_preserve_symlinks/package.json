@@ -1,0 +1,11 @@
+{
+    "description": "e2e node_loader testing dependencies",
+    "devDependencies": {},
+    "dependencies": {
+        "@gregmagolan/test-a": "0.0.1",
+        "clang-format": "1.2.2",
+        "jasmine": "3.1.0",
+        "minimist": "1.2.0",
+        "node-resolve-dep": "file:../../test/node_resolve_dep"
+    }
+}

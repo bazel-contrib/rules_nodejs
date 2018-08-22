@@ -1,0 +1,7 @@
+{
+    "version": "0.0.1",
+    "dependencies": {
+      "clang-format": "1.0.0"
+    },
+    "main": "index.js"
+}

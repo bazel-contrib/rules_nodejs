@@ -120,7 +120,7 @@ rules used in the project.</p>
 
           <h2 id="check_bazel_version">check_bazel_version</h2>
 
-          <pre>check_bazel_version(<a href="#check_bazel_version.bazel_version">bazel_version</a>)</pre>
+          <pre>check_bazel_version(<a href="#check_bazel_version.minimum_bazel_version">minimum_bazel_version</a>)</pre>
 
           <p>Verify the users Bazel version is at least the given one.</p>
 <p>This should be called from the <code>WORKSPACE</code> file so that the build fails as
@@ -139,8 +139,8 @@ check_bazel_version("0.11.0")
     <col class="col-description" />
   </colgroup>
   <tbody>
-    <tr id="check_bazel_version.bazel_version">
-      <td><code>bazel_version</code></td>
+    <tr id="check_bazel_version.minimum_bazel_version">
+      <td><code>minimum_bazel_version</code></td>
       <td>
         <p><code>Unknown; Required</code></p>
         <p>a string indicating the minimum version</p>

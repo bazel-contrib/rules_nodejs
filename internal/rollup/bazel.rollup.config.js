@@ -60,13 +60,13 @@ function resolveBazel(
     }
   }
 
+  if (DEBUG) console.error(`Rollup: resolving '${importee}' from ${importer}`);
+
   // If import is fully qualified then resolve it directly
   if (fileExists(importee)) {
     if (DEBUG) console.error(`Rollup: resolved fully qualified '${importee}'`);
     return importee;
   }
-
-  if (DEBUG) console.error(`Rollup: resolving '${importee}'`);
 
   // process.cwd() is the execroot and ends up looking something like
   // /.../2c2a834fcea131eff2d962ffe20e1c87/bazel-sandbox/872535243457386053/execroot/<workspace_name>
