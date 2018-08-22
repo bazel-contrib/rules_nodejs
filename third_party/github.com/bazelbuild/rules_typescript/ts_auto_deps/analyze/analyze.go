@@ -87,7 +87,7 @@ func New(loader TargetLoader) *Analyzer {
 // Analyze generates a dependency report for each target label in labels.
 //
 // dir is the directory that ts_auto_deps should execute in. Must be a sub-directory
-// of google3.
+// of the workspace root.
 func (a *Analyzer) Analyze(ctx context.Context, dir string, labels []string) ([]*arpb.DependencyReport, error) {
 	if len(labels) == 0 {
 		return nil, nil

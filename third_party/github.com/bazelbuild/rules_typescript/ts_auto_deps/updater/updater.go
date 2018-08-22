@@ -166,7 +166,6 @@ func spin(prefix string) chan<- struct{} {
 }
 
 // isatty reports whether fd is a tty.
-// Stolen from google3/devtools/buildifier/diff.go
 func isatty(fd int) bool {
 	var st syscall.Stat_t
 	err := syscall.Fstat(fd, &st)
@@ -187,7 +186,7 @@ func readBUILD(ctx context.Context, workspaceRoot, buildFilePath string) (*build
 	}
 	g3Path, err := filepath.Rel(workspaceRoot, absPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to resolve google3 relative path: %s", err)
+		return nil, fmt.Errorf("failed to resolve workspace relative path: %s", err)
 	}
 	data, err := platform.ReadFile(ctx, buildFilePath)
 	if err != nil {
@@ -774,7 +773,7 @@ func updateWebAssets(ctx context.Context, buildFilePath string, bld *build.File)
 	// creates new rules, this just distributes assets across them.
 	changed := false
 	// This must use buildFilePath, the absolute path to the directory, as our cwd
-	// might not be the google3/ root.
+	// might not be the workspace root.
 	absolutePkgPath := filepath.Dir(buildFilePath)
 	assetFiles, err := globSources(ctx, absolutePkgPath, []string{"html", "css"})
 	if err != nil {
@@ -926,9 +925,9 @@ func FilterPaths(paths []string) []string {
 }
 
 // ResolvePackages resolves package paths, i.e. paths starting with '//',
-// against the google3 folder closest to the current working directory.
+// against the workspace root folder closest to the current working directory.
 // It updates paths in place.
-// It returns an error if it cannot find a google3 root or working directory.
+// It returns an error if it cannot find a workspace root or working directory.
 func ResolvePackages(paths []string) error {
 	for i, p := range paths {
 		if strings.HasPrefix(p, "//") {
@@ -938,7 +937,7 @@ func ResolvePackages(paths []string) error {
 			}
 			g3root, err := workspace.Root(wd)
 			if err != nil {
-				return fmt.Errorf("failed to find google3 root under %q: %v", wd, err)
+				return fmt.Errorf("failed to find workspace root under %q: %v", wd, err)
 			}
 			paths[i] = filepath.Join(g3root, p)
 		}
@@ -949,21 +948,21 @@ func ResolvePackages(paths []string) error {
 // FindBUILDFile searches for the closest parent BUILD file above pkg. It
 // returns the parsed BUILD file, or an error if none can be found.
 func FindBUILDFile(ctx context.Context, pkgToBUILD map[string]*build.File,
-	google3Root string, packagePath string) (*build.File, error) {
+	workspaceRoot string, packagePath string) (*build.File, error) {
 	if packagePath == "." || packagePath == "/" {
 		return nil, fmt.Errorf("no ancestor BUILD file found")
 	}
 	if bld, ok := pkgToBUILD[packagePath]; ok {
 		return bld, nil
 	}
-	buildPath := filepath.Join(google3Root, packagePath, "BUILD")
+	buildPath := filepath.Join(workspaceRoot, packagePath, "BUILD")
 	_, err := platform.Stat(ctx, buildPath)
 	var bld *build.File
 	if err == nil {
-		bld, err = readBUILD(ctx, google3Root, buildPath)
+		bld, err = readBUILD(ctx, workspaceRoot, buildPath)
 	} else if os.IsNotExist(err) {
 		// Recursively search parent package and cache its location below if found.
-		bld, err = FindBUILDFile(ctx, pkgToBUILD, google3Root, filepath.Dir(packagePath))
+		bld, err = FindBUILDFile(ctx, pkgToBUILD, workspaceRoot, filepath.Dir(packagePath))
 	} else {
 		return nil, err
 	}
