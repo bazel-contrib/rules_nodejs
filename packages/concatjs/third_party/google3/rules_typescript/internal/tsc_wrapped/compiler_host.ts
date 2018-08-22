@@ -21,6 +21,7 @@ export interface BazelTsOptions extends ts.CompilerOptions {
   rootDirs: string[];
   rootDir: string;
   outDir: string;
+  typeRoots: string[];
 }
 
 export function narrowTsOptions(options: ts.CompilerOptions): BazelTsOptions {
@@ -340,6 +341,64 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
     // path/to/file ->
     // myWorkspace/path/to/file
     return path.posix.join(workspace, fileName);
+  }
+
+  // Resolves the typings file from a package at the specified path.
+  // Helper function to `resolveTypeReferenceDirectives`.
+  private resolveTypingFromDirectory(typePath: string, primary: boolean): ts.ResolvedTypeReferenceDirective | undefined {
+    // Looks for the `typings` attribute in a package.json file
+    // if it exists
+    const pkgFile = path.posix.join(typePath, 'package.json');
+    if (this.fileExists(pkgFile)) {
+      const pkg = JSON.parse(fs.readFileSync(pkgFile, 'UTF-8'));
+      let typings = pkg['typings'];
+      if (typings) {
+        if (typings === '.' || typings === './') {
+          typings = 'index.d.ts';
+        }
+        const maybe = path.posix.join(typePath, typings);
+        if (this.fileExists(maybe)) {
+          return { primary, resolvedFileName: maybe };
+        }
+      }
+    }
+
+    // Look for an index.d.ts file in the path
+    const maybe = path.posix.join(typePath, 'index.d.ts');
+    if (this.fileExists(maybe)) {
+      return { primary, resolvedFileName: maybe };
+    }
+
+    return undefined;
+  }
+
+  // Override the default typescript resolveTypeReferenceDirectives function.
+  // Resolves /// <reference types="x" /> directives under bazel.
+  // The default typescript secondary search behavior needs to be overridden
+  // to support looking under `bazelOpts.nodeModulesPrefix`
+  resolveTypeReferenceDirectives(names: string[], containingFile: string): (ts.ResolvedTypeReferenceDirective | undefined)[] {
+    let result: (ts.ResolvedTypeReferenceDirective | undefined)[] = []
+    names.forEach(name => {
+      let resolved: ts.ResolvedTypeReferenceDirective | undefined;
+
+      // primary search
+      this.options.typeRoots.forEach(typeRoot => {
+        if (!resolved) {
+          resolved = this.resolveTypingFromDirectory(path.posix.join(typeRoot, name), true);
+        }
+      });
+
+      // secondary search
+      if (!resolved) {
+        resolved = this.resolveTypingFromDirectory(path.posix.join(this.bazelOpts.nodeModulesPrefix, name), false);
+      }
+
+      if (!resolved) {
+        console.error(`Failed to resolve type reference directive '${name}'`);
+      }
+      result.push(resolved);
+    });
+    return result;
   }
 
   /** Loads a source file from disk (or the cache). */

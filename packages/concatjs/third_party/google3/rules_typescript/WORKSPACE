@@ -32,6 +32,13 @@ yarn_install(
     yarn_lock = "//examples/bazel_managed_deps:yarn.lock",
 )
 
+# Deps for the //internal/e2e/reference_types_directive test
+yarn_install(
+    name = "build_bazel_rules_typescript_internal_reference_types_directive_deps",
+    package_json = "//internal/e2e/reference_types_directive:package.json",
+    yarn_lock = "//internal/e2e/reference_types_directive:yarn.lock",
+)
+
 # Install a hermetic version of node.
 # After this is run, these labels will be available:
 # - NodeJS:
