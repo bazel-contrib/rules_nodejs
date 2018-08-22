@@ -43,7 +43,9 @@ filegroup(
             # e.g. node_modules/xpath/docs/function resolvers.md
             "node_modules/**/docs/**",
             # e.g. node_modules/puppeteer/.local-chromium/mac-536395/chrome-mac/Chromium.app/Contents/Versions/66.0.3347.0/Chromium Framework.framework/Chromium Framework
-            "node_modules/**/.*/**"
+            "node_modules/**/.*/**",
+            # e.g. node_modules/file-saver/demo 10.23.13/demo.css
+            "node_modules/**/* */**",
         ],
     ) + glob(["node_modules/.bin/*"]),
 )
