@@ -25,8 +25,9 @@ _ROLLUP_MODULE_MAPPINGS_ATTR = "rollup_module_mappings"
 def _rollup_module_mappings_aspect_impl(target, ctx):
   mappings = get_module_mappings(target.label, ctx.rule.attr)
 
-  for dep in ctx.rule.attr.deps:
-    mappings.update(dep.rollup_module_mappings)
+  if hasattr(ctx.rule.attr, "deps"):
+    for dep in ctx.rule.attr.deps:
+        mappings.update(dep.rollup_module_mappings)
 
   return struct(rollup_module_mappings = mappings)
 
