@@ -139,34 +139,48 @@ function runOneBuild(
     console.error(diagnostics.format(bazelOpts.target, diags));
     return false;
   }
-
+  const toEmit = program.getSourceFiles().filter(isCompilationTarget);
   const emitResults: ts.EmitResult[] = [];
   const afterTransforms = [fixUmdModuleDeclarations(
       (sf: ts.SourceFile) => compilerHost.amdModuleName(sf))];
-  for (const sf of program.getSourceFiles().filter(isCompilationTarget)) {
-    if (bazelOpts.tsickle) {
-      emitResults.push(tsickle.emitWithTsickle(
+
+  if (bazelOpts.tsickle) {
+    // The 'tsickle' import above is only used in type positions, so it won't
+    // result in a runtime dependency on tsickle.
+    // If the user requests the tsickle emit, then we dynamically require it
+    // here for use at runtime.
+    let optTsickle: typeof tsickle;
+    try {
+      // tslint:disable-next-line:no-require-imports dependency on tsickle only
+      // if requested
+      optTsickle = require('tsickle');
+    } catch {
+      throw new Error(
+          'When setting bazelOpts { tsickle: true }, ' +
+          'you must also add a devDependency on the tsickle npm package');
+    }
+    for (const sf of toEmit) {
+      emitResults.push(optTsickle.emitWithTsickle(
           program, compilerHost, compilerHost, options, sf,
           /*writeFile*/ undefined,
           /*cancellationToken*/ undefined, /*emitOnlyDtsFiles*/ undefined,
           {afterTs: afterTransforms}));
-    } else {
+    }
+    diags.push(
+        ...optTsickle.mergeEmitResults(emitResults as tsickle.EmitResult[])
+            .diagnostics);
+  } else {
+    for (const sf of toEmit) {
       emitResults.push(program.emit(
           sf, /*writeFile*/ undefined,
           /*cancellationToken*/ undefined, /*emitOnlyDtsFiles*/ undefined,
           {after: afterTransforms}));
     }
-  }
 
-  if (bazelOpts.tsickle) {
-    diags.push(...tsickle.mergeEmitResults(emitResults as tsickle.EmitResult[])
-                   .diagnostics);
-  } else {
     for (const d of emitResults) {
       diags.push(...d.diagnostics);
     }
   }
-
   if (diags.length > 0) {
     console.error(diagnostics.format(bazelOpts.target, diags));
     return false;
