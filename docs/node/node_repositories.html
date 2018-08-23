@@ -233,14 +233,14 @@ If you use bazel-managed dependencies, you can omit this attribute.</p>
     <tr id="node_repositories.preserve_symlinks">
       <td><code>preserve_symlinks</code></td>
       <td>
-        <p><code>Boolean; Optional; Default is False</code></p>
+        <p><code>Boolean; Optional; Default is True</code></p>
         <p>Turn on --node_options=--preserve-symlinks for nodejs_binary and nodejs_test rules.
-The default for this is currently False but will be switched to True in the future. When this option is
-turned on, node will preserve the symlinked path for resolves instead of the default behavior of resolving
-to the real path. This means that all required files must be in be included in your runfiles as it
-prevents the default behavior of potentially resolving outside of the runfiles. For example, all required
-files need to be included in your node_modules filegroup. This option is desirable as it gives a stronger
-guarantee of hermiticity which is required for remote execution.</p>
+The default for this is currently True but the options is deprecated and will be removed in the future.
+When this option is turned on, node will preserve the symlinked path for resolves instead of the default
+behavior of resolving to the real path. This means that all required files must be in be included in your
+runfiles as it prevents the default behavior of potentially resolving outside of the runfiles. For example,
+all required files need to be included in your node_modules filegroup. This option is desirable as it gives
+a stronger guarantee of hermiticity which is required for remote execution.</p>
       </td>
     </tr>
   </tbody>
