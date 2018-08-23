@@ -13,7 +13,6 @@
     },
     "dependencies": {
         "protobufjs": "5.0.0",
-        "tsickle": "0.32.1",
         "tsutils": "2.20.0"
     },
     "devDependencies": {
@@ -28,6 +27,7 @@
         "http-server": "^0.11.1",
         "protractor": "^5.2.0",
         "shelljs": "^0.8.2",
+        "tsickle": "0.32.1",
         "typescript": "2.7.x"
     },
     "scripts": {
