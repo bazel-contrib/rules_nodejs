@@ -14,7 +14,22 @@ See $(bazel info output_base)/external/build_bazel_rules_nodejs/internal/npm_ins
 package(default_visibility = ["//visibility:public"])
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+
 `;
+
+const allFilegroup = `
+# Re-export the entire node_modules directory in one catch-all rule.
+# NB. this has bad performance implications if there are many files.
+filegroup(
+    name = "node_modules",
+    srcs = glob(
+        include = ["node_modules/**/*"],
+        # Files with spaces in the name are not legal Bazel labels
+        exclude = ["node_modules/**/* *"],
+    ),
+)
+
+`
 
 
 if (require.main === module) {
@@ -53,10 +68,11 @@ function main(lockfilePath, write) {
   // Iterate all the modules and merge the information from yarn into the module
   modules.forEach(module => mergePackageJsonWithYarnEntry(entries, module));
 
-  modules.forEach(
-      module => write(`node_modules/${module.name}/BUILD.bazel`, printNodeModule(module)));
+  modules.forEach(module => flattenDependencies(module, module, modules));
 
-  write('BUILD.bazel', printNodeModuleAll(modules));
+  let buildFile = generatedHeader + allFilegroup;
+  modules.forEach(module => buildFile += printNodeModule(module));
+  write('BUILD.bazel', buildFile);
 }
 
 module.exports = {main};
@@ -68,6 +84,23 @@ function isPackage(p, s, f) {
     fs.statSync(path.join(dir, 'package.json')).isFile()
 }
 
+function flattenDependencies(module, dep, modules) {
+  if (module._dependencies.indexOf(dep.name) !== -1) {
+    // circular dependency
+    return;
+  }
+  module._dependencies.push(dep.name);
+  Object.keys(dep.dependencies || {})
+    .map(d => {
+      const matching = modules.filter(m => m.name == d);
+      if (!matching.length) {
+        throw new Error(`Could not find dep ${d} of ${dep.name}`)
+      }
+      return matching[0];
+    })
+    .map(d => flattenDependencies(module, d, modules))
+}
+
 /**
  * Given a list of yarn entries and a target module, find an exact match by name
  * and version.
@@ -75,7 +108,16 @@ function isPackage(p, s, f) {
 function findMatchingYarnEntryByNameAndVersion(entries, module) {
   for (let i = 0; i < entries.length; i++) {
     const entry = entries[i];
-    if (entry.name === module.name && entry.version === module.version) {
+    // The package.json file version (module.version) may contain a 'v' prefix while
+    // yarn entry file version (entry.version) will not.
+    //
+    // In most cases module._dir will be the same as module.name (which comes
+    // from the package's package.json) but in cases where the package.json entry
+    // is "foo": "file:./bar" or "foo": "npm:bar@x.x.x" then module.name will not
+    // match the directory in node_modules. In these cases, the yarn.lock name will
+    // match the module's node_modules directory name. Thus, we always compare the
+    // yarn.lock name to the module's directory name.
+    if (entry.name == module._dir && (entry.version === module.version || `v${entry.version}` === module.version)) {
       return entry;
     }
   }
@@ -90,12 +132,9 @@ function findMatchingYarnEntryByNameAndVersion(entries, module) {
 function mergePackageJsonWithYarnEntry(entries, module) {
   const entry = findMatchingYarnEntryByNameAndVersion(entries, module);
   if (!entry) {
-    throw new Error("No matching node_module found for " + module.name);
+    throw new Error(`No matching yarn entry found for ${module._dir}@${module.version}`);
   }
 
-  // Use the bazelified name as the module name
-  module.original_name = module.name
-  module.name = entry.name
   // Store everything else here
   module.yarn = entry;
 }
@@ -160,24 +199,14 @@ function printJson(entry) {
  * Given a module, print a skylark `node_module` rule.
  */
 function printNodeModule(module) {
-  const deps = module.dependencies || {};
   const filegroup = `
-# Generated target for npm package "${module.name}"
+# Generated target for npm package "${module._dir}"
 ${printJson(module)}
 filegroup(
-    name = "${module.name.split('/').pop()}_contents",
-    srcs = glob(
-        include = ["**/*"],
-        # Files with spaces in the name are not legal Bazel labels
-        exclude = ["**/* *"],
-    ) + [
-        ${
-      Object
-          .keys(deps)
-          // HMM, assumes the dep was hoisted to the root.
-          // It happens to work because we'll naturally get our nested deps
-          // in the glob above.
-          .map(d => `"//:${d}",`)
+    name = "${module._dir}",
+    srcs = [
+        ${module._dependencies
+          .map(d => `":${d}__files",`)
           .join('\n        ')}
     ],
     # Probably we should have a node_modules rule that acts like filegroup
@@ -186,49 +215,38 @@ filegroup(
     # Quicky version for prototyping:
     tags = ["HACKY_MARKER_IS_NODE_MODULE"],
 )
+
+filegroup(
+    name = "${module._dir}__files",
+    srcs = glob(
+        include = ["node_modules/${module._dir}/**/*"],
+        # Files with spaces in the name are not legal Bazel labels
+        exclude = ["node_modules/${module._dir}/**/* *"],
+    ),
+    # Probably we should have a node_modules rule that acts like filegroup
+    # but also exposes a Provider so we know they are in the deps and can
+    # find them.
+    # Quicky version for prototyping:
+    tags = ["HACKY_MARKER_IS_NODE_MODULE"],
+)
+
 `;
 
   const binaries = [];
   if (module.executables) {
     for (const [name, path] of module.executables.entries()) {
-      binaries.push(`# Wire up the \`bin\` entry ${name}
+      binaries.push(`# Wire up the \`bin\` entry \`${name}\`
 nodejs_binary(
-    name = "${name}",
-    entry_point = "${module.name}/${path}",
-    data = [":${module.name.split('/').pop()}_contents"],
+    name = "${module._dir}/${name}",
+    entry_point = "${module._dir}/${path}",
+    data = [":${module._dir}__tree"],
 )
+
 `);
     }
   }
 
-  return generatedHeader + filegroup + binaries.join('\n');
-}
-
-/**
- * Print a top-level build file that defines the @my_deps// package.
- */
-function printNodeModuleAll(modules) {
-  const moduleNames = modules.map(m => m.yarn ? m.yarn.label : m.name);
-  return `${generatedHeader}
-
-${
-      moduleNames
-          .map(m => `
-# Alias the top-level ${m} package to the versioned one inside the package.
-alias(
-    name = "${m}",
-    actual = "//node_modules/${m}:${m.split('/').pop()}_contents",
-)`).join('\n')}
-
-# Re-export the entire node_modules directory in one catch-all rule.
-# NB. this has bad performance implications if there are many files.
-filegroup(
-    name = "node_modules",
-    srcs = [
-      ${moduleNames.map(s => `":${s}"`)}
-    ],
-)
-`;
+  return filegroup + binaries.join('\n');
 }
 
 /**
@@ -237,6 +255,8 @@ filegroup(
  */
 function parseNodeModulePackageJson(name) {
   const module = JSON.parse(fs.readFileSync(`node_modules/${name}/package.json`));
+  module._dir = name;
+  module._dependencies = [];
 
   // Take this opportunity to cleanup the module.bin entries
   // into a new Map called 'executables'

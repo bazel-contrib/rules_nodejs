@@ -54,7 +54,7 @@ def _write_loader_script(ctx):
     fail("""
          Due to a breaking change in rules_nodejs, target %s
          must now declare either an explicit node_modules attribute, or
-         list explicit deps[] on npm labels.
+         list explicit deps[] or data[] dependencies on npm labels.
 
          See http://FIXME""" % ctx.label)
   ctx.actions.expand_template(
@@ -134,7 +134,6 @@ def _collect_node_modules_aspect_impl(target, ctx):
 
   if hasattr(ctx.rule.attr, "tags") and "HACKY_MARKER_IS_NODE_MODULE" in ctx.rule.attr.tags:
       nm_wksp = target.label.workspace_root.split("/")[1] if target.label.workspace_root else ctx.workspace_name
-      print(nm_wksp)
       return [NodeModule(workspace = nm_wksp)]
 
   return []
