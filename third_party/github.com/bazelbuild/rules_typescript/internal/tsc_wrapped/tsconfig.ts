@@ -212,10 +212,6 @@ function warnOnOverriddenOptions(userConfig: any) {
       overrideWarnings.push(
           'compilerOptions.traceResolution and compilerOptions.diagnostics are set by the DEBUG flag in tsconfig.bzl under rules_typescript');
     }
-    if (options.rootDirs) {
-      overrideWarnings.push(
-          'compilerOptions.rootDirs is always set to the workspace, bazel-bin, and bazel-genfiles');
-    }
     if (options.rootDir || options.baseUrl) {
       overrideWarnings.push(
           'compilerOptions.rootDir and compilerOptions.baseUrl are always the workspace root directory');
