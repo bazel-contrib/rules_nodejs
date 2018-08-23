@@ -3,6 +3,11 @@ var amd_plugin = require('@babel/plugin-transform-modules-amd')
 module.exports = {
   'moduleIds': true,
   getModuleId(name) {
+    const moduleName = 'TMPL_module_name';
+    if (moduleName) {
+      return moduleName;
+    }
+
     const path = require("path");
     const process = require("process");
     const binDirPath = 'TMPL_bin_dir_path';

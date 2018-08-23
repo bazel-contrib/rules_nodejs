@@ -8,6 +8,8 @@ exports_files(["babel.rc.js"])
 
 nodejs_binary(
     name = "babel",
-    entry_point = "build_bazel_rules_nodejs_js_library_deps/node_modules/@babel/cli/bin/babel",
+    entry_point = "build_bazel_rules_nodejs/internal/js_library/v2/babel.js",
+    data = ["babel.js"],
     node_modules = "@build_bazel_rules_nodejs_js_library_deps//:node_modules",
+    install_source_map_support = False,
 )

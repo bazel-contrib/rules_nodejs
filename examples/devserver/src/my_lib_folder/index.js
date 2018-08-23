@@ -1,1 +1,1 @@
-export default fum = 'bazel module';
+export default 'bazel module';

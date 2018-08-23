@@ -24,6 +24,10 @@ _ROLLUP_MODULE_MAPPINGS_ATTR = "rollup_module_mappings"
 
 def _rollup_module_mappings_aspect_impl(target, ctx):
   mappings = get_module_mappings(target.label, ctx.rule.attr)
+
+  for dep in ctx.rule.attr.deps:
+    mappings.update(dep.rollup_module_mappings)
+
   return struct(rollup_module_mappings = mappings)
 
 rollup_module_mappings_aspect = aspect(
@@ -61,7 +65,7 @@ def write_rollup_config(ctx, plugins=[], root_dir=None, filename="_%s.rollup.con
           fail(("duplicate module mapping at %s: %s maps to both %s and %s" %
                 (dep.label, k, mappings[k], v)), "deps")
         mappings[k] = v
-
+  
   if not root_dir:
     root_dir = "/".join([ctx.bin_dir.path, build_file_dirname, ctx.label.name + ".es6"])
 
