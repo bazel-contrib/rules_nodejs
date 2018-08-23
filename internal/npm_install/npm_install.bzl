@@ -25,7 +25,12 @@ load("//internal/node:node_labels.bzl", "get_node_label", "get_npm_label", "get_
 load("//internal/common:os_name.bzl", "os_name")
 
 def _create_build_file(repository_ctx):
-  repository_ctx.file("BUILD", """
+  if repository_ctx.attr.node_modules_filegroup:
+    repository_ctx.file("BUILD", """
+package(default_visibility = ["//visibility:public"])
+""" + repository_ctx.attr.node_modules_filegroup)
+  else:
+    repository_ctx.file("BUILD", """
 package(default_visibility = ["//visibility:public"])
 filegroup(
     name = "node_modules",
@@ -61,21 +66,27 @@ def _npm_install_impl(repository_ctx):
   is_windows = os_name(repository_ctx).find("windows") != -1
   node = get_node_label(repository_ctx)
   npm = get_npm_label(repository_ctx)
+  npm_args = ["install"]
+
+  if repository_ctx.attr.prod_only:
+    npm_args.append("--production")
 
   # The entry points for npm install for osx/linux and windows
   if not is_windows:
     repository_ctx.file("npm", content="""#!/bin/bash
-(cd "{root}"; "{npm}" install)
+(cd "{root}"; "{npm}" {npm_args})
 """.format(
     root = repository_ctx.path(""),
-    npm = repository_ctx.path(npm)),
+    npm = repository_ctx.path(npm),
+    npm_args = " ".join(npm_args)),
     executable = True)
   else:
     repository_ctx.file("npm.cmd", content="""@echo off
-cd "{root}" && "{npm}" install
+cd "{root}" && "{npm}" {npm_args}
 """.format(
     root = repository_ctx.path(""),
-    node = repository_ctx.path(npm)),
+    npm = repository_ctx.path(npm),
+    npm_args = " ".join(npm_args)),
     executable = True)
 
   # Put our package descriptors in the right place.
@@ -121,7 +132,18 @@ npm_install = repository_rule(
             allow_files = True,
             single_file = True,
         ),
+        "prod_only": attr.bool(
+            default = False,
+            doc = "Don't install devDependencies",
+        ),
         "data": attr.label_list(),
+        "node_modules_filegroup": attr.string(
+            doc = """Experimental attribute that can be used to work-around
+            a bazel performance issue if the default node_modules filegroup
+            has too many files in it. Use it to define the node_modules
+            filegroup used by this rule such as
+            "filegroup(name = "node_modules", srcs = glob([...]))". See
+            https://github.com/bazelbuild/bazel/issues/5153."""),
     },
     implementation = _npm_install_impl,
 )
@@ -149,12 +171,18 @@ def _yarn_install_impl(repository_ctx):
   # A local cache is used as multiple yarn rules cannot run simultaneously using a shared
   # cache and a shared cache is non-hermetic.
   # To see the output, pass: quiet=False
-  result = repository_ctx.execute([
+  args = [
     repository_ctx.path(yarn),
     "--cache-folder",
     repository_ctx.path("_yarn_cache"),
     "--cwd",
-    repository_ctx.path("")])
+    repository_ctx.path(""),
+  ]
+
+  if repository_ctx.attr.prod_only:
+    args.append("--prod")
+
+  result = repository_ctx.execute(args)
 
   if result.return_code:
     fail("yarn_install failed: %s (%s)" % (result.stdout, result.stderr))
@@ -171,7 +199,18 @@ yarn_install = repository_rule(
             mandatory = True,
             single_file = True,
         ),
+        "prod_only": attr.bool(
+            default = False,
+            doc = "Don't install devDependencies",
+        ),
         "data": attr.label_list(),
+        "node_modules_filegroup": attr.string(
+            doc = """Experimental attribute that can be used to work-around
+            a bazel performance issue if the default node_modules filegroup
+            has too many files in it. Use it to define the node_modules
+            filegroup used by this rule such as
+            "filegroup(name = "node_modules", srcs = glob([...]))". See
+            https://github.com/bazelbuild/bazel/issues/5153."""),
     },
     implementation = _yarn_install_impl,
 )

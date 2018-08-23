@@ -28,8 +28,11 @@ containing:
 git_repository(
     name = "build_bazel_rules_nodejs",
     remote = "https://github.com/bazelbuild/rules_nodejs.git",
-    tag = "0.10.0", # check for the latest tag when you install
+    tag = "0.11.3", # check for the latest tag when you install
 )
+
+load("@build_bazel_rules_nodejs//:package.bzl", "rules_nodejs_dependencies")
+rules_nodejs_dependencies()
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
 ```
@@ -375,5 +378,6 @@ Check if there are any breaking changes since the last tag - if so, this will be
 
 1. Re-generate the API docs: `yarn skydoc`
 1. `git commit -a -m 'Update docs for release'`
-1. Write some brief release notes (manual for now): `git tag -a 0.x.y`
+1. `npm config set tag-version-prefix ''`
+1. `npm version minor -m 'rel: %s'` (replace `minor` with `patch` if no breaking changes)
 1. `git push && git push --tags`

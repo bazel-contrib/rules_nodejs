@@ -143,7 +143,7 @@ to point to those before calling node_repositories.</li>
 <li>Install dependencies using npm: <code>bazel run @nodejs//:npm install</code></li>
 <li>Install dependencies using yarn: <code>bazel run @nodejs//:yarn</code></li>
 </ul>
-<p>This rule also exposes the <code>@yarn</code> workspace for backwards compatabilty:</p>
+<p>This rule also exposes the <code>@yarn</code> workspace for backwards compatibility:</p>
 <ul>
 <li>Alternately install dependencies using yarn: <code>bazel run @yarn//:yarn</code></li>
 </ul>
@@ -167,8 +167,11 @@ node_repositories(package_json = ["//:package.json", "//subpkg:package.json"])
     <tr id="node_repositories.package_json">
       <td><code>package_json</code></td>
       <td>
-        <p><code>Unknown; Required</code></p>
-        <p>a list of labels, which indicate the package.json files that need to be installed.</p>
+        <p><code>List of strings; Optional</code></p>
+        <p>a list of labels, which indicate the package.json files that will be installed
+when you manually run the package manager, e.g. with
+<code>bazel run @nodejs//:yarn</code> or <code>bazel run @nodejs//:npm install</code>.
+If you use bazel-managed dependencies, you can omit this attribute.</p>
       </td>
     </tr>
     <tr id="node_repositories.node_version">
