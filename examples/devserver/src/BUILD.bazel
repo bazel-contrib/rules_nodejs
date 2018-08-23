@@ -20,8 +20,8 @@ js_library(
 ts_devserver(
     name = "devserver",
     entry_module = "./src/test",
-    serving_path = "/bundle.min.js",
     port = 8080,
+    serving_path = "/bundle.min.js",
     deps = [
         ":test",
     ],

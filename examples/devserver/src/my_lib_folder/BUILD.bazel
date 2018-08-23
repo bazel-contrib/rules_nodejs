@@ -2,7 +2,7 @@ load("@build_bazel_rules_nodejs//internal/js_library/v2:js_library.bzl", "js_lib
 
 js_library(
     name = "my_lib",
-    module_name = "my-lib",
     srcs = ["index.js"],
+    module_name = "my-lib",
     visibility = ["//src:__subpackages__"],
 )
