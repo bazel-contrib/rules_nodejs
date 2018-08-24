@@ -66,7 +66,7 @@ def write_rollup_config(ctx, plugins=[], root_dir=None, filename="_%s.rollup.con
           fail(("duplicate module mapping at %s: %s maps to both %s and %s" %
                 (dep.label, k, mappings[k], v)), "deps")
         mappings[k] = v
-  
+
   if not root_dir:
     root_dir = "/".join([ctx.bin_dir.path, build_file_dirname, ctx.label.name + ".es6"])
 
