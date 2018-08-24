@@ -3,9 +3,9 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 go_library(
     name = "go_default_library",
     srcs = [
+        "analyze.go",
         "imports.go",
         "loader.go",
-        "query.go",
     ],
     importpath = "github.com/bazelbuild/rules_typescript/ts_auto_deps/analyze",
     visibility = ["//visibility:public"],
@@ -22,8 +22,9 @@ go_library(
 go_test(
     name = "go_default_test",
     srcs = [
+        "analyze_test.go",
         "imports_test.go",
-        "query_test.go",
+        "loader_test.go",
     ],
     embed = [":go_default_library"],
     deps = [
