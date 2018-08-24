@@ -128,20 +128,25 @@ function flattenDependencies(module, dep, modules) {
     return;
   }
   module._dependencies.push(dep._dir);
-  Object.keys(dep.dependencies || {})
-    .map(d => {
-      let matching = modules.filter(m => m._dir == `${dep._rootDir}/node_modules/${d}`);
-      if (matching.length) {
-        // nested dep
+  const processDeps = function(deps) {
+    Object.keys(deps || {})
+      .map(d => {
+        let matching = modules.filter(m => m._dir == `${dep._rootDir}/node_modules/${d}`);
+        if (matching.length) {
+          // nested dep
+          return matching[0];
+        }
+        matching = modules.filter(m => m._dir == d);
+        if (!matching.length) {
+          throw new Error(`Could not find dep ${d} of ${dep._dir}`)
+        }
         return matching[0];
-      }
-      matching = modules.filter(m => m._dir == d);
-      if (!matching.length) {
-        throw new Error(`Could not find dep ${d} of ${dep._dir}`)
-      }
-      return matching[0];
-    })
-    .map(d => flattenDependencies(module, d, modules))
+      })
+      .map(d => flattenDependencies(module, d, modules))
+  }
+  processDeps(dep.dependencies);
+  processDeps(dep.optionalDependencies);
+  processDeps(dep.peerDependencies);
 }
 
 /**
@@ -289,7 +294,7 @@ filegroup(
 nodejs_binary(
     name = "${module._dir}/${name}",
     entry_point = "${module._dir}/${path}",
-    data = [":${module._dir}__tree"],
+    data = [":${module._dir}"],
 )
 
 `);
