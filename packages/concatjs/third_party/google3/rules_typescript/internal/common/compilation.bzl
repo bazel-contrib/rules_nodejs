@@ -79,6 +79,7 @@ def _collect_dep_declarations(ctx, deps):
 
     Args:
       ctx: ctx.
+      deps: dependent targets, generally ctx.attr.deps
 
     Returns:
       A struct of depsets for direct, transitive and type-blacklisted declarations.
