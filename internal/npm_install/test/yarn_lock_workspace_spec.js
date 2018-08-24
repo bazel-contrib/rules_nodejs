@@ -1,4 +1,4 @@
-const parser = require('../parse_yarn_lock');
+const parser = require('../generate_build_file');
 const fs = require('fs');
 
 describe('lock file marshaler', () => {

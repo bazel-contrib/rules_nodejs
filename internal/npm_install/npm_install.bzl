@@ -33,9 +33,9 @@ def _create_build_file(repository_ctx):
       sha256 = "472add7ad141c75811f93dca421e2b7456045504afacec814b0565f092156250",
       stripPrefix = "package",
   )
-  repository_ctx.template("internal/parse_yarn_lock.js",
-      repository_ctx.path(repository_ctx.attr._parse_yarn_lock_js), {})
-  result = repository_ctx.execute([node, "internal/parse_yarn_lock.js"])
+  repository_ctx.template("internal/generate_build_file.js",
+      repository_ctx.path(repository_ctx.attr._generate_build_file_js), {})
+  result = repository_ctx.execute([node, "internal/generate_build_file.js"])
   if result.return_code:
     fail("node failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
 
@@ -50,8 +50,6 @@ def _add_data_dependencies(repository_ctx):
 
 def _npm_install_impl(repository_ctx):
   """Core implementation of npm_install."""
-
-  _create_build_file(repository_ctx)
 
   is_windows = os_name(repository_ctx).find("windows") != -1
   node = get_node_label(repository_ctx)
@@ -110,6 +108,8 @@ cd "{root}" && "{npm}" {npm_args}
 
   if result.return_code:
     fail("remove_npm_absolute_paths failed: %s (%s)" % (result.stdout, result.stderr))
+
+  _create_build_file(repository_ctx)
 
 npm_install = repository_rule(
     attrs = {
@@ -201,9 +201,9 @@ yarn_install = repository_rule(
             filegroup used by this rule such as
             "filegroup(name = "node_modules", srcs = glob([...]))". See
             https://github.com/bazelbuild/bazel/issues/5153."""),
-        "_parse_yarn_lock_js": attr.label(
+        "_generate_build_file_js": attr.label(
             allow_single_file = True,
-            default = Label("//internal/npm_install:parse_yarn_lock.js"),
+            default = Label("//internal/npm_install:generate_build_file.js"),
         ),
     },
     implementation = _yarn_install_impl,

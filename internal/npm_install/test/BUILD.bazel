@@ -8,7 +8,7 @@ filegroup(
 jasmine_node_test(
     name = "test",
     srcs = glob(["*.js"]),
-    deps = ["//internal/npm_install:parse_yarn_lock"],
+    deps = ["//internal/npm_install:generate_build_file"],
     data = [
         ":node_modules",
         ":yarn.lock",

@@ -11,7 +11,7 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "yarn_install"
 node_repositories()
 # END BORING BOILERPLATE
 
-# This runs yarn install, then our parse_yarn_lock.js to create BUILD files
+# This runs yarn install, then our generate_build_file.js to create BUILD files
 # inside the resulting node_modules directory.
 # The name "npm" here means the resulting modules are referenced like
 # @npm//:jasmine

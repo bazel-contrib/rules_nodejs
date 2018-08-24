@@ -7,7 +7,7 @@ const path = require('path');
 const DEBUG = console.error;
 
 const generatedHeader = `"""Generated file from yarn_install rule.
-See $(bazel info output_base)/external/build_bazel_rules_nodejs/internal/npm_install/parse_yarn_lock.js
+See $(bazel info output_base)/external/build_bazel_rules_nodejs/internal/npm_install/generate_build_file.js
 """
 
 # All rules in other repositories can use these targets
@@ -29,72 +29,115 @@ filegroup(
     ),
 )
 
+# Re-export the entire node_modules directory in one catch-all rule.
+# NB. this has bad performance implications if there are many files.
+filegroup(
+    name = "node_modules_trimmed",
+    srcs = glob(
+        include = [
+          "node_modules/**/*.js",
+          "node_modules/**/*.d.ts",
+          "node_modules/**/*.json",
+        ],
+        # Files with spaces in the name are not legal Bazel labels
+        exclude = ["node_modules/**/* *"],
+    ),
+)
+
+filegroup(
+    name = "node_modules_none",
+    srcs = [],
+)
 `
 
 
 if (require.main === module) {
-  main('yarn.lock', fs.writeFileSync);
+  main();
 }
 
 /**
  * Main entrypoint.
- * Given a lockfile, write BUILD files in the appropriate directories under node_modules.
+ * Write BUILD file.
  */
-function main(lockfilePath, write) {
-  // Read the yarn.lock file and parse it.
-  let yarn = lockfile.parse(fs.readFileSync(lockfilePath, {encoding: 'utf8'}));
-
-  if (yarn.type !== 'success') {
-    throw new Error('Lockfile parse failed: ' + JSON.stringify(yarn, null, 2));
-  }
-
-  // Foreach entry in the lockfile, create an entry object.  We'll
-  // supplement/merge this with information from the package.json file
-  // in a moment...
-  const entries = Object.keys(yarn.object).map(key => makeYarnEntry(key, yarn.object[key]));
-
+function main() {
   // Scan the node_modules directory and find all top-level ('foo') or scoped (@bar/baz)
-  // modules, i.e. folders which contain a package.json file...
-  const getModulesIn = p => fs.readdirSync(p).filter(f => isPackage(p, undefined, f));
-  const findScopes = p => fs.readdirSync(p).filter(f => f.startsWith("@") && fs.statSync(path.join(p, f)).isDirectory());
-  const getModulesInScope = (p, s) => fs.readdirSync(path.join(p, s)).filter(f => isPackage(p, s, f));
+  // modules, i.e. folders which contain a package.json file then parse the package.json
+  // files to collect the metadata
+  let moduleDirs = [
+    ...getModulesIn('node_modules'),
+    ...findScopes('node_modules').map(scope => getModulesIn(scope)).reduce((a, b) => a.concat(b), [])
+  ]
+  let nestedModuleDirs = [];
+  moduleDirs.forEach(d => {
+    nestedModuleDirs.push(...getModulesIn(path.join(d, 'node_modules')));
+    nestedModuleDirs.push(...findScopes(path.join(d, 'node_modules')).map(scope => getModulesIn(scope)).reduce((a, b) => a.concat(b), []));
+  });
+  moduleDirs.push(...nestedModuleDirs);
 
-  // ...then parse the package.json files to collect the metadata
-  let topLevelModuleDirs = getModulesIn('node_modules');
-  let scopeModuleDirs = findScopes('node_modules').map(scope => getModulesInScope('node_modules', scope).map(m => scope+'/'+m)).reduce((a, b) => a.concat(b), []);
-  let moduleDirs = topLevelModuleDirs.concat(scopeModuleDirs);
   const modules = moduleDirs.map(dir => parseNodeModulePackageJson(dir));
 
-  // Iterate all the modules and merge the information from yarn into the module
-  modules.forEach(module => mergePackageJsonWithYarnEntry(entries, module));
+  if (fs.existsSync('yarn.lock')) {
+    // Read the yarn.lock file and parse it.
+    const yarn = lockfile.parse(fs.readFileSync('yarn.lock', {encoding: 'utf8'}));
+
+    if (yarn.type !== 'success') {
+      throw new Error('Lockfile parse failed: ' + JSON.stringify(yarn, null, 2));
+    }
+
+    validateYarnLock(yarn, modules);
+  }
 
   modules.forEach(module => flattenDependencies(module, module, modules));
 
   let buildFile = generatedHeader + allFilegroup;
   modules.forEach(module => buildFile += printNodeModule(module));
-  write('BUILD.bazel', buildFile);
+  fs.writeFileSync('BUILD.bazel', buildFile);
 }
 
 module.exports = {main};
 
-function isPackage(p, s, f) {
-  let dir = s ? path.join(p, s, f) : path.join(p, f);
-  return fs.statSync(dir).isDirectory() &&
-    fs.existsSync(path.join(dir, 'package.json')) &&
-    fs.statSync(path.join(dir, 'package.json')).isFile()
+function isPackage(d) {
+  return fs.statSync(d).isDirectory() &&
+    fs.existsSync(path.join(d, 'package.json')) &&
+    fs.statSync(path.join(d, 'package.json')).isFile() &&
+    !fs.existsSync(path.join(d, 'WORKSPACE'));
+}
+
+function getModulesIn(p) {
+  if (!fs.existsSync(p) || !fs.statSync(p).isDirectory()) {
+    return [];
+  }
+  return fs.readdirSync(p)
+    .map(f => path.join(p, f))
+    .filter(d => isPackage(d));
+}
+
+function findScopes(p) {
+  if (!fs.existsSync(p) || !fs.statSync(p).isDirectory()) {
+    return [];
+  }
+  return fs.readdirSync(p)
+    .filter(f => f.startsWith("@"))
+    .map(f => path.join(p, f))
+    .filter(d => fs.statSync(d).isDirectory());
 }
 
 function flattenDependencies(module, dep, modules) {
-  if (module._dependencies.indexOf(dep.name) !== -1) {
+  if (module._dependencies.indexOf(dep._dir) !== -1) {
     // circular dependency
     return;
   }
-  module._dependencies.push(dep.name);
+  module._dependencies.push(dep._dir);
   Object.keys(dep.dependencies || {})
     .map(d => {
-      const matching = modules.filter(m => m.name == d);
+      let matching = modules.filter(m => m._dir == `${dep._rootDir}/node_modules/${d}`);
+      if (matching.length) {
+        // nested dep
+        return matching[0];
+      }
+      matching = modules.filter(m => m._dir == d);
       if (!matching.length) {
-        throw new Error(`Could not find dep ${d} of ${dep.name}`)
+        throw new Error(`Could not find dep ${d} of ${dep._dir}`)
       }
       return matching[0];
     })
@@ -102,8 +145,27 @@ function flattenDependencies(module, dep, modules) {
 }
 
 /**
- * Given a list of yarn entries and a target module, find an exact match by name
- * and version.
+ */
+function validateYarnLock(yarn, modules) {
+  // Foreach entry in the lockfile, create an entry object.  We'll
+  // supplement/merge this with information from the package.json file
+  // in a moment...
+  const entries = Object.keys(yarn.object).map(key => makeYarnEntry(key, yarn.object[key]));
+
+  // Iterate all the modules and merge the information from yarn into the module
+  modules.forEach(module => {
+    if (module._isNested) {
+      // nested packages don't always show up in the yarn.lock file
+      return;
+    }
+    const entry = findMatchingYarnEntryByNameAndVersion(entries, module);
+    if (!entry) {
+      throw new Error(`No matching yarn entry found for ${module._dir}@${module.version}`);
+    }
+  });
+}
+
+/**
  */
 function findMatchingYarnEntryByNameAndVersion(entries, module) {
   for (let i = 0; i < entries.length; i++) {
@@ -111,32 +173,16 @@ function findMatchingYarnEntryByNameAndVersion(entries, module) {
     // The package.json file version (module.version) may contain a 'v' prefix while
     // yarn entry file version (entry.version) will not.
     //
-    // In most cases module._dir will be the same as module.name (which comes
+    // In most cases module._leafDir will be the same as module.name (which comes
     // from the package's package.json) but in cases where the package.json entry
     // is "foo": "file:./bar" or "foo": "npm:bar@x.x.x" then module.name will not
     // match the directory in node_modules. In these cases, the yarn.lock name will
     // match the module's node_modules directory name. Thus, we always compare the
     // yarn.lock name to the module's directory name.
-    if (entry.name == module._dir && (entry.version === module.version || `v${entry.version}` === module.version)) {
+    if (entry.name == module._leafDir && (entry.version === module.version || `v${entry.version}` === module.version)) {
       return entry;
     }
   }
-}
-
-
-/**
- * Given a list of yarn entries and a target module, merge them.
- * Actually, this is pretty simple as the yarn entry is simply
- * attached to the module.
- */
-function mergePackageJsonWithYarnEntry(entries, module) {
-  const entry = findMatchingYarnEntryByNameAndVersion(entries, module);
-  if (!entry) {
-    throw new Error(`No matching yarn entry found for ${module._dir}@${module.version}`);
-  }
-
-  // Store everything else here
-  module.yarn = entry;
 }
 
 /**
@@ -220,8 +266,12 @@ filegroup(
     name = "${module._dir}__files",
     srcs = glob(
         include = ["node_modules/${module._dir}/**/*"],
-        # Files with spaces in the name are not legal Bazel labels
-        exclude = ["node_modules/${module._dir}/**/* *"],
+        exclude = [
+          # Files with spaces in the name are not legal Bazel labels
+          "node_modules/${module._dir}/**/* *",
+          # Exclude nested node_modules as these should be handled explicitly
+          "node_modules/${module._dir}/node_modules/**/*",
+        ],
     ),
     # Probably we should have a node_modules rule that acts like filegroup
     # but also exposes a Provider so we know they are in the deps and can
@@ -254,21 +304,33 @@ nodejs_binary(
  * package json and return it as an object.
  */
 function parseNodeModulePackageJson(name) {
-  const module = JSON.parse(fs.readFileSync(`node_modules/${name}/package.json`));
-  module._dir = name;
+  const module = JSON.parse(fs.readFileSync(`${name}/package.json`));
+  module._dir = name.replace('\\', '/').replace(/^node_modules\//, '');
+
+  const dirSegments = module._dir.split('/');
+  const nodeModulesIndex = dirSegments.indexOf('node_modules');
+  if (nodeModulesIndex !== -1) {
+    module._rootDir = dirSegments.slice(0, nodeModulesIndex).join('/');
+    module._leafDir = dirSegments.slice(nodeModulesIndex+1).join('/');
+    module._isNested = true;
+  } else {
+    module._rootDir = module._dir;
+    module._leafDir = module._dir;
+    module._isNested = false;
+  }
+
   module._dependencies = [];
 
   // Take this opportunity to cleanup the module.bin entries
   // into a new Map called 'executables'
-  const executables = module.executables = new Map();
-
+  module.executables = new Map();
   if (Array.isArray(module.bin)) {
     // should not happen, but ignore it if present
   } else if (typeof module.bin === 'string') {
-    executables.set(name, stripBinPrefix(module.bin));
+    module.executables.set(name, stripBinPrefix(module.bin));
   } else if (typeof module.bin === 'object') {
     for (let key in module.bin) {
-      executables.set(key, stripBinPrefix(module.bin[key]));
+      module.executables.set(key, stripBinPrefix(module.bin[key]));
     }
   }
 

@@ -2,7 +2,7 @@
 exports_files(["npm_install.bzl"])
 
 filegroup(
-    name = "parse_yarn_lock",
-    srcs = ["parse_yarn_lock.js"],
+    name = "generate_build_file",
+    srcs = ["generate_build_file.js"],
     visibility = ["//internal:__subpackages__"],
 )
