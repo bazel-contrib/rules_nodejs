@@ -733,9 +733,9 @@ func setLibraryRuleKinds(ctx context.Context, buildFilePath string, bld *build.F
 		}
 	}
 	if changed {
-		bld.Stmt = edit.InsertLoad(bld.Stmt, "//javascript/angular2:build_defs.bzl",
+		bld.Stmt = edit.InsertLoad(bld.Stmt, "@angular//:index.bzl",
 			[]string{"ng_module"}, []string{"ng_module"})
-		bld.Stmt = edit.InsertLoad(bld.Stmt, "//javascript/typescript:build_defs.bzl",
+		bld.Stmt = edit.InsertLoad(bld.Stmt, "@build_bazel_rules_typescript//:defs.bzl",
 			[]string{"ts_library"}, []string{"ts_library"})
 		removeUnusedLoad(bld, "ts_library")
 		removeUnusedLoad(bld, "ng_module")
@@ -838,7 +838,7 @@ func getOrCreateRule(bld *build.File, ruleName, ruleKind string, rt ruleType) *b
 	}
 
 	loadArgs := []string{ruleKind}
-	bld.Stmt = edit.InsertLoad(bld.Stmt, "//javascript/typescript:build_defs.bzl", loadArgs, loadArgs)
+	bld.Stmt = edit.InsertLoad(bld.Stmt, "@build_bazel_rules_typescript//:defs.bzl", loadArgs, loadArgs)
 
 	r := &build.Rule{&build.CallExpr{X: &build.Ident{Name: ruleKind}}, ""}
 	// Rename to *_ts if there's a name collision. This leaves open a collision with another rule
