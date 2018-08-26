@@ -33,4 +33,5 @@ rollup_bundle(
     deps = [
         ":test",
     ],
+    node_modules = "@devserver_example_yarn_install//:node_modules",
 )

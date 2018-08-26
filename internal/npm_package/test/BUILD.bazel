@@ -1,5 +1,5 @@
-load("//:defs.bzl", "jasmine_node_test", "npm_package")
-load("//internal/common:typescript_mock_lib.bzl", "mock_typescript_lib")
+load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test", "npm_package")
+load("@build_bazel_rules_nodejs//internal/common:typescript_mock_lib.bzl", "mock_typescript_lib")
 
 genrule(
     name = "produces_files",

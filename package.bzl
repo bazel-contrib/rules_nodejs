@@ -105,6 +105,32 @@ def rules_nodejs_dev_dependencies():
         sha256 = "491f9e142b870b18a0ec8eb3d66636eeceabe5f0c73025706c86f91a1a2acb4d",
     )
 
+    http_archive(
+        name = "build_bazel_rules_typescript",
+        url = "https://github.com/bazelbuild/rules_typescript/archive/0.16.1.zip",
+        strip_prefix = "rules_typescript-0.16.1",
+        sha256 = "5b2b0bc63cfcffe7bf97cad2dad3b26a73362f806de66207051f66c87956a995",
+    )
+
+    http_archive(
+        name = "io_bazel_rules_webtesting",
+        url = "https://github.com/bazelbuild/rules_webtesting/archive/0.2.1.zip",
+        strip_prefix = "rules_webtesting-0.2.1",
+        sha256 = "7d490aadff9b5262e5251fa69427ab2ffd1548422467cb9f9e1d110e2c36f0fa",
+    )
+
+    http_archive(
+        name = "bazel_gazelle",
+        urls = ["https://github.com/bazelbuild/bazel-gazelle/releases/download/0.14.0/bazel-gazelle-0.14.0.tar.gz"],
+        sha256 = "c0a5739d12c6d05b6c1ad56f2200cb0b57c5a70e03ebd2f7b87ce88cabf09c7b",
+    )
+
+    http_archive(
+        name = "io_bazel_rules_go",
+        url = "https://github.com/bazelbuild/rules_go/releases/download/0.14.0/rules_go-0.14.0.tar.gz",
+        sha256 = "5756a4ad75b3703eb68249d50e23f5d64eaf1593e886b9aa931aa6e938c4e301",
+    )
+
 def _maybe(repo_rule, name, **kwargs):
     if name not in native.existing_rules():
         repo_rule(name = name, **kwargs)

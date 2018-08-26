@@ -1,5 +1,4 @@
-load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
-load("//:defs.bzl", "rollup_bundle")
+load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test", "rollup_bundle")
 
 # The local package node_modules filegroup contains just one depenedency to test
 # importing from a non-WORKSPACE-root node_modules folder. This makes it more clear
