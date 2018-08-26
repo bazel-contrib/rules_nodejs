@@ -29,9 +29,11 @@ ts_devserver(
 
 rollup_bundle(
     name = "bundle",
+    # Note: This will only work now when called from the top-level workspace, otherwise it would
+    # just be src/test.js
     entry_point = "external/devserver_example/src/test.js",
     deps = [
         ":test",
     ],
-    node_modules = "@devserver_example_yarn_install//:node_modules",
+    node_modules = "@devserver_example_yarn_install//:node_modules"
 )
