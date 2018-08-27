@@ -2,7 +2,6 @@
     "description": "runtime dependencies for js_library",
     "devDependencies": {
         "@babel/core": "^7.0.0-rc.3",
-        "@babel/plugin-transform-modules-amd": "^7.0.0-rc.3",
         "@babel/preset-env": "^7.0.0-rc.3",
         "commander": "^2.17.1"
     }
