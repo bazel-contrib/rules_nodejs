@@ -72,3 +72,6 @@ browser_repositories(
 
 load("@build_bazel_rules_typescript//:defs.bzl", "ts_setup_workspace")
 ts_setup_workspace()
+
+load("//:setup_workspace.bzl", "devserver_example_setup_workspace")
+devserver_example_setup_workspace()

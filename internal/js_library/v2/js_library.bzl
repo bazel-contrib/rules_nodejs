@@ -15,16 +15,25 @@ def _write_config(ctx):
   )
   return output
 
-def _create_babel_args(ctx, config_path, out_files_extenstion):
+def _create_babel_args(ctx, config_path, out_dir):
+  out = paths.join(ctx.bin_dir.path, ctx.label.workspace_root, ctx.label.package, out_dir)
   args = ctx.actions.args()
-  args.add("--out-dir", ctx.bin_dir.path)
+  args.add("--out-dir", out)
   args.add("--config-file", config_path)
-  args.add("--out-files-extension", out_files_extenstion)
   args.add_all(ctx.files.srcs)
   return args
 
-def _declare_babel_outputs(ctx, file_extenstion):
-  return [ctx.actions.declare_file(src.basename[:-2] + file_extenstion) for src in ctx.files.srcs]
+def _trim(out_dir, src, trim, bin_dir_trim):
+  if src.is_source:
+    src_path = src.path[trim:]
+  else:
+    src_path = src.path[bin_dir_trim:]
+  return paths.join(out_dir, src_path)
+
+def _declare_babel_outputs(ctx, out_dir):
+  trim = len(paths.join(ctx.label.workspace_root, ctx.label.package) + "/")
+  bin_dir_trim = trim + len(ctx.bin_dir.path + "/")
+  return [ctx.actions.declare_file(_trim(out_dir, src, trim, bin_dir_trim)) for src in ctx.files.srcs]
 
 def _run_babel(ctx, inputs, outputs, args, mnemonic, description):
   ctx.actions.run(
@@ -36,15 +45,15 @@ def _run_babel(ctx, inputs, outputs, args, mnemonic, description):
     progress_message = "Compiling Javascript (%s) %s" % (description, ctx.label),
   )
 
-def _babel_conversion(ctx, inputs, config, file_extenstion, mnemonic, description):
-  outputs = _declare_babel_outputs(ctx, file_extenstion)
-  args = _create_babel_args(ctx, config.path, file_extenstion)
+def _babel_conversion(ctx, inputs, config, out_dir, mnemonic, description):
+  outputs = _declare_babel_outputs(ctx, out_dir)
+  args = _create_babel_args(ctx, config.path, out_dir)
   _run_babel(ctx, inputs, outputs, args, mnemonic, description)
   return outputs
 
 def _es5_conversion(ctx, inputs, config):
-  file_extenstion = "es5.js"
-  return _babel_conversion(ctx, inputs, config, file_extenstion, "JsCompile", "Babel")
+  out_dir = "es5"
+  return _babel_conversion(ctx, inputs, config, out_dir, "JsCompile", "Babel")
 
 def _collect_sources(ctx, es5_outputs):
   es5_sources = depset(es5_outputs)
@@ -93,7 +102,7 @@ def _js_library(ctx):
     ),
     providers = [
       DefaultInfo(
-          files = js_providers.es5_sources,
+          files = js_providers.es6_sources,
           runfiles = ctx.runfiles(
             collect_data = True,
             collect_default = True,
@@ -101,6 +110,7 @@ def _js_library(ctx):
       ),
       OutputGroupInfo(
           es5_sources = js_providers.es5_sources,
+          es6_sources = js_providers.es6_sources,
       ),
     ],
   )
