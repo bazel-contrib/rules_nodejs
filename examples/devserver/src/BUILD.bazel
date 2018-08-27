@@ -15,16 +15,16 @@ js_library(
 js_library(
     name = "test",
     srcs = ["test.js"],
+    # Note: This rc file will only be found by babel when run in the devserver_example workspace
+    # but not in the top-level one, due to how bazel currently handels pathing
+    data = [
+        "//:.browserslistrc",
+    ],
     deps = [
         ":module",
         "//src/dir:module",
         "//src/my_lib_folder:my_lib",
     ],
-    # Note: This rc file will only be found by babel when run in the devserver_example workspace
-    # but not in the top-level one, due to how bazel currently handels pathing
-    data = [
-        "//:.browserslistrc",
-    ]
 )
 
 ts_devserver(
@@ -44,8 +44,8 @@ rollup_bundle(
     # Note: This will only work now when called from the top-level workspace, otherwise it would
     # just be src/test.js
     entry_point = "external/devserver_example/src/test.js",
+    node_modules = "@devserver_example_yarn_install//:node_modules",
     deps = [
         ":test",
     ],
-    node_modules = "@devserver_example_yarn_install//:node_modules"
 )
