@@ -9,6 +9,7 @@ const rootDir = 'bazel-bin/path/to/a.esm5';
 TMPL_additional_plugins = [];
 TMPL_banner_file = '';
 TMPL_stamp_data = '';
+TMPL_inputs = '';
 
 const baseDir = '/root/base';
 const files = [
