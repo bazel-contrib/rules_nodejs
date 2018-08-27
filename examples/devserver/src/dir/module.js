@@ -1,1 +1,1 @@
-export default "EVIL";
+export default 'and';

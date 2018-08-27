@@ -5,7 +5,3 @@ js_library(
     srcs = ["module.js"],
     visibility = ["//src:__subpackages__"],
 )
-
-exports_files(
-    ["module.js"],
-)

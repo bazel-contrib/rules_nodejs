@@ -1,3 +1,8 @@
+# For the notes in this file see:
+# https://github.com/bazelbuild/rules_nodejs/issues/84
+# https://github.com/bazelbuild/bazel/issues/1262
+# https://docs.google.com/document/d/1qPOUeoqDA3eWFFXS1shWX1FT3e4BQB8yuSMrfQL4QrA
+
 load("@build_bazel_rules_nodejs//internal/js_library/v2:js_library.bzl", "js_library")
 load("@build_bazel_rules_nodejs//:defs.bzl", "rollup_bundle")
 load("@build_bazel_rules_typescript//:defs.bzl", "ts_devserver")
@@ -15,13 +20,20 @@ js_library(
         "//src/dir:module",
         "//src/my_lib_folder:my_lib",
     ],
+    # Note: This rc file will only be found by babel when run in the devserver_example workspace
+    # but not in the top-level one, due to how bazel currently handels pathing
+    data = [
+        "//:.browserslistrc",
+    ]
 )
 
 ts_devserver(
     name = "devserver",
-    entry_module = "./src/test",
+    # Note: This will only work now when called from the top-level workspace, otherwise it would
+    # just be src/test.js
+    entry_module = "external/devserver_example/src/test",
     port = 8080,
-    serving_path = "/bundle.min.js",
+    serving_path = "/bundle.js",
     deps = [
         ":test",
     ],
