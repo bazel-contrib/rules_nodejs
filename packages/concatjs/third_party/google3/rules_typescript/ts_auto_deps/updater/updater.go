@@ -675,6 +675,11 @@ func removeSourcesUsed(bld *build.File, ruleKind, attrName string, srcs srcSet) 
 	}
 }
 
+const (
+	tsSkylarkLabel = "@build_bazel_rules_typescript//:defs.bzl"
+	ngSkylarkLabel = "@angular//:index.bzl"
+)
+
 func removeUnusedLoad(bld *build.File, kind string) {
 	if len(bld.Rules(kind)) > 0 {
 		return // kind is still used somewhere.
@@ -733,9 +738,9 @@ func setLibraryRuleKinds(ctx context.Context, buildFilePath string, bld *build.F
 		}
 	}
 	if changed {
-		bld.Stmt = edit.InsertLoad(bld.Stmt, "@angular//:index.bzl",
+		bld.Stmt = edit.InsertLoad(bld.Stmt, ngSkylarkLabel,
 			[]string{"ng_module"}, []string{"ng_module"})
-		bld.Stmt = edit.InsertLoad(bld.Stmt, "@build_bazel_rules_typescript//:defs.bzl",
+		bld.Stmt = edit.InsertLoad(bld.Stmt, tsSkylarkLabel,
 			[]string{"ts_library"}, []string{"ts_library"})
 		removeUnusedLoad(bld, "ts_library")
 		removeUnusedLoad(bld, "ng_module")
@@ -838,7 +843,7 @@ func getOrCreateRule(bld *build.File, ruleName, ruleKind string, rt ruleType) *b
 	}
 
 	loadArgs := []string{ruleKind}
-	bld.Stmt = edit.InsertLoad(bld.Stmt, "@build_bazel_rules_typescript//:defs.bzl", loadArgs, loadArgs)
+	bld.Stmt = edit.InsertLoad(bld.Stmt, tsSkylarkLabel, loadArgs, loadArgs)
 
 	r := &build.Rule{&build.CallExpr{X: &build.Ident{Name: ruleKind}}, ""}
 	// Rename to *_ts if there's a name collision. This leaves open a collision with another rule

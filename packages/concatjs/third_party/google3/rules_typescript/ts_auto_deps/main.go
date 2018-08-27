@@ -39,6 +39,16 @@ Flags:
 }
 
 func main() {
+	// When executed under `bazel run`, we want to run in the users workspace, not
+	// the runfiles directory of the go_binary.
+	// See https://github.com/bazelbuild/bazel/issues/3325
+	if wd := os.Getenv("BUILD_WORKING_DIRECTORY"); len(wd) > 0 {
+		err := os.Chdir(wd)
+		if err != nil {
+			platform.Error(err)
+		}
+	}
+
 	flag.Usage = usage
 	flag.Parse()
 
