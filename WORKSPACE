@@ -76,8 +76,15 @@ load("@packages_example//:setup_workspace.bzl", "packages_example_setup_workspac
 
 packages_example_setup_workspace()
 
+# Dependencies to run skydoc
 load("@io_bazel_rules_sass//sass:sass_repositories.bzl", "sass_repositories")
 sass_repositories()
 
 load("@io_bazel_skydoc//skylark:skylark.bzl", "skydoc_repositories")
 skydoc_repositories()
+
+# Dependencies to run buildifier and skylint
+load("@io_bazel_rules_go//go:def.bzl", "go_rules_dependencies", "go_register_toolchains")
+
+go_rules_dependencies()
+go_register_toolchains()

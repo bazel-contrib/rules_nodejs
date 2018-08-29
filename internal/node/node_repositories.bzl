@@ -456,11 +456,11 @@ def node_repositories(
     yarn_urls: optional; custom list of URLs to use to download Yarn.
 
     preserve_symlinks: Turn on --node_options=--preserve-symlinks for nodejs_binary and nodejs_test rules.
-      The default for this is currently True but the options is deprecated and will be removed in the future. 
+      The default for this is currently True but the options is deprecated and will be removed in the future.
       When this option is turned on, node will preserve the symlinked path for resolves instead of the default
-      behavior of resolving to the real path. This means that all required files must be in be included in your 
-      runfiles as it prevents the default behavior of potentially resolving outside of the runfiles. For example, 
-      all required files need to be included in your node_modules filegroup. This option is desirable as it gives 
+      behavior of resolving to the real path. This means that all required files must be in be included in your
+      runfiles as it prevents the default behavior of potentially resolving outside of the runfiles. For example,
+      all required files need to be included in your node_modules filegroup. This option is desirable as it gives
       a stronger guarantee of hermiticity which is required for remote execution.
   """
   # @bazel_tools//tools/bash/runfiles is required for nodejs
@@ -497,4 +497,16 @@ def node_repositories(
       name = "build_bazel_rules_nodejs_rollup_deps",
       package_json = "@build_bazel_rules_nodejs//internal/rollup:package.json",
       yarn_lock = "@build_bazel_rules_nodejs//internal/rollup:yarn.lock",
+  )
+
+  yarn_install(
+      name = "history-server_runtime_deps",
+      package_json = "@build_bazel_rules_nodejs//internal/history-server:package.json",
+      yarn_lock = "@build_bazel_rules_nodejs//internal/history-server:yarn.lock",
+  )
+
+  yarn_install(
+      name = "http-server_runtime_deps",
+      package_json = "@build_bazel_rules_nodejs//internal/http-server:package.json",
+      yarn_lock = "@build_bazel_rules_nodejs//internal/http-server:yarn.lock",
   )
