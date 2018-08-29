@@ -1,6 +1,6 @@
 "Run http-server"
 
-load("@build_bazel_rules_nodejs//internal/node:node.bzl", "nodejs_binary")
+load("@build_bazel_rules_nodejs//internal/node:node.bzl", "nodejs_binary_macro")
 
 def http_server(templated_args = [], **kwargs):
     """
@@ -26,7 +26,7 @@ def http_server(templated_args = [], **kwargs):
     if not templated_args:
         templated_args = [native.package_name()]
 
-    nodejs_binary(
+    nodejs_binary_macro(
         node_modules = "@http-server_runtime_deps//:node_modules",
         entry_point = "http-server/bin/http-server",
         templated_args = templated_args,

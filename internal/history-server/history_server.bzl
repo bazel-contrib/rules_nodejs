@@ -1,6 +1,6 @@
 "Run history-server"
 
-load("@build_bazel_rules_nodejs//internal/node:node.bzl", "nodejs_binary")
+load("@build_bazel_rules_nodejs//internal/node:node.bzl", "nodejs_binary_macro")
 
 def history_server(templated_args = [], **kwargs):
   """
@@ -18,7 +18,7 @@ def history_server(templated_args = [], **kwargs):
   # By default, serve the directory where the target is declared
   if not templated_args:
     templated_args = [native.package_name()]
-  nodejs_binary(
+  nodejs_binary_macro(
       node_modules = "@history-server_runtime_deps//:node_modules",
       entry_point = "history-server/modules/cli.js",
       templated_args = templated_args,
