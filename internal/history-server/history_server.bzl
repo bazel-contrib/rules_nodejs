@@ -1,5 +1,5 @@
-"""Run the history-server npm package.
-"""
+"Run history-server"
+
 load("@build_bazel_rules_nodejs//internal/node:node.bzl", "nodejs_binary")
 
 def history_server(templated_args = [], **kwargs):

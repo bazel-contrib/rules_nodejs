@@ -1,5 +1,4 @@
-"""Run the http-server npm package.
-"""
+"Run http-server"
 
 load("@build_bazel_rules_nodejs//internal/node:node.bzl", "nodejs_binary")
 
