@@ -61,14 +61,10 @@ def rules_nodejs_dependencies():
         sha256 = "95518adafc9a2b656667bbf517a952e54ce7f350779d0dd95133db4eb5c27fb1",
     )
 
-def rules_nodejs_dev_dependencies():
-    """
-    Fetch dependencies needed for local development, but not needed by users.
-
-    These are in this file to keep version information in one place, and make the WORKSPACE
-    shorter.
-    """
     # Needed for Remote Build Execution
+    # See https://releases.bazel.build/bazel-toolchains.html
+    # Not strictly a dependency for all users, but it is convenient for them to have this repository
+    # defined to reduce the effort required to on-board to remote execution.
     http_archive(
         name = "bazel_toolchains",
         urls = [
@@ -79,16 +75,19 @@ def rules_nodejs_dev_dependencies():
         sha256 = "cefb6ccf86ca592baaa029bcef04148593c0efe8f734542f10293ea58f170715",
     )
 
-    # This commit matches the version of buildifier in angular/ngcontainer
-    # If you change this, also check if it matches the version in the angular/ngcontainer
-    # version in /.circleci/config.yml
-    BAZEL_BUILDTOOLS_VERSION = "82b21607e00913b16fe1c51bec80232d9d6de31c"
+def rules_nodejs_dev_dependencies():
+    """
+    Fetch dependencies needed for local development, but not needed by users.
+
+    These are in this file to keep version information in one place, and make the WORKSPACE
+    shorter.
+    """
 
     http_archive(
         name = "com_github_bazelbuild_buildtools",
-        url = "https://github.com/bazelbuild/buildtools/archive/%s.zip" % BAZEL_BUILDTOOLS_VERSION,
-        strip_prefix = "buildtools-%s" % BAZEL_BUILDTOOLS_VERSION,
-        sha256 = "edb24c2f9c55b10a820ec74db0564415c0cf553fa55e9fc709a6332fb6685eff",
+        url = "https://github.com/bazelbuild/buildtools/archive/0.15.0.zip",
+        strip_prefix = "buildtools-0.15.0",
+        sha256 = "76d1837a86fa6ef5b4a07438f8489f00bfa1b841e5643b618e01232ba884b1fe",
     )
 
     http_archive(
@@ -103,6 +102,21 @@ def rules_nodejs_dev_dependencies():
         url = "https://github.com/bazelbuild/skydoc/archive/0ef7695c9d70084946a3e99b89ad5a99ede79580.zip",
         strip_prefix = "skydoc-0ef7695c9d70084946a3e99b89ad5a99ede79580",
         sha256 = "491f9e142b870b18a0ec8eb3d66636eeceabe5f0c73025706c86f91a1a2acb4d",
+    )
+
+    # Go is a transitive dependency of buildifier
+    http_archive(
+        name = "io_bazel_rules_go",
+        urls = ["https://github.com/bazelbuild/rules_go/releases/download/0.13.0/rules_go-0.13.0.tar.gz"],
+        sha256 = "ba79c532ac400cefd1859cbc8a9829346aa69e3b99482cd5a54432092cbc3933",
+    )
+
+    # Fetching the Bazel source code allows us to compile the Skylark linter
+    http_archive(
+        name = "io_bazel",
+        url = "https://github.com/bazelbuild/bazel/archive/968f87900dce45a7af749a965b72dbac51b176b3.zip",
+        strip_prefix = "bazel-968f87900dce45a7af749a965b72dbac51b176b3",
+        sha256 = "e373d2ae24955c1254c495c9c421c009d88966565c35e4e8444c082cb1f0f48f",
     )
 
 def _maybe(repo_rule, name, **kwargs):

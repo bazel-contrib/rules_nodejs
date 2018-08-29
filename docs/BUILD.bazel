@@ -18,6 +18,8 @@ skylark_doc(
     name = "docs",
     srcs = [
         "//internal/common:check_bazel_version.bzl",
+        "//internal/history-server:history_server.bzl",
+        "//internal/http-server:http_server.bzl",
         "//internal/jasmine_node_test:jasmine_node_test.bzl",
         "//internal/node:node.bzl",
         "//internal/node:node_repositories.bzl",
