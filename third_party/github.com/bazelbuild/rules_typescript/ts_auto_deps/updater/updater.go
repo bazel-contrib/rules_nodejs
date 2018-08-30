@@ -25,13 +25,6 @@ import (
 	arpb "github.com/bazelbuild/rules_typescript/ts_auto_deps/proto"
 )
 
-var (
-	namespaceLookupTable = flag.String(
-		"namespace_lookup_table",
-		"/google/data/ro/teams/typescript/ts_auto_deps-namespaces-targets",
-		"sstable mapping JavaScript namespaces to bazel targets")
-)
-
 // New creates a new updater from the given arguments. One updater can be used
 // to update many packages, repeatedly, but not concurrently.
 // bazelAnalyze and updateFile can be passed in to handle ts_auto_deps operation in
