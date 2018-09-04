@@ -148,6 +148,20 @@ function isFile(res) {
   }
 }
 
+function isDirectory(res) {
+  try {
+    return fs.statSync(res).isDirectory();
+  } catch (e) {
+    return false;
+  }
+}
+
+function readDir(dir) {
+  return fs.statSync(dir).isDirectory() ?
+      Array.prototype.concat(...fs.readdirSync(dir).map(f => readDir(path.join(dir, f)))) :
+      dir.replace(/\\/g, '/');
+}
+
 function loadAsFileSync(res) {
   if (isFile(res)) {
     return res;
@@ -186,7 +200,29 @@ function loadAsDirectorySync(res) {
 }
 
 function resolveManifestFile(res) {
-  return runfilesManifest[res] || runfilesManifest[res + '.js'];
+  const maybe = runfilesManifest[res] || runfilesManifest[res + '.js'];
+  if (maybe) {
+    return maybe;
+  }
+  // Look for tree artifacts that match and update
+  // the runfiles with files that are in the tree artifact.
+  // Attempt to resolve again with the updated runfiles
+  // if a tree artifact matched.
+  let segments = res.split('/');
+  segments.pop();
+  while (segments.length) {
+    const test = segments.join('/');
+    const tree = runfilesManifest[test];
+    if (tree && isDirectory(tree)) {
+      // We have a tree artifact that matches
+      const files = readDir(tree).map(f => path.relative(tree, f));
+      files.forEach(f => {
+        runfilesManifest[path.posix.join(test, f)] = path.posix.join(tree, f);
+      })
+      return runfilesManifest[res] || runfilesManifest[res + '.js'];
+    }
+    segments.pop();
+  }
 }
 
 function resolveManifestDirectory(res) {
