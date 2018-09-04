@@ -23,6 +23,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const tmp = require('tmp');
 const child_process = require('child_process');
 
 const DEBUG = false;
@@ -74,11 +75,16 @@ function runUglify(inputFile, outputFile, sourceMapFile) {
     'mangle': !debug,
   };
 
-  fs.writeFileSync(configFile, JSON.stringify(uglifyConfig));
+  let config = configFile;
+  if (!config) {
+    config = tmp.fileSync({keep: false, postfix: '.json'}).name;
+  }
+
+  fs.writeFileSync(config, JSON.stringify(uglifyConfig));
 
   const args = [
     require.resolve('build_bazel_rules_nodejs_rollup_deps/node_modules/uglify-es/bin/uglifyjs'),
-    inputFile, '--output', outputFile, '--config-file', configFile
+    inputFile, '--output', outputFile, '--config-file', config
   ];
 
   for (arg in argv) {

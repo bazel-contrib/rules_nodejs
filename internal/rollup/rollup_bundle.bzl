@@ -202,7 +202,8 @@ def run_uglify(ctx, input, output, debug = False, comments = True, config_name =
     config_name = ctx.label.name
     if debug:
       config_name += ".debug"
-  config = ctx.actions.declare_file("_%s.uglify.json" % config_name)
+
+  args = ctx.actions.args()
 
   if is_directory:
     # there should be a map output for the main entry point (as well as other map outputs)
@@ -210,16 +211,16 @@ def run_uglify(ctx, input, output, debug = False, comments = True, config_name =
     if not entry_point_basename.endswith(".js"):
       entry_point_basename += ".js"
     map_output = ctx.actions.declare_file(output.basename + "/" + entry_point_basename + ".map")
+    outputs = [output, map_output]
   else:
     map_output = ctx.actions.declare_file(output.basename + ".map", sibling = output)
+    config = ctx.actions.declare_file("_%s.uglify.json" % config_name)
+    args.add(["--config-file", config.path])
+    outputs = [output, map_output, config]
 
   inputs = [input]
-  outputs = [output, config, map_output] if map_output else [output, config]
-
-  args = ctx.actions.args()
 
   args.add(input.path)
-  args.add(["--config-file", config.path])
   args.add(["--output", output.path])
 
   # Source mapping options are comma-packed into one argv
