@@ -104,9 +104,9 @@ function runUglify(inputFile, outputFile, sourceMapFile) {
       {stdio: [process.stdin, process.stdout, process.stderr]});
 }
 
-const isFile = !fs.lstatSync(path.join(process.cwd(), input)).isDirectory();
+const isDirectory = fs.lstatSync(path.join(process.cwd(), input)).isDirectory();
 
-if (isFile) {
+if (!isDirectory) {
   runUglify(input, output, output + '.map');
 } else {
   if (!fs.existsSync(output)) {
@@ -117,6 +117,7 @@ if (isFile) {
     if (f.endsWith('.js')) {
       const inputFile = path.join(input, path.basename(f));
       const outputFile = path.join(output, path.basename(f));
+      // TODO(gregmagolan): parallelize this into multiple processes?
       runUglify(inputFile, outputFile, outputFile + '.map');
     }
   });

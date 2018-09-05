@@ -403,7 +403,7 @@ ROLLUP_ATTRS = {
         specified in entry_point and additional_entry_points.
         There will also be one or more common chunks that are shared
         between entry points named chunk-<HASH>.js. The number
-        of common chunks is variable depending on your the code being
+        of common chunks is variable depending on the code being
         bundled.
 
         Entry points and chunks will be outputted to folders:
