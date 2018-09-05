@@ -127,13 +127,6 @@ npm_install = repository_rule(
             you are running into performance issues due to a large
             node_modules filegroup it is recommended to switch to using
             fine grained npm dependencies."""),
-        "node_modules_filegroup": attr.string(
-            doc = """Experimental attribute that can be used to work-around
-            a bazel performance issue if the default node_modules filegroup
-            has too many files in it. Use it to define the node_modules
-            filegroup used by this rule such as
-            "filegroup(name = "node_modules", srcs = glob([...]))". See
-            https://github.com/bazelbuild/bazel/issues/5153."""),
         "timeout": attr.int(
             default = 600,
             doc = """Maximum duration of the command "npm install" in seconds
@@ -202,18 +195,10 @@ yarn_install = repository_rule(
             you are running into performance issues due to a large
             node_modules filegroup it is recommended to switch to using
             fine grained npm dependencies."""),
-        "node_modules_filegroup": attr.string(
-            doc = """Experimental attribute that can be used to work-around
-            a bazel performance issue if the default node_modules filegroup
-            has too many files in it. Use it to define the node_modules
-            filegroup used by this rule such as
-            "filegroup(name = "node_modules", srcs = glob([...]))". See
-            https://github.com/bazelbuild/bazel/issues/5153."""),
         "timeout": attr.int(
             default = 600,
             doc = """Maximum duration of the command "yarn" in seconds.
             (default is 600 seconds)."""),
-        ),
     },
     implementation = _yarn_install_impl,
 )
