@@ -19,8 +19,9 @@ load("//:defs.bzl", "jasmine_node_test", "nodejs_binary")
 package(default_visibility = ["//internal:__subpackages__"])
 
 exports_files([
+    "no_explore.html",
     "rollup.config.js",
-    "uglify.config.json",
+    "system.config.js",
     # Exported to be consumed for generating skydoc.
     "rollup_bundle.bzl",
 ])
@@ -45,6 +46,22 @@ nodejs_binary(
     name = "uglify",
     entry_point = "build_bazel_rules_nodejs_rollup_deps/node_modules/uglify-es/bin/uglifyjs",
     install_source_map_support = False,
+    node_modules = "@build_bazel_rules_nodejs_rollup_deps//:node_modules",
+    visibility = ["//visibility:public"],
+)
+
+nodejs_binary(
+    name = "uglify-wrapped",
+    data = [":uglify-wrapped.js"],
+    entry_point = "build_bazel_rules_nodejs/internal/rollup/uglify-wrapped.js",
+    node_modules = "@build_bazel_rules_nodejs_rollup_deps//:node_modules",
+    visibility = ["//visibility:public"],
+)
+
+nodejs_binary(
+    name = "tsc-directory",
+    data = [":tsc-directory.js"],
+    entry_point = "build_bazel_rules_nodejs/internal/rollup/tsc-directory.js",
     node_modules = "@build_bazel_rules_nodejs_rollup_deps//:node_modules",
     visibility = ["//visibility:public"],
 )

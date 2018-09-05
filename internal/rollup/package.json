@@ -2,10 +2,12 @@
     "description": "runtime dependencies for rollup_bundle",
     "devDependencies": {
         "is-builtin-module": "2.0.0",
-        "rollup": "0.60.1",
+        "minimist": "1.2.0",
+        "rollup": "0.65.0",
         "rollup-plugin-node-resolve": "3.3.0",
         "rollup-plugin-sourcemaps": "^0.4.2",
         "source-map-explorer": "^1.5.0",
+        "tmp": "0.0.33",
         "typescript": "2.6.2",
         "uglify-es": "3.3.9"
     }

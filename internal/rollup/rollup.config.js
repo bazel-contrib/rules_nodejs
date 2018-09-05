@@ -129,7 +129,10 @@ function notResolved(importee, importer) {
   throw new Error(`Could not resolve import '${importee}' from '${importer}'`);
 }
 
-module.exports = {
+const inputs = [TMPL_inputs];
+const enableCodeSplitting = inputs.length > 1;
+
+const config = {
   resolveBazel,
   banner,
   onwarn: (warning) => {
@@ -137,10 +140,6 @@ module.exports = {
     // We can add exclusions here based on warning.code, if we discover some
     // types of warning should always be ignored under bazel.
     throw new Error(warning.message);
-  },
-  output: {
-    format: 'TMPL_output_format',
-    name: 'TMPL_global_name',
   },
   plugins: [TMPL_additional_plugins].concat([
     {resolveId: resolveBazel},
@@ -153,3 +152,21 @@ module.exports = {
     sourcemaps(),
   ])
 }
+
+if (enableCodeSplitting) {
+  config.experimentalCodeSplitting = true;
+  config.experimentalDynamicImport = true;
+  config.input = inputs;
+  config.output = {
+    format: 'TMPL_output_format',
+  };
+}
+else {
+  config.input = inputs[0];
+  config.output = {
+    format: 'TMPL_output_format',
+    name: 'TMPL_global_name',
+  };
+}
+
+module.exports = config;
