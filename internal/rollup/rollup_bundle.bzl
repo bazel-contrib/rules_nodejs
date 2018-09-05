@@ -178,7 +178,7 @@ def _run_tsc_on_directory(ctx, input_dir, output_dir):
       arguments = [args]
   )
 
-def run_uglify(ctx, input, output, debug = False, comments = True, config_name = None, in_source_map = None, is_directory = False):
+def run_uglify(ctx, input, output, debug = False, comments = True, config_name = None, in_source_map = None):
   """Runs uglify on an input file.
 
   This is also used by https://github.com/angular/angular.
@@ -193,32 +193,32 @@ def run_uglify(ctx, input, output, debug = False, comments = True, config_name =
         which will be `_[config_name].uglify.json` in the package where the target is declared
     in_source_map: sourcemap file for the input file, passed to the "--source-map content="
         option of rollup.
-    is_directory: should be set to True if input is a directory
 
   Returns:
     The sourcemap file
   """
-  if not config_name:
-    config_name = ctx.label.name
-    if debug:
-      config_name += ".debug"
+
+  map_output = ctx.actions.declare_file(output.basename + ".map", sibling = output)
+
+  _run_uglify(ctx, input, output, map_output, debug, comments, config_name, in_source_map)
+
+  return map_output
+
+def _run_uglify(ctx, input, output, map_output, debug = False, comments = True, config_name = None, in_source_map = None):
+  inputs = [input]
+  outputs = [output]
 
   args = ctx.actions.args()
 
-  if is_directory:
-    # there should be a map output for the main entry point (as well as other map outputs)
-    entry_point_basename = ctx.attr.entry_point.split("/")[-1]
-    if not entry_point_basename.endswith(".js"):
-      entry_point_basename += ".js"
-    map_output = ctx.actions.declare_file(output.basename + "/" + entry_point_basename + ".map")
-    outputs = [output, map_output]
-  else:
-    map_output = ctx.actions.declare_file(output.basename + ".map", sibling = output)
+  if map_output:
+    # Running uglify on an individual file
+    if not config_name:
+      config_name = ctx.label.name
+      if debug:
+        config_name += ".debug"
     config = ctx.actions.declare_file("_%s.uglify.json" % config_name)
     args.add(["--config-file", config.path])
-    outputs = [output, map_output, config]
-
-  inputs = [input]
+    outputs += [map_output, config]
 
   args.add(input.path)
   args.add(["--output", output.path])
@@ -244,8 +244,6 @@ def run_uglify(ctx, input, output, debug = False, comments = True, config_name =
       outputs = outputs,
       arguments = [args]
   )
-
-  return map_output
 
 def run_sourcemapexplorer(ctx, js, map, output):
   """Runs source-map-explorer to produce an HTML visualization of the sourcemap.
@@ -347,9 +345,9 @@ def _rollup_bundle(ctx):
     code_split_es5_output_dir = ctx.actions.declare_directory(ctx.label.name + ".cs")
     _run_tsc_on_directory(ctx, code_split_es6_output_dir, code_split_es5_output_dir)
     code_split_es5_min_output_dir = ctx.actions.declare_directory(ctx.label.name + ".cs.min")
-    run_uglify(ctx, code_split_es5_output_dir, code_split_es5_min_output_dir, config_name="%s" % ctx.label.name, is_directory=True)
+    _run_uglify(ctx, code_split_es5_output_dir, code_split_es5_min_output_dir, None)
     code_split_es5_min_debug_output_dir = ctx.actions.declare_directory(ctx.label.name + ".cs.min_debug")
-    run_uglify(ctx, code_split_es5_output_dir, code_split_es5_min_debug_output_dir, debug=True, config_name="%s-debug" % ctx.label.name, is_directory=True)
+    _run_uglify(ctx, code_split_es5_output_dir, code_split_es5_min_debug_output_dir, None, debug=True)
     # Generate the SystemJS boilerplate/entry point files
     _generate_code_split_entry(ctx, ctx.label.name + ".cs.es6", ctx.outputs.build_es6)
     _generate_code_split_entry(ctx, ctx.label.name + ".cs", ctx.outputs.build_es5)
