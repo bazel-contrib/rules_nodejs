@@ -64,6 +64,7 @@ node_repositories(package_json = ["//:package.json"])
 You can choose a specific version of Node.js that's built into these rules.
 Currently these versions are:
 
+* 10.3.0
 * 9.11.1
 * 8.11.1
 * 8.9.1
