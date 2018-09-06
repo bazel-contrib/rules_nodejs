@@ -3,6 +3,7 @@
   "devDependencies": {
     "is-builtin-module": "^2.0.0",
     "jasmine": "~2.8.0",
+    "mocha": "5.2.0",
     "node_resolve_index": "file:./node_resolve_index",
     "node_resolve_index_2": "file:./node_resolve_index_2",
     "node_resolve_index_3": "file:./node_resolve_index_3",
