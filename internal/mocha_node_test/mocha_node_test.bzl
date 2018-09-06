@@ -45,7 +45,6 @@ def mocha_node_test(
     **kwargs: remaining arguments passed to the test rule
   """
 
-
   all_data = data
   all_data += [Label("//internal/mocha_node_test:mocha_runner.js")]
   all_data += [Label("@bazel_tools//tools/bash/runfiles")]

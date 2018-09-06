@@ -19,4 +19,3 @@ exports_files([
     # Exported to be consumed for generating skydoc.
     "mocha_node_test.bzl",
 ])
-
