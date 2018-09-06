@@ -183,6 +183,8 @@ If you use npm instead, run:
 $ bazel run @nodejs//:bin/npm -- <arguments passed to npm>
 ```
 
+Note: on **Windows** the targets are `@nodejs//:bin/yarn.cmd` and `@nodejs//:bin/npm.cmd`.
+
 This will run yarn/npm in the current working directory. To add a package with the `yarn add` command,
 for example, you would use:
 
