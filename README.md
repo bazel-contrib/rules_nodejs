@@ -165,6 +165,33 @@ If you use npm instead, run:
 $ bazel run @nodejs//:npm install
 ```
 
+The `@nodejs//:yarn` and `@nodejs//:npm` targets will run yarn/npm on all of the
+package.json contexts listed `package_json` attribute of the `node_repositories`
+repository rule in your WORKSPACE file (`node_repositories(package_json = [...])`).
+
+If there are multiple package.json contexts in this rule but you would like to
+run the bazel managed yarn or npm on a single context this can be done
+using the following targets:
+
+```sh
+$ bazel run @nodejs//:bin/yarn -- <arguments passed to yarn>
+```
+
+If you use npm instead, run:
+
+```sh
+$ bazel run @nodejs//:bin/npm -- <arguments passed to npm>
+```
+
+This will run yarn/npm in the current working directory. To add a package with the `yarn add` command,
+for example, you would use:
+
+```sh
+$ bazel run @nodejs//:bin/yarn -- add <package>
+```
+
+Note: the arguments passed to `bazel run` after `--` are forwarded to the executable being run.
+
 [bazel instructions]: https://docs.bazel.build/versions/master/install.html
 
 ### Using Bazel-managed dependencies
