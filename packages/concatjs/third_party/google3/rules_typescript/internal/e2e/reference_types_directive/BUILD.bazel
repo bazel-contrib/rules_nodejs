@@ -22,4 +22,5 @@ ts_library(
 jasmine_node_test(
     name = "test",
     deps = [":test_lib"],
+    node_modules = "//:node_modules",
 )

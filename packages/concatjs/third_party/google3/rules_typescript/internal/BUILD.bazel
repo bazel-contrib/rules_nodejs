@@ -31,6 +31,7 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary", "jasmine_node_test
 nodejs_binary(
     name = "tsc",
     entry_point = "typescript/lib/tsc.js",
+    node_modules = "@//:node_modules",
     visibility = ["//internal:__subpackages__"],
 )
 
@@ -72,6 +73,7 @@ nodejs_binary(
         ":tsc_wrapped",
     ],
     entry_point = "build_bazel_rules_typescript/internal/tsc_wrapped/tsc_wrapped.js",
+    node_modules = "@//:node_modules",
     templated_args = ["--node_options=--expose-gc"],
     visibility = ["//visibility:public"],
 )
@@ -87,4 +89,5 @@ jasmine_node_test(
     name = "test",
     srcs = [],
     deps = [":test_lib"],
+    node_modules = "//:node_modules",
 )

@@ -24,9 +24,9 @@ const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), 'wksp'));
 const WORKSPACE_BOILERPLATE = `
 http_archive(
     name = "build_bazel_rules_nodejs",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/archive/0.11.3.zip"],
-    strip_prefix = "rules_nodejs-0.11.3",
-    sha256 = "e8842fa5f5e38f2c826167ff94323d4b5aabd13217cee867d971d6f860cfd730"
+    urls = ["https://github.com/bazelbuild/rules_nodejs/archive/0.12.4.zip"],
+    strip_prefix = "rules_nodejs-0.12.4",
+    sha256 = "c482700e032b4df60425cb9a6f8f28152fb1c4c947a9d61e6132fc59ce332b16"
 )
 http_archive(
     name = "bazel_skylib",

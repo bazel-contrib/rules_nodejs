@@ -57,7 +57,7 @@ ts_devserver(
 )
 
 # Test for production mode
-load("@build_bazel_rules_nodejs//:defs.bzl", "rollup_bundle", "nodejs_binary")
+load("@build_bazel_rules_nodejs//:defs.bzl", "http_server", "rollup_bundle", "nodejs_binary")
 
 rollup_bundle(
     name = "bundle",
@@ -86,15 +86,13 @@ genrule(
     cmd = "outs=($(OUTS)); d=$$(dirname $${outs[0]}); for s in $(SRCS); do cp $$s $$d; done",
 )
 
-nodejs_binary(
+http_server(
     name = "prodserver",
-    args = ["./examples/protocol_buffers"],
     data = [
         "index.html",
         ":bundle",
         ":protobufjs",
     ],
-    entry_point = "http-server/bin/http-server",
 )
 
 ts_library(

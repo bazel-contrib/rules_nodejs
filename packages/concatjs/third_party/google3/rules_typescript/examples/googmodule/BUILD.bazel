@@ -21,4 +21,5 @@ jasmine_node_test(
     data = [
         ":es5_output",
     ],
+    node_modules = "//:node_modules",
 )

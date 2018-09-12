@@ -1,4 +1,5 @@
 load("@build_bazel_rules_typescript//:defs.bzl", "ts_devserver", "ts_library")
+load("@build_bazel_rules_nodejs//:defs.bzl", "http_server")
 
 ts_library(
     name = "app",
@@ -25,14 +26,12 @@ rollup_bundle(
     deps = [":app"],
 )
 
-nodejs_binary(
+http_server(
     name = "prodserver",
-    args = ["./examples/app"],
     data = [
         "index.html",
         ":bundle",
     ],
-    entry_point = "http-server/bin/http-server",
 )
 
 ts_library(
