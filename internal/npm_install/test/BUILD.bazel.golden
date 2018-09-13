@@ -1,0 +1,444 @@
+
+package(default_visibility = ["//visibility:public"])
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+filegroup(
+    name = "node_modules",
+    srcs = glob(
+        include = ["node_modules/**/*"],
+        exclude = [
+          "node_modules/**/test/**",
+          "node_modules/**/docs/**",
+          "node_modules/**/* */**",
+          "node_modules/**/* *",
+        ],
+    ),
+)
+filegroup(
+    name = "node_modules_lite",
+    srcs = glob(
+        include = [
+          "node_modules/**/*.js",
+          "node_modules/**/*.d.ts",
+          "node_modules/**/*.json",
+          "node_modules/.bin/*",
+        ],
+        exclude = [
+          "node_modules/**/test/**",
+          "node_modules/**/docs/**",
+          "node_modules/**/* */**",
+          "node_modules/**/* *",
+        ],
+    ),
+)
+filegroup(
+    name = "node_modules_none",
+    srcs = [],
+)
+filegroup(
+    name = "balanced-match",
+    srcs = [
+        ":balanced-match__files",
+        
+    ],
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "balanced-match__files",
+    srcs = glob(
+        include = ["node_modules/balanced-match/**/*"],
+        exclude = [
+          "node_modules/balanced-match/test/**",
+          "node_modules/balanced-match/docs/**",
+          "node_modules/balanced-match/**/* */**",
+          "node_modules/balanced-match/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "brace-expansion",
+    srcs = [
+        ":brace-expansion__files",
+        ":balanced-match__files",
+        ":concat-map__files",
+    ],
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "brace-expansion__files",
+    srcs = glob(
+        include = ["node_modules/brace-expansion/**/*"],
+        exclude = [
+          "node_modules/brace-expansion/test/**",
+          "node_modules/brace-expansion/docs/**",
+          "node_modules/brace-expansion/**/* */**",
+          "node_modules/brace-expansion/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "concat-map",
+    srcs = [
+        ":concat-map__files",
+        
+    ],
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "concat-map__files",
+    srcs = glob(
+        include = ["node_modules/concat-map/**/*"],
+        exclude = [
+          "node_modules/concat-map/test/**",
+          "node_modules/concat-map/docs/**",
+          "node_modules/concat-map/**/* */**",
+          "node_modules/concat-map/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "diff",
+    srcs = [
+        ":diff__files",
+        
+    ],
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "diff__files",
+    srcs = glob(
+        include = ["node_modules/diff/**/*"],
+        exclude = [
+          "node_modules/diff/test/**",
+          "node_modules/diff/docs/**",
+          "node_modules/diff/**/* */**",
+          "node_modules/diff/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "fs.realpath",
+    srcs = [
+        ":fs.realpath__files",
+        
+    ],
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "fs.realpath__files",
+    srcs = glob(
+        include = ["node_modules/fs.realpath/**/*"],
+        exclude = [
+          "node_modules/fs.realpath/test/**",
+          "node_modules/fs.realpath/docs/**",
+          "node_modules/fs.realpath/**/* */**",
+          "node_modules/fs.realpath/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "glob",
+    srcs = [
+        ":glob__files",
+        ":fs.realpath__files",
+        ":inflight__files",
+        ":once__files",
+        ":wrappy__files",
+        ":inherits__files",
+        ":minimatch__files",
+        ":brace-expansion__files",
+        ":balanced-match__files",
+        ":concat-map__files",
+        ":path-is-absolute__files",
+    ],
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "glob__files",
+    srcs = glob(
+        include = ["node_modules/glob/**/*"],
+        exclude = [
+          "node_modules/glob/test/**",
+          "node_modules/glob/docs/**",
+          "node_modules/glob/**/* */**",
+          "node_modules/glob/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "inflight",
+    srcs = [
+        ":inflight__files",
+        ":once__files",
+        ":wrappy__files",
+    ],
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "inflight__files",
+    srcs = glob(
+        include = ["node_modules/inflight/**/*"],
+        exclude = [
+          "node_modules/inflight/test/**",
+          "node_modules/inflight/docs/**",
+          "node_modules/inflight/**/* */**",
+          "node_modules/inflight/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "inherits",
+    srcs = [
+        ":inherits__files",
+        
+    ],
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "inherits__files",
+    srcs = glob(
+        include = ["node_modules/inherits/**/*"],
+        exclude = [
+          "node_modules/inherits/test/**",
+          "node_modules/inherits/docs/**",
+          "node_modules/inherits/**/* */**",
+          "node_modules/inherits/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "jasmine",
+    srcs = [
+        ":jasmine__files",
+        ":glob__files",
+        ":fs.realpath__files",
+        ":inflight__files",
+        ":once__files",
+        ":wrappy__files",
+        ":inherits__files",
+        ":minimatch__files",
+        ":brace-expansion__files",
+        ":balanced-match__files",
+        ":concat-map__files",
+        ":path-is-absolute__files",
+        ":jasmine-core__files",
+    ],
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "jasmine__files",
+    srcs = glob(
+        include = ["node_modules/jasmine/**/*"],
+        exclude = [
+          "node_modules/jasmine/test/**",
+          "node_modules/jasmine/docs/**",
+          "node_modules/jasmine/**/* */**",
+          "node_modules/jasmine/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+nodejs_binary(
+    name = "jasmine/jasmine",
+    entry_point = "jasmine/bin/jasmine.js",
+    install_source_map_support = False,
+    data = [":jasmine"],
+)
+filegroup(
+    name = "jasmine-core",
+    srcs = [
+        ":jasmine-core__files",
+        
+    ],
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "jasmine-core__files",
+    srcs = glob(
+        include = ["node_modules/jasmine-core/**/*"],
+        exclude = [
+          "node_modules/jasmine-core/test/**",
+          "node_modules/jasmine-core/docs/**",
+          "node_modules/jasmine-core/**/* */**",
+          "node_modules/jasmine-core/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "minimatch",
+    srcs = [
+        ":minimatch__files",
+        ":brace-expansion__files",
+        ":balanced-match__files",
+        ":concat-map__files",
+    ],
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "minimatch__files",
+    srcs = glob(
+        include = ["node_modules/minimatch/**/*"],
+        exclude = [
+          "node_modules/minimatch/test/**",
+          "node_modules/minimatch/docs/**",
+          "node_modules/minimatch/**/* */**",
+          "node_modules/minimatch/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "once",
+    srcs = [
+        ":once__files",
+        ":wrappy__files",
+    ],
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "once__files",
+    srcs = glob(
+        include = ["node_modules/once/**/*"],
+        exclude = [
+          "node_modules/once/test/**",
+          "node_modules/once/docs/**",
+          "node_modules/once/**/* */**",
+          "node_modules/once/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "path-is-absolute",
+    srcs = [
+        ":path-is-absolute__files",
+        
+    ],
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "path-is-absolute__files",
+    srcs = glob(
+        include = ["node_modules/path-is-absolute/**/*"],
+        exclude = [
+          "node_modules/path-is-absolute/test/**",
+          "node_modules/path-is-absolute/docs/**",
+          "node_modules/path-is-absolute/**/* */**",
+          "node_modules/path-is-absolute/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "unidiff",
+    srcs = [
+        ":unidiff__files",
+        ":diff__files",
+    ],
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "unidiff__files",
+    srcs = glob(
+        include = ["node_modules/unidiff/**/*"],
+        exclude = [
+          "node_modules/unidiff/test/**",
+          "node_modules/unidiff/docs/**",
+          "node_modules/unidiff/**/* */**",
+          "node_modules/unidiff/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "wrappy",
+    srcs = [
+        ":wrappy__files",
+        
+    ],
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "wrappy__files",
+    srcs = glob(
+        include = ["node_modules/wrappy/**/*"],
+        exclude = [
+          "node_modules/wrappy/test/**",
+          "node_modules/wrappy/docs/**",
+          "node_modules/wrappy/**/* */**",
+          "node_modules/wrappy/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "@gregmagolan/test-a",
+    srcs = [
+        ":@gregmagolan/test-a__files",
+        
+    ],
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "@gregmagolan/test-a__files",
+    srcs = glob(
+        include = ["node_modules/@gregmagolan/test-a/**/*"],
+        exclude = [
+          "node_modules/@gregmagolan/test-a/test/**",
+          "node_modules/@gregmagolan/test-a/docs/**",
+          "node_modules/@gregmagolan/test-a/**/* */**",
+          "node_modules/@gregmagolan/test-a/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "@gregmagolan/test-b",
+    srcs = [
+        ":@gregmagolan/test-b__files",
+        
+    ],
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "@gregmagolan/test-b__files",
+    srcs = glob(
+        include = ["node_modules/@gregmagolan/test-b/**/*"],
+        exclude = [
+          "node_modules/@gregmagolan/test-b/test/**",
+          "node_modules/@gregmagolan/test-b/docs/**",
+          "node_modules/@gregmagolan/test-b/**/* */**",
+          "node_modules/@gregmagolan/test-b/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "@yarnpkg/lockfile",
+    srcs = [
+        ":@yarnpkg/lockfile__files",
+        
+    ],
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "@yarnpkg/lockfile__files",
+    srcs = glob(
+        include = ["node_modules/@yarnpkg/lockfile/**/*"],
+        exclude = [
+          "node_modules/@yarnpkg/lockfile/test/**",
+          "node_modules/@yarnpkg/lockfile/docs/**",
+          "node_modules/@yarnpkg/lockfile/**/* */**",
+          "node_modules/@yarnpkg/lockfile/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
