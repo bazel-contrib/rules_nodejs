@@ -1,0 +1,66 @@
+load("//:defs.bzl", "jasmine_node_test", "rollup_bundle")
+
+# You can have a rollup_bundle with no node_modules attribute
+# and no fine grained deps
+rollup_bundle(
+    name = "bundle_no_deps",
+    srcs = ["no-deps.js"],
+    entry_point = "internal/e2e/rollup_fine_grained_deps/no-deps.js",
+)
+
+# You can have a rollup_bundle with no node_modules attribute
+# and fine grained deps
+rollup_bundle(
+    name = "bundle",
+    srcs = ["has-deps.js"],
+    entry_point = "internal/e2e/rollup_fine_grained_deps/has-deps.js",
+    deps = [
+        "@fine_grained_deps_yarn//:@gregmagolan/test-b",
+    ],
+)
+
+# You can have a rollup_bundle with a node_modules attribute
+# and no fine grained deps
+rollup_bundle(
+    name = "bundle_legacy",
+    srcs = ["has-deps.js"],
+    entry_point = "internal/e2e/rollup_fine_grained_deps/has-deps.js",
+    node_modules = "@fine_grained_deps_yarn//:node_modules_lite",
+)
+
+# You can have a rollup_bundle with both a node_modules attribute
+# and fine grained deps so long as they come from the same root
+rollup_bundle(
+    name = "bundle_hybrid",
+    srcs = ["has-deps.js"],
+    entry_point = "internal/e2e/rollup_fine_grained_deps/has-deps.js",
+    node_modules = "@fine_grained_deps_yarn//:node_modules_lite",
+    deps = [
+        "@fine_grained_deps_yarn//:@gregmagolan/test-b",
+    ],
+)
+
+jasmine_node_test(
+    name = "test",
+    srcs = glob(["*.spec.js"]),
+    data = [
+        ":bundle.es6.js",
+        ":bundle.js",
+        ":bundle.min.js",
+        ":bundle.min_debug.js",
+        ":bundle_hybrid.es6.js",
+        ":bundle_hybrid.js",
+        ":bundle_hybrid.min.js",
+        ":bundle_hybrid.min_debug.js",
+        ":bundle_legacy.es6.js",
+        ":bundle_legacy.js",
+        ":bundle_legacy.min.js",
+        ":bundle_legacy.min_debug.js",
+        ":bundle_no_deps.es6.js",
+        ":bundle_no_deps.js",
+        ":bundle_no_deps.min.js",
+        ":bundle_no_deps.min_debug.js",
+        "@fine_grained_deps_yarn//:@gregmagolan/test-a",
+        "@fine_grained_deps_yarn//:jasmine",
+    ],
+)

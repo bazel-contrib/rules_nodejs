@@ -31,10 +31,6 @@ filegroup(
     ),
 )
 filegroup(
-    name = "node_modules_none",
-    srcs = [],
-)
-filegroup(
     name = "balanced-match",
     srcs = [
         ":balanced-match__files",

@@ -56,10 +56,6 @@
  *   https://github.com/bazelbuild/bazel/issues/5769 would allow this
  *   filegroup to include those files.
  *
- * `@<workspace>//:node_modules_none`: An empty filegroup which is useful
- *   for nodejs_binary targets with no npm dependencies
- *   but that still need to specify a node_modules attribute.
- *
  * This work is based off the fine grained deps concepts in
  * https://github.com/pubref/rules_node developed by @pcj.
  *
@@ -128,14 +124,6 @@ filegroup(
           "node_modules/**/* *",
         ],
     ),
-)
-
-# An empty filegroup which is useful
-# for nodejs_binary targets with no npm dependencies
-# but that still need to specify a node_modules attribute.
-filegroup(
-    name = "node_modules_none",
-    srcs = [],
 )
 
 `

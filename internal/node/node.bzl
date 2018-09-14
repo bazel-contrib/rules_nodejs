@@ -22,12 +22,7 @@ a `module_name` attribute can be `require`d by that name.
 load("//internal/common:module_mappings.bzl", "module_mappings_runtime_aspect")
 load("//internal/common:sources_aspect.bzl", "sources_aspect")
 load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
-
-NodeModuleInfo = provider(
-  doc = "This provider contains information about npm dependencies installed with yarn_install and npm_install rules",
-  fields = {
-    "workspace": "The workspace name that the npm dependencies are provided from"
-  })
+load("//internal/common:node_module_info.bzl", "NodeModuleInfo", "collect_node_modules_aspect")
 
 def _write_loader_script(ctx):
   # Generates the JavaScript snippet of module roots mappings, with each entry
@@ -40,8 +35,10 @@ def _write_loader_script(ctx):
         escaped = mn.replace("/", r"\/").replace(".", r"\.")
         mapping = r"{module_name: /^%s\b/, module_root: '%s'}" % (escaped, mr)
         module_mappings.append(mapping)
+
   node_modules_root = None
-  if ctx.attr.node_modules:
+  if ctx.files.node_modules:
+    # ctx.files.node_modules is not an empty list
     workspace = ctx.attr.node_modules.label.workspace_root.split("/")[1] if ctx.attr.node_modules.label.workspace_root else ctx.workspace_name
     node_modules_root = "/".join([f for f in [
         workspace,
@@ -53,14 +50,16 @@ def _write_loader_script(ctx):
       if not node_modules_root:
         node_modules_root = possible_root
       elif node_modules_root != possible_root:
-        fail("All npm dependencies need to come from a single workspace. found", [node_modules_root, possible_root])
+        fail("All npm dependencies need to come from a single workspace. Found '%s' and '%s'." % (node_modules_root, possible_root))
   if not node_modules_root:
-    fail("""
-         Due to a breaking change in rules_nodejs, target %s
-         must now declare either an explicit node_modules attribute, or
-         list explicit deps[] or data[] dependencies on npm labels.
+      # there are no fine grained deps and the node_modules attribute is an empty filegroup
+      # but we still need a node_modules_root even if its empty
+      workspace = ctx.attr.node_modules.label.workspace_root.split("/")[1] if ctx.attr.node_modules.label.workspace_root else ctx.workspace_name
+      node_modules_root = "/".join([f for f in [
+          workspace,
+          ctx.attr.node_modules.label.package,
+          "node_modules"] if f])
 
-         See https://github.com/bazelbuild/rules_nodejs/wiki#migrating-to-rules_nodejs-013""" % ctx.label)
   ctx.actions.expand_template(
       template=ctx.file._loader_template,
       output=ctx.outputs.loader,
@@ -135,20 +134,6 @@ def _nodejs_binary_impl(ctx):
         ),
     )]
 
-def _collect_node_modules_aspect_impl(target, ctx):
-  nm_wksp = None
-
-  if hasattr(ctx.rule.attr, "tags") and "NODE_MODULE_MARKER" in ctx.rule.attr.tags:
-      nm_wksp = target.label.workspace_root.split("/")[1] if target.label.workspace_root else ctx.workspace_name
-      return [NodeModuleInfo(workspace = nm_wksp)]
-
-  return []
-
-_collect_node_modules_aspect = aspect(
-    implementation = _collect_node_modules_aspect_impl,
-    attr_aspects = ["deps"],
-)
-
 _NODEJS_EXECUTABLE_ATTRS = {
     "entry_point": attr.string(
         doc = """The script which should be executed first, usually containing a main function.
@@ -171,7 +156,7 @@ _NODEJS_EXECUTABLE_ATTRS = {
         doc = """Runtime dependencies which may be loaded during execution.""",
         allow_files = True,
         cfg = "data",
-        aspects = [sources_aspect, module_mappings_runtime_aspect, _collect_node_modules_aspect]),
+        aspects = [sources_aspect, module_mappings_runtime_aspect, collect_node_modules_aspect]),
     "templated_args": attr.string_list(
         doc = """Arguments which are passed to every execution of the program.
         To pass a node startup option, prepend it with `--node_options=`, e.g.
@@ -243,6 +228,7 @@ _NODEJS_EXECUTABLE_ATTRS = {
         )
         ```
         """,
+        default = Label("//:node_modules_none"),
     ),
     "node": attr.label(
         doc = """The node entry point target.""",
