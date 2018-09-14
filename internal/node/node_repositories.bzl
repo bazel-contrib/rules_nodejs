@@ -477,8 +477,9 @@ def node_repositories(
       all required files need to be included in your node_modules filegroup. This option is desirable as it gives
       a stronger guarantee of hermiticity which is required for remote execution.
   """
-  # @bazel_tools//tools/bash/runfiles is required for nodejs
-  check_bazel_version("0.14.0")
+  # 0.14.0: @bazel_tools//tools/bash/runfiles is required for nodejs
+  # 0.17.1: allow @ in package names is required for fine grained deps
+  check_bazel_version("0.17.1")
 
   _nodejs_repo(
     name = "nodejs",
