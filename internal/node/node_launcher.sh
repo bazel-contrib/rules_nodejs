@@ -41,7 +41,7 @@ elif [[ -f "${RUNFILES_MANIFEST_FILE:-/dev/null}" ]]; then
     fi
   done < ${RUNFILES_MANIFEST_FILE:-/dev/null}
   if [ -z "${RUNFILES_BASH:-/dev/null}" ]; then
-    echo "Failed to find bazel_tools/tools/bash/runfiles/runfiles.bash in manfiest ${RUNFILES_MANIFEST_FILE:-/dev/null}"
+    echo >&2 "ERROR: cannot find bazel_tools/tools/bash/runfiles/runfiles.bash in manfiest ${RUNFILES_MANIFEST_FILE:-/dev/null}"
     exit 1
   fi
   source "${RUNFILES_BASH:-/dev/null}"
