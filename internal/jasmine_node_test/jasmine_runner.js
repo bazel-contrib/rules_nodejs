@@ -33,7 +33,7 @@ function main(args) {
       // deps such as "@npm//:typescript" if executed may cause the test to
       // fail or have unexpected side-effects. "@npm//:typescript" would
       // try to execute tsc, print its help, and process.exit(1)
-      .filter(f => /\b(spec|test)\.js$/.test(f))
+      .filter(f => /[^a-zA-Z0-9](spec|test)\.js$/.test(f))
       .forEach(f => jrunner.addSpecFile(f));
 
   var noSpecsFound = true;
