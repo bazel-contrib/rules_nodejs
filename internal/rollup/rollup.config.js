@@ -174,6 +174,9 @@ if (enableCodeSplitting) {
   config.output = {
     format: 'TMPL_output_format',
   };
+  if (process.env.ROLLUP_BUNDLE_FIXED_CHUNK_NAMES) {
+    config.output.chunkFileNames = '[name].js';
+  }
 }
 else {
   config.input = inputs[0];
