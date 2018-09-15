@@ -238,7 +238,6 @@ with the `node_modules` attribute of nodejs rules.
 
 * `@npm//:node_modules` is includes **all** files under `node_modules`
 * `@npm//:node_modules_lite` is includes only `.js`, `.d.ts`, `.json` and `./bin/*` under `node_modules` (this reduces the number of input files)
-* `@npm//:node_modules_none` is an empty file group which is useful when a nodejs_binary has no node_module dependencies but it still requires its `node_modules` attribute set
 
 ```python
 load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
