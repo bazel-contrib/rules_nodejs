@@ -19,6 +19,7 @@ You do not need to install them into your project.
 """
 load("//internal/common:collect_es6_sources.bzl", "collect_es6_sources")
 load("//internal/common:module_mappings.bzl", "get_module_mappings")
+load("//internal/common:node_module_info.bzl", "NodeModuleInfo", "collect_node_modules_aspect")
 
 _ROLLUP_MODULE_MAPPINGS_ATTR = "rollup_module_mappings"
 
@@ -68,11 +69,31 @@ def write_rollup_config(ctx, plugins=[], root_dir=None, filename="_%s.rollup.con
   if not root_dir:
     root_dir = "/".join([ctx.bin_dir.path, build_file_dirname, ctx.label.name + ".es6"])
 
-  node_modules_path = "/".join([f for f in [
-    ctx.attr.node_modules.label.workspace_root,
-    ctx.attr.node_modules.label.package,
-    "node_modules"
-  ] if f])
+  node_modules_root = None
+  default_node_modules = False
+  if ctx.files.node_modules:
+    # ctx.files.node_modules is not an empty list
+    node_modules_root = "/".join([f for f in [
+        ctx.attr.node_modules.label.workspace_root,
+        ctx.attr.node_modules.label.package,
+        "node_modules"] if f])
+  for d in ctx.attr.deps:
+    if NodeModuleInfo in d:
+      possible_root = "/".join(["external", d[NodeModuleInfo].workspace, "node_modules"])
+      if not node_modules_root:
+        node_modules_root = possible_root
+      elif node_modules_root != possible_root:
+        fail("All npm dependencies need to come from a single workspace. Found '%s' and '%s'." % (node_modules_root, possible_root))
+  if not node_modules_root:
+      # there are no fine grained deps and the node_modules attribute is an empty filegroup
+      # but we still need a node_modules_root even if its empty
+      workspace = ctx.attr.node_modules.label.workspace_root.split("/")[1] if ctx.attr.node_modules.label.workspace_root else ctx.workspace_name
+      if workspace == "build_bazel_rules_nodejs" and ctx.attr.node_modules.label.package == "" and ctx.attr.node_modules.label.name == "node_modules_none":
+        default_node_modules = True
+      node_modules_root = "/".join([f for f in [
+          ctx.attr.node_modules.label.workspace_root,
+          ctx.attr.node_modules.label.package,
+          "node_modules"] if f])
 
   ctx.actions.expand_template(
       output = config,
@@ -87,7 +108,9 @@ def write_rollup_config(ctx, plugins=[], root_dir=None, filename="_%s.rollup.con
           "TMPL_stamp_data": "\"%s\"" % ctx.version_file.path if ctx.version_file else "undefined",
           "TMPL_inputs": ",".join(["\"%s\"" % e for e in entry_points]),
           "TMPL_output_format": output_format,
-          "TMPL_node_modules_path": node_modules_path,
+          "TMPL_node_modules_root": node_modules_root,
+          "TMPL_default_node_modules": "true" if default_node_modules else "false",
+          "TMPL_target": str(ctx.label),
       })
 
   return config
@@ -439,10 +462,58 @@ ROLLUP_ATTRS = {
         allow_files = [".js"]),
     "deps": attr.label_list(
         doc = """Other rules that produce JavaScript outputs, such as `ts_library`.""",
-        aspects = [rollup_module_mappings_aspect]),
+        aspects = [rollup_module_mappings_aspect, collect_node_modules_aspect]),
     "node_modules": attr.label(
-        doc = """Dependencies from npm that provide some modules that must be resolved by rollup.""",
-        default = Label("@//:node_modules")),
+        doc = """Dependencies from npm that provide some modules that must be
+        resolved by rollup.
+
+        This attribute is DEPRECATED. As of version 0.13.0 the recommended approach
+        to npm dependencies is to use fine grained npm dependencies which are setup
+        with the `yarn_install` or `npm_install` rules. For example, in a rollup_bundle
+        target that used the `node_modules` attribute,
+
+        ```
+        rollup_bundle(
+          name = "bundle",
+          ...
+          node_modules = "//:node_modules",
+        )
+        ```
+
+        which specifies all files within the `//:node_modules` filegroup
+        to be inputs to the `bundle`. Using fine grained npm dependencies,
+        `bundle` is defined with only the npm dependencies that are
+        needed:
+
+        ```
+        rollup_bundle(
+          name = "bundle",
+          ...
+          deps = [
+              "@npm//:foo",
+              "@npm//:bar",
+              ...
+          ],
+        )
+        ```
+
+        In this case, only the `foo` and `bar` npm packages and their
+        transitive deps are includes as inputs to the `bundle` target
+        which reduces the time required to setup the runfiles for this
+        target (see https://github.com/bazelbuild/bazel/issues/5153).
+
+        The @npm external repository and the fine grained npm package
+        targets are setup using the `yarn_install` or `npm_install` rule
+        in your WORKSPACE file:
+
+        yarn_install(
+          name = "npm",
+          package_json = "//:package.json",
+          yarn_lock = "//:yarn.lock",
+        )
+        """,
+        default = Label("//:node_modules_none"),
+    ),
     "license_banner": attr.label(
         doc = """A .txt file passed to the `banner` config option of rollup.
         The contents of the file will be copied to the top of the resulting bundles.
