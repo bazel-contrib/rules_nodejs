@@ -149,25 +149,20 @@ def _yarn_install_impl(repository_ctx):
   node_path = repository_ctx.path(get_node_label(repository_ctx))
   bash_exe = repository_ctx.os.environ.get("BAZEL_SH", "bash")
 
-  repository_cache = repository_ctx.os.environ.get("BAZEL_YARN_REPOSITORY_CACHE", repository_ctx.attr.repository_cache)
-
   # A local cache is used as multiple yarn rules cannot run simultaneously using a shared
   # cache and a shared cache is non-hermetic.
   # To see the output, pass: quiet=False
-  if repository_cache:
-    repository_cache = repository_cache + "/" + repository_ctx.attr.name
+  if repository_ctx.attr.workspace_node_modules:
+    package_dir = str(repository_ctx.path(repository_ctx.attr.package_json).dirname)
+    # Note: if we wanted to hard-link in a cross-platform manner we could use:
+    # rsync --archive --link-dest {package_dir} {package_dir}/node_modules {repo_directory}
     args = [bash_exe, "-xc", """
-      if [ ! -d {cache_directory} ]; then
-        mkdir -p {cache_directory}
-        cp -a {repo_directory}/package.json {cache_directory}
-        cp -a {repo_directory}/yarn.lock {cache_directory}
-      fi
-      {yarn} --cache-folder {yarn_cache_directory} --cwd {cache_directory}
-      rsync --archive --exclude "/_yarn_cache" --exclude "/package.json" --exclude "/yarn.lock" --link-dest {cache_directory}/. {cache_directory}/. {repo_directory}
+      {yarn} --cache-folder {yarn_cache_directory} --cwd {package_dir}
+      ln -sf {package_dir}/node_modules {repo_directory}/node_modules
       """.format(
-        cache_directory=repository_cache,
-        yarn_cache_directory=repository_cache + "/_yarn_cache",
         repo_directory=repository_ctx.path(""),
+        yarn_cache_directory=package_dir + "/._yarn_cache",
+        package_dir=package_dir,
         yarn=repository_ctx.path(yarn),
     )]
   else:
@@ -198,13 +193,13 @@ yarn_install = repository_rule(
             mandatory = True,
             single_file = True,
         ),
-        "repository_cache": attr.string(
-          doc = """Experimental attribute that can be used to permanently cache
-          node_modules and the yarn cache at the given path within a
-          subdirectory of the name of this repository. It has to be ensured
-          however that the provided path does not clash with other
-          workspaces.""",
-          default = "",
+        "workspace_node_modules": attr.bool(
+          doc = """When set to true yarn will run in the directory where the
+          package.json is located and then just symlink the node_modules into
+          the external repository. This has the benefit that the node_modules
+          get permanently persisted and it integrates nicer when using the
+          'yarn add/remove' commands.""",
+          default = False,
         ),
         "data": attr.label_list(),
         "manual_build_file_contents": attr.string(
