@@ -24,11 +24,10 @@ See discussion in the README.
 load("//internal/node:node_labels.bzl", "get_node_label", "get_npm_label", "get_yarn_label")
 load("//internal/common:os_name.bzl", "os_name")
 
-def _create_build_file(repository_ctx):
+def _create_build_file(repository_ctx, node):
   if repository_ctx.attr.manual_build_file_contents:
     repository_ctx.file("BUILD.bazel", repository_ctx.attr.manual_build_file_contents)
   else:
-    node = repository_ctx.path(get_node_label(repository_ctx))
     repository_ctx.template("internal/generate_build_file.js",
         repository_ctx.path(Label("//internal/npm_install:generate_build_file.js")), {})
     result = repository_ctx.execute([node, "internal/generate_build_file.js"])
@@ -49,11 +48,9 @@ def _npm_install_impl(repository_ctx):
 
   is_windows = os_name(repository_ctx).find("windows") != -1
   node = get_node_label(repository_ctx)
+  node_path = repository_ctx.path(node)
   npm = get_npm_label(repository_ctx)
   npm_args = ["install"]
-
-  if repository_ctx.attr.prod_only:
-    npm_args.append("--production")
 
   # The entry points for npm install for osx/linux and windows
   if not is_windows:
@@ -105,7 +102,7 @@ cd "{root}" && "{npm}" {npm_args}
   if result.return_code:
     fail("remove_npm_absolute_paths failed: %s (%s)" % (result.stdout, result.stderr))
 
-  _create_build_file(repository_ctx)
+  _create_build_file(repository_ctx, node_path)
 
 npm_install = repository_rule(
     attrs = {
@@ -117,10 +114,6 @@ npm_install = repository_rule(
         "package_lock_json": attr.label(
             allow_files = True,
             single_file = True,
-        ),
-        "prod_only": attr.bool(
-            default = False,
-            doc = "Don't install devDependencies",
         ),
         "data": attr.label_list(),
         "manual_build_file_contents": attr.string(
@@ -153,27 +146,45 @@ def _yarn_install_impl(repository_ctx):
   _add_data_dependencies(repository_ctx)
 
   yarn = get_yarn_label(repository_ctx)
+  node_path = repository_ctx.path(get_node_label(repository_ctx))
+  bash_exe = repository_ctx.os.environ.get("BAZEL_SH", "bash")
+
+  repository_cache = repository_ctx.os.environ.get("BAZEL_YARN_REPOSITORY_CACHE", repository_ctx.attr.repository_cache)
 
   # A local cache is used as multiple yarn rules cannot run simultaneously using a shared
   # cache and a shared cache is non-hermetic.
   # To see the output, pass: quiet=False
-  args = [
-    repository_ctx.path(yarn),
-    "--cache-folder",
-    repository_ctx.path("_yarn_cache"),
-    "--cwd",
-    repository_ctx.path(""),
-  ]
+  if repository_cache:
+    repository_cache = repository_cache + "/" + repository_ctx.attr.name
+    args = [bash_exe, "-xc", """
+      if [ ! -d {cache_directory} ]; then
+        mkdir -p {cache_directory}
+        cp -a {repo_directory}/package.json {cache_directory}
+        cp -a {repo_directory}/yarn.lock {cache_directory}
+      fi
+      {yarn} --cache-folder {yarn_cache_directory} --cwd {cache_directory}
+      rsync --archive --exclude "/_yarn_cache" --exclude "/package.json" --exclude "/yarn.lock" --link-dest {cache_directory}/. {cache_directory}/. {repo_directory}
+      """.format(
+        cache_directory=repository_cache,
+        yarn_cache_directory=repository_cache + "/_yarn_cache",
+        repo_directory=repository_ctx.path(""),
+        yarn=repository_ctx.path(yarn),
+    )]
+  else:
+    args = [
+      repository_ctx.path(yarn),
+      "--cache-folder",
+      repository_ctx.path("_yarn_cache"),
+      "--cwd",
+      repository_ctx.path(""),
+    ]
 
-  if repository_ctx.attr.prod_only:
-    args.append("--prod")
-
-  result = repository_ctx.execute(args)
+  result = repository_ctx.execute(args, quiet=False)
 
   if result.return_code:
     fail("yarn_install failed: %s (%s)" % (result.stdout, result.stderr))
 
-  _create_build_file(repository_ctx)
+  _create_build_file(repository_ctx, node_path)
 
 yarn_install = repository_rule(
     attrs = {
@@ -187,9 +198,13 @@ yarn_install = repository_rule(
             mandatory = True,
             single_file = True,
         ),
-        "prod_only": attr.bool(
-            default = False,
-            doc = "Don't install devDependencies",
+        "repository_cache": attr.string(
+          doc = """Experimental attribute that can be used to permanently cache
+          node_modules and the yarn cache at the given path within a
+          subdirectory of the name of this repository. It has to be ensured
+          however that the provided path does not clash with other
+          workspaces.""",
+          default = "",
         ),
         "data": attr.label_list(),
         "manual_build_file_contents": attr.string(

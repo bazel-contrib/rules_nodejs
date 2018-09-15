@@ -493,8 +493,6 @@ def node_repositories(
       name = "build_bazel_rules_nodejs_npm_install_deps",
       package_json = "@build_bazel_rules_nodejs//internal/npm_install:package.json",
       yarn_lock = "@build_bazel_rules_nodejs//internal/npm_install:yarn.lock",
-      # Just here as a smoke test for this attribute
-      prod_only = True,
   )
 
   yarn_install(
