@@ -155,7 +155,7 @@ def _yarn_install_impl(repository_ctx):
     package_dir = str(repository_ctx.path(repository_ctx.attr.package_json).dirname)
     # Note: if we wanted to hard-link in a portable manner we could use:
     # rsync --archive --link-dest {package_dir} {package_dir}/node_modules {repo_directory}
-    args = [bash_exe, "-xc", """
+    args = [bash_exe, "-euc", """
       {yarn} --cache-folder {yarn_cache_directory} --cwd {package_dir}
       ln -sf {package_dir}/node_modules {repo_directory}/node_modules
       """.format(
