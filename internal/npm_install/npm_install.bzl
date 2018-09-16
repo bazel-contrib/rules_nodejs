@@ -146,7 +146,6 @@ def _yarn_install_impl(repository_ctx):
 
   node = repository_ctx.path(get_node_label(repository_ctx))
   yarn = get_yarn_label(repository_ctx)
-  node_path = repository_ctx.path(get_node_label(repository_ctx))
   bash_exe = repository_ctx.os.environ.get("BAZEL_SH", "bash")
 
   # A local cache is used as multiple yarn rules cannot run simultaneously using a shared
