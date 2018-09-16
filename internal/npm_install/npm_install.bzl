@@ -178,7 +178,7 @@ def _yarn_install_impl(repository_ctx):
       repository_ctx.path(""),
     ]
 
-  result = repository_ctx.execute(args, quiet=False)
+  result = repository_ctx.execute(args)
 
   if result.return_code:
     fail("yarn_install failed: %s (%s)" % (result.stdout, result.stderr))
