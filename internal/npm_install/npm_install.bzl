@@ -28,11 +28,14 @@ def _create_build_file(repository_ctx, node):
   if repository_ctx.attr.manual_build_file_contents:
     repository_ctx.file("BUILD.bazel", repository_ctx.attr.manual_build_file_contents)
   else:
-    repository_ctx.template("internal/generate_build_file.js",
-        repository_ctx.path(Label("//internal/npm_install:generate_build_file.js")), {})
     result = repository_ctx.execute([node, "internal/generate_build_file.js"])
     if result.return_code:
       fail("node failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
+
+def _add_build_file_generator(repository_ctx):
+  if not repository_ctx.attr.manual_build_file_contents:
+    repository_ctx.template("internal/generate_build_file.js",
+      repository_ctx.path(Label("//internal/npm_install:generate_build_file.js")), {})
 
 def _add_data_dependencies(repository_ctx):
   """Add data dependencies to the repository."""
@@ -79,6 +82,7 @@ cd "{root}" && "{npm}" {npm_args}
           repository_ctx.path("package-lock.json"))
 
   _add_data_dependencies(repository_ctx)
+  _add_build_file_generator(repository_ctx)
 
   # To see the output, pass: quiet=False
   result = repository_ctx.execute(
@@ -143,6 +147,7 @@ def _yarn_install_impl(repository_ctx):
           repository_ctx.path("yarn.lock"))
 
   _add_data_dependencies(repository_ctx)
+  _add_build_file_generator(repository_ctx)
 
   node = repository_ctx.path(get_node_label(repository_ctx))
   yarn = get_yarn_label(repository_ctx)
