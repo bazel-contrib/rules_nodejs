@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -24,6 +25,8 @@ import (
 
 	arpb "github.com/bazelbuild/rules_typescript/ts_auto_deps/proto"
 )
+
+var bazelErrorRE = regexp.MustCompile(`ERROR: ([^:]+):(\d+):\d+:`)
 
 // New creates a new updater from the given arguments. One updater can be used
 // to update many packages, repeatedly, but not concurrently.
@@ -102,7 +105,14 @@ func (upd *Updater) runBazelAnalyze(buildFilePath string, bld *build.File, rules
 	args = append(args, targets...)
 	out, stderr, err := upd.bazelAnalyze(buildFilePath, args)
 	if err != nil {
-		return nil, &AnalysisFailedError{fmt.Sprintf("running bazel analyze %s failed: %v", args, err), buildFilePath}
+		return nil, &AnalysisFailedError{
+			[]AnalysisFailureCause{
+				AnalysisFailureCause{
+					Message: fmt.Sprintf("running bazel analyze %s failed: %v", args, err),
+					Path:    buildFilePath,
+				},
+			},
+		}
 	}
 
 	var res arpb.AnalyzeResult
@@ -307,13 +317,25 @@ func determineRuleType(path, s string) ruleType {
 // AnalysisFailedError is returned by ts_auto_deps when the underlying analyze operation
 // fails, e.g. because the BUILD files have syntactical errors.
 type AnalysisFailedError struct {
+	Causes []AnalysisFailureCause
+}
+
+// AnalysisFailureCause gives (one of) the reasons analysis failed, along with
+// the path and line that caused the failure (if available).
+type AnalysisFailureCause struct {
 	Message string
 	// workspace path of the file on which analysis failed
 	Path string
+	// 1-based line on which analysis failed
+	Line int
 }
 
 func (a *AnalysisFailedError) Error() string {
-	return a.Message
+	var messages []string
+	for _, c := range a.Causes {
+		messages = append(messages, c.Message)
+	}
+	return strings.Join(messages, "\n")
 }
 
 // updateDeps adds missing dependencies and removes unnecessary dependencies
@@ -322,16 +344,33 @@ func (a *AnalysisFailedError) Error() string {
 func updateDeps(bld *build.File, reports []*arpb.DependencyReport) (bool, error) {
 	// First, check *all* reports on whether they were successful, so that users
 	// get the complete set of errors at once.
-	var errors []string
+	var errors []AnalysisFailureCause
 	for _, report := range reports {
 		if !report.GetSuccessful() {
-			msg := fmt.Sprintf("dependency analysis failed for %s:\n%s",
-				report.GetRule(), strings.Join(report.GetFeedback(), "\n"))
-			errors = append(errors, msg)
+			for _, fb := range report.GetFeedback() {
+				msg := fmt.Sprintf("dependency analysis failed for %s:\n%s",
+					report.GetRule(), fb)
+
+				m := bazelErrorRE.FindStringSubmatch(fb)
+				if m == nil {
+					// error message didn't contain file and line number, so just use the
+					// path of the BUILD file that was analyzed
+					errors = append(errors, AnalysisFailureCause{Message: msg, Path: bld.Path})
+					continue
+				}
+
+				file := m[1]
+				line, err := strconv.Atoi(m[2])
+				if err != nil {
+					return false, err
+				}
+
+				errors = append(errors, AnalysisFailureCause{msg, file, line})
+			}
 		}
 	}
 	if len(errors) > 0 {
-		return false, &AnalysisFailedError{strings.Join(errors, "\n"), bld.Path}
+		return false, &AnalysisFailedError{errors}
 	}
 
 	pkg := filepath.Dir(bld.Path)
@@ -349,9 +388,15 @@ func updateDeps(bld *build.File, reports []*arpb.DependencyReport) (bool, error)
 				d = AbsoluteBazelTarget(bld, d)
 				if d == fullTarget {
 					return false, &AnalysisFailedError{
-						fmt.Sprintf("target %s depends on itself. "+
-							"Maybe you have an incorrect `// from %s` comment, or need to split application "+
-							"entry point (main.ts) and ng_module() rule?", d, d), bld.Path}
+						[]AnalysisFailureCause{
+							AnalysisFailureCause{
+								Message: fmt.Sprintf("target %s depends on itself. "+
+									"Maybe you have an incorrect `// from %s` comment, or need to split application "+
+									"entry point (main.ts) and ng_module() rule?", d, d),
+								Path: bld.Path,
+							},
+						},
+					}
 				}
 				platform.Infof("Adding dependency on %s to %s\n", d, fullTarget)
 				if addDep(bld, r, d) {
