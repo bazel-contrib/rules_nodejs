@@ -4,23 +4,23 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
 ts_library(
     name = "tsconfig_types",
     srcs = glob(["tsconfig_types.ts"]),
-    tsconfig = ":tsconfig.json",
-    node_modules = "@build_bazel_rules_typescript_internal_reference_types_directive_deps//:node_modules",
     expected_diagnostics = [
         "TS2304: Cannot find name 'Hammer'",
     ],
+    node_modules = "@build_bazel_rules_typescript_internal_reference_types_directive_deps//:node_modules",
+    tsconfig = ":tsconfig.json",
 )
 
 ts_library(
     name = "test_lib",
     testonly = True,
     srcs = glob(["*.spec.ts"]),
-    tsconfig = ":tsconfig.json",
     node_modules = "@build_bazel_rules_typescript_internal_reference_types_directive_deps//:node_modules",
+    tsconfig = ":tsconfig.json",
 )
 
 jasmine_node_test(
     name = "test",
-    deps = [":test_lib"],
     node_modules = "//:node_modules",
+    deps = [":test_lib"],
 )
