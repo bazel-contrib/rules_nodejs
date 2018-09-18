@@ -52,6 +52,19 @@ filegroup(
     tags = ["NODE_MODULE_MARKER"],
 )
 filegroup(
+    name = "balanced-match__typings",
+    srcs = glob(
+        include = ["node_modules/balanced-match/**/*.d.ts"],
+        exclude = [
+          "node_modules/balanced-match/test/**",
+          "node_modules/balanced-match/docs/**",
+          "node_modules/balanced-match/**/* */**",
+          "node_modules/balanced-match/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
     name = "brace-expansion",
     srcs = [
         ":brace-expansion__files",
@@ -64,6 +77,19 @@ filegroup(
     name = "brace-expansion__files",
     srcs = glob(
         include = ["node_modules/brace-expansion/**/*"],
+        exclude = [
+          "node_modules/brace-expansion/test/**",
+          "node_modules/brace-expansion/docs/**",
+          "node_modules/brace-expansion/**/* */**",
+          "node_modules/brace-expansion/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "brace-expansion__typings",
+    srcs = glob(
+        include = ["node_modules/brace-expansion/**/*.d.ts"],
         exclude = [
           "node_modules/brace-expansion/test/**",
           "node_modules/brace-expansion/docs/**",
@@ -95,6 +121,19 @@ filegroup(
     tags = ["NODE_MODULE_MARKER"],
 )
 filegroup(
+    name = "concat-map__typings",
+    srcs = glob(
+        include = ["node_modules/concat-map/**/*.d.ts"],
+        exclude = [
+          "node_modules/concat-map/test/**",
+          "node_modules/concat-map/docs/**",
+          "node_modules/concat-map/**/* */**",
+          "node_modules/concat-map/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
     name = "diff",
     srcs = [
         ":diff__files",
@@ -116,6 +155,19 @@ filegroup(
     tags = ["NODE_MODULE_MARKER"],
 )
 filegroup(
+    name = "diff__typings",
+    srcs = glob(
+        include = ["node_modules/diff/**/*.d.ts"],
+        exclude = [
+          "node_modules/diff/test/**",
+          "node_modules/diff/docs/**",
+          "node_modules/diff/**/* */**",
+          "node_modules/diff/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
     name = "fs.realpath",
     srcs = [
         ":fs.realpath__files",
@@ -127,6 +179,19 @@ filegroup(
     name = "fs.realpath__files",
     srcs = glob(
         include = ["node_modules/fs.realpath/**/*"],
+        exclude = [
+          "node_modules/fs.realpath/test/**",
+          "node_modules/fs.realpath/docs/**",
+          "node_modules/fs.realpath/**/* */**",
+          "node_modules/fs.realpath/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "fs.realpath__typings",
+    srcs = glob(
+        include = ["node_modules/fs.realpath/**/*.d.ts"],
         exclude = [
           "node_modules/fs.realpath/test/**",
           "node_modules/fs.realpath/docs/**",
@@ -167,6 +232,19 @@ filegroup(
     tags = ["NODE_MODULE_MARKER"],
 )
 filegroup(
+    name = "glob__typings",
+    srcs = glob(
+        include = ["node_modules/glob/**/*.d.ts"],
+        exclude = [
+          "node_modules/glob/test/**",
+          "node_modules/glob/docs/**",
+          "node_modules/glob/**/* */**",
+          "node_modules/glob/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
     name = "inflight",
     srcs = [
         ":inflight__files",
@@ -189,6 +267,19 @@ filegroup(
     tags = ["NODE_MODULE_MARKER"],
 )
 filegroup(
+    name = "inflight__typings",
+    srcs = glob(
+        include = ["node_modules/inflight/**/*.d.ts"],
+        exclude = [
+          "node_modules/inflight/test/**",
+          "node_modules/inflight/docs/**",
+          "node_modules/inflight/**/* */**",
+          "node_modules/inflight/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
     name = "inherits",
     srcs = [
         ":inherits__files",
@@ -200,6 +291,19 @@ filegroup(
     name = "inherits__files",
     srcs = glob(
         include = ["node_modules/inherits/**/*"],
+        exclude = [
+          "node_modules/inherits/test/**",
+          "node_modules/inherits/docs/**",
+          "node_modules/inherits/**/* */**",
+          "node_modules/inherits/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "inherits__typings",
+    srcs = glob(
+        include = ["node_modules/inherits/**/*.d.ts"],
         exclude = [
           "node_modules/inherits/test/**",
           "node_modules/inherits/docs/**",
@@ -241,6 +345,19 @@ filegroup(
     ),
     tags = ["NODE_MODULE_MARKER"],
 )
+filegroup(
+    name = "jasmine__typings",
+    srcs = glob(
+        include = ["node_modules/jasmine/**/*.d.ts"],
+        exclude = [
+          "node_modules/jasmine/test/**",
+          "node_modules/jasmine/docs/**",
+          "node_modules/jasmine/**/* */**",
+          "node_modules/jasmine/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
 nodejs_binary(
     name = "jasmine/jasmine",
     entry_point = "jasmine/bin/jasmine.js",
@@ -259,6 +376,19 @@ filegroup(
     name = "jasmine-core__files",
     srcs = glob(
         include = ["node_modules/jasmine-core/**/*"],
+        exclude = [
+          "node_modules/jasmine-core/test/**",
+          "node_modules/jasmine-core/docs/**",
+          "node_modules/jasmine-core/**/* */**",
+          "node_modules/jasmine-core/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "jasmine-core__typings",
+    srcs = glob(
+        include = ["node_modules/jasmine-core/**/*.d.ts"],
         exclude = [
           "node_modules/jasmine-core/test/**",
           "node_modules/jasmine-core/docs/**",
@@ -292,6 +422,19 @@ filegroup(
     tags = ["NODE_MODULE_MARKER"],
 )
 filegroup(
+    name = "minimatch__typings",
+    srcs = glob(
+        include = ["node_modules/minimatch/**/*.d.ts"],
+        exclude = [
+          "node_modules/minimatch/test/**",
+          "node_modules/minimatch/docs/**",
+          "node_modules/minimatch/**/* */**",
+          "node_modules/minimatch/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
     name = "once",
     srcs = [
         ":once__files",
@@ -303,6 +446,19 @@ filegroup(
     name = "once__files",
     srcs = glob(
         include = ["node_modules/once/**/*"],
+        exclude = [
+          "node_modules/once/test/**",
+          "node_modules/once/docs/**",
+          "node_modules/once/**/* */**",
+          "node_modules/once/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "once__typings",
+    srcs = glob(
+        include = ["node_modules/once/**/*.d.ts"],
         exclude = [
           "node_modules/once/test/**",
           "node_modules/once/docs/**",
@@ -334,6 +490,19 @@ filegroup(
     tags = ["NODE_MODULE_MARKER"],
 )
 filegroup(
+    name = "path-is-absolute__typings",
+    srcs = glob(
+        include = ["node_modules/path-is-absolute/**/*.d.ts"],
+        exclude = [
+          "node_modules/path-is-absolute/test/**",
+          "node_modules/path-is-absolute/docs/**",
+          "node_modules/path-is-absolute/**/* */**",
+          "node_modules/path-is-absolute/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
     name = "unidiff",
     srcs = [
         ":unidiff__files",
@@ -345,6 +514,19 @@ filegroup(
     name = "unidiff__files",
     srcs = glob(
         include = ["node_modules/unidiff/**/*"],
+        exclude = [
+          "node_modules/unidiff/test/**",
+          "node_modules/unidiff/docs/**",
+          "node_modules/unidiff/**/* */**",
+          "node_modules/unidiff/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "unidiff__typings",
+    srcs = glob(
+        include = ["node_modules/unidiff/**/*.d.ts"],
         exclude = [
           "node_modules/unidiff/test/**",
           "node_modules/unidiff/docs/**",
@@ -376,6 +558,19 @@ filegroup(
     tags = ["NODE_MODULE_MARKER"],
 )
 filegroup(
+    name = "wrappy__typings",
+    srcs = glob(
+        include = ["node_modules/wrappy/**/*.d.ts"],
+        exclude = [
+          "node_modules/wrappy/test/**",
+          "node_modules/wrappy/docs/**",
+          "node_modules/wrappy/**/* */**",
+          "node_modules/wrappy/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
     name = "@gregmagolan/test-a",
     srcs = [
         ":@gregmagolan/test-a__files",
@@ -387,6 +582,19 @@ filegroup(
     name = "@gregmagolan/test-a__files",
     srcs = glob(
         include = ["node_modules/@gregmagolan/test-a/**/*"],
+        exclude = [
+          "node_modules/@gregmagolan/test-a/test/**",
+          "node_modules/@gregmagolan/test-a/docs/**",
+          "node_modules/@gregmagolan/test-a/**/* */**",
+          "node_modules/@gregmagolan/test-a/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "@gregmagolan/test-a__typings",
+    srcs = glob(
+        include = ["node_modules/@gregmagolan/test-a/**/*.d.ts"],
         exclude = [
           "node_modules/@gregmagolan/test-a/test/**",
           "node_modules/@gregmagolan/test-a/docs/**",
@@ -418,6 +626,19 @@ filegroup(
     tags = ["NODE_MODULE_MARKER"],
 )
 filegroup(
+    name = "@gregmagolan/test-b__typings",
+    srcs = glob(
+        include = ["node_modules/@gregmagolan/test-b/**/*.d.ts"],
+        exclude = [
+          "node_modules/@gregmagolan/test-b/test/**",
+          "node_modules/@gregmagolan/test-b/docs/**",
+          "node_modules/@gregmagolan/test-b/**/* */**",
+          "node_modules/@gregmagolan/test-b/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
     name = "@yarnpkg/lockfile",
     srcs = [
         ":@yarnpkg/lockfile__files",
@@ -436,5 +657,33 @@ filegroup(
           "node_modules/@yarnpkg/lockfile/**/* *",
         ],
     ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "@yarnpkg/lockfile__typings",
+    srcs = glob(
+        include = ["node_modules/@yarnpkg/lockfile/**/*.d.ts"],
+        exclude = [
+          "node_modules/@yarnpkg/lockfile/test/**",
+          "node_modules/@yarnpkg/lockfile/docs/**",
+          "node_modules/@yarnpkg/lockfile/**/* */**",
+          "node_modules/@yarnpkg/lockfile/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "@gregmagolan",
+    srcs = [
+        ":@gregmagolan/test-a",
+        ":@gregmagolan/test-b",
+    ],
+    tags = ["NODE_MODULE_MARKER"],
+)
+filegroup(
+    name = "@yarnpkg",
+    srcs = [
+        ":@yarnpkg/lockfile",
+    ],
     tags = ["NODE_MODULE_MARKER"],
 )

@@ -139,6 +139,7 @@ if (require.main === module) {
 function main() {
   // find all packages (including packages in nested node_modules)
   const pkgs = findPackages();
+  const scopes = findScopes();
 
   // flatten dependencies
   const pkgsMap = new Map();
@@ -148,6 +149,13 @@ function main() {
   // generate the BUILD file
   let buildFile = BUILD_FILE_HEADER;
   pkgs.filter(pkg => !pkg._isNested).forEach(pkg => buildFile += printPackage(pkg));
+  scopes.forEach(scope => buildFile += printScope(scope, pkgs));
+  try {
+    const manualContents = fs.readFileSync(`manual_build_file_contents`, {encoding: 'utf8'});
+    buildFile += '\n\n';
+    buildFile += manualContents;
+  } catch (e) {
+  }
   fs.writeFileSync('BUILD.bazel', buildFile);
 }
 
@@ -187,6 +195,22 @@ function findPackages(p = 'node_modules') {
   scopes.forEach(f => result.push(...findPackages(f)));
 
   return result;
+}
+
+function findScopes() {
+  const p = 'node_modules';
+  if (!fs.existsSync(p) || !fs.statSync(p).isDirectory()) {
+    return [];
+  }
+
+  const listing = fs.readdirSync(p);
+
+  const scopes = listing.filter(f => f.startsWith('@'))
+                     .map(f => path.posix.join(p, f))
+                     .filter(f => fs.statSync(f).isDirectory())
+                     .map(f => f.replace(/^node_modules\//, ''));
+
+  return scopes;
 }
 
 /**
@@ -302,10 +326,11 @@ function printJson(pkg) {
 }
 
 /**
- * Given a pkg, print a skylark `node_module` rule.
+ * Given a pkg, print a skylark `filegroup` target for the package.
  */
 function printPackage(pkg) {
-  let result = `# Generated target for npm package "${pkg._dir}"
+  let result = `
+# Generated target for npm package "${pkg._dir}"
 ${printJson(pkg)}
 filegroup(
     name = "${pkg._dir}",
@@ -340,6 +365,23 @@ filegroup(
     tags = ["NODE_MODULE_MARKER"],
 )
 
+filegroup(
+    name = "${pkg._dir}__typings",
+    srcs = glob(
+        include = ["node_modules/${pkg._dir}/**/*.d.ts"],
+        exclude = [
+          # Files under test & docs may contain file names that
+          # are not legal Bazel labels (e.g.,
+          # node_modules/ecstatic/test/public/中文/檔案.html)
+          "node_modules/${pkg._dir}/test/**",
+          "node_modules/${pkg._dir}/docs/**",
+          # Files with spaces in the name are not legal Bazel labels
+          "node_modules/${pkg._dir}/**/* */**",
+          "node_modules/${pkg._dir}/**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
 `;
 
   if (pkg._executables) {
@@ -357,4 +399,22 @@ nodejs_binary(
   }
 
   return result;
+}
+
+/**
+ * Given a scope, print a skylark `filegroup` target for the scope.
+ */
+function printScope(scope, pkgs) {
+  const scopePkgs = pkgs.filter(pkg => !pkg._isNested && pkg._dir.startsWith(`${scope}/`));
+  return `
+# Generated target for npm scope ${scope}
+filegroup(
+    name = "${scope}",
+    srcs = [
+        ${scopePkgs.map(pkg => `":${pkg._dir}",`).join('\n        ')}
+    ],
+    tags = ["NODE_MODULE_MARKER"],
+)
+
+`;
 }
