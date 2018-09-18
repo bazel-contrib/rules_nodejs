@@ -88,6 +88,6 @@ ts_library(
 jasmine_node_test(
     name = "test",
     srcs = [],
-    node_modules = "//:node_modules",
     deps = [":test_lib"],
+    node_modules = "//:node_modules",
 )
