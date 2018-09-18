@@ -84,6 +84,7 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
   options: BazelTsOptions;
   host: ts.ModuleResolutionHost = this;
 
+
   constructor(
       public inputFiles: string[], options: ts.CompilerOptions,
       readonly bazelOpts: BazelOptions, private delegate: ts.CompilerHost,

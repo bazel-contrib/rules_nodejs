@@ -18,7 +18,7 @@
 # Exclude node_modules, see
 # https://github.com/bazelbuild/rules_go/blob/master/go/tools/gazelle/README.rst#directives
 # gazelle:exclude node_modules
-load("@bazel_gazelle//:def.bzl", "gazelle")
+load("@io_bazel_rules_go//go:def.bzl", "gazelle")
 load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
 
 # ts_library defaults to this label in the top-level package.
