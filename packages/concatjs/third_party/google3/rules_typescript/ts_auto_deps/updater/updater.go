@@ -12,7 +12,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"syscall"
 	"time"
 
 	"flag"
@@ -22,6 +21,7 @@ import (
 	"github.com/bazelbuild/rules_typescript/ts_auto_deps/platform"
 	"github.com/bazelbuild/rules_typescript/ts_auto_deps/workspace"
 	"github.com/golang/protobuf/proto"
+	"github.com/mattn/go-isatty"
 
 	arpb "github.com/bazelbuild/rules_typescript/ts_auto_deps/proto"
 )
@@ -156,7 +156,8 @@ func (upd *Updater) runBazelAnalyze(buildFilePath string, bld *build.File, rules
 
 func spin(prefix string) chan<- struct{} {
 	done := make(chan struct{})
-	if !isatty(int(os.Stderr.Fd())) {
+	// Check for cygwin, important for Windows compatibility
+	if !isatty.IsTerminal(os.Stderr.Fd()) || !isatty.IsCygwinTerminal(os.Stdout.Fd()) {
 		return done
 	}
 	go func() {
@@ -182,16 +183,6 @@ func spin(prefix string) chan<- struct{} {
 		}
 	}()
 	return done
-}
-
-// isatty reports whether fd is a tty.
-func isatty(fd int) bool {
-	var st syscall.Stat_t
-	err := syscall.Fstat(fd, &st)
-	if err != nil {
-		return false
-	}
-	return st.Mode&syscall.S_IFMT == syscall.S_IFCHR
 }
 
 // readBUILD loads the BUILD file, if present, or returns a new empty one.

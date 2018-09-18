@@ -34,6 +34,12 @@ def ts_setup_workspace():
         importpath = "github.com/kylelemons/godebug",
     )
 
+    go_repository(
+        name = "com_github_mattn_go_isatty",
+        commit = "3fb116b820352b7f0c281308a4d6250c22d94e27",
+        importpath = "github.com/mattn/go-isatty",
+    )
+
     # 0.11.3: node module resolution fixes & check_rules_nodejs_version
     check_rules_nodejs_version("0.11.3")
 
