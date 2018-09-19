@@ -25,6 +25,12 @@
 
 def _sources_aspect_impl(target, ctx):
   result = depset()
+
+  # Sources from npm fine grained deps which are tagged with NODE_MODULE_MARKER
+  # should not be included
+  if hasattr(ctx.rule.attr, "tags") and "NODE_MODULE_MARKER" in ctx.rule.attr.tags:
+    return struct(node_sources = result)
+
   if hasattr(ctx.rule.attr, "deps"):
     for dep in ctx.rule.attr.deps:
       if hasattr(dep, "node_sources"):
