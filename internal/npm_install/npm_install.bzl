@@ -166,6 +166,7 @@ def _yarn_install_impl(repository_ctx):
         "--cache-folder",
         package_dir + "/._yarn_cache",
       ]
+
     # Note: if we wanted to hard-link in a portable manner we could use:
     # rsync --archive --link-dest {package_dir} {package_dir}/node_modules {repo_directory}
     args = [bash_exe, "-euc", """
@@ -183,8 +184,9 @@ def _yarn_install_impl(repository_ctx):
     else:
       yarn_concurrency_flags = [
         "--cache-folder",
-        package_dir + "/._yarn_cache",
+        repository_ctx.path("_yarn_cache"),
       ]
+
     args = [
       repository_ctx.path(yarn),
       "--cwd",
