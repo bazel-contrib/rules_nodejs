@@ -152,31 +152,44 @@ def _yarn_install_impl(repository_ctx):
   node = repository_ctx.path(get_node_label(repository_ctx))
   yarn = get_yarn_label(repository_ctx)
   bash_exe = repository_ctx.os.environ.get("BAZEL_SH", "bash")
+  mutex_flags = ["--mutex", repository_ctx.attr.mutex]
 
   # A local cache is used as multiple yarn rules cannot run simultaneously using a shared
   # cache and a shared cache is non-hermetic.
   # To see the output, pass: quiet=False
   if repository_ctx.attr.workspace_node_modules:
     package_dir = str(repository_ctx.path(repository_ctx.attr.package_json).dirname)
+    if repository_ctx.attr.mutex:
+      yarn_concurrency_flags = mutex_flags
+    else:
+      yarn_concurrency_flags = [
+        "--cache-folder",
+        package_dir + "/._yarn_cache",
+      ]
     # Note: if we wanted to hard-link in a portable manner we could use:
     # rsync --archive --link-dest {package_dir} {package_dir}/node_modules {repo_directory}
     args = [bash_exe, "-euc", """
-      {yarn} --cache-folder {yarn_cache_directory} --cwd {package_dir}
+      {yarn} --cwd {package_dir} {yarn_concurrency_flags}
       ln -sf {package_dir}/node_modules {repo_directory}/node_modules
       """.format(
         repo_directory=repository_ctx.path(""),
-        yarn_cache_directory=package_dir + "/._yarn_cache",
+        yarn_concurrency_flags=" ".join(yarn_concurrency_flags),
         package_dir=package_dir,
         yarn=repository_ctx.path(yarn),
     )]
   else:
+    if repository_ctx.attr.mutex:
+      yarn_concurrency_flags = mutex_flags
+    else:
+      yarn_concurrency_flags = [
+        "--cache-folder",
+        package_dir + "/._yarn_cache",
+      ]
     args = [
       repository_ctx.path(yarn),
-      "--cache-folder",
-      repository_ctx.path("_yarn_cache"),
       "--cwd",
       repository_ctx.path(""),
-    ]
+    ] + yarn_concurrency_flags
 
   result = repository_ctx.execute(args)
 
@@ -197,6 +210,7 @@ yarn_install = repository_rule(
             mandatory = True,
             single_file = True,
         ),
+        "data": attr.label_list(),
         "workspace_node_modules": attr.bool(
           doc = """When set to true yarn will run in the directory where the
           package.json is located and then just symlink the node_modules into
@@ -205,7 +219,12 @@ yarn_install = repository_rule(
           'yarn add/remove' commands.""",
           default = False,
         ),
-        "data": attr.label_list(),
+        "mutex": attr.string(
+          doc = """Rather than using individual yarn caches the mutex flag can
+          be set to allow for multiple yarns to run concurrently. For details
+          see: https://yarnpkg.com/en/docs/cli#toc-concurrency-and-mutex""",
+          default = "",
+        ),
         "manual_build_file_contents": attr.string(
             doc = """Experimental attribute that can be used to override
             the generated BUILD.bazel file and set its contents manually.
