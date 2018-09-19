@@ -338,7 +338,7 @@ func sources(target *appb.Rule) ([]string, error) {
 	for i, src := range srcs {
 		_, pkg, file := edit.ParseLabel(src)
 		// TODO(jdhamlik): Handle generated files.
-		srcs[i] = filepath.Clean(filepath.Join(pkg, file))
+		srcs[i] = platform.Normalize(filepath.Clean(filepath.Join(pkg, file)))
 	}
 	return srcs, nil
 }

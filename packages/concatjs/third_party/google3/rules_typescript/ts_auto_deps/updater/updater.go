@@ -195,17 +195,18 @@ func readBUILD(ctx context.Context, workspaceRoot, buildFilePath string) (*build
 		return nil, err
 	}
 	g3Path, err := filepath.Rel(workspaceRoot, absPath)
+	normalizedG3Path := platform.Normalize(g3Path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to resolve workspace relative path: %s", err)
 	}
 	data, err := platform.ReadFile(ctx, buildFilePath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return &build.File{Path: g3Path, Build: true}, nil
+			return &build.File{Path: normalizedG3Path, Build: true}, nil
 		}
 		return nil, fmt.Errorf("reading %q: %s", buildFilePath, err)
 	}
-	return build.ParseBuild(g3Path, data)
+	return build.ParseBuild(normalizedG3Path, data)
 }
 
 type srcSet map[string]bool
@@ -755,7 +756,7 @@ func AbsoluteBazelTarget(bld *build.File, ruleName string) string {
 		}
 		return ruleName
 	}
-	pkg := filepath.Dir(bld.Path)
+	pkg := platform.Normalize(filepath.Dir(bld.Path))
 	return fmt.Sprintf("//%s:%s", pkg, strings.TrimPrefix(ruleName, ":"))
 }
 
@@ -1032,7 +1033,7 @@ func FilterPaths(paths []string) []string {
 	}
 	var newPaths []string
 	for k := range fileSet {
-		newPaths = append(newPaths, k)
+		newPaths = append(newPaths, platform.Normalize(k))
 	}
 	return newPaths
 }

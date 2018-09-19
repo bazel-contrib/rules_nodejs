@@ -7,6 +7,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/bazelbuild/rules_typescript/ts_auto_deps/platform"
 	"github.com/bazelbuild/rules_typescript/ts_auto_deps/workspace"
 )
 
@@ -33,7 +34,7 @@ func (i *ts_auto_depsImport) resolvedPath() string {
 	if strings.HasPrefix(i.importPath, "./") || strings.HasPrefix(i.importPath, "../") {
 		// If the import is relative to the source location, use the source
 		// location to form a "canonical" path from the root.
-		return filepath.Clean(filepath.Join(filepath.Dir(i.location.sourcePath), i.importPath))
+		return platform.Normalize(filepath.Clean(filepath.Join(filepath.Dir(i.location.sourcePath), i.importPath)))
 	} else if trim := strings.TrimPrefix(i.importPath, workspace.Name()+"/"); trim != i.importPath {
 		return trim
 	}
