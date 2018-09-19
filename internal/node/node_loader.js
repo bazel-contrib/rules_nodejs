@@ -215,7 +215,7 @@ function resolveManifestFile(res) {
     const tree = runfilesManifest[test];
     if (tree && isDirectory(tree)) {
       // We have a tree artifact that matches
-      const files = readDir(tree).map(f => path.relative(tree, f));
+      const files = readDir(tree).map(f => path.relative(tree, f).replace(/\\/g, '/'));
       files.forEach(f => {
         runfilesManifest[path.posix.join(test, f)] = path.posix.join(tree, f);
       })
@@ -268,7 +268,7 @@ function resolveRunfiles(parent, ...pathSegments) {
       const normalizedParent = parent.replace(/\\/g, '/');
       const parentRunfile = reverseRunfilesManifest[normalizedParent];
       if (parentRunfile) {
-        runfilesEntry = path.join(path.dirname(parentRunfile), runfilesEntry).replace(/\\/g, '/');
+        runfilesEntry = path.join(path.dirname(parentRunfile), runfilesEntry);
       }
     } else if (runfilesEntry.startsWith(binRoot) || runfilesEntry.startsWith(genRoot)
         || runfilesEntry.startsWith(workspaceRoot)) {
@@ -281,6 +281,9 @@ function resolveRunfiles(parent, ...pathSegments) {
         .replace(genRoot, `${USER_WORKSPACE_NAME}/`)
         .replace(workspaceRoot, `${USER_WORKSPACE_NAME}/`);       
     }
+
+    // Normalize and replace path separators to conform to the ones in the manifest.
+    runfilesEntry = path.normalize(runfilesEntry).replace(/\\/g, '/');
 
     if (DEBUG) console.error('node_loader: try to resolve in runfiles manifest', runfilesEntry);
 
