@@ -5,11 +5,14 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 const (
 	filePerms = 0666
 )
+
+var pathReplacer = strings.NewReplacer("\\", "/")
 
 // ReadFile reads the contents of name.
 func ReadFile(ctx context.Context, name string) ([]byte, error) {
@@ -29,4 +32,9 @@ func Stat(ctx context.Context, name string) (interface{}, error) {
 // Glob returns all paths matching pattern.
 func Glob(ctx context.Context, pattern string) ([]string, error) {
 	return filepath.Glob(pattern)
+}
+
+// Normalize converts Windows path separators into POSIX
+func Normalize(path string) string {
+	return pathReplacer.Replace(path)
 }

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/bazelbuild/buildtools/edit"
+	"github.com/bazelbuild/rules_typescript/ts_auto_deps/platform"
 	"github.com/bazelbuild/rules_typescript/ts_auto_deps/workspace"
 	"github.com/golang/protobuf/proto"
 
@@ -376,7 +377,7 @@ func resolveAgainstModuleRoot(label, moduleRoot, moduleName, imported string) st
 		return imported
 	}
 	_, pkg, _ := edit.ParseLabel(label)
-	return filepath.Join(pkg, moduleRoot, trim)
+	return platform.Normalize(filepath.Join(pkg, moduleRoot, trim))
 }
 
 // parsePackageName parses and returns the scope and package of imported. For
