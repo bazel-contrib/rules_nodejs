@@ -215,7 +215,7 @@ function resolveManifestFile(res) {
     const tree = runfilesManifest[test];
     if (tree && isDirectory(tree)) {
       // We have a tree artifact that matches
-      const files = readDir(tree).map(f => path.relative(tree, f));
+      const files = readDir(tree).map(f => path.relative(tree, f).replace(/\\/g, '/'));
       files.forEach(f => {
         runfilesManifest[path.posix.join(test, f)] = path.posix.join(tree, f);
       })
