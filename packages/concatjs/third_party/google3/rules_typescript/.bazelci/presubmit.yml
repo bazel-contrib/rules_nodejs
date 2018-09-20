@@ -35,11 +35,14 @@ platforms:
     - "..."
   windows:
     run_targets:
-    # TODO(alexeagle): add go build generation when rules_go is fixed
+    # TODO(alexeagle): add gazelle when https://github.com/bazelbuild/bazel-gazelle/issues/321 fixed
     # - "//:gazelle"
     - "@nodejs//:yarn"
-    # TODO(alexeagle): expand to all targets when rules_go is fixed
     build_targets:
-    - "//examples:all"
-    # TODO(alexeagle): include test_targets when karma fixes land
-    # and we have Bazel 0.12
+    - "..."
+    - "--"
+    - "-//docs/..."
+    test_targets:
+    - "..."
+    - "--"
+    - "-//docs/..."

@@ -54,23 +54,27 @@ func (fs *fakeFileSystem) statMtime(filename string) (time.Time, error) {
 }
 
 func TestWriteFiles(t *testing.T) {
+	// Convert Windows paths separators for easier matching.
+	var pathReplacer = strings.NewReplacer("\\", "/")
 	fs := fakeFileSystem{
 		fakeReadFile: func(filename string) ([]byte, error) {
-			switch filename {
+			var normalizedFilename = pathReplacer.Replace(filename)
+			switch normalizedFilename {
 			case "root/a":
 				return []byte("a content"), nil
 			case "root/module":
 				return []byte("// A module\ngoog.module('hello');"), nil
 			default:
-				return []byte{}, fmt.Errorf("unexpected file read: %s", filename)
+				return []byte{}, fmt.Errorf("unexpected file read: %s", normalizedFilename)
 			}
 		},
 		fakeStatMtime: func(filename string) (time.Time, error) {
-			switch filename {
+			var normalizedFilename = pathReplacer.Replace(filename)
+			switch normalizedFilename {
 			case "root/a", "root/module":
 				return time.Now(), nil
 			default:
-				return time.Time{}, fmt.Errorf("unexpected file stat: %s", filename)
+				return time.Time{}, fmt.Errorf("unexpected file stat: %s", normalizedFilename)
 			}
 		},
 	}
