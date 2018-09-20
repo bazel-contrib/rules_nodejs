@@ -83,13 +83,16 @@ function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = req
     // possible workspace import or external import if importee matches a module
     // mapping
     for (const k in moduleMappings) {
-      if (importee == k || importee.startsWith(k + path.sep)) {
+      // Since mappings are always in POSIX paths, when comparing the importee to mappings
+      // we should normalize the importee.
+      const normalizedImportee = importee.replace(/\\/g, '/');
+      if (normalizedImportee == k || normalizedImportee.startsWith(k + '/')) {
         // replace the root module name on a mappings match
         // note that the module_root attribute is intended to be used for type-checking
         // so it uses eg. "index.d.ts". At runtime, we have only index.js, so we strip the
         // .d.ts suffix and let node require.resolve do its thing.
         var v = moduleMappings[k].replace(/\.d\.ts$/, '');
-        const mappedImportee = path.join(v, importee.slice(k.length + 1));
+        const mappedImportee = path.join(v, normalizedImportee.slice(k.length + 1));
         if (DEBUG) console.error(`Rollup: module mapped '${importee}' to '${mappedImportee}'`);
         resolved = resolveInRootDir(mappedImportee);
         if (resolved) break;
