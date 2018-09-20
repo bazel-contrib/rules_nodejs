@@ -43,13 +43,13 @@ if (process.env['WEB_TEST_METADATA']) {
     if (webTestNamedFiles['CHROMIUM']) {
       // When karma is configured to use Chrome it will look for a CHROME_BIN
       // environment variable.
-      process.env.CHROME_BIN = path.join('external', webTestNamedFiles['CHROMIUM']);
+      process.env.CHROME_BIN = require.resolve(webTestNamedFiles['CHROMIUM']);
       browsers.push(process.env['DISPLAY'] ? 'Chrome': 'ChromeHeadless');
     }
     if (webTestNamedFiles['FIREFOX']) {
       // When karma is configured to use Firefox it will look for a FIREFOX_BIN
       // environment variable.
-      process.env.FIREFOX_BIN = path.join('external', webTestNamedFiles['FIREFOX']);
+      process.env.FIREFOX_BIN = require.resolve(webTestNamedFiles['FIREFOX']);
       browsers.push(process.env['DISPLAY'] ? 'Firefox': 'FirefoxHeadless');
     }
   } else {
@@ -64,6 +64,7 @@ if (!browsers.length) {
   browsers.push(process.env['DISPLAY'] ? 'Chrome': 'ChromeHeadless');
 }
 
+const proxies = {};
 const files = [
   TMPL_bootstrap_files
   TMPL_user_files
@@ -72,13 +73,19 @@ const files = [
 // static files are added to the files array but
 // configured to not be included so karma-concat-js does
 // not included them in the bundle
-[
-  TMPL_static_files
-].forEach(f => {
-  files.push({ pattern: require.resolve(f), included: false });
-});
+  [TMPL_static_files].forEach((f) => {
+    // In Windows, the runfile will probably not be symlinked. Se we need to
+    // serve the real file through karma, and proxy calls to the expected file
+    // location in the runfiles to the real file.
+    const resolvedFile = require.resolve(f);
+    files.push({pattern: resolvedFile, included: false});
+    // Prefixing the proxy path with '/absolute' allows karma to load local
+    // files. This doesn't see to be an official API.
+    // https://github.com/karma-runner/karma/issues/2703
+    proxies['/base/' + f] = '/absolute' + resolvedFile;
+  });
 
-var requireConfigContent = `
+  var requireConfigContent = `
 // A simplified version of Karma's requirejs.config.tpl.js for use with Karma under Bazel.
 // This does an explicit \`require\` on each test script in the files, otherwise nothing will be loaded.
 (function(){
@@ -93,95 +100,99 @@ var requireConfigContent = `
 })();
 `;
 
-const requireConfigFile = tmp.fileSync(
-    {keep: false, postfix: '.js', dir: process.env['TEST_TMPDIR']});
-fs.writeFileSync(requireConfigFile.name, requireConfigContent);
-files.push(requireConfigFile.name);
+  const requireConfigFile = tmp.fileSync(
+      {keep: false, postfix: '.js', dir: process.env['TEST_TMPDIR']});
+  fs.writeFileSync(requireConfigFile.name, requireConfigContent);
+  files.push(requireConfigFile.name);
 
-module.exports = function(config) {
-  const configuration = {
-    // list of karma plugins
-    plugins: [
-      'karma-*',
-      'karma-concat-js',
-      'karma-sourcemap-loader',
-      'karma-chrome-launcher',
-      'karma-firefox-launcher',
-      'karma-sauce-launcher',
-    ],
+  module.exports = function(config) {
+    const configuration = {
+      // list of karma plugins
+      plugins: [
+        'karma-*',
+        'karma-concat-js',
+        'karma-sourcemap-loader',
+        'karma-chrome-launcher',
+        'karma-firefox-launcher',
+        'karma-sauce-launcher',
+      ],
 
-    // list of karma preprocessors
-    preprocessors: {
-      '**/*.js': ['sourcemap']
-    },
+      // list of karma preprocessors
+      preprocessors: {'**/*.js': ['sourcemap']},
 
-    // list of test frameworks to use
-    frameworks: ['jasmine', 'concat_js'],
+      // list of test frameworks to use
+      frameworks: ['jasmine', 'concat_js'],
 
-    // test results reporter to use
-    // possible values: 'dots', 'progress'
-    // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['progress'],
+      // test results reporter to use
+      // possible values: 'dots', 'progress'
+      // available reporters: https://npmjs.org/browse/keyword/karma-reporter
+      reporters: ['progress'],
 
-    // web server port
-    port: 9876,
+      // web server port
+      port: 9876,
 
-    // enable / disable colors in the output (reporters and logs)
-    colors: true,
+      // enable / disable colors in the output (reporters and logs)
+      colors: true,
 
-    // level of logging
-    // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
-    logLevel: config.LOG_INFO,
+      // level of logging
+      // possible values: config.LOG_DISABLE || config.LOG_ERROR ||
+      // config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
+      logLevel: config.LOG_INFO,
 
-    // enable / disable watching file and executing tests whenever any file changes
-    autoWatch: true,
+      // enable / disable watching file and executing tests whenever any file
+      // changes
+      autoWatch: true,
 
-    // start these browsers
-    // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: browsers,
+      // start these browsers
+      // available browser launchers:
+      // https://npmjs.org/browse/keyword/karma-launcher
+      browsers: browsers,
 
-    // Continuous Integration mode
-    // if true, Karma captures browsers, runs the tests and exits
-    // note: run_karma.sh may override this as a command-line option.
-    singleRun: false,
+      // Continuous Integration mode
+      // if true, Karma captures browsers, runs the tests and exits
+      // note: run_karma.sh may override this as a command-line option.
+      singleRun: false,
 
-    // Concurrency level
-    // how many browser should be started simultaneous
-    concurrency: Infinity,
+      // Concurrency level
+      // how many browser should be started simultaneous
+      concurrency: Infinity,
 
-    // base path that will be used to resolve all patterns (eg. files, exclude)
-    basePath: 'TMPL_runfiles_path',
+      // base path that will be used to resolve all patterns (eg. files,
+      // exclude)
+      basePath: 'TMPL_runfiles_path',
 
-    // list of files passed to karma; these are concatenated into a single
-    // file by karma-concat-js
-    files,
+      // list of files passed to karma; these are concatenated into a single
+      // file by karma-concat-js
+      files,
+      proxies,
+    }
+
+    if (process.env['IBAZEL_NOTIFY_CHANGES'] === 'y') {
+      // Tell karma to only listen for ibazel messages on stdin rather than
+      // watch all the input files This is from fork alexeagle/karma in the
+      // ibazel branch:
+      // https://github.com/alexeagle/karma/blob/576d262af50b10e63485b86aee99c5358958c4dd/lib/server.js#L172
+      configuration.watchMode = 'ibazel';
+    }
+
+    // Extra configuration is needed for saucelabs
+    // See: https://github.com/karma-runner/karma-sauce-launcher
+    if (customLaunchers) {
+      // set the test name for sauce labs to use
+      // TEST_BINARY is set by Bazel and contains the name of the test
+      // target posfixed with the the browser name such as
+      // 'examples/testing/testing_sauce_chrome-win10' for the
+      // test target examples/testing:testing
+      configuration.sauceLabs = {
+        testName: process.env['TEST_BINARY'] || 'ts_web_test_suite'
+      };
+
+      // setup the custom launchers for saucelabs
+      configuration.customLaunchers = customLaunchers;
+
+      // add the saucelabs reporter
+      configuration.reporters.push('saucelabs');
+    }
+
+    config.set(configuration);
   }
-
-  if (process.env['IBAZEL_NOTIFY_CHANGES'] === 'y') {
-    // Tell karma to only listen for ibazel messages on stdin rather than watch all the input files
-    // This is from fork alexeagle/karma in the ibazel branch:
-    // https://github.com/alexeagle/karma/blob/576d262af50b10e63485b86aee99c5358958c4dd/lib/server.js#L172
-    configuration.watchMode = 'ibazel';
-  }
-
-  // Extra configuration is needed for saucelabs
-  // See: https://github.com/karma-runner/karma-sauce-launcher
-  if (customLaunchers) {
-    // set the test name for sauce labs to use
-    // TEST_BINARY is set by Bazel and contains the name of the test
-    // target posfixed with the the browser name such as
-    // 'examples/testing/testing_sauce_chrome-win10' for the
-    // test target examples/testing:testing
-    configuration.sauceLabs = {
-      testName: process.env['TEST_BINARY'] || 'ts_web_test_suite'
-    };
-
-    // setup the custom launchers for saucelabs
-    configuration.customLaunchers = customLaunchers;
-
-    // add the saucelabs reporter
-    configuration.reporters.push('saucelabs');
-  }
-
-  config.set(configuration);
-}

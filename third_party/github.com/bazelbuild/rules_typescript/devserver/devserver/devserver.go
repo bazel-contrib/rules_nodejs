@@ -13,6 +13,9 @@ import (
 	"time"
 )
 
+// Convert Windows paths separators.
+var pathReplacer = strings.NewReplacer("\\", "/")
+
 func shouldAllowCors(request *http.Request) bool {
 	hostname, err := os.Hostname()
 	if err != nil {
@@ -92,7 +95,7 @@ func (w *headerSuppressorResponseWriter) WriteHeader(code int) {}
 func CreateFileHandler(servingPath, manifest string, pkgs []string, base string) http.HandlerFunc {
 	pkgPaths := chainedDir{}
 	for _, pkg := range pkgs {
-		path := filepath.Join(base, pkg)
+		path := pathReplacer.Replace(filepath.Join(base, pkg))
 		if _, err := os.Stat(path); err != nil {
 			fmt.Fprintf(os.Stderr, "Cannot read server root package at %s: %v\n", path, err)
 			os.Exit(1)
@@ -120,7 +123,7 @@ func CreateFileHandler(servingPath, manifest string, pkgs []string, base string)
 		// search through pkgs for the first index.html file found if any exists
 		for _, pkg := range pkgs {
 			// defaultIndex is not cached, so that a user's edits will be reflected.
-			defaultIndex := filepath.Join(base, pkg, "index.html")
+			defaultIndex := pathReplacer.Replace(filepath.Join(base, pkg, "index.html"))
 			if _, err := os.Stat(defaultIndex); err == nil {
 				http.ServeFile(w, r, defaultIndex)
 				return
@@ -188,7 +191,7 @@ func (chain chainedDir) Open(name string) (http.File, error) {
 		if stat.IsDir() {
 			// Make sure to close the previous file handle before moving to a different file.
 			f.Close()
-			indexName := filepath.Join(name, "index.html")
+			indexName := pathReplacer.Replace(filepath.Join(name, "index.html"))
 			f, err := dir.Open(indexName)
 			if os.IsNotExist(err) {
 				continue
