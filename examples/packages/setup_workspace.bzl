@@ -25,8 +25,6 @@ def packages_example_setup_workspace():
       package_json = "@packages_example//:package.json",
       package_lock_json = "@packages_example//:package-lock.json",
       data = ["@packages_example//:postinstall.js"],
-      # Just here as a smoke test for this attribute
-      prod_only = True,
   )
 
   npm_install(
