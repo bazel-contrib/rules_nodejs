@@ -113,9 +113,9 @@ def _ts_web_test_impl(ctx):
 if [ -e "$RUNFILES_MANIFEST_FILE" ]; then
   while read line; do
     declare -a PARTS=($line)
-    if [ "${{PARTS[0]}}" == "build_bazel_rules_typescript/{TMPL_karma}" ]; then
+    if [ "${{PARTS[0]}}" == "{TMPL_workspace}/{TMPL_karma}" ]; then
       readonly KARMA=${{PARTS[1]}}
-    elif [ "${{PARTS[0]}}" == "build_bazel_rules_typescript/{TMPL_conf}" ]; then
+    elif [ "${{PARTS[0]}}" == "{TMPL_workspace}/{TMPL_conf}" ]; then
       readonly CONF=${{PARTS[1]}}
     fi
   done < $RUNFILES_MANIFEST_FILE
@@ -137,6 +137,7 @@ fi
 
 $KARMA ${{ARGV[@]}}
 """.format(
+            TMPL_workspace = ctx.workspace_name,
             TMPL_karma = karma_executable_path,
             TMPL_conf = conf.short_path,
         ),
