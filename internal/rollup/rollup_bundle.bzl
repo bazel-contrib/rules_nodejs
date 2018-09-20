@@ -408,6 +408,13 @@ def _rollup_bundle(ctx):
 
   return DefaultInfo(files = depset(files), runfiles = ctx.runfiles(files))
 
+# Expose our list of aspects so derivative rules can override the deps attribute and
+# add their own additional aspects.
+# If users are in a different repo and load the aspect themselves, they will create
+# different Provider symbols (e.g. NodeModuleInfo) and we won't find them.
+# So users must use these symbols that are load'ed in rules_nodejs.
+ROLLUP_DEPS_ASPECTS = [rollup_module_mappings_aspect, collect_node_modules_aspect]
+
 ROLLUP_ATTRS = {
     "entry_point": attr.string(
         doc = """The starting point of the application, passed as the `--input` flag to rollup.
@@ -462,7 +469,7 @@ ROLLUP_ATTRS = {
         allow_files = [".js"]),
     "deps": attr.label_list(
         doc = """Other rules that produce JavaScript outputs, such as `ts_library`.""",
-        aspects = [rollup_module_mappings_aspect, collect_node_modules_aspect]),
+        aspects = ROLLUP_DEPS_ASPECTS),
     "node_modules": attr.label(
         doc = """Dependencies from npm that provide some modules that must be
         resolved by rollup.
