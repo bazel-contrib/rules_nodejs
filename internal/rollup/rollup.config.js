@@ -50,6 +50,11 @@ function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = req
 
   if (DEBUG) console.error(`Rollup: resolving '${importee}' from ${importer}`);
 
+  // Since mappings are always in POSIX paths, when comparing the importee to mappings
+  // we should normalize the importee.
+  // Having it normalized is also useful to determine relative paths.
+  const normalizedImportee = importee.replace(/\\/g, '/');
+
   // If import is fully qualified then resolve it directly
   if (fileExists(importee)) {
     if (DEBUG) console.error(`Rollup: resolved fully qualified '${importee}'`);
@@ -64,7 +69,7 @@ function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = req
   // and sources from external workspaces are under
   // <external_workspace_name>/<path_to_source>
   var resolved;
-  if (importee.startsWith('.' + path.sep) || importee.startsWith('..' + path.sep)) {
+  if (normalizedImportee.startsWith('./') || normalizedImportee.startsWith('../')) {
     // relative import
     if (importer) {
       let importerRootRelative = path.dirname(importer);
@@ -83,9 +88,6 @@ function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = req
     // possible workspace import or external import if importee matches a module
     // mapping
     for (const k in moduleMappings) {
-      // Since mappings are always in POSIX paths, when comparing the importee to mappings
-      // we should normalize the importee.
-      const normalizedImportee = importee.replace(/\\/g, '/');
       if (normalizedImportee == k || normalizedImportee.startsWith(k + '/')) {
         // replace the root module name on a mappings match
         // note that the module_root attribute is intended to be used for type-checking
