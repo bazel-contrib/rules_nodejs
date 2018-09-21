@@ -84,7 +84,8 @@ cd "{root}" && "{npm}" {npm_args}
 
   # To see the output, pass: quiet=False
   result = repository_ctx.execute(
-    [repository_ctx.path("npm.cmd" if is_windows else "npm")])
+    [repository_ctx.path("npm.cmd" if is_windows else "npm")],
+    timeout = repository_ctx.attr.timeout)
 
   if not repository_ctx.attr.package_lock_json:
     print("\n***********WARNING***********\n%s: npm_install will require a package_lock_json attribute in future versions\n*****************************" % repository_ctx.name)
@@ -121,11 +122,15 @@ npm_install = repository_rule(
             doc = """Experimental attribute that can be used to override
             the generated BUILD.bazel file and set its contents manually.
             Can be used to work-around a bazel performance issue if the
-            default node_modules filegroup has too many files in it. See 
+            default node_modules filegroup has too many files in it. See
             https://github.com/bazelbuild/bazel/issues/5153. If
-            you are running into performance issues due to a large 
+            you are running into performance issues due to a large
             node_modules filegroup it is recommended to switch to using
             fine grained npm dependencies."""),
+        "timeout": attr.int(
+            default = 600,
+            doc = """Maximum duration of the command "npm install" in seconds
+            (default is 600 seconds)."""),
     },
     implementation = _npm_install_impl,
 )
@@ -161,7 +166,7 @@ def _yarn_install_impl(repository_ctx):
     repository_ctx.path(""),
   ]
 
-  result = repository_ctx.execute(args)
+  result = repository_ctx.execute(args, timeout = repository_ctx.attr.timeout)
 
   if result.return_code:
     fail("yarn_install failed: %s (%s)" % (result.stdout, result.stderr))
@@ -185,11 +190,15 @@ yarn_install = repository_rule(
             doc = """Experimental attribute that can be used to override
             the generated BUILD.bazel file and set its contents manually.
             Can be used to work-around a bazel performance issue if the
-            default node_modules filegroup has too many files in it. See 
+            default node_modules filegroup has too many files in it. See
             https://github.com/bazelbuild/bazel/issues/5153. If
-            you are running into performance issues due to a large 
+            you are running into performance issues due to a large
             node_modules filegroup it is recommended to switch to using
             fine grained npm dependencies."""),
+        "timeout": attr.int(
+            default = 600,
+            doc = """Maximum duration of the command "yarn" in seconds.
+            (default is 600 seconds)."""),
     },
     implementation = _yarn_install_impl,
 )
