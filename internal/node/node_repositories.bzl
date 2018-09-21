@@ -106,9 +106,6 @@ def _download_node(repository_ctx):
   Args:
     repository_ctx: The repository rule context
   """
-  if repository_ctx.attr.node_path != "":
-    return
-
   host = os_name(repository_ctx)
   node_version = repository_ctx.attr.node_version
   node_repositories = repository_ctx.attr.node_repositories
@@ -134,9 +131,6 @@ def _download_yarn(repository_ctx):
   Args:
     repository_ctx: The repository rule context
   """
-  if repository_ctx.attr.yarn_path != "":
-    return
-
   yarn_version = repository_ctx.attr.yarn_version
   yarn_repositories = repository_ctx.attr.yarn_repositories
   yarn_urls = repository_ctx.attr.yarn_urls
@@ -377,8 +371,6 @@ _nodejs_repo = repository_rule(
     # Options to override node version
     "node_version": attr.string(default = DEFAULT_NODE_VERSION),
     "yarn_version": attr.string(default = DEFAULT_YARN_VERSION),
-    "node_path": attr.string(),
-    "yarn_path": attr.string(),
     "node_repositories": attr.string_list_dict(default = NODE_REPOSITORIES),
     "yarn_repositories": attr.string_list_dict(default = YARN_REPOSITORIES),
     "node_urls": attr.string_list(default = NODE_URLS),
@@ -403,8 +395,6 @@ def node_repositories(
   package_json=[],
   node_version=DEFAULT_NODE_VERSION,
   yarn_version=DEFAULT_YARN_VERSION,
-  node_path="",
-  yarn_path="",
   node_repositories=NODE_REPOSITORIES,
   yarn_repositories=YARN_REPOSITORIES,
   node_urls=NODE_URLS,
@@ -423,9 +413,6 @@ def node_repositories(
     but you must use a value that matches a known version.
   - Using a custom version:
     You can pass in a custom list of NodeJS and/or Yarn repositories and URLs for node_resositories to use.
-  - Using a local version:
-    To avoid downloads, you can check in vendored copies of NodeJS and/or Yarn and set node_path and or yarn_path
-    to point to those before calling node_repositories.
 
   This rule exposes the `@nodejs` workspace containing some rules the user can call later:
 
@@ -461,10 +448,6 @@ def node_repositories(
 
     yarn_version: optional; the specific version of Yarn to install.
 
-    node_path: optional; the local path to a pre-installed NodeJS runtime.
-
-    yarn_path: optional; the local path to a pre-installed yarn tool.
-
     node_repositories: optional; custom list of node repositories to use.
 
     yarn_repositories: optional; custom list of yarn repositories to use.
@@ -489,8 +472,6 @@ def node_repositories(
     package_json = package_json,
     node_version = node_version,
     yarn_version = yarn_version,
-    node_path = node_path,
-    yarn_path = yarn_path,
     node_repositories = node_repositories,
     yarn_repositories = yarn_repositories,
     node_urls = node_urls,

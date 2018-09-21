@@ -117,22 +117,6 @@ node_repositories(
 
 Specifying `node_urls` and `yarn_urls` is optional. If omitted, the default values will be used. You may also use a custom NodeJS version and the default Yarn version or vice-versa.
 
-### Installation with local vendored versions of NodeJS and Yarn
-
-Finally, you could check Node.js and Yarn into your repository, and not fetch
-them from the internet. This is what we do internally at Google.
-
-```python
-load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
-
-# NOTE: this rule does NOT install your npm dependencies into your node_modules folder.
-# You must still run the package manager to do this.
-node_repositories(
-  node_path = "path/to/node/base",
-  yarn_path = "path/to/yarn/base",
-  package_json = ["//:package.json"])
-```
-
 ## Dependencies
 
 ### Bazel-managed vs self-managed dependencies
