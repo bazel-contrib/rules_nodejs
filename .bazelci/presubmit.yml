@@ -7,6 +7,7 @@ platforms:
     - "//..."
     test_targets:
     - "//..."
+    - "--define=some_env=some_value"
   ubuntu1604:
     run_targets:
     - "@nodejs//:yarn"
@@ -14,6 +15,7 @@ platforms:
     - "//..."
     test_targets:
     - "//..."
+    - "--define=some_env=some_value"
   macos:
     run_targets:
     - "@nodejs//:yarn"
@@ -21,6 +23,7 @@ platforms:
     - "//..."
     test_targets:
     - "//..."
+    - "--define=some_env=some_value"
   windows:
     run_targets:
     - "@nodejs//:yarn"
@@ -33,6 +36,7 @@ platforms:
     - "-//docs"
     test_targets:
     - "//..."
+    - "--define=some_env=some_value"
   rbe_ubuntu1604:
     build_targets:
     - "--"
