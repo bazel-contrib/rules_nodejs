@@ -132,7 +132,7 @@ as the package manager.</p>
 
           <h2 id="npm_install">npm_install</h2>
 
-          <pre>npm_install(<a href="#npm_install.name">name</a>, <a href="#npm_install.data">data</a>, <a href="#npm_install.manual_build_file_contents">manual_build_file_contents</a>, <a href="#npm_install.package_json">package_json</a>, <a href="#npm_install.package_lock_json">package_lock_json</a>, <a href="#npm_install.prod_only">prod_only</a>)</pre>
+          <pre>npm_install(<a href="#npm_install.name">name</a>, <a href="#npm_install.data">data</a>, <a href="#npm_install.manual_build_file_contents">manual_build_file_contents</a>, <a href="#npm_install.package_json">package_json</a>, <a href="#npm_install.package_lock_json">package_lock_json</a>, <a href="#npm_install.timeout">timeout</a>)</pre>
 
           <p>Runs npm install during workspace setup.</p>
 
@@ -166,9 +166,9 @@ as the package manager.</p>
         <p>Experimental attribute that can be used to override
             the generated BUILD.bazel file and set its contents manually.
             Can be used to work-around a bazel performance issue if the
-            default node_modules filegroup has too many files in it. See 
+            default node_modules filegroup has too many files in it. See
             <a href="https://github.com/bazelbuild/bazel/issues/5153">https://github.com/bazelbuild/bazel/issues/5153</a>. If
-            you are running into performance issues due to a large 
+            you are running into performance issues due to a large
             node_modules filegroup it is recommended to switch to using
             fine grained npm dependencies.</p>
       </td>
@@ -187,11 +187,12 @@ as the package manager.</p>
         
       </td>
     </tr>
-    <tr id="npm_install.prod_only">
-      <td><code>prod_only</code></td>
+    <tr id="npm_install.timeout">
+      <td><code>timeout</code></td>
       <td>
-        <p><code>Boolean; Optional; Default is False</code></p>
-        <p>Don't install devDependencies</p>
+        <p><code>Integer; Optional; Default is 600</code></p>
+        <p>Maximum duration of the command "npm install" in seconds
+            (default is 600 seconds).</p>
       </td>
     </tr>
   </tbody>
@@ -200,7 +201,7 @@ as the package manager.</p>
 
           <h2 id="yarn_install">yarn_install</h2>
 
-          <pre>yarn_install(<a href="#yarn_install.name">name</a>, <a href="#yarn_install.data">data</a>, <a href="#yarn_install.manual_build_file_contents">manual_build_file_contents</a>, <a href="#yarn_install.package_json">package_json</a>, <a href="#yarn_install.prod_only">prod_only</a>, <a href="#yarn_install.yarn_lock">yarn_lock</a>)</pre>
+          <pre>yarn_install(<a href="#yarn_install.name">name</a>, <a href="#yarn_install.data">data</a>, <a href="#yarn_install.manual_build_file_contents">manual_build_file_contents</a>, <a href="#yarn_install.package_json">package_json</a>, <a href="#yarn_install.timeout">timeout</a>, <a href="#yarn_install.yarn_lock">yarn_lock</a>)</pre>
 
           <p>Runs yarn install during workspace setup.</p>
 
@@ -234,9 +235,9 @@ as the package manager.</p>
         <p>Experimental attribute that can be used to override
             the generated BUILD.bazel file and set its contents manually.
             Can be used to work-around a bazel performance issue if the
-            default node_modules filegroup has too many files in it. See 
+            default node_modules filegroup has too many files in it. See
             <a href="https://github.com/bazelbuild/bazel/issues/5153">https://github.com/bazelbuild/bazel/issues/5153</a>. If
-            you are running into performance issues due to a large 
+            you are running into performance issues due to a large
             node_modules filegroup it is recommended to switch to using
             fine grained npm dependencies.</p>
       </td>
@@ -248,11 +249,12 @@ as the package manager.</p>
         
       </td>
     </tr>
-    <tr id="yarn_install.prod_only">
-      <td><code>prod_only</code></td>
+    <tr id="yarn_install.timeout">
+      <td><code>timeout</code></td>
       <td>
-        <p><code>Boolean; Optional; Default is False</code></p>
-        <p>Don't install devDependencies</p>
+        <p><code>Integer; Optional; Default is 600</code></p>
+        <p>Maximum duration of the command "yarn" in seconds.
+            (default is 600 seconds).</p>
       </td>
     </tr>
     <tr id="yarn_install.yarn_lock">
