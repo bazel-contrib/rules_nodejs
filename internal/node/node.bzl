@@ -99,8 +99,9 @@ def _nodejs_binary_impl(ctx):
           ctx.outputs.loader.short_path,
       ])
     env_vars = "export BAZEL_TARGET=%s\n" % ctx.label
-    for k in ctx.var.keys():
-      env_vars += "export %s=\"%s\"\n" % (k, ctx.var[k])
+    for k in ctx.attr.configuration_env_vars:
+      if k in ctx.var.keys():
+        env_vars += "export %s=\"%s\"\n" % (k, ctx.var[k])
 
     expected_exit_code = 0
     if hasattr(ctx.attr, 'expected_exit_code'):
@@ -152,6 +153,13 @@ _NODEJS_EXECUTABLE_ATTRS = {
         Enable this to get stack traces that point to original sources, e.g. if the program was written
         in TypeScript.""",
         default = True),
+    "configuration_env_vars": attr.string_list(
+        doc = """Pass these configuration environment variables to the resulting binary.
+        Chooses a subset of the configuration environment variables (taken from ctx.var), which also
+        includes anything specified via the --define flag.
+        Note, this can lead to different outputs produced by this rule.""",
+        default = [],
+    ),
     "data": attr.label_list(
         doc = """Runtime dependencies which may be loaded during execution.""",
         allow_files = True,

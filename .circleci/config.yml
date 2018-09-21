@@ -81,7 +81,7 @@ jobs:
 
       - run: bazel run @nodejs//:yarn
       - run: bazel build ...
-      - run: bazel test ...
+      - run: bazel test ... --define=some_env=some_value
       # TODO(alexeagle): move this into the example proper
       - run: bazel run examples/rollup -- --help
 

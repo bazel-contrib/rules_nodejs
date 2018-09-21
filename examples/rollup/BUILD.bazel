@@ -38,6 +38,8 @@ rollup(
 jasmine_node_test(
     name = "test",
     srcs = glob(["*.spec.js"]),
+    # Just here as a smoke test for this attribute
+    configuration_env_vars = ["some_env"],
     node_modules = ":node_modules",
     deps = [":bundle"],
 )
