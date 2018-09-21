@@ -24,7 +24,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 # It will be automatically synced via the npm "version" script
 # that is run when running `npm version` during the release
 # process. See `Releasing` section in README.md.
-VERSION = "0.13.4"
+VERSION = "0.14.0"
 
 def check_rules_nodejs_version(minimum_version_string):
   """
