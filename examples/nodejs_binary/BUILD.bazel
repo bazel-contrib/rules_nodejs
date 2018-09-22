@@ -1,0 +1,32 @@
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+load("@build_bazel_rules_nodejs//internal/js_library/v2:js_library.bzl", "js_library")
+
+js_library(
+    name = "msg",
+    srcs = ["msg.js"],
+)
+
+js_library(
+    name = "lib",
+    srcs = ["lib.js"],
+    deps = [
+      ":msg",
+    ],
+)
+
+js_library(
+    name = "index_lib",
+    srcs = ["index.js"],
+    deps = [
+      ":lib",
+    ],
+)
+
+nodejs_binary(
+    name = "index",
+    data = [
+      ":index_lib",
+    ],
+    entry_point = "build_bazel_rules_nodejs/examples/nodejs_binary/index.js",
+    install_source_map_support = False,
+)

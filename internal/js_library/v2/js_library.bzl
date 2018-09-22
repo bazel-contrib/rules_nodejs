@@ -52,7 +52,7 @@ def _babel_conversion(ctx, inputs, config, out_dir, mnemonic, description):
   return outputs
 
 def _es5_conversion(ctx, inputs, config):
-  out_dir = "es5"
+  out_dir = ""
   return _babel_conversion(ctx, inputs, config, out_dir, "JsCompile", "Babel")
 
 def _collect_sources(ctx, es5_outputs):
@@ -102,7 +102,7 @@ def _js_library(ctx):
     ),
     providers = [
       DefaultInfo(
-          files = js_providers.es6_sources,
+          files = js_providers.es5_sources,
           runfiles = ctx.runfiles(
             collect_data = True,
             collect_default = True,
