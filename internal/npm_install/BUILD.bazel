@@ -1,2 +1,8 @@
 # Exported to be consumed for generating skydoc.
 exports_files(["npm_install.bzl"])
+
+filegroup(
+    name = "generate_build_file",
+    srcs = ["generate_build_file.js"],
+    visibility = ["//internal:__subpackages__"],
+)

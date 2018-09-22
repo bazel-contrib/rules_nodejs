@@ -37,6 +37,11 @@ local_repository(
 )
 
 local_repository(
+    name = "bazel_managed_deps_example",
+    path = "examples/bazel_managed_deps",
+)
+
+local_repository(
     name = "node_loader_e2e_no_preserve_symlinks",
     path = "internal/e2e/node_loader_no_preserve_symlinks",
 )
@@ -51,7 +56,7 @@ local_repository(
     path = "internal/test/node_resolve_dep",
 )
 
-load("//:defs.bzl", "node_repositories")
+load("//:defs.bzl", "node_repositories", "yarn_install", "npm_install")
 
 # Install a hermetic version of node.
 # After this is run, these labels will be available:
@@ -66,7 +71,8 @@ node_repositories(
         "//:package.json",
         "//examples/rollup:package.json",
         "@program_example//:package.json",
-        "//internal/test:package.json"
+        "//internal/test:package.json",
+        "//internal/npm_install/test:package.json",
     ],
     preserve_symlinks = True,
 )
@@ -83,12 +89,14 @@ packages_example_setup_workspace()
 load("@devserver_example//:setup_workspace.bzl", "devserver_example_setup_workspace")
 devserver_example_setup_workspace()
 
+# Dependencies to run skydoc
 load("@io_bazel_rules_sass//sass:sass_repositories.bzl", "sass_repositories")
 sass_repositories()
 
 load("@io_bazel_skydoc//skylark:skylark.bzl", "skydoc_repositories")
 skydoc_repositories()
 
+# Dependencies to run buildifier and skylint
 load("@io_bazel_rules_go//go:def.bzl", "go_rules_dependencies", "go_register_toolchains")
 go_rules_dependencies()
 go_register_toolchains()
@@ -104,3 +112,19 @@ browser_repositories(
 
 load("@build_bazel_rules_typescript//:defs.bzl", "ts_setup_workspace")
 ts_setup_workspace()
+
+#
+# Install npm dependencies for tests
+#
+
+yarn_install(
+    name = "fine_grained_deps_yarn",
+    package_json = "//internal/e2e/fine_grained_deps:package.json",
+    yarn_lock = "//internal/e2e/fine_grained_deps:yarn.lock",
+)
+
+npm_install(
+    name = "fine_grained_deps_npm",
+    package_json = "//internal/e2e/fine_grained_deps:package.json",
+    package_lock_json = "//internal/e2e/fine_grained_deps:package-lock.json",
+)

@@ -81,9 +81,15 @@ jobs:
 
       - run: bazel run @nodejs//:yarn
       - run: bazel build ...
-      - run: bazel test ...
+      - run: bazel test ... --define=some_env=some_value
       # TODO(alexeagle): move this into the example proper
       - run: bazel run examples/rollup -- --help
+
+      # These targets should run
+      - run: bazel run //internal/node/test:no_deps
+      - run: bazel run //internal/node/test:has_deps_legacy
+      - run: bazel run //internal/node/test:has_deps
+      - run: bazel run //internal/node/test:has_deps_hybrid
 
       # We should also be able to test targets in a different workspace
       - run: bazel test @program_example//...

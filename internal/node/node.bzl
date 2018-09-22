@@ -22,6 +22,7 @@ a `module_name` attribute can be `require`d by that name.
 load("//internal/common:module_mappings.bzl", "module_mappings_runtime_aspect")
 load("//internal/common:sources_aspect.bzl", "sources_aspect")
 load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
+load("//internal/common:node_module_info.bzl", "NodeModuleInfo", "collect_node_modules_aspect")
 
 def _write_loader_script(ctx):
   # Generates the JavaScript snippet of module roots mappings, with each entry
@@ -34,11 +35,31 @@ def _write_loader_script(ctx):
         escaped = mn.replace("/", r"\/").replace(".", r"\.")
         mapping = r"{module_name: /^%s\b/, module_root: '%s'}" % (escaped, mr)
         module_mappings.append(mapping)
-  workspace = ctx.attr.node_modules.label.workspace_root.split("/")[1] if ctx.attr.node_modules.label.workspace_root else ctx.workspace_name
-  node_modules_root = "/".join([f for f in [
-      workspace,
-      ctx.attr.node_modules.label.package,
-      "node_modules"] if f])
+
+  node_modules_root = None
+  if ctx.files.node_modules:
+    # ctx.files.node_modules is not an empty list
+    workspace = ctx.attr.node_modules.label.workspace_root.split("/")[1] if ctx.attr.node_modules.label.workspace_root else ctx.workspace_name
+    node_modules_root = "/".join([f for f in [
+        workspace,
+        ctx.attr.node_modules.label.package,
+        "node_modules"] if f])
+  for d in ctx.attr.data:
+    if NodeModuleInfo in d:
+      possible_root = "/".join([d[NodeModuleInfo].workspace, "node_modules"])
+      if not node_modules_root:
+        node_modules_root = possible_root
+      elif node_modules_root != possible_root:
+        fail("All npm dependencies need to come from a single workspace. Found '%s' and '%s'." % (node_modules_root, possible_root))
+  if not node_modules_root:
+      # there are no fine grained deps and the node_modules attribute is an empty filegroup
+      # but we still need a node_modules_root even if its empty
+      workspace = ctx.attr.node_modules.label.workspace_root.split("/")[1] if ctx.attr.node_modules.label.workspace_root else ctx.workspace_name
+      node_modules_root = "/".join([f for f in [
+          workspace,
+          ctx.attr.node_modules.label.package,
+          "node_modules"] if f])
+
   ctx.actions.expand_template(
       template=ctx.file._loader_template,
       output=ctx.outputs.loader,
@@ -78,8 +99,9 @@ def _nodejs_binary_impl(ctx):
           ctx.outputs.loader.short_path,
       ])
     env_vars = "export BAZEL_TARGET=%s\n" % ctx.label
-    for k in ctx.var.keys():
-      env_vars += "export %s=\"%s\"\n" % (k, ctx.var[k])
+    for k in ctx.attr.configuration_env_vars:
+      if k in ctx.var.keys():
+        env_vars += "export %s=\"%s\"\n" % (k, ctx.var[k])
 
     expected_exit_code = 0
     if hasattr(ctx.attr, 'expected_exit_code'):
@@ -131,11 +153,18 @@ _NODEJS_EXECUTABLE_ATTRS = {
         Enable this to get stack traces that point to original sources, e.g. if the program was written
         in TypeScript.""",
         default = True),
+    "configuration_env_vars": attr.string_list(
+        doc = """Pass these configuration environment variables to the resulting binary.
+        Chooses a subset of the configuration environment variables (taken from ctx.var), which also
+        includes anything specified via the --define flag.
+        Note, this can lead to different outputs produced by this rule.""",
+        default = [],
+    ),
     "data": attr.label_list(
         doc = """Runtime dependencies which may be loaded during execution.""",
         allow_files = True,
         cfg = "data",
-        aspects=[sources_aspect, module_mappings_runtime_aspect]),
+        aspects = [sources_aspect, module_mappings_runtime_aspect, collect_node_modules_aspect]),
     "templated_args": attr.string_list(
         doc = """Arguments which are passed to every execution of the program.
         To pass a node startup option, prepend it with `--node_options=`, e.g.
@@ -144,13 +173,71 @@ _NODEJS_EXECUTABLE_ATTRS = {
     ),
     "node_modules": attr.label(
         doc = """The npm packages which should be available to `require()` during
-        execution.""",
-        # By default, binaries use the node_modules in the workspace
-        # where the bazel command is run. This assumes that any needed
-        # dependencies are installed there, commonly due to a transitive
-        # dependency on a package like @bazel/typescript.
-        # See discussion: https://github.com/bazelbuild/rules_typescript/issues/13
-        default = Label("@//:node_modules")),
+        execution.
+
+        This attribute is DEPRECATED. As of version 0.13.0 the recommended approach
+        to npm dependencies is to use fine grained npm dependencies which are setup
+        with the `yarn_install` or `npm_install` rules. For example, in targets
+        that used a `//:node_modules` filegroup,
+
+        ```
+        nodejs_binary(
+          name = "my_binary",
+          ...
+          node_modules = "//:node_modules",
+        )
+        ```
+
+        which specifies all files within the `//:node_modules` filegroup
+        to be inputs to the `my_binary`. Using fine grained npm dependencies,
+        `my_binary` is defined with only the npm dependencies that are
+        needed:
+
+        ```
+        nodejs_binary(
+          name = "my_binary",
+          ...
+          data = [
+              "@npm//:foo",
+              "@npm//:bar",
+              ...
+          ],
+        )
+        ```
+
+        In this case, only the `foo` and `bar` npm packages and their
+        transitive deps are includes as inputs to the `my_binary` target
+        which reduces the time required to setup the runfiles for this
+        target (see https://github.com/bazelbuild/bazel/issues/5153).
+
+        The @npm external repository and the fine grained npm package
+        targets are setup using the `yarn_install` or `npm_install` rule
+        in your WORKSPACE file:
+
+        yarn_install(
+          name = "npm",
+          package_json = "//:package.json",
+          yarn_lock = "//:yarn.lock",
+        )
+
+        For other rules such as `jasmine_node_test`, fine grained
+        npm dependencies are specified in the `deps` attribute:
+
+        ```
+        jasmine_node_test(
+            name = "my_test",
+            ...
+            deps = [
+                "@npm//:jasmine",
+                "@npm//:foo",
+                "@npm//:bar",
+                ...
+            ],
+        )
+        ```
+        """,
+        default = Label("//:node_modules_none"),
+    ),
     "node": attr.label(
         doc = """The node entry point target.""",
         default = Label("@nodejs//:node"),

@@ -30,10 +30,26 @@ DEFAULT_YARN_VERSION = "1.3.2"
 
 # Dictionary mapping NodeJS versions to sets of hosts and their correspoding (filename, strip_prefix, sha256) tuples.
 NODE_REPOSITORIES = {
+  # 10.10.0
+  "10.10.0-darwin_amd64": ("node-v10.10.0-darwin-x64.tar.gz", "node-v10.10.0-darwin-x64", "00b7a8426e076e9bf9d12ba2d571312e833fe962c70afafd10ad3682fdeeaa5e"),
+  "10.10.0-linux_amd64": ("node-v10.10.0-linux-x64.tar.xz", "node-v10.10.0-linux-x64", "686d2c7b7698097e67bcd68edc3d6b5d28d81f62436c7cf9e7779d134ec262a9"),
+  "10.10.0-windows_amd64": ("node-v10.10.0-win-x64.zip", "node-v10.10.0-win-x64", "70c46e6451798be9d052b700ce5dadccb75cf917f6bf0d6ed54344c856830cfb"),
+  # 10.9.0
+  "10.9.0-darwin_amd64": ("node-v10.9.0-darwin-x64.tar.gz", "node-v10.9.0-darwin-x64", "3c4fe75dacfcc495a432a7ba2dec9045cff359af2a5d7d0429c84a424ef686fc"),
+  "10.9.0-linux_amd64": ("node-v10.9.0-linux-x64.tar.xz", "node-v10.9.0-linux-x64", "c5acb8b7055ee0b6ac653dc4e458c5db45348cecc564b388f4ed1def84a329ff"),
+  "10.9.0-windows_amd64": ("node-v10.9.0-win-x64.zip", "node-v10.9.0-win-x64", "6a75cdbb69d62ed242d6cbf0238a470bcbf628567ee339d4d098a5efcda2401e"),
+  # 10.3.0
+  "10.3.0-darwin_amd64": ("node-v10.3.0-darwin-x64.tar.gz", "node-v10.3.0-darwin-x64", "0bb5b7e3fe8cccda2abda958d1eb0408f1518a8b0cb58b75ade5d507cd5d6053"),
+  "10.3.0-linux_amd64": ("node-v10.3.0-linux-x64.tar.xz", "node-v10.3.0-linux-x64", "eb3c3e2585494699716ad3197c8eedf4003d3f110829b30c5a0dc34414c47423"),
+  "10.3.0-windows_amd64": ("node-v10.3.0-win-x64.zip", "node-v10.3.0-win-x64", "65d586afb087406a2800d8e51f664c88b26d510f077b85a3b177a1bb79f73677"),
   # 9.11.1
   "9.11.1-darwin_amd64": ("node-v9.11.1-darwin-x64.tar.gz", "node-v9.11.1-darwin-x64", "7b1fb394aa41a62b477e36df16644bd383cc9084808511f6cd318b835a06aac6"),
   "9.11.1-linux_amd64": ("node-v9.11.1-linux-x64.tar.xz", "node-v9.11.1-linux-x64", "4d27a95d5c2f1c8ef99118794c9c4903e63963418d3e16ca7576760cff39879b"),
   "9.11.1-windows_amd64": ("node-v9.11.1-win-x64.zip", "node-v9.11.1-win-x64", "0a3566d57ccb7fed95d18fc6c3bc1552a1b1e4753f9bc6c5d45e04f325e1ee53"),
+  # 8.12.0
+  "8.12.0-darwin_amd64": ("node-v8.12.0-darwin-x64.tar.gz", "node-v8.12.0-darwin-x64", "ca131b84dfcf2b6f653a6521d31f7a108ad7d83f4d7e781945b2eca8172064aa"),
+  "8.12.0-linux_amd64": ("node-v8.12.0-linux-x64.tar.xz", "node-v8.12.0-linux-x64", "29a20479cd1e3a03396a4e74a1784ccdd1cf2f96928b56f6ffa4c8dae40c88f2"),
+  "8.12.0-windows_amd64": ("node-v8.12.0-win-x64.zip", "node-v8.12.0-win-x64", "9b22c9b23148b61ea0052826b3ac0255b8a3a542c125272b8f014f15bf11b091"),
   # 8.11.1
   "8.11.1-darwin_amd64": ("node-v8.11.1-darwin-x64.tar.gz", "node-v8.11.1-darwin-x64", "5c7b05899ff56910a2b8180f139d48612f349ac2c5d20f08dbbeffbed9e3a089"),
   "8.11.1-linux_amd64": ("node-v8.11.1-linux-x64.tar.xz", "node-v8.11.1-linux-x64", "6617e245fa0f7fbe0e373e71d543fea878315324ab31dc64b4eba10e42d04c11"),
@@ -46,6 +62,8 @@ NODE_REPOSITORIES = {
 
 # Dictionary mapping Yarn versions to their correspoding (filename, strip_prefix, sha256) tuples.
 YARN_REPOSITORIES = {
+  "1.9.4": ("yarn-v1.9.4.tar.gz", "yarn-v1.9.4", "7667eb715077b4bad8e2a832e7084e0e6f1ba54d7280dc573c8f7031a7fb093e"),
+  "1.9.2": ("yarn-v1.9.2.tar.gz", "yarn-v1.9.2", "3ad69cc7f68159a562c676e21998eb21b44138cae7e8fe0749a7d620cf940204"),
   "1.6.0": ("yarn-v1.6.0.tar.gz", "yarn-v1.6.0", "a57b2fdb2bfeeb083d45a883bc29af94d5e83a21c25f3fc001c295938e988509"),
   "1.5.1": ("yarn-v1.5.1.tar.gz", "yarn-v1.5.1", "cd31657232cf48d57fdbff55f38bfa058d2fb4950450bd34af72dac796af4de1"),
   "1.3.2": ("yarn-v1.3.2.tar.gz", "yarn-v1.3.2", "6cfe82e530ef0837212f13e45c1565ba53f5199eec2527b85ecbcd88bf26821d"),
@@ -456,11 +474,11 @@ def node_repositories(
     yarn_urls: optional; custom list of URLs to use to download Yarn.
 
     preserve_symlinks: Turn on --node_options=--preserve-symlinks for nodejs_binary and nodejs_test rules.
-      The default for this is currently True but the options is deprecated and will be removed in the future. 
+      The default for this is currently True but the options is deprecated and will be removed in the future.
       When this option is turned on, node will preserve the symlinked path for resolves instead of the default
-      behavior of resolving to the real path. This means that all required files must be in be included in your 
-      runfiles as it prevents the default behavior of potentially resolving outside of the runfiles. For example, 
-      all required files need to be included in your node_modules filegroup. This option is desirable as it gives 
+      behavior of resolving to the real path. This means that all required files must be in be included in your
+      runfiles as it prevents the default behavior of potentially resolving outside of the runfiles. For example,
+      all required files need to be included in your node_modules filegroup. This option is desirable as it gives
       a stronger guarantee of hermiticity which is required for remote execution.
   """
   # @bazel_tools//tools/bash/runfiles is required for nodejs
@@ -489,8 +507,6 @@ def node_repositories(
       name = "build_bazel_rules_nodejs_npm_install_deps",
       package_json = "@build_bazel_rules_nodejs//internal/npm_install:package.json",
       yarn_lock = "@build_bazel_rules_nodejs//internal/npm_install:yarn.lock",
-      # Just here as a smoke test for this attribute
-      prod_only = True,
   )
 
   yarn_install(
@@ -500,7 +516,19 @@ def node_repositories(
   )
 
   yarn_install(
-    name = "build_bazel_rules_nodejs_js_library_deps",
-    package_json = "@build_bazel_rules_nodejs//internal/js_library/v2:package.json",
-    yarn_lock = "@build_bazel_rules_nodejs//internal/js_library/v2:yarn.lock",
+      name = "build_bazel_rules_nodejs_js_library_deps",
+      package_json = "@build_bazel_rules_nodejs//internal/js_library/v2:package.json",
+      yarn_lock = "@build_bazel_rules_nodejs//internal/js_library/v2:yarn.lock",
+  )
+
+  yarn_install(
+      name = "history-server_runtime_deps",
+      package_json = "@build_bazel_rules_nodejs//internal/history-server:package.json",
+      yarn_lock = "@build_bazel_rules_nodejs//internal/history-server:yarn.lock",
+  )
+
+  yarn_install(
+      name = "http-server_runtime_deps",
+      package_json = "@build_bazel_rules_nodejs//internal/http-server:package.json",
+      yarn_lock = "@build_bazel_rules_nodejs//internal/http-server:yarn.lock",
   )

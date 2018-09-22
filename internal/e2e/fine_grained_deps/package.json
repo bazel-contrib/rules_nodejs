@@ -1,0 +1,11 @@
+{
+  "description": "runtime dependencies fine_grained_deps e2e test",
+  "devDependencies": {
+    "jasmine": "^3.2.0",
+    "typescript": "^3.0.1"
+  },
+  "dependencies": {
+    "@gregmagolan/test-a": "^0.0.2",
+    "@gregmagolan/test-b": "^0.0.2"
+  }
+}

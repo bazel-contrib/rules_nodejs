@@ -8,7 +8,6 @@
         "--host_cpu=x64_windows_msys"
       ],
       "test_tag_filters": [
-        "-no_windows",
         "-slow"
       ],
       "targets": ["//...", "@program_example//...", "@packages_example/..."],

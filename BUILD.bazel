@@ -1,1 +1,9 @@
-# Marker file that this directory is a Bazel package
+package(default_visibility = ["//visibility:public"])
+
+# Empty node_modules filegroup used for the default
+# value of the node_modules attribute in nodejs_binary
+# and rollup_bundle
+filegroup(
+    name = "node_modules_none",
+    srcs = [],
+)

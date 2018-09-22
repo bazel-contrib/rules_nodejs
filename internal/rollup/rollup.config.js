@@ -15,6 +15,8 @@ const workspaceName = 'TMPL_workspace_name';
 const rootDir = 'TMPL_rootDir';
 const banner_file = TMPL_banner_file;
 const stamp_data = TMPL_stamp_data;
+const nodeModulesRoot = 'TMPL_node_modules_root';
+const defaultNodeModules = TMPL_default_node_modules;
 
 if (DEBUG)
   console.error(`
@@ -34,7 +36,8 @@ function fileExists(filePath) {
 
 // This resolver mimics the TypeScript Path Mapping feature, which lets us resolve
 // modules based on a mapping of short names to paths.
-function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = require.resolve, root = rootDir) {
+function resolveBazel(
+    importee, importer, baseDir = process.cwd(), resolve = require.resolve, root = rootDir) {
   function resolveInRootDir(importee) {
     var candidate = path.join(baseDir, root, importee);
     if (DEBUG) console.error(`Rollup: try to resolve '${importee}' at '${candidate}'`);
@@ -47,6 +50,11 @@ function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = req
   }
 
   if (DEBUG) console.error(`Rollup: resolving '${importee}' from ${importer}`);
+
+  // Since mappings are always in POSIX paths, when comparing the importee to mappings
+  // we should normalize the importee.
+  // Having it normalized is also useful to determine relative paths.
+  const normalizedImportee = importee.replace(/\\/g, '/');
 
   // If import is fully qualified then resolve it directly
   if (fileExists(importee)) {
@@ -62,7 +70,7 @@ function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = req
   // and sources from external workspaces are under
   // <external_workspace_name>/<path_to_source>
   var resolved;
-  if (importee.startsWith('.' + path.sep) || importee.startsWith('..' + path.sep)) {
+  if (normalizedImportee.startsWith('./') || normalizedImportee.startsWith('../')) {
     // relative import
     if (importer) {
       let importerRootRelative = path.dirname(importer);
@@ -81,13 +89,13 @@ function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = req
     // possible workspace import or external import if importee matches a module
     // mapping
     for (const k in moduleMappings) {
-      if (importee == k || importee.startsWith(k + path.sep)) {
+      if (normalizedImportee == k || normalizedImportee.startsWith(k + '/')) {
         // replace the root module name on a mappings match
         // note that the module_root attribute is intended to be used for type-checking
         // so it uses eg. "index.d.ts". At runtime, we have only index.js, so we strip the
         // .d.ts suffix and let node require.resolve do its thing.
         var v = moduleMappings[k].replace(/\.d\.ts$/, '');
-        const mappedImportee = path.join(v, importee.slice(k.length + 1));
+        const mappedImportee = path.join(v, normalizedImportee.slice(k.length + 1));
         if (DEBUG) console.error(`Rollup: module mapped '${importee}' to '${mappedImportee}'`);
         resolved = resolveInRootDir(mappedImportee);
         if (resolved) break;
@@ -126,10 +134,28 @@ function notResolved(importee, importer) {
   if (isBuiltinModule(importee)) {
     return null;
   }
-  throw new Error(`Could not resolve import '${importee}' from '${importer}'`);
+  if (defaultNodeModules) {
+    // This error is possibly due to a breaking change in 0.13.2 where
+    // the default node_modules attribute of rollup_bundle was changed
+    // from @//:node_modules to @build_bazel_rules_nodejs//:node_modules_none
+    // (which is an empty filegroup).
+    // See https://github.com/bazelbuild/rules_nodejs/wiki#migrating-to-rules_nodejs-013
+    throw new Error(
+        `Could not resolve import '${importee}' from '${importer}'` +
+        `\n\nWARNING: Due to a breaking change in rules_nodejs 0.13.2, target TMPL_target\n` +
+        `must now declare either an explicit node_modules attribute, or\n` +
+        `list explicit deps[] fine grained dependencies on npm labels\n` +
+        `if it has any node_modules dependencies.\n` +
+        `See https://github.com/bazelbuild/rules_nodejs/wiki#migrating-to-rules_nodejs-013\n`);
+  } else {
+    throw new Error(`Could not resolve import '${importee}' from '${importer}'`);
+  }
 }
 
-module.exports = {
+const inputs = [TMPL_inputs];
+const enableCodeSplitting = inputs.length > 1;
+
+const config = {
   resolveBazel,
   banner,
   onwarn: (warning) => {
@@ -138,18 +164,32 @@ module.exports = {
     // types of warning should always be ignored under bazel.
     throw new Error(warning.message);
   },
-  output: {
-    format: 'TMPL_output_format',
-    name: 'TMPL_global_name',
-  },
   plugins: [TMPL_additional_plugins].concat([
     {resolveId: resolveBazel},
-    nodeResolve({
-      jsnext: true,
-      module: true,
-      customResolveOptions: {moduleDirectory: 'TMPL_node_modules_path'}
-    }),
+    nodeResolve(
+        {jsnext: true, module: true, customResolveOptions: {moduleDirectory: nodeModulesRoot}}),
     {resolveId: notResolved},
     sourcemaps(),
   ])
 }
+
+if (enableCodeSplitting) {
+  config.experimentalCodeSplitting = true;
+  config.experimentalDynamicImport = true;
+  config.input = inputs;
+  config.output = {
+    format: 'TMPL_output_format',
+  };
+  if (process.env.ROLLUP_BUNDLE_FIXED_CHUNK_NAMES) {
+    config.output.chunkFileNames = '[name].js';
+  }
+}
+else {
+  config.input = inputs[0];
+  config.output = {
+    format: 'TMPL_output_format',
+    name: 'TMPL_global_name',
+  };
+}
+
+module.exports = config;

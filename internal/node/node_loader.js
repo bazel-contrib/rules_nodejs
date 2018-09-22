@@ -147,6 +147,20 @@ function isFile(res) {
   }
 }
 
+function isDirectory(res) {
+  try {
+    return fs.statSync(res).isDirectory();
+  } catch (e) {
+    return false;
+  }
+}
+
+function readDir(dir) {
+  return fs.statSync(dir).isDirectory() ?
+      Array.prototype.concat(...fs.readdirSync(dir).map(f => readDir(path.join(dir, f)))) :
+      dir.replace(/\\/g, '/');
+}
+
 function loadAsFileSync(res) {
   if (isFile(res)) {
     return res;
@@ -185,7 +199,29 @@ function loadAsDirectorySync(res) {
 }
 
 function resolveManifestFile(res) {
-  return runfilesManifest[res] || runfilesManifest[res + '.js'];
+  const maybe = runfilesManifest[res] || runfilesManifest[res + '.js'];
+  if (maybe) {
+    return maybe;
+  }
+  // Look for tree artifacts that match and update
+  // the runfiles with files that are in the tree artifact.
+  // Attempt to resolve again with the updated runfiles
+  // if a tree artifact matched.
+  let segments = res.split('/');
+  segments.pop();
+  while (segments.length) {
+    const test = segments.join('/');
+    const tree = runfilesManifest[test];
+    if (tree && isDirectory(tree)) {
+      // We have a tree artifact that matches
+      const files = readDir(tree).map(f => path.relative(tree, f).replace(/\\/g, '/'));
+      files.forEach(f => {
+        runfilesManifest[path.posix.join(test, f)] = path.posix.join(tree, f);
+      })
+      return runfilesManifest[res] || runfilesManifest[res + '.js'];
+    }
+    segments.pop();
+  }
 }
 
 function resolveManifestDirectory(res) {
@@ -231,7 +267,7 @@ function resolveRunfiles(parent, ...pathSegments) {
       const normalizedParent = parent.replace(/\\/g, '/');
       const parentRunfile = reverseRunfilesManifest[normalizedParent];
       if (parentRunfile) {
-        runfilesEntry = path.join(path.dirname(parentRunfile), runfilesEntry).replace(/\\/g, '/');
+        runfilesEntry = path.join(path.dirname(parentRunfile), runfilesEntry);
       }
     } else if (
         runfilesEntry.startsWith(binRoot) || runfilesEntry.startsWith(genRoot) ||
@@ -244,6 +280,9 @@ function resolveRunfiles(parent, ...pathSegments) {
                           .replace(genRoot, `${USER_WORKSPACE_NAME}/`)
                           .replace(workspaceRoot, `${USER_WORKSPACE_NAME}/`);
     }
+
+    // Normalize and replace path separators to conform to the ones in the manifest.
+    runfilesEntry = path.normalize(runfilesEntry).replace(/\\/g, '/');
 
     if (DEBUG) console.error('node_loader: try to resolve in runfiles manifest', runfilesEntry);
 
@@ -393,7 +432,8 @@ module.constructor._resolveFilename =
   }
 
   const error = new Error(
-      `TEMPLATED_target cannot find module '${request}'\n  looked in:` +
+      `TEMPLATED_target cannot find module '${request}' required by '${
+          parentFilename}'\n  looked in:` +
       failedResolutions.map(r => `\n   ${r}\n`));
   error.code = 'MODULE_NOT_FOUND';
   throw error;
@@ -429,7 +469,20 @@ if (require.main === module) {
   try {
     module.constructor._load(mainScript, this, /*isMain=*/true);
   } catch (e) {
-    console.error('failed to load main ', e.stack || e);
+    console.error(e.stack || e);
+    if (NODE_MODULES_ROOT === 'build_bazel_rules_nodejs/node_modules') {
+      // This error is possibly due to a breaking change in 0.13.0 where
+      // the default node_modules attribute of nodejs_binary was changed
+      // from @//:node_modules to @build_bazel_rules_nodejs//:node_modules_none
+      // (which is an empty filegroup).
+      // See https://github.com/bazelbuild/rules_nodejs/wiki#migrating-to-rules_nodejs-013
+      console.error(
+          `\nWARNING: Due to a breaking change in rules_nodejs 0.13.0, target TEMPLATED_target\n` +
+          `must now declare either an explicit node_modules attribute, or\n` +
+          `list explicit deps[] or data[] fine grained dependencies on npm labels\n` +
+          `if it has any node_modules dependencies.\n` +
+          `See https://github.com/bazelbuild/rules_nodejs/wiki#migrating-to-rules_nodejs-013\n`);
+    }
     process.exit(1);
   }
 }

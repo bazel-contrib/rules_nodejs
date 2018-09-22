@@ -1,1 +1,1 @@
-export default "JS dev workflow";
+export default 'JS dev workflow';

@@ -24,7 +24,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 # It will be automatically synced via the npm "version" script
 # that is run when running `npm version` during the release
 # process. See `Releasing` section in README.md.
-VERSION = "0.12.0"
+VERSION = "0.14.0"
 
 def check_rules_nodejs_version(minimum_version_string):
   """
@@ -61,6 +61,20 @@ def rules_nodejs_dependencies():
         sha256 = "95518adafc9a2b656667bbf517a952e54ce7f350779d0dd95133db4eb5c27fb1",
     )
 
+    # Needed for Remote Build Execution
+    # See https://releases.bazel.build/bazel-toolchains.html
+    # Not strictly a dependency for all users, but it is convenient for them to have this repository
+    # defined to reduce the effort required to on-board to remote execution.
+    http_archive(
+        name = "bazel_toolchains",
+        urls = [
+            "https://mirror.bazel.build/github.com/bazelbuild/bazel-toolchains/archive/cdea5b8675914d0a354d89f108de5d28e54e0edc.tar.gz",
+            "https://github.com/bazelbuild/bazel-toolchains/archive/cdea5b8675914d0a354d89f108de5d28e54e0edc.tar.gz",
+        ],
+        strip_prefix = "bazel-toolchains-cdea5b8675914d0a354d89f108de5d28e54e0edc",
+        sha256 = "cefb6ccf86ca592baaa029bcef04148593c0efe8f734542f10293ea58f170715",
+    )
+
 def rules_nodejs_dev_dependencies():
     """
     Fetch dependencies needed for local development, but not needed by users.
@@ -68,27 +82,12 @@ def rules_nodejs_dev_dependencies():
     These are in this file to keep version information in one place, and make the WORKSPACE
     shorter.
     """
-    # Needed for Remote Build Execution
-    http_archive(
-        name = "bazel_toolchains",
-        sha256 = "c3b08805602cd1d2b67ebe96407c1e8c6ed3d4ce55236ae2efe2f1948f38168d",
-        strip_prefix = "bazel-toolchains-5124557861ebf4c0b67f98180bff1f8551e0b421",
-        urls = [
-            "https://mirror.bazel.build/github.com/bazelbuild/bazel-toolchains/archive/5124557861ebf4c0b67f98180bff1f8551e0b421.tar.gz",
-            "https://github.com/bazelbuild/bazel-toolchains/archive/5124557861ebf4c0b67f98180bff1f8551e0b421.tar.gz",
-        ],
-    )
-
-    # This commit matches the version of buildifier in angular/ngcontainer
-    # If you change this, also check if it matches the version in the angular/ngcontainer
-    # version in /.circleci/config.yml
-    BAZEL_BUILDTOOLS_VERSION = "82b21607e00913b16fe1c51bec80232d9d6de31c"
 
     http_archive(
         name = "com_github_bazelbuild_buildtools",
-        url = "https://github.com/bazelbuild/buildtools/archive/%s.zip" % BAZEL_BUILDTOOLS_VERSION,
-        strip_prefix = "buildtools-%s" % BAZEL_BUILDTOOLS_VERSION,
-        sha256 = "edb24c2f9c55b10a820ec74db0564415c0cf553fa55e9fc709a6332fb6685eff",
+        url = "https://github.com/bazelbuild/buildtools/archive/0.15.0.zip",
+        strip_prefix = "buildtools-0.15.0",
+        sha256 = "76d1837a86fa6ef5b4a07438f8489f00bfa1b841e5643b618e01232ba884b1fe",
     )
 
     http_archive(
@@ -125,10 +124,19 @@ def rules_nodejs_dev_dependencies():
         sha256 = "c0a5739d12c6d05b6c1ad56f2200cb0b57c5a70e03ebd2f7b87ce88cabf09c7b",
     )
 
+    # Go is a transitive dependency of buildifier
     http_archive(
         name = "io_bazel_rules_go",
-        url = "https://github.com/bazelbuild/rules_go/releases/download/0.14.0/rules_go-0.14.0.tar.gz",
+        urls = ["https://github.com/bazelbuild/rules_go/releases/download/0.14.0/rules_go-0.14.0.tar.gz"],
         sha256 = "5756a4ad75b3703eb68249d50e23f5d64eaf1593e886b9aa931aa6e938c4e301",
+    )
+
+    # Fetching the Bazel source code allows us to compile the Skylark linter
+    http_archive(
+        name = "io_bazel",
+        url = "https://github.com/bazelbuild/bazel/archive/968f87900dce45a7af749a965b72dbac51b176b3.zip",
+        strip_prefix = "bazel-968f87900dce45a7af749a965b72dbac51b176b3",
+        sha256 = "e373d2ae24955c1254c495c9c421c009d88966565c35e4e8444c082cb1f0f48f",
     )
 
 def _maybe(repo_rule, name, **kwargs):

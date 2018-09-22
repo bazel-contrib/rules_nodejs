@@ -1,0 +1,25 @@
+load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
+
+jasmine_node_test(
+    name = "underscore_spec_test",
+    srcs = ["foo_spec.js"],
+    node_modules = "//internal/test:node_modules",
+)
+
+jasmine_node_test(
+    name = "underscore_test_test",
+    srcs = ["foo_test.js"],
+    node_modules = "//internal/test:node_modules",
+)
+
+jasmine_node_test(
+    name = "dot_spec_test",
+    srcs = ["foo.spec.js"],
+    node_modules = "//internal/test:node_modules",
+)
+
+jasmine_node_test(
+    name = "dot_test_test",
+    srcs = ["foo.test.js"],
+    node_modules = "//internal/test:node_modules",
+)

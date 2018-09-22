@@ -3,17 +3,21 @@ const {sep, join} = require('path');
 TMPL_module_mappings = {
   'foo': 'path/to/foo_lib',
   'other': 'external/other_wksp/path/to/other_lib',
+  '@bar/baz': 'path/to/bar/baz_lib',
 };
 
 const rootDir = 'bazel-bin/path/to/a.esm5';
 TMPL_additional_plugins = [];
 TMPL_banner_file = '';
 TMPL_stamp_data = '';
+TMPL_inputs = '';
+TMPL_default_node_modules = false;
 
 const baseDir = '/root/base';
 const files = [
   '/root/base/bazel-bin/path/to/a.esm5/path/to/foo_lib/bar',
   '/root/base/bazel-bin/path/to/a.esm5/external/other_wksp/path/to/other_lib/thing',
+  '/root/base/bazel-bin/path/to/a.esm5/path/to/bar/baz_lib/foo',
   '/root/base/bazel-bin/path/to/a.esm5/external/some_wksp/path/to/a/public_api.js',
   '/root/base/bazel-bin/path/to/a.esm5/external/some_wksp/path/to/a/index.js',
 ];
@@ -67,6 +71,8 @@ describe('rollup config', () => {
         .toEqual(`${baseDir}/bazel-bin/path/to/a.esm5/path/to/foo_lib/bar`);
     expect(doResolve(`other${sep}thing`))
         .toEqual(`${baseDir}/bazel-bin/path/to/a.esm5/external/other_wksp/path/to/other_lib/thing`);
+    expect(doResolve(`@bar${sep}baz${sep}foo`))
+        .toEqual(`${baseDir}/bazel-bin/path/to/a.esm5/path/to/bar/baz_lib/foo`);
   });
 
   it('should find paths in any root', () => {
