@@ -10,7 +10,7 @@ js_library(
     name = "lib",
     srcs = ["lib.js"],
     deps = [
-      ":msg",
+        ":msg",
     ],
 )
 
@@ -18,14 +18,14 @@ js_library(
     name = "index_lib",
     srcs = ["index.js"],
     deps = [
-      ":lib",
+        ":lib",
     ],
 )
 
 nodejs_binary(
     name = "index",
     data = [
-      ":index_lib",
+        ":index_lib",
     ],
     entry_point = "build_bazel_rules_nodejs/examples/nodejs_binary/index.js",
     install_source_map_support = False,
