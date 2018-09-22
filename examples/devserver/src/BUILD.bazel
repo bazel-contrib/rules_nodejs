@@ -30,7 +30,7 @@ js_library(
 ts_devserver(
     name = "devserver",
     # Note: This will only work now when called from the top-level workspace, otherwise it would
-    # just be src/test.js
+    # just be src/test
     entry_module = "external/devserver_example/src/test",
     port = 8080,
     serving_path = "/bundle.js",
@@ -41,7 +41,9 @@ ts_devserver(
 
 rollup_bundle(
     name = "bundle",
-    entry_point = "$(location :test)",
+    # Note: This will only work now when called from the top-level workspace, otherwise it would
+    # just be src/test.js
+    entry_point = "external/devserver_example/src/test.js",
     node_modules = "@devserver_example_yarn_install//:node_modules",
     deps = [
         ":test",
