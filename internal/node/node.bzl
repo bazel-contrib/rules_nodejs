@@ -103,11 +103,16 @@ def _nodejs_binary_impl(ctx):
     node = ctx.file.node
     node_modules = ctx.files.node_modules
     sources = []
+    non_module_sources = []
     for d in ctx.attr.data:
       if hasattr(d, "node_sources"):
         sources += d.node_sources.to_list()
+        if NodeModuleInfo not in d:
+            non_module_sources += d.node_sources.to_list()
       if hasattr(d, "files"):
         sources += d.files.to_list()
+        if NodeModuleInfo not in d:
+            non_module_sources += d.files.to_list()
 
     _write_loader_script(ctx)
 
@@ -155,7 +160,7 @@ def _nodejs_binary_impl(ctx):
             ),
         ),
         SourcesInfo(
-            data = sources + [ctx.outputs.loader, ctx.outputs.script]
+            data = non_module_sources + [ctx.outputs.loader, ctx.outputs.script]
         )
     ]
 
