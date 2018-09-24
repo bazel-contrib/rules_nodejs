@@ -57,18 +57,18 @@ def rules_typescript_dependencies():
     _maybe(
         http_archive,
         name = "io_bazel_rules_go",
-        urls = ["https://github.com/bazelbuild/rules_go/archive/cf571fd7fde8eae4ec621184fe88fdad9b277e31.zip"],
-        strip_prefix = "rules_go-cf571fd7fde8eae4ec621184fe88fdad9b277e31",
-        sha256 = "12c3f330f5739961a5e57c8b8ac6f0ff9db0794d8081b3781f38d43b187e1098",
+        urls = ["https://github.com/bazelbuild/rules_go/archive/cbc1e32fba771845305f15e341fa26595d4a136d.zip"],
+        strip_prefix = "rules_go-cbc1e32fba771845305f15e341fa26595d4a136d",
+        sha256 = "d02b1d8d11fb67fb1e451645256e58a1542170eedd6e2ba160c8540c96f659da",
     )
 
     # go_repository is defined in bazel_gazelle
     _maybe(
         http_archive,
         name = "bazel_gazelle",
-        urls = ["https://github.com/bazelbuild/bazel-gazelle/archive/976cbaad824ea0ad8a710e047932ffa7c704d63a.zip"],
-        strip_prefix = "bazel-gazelle-976cbaad824ea0ad8a710e047932ffa7c704d63a",
-        sha256 = "809678e59f195c1f7e2766207bac07abaf6431e5326ce8e415d80e7415b4c100",
+        urls = ["https://github.com/bazelbuild/bazel-gazelle/archive/109bcfd6880aac2517a1a2d48987226da6337e11.zip"],
+        strip_prefix = "bazel-gazelle-109bcfd6880aac2517a1a2d48987226da6337e11",
+        sha256 = "8f80ce0f7a6f8a3fee1fb863c9a23e1de99d678c1cf3c6f0a128f3b883168208",
     )
 
     ###############################################
