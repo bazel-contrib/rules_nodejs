@@ -99,9 +99,9 @@ def rules_nodejs_dev_dependencies():
 
     http_archive(
         name = "io_bazel_skydoc",
-        url = "https://github.com/bazelbuild/skydoc/archive/d9b3e3b743f00bf00ba8d1306c56a477ec50fc4e.zip",
-        strip_prefix = "skydoc-d9b3e3b743f00bf00ba8d1306c56a477ec50fc4e",
-        sha256 = "8503d7237122b173fa7e80bb07b1eb74431433d3aee5ed198a324368a4c1432a",
+        url = "https://github.com/bazelbuild/skydoc/archive/8889c43187ca17a0b6e7b05383197811f5aefa17.zip",
+        strip_prefix = "skydoc-8889c43187ca17a0b6e7b05383197811f5aefa17",
+        sha256 = "dbb9034b5a0e98f2bb47ca216ee17e96e79e0d2236f21ce660bf66db0ed44dde  ",
     )
 
     # Go is a transitive dependency of buildifier
