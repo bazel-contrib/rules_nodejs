@@ -35,8 +35,7 @@ platforms:
     - "..."
   windows:
     run_targets:
-    # TODO(alexeagle): add gazelle when https://github.com/bazelbuild/bazel-gazelle/issues/321 fixed
-    # - "//:gazelle"
+    - "//:gazelle"
     - "@nodejs//:yarn"
     build_targets:
     - "..."
