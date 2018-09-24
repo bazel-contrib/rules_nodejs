@@ -1,0 +1,18 @@
+
+package(default_visibility = ["//visibility:public"])
+alias(
+  name = "test-b",
+  actual = "//node_modules/@gregmagolan/test-b:test-b__pkg"
+)
+alias(
+  name = "test-b__files",
+  actual = "//node_modules/@gregmagolan/test-b:test-b__files"
+)
+alias(
+  name = "test-b__lite",
+  actual = "//node_modules/@gregmagolan/test-b:test-b__lite"
+)
+alias(
+  name = "test-b__typings",
+  actual = "//node_modules/@gregmagolan/test-b:test-b__typings"
+)

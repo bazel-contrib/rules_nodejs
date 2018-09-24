@@ -9,7 +9,7 @@ Instead, we can declare individual npm packages as dependencies, e.g.:
 ```
 nodejs_binary(
     name = "fast",
-    data = ["@npm//:jasmine"]
+    data = ["@npm//jasmine"]
 )
 ```
 

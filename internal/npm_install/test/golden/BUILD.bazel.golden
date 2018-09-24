@@ -1,0 +1,25 @@
+
+package(default_visibility = ["//visibility:public"])
+filegroup(
+    name = "node_modules",
+    srcs = glob(["node_modules/.bin/*"]) + [
+        "//node_modules/balanced-match:balanced-match__lite",
+        "//node_modules/brace-expansion:brace-expansion__lite",
+        "//node_modules/concat-map:concat-map__lite",
+        "//node_modules/diff:diff__lite",
+        "//node_modules/fs.realpath:fs.realpath__lite",
+        "//node_modules/glob:glob__lite",
+        "//node_modules/inflight:inflight__lite",
+        "//node_modules/inherits:inherits__lite",
+        "//node_modules/jasmine:jasmine__lite",
+        "//node_modules/jasmine-core:jasmine-core__lite",
+        "//node_modules/minimatch:minimatch__lite",
+        "//node_modules/once:once__lite",
+        "//node_modules/path-is-absolute:path-is-absolute__lite",
+        "//node_modules/unidiff:unidiff__lite",
+        "//node_modules/wrappy:wrappy__lite",
+        "//node_modules/@gregmagolan/test-a:test-a__lite",
+        "//node_modules/@gregmagolan/test-b:test-b__lite",
+        "//node_modules/@yarnpkg/lockfile:lockfile__lite",
+    ],
+)

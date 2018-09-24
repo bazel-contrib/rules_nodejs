@@ -27,12 +27,12 @@ load("//internal/common:os_name.bzl", "os_name")
 def _create_build_file(repository_ctx, node):
   if repository_ctx.attr.manual_build_file_contents:
     repository_ctx.file("manual_build_file_contents", repository_ctx.attr.manual_build_file_contents)
-  result = repository_ctx.execute([node, "internal/generate_build_file.js"])
+  result = repository_ctx.execute([node, "generate_build_file.js"])
   if result.return_code:
     fail("node failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
 
 def _add_build_file_generator(repository_ctx):
-  repository_ctx.template("internal/generate_build_file.js",
+  repository_ctx.template("generate_build_file.js",
     repository_ctx.path(Label("//internal/npm_install:generate_build_file.js")), {})
 
 def _add_data_dependencies(repository_ctx):

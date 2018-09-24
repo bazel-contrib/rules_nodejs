@@ -3,10 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const unidiff = require('unidiff')
 
-const actual = 'BUILD.bazel';
-const golden = 'BUILD.bazel.golden';
-
-function check(updateGolden = false) {
+function check(actual, updateGolden = false) {
   // We must change the directory to the BUILD file path
   // so the generator is able to run
   process.chdir(path.dirname(__filename));
@@ -24,6 +21,7 @@ function check(updateGolden = false) {
                              .replace(/[\n]+/g, '\n');
 
   // Load the golden file for comparison
+  const golden = path.posix.join('golden', actual + '.golden');
   const goldenContents = fs.readFileSync(golden, {encoding: 'utf-8'}).replace(/\r\n/g, '\n');
 
   // Check if actualContents matches golden file
@@ -48,4 +46,23 @@ Update the golden file:
   }
 }
 
-module.exports = check;
+module.exports = {
+  check,
+  files: [
+    'BUILD.bazel',
+    '@gregmagolan/BUILD.bazel',
+    '@gregmagolan/test-a/BUILD.bazel',
+    '@gregmagolan/test-a/bin/BUILD.bazel',
+    '@gregmagolan/test-b/BUILD.bazel',
+    '@gregmagolan/test-b/bin/BUILD.bazel',
+    'jasmine/BUILD.bazel',
+    'jasmine/bin/BUILD.bazel',
+    'unidiff/BUILD.bazel',
+    'unidiff/bin/BUILD.bazel',
+    'node_modules/@gregmagolan/BUILD.bazel',
+    'node_modules/@gregmagolan/test-a/BUILD.bazel',
+    'node_modules/@gregmagolan/test-b/BUILD.bazel',
+    'node_modules/jasmine/BUILD.bazel',
+    'node_modules/unidiff/BUILD.bazel',
+  ],
+};

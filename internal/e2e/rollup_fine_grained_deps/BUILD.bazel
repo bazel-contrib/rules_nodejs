@@ -15,7 +15,7 @@ rollup_bundle(
     srcs = ["has-deps.js"],
     entry_point = "internal/e2e/rollup_fine_grained_deps/has-deps.js",
     deps = [
-        "@fine_grained_deps_yarn//:@gregmagolan/test-b",
+        "@fine_grained_deps_yarn//@gregmagolan/test-b",
     ],
 )
 
@@ -25,7 +25,7 @@ rollup_bundle(
     name = "bundle_legacy",
     srcs = ["has-deps.js"],
     entry_point = "internal/e2e/rollup_fine_grained_deps/has-deps.js",
-    node_modules = "@fine_grained_deps_yarn//:node_modules_lite",
+    node_modules = "@fine_grained_deps_yarn//:node_modules",
 )
 
 # You can have a rollup_bundle with both a node_modules attribute
@@ -34,9 +34,9 @@ rollup_bundle(
     name = "bundle_hybrid",
     srcs = ["has-deps.js"],
     entry_point = "internal/e2e/rollup_fine_grained_deps/has-deps.js",
-    node_modules = "@fine_grained_deps_yarn//:node_modules_lite",
+    node_modules = "@fine_grained_deps_yarn//:node_modules",
     deps = [
-        "@fine_grained_deps_yarn//:@gregmagolan/test-b",
+        "@fine_grained_deps_yarn//@gregmagolan/test-b",
     ],
 )
 
@@ -60,7 +60,7 @@ jasmine_node_test(
         ":bundle_no_deps.js",
         ":bundle_no_deps.min.js",
         ":bundle_no_deps.min_debug.js",
-        "@fine_grained_deps_yarn//:@gregmagolan/test-a",
-        "@fine_grained_deps_yarn//:jasmine",
+        "@fine_grained_deps_yarn//@gregmagolan/test-a",
+        "@fine_grained_deps_yarn//jasmine",
     ],
 )

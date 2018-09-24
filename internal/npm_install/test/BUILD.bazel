@@ -5,12 +5,17 @@ filegroup(
     srcs = glob(["node_modules/**"]),
 )
 
+filegroup(
+    name = "goldens",
+    srcs = glob(["golden/**"]),
+)
+
 jasmine_node_test(
     name = "test",
     srcs = glob(["*.spec.js"]),
     data = [
-        ":BUILD.bazel.golden",
         ":check.js",
+        ":goldens",
         ":node_modules",
         ":yarn.lock",
     ],
@@ -21,8 +26,8 @@ jasmine_node_test(
 nodejs_binary(
     name = "test.accept",
     data = [
-        ":BUILD.bazel.golden",
         ":check.js",
+        ":goldens",
         ":node_modules",
         ":update_golden.js",
         ":yarn.lock",
