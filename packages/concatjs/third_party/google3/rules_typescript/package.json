@@ -13,7 +13,7 @@
     },
     "dependencies": {
         "protobufjs": "5.0.0",
-        "tsutils": "2.20.0"
+        "tsutils": "2.27.2"
     },
     "devDependencies": {
         "@bazel/ibazel": "^0.2.0",
