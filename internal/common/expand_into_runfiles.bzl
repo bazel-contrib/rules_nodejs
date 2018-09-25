@@ -48,6 +48,8 @@ def expand_path_into_runfiles(ctx, path):
   """
   targets = ctx.attr.data if hasattr(ctx.attr, "data") else []
   expanded = ctx.expand_location(path, targets)
+  if expanded.startswith('../'):
+    return expanded[len('../'):]
   if expanded.startswith(ctx.bin_dir.path):
     expanded = expanded[len(ctx.bin_dir.path + "/"):]
   if expanded.startswith(ctx.genfiles_dir.path):
