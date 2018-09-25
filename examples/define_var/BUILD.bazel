@@ -1,0 +1,18 @@
+load(
+    "@build_bazel_rules_nodejs//:defs.bzl",
+    "jasmine_node_test",
+)
+
+jasmine_node_test(
+    name = "define_var",
+    srcs = glob(["*.spec.js"]),
+    # Just here as a smoke test for this attribute.
+    # Test must be run with --define=some_env=some_value.
+    # Use `bazel test ... --define=some_env=some_value` or
+    # `bazel test //examples/rollup:test --define=some_env=some_value`.
+    configuration_env_vars = ["some_env"],
+    data = ["@fine_grained_deps_yarn//:jasmine"],
+    # Don't include this test in //... pattern since it requires special
+    # --define option
+    tags = ["manual"],
+)
