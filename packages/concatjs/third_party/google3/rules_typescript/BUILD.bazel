@@ -29,25 +29,11 @@ alias(
     visibility = ["//visibility:public"],
 )
 
+exports_files(["LICENSE"])
+
 gazelle(
     name = "gazelle",
     prefix = "github.com/bazelbuild/rules_typescript",
-)
-
-# The node_modules directory is created by `yarn install`
-# WORKAROUND for https://github.com/bazelbuild/bazel/issues/374#issuecomment-296217940
-filegroup(
-    name = "node_modules",
-    # Only include files needed for type-checking and runtime
-    srcs = glob([
-        "node_modules/**/*.js",
-        "node_modules/**/*.d.ts",
-        "node_modules/**/*.json",
-    ] + [
-        # Needed because http-server has a bin with no .js extension
-        "node_modules/http-server/**",
-    ]),
-    visibility = ["//visibility:public"],
 )
 
 # Runtime libraries needed by the protobufjs library.
@@ -64,5 +50,37 @@ js_library(
         "long": "Long",
         "protobufjs/minimal": "protobuf",
     },
+    visibility = ["//visibility:public"],
+)
+
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+
+# A nodejs_binary for karma/karma to use by default in ts_web_test &
+# ts_web_test_suite that depends on @npm//:@bazel/karma instead of the
+# output of the //internal/karma/karma_concat_js ts_library rule. This
+# default is for downstream users that depend on the @bazel/karma npm
+# package. The generated @npm//:karma/karma target does not work
+# as it does not have the additional data dependencies required.
+nodejs_binary(
+    name = "karma/karma",
+    data = ["@npm//:@bazel/karma"],
+    entry_point = "karma/bin/karma",
+    install_source_map_support = False,
+    visibility = ["//visibility:public"],
+)
+
+# A nodejs_binary for @bazel/typescript/tsc_wrapped to use by default in
+# ts_library that depends on @npm//:@bazel/typescript instead of the
+# output of the //internal/tsc_wrapped ts_library rule. This
+# default is for downstream users that depend on the @bazel/karma npm
+# package. The generated @npm//:@bazel/typescript/tsc_wrapped target
+# does not work because it does not have the node `--expose-gc` flag
+# set which is required to support the call to `global.gc()`.
+nodejs_binary(
+    name = "@bazel/typescript/tsc_wrapped",
+    data = ["@npm//:@bazel/typescript"],
+    entry_point = "@bazel/typescript/tsc_wrapped/tsc_wrapped.js",
+    install_source_map_support = False,
+    templated_args = ["--node_options=--expose-gc"],
     visibility = ["//visibility:public"],
 )

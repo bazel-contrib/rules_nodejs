@@ -1,6 +1,15 @@
 {
+  "name": "@bazel/karma",
   "description": "runtime dependences for web test rules",
-  "devDependencies": {
+  "homepage": "https://github.com/bazelbuild/rules_typescript",
+  "license": "Apache-2.0",
+  "version": "0.0.0-PLACEHOLDER",
+  "keywords": [
+      "karma",
+      "bazel"
+  ],
+  "typings": "./index.d.ts",
+  "dependencies": {
     "jasmine-core": "2.8.0",
     "karma": "alexeagle/karma#fa1a84ac881485b5657cb669e9b4e5da77b79f0a",
     "karma-chrome-launcher": "2.2.0",
@@ -11,5 +20,8 @@
     "karma-requirejs": "1.1.0",
     "requirejs": "2.3.5",
     "tmp": "0.0.33"
+  },
+  "scripts": {
+    "postinstall": "node ./check_version.js"
   }
 }

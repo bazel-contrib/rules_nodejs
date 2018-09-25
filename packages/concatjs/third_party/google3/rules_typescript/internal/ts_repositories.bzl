@@ -41,8 +41,12 @@ def ts_setup_workspace():
     )
 
     # 0.11.3: node module resolution fixes & check_rules_nodejs_version
-    check_rules_nodejs_version("0.11.3")
+    # 0.14.0: fine grained npm dependencies support for ts_library
+    check_rules_nodejs_version("0.14.0")
 
+    # Included here for backward compatability for downstream repositories
+    # that use @build_bazel_rules_typescript_tsc_wrapped_deps such as rxjs.
+    # @build_bazel_rules_typescript_tsc_wrapped_deps is not used locally.
     yarn_install(
         name = "build_bazel_rules_typescript_tsc_wrapped_deps",
         package_json = "@build_bazel_rules_typescript//internal:tsc_wrapped/package.json",
@@ -53,12 +57,6 @@ def ts_setup_workspace():
         name = "build_bazel_rules_typescript_devserver_deps",
         package_json = "@build_bazel_rules_typescript//internal/devserver:package.json",
         yarn_lock = "@build_bazel_rules_typescript//internal/devserver:yarn.lock",
-    )
-
-    yarn_install(
-        name = "build_bazel_rules_typescript_karma_deps",
-        package_json = "@build_bazel_rules_typescript//internal/karma:package.json",
-        yarn_lock = "@build_bazel_rules_typescript//internal/karma:yarn.lock",
     )
 
     yarn_install(

@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@bazel/typescript": "file:../build_bazel_rules_typescript/bazel-bin/internal/npm_package",
+    "typescript": "2.9.2"
+  }
+}

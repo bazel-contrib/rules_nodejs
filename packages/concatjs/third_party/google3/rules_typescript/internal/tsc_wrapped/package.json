@@ -1,5 +1,5 @@
 {
-  "description": "build-time dependencies to compile and run tsc_wrapped",
+  "description": "legacy build-time dependencies to compile and run tsc_wrapped",
   "devDependencies": {
     "@types/jasmine": "2.8.2",
     "@types/node": "7.0.18",

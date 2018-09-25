@@ -54,7 +54,6 @@ jobs:
       - restore_cache:
           key: *cache_key
       - run: bazel info release
-      - run: bazel run @nodejs//:yarn
       - run: bazel build ...
       - run: bazel test ...
 
@@ -73,7 +72,6 @@ jobs:
       - restore_cache:
           key: *cache_key
       - run: bazel --bazelrc=/dev/null info release
-      - run: bazel --bazelrc=/dev/null run @nodejs//:yarn
       - run: bazel --bazelrc=/dev/null build ...
       - run: bazel --bazelrc=/dev/null test ...
 
@@ -94,7 +92,11 @@ jobs:
       - *hide_node_and_yarn_local_binaries
       - restore_cache:
           key: *cache_key
-      - run: bazel run @nodejs//:yarn
+      # Build the npm packages which are used in the e2e tests
+      - run: bazel build //internal:npm_package
+      - run: bazel build //internal/karma:npm_package
+      # Run yarn as e2e tests depend on self managed node_modules
+      - run: bazel run @nodejs//:bin/yarn
       # Don't occupy the bazel server, as this test wants to run Bazel itself
       - run: bazel run @nodejs//:yarn e2e --script_path=yarn_e2e.sh
       - run: xvfb-run -a ./yarn_e2e.sh

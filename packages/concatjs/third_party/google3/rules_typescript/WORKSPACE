@@ -40,22 +40,28 @@ yarn_install(
 )
 
 # Install a hermetic version of node.
-# After this is run, these labels will be available:
-# - NodeJS:
-#   @nodejs//:node
-# - NPM:
-#   @nodejs//:npm
-# - The yarn package manager:
-#   @nodejs//:yarn
-node_repositories(
-  package_json = ["//:package.json"],
-  preserve_symlinks = True)
+node_repositories(preserve_symlinks = True)
 
+yarn_install(
+    name = "npm",
+    package_json = "//:package.json",
+    yarn_lock = "//:yarn.lock",
+    manual_build_file_contents = """
+filegroup(
+  name = "@bazel/typescript",
+  srcs = [],
+)
+
+filegroup(
+  name = "@bazel/karma",
+  srcs = [],
+)
+""",
+)
 
 load("@io_bazel_rules_go//go:def.bzl", "go_rules_dependencies", "go_register_toolchains")
 
 go_rules_dependencies()
-
 go_register_toolchains()
 
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
@@ -65,7 +71,6 @@ gazelle_dependencies()
 load("@io_bazel_rules_webtesting//web:repositories.bzl", "browser_repositories", "web_test_repositories")
 
 web_test_repositories()
-
 browser_repositories(
     chromium = True,
     firefox = True,
@@ -84,6 +89,47 @@ check_rules_typescript_version("0.15.3")
 
 # Dependencies for generating documentation
 load("@io_bazel_rules_sass//sass:sass_repositories.bzl", "sass_repositories")
+
 sass_repositories()
+
 load("@io_bazel_skydoc//skylark:skylark.bzl", "skydoc_repositories")
+
 skydoc_repositories()
+
+# Tell Bazel where the nested local repositories are that are
+# used for tests. This is necessary so that `bazel <cmd> ...`
+# doesn't traverse into nested local repositories.
+local_repository(
+  name = "ts_auto_deps_e2e",
+  path = "internal/e2e/ts_auto_deps",
+)
+
+local_repository(
+  name = "package_karma_e2e",
+  path = "internal/e2e/package_karma",
+)
+
+local_repository(
+  name = "package_typescript_27_e2e",
+  path = "internal/e2e/package_typescript_2.7",
+)
+
+local_repository(
+  name = "package_typescript_28_e2e",
+  path = "internal/e2e/package_typescript_2.8",
+)
+
+local_repository(
+  name = "package_typescript_29_e2e",
+  path = "internal/e2e/package_typescript_2.9",
+)
+
+local_repository(
+  name = "package_typescript_30_e2e",
+  path = "internal/e2e/package_typescript_3.0",
+)
+
+local_repository(
+  name = "package_typescript_karma_e2e",
+  path = "internal/e2e/package_typescript_karma",
+)

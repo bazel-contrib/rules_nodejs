@@ -32,6 +32,7 @@ def create_tsconfig(
         extra_root_dirs = [],
         module_path_prefixes = None,
         module_roots = None,
+        node_modules_root = None,
         skip_goog_scheme_deps_checking = False):
     """Creates an object representing the TypeScript configuration to run the compiler under Bazel.
 
@@ -85,9 +86,7 @@ def create_tsconfig(
         node_modules_mappings = []
         if (hasattr(ctx.attr, "node_modules")):
             node_modules_mappings.append("/".join([p for p in [
-                ctx.attr.node_modules.label.workspace_root,
-                ctx.attr.node_modules.label.package,
-                "node_modules",
+                node_modules_root,
                 "*",
             ] if p]))
 
@@ -97,9 +96,7 @@ def create_tsconfig(
             # We can add it to the path mapping to make this lookup work.
             # See https://github.com/bazelbuild/rules_typescript/issues/179
             node_modules_mappings.append("/".join([p for p in [
-                ctx.attr.node_modules.label.workspace_root,
-                ctx.attr.node_modules.label.package,
-                "node_modules",
+                node_modules_root,
                 "@types",
                 "*",
             ] if p]))
@@ -263,9 +260,7 @@ def create_tsconfig(
     if hasattr(ctx.attr, "node_modules"):
         compiler_options["typeRoots"] = ["/".join([p for p in [
             workspace_path,
-            ctx.attr.node_modules.label.workspace_root,
-            ctx.attr.node_modules.label.package,
-            "node_modules",
+            node_modules_root,
             "@types",
         ] if p])]
 

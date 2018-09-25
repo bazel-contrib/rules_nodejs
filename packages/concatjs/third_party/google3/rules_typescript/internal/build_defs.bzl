@@ -16,9 +16,53 @@
 
 # pylint: disable=unused-argument
 # pylint: disable=missing-docstring
-load(":common/compilation.bzl", "COMMON_ATTRIBUTES", "compile_ts", "ts_providers_dict_to_struct")
+load(":common/compilation.bzl", "COMMON_ATTRIBUTES", "DEPS_ASPECTS", "compile_ts", "ts_providers_dict_to_struct")
 load(":common/tsconfig.bzl", "create_tsconfig")
 load(":ts_config.bzl", "TsConfigInfo")
+load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleInfo", "collect_node_modules_aspect")
+
+_DEFAULT_COMPILER = "@build_bazel_rules_typescript//:@bazel/typescript/tsc_wrapped"
+
+def _compute_node_modules_root(ctx):
+    """Computes the node_modules root from the node_modules and deps attributes.
+
+    Args:
+      ctx: the skylark execution context
+
+    Returns:
+      The node_modules root as a string
+    """
+    node_modules_root = None
+    if ctx.files.node_modules:
+        # ctx.files.node_modules is not an empty list
+        node_modules_root = "/".join([f for f in [
+            ctx.attr.node_modules.label.workspace_root,
+            ctx.attr.node_modules.label.package,
+            "node_modules",
+        ] if f])
+    for d in ctx.attr.deps:
+        if NodeModuleInfo in d:
+            possible_root = "/".join(["external", d[NodeModuleInfo].workspace, "node_modules"])
+            if not node_modules_root:
+                node_modules_root = possible_root
+            elif node_modules_root != possible_root:
+                fail("All npm dependencies need to come from a single workspace. Found '%s' and '%s'." % (node_modules_root, possible_root))
+    if not node_modules_root:
+        # there are no fine grained deps and the node_modules attribute is an empty filegroup
+        # but we still need a node_modules_root even if its empty
+        node_modules_root = "/".join([f for f in [
+            ctx.attr.node_modules.label.workspace_root,
+            ctx.attr.node_modules.label.package,
+            "node_modules",
+        ] if f])
+    return node_modules_root
+
+def _filter_ts_inputs(all_inputs):
+    return [
+        f
+        for f in all_inputs
+        if f.path.endswith(".js") or f.path.endswith(".ts") or f.path.endswith(".json")
+    ]
 
 def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description = "prodmode"):
     externs_files = []
@@ -40,11 +84,15 @@ def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description 
     if not action_outputs:
         return struct()
 
-    action_inputs = inputs + [
-        f
-        for f in ctx.files.node_modules
-        if f.path.endswith(".js") or f.path.endswith(".ts") or f.path.endswith(".json")
-    ]
+    node_module_inputs = _filter_ts_inputs(ctx.files.node_modules)
+
+    # Also include files from npm fine grained deps as action_inputs.
+    # These deps are identified by the NodeModuleInfo provider.
+    for d in ctx.attr.deps:
+        if NodeModuleInfo in d:
+            node_module_inputs.extend(_filter_ts_inputs(d.files))
+    action_inputs = depset(node_module_inputs, transitive = [inputs])
+
     if ctx.file.tsconfig:
         action_inputs += [ctx.file.tsconfig]
         if TsConfigInfo in ctx.attr.tsconfig:
@@ -117,18 +165,16 @@ def tsc_wrapped_tsconfig(
     # bazel-foo/ and therefore we need to strip some parent directories for each
     # f.path.
 
+    node_modules_root = _compute_node_modules_root(ctx)
     config = create_tsconfig(
         ctx,
         files,
         srcs,
         devmode_manifest = devmode_manifest,
+        node_modules_root = node_modules_root,
         **kwargs
     )
-    config["bazelOptions"]["nodeModulesPrefix"] = "/".join([p for p in [
-        ctx.attr.node_modules.label.workspace_root,
-        ctx.attr.node_modules.label.package,
-        "node_modules",
-    ] if p])
+    config["bazelOptions"]["nodeModulesPrefix"] = node_modules_root
 
     # If the user gives a tsconfig attribute, the generated file should extend
     # from the user's tsconfig.
@@ -160,11 +206,23 @@ def _ts_library_impl(ctx):
     ts_providers = compile_ts(
         ctx,
         is_library = True,
+        # Filter out the node_modules from deps passed to TypeScript compiler
+        # since they don't have the required providers.
+        # They were added to the action inputs for tsc_wrapped already.
+        # strict_deps checking currently skips node_modules.
+        # TODO(alexeagle): turn on strict deps checking when we have a real
+        # provider for JS/DTS inputs to ts_library.
+        deps = [d for d in ctx.attr.deps if not NodeModuleInfo in d],
         compile_action = _compile_action,
         devmode_compile_action = _devmode_compile_action,
         tsc_wrapped_tsconfig = tsc_wrapped_tsconfig,
     )
     return ts_providers_dict_to_struct(ts_providers)
+
+local_deps_aspects = [collect_node_modules_aspect]
+
+# Workaround skydoc bug which assumes DEPS_ASPECTS is a str type
+[local_deps_aspects.append(a) for a in DEPS_ASPECTS]
 
 ts_library = rule(
     _ts_library_impl,
@@ -174,6 +232,7 @@ ts_library = rule(
             allow_files = [".ts", ".tsx"],
             mandatory = True,
         ),
+        "deps": attr.label_list(aspects = local_deps_aspects),
 
         # TODO(alexeagle): reconcile with google3: ts_library rules should
         # be portable across internal/external, so we need this attribute
@@ -194,11 +253,19 @@ ts_library = rule(
             allow_single_file = True,
         ),
         "compiler": attr.label(
-            doc = """Intended for internal use only.
-            Sets a different TypeScript compiler binary to use for this library.
+            doc = """Sets a different TypeScript compiler binary to use for this library.
             For example, we use the vanilla TypeScript tsc.js for bootstrapping,
-            and Angular compilations can replace this with `ngc`.""",
-            default = Label("//internal:tsc_wrapped_bin"),
+            and Angular compilations can replace this with `ngc`.
+
+            The default ts_library compiler depends on the `@npm//:@bazel/typescript`
+            target which is setup for projects that use bazel managed npm deps that
+            fetch the @bazel/typescript npm package. It is recommended that you use
+            the workspace name `@npm` for bazel managed deps so the default
+            compiler works out of the box. Otherwise, you'll have to override
+            the compiler attribute manually.
+            """,
+            default = Label(_DEFAULT_COMPILER),
+            single_file = False,
             allow_files = True,
             executable = True,
             cfg = "host",
@@ -212,10 +279,69 @@ ts_library = rule(
         ),
         "tsickle_typed": attr.bool(default = True),
         "internal_testing_type_check_dependencies": attr.bool(default = False, doc = "Testing only, whether to type check inputs that aren't srcs."),
-        # @// is special syntax for the "main" repository
-        # The default assumes the user specified a target "node_modules" in their
-        # root BUILD file.
-        "node_modules": attr.label(default = Label("@//:node_modules")),
+        "node_modules": attr.label(
+            doc = """The npm packages which should be available during the compile.
+
+            The default value is `@npm//:typescript__typings` is setup
+            for projects that use bazel managed npm deps that. It is recommended
+            that you use the workspace name `@npm` for bazel managed deps so the
+            default node_modules works out of the box. Otherwise, you'll have to
+            override the node_modules attribute manually. This default is in place
+            since ts_library will always depend on at least the typescript
+            default libs which are provided by `@npm//:typescript__typings`.
+
+            This attribute is DEPRECATED. As of version 0.18.0 the recommended
+            approach to npm dependencies is to use fine grained npm dependencies
+            which are setup with the `yarn_install` or `npm_install` rules.
+
+            For example, in targets that used a `//:node_modules` filegroup,
+
+            ```
+            ts_library(
+              name = "my_lib",
+              ...
+              node_modules = "//:node_modules",
+            )
+            ```
+
+            which specifies all files within the `//:node_modules` filegroup
+            to be inputs to the `my_lib`. Using fine grained npm dependencies,
+            `my_lib` is defined with only the npm dependencies that are
+            needed:
+
+            ```
+            ts_library(
+              name = "my_lib",
+              ...
+              deps = [
+                  "@npm//:@types/foo",
+                  "@npm//:@types/bar",
+                  "@npm//:foo",
+                  "@npm//:bar",
+                  ...
+              ],
+            )
+            ```
+
+            In this case, only the listed npm packages and their
+            transitive deps are includes as inputs to the `my_lib` target
+            which reduces the time required to setup the runfiles for this
+            target (see https://github.com/bazelbuild/bazel/issues/5153).
+            The default typescript libs are also available via the node_modules
+            default in this case.
+
+            The @npm external repository and the fine grained npm package
+            targets are setup using the `yarn_install` or `npm_install` rule
+            in your WORKSPACE file:
+
+            yarn_install(
+              name = "npm",
+              package_json = "//:package.json",
+              yarn_lock = "//:yarn.lock",
+            )
+            """,
+            default = Label("@npm//:typescript__typings"),
+        ),
     }),
     outputs = {
         "tsconfig": "%{name}_tsconfig.json",

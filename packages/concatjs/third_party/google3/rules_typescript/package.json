@@ -1,18 +1,20 @@
 {
-    "name": "@bazel/typescript",
-    "description": "Build TypeScript with Bazel",
+    "description": "Monorepo for TypeScript Bazel support. Published packages are in subdirectories under internal/",
+    "private": true,
     "version": "0.17.0",
-    "keywords": [
-        "typescript",
-        "bazel"
-    ],
-    "homepage": "https://github.com/bazelbuild/rules_typescript",
-    "license": "Apache-2.0",
-    "peerDependencies": {
-        "typescript": ">=2.4.2"
-    },
     "dependencies": {
+        "jasmine-core": "2.8.0",
+        "karma": "alexeagle/karma#fa1a84ac881485b5657cb669e9b4e5da77b79f0a",
+        "karma-chrome-launcher": "2.2.0",
+        "karma-firefox-launcher": "1.1.0",
+        "karma-jasmine": "1.1.1",
+        "karma-requirejs": "1.1.0",
+        "karma-sauce-launcher": "1.2.0",
+        "karma-sourcemap-loader": "0.3.7",
         "protobufjs": "5.0.0",
+        "requirejs": "2.3.5",
+        "source-map-support": "0.5.9",
+        "tmp": "0.0.33",
         "tsutils": "2.27.2"
     },
     "devDependencies": {
@@ -28,17 +30,25 @@
         "protractor": "^5.2.0",
         "shelljs": "^0.8.2",
         "tsickle": "0.32.1",
-        "typescript": "2.7.x"
+        "typescript": "~2.9.1",
+        "which": "~1.0.5"
     },
     "scripts": {
         "pree2e": "webdriver-manager update $CHROMEDRIVER_VERSION_ARG && bazel build examples/app:e2e && bazel build examples/protocol_buffers:e2e",
-        "e2e": "yarn e2e-bazel-external && yarn e2e-examples-app-devserver && yarn e2e-examples-app-prodserver && yarn e2e-examples-protobuf-devserver && yarn e2e-examples-protobuf-prodserver && yarn e2e-ts_auto_deps",
+        "e2e": "yarn e2e-bazel-external && yarn e2e-examples-app-devserver && yarn e2e-examples-app-prodserver && yarn e2e-examples-protobuf-devserver && yarn e2e-examples-protobuf-prodserver && yarn e2e-package_karma && yarn e2e-package_typescript && yarn e2e-package_typescript_karma && yarn e2e-ts_auto_deps",
         "e2e-bazel-external": "jasmine internal/e2e/default_tsconfig_test.js",
         "e2e-examples-app-devserver": "concurrently \"bazel run examples/app:devserver\" \"while ! nc -z 127.0.0.1 8080; do sleep 1; done && protractor --suite app\" --kill-others --success first",
         "e2e-examples-app-prodserver": "concurrently \"bazel run examples/app:prodserver\" \"while ! nc -z 127.0.0.1 8080; do sleep 1; done && protractor --suite app\" --kill-others --success first",
         "e2e-examples-protobuf-devserver": "concurrently \"bazel run examples/protocol_buffers:devserver\" \"while ! nc -z 127.0.0.1 8080; do sleep 1; done && protractor --suite protocol_buffers\" --kill-others --success first",
         "e2e-examples-protobuf-prodserver": "concurrently \"bazel run examples/protocol_buffers:prodserver\" \"while ! nc -z 127.0.0.1 8080; do sleep 1; done && protractor --suite protocol_buffers\" --kill-others --success first",
-        "e2e-ts_auto_deps": "cd internal/e2e/ts_auto_deps; bazel run //ts_auto_deps -- -recursive && bazel build simple",
+        "e2e-package_karma": "cd internal/e2e/package_karma; bazel test ...",
+        "e2e-package_typescript": "yarn e2e-package_typescript_2.7 && yarn e2e-package_typescript_2.8 && yarn e2e-package_typescript_2.9 && yarn e2e-package_typescript_3.0",
+        "e2e-package_typescript_2.7": "cd internal/e2e/package_typescript_2.7; bazel test ...",
+        "e2e-package_typescript_2.8": "cd internal/e2e/package_typescript_2.8; bazel test ...",
+        "e2e-package_typescript_2.9": "cd internal/e2e/package_typescript_2.9; bazel test ...",
+        "e2e-package_typescript_3.0": "cd internal/e2e/package_typescript_3.0; bazel test ...",
+        "e2e-package_typescript_karma": "cd internal/e2e/package_typescript_karma; bazel test ...",
+        "e2e-ts_auto_deps": "cd internal/e2e/ts_auto_deps; bazel run @build_bazel_rules_typescript//ts_auto_deps -- -recursive && bazel build simple",
         "preskylint": "bazel build --noshow_progress @io_bazel//src/tools/skylark/java/com/google/devtools/skylark/skylint:Skylint",
         "skylint": "find . -type f -name \"*.bzl\" ! -path \"*/node_modules/*\" | xargs $(bazel info bazel-bin)/external/io_bazel/src/tools/skylark/java/com/google/devtools/skylark/skylint/Skylint",
         "skydoc": "bazel build //docs && unzip -o -d docs/api bazel-bin/docs/docs-skydoc.zip",

@@ -14,7 +14,8 @@
 
 package(default_visibility = ["//visibility:public"])
 
-load("//:defs.bzl", "ts_config", "ts_library")
+load("//:defs.bzl", "ts_config")
+load("//internal:defaults.bzl", "ts_library")
 
 # Because our tsconfig.json has an extends property, we must also tell the
 # ts_library to include the extended tsconfig file in compilations.
