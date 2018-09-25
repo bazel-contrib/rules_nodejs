@@ -394,9 +394,13 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
         resolved = this.resolveTypingFromDirectory(path.posix.join(this.bazelOpts.nodeModulesPrefix, name), false);
       }
 
-      if (!resolved) {
-        console.error(`Failed to resolve type reference directive '${name}'`);
+      // Types not resolved should be silently ignored. Leave it to Typescript
+      // to either error out with "TS2688: Cannot find type definition file for
+      // 'foo'" or for the build to fail due to a missing type that is used.
+      if (DEBUG && !resolved) {
+        debug(`Failed to resolve type reference directive '${name}'`);
       }
+
       result.push(resolved);
     });
     return result;
