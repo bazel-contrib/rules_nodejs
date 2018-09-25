@@ -1,10 +1,9 @@
 load(
-    "@build_bazel_rules_typescript//:defs.bzl",
-    "ts_library",
+    "//:defs.bzl",
     "ts_proto_library",
-    "ts_web_test_suite",
     "ts_devserver",
 )
+load("//internal:defaults.bzl", "ts_library", "ts_web_test_suite")
 
 proto_library(
     name = "tire_proto",
@@ -29,7 +28,14 @@ ts_library(
     name = "test_lib",
     testonly = True,
     srcs = ["car.spec.ts"],
-    deps = [":car"],
+    tsconfig = "//examples:tsconfig-test",
+    deps = [
+        ":car",
+        "@npm//:@types/jasmine",
+        "@npm//:@types/long",
+        "@npm//:@types/node",
+        "@npm//:long",
+    ],
 )
 
 ts_web_test_suite(
@@ -37,7 +43,8 @@ ts_web_test_suite(
     bootstrap = ["@build_bazel_rules_typescript//:protobufjs_bootstrap_scripts"],
     browsers = [
         "@io_bazel_rules_webtesting//browsers:chromium-local",
-        "@io_bazel_rules_webtesting//browsers:firefox-local",
+        # TODO(gregmagolan): re-enable once `target_wrapped_test.conf.js does not exist!` issue resolved
+        # "@io_bazel_rules_webtesting//browsers:firefox-local",
     ],
     deps = ["test_lib"],
 )
@@ -99,4 +106,10 @@ ts_library(
     name = "e2e",
     testonly = 1,
     srcs = ["app_e2e_test.ts"],
+    tsconfig = "//examples:tsconfig-test",
+    deps = [
+        "@npm//:@types/jasmine",
+        "@npm//:@types/node",
+        "@npm//:protractor",
+    ],
 )

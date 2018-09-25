@@ -1,5 +1,6 @@
-load("@build_bazel_rules_typescript//:defs.bzl", "ts_devserver", "ts_library")
 load("@build_bazel_rules_nodejs//:defs.bzl", "http_server")
+load("//:defs.bzl", "ts_devserver")
+load("//internal:defaults.bzl", "ts_library")
 
 ts_library(
     name = "app",
@@ -38,4 +39,10 @@ ts_library(
     name = "e2e",
     testonly = 1,
     srcs = ["app_e2e_test.ts"],
+    tsconfig = "//examples:tsconfig-test",
+    deps = [
+        "@npm//:@types/jasmine",
+        "@npm//:@types/node",
+        "@npm//:protractor",
+    ],
 )

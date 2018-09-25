@@ -1,0 +1,31 @@
+{
+  "name": "@bazel/typescript",
+  "description": "Custom TypeScript compiler for hosting on Bazel",
+  "homepage": "https://github.com/bazelbuild/rules_typescript",
+  "license": "Apache-2.0",
+  "version": "0.0.0-PLACEHOLDER",
+  "keywords": [
+      "typescript",
+      "bazel"
+  ],
+  "typings": "./tsc_wrapped/index.d.ts",
+  "peerDependencies": {
+    "typescript": ">=2.4.2"
+  },
+  "dependencies": {
+    "protobufjs": "5.0.0",
+    "source-map-support": "0.5.9",
+    "tsickle": "0.28.0",
+    "tsutils": "2.20.0"
+  },
+  "devDependencies": {
+    "@types/jasmine": "2.8.2",
+    "@types/node": "7.0.18",
+    "@types/tmp": "0.0.33",
+    "typescript": "2.7.2",
+    "tmp": "0.0.33"
+  },
+  "scripts": {
+    "postinstall": "node ./check_version.js"
+  }
+}

@@ -24,14 +24,17 @@ exports_files([
     "ts_repositories.bzl",
 ])
 
-load("//:defs.bzl", "ts_library")
-load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary", "jasmine_node_test")
+load("//internal:defaults.bzl", "ts_library")
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary", "jasmine_node_test", "npm_package")
 
 # Vanilla typescript compiler: run the tsc.js binary distributed by TypeScript
 nodejs_binary(
     name = "tsc",
+    data = [
+        "@npm//:source-map-support",
+        "@npm//:typescript",
+    ],
     entry_point = "typescript/lib/tsc.js",
-    node_modules = "@//:node_modules",
     visibility = ["//internal:__subpackages__"],
 )
 
@@ -55,25 +58,34 @@ ts_library(
     ],
     module_name = "@bazel/typescript",
     module_root = "tsc_wrapped/index.d.ts",
-    node_modules = "@build_bazel_rules_typescript_tsc_wrapped_deps//:node_modules",
     supports_workers = False,
     tsconfig = "//internal:tsc_wrapped/tsconfig.json",
     visibility = ["//visibility:public"],
-    # Cannot have any deps because it doesn't work with vanilla tsc
+    # Cannot have any deps (except npm fine grained deps) because it doesn't
+    # work with vanilla tsc.
     # Workaround for https://github.com/Microsoft/TypeScript/issues/22208
     deps = [
+        "@npm//:@types/node",
+        "@npm//:tsickle",
+        "@npm//:tsutils",
+        "@npm//:typescript",
     ],
 )
 
 # Other ts_library rules will use this custom compiler, which calls the
 # TypeScript APIs to act like tsc, but adds capabilities like Bazel workers.
+# TODO(gregmagolan): make @npm//:tsickle dependency optional
 nodejs_binary(
     name = "tsc_wrapped_bin",
     data = [
         ":tsc_wrapped",
+        "@npm//:protobufjs",
+        "@npm//:source-map-support",
+        "@npm//:tsickle",
+        "@npm//:tsutils",
+        "@npm//:typescript",
     ],
     entry_point = "build_bazel_rules_typescript/internal/tsc_wrapped/tsc_wrapped.js",
-    node_modules = "@//:node_modules",
     templated_args = ["--node_options=--expose-gc"],
     visibility = ["//visibility:public"],
 )
@@ -82,12 +94,55 @@ ts_library(
     name = "test_lib",
     srcs = glob(["tsc_wrapped/*_test.ts"]) + ["tsc_wrapped/test_support.ts"],
     tsconfig = "//internal:tsc_wrapped/tsconfig.json",
-    deps = [":tsc_wrapped"],
+    deps = [
+        ":tsc_wrapped",
+        "@npm//:@types/jasmine",
+        "@npm//:@types/node",
+        "@npm//:typescript",
+    ],
 )
 
 jasmine_node_test(
     name = "test",
     srcs = [],
-    deps = [":test_lib"],
-    node_modules = "//:node_modules",
+    deps = [
+        ":test_lib",
+        "@npm//:jasmine",
+        "@npm//:typescript",
+    ],
+)
+
+genrule(
+    name = "license_copy",
+    srcs = ["//:LICENSE"],
+    outs = ["LICENSE"],
+    cmd = "cp $< $@",
+)
+
+genrule(
+    name = "worker_protocol_copy",
+    srcs = ["//third_party/github.com/bazelbuild/bazel/src/main/protobuf:worker_protocol.proto"],
+    outs = ["worker_protocol.proto"],
+    cmd = "cp $< $@",
+)
+
+genrule(
+    name = "check_version_copy",
+    srcs = ["//tools:check_version.js"],
+    outs = ["check_version.js"],
+    cmd = "cp $< $@",
+)
+
+npm_package(
+    name = "npm_package",
+    srcs = [
+        "README.md",
+        "package.json",
+    ],
+    deps = [
+        ":check_version_copy",
+        ":license_copy",
+        ":tsc_wrapped",
+        ":worker_protocol_copy",
+    ],
 )

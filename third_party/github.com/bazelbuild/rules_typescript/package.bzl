@@ -38,9 +38,9 @@ def rules_typescript_dependencies():
     _maybe(
         http_archive,
         name = "build_bazel_rules_nodejs",
-        urls = ["https://github.com/bazelbuild/rules_nodejs/archive/e71fabc3d013981103725afd5d171bb09607c5df.zip"],
-        strip_prefix = "rules_nodejs-e71fabc3d013981103725afd5d171bb09607c5df",
-        sha256 = "5f0529b68ff6f2fc39efc32b61359508b04a8bb4f57c298b5f3e733e8150c960",
+        urls = ["https://github.com/bazelbuild/rules_nodejs/archive/0.14.0.zip"],
+        strip_prefix = "rules_nodejs-0.14.0",
+        sha256 = "0e39999df9bf8c6fce46629457edb8c0073ad68244483339af578d83bf4fb794",
     )
 
     # ts_web_test depends on the web testing rules to provision browsers.
@@ -71,6 +71,23 @@ def rules_typescript_dependencies():
         sha256 = "8f80ce0f7a6f8a3fee1fb863c9a23e1de99d678c1cf3c6f0a128f3b883168208",
     )
 
+    # ts_auto_deps depends on io_bazel
+    _maybe(
+        http_archive,
+        name = "io_bazel",
+        urls = ["https://github.com/bazelbuild/bazel/releases/download/0.9.0/bazel-0.9.0-dist.zip"],
+        sha256 = "efb28fed4ffcfaee653e0657f6500fc4cbac61e32104f4208da385676e76312a",
+    )
+
+    # ts_auto_deps depends on com_github_bazelbuild_buildtools
+    _maybe(
+        http_archive,
+        name = "com_github_bazelbuild_buildtools",
+        url = "https://github.com/bazelbuild/buildtools/archive/0.12.0.zip",
+        strip_prefix = "buildtools-0.12.0",
+        sha256 = "ec495cbd19238c9dc488fd65ca1fee56dcb1a8d6d56ee69a49f2ebe69826c261",
+    )
+
     ###############################################
     # Repeat the dependencies of rules_nodejs here!
     # We can't load() from rules_nodejs yet, because we've only just fetched it.
@@ -91,18 +108,6 @@ def rules_typescript_dev_dependencies():
     These are in this file to keep version information in one place, and make the WORKSPACE
     shorter.
     """
-    http_archive(
-        name = "io_bazel",
-        urls = ["https://github.com/bazelbuild/bazel/releases/download/0.9.0/bazel-0.9.0-dist.zip"],
-        sha256 = "efb28fed4ffcfaee653e0657f6500fc4cbac61e32104f4208da385676e76312a",
-    )
-
-    http_archive(
-        name = "com_github_bazelbuild_buildtools",
-        url = "https://github.com/bazelbuild/buildtools/archive/0.12.0.zip",
-        strip_prefix = "buildtools-0.12.0",
-        sha256 = "ec495cbd19238c9dc488fd65ca1fee56dcb1a8d6d56ee69a49f2ebe69826c261",
-    )
 
     #############################################
     # Dependencies for generating documentation #

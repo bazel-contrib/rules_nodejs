@@ -39,19 +39,21 @@ if (process.env['WEB_TEST_METADATA']) {
     // "@io_bazel_rules_webtesting//browsers:firefox-local"
     // then the 'environment' will equal 'local' and
     // 'webTestFiles' will contain the path to the binary to use
-    const webTestNamedFiles = webTestMetadata['webTestFiles'][0]['namedFiles'];
-    if (webTestNamedFiles['CHROMIUM']) {
-      // When karma is configured to use Chrome it will look for a CHROME_BIN
-      // environment variable.
-      process.env.CHROME_BIN = require.resolve(webTestNamedFiles['CHROMIUM']);
-      browsers.push(process.env['DISPLAY'] ? 'Chrome': 'ChromeHeadless');
-    }
-    if (webTestNamedFiles['FIREFOX']) {
-      // When karma is configured to use Firefox it will look for a FIREFOX_BIN
-      // environment variable.
-      process.env.FIREFOX_BIN = require.resolve(webTestNamedFiles['FIREFOX']);
-      browsers.push(process.env['DISPLAY'] ? 'Firefox': 'FirefoxHeadless');
-    }
+    webTestMetadata['webTestFiles'].forEach(webTestFiles => {
+      const webTestNamedFiles = webTestFiles['namedFiles'];
+      if (webTestNamedFiles['CHROMIUM']) {
+        // When karma is configured to use Chrome it will look for a CHROME_BIN
+        // environment variable.
+        process.env.CHROME_BIN = require.resolve(webTestNamedFiles['CHROMIUM']);
+        browsers.push(process.env['DISPLAY'] ? 'Chrome' : 'ChromeHeadless');
+      }
+      if (webTestNamedFiles['FIREFOX']) {
+        // When karma is configured to use Firefox it will look for a
+        // FIREFOX_BIN environment variable.
+        process.env.FIREFOX_BIN = require.resolve(webTestNamedFiles['FIREFOX']);
+        browsers.push(process.env['DISPLAY'] ? 'Firefox' : 'FirefoxHeadless');
+      }
+    });
   } else {
     console.warn(`Unknown WEB_TEST_METADATA environment '${webTestMetadata['environment']}'`);
   }
@@ -92,7 +94,7 @@ const files = [
   var allFiles = [TMPL_user_files];
   var allTestFiles = [];
   allFiles.forEach(function (file) {
-    if (/(spec|test)\\.js$/i.test(file) && !/\\/node_modules\\//.test(file)) {
+    if (/[^a-zA-Z0-9](spec|test)\\.js$/i.test(file) && !/\\/node_modules\\//.test(file)) {
       allTestFiles.push(file.replace(/\\.js$/, ''))
     }
   });
@@ -110,7 +112,7 @@ const files = [
       // list of karma plugins
       plugins: [
         'karma-*',
-        'karma-concat-js',
+        '@bazel/karma',
         'karma-sourcemap-loader',
         'karma-chrome-launcher',
         'karma-firefox-launcher',

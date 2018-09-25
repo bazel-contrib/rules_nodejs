@@ -1,4 +1,4 @@
-load("@build_bazel_rules_typescript//:defs.bzl", "ts_library", "ts_web_test_suite")
+load("//internal:defaults.bzl", "ts_library", "ts_web_test_suite")
 
 ts_library(
     name = "lib",
@@ -9,15 +9,20 @@ ts_library(
     name = "tests",
     testonly = 1,
     srcs = glob(["*.spec.ts"]),
-    tsconfig = ":tsconfig.json",
-    deps = [":lib"],
+    tsconfig = "//examples:tsconfig-test",
+    deps = [
+        ":lib",
+        "@npm//:@types/jasmine",
+        "@npm//:@types/node",
+    ],
 )
 
 ts_web_test_suite(
     name = "testing",
     browsers = [
         "@io_bazel_rules_webtesting//browsers:chromium-local",
-        "@io_bazel_rules_webtesting//browsers:firefox-local",
+        # TODO(gregmagolan): re-enable once `target_wrapped_test.conf.js does not exist!` issue resolved
+        # "@io_bazel_rules_webtesting//browsers:firefox-local",
     ],
     static_files = [
         "static_script.js",
