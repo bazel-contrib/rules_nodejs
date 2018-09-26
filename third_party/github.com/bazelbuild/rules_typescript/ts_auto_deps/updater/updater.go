@@ -333,7 +333,7 @@ func (a *AnalysisFailedError) Error() string {
 // updateDeps adds missing dependencies and removes unnecessary dependencies
 // for the targets in the given DependencyReports to the build rules in bld.
 // Returns true if it changed anything in the build file.
-func updateDeps(bld *build.File, reports []*arpb.DependencyReport) (bool, error) {
+func updateDeps(bld *build.File, errorOnUnresolvedImports bool, reports []*arpb.DependencyReport) (bool, error) {
 	// First, check *all* reports on whether they were successful, so that users
 	// get the complete set of errors at once.
 	var errors []AnalysisFailureCause
@@ -401,6 +401,9 @@ func updateDeps(bld *build.File, reports []*arpb.DependencyReport) (bool, error)
 			errMsg := fmt.Sprintf("ERROR in %s: unresolved imports %s.\nMaybe you are missing a "+
 				"'// from ...'' comment, or the target BUILD files are incorrect?\n%s\n",
 				fullTarget, report.UnresolvedImport, strings.Join(report.GetFeedback(), "\n"))
+			if errorOnUnresolvedImports {
+				return false, fmt.Errorf(errMsg)
+			}
 			fmt.Fprintf(os.Stderr, errMsg)
 			fmt.Fprintf(os.Stderr, "Continuing.\n")
 		}
@@ -503,10 +506,10 @@ func (upd *Updater) addSourcesToBUILD(ctx context.Context, path string, buildFil
 
 // updateBUILDAfterBazelAnalyze applies the BUILD file updates that depend on bazel
 // analyze's DependencyReports, most notably updating any rules' deps.
-func (upd *Updater) updateBUILDAfterBazelAnalyze(ctx context.Context, isRoot bool,
+func (upd *Updater) updateBUILDAfterBazelAnalyze(ctx context.Context, isRoot bool, errorOnUnresolvedImports bool,
 	g3root string, buildFilePath string, bld *build.File, reports []*arpb.DependencyReport) (bool, error) {
 	platform.Infof("Updating deps")
-	updatedBuild, err := updateDeps(bld, reports)
+	updatedBuild, err := updateDeps(bld, errorOnUnresolvedImports, reports)
 	if err != nil {
 		return false, err
 	}
@@ -566,6 +569,10 @@ type UpdateBUILDOptions struct {
 	// IsRoot indicates that the directory is a project's root directory, so a tsconfig
 	// rule should be created.
 	IsRoot bool
+	// ErrorOnUnresolvedImports indicates to ts_auto_deps that it should fail when it's unable
+	// to resolve the package for an import instead of printing a warning and continuing
+	// assuming the the user manually added an import to their BUILD for it.
+	ErrorOnUnresolvedImports bool
 }
 
 // UpdateBUILD drives the main process of creating/updating the BUILD file
@@ -606,7 +613,7 @@ func (upd *Updater) UpdateBUILD(ctx context.Context, path string, options Update
 		return false, err
 	}
 
-	changedAfterBazelAnalyze, err := upd.updateBUILDAfterBazelAnalyze(ctx, options.IsRoot, g3root, buildFilePath, bld, reports)
+	changedAfterBazelAnalyze, err := upd.updateBUILDAfterBazelAnalyze(ctx, options.IsRoot, options.ErrorOnUnresolvedImports, g3root, buildFilePath, bld, reports)
 	return changed || changedAfterBazelAnalyze, err
 }
 

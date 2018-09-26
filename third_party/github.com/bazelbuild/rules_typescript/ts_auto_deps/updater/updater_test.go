@@ -2,6 +2,7 @@ package updater
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -213,7 +214,7 @@ func TestUpdateDeps(t *testing.T) {
 		if err != nil {
 			t.Errorf("parse %s after failed: %s", tst.name, err)
 		}
-		changed, err := updateDeps(bld, []*arpb.DependencyReport{report})
+		changed, err := updateDeps(bld, false, []*arpb.DependencyReport{report})
 		if err != nil {
 			t.Errorf("update %s failed: %s", tst.name, err)
 		}
@@ -224,6 +225,45 @@ func TestUpdateDeps(t *testing.T) {
 		}
 		if changed != tst.changed {
 			t.Errorf("changed(%s), got %t, expected %t", tst.name, changed, tst.changed)
+		}
+	}
+}
+
+func TestUnresolvedImportError(t *testing.T) {
+	report := parseReport(t, `
+			rule: "//foo:bar"
+			unresolved_import: "unresolved/import"`)
+
+	bld, err := build.ParseBuild("foo/BUILD", []byte(`ts_library(
+					name = "bar",
+					srcs = ["hello.ts"],
+			)`))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tests := []struct {
+		name                     string
+		errorOnUnresolvedImports bool
+		err                      error
+	}{
+		{
+			name:                     "Error",
+			errorOnUnresolvedImports: true,
+			err: fmt.Errorf("ERROR in %s: unresolved imports %s.\nMaybe you are missing a "+
+				"'// from ...'' comment, or the target BUILD files are incorrect?\n\n", "//foo:bar", []string{"unresolved/import"}),
+		},
+		{
+			name:                     "Warn",
+			errorOnUnresolvedImports: false,
+			err:                      nil,
+		},
+	}
+
+	for _, tst := range tests {
+		_, err = updateDeps(bld, tst.errorOnUnresolvedImports, []*arpb.DependencyReport{report})
+		if !reflect.DeepEqual(err, tst.err) {
+			t.Errorf("update %s returned error %s: expected %s", tst.name, err, tst.err)
 		}
 	}
 }
