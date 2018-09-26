@@ -6,6 +6,7 @@
   },
   "dependencies": {
     "@gregmagolan/test-a": "^0.0.2",
-    "@gregmagolan/test-b": "^0.0.2"
+    "@gregmagolan/test-b": "^0.0.2",
+    "chokidar": "2.0.4"
   }
 }

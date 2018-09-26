@@ -275,7 +275,7 @@ function flattenDependencies(pkg, dep, pkgsMap) {
     return;
   }
   pkg._dependencies.push(dep);
-  const findDeps = function(targetDeps, required) {
+  const findDeps = function(targetDeps, required, depType) {
     Object.keys(targetDeps || {})
         .map(targetDep => {
           // look for matching nested package
@@ -293,25 +293,32 @@ function flattenDependencies(pkg, dep, pkgsMap) {
           }
           // dependency not found
           if (required) {
-            throw new Error(`Could not find required dep ${targetDep} of ${dep._dir}`)
+            throw new Error(`Could not find ${depType} '${targetDep}' of '${dep._dir}'`)
           }
           return null;
         })
         .filter(dep => !!dep)
         .map(dep => flattenDependencies(pkg, dep, pkgsMap));
   };
-  findDeps(dep.dependencies, true);
-  findDeps(dep.peerDependencies, true);
+  // npm will in some cases add optionalDependencies to the list
+  // of dependencies to the package.json it writes to node_modules.
+  // We delete these here if they exist as they may result
+  // in expected dependencies that are not found.
+  Object.keys(dep.optionalDependencies || {}).forEach(optionalDep => {
+    delete dep.dependencies[optionalDep];
+  });
+  findDeps(dep.dependencies, true, 'dependency');
+  findDeps(dep.peerDependencies, true, 'peer dependency');
   // `optionalDependencies` that are missing should be silently
   // ignored since the npm/yarn will not fail if these dependencies
   // fail to install. Packages should handle the cases where these
   // dependencies are missing gracefully at runtime.
   // An example of this is the `chokidar` package which specifies
-  // `fsevents` as an optionalDependency. On OSX/linux, `fsevents`
-  // is installed successfully, but on Windows, `fsevents` fails
-  // to install and the package will not be present when checking
-  // the dependencies of `chokidar`.
-  findDeps(dep.optionalDependencies, false);
+  // `fsevents` as an optionalDependency. On OSX, `fsevents`
+  // is installed successfully, but on Windows & Linux, `fsevents`
+  // fails to install and the package will not be present when
+  // checking the dependencies of `chokidar`.
+  findDeps(dep.optionalDependencies, false, 'optional dependency');
 }
 
 /**
