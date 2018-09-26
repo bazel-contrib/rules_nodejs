@@ -50,6 +50,16 @@ export class Checker {
   on(nodeKind: ts.SyntaxKind.BinaryExpression,
      handlerFunction: (checker: Checker, node: ts.BinaryExpression) => void,
      code: number): void;
+  on(nodeKind: ts.SyntaxKind.ConditionalExpression,
+     handlerFunction:
+         (checker: Checker, node: ts.ConditionalExpression) => void,
+     code: number): void;
+  on(nodeKind: ts.SyntaxKind.WhileStatement,
+     handlerFunction: (checker: Checker, node: ts.WhileStatement) => void,
+     code: number): void;
+  on(nodeKind: ts.SyntaxKind.IfStatement,
+     handlerFunction: (checker: Checker, node: ts.IfStatement) => void,
+     code: number): void;
   on(nodeKind: ts.SyntaxKind.CallExpression,
      handlerFunction: (checker: Checker, node: ts.CallExpression) => void,
      code: number): void;
