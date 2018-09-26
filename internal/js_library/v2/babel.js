@@ -22,11 +22,11 @@ if (program['configFile']) {
   babelConfig = require(path.resolve(program['configFile']));
 }
 
-for (let i = 0; i < program.args.length; i += 1) {
+for (let i = 0; i < program.args.length; i += 2) {
   const input = program.args[i];
-  const output = path.join(outDir, path.basename(input));
+  const output = path.join(outDir, program.args[i+1]);
 
-  return babel.transformFile(input, babelConfig, function(err, result) {
+  babel.transformFile(input, babelConfig, function(err, result) {
     if (err) {
       return console.error(err);
     }
