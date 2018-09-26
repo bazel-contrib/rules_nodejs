@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
+load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test", "mocha_node_test")
 
 jasmine_node_test(
     name = "test",
