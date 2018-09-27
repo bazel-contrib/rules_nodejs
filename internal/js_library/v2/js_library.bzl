@@ -55,6 +55,7 @@ def _run_babel(ctx, inputs, outputs, args, mnemonic, description):
     arguments = [args],
     mnemonic = mnemonic,
     progress_message = "Compiling Javascript (%s) %s" % (description, ctx.label),
+    executable_requirements = { "no-sandbox": ctx.attr.no_sandbox },
   )
 
 def _babel_conversion(ctx, inputs, config, out_dir, mnemonic, description):
@@ -152,6 +153,10 @@ js_library = rule(
         "babelrc_tmpl": attr.label(
             allow_single_file = True,
             default = Label("//internal/js_library/v2:babel.rc.js")
+        ),
+        "no_sandbox": attr.string(
+            doc = """The string value of no-sandbox in the execution_requirements dict of babelification""",
+            default = "0"
         ),
     },
 )
