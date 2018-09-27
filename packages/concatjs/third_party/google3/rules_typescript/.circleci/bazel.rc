@@ -28,7 +28,7 @@ build --experimental_repository_cache=/home/circleci/bazel_repository_cache
 # Limit Bazel to consuming 2560K of RAM
 build --local_resources=2560,1.0,1.0
 # Also limit Bazel's own JVM heap to stay within our 4G container limit
-startup --host_jvm_args=-Xmx2g
+startup --host_jvm_args=-Xmx3g
 # Since the default CircleCI container has only 4G, limiting the memory
 # is required to keep Bazel from exhausting the memory. These values
 # are determined experimentally. If the Bazel process crashes without

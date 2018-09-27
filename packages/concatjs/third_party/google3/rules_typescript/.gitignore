@@ -2,7 +2,7 @@
 node_modules
 /bazel-*
 /internal/e2e/package_karma/bazel-*
-/internal/e2e/package_typescript/bazel-*
+/internal/e2e/package_typescript_*/bazel-*
 /internal/e2e/ts_auto_deps/bazel-*
 
 internal/e2e/ts_auto_deps/simple/BUILD

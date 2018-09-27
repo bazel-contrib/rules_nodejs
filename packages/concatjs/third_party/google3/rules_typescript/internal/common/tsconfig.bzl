@@ -50,6 +50,7 @@ def create_tsconfig(
       extra_root_dirs: Extra root dirs to be passed to tsc_wrapped.
       module_path_prefixes: additional locations to resolve modules
       module_roots: standard locations to resolve modules
+      node_modules_root: the node_modules root path
       skip_goog_scheme_deps_checking: whether imports from 'goog:*' should be strict deps checked
 
     Returns:

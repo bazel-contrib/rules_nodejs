@@ -23,7 +23,7 @@ load("@io_bazel_rules_webtesting//web:web.bzl", "web_test_suite")
 load("@io_bazel_rules_webtesting//web/internal:constants.bzl", "DEFAULT_WRAPPED_TEST_TAGS")
 
 _CONF_TMPL = "//internal/karma:karma.conf.js"
-_DEFAULT_KARMA_BIN = "@build_bazel_rules_typescript//:karma/karma"
+_DEFAULT_KARMA_BIN = "@npm//:@bazel/karma/karma"
 
 def _ts_web_test_impl(ctx):
     conf = ctx.actions.declare_file(
@@ -38,23 +38,24 @@ def _ts_web_test_impl(ctx):
         elif hasattr(d, "files"):
             files += d.files
 
-    # The files in the bootstrap attribute come before the require.js support.
-    # Note that due to frameworks = ['jasmine'], a few scripts will come before
-    # the bootstrap entries:
-    # npm/node_modules/jasmine-core/lib/jasmine-core/jasmine.js
-    # npm/node_modules/karma-jasmine/lib/boot.js
-    # npm/node_modules/karma-jasmine/lib/adapter.js
-    # This is desired so that the bootstrap entries can patch jasmine, as zone.js does.
-    bootstrap_entries = [
-        expand_path_into_runfiles(ctx, f.short_path)
-        for f in ctx.files.bootstrap
-    ]
-
+    # Write the AMD names shim bootstrap file
     amd_names_shim = ctx.actions.declare_file(
         "_%s.amd_names_shim.js" % ctx.label.name,
         sibling = ctx.outputs.executable,
     )
     write_amd_names_shim(ctx.actions, amd_names_shim, ctx.attr.bootstrap)
+
+    # The files in the bootstrap attribute come before the require.js support.
+    # Note that due to frameworks = ['jasmine'], a few scripts will come before
+    # the bootstrap entries:
+    # jasmine-core/lib/jasmine-core/jasmine.js
+    # karma-jasmine/lib/boot.js
+    # karma-jasmine/lib/adapter.js
+    # This is desired so that the bootstrap entries can patch jasmine, as zone.js does.
+    bootstrap_entries = [
+        expand_path_into_runfiles(ctx, f.short_path)
+        for f in ctx.files.bootstrap
+    ]
 
     # Explicitly list the requirejs library files here, rather than use
     # `frameworks: ['requirejs']`
@@ -63,9 +64,12 @@ def _ts_web_test_impl(ctx):
     # That allows bootstrap files to have anonymous AMD modules, or to do some
     # polyfilling before test libraries load.
     # See https://github.com/karma-runner/karma/issues/699
+    # `NODE_MODULES/` is a prefix recogized by karma.conf.js to allow
+    # for a priority require of nested `@bazel/karma/node_modules` before
+    # looking in root node_modules.
     bootstrap_entries += [
-        "npm/node_modules/requirejs/require.js",
-        "npm/node_modules/karma-requirejs/lib/adapter.js",
+        "NODE_MODULES/requirejs/require.js",
+        "NODE_MODULES/karma-requirejs/lib/adapter.js",
         "/".join([ctx.workspace_name, amd_names_shim.short_path]),
     ]
 

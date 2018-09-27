@@ -61,6 +61,7 @@ npm_package(
     srcs = [
         "README.md",
         "package.json",
+        "karma.js",
     ],
     deps = [
         ":check_version_copy",
