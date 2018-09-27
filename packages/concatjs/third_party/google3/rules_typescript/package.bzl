@@ -71,14 +71,6 @@ def rules_typescript_dependencies():
         sha256 = "8f80ce0f7a6f8a3fee1fb863c9a23e1de99d678c1cf3c6f0a128f3b883168208",
     )
 
-    # ts_auto_deps depends on io_bazel
-    _maybe(
-        http_archive,
-        name = "io_bazel",
-        urls = ["https://github.com/bazelbuild/bazel/releases/download/0.9.0/bazel-0.9.0-dist.zip"],
-        sha256 = "efb28fed4ffcfaee653e0657f6500fc4cbac61e32104f4208da385676e76312a",
-    )
-
     # ts_auto_deps depends on com_github_bazelbuild_buildtools
     _maybe(
         http_archive,
@@ -108,6 +100,14 @@ def rules_typescript_dev_dependencies():
     These are in this file to keep version information in one place, and make the WORKSPACE
     shorter.
     """
+
+    # For running skylint
+    _maybe(
+        http_archive,
+        name = "io_bazel",
+        urls = ["https://github.com/bazelbuild/bazel/releases/download/0.9.0/bazel-0.9.0-dist.zip"],
+        sha256 = "efb28fed4ffcfaee653e0657f6500fc4cbac61e32104f4208da385676e76312a",
+    )
 
     #############################################
     # Dependencies for generating documentation #
