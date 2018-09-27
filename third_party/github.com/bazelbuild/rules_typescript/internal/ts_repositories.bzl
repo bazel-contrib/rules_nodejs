@@ -26,7 +26,8 @@ def ts_setup_workspace():
 
     # 0.14.0: @bazel_tools//tools/bash/runfiles is required
     # 0.15.0: "data" attributes don't need 'cfg = "data"'
-    check_bazel_version("0.15.0")
+    # 0.17.1: allow @ in package names is required for fine grained deps
+    check_bazel_version("0.17.1")
 
     go_repository(
         name = "com_github_kylelemons_godebug",
@@ -42,7 +43,8 @@ def ts_setup_workspace():
 
     # 0.11.3: node module resolution fixes & check_rules_nodejs_version
     # 0.14.0: fine grained npm dependencies support for ts_library
-    check_rules_nodejs_version("0.14.0")
+    # 0.14.1: fine grained npm dependencies fix for npm_install
+    check_rules_nodejs_version("0.14.1")
 
     # Included here for backward compatability for downstream repositories
     # that use @build_bazel_rules_typescript_tsc_wrapped_deps such as rxjs.

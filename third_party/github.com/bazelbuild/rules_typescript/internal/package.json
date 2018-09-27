@@ -8,6 +8,7 @@
       "typescript",
       "bazel"
   ],
+  "main": "./tsc_wrapped/index.js",
   "typings": "./tsc_wrapped/index.d.ts",
   "peerDependencies": {
     "typescript": ">=2.4.2"

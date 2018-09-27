@@ -9,8 +9,8 @@
 
 ## IMPORTANT
 # If you change the `docker_image` version, also change the `cache_key` suffix
-var_1: &docker_image angular/ngcontainer:0.4.0
-var_2: &cache_key rules_typescript-{{ checksum "yarn.lock" }}-0.4.0
+var_1: &docker_image angular/ngcontainer:0.6.0
+var_2: &cache_key rules_typescript-{{ checksum "yarn.lock" }}-0.6.0
 var_3: &setup-bazel-remote-cache
   run:
     name: Start up bazel remote cache proxy
@@ -72,8 +72,11 @@ jobs:
       - restore_cache:
           key: *cache_key
       - run: bazel --bazelrc=/dev/null info release
-      - run: bazel --bazelrc=/dev/null build ...
-      - run: bazel --bazelrc=/dev/null test ...
+      # We cherry pick the memory utilization options from .circleci/bazel.rc here.
+      # Since the default CircleCI container has only 4G, limiting the memory
+      # is required to keep Bazel from exhausting the memory.
+      - run: bazel --bazelrc=/dev/null --host_jvm_args=-Xmx3g build ... --local_resources=2560,1.0,1.0
+      - run: bazel --bazelrc=/dev/null --host_jvm_args=-Xmx3g test ... --local_resources=2560,1.0,1.0
 
       - save_cache:
           key: *cache_key
@@ -109,7 +112,10 @@ jobs:
       - run: .circleci/setup_cache.sh
       - run: sudo cp .circleci/bazel.rc /etc/bazel.bazelrc
       - *setup-bazel-remote-cache
-      - run: yarn skylint
+      # Disable skylint for now as we're on an older version that is not
+      # compatible with Bazel 0.17.1 and the newer version has deprecated checks
+      # that fail in this repo that can't be turned off
+      # - run: yarn skylint
 
 workflows:
   version: 2
