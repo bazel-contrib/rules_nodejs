@@ -304,9 +304,11 @@ function flattenDependencies(pkg, dep, pkgsMap) {
   // of dependencies to the package.json it writes to node_modules.
   // We delete these here if they exist as they may result
   // in expected dependencies that are not found.
-  Object.keys(dep.optionalDependencies || {}).forEach(optionalDep => {
-    delete dep.dependencies[optionalDep];
-  });
+  if (dep.dependencies) {
+    Object.keys(dep.optionalDependencies || {}).forEach(optionalDep => {
+      delete dep.dependencies[optionalDep];
+    });
+  }
   findDeps(dep.dependencies, true, 'dependency');
   findDeps(dep.peerDependencies, true, 'peer dependency');
   // `optionalDependencies` that are missing should be silently
