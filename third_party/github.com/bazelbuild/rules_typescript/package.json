@@ -1,7 +1,7 @@
 {
     "description": "Monorepo for TypeScript Bazel support. Published packages are in subdirectories under internal/",
     "private": true,
-    "version": "0.19.0",
+    "version": "0.18.0",
     "dependencies": {
         "jasmine-core": "2.8.0",
         "karma": "alexeagle/karma#fa1a84ac881485b5657cb669e9b4e5da77b79f0a",
