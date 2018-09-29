@@ -11,10 +11,10 @@ def _get_path(ctx, file):
   return path
 
 def _write_config(ctx):
-  output = ctx.actions.declare_file(paths.join(ctx.file.babelrc_tmpl.dirname, "_" + ctx.file.babelrc_tmpl.basename))
+  output = ctx.actions.declare_file(paths.join(ctx.file._babelrc_tmpl.dirname, "_" + ctx.file._babelrc_tmpl.basename))
   ctx.actions.expand_template(
     output = output,
-    template =  ctx.file.babelrc_tmpl,
+    template =  ctx.file._babelrc_tmpl,
     substitutions = {
         "TMPL_bin_dir_path": ctx.bin_dir.path,
         "TMPL_module_name": ctx.attr.module_name,
@@ -93,7 +93,11 @@ def _collect_sources(ctx, es5_outputs):
 
 
 def _js_library(ctx):
-  config = _write_config(ctx)
+  if ctx.attr.babelrc:
+    config = ctx.attr.babelrc
+  else:
+    config = _write_config(ctx)
+
   inputs = ctx.files.srcs + ctx.files.data + [config]
 
   es5_outputs = _es5_conversion(ctx, inputs, config)
@@ -150,9 +154,14 @@ js_library = rule(
             cfg="host",
             default = Label("//internal/js_library/v2:babel")
         ),
-        "babelrc_tmpl": attr.label(
+        "_babelrc_tmpl": attr.label(
             allow_single_file = True,
             default = Label("//internal/js_library/v2:babel.rc.js")
+        ),
+        "babelrc": attr.label(
+            allow_single_file = True,
+            mandatory = False,
+            default = None,
         ),
         "no_sandbox": attr.string(
             doc = """The string value of no-sandbox in the execution_requirements dict of babelification""",
