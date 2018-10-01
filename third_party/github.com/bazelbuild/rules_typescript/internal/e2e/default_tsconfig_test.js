@@ -76,7 +76,7 @@ const PACKAGE_JSON = `{
         "@types/node": "7.0.18",
         "protobufjs": "5.0.0",
         "tsickle": "0.32.1",
-        "tsutils": "2.20.0",
+        "tsutils": "2.22.0",
         "typescript": "2.7.x"
     }
 }
