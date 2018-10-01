@@ -39,9 +39,5 @@ platforms:
     - "@nodejs//:yarn"
     build_targets:
     - "..."
-    - "--"
-    - "-//docs/..."
     test_targets:
     - "..."
-    - "--"
-    - "-//docs/..."
