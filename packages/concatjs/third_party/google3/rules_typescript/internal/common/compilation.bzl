@@ -110,14 +110,6 @@ def _collect_dep_declarations(ctx, deps):
       A struct of depsets for direct, transitive and type-blacklisted declarations.
     """
 
-    # .d.ts files from direct dependencies, ok for strict deps
-    direct_deps_declarations = depset()
-
-    # all reachable .d.ts files from dependencies.
-    transitive_deps_declarations = depset([extra for extra in ctx.files._additional_d_ts])
-
-    # .d.ts files whose types tsickle will not emit (used for ts_declaration(generate_externs=False).
-    type_blacklisted_declarations = depset()
     deps_and_helpers = [
         _check_ts_provider(dep)
         for dep in deps + getattr(ctx.attr, "_helpers", [])
@@ -271,7 +263,7 @@ def compile_ts(
     # Enable to produce a performance trace when compiling TypeScript to JS.
     # The trace file location will be printed as a build result and can be read
     # in Chrome's chrome://tracing/ UI.
-    perf_trace = False
+    perf_trace = _DEBUG
     if "TYPESCRIPT_PERF_TRACE_TARGET" in ctx.var:
         perf_trace = str(ctx.label) == ctx.var["TYPESCRIPT_PERF_TRACE_TARGET"]
 
