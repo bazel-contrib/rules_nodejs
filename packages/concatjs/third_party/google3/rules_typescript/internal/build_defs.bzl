@@ -66,6 +66,7 @@ def _filter_ts_inputs(all_inputs):
 
 def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description = "prodmode"):
     externs_files = []
+    action_inputs = []
     action_outputs = []
     for output in outputs:
         if output.basename.endswith(".externs.js"):
@@ -84,19 +85,18 @@ def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description 
     if not action_outputs:
         return struct()
 
-    node_module_inputs = _filter_ts_inputs(ctx.files.node_modules)
+    action_inputs.extend(_filter_ts_inputs(ctx.files.node_modules))
 
     # Also include files from npm fine grained deps as action_inputs.
     # These deps are identified by the NodeModuleInfo provider.
     for d in ctx.attr.deps:
         if NodeModuleInfo in d:
-            node_module_inputs.extend(_filter_ts_inputs(d.files))
-    action_inputs = depset(node_module_inputs, transitive = [inputs])
+            action_inputs.extend(_filter_ts_inputs(d.files))
 
     if ctx.file.tsconfig:
-        action_inputs += [ctx.file.tsconfig]
+        action_inputs.append(ctx.file.tsconfig)
         if TsConfigInfo in ctx.attr.tsconfig:
-            action_inputs += ctx.attr.tsconfig[TsConfigInfo].deps
+            action_inputs.extend(ctx.attr.tsconfig[TsConfigInfo].deps)
 
     # Pass actual options for the node binary in the special "--node_options" argument.
     arguments = ["--node_options=%s" % opt for opt in node_opts]
@@ -115,7 +115,7 @@ def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description 
     ctx.actions.run(
         progress_message = "Compiling TypeScript (%s) %s" % (description, ctx.label),
         mnemonic = mnemonic,
-        inputs = action_inputs,
+        inputs = depset(action_inputs, transitive = [inputs]),
         outputs = action_outputs,
         # Use the built-in shell environment
         # Allow for users who set a custom shell that can locate standard binaries like tr and uname
@@ -132,7 +132,7 @@ def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description 
     return struct(
         label = ctx.label,
         tsconfig = tsconfig_file,
-        inputs = action_inputs,
+        inputs = depset(action_inputs, transitive = [inputs]),
         outputs = action_outputs,
         compiler = ctx.executable.compiler,
     )

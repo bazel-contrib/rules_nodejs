@@ -34,9 +34,9 @@ def _ts_web_test_impl(ctx):
     files = depset(ctx.files.srcs)
     for d in ctx.attr.deps:
         if hasattr(d, "node_sources"):
-            files += d.node_sources
+            files = depset(transitive = [files, d.node_sources])
         elif hasattr(d, "files"):
-            files += d.files
+            files = depset(transitive = [files, d.files])
 
     # Write the AMD names shim bootstrap file
     amd_names_shim = ctx.actions.declare_file(

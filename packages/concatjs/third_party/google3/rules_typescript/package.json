@@ -50,7 +50,8 @@
         "e2e-package_typescript_karma": "cd internal/e2e/package_typescript_karma; bazel test ...",
         "e2e-ts_auto_deps": "cd internal/e2e/ts_auto_deps; bazel run @build_bazel_rules_typescript//ts_auto_deps -- -recursive && bazel build simple",
         "preskylint": "bazel build --noshow_progress @io_bazel//src/tools/skylark/java/com/google/devtools/skylark/skylint:Skylint",
-        "skylint": "find . -type f -name \"*.bzl\" ! -path \"*/node_modules/*\" | xargs $(bazel info bazel-bin)/external/io_bazel/src/tools/skylark/java/com/google/devtools/skylark/skylint/Skylint",
+        "//": "disable deprecated-api skylint check because we must make legacy-style providers for TS interop in google3",
+        "skylint": "find . -type f -name \"*.bzl\" ! -path \"*/node_modules/*\" | xargs $(bazel info bazel-bin)/external/io_bazel/src/tools/skylark/java/com/google/devtools/skylark/skylint/Skylint --disable-checks=deprecated-api",
         "skydoc": "bazel build //docs && unzip -o -d docs/api bazel-bin/docs/docs-skydoc.zip",
         "version": "node ./on-version.js && git stage package.bzl"
     }
