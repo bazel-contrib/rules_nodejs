@@ -17,7 +17,7 @@
     "protobufjs": "5.0.0",
     "source-map-support": "0.5.9",
     "tsickle": "0.28.0",
-    "tsutils": "2.20.0"
+    "tsutils": "2.27.2"
   },
   "devDependencies": {
     "@types/jasmine": "2.8.2",
