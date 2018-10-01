@@ -112,10 +112,7 @@ jobs:
       - run: .circleci/setup_cache.sh
       - run: sudo cp .circleci/bazel.rc /etc/bazel.bazelrc
       - *setup-bazel-remote-cache
-      # Disable skylint for now as we're on an older version that is not
-      # compatible with Bazel 0.17.1 and the newer version has deprecated checks
-      # that fail in this repo that can't be turned off
-      # - run: yarn skylint
+      - run: yarn skylint
 
 workflows:
   version: 2

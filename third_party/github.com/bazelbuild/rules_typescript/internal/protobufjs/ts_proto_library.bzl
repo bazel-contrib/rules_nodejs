@@ -105,9 +105,9 @@ def _ts_proto_library(ctx):
     return struct(
         files = depset([dts]),
         typescript = struct(
-            declarations = [dts],
-            transitive_declarations = [dts],
-            type_blacklisted_declarations = [],
+            declarations = depset([dts]),
+            transitive_declarations = depset([dts]),
+            type_blacklisted_declarations = depset(),
             es5_sources = depset([js_es5]),
             es6_sources = depset([js_es6]),
             transitive_es5_sources = depset(),

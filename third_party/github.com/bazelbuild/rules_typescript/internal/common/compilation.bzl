@@ -20,6 +20,8 @@ load(":common/json_marshal.bzl", "json_marshal")
 
 BASE_ATTRIBUTES = dict()
 
+_DEBUG = False
+
 DEPS_ASPECTS = [
     module_mappings_aspect,
 ]
@@ -69,6 +71,34 @@ def assert_js_or_typescript_deps(ctx, deps = None):
 
             fail("%s is neither a TypeScript nor a JS producing rule.\n%s\n" % (dep.label, allowed_deps_msg))
 
+_DEPSET_TYPE = type(depset())
+
+def _check_ts_provider(dep):
+    """Verifies the type shape of the typescript provider in dep, if it has one.
+    """
+
+    # Under Bazel, some third parties have created typescript providers which may not be compatible.
+    # Rather than users getting an obscure error later, explicitly check them and point to the
+    # target that created the bad provider.
+    # TODO(alexeagle): remove this after some transition period, maybe mid-2019
+    if hasattr(dep, "typescript"):
+        if type(dep.typescript.declarations) != _DEPSET_TYPE:
+            fail("typescript provider in %s defined declarations as a %s rather than a depset" % (
+                dep.label,
+                type(dep.typescript.declarations),
+            ))
+        if type(dep.typescript.transitive_declarations) != _DEPSET_TYPE:
+            fail("typescript provider in %s defined transitive_declarations as a %s rather than a depset" % (
+                dep.label,
+                type(dep.typescript.transitive_declarations),
+            ))
+        if type(dep.typescript.type_blacklisted_declarations) != _DEPSET_TYPE:
+            fail("typescript provider in %s defined type_blacklisted_declarations as a %s rather than a depset" % (
+                dep.label,
+                type(dep.typescript.type_blacklisted_declarations),
+            ))
+    return dep
+
 def _collect_dep_declarations(ctx, deps):
     """Collects .d.ts files from typescript and javascript dependencies.
 
@@ -88,20 +118,37 @@ def _collect_dep_declarations(ctx, deps):
 
     # .d.ts files whose types tsickle will not emit (used for ts_declaration(generate_externs=False).
     type_blacklisted_declarations = depset()
+    deps_and_helpers = [
+        _check_ts_provider(dep)
+        for dep in deps + getattr(ctx.attr, "_helpers", [])
+        if hasattr(dep, "typescript")
+    ]
 
-    for dep in deps + getattr(ctx.attr, "_helpers", []):
-        if hasattr(dep, "typescript"):
-            direct_deps_declarations += dep.typescript.declarations
-            transitive_deps_declarations += dep.typescript.transitive_declarations
-            type_blacklisted_declarations += dep.typescript.type_blacklisted_declarations
+    # .d.ts files from direct dependencies, ok for strict deps
+    direct_deps_declarations = [dep.typescript.declarations for dep in deps_and_helpers]
+
+    # all reachable .d.ts files from dependencies.
+    transitive_deps_declarations = [
+        dep.typescript.transitive_declarations
+        for dep in deps_and_helpers
+    ]
+
+    # .d.ts files whose types tsickle will not emit (used for ts_declaration(generate_externs=False).
+    type_blacklisted_declarations = [
+        dep.typescript.type_blacklisted_declarations
+        for dep in deps_and_helpers
+    ]
 
     # If a tool like github.com/angular/clutz can create .d.ts from type annotated .js
     # its output will be collected here.
 
     return struct(
-        direct = direct_deps_declarations,
-        transitive = transitive_deps_declarations,
-        type_blacklisted = type_blacklisted_declarations,
+        direct = depset(transitive = direct_deps_declarations),
+        transitive = depset(
+            [extra for extra in ctx.files._additional_d_ts],
+            transitive = transitive_deps_declarations,
+        ),
+        type_blacklisted = depset(transitive = type_blacklisted_declarations),
     )
 
 def _outputs(ctx, label, srcs_files = []):
@@ -213,9 +260,9 @@ def compile_ts(
     if not is_library and not ctx.attr.generate_externs:
         type_blacklisted_declarations += srcs_files
 
-    # The list of output files. These are the files that are always built
+    # The depsets of output files. These are the files that are always built
     # (including e.g. if you "blaze build :the_target" directly).
-    files = depset()
+    files_depsets = []
 
     # A manifest listing the order of this rule's *.ts files (non-transitive)
     # Only generated if the rule has any sources.
@@ -232,13 +279,12 @@ def compile_ts(
     tsickle_externs_path = tsickle_externs[0] if tsickle_externs else None
 
     # Calculate allowed dependencies for strict deps enforcement.
-    allowed_deps = depset()
-
-    # A target's sources may depend on each other,
-    allowed_deps += srcs_files[:]
-
-    # or on a .d.ts from a direct dependency
-    allowed_deps += dep_declarations.direct
+    allowed_deps = depset(
+        # A target's sources may depend on each other,
+        srcs_files,
+        # or on a .d.ts from a direct dependency
+        transitive = [dep_declarations.direct],
+    )
 
     tsconfig_es6 = tsc_wrapped_tsconfig(
         ctx,
@@ -273,7 +319,7 @@ def compile_ts(
         ]
         outputs.append(profile_file)
 
-        files += [perf_trace_file, profile_file]
+        files_depsets.append(depset([perf_trace_file, profile_file]))
 
     ctx.actions.write(
         output = ctx.outputs.tsconfig,
@@ -324,7 +370,7 @@ def compile_ts(
             ]
             outputs.append(profile_file)
 
-            files += [perf_trace_file, profile_file]
+            files_depsets.append(depset([perf_trace_file, profile_file]))
 
         ctx.actions.write(output = tsconfig_json_es5, content = json_marshal(
             tsconfig_es5,
@@ -358,22 +404,20 @@ def compile_ts(
         devmode_manifest = None
 
     # Downstream rules see the .d.ts files produced or declared by this rule.
-    declarations = depset()
-    declarations += gen_declarations
-    declarations += src_declarations
+    declarations_depsets = [depset(gen_declarations + src_declarations)]
     if not srcs_files:
         # Re-export sources from deps.
         # TODO(b/30018387): introduce an "exports" attribute.
         for dep in deps:
             if hasattr(dep, "typescript"):
-                declarations += dep.typescript.declarations
-    files += declarations
+                declarations_depsets.append(dep.typescript.declarations)
+    files_depsets.extend(declarations_depsets)
 
     # If this is a ts_declaration, add tsickle_externs to the outputs list to
     # force compilation of d.ts files.  (tsickle externs are produced by running a
     # compilation over the d.ts file and extracting type information.)
     if not is_library:
-        files += depset(tsickle_externs)
+        files_depsets.append(depset(tsickle_externs))
 
     transitive_es5_sources = depset()
     transitive_es6_sources = depset()
@@ -391,7 +435,7 @@ def compile_ts(
     transitive_es6_sources = depset(transitive = [transitive_es6_sources, es6_sources])
 
     return {
-        "files": files,
+        "files": depset(transitive = files_depsets),
         "output_groups": {
             "es6_sources": es6_sources,
             "es5_sources": es5_sources,
@@ -405,7 +449,7 @@ def compile_ts(
         ),
         # TODO(martinprobst): Prune transitive deps, only re-export what's needed.
         "typescript": {
-            "declarations": declarations,
+            "declarations": depset(transitive = declarations_depsets),
             "transitive_declarations": transitive_decls,
             "es6_sources": es6_sources,
             "transitive_es6_sources": transitive_es6_sources,

@@ -105,8 +105,7 @@ def rules_typescript_dev_dependencies():
     _maybe(
         http_archive,
         name = "io_bazel",
-        urls = ["https://github.com/bazelbuild/bazel/releases/download/0.9.0/bazel-0.9.0-dist.zip"],
-        sha256 = "efb28fed4ffcfaee653e0657f6500fc4cbac61e32104f4208da385676e76312a",
+        urls = ["https://github.com/bazelbuild/bazel/releases/download/0.17.1/bazel-0.17.1-dist.zip"],
     )
 
     #############################################
