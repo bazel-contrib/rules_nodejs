@@ -135,6 +135,13 @@ def run_rollup(ctx, sources, config, output):
 
   return map_output
 
+def _filter_js_inputs(all_inputs):
+    return [
+        f
+        for f in all_inputs
+        if f.path.endswith(".js") or f.path.endswith(".json")
+    ]
+
 def _run_rollup(ctx, sources, config, output, map_output=None):
   args = ctx.actions.args()
   args.add(["--config", config.path])
@@ -155,7 +162,16 @@ def _run_rollup(ctx, sources, config, output, map_output=None):
     args.add("--globals")
     args.add(["%s:%s" % g for g in ctx.attr.globals.items()], join_with=",")
 
-  inputs = sources + ctx.files.node_modules + [config]
+  inputs = sources + [config]
+
+  inputs += _filter_js_inputs(ctx.files.node_modules)
+
+  # Also include files from npm fine grained deps as inputs.
+  # These deps are identified by the NodeModuleInfo provider.
+  for d in ctx.attr.deps:
+      if NodeModuleInfo in d:
+          inputs += _filter_js_inputs(d.files)
+
   if ctx.file.license_banner:
     inputs += [ctx.file.license_banner]
   if ctx.version_file:
