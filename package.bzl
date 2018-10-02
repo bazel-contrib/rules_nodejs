@@ -114,9 +114,9 @@ def rules_nodejs_dev_dependencies():
     # Fetching the Bazel source code allows us to compile the Skylark linter
     http_archive(
         name = "io_bazel",
-        url = "https://github.com/bazelbuild/bazel/archive/968f87900dce45a7af749a965b72dbac51b176b3.zip",
-        strip_prefix = "bazel-968f87900dce45a7af749a965b72dbac51b176b3",
-        sha256 = "e373d2ae24955c1254c495c9c421c009d88966565c35e4e8444c082cb1f0f48f",
+        url = "https://github.com/bazelbuild/bazel/archive/0.17.2.zip",
+        strip_prefix = "bazel-0.17.2",
+        sha256 = "a6d7ae3939e7bb2e410949adab8aa2759eda0b017bf5fc18658dc635552ce56e",
     )
 
 def _maybe(repo_rule, name, **kwargs):

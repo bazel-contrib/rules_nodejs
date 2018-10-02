@@ -210,7 +210,7 @@ def _run_tsc_on_directory(ctx, input_dir, output_dir):
   args.add(["--input", input_dir.path])
   args.add(["--output", output_dir.path])
 
-  ctx.action(
+  ctx.actions.run(
       executable = ctx.executable._tsc_directory,
       inputs = [input_dir],
       outputs = [output_dir, config],
