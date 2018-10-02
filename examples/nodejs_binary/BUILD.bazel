@@ -1,5 +1,6 @@
 load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
 load("@build_bazel_rules_nodejs//internal/js_library/v2:js_library.bzl", "js_library")
+load("@build_bazel_rules_nodejs//internal/js_library/v2:babel_executable.bzl", "babel_executable")
 
 js_library(
     name = "msg",
@@ -22,10 +23,38 @@ js_library(
     ],
 )
 
+js_library(
+    name = "someLibrary",
+    module_name = "someLibrary",
+    module_root = "someLibrary/index.js",
+    srcs = ["someLibrary/index.js", "someLibrary/internalFile.js"],
+)
+
+babel_executable(
+    name = "flowBabel",
+    babel_deps = [
+      "@build_bazel_rules_nodejs_js_library_deps//:babel-plugin-transform-flow-strip-types",
+      "@build_bazel_rules_nodejs_js_library_deps//:babel-plugin-transform-es2015-modules-commonjs",
+  ]
+)
+
+
+js_library(
+    name = "flowLibrary",
+    module_name = "flowLibrary",
+    module_root = "flowLibrary/index.js",
+    srcs = ["flowLibrary/index.js", "flowLibrary/internalFile.js"],
+    babel = ":flowBabel",
+    babelrc = "flowLibrary/flow.babelrc",
+)
+
+
 nodejs_binary(
     name = "index",
     data = [
         ":index_lib",
+        ":someLibrary",
+        ":flowLibrary",
     ],
     entry_point = "build_bazel_rules_nodejs/examples/nodejs_binary/index.js",
     install_source_map_support = False,

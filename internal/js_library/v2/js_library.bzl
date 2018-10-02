@@ -11,7 +11,7 @@ def _get_path(ctx, file):
   return path
 
 def _write_config(ctx):
-  output = ctx.actions.declare_file(paths.join(ctx.file._babelrc_tmpl.dirname, "_" + ctx.file._babelrc_tmpl.basename))
+  output = ctx.actions.declare_file('%s.babelrc' % ctx.label.name)
   ctx.actions.expand_template(
     output = output,
     template =  ctx.file._babelrc_tmpl,
@@ -55,7 +55,7 @@ def _run_babel(ctx, inputs, outputs, args, mnemonic, description):
     arguments = [args],
     mnemonic = mnemonic,
     progress_message = "Compiling Javascript (%s) %s" % (description, ctx.label),
-    executable_requirements = { "no-sandbox": ctx.attr.no_sandbox },
+    execution_requirements = { "no-sandbox": ctx.attr.no_sandbox },
   )
 
 def _babel_conversion(ctx, inputs, config, out_dir, mnemonic, description):
@@ -94,7 +94,7 @@ def _collect_sources(ctx, es5_outputs):
 
 def _js_library(ctx):
   if ctx.attr.babelrc:
-    config = ctx.attr.babelrc
+    config = ctx.file.babelrc
   else:
     config = _write_config(ctx)
 

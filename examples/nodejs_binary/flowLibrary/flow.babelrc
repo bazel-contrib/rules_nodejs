@@ -1,0 +1,12 @@
+const flowStripTypes = require('babel-plugin-transform-flow-strip-types');
+const commonjs = require('babel-plugin-transform-es2015-modules-commonjs');
+
+
+const babelConfig = {
+  plugins: [
+    flowStripTypes,
+    commonjs,
+  ]
+};
+
+module.exports = babelConfig;
