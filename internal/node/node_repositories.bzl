@@ -224,6 +224,10 @@ filegroup(
     exclude = [
       "**/*.md",
       "**/*.html",
+      # These files are generated during node-gyp compilation and include
+      # absolute paths, making them non-hermetic.
+      # See https://github.com/bazelbuild/rules_nodejs/issues/347
+      "**/*.pyc",
     ],
   ),
 )
