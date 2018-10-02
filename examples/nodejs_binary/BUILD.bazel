@@ -26,7 +26,7 @@ js_library(
 js_library(
     name = "someLibrary",
     module_name = "someLibrary",
-    module_root = "someLibrary/index.js",
+    module_root = "someLibrary",
     srcs = ["someLibrary/index.js", "someLibrary/internalFile.js"],
 )
 
@@ -42,7 +42,7 @@ babel_executable(
 js_library(
     name = "flowLibrary",
     module_name = "flowLibrary",
-    module_root = "flowLibrary/index.js",
+    module_root = "flowLibrary",
     srcs = ["flowLibrary/index.js", "flowLibrary/internalFile.js"],
     babel = ":flowBabel",
     babelrc = "flowLibrary/flow.babelrc",
