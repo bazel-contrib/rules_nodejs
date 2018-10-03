@@ -24,6 +24,17 @@ load("//internal/common:sources_aspect.bzl", "sources_aspect")
 load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
 load("//internal/common:node_module_info.bzl", "NodeModuleInfo", "collect_node_modules_aspect")
 
+def _node_modules_root(node_modules_path):
+    # trim node_modules path down to base node_modules folder. e.g.,
+    # 'external/npm/node_modules/typescript/node_modules' should be
+    # trimmed to 'external/npm/node_modules'
+    segments = []
+    for n in node_modules_path.split("/"):
+        segments += [n]
+        if n == "node_modules":
+            break
+    return "/".join(segments)
+
 def _write_loader_script(ctx):
   # Generates the JavaScript snippet of module roots mappings, with each entry
   # in the form:
@@ -40,10 +51,10 @@ def _write_loader_script(ctx):
   if ctx.files.node_modules:
     # ctx.files.node_modules is not an empty list
     workspace = ctx.attr.node_modules.label.workspace_root.split("/")[1] if ctx.attr.node_modules.label.workspace_root else ctx.workspace_name
-    node_modules_root = "/".join([f for f in [
+    node_modules_root = _node_modules_root("/".join([f for f in [
         workspace,
         ctx.attr.node_modules.label.package,
-        "node_modules"] if f])
+        "node_modules"] if f]))
   for d in ctx.attr.data:
     if NodeModuleInfo in d:
       possible_root = "/".join([d[NodeModuleInfo].workspace, "node_modules"])

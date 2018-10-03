@@ -475,13 +475,15 @@ alias(
  * Given a scope, print a skylark `filegroup` target for the scope.
  */
 function printScope(scope, pkgs) {
-  const scopePkgs = pkgs.filter(pkg => !pkg._isNested && pkg._dir.startsWith(`${scope}/`));
+  const srcs = pkgs.filter(pkg => !pkg._isNested && pkg._dir.startsWith(`${scope}/`))
+                   .map(pkg => `"//node_modules/${pkg._dir}:${pkg._name}__pkg",`)
+                   .join('\n        ');
   return `
 # Generated target for npm scope ${scope}
 filegroup(
     name = "${scope}",
     srcs = [
-        ${scopePkgs.map(pkg => `"//node_modules/${pkg._dir}",`).join('\n        ')}
+        ${srcs}
     ],
     tags = ["NODE_MODULE_MARKER"],
 )
