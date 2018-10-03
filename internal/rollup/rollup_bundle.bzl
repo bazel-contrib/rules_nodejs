@@ -32,15 +32,15 @@ rollup_module_mappings_aspect = aspect(
     attr_aspects = ["deps"],
 )
 
-def _node_modules_root(node_modules_path):
-    # trim node_modules path down to base node_modules folder. e.g.,
-    # 'external/npm/node_modules/typescript/node_modules' should be
-    # trimmed to 'external/npm/node_modules'
+def _trim_package_node_modules(package_name):
+    # trim a package name down to its path prior to a node_modules
+    # segment. 'foo/node_modules/bar' would become 'foo' and
+    # 'node_modules/bar' would become ''
     segments = []
-    for n in node_modules_path.split("/"):
-        segments += [n]
+    for n in package_name.split("/"):
         if n == "node_modules":
             break
+        segments += [n]
     return "/".join(segments)
 
 def write_rollup_config(ctx, plugins=[], root_dir=None, filename="_%s.rollup.conf.js", output_format="iife", additional_entry_points=[]):
@@ -84,10 +84,10 @@ def write_rollup_config(ctx, plugins=[], root_dir=None, filename="_%s.rollup.con
   default_node_modules = False
   if ctx.files.node_modules:
     # ctx.files.node_modules is not an empty list
-    node_modules_root = _node_modules_root("/".join([f for f in [
+    node_modules_root = "/".join([f for f in [
         ctx.attr.node_modules.label.workspace_root,
-        ctx.attr.node_modules.label.package,
-        "node_modules"] if f]))
+        _trim_package_node_modules(ctx.attr.node_modules.label.package),
+        "node_modules"] if f])
   for d in ctx.attr.deps:
     if NodeModuleInfo in d:
       possible_root = "/".join(["external", d[NodeModuleInfo].workspace, "node_modules"])
