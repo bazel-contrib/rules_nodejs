@@ -104,9 +104,10 @@ function loadRunfilesManifest(manifestPath) {
     // This only works if there is at least one runfile in the workspace root, but that is
     // also the only case when we need to map back to the runfiles.
     // See https://github.com/bazelbuild/bazel/issues/5926 for more information.
-    if (!workspaceRoot && runfilesPath.startsWith(USER_WORKSPACE_NAME) 
-        && !runfilesPath.startsWith(`${USER_WORKSPACE_NAME}/external/`) ) {
-
+    if (!workspaceRoot &&
+        runfilesPath.startsWith(USER_WORKSPACE_NAME)
+        // TODO: This check no longer needed when --nolegacy_external_runfiles is the default
+        && !runfilesPath.startsWith(`${USER_WORKSPACE_NAME}/external/`)) {
       // Plus one to include the slash at the end.
       const runfilesPathRemainder = runfilesPath.slice(USER_WORKSPACE_NAME.length + 1);
       if (realPath.endsWith(runfilesPathRemainder)) {
@@ -385,6 +386,7 @@ module.constructor._resolveFilename = function(request, parent) {
   if (relativeParentFilename && !relativeParentFilename.startsWith('..')) {
     // Remove leading USER_WORKSPACE_NAME/external so that external workspace name is
     // always the first segment
+    // TODO: should not be needed when --nolegacy_external_runfiles is the default
     const externalPrefix = `${USER_WORKSPACE_NAME}/external/`;
     if (relativeParentFilename.startsWith(externalPrefix)) {
       relativeParentFilename = relativeParentFilename.substr(externalPrefix.length);
