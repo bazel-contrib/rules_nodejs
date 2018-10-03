@@ -202,8 +202,8 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
 nodejs_binary(
     name = "bar",
     data = [
-      "@npm//:foo",
-      "@npm//:baz",
+      "@npm//foo",
+      "@npm//baz",
     ]
     ...
 )
@@ -220,13 +220,56 @@ jasmine_node_test(
     name = "test",
     ...
     deps = [
-        "@npm//:jasmine",
-        "@npm//:foo",
-        "@npm//:baz",
+        "@npm//jasmine",
+        "@npm//foo",
+        "@npm//baz",
         ...
     ],
 )
 ```
+
+#### Fine-grained npm package nodejs_binary targets
+
+If an npm package lists one of more `bin` entry points in its `package.json`,
+`nodejs_binary` targets will be generated for these.
+
+For example, the `protractor` package has two bin entries in its `package.json`:
+
+```json
+  "bin": {
+    "protractor": "bin/protractor",
+    "webdriver-manager": "bin/webdriver-manager"
+  },
+```
+
+These will result in two generated `nodejs_binary` targets in the `@npm//protractor/bin`
+package (if your npm deps workspace is `@npm`):
+
+```python
+nodejs_binary(
+    name = "protractor",
+    entry_point = "protractor/bin/protractor",
+    data = ["//protractor"],
+)
+
+nodejs_binary(
+    name = "webdriver-manager",
+    entry_point = "protractor/bin/webdriver-manager",
+    data = ["//protractor"],
+)
+```
+
+These targets can be used as executables for actions in custom rules or can
+be run by Bazel directly. For example, you can run protractor with the
+following:
+
+```sh
+$ bazel run @npm//protractor/bin:protractor
+```
+
+Note: These targets are in the `protractor/bin` package so they don't
+conflict with the targets to use in deps[]. For example, `@npm//protractor:protractor`
+is target to use in deps[] while `@npm//protractor/bin:protractor` is the binary target.
 
 #### Coarse node_modules dependencies
 
@@ -236,15 +279,14 @@ there are also filegroups defined by `yarn_install` and `npm_install`
 that include all packages under `node_modules` and which can be used
 with the `node_modules` attribute of nodejs rules.
 
-* `@npm//:node_modules` is includes **all** files under `node_modules`
-* `@npm//:node_modules_lite` is includes only `.js`, `.d.ts`, `.json` and `./bin/*` under `node_modules` (this reduces the number of input files)
+* `@npm//:node_modules` includes all packages under `node_modules` as well as the `.bin` folder
 
 ```python
 load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
 
 nodejs_binary(
     name = "bar",
-    node_modules = "@npm//:node_modules_lite",
+    node_modules = "@npm//:node_modules",
 )
 ```
 
@@ -260,8 +302,14 @@ filegroup(
     name = "node_modules",
     srcs = glob(
         include = ["node_modules/**/*"],
-        # Files with spaces in the name are not legal Bazel labels
         exclude = [
+          # Files under test & docs may contain file names that
+          # are not legal Bazel labels (e.g.,
+          # node_modules/ecstatic/test/public/中文/檔案.html)
+          "node_modules/test/**",
+          "node_modules/docs/**",
+          # Files with spaces are not allowed in Bazel runfiles
+          # See https://github.com/bazelbuild/bazel/issues/4327
           "node_modules/**/* */**",
           "node_modules/**/* *",
         ],

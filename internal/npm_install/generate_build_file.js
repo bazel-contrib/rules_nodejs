@@ -15,46 +15,22 @@
  * limitations under the License.
  */
 /**
- * @fileoverview This script generates a BUILD.bazel file by analyzing
+ * @fileoverview This script generates BUILD.bazel files by analyzing
  * the node_modules folder layed out by yarn or npm. It generates
  * fine grained Bazel filegroup targets for each root npm package
  * and all files for that package and its transitive deps are included
- * in the filegroup. For example, `@<workspace>//:jasmine` would
+ * in the filegroup. For example, `@<workspace>//jasmine` would
  * include all files in the jasmine npm package and all of its
  * transitive dependencies.
  *
  * nodejs_binary targets are also generated for all `bin` scripts
- * in each package. For example, the `@<workspace>//:jasmine/jasmine`
+ * in each package. For example, the `@<workspace>//jasmine/bin:jasmine`
  * target will be generated for the `jasmine` binary in the `jasmine`
- * npm package:
+ * npm package.
  *
- * ```
- * nodejs_binary(
- *   name = "jasmine/jasmine",
- *   entry_point = "jasmine/bin/jasmine.js",
- *   data = [":jasmine"],
- * )
- * ```
- *
- * Additionally, the following coarse grained filegroup targets
- * are also generated for backward compatibility with the node_modules
- * attribute of nodejs_binary and other rules that take that
- * attribute:
- *
- * `@<workspace>//:node_modules`: The entire node_modules directory in one
- *   catch-all filegroup. NB: Using this target may have bad performance
- *   implications if there are many files in filegroup.
- *   See https://github.com/bazelbuild/bazel/issues/5153.
- *
- * `@<workspace>//:node_modules_lite`: A lite version of the node_modules filegroup
- *   that includes only js, d.ts and json files as well as the .bin folder. This
- *   can be used in some cases to improve performance by reducing the number
- *   of runfiles. The recommended approach to reducing performance
- *   is to use fine grained deps such as ["@npm//:a", "@npm://b", ...].
- *   There are cases where the node_modules_lite filegroup will
- *   not include files with no extension that are needed. The feature request
- *   https://github.com/bazelbuild/bazel/issues/5769 would allow this
- *   filegroup to include those files.
+ * Additionally, a `@<workspace>//:node_modules` filegroup
+ * is generated that includes all packages under node_modules
+ * as well as the .bin folder.
  *
  * This work is based off the fine grained deps concepts in
  * https://github.com/pubref/rules_node developed by @pcj.
@@ -66,65 +42,11 @@
 const fs = require('fs');
 const path = require('path');
 
-const BUILD_FILE_HEADER = `# Generated file from yarn_install rule.
+const BUILD_FILE_HEADER = `# Generated file from yarn_install/npm_install rule.
 # See $(bazel info output_base)/external/build_bazel_rules_nodejs/internal/npm_install/generate_build_file.js
 
 # All rules in other repositories can use these targets
 package(default_visibility = ["//visibility:public"])
-
-load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
-
-# The entire node_modules directory in one catch-all filegroup.
-# NB: Using this target may have bad performance implications if
-# there are many files in filegroup.
-# See https://github.com/bazelbuild/bazel/issues/5153.
-filegroup(
-    name = "node_modules",
-    srcs = glob(
-        include = ["node_modules/**/*"],
-        exclude = [
-          # Files under test & docs may contain file names that
-          # are not legal Bazel labels (e.g.,
-          # node_modules/ecstatic/test/public/中文/檔案.html)
-          "node_modules/**/test/**",
-          "node_modules/**/docs/**",
-          # Files with spaces in the name are not legal Bazel labels
-          "node_modules/**/* */**",
-          "node_modules/**/* *",
-        ],
-    ),
-)
-
-# A lite version of the node_modules filegroup that includes
-# only js, d.ts and json files as well as the .bin folder. This can
-# be used in some cases to improve performance by reducing the number
-# of runfiles. The recommended approach to reducing performance
-# is to use fine grained deps such as ["@npm//:a", "@npm://b", ...].
-# There are cases where the node_modules_lite filegroup will
-# not include files with no extension that are needed. The feature request
-# https://github.com/bazelbuild/bazel/issues/5769 would allow this
-# filegroup to include those files.
-filegroup(
-    name = "node_modules_lite",
-    srcs = glob(
-        include = [
-          "node_modules/**/*.js",
-          "node_modules/**/*.d.ts",
-          "node_modules/**/*.json",
-          "node_modules/.bin/*",
-        ],
-        exclude = [
-          # Files under test & docs may contain file names that
-          # are not legal Bazel labels (e.g.,
-          # node_modules/ecstatic/test/public/中文/檔案.html)
-          "node_modules/**/test/**",
-          "node_modules/**/docs/**",
-          # Files with spaces in the name are not legal Bazel labels
-          "node_modules/**/* */**",
-          "node_modules/**/* *",
-        ],
-    ),
-)
 
 `
 
@@ -132,9 +54,21 @@ if (require.main === module) {
   main();
 }
 
+function mkdirp(dirname) {
+  if (!fs.existsSync(dirname)) {
+    mkdirp(path.dirname(dirname));
+    fs.mkdirSync(dirname);
+  }
+}
+
+function writeFileSync(filePath, contents) {
+  mkdirp(path.dirname(filePath));
+  fs.writeFileSync(filePath, contents);
+}
+
 /**
  * Main entrypoint.
- * Write BUILD file.
+ * Write BUILD files.
  */
 function main() {
   // find all packages (including packages in nested node_modules)
@@ -146,26 +80,76 @@ function main() {
   pkgs.forEach(pkg => pkgsMap.set(pkg._dir, pkg));
   pkgs.forEach(pkg => flattenDependencies(pkg, pkg, pkgsMap));
 
-  // generate the BUILD file
-  let buildFile = BUILD_FILE_HEADER;
-  pkgs.filter(pkg => !pkg._isNested).forEach(pkg => buildFile += printPackage(pkg));
-  scopes.forEach(scope => buildFile += printScope(scope, pkgs));
-  try {
-    const manualContents = fs.readFileSync(`manual_build_file_contents`, {encoding: 'utf8'});
-    buildFile += '\n\n';
-    buildFile += manualContents;
-  } catch (e) {
-  }
-  fs.writeFileSync('BUILD.bazel', buildFile);
+  // generate BUILD files
+  generateRootBuildFile(pkgs)
+  pkgs.filter(pkg => !pkg._isNested).forEach(pkg => generatePackageBuildFiles(pkg));
+  scopes.forEach(scope => generateScopeBuildFiles(scope, pkgs));
 }
 
 module.exports = {main};
+
+function generateRootBuildFile(pkgs) {
+  const srcs = pkgs.filter(pkg => !pkg._isNested)
+                   .map(pkg => `"//node_modules/${pkg._dir}:${pkg._name}__lite",`)
+                   .join('\n        ');
+
+  let buildFile = BUILD_FILE_HEADER + `# The node_modules directory in one catch-all filegroup.
+# NB: Using this target may have bad performance implications if
+# there are many files in filegroup.
+# See https://github.com/bazelbuild/bazel/issues/5153.
+#
+# This filegroup includes only js, d.ts, json and proto files as well as the
+# pkg/bin folders and .bin folder. This can be used in some cases to improve
+# performance by reducing the number of runfiles. The recommended approach
+# to reducing performance is to use fine grained deps such as
+# ["@npm//a", "@npm//b", ...]. There are cases where the node_modules
+# filegroup will not include files with no extension that are needed. The
+# feature request https://github.com/bazelbuild/bazel/issues/5769 would allow
+# this filegroup to include those files.
+filegroup(
+    name = "node_modules",
+    srcs = glob(["node_modules/.bin/*"]) + [
+        ${srcs}
+    ],
+)
+
+`
+
+  // Add the manual build file contents if they exists
+  try {
+    buildFile += fs.readFileSync(`manual_build_file_contents`, {encoding: 'utf8'});
+  } catch (e) {
+  }
+
+  writeFileSync('BUILD.bazel', buildFile);
+}
+
+function generatePackageBuildFiles(pkg) {
+  const buildFile =
+      BUILD_FILE_HEADER + `load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+
+` + printPackage(pkg);
+  writeFileSync(path.posix.join('node_modules', pkg._dir, 'BUILD.bazel'), buildFile);
+
+  const aliasBuildFile = BUILD_FILE_HEADER + printPackageAlias(pkg);
+  writeFileSync(path.posix.join(pkg._dir, 'BUILD.bazel'), aliasBuildFile);
+
+  const binAliasesBuildFile = BUILD_FILE_HEADER + printPackageBinAliases(pkg);
+  writeFileSync(path.posix.join(pkg._dir, 'bin', 'BUILD.bazel'), binAliasesBuildFile);
+}
+
+function generateScopeBuildFiles(scope, pkgs) {
+  const buildFile = BUILD_FILE_HEADER + printScope(scope, pkgs);
+  writeFileSync(path.posix.join('node_modules', scope, 'BUILD.bazel'), buildFile);
+
+  const aliasBuildFile = BUILD_FILE_HEADER + printScopeAlias(scope);
+  writeFileSync(path.posix.join(scope, 'BUILD.bazel'), aliasBuildFile);
+}
 
 /**
  * Checks if a path is an npm package which is is a directory with a package.json file.
  */
 function isPackage(p) {
-  //
   const packageJson = path.posix.join(p, 'package.json');
   return fs.statSync(p).isDirectory() && fs.existsSync(packageJson) &&
       fs.statSync(packageJson).isFile();
@@ -225,6 +209,9 @@ function parsePackage(p) {
   // Trim the leading node_modules from the path and
   // assign to _dir for future use
   pkg._dir = p.replace(/^node_modules\//, '');
+
+  // Stash the package directory name for future use
+  pkg._name = pkg._dir.split('/').pop();
 
   // Keep track of whether or not this is a nested package
   pkg._isNested = p.match(/\/node_modules\//);
@@ -340,68 +327,141 @@ function printJson(pkg) {
  */
 function printPackage(pkg) {
   let result = `
-# Generated target for npm package "${pkg._dir}"
+# Generated targets for npm package "${pkg._dir}"
 ${printJson(pkg)}
+
 filegroup(
-    name = "${pkg._dir}",
+    name = "${pkg._name}__pkg",
     srcs = [
         # ${pkg._dir} package contents (and contents of nested node_modules)
-        ":${pkg._dir}__files",
+        ":${pkg._name}__files",
         # direct or transitive dependencies hoisted to root by the package manager
         ${
       pkg._dependencies.filter(dep => dep != pkg)
           .filter(dep => !dep._isNested)
-          .map(dep => `":${dep._dir}__files",`)
+          .map(dep => `"//node_modules/${dep._dir}:${dep._name}__files",`)
           .join('\n        ')}
     ],
     tags = ["NODE_MODULE_MARKER"],
 )
 
 filegroup(
-    name = "${pkg._dir}__files",
+    name = "${pkg._name}__files",
     srcs = glob(
-        include = ["node_modules/${pkg._dir}/**/*"],
+        include = ["**/*"],
         exclude = [
           # Files under test & docs may contain file names that
           # are not legal Bazel labels (e.g.,
           # node_modules/ecstatic/test/public/中文/檔案.html)
-          "node_modules/${pkg._dir}/test/**",
-          "node_modules/${pkg._dir}/docs/**",
-          # Files with spaces in the name are not legal Bazel labels
-          "node_modules/${pkg._dir}/**/* */**",
-          "node_modules/${pkg._dir}/**/* *",
+          "test/**",
+          "docs/**",
+          # Files with spaces are not allowed in Bazel runfiles
+          # See https://github.com/bazelbuild/bazel/issues/4327
+          "**/* */**",
+          "**/* *",
         ],
     ),
     tags = ["NODE_MODULE_MARKER"],
 )
 
 filegroup(
-    name = "${pkg._dir}__typings",
+    name = "${pkg._name}__lite",
     srcs = glob(
-        include = ["node_modules/${pkg._dir}/**/*.d.ts"],
+        include = [
+          "**/*.js",
+          "**/*.d.ts",
+          "**/*.json",
+          "**/*.proto",
+          "bin/**/*",
+        ],
         exclude = [
           # Files under test & docs may contain file names that
           # are not legal Bazel labels (e.g.,
           # node_modules/ecstatic/test/public/中文/檔案.html)
-          "node_modules/${pkg._dir}/test/**",
-          "node_modules/${pkg._dir}/docs/**",
-          # Files with spaces in the name are not legal Bazel labels
-          "node_modules/${pkg._dir}/**/* */**",
-          "node_modules/${pkg._dir}/**/* *",
+          "test/**",
+          "docs/**",
+          # Files with spaces are not allowed in Bazel runfiles
+          # See https://github.com/bazelbuild/bazel/issues/4327
+          "**/* */**",
+          "**/* *",
         ],
     ),
     tags = ["NODE_MODULE_MARKER"],
 )
+
+filegroup(
+    name = "${pkg._name}__typings",
+    srcs = glob(
+        include = ["**/*.d.ts"],
+        exclude = [
+          # Files under test & docs may contain file names that
+          # are not legal Bazel labels (e.g.,
+          # node_modules/ecstatic/test/public/中文/檔案.html)
+          "test/**",
+          "docs/**",
+          # Files with spaces are not allowed in Bazel runfiles
+          # See https://github.com/bazelbuild/bazel/issues/4327
+          "**/* */**",
+          "**/* *",
+        ],
+    ),
+    tags = ["NODE_MODULE_MARKER"],
+)
+
 `;
 
   if (pkg._executables) {
     for (const [name, path] of pkg._executables.entries()) {
       result += `# Wire up the \`bin\` entry \`${name}\`
 nodejs_binary(
-    name = "${pkg._dir}/${name}",
+    name = "${name}__bin",
     entry_point = "${pkg._dir}/${path}",
     install_source_map_support = False,
-    data = [":${pkg._dir}"],
+    data = [":${pkg._name}__pkg"],
+)
+
+`;
+    }
+  }
+
+  return result;
+}
+
+function printPackageAlias(pkg) {
+  return `
+# Generated target alias for npm package "${pkg._dir}"
+${printJson(pkg)}
+alias(
+  name = "${pkg._name}",
+  actual = "//node_modules/${pkg._dir}:${pkg._name}__pkg"
+)
+
+alias(
+  name = "${pkg._name}__files",
+  actual = "//node_modules/${pkg._dir}:${pkg._name}__files"
+)
+
+alias(
+  name = "${pkg._name}__lite",
+  actual = "//node_modules/${pkg._dir}:${pkg._name}__lite"
+)
+
+alias(
+  name = "${pkg._name}__typings",
+  actual = "//node_modules/${pkg._dir}:${pkg._name}__typings"
+)
+`;
+}
+
+function printPackageBinAliases(pkg) {
+  let result = '';
+
+  if (pkg._executables) {
+    for (const [name, path] of pkg._executables.entries()) {
+      result += `# Wire up the \`bin\` entry \`${name}\`
+alias(
+    name = "${name}",
+    actual = "//node_modules/${pkg._dir}:${name}__bin",
 )
 
 `;
@@ -421,9 +481,20 @@ function printScope(scope, pkgs) {
 filegroup(
     name = "${scope}",
     srcs = [
-        ${scopePkgs.map(pkg => `":${pkg._dir}",`).join('\n        ')}
+        ${scopePkgs.map(pkg => `"//node_modules/${pkg._dir}",`).join('\n        ')}
     ],
     tags = ["NODE_MODULE_MARKER"],
+)
+
+`;
+}
+
+function printScopeAlias(scope) {
+  return `
+# Generated alias target for npm scope ${scope}
+alias(
+    name = "${scope}",
+    actual = "//node_modules/${scope}",
 )
 
 `;

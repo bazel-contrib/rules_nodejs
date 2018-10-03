@@ -198,8 +198,8 @@ _NODEJS_EXECUTABLE_ATTRS = {
           name = "my_binary",
           ...
           data = [
-              "@npm//:foo",
-              "@npm//:bar",
+              "@npm//foo",
+              "@npm//bar",
               ...
           ],
         )
@@ -228,9 +228,9 @@ _NODEJS_EXECUTABLE_ATTRS = {
             name = "my_test",
             ...
             deps = [
-                "@npm//:jasmine",
-                "@npm//:foo",
-                "@npm//:bar",
+                "@npm//jasmine",
+                "@npm//foo",
+                "@npm//bar",
                 ...
             ],
         )

@@ -1,0 +1,18 @@
+
+package(default_visibility = ["//visibility:public"])
+alias(
+  name = "unidiff",
+  actual = "//node_modules/unidiff:unidiff__pkg"
+)
+alias(
+  name = "unidiff__files",
+  actual = "//node_modules/unidiff:unidiff__files"
+)
+alias(
+  name = "unidiff__lite",
+  actual = "//node_modules/unidiff:unidiff__lite"
+)
+alias(
+  name = "unidiff__typings",
+  actual = "//node_modules/unidiff:unidiff__typings"
+)

@@ -513,8 +513,8 @@ ROLLUP_ATTRS = {
           name = "bundle",
           ...
           deps = [
-              "@npm//:foo",
-              "@npm//:bar",
+              "@npm//foo",
+              "@npm//bar",
               ...
           ],
         )

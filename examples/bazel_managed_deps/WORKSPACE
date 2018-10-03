@@ -14,7 +14,7 @@ node_repositories()
 # This runs yarn install, then our generate_build_file.js to create BUILD files
 # inside the resulting node_modules directory.
 # The name "npm" here means the resulting modules are referenced like
-# @npm//:jasmine
+# @npm//jasmine
 yarn_install(
     name = "npm",
     package_json = "//:package.json",
