@@ -25,8 +25,8 @@ Optionally add the `@bazel/karma` npm package if you would like to use the
 {
   ...
   "devDependencies": {
-    "@bazel/typescript": "0.20.1",
-    "@bazel/karma": "0.20.1",
+    "@bazel/typescript": "0.18.0",
+    "@bazel/karma": "0.18.0",
     ...
   },
   ...
@@ -46,8 +46,8 @@ containing:
 ```python
 http_archive(
     name = "build_bazel_rules_typescript",
-    url = "https://github.com/bazelbuild/rules_typescript/archive/0.20.1.zip",
-    strip_prefix = "rules_typescript-0.20.1",
+    url = "https://github.com/bazelbuild/rules_typescript/archive/0.18.0.zip",
+    strip_prefix = "rules_typescript-0.18.0",
 )
 
 # Fetch our Bazel dependencies that aren't distributed on npm
@@ -336,7 +336,6 @@ rule is that minors are breaking changes and patches are new features).
 
 1. Re-generate the API docs: `yarn skydoc`
 1. May be necessary if Go code has changed though probably it was already necessary to run this to keep CI green: `bazel run :gazelle`
-1. If we depend on a newer rules_nodejs, update the `check_rules_nodejs_version` in `ts_repositories.bzl`
 1. `git commit -a -m 'Update docs for release'`
 1. `npm config set tag-version-prefix ''`
 1. `npm version minor -m 'rel: %s'` (replace `minor` with `patch` if no breaking changes)
