@@ -1,7 +1,7 @@
 {
     "name": "@bazel/javascript",
     "description": "Build JavaScript with Bazel",
-    "version": "0.14.2",
+    "version": "0.15.0",
     "keywords": [
         "javascript",
         "bazel"
@@ -20,17 +20,12 @@
         "examples-packages": "cd examples/packages && bazel run @nodejs//:yarn && bazel test --test_output=errors :all",
         "internal-e2e-node_loader_no_preserve_symlinks": "cd internal/e2e/node_loader_no_preserve_symlinks && bazel run @nodejs//:yarn && bazel test ... && bazel test @node_resolve_dep//:test",
         "internal-e2e-node_loader_preserve_symlinks": "cd internal/e2e/node_loader_preserve_symlinks && bazel run @nodejs//:yarn && bazel test ... && bazel test @node_resolve_dep//:test",
-
         "test": "yarn examples-bazel_managed_deps && yarn examples-packages && yarn examples-program && yarn internal-e2e-node_loader_no_preserve_symlinks && yarn internal-e2e-node_loader_preserve_symlinks",
-
         "prebuildifier": "bazel build --noshow_progress @com_github_bazelbuild_buildtools//buildifier",
         "buildifier": "find . -type f \\( -name BUILD -or -name BUILD.bazel \\) ! -path \"*/node_modules/*\" | xargs $(bazel info bazel-bin)/external/com_github_bazelbuild_buildtools/buildifier/*/buildifier",
-
         "preskylint": "bazel build --noshow_progress @io_bazel//src/tools/skylark/java/com/google/devtools/skylark/skylint:Skylint",
-        "//": "deprecated-api is disabled because we legacy providers for typescript",
         "//": "which cannot be upgraded to modern providers without breaking compatability",
         "skylint": "find . -type f -name \"*.bzl\" ! -path \"*/node_modules/*\" | xargs $(bazel info bazel-bin)/external/io_bazel/src/tools/skylark/java/com/google/devtools/skylark/skylint/Skylint --disable-checks=deprecated-api",
-
         "format": "git-clang-format",
         "format-all": "clang-format --glob='{internal/**/,examples/**/}*.{js,ts}' -i",
         "precommit": "check-clang-format \"yarn format\"",
