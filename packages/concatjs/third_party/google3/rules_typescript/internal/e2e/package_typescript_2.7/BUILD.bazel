@@ -26,9 +26,9 @@ ts_library(
     srcs = glob(["*.spec.ts"]),
     deps = [
         ":main",
-        "@npm//:@types/jasmine",
-        "@npm//:@types/node",
-        "@npm//:@bazel/typescript",
+        "@npm//@types/jasmine",
+        "@npm//@types/node",
+        "@npm//@bazel/typescript",
     ],
 )
 
@@ -36,6 +36,6 @@ jasmine_node_test(
     name = "test",
     deps = [
         ":test_lib",
-        "@npm//:jasmine",
+        "@npm//jasmine",
     ],
 )

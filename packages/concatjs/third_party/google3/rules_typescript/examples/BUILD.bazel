@@ -40,14 +40,14 @@ ts_library(
         ":foo_ts_library",
         "//examples/generated_ts",
         "//examples/some_library:lib",
-        "@npm//:typescript",
-        # Example of using the `@npm//:@types` target to depend on all
+        "@npm//typescript",
+        # Example of using the `@npm//@types` target to depend on all
         # @types packages and with the types attribute of tsconfig not
         # specified. In this case, typescript will automatically discover
         # all types under node_modules/@types and included them in the compile.
         # See getAutomaticTypeDirectiveNames in
         # https://github.com/Microsoft/TypeScript/blob/master/src/compiler/moduleNameResolver.ts.
-        "@npm//:@types",
+        "@npm//@types",
     ],
 )
 

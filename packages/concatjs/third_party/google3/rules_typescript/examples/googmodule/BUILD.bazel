@@ -20,6 +20,6 @@ jasmine_node_test(
     srcs = ["googmodule_output_test.js"],
     data = [
         ":es5_output",
-        "@npm//:jasmine",
+        "@npm//jasmine",
     ],
 )

@@ -162,7 +162,7 @@ ts_devserver = rule(
             doc = """The port that the devserver will listen on.""",
             default = 5432,
         ),
-        "_requirejs_script": attr.label(allow_single_file = True, default = Label("@build_bazel_rules_typescript_devserver_deps//:node_modules/requirejs/require.js")),
+        "_requirejs_script": attr.label(allow_single_file = True, default = Label("@build_bazel_rules_typescript_devserver_deps//node_modules/requirejs:require.js")),
         "_devserver": attr.label(
             default = Label("//devserver"),
             executable = True,

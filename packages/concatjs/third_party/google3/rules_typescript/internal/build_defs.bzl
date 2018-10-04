@@ -23,6 +23,17 @@ load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeMod
 
 _DEFAULT_COMPILER = "@build_bazel_rules_typescript//:@bazel/typescript/tsc_wrapped"
 
+def _trim_package_node_modules(package_name):
+    # trim a package name down to its path prior to a node_modules
+    # segment. 'foo/node_modules/bar' would become 'foo' and
+    # 'node_modules/bar' would become ''
+    segments = []
+    for n in package_name.split("/"):
+        if n == "node_modules":
+            break
+        segments += [n]
+    return "/".join(segments)
+
 def _compute_node_modules_root(ctx):
     """Computes the node_modules root from the node_modules and deps attributes.
 
@@ -37,7 +48,7 @@ def _compute_node_modules_root(ctx):
         # ctx.files.node_modules is not an empty list
         node_modules_root = "/".join([f for f in [
             ctx.attr.node_modules.label.workspace_root,
-            ctx.attr.node_modules.label.package,
+            _trim_package_node_modules(ctx.attr.node_modules.label.package),
             "node_modules",
         ] if f])
     for d in ctx.attr.deps:
@@ -257,7 +268,7 @@ ts_library = rule(
             For example, we use the vanilla TypeScript tsc.js for bootstrapping,
             and Angular compilations can replace this with `ngc`.
 
-            The default ts_library compiler depends on the `@npm//:@bazel/typescript`
+            The default ts_library compiler depends on the `@npm//@bazel/typescript`
             target which is setup for projects that use bazel managed npm deps that
             fetch the @bazel/typescript npm package. It is recommended that you use
             the workspace name `@npm` for bazel managed deps so the default
@@ -282,13 +293,13 @@ ts_library = rule(
         "node_modules": attr.label(
             doc = """The npm packages which should be available during the compile.
 
-            The default value is `@npm//:typescript__typings` is setup
+            The default value is `@npm//typescript:typescript__typings` is setup
             for projects that use bazel managed npm deps that. It is recommended
             that you use the workspace name `@npm` for bazel managed deps so the
             default node_modules works out of the box. Otherwise, you'll have to
             override the node_modules attribute manually. This default is in place
             since ts_library will always depend on at least the typescript
-            default libs which are provided by `@npm//:typescript__typings`.
+            default libs which are provided by `@npm//typescript:typescript__typings`.
 
             This attribute is DEPRECATED. As of version 0.18.0 the recommended
             approach to npm dependencies is to use fine grained npm dependencies
@@ -314,10 +325,10 @@ ts_library = rule(
               name = "my_lib",
               ...
               deps = [
-                  "@npm//:@types/foo",
-                  "@npm//:@types/bar",
-                  "@npm//:foo",
-                  "@npm//:bar",
+                  "@npm//@types/foo",
+                  "@npm//@types/bar",
+                  "@npm//foo",
+                  "@npm//bar",
                   ...
               ],
             )
@@ -340,7 +351,7 @@ ts_library = rule(
               yarn_lock = "//:yarn.lock",
             )
             """,
-            default = Label("@npm//:typescript__typings"),
+            default = Label("@npm//typescript:typescript__typings"),
         ),
     }),
     outputs = {

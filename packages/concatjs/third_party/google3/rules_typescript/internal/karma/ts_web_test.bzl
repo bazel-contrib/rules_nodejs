@@ -23,7 +23,7 @@ load("@io_bazel_rules_webtesting//web:web.bzl", "web_test_suite")
 load("@io_bazel_rules_webtesting//web/internal:constants.bzl", "DEFAULT_WRAPPED_TEST_TAGS")
 
 _CONF_TMPL = "//internal/karma:karma.conf.js"
-_DEFAULT_KARMA_BIN = "@npm//:@bazel/karma/karma"
+_DEFAULT_KARMA_BIN = "@npm//@bazel/karma/bin:karma"
 
 def _ts_web_test_impl(ctx):
     conf = ctx.actions.declare_file(

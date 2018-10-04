@@ -31,10 +31,10 @@ ts_library(
     tsconfig = "//examples:tsconfig-test",
     deps = [
         ":car",
-        "@npm//:@types/jasmine",
-        "@npm//:@types/long",
-        "@npm//:@types/node",
-        "@npm//:long",
+        "@npm//@types/jasmine",
+        "@npm//@types/long",
+        "@npm//@types/node",
+        "@npm//long",
     ],
 )
 
@@ -83,8 +83,8 @@ rollup_bundle(
 genrule(
     name = "protobufjs",
     srcs = [
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:node_modules/protobufjs/dist/minimal/protobuf.min.js",
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:node_modules/long/dist/long.js",
+        "@build_bazel_rules_typescript_protobufs_compiletime_deps//node_modules/protobufjs:dist/minimal/protobuf.min.js",
+        "@build_bazel_rules_typescript_protobufs_compiletime_deps//node_modules/long:dist/long.js",
     ],
     outs = [
         "protobuf.min.js",
@@ -108,8 +108,8 @@ ts_library(
     srcs = ["app_e2e_test.ts"],
     tsconfig = "//examples:tsconfig-test",
     deps = [
-        "@npm//:@types/jasmine",
-        "@npm//:@types/node",
-        "@npm//:protractor",
+        "@npm//@types/jasmine",
+        "@npm//@types/node",
+        "@npm//protractor",
     ],
 )

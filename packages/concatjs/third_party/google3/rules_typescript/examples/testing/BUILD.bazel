@@ -12,8 +12,8 @@ ts_library(
     tsconfig = "//examples:tsconfig-test",
     deps = [
         ":lib",
-        "@npm//:@types/jasmine",
-        "@npm//:@types/node",
+        "@npm//@types/jasmine",
+        "@npm//@types/node",
     ],
 )
 
