@@ -28,6 +28,9 @@ exports_files([
 
 nodejs_binary(
     name = "rollup",
+    # Allow --define=ROLLUP_BUNDLE_FIXED_CHUNK_NAMES=1 to be passed as
+    # process.env so we can give predictable chunk names in CI
+    configuration_env_vars = ["ROLLUP_BUNDLE_FIXED_CHUNK_NAMES"],
     entry_point = "build_bazel_rules_nodejs_rollup_deps/node_modules/rollup/bin/rollup",
     install_source_map_support = False,
     node_modules = "@build_bazel_rules_nodejs_rollup_deps//:node_modules",
