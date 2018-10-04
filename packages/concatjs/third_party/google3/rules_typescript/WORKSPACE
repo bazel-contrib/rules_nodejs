@@ -199,3 +199,8 @@ local_repository(
   name = "package_typescript_karma_e2e",
   path = "internal/e2e/package_typescript_karma",
 )
+
+local_repository(
+  name = "disable_tsetse_for_external_test",
+  path = "internal/e2e/disable_tsetse_for_external",
+)

@@ -6,6 +6,7 @@ platforms:
     - "@nodejs//:yarn"
     build_targets:
     - "..."
+    - "@disable_tsetse_for_external_test//..."
     test_flags:
     # TODO(gregmagolan): shared libs needed by chrome & firefox not available on ubuntu1404
     - "--test_tag_filters=-browser:chromium-local,-browser:firefox-local"
@@ -17,6 +18,7 @@ platforms:
     - "@nodejs//:yarn"
     build_targets:
     - "..."
+    - "@disable_tsetse_for_external_test//..."
     test_flags:
     # TODO(gregmagolan): shared libs needed by chrome & firefox not available on ubuntu1604
     - "--test_tag_filters=-browser:chromium-local,-browser:firefox-local"
@@ -28,6 +30,7 @@ platforms:
     - "@nodejs//:yarn"
     build_targets:
     - "..."
+    - "@disable_tsetse_for_external_test//..."
     test_flags:
     # TODO(gregmagolan): chrome & firefox unknown breakage on macos target here; does work locally on mac
     - "--test_tag_filters=-browser:chromium-local,-browser:firefox-local"
@@ -39,5 +42,6 @@ platforms:
     - "@nodejs//:yarn"
     build_targets:
     - "..."
+    - "@disable_tsetse_for_external_test//..."
     test_targets:
     - "..."

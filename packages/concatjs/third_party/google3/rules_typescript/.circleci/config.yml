@@ -56,6 +56,7 @@ jobs:
       - run: bazel info release
       - run: bazel build ...
       - run: bazel test ...
+      - run: bazel build @disable_tsetse_for_external_test//...
 
   # This job tests the same stuff, but without the .bazelrc file.
   # It disables worker mode, for example.
@@ -77,6 +78,7 @@ jobs:
       # is required to keep Bazel from exhausting the memory.
       - run: bazel --bazelrc=/dev/null --host_jvm_args=-Xmx3g build ... --local_resources=2560,1.0,1.0
       - run: bazel --bazelrc=/dev/null --host_jvm_args=-Xmx3g test ... --local_resources=2560,1.0,1.0
+      - run: bazel --bazelrc=/dev/null --host_jvm_args=-Xmx3g build @disable_tsetse_for_external_test//... --local_resources=2560,1.0,1.0
 
       - save_cache:
           key: *cache_key
