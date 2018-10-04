@@ -129,7 +129,7 @@ than launching a test in Karma, for example.</p>
 
           <h2 id="jasmine_node_test">jasmine_node_test</h2>
 
-          <pre>jasmine_node_test(<a href="#jasmine_node_test.name">name</a>, <a href="#jasmine_node_test.srcs">srcs</a>, <a href="#jasmine_node_test.data">data</a>, <a href="#jasmine_node_test.deps">deps</a>, <a href="#jasmine_node_test.expected_exit_code">expected_exit_code</a>)</pre>
+          <pre>jasmine_node_test(<a href="#jasmine_node_test.name">name</a>, <a href="#jasmine_node_test.srcs">srcs</a>, <a href="#jasmine_node_test.data">data</a>, <a href="#jasmine_node_test.deps">deps</a>, <a href="#jasmine_node_test.expected_exit_code">expected_exit_code</a>, <a href="#jasmine_node_test.**kwargs">**kwargs</a>)</pre>
 
           <p>Runs tests in NodeJS using the Jasmine test runner.</p>
 <p>To debug the test, see debugging notes in <code>nodejs_test</code>.</p>
@@ -175,8 +175,14 @@ than launching a test in Karma, for example.</p>
       <td><code>expected_exit_code</code></td>
       <td>
         <p><code>Integer; Optional</code></p>
-        <p>The expected exit code for the test. Defaults to 0.
-**kwargs: remaining arguments are passed to the test rule</p>
+        <p>The expected exit code for the test. Defaults to 0.</p>
+      </td>
+    </tr>
+    <tr id="jasmine_node_test.**kwargs">
+      <td><code>**kwargs</code></td>
+      <td>
+        <p><code>Unknown; Optional</code></p>
+        <p>remaining arguments are passed to the test rule</p>
       </td>
     </tr>
   </tbody>
