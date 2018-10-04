@@ -44,8 +44,7 @@ def ts_setup_workspace():
     # 0.11.3: node module resolution fixes & check_rules_nodejs_version
     # 0.14.0: fine grained npm dependencies support for ts_library
     # 0.14.1: fine grained npm dependencies fix for npm_install
-    # 0.15.0: fine grained npm dependencies breaking change
-    check_rules_nodejs_version("0.15.0")
+    check_rules_nodejs_version("0.14.1")
 
     # Included here for backward compatability for downstream repositories
     # that use @build_bazel_rules_typescript_tsc_wrapped_deps such as rxjs.

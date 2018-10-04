@@ -109,7 +109,7 @@ func (upd *Updater) runBazelAnalyze(buildFilePath string, bld *build.File, rules
 			[]AnalysisFailureCause{
 				AnalysisFailureCause{
 					Message: fmt.Sprintf("running bazel analyze %s failed: %v", args, err),
-					Path:    buildFilePath,
+					Path:    bld.Path,
 				},
 			},
 		}
@@ -316,7 +316,8 @@ type AnalysisFailedError struct {
 // the path and line that caused the failure (if available).
 type AnalysisFailureCause struct {
 	Message string
-	// workspace path of the file on which analysis failed
+	// workspace path of the file on which analysis failed ie foo/bar/baz.ts, not
+	// starting with google3/
 	Path string
 	// 1-based line on which analysis failed
 	Line int
