@@ -199,6 +199,22 @@ def tsc_wrapped_tsconfig(
     if jsx_factory:
         config["compilerOptions"]["jsxFactory"] = jsx_factory
 
+    tsetse_disabled_rules = []
+
+    # Matches section in javascript/typescript/tsconfig.bzl
+    # TODO(alexeagle): make them share code
+    if ctx.label.workspace_root.startswith("external/"):
+        # Violated by rxjs
+        tsetse_disabled_rules += ["ban-promise-as-condition"]
+
+        # For local testing
+        tsetse_disabled_rules += ["check-return-value"]
+
+    config["compilerOptions"]["plugins"] = [{
+        "name": "@bazel/tsetse",
+        "disabledRules": tsetse_disabled_rules,
+    }]
+
     return config
 
 # ************ #
