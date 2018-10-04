@@ -41,8 +41,8 @@ gazelle(
 js_library(
     name = "protobufjs_bootstrap_scripts",
     srcs = [
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:node_modules/long/dist/long.js",
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:node_modules/protobufjs/dist/minimal/protobuf.min.js",
+        "@build_bazel_rules_typescript_protobufs_compiletime_deps//node_modules/long:dist/long.js",
+        "@build_bazel_rules_typescript_protobufs_compiletime_deps//node_modules/protobufjs:dist/minimal/protobuf.min.js",
     ],
     # Make devmode loading work when it does require("protobufjs/minimal")
     # so this is shimmed to define it to equal global.protobuf
@@ -56,15 +56,15 @@ js_library(
 load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
 
 # A nodejs_binary for @bazel/typescript/tsc_wrapped to use by default in
-# ts_library that depends on @npm//:@bazel/typescript instead of the
+# ts_library that depends on @npm//@bazel/typescript instead of the
 # output of the //internal/tsc_wrapped ts_library rule. This
-# default is for downstream users that depend on the @bazel/karma npm
-# package. The generated @npm//:@bazel/typescript/tsc_wrapped target
+# default is for downstream users that depend on the @bazel/typescript npm
+# package. The generated @npm//@bazel/typescript/bin:tsc_wrapped target
 # does not work because it does not have the node `--expose-gc` flag
 # set which is required to support the call to `global.gc()`.
 nodejs_binary(
     name = "@bazel/typescript/tsc_wrapped",
-    data = ["@npm//:@bazel/typescript"],
+    data = ["@npm//@bazel/typescript"],
     entry_point = "@bazel/typescript/tsc_wrapped/tsc_wrapped.js",
     install_source_map_support = False,
     templated_args = ["--node_options=--expose-gc"],

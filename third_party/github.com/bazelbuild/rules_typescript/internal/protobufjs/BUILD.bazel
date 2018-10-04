@@ -11,21 +11,21 @@ exports_files([
 nodejs_binary(
     name = "pbjs",
     data = [
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:protobufjs",
+        "@build_bazel_rules_typescript_protobufs_compiletime_deps//protobufjs",
         # these deps are needed even tho they are not automatic transitive deps of
         # protobufjs since if they are not in the runfiles then protobufjs attempts to
         # run `npm install` at runtime to get thhem which fails as it tries to access
         # the npm cache outside of the sandbox
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:semver",
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:chalk",
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:glob",
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:jsdoc",
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:minimist",
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:tmp",
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:uglify-js",
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:espree",
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:escodegen",
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:estraverse",
+        "@build_bazel_rules_typescript_protobufs_compiletime_deps//semver",
+        "@build_bazel_rules_typescript_protobufs_compiletime_deps//chalk",
+        "@build_bazel_rules_typescript_protobufs_compiletime_deps//glob",
+        "@build_bazel_rules_typescript_protobufs_compiletime_deps//jsdoc",
+        "@build_bazel_rules_typescript_protobufs_compiletime_deps//minimist",
+        "@build_bazel_rules_typescript_protobufs_compiletime_deps//tmp",
+        "@build_bazel_rules_typescript_protobufs_compiletime_deps//uglify-js",
+        "@build_bazel_rules_typescript_protobufs_compiletime_deps//espree",
+        "@build_bazel_rules_typescript_protobufs_compiletime_deps//escodegen",
+        "@build_bazel_rules_typescript_protobufs_compiletime_deps//estraverse",
     ],
     entry_point = "protobufjs/bin/pbjs",
     install_source_map_support = False,
@@ -34,21 +34,21 @@ nodejs_binary(
 nodejs_binary(
     name = "pbts",
     data = [
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:protobufjs",
+        "@build_bazel_rules_typescript_protobufs_compiletime_deps//protobufjs",
         # these deps are needed even tho they are not automatic transitive deps of
         # protobufjs since if they are not in the runfiles then protobufjs attempts to
         # run `npm install` at runtime to get thhem which fails as it tries to access
         # the npm cache outside of the sandbox
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:semver",
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:chalk",
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:glob",
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:jsdoc",
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:minimist",
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:tmp",
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:uglify-js",
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:espree",
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:escodegen",
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:estraverse",
+        "@build_bazel_rules_typescript_protobufs_compiletime_deps//semver",
+        "@build_bazel_rules_typescript_protobufs_compiletime_deps//chalk",
+        "@build_bazel_rules_typescript_protobufs_compiletime_deps//glob",
+        "@build_bazel_rules_typescript_protobufs_compiletime_deps//jsdoc",
+        "@build_bazel_rules_typescript_protobufs_compiletime_deps//minimist",
+        "@build_bazel_rules_typescript_protobufs_compiletime_deps//tmp",
+        "@build_bazel_rules_typescript_protobufs_compiletime_deps//uglify-js",
+        "@build_bazel_rules_typescript_protobufs_compiletime_deps//espree",
+        "@build_bazel_rules_typescript_protobufs_compiletime_deps//escodegen",
+        "@build_bazel_rules_typescript_protobufs_compiletime_deps//estraverse",
     ],
     entry_point = "protobufjs/bin/pbts",
     install_source_map_support = False,

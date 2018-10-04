@@ -25,7 +25,7 @@ ts_library(
     srcs = glob(["*.spec.ts"]),
     deps = [
         ":lib",
-        "@npm//:@types/jasmine",
+        "@npm//@types/jasmine",
     ],
 )
 

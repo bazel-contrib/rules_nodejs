@@ -41,8 +41,8 @@ ts_library(
     srcs = ["app_e2e_test.ts"],
     tsconfig = "//examples:tsconfig-test",
     deps = [
-        "@npm//:@types/jasmine",
-        "@npm//:@types/node",
-        "@npm//:protractor",
+        "@npm//@types/jasmine",
+        "@npm//@types/node",
+        "@npm//protractor",
     ],
 )

@@ -183,15 +183,15 @@ ts_library(
     name = "my_code",
     srcs = glob(["*.ts"]),
     deps = [
-      "@npm//:@types/node",
-      "@npm//:@types/foo",
-      "@npm//:foo",
+      "@npm//@types/node",
+      "@npm//@types/foo",
+      "@npm//foo",
       "//path/to/other:library",
     ],
 )
 ```
 
-You can also you the `@npm//:@types` target which will include all
+You can also you the `@npm//@types` target which will include all
 packages in the `@types` scope as dependencies.
 
 If you are using self-managed npm dependencies, you can use the

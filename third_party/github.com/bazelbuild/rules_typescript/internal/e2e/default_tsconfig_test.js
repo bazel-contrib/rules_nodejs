@@ -24,9 +24,9 @@ const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), 'wksp'));
 const WORKSPACE_BOILERPLATE = `
 http_archive(
     name = "build_bazel_rules_nodejs",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/archive/0.14.1.zip"],
-    strip_prefix = "rules_nodejs-0.14.1",
-    sha256 = "813eb51733d3632f456f3bb581d940ed64e80dab417595c93bf5ad19079898e2",
+    # TODO: switch back to release tag before next rules_typescript release
+    urls = ["https://github.com/bazelbuild/rules_nodejs/archive/f56561116dadb3ce7b9e065b8d091c72c976eac8.zip"],
+    strip_prefix = "rules_nodejs-f56561116dadb3ce7b9e065b8d091c72c976eac8",
 )
 http_archive(
     name = "bazel_skylib",
@@ -375,7 +375,7 @@ ${WORKSPACE_BOILERPLATE}`);
        write('a/BUILD', `
 # We use ts_library from internal/defaults.bzl since we don't have a @bazel/typescript npm
 # package in this test. This changes the ts_library compiler from the default '@build_bazel_rules_typescript//:@bazel/typescript/tsc_wrapped'
-# which depends on @npm//:@bazel/typescript which is not available in this test to '@build_bazel_rules_typescript//internal:tsc_wrapped_bin' which is
+# which depends on @npm//@bazel/typescript which is not available in this test to '@build_bazel_rules_typescript//internal:tsc_wrapped_bin' which is
 load("@build_bazel_rules_typescript//internal:defaults.bzl", "ts_library")
 ts_library(
     name = "a_lib",
@@ -398,7 +398,7 @@ ${WORKSPACE_BOILERPLATE}`);
        write('b/BUILD', `
 # We use ts_library from internal/defaults.bzl since we don't have a @bazel/typescript npm
 # package in this test. This changes the ts_library compiler from the default '@build_bazel_rules_typescript//:@bazel/typescript/tsc_wrapped'
-# which depends on @npm//:@bazel/typescript which is not available in this test to '@build_bazel_rules_typescript//internal:tsc_wrapped_bin' which is
+# which depends on @npm//@bazel/typescript which is not available in this test to '@build_bazel_rules_typescript//internal:tsc_wrapped_bin' which is
 load("@build_bazel_rules_typescript//internal:defaults.bzl", "ts_library")
 exports_files(["tsconfig.json"])
 ts_library(

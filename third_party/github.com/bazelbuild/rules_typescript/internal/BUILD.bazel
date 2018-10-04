@@ -31,8 +31,8 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary", "jasmine_node_test
 nodejs_binary(
     name = "tsc",
     data = [
-        "@npm//:source-map-support",
-        "@npm//:typescript",
+        "@npm//source-map-support",
+        "@npm//typescript",
     ],
     entry_point = "typescript/lib/tsc.js",
     visibility = ["//internal:__subpackages__"],
@@ -65,25 +65,25 @@ ts_library(
     # work with vanilla tsc.
     # Workaround for https://github.com/Microsoft/TypeScript/issues/22208
     deps = [
-        "@npm//:@types/node",
-        "@npm//:tsickle",
-        "@npm//:tsutils",
-        "@npm//:typescript",
+        "@npm//@types/node",
+        "@npm//tsickle",
+        "@npm//tsutils",
+        "@npm//typescript",
     ],
 )
 
 # Other ts_library rules will use this custom compiler, which calls the
 # TypeScript APIs to act like tsc, but adds capabilities like Bazel workers.
-# TODO(gregmagolan): make @npm//:tsickle dependency optional
+# TODO(gregmagolan): make @npm//tsickle dependency optional
 nodejs_binary(
     name = "tsc_wrapped_bin",
     data = [
         ":tsc_wrapped",
-        "@npm//:protobufjs",
-        "@npm//:source-map-support",
-        "@npm//:tsickle",
-        "@npm//:tsutils",
-        "@npm//:typescript",
+        "@npm//protobufjs",
+        "@npm//source-map-support",
+        "@npm//tsickle",
+        "@npm//tsutils",
+        "@npm//typescript",
     ],
     entry_point = "build_bazel_rules_typescript/internal/tsc_wrapped/tsc_wrapped.js",
     templated_args = ["--node_options=--expose-gc"],
@@ -96,9 +96,9 @@ ts_library(
     tsconfig = "//internal:tsc_wrapped/tsconfig.json",
     deps = [
         ":tsc_wrapped",
-        "@npm//:@types/jasmine",
-        "@npm//:@types/node",
-        "@npm//:typescript",
+        "@npm//@types/jasmine",
+        "@npm//@types/node",
+        "@npm//typescript",
     ],
 )
 
@@ -107,8 +107,8 @@ jasmine_node_test(
     srcs = [],
     deps = [
         ":test_lib",
-        "@npm//:jasmine",
-        "@npm//:typescript",
+        "@npm//jasmine",
+        "@npm//typescript",
     ],
 )
 

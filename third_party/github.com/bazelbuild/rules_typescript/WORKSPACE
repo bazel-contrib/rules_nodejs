@@ -42,21 +42,15 @@ yarn_install(
 # Install a hermetic version of node.
 node_repositories(preserve_symlinks = True)
 
+# Note: We depend on @bazel/typescript in package.json
+# so that the target @npm//@bazel/typescript is defined
+# as it is referenced in /BUILD.bazel for use downstream.
+# This target and package is not used locally so
+# the version of this dependency does not matter.
 yarn_install(
     name = "npm",
     package_json = "//:package.json",
     yarn_lock = "//:yarn.lock",
-    manual_build_file_contents = """
-filegroup(
-  name = "@bazel/typescript",
-  srcs = [],
-)
-
-filegroup(
-  name = "@bazel/karma",
-  srcs = [],
-)
-""",
 )
 
 load("@io_bazel_rules_go//go:def.bzl", "go_rules_dependencies", "go_register_toolchains")
