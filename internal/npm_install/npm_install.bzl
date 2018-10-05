@@ -155,17 +155,23 @@ def _yarn_install_impl(repository_ctx):
   node = repository_ctx.path(get_node_label(repository_ctx))
   yarn = get_yarn_label(repository_ctx)
 
-  # A local cache is used as multiple yarn rules cannot run simultaneously using a shared
-  # cache and a shared cache is non-hermetic.
+  # Multiple yarn rules cannot run simultaneously using a shared cache.
+  # See https://github.com/yarnpkg/yarn/issues/683
+  # The --mutex option ensures only one yarn runs at a time, see
+  # https://yarnpkg.com/en/docs/cli#toc-concurrency-and-mutex
+  # The shared cache is not necessarily hermetic, but we need to cache downloaded
+  # artifacts somewhere, so we rely on yarn to be correct.
   # To see the output, pass: quiet=False
   args = [
     repository_ctx.path(yarn),
-    "--cache-folder",
-    repository_ctx.path("_yarn_cache"),
+    "--mutex",
+    "network",
     "--cwd",
     repository_ctx.path(""),
   ]
 
+  # This can take a long time, and the user has no idea what is running.
+  # Follow https://github.com/bazelbuild/bazel/issues/1289
   result = repository_ctx.execute(args, timeout = repository_ctx.attr.timeout)
 
   if result.return_code:
