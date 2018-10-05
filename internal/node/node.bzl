@@ -24,6 +24,18 @@ load("//internal/common:sources_aspect.bzl", "sources_aspect")
 load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
 load("//internal/common:node_module_info.bzl", "NodeModuleInfo", "collect_node_modules_aspect")
 
+def _workspace_name(ctx, target=None):
+    # Lookup the workspace name of the target
+    # If the target is declared in the same workspace where the build is taking
+    # place, then we can get the workspace_name from the ctx object
+    # Otherwise we have to use the workspace_root function and slice off the
+    # "external/" prefix.
+    if not target:
+        target = ctx
+    if target.label.workspace_root:
+        return target.label.workspace_root.split("/")[1]
+    return ctx.workspace_name
+
 def _trim_package_node_modules(package_name):
     # trim a package name down to its path prior to a node_modules
     # segment. 'foo/node_modules/bar' would become 'foo' and
@@ -50,9 +62,8 @@ def _write_loader_script(ctx):
   node_modules_root = None
   if ctx.files.node_modules:
     # ctx.files.node_modules is not an empty list
-    workspace = ctx.attr.node_modules.label.workspace_root.split("/")[1] if ctx.attr.node_modules.label.workspace_root else ctx.workspace_name
     node_modules_root = "/".join([f for f in [
-        workspace,
+        _workspace_name(ctx, ctx.attr.node_modules),
         _trim_package_node_modules(ctx.attr.node_modules.label.package),
         "node_modules"] if f])
   for d in ctx.attr.data:
@@ -65,9 +76,8 @@ def _write_loader_script(ctx):
   if not node_modules_root:
       # there are no fine grained deps and the node_modules attribute is an empty filegroup
       # but we still need a node_modules_root even if its empty
-      workspace = ctx.attr.node_modules.label.workspace_root.split("/")[1] if ctx.attr.node_modules.label.workspace_root else ctx.workspace_name
       node_modules_root = "/".join([f for f in [
-          workspace,
+          _workspace_name(ctx, ctx.attr.node_modules),
           ctx.attr.node_modules.label.package,
           "node_modules"] if f])
 
@@ -109,10 +119,14 @@ def _nodejs_binary_impl(ctx):
           ctx.workspace_name,
           ctx.outputs.loader.short_path,
       ])
-    env_vars = "export BAZEL_TARGET=%s\n" % ctx.label
+
+    env_vars = [
+        "export BAZEL_TARGET=%s" % ctx.label,
+        "export BAZEL_WORKSPACE=%s" % _workspace_name(ctx),
+    ]
     for k in ctx.attr.configuration_env_vars:
       if k in ctx.var.keys():
-        env_vars += "export %s=\"%s\"\n" % (k, ctx.var[k])
+        env_vars.append("export %s=\"%s\"" % (k, ctx.var[k]))
 
     expected_exit_code = 0
     if hasattr(ctx.attr, 'expected_exit_code'):
@@ -125,7 +139,7 @@ def _nodejs_binary_impl(ctx):
             for a in ctx.attr.templated_args]),
         "TEMPLATED_repository_args": ctx.workspace_name + "/" + ctx.file._repository_args.path,
         "TEMPLATED_script_path": script_path,
-        "TEMPLATED_env_vars": env_vars,
+        "TEMPLATED_env_vars": "\n".join(env_vars),
         "TEMPLATED_expected_exit_code": str(expected_exit_code),
     }
     ctx.actions.expand_template(

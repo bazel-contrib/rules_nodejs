@@ -1,0 +1,12 @@
+load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
+
+jasmine_node_test(
+    name = "test",
+    srcs = ["history-server.spec.js"],
+    data = [
+      ":index.html",
+      ":bundle.js",
+      "//internal/history-server:history-server.js",
+    ],
+    node_modules = "@history-server_runtime_deps//:node_modules",
+)
