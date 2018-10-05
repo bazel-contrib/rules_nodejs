@@ -37,11 +37,11 @@ const npmPackageVersion = process.env.npm_package_version.split('-')[0];
 // If this is a bazel managed deps yarn_install or npm_install then the
 // cwd is $(bazel info
 // output_base)/external/<wksp>/node_modules/@bazel/typescript and there should
-// be $(bazel info output_base)/external/<wksp>/internal/generate_build_file.js
+// be $(bazel info output_base)/external/<wksp>/generate_build_file.js
 // folder
 function isBazelManagedDeps() {
   try {
-    fs.statSync('../../../internal/generate_build_file.js');
+    fs.statSync('../../../generate_build_file.js');
     return true;
   } catch (e) {
     return false;
