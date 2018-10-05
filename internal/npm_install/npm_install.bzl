@@ -170,6 +170,9 @@ def _yarn_install_impl(repository_ctx):
     repository_ctx.path(""),
   ]
 
+  if not repository_ctx.attr.use_global_yarn_cache:
+      args.extend(["--cache-folder", repository_ctx.path("_yarn_cache")])
+
   # This can take a long time, and the user has no idea what is running.
   # Follow https://github.com/bazelbuild/bazel/issues/1289
   result = repository_ctx.execute(args, timeout = repository_ctx.attr.timeout)
@@ -201,6 +204,15 @@ yarn_install = repository_rule(
             you are running into performance issues due to a large
             node_modules filegroup it is recommended to switch to using
             fine grained npm dependencies."""),
+        "use_global_yarn_cache": attr.bool(
+            default = True,
+            doc = """Use the global yarn cache on the system.
+            The cache lets you avoid downloading packages multiple times.
+            However, it can introduce non-hermeticity, and the yarn cache can
+            have bugs.
+            Disabling this attribute causes every run of yarn to have a unique
+            cache_directory.""",
+        ),
         "timeout": attr.int(
             default = 600,
             doc = """Maximum duration of the command "yarn" in seconds.
