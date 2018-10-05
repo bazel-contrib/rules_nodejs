@@ -2,7 +2,7 @@
 
 load("@build_bazel_rules_nodejs//internal/node:node.bzl", "nodejs_binary_macro")
 
-def history_server(templated_args = [], **kwargs):
+def history_server(templated_args = [], data = [], **kwargs):
   """
   This is a simple Bazel wrapper around the history-server npm package.
 
@@ -25,7 +25,9 @@ def history_server(templated_args = [], **kwargs):
 
   nodejs_binary_macro(
       node_modules = "@history-server_runtime_deps//:node_modules",
-      entry_point = "history-server/modules/cli.js",
+      #entry_point = "history-server/modules/cli.js",
+      entry_point = "build_bazel_rules_nodejs/internal/history-server/history-server.js",
+      data = data + ["@build_bazel_rules_nodejs//internal/history-server:history-server.js"],
       install_source_map_support = False,
       templated_args = templated_args,
       **kwargs)
