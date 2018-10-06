@@ -23,6 +23,7 @@ load("//internal/node:node.bzl",
      _nodejs_test = "nodejs_test_macro")
 load("//internal/node:node_repositories.bzl",_node_repositories = "node_repositories")
 load("//internal/jasmine_node_test:jasmine_node_test.bzl", _jasmine_node_test = "jasmine_node_test")
+load("//internal/mocha_node_test:mocha_node_test.bzl", _mocha_node_test = "mocha_node_test")
 load("//internal/npm_install:npm_install.bzl", _npm_install = "npm_install", _yarn_install = "yarn_install")
 load("//internal/rollup:rollup_bundle.bzl", _rollup_bundle = "rollup_bundle")
 load("//internal/npm_package:npm_package.bzl", _npm_package = "npm_package")
@@ -35,6 +36,7 @@ nodejs_binary = _nodejs_binary
 nodejs_test = _nodejs_test
 node_repositories = _node_repositories
 jasmine_node_test = _jasmine_node_test
+mocha_node_test = _mocha_node_test
 npm_install = _npm_install
 yarn_install = _yarn_install
 rollup_bundle = _rollup_bundle
