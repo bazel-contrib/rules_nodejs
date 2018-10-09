@@ -599,6 +599,10 @@ func (upd *Updater) UpdateBUILD(ctx context.Context, path string, options Update
 	}
 
 	rules := allTSRules(bld)
+	if len(rules) == 0 && !options.IsRoot {
+		// No TypeScript rules, no need to query for dependencies etc, so just exit early.
+		return changed, nil
+	}
 	rulesWithSrcs := []*build.Rule{}
 	for _, r := range rules {
 		srcs := r.Attr("srcs")
