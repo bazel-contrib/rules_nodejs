@@ -1,7 +1,7 @@
 {
     "description": "Monorepo for TypeScript Bazel support. Published packages are in subdirectories under internal/",
     "private": true,
-    "version": "0.20.1",
+    "version": "0.20.2",
     "dependencies": {
         "jasmine-core": "2.8.0",
         "karma": "alexeagle/karma#fa1a84ac881485b5657cb669e9b4e5da77b79f0a",
@@ -11,7 +11,7 @@
         "karma-requirejs": "1.1.0",
         "karma-sauce-launcher": "1.2.0",
         "karma-sourcemap-loader": "0.3.7",
-        "protobufjs": "5.0.0",
+        "protobufjs": "5.0.3",
         "requirejs": "2.3.5",
         "source-map-support": "0.5.9",
         "tmp": "0.0.33",

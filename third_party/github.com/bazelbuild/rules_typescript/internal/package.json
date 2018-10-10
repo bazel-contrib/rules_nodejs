@@ -5,8 +5,8 @@
   "license": "Apache-2.0",
   "version": "0.0.0-PLACEHOLDER",
   "keywords": [
-      "typescript",
-      "bazel"
+    "typescript",
+    "bazel"
   ],
   "main": "./tsc_wrapped/index.js",
   "typings": "./tsc_wrapped/index.d.ts",
@@ -14,7 +14,7 @@
     "typescript": ">=2.4.2"
   },
   "dependencies": {
-    "protobufjs": "5.0.0",
+    "protobufjs": "5.0.3",
     "source-map-support": "0.5.9",
     "tsickle": "0.28.0",
     "tsutils": "2.27.2"
@@ -23,8 +23,8 @@
     "@types/jasmine": "2.8.2",
     "@types/node": "7.0.18",
     "@types/tmp": "0.0.33",
-    "typescript": "2.7.2",
-    "tmp": "0.0.33"
+    "tmp": "0.0.33",
+    "typescript": "2.7.2"
   },
   "scripts": {
     "postinstall": "node ./check_version.js"
