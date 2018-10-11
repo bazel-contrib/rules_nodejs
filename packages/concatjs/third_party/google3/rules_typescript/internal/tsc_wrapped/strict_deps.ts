@@ -25,11 +25,6 @@ export interface StrictDepsPluginConfig {
   compilationTargetSrc: string[];
   allowedStrictDeps: string[];
   rootDir: string;
-  // This flag turns off strict deps checking on imports from 'goog:*'
-  // This schema is used by clutz to generate a bridge with closure modules.
-  // There is no good reason to use this flag, it is only used for gradual
-  // rolling out of the strictness checks.
-  skipGoogSchemeDepsChecking: boolean;
   // Paths where users may freely import without declared dependencies.
   // This is used in Bazel where dependencies on node_modules may be
   // undeclared.
@@ -64,8 +59,7 @@ export const PLUGIN: pluginApi.Plugin = {
       perfTrace.wrap('checkModuleDeps', () => {
         result.push(...checkModuleDeps(
             sourceFile, program.getTypeChecker(), config.allowedStrictDeps,
-            config.rootDir, config.skipGoogSchemeDepsChecking,
-            config.ignoredFilesPrefixes));
+            config.rootDir, config.ignoredFilesPrefixes));
       });
       return result;
     };
@@ -76,8 +70,7 @@ export const PLUGIN: pluginApi.Plugin = {
 // Exported for testing
 export function checkModuleDeps(
     sf: ts.SourceFile, tc: ts.TypeChecker, allowedDeps: string[],
-    rootDir: string, skipGoogSchemeDepsChecking: boolean,
-    ignoredFilesPrefixes: string[] = []): ts.Diagnostic[] {
+    rootDir: string, ignoredFilesPrefixes: string[] = []): ts.Diagnostic[] {
   function stripExt(fn: string) {
     return fn.replace(/(\.d)?\.tsx?$/, '');
   }
@@ -93,11 +86,6 @@ export function checkModuleDeps(
     const id = stmt as ts.ImportDeclaration | ts.ExportDeclaration;
     const modSpec = id.moduleSpecifier;
     if (!modSpec) continue;  // E.g. a bare "export {x};"
-
-    if (ts.isStringLiteral(modSpec) && modSpec.text.startsWith('goog:') &&
-        skipGoogSchemeDepsChecking) {
-      continue;
-    }
 
     const sym = tc.getSymbolAtLocation(modSpec);
     if (!sym || !sym.declarations || sym.declarations.length < 1) {
