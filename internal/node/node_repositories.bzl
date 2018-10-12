@@ -120,7 +120,7 @@ def _download_node(repository_ctx):
   Args:
     repository_ctx: The repository rule context
   """
-  if repository_ctx.attr.node_path != "":
+  if repository_ctx.attr.vendored_node:
     return
 
   host = os_name(repository_ctx)
@@ -148,7 +148,7 @@ def _download_yarn(repository_ctx):
   Args:
     repository_ctx: The repository rule context
   """
-  if repository_ctx.attr.yarn_path != "":
+  if repository_ctx.attr.vendored_yarn:
     return
 
   yarn_version = repository_ctx.attr.yarn_version
@@ -181,12 +181,36 @@ def _prepare_node(repository_ctx):
     repository_ctx: The repository rule context
   """
   is_windows = os_name(repository_ctx).find("windows") != -1
-  node_exec = "{}/bin/node".format(NODE_DIR) if not is_windows else "{}/node.exe".format(NODE_DIR)
-  npm_script = "{}/bin/npm".format(NODE_DIR) if not is_windows else "{}/node_modules/npm/bin/npm-cli.js".format(NODE_DIR)
-  yarn_script = "{}/bin/yarn.js".format(YARN_DIR)
+  if repository_ctx.attr.vendored_node:
+    node_exec = "/".join([f for f in [
+        "../../..",
+        repository_ctx.attr.vendored_node.workspace_root,
+        repository_ctx.attr.vendored_node.package,
+        repository_ctx.attr.vendored_node.name,
+        "bin/node" if not is_windows else "node.exe"] if f])
+    npm_script = "/".join([f for f in [
+        "../../..",
+        repository_ctx.attr.vendored_node.workspace_root,
+        repository_ctx.attr.vendored_node.package,
+        repository_ctx.attr.vendored_node.name,
+        "bin/npm" if not is_windows else "node_modules/npm/bin/npm-cli.js"] if f])
+    yarn_script = "/".join([f for f in [
+        "../../..",
+        repository_ctx.attr.vendored_yarn.workspace_root,
+        repository_ctx.attr.vendored_yarn.package,
+        repository_ctx.attr.vendored_yarn.name,
+        "bin/yarn.js"] if f])
+  else:
+    node_exec = "{}/bin/node".format(NODE_DIR) if not is_windows else "{}/node.exe".format(NODE_DIR)
+    npm_script = "{}/bin/npm".format(NODE_DIR) if not is_windows else "{}/node_modules/npm/bin/npm-cli.js".format(NODE_DIR)
+    yarn_script = "{}/bin/yarn.js".format(YARN_DIR)
   node_entry = "bin/node" if not is_windows else "bin/node.cmd"
   npm_node_repositories_entry = "bin/npm_node_repositories" if not is_windows else "bin/npm_node_repositories.cmd"
   yarn_node_repositories_entry = "bin/yarn_node_repositories" if not is_windows else "bin/yarn_node_repositories.cmd"
+
+  node_exec_relative = node_exec if repository_ctx.attr.vendored_node else paths.relativize(node_exec, "bin")
+  npm_script_relative = npm_script if repository_ctx.attr.vendored_node else paths.relativize(npm_script, "bin")
+  yarn_script_relative = yarn_script if repository_ctx.attr.vendored_yarn else paths.relativize(yarn_script, "bin")
 
   if not repository_ctx.attr.preserve_symlinks:
     print("\nWARNING: The preserve_symlinks option is deprecated and will go away in the future.\n")
@@ -259,7 +283,7 @@ export PATH="$SCRIPT_DIR":$PATH
 "$SCRIPT_DIR/{node}" "$SCRIPT_DIR/{script}" "$SCRIPT_DIR" "$@"
 """.format(
     get_script_dir = GET_SCRIPT_DIR,
-    node = paths.relativize(node_exec, "bin"),
+    node = node_exec_relative,
     script = "node.js"))
   else:
     # Sets PATH for node, npm & yarn and run user script
@@ -268,7 +292,7 @@ export PATH="$SCRIPT_DIR":$PATH
 SET SCRIPT_DIR=%~dp0
 SET PATH=%SCRIPT_DIR%;%PATH%
 CALL "%SCRIPT_DIR%\\{node}" %*
-""".format(node = paths.relativize(node_exec, "bin")))
+""".format(node = node_exec_relative))
 
   # Shell script to set repository arguments for node used by nodejs_binary & nodejs_test launcher
   repository_ctx.file("bin/node_args.sh", content="""#!/bin/bash
@@ -290,7 +314,7 @@ export NODE_REPOSITORY_ARGS={}
 """.format(
     get_script_dir = GET_SCRIPT_DIR,
     node = paths.relativize(node_entry, "bin"),
-    script = paths.relativize(npm_script, "bin")),
+    script = npm_script_relative),
     executable = True)
     # Npm entry point for node_repositories
     repository_ctx.file("bin/npm_node_repositories", content="""#!/bin/bash
@@ -303,7 +327,7 @@ echo Running npm "$@" in {root}
 """.format(
     root = repository_ctx.path(package_json).dirname,
     node = paths.relativize(node_entry, "bin"),
-    script = paths.relativize(npm_script, "bin"))
+    script = npm_script_relative)
     for package_json in repository_ctx.attr.package_json]), executable = True)
   else:
     # Npm entry point
@@ -312,7 +336,7 @@ SET SCRIPT_DIR=%~dp0
 "%SCRIPT_DIR%\\{node}" "%SCRIPT_DIR%\\{script}" --scripts-prepend-node-path=false %*
 """.format(
     node = paths.relativize(node_entry, "bin"),
-    script = paths.relativize(npm_script, "bin")),
+    script = npm_script_relative),
     executable = True)
     # Npm entry point for node_repositories
     repository_ctx.file("bin/npm_node_repositories.cmd", content="""@echo off
@@ -325,7 +349,7 @@ if %errorlevel% neq 0 exit /b %errorlevel%
 """.format(
     root = repository_ctx.path(package_json).dirname,
     node = paths.relativize(node_entry, "bin"),
-    script = paths.relativize(npm_script, "bin"))
+    script = npm_script_relative)
     for package_json in repository_ctx.attr.package_json]), executable = True)
 
   # This template file is used by the packager tool and the npm_package rule.
@@ -347,7 +371,7 @@ if %errorlevel% neq 0 exit /b %errorlevel%
 """.format(
     get_script_dir = GET_SCRIPT_DIR,
     node = paths.relativize(node_entry, "bin"),
-    script = paths.relativize(yarn_script, "bin")),
+    script = yarn_script_relative),
     executable = True)
     # Yarn entry point for node_repositories
     repository_ctx.file("bin/yarn_node_repositories", content="""#!/bin/bash
@@ -359,7 +383,7 @@ echo Running yarn --cwd "{root}" "$@"
 """.format(
     root = repository_ctx.path(package_json).dirname,
     node = paths.relativize(node_entry, "bin"),
-    script = paths.relativize(yarn_script, "bin"))
+    script = yarn_script_relative)
     for package_json in repository_ctx.attr.package_json]), executable = True)
   else:
     # Yarn entry point
@@ -368,7 +392,7 @@ SET SCRIPT_DIR=%~dp0
 "%SCRIPT_DIR%\\{node}" "%SCRIPT_DIR%\\{script}" %*
 """.format(
     node = paths.relativize(node_entry, "bin"),
-    script = paths.relativize(yarn_script, "bin")),
+    script = yarn_script_relative),
     executable = True)
     # Yarn entry point for node_repositories
     repository_ctx.file("bin/yarn_node_repositories.cmd", content="""@echo off
@@ -380,7 +404,7 @@ if %errorlevel% neq 0 exit /b %errorlevel%
 """.format(
     root = repository_ctx.path(package_json).dirname,
     node = paths.relativize(node_entry, "bin"),
-    script = paths.relativize(yarn_script, "bin"))
+    script = yarn_script_relative)
     for package_json in repository_ctx.attr.package_json]), executable = True)
 
 def _nodejs_repo_impl(repository_ctx):
@@ -395,8 +419,8 @@ _nodejs_repo = repository_rule(
     # Options to override node version
     "node_version": attr.string(default = DEFAULT_NODE_VERSION),
     "yarn_version": attr.string(default = DEFAULT_YARN_VERSION),
-    "node_path": attr.string(),
-    "yarn_path": attr.string(),
+    "vendored_node": attr.label(allow_single_file = True),
+    "vendored_yarn": attr.label(allow_single_file = True),
     "node_repositories": attr.string_list_dict(default = NODE_REPOSITORIES),
     "yarn_repositories": attr.string_list_dict(default = YARN_REPOSITORIES),
     "node_urls": attr.string_list(default = NODE_URLS),
@@ -421,8 +445,8 @@ def node_repositories(
   package_json=[],
   node_version=DEFAULT_NODE_VERSION,
   yarn_version=DEFAULT_YARN_VERSION,
-  node_path="",
-  yarn_path="",
+  vendored_node=None,
+  vendored_yarn=None,
   node_repositories=NODE_REPOSITORIES,
   yarn_repositories=YARN_REPOSITORIES,
   node_urls=NODE_URLS,
@@ -442,7 +466,7 @@ def node_repositories(
   - Using a custom version:
     You can pass in a custom list of NodeJS and/or Yarn repositories and URLs for node_resositories to use.
   - Using a local version:
-    To avoid downloads, you can check in vendored copies of NodeJS and/or Yarn and set node_path and or yarn_path
+    To avoid downloads, you can check in vendored copies of NodeJS and/or Yarn and set vendored_node and or vendored_yarn
     to point to those before calling node_repositories.
 
   This rule exposes the `@nodejs` workspace containing some rules the user can call later:
@@ -479,9 +503,9 @@ def node_repositories(
 
     yarn_version: optional; the specific version of Yarn to install.
 
-    node_path: optional; the local path to a pre-installed NodeJS runtime.
+    vendored_node: optional; the local path to a pre-installed NodeJS runtime.
 
-    yarn_path: optional; the local path to a pre-installed yarn tool.
+    vendored_yarn: optional; the local path to a pre-installed yarn tool.
 
     node_repositories: optional; custom list of node repositories to use.
 
@@ -508,8 +532,8 @@ def node_repositories(
     package_json = package_json,
     node_version = node_version,
     yarn_version = yarn_version,
-    node_path = node_path,
-    yarn_path = yarn_path,
+    vendored_node = vendored_node,
+    vendored_yarn = vendored_yarn,
     node_repositories = node_repositories,
     yarn_repositories = yarn_repositories,
     node_urls = node_urls,
