@@ -38,6 +38,11 @@ local_repository(
 )
 
 local_repository(
+    name = "vendored_node_example",
+    path = "examples/vendored_node",
+)
+
+local_repository(
     name = "node_loader_e2e_no_preserve_symlinks",
     path = "internal/e2e/node_loader_no_preserve_symlinks",
 )

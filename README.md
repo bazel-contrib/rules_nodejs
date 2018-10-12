@@ -125,13 +125,24 @@ them from the internet. This is what we do internally at Google.
 ```python
 load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
 
-# NOTE: this rule does NOT install your npm dependencies into your node_modules folder.
-# You must still run the package manager to do this.
+# Point node_repositories to use locally installed versions of Node.js and Yarn.
+# The vendored_node and vendored_yarn labels point to the extracted contents of
+# https://nodejs.org/dist/v10.12.0/node-v10.12.0-linux-x64.tar.xz and
+# https://github.com/yarnpkg/yarn/releases/download/v1.10.0/yarn-v1.10.0.tar.gz
+# respectively. NOTE: node-v10.12.0-linux-x64 will only work on Linux.
 node_repositories(
-  node_path = "path/to/node/base",
-  yarn_path = "path/to/yarn/base",
+  vendored_node = "@wksp//:third_party/node-v10.12.0-linux-x64",
+  vendored_yarn = "@wksp//:third_party/yarn-v1.10.0",
   package_json = ["//:package.json"])
 ```
+
+In this case, the locally installed Node.js and Yarn are located in the `wksp` workspace in
+the `third_party/node-v10.12.0-linux-x64` and `third_party/yarn-v1.10.0` folders. When using
+`vendored_node`, you will be restricted to a single platform. `vendored_yarn` on the other hand,
+is platform independent. See `/examples/vendored_node` in this repository for an example of this
+in use.
+
+NOTE: Vendored Node.js and Yarn are not compatible with Remote Bazel Execution.
 
 ## Dependencies
 
