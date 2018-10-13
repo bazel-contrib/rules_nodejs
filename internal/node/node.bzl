@@ -128,6 +128,13 @@ def _nodejs_binary_impl(ctx):
         "TEMPLATED_env_vars": env_vars,
         "TEMPLATED_expected_exit_code": str(expected_exit_code),
     }
+
+    files = sources + [node, ctx.outputs.loader, ctx.file._repository_args] + node_modules + ctx.files._node_runfiles
+
+    if ctx.attr.config != None:
+        files += [ctx.file.config]
+        substitutions["TEMPLATED_args"] += " " + ctx.attr.config.files.to_list()[0].path
+
     ctx.actions.expand_template(
         template=ctx.file._launcher_template,
         output=ctx.outputs.script,
@@ -135,7 +142,7 @@ def _nodejs_binary_impl(ctx):
         is_executable=True,
     )
 
-    runfiles = depset(sources + [node, ctx.outputs.loader, ctx.file._repository_args] + node_modules + ctx.files._node_runfiles)
+    runfiles = depset(files)
 
     return [DefaultInfo(
         executable = ctx.outputs.script,
@@ -249,6 +256,10 @@ _NODEJS_EXECUTABLE_ATTRS = {
         """,
         default = Label("//:node_modules_none"),
     ),
+    "config": attr.label(
+        doc = """The configuration path of jasmine""",
+        allow_files = True,
+        single_file = True),
     "node": attr.label(
         doc = """The node entry point target.""",
         default = Label("@nodejs//:node"),
