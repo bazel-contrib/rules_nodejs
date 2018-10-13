@@ -14,34 +14,9 @@
 
 package(default_visibility = ["//visibility:public"])
 
-load(":mocha_node_test.bzl", "mocha_node_test")
-load("//internal/js_library:js_library.bzl", "js_library")
-
 exports_files([
     "mocha_runner.js",
     # Exported to be consumed for generating skydoc.
     "mocha_node_test.bzl",
 ])
-
-js_library(
-    name = "exampleLib",
-    srcs = glob(["exampleLib/*.js"]),
-    module_name = "example-lib",
-    module_root = "exampleLib/index.js",
-)
-
-mocha_node_test(
-    name = "test",
-    data = [
-        ":testOne.js",
-        ":testTwo.js",
-        ":exampleLib",
-    ],
-    test_entrypoints = [
-        "internal/mocha_node_test/testOne.js",
-        "internal/mocha_node_test/testTwo.js",
-    ],
-    node_modules = "//internal/test:node_modules",
-)
-
 

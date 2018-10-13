@@ -33,6 +33,18 @@ def mocha_node_test(
   data = [],
   expected_exit_code = 0,
   **kwargs):
+  """Runs tests in NodeJS using the Mocha test framework.
+
+  To debug the test, see debugging notes in `nodejs_test`.
+
+  Args:
+    name: name of the resulting label.
+    test_entrypoints: full paths to your files containing mocha tests, NOT containing the preceding workspace name.
+    data: Runtime dependencies that the mocha tests need access to.
+    expected_exit_code: The expected exit code for the test. Defaults to 0.
+    **kwargs: remaining arguments passed to the test rule
+  """
+
 
   all_data = data
   all_data += [Label("//internal/mocha_node_test:mocha_runner.js")]
