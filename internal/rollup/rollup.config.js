@@ -168,8 +168,8 @@ const config = {
     {resolveId: resolveBazel},
     nodeResolve(
         {jsnext: true, module: true, customResolveOptions: {moduleDirectory: nodeModulesRoot}}),
-    {resolveId: notResolved},
     commonjs(),
+    {resolveId: notResolved},
     sourcemaps(),
   ])
 }
