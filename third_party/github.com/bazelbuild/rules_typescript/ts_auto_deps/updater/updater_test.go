@@ -324,6 +324,81 @@ func TestAddDep(t *testing.T) {
 	}
 }
 
+func TestRemoveSourcesUsed(t *testing.T) {
+	tests := []struct {
+		name         string
+		buildFile    string
+		ruleKind     string
+		attrName     string
+		srcs         srcSet
+		expectedSrcs srcSet
+	}{
+		{
+			name:         "RemovesSources",
+			buildFile:    `ts_library(name = "lib", srcs = ["foo.ts", "bar.ts"])`,
+			ruleKind:     "ts_library",
+			attrName:     "srcs",
+			srcs:         map[string]bool{"foo.ts": true},
+			expectedSrcs: map[string]bool{},
+		},
+		{
+			name:         "WrongRuleKind",
+			buildFile:    `ts_library(name = "lib", srcs = ["foo.ts", "bar.ts"])`,
+			ruleKind:     "ng_module",
+			attrName:     "srcs",
+			srcs:         map[string]bool{"foo.ts": true},
+			expectedSrcs: map[string]bool{"foo.ts": true},
+		},
+		{
+			name:         "WrongAttrName",
+			buildFile:    `ts_library(name = "lib", srcs = ["foo.ts", "bar.ts"])`,
+			ruleKind:     "ts_library",
+			attrName:     "deps",
+			srcs:         map[string]bool{"foo.ts": true},
+			expectedSrcs: map[string]bool{"foo.ts": true},
+		},
+		{
+			name: "MultipleRules",
+			buildFile: `ts_library(name = "lib", srcs = ["foo.ts"])
+			ts_library(name = "lib2", srcs = ["bar.ts"])`,
+			ruleKind:     "ts_library",
+			attrName:     "srcs",
+			srcs:         map[string]bool{"foo.ts": true, "bar.ts": true},
+			expectedSrcs: map[string]bool{},
+		},
+		{
+			name:         "ConcatenatedLists",
+			buildFile:    `ts_library(name = "lib", srcs = ["foo.ts"] + ["bar.ts"])`,
+			ruleKind:     "ts_library",
+			attrName:     "srcs",
+			srcs:         map[string]bool{"foo.ts": true, "bar.ts": true},
+			expectedSrcs: map[string]bool{},
+		},
+		{
+			name:         "ColonReferences",
+			buildFile:    `ts_library(name = "lib", srcs = [":foo.ts", "bar.ts"])`,
+			ruleKind:     "ts_library",
+			attrName:     "srcs",
+			srcs:         map[string]bool{"foo.ts": true},
+			expectedSrcs: map[string]bool{},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			bld, err := build.ParseBuild("foo/bar/BUILD",
+				[]byte(test.buildFile))
+			if err != nil {
+				t.Fatalf("parse failure: %v", err)
+			}
+
+			removeSourcesUsed(bld, test.ruleKind, test.attrName, test.srcs)
+			if !reflect.DeepEqual(test.srcs, test.expectedSrcs) {
+				t.Errorf("expected removeSourcesUsed() = %v, expected %v", test.srcs, test.expectedSrcs)
+			}
+		})
+	}
+}
+
 func TestUpdateWebAssets(t *testing.T) {
 	ctx := context.Background()
 	bld, err := build.ParseBuild("foo/bar/BUILD",
