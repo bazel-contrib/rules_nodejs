@@ -784,14 +784,13 @@ func allTSRules(bld *build.File) []*build.Rule {
 // attrName from the given set of sources.
 func removeSourcesUsed(bld *build.File, ruleKind, attrName string, srcs srcSet) {
 	for _, rule := range buildRules(bld, ruleKind) {
-		ruleSrcs := rule.AttrStrings(attrName)
-		for _, s := range ruleSrcs {
+		for s, _ := range srcs {
+			pkg := filepath.Dir(bld.Path)
+			// Handles ":foo.ts" references, and concatenated lists [foo.ts] + [bar.ts]
 			// TODO(martinprobst): What to do about sources that don't seem to exist?
-			if strings.HasPrefix(s, ":") {
-				s = s[1:] // Recognize ":foo.ts" style references to sources
+			if edit.ListFind(rule.Attr(attrName), s, pkg) != nil {
+				delete(srcs, s)
 			}
-			// Might be generated srcs.
-			delete(srcs, s)
 		}
 	}
 }
