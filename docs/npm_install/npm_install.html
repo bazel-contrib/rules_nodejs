@@ -201,7 +201,7 @@ as the package manager.</p>
 
           <h2 id="yarn_install">yarn_install</h2>
 
-          <pre>yarn_install(<a href="#yarn_install.name">name</a>, <a href="#yarn_install.data">data</a>, <a href="#yarn_install.manual_build_file_contents">manual_build_file_contents</a>, <a href="#yarn_install.package_json">package_json</a>, <a href="#yarn_install.timeout">timeout</a>, <a href="#yarn_install.yarn_lock">yarn_lock</a>)</pre>
+          <pre>yarn_install(<a href="#yarn_install.name">name</a>, <a href="#yarn_install.data">data</a>, <a href="#yarn_install.manual_build_file_contents">manual_build_file_contents</a>, <a href="#yarn_install.package_json">package_json</a>, <a href="#yarn_install.timeout">timeout</a>, <a href="#yarn_install.use_global_yarn_cache">use_global_yarn_cache</a>, <a href="#yarn_install.yarn_lock">yarn_lock</a>)</pre>
 
           <p>Runs yarn install during workspace setup.</p>
 
@@ -255,6 +255,18 @@ as the package manager.</p>
         <p><code>Integer; Optional; Default is 600</code></p>
         <p>Maximum duration of the command "yarn" in seconds.
             (default is 600 seconds).</p>
+      </td>
+    </tr>
+    <tr id="yarn_install.use_global_yarn_cache">
+      <td><code>use_global_yarn_cache</code></td>
+      <td>
+        <p><code>Boolean; Optional; Default is True</code></p>
+        <p>Use the global yarn cache on the system.
+            The cache lets you avoid downloading packages multiple times.
+            However, it can introduce non-hermeticity, and the yarn cache can
+            have bugs.
+            Disabling this attribute causes every run of yarn to have a unique
+            cache_directory.</p>
       </td>
     </tr>
     <tr id="yarn_install.yarn_lock">
