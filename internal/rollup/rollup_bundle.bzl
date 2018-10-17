@@ -423,7 +423,7 @@ def _rollup_bundle(ctx):
 
   else:
     # Generate the bundles
-    rollup_config = write_rollup_config(ctx)
+    rollup_config = write_rollup_config(ctx, output_format = ctx.attr.output_format)
     run_rollup(ctx, collect_es6_sources(ctx), rollup_config, ctx.outputs.build_es6)
     _run_tsc(ctx, ctx.outputs.build_es6, ctx.outputs.build_es5)
     source_map = run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min)
@@ -571,6 +571,12 @@ ROLLUP_ATTRS = {
         Rollup doc: "The variable name, representing your iife/umd bundle, by which other scripts on the same page can access it."
 
         This is passed to the `output.name` setting in Rollup.""",),
+    "output_format": attr.string(
+        doc = """The module format of the rollup bundle being generated.
+        This is only used if not using additional_entry_points""",
+        default = "iife",
+        values = ["amd", "cjs", "esm", "iife", "umd", "system"],
+    ),   
     "_rollup": attr.label(
         executable = True,
         cfg="host",
