@@ -89,6 +89,11 @@ def _write_loader_script(ctx):
       is_executable=True,
   )
 
+def _strip_external(path):
+  if path.startswith("external/"):
+    path = path[9:]
+  return path
+
 def _nodejs_binary_impl(ctx):
     node = ctx.file.node
     node_modules = ctx.files.node_modules
@@ -119,11 +124,11 @@ def _nodejs_binary_impl(ctx):
       expected_exit_code = ctx.attr.expected_exit_code
 
     substitutions = {
-        "TEMPLATED_node": ctx.workspace_name + "/" + node.path,
+        "TEMPLATED_node": _strip_external(node.path),
         "TEMPLATED_args": " ".join([
             expand_location_into_runfiles(ctx, a)
             for a in ctx.attr.templated_args]),
-        "TEMPLATED_repository_args": ctx.workspace_name + "/" + ctx.file._repository_args.path,
+        "TEMPLATED_repository_args": _strip_external(ctx.file._repository_args.path),
         "TEMPLATED_script_path": script_path,
         "TEMPLATED_env_vars": env_vars,
         "TEMPLATED_expected_exit_code": str(expected_exit_code),

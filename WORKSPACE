@@ -37,11 +37,6 @@ local_repository(
     path = "examples/packages",
 )
 
-local_repository(
-    name = "node_resolve_dep",
-    path = "internal/test/node_resolve_dep",
-)
-
 load("//:defs.bzl", "node_repositories", "yarn_install", "npm_install")
 
 # Install a hermetic version of node.

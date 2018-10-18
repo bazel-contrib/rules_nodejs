@@ -1,4 +1,11 @@
+# Print test logs for failed tests
 test --test_output=errors
+
+# Don't create symlinks like bazel-out in the project.
+# These cause VSCode to traverse a massive tree, opening file handles and
+# eventually a surprising failure with auto-discovery of the C++ toolchain in
+# MacOS High Sierra.
+# See https://github.com/bazelbuild/bazel/issues/4603
 build --symlink_prefix=/
 
 # Mock versoning command to test the --stamp behavior
@@ -6,3 +13,7 @@ build --workspace_status_command="echo BUILD_SCM_VERSION 1.2.3"
 
 # Enable debugging tests with --config=debug
 test:debug --test_arg=--node_options=--inspect-brk --test_output=streamed --test_strategy=exclusive --test_timeout=9999 --nocache_test_results
+
+# Turn off legacy external runfiles
+run --nolegacy_external_runfiles
+test --nolegacy_external_runfiles

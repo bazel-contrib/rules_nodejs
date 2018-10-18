@@ -2,5 +2,8 @@
   "description": "runtime dependencies for program example",
   "devDependencies": {
     "jasmine": "~2.8.0"
+  },
+  "scripts": {
+    "test": "bazel run @nodejs//:yarn && bazel test //..."
   }
 }

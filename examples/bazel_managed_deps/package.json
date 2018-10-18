@@ -3,5 +3,8 @@
   "devDependencies": {
     "jasmine": "^3.2.0",
     "typescript": "^3.0.1"
+  },
+  "scripts": {
+    "test": "bazel test //..."
   }
 }

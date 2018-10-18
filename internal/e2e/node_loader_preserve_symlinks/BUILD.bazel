@@ -4,7 +4,7 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test", "nodejs_binary
 
 filegroup(
     name = "node_modules",
-    srcs = glob(["node_modules/**/*"]) + ["@node_resolve_dep//:node_modules"],
+    srcs = glob(["node_modules/**/*"]),
 )
 
 jasmine_node_test(
