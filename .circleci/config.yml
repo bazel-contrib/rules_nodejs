@@ -11,15 +11,21 @@
 # If you change the `docker_image` version, also change the `cache_key` version
 var_1: &docker_image angular/ngcontainer:0.7.0
 var_2: &cache_key angular/ngcontainer:0.7.0-{{ .Branch }}-{{ checksum "yarn.lock" }}-examples/rollup:{{ checksum "examples/rollup/yarn.lock" }}-examples/program:{{ checksum "examples/program/yarn.lock" }}-internal/test:{{ checksum "internal/test/yarn.lock" }}-internal/e2e/node_loader_no_preserve_symlinks:{{ checksum "internal/e2e/node_loader_no_preserve_symlinks/yarn.lock" }}-internal/e2e/node_loader_preserve_symlinks:{{ checksum "internal/e2e/node_loader_preserve_symlinks/yarn.lock" }}
+
 # Move node binaries out of the way to enforce that Bazel uses
 # only the hermetic ones it downloads
-var_4: &hide_node_and_yarn_local_binaries
+var_3: &hide_node_and_yarn_local_binaries
   run:
     name: Move node, npm, and yarn binaries
     command: |
       sudo mv /usr/local/bin/node /usr/local/bin/node_
       sudo mv /usr/local/bin/npm /usr/local/bin/npm_
       sudo mv /usr/local/bin/yarn /usr/local/bin/yarn_
+
+var_4: &setup_bazelrc
+  run:
+    name: Setup /etc/bazel.bazelrc
+    command: sudo cp .circleci/bazel.rc /etc/bazel.bazelrc
 
 # Settings common to each job
 anchor_1: &job_defaults
@@ -46,7 +52,7 @@ jobs:
     steps:
       - checkout:
           <<: *post_checkout
-      - run: sudo cp .circleci/bazel.rc /etc/bazel.bazelrc
+      - *setup_bazelrc
 
       # Run the skylark linter to check our Bazel rules
       - run: 'yarn skylint ||
@@ -65,7 +71,7 @@ jobs:
     steps:
       - checkout:
           <<: *post_checkout
-      - run: sudo cp .circleci/bazel.rc /etc/bazel.bazelrc
+      - *setup_bazelrc
       - *hide_node_and_yarn_local_binaries
       - restore_cache:
           key: *cache_key
@@ -107,7 +113,7 @@ jobs:
     steps:
       - checkout:
           <<: *post_checkout
-      - run: sudo cp .circleci/bazel.rc /etc/bazel.bazelrc
+      - *setup_bazelrc
 
       # Not using "bazel run @nodejs//:yarn test" as will attempt to run
       # the "test" script on all folder listed in node_repositories()

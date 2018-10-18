@@ -19,11 +19,6 @@ node_repositories(
   preserve_symlinks = True,
 )
 
-local_repository(
-    name = "node_resolve_dep",
-    path = "node_modules/node-resolve-dep",
-)
-
 yarn_install(
     name = "node_loader_e2e_preserve_symlinks_deps",
     package_json = "//deps:package.json",
