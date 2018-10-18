@@ -27,24 +27,26 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 VERSION = "0.15.1"
 
 def check_rules_nodejs_version(minimum_version_string):
-  """
-  Verify that a minimum build_bazel_rules_nodejs is loaded a WORKSPACE.
+    """
+    Verify that a minimum build_bazel_rules_nodejs is loaded a WORKSPACE.
 
-  This should be called from the `WORKSPACE` file so that the build fails as
-  early as possible. For example:
+    This should be called from the `WORKSPACE` file so that the build fails as
+    early as possible. For example:
 
-  ```
-  # in WORKSPACE:
-  load("@build_bazel_rules_nodejs//:package.bzl", "check_rules_nodejs_version")
-  check_rules_nodejs_version("0.11.2")
-  ```
+    ```
+    # in WORKSPACE:
+    load("@build_bazel_rules_nodejs//:package.bzl", "check_rules_nodejs_version")
+    check_rules_nodejs_version("0.11.2")
+    ```
 
-  Args:
-    minimum_version_string: a string indicating the minimum version
-  """
-  if not check_version(VERSION, minimum_version_string):
-    fail("\nCurrent build_bazel_rules_nodejs version is {}, expected at least {}\n".format(
-        VERSION, minimum_version_string))
+    Args:
+      minimum_version_string: a string indicating the minimum version
+    """
+    if not check_version(VERSION, minimum_version_string):
+        fail("\nCurrent build_bazel_rules_nodejs version is {}, expected at least {}\n".format(
+            VERSION,
+            minimum_version_string,
+        ))
 
 def rules_nodejs_dependencies():
     """
@@ -107,8 +109,8 @@ def rules_nodejs_dev_dependencies():
     # Go is a transitive dependency of buildifier
     http_archive(
         name = "io_bazel_rules_go",
-        urls = ["https://github.com/bazelbuild/rules_go/releases/download/0.13.0/rules_go-0.13.0.tar.gz"],
-        sha256 = "ba79c532ac400cefd1859cbc8a9829346aa69e3b99482cd5a54432092cbc3933",
+        url = "https://github.com/bazelbuild/rules_go/releases/download/0.16.0/rules_go-0.16.0.tar.gz",
+        sha256 = "ee5fe78fe417c685ecb77a0a725dc9f6040ae5beb44a0ba4ddb55453aad23a8a",
     )
 
     # Fetching the Bazel source code allows us to compile the Skylark linter
