@@ -7,7 +7,11 @@ def _get_path(ctx, file):
   if not file.short_path.startswith(ctx.label.package):
     fail("Unable to recover a relative path: %s did not start with %s" % (file.short_path, ctx.label.package))
 
-  path = file.short_path[len(ctx.label.package):]
+  trim = 0
+  if len(ctx.label.package) > 0:
+    trim = len(ctx.label.package) + 1 # +1 for the slash
+
+  path = file.short_path[trim:]
   return path
 
 def _write_config(ctx):
