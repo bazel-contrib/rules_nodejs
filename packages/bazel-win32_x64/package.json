@@ -1,0 +1,17 @@
+{
+  "name": "@bazel/bazel-win32_x64",
+  "bin": {
+    "bazel": "./bazel-0.18.0-windows-x86_64.exe"
+  },
+  "//": "Even though the platform is 64-bit, process.platform returns win32",
+  "os": [
+    "win32"
+  ],
+  "version": "0.18.0",
+  "description": "Build and test software of any size, quickly and reliably",
+  "homepage": "https://bazel.build/",
+  "license": "Apache 2.0",
+  "bugs": {
+    "url": "https://github.com/bazelbuild/bazel/issues"
+  }
+}
