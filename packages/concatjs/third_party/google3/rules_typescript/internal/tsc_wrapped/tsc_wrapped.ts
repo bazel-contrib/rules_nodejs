@@ -9,8 +9,7 @@ import * as diagnostics from './diagnostics';
 import {CachedFileLoader, FileCache, FileLoader, UncachedFileLoader} from './file_cache';
 import {wrap} from './perf_trace';
 import {PLUGIN as strictDepsPlugin} from './strict_deps';
-import {BazelOptions, parseTsconfig, resolveNormalizedPath} from './tsconfig';
-import {fixUmdModuleDeclarations} from './umd_module_declaration_transform';
+import {parseTsconfig, resolveNormalizedPath} from './tsconfig';
 import {debug, log, runAsWorker, runWorkerLoop} from './worker';
 
 export function main(args: string[]) {
@@ -141,8 +140,6 @@ function runOneBuild(
   }
   const toEmit = program.getSourceFiles().filter(isCompilationTarget);
   const emitResults: ts.EmitResult[] = [];
-  const afterTransforms = [fixUmdModuleDeclarations(
-      (sf: ts.SourceFile) => compilerHost.amdModuleName(sf))];
 
   if (bazelOpts.tsickle) {
     // The 'tsickle' import above is only used in type positions, so it won't
@@ -161,20 +158,14 @@ function runOneBuild(
     }
     for (const sf of toEmit) {
       emitResults.push(optTsickle.emitWithTsickle(
-          program, compilerHost, compilerHost, options, sf,
-          /*writeFile*/ undefined,
-          /*cancellationToken*/ undefined, /*emitOnlyDtsFiles*/ undefined,
-          {afterTs: afterTransforms}));
+          program, compilerHost, compilerHost, options, sf));
     }
     diags.push(
         ...optTsickle.mergeEmitResults(emitResults as tsickle.EmitResult[])
             .diagnostics);
   } else {
     for (const sf of toEmit) {
-      emitResults.push(program.emit(
-          sf, /*writeFile*/ undefined,
-          /*cancellationToken*/ undefined, /*emitOnlyDtsFiles*/ undefined,
-          {after: afterTransforms}));
+      emitResults.push(program.emit(sf));
     }
 
     for (const d of emitResults) {
