@@ -27,13 +27,13 @@ mocha_node_test(
 
 # Test mocha_opts runs
 
-exports_files([ "mocha.opts", ])
+exports_files(["mocha.opts"])
 
 mocha_node_test(
     name = "underscore_spec_test_with_mocha_opts",
     srcs = ["foo_spec.js"],
+    mocha_opts = ":mocha.opts",
     node_modules = "//internal/test:node_modules",
-    mocha_opts = ":mocha.opts"
 )
 
 # Test mocha_args runs
@@ -41,11 +41,11 @@ mocha_node_test(
 mocha_node_test(
     name = "underscore_spec_test_with_mocha_args",
     srcs = ["foo_spec.js"],
-    node_modules = "//internal/test:node_modules",
     mocha_args = [
         "--reporter",
         "list",
         "--ui",
-        "bdd"
-    ]
+        "bdd",
+    ],
+    node_modules = "//internal/test:node_modules",
 )
