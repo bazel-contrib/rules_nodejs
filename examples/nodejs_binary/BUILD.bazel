@@ -1,6 +1,5 @@
 load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
 load("@build_bazel_rules_nodejs//internal/js_library/v2:js_library.bzl", "js_library")
-load("@build_bazel_rules_nodejs//internal/js_library/v2:babel_executable.bzl", "babel_executable")
 
 js_library(
     name = "msg",
@@ -30,12 +29,19 @@ js_library(
     srcs = ["someLibrary/index.js", "someLibrary/internalFile.js"],
 )
 
-babel_executable(
+nodejs_binary(
     name = "flowBabel",
-    babel_deps = [
-      "@build_bazel_rules_nodejs_js_library_deps//:babel-plugin-transform-flow-strip-types",
-      "@build_bazel_rules_nodejs_js_library_deps//:babel-plugin-transform-es2015-modules-commonjs",
-  ]
+    data = [
+        "@build_bazel_rules_nodejs//internal/js_library/v2:babel.js",
+        "@nodejs_binary_example_deps//:@babel/core",
+        "@nodejs_binary_example_deps//:commander",
+        "@nodejs_binary_example_deps//:mkdirp",
+        "@nodejs_binary_example_deps//:@babel/preset-env",
+        "@nodejs_binary_example_deps//:babel-plugin-transform-flow-strip-types",
+        "@nodejs_binary_example_deps//:babel-plugin-transform-es2015-modules-commonjs",
+    ],
+    entry_point = "build_bazel_rules_nodejs/internal/js_library/v2/babel.js",
+    install_source_map_support = False,
 )
 
 
@@ -56,6 +62,6 @@ nodejs_binary(
         ":someLibrary",
         ":flowLibrary",
     ],
-    entry_point = "build_bazel_rules_nodejs/examples/nodejs_binary/index.js",
+    entry_point = "nodejs_binary_example/index.js",
     install_source_map_support = False,
 )

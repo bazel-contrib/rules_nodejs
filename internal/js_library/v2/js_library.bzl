@@ -7,7 +7,7 @@ def _get_path(ctx, file):
   if not file.short_path.startswith(ctx.label.package):
     fail("Unable to recover a relative path: %s did not start with %s" % (file.short_path, ctx.label.package))
 
-  path = file.short_path[len(ctx.label.package)+1:]
+  path = file.short_path[len(ctx.label.package):]
   return path
 
 def _write_config(ctx):
@@ -35,17 +35,8 @@ def _create_babel_args(ctx, config_path, out_dir):
   args.add_all(all_other_args)
   return args
 
-def _trim(out_dir, src, trim, bin_dir_trim):
-  if src.is_source:
-    src_path = src.path[trim:]
-  else:
-    src_path = src.path[bin_dir_trim:]
-  return paths.join(out_dir, src_path)
-
 def _declare_babel_outputs(ctx, out_dir):
-  trim = len(paths.join(ctx.label.workspace_root, ctx.label.package) + "/")
-  bin_dir_trim = trim + len(ctx.bin_dir.path + "/")
-  return [ctx.actions.declare_file(_trim(out_dir, src, trim, bin_dir_trim)) for src in ctx.files.srcs]
+  return [ctx.actions.declare_file(paths.join(out_dir, _get_path(ctx, src))) for src in ctx.files.srcs]
 
 def _run_babel(ctx, inputs, outputs, args, mnemonic, description):
   ctx.actions.run(
