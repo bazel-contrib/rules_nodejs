@@ -1,0 +1,16 @@
+{
+  "name": "@bazel/bazel-linux_x64",
+  "bin": {
+    "bazel": "./bazel-0.18.0-linux-x86_64"
+  },
+  "os": [
+    "linux"
+  ],
+  "version": "0.18.0",
+  "description": "Build and test software of any size, quickly and reliably",
+  "homepage": "https://bazel.build/",
+  "license": "Apache 2.0",
+  "bugs": {
+    "url": "https://github.com/bazelbuild/bazel/issues"
+  }
+}
