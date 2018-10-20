@@ -3,8 +3,19 @@
 
 load("@bazel_skylib//:lib.bzl", "paths")
 
+def _get_path(ctx, file):
+  if not file.short_path.startswith(ctx.label.package):
+    fail("Unable to recover a relative path: %s did not start with %s" % (file.short_path, ctx.label.package))
+
+  trim = 0
+  if len(ctx.label.package) > 0:
+    trim = len(ctx.label.package) + 1 # +1 for the slash
+
+  path = file.short_path[trim:]
+  return path
+
 def _write_config(ctx):
-  output = ctx.actions.declare_file(paths.join(ctx.file._babelrc_tmpl.dirname, "_" + ctx.file._babelrc_tmpl.basename))
+  output = ctx.actions.declare_file('%s.babelrc' % ctx.label.name)
   ctx.actions.expand_template(
     output = output,
     template =  ctx.file._babelrc_tmpl,
@@ -20,29 +31,26 @@ def _create_babel_args(ctx, config_path, out_dir):
   args = ctx.actions.args()
   args.add("--out-dir", out)
   args.add("--config-file", config_path)
-  args.add_all(ctx.files.srcs)
+  all_other_args = []
+  for src in ctx.files.srcs:
+    all_other_args.append(src)
+    all_other_args.append(_get_path(ctx,src))
+
+  args.add_all(all_other_args)
   return args
 
-def _trim(out_dir, src, trim, bin_dir_trim):
-  if src.is_source:
-    src_path = src.path[trim:]
-  else:
-    src_path = src.path[bin_dir_trim:]
-  return paths.join(out_dir, src_path)
-
 def _declare_babel_outputs(ctx, out_dir):
-  trim = len(paths.join(ctx.label.workspace_root, ctx.label.package) + "/")
-  bin_dir_trim = trim + len(ctx.bin_dir.path + "/")
-  return [ctx.actions.declare_file(_trim(out_dir, src, trim, bin_dir_trim)) for src in ctx.files.srcs]
+  return [ctx.actions.declare_file(paths.join(out_dir, _get_path(ctx, src))) for src in ctx.files.srcs]
 
 def _run_babel(ctx, inputs, outputs, args, mnemonic, description):
   ctx.actions.run(
-    executable = ctx.executable._babel,
+    executable = ctx.executable.babel,
     inputs = inputs,
     outputs = outputs,
     arguments = [args],
     mnemonic = mnemonic,
     progress_message = "Compiling Javascript (%s) %s" % (description, ctx.label),
+    execution_requirements = { "no-sandbox": ctx.attr.no_sandbox },
   )
 
 def _babel_conversion(ctx, inputs, config, out_dir, mnemonic, description):
@@ -80,7 +88,11 @@ def _collect_sources(ctx, es5_outputs):
 
 
 def _js_library(ctx):
-  config = _write_config(ctx)
+  if ctx.attr.babelrc:
+    config = ctx.file.babelrc
+  else:
+    config = _write_config(ctx)
+
   inputs = ctx.files.srcs + ctx.files.data + [config]
 
   es5_outputs = _es5_conversion(ctx, inputs, config)
@@ -132,7 +144,7 @@ js_library = rule(
         ),
         "module_name": attr.string(),
         "module_root": attr.string(),
-        "_babel": attr.label(
+        "babel": attr.label(
             executable = True,
             cfg="host",
             default = Label("//internal/js_library/v2:babel")
@@ -140,6 +152,15 @@ js_library = rule(
         "_babelrc_tmpl": attr.label(
             allow_single_file = True,
             default = Label("//internal/js_library/v2:babel.rc.js")
+        ),
+        "babelrc": attr.label(
+            allow_single_file = True,
+            mandatory = False,
+            default = None,
+        ),
+        "no_sandbox": attr.string(
+            doc = """The string value of no-sandbox in the execution_requirements dict of babelification""",
+            default = "0"
         ),
     },
 )

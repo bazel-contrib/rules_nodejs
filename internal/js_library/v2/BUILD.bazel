@@ -9,11 +9,11 @@ exports_files(["babel.rc.js"])
 nodejs_binary(
     name = "babel",
     data = [
-        "babel.js",
         "@build_bazel_rules_nodejs_js_library_deps//:@babel/core",
-        "@build_bazel_rules_nodejs_js_library_deps//:@babel/preset-env",
         "@build_bazel_rules_nodejs_js_library_deps//:commander",
         "@build_bazel_rules_nodejs_js_library_deps//:mkdirp",
+        "@build_bazel_rules_nodejs_js_library_deps//:@babel/preset-env",
+        "@build_bazel_rules_nodejs//internal/js_library/v2:babel.js",
     ],
     entry_point = "build_bazel_rules_nodejs/internal/js_library/v2/babel.js",
     install_source_map_support = False,
