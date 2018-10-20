@@ -388,7 +388,7 @@ or it can be a `.js` file from a package built by Bazel.
 `nodejs_test` is the same as nodejs_binary, but instead of calling it with `bazel run`,
 you call it with `bazel test`. The test passes if the program exits with a zero exit code.
 
-The `jasmine_node_test` rule allows you to write a test that executes in NodeJS.
+The `jasmine_node_test` and `mocha_node_test` rules allow you to write tests that execute in NodeJS using the Jasmine and Mocha test runners respectively.
 
 `rollup_bundle` runs the Rollup and Uglify toolchain to produce a single JavaScript bundle.
 
@@ -447,11 +447,13 @@ See the `examples/program` directory in this repository.
 
 ### Testing
 
-The `jasmine_node_test` rule can be used to run unit tests in NodeJS, using the Jasmine framework.
-Targets declared with this rule can be run with `bazel test`.
-See https://bazelbuild.github.io/rules_nodejs/jasmine_node_test/jasmine_node_test.html
+The `jasmine_node_test` and `mocha_node_test` rules allow you to write tests that execute in NodeJS using the Jasmine and Mocha test runners respectively.
 
-The `examples/program/index.spec.js` file illustrates this. Another usage is in https://github.com/angular/tsickle/blob/master/test/BUILD
+Targets declared with these rules can be run with `bazel test`.
+
+See https://bazelbuild.github.io/rules_nodejs/jasmine_node_test/jasmine_node_test.html and https://bazelbuild.github.io/rules_nodejs/mocha_node_test/mocha_node_test.html
+
+An example usage of `jasmine_node_test` and `mocha_node_test` can be found in `examples/program/BUILD.bazel`. Another usage of `jasmine_node_test` is in https://github.com/angular/tsickle/blob/master/test/BUILD
 
 ### Stamping
 
