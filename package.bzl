@@ -106,9 +106,9 @@ def rules_nodejs_dev_dependencies():
 
     http_archive(
         name = "build_bazel_rules_typescript",
-        url = "https://github.com/bazelbuild/rules_typescript/archive/0.16.1.zip",
-        strip_prefix = "rules_typescript-0.16.1",
-        sha256 = "5b2b0bc63cfcffe7bf97cad2dad3b26a73362f806de66207051f66c87956a995",
+        url = "https://github.com/bazelbuild/rules_typescript/archive/0.20.3.zip",
+        strip_prefix = "rules_typescript-0.20.3",
+        sha256 = "2a03b23c30c5109ab0863cfa60acce73ceb56337d41efc2dd67f8455a1c1d5f3",
     )
 
     http_archive(
