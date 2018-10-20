@@ -1,7 +1,7 @@
-load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
+load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test", "mocha_node_test")
 load("@build_bazel_rules_nodejs//:internal/common/typescript_mock_lib.bzl", "mock_typescript_lib")
 
-# Make the jasmine library available at runtime by exposing our node_modules
+# Make the jasmine and mocha libraries available at runtime by exposing our node_modules
 # directory.
 filegroup(
     name = "node_modules",
@@ -9,6 +9,8 @@ filegroup(
         "node_modules/**/*.js",
         "node_modules/**/*.d.ts",
         "node_modules/**/*.json",
+        "node_modules/mocha/bin/mocha",
+        "node_modules/mocha/bin/_mocha",
     ]),
     visibility = ["//visibility:public"],
 )
@@ -26,11 +28,22 @@ filegroup(
 )
 
 jasmine_node_test(
-    name = "test",
+    name = "jasmine_test",
     srcs = glob(["*.spec.js"]),
     node_modules = "//:node_modules",
     deps = [
         ":mock_ts_lib",
         ":program",
     ],
+)
+
+mocha_node_test(
+    name = "mocha_test",
+    srcs = ["index.test.js"],
+    data = [
+        ":program",
+        ":mock_ts_lib"
+    ],
+    deps = [],
+    node_modules = "//:node_modules",
 )
