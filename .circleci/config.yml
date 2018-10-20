@@ -84,11 +84,14 @@ jobs:
       - run: bazel run //internal/node/test:has_deps
       - run: bazel run //internal/node/test:has_deps_hybrid
       - run: bazel run @fine_grained_deps_yarn//typescript/bin:tsc
+      - run: bazel run @nodejs_binary_example//:index
 
       # We should also be able to test targets in a different workspace
       - run: bazel test @program_example//...
       - run: bazel test @packages_example//...
       - run: bazel build @devserver_example//...
+      - run: bazel build @nodejs_binary_example//...
+
 
       - save_cache:
           key: *cache_key
