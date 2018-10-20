@@ -1,0 +1,17 @@
+load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
+
+jasmine_node_test(
+    name = "yarn_test",
+    srcs = glob(["*.spec.js"]),
+    deps = [
+        "@yarn//jasmine",
+    ],
+)
+
+jasmine_node_test(
+    name = "npm_test",
+    srcs = glob(["*.spec.js"]),
+    deps = [
+        "@npm//jasmine",
+    ],
+)

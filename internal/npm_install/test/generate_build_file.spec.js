@@ -1,7 +1,9 @@
-const check = require('./check');
+const {check, files} = require('./check');
 
 describe('build file generator', () => {
-  it('should produce a BUILD file from the node_modules file structure', () => {
-    check();
+  files.forEach(file => {
+    it(`should produce a BUILD file for ${file}`, () => {
+      check(file);
+    });
   });
 });

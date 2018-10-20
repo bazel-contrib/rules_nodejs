@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "jasmine": "3.2.0"
+  },
+  "scripts": {
+    "fetch_node": "curl -OLsS https://nodejs.org/dist/v10.12.0/node-v10.12.0-linux-x64.tar.xz && tar -xJf node-v10.12.0-linux-x64.tar.xz",
+    "fetch_yarn": "curl -OLsS https://github.com/yarnpkg/yarn/releases/download/v1.10.0/yarn-v1.10.0.tar.gz && tar -xzf yarn-v1.10.0.tar.gz",
+    "test": "yarn fetch_node && yarn fetch_yarn && bazel test --test_output=errors :all"
+  }
+}

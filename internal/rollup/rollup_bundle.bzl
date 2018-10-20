@@ -37,6 +37,17 @@ rollup_module_mappings_aspect = aspect(
     attr_aspects = ["deps"],
 )
 
+def _trim_package_node_modules(package_name):
+    # trim a package name down to its path prior to a node_modules
+    # segment. 'foo/node_modules/bar' would become 'foo' and
+    # 'node_modules/bar' would become ''
+    segments = []
+    for n in package_name.split("/"):
+        if n == "node_modules":
+            break
+        segments += [n]
+    return "/".join(segments)
+
 def write_rollup_config(ctx, plugins=[], root_dir=None, filename="_%s.rollup.conf.js", output_format="iife", additional_entry_points=[]):
   """Generate a rollup config file.
 
@@ -80,7 +91,7 @@ def write_rollup_config(ctx, plugins=[], root_dir=None, filename="_%s.rollup.con
     # ctx.files.node_modules is not an empty list
     node_modules_root = "/".join([f for f in [
         ctx.attr.node_modules.label.workspace_root,
-        ctx.attr.node_modules.label.package,
+        _trim_package_node_modules(ctx.attr.node_modules.label.package),
         "node_modules"] if f])
   for d in ctx.attr.deps:
     if NodeModuleInfo in d:
@@ -140,6 +151,13 @@ def run_rollup(ctx, sources, config, output):
 
   return map_output
 
+def _filter_js_inputs(all_inputs):
+    return [
+        f
+        for f in all_inputs
+        if f.path.endswith(".js") or f.path.endswith(".json")
+    ]
+
 def _run_rollup(ctx, sources, config, output, map_output=None):
   args = ctx.actions.args()
   args.add(["--config", config.path])
@@ -160,7 +178,16 @@ def _run_rollup(ctx, sources, config, output, map_output=None):
     args.add("--globals")
     args.add(["%s:%s" % g for g in ctx.attr.globals.items()], join_with=",")
 
-  inputs = sources + ctx.files.node_modules + [config]
+  inputs = sources + [config]
+
+  inputs += _filter_js_inputs(ctx.files.node_modules)
+
+  # Also include files from npm fine grained deps as inputs.
+  # These deps are identified by the NodeModuleInfo provider.
+  for d in ctx.attr.deps:
+      if NodeModuleInfo in d:
+          inputs += _filter_js_inputs(d.files)
+
   if ctx.file.license_banner:
     inputs += [ctx.file.license_banner]
   if ctx.version_file:
@@ -199,7 +226,7 @@ def _run_tsc_on_directory(ctx, input_dir, output_dir):
   args.add(["--input", input_dir.path])
   args.add(["--output", output_dir.path])
 
-  ctx.action(
+  ctx.actions.run(
       executable = ctx.executable._tsc_directory,
       inputs = [input_dir],
       outputs = [output_dir, config],
@@ -503,8 +530,8 @@ ROLLUP_ATTRS = {
           name = "bundle",
           ...
           deps = [
-              "@npm//:foo",
-              "@npm//:bar",
+              "@npm//foo",
+              "@npm//bar",
               ...
           ],
         )

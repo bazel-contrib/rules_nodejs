@@ -27,12 +27,12 @@ load("//internal/common:os_name.bzl", "os_name")
 def _create_build_file(repository_ctx, node):
   if repository_ctx.attr.manual_build_file_contents:
     repository_ctx.file("manual_build_file_contents", repository_ctx.attr.manual_build_file_contents)
-  result = repository_ctx.execute([node, "internal/generate_build_file.js"])
+  result = repository_ctx.execute([node, "generate_build_file.js"])
   if result.return_code:
     fail("node failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
 
 def _add_build_file_generator(repository_ctx):
-  repository_ctx.template("internal/generate_build_file.js",
+  repository_ctx.template("generate_build_file.js",
     repository_ctx.path(Label("//internal/npm_install:generate_build_file.js")), {})
 
 def _add_data_dependencies(repository_ctx):
@@ -155,17 +155,26 @@ def _yarn_install_impl(repository_ctx):
   node = repository_ctx.path(get_node_label(repository_ctx))
   yarn = get_yarn_label(repository_ctx)
 
-  # A local cache is used as multiple yarn rules cannot run simultaneously using a shared
-  # cache and a shared cache is non-hermetic.
+  # Multiple yarn rules cannot run simultaneously using a shared cache.
+  # See https://github.com/yarnpkg/yarn/issues/683
+  # The --mutex option ensures only one yarn runs at a time, see
+  # https://yarnpkg.com/en/docs/cli#toc-concurrency-and-mutex
+  # The shared cache is not necessarily hermetic, but we need to cache downloaded
+  # artifacts somewhere, so we rely on yarn to be correct.
   # To see the output, pass: quiet=False
   args = [
     repository_ctx.path(yarn),
-    "--cache-folder",
-    repository_ctx.path("_yarn_cache"),
+    "--mutex",
+    "network",
     "--cwd",
     repository_ctx.path(""),
   ]
 
+  if not repository_ctx.attr.use_global_yarn_cache:
+      args.extend(["--cache-folder", repository_ctx.path("_yarn_cache")])
+
+  # This can take a long time, and the user has no idea what is running.
+  # Follow https://github.com/bazelbuild/bazel/issues/1289
   result = repository_ctx.execute(args, timeout = repository_ctx.attr.timeout)
 
   if result.return_code:
@@ -195,6 +204,15 @@ yarn_install = repository_rule(
             you are running into performance issues due to a large
             node_modules filegroup it is recommended to switch to using
             fine grained npm dependencies."""),
+        "use_global_yarn_cache": attr.bool(
+            default = True,
+            doc = """Use the global yarn cache on the system.
+            The cache lets you avoid downloading packages multiple times.
+            However, it can introduce non-hermeticity, and the yarn cache can
+            have bugs.
+            Disabling this attribute causes every run of yarn to have a unique
+            cache_directory.""",
+        ),
         "timeout": attr.int(
             default = 600,
             doc = """Maximum duration of the command "yarn" in seconds.

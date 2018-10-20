@@ -129,7 +129,7 @@ See <a href="https://docs.bazel.build/versions/master/skylark/repository_rules.h
 
           <h2 id="node_repositories">node_repositories</h2>
 
-          <pre>node_repositories(<a href="#node_repositories.package_json">package_json</a>, <a href="#node_repositories.node_version">node_version</a>, <a href="#node_repositories.yarn_version">yarn_version</a>, <a href="#node_repositories.node_path">node_path</a>, <a href="#node_repositories.yarn_path">yarn_path</a>, <a href="#node_repositories.node_repositories">node_repositories</a>, <a href="#node_repositories.yarn_repositories">yarn_repositories</a>, <a href="#node_repositories.node_urls">node_urls</a>, <a href="#node_repositories.yarn_urls">yarn_urls</a>, <a href="#node_repositories.preserve_symlinks">preserve_symlinks</a>)</pre>
+          <pre>node_repositories(<a href="#node_repositories.package_json">package_json</a>, <a href="#node_repositories.node_version">node_version</a>, <a href="#node_repositories.yarn_version">yarn_version</a>, <a href="#node_repositories.vendored_node">vendored_node</a>, <a href="#node_repositories.vendored_yarn">vendored_yarn</a>, <a href="#node_repositories.node_repositories">node_repositories</a>, <a href="#node_repositories.yarn_repositories">yarn_repositories</a>, <a href="#node_repositories.node_urls">node_urls</a>, <a href="#node_repositories.yarn_urls">yarn_urls</a>, <a href="#node_repositories.preserve_symlinks">preserve_symlinks</a>)</pre>
 
           <p>To be run in user's WORKSPACE to install rules_nodejs dependencies.</p>
 <p>This rule sets up node, npm, and yarn.</p>
@@ -144,7 +144,7 @@ but you must use a value that matches a known version.</li>
 <li>Using a custom version:
 You can pass in a custom list of NodeJS and/or Yarn repositories and URLs for node_resositories to use.</li>
 <li>Using a local version:
-To avoid downloads, you can check in vendored copies of NodeJS and/or Yarn and set node_path and or yarn_path
+To avoid downloads, you can check in vendored copies of NodeJS and/or Yarn and set vendored_node and or vendored_yarn
 to point to those before calling node_repositories.</li>
 </ul>
 <p>This rule exposes the <code>@nodejs</code> workspace containing some rules the user can call later:</p>
@@ -198,17 +198,17 @@ If you use bazel-managed dependencies, you can omit this attribute.</p>
         <p>optional; the specific version of Yarn to install.</p>
       </td>
     </tr>
-    <tr id="node_repositories.node_path">
-      <td><code>node_path</code></td>
+    <tr id="node_repositories.vendored_node">
+      <td><code>vendored_node</code></td>
       <td>
-        <p><code>String; Optional</code></p>
+        <p><code>Unknown; Optional</code></p>
         <p>optional; the local path to a pre-installed NodeJS runtime.</p>
       </td>
     </tr>
-    <tr id="node_repositories.yarn_path">
-      <td><code>yarn_path</code></td>
+    <tr id="node_repositories.vendored_yarn">
+      <td><code>vendored_yarn</code></td>
       <td>
-        <p><code>String; Optional</code></p>
+        <p><code>Unknown; Optional</code></p>
         <p>optional; the local path to a pre-installed yarn tool.</p>
       </td>
     </tr>

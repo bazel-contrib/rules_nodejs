@@ -14,7 +14,7 @@ nodejs_binary(
     name = "has_deps_legacy",
     data = ["has-deps.js"],
     entry_point = "build_bazel_rules_nodejs/internal/node/test/has-deps",
-    node_modules = "@fine_grained_deps_yarn//:node_modules_lite",
+    node_modules = "@fine_grained_deps_yarn//:node_modules",
 )
 
 # You can have a nodejs_binary with no node_modules attribute
@@ -23,7 +23,7 @@ nodejs_binary(
     name = "has_deps",
     data = [
         "has-deps.js",
-        "@fine_grained_deps_yarn//:typescript",
+        "@fine_grained_deps_yarn//typescript",
     ],
     entry_point = "build_bazel_rules_nodejs/internal/node/test/has-deps",
 )
@@ -34,8 +34,8 @@ nodejs_binary(
     name = "has_deps_hybrid",
     data = [
         "has-deps.js",
-        "@fine_grained_deps_yarn//:typescript",
+        "@fine_grained_deps_yarn//typescript",
     ],
     entry_point = "build_bazel_rules_nodejs/internal/node/test/has-deps",
-    node_modules = "@fine_grained_deps_yarn//:node_modules_lite",
+    node_modules = "@fine_grained_deps_yarn//:node_modules",
 )

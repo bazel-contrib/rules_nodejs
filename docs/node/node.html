@@ -136,7 +136,7 @@ a <code>module_name</code> attribute can be <code>require</code>d by that name.<
 
           <h2 id="nodejs_binary_macro">nodejs_binary_macro</h2>
 
-          <pre>nodejs_binary_macro(<a href="#nodejs_binary_macro.name">name</a>, <a href="#nodejs_binary_macro.data">data</a>, <a href="#nodejs_binary_macro.args">args</a>, <a href="#nodejs_binary_macro.visibility">visibility</a>, <a href="#nodejs_binary_macro.tags">tags</a>, <a href="#nodejs_binary_macro.testonly">testonly</a>)</pre>
+          <pre>nodejs_binary_macro(<a href="#nodejs_binary_macro.name">name</a>, <a href="#nodejs_binary_macro.data">data</a>, <a href="#nodejs_binary_macro.args">args</a>, <a href="#nodejs_binary_macro.visibility">visibility</a>, <a href="#nodejs_binary_macro.tags">tags</a>, <a href="#nodejs_binary_macro.testonly">testonly</a>, <a href="#nodejs_binary_macro.**kwargs">**kwargs</a>)</pre>
 
           <p>This macro exists only to wrap the nodejs_binary as an .exe for Windows.</p>
 <p>This is exposed in the public API at <code>//:defs.bzl</code> as <code>nodejs_binary</code>, so most
@@ -190,8 +190,14 @@ users loading <code>nodejs_binary</code> are actually executing this macro.</p>
       <td><code>testonly</code></td>
       <td>
         <p><code>Integer; Optional</code></p>
-        <p>applied to nodejs_binary and wrapper binary
-**kwargs: passed to the nodejs_binary</p>
+        <p>applied to nodejs_binary and wrapper binary</p>
+      </td>
+    </tr>
+    <tr id="nodejs_binary_macro.**kwargs">
+      <td><code>**kwargs</code></td>
+      <td>
+        <p><code>Unknown; Optional</code></p>
+        <p>passed to the nodejs_binary</p>
       </td>
     </tr>
   </tbody>
@@ -200,7 +206,7 @@ users loading <code>nodejs_binary</code> are actually executing this macro.</p>
 
           <h2 id="nodejs_test_macro">nodejs_test_macro</h2>
 
-          <pre>nodejs_test_macro(<a href="#nodejs_test_macro.name">name</a>, <a href="#nodejs_test_macro.data">data</a>, <a href="#nodejs_test_macro.args">args</a>, <a href="#nodejs_test_macro.visibility">visibility</a>, <a href="#nodejs_test_macro.tags">tags</a>)</pre>
+          <pre>nodejs_test_macro(<a href="#nodejs_test_macro.name">name</a>, <a href="#nodejs_test_macro.data">data</a>, <a href="#nodejs_test_macro.args">args</a>, <a href="#nodejs_test_macro.visibility">visibility</a>, <a href="#nodejs_test_macro.tags">tags</a>, <a href="#nodejs_test_macro.**kwargs">**kwargs</a>)</pre>
 
           <p>This macro exists only to wrap the nodejs_test as an .exe for Windows.</p>
 <p>This is exposed in the public API at <code>//:defs.bzl</code> as <code>nodejs_test</code>, so most
@@ -247,8 +253,14 @@ users loading <code>nodejs_test</code> are actually executing this macro.</p>
       <td><code>tags</code></td>
       <td>
         <p><code>List of strings; Optional</code></p>
-        <p>applied to the wrapper binary
-**kwargs: passed to the nodejs_test</p>
+        <p>applied to the wrapper binary</p>
+      </td>
+    </tr>
+    <tr id="nodejs_test_macro.**kwargs">
+      <td><code>**kwargs</code></td>
+      <td>
+        <p><code>Unknown; Optional</code></p>
+        <p>passed to the nodejs_test</p>
       </td>
     </tr>
   </tbody>
@@ -357,8 +369,8 @@ users loading <code>nodejs_test</code> are actually executing this macro.</p>
       name = "my_binary",
       ...
       data = [
-          "@npm//:foo",
-          "@npm//:bar",
+          "@npm//foo",
+          "@npm//bar",
           ...
       ],
     )
@@ -387,9 +399,9 @@ users loading <code>nodejs_test</code> are actually executing this macro.</p>
         name = "my_test",
         ...
         deps = [
-            "@npm//:jasmine",
-            "@npm//:foo",
-            "@npm//:bar",
+            "@npm//jasmine",
+            "@npm//foo",
+            "@npm//bar",
             ...
         ],
     )
@@ -534,8 +546,8 @@ remote debugger.</p>
       name = "my_binary",
       ...
       data = [
-          "@npm//:foo",
-          "@npm//:bar",
+          "@npm//foo",
+          "@npm//bar",
           ...
       ],
     )
@@ -564,9 +576,9 @@ remote debugger.</p>
         name = "my_test",
         ...
         deps = [
-            "@npm//:jasmine",
-            "@npm//:foo",
-            "@npm//:bar",
+            "@npm//jasmine",
+            "@npm//foo",
+            "@npm//bar",
             ...
         ],
     )

@@ -24,7 +24,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 # It will be automatically synced via the npm "version" script
 # that is run when running `npm version` during the release
 # process. See `Releasing` section in README.md.
-VERSION = "0.14.0"
+VERSION = "0.15.1"
 
 def check_rules_nodejs_version(minimum_version_string):
   """
@@ -99,9 +99,9 @@ def rules_nodejs_dev_dependencies():
 
     http_archive(
         name = "io_bazel_skydoc",
-        url = "https://github.com/bazelbuild/skydoc/archive/0ef7695c9d70084946a3e99b89ad5a99ede79580.zip",
-        strip_prefix = "skydoc-0ef7695c9d70084946a3e99b89ad5a99ede79580",
-        sha256 = "491f9e142b870b18a0ec8eb3d66636eeceabe5f0c73025706c86f91a1a2acb4d",
+        url = "https://github.com/bazelbuild/skydoc/archive/8632e30e7b1fa2d58f73ea0ef1f043b4b35794f5.zip",
+        strip_prefix = "skydoc-8632e30e7b1fa2d58f73ea0ef1f043b4b35794f5",
+        sha256 = "d8b663c41039dfd84f3ad26d04f9df3122af090f73816b3ffb8c0df660e1fc74",
     )
 
     http_archive(
@@ -134,9 +134,9 @@ def rules_nodejs_dev_dependencies():
     # Fetching the Bazel source code allows us to compile the Skylark linter
     http_archive(
         name = "io_bazel",
-        url = "https://github.com/bazelbuild/bazel/archive/968f87900dce45a7af749a965b72dbac51b176b3.zip",
-        strip_prefix = "bazel-968f87900dce45a7af749a965b72dbac51b176b3",
-        sha256 = "e373d2ae24955c1254c495c9c421c009d88966565c35e4e8444c082cb1f0f48f",
+        url = "https://github.com/bazelbuild/bazel/archive/0.17.2.zip",
+        strip_prefix = "bazel-0.17.2",
+        sha256 = "a6d7ae3939e7bb2e410949adab8aa2759eda0b017bf5fc18658dc635552ce56e",
     )
 
 def _maybe(repo_rule, name, **kwargs):

@@ -16,7 +16,7 @@ jasmine_node_test(
     name = "fine_grained_test",
     srcs = glob(["*.spec.js"]),
     deps = [
-        "@npm//:jasmine",
-        "@npm//:typescript",
+        "@npm//jasmine",
+        "@npm//typescript",
     ],
 )

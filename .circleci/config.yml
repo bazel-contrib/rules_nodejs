@@ -9,13 +9,8 @@
 
 ## IMPORTANT
 # If you change the `docker_image` version, also change the `cache_key` version
-var_1: &docker_image angular/ngcontainer:0.3.1
-var_2: &cache_key angular/ngcontainer:0.3.1-{{ .Branch }}-{{ checksum "yarn.lock" }}-examples/rollup:{{ checksum "examples/rollup/yarn.lock" }}-examples/program:{{ checksum "examples/program/yarn.lock" }}-internal/test:{{ checksum "internal/test/yarn.lock" }}-internal/e2e/node_loader_no_preserve_symlinks:{{ checksum "internal/e2e/node_loader_no_preserve_symlinks/yarn.lock" }}-internal/e2e/node_loader_preserve_symlinks:{{ checksum "internal/e2e/node_loader_preserve_symlinks/yarn.lock" }}
-var_3: &setup-bazel-remote-cache
-  run:
-    name: Start up bazel remote cache proxy
-    command: ~/bazel-remote-proxy -backend circleci://
-    background: true
+var_1: &docker_image angular/ngcontainer:0.6.0
+var_2: &cache_key angular/ngcontainer:0.6.0-{{ .Branch }}-{{ checksum "yarn.lock" }}-examples/rollup:{{ checksum "examples/rollup/yarn.lock" }}-examples/program:{{ checksum "examples/program/yarn.lock" }}-internal/test:{{ checksum "internal/test/yarn.lock" }}-internal/e2e/node_loader_no_preserve_symlinks:{{ checksum "internal/e2e/node_loader_no_preserve_symlinks/yarn.lock" }}-internal/e2e/node_loader_preserve_symlinks:{{ checksum "internal/e2e/node_loader_preserve_symlinks/yarn.lock" }}
 # Move node binaries out of the way to enforce that Bazel uses
 # only the hermetic ones it downloads
 var_4: &hide_node_and_yarn_local_binaries
@@ -43,36 +38,34 @@ version: 2
 
 # These jobs will run in parallel, and report separate statuses to GitHub PRs
 jobs:
+
+  # Cannot be run on BuildKite (BazelCI), see
+  # https://github.com/bazelbuild/continuous-integration/issues/338
   lint:
     <<: *job_defaults
     steps:
       - checkout:
           <<: *post_checkout
-      - run: .circleci/setup_cache.sh
       - run: sudo cp .circleci/bazel.rc /etc/bazel.bazelrc
-      - *setup-bazel-remote-cache
 
       # Run the skylark linter to check our Bazel rules
-      # deprecated-api is disabled because we legacy providers for typescript
-      # which cannot be upgraded to modern providers without breaking compatability
-      - run: 'find . -type f -name "*.bzl" |
-              xargs java -jar /usr/local/bin/Skylint_deploy.jar --disable-checks=deprecated-api ||
+      - run: 'yarn skylint ||
               (echo -e "\n.bzl files have lint errors. Please run ''yarn skylint''"; exit 1)'
 
-      # Enforce that BUILD files are formatted. Note that this uses the version of buildifier
-      # from the docker image above - take care that you use the same version when you run
-      # buildifier locally on your change.
-      - run: 'buildifier -mode=check $(find . -type f \( -name BUILD.bazel -or -name BUILD \)) ||
+      # Enforce that BUILD files are formatted.
+      - run: 'yarn buildifier -mode=check ||
               (echo "BUILD files not formatted. Please run ''yarn buildifier''" ; exit 1)'
 
+  # Overlaps with testing we do on BuildKite. This is still here because:
+  # - BuildKite doesn't have a public results UI; failures here let contributors fix their changes
+  # - We hide the node,yarn,npm binaries here which we don't do on BuildKite
+  # TODO: port these assertions to BuildKite
   build:
     <<: *job_defaults
     steps:
       - checkout:
           <<: *post_checkout
-      - run: .circleci/setup_cache.sh
       - run: sudo cp .circleci/bazel.rc /etc/bazel.bazelrc
-      - *setup-bazel-remote-cache
       - *hide_node_and_yarn_local_binaries
       - restore_cache:
           key: *cache_key
@@ -81,7 +74,7 @@ jobs:
 
       - run: bazel run @nodejs//:yarn
       - run: bazel build ...
-      - run: bazel test ... --define=some_env=some_value
+      - run: bazel test ...
       # TODO(alexeagle): move this into the example proper
       - run: bazel run examples/rollup -- --help
 
@@ -90,6 +83,7 @@ jobs:
       - run: bazel run //internal/node/test:has_deps_legacy
       - run: bazel run //internal/node/test:has_deps
       - run: bazel run //internal/node/test:has_deps_hybrid
+      - run: bazel run @fine_grained_deps_yarn//typescript/bin:tsc
 
       # We should also be able to test targets in a different workspace
       - run: bazel test @program_example//...
@@ -106,14 +100,15 @@ jobs:
             - "internal/e2e/node_loader_preserve_symlinks/node_modules"
             - "internal/test/node_modules"
 
+  # This job cannot run on BuildKite (BazelCI) because it requires changing
+  # directories to test inside nested workspaces.
+  # See https://github.com/bazelbuild/continuous-integration/issues/225
   test:
     <<: *job_defaults
     steps:
       - checkout:
           <<: *post_checkout
-      - run: .circleci/setup_cache.sh
       - run: sudo cp .circleci/bazel.rc /etc/bazel.bazelrc
-      - *setup-bazel-remote-cache
 
       # Not using "bazel run @nodejs//:yarn test" as will attempt to run
       # the "test" script on all folder listed in node_repositories()

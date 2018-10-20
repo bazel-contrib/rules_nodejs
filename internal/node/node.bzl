@@ -24,6 +24,17 @@ load("//internal/common:sources_aspect.bzl", "sources_aspect")
 load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
 load("//internal/common:node_module_info.bzl", "NodeModuleInfo", "collect_node_modules_aspect")
 
+def _trim_package_node_modules(package_name):
+    # trim a package name down to its path prior to a node_modules
+    # segment. 'foo/node_modules/bar' would become 'foo' and
+    # 'node_modules/bar' would become ''
+    segments = []
+    for n in package_name.split("/"):
+        if n == "node_modules":
+            break
+        segments += [n]
+    return "/".join(segments)
+
 def _write_loader_script(ctx):
   # Generates the JavaScript snippet of module roots mappings, with each entry
   # in the form:
@@ -42,7 +53,7 @@ def _write_loader_script(ctx):
     workspace = ctx.attr.node_modules.label.workspace_root.split("/")[1] if ctx.attr.node_modules.label.workspace_root else ctx.workspace_name
     node_modules_root = "/".join([f for f in [
         workspace,
-        ctx.attr.node_modules.label.package,
+        _trim_package_node_modules(ctx.attr.node_modules.label.package),
         "node_modules"] if f])
   for d in ctx.attr.data:
     if NodeModuleInfo in d:
@@ -198,8 +209,8 @@ _NODEJS_EXECUTABLE_ATTRS = {
           name = "my_binary",
           ...
           data = [
-              "@npm//:foo",
-              "@npm//:bar",
+              "@npm//foo",
+              "@npm//bar",
               ...
           ],
         )
@@ -228,9 +239,9 @@ _NODEJS_EXECUTABLE_ATTRS = {
             name = "my_test",
             ...
             deps = [
-                "@npm//:jasmine",
-                "@npm//:foo",
-                "@npm//:bar",
+                "@npm//jasmine",
+                "@npm//foo",
+                "@npm//bar",
                 ...
             ],
         )

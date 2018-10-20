@@ -1,3 +1,3 @@
-const check = require('./check');
+const {check, files} = require('./check');
 
-check(true);
+files.forEach(file => check(file, true));

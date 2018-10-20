@@ -7,6 +7,8 @@ platforms:
     - "//..."
     test_targets:
     - "//..."
+    test_targets:
+    - "//examples/define_var"
     - "--define=some_env=some_value"
   ubuntu1604:
     run_targets:
@@ -15,6 +17,8 @@ platforms:
     - "//..."
     test_targets:
     - "//..."
+    test_targets:
+    - "//examples/define_var"
     - "--define=some_env=some_value"
   macos:
     run_targets:
@@ -23,19 +27,18 @@ platforms:
     - "//..."
     test_targets:
     - "//..."
+    test_targets:
+    - "//examples/define_var"
     - "--define=some_env=some_value"
   windows:
     run_targets:
     - "@nodejs//:yarn"
     build_targets:
-    # Escape hyphens on later args
-    - "--"
     - "//..."
-    # Cannot build the docsite on Windows, see
-    # https://github.com/bazelbuild/skydoc/issues/58
-    - "-//docs"
     test_targets:
     - "//..."
+    test_targets:
+    - "//examples/define_var"
     - "--define=some_env=some_value"
   rbe_ubuntu1604:
     build_targets:
