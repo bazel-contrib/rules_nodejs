@@ -3,15 +3,21 @@
 
 load("@bazel_skylib//:lib.bzl", "paths")
 
-def _get_path(ctx, file):
-  if not file.short_path.startswith(ctx.label.package):
-    fail("Unable to recover a relative path: %s did not start with %s" % (file.short_path, ctx.label.package))
-
+# get the path of the file relative the the package "root"
+def _get_package_path(ctx, file):
   trim = 0
-  if len(ctx.label.package) > 0:
-    trim = len(ctx.label.package) + 1 # +1 for the slash
+  # for targets in external workspaces
+  if len(ctx.label.workspace_root) > 0:
+    trim += len(ctx.label.workspace_root) + 1 # +1 for the slash
 
-  path = file.short_path[trim:]
+  if len(ctx.label.package) > 0:
+    trim += len(ctx.label.package) + 1 # +1 for the slash
+
+  # generated files live in the bin-dir
+  if not file.is_source:
+    trim += len(ctx.bin_dir.path) + 1 # +1 for the slash
+
+  path = file.path[trim:]
   return path
 
 def _write_config(ctx):
@@ -34,13 +40,13 @@ def _create_babel_args(ctx, config_path, out_dir):
   all_other_args = []
   for src in ctx.files.srcs:
     all_other_args.append(src)
-    all_other_args.append(_get_path(ctx,src))
+    all_other_args.append(_get_package_path(ctx, src))
 
   args.add_all(all_other_args)
   return args
 
 def _declare_babel_outputs(ctx, out_dir):
-  return [ctx.actions.declare_file(paths.join(out_dir, _get_path(ctx, src))) for src in ctx.files.srcs]
+  return [ctx.actions.declare_file(paths.join(out_dir, _get_package_path(ctx, src))) for src in ctx.files.srcs]
 
 def _run_babel(ctx, inputs, outputs, args, mnemonic, description):
   ctx.actions.run(

@@ -31,9 +31,15 @@ local_repository(
     name = "packages_example",
     path = "examples/packages",
 )
+
 local_repository(
     name = "devserver_example",
     path = "examples/devserver",
+)
+
+local_repository(
+    name = "nodejs_binary_example",
+    path = "examples/nodejs_binary",
 )
 
 local_repository(
@@ -83,11 +89,13 @@ node_repositories(
 # bazel run @nodejs//:npm
 
 load("@packages_example//:setup_workspace.bzl", "packages_example_setup_workspace")
-
 packages_example_setup_workspace()
 
 load("@devserver_example//:setup_workspace.bzl", "devserver_example_setup_workspace")
 devserver_example_setup_workspace()
+
+load("@nodejs_binary_example//:setup_workspace.bzl", "nodejs_binary_example_setup_workspace")
+nodejs_binary_example_setup_workspace()
 
 # Dependencies to run skydoc
 load("@io_bazel_rules_sass//sass:sass_repositories.bzl", "sass_repositories")
