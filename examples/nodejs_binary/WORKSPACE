@@ -11,8 +11,5 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "yarn_install"
 
 node_repositories(package_json = ["//:package.json"])
 
-yarn_install(
-    name = "nodejs_binary_example_deps",
-    package_json = "@nodejs_binary_example//:package.json",
-    yarn_lock = "@nodejs_binary_example//:yarn.lock",
-)
+load("//:setup_workspace.bzl", "nodejs_binary_example_setup_workspace")
+nodejs_binary_example_setup_workspace()
