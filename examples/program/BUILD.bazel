@@ -41,9 +41,9 @@ mocha_node_test(
     name = "mocha_test",
     srcs = ["index.test.js"],
     data = [
+        ":mock_ts_lib",
         ":program",
-        ":mock_ts_lib"
     ],
-    deps = [],
     node_modules = "//:node_modules",
+    deps = [],
 )
