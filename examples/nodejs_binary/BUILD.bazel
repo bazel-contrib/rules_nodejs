@@ -24,9 +24,12 @@ js_library(
 
 js_library(
     name = "someLibrary",
+    srcs = [
+        "someLibrary/index.js",
+        "someLibrary/internalFile.js",
+    ],
     module_name = "someLibrary",
     module_root = "someLibrary",
-    srcs = ["someLibrary/index.js", "someLibrary/internalFile.js"],
 )
 
 nodejs_binary(
@@ -34,33 +37,34 @@ nodejs_binary(
     data = [
         "@build_bazel_rules_nodejs//internal/js_library/v2:babel.js",
         "@nodejs_binary_example_yarn_install//:@babel/core",
+        "@nodejs_binary_example_yarn_install//:@babel/preset-env",
+        "@nodejs_binary_example_yarn_install//:babel-plugin-transform-es2015-modules-commonjs",
+        "@nodejs_binary_example_yarn_install//:babel-plugin-transform-flow-strip-types",
         "@nodejs_binary_example_yarn_install//:commander",
         "@nodejs_binary_example_yarn_install//:mkdirp",
-        "@nodejs_binary_example_yarn_install//:@babel/preset-env",
-        "@nodejs_binary_example_yarn_install//:babel-plugin-transform-flow-strip-types",
-        "@nodejs_binary_example_yarn_install//:babel-plugin-transform-es2015-modules-commonjs",
     ],
     entry_point = "build_bazel_rules_nodejs/internal/js_library/v2/babel.js",
     install_source_map_support = False,
 )
 
-
 js_library(
     name = "flowLibrary",
-    module_name = "flowLibrary",
-    module_root = "flowLibrary",
-    srcs = ["flowLibrary/index.js", "flowLibrary/internalFile.js"],
+    srcs = [
+        "flowLibrary/index.js",
+        "flowLibrary/internalFile.js",
+    ],
     babel = ":flowBabel",
     babelrc = "flowLibrary/flow.babelrc",
+    module_name = "flowLibrary",
+    module_root = "flowLibrary",
 )
-
 
 nodejs_binary(
     name = "index",
     data = [
+        ":flowLibrary",
         ":index_lib",
         ":someLibrary",
-        ":flowLibrary",
     ],
     entry_point = "nodejs_binary_example/index.js",
     install_source_map_support = False,
