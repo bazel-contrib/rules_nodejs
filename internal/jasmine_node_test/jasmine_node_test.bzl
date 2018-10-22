@@ -26,6 +26,7 @@ def jasmine_node_test(
   data = [],
   deps = [],
   expected_exit_code = 0,
+  tags = [],
   **kwargs):
   """Runs tests in NodeJS using the Jasmine test runner.
 
@@ -43,6 +44,7 @@ def jasmine_node_test(
       name = "%s_devmode_srcs" % name,
       deps = srcs + deps,
       testonly = 1,
+      tags = tags,
   )
 
   all_data = data + srcs + deps
@@ -58,5 +60,6 @@ def jasmine_node_test(
       templated_args = ["$(location :%s_devmode_srcs.MF)" % name],
       testonly = 1,
       expected_exit_code = expected_exit_code,
+      tags = tags,
       **kwargs
   )
