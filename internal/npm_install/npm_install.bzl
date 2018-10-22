@@ -52,6 +52,9 @@ def _npm_install_impl(repository_ctx):
   npm = get_npm_label(repository_ctx)
   npm_args = ["install"]
 
+  if repository_ctx.attr.prod_only:
+    npm_args.append("--production")
+
   # The entry points for npm install for osx/linux and windows
   if not is_windows:
     repository_ctx.file("npm", content="""#!/bin/bash
@@ -117,6 +120,10 @@ npm_install = repository_rule(
             allow_files = True,
             single_file = True,
         ),
+        "prod_only": attr.bool(
+            default = False,
+            doc = "Don't install devDependencies",
+        ),
         "data": attr.label_list(),
         "manual_build_file_contents": attr.string(
             doc = """Experimental attribute that can be used to override
@@ -170,6 +177,8 @@ def _yarn_install_impl(repository_ctx):
     repository_ctx.path(""),
   ]
 
+  if repository_ctx.attr.prod_only:
+      args.append("--prod")
   if not repository_ctx.attr.use_global_yarn_cache:
       args.extend(["--cache-folder", repository_ctx.path("_yarn_cache")])
 
@@ -193,6 +202,10 @@ yarn_install = repository_rule(
             allow_files = True,
             mandatory = True,
             single_file = True,
+        ),
+        "prod_only": attr.bool(
+            default = False,
+            doc = "Don't install devDependencies",
         ),
         "data": attr.label_list(),
         "manual_build_file_contents": attr.string(
