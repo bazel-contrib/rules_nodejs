@@ -38,6 +38,7 @@ def jasmine_node_test(
     data: Runtime dependencies which will be loaded while the test executes
     deps: Other targets which produce JavaScript, such as ts_library
     expected_exit_code: The expected exit code for the test. Defaults to 0.
+    tags: bazel tags applied to test
     **kwargs: remaining arguments are passed to the test rule
   """
   devmode_js_sources(
