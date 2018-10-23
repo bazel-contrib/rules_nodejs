@@ -27,6 +27,14 @@ var_4: &setup_bazelrc
     name: Setup /etc/bazel.bazelrc
     command: sudo cp .circleci/bazel.rc /etc/bazel.bazelrc
 
+var_5: &setup_bazelrc_legacy_runfiles
+  run:
+    name: Setup /etc/bazel.bazelrc (with legacy runfiles)
+    command: |
+      sed -i -e 's/run --nolegacy_external_runfiles//' .bazelrc
+      sed -i -e 's/test --nolegacy_external_runfiles//' .bazelrc
+      sudo cp .circleci/bazel.rc /etc/bazel.bazelrc
+
 # Settings common to each job
 anchor_1: &job_defaults
   working_directory: ~/ng
@@ -91,10 +99,6 @@ jobs:
       - run: bazel run //internal/node/test:has_deps_hybrid
       - run: bazel run @fine_grained_deps_yarn//typescript/bin:tsc
 
-      # We should also be able to test targets in a different workspace
-      - run: bazel test @program_example//...
-      - run: bazel test @packages_example//...
-
       - save_cache:
           key: *cache_key
           paths:
@@ -104,6 +108,24 @@ jobs:
             - "internal/e2e/node_loader_no_preserve_symlinks/node_modules"
             - "internal/e2e/node_loader_preserve_symlinks/node_modules"
             - "internal/test/node_modules"
+
+  test_legacy_runfiles:
+    <<: *job_defaults
+    steps:
+      - checkout:
+          <<: *post_checkout
+      - *setup_bazelrc_legacy_runfiles
+      - *hide_node_and_yarn_local_binaries
+      - restore_cache:
+          key: *cache_key
+
+      - run: bazel run @nodejs//:yarn
+
+      # We should also be able to test targets in a different workspace
+      # TODO(gmagolan): move these tests into `build` job once
+      # https://github.com/bazelbuild/bazel/issues/6481 is resolved
+      - run: bazel test @program_example//...
+      - run: bazel test @packages_example//...
 
   # This job cannot run on BuildKite (BazelCI) because it requires changing
   # directories to test inside nested workspaces.
@@ -126,3 +148,4 @@ workflows:
       - lint
       - build
       - test
+      - test_legacy_runfiles
