@@ -4,7 +4,7 @@
 const os = require('os');
 const fs = require('fs');
 const path = require('path');
-const spawn = require('child_process').spawn;
+const spawnSync = require('child_process').spawnSync;
 
 /**
  * @returns the native `bazel` binary for the current platform
@@ -22,4 +22,8 @@ function getNativeBinary() {
   return path.resolve(path.dirname(nativePackage), binary);
 }
 
-spawn(getNativeBinary(), process.argv.slice(2), {stdio: 'inherit'});
+/** Starts a new synchronous child process that runs Bazel with the specified arguments. */
+const bazelProcess = spawnSync(getNativeBinary(), process.argv.slice(2), {stdio: 'inherit'});
+
+// Ensure that this wrapper script exits with the same exit code as the child process.
+process.exit(bazelProcess.status);
