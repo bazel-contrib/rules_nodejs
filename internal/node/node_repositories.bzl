@@ -239,35 +239,10 @@ alias(name = "npm", actual = "{npm}")
 alias(name = "yarn", actual = "{yarn}")
 filegroup(
   name = "node_runfiles",
-  srcs = glob(
-    [
-      "bin/node.js",
-      "{node_dir}/**",
-      "{yarn_dir}/**",
-    ],
-    exclude = [
-      "**/*.md",
-      "**/*.html",
-      # These files are generated during node-gyp compilation and include
-      # absolute paths, making them non-hermetic.
-      # See https://github.com/bazelbuild/rules_nodejs/issues/347
-      "**/*.pyc",
-    ],
-  ),
-)
-
-filegroup(
-  name = "minimal_node_runfiles",
-  srcs = glob(
-    [
+  srcs = [
       "bin/node.js",
       "{node_dir}/bin/node",
-    ],
-    exclude = [
-      "**/*.md",
-      "**/*.html",
-    ],
-  ),
+  ],
 )
 """.format(
     node = node_entry,

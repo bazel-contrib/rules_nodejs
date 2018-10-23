@@ -35,9 +35,10 @@ def _trim_package_node_modules(package_name):
         segments += [n]
     return "/".join(segments)
 
-SourcesInfo = provider(fields = [
-    "data",
-])
+NodeJSSourcesInfo = provider(
+    doc = """Minimal files needed to run a NodeJS program, without npm packages""",
+    fields = {"data": "A list of File objects"},
+)
 
 def _write_loader_script(ctx):
   # Generates the JavaScript snippet of module roots mappings, with each entry
@@ -159,7 +160,7 @@ def _nodejs_binary_impl(ctx):
                 transitive_files = runfiles,
             ),
         ),
-        SourcesInfo(
+        NodeJSSourcesInfo(
             data = non_module_sources + [ctx.outputs.loader, ctx.outputs.script]
         )
     ]
@@ -273,7 +274,7 @@ _NODEJS_EXECUTABLE_ATTRS = {
         allow_files = True,
         single_file = True),
     "_node_runfiles": attr.label(
-        default = Label("@nodejs//:minimal_node_runfiles"),
+        default = Label("@nodejs//:node_runfiles"),
         allow_files = True),
     "_repository_args": attr.label(
         default = Label("@nodejs//:bin/node_args.sh"),
