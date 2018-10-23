@@ -14,7 +14,7 @@
 
 package(default_visibility = ["//visibility:public"])
 
-load("//internal/mocha_node_test:mocha_node_test.bzl", "mocha_node_test")
+load("//internal/mocha:mocha_node_test.bzl", "mocha_node_test")
 load("//internal/js_library:js_library.bzl", "js_library")
 load("@build_bazel_rules_nodejs//:internal/common/typescript_mock_lib.bzl", "mock_typescript_lib")
 
@@ -28,15 +28,11 @@ js_library(
 mocha_node_test(
     name = "test",
     srcs = [
-        "test_one.js",
-        "test_two.js",
+        "one_test.js",
+        "two_test.js",
     ],
     data = [
         ":example_lib",
-    ],
-    test_entrypoints = [
-        "internal/mocha_node_test/test/test_one.js",
-        "internal/mocha_node_test/test/test_two.js",
     ],
     node_modules = "//internal/test:node_modules",
 )
@@ -44,25 +40,19 @@ mocha_node_test(
 mocha_node_test(
     name = "fail_test",
     srcs = [
-        "test_fail.js",
-    ],
-    test_entrypoints = [
-        "internal/mocha_node_test/test/test_fail.js",
+        "fail_test.js",
     ],
     node_modules = "//internal/test:node_modules",
-    expected_exit_code=3,
+    expected_exit_code = 3,
 )
 
 mocha_node_test(
     name = "test_no_tests_found",
     srcs = [
-        "test_no_tests_found.js",
-    ],
-    test_entrypoints = [
-        "internal/mocha_node_test/test/test_no_tests_found.js",
+        "no_tests_found_test.js",
     ],
     node_modules = "//internal/test:node_modules",
-    expected_exit_code=4,
+    expected_exit_code = 4,
 )
 
 mock_typescript_lib(

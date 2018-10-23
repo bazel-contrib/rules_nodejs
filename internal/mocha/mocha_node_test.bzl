@@ -26,12 +26,15 @@ the Mocha library on the desired files; see
 https://github.com/mochajs/mocha/wiki/Using-mocha-programmatically.
 """
 load("//internal/node:node.bzl", "nodejs_test")
+load("//internal/common:devmode_js_sources.bzl", "devmode_js_sources")
 
 def mocha_node_test(
   name,
   test_entrypoints = [], # these should NOT contain the preceding workspace name.
   srcs = [],
+  deps = [],
   data = [],
+  tags = [],
   expected_exit_code = 0,
   **kwargs):
   """Runs tests in NodeJS using the Mocha test framework.
@@ -39,25 +42,35 @@ def mocha_node_test(
   To debug the test, see debugging notes in `nodejs_test`.
 
   Args:
-    name: name of the resulting label.
-    test_entrypoints: full paths to your files containing mocha tests, NOT containing the preceding workspace name.
+    name: name of the resulting label
     srcs: spec files containing assertions
-    data: Runtime dependencies that the mocha tests need access to.
-    expected_exit_code: The expected exit code for the test. Defaults to 0.
+    deps: JavaScript code or rules producing JavaScript that is being tested
+    data: Runtime dependencies that the mocha tests need access to
+    tags: Arbitrary tags to apply to all generated targets
+    expected_exit_code: The expected exit code for the test. Defaults to 0
     **kwargs: remaining arguments passed to the test rule
   """
+  devmode_js_sources(
+      name = "%s_devmode_srcs" % name,
+      deps = srcs + deps,
+      testonly = 1,
+      tags = tags,
+  )
 
-  all_data = data + srcs
-  all_data += [Label("//internal/mocha_node_test:mocha_runner.js")]
-  all_data += [Label("@bazel_tools//tools/bash/runfiles")]
-  entry_point = "build_bazel_rules_nodejs/internal/mocha_node_test/mocha_runner.js"
+  all_data = data + srcs + [
+      Label("//internal/mocha:mocha_runner.js"),
+      ":%s_devmode_srcs.MF" % name,
+      Label("@bazel_tools//tools/bash/runfiles"),
+  ]
+  entry_point = "build_bazel_rules_nodejs/internal/mocha/mocha_runner.js"
 
   nodejs_test(
       name = name,
       data = all_data,
       entry_point = entry_point,
-      templated_args = test_entrypoints,
+      templated_args = ["$(location :%s_devmode_srcs.MF)" % name],
       testonly = 1,
       expected_exit_code = expected_exit_code,
+      tags = tags,
       **kwargs
   )
