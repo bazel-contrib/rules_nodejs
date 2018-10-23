@@ -16,7 +16,7 @@ package(default_visibility = ["//visibility:public"])
 
 load("//internal/mocha_node_test:mocha_node_test.bzl", "mocha_node_test")
 load("//internal/js_library:js_library.bzl", "js_library")
-
+load("@build_bazel_rules_nodejs//:internal/common/typescript_mock_lib.bzl", "mock_typescript_lib")
 
 js_library(
     name = "example_lib",
@@ -27,9 +27,11 @@ js_library(
 
 mocha_node_test(
     name = "test",
+    srcs = [
+        "test_one.js",
+        "test_two.js",
+    ],
     data = [
-        ":test_one.js",
-        ":test_two.js",
         ":example_lib",
     ],
     test_entrypoints = [
@@ -41,8 +43,8 @@ mocha_node_test(
 
 mocha_node_test(
     name = "fail_test",
-    data = [
-        ":test_fail.js",
+    srcs = [
+        "test_fail.js",
     ],
     test_entrypoints = [
         "internal/mocha_node_test/test/test_fail.js",
@@ -53,12 +55,28 @@ mocha_node_test(
 
 mocha_node_test(
     name = "test_no_tests_found",
-    data = [
-        ":test_no_tests_found.js",
+    srcs = [
+        "test_no_tests_found.js",
     ],
     test_entrypoints = [
         "internal/mocha_node_test/test/test_no_tests_found.js",
     ],
     node_modules = "//internal/test:node_modules",
     expected_exit_code=4,
+)
+
+mock_typescript_lib(
+    name = "mock_ts_lib",
+    srcs = ["decrement.js"],
+)
+
+mocha_node_test(
+    name = "typescript_inputs",
+    srcs = [
+        "decrement.spec.js",
+    ],
+    data = [
+        ":mock_ts_lib"
+    ],
+    node_modules = "//internal/test:node_modules",
 )

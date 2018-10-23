@@ -30,6 +30,7 @@ load("//internal/node:node.bzl", "nodejs_test")
 def mocha_node_test(
   name,
   test_entrypoints = [], # these should NOT contain the preceding workspace name.
+  srcs = [],
   data = [],
   expected_exit_code = 0,
   **kwargs):
@@ -40,12 +41,13 @@ def mocha_node_test(
   Args:
     name: name of the resulting label.
     test_entrypoints: full paths to your files containing mocha tests, NOT containing the preceding workspace name.
+    srcs: spec files containing assertions
     data: Runtime dependencies that the mocha tests need access to.
     expected_exit_code: The expected exit code for the test. Defaults to 0.
     **kwargs: remaining arguments passed to the test rule
   """
 
-  all_data = data
+  all_data = data + srcs
   all_data += [Label("//internal/mocha_node_test:mocha_runner.js")]
   all_data += [Label("@bazel_tools//tools/bash/runfiles")]
   entry_point = "build_bazel_rules_nodejs/internal/mocha_node_test/mocha_runner.js"
