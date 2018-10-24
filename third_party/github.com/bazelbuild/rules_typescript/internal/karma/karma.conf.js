@@ -3,7 +3,43 @@
 try
 {
   const fs = require('fs');
+  const path = require('path');
   const tmp = require('tmp');
+  const child_process = require('child_process');
+
+  // Helper function to find a particular namedFile
+  // within the webTestMetadata webTestFiles
+  function findNamedFile(webTestMetadata, key) {
+    let result;
+    webTestMetadata['webTestFiles'].forEach(entry => {
+      const webTestNamedFiles = entry['namedFiles'];
+      if (webTestNamedFiles && webTestNamedFiles[key]) {
+        result = webTestNamedFiles[key];
+      }
+    });
+    return result;
+  }
+
+  // Helper function to extract a browser archive
+  // and return the path to extract executable
+  function extractWebArchive(extractExe, archiveFile, executablePath) {
+    try {
+      // Paths are relative to the 'external' folder within runfiles
+      extractExe = extractExe ? path.join('external', extractExe) : extractExe;
+      archiveFile = path.join('external', archiveFile);
+      const extractedExecutablePath = path.join(process.cwd(), executablePath);
+      if (!extractExe) {
+        throw new Error('No EXTRACT_EXE found');
+      }
+      child_process.execFileSync(
+          extractExe, [archiveFile, '.'],
+          {stdio: [process.stdin, process.stdout, process.stderr]});
+      return extractedExecutablePath;
+    } catch (e) {
+      console.error(`Failed to extract ${archiveFile}`);
+      throw e;
+    }
+  }
 
   const browsers = [];
   let customLaunchers = null;
@@ -40,18 +76,28 @@ try
       // "@io_bazel_rules_webtesting//browsers:firefox-local"
       // then the 'environment' will equal 'local' and
       // 'webTestFiles' will contain the path to the binary to use
+      const extractExe = findNamedFile(webTestMetadata, 'EXTRACT_EXE');
       webTestMetadata['webTestFiles'].forEach(webTestFiles => {
         const webTestNamedFiles = webTestFiles['namedFiles'];
+        const archiveFile = webTestFiles['archiveFile'];
         if (webTestNamedFiles['CHROMIUM']) {
           // When karma is configured to use Chrome it will look for a CHROME_BIN
           // environment variable.
-          process.env.CHROME_BIN = require.resolve(webTestNamedFiles['CHROMIUM']);
+          if (archiveFile) {
+            process.env.CHROME_BIN = extractWebArchive(extractExe, archiveFile, webTestNamedFiles['CHROMIUM']);
+          } else {
+            process.env.CHROME_BIN = require.resolve(webTestNamedFiles['CHROMIUM']);
+          }
           browsers.push(process.env['DISPLAY'] ? 'Chrome' : 'ChromeHeadless');
         }
         if (webTestNamedFiles['FIREFOX']) {
           // When karma is configured to use Firefox it will look for a
           // FIREFOX_BIN environment variable.
-          process.env.FIREFOX_BIN = require.resolve(webTestNamedFiles['FIREFOX']);
+          if (archiveFile) {
+            process.env.FIREFOX_BIN = extractWebArchive(extractExe, archiveFile, webTestNamedFiles['FIREFOX']);
+          } else {
+            process.env.FIREFOX_BIN = require.resolve(webTestNamedFiles['FIREFOX']);
+          }
           browsers.push(process.env['DISPLAY'] ? 'Firefox' : 'FirefoxHeadless');
         }
       });
