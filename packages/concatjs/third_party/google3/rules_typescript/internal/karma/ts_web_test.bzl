@@ -25,6 +25,12 @@ load("@io_bazel_rules_webtesting//web/internal:constants.bzl", "DEFAULT_WRAPPED_
 _CONF_TMPL = "//internal/karma:karma.conf.js"
 _DEFAULT_KARMA_BIN = "@npm//@bazel/karma/bin:karma"
 
+def _short_path_to_manifest_path(ctx, short_path):
+    if short_path.startswith("../"):
+        return short_path[3:]
+    else:
+        return ctx.workspace_name + "/" + short_path
+
 def _ts_web_test_impl(ctx):
     conf = ctx.actions.declare_file(
         "%s.conf.js" % ctx.label.name,
@@ -98,10 +104,6 @@ def _ts_web_test_impl(ctx):
         },
     )
 
-    karma_executable_path = ctx.executable.karma.short_path
-    if karma_executable_path.startswith(".."):
-        karma_executable_path = "external" + karma_executable_path[2:]
-
     karma_runfiles = [
         conf,
         amd_names_shim,
@@ -118,15 +120,15 @@ def _ts_web_test_impl(ctx):
 if [ -e "$RUNFILES_MANIFEST_FILE" ]; then
   while read line; do
     declare -a PARTS=($line)
-    if [ "${{PARTS[0]}}" == "{TMPL_workspace}/{TMPL_karma}" ]; then
+    if [ "${{PARTS[0]}}" == "{TMPL_karma}" ]; then
       readonly KARMA=${{PARTS[1]}}
-    elif [ "${{PARTS[0]}}" == "{TMPL_workspace}/{TMPL_conf}" ]; then
+    elif [ "${{PARTS[0]}}" == "{TMPL_conf}" ]; then
       readonly CONF=${{PARTS[1]}}
     fi
   done < $RUNFILES_MANIFEST_FILE
 else
-  readonly KARMA={TMPL_karma}
-  readonly CONF={TMPL_conf}
+  readonly KARMA=../{TMPL_karma}
+  readonly CONF=../{TMPL_conf}
 fi
 
 export HOME=$(mktemp -d)
@@ -143,8 +145,8 @@ fi
 $KARMA ${{ARGV[@]}}
 """.format(
             TMPL_workspace = ctx.workspace_name,
-            TMPL_karma = karma_executable_path,
-            TMPL_conf = conf.short_path,
+            TMPL_karma = _short_path_to_manifest_path(ctx, ctx.executable.karma.short_path),
+            TMPL_conf = _short_path_to_manifest_path(ctx, conf.short_path),
         ),
     )
     return [DefaultInfo(
