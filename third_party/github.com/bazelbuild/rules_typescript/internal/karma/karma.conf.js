@@ -24,9 +24,9 @@ try
   // and return the path to extract executable
   function extractWebArchive(extractExe, archiveFile, executablePath) {
     try {
-      // Paths are relative to the 'external' folder within runfiles
-      extractExe = extractExe ? path.join('external', extractExe) : extractExe;
-      archiveFile = path.join('external', archiveFile);
+      // Paths are relative to the root runfiles folder
+      extractExe = extractExe ? path.join('..', extractExe) : extractExe;
+      archiveFile = path.join('..', archiveFile);
       const extractedExecutablePath = path.join(process.cwd(), executablePath);
       if (!extractExe) {
         throw new Error('No EXTRACT_EXE found');
