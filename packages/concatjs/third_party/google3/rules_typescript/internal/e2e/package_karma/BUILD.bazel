@@ -19,7 +19,6 @@ ts_web_test_suite(
     srcs = glob(["*.js"]),
     browsers = [
         "@io_bazel_rules_webtesting//browsers:chromium-local",
-        # TODO(gregmagolan): re-enable once `Cannot find module 'Firefox.app/Contents/MacOS/firefox'` issue resolved
-        # "@io_bazel_rules_webtesting//browsers:firefox-local",
+        "@io_bazel_rules_webtesting//browsers:firefox-local",
     ],
 )
