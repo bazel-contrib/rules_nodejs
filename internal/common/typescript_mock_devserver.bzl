@@ -17,8 +17,8 @@
 Allows testing that babel_library will work with ts_devserver from
 rules_typescript without introducing a circular dependency between
 rules_nodejs and rules_typescript repositories. This does not actually create
-an executable but just has the same logic as the real ts_devserver and writes
-out the same manifest files.
+an executable but has nearly the same logic as the real ts_devserver and writes
+out the same manifest and binary files.
 """
 
 load(
@@ -87,6 +87,31 @@ def _mock_mock_typescript_devserver(ctx):
 
   packages = depset(["/".join([workspace_name, ctx.label.package])] + ctx.attr.additional_root_paths)
 
+  ctx.actions.write(
+    output = ctx.outputs.executable,
+    is_executable = True,
+    content = """#!/bin/sh
+RUNFILES="$PWD/.."
+{main} {serving_arg} \
+  -base="$RUNFILES" \
+  -packages={packages} \
+  -manifest={workspace}/{manifest} \
+  -scripts_manifest={workspace}/{scripts_manifest} \
+  -entry_module={entry_module} \
+  -port={port} \
+  "$@"
+""".format(
+      main = "main",
+      serving_arg = serving_arg,
+      workspace = workspace_name,
+      packages = ",".join(packages.to_list()),
+      manifest = ctx.outputs.manifest.short_path,
+      scripts_manifest = ctx.outputs.scripts_manifest.short_path,
+      entry_module = ctx.attr.entry_module,
+      port = str(ctx.attr.port),
+    ),
+  )
+
   return [DefaultInfo(
     runfiles = ctx.runfiles(
       files = devserver_runfiles,
@@ -126,5 +151,6 @@ mock_typescript_devserver = rule(
   outputs = {
     "manifest": "%{name}.MF",
     "scripts_manifest": "scripts_%{name}.MF",
+    "executable": "%{name}",
   },
 )
