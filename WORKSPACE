@@ -18,6 +18,11 @@ load("//:package.bzl", "rules_nodejs_dependencies", "rules_nodejs_dev_dependenci
 rules_nodejs_dependencies()
 rules_nodejs_dev_dependencies()
 
+load("//internal/common:check_bazel_version.bzl", "check_bazel_version")
+
+# 0.18.0: support for .bazelignore
+check_bazel_version("0.18.0")
+
 #
 # Load and install our dependencies downloaded above.
 #
@@ -40,31 +45,6 @@ local_repository(
 local_repository(
     name = "nodejs_binary_example",
     path = "examples/nodejs_binary",
-)
-
-local_repository(
-    name = "bazel_managed_deps_example",
-    path = "examples/bazel_managed_deps",
-)
-
-local_repository(
-    name = "vendored_node_example",
-    path = "examples/vendored_node",
-)
-
-local_repository(
-    name = "node_loader_e2e_no_preserve_symlinks",
-    path = "internal/e2e/node_loader_no_preserve_symlinks",
-)
-
-local_repository(
-    name = "node_loader_e2e_preserve_symlinks",
-    path = "internal/e2e/node_loader_preserve_symlinks",
-)
-
-local_repository(
-    name = "node_resolve_dep",
-    path = "internal/test/node_resolve_dep",
 )
 
 load("//:defs.bzl", "node_repositories", "yarn_install", "npm_install")

@@ -9,14 +9,9 @@ build --noshow_progress
 # (e.g. /etc/bazel.bazelrc vs. tools/bazel.rc)
 build --announce_rc
 
-# Save downloaded repositories such as the go toolchain
-# This directory can then be included in the CircleCI cache
-# It should save time running the first build
-build --experimental_repository_cache=/home/circleci/bazel_repository_cache
-
 # Workaround https://github.com/bazelbuild/bazel/issues/3645
 # Bazel doesn't calculate the memory ceiling correctly when running under Docker.
-# Limit Bazel to consuming 2560M of RAM
-build --local_resources=2560,2.0,1.0
+# Limit Bazel to consuming 2048M of RAM
+build --local_resources=2048,1.0,1.0
 # Also limit Bazel's own JVM heap to stay within our 4G container limit
-startup --host_jvm_args=-Xmx1G
+startup --host_jvm_args=-Xmx1536m

@@ -1,7 +1,7 @@
 {
     "name": "@bazel/javascript",
     "description": "Build JavaScript with Bazel",
-    "version": "0.15.1",
+    "version": "0.15.3",
     "keywords": [
         "javascript",
         "bazel"
@@ -14,13 +14,13 @@
         "shelljs": "^0.8.2"
     },
     "scripts": {
-        "//nested workspace tests": "Run bazel from within the folder containing the WORKSPACE so that the WORKSPACE files is tested.",
-        "examples-bazel_managed_deps": "cd examples/bazel_managed_deps && bazel test //...",
-        "examples-program": "cd examples/program && bazel run @nodejs//:yarn && bazel test --test_output=errors :all",
-        "examples-packages": "cd examples/packages && bazel run @nodejs//:yarn && bazel test --test_output=errors :all",
+        "//nested workspace tests": "Run bazel from within the folder containing the WORKSPACE so that the WORKSPACE files is tested",
+        "examples-bazel_managed_deps": "cd examples/bazel_managed_deps && yarn test",
+        "examples-program": "cd examples/program && yarn test",
+        "examples-packages": "cd examples/packages && yarn test",
         "examples-vendored_node": "cd examples/vendored_node && yarn test",
-        "internal-e2e-node_loader_no_preserve_symlinks": "cd internal/e2e/node_loader_no_preserve_symlinks && bazel run @nodejs//:yarn && bazel test ... && bazel test @node_resolve_dep//:test",
-        "internal-e2e-node_loader_preserve_symlinks": "cd internal/e2e/node_loader_preserve_symlinks && bazel run @nodejs//:yarn && bazel test ... && bazel test @node_resolve_dep//:test",
+        "internal-e2e-node_loader_no_preserve_symlinks": "cd internal/e2e/node_loader_no_preserve_symlinks && yarn test",
+        "internal-e2e-node_loader_preserve_symlinks": "cd internal/e2e/node_loader_preserve_symlinks && yarn test",
         "test": "yarn examples-bazel_managed_deps && yarn examples-packages && yarn examples-program && yarn examples-vendored_node && yarn internal-e2e-node_loader_no_preserve_symlinks && yarn internal-e2e-node_loader_preserve_symlinks",
         "prebuildifier": "bazel build --noshow_progress @com_github_bazelbuild_buildtools//buildifier",
         "buildifier": "find . -type f \\( -name BUILD -or -name BUILD.bazel \\) ! -path \"*/node_modules/*\" | xargs $(bazel info bazel-bin)/external/com_github_bazelbuild_buildtools/buildifier/*/buildifier",

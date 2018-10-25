@@ -24,27 +24,29 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 # It will be automatically synced via the npm "version" script
 # that is run when running `npm version` during the release
 # process. See `Releasing` section in README.md.
-VERSION = "0.15.1"
+VERSION = "0.15.3"
 
 def check_rules_nodejs_version(minimum_version_string):
-  """
-  Verify that a minimum build_bazel_rules_nodejs is loaded a WORKSPACE.
+    """
+    Verify that a minimum build_bazel_rules_nodejs is loaded a WORKSPACE.
 
-  This should be called from the `WORKSPACE` file so that the build fails as
-  early as possible. For example:
+    This should be called from the `WORKSPACE` file so that the build fails as
+    early as possible. For example:
 
-  ```
-  # in WORKSPACE:
-  load("@build_bazel_rules_nodejs//:package.bzl", "check_rules_nodejs_version")
-  check_rules_nodejs_version("0.11.2")
-  ```
+    ```
+    # in WORKSPACE:
+    load("@build_bazel_rules_nodejs//:package.bzl", "check_rules_nodejs_version")
+    check_rules_nodejs_version("0.11.2")
+    ```
 
-  Args:
-    minimum_version_string: a string indicating the minimum version
-  """
-  if not check_version(VERSION, minimum_version_string):
-    fail("\nCurrent build_bazel_rules_nodejs version is {}, expected at least {}\n".format(
-        VERSION, minimum_version_string))
+    Args:
+      minimum_version_string: a string indicating the minimum version
+    """
+    if not check_version(VERSION, minimum_version_string):
+        fail("\nCurrent build_bazel_rules_nodejs version is {}, expected at least {}\n".format(
+            VERSION,
+            minimum_version_string,
+        ))
 
 def rules_nodejs_dependencies():
     """
@@ -127,8 +129,13 @@ def rules_nodejs_dev_dependencies():
     # Go is a transitive dependency of buildifier
     http_archive(
         name = "io_bazel_rules_go",
+<<<<<<< HEAD
         urls = ["https://github.com/bazelbuild/rules_go/releases/download/0.14.0/rules_go-0.14.0.tar.gz"],
         sha256 = "5756a4ad75b3703eb68249d50e23f5d64eaf1593e886b9aa931aa6e938c4e301",
+=======
+        url = "https://github.com/bazelbuild/rules_go/releases/download/0.16.0/rules_go-0.16.0.tar.gz",
+        sha256 = "ee5fe78fe417c685ecb77a0a725dc9f6040ae5beb44a0ba4ddb55453aad23a8a",
+>>>>>>> master
     )
 
     # Fetching the Bazel source code allows us to compile the Skylark linter

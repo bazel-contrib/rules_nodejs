@@ -9,17 +9,31 @@
 
 ## IMPORTANT
 # If you change the `docker_image` version, also change the `cache_key` version
-var_1: &docker_image angular/ngcontainer:0.6.0
-var_2: &cache_key angular/ngcontainer:0.6.0-{{ .Branch }}-{{ checksum "yarn.lock" }}-examples/rollup:{{ checksum "examples/rollup/yarn.lock" }}-examples/program:{{ checksum "examples/program/yarn.lock" }}-internal/test:{{ checksum "internal/test/yarn.lock" }}-internal/e2e/node_loader_no_preserve_symlinks:{{ checksum "internal/e2e/node_loader_no_preserve_symlinks/yarn.lock" }}-internal/e2e/node_loader_preserve_symlinks:{{ checksum "internal/e2e/node_loader_preserve_symlinks/yarn.lock" }}
+var_1: &docker_image angular/ngcontainer:0.7.0
+var_2: &cache_key angular/ngcontainer:0.7.0-{{ .Branch }}-{{ checksum "yarn.lock" }}-examples/rollup:{{ checksum "examples/rollup/yarn.lock" }}-examples/program:{{ checksum "examples/program/yarn.lock" }}-internal/test:{{ checksum "internal/test/yarn.lock" }}-internal/e2e/node_loader_no_preserve_symlinks:{{ checksum "internal/e2e/node_loader_no_preserve_symlinks/yarn.lock" }}-internal/e2e/node_loader_preserve_symlinks:{{ checksum "internal/e2e/node_loader_preserve_symlinks/yarn.lock" }}
+
 # Move node binaries out of the way to enforce that Bazel uses
 # only the hermetic ones it downloads
-var_4: &hide_node_and_yarn_local_binaries
+var_3: &hide_node_and_yarn_local_binaries
   run:
     name: Move node, npm, and yarn binaries
     command: |
       sudo mv /usr/local/bin/node /usr/local/bin/node_
       sudo mv /usr/local/bin/npm /usr/local/bin/npm_
       sudo mv /usr/local/bin/yarn /usr/local/bin/yarn_
+
+var_4: &setup_bazelrc
+  run:
+    name: Setup /etc/bazel.bazelrc
+    command: sudo cp .circleci/bazel.rc /etc/bazel.bazelrc
+
+var_5: &setup_bazelrc_legacy_runfiles
+  run:
+    name: Setup /etc/bazel.bazelrc (with legacy runfiles)
+    command: |
+      sed -i -e 's/run --nolegacy_external_runfiles//' .bazelrc
+      sed -i -e 's/test --nolegacy_external_runfiles//' .bazelrc
+      sudo cp .circleci/bazel.rc /etc/bazel.bazelrc
 
 # Settings common to each job
 anchor_1: &job_defaults
@@ -46,7 +60,7 @@ jobs:
     steps:
       - checkout:
           <<: *post_checkout
-      - run: sudo cp .circleci/bazel.rc /etc/bazel.bazelrc
+      - *setup_bazelrc
 
       # Run the skylark linter to check our Bazel rules
       - run: 'yarn skylint ||
@@ -65,7 +79,7 @@ jobs:
     steps:
       - checkout:
           <<: *post_checkout
-      - run: sudo cp .circleci/bazel.rc /etc/bazel.bazelrc
+      - *setup_bazelrc
       - *hide_node_and_yarn_local_binaries
       - restore_cache:
           key: *cache_key
@@ -86,13 +100,6 @@ jobs:
       - run: bazel run @fine_grained_deps_yarn//typescript/bin:tsc
       - run: bazel run @nodejs_binary_example//:index
 
-      # We should also be able to test targets in a different workspace
-      - run: bazel test @program_example//...
-      - run: bazel test @packages_example//...
-      - run: bazel build @devserver_example//...
-      - run: bazel build @nodejs_binary_example//...
-
-
       - save_cache:
           key: *cache_key
           paths:
@@ -103,6 +110,26 @@ jobs:
             - "internal/e2e/node_loader_preserve_symlinks/node_modules"
             - "internal/test/node_modules"
 
+  test_legacy_runfiles:
+    <<: *job_defaults
+    steps:
+      - checkout:
+          <<: *post_checkout
+      - *setup_bazelrc_legacy_runfiles
+      - *hide_node_and_yarn_local_binaries
+      - restore_cache:
+          key: *cache_key
+
+      - run: bazel run @nodejs//:yarn
+
+      # We should also be able to test targets in a different workspace
+      # TODO(gmagolan): move these tests into `build` job once
+      # https://github.com/bazelbuild/bazel/issues/6481 is resolved
+      - run: bazel test @program_example//...
+      - run: bazel test @packages_example//...
+      - run: bazel build @devserver_example//...
+      - run: bazel build @nodejs_binary_example//...
+
   # This job cannot run on BuildKite (BazelCI) because it requires changing
   # directories to test inside nested workspaces.
   # See https://github.com/bazelbuild/continuous-integration/issues/225
@@ -111,7 +138,7 @@ jobs:
     steps:
       - checkout:
           <<: *post_checkout
-      - run: sudo cp .circleci/bazel.rc /etc/bazel.bazelrc
+      - *setup_bazelrc
 
       # Not using "bazel run @nodejs//:yarn test" as will attempt to run
       # the "test" script on all folder listed in node_repositories()
@@ -124,3 +151,4 @@ workflows:
       - lint
       - build
       - test
+      - test_legacy_runfiles

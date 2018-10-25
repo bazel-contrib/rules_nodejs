@@ -5,7 +5,9 @@
         "@gregmagolan/test-a": "0.0.1",
         "clang-format": "1.2.2",
         "jasmine": "3.1.0",
-        "minimist": "1.2.0",
-        "node-resolve-dep": "file:../../test/node_resolve_dep"
+        "minimist": "1.2.0"
+    },
+    "scripts": {
+        "test": "bazel run @nodejs//:yarn && bazel test //..."
     }
 }
