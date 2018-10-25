@@ -94,18 +94,6 @@ load("@io_bazel_rules_go//go:def.bzl", "go_rules_dependencies", "go_register_too
 go_rules_dependencies()
 go_register_toolchains()
 
-load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
-gazelle_dependencies()
-
-load("@io_bazel_rules_webtesting//web:repositories.bzl", "browser_repositories", "web_test_repositories")
-web_test_repositories()
-browser_repositories(
-    chromium = True,
-)
-
-load("@build_bazel_rules_typescript//:defs.bzl", "ts_setup_workspace")
-ts_setup_workspace()
-
 #
 # Install npm dependencies for tests
 #

@@ -430,7 +430,6 @@ def _rollup_bundle(ctx):
     # Generate the bundles
     rollup_config = write_rollup_config(ctx)
     run_rollup(ctx, collect_es6_sources(ctx), rollup_config, ctx.outputs.build_es6)
-    # TODO - fix source maps - run babel???
     _run_tsc(ctx, ctx.outputs.build_es6, ctx.outputs.build_es5)
     source_map = run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min)
     run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min_debug, debug = True)
