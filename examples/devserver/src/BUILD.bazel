@@ -5,7 +5,7 @@
 
 load("@build_bazel_rules_nodejs//internal/js_library/v2:js_library.bzl", "js_library")
 load("@build_bazel_rules_nodejs//:defs.bzl", "rollup_bundle")
-load("@build_bazel_rules_typescript//:defs.bzl", "ts_devserver")
+load("@build_bazel_rules_nodejs//:internal/common/typescript_mock_devserver.bzl", "mock_typescript_devserver")
 
 js_library(
     name = "module",
@@ -27,7 +27,7 @@ js_library(
     ],
 )
 
-ts_devserver(
+mock_typescript_devserver(
     name = "devserver",
     # Note: This will only work now when called from the top-level workspace, otherwise it would
     # just be src/test
