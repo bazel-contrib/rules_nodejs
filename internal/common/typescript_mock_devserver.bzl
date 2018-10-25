@@ -16,7 +16,9 @@
 
 Allows testing that babel_library will work with ts_devserver from
 rules_typescript without introducing a circular dependency between
-rules_nodejs and rules_typescript repositories.
+rules_nodejs and rules_typescript repositories. This does not actually create
+an executable but just has the same logic as the real ts_devserver and writes
+out the same manifest files.
 """
 
 load(
