@@ -23,6 +23,7 @@ load("//internal/node:node.bzl",
      _nodejs_test = "nodejs_test_macro")
 load("//internal/node:node_repositories.bzl",_node_repositories = "node_repositories")
 load("//internal/jasmine_node_test:jasmine_node_test.bzl", _jasmine_node_test = "jasmine_node_test")
+load("//internal/nodejs_jest_test:nodejs_jest_test.bzl", _nodejs_jest_test = "nodejs_jest_test")
 load("//internal/npm_install:npm_install.bzl", _npm_install = "npm_install", _yarn_install = "yarn_install")
 load("//internal/rollup:rollup_bundle.bzl", _rollup_bundle = "rollup_bundle")
 load("//internal/npm_package:npm_package.bzl", _npm_package = "npm_package")
@@ -41,6 +42,7 @@ rollup_bundle = _rollup_bundle
 npm_package = _npm_package
 history_server = _history_server
 http_server = _http_server
+nodejs_jest_test = _nodejs_jest_test
 # ANY RULES ADDED HERE SHOULD BE DOCUMENTED, run yarn skydoc to verify
 
 check_rules_nodejs_version = _check_rules_nodejs_version

@@ -1,8 +1,10 @@
 {
   "description": "runtime dependencies for tests",
   "devDependencies": {
+    "fs-extra": "^7.0.0",
     "is-builtin-module": "^2.0.0",
     "jasmine": "~2.8.0",
+    "jest": "^23.6.0",
     "node_resolve_index": "file:./node_resolve_index",
     "node_resolve_index_2": "file:./node_resolve_index_2",
     "node_resolve_index_3": "file:./node_resolve_index_3",
