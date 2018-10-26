@@ -16,6 +16,7 @@ babel_library(
 babel_library(
     name = "test",
     srcs = ["test.js"],
+    babel = "@devserver_example_yarn_install//@bazel/babel/bin:babel",
     # Note: This rc file will only be found by babel when run in the devserver_example workspace
     # but not in the top-level one, due to how bazel currently handels pathing
     data = [
@@ -26,7 +27,6 @@ babel_library(
         "//src/dir:module",
         "//src/my_lib_folder:my_lib",
     ],
-    babel = "@devserver_example_yarn_install//@bazel/babel/bin:babel",
 )
 
 mock_typescript_devserver(

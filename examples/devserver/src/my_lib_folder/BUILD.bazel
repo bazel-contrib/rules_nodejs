@@ -3,7 +3,7 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "babel_library")
 babel_library(
     name = "my_lib",
     srcs = ["index.js"],
+    babel = "@devserver_example_yarn_install//@bazel/babel/bin:babel",
     module_name = "my-lib",
     visibility = ["//src:__subpackages__"],
-    babel = "@devserver_example_yarn_install//@bazel/babel/bin:babel",
 )

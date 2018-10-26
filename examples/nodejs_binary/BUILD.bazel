@@ -10,19 +10,19 @@ babel_library(
 babel_library(
     name = "lib",
     srcs = ["lib.js"],
+    babel = "@devserver_example_yarn_install//@bazel/babel/bin:babel",
     deps = [
         ":msg",
     ],
-    babel = "@devserver_example_yarn_install//@bazel/babel/bin:babel",
 )
 
 babel_library(
     name = "index_lib",
     srcs = ["index.js"],
+    babel = "@devserver_example_yarn_install//@bazel/babel/bin:babel",
     deps = [
         ":lib",
     ],
-    babel = "@devserver_example_yarn_install//@bazel/babel/bin:babel",
 )
 
 babel_library(
@@ -31,9 +31,9 @@ babel_library(
         "someLibrary/index.js",
         "someLibrary/internalFile.js",
     ],
+    babel = "@devserver_example_yarn_install//@bazel/babel/bin:babel",
     module_name = "someLibrary",
     module_root = "someLibrary",
-    babel = "@devserver_example_yarn_install//@bazel/babel/bin:babel",
 )
 
 nodejs_binary(
