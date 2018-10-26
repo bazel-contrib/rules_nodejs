@@ -3,16 +3,17 @@
 # https://github.com/bazelbuild/bazel/issues/1262
 # https://docs.google.com/document/d/1qPOUeoqDA3eWFFXS1shWX1FT3e4BQB8yuSMrfQL4QrA
 
-load("@build_bazel_rules_nodejs//internal/js_library/v2:js_library.bzl", "js_library")
+load("@build_bazel_rules_nodejs//:defs.bzl", "babel_library")
 load("@build_bazel_rules_nodejs//:defs.bzl", "rollup_bundle")
 load("@build_bazel_rules_nodejs//:internal/common/typescript_mock_devserver.bzl", "mock_typescript_devserver")
 
-js_library(
+babel_library(
     name = "module",
     srcs = ["module.js"],
+    babel = "@devserver_example_yarn_install//@bazel/babel/bin:babel",
 )
 
-js_library(
+babel_library(
     name = "test",
     srcs = ["test.js"],
     # Note: This rc file will only be found by babel when run in the devserver_example workspace
@@ -25,6 +26,7 @@ js_library(
         "//src/dir:module",
         "//src/my_lib_folder:my_lib",
     ],
+    babel = "@devserver_example_yarn_install//@bazel/babel/bin:babel",
 )
 
 mock_typescript_devserver(

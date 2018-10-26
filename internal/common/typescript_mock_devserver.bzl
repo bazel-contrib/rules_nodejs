@@ -151,6 +151,6 @@ mock_typescript_devserver = rule(
   outputs = {
     "manifest": "%{name}.MF",
     "scripts_manifest": "scripts_%{name}.MF",
-    "executable": "%{name}",
+    "executable": "%{name}_bin",
   },
 )

@@ -1,7 +1,11 @@
 
-"""js_library allows defining a set of javascript sources to be used with ts_devserver"""
+"""babel_library allows defining a set of next generation javascript sources
+and uses babel to compile them for runtimes of today. It also brings
+compatibility with rules_typescript."""
 
 load("@bazel_skylib//:lib.bzl", "paths")
+
+_DEFAULT_BABEL_BIN = "@npm//@bazel/babel/bin:babel"
 
 # get the path of the file relative the the package "root"
 def _get_package_path(ctx, file):
@@ -93,7 +97,7 @@ def _collect_sources(ctx, es5_outputs):
   )
 
 
-def _js_library(ctx):
+def _babel_library(ctx):
   if ctx.attr.babelrc:
     config = ctx.file.babelrc
   else:
@@ -133,8 +137,8 @@ def _js_library(ctx):
     ],
   )
 
-js_library = rule(
-    implementation = _js_library,
+babel_library = rule(
+    implementation = _babel_library,
     attrs = {
         "srcs": attr.label_list(
             doc = """JavaScript source files from the workspace.
@@ -148,16 +152,19 @@ js_library = rule(
             doc = """Other files useful for babel such as .browserslistrc""",
             allow_files = True,
         ),
-        "module_name": attr.string(),
+        "module_name": attr.string(
+            doc = """Allows to specify a custom module name for requiring, rather than having to use the relative path.""",
+        ),
         "module_root": attr.string(),
         "babel": attr.label(
             executable = True,
-            cfg="host",
-            default = Label("//internal/js_library/v2:babel")
+            cfg = "host",
+            default = Label(_DEFAULT_BABEL_BIN),
+            allow_files = True,
         ),
         "_babelrc_tmpl": attr.label(
             allow_single_file = True,
-            default = Label("//internal/js_library/v2:babel.rc.js")
+            default = Label("//internal/babel_library:babel.rc.js")
         ),
         "babelrc": attr.label(
             allow_single_file = True,
@@ -165,8 +172,8 @@ js_library = rule(
             default = None,
         ),
         "no_sandbox": attr.string(
-            doc = """The string value of no-sandbox in the execution_requirements dict of babelification""",
-            default = "0"
+          doc = """The string value of no-sandbox in the execution_requirements dict of babelification""",
+          default = "0"
         ),
     },
 )

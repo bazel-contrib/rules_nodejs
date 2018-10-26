@@ -24,5 +24,9 @@ def devserver_example_setup_workspace():
       name = "devserver_example_yarn_install",
       package_json = "@devserver_example//:package.json",
       yarn_lock = "@devserver_example//:yarn.lock",
+      data = [
+          "@build_bazel_rules_nodejs//internal/babel_library:package.json",
+          "@build_bazel_rules_nodejs//internal/babel_library:babel.js",
+          "@build_bazel_rules_nodejs//internal/babel_library:yarn.lock",
+      ],
   )
-

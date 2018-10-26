@@ -1,5 +1,6 @@
 {
     "dependencies": {
+        "@bazel/babel": "file:../../../../internal/babel_library",
         "jsesc": "~1.2.0"
-      }
+    }
 }

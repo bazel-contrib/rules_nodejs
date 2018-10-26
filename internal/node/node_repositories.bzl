@@ -561,12 +561,6 @@ def node_repositories(
   )
 
   yarn_install(
-      name = "build_bazel_rules_nodejs_js_library_deps",
-      package_json = "@build_bazel_rules_nodejs//internal/js_library/v2:package.json",
-      yarn_lock = "@build_bazel_rules_nodejs//internal/js_library/v2:yarn.lock",
-  )
-
-  yarn_install(
       name = "history-server_runtime_deps",
       package_json = "@build_bazel_rules_nodejs//internal/history-server:package.json",
       yarn_lock = "@build_bazel_rules_nodejs//internal/history-server:yarn.lock",

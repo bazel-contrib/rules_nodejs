@@ -1,9 +1,0 @@
-{
-    "description": "runtime dependencies for js_library",
-    "devDependencies": {
-        "@babel/core": "^7.1.0",
-        "@babel/preset-env": "^7.1.0",
-        "commander": "^2.18.0",
-        "mkdirp": "^0.5.1"
-    }
-}

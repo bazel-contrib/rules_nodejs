@@ -1,5 +1,5 @@
 load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
-load("@build_bazel_rules_nodejs//internal/js_library/v2:js_library.bzl", "js_library")
+load("@build_bazel_rules_nodejs//:defs.bzl", "babel_library")
 
 js_library(
     name = "msg",
@@ -32,20 +32,20 @@ js_library(
     module_root = "someLibrary",
 )
 
-nodejs_binary(
-    name = "flowBabel",
-    data = [
-        "@build_bazel_rules_nodejs//internal/js_library/v2:babel.js",
-        "@nodejs_binary_example_yarn_install//@babel/core",
-        "@nodejs_binary_example_yarn_install//@babel/preset-env",
-        "@nodejs_binary_example_yarn_install//babel-plugin-transform-es2015-modules-commonjs",
-        "@nodejs_binary_example_yarn_install//babel-plugin-transform-flow-strip-types",
-        "@nodejs_binary_example_yarn_install//commander",
-        "@nodejs_binary_example_yarn_install//mkdirp",
-    ],
-    entry_point = "build_bazel_rules_nodejs/internal/js_library/v2/babel.js",
-    install_source_map_support = False,
-)
+# nodejs_binary(
+#     name = "flowBabel",
+#     data = [
+#         "@build_bazel_rules_nodejs//internal/js_library/v2:babel.js",
+#         "@nodejs_binary_example_yarn_install//@babel/core",
+#         "@nodejs_binary_example_yarn_install//@babel/preset-env",
+#         "@nodejs_binary_example_yarn_install//babel-plugin-transform-es2015-modules-commonjs",
+#         "@nodejs_binary_example_yarn_install//babel-plugin-transform-flow-strip-types",
+#         "@nodejs_binary_example_yarn_install//commander",
+#         "@nodejs_binary_example_yarn_install//mkdirp",
+#     ],
+#     entry_point = "build_bazel_rules_nodejs/internal/js_library/v2/babel.js",
+#     install_source_map_support = False,
+# )
 
 js_library(
     name = "flowLibrary",
@@ -53,7 +53,7 @@ js_library(
         "flowLibrary/index.js",
         "flowLibrary/internalFile.js",
     ],
-    babel = ":flowBabel",
+    # babel = ":flowBabel",
     babelrc = "flowLibrary/flow.babelrc",
     module_name = "flowLibrary",
     module_root = "flowLibrary",

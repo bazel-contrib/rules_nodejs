@@ -10,7 +10,7 @@ document.body.appendChild(el);
 
 ```py
 # BUILD.bazel
-load("@build_bazel_rules_nodejs//internal/js_library/v2:js_library.bzl", "js_library")
+load("@build_bazel_rules_nodejs//:defs.bzl", "babel_library")
 
 js_library(
     name = "src",

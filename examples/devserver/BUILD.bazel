@@ -1,1 +1,8 @@
 exports_files([".browserslistrc"])
+
+filegroup(
+    name = "node_modules",
+    srcs = glob([
+        "node_modules/**/*",
+    ]),
+)
