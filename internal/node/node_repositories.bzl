@@ -32,8 +32,8 @@ DEFAULT_YARN_VERSION = "1.10.1"
 NODE_REPOSITORIES = {
   # 10.12.0
   "10.12.0-darwin_amd64": ("node-v10.12.0-darwin-x64.tar.gz", "node-v10.12.0-darwin-x64", "f275c901b9aeaacea2bf22648329c2e9ade5e1ff63a446b83446d5d4e19464cc"),
-  "10.12.0-linux_amd64": ("node-v10.12.0-linux-x64.tar.xz", "node-v10.12.0-linux-x64", "8d13d57aaf95177e97d29c0944d79a17de8c3a31ba3fe88d1846cfd907e52111"),
-  "10.12.0-windows_amd64": ("node-v10.12.0-win-x64.zip", "node-v10.12.0-win-x64", "2d6f1b952d48a89d34a18b05cdef0af4f7ab13ba8c4f8dc42a458ea15023f645"),
+  "10.12.0-linux_amd64": ("node-v10.12.0-linux-x64.tar.xz", "node-v10.12.0-linux-x64", "4eba2e9a6db95745b769915d58e57df6ca6724ec1f023f76556fce30ceca2367"),
+  "10.12.0-windows_amd64": ("node-v10.12.0-win-x64.zip", "node-v10.12.0-win-x64", "44c938cf1409562d25d23b7c6bce110b53cd2a73774bed573b2979f0d88f51f8"),
   # 10.10.0
   "10.10.0-darwin_amd64": ("node-v10.10.0-darwin-x64.tar.gz", "node-v10.10.0-darwin-x64", "00b7a8426e076e9bf9d12ba2d571312e833fe962c70afafd10ad3682fdeeaa5e"),
   "10.10.0-linux_amd64": ("node-v10.10.0-linux-x64.tar.xz", "node-v10.10.0-linux-x64", "686d2c7b7698097e67bcd68edc3d6b5d28d81f62436c7cf9e7779d134ec262a9"),
