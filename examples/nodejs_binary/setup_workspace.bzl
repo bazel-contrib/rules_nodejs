@@ -15,14 +15,18 @@
 """Helper function to setup @package_example workspace.
 """
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
+load("@build_bazel_rules_nodejs//:defs.bzl", "npm_install")
 
 def nodejs_binary_example_setup_workspace():
   """Node repositories for @nodejs_binary_example
   """
-  yarn_install(
+  npm_install(
       name = "nodejs_binary_example_yarn_install",
       package_json = "@nodejs_binary_example//:package.json",
-      yarn_lock = "@nodejs_binary_example//:yarn.lock",
+      data = [
+          "@build_bazel_rules_nodejs//internal/babel_library:package.json",
+          "@build_bazel_rules_nodejs//internal/babel_library:babel.js",
+          "@build_bazel_rules_nodejs//internal/babel_library:yarn.lock",
+      ],
   )
 

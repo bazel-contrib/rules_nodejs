@@ -5,3 +5,4 @@
 removeNPMAbsolutePaths@1.0.4:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/removeNPMAbsolutePaths/-/removeNPMAbsolutePaths-1.0.4.tgz#cc657a861485fc55344717972ebf4c453d775d21"
+  integrity sha512-xPf4iXieSibmA4f824hXLHzM2nwyFxWJ8Mp6PesVuASWmWbyUy0wvq41oYGYmuSe1f5g8gvCch/UaKr4H61x4g==

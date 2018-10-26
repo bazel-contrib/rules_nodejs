@@ -1,11 +1,8 @@
 {
     "description": "dependencies for nodejs_binary example",
     "devDependencies": {
-        "@babel/core": "^7.1.0",
-        "@babel/preset-env": "^7.1.0",
+        "@bazel/babel": "file:internal/babel_library",
         "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
-        "babel-plugin-transform-flow-strip-types": "^6.22.0",
-        "commander": "^2.18.0",
-        "mkdirp": "^0.5.1"
+        "babel-plugin-transform-flow-strip-types": "^6.22.0"
     }
 }
