@@ -1,28 +1,31 @@
 load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
 load("@build_bazel_rules_nodejs//:defs.bzl", "babel_library")
 
-js_library(
+babel_library(
     name = "msg",
     srcs = ["msg.js"],
+    babel = "@devserver_example_yarn_install//@bazel/babel/bin:babel",
 )
 
-js_library(
+babel_library(
     name = "lib",
     srcs = ["lib.js"],
     deps = [
         ":msg",
     ],
+    babel = "@devserver_example_yarn_install//@bazel/babel/bin:babel",
 )
 
-js_library(
+babel_library(
     name = "index_lib",
     srcs = ["index.js"],
     deps = [
         ":lib",
     ],
+    babel = "@devserver_example_yarn_install//@bazel/babel/bin:babel",
 )
 
-js_library(
+babel_library(
     name = "someLibrary",
     srcs = [
         "someLibrary/index.js",
@@ -30,30 +33,27 @@ js_library(
     ],
     module_name = "someLibrary",
     module_root = "someLibrary",
+    babel = "@devserver_example_yarn_install//@bazel/babel/bin:babel",
 )
 
-# nodejs_binary(
-#     name = "flowBabel",
-#     data = [
-#         "@build_bazel_rules_nodejs//internal/js_library/v2:babel.js",
-#         "@nodejs_binary_example_yarn_install//@babel/core",
-#         "@nodejs_binary_example_yarn_install//@babel/preset-env",
-#         "@nodejs_binary_example_yarn_install//babel-plugin-transform-es2015-modules-commonjs",
-#         "@nodejs_binary_example_yarn_install//babel-plugin-transform-flow-strip-types",
-#         "@nodejs_binary_example_yarn_install//commander",
-#         "@nodejs_binary_example_yarn_install//mkdirp",
-#     ],
-#     entry_point = "build_bazel_rules_nodejs/internal/js_library/v2/babel.js",
-#     install_source_map_support = False,
-# )
+nodejs_binary(
+    name = "flowBabel",
+    data = [
+        "@nodejs_binary_example_yarn_install//@bazel/babel",
+        "@nodejs_binary_example_yarn_install//babel-plugin-transform-es2015-modules-commonjs",
+        "@nodejs_binary_example_yarn_install//babel-plugin-transform-flow-strip-types",
+    ],
+    entry_point = "@bazel/babel/babel.js",
+    install_source_map_support = False,
+)
 
-js_library(
+babel_library(
     name = "flowLibrary",
     srcs = [
         "flowLibrary/index.js",
         "flowLibrary/internalFile.js",
     ],
-    # babel = ":flowBabel",
+    babel = ":flowBabel",
     babelrc = "flowLibrary/flow.babelrc",
     module_name = "flowLibrary",
     module_root = "flowLibrary",
