@@ -15,15 +15,16 @@
 """Helper function to setup @package_example workspace.
 """
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
+load("@build_bazel_rules_nodejs//:defs.bzl", "npm_install")
 
 def devserver_example_setup_workspace():
   """Node repositories for @devserver_examples
   """
-  yarn_install(
+  # yarn has a bug with installing local packages that are symlinked so use npm
+  # See https://github.com/yarnpkg/yarn/issues/6037
+  npm_install(
       name = "devserver_example_yarn_install",
       package_json = "@devserver_example//:package.json",
-      yarn_lock = "@devserver_example//:yarn.lock",
       data = [
           "@build_bazel_rules_nodejs//internal/babel_library:package.json",
           "@build_bazel_rules_nodejs//internal/babel_library:babel.js",

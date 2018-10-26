@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-"@bazel/babel@file:../../internal/babel_library":
+"@bazel/babel@file:internal/babel_library":
   version "0.15.3"
 
 jsesc@~1.2.0:

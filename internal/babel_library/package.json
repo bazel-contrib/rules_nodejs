@@ -10,7 +10,7 @@
     "bugs": {
         "url": "https://github.com/bazelbuild/rules_nodejs/issues"
     },
-    "devDependencies": {
+    "dependencies": {
         "@babel/core": "^7.1.2",
         "@babel/preset-env": "^7.1.0",
         "commander": "^2.19.0"
