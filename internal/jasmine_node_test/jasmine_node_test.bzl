@@ -60,12 +60,14 @@ def jasmine_node_test(
     all_data += [Label("//internal/jasmine_node_test:jasmine_runner.js")]
     all_data += [":%s_devmode_srcs.MF" % name]
     entry_point = "build_bazel_rules_nodejs/internal/jasmine_node_test/jasmine_runner.js"
+    # If the target specified templated_args, pass it through.
+    templated_args = kwargs.pop("templated_args", []) + ["$(location :%s_devmode_srcs.MF)" % name]
 
     nodejs_test_macro(
         name = name,
         data = all_data,
         entry_point = entry_point,
-        templated_args = ["$(location :%s_devmode_srcs.MF)" % name],
+        templated_args = templated_args,
         expected_exit_code = expected_exit_code,
         tags = tags,
         **kwargs
