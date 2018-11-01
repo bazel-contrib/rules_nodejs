@@ -138,9 +138,10 @@ interface SourceFileEntry {
 const DEFAULT_MAX_MEM_USAGE = 1024 * (1 << 20 /* 1 MB */);
 
 /**
- * FileCache is a trivial LRU cache for bazel outputs.
+ * FileCache is a trivial LRU cache for typescript-parsed bazel-output files.
  *
- * Cache entries are keyed off by an opaque, bazel-supplied digest.
+ * Cache entries include an opaque bazel-supplied digest to track staleness.
+ * Expected digests must be set (using updateCache) before using the cache.
  */
 // TODO(martinprobst): Drop the <T> parameter, it's no longer used.
 export class FileCache<T = {}> {
@@ -164,13 +165,13 @@ export class FileCache<T = {}> {
    */
   private maxMemoryUsage = DEFAULT_MAX_MEM_USAGE;
 
-  constructor(private debug: (...msg: Array<{}>) => void) {}
+  constructor(protected debug: (...msg: Array<{}>) => void) {}
 
   setMaxCacheSize(maxCacheSize: number) {
     if (maxCacheSize < 0) {
       throw new Error(`FileCache max size is negative: ${maxCacheSize}`);
     }
-    this.debug('FileCache max size is', maxCacheSize >> 20, 'MB');
+    this.debug('Cache max size is', maxCacheSize >> 20, 'MB');
     this.maxMemoryUsage = maxCacheSize;
     this.maybeFreeMemory();
   }
@@ -227,7 +228,7 @@ export class FileCache<T = {}> {
   putCache(filePath: string, entry: SourceFileEntry): void {
     const dropped = this.maybeFreeMemory();
     this.fileCache.set(filePath, entry);
-    this.debug('Loaded', filePath, 'dropped', dropped, 'file cache entries');
+    this.debug('Loaded file:', filePath, 'dropped', dropped, 'files');
   }
 
   /**
@@ -282,8 +283,57 @@ export class FileCache<T = {}> {
     return dropped;
   }
 
-  getCacheKeysForTest() {
+  getFileCacheKeysForTest() {
     return Array.from(this.fileCache.keys());
+  }
+}
+
+/**
+ * ProgramAndFileCache is a trivial LRU cache for typescript-parsed programs and
+ * bazel-output files.
+ *
+ * Programs are evicted before source files because they have less reuse across
+ * compilations.
+ */
+export class ProgramAndFileCache extends FileCache {
+  private programCache = new Cache<ts.Program>('program', this.debug);
+
+  getProgram(target: string): ts.Program|undefined {
+    return this.programCache.get(target);
+  }
+
+  putProgram(target: string, program: ts.Program): void {
+    const dropped = this.maybeFreeMemory();
+    this.programCache.set(target, program);
+    this.debug('Loaded program:', target, 'dropped', dropped, 'entries');
+  }
+
+  resetStats() {
+    super.resetStats()
+    this.programCache.resetStats();
+  }
+
+  printStats() {
+    super.printStats();
+    this.programCache.printStats();
+  }
+
+  traceStats() {
+    super.traceStats();
+    this.programCache.traceStats();
+  }
+
+  maybeFreeMemory() {
+    if (!this.shouldFreeMemory()) return 0;
+
+    const dropped = this.programCache.evict();
+    if (dropped > 0) return dropped;
+
+    return super.maybeFreeMemory();
+  }
+
+  getProgramCacheKeysForTest() {
+    return Array.from(this.programCache.keys());
   }
 }
 

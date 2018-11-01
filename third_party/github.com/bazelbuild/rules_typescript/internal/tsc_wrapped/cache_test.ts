@@ -19,23 +19,18 @@ import 'jasmine';
 
 import * as ts from 'typescript';
 
-import {CachedFileLoader, FileCache} from './cache';
+import {CachedFileLoader, FileCache, ProgramAndFileCache} from './cache';
 import {invalidateFileCache, writeTempFile} from './test_support';
 
 function fauxDebug(...args: any[]) {
   console.error.apply(console, args);
 }
 
-describe('FileCache', () => {
+describe('Cache', () => {
   let fileCache: FileCache;
   let fileLoader: CachedFileLoader;
 
-  beforeEach(() => {
-    fileCache = new FileCache(fauxDebug);
-    fileLoader = new CachedFileLoader(fileCache);
-  });
-
-  function load(name: string, fn: string) {
+  function loadFile(name: string, fn: string) {
     return fileLoader.loadFile(name, fn, ts.ScriptTarget.ES5);
   }
 
@@ -47,110 +42,203 @@ describe('FileCache', () => {
     fileCache.updateCache(digests);
   }
 
-  function expectCacheKeys() {
+  function expectFileCacheKeys() {
     // Strip the long /tmp paths created by writeTempFile.
     return expect(
-        fileCache.getCacheKeysForTest().map(fn => fn.replace(/.*\./, '')));
+        fileCache.getFileCacheKeysForTest().map(fn => fn.replace(/.*\./, '')));
   }
 
-  it('caches files', () => {
-    const fn = writeTempFile('file_cache_test', 'let x: number = 12;\n');
-    invalidateFileCache(fileCache, fn);
+  describe('FileCache', () => {
+    beforeEach(() => {
+      fileCache = new FileCache(fauxDebug);
+      fileLoader = new CachedFileLoader(fileCache);
+    });
 
-    // Caches.
-    const sourceFile = fileLoader.loadFile('fileName', fn, ts.ScriptTarget.ES5);
-    let sourceFile2 = fileLoader.loadFile('fileName', fn, ts.ScriptTarget.ES5);
-    expect(sourceFile).toBe(sourceFile2);  // i.e., identical w/ ===
+    it('caches files', () => {
+      const fn = writeTempFile('file_cache_test', 'let x: number = 12;\n');
+      invalidateFileCache(fileCache, fn);
 
-    // Invalidate the file.
-    invalidateFileCache(fileCache, fn);
-    sourceFile2 = fileLoader.loadFile('fileName', fn, ts.ScriptTarget.ES5);
-    // New file after write/mtime change.
-    expect(sourceFile).not.toBe(sourceFile2);
+      // Caches.
+      const sourceFile =
+          fileLoader.loadFile('fileName', fn, ts.ScriptTarget.ES5);
+      let sourceFile2 =
+          fileLoader.loadFile('fileName', fn, ts.ScriptTarget.ES5);
+      expect(sourceFile).toBe(sourceFile2);  // i.e., identical w/ ===
+
+      // Invalidate the file.
+      invalidateFileCache(fileCache, fn);
+      sourceFile2 = fileLoader.loadFile('fileName', fn, ts.ScriptTarget.ES5);
+      // New file after write/mtime change.
+      expect(sourceFile).not.toBe(sourceFile2);
+    });
+
+    it('caches in LRU order', () => {
+      let free = false;
+      fileCache.shouldFreeMemory = () => free;
+
+      const fn1 = writeTempFile('file_cache_test1', 'let x: number = 1;\n');
+      const fn2 = writeTempFile('file_cache_test2', 'let x: number = 2;\n');
+      const fn3 = writeTempFile('file_cache_test3', 'let x: number = 3;\n');
+      const fn4 = writeTempFile('file_cache_test4', 'let x: number = 4;\n');
+      const fn5 = writeTempFile('file_cache_test5', 'let x: number = 5;\n');
+      setCurrentFiles(fn1, fn2, fn3, fn4, fn5);
+
+      // Populate the cache.
+      const f1 = loadFile('f1', fn1);
+      const f2 = loadFile('f2', fn2);
+      const f3 = loadFile('f3', fn3);
+      const f4 = loadFile('f4', fn4);
+
+      expectFileCacheKeys().toEqual([
+        'file_cache_test1',
+        'file_cache_test2',
+        'file_cache_test3',
+        'file_cache_test4',
+      ]);
+
+      // Load f1 from cache again. Now f1 is the most recently used file.
+      expect(loadFile('f1', fn1)).toBe(f1, 'f1 should be cached');
+      expectFileCacheKeys().toEqual([
+        'file_cache_test2',
+        'file_cache_test3',
+        'file_cache_test4',
+        'file_cache_test1',
+      ]);
+
+      // Now load f5 and pretend memory must be freed.
+      // length / 2 == 2 files must be cleared.
+      // f2 + f5 are pinned because they are part of the compilation unit.
+      // f1, f3, f4 are eligible for eviction, and f1 is more recently used than
+      // the others, so f1 shoud be retained, f3 + f4 dropped.
+
+      setCurrentFiles(fn2, fn5);
+      free = true;
+      const f5 = loadFile('f5', fn5);
+      expectFileCacheKeys().toEqual([
+        'file_cache_test2',
+        'file_cache_test1',
+        'file_cache_test5',
+      ]);
+      setCurrentFiles(fn1, fn2, fn3, fn4, fn5);
+      expect(loadFile('f1', fn1))
+          .toBe(f1, 'f1 should not be dropped, it was recently used');
+      expect(loadFile('f2', fn2)).toBe(f2, 'f2 should be pinned');
+      expect(loadFile('f3', fn3)).not.toBe(f3, 'f3 should have been dropped');
+      expect(loadFile('f4', fn4)).not.toBe(f4, 'f4 should have been dropped');
+      expect(loadFile('f5', fn5)).toBe(f5, 'f5 should be pinned');
+    });
+
+    it('degenerates to cannotEvict mode', () => {
+      // Pretend to always be out of memory.
+      fileCache.shouldFreeMemory = () => true;
+
+      const fn1 = writeTempFile('file_cache_test1', 'let x: number = 1;\n');
+      const fn2 = writeTempFile('file_cache_test2', 'let x: number = 2;\n');
+      const fn3 = writeTempFile('file_cache_test3', 'let x: number = 3;\n');
+      const fn4 = writeTempFile('file_cache_test4', 'let x: number = 4;\n');
+      setCurrentFiles(fn1, fn2, fn3);
+
+      loadFile('fn1', fn1), loadFile('fn2', fn2);
+      loadFile('fn3', fn3);
+
+      expect(fileCache['cannotEvict']).toBe(true, 'all files are pinned');
+      expectFileCacheKeys().toEqual([
+        'file_cache_test1',
+        'file_cache_test2',
+        'file_cache_test3',
+      ]);
+      setCurrentFiles(fn1, fn4);
+      expect(fileCache['cannotEvict']).toBe(false, 'pinned files reset');
+      loadFile('fn4', fn4);
+      expectFileCacheKeys().toEqual([
+        'file_cache_test1',
+        'file_cache_test4',
+      ]);
+    });
   });
 
-  it('caches in LRU order', () => {
-    let free = false;
-    fileCache.shouldFreeMemory = () => free;
+  describe('ProgramAndFileCache', () => {
+    let cache: ProgramAndFileCache;
 
-    const fn1 = writeTempFile('file_cache_test1', 'let x: number = 1;\n');
-    const fn2 = writeTempFile('file_cache_test2', 'let x: number = 2;\n');
-    const fn3 = writeTempFile('file_cache_test3', 'let x: number = 3;\n');
-    const fn4 = writeTempFile('file_cache_test4', 'let x: number = 4;\n');
-    const fn5 = writeTempFile('file_cache_test5', 'let x: number = 5;\n');
-    setCurrentFiles(fn1, fn2, fn3, fn4, fn5);
+    function loadProgram(name: string): ts.Program {
+      const p = {} as ts.Program;
+      cache.putProgram(name, p);
+      return p;
+    }
 
-    // Populate the cache.
-    const f1 = load('f1', fn1);
-    const f2 = load('f2', fn2);
-    const f3 = load('f3', fn3);
-    const f4 = load('f4', fn4);
+    function expectProgramCacheKeys() {
+      return expect(cache.getProgramCacheKeysForTest());
+    }
 
-    expectCacheKeys().toEqual([
-      'file_cache_test1',
-      'file_cache_test2',
-      'file_cache_test3',
-      'file_cache_test4',
-    ]);
+    beforeEach(() => {
+      fileCache = new ProgramAndFileCache(fauxDebug);
+      fileLoader = new CachedFileLoader(fileCache);
+      cache = fileCache as ProgramAndFileCache;
+    });
 
-    // Load f1 from cache again. Now f1 is the most recently used file.
-    expect(load('f1', fn1)).toBe(f1, 'f1 should be cached');
-    expectCacheKeys().toEqual([
-      'file_cache_test2',
-      'file_cache_test3',
-      'file_cache_test4',
-      'file_cache_test1',
-    ]);
+    it('caches programs', () => {
+      const name = 'fauxprogram';
+      const program = loadProgram(name);
 
-    // Now load f5 and pretend memory must be freed.
-    // length / 2 == 2 files must be cleared.
-    // f2 + f5 are pinned because they are part of the compilation unit.
-    // f1, f3, f4 are eligible for eviction, and f1 is more recently used than
-    // the others, so f1 shoud be retained, f3 + f4 dropped.
+      expect(cache.getProgram(name)).toBe(program);
+    });
 
-    setCurrentFiles(fn2, fn5);
-    free = true;
-    const f5 = load('f5', fn5);
-    expectCacheKeys().toEqual([
-      'file_cache_test2',
-      'file_cache_test1',
-      'file_cache_test5',
-    ]);
-    setCurrentFiles(fn1, fn2, fn3, fn4, fn5);
-    expect(load('f1', fn1))
-        .toBe(f1, 'f1 should not be dropped, it was recently used');
-    expect(load('f2', fn2)).toBe(f2, 'f2 should be pinned');
-    expect(load('f3', fn3)).not.toBe(f3, 'f3 should have been dropped');
-    expect(load('f4', fn4)).not.toBe(f4, 'f4 should have been dropped');
-    expect(load('f5', fn5)).toBe(f5, 'f5 should be pinned');
-  });
+    it('caches programs in LRU order', () => {
+      let free = false;
+      cache.shouldFreeMemory = () => free;
 
-  it('degenerates to cannotEvict mode', () => {
-    // Pretend to always be out of memory.
-    fileCache.shouldFreeMemory = () => true;
+      // Populate the cache.
+      const p1 = loadProgram('p1');
+      loadProgram('p2');
+      loadProgram('p3');
+      loadProgram('p4');
 
-    const fn1 = writeTempFile('file_cache_test1', 'let x: number = 1;\n');
-    const fn2 = writeTempFile('file_cache_test2', 'let x: number = 2;\n');
-    const fn3 = writeTempFile('file_cache_test3', 'let x: number = 3;\n');
-    const fn4 = writeTempFile('file_cache_test4', 'let x: number = 4;\n');
-    setCurrentFiles(fn1, fn2, fn3);
+      expectProgramCacheKeys().toEqual([
+        'p1',
+        'p2',
+        'p3',
+        'p4',
+      ]);
 
-    load('fn1', fn1),
-    load('fn2', fn2);
-    load('fn3', fn3);
+      // Load p1 from cache again. Now p1 is the most recently used program.
+      expect(cache.getProgram('p1')).toBe(p1);
+      expectProgramCacheKeys().toEqual([
+        'p2',
+        'p3',
+        'p4',
+        'p1',
+      ]);
 
-    expect(fileCache['cannotEvict']).toBe(true, 'all files are pinned');
-    expectCacheKeys().toEqual([
-      'file_cache_test1',
-      'file_cache_test2',
-      'file_cache_test3',
-    ]);
-    setCurrentFiles(fn1, fn4);
-    expect(fileCache['cannotEvict']).toBe(false, 'pinned files reset');
-    load('fn4', fn4);
-    expectCacheKeys().toEqual([
-      'file_cache_test1',
-      'file_cache_test4',
-    ]);
+      // Now load p5 and pretend memory must be freed.
+      // length / 2 == 2 files must be cleared.
+
+      free = true;
+      loadProgram('p5');
+      expectProgramCacheKeys().toEqual([
+        'p4',
+        'p1',
+        'p5',
+      ]);
+    });
+
+    it('evicts programs before files', () => {
+      let free = false;
+      cache.shouldFreeMemory = () => free;
+
+      // Populate the cache.
+      loadProgram('p1');
+      const fn1 = writeTempFile('file_cache_test1', 'let x: number = 1;\n');
+      const fn2 = writeTempFile('file_cache_test2', 'let x: number = 2;\n');
+      setCurrentFiles(fn1);
+      loadFile('fn1', fn1);
+      expectProgramCacheKeys().toEqual(['p1']);
+      expectFileCacheKeys().toEqual(['file_cache_test1']);
+
+      free = true;
+      setCurrentFiles(fn2);
+      loadFile('fn2', fn2);
+      expectProgramCacheKeys().toEqual([]);
+      expectFileCacheKeys().toEqual(['file_cache_test1', 'file_cache_test2']);
+    });
   });
 });
