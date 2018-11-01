@@ -4,7 +4,7 @@ import * as ts from 'typescript';
 
 import {PLUGIN as tsetsePlugin} from '../tsetse/runner';
 
-import {CachedFileLoader, FileCache, FileLoader, UncachedFileLoader} from './cache';
+import {CachedFileLoader, FileLoader, ProgramAndFileCache, UncachedFileLoader} from './cache';
 import {CompilerHost} from './compiler_host';
 import * as diagnostics from './diagnostics';
 import {wrap} from './perf_trace';
@@ -28,8 +28,8 @@ export function main(args: string[]) {
   return 0;
 }
 
-// The one FileCache instance used in this process.
-const fileCache = new FileCache(debug);
+// The one ProgramAndFileCache instance used in this process.
+const cache = new ProgramAndFileCache(debug);
 
 /**
  * Runs a single build, returning false on failure.  This is potentially called
@@ -57,26 +57,26 @@ function runOneBuild(
   const {options, bazelOpts, files, disabledTsetseRules} = parsed;
 
   // Reset cache stats.
-  fileCache.resetStats();
-  fileCache.traceStats();
+  cache.resetStats();
+  cache.traceStats();
   if (bazelOpts.maxCacheSizeMb !== undefined) {
     const maxCacheSizeBytes = bazelOpts.maxCacheSizeMb * 1 << 20;
-    fileCache.setMaxCacheSize(maxCacheSizeBytes);
+    cache.setMaxCacheSize(maxCacheSizeBytes);
   } else {
-    fileCache.resetMaxCacheSize();
+    cache.resetMaxCacheSize();
   }
 
   let fileLoader: FileLoader;
   const allowActionInputReads = true;
 
   if (inputs) {
-    fileLoader = new CachedFileLoader(fileCache);
+    fileLoader = new CachedFileLoader(cache);
     // Resolve the inputs to absolute paths to match TypeScript internals
     const resolvedInputs = new Map<string, string>();
     for (const key of Object.keys(inputs)) {
       resolvedInputs.set(resolveNormalizedPath(key), inputs[key]);
     }
-    fileCache.updateCache(resolvedInputs);
+    cache.updateCache(resolvedInputs);
   } else {
     fileLoader = new UncachedFileLoader();
   }
@@ -88,9 +88,11 @@ function runOneBuild(
       files, options, bazelOpts, compilerHostDelegate, fileLoader,
       allowActionInputReads);
 
-  let program = ts.createProgram(files, options, compilerHost);
+  let oldProgram = cache.getProgram(bazelOpts.target);
+  let program = ts.createProgram(files, options, compilerHost, oldProgram);
+  cache.putProgram(bazelOpts.target, program);
 
-  fileCache.traceStats();
+  cache.traceStats();
 
   function isCompilationTarget(sf: ts.SourceFile): boolean {
     return (bazelOpts.compilationTargetSrc.indexOf(sf.fileName) !== -1);
