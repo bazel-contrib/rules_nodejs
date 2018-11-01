@@ -4,9 +4,9 @@ import * as ts from 'typescript';
 
 import {PLUGIN as tsetsePlugin} from '../tsetse/runner';
 
+import {CachedFileLoader, FileCache, FileLoader, UncachedFileLoader} from './cache';
 import {CompilerHost} from './compiler_host';
 import * as diagnostics from './diagnostics';
-import {CachedFileLoader, FileCache, FileLoader, UncachedFileLoader} from './file_cache';
 import {wrap} from './perf_trace';
 import {PLUGIN as strictDepsPlugin} from './strict_deps';
 import {parseTsconfig, resolveNormalizedPath} from './tsconfig';

@@ -19,7 +19,7 @@ import 'jasmine';
 
 import * as ts from 'typescript';
 
-import {CachedFileLoader, FileCache} from './file_cache';
+import {CachedFileLoader, FileCache} from './cache';
 import {invalidateFileCache, writeTempFile} from './test_support';
 
 function fauxDebug(...args: any[]) {
