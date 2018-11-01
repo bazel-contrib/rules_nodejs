@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as tsickle from 'tsickle';
 import * as ts from 'typescript';
 
-import {FileLoader} from './file_cache';
+import {FileLoader} from './cache';
 import * as perfTrace from './perf_trace';
 import {BazelOptions} from './tsconfig';
 import {DEBUG, debug} from './worker';

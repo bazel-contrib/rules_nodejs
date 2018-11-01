@@ -19,7 +19,7 @@
 
 import * as fs from 'fs';
 
-import {FileCache} from './file_cache';
+import {FileCache} from './cache';
 
 export function writeTempFile(name: string, contents: string): string {
   // TEST_TMPDIR is set by bazel.
