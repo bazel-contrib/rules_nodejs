@@ -25,15 +25,15 @@ load("//internal/npm_install:npm_install.bzl", "yarn_install")
 load("@bazel_skylib//:lib.bzl", "paths")
 
 # Callers that don't specify a particular version will get these.
-DEFAULT_NODE_VERSION = "10.12.0"
-DEFAULT_YARN_VERSION = "1.10.1"
+DEFAULT_NODE_VERSION = "10.13.0"
+DEFAULT_YARN_VERSION = "1.12.1"
 
 # Dictionary mapping NodeJS versions to sets of hosts and their correspoding (filename, strip_prefix, sha256) tuples.
 NODE_REPOSITORIES = {
-  # 10.12.0
-  "10.12.0-darwin_amd64": ("node-v10.12.0-darwin-x64.tar.gz", "node-v10.12.0-darwin-x64", "f275c901b9aeaacea2bf22648329c2e9ade5e1ff63a446b83446d5d4e19464cc"),
-  "10.12.0-linux_amd64": ("node-v10.12.0-linux-x64.tar.xz", "node-v10.12.0-linux-x64", "4eba2e9a6db95745b769915d58e57df6ca6724ec1f023f76556fce30ceca2367"),
-  "10.12.0-windows_amd64": ("node-v10.12.0-win-x64.zip", "node-v10.12.0-win-x64", "44c938cf1409562d25d23b7c6bce110b53cd2a73774bed573b2979f0d88f51f8"),
+  # 10.13.0
+  "10.13.0-darwin_amd64": ("node-v10.13.0-darwin-x64.tar.gz", "node-v10.13.0-darwin-x64", "815a5d18516934a3963ace9f0574f7d41f0c0ce9186a19be3d89e039e57598c5"),
+  "10.13.0-linux_amd64": ("node-v10.13.0-linux-x64.tar.xz", "node-v10.13.0-linux-x64", "0dc6dba645550b66f8f00541a428c29da7c3cde32fb7eda2eb626a9db3bbf08d"),
+  "10.13.0-windows_amd64": ("node-v10.13.0-win-x64.zip", "node-v10.13.0-win-x64", "eb09c9e9677f1919ec1ca78623c09b2a718ec5388b72b7662d5c41e5f628a52c"),
   # 10.10.0
   "10.10.0-darwin_amd64": ("node-v10.10.0-darwin-x64.tar.gz", "node-v10.10.0-darwin-x64", "00b7a8426e076e9bf9d12ba2d571312e833fe962c70afafd10ad3682fdeeaa5e"),
   "10.10.0-linux_amd64": ("node-v10.10.0-linux-x64.tar.xz", "node-v10.10.0-linux-x64", "686d2c7b7698097e67bcd68edc3d6b5d28d81f62436c7cf9e7779d134ec262a9"),
@@ -66,7 +66,7 @@ NODE_REPOSITORIES = {
 
 # Dictionary mapping Yarn versions to their correspoding (filename, strip_prefix, sha256) tuples.
 YARN_REPOSITORIES = {
-  "1.10.1": ("yarn-v1.10.1.tar.gz", "yarn-v1.10.1", "97bf147cb28229e66e4e3c5733a93c851bbcb0f10fbc72696ed011774f4c6f1b"),
+  "1.12.1": ("yarn-v1.12.1.tar.gz", "yarn-v1.12.1", "09bea8f4ec41e9079fa03093d3b2db7ac5c5331852236d63815f8df42b3ba88d"),
   "1.9.4": ("yarn-v1.9.4.tar.gz", "yarn-v1.9.4", "7667eb715077b4bad8e2a832e7084e0e6f1ba54d7280dc573c8f7031a7fb093e"),
   "1.9.2": ("yarn-v1.9.2.tar.gz", "yarn-v1.9.2", "3ad69cc7f68159a562c676e21998eb21b44138cae7e8fe0749a7d620cf940204"),
   "1.6.0": ("yarn-v1.6.0.tar.gz", "yarn-v1.6.0", "a57b2fdb2bfeeb083d45a883bc29af94d5e83a21c25f3fc001c295938e988509"),
