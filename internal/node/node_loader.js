@@ -25,6 +25,7 @@
 var path = require('path');
 var fs = require('fs');
 
+const PROFILE = false;
 const DEBUG = false;
 
 /**
@@ -456,38 +457,77 @@ if (TEMPLATED_install_source_map_support) {
     `);
   }
 }
-// Load all bootstrap modules before loading the entrypoint.
-for (var i = 0; i < BOOTSTRAP.length; i++) {
-  try {
-    module.constructor._load(BOOTSTRAP[i], this);
-  } catch (e) {
-    console.error('bootstrap failure ' + e.stack || e);
-    process.exit(1);
-  }
+
+// Check if we need to profile this run.
+let beforePromise = Promise.resolve();
+let afterPromise = Promise.resolve();
+
+if (PROFILE) {
+  const inspector = require('inspector');
+  const session = new inspector.Session();
+  session.connect();
+
+  // Setup the lifecycle hooks around the execution.
+  beforePromise = new Promise((resolve) => {
+    session.post('Profiler.enable', () => {
+      session.post('Profiler.start', () => {
+        
+        // Set the profile writing logic.
+        afterPromise = () => new Promise((resolve, reject) => {
+          session.post('Profiler.stop', (err, { profile }) => {
+            if (!err) {
+              // TODO: new to decide on the real name/path here. Where should it go?
+              const profilePath = path.resolve(process.cwd(), 'PROFILE_NAME_HERE-' + Math.floor(Math.random() * 99999) + '.cpuprofile');
+              fs.writeFileSync(profilePath, JSON.stringify(profile));
+              console.error('node_loader: saved profile to', profilePath)
+              resolve();
+            } else {
+              reject(err);
+            }
+          });
+        });
+
+        // Let the execution continue.
+        resolve();
+      });
+    });
+  })
 }
 
-if (require.main === module) {
-  // Set the actual entry point in the arguments list.
-  // argv[0] == node, argv[1] == entry point.
-  // NB: entry_point below is replaced during the build process.
-  var mainScript = process.argv[1] = 'TEMPLATED_entry_point';
-  try {
-    module.constructor._load(mainScript, this, /*isMain=*/true);
-  } catch (e) {
-    console.error(e.stack || e);
-    if (NODE_MODULES_ROOT === 'build_bazel_rules_nodejs/node_modules') {
-      // This error is possibly due to a breaking change in 0.13.0 where
-      // the default node_modules attribute of nodejs_binary was changed
-      // from @//:node_modules to @build_bazel_rules_nodejs//:node_modules_none
-      // (which is an empty filegroup).
-      // See https://github.com/bazelbuild/rules_nodejs/wiki#migrating-to-rules_nodejs-013
-      console.error(
+beforePromise.then(() => {
+  // Load all bootstrap modules before loading the entrypoint.
+  for (var i = 0; i < BOOTSTRAP.length; i++) {
+    try {
+      module.constructor._load(BOOTSTRAP[i], this);
+    } catch (e) {
+      console.error('bootstrap failure ' + e.stack || e);
+      process.exit(1);
+    }
+  }
+
+  if (require.main === module) {
+    // Set the actual entry point in the arguments list.
+    // argv[0] == node, argv[1] == entry point.
+    // NB: entry_point below is replaced during the build process.
+    var mainScript = process.argv[1] = 'TEMPLATED_entry_point';
+    try {
+      module.constructor._load(mainScript, this, /*isMain=*/true);
+    } catch (e) {
+      console.error(e.stack || e);
+      if (NODE_MODULES_ROOT === 'build_bazel_rules_nodejs/node_modules') {
+        // This error is possibly due to a breaking change in 0.13.0 where
+        // the default node_modules attribute of nodejs_binary was changed
+        // from @//:node_modules to @build_bazel_rules_nodejs//:node_modules_none
+        // (which is an empty filegroup).
+        // See https://github.com/bazelbuild/rules_nodejs/wiki#migrating-to-rules_nodejs-013
+        console.error(
           `\nWARNING: Due to a breaking change in rules_nodejs 0.13.0, target TEMPLATED_target\n` +
           `must now declare either an explicit node_modules attribute, or\n` +
           `list explicit deps[] or data[] fine grained dependencies on npm labels\n` +
           `if it has any node_modules dependencies.\n` +
           `See https://github.com/bazelbuild/rules_nodejs/wiki#migrating-to-rules_nodejs-013\n`);
+      }
+      process.exit(1);
     }
-    process.exit(1);
   }
-}
+}).then(afterPromise);
