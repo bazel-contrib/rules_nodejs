@@ -3,14 +3,16 @@ const fs = require('fs');
 const path = require('path');
 const unidiff = require('unidiff')
 
-function check(actual, updateGolden = false) {
+function runGenerator() {
   // We must change the directory to the BUILD file path
   // so the generator is able to run
   process.chdir(path.dirname(__filename));
 
   // Run the BUILD file generator
   generator.main();
+}
 
+function check(actual, updateGolden = false) {
   // Strip comments from generated file for comparison to golden
   // to make comparison less brittle
   const actualContents = fs.readFileSync(actual, {encoding: 'utf-8'})
@@ -47,6 +49,7 @@ Update the golden file:
 }
 
 module.exports = {
+  runGenerator,
   check,
   files: [
     'BUILD.bazel',
@@ -55,6 +58,7 @@ module.exports = {
     '@gregmagolan/test-a/bin/BUILD.bazel',
     '@gregmagolan/test-b/BUILD.bazel',
     '@gregmagolan/test-b/bin/BUILD.bazel',
+    'ajv/BUILD.bazel',
     'jasmine/BUILD.bazel',
     'jasmine/bin/BUILD.bazel',
     'unidiff/BUILD.bazel',
@@ -62,6 +66,7 @@ module.exports = {
     'node_modules/@gregmagolan/BUILD.bazel',
     'node_modules/@gregmagolan/test-a/BUILD.bazel',
     'node_modules/@gregmagolan/test-b/BUILD.bazel',
+    'node_modules/ajv/BUILD.bazel',
     'node_modules/jasmine/BUILD.bazel',
     'node_modules/unidiff/BUILD.bazel',
   ],
