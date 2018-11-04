@@ -27,6 +27,7 @@ def _rollup(ctx):
       inputs = ctx.files.srcs,
       executable = ctx.executable.rollup,
       outputs = [ctx.outputs.bundle],
+      use_default_shell_env = True,
       arguments = args,
   )
   return [DefaultInfo()]
