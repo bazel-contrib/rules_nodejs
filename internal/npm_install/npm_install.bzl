@@ -57,7 +57,7 @@ def _npm_install_impl(repository_ctx):
 
   # The entry points for npm install for osx/linux and windows
   if not is_windows:
-    repository_ctx.file("npm", content="""#!/bin/bash
+    repository_ctx.file("npm", content="""#!/usr/bin/env bash
 (cd "{root}"; "{npm}" {npm_args})
 """.format(
     root = repository_ctx.path(""),
