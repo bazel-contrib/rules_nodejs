@@ -120,7 +120,7 @@ func (upd *Updater) runBazelAnalyze(buildFilePath string, bld *build.File, rules
 		// TODO(lucassloan): remove when b/112891536 is fixed
 		// Build Rabbit rewrites paths produced by bazel, which garbles the error
 		// messages from bazel analyze, since they're encoded in protobufs.
-		return nil, &GarbledBazelResponseError{fmt.Sprintf("failed to unmarshal analysis result: %v\nin: %s", err, string(out))}
+		return nil, &GarbledBazelResponseError{fmt.Sprintf("failed to unmarshal analysis result: %v\nin: %q", err, string(out))}
 	}
 	platform.Infof("analyze result %v", res)
 	reports := res.GetDependencyReport()
