@@ -63,11 +63,16 @@ jobs:
       - *setup_bazelrc
 
       # Run the skylark linter to check our Bazel rules
-      - run: 'yarn skylint ||
+      # deprecated-api is disabled because we legacy providers for typescript
+      # which cannot be upgraded to modern providers without breaking compatability
+      - run: 'find . -type f -name "*.bzl" |
+              xargs java -jar /usr/local/bin/Skylint_deploy.jar --disable-checks=deprecated-api ||
               (echo -e "\n.bzl files have lint errors. Please run ''yarn skylint''"; exit 1)'
 
-      # Enforce that BUILD files are formatted.
-      - run: 'yarn buildifier -mode=check ||
+      # Enforce that BUILD files are formatted. Note that this uses the version of buildifier
+      # from the docker image above - take care that you use the same version when you run
+      # buildifier locally on your change.
+      - run: 'buildifier -mode=check $(find . -type f \( -name BUILD.bazel -or -name BUILD \)) ||
               (echo "BUILD files not formatted. Please run ''yarn buildifier''" ; exit 1)'
 
   # Overlaps with testing we do on BuildKite. This is still here because:
