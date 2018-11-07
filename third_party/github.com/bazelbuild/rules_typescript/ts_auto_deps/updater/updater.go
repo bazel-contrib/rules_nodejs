@@ -185,17 +185,25 @@ func spin(prefix string) chan<- struct{} {
 	return done
 }
 
+// getAbsoluteBUILDPath relativizes the absolute build path so that buildFilePath
+// is definitely below workspaceRoot.
+func getAbsoluteBUILDPath(workspaceRoot, buildFilePath string) (string, error) {
+	absPath, err := filepath.Abs(buildFilePath)
+	if err != nil {
+		return "", err
+	}
+	g3Path, err := filepath.Rel(workspaceRoot, absPath)
+	if err != nil {
+		return "", err
+	}
+	return platform.Normalize(g3Path), nil
+}
+
 // readBUILD loads the BUILD file, if present, or returns a new empty one.
 // workspaceRoot must be an absolute path and buildFilePath is interpreted as
 // relative to CWD, and must be underneath workspaceRoot.
 func readBUILD(ctx context.Context, workspaceRoot, buildFilePath string) (*build.File, error) {
-	// Relativize the absolute build path so that buildFilePath is definitely below workspaceRoot.
-	absPath, err := filepath.Abs(buildFilePath)
-	if err != nil {
-		return nil, err
-	}
-	g3Path, err := filepath.Rel(workspaceRoot, absPath)
-	normalizedG3Path := platform.Normalize(g3Path)
+	normalizedG3Path, err := getAbsoluteBUILDPath(workspaceRoot, buildFilePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to resolve workspace relative path: %s", err)
 	}
@@ -528,22 +536,48 @@ func (upd *Updater) updateBUILDAfterBazelAnalyze(ctx context.Context, isRoot boo
 		}
 	}
 
-	if tr := getRule(bld, "ts_library", ruleTypeTest); tr != nil {
-		platform.Infof("Registering test rule in closest ts_config & ts_development_sources")
-		target := AbsoluteBazelTarget(bld, tr.Name())
-		if err := upd.registerTestRule(ctx, bld, "ts_config", ruleTypeAny, g3root, target); err != nil {
+	return updatedBuild, nil
+}
+
+// RegisterTsconfigAndTsDevelopmentSources registers ts_library targets with the project's
+// ts_config and ts_development_sources rules.  It's separated from UpdateBUILD since it's
+// non-local, multiple packages may all need to make writes to the same ts_config.
+func (upd *Updater) RegisterTsconfigAndTsDevelopmentSources(ctx context.Context, paths ...string) (bool, error) {
+	reg := &registerer{make(map[string]*build.File), make(map[*build.File]bool)}
+	var g3root string
+	for _, path := range paths {
+		var bld *build.File
+		var err error
+		g3root, _, bld, err = getBUILDPathAndBUILDFile(ctx, path)
+		if err != nil {
 			return false, err
 		}
-		// NodeJS rules should not be added to ts_development_sources automatically, because
-		// they typically do not run in the browser.
-		if tr.AttrString("runtime") != "nodejs" {
-			if err := upd.registerTestRule(ctx, bld, "ts_development_sources", ruleTypeTest, g3root, target); err != nil {
+		if tr := getRule(bld, "ts_library", ruleTypeTest); tr != nil {
+			platform.Infof("Registering test rule in closest ts_config & ts_development_sources")
+			target := AbsoluteBazelTarget(bld, tr.Name())
+			if err := reg.registerTestRule(ctx, bld, "ts_config", ruleTypeAny, g3root, target); err != nil {
 				return false, err
+			}
+			// NodeJS rules should not be added to ts_development_sources automatically, because
+			// they typically do not run in the browser.
+			if tr.AttrString("runtime") != "nodejs" {
+				if err := reg.registerTestRule(ctx, bld, "ts_development_sources", ruleTypeTest, g3root, target); err != nil {
+					return false, err
+				}
 			}
 		}
 	}
 
-	return updatedBuild, nil
+	updated := false
+	for b, _ := range reg.writtenFiles {
+		updated = true
+		err := upd.writeBUILD(ctx, filepath.Join(g3root, b.Path), b)
+		if err != nil {
+			return false, err
+		}
+	}
+
+	return updated, nil
 }
 
 // CantProgressAfterWriteError reports that ts_auto_deps was run in an environment
@@ -619,7 +653,15 @@ func (upd *Updater) UpdateBUILD(ctx context.Context, path string, options Update
 	}
 
 	changedAfterBazelAnalyze, err := upd.updateBUILDAfterBazelAnalyze(ctx, options.IsRoot, options.ErrorOnUnresolvedImports, g3root, buildFilePath, bld, reports)
-	return changed || changedAfterBazelAnalyze, err
+	if err != nil {
+		return false, err
+	}
+	changed = changed || changedAfterBazelAnalyze
+	if options.InNonWritableEnvironment && changed {
+		return true, &CantProgressAfterWriteError{}
+	}
+
+	return changed, nil
 }
 
 // hasTazeEnabled checks if the BUILD file should be managed using ts_auto_deps.
@@ -655,10 +697,42 @@ func QueryBasedBazelAnalyze(buildFilePath string, args []string) ([]byte, []byte
 	return s, nil, err
 }
 
+// registerer buffers reads and writes done while registering ts_libraries with
+// ts_config and ts_development_sources rules, so that registers from multiple
+// packages all get applied at once.
+type registerer struct {
+	bldFiles     map[string]*build.File
+	writtenFiles map[*build.File]bool
+}
+
+func (reg *registerer) readBUILD(ctx context.Context, workspaceRoot, buildFilePath string) (*build.File, error) {
+	normalizedG3Path, err := getAbsoluteBUILDPath(workspaceRoot, buildFilePath)
+	if err != nil {
+		return nil, err
+	}
+
+	if bld, ok := reg.bldFiles[normalizedG3Path]; ok {
+		return bld, nil
+	}
+
+	bld, err := readBUILD(ctx, workspaceRoot, buildFilePath)
+	if err != nil {
+		return nil, err
+	}
+
+	reg.bldFiles[normalizedG3Path] = bld
+
+	return bld, nil
+}
+
+func (reg *registerer) writeBUILD(bld *build.File) {
+	reg.writtenFiles[bld] = true
+}
+
 // registerTestRule searches ancestor packages for a rule with the given ruleKind and ruleType
 // and adds the given target to it. Prints a warning if no rule is found, but only returns an error
 // if adding the dependency fails.
-func (upd *Updater) registerTestRule(ctx context.Context, bld *build.File, ruleKind string, rt ruleType, g3root, target string) error {
+func (reg *registerer) registerTestRule(ctx context.Context, bld *build.File, ruleKind string, rt ruleType, g3root, target string) error {
 	// If the target has already been registered in any of the rule with the given ruleKind and ruleType,
 	// we shouldn't register it again.
 	if targetRegisteredInRule(bld, ruleKind, rt, target) {
@@ -668,7 +742,7 @@ func (upd *Updater) registerTestRule(ctx context.Context, bld *build.File, ruleK
 	if r != nil {
 		if addDep(bld, r, target) {
 			fmt.Printf("Registered test %s in %s\n", target, AbsoluteBazelTarget(bld, r.Name()))
-			return upd.writeBUILD(ctx, filepath.Join(g3root, bld.Path), bld)
+			reg.writeBUILD(bld)
 		}
 		return nil
 	}
@@ -676,12 +750,12 @@ func (upd *Updater) registerTestRule(ctx context.Context, bld *build.File, ruleK
 	for parentDir != "." && parentDir != "/" {
 		buildFile := filepath.Join(g3root, parentDir, "BUILD")
 		if _, err := platform.Stat(ctx, buildFile); err == nil {
-			parent, err := readBUILD(ctx, g3root, buildFile)
+			parent, err := reg.readBUILD(ctx, g3root, buildFile)
 			if err != nil {
 				return err
 			}
 			if hasTazeEnabled(bld) {
-				return upd.registerTestRule(ctx, parent, ruleKind, rt, g3root, target)
+				return reg.registerTestRule(ctx, parent, ruleKind, rt, g3root, target)
 			}
 			platform.Infof("ts_auto_deps disabled on %q", buildFile)
 			// Continue below.
@@ -1166,6 +1240,7 @@ func Execute(host *Updater, paths []string, isRoot bool, recursive bool) error {
 			}
 		}
 	}
+	host.RegisterTsconfigAndTsDevelopmentSources(ctx, paths...)
 	return nil
 }
 
