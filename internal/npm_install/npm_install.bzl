@@ -53,6 +53,18 @@ COMMON_ATTRIBUTES = dict(dict(), **{
         as well as the fine grained targets such as `@wksp//foo`.""",
         default = [],
     ),
+    "exclude_packages": attr.string_list(
+        doc = """List of packages to exclude from install.
+
+        Use this when you want to install a package during manual yarn or npm
+        install but not install it when Bazel manages dependencies.
+
+        Note: this attribute may be removed in the future if bazel managed npm
+        dependencies are changed to install to the workspace `node_modules` folder
+        instead of `$(bazel info output_base)/external/wksp`.
+        """,
+        default = ["@bazel/bazel"],
+    ),
     "manual_build_file_contents": attr.string(
         doc = """Experimental attribute that can be used to override
         the generated BUILD.bazel file and set its contents manually.
@@ -74,9 +86,11 @@ def _create_build_file(repository_ctx, node):
 def _add_package_json(repository_ctx):
   repository_ctx.symlink(
       repository_ctx.attr.package_json,
-      repository_ctx.path("package.json"))
+      repository_ctx.path("_package.json"))
 
 def _add_scripts(repository_ctx):
+  repository_ctx.template("process_package_json.js",
+    repository_ctx.path(Label("//internal/npm_install:process_package_json.js")), {})
   repository_ctx.template("generate_build_file.js",
     repository_ctx.path(Label("//internal/npm_install:generate_build_file.js")), {})
 
@@ -119,13 +133,18 @@ cd "{root}" && "{npm}" {npm_args}
     executable = True)
 
   if repository_ctx.attr.package_lock_json:
-    repository_ctx.symlink(
-        repository_ctx.attr.package_lock_json,
-        repository_ctx.path("package-lock.json"))
+    # Copy the file over instead of using a symlink since the lock file
+    # will be modified if there are excluded_packages
+    repository_ctx.template("package-lock.json",
+        repository_ctx.path(repository_ctx.attr.package_lock_json), {})
 
   _add_package_json(repository_ctx)
   _add_data_dependencies(repository_ctx)
   _add_scripts(repository_ctx)
+
+  result = repository_ctx.execute([node, "process_package_json.js", ",".join(repository_ctx.attr.exclude_packages)])
+  if result.return_code:
+    fail("node failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
 
   # To see the output, pass: quiet=False
   result = repository_ctx.execute(
@@ -173,13 +192,18 @@ def _yarn_install_impl(repository_ctx):
   yarn = get_yarn_label(repository_ctx)
 
   if repository_ctx.attr.yarn_lock:
-    repository_ctx.symlink(
-        repository_ctx.attr.yarn_lock,
-        repository_ctx.path("yarn.lock"))
+    # Copy the file over instead of using a symlink since the lock file
+    # will be modified if there are excluded_packages
+    repository_ctx.template("yarn.lock",
+        repository_ctx.path(repository_ctx.attr.yarn_lock), {})
 
   _add_package_json(repository_ctx)
   _add_data_dependencies(repository_ctx)
   _add_scripts(repository_ctx)
+
+  result = repository_ctx.execute([node, "process_package_json.js", ",".join(repository_ctx.attr.exclude_packages)])
+  if result.return_code:
+    fail("node failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
 
   args = [
     repository_ctx.path(yarn),

@@ -30,4 +30,15 @@ describe('dependencies', () => {
        const testB = require('@gregmagolan/test-b');
        expect(testB).toEqual('test-b-0.0.2/test-a-0.0.1');
      });
+
+  it(`should fail to resolve @bazel/bazel/bazel since the @bazel/bazel package should have been excluded
+  from the install by default value of excluded_packages`,
+     () => {
+       try {
+         require('@bazel/bazel/bazel');
+         fail('@bazel/bazel/bazel should not be resolved');
+       } catch (err) {
+         expect(err.code).toBe('MODULE_NOT_FOUND');
+       }
+     });
 });
