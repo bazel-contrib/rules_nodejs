@@ -25,9 +25,10 @@ export interface StrictDepsPluginConfig {
   compilationTargetSrc: string[];
   allowedStrictDeps: string[];
   rootDir: string;
-  // Paths where users may freely import without declared dependencies.
-  // This is used in Bazel where dependencies on node_modules may be
-  // undeclared.
+  /**
+   * Paths where users may freely import without declared dependencies.
+   * This is used in Bazel where dependencies on node_modules may be undeclared.
+   */
   ignoredFilesPrefixes?: string[];
 }
 
