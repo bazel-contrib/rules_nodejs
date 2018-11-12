@@ -4,6 +4,7 @@
 package updater
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"os"
@@ -263,12 +264,12 @@ func isTempFile(fileName string) bool {
 
 // updateSources adds any srcs that are not in some rule to the last ts_* rule
 // in the package, or create a new rule for them.
-func updateSources(bld *build.File, srcs srcSet) bool {
+func updateSources(bld *build.File, srcs srcSet) {
 	removeSourcesUsed(bld, "ts_library", "srcs", srcs)
 	removeSourcesUsed(bld, "ts_declaration", "srcs", srcs)
 
 	if len(srcs) == 0 {
-		return false
+		return
 	}
 
 	// Sort the remaining sources for reproducibility (sadly Go has no LinkedHashSet)
@@ -290,13 +291,11 @@ func updateSources(bld *build.File, srcs srcSet) bool {
 		}
 		addToSrcsClobbering(bld, r, s)
 	}
-	return true
 }
 
 // Adds the given value to the srcs attribute on the build rule. Clobbers any
-// existing values for srcs that are not a list. Returns true if it clobbered
-// or if it changed the value of the srcs attribute.
-func addToSrcsClobbering(bld *build.File, r *build.Rule, s string) bool {
+// existing values for srcs that are not a list.
+func addToSrcsClobbering(bld *build.File, r *build.Rule, s string) {
 	value := r.Attr("srcs")
 	switch value.(type) {
 	case nil, *build.ListExpr:
@@ -307,26 +306,8 @@ func addToSrcsClobbering(bld *build.File, r *build.Rule, s string) bool {
 			AbsoluteBazelTarget(bld, r.Name()))
 		r.DelAttr("srcs")
 	}
-	// TODO(martinprobst): tracking whether something changed here is awkward, due
-	// to edit's APIs, but also the overhead of carrying around the flag. Instead
-	// of attempting fine-grained tracking of whether ts_auto_deps made changes, a simpler
-	// strategy would be to make changes to the build.File, then serialize the
-	// build file, and compare if the canonical byte-representation changed.
-	oldVal := r.AttrStrings("srcs")
-
 	val := &build.StringExpr{Value: s}
 	edit.AddValueToListAttribute(r, "srcs", "", val, nil)
-
-	newVal := r.AttrStrings("srcs")
-	if len(oldVal) != len(newVal) {
-		return true
-	}
-	for i, v := range newVal {
-		if v != oldVal[i] {
-			return true
-		}
-	}
-	return false
 }
 
 var testingRegexp = regexp.MustCompile(`\btesting\b`)
@@ -366,8 +347,7 @@ func (a *AnalysisFailedError) Error() string {
 
 // updateDeps adds missing dependencies and removes unnecessary dependencies
 // for the targets in the given DependencyReports to the build rules in bld.
-// Returns true if it changed anything in the build file.
-func updateDeps(bld *build.File, errorOnUnresolvedImports bool, reports []*arpb.DependencyReport) (bool, error) {
+func updateDeps(bld *build.File, errorOnUnresolvedImports bool, reports []*arpb.DependencyReport) error {
 	// First, check *all* reports on whether they were successful, so that users
 	// get the complete set of errors at once.
 	var errors []AnalysisFailureCause
@@ -388,7 +368,7 @@ func updateDeps(bld *build.File, errorOnUnresolvedImports bool, reports []*arpb.
 				file := m[1]
 				line, err := strconv.Atoi(m[2])
 				if err != nil {
-					return false, err
+					return err
 				}
 
 				errors = append(errors, AnalysisFailureCause{msg, file, line})
@@ -396,24 +376,23 @@ func updateDeps(bld *build.File, errorOnUnresolvedImports bool, reports []*arpb.
 		}
 	}
 	if len(errors) > 0 {
-		return false, &AnalysisFailedError{errors}
+		return &AnalysisFailedError{errors}
 	}
 
 	pkg := filepath.Dir(bld.Path)
-	changedDeps := false
 	for _, report := range reports {
 		platform.Infof("Applying report: %s", report.String())
 		fullTarget := report.GetRule()
 		targetName := fullTarget[strings.LastIndex(fullTarget, ":")+1:]
 		r := edit.FindRuleByName(bld, targetName)
 		if r == nil {
-			return false, fmt.Errorf("could not find rule from report %v", targetName)
+			return fmt.Errorf("could not find rule from report %v", targetName)
 		}
 		for _, md := range report.MissingDependencyGroup {
 			for _, d := range md.Dependency {
 				d = AbsoluteBazelTarget(bld, d)
 				if d == fullTarget {
-					return false, &AnalysisFailedError{
+					return &AnalysisFailedError{
 						[]AnalysisFailureCause{
 							AnalysisFailureCause{
 								Message: fmt.Sprintf("target %s depends on itself. "+
@@ -425,9 +404,7 @@ func updateDeps(bld *build.File, errorOnUnresolvedImports bool, reports []*arpb.
 					}
 				}
 				platform.Infof("Adding dependency on %s to %s\n", d, fullTarget)
-				if addDep(bld, r, d) {
-					changedDeps = true
-				}
+				addDep(bld, r, d)
 			}
 		}
 		hadUnresolved := len(report.UnresolvedImport) > 0
@@ -436,7 +413,7 @@ func updateDeps(bld *build.File, errorOnUnresolvedImports bool, reports []*arpb.
 				"'// from ...'' comment, or the target BUILD files are incorrect?\n%s\n",
 				fullTarget, report.UnresolvedImport, strings.Join(report.GetFeedback(), "\n"))
 			if errorOnUnresolvedImports {
-				return false, fmt.Errorf(errMsg)
+				return fmt.Errorf(errMsg)
 			}
 			fmt.Fprintf(os.Stderr, errMsg)
 			fmt.Fprintf(os.Stderr, "Continuing.\n")
@@ -447,30 +424,37 @@ func updateDeps(bld *build.File, errorOnUnresolvedImports bool, reports []*arpb.
 				continue
 			}
 			platform.Infof("Removing dependency on %s from %s\n", d, fullTarget)
-			if edit.ListAttributeDelete(r, "deps", d, pkg) != nil {
-				// Dep might not exist if e.g. using a macro such as ng_module
-				changedDeps = true
-			}
+			edit.ListAttributeDelete(r, "deps", d, pkg)
 		}
 		for _, s := range report.MissingSourceFile {
 			platform.Infof("Removing missing source %s from %s\n", s, fullTarget)
-			if edit.ListAttributeDelete(r, "srcs", s, pkg) != nil {
-				changedDeps = true
-			}
+			edit.ListAttributeDelete(r, "srcs", s, pkg)
 		}
 	}
-	return changedDeps, nil
+	return nil
 }
 
-func (upd *Updater) writeBUILD(ctx context.Context, path string, bld *build.File) error {
+// maybeWriteBUILD checks if the given file needs updating, i.e. whether the
+// canonical serialized form of bld has changed from the file contents on disk.
+// If so, writes the file and returns true, returns false otherwise.
+func (upd *Updater) maybeWriteBUILD(ctx context.Context, path string, bld *build.File) (bool, error) {
 	ri := &build.RewriteInfo{}
 	build.Rewrite(bld, ri)
 	platform.Infof("Formatted %s: %s\n", path, ri)
-	data := string(build.Format(bld))
-	if err := upd.updateFile(ctx, path, data); err != nil {
-		return fmt.Errorf("failed to update %q: %v", path, err)
+	newContent := build.Format(bld)
+	oldContent, err := platform.ReadFile(ctx, path)
+	if err != nil && !os.IsNotExist(err) {
+		return false, err
+	} else if err == nil {
+		// i.e. not a not exist error => compare contents, only update if changed.
+		if bytes.Equal(oldContent, newContent) {
+			return false, nil
+		}
 	}
-	return nil
+	if err := upd.updateFile(ctx, path, string(newContent)); err != nil {
+		return false, fmt.Errorf("failed to update %q: %v", path, err)
+	}
+	return true, nil
 }
 
 func getBUILDPathAndBUILDFile(ctx context.Context, path string) (string, string, *build.File, error) {
@@ -524,19 +508,11 @@ func (upd *Updater) addSourcesToBUILD(ctx context.Context, path string, buildFil
 	if err != nil {
 		return false, err
 	}
-	updatedBuild := false
 
 	platform.Infof("Updating sources")
-	updatedBuild = updateSources(bld, srcs) || updatedBuild
+	updateSources(bld, srcs)
 
-	if updatedBuild {
-		if err := upd.writeBUILD(ctx, buildFilePath, bld); err != nil {
-			platform.Infof("Error Writing BUILD!")
-			return true, err
-		}
-	}
-
-	return updatedBuild, nil
+	return upd.maybeWriteBUILD(ctx, buildFilePath, bld)
 }
 
 // updateBUILDAfterBazelAnalyze applies the BUILD file updates that depend on bazel
@@ -544,25 +520,15 @@ func (upd *Updater) addSourcesToBUILD(ctx context.Context, path string, buildFil
 func (upd *Updater) updateBUILDAfterBazelAnalyze(ctx context.Context, isRoot bool, errorOnUnresolvedImports bool,
 	g3root string, buildFilePath string, bld *build.File, reports []*arpb.DependencyReport) (bool, error) {
 	platform.Infof("Updating deps")
-	updatedBuild, err := updateDeps(bld, errorOnUnresolvedImports, reports)
-	if err != nil {
+	if err := updateDeps(bld, errorOnUnresolvedImports, reports); err != nil {
 		return false, err
 	}
 
 	platform.Infof("Setting library rule kinds")
-	updatedRuleKinds, err := setLibraryRuleKinds(ctx, buildFilePath, bld)
-	if err != nil {
+	if err := setLibraryRuleKinds(ctx, buildFilePath, bld); err != nil {
 		return false, err
 	}
-	updatedBuild = updatedBuild || updatedRuleKinds
-
-	if updatedBuild {
-		if err := upd.writeBUILD(ctx, buildFilePath, bld); err != nil {
-			return true, err
-		}
-	}
-
-	return updatedBuild, nil
+	return upd.maybeWriteBUILD(ctx, buildFilePath, bld)
 }
 
 // RegisterTsconfigAndTsDevelopmentSources registers ts_library targets with the project's
@@ -595,12 +561,13 @@ func (upd *Updater) RegisterTsconfigAndTsDevelopmentSources(ctx context.Context,
 	}
 
 	updated := false
-	for b, _ := range reg.writtenFiles {
-		updated = true
-		err := upd.writeBUILD(ctx, filepath.Join(g3root, b.Path), b)
+	for b := range reg.writtenFiles {
+		fmt.Printf("Registered test(s) in %s\n", b.Path)
+		fileChanged, err := upd.maybeWriteBUILD(ctx, filepath.Join(g3root, b.Path), b)
 		if err != nil {
 			return false, err
 		}
+		updated = updated || fileChanged
 	}
 
 	return updated, nil
@@ -751,7 +718,7 @@ func (reg *registerer) readBUILD(ctx context.Context, workspaceRoot, buildFilePa
 	return bld, nil
 }
 
-func (reg *registerer) writeBUILD(bld *build.File) {
+func (reg *registerer) registerForPossibleUpdate(bld *build.File) {
 	reg.writtenFiles[bld] = true
 }
 
@@ -766,10 +733,8 @@ func (reg *registerer) registerTestRule(ctx context.Context, bld *build.File, ru
 	}
 	r := getRule(bld, ruleKind, rt)
 	if r != nil {
-		if addDep(bld, r, target) {
-			fmt.Printf("Registered test %s in %s\n", target, AbsoluteBazelTarget(bld, r.Name()))
-			reg.writeBUILD(bld)
-		}
+		addDep(bld, r, target)
+		reg.registerForPossibleUpdate(bld)
 		return nil
 	}
 	parentDir := filepath.Dir(filepath.Dir(bld.Path))
@@ -840,18 +805,13 @@ func hasDependency(bld *build.File, r *build.Rule, dep string) bool {
 }
 
 // addDep adds a dependency to the specified build rule
-func addDep(bld *build.File, r *build.Rule, dep string) bool {
-	// If the rule has the specified dependency already, we shouldn't add it again
-	if hasDependency(bld, r, dep) {
-		return false
-	}
+func addDep(bld *build.File, r *build.Rule, dep string) {
 	pkg := filepath.Dir(bld.Path)
 	dep = edit.ShortenLabel(dep, pkg)
 	if dep[0] != '/' && dep[0] != ':' {
 		dep = ":" + dep // ShortenLabel doesn't add the ':'
 	}
 	edit.AddValueToListAttribute(r, "deps", pkg, &build.StringExpr{Value: dep}, nil)
-	return true
 }
 
 // AbsoluteBazelTarget converts a ruleName to an absolute target string (//foo/bar:bar).
@@ -936,9 +896,9 @@ func removeUnusedLoad(bld *build.File, kind string) {
 // setLibraryRuleKinds sets the kinds for recognized library rules. That is, it
 // determines if a rule should be an ng_module, and sets the
 // rule kind if so. It also takes care of having the appropriate load calls.
-func setLibraryRuleKinds(ctx context.Context, buildFilePath string, bld *build.File) (bool, error) {
-	changed := false
+func setLibraryRuleKinds(ctx context.Context, buildFilePath string, bld *build.File) error {
 	hasNgModule := false
+	changed := false
 	for _, r := range buildRules(bld, "ts_library") {
 		shouldBeNgModule := false
 		isNgModule := r.Call.X.(*build.Ident).Name == "ng_module"
@@ -965,14 +925,10 @@ func setLibraryRuleKinds(ctx context.Context, buildFilePath string, bld *build.F
 		removeUnusedLoad(bld, "ts_library")
 		removeUnusedLoad(bld, "ng_module")
 	}
-	if hasNgModule {
-		changedAssets, err := updateWebAssets(ctx, buildFilePath, bld)
-		if err != nil {
-			return false, err
-		}
-		changed = changed || changedAssets
+	if !hasNgModule {
+		return nil
 	}
-	return changed, nil
+	return updateWebAssets(ctx, buildFilePath, bld)
 }
 
 // hasAngularDependency returns true if the given rule depends on a Angular
@@ -991,18 +947,16 @@ func hasAngularDependency(r *build.Rule) bool {
 }
 
 // updateWebAssets finds web assets in the package of the BUILD file and adds
-// them to the "assets" attribute of the ng_module rules. Returns true if it
-// changed anything in the build file.
-func updateWebAssets(ctx context.Context, buildFilePath string, bld *build.File) (bool, error) {
+// them to the "assets" attribute of the ng_module rules.
+func updateWebAssets(ctx context.Context, buildFilePath string, bld *build.File) error {
 	// TODO(martinprobst): should this be merged with updateSources above? Difference is that
 	// creates new rules, this just distributes assets across them.
-	changed := false
 	// This must use buildFilePath, the absolute path to the directory, as our cwd
 	// might not be the workspace root.
 	absolutePkgPath := filepath.Dir(buildFilePath)
 	assetFiles, err := globSources(ctx, absolutePkgPath, []string{"html", "css"})
 	if err != nil {
-		return false, err
+		return err
 	}
 	platform.Infof("Found asset files in %s: %v", absolutePkgPath, assetFiles)
 
@@ -1012,7 +966,6 @@ func updateWebAssets(ctx context.Context, buildFilePath string, bld *build.File)
 		if call, ok := srcs.(*build.CallExpr); ok && call.X.(*build.Ident).Name == "glob" {
 			// Remove any glob calls, ts_auto_deps uses explicit source lists.
 			r.DelAttr("assets")
-			changed = true
 		}
 
 		for _, s := range r.AttrStrings("assets") {
@@ -1020,15 +973,14 @@ func updateWebAssets(ctx context.Context, buildFilePath string, bld *build.File)
 				continue // keep rule references
 			}
 			if _, ok := assetFiles[s]; !ok {
-				del := edit.ListAttributeDelete(r, "assets", s, pkg)
-				changed = changed || del != nil
+				edit.ListAttributeDelete(r, "assets", s, pkg)
 			}
 		}
 	}
 
 	removeSourcesUsed(bld, "ng_module", "assets", assetFiles)
 	if len(assetFiles) == 0 {
-		return changed, nil // nothing new, but might have deleted something.
+		return nil
 	}
 
 	// Add to the last rule, to match behaviour with *.ts sources.
@@ -1039,14 +991,14 @@ func updateWebAssets(ctx context.Context, buildFilePath string, bld *build.File)
 	}
 	if lastModule == nil {
 		// Should not happen by preconditions of this function.
-		return changed, fmt.Errorf("no ng_module rules in BUILD?")
+		return fmt.Errorf("no ng_module rules in BUILD?")
 	}
 
 	for newAsset := range assetFiles {
 		val := &build.StringExpr{Value: newAsset}
 		edit.AddValueToListAttribute(lastModule, "assets", pkg, val, nil)
 	}
-	return true, nil
+	return nil
 }
 
 // getOrCreateRule returns or creates a rule of the given kind, with testonly = 1 or 0 depending on
