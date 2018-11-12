@@ -214,17 +214,13 @@ func TestUpdateDeps(t *testing.T) {
 		if err != nil {
 			t.Errorf("parse %s after failed: %s", tst.name, err)
 		}
-		changed, err := updateDeps(bld, false, []*arpb.DependencyReport{report})
-		if err != nil {
+		if err := updateDeps(bld, false, []*arpb.DependencyReport{report}); err != nil {
 			t.Errorf("update %s failed: %s", tst.name, err)
 		}
 		updated := string(build.Format(bld))
 		after := string(build.Format(bldAft))
 		if updated != after {
 			t.Errorf("update(%s), got:\n%s\n\nexpected:\n%s", tst.name, updated, after)
-		}
-		if changed != tst.changed {
-			t.Errorf("changed(%s), got %t, expected %t", tst.name, changed, tst.changed)
 		}
 	}
 }
@@ -261,7 +257,7 @@ func TestUnresolvedImportError(t *testing.T) {
 	}
 
 	for _, tst := range tests {
-		_, err = updateDeps(bld, tst.errorOnUnresolvedImports, []*arpb.DependencyReport{report})
+		err = updateDeps(bld, tst.errorOnUnresolvedImports, []*arpb.DependencyReport{report})
 		if !reflect.DeepEqual(err, tst.err) {
 			t.Errorf("update %s returned error %s: expected %s", tst.name, err, tst.err)
 		}
@@ -302,24 +298,44 @@ func TestAddDep(t *testing.T) {
 	tests := []struct {
 		buildFile string
 		newDep    string
-		expectAdd bool
+		expected  string
 	}{
-		{`ts_library(name = "lib", deps = ["//a", "//b", "//c"])`, "//b", false},
-		{`ts_library(name = "lib", deps = ["//a", "//b", "//c"])`, "//d", true},
-		{`ts_library(name = "lib", deps = ["//a", ":b", "//c"])`, ":b", false},
-		{`ts_library(name = "lib", deps = ["//a", ":b", "//c"])`, "//buildloc:b", false},
-		{`ts_library(name = "lib", deps = ["//a", "//buildloc:b", "//c"])`, ":b", false},
-		{`ts_library(name = "lib", deps = ["//a", "//other:b", "//c"])`, ":b", true},
-		{`ts_library(name = "lib", deps = ["//a", "//other:b", "//c"])`, "//a:a", false},
+		{`ts_library(name = "lib", deps = ["//a", "//b", "//c"])`,
+			"//b",
+			`ts_library(name = "lib", deps = ["//a", "//b", "//c"])`},
+		{`ts_library(name = "lib", deps = ["//a", "//b", "//c"])`,
+			"//d",
+			`ts_library(name = "lib", deps = ["//a", "//b", "//c", "//d"])`},
+		{`ts_library(name = "lib", deps = ["//a", ":b", "//c"])`,
+			":b",
+			`ts_library(name = "lib", deps = ["//a", ":b", "//c"])`},
+		{`ts_library(name = "lib", deps = ["//a", ":b", "//c"])`,
+			"//buildloc:b",
+			`ts_library(name = "lib", deps = ["//a", ":b", "//c"])`},
+		{`ts_library(name = "lib", deps = ["//a", "//buildloc:b", "//c"])`,
+			":b",
+			`ts_library(name = "lib", deps = ["//a", "//buildloc:b", "//c"])`},
+		{`ts_library(name = "lib", deps = ["//a", "//other:b", "//c"])`,
+			":b",
+			`ts_library(name = "lib", deps = [":b", "//a", "//other:b", "//c"])`},
+		{`ts_library(name = "lib", deps = ["//a", "//other:b", "//c"])`,
+			"//a:a",
+			`ts_library(name = "lib", deps = ["//a", "//other:b", "//c"])`},
 	}
 	for _, tst := range tests {
 		bld, err := build.ParseBuild("buildloc/BUILD", []byte(tst.buildFile))
 		if err != nil {
 			t.Fatalf("parse failure: %s - %v", tst.buildFile, err)
 		}
-		res := addDep(bld, bld.Rules("ts_library")[0], tst.newDep)
-		if res != tst.expectAdd {
-			t.Errorf("addDep(%s, %s): got %v, expected %v", tst.buildFile, tst.newDep, res, tst.expectAdd)
+		addDep(bld, bld.Rules("ts_library")[0], tst.newDep)
+		newContent := string(build.Format(bld))
+		expectedBld, err := build.ParseBuild("buildloc/BUILD", []byte(tst.expected))
+		if err != nil {
+			t.Fatalf("parse failure: %s - %v", tst.expected, err)
+		}
+		expected := string(build.Format(expectedBld))
+		if newContent != expected {
+			t.Errorf("addDep(%s, %s): got %v, expected %v", tst.buildFile, tst.newDep, newContent, tst.expected)
 		}
 	}
 }
@@ -424,12 +440,8 @@ func TestUpdateWebAssets(t *testing.T) {
 			t.Error(err)
 		}
 	}()
-	absolutBuildPath := filepath.Join(filepath.Dir(testCSS), "BUILD")
-	changed, err := updateWebAssets(ctx, absolutBuildPath, bld)
-	if !changed {
-		t.Errorf("expected BUILD to be changed")
-	}
-	if err != nil {
+	absoluteBuildPath := filepath.Join(filepath.Dir(testCSS), "BUILD")
+	if err := updateWebAssets(ctx, absoluteBuildPath, bld); err != nil {
 		t.Fatal(err)
 	}
 	data := string(build.Format(bld))
@@ -464,9 +476,17 @@ func TestWebAssetReferredByColon(t *testing.T) {
 		}
 	}()
 	absolutBuildPath := filepath.Join(filepath.Dir(colon), "BUILD")
-	changed, err := updateWebAssets(ctx, absolutBuildPath, bld)
-	if changed {
-		t.Errorf("expected no BUILD change, got %s", string(build.Format(bld)))
+	if err := updateWebAssets(ctx, absolutBuildPath, bld); err != nil {
+		t.Error(err)
+	}
+	data := string(build.Format(bld))
+	expected := `ng_module(
+    name = "m",
+    assets = [":colon.html"],
+)
+`
+	if data != expected {
+		t.Errorf("build file mismatch, got %s, expected %s", data, expected)
 	}
 }
 
