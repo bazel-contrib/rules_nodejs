@@ -288,20 +288,45 @@ func updateSources(bld *build.File, srcs srcSet) bool {
 			rt := determineRuleType(bld.Path, s)
 			r = getOrCreateRule(bld, ruleName, "ts_library", rt)
 		}
-		srcs := r.Attr("srcs")
-		switch srcs.(type) {
-		case nil, *build.ListExpr:
-			// expected - either absent or a list of files.
-		default:
-			// Remove any glob calls, variables, etc. ts_auto_deps uses explicit source lists.
-			fmt.Fprintf(os.Stderr, "WARNING: clobbering non-list srcs attribute on %s\n",
-				AbsoluteBazelTarget(bld, r.Name()))
-			r.DelAttr("srcs")
-		}
-		val := &build.StringExpr{Value: s}
-		edit.AddValueToListAttribute(r, "srcs", pkgName, val, nil)
+		addToSrcsClobbering(bld, r, s)
 	}
 	return true
+}
+
+// Adds the given value to the srcs attribute on the build rule. Clobbers any
+// existing values for srcs that are not a list. Returns true if it clobbered
+// or if it changed the value of the srcs attribute.
+func addToSrcsClobbering(bld *build.File, r *build.Rule, s string) bool {
+	value := r.Attr("srcs")
+	switch value.(type) {
+	case nil, *build.ListExpr:
+		// expected - a list of files (labels) or absent.
+	default:
+		// Remove any glob calls, variables, etc. ts_auto_deps uses explicit source lists.
+		fmt.Fprintf(os.Stderr, "WARNING: clobbering non-list srcs attribute on %s\n",
+			AbsoluteBazelTarget(bld, r.Name()))
+		r.DelAttr("srcs")
+	}
+	// TODO(martinprobst): tracking whether something changed here is awkward, due
+	// to edit's APIs, but also the overhead of carrying around the flag. Instead
+	// of attempting fine-grained tracking of whether ts_auto_deps made changes, a simpler
+	// strategy would be to make changes to the build.File, then serialize the
+	// build file, and compare if the canonical byte-representation changed.
+	oldVal := r.AttrStrings("srcs")
+
+	val := &build.StringExpr{Value: s}
+	edit.AddValueToListAttribute(r, "srcs", "", val, nil)
+
+	newVal := r.AttrStrings("srcs")
+	if len(oldVal) != len(newVal) {
+		return true
+	}
+	for i, v := range newVal {
+		if v != oldVal[i] {
+			return true
+		}
+	}
+	return false
 }
 
 var testingRegexp = regexp.MustCompile(`\btesting\b`)
@@ -499,9 +524,10 @@ func (upd *Updater) addSourcesToBUILD(ctx context.Context, path string, buildFil
 	if err != nil {
 		return false, err
 	}
+	updatedBuild := false
 
 	platform.Infof("Updating sources")
-	updatedBuild := updateSources(bld, srcs)
+	updatedBuild = updateSources(bld, srcs) || updatedBuild
 
 	if updatedBuild {
 		if err := upd.writeBUILD(ctx, buildFilePath, bld); err != nil {
