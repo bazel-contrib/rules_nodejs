@@ -535,7 +535,7 @@ func (upd *Updater) updateBUILDAfterBazelAnalyze(ctx context.Context, isRoot boo
 // ts_config and ts_development_sources rules.  It's separated from UpdateBUILD since it's
 // non-local, multiple packages may all need to make writes to the same ts_config.
 func (upd *Updater) RegisterTsconfigAndTsDevelopmentSources(ctx context.Context, paths ...string) (bool, error) {
-	reg := &registerer{make(map[string]*build.File), make(map[*build.File]bool)}
+	reg := &buildRegistry{make(map[string]*build.File), make(map[*build.File]bool)}
 	var g3root string
 	for _, path := range paths {
 		var bld *build.File
@@ -561,7 +561,7 @@ func (upd *Updater) RegisterTsconfigAndTsDevelopmentSources(ctx context.Context,
 	}
 
 	updated := false
-	for b := range reg.writtenFiles {
+	for b := range reg.filesToUpdate {
 		fmt.Printf("Registered test(s) in %s\n", b.Path)
 		fileChanged, err := upd.maybeWriteBUILD(ctx, filepath.Join(g3root, b.Path), b)
 		if err != nil {
@@ -690,15 +690,15 @@ func QueryBasedBazelAnalyze(buildFilePath string, args []string) ([]byte, []byte
 	return s, nil, err
 }
 
-// registerer buffers reads and writes done while registering ts_libraries with
-// ts_config and ts_development_sources rules, so that registers from multiple
-// packages all get applied at once.
-type registerer struct {
-	bldFiles     map[string]*build.File
-	writtenFiles map[*build.File]bool
+// buildRegistry buffers reads and writes done while registering ts_libraries
+// with ts_config and ts_development_sources rules, so that registers from
+// multiple packages all get applied at once.
+type buildRegistry struct {
+	bldFiles      map[string]*build.File
+	filesToUpdate map[*build.File]bool
 }
 
-func (reg *registerer) readBUILD(ctx context.Context, workspaceRoot, buildFilePath string) (*build.File, error) {
+func (reg *buildRegistry) readBUILD(ctx context.Context, workspaceRoot, buildFilePath string) (*build.File, error) {
 	normalizedG3Path, err := getAbsoluteBUILDPath(workspaceRoot, buildFilePath)
 	if err != nil {
 		return nil, err
@@ -718,14 +718,14 @@ func (reg *registerer) readBUILD(ctx context.Context, workspaceRoot, buildFilePa
 	return bld, nil
 }
 
-func (reg *registerer) registerForPossibleUpdate(bld *build.File) {
-	reg.writtenFiles[bld] = true
+func (reg *buildRegistry) registerForPossibleUpdate(bld *build.File) {
+	reg.filesToUpdate[bld] = true
 }
 
 // registerTestRule searches ancestor packages for a rule with the given ruleKind and ruleType
 // and adds the given target to it. Prints a warning if no rule is found, but only returns an error
 // if adding the dependency fails.
-func (reg *registerer) registerTestRule(ctx context.Context, bld *build.File, ruleKind string, rt ruleType, g3root, target string) error {
+func (reg *buildRegistry) registerTestRule(ctx context.Context, bld *build.File, ruleKind string, rt ruleType, g3root, target string) error {
 	// If the target has already been registered in any of the rule with the given ruleKind and ruleType,
 	// we shouldn't register it again.
 	if targetRegisteredInRule(bld, ruleKind, rt, target) {
