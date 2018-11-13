@@ -58,9 +58,9 @@ def rules_nodejs_dependencies():
     _maybe(
         http_archive,
         name = "bazel_skylib",
-        url = "https://github.com/bazelbuild/bazel-skylib/archive/0.3.1.zip",
-        strip_prefix = "bazel-skylib-0.3.1",
-        sha256 = "95518adafc9a2b656667bbf517a952e54ce7f350779d0dd95133db4eb5c27fb1",
+        url = "https://github.com/bazelbuild/bazel-skylib/archive/0.5.0.zip",
+        strip_prefix = "bazel-skylib-0.5.0",
+        sha256 = "ca4e3b8e4da9266c3a9101c8f4704fe2e20eb5625b2a6a7d2d7d45e3dd4efffd",
     )
 
     # Needed for Remote Build Execution
