@@ -50,6 +50,9 @@ package(default_visibility = ["//visibility:public"])
 
 `
 
+const args = process.argv.slice(2);
+const includedFiles = args[0] ? args[0].split(',') : [];
+
 if (require.main === module) {
   main();
 }
@@ -89,9 +92,8 @@ function main() {
 module.exports = {main};
 
 function generateRootBuildFile(pkgs) {
-  const srcs = pkgs.filter(pkg => !pkg._isNested)
-                   .map(pkg => `"//node_modules/${pkg._dir}:${pkg._name}__lite",`)
-                   .join('\n        ');
+  const srcs = pkgs.filter(pkg => !pkg._isNested);
+  const binFiles = listFiles('node_modules/.bin');
 
   let buildFile = BUILD_FILE_HEADER + `# The node_modules directory in one catch-all filegroup.
 # NB: Using this target may have bad performance implications if
@@ -108,8 +110,9 @@ function generateRootBuildFile(pkgs) {
 # this filegroup to include those files.
 filegroup(
     name = "node_modules",
-    srcs = glob(["node_modules/.bin/*"]) + [
-        ${srcs}
+    srcs = [
+        ${binFiles.map(f => `"node_modules/.bin/${f}",`).join('\n        ')}
+        ${srcs.map(pkg => `"//node_modules/${pkg._dir}:${pkg._name}__files",`).join('\n        ')}
     ],
 )
 
@@ -153,6 +156,34 @@ function isPackage(p) {
   const packageJson = path.posix.join(p, 'package.json');
   return fs.statSync(p).isDirectory() && fs.existsSync(packageJson) &&
       fs.statSync(packageJson).isFile();
+}
+
+/**
+ * Returns an array of all the files under a directory as relative
+ * paths to the directory.
+ */
+function listFiles(rootDir, subDir = '') {
+  const dir = path.posix.join(rootDir, subDir);
+  return fs
+      .readdirSync(dir)
+      // Filter out .bin folder since this is a folder created by yarn/npm that contains
+      // only symlinks and it breaks this function on Windows.
+      // For example, `node_modules/foo/.bin/foo` would be a symlink to `node_modules/.bin/foo`
+      .filter(f => !(f === '.bin' && fs.statSync(path.posix.join(dir, f)).isDirectory()))
+      // Also filter out test folders which contain symlinks in some packages
+      // such as `ecstatic/test/public/containsSymlink/more-problematic`
+      .filter(f => !(f === 'test' && fs.statSync(path.posix.join(dir, f)).isDirectory()))
+      // Delete BUILD and BUILD.bazel files so that so that files do not cross Bazel package
+      // boundaries. npm packages should not generally include BUILD or BUILD.bazel files
+      // but they may as rxjs does temporarily.
+      .filter(f => f === 'BUILD' ? fs.unlinkSync(path.posix.join(dir, 'BUILD')) : true)
+      .filter(f => f === 'BUILD.bazel' ? fs.unlinkSync(path.posix.join(dir, 'BUILD.bazel')) : true)
+      .reduce((files, file) => {
+        const fullPath = path.posix.join(dir, file);
+        const relPath = path.posix.join(subDir, file);
+        return fs.statSync(fullPath).isDirectory() ? files.concat(listFiles(rootDir, relPath)) :
+                                                     files.concat(relPath);
+      }, []);
 }
 
 /**
@@ -215,6 +246,9 @@ function parsePackage(p) {
 
   // Keep track of whether or not this is a nested package
   pkg._isNested = p.match(/\/node_modules\//);
+
+  // List all the files in the npm package for later use
+  pkg._files = listFiles(p);
 
   // Initialize _dependencies to an empty array
   // which is later filled with the flattened dependency list
@@ -317,15 +351,49 @@ function flattenDependencies(pkg, dep, pkgsMap) {
  */
 function printJson(pkg) {
   // Clone and modify _dependencies to avoid circular issues when JSONifying
+  // & delete _files array
   const cloned = {...pkg};
   cloned._dependencies = cloned._dependencies.map(dep => dep._dir);
+  delete cloned._files;
   return JSON.stringify(cloned, null, 2).split('\n').map(line => `# ${line}`).join('\n');
+}
+
+/**
+ * A filter function for a bazel filegroup.
+ * @param files array of files to filter
+ * @param exts list of white listed extensions; if empty, no filter is done on extensions;
+ *             '' empty string denotes to allow files with no extensions, other extensions
+ *             are listed with '.ext' notation such as '.d.ts'.
+ */
+function filterFilesForFilegroup(files, exts = []) {
+  // Files with spaces (\x20) or unicode characters (<\x20 && >\x7E) are not allowed in
+  // Bazel runfiles. See https://github.com/bazelbuild/bazel/issues/4327
+  files = files.filter(f => !f.match(/[^\x21-\x7E]/));
+  if (exts.length) {
+    const allowNoExts = exts.includes('');
+    files = files.filter(f => {
+      // include files with no extensions if noExt is true
+      if (allowNoExts && !path.extname(f)) return true;
+      // filter files in exts
+      for (const e of exts) {
+        if (e && f.endsWith(e)) {
+          return true;
+        }
+      }
+      return false;
+    })
+  }
+  return files;
 }
 
 /**
  * Given a pkg, print a skylark `filegroup` target for the package.
  */
 function printPackage(pkg) {
+  const sources = filterFilesForFilegroup(pkg._files, includedFiles);
+  const dtsSources = filterFilesForFilegroup(pkg._files, ['.d.ts']);
+  const pkgDeps = pkg._dependencies.filter(dep => dep != pkg).filter(dep => !dep._isNested);
+
   let result = `
 # Generated targets for npm package "${pkg._dir}"
 ${printJson(pkg)}
@@ -337,74 +405,24 @@ filegroup(
         ":${pkg._name}__files",
         # direct or transitive dependencies hoisted to root by the package manager
         ${
-      pkg._dependencies.filter(dep => dep != pkg)
-          .filter(dep => !dep._isNested)
-          .map(dep => `"//node_modules/${dep._dir}:${dep._name}__files",`)
-          .join('\n        ')}
+      pkgDeps.map(dep => `"//node_modules/${dep._dir}:${dep._name}__files",`).join('\n        ')}
     ],
     tags = ["NODE_MODULE_MARKER"],
 )
 
 filegroup(
     name = "${pkg._name}__files",
-    srcs = glob(
-        include = ["**/*"],
-        exclude = [
-          # Files under test & docs may contain file names that
-          # are not legal Bazel labels (e.g.,
-          # node_modules/ecstatic/test/public/中文/檔案.html)
-          "test/**",
-          "docs/**",
-          # Files with spaces are not allowed in Bazel runfiles
-          # See https://github.com/bazelbuild/bazel/issues/4327
-          "**/* */**",
-          "**/* *",
-        ],
-    ),
-    tags = ["NODE_MODULE_MARKER"],
-)
-
-filegroup(
-    name = "${pkg._name}__lite",
-    srcs = glob(
-        include = [
-          "**/*.js",
-          "**/*.d.ts",
-          "**/*.json",
-          "**/*.proto",
-          "bin/**/*",
-        ],
-        exclude = [
-          # Files under test & docs may contain file names that
-          # are not legal Bazel labels (e.g.,
-          # node_modules/ecstatic/test/public/中文/檔案.html)
-          "test/**",
-          "docs/**",
-          # Files with spaces are not allowed in Bazel runfiles
-          # See https://github.com/bazelbuild/bazel/issues/4327
-          "**/* */**",
-          "**/* *",
-        ],
-    ),
+    srcs = [
+        ${sources.map(f => `"${f}",`).join('\n        ')}
+    ],
     tags = ["NODE_MODULE_MARKER"],
 )
 
 filegroup(
     name = "${pkg._name}__typings",
-    srcs = glob(
-        include = ["**/*.d.ts"],
-        exclude = [
-          # Files under test & docs may contain file names that
-          # are not legal Bazel labels (e.g.,
-          # node_modules/ecstatic/test/public/中文/檔案.html)
-          "test/**",
-          "docs/**",
-          # Files with spaces are not allowed in Bazel runfiles
-          # See https://github.com/bazelbuild/bazel/issues/4327
-          "**/* */**",
-          "**/* *",
-        ],
-    ),
+    srcs = [
+        ${dtsSources.map(f => `"${f}",`).join('\n        ')}
+    ],
     tags = ["NODE_MODULE_MARKER"],
 )
 
@@ -442,11 +460,6 @@ alias(
 )
 
 alias(
-  name = "${pkg._name}__lite",
-  actual = "//node_modules/${pkg._dir}:${pkg._name}__lite"
-)
-
-alias(
   name = "${pkg._name}__typings",
   actual = "//node_modules/${pkg._dir}:${pkg._name}__typings"
 )
@@ -475,15 +488,13 @@ alias(
  * Given a scope, print a skylark `filegroup` target for the scope.
  */
 function printScope(scope, pkgs) {
-  const srcs = pkgs.filter(pkg => !pkg._isNested && pkg._dir.startsWith(`${scope}/`))
-                   .map(pkg => `"//node_modules/${pkg._dir}:${pkg._name}__pkg",`)
-                   .join('\n        ');
+  const srcs = pkgs.filter(pkg => !pkg._isNested && pkg._dir.startsWith(`${scope}/`));
   return `
 # Generated target for npm scope ${scope}
 filegroup(
     name = "${scope}",
     srcs = [
-        ${srcs}
+        ${srcs.map(pkg => `"//node_modules/${pkg._dir}:${pkg._name}__pkg",`).join('\n        ')}
     ],
     tags = ["NODE_MODULE_MARKER"],
 )

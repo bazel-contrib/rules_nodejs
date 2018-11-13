@@ -25,6 +25,7 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
         "fine.spec.js",
     ],
     deps = [
+        "@fine_grained_deps_%s//ajv" % pkgmgr,
         "@fine_grained_deps_%s//jasmine" % pkgmgr,
         "@fine_grained_deps_%s//typescript" % pkgmgr,
         # Note, test-b depends on test-a@0.0.1 which should get
