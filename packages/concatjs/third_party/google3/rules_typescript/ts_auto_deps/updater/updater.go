@@ -13,6 +13,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"flag"
@@ -1179,13 +1180,16 @@ func Paths(isRoot bool, files bool, recursive bool) ([]string, error) {
 	}
 
 	if recursive {
+		var lock sync.Mutex // guards allPaths
 		var allPaths []string
 		for _, p := range paths {
-			err := filepath.Walk(p, func(path string, info os.FileInfo, err error) error {
-				if err == nil && info.IsDir() {
+			err := platform.Walk(p, func(path string, info os.FileMode) error {
+				if info.IsDir() {
+					lock.Lock()
 					allPaths = append(allPaths, path)
+					lock.Unlock()
 				}
-				return err
+				return nil
 			})
 			if err != nil {
 				return nil, fmt.Errorf("ts_auto_deps -recursive failed: %s", err)
