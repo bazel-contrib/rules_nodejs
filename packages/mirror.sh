@@ -2,6 +2,7 @@
 
 set -x
 
+# Don't accidentally publish extra files, such as previous bazel binaries
 git clean -fx
 
 # VERSION is e.g. 0.18.0
@@ -22,7 +23,7 @@ else
 fi
 readonly BASENAME="bazel-${VERSION}${RC}"
 readonly BASEURI="https://releases.bazel.build/${VERSION}/${FOLDER}"
-
+readonly NPM=$(which npm)
 
 function doMirror () {
   local PACKAGE=$1
@@ -32,6 +33,7 @@ function doMirror () {
   tmp=$(mktemp)
   jq ".bin.bazel = \"./${FILENAME}\" | .version = \"${NEWVERSION}\"" < ${PACKAGE}/package.json > $tmp
   mv $tmp ${PACKAGE}/package.json
+  node --max-old-space-size=8192 $NPM publish $PACKAGE
 }
 
 doMirror bazel-win32_x64 ${BASENAME}-windows-x86_64.exe
@@ -41,6 +43,4 @@ doMirror bazel-linux_x64 ${BASENAME}-linux-x86_64
 tmp=$(mktemp)
 jq ".version = \"${NEWVERSION}\" | .optionalDependencies[] = \"${NEWVERSION}\"" < bazel/package.json > $tmp
 mv $tmp bazel/package.json
-
-echo "Done, inspect the result and then publish the packages"
-
+$NPM publish bazel

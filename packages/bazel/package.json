@@ -3,15 +3,15 @@
   "bin": {
     "bazel": "./bazel.js"
   },
-  "version": "0.18.1",
+  "version": "0.19.1",
   "description": "Build and test software of any size, quickly and reliably",
   "homepage": "https://bazel.build/",
   "bugs": {
     "url": "https://github.com/bazelbuild/bazel/issues"
   },
   "optionalDependencies": {
-    "@bazel/bazel-linux_x64": "0.18.0",
-    "@bazel/bazel-darwin_x64": "0.18.0",
-    "@bazel/bazel-win32_x64": "0.18.0"
+    "@bazel/bazel-linux_x64": "0.19.1",
+    "@bazel/bazel-darwin_x64": "0.19.1",
+    "@bazel/bazel-win32_x64": "0.19.1"
   }
 }
