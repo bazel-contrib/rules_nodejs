@@ -22,7 +22,7 @@ load(":node_labels.bzl", "get_yarn_node_repositories_label")
 load("//internal/common:check_bazel_version.bzl", "check_bazel_version")
 load("//internal/common:os_name.bzl", "os_name")
 load("//internal/npm_install:npm_install.bzl", "yarn_install")
-load("@bazel_skylib//:lib.bzl", "paths")
+load("@bazel_skylib//lib:paths.bzl", "paths")
 
 # Callers that don't specify a particular version will get these.
 DEFAULT_NODE_VERSION = "10.13.0"
