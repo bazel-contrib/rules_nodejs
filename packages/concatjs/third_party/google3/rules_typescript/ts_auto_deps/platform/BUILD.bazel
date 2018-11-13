@@ -5,6 +5,7 @@ go_library(
     srcs = [
         "file.go",
         "log.go",
+        "walk.go",
     ],
     importpath = "github.com/bazelbuild/rules_typescript/ts_auto_deps/platform",
     visibility = ["//visibility:public"],
