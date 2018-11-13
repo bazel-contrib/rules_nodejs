@@ -119,9 +119,9 @@ def rules_typescript_dev_dependencies():
 
     http_archive(
         name = "io_bazel_skydoc",
-        url = "https://github.com/bazelbuild/skydoc/archive/77e5399258f6d91417d23634fce97d73b40cf337.zip",
-        strip_prefix = "skydoc-77e5399258f6d91417d23634fce97d73b40cf337",
-        sha256 = "4e9bd9ef65af54dedd997b408fa26c2e70c30ee8e078bcc1b51a33cf7d7f9d7e",
+        url = "https://github.com/bazelbuild/skydoc/archive/8632e30e7b1fa2d58f73ea0ef1f043b4b35794f5.zip",
+        strip_prefix = "skydoc-8632e30e7b1fa2d58f73ea0ef1f043b4b35794f5",
+        sha256 = "d8b663c41039dfd84f3ad26d04f9df3122af090f73816b3ffb8c0df660e1fc74",
     )
 
 def _maybe(repo_rule, name, **kwargs):
