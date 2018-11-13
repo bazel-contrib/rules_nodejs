@@ -185,7 +185,9 @@ ts_web_test = rule(
             doc = "Runtime dependencies",
         ),
         "static_files": attr.label_list(
-            doc = """Arbitrary files which to be served.""",
+            doc = """Arbitrary files which to be served. Files are served at:
+            `/base/<WORKSPACE_NAME>/<path-to-file>`, e.g. 
+            `/base/build_bazel_rules_typescript/examples/testing/static_script.js`""",
             allow_files = True,
         ),
         "karma": attr.label(
