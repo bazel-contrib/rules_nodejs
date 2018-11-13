@@ -132,7 +132,7 @@ as the package manager.</p>
 
           <h2 id="npm_install">npm_install</h2>
 
-          <pre>npm_install(<a href="#npm_install.name">name</a>, <a href="#npm_install.data">data</a>, <a href="#npm_install.manual_build_file_contents">manual_build_file_contents</a>, <a href="#npm_install.package_json">package_json</a>, <a href="#npm_install.package_lock_json">package_lock_json</a>, <a href="#npm_install.prod_only">prod_only</a>, <a href="#npm_install.timeout">timeout</a>)</pre>
+          <pre>npm_install(<a href="#npm_install.name">name</a>, <a href="#npm_install.data">data</a>, <a href="#npm_install.included_files">included_files</a>, <a href="#npm_install.manual_build_file_contents">manual_build_file_contents</a>, <a href="#npm_install.package_json">package_json</a>, <a href="#npm_install.package_lock_json">package_lock_json</a>, <a href="#npm_install.prod_only">prod_only</a>, <a href="#npm_install.timeout">timeout</a>)</pre>
 
           <p>Runs npm install during workspace setup.</p>
 
@@ -159,18 +159,40 @@ as the package manager.</p>
         
       </td>
     </tr>
+    <tr id="npm_install.included_files">
+      <td><code>included_files</code></td>
+      <td>
+        <p><code>List of strings; Optional; Default is []</code></p>
+        <p>List of file extensions to be included in the npm package targets.</p>
+<pre><code>    For example, [".js", ".d.ts", ".proto", ".json", ""].
+
+    This option is useful to limit the number of files that are inputs
+    to actions that depend on npm package targets. See
+    https://github.com/bazelbuild/bazel/issues/5153.
+
+    If set to an empty list then all files are included in the package targets.
+    If set to a list of extensions, only files with matching extensions are
+    included in the package targets. An empty string in the list is a special
+    string that denotes that files with no extensions such as `README` should
+    be included in the package targets.
+
+    This attribute applies to both the coarse `@wksp//:node_modules` target
+    as well as the fine grained targets such as `@wksp//foo`.
+</code></pre>
+      </td>
+    </tr>
     <tr id="npm_install.manual_build_file_contents">
       <td><code>manual_build_file_contents</code></td>
       <td>
         <p><code>String; Optional; Default is ''</code></p>
         <p>Experimental attribute that can be used to override
-            the generated BUILD.bazel file and set its contents manually.
-            Can be used to work-around a bazel performance issue if the
-            default node_modules filegroup has too many files in it. See
-            <a href="https://github.com/bazelbuild/bazel/issues/5153">https://github.com/bazelbuild/bazel/issues/5153</a>. If
-            you are running into performance issues due to a large
-            node_modules filegroup it is recommended to switch to using
-            fine grained npm dependencies.</p>
+        the generated BUILD.bazel file and set its contents manually.
+        Can be used to work-around a bazel performance issue if the
+        default <code>@wksp//:node_modules</code> target has too many files in it.
+        See <a href="https://github.com/bazelbuild/bazel/issues/5153">https://github.com/bazelbuild/bazel/issues/5153</a>. If
+        you are running into performance issues due to a large
+        node_modules target it is recommended to switch to using
+        fine grained npm dependencies.</p>
       </td>
     </tr>
     <tr id="npm_install.package_json">
@@ -208,7 +230,7 @@ as the package manager.</p>
 
           <h2 id="yarn_install">yarn_install</h2>
 
-          <pre>yarn_install(<a href="#yarn_install.name">name</a>, <a href="#yarn_install.data">data</a>, <a href="#yarn_install.manual_build_file_contents">manual_build_file_contents</a>, <a href="#yarn_install.package_json">package_json</a>, <a href="#yarn_install.prod_only">prod_only</a>, <a href="#yarn_install.timeout">timeout</a>, <a href="#yarn_install.use_global_yarn_cache">use_global_yarn_cache</a>, <a href="#yarn_install.yarn_lock">yarn_lock</a>)</pre>
+          <pre>yarn_install(<a href="#yarn_install.name">name</a>, <a href="#yarn_install.data">data</a>, <a href="#yarn_install.included_files">included_files</a>, <a href="#yarn_install.manual_build_file_contents">manual_build_file_contents</a>, <a href="#yarn_install.package_json">package_json</a>, <a href="#yarn_install.prod_only">prod_only</a>, <a href="#yarn_install.timeout">timeout</a>, <a href="#yarn_install.use_global_yarn_cache">use_global_yarn_cache</a>, <a href="#yarn_install.yarn_lock">yarn_lock</a>)</pre>
 
           <p>Runs yarn install during workspace setup.</p>
 
@@ -235,18 +257,40 @@ as the package manager.</p>
         
       </td>
     </tr>
+    <tr id="yarn_install.included_files">
+      <td><code>included_files</code></td>
+      <td>
+        <p><code>List of strings; Optional; Default is []</code></p>
+        <p>List of file extensions to be included in the npm package targets.</p>
+<pre><code>    For example, [".js", ".d.ts", ".proto", ".json", ""].
+
+    This option is useful to limit the number of files that are inputs
+    to actions that depend on npm package targets. See
+    https://github.com/bazelbuild/bazel/issues/5153.
+
+    If set to an empty list then all files are included in the package targets.
+    If set to a list of extensions, only files with matching extensions are
+    included in the package targets. An empty string in the list is a special
+    string that denotes that files with no extensions such as `README` should
+    be included in the package targets.
+
+    This attribute applies to both the coarse `@wksp//:node_modules` target
+    as well as the fine grained targets such as `@wksp//foo`.
+</code></pre>
+      </td>
+    </tr>
     <tr id="yarn_install.manual_build_file_contents">
       <td><code>manual_build_file_contents</code></td>
       <td>
         <p><code>String; Optional; Default is ''</code></p>
         <p>Experimental attribute that can be used to override
-            the generated BUILD.bazel file and set its contents manually.
-            Can be used to work-around a bazel performance issue if the
-            default node_modules filegroup has too many files in it. See
-            <a href="https://github.com/bazelbuild/bazel/issues/5153">https://github.com/bazelbuild/bazel/issues/5153</a>. If
-            you are running into performance issues due to a large
-            node_modules filegroup it is recommended to switch to using
-            fine grained npm dependencies.</p>
+        the generated BUILD.bazel file and set its contents manually.
+        Can be used to work-around a bazel performance issue if the
+        default <code>@wksp//:node_modules</code> target has too many files in it.
+        See <a href="https://github.com/bazelbuild/bazel/issues/5153">https://github.com/bazelbuild/bazel/issues/5153</a>. If
+        you are running into performance issues due to a large
+        node_modules target it is recommended to switch to using
+        fine grained npm dependencies.</p>
       </td>
     </tr>
     <tr id="yarn_install.package_json">
