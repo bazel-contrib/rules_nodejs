@@ -100,9 +100,18 @@ function runOneBuild(
   let diags: ts.Diagnostic[] = [];
   // Install extra diagnostic plugins
   if (!bazelOpts.disableStrictDeps) {
-    const ignoredFilesPrefixes = [bazelOpts.nodeModulesPrefix];
-    if (options.rootDir) {
-      ignoredFilesPrefixes.push(path.resolve(options.rootDir, 'node_modules'));
+    const ignoredFilesPrefixes: string[] = [];
+    if (bazelOpts.nodeModulesPrefix) {
+      // Under Bazel, we exempt external files fetched from npm from strict
+      // deps. This is because we allow users to implicitly depend on all the
+      // node_modules.
+      // TODO(alexeagle): if users opt-in to fine-grained npm dependencies, we
+      // should be able to enforce strict deps for them.
+      ignoredFilesPrefixes.push(bazelOpts.nodeModulesPrefix);
+      if (options.rootDir) {
+        ignoredFilesPrefixes.push(
+            path.resolve(options.rootDir!, 'node_modules'));
+      }
     }
     program = strictDepsPlugin.wrap(program, {
       ...bazelOpts,
