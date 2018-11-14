@@ -67,7 +67,6 @@ Currently these versions are:
 * 10.13.0 (default)
 * 10.10.0
 * 10.9.0
-* 10.9.0
 * 10.3.0
 * 9.11.1
 * 8.12.0
