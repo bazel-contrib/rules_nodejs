@@ -46,7 +46,7 @@ def _ts_devserver(ctx):
     # see if we can get performance gains out of the module loader.
     ctx.actions.write(ctx.outputs.manifest, "".join([
         workspace_name + "/" + f.short_path + "\n"
-        for f in files
+        for f in files.to_list()
     ]))
 
     amd_names_shim = ctx.actions.declare_file(

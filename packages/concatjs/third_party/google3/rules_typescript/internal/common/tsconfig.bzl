@@ -158,7 +158,7 @@ def create_tsconfig(
         bazel_options["disableStrictDeps"] = disable_strict_deps
         bazel_options["allowedStrictDeps"] = []
     else:
-        bazel_options["allowedStrictDeps"] = [f.path for f in allowed_deps]
+        bazel_options["allowedStrictDeps"] = [f.path for f in allowed_deps.to_list()]
 
     if hasattr(ctx.attr, "module_name") and ctx.attr.module_name:
         bazel_options["moduleName"] = ctx.attr.module_name
