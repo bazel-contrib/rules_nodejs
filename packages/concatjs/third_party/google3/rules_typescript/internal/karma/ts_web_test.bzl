@@ -38,7 +38,7 @@ def _ts_web_test_impl(ctx):
     )
 
     files = depset(ctx.files.srcs)
-    for d in ctx.attr.deps:
+    for d in ctx.attr.deps + ctx.attr.runtime_deps:
         if hasattr(d, "node_sources"):
             files = depset(transitive = [files, d.node_sources])
         elif hasattr(d, "files"):
@@ -79,6 +79,18 @@ def _ts_web_test_impl(ctx):
         "/".join([ctx.workspace_name, amd_names_shim.short_path]),
     ]
 
+    # Next we load the "runtime_deps" which we expect to contain named AMD modules
+    # Thus they should come after the require.js script, but before any srcs or deps
+    runtime_files = []
+    for d in ctx.attr.runtime_deps:
+        if not hasattr(d, "typescript"):
+            # Workaround https://github.com/bazelbuild/rules_nodejs/issues/57
+            # We should allow any JS source as long as it yields something that
+            # can be loaded by require.js
+            fail("labels in runtime_deps must be created by ts_library")
+        for src in d.typescript.es5_sources.to_list():
+            runtime_files.append(expand_path_into_runfiles(ctx, src.short_path))
+
     # Finally we load the user's srcs and deps
     user_entries = [
         expand_path_into_runfiles(ctx, f.short_path)
@@ -100,6 +112,7 @@ def _ts_web_test_impl(ctx):
             "TMPL_bootstrap_files": "\n".join(["      '%s'," % e for e in bootstrap_entries]),
             "TMPL_user_files": "\n".join(["      '%s'," % e for e in user_entries]),
             "TMPL_static_files": "\n".join(["      '%s'," % e for e in static_files]),
+            "TMPL_runtime_files": "\n".join(["      '%s'," % e for e in runtime_files]),
             "TMPL_workspace_name": ctx.workspace_name,
         },
     )
@@ -110,6 +123,7 @@ def _ts_web_test_impl(ctx):
     ]
     karma_runfiles += ctx.files.srcs
     karma_runfiles += ctx.files.deps
+    karma_runfiles += ctx.files.runtime_deps
     karma_runfiles += ctx.files.bootstrap
     karma_runfiles += ctx.files.static_files
 
@@ -181,12 +195,20 @@ ts_web_test = rule(
             or UMD bundles for third-party libraries.""",
             allow_files = [".js"],
         ),
+        "runtime_deps": attr.label_list(
+            doc = """Dependencies which should be loaded after the module loader but before the srcs and deps.
+            These should be a list of targets which produce JavaScript such as `ts_library`.
+            The files will be loaded in the same order they are declared by that rule.""",
+            allow_files = True,
+            aspects = [sources_aspect],
+        ),
         "data": attr.label_list(
             doc = "Runtime dependencies",
         ),
         "static_files": attr.label_list(
-            doc = """Arbitrary files which to be served. Files are served at:
-            `/base/<WORKSPACE_NAME>/<path-to-file>`, e.g. 
+            doc = """Arbitrary files which are available to be served on request.
+            Files are served at:
+            `/base/<WORKSPACE_NAME>/<path-to-file>`, e.g.
             `/base/build_bazel_rules_typescript/examples/testing/static_script.js`""",
             allow_files = True,
         ),

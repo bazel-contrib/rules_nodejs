@@ -186,6 +186,7 @@ try
 // A simplified version of Karma's requirejs.config.tpl.js for use with Karma under Bazel.
 // This does an explicit \`require\` on each test script in the files, otherwise nothing will be loaded.
 (function(){
+  var runtimeFiles = [TMPL_runtime_files].map(function(file) { return file.replace(/\\.js$/, ''); });
   var allFiles = [TMPL_user_files];
   var allTestFiles = [];
   allFiles.forEach(function (file) {
@@ -193,7 +194,7 @@ try
       allTestFiles.push(file.replace(/\\.js$/, ''))
     }
   });
-  require(allTestFiles, window.__karma__.start);
+  require(runtimeFiles, function() { return require(allTestFiles, window.__karma__.start); });
 })();
 `;
 
