@@ -82,7 +82,7 @@ def _ts_web_test_impl(ctx):
     # Finally we load the user's srcs and deps
     user_entries = [
         expand_path_into_runfiles(ctx, f.short_path)
-        for f in files
+        for f in files.to_list()
     ]
     static_files = [
         expand_path_into_runfiles(ctx, f.short_path)
