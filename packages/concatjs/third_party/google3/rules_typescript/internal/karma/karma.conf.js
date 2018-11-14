@@ -41,6 +41,30 @@ try
     }
   }
 
+  // Chrome on Linux uses sandboxing, which needs user namespaces to be enabled.
+  // This is not available on all kernels and it might be turned off even if it is available.
+  // Notable examples where user namespaces are not available include:
+  // - In Debian it is compiled-in but disabled by default.
+  // - The Docker daemon for Windows or OSX does not support user namespaces.
+  // We can detect if user namespaces are supported via /proc/sys/kernel/unprivileged_userns_clone.
+  // For more information see:
+  // https://github.com/Googlechrome/puppeteer/issues/290
+  // https://superuser.com/questions/1094597/enable-user-namespaces-in-debian-kernel#1122977
+  // https://github.com/karma-runner/karma-chrome-launcher/issues/158
+  // https://github.com/angular/angular/pull/24906
+  function supportsSandboxing() {
+    if (process.platform !== 'linux') {
+      return true;
+    }
+    try {
+      const res = child_process
+        .execSync('cat /proc/sys/kernel/unprivileged_userns_clone').toString().trim();
+      return res === '1';
+    } catch (error) { }
+
+    return false;
+  }
+
   const browsers = [];
   let customLaunchers = null;
 
@@ -88,7 +112,19 @@ try
           } else {
             process.env.CHROME_BIN = require.resolve(webTestNamedFiles['CHROMIUM']);
           }
-          browsers.push(process.env['DISPLAY'] ? 'Chrome' : 'ChromeHeadless');
+          const browser = process.env['DISPLAY'] ? 'Chrome' : 'ChromeHeadless';
+          if (!supportsSandboxing()) {
+            const launcher = 'CustomChromeWithoutSandbox';
+            customLaunchers = {
+              [launcher]: {
+                base: browser,
+                flags: ['--no-sandbox']
+              }
+            };
+            browsers.push(launcher);
+          } else {
+            browsers.push(browser);
+          }
         }
         if (webTestNamedFiles['FIREFOX']) {
           // When karma is configured to use Firefox it will look for a
