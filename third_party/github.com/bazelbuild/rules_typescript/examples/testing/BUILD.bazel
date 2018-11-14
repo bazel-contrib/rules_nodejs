@@ -17,6 +17,17 @@ ts_library(
     ],
 )
 
+ts_library(
+    name = "tests_setup",
+    testonly = 1,
+    srcs = ["setup_script.ts"],
+    tsconfig = "//examples:tsconfig-test",
+    deps = [
+        "@npm//@types/jasmine",
+        "@npm//@types/node",
+    ],    
+)
+
 ts_web_test_suite(
     name = "testing",
     browsers = [
@@ -25,6 +36,9 @@ ts_web_test_suite(
     ],
     static_files = [
         "static_script.js",
+    ],
+    runtime_deps = [
+        ":tests_setup",
     ],
     deps = [
         ":tests",
