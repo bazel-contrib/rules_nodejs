@@ -147,7 +147,6 @@ export function uglyFormat(
     // disk
     getCanonicalFileName: (f: string) => f
   };
-
   return ts.formatDiagnostics(diagnostics, diagnosticsHost);
 }
 
@@ -164,6 +163,5 @@ export function format(
     // disk
     getCanonicalFileName: (f: string) => f
   };
-
   return ts.formatDiagnosticsWithColorAndContext(diagnostics, diagnosticsHost);
 }
