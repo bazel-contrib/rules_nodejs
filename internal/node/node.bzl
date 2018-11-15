@@ -180,7 +180,6 @@ _NODEJS_EXECUTABLE_ATTRS = {
     "data": attr.label_list(
         doc = """Runtime dependencies which may be loaded during execution.""",
         allow_files = True,
-        cfg = "data",
         aspects = [sources_aspect, module_mappings_runtime_aspect, collect_node_modules_aspect]),
     "templated_args": attr.string_list(
         doc = """Arguments which are passed to every execution of the program.
@@ -258,23 +257,19 @@ _NODEJS_EXECUTABLE_ATTRS = {
     "node": attr.label(
         doc = """The node entry point target.""",
         default = Label("@nodejs//:node"),
-        allow_files = True,
-        single_file = True),
+        allow_single_file = True),
     "_node_runfiles": attr.label(
         default = Label("@nodejs//:node_runfiles"),
         allow_files = True),
     "_repository_args": attr.label(
         default = Label("@nodejs//:bin/node_args.sh"),
-        allow_files = True,
-        single_file = True),
+        allow_single_file = True),
     "_launcher_template": attr.label(
         default = Label("//internal/node:node_launcher.sh"),
-        allow_files = True,
-        single_file = True),
+        allow_single_file = True),
     "_loader_template": attr.label(
         default = Label("//internal/node:node_loader.js"),
-        allow_files = True,
-        single_file = True),
+        allow_single_file = True),
 }
 
 _NODEJS_EXECUTABLE_OUTPUTS = {

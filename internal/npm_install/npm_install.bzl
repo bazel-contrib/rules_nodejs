@@ -26,9 +26,8 @@ load("//internal/common:os_name.bzl", "os_name")
 
 COMMON_ATTRIBUTES = dict(dict(), **{
     "package_json": attr.label(
-        allow_files = True,
         mandatory = True,
-        single_file = True,
+        allow_single_file = True,
     ),
     "prod_only": attr.bool(
         default = False,
@@ -155,8 +154,7 @@ cd "{root}" && "{npm}" {npm_args}
 npm_install = repository_rule(
     attrs = dict(COMMON_ATTRIBUTES, **{
         "package_lock_json": attr.label(
-            allow_files = True,
-            single_file = True,
+            allow_single_file = True,
         ),
         "timeout": attr.int(
             default = 600,
@@ -217,9 +215,8 @@ def _yarn_install_impl(repository_ctx):
 yarn_install = repository_rule(
     attrs = dict(COMMON_ATTRIBUTES, **{
         "yarn_lock": attr.label(
-            allow_files = True,
             mandatory = True,
-            single_file = True,
+            allow_single_file = True,
         ),
         "use_global_yarn_cache": attr.bool(
             default = True,
