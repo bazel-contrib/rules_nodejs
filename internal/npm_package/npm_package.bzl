@@ -30,13 +30,13 @@ def create_package(ctx, devmode_sources, nested_packages):
   args.use_param_file("%s", use_always = True)
   args.add(package_dir.path)
   args.add(ctx.label.package)
-  args.add([s.path for s in ctx.files.srcs], join_with=",")
+  args.add_joined([s.path for s in ctx.files.srcs], join_with=",")
   args.add(ctx.bin_dir.path)
   args.add(ctx.genfiles_dir.path)
-  args.add([s.path for s in devmode_sources], join_with=",")
-  args.add([p.path for p in nested_packages], join_with=",")
-  args.add(ctx.attr.replacements)
-  args.add([ctx.outputs.pack.path, ctx.outputs.publish.path])
+  args.add_joined([s.path for s in devmode_sources], join_with=",")
+  args.add_joined([p.path for p in nested_packages], join_with=",")
+  args.add_all(list(ctx.attr.replacements))
+  args.add_all([ctx.outputs.pack.path, ctx.outputs.publish.path])
   args.add(ctx.version_file.path if ctx.version_file else '')
 
   inputs = ctx.files.srcs + devmode_sources + nested_packages + [ctx.file._run_npm_template]
