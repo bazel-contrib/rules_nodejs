@@ -281,6 +281,7 @@ func updateSources(bld *build.File, srcs srcSet) {
 	sort.Strings(srcSlice)
 
 	pkgName := filepath.Base(filepath.Dir(bld.Path))
+	platform.Infof("Adding new sources to targets in %q: %q", pkgName, srcSlice)
 	for _, s := range srcSlice {
 		var r *build.Rule
 		ruleName := pkgName
@@ -845,7 +846,7 @@ func allTSRules(bld *build.File) []*build.Rule {
 // attrName from the given set of sources.
 func removeSourcesUsed(bld *build.File, ruleKind, attrName string, srcs srcSet) {
 	for _, rule := range buildRules(bld, ruleKind) {
-		for s, _ := range srcs {
+		for s := range srcs {
 			pkg := filepath.Dir(bld.Path)
 			// Handles ":foo.ts" references, and concatenated lists [foo.ts] + [bar.ts]
 			// TODO(martinprobst): What to do about sources that don't seem to exist?
