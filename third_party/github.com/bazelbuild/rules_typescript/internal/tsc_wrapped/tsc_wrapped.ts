@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as tsickle from 'tsickle';
 import * as ts from 'typescript';
 
-import {PLUGIN as tsetsePlugin} from '../tsetse/runner';
+import {PLUGIN as bazelConformancePlugin} from '../tsetse/runner';
 
 import {CachedFileLoader, FileLoader, ProgramAndFileCache, UncachedFileLoader} from './cache';
 import {CompilerHost} from './compiler_host';
@@ -68,7 +68,8 @@ export function gatherDiagnostics(
     });
   }
   if (!bazelOpts.isJsTranspilation) {
-    program = tsetsePlugin.wrap(program, disabledTsetseRules);
+    let selectedTsetsePlugin = bazelConformancePlugin;
+    program = selectedTsetsePlugin.wrap(program, disabledTsetseRules);
   }
 
   // TODO(alexeagle): support plugins registered by config
