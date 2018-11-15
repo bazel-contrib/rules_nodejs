@@ -1,3 +1,4 @@
+import * as fs from 'fs';
 import * as path from 'path';
 import * as tsickle from 'tsickle';
 import * as ts from 'typescript';
@@ -7,6 +8,7 @@ import {PLUGIN as bazelConformancePlugin} from '../tsetse/runner';
 import {CachedFileLoader, FileLoader, ProgramAndFileCache, UncachedFileLoader} from './cache';
 import {CompilerHost} from './compiler_host';
 import * as bazelDiagnostics from './diagnostics';
+import {constructManifest} from './manifest';
 import * as perfTrace from './perf_trace';
 import {PLUGIN as strictDepsPlugin} from './strict_deps';
 import {BazelOptions, parseTsconfig, resolveNormalizedPath} from './tsconfig';
@@ -200,48 +202,133 @@ function runFromOptions(
   cache.putProgram(bazelOpts.target, program);
 
 
-  const compilationTargets =
-      program.getSourceFiles().filter(f => isCompilationTarget(bazelOpts, f));
-  const emitResults: ts.EmitResult[] = [];
-  const diagnostics: ts.Diagnostic[] = [];
-  if (bazelOpts.tsickle) {
-    // The 'tsickle' import above is only used in type positions, so it won't
-    // result in a runtime dependency on tsickle.
-    // If the user requests the tsickle emit, then we dynamically require it
-    // here for use at runtime.
-    let optTsickle: typeof tsickle;
-    try {
-      // tslint:disable-next-line:no-require-imports dependency on tsickle only
-      // if requested
-      optTsickle = require('tsickle');
-    } catch {
-      throw new Error(
-          'When setting bazelOpts { tsickle: true }, ' +
-          'you must also add a devDependency on the tsickle npm package');
-    }
-    for (const sf of compilationTargets) {
-      emitResults.push(optTsickle.emitWithTsickle(
-          program, compilerHost, compilerHost, options, sf));
-    }
-    diagnostics.push(
-        ...optTsickle.mergeEmitResults(emitResults as tsickle.EmitResult[])
-            .diagnostics);
-  } else {
-    for (const sf of compilationTargets) {
-      emitResults.push(program.emit(sf));
-    }
+  const compilationTargets = program.getSourceFiles().filter(
+      fileName => isCompilationTarget(bazelOpts, fileName));
 
-    for (const d of emitResults) {
-      diagnostics.push(...d.diagnostics);
-    }
+  let diagnostics: ts.Diagnostic[] = [];
+  let useTsickleEmit = bazelOpts.tsickle;
+  if (useTsickleEmit) {
+    diagnostics = emitWithTsickle(
+        program, compilerHost, compilationTargets, options, bazelOpts);
+  } else {
+    diagnostics = emitWithTypescript(program, compilationTargets);
   }
+
   if (diagnostics.length > 0) {
     console.error(bazelDiagnostics.format(bazelOpts.target, diagnostics));
+    debug('compilation failed at', new Error().stack!);
     return false;
   }
 
   cache.printStats();
   return true;
+}
+
+function emitWithTypescript(
+    program: ts.Program, compilationTargets: ts.SourceFile[]): ts.Diagnostic[] {
+  const diagnostics: ts.Diagnostic[] = [];
+  for (const sf of compilationTargets) {
+    const result = program.emit(sf);
+    diagnostics.push(...result.diagnostics);
+  }
+  return diagnostics;
+}
+
+function emitWithTsickle(
+    program: ts.Program, compilerHost: CompilerHost,
+    compilationTargets: ts.SourceFile[], options: ts.CompilerOptions,
+    bazelOpts: BazelOptions): ts.Diagnostic[] {
+  const emitResults: tsickle.EmitResult[] = [];
+  const diagnostics: ts.Diagnostic[] = [];
+  // The 'tsickle' import above is only used in type positions, so it won't
+  // result in a runtime dependency on tsickle.
+  // If the user requests the tsickle emit, then we dynamically require it
+  // here for use at runtime.
+  let optTsickle: typeof tsickle;
+  try {
+    // tslint:disable-next-line:no-require-imports
+    optTsickle = require('tsickle');
+  } catch (e) {
+    if (e.code !== 'MODULE_NOT_FOUND') {
+      throw e;
+    }
+    throw new Error(
+        'When setting bazelOpts { tsickle: true }, ' +
+        'you must also add a devDependency on the tsickle npm package');
+  }
+  perfTrace.wrap('emit', () => {
+    for (const sf of compilationTargets) {
+      perfTrace.wrap(`emit ${sf.fileName}`, () => {
+        emitResults.push(optTsickle.emitWithTsickle(
+            program, compilerHost, compilerHost, options, sf));
+      });
+    }
+  });
+  const emitResult = optTsickle.mergeEmitResults(emitResults);
+  diagnostics.push(...emitResult.diagnostics);
+
+  // If tsickle reported diagnostics, don't produce externs or manifest outputs.
+  if (diagnostics.length > 0) {
+    return diagnostics;
+  }
+
+  let externs = '/** @externs */\n' +
+      '// generating externs was disabled using generate_externs=False\n';
+  if (bazelOpts.tsickleGenerateExterns) {
+    externs =
+        optTsickle.getGeneratedExterns(emitResult.externs, options.rootDir!);
+  }
+
+  if (bazelOpts.tsickleExternsPath) {
+    // Note: when tsickleExternsPath is provided, we always write a file as a
+    // marker that compilation succeeded, even if it's empty (just containing an
+    // @externs).
+    fs.writeFileSync(bazelOpts.tsickleExternsPath, externs);
+
+    // When generating externs, generate an externs file for each of the input
+    // .d.ts files.
+    if (bazelOpts.tsickleGenerateExterns &&
+        compilerHost.provideExternalModuleDtsNamespace) {
+      for (const extern of compilationTargets) {
+        if (!extern.isDeclarationFile) continue;
+        const outputBaseDir = options.outDir!;
+        const relativeOutputPath =
+            compilerHost.relativeOutputPath(extern.fileName);
+        mkdirp(outputBaseDir, path.dirname(relativeOutputPath));
+        const outputPath = path.join(outputBaseDir, relativeOutputPath);
+        const moduleName = compilerHost.pathToModuleName('', extern.fileName);
+        fs.writeFileSync(
+            outputPath,
+            `goog.module('${moduleName}');\n` +
+                `// Export an empty object of unknown type to allow imports.\n` +
+                `// TODO: use typeof once available\n` +
+                `exports = /** @type {?} */ ({});\n`);
+      }
+    }
+  }
+
+  if (bazelOpts.manifest) {
+    perfTrace.wrap('manifest', () => {
+      const manifest =
+          constructManifest(emitResult.modulesManifest, compilerHost);
+      fs.writeFileSync(bazelOpts.manifest, manifest);
+    });
+  }
+
+  return diagnostics;
+}
+
+/**
+ * Creates directories subdir (a slash separated relative path) starting from
+ * base.
+ */
+function mkdirp(base: string, subdir: string) {
+  const steps = subdir.split(path.sep);
+  let current = base;
+  for (let i = 0; i < steps.length; i++) {
+    current = path.join(current, steps[i]);
+    if (!fs.existsSync(current)) fs.mkdirSync(current);
+  }
 }
 
 
