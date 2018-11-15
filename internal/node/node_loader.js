@@ -93,27 +93,37 @@ function loadRunfilesManifest(manifestPath) {
   const runfilesManifest = Object.create(null);
   const reverseRunfilesManifest = Object.create(null);
   const input = fs.readFileSync(manifestPath, {encoding: 'utf-8'});
-  let workspaceRoot;
+
+  // Absolute path that refers to the local workspace path. We need to determine the absolute
+  // path to the local workspace because it allows us to support absolute path resolving
+  // for runfiles.
+  let localWorkspacePath = null;
+
   for (const line of input.split('\n')) {
     if (!line) continue;
     const [runfilesPath, realPath] = line.split(' ');
     runfilesManifest[runfilesPath] = realPath;
     reverseRunfilesManifest[realPath] = runfilesPath;
 
-    // Determine workspace root to convert absolute paths into runfile paths.
-    // This only works if there is at least one runfile in the workspace root, but that is
-    // also the only case when we need to map back to the runfiles.
-    // See https://github.com/bazelbuild/bazel/issues/5926 for more information.
-    if (!workspaceRoot &&
-        runfilesPath.startsWith(USER_WORKSPACE_NAME)
-        // TODO(gregmagolan): should not be needed when --nolegacy_external_runfiles is default
-        && !runfilesPath.startsWith(`${USER_WORKSPACE_NAME}/external/`)) {
-      // Plus one to include the slash at the end.
-      const runfilesPathRemainder = runfilesPath.slice(USER_WORKSPACE_NAME.length + 1);
-      if (realPath.endsWith(runfilesPathRemainder)) {
-        workspaceRoot = realPath.slice(0, realPath.length - runfilesPathRemainder.length);
-      }
+    // We don't need to try determining the local workspace path for the current runfile
+    // mapping in case we already determined the local workspace path, the current
+    // runfile refers to a different workspace, or the current runfile resolves to a file
+    // in the bazel-out directory (bin/genfiles directory).
+    if (localWorkspacePath || !runfilesPath.startsWith(USER_WORKSPACE_NAME) ||
+        realPath.includes(BIN_DIR) || realPath.includes(GEN_DIR)) {
+      continue;
     }
+
+    // Relative path for the runfile. We can compute that path by removing the leading
+    // workspace name. e.g. `my_workspace/src/my-runfile.js` becomes `src/my-runfile.js`.
+    const relativeWorkspacePath = runfilesPath.slice(USER_WORKSPACE_NAME.length + 1);
+
+    // TODO(gregmagolan): should not be needed when --nolegacy_external_runfiles is default
+    if (relativeWorkspacePath.startsWith('external/')) {
+      continue;
+    }
+
+    localWorkspacePath = realPath.slice(0, -relativeWorkspacePath.length);
   }
 
   // Determine bin and gen root to convert absolute paths into runfile paths.
@@ -127,11 +137,11 @@ function loadRunfilesManifest(manifestPath) {
 
   if (DEBUG) console.error(`node_loader: using binRoot ${binRoot}`);
   if (DEBUG) console.error(`node_loader: using genRoot ${genRoot}`);
-  if (DEBUG) console.error(`node_loader: using workspaceRoot ${workspaceRoot}`);
+  if (DEBUG) console.error(`node_loader: using localWorkspacePath ${localWorkspacePath}`);
 
-  return { runfilesManifest, reverseRunfilesManifest, binRoot, genRoot, workspaceRoot };
+  return { runfilesManifest, reverseRunfilesManifest, binRoot, genRoot, localWorkspacePath };
 }
-const { runfilesManifest, reverseRunfilesManifest, binRoot, genRoot, workspaceRoot } =
+const { runfilesManifest, reverseRunfilesManifest, binRoot, genRoot, localWorkspacePath } =
     // On Windows, Bazel sets RUNFILES_MANIFEST_ONLY=1.
     // On every platform, Bazel also sets RUNFILES_MANIFEST_FILE, but on Linux
     // and macOS it's faster to use the symlinks in RUNFILES_DIR rather than resolve
@@ -272,15 +282,15 @@ function resolveRunfiles(parent, ...pathSegments) {
         runfilesEntry = path.join(path.dirname(parentRunfile), runfilesEntry);
       }
     } else if (runfilesEntry.startsWith(binRoot) || runfilesEntry.startsWith(genRoot)
-        || runfilesEntry.startsWith(workspaceRoot)) {
-      // For absolute paths, replace binRoot, genRoot or workspaceRoot with USER_WORKSPACE_NAME 
-      // to enable lookups.
+        || runfilesEntry.startsWith(localWorkspacePath)) {
+      // For absolute paths, replace binRoot, genRoot or localWorkspacePath with
+      // USER_WORKSPACE_NAME to enable lookups.
       // It's OK to do multiple replacements because all of these are absolute paths with drive
       // names (e.g. C:\), and on Windows you can't have drive names in the middle of paths.
       runfilesEntry = runfilesEntry
         .replace(binRoot, `${USER_WORKSPACE_NAME}/`)
         .replace(genRoot, `${USER_WORKSPACE_NAME}/`)
-        .replace(workspaceRoot, `${USER_WORKSPACE_NAME}/`);       
+        .replace(localWorkspacePath, `${USER_WORKSPACE_NAME}/`);
     }
 
     // Normalize and replace path separators to conform to the ones in the manifest.

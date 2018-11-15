@@ -30,7 +30,7 @@ describe('node data resolution', () => {
     const thisFilePath = __filename;
     const relativePathFromDataToThisFile = path.join('../', path.basename(thisFilePath));
     const joinedPathFromDataToThisFile = path.join(path.dirname(resolvedRelativeDataPath), 
-      relativePathFromDataToThisFile)
+      relativePathFromDataToThisFile);
     
     const resolvedPathFromDataToThisFile = require.resolve(joinedPathFromDataToThisFile);
     expect(resolvedPathFromDataToThisFile).toEqual(thisFilePath);
