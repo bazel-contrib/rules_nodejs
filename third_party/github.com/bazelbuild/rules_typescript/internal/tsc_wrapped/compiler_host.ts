@@ -83,13 +83,13 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
   provideExternalModuleDtsNamespace: boolean;
   options: BazelTsOptions;
   host: ts.ModuleResolutionHost = this;
+  private allowActionInputReads = true;
 
 
   constructor(
       public inputFiles: string[], options: ts.CompilerOptions,
       readonly bazelOpts: BazelOptions, private delegate: ts.CompilerHost,
       private fileLoader: FileLoader,
-      private readonly allowActionInputReads: boolean,
       private moduleResolver: ModuleResolver = ts.resolveModuleName) {
     this.options = narrowTsOptions(options);
     this.relativeRoots =
@@ -110,8 +110,7 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
     // include global typings from node_modules/@types
     // see getAutomaticTypeDirectiveNames in
     // TypeScript:src/compiler/moduleNameResolver
-    // Do this for Bazel only - under Blaze we don't support such discovery.
-    if (allowActionInputReads && delegate && delegate.directoryExists) {
+    if (this.allowActionInputReads && delegate && delegate.directoryExists) {
       this.directoryExists = delegate.directoryExists.bind(delegate);
     }
 
