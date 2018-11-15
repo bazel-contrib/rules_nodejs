@@ -188,10 +188,8 @@ function runFromOptions(
   const compilerHostDelegate =
       ts.createCompilerHost({target: ts.ScriptTarget.ES5});
 
-  const allowActionInputReads = true;
   const compilerHost = new CompilerHost(
-      files, options, bazelOpts, compilerHostDelegate, fileLoader,
-      allowActionInputReads);
+      files, options, bazelOpts, compilerHostDelegate, fileLoader);
 
 
   const oldProgram = cache.getProgram(bazelOpts.target);
