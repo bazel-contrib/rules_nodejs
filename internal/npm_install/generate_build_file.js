@@ -413,7 +413,7 @@ filegroup(
 filegroup(
     name = "${pkg._name}__files",
     srcs = [
-        ${sources.map(f => `"${f}",`).join('\n        ')}
+        ${sources.map(f => `":${f}",`).join('\n        ')}
     ],
     tags = ["NODE_MODULE_MARKER"],
 )
@@ -421,7 +421,7 @@ filegroup(
 filegroup(
     name = "${pkg._name}__typings",
     srcs = [
-        ${dtsSources.map(f => `"${f}",`).join('\n        ')}
+        ${dtsSources.map(f => `":${f}",`).join('\n        ')}
     ],
     tags = ["NODE_MODULE_MARKER"],
 )

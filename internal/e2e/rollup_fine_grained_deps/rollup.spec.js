@@ -1,9 +1,9 @@
 // We expected the bundle with deps to return the following
 // string which indicates that test-b@0.0.2 was imported and
-// bundled and test-a@0.0.2 was required at runtime since test-b
+// bundled and test-a@0.0.4 was required at runtime since test-b
 // had a require('test-a') and rollup should not have bundled
 // test-a@0.0.1
-const expectedDeps = 'test-b-0.0.2/test-a-0.0.2';
+const expectedDeps = 'test-b-0.0.2/test-a-0.0.4';
 
 const expectedNoDeps = 'no-deps';
 
