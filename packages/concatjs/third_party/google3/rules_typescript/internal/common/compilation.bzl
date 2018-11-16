@@ -227,6 +227,16 @@ def compile_ts(
             # Sources can be in sub-folders, but not in sub-packages.
             fail("Sources must be in the same package as the ts_library rule, " +
                  "but %s is not in %s" % (src.label, ctx.label.package), "srcs")
+        if hasattr(src, "typescript"):
+            # Guard against users accidentally putting deps into srcs by
+            # rejecting all srcs values that have a TypeScript provider.
+            # TS rules produce a ".d.ts" file, which is a valid input in "srcs",
+            # and will then be compiled as a source .d.ts file would, creating
+            # externs etc.
+            fail(
+                "must not reference any TypeScript rules - did you mean deps?",
+                "srcs",
+            )
 
         for f in src.files:
             has_sources = True
