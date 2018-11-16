@@ -38,8 +38,8 @@ def rules_typescript_dependencies():
     _maybe(
         http_archive,
         name = "build_bazel_rules_nodejs",
-        urls = ["https://github.com/bazelbuild/rules_nodejs/archive/0.16.0.zip"],
-        strip_prefix = "rules_nodejs-0.16.0",
+        urls = ["https://github.com/bazelbuild/rules_nodejs/archive/0.16.1.zip"],
+        strip_prefix = "rules_nodejs-0.16.1",
     )
 
     # ts_web_test depends on the web testing rules to provision browsers.

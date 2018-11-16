@@ -306,7 +306,7 @@ This macro adds a couple for ibazel.</p>
 
           <h2 id="ts_web_test">ts_web_test</h2>
 
-          <pre>ts_web_test(<a href="#ts_web_test.name">name</a>, <a href="#ts_web_test.deps">deps</a>, <a href="#ts_web_test.data">data</a>, <a href="#ts_web_test.srcs">srcs</a>, <a href="#ts_web_test.bootstrap">bootstrap</a>, <a href="#ts_web_test.karma">karma</a>, <a href="#ts_web_test.static_files">static_files</a>)</pre>
+          <pre>ts_web_test(<a href="#ts_web_test.name">name</a>, <a href="#ts_web_test.deps">deps</a>, <a href="#ts_web_test.data">data</a>, <a href="#ts_web_test.srcs">srcs</a>, <a href="#ts_web_test.bootstrap">bootstrap</a>, <a href="#ts_web_test.karma">karma</a>, <a href="#ts_web_test.runtime_deps">runtime_deps</a>, <a href="#ts_web_test.static_files">static_files</a>)</pre>
 
           <p>Runs unit tests in a browser.</p>
 <p>When executed under <code>bazel test</code>, this uses a headless browser for speed.
@@ -376,11 +376,23 @@ detail. We might switch to another runner like Jest in the future.</p>
         
       </td>
     </tr>
+    <tr id="ts_web_test.runtime_deps">
+      <td><code>runtime_deps</code></td>
+      <td>
+        <p><code>List of <a href="https://bazel.build/docs/build-ref.html#labels">labels</a>; Optional; Default is []</code></p>
+        <p>Dependencies which should be loaded after the module loader but before the srcs and deps.
+            These should be a list of targets which produce JavaScript such as <code>ts_library</code>.
+            The files will be loaded in the same order they are declared by that rule.</p>
+      </td>
+    </tr>
     <tr id="ts_web_test.static_files">
       <td><code>static_files</code></td>
       <td>
         <p><code>List of <a href="https://bazel.build/docs/build-ref.html#labels">labels</a>; Optional; Default is []</code></p>
-        <p>Arbitrary files which to be served.</p>
+        <p>Arbitrary files which are available to be served on request.
+            Files are served at:
+            <code>/base/&lt;WORKSPACE_NAME&gt;/&lt;path-to-file&gt;</code>, e.g.
+            <code>/base/build_bazel_rules_typescript/examples/testing/static_script.js</code></p>
       </td>
     </tr>
   </tbody>
