@@ -166,13 +166,6 @@ function listFiles(rootDir, subDir = '') {
   const dir = path.posix.join(rootDir, subDir);
   return fs
       .readdirSync(dir)
-      // Filter out .bin folder since this is a folder created by yarn/npm that contains
-      // only symlinks and it breaks this function on Windows.
-      // For example, `node_modules/foo/.bin/foo` would be a symlink to `node_modules/.bin/foo`
-      .filter(f => !(f === '.bin' && fs.statSync(path.posix.join(dir, f)).isDirectory()))
-      // Also filter out test folders which contain symlinks in some packages
-      // such as `ecstatic/test/public/containsSymlink/more-problematic`
-      .filter(f => !(f === 'test' && fs.statSync(path.posix.join(dir, f)).isDirectory()))
       // Delete BUILD and BUILD.bazel files so that so that files do not cross Bazel package
       // boundaries. npm packages should not generally include BUILD or BUILD.bazel files
       // but they may as rxjs does temporarily.
@@ -181,8 +174,19 @@ function listFiles(rootDir, subDir = '') {
       .reduce((files, file) => {
         const fullPath = path.posix.join(dir, file);
         const relPath = path.posix.join(subDir, file);
-        return fs.statSync(fullPath).isDirectory() ? files.concat(listFiles(rootDir, relPath)) :
-                                                     files.concat(relPath);
+        let stat;
+        try {
+          stat = fs.statSync(fullPath);
+        } catch (e) {
+          if (fs.lstatSync(fullPath).isSymbolicLink()) {
+            // filter out broken symbolic links... these cause fs.statSync(fullPath)
+            // to fail with `ENOENT: no such file or directory ...`
+            return files;
+          }
+          throw e;
+        }
+        return stat.isDirectory() ? files.concat(listFiles(rootDir, relPath)) :
+                                    files.concat(relPath);
       }, []);
 }
 
