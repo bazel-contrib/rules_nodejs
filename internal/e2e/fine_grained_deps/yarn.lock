@@ -7,12 +7,12 @@
   resolved "https://registry.yarnpkg.com/@gregmagolan/test-a/-/test-a-0.0.1.tgz#c90ebc0676f13b34400da8d1e55ffe5aa76655b4"
   integrity sha512-nMZ3MKkXZ+uYbrm8R3dfdt3v1gOOLtf88CdDciWxMYGLr29oVjQG11y2fz4IRBR6R7hI2Gj+G9sHZ69wLTnjfA==
 
-"@gregmagolan/test-a@^0.0.2":
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/@gregmagolan/test-a/-/test-a-0.0.2.tgz#86ab79a55f44860b02d8275e22d282a1f82b8768"
-  integrity sha512-u8pW4cm5Xk58fQeA1tGER3KwCfHZ1sBEx0YDWs5Spdi7tiw/21DN7btDvGqx4sG3d2UnUdAnvXPsdwArjNGdmg==
+"@gregmagolan/test-a@0.0.4":
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/@gregmagolan/test-a/-/test-a-0.0.4.tgz#d2a4cf0dc6be9b503d772bb7af16c279e2daa1d3"
+  integrity sha512-AhnqEFS5ZAC511I0d5/637dAHCRcumvfjgYL7bKw9ltI9ug9kNPCx3AFIpvJlWaColwPWgFCKigAsr8iCoDQHg==
 
-"@gregmagolan/test-b@^0.0.2":
+"@gregmagolan/test-b@0.0.2":
   version "0.0.2"
   resolved "https://registry.yarnpkg.com/@gregmagolan/test-b/-/test-b-0.0.2.tgz#7549fb9f39895c0d744c2c24c98b0e5817e46bd7"
   integrity sha512-h+LeJUbUued9XyQwxKMUdklGiGxPYJ1RvTAK9612ctCiMS2Fn0wu/Au5kHsMHxm8l4bOfpgAWmQ0OQQy7wUBCg==
@@ -632,18 +632,18 @@ isobject@^3.0.0, isobject@^3.0.1:
   resolved "https://registry.yarnpkg.com/isobject/-/isobject-3.0.1.tgz#4e431e92b11a9731636aa1f9c8d1ccbcfdab78df"
   integrity sha1-TkMekrEalzFjaqH5yNHMvP2reN8=
 
-jasmine-core@~3.2.0:
-  version "3.2.1"
-  resolved "https://registry.yarnpkg.com/jasmine-core/-/jasmine-core-3.2.1.tgz#8e4ff5b861603ee83343f2b49eee6a0ffe9650ce"
-  integrity sha512-pa9tbBWgU0EE4SWgc85T4sa886ufuQdsgruQANhECYjwqgV4z7Vw/499aCaP8ZH79JDS4vhm8doDG9HO4+e4sA==
+jasmine-core@~3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/jasmine-core/-/jasmine-core-3.3.0.tgz#dea1cdc634bc93c7e0d4ad27185df30fa971b10e"
+  integrity sha512-3/xSmG/d35hf80BEN66Y6g9Ca5l/Isdeg/j6zvbTYlTzeKinzmaTM4p9am5kYqOmE05D7s1t8FGjzdSnbUbceA==
 
-jasmine@^3.2.0:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/jasmine/-/jasmine-3.2.0.tgz#b3a018454781805650e46578803d08e7cfdd7b3d"
-  integrity sha512-qv6TZ32r+slrQz8fbx2EhGbD9zlJo3NwPrpLK1nE8inILtZO9Fap52pyHk7mNTh4tG50a+1+tOiWVT3jO5I0Sg==
+jasmine@3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/jasmine/-/jasmine-3.3.0.tgz#4f64e4aba2f9cbd30418957468c024c3b4c82551"
+  integrity sha512-haZzMvmoWSI2VCKfDgPqyEOPBQA7C1fgtIMgKNU4hVMcrVkWU5NPOWQqOTA6mVFyKcSUUrnkXu/ZEgY0bRnd6A==
   dependencies:
     glob "^7.0.6"
-    jasmine-core "~3.2.0"
+    jasmine-core "~3.3.0"
 
 json-schema-traverse@^0.3.0:
   version "0.3.1"
@@ -1213,7 +1213,7 @@ to-regex@^3.0.1, to-regex@^3.0.2:
     regex-not "^1.0.2"
     safe-regex "^1.1.0"
 
-typescript@^3.0.1:
+typescript@3.0.3:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.0.3.tgz#4853b3e275ecdaa27f78fda46dc273a7eb7fc1c8"
   integrity sha512-kk80vLW9iGtjMnIv11qyxLqZm20UklzuR2tL0QAnDIygIUIemcZMxlMWudl9OOt76H3ntVzcTiddQ1/pAAJMYg==

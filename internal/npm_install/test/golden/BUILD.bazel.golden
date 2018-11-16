@@ -4,6 +4,7 @@ filegroup(
     name = "node_modules",
     srcs = [
         "node_modules/.bin/jasmine",
+        "node_modules/.bin/test",
         "//node_modules/ajv:ajv__files",
         "//node_modules/balanced-match:balanced-match__files",
         "//node_modules/brace-expansion:brace-expansion__files",
