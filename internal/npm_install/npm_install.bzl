@@ -74,6 +74,10 @@ COMMON_ATTRIBUTES = dict(dict(), **{
         you are running into performance issues due to a large
         node_modules target it is recommended to switch to using
         fine grained npm dependencies."""),
+    "quiet": attr.bool(
+        default = False,
+        doc = "If stdout and stderr should be printed to the terminal.",
+    ),
 })
 
 def _create_build_file(repository_ctx, node):
@@ -146,10 +150,10 @@ cd "{root}" && "{npm}" {npm_args}
   if result.return_code:
     fail("node failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
 
-  # To see the output, pass: quiet=False
   result = repository_ctx.execute(
     [repository_ctx.path("npm.cmd" if is_windows else "npm")],
-    timeout = repository_ctx.attr.timeout)
+    timeout = repository_ctx.attr.timeout,
+    quiet = repository_ctx.attr.quiet)
 
   if not repository_ctx.attr.package_lock_json:
     print("\n***********WARNING***********\n%s: npm_install will require a package_lock_json attribute in future versions\n*****************************" % repository_ctx.name)
@@ -228,8 +232,10 @@ def _yarn_install_impl(repository_ctx):
 
   # This can take a long time, and the user has no idea what is running.
   # Follow https://github.com/bazelbuild/bazel/issues/1289
-  # To see the output, pass: quiet=False
-  result = repository_ctx.execute(args, timeout = repository_ctx.attr.timeout)
+  result = repository_ctx.execute(
+    args,
+    timeout = repository_ctx.attr.timeout,
+    quiet = repository_ctx.attr.quiet)
 
   if result.return_code:
     fail("yarn_install failed: %s (%s)" % (result.stdout, result.stderr))
