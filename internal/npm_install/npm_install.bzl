@@ -196,6 +196,8 @@ def _yarn_install_impl(repository_ctx):
     "network",
     "--cwd",
     repository_ctx.path(""),
+    "--network-timeout",
+    str(repository_ctx.attr.timeout*1000), # in ms
   ]
 
   if repository_ctx.attr.prod_only:
