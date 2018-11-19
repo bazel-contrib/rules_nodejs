@@ -64,14 +64,20 @@ node_repositories(package_json = ["//:package.json"])
 You can choose a specific version of Node.js that's built into these rules.
 Currently these versions are:
 
+* 10.13.0 (default)
+* 10.10.0
+* 10.9.0
 * 10.3.0
 * 9.11.1
+* 8.12.0
 * 8.11.1
 * 8.9.1
 
 You can also choose a specific version of Yarn.
 Currently these versions are:
-
+* 1.12.1 (default)
+* 1.9.4
+* 1.9.2
 * 1.6.0
 * 1.5.1
 * 1.3.2
