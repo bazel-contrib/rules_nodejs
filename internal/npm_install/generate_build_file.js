@@ -166,11 +166,6 @@ function listFiles(rootDir, subDir = '') {
   const dir = path.posix.join(rootDir, subDir);
   return fs
       .readdirSync(dir)
-      // Delete BUILD and BUILD.bazel files so that so that files do not cross Bazel package
-      // boundaries. npm packages should not generally include BUILD or BUILD.bazel files
-      // but they may as rxjs does temporarily.
-      .filter(f => f === 'BUILD' ? fs.unlinkSync(path.posix.join(dir, 'BUILD')) : true)
-      .filter(f => f === 'BUILD.bazel' ? fs.unlinkSync(path.posix.join(dir, 'BUILD.bazel')) : true)
       .reduce((files, file) => {
         const fullPath = path.posix.join(dir, file);
         const relPath = path.posix.join(subDir, file);
@@ -184,6 +179,13 @@ function listFiles(rootDir, subDir = '') {
             return files;
           }
           throw e;
+        }
+        if (stat.isFile() && (/^BUILD$/i.test(file) || /^BUILD\.bazel$/i.test(file))) {
+          // Delete BUILD and BUILD.bazel files so that so that files do not cross Bazel package
+          // boundaries. npm packages should not generally include BUILD or BUILD.bazel files
+          // but they may as rxjs does temporarily.
+          fs.unlinkSync(fullPath);
+          return files;
         }
         return stat.isDirectory() ? files.concat(listFiles(rootDir, relPath)) :
                                     files.concat(relPath);
