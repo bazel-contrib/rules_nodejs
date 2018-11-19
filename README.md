@@ -209,6 +209,13 @@ npm_install(
 )
 ```
 
+#### yarn_install vs. npm_install
+
+`yarn_install` is the preferred rule for setting up Bazel-managed dependencies for a number of reasons:
+
+* `yarn_install` will use the global yarn cache by default which will improve your build performance (this can be turned off with the `use_global_yarn_cache` attribute)
+* npm has a known peer dependency hoisting issue that can lead to missing peer dependencies in some cases (see https://github.com/bazelbuild/rules_nodejs/issues/416)
+
 #### Fine-grained npm package dependencies
 
 You can then reference individual npm packages in your `BUILD` rules via:
