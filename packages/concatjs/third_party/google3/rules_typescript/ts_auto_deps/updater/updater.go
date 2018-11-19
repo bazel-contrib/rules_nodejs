@@ -445,13 +445,18 @@ func (upd *Updater) maybeWriteBUILD(ctx context.Context, path string, bld *build
 	platform.Infof("Formatted %s: %s\n", path, ri)
 	newContent := build.Format(bld)
 	oldContent, err := platform.ReadFile(ctx, path)
-	if err != nil && !os.IsNotExist(err) {
-		return false, err
-	} else if err == nil {
-		// i.e. not a not exist error => compare contents, only update if changed.
-		if bytes.Equal(oldContent, newContent) {
+	if err != nil {
+		if !os.IsNotExist(err) {
+			return false, err
+		} else if len(newContent) == 0 {
+			// The BUILD file does not exist, and the newly created file has no content.
+			// Treat this as equivalent, and do not create a new BUILD file.
 			return false, nil
 		}
+		// Fall through to write a new file.
+	} else if bytes.Equal(oldContent, newContent) {
+		// Compare contents, only update if changed.
+		return false, nil
 	}
 	if err := upd.updateFile(ctx, path, string(newContent)); err != nil {
 		return false, fmt.Errorf("failed to update %q: %v", path, err)
