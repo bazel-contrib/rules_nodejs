@@ -6,7 +6,7 @@ test --test_output=errors
 # eventually a surprising failure with auto-discovery of the C++ toolchain in
 # MacOS High Sierra.
 # See https://github.com/bazelbuild/bazel/issues/4603
-#build --symlink_prefix=/
+build --symlink_prefix=/
 
 # Mock versoning command to test the --stamp behavior
 build --workspace_status_command="echo BUILD_SCM_VERSION 1.2.3"
