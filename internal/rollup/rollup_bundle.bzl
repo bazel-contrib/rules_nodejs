@@ -372,7 +372,7 @@ def _generate_code_split_entry(ctx, bundles_folder, output):
   main_entry_point_dirname = "/".join(ctx.attr.entry_point.split("/")[:-1]) + "/"
   entry_points = {}
   for e in [ctx.attr.entry_point] + ctx.attr.additional_entry_points:
-    entry_point = e.lstrip(main_entry_point_dirname)
+    entry_point = e[len(main_entry_point_dirname):]
     entry_points["./" + entry_point] = bundles_folder + "/" + entry_point.split("/")[-1]
 
   ctx.actions.expand_template(
