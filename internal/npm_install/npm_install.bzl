@@ -183,17 +183,8 @@ def _yarn_install_impl(repository_ctx):
   _add_data_dependencies(repository_ctx)
   _add_scripts(repository_ctx)
 
-  # Multiple yarn rules cannot run simultaneously using a shared cache.
-  # See https://github.com/yarnpkg/yarn/issues/683
-  # The --mutex option ensures only one yarn runs at a time, see
-  # https://yarnpkg.com/en/docs/cli#toc-concurrency-and-mutex
-  # The shared cache is not necessarily hermetic, but we need to cache downloaded
-  # artifacts somewhere, so we rely on yarn to be correct.
-  # To see the output, pass: quiet=False
   args = [
     repository_ctx.path(yarn),
-    "--mutex",
-    "network",
     "--cwd",
     repository_ctx.path(""),
     "--network-timeout",
@@ -204,9 +195,18 @@ def _yarn_install_impl(repository_ctx):
       args.append("--prod")
   if not repository_ctx.attr.use_global_yarn_cache:
       args.extend(["--cache-folder", repository_ctx.path("_yarn_cache")])
+  else:
+      # Multiple yarn rules cannot run simultaneously using a shared cache.
+      # See https://github.com/yarnpkg/yarn/issues/683
+      # The --mutex option ensures only one yarn runs at a time, see
+      # https://yarnpkg.com/en/docs/cli#toc-concurrency-and-mutex
+      # The shared cache is not necessarily hermetic, but we need to cache downloaded
+      # artifacts somewhere, so we rely on yarn to be correct.
+      args.extend(["--mutex", "network"])
 
   # This can take a long time, and the user has no idea what is running.
   # Follow https://github.com/bazelbuild/bazel/issues/1289
+  # To see the output, pass: quiet=False
   result = repository_ctx.execute(args, timeout = repository_ctx.attr.timeout)
 
   if result.return_code:
