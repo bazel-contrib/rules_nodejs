@@ -132,7 +132,7 @@ as the package manager.</p>
 
           <h2 id="npm_install">npm_install</h2>
 
-          <pre>npm_install(<a href="#npm_install.name">name</a>, <a href="#npm_install.data">data</a>, <a href="#npm_install.included_files">included_files</a>, <a href="#npm_install.manual_build_file_contents">manual_build_file_contents</a>, <a href="#npm_install.package_json">package_json</a>, <a href="#npm_install.package_lock_json">package_lock_json</a>, <a href="#npm_install.prod_only">prod_only</a>, <a href="#npm_install.timeout">timeout</a>)</pre>
+          <pre>npm_install(<a href="#npm_install.name">name</a>, <a href="#npm_install.data">data</a>, <a href="#npm_install.exclude_packages">exclude_packages</a>, <a href="#npm_install.included_files">included_files</a>, <a href="#npm_install.manual_build_file_contents">manual_build_file_contents</a>, <a href="#npm_install.package_json">package_json</a>, <a href="#npm_install.package_lock_json">package_lock_json</a>, <a href="#npm_install.prod_only">prod_only</a>, <a href="#npm_install.quiet">quiet</a>, <a href="#npm_install.timeout">timeout</a>)</pre>
 
           <p>Runs npm install during workspace setup.</p>
 
@@ -157,6 +157,20 @@ as the package manager.</p>
       <td>
         <p><code>List of <a href="https://bazel.build/docs/build-ref.html#labels">labels</a>; Optional; Default is []</code></p>
         
+      </td>
+    </tr>
+    <tr id="npm_install.exclude_packages">
+      <td><code>exclude_packages</code></td>
+      <td>
+        <p><code>List of strings; Optional; Default is ['@bazel/bazel']</code></p>
+        <p>List of packages to exclude from install.</p>
+<pre><code>    Use this when you want to install a package during manual yarn or npm
+    install but not install it when Bazel manages dependencies.
+
+    Note: this attribute may be removed in the future if bazel managed npm
+    dependencies are changed to install to the workspace `node_modules` folder
+    instead of `$(bazel info output_base)/external/wksp`.
+</code></pre>
       </td>
     </tr>
     <tr id="npm_install.included_files">
@@ -216,6 +230,13 @@ as the package manager.</p>
         <p>Don't install devDependencies</p>
       </td>
     </tr>
+    <tr id="npm_install.quiet">
+      <td><code>quiet</code></td>
+      <td>
+        <p><code>Boolean; Optional; Default is False</code></p>
+        <p>If stdout and stderr should be printed to the terminal.</p>
+      </td>
+    </tr>
     <tr id="npm_install.timeout">
       <td><code>timeout</code></td>
       <td>
@@ -230,7 +251,7 @@ as the package manager.</p>
 
           <h2 id="yarn_install">yarn_install</h2>
 
-          <pre>yarn_install(<a href="#yarn_install.name">name</a>, <a href="#yarn_install.data">data</a>, <a href="#yarn_install.included_files">included_files</a>, <a href="#yarn_install.manual_build_file_contents">manual_build_file_contents</a>, <a href="#yarn_install.package_json">package_json</a>, <a href="#yarn_install.prod_only">prod_only</a>, <a href="#yarn_install.timeout">timeout</a>, <a href="#yarn_install.use_global_yarn_cache">use_global_yarn_cache</a>, <a href="#yarn_install.yarn_lock">yarn_lock</a>)</pre>
+          <pre>yarn_install(<a href="#yarn_install.name">name</a>, <a href="#yarn_install.data">data</a>, <a href="#yarn_install.exclude_packages">exclude_packages</a>, <a href="#yarn_install.included_files">included_files</a>, <a href="#yarn_install.manual_build_file_contents">manual_build_file_contents</a>, <a href="#yarn_install.package_json">package_json</a>, <a href="#yarn_install.prod_only">prod_only</a>, <a href="#yarn_install.quiet">quiet</a>, <a href="#yarn_install.timeout">timeout</a>, <a href="#yarn_install.use_global_yarn_cache">use_global_yarn_cache</a>, <a href="#yarn_install.yarn_lock">yarn_lock</a>)</pre>
 
           <p>Runs yarn install during workspace setup.</p>
 
@@ -255,6 +276,20 @@ as the package manager.</p>
       <td>
         <p><code>List of <a href="https://bazel.build/docs/build-ref.html#labels">labels</a>; Optional; Default is []</code></p>
         
+      </td>
+    </tr>
+    <tr id="yarn_install.exclude_packages">
+      <td><code>exclude_packages</code></td>
+      <td>
+        <p><code>List of strings; Optional; Default is ['@bazel/bazel']</code></p>
+        <p>List of packages to exclude from install.</p>
+<pre><code>    Use this when you want to install a package during manual yarn or npm
+    install but not install it when Bazel manages dependencies.
+
+    Note: this attribute may be removed in the future if bazel managed npm
+    dependencies are changed to install to the workspace `node_modules` folder
+    instead of `$(bazel info output_base)/external/wksp`.
+</code></pre>
       </td>
     </tr>
     <tr id="yarn_install.included_files">
@@ -305,6 +340,13 @@ as the package manager.</p>
       <td>
         <p><code>Boolean; Optional; Default is False</code></p>
         <p>Don't install devDependencies</p>
+      </td>
+    </tr>
+    <tr id="yarn_install.quiet">
+      <td><code>quiet</code></td>
+      <td>
+        <p><code>Boolean; Optional; Default is False</code></p>
+        <p>If stdout and stderr should be printed to the terminal.</p>
       </td>
     </tr>
     <tr id="yarn_install.timeout">
