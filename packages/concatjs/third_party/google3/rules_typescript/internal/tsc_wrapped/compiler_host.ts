@@ -82,6 +82,8 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
   isJsTranspilation: boolean;
   provideExternalModuleDtsNamespace: boolean;
   options: BazelTsOptions;
+  moduleResolutionHost: ts.ModuleResolutionHost = this;
+  // TODO(evanm): delete this once tsickle is updated.
   host: ts.ModuleResolutionHost = this;
   private allowActionInputReads = true;
 
