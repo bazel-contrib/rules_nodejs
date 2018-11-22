@@ -9,7 +9,7 @@ nodejs_binary(
     name = "index",
     data = [
         "index.js",
-        "@fine_grained_no_bin//rollup-plugin-node-resolve",
+        "@fine_grained_no_bin//fs.realpath",
     ],
     entry_point = "build_bazel_rules_nodejs/internal/e2e/fine_grained_no_bin/index.js",
 )

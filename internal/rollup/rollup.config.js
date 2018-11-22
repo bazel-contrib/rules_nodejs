@@ -163,8 +163,16 @@ const config = {
   },
   plugins: [TMPL_additional_plugins].concat([
     {resolveId: resolveBazel},
-    nodeResolve(
-        {jsnext: true, module: true, customResolveOptions: {moduleDirectory: nodeModulesRoot}}),
+    // Use custom rollup-plugin-node-resolve dist which supports
+    // the 'es2015' option for rollup to prioritize the 'es2015' entry point
+    // with fallback to 'module' and 'main'.
+    nodeResolve({
+      es2015: true,
+      module: true,
+      jsnext: true,
+      main: true,
+      customResolveOptions: {moduleDirectory: nodeModulesRoot}
+    }),
     {resolveId: notResolved},
     sourcemaps(),
   ]),
