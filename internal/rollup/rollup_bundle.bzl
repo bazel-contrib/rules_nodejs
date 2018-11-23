@@ -173,7 +173,8 @@ def _run_rollup(ctx, sources, config, output, map_output=None):
     args.add("--globals")
     args.add_joined(["%s:%s" % g for g in ctx.attr.globals.items()], join_with=",")
 
-  inputs = sources + [config]
+  # TODO: Avoid flattening the depset
+  inputs = sources.to_list() + [config]
 
   inputs += _filter_js_inputs(ctx.files.node_modules)
 
@@ -181,7 +182,7 @@ def _run_rollup(ctx, sources, config, output, map_output=None):
   # These deps are identified by the NodeModuleInfo provider.
   for d in ctx.attr.deps:
       if NodeModuleInfo in d:
-          inputs += _filter_js_inputs(d.files)
+          inputs += _filter_js_inputs(d.files.to_list())
 
   if ctx.file.license_banner:
     inputs += [ctx.file.license_banner]
@@ -308,7 +309,8 @@ def run_sourcemapexplorer(ctx, js, map, output):
   # TODO(alexeagle): file a feature request on ctx.actions.run so that stdout
   # could be natively redirected to produce the output file
   ctx.actions.run_shell(
-      inputs = [js, map, ctx.executable._source_map_explorer],
+      inputs = [js, map],
+      tools = [ctx.executable._source_map_explorer],
       outputs = [output],
       command = "$1 --html $2 $3 > $4",
       arguments = [

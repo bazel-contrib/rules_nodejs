@@ -94,16 +94,16 @@ def rules_nodejs_dev_dependencies():
 
     http_archive(
         name = "io_bazel_rules_sass",
-        url = "https://github.com/bazelbuild/rules_sass/archive/1.15.0.zip",
-        strip_prefix = "rules_sass-1.15.0",
-        sha256 = "4584ae58ff33d958e184f3ccc2714cff271df28723fb63a54871b16c577bda24",
+        url = "https://github.com/bazelbuild/rules_sass/archive/8ccf4f1c351928b55d5dddf3672e3667f6978d60.zip",  # 2018-11-23
+        strip_prefix = "rules_sass-8ccf4f1c351928b55d5dddf3672e3667f6978d60",
+        sha256 = "894d7928df8da85e263d743c8434d4c10ab0a3f0708fed0d53394e688e3faf70",
     )
 
     http_archive(
         name = "io_bazel_skydoc",
-        url = "https://github.com/bazelbuild/skydoc/archive/77e5399258f6d91417d23634fce97d73b40cf337.zip",
-        strip_prefix = "skydoc-77e5399258f6d91417d23634fce97d73b40cf337",
-        sha256 = "4e9bd9ef65af54dedd997b408fa26c2e70c30ee8e078bcc1b51a33cf7d7f9d7e",
+        url = "https://github.com/bazelbuild/skydoc/archive/9bbdf62c03b5c3fed231604f78d3976f47753d79.zip",
+        strip_prefix = "skydoc-9bbdf62c03b5c3fed231604f78d3976f47753d79",
+        sha256 = "07ae937026cb56000fb268d4986b220e868c1bdfe6aac27ecada4b4b3dae246f",
     )
 
     # Go is a transitive dependency of buildifier
