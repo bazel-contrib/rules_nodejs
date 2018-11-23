@@ -180,6 +180,9 @@ function listFiles(rootDir, subDir = '') {
           }
           throw e;
         }
+        if (file === '.bin' && stat.isDirectory()) {
+          return files;
+        }
         if (stat.isFile() && (/^BUILD$/i.test(file) || /^BUILD\.bazel$/i.test(file))) {
           // Delete BUILD and BUILD.bazel files so that so that files do not cross Bazel package
           // boundaries. npm packages should not generally include BUILD or BUILD.bazel files
