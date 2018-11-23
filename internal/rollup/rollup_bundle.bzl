@@ -173,21 +173,19 @@ def _run_rollup(ctx, sources, config, output, map_output=None):
     args.add("--globals")
     args.add_joined(["%s:%s" % g for g in ctx.attr.globals.items()], join_with=",")
 
-  # TODO: Avoid flattening the depset
-  inputs = sources.to_list() + [config]
-
-  inputs += _filter_js_inputs(ctx.files.node_modules)
+  direct_inputs = [config]
+  direct_inputs += _filter_js_inputs(ctx.files.node_modules)
 
   # Also include files from npm fine grained deps as inputs.
   # These deps are identified by the NodeModuleInfo provider.
   for d in ctx.attr.deps:
       if NodeModuleInfo in d:
-          inputs += _filter_js_inputs(d.files.to_list())
+          direct_inputs += _filter_js_inputs(d.files.to_list())
 
   if ctx.file.license_banner:
-    inputs += [ctx.file.license_banner]
+    direct_inputs += [ctx.file.license_banner]
   if ctx.version_file:
-    inputs += [ctx.version_file]
+    direct_inputs += [ctx.version_file]
 
   outputs = [output]
   if map_output:
@@ -195,7 +193,7 @@ def _run_rollup(ctx, sources, config, output, map_output=None):
 
   ctx.actions.run(
       executable = ctx.executable._rollup,
-      inputs = inputs,
+      inputs = depset(direct_inputs, transitive = [sources]),
       outputs = outputs,
       arguments = [args]
   )
