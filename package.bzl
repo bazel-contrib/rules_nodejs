@@ -58,9 +58,9 @@ def rules_nodejs_dependencies():
     _maybe(
         http_archive,
         name = "bazel_skylib",
-        url = "https://github.com/bazelbuild/bazel-skylib/archive/0.5.0.zip",
-        strip_prefix = "bazel-skylib-0.5.0",
-        sha256 = "ca4e3b8e4da9266c3a9101c8f4704fe2e20eb5625b2a6a7d2d7d45e3dd4efffd",
+        url = "https://github.com/bazelbuild/bazel-skylib/archive/0.6.0.zip",
+        strip_prefix = "bazel-skylib-0.6.0",
+        sha256 = "54ee22e5b9f0dd2b42eb8a6c1878dee592cfe8eb33223a7dbbc583a383f6ee1a",
     )
 
     # Needed for Remote Build Execution
@@ -101,9 +101,9 @@ def rules_nodejs_dev_dependencies():
 
     http_archive(
         name = "io_bazel_skydoc",
-        url = "https://github.com/bazelbuild/skydoc/archive/9bbdf62c03b5c3fed231604f78d3976f47753d79.zip",
-        strip_prefix = "skydoc-9bbdf62c03b5c3fed231604f78d3976f47753d79",
-        sha256 = "07ae937026cb56000fb268d4986b220e868c1bdfe6aac27ecada4b4b3dae246f",
+        url = "https://github.com/bazelbuild/skydoc/archive/1cdb612e31448c2f6eb25b8aa67d406152275482.zip",
+        strip_prefix = "skydoc-1cdb612e31448c2f6eb25b8aa67d406152275482",
+        sha256 = "282ab93ea7477ad703b3e8108a274c21344c3b59ee4e5b1e6a89cdbe3ecbe68f",
     )
 
     # Go is a transitive dependency of buildifier
