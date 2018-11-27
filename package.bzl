@@ -70,11 +70,11 @@ def rules_nodejs_dependencies():
     http_archive(
         name = "bazel_toolchains",
         urls = [
-            "https://mirror.bazel.build/github.com/bazelbuild/bazel-toolchains/archive/646207624ed58c9dc658a135e40e578f8bbabf64.tar.gz",
-            "https://github.com/bazelbuild/bazel-toolchains/archive/646207624ed58c9dc658a135e40e578f8bbabf64.tar.gz",
+            "https://mirror.bazel.build/github.com/bazelbuild/bazel-toolchains/archive/bc0091adceaf4642192a8dcfc46e3ae3e4560ea7.tar.gz",
+            "https://github.com/bazelbuild/bazel-toolchains/archive/bc0091adceaf4642192a8dcfc46e3ae3e4560ea7.tar.gz",
         ],
-        strip_prefix = "bazel-toolchains-646207624ed58c9dc658a135e40e578f8bbabf64",
-        sha256 = "4ab012a06e80172b1d2cc68a69f12237ba2c4eb47ba34cb8099830d3b8c43dbc",
+        strip_prefix = "bazel-toolchains-bc0091adceaf4642192a8dcfc46e3ae3e4560ea7",
+        sha256 = "7e85a14821536bc24e04610d309002056f278113c6cc82f1059a609361812431",
     )
 
 def rules_nodejs_dev_dependencies():
