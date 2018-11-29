@@ -173,20 +173,19 @@ def _run_rollup(ctx, sources, config, output, map_output=None):
     args.add("--globals")
     args.add_joined(["%s:%s" % g for g in ctx.attr.globals.items()], join_with=",")
 
-  inputs = sources + [config]
-
-  inputs += _filter_js_inputs(ctx.files.node_modules)
+  direct_inputs = [config]
+  direct_inputs += _filter_js_inputs(ctx.files.node_modules)
 
   # Also include files from npm fine grained deps as inputs.
   # These deps are identified by the NodeModuleInfo provider.
   for d in ctx.attr.deps:
       if NodeModuleInfo in d:
-          inputs += _filter_js_inputs(d.files)
+          direct_inputs += _filter_js_inputs(d.files.to_list())
 
   if ctx.file.license_banner:
-    inputs += [ctx.file.license_banner]
+    direct_inputs += [ctx.file.license_banner]
   if ctx.version_file:
-    inputs += [ctx.version_file]
+    direct_inputs += [ctx.version_file]
 
   outputs = [output]
   if map_output:
@@ -194,7 +193,7 @@ def _run_rollup(ctx, sources, config, output, map_output=None):
 
   ctx.actions.run(
       executable = ctx.executable._rollup,
-      inputs = inputs,
+      inputs = depset(direct_inputs, transitive = [sources]),
       outputs = outputs,
       arguments = [args]
   )
@@ -308,7 +307,8 @@ def run_sourcemapexplorer(ctx, js, map, output):
   # TODO(alexeagle): file a feature request on ctx.actions.run so that stdout
   # could be natively redirected to produce the output file
   ctx.actions.run_shell(
-      inputs = [js, map, ctx.executable._source_map_explorer],
+      inputs = [js, map],
+      tools = [ctx.executable._source_map_explorer],
       outputs = [output],
       command = "$1 --html $2 $3 > $4",
       arguments = [

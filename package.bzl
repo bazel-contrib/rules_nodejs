@@ -58,9 +58,9 @@ def rules_nodejs_dependencies():
     _maybe(
         http_archive,
         name = "bazel_skylib",
-        url = "https://github.com/bazelbuild/bazel-skylib/archive/0.5.0.zip",
-        strip_prefix = "bazel-skylib-0.5.0",
-        sha256 = "ca4e3b8e4da9266c3a9101c8f4704fe2e20eb5625b2a6a7d2d7d45e3dd4efffd",
+        url = "https://github.com/bazelbuild/bazel-skylib/archive/0.6.0.zip",
+        strip_prefix = "bazel-skylib-0.6.0",
+        sha256 = "54ee22e5b9f0dd2b42eb8a6c1878dee592cfe8eb33223a7dbbc583a383f6ee1a",
     )
 
     # Needed for Remote Build Execution
@@ -94,23 +94,24 @@ def rules_nodejs_dev_dependencies():
 
     http_archive(
         name = "io_bazel_rules_sass",
-        url = "https://github.com/bazelbuild/rules_sass/archive/1.15.0.zip",
-        strip_prefix = "rules_sass-1.15.0",
-        sha256 = "4584ae58ff33d958e184f3ccc2714cff271df28723fb63a54871b16c577bda24",
+        url = "https://github.com/bazelbuild/rules_sass/archive/8ccf4f1c351928b55d5dddf3672e3667f6978d60.zip",  # 2018-11-23
+        strip_prefix = "rules_sass-8ccf4f1c351928b55d5dddf3672e3667f6978d60",
+        sha256 = "894d7928df8da85e263d743c8434d4c10ab0a3f0708fed0d53394e688e3faf70",
     )
 
     http_archive(
         name = "io_bazel_skydoc",
-        url = "https://github.com/bazelbuild/skydoc/archive/77e5399258f6d91417d23634fce97d73b40cf337.zip",
-        strip_prefix = "skydoc-77e5399258f6d91417d23634fce97d73b40cf337",
-        sha256 = "4e9bd9ef65af54dedd997b408fa26c2e70c30ee8e078bcc1b51a33cf7d7f9d7e",
+        url = "https://github.com/bazelbuild/skydoc/archive/1cdb612e31448c2f6eb25b8aa67d406152275482.zip",
+        strip_prefix = "skydoc-1cdb612e31448c2f6eb25b8aa67d406152275482",
+        sha256 = "282ab93ea7477ad703b3e8108a274c21344c3b59ee4e5b1e6a89cdbe3ecbe68f",
     )
 
     # Go is a transitive dependency of buildifier
     http_archive(
         name = "io_bazel_rules_go",
-        url = "https://github.com/bazelbuild/rules_go/releases/download/0.16.0/rules_go-0.16.0.tar.gz",
-        sha256 = "ee5fe78fe417c685ecb77a0a725dc9f6040ae5beb44a0ba4ddb55453aad23a8a",
+        strip_prefix = "rules_go-3f51f3f2aa5eabef9844e43a06f91df270ec7779",
+        sha256 = "fa33488b643c0dcc56105b4294d789fa17f791072082c494fd3096d09acc1303",
+        url = "https://github.com/bazelbuild/rules_go/archive/3f51f3f2aa5eabef9844e43a06f91df270ec7779.tar.gz",
     )
 
     # Fetching the Bazel source code allows us to compile the Skylark linter
