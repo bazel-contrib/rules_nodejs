@@ -517,6 +517,10 @@ func (upd *Updater) addSourcesToBUILD(ctx context.Context, path string, buildFil
 	}
 
 	platform.Infof("Updating sources")
+	if len(srcs) == 0 && len(allTSRules(bld)) == 0 {
+		// No TypeScript rules/sources, no need to update anything
+		return false, nil
+	}
 	updateSources(bld, srcs)
 
 	return upd.maybeWriteBUILD(ctx, buildFilePath, bld)
