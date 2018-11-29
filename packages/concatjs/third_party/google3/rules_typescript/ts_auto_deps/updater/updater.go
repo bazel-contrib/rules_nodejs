@@ -212,7 +212,7 @@ func readBUILD(ctx context.Context, workspaceRoot, buildFilePath string) (*build
 	data, err := platform.ReadFile(ctx, buildFilePath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return &build.File{Path: normalizedG3Path, Build: true}, nil
+			return &build.File{Path: normalizedG3Path, Type: build.TypeBuild}, nil
 		}
 		return nil, fmt.Errorf("reading %q: %s", buildFilePath, err)
 	}

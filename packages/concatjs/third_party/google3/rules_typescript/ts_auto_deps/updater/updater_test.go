@@ -491,7 +491,7 @@ func TestWebAssetReferredByColon(t *testing.T) {
 }
 
 func TestAbsoluteBazelTarget(t *testing.T) {
-	bld := &build.File{Path: "foo/bar/BUILD", Build: true}
+	bld := &build.File{Path: "foo/bar/BUILD", Type: build.TypeBuild}
 	tests := []struct{ target, expected string }{
 		{"//foo/bar:bar", "//foo/bar:bar"},
 		{":bar", "//foo/bar:bar"},
