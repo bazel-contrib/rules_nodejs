@@ -73,9 +73,9 @@ def rules_typescript_dependencies():
     _maybe(
         http_archive,
         name = "com_github_bazelbuild_buildtools",
-        url = "https://github.com/bazelbuild/buildtools/archive/0.12.0.zip",
-        strip_prefix = "buildtools-0.12.0",
-        sha256 = "ec495cbd19238c9dc488fd65ca1fee56dcb1a8d6d56ee69a49f2ebe69826c261",
+        url = "https://github.com/bazelbuild/buildtools/archive/0.19.2.1.zip",
+        strip_prefix = "buildtools-0.19.2.1",
+        sha256 = "9176a7df34dbed2cf5171eb56271868824560364e60644348219f852f593ae79",
     )
 
     ###############################################
