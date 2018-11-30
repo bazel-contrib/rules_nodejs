@@ -120,8 +120,9 @@ function main(args) {
 
   const npmTemplate =
       fs.readFileSync(require.resolve('nodejs/run_npm.sh.template'), {encoding: 'utf-8'});
-  fs.writeFileSync(packPath, npmTemplate.replace('TMPL_args', `pack ${outDir}`));
-  fs.writeFileSync(publishPath, npmTemplate.replace('TMPL_args', `publish ${outDir}`));
+  // Resolve the outDir to an absolute path so it doesn't depend on Bazel's bazel-out symlink
+  fs.writeFileSync(packPath, npmTemplate.replace('TMPL_args', `pack "${path.resolve(outDir)}"`));
+  fs.writeFileSync(publishPath, npmTemplate.replace('TMPL_args', `publish "${path.resolve(outDir)}"`));
 }
 
 if (require.main === module) {
