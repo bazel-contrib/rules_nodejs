@@ -23,7 +23,10 @@ npm_package(
 
 npm_package(
     name = "test_pkg",
-    srcs = ["some_file"],
+    srcs = [
+        "package.json",
+        "some_file",
+    ],
     packages = [":dependent_pkg"],
     replacements = {"replace_me": "replaced"},
     deps = [
