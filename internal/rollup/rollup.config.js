@@ -165,8 +165,12 @@ const config = {
   },
   plugins: [TMPL_additional_plugins].concat([
     {resolveId: resolveBazel},
-    nodeResolve(
-        {jsnext: true, module: true, customResolveOptions: {moduleDirectory: nodeModulesRoot}}),
+    nodeResolve({
+      jsnext: true,
+      module: true,
+      browser: true,
+      customResolveOptions: {moduleDirectory: nodeModulesRoot}
+    }),
     {resolveId: notResolved},
     sourcemaps(),
   ])
