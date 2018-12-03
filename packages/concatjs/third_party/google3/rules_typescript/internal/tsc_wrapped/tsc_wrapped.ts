@@ -190,8 +190,12 @@ function runFromOptions(
   const compilerHostDelegate =
       ts.createCompilerHost({target: ts.ScriptTarget.ES5});
 
+  const moduleResolver = bazelOpts.isJsTranspilation ?
+      makeJsModuleResolver(bazelOpts.workspaceName) :
+      ts.resolveModuleName;
   const compilerHost = new CompilerHost(
-      files, options, bazelOpts, compilerHostDelegate, fileLoader);
+      files, options, bazelOpts, compilerHostDelegate, fileLoader,
+      moduleResolver);
 
 
   const oldProgram = cache.getProgram(bazelOpts.target);
@@ -329,6 +333,70 @@ function mkdirp(base: string, subdir: string) {
     current = path.join(current, steps[i]);
     if (!fs.existsSync(current)) fs.mkdirSync(current);
   }
+}
+
+
+/**
+ * Resolve module filenames for JS modules.
+ *
+ * JS module resolution needs to be different because when transpiling JS we
+ * do not pass in any dependencies, so the TS module resolver will not resolve
+ * any files.
+ *
+ * Fortunately, JS module resolution is very simple. The imported module name
+ * must either a relative path, or the workspace root (i.e. 'google3'),
+ * so we can perform module resolution entirely based on file names, without
+ * looking at the filesystem.
+ */
+function makeJsModuleResolver(workspaceName: string) {
+  // The literal '/' here is cross-platform safe because it's matching on
+  // import specifiers, not file names.
+  const workspaceModuleSpecifierPrefix = `${workspaceName}/`;
+  const workspaceDir = `${path.sep}${workspaceName}${path.sep}`;
+  function jsModuleResolver(
+      moduleName: string, containingFile: string,
+      compilerOptions: ts.CompilerOptions, host: ts.ModuleResolutionHost):
+      ts.ResolvedModuleWithFailedLookupLocations {
+    let resolvedFileName;
+    if (containingFile === '') {
+      // In tsickle we resolve the filename against '' to get the goog module
+      // name of a sourcefile.
+      resolvedFileName = moduleName;
+    } else if (moduleName.startsWith(workspaceModuleSpecifierPrefix)) {
+      // Given a workspace name of 'foo', we want to resolve import specifiers
+      // like: 'foo/project/file.js' to the absolute filesystem path of
+      // project/file.js within the workspace.
+      const workspaceDirLocation = containingFile.indexOf(workspaceDir);
+      if (workspaceDirLocation < 0) {
+        return {resolvedModule: undefined};
+      }
+      const absolutePathToWorkspaceDir =
+          containingFile.slice(0, workspaceDirLocation);
+      resolvedFileName = path.join(absolutePathToWorkspaceDir, moduleName);
+    } else {
+      if (!moduleName.startsWith('./') && !moduleName.startsWith('../')) {
+        throw new Error(
+            `Unsupported module import specifier: ${
+                JSON.stringify(moduleName)}.\n` +
+            `JS module imports must either be relative paths ` +
+            `(beginning with '.' or '..'), ` +
+            `or they must begin with '${workspaceName}/'.`);
+      }
+      resolvedFileName = path.join(path.dirname(containingFile), moduleName);
+    }
+    return {
+      resolvedModule: {
+        resolvedFileName,
+        extension: ts.Extension.Js,  // js can only import js
+        // These two fields are cargo culted from what ts.resolveModuleName
+        // seems to return.
+        packageId: undefined,
+        isExternalLibraryImport: false,
+      }
+    };
+  }
+
+  return jsModuleResolver;
 }
 
 
