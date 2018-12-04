@@ -94,7 +94,7 @@ def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description 
     # A ts_library that has only .d.ts inputs will have no outputs,
     # therefore there are no actions to execute
     if not action_outputs:
-        return struct()
+        return None
 
     action_inputs.extend(_filter_ts_inputs(ctx.files.node_modules))
 
