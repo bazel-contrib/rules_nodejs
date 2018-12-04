@@ -24,7 +24,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 # It will be automatically synced via the npm "version" script
 # that is run when running `npm version` during the release
 # process. See `Releasing` section in README.md.
-VERSION = "0.20.3"
+VERSION = "0.21.0"
 
 def rules_typescript_dependencies():
     """
@@ -38,8 +38,8 @@ def rules_typescript_dependencies():
     _maybe(
         http_archive,
         name = "build_bazel_rules_nodejs",
-        urls = ["https://github.com/bazelbuild/rules_nodejs/archive/0.16.0.zip"],
-        strip_prefix = "rules_nodejs-0.16.0",
+        urls = ["https://github.com/bazelbuild/rules_nodejs/archive/0.16.1.zip"],
+        strip_prefix = "rules_nodejs-0.16.1",
     )
 
     # ts_web_test depends on the web testing rules to provision browsers.
