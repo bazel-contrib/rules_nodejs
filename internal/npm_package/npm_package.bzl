@@ -85,6 +85,7 @@ def _npm_package(ctx):
 
   return [DefaultInfo(
       files = depset([package_dir]),
+      runfiles = ctx.runfiles([package_dir]),
   )]
 
 NPM_PACKAGE_ATTRS = {
