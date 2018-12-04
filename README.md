@@ -516,16 +516,7 @@ See https://bazelbuild.github.io/rules_nodejs/npm_package/npm_package.html
 
 # Scope of the project
 
-This repository contains an orthogonal set of rules which covers an opinionated toolchain for JavaScript development, including:
-
-- E2E testing with jasmine and protractor
-- Unit testing with jasmine and karma
-- Unit testing with jasmine and node test runner
-- Bundling packages with rollup
-- HTTP development server
-- HTTP development history server, which enables the HTML5 history API
-- Tools for creating npm packages
-- Control over package installs with Bazel
+This repository contains an orthogonal set of rules which covers an opinionated toolchain for JavaScript development. When requesting a new rule, describe your use case, why it's important, and why you can't do it with the existing rules. This is because we have limited resources to maintain additional rules.
 
 The repository accepts contributions in terms of bug fixes or implementing new features in existing rules. If you're planning to implement a new rule, please strongly consider opening a [feature request](https://github.com/bazelbuild/rules_nodejs/issues/new) first so the project's maintainers can decide if it belongs to the scope of this project or not.
 

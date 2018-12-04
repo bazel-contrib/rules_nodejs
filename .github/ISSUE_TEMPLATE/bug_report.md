@@ -17,7 +17,7 @@ Existing issues often contain information about workarounds, resolution, or prog
 ### Affected Rule
 
 <!-- Can you pin-point one or more rules_nodejs as the source of the bug? -->
-<!-- ✍️edit: --> The issue is caused bythe rule: 
+<!-- ✍️edit: --> The issue is caused by the rule: 
 
 
 ### Is this a regression?
@@ -56,7 +56,7 @@ Please create and share minimal reproduction of the issue. For the purpose you c
   </code>
 </pre>
 
-**Bazel version:**
+**Output of `bazel version`:**
 
 <pre>
   <code>
@@ -64,7 +64,7 @@ Please create and share minimal reproduction of the issue. For the purpose you c
   </code>
 </pre>
 
-**Rules version:**
+**Rules version (SHA):**
 
 <pre>
   <code>

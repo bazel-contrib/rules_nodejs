@@ -18,7 +18,7 @@ Before you start working on a larger contribution, you should get in touch
 with us first. Use the issue tracker to explain your idea so we can help and
 possibly guide you.
 
-**For complex contributions we strongly encourage you to share a design document**.
+**Before starting a complex contribution we strongly encourage you to share a design document**.
 
 [Here](https://goo.gl/YCQttR) you can find a document template.
 
