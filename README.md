@@ -514,6 +514,14 @@ See https://bazelbuild.github.io/rules_nodejs/npm_package/npm_package.html
 
 > For those downstream dependencies that use Bazel, they can simply write BUILD files to consume your library.
 
+# Scope of the project
+
+This repository contains an orthogonal set of rules which covers an opinionated toolchain for JavaScript development. When requesting a new rule, describe your use case, why it's important, and why you can't do it with the existing rules. This is because we have limited resources to maintain additional rules.
+
+The repository accepts contributions in terms of bug fixes or implementing new features in existing rules. If you're planning to implement a new rule, please strongly consider opening a [feature request](https://github.com/bazelbuild/rules_nodejs/issues/new) first so the project's maintainers can decide if it belongs to the scope of this project or not.
+
+For rules outside of the scope of the projects we recommend hosting them in your GitHub account or the one of your organization.
+
 # Design
 
 Most bazel rules include package management. That is, the `WORKSPACE` file installs your dependencies as well as the toolchain. In some environments, this is the normal workflow, for example in Java, Gradle and Maven are each both a build tool and a package manager.
@@ -535,17 +543,3 @@ References:
 
 Note that https://github.com/bazelbuild/rules_nodejs/issues/1 will take the guarantee further: by using the lockfile as an input to Bazel, the nodejs rules can verify the integrity of the dependencies. This would make it impossible for a build to be non-reproducible, so long as you have the same lockfile.
 
-# For Developers
-
-## Releasing
-
-Start from a clean checkout at master/HEAD.
-Check if there are any breaking changes since the last tag - if so, this will be a minor, if not it's a patch.
-(This may not sound like semver, but since our major version is a zero, the rule is that minors are breaking changes and patches are new features.)
-
-1. Re-generate the API docs: `yarn skydoc`
-1. `git add docs/` (in case new files were created)
-1. `git commit -a -m 'Update docs for release'`
-1. `npm config set tag-version-prefix ''`
-1. `npm version minor -m 'rel: %s'` (replace `minor` with `patch` if no breaking changes)
-1. `git push && git push --tags`
