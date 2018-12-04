@@ -13,5 +13,5 @@ Check if there are any breaking changes since the last tag - if so, this will be
 1. `git commit -a -m 'Update docs for release'`
 1. `npm config set tag-version-prefix ''`
 1. `npm version minor -m 'rel: %s'` (replace `minor` with `patch` if no breaking changes)
-1. `git push && git push --tags`
+1. `git push upstream && git push upstream --tags`
 
