@@ -62,12 +62,11 @@ function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = req
   }
 
   // process.cwd() is the execroot and ends up looking something like
-  // /.../2c2a834fcea131eff2d962ffe20e1c87/bazel-sandbox/872535243457386053/execroot/<workspace_name>
+  // `.../2c2a834fcea131eff2d962ffe20e1c87/bazel-sandbox/872535243457386053/execroot/<workspace_name>`
   // from that path to the es6 output is
-  // <bin_dir_path>/<build_file_dirname>/<label_name>.es6 from there, sources
-  // from the user's workspace are under <user_workspace_name>/<path_to_source>
-  // and sources from external workspaces are under
-  // <external_workspace_name>/<path_to_source>
+  // `<bin_dir_path>/<build_file_dirname>/<label_name>.es6` from there, sources
+  // from the user's workspace are under `<path_to_source>` and sources from external
+  // workspaces are under `external/<external_workspace_name>/<path_to_source>`
   var resolved;
   if (normalizedImportee.startsWith('./') || normalizedImportee.startsWith('../')) {
     // relative import
