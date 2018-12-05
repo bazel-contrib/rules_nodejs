@@ -56,13 +56,18 @@ jobs:
   # Cannot be run on BuildKite (BazelCI), see
   # https://github.com/bazelbuild/continuous-integration/issues/338
   lint:
-    <<: *job_defaults
+    docker:
+      - image: circleci/node:10.12
     steps:
       - checkout:
           <<: *post_checkout
-      - *setup_bazelrc
+
+      - run: yarn install
 
       # Run the skylark linter to check our Bazel rules
+      # Note, this is not yet enforced, because
+      # - buildifier doesn't exit non-zero in the presence of lint warnings: https://github.com/bazelbuild/buildtools/issues/470
+      # - false positive for rule docstrings: https://github.com/bazelbuild/buildtools/issues/471
       - run: 'yarn bazel:lint ||
               (echo -e "\n.bzl files have lint errors. Please run ''yarn bazel:lint-fix''"; exit 1)'
 
