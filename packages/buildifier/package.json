@@ -1,0 +1,16 @@
+{
+  "name": "@bazel/buildifier",
+  "bin": {
+    "buildifier": "./buildifier.js"
+  },
+  "version": "0.19.2",
+  "description": "A tool for formatting bazel BUILD and .bzl files with a standard convention",
+  "homepage": "https://github.com/bazelbuild/buildtools/tree/master/buildifier",
+  "bugs": {
+    "url": "https://github.com/bazelbuild/buildtools/issues"
+  },
+  "optionalDependencies": {
+    "@bazel/buildifier-linux_x64": "0.19.2",
+    "@bazel/buildifier-darwin_x64": "0.19.2"
+  }
+}
