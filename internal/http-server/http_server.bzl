@@ -20,6 +20,7 @@ def http_server(templated_args = [], **kwargs):
         templated_args: arguments to pass to every invocation of the binary
         **kwargs: passed through to the underlying nodejs_binary
     """
+
     # By default, we pass an argument pointing the http server to the
     # package of the caller.
     # This assumes there is an index.html in the package directory.

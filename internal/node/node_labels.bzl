@@ -18,36 +18,36 @@ Labels are different on windows and linux/OSX.
 """
 
 def get_node_label(repository_ctx):
-  if repository_ctx.os.name.lower().find("windows") != -1:
-    label = Label("@nodejs//:bin/node.cmd")
-  else:
-    label = Label("@nodejs//:bin/node")
-  return label
+    if repository_ctx.os.name.lower().find("windows") != -1:
+        label = Label("@nodejs//:bin/node.cmd")
+    else:
+        label = Label("@nodejs//:bin/node")
+    return label
 
 def get_npm_label(repository_ctx):
-  if repository_ctx.os.name.lower().find("windows") != -1:
-    label = Label("@nodejs//:bin/npm.cmd")
-  else:
-    label = Label("@nodejs//:bin/npm")
-  return label
+    if repository_ctx.os.name.lower().find("windows") != -1:
+        label = Label("@nodejs//:bin/npm.cmd")
+    else:
+        label = Label("@nodejs//:bin/npm")
+    return label
 
 def get_npm_node_repositories_label(repository_ctx):
-  if repository_ctx.os.name.lower().find("windows") != -1:
-    label = Label("@nodejs//:bin/npm_node_repositories.cmd")
-  else:
-    label = Label("@nodejs//:bin/npm_node_repositories")
-  return label
+    if repository_ctx.os.name.lower().find("windows") != -1:
+        label = Label("@nodejs//:bin/npm_node_repositories.cmd")
+    else:
+        label = Label("@nodejs//:bin/npm_node_repositories")
+    return label
 
 def get_yarn_label(repository_ctx):
-  if repository_ctx.os.name.lower().find("windows") != -1:
-    label = Label("@nodejs//:bin/yarn.cmd")
-  else:
-    label = Label("@nodejs//:bin/yarn")
-  return label
+    if repository_ctx.os.name.lower().find("windows") != -1:
+        label = Label("@nodejs//:bin/yarn.cmd")
+    else:
+        label = Label("@nodejs//:bin/yarn")
+    return label
 
 def get_yarn_node_repositories_label(repository_ctx):
-  if repository_ctx.os.name.lower().find("windows") != -1:
-    label = Label("@nodejs//:bin/yarn_node_repositories.cmd")
-  else:
-    label = Label("@nodejs//:bin/yarn_node_repositories")
-  return label
+    if repository_ctx.os.name.lower().find("windows") != -1:
+        label = Label("@nodejs//:bin/yarn_node_repositories.cmd")
+    else:
+        label = Label("@nodejs//:bin/yarn_node_repositories")
+    return label

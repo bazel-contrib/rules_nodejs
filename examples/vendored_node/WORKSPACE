@@ -9,11 +9,11 @@ load("@build_bazel_rules_nodejs//:package.bzl", "rules_nodejs_dependencies")
 
 rules_nodejs_dependencies()
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "yarn_install", "npm_install")
+load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "npm_install", "yarn_install")
 
 node_repositories(
-  vendored_node = "@vendored_node_example//:node-v10.12.0-linux-x64",
-  vendored_yarn = "@vendored_node_example//:yarn-v1.10.0",
+    vendored_node = "@vendored_node_example//:node-v10.12.0-linux-x64",
+    vendored_yarn = "@vendored_node_example//:yarn-v1.10.0",
 )
 
 yarn_install(

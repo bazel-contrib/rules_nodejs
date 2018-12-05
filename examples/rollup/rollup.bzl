@@ -19,17 +19,17 @@ other rules in this repo.
 """
 
 def _rollup(ctx):
-  args = ["--input", ctx.attr.entry_point]
-  args += ["--output.file", ctx.outputs.bundle.path]
-  args += ["--output.format", "es"]
+    args = ["--input", ctx.attr.entry_point]
+    args += ["--output.file", ctx.outputs.bundle.path]
+    args += ["--output.format", "es"]
 
-  ctx.actions.run(
-      inputs = ctx.files.srcs,
-      executable = ctx.executable.rollup,
-      outputs = [ctx.outputs.bundle],
-      arguments = args,
-  )
-  return [DefaultInfo()]
+    ctx.actions.run(
+        inputs = ctx.files.srcs,
+        executable = ctx.executable.rollup,
+        outputs = [ctx.outputs.bundle],
+        arguments = args,
+    )
+    return [DefaultInfo()]
 
 rollup = rule(
     implementation = _rollup,
@@ -39,9 +39,10 @@ rollup = rule(
         "rollup": attr.label(
             default = Label("//examples/rollup"),
             executable = True,
-            cfg = "host"),
+            cfg = "host",
+        ),
     },
     outputs = {
-        "bundle": "%{name}.js"
+        "bundle": "%{name}.js",
     },
 )

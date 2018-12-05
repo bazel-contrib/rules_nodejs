@@ -26,30 +26,32 @@ load(":check_version.bzl", "check_version")
 # Check that a specific bazel version is being used.
 # Args: minimum_bazel_version in the form "<major>.<minor>.<patch>"
 def check_bazel_version(minimum_bazel_version, message = ""):
-  """
-  Verify the users Bazel version is at least the given one.
+    """
+    Verify the users Bazel version is at least the given one.
 
-  This should be called from the `WORKSPACE` file so that the build fails as
-  early as possible. For example:
+    This should be called from the `WORKSPACE` file so that the build fails as
+    early as possible. For example:
 
-  ```
-  # in WORKSPACE:
-  load("@build_bazel_rules_nodejs//:defs.bzl", "check_bazel_version")
-  check_bazel_version("0.11.0")
-  ```
+    ```
+    # in WORKSPACE:
+    load("@build_bazel_rules_nodejs//:defs.bzl", "check_bazel_version")
+    check_bazel_version("0.11.0")
+    ```
 
-  Args:
-    minimum_bazel_version: a string indicating the minimum version
-    message: optional string to print to your users, could be used to help them update
-  """
-  if "bazel_version" not in dir(native):
-    fail("\nCurrent Bazel version is lower than 0.2.1, expected at least %s\n" %
-         minimum_bazel_version)
-  elif not native.bazel_version:
-    print("\nCurrent Bazel is not a release version, cannot check for " +
-          "compatibility.")
-    print("Make sure that you are running at least Bazel %s.\n" % minimum_bazel_version)
-  else:
-    if not check_version(native.bazel_version, minimum_bazel_version):
-      fail("\nCurrent Bazel version is {}, expected at least {}\n{}".format(
-          native.bazel_version, minimum_bazel_version, message))
+    Args:
+      minimum_bazel_version: a string indicating the minimum version
+      message: optional string to print to your users, could be used to help them update
+    """
+    if "bazel_version" not in dir(native):
+        fail("\nCurrent Bazel version is lower than 0.2.1, expected at least %s\n" %
+             minimum_bazel_version)
+    elif not native.bazel_version:
+        print("\nCurrent Bazel is not a release version, cannot check for " +
+              "compatibility.")
+        print("Make sure that you are running at least Bazel %s.\n" % minimum_bazel_version)
+    elif not check_version(native.bazel_version, minimum_bazel_version):
+        fail("\nCurrent Bazel version is {}, expected at least {}\n{}".format(
+            native.bazel_version,
+            minimum_bazel_version,
+            message,
+        ))

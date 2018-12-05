@@ -12,8 +12,8 @@ rules_nodejs_dependencies()
 load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "yarn_install")
 
 node_repositories(
-  package_json = ["//:package.json"],
-  preserve_symlinks = True,
+    package_json = ["//:package.json"],
+    preserve_symlinks = True,
 )
 
 yarn_install(

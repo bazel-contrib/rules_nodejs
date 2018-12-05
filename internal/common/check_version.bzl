@@ -18,43 +18,45 @@
 # From https://github.com/tensorflow/tensorflow/blob/5541ef4fbba56cf8930198373162dd3119e6ee70/tensorflow/workspace.bzl#L28
 
 def parse_version(version_string):
-  """
-  Parse the version from a string
+    """
+    Parse the version from a string
 
-  The format handled is "<major>.<minor>.<patch>-<date> <commit>"
+    The format handled is "<major>.<minor>.<patch>-<date> <commit>"
 
-  Args:
-    version_string: the version string to parse
+    Args:
+      version_string: the version string to parse
 
-  Returns:
-    A 3-tuple of numbers: (<major>, <minor>, <patch>)
-  """
-  # Remove commit from version.
-  version = version_string.split(" ", 1)[0]
+    Returns:
+      A 3-tuple of numbers: (<major>, <minor>, <patch>)
+    """
 
-  # Split into (release, date) parts and only return the release
-  # as a tuple of integers.
-  parts = version.split("-", 1)
-  # Handle format x.x.xrcx
-  parts = parts[0].split("rc", 1)
+    # Remove commit from version.
+    version = version_string.split(" ", 1)[0]
 
-  # Turn "release" into a tuple of numbers
-  version_tuple = ()
-  for number in parts[0].split("."):
-    version_tuple += (int(number),)
-  return version_tuple
+    # Split into (release, date) parts and only return the release
+    # as a tuple of integers.
+    parts = version.split("-", 1)
+
+    # Handle format x.x.xrcx
+    parts = parts[0].split("rc", 1)
+
+    # Turn "release" into a tuple of numbers
+    version_tuple = ()
+    for number in parts[0].split("."):
+        version_tuple += (int(number),)
+    return version_tuple
 
 def check_version(current_version, minimum_version):
-  """
-  Verify that a version string greater or equal to a minimum version string.
+    """
+    Verify that a version string greater or equal to a minimum version string.
 
-  The format handled for the version strings is "<major>.<minor>.<patch>-<date> <commit>"
+    The format handled for the version strings is "<major>.<minor>.<patch>-<date> <commit>"
 
-  Args:
-    current_version: a string indicating the version to check
-    minimum_version: a string indicating the minimum version
+    Args:
+      current_version: a string indicating the version to check
+      minimum_version: a string indicating the minimum version
 
-  Returns:
-    True if current_version is greater or equal to the minimum_version, False otherwise
-  """
-  return parse_version(current_version) >= parse_version(minimum_version)
+    Returns:
+      True if current_version is greater or equal to the minimum_version, False otherwise
+    """
+    return parse_version(current_version) >= parse_version(minimum_version)
