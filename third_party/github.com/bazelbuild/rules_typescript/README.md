@@ -50,9 +50,13 @@ http_archive(
     strip_prefix = "rules_typescript-0.20.3",
 )
 
-# Fetch our Bazel dependencies that aren't distributed on npm
+# Fetch transitive Bazel dependencies of build_bazel_rules_typescript
 load("@build_bazel_rules_typescript//:package.bzl", "rules_typescript_dependencies")
 rules_typescript_dependencies()
+
+# Fetch transitive Bazel dependencies of build_bazel_rules_nodejs
+load("@build_bazel_rules_nodejs//:package.bzl", "rules_nodejs_dependencies")
+rules_nodejs_dependencies()
 
 # Setup TypeScript toolchain
 load("@build_bazel_rules_typescript//:defs.bzl", "ts_setup_workspace")
