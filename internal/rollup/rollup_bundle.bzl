@@ -414,8 +414,9 @@ def _rollup_bundle(ctx):
         _generate_code_split_entry(ctx, ctx.label.name + ".cs.min", ctx.outputs.build_es5_min)
         _generate_code_split_entry(ctx, ctx.label.name + ".cs.min_debug", ctx.outputs.build_es5_min_debug)
 
-        # There is no UMD bundle when code-splitting but we still need to satisfy the output
+        # There is no UMD/CJS bundle when code-splitting but we still need to satisfy the output
         _generate_code_split_entry(ctx, ctx.label.name + ".cs", ctx.outputs.build_umd)
+        _generate_code_split_entry(ctx, ctx.label.name + ".cs", ctx.outputs.build_cjs)
 
         # There is no source map explorer output when code-splitting but we still need to satisfy the output
         ctx.actions.expand_template(
@@ -441,6 +442,8 @@ def _rollup_bundle(ctx):
         _run_tsc(ctx, ctx.outputs.build_es6, ctx.outputs.build_es5)
         source_map = run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min)
         run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min_debug, debug = True)
+        cjs_rollup_config = write_rollup_config(ctx, filename = "_%s_cjs.rollup.conf.js", output_format = "cjs")
+        run_rollup(ctx, collect_es6_sources(ctx), cjs_rollup_config, ctx.outputs.build_cjs)
         umd_rollup_config = write_rollup_config(ctx, filename = "_%s_umd.rollup.conf.js", output_format = "umd")
         run_rollup(ctx, collect_es6_sources(ctx), umd_rollup_config, ctx.outputs.build_umd)
         run_sourcemapexplorer(ctx, ctx.outputs.build_es5_min, source_map, ctx.outputs.explore_html)
@@ -636,6 +639,7 @@ ROLLUP_OUTPUTS = {
     "build_es5_min": "%{name}.min.js",
     "build_es5_min_debug": "%{name}.min_debug.js",
     "build_umd": "%{name}.umd.js",
+    "build_cjs": "%{name}.cjs.js",
     "explore_html": "%{name}.explore.html",
 }
 
@@ -664,6 +668,7 @@ To request the ES2015 syntax (e.g. `class` keyword) without downleveling or mini
 To request the ES5 downleveled bundle without minification, use the `:my_rollup_bundle.js` label
 To request the debug-minified es5 bundle, use the `:my_rollup_bundle.min_debug.js` label.
 To request a UMD-bundle, use the `:my_rollup_bundle.umd.js` label.
+To request a CommonJS bundle, use the `:my_rollup_bundle.cjs.js` label.
 
 You can also request an analysis from source-map-explorer by buildng the `:my_rollup_bundle.explore.html` label.
 However this is currently broken for `rollup_bundle` ES5 mode because we use tsc for downleveling and

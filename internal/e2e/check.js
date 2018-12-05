@@ -16,7 +16,8 @@ function read(readPath) {
 const update_var = 'UPDATE_GOLDEN'
 const update_val = '1'
 
-if (process.env[update_var] && process.env['TEST_SRCDIR']) {
+// Ensure we are running under `bazel run`.
+if (process.env[update_var] && !process.env['BUILD_WORKSPACE_DIRECTORY']) {
   throw new Error(`Cannot use ${update_var} when run as a test. Use bazel run instead.`);
 }
 
@@ -28,7 +29,7 @@ function check(dir, actual, expected) {
   if (actualContents !== expectedContents) {
     if (process.env[update_var] === update_val) {
       fs.writeFileSync(expectedPath, actualContents);
-      console.error('Replaced ', writePath);
+      console.error('Replaced ', expectedPath);
     } else {
       const diff = unidiff.diffLines(actualContents, expectedContents);
       const prettyDiff = unidiff.formatLines(diff);

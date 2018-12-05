@@ -16,4 +16,7 @@ describe('bundling', () => {
   it('should rewrite global imports', () => {
     check(path, 'bundle.umd.js', 'bundle-umd_golden.js_');
   });
+  it('should produce a CJS bundle', () => {
+    check(path, 'bundle.cjs.js', 'bundle-cjs_golden.js_');
+  });
 });
