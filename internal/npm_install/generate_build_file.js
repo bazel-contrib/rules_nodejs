@@ -169,12 +169,13 @@ function listFiles(rootDir, subDir = '') {
       .reduce((files, file) => {
         const fullPath = path.posix.join(dir, file);
         const relPath = path.posix.join(subDir, file);
+        const isSymbolicLink = fs.lstatSync(fullPath).isSymbolicLink();
         let stat;
         try {
           stat = fs.statSync(fullPath);
         } catch (e) {
-          if (fs.lstatSync(fullPath).isSymbolicLink()) {
-            // filter out broken symbolic links... these cause fs.statSync(fullPath)
+          if (isSymbolicLink) {
+            // Filter out broken symbolic links. These cause fs.statSync(fullPath)
             // to fail with `ENOENT: no such file or directory ...`
             return files;
           }
@@ -187,8 +188,17 @@ function listFiles(rootDir, subDir = '') {
           fs.unlinkSync(fullPath);
           return files;
         }
-        return stat.isDirectory() ? files.concat(listFiles(rootDir, relPath)) :
-                                    files.concat(relPath);
+        const isDirectory = stat.isDirectory();
+        if (isDirectory && isSymbolicLink) {
+          // Filter out symbolic links to directories. An issue in yarn versions
+          // older than 1.12.1 creates symbolic links to folders in the .bin folder
+          // which leads to Bazel targets that cross package boundaries.
+          // See https://github.com/bazelbuild/rules_nodejs/issues/428 and
+          // https://github.com/bazelbuild/rules_nodejs/issues/438.
+          // This is tested in internal/e2e/fine_grained_symlinks.
+          return files;
+        }
+        return isDirectory ? files.concat(listFiles(rootDir, relPath)) : files.concat(relPath);
       }, []);
 }
 
