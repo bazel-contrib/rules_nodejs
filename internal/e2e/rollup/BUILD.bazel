@@ -33,9 +33,11 @@ jasmine_node_test(
         "*_golden.js.map",
     ]) + [
         ":bundle",
+        ":bundle.cjs.js",
         ":bundle.umd.js",
         ":bundle.min_debug.js",
     ],
+    configuration_env_vars = ["UPDATE_GOLDEN"],
     node_modules = "//internal/test:node_modules",
     deps = [
         "//internal/e2e:check_lib",
