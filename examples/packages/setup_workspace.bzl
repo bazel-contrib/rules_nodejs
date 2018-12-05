@@ -15,43 +15,43 @@
 """Helper function to setup @package_example workspace.
 """
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install", "npm_install")
+load("@build_bazel_rules_nodejs//:defs.bzl", "npm_install", "yarn_install")
 
 def packages_example_setup_workspace():
-  """Node repositories for @packages_examples
-  """
-  npm_install(
-      name = "packages_example_npm_install",
-      package_json = "@packages_example//:package.json",
-      package_lock_json = "@packages_example//:package-lock.json",
-      data = ["@packages_example//:postinstall.js"],
-      # Just here as a smoke test for this attribute
-      prod_only = True,
-  )
+    """Node repositories for @packages_examples
+    """
+    npm_install(
+        name = "packages_example_npm_install",
+        package_json = "@packages_example//:package.json",
+        package_lock_json = "@packages_example//:package-lock.json",
+        data = ["@packages_example//:postinstall.js"],
+        # Just here as a smoke test for this attribute
+        prod_only = True,
+    )
 
-  npm_install(
-      name = "packages_example_npm_install_duplicate_for_determinism_testing",
-      package_json = "@packages_example//:package.json",
-      package_lock_json = "@packages_example//:package-lock.json",
-      data = ["@packages_example//:postinstall.js"],
-  )
+    npm_install(
+        name = "packages_example_npm_install_duplicate_for_determinism_testing",
+        package_json = "@packages_example//:package.json",
+        package_lock_json = "@packages_example//:package-lock.json",
+        data = ["@packages_example//:postinstall.js"],
+    )
 
-  npm_install(
-      name = "packages_example_npm_no_lockfile",
-      package_json = "@packages_example//:package.json",
-      data = ["@packages_example//:postinstall.js"],
-  )
+    npm_install(
+        name = "packages_example_npm_no_lockfile",
+        package_json = "@packages_example//:package.json",
+        data = ["@packages_example//:postinstall.js"],
+    )
 
-  yarn_install(
-      name = "packages_example_yarn_install",
-      package_json = "@packages_example//:package.json",
-      yarn_lock = "@packages_example//:yarn.lock",
-      data = ["@packages_example//:postinstall.js"],
-  )
+    yarn_install(
+        name = "packages_example_yarn_install",
+        package_json = "@packages_example//:package.json",
+        yarn_lock = "@packages_example//:yarn.lock",
+        data = ["@packages_example//:postinstall.js"],
+    )
 
-  yarn_install(
-      name = "packages_example_yarn_install_duplicate_for_determinism_testing",
-      package_json = "@packages_example//:package.json",
-      yarn_lock = "@packages_example//:yarn.lock",
-      data = ["@packages_example//:postinstall.js"],
-  )
+    yarn_install(
+        name = "packages_example_yarn_install_duplicate_for_determinism_testing",
+        package_json = "@packages_example//:package.json",
+        yarn_lock = "@packages_example//:yarn.lock",
+        data = ["@packages_example//:postinstall.js"],
+    )

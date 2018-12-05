@@ -17,50 +17,51 @@
 These rules let you run tests outside of a browser. This is typically faster
 than launching a test in Karma, for example.
 """
+
 load("//internal/node:node.bzl", "nodejs_test")
 load("//internal/common:devmode_js_sources.bzl", "devmode_js_sources")
 
 def jasmine_node_test(
-  name,
-  srcs = [],
-  data = [],
-  deps = [],
-  expected_exit_code = 0,
-  tags = [],
-  **kwargs):
-  """Runs tests in NodeJS using the Jasmine test runner.
+        name,
+        srcs = [],
+        data = [],
+        deps = [],
+        expected_exit_code = 0,
+        tags = [],
+        **kwargs):
+    """Runs tests in NodeJS using the Jasmine test runner.
 
-  To debug the test, see debugging notes in `nodejs_test`.
+    To debug the test, see debugging notes in `nodejs_test`.
 
-  Args:
-    name: name of the resulting label
-    srcs: JavaScript source files containing Jasmine specs
-    data: Runtime dependencies which will be loaded while the test executes
-    deps: Other targets which produce JavaScript, such as ts_library
-    expected_exit_code: The expected exit code for the test. Defaults to 0.
-    tags: bazel tags applied to test
-    **kwargs: remaining arguments are passed to the test rule
-  """
-  devmode_js_sources(
-      name = "%s_devmode_srcs" % name,
-      deps = srcs + deps,
-      testonly = 1,
-      tags = tags,
-  )
+    Args:
+      name: name of the resulting label
+      srcs: JavaScript source files containing Jasmine specs
+      data: Runtime dependencies which will be loaded while the test executes
+      deps: Other targets which produce JavaScript, such as ts_library
+      expected_exit_code: The expected exit code for the test. Defaults to 0.
+      tags: bazel tags applied to test
+      **kwargs: remaining arguments are passed to the test rule
+    """
+    devmode_js_sources(
+        name = "%s_devmode_srcs" % name,
+        deps = srcs + deps,
+        testonly = 1,
+        tags = tags,
+    )
 
-  all_data = data + srcs + deps
-  all_data += [Label("//internal/jasmine_node_test:jasmine_runner.js")]
-  all_data += [":%s_devmode_srcs.MF" % name]
-  all_data += [Label("@bazel_tools//tools/bash/runfiles")]
-  entry_point = "build_bazel_rules_nodejs/internal/jasmine_node_test/jasmine_runner.js"
+    all_data = data + srcs + deps
+    all_data += [Label("//internal/jasmine_node_test:jasmine_runner.js")]
+    all_data += [":%s_devmode_srcs.MF" % name]
+    all_data += [Label("@bazel_tools//tools/bash/runfiles")]
+    entry_point = "build_bazel_rules_nodejs/internal/jasmine_node_test/jasmine_runner.js"
 
-  nodejs_test(
-      name = name,
-      data = all_data,
-      entry_point = entry_point,
-      templated_args = ["$(location :%s_devmode_srcs.MF)" % name],
-      testonly = 1,
-      expected_exit_code = expected_exit_code,
-      tags = tags,
-      **kwargs
-  )
+    nodejs_test(
+        name = name,
+        data = all_data,
+        entry_point = entry_point,
+        templated_args = ["$(location :%s_devmode_srcs.MF)" % name],
+        testonly = 1,
+        expected_exit_code = expected_exit_code,
+        tags = tags,
+        **kwargs
+    )

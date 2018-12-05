@@ -73,7 +73,8 @@ COMMON_ATTRIBUTES = dict(dict(), **{
         See https://github.com/bazelbuild/bazel/issues/5153. If
         you are running into performance issues due to a large
         node_modules target it is recommended to switch to using
-        fine grained npm dependencies."""),
+        fine grained npm dependencies.""",
+    ),
     "quiet": attr.bool(
         default = False,
         doc = "If stdout and stderr should be printed to the terminal.",
@@ -81,98 +82,118 @@ COMMON_ATTRIBUTES = dict(dict(), **{
 })
 
 def _create_build_file(repository_ctx, node):
-  if repository_ctx.attr.manual_build_file_contents:
-    repository_ctx.file("manual_build_file_contents", repository_ctx.attr.manual_build_file_contents)
-  result = repository_ctx.execute([node, "generate_build_file.js", ",".join(repository_ctx.attr.included_files)])
-  if result.return_code:
-    fail("node failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
+    if repository_ctx.attr.manual_build_file_contents:
+        repository_ctx.file("manual_build_file_contents", repository_ctx.attr.manual_build_file_contents)
+    result = repository_ctx.execute([node, "generate_build_file.js", ",".join(repository_ctx.attr.included_files)])
+    if result.return_code:
+        fail("node failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
 
 def _add_package_json(repository_ctx):
-  repository_ctx.symlink(
-      repository_ctx.attr.package_json,
-      repository_ctx.path("_package.json"))
+    repository_ctx.symlink(
+        repository_ctx.attr.package_json,
+        repository_ctx.path("_package.json"),
+    )
 
 def _add_scripts(repository_ctx):
-  repository_ctx.template("process_package_json.js",
-    repository_ctx.path(Label("//internal/npm_install:process_package_json.js")), {})
-  repository_ctx.template("generate_build_file.js",
-    repository_ctx.path(Label("//internal/npm_install:generate_build_file.js")), {})
+    repository_ctx.template(
+        "process_package_json.js",
+        repository_ctx.path(Label("//internal/npm_install:process_package_json.js")),
+        {},
+    )
+    repository_ctx.template(
+        "generate_build_file.js",
+        repository_ctx.path(Label("//internal/npm_install:generate_build_file.js")),
+        {},
+    )
 
 def _add_data_dependencies(repository_ctx):
-  """Add data dependencies to the repository."""
-  for f in repository_ctx.attr.data:
-    to = []
-    if f.package:
-      to += [f.package]
-    to += [f.name]
-    repository_ctx.symlink(f, repository_ctx.path("/".join(to)))
+    """Add data dependencies to the repository."""
+    for f in repository_ctx.attr.data:
+        to = []
+        if f.package:
+            to += [f.package]
+        to += [f.name]
+        repository_ctx.symlink(f, repository_ctx.path("/".join(to)))
 
 def _npm_install_impl(repository_ctx):
-  """Core implementation of npm_install."""
+    """Core implementation of npm_install."""
 
-  is_windows = os_name(repository_ctx).find("windows") != -1
-  node = repository_ctx.path(get_node_label(repository_ctx))
-  npm = get_npm_label(repository_ctx)
-  npm_args = ["install"]
+    is_windows = os_name(repository_ctx).find("windows") != -1
+    node = repository_ctx.path(get_node_label(repository_ctx))
+    npm = get_npm_label(repository_ctx)
+    npm_args = ["install"]
 
-  if repository_ctx.attr.prod_only:
-    npm_args.append("--production")
+    if repository_ctx.attr.prod_only:
+        npm_args.append("--production")
 
-  # The entry points for npm install for osx/linux and windows
-  if not is_windows:
-    repository_ctx.file("npm", content="""#!/usr/bin/env bash
+    # The entry points for npm install for osx/linux and windows
+    if not is_windows:
+        repository_ctx.file(
+            "npm",
+            content = """#!/usr/bin/env bash
 (cd "{root}"; "{npm}" {npm_args})
 """.format(
-    root = repository_ctx.path(""),
-    npm = repository_ctx.path(npm),
-    npm_args = " ".join(npm_args)),
-    executable = True)
-  else:
-    repository_ctx.file("npm.cmd", content="""@echo off
+                root = repository_ctx.path(""),
+                npm = repository_ctx.path(npm),
+                npm_args = " ".join(npm_args),
+            ),
+            executable = True,
+        )
+    else:
+        repository_ctx.file(
+            "npm.cmd",
+            content = """@echo off
 cd "{root}" && "{npm}" {npm_args}
 """.format(
-    root = repository_ctx.path(""),
-    npm = repository_ctx.path(npm),
-    npm_args = " ".join(npm_args)),
-    executable = True)
+                root = repository_ctx.path(""),
+                npm = repository_ctx.path(npm),
+                npm_args = " ".join(npm_args),
+            ),
+            executable = True,
+        )
 
-  if repository_ctx.attr.package_lock_json:
-    # Copy the file over instead of using a symlink since the lock file
-    # will be modified if there are excluded_packages
-    repository_ctx.template("package-lock.json",
-        repository_ctx.path(repository_ctx.attr.package_lock_json), {})
+    if repository_ctx.attr.package_lock_json:
+        # Copy the file over instead of using a symlink since the lock file
+        # will be modified if there are excluded_packages
+        repository_ctx.template(
+            "package-lock.json",
+            repository_ctx.path(repository_ctx.attr.package_lock_json),
+            {},
+        )
 
-  _add_package_json(repository_ctx)
-  _add_data_dependencies(repository_ctx)
-  _add_scripts(repository_ctx)
+    _add_package_json(repository_ctx)
+    _add_data_dependencies(repository_ctx)
+    _add_scripts(repository_ctx)
 
-  result = repository_ctx.execute([node, "process_package_json.js", ",".join(repository_ctx.attr.exclude_packages)])
-  if result.return_code:
-    fail("node failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
+    result = repository_ctx.execute([node, "process_package_json.js", ",".join(repository_ctx.attr.exclude_packages)])
+    if result.return_code:
+        fail("node failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
 
-  result = repository_ctx.execute(
-    [repository_ctx.path("npm.cmd" if is_windows else "npm")],
-    timeout = repository_ctx.attr.timeout,
-    quiet = repository_ctx.attr.quiet)
+    result = repository_ctx.execute(
+        [repository_ctx.path("npm.cmd" if is_windows else "npm")],
+        timeout = repository_ctx.attr.timeout,
+        quiet = repository_ctx.attr.quiet,
+    )
 
-  if not repository_ctx.attr.package_lock_json:
-    print("\n***********WARNING***********\n%s: npm_install will require a package_lock_json attribute in future versions\n*****************************" % repository_ctx.name)
+    if not repository_ctx.attr.package_lock_json:
+        print("\n***********WARNING***********\n%s: npm_install will require a package_lock_json attribute in future versions\n*****************************" % repository_ctx.name)
 
-  if result.return_code:
-    fail("npm_install failed: %s (%s)" % (result.stdout, result.stderr))
+    if result.return_code:
+        fail("npm_install failed: %s (%s)" % (result.stdout, result.stderr))
 
-  remove_npm_absolute_paths = Label("@build_bazel_rules_nodejs_npm_install_deps//:node_modules/removeNPMAbsolutePaths/bin/removeNPMAbsolutePaths")
+    remove_npm_absolute_paths = Label("@build_bazel_rules_nodejs_npm_install_deps//:node_modules/removeNPMAbsolutePaths/bin/removeNPMAbsolutePaths")
 
-  # removeNPMAbsolutePaths is run on node_modules after npm install as the package.json files
-  # generated by npm are non-deterministic. They contain absolute install paths and other private
-  # information fields starting with "_". removeNPMAbsolutePaths removes all fields starting with "_".
-  result = repository_ctx.execute(
-    [node, repository_ctx.path(remove_npm_absolute_paths), repository_ctx.path("")])
+    # removeNPMAbsolutePaths is run on node_modules after npm install as the package.json files
+    # generated by npm are non-deterministic. They contain absolute install paths and other private
+    # information fields starting with "_". removeNPMAbsolutePaths removes all fields starting with "_".
+    result = repository_ctx.execute(
+        [node, repository_ctx.path(remove_npm_absolute_paths), repository_ctx.path("")],
+    )
 
-  if result.return_code:
-    fail("remove_npm_absolute_paths failed: %s (%s)" % (result.stdout, result.stderr))
+    if result.return_code:
+        fail("remove_npm_absolute_paths failed: %s (%s)" % (result.stdout, result.stderr))
 
-  _create_build_file(repository_ctx, node)
+    _create_build_file(repository_ctx, node)
 
 npm_install = repository_rule(
     attrs = dict(COMMON_ATTRIBUTES, **{
@@ -182,7 +203,8 @@ npm_install = repository_rule(
         "timeout": attr.int(
             default = 600,
             doc = """Maximum duration of the command "npm install" in seconds
-            (default is 600 seconds)."""),
+            (default is 600 seconds).""",
+        ),
     }),
     implementation = _npm_install_impl,
 )
@@ -190,57 +212,61 @@ npm_install = repository_rule(
 """
 
 def _yarn_install_impl(repository_ctx):
-  """Core implementation of yarn_install."""
+    """Core implementation of yarn_install."""
 
-  node = repository_ctx.path(get_node_label(repository_ctx))
-  yarn = get_yarn_label(repository_ctx)
+    node = repository_ctx.path(get_node_label(repository_ctx))
+    yarn = get_yarn_label(repository_ctx)
 
-  if repository_ctx.attr.yarn_lock:
-    # Copy the file over instead of using a symlink since the lock file
-    # will be modified if there are excluded_packages
-    repository_ctx.template("yarn.lock",
-        repository_ctx.path(repository_ctx.attr.yarn_lock), {})
+    if repository_ctx.attr.yarn_lock:
+        # Copy the file over instead of using a symlink since the lock file
+        # will be modified if there are excluded_packages
+        repository_ctx.template(
+            "yarn.lock",
+            repository_ctx.path(repository_ctx.attr.yarn_lock),
+            {},
+        )
 
-  _add_package_json(repository_ctx)
-  _add_data_dependencies(repository_ctx)
-  _add_scripts(repository_ctx)
+    _add_package_json(repository_ctx)
+    _add_data_dependencies(repository_ctx)
+    _add_scripts(repository_ctx)
 
-  result = repository_ctx.execute([node, "process_package_json.js", ",".join(repository_ctx.attr.exclude_packages)])
-  if result.return_code:
-    fail("node failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
+    result = repository_ctx.execute([node, "process_package_json.js", ",".join(repository_ctx.attr.exclude_packages)])
+    if result.return_code:
+        fail("node failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
 
-  args = [
-    repository_ctx.path(yarn),
-    "--cwd",
-    repository_ctx.path(""),
-    "--network-timeout",
-    str(repository_ctx.attr.timeout*1000), # in ms
-  ]
+    args = [
+        repository_ctx.path(yarn),
+        "--cwd",
+        repository_ctx.path(""),
+        "--network-timeout",
+        str(repository_ctx.attr.timeout * 1000),  # in ms
+    ]
 
-  if repository_ctx.attr.prod_only:
-      args.append("--prod")
-  if not repository_ctx.attr.use_global_yarn_cache:
-      args.extend(["--cache-folder", repository_ctx.path("_yarn_cache")])
-  else:
-      # Multiple yarn rules cannot run simultaneously using a shared cache.
-      # See https://github.com/yarnpkg/yarn/issues/683
-      # The --mutex option ensures only one yarn runs at a time, see
-      # https://yarnpkg.com/en/docs/cli#toc-concurrency-and-mutex
-      # The shared cache is not necessarily hermetic, but we need to cache downloaded
-      # artifacts somewhere, so we rely on yarn to be correct.
-      args.extend(["--mutex", "network"])
+    if repository_ctx.attr.prod_only:
+        args.append("--prod")
+    if not repository_ctx.attr.use_global_yarn_cache:
+        args.extend(["--cache-folder", repository_ctx.path("_yarn_cache")])
+    else:
+        # Multiple yarn rules cannot run simultaneously using a shared cache.
+        # See https://github.com/yarnpkg/yarn/issues/683
+        # The --mutex option ensures only one yarn runs at a time, see
+        # https://yarnpkg.com/en/docs/cli#toc-concurrency-and-mutex
+        # The shared cache is not necessarily hermetic, but we need to cache downloaded
+        # artifacts somewhere, so we rely on yarn to be correct.
+        args.extend(["--mutex", "network"])
 
-  # This can take a long time, and the user has no idea what is running.
-  # Follow https://github.com/bazelbuild/bazel/issues/1289
-  result = repository_ctx.execute(
-    args,
-    timeout = repository_ctx.attr.timeout,
-    quiet = repository_ctx.attr.quiet)
+    # This can take a long time, and the user has no idea what is running.
+    # Follow https://github.com/bazelbuild/bazel/issues/1289
+    result = repository_ctx.execute(
+        args,
+        timeout = repository_ctx.attr.timeout,
+        quiet = repository_ctx.attr.quiet,
+    )
 
-  if result.return_code:
-    fail("yarn_install failed: %s (%s)" % (result.stdout, result.stderr))
+    if result.return_code:
+        fail("yarn_install failed: %s (%s)" % (result.stdout, result.stderr))
 
-  _create_build_file(repository_ctx, node)
+    _create_build_file(repository_ctx, node)
 
 yarn_install = repository_rule(
     attrs = dict(COMMON_ATTRIBUTES, **{
@@ -260,7 +286,8 @@ yarn_install = repository_rule(
         "timeout": attr.int(
             default = 600,
             doc = """Maximum duration of the command "yarn" in seconds.
-            (default is 600 seconds)."""),
+            (default is 600 seconds).""",
+        ),
     }),
     implementation = _yarn_install_impl,
 )

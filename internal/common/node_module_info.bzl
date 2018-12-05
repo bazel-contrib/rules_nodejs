@@ -24,19 +24,20 @@
 """
 
 NodeModuleInfo = provider(
-  doc = "This provider contains information about npm dependencies installed with yarn_install and npm_install rules",
-  fields = {
-    "workspace": "The workspace name that the npm dependencies are provided from"
-  })
+    doc = "This provider contains information about npm dependencies installed with yarn_install and npm_install rules",
+    fields = {
+        "workspace": "The workspace name that the npm dependencies are provided from",
+    },
+)
 
 def _collect_node_modules_aspect_impl(target, ctx):
-  nm_wksp = None
+    nm_wksp = None
 
-  if hasattr(ctx.rule.attr, "tags") and "NODE_MODULE_MARKER" in ctx.rule.attr.tags:
-      nm_wksp = target.label.workspace_root.split("/")[1] if target.label.workspace_root else ctx.workspace_name
-      return [NodeModuleInfo(workspace = nm_wksp)]
+    if hasattr(ctx.rule.attr, "tags") and "NODE_MODULE_MARKER" in ctx.rule.attr.tags:
+        nm_wksp = target.label.workspace_root.split("/")[1] if target.label.workspace_root else ctx.workspace_name
+        return [NodeModuleInfo(workspace = nm_wksp)]
 
-  return []
+    return []
 
 collect_node_modules_aspect = aspect(
     implementation = _collect_node_modules_aspect_impl,

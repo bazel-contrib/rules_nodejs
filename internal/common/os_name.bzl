@@ -16,20 +16,20 @@
 """
 
 def os_name(repository_ctx):
-  """Get the os name for a repository rule
+    """Get the os name for a repository rule
 
-  Args:
-    repository_ctx: The repository rule context
+    Args:
+      repository_ctx: The repository rule context
 
-  Returns:
-    A string describing the os for a repository rule
-  """
-  os_name = repository_ctx.os.name.lower()
-  if os_name.startswith("mac os"):
-    return 'darwin_amd64'
-  elif os_name.find("windows") != -1:
-    return 'windows_amd64'
-  elif os_name.startswith('linux'):
-    return "linux_amd64"
-  else:
-    fail("Unsupported operating system: " + os_name)
+    Returns:
+      A string describing the os for a repository rule
+    """
+    os_name = repository_ctx.os.name.lower()
+    if os_name.startswith("mac os"):
+        return "darwin_amd64"
+    elif os_name.find("windows") != -1:
+        return "windows_amd64"
+    elif os_name.startswith("linux"):
+        return "linux_amd64"
+    else:
+        fail("Unsupported operating system: " + os_name)
