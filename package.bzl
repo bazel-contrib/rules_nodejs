@@ -106,14 +106,6 @@ def rules_nodejs_dev_dependencies():
         sha256 = "282ab93ea7477ad703b3e8108a274c21344c3b59ee4e5b1e6a89cdbe3ecbe68f",
     )
 
-    # Go is a transitive dependency of buildifier
-    http_archive(
-        name = "io_bazel_rules_go",
-        strip_prefix = "rules_go-3f51f3f2aa5eabef9844e43a06f91df270ec7779",
-        sha256 = "fa33488b643c0dcc56105b4294d789fa17f791072082c494fd3096d09acc1303",
-        url = "https://github.com/bazelbuild/rules_go/archive/3f51f3f2aa5eabef9844e43a06f91df270ec7779.tar.gz",
-    )
-
     # Fetching the Bazel source code allows us to compile the Skylark linter
     http_archive(
         name = "io_bazel",
