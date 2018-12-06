@@ -154,8 +154,6 @@ const inputs = [TMPL_inputs];
 const enableCodeSplitting = inputs.length > 1;
 
 const config = {
-  resolveBazel,
-  banner,
   onwarn: ({loc, frame, message}) => {
     // Always fail on warnings, assuming we don't know which are harmless.
     // We can add exclusions here based on warning.code, if we discover some
@@ -192,5 +190,7 @@ else {
     name: 'TMPL_global_name',
   };
 }
+
+config.output.banner = banner;
 
 module.exports = config;
