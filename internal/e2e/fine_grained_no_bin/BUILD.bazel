@@ -1,0 +1,15 @@
+package(default_visibility = ["//visibility:public"])
+
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+
+# A target to run that ensures yarn_install works for the case that there is
+# no node_modules/.bin folder since @fine_grained_no_bin does not contain
+# any npm packages with bins
+nodejs_binary(
+    name = "index",
+    entry_point = "build_bazel_rules_nodejs/internal/e2e/fine_grained_no_bin/index.js",
+    data = [
+      "index.js",
+      "@fine_grained_no_bin//rollup-plugin-node-resolve",
+    ],
+)
