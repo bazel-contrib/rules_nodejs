@@ -107,3 +107,9 @@ npm_install(
     package_json = "//internal/e2e/fine_grained_deps:package.json",
     package_lock_json = "//internal/e2e/fine_grained_deps:package-lock.json",
 )
+
+yarn_install(
+    name = "fine_grained_no_bin",
+    package_json = "//internal/e2e/fine_grained_no_bin:package.json",
+    yarn_lock = "//internal/e2e/fine_grained_no_bin:yarn.lock",
+)

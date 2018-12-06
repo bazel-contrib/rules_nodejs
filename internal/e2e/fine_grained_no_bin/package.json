@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "rollup-plugin-node-resolve": "3.3.0"
+  }
+}
