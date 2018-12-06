@@ -1,0 +1,80 @@
+package(default_visibility=["//visibility:public"])
+load("@build_bazel_rules_typescript//:defs.bzl", "ts_library")
+load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
+
+# A JavaScript example
+
+filegroup(
+    name = "increment",
+    srcs = [
+        "increment.js",
+    ],
+)
+
+jasmine_node_test(
+    name = "increment_test",
+    data = [
+        ":increment",
+    ],
+    srcs = [
+        "increment.spec.js",
+        "increment.spec-foo.js",
+    ],
+    deps = [
+        "@npm//jasmine",
+    ],
+)
+
+
+# A TypeScript example
+
+ts_library(
+    name = "decrement",
+    srcs = [
+        "decrement.ts",
+    ],
+)
+
+ts_library(
+    name = "decrement_spec",
+    srcs = [
+        "decrement.spec.ts",
+        "decrement.spec-foo.ts",
+    ],
+    deps = [
+        ":decrement",
+        "@npm//@types/jasmine",
+    ],
+)
+
+jasmine_node_test(
+    name = "decrement_test",
+    deps = [
+        ":decrement_spec",
+        "@npm//jasmine",
+    ],
+)
+
+# A TypeScript test that uses both JavaScript and TypeScript libs
+ts_library(
+    name = "combo_spec",
+    srcs = [
+        "combo.spec.ts"
+    ],
+    data = [
+        ":increment",
+    ],
+    deps = [
+        ":decrement",
+        "@npm//@types/jasmine",
+    ]
+)
+
+jasmine_node_test(
+    name = "combo_test",
+    deps = [
+        ":combo_spec",
+        "@npm//jasmine",
+    ],
+)
+

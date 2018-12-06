@@ -1,0 +1,26 @@
+{
+    "compilerOptions": {
+      "allowUnreachableCode": false,
+      "allowUnusedLabels": false,
+      "forceConsistentCasingInFileNames": true,
+      "lib": [ "es2017" ],
+      "module": "commonjs",
+      "moduleResolution": "node",
+      "noFallthroughCasesInSwitch": true,
+      "noImplicitAny": false,
+      "noImplicitReturns": true,
+      "outDir": "./outDir",
+      "pretty": true,
+      "removeComments": false,
+      "sourceMap": true
+    },
+    "exclude": [
+      "bazel-bin",
+      "bazel-genfiles",
+      "bazel-out",
+      "bazel-protractor-lite",
+      "bazel-testlogs",
+      "outDir",
+      "node_modules"
+    ]
+  }
