@@ -164,10 +164,10 @@ const config = {
     throw new Error(message);
   },
   plugins: [TMPL_additional_plugins].concat([
-    {resolveId: resolveBazel},
+    {name: 'bazel-resolve', resolveId: resolveBazel},
     nodeResolve(
         {jsnext: true, module: true, customResolveOptions: {moduleDirectory: nodeModulesRoot}}),
-    {resolveId: notResolved},
+    {name: 'bazel-not-resolved', resolveId: notResolved},
     sourcemaps(),
   ])
 }
@@ -191,8 +191,5 @@ else {
 }
 
 config.output.banner = banner;
-
-// export resolveBazel for testing without triggering unknown config error.
-config.plugins.resolveBazel = resolveBazel;
 
 module.exports = config;

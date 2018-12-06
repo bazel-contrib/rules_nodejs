@@ -31,9 +31,10 @@ const resolve =
     }
 
 const rollupConfig = require('./rollup.config');
+const resolveBazel = rollupConfig.plugins.find(({name}) => name === 'bazel-resolve').resolveId;
 
 function doResolve(importee, importer) {
-  const resolved = rollupConfig.plugins.resolveBazel(importee, importer, baseDir, resolve, rootDir);
+  const resolved = resolveBazel(importee, importer, baseDir, resolve, rootDir);
   if (resolved) {
     return resolved.replace(/\\/g, '/');
   } else {
