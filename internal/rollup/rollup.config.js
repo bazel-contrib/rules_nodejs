@@ -156,11 +156,14 @@ const enableCodeSplitting = inputs.length > 1;
 const config = {
   resolveBazel,
   banner,
-  onwarn: (warning) => {
+  onwarn: ({loc, frame, message}) => {
     // Always fail on warnings, assuming we don't know which are harmless.
     // We can add exclusions here based on warning.code, if we discover some
     // types of warning should always be ignored under bazel.
-    throw new Error(warning.message);
+    if (loc) {
+      throw new Error(`${loc.file} (${loc.line}:${loc.column}) ${message}`);
+    }
+    throw new Error(message);
   },
   plugins: [TMPL_additional_plugins].concat([
     {resolveId: resolveBazel},

@@ -169,7 +169,10 @@ def _run_rollup(ctx, sources, config, output, map_output = None):
 
     # We will produce errors as needed. Anything else is spammy: a well-behaved
     # bazel rule prints nothing on success.
-    args.add("--silent")
+    #
+    # TODO(https://github.com/rollup/rollup/issues/2582): Uncomment the following
+    # line once rollup stops reporting build errors with onwarn.
+    # args.add("--silent")
 
     if ctx.attr.globals:
         args.add("--external")
