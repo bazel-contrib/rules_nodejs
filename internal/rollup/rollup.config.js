@@ -192,4 +192,7 @@ else {
 
 config.output.banner = banner;
 
+// export resolveBazel for testing without triggering unknown config error.
+config.plugins.resolveBazel = resolveBazel;
+
 module.exports = config;

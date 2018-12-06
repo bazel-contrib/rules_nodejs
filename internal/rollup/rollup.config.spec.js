@@ -33,7 +33,7 @@ const resolve =
 const rollupConfig = require('./rollup.config');
 
 function doResolve(importee, importer) {
-  const resolved = rollupConfig.resolveBazel(importee, importer, baseDir, resolve, rootDir);
+  const resolved = rollupConfig.plugins.resolveBazel(importee, importer, baseDir, resolve, rootDir);
   if (resolved) {
     return resolved.replace(/\\/g, '/');
   } else {
@@ -72,7 +72,7 @@ describe('rollup config', () => {
     expect(doResolve(`other${sep}thing`))
         .toEqual(`${baseDir}/bazel-bin/path/to/a.esm5/external/other_wksp/path/to/other_lib/thing`);
     expect(doResolve(`@bar${sep}baz${sep}foo`))
-      .toEqual(`${baseDir}/bazel-bin/path/to/a.esm5/path/to/bar/baz_lib/foo`);        
+        .toEqual(`${baseDir}/bazel-bin/path/to/a.esm5/path/to/bar/baz_lib/foo`);
   });
 
   it('should find paths in any root', () => {
