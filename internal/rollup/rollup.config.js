@@ -174,7 +174,6 @@ const config = {
 
 if (enableCodeSplitting) {
   config.experimentalCodeSplitting = true;
-  config.experimentalDynamicImport = true;
   config.input = inputs;
   config.output = {
     format: 'TMPL_output_format',
