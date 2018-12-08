@@ -10,4 +10,3 @@ describe('a combo', () => {
     expect(decrement(2)).toBe(1);
   });
 });
-
