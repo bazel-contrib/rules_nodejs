@@ -8,7 +8,17 @@ to the `deps` of one of their targets.
 
 load("//internal:node.bzl", "sources_aspect")
 
-def create_package(ctx, devmode_sources, nested_packages):
+
+# Takes a depset of files and returns a corresponding list of file paths without any files
+# that aren't part of the specified package path.
+def _filter_out_external_files(files, package_path):
+    result = []
+    for file in files:
+        if file.short_path.startswith(package_path):
+            result.append(file.path)
+    return result
+
+def create_package(ctx, deps_sources, nested_packages):
     """Creates an action that produces the npm package.
 
     It copies srcs and deps into the artifact and produces the .pack and .publish
@@ -16,7 +26,8 @@ def create_package(ctx, devmode_sources, nested_packages):
 
     Args:
       ctx: the skylark rule context
-      devmode_sources: the .js files which belong in the package
+      deps_sources: Files which have been specified as dependencies. Usually ".js" or ".d.ts"
+                    generated files.
       nested_packages: list of TreeArtifact outputs from other actions which are
                        to be nested inside this package
 
@@ -25,21 +36,26 @@ def create_package(ctx, devmode_sources, nested_packages):
     """
 
     package_dir = ctx.actions.declare_directory(ctx.label.name)
+    package_path = ctx.label.package
+
+    # List of dependency sources which are local to the package that defines the current
+    # target. We only want to package deps files which are inside of the current package.
+    local_deps_sources = _filter_out_external_files(deps_sources, package_path)
 
     args = ctx.actions.args()
     args.use_param_file("%s", use_always = True)
     args.add(package_dir.path)
-    args.add(ctx.label.package)
+    args.add(package_path)
     args.add_joined([s.path for s in ctx.files.srcs], join_with = ",", omit_if_empty = False)
     args.add(ctx.bin_dir.path)
     args.add(ctx.genfiles_dir.path)
-    args.add_joined([s.path for s in devmode_sources], join_with = ",", omit_if_empty = False)
+    args.add_joined(local_deps_sources, join_with = ",", omit_if_empty = False)
     args.add_joined([p.path for p in nested_packages], join_with = ",", omit_if_empty = False)
     args.add(ctx.attr.replacements)
     args.add_all([ctx.outputs.pack.path, ctx.outputs.publish.path])
     args.add(ctx.version_file.path if ctx.version_file else "")
 
-    inputs = ctx.files.srcs + devmode_sources + nested_packages + [ctx.file._run_npm_template]
+    inputs = ctx.files.srcs + deps_sources + nested_packages + [ctx.file._run_npm_template]
 
     # The version_file is an undocumented attribute of the ctx that lets us read the volatile-status.txt file
     # produced by the --workspace_status_command. That command will be executed whenever
@@ -65,24 +81,24 @@ def create_package(ctx, devmode_sources, nested_packages):
     return package_dir
 
 def _npm_package(ctx):
-    files = depset()
-    for d in ctx.attr.deps:
+    deps_sources = depset()
+    for dep in ctx.attr.deps:
         transitive = [
-            files,
+            deps_sources,
             # Collect whatever is in the "data"
-            d.data_runfiles.files,
+            dep.data_runfiles.files,
             # For JavaScript-producing rules, gather up the devmode Node.js sources
-            d.node_sources,
+            dep.node_sources,
         ]
 
         # ts_library doesn't include .d.ts outputs in the runfiles
         # see comment in rules_typescript/internal/common/compilation.bzl
-        if hasattr(d, "typescript"):
-            transitive.append(d.typescript.transitive_declarations)
+        if hasattr(dep, "typescript"):
+            transitive.append(dep.typescript.transitive_declarations)
 
-        files = depset(transitive = transitive)
+        deps_sources = depset(transitive = transitive)
 
-    package_dir = create_package(ctx, files.to_list(), ctx.files.packages)
+    package_dir = create_package(ctx, deps_sources.to_list(), ctx.files.packages)
 
     return [DefaultInfo(
         files = depset([package_dir]),
