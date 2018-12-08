@@ -55,7 +55,7 @@ function initConcatJs(logger, emitter, basePath) {
       }
     });
 
-    bundleFile.sha = sha1(new Buffer(bundleFile.content));
+    bundleFile.sha = sha1(Buffer.from(bundleFile.content));
     bundleFile.mtime = new Date();
     included.unshift(bundleFile);
 
