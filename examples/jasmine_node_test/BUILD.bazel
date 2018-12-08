@@ -1,4 +1,5 @@
-package(default_visibility=["//visibility:public"])
+package(default_visibility = ["//visibility:public"])
+
 load("@build_bazel_rules_typescript//:defs.bzl", "ts_library")
 load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
 
@@ -13,18 +14,17 @@ filegroup(
 
 jasmine_node_test(
     name = "increment_test",
-    data = [
-        ":increment",
-    ],
     srcs = [
         "increment.spec.js",
         "increment.spec-foo.js",
+    ],
+    data = [
+        ":increment",
     ],
     deps = [
         "@npm//jasmine",
     ],
 )
-
 
 # A TypeScript example
 
@@ -59,7 +59,7 @@ jasmine_node_test(
 ts_library(
     name = "combo_spec",
     srcs = [
-        "combo.spec.ts"
+        "combo.spec.ts",
     ],
     data = [
         ":increment",
@@ -67,7 +67,7 @@ ts_library(
     deps = [
         ":decrement",
         "@npm//@types/jasmine",
-    ]
+    ],
 )
 
 jasmine_node_test(
@@ -77,4 +77,3 @@ jasmine_node_test(
         "@npm//jasmine",
     ],
 )
-
