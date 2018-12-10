@@ -25,7 +25,7 @@ ts_library(
     srcs = [
         "positives.ts",
     ],
-    tsconfig = "//third_party/bazel_rules/rules_typescript/internal/tsetse:tsconfig.json",
+    tsconfig = "//internal:tsetse/tsconfig.json",
     expected_diagnostics = [
         "\(29,3\)" + error_message,
         "\(30,3\)" + error_message,
@@ -33,5 +33,6 @@ ts_library(
         "\(32,3\)" + error_message,
         "\(34,3\)" + error_message,
     ],
-    deps = ["//third_party/javascript/node_modules/typescript:es2015.promise"],
+    deps = [
+    ],
 )

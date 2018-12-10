@@ -17,11 +17,11 @@
 package(default_visibility = ["//visibility:public"])
 
 exports_files([
-    "tsconfig.json",
     # Exported to be consumed for generating skydoc.
     "build_defs.bzl",
     "ts_config.bzl",
     "ts_repositories.bzl",
+    "tsetse/tsconfig.json",
 ])
 
 load("//internal:defaults.bzl", "ts_library")
@@ -98,6 +98,7 @@ ts_library(
         ":tsc_wrapped",
         "@npm//@types/jasmine",
         "@npm//@types/node",
+        "@npm//tsickle",
         "@npm//typescript",
     ],
 )
