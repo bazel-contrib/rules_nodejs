@@ -2,7 +2,6 @@
   "compilerOptions": {
     "strict": true,
     "types": [
-      "node"
     ],
     "lib": [
       "dom",

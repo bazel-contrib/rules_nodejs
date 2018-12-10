@@ -19,14 +19,9 @@ load("//internal:defaults.bzl", "ts_library")
 error_message = "error TS21226: Found a thenable.*"
 
 ts_library(
-    name = "jasmine",
-    testonly = 1,
-)
-
-ts_library(
     name = "positives",
     testonly = 1,
-    tsconfig = "//internal/tsetse:tsconfig.json",
+    tsconfig = "//internal:tsetse/tsconfig.json",
     srcs = [
         "positives.ts",
     ],
@@ -49,7 +44,7 @@ ts_library(
 ts_library(
     name = "negatives",
     testonly = 1,
-    tsconfig = "//internal/tsetse:tsconfig.json",
+    tsconfig = "//internal:tsetse/tsconfig.json",
     srcs = ["negatives.ts"],
     deps = [
     ],

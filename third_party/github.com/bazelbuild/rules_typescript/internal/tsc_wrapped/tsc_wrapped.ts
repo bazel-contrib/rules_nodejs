@@ -205,6 +205,30 @@ function runFromOptions(
           compilerHost.inputFiles, options, compilerHost, oldProgram));
   cache.putProgram(bazelOpts.target, program);
 
+  if (!bazelOpts.isJsTranspilation) {
+    // If there are any TypeScript type errors abort now, so the error
+    // messages refer to the original source.  After any subsequent passes
+    // (decorator downleveling or tsickle) we do not type check.
+    let diagnostics =
+        gatherDiagnostics(options, bazelOpts, program, disabledTsetseRules);
+    if (!expectDiagnosticsWhitelist.length ||
+        expectDiagnosticsWhitelist.some(p => bazelOpts.target.startsWith(p))) {
+      diagnostics = bazelDiagnostics.filterExpected(
+          bazelOpts, diagnostics, bazelDiagnostics.uglyFormat);
+    } else if (bazelOpts.expectedDiagnostics.length > 0) {
+      console.error(
+          `Only targets under ${
+              expectDiagnosticsWhitelist.join(', ')} can use ` +
+              'expected_diagnostics, but got',
+          bazelOpts.target);
+    }
+
+    if (diagnostics.length > 0) {
+      console.error(bazelDiagnostics.format(bazelOpts.target, diagnostics));
+      debug('compilation failed at', new Error().stack!);
+      return false;
+    }
+  }
 
   const compilationTargets = program.getSourceFiles().filter(
       fileName => isCompilationTarget(bazelOpts, fileName));
