@@ -345,8 +345,10 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
     return path.posix.join(workspace, fileName);
   }
 
-  // Resolves the typings file from a package at the specified path.
-  // Helper function to `resolveTypeReferenceDirectives`.
+  /**
+   * Resolves the typings file from a package at the specified path. Helper
+   * function to `resolveTypeReferenceDirectives`.
+   */
   private resolveTypingFromDirectory(typePath: string, primary: boolean): ts.ResolvedTypeReferenceDirective | undefined {
     // Looks for the `typings` attribute in a package.json file
     // if it exists
@@ -374,10 +376,12 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
     return undefined;
   }
 
-  // Override the default typescript resolveTypeReferenceDirectives function.
-  // Resolves /// <reference types="x" /> directives under bazel.
-  // The default typescript secondary search behavior needs to be overridden
-  // to support looking under `bazelOpts.nodeModulesPrefix`
+  /**
+   * Override the default typescript resolveTypeReferenceDirectives function.
+   * Resolves /// <reference types="x" /> directives under bazel. The default
+   * typescript secondary search behavior needs to be overridden to support
+   * looking under `bazelOpts.nodeModulesPrefix`
+   */
   resolveTypeReferenceDirectives(names: string[], containingFile: string): (ts.ResolvedTypeReferenceDirective | undefined)[] {
     let result: (ts.ResolvedTypeReferenceDirective | undefined)[] = []
     names.forEach(name => {
@@ -519,10 +523,10 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
     return this.knownFiles.has(filePath);
   }
 
-  // Since we override getDefaultLibFileName below, we must also provide the
-  // directory containing the file.
-  // Otherwise TypeScript looks in C:\lib.xxx.d.ts for the default lib.
   getDefaultLibLocation(): string {
+    // Since we override getDefaultLibFileName below, we must also provide the
+    // directory containing the file.
+    // Otherwise TypeScript looks in C:\lib.xxx.d.ts for the default lib.
     return path.dirname(
         this.getDefaultLibFileName({target: ts.ScriptTarget.ES5}));
   }
