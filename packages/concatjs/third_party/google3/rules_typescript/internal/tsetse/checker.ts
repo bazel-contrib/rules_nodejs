@@ -47,36 +47,8 @@ export class Checker {
    * `nodeKind` node in `nodeHandlersMap` map. After all rules register their
    * handlers, the source file AST will be traversed.
    */
-  on(nodeKind: ts.SyntaxKind.BinaryExpression,
-     handlerFunction: (checker: Checker, node: ts.BinaryExpression) => void,
-     code: number): void;
-  on(nodeKind: ts.SyntaxKind.ConditionalExpression,
-     handlerFunction:
-         (checker: Checker, node: ts.ConditionalExpression) => void,
-     code: number): void;
-  on(nodeKind: ts.SyntaxKind.WhileStatement,
-     handlerFunction: (checker: Checker, node: ts.WhileStatement) => void,
-     code: number): void;
-  on(nodeKind: ts.SyntaxKind.IfStatement,
-     handlerFunction: (checker: Checker, node: ts.IfStatement) => void,
-     code: number): void;
-  on(nodeKind: ts.SyntaxKind.CallExpression,
-     handlerFunction: (checker: Checker, node: ts.CallExpression) => void,
-     code: number): void;
-  on(nodeKind: ts.SyntaxKind.PropertyDeclaration,
-     handlerFunction: (checker: Checker, node: ts.PropertyDeclaration) => void,
-     code: number): void;
-  on(nodeKind: ts.SyntaxKind.ElementAccessExpression,
-     handlerFunction: (checker: Checker, node: ts.ElementAccessExpression) => void,
-     code: number): void;
-  on(nodeKind: ts.SyntaxKind.ImportDeclaration,
-     handlerFunction: (checker: Checker, node: ts.ImportDeclaration) => void,
-     code: number): void;
-  on(nodeKind: ts.SyntaxKind,
-     handlerFunction: (checker: Checker, node: ts.Node) => void,
-     code: number): void;
   on<T extends ts.Node>(
-      nodeKind: ts.SyntaxKind,
+      nodeKind: T['kind'],
       handlerFunction: (checker: Checker, node: T) => void, code: number) {
     const newHandler: Handler = {handlerFunction, code};
     const registeredHandlers: Handler[]|undefined =
