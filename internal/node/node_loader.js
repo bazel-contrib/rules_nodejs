@@ -450,8 +450,8 @@ module.constructor._resolveFilename = function(request, parent) {
   }
 
   const error = new Error(
-      `TEMPLATED_target cannot find module '${request}' required by '${parentFilename}'\n  looked in:` +
-      failedResolutions.map(r => `\n   ${r}\n`));
+      `TEMPLATED_target cannot find module '${request}' required by '${parentFilename}'\n  looked in:\n` +
+      failedResolutions.map(r => `    ${r}`).join('\n') + '\n');
   error.code = 'MODULE_NOT_FOUND';
   throw error;
 }
