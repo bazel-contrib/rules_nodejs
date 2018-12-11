@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
+load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test", "nodejs_test")
 
 jasmine_node_test(
     name = "underscore_spec_test",
@@ -22,4 +22,13 @@ jasmine_node_test(
     name = "dot_test_test",
     srcs = ["foo.test.js"],
     node_modules = "//internal/test:node_modules",
+)
+
+nodejs_test(
+    name = "no_jasmine_test",
+    entry_point = "build_bazel_rules_nodejs/internal/jasmine_node_test/test/no_jasmine_test.js",
+    data = [
+        "no_jasmine_test.js",
+        "//internal/jasmine_node_test:jasmine_runner.js"
+    ],
 )
