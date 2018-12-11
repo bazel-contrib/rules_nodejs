@@ -20,19 +20,41 @@ export class Rule extends AbstractRule {
 }
 
 function checkBinaryExpression(checker: Checker, node: ts.BinaryExpression) {
-  if (node.left.getText() === 'NaN' || node.right.getText() === 'NaN') {
-    const operator = node.operatorToken;
-    if (operator.kind == ts.SyntaxKind.EqualsEqualsToken ||
-        operator.kind === ts.SyntaxKind.EqualsEqualsEqualsToken) {
+  const isLeftNaN = ts.isIdentifier(node.left) && node.left.text === 'NaN';
+  const isRightNaN = ts.isIdentifier(node.right) && node.right.text === 'NaN';
+  if (!isLeftNaN && !isRightNaN) {
+    return;
+  }
+
+  // We avoid calling getText() on the node.operatorToken because it's slow.
+  // Instead, manually map back from the kind to the string form of the operator
+  switch (node.operatorToken.kind) {
+    case ts.SyntaxKind.EqualsEqualsToken:
       checker.addFailureAtNode(
-          node,
-          `x ${operator.getText()} NaN is always false; use isNaN(x) instead`);
-    }
-    if (operator.kind === ts.SyntaxKind.ExclamationEqualsEqualsToken ||
-        operator.kind === ts.SyntaxKind.ExclamationEqualsToken) {
+        node,
+        `x == NaN is always false; use isNaN(x) instead`,
+      );
+      break;
+    case ts.SyntaxKind.EqualsEqualsEqualsToken:
       checker.addFailureAtNode(
-          node,
-          `x ${operator.getText()} NaN is always true; use !isNaN(x) instead`);
-    }
+        node,
+        `x === NaN is always false; use isNaN(x) instead`,
+      );
+      break;
+    case ts.SyntaxKind.ExclamationEqualsToken:
+      checker.addFailureAtNode(
+        node,
+        `x != NaN is always true; use !isNaN(x) instead`,
+      );
+      break;
+    case ts.SyntaxKind.ExclamationEqualsEqualsToken:
+      checker.addFailureAtNode(
+        node,
+        `x !== NaN is always true; use !isNaN(x) instead`,
+      );
+      break;
+    default:
+      // We don't care about other operators acting on NaN
+      break;
   }
 }
