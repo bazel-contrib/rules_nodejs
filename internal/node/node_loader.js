@@ -459,12 +459,16 @@ module.constructor._resolveFilename = function(request, parent) {
 // source-map-support.
 if (TEMPLATED_install_source_map_support) {
   try {
-    require('source-map-support').install();
-  } catch (e) {
-    console.error(`WARNING: source-map-support module not installed.
-    Stack traces from languages like TypeScript will point to generated .js files.
-    Set install_source_map_support = False in TEMPLATED_target to turn off this warning.
-    `);
+    const sourcemap_support_package = path.resolve(process.cwd(),
+          '../build_bazel_rules_nodejs/third_party/github.com/source-map-support');
+    require(sourcemap_support_package).install();
+  } catch (_) {
+    if (DEBUG) {
+      console.error(`WARNING: source-map-support module not installed.
+      Stack traces from languages like TypeScript will point to generated .js files.
+      Set install_source_map_support = False in TEMPLATED_target to turn off this warning.
+      `);
+    }
   }
 }
 // Load all bootstrap modules before loading the entrypoint.
