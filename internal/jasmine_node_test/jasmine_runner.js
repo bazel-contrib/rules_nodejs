@@ -1,6 +1,19 @@
 const fs = require('fs');
-const path = require('path');
-const JasmineRunner = require('jasmine/lib/jasmine');
+let JasmineRunner = null;
+
+try {
+  JasmineRunner = require('jasmine/lib/jasmine');
+} catch (e) {
+  if (e.code && e.code === 'MODULE_NOT_FOUND') {
+    throw new Error('When using the "jasmine_node_test" rule, please make sure that the ' +
+      '"jasmine" node module is available as a runtime dependency (add to "deps").\nRead more: ' +
+      'https://github.com/bazelbuild/rules_nodejs#fine-grained-npm-package-dependencies.');
+  }
+
+  // In case the error is not about finding "jasmine" within the runfiles, just
+  // rethrow the original exception so that it's still possible to debug.
+  throw e;
+}
 
 const UTF8 = {
   encoding: 'utf-8'
