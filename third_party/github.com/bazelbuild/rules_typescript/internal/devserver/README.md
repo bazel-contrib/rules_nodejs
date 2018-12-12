@@ -6,4 +6,4 @@ develop against your real frontend server instead.
 
 This devserver includes the "concatjs" bundling strategy. If you use a different
 frontend server, you should port this library to whatever language you run in.
-Contributions of such libraries are welcome.
+
