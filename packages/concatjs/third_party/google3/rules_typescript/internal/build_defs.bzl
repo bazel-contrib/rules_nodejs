@@ -187,6 +187,10 @@ def tsc_wrapped_tsconfig(
     )
     config["bazelOptions"]["nodeModulesPrefix"] = node_modules_root
 
+    # Override the target so we use es2015 for devmode
+    # Since g3 isn't ready to do this yet
+    config["compilerOptions"]["target"] = "es2015"
+
     # If the user gives a tsconfig attribute, the generated file should extend
     # from the user's tsconfig.
     # See https://github.com/Microsoft/TypeScript/issues/9876

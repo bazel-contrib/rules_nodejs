@@ -79,3 +79,10 @@ if [[ "$FOO_JS" != *"define(\"build_bazel_rules_typescript/examples/foo\""* ]]; 
   echo "$FOO_JS"
   exit 1
 fi
+
+# should produce es2015 classes
+if [[ "$FOO_JS" != *"class Greeter"* ]]; then
+  echo "Expected foo.js produce a es2015, but was"
+  echo "$FOO_JS"
+  exit 1
+fi
