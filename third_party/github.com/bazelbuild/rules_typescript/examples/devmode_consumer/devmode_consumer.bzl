@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Example of a rule that requires ES5 (devmode) inputs.
+"""Example of a rule that requires es2015 (devmode) inputs.
 """
 
 load("@build_bazel_rules_nodejs//internal:node.bzl", "sources_aspect")
 
-def _es5_consumer(ctx):
+def _devmode_consumer(ctx):
     files = depset()
 
     # Since we apply the sources_aspect to our deps below, we can iterate through
@@ -32,8 +32,8 @@ def _es5_consumer(ctx):
         runfiles = ctx.runfiles(files.to_list()),
     )]
 
-es5_consumer = rule(
-    implementation = _es5_consumer,
+devmode_consumer = rule(
+    implementation = _devmode_consumer,
     attrs = {
         "deps": attr.label_list(aspects = [sources_aspect]),
     },
