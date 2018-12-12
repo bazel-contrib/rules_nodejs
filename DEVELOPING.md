@@ -1,6 +1,6 @@
 # For Developers
 
-We strongly encourage you to review the project's scope described in the `README.md` file before working on new features. For large changes, consider writing a design document using [this template](https://docs.google.com/document/d/1U6GlAaPF3tl1wvBNXebW1mD3oHZxV5h9TH-bR0p8Uz8/edit?usp=sharing).
+We strongly encourage you to review the project's scope described in the `README.md` file before working on new features. For large changes, consider writing a design document using [this template](https://goo.gl/YCQttR).
 
 ## Releasing
 
