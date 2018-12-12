@@ -509,6 +509,80 @@ func isTazeDisabled(ctx context.Context, g3root string, buildFilePath string, bl
 	return false
 }
 
+// SubdirectorySourcesError is returned when ts_auto_deps detects a BUILD file
+// that references sources in another directory, either in the directory
+// being ts_auto_depsd, or in a super directory.
+type SubdirectorySourcesError struct{}
+
+func (a *SubdirectorySourcesError) Error() string {
+	return "ts_auto_deps doesn't handle referencing sources in another directory " +
+		"- to use ts_auto_deps, migrate to having a BUILD file in every directory. " +
+		"For more details, see go/ts_auto_deps#subdirectory-sources"
+}
+
+// hasSubdirectorySources checks if the BUILD file has ts_libraries that contain
+// source files from subdirectories of the directory with the BUILD. ie foo/BUILD
+// has a src foo/bar/baz.ts, in the subdirectory foo/bar.
+func hasSubdirectorySources(bld *build.File) bool {
+	for _, rule := range buildRules(bld, "ts_library") {
+		srcs := rule.AttrStrings("srcs")
+		if srcs != nil {
+			for _, s := range srcs {
+				if strings.Contains(s, "/") {
+					return true
+				}
+			}
+		} else {
+			// srcs wasn't a list, check for a glob over subdirectory soruces
+			srcExp := rule.Attr("srcs")
+			call, ok := srcExp.(*build.CallExpr)
+			if ok {
+				callName, ok := call.X.(*build.Ident)
+				if ok {
+					if callName.Name == "glob" {
+						for _, arg := range call.List {
+							strArg, ok := arg.(*build.StringExpr)
+							if ok && strings.Contains(strArg.Value, "/") {
+								return true
+							}
+						}
+					}
+				}
+			}
+		}
+		// TODO(b/120783741):
+		// This only handles a lists of files, and a single glob, there are other
+		// cases such as a glob + a list of files that it doesn't handle, but that's
+		// ok since, this is only meant as a caution to the user.
+	}
+
+	return false
+}
+
+// directoryOrAncestorHasSubdirectorySources checks for ts_libraries referencing sources in subdirectories.
+// It checks the current directory's BUILD if it exists, otherwise it checks the nearest
+// ancestor package.
+func directoryOrAncestorHasSubdirectorySources(ctx context.Context, g3root string, buildFilePath string, bld *build.File) (bool, error) {
+	if _, err := platform.Stat(ctx, buildFilePath); err != nil && os.IsNotExist(err) {
+		// Make sure the next closest ancestor package doesn't reference sources in a subdirectory.
+		ancestor, err := FindBUILDFile(ctx, make(map[string]*build.File), g3root, filepath.Dir(bld.Path))
+		if _, ok := err.(*noAncestorBUILDError); ok {
+			// couldn't find an ancestor BUILD, so there aren't an subdirectory sources
+			return false, nil
+		} else if err != nil {
+			return false, err
+		} else if hasSubdirectorySources(ancestor) {
+			return true, nil
+		}
+	}
+
+	if hasSubdirectorySources(bld) {
+		return true, nil
+	}
+
+	return false, nil
+}
+
 func (upd *Updater) addSourcesToBUILD(ctx context.Context, path string, buildFilePath string, bld *build.File) (bool, error) {
 	platform.Infof("Globbing TS sources in %s", path)
 	srcs, err := globSources(ctx, path, []string{"ts", "tsx"})
@@ -626,6 +700,14 @@ func (upd *Updater) UpdateBUILD(ctx context.Context, path string, options Update
 
 	if isTazeDisabled(ctx, g3root, buildFilePath, bld) {
 		return false, nil
+	}
+
+	hasSubdirSrcs, err := directoryOrAncestorHasSubdirectorySources(ctx, g3root, buildFilePath, bld)
+	if err != nil {
+		return false, err
+	}
+	if hasSubdirSrcs {
+		return false, &SubdirectorySourcesError{}
 	}
 
 	changed, err := upd.addSourcesToBUILD(ctx, path, buildFilePath, bld)
@@ -1133,12 +1215,18 @@ func ResolvePackages(paths []string) error {
 	return nil
 }
 
+type noAncestorBUILDError struct{}
+
+func (nabe *noAncestorBUILDError) Error() string {
+	return "no ancestor BUILD file found"
+}
+
 // FindBUILDFile searches for the closest parent BUILD file above pkg. It
 // returns the parsed BUILD file, or an error if none can be found.
 func FindBUILDFile(ctx context.Context, pkgToBUILD map[string]*build.File,
 	workspaceRoot string, packagePath string) (*build.File, error) {
 	if packagePath == "." || packagePath == "/" {
-		return nil, fmt.Errorf("no ancestor BUILD file found")
+		return nil, &noAncestorBUILDError{}
 	}
 	if bld, ok := pkgToBUILD[packagePath]; ok {
 		return bld, nil

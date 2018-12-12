@@ -526,3 +526,56 @@ func TestFindBUILDFileCacheOnError(t *testing.T) {
 		t.Fatalf("cache contained BUILD file for package")
 	}
 }
+
+func TestHasSubdirectorySources(t *testing.T) {
+	tests := []struct {
+		name      string
+		buildFile string
+		expected  bool
+	}{
+		{
+			name:      "LocalSources",
+			buildFile: `ts_library(name = "lib", srcs = ["foo.ts", "bar.ts"])`,
+			expected:  false,
+		},
+		{
+			name:      "SubdirectorySources",
+			buildFile: `ts_library(name = "lib", srcs = ["subdir/foo.ts", "subdir/bar.ts"])`,
+			expected:  true,
+		},
+		{
+			name:      "LocalNgModuleSources",
+			buildFile: `ng_module(name = "lib", srcs = ["foo.ts", "bar.ts"])`,
+			expected:  false,
+		},
+		{
+			name:      "SubdirectoryNgModuleSources",
+			buildFile: `ng_module(name = "lib", srcs = ["subdir/foo.ts", "subdir/bar.ts"])`,
+			expected:  true,
+		},
+		{
+			name:      "LocalGlob",
+			buildFile: `ts_library(name = "lib", srcs = glob("*.ts"))`,
+			expected:  false,
+		},
+		{
+			name:      "SubdirectoryGlob",
+			buildFile: `ts_library(name = "lib", srcs = glob("**/*.ts"))`,
+			expected:  true,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			bld, err := build.ParseBuild("foo/bar/BUILD",
+				[]byte(test.buildFile))
+			if err != nil {
+				t.Fatalf("parse failure: %v", err)
+			}
+
+			actual := hasSubdirectorySources(bld)
+			if actual != test.expected {
+				t.Errorf("got hasSubdirectorySouces() = %v, expected %v", actual, test.expected)
+			}
+		})
+	}
+}
