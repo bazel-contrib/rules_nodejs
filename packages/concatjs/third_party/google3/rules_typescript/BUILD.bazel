@@ -20,6 +20,7 @@
 # gazelle:exclude node_modules
 load("@bazel_gazelle//:def.bzl", "gazelle")
 load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
+load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
 
 # ts_library defaults to this label in the top-level package.
 # Point to where the file actually lives.
@@ -69,4 +70,25 @@ nodejs_binary(
     install_source_map_support = False,
     templated_args = ["--node_options=--expose-gc"],
     visibility = ["//visibility:public"],
+)
+
+# Produces the release we publish to GitHub. Users download this starlark package
+# to get the @build_bazel_rules_typescript workspace.
+# It's the companion of the @bazel/typescript, @bazel/karma, etc npm packages.
+pkg_tar(
+    name = "release",
+    extension = "tgz",
+    srcs = [
+      "BUILD.bazel",
+      "AUTHORS",
+      "defs.bzl",
+      "LICENSE",
+      "package.bzl",
+      "WORKSPACE",
+    ],
+    deps = [
+      "//devserver:package",
+      "//internal:package",
+      "//third_party/github.com/bazelbuild/bazel/src/main/protobuf:package",
+    ],
 )

@@ -1,0 +1,97 @@
+package(default_visibility = ["//visibility:public"])
+
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["main.go"],
+    importpath = "github.com/bazelbuild/rules_typescript/devserver",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//devserver/concatjs:go_default_library",
+        "//devserver/devserver:go_default_library",
+    ],
+)
+
+go_binary(
+    name = "devserver",
+    embed = [":go_default_library"],
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "darwin_amd64",
+    constraint_values = [
+        "@bazel_tools//platforms:osx",
+        "@bazel_tools//platforms:x86_64",
+    ]
+)
+
+config_setting(
+    name = "linux_amd64",
+    constraint_values = [
+        "@bazel_tools//platforms:linux",
+        "@bazel_tools//platforms:x86_64",
+    ]
+)
+
+config_setting(
+    name = "windows_amd64",
+    constraint_values = [
+        "@bazel_tools//platforms:windows",
+        "@bazel_tools//platforms:x86_64",
+    ]
+)
+
+filegroup(
+    name = "server",
+    srcs = select({
+        ":darwin_amd64": ["devserver-darwin_amd64"],
+        ":linux_amd64": ["devserver-linux_amd64"],
+        ":windows_amd64": ["devserver-windows_amd64.exe"],
+    }),
+    # Don't build on CI
+    tags = ["manual"],
+)
+
+go_binary(
+    name = "devserver-windows",
+    goarch = "amd64",
+    goos = "windows",
+    pure = "on",
+    out = "devserver-windows_amd64.exe",
+    embed = [":go_default_library"],
+    visibility = ["//visibility:public"],
+)
+
+go_binary(
+    name = "devserver-darwin",
+    goarch = "amd64",
+    goos = "darwin",
+    pure = "on",
+    out = "devserver-darwin_amd64",
+    embed = [":go_default_library"],
+    visibility = ["//visibility:public"],
+)
+
+go_binary(
+    name = "devserver-linux",
+    goarch = "amd64",
+    goos = "linux",
+    pure = "on",
+    out = "devserver-linux_amd64",
+    embed = [":go_default_library"],
+    visibility = ["//visibility:public"],
+)
+
+pkg_tar(
+    name = "package",
+    srcs = [
+        ":devserver-windows",
+        ":devserver-darwin",
+        ":devserver-linux",
+        "BUILD.bazel",
+    ],
+    package_dir = "devserver",
+)

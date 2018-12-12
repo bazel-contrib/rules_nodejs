@@ -164,7 +164,12 @@ ts_devserver = rule(
         ),
         "_requirejs_script": attr.label(allow_single_file = True, default = Label("@build_bazel_rules_typescript_devserver_deps//node_modules/requirejs:require.js")),
         "_devserver": attr.label(
-            default = Label("//devserver"),
+            # For local development in rules_typescript, we build the devserver from sources.
+            # This requires that we have the go toolchain available.
+            # NB: this value is replaced by "//devserver:server" in the packaged distro
+            # //devserver:server is the pre-compiled binary.
+            # That means that our users don't need the go toolchain.
+            default = Label("//devserver:devserver"),
             executable = True,
             cfg = "host",
         ),
