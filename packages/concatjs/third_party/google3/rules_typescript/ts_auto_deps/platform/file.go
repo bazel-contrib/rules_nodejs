@@ -19,6 +19,19 @@ func ReadFile(ctx context.Context, name string) ([]byte, error) {
 	return ioutil.ReadFile(name)
 }
 
+// ReadBytesFromFile reads bytes into the buffer provided, stopping when the
+// buffer is full.
+func ReadBytesFromFile(ctx context.Context, name string, buffer []byte) (int, error) {
+	f, err := os.Open(name)
+	if err != nil {
+		return 0, err
+	}
+	defer f.Close()
+
+	n, err := f.Read(buffer)
+	return n, err
+}
+
 // WriteFile writes data to filename.
 func WriteFile(ctx context.Context, filename string, data []byte) error {
 	return ioutil.WriteFile(filename, data, filePerms)
