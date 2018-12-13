@@ -1,6 +1,7 @@
 Want to contribute? Great! First, read this page (including the small print at the end).
 
 ### Before you contribute
+
 **Before we can use your code, you must sign the
 [Google Individual Contributor License Agreement](https://developers.google.com/open-source/cla/individual?csw=1)
 (CLA)**, which you can do online.
@@ -17,11 +18,19 @@ Before you start working on a larger contribution, you should get in touch
 with us first. Use the issue tracker to explain your idea so we can help and
 possibly guide you.
 
+**Before starting a complex contribution we strongly encourage you to share a design document**.
+
+[Here](https://goo.gl/YCQttR) you can find a document template.
+
 ### Code reviews and other contributions.
+
 **All submissions, including submissions by project members, require review.**
-TODO(alexeagle): document how external contributions are handled.
+We use GitHub's code review system to suggest changes, then merge the changes
+to master when the PR is green and reviewed. The changes will then be in the
+next release.
 
 ### The small print
+
 Contributions made by corporations are covered by a different agreement than
 the one above, the
 [Software Grant and Corporate Contributor License Agreement](https://cla.developers.google.com/about/google-corporate).
