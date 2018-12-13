@@ -69,10 +69,6 @@ def create_tsconfig(
         if p
     ])
     workspace_path = "/".join([".."] * len(tsconfig_dir.split("/")))
-
-    # Sourcemaps should be relative to workspace_root. Reuse the tsconfig_dir, but take out the bin_dir.
-    sourcemap_root = "/".join([".."] * (len(tsconfig_dir.split("/")) - len(ctx.bin_dir.path.split("/"))))
-
     if module_path_prefixes == None:
         module_path_prefixes = [
             "",
@@ -255,7 +251,6 @@ def create_tsconfig(
         # Embed source maps and sources in .js outputs
         "inlineSourceMap": True,
         "inlineSources": True,
-        "sourceRoot": sourcemap_root,
         # Implied by inlineSourceMap: True
         "sourceMap": False,
     }
