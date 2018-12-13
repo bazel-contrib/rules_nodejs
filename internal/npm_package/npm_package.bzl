@@ -8,7 +8,6 @@ to the `deps` of one of their targets.
 
 load("//internal:node.bzl", "sources_aspect")
 
-
 # Takes a depset of files and returns a corresponding list of file paths without any files
 # that aren't part of the specified package path.
 def _filter_out_external_files(files, package_path):
