@@ -18,8 +18,8 @@ These rules let you run tests outside of a browser. This is typically faster
 than launching a test in Karma, for example.
 """
 
-load("//internal/node:node.bzl", "nodejs_test")
 load("//internal/common:devmode_js_sources.bzl", "devmode_js_sources")
+load("//internal/node:node.bzl", "nodejs_test")
 
 def jasmine_node_test(
         name,

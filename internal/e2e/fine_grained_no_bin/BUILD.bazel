@@ -1,6 +1,6 @@
-package(default_visibility = ["//visibility:public"])
-
 load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+
+package(default_visibility = ["//visibility:public"])
 
 # A target to run that ensures yarn_install works for the case that there is
 # no node_modules/.bin folder since @fine_grained_no_bin does not contain

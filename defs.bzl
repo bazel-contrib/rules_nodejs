@@ -17,20 +17,20 @@
 Users should not load files under "/internal"
 """
 
+load("//:package.bzl", _check_rules_nodejs_version = "check_rules_nodejs_version")
 load("//internal/common:check_bazel_version.bzl", _check_bazel_version = "check_bazel_version")
+load("//internal/history-server:history_server.bzl", _history_server = "history_server")
+load("//internal/http-server:http_server.bzl", _http_server = "http_server")
+load("//internal/jasmine_node_test:jasmine_node_test.bzl", _jasmine_node_test = "jasmine_node_test")
 load(
     "//internal/node:node.bzl",
     _nodejs_binary = "nodejs_binary_macro",
     _nodejs_test = "nodejs_test_macro",
 )
 load("//internal/node:node_repositories.bzl", _node_repositories = "node_repositories")
-load("//internal/jasmine_node_test:jasmine_node_test.bzl", _jasmine_node_test = "jasmine_node_test")
 load("//internal/npm_install:npm_install.bzl", _npm_install = "npm_install", _yarn_install = "yarn_install")
-load("//internal/rollup:rollup_bundle.bzl", _rollup_bundle = "rollup_bundle")
 load("//internal/npm_package:npm_package.bzl", _npm_package = "npm_package")
-load("//internal/history-server:history_server.bzl", _history_server = "history_server")
-load("//internal/http-server:http_server.bzl", _http_server = "http_server")
-load("//:package.bzl", _check_rules_nodejs_version = "check_rules_nodejs_version")
+load("//internal/rollup:rollup_bundle.bzl", _rollup_bundle = "rollup_bundle")
 
 check_bazel_version = _check_bazel_version
 nodejs_binary = _nodejs_binary

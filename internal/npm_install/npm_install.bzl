@@ -21,19 +21,23 @@ as the package manager.
 See discussion in the README.
 """
 
-load("//internal/node:node_labels.bzl", "get_node_label", "get_npm_label", "get_yarn_label")
 load("//internal/common:os_name.bzl", "os_name")
+load("//internal/node:node_labels.bzl", "get_node_label", "get_npm_label", "get_yarn_label")
 
 COMMON_ATTRIBUTES = dict(dict(), **{
-    "package_json": attr.label(
-        mandatory = True,
-        allow_single_file = True,
-    ),
-    "prod_only": attr.bool(
-        default = False,
-        doc = "Don't install devDependencies",
-    ),
     "data": attr.label_list(),
+    "exclude_packages": attr.string_list(
+        doc = """List of packages to exclude from install.
+
+        Use this when you want to install a package during manual yarn or npm
+        install but not install it when Bazel manages dependencies.
+
+        Note: this attribute may be removed in the future if bazel managed npm
+        dependencies are changed to install to the workspace `node_modules` folder
+        instead of `$(bazel info output_base)/external/wksp`.
+        """,
+        default = ["@bazel/bazel"],
+    ),
     "included_files": attr.string_list(
         doc = """List of file extensions to be included in the npm package targets.
 
@@ -53,18 +57,6 @@ COMMON_ATTRIBUTES = dict(dict(), **{
         as well as the fine grained targets such as `@wksp//foo`.""",
         default = [],
     ),
-    "exclude_packages": attr.string_list(
-        doc = """List of packages to exclude from install.
-
-        Use this when you want to install a package during manual yarn or npm
-        install but not install it when Bazel manages dependencies.
-
-        Note: this attribute may be removed in the future if bazel managed npm
-        dependencies are changed to install to the workspace `node_modules` folder
-        instead of `$(bazel info output_base)/external/wksp`.
-        """,
-        default = ["@bazel/bazel"],
-    ),
     "manual_build_file_contents": attr.string(
         doc = """Experimental attribute that can be used to override
         the generated BUILD.bazel file and set its contents manually.
@@ -74,6 +66,14 @@ COMMON_ATTRIBUTES = dict(dict(), **{
         you are running into performance issues due to a large
         node_modules target it is recommended to switch to using
         fine grained npm dependencies.""",
+    ),
+    "package_json": attr.label(
+        mandatory = True,
+        allow_single_file = True,
+    ),
+    "prod_only": attr.bool(
+        default = False,
+        doc = "Don't install devDependencies",
     ),
     "quiet": attr.bool(
         default = False,
@@ -197,13 +197,13 @@ cd "{root}" && "{npm}" {npm_args}
 
 npm_install = repository_rule(
     attrs = dict(COMMON_ATTRIBUTES, **{
-        "package_lock_json": attr.label(
-            allow_single_file = True,
-        ),
         "timeout": attr.int(
             default = 600,
             doc = """Maximum duration of the command "npm install" in seconds
             (default is 600 seconds).""",
+        ),
+        "package_lock_json": attr.label(
+            allow_single_file = True,
         ),
     }),
     implementation = _npm_install_impl,
@@ -270,9 +270,10 @@ def _yarn_install_impl(repository_ctx):
 
 yarn_install = repository_rule(
     attrs = dict(COMMON_ATTRIBUTES, **{
-        "yarn_lock": attr.label(
-            mandatory = True,
-            allow_single_file = True,
+        "timeout": attr.int(
+            default = 600,
+            doc = """Maximum duration of the command "yarn" in seconds.
+            (default is 600 seconds).""",
         ),
         "use_global_yarn_cache": attr.bool(
             default = True,
@@ -283,10 +284,9 @@ yarn_install = repository_rule(
             Disabling this attribute causes every run of yarn to have a unique
             cache_directory.""",
         ),
-        "timeout": attr.int(
-            default = 600,
-            doc = """Maximum duration of the command "yarn" in seconds.
-            (default is 600 seconds).""",
+        "yarn_lock": attr.label(
+            mandatory = True,
+            allow_single_file = True,
         ),
     }),
     implementation = _yarn_install_impl,

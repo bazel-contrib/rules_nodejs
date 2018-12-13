@@ -23,7 +23,7 @@ rules_nodejs_dev_dependencies()
 load("//internal/common:check_bazel_version.bzl", "check_bazel_version")
 
 # 0.18.0: support for .bazelignore
-check_bazel_version("0.18.0")
+check_bazel_version(minimum_bazel_version = "0.18.0")
 
 #
 # Load and install our dependencies downloaded above.
