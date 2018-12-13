@@ -7,9 +7,9 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
 # any npm packages with bins
 nodejs_binary(
     name = "index",
-    entry_point = "build_bazel_rules_nodejs/internal/e2e/fine_grained_no_bin/index.js",
     data = [
-      "index.js",
-      "@fine_grained_no_bin//rollup-plugin-node-resolve",
+        "index.js",
+        "@fine_grained_no_bin//rollup-plugin-node-resolve",
     ],
+    entry_point = "build_bazel_rules_nodejs/internal/e2e/fine_grained_no_bin/index.js",
 )
