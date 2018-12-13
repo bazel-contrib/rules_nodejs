@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -249,6 +250,13 @@ func globSources(ctx context.Context, path string, extensions []string) (srcSet,
 		if err != nil {
 			return nil, fmt.Errorf("cannot stat platform.Glob result %q: %v", p, err)
 		}
+		isMpeg, err := isMpegTS(ctx, p)
+		if err != nil {
+			return nil, err
+		}
+		if isMpeg {
+			continue
+		}
 		p, err := filepath.Rel(path, p)
 		if err != nil {
 			return nil, fmt.Errorf("filepath.Rel(%s, %s): %v", path, p, err)
@@ -256,6 +264,20 @@ func globSources(ctx context.Context, path string, extensions []string) (srcSet,
 		srcs[p] = true
 	}
 	return srcs, nil
+}
+
+// isMpegTS checks if a ".ts" file is an MPEG transport stream.  Taze shouldn't
+// treat them as TypeScript files.
+func isMpegTS(ctx context.Context, path string) (bool, error) {
+	var content [200]byte
+	n, err := platform.ReadBytesFromFile(ctx, path, content[:])
+	if err != nil && err != io.EOF {
+		return false, err
+	}
+
+	// MPEG TS' frame format starts with 0x47 every 189 bytes - detect that and return.
+	isMpeg := n > 188 && content[0] == 0x47 && content[188] == 0x47
+	return isMpeg, nil
 }
 
 func isTempFile(fileName string) bool {
