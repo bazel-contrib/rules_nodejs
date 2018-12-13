@@ -1,6 +1,6 @@
-package(default_visibility = ["//internal:__subpackages__"])
-
 load("//internal/js_library:js_library.bzl", "js_library")
+
+package(default_visibility = ["//internal:__subpackages__"])
 
 js_library(
     name = "check_lib",

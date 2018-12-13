@@ -109,10 +109,6 @@ NPM_PACKAGE_ATTRS = {
         doc = """Files inside this directory which are simply copied into the package.""",
         allow_files = True,
     ),
-    "deps": attr.label_list(
-        doc = """Other targets which produce files that should be included in the package, such as `rollup_bundle`""",
-        aspects = [sources_aspect],
-    ),
     "packages": attr.label_list(
         doc = """Other npm_package rules whose content is copied into this package.""",
         allow_files = True,
@@ -122,6 +118,10 @@ NPM_PACKAGE_ATTRS = {
         Note that the special value 0.0.0-PLACEHOLDER is always replaced with the version stamp data.
         See the section on stamping in the README.
         """,
+    ),
+    "deps": attr.label_list(
+        doc = """Other targets which produce files that should be included in the package, such as `rollup_bundle`""",
+        aspects = [sources_aspect],
     ),
     "_packager": attr.label(
         default = Label("//internal/npm_package:packager"),

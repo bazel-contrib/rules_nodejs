@@ -56,9 +56,9 @@ js_library = rule(
     implementation = _js_library,
     attrs = {
         "srcs": attr.label_list(allow_files = [".js"]),
+        "amd_names": attr.string_dict(doc = _AMD_NAMES_DOC),
         # Used to determine module mappings
         "module_name": attr.string(),
         "module_root": attr.string(),
-        "amd_names": attr.string_dict(doc = _AMD_NAMES_DOC),
     },
 )

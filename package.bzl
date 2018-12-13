@@ -17,8 +17,8 @@
 Fulfills similar role as the package.json file.
 """
 
-load("//internal/common:check_version.bzl", "check_version")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("//internal/common:check_version.bzl", "check_version")
 
 # This version is synced with the version in package.json.
 # It will be automatically synced via the npm "version" script

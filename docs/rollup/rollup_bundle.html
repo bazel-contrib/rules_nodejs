@@ -388,7 +388,8 @@ For example, if your <code>rollup_bundle</code> is named <code>my_rollup_bundle<
 <p>To request the ES2015 syntax (e.g. <code>class</code> keyword) without downleveling or minification, use the <code>:my_rollup_bundle.es6.js</code> label.
 To request the ES5 downleveled bundle without minification, use the <code>:my_rollup_bundle.js</code> label
 To request the debug-minified es5 bundle, use the <code>:my_rollup_bundle.min_debug.js</code> label.
-To request a UMD-bundle, use the <code>:my_rollup_bundle.umd.js</code> label.</p>
+To request a UMD-bundle, use the <code>:my_rollup_bundle.umd.js</code> label.
+To request a CommonJS bundle, use the <code>:my_rollup_bundle.cjs.js</code> label.</p>
 <p>You can also request an analysis from source-map-explorer by buildng the <code>:my_rollup_bundle.explore.html</code> label.
 However this is currently broken for <code>rollup_bundle</code> ES5 mode because we use tsc for downleveling and
 it doesn't compose the resulting sourcemaps with an input sourcemap.

@@ -113,18 +113,18 @@ def write_rollup_config(ctx, plugins = [], root_dir = None, filename = "_%s.roll
         output = config,
         template = ctx.file._rollup_config_tmpl,
         substitutions = {
-            "TMPL_workspace_name": ctx.workspace_name,
-            "TMPL_rootDir": root_dir,
-            "TMPL_global_name": ctx.attr.global_name if ctx.attr.global_name else ctx.label.name,
-            "TMPL_module_mappings": str(mappings),
             "TMPL_additional_plugins": ",\n".join(plugins),
             "TMPL_banner_file": "\"%s\"" % ctx.file.license_banner.path if ctx.file.license_banner else "undefined",
-            "TMPL_stamp_data": "\"%s\"" % ctx.version_file.path if ctx.version_file else "undefined",
-            "TMPL_inputs": ",".join(["\"%s\"" % e for e in entry_points]),
-            "TMPL_output_format": output_format,
-            "TMPL_node_modules_root": node_modules_root,
             "TMPL_default_node_modules": "true" if default_node_modules else "false",
+            "TMPL_global_name": ctx.attr.global_name if ctx.attr.global_name else ctx.label.name,
+            "TMPL_inputs": ",".join(["\"%s\"" % e for e in entry_points]),
+            "TMPL_module_mappings": str(mappings),
+            "TMPL_node_modules_root": node_modules_root,
+            "TMPL_output_format": output_format,
+            "TMPL_rootDir": root_dir,
+            "TMPL_stamp_data": "\"%s\"" % ctx.version_file.path if ctx.version_file else "undefined",
             "TMPL_target": str(ctx.label),
+            "TMPL_workspace_name": ctx.workspace_name,
         },
     )
 
@@ -459,11 +459,10 @@ def _rollup_bundle(ctx):
 ROLLUP_DEPS_ASPECTS = [rollup_module_mappings_aspect, collect_node_modules_aspect]
 
 ROLLUP_ATTRS = {
-    "entry_point": attr.string(
-        doc = """The starting point of the application, passed as the `--input` flag to rollup.
-        This should be a path relative to the workspace root.
-        """,
-        mandatory = True,
+    "srcs": attr.label_list(
+        doc = """JavaScript source files from the workspace.
+        These can use ES2015 syntax and ES Modules (import/export)""",
+        allow_files = [".js"],
     ),
     "additional_entry_points": attr.string_list(
         doc = """Additional entry points of the application for code splitting, passed as the input to rollup.
@@ -508,14 +507,37 @@ ROLLUP_ATTRS = {
         It is sufficient to load one of these SystemJS boilerplate/entry point
         files as a script in your HTML to load your application""",
     ),
-    "srcs": attr.label_list(
-        doc = """JavaScript source files from the workspace.
-        These can use ES2015 syntax and ES Modules (import/export)""",
-        allow_files = [".js"],
+    "entry_point": attr.string(
+        doc = """The starting point of the application, passed as the `--input` flag to rollup.
+        This should be a path relative to the workspace root.
+        """,
+        mandatory = True,
     ),
-    "deps": attr.label_list(
-        doc = """Other rules that produce JavaScript outputs, such as `ts_library`.""",
-        aspects = ROLLUP_DEPS_ASPECTS,
+    "global_name": attr.string(
+        doc = """A name given to this package when referenced as a global variable.
+        This name appears in the bundle module incantation at the beginning of the file,
+        and governs the global symbol added to the global context (e.g. `window`) as a side-
+        effect of loading the UMD/IIFE JS bundle.
+
+        Rollup doc: "The variable name, representing your iife/umd bundle, by which other scripts on the same page can access it."
+
+        This is passed to the `output.name` setting in Rollup.""",
+    ),
+    "globals": attr.string_dict(
+        doc = """A dict of symbols that reference external scripts.
+        The keys are variable names that appear in the program,
+        and the values are the symbol to reference at runtime in a global context (UMD bundles).
+        For example, a program referencing @angular/core should use ng.core
+        as the global reference, so Angular users should include the mapping
+        `"@angular/core":"ng.core"` in the globals.""",
+        default = {},
+    ),
+    "license_banner": attr.label(
+        doc = """A .txt file passed to the `banner` config option of rollup.
+        The contents of the file will be copied to the top of the resulting bundles.
+        Note that you can replace a version placeholder in the license file, by using
+        the special version `0.0.0-PLACEHOLDER`. See the section on stamping in the README.""",
+        allow_single_file = [".txt"],
     ),
     "node_modules": attr.label(
         doc = """Dependencies from npm that provide some modules that must be
@@ -568,36 +590,31 @@ ROLLUP_ATTRS = {
         """,
         default = Label("//:node_modules_none"),
     ),
-    "license_banner": attr.label(
-        doc = """A .txt file passed to the `banner` config option of rollup.
-        The contents of the file will be copied to the top of the resulting bundles.
-        Note that you can replace a version placeholder in the license file, by using
-        the special version `0.0.0-PLACEHOLDER`. See the section on stamping in the README.""",
-        allow_single_file = [".txt"],
+    "deps": attr.label_list(
+        doc = """Other rules that produce JavaScript outputs, such as `ts_library`.""",
+        aspects = ROLLUP_DEPS_ASPECTS,
     ),
-    "globals": attr.string_dict(
-        doc = """A dict of symbols that reference external scripts.
-        The keys are variable names that appear in the program,
-        and the values are the symbol to reference at runtime in a global context (UMD bundles).
-        For example, a program referencing @angular/core should use ng.core
-        as the global reference, so Angular users should include the mapping
-        `"@angular/core":"ng.core"` in the globals.""",
-        default = {},
-    ),
-    "global_name": attr.string(
-        doc = """A name given to this package when referenced as a global variable.
-        This name appears in the bundle module incantation at the beginning of the file,
-        and governs the global symbol added to the global context (e.g. `window`) as a side-
-        effect of loading the UMD/IIFE JS bundle.
-
-        Rollup doc: "The variable name, representing your iife/umd bundle, by which other scripts on the same page can access it."
-
-        This is passed to the `output.name` setting in Rollup.""",
+    "_no_explore_html": attr.label(
+        default = Label("@build_bazel_rules_nodejs//internal/rollup:no_explore.html"),
+        allow_single_file = True,
     ),
     "_rollup": attr.label(
         executable = True,
         cfg = "host",
         default = Label("@build_bazel_rules_nodejs//internal/rollup:rollup"),
+    ),
+    "_rollup_config_tmpl": attr.label(
+        default = Label("@build_bazel_rules_nodejs//internal/rollup:rollup.config.js"),
+        allow_single_file = True,
+    ),
+    "_source_map_explorer": attr.label(
+        executable = True,
+        cfg = "host",
+        default = Label("@build_bazel_rules_nodejs//internal/rollup:source-map-explorer"),
+    ),
+    "_system_config_tmpl": attr.label(
+        default = Label("@build_bazel_rules_nodejs//internal/rollup:system.config.js"),
+        allow_single_file = True,
     ),
     "_tsc": attr.label(
         executable = True,
@@ -614,32 +631,15 @@ ROLLUP_ATTRS = {
         cfg = "host",
         default = Label("@build_bazel_rules_nodejs//internal/rollup:uglify-wrapped"),
     ),
-    "_source_map_explorer": attr.label(
-        executable = True,
-        cfg = "host",
-        default = Label("@build_bazel_rules_nodejs//internal/rollup:source-map-explorer"),
-    ),
-    "_no_explore_html": attr.label(
-        default = Label("@build_bazel_rules_nodejs//internal/rollup:no_explore.html"),
-        allow_single_file = True,
-    ),
-    "_rollup_config_tmpl": attr.label(
-        default = Label("@build_bazel_rules_nodejs//internal/rollup:rollup.config.js"),
-        allow_single_file = True,
-    ),
-    "_system_config_tmpl": attr.label(
-        default = Label("@build_bazel_rules_nodejs//internal/rollup:system.config.js"),
-        allow_single_file = True,
-    ),
 }
 
 ROLLUP_OUTPUTS = {
-    "build_es6": "%{name}.es6.js",
+    "build_cjs": "%{name}.cjs.js",
     "build_es5": "%{name}.js",
     "build_es5_min": "%{name}.min.js",
     "build_es5_min_debug": "%{name}.min_debug.js",
+    "build_es6": "%{name}.es6.js",
     "build_umd": "%{name}.umd.js",
-    "build_cjs": "%{name}.cjs.js",
     "explore_html": "%{name}.explore.html",
 }
 

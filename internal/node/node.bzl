@@ -20,10 +20,10 @@ They support module mapping: any targets in the transitive dependencies with
 a `module_name` attribute can be `require`d by that name.
 """
 
-load("//internal/common:module_mappings.bzl", "module_mappings_runtime_aspect")
-load("//internal/common:sources_aspect.bzl", "sources_aspect")
 load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
+load("//internal/common:module_mappings.bzl", "module_mappings_runtime_aspect")
 load("//internal/common:node_module_info.bzl", "NodeModuleInfo", "collect_node_modules_aspect")
+load("//internal/common:sources_aspect.bzl", "sources_aspect")
 
 def _trim_package_node_modules(package_name):
     # trim a package name down to its path prior to a node_modules
@@ -78,17 +78,17 @@ def _write_loader_script(ctx):
         template = ctx.file._loader_template,
         output = ctx.outputs.loader,
         substitutions = {
-            "TEMPLATED_target": str(ctx.label),
-            "TEMPLATED_module_roots": "\n  " + ",\n  ".join(module_mappings),
+            "TEMPLATED_bin_dir": ctx.bin_dir.path,
             "TEMPLATED_bootstrap": "\n  " + ",\n  ".join(
                 ["\"" + d + "\"" for d in ctx.attr.bootstrap],
             ),
             "TEMPLATED_entry_point": ctx.attr.entry_point,
-            "TEMPLATED_user_workspace_name": ctx.workspace_name,
-            "TEMPLATED_node_modules_root": node_modules_root,
-            "TEMPLATED_install_source_map_support": str(ctx.attr.install_source_map_support).lower(),
-            "TEMPLATED_bin_dir": ctx.bin_dir.path,
             "TEMPLATED_gen_dir": ctx.genfiles_dir.path,
+            "TEMPLATED_install_source_map_support": str(ctx.attr.install_source_map_support).lower(),
+            "TEMPLATED_module_roots": "\n  " + ",\n  ".join(module_mappings),
+            "TEMPLATED_node_modules_root": node_modules_root,
+            "TEMPLATED_target": str(ctx.label),
+            "TEMPLATED_user_workspace_name": ctx.workspace_name,
         },
         is_executable = True,
     )
@@ -129,15 +129,15 @@ def _nodejs_binary_impl(ctx):
         expected_exit_code = ctx.attr.expected_exit_code
 
     substitutions = {
-        "TEMPLATED_node": _short_path_to_manifest_path(ctx, node.short_path),
         "TEMPLATED_args": " ".join([
             expand_location_into_runfiles(ctx, a)
             for a in ctx.attr.templated_args
         ]),
-        "TEMPLATED_repository_args": _short_path_to_manifest_path(ctx, ctx.file._repository_args.short_path),
-        "TEMPLATED_script_path": script_path,
         "TEMPLATED_env_vars": env_vars,
         "TEMPLATED_expected_exit_code": str(expected_exit_code),
+        "TEMPLATED_node": _short_path_to_manifest_path(ctx, node.short_path),
+        "TEMPLATED_repository_args": _short_path_to_manifest_path(ctx, ctx.file._repository_args.short_path),
+        "TEMPLATED_script_path": script_path,
     }
     ctx.actions.expand_template(
         template = ctx.file._launcher_template,
@@ -158,25 +158,12 @@ def _nodejs_binary_impl(ctx):
     )]
 
 _NODEJS_EXECUTABLE_ATTRS = {
-    "entry_point": attr.string(
-        doc = """The script which should be executed first, usually containing a main function.
-        This attribute expects a string starting with the workspace name, so that it's not ambiguous
-        in cases where a script with the same name appears in another directory or external workspace.
-        """,
-        mandatory = True,
-    ),
     "bootstrap": attr.string_list(
         doc = """JavaScript modules to be loaded before the entry point.
         For example, Angular uses this to patch the Jasmine async primitives for
         zone.js before the first `describe`.
         """,
         default = [],
-    ),
-    "install_source_map_support": attr.bool(
-        doc = """Install the source-map-support package.
-        Enable this to get stack traces that point to original sources, e.g. if the program was written
-        in TypeScript.""",
-        default = True,
     ),
     "configuration_env_vars": attr.string_list(
         doc = """Pass these configuration environment variables to the resulting binary.
@@ -190,11 +177,23 @@ _NODEJS_EXECUTABLE_ATTRS = {
         allow_files = True,
         aspects = [sources_aspect, module_mappings_runtime_aspect, collect_node_modules_aspect],
     ),
-    "templated_args": attr.string_list(
-        doc = """Arguments which are passed to every execution of the program.
-        To pass a node startup option, prepend it with `--node_options=`, e.g.
-        `--node_options=--preserve-symlinks`
+    "entry_point": attr.string(
+        doc = """The script which should be executed first, usually containing a main function.
+        This attribute expects a string starting with the workspace name, so that it's not ambiguous
+        in cases where a script with the same name appears in another directory or external workspace.
         """,
+        mandatory = True,
+    ),
+    "install_source_map_support": attr.bool(
+        doc = """Install the source-map-support package.
+        Enable this to get stack traces that point to original sources, e.g. if the program was written
+        in TypeScript.""",
+        default = True,
+    ),
+    "node": attr.label(
+        doc = """The node entry point target.""",
+        default = Label("@nodejs//:node"),
+        allow_single_file = True,
     ),
     "node_modules": attr.label(
         doc = """The npm packages which should be available to `require()` during
@@ -263,9 +262,18 @@ _NODEJS_EXECUTABLE_ATTRS = {
         """,
         default = Label("//:node_modules_none"),
     ),
-    "node": attr.label(
-        doc = """The node entry point target.""",
-        default = Label("@nodejs//:node"),
+    "templated_args": attr.string_list(
+        doc = """Arguments which are passed to every execution of the program.
+        To pass a node startup option, prepend it with `--node_options=`, e.g.
+        `--node_options=--preserve-symlinks`
+        """,
+    ),
+    "_launcher_template": attr.label(
+        default = Label("//internal/node:node_launcher.sh"),
+        allow_single_file = True,
+    ),
+    "_loader_template": attr.label(
+        default = Label("//internal/node:node_loader.js"),
         allow_single_file = True,
     ),
     "_node_runfiles": attr.label(
@@ -274,14 +282,6 @@ _NODEJS_EXECUTABLE_ATTRS = {
     ),
     "_repository_args": attr.label(
         default = Label("@nodejs//:bin/node_args.sh"),
-        allow_single_file = True,
-    ),
-    "_launcher_template": attr.label(
-        default = Label("//internal/node:node_launcher.sh"),
-        allow_single_file = True,
-    ),
-    "_loader_template": attr.label(
-        default = Label("//internal/node:node_loader.js"),
         allow_single_file = True,
     ),
 }

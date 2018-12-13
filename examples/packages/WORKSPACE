@@ -10,7 +10,7 @@ load("@build_bazel_rules_nodejs//:package.bzl", "check_rules_nodejs_version", "r
 rules_nodejs_dependencies()
 
 # Test that check_rules_nodejs_version works as expected
-check_rules_nodejs_version("0.11.2")
+check_rules_nodejs_version(minimum_version_string = "0.11.2")
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
 

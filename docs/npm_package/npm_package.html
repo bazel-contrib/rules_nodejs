@@ -134,7 +134,7 @@ to the <code>deps</code> of one of their targets.</p>
 
           <h2 id="create_package">create_package</h2>
 
-          <pre>create_package(<a href="#create_package.ctx">ctx</a>, <a href="#create_package.devmode_sources">devmode_sources</a>, <a href="#create_package.nested_packages">nested_packages</a>)</pre>
+          <pre>create_package(<a href="#create_package.ctx">ctx</a>, <a href="#create_package.deps_sources">deps_sources</a>, <a href="#create_package.nested_packages">nested_packages</a>)</pre>
 
           <p>Creates an action that produces the npm package.</p>
 <p>It copies srcs and deps into the artifact and produces the .pack and .publish
@@ -158,11 +158,12 @@ scripts.</p>
         <p>the skylark rule context</p>
       </td>
     </tr>
-    <tr id="create_package.devmode_sources">
-      <td><code>devmode_sources</code></td>
+    <tr id="create_package.deps_sources">
+      <td><code>deps_sources</code></td>
       <td>
         <p><code>Unknown; Required</code></p>
-        <p>the .js files which belong in the package</p>
+        <p>Files which have been specified as dependencies. Usually ".js" or ".d.ts"
+generated files.</p>
       </td>
     </tr>
     <tr id="create_package.nested_packages">

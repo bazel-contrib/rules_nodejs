@@ -1,6 +1,6 @@
-package(default_visibility = ["//visibility:public"])
-
 load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
+
+package(default_visibility = ["//visibility:public"])
 
 filegroup(
     name = "node_modules",
