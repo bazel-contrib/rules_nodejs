@@ -178,7 +178,6 @@ pkg_tar(
     "ts_config.bzl",
     "ts_repositories.bzl",
     "BUILD.bazel",
-    "yarn.lock",
     "package.json",
   ],
   package_dir = "internal",
