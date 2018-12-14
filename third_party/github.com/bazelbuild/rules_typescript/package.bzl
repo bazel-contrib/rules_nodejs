@@ -79,6 +79,18 @@ def rules_typescript_dependencies():
         sha256 = "9176a7df34dbed2cf5171eb56271868824560364e60644348219f852f593ae79",
     )
 
+    ###############################################
+    # Repeat the dependencies of rules_nodejs here!
+    # We can't load() from rules_nodejs yet, because we've only just fetched it.
+    # But we also don't want to make users load and call the rules_nodejs_dependencies
+    # function because we can do that for them, mostly hiding the transitive dependency.
+    _maybe(
+        http_archive,
+        name = "bazel_skylib",
+        url = "https://github.com/bazelbuild/bazel-skylib/archive/d7c5518fa061ae18a20d00b14082705d3d2d885d.zip",
+        strip_prefix = "bazel-skylib-d7c5518fa061ae18a20d00b14082705d3d2d885d",
+    )
+
 def rules_typescript_dev_dependencies():
     """
     Fetch dependencies needed for local development, but not needed by users.
