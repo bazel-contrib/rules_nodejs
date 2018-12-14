@@ -76,7 +76,6 @@ pkg_tar(
   srcs = [
     "ts_web_test.bzl",
     "BUILD.bazel",
-    "yarn.lock",
     "package.json",
   ],
   package_dir = "karma"

@@ -28,11 +28,7 @@
 
 const path = require('path');
 const fs = require('fs');
-
-// Version in package.bzl should match the npm package version
-// but this should be tolerant of development stamped versions such as
-// "0.17.0-7-g76dc057"
-const npmPackageVersion = process.env.npm_package_version.split('-')[0];
+const semver = require('semver');
 
 // If this is a bazel managed deps yarn_install or npm_install then the
 // cwd is $(bazel info
@@ -52,8 +48,8 @@ if (isBazelManagedDeps()) {
   let contents;
   try {
     // If this is a yarn_install or npm_install then the cwd is $(bazel info
-    // output_base)/external/<wksp>/node_modules/@bazel/pkg so we can look for
-    // the package.bzl file under $(bazel info
+    // output_base)/external/<wksp>/node_modules/@bazel/<pkg>
+    // so we can look for the package.bzl file under $(bazel info
     // output_base)/external/build_bazel_rules_typescript/package.bzl
     const packagePath = path.resolve(
         process.cwd(), '../../../../build_bazel_rules_typescript/package.bzl');
@@ -62,22 +58,36 @@ if (isBazelManagedDeps()) {
     throw new Error(
         'The build_bazel_rules_typescript repository is not installed in your Bazel WORKSPACE file');
   }
+
+  // Sanity check that this is build_bazel_rules_typescript since
+  // other repos will follow the same pattern and have a VERSION
+  // in a root pacakge.bzl file
   if (!contents.includes('def rules_typescript_dependencies():')) {
     throw new Error('Invalid package.bzl in build_bazel_rules_typescript');
-  } else if (!contents.includes(`VERSION = "${npmPackageVersion}"`)) {
-    // TODO: we might need to support a range here.
-    // For example, if you end up with @bazel/typescript@1.0.0 and
-    // @bazel/typescript@1.0.1 both installed one of the postinstalls is
-    // guaranteed to fail since there's only one version of
-    // build_bazel_rules_typescript
-    throw new Error(`Expected build_bazel_rules_typescript to be version ${
-        npmPackageVersion}`);
+  }
+
+  const matchVersion = contents.match(/VERSION \= \"([0-9\.]*)\"/);
+  if (!matchVersion) {
+    throw new Error('Invalid package.bzl in build_bazel_rules_typescript');
+  }
+
+  const bazelPackageVersion = matchVersion[1];
+  const bazelPackageVersionRange = `${semver.major(bazelPackageVersion)}.${semver.minor(bazelPackageVersion)}.x`; // should match patch version
+
+  // Should be tolerant of development stamped versions such as "0.17.0-7-g76dc057"
+  const npmPackageVersion = process.env.npm_package_version.split('-')[0];
+
+  if (!semver.satisfies(npmPackageVersion, bazelPackageVersionRange)) {
+    throw new Error(
+        `Expected ${process.env.npm_package_name} version ${npmPackageVersion} to satisfy ${bazelPackageVersionRange}. ` +
+        `Please update the build_bazel_rules_typescript version in WORKSPACE file to match ${npmPackageVersion} or ` +
+        `update the ${process.env.npm_package_name} version in your package.json to satisfy ${bazelPackageVersionRange}.`);
   }
 } else {
   // No version check
   console.warn(
       `WARNING: With self managed deps you must ensure the @bazel/typescript
-npm package version matches the build_bazel_rules_typescript repository version.
-Use yarn_install or npm_install for this version to be checked automatically.
-`);
+and @bazel/karma npm package versions match the build_bazel_rules_typescript
+repository version. Use yarn_install or npm_install for this version to be checked
+automatically.`);
 }

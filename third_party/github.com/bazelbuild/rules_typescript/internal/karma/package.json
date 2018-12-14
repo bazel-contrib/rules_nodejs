@@ -23,6 +23,7 @@
     "karma-sourcemap-loader": "0.3.7",
     "karma-requirejs": "1.1.0",
     "requirejs": "2.3.5",
+    "semver": "5.6.0",
     "tmp": "0.0.33"
   },
   "scripts": {
