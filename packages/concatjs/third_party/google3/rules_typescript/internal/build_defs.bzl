@@ -296,7 +296,6 @@ ts_library = rule(
             the compiler attribute manually.
             """,
             default = Label(_DEFAULT_COMPILER),
-            single_file = False,
             allow_files = True,
             executable = True,
             cfg = "host",
