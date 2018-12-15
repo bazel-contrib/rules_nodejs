@@ -201,6 +201,10 @@ def _prepare_node(repository_ctx):
             repository_ctx.attr.vendored_node.name,
             "bin/npm" if not is_windows else "node_modules/npm/bin/npm-cli.js",
         ] if f])
+    else:
+        node_exec = "{}/bin/node".format(NODE_DIR) if not is_windows else "{}/node.exe".format(NODE_DIR)
+        npm_script = "{}/bin/npm".format(NODE_DIR) if not is_windows else "{}/node_modules/npm/bin/npm-cli.js".format(NODE_DIR)
+    if repository_ctx.attr.vendored_yarn:
         yarn_script = "/".join([f for f in [
             "../../..",
             repository_ctx.attr.vendored_yarn.workspace_root,
@@ -209,8 +213,6 @@ def _prepare_node(repository_ctx):
             "bin/yarn.js",
         ] if f])
     else:
-        node_exec = "{}/bin/node".format(NODE_DIR) if not is_windows else "{}/node.exe".format(NODE_DIR)
-        npm_script = "{}/bin/npm".format(NODE_DIR) if not is_windows else "{}/node_modules/npm/bin/npm-cli.js".format(NODE_DIR)
         yarn_script = "{}/bin/yarn.js".format(YARN_DIR)
     node_entry = "bin/node" if not is_windows else "bin/node.cmd"
     npm_node_repositories_entry = "bin/npm_node_repositories" if not is_windows else "bin/npm_node_repositories.cmd"
