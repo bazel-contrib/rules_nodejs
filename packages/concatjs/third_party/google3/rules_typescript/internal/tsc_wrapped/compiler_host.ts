@@ -382,8 +382,8 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
    * typescript secondary search behavior needs to be overridden to support
    * looking under `bazelOpts.nodeModulesPrefix`
    */
-  resolveTypeReferenceDirectives(names: string[], containingFile: string): (ts.ResolvedTypeReferenceDirective | undefined)[] {
-    let result: (ts.ResolvedTypeReferenceDirective | undefined)[] = []
+  resolveTypeReferenceDirectives(names: string[], containingFile: string): (ts.ResolvedTypeReferenceDirective)[] {
+    let result: (ts.ResolvedTypeReferenceDirective)[] = []
     names.forEach(name => {
       let resolved: ts.ResolvedTypeReferenceDirective | undefined;
 
@@ -406,7 +406,16 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
         debug(`Failed to resolve type reference directive '${name}'`);
       }
 
-      result.push(resolved);
+      // In typescript 2.x the return type for this function
+      // is `(ts.ResolvedTypeReferenceDirective | undefined)[]` thus we actually
+      // do allow returning `undefined` in the array but the function is typed
+      // `(ts.ResolvedTypeReferenceDirective)[]` to compile with both typescript
+      // 2.x and 3.0/3.1 without error. Typescript 3.0/3.1 do handle the `undefined`
+      // values in the array correctly despite the return signature.
+      // It looks like the return type change was a mistake because
+      // it was changed back to include `| undefined` recently:
+      // https://github.com/Microsoft/TypeScript/pull/28059.
+      result.push(resolved as ts.ResolvedTypeReferenceDirective);
     });
     return result;
   }
@@ -440,7 +449,7 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
   writeFile(
       fileName: string, content: string, writeByteOrderMark: boolean,
       onError: ((message: string) => void) | undefined,
-      sourceFiles: ReadonlyArray<ts.SourceFile>): void {
+      sourceFiles: ReadonlyArray<ts.SourceFile> | undefined): void {
     perfTrace.wrap(
         `writeFile ${fileName}`,
         () => this.writeFileImpl(

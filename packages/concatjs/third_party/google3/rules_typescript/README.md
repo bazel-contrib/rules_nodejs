@@ -91,14 +91,6 @@ browser_repositories(
 )
 ```
 
-# Scope of the project
-
-This repository contains an orthogonal set of rules which covers an opinionated toolchain for TypeScript development. When requesting a new rule, describe your use case, why it's important, and why you can't do it with the existing rules. This is because we have limited resources to maintain additional rules.
-
-The repository accepts contributions in terms of bug fixes or implementing new features in existing rules. If you're planning to implement a new rule, please strongly consider opening a [feature request](https://github.com/bazelbuild/rules_typescript/issues/new) first so the project's maintainers can decide if it belongs to the scope of this project or not.
-
-For rules outside of the scope of the projects we recommend hosting them in your GitHub account or the one of your organization.
-
 # Self-managed npm dependencies
 
 We recommend you use Bazel managed dependencies but if you would like
@@ -338,4 +330,3 @@ In the meantime, we suggest associating the `.bazel` extension with Python in
 your editor, so that you get useful syntax highlighting.
 
 [gazelle]: https://github.com/bazelbuild/rules_go/tree/master/go/tools/gazelle
-

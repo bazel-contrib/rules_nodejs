@@ -1,4 +1,5 @@
 import * as main from './main';
+import * as ts from 'typescript';
 
 describe('main', () => {
   it('should compile and run with @bazel/typescript npm package', () => {
@@ -12,6 +13,10 @@ describe('main', () => {
     } catch (e) {
       fail(e.toString())
     }
+  });
+
+  it('runtime version of typescript should be correct', () => {
+    expect(ts.version).toEqual('2.8.4');
   });
 
   it('should successfully require built-in node module \'os\'', () => {

@@ -103,7 +103,7 @@ jobs:
       # Run yarn as e2e tests depend on self managed node_modules
       - run: bazel run @nodejs//:bin/yarn
       # Don't occupy the bazel server, as this test wants to run Bazel itself
-      - run: bazel run @nodejs//:yarn e2e --script_path=yarn_e2e.sh
+      - run: bazel run @nodejs//:bin/yarn e2e --script_path=yarn_e2e.sh
       - run: xvfb-run -a ./yarn_e2e.sh
 
   lint:
