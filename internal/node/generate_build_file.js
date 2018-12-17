@@ -98,6 +98,9 @@ filegroup(
  */
 function listFiles(rootDir, subDir = '') {
   const dir = path.posix.join(rootDir, subDir);
+  if (!fs.existsSync(dir) || !fs.statSync(dir).isDirectory()) {
+    return [];
+  }
   return fs
     .readdirSync(dir)
     .reduce((files, file) => {
