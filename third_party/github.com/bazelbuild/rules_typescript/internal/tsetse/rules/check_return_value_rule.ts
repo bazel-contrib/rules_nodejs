@@ -55,6 +55,12 @@ export class Rule extends AbstractRule {
 }
 
 function checkCallExpression(checker: Checker, node: ts.CallExpression) {
+  // Short-circuit before using the typechecker if possible, as its expensive.
+  // Workaround for https://github.com/Microsoft/TypeScript/issues/27997
+  if (tsutils.isExpressionValueUsed(node)) {
+    return;
+  }
+
   // Check if this CallExpression is one of the well-known functions and returns
   // a non-void value that is unused.
   const signature = checker.typeChecker.getResolvedSignature(node);
@@ -68,9 +74,6 @@ function checkCallExpression(checker: Checker, node: ts.CallExpression) {
     // anyway. Therefore we short-circuit hasCheckReturnValueJsDoc().
     if (!isBlackListed(node, checker.typeChecker) &&
         !hasCheckReturnValueJsDoc(node, checker.typeChecker)) {
-      return;
-    }
-    if (tsutils.isExpressionValueUsed(node)) {
       return;
     }
 
