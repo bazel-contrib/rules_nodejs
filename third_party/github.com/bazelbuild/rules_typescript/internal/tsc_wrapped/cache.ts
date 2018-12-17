@@ -127,7 +127,7 @@ class Cache<T> {
   }
 }
 
-interface SourceFileEntry {
+export interface SourceFileEntry {
   digest: string;  // blaze's opaque digest of the file
   value: ts.SourceFile;
 }

@@ -27,7 +27,8 @@ def ts_setup_workspace():
     # 0.14.0: @bazel_tools//tools/bash/runfiles is required
     # 0.15.0: "data" attributes don't need 'cfg = "data"'
     # 0.17.1: allow @ in package names is required for fine grained deps
-    check_bazel_version("0.17.1")
+    # 0.18.0: support for .bazelignore
+    check_bazel_version("0.18.0")
 
     go_repository(
         name = "com_github_kylelemons_godebug",

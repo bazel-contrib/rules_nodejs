@@ -1,0 +1,11 @@
+node_modules
+internal/e2e/ts_auto_deps
+internal/e2e/package_karma
+internal/e2e/package_typescript_2.7
+internal/e2e/package_typescript_2.8
+internal/e2e/package_typescript_2.9
+internal/e2e/package_typescript_3.0
+internal/e2e/package_typescript_3.1
+internal/e2e/package_typescript_3.1_no_npm
+internal/e2e/package_typescript_karma
+internal/e2e/disable_tsetse_for_external

@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "@types/jasmine": "2.8.2",
+    "@types/node": "7.0.18",
+    "jasmine": "2.8.0",
+    "protobufjs": "5.0.3",
+    "source-map-support": "0.5.9",
+    "tsickle": "0.33.1",
+    "tsutils": "2.27.2",
+    "typescript": "3.1.x"
+  }
+}

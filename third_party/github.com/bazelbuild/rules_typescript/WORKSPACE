@@ -167,43 +167,7 @@ platform_http_file(
 )
 
 # Tell Bazel where the nested local repositories are that are
-# used for tests. This is necessary so that `bazel <cmd> ...`
-# doesn't traverse into nested local repositories.
-local_repository(
-  name = "ts_auto_deps_e2e",
-  path = "internal/e2e/ts_auto_deps",
-)
-
-local_repository(
-  name = "package_karma_e2e",
-  path = "internal/e2e/package_karma",
-)
-
-local_repository(
-  name = "package_typescript_27_e2e",
-  path = "internal/e2e/package_typescript_2.7",
-)
-
-local_repository(
-  name = "package_typescript_28_e2e",
-  path = "internal/e2e/package_typescript_2.8",
-)
-
-local_repository(
-  name = "package_typescript_29_e2e",
-  path = "internal/e2e/package_typescript_2.9",
-)
-
-local_repository(
-  name = "package_typescript_30_e2e",
-  path = "internal/e2e/package_typescript_3.0",
-)
-
-local_repository(
-  name = "package_typescript_karma_e2e",
-  path = "internal/e2e/package_typescript_karma",
-)
-
+# used for tests
 local_repository(
   name = "disable_tsetse_for_external_test",
   path = "internal/e2e/disable_tsetse_for_external",
