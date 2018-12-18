@@ -77,6 +77,6 @@ module.exports = {main};
 if (require.main === module) {
   // We always require the arguments are encoded into a flagfile
   // so that we don't exhaust the command-line limit.
-  const params = fs.readFileSync(process.argv[0], {encoding: 'utf-8'}).split('\n').filter(l => !!l);
+  const params = fs.readFileSync(process.argv[2], {encoding: 'utf-8'}).split('\n').filter(l => !!l);
   process.exitCode = main(params);
 }
