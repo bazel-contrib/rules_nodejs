@@ -110,19 +110,7 @@ function listFiles(rootDir, subDir = '') {
       try {
         stat = fs.statSync(fullPath);
       } catch (e) {
-        if (fs.lstatSync(fullPath).isSymbolicLink()) {
-          // filter out broken symbolic links... these cause fs.statSync(fullPath)
-          // to fail with `ENOENT: no such file or directory ...`
-          return files;
-        }
         throw e;
-      }
-      if (stat.isFile() && (/^BUILD$/i.test(file) || /^BUILD\.bazel$/i.test(file))) {
-        // Delete BUILD and BUILD.bazel files so that so that files do not cross Bazel package
-        // boundaries. npm packages should not generally include BUILD or BUILD.bazel files
-        // but they may as rxjs does temporarily.
-        fs.unlinkSync(fullPath);
-        return files;
       }
       return stat.isDirectory() ? files.concat(listFiles(rootDir, relPath)) :
         files.concat(relPath);
