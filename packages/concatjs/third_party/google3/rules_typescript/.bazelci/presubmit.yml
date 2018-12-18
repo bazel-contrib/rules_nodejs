@@ -40,8 +40,12 @@ platforms:
     run_targets:
     - "//:gazelle"
     - "@nodejs//:yarn"
+    build_flags:
+    - "--action_env=PATH"
     build_targets:
     - "..."
     - "@disable_tsetse_for_external_test//..."
+    test_flags:
+    - "--test_env=PATH"
     test_targets:
     - "..."
