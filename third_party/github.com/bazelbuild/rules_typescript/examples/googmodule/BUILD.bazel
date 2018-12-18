@@ -6,10 +6,10 @@ ts_library(
     tsconfig = "tsconfig.json",
 )
 
-load("//examples/devmode_consumer:devmode_consumer.bzl", "devmode_consumer")
+load("//examples/es5_output:es5_consumer.bzl", "es5_consumer")
 
-devmode_consumer(
-    name = "devmode_output",
+es5_consumer(
+    name = "es5_output",
     deps = [":googmodule"],
 )
 
@@ -19,7 +19,7 @@ jasmine_node_test(
     name = "googmodule_output_test",
     srcs = ["googmodule_output_test.js"],
     data = [
-        ":devmode_output",
+        ":es5_output",
         "@npm//jasmine",
     ],
 )
