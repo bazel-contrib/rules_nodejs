@@ -22,6 +22,10 @@ load(
     "@build_bazel_rules_nodejs//internal/js_library:js_library.bzl",
     "write_amd_names_shim",
 )
+load(
+    "@build_bazel_rules_nodejs//internal/web_package:web_package.bzl",
+    "html_asset_inject",
+)
 
 def _ts_devserver(ctx):
     files = depset()
@@ -76,6 +80,17 @@ def _ts_devserver(ctx):
     devserver_runfiles += ctx.files.static_files
     devserver_runfiles += script_files
 
+    if ctx.file.index_html:
+        injected_index = ctx.actions.declare_file("index.html")
+        html_asset_inject(
+            ctx.file.index_html,
+            ctx.actions,
+            ctx.executable._injector,
+            [f.path for f in ctx.files.static_files] + [ctx.attr.serving_path],
+            injected_index,
+        )
+        devserver_runfiles += [injected_index]
+
     serving_arg = ""
     if ctx.attr.serving_path:
         serving_arg = "-serving_path=%s" % ctx.attr.serving_path
@@ -127,12 +142,19 @@ ts_devserver = rule(
             aspects = [sources_aspect],
         ),
         "serving_path": attr.string(
+            default = "/_ts_scripts.js",
             doc = """The path you can request from the client HTML which serves the JavaScript bundle.
-            If you don't specify one, the JavaScript can be loaded at /_/ts_scripts.js""",
+            If you don't specify one, the JavaScript can be loaded at /_ts_scripts.js""",
         ),
         "data": attr.label_list(
             doc = "Dependencies that can be require'd while the server is running",
             allow_files = True,
+        ),
+        "index_html": attr.label(
+            allow_single_file = True,
+            doc = """An index.html file, we'll inject the script tag for the bundle,
+            as well as script tags for .js static_files and link tags for .css
+            static_files""",
         ),
         "static_files": attr.label_list(
             doc = """Arbitrary files which to be served, such as index.html.
@@ -170,6 +192,11 @@ ts_devserver = rule(
             # //devserver:server is the pre-compiled binary.
             # That means that our users don't need the go toolchain.
             default = Label("//devserver:devserver"),
+            executable = True,
+            cfg = "host",
+        ),
+        "_injector": attr.label(
+            default = "@build_bazel_rules_nodejs//internal/web_package:injector",
             executable = True,
             cfg = "host",
         ),
