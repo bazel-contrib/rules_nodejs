@@ -31,18 +31,20 @@ load("//internal/node:node_repositories.bzl", _node_repositories = "node_reposit
 load("//internal/npm_install:npm_install.bzl", _npm_install = "npm_install", _yarn_install = "yarn_install")
 load("//internal/npm_package:npm_package.bzl", _npm_package = "npm_package")
 load("//internal/rollup:rollup_bundle.bzl", _rollup_bundle = "rollup_bundle")
+load("//internal/web_package:web_package.bzl", _web_package = "web_package")
 
 check_bazel_version = _check_bazel_version
-nodejs_binary = _nodejs_binary
-nodejs_test = _nodejs_test
-node_repositories = _node_repositories
-jasmine_node_test = _jasmine_node_test
-npm_install = _npm_install
-yarn_install = _yarn_install
-rollup_bundle = _rollup_bundle
-npm_package = _npm_package
 history_server = _history_server
 http_server = _http_server
+jasmine_node_test = _jasmine_node_test
+node_repositories = _node_repositories
+nodejs_binary = _nodejs_binary
+nodejs_test = _nodejs_test
+npm_install = _npm_install
+npm_package = _npm_package
+rollup_bundle = _rollup_bundle
+web_package = _web_package
+yarn_install = _yarn_install
 # ANY RULES ADDED HERE SHOULD BE DOCUMENTED, run yarn skydoc to verify
 
 check_rules_nodejs_version = _check_rules_nodejs_version
