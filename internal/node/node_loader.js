@@ -344,16 +344,11 @@ module.constructor._resolveFilename = function(request, parent) {
   const moduleRoot = resolveToModuleRoot(request);
   if (moduleRoot) {
     const moduleRootInRunfiles = resolveRunfiles(undefined, moduleRoot);
-    try {
-      const filename = module.constructor._findPath(moduleRootInRunfiles, []);
-      if (!filename) {
-        throw new Error(`No file ${request} found in module root ${moduleRoot}`);
-      }
-      return filename;
-    } catch (e) {
-      console.error(`Failed to findPath for ${moduleRootInRunfiles}`);
-      throw e;
+    const filename = module.constructor._findPath(moduleRootInRunfiles, []);
+    if (!filename) {
+      throw new Error(`No file ${request} found in module root ${moduleRoot}`);
     }
+    return filename;
   }
 
   // Built-in modules, relative, absolute imports and npm dependencies
