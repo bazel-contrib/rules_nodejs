@@ -25,13 +25,13 @@ ts_library(
     name = "test_lib",
     testonly = True,
     srcs = glob(["*.spec.ts"]),
+    compiler = "@build_bazel_rules_typescript//internal:tsc_wrapped_bin",
     deps = [
         ":main",
         "@npm//@types/jasmine",
         "@npm//@types/node",
         "@npm//typescript",
     ],
-    compiler = "@build_bazel_rules_typescript//internal:tsc_wrapped_bin",
 )
 
 jasmine_node_test(

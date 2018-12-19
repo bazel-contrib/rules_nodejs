@@ -21,6 +21,7 @@ load(
 )
 
 rules_typescript_dependencies()
+
 rules_typescript_dev_dependencies()
 
 load("@build_bazel_rules_nodejs//:package.bzl", "rules_nodejs_dependencies")
@@ -57,9 +58,10 @@ yarn_install(
     yarn_lock = "//:yarn.lock",
 )
 
-load("@io_bazel_rules_go//go:def.bzl", "go_rules_dependencies", "go_register_toolchains")
+load("@io_bazel_rules_go//go:def.bzl", "go_register_toolchains", "go_rules_dependencies")
 
 go_rules_dependencies()
+
 go_register_toolchains()
 
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
@@ -68,14 +70,14 @@ gazelle_dependencies()
 
 load(
     "@build_bazel_rules_typescript//:defs.bzl",
-    "ts_setup_workspace",
     "check_rules_typescript_version",
+    "ts_setup_workspace",
 )
 
 ts_setup_workspace()
 
 # Test that check_rules_typescript_version works as expected
-check_rules_typescript_version("0.15.3")
+check_rules_typescript_version(minimum_version_string = "0.15.3")
 
 # Dependencies for generating documentation
 load("@io_bazel_rules_sass//sass:sass_repositories.bzl", "sass_repositories")
@@ -94,12 +96,12 @@ web_test_repositories()
 
 platform_http_file(
     name = "org_chromium_chromium",
-    licenses = ["notice"],  # BSD 3-clause (maybe more?)
     amd64_sha256 =
         "6933d0afce6e17304b62029fbbd246cbe9e130eb0d90d7682d3765d3dbc8e1c8",
     amd64_urls = [
         "https://commondatastorage.googleapis.com/chromium-browser-snapshots/Linux_x64/561732/chrome-linux.zip",
     ],
+    licenses = ["notice"],  # BSD 3-clause (maybe more?)
     macos_sha256 =
         "084884e91841a923d7b6e81101f0105bbc3b0026f9f6f7a3477f5b313ee89e32",
     macos_urls = [
@@ -114,12 +116,12 @@ platform_http_file(
 
 platform_http_file(
     name = "org_chromium_chromedriver",
-    licenses = ["reciprocal"],  # BSD 3-clause, ICU, MPL 1.1, libpng (BSD/MIT-like), Academic Free License v. 2.0, BSD 2-clause, MIT
     amd64_sha256 =
         "71eafe087900dbca4bc0b354a1d172df48b31a4a502e21f7c7b156d7e76c95c7",
     amd64_urls = [
         "https://chromedriver.storage.googleapis.com/2.41/chromedriver_linux64.zip",
     ],
+    licenses = ["reciprocal"],  # BSD 3-clause, ICU, MPL 1.1, libpng (BSD/MIT-like), Academic Free License v. 2.0, BSD 2-clause, MIT
     macos_sha256 =
         "fd32a27148f44796a55f5ce3397015c89ebd9f600d9dda2bcaca54575e2497ae",
     macos_urls = [
@@ -134,13 +136,13 @@ platform_http_file(
 
 platform_http_file(
     name = "org_mozilla_firefox",
-    licenses = ["reciprocal"],  # MPL 2.0
     amd64_sha256 =
         "3a729ddcb1e0f5d63933177a35177ac6172f12edbf9fbbbf45305f49333608de",
     amd64_urls = [
         "https://mirror.bazel.build/ftp.mozilla.org/pub/firefox/releases/61.0.2/linux-x86_64/en-US/firefox-61.0.2.tar.bz2",
         "https://ftp.mozilla.org/pub/firefox/releases/61.0.2/linux-x86_64/en-US/firefox-61.0.2.tar.bz2",
     ],
+    licenses = ["reciprocal"],  # MPL 2.0
     macos_sha256 =
         "bf23f659ae34832605dd0576affcca060d1077b7bf7395bc9874f62b84936dc5",
     macos_urls = [
@@ -151,13 +153,13 @@ platform_http_file(
 
 platform_http_file(
     name = "org_mozilla_geckodriver",
-    licenses = ["reciprocal"],  # MPL 2.0
     amd64_sha256 =
         "c9ae92348cf00aa719be6337a608fae8304691a95668e8e338d92623ba9e0ec6",
     amd64_urls = [
         "https://mirror.bazel.build/github.com/mozilla/geckodriver/releases/download/v0.21.0/geckodriver-v0.21.0-linux64.tar.gz",
         "https://github.com/mozilla/geckodriver/releases/download/v0.21.0/geckodriver-v0.21.0-linux64.tar.gz",
     ],
+    licenses = ["reciprocal"],  # MPL 2.0
     macos_sha256 =
         "ce4a3e9d706db94e8760988de1ad562630412fa8cf898819572522be584f01ce",
     macos_urls = [
@@ -169,6 +171,6 @@ platform_http_file(
 # Tell Bazel where the nested local repositories are that are
 # used for tests
 local_repository(
-  name = "disable_tsetse_for_external_test",
-  path = "internal/e2e/disable_tsetse_for_external",
+    name = "disable_tsetse_for_external_test",
+    path = "internal/e2e/disable_tsetse_for_external",
 )

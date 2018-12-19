@@ -1,8 +1,8 @@
-package(default_visibility = ["//:__pkg__"])
-
+load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 load("@io_bazel_rules_go//proto:def.bzl", "go_proto_library")
-load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
+
+package(default_visibility = ["//:__pkg__"])
 
 licenses(["notice"])  # Apache 2.0
 
@@ -30,11 +30,10 @@ go_library(
 )
 
 pkg_tar(
-  name = "package",
-  srcs = [
-    "BUILD.bazel",
-    "worker_protocol.proto",
-  ],
-  package_dir = "third_party/github.com/bazelbuild/bazel/src/main/protobuf",
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        "worker_protocol.proto",
+    ],
+    package_dir = "third_party/github.com/bazelbuild/bazel/src/main/protobuf",
 )
-

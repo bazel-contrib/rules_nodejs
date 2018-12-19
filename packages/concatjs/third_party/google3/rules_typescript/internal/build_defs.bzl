@@ -14,12 +14,13 @@
 
 "TypeScript compilation"
 
+load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleInfo", "collect_node_modules_aspect")
+
 # pylint: disable=unused-argument
 # pylint: disable=missing-docstring
 load(":common/compilation.bzl", "COMMON_ATTRIBUTES", "DEPS_ASPECTS", "compile_ts", "ts_providers_dict_to_struct")
 load(":common/tsconfig.bzl", "create_tsconfig")
 load(":ts_config.bzl", "TsConfigInfo")
-load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleInfo", "collect_node_modules_aspect")
 
 _DEFAULT_COMPILER = "@build_bazel_rules_typescript//:@bazel/typescript/tsc_wrapped"
 
@@ -259,26 +260,6 @@ ts_library = rule(
             allow_files = [".ts", ".tsx"],
             mandatory = True,
         ),
-        "deps": attr.label_list(aspects = local_deps_aspects),
-
-        # TODO(alexeagle): reconcile with google3: ts_library rules should
-        # be portable across internal/external, so we need this attribute
-        # internally as well.
-        "tsconfig": attr.label(
-            doc = """A tsconfig.json file containing settings for TypeScript compilation.
-            Note that some properties in the tsconfig are governed by Bazel and will be
-            overridden, such as `target` and `module`.
-
-            The default value is set to `//:tsconfig.json` by a macro. This means you must
-            either:
-
-            - Have your `tsconfig.json` file in the workspace root directory
-            - Use an alias in the root BUILD.bazel file to point to the location of tsconfig:
-              `alias(name="tsconfig.json", actual="//path/to:tsconfig-something.json")`
-            - Give an explicit `tsconfig` attribute to all `ts_library` targets
-            """,
-            allow_single_file = True,
-        ),
         "compiler": attr.label(
             doc = """Sets a different TypeScript compiler binary to use for this library.
             For example, we use the vanilla TypeScript tsc.js for bootstrapping,
@@ -296,14 +277,6 @@ ts_library = rule(
             executable = True,
             cfg = "host",
         ),
-        "supports_workers": attr.bool(
-            doc = """Intended for internal use only.
-            Allows you to disable the Bazel Worker strategy for this library.
-            Typically used together with the "compiler" setting when using a
-            non-worker aware compiler binary.""",
-            default = True,
-        ),
-        "tsickle_typed": attr.bool(default = True),
         "internal_testing_type_check_dependencies": attr.bool(default = False, doc = "Testing only, whether to type check inputs that aren't srcs."),
         "node_modules": attr.label(
             doc = """The npm packages which should be available during the compile.
@@ -368,6 +341,34 @@ ts_library = rule(
             """,
             default = Label("@npm//typescript:typescript__typings"),
         ),
+        "supports_workers": attr.bool(
+            doc = """Intended for internal use only.
+            Allows you to disable the Bazel Worker strategy for this library.
+            Typically used together with the "compiler" setting when using a
+            non-worker aware compiler binary.""",
+            default = True,
+        ),
+
+        # TODO(alexeagle): reconcile with google3: ts_library rules should
+        # be portable across internal/external, so we need this attribute
+        # internally as well.
+        "tsconfig": attr.label(
+            doc = """A tsconfig.json file containing settings for TypeScript compilation.
+            Note that some properties in the tsconfig are governed by Bazel and will be
+            overridden, such as `target` and `module`.
+
+            The default value is set to `//:tsconfig.json` by a macro. This means you must
+            either:
+
+            - Have your `tsconfig.json` file in the workspace root directory
+            - Use an alias in the root BUILD.bazel file to point to the location of tsconfig:
+              `alias(name="tsconfig.json", actual="//path/to:tsconfig-something.json")`
+            - Give an explicit `tsconfig` attribute to all `ts_library` targets
+            """,
+            allow_single_file = True,
+        ),
+        "tsickle_typed": attr.bool(default = True),
+        "deps": attr.label_list(aspects = local_deps_aspects),
     }),
     outputs = {
         "tsconfig": "%{name}_tsconfig.json",

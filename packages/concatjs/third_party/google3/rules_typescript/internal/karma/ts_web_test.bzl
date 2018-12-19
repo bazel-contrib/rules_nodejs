@@ -13,14 +13,14 @@
 # limitations under the License.
 "Unit testing with Karma"
 
+load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "write_amd_names_shim")
 load(
     "@build_bazel_rules_nodejs//internal:node.bzl",
     "expand_path_into_runfiles",
     "sources_aspect",
 )
-load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "write_amd_names_shim")
-load("@io_bazel_rules_webtesting//web:web.bzl", "web_test_suite")
 load("@io_bazel_rules_webtesting//web/internal:constants.bzl", "DEFAULT_WRAPPED_TEST_TAGS")
+load("@io_bazel_rules_webtesting//web:web.bzl", "web_test_suite")
 
 _CONF_TMPL = "//internal/karma:karma.conf.js"
 _DEFAULT_KARMA_BIN = "@npm//@bazel/karma/bin:karma"
@@ -108,11 +108,11 @@ def _ts_web_test_impl(ctx):
         output = conf,
         template = ctx.file._conf_tmpl,
         substitutions = {
-            "TMPL_runfiles_path": "/".join([".."] * config_segments),
             "TMPL_bootstrap_files": "\n".join(["      '%s'," % e for e in bootstrap_entries]),
-            "TMPL_user_files": "\n".join(["      '%s'," % e for e in user_entries]),
-            "TMPL_static_files": "\n".join(["      '%s'," % e for e in static_files]),
+            "TMPL_runfiles_path": "/".join([".."] * config_segments),
             "TMPL_runtime_files": "\n".join(["      '%s'," % e for e in runtime_files]),
+            "TMPL_static_files": "\n".join(["      '%s'," % e for e in static_files]),
+            "TMPL_user_files": "\n".join(["      '%s'," % e for e in user_entries]),
             "TMPL_workspace_name": ctx.workspace_name,
         },
     )
@@ -184,26 +184,20 @@ ts_web_test = rule(
             doc = "JavaScript source files",
             allow_files = [".js"],
         ),
-        "deps": attr.label_list(
-            doc = "Other targets which produce JavaScript such as `ts_library`",
-            allow_files = True,
-            aspects = [sources_aspect],
-        ),
         "bootstrap": attr.label_list(
             doc = """JavaScript files to include *before* the module loader (require.js).
             For example, you can include Reflect,js for TypeScript decorator metadata reflection,
             or UMD bundles for third-party libraries.""",
             allow_files = [".js"],
         ),
-        "runtime_deps": attr.label_list(
-            doc = """Dependencies which should be loaded after the module loader but before the srcs and deps.
-            These should be a list of targets which produce JavaScript such as `ts_library`.
-            The files will be loaded in the same order they are declared by that rule.""",
-            allow_files = True,
-            aspects = [sources_aspect],
-        ),
         "data": attr.label_list(
             doc = "Runtime dependencies",
+        ),
+        "karma": attr.label(
+            default = Label(_DEFAULT_KARMA_BIN),
+            executable = True,
+            cfg = "target",
+            allow_files = True,
         ),
         "static_files": attr.label_list(
             doc = """Arbitrary files which are available to be served on request.
@@ -212,11 +206,17 @@ ts_web_test = rule(
             `/base/build_bazel_rules_typescript/examples/testing/static_script.js`""",
             allow_files = True,
         ),
-        "karma": attr.label(
-            default = Label(_DEFAULT_KARMA_BIN),
-            executable = True,
-            cfg = "target",
+        "runtime_deps": attr.label_list(
+            doc = """Dependencies which should be loaded after the module loader but before the srcs and deps.
+            These should be a list of targets which produce JavaScript such as `ts_library`.
+            The files will be loaded in the same order they are declared by that rule.""",
             allow_files = True,
+            aspects = [sources_aspect],
+        ),
+        "deps": attr.label_list(
+            doc = "Other targets which produce JavaScript such as `ts_library`",
+            allow_files = True,
+            aspects = [sources_aspect],
         ),
         "_conf_tmpl": attr.label(
             default = Label(_CONF_TMPL),

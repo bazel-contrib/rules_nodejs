@@ -19,8 +19,9 @@
 # https://github.com/bazelbuild/rules_go/blob/master/go/tools/gazelle/README.rst#directives
 # gazelle:exclude node_modules
 load("@bazel_gazelle//:def.bzl", "gazelle")
-load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
 load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
 
 # ts_library defaults to this label in the top-level package.
 # Point to where the file actually lives.
@@ -54,8 +55,6 @@ js_library(
     visibility = ["//visibility:public"],
 )
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
-
 # A nodejs_binary for @bazel/typescript/tsc_wrapped to use by default in
 # ts_library that depends on @npm//@bazel/typescript instead of the
 # output of the //internal/tsc_wrapped ts_library rule. This
@@ -77,18 +76,18 @@ nodejs_binary(
 # It's the companion of the @bazel/typescript, @bazel/karma, etc npm packages.
 pkg_tar(
     name = "release",
-    extension = "tgz",
     srcs = [
-      "BUILD.bazel",
-      "AUTHORS",
-      "defs.bzl",
-      "LICENSE",
-      "package.bzl",
-      "WORKSPACE",
+        "AUTHORS",
+        "BUILD.bazel",
+        "LICENSE",
+        "WORKSPACE",
+        "defs.bzl",
+        "package.bzl",
     ],
+    extension = "tgz",
     deps = [
-      "//devserver:package",
-      "//internal:package",
-      "//third_party/github.com/bazelbuild/bazel/src/main/protobuf:package",
+        "//devserver:package",
+        "//internal:package",
+        "//third_party/github.com/bazelbuild/bazel/src/main/protobuf:package",
     ],
 )

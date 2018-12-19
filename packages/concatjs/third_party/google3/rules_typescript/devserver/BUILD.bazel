@@ -1,7 +1,7 @@
-package(default_visibility = ["//visibility:public"])
-
-load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
 load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+package(default_visibility = ["//visibility:public"])
 
 go_library(
     name = "go_default_library",
@@ -25,7 +25,7 @@ config_setting(
     constraint_values = [
         "@bazel_tools//platforms:osx",
         "@bazel_tools//platforms:x86_64",
-    ]
+    ],
 )
 
 config_setting(
@@ -33,7 +33,7 @@ config_setting(
     constraint_values = [
         "@bazel_tools//platforms:linux",
         "@bazel_tools//platforms:x86_64",
-    ]
+    ],
 )
 
 config_setting(
@@ -41,7 +41,7 @@ config_setting(
     constraint_values = [
         "@bazel_tools//platforms:windows",
         "@bazel_tools//platforms:x86_64",
-    ]
+    ],
 )
 
 filegroup(
@@ -57,41 +57,41 @@ filegroup(
 
 go_binary(
     name = "devserver-windows",
+    out = "devserver-windows_amd64.exe",
+    embed = [":go_default_library"],
     goarch = "amd64",
     goos = "windows",
     pure = "on",
-    out = "devserver-windows_amd64.exe",
-    embed = [":go_default_library"],
     visibility = ["//visibility:public"],
 )
 
 go_binary(
     name = "devserver-darwin",
+    out = "devserver-darwin_amd64",
+    embed = [":go_default_library"],
     goarch = "amd64",
     goos = "darwin",
     pure = "on",
-    out = "devserver-darwin_amd64",
-    embed = [":go_default_library"],
     visibility = ["//visibility:public"],
 )
 
 go_binary(
     name = "devserver-linux",
+    out = "devserver-linux_amd64",
+    embed = [":go_default_library"],
     goarch = "amd64",
     goos = "linux",
     pure = "on",
-    out = "devserver-linux_amd64",
-    embed = [":go_default_library"],
     visibility = ["//visibility:public"],
 )
 
 pkg_tar(
     name = "package",
     srcs = [
-        ":devserver-windows",
+        "BUILD.bazel",
         ":devserver-darwin",
         ":devserver-linux",
-        "BUILD.bazel",
+        ":devserver-windows",
     ],
     package_dir = "devserver",
 )

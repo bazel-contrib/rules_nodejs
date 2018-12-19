@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//:defs.bzl", "http_server")
+load("@build_bazel_rules_nodejs//:defs.bzl", "http_server", "rollup_bundle")
 load("//:defs.bzl", "ts_devserver")
 load("//internal:defaults.bzl", "ts_library")
 
@@ -17,9 +17,6 @@ ts_devserver(
     # We'll collect all the devmode JS sources from these TypeScript libraries
     deps = [":app"],
 )
-
-# Test for production mode
-load("@build_bazel_rules_nodejs//:defs.bzl", "rollup_bundle", "nodejs_binary")
 
 rollup_bundle(
     name = "bundle",
