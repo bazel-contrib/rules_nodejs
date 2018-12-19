@@ -8,7 +8,6 @@ ts_library(
     tsconfig = "tsconfig.json",
 )
 
-
 es5_consumer(
     name = "es5_output",
     deps = [":googmodule"],

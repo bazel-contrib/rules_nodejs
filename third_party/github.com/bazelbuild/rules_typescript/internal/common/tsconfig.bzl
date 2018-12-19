@@ -134,6 +134,7 @@ def create_tsconfig(
     # See javascript/typescript/compiler/tsc_wrapped.ts:BazelOptions.
     # Unlike compiler_options, the paths here are relative to the rootDir,
     # not the location of the tsconfig.json file.
+    # @unsorted-dict-items preserve historical order for golden tests
     bazel_options = {
         "workspaceName": ctx.workspace_name,
         "target": str(ctx.label),
@@ -175,6 +176,7 @@ def create_tsconfig(
     target_language_level = "es5" if devmode_manifest or has_node_runtime else "es2015"
 
     # Keep these options in sync with those in playground/playground.ts.
+    # @unsorted-dict-items preserve historical order for golden tests
     compiler_options = {
         # De-sugar to this language level
         "target": target_language_level,
@@ -266,6 +268,7 @@ def create_tsconfig(
         compiler_options["traceResolution"] = True
         compiler_options["diagnostics"] = True
 
+    # @unsorted-dict-items preserve historical order for golden tests
     return {
         "compilerOptions": compiler_options,
         "bazelOptions": bazel_options,
