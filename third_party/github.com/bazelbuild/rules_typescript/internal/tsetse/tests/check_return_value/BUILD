@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-licenses(["notice"])  # Apache 2.0
-
 load("//internal:defaults.bzl", "ts_library")
+
+licenses(["notice"])  # Apache 2.0
 
 
 error_message = "TS21222: return value is unused.\\n\\tSee http://tsetse.info/check-return-value"

@@ -25,7 +25,7 @@ ts_library(
     deps = [
         "@npm//@types/jasmine",
         "@npm//@types/node",
-    ],    
+    ],
 )
 
 ts_web_test_suite(

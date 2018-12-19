@@ -53,6 +53,6 @@ pkg_tar(
         "BUILD",
     ],
     package_dir = "devserver",
-    deps = ["strip_workaround"],
     visibility = ["//internal:__pkg__"],
+    deps = ["strip_workaround"],
 )

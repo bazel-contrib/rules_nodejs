@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-package(default_visibility = ["//visibility:public"])
-
 load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
 load("//internal:defaults.bzl", "ts_library")
+
+package(default_visibility = ["//visibility:public"])
 
 # We compile this library with the module name "sm" to make it possible to
 # use `import {} from 'sm';` both at type-check time (we include the mapping in

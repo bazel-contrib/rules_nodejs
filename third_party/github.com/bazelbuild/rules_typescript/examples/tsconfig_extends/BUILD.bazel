@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-package(default_visibility = ["//visibility:public"])
-
 load("//:defs.bzl", "ts_config")
 load("//internal:defaults.bzl", "ts_library")
+
+package(default_visibility = ["//visibility:public"])
 
 # Because our tsconfig.json has an extends property, we must also tell the
 # ts_library to include the extended tsconfig file in compilations.

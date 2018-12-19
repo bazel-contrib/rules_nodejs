@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-licenses(["notice"])  # Apache 2.0
-
 load("//internal:defaults.bzl", "ts_library")
+
+licenses(["notice"])  # Apache 2.0
 
 
 error_message = "TS21225: All Promises in async functions must either be awaited or used in an expression."
@@ -25,7 +25,6 @@ ts_library(
     srcs = [
         "positives.ts",
     ],
-    tsconfig = "//internal:tsetse/tsconfig.json",
     expected_diagnostics = [
         "\(29,3\)" + error_message,
         "\(30,3\)" + error_message,
@@ -33,6 +32,7 @@ ts_library(
         "\(32,3\)" + error_message,
         "\(34,3\)" + error_message,
     ],
+    tsconfig = "//internal:tsetse/tsconfig.json",
     deps = [
     ],
 )

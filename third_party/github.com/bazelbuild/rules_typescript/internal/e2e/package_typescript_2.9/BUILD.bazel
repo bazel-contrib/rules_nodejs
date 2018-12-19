@@ -26,9 +26,9 @@ ts_library(
     srcs = glob(["*.spec.ts"]),
     deps = [
         ":main",
+        "@npm//@bazel/typescript",
         "@npm//@types/jasmine",
         "@npm//@types/node",
-        "@npm//@bazel/typescript",
     ],
 )
 

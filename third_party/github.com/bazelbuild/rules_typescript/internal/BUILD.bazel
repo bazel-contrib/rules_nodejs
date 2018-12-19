@@ -14,6 +14,10 @@
 
 # gazelle:exclude worker_protocol.proto
 
+load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
+load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test", "nodejs_binary", "npm_package")
+load("//internal:defaults.bzl", "ts_library")
+
 package(default_visibility = ["//visibility:public"])
 
 exports_files([
@@ -23,10 +27,6 @@ exports_files([
     "ts_repositories.bzl",
     "tsetse/tsconfig.json",
 ])
-
-load("//internal:defaults.bzl", "ts_library")
-load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary", "jasmine_node_test", "npm_package")
-load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
 
 # Vanilla typescript compiler: run the tsc.js binary distributed by TypeScript
 nodejs_binary(
@@ -153,11 +153,11 @@ npm_package(
 )
 
 pkg_tar(
-  name = "tsc_wrapped_pkg",
-  srcs = glob([
-    "tsc_wrapped/**",
-  ]),
-  package_dir = "tsc_wrapped",
+    name = "tsc_wrapped_pkg",
+    srcs = glob([
+        "tsc_wrapped/**",
+    ]),
+    package_dir = "tsc_wrapped",
 )
 
 pkg_tar(
@@ -172,20 +172,20 @@ pkg_tar(
 )
 
 pkg_tar(
-  name = "package",
-  srcs = [
-    "build_defs.bzl",
-    "ts_config.bzl",
-    "ts_repositories.bzl",
-    "BUILD.bazel",
-    "package.json",
-  ],
-  package_dir = "internal",
-  deps = [
-    ":tsc_wrapped_pkg",
-    ":common_pkg",
-    "//internal/karma:package",
-    "//internal/protobufjs:package",
-    "//internal/devserver:package",
-  ]
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        "build_defs.bzl",
+        "package.json",
+        "ts_config.bzl",
+        "ts_repositories.bzl",
+    ],
+    package_dir = "internal",
+    deps = [
+        ":common_pkg",
+        ":tsc_wrapped_pkg",
+        "//internal/devserver:package",
+        "//internal/karma:package",
+        "//internal/protobufjs:package",
+    ],
 )

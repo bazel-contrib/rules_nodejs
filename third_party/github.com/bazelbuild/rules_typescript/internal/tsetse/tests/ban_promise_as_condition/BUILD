@@ -12,16 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-licenses(["notice"])  # Apache 2.0
-
 load("//internal:defaults.bzl", "ts_library")
+
+licenses(["notice"])  # Apache 2.0
 
 error_message = "error TS21226: Found a thenable.*"
 
 ts_library(
     name = "positives",
     testonly = 1,
-    tsconfig = "//internal:tsetse/tsconfig.json",
     srcs = [
         "positives.ts",
     ],
@@ -37,6 +36,7 @@ ts_library(
         "\(44,34\).*" + error_message,
         "\(45,34\).*" + error_message,
     ],
+    tsconfig = "//internal:tsetse/tsconfig.json",
     deps = [
     ],
 )
@@ -44,8 +44,8 @@ ts_library(
 ts_library(
     name = "negatives",
     testonly = 1,
-    tsconfig = "//internal:tsetse/tsconfig.json",
     srcs = ["negatives.ts"],
+    tsconfig = "//internal:tsetse/tsconfig.json",
     deps = [
     ],
 )

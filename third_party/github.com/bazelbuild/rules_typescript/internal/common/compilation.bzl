@@ -15,8 +15,8 @@
 """Used for compilation by the different implementations of build_defs.bzl.
 """
 
-load(":common/module_mappings.bzl", "module_mappings_aspect")
 load(":common/json_marshal.bzl", "json_marshal")
+load(":common/module_mappings.bzl", "module_mappings_aspect")
 
 BASE_ATTRIBUTES = dict()
 
@@ -28,31 +28,31 @@ DEPS_ASPECTS = [
 
 # Attributes shared by any typescript-compatible rule (ts_library, ng_module)
 COMMON_ATTRIBUTES = dict(BASE_ATTRIBUTES, **{
-    "deps": attr.label_list(aspects = DEPS_ASPECTS),
     "data": attr.label_list(
         default = [],
         allow_files = True,
     ),
-    # TODO(evanm): make this the default and remove the option.
-    "runtime": attr.string(default = "browser"),
+    # A list of diagnostics expected when compiling this library, in the form of
+    # "diagnostic:regexp", e.g. "TS1234:failed to quizzle the .* wobble".
+    # Useful to test for expected compilation errors.
+    "expected_diagnostics": attr.string_list(),
+    # Whether to generate externs.js from any "declare" statement.
+    "generate_externs": attr.bool(default = True),
     # Used to determine module mappings
     "module_name": attr.string(),
     "module_root": attr.string(),
+    # TODO(evanm): make this the default and remove the option.
+    "runtime": attr.string(default = "browser"),
     # TODO(radokirov): remove this attr when clutz is stable enough to consume
     # any closure JS code.
     "runtime_deps": attr.label_list(
         default = [],
         providers = ["js"],
     ),
+    "deps": attr.label_list(aspects = DEPS_ASPECTS),
     "_additional_d_ts": attr.label_list(
         allow_files = True,
     ),
-    # Whether to generate externs.js from any "declare" statement.
-    "generate_externs": attr.bool(default = True),
-    # A list of diagnostics expected when compiling this library, in the form of
-    # "diagnostic:regexp", e.g. "TS1234:failed to quizzle the .* wobble".
-    # Useful to test for expected compilation errors.
-    "expected_diagnostics": attr.string_list(),
 })
 
 COMMON_OUTPUTS = {
@@ -438,9 +438,18 @@ def compile_ts(
 
     return {
         "files": depset(transitive = files_depsets),
+        "instrumented_files": {
+            "dependency_attributes": ["deps", "runtime_deps"],
+            "extensions": ["ts"],
+            "source_attributes": ["srcs"],
+        },
+        # Expose the module_name so that packaging rules can access it.
+        # e.g. rollup_bundle under Bazel needs to convert this into a UMD global
+        # name in the Rollup configuration.
+        "module_name": ctx.attr.module_name,
         "output_groups": {
-            "es6_sources": es6_sources,
             "es5_sources": es5_sources,
+            "es6_sources": es6_sources,
         },
         "runfiles": ctx.runfiles(
             # Note: don't include files=... here, or they will *always* be built
@@ -449,29 +458,20 @@ def compile_ts(
             collect_default = True,
             collect_data = True,
         ),
+        # Expose the tags so that a Skylark aspect can access them.
+        "tags": ctx.attr.tags,
         # TODO(martinprobst): Prune transitive deps, only re-export what's needed.
         "typescript": {
             "declarations": depset(transitive = declarations_depsets),
-            "transitive_declarations": transitive_decls,
-            "es6_sources": es6_sources,
-            "transitive_es6_sources": transitive_es6_sources,
-            "es5_sources": es5_sources,
-            "transitive_es5_sources": transitive_es5_sources,
             "devmode_manifest": devmode_manifest,
-            "type_blacklisted_declarations": type_blacklisted_declarations,
-            "tsickle_externs": tsickle_externs,
+            "es5_sources": es5_sources,
+            "es6_sources": es6_sources,
             "replay_params": replay_params,
-        },
-        # Expose the tags so that a Skylark aspect can access them.
-        "tags": ctx.attr.tags,
-        # Expose the module_name so that packaging rules can access it.
-        # e.g. rollup_bundle under Bazel needs to convert this into a UMD global
-        # name in the Rollup configuration.
-        "module_name": ctx.attr.module_name,
-        "instrumented_files": {
-            "extensions": ["ts"],
-            "source_attributes": ["srcs"],
-            "dependency_attributes": ["deps", "runtime_deps"],
+            "transitive_declarations": transitive_decls,
+            "transitive_es5_sources": transitive_es5_sources,
+            "transitive_es6_sources": transitive_es6_sources,
+            "tsickle_externs": tsickle_externs,
+            "type_blacklisted_declarations": type_blacklisted_declarations,
         },
     }
 

@@ -17,9 +17,8 @@
 Users should not load files under "/internal"
 """
 
-load("//internal:ts_repositories.bzl", _ts_setup_workspace = "ts_setup_workspace")
-load("//internal:build_defs.bzl", _ts_library = "ts_library_macro")
-load("//internal:ts_config.bzl", _ts_config = "ts_config")
+load("@build_bazel_rules_nodejs//internal/common:check_version.bzl", "check_version")
+load("//:package.bzl", "VERSION")
 load("//internal/devserver:ts_devserver.bzl", _ts_devserver = "ts_devserver_macro")
 load(
     "//internal/karma:ts_web_test.bzl",
@@ -27,8 +26,9 @@ load(
     _ts_web_test_suite = "ts_web_test_suite",
 )
 load("//internal/protobufjs:ts_proto_library.bzl", _ts_proto_library = "ts_proto_library")
-load("//:package.bzl", "VERSION")
-load("@build_bazel_rules_nodejs//internal/common:check_version.bzl", "check_version")
+load("//internal:build_defs.bzl", _ts_library = "ts_library_macro")
+load("//internal:ts_config.bzl", _ts_config = "ts_config")
+load("//internal:ts_repositories.bzl", _ts_setup_workspace = "ts_setup_workspace")
 
 ts_setup_workspace = _ts_setup_workspace
 ts_library = _ts_library
