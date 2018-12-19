@@ -336,6 +336,26 @@ module.constructor._resolveFilename = function(request, parent) {
 
   const failedResolutions = [];
 
+  // Attempt to resolve to module root.
+  // This should be the first attempted resolution because:
+  // - it's fairly cheap to check (regex over a small array); 
+  // - will throw if something is wrong and not cascade down;
+  // - it is be very common when there are a lot of packages built from source;
+  const moduleRoot = resolveToModuleRoot(request);
+  if (moduleRoot) {
+    const moduleRootInRunfiles = resolveRunfiles(undefined, moduleRoot);
+    try {
+      const filename = module.constructor._findPath(moduleRootInRunfiles, []);
+      if (!filename) {
+        throw new Error(`No file ${request} found in module root ${moduleRoot}`);
+      }
+      return filename;
+    } catch (e) {
+      console.error(`Failed to findPath for ${moduleRootInRunfiles}`);
+      throw e;
+    }
+  }
+
   // Built-in modules, relative, absolute imports and npm dependencies
   // can be resolved using request
   try {
@@ -431,22 +451,6 @@ module.constructor._resolveFilename = function(request, parent) {
     return resolved;
   } catch (e) {
     failedResolutions.push(`node_modules attribute (${NODE_MODULES_ROOT}) - ${e.toString()}`);
-  }
-
-  // Finally, attempt to resolve to module root
-  const moduleRoot = resolveToModuleRoot(request);
-  if (moduleRoot) {
-    const moduleRootInRunfiles = resolveRunfiles(undefined, moduleRoot);
-    try {
-      const filename = module.constructor._findPath(moduleRootInRunfiles, []);
-      if (!filename) {
-        throw new Error(`No file ${request} found in module root ${moduleRoot}`);
-      }
-      return filename;
-    } catch (e) {
-      console.error(`Failed to findPath for ${moduleRootInRunfiles}`);
-      throw e;
-    }
   }
 
   const error = new Error(
