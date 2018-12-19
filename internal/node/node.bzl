@@ -152,7 +152,7 @@ def _nodejs_binary_impl(ctx):
         executable = ctx.outputs.script,
         runfiles = ctx.runfiles(
             transitive_files = runfiles,
-            files = [node, ctx.outputs.loader] + node_modules + sources,
+            files = [node, ctx.outputs.loader] + ctx.files._source_map_support_files + node_modules + sources,
             collect_data = True,
         ),
     )]
@@ -284,6 +284,14 @@ _NODEJS_EXECUTABLE_ATTRS = {
         default = Label("@nodejs//:bin/node_args.sh"),
         allow_single_file = True,
     ),
+    "_source_map_support_files": attr.label_list(
+        default = [
+            Label("//third_party/github.com/buffer-from:contents"),
+            Label("//third_party/github.com/source-map:contents"),
+            Label("//third_party/github.com/source-map-support:contents"),
+        ],
+        allow_files = True,
+    ),
 }
 
 _NODEJS_EXECUTABLE_OUTPUTS = {
@@ -355,9 +363,11 @@ def nodejs_binary_macro(name, data = [], args = [], visibility = None, tags = []
       testonly: applied to nodejs_binary and wrapper binary
       **kwargs: passed to the nodejs_binary
     """
+    all_data = data + ["@bazel_tools//tools/bash/runfiles"]
+
     nodejs_binary(
         name = "%s_bin" % name,
-        data = data + ["@bazel_tools//tools/bash/runfiles"],
+        data = all_data,
         testonly = testonly,
         visibility = ["//visibility:private"],
         **kwargs
@@ -387,9 +397,11 @@ def nodejs_test_macro(name, data = [], args = [], visibility = None, tags = [], 
       tags: applied to the wrapper binary
       **kwargs: passed to the nodejs_test
     """
+    all_data = data + ["@bazel_tools//tools/bash/runfiles"]
+
     nodejs_test(
         name = "%s_bin" % name,
-        data = data + ["@bazel_tools//tools/bash/runfiles"],
+        data = all_data,
         testonly = 1,
         tags = ["manual"],
         **kwargs
