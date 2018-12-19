@@ -16,7 +16,6 @@ load("//internal:defaults.bzl", "ts_library")
 
 licenses(["notice"])  # Apache 2.0
 
-
 error_message = "TS21222: return value is unused.\\n\\tSee http://tsetse.info/check-return-value"
 
 ts_library(

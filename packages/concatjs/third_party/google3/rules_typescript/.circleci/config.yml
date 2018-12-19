@@ -111,10 +111,19 @@ jobs:
     steps:
       - checkout:
           <<: *post_checkout
-      - run: .circleci/setup_cache.sh
-      - run: sudo cp .circleci/bazel.rc /etc/bazel.bazelrc
-      - *setup-bazel-remote-cache
-      - run: yarn skylint
+
+      - run: yarn install
+
+      # Run the skylark linter to check our Bazel rules
+      # Note, this is not yet enforced, because
+      # - buildifier doesn't exit non-zero in the presence of lint warnings: https://github.com/bazelbuild/buildtools/issues/470
+      # - false positive for rule docstrings: https://github.com/bazelbuild/buildtools/issues/471
+      - run: 'yarn bazel:lint ||
+              (echo -e "\n.bzl files have lint errors. Please run ''yarn bazel:lint-fix''"; exit 1)'
+
+      # Enforce that BUILD files are formatted.
+      - run: 'yarn bazel:format -mode=check ||
+              (echo "BUILD files not formatted. Please run ''yarn bazel:format''" ; exit 1)'
 
 workflows:
   version: 2

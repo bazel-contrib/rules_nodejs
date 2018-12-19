@@ -16,7 +16,6 @@ load("//internal:defaults.bzl", "ts_library")
 
 licenses(["notice"])  # Apache 2.0
 
-
 ts_library(
     name = "positives",
     testonly = 1,
