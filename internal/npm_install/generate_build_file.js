@@ -42,10 +42,13 @@
 const fs = require('fs');
 const path = require('path');
 
-const BUILD_FILE_HEADER = `# Generated file from yarn_install/npm_install rule.
+const BUILD_FILE_GENERATED_BY_HEADER = `# Generated file from yarn_install/npm_install rule.
 # See $(bazel info output_base)/external/build_bazel_rules_nodejs/internal/npm_install/generate_build_file.js
 
-# All rules in other repositories can use these targets
+`
+
+const BUILD_FILE_HEADER =
+    BUILD_FILE_GENERATED_BY_HEADER + `# All rules in other repositories can use these targets
 package(default_visibility = ["//visibility:public"])
 
 `
@@ -77,6 +80,7 @@ function main() {
   // find all packages (including packages in nested node_modules)
   const pkgs = findPackages();
   const scopes = findScopes();
+  const bazelPkgs = {};
 
   // flatten dependencies
   const pkgsMap = new Map();
@@ -85,7 +89,8 @@ function main() {
 
   // generate BUILD files
   generateRootBuildFile(pkgs)
-  pkgs.filter(pkg => !pkg._isNested).forEach(pkg => generatePackageBuildFiles(pkg));
+  pkgs.filter(pkg => !pkg._isNested)
+      .forEach(pkg => generatePackageBuildFiles(pkg, pkgs, bazelPkgs));
   scopes.forEach(scope => generateScopeBuildFiles(scope, pkgs));
 }
 
@@ -127,7 +132,7 @@ filegroup(
   writeFileSync('BUILD.bazel', buildFile);
 }
 
-function generatePackageBuildFiles(pkg) {
+function generatePackageBuildFiles(pkg, pkgs, bazelPkgs) {
   const buildFile =
       BUILD_FILE_HEADER + `load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
 
@@ -139,6 +144,81 @@ function generatePackageBuildFiles(pkg) {
 
   const binAliasesBuildFile = BUILD_FILE_HEADER + printPackageBinAliases(pkg);
   writeFileSync(path.posix.join(pkg._dir, 'bin', 'BUILD.bazel'), binAliasesBuildFile);
+
+  if (pkg.bazelPackages) {
+    // This npm package specifies one or more bazel packages to setup
+    Object.keys(pkg.bazelPackages)
+        .forEach(
+            bazelPkg =>
+                setupBazelPackage(bazelPkg, pkg.bazelPackages[bazelPkg], pkg, pkgs, bazelPkgs));
+  }
+}
+
+function setupBazelPackage(bazelPkg, bazelPkgDetails, pkg, pkgs, bazelPkgs) {
+  // Check for a conflicting npm package
+  pkgs.forEach(npmPkg => {
+    if (npmPkg._fullName === bazelPkg) {
+      throw new Error(
+          `Could not setup Bazel package ${bazelPkg} requested by npm ` +
+          `package ${pkg._dir}@${pkg.version}. An installed npm package of the same name exists.`);
+    }
+  });
+
+  let alreadySetup = bazelPkgs[bazelPkg];
+
+  if (bazelPkgDetails.version) {
+    // Bazel package setup is versioned to allow for multiple
+    // setup requests from different npm packages as long as the version matches
+    if (alreadySetup && alreadySetup.version !== bazelPkgDetails.version) {
+      throw new Error(
+          `Could not setup Bazel package ${bazelPkg}@${bazelPkgDetails.version} ` +
+          `requested by npm package ${pkg._dir}@${pkg.version}. Bazel package ` +
+          `${bazelPkg}@${alreadySetup.version} already setup by ` +
+          alreadySetup.sources.join(', '));
+    }
+  } else {
+    // Non-version bazel package setup requests can only be done once
+    if (alreadySetup) {
+      throw new Error(
+          `Could not setup Bazel package ${bazelPkg} requested by npm ` +
+          `package ${pkg._dir}@${pkg.version}. Bazel package already setup by ` +
+          alreadySetup.sources.join(', '));
+    }
+  }
+
+  // Copy over requested files to Bazel package if it has not already been setup
+  if (!alreadySetup && bazelPkgDetails.files) {
+    bazelPkgDetails.files.forEach(file => {
+      const sourceFile = path.posix.join('node_modules', pkg._dir, file);
+      if (!isFile(sourceFile)) {
+        throw new Error(
+            `Could not setup Bazel package ${bazelPkg} requested by npm ` +
+            `package ${pkg._dir}@${pkg.version}. Requested file ` +
+            `${file} does not exist in npm package.`);
+      }
+      writeFileSync(
+          path.posix.join(bazelPkg, file), fs.readFileSync(sourceFile, {encoding: 'utf-8'}));
+    })
+  }
+
+  // Keep track of which npm packages setup this bazel package
+  if (!alreadySetup) {
+    alreadySetup = bazelPkgs[bazelPkg] = {
+      version: bazelPkgDetails.version,
+      sources: [],
+    }
+  }
+  alreadySetup.sources.push(`${pkg._dir}@${pkg.version}`);
+
+  // Write out the Bazel package marker BUILD.bazel file
+  writeFileSync(
+      path.posix.join(bazelPkg, 'BUILD.bazel'),
+      `# Marker this directory is the Bazel package ${bazelPkg} ` +
+          `${alreadySetup.version ? 'version ' + alreadySetup.version : ''}\n\n` +
+          BUILD_FILE_GENERATED_BY_HEADER +
+          `# This Bazel package is setup by the yarn_install/npm_install rule from the of the 'bazelPackages' attribute\n` +
+          `# in the package.json of the following npm packages:\n #` +
+          alreadySetup.sources.join('\n# '));
 }
 
 function generateScopeBuildFiles(scope, pkgs) {
@@ -150,12 +230,17 @@ function generateScopeBuildFiles(scope, pkgs) {
 }
 
 /**
+ * Checks if a path is a file.
+ */
+function isFile(p) {
+  return fs.existsSync(p) && fs.statSync(p).isFile();
+}
+
+/**
  * Checks if a path is an npm package which is is a directory with a package.json file.
  */
 function isPackage(p) {
-  const packageJson = path.posix.join(p, 'package.json');
-  return fs.statSync(p).isDirectory() && fs.existsSync(packageJson) &&
-      fs.statSync(packageJson).isFile();
+  return fs.statSync(p).isDirectory() && isFile(path.posix.join(p, 'package.json'));
 }
 
 /**
@@ -333,7 +418,7 @@ function flattenDependencies(pkg, dep, pkgsMap) {
           }
           // dependency not found
           if (required) {
-            throw new Error(`Could not find ${depType} '${targetDep}' of '${dep._dir}'`)
+            throw new Error(`Could not find ${depType} '${targetDep}' of '${dep._dir}'`);
           }
           return null;
         })
