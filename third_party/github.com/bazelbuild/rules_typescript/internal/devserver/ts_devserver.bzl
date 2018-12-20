@@ -82,11 +82,19 @@ def _ts_devserver(ctx):
 
     if ctx.file.index_html:
         injected_index = ctx.actions.declare_file("index.html")
+        bundle_script = ctx.attr.serving_path
+        if bundle_script.startswith("/"):
+            bundle_script = bundle_script[1:]
         html_asset_inject(
             ctx.file.index_html,
             ctx.actions,
             ctx.executable._injector,
-            [f.path for f in ctx.files.static_files] + [ctx.attr.serving_path],
+            ctx.attr.additional_root_paths + [
+                ctx.label.package,
+                "/".join([ctx.bin_dir.path, ctx.label.package]),
+                "/".join([ctx.genfiles_dir.path, ctx.label.package]),
+            ],
+            [f.path for f in ctx.files.static_files] + [bundle_script],
             injected_index,
         )
         devserver_runfiles += [injected_index]
@@ -170,9 +178,11 @@ ts_devserver = rule(
             allow_files = [".js"],
         ),
         "serving_path": attr.string(
-            default = "/_ts_scripts.js",
+            # This default repeats the one in the go program. We make it explicit here so we can read it
+            # when injecting scripts into the index file.
+            default = "/_/ts_scripts.js",
             doc = """The path you can request from the client HTML which serves the JavaScript bundle.
-            If you don't specify one, the JavaScript can be loaded at /_ts_scripts.js""",
+            If you don't specify one, the JavaScript can be loaded at /_/ts_scripts.js""",
         ),
         "static_files": attr.label_list(
             doc = """Arbitrary files which to be served, such as index.html.
