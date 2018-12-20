@@ -1,7 +1,9 @@
-def html_asset_inject(index_html, action_factory, injector, assets, output):
+def html_asset_inject(index_html, action_factory, injector, rootDirs, assets, output):
     args = action_factory.args()
     args.add(output.path)
     args.add(index_html.path)
+    args.add_all(rootDirs)
+    args.add("--assets")
     args.add_all(assets)
     args.use_param_file("%s", use_always = True)
     action_factory.run(
@@ -12,10 +14,12 @@ def html_asset_inject(index_html, action_factory, injector, assets, output):
     )
     return output
 
-def move_files(output_name, files, action_factory, assembler):
+def move_files(output_name, files, action_factory, assembler, root_paths):
     www_dir = action_factory.declare_directory(output_name)
     args = action_factory.args()
     args.add(www_dir.path)
+    args.add_all(root_paths)
+    args.add("--assets")
     args.add_all([f.path for f in files])
     args.use_param_file("%s", use_always = True)
     action_factory.run(
@@ -28,11 +32,17 @@ def move_files(output_name, files, action_factory, assembler):
     return depset([www_dir])
 
 def _web_package(ctx):
+    root_paths = ctx.attr.additional_root_paths + [
+        ctx.label.package,
+        "/".join([ctx.bin_dir.path, ctx.label.package]),
+        "/".join([ctx.genfiles_dir.path, ctx.label.package]),
+    ]
     html = ctx.actions.declare_file("index.html")
     populated_index = html_asset_inject(
         ctx.file.index_html,
         ctx.actions,
         ctx.executable._injector,
+        root_paths,
         [f.path for f in ctx.files.assets],
         html,
     )
@@ -41,6 +51,7 @@ def _web_package(ctx):
         ctx.files.data + ctx.files.assets + [html],
         ctx.actions,
         ctx.executable._assembler,
+        root_paths,
     )
     return [
         DefaultInfo(files = package_layout),
@@ -49,6 +60,9 @@ def _web_package(ctx):
 web_package = rule(
     implementation = _web_package,
     attrs = {
+        "additional_root_paths": attr.string_list(
+            doc = """Path prefixes to strip off all assets, in addition to the current package. Longest wins.""",
+        ),
         "assets": attr.label_list(
             allow_files = True,
             doc = """Files which should be referenced from the index_html""",

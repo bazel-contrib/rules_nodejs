@@ -39,6 +39,18 @@ function findElementByName(d, name) {
 function main(params, read = fs.readFileSync, write = fs.writeFileSync, timestamp = Date.now) {
   const outputFile = params.shift();
   const inputFile = params.shift();
+  const rootDirs = [];
+  while (params.length && params[0] !== '--assets') {
+    let r = params.shift();
+    if (!r.endsWith('/')) {
+      r += '/';
+    }
+    rootDirs.push(r);
+  }
+  // Always trim the longest prefix
+  rootDirs.sort((a, b) => b.length - a.length);
+  params.shift(); // --assets
+
   const document = parse5.parse(read(inputFile, {encoding: 'utf-8'}), {treeAdapter});
 
   const body = findElementByName(document, 'body');
@@ -51,10 +63,25 @@ function main(params, read = fs.readFileSync, write = fs.writeFileSync, timestam
     throw ('No <head> tag found in HTML document');
   }
 
+  /**
+   * Trims the longest prefix from the path
+   */
+  function relative(execPath) {
+    for (const r of rootDirs) {
+      if (execPath.startsWith('external/')) {
+        execPath = execPath.substring('external/'.length);
+      }
+      if (execPath.startsWith(r)) {
+        return execPath.substring(r.length);
+      }
+    }
+    return execPath;
+  }
+
   for (const s of params.filter(s => /\.js$/.test(s))) {
     const script = treeAdapter.createElement('script', undefined, [
       {name: 'type', value: 'text/javascript'},
-      {name: 'src', value: `/${path.basename(s)}?v=${timestamp()}`},
+      {name: 'src', value: `/${relative(s)}?v=${timestamp()}`},
     ]);
     treeAdapter.appendChild(body, script);
   }
@@ -62,7 +89,7 @@ function main(params, read = fs.readFileSync, write = fs.writeFileSync, timestam
   for (const s of params.filter(s => /\.css$/.test(s))) {
     const stylesheet = treeAdapter.createElement('link', undefined, [
       {name: 'rel', value: 'stylesheet'},
-      {name: 'href', value: `/${path.basename(s)}?v=${timestamp()}`},
+      {name: 'href', value: `/${relative(s)}?v=${timestamp()}`},
     ]);
     treeAdapter.appendChild(head, stylesheet);
   }

@@ -18,28 +18,68 @@
 const fs = require('fs');
 const path = require('path');
 
-function main(args) {
-  const params = fs.readFileSync(args[0], {encoding: 'utf-8'}).split('\n').filter(l => !!l);
+function mkdirp(p) {
+  if (!fs.existsSync(p)) {
+    mkdirp(path.dirname(p));
+    fs.mkdirSync(p);
+  }
+}
 
+function write(p, content) {
+  mkdirp(path.dirname(p));
+  fs.writeFileSync(p, content);
+}
+
+function main(params) {
   const outdir = params.shift();
   if (!fs.existsSync(outdir)) fs.mkdirSync(outdir);
 
-  for (const f of params) {
+  const rootDirs = [];
+  while (params.length && params[0] !== '--assets') {
+    let r = params.shift();
+    if (!r.endsWith('/')) {
+      r += '/';
+    }
+    rootDirs.push(r);
+  }
+  // Always trim the longest prefix
+  rootDirs.sort((a, b) => b.length - a.length);
+  params.shift(); // --assets
+
+  function relative(execPath) {
+    if (execPath.startsWith('external/')) {
+      execPath = execPath.substring('external/'.length);
+    }
+    for (const r of rootDirs) {
+      if (execPath.startsWith(r)) {
+        return execPath.substring(r.length);
+      }
+    }
+    return execPath;
+  }
+
+  function copy(f) {
     if (fs.statSync(f).isDirectory()) {
-      const foutDir = path.join(outdir, path.basename(f));
-      fs.mkdirSync(foutDir);
       for (const file of fs.readdirSync(f)) {
-        const content = fs.readFileSync(path.join(f, file), {encoding: 'utf-8'});
-        fs.writeFileSync(path.join(foutDir, path.basename(file)), content, {encoding: 'utf-8'});
+        copy(path.join(f, file));
       }
     } else {
       const content = fs.readFileSync(f, {encoding: 'utf-8'});
-      fs.writeFileSync(path.join(outdir, path.basename(f)), content, {encoding: 'utf-8'});
+      write(path.join(outdir, relative(f)), content);
     }
+  }
+
+  for (const f of params) {
+    copy(f);
   }
   return 0;
 }
 
+module.exports = {main};
+
 if (require.main === module) {
-  process.exitCode = main(process.argv.slice(2));
+  // We always require the arguments are encoded into a flagfile
+  // so that we don't exhaust the command-line limit.
+  const params = fs.readFileSync(process.argv[2], {encoding: 'utf-8'}).split('\n').filter(l => !!l);
+  process.exitCode = main(params);
 }

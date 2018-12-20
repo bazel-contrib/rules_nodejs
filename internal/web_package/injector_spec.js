@@ -19,14 +19,31 @@ describe('HTML injector', () => {
   });
 
   it('should inject script tag', () => {
-    expect(injector.main([outFile, inFile, 'path/to/my.js'], read, write, () => 123)).toBe(0);
+    expect(injector.main([outFile, inFile, '--assets', 'path/to/my.js'], read, write, () => 123)).toBe(0);
+    expect(output).toBe(
+        '<html><head></head><body><script type="text/javascript" src="/path/to/my.js?v=123"></script></body></html>');
+  });
+
+  it('should strip longest prefix', () => {
+    expect(injector.main([outFile, inFile, 
+      'path', 'path/to',
+      '--assets', 'path/to/my.js'], read, write, () => 123)).toBe(0);
     expect(output).toBe(
         '<html><head></head><body><script type="text/javascript" src="/my.js?v=123"></script></body></html>');
   });
 
-  it('should inject link tag', () => {
-    expect(injector.main([outFile, inFile, 'path/to/my.css'], read, write, () => 123)).toBe(0);
+  it('should strip external workspaces', () => {
+    expect(injector.main([outFile, inFile, 
+      'npm/node_modules/zone.js/dist',
+      '--assets', 'external/npm/node_modules/zone.js/dist/zone.min.js'], read, write, () => 123)).toBe(0);
     expect(output).toBe(
-        '<html><head><link rel="stylesheet" href="/my.css?v=123"></head><body></body></html>');
+        '<html><head></head><body><script type="text/javascript" src="/zone.min.js?v=123"></script></body></html>');
+    
+  });
+
+  it('should inject link tag', () => {
+    expect(injector.main([outFile, inFile, '--assets', 'path/to/my.css'], read, write, () => 123)).toBe(0);
+    expect(output).toBe(
+        '<html><head><link rel="stylesheet" href="/path/to/my.css?v=123"></head><body></body></html>');
   });
 });
