@@ -30,9 +30,12 @@ const DEBUG = false;
 /**
  * The module roots as pairs of a RegExp to match the require path, and a
  * module_root to substitute for the require path.
+ * Ordered by regex length, longest to smallest. 
  * @type {!Array<{module_name: RegExp, module_root: string}>}
  */
-var MODULE_ROOTS = [TEMPLATED_module_roots];
+var MODULE_ROOTS = [
+  TEMPLATED_module_roots
+].sort((a, b) => b.module_name.toString().length - a.module_name.toString().length);
 
 /**
  * Array of bootstrap modules that need to be loaded before the entry point.
@@ -59,22 +62,16 @@ function resolveToModuleRoot(path) {
     throw new Error('resolveToModuleRoot missing path: ' + path);
   }
 
-  var match;
-  var lengthOfMatch = 0;
-  for (var i = 0; i < MODULE_ROOTS.length; i++) {
-    var m = MODULE_ROOTS[i];
-    var p = path.replace(m.module_name, m.module_root);
-    // Longest regex wins when multiple match
-    var len = m.module_name.toString().length;
-    if (p !== path && len > lengthOfMatch) {
-      lengthOfMatch = len;
-      match = p;
-    }
+  // We want all possible matches.
+  const orderedMatches = MODULE_ROOTS.filter(m => m.module_name.test(path));
+
+  if (orderedMatches.length === 0) {
+    return null;
+  } else {
+    // Longest regex wins when multiple match, and the list is already ordered by length.
+    const m = orderedMatches[0];
+    return path.replace(m.module_name, m.module_root);
   }
-  if (match) {
-    return match;
-  }
-  return null;
 }
 
 /**
