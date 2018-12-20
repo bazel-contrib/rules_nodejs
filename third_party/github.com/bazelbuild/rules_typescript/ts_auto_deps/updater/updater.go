@@ -250,7 +250,7 @@ func globSources(ctx context.Context, path string, extensions []string) (srcSet,
 		if err != nil {
 			return nil, fmt.Errorf("cannot stat platform.Glob result %q: %v", p, err)
 		}
-		isMpeg, err := isMpegTS(ctx, p)
+		isMpeg, err := IsMpegTS(ctx, p)
 		if err != nil {
 			return nil, err
 		}
@@ -266,9 +266,9 @@ func globSources(ctx context.Context, path string, extensions []string) (srcSet,
 	return srcs, nil
 }
 
-// isMpegTS checks if a ".ts" file is an MPEG transport stream.  Taze shouldn't
+// IsMpegTS checks if a ".ts" file is an MPEG transport stream.  Taze shouldn't
 // treat them as TypeScript files.
-func isMpegTS(ctx context.Context, path string) (bool, error) {
+func IsMpegTS(ctx context.Context, path string) (bool, error) {
 	var content [200]byte
 	n, err := platform.ReadBytesFromFile(ctx, path, content[:])
 	if err != nil && err != io.EOF {
@@ -505,16 +505,16 @@ func getBUILDPathAndBUILDFile(ctx context.Context, path string) (string, string,
 	return g3root, buildFilePath, bld, nil
 }
 
-// isTazeDisabled checks the BUILD file, or if the directory doesn't exist, the nearest
-// ancestor BUILD file for a disable_ts_auto_deps() rule.
-func isTazeDisabled(ctx context.Context, g3root string, buildFilePath string, bld *build.File) bool {
+// isTazeDisabledInPackage checks the BUILD file, or if the BUILD doesn't exist,
+// the nearest ancestor BUILD file for a disable_ts_auto_deps() rule.
+func isTazeDisabledInPackage(ctx context.Context, g3root string, buildFilePath string, bld *build.File) bool {
 	if _, err := platform.Stat(ctx, buildFilePath); err != nil && os.IsNotExist(err) {
 		// Make sure ts_auto_deps hasn't been disabled in the next closest ancestor package.
 		ancestor, err := FindBUILDFile(ctx, make(map[string]*build.File), g3root, filepath.Dir(bld.Path))
 		if err != nil {
 			platform.Infof("Could not find any ancestor BUILD for %q, continuing with a new BUILD file",
 				buildFilePath)
-		} else if !hasTazeEnabled(ancestor) {
+		} else if buildHasDisableTaze(ancestor) {
 			fmt.Printf("ts_auto_deps disabled below %q\n", ancestor.Path)
 			return true
 		} else {
@@ -523,7 +523,7 @@ func isTazeDisabled(ctx context.Context, g3root string, buildFilePath string, bl
 		}
 	}
 
-	if !hasTazeEnabled(bld) {
+	if buildHasDisableTaze(bld) {
 		fmt.Printf("ts_auto_deps disabled on %q\n", buildFilePath)
 		return true
 	}
@@ -680,6 +680,17 @@ func (upd *Updater) RegisterTsconfigAndTsDevelopmentSources(ctx context.Context,
 	return updated, nil
 }
 
+// IsTazeDisabledForDir checks if ts_auto_deps is disabled in the BUILD file in the dir,
+// or if no BUILD file exists, in the closest ancestor BUILD
+func IsTazeDisabledForDir(ctx context.Context, dir string) (bool, error) {
+	g3root, buildFilePath, bld, err := getBUILDPathAndBUILDFile(ctx, dir)
+	if err != nil {
+		return false, err
+	}
+
+	return isTazeDisabledInPackage(ctx, g3root, buildFilePath, bld), nil
+}
+
 // CantProgressAfterWriteError reports that ts_auto_deps was run in an environment
 // where it can't make writes to the file system (such as when ts_auto_deps is running
 // as a service for cider) and the writes it made need to be visible to bazel analyze,
@@ -720,7 +731,7 @@ func (upd *Updater) UpdateBUILD(ctx context.Context, path string, options Update
 		return false, err
 	}
 
-	if isTazeDisabled(ctx, g3root, buildFilePath, bld) {
+	if isTazeDisabledInPackage(ctx, g3root, buildFilePath, bld) {
 		return false, nil
 	}
 
@@ -772,17 +783,17 @@ func (upd *Updater) UpdateBUILD(ctx context.Context, path string, options Update
 	return changed, nil
 }
 
-// hasTazeEnabled checks if the BUILD file should be managed using ts_auto_deps.
+// buildHasDisableTaze checks if the BUILD file should be managed using ts_auto_deps.
 // Users can disable ts_auto_deps by adding a "disable_ts_auto_deps()" (or "dont_ts_auto_deps_me()") statement.
-func hasTazeEnabled(bld *build.File) bool {
+func buildHasDisableTaze(bld *build.File) bool {
 	for _, stmt := range bld.Stmt {
 		if call, ok := stmt.(*build.CallExpr); ok {
 			if fnName, ok := call.X.(*build.Ident); ok && (fnName.Name == "disable_ts_auto_deps" || fnName.Name == "dont_ts_auto_deps_me") {
-				return false
+				return true
 			}
 		}
 	}
-	return true
+	return false
 }
 
 // QueryBasedBazelAnalyze uses bazel query to analyze targets. It is available under a flag or
@@ -860,7 +871,7 @@ func (reg *buildRegistry) registerTestRule(ctx context.Context, bld *build.File,
 			if err != nil {
 				return err
 			}
-			if hasTazeEnabled(bld) {
+			if !buildHasDisableTaze(bld) {
 				return reg.registerTestRule(ctx, parent, ruleKind, rt, g3root, target)
 			}
 			platform.Infof("ts_auto_deps disabled on %q", buildFile)
