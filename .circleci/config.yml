@@ -66,7 +66,7 @@ jobs:
 
       # Run the Buildifier linter to check our Bazel rules.
       - run: 'yarn bazel:format -mode=check ||
-              (echo "BUILD files not formatted. Please run 'yarn bazel:lint'" ; exit 1)'
+              (echo "BUILD files not formatted. Please run ''yarn bazel:lint''" ; exit 1)'
 
   # Overlaps with testing we do on BuildKite. This is still here because:
   # - BuildKite doesn't have a public results UI; failures here let contributors fix their changes
