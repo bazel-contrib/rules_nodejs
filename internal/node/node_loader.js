@@ -33,9 +33,29 @@ const DEBUG = false;
  * Ordered by regex length, longest to smallest. 
  * @type {!Array<{module_name: RegExp, module_root: string}>}
  */
-var MODULE_ROOTS = [
-  TEMPLATED_module_roots
-].sort((a, b) => b.module_name.toString().length - a.module_name.toString().length);
+var MODULE_ROOTS = [TEMPLATED_module_roots];
+
+/**
+ * Allow for additional module_roots to be passed in via
+ * a --additional_module_roots that takes a stringified JSON
+ * array as its value
+ */
+const args = process.argv.slice(2);
+for (var i = 0; i < args.length; i++) {
+  if (args[i] === '--additional_module_roots') {
+    try {
+      const additionalModuleRoots = JSON.parse(args[i + 1]) || [];
+      MODULE_ROOTS = MODULE_ROOTS.concat(additionalModuleRoots.map(m => {
+        return {module_name: new RegExp(m.module_name), module_root: m.module_root};
+      }));
+    } catch (e) {
+      throw new Error(`Invalid --additional_module_roots: ${e.toString()}`);
+    }
+  }
+}
+
+MODULE_ROOTS =
+    MODULE_ROOTS.sort((a, b) => b.module_name.toString().length - a.module_name.toString().length);
 
 /**
  * Array of bootstrap modules that need to be loaded before the entry point.
