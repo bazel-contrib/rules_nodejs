@@ -37,7 +37,12 @@ def _web_package(ctx):
         "/".join([ctx.bin_dir.path, ctx.label.package]),
         "/".join([ctx.genfiles_dir.path, ctx.label.package]),
     ]
-    html = ctx.actions.declare_file("index.html")
+
+    # Create the output file in a re-rooted subdirectory so it doesn't collide with the input file
+    html = ctx.actions.declare_file("_%s/%s" % (ctx.label.name, ctx.file.index_html.path))
+
+    # Move that index file back into place inside the package
+    root_paths.append("/".join([ctx.bin_dir.path, ctx.label.package, "_" + ctx.label.name, ctx.label.package]))
     populated_index = html_asset_inject(
         ctx.file.index_html,
         ctx.actions,
