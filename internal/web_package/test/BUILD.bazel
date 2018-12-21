@@ -1,0 +1,18 @@
+load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
+load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_package")
+
+web_package(
+    name = "pkg",
+    assets = ["script.js"],
+    index_html = "index.html",
+)
+
+jasmine_node_test(
+    name = "test",
+    srcs = ["spec.js"],
+    data = [
+        "index_golden.html_",
+        ":pkg",
+    ],
+    node_modules = "@build_bazel_rules_nodejs_web_package_deps//:node_modules",
+)
