@@ -857,6 +857,9 @@ func (reg *buildRegistry) registerTestRule(ctx context.Context, bld *build.File,
 	if targetRegisteredInRule(bld, ruleKind, rt, target) {
 		return nil
 	}
+	if buildHasDisableTaze(bld) {
+		return nil
+	}
 	r := getRule(bld, ruleKind, rt)
 	if r != nil {
 		addDep(bld, r, target)
@@ -871,11 +874,7 @@ func (reg *buildRegistry) registerTestRule(ctx context.Context, bld *build.File,
 			if err != nil {
 				return err
 			}
-			if !buildHasDisableTaze(bld) {
-				return reg.registerTestRule(ctx, parent, ruleKind, rt, g3root, target)
-			}
-			platform.Infof("ts_auto_deps disabled on %q", buildFile)
-			// Continue below.
+			return reg.registerTestRule(ctx, parent, ruleKind, rt, g3root, target)
 		}
 		parentDir = filepath.Dir(parentDir)
 	}
