@@ -198,9 +198,9 @@ cd "{root}" && "{npm}" {npm_args}
 npm_install = repository_rule(
     attrs = dict(COMMON_ATTRIBUTES, **{
         "timeout": attr.int(
-            default = 600,
+            default = 3600,
             doc = """Maximum duration of the command "npm install" in seconds
-            (default is 600 seconds).""",
+            (default is 3600 seconds).""",
         ),
         "package_lock_json": attr.label(
             allow_single_file = True,
@@ -239,7 +239,7 @@ def _yarn_install_impl(repository_ctx):
         "--cwd",
         repository_ctx.path(""),
         "--network-timeout",
-        str(repository_ctx.attr.timeout * 1000),  # in ms
+        str(repository_ctx.attr.network_timeout * 1000),  # in ms
     ]
 
     if repository_ctx.attr.prod_only:
@@ -271,9 +271,14 @@ def _yarn_install_impl(repository_ctx):
 yarn_install = repository_rule(
     attrs = dict(COMMON_ATTRIBUTES, **{
         "timeout": attr.int(
-            default = 600,
-            doc = """Maximum duration of the command "yarn" in seconds.
-            (default is 600 seconds).""",
+            default = 3600,
+            doc = """Maximum duration of the command "yarn install" in seconds
+            (default is 3600 seconds).""",
+        ),
+        "network_timeout": attr.int(
+            default = 300,
+            doc = """Maximum duration of a network request made by yarn in seconds
+            (default is 300 seconds).""",
         ),
         "use_global_yarn_cache": attr.bool(
             default = True,
