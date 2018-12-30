@@ -8,6 +8,7 @@ rollup_bundle(
     ),
     additional_entry_points = ["internal/e2e/rollup_code_splitting/additional_entry.js"],
     entry_point = "internal/e2e/rollup_code_splitting/main1.js",
+    license_banner = ":license.txt",
     node_modules = "//internal/test:node_modules",
 )
 
