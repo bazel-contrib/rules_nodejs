@@ -1,0 +1,4 @@
+/**
+ * @license A dummy license banner that goes at the top of the file.
+ * This is version v0.0.0-PLACEHOLDER
+ */

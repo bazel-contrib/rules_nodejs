@@ -1,4 +1,5 @@
 check = require('../check.js');
+const fs = require('fs');
 const expected = 'lib1 fn,dep3 fn,lib2 fn,dep2 fn';
 const path = __dirname;
 
@@ -33,5 +34,13 @@ describe('bundling additional entry point', () => {
         'build_bazel_rules_nodejs/internal/e2e/rollup_code_splitting/bundle.cs.min_debug/additional_entry.js')
     const actual = (new additional_entry()).test();
     expect(actual).toEqual(expected);
+  });
+
+  it('should have a license header', () => {
+    const content = fs.readFileSync(
+        require.resolve(
+            'build_bazel_rules_nodejs/internal/e2e/rollup_code_splitting/bundle.cs.min_debug/additional_entry.js'),
+        {encoding: 'utf-8'});
+    expect(content).toContain('dummy license banner');
   });
 });

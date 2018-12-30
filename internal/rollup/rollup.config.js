@@ -167,27 +167,24 @@ const config = {
         {jsnext: true, module: true, customResolveOptions: {moduleDirectory: nodeModulesRoot}}),
     {resolveId: notResolved},
     sourcemaps(),
-  ])
+  ]),
+  output: {
+    banner,
+    format: 'TMPL_output_format',
+  },
 }
 
 if (enableCodeSplitting) {
   config.experimentalCodeSplitting = true;
   config.experimentalDynamicImport = true;
   config.input = inputs;
-  config.output = {
-    format: 'TMPL_output_format',
-  };
   if (process.env.ROLLUP_BUNDLE_FIXED_CHUNK_NAMES) {
     config.output.chunkFileNames = '[name].js';
   }
 }
 else {
   config.input = inputs[0];
-  config.output = {
-    banner,
-    format: 'TMPL_output_format',
-    name: 'TMPL_global_name',
-  };
+  config.output['name'] = 'TMPL_global_name';
 }
 
 module.exports = config;
