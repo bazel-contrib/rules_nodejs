@@ -111,7 +111,7 @@ def write_rollup_config(ctx, plugins = [], root_dir = None, filename = "_%s.roll
 
     ctx.actions.expand_template(
         output = config,
-        template = ctx.file._rollup_config_tmpl,
+        template = ctx.file.rollup_config_tmpl,
         substitutions = {
             "TMPL_additional_plugins": ",\n".join(plugins),
             "TMPL_banner_file": "\"%s\"" % ctx.file.license_banner.path if ctx.file.license_banner else "undefined",
@@ -196,7 +196,7 @@ def _run_rollup(ctx, sources, config, output, map_output = None):
         outputs += [map_output]
 
     ctx.actions.run(
-        executable = ctx.executable._rollup,
+        executable = ctx.executable.rollup,
         inputs = depset(direct_inputs, transitive = [sources]),
         outputs = outputs,
         arguments = [args],
@@ -594,17 +594,17 @@ ROLLUP_ATTRS = {
         doc = """Other rules that produce JavaScript outputs, such as `ts_library`.""",
         aspects = ROLLUP_DEPS_ASPECTS,
     ),
-    "_no_explore_html": attr.label(
-        default = Label("@build_bazel_rules_nodejs//internal/rollup:no_explore.html"),
-        allow_single_file = True,
-    ),
-    "_rollup": attr.label(
+    "rollup": attr.label(
         executable = True,
         cfg = "host",
         default = Label("@build_bazel_rules_nodejs//internal/rollup:rollup"),
     ),
-    "_rollup_config_tmpl": attr.label(
+    "rollup_config_tmpl": attr.label(
         default = Label("@build_bazel_rules_nodejs//internal/rollup:rollup.config.js"),
+        allow_single_file = True,
+    ),
+    "_no_explore_html": attr.label(
+        default = Label("@build_bazel_rules_nodejs//internal/rollup:no_explore.html"),
         allow_single_file = True,
     ),
     "_source_map_explorer": attr.label(
