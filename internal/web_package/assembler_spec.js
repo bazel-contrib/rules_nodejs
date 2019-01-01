@@ -2,16 +2,23 @@ const assembler = require('./assembler');
 const path = require('path');
 const fs = require('fs');
 
+function mkdirp(p) {
+  if (!fs.existsSync(p)) {
+    mkdirp(path.dirname(p));
+    fs.mkdirSync(p);
+  }
+}
+
 describe('assembler', () => {
     const outdir = 'output';
     beforeEach(() => {
         const now = Date.now();
         // prevent test isolation failures by running each spec in a separate dir
         const uniqueDir = path.join(process.env['TEST_TMPDIR'], String(now));
-        fs.mkdirSync(uniqueDir);
+        mkdirp(uniqueDir);
         process.chdir(uniqueDir);
-        fs.mkdirSync('path');
-        fs.mkdirSync('path/to');
+        mkdirp('path');
+        mkdirp('path/to');
         fs.writeFileSync('path/to/thing1.txt', 'some content', {encoding: 'utf-8'});
 
     });
