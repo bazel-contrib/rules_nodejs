@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Immediately exit if any command fails.
 set -e
 
 # --- begin runfiles.bash initialization ---
