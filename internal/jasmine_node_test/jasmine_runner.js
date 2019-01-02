@@ -36,18 +36,20 @@ function main(args) {
   const manifest = require.resolve(args[0]);
   // Remove the manifest, some tested code may process the argv.
   process.argv.splice(2, 1)[0];
+  // Get the next argument which is the filter regex.
+  const filterSpecRegex = new RegExp(process.argv[2], 'i');
 
   const jrunner = new JasmineRunner();
   fs.readFileSync(manifest, UTF8)
       .split('\n')
       .filter(l => l.length > 0)
-      // Filter here so that only files ending in `spec.js` and `test.js`
+      // Filter defaults so that only files ending in `spec.js` and `test.js`
       // are added to jasmine as spec files. This is important as other
       // deps such as "@npm//typescript" if executed may cause the test to
       // fail or have unexpected side-effects. "@npm//typescript" would
       // try to execute tsc, print its help, and process.exit(1)
-      .filter(f => /[^a-zA-Z0-9](spec|test)((-|_|\.)[a-zA-Z0-9]+|)\.js$/i.test(f))
-      // Filter out files from node_modules that match test.js or spec.js
+      .filter(f => filterSpecRegex.test(f))
+      // Filter out files from node_modules that match the filter spec regex.
       .filter(f => !/\/node_modules\//.test(f))
       .forEach(f => jrunner.addSpecFile(f));
 

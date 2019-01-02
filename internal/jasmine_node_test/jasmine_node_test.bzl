@@ -27,6 +27,7 @@ def jasmine_node_test(
         data = [],
         deps = [],
         expected_exit_code = 0,
+        filter = "'[^a-zA-Z0-9](spec|test)((-|_|\.)[a-zA-Z0-9]+|)\.js$'",
         tags = [],
         **kwargs):
     """Runs tests in NodeJS using the Jasmine test runner.
@@ -39,6 +40,7 @@ def jasmine_node_test(
       data: Runtime dependencies which will be loaded while the test executes
       deps: Other targets which produce JavaScript, such as ts_library
       expected_exit_code: The expected exit code for the test. Defaults to 0.
+      filter: The regex matchers to filter JavaScript spec source files
       tags: bazel tags applied to test
       **kwargs: remaining arguments are passed to the test rule
     """
@@ -59,7 +61,8 @@ def jasmine_node_test(
         name = name,
         data = all_data,
         entry_point = entry_point,
-        templated_args = ["$(location :%s_devmode_srcs.MF)" % name],
+        templated_args = ["$(location :%s_devmode_srcs.MF)" % name,
+                          filter],
         testonly = 1,
         expected_exit_code = expected_exit_code,
         tags = tags,
