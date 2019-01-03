@@ -32,3 +32,10 @@ nodejs_test(
     ],
     entry_point = "build_bazel_rules_nodejs/internal/jasmine_node_test/test/no_jasmine_test.js",
 )
+
+jasmine_node_test(
+    name = "spectest_test",
+    srcs = ["foo.spectest.js"],
+    filter = "\.spectest\.js$",
+    node_modules = "//internal/test:node_modules",
+)
