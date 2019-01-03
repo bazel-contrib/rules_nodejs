@@ -382,8 +382,9 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
    * typescript secondary search behavior needs to be overridden to support
    * looking under `bazelOpts.nodeModulesPrefix`
    */
-  resolveTypeReferenceDirectives(names: string[], containingFile: string): (ts.ResolvedTypeReferenceDirective)[] {
-    let result: (ts.ResolvedTypeReferenceDirective)[] = []
+  resolveTypeReferenceDirectives(names: string[], containingFile: string): ts.ResolvedTypeReferenceDirective[] {
+    if (!this.allowActionInputReads) return [];
+    const result: ts.ResolvedTypeReferenceDirective[] = [];
     names.forEach(name => {
       let resolved: ts.ResolvedTypeReferenceDirective | undefined;
 
@@ -402,10 +403,12 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
       // Types not resolved should be silently ignored. Leave it to Typescript
       // to either error out with "TS2688: Cannot find type definition file for
       // 'foo'" or for the build to fail due to a missing type that is used.
-      if (DEBUG && !resolved) {
-        debug(`Failed to resolve type reference directive '${name}'`);
+      if (!resolved) {
+        if (DEBUG) {
+          debug(`Failed to resolve type reference directive '${name}'`);
+        }
+        return;
       }
-
       // In typescript 2.x the return type for this function
       // is `(ts.ResolvedTypeReferenceDirective | undefined)[]` thus we actually
       // do allow returning `undefined` in the array but the function is typed
@@ -448,18 +451,18 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
 
   writeFile(
       fileName: string, content: string, writeByteOrderMark: boolean,
-      onError: ((message: string) => void) | undefined,
-      sourceFiles: ReadonlyArray<ts.SourceFile> | undefined): void {
+      onError: ((message: string) => void)|undefined,
+      sourceFiles: ReadonlyArray<ts.SourceFile>|undefined): void {
     perfTrace.wrap(
         `writeFile ${fileName}`,
         () => this.writeFileImpl(
-            fileName, content, writeByteOrderMark, onError, sourceFiles || []));
+            fileName, content, writeByteOrderMark, onError, sourceFiles));
   }
 
   writeFileImpl(
       fileName: string, content: string, writeByteOrderMark: boolean,
-      onError: ((message: string) => void) | undefined,
-      sourceFiles: ReadonlyArray<ts.SourceFile>): void {
+      onError: ((message: string) => void)|undefined,
+      sourceFiles: ReadonlyArray<ts.SourceFile>|undefined): void {
     // Workaround https://github.com/Microsoft/TypeScript/issues/18648
     // This bug is fixed in TS 2.9
     const version = ts.versionMajorMinor;
