@@ -61,8 +61,10 @@ def jasmine_node_test(
         name = name,
         data = all_data,
         entry_point = entry_point,
-        templated_args = ["$(location :%s_devmode_srcs.MF)" % name,
-                          "'%s'" % filter],
+        templated_args = [
+            "$(location :%s_devmode_srcs.MF)" % name,
+            "'%s'" % filter,
+        ],
         testonly = 1,
         expected_exit_code = expected_exit_code,
         tags = tags,
