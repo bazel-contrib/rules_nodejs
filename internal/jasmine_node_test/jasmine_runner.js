@@ -38,6 +38,8 @@ function main(args) {
   process.argv.splice(2, 1)[0];
   // Get the next argument which is the filter regex.
   const filterSpecRegex = new RegExp(process.argv[2], 'i');
+  // Remove the filter regex.
+  process.argv.splice(2, 1)[0];
 
   const jrunner = new JasmineRunner();
   fs.readFileSync(manifest, UTF8)
