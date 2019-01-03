@@ -27,7 +27,7 @@ def jasmine_node_test(
         data = [],
         deps = [],
         expected_exit_code = 0,
-        filter = "'[^a-zA-Z0-9](spec|test)((-|_|\.)[a-zA-Z0-9]+|)\.js$'",
+        filter = "[^a-zA-Z0-9](spec|test)((-|_|\.)[a-zA-Z0-9]+|)\.js$",
         tags = [],
         **kwargs):
     """Runs tests in NodeJS using the Jasmine test runner.
