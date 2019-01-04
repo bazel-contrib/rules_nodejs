@@ -214,7 +214,7 @@ func TestUpdateDeps(t *testing.T) {
 		if err != nil {
 			t.Errorf("parse %s after failed: %s", tst.name, err)
 		}
-		if err := updateDeps(bld, false, []*arpb.DependencyReport{report}); err != nil {
+		if err := updateDeps(bld, []*arpb.DependencyReport{report}); err != nil {
 			t.Errorf("update %s failed: %s", tst.name, err)
 		}
 		updated := string(build.Format(bld))
@@ -238,29 +238,12 @@ func TestUnresolvedImportError(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	tests := []struct {
-		name                     string
-		errorOnUnresolvedImports bool
-		err                      error
-	}{
-		{
-			name:                     "Error",
-			errorOnUnresolvedImports: true,
-			err: fmt.Errorf("ERROR in %s: unresolved imports %s.\nMaybe you are missing a "+
-				"'// from ...'' comment, or the target BUILD files are incorrect?\n\n", "//foo:bar", []string{"unresolved/import"}),
-		},
-		{
-			name:                     "Warn",
-			errorOnUnresolvedImports: false,
-			err:                      nil,
-		},
-	}
+	expectedErr := fmt.Errorf("ERROR in %s: unresolved imports %s.\nMaybe you are missing a "+
+		"'// from ...'' comment, or the target BUILD files are incorrect?\n\n", "//foo:bar", []string{"unresolved/import"})
 
-	for _, tst := range tests {
-		err = updateDeps(bld, tst.errorOnUnresolvedImports, []*arpb.DependencyReport{report})
-		if !reflect.DeepEqual(err, tst.err) {
-			t.Errorf("update %s returned error %s: expected %s", tst.name, err, tst.err)
-		}
+	err = updateDeps(bld, []*arpb.DependencyReport{report})
+	if !reflect.DeepEqual(err, expectedErr) {
+		t.Errorf("returned error %s: expected %s", err, expectedErr)
 	}
 }
 
