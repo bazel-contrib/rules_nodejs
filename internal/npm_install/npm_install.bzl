@@ -131,6 +131,8 @@ def _npm_install_impl(repository_ctx):
         repository_ctx.file(
             "npm",
             content = """#!/usr/bin/env bash
+# Immediately exit if any command fails.
+set -e
 (cd "{root}"; "{npm}" {npm_args})
 """.format(
                 root = repository_ctx.path(""),
