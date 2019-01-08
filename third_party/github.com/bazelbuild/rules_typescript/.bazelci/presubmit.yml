@@ -46,6 +46,7 @@ platforms:
     - "..."
     - "@disable_tsetse_for_external_test//..."
     test_flags:
+    - "--action_env=PATH"
     - "--test_env=PATH"
     test_targets:
     - "..."
