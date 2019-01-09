@@ -147,7 +147,7 @@ from there, you actually get this macro.</p>
 
           <h2 id="ts_devserver">ts_devserver</h2>
 
-          <pre>ts_devserver(<a href="#ts_devserver.name">name</a>, <a href="#ts_devserver.deps">deps</a>, <a href="#ts_devserver.data">data</a>, <a href="#ts_devserver.additional_root_paths">additional_root_paths</a>, <a href="#ts_devserver.bootstrap">bootstrap</a>, <a href="#ts_devserver.entry_module">entry_module</a>, <a href="#ts_devserver.port">port</a>, <a href="#ts_devserver.scripts">scripts</a>, <a href="#ts_devserver.serving_path">serving_path</a>, <a href="#ts_devserver.static_files">static_files</a>)</pre>
+          <pre>ts_devserver(<a href="#ts_devserver.name">name</a>, <a href="#ts_devserver.deps">deps</a>, <a href="#ts_devserver.data">data</a>, <a href="#ts_devserver.additional_root_paths">additional_root_paths</a>, <a href="#ts_devserver.bootstrap">bootstrap</a>, <a href="#ts_devserver.entry_module">entry_module</a>, <a href="#ts_devserver.index_html">index_html</a>, <a href="#ts_devserver.port">port</a>, <a href="#ts_devserver.scripts">scripts</a>, <a href="#ts_devserver.serving_path">serving_path</a>, <a href="#ts_devserver.static_files">static_files</a>)</pre>
 
           <p>ts_devserver is a simple development server intended for a quick "getting started" experience.</p>
 <p>Additional documentation at <a href="https://github.com/alexeagle/angular-bazel-example/wiki/Running-a-devserver-under-Bazel">https://github.com/alexeagle/angular-bazel-example/wiki/Running-a-devserver-under-Bazel</a></p>
@@ -204,6 +204,15 @@ from there, you actually get this macro.</p>
         <p>The entry<em>module should be the AMD module name of the entry module such as `"<em>_main</em></em>/src/index"<code>ts_devserver concats the following snippet after the bundle to load the application:</code>require(["entry_module"]);`</p>
       </td>
     </tr>
+    <tr id="ts_devserver.index_html">
+      <td><code>index_html</code></td>
+      <td>
+        <p><code><a href="https://bazel.build/docs/build-ref.html#labels">Label</a>; Optional</code></p>
+        <p>An index.html file, we'll inject the script tag for the bundle,
+            as well as script tags for .js static_files and link tags for .css
+            static_files</p>
+      </td>
+    </tr>
     <tr id="ts_devserver.port">
       <td><code>port</code></td>
       <td>
@@ -221,7 +230,7 @@ from there, you actually get this macro.</p>
     <tr id="ts_devserver.serving_path">
       <td><code>serving_path</code></td>
       <td>
-        <p><code>String; Optional; Default is ''</code></p>
+        <p><code>String; Optional; Default is '/_/ts_scripts.js'</code></p>
         <p>The path you can request from the client HTML which serves the JavaScript bundle.
             If you don't specify one, the JavaScript can be loaded at /_/ts_scripts.js</p>
       </td>
