@@ -240,9 +240,9 @@ as the package manager.</p>
     <tr id="npm_install.timeout">
       <td><code>timeout</code></td>
       <td>
-        <p><code>Integer; Optional; Default is 600</code></p>
+        <p><code>Integer; Optional; Default is 3600</code></p>
         <p>Maximum duration of the command "npm install" in seconds
-            (default is 600 seconds).</p>
+            (default is 3600 seconds).</p>
       </td>
     </tr>
   </tbody>
@@ -251,7 +251,7 @@ as the package manager.</p>
 
           <h2 id="yarn_install">yarn_install</h2>
 
-          <pre>yarn_install(<a href="#yarn_install.name">name</a>, <a href="#yarn_install.data">data</a>, <a href="#yarn_install.exclude_packages">exclude_packages</a>, <a href="#yarn_install.included_files">included_files</a>, <a href="#yarn_install.manual_build_file_contents">manual_build_file_contents</a>, <a href="#yarn_install.package_json">package_json</a>, <a href="#yarn_install.prod_only">prod_only</a>, <a href="#yarn_install.quiet">quiet</a>, <a href="#yarn_install.timeout">timeout</a>, <a href="#yarn_install.use_global_yarn_cache">use_global_yarn_cache</a>, <a href="#yarn_install.yarn_lock">yarn_lock</a>)</pre>
+          <pre>yarn_install(<a href="#yarn_install.name">name</a>, <a href="#yarn_install.data">data</a>, <a href="#yarn_install.exclude_packages">exclude_packages</a>, <a href="#yarn_install.included_files">included_files</a>, <a href="#yarn_install.manual_build_file_contents">manual_build_file_contents</a>, <a href="#yarn_install.network_timeout">network_timeout</a>, <a href="#yarn_install.package_json">package_json</a>, <a href="#yarn_install.prod_only">prod_only</a>, <a href="#yarn_install.quiet">quiet</a>, <a href="#yarn_install.timeout">timeout</a>, <a href="#yarn_install.use_global_yarn_cache">use_global_yarn_cache</a>, <a href="#yarn_install.yarn_lock">yarn_lock</a>)</pre>
 
           <p>Runs yarn install during workspace setup.</p>
 
@@ -328,6 +328,14 @@ as the package manager.</p>
         fine grained npm dependencies.</p>
       </td>
     </tr>
+    <tr id="yarn_install.network_timeout">
+      <td><code>network_timeout</code></td>
+      <td>
+        <p><code>Integer; Optional; Default is 300</code></p>
+        <p>Maximum duration of a network request made by yarn in seconds
+            (default is 300 seconds).</p>
+      </td>
+    </tr>
     <tr id="yarn_install.package_json">
       <td><code>package_json</code></td>
       <td>
@@ -352,9 +360,9 @@ as the package manager.</p>
     <tr id="yarn_install.timeout">
       <td><code>timeout</code></td>
       <td>
-        <p><code>Integer; Optional; Default is 600</code></p>
-        <p>Maximum duration of the command "yarn" in seconds.
-            (default is 600 seconds).</p>
+        <p><code>Integer; Optional; Default is 3600</code></p>
+        <p>Maximum duration of the command "yarn install" in seconds
+            (default is 3600 seconds).</p>
       </td>
     </tr>
     <tr id="yarn_install.use_global_yarn_cache">
