@@ -71,7 +71,6 @@ exports_files([
   "bin/node_args.sh",
   "${NODE_DIR}/bin/node",
   "bin/node${binaryExt}",
-  ${!IS_WINDOWS ? '"bin/node.js",' : ''}
   "bin/npm${binaryExt}",
   "bin/npm_node_repositories${binaryExt}",
   "bin/yarn${binaryExt}",
@@ -83,7 +82,6 @@ alias(name = "yarn", actual = "${YARN_ACTUAL}")
 filegroup(
   name = "node_runfiles",
   srcs = [
-    ${!IS_WINDOWS ? '"bin/node.js",' : ''}
     ${nodejsSrcFiles.map(f => `"${NODE_DIR}/${f}",`).join('\n    ')}
     ${yarnSrcFiles.map(f => `"${YARN_DIR}/${f}",`).join('\n    ')}
   ],
