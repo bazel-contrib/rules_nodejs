@@ -234,7 +234,7 @@ def _prepare_node(repository_ctx):
 set -e
 {get_script_dir}
 export PATH="$SCRIPT_DIR":$PATH
-exec "$SCRIPT_DIR/{node}" $@"
+exec "$SCRIPT_DIR/{node}" "$@"
 """.format(
             get_script_dir = GET_SCRIPT_DIR,
             node = node_exec_relative,
