@@ -167,7 +167,8 @@ cd "{root}" && "{npm}" {npm_args}
         else:
             repository_ctx.symlink(
                 repository_ctx.attr.package_lock_json,
-                repository_ctx.path("package-lock.json"))
+                repository_ctx.path("package-lock.json"),
+            )
 
     _add_package_json(repository_ctx)
     _add_data_dependencies(repository_ctx)
@@ -238,7 +239,8 @@ def _yarn_install_impl(repository_ctx):
         else:
             repository_ctx.symlink(
                 repository_ctx.attr.yarn_lock,
-                repository_ctx.path("yarn.lock"))
+                repository_ctx.path("yarn.lock"),
+            )
 
     _add_package_json(repository_ctx)
     _add_data_dependencies(repository_ctx)
