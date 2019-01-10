@@ -88,6 +88,7 @@ jobs:
   # Runs end-to-end browser tests.
   test:
     <<: *job_defaults
+    resource_class: xlarge
     steps:
       - checkout:
           <<: *post_checkout
