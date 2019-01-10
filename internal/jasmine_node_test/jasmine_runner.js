@@ -37,7 +37,18 @@ function main(args) {
   // Remove the manifest, some tested code may process the argv.
   process.argv.splice(2, 1)[0];
 
-  const jrunner = new JasmineRunner();
+  // Initialize jasmine with the jasmineCore in options so that if
+  // global.jasmineCore is set then that jasmineCore will be used.
+  // This is so that a bootstrap script provide a patched version of
+  // jasmineCore if necessary. For example:
+  // ```
+  // const jasmineCore = require('jasmine-core');
+  // const patchedJasmine = jasmineCore.boot(jasmineCore);
+  // ...patch jasmine here...
+  // jasmineCore.boot = function() { return patchedJasmine; };
+  // global.jasmineCore = jasmineCore;
+  // ```
+  const jrunner = new JasmineRunner({jasmineCore: global.jasmineCore});
   fs.readFileSync(manifest, UTF8)
       .split('\n')
       .filter(l => l.length > 0)
