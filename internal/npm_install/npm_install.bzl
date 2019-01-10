@@ -156,13 +156,18 @@ cd "{root}" && "{npm}" {npm_args}
         )
 
     if repository_ctx.attr.package_lock_json:
-        # Copy the file over instead of using a symlink since the lock file
-        # will be modified if there are excluded_packages
-        repository_ctx.template(
-            "package-lock.json",
-            repository_ctx.path(repository_ctx.attr.package_lock_json),
-            {},
-        )
+        if repository_ctx.attr.exclude_packages:
+            # Copy the file over instead of using a symlink since the lock file
+            # will be modified if there are excluded_packages
+            repository_ctx.template(
+                "package-lock.json",
+                repository_ctx.path(repository_ctx.attr.package_lock_json),
+                {},
+            )
+        else:
+            repository_ctx.symlink(
+                repository_ctx.attr.package_lock_json,
+                repository_ctx.path("package-lock.json"))
 
     _add_package_json(repository_ctx)
     _add_data_dependencies(repository_ctx)
@@ -222,13 +227,18 @@ def _yarn_install_impl(repository_ctx):
     yarn = get_yarn_label(repository_ctx)
 
     if repository_ctx.attr.yarn_lock:
-        # Copy the file over instead of using a symlink since the lock file
-        # will be modified if there are excluded_packages
-        repository_ctx.template(
-            "yarn.lock",
-            repository_ctx.path(repository_ctx.attr.yarn_lock),
-            {},
-        )
+        if repository_ctx.attr.exclude_packages:
+            # Copy the file over instead of using a symlink since the lock file
+            # will be modified if there are excluded_packages
+            repository_ctx.template(
+                "yarn.lock",
+                repository_ctx.path(repository_ctx.attr.yarn_lock),
+                {},
+            )
+        else:
+            repository_ctx.symlink(
+                repository_ctx.attr.yarn_lock,
+                repository_ctx.path("yarn.lock"))
 
     _add_package_json(repository_ctx)
     _add_data_dependencies(repository_ctx)
