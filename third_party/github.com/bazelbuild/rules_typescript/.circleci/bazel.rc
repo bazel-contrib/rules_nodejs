@@ -25,8 +25,8 @@ build --experimental_repository_cache=/home/circleci/bazel_repository_cache
 
 # Workaround https://github.com/bazelbuild/bazel/issues/3645
 # Bazel doesn't calculate the memory ceiling correctly when running under Docker.
-# Limit Bazel to consuming 2560K of RAM
-build --local_resources=2560,1.0,1.0
+# Limit Bazel to consuming 2360K of RAM
+build --local_resources=2360,1.0,1.0
 # Also limit Bazel's own JVM heap to stay within our 4G container limit
 startup --host_jvm_args=-Xmx3g
 # Since the default CircleCI container has only 4G, limiting the memory
