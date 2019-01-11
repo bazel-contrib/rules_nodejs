@@ -76,7 +76,7 @@ COMMON_ATTRIBUTES = dict(dict(), **{
         doc = "Don't install devDependencies",
     ),
     "quiet": attr.bool(
-        default = False,
+        default = True,
         doc = "If stdout and stderr should be printed to the terminal.",
     ),
 })
