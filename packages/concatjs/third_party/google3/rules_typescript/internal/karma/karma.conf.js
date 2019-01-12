@@ -7,8 +7,21 @@ try
   const tmp = require('tmp');
   const child_process = require('child_process');
 
-  // Helper function to find a particular namedFile
-  // within the webTestMetadata webTestFiles
+  const DEBUG = false;
+
+  TMPL_env_vars
+
+  const configPath = 'TMPL_config_file';
+
+  if (DEBUG)
+    console.info(`Karma test starting with:
+    cwd: ${process.cwd()}
+    configPath: ${configPath}`);
+
+  /**
+   * Helper function to find a particular namedFile
+   * within the webTestMetadata webTestFiles
+   */
   function findNamedFile(webTestMetadata, key) {
     let result;
     webTestMetadata['webTestFiles'].forEach(entry => {
@@ -20,8 +33,10 @@ try
     return result;
   }
 
-  // Helper function to extract a browser archive
-  // and return the path to extract executable
+  /**
+   * Helper function to extract a browser archive
+   * and return the path to extract executable
+   */
   function extractWebArchive(extractExe, archiveFile, executablePath) {
     try {
       // Paths are relative to the root runfiles folder
@@ -34,6 +49,7 @@ try
       child_process.execFileSync(
           extractExe, [archiveFile, '.'],
           {stdio: [process.stdin, process.stdout, process.stderr]});
+    if (DEBUG) console.info(`Extracting web archive ${archiveFile} with ${extractExe} to ${extractedExecutablePath}`);
       return extractedExecutablePath;
     } catch (e) {
       console.error(`Failed to extract ${archiveFile}`);
@@ -41,17 +57,19 @@ try
     }
   }
 
-  // Chrome on Linux uses sandboxing, which needs user namespaces to be enabled.
-  // This is not available on all kernels and it might be turned off even if it is available.
-  // Notable examples where user namespaces are not available include:
-  // - In Debian it is compiled-in but disabled by default.
-  // - The Docker daemon for Windows or OSX does not support user namespaces.
-  // We can detect if user namespaces are supported via /proc/sys/kernel/unprivileged_userns_clone.
-  // For more information see:
-  // https://github.com/Googlechrome/puppeteer/issues/290
-  // https://superuser.com/questions/1094597/enable-user-namespaces-in-debian-kernel#1122977
-  // https://github.com/karma-runner/karma-chrome-launcher/issues/158
-  // https://github.com/angular/angular/pull/24906
+  /**
+   * Chrome on Linux uses sandboxing, which needs user namespaces to be enabled.
+   * This is not available on all kernels and it might be turned off even if it is available.
+   * Notable examples where user namespaces are not available include:
+   * - In Debian it is compiled-in but disabled by default.
+   * - The Docker daemon for Windows or OSX does not support user namespaces.
+   * We can detect if user namespaces are supported via /proc/sys/kernel/unprivileged_userns_clone.
+   * For more information see:
+   * https://github.com/Googlechrome/puppeteer/issues/290
+   * https://superuser.com/questions/1094597/enable-user-namespaces-in-debian-kernel#1122977
+   * https://github.com/karma-runner/karma-chrome-launcher/issues/158
+   * https://github.com/angular/angular/pull/24906
+   */
   function supportsSandboxing() {
     if (process.platform !== 'linux') {
       return true;
@@ -65,14 +83,177 @@ try
     return false;
   }
 
-  const browsers = [];
-  let customLaunchers = null;
+  /**
+   * Helper function to override base karma config values.
+   */
+  function overrideConfigValue(conf, name, value) {
+    if (conf.hasOwnProperty(name)) {
+      console.warn(
+          `Your karma configuration specifies '${name}' which will be overwritten by Bazel`);
+    }
+    conf[name] = value;
+  }
 
-  // WEB_TEST_METADATA is configured in rules_webtesting based on value
-  // of the browsers attribute passed to ts_web_test_suite
-  // We setup the karma configuration based on the values in this object
-  if (process.env['WEB_TEST_METADATA']) {
+  /**
+   * Helper function to merge base karma config values that are arrays.
+   */
+  function mergeConfigArray(conf, name, values) {
+    if (!conf[name]) {
+      conf[name] = [];
+    }
+    values.forEach(v => {
+      if (!conf[name].includes(v)) {
+        conf[name].push(v);
+      }
+    })
+  }
+
+  /**
+   * Configuration settings for karma under Bazel common to karma_web_test
+   * and karma_web_test_suite.
+   */
+  function configureBazelConfig(config, conf) {
+    // list of karma plugins
+    mergeConfigArray(conf, 'plugins', [
+      'karma-*',
+      '@bazel/karma',
+      'karma-sourcemap-loader',
+      'karma-chrome-launcher',
+      'karma-firefox-launcher',
+      'karma-sauce-launcher',
+    ]);
+
+    // list of karma preprocessors
+    if (!conf.preprocessors) {
+      conf.preprocessors = {}
+    }
+    conf.preprocessors['**/*.js'] = ['sourcemap'];
+
+    // list of test frameworks to use
+    overrideConfigValue(conf, 'frameworks', ['jasmine', 'concat_js']);
+
+    // test results reporter to use
+    // possible values: 'dots', 'progress'
+    // available reporters: https://npmjs.org/browse/keyword/karma-reporter
+    mergeConfigArray(conf, 'reporters', ['progress']);
+
+    // enable / disable colors in the output (reporters and logs)
+    if (!conf.colors) {
+      conf.colors = true;
+    }
+
+    // level of logging
+    // possible values: config.LOG_DISABLE || config.LOG_ERROR ||
+    // config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
+    if (!conf.logLevel) {
+      conf.logLevel = config.LOG_INFO;
+    }
+
+    // enable / disable watching file and executing tests whenever
+    // any file changes
+    overrideConfigValue(conf, 'autoWatch', true);
+
+    // Continuous Integration mode
+    // if true, Karma captures browsers, runs the tests and exits
+    // note: run_karma.sh may override this as a command-line option.
+    overrideConfigValue(conf, 'singleRun', false);
+
+    // Concurrency level
+    // how many browser should be started simultaneous
+    overrideConfigValue(conf, 'concurrency', Infinity);
+
+    // base path that will be used to resolve all patterns
+    // (eg. files, exclude)
+    overrideConfigValue(conf, 'basePath', 'TMPL_runfiles_path');
+
+    if (process.env['IBAZEL_NOTIFY_CHANGES'] === 'y') {
+      // Tell karma to only listen for ibazel messages on stdin rather than
+      // watch all the input files This is from fork alexeagle/karma in the
+      // ibazel branch:
+      // https://github.com/alexeagle/karma/blob/576d262af50b10e63485b86aee99c5358958c4dd/lib/server.js#L172
+      overrideConfigValue(conf, 'watchMode', 'ibazel');
+    }
+  }
+
+  /**
+   * Configure the 'files' and 'proxies' configuration attributes.
+   * These are concatenated into a single file by karma-concat-js.
+   */
+  function configureFiles(conf) {
+    overrideConfigValue(conf, 'files', [
+      TMPL_bootstrap_files
+      TMPL_user_files
+    ].map(f => {
+      if (f.startsWith('NODE_MODULES/')) {
+        try {
+          // attempt to resolve in @bazel/karma nested node_modules first
+          return require.resolve(f.replace(/^NODE_MODULES\//, '@bazel/karma/node_modules/'));
+        } catch (e) {
+          // if that failed then attempt to resolve in root node_modules
+          return require.resolve(f.replace(/^NODE_MODULES\//, ''));
+        }
+      } else {
+        return require.resolve(f);
+      }
+    }));
+    overrideConfigValue(conf, 'exclude', []);
+    overrideConfigValue(conf, 'proxies', {});
+
+    // static files are added to the files array but
+    // configured to not be included so karma-concat-js does
+    // not included them in the bundle
+    [TMPL_static_files].forEach((f) => {
+      // In Windows, the runfile will probably not be symlinked. Se we need to
+      // serve the real file through karma, and proxy calls to the expected file
+      // location in the runfiles to the real file.
+      const resolvedFile = require.resolve(f);
+      conf.files.push({pattern: resolvedFile, included: false});
+      // Prefixing the proxy path with '/absolute' allows karma to load local
+      // files. This doesn't see to be an official API.
+      // https://github.com/karma-runner/karma/issues/2703
+      conf.proxies['/base/' + f] = '/absolute' + resolvedFile;
+    });
+
+    var requireConfigContent = `
+// A simplified version of Karma's requirejs.config.tpl.js for use with Karma under Bazel.
+// This does an explicit \`require\` on each test script in the files, otherwise nothing will be loaded.
+(function(){
+  var runtimeFiles = [TMPL_runtime_files].map(function(file) { return file.replace(/\\.js$/, ''); });
+  var allFiles = [TMPL_user_files];
+  var allTestFiles = [];
+  allFiles.forEach(function (file) {
+    if (/[^a-zA-Z0-9](spec|test)\\.js$/i.test(file) && !/\\/node_modules\\//.test(file)) {
+      allTestFiles.push(file.replace(/\\.js$/, ''))
+    }
+  });
+  require(runtimeFiles, function() { return require(allTestFiles, window.__karma__.start); });
+})();
+`;
+
+    const requireConfigFile = tmp.fileSync(
+        {keep: false, postfix: '.js', dir: process.env['TEST_TMPDIR']});
+    fs.writeFileSync(requireConfigFile.name, requireConfigContent);
+    conf.files.push(requireConfigFile.name);
+  }
+
+  /**
+   * Configure karma under karma_web_test_suite.
+   * `browsers` and `customLaunchers` are setup by Bazel.
+   */
+  function configureTsWebTestSuiteConfig(conf) {
+    // WEB_TEST_METADATA is configured in rules_webtesting based on value
+    // of the browsers attribute passed to karms_web_test_suite
+    // We setup the karma configuration based on the values in this object
+    if (!process.env['WEB_TEST_METADATA']) {
+      // This is a karma_web_test rule since there is no WEB_TEST_METADATA
+      return;
+    }
+
+    overrideConfigValue(conf, 'browsers', []);
+    overrideConfigValue(conf, 'customLaunchers', null);
+
     const webTestMetadata = require(process.env['WEB_TEST_METADATA']);
+    if (DEBUG) console.info(`WEB_TEST_METADATA: ${JSON.stringify(webTestMetadata, null, 2)}`);
     if (webTestMetadata['environment'] === 'sauce') {
       // If a sauce labs browser is chosen for the test such as
       // "@io_bazel_rules_webtesting//browsers/sauce:chrome-win10"
@@ -85,7 +266,7 @@ try
       }
       // 'capabilities' will specify the sauce labs configuration to use
       const capabilities = webTestMetadata['capabilities'];
-      customLaunchers = {
+      conf.customLaunchers = {
           'sauce': {
           base: 'SauceLabs',
           browserName: capabilities['browserName'],
@@ -93,7 +274,7 @@ try
           version: capabilities['version'],
         }
       };
-      browsers.push('sauce');
+      conf.browsers.push('sauce');
     } else if (webTestMetadata['environment'] === 'local') {
       // When a local chrome or firefox browser is chosen such as
       // "@io_bazel_rules_webtesting//browsers:chromium-local" or
@@ -115,15 +296,15 @@ try
           const browser = process.env['DISPLAY'] ? 'Chrome' : 'ChromeHeadless';
           if (!supportsSandboxing()) {
             const launcher = 'CustomChromeWithoutSandbox';
-            customLaunchers = {
+            conf.customLaunchers = {
               [launcher]: {
                 base: browser,
                 flags: ['--no-sandbox']
               }
             };
-            browsers.push(launcher);
+            conf.browsers.push(launcher);
           } else {
-            browsers.push(browser);
+            conf.browsers.push(browser);
           }
         }
         if (webTestNamedFiles['FIREFOX']) {
@@ -134,165 +315,76 @@ try
           } else {
             process.env.FIREFOX_BIN = require.resolve(webTestNamedFiles['FIREFOX']);
           }
-          browsers.push(process.env['DISPLAY'] ? 'Firefox' : 'FirefoxHeadless');
+          conf.browsers.push(process.env['DISPLAY'] ? 'Firefox' : 'FirefoxHeadless');
         }
       });
     } else {
-      console.warn(`Unknown WEB_TEST_METADATA environment '${webTestMetadata['environment']}'`);
-    }
-  }
-
-  // Fallback to using the system local chrome if no valid browsers have been
-  // configured above
-  if (!browsers.length) {
-    console.warn('No browsers configured. Configuring Karma to use system Chrome.');
-    browsers.push(process.env['DISPLAY'] ? 'Chrome': 'ChromeHeadless');
-  }
-
-  const proxies = {};
-  const files = [
-    TMPL_bootstrap_files
-    TMPL_user_files
-  ].map(f => {
-    if (f.startsWith('NODE_MODULES/')) {
-      try {
-        // attempt to resolve in @bazel/karma nested node_modules first
-        return require.resolve(f.replace(/^NODE_MODULES\//, '@bazel/karma/node_modules/'));
-      } catch (e) {
-        // if that failed then attempt to resolve in root node_modules
-        return require.resolve(f.replace(/^NODE_MODULES\//, ''));
-      }
-    } else {
-      return require.resolve(f);
-    }
-  });
-
-  // static files are added to the files array but
-  // configured to not be included so karma-concat-js does
-  // not included them in the bundle
-  [TMPL_static_files].forEach((f) => {
-    // In Windows, the runfile will probably not be symlinked. Se we need to
-    // serve the real file through karma, and proxy calls to the expected file
-    // location in the runfiles to the real file.
-    const resolvedFile = require.resolve(f);
-    files.push({pattern: resolvedFile, included: false});
-    // Prefixing the proxy path with '/absolute' allows karma to load local
-    // files. This doesn't see to be an official API.
-    // https://github.com/karma-runner/karma/issues/2703
-    proxies['/base/' + f] = '/absolute' + resolvedFile;
-  });
-
-  var requireConfigContent = `
-// A simplified version of Karma's requirejs.config.tpl.js for use with Karma under Bazel.
-// This does an explicit \`require\` on each test script in the files, otherwise nothing will be loaded.
-(function(){
-  var runtimeFiles = [TMPL_runtime_files].map(function(file) { return file.replace(/\\.js$/, ''); });
-  var allFiles = [TMPL_user_files];
-  var allTestFiles = [];
-  allFiles.forEach(function (file) {
-    if (/[^a-zA-Z0-9](spec|test)\\.js$/i.test(file) && !/\\/node_modules\\//.test(file)) {
-      allTestFiles.push(file.replace(/\\.js$/, ''))
-    }
-  });
-  require(runtimeFiles, function() { return require(allTestFiles, window.__karma__.start); });
-})();
-`;
-
-  const requireConfigFile = tmp.fileSync(
-      {keep: false, postfix: '.js', dir: process.env['TEST_TMPDIR']});
-  fs.writeFileSync(requireConfigFile.name, requireConfigContent);
-  files.push(requireConfigFile.name);
-
-  module.exports = function(config) {
-    const configuration = {
-      // list of karma plugins
-      plugins: [
-        'karma-*',
-        '@bazel/karma',
-        'karma-sourcemap-loader',
-        'karma-chrome-launcher',
-        'karma-firefox-launcher',
-        'karma-sauce-launcher',
-      ],
-
-      // list of karma preprocessors
-      preprocessors: {'**/*.js': ['sourcemap']},
-
-      // list of test frameworks to use
-      frameworks: ['jasmine', 'concat_js'],
-
-      // test results reporter to use
-      // possible values: 'dots', 'progress'
-      // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-      reporters: ['progress'],
-
-      // web server port
-      port: 9876,
-
-      // enable / disable colors in the output (reporters and logs)
-      colors: true,
-
-      // level of logging
-      // possible values: config.LOG_DISABLE || config.LOG_ERROR ||
-      // config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
-      logLevel: config.LOG_INFO,
-
-      // enable / disable watching file and executing tests whenever any file
-      // changes
-      autoWatch: true,
-
-      // start these browsers
-      // available browser launchers:
-      // https://npmjs.org/browse/keyword/karma-launcher
-      browsers: browsers,
-
-      // Continuous Integration mode
-      // if true, Karma captures browsers, runs the tests and exits
-      // note: run_karma.sh may override this as a command-line option.
-      singleRun: false,
-
-      // Concurrency level
-      // how many browser should be started simultaneous
-      concurrency: Infinity,
-
-      // base path that will be used to resolve all patterns (eg. files,
-      // exclude)
-      basePath: 'TMPL_runfiles_path',
-
-      // list of files passed to karma; these are concatenated into a single
-      // file by karma-concat-js
-      files,
-      proxies,
+      throw new Error(`Unknown WEB_TEST_METADATA environment '${webTestMetadata['environment']}'`);
     }
 
-    if (process.env['IBAZEL_NOTIFY_CHANGES'] === 'y') {
-      // Tell karma to only listen for ibazel messages on stdin rather than
-      // watch all the input files This is from fork alexeagle/karma in the
-      // ibazel branch:
-      // https://github.com/alexeagle/karma/blob/576d262af50b10e63485b86aee99c5358958c4dd/lib/server.js#L172
-      configuration.watchMode = 'ibazel';
+    if (!conf.browsers.length) {
+      throw new Error('No browsers configured in web test suite');
     }
 
     // Extra configuration is needed for saucelabs
     // See: https://github.com/karma-runner/karma-sauce-launcher
-    if (customLaunchers) {
+    if (conf.customLaunchers) {
       // set the test name for sauce labs to use
       // TEST_BINARY is set by Bazel and contains the name of the test
-      // target posfixed with the the browser name such as
+      // target postfixed with the browser name such as
       // 'examples/testing/testing_sauce_chrome-win10' for the
       // test target examples/testing:testing
-      configuration.sauceLabs = {
-        testName: process.env['TEST_BINARY'] || 'ts_web_test_suite'
-      };
+      if (!conf.sauceLabs) {
+        conf.sauceLabs = {}
+      }
+      conf.sauceLabs.testName = process.env['TEST_BINARY'] || 'karma';
 
-      // setup the custom launchers for saucelabs
-      configuration.customLaunchers = customLaunchers;
+      // Try "websocket" for a faster transmission first. Fallback to "polling" if necessary.
+      overrideConfigValue(conf, 'transports', ['websocket', 'polling']);
 
       // add the saucelabs reporter
-      configuration.reporters.push('saucelabs');
+      mergeConfigArray(conf, 'reporters', ['saucelabs']);
+    }
+  }
+
+  function configureTsWebTestConfig(conf) {
+    if (process.env['WEB_TEST_METADATA']) {
+      // This is a karma_web_test_suite rule since there is a WEB_TEST_METADATA
+      return;
     }
 
-    config.set(configuration);
+    // Fallback to using the system local chrome if no valid browsers have been
+    // configured above
+    if (!conf.browsers || !conf.browsers.length) {
+      console.warn('No browsers configured. Configuring Karma to use system Chrome.');
+      conf.browsers = [process.env['DISPLAY'] ? 'Chrome': 'ChromeHeadless'];
+    }
+  }
+
+  module.exports = function(config) {
+    let conf = {};
+
+    // Import the user's base karma configuration if specified
+    if (configPath) {
+      const baseConf = require(configPath);
+      if (typeof baseConf !== 'function') {
+        throw new Error('Invalid base karma configuration. Expected config function to be exported.');
+      }
+      const originalSetConfig = config.set;
+      config.set = function(c) { conf = c; }
+      baseConf(config);
+      config.set = originalSetConfig;
+      if (DEBUG) console.info(`Base karma configuration: ${JSON.stringify(conf, null, 2)}`);
+    }
+
+    configureBazelConfig(config, conf);
+    configureFiles(conf);
+    configureTsWebTestSuiteConfig(conf);
+    configureTsWebTestConfig(conf);
+
+    if (DEBUG) console.info(`Karma configuration: ${JSON.stringify(conf, null, 2)}`);
+
+    config.set(conf);
   }
 } catch (e) {
   console.error('Error in karma configuration', e.toString());

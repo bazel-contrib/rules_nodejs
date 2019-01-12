@@ -14,7 +14,14 @@
 
 "Defaults for rules_typescript repository not meant to be used downstream"
 
-load("@build_bazel_rules_typescript//:defs.bzl", _ts_library = "ts_library", _ts_web_test_suite = "ts_web_test_suite")
+load(
+    "@build_bazel_rules_typescript//:defs.bzl",
+    _karma_web_test = "karma_web_test",
+    _karma_web_test_suite = "karma_web_test_suite",
+    _ts_library = "ts_library",
+    _ts_web_test = "ts_web_test",
+    _ts_web_test_suite = "ts_web_test_suite",
+)
 
 # We can't use the defaults for ts_library compiler and ts_web_test_suite karma
 # internally because the defaults are .js dependencies on the npm packages that are
@@ -22,8 +29,17 @@ load("@build_bazel_rules_typescript//:defs.bzl", _ts_library = "ts_library", _ts
 INTERNAL_TS_LIBRARY_COMPILER = "@build_bazel_rules_typescript//internal:tsc_wrapped_bin"
 INTERNAL_KARMA_BIN = "@build_bazel_rules_typescript//internal/karma:karma_bin"
 
+def karma_web_test(karma = INTERNAL_KARMA_BIN, **kwargs):
+    _karma_web_test(karma = karma, **kwargs)
+
+def karma_web_test_suite(karma = INTERNAL_KARMA_BIN, **kwargs):
+    _karma_web_test_suite(karma = karma, **kwargs)
+
 def ts_library(compiler = INTERNAL_TS_LIBRARY_COMPILER, **kwargs):
     _ts_library(compiler = compiler, **kwargs)
+
+def ts_web_test(karma = INTERNAL_KARMA_BIN, **kwargs):
+    _ts_web_test(karma = karma, **kwargs)
 
 def ts_web_test_suite(karma = INTERNAL_KARMA_BIN, **kwargs):
     _ts_web_test_suite(karma = karma, **kwargs)

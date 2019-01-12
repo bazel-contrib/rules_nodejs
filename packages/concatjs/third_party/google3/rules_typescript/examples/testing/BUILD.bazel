@@ -1,4 +1,4 @@
-load("//internal:defaults.bzl", "ts_library", "ts_web_test_suite")
+load("//internal:defaults.bzl", "karma_web_test_suite", "ts_library", "ts_web_test_suite")
 
 ts_library(
     name = "lib",
@@ -25,6 +25,40 @@ ts_library(
     deps = [
         "@npm//@types/jasmine",
         "@npm//@types/node",
+    ],
+)
+
+karma_web_test_suite(
+    name = "testing_karma",
+    browsers = [
+        "@io_bazel_rules_webtesting//browsers:chromium-local",
+        "@io_bazel_rules_webtesting//browsers:firefox-local",
+    ],
+    config_file = ":karma.conf.js",
+    static_files = [
+        "static_script.js",
+    ],
+    runtime_deps = [
+        ":tests_setup",
+    ],
+    deps = [
+        ":tests",
+        "@npm//karma-json-result-reporter",
+    ],
+)
+
+karma_web_test_suite(
+    name = "testing_karma_sauce",
+    browsers = [
+        "@io_bazel_rules_webtesting//browsers/sauce:chrome-win10",
+    ],
+    tags = [
+        "sauce",
+        # TODO(alexeagle): enable on CI once we have set the SAUCE env variables
+        "manual",
+    ],
+    deps = [
+        ":tests",
     ],
 )
 
