@@ -84,7 +84,7 @@ COMMON_ATTRIBUTES = dict(dict(), **{
 def _create_build_file(repository_ctx, node):
     if repository_ctx.attr.manual_build_file_contents:
         repository_ctx.file("manual_build_file_contents", repository_ctx.attr.manual_build_file_contents)
-    result = repository_ctx.execute([node, "generate_build_file.js", ",".join(repository_ctx.attr.included_files)])
+    result = repository_ctx.execute([node, "generate_build_file.js", repository_ctx.attr.name, ",".join(repository_ctx.attr.included_files)])
     if result.return_code:
         fail("node failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
 
