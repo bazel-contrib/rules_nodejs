@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "test_workspace_a": "file:../build_bazel_rules_nodejs/internal/e2e/bazel_workspaces_compat/npm/test_workspace_a",
+    "test_workspace_b": "file:../build_bazel_rules_nodejs/internal/e2e/bazel_workspaces_compat/npm/test_workspace_b"
+  },
+  "scripts": {
+      "test": "bazel test @test_workspace//..."
+  }
+}
