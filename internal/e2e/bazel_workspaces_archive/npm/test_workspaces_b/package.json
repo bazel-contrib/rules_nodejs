@@ -1,0 +1,17 @@
+{
+  "name": "test_workspaces_b",
+  "version": "0.0.1",
+  "bazelWorkspaces": {
+    "test_workspace_a": {
+      "archive": "test_workspace.zip",
+      "version": "0.0.2",
+      "compatVersion": "0.0.1"
+    },
+    "test_workspace_b": {
+      "archive": "test_workspace.tar.gz",
+      "stripPrefix": "test_workspace",
+      "version": "0.0.2",
+      "compatVersion": "0.0.1"
+    }
+  }
+}

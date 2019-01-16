@@ -211,11 +211,17 @@ function processBazelWorkspaces(pkg, bazelWorkspaces) {
 function processBazelWorkspace(bwName, bwDetails, pkg, bazelWorkspaces) {
   let alreadySetup = bazelWorkspaces[bwName];
 
-  // Ensure bazel workspace object has required rootPath attribute
-  if (!bwDetails.rootPath) {
+  // Ensure bazel workspace object has required a valid archive or rootPath attribute
+  if (!bwDetails.archive && !bwDetails.rootPath) {
     console.error(
         `Malformed bazelWorkspaces attribute in ${pkg._dir}@${pkg.version}. ` +
-        `Missing rootPath for workspace ${bwName}.`);
+        `Missing archive or rootPath for workspace ${bwName}.`);
+    process.exit(1);
+  }
+  if (bwDetails.archive && bwDetails.rootPath) {
+    console.error(
+        `Malformed bazelWorkspaces attribute in ${pkg._dir}@${pkg.version}. ` +
+        `Cannot specify both archive or rootPath for workspace ${bwName}.`);
     process.exit(1);
   }
 
@@ -269,6 +275,8 @@ function processBazelWorkspace(bwName, bwDetails, pkg, bazelWorkspaces) {
   alreadySetup.devVersion = bwDevVersion;
   alreadySetup.compatVersion = bwDetails.compatVersion;
   alreadySetup.rootPath = bwDetails.rootPath;
+  alreadySetup.archive = bwDetails.archive;
+  alreadySetup.stripPrefix = bwDetails.stripPrefix;
   alreadySetup.sources.push(`${pkg._dir}@${pkg.version}`);
   alreadySetup.pkg = pkg;
 }
@@ -291,44 +299,57 @@ def _maybe(repo_rule, name, **kwargs):
         repo_rule(name = name, **kwargs)
 `;
 
-  // Copy all files for this workspace to a folder under _workspaces
-  // to preserve the Bazel files which will be deleted from the npm package
-  // by deleteBazelFiles()
-  const workspaceSourcePath = path.posix.join('_workspaces', bwName);
-  mkdirp(workspaceSourcePath);
-  bwDetails.pkg._files.forEach(file => {
-    if (/^node_modules[/\\]/.test(file)) {
-      // don't copy over nested node_modules
-      return;
+  if (bwDetails.archive) {
+    bzlFile +=
+        `load("@build_bazel_rules_nodejs//tools:extract_repository.bzl", "extract_repository")
+def install_${bwName}():
+    _maybe(
+        extract_repository,
+        name = "${bwName}",
+        archive = "@${WORKSPACE}//node_modules/${bwDetails.pkg._dir}:${bwDetails.archive}",
+        strip_prefix = "${bwDetails.stripPrefix ? bwDetails.stripPrefix : ''}",
+    )
+`;
+  } else {
+    // Copy all files for this workspace to a folder under _workspaces
+    // to preserve the Bazel files which will be deleted from the npm package
+    // by deleteBazelFiles()
+    const workspaceSourcePath = path.posix.join('_workspaces', bwName);
+    mkdirp(workspaceSourcePath);
+    bwDetails.pkg._files.forEach(file => {
+      if (/^node_modules[/\\]/.test(file)) {
+        // don't copy over nested node_modules
+        return;
+      }
+      const src = path.posix.join('node_modules', bwDetails.pkg._dir, file);
+      const dest = path.posix.join(workspaceSourcePath, file);
+      mkdirp(path.dirname(dest));
+      console.error(`copying ${src} -> ${dest}`);
+      fs.copyFileSync(src, dest);
+    });
+
+    // We create _bazel_workspace_marker that is used by the custom copy_repository
+    // rule to resolve the path to the repository source root. A root BUILD file
+    // is required to reference _bazel_workspace_marker as a target so we also create
+    // an empty one if one does not exist.
+    if (!hasRootBuildFile(bwDetails.pkg)) {
+      writeFileSync(
+          path.posix.join(workspaceSourcePath, 'BUILD.bazel'),
+          '# Marker file that this directory is a bazel package');
     }
-    const src = path.posix.join('node_modules', bwDetails.pkg._dir, file);
-    const dest = path.posix.join(workspaceSourcePath, file);
-    mkdirp(path.dirname(dest));
-    console.error(`copying ${src} -> ${dest}`);
-    fs.copyFileSync(src, dest);
-  });
-
-  // We create _bazel_workspace_marker that is used by the custom copy_repository
-  // rule to resolve the path to the repository source root. A root BUILD file
-  // is required to reference _bazel_workspace_marker as a target so we also create
-  // an empty one if one does not exist.
-  if (!hasRootBuildFile(bwDetails.pkg)) {
     writeFileSync(
-        path.posix.join(workspaceSourcePath, 'BUILD.bazel'),
-        '# Marker file that this directory is a bazel package');
-  }
-  writeFileSync(
-      path.posix.join(workspaceSourcePath, '_bazel_workspace_marker'),
-      '# Marker file to used by custom copy_repository rule');
+        path.posix.join(workspaceSourcePath, '_bazel_workspace_marker'),
+        '# Marker file to used by custom copy_repository rule');
 
-  bzlFile += `load("@build_bazel_rules_nodejs//tools:copy_repository.bzl", "copy_repository")
+    bzlFile += `load("@build_bazel_rules_nodejs//tools:copy_repository.bzl", "copy_repository")
 def install_${bwName}():
     _maybe(
         copy_repository,
         name = "${bwName}",
         marker_file = "@${WORKSPACE}//_workspaces/${bwName}:_bazel_workspace_marker",
     )
-`;
+  `;
+  }
 
   writeFileSync(`install_${bwName}.bzl`, bzlFile);
 }
