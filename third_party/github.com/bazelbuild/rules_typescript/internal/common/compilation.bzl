@@ -18,7 +18,6 @@
 load(":common/json_marshal.bzl", "json_marshal")
 load(":common/module_mappings.bzl", "module_mappings_aspect")
 
-BASE_ATTRIBUTES = dict()
 
 _DEBUG = False
 
@@ -27,7 +26,7 @@ DEPS_ASPECTS = [
 ]
 
 # Attributes shared by any typescript-compatible rule (ts_library, ng_module)
-COMMON_ATTRIBUTES = dict(BASE_ATTRIBUTES, **{
+COMMON_ATTRIBUTES = {
     "data": attr.label_list(
         default = [],
         allow_files = True,
@@ -53,7 +52,7 @@ COMMON_ATTRIBUTES = dict(BASE_ATTRIBUTES, **{
     "_additional_d_ts": attr.label_list(
         allow_files = True,
     ),
-})
+}
 
 COMMON_OUTPUTS = {
     # Allow the tsconfig.json to be generated without running compile actions.
