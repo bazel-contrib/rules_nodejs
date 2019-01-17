@@ -9,6 +9,7 @@
     "homepage": "https://github.com/bazelbuild/rules_nodejs",
     "license": "Apache-2.0",
     "devDependencies": {
+        "@bazel/bazel": "^0.21.0",
         "@bazel/buildifier": "^0.20.0",
         "clang-format": "1.2.2",
         "husky": "^0.14.3",
