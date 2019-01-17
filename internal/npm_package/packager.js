@@ -99,8 +99,13 @@ function main(args) {
   // Don't include external directories in the package, these should be installed
   // by users outside of the package.
   for (dep of depsArg.split(',').filter(s => !!s && !s.startsWith('external/'))) {
-    const content = fs.readFileSync(dep, {encoding: 'utf-8'});
-    write(outPath(dep), content, replacements);
+    try {
+      const content = fs.readFileSync(dep, {encoding: 'utf-8'});
+      write(outPath(dep), content, replacements);
+    } catch (e) {
+      console.error(`Failed to copy ${dep} to ${outPath(dep)}`);
+      throw e;
+    }
   }
 
   // package contents like bazel-bin/baseDir/my/directory/* is
