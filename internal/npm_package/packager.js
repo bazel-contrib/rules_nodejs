@@ -96,7 +96,9 @@ function main(args) {
   }
 
   // deps like bazel-bin/baseDir/my/path is copied to outDir/my/path
-  for (dep of depsArg.split(',').filter(s => !!s)) {
+  // Don't include external directories in the package, these should be installed
+  // by users outside of the package.
+  for (dep of depsArg.split(',').filter(s => !!s && !s.startsWith('external/'))) {
     const content = fs.readFileSync(dep, {encoding: 'utf-8'});
     write(outPath(dep), content, replacements);
   }
