@@ -23,15 +23,59 @@
 
 import * as ts from 'typescript';
 
+export interface PluginCompilerHost extends ts.CompilerHost {
+  /**
+   * Absolute file paths which should be included in the initial ts.Program.
+   * In vanilla tsc, these are the ts.ParsedCommandLine#fileNames
+   */
+  inputFiles: ReadonlyArray<string>;
+
+  /**
+   * A helper the transformer can use when generating new import statements
+   * @param fileName the absolute path to the file as referenced in the ts.Program
+   * @return a string suitable for use in an import statement
+   */
+  fileNameToModuleId: (fileName: string) => string;
+}
+
 /**
  * This API is simpler than LanguageService plugins.
  * It's used for plugins that only target the command-line and never run in an
  * editor context.
- * IMPORTANT: plugins must propagate the diagnostics from the original program.
- * Execution of plugins is not additive; only the result from the top-most
- * wrapped Program is used.
+ *
+ * One instance of the TscPlugin will be created for each execution of the compiler, so it is
+ * safe for these plugins to hold state that's local to one execution.
+ *
+ * The methods on the plugin will be called in the order shown below:
+ * - wrapHost to intercept CompilerHost methods and contribute inputFiles to the program
+ * - wrap to intercept diagnostics requests on the program
+ * - createTransformers once it's time to emit
  */
-export interface TscPlugin { wrap(p: ts.Program, config?: {}): ts.Program; }
+export interface TscPlugin {
+  /**
+   * Allow plugins to add additional files to the program.
+   * For example, Angular creates ngsummary and ngfactory files.
+   * These files must be in the program since there may be incoming references to the symbols.
+   * @param inputFiles the files that were part of the original program
+   * @param compilerHost: the original host (likely a ts.CompilerHost) that we can delegate to
+   */
+  wrapHost?(inputFiles: string[], compilerHost: PluginCompilerHost): PluginCompilerHost;
+
+  /**
+   * Same API as ts.LanguageService: allow the plugin to contribute additional
+   * diagnostics
+   * IMPORTANT: plugins must propagate the diagnostics from the original program.
+   * Execution of plugins is not additive; only the result from the top-most
+   * wrapped Program is used.
+   */
+  wrap(p: ts.Program, config?: {}, host?: ts.CompilerHost): ts.Program;
+
+  /**
+   * Allow plugins to contribute additional TypeScript CustomTransformers.
+   * These can modify the TS AST, JS AST, or .d.ts output AST.
+   */
+  createTransformers?(host: PluginCompilerHost): ts.CustomTransformers;
+}
 
 // TODO(alexeagle): this should be unioned with tsserverlibrary.PluginModule
 export type Plugin = TscPlugin;
