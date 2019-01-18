@@ -49,4 +49,6 @@ platforms:
     - "--action_env=PATH"
     - "--test_env=PATH"
     test_targets:
+    - "--"
     - "..."
+    - "-//devserver/devserver:go_default_test"

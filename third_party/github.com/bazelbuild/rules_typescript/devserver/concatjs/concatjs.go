@@ -96,14 +96,16 @@ func acceptGzip(h http.Header) bool {
 // FileSystem is the interface to reading files from disk.
 // It's abstracted into an interface to allow tests to replace it.
 type FileSystem interface {
-	statMtime(filename string) (time.Time, error)
-	readFile(filename string) ([]byte, error)
+	StatMtime(filename string) (time.Time, error)
+	ReadFile(filename string) ([]byte, error)
+	ResolvePath(root string, file string) (string, error)
 }
 
-// realFileSystem implements FileSystem by actual disk access.
-type realFileSystem struct{}
+// RealFileSystem implements FileSystem by actual disk access.
+type RealFileSystem struct{}
 
-func (fs *realFileSystem) statMtime(filename string) (time.Time, error) {
+// StatMtime gets the last modification time of the specified file.
+func (fs *RealFileSystem) StatMtime(filename string) (time.Time, error) {
 	s, err := os.Stat(filename)
 	if err != nil {
 		return time.Time{}, err
@@ -111,8 +113,17 @@ func (fs *realFileSystem) statMtime(filename string) (time.Time, error) {
 	return s.ModTime(), nil
 }
 
-func (fs *realFileSystem) readFile(filename string) ([]byte, error) {
+// ReadFile reads the specified file using the real filesystem.
+func (fs *RealFileSystem) ReadFile(filename string) ([]byte, error) {
 	return ioutil.ReadFile(filename)
+}
+
+// ResolvePath resolves the specified path within a given root by joining root and the filepath.
+// This is only works if the specified file is located within the given root in the
+// real filesystem. This does not work in Bazel where requested files aren't always
+// located within the specified root. Files would need to be resolved as runfiles.
+func (fs *RealFileSystem) ResolvePath(root string, file string) (string, error) {
+	return filepath.Join(root, file), nil
 }
 
 // FileCache caches a set of files in memory and provides a single
@@ -129,7 +140,7 @@ type FileCache struct {
 // will use the real file system if nil.
 func NewFileCache(root string, fs FileSystem) *FileCache {
 	if fs == nil {
-		fs = &realFileSystem{}
+		fs = &RealFileSystem{}
 	}
 	return &FileCache{
 		root:    root,
@@ -140,10 +151,11 @@ func NewFileCache(root string, fs FileSystem) *FileCache {
 
 type cacheEntry struct {
 	// err holds an error encountered while updating the entry; if
-	// it's non-nil, then mtime and contents are invalid.
-	err      error
-	mtime    time.Time
-	contents []byte
+	// it's non-nil, then mtime, contents and the resolved path are invalid.
+	err          error
+	mtime        time.Time
+	contents     []byte
+	resolvedPath string
 }
 
 // manifestFiles parses a manifest, returning a list of the files in the manifest.
@@ -213,8 +225,8 @@ func (cache *FileCache) WriteFiles(w io.Writer, files []string) error {
 
 // refresh ensures a single cacheEntry is up to date.  It stat()s and
 // potentially reads the contents of the file it is caching.
-func (e *cacheEntry) refresh(root, path string, fs FileSystem) error {
-	mt, err := fs.statMtime(filepath.Join(root, path))
+func (e *cacheEntry) refresh(fs FileSystem) error {
+	mt, err := fs.StatMtime(e.resolvedPath)
 	if err != nil {
 		return err
 	}
@@ -222,7 +234,7 @@ func (e *cacheEntry) refresh(root, path string, fs FileSystem) error {
 		return nil // up to date
 	}
 
-	contents, err := fileContents(root, path, fs)
+	contents, err := fileContents(e.resolvedPath, fs)
 	if err != nil {
 		return err
 	}
@@ -230,6 +242,10 @@ func (e *cacheEntry) refresh(root, path string, fs FileSystem) error {
 	e.contents = contents
 	return nil
 }
+
+// Convert Windows paths separators. We can use this to create canonical paths that
+// can be also used as browser source urls.
+var pathReplacer = strings.NewReplacer("\\", "/")
 
 // refreshFiles stats the given files and updates the cache for them.
 func (cache *FileCache) refreshFiles(files []string) {
@@ -248,7 +264,7 @@ func (cache *FileCache) refreshFiles(files []string) {
 		// TODO(evanm): benchmark limiting this to fewer goroutines.
 		go func() {
 			w := <-work
-			w.entry.err = w.entry.refresh(cache.root, w.path, cache.fs)
+			w.entry.err = w.entry.refresh(cache.fs)
 			wg.Done()
 		}()
 	}
@@ -256,7 +272,21 @@ func (cache *FileCache) refreshFiles(files []string) {
 	for _, path := range files {
 		entry := cache.entries[path]
 		if entry == nil {
-			entry = &cacheEntry{}
+			// Resolve path only once for a cache entry. The resolved path will be part of the
+			// cache item.
+			resolvedPath, err := cache.fs.ResolvePath(cache.root, path)
+
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "could not resolve path %s. %v\n", path, err)
+				os.Exit(1)
+			}
+
+			// Create a new cache entry with the corresponding resolved path. Also normalize the path
+			// before storing it persistently in the cache. The normalizing is good to do here because
+			// the path might be used in browser source URLs and should be kept in posix format.
+			entry = &cacheEntry{
+				resolvedPath: pathReplacer.Replace(resolvedPath),
+			}
 			cache.entries[path] = entry
 		}
 		work <- workItem{path, entry}
@@ -275,10 +305,8 @@ const googModuleSearchLimit = 50 * 1000
 var googModuleRegExp = regexp.MustCompile(`(?m)^\s*goog\.module\s*\(\s*['"]`)
 
 // fileContents returns escaped JS file contents for the given path.
-// The path is resolved relative to root, but the path without root is used as the path
-// in the source map.
-func fileContents(root, path string, fs FileSystem) ([]byte, error) {
-	contents, err := fs.readFile(filepath.Join(root, path))
+func fileContents(path string, fs FileSystem) ([]byte, error) {
+	contents, err := fs.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}

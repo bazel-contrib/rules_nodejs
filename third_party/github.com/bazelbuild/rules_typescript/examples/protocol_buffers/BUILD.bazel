@@ -1,4 +1,6 @@
 load("@build_bazel_rules_nodejs//:defs.bzl", "http_server", "rollup_bundle")
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+load("@io_bazel_rules_go//proto:def.bzl", "go_proto_library")
 load(
     "//:defs.bzl",
     "ts_devserver",
@@ -60,7 +62,7 @@ ts_devserver(
     bootstrap = ["@build_bazel_rules_typescript//:protobufjs_bootstrap_scripts"],
     entry_module = "build_bazel_rules_typescript/examples/protocol_buffers/app",
     port = 8080,
-    deps = [":app"],
+    deps = [":bundle"],
 )
 
 # Test for production mode
@@ -110,4 +112,27 @@ ts_library(
         "@npm//@types/node",
         "@npm//protractor",
     ],
+)
+
+proto_library(
+    name = "rules_typescript_proto",
+    srcs = [
+        "car.proto",
+        "tire.proto",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+go_proto_library(
+    name = "rules_typescript_go_proto",
+    importpath = "github.com/bazelbuild/rules_typescript/examples/protocol_buffers",
+    proto = ":rules_typescript_proto",
+    visibility = ["//visibility:public"],
+)
+
+go_library(
+    name = "go_default_library",
+    embed = [":rules_typescript_go_proto"],
+    importpath = "github.com/bazelbuild/rules_typescript/examples/protocol_buffers",
+    visibility = ["//visibility:public"],
 )
