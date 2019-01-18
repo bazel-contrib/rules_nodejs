@@ -551,7 +551,8 @@ def node_repositories(
 
     # 0.14.0: @bazel_tools//tools/bash/runfiles is required for nodejs
     # 0.17.1: allow @ in package names is required for fine grained deps
-    check_bazel_version("0.17.1")
+    # 0.21.0: repository_ctx.report_progress API
+    check_bazel_version("0.21.0")
 
     _nodejs_repo(
         name = "nodejs",
