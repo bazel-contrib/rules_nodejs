@@ -82,6 +82,7 @@ COMMON_ATTRIBUTES = dict(dict(), **{
 })
 
 def _create_build_file(repository_ctx, node):
+    repository_ctx.report_progress("Processing node_modules: installing Bazel packages and generating BUILD files")
     if repository_ctx.attr.manual_build_file_contents:
         repository_ctx.file("manual_build_file_contents", repository_ctx.attr.manual_build_file_contents)
     result = repository_ctx.execute([node, "generate_build_file.js", repository_ctx.attr.name, ",".join(repository_ctx.attr.included_files)])
@@ -171,6 +172,7 @@ cd "{root}" && "{npm}" {npm_args}
     if result.return_code:
         fail("node failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
 
+    repository_ctx.report_progress("Running npm install on %s" % repository_ctx.attr.package_json)
     result = repository_ctx.execute(
         [repository_ctx.path("npm.cmd" if is_windows else "npm")],
         timeout = repository_ctx.attr.timeout,
@@ -257,8 +259,7 @@ def _yarn_install_impl(repository_ctx):
         # artifacts somewhere, so we rely on yarn to be correct.
         args.extend(["--mutex", "network"])
 
-    # This can take a long time, and the user has no idea what is running.
-    # Follow https://github.com/bazelbuild/bazel/issues/1289
+    repository_ctx.report_progress("Running yarn install on %s" % repository_ctx.attr.package_json)
     result = repository_ctx.execute(
         args,
         timeout = repository_ctx.attr.timeout,
