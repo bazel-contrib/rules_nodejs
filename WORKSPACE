@@ -14,9 +14,7 @@
 
 workspace(name = "build_bazel_rules_nodejs")
 
-load("//:package.bzl", "rules_nodejs_dependencies", "rules_nodejs_dev_dependencies")
-
-rules_nodejs_dependencies()
+load("//:package.bzl", "rules_nodejs_dev_dependencies")
 
 rules_nodejs_dev_dependencies()
 
