@@ -18,10 +18,10 @@ This is a set of repository rules for setting up hermetic copies of NodeJS and Y
 See https://docs.bazel.build/versions/master/skylark/repository_rules.html
 """
 
-load("@bazel_skylib//lib:paths.bzl", "paths")
 load("//internal/common:check_bazel_version.bzl", "check_bazel_version")
 load("//internal/common:os_name.bzl", "os_name")
 load("//internal/npm_install:npm_install.bzl", "yarn_install")
+load("//third_party/github.com/bazelbuild/bazel-skylib/lib:paths.bzl", "paths")
 load(":node_labels.bzl", "get_yarn_node_repositories_label")
 
 # Callers that don't specify a particular version will get these.
