@@ -11,6 +11,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/bazelbuild/rules_typescript/devserver/runfiles"
 )
 
 // Convert Windows paths separators.
@@ -93,16 +95,15 @@ func (w *headerSuppressorResponseWriter) WriteHeader(code int) {}
 
 // CreateFileHandler returns an http handler to locate files on disk
 func CreateFileHandler(servingPath, manifest string, pkgs []string, base string) http.HandlerFunc {
-	pkgPaths := chainedDir{}
+	// We want to add the root runfile path because by default developers should be able to request
+	// runfiles through their absolute manifest path (e.g. "my_workspace_name/src/file.css")
+	// We use the empty string package because of the different algorithm for
+	// file resolution used internally and externally.
+	pkgPaths := dirHTTPFileSystem{[]string{"./"}, base}
 	for _, pkg := range pkgs {
-		path := pathReplacer.Replace(filepath.Join(base, pkg))
-		if _, err := os.Stat(path); err != nil {
-			fmt.Fprintf(os.Stderr, "Cannot read server root package at %s: %v\n", path, err)
-			os.Exit(1)
-		}
-		pkgPaths = append(pkgPaths, http.Dir(path))
+		pkgPaths.files = append(pkgPaths.files, pathReplacer.Replace(pkg))
 	}
-	pkgPaths = append(pkgPaths, http.Dir(base))
+	pkgPaths.files = append(pkgPaths.files, base)
 
 	fileHandler := http.FileServer(pkgPaths).ServeHTTP
 
@@ -122,12 +123,18 @@ func CreateFileHandler(servingPath, manifest string, pkgs []string, base string)
 	indexHandler := func(w http.ResponseWriter, r *http.Request) {
 		// search through pkgs for the first index.html file found if any exists
 		for _, pkg := range pkgs {
-			// defaultIndex is not cached, so that a user's edits will be reflected.
-			defaultIndex := pathReplacer.Replace(filepath.Join(base, pkg, "index.html"))
-			if _, err := os.Stat(defaultIndex); err == nil {
-				http.ServeFile(w, r, defaultIndex)
-				return
+			// File path is not cached, so that a user's edits will be reflected.
+			userIndexFile, err := runfiles.Runfile(base, pathReplacer.Replace(filepath.Join(pkg, "index.html")))
+
+			// In case the potential user index file couldn't be found in the runfiles,
+			// just continue searching.
+			if _, statErr := os.Stat(userIndexFile); err != nil || statErr != nil {
+				continue
 			}
+
+			// We can assume that the file is readable if it's listed in the runfiles manifest.
+			http.ServeFile(w, r, userIndexFile)
+			return
 		}
 		content := bytes.NewReader(defaultPage)
 		http.ServeContent(w, r, "index.html", time.Now(), content)
@@ -166,40 +173,49 @@ func CreateFileHandler(servingPath, manifest string, pkgs []string, base string)
 	return indexOnNotFoundHandler
 }
 
-// chainedDir implements http.FileSystem by looking in the list of dirs one after each other.
-type chainedDir []http.Dir
+// dirHTTPFileSystem implements http.FileSystem by looking in the list of dirs one after each other.
+type dirHTTPFileSystem struct {
+	files []string
+	base string
+}
 
-func (chain chainedDir) Open(name string) (http.File, error) {
-	for _, dir := range chain {
-		f, err := dir.Open(name)
-		if os.IsNotExist(err) {
-			continue
-		}
-		if err != nil {
-			return nil, err
-		}
+func (fs dirHTTPFileSystem) Open(name string) (http.File, error) {
+	for _, packageName := range fs.files {
+		filePackageName := filepath.Join(packageName, name)
+		realFilePath, err := runfiles.Runfile(fs.base, filePackageName)
+		stat, statErr := os.Stat(realFilePath)
 
-		// Do not return a directory, since FileServer will either:
-		//  1) serve the index.html file -or-
-		//  2) fall back to directory listings
-		// In place of (2), we prefer to fall back to our index.html. We accomplish
-		// this by lying to the FileServer that the directory doesn't exist.
-		stat, err := f.Stat()
-		if err != nil {
-			return nil, err
-		}
-		if stat.IsDir() {
-			// Make sure to close the previous file handle before moving to a different file.
-			f.Close()
-			indexName := pathReplacer.Replace(filepath.Join(name, "index.html"))
-			f, err := dir.Open(indexName)
-			if os.IsNotExist(err) {
+		if err != nil || statErr != nil {
+			// In case the runfile could not be found, we also need to check that the requested
+			// path does not refer to a directory containing an "index.html" file. This can
+			// happen if Bazel runs without runfile symlinks, where only files can be resolved
+			// from the manifest. In that case we dirty check if there is a "index.html" file.
+			realFilePath, err = runfiles.Runfile(fs.base, filepath.Join(filePackageName, "index.html"))
+
+			// Continue searching if the runfile couldn't be found for the request filed.
+			if _, statErr := os.Stat(realFilePath); err != nil || statErr != nil {
 				continue
 			}
-			return f, err
 		}
 
-		return f, nil
+		// In case the resolved file resolves to a directory. This can only happen if
+		// Bazel runs with symlinked runfiles (e.g. on MacOS, linux). In that case, we
+		// just look for a index.html in the directory.
+		if stat.IsDir() {
+			realFilePath, err = runfiles.Runfile(fs.base, filepath.Join(filePackageName, "index.html"))
+
+			// In case the index.html file of the requested directory couldn't be found,
+			// we just continue searching.
+			if err != nil {
+				continue
+			}
+		}
+
+
+		// We can assume that the file is present, if it's listed in the runfile manifest. Though, we
+		// return the error, in case something prevented the read-access.
+		return os.Open(realFilePath)
 	}
+
 	return nil, os.ErrNotExist
 }

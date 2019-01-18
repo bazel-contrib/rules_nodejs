@@ -5,12 +5,16 @@ package(default_visibility = ["//visibility:public"])
 
 go_library(
     name = "go_default_library",
-    srcs = ["main.go"],
+    srcs = [
+        "main.go",
+        "runfile-filesystem.go",
+    ],
     importpath = "github.com/bazelbuild/rules_typescript/devserver",
     visibility = ["//visibility:private"],
     deps = [
         "//devserver/concatjs:go_default_library",
         "//devserver/devserver:go_default_library",
+        "//devserver/runfiles:go_default_library",
     ],
 )
 

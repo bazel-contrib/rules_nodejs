@@ -17,6 +17,8 @@ load("//internal:defaults.bzl", "ts_library")
 
 package(default_visibility = ["//visibility:public"])
 
+exports_files(["tsconfig.json"])
+
 ts_library(
     name = "types",
     srcs = ["types.d.ts"],
