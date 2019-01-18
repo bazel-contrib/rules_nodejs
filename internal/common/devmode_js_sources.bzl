@@ -39,7 +39,7 @@ def _devmode_js_sources_impl(ctx):
 
     ctx.actions.write(ctx.outputs.manifest, "".join([
         expand_path_into_runfiles(ctx, f.path) + "\n"
-        for f in files.to_list()
+        for f in files
     ]))
     return [DefaultInfo(files = files)]
 

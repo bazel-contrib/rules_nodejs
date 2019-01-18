@@ -22,10 +22,10 @@ def collect_es6_sources(ctx):
     """Returns a file tree containing only production files.
 
     Args:
-      ctx: ctx.
+        ctx: ctx.
 
     Returns:
-      A file tree containing only production files.
+        A file tree containing only production files.
     """
 
     non_rerooted_files = [d for d in ctx.files.deps if d.is_source]
@@ -33,7 +33,7 @@ def collect_es6_sources(ctx):
         non_rerooted_files += ctx.files.srcs
     for dep in ctx.attr.deps:
         if hasattr(dep, "typescript"):
-            non_rerooted_files += dep.typescript.transitive_es6_sources.to_list()
+            non_rerooted_files += [f.path for f in dep.typescript.transitive_es6_sources]
 
     rerooted_files = []
     for file in non_rerooted_files:
