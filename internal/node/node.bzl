@@ -105,9 +105,15 @@ def _nodejs_binary_impl(ctx):
     sources = []
     for d in ctx.attr.data:
         if hasattr(d, "node_sources"):
-            sources += d.node_sources.to_list()
+            # sources += d.node_sources.to_list()
+            sources += [f for f in d.node_sources]
         if hasattr(d, "files"):
-            sources += d.files.to_list()
+            # sources += d.files.to_list()
+            sources += [f for f in d.files]
+
+    # print([f for f in d.files])
+    # print(d.files.to_list())
+    # print(sources)
 
     _write_loader_script(ctx)
 

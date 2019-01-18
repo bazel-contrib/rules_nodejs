@@ -97,7 +97,7 @@ def _npm_package(ctx):
 
         deps_sources = depset(transitive = transitive)
 
-    package_dir = create_package(ctx, deps_sources.to_list(), ctx.files.packages)
+    package_dir = create_package(ctx, [f for f in deps_sources], ctx.files.packages)
 
     return [DefaultInfo(
         files = depset([package_dir]),

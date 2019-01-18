@@ -184,7 +184,7 @@ def _run_rollup(ctx, sources, config, output, map_output = None):
     # These deps are identified by the NodeModuleInfo provider.
     for d in ctx.attr.deps:
         if NodeModuleInfo in d:
-            direct_inputs += _filter_js_inputs(d.files.to_list())
+            direct_inputs += _filter_js_inputs(d.files)
 
     if ctx.file.license_banner:
         direct_inputs += [ctx.file.license_banner]
