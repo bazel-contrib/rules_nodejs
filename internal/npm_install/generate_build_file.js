@@ -221,6 +221,7 @@ function processBazelWorkspace(bwName, bwDetails, pkg, bazelWorkspaces) {
 
   // Trim development versions such as '0.22.0-26-g9088e46' down to their semver
   const bwVersion = bwDetails.version ? bwDetails.version.split('-')[0] : undefined;
+  const bwDevVersion = bwDetails.version ? bwDetails.version != bwVersion : false;
 
   // If no compatVersion is specified then it is equal to the version
   if (!bwDetails.compatVersion) {
@@ -242,8 +243,9 @@ function processBazelWorkspace(bwName, bwDetails, pkg, bazelWorkspaces) {
             `${alreadySetup.sources.join(', ')}.`);
         process.exit(1);
       }
-      if (cmpVersions(bwVersion, alreadySetup.version) < 0) {
-        // No reason to update to an older compatible version
+      if (cmpVersions(bwVersion, alreadySetup.version) < 0 ||
+          (cmpVersions(bwVersion, alreadySetup.version) == 0 && !bwDevVersion)) {
+        // No reason to update to an older compatible version or an equal non-dev-version
         alreadySetup.sources.push(`${pkg._dir}@${pkg.version}`);
         return;
       }
@@ -264,6 +266,7 @@ function processBazelWorkspace(bwName, bwDetails, pkg, bazelWorkspaces) {
     }
   }
   alreadySetup.version = bwVersion;
+  alreadySetup.devVersion = bwDevVersion;
   alreadySetup.compatVersion = bwDetails.compatVersion;
   alreadySetup.rootPath = bwDetails.rootPath;
   alreadySetup.sources.push(`${pkg._dir}@${pkg.version}`);
