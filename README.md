@@ -28,7 +28,7 @@ containing:
 git_repository(
     name = "build_bazel_rules_nodejs",
     remote = "https://github.com/bazelbuild/rules_nodejs.git",
-    tag = "0.11.3", # check for the latest tag when you install
+    tag = "0.16.5", # check for the latest tag when you install
 )
 
 load("@build_bazel_rules_nodejs//:package.bzl", "rules_nodejs_dependencies")
