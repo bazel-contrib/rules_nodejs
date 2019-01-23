@@ -5,6 +5,9 @@ platforms:
     - "@nodejs//:yarn"
     build_targets:
     - "//..."
+    # This target is tagged "manual" but we want some CI
+    # coverage of it to make sure it doesn't break.
+    - "//docs"
     test_targets:
     - "//..."
     test_targets:
