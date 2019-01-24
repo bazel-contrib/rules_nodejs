@@ -13,7 +13,7 @@ exports_files([
 ])
 
 ts_library(
-    name = "karma_concat_js",
+    name = "bazel_karma",
     srcs = glob(["*.ts"]),
     module_name = "@bazel/karma",
     tsconfig = "//internal/karma:tsconfig.json",
@@ -26,7 +26,7 @@ ts_library(
 nodejs_binary(
     name = "karma_bin",
     data = [
-        ":karma_concat_js",
+        ":bazel_karma",
         "@npm//jasmine-core",
         "@npm//karma",
         "@npm//karma-chrome-launcher",
@@ -65,7 +65,7 @@ npm_package(
     ],
     deps = [
         ":check_version_copy",
-        ":karma_concat_js",
+        ":bazel_karma",
         ":license_copy",
     ],
 )
