@@ -44,19 +44,29 @@ func debugf(format string, v ...interface{}) {
 
 // TargetLoader provides methods for loading targets from BUILD files.
 type TargetLoader interface {
-	// LoadLabels loads targets from BUILD files associated with labels.
-	// It returns a mapping from labels to targets or an error, if any
+	// LoadTargets loads targets from BUILD files associated with labels. A target
+	// is a rule, source file, generated file, package group or environment group.
+	// It returns a mapping from labels to targets or an error, if any occurred.
+	//
+	// A label must be the absolute label associated with a target. For example,
+	// '//foo/bar:baz' is acceptable whereas 'bar:baz' or '//foo/bar' will result
+	// in undefined behavior. TODO(lucassloan): make this an error
+	//
+	// Only returns targets visible to currentPkg. If currentPkg is an empty
+	// string returns all targets regardless of visibility.
+	LoadTargets(currentPkg string, labels []string) (map[string]*appb.Target, error)
+	// LoadRules loads rules from BUILD files associated with labels.
+	// It returns a mapping from labels to rules or an error, if any
 	// occurred.
 	//
-	// A label must be the absolute label associated with a target. For
+	// A label must be the absolute label associated with a rule. For
 	// example, '//foo/bar:baz' is acceptable whereas 'bar:baz' or '//foo/bar'
-	// will result in undefined behavior. If no target is found associated
-	// with a provided label, the label should be excluded from the returned
-	// mapping but an error should not be returned.
+	// will result in undefined behavior.
+	// TODO(lucassloan): make this an error.
 	//
 	// Only returns rules visible to currentPkg. If currentPkg is an empty string
-	// returns all targets regardless of visibility.
-	LoadLabels(currentPkg string, labels []string) (map[string]*appb.Rule, error)
+	// returns all rules regardless of visibility.
+	LoadRules(currentPkg string, labels []string) (map[string]*appb.Rule, error)
 	// LoadImportPaths loads targets from BUILD files associated with import
 	// paths relative to a root directory. It returns a mapping from import
 	// paths to targets or an error, if any occurred.
@@ -102,11 +112,11 @@ func (a *Analyzer) Analyze(ctx context.Context, dir string, labels []string) ([]
 	if err != nil {
 		return nil, err
 	}
-	targets, err := a.loader.LoadLabels(currentPkg, labels)
+	rules, err := a.loader.LoadRules(currentPkg, labels)
 	if err != nil {
 		return nil, err
 	}
-	resolved, err := a.resolveImportsForTargets(ctx, currentPkg, root, targets)
+	resolved, err := a.resolveImportsForTargets(ctx, currentPkg, root, rules)
 	if err != nil {
 		return nil, err
 	}
@@ -126,15 +136,68 @@ type resolvedTarget struct {
 	// missingSources are source files which could not be opened on disk.
 	// These are added to the dependency reports and MissingSources.
 	missingSources []string
+	// A map from the labels in the target's srcs to the Targets those
+	// labels refer.
+	sources map[string]*appb.Target
 }
 
-func (t *resolvedTarget) srcs() ([]string, error) {
-	srcs, err := sources(t.rule)
-	if err != nil {
-		// Targets without sources are considered errors.
-		return nil, err
+// setSources sets the sources on t.  It returns an error if one of the srcs of
+// t's rule isn't in loadedSrcs.
+func (t *resolvedTarget) setSources(loadedSrcs map[string]*appb.Target) error {
+	for _, label := range listAttribute(t.rule, "srcs") {
+		src := loadedSrcs[label]
+		if src == nil {
+			return fmt.Errorf("no source found for label %s", label)
+		}
+		t.sources[label] = src
 	}
+	return nil
+}
+
+// srcs returns the labels of the sources of t.
+func (t *resolvedTarget) srcs() ([]string, error) {
+	srcs := listAttribute(t.rule, "srcs")
+	if srcs == nil {
+		return nil, fmt.Errorf("target %q missing \"srcs\" attribute", t.label)
+	}
+
 	return srcs, nil
+}
+
+// literalSrcPaths returns the file paths of the non-generated sources of t.
+func (t *resolvedTarget) literalSrcPaths() ([]string, error) {
+	srcs := listAttribute(t.rule, "srcs")
+	if srcs == nil {
+		return nil, fmt.Errorf("target %q missing \"srcs\" attribute", t.label)
+	}
+	var literalFilePaths []string
+	for _, label := range listAttribute(t.rule, "srcs") {
+		src := t.sources[label]
+		if src == nil {
+			return nil, fmt.Errorf("src %q has no associated target", label)
+		}
+		// There's no syntactic way to determine if a label is a source file
+		// so check against the type of the relevant target
+		if src.GetType() == appb.Target_SOURCE_FILE {
+			literalFilePaths = append(literalFilePaths, labelToPath(label))
+		}
+	}
+	return literalFilePaths, nil
+}
+
+// getAllLiteralSrcPaths returns the file paths of all the non-generated sources
+// of the targets.
+func getAllLiteralSrcPaths(targets map[string]*resolvedTarget) ([]string, error) {
+	var allLiteralSrcPaths []string
+	for _, t := range targets {
+		literalSrcPaths, err := t.literalSrcPaths()
+		if err != nil {
+			return nil, err
+		}
+		allLiteralSrcPaths = append(allLiteralSrcPaths, literalSrcPaths...)
+	}
+
+	return allLiteralSrcPaths, nil
 }
 
 func (t *resolvedTarget) deps() []string {
@@ -143,13 +206,21 @@ func (t *resolvedTarget) deps() []string {
 
 // provides returns whether the resolved target can provide the path provided.
 func (t *resolvedTarget) provides(path string) bool {
-	srcs, err := t.srcs()
-	if err != nil {
-		return false
-	}
-	for _, src := range srcs {
-		if src == path {
-			return true
+	for _, label := range listAttribute(t.rule, "srcs") {
+		src := t.sources[label]
+		if src.GetType() == appb.Target_SOURCE_FILE {
+			// For literal sources, check the path of the source
+			if labelToPath(label) == path {
+				return true
+			}
+		} else if src.GetType() == appb.Target_RULE {
+			// For generated souces, check against the paths of rule's
+			// outputs
+			for _, genSrc := range src.GetRule().GetRuleOutput() {
+				if labelToPath(genSrc) == path {
+					return true
+				}
+			}
 		}
 	}
 	return false
@@ -162,6 +233,7 @@ func newResolvedTarget(r *appb.Rule) *resolvedTarget {
 		dependencies: make(map[string]*appb.Rule),
 		imports:      make(map[string][]*ts_auto_depsImport),
 		rule:         r,
+		sources:      make(map[string]*appb.Target),
 	}
 }
 
@@ -180,7 +252,7 @@ func (a *Analyzer) resolveImportsForTargets(ctx context.Context, currentPkg, roo
 		allDeps = append(allDeps, target.deps()...)
 		allSrcs = append(allSrcs, srcs...)
 	}
-	deps, err := a.loader.LoadLabels(currentPkg, allDeps)
+	deps, err := a.loader.LoadRules(currentPkg, allDeps)
 	if err != nil {
 		return nil, err
 	}
@@ -191,7 +263,25 @@ func (a *Analyzer) resolveImportsForTargets(ctx context.Context, currentPkg, roo
 			t.dependencies[dep] = deps[dep]
 		}
 	}
-	imports, errs := extractAllImports(root, allSrcs)
+	// load all the sources in the targets, so that literal and generated
+	// targets can be distinguished
+	srcs, err := a.loader.LoadTargets(currentPkg, allSrcs)
+	if err != nil {
+		return nil, err
+	}
+	for _, t := range targets {
+		err := t.setSources(srcs)
+		if err != nil {
+			return nil, err
+		}
+	}
+	// only extract the imports out of the literal sources, since ts_auto_deps can't
+	// see the contents of generated files
+	allLiteralSrcPaths, err := getAllLiteralSrcPaths(targets)
+	if err != nil {
+		return nil, err
+	}
+	imports, errs := extractAllImports(root, allLiteralSrcPaths)
 	for _, err := range errs {
 		// NotExist errors are caught and added to the generated dependency
 		// reports as missing source files. Only errors which are not NotExist
@@ -201,7 +291,7 @@ func (a *Analyzer) resolveImportsForTargets(ctx context.Context, currentPkg, roo
 		}
 	}
 	for _, t := range targets {
-		srcs, err := t.srcs()
+		srcs, err := t.literalSrcPaths()
 		if err != nil {
 			return nil, err
 		}
@@ -328,19 +418,9 @@ func redirectedLabel(target *appb.Rule) string {
 	return target.GetName()
 }
 
-// sources creates an array of all sources listed in the 'srcs' attribute
-// on each target in targets.
-func sources(target *appb.Rule) ([]string, error) {
-	srcs := listAttribute(target, "srcs")
-	if srcs == nil {
-		return nil, fmt.Errorf("target %q missing \"srcs\" attribute", target.GetName())
-	}
-	for i, src := range srcs {
-		_, pkg, file := edit.ParseLabel(src)
-		// TODO(jdhamlik): Handle generated files.
-		srcs[i] = platform.Normalize(filepath.Clean(filepath.Join(pkg, file)))
-	}
-	return srcs, nil
+func labelToPath(label string) string {
+	_, pkg, file := edit.ParseLabel(label)
+	return platform.Normalize(filepath.Clean(filepath.Join(pkg, file)))
 }
 
 // generateReports generates reports for each label in labels.
@@ -419,7 +499,7 @@ func (a *Analyzer) generateReport(target *resolvedTarget) (*arpb.DependencyRepor
 			unusedDeps = append(unusedDeps, dep)
 		}
 	}
-	labelToRule, err := a.loader.LoadLabels("", unusedDeps)
+	labelToRule, err := a.loader.LoadRules("", unusedDeps)
 	if err != nil {
 		return nil, err
 	}

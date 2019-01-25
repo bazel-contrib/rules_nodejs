@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"reflect"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -44,8 +46,20 @@ func newFakeTargetLoader() *fakeTargetLoader {
 	}
 }
 
-func (bl *fakeTargetLoader) LoadLabels(_ string, labels []string) (map[string]*appb.Rule, error) {
-	return bl.loadTargets(bl.targetsByLabels, labels)
+func (bl *fakeTargetLoader) LoadRules(_ string, labels []string) (map[string]*appb.Rule, error) {
+	return bl.loadRules(bl.targetsByLabels, labels)
+}
+
+func (bl *fakeTargetLoader) LoadTargets(_ string, labels []string) (map[string]*appb.Target, error) {
+	targets := make(map[string]*appb.Target)
+	for _, l := range labels {
+		if strings.Contains(l, ".") {
+			targets[l] = &appb.Target{Type: appb.Target_SOURCE_FILE.Enum()}
+		} else {
+			targets[l] = &appb.Target{Type: appb.Target_RULE.Enum()}
+		}
+	}
+	return targets, nil
 }
 
 func (bl *fakeTargetLoader) byLabel(label, value string) {
@@ -53,14 +67,14 @@ func (bl *fakeTargetLoader) byLabel(label, value string) {
 }
 
 func (bl *fakeTargetLoader) LoadImportPaths(_ context.Context, _, _ string, paths []string) (map[string]*appb.Rule, error) {
-	return bl.loadTargets(bl.targetsByImportPaths, paths)
+	return bl.loadRules(bl.targetsByImportPaths, paths)
 }
 
 func (bl *fakeTargetLoader) byImportPath(importPath, value string) {
 	bl.targetsByImportPaths[importPath] = value
 }
 
-func (bl *fakeTargetLoader) loadTargets(source map[string]string, keys []string) (map[string]*appb.Rule, error) {
+func (bl *fakeTargetLoader) loadRules(source map[string]string, keys []string) (map[string]*appb.Rule, error) {
 	targets := make(map[string]*appb.Rule)
 	for _, key := range keys {
 		value, ok := source[key]
@@ -476,6 +490,208 @@ func TestStringAttribute(t *testing.T) {
 		if diff := pretty.Compare(attrValue, test.value); diff != "" {
 			t.Errorf("stringAttribute(%q): failed to get correct attribute values: (-got, +want)\n%s", test.name, diff)
 		}
+	}
+}
+
+func createResolvedTarget(srcs []string) *resolvedTarget {
+	return &resolvedTarget{
+		rule: &appb.Rule{
+			Attribute: []*appb.Attribute{
+				&appb.Attribute{
+					Name:            proto.String("srcs"),
+					Type:            appb.Attribute_STRING_LIST.Enum(),
+					StringListValue: srcs,
+				},
+			},
+		},
+		sources: map[string]*appb.Target{
+			"//a:file.ts":   &appb.Target{Type: appb.Target_SOURCE_FILE.Enum()},
+			"//b:file.ts":   &appb.Target{Type: appb.Target_SOURCE_FILE.Enum()},
+			"//b:generator": &appb.Target{Type: appb.Target_RULE.Enum()},
+			"//b:wiz":       &appb.Target{Type: appb.Target_RULE.Enum()},
+		},
+	}
+}
+
+func TestLiteralSrcPaths(t *testing.T) {
+	tests := []struct {
+		name     string
+		srcs     []string
+		err      error
+		expected []string
+	}{
+		{
+			"OneLiteralSource",
+			[]string{"//a:file.ts"},
+			nil,
+			[]string{"a/file.ts"},
+		},
+		{
+			"MultipleLiteralSources",
+			[]string{"//a:file.ts", "//b:file.ts"},
+			nil,
+			[]string{"a/file.ts", "b/file.ts"},
+		},
+		{
+			"MultipleGeneratedSources",
+			[]string{"//b:generator", "//b:wiz"},
+			nil,
+			nil,
+		},
+		{
+			"MixedSources",
+			[]string{"//a:file.ts", "//b:file.ts", "//b:generator", "//b:wiz"},
+			nil,
+			[]string{"a/file.ts", "b/file.ts"},
+		},
+		{
+			"MissingSource",
+			[]string{"//not/in/the/set/of/resolved:sources"},
+			fmt.Errorf("src %q has no associated target", "//not/in/the/set/of/resolved:sources"),
+			nil,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			rt := createResolvedTarget(test.srcs)
+			literalSrcPaths, err := rt.literalSrcPaths()
+			if !reflect.DeepEqual(err, test.err) {
+				t.Errorf("got err %q, expected %q", err, test.err)
+			}
+
+			if diff := pretty.Compare(literalSrcPaths, test.expected); diff != "" {
+				t.Errorf("failed to get correct literal source paths: (-got, +want)\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestGetAllLiteralSrcPaths(t *testing.T) {
+	tests := []struct {
+		name      string
+		srcsLists [][]string
+		err       error
+		expected  []string
+	}{
+		{
+			"OneTarget",
+			[][]string{
+				[]string{"//a:file.ts", "//b:file.ts"},
+			},
+			nil,
+			[]string{"a/file.ts", "b/file.ts"},
+		},
+		{
+			"MultipleTargets",
+			[][]string{
+				[]string{"//a:file.ts"},
+				[]string{"//b:file.ts"},
+			},
+			nil,
+			[]string{"a/file.ts", "b/file.ts"},
+		},
+		{
+			"MissingSource",
+			[][]string{
+				[]string{"//not/in/the/set/of/resolved:sources"},
+			},
+			fmt.Errorf("src %q has no associated target", "//not/in/the/set/of/resolved:sources"),
+			nil,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			rts := make(map[string]*resolvedTarget)
+			for i, srcs := range test.srcsLists {
+				rts[strconv.Itoa(i)] = createResolvedTarget(srcs)
+			}
+			literalSrcPaths, err := getAllLiteralSrcPaths(rts)
+			if !reflect.DeepEqual(err, test.err) {
+				t.Errorf("got err %q, expected %q", err, test.err)
+			}
+
+			if diff := pretty.Compare(literalSrcPaths, test.expected); diff != "" {
+				t.Errorf("failed to get correct literal source paths: (-got, +want)\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestSetSources(t *testing.T) {
+	tests := []struct {
+		name       string
+		srcs       []string
+		loadedSrcs map[string]*appb.Target
+		err        error
+		expected   map[string]*appb.Target
+	}{
+		{
+			"NoSources",
+			nil,
+			nil,
+			nil,
+			nil,
+		},
+		{
+			"OneSource",
+			[]string{"//a:file.ts"},
+			map[string]*appb.Target{
+				"//a:file.ts": &appb.Target{Type: appb.Target_SOURCE_FILE.Enum()},
+			},
+			nil,
+			map[string]*appb.Target{
+				"//a:file.ts": &appb.Target{Type: appb.Target_SOURCE_FILE.Enum()},
+			},
+		},
+		{
+			"ExtraSources",
+			[]string{"//a:file.ts"},
+			map[string]*appb.Target{
+				"//a:file.ts":   &appb.Target{Type: appb.Target_SOURCE_FILE.Enum()},
+				"//b:file.ts":   &appb.Target{Type: appb.Target_SOURCE_FILE.Enum()},
+				"//b:generator": &appb.Target{Type: appb.Target_RULE.Enum()},
+				"//b:wiz":       &appb.Target{Type: appb.Target_RULE.Enum()},
+			},
+			nil,
+			map[string]*appb.Target{
+				"//a:file.ts": &appb.Target{Type: appb.Target_SOURCE_FILE.Enum()},
+			},
+		},
+		{
+			"MissingSources",
+			[]string{"//a:file.ts"},
+			nil,
+			fmt.Errorf("no source found for label %s", "//a:file.ts"),
+			nil,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			rt := &resolvedTarget{
+				rule: &appb.Rule{
+					Attribute: []*appb.Attribute{
+						&appb.Attribute{
+							Name:            proto.String("srcs"),
+							Type:            appb.Attribute_STRING_LIST.Enum(),
+							StringListValue: test.srcs,
+						},
+					},
+				},
+				sources: make(map[string]*appb.Target),
+			}
+
+			err := rt.setSources(test.loadedSrcs)
+			if !reflect.DeepEqual(err, test.err) {
+				t.Errorf("got err %q, expected %q", err, test.err)
+			}
+
+			if diff := pretty.Compare(rt.sources, test.expected); diff != "" {
+				t.Errorf("failed to set correct sources: (-got, +want)\n%s", diff)
+			}
+		})
 	}
 }
 
