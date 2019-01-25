@@ -42,8 +42,8 @@ type QueryBasedTargetLoader struct {
 	// analyzed in the "-recursive" case, these caches will be garbage
 	// collected between directories.
 	pkgCache map[string]*pkgCacheEntry
-	// labelCache is a mapping from a label to its loaded rule.
-	labelCache map[string]*appb.Rule
+	// labelCache is a mapping from a label to its loaded target.
+	labelCache map[string]*appb.Target
 
 	// queryCount is the total number of queries executed by the target loader.
 	queryCount int
@@ -57,13 +57,33 @@ func NewQueryBasedTargetLoader(workdir, bazelBinary string) *QueryBasedTargetLoa
 		bazelBinary: bazelBinary,
 
 		pkgCache:   make(map[string]*pkgCacheEntry),
-		labelCache: make(map[string]*appb.Rule),
+		labelCache: make(map[string]*appb.Target),
 	}
 }
 
-// LoadLabels uses Bazel query to load targets associated with labels from BUILD
+// LoadRules uses Bazel query to load rules associated with labels from BUILD
 // files.
-func (q *QueryBasedTargetLoader) LoadLabels(pkg string, labels []string) (map[string]*appb.Rule, error) {
+func (q *QueryBasedTargetLoader) LoadRules(pkg string, labels []string) (map[string]*appb.Rule, error) {
+	labelToTarget, err := q.LoadTargets(pkg, labels)
+	if err != nil {
+		return nil, err
+	}
+
+	labelToRule := make(map[string]*appb.Rule)
+	for _, label := range labels {
+		target := labelToTarget[label]
+		if target.GetType() == appb.Target_RULE {
+			labelToRule[label] = target.GetRule()
+		} else {
+			return nil, fmt.Errorf("target contains object of type %q instead of type %q", target.GetType(), appb.Target_RULE)
+		}
+	}
+	return labelToRule, nil
+}
+
+// LoadTargets uses Bazel query to load targets associated with labels from BUILD
+// files.
+func (q *QueryBasedTargetLoader) LoadTargets(pkg string, labels []string) (map[string]*appb.Target, error) {
 	var labelCacheMisses []string
 	for _, label := range labels {
 		if _, ok := q.labelCache[labelCacheKey(pkg, label)]; !ok {
@@ -84,11 +104,11 @@ func (q *QueryBasedTargetLoader) LoadLabels(pkg string, labels []string) (map[st
 			return nil, err
 		}
 		for _, target := range r.GetTarget() {
-			label, err := q.ruleLabel(target)
+			label, err := q.targetLabel(target)
 			if err != nil {
 				return nil, err
 			}
-			q.labelCache[labelCacheKey(pkg, label)] = target.GetRule()
+			q.labelCache[labelCacheKey(pkg, label)] = target
 		}
 		for _, label := range labelCacheMisses {
 			key := labelCacheKey(pkg, label)
@@ -101,11 +121,11 @@ func (q *QueryBasedTargetLoader) LoadLabels(pkg string, labels []string) (map[st
 			}
 		}
 	}
-	labelToRule := make(map[string]*appb.Rule)
+	labelToTarget := make(map[string]*appb.Target)
 	for _, label := range labels {
-		labelToRule[label] = q.labelCache[labelCacheKey(pkg, label)]
+		labelToTarget[label] = q.labelCache[labelCacheKey(pkg, label)]
 	}
-	return labelToRule, nil
+	return labelToTarget, nil
 }
 
 func labelCacheKey(currentPkg, label string) string {
@@ -168,7 +188,7 @@ func (q *QueryBasedTargetLoader) LoadImportPaths(ctx context.Context, currentPkg
 
 	labelToRule := make(map[string]*appb.Rule)
 	for len(generators) > 0 {
-		generatorToRule, err := q.LoadLabels(currentPkg, generators)
+		generatorToRule, err := q.LoadRules(currentPkg, generators)
 		if err != nil {
 			return nil, err
 		}
@@ -218,6 +238,8 @@ func (q *QueryBasedTargetLoader) LoadImportPaths(ctx context.Context, currentPkg
 	return results, nil
 }
 
+// ruleLabel returns the label for a target which is a rule.  Returns an error if
+// target is not a rule.
 func (q *QueryBasedTargetLoader) ruleLabel(target *appb.Target) (string, error) {
 	if t := target.GetType(); t != appb.Target_RULE {
 		return "", fmt.Errorf("target contains object of type %q instead of type %q", t, appb.Target_RULE)
@@ -225,6 +247,8 @@ func (q *QueryBasedTargetLoader) ruleLabel(target *appb.Target) (string, error) 
 	return target.GetRule().GetName(), nil
 }
 
+// fileLabel returns the label for a target which is a file.  Returns an error if
+// target is not a source file or a generated file.
 func (q *QueryBasedTargetLoader) fileLabel(target *appb.Target) (string, error) {
 	switch t := target.GetType(); t {
 	case appb.Target_GENERATED_FILE:
@@ -233,6 +257,25 @@ func (q *QueryBasedTargetLoader) fileLabel(target *appb.Target) (string, error) 
 		return target.GetSourceFile().GetName(), nil
 	default:
 		return "", fmt.Errorf("target contains object of type %q instead of type %q or %q", t, appb.Target_SOURCE_FILE, appb.Target_GENERATED_FILE)
+	}
+}
+
+// targetLabel returns the label for a target.  Returns an error if target is an
+// unknown type.
+func (q *QueryBasedTargetLoader) targetLabel(target *appb.Target) (string, error) {
+	switch t := target.GetType(); t {
+	case appb.Target_GENERATED_FILE:
+		return target.GetGeneratedFile().GetName(), nil
+	case appb.Target_SOURCE_FILE:
+		return target.GetSourceFile().GetName(), nil
+	case appb.Target_RULE:
+		return target.GetRule().GetName(), nil
+	case appb.Target_PACKAGE_GROUP:
+		return target.GetPackageGroup().GetName(), nil
+	case appb.Target_ENVIRONMENT_GROUP:
+		return target.GetEnvironmentGroup().GetName(), nil
+	default:
+		return "", fmt.Errorf("target contains object of unknown type %q", t)
 	}
 }
 
