@@ -29,10 +29,10 @@ export function narrowTsOptions(options: ts.CompilerOptions): BazelTsOptions {
     throw new Error(`compilerOptions.rootDirs should be set by tsconfig.bzl`);
   }
   if (!options.rootDir) {
-    throw new Error(`compilerOptions.rootDirs should be set by tsconfig.bzl`);
+    throw new Error(`compilerOptions.rootDir should be set by tsconfig.bzl`);
   }
   if (!options.outDir) {
-    throw new Error(`compilerOptions.rootDirs should be set by tsconfig.bzl`);
+    throw new Error(`compilerOptions.outDir should be set by tsconfig.bzl`);
   }
   return options as BazelTsOptions;
 }
