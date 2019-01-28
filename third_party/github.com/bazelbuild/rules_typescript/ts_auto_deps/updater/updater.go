@@ -477,16 +477,26 @@ func (upd *Updater) maybeWriteBUILD(ctx context.Context, path string, bld *build
 	return true, nil
 }
 
-func getBUILDPathAndBUILDFile(ctx context.Context, path string) (string, string, *build.File, error) {
+func getBUILDPath(ctx context.Context, path string) (string, string, error) {
 	path = strings.TrimSuffix(path, "/BUILD") // Support both package paths and BUILD files
 	if _, err := platform.Stat(ctx, path); os.IsNotExist(err) {
-		return "", "", nil, err
+		return "", "", err
 	}
 	buildFilePath := filepath.Join(path, "BUILD")
 	g3root, err := workspace.Root(buildFilePath)
 	if err != nil {
+		return "", "", err
+	}
+
+	return g3root, buildFilePath, nil
+}
+
+func getBUILDPathAndBUILDFile(ctx context.Context, path string) (string, string, *build.File, error) {
+	g3root, buildFilePath, err := getBUILDPath(ctx, path)
+	if err != nil {
 		return "", "", nil, err
 	}
+
 	bld, err := readBUILD(ctx, g3root, buildFilePath)
 	if err != nil {
 		platform.Infof("Error reading building file!")
@@ -629,48 +639,6 @@ func (upd *Updater) updateBUILDAfterBazelAnalyze(ctx context.Context, isRoot boo
 	return upd.maybeWriteBUILD(ctx, buildFilePath, bld)
 }
 
-// RegisterTsconfigAndTsDevelopmentSources registers ts_library targets with the project's
-// ts_config and ts_development_sources rules.  It's separated from UpdateBUILD since it's
-// non-local, multiple packages may all need to make writes to the same ts_config.
-func (upd *Updater) RegisterTsconfigAndTsDevelopmentSources(ctx context.Context, paths ...string) (bool, error) {
-	reg := &buildRegistry{make(map[string]*build.File), make(map[*build.File]bool)}
-	var g3root string
-	for _, path := range paths {
-		var bld *build.File
-		var err error
-		g3root, _, bld, err = getBUILDPathAndBUILDFile(ctx, path)
-		if err != nil {
-			return false, err
-		}
-		if tr := getRule(bld, "ts_library", ruleTypeTest); tr != nil {
-			platform.Infof("Registering test rule in closest ts_config & ts_development_sources")
-			target := AbsoluteBazelTarget(bld, tr.Name())
-			if err := reg.registerTestRule(ctx, bld, "ts_config", ruleTypeAny, g3root, target); err != nil {
-				return false, err
-			}
-			// NodeJS rules should not be added to ts_development_sources automatically, because
-			// they typically do not run in the browser.
-			if tr.AttrString("runtime") != "nodejs" {
-				if err := reg.registerTestRule(ctx, bld, "ts_development_sources", ruleTypeTest, g3root, target); err != nil {
-					return false, err
-				}
-			}
-		}
-	}
-
-	updated := false
-	for b := range reg.filesToUpdate {
-		fmt.Printf("Registered test(s) in %s\n", b.Path)
-		fileChanged, err := upd.maybeWriteBUILD(ctx, filepath.Join(g3root, b.Path), b)
-		if err != nil {
-			return false, err
-		}
-		updated = updated || fileChanged
-	}
-
-	return updated, nil
-}
-
 // IsTazeDisabledForDir checks if ts_auto_deps is disabled in the BUILD file in the dir,
 // or if no BUILD file exists, in the closest ancestor BUILD
 func IsTazeDisabledForDir(ctx context.Context, dir string) (bool, error) {
@@ -803,82 +771,6 @@ func QueryBasedBazelAnalyze(buildFilePath string, args []string) ([]byte, []byte
 	return s, nil, err
 }
 
-// buildRegistry buffers reads and writes done while registering ts_libraries
-// with ts_config and ts_development_sources rules, so that registers from
-// multiple packages all get applied at once.
-type buildRegistry struct {
-	bldFiles      map[string]*build.File
-	filesToUpdate map[*build.File]bool
-}
-
-func (reg *buildRegistry) readBUILD(ctx context.Context, workspaceRoot, buildFilePath string) (*build.File, error) {
-	normalizedG3Path, err := getAbsoluteBUILDPath(workspaceRoot, buildFilePath)
-	if err != nil {
-		return nil, err
-	}
-
-	if bld, ok := reg.bldFiles[normalizedG3Path]; ok {
-		return bld, nil
-	}
-
-	bld, err := readBUILD(ctx, workspaceRoot, buildFilePath)
-	if err != nil {
-		return nil, err
-	}
-
-	reg.bldFiles[normalizedG3Path] = bld
-
-	return bld, nil
-}
-
-func (reg *buildRegistry) registerForPossibleUpdate(bld *build.File) {
-	reg.filesToUpdate[bld] = true
-}
-
-// registerTestRule searches ancestor packages for a rule with the given ruleKind and ruleType
-// and adds the given target to it. Prints a warning if no rule is found, but only returns an error
-// if adding the dependency fails.
-func (reg *buildRegistry) registerTestRule(ctx context.Context, bld *build.File, ruleKind string, rt ruleType, g3root, target string) error {
-	// If the target has already been registered in any of the rule with the given ruleKind and ruleType,
-	// we shouldn't register it again.
-	if targetRegisteredInRule(bld, ruleKind, rt, target) {
-		return nil
-	}
-	if buildHasDisableTaze(bld) {
-		return nil
-	}
-	r := getRule(bld, ruleKind, rt)
-	if r != nil {
-		addDep(bld, r, target)
-		reg.registerForPossibleUpdate(bld)
-		return nil
-	}
-	parentDir := filepath.Dir(filepath.Dir(bld.Path))
-	for parentDir != "." && parentDir != "/" {
-		buildFile := filepath.Join(g3root, parentDir, "BUILD")
-		if _, err := platform.Stat(ctx, buildFile); err == nil {
-			parent, err := reg.readBUILD(ctx, g3root, buildFile)
-			if err != nil {
-				return err
-			}
-			return reg.registerTestRule(ctx, parent, ruleKind, rt, g3root, target)
-		}
-		parentDir = filepath.Dir(parentDir)
-	}
-	ruleTypeStr := ""
-	switch rt {
-	case ruleTypeRegular:
-		ruleTypeStr = "testonly=0"
-	case ruleTypeTest, ruleTypeTestSupport:
-		ruleTypeStr = "testonly=1"
-	default:
-		break
-	}
-	fmt.Printf("WARNING: no %s(%s) rule in parent packages of %s to register with.\n",
-		ruleKind, ruleTypeStr, target)
-	return nil
-}
-
 type ruleType int
 
 const (
@@ -888,6 +780,14 @@ const (
 	ruleTypeTestSupport
 )
 
+// isKind returns true if the rule has given kind.  It also accepts "ng_modules"
+// as "ts_library" kind.
+func isKind(r *build.Rule, kind string) bool {
+	acceptNgModule := kind == "ts_library"
+
+	return r.Kind() == kind || (acceptNgModule && r.Kind() == "ng_module")
+}
+
 func buildRules(bld *build.File, kind string) []*build.Rule {
 	// Find all rules, then filter by kind.
 	// This is nearly the same as just calling bld.Rules(kind), but allows to
@@ -896,9 +796,8 @@ func buildRules(bld *build.File, kind string) []*build.Rule {
 	// last build rule in the file in case multiple match, regardless of kind.
 	allRules := bld.Rules("")
 	var res []*build.Rule
-	acceptNgModule := kind == "ts_library"
 	for _, r := range allRules {
-		if r.Kind() == kind || (acceptNgModule && r.Kind() == "ng_module") {
+		if isKind(r, kind) {
 			res = append(res, r)
 		}
 	}
@@ -1152,8 +1051,11 @@ func getOrCreateRule(bld *build.File, ruleName, ruleKind string, rt ruleType) *b
 	return r
 }
 
-// ruleMatches return whether a rule matches the specified rt value.
-func ruleMatches(bld *build.File, r *build.Rule, rt ruleType) bool {
+// ruleMatches return whether a rule matches the specified kind and rt value.
+func ruleMatches(bld *build.File, r *build.Rule, kind string, rt ruleType) bool {
+	if !isKind(r, kind) {
+		return false
+	}
 	inTestingDir := determineRuleType(bld.Path, "somefile.ts") == ruleTypeTestSupport
 	hasTestsName := strings.HasSuffix(r.Name(), "_tests")
 	// Accept the rule if it matches the testonly attribute.
@@ -1174,9 +1076,8 @@ func ruleMatches(bld *build.File, r *build.Rule, rt ruleType) bool {
 // targetRegisteredInRule returns whether a target has been registered in a rule that
 // matches a specified ruleKind and ruleType in current build file
 func targetRegisteredInRule(bld *build.File, ruleKind string, rt ruleType, target string) bool {
-	rs := buildRules(bld, ruleKind)
-	for _, r := range rs {
-		if ruleMatches(bld, r, rt) && hasDependency(bld, r, target) {
+	for _, r := range bld.Rules("") {
+		if ruleMatches(bld, r, ruleKind, rt) && hasDependency(bld, r, target) {
 			return true
 		}
 	}
@@ -1186,10 +1087,10 @@ func targetRegisteredInRule(bld *build.File, ruleKind string, rt ruleType, targe
 // getRule returns the last rule in bld that has the given ruleKind and matches
 // the specified rt value.
 func getRule(bld *build.File, ruleKind string, rt ruleType) *build.Rule {
-	rs := buildRules(bld, ruleKind)
+	rs := bld.Rules("")
 	for i := len(rs) - 1; i >= 0; i-- {
 		r := rs[i]
-		if ruleMatches(bld, r, rt) {
+		if ruleMatches(bld, r, ruleKind, rt) {
 			return r
 		}
 	}
@@ -1320,7 +1221,7 @@ func Paths(isRoot bool, files bool, recursive bool) ([]string, error) {
 }
 
 // Execute runs ts_auto_deps on paths using host.
-func Execute(host *Updater, paths []string, isRoot bool, recursive bool) error {
+func Execute(host *Updater, paths []string, isRoot, recursive, allowAllTestLibraries bool) error {
 	ctx := context.Background()
 	for i, p := range paths {
 		isLastAndRoot := isRoot && i == len(paths)-1
@@ -1339,7 +1240,7 @@ func Execute(host *Updater, paths []string, isRoot bool, recursive bool) error {
 			}
 		}
 	}
-	host.RegisterTsconfigAndTsDevelopmentSources(ctx, paths...)
+	host.RegisterTestRules(ctx, allowAllTestLibraries, paths...)
 	return nil
 }
 
