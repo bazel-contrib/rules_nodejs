@@ -12,8 +12,9 @@ import (
 var (
 	isRoot = flag.Bool("root", false, "the given path is the root of a TypeScript project "+
 		"(generates ts_config and ts_development_sources targets).")
-	recursive = flag.Bool("recursive", false, "recursively update all packages under the given root.")
-	files     = flag.Bool("files", false, "treats arguments as file names. Filters .ts files, then runs on their dirnames.")
+	recursive             = flag.Bool("recursive", false, "recursively update all packages under the given root.")
+	files                 = flag.Bool("files", false, "treats arguments as file names. Filters .ts files, then runs on their dirnames.")
+	allowAllTestLibraries = flag.Bool("allow_all_test_libraries", false, "treats testonly ts_libraries named 'all_tests' as an alternative to ts_config/ts_dev_srcs for registering tests")
 )
 
 func usage() {
@@ -58,7 +59,7 @@ func main() {
 	}
 
 	host := updater.New(false, false, updater.QueryBasedBazelAnalyze, updater.LocalUpdateFile)
-	if err := updater.Execute(host, paths, *isRoot, *recursive); err != nil {
+	if err := updater.Execute(host, paths, *isRoot, *recursive, *allowAllTestLibraries); err != nil {
 		platform.Error(err)
 	}
 }
