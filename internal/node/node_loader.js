@@ -234,7 +234,7 @@ function resolveManifestFile(res) {
 }
 
 function resolveManifestDirectory(res) {
-  const pkgfile = runfilesManifest[`${res}/package.json`];
+  const pkgfile = runfilesManifest[path.posix.join(res, 'package.json')];
   if (pkgfile) {
     try {
       const pkg = JSON.parse(fs.readFileSync(pkgfile, 'UTF-8'));
@@ -257,7 +257,7 @@ function resolveManifestDirectory(res) {
     } catch (e) {
     }
   }
-  return resolveManifestFile(`${res}/index`)
+  return resolveManifestFile(path.posix.join(res, 'index'));
 }
 
 function resolveRunfiles(parent, ...pathSegments) {
