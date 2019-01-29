@@ -2,7 +2,10 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
     name = "go_default_library",
-    srcs = ["updater.go"],
+    srcs = [
+        "test_register.go",
+        "updater.go",
+    ],
     importpath = "github.com/bazelbuild/rules_typescript/ts_auto_deps/updater",
     visibility = ["//visibility:public"],
     deps = [
