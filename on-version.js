@@ -3,4 +3,5 @@
 // in package.bzl to match that of package.json.
 const shell = require('shelljs');
 const version = require('./package.json').version;
-shell.sed('-i', 'VERSION \= \"[0-9\.]*\"', `VERSION = "${version}"`, 'package.bzl')
+shell.sed('-i', 'VERSION \= \"[0-9\.]*\"', `VERSION = "${version}"`, 'package.bzl');
+shell.sed('-i', 'tag = \"[0-9\.]*\"', `tag = "${version}"`, 'README.md');
