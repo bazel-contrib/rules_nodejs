@@ -45,7 +45,7 @@ function main(args) {
 
   const replacements = [
     // Strip content between BEGIN-INTERNAL / END-INTERNAL comments
-    [/(#|\/\/)\s+BEGIN-INTERNAL[\w\W]+END-INTERNAL/g, ''],
+    [/(#|\/\/)\s+BEGIN-INTERNAL[\w\W]+?END-INTERNAL/g, ''],
   ];
   let version = '0.0.0';
   if (stampFile) {
