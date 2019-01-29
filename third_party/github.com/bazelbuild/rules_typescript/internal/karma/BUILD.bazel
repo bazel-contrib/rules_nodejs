@@ -64,8 +64,8 @@ npm_package(
         "package.json",
     ],
     deps = [
-        ":check_version_copy",
         ":bazel_karma",
+        ":check_version_copy",
         ":license_copy",
     ],
 )
