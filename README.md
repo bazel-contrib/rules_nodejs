@@ -28,7 +28,7 @@ containing:
 git_repository(
     name = "build_bazel_rules_nodejs",
     remote = "https://github.com/bazelbuild/rules_nodejs.git",
-    tag = "0.16.5",
+    tag = "0.16.6",
 )
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
