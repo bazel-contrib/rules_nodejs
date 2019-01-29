@@ -263,6 +263,7 @@ $KARMA ${{ARGV[@]}}
     runfiles += ctx.files.runtime_deps
     runfiles += ctx.files.bootstrap
     runfiles += ctx.files.static_files
+    runfiles += ctx.files.data
 
     return ctx.runfiles(
         files = runfiles,
