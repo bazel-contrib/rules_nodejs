@@ -506,10 +506,6 @@ func (a *Analyzer) generateReport(target *resolvedTarget) (*arpb.DependencyRepor
 	for label, rule := range labelToRule {
 		if isTazeManagedRuleClass(rule.GetRuleClass()) || isGenerated(rule) {
 			report.UnnecessaryDependency = append(report.UnnecessaryDependency, label)
-		} else if c := rule.GetRuleClass(); c == "ts_declaration" {
-			// ts_declarations may be used even if there is no explicit import
-			// since ambient types can't be detected.
-			report.AmbiguousDependency = append(report.AmbiguousDependency, label)
 		}
 	}
 	return report, nil

@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 	"testing"
@@ -612,6 +613,9 @@ func TestGetAllLiteralSrcPaths(t *testing.T) {
 				t.Errorf("got err %q, expected %q", err, test.err)
 			}
 
+			// getAllLiteralSrcPaths takes a map, so its output ordering isn't
+			// deterministic
+			sort.Strings(literalSrcPaths)
 			if diff := pretty.Compare(literalSrcPaths, test.expected); diff != "" {
 				t.Errorf("failed to get correct literal source paths: (-got, +want)\n%s", diff)
 			}
