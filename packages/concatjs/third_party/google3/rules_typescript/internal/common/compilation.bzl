@@ -18,6 +18,7 @@
 load(":common/json_marshal.bzl", "json_marshal")
 load(":common/module_mappings.bzl", "module_mappings_aspect")
 
+
 _DEBUG = False
 
 DEPS_ASPECTS = [
