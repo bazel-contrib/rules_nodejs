@@ -9,22 +9,13 @@
 
 ## IMPORTANT
 # If you change the `docker_image` version, also change the `cache_key` suffix
-var_1: &docker_image angular/ngcontainer:0.7.0
-var_2: &cache_key rules_typescript-{{ checksum "yarn.lock" }}-0.7.0
+var_1: &docker_image circleci/node:10.12-browsers
+var_2: &cache_key rules_typescript-{{ checksum "yarn.lock" }}-internal/karma:{{ checksum "internal/karma/yarn.lock" }}-node:10.12-browsers
 var_3: &setup-bazel-remote-cache
   run:
     name: Start up bazel remote cache proxy
     command: ~/bazel-remote-proxy -backend circleci://
     background: true
-# Move node binaries out of the way to enforce that Bazel uses
-# only the hermetic ones it downloads
-var_4: &hide_node_and_yarn_local_binaries
-  run:
-    name: Move node, npm, and yarn binaries
-    command: |
-      sudo mv /usr/local/bin/node /usr/local/bin/node_
-      sudo mv /usr/local/bin/npm /usr/local/bin/npm_
-      sudo mv /usr/local/bin/yarn /usr/local/bin/yarn_
 
 # Settings common to each job
 anchor_1: &job_defaults
@@ -49,14 +40,14 @@ jobs:
       - run: .circleci/setup_cache.sh
       - run: sudo cp .circleci/bazel.rc /etc/bazel.bazelrc
       - *setup-bazel-remote-cache
-      - *hide_node_and_yarn_local_binaries
-
       - restore_cache:
           key: *cache_key
-      - run: bazel info release
-      - run: bazel build ...
-      - run: bazel test ...
-      - run: bazel build @disable_tsetse_for_external_test//...
+
+      - run: yarn install
+      - run: yarn bazel info release
+      - run: yarn bazel build ...
+      - run: yarn bazel test ...
+      - run: yarn bazel build @disable_tsetse_for_external_test//...
 
   # This job tests the same stuff, but without the .bazelrc file.
   # It disables worker mode, for example.
@@ -68,17 +59,17 @@ jobs:
       - run: .circleci/setup_cache.sh
       - run: sudo cp .circleci/bazel.rc /etc/bazel.bazelrc
       - *setup-bazel-remote-cache
-      - *hide_node_and_yarn_local_binaries
-
       - restore_cache:
           key: *cache_key
-      - run: bazel --bazelrc=/dev/null info release
+
+      - run: yarn install
+      - run: yarn bazel --bazelrc=/dev/null info release
       # We cherry pick the memory utilization options from .circleci/bazel.rc here.
       # Since the default CircleCI container has only 4G, limiting the memory
       # is required to keep Bazel from exhausting the memory.
-      - run: bazel --bazelrc=/dev/null --host_jvm_args=-Xmx3g build ... --local_resources=2560,1.0,1.0
-      - run: bazel --bazelrc=/dev/null --host_jvm_args=-Xmx3g test ... --local_resources=2560,1.0,1.0
-      - run: bazel --bazelrc=/dev/null --host_jvm_args=-Xmx3g build @disable_tsetse_for_external_test//... --local_resources=2560,1.0,1.0
+      - run: yarn bazel --bazelrc=/dev/null --host_jvm_args=-Xmx3g build ... --local_resources=2560,1.0,1.0
+      - run: yarn bazel --bazelrc=/dev/null --host_jvm_args=-Xmx3g test ... --local_resources=2560,1.0,1.0
+      - run: yarn bazel --bazelrc=/dev/null --host_jvm_args=-Xmx3g build @disable_tsetse_for_external_test//... --local_resources=2560,1.0,1.0
 
       - save_cache:
           key: *cache_key
@@ -95,17 +86,14 @@ jobs:
       - run: .circleci/setup_cache.sh
       - run: sudo cp .circleci/bazel.rc /etc/bazel.bazelrc
       - *setup-bazel-remote-cache
-      - *hide_node_and_yarn_local_binaries
       - restore_cache:
           key: *cache_key
+
+      - run: yarn install
       # Build the npm packages which are used in the e2e tests
-      - run: bazel build //internal:npm_package
-      - run: bazel build //internal/karma:npm_package
-      # Run yarn as e2e tests depend on self managed node_modules
-      - run: bazel run @nodejs//:bin/yarn
-      # Don't occupy the bazel server, as this test wants to run Bazel itself
-      - run: bazel run @nodejs//:bin/yarn e2e --script_path=yarn_e2e.sh
-      - run: xvfb-run -a ./yarn_e2e.sh
+      - run: yarn bazel build //internal:npm_package
+      - run: yarn bazel build //internal/karma:npm_package
+      - run: xvfb-run -a yarn e2e
 
   lint:
     <<: *job_defaults

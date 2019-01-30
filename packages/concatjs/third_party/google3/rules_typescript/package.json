@@ -19,8 +19,9 @@
         "tsutils": "2.27.2"
     },
     "devDependencies": {
-        "@bazel/ibazel": "^0.2.0",
+        "@bazel/bazel": "~0.22.0",
         "@bazel/buildifier": "^0.20.0",
+        "@bazel/ibazel": "^0.2.0",
         "@bazel/typescript": "0.19.1",
         "@types/jasmine": "^2.8.2",
         "@types/long": "^4.0.0",
