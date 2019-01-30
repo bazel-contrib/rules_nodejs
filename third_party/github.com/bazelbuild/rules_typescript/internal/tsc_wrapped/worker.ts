@@ -4,8 +4,6 @@ const protobufjs = require('protobufjs');
 // tslint:disable-next-line:variable-name: ByteBuffer is instantiatable.
 const ByteBuffer = require('bytebuffer');
 
-protobufjs.convertFieldsToCamelCase = true;
-
 export const DEBUG = false;
 
 export function debug(...args: Array<{}>) {
