@@ -430,6 +430,11 @@ function deleteBazelFiles(pkg) {
       // Delete BUILD and BUILD.bazel files so that so that files do not cross Bazel packages
       // boundaries
       const fullPath = path.posix.join('node_modules', pkg._dir, file);
+      if (!fs.existsSync(fullPath)) {
+        // It is possible that the file no longer exists as reported in
+        // https://github.com/bazelbuild/rules_nodejs/issues/522
+        return false;
+      }
       fs.unlinkSync(fullPath);
       return false;
     }
