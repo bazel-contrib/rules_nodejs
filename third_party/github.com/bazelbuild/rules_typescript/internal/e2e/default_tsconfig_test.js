@@ -28,8 +28,6 @@ local_repository(
 )
 load("@build_bazel_rules_typescript//:package.bzl", "rules_typescript_dependencies")
 rules_typescript_dependencies()
-load("@build_bazel_rules_nodejs//:package.bzl", "rules_nodejs_dependencies")
-rules_nodejs_dependencies()
 load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "yarn_install")
 node_repositories()
 yarn_install(

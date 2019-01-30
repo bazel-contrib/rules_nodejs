@@ -38,17 +38,16 @@ def rules_typescript_dependencies():
     _maybe(
         http_archive,
         name = "build_bazel_rules_nodejs",
-        urls = ["https://github.com/bazelbuild/rules_nodejs/archive/0.16.4.zip"],
-        strip_prefix = "rules_nodejs-0.16.4",
+        urls = ["https://github.com/bazelbuild/rules_nodejs/archive/0.16.6.zip"],
+        strip_prefix = "rules_nodejs-0.16.6",
     )
 
     # ts_web_test depends on the web testing rules to provision browsers.
     _maybe(
         http_archive,
         name = "io_bazel_rules_webtesting",
-        urls = ["https://github.com/bazelbuild/rules_webtesting/archive/111d792b9a5b17f87b6e177e274dbbee46094791.zip"],
-        strip_prefix = "rules_webtesting-111d792b9a5b17f87b6e177e274dbbee46094791",
-        sha256 = "a13af63e928c34eff428d47d31bafeec4e38ee9b6940e70bf2c9cd47184c5c16",
+        urls = ["https://github.com/bazelbuild/rules_webtesting/releases/download/0.3.0/rules_webtesting.tar.gz"],
+        sha256 = "1c0900547bdbe33d22aa258637dc560ce6042230e41e9ea9dad5d7d2fca8bc42",
     )
 
     # ts_devserver depends on the Go rules.
@@ -81,11 +80,11 @@ def rules_typescript_dependencies():
         sha256 = "9176a7df34dbed2cf5171eb56271868824560364e60644348219f852f593ae79",
     )
 
-    ###############################################
-    # Repeat the dependencies of rules_nodejs here!
-    # We can't load() from rules_nodejs yet, because we've only just fetched it.
-    # But we also don't want to make users load and call the rules_nodejs_dependencies
-    # function because we can do that for them, mostly hiding the transitive dependency.
+    # io_bazel_rules_webtesting depends on bazel_skylib. It is installed by
+    # web_test_repositories() but we depend on it here in case users don't call
+    # web_test_repositories(). This will get cleaned up by https://github.com/bazelbuild/rules_typescript/pull/374
+    # which introduces build_bazel_rules_karma with its own defs.bzl file
+    # that will allow this dep to be removed from rules_typescript_dependencies()
     _maybe(
         http_archive,
         name = "bazel_skylib",
