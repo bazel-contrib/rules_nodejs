@@ -262,7 +262,14 @@ function emitWithTypescript(
   return diagnostics;
 }
 
-function emitWithTsickle(
+/**
+ * Runs the emit pipeline with Tsickle transformations - goog.module rewriting
+ * and Closure types emitted included.
+ * Exported to be used by the internal global refactoring tools.
+ * TODO(radokirov): investigate using runWithOptions and making this private
+ * again, if we can make compilerHosts match.
+ */
+export function emitWithTsickle(
     program: ts.Program, compilerHost: CompilerHost,
     compilationTargets: ts.SourceFile[], options: ts.CompilerOptions,
     bazelOpts: BazelOptions): ts.Diagnostic[] {
