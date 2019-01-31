@@ -40,7 +40,7 @@ func getAllTestLibraries(bld *build.File) []*build.Rule {
 // with a testonly ts_library named "all_tests", which allows users to set up
 // their own BUILD layout.  It's separated from UpdateBUILD since it's non-local,
 // multiple packages may all need to make writes to the same ts_config.
-func (upd *Updater) RegisterTestRules(ctx context.Context, allowAllTestLibrary bool, paths ...string) (bool, error) {
+func (upd *Updater) RegisterTestRules(ctx context.Context, paths ...string) (bool, error) {
 	reg := &buildRegistry{make(map[string]*build.File), make(map[*build.File]bool)}
 	var g3root string
 	for _, path := range paths {
