@@ -24,10 +24,6 @@ rules_typescript_dependencies()
 
 rules_typescript_dev_dependencies()
 
-load("@build_bazel_rules_nodejs//:package.bzl", "rules_nodejs_dependencies")
-
-rules_nodejs_dependencies()
-
 load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "yarn_install")
 
 # Use a bazel-managed npm dependency, allowing us to test resolution to these paths

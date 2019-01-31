@@ -12,18 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-workspace(name = "ts_auto_deps_e2e")
+workspace(name = "npm_package_karma_typescript_e2e")
 
 local_repository(
     name = "build_bazel_rules_typescript",
-    path = "../../..",
+    path = "../../../..",
 )
 
-load("@build_bazel_rules_typescript//:package.bzl", "rules_typescript_dependencies", "rules_typescript_dev_dependencies")
+load("@build_bazel_rules_typescript//:package.bzl", "rules_typescript_dependencies")
 
 rules_typescript_dependencies()
-
-rules_typescript_dev_dependencies()
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "yarn_install")
 
@@ -41,9 +39,14 @@ go_rules_dependencies()
 
 go_register_toolchains()
 
-load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
+load("@io_bazel_rules_webtesting//web:repositories.bzl", "browser_repositories", "web_test_repositories")
 
-gazelle_dependencies()
+web_test_repositories()
+
+browser_repositories(
+    chromium = True,
+    firefox = True,
+)
 
 load("@build_bazel_rules_typescript//:defs.bzl", "ts_setup_workspace")
 

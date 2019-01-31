@@ -1,8 +1,0 @@
-{
-  "dependencies": {
-    "@bazel/karma": "file:../build_bazel_rules_typescript/bazel-bin/internal/karma/npm_package",
-    "@bazel/typescript": "file:../build_bazel_rules_typescript/bazel-bin/internal/npm_package",
-    "@types/jasmine": "2.8.2",
-    "typescript": "2.9.2"
-  }
-}
