@@ -353,6 +353,31 @@ try
     }
   }
 
+  function configureFormatError(conf) {
+    conf.formatError = (msg) =>  {
+      // This is a bazel specific formatError that removes the workspace
+      // name from stack traces.
+      // Look for filenames of the format "(<filename>:<row>:<column>"
+      const FILENAME_REGEX = /\(([^:]+)(:\d+:\d+)/gm;
+      msg = msg.replace(FILENAME_REGEX, (_, p1, p2) => {
+        if (p1. startsWith('../')) {
+          // Remove all leading "../"
+          while (p1.startsWith('../')) {
+            p1 = p1.substr(3);
+          }
+        } else {
+          // Remove workspace name(angular, ngdeps etc.) from the beginning.
+          const index = p1.indexOf('/');
+          if (index >= 0) {
+            p1 = p1.substr(index + 1);
+          }
+        }
+        return '(' + p1 + p2;
+      });
+      return msg + '\n\n';
+    };
+  }
+
   module.exports = function(config) {
     let conf = {};
 
@@ -373,6 +398,7 @@ try
     configureFiles(conf);
     configureTsWebTestSuiteConfig(conf);
     configureTsWebTestConfig(conf);
+    configureFormatError(conf);
 
     if (DEBUG) console.info(`Karma configuration: ${JSON.stringify(conf, null, 2)}`);
 

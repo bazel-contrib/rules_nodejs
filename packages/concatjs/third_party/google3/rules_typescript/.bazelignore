@@ -1,6 +1,7 @@
 node_modules
 internal/e2e/ts_auto_deps
 internal/e2e/package_karma
+internal/e2e/package_karma_stack_trace
 internal/e2e/package_typescript_2.7
 internal/e2e/package_typescript_2.8
 internal/e2e/package_typescript_2.9

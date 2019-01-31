@@ -21,7 +21,7 @@ function sha1(data) {
 /**
  * Entry-point for the Karma plugin.
  */
-function initConcatJs(logger, emitter, basePath) {
+function initConcatJs(logger, emitter, basePath, hostname, port) {
   const log = logger.create('framework.concat_js');
 
   // Create a tmp file for the concat bundle that is automatically cleaned up on
@@ -50,8 +50,8 @@ function initConcatJs(logger, emitter, basePath) {
         let content = file.content.replace(/('use strict'|"use strict");?/,
                                            '');
         content = JSON.stringify(
-            content + '\n//# sourceURL=http://concatjs/base/' +
-            relativePath + '\n');
+          `${content}\n//# sourceURL=http://${hostname}:${port}/base/` +
+          `${relativePath}\n`);
         content = `//${relativePath}\neval(${content});\n`;
         bundleFile.content += content;
       }
@@ -70,7 +70,7 @@ function initConcatJs(logger, emitter, basePath) {
   });
 }
 
-(initConcatJs as any).$inject = ['logger', 'emitter', 'config.basePath'];
+(initConcatJs as any).$inject = ['logger', 'emitter', 'config.basePath', 'config.hostname', 'config.port'];
 
 function watcher(fileList: {refresh: () => void}) {
   // ibazel will write this string after a successful build
