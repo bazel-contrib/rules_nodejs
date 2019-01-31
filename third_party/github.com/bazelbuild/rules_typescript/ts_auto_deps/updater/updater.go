@@ -1221,7 +1221,7 @@ func Paths(isRoot bool, files bool, recursive bool) ([]string, error) {
 }
 
 // Execute runs ts_auto_deps on paths using host.
-func Execute(host *Updater, paths []string, isRoot, recursive, allowAllTestLibraries bool) error {
+func Execute(host *Updater, paths []string, isRoot, recursive bool) error {
 	ctx := context.Background()
 	for i, p := range paths {
 		isLastAndRoot := isRoot && i == len(paths)-1
@@ -1240,7 +1240,7 @@ func Execute(host *Updater, paths []string, isRoot, recursive, allowAllTestLibra
 			}
 		}
 	}
-	host.RegisterTestRules(ctx, allowAllTestLibraries, paths...)
+	host.RegisterTestRules(ctx, paths...)
 	return nil
 }
 
