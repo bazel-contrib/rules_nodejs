@@ -10,7 +10,7 @@
 ## IMPORTANT
 # If you change the `docker_image` version, also change the `cache_key` suffix
 var_1: &docker_image circleci/node:10.12-browsers
-var_2: &cache_key rules_typescript-{{ checksum "yarn.lock" }}-internal/karma:{{ checksum "internal/karma/yarn.lock" }}-node:10.12-browsers
+var_2: &cache_key rules_typescript-{{ checksum "yarn.lock" }}-node:10.12-browsers
 var_3: &setup-bazel-remote-cache
   run:
     name: Start up bazel remote cache proxy
@@ -90,9 +90,6 @@ jobs:
           key: *cache_key
 
       - run: yarn install
-      # Build the npm packages which are used in the e2e tests
-      - run: yarn bazel build //internal:npm_package
-      - run: yarn bazel build //internal/karma:npm_package
       - run: xvfb-run -a yarn e2e
 
   lint:

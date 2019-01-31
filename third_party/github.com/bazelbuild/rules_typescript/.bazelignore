@@ -1,12 +1,6 @@
 node_modules
-internal/e2e/ts_auto_deps
-internal/e2e/package_karma
-internal/e2e/package_karma_stack_trace
-internal/e2e/package_typescript_2.7
-internal/e2e/package_typescript_2.8
-internal/e2e/package_typescript_2.9
-internal/e2e/package_typescript_3.0
-internal/e2e/package_typescript_3.1
-internal/e2e/package_typescript_3.1_no_npm
-internal/e2e/package_typescript_karma
+devserver/devserver/test/test-workspace
 internal/e2e/disable_tsetse_for_external
+internal/e2e/npm_packages
+internal/e2e/ts_auto_deps
+internal/e2e/typescript_3.1

@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "@bazel/karma": "file:${BAZEL_KARMA_NPM_PACKAGE}",
+    "@bazel/typescript": "file:${BAZEL_TYPESCRIPT_NPM_PACKAGE}",
+    "@types/jasmine": "2.8.2",
+    "typescript": "3.1.x"
+  },
+  "scripts": {
+    "test": "bazel test ..."
+  }
+}

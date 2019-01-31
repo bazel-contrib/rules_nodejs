@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "@bazel/karma": "file:../build_bazel_rules_typescript/bazel-bin/internal/karma/npm_package",
-    "karma": "3.0.0"
-  }
-}

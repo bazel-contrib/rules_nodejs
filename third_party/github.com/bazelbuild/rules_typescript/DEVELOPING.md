@@ -42,12 +42,12 @@ to
 ```
 
 The correct defaults to use so that you are not depending on the npm package downstream are in `/internal/defaults.bzl`. Note, your downstream
-workspace will also need the correct `@npm` dependencies available to build these targets (see `internal/e2e/package_typescript_3.1_no_npm/package.json`).
+workspace will also need the correct `@npm` dependencies available to build these targets (see `internal/e2e/typescript_3.1/package.json`).
 In the case of the `angular` workspace, some `@npm` dependencies in this repository will also need to be changed to `@ngdeps` since `angular` does not have
 an `@npm` workspace with npm dependencies.
 
 Note, with this workflow the downstream version of `@npm//typescript` will be used to compile the `ts_library` targets in `build_bazel_rules_typescript`.
-An example of this can be found under `internal/e2e/package_typescript_3.1_no_npm`.
+An example of this can be found under `internal/e2e/typescript_3.1`.
 
 ## Releasing
 

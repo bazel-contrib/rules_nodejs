@@ -2,5 +2,8 @@
   "dependencies": {
     "@bazel/typescript": "file:../build_bazel_rules_typescript/bazel-bin/internal/npm_package",
     "typescript": "2.9.2"
+  },
+  "scripts": {
+    "test": "bazel run @build_bazel_rules_typescript//ts_auto_deps -- -recursive && bazel build simple"
   }
 }
