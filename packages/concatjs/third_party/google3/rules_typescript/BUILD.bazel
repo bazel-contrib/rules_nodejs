@@ -89,5 +89,6 @@ pkg_tar(
         "//devserver:package",
         "//internal:package",
         "//third_party/github.com/bazelbuild/bazel/src/main/protobuf:package",
+        "//ts_auto_deps:package",
     ],
 )
