@@ -7,6 +7,7 @@ nodejs_binary(
     name = "packager",
     data = [
         "packager.js",
+        "//third_party/github.com/gjtorikian/isBinaryFile",
         "@nodejs//:run_npm.sh.template",
     ],
     entry_point = "build_bazel_rules_nodejs/internal/npm_package/packager.js",

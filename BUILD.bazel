@@ -1,5 +1,7 @@
 package(default_visibility = ["//visibility:public"])
 
+exports_files(["tsconfig.json"])
+
 # Empty node_modules filegroup used for the default
 # value of the node_modules attribute in nodejs_binary
 # and rollup_bundle

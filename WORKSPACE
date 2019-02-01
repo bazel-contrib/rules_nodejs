@@ -76,6 +76,10 @@ load("@io_bazel_skydoc//skylark:skylark.bzl", "skydoc_repositories")
 
 skydoc_repositories()
 
+load("@build_bazel_rules_typescript//:package.bzl", "rules_typescript_dependencies")
+
+rules_typescript_dependencies()
+
 #
 # Install npm dependencies for tests
 #
@@ -110,4 +114,10 @@ yarn_install(
     name = "fine_grained_no_bin",
     package_json = "//internal/e2e/fine_grained_no_bin:package.json",
     yarn_lock = "//internal/e2e/fine_grained_no_bin:yarn.lock",
+)
+
+yarn_install(
+    name = "npm",
+    package_json = "//:package.json",
+    yarn_lock = "//:yarn.lock",
 )

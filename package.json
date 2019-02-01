@@ -11,9 +11,12 @@
     "devDependencies": {
         "@bazel/bazel": "^0.21.0",
         "@bazel/buildifier": "^0.20.0",
+        "@bazel/typescript": "^0.22.1",
+        "@types/node": "^10.12.21",
         "clang-format": "1.2.2",
         "husky": "^0.14.3",
-        "shelljs": "^0.8.2"
+        "shelljs": "^0.8.2",
+        "typescript": "^3.3.1"
     },
     "scripts": {
         "//nested workspace tests": "Run bazel from within the folder containing the WORKSPACE so that the WORKSPACE file is tested",
