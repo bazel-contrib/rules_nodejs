@@ -12,7 +12,6 @@
         "@bazel/bazel": "^0.21.0",
         "@bazel/buildifier": "^0.20.0",
         "@bazel/typescript": "^0.22.1",
-        "@types/node": "^10.12.21",
         "clang-format": "1.2.2",
         "husky": "^0.14.3",
         "shelljs": "^0.8.2",
