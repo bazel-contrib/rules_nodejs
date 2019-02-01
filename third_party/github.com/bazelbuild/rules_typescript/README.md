@@ -25,8 +25,8 @@ Optionally add the `@bazel/karma` npm package if you would like to use the
 {
   ...
   "devDependencies": {
-    "@bazel/typescript": "0.20.3",
-    "@bazel/karma": "0.20.3",
+    "@bazel/typescript": "0.22.1",
+    "@bazel/karma": "0.22.1",
     ...
   },
   ...
@@ -46,8 +46,8 @@ containing:
 ```python
 http_archive(
     name = "build_bazel_rules_typescript",
-    url = "https://github.com/bazelbuild/rules_typescript/archive/0.20.3.zip",
-    strip_prefix = "rules_typescript-0.20.3",
+    url = "https://github.com/bazelbuild/rules_typescript/archive/0.22.1.zip",
+    strip_prefix = "rules_typescript-0.22.1",
 )
 
 # Fetch transitive Bazel dependencies of build_bazel_rules_typescript
