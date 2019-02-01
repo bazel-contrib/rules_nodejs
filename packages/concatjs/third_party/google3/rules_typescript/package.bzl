@@ -104,7 +104,8 @@ def rules_typescript_dev_dependencies():
     _maybe(
         http_archive,
         name = "io_bazel",
-        urls = ["https://github.com/bazelbuild/bazel/releases/download/0.17.1/bazel-0.17.1-dist.zip"],
+        urls = ["https://github.com/bazelbuild/bazel/releases/download/0.21.0/bazel-0.21.0-dist.zip"],
+        sha256 = "6ccb831e683179e0cfb351cb11ea297b4db48f9eab987601c038aa0f83037db4",
     )
 
     #############################################
@@ -120,9 +121,9 @@ def rules_typescript_dev_dependencies():
 
     http_archive(
         name = "io_bazel_skydoc",
-        url = "https://github.com/bazelbuild/skydoc/archive/9bbdf62c03b5c3fed231604f78d3976f47753d79.zip",  # 2018-11-20
-        strip_prefix = "skydoc-9bbdf62c03b5c3fed231604f78d3976f47753d79",
-        sha256 = "07ae937026cb56000fb268d4986b220e868c1bdfe6aac27ecada4b4b3dae246f",
+        url = "https://github.com/bazelbuild/skydoc/archive/82fdbfe797c6591d8732df0c0389a2b1c3e50992.zip",  # 2018-12-12
+        strip_prefix = "skydoc-82fdbfe797c6591d8732df0c0389a2b1c3e50992",
+        sha256 = "75fd965a71ca1f0d0406d0d0fb0964d24090146a853f58b432761a1a6c6b47b9",
     )
 
 def _maybe(repo_rule, name, **kwargs):

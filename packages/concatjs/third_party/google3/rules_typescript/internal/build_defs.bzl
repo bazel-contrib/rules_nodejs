@@ -103,7 +103,7 @@ def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description 
     # These deps are identified by the NodeModuleInfo provider.
     for d in ctx.attr.deps:
         if NodeModuleInfo in d:
-            action_inputs.extend(_filter_ts_inputs(d.files))
+            action_inputs.extend(_filter_ts_inputs(d.files.to_list()))
 
     if ctx.file.tsconfig:
         action_inputs.append(ctx.file.tsconfig)

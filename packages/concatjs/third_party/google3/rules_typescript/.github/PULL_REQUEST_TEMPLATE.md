@@ -1,3 +1,5 @@
+*Attention Googlers:* This repo has its Source of Truth in Piper. After sending a PR, you can follow http://g3doc/third_party/bazel_rules/rules_typescript/README.google.md#merging-changes to get your change merged.
+
 ## PR Checklist
 
 Please check if your PR fulfills the following requirements:

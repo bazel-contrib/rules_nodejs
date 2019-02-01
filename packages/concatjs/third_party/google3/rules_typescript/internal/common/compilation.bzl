@@ -256,7 +256,7 @@ def compile_ts(
         tsickle_externs = [ctx.actions.declare_file(ctx.label.name + ".externs.js")]
 
     dep_declarations = _collect_dep_declarations(ctx, deps)
-    input_declarations = dep_declarations.transitive + src_declarations
+    input_declarations = depset(src_declarations, transitive = [dep_declarations.transitive])
     type_blacklisted_declarations = dep_declarations.type_blacklisted
     if not is_library and not ctx.attr.generate_externs:
         type_blacklisted_declarations += srcs_files
@@ -276,7 +276,7 @@ def compile_ts(
     if "TYPESCRIPT_PERF_TRACE_TARGET" in ctx.var:
         perf_trace = str(ctx.label) == ctx.var["TYPESCRIPT_PERF_TRACE_TARGET"]
 
-    compilation_inputs = input_declarations + srcs_files
+    compilation_inputs = depset(srcs_files, transitive = [input_declarations])
     tsickle_externs_path = tsickle_externs[0] if tsickle_externs else None
 
     # Calculate allowed dependencies for strict deps enforcement.
@@ -293,7 +293,7 @@ def compile_ts(
         srcs_files,
         jsx_factory = jsx_factory,
         tsickle_externs = tsickle_externs_path,
-        type_blacklisted_declarations = type_blacklisted_declarations,
+        type_blacklisted_declarations = type_blacklisted_declarations.to_list(),
         allowed_deps = allowed_deps,
     )
 
@@ -332,7 +332,7 @@ def compile_ts(
     replay_params = None
 
     if has_sources:
-        inputs = compilation_inputs + [ctx.outputs.tsconfig]
+        inputs = depset([ctx.outputs.tsconfig], transitive = [compilation_inputs])
         replay_params = compile_action(
             ctx,
             inputs,
@@ -376,7 +376,7 @@ def compile_ts(
         ctx.actions.write(output = tsconfig_json_es5, content = json_marshal(
             tsconfig_es5,
         ))
-        inputs = compilation_inputs + [tsconfig_json_es5]
+        inputs = depset([tsconfig_json_es5], transitive = [compilation_inputs])
         devmode_compile_action(
             ctx,
             inputs,
@@ -387,7 +387,7 @@ def compile_ts(
 
     # TODO(martinprobst): Merge the generated .d.ts files, and enforce strict
     # deps (do not re-export transitive types from the transitive closure).
-    transitive_decls = dep_declarations.transitive + src_declarations + gen_declarations
+    transitive_decls = depset(src_declarations + gen_declarations, transitive = [dep_declarations.transitive])
 
     # both ts_library and ts_declarations generate .closure.js files:
     # - for libraries, this is the ES6/production code
