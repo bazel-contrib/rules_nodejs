@@ -1,0 +1,15 @@
+load("@build_bazel_rules_typescript//:defs.bzl", "ts_library")
+
+package(default_visibility = ["//visibility:public"])
+
+licenses(["notice"])
+
+exports_files(["LICENSE"])
+
+ts_library(
+    name = "isBinaryFile",
+    srcs = ["src/index.ts"],
+    module_name = "isbinaryfile",
+    module_root = "src/index",
+    deps = ["@npm//@types/node"],
+)
