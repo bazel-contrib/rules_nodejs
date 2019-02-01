@@ -1,4 +1,5 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
 
 go_library(
     name = "go_default_library",
@@ -15,4 +16,81 @@ go_binary(
     name = "ts_auto_deps",
     embed = [":go_default_library"],
     visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "darwin_amd64",
+    constraint_values = [
+        "@bazel_tools//platforms:osx",
+        "@bazel_tools//platforms:x86_64",
+    ],
+)
+
+config_setting(
+    name = "linux_amd64",
+    constraint_values = [
+        "@bazel_tools//platforms:linux",
+        "@bazel_tools//platforms:x86_64",
+    ],
+)
+
+config_setting(
+    name = "windows_amd64",
+    constraint_values = [
+        "@bazel_tools//platforms:windows",
+        "@bazel_tools//platforms:x86_64",
+    ],
+)
+
+filegroup(
+    name = "auto_deps",
+    srcs = select({
+        ":darwin_amd64": ["ts_auto_deps-darwin_amd64"],
+        ":linux_amd64": ["ts_auto_deps-linux_amd64"],
+        ":windows_amd64": ["ts_auto_deps-windows_amd64.exe"],
+    }),
+    # Don't build on CI
+    tags = ["manual"],
+)
+
+go_binary(
+    name = "ts_auto_deps-windows",
+    out = "ts_auto_deps-windows_amd64.exe",
+    embed = [":go_default_library"],
+    goarch = "amd64",
+    goos = "windows",
+    pure = "on",
+    visibility = ["//visibility:public"],
+)
+
+go_binary(
+    name = "ts_auto_deps-darwin",
+    out = "ts_auto_deps-darwin_amd64",
+    embed = [":go_default_library"],
+    goarch = "amd64",
+    goos = "darwin",
+    pure = "on",
+    visibility = ["//visibility:public"],
+)
+
+go_binary(
+    name = "ts_auto_deps-linux",
+    out = "ts_auto_deps-linux_amd64",
+    embed = [":go_default_library"],
+    goarch = "amd64",
+    goos = "linux",
+    pure = "on",
+    visibility = ["//visibility:public"],
+)
+
+pkg_tar(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":ts_auto_deps-darwin",
+        ":ts_auto_deps-linux",
+        ":ts_auto_deps-windows",
+    ],
+    package_dir = "ts_auto_deps",
+    visibility = ["//:__pkg__"],
 )
