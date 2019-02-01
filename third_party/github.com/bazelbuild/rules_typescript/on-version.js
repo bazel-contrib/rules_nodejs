@@ -28,3 +28,6 @@
 const shell = require('shelljs');
 const version = require('./package.json').version;
 shell.sed('-i', 'VERSION \= \"[0-9\.]*\"', `VERSION = "${version}"`, 'package.bzl')
+shell.sed('-i', '\"@bazel/typescript\": \"[0-9\.]*\"', `"@bazel/typescript": "${version}"`, 'README.md')
+shell.sed('-i', 'https://github.com/bazelbuild/rules_typescript/archive/[0-9\.]*\.zip', `https://github.com/bazelbuild/rules_typescript/archive/${version}.zip`, 'README.md')
+shell.sed('-i', 'strip_prefix \= \"rules_typescript-[0-9\.]*\"', `strip_prefix = "rules_typescript-${version}"`, 'README.md')
