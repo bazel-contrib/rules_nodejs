@@ -30,30 +30,29 @@ function checkCallExpression(checker: Checker, node: ts.CallExpression) {
     return;
   }
 
-  const signature = checker.typeChecker.getResolvedSignature(node);
-  if (signature === undefined) {
-    return;
-  }
-
-  const returnType = checker.typeChecker.getReturnTypeOfSignature(signature);
-  if (!!(returnType.flags & ts.TypeFlags.Void)) {
-    return;
-  }
-
   if (tsutils.isThenableType(checker.typeChecker, node)) {
     checker.addFailureAtNode(node, FAILURE_STRING);
   }
 }
 
 function inAsyncFunction(node: ts.Node): boolean {
-  const isFunction = tsutils.isFunctionDeclaration(node) ||
-      tsutils.isArrowFunction(node) || tsutils.isMethodDeclaration(node) ||
-      tsutils.isFunctionExpression(node);
-  if (isFunction) {
-    return tsutils.hasModifier(node.modifiers, ts.SyntaxKind.AsyncKeyword);
+  for (let inode = node.parent; inode !== undefined; inode = inode.parent) {
+    switch (inode.kind) {
+      case ts.SyntaxKind.ArrowFunction:
+      case ts.SyntaxKind.FunctionDeclaration:
+      case ts.SyntaxKind.FunctionExpression:
+      case ts.SyntaxKind.MethodDeclaration:
+        // Potentially async
+        return tsutils.hasModifier(inode.modifiers, ts.SyntaxKind.AsyncKeyword);
+      case ts.SyntaxKind.GetAccessor:
+      case ts.SyntaxKind.SetAccessor:
+        // These cannot be async
+        return false;
+      default:
+        // Loop and check parent
+        break;
+    }
   }
-  if (node.parent) {
-    return inAsyncFunction(node.parent);
-  }
+
   return false;
 }

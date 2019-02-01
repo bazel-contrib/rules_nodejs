@@ -56,11 +56,11 @@ function checkForTruthy(checker: Checker, node: ts.PropertyAccessExpression) {
     return;
   }
 
-  if (!tsutils.isThenableType(tc, expectCallNode.arguments[0])) {
+  const argType = tc.getTypeAtLocation(expectCallNode.arguments[0]);
+  if (!tsutils.isThenableType(tc, expectCallNode.arguments[0], argType)) {
     return;
   }
 
-  const argType = tc.getTypeAtLocation(expectCallNode.arguments[0]);
   checker.addFailureAtNode(
       node,
       `Value passed to expect() is of type ${tc.typeToString(argType)}, which` +
