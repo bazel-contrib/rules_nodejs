@@ -16,7 +16,7 @@
  */
 const fs = require('fs');
 const path = require('path');
-const isBinary = require('isbinaryfile').isBinaryFile;
+const isBinary = require('isbinaryfile').isBinaryFileSync;
 
 function mkdirp(p) {
   if (!fs.existsSync(p)) {
