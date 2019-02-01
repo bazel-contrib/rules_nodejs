@@ -111,10 +111,6 @@ function main(args) {
     }
   }
 
-  for (dep of depsArg.split(',').filter(s => !!s)) {
-    
-  }
-
   // package contents like bazel-bin/baseDir/my/directory/* is
   // recursively copied to outDir/my/*
   for (pkg of packagesArg.split(',').filter(s => !!s)) {
