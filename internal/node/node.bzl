@@ -102,17 +102,17 @@ def _short_path_to_manifest_path(ctx, short_path):
 def _nodejs_binary_impl(ctx):
     node = ctx.file.node
     node_modules = ctx.files.node_modules
-    
+
     # Using a depset will allow us to avoid flattening files and sources
-    # inside this loop. This should reduce the performances hits, 
+    # inside this loop. This should reduce the performances hits,
     # since we don't need to call .to_list()
     sources = depset()
-    
+
     for d in ctx.attr.data:
         if hasattr(d, "node_sources"):
-            sources = depset( transitive = [sources, d.node_sources] )
+            sources = depset(transitive = [sources, d.node_sources])
         if hasattr(d, "files"):
-            sources = depset( transitive = [sources, d.files] )
+            sources = depset(transitive = [sources, d.files])
 
     _write_loader_script(ctx)
 
@@ -152,7 +152,7 @@ def _nodejs_binary_impl(ctx):
     )
 
     runfiles = depset(
-        transitive = [sources + [node, ctx.outputs.loader, ctx.file._repository_args] + node_modules + ctx.files._node_runfiles]
+        transitive = [sources + [node, ctx.outputs.loader, ctx.file._repository_args] + node_modules + ctx.files._node_runfiles],
     )
 
     return [DefaultInfo(
@@ -160,15 +160,15 @@ def _nodejs_binary_impl(ctx):
         runfiles = ctx.runfiles(
             transitive_files = runfiles,
             files = [
-                node, 
-                ctx.outputs.loader
-            ] + ctx.files._source_map_support_files + node_modules + 
-            
-            # We need this call to the list of Files. 
-            # Calling the .to_list() method may have some perfs hits,
-            # so we should be running this method only once per rule.
-            # see: https://docs.bazel.build/versions/master/skylark/depsets.html#performance
-            sources.to_list(),
+                        node,
+                        ctx.outputs.loader,
+                    ] + ctx.files._source_map_support_files + node_modules +
+
+                    # We need this call to the list of Files.
+                    # Calling the .to_list() method may have some perfs hits,
+                    # so we should be running this method only once per rule.
+                    # see: https://docs.bazel.build/versions/master/skylark/depsets.html#performance
+                    sources.to_list(),
             collect_data = True,
         ),
     )]
