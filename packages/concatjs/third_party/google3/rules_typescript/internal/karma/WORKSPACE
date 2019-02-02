@@ -12,39 +12,43 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-workspace(name = "ts_auto_deps_e2e")
+workspace(name = "build_bazel_rules_karma")
 
+# Load nested build_bazel_rules_typescript repository
 local_repository(
     name = "build_bazel_rules_typescript",
-    path = "../../..",
+    path = "../..",
 )
 
-load("@build_bazel_rules_typescript//:package.bzl", "rules_typescript_dependencies", "rules_typescript_dev_dependencies")
-
-rules_typescript_dependencies()
+# Load our dependencies
+load("@build_bazel_rules_typescript//:package.bzl", "rules_typescript_dev_dependencies")
 
 rules_typescript_dev_dependencies()
 
+# Load rules_karma dependencies
+load("//:package.bzl", "rules_karma_dependencies")
+
+rules_karma_dependencies()
+
+# Setup nodejs toolchain
 load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "yarn_install")
 
-node_repositories(preserve_symlinks = True)
+# Install a hermetic version of node.
+node_repositories()
 
+# Download npm dependencies
 yarn_install(
     name = "npm",
     package_json = "//:package.json",
     yarn_lock = "//:yarn.lock",
 )
 
-load("@io_bazel_rules_go//go:def.bzl", "go_register_toolchains", "go_rules_dependencies")
-
-go_rules_dependencies()
-
-go_register_toolchains()
-
+# Setup gazelle toolchain
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
 
 gazelle_dependencies()
 
+# Setup typescript toolchain
 load("@build_bazel_rules_typescript//:defs.bzl", "ts_setup_workspace")
 
 ts_setup_workspace()

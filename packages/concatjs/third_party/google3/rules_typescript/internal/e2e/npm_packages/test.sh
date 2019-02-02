@@ -9,11 +9,10 @@ echo ""
 echo "#################################################################################"
 echo "Running all npm package e2e tests under $TESTS_ROOT_DIR"
 echo ""
-echo "To run a specific test run this script with `--test <test_name>` where <test_name>"
+echo "To run a specific test run this script with '--test <test_name>' where <test_name>"
 echo "is the name of the test folder to run"
 echo ""
-echo "Run this script with `--update-lock-files` to update yarn.lock files"
-echo "instead of running tests"
+echo "Run this script with '--update-lock-files' to update yarn.lock files instead of running tests"
 echo ""
 
 # Determine the absolute paths to the generated @bazel/typescript and @bazel/karma npm packages
@@ -23,9 +22,11 @@ if [[ ! -f $BAZEL ]] ; then
   echo "Bazel not found under $BAZEL"
   exit 1
 fi
-BAZEL_BIN=$($BAZEL info bazel-bin)
-BAZEL_TYPESCRIPT_NPM_PACKAGE=$BAZEL_BIN/internal/npm_package
-BAZEL_KARMA_NPM_PACKAGE=$BAZEL_BIN/internal/karma/npm_package
+BAZEL_BIN_TYPESCRIPT=$($BAZEL info bazel-bin)
+BAZEL_TYPESCRIPT_NPM_PACKAGE=$BAZEL_BIN_TYPESCRIPT/npm_package
+cd $TESTS_ROOT_DIR/../../../internal/karma
+BAZEL_BIN_KARMA=$($BAZEL info bazel-bin)
+BAZEL_KARMA_NPM_PACKAGE=$BAZEL_BIN_KARMA/npm_package
 echo "@bazel/typescript: $BAZEL_TYPESCRIPT_NPM_PACKAGE"
 echo "@bazel/karma: $BAZEL_KARMA_NPM_PACKAGE"
 
@@ -57,6 +58,8 @@ for testDir in $(ls) ; do
         # Skip this test
         echo "Skipping test that was not specified in --test argument"
       else
+        # Some tests like ts_auto_deps depend on node_modules
+        yarn install
         # Run tests
         yarn test
       fi

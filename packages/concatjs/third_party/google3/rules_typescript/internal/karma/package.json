@@ -1,6 +1,6 @@
 {
   "name": "@bazel/karma",
-  "description": "runtime dependences for web test rules",
+  "description": "Karma rules for Bazel",
   "homepage": "https://github.com/bazelbuild/rules_typescript",
   "license": "Apache-2.0",
   "version": "0.0.0-PLACEHOLDER",
@@ -26,7 +26,22 @@
     "semver": "5.6.0",
     "tmp": "0.0.33"
   },
-  "scripts": {
-    "postinstall": "node ./check_version.js"
+  "devDependencies": {
+    "@bazel/bazel": "~0.22.0",
+    "@types/node": "7.0.18",
+    "protobufjs": "5.0.3",
+    "semver": "5.6.0",
+    "source-map-support": "0.5.9",
+    "tsickle": "0.33.1",
+    "tsutils": "2.27.2",
+    "typescript": "~3.1.6",
+    "jasmine-core": "2.8.0"
+  },
+  "bazelWorkspaces": {
+    "build_bazel_rules_karma": {
+      "version": "0.0.0-PLACEHOLDER",
+      "compatVersion": "0.0.0-COMPAT_VERSION",
+      "rootPath": "."
+    }
   }
 }

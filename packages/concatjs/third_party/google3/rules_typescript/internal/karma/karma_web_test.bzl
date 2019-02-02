@@ -23,7 +23,7 @@ load("@io_bazel_rules_webtesting//web/internal:constants.bzl", "DEFAULT_WRAPPED_
 load("@io_bazel_rules_webtesting//web:web.bzl", "web_test_suite")
 load(":web_test.bzl", "COMMON_WEB_TEST_ATTRS")
 
-_CONF_TMPL = "//internal/karma:karma.conf.js"
+_CONF_TMPL = "//:karma.conf.js"
 _DEFAULT_KARMA_BIN = "@npm//@bazel/karma/bin:karma"
 
 # Attributes for karma_web_test that are shared with ts_web_test which
@@ -123,7 +123,7 @@ def _write_karma_config(ctx, files, amd_names_shim):
     # polyfilling before test libraries load.
     # See https://github.com/karma-runner/karma/issues/699
     # `NODE_MODULES/` is a prefix recogized by karma.conf.js to allow
-    # for a priority require of nested `@bazel/karma/node_modules` before
+    # for a priority require of nested `@bazel/typescript/node_modules` before
     # looking in root node_modules.
     bootstrap_entries += [
         "NODE_MODULES/requirejs/require.js",

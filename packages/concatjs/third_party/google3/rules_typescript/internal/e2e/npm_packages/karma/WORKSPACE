@@ -14,18 +14,17 @@
 
 workspace(name = "npm_packages_karma_e2e")
 
-local_repository(
-    name = "build_bazel_rules_typescript",
-    path = "../../../..",
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+    name = "build_bazel_rules_nodejs",
+    strip_prefix = "rules_nodejs-0.16.8",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/archive/0.16.8.zip"],
 )
-
-load("@build_bazel_rules_typescript//:package.bzl", "rules_typescript_dependencies")
-
-rules_typescript_dependencies()
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "yarn_install")
 
-node_repositories(preserve_symlinks = True)
+node_repositories()
 
 yarn_install(
     name = "npm",
@@ -33,11 +32,13 @@ yarn_install(
     yarn_lock = "//:yarn.lock",
 )
 
-load("@io_bazel_rules_go//go:def.bzl", "go_register_toolchains", "go_rules_dependencies")
+load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
 
-go_rules_dependencies()
+install_bazel_dependencies()
 
-go_register_toolchains()
+load("@build_bazel_rules_karma//:package.bzl", "rules_karma_dependencies")
+
+rules_karma_dependencies()
 
 load("@io_bazel_rules_webtesting//web:repositories.bzl", "browser_repositories", "web_test_repositories")
 
@@ -47,7 +48,3 @@ browser_repositories(
     chromium = True,
     firefox = True,
 )
-
-load("@build_bazel_rules_typescript//:defs.bzl", "ts_setup_workspace")
-
-ts_setup_workspace()

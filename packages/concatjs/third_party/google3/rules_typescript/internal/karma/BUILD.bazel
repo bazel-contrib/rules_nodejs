@@ -1,22 +1,35 @@
-load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
+# Copyright 2018 The Bazel Authors. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary", "npm_package")
-load("//internal:defaults.bzl", "ts_library")
+load("@build_bazel_rules_typescript//:version.bzl", "COMPAT_VERSION")
+load("@build_bazel_rules_typescript//internal:defaults.bzl", "ts_library")
 
 package(default_visibility = ["//visibility:public"])
 
+# Exports to be consumed for generating skydoc.
 exports_files([
-    "test-main.js",
-    "karma.conf.js",
-    # Exported to be consumed for generating skydoc.
+    "karma_web_test.bzl",
     "ts_web_test.bzl",
-    "ts_web_test_suite.bzl",
+    "web_test.bzl",
 ])
 
 ts_library(
     name = "bazel_karma",
     srcs = glob(["*.ts"]),
     module_name = "@bazel/karma",
-    tsconfig = "//internal/karma:tsconfig.json",
+    tsconfig = ":tsconfig.json",
     deps = [
         "@npm//@types/node",
         "@npm//tmp",
@@ -44,38 +57,33 @@ nodejs_binary(
 
 genrule(
     name = "license_copy",
-    srcs = ["//:LICENSE"],
+    srcs = ["@build_bazel_rules_typescript//:LICENSE"],
     outs = ["LICENSE"],
-    cmd = "cp $< $@",
-)
-
-genrule(
-    name = "check_version_copy",
-    srcs = ["//tools:check_version.js"],
-    outs = ["check_version.js"],
     cmd = "cp $< $@",
 )
 
 npm_package(
     name = "npm_package",
     srcs = [
-        "README.md",
+        "BUILD.bazel",
+        "WORKSPACE",
+        "defaults.bzl",
+        "defs.bzl",
+        "karma.conf.js",
         "karma.js",
+        "karma_web_test.bzl",
+        "package.bzl",
         "package.json",
+        "ts_web_test.bzl",
+        "web_test.bzl",
     ],
+    replacements = {
+        "0.0.0-COMPAT_VERSION": COMPAT_VERSION,
+    },
     deps = [
         ":bazel_karma",
-        ":check_version_copy",
         ":license_copy",
     ],
 )
 
-pkg_tar(
-    name = "package",
-    srcs = [
-        "BUILD.bazel",
-        "package.json",
-        "ts_web_test.bzl",
-    ],
-    package_dir = "karma",
-)
+exports_files(["karma.conf.js"])

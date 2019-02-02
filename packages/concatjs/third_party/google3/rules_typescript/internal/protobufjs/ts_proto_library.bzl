@@ -178,7 +178,7 @@ in the `bootstrap` attribute of `ts_web_test_suite` or `ts_devserver`.
 To complete the example above, you could write a `ts_web_test_suite`:
 
 ```
-load("@build_bazel_rules_typescript//:defs.bzl", "ts_web_test_suite")
+load("@build_bazel_rules_karma//:defs.bzl", "ts_web_test_suite")
 
 ts_web_test_suite(
     name = "test",

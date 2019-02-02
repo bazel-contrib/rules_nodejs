@@ -1,4 +1,3 @@
-load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 load("@io_bazel_rules_go//proto:def.bzl", "go_proto_library")
 
@@ -29,11 +28,9 @@ go_library(
     visibility = ["//visibility:public"],
 )
 
-pkg_tar(
-    name = "package",
+filegroup(
+    name = "npm_package_assets",
     srcs = [
-        "BUILD.bazel",
         "worker_protocol.proto",
     ],
-    package_dir = "third_party/github.com/bazelbuild/bazel/src/main/protobuf",
 )

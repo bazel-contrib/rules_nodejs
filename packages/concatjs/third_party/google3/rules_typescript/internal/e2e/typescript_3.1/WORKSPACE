@@ -19,13 +19,13 @@ local_repository(
     path = "../../..",
 )
 
-load("@build_bazel_rules_typescript//:package.bzl", "rules_typescript_dependencies")
+load("@build_bazel_rules_typescript//:package.bzl", "rules_typescript_dev_dependencies")
 
-rules_typescript_dependencies()
+rules_typescript_dev_dependencies()
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "yarn_install")
 
-node_repositories(preserve_symlinks = True)
+node_repositories()
 
 yarn_install(
     name = "npm",

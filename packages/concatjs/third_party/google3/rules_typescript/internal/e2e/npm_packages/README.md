@@ -11,9 +11,9 @@ the generated npm packages are substituted in when generating the `package.json`
 
 ### Running an individual test
 
-To run a specific test run this script with `./internal/e2e/npm_packages/test.sh --test <test_name>` where `<test_name>`
+To run a specific test run `yarn e2e-npm_packages --test <test_name>` where `<test_name>`
 is the name of the test folder to run.
 
 ### Updating yarn.lock file
 
-To update the `yarn.lock` files for these tests run `./internal/e2e/npm_packages/test.sh --update-lock-files`.
+To update the `yarn.lock` files for these tests run `yarn e2e-npm_packages --update-lock-files`.

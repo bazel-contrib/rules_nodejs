@@ -14,8 +14,7 @@
 
 # gazelle:exclude worker_protocol.proto
 
-load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
-load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test", "nodejs_binary", "npm_package")
+load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test", "nodejs_binary")
 load("//internal:defaults.bzl", "ts_library")
 
 package(default_visibility = ["//visibility:public"])
@@ -117,75 +116,21 @@ jasmine_node_test(
     ],
 )
 
-genrule(
-    name = "license_copy",
-    srcs = ["//:LICENSE"],
-    outs = ["LICENSE"],
-    cmd = "cp $< $@",
-)
-
-genrule(
-    name = "worker_protocol_copy",
-    srcs = ["//third_party/github.com/bazelbuild/bazel/src/main/protobuf:worker_protocol.proto"],
-    outs = ["worker_protocol.proto"],
-    cmd = "cp $< $@",
-)
-
-genrule(
-    name = "check_version_copy",
-    srcs = ["//tools:check_version.js"],
-    outs = ["check_version.js"],
-    cmd = "cp $< $@",
-)
-
-npm_package(
-    name = "npm_package",
+filegroup(
+    name = "npm_package_assets",
     srcs = [
-        "README.md",
-        "package.json",
-    ],
-    deps = [
-        ":check_version_copy",
-        ":license_copy",
-        ":tsc_wrapped",
-        ":worker_protocol_copy",
-    ],
-)
-
-pkg_tar(
-    name = "tsc_wrapped_pkg",
-    srcs = glob([
-        "tsc_wrapped/**",
-    ]),
-    package_dir = "tsc_wrapped",
-)
-
-pkg_tar(
-    name = "common_pkg",
-    srcs = [
+        "BUILD.bazel",
+        "build_defs.bzl",
         "common/compilation.bzl",
         "common/json_marshal.bzl",
         "common/module_mappings.bzl",
         "common/tsconfig.bzl",
-    ],
-    package_dir = "common",
-)
-
-pkg_tar(
-    name = "package",
-    srcs = [
-        "BUILD.bazel",
-        "build_defs.bzl",
-        "package.json",
+        "defaults.bzl",
         "ts_config.bzl",
         "ts_repositories.bzl",
-    ],
-    package_dir = "internal",
-    deps = [
-        ":common_pkg",
-        ":tsc_wrapped_pkg",
-        "//internal/devserver:package",
-        "//internal/karma:package",
-        "//internal/protobufjs:package",
+        "tsc_wrapped/package.json",
+        "tsc_wrapped/yarn.lock",
+        "//internal/devserver:npm_package_assets",
+        "//internal/protobufjs:npm_package_assets",
     ],
 )
