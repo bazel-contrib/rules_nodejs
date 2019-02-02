@@ -42,7 +42,7 @@ def _sources_aspect_impl(target, ctx):
         result = depset(transitive = [result, target.typescript.es5_sources])
     elif hasattr(target, "files"):
         result = depset(
-            [f for f in target.files if f.path.endswith(".js")],
+            [f for f in target.files.to_list() if f.path.endswith(".js")],
             transitive = [result],
         )
     return struct(node_sources = result)
