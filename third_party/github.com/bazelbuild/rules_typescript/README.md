@@ -19,14 +19,14 @@ First, install a current Bazel distribution.
 
 Add the `@bazel/typescript` npm package to your `package.json` `devDependencies`.
 Optionally add the `@bazel/karma` npm package if you would like to use the
-`ts_web_test_suite` rule.
+`ts_web_test`, `ts_web_test_suite`, `karma_web_test` or `karma_web_test_suite` rules.
 
 ```
 {
   ...
   "devDependencies": {
-    "@bazel/typescript": "0.22.1",
-    "@bazel/karma": "0.22.1",
+    "@bazel/typescript": "0.23.0",
+    "@bazel/karma": "0.23.0",
     ...
   },
   ...
@@ -44,23 +44,14 @@ Next create a `WORKSPACE` file in your project root (or edit the existing one)
 containing:
 
 ```python
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+# Fetch rules_nodejs
 http_archive(
-    name = "build_bazel_rules_typescript",
-    url = "https://github.com/bazelbuild/rules_typescript/archive/0.22.1.zip",
-    strip_prefix = "rules_typescript-0.22.1",
+    name = "build_bazel_rules_nodejs",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/archive/0.16.8.zip"],
+    strip_prefix = "rules_nodejs-0.16.8",
 )
-
-# Fetch transitive Bazel dependencies of build_bazel_rules_typescript
-load("@build_bazel_rules_typescript//:package.bzl", "rules_typescript_dependencies")
-rules_typescript_dependencies()
-
-# Fetch transitive Bazel dependencies of build_bazel_rules_nodejs
-load("@build_bazel_rules_nodejs//:package.bzl", "rules_nodejs_dependencies")
-rules_nodejs_dependencies()
-
-# Setup TypeScript toolchain
-load("@build_bazel_rules_typescript//:defs.bzl", "ts_setup_workspace")
-ts_setup_workspace()
 
 # Setup the NodeJS toolchain
 load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "yarn_install")
@@ -77,12 +68,25 @@ yarn_install(
   yarn_lock = "//:yarn.lock",
 )
 
-# Setup Go toolchain
-load("@io_bazel_rules_go//go:def.bzl", "go_rules_dependencies", "go_register_toolchains")
-go_rules_dependencies()
-go_register_toolchains()
+# Install all Bazel dependencies needed for npm packages that supply Bazel rules
+load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
+install_bazel_dependencies()
+
+# Fetch transitive Bazel dependencies of build_bazel_rules_typescript
+load("@build_bazel_rules_typescript//:package.bzl", "rules_typescript_dependencies")
+rules_typescript_dependencies()
+
+# Fetch transitive Bazel dependencies of build_bazel_rules_karma
+# ONLY REQUIRED if you are using the @bazel/karma npm package
+load("@build_bazel_rules_karma//:package.bzl", "rules_karma_dependencies")
+rules_karma_dependencies()
+
+# Setup TypeScript toolchain
+load("@build_bazel_rules_typescript//:defs.bzl", "ts_setup_workspace")
+ts_setup_workspace()
 
 # Setup web testing, choose browsers we can test on
+# ONLY REQUIRED if you are using the @bazel/karma npm package
 load("@io_bazel_rules_webtesting//web:repositories.bzl", "browser_repositories", "web_test_repositories")
 
 web_test_repositories()
@@ -138,7 +142,7 @@ filegroup(
 # compiler attribute when using self-managed dependencies
 nodejs_binary(
     name = "@bazel/typescript/tsc_wrapped",
-    entry_point = "@bazel/typescript/tsc_wrapped/tsc_wrapped.js",
+    entry_point = "@bazel/typescript/internal/tsc_wrapped/tsc_wrapped.js",
     # The --expose-gc node option is required for tsc_wrapped
     templated_args = ["--node_options=--expose-gc"],
     # Point bazel to your node_modules to find the entry point

@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@bazel/typescript": "file:${BAZEL_TYPESCRIPT_NPM_PACKAGE}",
+    "typescript": "2.9.2"
+  },
+  "scripts": {
+    "test": "cd simple; ts_auto_deps && bazel build simple"
+  }
+}

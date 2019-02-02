@@ -14,16 +14,23 @@
 
 workspace(name = "build_bazel_rules_typescript")
 
-load(
-    "@build_bazel_rules_typescript//:package.bzl",
-    "rules_typescript_dependencies",
-    "rules_typescript_dev_dependencies",
+# Load nested build_bazel_rules_karma repository
+local_repository(
+    name = "build_bazel_rules_karma",
+    path = "internal/karma",
 )
 
-rules_typescript_dependencies()
+# Load our dependencies
+load("//:package.bzl", "rules_typescript_dev_dependencies")
 
 rules_typescript_dev_dependencies()
 
+# Load rules_karma dependencies
+load("@build_bazel_rules_karma//:package.bzl", "rules_karma_dependencies")
+
+rules_karma_dependencies()
+
+# Setup nodejs toolchain
 load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "yarn_install")
 
 # Use a bazel-managed npm dependency, allowing us to test resolution to these paths
@@ -41,39 +48,36 @@ yarn_install(
 )
 
 # Install a hermetic version of node.
-node_repositories(preserve_symlinks = True)
+node_repositories()
 
-# Note: We depend on @bazel/typescript in package.json
-# so that the target @npm//@bazel/typescript is defined
-# as it is referenced in /BUILD.bazel for use downstream.
-# This target and package is not used locally so
-# the version of this dependency does not matter.
+# Download npm dependencies
 yarn_install(
     name = "npm",
     package_json = "//:package.json",
     yarn_lock = "//:yarn.lock",
 )
 
+# Setup rules_go toolchain
 load("@io_bazel_rules_go//go:def.bzl", "go_register_toolchains", "go_rules_dependencies")
 
 go_rules_dependencies()
 
 go_register_toolchains()
 
+# Setup gazelle toolchain
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
 
 gazelle_dependencies()
 
-load(
-    "@build_bazel_rules_typescript//:defs.bzl",
-    "check_rules_typescript_version",
-    "ts_setup_workspace",
-)
+# Setup typescript toolchain
+load("//internal:ts_repositories.bzl", "ts_setup_dev_workspace")
 
-ts_setup_workspace()
+ts_setup_dev_workspace()
 
 # Test that check_rules_typescript_version works as expected
-check_rules_typescript_version(minimum_version_string = "0.15.3")
+load("//:defs.bzl", "check_rules_typescript_version")
+
+check_rules_typescript_version(version_string = "0.22.0")
 
 # Dependencies for generating documentation
 load("@io_bazel_rules_sass//sass:sass_repositories.bzl", "sass_repositories")
@@ -84,11 +88,13 @@ load("@io_bazel_skydoc//skylark:skylark.bzl", "skydoc_repositories")
 
 skydoc_repositories()
 
-# Load pinned browser versions for rules_webtesting.
+# Setup rules_webtesting toolchain
 load("@io_bazel_rules_webtesting//web:repositories.bzl", "web_test_repositories")
-load("@io_bazel_rules_webtesting//web/internal:platform_http_file.bzl", "platform_http_file")
 
 web_test_repositories()
+
+# Load pinned browser versions for rules_webtesting.
+load("@io_bazel_rules_webtesting//web/internal:platform_http_file.bzl", "platform_http_file")
 
 platform_http_file(
     name = "org_chromium_chromium",

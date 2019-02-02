@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
-
 licenses(["notice"])  # Apache 2.0
 
 package(default_visibility = [
@@ -30,29 +28,13 @@ filegroup(
     srcs = glob(["**/*"]),
 )
 
-# Do a simple replacement needed to make the local development differ from how
-# our release is used.
-# NB: doesn't work on Windows, so we have to release from Mac/Linux for now.
-genrule(
-    name = "patched_devserver_bzl",
-    srcs = ["ts_devserver.bzl"],
-    outs = ["patched/ts_devserver.bzl"],
-    cmd = """sed 's#"//devserver:devserver"#"//devserver:server"#' < $< > $@""",
-)
-
-# Remove the "patched/" directory prefix so that the ts_devserver.bzl ends up in
-# the same path in the final tar as it had in our local repo.
-pkg_tar(
-    name = "strip_workaround",
-    srcs = [":patched_devserver_bzl"],
-)
-
-pkg_tar(
-    name = "package",
+filegroup(
+    name = "npm_package_assets",
     srcs = [
         "BUILD",
+        "package.json",
+        "ts_devserver.bzl",
+        "yarn.lock",
     ],
-    package_dir = "devserver",
     visibility = ["//internal:__pkg__"],
-    deps = ["strip_workaround"],
 )

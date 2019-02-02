@@ -26,8 +26,9 @@ local_repository(
     name = "build_bazel_rules_typescript",
     path = "${process.cwd()}",
 )
-load("@build_bazel_rules_typescript//:package.bzl", "rules_typescript_dependencies")
-rules_typescript_dependencies()
+# Using rules_typescript_dev_dependencies for this test since we're not depending on the generated npm package
+load("@build_bazel_rules_typescript//:package.bzl", "rules_typescript_dev_dependencies")
+rules_typescript_dev_dependencies()
 load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "yarn_install")
 node_repositories()
 yarn_install(
@@ -35,8 +36,9 @@ yarn_install(
   package_json = "//:package.json",
   yarn_lock = "//:yarn.lock",
 )
-load("@build_bazel_rules_typescript//:defs.bzl", "ts_setup_workspace")
-ts_setup_workspace()
+# Using ts_setup_dev_workspace for this test since we're not depending on the generated npm package
+load("@build_bazel_rules_typescript//internal:ts_repositories.bzl", "ts_setup_dev_workspace")
+ts_setup_dev_workspace()
 `;
 
 const PACKAGE_JSON = `{

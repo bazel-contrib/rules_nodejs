@@ -1,7 +1,4 @@
-load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
 load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
-
-package(default_visibility = ["//visibility:public"])
 
 go_library(
     name = "go_default_library",
@@ -19,59 +16,14 @@ go_library(
 )
 
 go_binary(
-    name = "devserver",
+    name = "devserver_bin",
     embed = [":go_default_library"],
-    visibility = ["//visibility:public"],
-)
-
-config_setting(
-    name = "darwin_amd64",
-    constraint_values = [
-        "@bazel_tools//platforms:osx",
-        "@bazel_tools//platforms:x86_64",
-    ],
-)
-
-config_setting(
-    name = "linux_amd64",
-    constraint_values = [
-        "@bazel_tools//platforms:linux",
-        "@bazel_tools//platforms:x86_64",
-    ],
-)
-
-config_setting(
-    name = "windows_amd64",
-    constraint_values = [
-        "@bazel_tools//platforms:windows",
-        "@bazel_tools//platforms:x86_64",
-    ],
-)
-
-filegroup(
-    name = "server",
-    srcs = select({
-        ":darwin_amd64": ["devserver-darwin_amd64"],
-        ":linux_amd64": ["devserver-linux_amd64"],
-        ":windows_amd64": ["devserver-windows_amd64.exe"],
-    }),
-    # Don't build on CI
-    tags = ["manual"],
-)
-
-go_binary(
-    name = "devserver-windows",
-    out = "devserver-windows_amd64.exe",
-    embed = [":go_default_library"],
-    goarch = "amd64",
-    goos = "windows",
-    pure = "on",
     visibility = ["//visibility:public"],
 )
 
 go_binary(
     name = "devserver-darwin",
-    out = "devserver-darwin_amd64",
+    out = "devserver-darwin_x64",
     embed = [":go_default_library"],
     goarch = "amd64",
     goos = "darwin",
@@ -81,7 +33,7 @@ go_binary(
 
 go_binary(
     name = "devserver-linux",
-    out = "devserver-linux_amd64",
+    out = "devserver-linux_x64",
     embed = [":go_default_library"],
     goarch = "amd64",
     goos = "linux",
@@ -89,13 +41,56 @@ go_binary(
     visibility = ["//visibility:public"],
 )
 
-pkg_tar(
-    name = "package",
+go_binary(
+    name = "devserver-windows",
+    out = "devserver-windows_x64.exe",
+    embed = [":go_default_library"],
+    goarch = "amd64",
+    goos = "windows",
+    pure = "on",
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "npm_package_assets",
     srcs = [
         "BUILD.bazel",
-        ":devserver-darwin",
-        ":devserver-linux",
-        ":devserver-windows",
     ],
-    package_dir = "devserver",
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "darwin_x64",
+    constraint_values = [
+        "@bazel_tools//platforms:osx",
+        "@bazel_tools//platforms:x86_64",
+    ],
+)
+
+config_setting(
+    name = "linux_x64",
+    constraint_values = [
+        "@bazel_tools//platforms:linux",
+        "@bazel_tools//platforms:x86_64",
+    ],
+)
+
+config_setting(
+    name = "windows_x64",
+    constraint_values = [
+        "@bazel_tools//platforms:windows",
+        "@bazel_tools//platforms:x86_64",
+    ],
+)
+
+filegroup(
+    name = "devserver",
+    srcs = select({
+        ":darwin_x64": ["devserver-darwin_x64"],
+        ":linux_x64": ["devserver-linux_x64"],
+        ":windows_x64": ["devserver-windows_x64.exe"],
+    }),
+    # Don't build on CI
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
 )

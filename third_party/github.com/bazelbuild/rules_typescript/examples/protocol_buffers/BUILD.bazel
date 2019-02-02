@@ -1,3 +1,4 @@
+load("@build_bazel_rules_karma//:defaults.bzl", "ts_web_test_suite")
 load("@build_bazel_rules_nodejs//:defs.bzl", "http_server", "rollup_bundle")
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 load("@io_bazel_rules_go//proto:def.bzl", "go_proto_library")
@@ -6,7 +7,7 @@ load(
     "ts_devserver",
     "ts_proto_library",
 )
-load("//internal:defaults.bzl", "ts_library", "ts_web_test_suite")
+load("//internal:defaults.bzl", "ts_library")
 
 proto_library(
     name = "tire_proto",

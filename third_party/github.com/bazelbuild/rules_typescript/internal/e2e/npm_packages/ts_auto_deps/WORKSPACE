@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-workspace(name = "npm_packages_typescript_28_e2e")
+workspace(name = "npm_packages_ts_auto_deps_e2e")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 

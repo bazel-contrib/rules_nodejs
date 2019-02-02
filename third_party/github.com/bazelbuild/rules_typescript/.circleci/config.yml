@@ -10,7 +10,7 @@
 ## IMPORTANT
 # If you change the `docker_image` version, also change the `cache_key` suffix
 var_1: &docker_image circleci/node:10.12-browsers
-var_2: &cache_key rules_typescript-{{ checksum "yarn.lock" }}-node:10.12-browsers
+var_2: &cache_key rules_typescript-{{ checksum "yarn.lock" }}-internal/karma:node:{{ checksum "internal/karma/yarn.lock" }}-10.12-browsers
 var_3: &setup-bazel-remote-cache
   run:
     name: Start up bazel remote cache proxy
@@ -47,6 +47,9 @@ jobs:
       - run: yarn bazel info release
       - run: yarn bazel build ...
       - run: yarn bazel test ...
+      - run: 'cd internal/karma &&
+              yarn install &&
+              yarn bazel build ...'
       - run: yarn bazel build @disable_tsetse_for_external_test//...
 
   # This job tests the same stuff, but without the .bazelrc file.
@@ -69,17 +72,23 @@ jobs:
       # is required to keep Bazel from exhausting the memory.
       - run: yarn bazel --bazelrc=/dev/null --host_jvm_args=-Xmx3g build ... --local_resources=2560,1.0,1.0
       - run: yarn bazel --bazelrc=/dev/null --host_jvm_args=-Xmx3g test ... --local_resources=2560,1.0,1.0
+      - run: 'cd internal/karma &&
+              yarn install &&
+              yarn bazel --bazelrc=/dev/null --host_jvm_args=-Xmx3g build ... --local_resources=2560,1.0,1.0'
       - run: yarn bazel --bazelrc=/dev/null --host_jvm_args=-Xmx3g build @disable_tsetse_for_external_test//... --local_resources=2560,1.0,1.0
 
       - save_cache:
           key: *cache_key
           paths:
             - "node_modules"
+            - "internal/karma/node_modules"
 
   # Runs end-to-end browser tests.
   test:
     <<: *job_defaults
     resource_class: xlarge
+    environment:
+      CHROMEDRIVER_VERSION_ARG: --versions.chrome 2.41
     steps:
       - checkout:
           <<: *post_checkout

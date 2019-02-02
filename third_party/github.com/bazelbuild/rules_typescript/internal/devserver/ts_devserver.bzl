@@ -200,7 +200,7 @@ ts_devserver = rule(
             # NB: this value is replaced by "//devserver:server" in the packaged distro
             # //devserver:server is the pre-compiled binary.
             # That means that our users don't need the go toolchain.
-            default = Label("//devserver:devserver"),
+            default = Label("//devserver:devserver_bin"),
             executable = True,
             cfg = "host",
         ),

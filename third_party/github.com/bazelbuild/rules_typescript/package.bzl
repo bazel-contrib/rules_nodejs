@@ -12,19 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Package file which defines build_bazel_rules_typescript version in skylark
-
-check_rules_typescript_version can be used in downstream WORKSPACES to check
-against a minimum dependent build_bazel_rules_typescript version.
+"""Package file which defines build_bazel_rules_typescript dependencies
 """
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-
-# This version is synced with the version in package.json.
-# It will be automatically synced via the npm "version" script
-# that is run when running `npm version` during the release
-# process. See `Releasing` section in README.md.
-VERSION = "0.22.1"
 
 def rules_typescript_dependencies():
     """
@@ -38,19 +29,29 @@ def rules_typescript_dependencies():
     _maybe(
         http_archive,
         name = "build_bazel_rules_nodejs",
-        urls = ["https://github.com/bazelbuild/rules_nodejs/archive/0.16.7.zip"],
-        strip_prefix = "rules_nodejs-0.16.7",
+        strip_prefix = "rules_nodejs-0.16.8",
+        urls = ["https://github.com/bazelbuild/rules_nodejs/archive/0.16.8.zip"],
     )
 
-    # ts_web_test depends on the web testing rules to provision browsers.
+def rules_typescript_dev_dependencies():
+    """
+    Fetch dependencies needed for local development, but not needed by users.
+
+    These are in this file to keep version information in one place, and make the WORKSPACE
+    shorter.
+    """
+
+    rules_typescript_dependencies()
+
+    # For running skylint
     _maybe(
         http_archive,
-        name = "io_bazel_rules_webtesting",
-        urls = ["https://github.com/bazelbuild/rules_webtesting/releases/download/0.3.0/rules_webtesting.tar.gz"],
-        sha256 = "1c0900547bdbe33d22aa258637dc560ce6042230e41e9ea9dad5d7d2fca8bc42",
+        name = "io_bazel",
+        urls = ["https://github.com/bazelbuild/bazel/releases/download/0.21.0/bazel-0.21.0-dist.zip"],
+        sha256 = "6ccb831e683179e0cfb351cb11ea297b4db48f9eab987601c038aa0f83037db4",
     )
 
-    # ts_devserver depends on the Go rules.
+    # For building ts_devserver and ts_auto_deps binaries
     # See https://github.com/bazelbuild/rules_go#setup for the latest version.
     _maybe(
         http_archive,
@@ -90,22 +91,6 @@ def rules_typescript_dependencies():
         name = "bazel_skylib",
         url = "https://github.com/bazelbuild/bazel-skylib/archive/d7c5518fa061ae18a20d00b14082705d3d2d885d.zip",
         strip_prefix = "bazel-skylib-d7c5518fa061ae18a20d00b14082705d3d2d885d",
-    )
-
-def rules_typescript_dev_dependencies():
-    """
-    Fetch dependencies needed for local development, but not needed by users.
-
-    These are in this file to keep version information in one place, and make the WORKSPACE
-    shorter.
-    """
-
-    # For running skylint
-    _maybe(
-        http_archive,
-        name = "io_bazel",
-        urls = ["https://github.com/bazelbuild/bazel/releases/download/0.21.0/bazel-0.21.0-dist.zip"],
-        sha256 = "6ccb831e683179e0cfb351cb11ea297b4db48f9eab987601c038aa0f83037db4",
     )
 
     #############################################

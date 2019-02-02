@@ -1,22 +1,24 @@
 {
-    "description": "Monorepo for TypeScript Bazel support. Published packages are in subdirectories under internal/",
-    "private": true,
-    "version": "0.22.1",
+    "name": "@bazel/typescript",
+    "description": "TypeScript rules for Bazel",
+    "homepage": "https://github.com/bazelbuild/rules_typescript",
+    "license": "Apache-2.0",
+    "version": "0.0.0-PLACEHOLDER",
+    "keywords": [
+      "typescript",
+      "bazel"
+    ],
+    "main": "./internal/tsc_wrapped/index.js",
+    "typings": "./internal/tsc_wrapped/index.d.ts",
+    "bin": {
+      "ts_auto_deps": "./ts_auto_deps/ts_auto_deps.js"
+    },
     "dependencies": {
-        "jasmine-core": "2.8.0",
-        "karma": "alexeagle/karma#fa1a84ac881485b5657cb669e9b4e5da77b79f0a",
-        "karma-chrome-launcher": "2.2.0",
-        "karma-firefox-launcher": "1.1.0",
-        "karma-jasmine": "1.1.1",
-        "karma-json-result-reporter": "1.0.0",
-        "karma-requirejs": "1.1.0",
-        "karma-sauce-launcher": "2.0.2",
-        "karma-sourcemap-loader": "0.3.7",
         "protobufjs": "5.0.3",
-        "requirejs": "2.3.5",
+        "semver": "5.6.0",
         "source-map-support": "0.5.9",
-        "tmp": "0.0.33",
-        "tsutils": "2.27.2"
+        "tsutils": "2.27.2",
+        "jasmine-core": "2.8.0"
     },
     "devDependencies": {
         "@bazel/bazel": "~0.22.0",
@@ -31,25 +33,40 @@
         "clang-format": "1.0.49",
         "concurrently": "^3.5.1",
         "http-server": "^0.11.1",
+        "karma": "alexeagle/karma#fa1a84ac881485b5657cb669e9b4e5da77b79f0a",
+        "karma-chrome-launcher": "2.2.0",
+        "karma-firefox-launcher": "1.1.0",
+        "karma-jasmine": "1.1.1",
+        "karma-json-result-reporter": "1.0.0",
+        "karma-requirejs": "1.1.0",
+        "karma-sauce-launcher": "2.0.2",
+        "karma-sourcemap-loader": "0.3.7",
         "protractor": "^5.2.0",
+        "requirejs": "2.3.5",
         "shelljs": "^0.8.2",
+        "tmp": "0.0.33",
         "tsickle": "0.33.1",
         "typescript": "~3.1.6",
         "which": "~1.0.5"
     },
+    "bazelWorkspaces": {
+        "build_bazel_rules_typescript": {
+            "version": "0.0.0-PLACEHOLDER",
+            "compatVersion": "0.0.0-COMPAT_VERSION",
+            "rootPath": "."
+        }
+    },
     "scripts": {
-        "pree2e": "webdriver-manager update $CHROMEDRIVER_VERSION_ARG && bazel build //examples/app:e2e //examples/protocol_buffers:e2e //internal:npm_package //internal/karma:npm_package",
-        "e2e": "yarn e2e-bazel-external && yarn e2e-examples-app-devserver && yarn e2e-examples-app-prodserver && yarn e2e-examples-protobuf-devserver && yarn e2e-examples-protobuf-prodserver && yarn e2e-npm_packages && yarn e2e-ts_auto_deps && yarn e2e-typescript_3.1",
+        "pree2e": "webdriver-manager update $CHROMEDRIVER_VERSION_ARG && bazel build //examples/app:e2e //examples/protocol_buffers:e2e //:npm_package && cd internal/karma; bazel build //:npm_package",
+        "e2e": "yarn e2e-bazel-external && yarn e2e-examples-app-devserver && yarn e2e-examples-app-prodserver && yarn e2e-examples-protobuf-devserver && yarn e2e-examples-protobuf-prodserver && yarn e2e-npm_packages && yarn e2e-typescript_3.1",
         "e2e-bazel-external": "jasmine internal/e2e/default_tsconfig_test.js",
         "e2e-examples-app-devserver": "concurrently \"bazel run //examples/app:devserver\" \"while ! nc -z 127.0.0.1 8080; do sleep 1; done && protractor --suite app\" --kill-others --success first",
         "e2e-examples-app-prodserver": "concurrently \"bazel run //examples/app:prodserver\" \"while ! nc -z 127.0.0.1 8080; do sleep 1; done && protractor --suite app\" --kill-others --success first",
         "e2e-examples-protobuf-devserver": "concurrently \"bazel run //examples/protocol_buffers:devserver\" \"while ! nc -z 127.0.0.1 8080; do sleep 1; done && protractor --suite protocol_buffers\" --kill-others --success first",
         "e2e-examples-protobuf-prodserver": "concurrently \"bazel run //examples/protocol_buffers:prodserver\" \"while ! nc -z 127.0.0.1 8080; do sleep 1; done && protractor --suite protocol_buffers\" --kill-others --success first",
         "e2e-npm_packages": "./internal/e2e/npm_packages/test.sh",
-        "e2e-ts_auto_deps": "cd internal/e2e/ts_auto_deps; yarn test",
         "e2e-typescript_3.1": "cd internal/e2e/typescript_3.1; yarn test",
         "skydoc": "bazel build //docs && unzip -o -d docs/api bazel-bin/docs/docs-skydoc.zip",
-        "version": "node ./on-version.js && git stage package.bzl README.md",
         "bazel:format": "find . -type f \\( -name \"*.bzl\" -or -name WORKSPACE -or -name BUILD -or -name BUILD.bazel \\) ! -path \"*/node_modules/*\" | xargs buildifier -v --warnings=args-order,attr-cfg,attr-license,attr-non-empty,attr-output-default,attr-single-file,constant-glob,ctx-actions,ctx-args,depset-iteration,depset-union,dict-concatenation,duplicated-name,filetype,git-repository,http-archive,integer-division,load,load-on-top,native-build,native-package,out-of-order-load,output-group,package-name,package-on-top,positional-args,redefined-variable,repository-name,same-origin-load,string-iteration,unsorted-dict-items,unused-variable",
         "bazel:lint": "yarn bazel:format --lint=warn",
         "bazel:lint-fix": "yarn bazel:format --lint=fix"

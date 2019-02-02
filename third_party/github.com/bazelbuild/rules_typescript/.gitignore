@@ -3,6 +3,6 @@ node_modules
 /bazel-*
 /internal/e2e/npm_packages/*/bazel-*
 /internal/e2e/npm_packages/*/package.json
-/internal/e2e/ts_auto_deps/bazel-*
-/internal/e2e/ts_auto_deps/simple/BUILD
-/internal/e2e/ts_auto_deps/simple/BUILD.bazel
+/internal/e2e/npm_packages/ts_auto_deps/simple/BUILD
+/internal/e2e/npm_packages/ts_auto_deps/simple/BUILD.bazel
+/internal/karma/bazel-*

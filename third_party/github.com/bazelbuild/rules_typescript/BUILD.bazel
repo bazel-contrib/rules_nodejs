@@ -19,9 +19,9 @@
 # https://github.com/bazelbuild/rules_go/blob/master/go/tools/gazelle/README.rst#directives
 # gazelle:exclude node_modules
 load("@bazel_gazelle//:def.bzl", "gazelle")
-load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
-load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary", "npm_package")
 load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
+load("//:version.bzl", "COMPAT_VERSION")
 
 # ts_library defaults to this label in the top-level package.
 # Point to where the file actually lives.
@@ -55,40 +55,61 @@ js_library(
     visibility = ["//visibility:public"],
 )
 
-# A nodejs_binary for @bazel/typescript/tsc_wrapped to use by default in
-# ts_library that depends on @npm//@bazel/typescript instead of the
-# output of the //internal/tsc_wrapped ts_library rule. This
-# default is for downstream users that depend on the @bazel/typescript npm
-# package. The generated @npm//@bazel/typescript/bin:tsc_wrapped target
-# does not work because it does not have the node `--expose-gc` flag
-# set which is required to support the call to `global.gc()`.
-nodejs_binary(
-    name = "@bazel/typescript/tsc_wrapped",
-    data = ["@npm//@bazel/typescript"],
-    entry_point = "@bazel/typescript/tsc_wrapped/tsc_wrapped.js",
-    install_source_map_support = False,
-    templated_args = ["--node_options=--expose-gc"],
-    visibility = ["//visibility:public"],
+npm_package(
+    name = "npm_package",
+    srcs = [
+        "BUILD.bazel",
+        "LICENSE",
+        "README.md",
+        "WORKSPACE",
+        "defs.bzl",
+        "package.bzl",
+        "package.json",
+        "version.bzl",
+        "//devserver:npm_package_assets",
+        "//internal:npm_package_assets",
+        "//third_party/github.com/bazelbuild/bazel/src/main/protobuf:npm_package_assets",
+        "//ts_auto_deps:npm_package_assets",
+    ],
+    replacements = {
+        # Do a simple replacement needed to make the local development differ
+        # from how our release is used.
+        "//devserver:devserver_bin": "//devserver",
+        "0.0.0-COMPAT_VERSION": COMPAT_VERSION,
+    },
+    deps = [
+        "//devserver:devserver-darwin",
+        "//devserver:devserver-linux",
+        "//devserver:devserver-windows",
+        "//internal:tsc_wrapped",
+        "//ts_auto_deps:ts_auto_deps-darwin",
+        "//ts_auto_deps:ts_auto_deps-linux",
+        "//ts_auto_deps:ts_auto_deps-windows",
+    ],
 )
 
 # Produces the release we publish to GitHub. Users download this starlark package
 # to get the @build_bazel_rules_typescript workspace.
-# It's the companion of the @bazel/typescript, @bazel/karma, etc npm packages.
-pkg_tar(
-    name = "release",
-    srcs = [
-        "AUTHORS",
-        "BUILD.bazel",
-        "LICENSE",
-        "WORKSPACE",
-        "defs.bzl",
-        "package.bzl",
-    ],
-    extension = "tgz",
-    deps = [
-        "//devserver:package",
-        "//internal:package",
-        "//third_party/github.com/bazelbuild/bazel/src/main/protobuf:package",
-        "//ts_auto_deps:package",
-    ],
+# FIXME(gregmagolan): strip the npm_package prefix from within the generated archive
+# pkg_tar(
+#     name = "release",
+#     srcs = ["//:npm_package"],
+#     extension = "tgz",
+# )
+
+
+# A nodejs_binary for @bazel/typescript/tsc_wrapped to use by default in
+# ts_library that depends on @npm//@bazel/typescript instead of the
+# output of the //internal/tsc_wrapped ts_library rule. This
+# default is for downstream users that depend on the @bazel/typescript npm
+# package. A generated @npm//@bazel/typescript/bin:tsc_wrapped target
+# would not work because it does not have the node `--expose-gc` flag
+# set which is required to support the call to `global.gc()`.
+nodejs_binary(
+    name = "@bazel/typescript/tsc_wrapped",
+    data = ["@npm//@bazel/typescript"],
+    entry_point = "@bazel/typescript/internal/tsc_wrapped/tsc_wrapped.js",
+    install_source_map_support = False,
+    templated_args = ["--node_options=--expose-gc"],
+    visibility = ["//visibility:public"],
 )

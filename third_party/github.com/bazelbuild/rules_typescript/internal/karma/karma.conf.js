@@ -178,7 +178,7 @@ try
     ].map(f => {
       if (f.startsWith('NODE_MODULES/')) {
         try {
-          // attempt to resolve in @bazel/karma nested node_modules first
+          // attempt to resolve in @bazel/typescript nested node_modules first
           return require.resolve(f.replace(/^NODE_MODULES\//, '@bazel/karma/node_modules/'));
         } catch (e) {
           // if that failed then attempt to resolve in root node_modules
