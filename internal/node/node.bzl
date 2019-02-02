@@ -151,9 +151,7 @@ def _nodejs_binary_impl(ctx):
         is_executable = True,
     )
 
-    runfiles = depset(
-        transitive = [sources + [node, ctx.outputs.loader, ctx.file._repository_args] + node_modules + ctx.files._node_runfiles],
-    )
+    runfiles = depset([node, ctx.outputs.loader, ctx.file._repository_args] + node_modules + ctx.files._node_runfiles, transitive = [sources])
 
     return [DefaultInfo(
         executable = ctx.outputs.script,
