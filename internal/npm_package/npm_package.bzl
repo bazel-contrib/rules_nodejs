@@ -97,7 +97,8 @@ def _npm_package(ctx):
 
         deps_sources = depset(transitive = transitive)
 
-    package_dir = create_package(ctx, [f for f in deps_sources], ctx.files.packages)
+    # Note: to_list() should be called once per rule!
+    package_dir = create_package(ctx, deps_sources.to_list(), ctx.files.packages)
 
     return [DefaultInfo(
         files = depset([package_dir]),

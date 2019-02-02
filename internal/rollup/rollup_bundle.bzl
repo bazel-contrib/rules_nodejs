@@ -151,6 +151,9 @@ def run_rollup(ctx, sources, config, output):
     return map_output
 
 def _filter_js_inputs(all_inputs):
+
+    # Note: make sure that "all_inputs" is not a depset.
+    # Iterating over a depset is deprecated!
     return [
         f
         for f in all_inputs
@@ -184,7 +187,9 @@ def _run_rollup(ctx, sources, config, output, map_output = None):
     # These deps are identified by the NodeModuleInfo provider.
     for d in ctx.attr.deps:
         if NodeModuleInfo in d:
-            direct_inputs += _filter_js_inputs(d.files)
+
+            # Note: we can't avoid calling .to_list() on files
+            direct_inputs += _filter_js_inputs(d.files.to_list())
 
     if ctx.file.license_banner:
         direct_inputs += [ctx.file.license_banner]

@@ -23,8 +23,9 @@ def _mock_typescript_lib(ctx):
     es5_sources = depset()
     transitive_decls = depset()
     for s in ctx.attr.srcs:
-        es5_sources = depset([f for f in s.files if f.path.endswith(".js")], transitive = [es5_sources])
-        transitive_decls = depset([f for f in s.files if f.path.endswith(".d.ts")], transitive = [transitive_decls])
+        files_list = s.files.to_list()
+        es5_sources = depset([f for f in files_list if f.path.endswith(".js")], transitive = [es5_sources])
+        transitive_decls = depset([f for f in files_list if f.path.endswith(".d.ts")], transitive = [transitive_decls])
     return struct(
         runfiles = ctx.runfiles(collect_default = True, collect_data = True),
         typescript = struct(
