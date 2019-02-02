@@ -12,6 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# BEGIN-DEV-ONLY
+# Parts of this BUILD file only necessary when building within the bazelbuild/rules_typescript repo.
+# The generated `@bazel/karma` npm package contains a trimmed BUILD file using # DEV-ONLY fences.
 load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary", "npm_package")
 load("@build_bazel_rules_typescript//:version.bzl", "COMPAT_VERSION")
 load("@build_bazel_rules_typescript//internal:defaults.bzl", "ts_library")
@@ -79,6 +82,7 @@ npm_package(
     ],
     replacements = {
         "0.0.0-COMPAT_VERSION": COMPAT_VERSION,
+        "(#|\/\/)\\s+BEGIN-DEV-ONLY[\\w\W]+?(#|\/\/)\\s+END-DEV-ONLY": "",
     },
     deps = [
         ":bazel_karma",
@@ -86,4 +90,5 @@ npm_package(
     ],
 )
 
+# END-DEV-ONLY
 exports_files(["karma.conf.js"])

@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# BEGIN-DEV-ONLY
+# Parts of this BUILD file only necessary when building within the bazelbuild/rules_typescript repo.
+# The generated `@bazel/typescript` npm package contains a trimmed BUILD file using # DEV-ONLY fences.
+#
 # To update BUILD.bazel files after changing Go code, run
 # bazel run //:gazelle
 #
@@ -19,7 +23,11 @@
 # https://github.com/bazelbuild/rules_go/blob/master/go/tools/gazelle/README.rst#directives
 # gazelle:exclude node_modules
 load("@bazel_gazelle//:def.bzl", "gazelle")
+
+# END-DEV-ONLY
 load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary", "npm_package")
+
+# BEGIN-DEV-ONLY
 load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
 load("//:version.bzl", "COMPAT_VERSION")
 
@@ -76,6 +84,7 @@ npm_package(
         # from how our release is used.
         "//devserver:devserver_bin": "//devserver",
         "0.0.0-COMPAT_VERSION": COMPAT_VERSION,
+        "(#|\/\/)\\s+BEGIN-DEV-ONLY[\\w\W]+?(#|\/\/)\\s+END-DEV-ONLY": "",
     },
     deps = [
         "//devserver:devserver-darwin",
@@ -97,7 +106,7 @@ npm_package(
 #     extension = "tgz",
 # )
 
-
+# END-DEV-ONLY
 # A nodejs_binary for @bazel/typescript/tsc_wrapped to use by default in
 # ts_library that depends on @npm//@bazel/typescript instead of the
 # output of the //internal/tsc_wrapped ts_library rule. This
