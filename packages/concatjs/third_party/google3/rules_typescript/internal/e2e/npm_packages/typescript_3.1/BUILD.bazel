@@ -34,6 +34,10 @@ ts_library(
 
 jasmine_node_test(
     name = "test",
+    data = [
+        # Verify that worker_protocol.proto can be referenced as a target in the generated npm bazel workspace
+        "@build_bazel_rules_typescript//third_party/github.com/bazelbuild/bazel/src/main/protobuf:worker_protocol.proto",
+    ],
     deps = [
         ":test_lib",
         "@npm//jasmine",
