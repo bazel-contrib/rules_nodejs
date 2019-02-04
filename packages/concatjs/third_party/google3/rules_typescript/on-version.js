@@ -29,7 +29,7 @@ const shell = require('shelljs');
 const version = require('./package.json').version;
 shell.sed('-i', '\"@bazel/typescript\": \"[0-9\.]*\"', `"@bazel/typescript": "${version}"`, 'README.md');
 shell.sed('-i', '\"@bazel/karma\": \"[0-9\.]*\"', `"@bazel/karma": "${version}"`, 'README.md');
-shell.sed('-i', 'VERSION \= \"[0-9\.]*\"', `VERSION = "${version}"`, 'version.bzl');
+shell.sed('-i', '^VERSION \= \"[0-9\.]*\"', `VERSION = "${version}"`, 'version.bzl');
 shell.sed('-i', 'check_rules_typescript_version\\\(version_string \= \"[0-9\.]*\"', `check_rules_typescript_version(version_string = "${version}"`, 'WORKSPACE');
 
 // Following instructions in version.bzl, we should update the minimal compatibility version whenever
