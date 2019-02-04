@@ -18,30 +18,27 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 def rules_typescript_dependencies():
-    """
-    Fetch our transitive dependencies.
+    print("""DEPRECATION WARNING:
+    rules_typescript_dependencies is no longer needed, and will be removed in a future release.
+    We assume you will fetch rules_nodejs in your WORKSPACE file, and no other dependencies remain here.
+    Simply remove any calls to this function and the corresponding call to
+      load("@build_bazel_rules_typescript//:package.bzl", "rules_typescript_dependencies")
+    """)
 
-    If the user wants to get a different version of these, they can just fetch it
-    from their WORKSPACE before calling this function, or not call this function at all.
+def rules_typescript_dev_dependencies():
+    """
+    Fetch dependencies needed for local development.
+
+    These are in this file to keep version information in one place, and make the WORKSPACE
+    shorter.
     """
 
-    # TypeScript compiler runs on node.js runtime
     _maybe(
         http_archive,
         name = "build_bazel_rules_nodejs",
         strip_prefix = "rules_nodejs-0.16.8",
         urls = ["https://github.com/bazelbuild/rules_nodejs/archive/0.16.8.zip"],
     )
-
-def rules_typescript_dev_dependencies():
-    """
-    Fetch dependencies needed for local development, but not needed by users.
-
-    These are in this file to keep version information in one place, and make the WORKSPACE
-    shorter.
-    """
-
-    rules_typescript_dependencies()
 
     # For running skylint
     _maybe(

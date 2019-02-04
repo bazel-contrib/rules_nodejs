@@ -139,7 +139,6 @@ filegroup(
         "ts_repositories.bzl",
         "tsc_wrapped/package.json",
         "tsc_wrapped/yarn.lock",
-        ":generated_BUILD",
         "//internal/devserver:npm_package_assets",
         "//internal/protobufjs:npm_package_assets",
     ],
