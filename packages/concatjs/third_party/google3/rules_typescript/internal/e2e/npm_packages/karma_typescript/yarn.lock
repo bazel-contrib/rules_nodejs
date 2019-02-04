@@ -2,8 +2,8 @@
 # yarn lockfile v1
 
 
-"@bazel/karma@file:../../../../../../../../../private/var/tmp/_bazel_greg/2c1df01758b58adaef1f5cb29a065852/execroot/build_bazel_rules_typescript/bazel-out/darwin-fastbuild/bin/internal/karma/npm_package":
-  version "0.22.1-19-gecef600"
+"@bazel/karma@file:../../../../../../../../../private/var/tmp/_bazel_greg/8018d2bc8e133e0b44c274b6423215ba/execroot/build_bazel_rules_karma/bazel-out/darwin-fastbuild/bin/npm_package":
+  version "0.0.0"
   dependencies:
     jasmine-core "2.8.0"
     karma "^4.0.0"
@@ -17,9 +17,10 @@
     semver "5.6.0"
     tmp "0.0.33"
 
-"@bazel/typescript@file:../../../../../../../../../private/var/tmp/_bazel_greg/2c1df01758b58adaef1f5cb29a065852/execroot/build_bazel_rules_typescript/bazel-out/darwin-fastbuild/bin/internal/npm_package":
-  version "0.22.1-18-g169a278"
+"@bazel/typescript@file:../../../../../../../../../private/var/tmp/_bazel_greg/837d12dda6835e241d9d3083438c6bb6/execroot/build_bazel_rules_typescript/bazel-out/darwin-fastbuild/bin/npm_package":
+  version "0.22.1-41-gc1f5737"
   dependencies:
+    jasmine-core "2.8.0"
     protobufjs "5.0.3"
     semver "5.6.0"
     source-map-support "0.5.9"

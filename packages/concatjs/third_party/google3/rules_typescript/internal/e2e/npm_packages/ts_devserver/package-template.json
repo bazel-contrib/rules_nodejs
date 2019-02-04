@@ -1,0 +1,15 @@
+{
+  "dependencies": {
+    "@bazel/typescript": "file:${BAZEL_TYPESCRIPT_NPM_PACKAGE}",
+    "@types/jasmine": "2.8.2",
+    "@types/node": "7.0.18",
+    "concurrently": "^3.5.1",
+    "jasmine": "2.8.0",
+    "protractor": "^5.2.0",
+    "typescript": "2.7.x"
+  },
+  "scripts": {
+    "pretest": "webdriver-manager update $CHROMEDRIVER_VERSION_ARG",
+    "test": "bazel build ... && concurrently \"bazel run //:devserver\" \"while ! nc -z 127.0.0.1 8080; do sleep 1; done && protractor\" --kill-others --success first"
+  }
+}
