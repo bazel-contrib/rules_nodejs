@@ -80,11 +80,11 @@ npm_package(
         "//ts_auto_deps:npm_package_assets",
     ],
     replacements = {
+        "(#|\/\/)\\s+BEGIN-DEV-ONLY[\\w\W]+?(#|\/\/)\\s+END-DEV-ONLY": "",
         # Do a simple replacement needed to make the local development differ
         # from how our release is used.
         "//devserver:devserver_bin": "//devserver",
         "0.0.0-COMPAT_VERSION": COMPAT_VERSION,
-        "(#|\/\/)\\s+BEGIN-DEV-ONLY[\\w\W]+?(#|\/\/)\\s+END-DEV-ONLY": "",
     },
     deps = [
         "//devserver:devserver-darwin",
