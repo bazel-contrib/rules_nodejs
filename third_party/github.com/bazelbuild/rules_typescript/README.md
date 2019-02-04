@@ -72,10 +72,6 @@ yarn_install(
 load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
 install_bazel_dependencies()
 
-# Fetch transitive Bazel dependencies of build_bazel_rules_typescript
-load("@build_bazel_rules_typescript//:package.bzl", "rules_typescript_dependencies")
-rules_typescript_dependencies()
-
 # Fetch transitive Bazel dependencies of build_bazel_rules_karma
 # ONLY REQUIRED if you are using the @bazel/karma npm package
 load("@build_bazel_rules_karma//:package.bzl", "rules_karma_dependencies")

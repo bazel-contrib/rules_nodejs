@@ -12,30 +12,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-workspace(name = "package_typescript_27_e2e")
+workspace(name = "npm_packages_typescript_27_e2e")
 
-local_repository(
-    name = "build_bazel_rules_typescript",
-    path = "../../..",
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+    name = "build_bazel_rules_nodejs",
+    strip_prefix = "rules_nodejs-0.16.8",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/archive/0.16.8.zip"],
 )
-
-load("@build_bazel_rules_typescript//:package.bzl", "rules_typescript_dependencies")
-
-rules_typescript_dependencies()
-
-load("@build_bazel_rules_nodejs//:package.bzl", "rules_nodejs_dependencies")
-
-rules_nodejs_dependencies()
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "yarn_install")
 
-node_repositories(preserve_symlinks = True)
+node_repositories()
 
 yarn_install(
     name = "npm",
     package_json = "//:package.json",
     yarn_lock = "//:yarn.lock",
 )
+
+load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
+
+install_bazel_dependencies()
 
 load("@build_bazel_rules_typescript//:defs.bzl", "ts_setup_workspace")
 

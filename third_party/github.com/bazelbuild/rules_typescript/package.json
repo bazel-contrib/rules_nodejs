@@ -33,7 +33,7 @@
         "clang-format": "1.0.49",
         "concurrently": "^3.5.1",
         "http-server": "^0.11.1",
-        "karma": "alexeagle/karma#fa1a84ac881485b5657cb669e9b4e5da77b79f0a",
+        "karma": "^4.0.0",
         "karma-chrome-launcher": "2.2.0",
         "karma-firefox-launcher": "1.1.0",
         "karma-jasmine": "1.1.1",
@@ -70,6 +70,6 @@
         "bazel:format": "find . -type f \\( -name \"*.bzl\" -or -name WORKSPACE -or -name BUILD -or -name BUILD.bazel \\) ! -path \"*/node_modules/*\" | xargs buildifier -v --warnings=args-order,attr-cfg,attr-license,attr-non-empty,attr-output-default,attr-single-file,constant-glob,ctx-actions,ctx-args,depset-iteration,depset-union,dict-concatenation,duplicated-name,filetype,git-repository,http-archive,integer-division,load,load-on-top,native-build,native-package,out-of-order-load,output-group,package-name,package-on-top,positional-args,redefined-variable,repository-name,same-origin-load,string-iteration,unsorted-dict-items,unused-variable",
         "bazel:lint": "yarn bazel:format --lint=warn",
         "bazel:lint-fix": "yarn bazel:format --lint=fix",
-        "version": "node ./on-version.js && git stage README.md"
+        "version": "node ./on-version.js && git stage README.md version.bzl WORKSPACE"
     }
 }
