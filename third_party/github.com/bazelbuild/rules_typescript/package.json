@@ -3,7 +3,7 @@
     "description": "TypeScript rules for Bazel",
     "homepage": "https://github.com/bazelbuild/rules_typescript",
     "license": "Apache-2.0",
-    "version": "0.23.1",
+    "version": "0.23.2",
     "keywords": [
         "typescript",
         "bazel"
