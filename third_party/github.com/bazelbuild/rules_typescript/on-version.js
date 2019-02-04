@@ -27,7 +27,13 @@
 // in package.bzl to match that of package.json.
 const shell = require('shelljs');
 const version = require('./package.json').version;
-shell.sed('-i', 'VERSION \= \"[0-9\.]*\"', `VERSION = "${version}"`, 'package.bzl')
-shell.sed('-i', '\"@bazel/typescript\": \"[0-9\.]*\"', `"@bazel/typescript": "${version}"`, 'README.md')
-shell.sed('-i', 'https://github.com/bazelbuild/rules_typescript/archive/[0-9\.]*\.zip', `https://github.com/bazelbuild/rules_typescript/archive/${version}.zip`, 'README.md')
-shell.sed('-i', 'strip_prefix \= \"rules_typescript-[0-9\.]*\"', `strip_prefix = "rules_typescript-${version}"`, 'README.md')
+shell.sed('-i', '\"@bazel/typescript\": \"[0-9\.]*\"', `"@bazel/typescript": "${version}"`, 'README.md');
+shell.sed('-i', '\"@bazel/karma\": \"[0-9\.]*\"', `"@bazel/karma": "${version}"`, 'README.md');
+shell.sed('-i', 'VERSION \= \"[0-9\.]*\"', `VERSION = "${version}"`, 'version.bzl');
+shell.sed('-i', 'check_rules_typescript_version\\\(version_string \= \"[0-9\.]*\"', `check_rules_typescript_version(version_string = "${version}"`, 'WORKSPACE');
+
+// Following instructions in version.bzl, we should update the minimal compatibility version whenever
+// we have new features or breaking changes. So we assume that a patch number of 0 implies this.
+if (version.endsWith('.0')) {
+    shell.sed('-i', 'COMPAT_VERSION \= \"[0-9\.]*\"', `COMPAT_VERSION = "${version}"`, 'version.bzl')
+}

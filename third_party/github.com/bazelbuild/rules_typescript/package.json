@@ -3,15 +3,15 @@
     "description": "TypeScript rules for Bazel",
     "homepage": "https://github.com/bazelbuild/rules_typescript",
     "license": "Apache-2.0",
-    "version": "0.0.0-PLACEHOLDER",
+    "version": "0.22.1",
     "keywords": [
-      "typescript",
-      "bazel"
+        "typescript",
+        "bazel"
     ],
     "main": "./internal/tsc_wrapped/index.js",
     "typings": "./internal/tsc_wrapped/index.d.ts",
     "bin": {
-      "ts_auto_deps": "./ts_auto_deps/ts_auto_deps.js"
+        "ts_auto_deps": "./ts_auto_deps/ts_auto_deps.js"
     },
     "dependencies": {
         "protobufjs": "5.0.3",
@@ -69,6 +69,7 @@
         "skydoc": "bazel build //docs && unzip -o -d docs/api bazel-bin/docs/docs-skydoc.zip",
         "bazel:format": "find . -type f \\( -name \"*.bzl\" -or -name WORKSPACE -or -name BUILD -or -name BUILD.bazel \\) ! -path \"*/node_modules/*\" | xargs buildifier -v --warnings=args-order,attr-cfg,attr-license,attr-non-empty,attr-output-default,attr-single-file,constant-glob,ctx-actions,ctx-args,depset-iteration,depset-union,dict-concatenation,duplicated-name,filetype,git-repository,http-archive,integer-division,load,load-on-top,native-build,native-package,out-of-order-load,output-group,package-name,package-on-top,positional-args,redefined-variable,repository-name,same-origin-load,string-iteration,unsorted-dict-items,unused-variable",
         "bazel:lint": "yarn bazel:format --lint=warn",
-        "bazel:lint-fix": "yarn bazel:format --lint=fix"
+        "bazel:lint-fix": "yarn bazel:format --lint=fix",
+        "version": "node ./on-version.js && git stage README.md"
     }
 }
