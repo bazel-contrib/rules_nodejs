@@ -129,7 +129,6 @@ genrule(
 filegroup(
     name = "npm_package_assets",
     srcs = [
-        ":generated_BUILD",
         "build_defs.bzl",
         "common/compilation.bzl",
         "common/json_marshal.bzl",
@@ -140,6 +139,7 @@ filegroup(
         "ts_repositories.bzl",
         "tsc_wrapped/package.json",
         "tsc_wrapped/yarn.lock",
+        ":generated_BUILD",
         "//internal/devserver:npm_package_assets",
         "//internal/protobufjs:npm_package_assets",
     ],

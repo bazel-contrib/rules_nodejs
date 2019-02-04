@@ -1,0 +1,1 @@
+build --workspace_status_command=../../tools/bazel_stamp_vars.sh
