@@ -81,8 +81,8 @@ npm_package(
         "web_test.bzl",
     ],
     replacements = {
-        "0.0.0-COMPAT_VERSION": COMPAT_VERSION,
         "(#|\/\/)\\s+BEGIN-DEV-ONLY[\\w\W]+?(#|\/\/)\\s+END-DEV-ONLY": "",
+        "0.0.0-COMPAT_VERSION": COMPAT_VERSION,
     },
     deps = [
         ":bazel_karma",
