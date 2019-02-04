@@ -1,0 +1,21 @@
+<!doctype html>
+
+<!--
+   This HTML file is an example of how you can write and serve your own
+   index page. It's not required for ts_devserver - if no index.html file is
+   found to serve, a simple one will be generated.
+-->
+<html>
+  <head>
+    <title>ts_devserver example</title>
+  </head>
+  <body>
+    <!--
+      For development mode, this script will be bundled on-the-fly by
+      the devserver, based on the latest JS files built by Bazel.
+      For production, you should be able to use the same index.html file, but
+      this JS resource would be served from a static file.
+    -->
+    <script src="/bundle.min.js"></script>
+  </body>
+</html>
