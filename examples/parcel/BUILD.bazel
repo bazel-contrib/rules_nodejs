@@ -1,0 +1,18 @@
+load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
+load(":parcel.bzl", "parcel")
+
+parcel(
+    name = "bundle",
+    srcs = [
+        "bar.js",
+        "foo.js",
+    ],
+    entry_point = "foo.js",
+)
+
+jasmine_node_test(
+    name = "test",
+    srcs = glob(["*.spec.js"]),
+    data = ["@npm//jasmine"],
+    deps = [":bundle"],
+)

@@ -45,8 +45,4 @@ platforms:
     - "--define=some_env=some_value"
   rbe_ubuntu1604:
     build_targets:
-    - "--"
     - "//..."
-    - "-//examples/rollup:bundle"
-    - "-//examples/rollup:test"
-    - "-//examples/rollup:test_devmode_srcs"

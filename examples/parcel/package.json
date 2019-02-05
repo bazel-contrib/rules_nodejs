@@ -1,0 +1,10 @@
+{
+    "private": true,
+    "devDependencies": {
+        "jasmine": "^3.3.1",
+        "parcel-bundler": "^1.11.0"
+    },
+    "scripts": {
+        "test": "bazel run @npm//parcel-bundler/bin:parcel -- --help && bazel test //..."
+    }
+}

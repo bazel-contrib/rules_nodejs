@@ -14,35 +14,46 @@
 
 """Example rollup rule
 
-This is not a full-featured Rollup bazel rule, just enough to test the
-other rules in this repo.
+This is not a full-featured Parcel bazel rule, just enough to demonstrate how to write one.
 """
 
-def _rollup(ctx):
-    args = ["--input", ctx.attr.entry_point]
-    args += ["--output.file", ctx.outputs.bundle.path]
-    args += ["--output.format", "es"]
+def _parcel_impl(ctx):
+    """The "implementation function" for our rule.
+
+    It starts with underscore, which means this function is private to this file.
+
+    Args:
+      ctx: Bazel's starlark execution context
+    """
+
+    # Options documented at https://parceljs.org/cli.html
+    args = ["build", ctx.attr.entry_point]
+    args += ["--out-dir", ctx.outputs.bundle.dirname]
+    args += ["--out-file", ctx.outputs.bundle.basename]
 
     ctx.actions.run(
         inputs = ctx.files.srcs,
-        executable = ctx.executable.rollup,
-        outputs = [ctx.outputs.bundle],
+        executable = ctx.executable.parcel,
+        outputs = [ctx.outputs.bundle, ctx.outputs.sourcemap],
         arguments = args,
+        progress_message = "Running Parcel to produce %s" % ctx.outputs.bundle.path,
     )
     return [DefaultInfo()]
 
-rollup = rule(
-    implementation = _rollup,
+parcel = rule(
+    implementation = _parcel_impl,
     attrs = {
         "srcs": attr.label_list(allow_files = True),
         "entry_point": attr.string(mandatory = True),
-        "rollup": attr.label(
-            default = Label("//examples/rollup"),
+        "parcel": attr.label(
+            # This default assumes that users name their install "npm"
+            default = Label("@npm//parcel-bundler/bin:parcel"),
             executable = True,
             cfg = "host",
         ),
     },
     outputs = {
         "bundle": "%{name}.js",
+        "sourcemap": "%{name}.map",
     },
 )
