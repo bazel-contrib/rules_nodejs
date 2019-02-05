@@ -2,7 +2,7 @@ workspace(name = "packages_example")
 
 local_repository(
     name = "build_bazel_rules_nodejs",
-    path = "../..",
+    path = "../../..",
 )
 
 load("@build_bazel_rules_nodejs//:package.bzl", "check_rules_nodejs_version")
