@@ -10,7 +10,7 @@
 ## IMPORTANT
 # If you change the `docker_image` version, also change the `cache_key` version
 var_1: &docker_image angular/ngcontainer:0.9.0
-var_2: &cache_key angular/ngcontainer:0.9.0-{{ .Branch }}-{{ checksum "yarn.lock" }}-examples/rollup:{{ checksum "examples/rollup/yarn.lock" }}-examples/program:{{ checksum "examples/program/yarn.lock" }}-internal/test:{{ checksum "internal/test/yarn.lock" }}-internal/e2e/node_loader_no_preserve_symlinks:{{ checksum "internal/e2e/node_loader_no_preserve_symlinks/yarn.lock" }}-internal/e2e/node_loader_preserve_symlinks:{{ checksum "internal/e2e/node_loader_preserve_symlinks/yarn.lock" }}
+var_2: &cache_key angular/ngcontainer:0.9.0-{{ .Branch }}-{{ checksum "yarn.lock" }}-examples/program:{{ checksum "examples/program/yarn.lock" }}-internal/test:{{ checksum "internal/test/yarn.lock" }}-internal/e2e/node_loader_no_preserve_symlinks:{{ checksum "internal/e2e/node_loader_no_preserve_symlinks/yarn.lock" }}-internal/e2e/node_loader_preserve_symlinks:{{ checksum "internal/e2e/node_loader_preserve_symlinks/yarn.lock" }}
 
 # Move node binaries out of the way to enforce that Bazel uses
 # only the hermetic ones it downloads
@@ -92,8 +92,6 @@ jobs:
       - run: bazel run @nodejs//:yarn
       - run: bazel build ...
       - run: bazel test ...
-      # TODO(alexeagle): move this into the example proper
-      - run: bazel run examples/rollup -- --help
 
       # These targets should run
       - run: bazel run //internal/node/test:no_deps
@@ -107,7 +105,6 @@ jobs:
           key: *cache_key
           paths:
             - "node_modules"
-            - "examples/rollup/node_modules"
             - "examples/program/node_modules"
             - "internal/e2e/node_loader_no_preserve_symlinks/node_modules"
             - "internal/e2e/node_loader_preserve_symlinks/node_modules"

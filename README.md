@@ -426,9 +426,10 @@ and run it with
 $ bazel run :rollup -- --help
 ```
 
-See the `examples/rollup` directory in this repository.
-
 [rollup]: https://www.npmjs.com/package/rollup
+
+You can also wrap an npm program with a Bazel rule, making it easy to integrate with a Bazel build.
+See the `examples/parcel` example.
 
 ### Running a program from local sources
 

@@ -50,7 +50,6 @@ load("//:defs.bzl", "node_repositories", "npm_install", "yarn_install")
 node_repositories(
     package_json = [
         "//:package.json",
-        "//examples/rollup:package.json",
         "@program_example//:package.json",
         "//internal/test:package.json",
         "//internal/npm_install/test:package.json",

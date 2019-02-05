@@ -1,5 +1,6 @@
 node_modules
 examples/bazel_managed_deps
+examples/parcel
 examples/program
 examples/vendored_node
 internal/e2e/bazel_workspaces
