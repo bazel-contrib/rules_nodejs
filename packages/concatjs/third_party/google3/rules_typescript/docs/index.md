@@ -41,3 +41,11 @@ $ bazel build :all
 mycode.ts(2,1): error TS21222: return value is unused.
   See http://tsetse.info/check-return-value
 ```
+
+## Rules
+
+* [Ban expect truthy promise](./ban-expect-truthy-promise)
+* [Ban promise as condition](./ban-promise-as-condition)
+* [Check return value](./check-return-value)
+* [Equals NaN](./equals-nan)
+* [Must use promises](./must-use-promises)
