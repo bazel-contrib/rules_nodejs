@@ -1,10 +1,10 @@
 node_modules
 examples/bazel_managed_deps
 examples/program
-examples/packages
 examples/vendored_node
 internal/e2e/bazel_workspaces
 internal/e2e/bazel_workspaces_compat
 internal/e2e/fine_grained_symlinks
 internal/e2e/node_loader_no_preserve_symlinks
 internal/e2e/node_loader_preserve_symlinks
+internal/e2e/packages

@@ -34,7 +34,7 @@ local_repository(
 
 local_repository(
     name = "packages_example",
-    path = "examples/packages",
+    path = "internal/e2e/packages",
 )
 
 load("//:defs.bzl", "node_repositories", "npm_install", "yarn_install")
