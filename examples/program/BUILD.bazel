@@ -1,8 +1,13 @@
-load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
+load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test", "nodejs_binary")
 load("@build_bazel_rules_nodejs//:internal/common/typescript_mock_lib.bzl", "mock_typescript_lib")
 
 # Make the jasmine library available at runtime by exposing our node_modules
 # directory.
+# This is "user-managed" dependencies - Bazel knows nothing about our package manager.
+# We assume that developers will install the `node_modules` directory themselves and
+# keep it up-to-date.
+# This rule simply exposes files in the node_modules directory to Bazel so it can read
+# them as inputs to processes it spawns.
 filegroup(
     name = "node_modules",
     srcs = glob([
@@ -23,6 +28,17 @@ mock_typescript_lib(
 filegroup(
     name = "program",
     srcs = ["index.js"],
+)
+
+nodejs_binary(
+    name = "example",
+    # Every execution of the program gets these arguments added
+    args = ["--node_options=--expose-gc"],
+    data = [
+        "index.js",
+        ":node_modules",
+    ],
+    entry_point = "program_example/index.js",
 )
 
 jasmine_node_test(
