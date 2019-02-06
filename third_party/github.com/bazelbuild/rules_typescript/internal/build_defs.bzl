@@ -341,6 +341,9 @@ ts_library = rule(
             """,
             default = Label("@npm//typescript:typescript__typings"),
         ),
+        "compile_angular_templates": attr.bool(
+            doc = """Run the Angular ngtsc compiler under ts_library""",
+        ),
         "supports_workers": attr.bool(
             doc = """Intended for internal use only.
             Allows you to disable the Bazel Worker strategy for this library.

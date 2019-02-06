@@ -156,11 +156,17 @@ export interface BazelOptions {
    * compilation unit.
    */
   hasImplementation?: boolean;
+
+  /**
+   * Enable the Angular ngtsc plugin.
+   */
+  compileAngularTemplates?: boolean;
 }
 
 export interface ParsedTsConfig {
   options: ts.CompilerOptions;
   bazelOpts: BazelOptions;
+  angularCompilerOptions?: {[k: string]: unknown};
   files: string[];
   disabledTsetseRules: string[];
   config: {};
