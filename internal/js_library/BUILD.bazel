@@ -1,1 +1,5 @@
-# Marker that this directory is a bazel package
+filegroup(
+    name = "package_contents",
+    srcs = glob(["*"]),
+    visibility = ["//:__pkg__"],
+)
