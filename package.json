@@ -35,6 +35,8 @@
         "format-all": "clang-format --glob='{internal/**/,examples/**/}*.{js,ts}' -i",
         "precommit": "check-clang-format \"yarn format\"",
         "skydoc": "bazel build --symlink_prefix=bazel- //docs && unzip -o -d docs bazel-bin/docs/docs-skydoc.zip",
-        "version": "bazel build //:release && node ./on-version.js && git stage package.bzl README.md"
+        "//TODO release_tgz": "should use bazel build //:release when https://github.com/bazelbuild/bazel/issues/7369 fixed",
+        "release_tgz": "bazel build //:rules_nodejs_package && (d=$PWD && cd bazel-bin/rules_nodejs_package && tar -czf $d/bazel-bin/release.tar.gz *)",
+        "version": "yarn release_tgz && node ./on-version.js && git stage package.bzl README.md"
     }
 }

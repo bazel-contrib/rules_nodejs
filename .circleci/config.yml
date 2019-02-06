@@ -131,7 +131,7 @@ jobs:
   # This job cannot run on BuildKite (BazelCI) because it requires changing
   # directories to test inside nested workspaces.
   # See https://github.com/bazelbuild/continuous-integration/issues/225
-  test:
+  test_e2e:
     <<: *job_defaults
     steps:
       - checkout:
@@ -162,6 +162,6 @@ workflows:
     jobs:
       - lint
       - build
-      - test
+      - test_e2e
       - test_examples
       - test_legacy_runfiles

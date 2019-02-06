@@ -17,3 +17,11 @@ js_library(
     module_root = "src/index",
     #     deps = ["@npm//@types/node"],
 )
+
+filegroup(
+    name = "package_contents",
+    srcs = [
+        "LICENSE",
+        ":isBinaryFile",
+    ],
+)
