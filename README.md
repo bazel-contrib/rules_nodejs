@@ -28,8 +28,8 @@ containing:
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 http_archive(
     name = "build_bazel_rules_nodejs",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.17.0/rules_nodejs-0.17.0.tar.gz"],
-    sha256 = "f2c7c6dd68e09b165f3f3b12f1155c0aa3e03421eaf122c8c95c829d98be0f2e",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.18.0/rules_nodejs-0.18.0.tar.gz"],
+    sha256 = "e6cebc447ad698b113ebaa4db1125542601fbb6932934794d7ea3bd5596f2253",
 )
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
