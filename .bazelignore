@@ -1,8 +1,6 @@
 node_modules
-examples/bazel_managed_deps
-examples/parcel
-examples/program
-examples/vendored_node
+# Examples are tested by running examples/test_example.sh outside of Bazel
+examples/
 internal/e2e/bazel_workspaces
 internal/e2e/bazel_workspaces_compat
 internal/e2e/fine_grained_symlinks
