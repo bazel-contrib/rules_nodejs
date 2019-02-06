@@ -18,3 +18,12 @@ exports_files([
     # Exported to be consumed for generating skydoc.
     "http_server.bzl",
 ])
+
+filegroup(
+    name = "package_contents",
+    srcs = [
+        "BUILD.bazel",
+        "http_server.bzl",
+    ],
+    visibility = ["//:__pkg__"],
+)

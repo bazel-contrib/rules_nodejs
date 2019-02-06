@@ -19,3 +19,9 @@ exports_files([
     # Exported to be consumed for generating skydoc.
     "jasmine_node_test.bzl",
 ])
+
+filegroup(
+    name = "package_contents",
+    srcs = glob(["*"]),
+    visibility = ["//:__pkg__"],
+)

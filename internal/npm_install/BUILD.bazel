@@ -6,3 +6,9 @@ filegroup(
     srcs = ["generate_build_file.js"],
     visibility = ["//internal:__subpackages__"],
 )
+
+filegroup(
+    name = "package_contents",
+    srcs = glob(["*"]),
+    visibility = ["//:__pkg__"],
+)

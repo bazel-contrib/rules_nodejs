@@ -15,3 +15,9 @@ nodejs_binary(
     node_modules = "@build_bazel_rules_nodejs_npm_install_deps//:node_modules",
     visibility = ["//visibility:public"],
 )
+
+filegroup(
+    name = "package_contents",
+    srcs = glob(["*"]),
+    visibility = ["//:__pkg__"],
+)
