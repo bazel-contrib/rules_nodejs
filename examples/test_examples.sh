@@ -7,7 +7,7 @@ set -u -e -o pipefail
 cd $(dirname $0)
 
 # Make sure the distro is up-to-date and can be referenced at bazel-bin/rules_nodejs_package
-bazel build --symlink_prefix=bazel- //:rules_nodejs_package
+bazel build --symlink_prefix=bazel- //:local_testing_package
 
 for testDir in $(ls) ; do
   [[ -d "$testDir" ]] || continue

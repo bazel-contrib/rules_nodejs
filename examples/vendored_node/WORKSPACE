@@ -5,7 +5,7 @@ workspace(name = "vendored_node_example")
 # repository with the rules_nodejs code and we want to test them together.
 local_repository(
     name = "build_bazel_rules_nodejs",
-    path = "../../bazel-bin/rules_nodejs_package",
+    path = "../../bazel-bin/local_testing_package",
 )
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "npm_install", "yarn_install")
