@@ -84,14 +84,6 @@ def rules_nodejs_dev_dependencies():
         sha256 = "282ab93ea7477ad703b3e8108a274c21344c3b59ee4e5b1e6a89cdbe3ecbe68f",
     )
 
-    # rules_typescript depends on rules_nodejs, so this is cyclical.
-    # We use typescript code to author in this repository, but the typescript dependency isn't exposed to users.
-    http_archive(
-        name = "build_bazel_rules_typescript",
-        url = "https://github.com/bazelbuild/rules_typescript/archive/0.22.1.zip",
-        strip_prefix = "rules_typescript-0.22.1",
-    )
-
     # Fetching the Bazel source code allows us to compile the Skylark linter
     http_archive(
         name = "io_bazel",

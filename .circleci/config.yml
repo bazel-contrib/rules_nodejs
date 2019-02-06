@@ -140,7 +140,21 @@ jobs:
 
       # Not using "bazel run @nodejs//:yarn test" as will attempt to run
       # the "test" script on all folder listed in node_repositories()
-      - run: yarn test
+      - run: yarn test:e2e
+
+  # This job cannot run on BuildKite (BazelCI) because it requires changing
+  # directories to test inside nested workspaces.
+  # See https://github.com/bazelbuild/continuous-integration/issues/225
+  test-examples:
+    <<: *job_defaults
+    steps:
+      - checkout:
+          <<: *post_checkout
+      - *setup_bazelrc
+
+      # Not using "bazel run @nodejs//:yarn test" as will attempt to run
+      # the "test" script on all folder listed in node_repositories()
+      - run: yarn test:examples
 
 workflows:
   version: 2

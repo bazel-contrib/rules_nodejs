@@ -338,8 +338,7 @@ filegroup(
 )
 ```
 
-We recommend using the version of the package management tools installed by
-Bazel to ensure everything is compatible.
+The example in `examples/program` uses self-managed dependencies.
 
 To use the Yarn package manager, which we recommend for its built-in
 verification command, you can run:
