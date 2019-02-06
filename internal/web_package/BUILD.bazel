@@ -46,3 +46,11 @@ jasmine_node_test(
         "assembler.js",
     ],
 )
+
+filegroup(
+    name = "package_contents",
+    srcs = glob(
+        ["*"],
+        exclude = ["*_spec.js"],
+    ),
+)

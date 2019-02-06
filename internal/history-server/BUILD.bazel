@@ -21,9 +21,6 @@ exports_files([
 
 filegroup(
     name = "package_contents",
-    srcs = [
-        "BUILD.bazel",
-        "history_server.bzl",
-    ],
+    srcs = glob(["*"]),
     visibility = ["//:__pkg__"],
 )

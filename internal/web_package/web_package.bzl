@@ -42,7 +42,7 @@ def _web_package(ctx):
     html = ctx.actions.declare_file("_%s/%s" % (ctx.label.name, ctx.file.index_html.path))
 
     # Move that index file back into place inside the package
-    root_paths.append("/".join([ctx.bin_dir.path, ctx.label.package, "_" + ctx.label.name, ctx.label.package]))
+    root_paths.append("/".join([p for p in [ctx.bin_dir.path, ctx.label.package, "_" + ctx.label.name, ctx.label.package] if p]))
     populated_index = html_asset_inject(
         ctx.file.index_html,
         ctx.actions,
