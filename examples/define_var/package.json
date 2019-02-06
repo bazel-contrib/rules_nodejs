@@ -1,0 +1,9 @@
+{
+    "private": true,
+    "devDependencies": {
+        "jasmine": "^3.2.0"
+    },    
+    "scripts": {
+        "test": "bazel test :define_var --define=some_env=some_value"
+    }
+}
