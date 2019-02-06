@@ -64,7 +64,7 @@ function main(params) {
         copy(path.join(f, file));
       }
     } else {
-      const content = fs.readFileSync(f, {encoding: 'utf-8'});
+      const content = fs.readFileSync(f);
       write(path.join(outdir, relative(f)), content);
     }
   }

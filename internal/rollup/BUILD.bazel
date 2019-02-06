@@ -92,11 +92,8 @@ jasmine_node_test(
 filegroup(
     name = "package_contents",
     srcs = glob(
-        [
-            "*.js",
-            "*.bzl",
-        ],
+        ["*"],
         exclude = ["*.spec.js"],
-    ) + ["BUILD.bazel"],
+    ),
     visibility = ["//:__pkg__"],
 )

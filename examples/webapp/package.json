@@ -1,0 +1,7 @@
+{
+    "private": true,
+    "devDependencies": {},
+    "scripts": {
+        "test": "bazel build :all"
+    }
+}
