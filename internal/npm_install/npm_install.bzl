@@ -148,6 +148,8 @@ cd "{root}" && "{npm}" {npm_args}
     if result.return_code:
         fail("npm_install failed: %s (%s)" % (result.stdout, result.stderr))
 
+    _symlink_node_modules(repository_ctx)
+
     remove_npm_absolute_paths = Label("@build_bazel_rules_nodejs_npm_install_deps//:node_modules/removeNPMAbsolutePaths/bin/removeNPMAbsolutePaths")
 
     # removeNPMAbsolutePaths is run on node_modules after npm install as the package.json files
@@ -160,7 +162,6 @@ cd "{root}" && "{npm}" {npm_args}
     if result.return_code:
         fail("remove_npm_absolute_paths failed: %s (%s)" % (result.stdout, result.stderr))
 
-    _symlink_node_modules(repository_ctx)
     _create_build_file(repository_ctx, node)
 
 npm_install = repository_rule(
