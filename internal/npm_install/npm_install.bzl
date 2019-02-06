@@ -91,9 +91,7 @@ def _add_scripts(repository_ctx):
 
 def _symlink_node_modules(repository_ctx):
     package_json_dir = repository_ctx.path(repository_ctx.attr.package_json).dirname
-    node_modules_root = repository_ctx.path(str(package_json_dir) + "/node_modules")
-    for path in node_modules_root.readdir():
-        repository_ctx.symlink(path, repository_ctx.path("node_modules/{name}".format(name = path.basename)))
+    repository_ctx.symlink(repository_ctx.path(str(package_json_dir) + "/node_modules"), repository_ctx.path("node_modules"))
 
 def _npm_install_impl(repository_ctx):
     """Core implementation of npm_install."""
@@ -148,8 +146,6 @@ cd "{root}" && "{npm}" {npm_args}
     if result.return_code:
         fail("npm_install failed: %s (%s)" % (result.stdout, result.stderr))
 
-    _symlink_node_modules(repository_ctx)
-
     remove_npm_absolute_paths = Label("@build_bazel_rules_nodejs_npm_install_deps//:node_modules/removeNPMAbsolutePaths/bin/removeNPMAbsolutePaths")
 
     # removeNPMAbsolutePaths is run on node_modules after npm install as the package.json files
@@ -162,6 +158,7 @@ cd "{root}" && "{npm}" {npm_args}
     if result.return_code:
         fail("remove_npm_absolute_paths failed: %s (%s)" % (result.stdout, result.stderr))
 
+    _symlink_node_modules(repository_ctx)
     _create_build_file(repository_ctx, node)
 
 npm_install = repository_rule(
