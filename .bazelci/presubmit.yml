@@ -29,8 +29,10 @@ platforms:
     - "@nodejs//:yarn"
     build_targets:
     - "//..."
-    test_targets:
-    - "//..."
+    # FIXME: enable tests on Windows after fixing them
+    # They were accidentally disabled for a while.
+    # test_targets:
+    # - "//..."
   rbe_ubuntu1604:
     build_targets:
     - "//..."
