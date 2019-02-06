@@ -1,3 +1,4 @@
+load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
 load("@build_bazel_rules_nodejs//:defs.bzl", "npm_package")
 
 package(default_visibility = ["//visibility:public"])
@@ -48,4 +49,13 @@ npm_package(
         "//internal/npm_package:package_contents",
         "//internal/web_package:package_contents",
     ],
+)
+
+# This artifact is published to GitHub along with each release
+pkg_tar(
+    name = "release",
+    srcs = [":rules_nodejs_package"],
+    extension = "tar.gz",
+    strip_prefix = "./rules_nodejs_package",
+    tags = ["manual"],
 )

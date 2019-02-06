@@ -25,10 +25,11 @@ Next, create a `WORKSPACE` file in your project root (or edit the existing one)
 containing:
 
 ```python
-git_repository(
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+http_archive(
     name = "build_bazel_rules_nodejs",
-    remote = "https://github.com/bazelbuild/rules_nodejs.git",
-    tag = "0.16.8",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.16.8/rules_nodejs-0.16.8.tar.gz"],
+    sha256 = "123",
 )
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")

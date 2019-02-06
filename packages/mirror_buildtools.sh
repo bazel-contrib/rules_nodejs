@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -x
+set -x -eu -o pipefail
 
 # Don't accidentally publish extra files, such as previous binaries
 git clean -fx

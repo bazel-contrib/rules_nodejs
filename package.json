@@ -9,7 +9,8 @@
     "homepage": "https://github.com/bazelbuild/rules_nodejs",
     "license": "Apache-2.0",
     "devDependencies": {
-        "@bazel/bazel": "^0.21.0",
+        "//": "need release candidate of Bazel to pick up https://github.com/bazelbuild/bazel/pull/6980",
+        "@bazel/bazel": "^0.23.0-rc1b",
         "@bazel/buildifier": "^0.20.0",
         "@bazel/typescript": "0.23.2",
         "clang-format": "1.2.2",
@@ -34,6 +35,6 @@
         "format-all": "clang-format --glob='{internal/**/,examples/**/}*.{js,ts}' -i",
         "precommit": "check-clang-format \"yarn format\"",
         "skydoc": "bazel build --symlink_prefix=bazel- //docs && unzip -o -d docs bazel-bin/docs/docs-skydoc.zip",
-        "version": "node ./on-version.js && git stage package.bzl README.md"
+        "version": "bazel build //:release && node ./on-version.js && git stage package.bzl README.md"
     }
 }
