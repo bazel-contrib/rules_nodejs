@@ -14,4 +14,7 @@ Check if there are any breaking changes since the last tag - if so, this will be
 1. `npm config set tag-version-prefix ''` (we don't put a "v" prefix on our tags)
 1. `npm version minor -m 'rel: %s'` (replace `minor` with `patch` if no breaking changes)
 1. `git push upstream && git push upstream --tags`
+1. (Manual for now): go to the [releases] page, edit the release with rough changelog (especially note any breaking changes!) and upload the release artifact from `rules_nodejs-[version].tar.gz` 
 1. Announce the release on Angular slack in `#tools-abc-discuss`
+
+[releases]: https://github.com/bazelbuild/rules_nodejs/releases
