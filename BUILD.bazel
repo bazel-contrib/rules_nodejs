@@ -13,15 +13,6 @@ filegroup(
     srcs = [],
 )
 
-# The entire content of the real WORKSPACE file in this directory is only meant for local development.
-# So we generate a trivial one for the distribution.
-genrule(
-    name = "generated_WORKSPACE",
-    srcs = [],
-    outs = ["WORKSPACE"],
-    cmd = "echo \"workspace(name = \\\"build_bazel_rules_nodejs\\\")\" > $@",
-)
-
 npm_package(
     name = "rules_nodejs_package",
     srcs = [
@@ -29,19 +20,18 @@ npm_package(
         "LICENSE",
         "defs.bzl",
         "package.bzl",
-        "//third_party/github.com/gjtorikian/isBinaryFile:LICENSE",
     ],
     deps = [
-        ":generated_WORKSPACE",
         "//third_party/github.com/bazelbuild/bazel-skylib:package_contents",
         "//third_party/github.com/buffer-from:package_contents",
-        "//third_party/github.com/gjtorikian/isBinaryFile",
+        "//third_party/github.com/gjtorikian/isBinaryFile:package_contents",
         "//third_party/github.com/source-map:package_contents",
         "//third_party/github.com/source-map-support:package_contents",
         "//internal/common:package_contents",
         "//internal/history-server:package_contents",
         "//internal/http-server:package_contents",
         "//internal/jasmine_node_test:package_contents",
+        "//internal/js_library:package_contents",
         # TODO(alexeagle): distribute separately as @bazel/rollup
         "//internal/rollup:package_contents",
         "//internal/node:package_contents",
