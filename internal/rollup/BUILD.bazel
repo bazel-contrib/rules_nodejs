@@ -88,3 +88,15 @@ jasmine_node_test(
     ),
     node_modules = "//internal/test:node_modules",
 )
+
+filegroup(
+    name = "package_contents",
+    srcs = glob(
+        [
+            "*.js",
+            "*.bzl",
+        ],
+        exclude = ["*.spec.js"],
+    ) + ["BUILD.bazel"],
+    visibility = ["//:__pkg__"],
+)
