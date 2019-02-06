@@ -4,16 +4,16 @@ const fs = require('fs');
 
 describe('assembler', () => {
     const outdir = 'output';
+    let testCount = 0;
     beforeEach(() => {
-        const now = Date.now();
-        // prevent test isolation failures by running each spec in a separate dir
-        const uniqueDir = path.join(process.env['TEST_TMPDIR'], String(now));
-        fs.mkdirSync(uniqueDir);
-        process.chdir(uniqueDir);
-        fs.mkdirSync('path');
-        fs.mkdirSync('path/to');
-        fs.writeFileSync('path/to/thing1.txt', 'some content', {encoding: 'utf-8'});
-
+      const now = Date.now() + String(testCount++);
+      // prevent test isolation failures by running each spec in a separate dir
+      const uniqueDir = path.join(process.env['TEST_TMPDIR'], String(now));
+      fs.mkdirSync(uniqueDir);
+      process.chdir(uniqueDir);
+      fs.mkdirSync('path');
+      fs.mkdirSync('path/to');
+      fs.writeFileSync('path/to/thing1.txt', 'some content', {encoding: 'utf-8'});
     });
 
     it('should copy files', () => {
