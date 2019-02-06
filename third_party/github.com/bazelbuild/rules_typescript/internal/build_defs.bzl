@@ -260,6 +260,9 @@ ts_library = rule(
             allow_files = [".ts", ".tsx"],
             mandatory = True,
         ),
+        "compile_angular_templates": attr.bool(
+            doc = """Run the Angular ngtsc compiler under ts_library""",
+        ),
         "compiler": attr.label(
             doc = """Sets a different TypeScript compiler binary to use for this library.
             For example, we use the vanilla TypeScript tsc.js for bootstrapping,
@@ -340,9 +343,6 @@ ts_library = rule(
             )
             """,
             default = Label("@npm//typescript:typescript__typings"),
-        ),
-        "compile_angular_templates": attr.bool(
-            doc = """Run the Angular ngtsc compiler under ts_library""",
         ),
         "supports_workers": attr.bool(
             doc = """Intended for internal use only.
