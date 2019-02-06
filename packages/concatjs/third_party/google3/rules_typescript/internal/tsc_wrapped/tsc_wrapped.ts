@@ -10,6 +10,7 @@ import {CompilerHost} from './compiler_host';
 import * as bazelDiagnostics from './diagnostics';
 import {constructManifest} from './manifest';
 import * as perfTrace from './perf_trace';
+import {PluginCompilerHost, TscPlugin} from './plugin_api';
 import {PLUGIN as strictDepsPlugin} from './strict_deps';
 import {BazelOptions, parseTsconfig, resolveNormalizedPath} from './tsconfig';
 import {debug, log, runAsWorker, runWorkerLoop} from './worker';
@@ -47,7 +48,7 @@ function isCompilationTarget(
  */
 export function gatherDiagnostics(
     options: ts.CompilerOptions, bazelOpts: BazelOptions, program: ts.Program,
-    disabledTsetseRules: string[]): ts.Diagnostic[] {
+    disabledTsetseRules: string[], angularPlugin?: TscPlugin): ts.Diagnostic[] {
   // Install extra diagnostic plugins
   if (!bazelOpts.disableStrictDeps) {
     const ignoredFilesPrefixes: string[] = [];
@@ -73,8 +74,9 @@ export function gatherDiagnostics(
     let selectedTsetsePlugin = bazelConformancePlugin;
     program = selectedTsetsePlugin.wrap(program, disabledTsetseRules);
   }
-
-  // TODO(alexeagle): support plugins registered by config
+  if (angularPlugin) {
+    program = angularPlugin.wrap(program);
+  }
 
   const diagnostics: ts.Diagnostic[] = [];
   perfTrace.wrap('type checking', () => {
@@ -129,7 +131,13 @@ function runOneBuild(
     throw new Error(
         'Impossible state: if parseTsconfig returns no errors, then parsed should be non-null');
   }
-  const {options, bazelOpts, files, disabledTsetseRules} = parsed;
+  const {
+    options,
+    bazelOpts,
+    files,
+    disabledTsetseRules,
+    angularCompilerOptions
+  } = parsed;
 
   if (bazelOpts.maxCacheSizeMb !== undefined) {
     const maxCacheSizeBytes = bazelOpts.maxCacheSizeMb * (1 << 20);
@@ -154,14 +162,16 @@ function runOneBuild(
   const perfTracePath = bazelOpts.perfTracePath;
   if (!perfTracePath) {
     return runFromOptions(
-        fileLoader, options, bazelOpts, files, disabledTsetseRules);
+        fileLoader, options, bazelOpts, files, disabledTsetseRules,
+        angularCompilerOptions);
   }
 
   log('Writing trace to', perfTracePath);
   const success = perfTrace.wrap(
       'runOneBuild',
       () => runFromOptions(
-          fileLoader, options, bazelOpts, files, disabledTsetseRules));
+          fileLoader, options, bazelOpts, files, disabledTsetseRules,
+          angularCompilerOptions));
   if (!success) return false;
   // Force a garbage collection pass.  This keeps our memory usage
   // consistent across multiple compilations, and allows the file
@@ -182,20 +192,47 @@ const expectDiagnosticsWhitelist: string[] = [
 
 function runFromOptions(
     fileLoader: FileLoader, options: ts.CompilerOptions,
-    bazelOpts: BazelOptions, files: string[],
-    disabledTsetseRules: string[]): boolean {
+    bazelOpts: BazelOptions, files: string[], disabledTsetseRules: string[],
+    angularCompilerOptions?: {[key: string]: unknown}): boolean {
   perfTrace.snapshotMemoryUsage();
   cache.resetStats();
   cache.traceStats();
+
   const compilerHostDelegate =
       ts.createCompilerHost({target: ts.ScriptTarget.ES5});
 
   const moduleResolver = bazelOpts.isJsTranspilation ?
       makeJsModuleResolver(bazelOpts.workspaceName) :
       ts.resolveModuleName;
-  const compilerHost = new CompilerHost(
+  const tsickleCompilerHost: CompilerHost = new CompilerHost(
       files, options, bazelOpts, compilerHostDelegate, fileLoader,
       moduleResolver);
+  let compilerHost: PluginCompilerHost = tsickleCompilerHost;
+
+  let angularPlugin: TscPlugin|undefined;
+  if (bazelOpts.compileAngularTemplates) {
+    try {
+      const ngOptions = angularCompilerOptions || {};
+      // Add the rootDir setting to the options passed to NgTscPlugin.
+      // Required so that synthetic files added to the rootFiles in the program
+      // can be given absolute paths, just as we do in tsconfig.ts, matching
+      // the behavior in TypeScript's tsconfig parsing logic.
+      ngOptions['rootDir'] = options.rootDir;
+
+      // Dynamically load the Angular compiler installed as a peerDep
+      const ngtsc = require('@angular/compiler-cli');
+      angularPlugin = new ngtsc.NgTscPlugin(ngOptions);
+    } catch (e) {
+      console.error(e);
+      throw new Error(
+          'when using `ts_library(compile_angular_templates=True)`, ' +
+          'you must install @angular/compiler-cli');
+    }
+
+    // Wrap host only needed until after Ivy cleanup
+    // TODO(alexeagle): remove after ngsummary and ngfactory files eliminated
+    compilerHost = angularPlugin!.wrapHost!(files, compilerHost);
+  }
 
 
   const oldProgram = cache.getProgram(bazelOpts.target);
@@ -209,8 +246,8 @@ function runFromOptions(
     // If there are any TypeScript type errors abort now, so the error
     // messages refer to the original source.  After any subsequent passes
     // (decorator downleveling or tsickle) we do not type check.
-    let diagnostics =
-        gatherDiagnostics(options, bazelOpts, program, disabledTsetseRules);
+    let diagnostics = gatherDiagnostics(
+        options, bazelOpts, program, disabledTsetseRules, angularPlugin);
     if (!expectDiagnosticsWhitelist.length ||
         expectDiagnosticsWhitelist.some(p => bazelOpts.target.startsWith(p))) {
       diagnostics = bazelDiagnostics.filterExpected(
@@ -235,11 +272,22 @@ function runFromOptions(
 
   let diagnostics: ts.Diagnostic[] = [];
   let useTsickleEmit = bazelOpts.tsickle;
+  let transforms: ts.CustomTransformers = {
+    before: [],
+    after: [],
+    afterDeclarations: [],
+  };
+
+  if (angularPlugin) {
+    transforms = angularPlugin.createTransformers!(compilerHost);
+  }
+
   if (useTsickleEmit) {
     diagnostics = emitWithTsickle(
-        program, compilerHost, compilationTargets, options, bazelOpts);
+        program, tsickleCompilerHost, compilationTargets, options, bazelOpts,
+        transforms);
   } else {
-    diagnostics = emitWithTypescript(program, compilationTargets);
+    diagnostics = emitWithTypescript(program, compilationTargets, transforms);
   }
 
   if (diagnostics.length > 0) {
@@ -253,10 +301,14 @@ function runFromOptions(
 }
 
 function emitWithTypescript(
-    program: ts.Program, compilationTargets: ts.SourceFile[]): ts.Diagnostic[] {
+    program: ts.Program, compilationTargets: ts.SourceFile[],
+    transforms: ts.CustomTransformers): ts.Diagnostic[] {
   const diagnostics: ts.Diagnostic[] = [];
   for (const sf of compilationTargets) {
-    const result = program.emit(sf);
+    const result = program.emit(
+        sf, /*writeFile*/ undefined,
+        /*cancellationToken*/ undefined, /*emitOnlyDtsFiles*/ undefined,
+        transforms);
     diagnostics.push(...result.diagnostics);
   }
   return diagnostics;
@@ -272,7 +324,8 @@ function emitWithTypescript(
 export function emitWithTsickle(
     program: ts.Program, compilerHost: CompilerHost,
     compilationTargets: ts.SourceFile[], options: ts.CompilerOptions,
-    bazelOpts: BazelOptions): ts.Diagnostic[] {
+    bazelOpts: BazelOptions,
+    transforms: ts.CustomTransformers): ts.Diagnostic[] {
   const emitResults: tsickle.EmitResult[] = [];
   const diagnostics: ts.Diagnostic[] = [];
   // The 'tsickle' import above is only used in type positions, so it won't
@@ -295,7 +348,13 @@ export function emitWithTsickle(
     for (const sf of compilationTargets) {
       perfTrace.wrap(`emit ${sf.fileName}`, () => {
         emitResults.push(optTsickle.emitWithTsickle(
-            program, compilerHost, compilerHost, options, sf));
+            program, compilerHost, compilerHost, options, sf,
+            /*writeFile*/ undefined,
+            /*cancellationToken*/ undefined, /*emitOnlyDtsFiles*/ undefined, {
+              beforeTs: transforms.before,
+              afterTs: transforms.after,
+              afterDeclarations: transforms.afterDeclarations,
+            }));
       });
     }
   });
