@@ -24,7 +24,7 @@ load("//internal/common:check_version.bzl", "check_version")
 # It will be automatically synced via the npm "version" script
 # that is run when running `npm version` during the release
 # process. See `Releasing` section in README.md.
-VERSION = "0.16.8"
+VERSION = "0.17.0"
 
 def check_rules_nodejs_version(minimum_version_string):
     """
