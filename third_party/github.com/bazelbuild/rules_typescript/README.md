@@ -25,8 +25,8 @@ Optionally add the `@bazel/karma` npm package if you would like to use the
 {
   ...
   "devDependencies": {
-    "@bazel/typescript": "0.23.3",
-    "@bazel/karma": "0.23.3",
+    "@bazel/typescript": "0.24.0",
+    "@bazel/karma": "0.24.0",
     ...
   },
   ...
