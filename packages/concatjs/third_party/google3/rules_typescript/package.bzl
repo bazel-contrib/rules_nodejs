@@ -31,6 +31,8 @@ def rules_typescript_dev_dependencies():
 
     These are in this file to keep version information in one place, and make the WORKSPACE
     shorter.
+
+    Also this allows other repos to reference our sources with local_repository and install the needed deps.
     """
 
     _maybe(

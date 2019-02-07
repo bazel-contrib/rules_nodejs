@@ -14,6 +14,7 @@
 
 "Simple development server"
 
+load("@build_bazel_rules_nodejs//internal/common:sources_aspect.bzl", "sources_aspect")
 load(
     "@build_bazel_rules_nodejs//internal/js_library:js_library.bzl",
     "write_amd_names_shim",
@@ -21,10 +22,6 @@ load(
 load(
     "@build_bazel_rules_nodejs//internal/web_package:web_package.bzl",
     "html_asset_inject",
-)
-load(
-    "@build_bazel_rules_nodejs//internal:node.bzl",
-    "sources_aspect",
 )
 
 def _ts_devserver(ctx):
