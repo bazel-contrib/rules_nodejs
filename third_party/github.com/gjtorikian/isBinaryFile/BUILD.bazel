@@ -1,7 +1,5 @@
-load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
-# TODO(alexeagle): support authoring rules_nodejs sources in TypeScript
-# We can only do this after all users switch to using a distribution package.
-# load("@build_bazel_rules_typescript//:defs.bzl", "ts_library")
+load("@build_bazel_rules_nodejs//:defs.bzl", "npm_package")
+load("@build_bazel_rules_typescript//:defs.bzl", "ts_library")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -9,16 +7,16 @@ licenses(["notice"])
 
 exports_files(["LICENSE"])
 
-js_library(
-    # ts_library(
+ts_library(
     name = "isBinaryFile",
-    srcs = ["src/index.js"],  # src/index.ts
+    srcs = ["src/index.ts"],
     module_name = "isbinaryfile",
     module_root = "src/index",
-    #     deps = ["@npm//@types/node"],
+    deps = ["@npm//@types/node"],
 )
 
-filegroup(
+npm_package(
     name = "package_contents",
-    srcs = glob(["*"]) + [":isBinaryFile"],
+    srcs = glob(["*"]),
+    deps = [":isBinaryFile"],
 )

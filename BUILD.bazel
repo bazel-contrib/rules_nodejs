@@ -21,10 +21,12 @@ npm_package(
         "defs.bzl",
         "package.bzl",
     ],
+    packages = [
+        "//third_party/github.com/gjtorikian/isBinaryFile:package_contents",
+    ],
     deps = [
         "//third_party/github.com/bazelbuild/bazel-skylib:package_contents",
         "//third_party/github.com/buffer-from:package_contents",
-        "//third_party/github.com/gjtorikian/isBinaryFile:package_contents",
         "//third_party/github.com/source-map:package_contents",
         "//third_party/github.com/source-map-support:package_contents",
         "//internal/common:package_contents",

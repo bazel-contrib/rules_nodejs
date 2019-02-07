@@ -52,6 +52,7 @@ function runTsc(inputDir, outputDir, projectFile) {
       'lib': ['es6'],
       'allowJs': true,
       'outDir': outputBasename,
+      'skipLibCheck': true
     },
     'include': [`${inputBasename}/*`],
     'exclude': []
