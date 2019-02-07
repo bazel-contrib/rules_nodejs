@@ -90,9 +90,17 @@ def get_module_mappings(label, attrs, srcs = [], workspace_name = None, mappings
 
             else:
                 for s in srcs:
-                    if not s.short_path.startswith(mr):
+                    short_path = s.short_path
+
+                    # Execroot paths for external repositories should start with external/
+                    # But the short_path property of file gives the relative path from our workspace
+                    # instead. We must correct this to compare with the module_root which is an
+                    # execroot path.
+                    if short_path.startswith("../"):
+                        short_path = "external/" + short_path[3:]
+                    if not short_path.startswith(mr):
                         fail(("all sources must be under module root: %s, but found: %s" %
-                              (mr, s.short_path)))
+                              (mr, short_path)))
         if mn in mappings and mappings[mn] != mr:
             fail(("duplicate module mapping at %s: %s maps to both %s and %s" %
                   (label, mn, mappings[mn], mr)), "deps")
