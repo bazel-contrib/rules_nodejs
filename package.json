@@ -25,7 +25,7 @@
         "internal-e2e-fine_grained_symlinks": "cd internal/e2e/fine_grained_symlinks && yarn test",
         "internal-e2e-node_loader_no_preserve_symlinks": "cd internal/e2e/node_loader_no_preserve_symlinks && yarn test",
         "internal-e2e-node_loader_preserve_symlinks": "cd internal/e2e/node_loader_preserve_symlinks && yarn test",
-        "test:e2e": "yarn internal-e2e-bazel_workspaces && yarn internal-e2e-bazel_workspaces_compat && yarn internal-e2e-fine_grained_symlinks && yarn internal-e2e-node_loader_no_preserve_symlinks && yarn internal-e2e-node_loader_preserve_symlinks",
+        "test:e2e": "bazel build --symlink_prefix=bazel- //:local_testing_package && yarn internal-e2e-bazel_workspaces && yarn internal-e2e-bazel_workspaces_compat && yarn internal-e2e-fine_grained_symlinks && yarn internal-e2e-node_loader_no_preserve_symlinks && yarn internal-e2e-node_loader_preserve_symlinks",
         "test:examples": "./examples/test_examples.sh",
         "test": "yarn test:examples && yarn test:e2e",
         "bazel:format": "find . -type f \\( -name \"*.bzl\" -or -name WORKSPACE -or -name BUILD -or -name BUILD.bazel \\) ! -path \"*/node_modules/*\" | xargs buildifier -v --warnings=args-order,attr-cfg,attr-license,attr-non-empty,attr-output-default,attr-single-file,constant-glob,ctx-actions,ctx-args,depset-iteration,depset-union,dict-concatenation,duplicated-name,filetype,git-repository,http-archive,integer-division,load,load-on-top,native-build,native-package,out-of-order-load,output-group,package-name,package-on-top,positional-args,redefined-variable,repository-name,same-origin-load,string-iteration,unsorted-dict-items,unused-variable",

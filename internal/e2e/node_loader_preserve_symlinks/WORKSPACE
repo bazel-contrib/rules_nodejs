@@ -2,7 +2,7 @@ workspace(name = "node_loader_e2e_preserve_symlinks")
 
 local_repository(
     name = "build_bazel_rules_nodejs",
-    path = "../../..",
+    path = "../../../bazel-bin/local_testing_package",
 )
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "yarn_install")
