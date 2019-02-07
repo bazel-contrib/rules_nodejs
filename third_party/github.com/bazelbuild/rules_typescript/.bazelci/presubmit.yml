@@ -19,6 +19,9 @@ platforms:
     build_targets:
     - "..."
     - "@disable_tsetse_for_external_test//..."
+    # Run some targets again, but addressed as an external repo
+    # TODO(alexeagle): run all of them after fixing https://github.com/bazelbuild/rules_typescript/issues/243
+    - "@build_bazel_rules_typescript//examples/some_library:lib"
     test_flags:
     # TODO(gregmagolan): shared libs needed by chrome & firefox not available on ubuntu1604
     - "--test_tag_filters=-browser:chromium-local,-browser:firefox-local"
