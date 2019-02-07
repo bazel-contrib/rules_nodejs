@@ -2,7 +2,7 @@ workspace(name = "bazel_workspaces_compat")
 
 local_repository(
     name = "build_bazel_rules_nodejs",
-    path = "../../..",
+    path = "../../../bazel-bin/local_testing_package",
 )
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "yarn_install")
@@ -13,6 +13,9 @@ yarn_install(
     name = "npm",
     package_json = "//:package.json",
     yarn_lock = "//:yarn.lock",
+    # Need to a reference to this workspace in data so that
+    # the external/bazel_workspaces is setup before yarn_install runs
+    data = ["@bazel_workspaces_compat//:package.json"]
 )
 
 load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
