@@ -15,7 +15,7 @@
 """Example of a rule that requires es2015 (devmode) inputs.
 """
 
-load("@build_bazel_rules_nodejs//internal:node.bzl", "sources_aspect")
+load("@build_bazel_rules_nodejs//internal/common:sources_aspect.bzl", "sources_aspect")
 
 def _devmode_consumer(ctx):
     files = depset()
