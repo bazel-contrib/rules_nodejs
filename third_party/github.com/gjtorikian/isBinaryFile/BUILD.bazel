@@ -20,8 +20,5 @@ js_library(
 
 filegroup(
     name = "package_contents",
-    srcs = [
-        "LICENSE",
-        ":isBinaryFile",
-    ],
+    srcs = glob(["*"]) + [":isBinaryFile"],
 )
