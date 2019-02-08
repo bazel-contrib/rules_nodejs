@@ -132,6 +132,25 @@ func labelCacheKey(currentPkg, label string) string {
 	return currentPkg + "^" + label
 }
 
+// possibleFilepaths generates the possible filepaths for the ts import path.
+// e.g. google3/foo/bar could be foo/bar.ts or foo/bar.d.ts or foo/bar/index.ts, etc.
+// Also handles special angular import paths (.ngfactory and .ngsummary).
+func possibleFilepaths(importPath string) []string {
+	// If the path has a suffix of ".ngfactory" or ".ngsummary", it might
+	// be an Angular AOT generated file. We can infer the target as we
+	// infer its corresponding ngmodule target by simply stripping the
+	// ".ngfactory" / ".ngsummary" suffix
+	importPath = strings.TrimSuffix(strings.TrimSuffix(importPath, ".ngsummary"), ".ngfactory")
+	importPath = strings.TrimPrefix(importPath, workspace.Name()+"/")
+
+	var possiblePaths []string
+
+	possiblePaths = append(possiblePaths, pathWithExtensions(importPath)...)
+	possiblePaths = append(possiblePaths, pathWithExtensions(filepath.Join(importPath, "index"))...)
+
+	return possiblePaths
+}
+
 // LoadImportPaths uses Bazel Query to load targets associated with import
 // paths from BUILD files.
 func (q *QueryBasedTargetLoader) LoadImportPaths(ctx context.Context, currentPkg, workspaceRoot string, paths []string) (map[string]*appb.Rule, error) {
@@ -150,15 +169,9 @@ func (q *QueryBasedTargetLoader) LoadImportPaths(ctx context.Context, currentPkg
 			if _, ok := addedPaths[path]; !ok {
 				addedPaths[path] = true
 
-				// If the path has a suffix of ".ngfactory" or ".ngsummary", it might
-				// be an Angular AOT generated file. We can infer the target as we
-				// infer its corresponding ngmodule target by simply stripping the
-				// ".ngfactory" / ".ngsummary" suffix
-				path = strings.TrimSuffix(strings.TrimSuffix(path, ".ngsummary"), ".ngfactory")
-				path = strings.TrimPrefix(path, workspace.Name()+"/")
-
-				possiblePaths = append(possiblePaths, pathWithExtensions(path)...)
-				possiblePaths = append(possiblePaths, pathWithExtensions(filepath.Join(path, "index"))...)
+				// there isn't a one to one mapping from ts import paths to file
+				// paths, so look for all the possible file paths
+				possiblePaths = append(possiblePaths, possibleFilepaths(path)...)
 			}
 		}
 	}
@@ -190,7 +203,7 @@ func (q *QueryBasedTargetLoader) LoadImportPaths(ctx context.Context, currentPkg
 		}
 	}
 
-	labelToRule := make(map[string]*appb.Rule)
+	filepathToRule := make(map[string]*appb.Rule)
 
 	// load all the rules with file srcs (either literal or generated)
 	sourceLabelToRule, err := q.loadRulesWithSources(workspaceRoot, fileLabels)
@@ -198,7 +211,7 @@ func (q *QueryBasedTargetLoader) LoadImportPaths(ctx context.Context, currentPkg
 		return nil, err
 	}
 	for label, rule := range sourceLabelToRule {
-		labelToRule[label] = rule
+		filepathToRule[labelToPath(label)] = rule
 	}
 
 	// load all the rules with generator rule srcs
@@ -208,20 +221,14 @@ func (q *QueryBasedTargetLoader) LoadImportPaths(ctx context.Context, currentPkg
 	}
 	for label, rule := range generatorLabelToRule {
 		for _, generated := range generatorsToFiles[label] {
-			labelToRule[generated.GetName()] = rule
+			filepathToRule[labelToPath(generated.GetName())] = rule
 		}
 	}
 
-	for label, rule := range labelToRule {
-		_, pkg, file := edit.ParseLabel(label)
-		// Trim "/index" suffixes that were added to path in the queries above.
-		pathWithoutExtension := strings.TrimSuffix(filepath.Join(pkg, stripTSExtension(file)), string(filepath.Separator)+"index")
-		for _, path := range paths {
-			if pathWithoutExtension == strings.TrimSuffix(path, string(filepath.Separator)+"index") {
-				results[path] = rule
-			} else if pathWithoutExtension == strings.TrimSuffix(path, ".ngsummary") {
-				results[path] = rule
-			} else if pathWithoutExtension == strings.TrimSuffix(path, ".ngfactory") {
+	for _, path := range paths {
+		// check all the possible file paths for the import path
+		for _, fp := range possibleFilepaths(path) {
+			if rule, ok := filepathToRule[fp]; ok {
 				results[path] = rule
 			}
 		}
