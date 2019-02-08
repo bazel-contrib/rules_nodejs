@@ -52,6 +52,7 @@ def create_package(ctx, deps_sources, nested_packages):
     args.add_joined([p.path for p in nested_packages], join_with = ",", omit_if_empty = False)
     args.add(ctx.attr.replacements)
     args.add_all([ctx.outputs.pack.path, ctx.outputs.publish.path])
+    args.add(ctx.attr.replace_with_version)
     args.add(ctx.version_file.path if ctx.version_file else "")
 
     inputs = ctx.files.srcs + deps_sources + nested_packages + [ctx.file._run_npm_template]
@@ -115,10 +116,12 @@ NPM_PACKAGE_ATTRS = {
         allow_files = True,
     ),
     "replacements": attr.string_dict(
-        doc = """Key-value pairs which are replaced in all the files while building the package.
-        Note that the special value 0.0.0-PLACEHOLDER is always replaced with the version stamp data.
-        See the section on stamping in the README.
-        """,
+        doc = """Key-value pairs which are replaced in all the files while building the package.""",
+    ),
+    "replace_with_version": attr.string(
+        doc = """If set this value is replaced with the version stamp data.
+        See the section on stamping in the README.""",
+        default = "0.0.0-PLACEHOLDER",
     ),
     "deps": attr.label_list(
         doc = """Other targets which produce files that should be included in the package, such as `rollup_bundle`""",

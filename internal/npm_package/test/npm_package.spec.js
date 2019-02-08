@@ -28,4 +28,7 @@ describe('npm_package srcs', () => {
   it('copies data dependencies', () => {
     expect(read('data.json')).toEqual('[]');
   });
+  it('replaced 0.0.0-PLACEHOLDER', () => {
+    expect(read('package.json').version).not.toEqual('0.0.0-PLACEHOLDER');
+  });
 });

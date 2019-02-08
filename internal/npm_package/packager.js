@@ -47,30 +47,32 @@ function main(args) {
   args = fs.readFileSync(args[0], {encoding: 'utf-8'}).split('\n').map(unquoteArgs);
   const
       [outDir, baseDir, srcsArg, binDir, genDir, depsArg, packagesArg, replacementsArg, packPath,
-       publishPath, stampFile] = args;
+       publishPath, replaceWithVersion, stampFile] = args;
 
   const replacements = [
     // Strip content between BEGIN-INTERNAL / END-INTERNAL comments
     [/(#|\/\/)\s+BEGIN-INTERNAL[\w\W]+?END-INTERNAL/g, ''],
   ];
-  let version = '0.0.0';
-  if (stampFile) {
-    // The stamp file is expected to look like
-    // BUILD_SCM_HASH 83c699db39cfd74526cdf9bebb75aa6f122908bb
-    // BUILD_SCM_LOCAL_CHANGES true
-    // BUILD_SCM_VERSION 6.0.0-beta.6+12.sha-83c699d.with-local-changes
-    // BUILD_TIMESTAMP 1520021990506
-    //
-    // We want version to be the 6.0.0-beta... part
-    const versionTag = fs.readFileSync(stampFile, {encoding: 'utf-8'})
-                           .split('\n')
-                           .find(s => s.startsWith('BUILD_SCM_VERSION'));
-    // Don't assume BUILD_SCM_VERSION exists
-    if (versionTag) {
-      version = versionTag.split(' ')[1].trim();
+  if (replaceWithVersion) {
+    let version = '0.0.0';
+    if (stampFile) {
+      // The stamp file is expected to look like
+      // BUILD_SCM_HASH 83c699db39cfd74526cdf9bebb75aa6f122908bb
+      // BUILD_SCM_LOCAL_CHANGES true
+      // BUILD_SCM_VERSION 6.0.0-beta.6+12.sha-83c699d.with-local-changes
+      // BUILD_TIMESTAMP 1520021990506
+      //
+      // We want version to be the 6.0.0-beta... part
+      const versionTag = fs.readFileSync(stampFile, {encoding: 'utf-8'})
+                             .split('\n')
+                             .find(s => s.startsWith('BUILD_SCM_VERSION'));
+      // Don't assume BUILD_SCM_VERSION exists
+      if (versionTag) {
+        version = versionTag.split(' ')[1].trim();
+      }
     }
+    replacements.push([new RegExp(replaceWithVersion, 'g'), version]);
   }
-  replacements.push([/0.0.0-PLACEHOLDER/g, version]);
   const rawReplacements = JSON.parse(replacementsArg);
   for (let key of Object.keys(rawReplacements)) {
     replacements.push([new RegExp(key, 'g'), rawReplacements[key]])
