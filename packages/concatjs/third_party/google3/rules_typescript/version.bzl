@@ -17,7 +17,7 @@
 
 load("@build_bazel_rules_nodejs//internal/common:check_version.bzl", "check_version")
 
-VERSION = "0.24.0"
+VERSION = "0.24.1"
 
 # This version is the minimum version that is API compatible with this version
 # of rules_typescript. This version should be updated to equal VERSION for
