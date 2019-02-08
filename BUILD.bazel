@@ -21,6 +21,9 @@ npm_package(
         "defs.bzl",
         "package.bzl",
     ],
+    # Don't replace the default 0.0.0-PLACEHOLDER for this npm_package since
+    # we are packaging up the packager itself and this replacement will break it
+    replace_with_version = "",
     deps = [
         "//third_party/github.com/bazelbuild/bazel-skylib:package_contents",
         "//third_party/github.com/buffer-from:package_contents",
@@ -40,9 +43,6 @@ npm_package(
         "//internal/web_package:package_contents",
         "//tools:package_contents",
     ],
-    # Don't replace the default 0.0.0-PLACEHOLDER for this npm_package since
-    # we are packaging up the packager itself and this replacement will break it
-    replace_with_version = "",
 )
 
 npm_package(
