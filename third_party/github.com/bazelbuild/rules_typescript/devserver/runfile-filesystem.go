@@ -30,6 +30,6 @@ func (fs *RunfileFileSystem) ReadFile(filename string) ([]byte, error) {
 // ResolvePath resolves the specified path within a given root using Bazel's runfile resolution.
 // This is necessary because on Windows, runfiles are not symlinked and need to be
 // resolved using the runfile manifest file.
-func (fs *RunfileFileSystem) ResolvePath(root string, file string) (string, error) {
-	return runfiles.Runfile(root, file)
+func (fs *RunfileFileSystem) ResolvePath(root string, manifestFilePath string) (string, error) {
+	return runfiles.Runfile(root, manifestFilePath)
 }
