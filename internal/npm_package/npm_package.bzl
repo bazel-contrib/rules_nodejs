@@ -115,13 +115,13 @@ NPM_PACKAGE_ATTRS = {
         doc = """Other npm_package rules whose content is copied into this package.""",
         allow_files = True,
     ),
-    "replacements": attr.string_dict(
-        doc = """Key-value pairs which are replaced in all the files while building the package.""",
-    ),
     "replace_with_version": attr.string(
         doc = """If set this value is replaced with the version stamp data.
         See the section on stamping in the README.""",
         default = "0.0.0-PLACEHOLDER",
+    ),
+    "replacements": attr.string_dict(
+        doc = """Key-value pairs which are replaced in all the files while building the package.""",
     ),
     "deps": attr.label_list(
         doc = """Other targets which produce files that should be included in the package, such as `rollup_bundle`""",
