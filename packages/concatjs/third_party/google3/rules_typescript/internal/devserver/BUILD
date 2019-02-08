@@ -33,6 +33,7 @@ filegroup(
     name = "npm_package_assets",
     srcs = [
         "BUILD",
+        "launcher_template.sh",
         "package.json",
         "ts_devserver.bzl",
         "yarn.lock",

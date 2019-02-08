@@ -38,8 +38,8 @@ def rules_typescript_dev_dependencies():
     _maybe(
         http_archive,
         name = "build_bazel_rules_nodejs",
-        strip_prefix = "rules_nodejs-0.18.2",
-        urls = ["https://github.com/bazelbuild/rules_nodejs/archive/0.18.2.zip"],
+        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.18.4/rules_nodejs-0.18.4.tar.gz"],
+        sha256 = "23987a5cf549146742aa6a0d2536e4906906e63a608d5b9b32dd9fe5523ef51c",
     )
 
     # For running skylint
