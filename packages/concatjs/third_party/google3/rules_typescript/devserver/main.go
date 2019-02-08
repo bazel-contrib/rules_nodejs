@@ -8,15 +8,17 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/bazelbuild/rules_typescript/devserver/concatjs"
 	"github.com/bazelbuild/rules_typescript/devserver/devserver"
+	"github.com/bazelbuild/rules_typescript/devserver/runfiles"
 )
 
 var (
 	port            = flag.Int("port", 5432, "server port to listen on")
+	// The "base" CLI flag is only kept because within Google3 because removing would be a breaking change due to
+	// ConcatJS and "devserver/devserver.go" still respecting the specified base flag.
 	base            = flag.String("base", "", "server base (required, runfiles of the binary)")
 	pkgs            = flag.String("packages", "", "root package(s) to serve, comma-separated")
 	manifest        = flag.String("manifest", "", "sources manifest (.MF)")
@@ -28,20 +30,27 @@ var (
 func main() {
 	flag.Parse()
 
-	if *base == "" || len(*pkgs) == 0 || (*manifest == "") || (*scriptsManifest == "") {
+	if len(*pkgs) == 0 || (*manifest == "") || (*scriptsManifest == "") {
 		fmt.Fprintf(os.Stderr, "Required argument not set\n")
 		os.Exit(1)
 	}
 
-	if _, err := os.Stat(*base); err != nil {
-		fmt.Fprintf(os.Stderr, "Cannot read server base %s: %v\n", *base, err)
+	manifestPath, err := runfiles.Runfile(*base, *scriptsManifest)
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to find scripts_manifest in runfiles: %v\n", err)
 		os.Exit(1)
 	}
 
-	scriptsManifestPath := filepath.Join(*base, *scriptsManifest)
-	scriptFiles, err := manifestFiles(scriptsManifestPath)
+	scriptFiles, err := manifestFiles(manifestPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to read scripts_manifest: %v\n", err)
+		os.Exit(1)
+	}
+
+	if !strings.HasPrefix(*servingPath, "/") {
+		fmt.Fprintf(os.Stderr, "The specified serving_path does not start with a slash. "+
+			"This causes the serving path to not have any effect.\n")
 		os.Exit(1)
 	}
 
@@ -76,7 +85,12 @@ func main() {
 	// the requirejs script which is added to scriptFiles by the devserver
 	// skylark rule.
 	for _, v := range scriptFiles {
-		js, err := loadScript(filepath.Join(*base, v))
+		runfile, err := runfiles.Runfile(*base, v)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Could not find runfile %s, got error %s", v, err)
+		}
+
+		js, err := loadScript(runfile)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Failed to read script %s: %v\n", v, err)
 		} else {
@@ -90,7 +104,8 @@ func main() {
 		postScripts = append(postScripts, fmt.Sprintf("require([\"%s\"]);", *entryModule))
 	}
 
-	http.Handle(*servingPath, concatjs.ServeConcatenatedJS(*manifest, *base, preScripts, postScripts, nil /* realFileSystem */))
+	http.Handle(*servingPath, concatjs.ServeConcatenatedJS(*manifest, *base, preScripts, postScripts,
+		&RunfileFileSystem{}))
 	pkgList := strings.Split(*pkgs, ",")
 	http.HandleFunc("/", devserver.CreateFileHandler(*servingPath, *manifest, pkgList, *base))
 

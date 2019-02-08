@@ -24,6 +24,14 @@ load(
     "html_asset_inject",
 )
 
+# Helper function to convert a short path to a path that is
+# found in the MANIFEST file.
+def _short_path_to_manifest_path(ctx, short_path):
+    if short_path.startswith("../"):
+        return short_path[3:]
+    else:
+        return ctx.workspace_name + "/" + short_path
+
 def _ts_devserver(ctx):
     files = depset()
     for d in ctx.attr.deps:
@@ -52,7 +60,7 @@ def _ts_devserver(ctx):
 
     amd_names_shim = ctx.actions.declare_file(
         "_%s.amd_names_shim.js" % ctx.label.name,
-        sibling = ctx.outputs.executable,
+        sibling = ctx.outputs.script,
     )
     write_amd_names_shim(ctx.actions, amd_names_shim, ctx.attr.bootstrap)
 
@@ -76,6 +84,7 @@ def _ts_devserver(ctx):
     ]
     devserver_runfiles += ctx.files.static_files
     devserver_runfiles += script_files
+    devserver_runfiles += ctx.files._bash_runfile_helpers
 
     if ctx.file.index_html:
         injected_index = ctx.actions.declare_file("index.html")
@@ -96,37 +105,24 @@ def _ts_devserver(ctx):
         )
         devserver_runfiles += [injected_index]
 
-    serving_arg = ""
-    if ctx.attr.serving_path:
-        serving_arg = "-serving_path=%s" % ctx.attr.serving_path
-
     packages = depset(["/".join([workspace_name, ctx.label.package])] + ctx.attr.additional_root_paths)
 
-    # FIXME: more bash dependencies makes Windows support harder
-    ctx.actions.write(
-        output = ctx.outputs.executable,
+    ctx.actions.expand_template(
+        template = ctx.file._launcher_template,
+        output = ctx.outputs.script,
+        substitutions = {
+            "TEMPLATED_entry_module": ctx.attr.entry_module,
+            "TEMPLATED_main": _short_path_to_manifest_path(ctx, ctx.executable._devserver.short_path),
+            "TEMPLATED_manifest": _short_path_to_manifest_path(ctx, ctx.outputs.manifest.short_path),
+            "TEMPLATED_packages": ",".join(packages.to_list()),
+            "TEMPLATED_port": str(ctx.attr.port),
+            "TEMPLATED_scripts_manifest": _short_path_to_manifest_path(ctx, ctx.outputs.scripts_manifest.short_path),
+            "TEMPLATED_serving_path": ctx.attr.serving_path if ctx.attr.serving_path else "",
+            "TEMPLATED_workspace": workspace_name,
+        },
         is_executable = True,
-        content = """#!/bin/sh
-RUNFILES="$PWD/.."
-{main} {serving_arg} \
-  -base="$RUNFILES" \
-  -packages={packages} \
-  -manifest={workspace}/{manifest} \
-  -scripts_manifest={workspace}/{scripts_manifest} \
-  -entry_module={entry_module} \
-  -port={port} \
-  "$@"
-""".format(
-            main = ctx.executable._devserver.short_path,
-            serving_arg = serving_arg,
-            workspace = workspace_name,
-            packages = ",".join(packages.to_list()),
-            manifest = ctx.outputs.manifest.short_path,
-            scripts_manifest = ctx.outputs.scripts_manifest.short_path,
-            entry_module = ctx.attr.entry_module,
-            port = str(ctx.attr.port),
-        ),
     )
+
     return [DefaultInfo(
         runfiles = ctx.runfiles(
             files = devserver_runfiles,
@@ -191,6 +187,7 @@ ts_devserver = rule(
             allow_files = True,
             aspects = [sources_aspect],
         ),
+        "_bash_runfile_helpers": attr.label(default = Label("@bazel_tools//tools/bash/runfiles")),
         "_devserver": attr.label(
             # For local development in rules_typescript, we build the devserver from sources.
             # This requires that we have the go toolchain available.
@@ -206,33 +203,52 @@ ts_devserver = rule(
             executable = True,
             cfg = "host",
         ),
+        "_launcher_template": attr.label(allow_single_file = True, default = Label("//internal/devserver:launcher_template.sh")),
         "_requirejs_script": attr.label(allow_single_file = True, default = Label("@build_bazel_rules_typescript_devserver_deps//node_modules/requirejs:require.js")),
     },
     outputs = {
         "manifest": "%{name}.MF",
+        "script": "%{name}.sh",
         "scripts_manifest": "scripts_%{name}.MF",
     },
-    executable = True,
 )
 """ts_devserver is a simple development server intended for a quick "getting started" experience.
 
 Additional documentation at https://github.com/alexeagle/angular-bazel-example/wiki/Running-a-devserver-under-Bazel
 """
 
-def ts_devserver_macro(tags = [], **kwargs):
-    """ibazel wrapper for `ts_devserver`
+def ts_devserver_macro(name, data = [], args = [], visibility = None, tags = [], testonly = 0, **kwargs):
+    """Macro for creating a `ts_devserver`
 
-    This macro re-exposes the `ts_devserver` rule with some extra tags so that
-    it behaves correctly under ibazel.
-
+    This macro re-exposes a `sh_binary` and `ts_devserver` target that can run the
+    actual devserver implementation.
+    The `ts_devserver` rule is just responsible for generating a launcher script
+    that runs the Go devserver implementation. The `sh_binary` is the primary
+    target that matches the specified "name" and executes the generated bash
+    launcher script.
     This is re-exported in `//:defs.bzl` as `ts_devserver` so if you load the rule
     from there, you actually get this macro.
-
     Args:
-      tags: standard Bazel tags, this macro adds a couple for ibazel
+      name: Name of the devserver target
+      data: Runtime dependencies for the devserver
+      args: Command line arguments that will be passed to the devserver Go implementation
+      visibility: Visibility of the devserver targets
+      tags: Standard Bazel tags, this macro adds a couple for ibazel
+      testonly: Whether the devserver should only run in `bazel test`
       **kwargs: passed through to `ts_devserver`
     """
     ts_devserver(
+        name = "%s_launcher" % name,
+        data = data + ["@bazel_tools//tools/bash/runfiles"],
+        testonly = testonly,
+        visibility = ["//visibility:private"],
+        tags = tags,
+        **kwargs
+    )
+
+    native.sh_binary(
+        name = name,
+        args = args,
         # Users don't need to know that these tags are required to run under ibazel
         tags = tags + [
             # Tell ibazel not to restart the devserver when its deps change.
@@ -241,5 +257,8 @@ def ts_devserver_macro(tags = [], **kwargs):
             # this program.
             "ibazel_live_reload",
         ],
-        **kwargs
+        srcs = ["%s_launcher.sh" % name],
+        data = [":%s_launcher" % name],
+        testonly = testonly,
+        visibility = visibility,
     )
