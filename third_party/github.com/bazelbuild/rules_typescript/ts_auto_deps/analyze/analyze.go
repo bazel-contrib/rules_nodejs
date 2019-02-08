@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/bazelbuild/buildtools/edit"
@@ -327,7 +328,7 @@ func (a *Analyzer) resolveImports(ctx context.Context, currentPkg, root string, 
 						continue handlingImports
 					}
 				}
-				d, err := a.findRuleProvidingImport(target.dependencies, imp)
+				d, err := a.findExistingDepProvidingImport(ctx, target.dependencies, imp)
 				if err != nil {
 					return err
 				}
@@ -368,25 +369,65 @@ func pathWithExtensions(basename string) []string {
 	return paths
 }
 
-// findRuleProvidingImport looks through a map of loaded rules for a rule
-// which can provide the passed import.
+var ambientModuleDeclRE = regexp.MustCompile("(?m)^\\s*declare\\s+module\\s+['\"]([^'\"]+)['\"]\\s+\\{")
+
+// findExistingDepProvidingImport looks through a map of the existing deps to
+// see if any of them provide the import in a way that can't be queried
+// for.  E.g. if the build rule has a "module_name" attribute or if one
+// of the .d.ts sources has an ambient module declaration.
 //
 // If the import already has a knownTarget, findRuleProvidingImport will
 // return the knownTarget.
-func (a *Analyzer) findRuleProvidingImport(rules map[string]*appb.Rule, i *ts_auto_depsImport) (string, error) {
+func (a *Analyzer) findExistingDepProvidingImport(ctx context.Context, rules map[string]*appb.Rule, i *ts_auto_depsImport) (string, error) {
 	if i.knownTarget != "" {
 		return i.knownTarget, nil
 	}
+
+	// check if any of the existing deps declare a module_name that matches the import
 	for _, r := range rules {
 		moduleName := stringAttribute(r, "module_name")
 		if moduleName == "" {
 			continue
 		}
-		srcs := listAttribute(r, "srcs")
-		for _, src := range srcs {
+		for _, src := range listAttribute(r, "srcs") {
 			_, _, file := edit.ParseLabel(src)
 			moduleImportPath := moduleName + "/" + stripTSExtension(file)
 			if i.importPath == moduleImportPath || i.importPath == strings.TrimSuffix(moduleImportPath, "/index") {
+				return r.GetName(), nil
+			}
+		}
+	}
+
+	// check if any of the existing deps have .d.ts sources which have ambient module
+	// declarations
+	for _, r := range rules {
+		for _, src := range listAttribute(r, "srcs") {
+			filepath := labelToPath(src)
+			if !strings.HasSuffix(filepath, ".d.ts") {
+				continue
+			}
+
+			contents, err := platform.ReadFile(ctx, filepath)
+			if err != nil {
+				return "", fmt.Errorf("error reading file lookinf for ambient module decls: %s", err)
+			}
+
+			matches := ambientModuleDeclRE.FindAllStringSubmatch(string(contents), -1)
+
+			// put all the ambient modules into a set
+			declaredModules := make(map[string]bool)
+			for _, match := range matches {
+				declaredModules[match[1]] = true
+			}
+
+			// remove all the modules that were imported (ie all the modules that
+			// were being augmented/re-opened)
+			for _, mi := range parseImports(filepath, contents) {
+				delete(declaredModules, mi.importPath)
+			}
+
+			if declaredModules[i.importPath] {
+				debugf("found import %s in ambient module declaration in %s", i.importPath, r.GetName())
 				return r.GetName(), nil
 			}
 		}
