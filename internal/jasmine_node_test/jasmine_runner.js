@@ -1,8 +1,20 @@
 const fs = require('fs');
+
+let jasmineCore = null
 let JasmineRunner = null;
 
 try {
   JasmineRunner = require('jasmine/lib/jasmine');
+  if (global.jasmine) {
+    // global.jasmine has been initialized which means a bootstrap script
+    // has already required `jasmine-core` and called jasmineCore.boot()
+    jasmineCore = global.jasmineCore || require('jasmine-core');
+    // Override the jasmineCore boot function so that the jasmine
+    // runner gets the already initialize jasmine and its shared environment
+    jasmineCore.boot = function() {
+      return global.jasmine
+    };
+  }
 } catch (e) {
   if (e.code && e.code === 'MODULE_NOT_FOUND') {
     throw new Error('When using the "jasmine_node_test" rule, please make sure that the ' +
@@ -37,7 +49,7 @@ function main(args) {
   // Remove the manifest, some tested code may process the argv.
   process.argv.splice(2, 1)[0];
 
-  const jrunner = new JasmineRunner();
+  const jrunner = new JasmineRunner({jasmineCore: jasmineCore});
   fs.readFileSync(manifest, UTF8)
       .split('\n')
       .filter(l => l.length > 0)
