@@ -5,9 +5,16 @@ We strongly encourage you to review the project's scope described in the `README
 ## Releasing
 
 Start from a clean checkout at master/HEAD.
+
+Note: if you are using a new clone, you'll need to configure `git-clang-format` to be able to commit the release:
+
+1. `git config clangFormat.binary node_modules/.bin/clang-format`
+1. `git config clangFormat.style file`
+
 Check if there are any breaking changes since the last tag - if so, this will be a minor, if not it's a patch.
 (This may not sound like semver, but since our major version is a zero, the rule is that minors are breaking changes and patches are new features.)
 
+1. `yarn install`
 1. Re-generate the API docs: `yarn skydoc`
 1. `git add docs/` (in case new files were created)
 1. `git commit -a -m 'Update docs for release'`
