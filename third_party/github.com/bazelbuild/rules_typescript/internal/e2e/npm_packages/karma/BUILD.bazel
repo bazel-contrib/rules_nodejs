@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@build_bazel_rules_karma//:defs.bzl", "ts_web_test_suite")
+load("@npm_bazel_karma//:defs.bzl", "ts_web_test_suite")
 
 ts_web_test_suite(
     name = "testing",

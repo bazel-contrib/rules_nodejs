@@ -85,7 +85,7 @@ nodejs_binary(
         "@npm//tsutils",
         "@npm//typescript",
     ],
-    entry_point = "build_bazel_rules_typescript/internal/tsc_wrapped/tsc_wrapped.js",
+    entry_point = "npm_bazel_typescript/internal/tsc_wrapped/tsc_wrapped.js",
     visibility = ["//visibility:public"],
 )
 

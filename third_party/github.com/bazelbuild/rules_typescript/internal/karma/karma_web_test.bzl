@@ -43,7 +43,7 @@ KARMA_GENERIC_WEB_TEST_ATTRS = dict(COMMON_WEB_TEST_ATTRS, **{
         doc = """Arbitrary files which are available to be served on request.
         Files are served at:
         `/base/<WORKSPACE_NAME>/<path-to-file>`, e.g.
-        `/base/build_bazel_rules_typescript/examples/testing/static_script.js`""",
+        `/base/npm_bazel_typescript/examples/testing/static_script.js`""",
         allow_files = True,
     ),
     "runtime_deps": attr.label_list(
@@ -332,7 +332,7 @@ def karma_web_test(
       static_files: Arbitrary files which are available to be served on request.
           Files are served at:
           `/base/<WORKSPACE_NAME>/<path-to-file>`, e.g.
-          `/base/build_bazel_rules_typescript/examples/testing/static_script.js`
+          `/base/npm_bazel_typescript/examples/testing/static_script.js`
       config_file: User supplied Karma configuration file. Bazel will override
           certain attributes of this configuration file. Attributes that are
           overridden will be outputted to the test log.

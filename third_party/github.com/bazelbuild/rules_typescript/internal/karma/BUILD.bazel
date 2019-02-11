@@ -16,8 +16,8 @@
 # Parts of this BUILD file only necessary when building within the bazelbuild/rules_typescript repo.
 # The generated `@bazel/karma` npm package contains a trimmed BUILD file using # DEV-ONLY fences.
 load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary", "npm_package")
-load("@build_bazel_rules_typescript//:version.bzl", "COMPAT_VERSION")
-load("@build_bazel_rules_typescript//internal:defaults.bzl", "ts_library")
+load("@npm_bazel_typescript//:version.bzl", "COMPAT_VERSION")
+load("@npm_bazel_typescript//internal:defaults.bzl", "ts_library")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -60,7 +60,7 @@ nodejs_binary(
 
 genrule(
     name = "license_copy",
-    srcs = ["@build_bazel_rules_typescript//:LICENSE"],
+    srcs = ["@npm_bazel_typescript//:LICENSE"],
     outs = ["LICENSE"],
     cmd = "cp $< $@",
 )

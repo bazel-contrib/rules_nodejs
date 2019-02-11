@@ -1,6 +1,6 @@
 const someGlobal = new Promise<string>((resolve, reject) => {
   const script = document.createElement('script');
-  script.src = `base/build_bazel_rules_typescript/examples/testing/static_script.js`;
+  script.src = `base/npm_bazel_typescript/examples/testing/static_script.js`;
   script.onerror = reject;
   script.onload = () => {
     document.body.removeChild(script);

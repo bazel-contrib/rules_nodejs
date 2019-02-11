@@ -86,7 +86,7 @@ def ts_web_test(
       static_files: Arbitrary files which are available to be served on request.
           Files are served at:
           `/base/<WORKSPACE_NAME>/<path-to-file>`, e.g.
-          `/base/build_bazel_rules_typescript/examples/testing/static_script.js`
+          `/base/npm_bazel_typescript/examples/testing/static_script.js`
       tags: Standard Bazel tags, this macro adds tags for ibazel support as well as
           `browser:chromium-system` to allow for filtering on systems with no
           system Chrome.

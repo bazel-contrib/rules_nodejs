@@ -27,9 +27,9 @@ else
 fi
 # --- end runfiles.bash initialization ---
 
-readonly LIBRARY_JS=$(cat $(rlocation "build_bazel_rules_typescript/examples/some_library/library.js"))
-readonly BAR_JS=$(cat $(rlocation "build_bazel_rules_typescript/examples/bar.js"))
-readonly FOO_JS=$(cat $(rlocation "build_bazel_rules_typescript/examples/foo.js"))
+readonly LIBRARY_JS=$(cat $(rlocation "npm_bazel_typescript/examples/some_library/library.js"))
+readonly BAR_JS=$(cat $(rlocation "npm_bazel_typescript/examples/bar.js"))
+readonly FOO_JS=$(cat $(rlocation "npm_bazel_typescript/examples/foo.js"))
 
 # should produce named UMD modules
 if [[ "$LIBRARY_JS" != *"define(\"some-lib\""* ]]; then
@@ -39,14 +39,14 @@ if [[ "$LIBRARY_JS" != *"define(\"some-lib\""* ]]; then
 fi
 
 # should produce named UMD modules
-if [[ "$BAR_JS" != *"define(\"build_bazel_rules_typescript/examples/bar\""* ]]; then
+if [[ "$BAR_JS" != *"define(\"npm_bazel_typescript/examples/bar\""* ]]; then
   echo "Expected bar.js to declare named module, but was"
   echo "$BAR_JS"
   exit 1
 fi
 
 # should give a name to required modules
-if [[ "$BAR_JS" != *"require(\"build_bazel_rules_typescript/examples/foo\")"* ]]; then
+if [[ "$BAR_JS" != *"require(\"npm_bazel_typescript/examples/foo\")"* ]]; then
   echo "Expected bar.js to require named module foo, but was"
   echo "$BAR_JS"
   exit 1
@@ -60,7 +60,7 @@ if [[ "$BAR_JS" != *"require(\"some-lib\")"* ]]; then
 fi
 
 # should give a name to required generated modules without bazel-bin
-if [[ "$BAR_JS" != *"require(\"build_bazel_rules_typescript/examples/generated_ts/foo\")"* ]]; then
+if [[ "$BAR_JS" != *"require(\"npm_bazel_typescript/examples/generated_ts/foo\")"* ]]; then
   echo "Expected bar.js to require generated named module foo, but was"
   echo "$BAR_JS"
   exit 1
@@ -74,7 +74,7 @@ if [[ "$BAR_JS" != *"require(\"typescript\")"* ]]; then
 fi
 
 # should produce named UMD modules
-if [[ "$FOO_JS" != *"define(\"build_bazel_rules_typescript/examples/foo\""* ]]; then
+if [[ "$FOO_JS" != *"define(\"npm_bazel_typescript/examples/foo\""* ]]; then
   echo "Expected foo.js to declare named module, but was"
   echo "$FOO_JS"
   exit 1

@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-"@bazel/karma@file:../../../../../../../../../private/var/tmp/_bazel_greg/8018d2bc8e133e0b44c274b6423215ba/execroot/build_bazel_rules_karma/bazel-out/darwin-fastbuild/bin/npm_package":
+"@bazel/karma@file:../../../../../../../../../private/var/tmp/_bazel_greg/8018d2bc8e133e0b44c274b6423215ba/execroot/npm_bazel_karma/bazel-out/darwin-fastbuild/bin/npm_package":
   version "0.0.0"
   dependencies:
     jasmine-core "2.8.0"

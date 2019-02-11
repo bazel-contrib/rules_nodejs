@@ -27,9 +27,9 @@ else
 fi
 # --- end runfiles.bash initialization ---
 
-readonly FOO_JS=$(cat $(rlocation "build_bazel_rules_typescript/examples/es6_output/es6_output.es6/examples/foo.js"))
-readonly BAR_JS=$(cat $(rlocation "build_bazel_rules_typescript/examples/es6_output/es6_output.es6/examples/bar.js"))
-readonly LIBRARY_JS=$(cat $(rlocation "build_bazel_rules_typescript/examples/es6_output/es6_output.es6/examples/some_library/library.js"))
+readonly FOO_JS=$(cat $(rlocation "npm_bazel_typescript/examples/es6_output/es6_output.es6/examples/foo.js"))
+readonly BAR_JS=$(cat $(rlocation "npm_bazel_typescript/examples/es6_output/es6_output.es6/examples/bar.js"))
+readonly LIBRARY_JS=$(cat $(rlocation "npm_bazel_typescript/examples/es6_output/es6_output.es6/examples/some_library/library.js"))
 
 # should not down-level ES2015 syntax, eg. `class`
 if [[ "$FOO_JS" != *"class Greeter"* ]]; then

@@ -14,7 +14,7 @@ ts_devserver(
     name = "devserver",
     additional_root_paths = [
         "npm/node_modules/tslib",
-        "build_bazel_rules_typescript/examples/devserver/",
+        "npm_bazel_typescript/examples/devserver/",
     ],
     port = 80,
     serving_path = "/bundle.js",

@@ -51,7 +51,7 @@
         "which": "~1.0.5"
     },
     "bazelWorkspaces": {
-        "build_bazel_rules_typescript": {
+        "npm_bazel_typescript": {
             "version": "0.0.0-PLACEHOLDER",
             "compatVersion": "0.0.0-COMPAT_VERSION",
             "rootPath": "."

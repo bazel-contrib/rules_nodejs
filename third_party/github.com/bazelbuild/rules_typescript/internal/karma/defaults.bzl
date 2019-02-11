@@ -15,14 +15,14 @@
 "Defaults for rules_karma repository not meant to be used downstream"
 
 load(
-    "@build_bazel_rules_karma//:defs.bzl",
+    "@npm_bazel_karma//:defs.bzl",
     _karma_web_test = "karma_web_test",
     _karma_web_test_suite = "karma_web_test_suite",
     _ts_web_test = "ts_web_test",
     _ts_web_test_suite = "ts_web_test_suite",
 )
 
-INTERNAL_KARMA_BIN = "@build_bazel_rules_karma//:karma_bin"
+INTERNAL_KARMA_BIN = "@npm_bazel_karma//:karma_bin"
 
 def karma_web_test(karma = INTERNAL_KARMA_BIN, **kwargs):
     _karma_web_test(karma = karma, **kwargs)

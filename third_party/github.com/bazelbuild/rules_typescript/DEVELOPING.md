@@ -4,13 +4,13 @@ We strongly encourage you to review the project's scope described in the `README
 
 ## Testing changing downstream
 
-By default, downstream projects use both an `http_archive` of `build_bazel_rules_typescript` and the released `@bazel/typescript` and `@bazel/karma` npm packages. `postinstall` steps in these npm packages check that the version of the `build_bazel_rules_typescript` is compatible with the version of the npm package(s).
+By default, downstream projects use both an `http_archive` of `npm_bazel_typescript` and the released `@bazel/typescript` and `@bazel/karma` npm packages. `postinstall` steps in these npm packages check that the version of the `npm_bazel_typescript` is compatible with the version of the npm package(s).
 
 For example, if a downstream `WORKSPACE` contain:
 
 ```python
 http_archive(
-    name = "build_bazel_rules_typescript",
+    name = "npm_bazel_typescript",
     url = "https://github.com/bazelbuild/rules_typescript/archive/0.21.0.zip",
     strip_prefix = "rules_typescript-0.21.0",
 )
@@ -38,7 +38,7 @@ to
 
 ```python
 "compiler": attr.label(
-    default = Label("@build_bazel_rules_typescript//internal:tsc_wrapped_bin"),
+    default = Label("@npm_bazel_typescript//internal:tsc_wrapped_bin"),
 ```
 
 The correct defaults to use so that you are not depending on the npm package downstream are in `/internal/defaults.bzl`. Note, your downstream
@@ -46,7 +46,7 @@ workspace will also need the correct `@npm` dependencies available to build thes
 In the case of the `angular` workspace, some `@npm` dependencies in this repository will also need to be changed to `@ngdeps` since `angular` does not have
 an `@npm` workspace with npm dependencies.
 
-Note, with this workflow the downstream version of `@npm//typescript` will be used to compile the `ts_library` targets in `build_bazel_rules_typescript`.
+Note, with this workflow the downstream version of `@npm//typescript` will be used to compile the `ts_library` targets in `npm_bazel_typescript`.
 An example of this can be found under `internal/e2e/typescript_3.1`.
 
 ## Releasing

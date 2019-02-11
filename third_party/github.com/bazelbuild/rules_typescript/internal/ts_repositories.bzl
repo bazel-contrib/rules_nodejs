@@ -40,20 +40,20 @@ def ts_setup_workspace():
     # @build_bazel_rules_typescript_tsc_wrapped_deps is not used locally.
     yarn_install(
         name = "build_bazel_rules_typescript_tsc_wrapped_deps",
-        package_json = "@build_bazel_rules_typescript//internal:tsc_wrapped/package.json",
-        yarn_lock = "@build_bazel_rules_typescript//internal:tsc_wrapped/yarn.lock",
+        package_json = "@npm_bazel_typescript//internal:tsc_wrapped/package.json",
+        yarn_lock = "@npm_bazel_typescript//internal:tsc_wrapped/yarn.lock",
     )
 
     yarn_install(
         name = "build_bazel_rules_typescript_devserver_deps",
-        package_json = "@build_bazel_rules_typescript//internal/devserver:package.json",
-        yarn_lock = "@build_bazel_rules_typescript//internal/devserver:yarn.lock",
+        package_json = "@npm_bazel_typescript//internal/devserver:package.json",
+        yarn_lock = "@npm_bazel_typescript//internal/devserver:yarn.lock",
     )
 
     yarn_install(
         name = "build_bazel_rules_typescript_protobufs_compiletime_deps",
-        package_json = "@build_bazel_rules_typescript//internal/protobufjs:package.json",
-        yarn_lock = "@build_bazel_rules_typescript//internal/protobufjs:yarn.lock",
+        package_json = "@npm_bazel_typescript//internal/protobufjs:package.json",
+        yarn_lock = "@npm_bazel_typescript//internal/protobufjs:yarn.lock",
     )
 
 # BEGIN-DEV-ONLY
