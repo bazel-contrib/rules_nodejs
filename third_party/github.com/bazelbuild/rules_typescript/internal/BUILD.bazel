@@ -86,7 +86,6 @@ nodejs_binary(
         "@npm//typescript",
     ],
     entry_point = "build_bazel_rules_typescript/internal/tsc_wrapped/tsc_wrapped.js",
-    templated_args = ["--node_options=--expose-gc"],
     visibility = ["//visibility:public"],
 )
 

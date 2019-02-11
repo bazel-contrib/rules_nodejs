@@ -25,7 +25,7 @@
 load("@bazel_gazelle//:def.bzl", "gazelle")
 
 # END-DEV-ONLY
-load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary", "npm_package")
+load("@build_bazel_rules_nodejs//:defs.bzl", "npm_package")
 
 # BEGIN-DEV-ONLY
 load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
@@ -108,18 +108,3 @@ npm_package(
 # )
 
 # END-DEV-ONLY
-# A nodejs_binary for @bazel/typescript/tsc_wrapped to use by default in
-# ts_library that depends on @npm//@bazel/typescript instead of the
-# output of the //internal/tsc_wrapped ts_library rule. This
-# default is for downstream users that depend on the @bazel/typescript npm
-# package. A generated @npm//@bazel/typescript/bin:tsc_wrapped target
-# would not work because it does not have the node `--expose-gc` flag
-# set which is required to support the call to `global.gc()`.
-nodejs_binary(
-    name = "@bazel/typescript/tsc_wrapped",
-    data = ["@npm//@bazel/typescript"],
-    entry_point = "@bazel/typescript/internal/tsc_wrapped/tsc_wrapped.js",
-    install_source_map_support = False,
-    templated_args = ["--node_options=--expose-gc"],
-    visibility = ["//visibility:public"],
-)

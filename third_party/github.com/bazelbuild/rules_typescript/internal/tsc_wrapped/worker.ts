@@ -4,6 +4,14 @@ const protobufjs = require('protobufjs');
 // tslint:disable-next-line:variable-name: ByteBuffer is instantiatable.
 const ByteBuffer = require('bytebuffer');
 
+// Equivalent of running node with --expose-gc
+// but easier to write tooling since we don't need to inject that arg to
+// nodejs_binary
+if (typeof global.gc !== 'function') {
+  require('v8').setFlagsFromString('--expose_gc');
+  global.gc = require('vm').runInNewContext('gc');
+}
+
 export const DEBUG = false;
 
 export function debug(...args: Array<{}>) {

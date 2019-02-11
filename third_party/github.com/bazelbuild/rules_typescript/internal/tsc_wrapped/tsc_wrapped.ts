@@ -15,6 +15,14 @@ import {PLUGIN as strictDepsPlugin} from './strict_deps';
 import {BazelOptions, parseTsconfig, resolveNormalizedPath} from './tsconfig';
 import {debug, log, runAsWorker, runWorkerLoop} from './worker';
 
+// Equivalent of running node with --expose-gc
+// but easier to write tooling since we don't need to inject that arg to
+// nodejs_binary
+if (typeof global.gc !== 'function') {
+  require('v8').setFlagsFromString('--expose_gc');
+  global.gc = require('vm').runInNewContext('gc');
+}
+
 /**
  * Top-level entry point for tsc_wrapped.
  */

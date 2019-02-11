@@ -22,7 +22,7 @@ load(":common/compilation.bzl", "COMMON_ATTRIBUTES", "DEPS_ASPECTS", "compile_ts
 load(":common/tsconfig.bzl", "create_tsconfig")
 load(":ts_config.bzl", "TsConfigInfo")
 
-_DEFAULT_COMPILER = "@build_bazel_rules_typescript//:@bazel/typescript/tsc_wrapped"
+_DEFAULT_COMPILER = "@npm//@bazel/typescript/bin:tsc_wrapped"
 
 def _trim_package_node_modules(package_name):
     # trim a package name down to its path prior to a node_modules
