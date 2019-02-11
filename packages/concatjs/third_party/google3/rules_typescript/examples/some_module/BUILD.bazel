@@ -39,7 +39,7 @@ nodejs_binary(
         ":main",
         ":some_module",
     ],
-    entry_point = "build_bazel_rules_typescript/examples/some_module/main.js",
+    entry_point = "npm_bazel_typescript/examples/some_module/main.js",
 )
 
 sh_test(

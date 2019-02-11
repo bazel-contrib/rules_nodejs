@@ -27,7 +27,7 @@ else
 fi
 # --- end runfiles.bash initialization ---
 
-readonly OUT=$($(rlocation "build_bazel_rules_typescript/examples/some_module/bin"))
+readonly OUT=$($(rlocation "npm_bazel_typescript/examples/some_module/bin"))
 
 if [ "$OUT" != "hello world" ]; then
   echo "Expected output 'hello world' but was $OUT"

@@ -38,7 +38,7 @@
     "jasmine-core": "2.8.0"
   },
   "bazelWorkspaces": {
-    "build_bazel_rules_karma": {
+    "npm_bazel_karma": {
       "version": "0.0.0-PLACEHOLDER",
       "compatVersion": "0.0.0-COMPAT_VERSION",
       "rootPath": "."

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Package file which defines build_bazel_rules_typescript version in skylark
+"""Package file which defines npm_bazel_typescript version in skylark
 """
 
 load("@build_bazel_rules_nodejs//internal/common:check_version.bzl", "check_version")
@@ -26,9 +26,9 @@ COMPAT_VERSION = "0.24.0"
 
 def check_rules_typescript_version(version_string):
     """
-    Verify that a compatible build_bazel_rules_typescript is loaded a WORKSPACE.
+    Verify that a compatible npm_bazel_typescript is loaded a WORKSPACE.
 
-    Where COMPAT_VERSION and VERSION come from the build_bazel_rules_typescript that
+    Where COMPAT_VERSION and VERSION come from the npm_bazel_typescript that
     is loaded in a WORKSPACE, this function will check:
 
     VERSION >= version_string >= COMPAT_VERSION
@@ -38,18 +38,18 @@ def check_rules_typescript_version(version_string):
 
     ```
     # in WORKSPACE:
-    load("@build_bazel_rules_typescript//:defs.bzl", "check_rules_typescript_version")
+    load("@npm_bazel_typescript//:defs.bzl", "check_rules_typescript_version")
     check_rules_typescript_version(version_string = "0.22.0")
     ```
 
     Args:
       version_string: A version string to check for compatibility with the loaded version
-                      of build_bazel_rules_typescript. The version check performed is
+                      of npm_bazel_typescript. The version check performed is
                       `VERSION >= version_string >= COMPAT_VERSION` where VERSION and COMPAT_VERSION
-                      come from the loaded version of build_bazel_rules_typescript.
+                      come from the loaded version of npm_bazel_typescript.
     """
     if not check_version(VERSION, version_string) or not check_version(version_string, COMPAT_VERSION):
-        fail("\nLoaded build_bazel_rules_typescript version {} with mimimum compat version of {} is not compatible with checked version {}!\n\n".format(
+        fail("\nLoaded npm_bazel_typescript version {} with mimimum compat version of {} is not compatible with checked version {}!\n\n".format(
             VERSION,
             COMPAT_VERSION,
             version_string,

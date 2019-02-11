@@ -73,13 +73,13 @@ yarn_install(
 load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
 install_bazel_dependencies()
 
-# Fetch transitive Bazel dependencies of build_bazel_rules_karma
+# Fetch transitive Bazel dependencies of npm_bazel_karma
 # ONLY REQUIRED if you are using the @bazel/karma npm package
-load("@build_bazel_rules_karma//:package.bzl", "rules_karma_dependencies")
+load("@npm_bazel_karma//:package.bzl", "rules_karma_dependencies")
 rules_karma_dependencies()
 
 # Setup TypeScript toolchain
-load("@build_bazel_rules_typescript//:defs.bzl", "ts_setup_workspace")
+load("@npm_bazel_typescript//:defs.bzl", "ts_setup_workspace")
 ts_setup_workspace()
 
 # Setup web testing, choose browsers we can test on
@@ -168,7 +168,7 @@ Create a `BUILD` file next to your sources:
 
 ```python
 package(default_visibility=["//visibility:public"])
-load("@build_bazel_rules_typescript//:defs.bzl", "ts_library")
+load("@npm_bazel_typescript//:defs.bzl", "ts_library")
 
 ts_library(
     name = "my_code",
@@ -250,7 +250,7 @@ To use `ts_devserver`, you simply `load` the rule, and call it with `deps` that
 point to your `ts_library` target(s):
 
 ```python
-load("@build_bazel_rules_typescript//:defs.bzl", "ts_devserver", "ts_library")
+load("@npm_bazel_typescript//:defs.bzl", "ts_devserver", "ts_library")
 
 ts_library(
     name = "app",

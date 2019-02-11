@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@build_bazel_rules_karma//:defs.bzl", "ts_web_test_suite")
-load("@build_bazel_rules_typescript//:defs.bzl", "ts_library")
+load("@npm_bazel_karma//:defs.bzl", "ts_web_test_suite")
+load("@npm_bazel_typescript//:defs.bzl", "ts_library")
 
 package(default_visibility = ["//visibility:public"])
 

@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-"@bazel/typescript@file:../../../../../../../../../private/var/tmp/_bazel_greg/837d12dda6835e241d9d3083438c6bb6/execroot/build_bazel_rules_typescript/bazel-out/darwin-fastbuild/bin/npm_package":
+"@bazel/typescript@file:../../../../../../../../../private/var/tmp/_bazel_greg/837d12dda6835e241d9d3083438c6bb6/execroot/npm_bazel_typescript/bazel-out/darwin-fastbuild/bin/npm_package":
   version "0.22.1-41-gc1f5737"
   dependencies:
     jasmine-core "2.8.0"

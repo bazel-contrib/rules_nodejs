@@ -8,9 +8,9 @@ skylark_doc(
         "//internal:ts_repositories.bzl",
         "//internal/devserver:ts_devserver.bzl",
         "//internal/protobufjs:ts_proto_library.bzl",
-        # TODO(gregmagolan): fix docs for build_bazel_rules_karma
-        # "@build_bazel_rules_karma//:karma_web_test.bzl",
-        # "@build_bazel_rules_karma//:ts_web_test.bzl",
+        # TODO(gregmagolan): fix docs for npm_bazel_karma
+        # "@npm_bazel_karma//:karma_web_test.bzl",
+        # "@npm_bazel_karma//:ts_web_test.bzl",
     ],
     format = "html",
     # The site is served at http://tsetse.info so the URL doesn't include a

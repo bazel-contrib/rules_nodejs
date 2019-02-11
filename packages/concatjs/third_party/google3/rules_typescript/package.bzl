@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Package file which defines build_bazel_rules_typescript dependencies
+"""Package file which defines npm_bazel_typescript dependencies
 """
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
@@ -22,7 +22,7 @@ def rules_typescript_dependencies():
     rules_typescript_dependencies is no longer needed, and will be removed in a future release.
     We assume you will fetch rules_nodejs in your WORKSPACE file, and no other dependencies remain here.
     Simply remove any calls to this function and the corresponding call to
-      load("@build_bazel_rules_typescript//:package.bzl", "rules_typescript_dependencies")
+      load("@npm_bazel_typescript//:package.bzl", "rules_typescript_dependencies")
     """)
 
 def rules_typescript_dev_dependencies():
@@ -83,7 +83,7 @@ def rules_typescript_dev_dependencies():
     # io_bazel_rules_webtesting depends on bazel_skylib. It is installed by
     # web_test_repositories() but we depend on it here in case users don't call
     # web_test_repositories(). This will get cleaned up by https://github.com/bazelbuild/rules_typescript/pull/374
-    # which introduces build_bazel_rules_karma with its own defs.bzl file
+    # which introduces npm_bazel_karma with its own defs.bzl file
     # that will allow this dep to be removed from rules_typescript_dependencies()
     _maybe(
         http_archive,

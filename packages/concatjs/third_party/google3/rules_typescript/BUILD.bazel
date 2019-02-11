@@ -99,7 +99,7 @@ npm_package(
 )
 
 # Produces the release we publish to GitHub. Users download this starlark package
-# to get the @build_bazel_rules_typescript workspace.
+# to get the @npm_bazel_typescript workspace.
 # FIXME(gregmagolan): strip the npm_package prefix from within the generated archive
 # pkg_tar(
 #     name = "release",

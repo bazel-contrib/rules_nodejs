@@ -1,4 +1,4 @@
-load("@build_bazel_rules_karma//:defaults.bzl", "karma_web_test_suite", "ts_web_test_suite")
+load("@npm_bazel_karma//:defaults.bzl", "karma_web_test_suite", "ts_web_test_suite")
 load("//internal:defaults.bzl", "ts_library")
 
 ts_library(

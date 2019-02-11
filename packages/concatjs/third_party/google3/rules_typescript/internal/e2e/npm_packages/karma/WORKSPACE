@@ -36,7 +36,7 @@ load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
 
 install_bazel_dependencies()
 
-load("@build_bazel_rules_karma//:package.bzl", "rules_karma_dependencies")
+load("@npm_bazel_karma//:package.bzl", "rules_karma_dependencies")
 
 rules_karma_dependencies()
 

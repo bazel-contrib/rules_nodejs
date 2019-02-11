@@ -1,7 +1,7 @@
-load("@build_bazel_rules_karma//:defaults.bzl", "ts_web_test_suite")
 load("@build_bazel_rules_nodejs//:defs.bzl", "http_server", "rollup_bundle")
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 load("@io_bazel_rules_go//proto:def.bzl", "go_proto_library")
+load("@npm_bazel_karma//:defaults.bzl", "ts_web_test_suite")
 load(
     "//:defs.bzl",
     "ts_devserver",
@@ -44,7 +44,7 @@ ts_library(
 
 ts_web_test_suite(
     name = "test",
-    bootstrap = ["@build_bazel_rules_typescript//:protobufjs_bootstrap_scripts"],
+    bootstrap = ["@npm_bazel_typescript//:protobufjs_bootstrap_scripts"],
     browsers = [
         "@io_bazel_rules_webtesting//browsers:chromium-local",
         "@io_bazel_rules_webtesting//browsers:firefox-local",
@@ -60,8 +60,8 @@ ts_library(
 
 ts_devserver(
     name = "devserver",
-    bootstrap = ["@build_bazel_rules_typescript//:protobufjs_bootstrap_scripts"],
-    entry_module = "build_bazel_rules_typescript/examples/protocol_buffers/app",
+    bootstrap = ["@npm_bazel_typescript//:protobufjs_bootstrap_scripts"],
+    entry_module = "npm_bazel_typescript/examples/protocol_buffers/app",
     port = 8080,
     deps = [":bundle"],
 )

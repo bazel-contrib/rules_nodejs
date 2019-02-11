@@ -15,14 +15,14 @@
 "Defaults for rules_typescript repository not meant to be used downstream"
 
 load(
-    "@build_bazel_rules_typescript//:defs.bzl",
+    "@npm_bazel_typescript//:defs.bzl",
     _ts_library = "ts_library",
 )
 
 # We can't use the defaults for ts_library compiler and ts_web_test_suite karma
 # internally because the defaults are .js dependencies on the npm packages that are
 # published and internally we are building the things themselves to publish to npm
-INTERNAL_TS_LIBRARY_COMPILER = "@build_bazel_rules_typescript//internal:tsc_wrapped_bin"
+INTERNAL_TS_LIBRARY_COMPILER = "@npm_bazel_typescript//internal:tsc_wrapped_bin"
 
 def ts_library(compiler = INTERNAL_TS_LIBRARY_COMPILER, **kwargs):
     _ts_library(compiler = compiler, **kwargs)

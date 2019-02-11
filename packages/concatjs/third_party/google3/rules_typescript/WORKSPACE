@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-workspace(name = "build_bazel_rules_typescript")
+workspace(name = "npm_bazel_typescript")
 
-# Load nested build_bazel_rules_karma repository
+# Load nested npm_bazel_karma repository
 local_repository(
-    name = "build_bazel_rules_karma",
+    name = "npm_bazel_karma",
     path = "internal/karma",
 )
 
@@ -26,7 +26,7 @@ load("//:package.bzl", "rules_typescript_dev_dependencies")
 rules_typescript_dev_dependencies()
 
 # Load rules_karma dependencies
-load("@build_bazel_rules_karma//:package.bzl", "rules_karma_dependencies")
+load("@npm_bazel_karma//:package.bzl", "rules_karma_dependencies")
 
 rules_karma_dependencies()
 
