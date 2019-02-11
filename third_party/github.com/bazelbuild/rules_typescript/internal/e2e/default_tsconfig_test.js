@@ -23,11 +23,11 @@ const os = require('os');
 const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), 'wksp'));
 const WORKSPACE_BOILERPLATE = `
 local_repository(
-    name = "build_bazel_rules_typescript",
+    name = "npm_bazel_typescript",
     path = "${process.cwd()}",
 )
 # Using rules_typescript_dev_dependencies for this test since we're not depending on the generated npm package
-load("@build_bazel_rules_typescript//:package.bzl", "rules_typescript_dev_dependencies")
+load("@npm_bazel_typescript//:package.bzl", "rules_typescript_dev_dependencies")
 rules_typescript_dev_dependencies()
 load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "yarn_install")
 node_repositories()
@@ -37,7 +37,7 @@ yarn_install(
   yarn_lock = "//:yarn.lock",
 )
 # Using ts_setup_dev_workspace for this test since we're not depending on the generated npm package
-load("@build_bazel_rules_typescript//internal:ts_repositories.bzl", "ts_setup_dev_workspace")
+load("@npm_bazel_typescript//internal:ts_repositories.bzl", "ts_setup_dev_workspace")
 ts_setup_dev_workspace()
 `;
 
@@ -388,8 +388,8 @@ ${WORKSPACE_BOILERPLATE}`);
        write('a/BUILD', `
 # We use ts_library from internal/defaults.bzl since we don't have a @bazel/typescript npm
 # package in this test. This changes the ts_library compiler from the default
-# which depends on @npm//@bazel/typescript which is not available in this test to '@build_bazel_rules_typescript//internal:tsc_wrapped_bin' which is
-load("@build_bazel_rules_typescript//internal:defaults.bzl", "ts_library")
+# which depends on @npm//@bazel/typescript which is not available in this test to '@npm_bazel_typescript//internal:tsc_wrapped_bin' which is
+load("@npm_bazel_typescript//internal:defaults.bzl", "ts_library")
 ts_library(
     name = "a_lib",
     srcs=["has_implicit_any.ts"],
@@ -411,8 +411,8 @@ ${WORKSPACE_BOILERPLATE}`);
        write('b/BUILD', `
 # We use ts_library from internal/defaults.bzl since we don't have a @bazel/typescript npm
 # package in this test. This changes the ts_library compiler from the default
-# which depends on @npm//@bazel/typescript which is not available in this test to '@build_bazel_rules_typescript//internal:tsc_wrapped_bin' which is
-load("@build_bazel_rules_typescript//internal:defaults.bzl", "ts_library")
+# which depends on @npm//@bazel/typescript which is not available in this test to '@npm_bazel_typescript//internal:tsc_wrapped_bin' which is
+load("@npm_bazel_typescript//internal:defaults.bzl", "ts_library")
 exports_files(["tsconfig.json"])
 ts_library(
     name = "b_lib",
