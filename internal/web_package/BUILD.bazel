@@ -42,6 +42,9 @@ jasmine_node_test(
     name = "assembler_test",
     srcs = ["assembler_spec.js"],
     node_modules = "@build_bazel_rules_nodejs_web_package_deps//:node_modules",
+    tags = [
+        "fix-windows",
+    ],
     deps = [
         "assembler.js",
     ],
