@@ -8,16 +8,7 @@ set -u -e -o pipefail
 TESTS_ROOT_DIR=$(cd $(dirname "$0"); pwd)
 NODEJS_ROOT_DIR=$(cd $TESTS_ROOT_DIR/..; pwd)
 
-# Check environment
-unameOut="$(uname -s)"
-case "${unameOut}" in
-    Linux*)     machine=Linux;;
-    Darwin*)    machine=Mac;;
-    CYGWIN*)    machine=Cygwin;;
-    MINGW*)     machine=MinGw;;
-    *)          machine="UNKNOWN:${unameOut}"
-esac
-echo ${machine}
+KERNEL_NAME=$(uname -s)
 
 # Make sure the distro is up-to-date and can be referenced at bazel-bin/rules_nodejs_package
 cd $NODEJS_ROOT_DIR
@@ -32,8 +23,8 @@ for testDir in $(ls) ; do
     echo "#################################################################################"
     echo "Testing example in $(pwd)"
     echo ""
-    if [[ $testDir == "vendored_node" && $machine != "Linux" ]] ; then
-      echo "Skipping vendored_node test as it only runs on Linux"
+    if [[ $testDir == "vendored_node" && $KERNEL_NAME != Linux* ]] ; then
+      echo "Skipping vendored_node test as it only runs on Linux while we are executing on $KERNEL_NAME"
     else
       yarn test
     fi
