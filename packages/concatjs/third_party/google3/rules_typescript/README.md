@@ -140,8 +140,6 @@ filegroup(
 nodejs_binary(
     name = "@bazel/typescript/tsc_wrapped",
     entry_point = "@bazel/typescript/internal/tsc_wrapped/tsc_wrapped.js",
-    # The --expose-gc node option is required for tsc_wrapped
-    templated_args = ["--node_options=--expose-gc"],
     # Point bazel to your node_modules to find the entry point
     node_modules = ["//:node_modules"],
 )

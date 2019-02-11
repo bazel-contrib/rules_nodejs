@@ -11,7 +11,8 @@
     "main": "./internal/tsc_wrapped/index.js",
     "typings": "./internal/tsc_wrapped/index.d.ts",
     "bin": {
-        "ts_auto_deps": "./ts_auto_deps/ts_auto_deps.js"
+        "ts_auto_deps": "./ts_auto_deps/ts_auto_deps.js",
+        "tsc_wrapped": "./internal/tsc_wrapped/tsc_wrapped.js"
     },
     "dependencies": {
         "protobufjs": "5.0.3",

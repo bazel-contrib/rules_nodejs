@@ -387,7 +387,7 @@ workspace(name = "a")
 ${WORKSPACE_BOILERPLATE}`);
        write('a/BUILD', `
 # We use ts_library from internal/defaults.bzl since we don't have a @bazel/typescript npm
-# package in this test. This changes the ts_library compiler from the default '@build_bazel_rules_typescript//:@bazel/typescript/tsc_wrapped'
+# package in this test. This changes the ts_library compiler from the default
 # which depends on @npm//@bazel/typescript which is not available in this test to '@build_bazel_rules_typescript//internal:tsc_wrapped_bin' which is
 load("@build_bazel_rules_typescript//internal:defaults.bzl", "ts_library")
 ts_library(
@@ -410,7 +410,7 @@ local_repository(name="a", path="../a")
 ${WORKSPACE_BOILERPLATE}`);
        write('b/BUILD', `
 # We use ts_library from internal/defaults.bzl since we don't have a @bazel/typescript npm
-# package in this test. This changes the ts_library compiler from the default '@build_bazel_rules_typescript//:@bazel/typescript/tsc_wrapped'
+# package in this test. This changes the ts_library compiler from the default
 # which depends on @npm//@bazel/typescript which is not available in this test to '@build_bazel_rules_typescript//internal:tsc_wrapped_bin' which is
 load("@build_bazel_rules_typescript//internal:defaults.bzl", "ts_library")
 exports_files(["tsconfig.json"])
