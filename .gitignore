@@ -2,6 +2,7 @@
 rules_nodejs-*.tar.gz
 /bazel-*
 /examples/*/bazel-*
+/packages/*/bazel-*
 /internal/e2e/*/bazel-*
 /internal/npm_install/test/package/*
 node_modules

@@ -1,6 +1,8 @@
 node_modules
 # Examples are tested by running examples/test_example.sh outside of Bazel
 examples/
+# Each package is a nested workspace
+packages/
 internal/npm_install/test/package
 internal/e2e/bazel_workspaces
 internal/e2e/bazel_workspaces_compat
