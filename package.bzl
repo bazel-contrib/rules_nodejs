@@ -104,7 +104,6 @@ def rules_nodejs_dev_dependencies():
         ],
     )
 
-
     http_archive(
         name = "bazel_skylib",
         url = "https://github.com/bazelbuild/bazel-skylib/archive/0.6.0.zip",
