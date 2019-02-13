@@ -328,7 +328,7 @@ func (a *Analyzer) resolveImports(ctx context.Context, currentPkg, root string, 
 						continue handlingImports
 					}
 				}
-				d, err := a.findExistingDepProvidingImport(ctx, target.dependencies, imp)
+				d, err := a.findExistingDepProvidingImport(ctx, root, target, imp)
 				if err != nil {
 					return err
 				}
@@ -398,13 +398,13 @@ func pathStartsWith(path, prefix string) bool {
 //
 // If the import already has a knownTarget, findRuleProvidingImport will
 // return the knownTarget.
-func (a *Analyzer) findExistingDepProvidingImport(ctx context.Context, rules map[string]*appb.Rule, i *ts_auto_depsImport) (string, error) {
+func (a *Analyzer) findExistingDepProvidingImport(ctx context.Context, root string, rt *resolvedTarget, i *ts_auto_depsImport) (string, error) {
 	if i.knownTarget != "" {
 		return i.knownTarget, nil
 	}
 
 	// check if any of the existing deps declare a module_name that matches the import
-	for _, r := range rules {
+	for _, r := range rt.dependencies {
 		moduleName := stringAttribute(r, "module_name")
 		if moduleName == "" {
 			continue
@@ -440,18 +440,23 @@ func (a *Analyzer) findExistingDepProvidingImport(ctx context.Context, rules map
 		}
 	}
 
-	// check if any of the existing deps have .d.ts sources which have ambient module
-	// declarations
-	for _, r := range rules {
+	// check if any of the other sources or the souces of any of the deps are .d.ts
+	// files which have ambient module declarations
+	var allRules []*appb.Rule
+	for _, r := range rt.dependencies {
+		allRules = append(allRules, r)
+	}
+	allRules = append(allRules, rt.rule)
+	for _, r := range allRules {
 		for _, src := range listAttribute(r, "srcs") {
-			filepath := labelToPath(src)
-			if !strings.HasSuffix(filepath, ".d.ts") {
+			fp := filepath.Join(root, labelToPath(src))
+			if !strings.HasSuffix(fp, ".d.ts") {
 				continue
 			}
 
-			contents, err := platform.ReadFile(ctx, filepath)
+			contents, err := platform.ReadFile(ctx, fp)
 			if err != nil {
-				return "", fmt.Errorf("error reading file lookinf for ambient module decls: %s", err)
+				return "", fmt.Errorf("error reading file looking for ambient module decls: %s", err)
 			}
 
 			matches := ambientModuleDeclRE.FindAllStringSubmatch(string(contents), -1)
@@ -464,7 +469,7 @@ func (a *Analyzer) findExistingDepProvidingImport(ctx context.Context, rules map
 
 			// remove all the modules that were imported (ie all the modules that
 			// were being augmented/re-opened)
-			for _, mi := range parseImports(filepath, contents) {
+			for _, mi := range parseImports(fp, contents) {
 				delete(declaredModules, mi.importPath)
 			}
 

@@ -156,14 +156,13 @@ func TestUnresolvedImports(t *testing.T) {
 	}
 	for _, test := range tests {
 		r := analyzeTargets(t, []string{"a_lib"}, []*testTarget{
-			{"a_lib", `
+			{"a_lib", fmt.Sprintf(`
 				rule_class: "ts_library"
 				attribute: <
 					name: "srcs"
-					string_list_value: "//a:b/importer.ts"
-					string_list_value: "//a:importer.d.ts"
+					string_list_value: "//a:%s"
 					type: 5
-				>`, nil},
+				>`, test.filepath), nil},
 		}, []*file{{test.filepath, []string{test.fileContents}}})
 		if r == nil {
 			continue
