@@ -1,6 +1,7 @@
 node_modules
 # Examples are tested by running examples/test_example.sh outside of Bazel
 examples/
+internal/npm_install/test/package
 internal/e2e/bazel_workspaces
 internal/e2e/bazel_workspaces_compat
 internal/e2e/fine_grained_symlinks

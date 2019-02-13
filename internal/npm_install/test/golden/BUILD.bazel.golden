@@ -27,6 +27,5 @@ filegroup(
         "//node_modules/wrappy:wrappy__files",
         "//node_modules/@gregmagolan/test-a:test-a__files",
         "//node_modules/@gregmagolan/test-b:test-b__files",
-        "//node_modules/@yarnpkg/lockfile:lockfile__files",
     ],
 )

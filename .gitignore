@@ -3,6 +3,7 @@ rules_nodejs-*.tar.gz
 /bazel-*
 /examples/*/bazel-*
 /internal/e2e/*/bazel-*
+/internal/npm_install/test/package/*
 node_modules
 examples/vendored_node/node-v10.12.0-linux-x64
 examples/vendored_node/node-v10.12.0-linux-x64.tar.xz
