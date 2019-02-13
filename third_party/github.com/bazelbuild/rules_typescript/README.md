@@ -8,6 +8,9 @@ Circle CI | Bazel CI
 
 The TypeScript rules integrate the TypeScript compiler with Bazel.
 
+This repo used to contain Karma rules `ts_web_test` and `karma_web_test`.
+These are now documented in the README at http://npmjs.com/package/@bazel/karma
+
 ## API Docs
 
 Generated documentation for using each rule is at:
@@ -18,15 +21,12 @@ http://tsetse.info/api/
 First, install a current Bazel distribution.
 
 Add the `@bazel/typescript` npm package to your `package.json` `devDependencies`.
-Optionally add the `@bazel/karma` npm package if you would like to use the
-`ts_web_test`, `ts_web_test_suite`, `karma_web_test` or `karma_web_test_suite` rules.
 
 ```
 {
   ...
   "devDependencies": {
     "@bazel/typescript": "0.25.0",
-    "@bazel/karma": "0.25.0",
     ...
   },
   ...
@@ -59,7 +59,7 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "yarn_install"
 node_repositories()
 
 # Setup Bazel managed npm dependencies with the `yarn_install` rule.
-# The name of this rule should be set to `npm` so that `ts_library` and `ts_web_test_suite`
+# The name of this rule should be set to `npm` so that `ts_library`
 # can find your npm dependencies by default in the `@npm` workspace. You may
 # also use the `npm_install` rule with a `package-lock.json` file if you prefer.
 # See https://github.com/bazelbuild/rules_nodejs#dependencies for more info.
@@ -73,23 +73,9 @@ yarn_install(
 load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
 install_bazel_dependencies()
 
-# Fetch transitive Bazel dependencies of npm_bazel_karma
-# ONLY REQUIRED if you are using the @bazel/karma npm package
-load("@npm_bazel_karma//:package.bzl", "rules_karma_dependencies")
-rules_karma_dependencies()
-
 # Setup TypeScript toolchain
 load("@npm_bazel_typescript//:defs.bzl", "ts_setup_workspace")
 ts_setup_workspace()
-
-# Setup web testing, choose browsers we can test on
-# ONLY REQUIRED if you are using the @bazel/karma npm package
-load("@io_bazel_rules_webtesting//web:repositories.bzl", "browser_repositories", "web_test_repositories")
-
-web_test_repositories()
-browser_repositories(
-    chromium = True,
-)
 ```
 
 # Self-managed npm dependencies
@@ -140,15 +126,6 @@ filegroup(
 nodejs_binary(
     name = "@bazel/typescript/tsc_wrapped",
     entry_point = "@bazel/typescript/internal/tsc_wrapped/tsc_wrapped.js",
-    # Point bazel to your node_modules to find the entry point
-    node_modules = ["//:node_modules"],
-)
-
-# Create a karma rule to use in ts_web_test_suite karma
-# attribute when using self-managed dependencies
-nodejs_binary(
-    name = "karma/karma",
-    entry_point = "karma/bin/karma",
     # Point bazel to your node_modules to find the entry point
     node_modules = ["//:node_modules"],
 )
@@ -324,8 +301,5 @@ If you'd like a "watch mode", try https://github.com/bazelbuild/bazel-watcher
 
 At some point, we plan to release a tool similar to [gazelle] to generate the
 BUILD files from your source code.
-
-In the meantime, we suggest associating the `.bazel` extension with Python in
-your editor, so that you get useful syntax highlighting.
 
 [gazelle]: https://github.com/bazelbuild/rules_go/tree/master/go/tools/gazelle

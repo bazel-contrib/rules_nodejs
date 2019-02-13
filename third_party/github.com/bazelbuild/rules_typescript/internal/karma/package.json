@@ -43,5 +43,8 @@
       "compatVersion": "0.0.0-COMPAT_VERSION",
       "rootPath": "."
     }
+  },
+  "scripts": {
+    "skydoc": "bazel build --symlink_prefix=bazel- //docs && unzip -o -d docs bazel-bin/docs/docs-skydoc.zip && cat docs/install.md docs/*_web_test.md | sed 's/^##/\\\n##/' > README.md"
   }
 }
