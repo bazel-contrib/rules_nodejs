@@ -70,6 +70,7 @@ npm_package(
     srcs = [
         "BUILD.bazel",
         "WORKSPACE",
+        "browser_repositories.bzl",
         "defaults.bzl",
         "defs.bzl",
         "karma.conf.js",
