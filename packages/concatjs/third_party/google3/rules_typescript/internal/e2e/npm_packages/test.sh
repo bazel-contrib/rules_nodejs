@@ -2,8 +2,9 @@
 
 set -u -e -o pipefail
 
-cd $(dirname "$0")
-TESTS_ROOT_DIR=$(pwd)
+TESTS_ROOT_DIR=$(cd $(dirname "$0"); pwd)
+TYPESCRIPT_ROOT_DIR=$(cd $TESTS_ROOT_DIR/../../..; pwd)
+KARMA_ROOT_DIR=$(cd $TESTS_ROOT_DIR/../../../internal/karma; pwd)
 
 echo ""
 echo "#################################################################################"
@@ -15,16 +16,19 @@ echo ""
 echo "Run this script with '--update-lock-files' to update yarn.lock files instead of running tests"
 echo ""
 
-# Determine the absolute paths to the generated @bazel/typescript and @bazel/karma npm packages
-cd $TESTS_ROOT_DIR/../../..
+# Generate the npm packages @bazel/typescript and @bazel/karma npm packages and
+# determine their absolute paths in bazel-bin
+cd $TYPESCRIPT_ROOT_DIR
 BAZEL=$(pwd)/node_modules/.bin/bazel
 if [[ ! -f $BAZEL ]] ; then
   echo "Bazel not found under $BAZEL"
   exit 1
 fi
+$BAZEL build //:npm_package
 BAZEL_BIN_TYPESCRIPT=$($BAZEL info bazel-bin)
 BAZEL_TYPESCRIPT_NPM_PACKAGE=$BAZEL_BIN_TYPESCRIPT/npm_package
-cd $TESTS_ROOT_DIR/../../../internal/karma
+cd $KARMA_ROOT_DIR
+$BAZEL build //:npm_package
 BAZEL_BIN_KARMA=$($BAZEL info bazel-bin)
 BAZEL_KARMA_NPM_PACKAGE=$BAZEL_BIN_KARMA/npm_package
 echo "@bazel/typescript: $BAZEL_TYPESCRIPT_NPM_PACKAGE"
