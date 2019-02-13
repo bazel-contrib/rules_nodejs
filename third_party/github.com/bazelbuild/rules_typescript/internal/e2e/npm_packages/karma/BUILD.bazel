@@ -21,4 +21,10 @@ ts_web_test_suite(
         "@io_bazel_rules_webtesting//browsers:chromium-local",
         "@io_bazel_rules_webtesting//browsers:firefox-local",
     ],
+    static_files = [
+        ":unnamed-amd-module.js",
+    ],
+    deps = [
+        ":requirejs-config.js",
+    ],
 )

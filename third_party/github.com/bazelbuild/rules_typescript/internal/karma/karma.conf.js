@@ -165,6 +165,19 @@ try
     // base path that will be used to resolve all patterns
     // (eg. files, exclude)
     overrideConfigValue(conf, 'basePath', 'TMPL_runfiles_path');
+
+    // Do not show "no timestamp" errors from "karma-requirejs" for proxied file
+    // requests. Files which are passed as "static_files" are proxied by default and
+    // therefore should not cause such an exception when loaded as expected.
+    // See: https://github.com/karma-runner/karma-requirejs/issues/6
+    const requireJsShowNoTimestampsError = '^(?!/base/).*$';
+
+    if (conf.client) {
+      overrideConfigValue(conf.client, 'requireJsShowNoTimestampsError',
+          requireJsShowNoTimestampsError);
+    } else {
+      conf.client = {requireJsShowNoTimestampsError};
+    }
   }
 
   /**
@@ -388,7 +401,7 @@ try
         throw new Error('Invalid base karma configuration. Expected config function to be exported.');
       }
       const originalSetConfig = config.set;
-      config.set = function(c) { conf = c; }
+      config.set = function(c) { conf = c; };
       baseConf(config);
       config.set = originalSetConfig;
       if (DEBUG) console.info(`Base karma configuration: ${JSON.stringify(conf, null, 2)}`);
