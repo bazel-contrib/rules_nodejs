@@ -1,9 +1,19 @@
-load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
+load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test", "rollup_bundle")
 load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_package")
+
+rollup_bundle(
+    name = "bundle",
+    srcs = glob(["*.js"]),
+    entry_point = "internal/web_package/test/script.js",
+)
 
 web_package(
     name = "pkg",
-    assets = ["script.js"],
+    # Intentionally duplicating `bundle.min.js` in assets and data
+    # to test for regression of the issues fixed by
+    # https://github.com/bazelbuild/rules_nodejs/pull/546
+    assets = [":bundle.min.js"],
+    data = [":bundle"],
     index_html = "index.html",
 )
 
