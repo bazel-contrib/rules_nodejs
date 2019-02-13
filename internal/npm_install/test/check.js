@@ -28,8 +28,7 @@ function check(file, updateGolden = false) {
           .replace(/[\n]+/g, '\n');
 
   // Load the golden file for comparison
-  const golden = path.posix.join(
-      path.dirname(__filename), golden', file + '.golden');
+  const golden = path.posix.join(path.dirname(__filename), 'golden', file + '.golden');
   const goldenContents = fs.readFileSync(golden, {encoding: 'utf-8'}).replace(/\r\n/g, '\n');
 
   // Check if actualContents matches golden file
