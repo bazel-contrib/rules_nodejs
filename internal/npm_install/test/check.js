@@ -16,17 +16,20 @@ function check(file, updateGolden = false) {
   // Strip comments from generated file for comparison to golden
   // to make comparison less brittle
   const actual = path.posix.join(path.dirname(__filename), 'package', file);
-  const actualContents = fs.readFileSync(actual, {encoding: 'utf-8'})
-                             .replace(/\r\n/g, '\n')
-                             .split('\n')
-                             .filter(l => !l.trimLeft().startsWith('#'))
-                             .join('\n')
-                             .replace(/[\n]+/g, '\n');
+  const actualContents =
+      fs.readFileSync(actual, {encoding: 'utf-8'})
+          .replace(/\r\n/g, '\n')
+          .split('\n')
+          // Remove all comments for the comparison
+          .filter(l => !l.trimLeft().startsWith('#'))
+          // Remove .cmd files for the comparison since they only exist on Windows
+          .filter(l => !l.endsWith('.cmd'))
+          .join('\n')
+          .replace(/[\n]+/g, '\n');
 
   // Load the golden file for comparison
-  var isWindows = process.platform === 'win32';
   const golden = path.posix.join(
-      path.dirname(__filename), isWindows ? 'golden_windows' : 'golden', file + '.golden');
+      path.dirname(__filename), golden', file + '.golden');
   const goldenContents = fs.readFileSync(golden, {encoding: 'utf-8'}).replace(/\r\n/g, '\n');
 
   // Check if actualContents matches golden file
