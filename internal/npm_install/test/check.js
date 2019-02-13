@@ -23,7 +23,7 @@ function check(file, updateGolden = false) {
           // Remove all comments for the comparison
           .filter(l => !l.trimLeft().startsWith('#'))
           // Remove .cmd files for the comparison since they only exist on Windows
-          .filter(l => !l.endsWith('.cmd'))
+          .filter(l => !l.endsWith('.cmd",'))
           .join('\n')
           .replace(/[\n]+/g, '\n');
 
