@@ -1,0 +1,10 @@
+load("@io_bazel_skydoc//skylark:skylark.bzl", "skylark_doc")
+
+skylark_doc(
+    name = "docs",
+    srcs = [
+        "//:karma_web_test.bzl",
+        "//:ts_web_test.bzl",
+    ],
+    format = "markdown",
+)
