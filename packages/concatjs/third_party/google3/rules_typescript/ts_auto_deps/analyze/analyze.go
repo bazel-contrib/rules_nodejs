@@ -371,6 +371,26 @@ func pathWithExtensions(basename string) []string {
 
 var ambientModuleDeclRE = regexp.MustCompile("(?m)^\\s*declare\\s+module\\s+['\"]([^'\"]+)['\"]\\s+\\{")
 
+// pathStartsWith checks if path starts with prefix, checking each path segment,
+// so that @angular/core starts with @angular/core, but @angular/core-bananas
+// does not
+func pathStartsWith(path, prefix string) bool {
+	pathParts := strings.Split(path, string(os.PathSeparator))
+	prefixParts := strings.Split(prefix, string(os.PathSeparator))
+
+	if len(prefixParts) > len(pathParts) {
+		return false
+	}
+
+	for i, prefixPart := range prefixParts {
+		if prefixPart != pathParts[i] {
+			return false
+		}
+	}
+
+	return true
+}
+
 // findExistingDepProvidingImport looks through a map of the existing deps to
 // see if any of them provide the import in a way that can't be queried
 // for.  E.g. if the build rule has a "module_name" attribute or if one
@@ -389,11 +409,33 @@ func (a *Analyzer) findExistingDepProvidingImport(ctx context.Context, rules map
 		if moduleName == "" {
 			continue
 		}
+		if !pathStartsWith(i.importPath, moduleName) {
+			continue
+		}
+		// fmt.Printf("checking if %s is provided by %s\n", i.importPath, moduleName)
+		// if module root is a file, remove the file extension, since it'll be added
+		// by possibleFilepaths below
+		moduleRoot := stripTSExtension(stringAttribute(r, "module_root"))
+		_, pkg, _ := edit.ParseLabel(r.GetName())
+
+		// resolve the import path against the module name and module root, ie if
+		// the import path is @foo/bar and there's a moduleName of @foo the resolved
+		// import path is location/of/foo/bar, or if there's also a moduleRoot of
+		// baz, the resolved import path is location/of/foo/baz/bar
+		//
+		// using strings.TrimPrefix for trimming the path is ok, since
+		// pathStartsWith already checked that moduleName is a proper prefix of
+		// i.importPath
+		resolvedImportPath := filepath.Join(pkg, moduleRoot, strings.TrimPrefix(i.importPath, moduleName))
+
+		// enumerate all the possible filepaths for the resolved import path, and
+		// compare against all the srcs
+		possibleImportPaths := possibleFilepaths(resolvedImportPath)
 		for _, src := range listAttribute(r, "srcs") {
-			_, _, file := edit.ParseLabel(src)
-			moduleImportPath := moduleName + "/" + stripTSExtension(file)
-			if i.importPath == moduleImportPath || i.importPath == strings.TrimSuffix(moduleImportPath, "/index") {
-				return r.GetName(), nil
+			for _, mi := range possibleImportPaths {
+				if mi == labelToPath(src) {
+					return r.GetName(), nil
+				}
 			}
 		}
 	}
@@ -522,6 +564,7 @@ func (a *Analyzer) generateReport(target *resolvedTarget) (*arpb.DependencyRepor
 
 			for _, dep := range target.deps() {
 				if edit.LabelsEqual(dep, imp.knownTarget, "") {
+					// fmt.Printf("%s provides %s\n", dep, imp.importPath)
 					usedDeps[dep] = true
 					report.NecessaryDependency = append(report.NecessaryDependency, imp.knownTarget)
 					continue handlingImports
