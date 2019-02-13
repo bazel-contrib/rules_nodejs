@@ -70,7 +70,12 @@ function main(params) {
     }
   }
 
-  for (const f of params) {
+  // Remove duplicate files (which may come from this rule) from the
+  // list since fs.copyFileSync may fail with `EACCES: permission denied`
+  // as it will not have permission to overwrite duplicate files that were
+  // copied from within bazel-bin.
+  // See https://github.com/bazelbuild/rules_nodejs/pull/546.
+  for (const f of new Set(params)) {
     copy(f);
   }
   return 0;
