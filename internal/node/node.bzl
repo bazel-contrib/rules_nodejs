@@ -116,7 +116,6 @@ def _nodejs_binary_impl(ctx):
     # Using a depset will allow us to avoid flattening files and sources
     # inside this loop. This should reduce the performances hits,
     # since we don't need to call .to_list()
-    # sources = depset()
     non_module_sources = depset()
     node_module_sources = depset()
 
