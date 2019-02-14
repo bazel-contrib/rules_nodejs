@@ -1,7 +1,7 @@
 {
     "name": "@bazel/javascript",
     "description": "Build JavaScript with Bazel",
-    "version": "0.15.2",
+    "version": "0.18.6",
     "keywords": [
         "javascript",
         "bazel"
@@ -9,28 +9,34 @@
     "homepage": "https://github.com/bazelbuild/rules_nodejs",
     "license": "Apache-2.0",
     "devDependencies": {
+        "//": "need release candidate of Bazel to pick up https://github.com/bazelbuild/bazel/pull/6980",
+        "@bazel/bazel": "^0.23.0-rc1b",
+        "@bazel/buildifier": "^0.20.0",
+        "@bazel/typescript": "0.23.2",
         "clang-format": "1.2.2",
         "husky": "^0.14.3",
-        "shelljs": "^0.8.2"
+        "jasmine": "3.3.1",
+        "shelljs": "^0.8.2",
+        "typescript": "^3.3.1",
+        "unidiff": "0.0.4"
     },
     "scripts": {
-        "//nested workspace tests": "Run bazel from within the folder containing the WORKSPACE so that the WORKSPACE files is tested",
-        "examples-bazel_managed_deps": "cd examples/bazel_managed_deps && yarn test",
-        "examples-program": "cd examples/program && yarn test",
-        "examples-packages": "cd examples/packages && yarn test",
-        "examples-vendored_node": "cd examples/vendored_node && yarn test",
+        "//nested workspace tests": "Run bazel from within the folder containing the WORKSPACE so that the WORKSPACE file is tested",
+        "internal-e2e-bazel_workspaces": "cd internal/e2e/bazel_workspaces && yarn test",
+        "internal-e2e-bazel_workspaces_compat": "cd internal/e2e/bazel_workspaces_compat && yarn test",
+        "internal-e2e-fine_grained_symlinks": "cd internal/e2e/fine_grained_symlinks && yarn test",
         "internal-e2e-node_loader_no_preserve_symlinks": "cd internal/e2e/node_loader_no_preserve_symlinks && yarn test",
         "internal-e2e-node_loader_preserve_symlinks": "cd internal/e2e/node_loader_preserve_symlinks && yarn test",
-        "test": "yarn examples-bazel_managed_deps && yarn examples-packages && yarn examples-program && yarn examples-vendored_node && yarn internal-e2e-node_loader_no_preserve_symlinks && yarn internal-e2e-node_loader_preserve_symlinks",
-        "prebuildifier": "bazel build --noshow_progress @com_github_bazelbuild_buildtools//buildifier",
-        "buildifier": "find . -type f \\( -name BUILD -or -name BUILD.bazel \\) ! -path \"*/node_modules/*\" | xargs $(bazel info bazel-bin)/external/com_github_bazelbuild_buildtools/buildifier/*/buildifier",
-        "preskylint": "bazel build --noshow_progress @io_bazel//src/tools/skylark/java/com/google/devtools/skylark/skylint:Skylint",
-        "//": "which cannot be upgraded to modern providers without breaking compatability",
-        "skylint": "find . -type f -name \"*.bzl\" ! -path \"*/node_modules/*\" | xargs $(bazel info bazel-bin)/external/io_bazel/src/tools/skylark/java/com/google/devtools/skylark/skylint/Skylint --disable-checks=deprecated-api",
+        "test:e2e": "bazel build --symlink_prefix=bazel- //:local_testing_package && yarn internal-e2e-bazel_workspaces && yarn internal-e2e-bazel_workspaces_compat && yarn internal-e2e-fine_grained_symlinks && yarn internal-e2e-node_loader_no_preserve_symlinks && yarn internal-e2e-node_loader_preserve_symlinks",
+        "test:examples": "./examples/test_examples.sh",
+        "test": "yarn test:examples && yarn test:e2e",
+        "bazel:format": "find . -type f \\( -name \"*.bzl\" -or -name WORKSPACE -or -name BUILD -or -name BUILD.bazel \\) ! -path \"*/node_modules/*\" | xargs buildifier -v --warnings=args-order,attr-cfg,attr-license,attr-non-empty,attr-output-default,attr-single-file,constant-glob,ctx-actions,ctx-args,depset-iteration,depset-union,dict-concatenation,duplicated-name,filetype,git-repository,http-archive,integer-division,load,load-on-top,native-build,native-package,out-of-order-load,output-group,package-name,package-on-top,positional-args,redefined-variable,repository-name,same-origin-load,string-iteration,unsorted-dict-items,unused-variable",
+        "bazel:lint": "yarn bazel:format --lint=warn",
+        "bazel:lint-fix": "yarn bazel:format --lint=fix",
         "format": "git-clang-format",
         "format-all": "clang-format --glob='{internal/**/,examples/**/}*.{js,ts}' -i",
         "precommit": "check-clang-format \"yarn format\"",
         "skydoc": "bazel build --symlink_prefix=bazel- //docs && unzip -o -d docs bazel-bin/docs/docs-skydoc.zip",
-        "version": "node ./on-version.js && git stage package.bzl"
+        "version": "node ./on-version.js && bazel build //:release && node ./on-release.js && git stage package.bzl README.md"
     }
 }

@@ -1,4 +1,9 @@
+load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
+load("@build_bazel_rules_nodejs//:defs.bzl", "npm_package")
+
 package(default_visibility = ["//visibility:public"])
+
+exports_files(["tsconfig.json"])
 
 # Empty node_modules filegroup used for the default
 # value of the node_modules attribute in nodejs_binary
@@ -6,4 +11,57 @@ package(default_visibility = ["//visibility:public"])
 filegroup(
     name = "node_modules_none",
     srcs = [],
+)
+
+npm_package(
+    name = "rules_nodejs_package",
+    srcs = [
+        "BUILD.bazel",
+        "LICENSE",
+        "defs.bzl",
+        "package.bzl",
+    ],
+    # Don't replace the default 0.0.0-PLACEHOLDER for this npm_package since
+    # we are packaging up the packager itself and this replacement will break it
+    replace_with_version = "",
+    deps = [
+        "//third_party/github.com/bazelbuild/bazel-skylib:package_contents",
+        "//third_party/github.com/buffer-from:package_contents",
+        "//third_party/github.com/gjtorikian/isBinaryFile:package_contents",
+        "//third_party/github.com/source-map:package_contents",
+        "//third_party/github.com/source-map-support:package_contents",
+        "//internal:package_contents",
+        "//internal/common:package_contents",
+        "//internal/history-server:package_contents",
+        "//internal/http-server:package_contents",
+        "//internal/jasmine_node_test:package_contents",
+        "//internal/js_library:package_contents",
+        # TODO(alexeagle): distribute separately as @bazel/rollup
+        "//internal/rollup:package_contents",
+        "//internal/node:package_contents",
+        "//internal/npm_install:package_contents",
+        "//internal/npm_package:package_contents",
+        "//internal/web_package:package_contents",
+        "//tools:package_contents",
+    ],
+)
+
+npm_package(
+    name = "local_testing_package",
+    testonly = 1,
+    # The WORKSPACE file isn't in the distribution, but is required for local_repository
+    srcs = ["WORKSPACE"],
+    packages = [":rules_nodejs_package"],
+    # Don't replace the default 0.0.0-PLACEHOLDER for this npm_package since
+    # we are packaging up the packager itself and this replacement will break it
+    replace_with_version = "",
+)
+
+# This artifact is published to GitHub along with each release
+pkg_tar(
+    name = "release",
+    srcs = [":rules_nodejs_package"],
+    extension = "tar.gz",
+    strip_prefix = "./rules_nodejs_package",
+    tags = ["manual"],
 )

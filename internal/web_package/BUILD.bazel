@@ -1,0 +1,59 @@
+load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test", "nodejs_binary")
+
+package(default_visibility = ["//visibility:public"])
+
+exports_files([
+    "web_package.bzl",
+    "inject_html.bzl",
+])
+
+filegroup(
+    name = "node_modules_none",
+)
+
+nodejs_binary(
+    name = "assembler",
+    data = ["assembler.js"],
+    entry_point = "build_bazel_rules_nodejs/internal/web_package/assembler.js",
+    install_source_map_support = False,
+    node_modules = ":node_modules_none",
+)
+
+nodejs_binary(
+    name = "injector",
+    data = [
+        "injector.js",
+        "@build_bazel_rules_nodejs_web_package_deps//parse5",
+    ],
+    entry_point = "build_bazel_rules_nodejs/internal/web_package/injector.js",
+    install_source_map_support = False,
+)
+
+jasmine_node_test(
+    name = "injector_test",
+    srcs = ["injector_spec.js"],
+    node_modules = "@build_bazel_rules_nodejs_web_package_deps//:node_modules",
+    deps = [
+        "injector.js",
+    ],
+)
+
+jasmine_node_test(
+    name = "assembler_test",
+    srcs = ["assembler_spec.js"],
+    node_modules = "@build_bazel_rules_nodejs_web_package_deps//:node_modules",
+    tags = [
+        "fix-windows",
+    ],
+    deps = [
+        "assembler.js",
+    ],
+)
+
+filegroup(
+    name = "package_contents",
+    srcs = glob(
+        ["*"],
+        exclude = ["*_spec.js"],
+    ),
+)

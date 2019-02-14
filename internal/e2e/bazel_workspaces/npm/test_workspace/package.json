@@ -1,0 +1,12 @@
+{
+  "name": "test_workspace",
+  "version": "0.0.1",
+  "dependencies": {
+    "jasmine": "3.3.1"
+  },
+  "bazelWorkspaces": {
+    "test_workspace": {
+      "rootPath": "."
+    }
+  }
+}

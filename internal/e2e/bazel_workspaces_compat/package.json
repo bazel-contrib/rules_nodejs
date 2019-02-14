@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "test_workspace_a": "file:../bazel_workspaces_compat/npm/test_workspace_a",
+    "test_workspace_b": "file:../bazel_workspaces_compat/npm/test_workspace_b",
+    "test_workspace_c": "file:../bazel_workspaces_compat/npm/test_workspace_c"
+  },
+  "scripts": {
+    "test": "bazel test @test_workspace//..."
+  }
+}

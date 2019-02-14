@@ -10,10 +10,11 @@
     "node_resolve_main": "file:./node_resolve_main",
     "node_resolve_main_2": "file:./node_resolve_main_2",
     "node_resolve_nested_main": "file:./node_resolve_nested_main",
-    "rollup-plugin-node-resolve": "3.0.0",
+    "rollup-plugin-node-resolve": "gregmagolan/rollup-plugin-node-resolve#dist-4.0.0-ab35c968ca3803148ff21600402a8a5ff4be35af",
     "rollup-plugin-sourcemaps": "^0.4.2",
-    "rollup": "0.60.1",
-    "unidiff": "^0.0.4"
+    "rollup": "1.0.0",
+    "unidiff": "^0.0.4",
+    "zone.js": "0.8.29"
   },
   "dependencies": {}
 }

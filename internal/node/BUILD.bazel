@@ -20,3 +20,13 @@ exports_files([
     "node_launcher.sh",
     "node_loader.js",
 ])
+
+filegroup(
+    name = "package_contents",
+    srcs = glob([
+        "*.bzl",
+        "*.js",
+        "*.sh",
+    ]) + ["BUILD.bazel"],
+    visibility = ["//:__pkg__"],
+)

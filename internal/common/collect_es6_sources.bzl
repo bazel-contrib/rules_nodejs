@@ -19,43 +19,46 @@ The tree will be flattened, such that all the es6 files are under a single tree.
 """
 
 def collect_es6_sources(ctx):
-  """Returns a file tree containing only production files.
+    """Returns a file tree containing only production files.
 
-  Args:
-    ctx: ctx.
+    Args:
+        ctx: ctx.
 
-  Returns:
-    A file tree containing only production files.
-  """
+    Returns:
+        A file tree containing only production files.
+    """
 
-  non_rerooted_files = [d for d in ctx.files.deps if d.is_source]
-  if hasattr(ctx.attr, "srcs"):
-    non_rerooted_files += ctx.files.srcs
-  for dep in ctx.attr.deps:
-    if hasattr(dep, "typescript"):
-      non_rerooted_files += dep.typescript.transitive_es6_sources.to_list()
+    non_rerooted_files = [d for d in ctx.files.deps if d.is_source]
+    if hasattr(ctx.attr, "srcs"):
+        non_rerooted_files += ctx.files.srcs
+    for dep in ctx.attr.deps:
+        if hasattr(dep, "typescript"):
+            non_rerooted_files += dep.typescript.transitive_es6_sources.to_list()
 
-  rerooted_files = []
-  for file in non_rerooted_files:
-    path = file.short_path
-    if (path.startswith("../")):
-      path = "external/" + path[3:]
+    rerooted_files = []
+    for file in non_rerooted_files:
+        path = file.short_path
+        if (path.startswith("../")):
+            path = "external/" + path[3:]
 
-    rerooted_file = ctx.actions.declare_file(
-      "%s.es6/%s" % (
-        ctx.label.name,
-        # the .closure.js filename is an artifact of the rules_typescript layout
-        # TODO(mrmeku): pin to end of string, eg. don't match foo.closure.jso.js
-        path.replace(".closure.js", ".js")))
-    # Cheap way to create an action that copies a file
-    # TODO(alexeagle): discuss with Bazel team how we can do something like
-    # runfiles to create a re-rooted tree. This has performance implications.
-    ctx.actions.expand_template(
-      output = rerooted_file,
-      template = file,
-      substitutions = {}
-    )
-    rerooted_files += [rerooted_file]
+        rerooted_file = ctx.actions.declare_file(
+            "%s.es6/%s" % (
+                ctx.label.name,
+                # the .closure.js filename is an artifact of the rules_typescript layout
+                # TODO(mrmeku): pin to end of string, eg. don't match foo.closure.jso.js
+                path.replace(".closure.js", ".js"),
+            ),
+        )
 
-  #TODO(mrmeku): we should include the files and closure_js_library contents too
-  return depset(direct = rerooted_files)
+        # Cheap way to create an action that copies a file
+        # TODO(alexeagle): discuss with Bazel team how we can do something like
+        # runfiles to create a re-rooted tree. This has performance implications.
+        ctx.actions.expand_template(
+            output = rerooted_file,
+            template = file,
+            substitutions = {},
+        )
+        rerooted_files += [rerooted_file]
+
+    #TODO(mrmeku): we should include the files and closure_js_library contents too
+    return depset(direct = rerooted_files)

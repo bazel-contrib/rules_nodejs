@@ -3,7 +3,7 @@
 
 Circle CI | Bazel CI
 :---: | :---:
-[![CircleCI](https://circleci.com/gh/bazelbuild/rules_nodejs.svg?style=svg)](https://circleci.com/gh/bazelbuild/rules_nodejs) | [![Build status](https://badge.buildkite.com/af1a592b39b11923ef0f523cbb223dd3dbd61629f8bc813c07.svg)](https://buildkite.com/bazel/nodejs-rules-nodejs-postsubmit)
+[![CircleCI](https://circleci.com/gh/bazelbuild/rules_nodejs.svg?style=svg)](https://circleci.com/gh/bazelbuild/rules_nodejs) | [![Build status](https://badge.buildkite.com/af1a592b39b11923ef0f523cbb223dd3dbd61629f8bc813c07.svg?branch=master)](https://buildkite.com/bazel/nodejs-rules-nodejs-postsubmit)
 
 **This is a beta-quality release. Breaking changes are likely.**
 
@@ -25,14 +25,12 @@ Next, create a `WORKSPACE` file in your project root (or edit the existing one)
 containing:
 
 ```python
-git_repository(
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+http_archive(
     name = "build_bazel_rules_nodejs",
-    remote = "https://github.com/bazelbuild/rules_nodejs.git",
-    tag = "0.11.3", # check for the latest tag when you install
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.18.6/rules_nodejs-0.18.6.tar.gz"],
+    sha256 = "1416d03823fed624b49a0abbd9979f7c63bbedfd37890ddecedd2fe25cccebc6",
 )
-
-load("@build_bazel_rules_nodejs//:package.bzl", "rules_nodejs_dependencies")
-rules_nodejs_dependencies()
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
 ```
@@ -64,14 +62,20 @@ node_repositories(package_json = ["//:package.json"])
 You can choose a specific version of Node.js that's built into these rules.
 Currently these versions are:
 
+* 10.13.0 (default)
+* 10.10.0
+* 10.9.0
 * 10.3.0
 * 9.11.1
+* 8.12.0
 * 8.11.1
 * 8.9.1
 
 You can also choose a specific version of Yarn.
 Currently these versions are:
-
+* 1.12.1 (default)
+* 1.9.4
+* 1.9.2
 * 1.6.0
 * 1.5.1
 * 1.3.2
@@ -203,6 +207,13 @@ npm_install(
 )
 ```
 
+#### yarn_install vs. npm_install
+
+`yarn_install` is the preferred rule for setting up Bazel-managed dependencies for a number of reasons:
+
+* `yarn_install` will use the global yarn cache by default which will improve your build performance (this can be turned off with the `use_global_yarn_cache` attribute)
+* npm has a known peer dependency hoisting issue that can lead to missing peer dependencies in some cases (see https://github.com/bazelbuild/rules_nodejs/issues/416)
+
 #### Fine-grained npm package dependencies
 
 You can then reference individual npm packages in your `BUILD` rules via:
@@ -328,8 +339,7 @@ filegroup(
 )
 ```
 
-We recommend using the version of the package management tools installed by
-Bazel to ensure everything is compatible.
+The example in `examples/program` uses self-managed dependencies.
 
 To use the Yarn package manager, which we recommend for its built-in
 verification command, you can run:
@@ -416,9 +426,10 @@ and run it with
 $ bazel run :rollup -- --help
 ```
 
-See the `examples/rollup` directory in this repository.
-
 [rollup]: https://www.npmjs.com/package/rollup
+
+You can also wrap an npm program with a Bazel rule, making it easy to integrate with a Bazel build.
+See the `examples/parcel` example.
 
 ### Running a program from local sources
 
@@ -501,6 +512,14 @@ See https://bazelbuild.github.io/rules_nodejs/npm_package/npm_package.html
 
 > For those downstream dependencies that use Bazel, they can simply write BUILD files to consume your library.
 
+# Scope of the project
+
+This repository contains an orthogonal set of rules which covers an opinionated toolchain for JavaScript development. When requesting a new rule, describe your use case, why it's important, and why you can't do it with the existing rules. This is because we have limited resources to maintain additional rules.
+
+The repository accepts contributions in terms of bug fixes or implementing new features in existing rules. If you're planning to implement a new rule, please strongly consider opening a [feature request](https://github.com/bazelbuild/rules_nodejs/issues/new) first so the project's maintainers can decide if it belongs to the scope of this project or not.
+
+For rules outside of the scope of the projects we recommend hosting them in your GitHub account or the one of your organization.
+
 # Design
 
 Most bazel rules include package management. That is, the `WORKSPACE` file installs your dependencies as well as the toolchain. In some environments, this is the normal workflow, for example in Java, Gradle and Maven are each both a build tool and a package manager.
@@ -522,17 +541,3 @@ References:
 
 Note that https://github.com/bazelbuild/rules_nodejs/issues/1 will take the guarantee further: by using the lockfile as an input to Bazel, the nodejs rules can verify the integrity of the dependencies. This would make it impossible for a build to be non-reproducible, so long as you have the same lockfile.
 
-# For Developers
-
-## Releasing
-
-Start from a clean checkout at master/HEAD.
-Check if there are any breaking changes since the last tag - if so, this will be a minor, if not it's a patch.
-(This may not sound like semver, but since our major version is a zero, the rule is that minors are breaking changes and patches are new features.)
-
-1. Re-generate the API docs: `yarn skydoc`
-1. `git add docs/` (in case new files were created)
-1. `git commit -a -m 'Update docs for release'`
-1. `npm config set tag-version-prefix ''`
-1. `npm version minor -m 'rel: %s'` (replace `minor` with `patch` if no breaking changes)
-1. `git push && git push --tags`

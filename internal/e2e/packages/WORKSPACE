@@ -1,0 +1,27 @@
+workspace(name = "packages_example")
+
+local_repository(
+    name = "build_bazel_rules_nodejs",
+    path = "../../../bazel-bin/local_testing_package",
+)
+
+load("@build_bazel_rules_nodejs//:package.bzl", "check_rules_nodejs_version")
+
+# Test that check_rules_nodejs_version works as expected
+check_rules_nodejs_version(minimum_version_string = "0.11.2")
+
+load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
+
+# Install a hermetic version of node.
+# After this is run, these labels will be available:
+# - NodeJS:
+#   @nodejs//:node
+# - NPM:
+#   @nodejs//:npm
+# - The yarn package manager:
+#   @nodejs//:yarn
+node_repositories(package_json = ["//:package.json"])
+
+load(":setup_workspace.bzl", "packages_example_setup_workspace")
+
+packages_example_setup_workspace()

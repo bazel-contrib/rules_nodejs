@@ -28,13 +28,18 @@ rollup_bundle(
 jasmine_node_test(
     name = "test",
     srcs = glob(["*.spec.js"]),
+    configuration_env_vars = ["UPDATE_GOLDEN"],
     data = glob([
         "*_golden.js_",
         "*_golden.js.map",
     ]) + [
         ":bundle",
+        ":bundle.cjs.js",
         ":bundle.umd.js",
         ":bundle.min_debug.js",
     ],
     node_modules = "//internal/test:node_modules",
+    deps = [
+        "//internal/e2e:check_lib",
+    ],
 )

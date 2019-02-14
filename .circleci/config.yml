@@ -9,8 +9,8 @@
 
 ## IMPORTANT
 # If you change the `docker_image` version, also change the `cache_key` version
-var_1: &docker_image angular/ngcontainer:0.7.0
-var_2: &cache_key angular/ngcontainer:0.7.0-{{ .Branch }}-{{ checksum "yarn.lock" }}-examples/rollup:{{ checksum "examples/rollup/yarn.lock" }}-examples/program:{{ checksum "examples/program/yarn.lock" }}-internal/test:{{ checksum "internal/test/yarn.lock" }}-internal/e2e/node_loader_no_preserve_symlinks:{{ checksum "internal/e2e/node_loader_no_preserve_symlinks/yarn.lock" }}-internal/e2e/node_loader_preserve_symlinks:{{ checksum "internal/e2e/node_loader_preserve_symlinks/yarn.lock" }}
+var_1: &docker_image angular/ngcontainer:0.9.0
+var_2: &cache_key angular/ngcontainer:0.9.0-{{ .Branch }}-{{ checksum "yarn.lock" }}-examples/program:{{ checksum "examples/program/yarn.lock" }}-internal/test:{{ checksum "internal/test/yarn.lock" }}-internal/e2e/node_loader_no_preserve_symlinks:{{ checksum "internal/e2e/node_loader_no_preserve_symlinks/yarn.lock" }}-internal/e2e/node_loader_preserve_symlinks:{{ checksum "internal/e2e/node_loader_preserve_symlinks/yarn.lock" }}
 
 # Move node binaries out of the way to enforce that Bazel uses
 # only the hermetic ones it downloads
@@ -56,19 +56,22 @@ jobs:
   # Cannot be run on BuildKite (BazelCI), see
   # https://github.com/bazelbuild/continuous-integration/issues/338
   lint:
-    <<: *job_defaults
+    docker:
+      - image: circleci/node:10.12
     steps:
       - checkout:
           <<: *post_checkout
-      - *setup_bazelrc
 
-      # Run the skylark linter to check our Bazel rules
-      - run: 'yarn skylint ||
-              (echo -e "\n.bzl files have lint errors. Please run ''yarn skylint''"; exit 1)'
+      - run: yarn install
 
-      # Enforce that BUILD files are formatted.
-      - run: 'yarn buildifier -mode=check ||
-              (echo "BUILD files not formatted. Please run ''yarn buildifier''" ; exit 1)'
+      # Run the Buildifier to check our Bazel rules for format issues.
+      - run: 'yarn bazel:format --mode=check ||
+              (echo "BUILD files not formatted. Please run ''yarn bazel:format --mode=fix''" ; exit 1)'
+
+      # Run the Buildifier to check our Bazel rules for lint issues.
+      # Note: The `--lint=warn` will auto fixe (re-write) the affected files. 
+      - run: 'yarn bazel:format --lint=warn ||
+              (echo "BUILD files contain unresolved lint errors. Please fix manually the remaining errors." ; exit 1)'
 
   # Overlaps with testing we do on BuildKite. This is still here because:
   # - BuildKite doesn't have a public results UI; failures here let contributors fix their changes
@@ -89,21 +92,19 @@ jobs:
       - run: bazel run @nodejs//:yarn
       - run: bazel build ...
       - run: bazel test ...
-      # TODO(alexeagle): move this into the example proper
-      - run: bazel run examples/rollup -- --help
 
       # These targets should run
       - run: bazel run //internal/node/test:no_deps
       - run: bazel run //internal/node/test:has_deps_legacy
       - run: bazel run //internal/node/test:has_deps
       - run: bazel run //internal/node/test:has_deps_hybrid
+      - run: bazel run //internal/e2e/fine_grained_no_bin:index
       - run: bazel run @fine_grained_deps_yarn//typescript/bin:tsc
 
       - save_cache:
           key: *cache_key
           paths:
             - "node_modules"
-            - "examples/rollup/node_modules"
             - "examples/program/node_modules"
             - "internal/e2e/node_loader_no_preserve_symlinks/node_modules"
             - "internal/e2e/node_loader_preserve_symlinks/node_modules"
@@ -130,7 +131,7 @@ jobs:
   # This job cannot run on BuildKite (BazelCI) because it requires changing
   # directories to test inside nested workspaces.
   # See https://github.com/bazelbuild/continuous-integration/issues/225
-  test:
+  test_e2e:
     <<: *job_defaults
     steps:
       - checkout:
@@ -139,7 +140,21 @@ jobs:
 
       # Not using "bazel run @nodejs//:yarn test" as will attempt to run
       # the "test" script on all folder listed in node_repositories()
-      - run: yarn test
+      - run: yarn test:e2e
+
+  # This job cannot run on BuildKite (BazelCI) because it requires changing
+  # directories to test inside nested workspaces.
+  # See https://github.com/bazelbuild/continuous-integration/issues/225
+  test_examples:
+    <<: *job_defaults
+    steps:
+      - checkout:
+          <<: *post_checkout
+      - *setup_bazelrc
+
+      # Not using "bazel run @nodejs//:yarn test" as will attempt to run
+      # the "test" script on all folder listed in node_repositories()
+      - run: yarn test:examples
 
 workflows:
   version: 2
@@ -147,5 +162,6 @@ workflows:
     jobs:
       - lint
       - build
-      - test
+      - test_e2e
+      - test_examples
       - test_legacy_runfiles

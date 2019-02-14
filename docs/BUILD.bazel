@@ -30,4 +30,7 @@ skylark_doc(
     format = "html",
     site_root = "/rules_nodejs",
     strip_prefix = "internal/",
+    # This rule depends on building protoc which is annoying and slow
+    # we only need to build it when we cut a release.
+    tags = ["manual"],
 )

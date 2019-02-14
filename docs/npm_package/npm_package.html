@@ -134,7 +134,7 @@ to the <code>deps</code> of one of their targets.</p>
 
           <h2 id="create_package">create_package</h2>
 
-          <pre>create_package(<a href="#create_package.ctx">ctx</a>, <a href="#create_package.devmode_sources">devmode_sources</a>, <a href="#create_package.nested_packages">nested_packages</a>)</pre>
+          <pre>create_package(<a href="#create_package.ctx">ctx</a>, <a href="#create_package.deps_sources">deps_sources</a>, <a href="#create_package.nested_packages">nested_packages</a>)</pre>
 
           <p>Creates an action that produces the npm package.</p>
 <p>It copies srcs and deps into the artifact and produces the .pack and .publish
@@ -158,11 +158,12 @@ scripts.</p>
         <p>the skylark rule context</p>
       </td>
     </tr>
-    <tr id="create_package.devmode_sources">
-      <td><code>devmode_sources</code></td>
+    <tr id="create_package.deps_sources">
+      <td><code>deps_sources</code></td>
       <td>
         <p><code>Unknown; Required</code></p>
-        <p>the .js files which belong in the package</p>
+        <p>Files which have been specified as dependencies. Usually ".js" or ".d.ts"
+generated files.</p>
       </td>
     </tr>
     <tr id="create_package.nested_packages">
@@ -179,7 +180,7 @@ to be nested inside this package</p>
 
           <h2 id="npm_package">npm_package</h2>
 
-          <pre>npm_package(<a href="#npm_package.name">name</a>, <a href="#npm_package.deps">deps</a>, <a href="#npm_package.srcs">srcs</a>, <a href="#npm_package.packages">packages</a>, <a href="#npm_package.replacements">replacements</a>)</pre>
+          <pre>npm_package(<a href="#npm_package.name">name</a>, <a href="#npm_package.deps">deps</a>, <a href="#npm_package.srcs">srcs</a>, <a href="#npm_package.packages">packages</a>, <a href="#npm_package.replace_with_version">replace_with_version</a>, <a href="#npm_package.replacements">replacements</a>)</pre>
 
           <p>The npm_package rule creates a directory containing a publishable npm artifact.</p>
 <pre><code class="lang-python">load(&quot;@build_bazel_rules_nodejs//:defs.bzl&quot;, &quot;npm_package&quot;)
@@ -258,13 +259,19 @@ $ bazel run :my_package.publish
         <p>Other npm_package rules whose content is copied into this package.</p>
       </td>
     </tr>
+    <tr id="npm_package.replace_with_version">
+      <td><code>replace_with_version</code></td>
+      <td>
+        <p><code>String; Optional; Default is '0.0.0-PLACEHOLDER'</code></p>
+        <p>If set this value is replaced with the version stamp data.
+        See the section on stamping in the README.</p>
+      </td>
+    </tr>
     <tr id="npm_package.replacements">
       <td><code>replacements</code></td>
       <td>
         <p><code>Dictionary mapping strings to string; Optional; Default is {}</code></p>
-        <p>Key-value pairs which are replaced in all the files while building the package.
-        Note that the special value 0.0.0-PLACEHOLDER is always replaced with the version stamp data.
-        See the section on stamping in the README.</p>
+        <p>Key-value pairs which are replaced in all the files while building the package.</p>
       </td>
     </tr>
   </tbody>

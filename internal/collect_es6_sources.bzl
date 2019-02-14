@@ -15,6 +15,8 @@
 """Private API surfaced for https://github.com/angular/angular backward-compatability
 
 Users should not load files under "/internal"
+
+NOTE: This file is DEPRECATED and will be removed in a future release.
 """
 
 load("//internal/common:collect_es6_sources.bzl", _collect_es6_sources = "collect_es6_sources")

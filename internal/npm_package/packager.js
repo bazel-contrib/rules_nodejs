@@ -16,6 +16,7 @@
  */
 const fs = require('fs');
 const path = require('path');
+const isBinary = require('isbinaryfile').isBinaryFileSync;
 
 function mkdirp(p) {
   if (!fs.existsSync(p)) {
@@ -24,13 +25,18 @@ function mkdirp(p) {
   }
 }
 
-function write(p, content, replacements) {
-  mkdirp(path.dirname(p));
-  replacements.forEach(r => {
-    const [regexp, newvalue] = r;
-    content = content.replace(regexp, newvalue);
-  });
-  fs.writeFileSync(p, content);
+function copyWithReplace(src, dest, replacements) {
+  mkdirp(path.dirname(dest));
+  if (!isBinary(src)) {
+    let content = fs.readFileSync(src, {encoding: 'utf-8'});
+    replacements.forEach(r => {
+      const [regexp, newvalue] = r;
+      content = content.replace(regexp, newvalue);
+    });
+    fs.writeFileSync(dest, content);
+  } else {
+    fs.copyFileSync(src, dest);
+  }
 }
 
 function unquoteArgs(s) {
@@ -41,26 +47,31 @@ function main(args) {
   args = fs.readFileSync(args[0], {encoding: 'utf-8'}).split('\n').map(unquoteArgs);
   const
       [outDir, baseDir, srcsArg, binDir, genDir, depsArg, packagesArg, replacementsArg, packPath,
-       publishPath, stampFile] = args;
+       publishPath, replaceWithVersion, stampFile] = args;
 
   const replacements = [
     // Strip content between BEGIN-INTERNAL / END-INTERNAL comments
-    [/(#|\/\/)\s+BEGIN-INTERNAL[\w\W]+END-INTERNAL/g, ''],
+    [/(#|\/\/)\s+BEGIN-INTERNAL[\w\W]+?END-INTERNAL/g, ''],
   ];
-  if (stampFile) {
-    // The stamp file is expected to look like
-    // BUILD_SCM_HASH 83c699db39cfd74526cdf9bebb75aa6f122908bb
-    // BUILD_SCM_LOCAL_CHANGES true
-    // BUILD_SCM_VERSION 6.0.0-beta.6+12.sha-83c699d.with-local-changes
-    // BUILD_TIMESTAMP 1520021990506
-    const versionTag = fs.readFileSync(stampFile, {encoding: 'utf-8'})
-                           .split('\n')
-                           .find(s => s.startsWith('BUILD_SCM_VERSION'));
-    // Don't assume BUILD_SCM_VERSION exists
-    if (versionTag) {
-      const version = versionTag.split(' ')[1].trim();
-      replacements.push([/0.0.0-PLACEHOLDER/g, version]);
+  if (replaceWithVersion) {
+    let version = '0.0.0';
+    if (stampFile) {
+      // The stamp file is expected to look like
+      // BUILD_SCM_HASH 83c699db39cfd74526cdf9bebb75aa6f122908bb
+      // BUILD_SCM_LOCAL_CHANGES true
+      // BUILD_SCM_VERSION 6.0.0-beta.6+12.sha-83c699d.with-local-changes
+      // BUILD_TIMESTAMP 1520021990506
+      //
+      // We want version to be the 6.0.0-beta... part
+      const versionTag = fs.readFileSync(stampFile, {encoding: 'utf-8'})
+                             .split('\n')
+                             .find(s => s.startsWith('BUILD_SCM_VERSION'));
+      // Don't assume BUILD_SCM_VERSION exists
+      if (versionTag) {
+        version = versionTag.split(' ')[1].trim();
+      }
     }
+    replacements.push([new RegExp(replaceWithVersion, 'g'), version]);
   }
   const rawReplacements = JSON.parse(replacementsArg);
   for (let key of Object.keys(rawReplacements)) {
@@ -69,9 +80,7 @@ function main(args) {
 
   // src like baseDir/my/path is just copied to outDir/my/path
   for (src of srcsArg.split(',').filter(s => !!s)) {
-    const content = fs.readFileSync(src, {encoding: 'utf-8'});
-    const outPath = path.join(outDir, path.relative(baseDir, src));
-    write(outPath, content, replacements);
+    copyWithReplace(src, path.join(outDir, path.relative(baseDir, src)), replacements);
   }
 
   function outPath(f) {
@@ -93,9 +102,15 @@ function main(args) {
   }
 
   // deps like bazel-bin/baseDir/my/path is copied to outDir/my/path
-  for (dep of depsArg.split(',').filter(s => !!s)) {
-    const content = fs.readFileSync(dep, {encoding: 'utf-8'});
-    write(outPath(dep), content, replacements);
+  // Don't include external directories in the package, these should be installed
+  // by users outside of the package.
+  for (dep of depsArg.split(',').filter(s => !!s && !s.startsWith('external/'))) {
+    try {
+      copyWithReplace(dep, outPath(dep), replacements);
+    } catch (e) {
+      console.error(`Failed to copy ${dep} to ${outPath(dep)}`);
+      throw e;
+    }
   }
 
   // package contents like bazel-bin/baseDir/my/directory/* is
@@ -109,8 +124,7 @@ function main(args) {
           copyRecursive(base, path.join(file, f));
         });
       } else {
-        const content = fs.readFileSync(path.join(base, file), {encoding: 'utf-8'});
-        write(path.join(outDir, file), content, replacements);
+        copyWithReplace(path.join(base, file), path.join(outDir, file), replacements);
       }
     }
     fs.readdirSync(pkg).forEach(f => {
@@ -120,8 +134,9 @@ function main(args) {
 
   const npmTemplate =
       fs.readFileSync(require.resolve('nodejs/run_npm.sh.template'), {encoding: 'utf-8'});
-  fs.writeFileSync(packPath, npmTemplate.replace('TMPL_args', `pack ${outDir}`));
-  fs.writeFileSync(publishPath, npmTemplate.replace('TMPL_args', `publish ${outDir}`));
+  // Resolve the outDir to an absolute path so it doesn't depend on Bazel's bazel-out symlink
+  fs.writeFileSync(packPath, npmTemplate.replace('TMPL_args', `pack "${path.resolve(outDir)}"`));
+  fs.writeFileSync(publishPath, npmTemplate.replace('TMPL_args', `publish "${path.resolve(outDir)}"`));
 }
 
 if (require.main === module) {

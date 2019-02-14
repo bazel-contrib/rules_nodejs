@@ -9,10 +9,6 @@ alias(
   actual = "//node_modules/unidiff:unidiff__files"
 )
 alias(
-  name = "unidiff__lite",
-  actual = "//node_modules/unidiff:unidiff__lite"
-)
-alias(
   name = "unidiff__typings",
   actual = "//node_modules/unidiff:unidiff__typings"
 )

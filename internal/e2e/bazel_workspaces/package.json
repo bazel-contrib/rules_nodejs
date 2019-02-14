@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "test_workspaces": "file:../bazel_workspaces/npm/test_workspace"
+  },
+  "scripts": {
+    "test": "bazel test @test_workspace//..."
+  }
+}

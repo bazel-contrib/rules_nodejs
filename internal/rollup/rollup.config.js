@@ -62,12 +62,11 @@ function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = req
   }
 
   // process.cwd() is the execroot and ends up looking something like
-  // /.../2c2a834fcea131eff2d962ffe20e1c87/bazel-sandbox/872535243457386053/execroot/<workspace_name>
+  // `.../2c2a834fcea131eff2d962ffe20e1c87/bazel-sandbox/872535243457386053/execroot/<workspace_name>`
   // from that path to the es6 output is
-  // <bin_dir_path>/<build_file_dirname>/<label_name>.es6 from there, sources
-  // from the user's workspace are under <user_workspace_name>/<path_to_source>
-  // and sources from external workspaces are under
-  // <external_workspace_name>/<path_to_source>
+  // `<bin_dir_path>/<build_file_dirname>/<label_name>.es6` from there, sources
+  // from the user's workspace are under `<path_to_source>` and sources from external
+  // workspaces are under `external/<external_workspace_name>/<path_to_source>`
   var resolved;
   if (normalizedImportee.startsWith('./') || normalizedImportee.startsWith('../')) {
     // relative import
@@ -156,7 +155,6 @@ const enableCodeSplitting = inputs.length > 1;
 
 const config = {
   resolveBazel,
-  banner,
   onwarn: (warning) => {
     // Always fail on warnings, assuming we don't know which are harmless.
     // We can add exclusions here based on warning.code, if we discover some
@@ -165,30 +163,36 @@ const config = {
   },
   plugins: [TMPL_additional_plugins].concat([
     {resolveId: resolveBazel},
-    nodeResolve(
-        {jsnext: true, module: true, customResolveOptions: {moduleDirectory: nodeModulesRoot}}),
+    // Use custom rollup-plugin-node-resolve dist which supports
+    // the 'es2015' option for rollup to prioritize the 'es2015' entry point
+    // with fallback to 'module' and 'main'.
+    nodeResolve({
+      es2015: true,
+      module: true,
+      jsnext: true,
+      main: true,
+      customResolveOptions: {moduleDirectory: nodeModulesRoot}
+    }),
     {resolveId: notResolved},
     sourcemaps(),
-  ])
+  ]),
+  output: {
+    banner,
+    format: 'TMPL_output_format',
+  },
 }
 
 if (enableCodeSplitting) {
   config.experimentalCodeSplitting = true;
   config.experimentalDynamicImport = true;
   config.input = inputs;
-  config.output = {
-    format: 'TMPL_output_format',
-  };
   if (process.env.ROLLUP_BUNDLE_FIXED_CHUNK_NAMES) {
     config.output.chunkFileNames = '[name].js';
   }
 }
 else {
   config.input = inputs[0];
-  config.output = {
-    format: 'TMPL_output_format',
-    name: 'TMPL_global_name',
-  };
+  config.output['name'] = 'TMPL_global_name';
 }
 
 module.exports = config;

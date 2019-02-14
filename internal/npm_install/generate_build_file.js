@@ -50,10 +50,17 @@ package(default_visibility = ["//visibility:public"])
 
 `
 
+const args = process.argv.slice(2);
+const WORKSPACE = args[0];
+const INCLUDED_FILES = args[1] ? args[1].split(',') : [];
+
 if (require.main === module) {
   main();
 }
 
+/**
+ * Create a directory if it does not exist.
+ */
 function mkdirp(dirname) {
   if (!fs.existsSync(dirname)) {
     mkdirp(path.dirname(dirname));
@@ -61,6 +68,10 @@ function mkdirp(dirname) {
   }
 }
 
+/**
+ * Writes a file, first ensuring that the directory to
+ * write to exists.
+ */
 function writeFileSync(filePath, contents) {
   mkdirp(path.dirname(filePath));
   fs.writeFileSync(filePath, contents);
@@ -68,7 +79,7 @@ function writeFileSync(filePath, contents) {
 
 /**
  * Main entrypoint.
- * Write BUILD files.
+ * Write BUILD and .bzl files.
  */
 function main() {
   // find all packages (including packages in nested node_modules)
@@ -80,6 +91,17 @@ function main() {
   pkgs.forEach(pkg => pkgsMap.set(pkg._dir, pkg));
   pkgs.forEach(pkg => flattenDependencies(pkg, pkg, pkgsMap));
 
+  // generate Bazel workspaces install files
+  const bazelWorkspaces = {};
+  pkgs.forEach(pkg => processBazelWorkspaces(pkg, bazelWorkspaces));
+  generateBazelWorkspaces(bazelWorkspaces)
+  generateInstallBazelDependencies(Object.keys(bazelWorkspaces));
+
+  // now that we have processed all the bazel workspaces in all
+  // npm packages we can delete the Bazel files from these packages
+  // so that filegroups do not cross Bazel package boundaries
+  pkgs.forEach(pkg => deleteBazelFiles(pkg));
+
   // generate BUILD files
   generateRootBuildFile(pkgs)
   pkgs.filter(pkg => !pkg._isNested).forEach(pkg => generatePackageBuildFiles(pkg));
@@ -88,10 +110,12 @@ function main() {
 
 module.exports = {main};
 
+/**
+ * Generates the root BUILD file.
+ */
 function generateRootBuildFile(pkgs) {
-  const srcs = pkgs.filter(pkg => !pkg._isNested)
-                   .map(pkg => `"//node_modules/${pkg._dir}:${pkg._name}__lite",`)
-                   .join('\n        ');
+  const srcs = pkgs.filter(pkg => !pkg._isNested);
+  const binFiles = listFiles('node_modules/.bin');
 
   let buildFile = BUILD_FILE_HEADER + `# The node_modules directory in one catch-all filegroup.
 # NB: Using this target may have bad performance implications if
@@ -108,8 +132,9 @@ function generateRootBuildFile(pkgs) {
 # this filegroup to include those files.
 filegroup(
     name = "node_modules",
-    srcs = glob(["node_modules/.bin/*"]) + [
-        ${srcs}
+    srcs = [
+        ${binFiles.map(f => `"node_modules/.bin/${f}",`).join('\n        ')}
+        ${srcs.map(pkg => `"//node_modules/${pkg._dir}:${pkg._name}__files",`).join('\n        ')}
     ],
 )
 
@@ -124,6 +149,9 @@ filegroup(
   writeFileSync('BUILD.bazel', buildFile);
 }
 
+/**
+ * Generates all BUILD files for a package.
+ */
 function generatePackageBuildFiles(pkg) {
   const buildFile =
       BUILD_FILE_HEADER + `load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
@@ -131,13 +159,204 @@ function generatePackageBuildFiles(pkg) {
 ` + printPackage(pkg);
   writeFileSync(path.posix.join('node_modules', pkg._dir, 'BUILD.bazel'), buildFile);
 
-  const aliasBuildFile = BUILD_FILE_HEADER + printPackageAlias(pkg);
+  const aliasBuildFile = BUILD_FILE_HEADER + printPackageAliases(pkg);
   writeFileSync(path.posix.join(pkg._dir, 'BUILD.bazel'), aliasBuildFile);
 
   const binAliasesBuildFile = BUILD_FILE_HEADER + printPackageBinAliases(pkg);
   writeFileSync(path.posix.join(pkg._dir, 'bin', 'BUILD.bazel'), binAliasesBuildFile);
 }
 
+/**
+ * Compares two version strings.
+ * Note: This function only handles numeric versions such as `1.2.3`. Versions such as
+ *       `0.22.0-26-g9088e46` should be reduced to `0.22.0` before calling.
+ * @returns a number < 0 if a < b
+ *          a number > 0 if a > b
+ *          0 if a = b
+ * From stack overflow:
+ * https://stackoverflow.com/questions/6832596/how-to-compare-software-version-number-using-js-only-number
+ */
+function cmpVersions(a, b) {
+  const regExStrip0 = /(\.0+)+$/;
+  const segmentsA = a.replace(regExStrip0, '').split('.');
+  const segmentsB = b.replace(regExStrip0, '').split('.');
+  const l = Math.min(segmentsA.length, segmentsB.length);
+  for (let i = 0; i < l; i++) {
+    const diff = parseInt(segmentsA[i], 10) - parseInt(segmentsB[i], 10);
+    if (diff) {
+      return diff;
+    }
+  }
+  return segmentsA.length - segmentsB.length;
+}
+
+/**
+ * Process the `bazelWorkspaces` attribute in an npm package and adds
+ * all workspaces to be installed to `bazelWorkspaces` map
+ */
+function processBazelWorkspaces(pkg, bazelWorkspaces) {
+  if (pkg.bazelWorkspaces) {
+    // This npm package specifies one or more bazel packages to setup
+    Object.keys(pkg.bazelWorkspaces)
+        .forEach(
+            bwName =>
+                processBazelWorkspace(bwName, pkg.bazelWorkspaces[bwName], pkg, bazelWorkspaces));
+  }
+}
+
+/**
+ * Process a bazel workspace request in an npm package and adds
+ * all workspaces to be installed to `bazelWorkspaces` map
+ */
+function processBazelWorkspace(bwName, bwDetails, pkg, bazelWorkspaces) {
+  let alreadySetup = bazelWorkspaces[bwName];
+
+  // Ensure bazel workspace object has required rootPath attribute
+  if (!bwDetails.rootPath) {
+    console.error(
+        `Malformed bazelWorkspaces attribute in ${pkg._dir}@${pkg.version}. ` +
+        `Missing rootPath for workspace ${bwName}.`);
+    process.exit(1);
+  }
+
+  // Trim development versions such as '0.22.0-26-g9088e46' down to their semver
+  const bwVersion = bwDetails.version ? bwDetails.version.split('-')[0] : undefined;
+  const bwDevVersion = bwDetails.version ? bwDetails.version != bwVersion : false;
+
+  // If no compatVersion is specified then it is equal to the version
+  if (!bwDetails.compatVersion) {
+    bwDetails.compatVersion = bwDetails.version
+  }
+
+  // If this workspace has been previously installed than check for compatibility
+  if (alreadySetup) {
+    if (bwVersion && alreadySetup.version) {
+      // Bazel workspace setup is versioned to allow for multiple
+      // setup requests from different npm packages as long as the versions are
+      // compatible
+      if (cmpVersions(bwVersion, alreadySetup.compatVersion) < 0 ||
+          cmpVersions(bwDetails.compatVersion, alreadySetup.compatVersion) !== 0) {
+        console.error(
+            `Could not setup Bazel workspace ${bwName}@${bwVersion} ` +
+            `requested by npm package ${pkg._dir}@${pkg.version}. Incompatible Bazel workspace ` +
+            `${bwName}@${alreadySetup.version} already setup by ` +
+            `${alreadySetup.sources.join(', ')}.`);
+        process.exit(1);
+      }
+      if (cmpVersions(bwVersion, alreadySetup.version) < 0 ||
+          (cmpVersions(bwVersion, alreadySetup.version) == 0 && !bwDevVersion)) {
+        // No reason to update to an older compatible version or an equal non-dev-version
+        alreadySetup.sources.push(`${pkg._dir}@${pkg.version}`);
+        return;
+      }
+    } else {
+      // Non-version bazel workspace setup requests can only be done once
+      console.error(
+          `Could not setup Bazel workspace ${bwName} requested by npm ` +
+          `package ${pkg._dir}@${pkg.version}. No version metadata to check compatibility ` +
+          `against Bazel workspace setup by ${alreadySetup.sources.join(', ')}.`);
+      process.exit(1);
+    }
+  }
+
+  // Keep track of which npm package setup this bazel workspace for later use
+  if (!alreadySetup) {
+    alreadySetup = bazelWorkspaces[bwName] = {
+      sources: [],
+    }
+  }
+  alreadySetup.version = bwVersion;
+  alreadySetup.devVersion = bwDevVersion;
+  alreadySetup.compatVersion = bwDetails.compatVersion;
+  alreadySetup.rootPath = bwDetails.rootPath;
+  alreadySetup.sources.push(`${pkg._dir}@${pkg.version}`);
+  alreadySetup.pkg = pkg;
+}
+
+/**
+ * Generate install_<workspace_name>.bzl files with function to install each workspace.
+ */
+function generateBazelWorkspaces(bazelWorkspaces) {
+  Object.keys(bazelWorkspaces)
+      .forEach(bwName => generateBazelWorkspace(bwName, bazelWorkspaces[bwName]));
+}
+
+/**
+ * Generate install_<bwName>.bzl file with function to install the workspace.
+ */
+function generateBazelWorkspace(bwName, bwDetails) {
+  let bzlFile = `# Generated by the yarn_install/npm_install rule
+def _maybe(repo_rule, name, **kwargs):
+    if name not in native.existing_rules():
+        repo_rule(name = name, **kwargs)
+`;
+
+  // Copy all files for this workspace to a folder under _workspaces
+  // to preserve the Bazel files which will be deleted from the npm package
+  // by deleteBazelFiles()
+  const workspaceSourcePath = path.posix.join('_workspaces', bwName);
+  mkdirp(workspaceSourcePath);
+  bwDetails.pkg._files.forEach(file => {
+    if (/^node_modules[/\\]/.test(file)) {
+      // don't copy over nested node_modules
+      return;
+    }
+    const src = path.posix.join('node_modules', bwDetails.pkg._dir, file);
+    const dest = path.posix.join(workspaceSourcePath, file);
+    mkdirp(path.dirname(dest));
+    console.error(`copying ${src} -> ${dest}`);
+    fs.copyFileSync(src, dest);
+  });
+
+  // We create _bazel_workspace_marker that is used by the custom copy_repository
+  // rule to resolve the path to the repository source root. A root BUILD file
+  // is required to reference _bazel_workspace_marker as a target so we also create
+  // an empty one if one does not exist.
+  if (!hasRootBuildFile(bwDetails.pkg)) {
+    writeFileSync(
+        path.posix.join(workspaceSourcePath, 'BUILD.bazel'),
+        '# Marker file that this directory is a bazel package');
+  }
+  writeFileSync(
+      path.posix.join(workspaceSourcePath, '_bazel_workspace_marker'),
+      '# Marker file to used by custom copy_repository rule');
+
+  bzlFile += `load("@build_bazel_rules_nodejs//tools:copy_repository.bzl", "copy_repository")
+def install_${bwName}():
+    _maybe(
+        copy_repository,
+        name = "${bwName}",
+        marker_file = "@${WORKSPACE}//_workspaces/${bwName}:_bazel_workspace_marker",
+    )
+`;
+
+  writeFileSync(`install_${bwName}.bzl`, bzlFile);
+}
+
+/**
+ * Generate install_bazel_dependencies.bzl with function to install all workspaces.
+ */
+function generateInstallBazelDependencies(bazelWorkspaceNames) {
+  let bzlFile = `# Generated by the yarn_install/npm_install rule
+`;
+  bazelWorkspaceNames.forEach(bwName => {
+    bzlFile += `load(\":install_${bwName}.bzl\", \"install_${bwName}\")
+`;
+  });
+  bzlFile += `def install_bazel_dependencies():
+    """Installs all workspaces listed in bazelWorkspaces of all npm packages"""
+`;
+  bazelWorkspaceNames.forEach(bwName => {
+    bzlFile += `    install_${bwName}()
+`;
+  });
+
+  writeFileSync('install_bazel_dependencies.bzl', bzlFile);
+}
+
+/**
+ * Generate build files for a scope.
+ */
 function generateScopeBuildFiles(scope, pkgs) {
   const buildFile = BUILD_FILE_HEADER + printScope(scope, pkgs);
   writeFileSync(path.posix.join('node_modules', scope, 'BUILD.bazel'), buildFile);
@@ -147,12 +366,96 @@ function generateScopeBuildFiles(scope, pkgs) {
 }
 
 /**
+ * Checks if a path is a file.
+ */
+function isFile(p) {
+  return fs.existsSync(p) && fs.statSync(p).isFile();
+}
+
+/**
  * Checks if a path is an npm package which is is a directory with a package.json file.
  */
 function isPackage(p) {
-  const packageJson = path.posix.join(p, 'package.json');
-  return fs.statSync(p).isDirectory() && fs.existsSync(packageJson) &&
-      fs.statSync(packageJson).isFile();
+  return fs.statSync(p).isDirectory() && isFile(path.posix.join(p, 'package.json'));
+}
+
+/**
+ * Returns an array of all the files under a directory as relative
+ * paths to the directory.
+ */
+function listFiles(rootDir, subDir = '') {
+  const dir = path.posix.join(rootDir, subDir);
+  if (!fs.existsSync(dir) || !fs.statSync(dir).isDirectory()) {
+    return [];
+  }
+  return fs.readdirSync(dir)
+      .reduce(
+          (files, file) => {
+            const fullPath = path.posix.join(dir, file);
+            const relPath = path.posix.join(subDir, file);
+            const isSymbolicLink = fs.lstatSync(fullPath).isSymbolicLink();
+            let stat;
+            try {
+              stat = fs.statSync(fullPath);
+            } catch (e) {
+              if (isSymbolicLink) {
+                // Filter out broken symbolic links. These cause fs.statSync(fullPath)
+                // to fail with `ENOENT: no such file or directory ...`
+                return files;
+              }
+              throw e;
+            }
+            const isDirectory = stat.isDirectory();
+            if (isDirectory && isSymbolicLink) {
+              // Filter out symbolic links to directories. An issue in yarn versions
+              // older than 1.12.1 creates symbolic links to folders in the .bin folder
+              // which leads to Bazel targets that cross package boundaries.
+              // See https://github.com/bazelbuild/rules_nodejs/issues/428 and
+              // https://github.com/bazelbuild/rules_nodejs/issues/438.
+              // This is tested in internal/e2e/fine_grained_symlinks.
+              return files;
+            }
+            return isDirectory ? files.concat(listFiles(rootDir, relPath)) : files.concat(relPath);
+          },
+          [])
+      // We return a sorted array so that the order of files
+      // is the same regardless of platform
+      .sort();
+}
+
+/**
+ * Delete all WORKSPACE, BUILD and .bzl files from an npm package.
+ */
+function deleteBazelFiles(pkg) {
+  pkg._files = pkg._files.filter(file => {
+    const basename = path.basename(file);
+    if (/^WORKSPACE$/i.test(basename) || /^BUILD$/i.test(basename) ||
+        /^BUILD\.bazel$/i.test(basename) || /\.bzl$/i.test(basename)) {
+      // Delete BUILD and BUILD.bazel files so that so that files do not cross Bazel packages
+      // boundaries
+      const fullPath = path.posix.join('node_modules', pkg._dir, file);
+      if (!fs.existsSync(fullPath)) {
+        // It is possible that the file no longer exists as reported in
+        // https://github.com/bazelbuild/rules_nodejs/issues/522
+        return false;
+      }
+      fs.unlinkSync(fullPath);
+      return false;
+    }
+    return true;
+  });
+}
+
+/**
+ * Returns true if a pkg._files contains a root /BUILD or /BUILD.bazel file.
+ */
+function hasRootBuildFile(pkg) {
+  for (const file of pkg._files) {
+    if (/^BUILD$/i.test(file) || /^BUILD\.bazel$/i.test(file)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 /**
@@ -181,6 +484,9 @@ function findPackages(p = 'node_modules') {
   return result;
 }
 
+/**
+ * Finds and returns an array of all package scopes in node_modules.
+ */
 function findScopes() {
   const p = 'node_modules';
   if (!fs.existsSync(p) || !fs.statSync(p).isDirectory()) {
@@ -215,6 +521,9 @@ function parsePackage(p) {
 
   // Keep track of whether or not this is a nested package
   pkg._isNested = p.match(/\/node_modules\//);
+
+  // List all the files in the npm package for later use
+  pkg._files = listFiles(p);
 
   // Initialize _dependencies to an empty array
   // which is later filled with the flattened dependency list
@@ -280,7 +589,8 @@ function flattenDependencies(pkg, dep, pkgsMap) {
           }
           // dependency not found
           if (required) {
-            throw new Error(`Could not find ${depType} '${targetDep}' of '${dep._dir}'`)
+            console.error(`Could not find ${depType} '${targetDep}' of '${dep._dir}'`);
+            process.exit(1);
           }
           return null;
         })
@@ -317,15 +627,49 @@ function flattenDependencies(pkg, dep, pkgsMap) {
  */
 function printJson(pkg) {
   // Clone and modify _dependencies to avoid circular issues when JSONifying
+  // & delete _files array
   const cloned = {...pkg};
   cloned._dependencies = cloned._dependencies.map(dep => dep._dir);
+  delete cloned._files;
   return JSON.stringify(cloned, null, 2).split('\n').map(line => `# ${line}`).join('\n');
 }
 
 /**
- * Given a pkg, print a skylark `filegroup` target for the package.
+ * A filter function for a bazel filegroup.
+ * @param files array of files to filter
+ * @param exts list of white listed extensions; if empty, no filter is done on extensions;
+ *             '' empty string denotes to allow files with no extensions, other extensions
+ *             are listed with '.ext' notation such as '.d.ts'.
+ */
+function filterFilesForFilegroup(files, exts = []) {
+  // Files with spaces (\x20) or unicode characters (<\x20 && >\x7E) are not allowed in
+  // Bazel runfiles. See https://github.com/bazelbuild/bazel/issues/4327
+  files = files.filter(f => !f.match(/[^\x21-\x7E]/));
+  if (exts.length) {
+    const allowNoExts = exts.includes('');
+    files = files.filter(f => {
+      // include files with no extensions if noExt is true
+      if (allowNoExts && !path.extname(f)) return true;
+      // filter files in exts
+      for (const e of exts) {
+        if (e && f.endsWith(e)) {
+          return true;
+        }
+      }
+      return false;
+    })
+  }
+  return files;
+}
+
+/**
+ * Given a pkg, return the skylark `filegroup` targets for the package.
  */
 function printPackage(pkg) {
+  const sources = filterFilesForFilegroup(pkg._files, INCLUDED_FILES);
+  const dtsSources = filterFilesForFilegroup(pkg._files, ['.d.ts']);
+  const pkgDeps = pkg._dependencies.filter(dep => dep != pkg).filter(dep => !dep._isNested);
+
   let result = `
 # Generated targets for npm package "${pkg._dir}"
 ${printJson(pkg)}
@@ -337,74 +681,24 @@ filegroup(
         ":${pkg._name}__files",
         # direct or transitive dependencies hoisted to root by the package manager
         ${
-      pkg._dependencies.filter(dep => dep != pkg)
-          .filter(dep => !dep._isNested)
-          .map(dep => `"//node_modules/${dep._dir}:${dep._name}__files",`)
-          .join('\n        ')}
+      pkgDeps.map(dep => `"//node_modules/${dep._dir}:${dep._name}__files",`).join('\n        ')}
     ],
     tags = ["NODE_MODULE_MARKER"],
 )
 
 filegroup(
     name = "${pkg._name}__files",
-    srcs = glob(
-        include = ["**/*"],
-        exclude = [
-          # Files under test & docs may contain file names that
-          # are not legal Bazel labels (e.g.,
-          # node_modules/ecstatic/test/public/中文/檔案.html)
-          "test/**",
-          "docs/**",
-          # Files with spaces are not allowed in Bazel runfiles
-          # See https://github.com/bazelbuild/bazel/issues/4327
-          "**/* */**",
-          "**/* *",
-        ],
-    ),
-    tags = ["NODE_MODULE_MARKER"],
-)
-
-filegroup(
-    name = "${pkg._name}__lite",
-    srcs = glob(
-        include = [
-          "**/*.js",
-          "**/*.d.ts",
-          "**/*.json",
-          "**/*.proto",
-          "bin/**/*",
-        ],
-        exclude = [
-          # Files under test & docs may contain file names that
-          # are not legal Bazel labels (e.g.,
-          # node_modules/ecstatic/test/public/中文/檔案.html)
-          "test/**",
-          "docs/**",
-          # Files with spaces are not allowed in Bazel runfiles
-          # See https://github.com/bazelbuild/bazel/issues/4327
-          "**/* */**",
-          "**/* *",
-        ],
-    ),
+    srcs = [
+        ${sources.map(f => `":${f}",`).join('\n        ')}
+    ],
     tags = ["NODE_MODULE_MARKER"],
 )
 
 filegroup(
     name = "${pkg._name}__typings",
-    srcs = glob(
-        include = ["**/*.d.ts"],
-        exclude = [
-          # Files under test & docs may contain file names that
-          # are not legal Bazel labels (e.g.,
-          # node_modules/ecstatic/test/public/中文/檔案.html)
-          "test/**",
-          "docs/**",
-          # Files with spaces are not allowed in Bazel runfiles
-          # See https://github.com/bazelbuild/bazel/issues/4327
-          "**/* */**",
-          "**/* *",
-        ],
-    ),
+    srcs = [
+        ${dtsSources.map(f => `":${f}",`).join('\n        ')}
+    ],
     tags = ["NODE_MODULE_MARKER"],
 )
 
@@ -427,7 +721,10 @@ nodejs_binary(
   return result;
 }
 
-function printPackageAlias(pkg) {
+/**
+ * Given a pkg, return the skylark aliases for the package.
+ */
+function printPackageAliases(pkg) {
   return `
 # Generated target alias for npm package "${pkg._dir}"
 ${printJson(pkg)}
@@ -442,17 +739,15 @@ alias(
 )
 
 alias(
-  name = "${pkg._name}__lite",
-  actual = "//node_modules/${pkg._dir}:${pkg._name}__lite"
-)
-
-alias(
   name = "${pkg._name}__typings",
   actual = "//node_modules/${pkg._dir}:${pkg._name}__typings"
 )
 `;
 }
 
+/**
+ * Given a pkg, return the skylark aliases for the package bins.
+ */
 function printPackageBinAliases(pkg) {
   let result = '';
 
@@ -472,18 +767,16 @@ alias(
 }
 
 /**
- * Given a scope, print a skylark `filegroup` target for the scope.
+ * Given a scope, return the skylark `filegroup` target for the scope.
  */
 function printScope(scope, pkgs) {
-  const srcs = pkgs.filter(pkg => !pkg._isNested && pkg._dir.startsWith(`${scope}/`))
-                   .map(pkg => `"//node_modules/${pkg._dir}:${pkg._name}__pkg",`)
-                   .join('\n        ');
+  const srcs = pkgs.filter(pkg => !pkg._isNested && pkg._dir.startsWith(`${scope}/`));
   return `
 # Generated target for npm scope ${scope}
 filegroup(
     name = "${scope}",
     srcs = [
-        ${srcs}
+        ${srcs.map(pkg => `"//node_modules/${pkg._dir}:${pkg._name}__pkg",`).join('\n        ')}
     ],
     tags = ["NODE_MODULE_MARKER"],
 )
@@ -491,6 +784,9 @@ filegroup(
 `;
 }
 
+/**
+ * Given a scope, return the skylark alias for the scope.
+ */
 function printScopeAlias(scope) {
   return `
 # Generated alias target for npm scope ${scope}

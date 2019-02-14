@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-licenses(["notice"])  # Apache 2.0
-
 load("//:defs.bzl", "jasmine_node_test", "nodejs_binary")
+
+licenses(["notice"])  # Apache 2.0
 
 package(default_visibility = ["//internal:__subpackages__"])
 
@@ -87,4 +87,13 @@ jasmine_node_test(
         exclude = ["*.spec.js"],
     ),
     node_modules = "//internal/test:node_modules",
+)
+
+filegroup(
+    name = "package_contents",
+    srcs = glob(
+        ["*"],
+        exclude = ["*.spec.js"],
+    ),
+    visibility = ["//:__pkg__"],
 )
