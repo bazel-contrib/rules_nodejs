@@ -37,8 +37,13 @@ def _trim_package_node_modules(package_name):
     return "/".join(segments)
 
 NodeJSSourcesInfo = provider(
-    doc = """Minimal files needed to run a NodeJS program, without npm packages""",
-    fields = {"data": "A list of File objects"},
+    doc = """All application files needed to run the NodeJS binary, split by data files and npm package files. 
+    This can be used for example when creating a docker image to be able to put npm packages and data files on
+    to separate layers for better caching.""",
+    fields = {
+        "data": "A list of File objects",
+        "node_modules": "A list of node modules file objects, i.e. third party dependencies",
+    },
 )
 
 def _write_loader_script(ctx):
@@ -111,18 +116,21 @@ def _nodejs_binary_impl(ctx):
     # Using a depset will allow us to avoid flattening files and sources
     # inside this loop. This should reduce the performances hits,
     # since we don't need to call .to_list()
-    sources = depset()
+    # sources = depset()
     non_module_sources = depset()
+    node_module_sources = depset()
 
     for d in ctx.attr.data:
         if hasattr(d, "node_sources"):
-            sources = depset(transitive = [sources, d.node_sources])
             if NodeModuleInfo not in d:
                 non_module_sources = depset(transitive = [sources, d.node_sources])
+            else:
+                node_module_sources = depset(transitive = [sources, d.node_sources])
         if hasattr(d, "files"):
-            sources = depset(transitive = [sources, d.files])
             if NodeModuleInfo not in d:
                 non_module_sources = depset(transitive = [sources, d.files])
+            else:
+                node_module_sources = depset(transitive = [sources, d.files])
     _write_loader_script(ctx)
 
     # Avoid writing non-normalized paths (workspace/../other_workspace/path)
@@ -162,7 +170,7 @@ def _nodejs_binary_impl(ctx):
 
     runfiles = depset(
         [node, ctx.outputs.loader, ctx.file._repository_args] + ctx.files._source_map_support_files + node_modules + ctx.files._node_runfiles,
-        transitive = [sources]
+        transitive = [non_module_sources, node_module_sources]
     )
 
     return [DefaultInfo(
@@ -172,6 +180,7 @@ def _nodejs_binary_impl(ctx):
         ),
         NodeJSSourcesInfo(
             data = non_module_sources + [ctx.outputs.loader, ctx.outputs.script]
+            node_modules = node_module_sources
         )
     ]
 
