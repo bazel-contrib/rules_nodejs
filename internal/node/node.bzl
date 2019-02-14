@@ -180,7 +180,7 @@ def _nodejs_binary_impl(ctx):
             ),
         ),
         NodeJSSourcesInfo(
-            data = non_module_sources + [ctx.outputs.loader, ctx.outputs.script],
+            data = depset([ctx.outputs.loader, ctx.outputs.script], transitive = [non_module_sources]),
             node_modules = node_module_sources,
         ),
     ]
