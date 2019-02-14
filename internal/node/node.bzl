@@ -122,14 +122,14 @@ def _nodejs_binary_impl(ctx):
     for d in ctx.attr.data:
         if hasattr(d, "node_sources"):
             if NodeModuleInfo not in d:
-                non_module_sources = depset(transitive = [sources, d.node_sources])
+                non_module_sources = depset(transitive = [non_module_sources, d.node_sources])
             else:
-                node_module_sources = depset(transitive = [sources, d.node_sources])
+                node_module_sources = depset(transitive = [node_module_sources, d.node_sources])
         if hasattr(d, "files"):
             if NodeModuleInfo not in d:
-                non_module_sources = depset(transitive = [sources, d.files])
+                non_module_sources = depset(transitive = [non_module_sources, d.files])
             else:
-                node_module_sources = depset(transitive = [sources, d.files])
+                node_module_sources = depset(transitive = [node_module_sources, d.files])
     _write_loader_script(ctx)
 
     # Avoid writing non-normalized paths (workspace/../other_workspace/path)
@@ -169,18 +169,20 @@ def _nodejs_binary_impl(ctx):
 
     runfiles = depset(
         [node, ctx.outputs.loader, ctx.file._repository_args] + ctx.files._source_map_support_files + node_modules + ctx.files._node_runfiles,
-        transitive = [non_module_sources, node_module_sources]
+        transitive = [non_module_sources, node_module_sources],
     )
 
-    return [DefaultInfo(
-        executable = ctx.outputs.script,
-        runfiles = ctx.runfiles(
-            transitive_files = runfiles,
+    return [
+        DefaultInfo(
+            executable = ctx.outputs.script,
+            runfiles = ctx.runfiles(
+                transitive_files = runfiles,
+            ),
         ),
         NodeJSSourcesInfo(
-            data = non_module_sources + [ctx.outputs.loader, ctx.outputs.script]
-            node_modules = node_module_sources
-        )
+            data = non_module_sources + [ctx.outputs.loader, ctx.outputs.script],
+            node_modules = node_module_sources,
+        ),
     ]
 
 _NODEJS_EXECUTABLE_ATTRS = {

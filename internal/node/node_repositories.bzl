@@ -169,7 +169,6 @@ def _download_yarn(repository_ctx):
     repository_ctx.download_and_extract(
         url = [url.format(version = yarn_version, filename = filename) for url in yarn_urls],
         output = YARN_DIR,
-        
         stripPrefix = strip_prefix,
         sha256 = sha256,
     )
