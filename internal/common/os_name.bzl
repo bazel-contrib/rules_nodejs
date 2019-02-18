@@ -15,6 +15,12 @@
 """Helper function for repository rules
 """
 
+OS_ARCH_NAMES = [
+    "darwin_amd64",
+    "windows_amd64",
+    "linux_amd64",
+]
+
 def os_name(repository_ctx):
     """Get the os name for a repository rule
 
@@ -26,10 +32,10 @@ def os_name(repository_ctx):
     """
     os_name = repository_ctx.os.name.lower()
     if os_name.startswith("mac os"):
-        return "darwin_amd64"
+        return OS_ARCH_NAMES[0]
     elif os_name.find("windows") != -1:
-        return "windows_amd64"
+        return OS_ARCH_NAMES[1]
     elif os_name.startswith("linux"):
-        return "linux_amd64"
+        return OS_ARCH_NAMES[2]
     else:
         fail("Unsupported operating system: " + os_name)

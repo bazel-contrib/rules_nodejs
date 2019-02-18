@@ -19,7 +19,7 @@ See https://docs.bazel.build/versions/master/skylark/repository_rules.html
 """
 
 load("//internal/common:check_bazel_version.bzl", "check_bazel_version")
-load("//internal/common:os_name.bzl", "os_name")
+load("//internal/common:os_name.bzl", "os_name", "OS_ARCH_NAMES")
 load("//internal/npm_install:npm_install.bzl", "yarn_install")
 load("//third_party/github.com/bazelbuild/bazel-skylib:lib/paths.bzl", "paths")
 load(":node_labels.bzl", "get_yarn_node_repositories_label")
@@ -129,7 +129,8 @@ def _download_node(repository_ctx):
     if repository_ctx.attr.vendored_node:
         return
 
-    host = os_name(repository_ctx)
+    # host = os_name(repository_ctx)
+    host = "darwin_amd64" if "darwin" in repository_ctx.attr.name else "linux_amd64"
     node_version = repository_ctx.attr.node_version
     node_repositories = repository_ctx.attr.node_repositories
     node_urls = repository_ctx.attr.node_urls
@@ -543,19 +544,20 @@ def node_repositories(
     # 0.21.0: repository_ctx.report_progress API
     check_bazel_version("0.21.0")
 
-    _nodejs_repo(
-        name = "nodejs",
-        package_json = package_json,
-        node_version = node_version,
-        yarn_version = yarn_version,
-        vendored_node = vendored_node,
-        vendored_yarn = vendored_yarn,
-        node_repositories = node_repositories,
-        yarn_repositories = yarn_repositories,
-        node_urls = node_urls,
-        yarn_urls = yarn_urls,
-        preserve_symlinks = preserve_symlinks,
-    )
+    for os_arch_name in OS_ARCH_NAMES:
+        _nodejs_repo(
+            name = "nodejs_%s" % os_arch_name,
+            package_json = package_json,
+            node_version = node_version,
+            yarn_version = yarn_version,
+            vendored_node = vendored_node,
+            vendored_yarn = vendored_yarn,
+            node_repositories = node_repositories,
+            yarn_repositories = yarn_repositories,
+            node_urls = node_urls,
+            yarn_urls = yarn_urls,
+            preserve_symlinks = preserve_symlinks,
+        )
 
     _yarn_repo(
         name = "yarn",
