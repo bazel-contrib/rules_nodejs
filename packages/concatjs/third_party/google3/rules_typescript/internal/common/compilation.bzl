@@ -170,9 +170,22 @@ def _outputs(ctx, label, srcs_files = []):
                 basename = basename[:-len(ext)]
                 break
         closure_js_files += [ctx.actions.declare_file(basename + ".closure.js")]
+
+        # Temporary until all imports of ngfactory/ngsummary files are removed
+        # TODO(alexeagle): clean up after Ivy launch
+        if getattr(ctx, "compile_angular_templates", False):
+            closure_js_files += [ctx.actions.declare_file(basename + ".ngfactory.closure.js")]
+            closure_js_files += [ctx.actions.declare_file(basename + ".ngsummary.closure.js")]
+
         if not is_dts:
             devmode_js_files += [ctx.actions.declare_file(basename + ".js")]
             declaration_files += [ctx.actions.declare_file(basename + ".d.ts")]
+
+            # Temporary until all imports of ngfactory/ngsummary files are removed
+            # TODO(alexeagle): clean up after Ivy launch
+            if getattr(ctx, "compile_angular_templates", False):
+                devmode_js_files += [ctx.actions.declare_file(basename + ".ngfactory.js")]
+                devmode_js_files += [ctx.actions.declare_file(basename + ".ngsummary.js")]
     return struct(
         closure_js = closure_js_files,
         devmode_js = devmode_js_files,
