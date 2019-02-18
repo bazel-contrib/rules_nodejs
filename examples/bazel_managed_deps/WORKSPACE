@@ -8,10 +8,7 @@ local_repository(
     path = "../../bazel-bin/local_testing_package",
 )
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "yarn_install")
-
-# Install node, npm, and yarn
-node_repositories()
+load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
 
 # This runs yarn install, then our generate_build_file.js to create BUILD files
 # inside the resulting node_modules directory.

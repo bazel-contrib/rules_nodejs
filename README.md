@@ -207,6 +207,9 @@ npm_install(
 )
 ```
 
+> If you don't need to pass any arguments to `node_repositories`,
+  you can skip calling that function. `yarn_install` and `npm_install` will do it by default.
+
 #### yarn_install vs. npm_install
 
 `yarn_install` is the preferred rule for setting up Bazel-managed dependencies for a number of reasons:
