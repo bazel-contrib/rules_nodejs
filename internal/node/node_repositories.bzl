@@ -543,7 +543,8 @@ def node_repositories(
     # 0.21.0: repository_ctx.report_progress API
     check_bazel_version("0.21.0")
 
-    _nodejs_repo(
+    _maybe(
+        _nodejs_repo,
         name = "nodejs",
         package_json = package_json,
         node_version = node_version,
@@ -557,12 +558,14 @@ def node_repositories(
         preserve_symlinks = preserve_symlinks,
     )
 
-    _yarn_repo(
+    _maybe(
+        _yarn_repo,
         name = "yarn",
         package_json = package_json,
     )
 
-    yarn_install(
+    _maybe(
+        yarn_install,
         name = "build_bazel_rules_nodejs_npm_install_deps",
         package_json = "@build_bazel_rules_nodejs//internal/npm_install:package.json",
         yarn_lock = "@build_bazel_rules_nodejs//internal/npm_install:yarn.lock",
@@ -570,26 +573,34 @@ def node_repositories(
         prod_only = True,
     )
 
-    yarn_install(
+    _maybe(
+        yarn_install,
         name = "build_bazel_rules_nodejs_rollup_deps",
         package_json = "@build_bazel_rules_nodejs//internal/rollup:package.json",
         yarn_lock = "@build_bazel_rules_nodejs//internal/rollup:yarn.lock",
     )
 
-    yarn_install(
+    _maybe(
+        yarn_install,
         name = "history-server_runtime_deps",
         package_json = "@build_bazel_rules_nodejs//internal/history-server:package.json",
         yarn_lock = "@build_bazel_rules_nodejs//internal/history-server:yarn.lock",
     )
 
-    yarn_install(
+    _maybe(
+        yarn_install,
         name = "http-server_runtime_deps",
         package_json = "@build_bazel_rules_nodejs//internal/http-server:package.json",
         yarn_lock = "@build_bazel_rules_nodejs//internal/http-server:yarn.lock",
     )
 
-    yarn_install(
+    _maybe(
+        yarn_install,
         name = "build_bazel_rules_nodejs_web_package_deps",
         package_json = "@build_bazel_rules_nodejs//internal/web_package:package.json",
         yarn_lock = "@build_bazel_rules_nodejs//internal/web_package:yarn.lock",
     )
+
+def _maybe(repo_rule, name, **kwargs):
+    if name not in native.existing_rules():
+        repo_rule(name = name, **kwargs)

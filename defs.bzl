@@ -37,8 +37,6 @@ nodejs_binary = _nodejs_binary
 nodejs_test = _nodejs_test
 node_repositories = _node_repositories
 jasmine_node_test = _jasmine_node_test
-npm_install = _npm_install
-yarn_install = _yarn_install
 rollup_bundle = _rollup_bundle
 npm_package = _npm_package
 history_server = _history_server
@@ -61,3 +59,13 @@ def node_modules_filegroup(packages, patterns = [], **kwargs):
         ]] + patterns),
         **kwargs
     )
+
+def npm_install(**kwargs):
+    # Just in case the user didn't install nodejs, do it now
+    _node_repositories()
+    _npm_install(**kwargs)
+
+def yarn_install(**kwargs):
+    # Just in case the user didn't install nodejs, do it now
+    _node_repositories()
+    _yarn_install(**kwargs)
