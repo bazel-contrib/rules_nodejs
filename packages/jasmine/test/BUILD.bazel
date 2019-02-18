@@ -3,23 +3,19 @@ load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
 jasmine_node_test(
     name = "underscore_spec_test",
     srcs = ["foo_spec.js"],
-    deps = ["@npm//jasmine"],
 )
 
 jasmine_node_test(
     name = "underscore_test_test",
     srcs = ["foo_test.js"],
-    deps = ["@npm//jasmine"],
 )
 
 jasmine_node_test(
     name = "dot_spec_test",
     srcs = ["foo.spec.js"],
-    deps = ["@npm//jasmine"],
 )
 
 jasmine_node_test(
     name = "dot_test_test",
     srcs = ["foo.test.js"],
-    deps = ["@npm//jasmine"],
 )
