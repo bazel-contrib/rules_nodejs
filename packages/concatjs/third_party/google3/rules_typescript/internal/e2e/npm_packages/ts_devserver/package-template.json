@@ -10,6 +10,8 @@
   },
   "scripts": {
     "pretest": "webdriver-manager update $CHROMEDRIVER_VERSION_ARG",
-    "test": "bazel build ... && concurrently \"bazel run //:devserver\" \"while ! nc -z 127.0.0.1 8080; do sleep 1; done && protractor\" --kill-others --success first"
+    "wait-for-servers": "while [[ ! nc -z 127.0.0.1 8080 ]] || [[ ! nc -z 127.0.0.1 8081 ]]; do sleep 1; done",
+    "run-e2e-tests": "concurrently \"bazel run //:devserver\" \"yarn wait-for-servers\" --kill-others --success first",
+    "test": "bazel build ... && yarn run-e2e-tests"
   }
 }

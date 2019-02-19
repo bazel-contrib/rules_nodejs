@@ -1,6 +1,6 @@
 exports.config = {
   specs: [
-    'bazel-bin/*_e2e_test.js',
+    'bazel-bin/**/*_e2e_test.js',
   ],
   capabilities: {
     browserName: 'chrome',

@@ -100,7 +100,7 @@ def _ts_devserver(ctx):
                 "/".join([ctx.bin_dir.path, ctx.label.package]),
                 "/".join([ctx.genfiles_dir.path, ctx.label.package]),
             ],
-            [f.path for f in ctx.files.static_files] + [bundle_script],
+            [_short_path_to_manifest_path(ctx, f.short_path) for f in ctx.files.static_files] + [bundle_script],
             injected_index,
         )
         devserver_runfiles += [injected_index]
