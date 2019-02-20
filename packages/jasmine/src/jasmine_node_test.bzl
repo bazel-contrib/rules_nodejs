@@ -29,6 +29,7 @@ def jasmine_node_test(
         expected_exit_code = 0,
         tags = [],
         jasmine = Label("@npm//@bazel/jasmine"),
+        coverage = False,
         **kwargs):
     """Runs tests in NodeJS using the Jasmine test runner.
 
@@ -42,6 +43,7 @@ def jasmine_node_test(
       expected_exit_code: The expected exit code for the test. Defaults to 0.
       tags: bazel tags applied to test
       jasmine: a label providing the jasmine dependency
+      coverage: Enables code coverage collection and reporting
       **kwargs: remaining arguments are passed to the test rule
     """
     devmode_js_sources(
@@ -52,15 +54,22 @@ def jasmine_node_test(
     )
 
     all_data = data + srcs + deps + [jasmine]
+
     all_data += [":%s_devmode_srcs.MF" % name]
     all_data += [Label("@bazel_tools//tools/bash/runfiles")]
     entry_point = "@bazel/jasmine/src/jasmine_runner.js"
+
+    templated_args = ["$(location :%s_devmode_srcs.MF)" % name]
+    if coverage:
+        templated_args = templated_args + ["--coverage"]
+    else:
+        templated_args = templated_args + ["--nocoverage"]
 
     nodejs_test(
         name = name,
         data = all_data,
         entry_point = entry_point,
-        templated_args = ["$(location :%s_devmode_srcs.MF)" % name],
+        templated_args = templated_args,
         testonly = 1,
         expected_exit_code = expected_exit_code,
         tags = tags,
