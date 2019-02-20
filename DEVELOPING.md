@@ -21,7 +21,7 @@ Check if there are any breaking changes since the last tag - if so, this will be
 1. `npm config set tag-version-prefix ''` (we don't put a "v" prefix on our tags)
 1. `npm version minor -m 'rel: %s'` (replace `minor` with `patch` if no breaking changes)
 1. `git push upstream && git push upstream --tags`
-1. Build npm packages and publish them: TMP=$(mktemp -d -t bazel-release.XXXXXXX); ( cd packages/jasmine && bazel --output_base=$TMP run //:package.publish )
+1. Build npm packages and publish them: TMP=$(mktemp -d -t bazel-release.XXXXXXX); ( cd packages/jasmine && bazel --output_base=$TMP run  --workspace_status_command=../../tools/current_version.sh //:package.publish )
 1. (Manual for now): go to the [releases] page, edit the release with rough changelog (especially note any breaking changes!) and upload the release artifact from `rules_nodejs-[version].tar.gz` 
 1. Announce the release on Angular slack in `#tools-abc-discuss`
 
