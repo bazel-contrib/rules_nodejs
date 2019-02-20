@@ -42,10 +42,12 @@ def jasmine_node_test(
       tags: bazel tags applied to test
       **kwargs: remaining arguments are passed to the test rule
     """
-    print("WARNING: @build_bazel_rules_nodejs will no longer provide jasmine_node_test at a later release")
-    print("         Instead, add a devDependency on @bazel/jasmine")
-    print("         and change the load statement to")
-    print("         load(\"@npm_bazel_jasmine//:index.bzl\", \"jasmine_node_test\")")
+    print("""
+        WARNING: @build_bazel_rules_nodejs will no longer provide jasmine_node_test at a later release
+        Instead, add a devDependency on @bazel/jasmine
+        and change the load statement to
+        load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
+        """)
 
     devmode_js_sources(
         name = "%s_devmode_srcs" % name,
