@@ -360,7 +360,7 @@ jasmine_node_test(
 
 #### Fine-grained npm package nodejs_binary targets
 
-If an npm package lists one of more `bin` entry points in its `package.json`,
+If an npm package lists one or more `bin` entry points in its `package.json`,
 `nodejs_binary` targets will be generated for these.
 
 For example, the `protractor` package has two bin entries in its `package.json`:
