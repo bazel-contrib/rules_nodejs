@@ -593,7 +593,21 @@ func (a *Analyzer) generateReport(target *resolvedTarget) (*arpb.DependencyRepor
 		return nil, err
 	}
 	for label, rule := range labelToRule {
-		if isTazeManagedRuleClass(rule.GetRuleClass()) || isGenerated(rule) {
+		switch class := rule.GetRuleClass(); class {
+		case "ts_declaration":
+			// TypeScript declarations might declare arbitrary global symbols, so it
+			// is impossible to detect reliably if the import is being used (without
+			// compiling, at least).  Report that the rule has no explicit import as a
+			// warning, so that ts_auto_deps can decide to import remove or not based on a
+			// flag.
+			warning := fmt.Sprintf("WARNING: %s: keeping possibly used %s '%s'", rule.GetLocation(), class, label)
+			report.Feedback = append(report.Feedback, warning)
+		case "css_library":
+			// Similar to ts_declaration, ts_auto_deps can't reliably detect if css_library
+			// imports are being used, since ts_auto_deps can't currently parse @requirecss
+			// annotations.  Unlike ts_declaration, there's no flag to remove them, so
+			// there's no need to report a warning.
+		default:
 			report.UnnecessaryDependency = append(report.UnnecessaryDependency, label)
 		}
 	}
