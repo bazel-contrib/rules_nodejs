@@ -1,0 +1,6 @@
+{
+    "description": "runtime dependencies for devserver",
+    "devDependencies": {
+        "requirejs": "2.3.5"
+    }
+}
