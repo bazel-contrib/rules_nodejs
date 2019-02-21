@@ -1,0 +1,43 @@
+workspace(name = "npm_bazel_typescript")
+
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+
+# Uncomment for local development
+#local_repository(path = "../../../rules_typescript",
+git_repository(
+    name = "build_bazel_rules_typescript",
+    commit = "57c8d4d02d28b95ca12a145538fa87e3ecc6b74b",
+    remote = "http://github.com/bazelbuild/rules_typescript.git",
+)
+
+local_repository(
+    name = "build_bazel_rules_nodejs",
+    path = "../..",
+)
+
+load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
+
+yarn_install(
+    name = "npm",
+    package_json = "//:package.json",
+    yarn_lock = "//:yarn.lock",
+)
+
+# We have a source dependency on build_bazel_rules_typescript
+# so we must repeat its transitive toolchain deps
+load("@build_bazel_rules_typescript//:package.bzl", "rules_typescript_dev_dependencies")
+
+rules_typescript_dev_dependencies()
+
+load("@io_bazel_rules_go//go:def.bzl", "go_register_toolchains", "go_rules_dependencies")
+load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
+
+gazelle_dependencies()
+
+go_rules_dependencies()
+
+go_register_toolchains()
+
+load("@build_bazel_rules_typescript//internal:ts_repositories.bzl", "ts_setup_dev_workspace")
+
+ts_setup_dev_workspace()
