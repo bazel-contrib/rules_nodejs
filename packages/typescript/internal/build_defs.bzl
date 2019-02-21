@@ -20,7 +20,7 @@ load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeMod
 # pylint: disable=missing-docstring
 load("@build_bazel_rules_typescript//internal:common/compilation.bzl", "COMMON_ATTRIBUTES", "DEPS_ASPECTS", "compile_ts", "ts_providers_dict_to_struct")
 load("@build_bazel_rules_typescript//internal:common/tsconfig.bzl", "create_tsconfig")
-load("@build_bazel_rules_typescript//internal:ts_config.bzl", "TsConfigInfo")
+load("//internal:ts_config.bzl", "TsConfigInfo")
 
 _DEFAULT_COMPILER = "@npm//@bazel/typescript/bin:tsc_wrapped"
 
