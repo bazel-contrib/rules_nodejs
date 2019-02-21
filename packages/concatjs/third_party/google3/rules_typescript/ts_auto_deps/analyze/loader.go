@@ -376,21 +376,6 @@ func dedupeLabels(labels []string) []string {
 	return uniqueLabels
 }
 
-// isTazeManagedRuleClass checks if a class is a ts_auto_deps-managed rule class.
-func isTazeManagedRuleClass(class string) bool {
-	for _, c := range []string{
-		"ts_library",
-		"ts_declaration",
-		"ng_module",
-		"js_library",
-	} {
-		if c == class {
-			return true
-		}
-	}
-	return false
-}
-
 // typeScriptRules returns all TypeScript rules in rules.
 func typeScriptRules(rules []*appb.Rule) []*appb.Rule {
 	var tsRules []*appb.Rule
