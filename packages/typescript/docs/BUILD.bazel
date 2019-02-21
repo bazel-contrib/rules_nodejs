@@ -1,0 +1,16 @@
+load("@io_bazel_skydoc//skylark:skylark.bzl", "skylark_doc")
+
+exports_files(["install.md"])
+
+skylark_doc(
+    name = "docs",
+    srcs = [
+        "//internal:build_defs.bzl",
+        "//internal:ts_config.bzl",
+        "//internal:ts_repositories.bzl",
+        "//internal/devserver:ts_devserver.bzl",
+        "//internal/protobufjs:ts_proto_library.bzl",
+    ],
+    format = "markdown",
+    visibility = ["//:__subpackages__"],
+)

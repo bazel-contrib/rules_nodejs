@@ -28,10 +28,24 @@ genrule(
     cmd = "echo \"#marker that this is a bazel package\" > $@",
 )
 
+# Ugly genrule depending on local linux environment to build the README out of skylark doc generation.
+# Only referenced when we do a release.
+# TODO: This ought to be possible with stardoc alone. Need to coordinate with Chris Parsons.
+genrule(
+    name = "generate_README",
+    srcs = [
+        "//docs",
+        "//docs:install.md",
+    ],
+    outs = ["README.md"],
+    cmd = """unzip -o -d docs $(location //docs:docs) \
+        && cp docs/install.md $@ \
+        && find docs/internal -name *.md | xargs cat | sed 's/^##/\\\n##/' >> $@""",
+)
+
 npm_package(
     name = "npm_package",
     srcs = [
-        "README.md",
         "defs.bzl",
         "package.bzl",
         "package.json",
@@ -51,5 +65,6 @@ npm_package(
     deps = [
         ":copy_LICENSE",
         ":generate_BUILD",
+        ":generate_README",
     ],
 )

@@ -1,78 +1,42 @@
 # TypeScript rules for Bazel
 
-Circle CI | Bazel CI
-:---: | :---:
-[![CircleCI](https://circleci.com/gh/bazelbuild/rules_typescript.svg?style=svg)](https://circleci.com/gh/bazelbuild/rules_typescript) | [![Build status](https://badge.buildkite.com/7f98e137cd86baa5a4040a7e750bef87ef5fd293092fdaf878.svg)](https://buildkite.com/bazel/typescript-rules-typescript-postsubmit)
-
 **WARNING: this is beta-quality software. Breaking changes are likely. Not recommended for production use without expert support.**
 
 The TypeScript rules integrate the TypeScript compiler with Bazel.
 
-This repo used to contain Karma rules `ts_web_test` and `karma_web_test`.
+Looking for Karma rules `ts_web_test` and `karma_web_test`?
 These are now documented in the README at http://npmjs.com/package/@bazel/karma
-
-## API Docs
-
-Generated documentation for using each rule is at:
-http://tsetse.info/api/
 
 ## Installation
 
-First, install a current Bazel distribution.
+This assumes you have already set up rules_nodejs following its [README](https://github.com/bazelbuild/rules_nodejs/blob/master/README.md)
 
-Add the `@bazel/typescript` npm package to your `package.json` `devDependencies`.
+Add a devDependency on `@bazel/typescript`
 
-```
-{
-  ...
-  "devDependencies": {
-    "@bazel/typescript": "0.25.1",
-    ...
-  },
-  ...
-}
+```sh
+$ yarn add -D @bazel/typescript
+# or
+$ npm install --save-dev @bazel/typescript
 ```
 
-Create a `BUILD.bazel` file in your project root:
+Create a `BUILD.bazel` file in your workspace root. If your `tsconfig.json` file is in the root, use
 
 ```python
-package(default_visibility = ["//visibility:public"])
-exports_files(["tsconfig.json"])
+exports_files(["tsconfig.json"], visibility = ["//visibility:public"])
 ```
 
-Next create a `WORKSPACE` file in your project root (or edit the existing one)
-containing:
+otherwise create an alias:
 
 ```python
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-
-# Fetch rules_nodejs
-# (you can check https://github.com/bazelbuild/rules_nodejs for a newer release than this)
-http_archive(
-    name = "build_bazel_rules_nodejs",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.18.5/rules_nodejs-0.18.5.tar.gz"],
-    sha256 = "c8cd6a77433f7d3bb1f4ac87f15822aa102989f8e9eb1907ca0cad718573985b",
+alias(
+    name = "tsconfig.json",
+    actual = "//path/to/my:tsconfig.json",
 )
+```
 
-# Setup the NodeJS toolchain
-load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "yarn_install")
-node_repositories()
+Add to your `WORKSPACE` file, after `install_bazel_dependencies()`:
 
-# Setup Bazel managed npm dependencies with the `yarn_install` rule.
-# The name of this rule should be set to `npm` so that `ts_library`
-# can find your npm dependencies by default in the `@npm` workspace. You may
-# also use the `npm_install` rule with a `package-lock.json` file if you prefer.
-# See https://github.com/bazelbuild/rules_nodejs#dependencies for more info.
-yarn_install(
-  name = "npm",
-  package_json = "//:package.json",
-  yarn_lock = "//:yarn.lock",
-)
-
-# Install all Bazel dependencies needed for npm packages that supply Bazel rules
-load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
-install_bazel_dependencies()
-
+```python
 # Setup TypeScript toolchain
 load("@npm_bazel_typescript//:defs.bzl", "ts_setup_workspace")
 ts_setup_workspace()
