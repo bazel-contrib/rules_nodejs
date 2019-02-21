@@ -50,6 +50,9 @@ See sections below for details and alternative methods.
         package_json = "//:package.json",
         yarn_lock = "//:yarn.lock",
     )
+    
+    load("@npm//:install_bazel_workspaces.bzl", "install_bazel_workspaces")
+    install_bazel_workspaces()
     ```
 
     or if you used `npm`:
@@ -68,6 +71,9 @@ See sections below for details and alternative methods.
         package_json = "//:package.json",
         package_lock_json = "//:package-lock.json",
     )
+    
+    load("@npm//:install_bazel_workspaces.bzl", "install_bazel_workspaces")
+    install_bazel_workspaces()
     ```
 
 3. In your `package.json`, find the `"scripts"` section, or create one.
