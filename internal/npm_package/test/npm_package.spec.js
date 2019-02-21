@@ -31,4 +31,9 @@ describe('npm_package srcs', () => {
   it('replaced 0.0.0-PLACEHOLDER', () => {
     expect(read('package.json').version).not.toEqual('0.0.0-PLACEHOLDER');
   });
+  it('vendors external workspaces',
+     () => {
+         // TODO(alexeagle): there isn't a way to test this yet, because the npm_package under test
+         // has to live in the root of the repository in order for external/foo to appear inside it
+     });
 });
