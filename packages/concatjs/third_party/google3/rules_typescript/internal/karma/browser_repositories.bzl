@@ -23,19 +23,29 @@ def browser_repositories():
     platform_http_file(
         name = "org_chromium_chromium",
         amd64_sha256 =
-            "6933d0afce6e17304b62029fbbd246cbe9e130eb0d90d7682d3765d3dbc8e1c8",
+            "941de83d78b27d43db07f427136ba159d661bb111db8d9ffe12499b863a003e1",
         amd64_urls = [
-            "https://commondatastorage.googleapis.com/chromium-browser-snapshots/Linux_x64/561732/chrome-linux.zip",
+            # Chromium 69.0.3497.0 (2018-07-19 snaphot 576668)
+            # https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?prefix=Linux_x64/576668/
+            "https://commondatastorage.googleapis.com/chromium-browser-snapshots/Linux_x64/576668/chrome-linux.zip",
         ],
         licenses = ["notice"],  # BSD 3-clause (maybe more?)
         macos_sha256 =
-            "084884e91841a923d7b6e81101f0105bbc3b0026f9f6f7a3477f5b313ee89e32",
+            "bd01783e7d179e9f85d4b6f0c9df53118d13977cc7d365a1caa9d198c6afcfd8",
         macos_urls = [
-            "https://commondatastorage.googleapis.com/chromium-browser-snapshots/Mac/561733/chrome-mac.zip",
+            # Chromium 69.0.3497.0 (2018-07-19 snaphot 576668)
+            # https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?prefix=Mac/576668/
+            # NOTE: There is an issue with ChromeHeadless on OSX chromium 70+
+            "https://commondatastorage.googleapis.com/chromium-browser-snapshots/Mac/576668/chrome-mac.zip",
         ],
         windows_sha256 =
             "d1bb728118c12ea436d8ea07dba980789e7d860aa664dd1fad78bc20e8d9391c",
         windows_urls = [
+            # Chromium 66.0.3359.0 (2018-03-01 snaphot 540270)
+            # https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?prefix=Win_x64/612439/
+            # NOTE: There is an issue with chromium 68-71 with Windows: https://bugs.chromium.org/p/chromium/issues/detail?id=540270
+            #       and pinning to 72 is not possible as the archive name has changed to chrome-win.zip which breaks
+            #       as the executable path the hard-coded in rules_webtesting and includes the archive name.
             "https://commondatastorage.googleapis.com/chromium-browser-snapshots/Win_x64/540270/chrome-win32.zip",
         ],
     )
@@ -43,19 +53,25 @@ def browser_repositories():
     platform_http_file(
         name = "org_chromium_chromedriver",
         amd64_sha256 =
-            "71eafe087900dbca4bc0b354a1d172df48b31a4a502e21f7c7b156d7e76c95c7",
+            "687d2e15c42908e2911344c08a949461b3f20a83017a7a682ef4d002e05b5d46",
         amd64_urls = [
-            "https://chromedriver.storage.googleapis.com/2.41/chromedriver_linux64.zip",
+            # ChromeDriver 2.44 supports Chrome v69-71
+            # http://chromedriver.chromium.org/downloads
+            "https://chromedriver.storage.googleapis.com/2.44/chromedriver_linux64.zip",
         ],
         licenses = ["reciprocal"],  # BSD 3-clause, ICU, MPL 1.1, libpng (BSD/MIT-like), Academic Free License v. 2.0, BSD 2-clause, MIT
         macos_sha256 =
-            "fd32a27148f44796a55f5ce3397015c89ebd9f600d9dda2bcaca54575e2497ae",
+            "3fd49c2782a5f93cb48ff2dee021004d9a7fb393798e4c4807b391cedcd30ed9",
         macos_urls = [
-            "https://chromedriver.storage.googleapis.com/2.41/chromedriver_mac64.zip",
+            # ChromeDriver 2.44 supports Chrome v69-71
+            # http://chromedriver.chromium.org/downloads
+            "https://chromedriver.storage.googleapis.com/2.44/chromedriver_mac64.zip",
         ],
         windows_sha256 =
             "a8fa028acebef7b931ef9cb093f02865f9f7495e49351f556e919f7be77f072e",
         windows_urls = [
+            # ChromeDriver 2.38 supports Chrome v65-67
+            # http://chromedriver.chromium.org/downloads
             "https://chromedriver.storage.googleapis.com/2.38/chromedriver_win32.zip",
         ],
     )
