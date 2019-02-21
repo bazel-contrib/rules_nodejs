@@ -54,6 +54,7 @@ def create_package(ctx, deps_sources, nested_packages):
     args.add_all([ctx.outputs.pack.path, ctx.outputs.publish.path])
     args.add(ctx.attr.replace_with_version)
     args.add(ctx.version_file.path if ctx.version_file else "")
+    args.add(ctx.attr.vendor_external, join_with = ",")
 
     inputs = ctx.files.srcs + deps_sources + nested_packages + [ctx.file._run_npm_template]
 
@@ -126,6 +127,12 @@ NPM_PACKAGE_ATTRS = {
     "deps": attr.label_list(
         doc = """Other targets which produce files that should be included in the package, such as `rollup_bundle`""",
         aspects = [sources_aspect],
+    ),
+    "vendor_external": attr.string_list(
+        doc = """External workspaces whose contents should be vendored into this workspace.
+        Avoids 'external/foo' path segments in the resulting package.
+        Note: only targets in the workspace root can include files from an external workspace.
+        Targets in nested packages only pick up files from within that package.""",
     ),
     "_packager": attr.label(
         default = Label("//internal/npm_package:packager"),
