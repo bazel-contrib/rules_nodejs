@@ -14,9 +14,6 @@
 
 # gazelle:exclude worker_protocol.proto
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test", "nodejs_binary")
-load("//internal:defaults.bzl", "ts_library")
-
 package(default_visibility = ["//visibility:public"])
 
 exports_files([
