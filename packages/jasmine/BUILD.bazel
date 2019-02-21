@@ -31,7 +31,7 @@ genrule(
 )
 
 npm_package(
-    name = "package",
+    name = "npm_package",
     srcs = [
         "BUILD.bazel",
         "index.bzl",
