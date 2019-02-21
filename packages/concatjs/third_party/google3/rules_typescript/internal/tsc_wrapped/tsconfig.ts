@@ -36,7 +36,10 @@ export interface BazelOptions {
   /** If true, convert require()s into goog.module(). */
   googmodule: boolean;
 
-  /** If true, emit ES5 into filename.es5.js. */
+  /**
+   * If true, emit devmode output into filename.js.
+   * If false, emit prodmode output into filename.closure.js.
+   */
   es5Mode: boolean;
 
   /** If true, convert TypeScript code into a Closure-compatible variant. */
@@ -161,6 +164,17 @@ export interface BazelOptions {
    * Enable the Angular ngtsc plugin.
    */
   compileAngularTemplates?: boolean;
+
+  /**
+   * Override for ECMAScript target language level to use for devmode.
+   *
+   * This setting can be set in a user's tsconfig to override the default
+   * devmode target.
+   *
+   * EXPERIMENTAL: This setting is experimental and may be removed in the
+   * future.
+   */
+  devmodeTargetOverride?: string;
 }
 
 export interface ParsedTsConfig {
@@ -299,6 +313,8 @@ export function parseTsconfig(
       bazelOpts.tsickle = bazelOpts.tsickle || userConfig.bazelOptions.tsickle;
       bazelOpts.googmodule =
           bazelOpts.googmodule || userConfig.bazelOptions.googmodule;
+      bazelOpts.devmodeTargetOverride = bazelOpts.devmodeTargetOverride ||
+          userConfig.bazelOptions.devmodeTargetOverride;
     }
     if (!bazelOpts.suppressTsconfigOverrideWarnings) {
       warnOnOverriddenOptions(userConfig);
@@ -309,6 +325,36 @@ export function parseTsconfig(
       ts.parseJsonConfigFileContent(config, host, path.dirname(tsconfigFile));
   if (errors && errors.length) {
     return [null, errors, {target}];
+  }
+
+  // Override the devmode target if devmodeTargetOverride is set
+  if (bazelOpts.es5Mode && bazelOpts.devmodeTargetOverride) {
+    switch (bazelOpts.devmodeTargetOverride.toLowerCase()) {
+      case 'es3':
+        options.target = ts.ScriptTarget.ES3;
+        break;
+      case 'es5':
+        options.target = ts.ScriptTarget.ES5;
+        break;
+      case 'es2015':
+        options.target = ts.ScriptTarget.ES2015;
+        break;
+      case 'es2016':
+        options.target = ts.ScriptTarget.ES2016;
+        break;
+      case 'es2017':
+        options.target = ts.ScriptTarget.ES2017;
+        break;
+      case 'es2018':
+        options.target = ts.ScriptTarget.ES2018;
+        break;
+      case 'esnext':
+        options.target = ts.ScriptTarget.ESNext;
+        break;
+      default:
+        console.error(
+            'WARNING: your tsconfig.json file specifies an invalid bazelOptions.devmodeTargetOverride value of: \'${bazelOpts.devmodeTargetOverride\'');
+    }
   }
 
   // Sort rootDirs with longest include directories first.
