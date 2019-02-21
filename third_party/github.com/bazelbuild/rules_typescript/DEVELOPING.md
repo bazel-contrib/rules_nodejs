@@ -56,7 +56,7 @@ changes since the last tag - if so, this will be a minor, if not, it's a patch.
 (This may not sound like semver - but since our major version is a zero, the
 rule is that minors are breaking changes and patches are new features).
 
-1. Re-generate the API docs: `yarn skydoc && (cd internal/karma; yarn skydoc)`
+1. Re-generate the API docs: `yarn skydoc`
 1. May be necessary if Go code has changed though probably it was already necessary to run this to keep CI green: `bazel run :gazelle`
 1. If we depend on a newer rules_nodejs, update the `check_rules_nodejs_version` in `ts_repositories.bzl`
 1. `git commit -a -m 'Update docs for release'`

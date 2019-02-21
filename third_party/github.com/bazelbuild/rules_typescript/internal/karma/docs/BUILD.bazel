@@ -1,5 +1,5 @@
 load("@io_bazel_skydoc//skylark:skylark.bzl", "skylark_doc")
-
+exports_files(["install.md"])
 skylark_doc(
     name = "docs",
     srcs = [
@@ -7,4 +7,5 @@ skylark_doc(
         "//:ts_web_test.bzl",
     ],
     format = "markdown",
+    visibility = ["//:__subpackages__"],
 )
