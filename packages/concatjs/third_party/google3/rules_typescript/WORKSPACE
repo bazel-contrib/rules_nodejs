@@ -77,7 +77,7 @@ ts_setup_dev_workspace()
 # Test that check_rules_typescript_version works as expected
 load("//:defs.bzl", "check_rules_typescript_version")
 
-check_rules_typescript_version(version_string = "0.25.0")
+check_rules_typescript_version(version_string = "0.25.1")
 
 # Dependencies for generating documentation
 load("@io_bazel_rules_sass//sass:sass_repositories.bzl", "sass_repositories")
