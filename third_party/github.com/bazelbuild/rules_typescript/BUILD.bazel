@@ -12,10 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# BEGIN-DEV-ONLY
-# Parts of this BUILD file only necessary when building within the bazelbuild/rules_typescript repo.
-# The generated `@bazel/typescript` npm package contains a trimmed BUILD file using # DEV-ONLY fences.
-#
 # To update BUILD.bazel files after changing Go code, run
 # bazel run //:gazelle
 #
@@ -23,11 +19,7 @@
 # https://github.com/bazelbuild/rules_go/blob/master/go/tools/gazelle/README.rst#directives
 # gazelle:exclude node_modules
 load("@bazel_gazelle//:def.bzl", "gazelle")
-
-# END-DEV-ONLY
 load("@build_bazel_rules_nodejs//:defs.bzl", "npm_package")
-
-# BEGIN-DEV-ONLY
 load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
 load("//:version.bzl", "COMPAT_VERSION")
 
@@ -63,13 +55,18 @@ js_library(
     visibility = ["//visibility:public"],
 )
 
+genrule(
+    name = "generate_BUILD",
+    srcs = [],
+    outs = ["BUILD"],
+    cmd = "echo \"#marker that this is a bazel package\" > $@",
+)
+
 npm_package(
     name = "npm_package",
     srcs = [
-        "BUILD.bazel",
         "LICENSE",
         "README.md",
-        "WORKSPACE",
         "defs.bzl",
         "package.bzl",
         "package.json",
@@ -87,6 +84,7 @@ npm_package(
         "0.0.0-COMPAT_VERSION": COMPAT_VERSION,
     },
     deps = [
+        ":generate_BUILD",
         "//devserver:devserver-darwin",
         "//devserver:devserver-linux",
         "//devserver:devserver-windows",
@@ -98,13 +96,26 @@ npm_package(
     ],
 )
 
-# Produces the release we publish to GitHub. Users download this starlark package
-# to get the @npm_bazel_typescript workspace.
-# FIXME(gregmagolan): strip the npm_package prefix from within the generated archive
-# pkg_tar(
-#     name = "release",
-#     srcs = ["//:npm_package"],
-#     extension = "tgz",
-# )
-
-# END-DEV-ONLY
+# This package is included in the npm_bazel_typescript package in rules_nodejs/packages/typescript
+npm_package(
+    name = "npm_bazel_typescript_package",
+    srcs = [
+        "//devserver:npm_package_assets",
+        "//third_party/github.com/bazelbuild/bazel/src/main/protobuf:npm_package_assets",
+        "//internal:common/compilation.bzl",
+        "//internal:common/json_marshal.bzl",
+        "//internal:common/module_mappings.bzl",
+        "//internal:common/tsconfig.bzl",
+    ],
+    deps = [
+        "//internal:generated_BUILD",
+        "//internal:tsc_wrapped",
+        "//devserver:devserver-darwin",
+        "//devserver:devserver-linux",
+        "//devserver:devserver-windows",
+        "//ts_auto_deps:ts_auto_deps-darwin",
+        "//ts_auto_deps:ts_auto_deps-linux",
+        "//ts_auto_deps:ts_auto_deps-windows",
+    ],
+    visibility = ["//visibility:public"],
+)
