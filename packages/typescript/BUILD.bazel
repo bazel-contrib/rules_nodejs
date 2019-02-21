@@ -60,6 +60,8 @@ npm_package(
         # Do a simple replacement needed to make the local development differ
         # from how our release is used.
         "//devserver:devserver_bin": "//devserver",
+        # This file gets vendored into our repo
+        "@build_bazel_rules_typescript//internal:common": "//internal:common",
     },
     vendor_external = ["build_bazel_rules_typescript"],
     deps = [

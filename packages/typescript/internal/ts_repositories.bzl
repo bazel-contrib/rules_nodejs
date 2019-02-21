@@ -14,12 +14,12 @@
 
 "Install toolchain dependencies"
 
-# BEGIN-DEV-ONLY
+# BEGIN-INTERNAL
 # Parts of this BUILD file only necessary when building within the bazelbuild/rules_typescript repo.
 # The generated `@bazel/typescript` npm package contains a trimmed BUILD file using # DEV-ONLY fences.
 load("@bazel_gazelle//:deps.bzl", "go_repository")
 
-# END-DEV-ONLY
+# END-INTERNAL
 load("@build_bazel_rules_nodejs//:defs.bzl", "check_bazel_version", "check_rules_nodejs_version", "yarn_install")
 
 def ts_setup_workspace():
@@ -56,7 +56,7 @@ def ts_setup_workspace():
         yarn_lock = "@npm_bazel_typescript//internal/protobufjs:yarn.lock",
     )
 
-# BEGIN-DEV-ONLY
+# BEGIN-INTERNAL
 def ts_setup_dev_workspace():
     """
     Setup the toolchain needed for local development, but not needed by users.
@@ -79,4 +79,4 @@ def ts_setup_dev_workspace():
         importpath = "github.com/mattn/go-isatty",
     )
 
-# END-DEV-ONLY
+# END-INTERNAL
