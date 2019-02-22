@@ -167,6 +167,14 @@ def tsc_wrapped_tsconfig(
         jsx_factory = None,
         **kwargs):
     """Produce a tsconfig.json that sets options required under Bazel.
+
+    Args:
+      ctx: the Bazel starlark execution context
+      files: Labels of all TypeScript compiler inputs
+      srcs: Immediate sources being compiled, as opposed to transitive deps
+      devmode_manifest: path to the manifest file to write for --target=es5
+      jsx_factory: the setting for tsconfig.json compilerOptions.jsxFactory
+      **kwargs: remaining args to pass to the create_tsconfig helper
     """
 
     # The location of tsconfig.json is interpreted as the root of the project
@@ -374,8 +382,14 @@ ts_library = rule(
             """,
             allow_single_file = True,
         ),
-        "tsickle_typed": attr.bool(default = True),
-        "deps": attr.label_list(aspects = local_deps_aspects),
+        "tsickle_typed": attr.bool(
+            default = True,
+            doc = "If using tsickle, instruct it to translate types to ClosureJS format",
+        ),
+        "deps": attr.label_list(
+            aspects = local_deps_aspects,
+            doc = "Compile-time dependencies, typically other ts_library targets",
+        ),
     }),
     outputs = {
         "tsconfig": "%{name}_tsconfig.json",

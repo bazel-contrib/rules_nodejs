@@ -178,8 +178,9 @@ def _write_karma_config(ctx, files, amd_names_shim):
     return configuration
 
 def run_karma_web_test(ctx):
-    """Creates an action that can run karma.
+    """Internal utility for use by Bazel rule authors.
 
+    Creates an action that can run karma.
     This is also used by ts_web_test_rule.
 
     Args:
@@ -385,8 +386,12 @@ def karma_web_test_suite(
       browser_overrides: Dictionary; optional; default is an empty dictionary. A
         dictionary mapping from browser names to browser-specific web_test
         attributes, such as shard_count, flakiness, timeout, etc. For example:
-        {'//browsers:chrome-native': {'shard_count': 3, 'flaky': 1}
-         '//browsers:firefox-native': {'shard_count': 1, 'timeout': 100}}.
+        ```
+        {
+            '//browsers:chrome-native': {'shard_count': 3, 'flaky': 1},
+            '//browsers:firefox-native': {'shard_count': 1, 'timeout': 100},
+        }
+        ```
       config: Label; optional; Configuration of web test features.
       flaky: A boolean specifying that the test is flaky. If set, the test will
         be retried up to 3 times (default: 0)

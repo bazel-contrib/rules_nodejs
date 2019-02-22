@@ -3,6 +3,7 @@
     "description": "Run Jasmine tests under Bazel",
     "license": "Apache 2.0",
     "version": "0.0.0-PLACEHOLDER",
+    "homepage": "https://github.com/bazelbuild/rules_nodejs/packages/jasmine",
     "dependencies": {
         "jasmine": "~3.3.1"
     },
@@ -13,7 +14,6 @@
         }
     },
     "scripts": {
-        "build": "bazel run :package.pack --workspace_status_command=../../tools/current_version.sh",
         "test": "bazel test //..."
     }
 }
