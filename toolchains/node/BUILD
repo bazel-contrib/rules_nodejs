@@ -35,7 +35,7 @@ toolchain(
         "@bazel_tools//platforms:linux",
         "@bazel_tools//platforms:x86_64",
     ],
-    toolchain = "@node_config_linux//:toolchain",
+    toolchain = "@nodejs_config_linux_amd64//:toolchain",
     toolchain_type = ":toolchain_type",
 )
 
@@ -45,7 +45,7 @@ toolchain(
         "@bazel_tools//platforms:osx",
         "@bazel_tools//platforms:x86_64",
     ],
-    toolchain = "@node_config_osx//:toolchain",
+    toolchain = "@nodejs_config_osx_amd64//:toolchain",
     toolchain_type = ":toolchain_type",
 )
 
@@ -55,6 +55,6 @@ toolchain(
         "@bazel_tools//platforms:windows",
         "@bazel_tools//platforms:x86_64",
     ],
-    toolchain = "@node_config_windows//:toolchain",
+    toolchain = "@nodejs_config_windows_amd64//:toolchain",
     toolchain_type = ":toolchain_type",
 )

@@ -16,7 +16,6 @@ Defines a repository rule for configuring the node binary.
 """
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
 load(
     ":defaults.bzl",
     _k8s_commit = "k8s_commit",
@@ -29,13 +28,35 @@ load(
     _k8s_repo_tools_sha = "k8s_repo_tools_sha",
     _k8s_sha256 = "k8s_sha256",
 )
+load("//internal/common:os_name.bzl", "OS_ARCH_NAMES")
 
 def _impl(repository_ctx):
     substitutions = None
-    if repository_ctx.attr.target:
-        node_target = repository_ctx.attr.target
-        substitutions = {"%{NODE_TARGET}": "%s" % node_target}
+    host_os = repository_ctx.os.name.lower()
+    if repository_ctx.attr.nodejs_repository_names:
+        target_tool = ""
+        host_tool = ""
+        target_repo_name = ""
+        for repo_name in repository_ctx.attr.nodejs_repository_names:
+            if repository_ctx.attr.os in repo_name:
+                target_tool = "@%s//:node" % repo_name
+                target_repo_name = repo_name
+            if host_os in repo_name:
+                host_tool = "@%s//:node" % repo_name
+        
+        if not target_tool or not host_tool:
+            fail("No host_tool nor target_tool found")
+
+        substitutions = {
+            "%{NODE_TARGET_TOOL}": "%s" % target_tool,
+            "%{NODE_TARGET_RUNFILES}": "@%s//:node_runfiles" % target_repo_name,
+            "%{NODE_TARGET_ARGS}": "@%s//:bin/node_args.sh" % target_repo_name,
+            "%{NODE_HOST_TOOL}": "%s" % host_tool,
+            "%{OS}": "%s" % repository_ctx.attr.os,
+            "%{ARCH}": "%s" % repository_ctx.attr.arch,
+        }
         template = Label("@build_bazel_rules_nodejs//toolchains/node:BUILD.target.tpl")
+
     else:
         node_tool_path = repository_ctx.attr.local_path or repository_ctx.which("node") or ""
         substitutions = {"%{NODE_PATH}": "%s" % node_tool_path}
@@ -77,6 +98,9 @@ _node_configure = repository_rule(
             mandatory = False,
             allow_single_file = True,
         ),
+        "nodejs_repository_names": attr.string_list(
+            mandatory = False,
+        ),
     },
 )
 
@@ -106,7 +130,7 @@ def _ensure_all_provided(func_name, attrs, kwargs):
             ", ".join(provided),
         ))
 
-def node_configure(name, **kwargs):
+def node_configure(node_repositories):
     """
     Creates an external repository with a node_toolchain target
     properly configured.
@@ -138,10 +162,11 @@ def node_configure(name, **kwargs):
         "@build_bazel_rules_nodejs//toolchains/node:node_windows_toolchain",
     )
 
-    node_repositories(**kwargs)
-
-    _node_configure(name = name + "_linux", os="linux", arch="x86_64", host_tool="@nodejs_linux//:node", target_tool="@nodejs_linux//:node")
-    _node_configure(name = name + "_osx", os="osx", arch="x86_64", host_tool="@nodejs_linux//:node", target_tool="@nodejs_darwin//:node")
+    if node_repositories:
+        print("!!!!!!!!!InHERE!!!!!!!!!!!!")
+        for os, arch in OS_ARCH_NAMES:
+            _node_configure(name = "nodejs_config_%s_%s" % (os, arch), os=os, arch=arch, nodejs_repository_names=node_repositories)
+    # _node_configure(name = name + "_osx", os="osx", arch="x86_64", host_tool="@nodejs_linux//:node", target_tool="@nodejs_darwin//:node")
 
     # build_srcs = False
     # if "build_srcs" in kwargs and "kubectl_path" in kwargs:

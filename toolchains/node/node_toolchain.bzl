@@ -18,18 +18,26 @@ This module implements the node toolchain rule.
 NodeInfo = provider(
     doc = "Information about how to invoke the node binary.",
     fields = {
-        "tool_path": "Path to an existing nodejs executable",
-        "tool_target": "A hermetically downloaded nodejs executable target.",
+        "target_tool_path": "Path to an existing nodejs executable",
+        "target_tool": "A hermetically downloaded nodejs executable target.",
+        "target_tool_runfiles": "A hermetically downloaded nodejs executable target.",
+        "target_tool_args": "A hermetically downloaded nodejs executable target.",
+        "host_tool_path": "Path to an existing nodejs executable",
+        "host_tool": "A hermetically downloaded nodejs executable target.",
     },
 )
 
 def _node_toolchain_impl(ctx):
-    if not ctx.attr.tool_path and not ctx.attr.tool_target:
-        print("No nodejs binary was found or built, executing run for rules_nodejs targets might not work.")
+    if not ctx.attr.host_tool and not ctx.attr.host_tool_path:
+        print("No nodejs binary was not found or built, executing run for rules_nodejs targets might not work.")
     toolchain_info = platform_common.ToolchainInfo(
         nodeinfo = NodeInfo(
-            tool_path = ctx.attr.tool_path,
-            tool_target = ctx.attr.tool_target,
+            target_tool_path = ctx.attr.target_tool_path,
+            target_tool = ctx.attr.target_tool,
+            target_tool_runfiles = ctx.attr.target_tool_runfiles,
+            target_tool_args = ctx.attr.target_tool_args,
+            host_tool_path = ctx.attr.host_tool_path,
+            host_tool = ctx.attr.host_tool,
         ),
     )
     return [toolchain_info]
@@ -50,6 +58,16 @@ node_toolchain = rule(
             mandatory = False,
         ),
         "target_tool": attr.label(
+            doc = "Target for a downloaded nodejs binary for the target os.",
+            mandatory = False,
+            allow_single_file = True,
+        ),
+        "target_tool_runfiles": attr.label(
+            doc = "Target for a downloaded nodejs binary for the target os.",
+            mandatory = False,
+            allow_files = False,
+        ),
+        "target_tool_args": attr.label(
             doc = "Target for a downloaded nodejs binary for the target os.",
             mandatory = False,
             allow_single_file = True,

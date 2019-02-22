@@ -135,7 +135,7 @@ def _nodejs_binary_impl(ctx):
 
     node_tool_info = ctx.toolchains["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"].nodeinfo
     node_tool_files = []
-    if node_tool_info.tool_path == "" and not node_tool_info.tool_target:
+    if node_tool_info.target_tool_path == "" and not node_tool_info.target_tool:
         # If tool_path is empty and tool_target is None then there is no local
         # node tool, we will just print a nice error message if the user
         # attempts to do bazel run
@@ -144,17 +144,17 @@ def _nodejs_binary_impl(ctx):
             output = ctx.outputs.script,
         )
     else:
-        node_tool = node_tool_info.tool_path
+        node_tool = node_tool_info.target_tool_path
         print(node_tool)
-        if node_tool_info.tool_target:
-            node_tool = _short_path_to_manifest_path(ctx, node_tool_info.tool_target.files.to_list()[0].short_path)
+        if node_tool_info.target_tool:
+            node_tool = _short_path_to_manifest_path(ctx, node_tool_info.target_tool.files.to_list()[0].short_path)
             # print(node.short_path)
             # print(_short_path_to_manifest_path(ctx, node.short_path))
             # print(node_tool.path)
             # print(node_tool.short_path)
             # print(_short_path_to_manifest_path(ctx, node_tool.short_path))
             # node_tool = _runfiles(ctx, node_tool_info.tool_target.files.to_list()[0])
-            node_tool_files += node_tool_info.tool_target.files.to_list()
+            node_tool_files += node_tool_info.target_tool.files.to_list()
 
     print("------------")
     # print(node_tool)
@@ -165,6 +165,8 @@ def _nodejs_binary_impl(ctx):
     # print("------------")
     print("node_tool_files", node_tool_files)
 
+    target_tool_args = node_tool_info.target_tool_args.files.to_list()[0]
+
     substitutions = {
         "TEMPLATED_args": " ".join([
             expand_location_into_runfiles(ctx, a)
@@ -174,7 +176,8 @@ def _nodejs_binary_impl(ctx):
         "TEMPLATED_expected_exit_code": str(expected_exit_code),
         # "TEMPLATED_node": _short_path_to_manifest_path(ctx, node.short_path),
         "TEMPLATED_node": node_tool,
-        "TEMPLATED_repository_args": _short_path_to_manifest_path(ctx, ctx.file._repository_args.short_path),
+        "TEMPLATED_repository_args": _short_path_to_manifest_path(ctx, target_tool_args.short_path),
+        # "TEMPLATED_repository_args": "",
         "TEMPLATED_script_path": script_path,
     }
     ctx.actions.expand_template(
@@ -184,7 +187,8 @@ def _nodejs_binary_impl(ctx):
         is_executable = True,
     )
 
-    runfiles = depset(node_tool_files + [ctx.outputs.loader, ctx.file._repository_args] + node_modules + ctx.files._node_runfiles, transitive = [sources])
+    runfiles = depset(node_tool_files + [ctx.outputs.loader, target_tool_args] + node_modules, transitive = [node_tool_info.target_tool_runfiles.files, sources])
+    # runfiles = depset(node_tool_files + [ctx.outputs.loader] + node_modules, transitive = [sources])
 
     return [DefaultInfo(
         executable = ctx.outputs.script,
@@ -323,15 +327,15 @@ _NODEJS_EXECUTABLE_ATTRS = {
         allow_single_file = True,
     ),
     # TODO(markus): Remove and get from toolchain
-    "_node_runfiles": attr.label(
-        default = Label("@nodejs//:node_runfiles"),
-        allow_files = True,
-    ),
-    # TODO(markus): Remove and get from toolchain
-    "_repository_args": attr.label(
-        default = Label("@nodejs//:bin/node_args.sh"),
-        allow_single_file = True,
-    ),
+    # "_node_runfiles": attr.label(
+    #     default = Label("@nodejs//:node_runfiles"),
+    #     allow_files = True,
+    # ),
+    # # TODO(markus): Remove and get from toolchain
+    # "_repository_args": attr.label(
+    #     default = Label("@nodejs//:bin/node_args.sh"),
+    #     allow_single_file = True,
+    # ),
     "_source_map_support_files": attr.label_list(
         default = [
             Label("//third_party/github.com/buffer-from:contents"),

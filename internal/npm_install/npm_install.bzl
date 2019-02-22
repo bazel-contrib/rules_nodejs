@@ -119,9 +119,10 @@ def _add_data_dependencies(repository_ctx):
 def _npm_install_impl(repository_ctx):
     """Core implementation of npm_install."""
 
-    is_windows = os_name(repository_ctx).find("windows") != -1
-    node = repository_ctx.path(get_node_label(repository_ctx))
-    npm = get_npm_label(repository_ctx)
+    os = os_name(repository_ctx)
+    is_windows = os.find("windows") != -1
+    node = repository_ctx.path(get_node_label(os))
+    npm = get_npm_label(os)
     npm_args = ["install"]
 
     if repository_ctx.attr.prod_only:
@@ -224,8 +225,9 @@ npm_install = repository_rule(
 def _yarn_install_impl(repository_ctx):
     """Core implementation of yarn_install."""
 
-    node = repository_ctx.path(get_node_label(repository_ctx))
-    yarn = get_yarn_label(repository_ctx)
+    os = os_name(repository_ctx)
+    node = repository_ctx.path(get_node_label(os))
+    yarn = get_yarn_label(os)
 
     if repository_ctx.attr.yarn_lock:
         if repository_ctx.attr.exclude_packages:

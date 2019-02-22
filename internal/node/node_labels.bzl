@@ -24,7 +24,7 @@ def get_node_label(os_name):
         label = Label("@nodejs_%s//:bin/node" % os_name)
     return label
 
-def get_npm_label(repository_ctx):
+def get_npm_label(os_name):
     if os_name.find("windows") != -1:
         label = Label("@nodejs_%s//:bin/npm.cmd" % os_name)
     else:

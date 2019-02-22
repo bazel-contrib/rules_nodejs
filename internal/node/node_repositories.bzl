@@ -19,10 +19,11 @@ See https://docs.bazel.build/versions/master/skylark/repository_rules.html
 """
 
 load("//internal/common:check_bazel_version.bzl", "check_bazel_version")
-load("//internal/common:os_name.bzl", "os_name", "OS_ARCH_NAMES")
+load("//internal/common:os_name.bzl", "os_name", "OS_ARCH_NAMES", "OS_NAMES")
 load("//internal/npm_install:npm_install.bzl", "yarn_install")
 load("//third_party/github.com/bazelbuild/bazel-skylib:lib/paths.bzl", "paths")
 load(":node_labels.bzl", "get_yarn_node_repositories_label")
+load("//toolchains/node:node_configure.bzl", node_toolchain_configure = "node_configure")
 
 # Callers that don't specify a particular version will get these.
 DEFAULT_NODE_VERSION = "10.13.0"
@@ -544,9 +545,12 @@ def node_repositories(
     # 0.21.0: repository_ctx.report_progress API
     check_bazel_version("0.21.0")
 
-    for os_arch_name in OS_ARCH_NAMES:
+    # This needs to be setup so toolchains can access nodejs for all different versions
+    nodejs_repositorie_names = []
+    for os_name in OS_NAMES:
+        nodejs_repository = "nodejs_%s" % os_name
         _nodejs_repo(
-            name = "nodejs_%s" % os_arch_name,
+            name = nodejs_repository,
             package_json = package_json,
             node_version = node_version,
             yarn_version = yarn_version,
@@ -558,6 +562,9 @@ def node_repositories(
             yarn_urls = yarn_urls,
             preserve_symlinks = preserve_symlinks,
         )
+        nodejs_repositorie_names.append(nodejs_repository)
+
+    node_toolchain_configure(nodejs_repositorie_names)
 
     _yarn_repo(
         name = "yarn",

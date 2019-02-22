@@ -21,5 +21,10 @@ load("@build_bazel_rules_nodejs//toolchains/node:node_toolchain.bzl", "node_tool
 
 node_toolchain(
     name = "toolchain",
-    tool_target = "%{NODE_TARGET}",
+    target_tool = "%{NODE_TARGET_TOOL}",
+    target_tool_runfiles = "%{NODE_TARGET_RUNFILES}",
+    target_tool_args = "%{NODE_TARGET_ARGS}",
+    host_tool = "%{NODE_HOST_TOOL}",
+    os = "%{OS}",
+    arch = "%{ARCH}",
 )
