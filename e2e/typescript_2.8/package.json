@@ -1,0 +1,13 @@
+{
+  "dependencies": {
+    "@bazel/jasmine": "bazel://@npm_bazel_jasmine//:npm_package",
+    "@bazel/typescript": "bazel://@npm_bazel_typescript//:npm_package",
+    "@types/jasmine": "2.8.2",
+    "@types/node": "7.0.18",
+    "typescript": "2.8.x"
+  },
+  "scripts": {
+    "pretest": "../link-packages.sh",
+    "test": "bazel test ..."
+  }
+}

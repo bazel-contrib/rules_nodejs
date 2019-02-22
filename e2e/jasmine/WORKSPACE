@@ -12,31 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-licenses(["notice"])  # Apache 2.0
+workspace(name = "e2e_jasmine")
 
-package(default_visibility = [
-    "//third_party/bazel_rules/rules_typescript/internal:__subpackages__",
-])
-
-exports_files([
-    "launcher_template.sh",
-    # Exported to be consumed for generating skydoc.
-    "ts_devserver.bzl",
-])
-
-filegroup(
-    name = "source_tree",
-    srcs = glob(["**/*"]),
+local_repository(
+    name = "build_bazel_rules_nodejs",
+    path = "../../bazel-bin/local_testing_package",
 )
 
-filegroup(
-    name = "npm_package_assets",
-    srcs = [
-        "BUILD",
-        "launcher_template.sh",
-        "package.json",
-        "ts_devserver.bzl",
-        "yarn.lock",
-    ],
-    visibility = ["//internal:__pkg__"],
+load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
+
+yarn_install(
+    name = "npm",
+    package_json = "//:package.json",
+    yarn_lock = "//:yarn.lock",
 )
+
+load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
+
+install_bazel_dependencies()

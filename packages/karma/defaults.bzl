@@ -15,7 +15,7 @@
 "Defaults for rules_karma repository not meant to be used downstream"
 
 load(
-    "@npm_bazel_karma//:defs.bzl",
+    "@npm_bazel_karma//:index.bzl",
     _karma_web_test = "karma_web_test",
     _karma_web_test_suite = "karma_web_test_suite",
     _ts_web_test = "ts_web_test",

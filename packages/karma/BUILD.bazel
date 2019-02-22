@@ -87,6 +87,7 @@ npm_package(
         "browser_repositories.bzl",
         "defaults.bzl",
         "defs.bzl",
+        "index.bzl",
         "karma.conf.js",
         "karma.js",
         "karma_web_test.bzl",

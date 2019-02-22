@@ -38,7 +38,7 @@ Add to your `WORKSPACE` file, after `install_bazel_dependencies()`:
 
 ```python
 # Setup TypeScript toolchain
-load("@npm_bazel_typescript//:defs.bzl", "ts_setup_workspace")
+load("@npm_bazel_typescript//:index.bzl", "ts_setup_workspace")
 ts_setup_workspace()
 ```
 
@@ -109,7 +109,7 @@ Create a `BUILD` file next to your sources:
 
 ```python
 package(default_visibility=["//visibility:public"])
-load("@npm_bazel_typescript//:defs.bzl", "ts_library")
+load("@npm_bazel_typescript//:index.bzl", "ts_library")
 
 ts_library(
     name = "my_code",
@@ -191,7 +191,7 @@ To use `ts_devserver`, you simply `load` the rule, and call it with `deps` that
 point to your `ts_library` target(s):
 
 ```python
-load("@npm_bazel_typescript//:defs.bzl", "ts_devserver", "ts_library")
+load("@npm_bazel_typescript//:index.bzl", "ts_devserver", "ts_library")
 
 ts_library(
     name = "app",

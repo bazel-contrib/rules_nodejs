@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "@bazel/karma": "bazel://@npm_bazel_karma//:npm_package",
+    "@bazel/typescript": "bazel://@npm_bazel_typescript//:npm_package",
+    "@types/jasmine": "2.8.2",
+    "typescript": "2.9.2"
+  },
+  "scripts": {
+    "pretest": "../link-packages.sh",
+    "test": "bazel test ..."
+  }
+}

@@ -15,7 +15,7 @@
 "Defaults for rules_typescript repository not meant to be used downstream"
 
 load(
-    "@npm_bazel_typescript//:defs.bzl",
+    "@npm_bazel_typescript//:index.bzl",
     _ts_library = "ts_library",
 )
 

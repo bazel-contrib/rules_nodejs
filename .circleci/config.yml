@@ -9,8 +9,8 @@
 
 ## IMPORTANT
 # If you change the `docker_image` version, also change the `cache_key` version
-var_1: &docker_image angular/ngcontainer:0.9.0
-var_2: &cache_key angular/ngcontainer:0.9.0-{{ .Branch }}-{{ checksum "yarn.lock" }}-examples/program:{{ checksum "examples/program/yarn.lock" }}-internal/test:{{ checksum "internal/test/yarn.lock" }}-internal/e2e/node_loader_no_preserve_symlinks:{{ checksum "internal/e2e/node_loader_no_preserve_symlinks/yarn.lock" }}-internal/e2e/node_loader_preserve_symlinks:{{ checksum "internal/e2e/node_loader_preserve_symlinks/yarn.lock" }}
+var_1: &docker_image angular/ngcontainer:0.10.0
+var_2: &cache_key angular/ngcontainer:0.10.0-{{ .Branch }}-{{ checksum "yarn.lock" }}-examples/program:{{ checksum "examples/program/yarn.lock" }}-internal/test:{{ checksum "internal/test/yarn.lock" }}-internal/e2e/node_loader_no_preserve_symlinks:{{ checksum "internal/e2e/node_loader_no_preserve_symlinks/yarn.lock" }}-internal/e2e/node_loader_preserve_symlinks:{{ checksum "internal/e2e/node_loader_preserve_symlinks/yarn.lock" }}
 
 # Move node binaries out of the way to enforce that Bazel uses
 # only the hermetic ones it downloads
@@ -133,6 +133,9 @@ jobs:
   # See https://github.com/bazelbuild/continuous-integration/issues/225
   test_e2e:
     <<: *job_defaults
+    resource_class: xlarge
+    environment:
+      CHROMEDRIVER_VERSION_ARG: --versions.chrome 2.41
     steps:
       - checkout:
           <<: *post_checkout
@@ -141,6 +144,10 @@ jobs:
       # Not using "bazel run @nodejs//:yarn test" as will attempt to run
       # the "test" script on all folder listed in node_repositories()
       - run: yarn test:e2e
+
+      # e2e tests are in the process of being moved to /e2e
+      # some e2e tests such as ts_devserver require xvfb
+      - run: xvfb-run -a ./e2e/test.sh
 
   # This job cannot run on BuildKite (BazelCI) because it requires changing
   # directories to test inside nested workspaces.

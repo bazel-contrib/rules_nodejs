@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "@bazel/karma": "bazel://@npm_bazel_karma//:npm_package",
+    "karma": "3.0.0"
+  },
+  "scripts": {
+    "pretest": "../link-packages.sh",
+    "test": "bazel test ..."
+  }
+}

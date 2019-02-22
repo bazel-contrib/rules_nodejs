@@ -5,9 +5,7 @@ local_repository(
     path = "../../../bazel-bin/local_testing_package",
 )
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "yarn_install")
-
-node_repositories()
+load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
 
 yarn_install(
     name = "npm",
