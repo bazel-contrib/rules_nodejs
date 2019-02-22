@@ -21,7 +21,7 @@ as the package manager.
 See discussion in the README.
 """
 
-load("//internal/common:os_name.bzl", "os_name")
+load("//internal/common:os_name.bzl", "os_name", "OS_ARCH_NAMES", "OS_NAMES")
 load("//internal/node:node_labels.bzl", "get_node_label", "get_npm_label", "get_yarn_label")
 
 COMMON_ATTRIBUTES = dict(dict(), **{
@@ -285,7 +285,7 @@ def _yarn_install_impl(repository_ctx):
 
     _create_build_file(repository_ctx, node)
 
-yarn_install = repository_rule(
+_yarn_install = repository_rule(
     attrs = dict(COMMON_ATTRIBUTES, **{
         "timeout": attr.int(
             default = 3600,
@@ -315,3 +315,16 @@ yarn_install = repository_rule(
 )
 """Runs yarn install during workspace setup.
 """
+
+def yarn_install(**kwargs):
+    name = kwargs.pop(name)
+    _yarn_install(
+        name = name,
+        **kwargs,
+    )
+
+    for os in OS_NAMES:
+        _yarn_install(
+            name = "%s_%s" % (name, os),
+            **kwargs,
+        )

@@ -45,7 +45,7 @@ toolchain(
         "@bazel_tools//platforms:osx",
         "@bazel_tools//platforms:x86_64",
     ],
-    toolchain = "@nodejs_config_osx_amd64//:toolchain",
+    toolchain = "@nodejs_config_darwin_amd64//:toolchain",
     toolchain_type = ":toolchain_type",
 )
 

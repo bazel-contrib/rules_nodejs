@@ -676,13 +676,26 @@ ${printJson(pkg)}
 
 filegroup(
     name = "${pkg._name}__pkg",
-    srcs = [
-        # ${pkg._dir} package contents (and contents of nested node_modules)
-        ":${pkg._name}__files",
-        # direct or transitive dependencies hoisted to root by the package manager
-        ${
+    srcs = select({
+        "//conditions:default": [
+            # ${pkg._dir} package contents (and contents of nested node_modules)
+            ":${pkg._name}__files",
+            # direct or transitive dependencies hoisted to root by the package manager
+            ${
       pkgDeps.map(dep => `"//node_modules/${dep._dir}:${dep._name}__files",`).join('\n        ')}
-    ],
+        ],
+        "@io_bazel_rules_go//go/platform:darwin_amd64": [
+            # ${pkg._dir} package contents (and contents of nested node_modules)
+            "@npm_darwin_amd64//${pkg._dir}:${pkg._name}__files",
+            # direct or transitive dependencies hoisted to root by the package manager
+            ${
+      pkgDeps.map(dep => `"@npm_darwin_amd64//node_modules/${dep._dir}:${dep._name}__files",`)
+          .join('\n        ')}
+        ],
+        "@io_bazel_rules_go//go/platform:windows_amd64": [
+            "cgo_windows.go",
+        ],
+    }),
     tags = ["NODE_MODULE_MARKER"],
 )
 
