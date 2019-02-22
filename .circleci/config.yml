@@ -145,9 +145,8 @@ jobs:
   # This job cannot run on BuildKite (BazelCI) because it requires changing
   # directories to test inside nested workspaces.
   # See https://github.com/bazelbuild/continuous-integration/issues/225
-  test:
+  test_examples:
     <<: *job_defaults
-    resource_class: xlarge
     steps:
       - checkout:
           <<: *post_checkout
@@ -156,7 +155,33 @@ jobs:
       # Not using "bazel run @nodejs//:yarn test" as will attempt to run
       # the "test" script on all folder listed in node_repositories()
       - run: yarn test:examples
-      - run: yarn test:packages
+    
+  test_typescript:
+    <<: *job_defaults
+    # Need to compile Go and protocol buffers from source
+    resource_class: xlarge
+    steps:
+      - checkout:
+          <<: *post_checkout
+      - *setup_bazelrc
+      - run: yarn packages-typescript
+
+  test_karma:
+    <<: *job_defaults
+    steps:
+      - checkout:
+          <<: *post_checkout
+      - *setup_bazelrc
+      - run: yarn packages-karma
+
+  test_jasmine:
+    <<: *job_defaults
+    steps:
+      - checkout:
+          <<: *post_checkout
+      - *setup_bazelrc
+      - run: yarn packages-jasmine
+
 
 workflows:
   version: 2
@@ -164,6 +189,9 @@ workflows:
     jobs:
       - lint
       - build
-      - test
+      - test_examples
       - test_e2e
       - test_legacy_runfiles
+      - test_karma
+      - test_typescript
+      - test_jasmine

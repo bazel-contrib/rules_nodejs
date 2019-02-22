@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
-
 workspace(name = "npm_bazel_karma")
+
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 local_repository(
     name = "build_bazel_rules_nodejs",
