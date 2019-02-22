@@ -5,7 +5,16 @@ let JasmineRunner = require('jasmine/lib/jasmine');
 if (global.jasmine) {
   // global.jasmine has been initialized which means a bootstrap script
   // has already required `jasmine-core` and called jasmineCore.boot()
-  jasmineCore = global.jasmineCore || require('jasmine-core');
+  jasmineCore = global.jasmineCore;
+  if (!jasmineCore) {
+    try {
+      // Try unhoisted jasmine-core first so that we don't
+      // need an @npm//jasmine-core dep in the unhoisted case.
+      jasmineCore = require('jasmine/node_modules/jasmine-core');
+    } catch (_) {
+      jasmineCore = require('jasmine-core');
+    }
+  }
   // Override the jasmineCore boot function so that the jasmine
   // runner gets the already initialize jasmine and its shared environment
   jasmineCore.boot = function() {

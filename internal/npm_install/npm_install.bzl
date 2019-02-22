@@ -114,7 +114,11 @@ def _add_data_dependencies(repository_ctx):
         if f.package:
             to += [f.package]
         to += [f.name]
-        repository_ctx.symlink(f, repository_ctx.path("/".join(to)))
+
+        # Make copies of the data files instead of symlinking
+        # as yarn under linux will have trouble using symlinked
+        # files as npm file:// packages
+        repository_ctx.template("/".join(to), f, {})
 
 def _npm_install_impl(repository_ctx):
     """Core implementation of npm_install."""

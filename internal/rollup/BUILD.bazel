@@ -86,7 +86,13 @@ jasmine_node_test(
         ["*.js"],
         exclude = ["*.spec.js"],
     ),
-    node_modules = "//internal/test:node_modules",
+    deps = [
+        "@npm//is-builtin-module",
+        "@npm//jasmine",
+        "@npm//rollup",
+        "@npm//rollup-plugin-node-resolve",
+        "@npm//rollup-plugin-sourcemaps",
+    ],
 )
 
 filegroup(

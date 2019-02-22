@@ -11,7 +11,14 @@ require('zone.js/dist/task-tracking.js');
 // This hack is needed to get jasmine, node and zone working inside bazel.
 // Initialize jasmine by calling jasmineCore boot. This will initialize
 // global.jasmine so that it can be patched by zone.js jasmine-patch.js.
-const jasmineCore = require('jasmine-core');
+let jasmineCore;
+try {
+  // Try unhoisted jasmine-core first so that we don't
+  // need an @npm//jasmine-core dep in the unhoisted case.
+  jasmineCore = require('jasmine/node_modules/jasmine-core');
+} catch (_) {
+  jasmineCore = require('jasmine-core');
+}
 jasmineCore.boot(jasmineCore);
 
 // Test that a bootstrap afterEach() is preserved in the jasmine tests

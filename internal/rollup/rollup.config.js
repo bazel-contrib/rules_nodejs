@@ -10,20 +10,25 @@ const fs = require('fs');
 
 const DEBUG = false;
 
-const moduleMappings = TMPL_module_mappings;
 const workspaceName = 'TMPL_workspace_name';
 const rootDir = 'TMPL_rootDir';
-const banner_file = TMPL_banner_file;
-const stamp_data = TMPL_stamp_data;
+const bannerFile = TMPL_banner_file;
+const stampData = TMPL_stamp_data;
+const moduleMappings = TMPL_module_mappings;
 const nodeModulesRoot = 'TMPL_node_modules_root';
 const defaultNodeModules = TMPL_default_node_modules;
 
 if (DEBUG)
   console.error(`
 Rollup: running with
-  rootDir: ${rootDir}
-  moduleMappings: ${JSON.stringify(moduleMappings)}
   cwd: ${process.cwd()}
+  workspaceName: ${workspaceName}
+  rootDir: ${rootDir}
+  bannerFile: ${bannerFile}
+  stampData: ${stampData}
+  moduleMappings: ${JSON.stringify(moduleMappings)}
+  nodeModulesRoot: ${nodeModulesRoot}
+  defaultNodeModules: ${defaultNodeModules}
 `);
 
 function fileExists(filePath) {
@@ -114,10 +119,10 @@ function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = req
 }
 
 let banner = '';
-if (banner_file) {
-  banner = fs.readFileSync(banner_file, {encoding: 'utf-8'});
-  if (stamp_data) {
-    const versionTag = fs.readFileSync(stamp_data, {encoding: 'utf-8'})
+if (bannerFile) {
+  banner = fs.readFileSync(bannerFile, {encoding: 'utf-8'});
+  if (stampData) {
+    const versionTag = fs.readFileSync(stampData, {encoding: 'utf-8'})
                            .split('\n')
                            .find(s => s.startsWith('BUILD_SCM_VERSION'));
     // Don't assume BUILD_SCM_VERSION exists

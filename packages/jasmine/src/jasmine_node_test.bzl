@@ -28,7 +28,7 @@ def jasmine_node_test(
         deps = [],
         expected_exit_code = 0,
         tags = [],
-        jasmine = "@npm//jasmine",
+        jasmine = "@npm//@bazel/jasmine",
         **kwargs):
     """Runs tests in NodeJS using the Jasmine test runner.
 
