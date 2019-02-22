@@ -180,7 +180,7 @@ to be nested inside this package</p>
 
           <h2 id="npm_package">npm_package</h2>
 
-          <pre>npm_package(<a href="#npm_package.name">name</a>, <a href="#npm_package.deps">deps</a>, <a href="#npm_package.srcs">srcs</a>, <a href="#npm_package.packages">packages</a>, <a href="#npm_package.replace_with_version">replace_with_version</a>, <a href="#npm_package.replacements">replacements</a>)</pre>
+          <pre>npm_package(<a href="#npm_package.name">name</a>, <a href="#npm_package.deps">deps</a>, <a href="#npm_package.srcs">srcs</a>, <a href="#npm_package.packages">packages</a>, <a href="#npm_package.replace_with_version">replace_with_version</a>, <a href="#npm_package.replacements">replacements</a>, <a href="#npm_package.vendor_external">vendor_external</a>)</pre>
 
           <p>The npm_package rule creates a directory containing a publishable npm artifact.</p>
 <pre><code class="lang-python">load(&quot;@build_bazel_rules_nodejs//:defs.bzl&quot;, &quot;npm_package&quot;)
@@ -272,6 +272,16 @@ $ bazel run :my_package.publish
       <td>
         <p><code>Dictionary mapping strings to string; Optional; Default is {}</code></p>
         <p>Key-value pairs which are replaced in all the files while building the package.</p>
+      </td>
+    </tr>
+    <tr id="npm_package.vendor_external">
+      <td><code>vendor_external</code></td>
+      <td>
+        <p><code>List of strings; Optional; Default is []</code></p>
+        <p>External workspaces whose contents should be vendored into this workspace.
+        Avoids 'external/foo' path segments in the resulting package.
+        Note: only targets in the workspace root can include files from an external workspace.
+        Targets in nested packages only pick up files from within that package.</p>
       </td>
     </tr>
   </tbody>
