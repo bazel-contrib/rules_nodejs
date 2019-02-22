@@ -50,7 +50,6 @@ npm_package(
         "package.bzl",
         "package.json",
         "version.bzl",
-        "//devserver:npm_package_assets",
         "//internal:npm_package_assets",
         "//ts_auto_deps:npm_package_assets",
     ],
