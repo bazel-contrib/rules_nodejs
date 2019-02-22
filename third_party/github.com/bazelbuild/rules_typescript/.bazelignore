@@ -1,5 +1,2 @@
 node_modules
 devserver/devserver/test/test-workspace
-internal/e2e/disable_tsetse_for_external
-internal/e2e/npm_packages
-internal/e2e/typescript_3.1

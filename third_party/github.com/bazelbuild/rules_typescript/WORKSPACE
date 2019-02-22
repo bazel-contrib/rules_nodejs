@@ -40,13 +40,6 @@ yarn_install(
     yarn_lock = "//examples/bazel_managed_deps:yarn.lock",
 )
 
-# Deps for the //internal/e2e/reference_types_directive test
-yarn_install(
-    name = "build_bazel_rules_typescript_internal_reference_types_directive_deps",
-    package_json = "//internal/e2e/reference_types_directive:package.json",
-    yarn_lock = "//internal/e2e/reference_types_directive:yarn.lock",
-)
-
 # Install a hermetic version of node.
 node_repositories()
 
@@ -97,13 +90,6 @@ web_test_repositories()
 load("@npm_bazel_karma//:browser_repositories.bzl", "browser_repositories")
 
 browser_repositories()
-
-# Tell Bazel where the nested local repositories are that are
-# used for tests
-local_repository(
-    name = "disable_tsetse_for_external_test",
-    path = "internal/e2e/disable_tsetse_for_external",
-)
 
 local_repository(
     name = "devserver_test_workspace",

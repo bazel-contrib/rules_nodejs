@@ -1,6 +1,0 @@
-# Don't create symlinks like bazel-out in the project.
-# These cause VSCode to traverse a massive tree, opening file handles and
-# eventually a surprising failure with auto-discovery of the C++ toolchain in
-# MacOS High Sierra.
-# See https://github.com/bazelbuild/bazel/issues/4603
-build --symlink_prefix=/

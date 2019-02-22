@@ -1,9 +1,0 @@
-{
-  "dependencies": {
-    "@bazel/karma": "file:${BAZEL_KARMA_NPM_PACKAGE}",
-    "karma": "3.0.0"
-  },
-  "scripts": {
-    "test": "bazel test ..."
-  }
-}
