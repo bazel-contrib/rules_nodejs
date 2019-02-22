@@ -103,6 +103,8 @@ filegroup(
     name = "node_modules",
     srcs = glob(
         include = [
+          # Must include .proto files since the tsc_wrapped compiler utilizes them
+          "node_modules/**/*.proto",
           "node_modules/**/*.js",
           "node_modules/**/*.d.ts",
           "node_modules/**/*.json",
