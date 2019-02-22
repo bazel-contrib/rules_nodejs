@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# This file name starts with an underscore as it is copied
+# to the yarn_install/npm_install external repository before it is run.
+# This makes it less likely to conflict with user data files.
+
 wrap() {
   out=$("$@" 2>&1)
   ret="$?"
