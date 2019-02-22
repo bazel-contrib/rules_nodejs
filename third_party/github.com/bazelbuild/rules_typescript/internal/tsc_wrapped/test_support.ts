@@ -23,7 +23,7 @@ import {FileCache} from './cache';
 
 export function writeTempFile(name: string, contents: string): string {
   // TEST_TMPDIR is set by bazel.
-  const fn = (process.env.TEST_TMPDIR || '/tmp') + '/tmp.' +
+  const fn = (process.env['TEST_TMPDIR'] || '/tmp') + '/tmp.' +
       (Math.random() * 1000000).toFixed(0) + '.' + name;
   fs.writeFileSync(fn, contents);
   return fn;
