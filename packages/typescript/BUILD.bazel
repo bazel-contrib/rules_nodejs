@@ -36,6 +36,7 @@ genrule(
     srcs = [
         "//docs",
         "//docs:install.md",
+        "@build_bazel_rules_typescript//internal:common/compilation.bzl",
     ],
     outs = ["README.md"],
     cmd = """unzip -o -d docs $(location //docs:docs) \

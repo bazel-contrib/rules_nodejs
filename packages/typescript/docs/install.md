@@ -9,14 +9,24 @@ These are now documented in the README at http://npmjs.com/package/@bazel/karma
 
 ## Installation
 
-This assumes you have already set up rules_nodejs following its [README](https://github.com/bazelbuild/rules_nodejs/blob/master/README.md)
-
 Add a devDependency on `@bazel/typescript`
 
 ```sh
 $ yarn add -D @bazel/typescript
 # or
 $ npm install --save-dev @bazel/typescript
+```
+
+Your `WORKSPACE` should declare a `yarn_install` or `npm_install` rule named `npm`.
+It should then install the rules found in the npm packages using the `install_bazel_dependencies` function.
+See https://github.com/bazelbuild/rules_nodejs/#quickstart
+
+Add to your `WORKSPACE` file, after `install_bazel_dependencies()`:
+
+```python
+# Setup TypeScript toolchain
+load("@npm_bazel_typescript//:index.bzl", "ts_setup_workspace")
+ts_setup_workspace()
 ```
 
 Create a `BUILD.bazel` file in your workspace root. If your `tsconfig.json` file is in the root, use
@@ -32,14 +42,6 @@ alias(
     name = "tsconfig.json",
     actual = "//path/to/my:tsconfig.json",
 )
-```
-
-Add to your `WORKSPACE` file, after `install_bazel_dependencies()`:
-
-```python
-# Setup TypeScript toolchain
-load("@npm_bazel_typescript//:index.bzl", "ts_setup_workspace")
-ts_setup_workspace()
 ```
 
 # Self-managed npm dependencies
