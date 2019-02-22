@@ -38,7 +38,7 @@ def check_rules_typescript_version(version_string):
 
     ```
     # in WORKSPACE:
-    load("@npm_bazel_typescript//:defs.bzl", "check_rules_typescript_version")
+    load("@npm_bazel_typescript//:index.bzl", "check_rules_typescript_version")
     check_rules_typescript_version(version_string = "0.22.0")
     ```
 

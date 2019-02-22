@@ -144,7 +144,7 @@ a `ts_library` can appear, such as in the `deps[]` of another `ts_library`.
 Example:
 
 ```
-load("@npm_bazel_typescript//:defs.bzl", "ts_library", "ts_proto_library")
+load("@npm_bazel_typescript//:index.bzl", "ts_library", "ts_proto_library")
 
 proto_library(
     name = "car_proto",
@@ -178,7 +178,7 @@ in the `bootstrap` attribute of `ts_web_test_suite` or `ts_devserver`.
 To complete the example above, you could write a `ts_web_test_suite`:
 
 ```
-load("@npm_bazel_karma//:defs.bzl", "ts_web_test_suite")
+load("@npm_bazel_karma//:index.bzl", "ts_web_test_suite")
 
 ts_web_test_suite(
     name = "test",

@@ -1,4 +1,6 @@
 node_modules
+# Each e2e test is a nested workspace
+e2e/
 # Examples are tested by running examples/test_example.sh outside of Bazel
 examples/
 # Each package is a nested workspace

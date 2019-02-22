@@ -14,7 +14,8 @@
 
 """ Public API surface is re-exported here.
 
-Users should not load files under "/internal"
+DEPRECATION WARNING: This file is here for backward compatability.
+New rules will be added to index.bzl.
 """
 
 load("//:version.bzl", _check_rules_typescript_version = "check_rules_typescript_version")
@@ -29,7 +30,5 @@ ts_setup_workspace = _ts_setup_workspace
 ts_library = _ts_library
 ts_config = _ts_config
 ts_devserver = _ts_devserver
-
 ts_proto_library = _ts_proto_library
-# DO NOT ADD MORE rules here unless they appear in the generated docsite.
-# Run yarn skydoc to re-generate the docsite.
+# DO NOT ADD MORE rules here. New rules should be added to index.bzl.

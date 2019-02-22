@@ -70,10 +70,6 @@ nodejs_binary(
 
 filegroup(
     name = "npm_package_assets",
-    srcs = [
-        "BUILD.bazel",
-        "package.json",
-        "ts_proto_library.bzl",
-        "yarn.lock",
-    ],
+    srcs = glob(["*"]),
+    visibility = ["//internal:__pkg__"],
 )

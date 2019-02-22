@@ -13,6 +13,9 @@
 # limitations under the License.
 
 """ Public API surface is re-exported here.
+
+DEPRECATION WARNING: This file is here for backward compatability.
+New rules will be added to index.bzl.
 """
 
 load(
@@ -26,8 +29,8 @@ load(
     _ts_web_test_suite = "ts_web_test_suite",
 )
 
-# TODO(alexeagle): make ts_web_test && ts_web_test_suite work in google3
 ts_web_test = _ts_web_test
 ts_web_test_suite = _ts_web_test_suite
 karma_web_test = _karma_web_test
 karma_web_test_suite = _karma_web_test_suite
+# DO NOT ADD MORE rules here. New rules should be added to index.bzl.

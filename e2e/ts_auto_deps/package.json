@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "@bazel/typescript": "bazel://@npm_bazel_typescript//:npm_package",
+    "typescript": "2.9.2"
+  },
+  "scripts": {
+    "pretest": "../link-packages.sh",
+    "test": "bazel run @nodejs//:yarn && cd simple && ts_auto_deps && bazel build simple"
+  }
+}

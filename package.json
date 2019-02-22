@@ -30,7 +30,7 @@
         "packages-jasmine": "cd packages/jasmine && yarn test",
         "packages-typescript": "cd packages/typescript && yarn test",
         "packages-karma": "cd packages/karma && yarn test",
-        "test:e2e": "bazel build --symlink_prefix=bazel- //:local_testing_package && yarn internal-e2e-bazel_workspaces && yarn internal-e2e-bazel_workspaces_compat && yarn internal-e2e-fine_grained_symlinks && yarn internal-e2e-node_loader_no_preserve_symlinks && yarn internal-e2e-node_loader_preserve_symlinks",
+        "test:e2e": "bazel build //:local_testing_package && yarn internal-e2e-bazel_workspaces && yarn internal-e2e-bazel_workspaces_compat && yarn internal-e2e-fine_grained_symlinks && yarn internal-e2e-node_loader_no_preserve_symlinks && yarn internal-e2e-node_loader_preserve_symlinks",
         "test:examples": "./examples/test_examples.sh",
         "test:packages": "yarn packages-jasmine && yarn packages-typescript && yarn packages-karma",
         "test": "yarn test:packages && yarn test:examples && yarn test:e2e",
@@ -40,7 +40,7 @@
         "format": "git-clang-format",
         "format-all": "clang-format --glob='{internal/**/,examples/**/}*.{js,ts}' -i",
         "precommit": "check-clang-format \"yarn format\"",
-        "skydoc": "bazel build --symlink_prefix=bazel- //docs && unzip -o -d docs bazel-bin/docs/docs-skydoc.zip",
+        "skydoc": "bazel build //docs && unzip -o -d docs bazel-bin/docs/docs-skydoc.zip",
         "version": "node ./on-version.js && bazel build //:release && node ./on-release.js && git stage package.bzl README.md"
     }
 }

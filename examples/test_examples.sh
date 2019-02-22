@@ -12,7 +12,7 @@ KERNEL_NAME=$(uname -s)
 
 # Make sure the distro is up-to-date and can be referenced at bazel-bin/rules_nodejs_package
 cd $NODEJS_ROOT_DIR
-bazel build --symlink_prefix=bazel- //:local_testing_package
+bazel build //:local_testing_package
 
 cd $TESTS_ROOT_DIR
 for testDir in $(ls) ; do
