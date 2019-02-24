@@ -11,9 +11,24 @@
     "bugs": {
         "url": "https://github.com/bazelbuild/rules_nodejs/issues"
     },
-    "devDependencies": {},
-    "dependencies": {},
+    "devDependencies": {
+        "@bazel/typescript": "^0.25.1",
+        "@types/jasmine": "^3.3.9",
+        "@types/node": "^11.9.5",
+        "@types/webpack": "^4.4.24",
+        "jasmine": "^3.3.1",
+        "typescript": "^3.3.3333"
+    },
+    "dependencies": {
+        "webpack": "~4.29.3"
+    },
     "scripts": {
-        "test": "bazel build //..."
+        "test": "bazel test //... --test_output=errors"
+    },
+    "bazelWorkspaces": {
+        "npm_bazel_labs": {
+            "version": "0.0.0.0-PLACEHOLDER",
+            "rootPath": "."
+        }
     }
 }
