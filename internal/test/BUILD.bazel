@@ -1,7 +1,0 @@
-filegroup(
-    name = "node_modules",
-    srcs = glob([
-        "node_modules/**/*",
-    ]),
-    visibility = ["//internal:__subpackages__"],
-)

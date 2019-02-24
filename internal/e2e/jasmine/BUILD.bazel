@@ -5,5 +5,8 @@ jasmine_node_test(
     srcs = ["jasmine_shared_env_test.spec.js"],
     bootstrap = ["build_bazel_rules_nodejs/internal/e2e/jasmine/jasmine_shared_env_bootstrap.js"],
     data = ["jasmine_shared_env_bootstrap.js"],
-    node_modules = "//internal/test:node_modules",
+    deps = [
+        "@npm//jasmine",
+        "@npm//zone.js",
+    ],
 )

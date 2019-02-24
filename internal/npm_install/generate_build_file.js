@@ -115,7 +115,6 @@ module.exports = {main};
  */
 function generateRootBuildFile(pkgs) {
   const srcs = pkgs.filter(pkg => !pkg._isNested);
-  const binFiles = listFiles('node_modules/.bin');
 
   let buildFile = BUILD_FILE_HEADER + `# The node_modules directory in one catch-all filegroup.
 # NB: Using this target may have bad performance implications if
@@ -133,7 +132,6 @@ function generateRootBuildFile(pkgs) {
 filegroup(
     name = "node_modules",
     srcs = [
-        ${binFiles.map(f => `"node_modules/.bin/${f}",`).join('\n        ')}
         ${srcs.map(pkg => `"//node_modules/${pkg._dir}:${pkg._name}__files",`).join('\n        ')}
     ],
 )
@@ -376,8 +374,8 @@ function isFile(p) {
 /**
  * Checks if a path is an npm package which is is a directory with a package.json file.
  */
-function isPackage(p) {
-  return fs.statSync(p).isDirectory() && isFile(path.posix.join(p, 'package.json'));
+function isDirectory(p) {
+  return fs.existsSync(p) && fs.statSync(p).isDirectory();
 }
 
 /**
@@ -386,7 +384,7 @@ function isPackage(p) {
  */
 function listFiles(rootDir, subDir = '') {
   const dir = path.posix.join(rootDir, subDir);
-  if (!fs.existsSync(dir) || !fs.statSync(dir).isDirectory()) {
+  if (!isDirectory(dir)) {
     return [];
   }
   return fs.readdirSync(dir)
@@ -463,7 +461,7 @@ function hasRootBuildFile(pkg) {
  * Finds and returns an array of all packages under a given path.
  */
 function findPackages(p = 'node_modules') {
-  if (!fs.existsSync(p) || !fs.statSync(p).isDirectory()) {
+  if (!isDirectory(p)) {
     return [];
   }
 
@@ -473,7 +471,7 @@ function findPackages(p = 'node_modules') {
 
   const packages = listing.filter(f => !f.startsWith('@'))
                        .map(f => path.posix.join(p, f))
-                       .filter(f => isPackage(f));
+                       .filter(f => isDirectory(f));
   packages.forEach(
       f => result.push(parsePackage(f), ...findPackages(path.posix.join(f, 'node_modules'))));
 
@@ -490,7 +488,7 @@ function findPackages(p = 'node_modules') {
  */
 function findScopes() {
   const p = 'node_modules';
-  if (!fs.existsSync(p) || !fs.statSync(p).isDirectory()) {
+  if (!isDirectory(p)) {
     return [];
   }
 
@@ -511,7 +509,10 @@ function findScopes() {
  */
 function parsePackage(p) {
   // Parse the package.json file of this package
-  const pkg = JSON.parse(fs.readFileSync(`${p}/package.json`, {encoding: 'utf8'}));
+  const packageJson = path.posix.join(p, 'package.json');
+  const pkg = isFile(packageJson) ?
+      JSON.parse(fs.readFileSync(`${p}/package.json`, {encoding: 'utf8'})) :
+      {version: '0.0.0'};
 
   // Trim the leading node_modules from the path and
   // assign to _dir for future use

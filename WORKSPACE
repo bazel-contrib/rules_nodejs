@@ -47,20 +47,48 @@ load("//:defs.bzl", "node_repositories", "npm_install", "yarn_install")
 #   @nodejs//:npm
 # - The yarn package manager:
 #   @nodejs//:yarn
+#
+# To install the node_modules of all the listed package_json files run:
+#   bazel run @nodejs//:yarn
+# or
+#   bazel run @nodejs//:npm
 node_repositories(
     package_json = [
         "//:package.json",
         "@program_example//:package.json",
-        "//internal/test:package.json",
         "//internal/npm_install/test:package/package.json",
     ],
     preserve_symlinks = True,
 )
 
-# Now the user must run either
-# bazel run @nodejs//:yarn
-# or
-# bazel run @nodejs//:npm
+yarn_install(
+    name = "npm",
+    data = [
+        "@build_bazel_rules_nodejs//:tools/npm_packages/hello/index.js",
+        "@build_bazel_rules_nodejs//:tools/npm_packages/hello/package.json",
+        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_index/index.js",
+        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_index_2/index.js",
+        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_index_2/package.json",
+        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_index_3/index.js",
+        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_index_3/package.json",
+        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_index_4/index.js",
+        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_index_4/package.json",
+        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_main/main.js",
+        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_main/package.json",
+        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_main_2/main.js",
+        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_main_2/package.json",
+        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_nested_main/nested/main.js",
+        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_nested_main/nested/package.json",
+        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_nested_main/package.json",
+    ],
+    package_json = "//:package.json",
+    yarn_lock = "//:yarn.lock",
+)
+
+# Install all Bazel dependencies needed for npm packages that supply Bazel rules
+load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
+
+install_bazel_dependencies()
 
 load("@packages_example//:setup_workspace.bzl", "packages_example_setup_workspace")
 
@@ -110,14 +138,3 @@ yarn_install(
     package_json = "//internal/e2e/fine_grained_no_bin:package.json",
     yarn_lock = "//internal/e2e/fine_grained_no_bin:yarn.lock",
 )
-
-yarn_install(
-    name = "npm",
-    package_json = "//:package.json",
-    yarn_lock = "//:yarn.lock",
-)
-
-# Install all Bazel dependencies needed for npm packages that supply Bazel rules
-load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
-
-install_bazel_dependencies()

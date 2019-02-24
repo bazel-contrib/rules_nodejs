@@ -9,7 +9,6 @@ rollup_bundle(
     additional_entry_points = ["internal/e2e/rollup_code_splitting/additional_entry.js"],
     entry_point = "internal/e2e/rollup_code_splitting/main1.js",
     license_banner = ":license.txt",
-    node_modules = "//internal/test:node_modules",
 )
 
 jasmine_node_test(
@@ -21,8 +20,9 @@ jasmine_node_test(
         ":bundle",
         ":bundle.min.js",
     ],
-    node_modules = "//internal/test:node_modules",
     deps = [
         "//internal/e2e:check_lib",
+        "@npm//jasmine",
+        "@npm//unidiff",
     ],
 )

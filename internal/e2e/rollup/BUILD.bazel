@@ -1,17 +1,6 @@
 load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
 load("//:defs.bzl", "rollup_bundle")
 
-# The local package node_modules filegroup contains just one depenedency to test
-# importing from a non-WORKSPACE-root node_modules folder. This makes it more clear
-# that rollup_bundle doesn't resolve rollup/uglify from the users' npm dependencies.
-filegroup(
-    name = "node_modules",
-    srcs = glob([
-        "node_modules/**/*",
-    ]),
-    visibility = ["//internal:__subpackages__"],
-)
-
 rollup_bundle(
     name = "bundle",
     srcs = [
@@ -21,8 +10,10 @@ rollup_bundle(
     entry_point = "internal/e2e/rollup/foo.js",
     globals = {"some_global_var": "runtime_name_of_global_var"},
     license_banner = ":license.txt",
-    node_modules = ":node_modules",
-    deps = ["//internal/e2e/rollup/fum:fumlib"],
+    deps = [
+        "//internal/e2e/rollup/fum:fumlib",
+        "@npm//hello",
+    ],
 )
 
 jasmine_node_test(
@@ -38,8 +29,9 @@ jasmine_node_test(
         ":bundle.umd.js",
         ":bundle.min_debug.js",
     ],
-    node_modules = "//internal/test:node_modules",
     deps = [
         "//internal/e2e:check_lib",
+        "@npm//jasmine",
+        "@npm//unidiff",
     ],
 )
