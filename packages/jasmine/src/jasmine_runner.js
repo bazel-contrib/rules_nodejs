@@ -11,7 +11,11 @@ if (global.jasmine) {
       // Try unhoisted jasmine-core first so that we don't
       // need an @npm//jasmine-core dep in the unhoisted case.
       jasmineCore = require('jasmine/node_modules/jasmine-core');
-    } catch (_) {
+    } catch (e) {
+      if (e.code !== 'MODULE_NOT_FOUND') {
+        // rethrow other errors
+        throw e;
+      }
       jasmineCore = require('jasmine-core');
     }
   }
