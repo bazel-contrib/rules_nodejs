@@ -1,0 +1,11 @@
+{
+    "name": "@bazel/labs",
+    "description": "Experimental code. DO NOT DEPEND on this for production use",
+    "version": "0.0.0.0-PLACEHOLDER",
+    "license": "Apache-2.0",
+    "devDependencies": {},
+    "dependencies": {},
+    "scripts": {
+        "test": "bazel build //..."
+    }
+}

@@ -188,6 +188,13 @@ jobs:
       - *setup_bazelrc
       - run: yarn packages-jasmine
 
+  test_labs:
+    <<: *job_defaults
+    steps:
+      - checkout:
+          <<: *post_checkout
+      - *setup_bazelrc
+      - run: yarn packages-labs
 
 workflows:
   version: 2
@@ -201,3 +208,4 @@ workflows:
       - test_karma
       - test_typescript
       - test_jasmine
+      - test_labs
