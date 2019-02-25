@@ -26,7 +26,7 @@ yarn_install(
 # With http_archive it only sees releases/download/*.tar.gz urls
 git_repository(
     name = "build_bazel_rules_typescript",
-    commit = "d913b809d0f8db70da4bdd1d8f56799ec73479e0",
+    commit = "57c8d4d02d28b95ca12a145538fa87e3ecc6b74b",
     remote = "http://github.com/bazelbuild/rules_typescript.git",
 )
 
