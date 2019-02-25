@@ -1,5 +1,6 @@
 workspace(name = "npm_bazel_typescript")
 
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 local_repository(
@@ -20,10 +21,13 @@ yarn_install(
 #     name = "build_bazel_rules_typescript",
 #     path = "../../../rules_typescript",
 # )
-http_archive(
+
+# We use git_repository since Renovate knows how to update it.
+# With http_archive it only sees releases/download/*.tar.gz urls
+git_repository(
     name = "build_bazel_rules_typescript",
-    strip_prefix = "rules_typescript-d913b809d0f8db70da4bdd1d8f56799ec73479e0",
-    url = "https://github.com/bazelbuild/rules_typescript/archive/d913b809d0f8db70da4bdd1d8f56799ec73479e0.zip",
+    commit = "d913b809d0f8db70da4bdd1d8f56799ec73479e0",
+    remote = "http://github.com/bazelbuild/rules_typescript.git",
 )
 
 # We have a source dependency on build_bazel_rules_typescript
