@@ -21,7 +21,6 @@
 load("@bazel_gazelle//:def.bzl", "gazelle")
 load("@build_bazel_rules_nodejs//:defs.bzl", "npm_package")
 load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
-load("//:version.bzl", "COMPAT_VERSION")
 
 # ts_library defaults to this label in the top-level package.
 # Point to where the file actually lives.
@@ -55,46 +54,6 @@ js_library(
     visibility = ["//visibility:public"],
 )
 
-genrule(
-    name = "generate_BUILD",
-    srcs = [],
-    outs = ["BUILD"],
-    cmd = "echo \"#marker that this is a bazel package\" > $@",
-)
-
-npm_package(
-    name = "npm_package",
-    srcs = [
-        "LICENSE",
-        "README.md",
-        "defs.bzl",
-        "package.bzl",
-        "package.json",
-        "version.bzl",
-        "//devserver:npm_package_assets",
-        "//internal:npm_package_assets",
-        "//third_party/github.com/bazelbuild/bazel/src/main/protobuf:npm_package_assets",
-        "//ts_auto_deps:npm_package_assets",
-    ],
-    replacements = {
-        "(#|\/\/)\\s+BEGIN-DEV-ONLY[\\w\W]+?(#|\/\/)\\s+END-DEV-ONLY": "",
-        # Do a simple replacement needed to make the local development differ
-        # from how our release is used.
-        "//devserver:devserver_bin": "//devserver",
-        "0.0.0-COMPAT_VERSION": COMPAT_VERSION,
-    },
-    deps = [
-        ":generate_BUILD",
-        "//devserver:devserver-darwin",
-        "//devserver:devserver-linux",
-        "//devserver:devserver-windows",
-        "//internal:generated_BUILD",
-        "//internal:tsc_wrapped",
-        "//ts_auto_deps:ts_auto_deps-darwin",
-        "//ts_auto_deps:ts_auto_deps-linux",
-        "//ts_auto_deps:ts_auto_deps-windows",
-    ],
-)
 
 # This package is included in the npm_bazel_typescript package in rules_nodejs/packages/typescript
 npm_package(
