@@ -278,11 +278,75 @@ export function parseTsconfig(
   // TypeScript expects an absolute path for the tsconfig.json file
   tsconfigFile = resolveNormalizedPath(tsconfigFile);
 
-  const {config, error} = ts.readConfigFile(tsconfigFile, host.readFile);
+  const isUndefined = (value: any): value is undefined => value === undefined;
+
+  // Handle bazel specific options, but make sure not to crash when reading a
+  // vanilla tsconfig.json.
+
+  const readExtendedConfigFile =
+    (configFile: string, existingConfig?: any): {config?: any, error?: ts.Diagnostic} => {
+      const {config, error} = ts.readConfigFile(configFile, host.readFile);
+
+      if (error) {
+        return {error};
+      }
+
+      // Allow Bazel users to control some of the bazel options.
+      // Since TypeScript's "extends" mechanism applies only to "compilerOptions"
+      // we have to repeat some of their logic to get the user's bazelOptions.
+      const mergedConfig = existingConfig || config;
+
+      if (existingConfig) {
+        const existingBazelOpts: BazelOptions = existingConfig.bazelOptions || {};
+        const newBazelBazelOpts: BazelOptions = config.bazelOptions || {};
+
+        mergedConfig.bazelOptions = {
+          ...existingBazelOpts,
+
+          disableStrictDeps: isUndefined(existingBazelOpts.disableStrictDeps)
+            ? newBazelBazelOpts.disableStrictDeps
+            : existingBazelOpts.disableStrictDeps,
+
+          suppressTsconfigOverrideWarnings: isUndefined(existingBazelOpts.suppressTsconfigOverrideWarnings)
+            ? newBazelBazelOpts.suppressTsconfigOverrideWarnings
+            : existingBazelOpts.suppressTsconfigOverrideWarnings,
+
+          tsickle: isUndefined(existingBazelOpts.tsickle)
+            ? newBazelBazelOpts.tsickle
+            : existingBazelOpts.tsickle,
+
+          googmodule: isUndefined(existingBazelOpts.googmodule)
+            ? newBazelBazelOpts.googmodule
+            : existingBazelOpts.googmodule,
+
+          devmodeTargetOverride: isUndefined(existingBazelOpts.devmodeTargetOverride)
+            ? newBazelBazelOpts.devmodeTargetOverride
+            : existingBazelOpts.devmodeTargetOverride,
+        }
+
+        if (!mergedConfig.bazelOptions.suppressTsconfigOverrideWarnings) {
+          warnOnOverriddenOptions(config);
+        }
+      }
+
+      if (config.extends) {
+        let extendedConfigPath = resolveNormalizedPath(path.dirname(configFile), config.extends);
+        if (!extendedConfigPath.endsWith('.json')) extendedConfigPath += '.json';
+
+        return readExtendedConfigFile(extendedConfigPath, mergedConfig);
+      }
+
+      return {config: mergedConfig};
+    };
+
+  const {config, error} = readExtendedConfigFile(tsconfigFile);
   if (error) {
     // target is in the config file we failed to load...
     return [null, [error], {target: ''}];
   }
+
+  const {options, errors, fileNames} =
+    ts.parseJsonConfigFileContent(config, host, path.dirname(tsconfigFile));
 
   // Handle bazel specific options, but make sure not to crash when reading a
   // vanilla tsconfig.json.
@@ -292,37 +356,7 @@ export function parseTsconfig(
   bazelOpts.typeBlackListPaths = bazelOpts.typeBlackListPaths || [];
   bazelOpts.compilationTargetSrc = bazelOpts.compilationTargetSrc || [];
 
-  // Allow Bazel users to control some of the bazel options.
-  // Since TypeScript's "extends" mechanism applies only to "compilerOptions"
-  // we have to repeat some of their logic to get the user's bazelOptions.
-  if (config.extends) {
-    let userConfigFile =
-        resolveNormalizedPath(path.dirname(tsconfigFile), config.extends);
-    if (!userConfigFile.endsWith('.json')) userConfigFile += '.json';
-    const {config: userConfig, error} =
-        ts.readConfigFile(userConfigFile, host.readFile);
-    if (error) {
-      return [null, [error], {target}];
-    }
-    if (userConfig.bazelOptions) {
-      bazelOpts.disableStrictDeps = bazelOpts.disableStrictDeps ||
-          userConfig.bazelOptions.disableStrictDeps;
-      bazelOpts.suppressTsconfigOverrideWarnings =
-          bazelOpts.suppressTsconfigOverrideWarnings ||
-          userConfig.bazelOptions.suppressTsconfigOverrideWarnings;
-      bazelOpts.tsickle = bazelOpts.tsickle || userConfig.bazelOptions.tsickle;
-      bazelOpts.googmodule =
-          bazelOpts.googmodule || userConfig.bazelOptions.googmodule;
-      bazelOpts.devmodeTargetOverride = bazelOpts.devmodeTargetOverride ||
-          userConfig.bazelOptions.devmodeTargetOverride;
-    }
-    if (!bazelOpts.suppressTsconfigOverrideWarnings) {
-      warnOnOverriddenOptions(userConfig);
-    }
-  }
 
-  const {options, errors, fileNames} =
-      ts.parseJsonConfigFileContent(config, host, path.dirname(tsconfigFile));
   if (errors && errors.length) {
     return [null, errors, {target}];
   }

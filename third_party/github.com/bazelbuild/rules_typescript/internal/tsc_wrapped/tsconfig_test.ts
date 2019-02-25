@@ -57,4 +57,60 @@ describe('tsconfig', () => {
       expect(bazelOpts.disableStrictDeps).toBeTruthy();
     }
   });
+
+  it('honors bazelOptions in recursive extends', ()=> {
+    const tsconfigOne = {
+      extends: './tsconfig-level-b.json',
+      files: ['a.ts'],
+      bazelOptions: {
+        disableStrictDeps: false
+      }
+    };
+
+    const tsconfigTwo = {
+      extends: './tsconfig-level-c.json',
+      bazelOptions: {
+        suppressTsconfigOverrideWarnings: true
+      }
+    };
+
+    const tsconfigThree = {
+      bazelOptions: {
+        tsickle: true,
+        suppressTsconfigOverrideWarnings: false,
+        disableStrictDeps: true
+      }
+    };
+  
+    const files = {
+      [resolveNormalizedPath('path/to/tsconfig-level-a.json')]: JSON.stringify(tsconfigOne),
+      [resolveNormalizedPath('path/to/tsconfig-level-b.json')]: JSON.stringify(tsconfigTwo),
+      [resolveNormalizedPath('path/to/tsconfig-level-c.json')]: JSON.stringify(tsconfigThree),
+    };
+
+    const host: ts.ParseConfigHost = {
+      useCaseSensitiveFileNames: true,
+      fileExists: (path: string) => !!files[path],
+      readFile: (path: string) => files[path],
+      readDirectory(
+          rootDir: string, extensions: ReadonlyArray<string>,
+          excludes: ReadonlyArray<string>, includes: ReadonlyArray<string>,
+          depth: number): string[] {
+            return [];
+      },
+    };
+
+    const [parsed, diagnostics] =
+        parseTsconfig('path/to/tsconfig-level-a.json', host);
+    expect(diagnostics).toBeNull();
+
+    if (!parsed) {
+      fail('Expected parsed');
+    } else {
+      const {bazelOpts} = parsed;
+      expect(bazelOpts.tsickle).toBeTruthy();
+      expect(bazelOpts.suppressTsconfigOverrideWarnings).toBeTruthy();
+      expect(bazelOpts.disableStrictDeps).toBeFalsy();
+    }
+  })
 });
