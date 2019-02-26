@@ -12,7 +12,7 @@
         "url": "https://github.com/bazelbuild/rules_nodejs/issues"
     },
     "devDependencies": {
-        "@bazel/typescript": "^0.25.1",
+        "@bazel/typescript": "bazel://@npm_bazel_typescript//:npm_package",
         "@types/jasmine": "^3.3.9",
         "@types/node": "^11.9.5",
         "@types/webpack": "^4.4.24",
@@ -27,7 +27,7 @@
     },
     "bazelWorkspaces": {
         "npm_bazel_labs": {
-            "version": "0.0.0.0-PLACEHOLDER",
+            "version": "0.0.0-PLACEHOLDER",
             "rootPath": "."
         }
     }

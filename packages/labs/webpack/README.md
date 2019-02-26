@@ -2,18 +2,6 @@
 
 This plugin teaches Bazel how to run Webpack to produce JS bundles.
 
-Run the tests:
-
-```sh
-$ yarn test
-```
-
-Or build the npm package `@bazel/webpack`:
-
-```sh
-$ yarn build
-```
-
 # TODO
 
 1. Figure out how users should configure webpack.

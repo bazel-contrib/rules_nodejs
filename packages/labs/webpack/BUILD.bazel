@@ -1,22 +1,18 @@
+# BEGIN-INTERNAL
 load("@build_bazel_rules_nodejs//:defs.bzl", "npm_package")
 
 npm_package(
     name = "webpack",
     srcs = [
+        "BUILD.bazel",
         "index.bzl",
     ],
-<<<<<<< HEAD
     replacements = {"#@external\\s": ""},
     visibility = ["//:__pkg__"],
-=======
->>>>>>> Introduce a webpack_bundle rule
     deps = [
         "//webpack/src:cli",
         "//webpack/src:package_contents",
     ],
-<<<<<<< HEAD
-=======
-    replacements = {"#@external\\s": ""},
-    visibility = ["//:__pkg__"],
->>>>>>> Introduce a webpack_bundle rule
 )
+
+# END-INTERNAL
