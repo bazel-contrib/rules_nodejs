@@ -330,7 +330,7 @@ workflows:
           - build_typescript_package
       - build_labs_package:
           requires:
-          - setup
+          - build_typescript_package
       - build_typescript_package:
           requires:
           - setup

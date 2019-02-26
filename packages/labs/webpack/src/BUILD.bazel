@@ -30,7 +30,7 @@ nodejs_binary(
         # END-INTERNAL
 
         # For external usage, we depend on the published .JS files
-        #@external "@npm//@bazel/webpack",
+        #@external "@npm//@bazel/labs",
         "@npm//webpack",
     ],
     # BEGIN-INTERNAL
@@ -38,6 +38,6 @@ nodejs_binary(
     entry_point = "npm_bazel_labs/webpack/src/cli.js",
     # END-INTERNAL
     # For external usage, we resolve the module from node_modules
-    #@external entry_point = "@bazel/webpack/src/cli.js",
+    #@external entry_point = "@bazel/labs/webpack/src/cli.js",
     visibility = ["//visibility:public"],
 )

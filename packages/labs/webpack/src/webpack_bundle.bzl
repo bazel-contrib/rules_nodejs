@@ -14,11 +14,6 @@ def _webpack_bundle(ctx):
     args.add(ctx.outputs.bundle.path)
     args.add(ctx.outputs.sourcemap.path)
     args.add(ctx.file.entry_point.path)
-<<<<<<< HEAD
-
-=======
-    
->>>>>>> Introduce a webpack_bundle rule
     ctx.actions.run(
         inputs = ctx.files.srcs,
         executable = ctx.executable.webpack,
