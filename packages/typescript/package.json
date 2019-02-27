@@ -7,7 +7,7 @@
         "typescript",
         "bazel"
     ],
-    "homepage": "https://github.com/bazelbuild/rules_nodejs/packages/typescript",
+    "homepage": "https://github.com/bazelbuild/rules_nodejs/tree/master/packages/typescript",
     "main": "./internal/tsc_wrapped/index.js",
     "typings": "./internal/tsc_wrapped/index.d.ts",
     "bin": {
