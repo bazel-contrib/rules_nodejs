@@ -349,7 +349,10 @@ func (q *QueryBasedTargetLoader) query(args ...string) (*appb.QueryResult, error
 		// queries not returning a result while running with the '--keep_going'
 		// flag. Since one query failing to return a result does not hinder the
 		// other queries from returning a result, ignore these errors.
-		if err.Error() != "exit status 3" {
+		//
+		// Herb prints "printing partial results" to indicate the same as bazel's
+		// exit status 3
+		if err.Error() != "exit status 3" && !strings.Contains(stderr.String(), "printing partial results") {
 			// The error provided as a result is less useful than the contents of
 			// stderr for debugging.
 			return nil, fmt.Errorf(stderr.String())

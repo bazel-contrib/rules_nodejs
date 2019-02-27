@@ -77,7 +77,7 @@ func attrTruthy(r *build.Rule, attr string) bool {
 // Matches the warning TypeScriptRuleChecker prints for unused ts_declarations.
 // TODO(martinprobst): in the long term, this should become the default and TypeScriptRuleChecker should no longer special case ts_declaration.
 var unusedDeclarationRE = regexp.MustCompile(
-	`WARNING: [^:]+:\d+:\d+: keeping possibly used ts_declaration '([^']+)'`)
+	`WARNING: [^:]+:\d+:(?:\d+:)? keeping possibly used ts_declaration '([^']+)'`)
 
 // GarbledBazelResponseError signals to callers that the proto returned by bazel
 // analyze was garbled, and couldn't be unmarshalled.
