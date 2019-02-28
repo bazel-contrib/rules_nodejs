@@ -79,7 +79,8 @@ def write_rollup_config(ctx, plugins = [], root_dir = None, filename = "_%s.roll
                 mappings[k] = v
 
     if not root_dir:
-        root_dir = "/".join([ctx.bin_dir.path, build_file_dirname, ctx.label.name + ".es2015"])
+        # This must be .es6 to match collect_es6_sources.bzl
+        root_dir = "/".join([ctx.bin_dir.path, build_file_dirname, ctx.label.name + ".es6"])
 
     node_modules_root = None
     default_node_modules = False
@@ -280,7 +281,7 @@ def _run_terser(ctx, input, output, map_output, debug = False, comments = True, 
     args.add_all(["--output", output.path])
 
     # Source mapping options are comma-packed into one argv
-    # see https://github.com/mishoo/terserJS2#command-line-usage
+    # see https://github.com/terser-js/terser#command-line-usage
     source_map_opts = ["includeSources", "base=" + ctx.bin_dir.path]
     if in_source_map:
         source_map_opts.append("content=" + in_source_map.path)

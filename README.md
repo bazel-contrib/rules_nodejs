@@ -110,7 +110,7 @@ Some of the available rules are:
 | [nodejs_binary]  | Allows you to run an application by giving the entry point. The entry point can come from an external dependency installed by the package manager, or it can be a `.js` file from a package built by Bazel. |
 | [nodejs_test]    | The same as `nodejs_binary`, but instead of calling it with `bazel run`, you call it with `bazel test`. The test passes if the program exits with a zero exit code. |
 | [jasmine_node_test] | Allows you to write a test that executes in NodeJS using the [Jasmine] test framework. |
-| [rollup_bundle] | Runs the Rollup and Uglify toolchain to produce a single JavaScript bundle from multiple JavaScript sources. |
+| [rollup_bundle] | Runs the Rollup and Terser toolchain to produce a single JavaScript bundle from multiple JavaScript sources. |
 | [npm_package] | Creates a package format ready to publish to npm. Can also do the publishing. |
 | [ts_library] | Compiles TypeScript code into JavaScript |
 | [karma_web_test] | Runs tests in a browser using the [Karma] test runner |
