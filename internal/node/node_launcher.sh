@@ -29,9 +29,11 @@ if [[ ! -d "${RUNFILES_DIR:-/dev/null}" && ! -f "${RUNFILES_MANIFEST_FILE:-/dev/
       export RUNFILES_MANIFEST_FILE="$0.runfiles/MANIFEST"
     elif [[ -f "$0.runfiles/bazel_tools/tools/bash/runfiles/runfiles.bash" ]]; then
       export RUNFILES_DIR="$0.runfiles"
+    else
+      export RUNFILES_DIR=".."
     fi
 fi
-if [[ -f "${RUNFILES_DIR:-..}/bazel_tools/tools/bash/runfiles/runfiles.bash" ]]; then
+if [[ -f "${RUNFILES_DIR:-/dev/null}/bazel_tools/tools/bash/runfiles/runfiles.bash" ]]; then
   source "${RUNFILES_DIR}/bazel_tools/tools/bash/runfiles/runfiles.bash"
 elif [[ -f "${RUNFILES_MANIFEST_FILE:-/dev/null}" ]]; then
   source "$(grep -m1 "^bazel_tools/tools/bash/runfiles/runfiles.bash " \
