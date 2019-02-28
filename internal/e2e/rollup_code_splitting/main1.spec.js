@@ -4,6 +4,7 @@ const exportedTest2 = 'dep4 fn';
 
 describe('bundling main entry point', () => {
   // Disabled since native ESModules can't be loaded in nodejs yet
+  // https://github.com/bazelbuild/rules_nodejs/issues/593
   xit('bundle_chunks_es6 should work', async () => {
     const main1 = require(
         'build_bazel_rules_nodejs/internal/e2e/rollup_code_splitting/bundle_chunks_es6/main1.js')

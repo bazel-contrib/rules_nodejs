@@ -24,6 +24,13 @@ describe('HTML injector', () => {
         '<html><head></head><body><script type="text/javascript" src="/path/to/my.js?v=123"></script></body></html>');
   });
 
+  it('should allow the "module js" extension', () => {
+    expect(injector.main([outFile, inFile, '--assets', 'path/to/my.mjs'], read, write, () => 123))
+        .toBe(0);
+    expect(output).toBe(
+        '<html><head></head><body><script type="text/javascript" src="/path/to/my.mjs?v=123"></script></body></html>');
+  });
+
   it('should strip longest prefix', () => {
     expect(injector.main([outFile, inFile, 
       'path', 'path/to',

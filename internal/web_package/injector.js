@@ -78,7 +78,7 @@ function main(params, read = fs.readFileSync, write = fs.writeFileSync, timestam
     return execPath;
   }
 
-  for (const s of params.filter(s => /\.js$/.test(s))) {
+  for (const s of params.filter(s => /\.m?js$/.test(s))) {
     const script = treeAdapter.createElement('script', undefined, [
       {name: 'type', value: 'text/javascript'},
       {name: 'src', value: `/${relative(s)}?v=${timestamp()}`},
