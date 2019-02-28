@@ -354,7 +354,7 @@ def _generate_code_split_entry(ctx, bundles_folder, output):
 
     In this case, the main_entry_point_dirname will evaluate to
     `src/` and this will be stripped from the entry points for
-    the map. If folder is `bundle.cs`, the generated SystemJS
+    the map. If folder is `bundle_chunks`, the generated SystemJS
     boilerplate/entry point file will look like:
 
     ```
@@ -362,9 +362,9 @@ def _generate_code_split_entry(ctx, bundles_folder, output):
     System.config({
       packages: {
         '': {map: {
-          "./main.prod": "bundle.cs/main.prod",
-          "./hello-world/hello-world.module.ngfactory": "bundle.cs/hello-world.module.ngfactory",
-          "./todos/todos.module.ngfactory": "bundle.cs/todos.module.ngfactory"},
+          "./main.prod": "bundle_chunks/main.prod",
+          "./hello-world/hello-world.module.ngfactory": "bundle_chunks/hello-world.module.ngfactory",
+          "./todos/todos.module.ngfactory": "bundle_chunks/todos.module.ngfactory"},
           defaultExtension: 'js'},
       }
     });
@@ -399,27 +399,27 @@ def _rollup_bundle(ctx):
     if ctx.attr.additional_entry_points:
         # Generate code split bundles if additional entry points have been specified.
         # See doc for additional_entry_points for more information.
-        # Note: ".cs" is needed on the output folders since ctx.label.name + ".es6" is already
+        # Note: "_chunks" is needed on the output folders since ctx.label.name + ".es6" is already
         # a folder that contains the re-rooted es6 sources
-        rollup_config = write_rollup_config(ctx, output_format = "cjs", additional_entry_points = ctx.attr.additional_entry_points)
-        code_split_es6_output_dir = ctx.actions.declare_directory(ctx.label.name + ".cs.es6")
+        rollup_config = write_rollup_config(ctx, output_format = "es", additional_entry_points = ctx.attr.additional_entry_points)
+        code_split_es6_output_dir = ctx.actions.declare_directory(ctx.label.name + "_chunks_es6")
         _run_rollup(ctx, collect_es6_sources(ctx), rollup_config, code_split_es6_output_dir)
-        code_split_es5_output_dir = ctx.actions.declare_directory(ctx.label.name + ".cs")
+        code_split_es5_output_dir = ctx.actions.declare_directory(ctx.label.name + "_chunks")
         _run_tsc_on_directory(ctx, code_split_es6_output_dir, code_split_es5_output_dir)
-        code_split_es5_min_output_dir = ctx.actions.declare_directory(ctx.label.name + ".cs.min")
+        code_split_es5_min_output_dir = ctx.actions.declare_directory(ctx.label.name + "_chunks_min")
         _run_uglify(ctx, code_split_es5_output_dir, code_split_es5_min_output_dir, None)
-        code_split_es5_min_debug_output_dir = ctx.actions.declare_directory(ctx.label.name + ".cs.min_debug")
+        code_split_es5_min_debug_output_dir = ctx.actions.declare_directory(ctx.label.name + "_chunks_min_debug")
         _run_uglify(ctx, code_split_es5_output_dir, code_split_es5_min_debug_output_dir, None, debug = True)
 
         # Generate the SystemJS boilerplate/entry point files
-        _generate_code_split_entry(ctx, ctx.label.name + ".cs.es6", ctx.outputs.build_es6)
-        _generate_code_split_entry(ctx, ctx.label.name + ".cs", ctx.outputs.build_es5)
-        _generate_code_split_entry(ctx, ctx.label.name + ".cs.min", ctx.outputs.build_es5_min)
-        _generate_code_split_entry(ctx, ctx.label.name + ".cs.min_debug", ctx.outputs.build_es5_min_debug)
+        _generate_code_split_entry(ctx, ctx.label.name + "_chunks_es6", ctx.outputs.build_es6)
+        _generate_code_split_entry(ctx, ctx.label.name + "_chunks", ctx.outputs.build_es5)
+        _generate_code_split_entry(ctx, ctx.label.name + "_chunks_min", ctx.outputs.build_es5_min)
+        _generate_code_split_entry(ctx, ctx.label.name + "_chunks_min_debug", ctx.outputs.build_es5_min_debug)
 
         # There is no UMD/CJS bundle when code-splitting but we still need to satisfy the output
-        _generate_code_split_entry(ctx, ctx.label.name + ".cs", ctx.outputs.build_umd)
-        _generate_code_split_entry(ctx, ctx.label.name + ".cs", ctx.outputs.build_cjs)
+        _generate_code_split_entry(ctx, ctx.label.name + "_chunks", ctx.outputs.build_umd)
+        _generate_code_split_entry(ctx, ctx.label.name + "_chunks", ctx.outputs.build_cjs)
 
         # There is no source map explorer output when code-splitting but we still need to satisfy the output
         ctx.actions.expand_template(
@@ -483,10 +483,10 @@ ROLLUP_ATTRS = {
         bundled.
 
         Entry points and chunks will be outputted to folders:
-        - <label-name>.cs.es6 // es6
-        - <label-name>.cs // es5
-        - <label-name>.cs.min // es5 minified
-        - <label-name>.cs.min_debug // es5 minified debug
+        - <label-name>_chunks_es6 // es6
+        - <label-name>_chunks // es5
+        - <label-name>_chunks_min // es5 minified
+        - <label-name>_chunks_min_debug // es5 minified debug
 
         The following files will be outputted that contain the
         SystemJS boilerplate to map the entry points to their file
