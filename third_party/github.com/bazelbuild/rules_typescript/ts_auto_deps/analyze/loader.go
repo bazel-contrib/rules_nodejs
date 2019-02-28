@@ -203,38 +203,60 @@ func (q *QueryBasedTargetLoader) LoadImportPaths(ctx context.Context, currentPkg
 		}
 	}
 
-	filepathToRule := make(map[string]*appb.Rule)
+	filepathToRules := make(map[string][]*appb.Rule)
 
 	// load all the rules with file srcs (either literal or generated)
-	sourceLabelToRule, err := q.loadRulesWithSources(workspaceRoot, fileLabels)
+	sourceLabelToRules, err := q.loadRulesWithSources(workspaceRoot, fileLabels)
 	if err != nil {
 		return nil, err
 	}
-	for label, rule := range sourceLabelToRule {
-		filepathToRule[labelToPath(label)] = rule
+	for label, rules := range sourceLabelToRules {
+		for _, rule := range rules {
+			filepathToRules[labelToPath(label)] = append(filepathToRules[labelToPath(label)], rule)
+		}
 	}
 
 	// load all the rules with generator rule srcs
-	generatorLabelToRule, err := q.loadRulesWithSources(workspaceRoot, generators)
+	generatorLabelToRules, err := q.loadRulesWithSources(workspaceRoot, generators)
 	if err != nil {
 		return nil, err
 	}
-	for label, rule := range generatorLabelToRule {
-		for _, generated := range generatorsToFiles[label] {
-			filepathToRule[labelToPath(generated.GetName())] = rule
+	for label, rules := range generatorLabelToRules {
+		for _, rule := range rules {
+			for _, generated := range generatorsToFiles[label] {
+				filepathToRules[labelToPath(generated.GetName())] = append(filepathToRules[labelToPath(generated.GetName())], rule)
+			}
 		}
 	}
 
 	for _, path := range paths {
 		// check all the possible file paths for the import path
 		for _, fp := range possibleFilepaths(path) {
-			if rule, ok := filepathToRule[fp]; ok {
+			if rules, ok := filepathToRules[fp]; ok {
+				rule := chooseCanonicalRule(rules)
 				results[path] = rule
 			}
 		}
 	}
 
 	return results, nil
+}
+
+// chooseCanonicalRule chooses between rules which includes the imported file as
+// a source.  It applies heuristics, such as prefering ts_library to other rule
+// types to narrow down the choices.  After narrowing, it chooses the first
+// rule.  If no rules are left after narrowing, it returns the first rule from
+// the original list.
+func chooseCanonicalRule(rules []*appb.Rule) *appb.Rule {
+	// filter down to only ts_library rules
+	for _, r := range rules {
+		if r.GetRuleClass() == "ts_library" {
+			return r
+		}
+	}
+
+	// if no rules matched the filter, just return the first rule
+	return rules[0]
 }
 
 // ruleLabel returns the label for a target which is a rule.  Returns an error if
@@ -279,10 +301,10 @@ func (q *QueryBasedTargetLoader) targetLabel(target *appb.Target) (string, error
 }
 
 // loadRulesWithSources loads all rules which include the labels in sources as
-// srcs attributes. Returns a map from source label to the rule which includes
-// it.  A source label can be the label of a source file or a generated file or
-// a generating rule.
-func (q *QueryBasedTargetLoader) loadRulesWithSources(workspaceRoot string, sources []string) (map[string]*appb.Rule, error) {
+// srcs attributes. Returns a map from source label to a list of rules which
+// include it.  A source label can be the label of a source file or a generated
+// file or a generating rule.
+func (q *QueryBasedTargetLoader) loadRulesWithSources(workspaceRoot string, sources []string) (map[string][]*appb.Rule, error) {
 	pkgToLabels := make(map[string][]string)
 	queries := make([]string, 0, len(sources))
 	for _, label := range sources {
@@ -295,7 +317,7 @@ func (q *QueryBasedTargetLoader) loadRulesWithSources(workspaceRoot string, sour
 	if err != nil {
 		return nil, err
 	}
-	labelToRule := make(map[string]*appb.Rule)
+	labelToRules := make(map[string][]*appb.Rule)
 	for _, target := range r.GetTarget() {
 		label, err := q.ruleLabel(target)
 		if err != nil {
@@ -307,13 +329,13 @@ func (q *QueryBasedTargetLoader) loadRulesWithSources(workspaceRoot string, sour
 		for _, src := range listAttribute(rule, "srcs") {
 			for _, l := range labels {
 				if src == l {
-					labelToRule[l] = rule
+					labelToRules[l] = append(labelToRules[l], rule)
 					break
 				}
 			}
 		}
 	}
-	return labelToRule, nil
+	return labelToRules, nil
 }
 
 // batchQuery runs a set of queries with a single call to Bazel query and the
