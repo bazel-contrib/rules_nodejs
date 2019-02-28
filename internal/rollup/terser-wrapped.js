@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-// A wrapper around uglify-js that can handle minifying an entire
-// directory. If the input is a directory then uglify is run on
+// A wrapper around terser-js that can handle minifying an entire
+// directory. If the input is a directory then terser is run on
 // each .js file in that folder and outputs to a specified output
-// folder. If the input is a file then uglify is just run
+// folder. If the input is a file then terser is just run
 // one that individual file.
 
 const fs = require('fs');
@@ -35,7 +35,7 @@ const output = argv.output || argv.o;
 const debug = argv.debug;
 const configFile = argv['config-file'];
 // delete the properties extracted above as the remaining
-// arguments are forwarded to uglify in execFileSync below
+// arguments are forwarded to terser in execFileSync below
 delete argv._;
 delete argv.output;
 delete argv.o;
@@ -44,7 +44,7 @@ delete argv['config-file'];
 
 if (DEBUG)
   console.error(`
-Uglify: running with
+terser: running with
   cwd: ${process.cwd()}
   argv: ${process.argv.slice(2).join(' ')}
   inputs: ${JSON.stringify(inputs)}
@@ -58,10 +58,10 @@ if (inputs.length != 1) {
 
 const input = inputs[0];
 
-function runUglify(inputFile, outputFile, sourceMapFile) {
+function runterser(inputFile, outputFile, sourceMapFile) {
   if (DEBUG) console.error(`Minifying ${inputFile} -> ${outputFile} (sourceMap ${sourceMapFile})`);
 
-  const uglifyConfig = {
+  const terserConfig = {
     'sourceMap': {'filename': sourceMapFile},
     'compress': {
       'pure_getters': true,
@@ -80,10 +80,10 @@ function runUglify(inputFile, outputFile, sourceMapFile) {
     config = tmp.fileSync({keep: false, postfix: '.json'}).name;
   }
 
-  fs.writeFileSync(config, JSON.stringify(uglifyConfig));
+  fs.writeFileSync(config, JSON.stringify(terserConfig));
 
   const args = [
-    require.resolve('build_bazel_rules_nodejs_rollup_deps/node_modules/uglify-es/bin/uglifyjs'),
+    require.resolve('build_bazel_rules_nodejs_rollup_deps/node_modules/terser/bin/uglifyjs'),
     inputFile, '--output', outputFile, '--config-file', config
   ];
 
@@ -107,7 +107,7 @@ function runUglify(inputFile, outputFile, sourceMapFile) {
 const isDirectory = fs.lstatSync(path.join(process.cwd(), input)).isDirectory();
 
 if (!isDirectory) {
-  runUglify(input, output, output + '.map');
+  runterser(input, output, output + '.map');
 } else {
   if (!fs.existsSync(output)) {
     fs.mkdirSync(output);
@@ -118,7 +118,7 @@ if (!isDirectory) {
       const inputFile = path.join(input, path.basename(f));
       const outputFile = path.join(output, path.basename(f));
       // TODO(gregmagolan): parallelize this into multiple processes?
-      runUglify(inputFile, outputFile, outputFile + '.map');
+      runterser(inputFile, outputFile, outputFile + '.map');
     }
   });
 }

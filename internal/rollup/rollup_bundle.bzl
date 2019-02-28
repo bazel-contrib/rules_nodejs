@@ -14,7 +14,7 @@
 
 """Rollup bundling
 
-The versions of Rollup and Uglify are controlled by the Bazel toolchain.
+The versions of Rollup and terser are controlled by the Bazel toolchain.
 You do not need to install them into your project.
 """
 
@@ -234,8 +234,8 @@ def _run_tsc_on_directory(ctx, input_dir, output_dir):
         arguments = [args],
     )
 
-def run_uglify(ctx, input, output, debug = False, comments = True, config_name = None, in_source_map = None):
-    """Runs uglify on an input file.
+def run_terser(ctx, input, output, debug = False, comments = True, config_name = None, in_source_map = None):
+    """Runs terser on an input file.
 
     This is also used by https://github.com/angular/angular.
 
@@ -245,8 +245,8 @@ def run_uglify(ctx, input, output, debug = False, comments = True, config_name =
       output: output file
       debug: if True then output is beautified (defaults to False)
       comments: if True then copyright comments are preserved in output file (defaults to True)
-      config_name: allows callers to control the name of the generated uglify configuration,
-          which will be `_[config_name].uglify.json` in the package where the target is declared
+      config_name: allows callers to control the name of the generated terser configuration,
+          which will be `_[config_name].terser.json` in the package where the target is declared
       in_source_map: sourcemap file for the input file, passed to the "--source-map content="
           option of rollup.
 
@@ -256,23 +256,23 @@ def run_uglify(ctx, input, output, debug = False, comments = True, config_name =
 
     map_output = ctx.actions.declare_file(output.basename + ".map", sibling = output)
 
-    _run_uglify(ctx, input, output, map_output, debug, comments, config_name, in_source_map)
+    _run_terser(ctx, input, output, map_output, debug, comments, config_name, in_source_map)
 
     return map_output
 
-def _run_uglify(ctx, input, output, map_output, debug = False, comments = True, config_name = None, in_source_map = None):
+def _run_terser(ctx, input, output, map_output, debug = False, comments = True, config_name = None, in_source_map = None):
     inputs = [input]
     outputs = [output]
 
     args = ctx.actions.args()
 
     if map_output:
-        # Running uglify on an individual file
+        # Running terser on an individual file
         if not config_name:
             config_name = ctx.label.name
             if debug:
                 config_name += ".debug"
-        config = ctx.actions.declare_file("_%s.uglify.json" % config_name)
+        config = ctx.actions.declare_file("_%s.terser.json" % config_name)
         args.add_all(["--config-file", config.path])
         outputs += [map_output, config]
 
@@ -280,7 +280,7 @@ def _run_uglify(ctx, input, output, map_output, debug = False, comments = True, 
     args.add_all(["--output", output.path])
 
     # Source mapping options are comma-packed into one argv
-    # see https://github.com/mishoo/UglifyJS2#command-line-usage
+    # see https://github.com/mishoo/terserJS2#command-line-usage
     source_map_opts = ["includeSources", "base=" + ctx.bin_dir.path]
     if in_source_map:
         source_map_opts.append("content=" + in_source_map.path)
@@ -296,7 +296,7 @@ def _run_uglify(ctx, input, output, map_output, debug = False, comments = True, 
         args.add("--beautify")
 
     ctx.actions.run(
-        executable = ctx.executable._uglify_wrapped,
+        executable = ctx.executable._terser_wrapped,
         inputs = inputs,
         outputs = outputs,
         arguments = [args],
@@ -407,9 +407,9 @@ def _rollup_bundle(ctx):
         code_split_es5_output_dir = ctx.actions.declare_directory(ctx.label.name + "_chunks")
         _run_tsc_on_directory(ctx, code_split_es6_output_dir, code_split_es5_output_dir)
         code_split_es5_min_output_dir = ctx.actions.declare_directory(ctx.label.name + "_chunks_min")
-        _run_uglify(ctx, code_split_es5_output_dir, code_split_es5_min_output_dir, None)
+        _run_terser(ctx, code_split_es5_output_dir, code_split_es5_min_output_dir, None)
         code_split_es5_min_debug_output_dir = ctx.actions.declare_directory(ctx.label.name + "_chunks_min_debug")
-        _run_uglify(ctx, code_split_es5_output_dir, code_split_es5_min_debug_output_dir, None, debug = True)
+        _run_terser(ctx, code_split_es5_output_dir, code_split_es5_min_debug_output_dir, None, debug = True)
 
         # Generate the SystemJS boilerplate/entry point files
         _generate_code_split_entry(ctx, ctx.label.name + "_chunks_es6", ctx.outputs.build_es6)
@@ -443,8 +443,8 @@ def _rollup_bundle(ctx):
         rollup_config = write_rollup_config(ctx)
         run_rollup(ctx, collect_es6_sources(ctx), rollup_config, ctx.outputs.build_es6)
         _run_tsc(ctx, ctx.outputs.build_es6, ctx.outputs.build_es5)
-        source_map = run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min)
-        run_uglify(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min_debug, debug = True)
+        source_map = run_terser(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min)
+        run_terser(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min_debug, debug = True)
         cjs_rollup_config = write_rollup_config(ctx, filename = "_%s_cjs.rollup.conf.js", output_format = "cjs")
         run_rollup(ctx, collect_es6_sources(ctx), cjs_rollup_config, ctx.outputs.build_cjs)
         umd_rollup_config = write_rollup_config(ctx, filename = "_%s_umd.rollup.conf.js", output_format = "umd")
@@ -629,10 +629,10 @@ ROLLUP_ATTRS = {
         cfg = "host",
         default = Label("@build_bazel_rules_nodejs//internal/rollup:tsc-directory"),
     ),
-    "_uglify_wrapped": attr.label(
+    "_terser_wrapped": attr.label(
         executable = True,
         cfg = "host",
-        default = Label("@build_bazel_rules_nodejs//internal/rollup:uglify-wrapped"),
+        default = Label("@build_bazel_rules_nodejs//internal/rollup:terser-wrapped"),
     ),
 }
 
@@ -652,7 +652,7 @@ rollup_bundle = rule(
     outputs = ROLLUP_OUTPUTS,
 )
 """
-Produces several bundled JavaScript files using Rollup and Uglify.
+Produces several bundled JavaScript files using Rollup and terser.
 
 Load it with
 `load("@build_bazel_rules_nodejs//:defs.bzl", "rollup_bundle")`
@@ -660,7 +660,7 @@ Load it with
 It performs this work in several separate processes:
 1. Call rollup on the original sources
 2. Downlevel the resulting code to es5 syntax for older browsers
-3. Minify the bundle with Uglify, possibly with pretty output for human debugging.
+3. Minify the bundle with terser, possibly with pretty output for human debugging.
 
 The default output of a `rollup_bundle` rule is the non-debug-minified es5 bundle.
 
@@ -678,7 +678,7 @@ However this is currently broken for `rollup_bundle` ES5 mode because we use tsc
 it doesn't compose the resulting sourcemaps with an input sourcemap.
 See https://github.com/bazelbuild/rules_nodejs/issues/175
 
-For debugging, note that the `rollup.config.js` and `uglify.config.json` files can be found in the bazel-bin folder next to the resulting bundle.
+For debugging, note that the `rollup.config.js` and `terser.config.json` files can be found in the bazel-bin folder next to the resulting bundle.
 
 An example usage can be found in https://github.com/bazelbuild/rules_nodejs/tree/master/internal/e2e/rollup
 """

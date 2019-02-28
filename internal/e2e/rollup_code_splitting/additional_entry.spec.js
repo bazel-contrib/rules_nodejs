@@ -21,7 +21,8 @@ describe('bundling additional entry point', () => {
     const additional_entry =
         require(
             'build_bazel_rules_nodejs/internal/e2e/rollup_code_splitting/bundle_chunks/additional_entry.js')
-            .default const actual = (new additional_entry()).test();
+            .default;
+    const actual = (new additional_entry()).test();
     expect(actual).toEqual(expected);
   });
 
@@ -29,7 +30,8 @@ describe('bundling additional entry point', () => {
     const additional_entry =
         require(
             'build_bazel_rules_nodejs/internal/e2e/rollup_code_splitting/bundle_chunks_min/additional_entry.js')
-            .default const actual = (new additional_entry()).test();
+            .default;
+    const actual = (new additional_entry()).test();
     expect(actual).toEqual(expected);
   });
 
@@ -37,7 +39,8 @@ describe('bundling additional entry point', () => {
     const additional_entry =
         require(
             'build_bazel_rules_nodejs/internal/e2e/rollup_code_splitting/bundle_chunks_min_debug/additional_entry.js')
-            .default const actual = (new additional_entry()).test();
+            .default;
+    const actual = (new additional_entry()).test();
     expect(actual).toEqual(expected);
   });
 
