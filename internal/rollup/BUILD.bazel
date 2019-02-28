@@ -47,7 +47,7 @@ nodejs_binary(
 
 nodejs_binary(
     name = "terser",
-    entry_point = "build_bazel_rules_nodejs_rollup_deps/node_modules/terser/bin/terserjs",
+    entry_point = "build_bazel_rules_nodejs_rollup_deps/node_modules/terser/bin/uglifyjs",
     install_source_map_support = False,
     node_modules = "@build_bazel_rules_nodejs_rollup_deps//:node_modules",
     visibility = ["//visibility:public"],

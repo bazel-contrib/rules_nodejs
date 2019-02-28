@@ -8,9 +8,9 @@ const expectedDeps = 'test-b-0.0.2/test-a-0.0.4';
 const expectedNoDeps = 'no-deps';
 
 describe('bundling main entry point', () => {
-  it('bundle_no_deps.es6.js should work', async () => {
+  it('bundle_no_deps.es2015.js should work', async () => {
     const bundle = require(
-        'build_bazel_rules_nodejs/internal/e2e/rollup_fine_grained_deps/bundle_no_deps.es6.js')
+        'build_bazel_rules_nodejs/internal/e2e/rollup_fine_grained_deps/bundle_no_deps.es2015.js')
     expect(bundle).toEqual(expectedNoDeps);
   });
 
@@ -32,9 +32,9 @@ describe('bundling main entry point', () => {
     expect(bundle).toEqual(expectedNoDeps);
   });
 
-  it('bundle.es6.js should work', async () => {
+  it('bundle.es2015.js should work', async () => {
     const bundle =
-        require('build_bazel_rules_nodejs/internal/e2e/rollup_fine_grained_deps/bundle.es6.js')
+        require('build_bazel_rules_nodejs/internal/e2e/rollup_fine_grained_deps/bundle.es2015.js')
     expect(bundle).toEqual(expectedDeps);
   });
 
@@ -56,9 +56,9 @@ describe('bundling main entry point', () => {
     expect(bundle).toEqual(expectedDeps);
   });
 
-  it('bundle_legacy.es6.js should work', async () => {
+  it('bundle_legacy.es2015.js should work', async () => {
     const bundle = require(
-        'build_bazel_rules_nodejs/internal/e2e/rollup_fine_grained_deps/bundle_legacy.es6.js')
+        'build_bazel_rules_nodejs/internal/e2e/rollup_fine_grained_deps/bundle_legacy.es2015.js')
     expect(bundle).toEqual(expectedDeps);
   });
 
@@ -80,9 +80,9 @@ describe('bundling main entry point', () => {
     expect(bundle).toEqual(expectedDeps);
   });
 
-  it('bundle_hybrid.es6.js should work', async () => {
+  it('bundle_hybrid.es2015.js should work', async () => {
     const bundle = require(
-        'build_bazel_rules_nodejs/internal/e2e/rollup_fine_grained_deps/bundle_hybrid.es6.js')
+        'build_bazel_rules_nodejs/internal/e2e/rollup_fine_grained_deps/bundle_hybrid.es2015.js')
     expect(bundle).toEqual(expectedDeps);
   });
 
