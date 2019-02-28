@@ -18,7 +18,7 @@ The versions of Rollup and terser are controlled by the Bazel toolchain.
 You do not need to install them into your project.
 """
 
-load("//internal/common:collect_es6_sources.bzl", "collect_es6_sources")
+load("//internal/common:collect_es6_sources.bzl", _collect_es2015_sources = "collect_es6_sources")
 load("//internal/common:module_mappings.bzl", "get_module_mappings")
 load("//internal/common:node_module_info.bzl", "NodeModuleInfo", "collect_node_modules_aspect")
 
@@ -79,7 +79,7 @@ def write_rollup_config(ctx, plugins = [], root_dir = None, filename = "_%s.roll
                 mappings[k] = v
 
     if not root_dir:
-        root_dir = "/".join([ctx.bin_dir.path, build_file_dirname, ctx.label.name + ".es6"])
+        root_dir = "/".join([ctx.bin_dir.path, build_file_dirname, ctx.label.name + ".es2015"])
 
     node_modules_root = None
     default_node_modules = False
@@ -399,20 +399,20 @@ def _rollup_bundle(ctx):
     if ctx.attr.additional_entry_points:
         # Generate code split bundles if additional entry points have been specified.
         # See doc for additional_entry_points for more information.
-        # Note: "_chunks" is needed on the output folders since ctx.label.name + ".es6" is already
-        # a folder that contains the re-rooted es6 sources
+        # Note: "_chunks" is needed on the output folders since ctx.label.name + ".es2015" is already
+        # a folder that contains the re-rooted es2015 sources
         rollup_config = write_rollup_config(ctx, output_format = "es", additional_entry_points = ctx.attr.additional_entry_points)
-        code_split_es6_output_dir = ctx.actions.declare_directory(ctx.label.name + "_chunks_es6")
-        _run_rollup(ctx, collect_es6_sources(ctx), rollup_config, code_split_es6_output_dir)
+        code_split_es2015_output_dir = ctx.actions.declare_directory(ctx.label.name + "_chunks_es2015")
+        _run_rollup(ctx, _collect_es2015_sources(ctx), rollup_config, code_split_es2015_output_dir)
         code_split_es5_output_dir = ctx.actions.declare_directory(ctx.label.name + "_chunks")
-        _run_tsc_on_directory(ctx, code_split_es6_output_dir, code_split_es5_output_dir)
+        _run_tsc_on_directory(ctx, code_split_es2015_output_dir, code_split_es5_output_dir)
         code_split_es5_min_output_dir = ctx.actions.declare_directory(ctx.label.name + "_chunks_min")
         _run_terser(ctx, code_split_es5_output_dir, code_split_es5_min_output_dir, None)
         code_split_es5_min_debug_output_dir = ctx.actions.declare_directory(ctx.label.name + "_chunks_min_debug")
         _run_terser(ctx, code_split_es5_output_dir, code_split_es5_min_debug_output_dir, None, debug = True)
 
         # Generate the SystemJS boilerplate/entry point files
-        _generate_code_split_entry(ctx, ctx.label.name + "_chunks_es6", ctx.outputs.build_es6)
+        _generate_code_split_entry(ctx, ctx.label.name + "_chunks_es2015", ctx.outputs.build_es2015)
         _generate_code_split_entry(ctx, ctx.label.name + "_chunks", ctx.outputs.build_es5)
         _generate_code_split_entry(ctx, ctx.label.name + "_chunks_min", ctx.outputs.build_es5_min)
         _generate_code_split_entry(ctx, ctx.label.name + "_chunks_min_debug", ctx.outputs.build_es5_min_debug)
@@ -428,11 +428,11 @@ def _rollup_bundle(ctx):
             substitutions = {},
         )
         files = [
-            ctx.outputs.build_es6,
+            ctx.outputs.build_es2015,
             ctx.outputs.build_es5,
             ctx.outputs.build_es5_min,
             ctx.outputs.build_es5_min_debug,
-            code_split_es6_output_dir,
+            code_split_es2015_output_dir,
             code_split_es5_output_dir,
             code_split_es5_min_output_dir,
             code_split_es5_min_debug_output_dir,
@@ -441,14 +441,14 @@ def _rollup_bundle(ctx):
     else:
         # Generate the bundles
         rollup_config = write_rollup_config(ctx)
-        run_rollup(ctx, collect_es6_sources(ctx), rollup_config, ctx.outputs.build_es6)
-        _run_tsc(ctx, ctx.outputs.build_es6, ctx.outputs.build_es5)
+        run_rollup(ctx, _collect_es2015_sources(ctx), rollup_config, ctx.outputs.build_es2015)
+        _run_tsc(ctx, ctx.outputs.build_es2015, ctx.outputs.build_es5)
         source_map = run_terser(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min)
         run_terser(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min_debug, debug = True)
         cjs_rollup_config = write_rollup_config(ctx, filename = "_%s_cjs.rollup.conf.js", output_format = "cjs")
-        run_rollup(ctx, collect_es6_sources(ctx), cjs_rollup_config, ctx.outputs.build_cjs)
+        run_rollup(ctx, _collect_es2015_sources(ctx), cjs_rollup_config, ctx.outputs.build_cjs)
         umd_rollup_config = write_rollup_config(ctx, filename = "_%s_umd.rollup.conf.js", output_format = "umd")
-        run_rollup(ctx, collect_es6_sources(ctx), umd_rollup_config, ctx.outputs.build_umd)
+        run_rollup(ctx, _collect_es2015_sources(ctx), umd_rollup_config, ctx.outputs.build_umd)
         run_sourcemapexplorer(ctx, ctx.outputs.build_es5_min, source_map, ctx.outputs.explore_html)
         files = [ctx.outputs.build_es5_min, source_map]
 
@@ -483,7 +483,7 @@ ROLLUP_ATTRS = {
         bundled.
 
         Entry points and chunks will be outputted to folders:
-        - <label-name>_chunks_es6 // es6
+        - <label-name>_chunks_es2015 // es2015
         - <label-name>_chunks // es5
         - <label-name>_chunks_min // es5 minified
         - <label-name>_chunks_min_debug // es5 minified debug
@@ -492,7 +492,7 @@ ROLLUP_ATTRS = {
         SystemJS boilerplate to map the entry points to their file
         names and load the main entry point:
         flavors:
-        - <label-name>.es6.js // es6
+        - <label-name>.es2015.js // es2015
         - <label-name>.js // es5
         - <label-name>.min.js // es5 minified
         - <label-name>.min_debug.js // es5 minified debug
@@ -619,6 +619,11 @@ ROLLUP_ATTRS = {
         default = Label("@build_bazel_rules_nodejs//internal/rollup:system.config.js"),
         allow_single_file = True,
     ),
+    "_terser_wrapped": attr.label(
+        executable = True,
+        cfg = "host",
+        default = Label("@build_bazel_rules_nodejs//internal/rollup:terser-wrapped"),
+    ),
     "_tsc": attr.label(
         executable = True,
         cfg = "host",
@@ -629,19 +634,14 @@ ROLLUP_ATTRS = {
         cfg = "host",
         default = Label("@build_bazel_rules_nodejs//internal/rollup:tsc-directory"),
     ),
-    "_terser_wrapped": attr.label(
-        executable = True,
-        cfg = "host",
-        default = Label("@build_bazel_rules_nodejs//internal/rollup:terser-wrapped"),
-    ),
 }
 
 ROLLUP_OUTPUTS = {
     "build_cjs": "%{name}.cjs.js",
+    "build_es2015": "%{name}.es2015.js",
     "build_es5": "%{name}.js",
     "build_es5_min": "%{name}.min.js",
     "build_es5_min_debug": "%{name}.min_debug.js",
-    "build_es6": "%{name}.es6.js",
     "build_umd": "%{name}.umd.js",
     "explore_html": "%{name}.explore.html",
 }
@@ -667,7 +667,7 @@ The default output of a `rollup_bundle` rule is the non-debug-minified es5 bundl
 However you can request one of the other outputs with a dot-suffix on the target's name.
 For example, if your `rollup_bundle` is named `my_rollup_bundle`, you can use one of these labels:
 
-To request the ES2015 syntax (e.g. `class` keyword) without downleveling or minification, use the `:my_rollup_bundle.es6.js` label.
+To request the ES2015 syntax (e.g. `class` keyword) without downleveling or minification, use the `:my_rollup_bundle.es2015.js` label.
 To request the ES5 downleveled bundle without minification, use the `:my_rollup_bundle.js` label
 To request the debug-minified es5 bundle, use the `:my_rollup_bundle.min_debug.js` label.
 To request a UMD-bundle, use the `:my_rollup_bundle.umd.js` label.
