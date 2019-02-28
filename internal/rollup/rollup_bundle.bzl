@@ -235,6 +235,10 @@ def _run_tsc_on_directory(ctx, input_dir, output_dir):
         arguments = [args],
     )
 
+def run_uglify(**kwargs):
+    print("WARNING: run_uglify has been renamed to run_terser. Please update callsites")
+    run_terser(**kwargs)
+
 def run_terser(ctx, input, output, debug = False, comments = True, config_name = None, in_source_map = None):
     """Runs terser on an input file.
 
@@ -329,6 +333,12 @@ def run_sourcemapexplorer(ctx, js, map, output):
         ],
     )
 
+def _generate_toplevel_entry(ctx, bundles_folder, output):
+    """Generates a native ESmodule that imports the entry point
+    """
+    main_entry_point_basename = ctx.attr.entry_point.split("/")[-1]
+    ctx.actions.write(output, """import('./%s/%s.js');""" % (bundles_folder, main_entry_point_basename))
+
 def _generate_code_split_entry(ctx, bundles_folder, output):
     """Generates a SystemJS boilerplate/entry point file.
 
@@ -413,7 +423,7 @@ def _rollup_bundle(ctx):
         _run_terser(ctx, code_split_es5_output_dir, code_split_es5_min_debug_output_dir, None, debug = True)
 
         # Generate the SystemJS boilerplate/entry point files
-        _generate_code_split_entry(ctx, ctx.label.name + "_chunks_es2015", ctx.outputs.build_es2015)
+        _generate_toplevel_entry(ctx, ctx.label.name + "_chunks_es2015", ctx.outputs.build_es2015)
         _generate_code_split_entry(ctx, ctx.label.name + "_chunks", ctx.outputs.build_es5)
         _generate_code_split_entry(ctx, ctx.label.name + "_chunks_min", ctx.outputs.build_es5_min)
         _generate_code_split_entry(ctx, ctx.label.name + "_chunks_min_debug", ctx.outputs.build_es5_min_debug)
