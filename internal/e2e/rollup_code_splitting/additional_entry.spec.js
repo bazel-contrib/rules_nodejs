@@ -9,10 +9,10 @@ describe('bundling additional entry point', () => {
   });
 
   // Disabled because native ESModules can't be loaded in current nodejs
+  // see https://github.com/bazelbuild/rules_nodejs/issues/593
   xit('bundle_chunks_es6 should work', () => {
     const additional_entry = require(
         'build_bazel_rules_nodejs/internal/e2e/rollup_code_splitting/bundle_chunks_es6/additional_entry.js');
-    console.error(additional_entry)
     const actual = (new additional_entry()).test();
     expect(actual).toEqual(expected);
   });
