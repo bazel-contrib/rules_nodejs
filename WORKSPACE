@@ -138,3 +138,11 @@ yarn_install(
     package_json = "//internal/e2e/fine_grained_no_bin:package.json",
     yarn_lock = "//internal/e2e/fine_grained_no_bin:yarn.lock",
 )
+
+load("@bazel_toolchains//rules:rbe_repo.bzl", "rbe_autoconfig")
+
+# Creates toolchain configuration for remote execution with BuildKite CI
+# for rbe_ubuntu1604
+rbe_autoconfig(
+    name = "buildkite_config",
+)
