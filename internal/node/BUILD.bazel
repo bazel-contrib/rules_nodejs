@@ -16,22 +16,22 @@ load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 
 package(default_visibility = ["//visibility:public"])
 
+bzl_library(
+    name = "bzl",
+    srcs = glob(["*.bzl"]),
+    visibility = ["//visibility:public"],
+    deps = [
+        "//internal/npm_install:bzl",
+        "//third_party/github.com/bazelbuild/bazel-skylib:bzl",
+    ],
+)
+
 exports_files([
     "node.bzl",  # Exported to be consumed for generating skydoc.
     "node_repositories.bzl",  # Exported to be consumed for generating skydoc.
     "node_launcher.sh",
     "node_loader.js",
 ])
-
-bzl_library(
-    name = "bzl",
-    srcs = glob(["*.bzl"]),
-    visibility = ["//visibility:public"],  #["@npm_bazel_typescript//:__subpackages__"],
-    deps = [
-        "//internal/npm_install:bzl",
-        "//third_party/github.com/bazelbuild/bazel-skylib:bzl",
-    ],
-)
 
 filegroup(
     name = "package_contents",

@@ -42,4 +42,3 @@ feature from TypeScript, then the Bazel implementation needs to know about that
 extended configuration file as well, to pass them both to the TypeScript compiler.
 """,
 )
-

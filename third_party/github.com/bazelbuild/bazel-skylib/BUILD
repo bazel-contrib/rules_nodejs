@@ -11,7 +11,7 @@ filegroup(
 bzl_library(
     name = "bzl",
     srcs = glob(["lib/*.bzl"]),
-    visibility = ["//visibility:public"],  #["@npm_bazel_typescript//:__subpackages__"],
+    visibility = ["//visibility:public"],
     deps = [
         "//internal/npm_install:bzl",
     ],

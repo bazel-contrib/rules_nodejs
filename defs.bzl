@@ -43,6 +43,15 @@ history_server = _history_server
 http_server = _http_server
 # ANY RULES ADDED HERE SHOULD BE DOCUMENTED, run yarn skydoc to verify
 
+# Allows us to avoid a transitive dependency on bazel_skylib from leaking to users
+def dummy_bzl_library(name, **kwargs):
+    native.filegroup(name = name)
+
+COMMON_REPLACEMENTS = {
+    # Replace loads from @bazel_skylib with the dummy rule above
+    "(load\\(\"@bazel_skylib//:bzl_library.bzl\", \"bzl_library\"\\))": "# bazel_skylib mocked out\n# $1\nload(\"@build_bazel_rules_nodejs//:defs.bzl\", bzl_library = \"dummy_bzl_library\")",
+}
+
 def node_modules_filegroup(packages, patterns = [], **kwargs):
     native.filegroup(
         srcs = native.glob(["/".join([

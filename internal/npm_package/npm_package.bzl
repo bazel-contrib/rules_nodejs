@@ -154,8 +154,8 @@ npm_package = rule(
     implementation = _npm_package,
     attrs = NPM_PACKAGE_ATTRS,
     outputs = NPM_PACKAGE_OUTPUTS,
-    doc = """
-The npm_package rule creates a directory containing a publishable npm artifact.
+)
+"""The npm_package rule creates a directory containing a publishable npm artifact.
 
 Example:
 
@@ -212,5 +212,4 @@ $ bazel run :my_package.publish
 ```
 
 You can pass arguments to npm by escaping them from Bazel using a double-hyphen `bazel run my_package.publish -- --tag=next`
-""",
-)
+"""
