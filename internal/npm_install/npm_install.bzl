@@ -221,9 +221,8 @@ npm_install = repository_rule(
         ),
     }),
     implementation = _npm_install_impl,
+    doc = "Runs npm install during workspace setup.",
 )
-"""Runs npm install during workspace setup.
-"""
 
 def _yarn_install_impl(repository_ctx):
     """Core implementation of yarn_install."""
@@ -314,6 +313,5 @@ yarn_install = repository_rule(
         ),
     }),
     implementation = _yarn_install_impl,
+    doc = "Runs yarn install during workspace setup.",
 )
-"""Runs yarn install during workspace setup.
-"""

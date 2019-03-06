@@ -35,6 +35,10 @@ load("@build_bazel_rules_typescript//:package.bzl", "rules_typescript_dev_depend
 
 rules_typescript_dev_dependencies()
 
+load("@io_bazel_skydoc//:setup.bzl", "skydoc_repositories")
+
+skydoc_repositories()
+
 load("@io_bazel_rules_go//go:def.bzl", "go_register_toolchains", "go_rules_dependencies")
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
 
@@ -62,6 +66,3 @@ sass_repositories()
 #     urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.6.1.3.zip"],
 # )
 
-load("@io_bazel_skydoc//:setup.bzl", "skydoc_repositories")
-
-skydoc_repositories()

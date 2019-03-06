@@ -91,9 +91,9 @@ web_package = rule(
             cfg = "host",
         ),
     },
-)
-"""
+    doc = """
 Assembles a web application from source files.
 
 Injects JS and CSS resources into the index.html.
-"""
+""",
+)

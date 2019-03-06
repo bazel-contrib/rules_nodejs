@@ -678,8 +678,7 @@ rollup_bundle = rule(
     implementation = _rollup_bundle,
     attrs = ROLLUP_ATTRS,
     outputs = ROLLUP_OUTPUTS,
-)
-"""
+    doc = """
 Produces several bundled JavaScript files using Rollup and terser.
 
 Load it with
@@ -709,4 +708,5 @@ See https://github.com/bazelbuild/rules_nodejs/issues/175
 For debugging, note that the `rollup.config.js` and `terser.config.json` files can be found in the bazel-bin folder next to the resulting bundle.
 
 An example usage can be found in https://github.com/bazelbuild/rules_nodejs/tree/master/internal/e2e/rollup
-"""
+""",
+)

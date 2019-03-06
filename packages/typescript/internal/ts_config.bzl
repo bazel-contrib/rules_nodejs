@@ -34,11 +34,12 @@ ts_config = rule(
             mandatory = True,
         ),
     },
-)
-"""Allows a tsconfig.json file to extend another file.
+    doc = """Allows a tsconfig.json file to extend another file.
 
 Normally, you just give a single `tsconfig.json` file as the tsconfig attribute
 of a `ts_library` rule. However, if your `tsconfig.json` uses the `extends`
 feature from TypeScript, then the Bazel implementation needs to know about that
 extended configuration file as well, to pass them both to the TypeScript compiler.
-"""
+""",
+)
+

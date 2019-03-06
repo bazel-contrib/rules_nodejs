@@ -134,9 +134,7 @@ ts_proto_library = rule(
             cfg = "host",
         ),
     },
-)
-"""
-Wraps https://github.com/dcodeIO/protobuf.js for use in Bazel.
+    doc = """Wraps https://github.com/dcodeIO/protobuf.js for use in Bazel.
 
 `ts_proto_library` has identical outputs to `ts_library`, so it can be used anywhere
 a `ts_library` can appear, such as in the `deps[]` of another `ts_library`.
@@ -190,4 +188,5 @@ ts_web_test_suite(
     ],
 )
 ```
-"""
+""",
+)
