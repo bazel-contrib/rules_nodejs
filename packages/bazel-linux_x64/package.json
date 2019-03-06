@@ -9,6 +9,11 @@
   "version": "0.23.0",
   "description": "Build and test software of any size, quickly and reliably",
   "homepage": "https://bazel.build/",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/bazelbuild/rules_nodejs.git",
+    "directory": "packages/bazel-linux_x64"
+  },
   "license": "Apache 2.0",
   "bugs": {
     "url": "https://github.com/bazelbuild/bazel/issues"

@@ -1,8 +1,16 @@
 {
     "name": "@bazel/labs",
     "description": "Experimental code. DO NOT DEPEND on this for production use",
-    "version": "0.0.0.0-PLACEHOLDER",
+    "version": "0.0.0-PLACEHOLDER",
     "license": "Apache-2.0",
+    "repository": {
+        "type" : "git",
+        "url" : "https://github.com/bazelbuild/rules_nodejs.git",
+        "directory": "packages/typescript"
+    },
+    "bugs": {
+        "url": "https://github.com/bazelbuild/rules_nodejs/issues"
+    },
     "devDependencies": {},
     "dependencies": {},
     "scripts": {

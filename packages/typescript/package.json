@@ -3,11 +3,18 @@
     "description": "TypeScript rules for Bazel",
     "license": "Apache-2.0",
     "version": "0.0.0-PLACEHOLDER",
+    "repository": {
+        "type" : "git",
+        "url" : "https://github.com/bazelbuild/rules_nodejs.git",
+        "directory": "packages/typescript"
+    },
+    "bugs": {
+        "url": "https://github.com/bazelbuild/rules_nodejs/issues"
+    },
     "keywords": [
         "typescript",
         "bazel"
     ],
-    "homepage": "https://github.com/bazelbuild/rules_nodejs/tree/master/packages/typescript",
     "main": "./internal/tsc_wrapped/index.js",
     "typings": "./internal/tsc_wrapped/index.d.ts",
     "bin": {

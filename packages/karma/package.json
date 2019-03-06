@@ -3,7 +3,14 @@
   "description": "Karma rules for Bazel",
   "license": "Apache-2.0",
   "version": "0.0.0-PLACEHOLDER",
-  "homepage": "https://github.com/bazelbuild/rules_nodejs/packages/karma",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/bazelbuild/rules_nodejs.git",
+    "directory": "packages/karma"
+  },
+  "bugs": {
+    "url": "https://github.com/bazelbuild/rules_nodejs/issues"
+  },
   "keywords": [
     "karma",
     "bazel"
