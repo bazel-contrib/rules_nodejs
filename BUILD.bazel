@@ -1,9 +1,23 @@
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
 load("@build_bazel_rules_nodejs//:defs.bzl", "npm_package")
 
 package(default_visibility = ["//visibility:public"])
 
 exports_files(["tsconfig.json"])
+
+bzl_library(
+    name = "bzl",
+    srcs = ["defs.bzl"],
+    visibility = ["//visibility:public"],  #["@npm_bazel_typescript//:__subpackages__"],
+    deps = [
+        "//internal/history-server:bzl",
+        "//internal/http-server:bzl",
+        "//internal/jasmine_node_test:bzl",
+        "//internal/npm_package:bzl",
+        "//internal/rollup:bzl",
+    ],
+)
 
 # Empty node_modules filegroup used for the default
 # value of the node_modules attribute in nodejs_binary

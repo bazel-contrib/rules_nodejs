@@ -228,6 +228,7 @@ def ts_devserver_macro(name, data = [], args = [], visibility = None, tags = [],
     launcher script.
     This is re-exported in `//:defs.bzl` as `ts_devserver` so if you load the rule
     from there, you actually get this macro.
+
     Args:
       name: Name of the devserver target
       data: Runtime dependencies for the devserver

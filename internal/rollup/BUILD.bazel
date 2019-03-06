@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("//:defs.bzl", "jasmine_node_test", "nodejs_binary")
 
 licenses(["notice"])  # Apache 2.0
@@ -25,6 +26,14 @@ exports_files([
     # Exported to be consumed for generating skydoc.
     "rollup_bundle.bzl",
 ])
+
+bzl_library(
+    name = "bzl",
+    srcs = glob(["*.bzl"]),
+    visibility = ["//visibility:public"],  #["@npm_bazel_typescript//:__subpackages__"],
+    deps = [
+    ],
+)
 
 nodejs_binary(
     name = "rollup",

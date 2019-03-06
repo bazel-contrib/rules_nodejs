@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+
 package(default_visibility = ["//visibility:public"])
 
 exports_files([
@@ -20,6 +22,16 @@ exports_files([
     "node_launcher.sh",
     "node_loader.js",
 ])
+
+bzl_library(
+    name = "bzl",
+    srcs = glob(["*.bzl"]),
+    visibility = ["//visibility:public"],  #["@npm_bazel_typescript//:__subpackages__"],
+    deps = [
+        "//internal/npm_install:bzl",
+        "//third_party/github.com/bazelbuild/bazel-skylib:bzl",
+    ],
+)
 
 filegroup(
     name = "package_contents",

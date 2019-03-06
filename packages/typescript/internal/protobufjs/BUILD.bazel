@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
 
 package(default_visibility = ["//visibility:public"])
@@ -21,6 +22,14 @@ exports_files([
     # Exported to be consumed for generating skydoc.
     "ts_proto_library.bzl",
 ])
+
+bzl_library(
+    name = "bzl",
+    srcs = glob(["*.bzl"]),
+    visibility = ["//:__pkg__"],
+    deps = [
+    ],
+)
 
 nodejs_binary(
     name = "pbjs",
