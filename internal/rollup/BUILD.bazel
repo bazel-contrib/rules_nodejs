@@ -99,6 +99,7 @@ jasmine_node_test(
         "@npm//rollup",
         "@npm//rollup-plugin-node-resolve",
         "@npm//rollup-plugin-sourcemaps",
+        "@npm//rollup-plugin-commonjs",
     ],
 )
 

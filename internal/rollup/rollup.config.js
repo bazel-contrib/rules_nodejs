@@ -4,6 +4,7 @@
 const rollup = require('rollup');
 const nodeResolve = require('rollup-plugin-node-resolve');
 const sourcemaps = require('rollup-plugin-sourcemaps');
+const commonjs = require('rollup-plugin-commonjs');
 const isBuiltinModule = require('is-builtin-module');
 const path = require('path');
 const fs = require('fs');
@@ -178,6 +179,7 @@ const config = {
       main: true,
       customResolveOptions: {moduleDirectory: nodeModulesRoot}
     }),
+    commonjs(),
     {resolveId: notResolved},
     sourcemaps(),
   ]),
