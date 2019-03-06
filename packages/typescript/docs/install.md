@@ -44,7 +44,7 @@ alias(
 )
 ```
 
-# Self-managed npm dependencies
+## Self-managed npm dependencies
 
 We recommend you use Bazel managed dependencies but if you would like
 Bazel to also install a `node_modules` in your workspace you can also
@@ -100,9 +100,9 @@ nodejs_binary(
 See https://github.com/bazelbuild/rules_nodejs#dependencies for more information on
 managing npm dependencies with Bazel.
 
-## Usage
+# Usage
 
-### Compiling TypeScript: `ts_library`
+## Compiling TypeScript: `ts_library`
 
 The `ts_library` rule invokes the TypeScript compiler on one compilation unit,
 or "library" (generally one directory of source files).
@@ -175,7 +175,7 @@ directory. See the notes about the `tsconfig` attribute in the [ts_library API d
 
 [ts_library API docs]: http://tsetse.info/api/build_defs.html#ts_library
 
-### Serving TypeScript for development
+## Serving TypeScript for development
 
 There are two choices for development mode:
 
@@ -269,3 +269,5 @@ At some point, we plan to release a tool similar to [gazelle] to generate the
 BUILD files from your source code.
 
 [gazelle]: https://github.com/bazelbuild/rules_go/tree/master/go/tools/gazelle
+
+# API documentation

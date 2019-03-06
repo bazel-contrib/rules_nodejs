@@ -1,35 +1,11 @@
-load("@io_bazel_skydoc//skylark:skylark.bzl", "skylark_doc")
 load("@io_bazel_skydoc//stardoc:stardoc.bzl", "stardoc")
 
 exports_files(["install.md"])
 
-skylark_doc(
-    name = "docs",
-    srcs = [
-        "//internal:build_defs.bzl",
-        "//internal:ts_config.bzl",
-        "//internal:ts_repositories.bzl",
-        "//internal/devserver:ts_devserver.bzl",
-        "//internal/protobufjs:ts_proto_library.bzl",
-    ],
-    format = "markdown",
-    visibility = ["//:__subpackages__"],
-)
-
 stardoc(
-    name = "index_docs",
+    name = "docs",
     out = "index.md",
-    input = "//:index.bzl",
-    # This list is copied from index.bzl re-exports.
-    # Stardoc ought to be able to do this...
-    # symbol_names = [
-    #     "check_rules_typescript_version",
-    #     "ts_setup_workspace",
-    #     "ts_library",
-    #     "ts_config",
-    #     "ts_devserver",
-    #     "ts_proto_library",
-    # ],
+    input = "//:index.docs.bzl",
     visibility = ["//:__subpackages__"],
     deps = ["//:bzl"],
 )

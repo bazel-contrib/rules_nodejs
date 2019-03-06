@@ -30,11 +30,7 @@ bzl_library(
     ],
 )
 
-exports_files([
-    "launcher_template.sh",
-    # Exported to be consumed for generating skydoc.
-    "ts_devserver.bzl",
-])
+exports_files(["launcher_template.sh"])
 
 filegroup(
     name = "source_tree",

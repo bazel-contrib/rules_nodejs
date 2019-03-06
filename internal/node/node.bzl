@@ -322,8 +322,9 @@ nodejs_binary = rule(
     attrs = _NODEJS_EXECUTABLE_ATTRS,
     executable = True,
     outputs = _NODEJS_EXECUTABLE_OUTPUTS,
-    doc = "Runs some JavaScript code in NodeJS.",
 )
+"""Runs some JavaScript code in NodeJS.
+"""
 
 nodejs_test = rule(
     implementation = _nodejs_binary_impl,
@@ -335,7 +336,8 @@ nodejs_test = rule(
     }),
     test = True,
     outputs = _NODEJS_EXECUTABLE_OUTPUTS,
-    doc = """
+)
+"""
 Identical to `nodejs_binary`, except this can be used with `bazel test` as well.
 When the binary returns zero exit code, the test passes; otherwise it fails.
 
@@ -357,8 +359,7 @@ test:debug --test_arg=--node_options=--inspect-brk --test_output=streamed --test
 Now you can add `--config=debug` to any `bazel test` command line.
 The runtime will pause before executing the program, allowing you to connect a
 remote debugger.
-""",
-)
+"""
 
 def nodejs_binary_macro(name, data = [], args = [], visibility = None, tags = [], testonly = 0, **kwargs):
     """This macro exists only to wrap the nodejs_binary as an .exe for Windows.

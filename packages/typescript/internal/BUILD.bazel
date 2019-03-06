@@ -18,13 +18,7 @@ load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 
 package(default_visibility = ["//visibility:public"])
 
-exports_files([
-    # Exported to be consumed for generating skydoc.
-    "build_defs.bzl",
-    "ts_config.bzl",
-    "ts_repositories.bzl",
-    "tsetse/tsconfig.json",
-])
+exports_files(["tsetse/tsconfig.json"])
 
 bzl_library(
     name = "bzl",
@@ -32,9 +26,10 @@ bzl_library(
         ["*.bzl"],
         exclude = ["internal_*"],
     ),
-    visibility = ["//:__pkg__"],
+    visibility = ["//:__subpackages__"],
     deps = [
         "@build_bazel_rules_nodejs//:bzl",
+        "@build_bazel_rules_nodejs//internal/common:bzl",
         "@build_bazel_rules_typescript//internal:bzl",
     ],
 )

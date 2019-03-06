@@ -259,11 +259,6 @@ def _ts_library_impl(ctx):
     )
     return ts_providers_dict_to_struct(ts_providers)
 
-local_deps_aspects = [collect_node_modules_aspect]
-
-# Workaround skydoc bug which assumes DEPS_ASPECTS is a str type
-[local_deps_aspects.append(a) for a in DEPS_ASPECTS]
-
 ts_library = rule(
     _ts_library_impl,
     attrs = dict(COMMON_ATTRIBUTES, **{
@@ -387,7 +382,7 @@ either:
             doc = "If using tsickle, instruct it to translate types to ClosureJS format",
         ),
         "deps": attr.label_list(
-            aspects = local_deps_aspects,
+            aspects = DEPS_ASPECTS + [collect_node_modules_aspect],
             doc = "Compile-time dependencies, typically other ts_library targets",
         ),
     }),

@@ -1,5 +1,15 @@
 workspace(name = "npm_bazel_labs")
 
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+# Since we use a source distribution of rules_nodejs, the bzl_library targets aren't stripped
+http_archive(
+    name = "bazel_skylib",
+    sha256 = "54ee22e5b9f0dd2b42eb8a6c1878dee592cfe8eb33223a7dbbc583a383f6ee1a",
+    strip_prefix = "bazel-skylib-0.6.0",
+    url = "https://github.com/bazelbuild/bazel-skylib/archive/0.6.0.zip",
+)
+
 local_repository(
     name = "build_bazel_rules_nodejs",
     path = "../..",

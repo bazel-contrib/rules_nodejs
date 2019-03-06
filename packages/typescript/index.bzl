@@ -32,4 +32,4 @@ ts_devserver = _ts_devserver
 
 ts_proto_library = _ts_proto_library
 # DO NOT ADD MORE rules here unless they appear in the generated docsite.
-# Run yarn skydoc to re-generate the docsite.
+# Run bazel build :generate_README to re-generate the docsite.

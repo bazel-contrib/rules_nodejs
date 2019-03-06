@@ -1,6 +1,6 @@
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
-load("@build_bazel_rules_nodejs//:defs.bzl", "npm_package")
+load("@build_bazel_rules_nodejs//:defs.bzl", "COMMON_REPLACEMENTS", "npm_package")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -9,7 +9,7 @@ exports_files(["tsconfig.json"])
 bzl_library(
     name = "bzl",
     srcs = ["defs.bzl"],
-    visibility = ["//visibility:public"],  #["@npm_bazel_typescript//:__subpackages__"],
+    visibility = ["//visibility:public"],
     deps = [
         "//internal/history-server:bzl",
         "//internal/http-server:bzl",
@@ -38,6 +38,7 @@ npm_package(
     # Don't replace the default 0.0.0-PLACEHOLDER for this npm_package since
     # we are packaging up the packager itself and this replacement will break it
     replace_with_version = "",
+    replacements = COMMON_REPLACEMENTS,
     deps = [
         "//third_party/github.com/bazelbuild/bazel-skylib:package_contents",
         "//third_party/github.com/buffer-from:package_contents",
@@ -69,6 +70,7 @@ npm_package(
     # Don't replace the default 0.0.0-PLACEHOLDER for this npm_package since
     # we are packaging up the packager itself and this replacement will break it
     replace_with_version = "",
+    replacements = COMMON_REPLACEMENTS,
 )
 
 # This artifact is published to GitHub along with each release

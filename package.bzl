@@ -17,6 +17,7 @@
 Fulfills similar role as the package.json file.
 """
 
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 def rules_nodejs_dependencies():
@@ -48,19 +49,26 @@ def rules_nodejs_dev_dependencies():
         sha256 = "894d7928df8da85e263d743c8434d4c10ab0a3f0708fed0d53394e688e3faf70",
     )
 
-    http_archive(
-        name = "io_bazel_skydoc",
-        url = "https://github.com/bazelbuild/skydoc/archive/1cdb612e31448c2f6eb25b8aa67d406152275482.zip",
-        strip_prefix = "skydoc-1cdb612e31448c2f6eb25b8aa67d406152275482",
-        sha256 = "282ab93ea7477ad703b3e8108a274c21344c3b59ee4e5b1e6a89cdbe3ecbe68f",
+    # Needed for stardoc
+    git_repository(
+        name = "io_bazel",
+        commit = "1488f91fec238adacbd0517fcee15d8ec0599b8d",
+        remote = "https://github.com/bazelbuild/bazel.git",
     )
 
-    # Fetching the Bazel source code allows us to compile the Skylark linter
     http_archive(
-        name = "io_bazel",
-        url = "https://github.com/bazelbuild/bazel/archive/0.17.2.zip",
-        strip_prefix = "bazel-0.17.2",
-        sha256 = "a6d7ae3939e7bb2e410949adab8aa2759eda0b017bf5fc18658dc635552ce56e",
+        name = "com_google_protobuf",
+        sha256 = "9510dd2afc29e7245e9e884336f848c8a6600a14ae726adb6befdb4f786f0be2",
+        strip_prefix = "protobuf-3.6.1.3",
+        type = "zip",
+        # v3.6.1.3 as of 2019-01-15
+        urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.6.1.3.zip"],
+    )
+
+    git_repository(
+        name = "io_bazel_skydoc",
+        remote = "https://github.com/bazelbuild/skydoc.git",
+        commit = "13063139c7c2bca7c725f382fa1e78bdfe93c887",
     )
 
     # Needed for Remote Build Execution
