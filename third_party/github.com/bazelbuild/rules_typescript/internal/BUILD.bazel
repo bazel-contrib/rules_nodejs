@@ -15,17 +15,25 @@
 # gazelle:exclude worker_protocol.proto
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test", "nodejs_binary")
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("//internal:defaults.bzl", "ts_library")
 
 package(default_visibility = ["//visibility:public"])
 
 exports_files([
     # Exported to be consumed for generating skydoc.
+    # TODO(alexeagle): remove this after migration to stardoc
     "build_defs.bzl",
     "ts_config.bzl",
     "ts_repositories.bzl",
     "tsetse/tsconfig.json",
 ])
+
+bzl_library(
+    name = "bzl",
+    srcs = glob(["common/*.bzl"]),
+    visibility = ["//visibility:public"],
+)
 
 # Vanilla typescript compiler: run the tsc.js binary distributed by TypeScript
 nodejs_binary(
