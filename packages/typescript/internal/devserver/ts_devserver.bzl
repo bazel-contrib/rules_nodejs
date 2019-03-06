@@ -138,8 +138,8 @@ ts_devserver = rule(
     implementation = _ts_devserver,
     attrs = {
         "additional_root_paths": attr.string_list(
-            doc = """Additional root paths to serve static_files from.
-            Paths should include the workspace name such as [\"__main__/resources\"]
+            doc = """Additional root paths to serve `static_files` from.
+            Paths should include the workspace name such as `["__main__/resources"]`
             """,
         ),
         "bootstrap": attr.label_list(
@@ -151,8 +151,8 @@ ts_devserver = rule(
             allow_files = True,
         ),
         "entry_module": attr.string(
-            doc = """The entry_module should be the AMD module name of the entry module such as `"__main__/src/index"`
-            ts_devserver concats the following snippet after the bundle to load the application:
+            doc = """The `entry_module` should be the AMD module name of the entry module such as `"__main__/src/index".`
+            `ts_devserver` concats the following snippet after the bundle to load the application:
             `require(["entry_module"]);`
             """,
         ),
