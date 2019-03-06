@@ -31,7 +31,7 @@ local_repository(
 # local_repository(path = "../../../rules_typescript",
 git_repository(
     name = "build_bazel_rules_typescript",
-    commit = "94cfb6dc4d9695d0eac4d9ea30795410200f4eb7",
+    commit = "023eb7b1db1eff0231d37352ea80c01d380952d7",
     remote = "http://github.com/bazelbuild/rules_typescript.git",
 )
 
