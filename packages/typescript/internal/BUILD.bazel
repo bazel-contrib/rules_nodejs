@@ -14,6 +14,8 @@
 
 # gazelle:exclude worker_protocol.proto
 
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+
 package(default_visibility = ["//visibility:public"])
 
 exports_files([
@@ -23,6 +25,19 @@ exports_files([
     "ts_repositories.bzl",
     "tsetse/tsconfig.json",
 ])
+
+bzl_library(
+    name = "bzl",
+    srcs = glob(
+        ["*.bzl"],
+        exclude = ["internal_*"],
+    ),
+    visibility = ["//:__pkg__"],
+    deps = [
+        "@build_bazel_rules_nodejs//:bzl",
+        "@build_bazel_rules_typescript//internal:bzl",
+    ],
+)
 
 # We don't need to distribute any of the content of the BUILD.bazel file in this package
 # So generate an empty marker file

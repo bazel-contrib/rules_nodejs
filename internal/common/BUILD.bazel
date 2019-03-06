@@ -12,12 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+
 licenses(["notice"])  # Apache 2.0
 
 package(default_visibility = ["//internal:__subpackages__"])
 
 # Exported to be consumed for generating skydoc.
 exports_files(["check_bazel_version.bzl"])
+
+bzl_library(
+    name = "bzl",
+    srcs = glob(["*.bzl"]),
+    visibility = ["//visibility:public"],  #["@npm_bazel_typescript//:__subpackages__"],
+)
 
 py_test(
     name = "check_version_test",

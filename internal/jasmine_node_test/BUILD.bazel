@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+
 package(default_visibility = ["//visibility:public"])
 
 exports_files([
@@ -19,6 +21,15 @@ exports_files([
     # Exported to be consumed for generating skydoc.
     "jasmine_node_test.bzl",
 ])
+
+bzl_library(
+    name = "bzl",
+    srcs = glob(["*.bzl"]),
+    visibility = ["//visibility:public"],  #["@npm_bazel_typescript//:__subpackages__"],
+    deps = [
+        #    "//internal/node:bzl",
+    ],
+)
 
 filegroup(
     name = "package_contents",

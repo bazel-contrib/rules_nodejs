@@ -18,35 +18,6 @@ Fulfills similar role as the package.json file.
 """
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-load("//internal/common:check_version.bzl", "check_version")
-
-# This version is synced with the version in package.json.
-# It will be automatically synced via the npm "version" script
-# that is run when running `npm version` during the release
-# process. See `Releasing` section in README.md.
-VERSION = "0.26.0-beta.0"
-
-def check_rules_nodejs_version(minimum_version_string):
-    """
-    Verify that a minimum build_bazel_rules_nodejs is loaded a WORKSPACE.
-
-    This should be called from the `WORKSPACE` file so that the build fails as
-    early as possible. For example:
-
-    ```
-    # in WORKSPACE:
-    load("@build_bazel_rules_nodejs//:package.bzl", "check_rules_nodejs_version")
-    check_rules_nodejs_version("0.11.2")
-    ```
-
-    Args:
-      minimum_version_string: a string indicating the minimum version
-    """
-    if not check_version(VERSION, minimum_version_string):
-        fail("\nCurrent build_bazel_rules_nodejs version is {}, expected at least {}\n".format(
-            VERSION,
-            minimum_version_string,
-        ))
 
 def rules_nodejs_dependencies():
     print("""DEPRECATION WARNING:

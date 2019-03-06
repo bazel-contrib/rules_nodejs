@@ -15,6 +15,7 @@
 """Package file which defines npm_bazel_typescript dependencies
 """
 
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 def rules_typescript_dependencies():
@@ -103,11 +104,10 @@ def rules_typescript_dev_dependencies():
         sha256 = "894d7928df8da85e263d743c8434d4c10ab0a3f0708fed0d53394e688e3faf70",
     )
 
-    http_archive(
+    git_repository(
         name = "io_bazel_skydoc",
-        url = "https://github.com/bazelbuild/skydoc/archive/82fdbfe797c6591d8732df0c0389a2b1c3e50992.zip",  # 2018-12-12
-        strip_prefix = "skydoc-82fdbfe797c6591d8732df0c0389a2b1c3e50992",
-        sha256 = "75fd965a71ca1f0d0406d0d0fb0964d24090146a853f58b432761a1a6c6b47b9",
+        remote = "https://github.com/bazelbuild/skydoc.git",
+        commit = "13063139c7c2bca7c725f382fa1e78bdfe93c887",
     )
 
 def _maybe(repo_rule, name, **kwargs):

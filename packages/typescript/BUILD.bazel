@@ -12,7 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@build_bazel_rules_nodejs//:defs.bzl", "npm_package")
+
+bzl_library(
+    name = "bzl",
+    srcs = glob(["*.bzl"]),
+    visibility = ["//docs:__pkg__"],
+    deps = [
+        "//internal:bzl",
+        "//internal/devserver:bzl",
+        "//internal/protobufjs:bzl",
+        "@build_bazel_rules_nodejs//internal/common:bzl",
+    ],
+)
+
+exports_files([
+    "index.bzl",  # For generating documentation
+])
 
 genrule(
     name = "copy_LICENSE",
@@ -34,14 +51,11 @@ genrule(
 genrule(
     name = "generate_README",
     srcs = [
-        "//docs",
+        "//docs:index.md",
         "//docs:install.md",
-        "@build_bazel_rules_typescript//internal:common/compilation.bzl",
     ],
     outs = ["README.md"],
-    cmd = """unzip -o -d docs $(location //docs:docs) \
-        && cp docs/install.md $@ \
-        && find docs/internal -name *.md | xargs cat | sed 's/^##/\\\n##/' >> $@""",
+    cmd = """cat docs/install.md $(location //docs:index.md) > $@""",
 )
 
 npm_package(
