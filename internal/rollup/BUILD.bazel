@@ -90,9 +90,9 @@ jasmine_node_test(
         "@npm//is-builtin-module",
         "@npm//jasmine",
         "@npm//rollup",
+        "@npm//rollup-plugin-commonjs",
         "@npm//rollup-plugin-node-resolve",
         "@npm//rollup-plugin-sourcemaps",
-        "@npm//rollup-plugin-commonjs",
     ],
 )
 
