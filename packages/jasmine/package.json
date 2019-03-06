@@ -3,7 +3,14 @@
     "description": "Run Jasmine tests under Bazel",
     "license": "Apache 2.0",
     "version": "0.0.0-PLACEHOLDER",
-    "homepage": "https://github.com/bazelbuild/rules_nodejs/packages/jasmine",
+    "repository": {
+        "type" : "git",
+        "url" : "https://github.com/bazelbuild/rules_nodejs.git",
+        "directory": "packages/jasmine"
+    },
+    "bugs": {
+        "url": "https://github.com/bazelbuild/rules_nodejs/issues"
+    },
     "dependencies": {
         "jasmine": "~3.3.1"
     },

@@ -277,15 +277,15 @@ ts_library = rule(
         ),
         "compiler": attr.label(
             doc = """Sets a different TypeScript compiler binary to use for this library.
-            For example, we use the vanilla TypeScript tsc.js for bootstrapping,
-            and Angular compilations can replace this with `ngc`.
+For example, we use the vanilla TypeScript tsc.js for bootstrapping,
+and Angular compilations can replace this with `ngc`.
 
-            The default ts_library compiler depends on the `@npm//@bazel/typescript`
-            target which is setup for projects that use bazel managed npm deps that
-            fetch the @bazel/typescript npm package. It is recommended that you use
-            the workspace name `@npm` for bazel managed deps so the default
-            compiler works out of the box. Otherwise, you'll have to override
-            the compiler attribute manually.
+The default ts_library compiler depends on the `@npm//@bazel/typescript`
+target which is setup for projects that use bazel managed npm deps that
+fetch the @bazel/typescript npm package. It is recommended that you use
+the workspace name `@npm` for bazel managed deps so the default
+compiler works out of the box. Otherwise, you'll have to override
+the compiler attribute manually.
             """,
             default = Label(_DEFAULT_COMPILER),
             allow_files = True,
@@ -296,63 +296,63 @@ ts_library = rule(
         "node_modules": attr.label(
             doc = """The npm packages which should be available during the compile.
 
-            The default value is `@npm//typescript:typescript__typings` is setup
-            for projects that use bazel managed npm deps that. It is recommended
-            that you use the workspace name `@npm` for bazel managed deps so the
-            default node_modules works out of the box. Otherwise, you'll have to
-            override the node_modules attribute manually. This default is in place
-            since ts_library will always depend on at least the typescript
-            default libs which are provided by `@npm//typescript:typescript__typings`.
+The default value is `@npm//typescript:typescript__typings` is setup
+for projects that use bazel managed npm deps that. It is recommended
+that you use the workspace name `@npm` for bazel managed deps so the
+default node_modules works out of the box. Otherwise, you'll have to
+override the node_modules attribute manually. This default is in place
+since ts_library will always depend on at least the typescript
+default libs which are provided by `@npm//typescript:typescript__typings`.
 
-            This attribute is DEPRECATED. As of version 0.18.0 the recommended
-            approach to npm dependencies is to use fine grained npm dependencies
-            which are setup with the `yarn_install` or `npm_install` rules.
+This attribute is DEPRECATED. As of version 0.18.0 the recommended
+approach to npm dependencies is to use fine grained npm dependencies
+which are setup with the `yarn_install` or `npm_install` rules.
 
-            For example, in targets that used a `//:node_modules` filegroup,
+For example, in targets that used a `//:node_modules` filegroup,
 
-            ```
-            ts_library(
-              name = "my_lib",
-              ...
-              node_modules = "//:node_modules",
-            )
-            ```
+```
+ts_library(
+    name = "my_lib",
+    ...
+    node_modules = "//:node_modules",
+)
+```
 
-            which specifies all files within the `//:node_modules` filegroup
-            to be inputs to the `my_lib`. Using fine grained npm dependencies,
-            `my_lib` is defined with only the npm dependencies that are
-            needed:
+which specifies all files within the `//:node_modules` filegroup
+to be inputs to the `my_lib`. Using fine grained npm dependencies,
+`my_lib` is defined with only the npm dependencies that are
+needed:
 
-            ```
-            ts_library(
-              name = "my_lib",
-              ...
-              deps = [
-                  "@npm//@types/foo",
-                  "@npm//@types/bar",
-                  "@npm//foo",
-                  "@npm//bar",
-                  ...
-              ],
-            )
-            ```
+```
+ts_library(
+    name = "my_lib",
+    ...
+    deps = [
+        "@npm//@types/foo",
+        "@npm//@types/bar",
+        "@npm//foo",
+        "@npm//bar",
+        ...
+    ],
+)
+```
 
-            In this case, only the listed npm packages and their
-            transitive deps are includes as inputs to the `my_lib` target
-            which reduces the time required to setup the runfiles for this
-            target (see https://github.com/bazelbuild/bazel/issues/5153).
-            The default typescript libs are also available via the node_modules
-            default in this case.
+In this case, only the listed npm packages and their
+transitive deps are includes as inputs to the `my_lib` target
+which reduces the time required to setup the runfiles for this
+target (see https://github.com/bazelbuild/bazel/issues/5153).
+The default typescript libs are also available via the node_modules
+default in this case.
 
-            The @npm external repository and the fine grained npm package
-            targets are setup using the `yarn_install` or `npm_install` rule
-            in your WORKSPACE file:
+The @npm external repository and the fine grained npm package
+targets are setup using the `yarn_install` or `npm_install` rule
+in your WORKSPACE file:
 
-            yarn_install(
-              name = "npm",
-              package_json = "//:package.json",
-              yarn_lock = "//:yarn.lock",
-            )
+yarn_install(
+    name = "npm",
+    package_json = "//:package.json",
+    yarn_lock = "//:yarn.lock",
+)
             """,
             default = Label("@npm//typescript:typescript__typings"),
         ),
@@ -372,13 +372,13 @@ ts_library = rule(
             Note that some properties in the tsconfig are governed by Bazel and will be
             overridden, such as `target` and `module`.
 
-            The default value is set to `//:tsconfig.json` by a macro. This means you must
-            either:
+The default value is set to `//:tsconfig.json` by a macro. This means you must
+either:
 
-            - Have your `tsconfig.json` file in the workspace root directory
-            - Use an alias in the root BUILD.bazel file to point to the location of tsconfig:
-              `alias(name="tsconfig.json", actual="//path/to:tsconfig-something.json")`
-            - Give an explicit `tsconfig` attribute to all `ts_library` targets
+- Have your `tsconfig.json` file in the workspace root directory
+- Use an alias in the root BUILD.bazel file to point to the location of tsconfig:
+    `alias(name="tsconfig.json", actual="//path/to:tsconfig-something.json")`
+- Give an explicit `tsconfig` attribute to all `ts_library` targets
             """,
             allow_single_file = True,
         ),
