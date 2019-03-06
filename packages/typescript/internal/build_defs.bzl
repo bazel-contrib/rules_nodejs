@@ -394,13 +394,13 @@ either:
     outputs = {
         "tsconfig": "%{name}_tsconfig.json",
     },
-)
-"""
+    doc = """
 `ts_library` type-checks and compiles a set of TypeScript sources to JavaScript.
 
 It produces declarations files (`.d.ts`) which are used for compiling downstream
 TypeScript targets and JavaScript for the browser and Closure compiler.
-"""
+""",
+)
 
 def ts_library_macro(tsconfig = None, **kwargs):
     """Wraps `ts_library` to set the default for the `tsconfig` attribute.

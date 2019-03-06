@@ -20,7 +20,7 @@
 # TypeScript compiler and to editors.
 #
 
-"""Apsect to collect es5 js sources from deps.
+"""Aspect to collect es5 js sources from deps.
 """
 
 def _sources_aspect_impl(target, ctx):

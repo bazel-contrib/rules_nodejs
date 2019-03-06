@@ -55,7 +55,7 @@ genrule(
         "//docs:install.md",
     ],
     outs = ["README.md"],
-    cmd = """cat docs/install.md $(location //docs:index.md) > $@""",
+    cmd = """cat docs/install.md $(location //docs:index.md) | sed 's/^##/\\\n##/' > $@""",
 )
 
 npm_package(

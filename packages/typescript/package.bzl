@@ -43,14 +43,6 @@ def rules_typescript_dev_dependencies():
         sha256 = "c8cd6a77433f7d3bb1f4ac87f15822aa102989f8e9eb1907ca0cad718573985b",
     )
 
-    # For running skylint
-    _maybe(
-        http_archive,
-        name = "io_bazel",
-        urls = ["https://github.com/bazelbuild/bazel/releases/download/0.21.0/bazel-0.21.0-dist.zip"],
-        sha256 = "6ccb831e683179e0cfb351cb11ea297b4db48f9eab987601c038aa0f83037db4",
-    )
-
     # For building ts_devserver and ts_auto_deps binaries
     # See https://github.com/bazelbuild/rules_go#setup for the latest version.
     _maybe(
