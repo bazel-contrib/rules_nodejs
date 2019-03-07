@@ -61,7 +61,7 @@
         }
     },
     "scripts": {
-        "test": "bazel build //...",
+        "test": "bazel test //...",
         "// TODO": "port remaining e2e tests from rules_typescript"
     }
 }
