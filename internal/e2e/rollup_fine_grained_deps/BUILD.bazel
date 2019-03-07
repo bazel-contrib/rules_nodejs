@@ -94,30 +94,3 @@ nodejs_binary(
     entry_point = "build_bazel_rules_nodejs/internal/e2e/rollup_fine_grained_deps/update_golden.js",
     install_source_map_support = False,
 )
-
-
-
-# jasmine_node_test(
-#     name = "test",
-#     srcs = glob(["*.spec.js"]),
-#     data = [
-#         ":bundle.es2015.js",
-#         ":bundle.js",
-#         ":bundle.min.js",
-#         ":bundle.min_debug.js",
-#         ":bundle_hybrid.es2015.js",
-#         ":bundle_hybrid.js",
-#         ":bundle_hybrid.min.js",
-#         ":bundle_hybrid.min_debug.js",
-#         ":bundle_legacy.es2015.js",
-#         ":bundle_legacy.js",
-#         ":bundle_legacy.min.js",
-#         ":bundle_legacy.min_debug.js",
-#         ":bundle_no_deps.es2015.js",
-#         ":bundle_no_deps.js",
-#         ":bundle_no_deps.min.js",
-#         ":bundle_no_deps.min_debug.js",
-#         "@fine_grained_deps_yarn//@gregmagolan/test-a",
-#         "@fine_grained_deps_yarn//jasmine",
-#     ],
-# )
