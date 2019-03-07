@@ -1,0 +1,4 @@
+var bundle_no_deps = function() {
+    "use strict";
+    return "no-deps";
+}();
