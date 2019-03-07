@@ -15,5 +15,5 @@ readonly TMP=$(mktemp -d -t bazel-release.XXXXXXX)
 
 for pkg in jasmine typescript karma labs; do (
     cd packages/$pkg
-    bazel --output_base=$TMP run  --workspace_status_command=../../tools/current_version.sh //:npm_package.${NPM_COMMAND}
+    ../../node_modules/.bin/bazel --output_base=$TMP run  --workspace_status_command=../../tools/current_version.sh //:npm_package.${NPM_COMMAND}
 ) done
