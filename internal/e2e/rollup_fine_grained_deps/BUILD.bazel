@@ -61,7 +61,7 @@ filegroup(
         ":bundle_no_deps.js",
         ":bundle_no_deps.min.js",
         ":bundle_no_deps.min_debug.js",
-    ]
+    ],
 )
 
 filegroup(
@@ -73,9 +73,9 @@ jasmine_node_test(
     name = "test",
     srcs = glob(["*.spec.js"]),
     data = [
+        ":bundles",
         ":check.js",
         ":goldens",
-        ":bundles",
         "//internal/npm_install:generate_build_file",
         "@npm//jasmine",
         "@npm//unidiff",
@@ -85,9 +85,9 @@ jasmine_node_test(
 nodejs_binary(
     name = "test.accept",
     data = [
+        ":bundles",
         ":check.js",
         ":goldens",
-        ":bundles",
         ":update_golden.js",
         "//internal/npm_install:generate_build_file",
         "@npm//jasmine",
