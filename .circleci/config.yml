@@ -130,9 +130,8 @@ jobs:
   # This job cannot run on BuildKite (BazelCI) because it requires changing
   # directories to test inside nested workspaces.
   # See https://github.com/bazelbuild/continuous-integration/issues/225
-  test_e2e:
+  test_e2e_legacy:
     <<: *job_defaults
-    resource_class: xlarge
     environment:
       CHROMEDRIVER_VERSION_ARG: --versions.chrome 2.41
     steps:
@@ -142,11 +141,25 @@ jobs:
 
       # Not using "bazel run @nodejs//:yarn test" as will attempt to run
       # the "test" script on all folder listed in node_repositories()
+      # These e2e tests are in the process of being moved to /e2e
       - run: yarn test:e2e
 
-      # e2e tests are in the process of being moved to /e2e
-      # some e2e tests such as ts_devserver require xvfb
-      - run: xvfb-run -a ./e2e/test.sh
+  # This job cannot run on BuildKite (BazelCI) because it requires changing
+  # directories to test inside nested workspaces.
+  # See https://github.com/bazelbuild/continuous-integration/issues/225
+  test_e2e:
+    <<: *job_defaults
+    resource_class: xlarge
+    parallelism: 4
+    environment:
+      CHROMEDRIVER_VERSION_ARG: --versions.chrome 2.41
+    steps:
+      - checkout:
+          <<: *post_checkout
+      - *setup_bazelrc
+
+      # Some e2e tests such as ts_devserver require xvfb
+      - run: xvfb-run -a ./e2e/test.sh ${CIRCLE_NODE_INDEX} ${CIRCLE_NODE_TOTAL}
 
   # This job cannot run on BuildKite (BazelCI) because it requires changing
   # directories to test inside nested workspaces.
@@ -204,6 +217,7 @@ workflows:
       - build
       - test_examples
       - test_e2e
+      - test_e2e_legacy
       - test_legacy_runfiles
       - test_karma
       - test_typescript
