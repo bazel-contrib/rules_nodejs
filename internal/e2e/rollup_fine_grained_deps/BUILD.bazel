@@ -15,6 +15,7 @@ rollup_bundle(
     srcs = ["has-deps.js"],
     entry_point = "internal/e2e/rollup_fine_grained_deps/has-deps.js",
     deps = [
+        "@fine_grained_deps_yarn//@gregmagolan/test-a",
         "@fine_grained_deps_yarn//@gregmagolan/test-b",
     ],
 )
@@ -36,6 +37,7 @@ rollup_bundle(
     entry_point = "internal/e2e/rollup_fine_grained_deps/has-deps.js",
     node_modules = "@fine_grained_deps_yarn//:node_modules",
     deps = [
+        "@fine_grained_deps_yarn//@gregmagolan/test-a",
         "@fine_grained_deps_yarn//@gregmagolan/test-b",
     ],
 )
