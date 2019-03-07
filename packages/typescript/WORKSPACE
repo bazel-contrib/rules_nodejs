@@ -30,11 +30,11 @@ git_repository(
 )
 
 # Needed for stardoc
-# git_repository(
-#     name = "io_bazel",
-#     commit = "1488f91fec238adacbd0517fcee15d8ec0599b8d",
-#     remote = "https://github.com/bazelbuild/bazel.git",
-# )
+git_repository(
+    name = "io_bazel",
+    commit = "1488f91fec238adacbd0517fcee15d8ec0599b8d",
+    remote = "https://github.com/bazelbuild/bazel.git",
+)
 
 # We have a source dependency on build_bazel_rules_typescript
 # so we must repeat its transitive toolchain deps
