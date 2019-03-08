@@ -28,5 +28,5 @@ jasmine_node_test(
     name = "sharding_test",
     srcs = ["sharded_test.js"],
     jasmine = "@npm//jasmine",
-    shard_count = 2,
+    shard_count = 3,
 )
