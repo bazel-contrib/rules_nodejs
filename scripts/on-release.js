@@ -3,7 +3,7 @@
 // It also copies the release file to a filename matching the one we want to publish to GitHub.
 const fs = require('fs');
 const shell = require('shelljs');
-const version = require('./package.json').version;
+const version = require('../package.json').version;
 const artifact = 'bazel-bin/release.tar.gz';
 const hash = require('crypto').createHash('sha256');
 // TODO(alexeagle): consider streaming the bytes into the hash function, if this consumes too much
