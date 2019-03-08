@@ -1,11 +1,15 @@
 node_modules
+examples/program/node_modules
+internal/npm_install/test/package/node_modules
+dist
 # Each e2e test is a nested workspace
 e2e/
 # Examples are tested by running examples/test_example.sh outside of Bazel
 examples/
 # Each package is a nested workspace
 packages/
-internal/npm_install/test/package
+# A subset of legacy e2e tests are nested workspaces
+# TODO(gregmagolan): move these to /e2e
 internal/e2e/bazel_workspaces
 internal/e2e/bazel_workspaces_compat
 internal/e2e/fine_grained_symlinks

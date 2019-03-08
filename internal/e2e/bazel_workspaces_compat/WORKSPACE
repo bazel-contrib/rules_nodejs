@@ -2,16 +2,30 @@ workspace(name = "bazel_workspaces_compat")
 
 local_repository(
     name = "build_bazel_rules_nodejs",
-    path = "../../../bazel-bin/local_testing_package",
+    path = "../../../dist/build_bazel_rules_nodejs/release",
 )
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
 
 yarn_install(
     name = "npm",
-    # Need to a reference to this workspace in data so that
-    # the external/bazel_workspaces is setup before yarn_install runs
-    data = ["@bazel_workspaces_compat//:package.json"],
+    data = [
+        "@bazel_workspaces_compat//:npm/test_workspace_a/WORKSPACE",
+        "@bazel_workspaces_compat//:npm/test_workspace_a/package.json",
+        "@bazel_workspaces_compat//:npm/test_workspace_a/src/BUILD.bazel",
+        "@bazel_workspaces_compat//:npm/test_workspace_a/src/test.spec.js",
+        "@bazel_workspaces_compat//:npm/test_workspace_a/yarn.lock",
+        "@bazel_workspaces_compat//:npm/test_workspace_b/WORKSPACE",
+        "@bazel_workspaces_compat//:npm/test_workspace_b/package.json",
+        "@bazel_workspaces_compat//:npm/test_workspace_b/src/BUILD.bazel",
+        "@bazel_workspaces_compat//:npm/test_workspace_b/src/test.spec.js",
+        "@bazel_workspaces_compat//:npm/test_workspace_b/yarn.lock",
+        "@bazel_workspaces_compat//:npm/test_workspace_c/WORKSPACE",
+        "@bazel_workspaces_compat//:npm/test_workspace_c/package.json",
+        "@bazel_workspaces_compat//:npm/test_workspace_c/src/BUILD.bazel",
+        "@bazel_workspaces_compat//:npm/test_workspace_c/src/test.spec.js",
+        "@bazel_workspaces_compat//:npm/test_workspace_c/yarn.lock",
+    ],
     package_json = "//:package.json",
     yarn_lock = "//:yarn.lock",
 )

@@ -61,18 +61,6 @@ npm_package(
     ],
 )
 
-npm_package(
-    name = "local_testing_package",
-    testonly = 1,
-    # The WORKSPACE file isn't in the distribution, but is required for local_repository
-    srcs = ["WORKSPACE"],
-    packages = [":rules_nodejs_package"],
-    # Don't replace the default 0.0.0-PLACEHOLDER for this npm_package since
-    # we are packaging up the packager itself and this replacement will break it
-    replace_with_version = "",
-    replacements = COMMON_REPLACEMENTS,
-)
-
 # This artifact is published to GitHub along with each release
 pkg_tar(
     name = "release",

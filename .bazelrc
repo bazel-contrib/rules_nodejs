@@ -1,7 +1,7 @@
 # Print test logs for failed tests
 test --test_output=errors
 
-# Mock versoning command to test the --stamp behavior
+# Mock versioning command to test the --stamp behavior
 build --workspace_status_command="echo BUILD_SCM_VERSION 1.2.3"
 
 # Enable debugging tests with --config=debug

@@ -53,6 +53,12 @@ function main(args) {
     // Strip content between BEGIN-INTERNAL / END-INTERNAL comments
     [/(#|\/\/)\s+BEGIN-INTERNAL[\w\W]+?END-INTERNAL/g, ''],
   ];
+  const rawReplacements = JSON.parse(replacementsArg);
+  for (let key of Object.keys(rawReplacements)) {
+    replacements.push([new RegExp(key, 'g'), rawReplacements[key]])
+  }
+  // Replace version last so that earlier replacements can add
+  // the version placeholder
   if (replaceWithVersion) {
     let version = '0.0.0';
     if (stampFile) {
@@ -72,10 +78,6 @@ function main(args) {
       }
     }
     replacements.push([new RegExp(replaceWithVersion, 'g'), version]);
-  }
-  const rawReplacements = JSON.parse(replacementsArg);
-  for (let key of Object.keys(rawReplacements)) {
-    replacements.push([new RegExp(key, 'g'), rawReplacements[key]])
   }
 
   // src like baseDir/my/path is just copied to outDir/my/path

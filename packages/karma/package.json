@@ -34,8 +34,7 @@
     "tmp": "0.0.33"
   },
   "devDependencies": {
-    "@bazel/bazel": "~0.22.0",
-    "@bazel/typescript": "^0.25.1",
+    "@bazel/typescript": "bazel://@npm_bazel_typescript//:npm_package",
     "@types/node": "7.0.18",
     "jasmine-core": "2.8.0",
     "protobufjs": "5.0.3",
@@ -53,6 +52,7 @@
     }
   },
   "scripts": {
+    "pretest": "../../scripts/link_deps.sh",
     "test": "bazel build ..."
   }
 }
