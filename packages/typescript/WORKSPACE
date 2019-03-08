@@ -32,7 +32,7 @@ git_repository(
 # Needed for stardoc
 git_repository(
     name = "io_bazel",
-    commit = "1488f91fec238adacbd0517fcee15d8ec0599b8d",
+    commit = "6fbd12ee424795075936d565025a45cdde545d61",
     remote = "https://github.com/bazelbuild/bazel.git",
 )
 
