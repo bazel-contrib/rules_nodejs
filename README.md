@@ -40,8 +40,8 @@ See sections below for details and alternative methods.
     load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
     http_archive(
         name = "build_bazel_rules_nodejs",
-        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.27.2/rules_nodejs-0.27.2.tar.gz"],
-        sha256 = "0c68afae5b402980be8a4928d41a9f0360353a1b5839ca17f9d6db314f9b6bbe",
+        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.27.3/rules_nodejs-0.27.3.tar.gz"],
+        sha256 = "df4786a84a25d5b9f9eaaf9b5cac37fa1136f51c99fb0fbeed921204a1596c82",
     )
 
     load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
@@ -61,8 +61,8 @@ See sections below for details and alternative methods.
     load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
     http_archive(
         name = "build_bazel_rules_nodejs",
-        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.27.2/rules_nodejs-0.27.2.tar.gz"],
-        sha256 = "0c68afae5b402980be8a4928d41a9f0360353a1b5839ca17f9d6db314f9b6bbe",
+        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.27.3/rules_nodejs-0.27.3.tar.gz"],
+        sha256 = "df4786a84a25d5b9f9eaaf9b5cac37fa1136f51c99fb0fbeed921204a1596c82",
     )
 
     load("@build_bazel_rules_nodejs//:defs.bzl", "npm_install")
@@ -139,8 +139,8 @@ containing:
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 http_archive(
     name = "build_bazel_rules_nodejs",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.27.2/rules_nodejs-0.27.2.tar.gz"],
-    sha256 = "0c68afae5b402980be8a4928d41a9f0360353a1b5839ca17f9d6db314f9b6bbe",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.27.3/rules_nodejs-0.27.3.tar.gz"],
+    sha256 = "df4786a84a25d5b9f9eaaf9b5cac37fa1136f51c99fb0fbeed921204a1596c82",
 )
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
