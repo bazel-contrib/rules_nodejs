@@ -23,3 +23,10 @@ jasmine_node_test(
     srcs = ["foo.test.js"],
     jasmine = "@npm//jasmine",
 )
+
+jasmine_node_test(
+    name = "sharding_test",
+    srcs = ["sharded_test.js"],
+    jasmine = "@npm//jasmine",
+    shard_count = 2,
+)

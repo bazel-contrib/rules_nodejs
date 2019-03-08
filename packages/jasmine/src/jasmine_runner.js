@@ -35,6 +35,21 @@ const UTF8 = {
 const BAZEL_EXIT_TESTS_FAILED = 3;
 const BAZEL_EXIT_NO_TESTS_FOUND = 4;
 
+// Test sharding support
+// See https://docs.bazel.build/versions/master/test-encyclopedia.html#role-of-the-test-runner
+const TOTAL_SHARDS = process.env['TEST_TOTAL_SHARDS'];
+const SHARD_INDEX = process.env['TEST_SHARD_INDEX'];
+// Tell Bazel that this test runner supports sharding by updating the last modified date of the
+// magic file
+if (TOTAL_SHARDS) {
+  fs.open(process.env['TEST_SHARD_STATUS_FILE'], 'w', (err, fd) => {
+    if (err) throw err;
+    fs.close(fd, err => {
+      if (err) throw err;
+    });
+  });
+}
+
 // Set the StackTraceLimit to infinity. This will make stack capturing slower, but more useful.
 // Since we are running tests having proper stack traces is very useful and should be always set to
 // the maximum (See: https://nodejs.org/api/errors.html#errors_error_stacktracelimit)
@@ -78,8 +93,38 @@ function main(args) {
     process.exit(exitCode);
   });
 
-  jrunner.execute();
+  jrunner.loadSpecs();
+  const allSpecs = getAllSpecs(jasmine.getEnv());
+  if (TOTAL_SHARDS) {
+    // Partition the specs among the shards.
+    // This ensures that the specs are evenly divided over the shards.
+    // Also it keeps specs in the same order and prefers to keep specs grouped together.
+    // This way, common beforeEach/beforeAll setup steps aren't repeated as much over different
+    // shards.
+    const start = allSpecs.length * SHARD_INDEX / TOTAL_SHARDS;
+    const end = allSpecs.length * (SHARD_INDEX + 1) / TOTAL_SHARDS;
+    jasmine.getEnv().execute(allSpecs.slice(start, end));
+  } else {
+    jasmine.getEnv().execute(allSpecs);
+  }
   return 0;
+}
+
+function getAllSpecs(jasmineEnv) {
+  var specs = [];
+
+  // Walk the test suite tree depth first and collect all test specs
+  var stack = [jasmineEnv.topSuite()];
+  var currentNode;
+  while (currentNode = stack.pop()) {
+    if (currentNode instanceof jasmine.Spec) {
+      specs.unshift(currentNode);
+    } else if (currentNode instanceof jasmine.Suite) {
+      stack = stack.concat(currentNode.children);
+    }
+  }
+
+  return specs.map(s => s.id);
 }
 
 if (require.main === module) {
