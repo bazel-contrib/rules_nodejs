@@ -35,13 +35,7 @@ def rules_nodejs_dev_dependencies():
     shorter.
     """
 
-    http_archive(
-        name = "com_github_bazelbuild_buildtools",
-        url = "https://github.com/bazelbuild/buildtools/archive/0.15.0.zip",
-        strip_prefix = "buildtools-0.15.0",
-        sha256 = "76d1837a86fa6ef5b4a07438f8489f00bfa1b841e5643b618e01232ba884b1fe",
-    )
-
+    # Dependencies for generating documentation
     http_archive(
         name = "io_bazel_rules_sass",
         url = "https://github.com/bazelbuild/rules_sass/archive/8ccf4f1c351928b55d5dddf3672e3667f6978d60.zip",  # 2018-11-23
@@ -65,10 +59,18 @@ def rules_nodejs_dev_dependencies():
         urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.6.1.3.zip"],
     )
 
-    git_repository(
+    http_archive(
         name = "io_bazel_skydoc",
-        remote = "https://github.com/bazelbuild/skydoc.git",
-        commit = "13063139c7c2bca7c725f382fa1e78bdfe93c887",
+        sha256 = "75fd965a71ca1f0d0406d0d0fb0964d24090146a853f58b432761a1a6c6b47b9",
+        strip_prefix = "skydoc-82fdbfe797c6591d8732df0c0389a2b1c3e50992",
+        url = "https://github.com/bazelbuild/skydoc/archive/82fdbfe797c6591d8732df0c0389a2b1c3e50992.zip",  # 2018-12-12
+    )
+
+    http_archive(
+        name = "bazel_skylib",
+        url = "https://github.com/bazelbuild/bazel-skylib/archive/0.6.0.zip",
+        strip_prefix = "bazel-skylib-0.6.0",
+        sha256 = "54ee22e5b9f0dd2b42eb8a6c1878dee592cfe8eb33223a7dbbc583a383f6ee1a",
     )
 
     # Needed for Remote Build Execution
@@ -81,13 +83,6 @@ def rules_nodejs_dev_dependencies():
             "https://mirror.bazel.build/github.com/bazelbuild/bazel-toolchains/archive/d665ccfa3e9c90fa789671bf4ef5f7c19c5715c4.tar.gz",
             "https://github.com/bazelbuild/bazel-toolchains/archive/d665ccfa3e9c90fa789671bf4ef5f7c19c5715c4.tar.gz",
         ],
-    )
-
-    http_archive(
-        name = "bazel_skylib",
-        url = "https://github.com/bazelbuild/bazel-skylib/archive/0.6.0.zip",
-        strip_prefix = "bazel-skylib-0.6.0",
-        sha256 = "54ee22e5b9f0dd2b42eb8a6c1878dee592cfe8eb33223a7dbbc583a383f6ee1a",
     )
 
 def _maybe(repo_rule, name, **kwargs):

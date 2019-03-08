@@ -8,61 +8,129 @@
 # http://yaml-online-parser.appspot.com/
 
 ## IMPORTANT
-# If you change the `docker_image` version, also change the `cache_key` version
-var_1: &docker_image angular/ngcontainer:0.10.0
-var_2: &cache_key angular/ngcontainer:0.10.0-{{ .Branch }}-{{ checksum "yarn.lock" }}-examples/program:{{ checksum "examples/program/yarn.lock" }}-internal/e2e/node_loader_no_preserve_symlinks:{{ checksum "internal/e2e/node_loader_no_preserve_symlinks/yarn.lock" }}-internal/e2e/node_loader_preserve_symlinks:{{ checksum "internal/e2e/node_loader_preserve_symlinks/yarn.lock" }}
+# If you change the `default_docker_image` version, also change the `cache_key` version
+var_1: &default_docker_image circleci/node:10.12
+var_2: &browsers_docker_image circleci/node:10.12-browsers
+var_3: &cache_key node-0.12-{{ checksum "yarn.lock" }}-{{ checksum "examples/program/yarn.lock" }}-{{ checksum "internal/npm_install/test/package/yarn.lock" }}
 
-# Move node binaries out of the way to enforce that Bazel uses
-# only the hermetic ones it downloads
-var_3: &hide_node_and_yarn_local_binaries
+var_4: &init_environment
   run:
-    name: Move node, npm, and yarn binaries
+    name: Initializing environment (setting up variables, overwriting Yarn)
     command: |
+      # Setup circleci environment
+      ./.circleci/env.sh
+
+      # Overwrite the yarn installed in the docker container with our own version.
+      pathToYarn=$(realpath ./third_party/github.com/yarnpkg/yarn/releases/download/v1.13.0/bin/yarn.js)
+      sudo chmod a+x $pathToYarn
+      sudo ln -fs $pathToYarn /usr/local/bin/yarn
+      echo "Yarn version: $(yarn --version)"
+
+      # Add GitHub to known hosts.
+      mkdir -p ~/.ssh
+      echo 'github.com ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==' >> ~/.ssh/known_hosts
+
+      # Use git+ssh instead of https
+      git config --global url."ssh://git@github.com".insteadOf "https://github.com" || true
+      git config --global gc.auto 0 || true
+
+      # Setup /etc/bazel.bazelrc
+      sudo cp .circleci/bazel.rc /etc/bazel.bazelrc
+
+var_5: &yarn_install
+  run:
+    name: Run yarn install
+    command: yarn install
+
+var_6: &init_bazel
+  run:
+    name: Initializing Bazel
+    command: |
+      # Symlink fetched bazel to /usr/local/bin/bazel
+      pathToBazel=$(ls $(realpath ./node_modules/@bazel/bazel-linux_x64)/bazel-*)
+      sudo ln -fs $pathToBazel /usr/local/bin/bazel
+      echo "Bazel version:"
+      bazel version
+
+var_7: &hide_node_and_yarn_local_binaries
+  run:
+    name: Hide node, npm, and yarn binaries
+    command: |
+      # Hide node binaries to enforce that Bazel uses only the hermetic ones it downloads
       sudo mv /usr/local/bin/node /usr/local/bin/node_
       sudo mv /usr/local/bin/npm /usr/local/bin/npm_
       sudo mv /usr/local/bin/yarn /usr/local/bin/yarn_
 
-var_4: &setup_bazelrc
+var_8: &use_legacy_runfiles
   run:
-    name: Setup /etc/bazel.bazelrc
-    command: sudo cp .circleci/bazel.rc /etc/bazel.bazelrc
-
-var_5: &setup_bazelrc_legacy_runfiles
-  run:
-    name: Setup /etc/bazel.bazelrc (with legacy runfiles)
+    name: Use legacy runfiles
     command: |
       sed -i -e 's/run --nolegacy_external_runfiles//' .bazelrc
       sed -i -e 's/test --nolegacy_external_runfiles//' .bazelrc
-      sudo cp .circleci/bazel.rc /etc/bazel.bazelrc
 
-# Settings common to each job
-anchor_1: &job_defaults
-  working_directory: ~/ng
+var_9: &job_defaults
+  working_directory: ~/rules_nodejs
   docker:
-    - image: *docker_image
+    - image: *default_docker_image
 
-# After checkout, rebase on top of master.
-# Similar to travis behavior, but not quite the same.
-# See https://discuss.circleci.com/t/1662
-anchor_2: &post_checkout
-  post: git pull --ff-only origin "refs/pull/${CI_PULL_REQUEST//*pull\//}/merge"
+var_8: &post_checkout
+  run:
+    name: Post checkout step
+    command: |
+      # After checkout, rebase on top of master.
+      # Similar to travis behavior, but not quite the same.
+      # See https://discuss.circleci.com/t/1662
+      git pull --ff-only origin "refs/pull/${CI_PULL_REQUEST//*pull\//}/merge"
+
+var_10: &restore_cache
+  restore_cache:
+    keys:
+      - *cache_key
+
+var_8: &attach_workspace
+  attach_workspace:
+    at: ~/
 
 # Opt-in to the new goodness
 version: 2
 
 # These jobs will run in parallel, and report separate statuses to GitHub PRs
 jobs:
+  setup:
+    <<: *job_defaults
+    steps:
+      - checkout
+      - *post_checkout
+      - *restore_cache
+      - *init_environment
+      - *yarn_install
+      - *init_bazel
+
+      # Run yarn on all node_repositories
+      - run: bazel run @nodejs//:yarn
+
+      # Save all node_modules to the cache
+      - save_cache:
+          key: *cache_key
+          paths:
+            - "node_modules"
+            - "examples/program/node_modules"
+            - "internal/npm_install/test/package/node_modules"
+
+      # Persist any changes at this point to be reused by further jobs.
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - ./rules_nodejs
 
   # Cannot be run on BuildKite (BazelCI), see
   # https://github.com/bazelbuild/continuous-integration/issues/338
   lint:
-    docker:
-      - image: circleci/node:10.12
+    <<: *job_defaults
     steps:
-      - checkout:
-          <<: *post_checkout
-
-      - run: yarn install
+      - *attach_workspace
+      - *init_environment
+      - *init_bazel
 
       # Run the Buildifier to check our Bazel rules for format issues.
       - run: 'yarn bazel:format --mode=check ||
@@ -77,21 +145,25 @@ jobs:
   # - BuildKite doesn't have a public results UI; failures here let contributors fix their changes
   # - We hide the node,yarn,npm binaries here which we don't do on BuildKite
   # TODO: port these assertions to BuildKite
-  build:
+  test:
     <<: *job_defaults
+    resource_class: xlarge
     steps:
-      - checkout:
-          <<: *post_checkout
-      - *setup_bazelrc
+      - *attach_workspace
+      - *init_environment
+      - *init_bazel
       - *hide_node_and_yarn_local_binaries
-      - restore_cache:
-          key: *cache_key
 
-      - run: bazel info release
-
-      - run: bazel run @nodejs//:yarn
       - run: bazel build ...
       - run: bazel test ...
+
+  runnable_targets:
+    <<: *job_defaults
+    steps:
+      - *attach_workspace
+      - *init_environment
+      - *init_bazel
+      - *hide_node_and_yarn_local_binaries
 
       # These targets should run
       - run: bazel run //internal/node/test:no_deps
@@ -101,25 +173,14 @@ jobs:
       - run: bazel run //internal/e2e/fine_grained_no_bin:index
       - run: bazel run @fine_grained_deps_yarn//typescript/bin:tsc
 
-      - save_cache:
-          key: *cache_key
-          paths:
-            - "node_modules"
-            - "examples/program/node_modules"
-            - "internal/e2e/node_loader_no_preserve_symlinks/node_modules"
-            - "internal/e2e/node_loader_preserve_symlinks/node_modules"
-
   test_legacy_runfiles:
     <<: *job_defaults
     steps:
-      - checkout:
-          <<: *post_checkout
-      - *setup_bazelrc_legacy_runfiles
+      - *attach_workspace
+      - *init_environment
+      - *use_legacy_runfiles
+      - *init_bazel
       - *hide_node_and_yarn_local_binaries
-      - restore_cache:
-          key: *cache_key
-
-      - run: bazel run @nodejs//:yarn
 
       # We should also be able to test targets in a different workspace
       # TODO(gmagolan): move these tests into `build` job once
@@ -127,99 +188,170 @@ jobs:
       - run: bazel test @program_example//...
       - run: bazel test @packages_example//...
 
-  # This job cannot run on BuildKite (BazelCI) because it requires changing
-  # directories to test inside nested workspaces.
-  # See https://github.com/bazelbuild/continuous-integration/issues/225
-  test_e2e_legacy:
+  build_release:
     <<: *job_defaults
-    environment:
-      CHROMEDRIVER_VERSION_ARG: --versions.chrome 2.41
     steps:
-      - checkout:
-          <<: *post_checkout
-      - *setup_bazelrc
+      - *attach_workspace
+      - *init_environment
+      - *init_bazel
+      - *hide_node_and_yarn_local_binaries
+      - run: ./scripts/build_release.sh
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - ./rules_nodejs/dist/build_bazel_rules_nodejs
 
-      # Not using "bazel run @nodejs//:yarn test" as will attempt to run
-      # the "test" script on all folder listed in node_repositories()
-      # These e2e tests are in the process of being moved to /e2e
-      - run: yarn test:e2e
+  build_typescript_package:
+    <<: *job_defaults
+    # Need to compile Go and protocol buffers from source for typescript package
+    resource_class: xlarge
+    steps:
+      - *attach_workspace
+      - *init_environment
+      - *init_bazel
+      - *hide_node_and_yarn_local_binaries
+      - run: ./scripts/build_packages.sh typescript
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - ./rules_nodejs/dist/npm_bazel_typescript
+
+  build_karma_package:
+    <<: *job_defaults
+    steps:
+      - *attach_workspace
+      - *init_environment
+      - *init_bazel
+      - *hide_node_and_yarn_local_binaries
+      - run: ./scripts/build_packages.sh karma
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - ./rules_nodejs/dist/npm_bazel_karma
+
+  build_jasmine_package:
+    <<: *job_defaults
+    steps:
+      - *attach_workspace
+      - *init_environment
+      - *init_bazel
+      - *hide_node_and_yarn_local_binaries
+      - run: ./scripts/build_packages.sh jasmine
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - ./rules_nodejs/dist/npm_bazel_jasmine
+
+  build_labs_package:
+    <<: *job_defaults
+    steps:
+      - *attach_workspace
+      - *init_environment
+      - *init_bazel
+      - *hide_node_and_yarn_local_binaries
+      - run: ./scripts/build_packages.sh labs
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - ./rules_nodejs/dist/npm_bazel_labs
+
+  test_packages:
+    <<: *job_defaults
+    # Need to compile Go and protocol buffers from source for typescript package
+    resource_class: xlarge
+    parallelism: 4
+    steps:
+      - *attach_workspace
+      - *init_environment
+      - *init_bazel
+      - run: ./scripts/test_packages_all.sh ${CIRCLE_NODE_INDEX} ${CIRCLE_NODE_TOTAL}
 
   # This job cannot run on BuildKite (BazelCI) because it requires changing
   # directories to test inside nested workspaces.
   # See https://github.com/bazelbuild/continuous-integration/issues/225
   test_e2e:
     <<: *job_defaults
+    docker:
+      # Needed because some tests require local chrome
+      - image: *browsers_docker_image
     resource_class: xlarge
     parallelism: 4
-    environment:
-      CHROMEDRIVER_VERSION_ARG: --versions.chrome 2.41
     steps:
-      - checkout:
-          <<: *post_checkout
-      - *setup_bazelrc
-
+      - *attach_workspace
+      - *init_environment
+      - *init_bazel
       # Some e2e tests such as ts_devserver require xvfb
-      - run: xvfb-run -a ./e2e/test.sh ${CIRCLE_NODE_INDEX} ${CIRCLE_NODE_TOTAL}
+      - run: xvfb-run -a ./scripts/test_e2e_all.sh ${CIRCLE_NODE_INDEX} ${CIRCLE_NODE_TOTAL}
+
+  # These e2e tests are in the process of being moved to the test_e2e job
+  test_e2e_legacy:
+    <<: *job_defaults
+    parallelism: 2
+    steps:
+      - *attach_workspace
+      - *init_environment
+      - *init_bazel
+      - run: ./scripts/test_legacy_e2e_all.sh ${CIRCLE_NODE_INDEX} ${CIRCLE_NODE_TOTAL}
 
   # This job cannot run on BuildKite (BazelCI) because it requires changing
   # directories to test inside nested workspaces.
   # See https://github.com/bazelbuild/continuous-integration/issues/225
   test_examples:
     <<: *job_defaults
-    steps:
-      - checkout:
-          <<: *post_checkout
-      - *setup_bazelrc
-
-      # Not using "bazel run @nodejs//:yarn test" as will attempt to run
-      # the "test" script on all folder listed in node_repositories()
-      - run: yarn test:examples
-    
-  test_typescript:
-    <<: *job_defaults
-    # Need to compile Go and protocol buffers from source
     resource_class: xlarge
+    parallelism: 3
     steps:
-      - checkout:
-          <<: *post_checkout
-      - *setup_bazelrc
-      - run: yarn packages-typescript
-
-  test_karma:
-    <<: *job_defaults
-    steps:
-      - checkout:
-          <<: *post_checkout
-      - *setup_bazelrc
-      - run: yarn packages-karma
-
-  test_jasmine:
-    <<: *job_defaults
-    steps:
-      - checkout:
-          <<: *post_checkout
-      - *setup_bazelrc
-      - run: yarn packages-jasmine
-
-  test_labs:
-    <<: *job_defaults
-    steps:
-      - checkout:
-          <<: *post_checkout
-      - *setup_bazelrc
-      - run: yarn packages-labs
+      - *attach_workspace
+      - *init_environment
+      - *init_bazel
+      - run: ./scripts/test_examples_all.sh ${CIRCLE_NODE_INDEX} ${CIRCLE_NODE_TOTAL}
 
 workflows:
   version: 2
   default_workflow:
     jobs:
-      - lint
-      - build
-      - test_examples
-      - test_e2e
-      - test_e2e_legacy
-      - test_legacy_runfiles
-      - test_karma
-      - test_typescript
-      - test_jasmine
-      - test_labs
+      - setup
+      - lint:
+          requires:
+          - setup
+      - test:
+          requires:
+          - setup
+      - runnable_targets:
+          requires:
+          - setup
+      - test_legacy_runfiles:
+          requires:
+          - setup
+      - build_release:
+          requires:
+          - setup
+      - build_jasmine_package:
+          requires:
+          - setup
+      - build_karma_package:
+          requires:
+          # karma package depends on typescript package
+          - build_typescript_package
+      - build_labs_package:
+          requires:
+          - setup
+      - build_typescript_package:
+          requires:
+          - setup
+      - test_packages:
+          requires:
+          - build_typescript_package
+      - test_e2e:
+          requires:
+          - build_release
+          - build_typescript_package
+          - build_jasmine_package
+          - build_labs_package
+          - build_karma_package
+      - test_e2e_legacy:
+          requires:
+          - build_release
+      - test_examples:
+          requires:
+          - build_release

@@ -47,9 +47,13 @@ http_server = _http_server
 def dummy_bzl_library(name, **kwargs):
     native.filegroup(name = name)
 
+# @unsorted-dict-items
 COMMON_REPLACEMENTS = {
     # Replace loads from @bazel_skylib with the dummy rule above
     "(load\\(\"@bazel_skylib//:bzl_library.bzl\", \"bzl_library\"\\))": "# bazel_skylib mocked out\n# $1\nload(\"@build_bazel_rules_nodejs//:defs.bzl\", bzl_library = \"dummy_bzl_library\")",
+    # Cleanup up package.json @bazel/foobar package deps for published packages:
+    # "@bazel/foobar": "file:///..." => "@bazel/foobar": "0.0.0-PLACEHOLDER"
+    "\"@bazel/([a-zA-Z_-]+)\":\\s+\"(file|bazel)[^\"]+\"": "\"@bazel/$1\": \"0.0.0-PLACEHOLDER\"",
 }
 
 def node_modules_filegroup(packages, patterns = [], **kwargs):

@@ -7,13 +7,11 @@ local_repository(
     path = "../..",
 )
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
+# Pull in all build_bazel_rules_nodejs dev dependencies that are
+# needed for generating documentation
+load("@build_bazel_rules_nodejs//:package.bzl", "rules_nodejs_dev_dependencies")
 
-yarn_install(
-    name = "npm",
-    package_json = "//:package.json",
-    yarn_lock = "//:yarn.lock",
-)
+rules_nodejs_dev_dependencies()
 
 # Uncomment for local development
 # local_repository(
@@ -29,22 +27,19 @@ git_repository(
     remote = "http://github.com/bazelbuild/rules_typescript.git",
 )
 
-# Needed for stardoc
-git_repository(
-    name = "io_bazel",
-    commit = "1488f91fec238adacbd0517fcee15d8ec0599b8d",
-    remote = "https://github.com/bazelbuild/bazel.git",
-)
-
 # We have a source dependency on build_bazel_rules_typescript
 # so we must repeat its transitive toolchain deps
-load("@build_bazel_rules_typescript//:package.bzl", "rules_typescript_dev_dependencies")
+load("//:package.bzl", "rules_typescript_dev_dependencies")
 
 rules_typescript_dev_dependencies()
 
-load("@io_bazel_skydoc//:setup.bzl", "skydoc_repositories")
+load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
 
-skydoc_repositories()
+yarn_install(
+    name = "npm",
+    package_json = "//:package.json",
+    yarn_lock = "//:yarn.lock",
+)
 
 load("@io_bazel_rules_go//go:def.bzl", "go_register_toolchains", "go_rules_dependencies")
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
@@ -63,3 +58,7 @@ ts_setup_dev_workspace()
 load("@io_bazel_rules_sass//sass:sass_repositories.bzl", "sass_repositories")
 
 sass_repositories()
+
+load("@io_bazel_skydoc//skylark:skylark.bzl", "skydoc_repositories")
+
+skydoc_repositories()

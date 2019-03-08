@@ -2,8 +2,8 @@
 # yarn lockfile v1
 
 
-"@bazel/typescript@file:../../packages/typescript/bazel-bin/npm_package":
-  version "0.0.0"
+"@bazel/typescript@file:../../dist/npm_bazel_typescript":
+  version "0.27.1"
   dependencies:
     jasmine-core "2.8.0"
     protobufjs "5.0.3"

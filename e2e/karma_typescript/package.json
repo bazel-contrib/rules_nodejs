@@ -6,7 +6,7 @@
     "typescript": "2.9.2"
   },
   "scripts": {
-    "pretest": "../link-packages.sh",
+    "pretest": "../../scripts/link_deps.sh",
     "test": "bazel test ..."
   }
 }

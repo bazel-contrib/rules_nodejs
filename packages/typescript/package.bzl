@@ -15,7 +15,6 @@
 """Package file which defines npm_bazel_typescript dependencies
 """
 
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 def rules_typescript_dependencies():
@@ -35,13 +34,6 @@ def rules_typescript_dev_dependencies():
 
     Also this allows other repos to reference our sources with local_repository and install the needed deps.
     """
-
-    _maybe(
-        http_archive,
-        name = "build_bazel_rules_nodejs",
-        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.18.5/rules_nodejs-0.18.5.tar.gz"],
-        sha256 = "c8cd6a77433f7d3bb1f4ac87f15822aa102989f8e9eb1907ca0cad718573985b",
-    )
 
     # For building ts_devserver and ts_auto_deps binaries
     # See https://github.com/bazelbuild/rules_go#setup for the latest version.
@@ -71,35 +63,6 @@ def rules_typescript_dev_dependencies():
         url = "https://github.com/bazelbuild/buildtools/archive/0.19.2.1.zip",
         strip_prefix = "buildtools-0.19.2.1",
         sha256 = "9176a7df34dbed2cf5171eb56271868824560364e60644348219f852f593ae79",
-    )
-
-    # io_bazel_rules_webtesting depends on bazel_skylib. It is installed by
-    # web_test_repositories() but we depend on it here in case users don't call
-    # web_test_repositories(). This will get cleaned up by https://github.com/bazelbuild/rules_typescript/pull/374
-    # which introduces npm_bazel_karma with its own defs.bzl file
-    # that will allow this dep to be removed from rules_typescript_dependencies()
-    _maybe(
-        http_archive,
-        name = "bazel_skylib",
-        url = "https://github.com/bazelbuild/bazel-skylib/archive/d7c5518fa061ae18a20d00b14082705d3d2d885d.zip",
-        strip_prefix = "bazel-skylib-d7c5518fa061ae18a20d00b14082705d3d2d885d",
-    )
-
-    #############################################
-    # Dependencies for generating documentation #
-    #############################################
-
-    http_archive(
-        name = "io_bazel_rules_sass",
-        urls = ["https://github.com/bazelbuild/rules_sass/archive/8ccf4f1c351928b55d5dddf3672e3667f6978d60.zip"],  # 2018-11-23
-        strip_prefix = "rules_sass-8ccf4f1c351928b55d5dddf3672e3667f6978d60",
-        sha256 = "894d7928df8da85e263d743c8434d4c10ab0a3f0708fed0d53394e688e3faf70",
-    )
-
-    git_repository(
-        name = "io_bazel_skydoc",
-        remote = "https://github.com/bazelbuild/skydoc.git",
-        commit = "13063139c7c2bca7c725f382fa1e78bdfe93c887",
     )
 
 def _maybe(repo_rule, name, **kwargs):
