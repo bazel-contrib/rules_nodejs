@@ -64,18 +64,17 @@ function main(args) {
   process.argv.splice(2, 1)[0];
 
   const jrunner = new JasmineRunner({jasmineCore: jasmineCore});
-  fs.readFileSync(manifest, UTF8)
-      .split('\n')
-      .filter(l => l.length > 0)
-      // Filter here so that only files ending in `spec.js` and `test.js`
-      // are added to jasmine as spec files. This is important as other
-      // deps such as "@npm//typescript" if executed may cause the test to
-      // fail or have unexpected side-effects. "@npm//typescript" would
-      // try to execute tsc, print its help, and process.exit(1)
-      .filter(f => /[^a-zA-Z0-9](spec|test)\.js$/i.test(f))
-      // Filter out files from node_modules that match test.js or spec.js
-      .filter(f => !/\/node_modules\//.test(f))
-      .forEach(f => jrunner.addSpecFile(f));
+  const allSpecs = fs.readFileSync(manifest, UTF8)
+                       .split('\n')
+                       .filter(l => l.length > 0)
+                       // Filter here so that only files ending in `spec.js` and `test.js`
+                       // are added to jasmine as spec files. This is important as other
+                       // deps such as "@npm//typescript" if executed may cause the test to
+                       // fail or have unexpected side-effects. "@npm//typescript" would
+                       // try to execute tsc, print its help, and process.exit(1)
+                       .filter(f => /[^a-zA-Z0-9](spec|test)\.js$/i.test(f))
+                       // Filter out files from node_modules that match test.js or spec.js
+                       .filter(f => !/\/node_modules\//.test(f));
 
   var noSpecsFound = true;
   jrunner.addReporter({
@@ -93,8 +92,6 @@ function main(args) {
     process.exit(exitCode);
   });
 
-  jrunner.loadSpecs();
-  const allSpecs = getAllSpecs(jasmine.getEnv());
   if (TOTAL_SHARDS) {
     // Partition the specs among the shards.
     // This ensures that the specs are evenly divided over the shards.
@@ -103,10 +100,12 @@ function main(args) {
     // shards.
     const start = allSpecs.length * SHARD_INDEX / TOTAL_SHARDS;
     const end = allSpecs.length * (SHARD_INDEX + 1) / TOTAL_SHARDS;
-    jasmine.getEnv().execute(allSpecs.slice(start, end));
+    allSpecs.slice(start, end).forEach(f => jrunner.addSpecFile(f));
   } else {
-    jasmine.getEnv().execute(allSpecs);
+    allSpecs.forEach(f => jrunner.addSpecFile(f));
   }
+
+  jrunner.execute();
   return 0;
 }
 
