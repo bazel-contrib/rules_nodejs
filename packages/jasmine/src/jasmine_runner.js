@@ -93,7 +93,16 @@ function main(args) {
     process.exit(exitCode);
   });
 
+  // Re-do logic from jrunner.execute() here so that
+  // we can control which specs are executed below
+  jrunner.loadRequires();
+  jrunner.loadHelpers();
+  if (!jrunner.defaultReporterConfigured) {
+    jrunner.configureDefaultReporter({showColors: jrunner.showingColors});
+  }
   jrunner.loadSpecs();
+  jrunner.addReporter(jrunner.completionReporter);
+
   const allSpecs = getAllSpecs(jasmine.getEnv());
   if (TOTAL_SHARDS) {
     // Partition the specs among the shards.
@@ -107,6 +116,7 @@ function main(args) {
   } else {
     jasmine.getEnv().execute(allSpecs);
   }
+
   return 0;
 }
 
