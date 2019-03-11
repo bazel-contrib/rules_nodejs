@@ -14,10 +14,31 @@
 
 load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
 load("@npm_bazel_typescript//:index.bzl", "ts_library")
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary", "rollup_bundle")
+
+ts_library(
+    name = "lib",
+    srcs = ["lib.ts"],
+    deps = [
+        "@npm//date-fns",
+        "@npm//@types/node",
+    ]
+)
 
 ts_library(
     name = "main",
     srcs = ["main.ts"],
+    deps = [
+        ":lib",
+    ]
+)
+
+ts_library(
+    name = "app",
+    srcs = ["app.ts"],
+    deps = [
+        ":main",
+    ]
 )
 
 ts_library(
@@ -41,4 +62,29 @@ jasmine_node_test(
     deps = [
         ":test_lib",
     ],
+)
+
+nodejs_binary(
+  name = "main_js",
+  entry_point = "e2e_typescript_3_1/main.js",
+  data = [
+    ":main",
+  ],
+)
+
+nodejs_binary(
+  name = "main_js_sm",
+  entry_point = "e2e_typescript_3_1/main.js",
+  data = [
+    ":main",
+    "@npm//source-map-support",
+  ],
+)
+
+rollup_bundle(
+    name = "bundle",
+    deps = [
+        ":main",
+    ],
+    entry_point = "main",
 )
