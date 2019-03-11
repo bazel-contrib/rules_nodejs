@@ -20,14 +20,7 @@ load("//internal:defaults.bzl", "ts_library")
 
 package(default_visibility = ["//visibility:public"])
 
-exports_files([
-    # Exported to be consumed for generating skydoc.
-    # TODO(alexeagle): remove this after migration to stardoc
-    "build_defs.bzl",
-    "ts_config.bzl",
-    "ts_repositories.bzl",
-    "tsetse/tsconfig.json",
-])
+exports_files(["tsetse/tsconfig.json"])
 
 bzl_library(
     name = "bzl",

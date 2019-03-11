@@ -67,19 +67,10 @@ load("//internal:ts_repositories.bzl", "ts_setup_dev_workspace")
 
 ts_setup_dev_workspace()
 
-# Test that check_rules_typescript_version works as expected
-load("//:defs.bzl", "check_rules_typescript_version")
-
-check_rules_typescript_version(version_string = "0.25.1")
-
 # Dependencies for generating documentation
 load("@io_bazel_rules_sass//sass:sass_repositories.bzl", "sass_repositories")
 
 sass_repositories()
-
-load("@io_bazel_skydoc//skylark:skylark.bzl", "skydoc_repositories")
-
-skydoc_repositories()
 
 # Setup rules_webtesting toolchain
 load("@io_bazel_rules_webtesting//web:repositories.bzl", "web_test_repositories")

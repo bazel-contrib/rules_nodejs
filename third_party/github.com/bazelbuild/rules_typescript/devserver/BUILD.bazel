@@ -12,9 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# BEGIN-DEV-ONLY
-# Parts of this BUILD file only necessary when building within the bazelbuild/rules_typescript repo.
-# The generated `@bazel/typescript` npm package contains a trimmed BUILD file using # DEV-ONLY fences.
 load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
 
 go_library(
@@ -68,47 +65,10 @@ go_binary(
     visibility = ["//visibility:public"],
 )
 
-filegroup(
-    name = "npm_package_assets",
-    srcs = [
-        "BUILD.bazel",
-    ],
-    visibility = ["//visibility:public"],
-)
-
-# END-DEV-ONLY
-config_setting(
-    name = "darwin_x64",
-    constraint_values = [
-        "@bazel_tools//platforms:osx",
-        "@bazel_tools//platforms:x86_64",
-    ],
-)
-
-config_setting(
-    name = "linux_x64",
-    constraint_values = [
-        "@bazel_tools//platforms:linux",
-        "@bazel_tools//platforms:x86_64",
-    ],
-)
-
-config_setting(
-    name = "windows_x64",
-    constraint_values = [
-        "@bazel_tools//platforms:windows",
-        "@bazel_tools//platforms:x86_64",
-    ],
-)
-
-filegroup(
-    name = "devserver",
-    srcs = select({
-        ":darwin_x64": ["devserver-darwin_x64"],
-        ":linux_x64": ["devserver-linux_x64"],
-        ":windows_x64": ["devserver-windows_x64.exe"],
-    }),
-    # Don't build on CI
-    tags = ["manual"],
-    visibility = ["//visibility:public"],
+filegroup(	
+    name = "npm_package_assets",	
+    srcs = [	
+        "BUILD.bazel",	
+    ],	
+    visibility = ["//visibility:public"],	
 )

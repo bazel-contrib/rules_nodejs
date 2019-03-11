@@ -103,13 +103,6 @@ def rules_typescript_dev_dependencies():
         sha256 = "894d7928df8da85e263d743c8434d4c10ab0a3f0708fed0d53394e688e3faf70",
     )
 
-    http_archive(
-        name = "io_bazel_skydoc",
-        url = "https://github.com/bazelbuild/skydoc/archive/82fdbfe797c6591d8732df0c0389a2b1c3e50992.zip",  # 2018-12-12
-        strip_prefix = "skydoc-82fdbfe797c6591d8732df0c0389a2b1c3e50992",
-        sha256 = "75fd965a71ca1f0d0406d0d0fb0964d24090146a853f58b432761a1a6c6b47b9",
-    )
-
 def _maybe(repo_rule, name, **kwargs):
     if name not in native.existing_rules():
         repo_rule(name = name, **kwargs)
