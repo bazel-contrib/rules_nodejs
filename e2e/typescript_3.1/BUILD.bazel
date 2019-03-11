@@ -88,3 +88,12 @@ rollup_bundle(
     ],
     entry_point = "main",
 )
+
+rollup_bundle(
+    name = "bundle_sm",
+    deps = [
+        ":main",
+        "@npm//source-map-support",
+    ],
+    entry_point = "main",
+)
