@@ -12,7 +12,10 @@ rollup_bundle(
 web_package(
     name = "package",
     assets = [
-        ":bundle",
+        # For differential loading, we supply both an ESModule entry point and an es5 entry point
+        # The injector will put two complimentary script tags in the index.html
+        ":bundle.min.js",
+        ":bundle.min.es2015.js",
         "styles.css",
     ],
     data = ["favicon.png"],

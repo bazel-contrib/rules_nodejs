@@ -44,6 +44,11 @@
     "@bazel/buildifier-darwin_x64" "0.20.0"
     "@bazel/buildifier-linux_x64" "0.20.0"
 
+"@bazel/ibazel@^0.9.1":
+  version "0.9.1"
+  resolved "https://registry.yarnpkg.com/@bazel/ibazel/-/ibazel-0.9.1.tgz#d3248d60b7ef44ced1c2bdecda87ab2b6141a56e"
+  integrity sha512-twdytcFr+zj7CQcJCDegrAAI2soRyL34yaxD+3g59W8u188iOsZ392gscFJufysoEQKvAon1UiI3DqCrS+qYDw==
+
 "@bazel/typescript@0.23.2":
   version "0.23.2"
   resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-0.23.2.tgz#a3ff199880855259d84216cb41644c1d9a0fad14"
