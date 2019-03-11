@@ -518,7 +518,7 @@ ROLLUP_ATTRS = {
         SystemJS boilerplate to map the entry points to their file
         names and load the main entry point:
         flavors:
-        - <label-name>.mjs // es2015 with EcmaScript modules
+        - <label-name>.es2015.js // es2015 with EcmaScript modules
         - <label-name>.js // es5 syntax with CJS modules
         - <label-name>.min.js // es5 minified
         - <label-name>.min_debug.js // es5 minified debug
@@ -665,8 +665,8 @@ ROLLUP_ATTRS = {
 ROLLUP_OUTPUTS = {
     "build_cjs": "%{name}.cjs.js",
     "build_es2015": "%{name}.es2015.js",
-    "build_es2015_min": "%{name}.min.mjs",
-    "build_es2015_min_debug": "%{name}.min_debug.mjs",
+    "build_es2015_min": "%{name}.min.es2015.js",
+    "build_es2015_min_debug": "%{name}.min_debug.es2015.js",
     "build_es5": "%{name}.js",
     "build_es5_min": "%{name}.min.js",
     "build_es5_min_debug": "%{name}.min_debug.js",
@@ -694,7 +694,7 @@ The default output of a `rollup_bundle` rule is the non-debug-minified es5 bundl
 However you can request one of the other outputs with a dot-suffix on the target's name.
 For example, if your `rollup_bundle` is named `my_rollup_bundle`, you can use one of these labels:
 
-To request the ES2015 syntax (e.g. `class` keyword) without downleveling or minification, use the `:my_rollup_bundle.mjs` label.
+To request the ES2015 syntax (e.g. `class` keyword) without downleveling or minification, use the `:my_rollup_bundle.es2015.js` label.
 To request the ES5 downleveled bundle without minification, use the `:my_rollup_bundle.js` label
 To request the debug-minified es5 bundle, use the `:my_rollup_bundle.min_debug.js` label.
 To request a UMD-bundle, use the `:my_rollup_bundle.umd.js` label.
