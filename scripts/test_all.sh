@@ -44,7 +44,7 @@ echo_and_run bazel run //internal/node/test:has_deps_hybrid
 echo_and_run bazel run //internal/e2e/fine_grained_no_bin:index
 echo_and_run bazel run @fine_grained_deps_yarn//typescript/bin:tsc
 
-# bazel test @program_example//... # DOES NOT WORK WITH --nolegacy_external_runfiles
+# bazel test @examples_program//... # DOES NOT WORK WITH --nolegacy_external_runfiles
 # bazel test @packages_example//... # DOES NOT WORK WITH --nolegacy_external_runfiles
 
 echo_and_run ./scripts/build_release.sh

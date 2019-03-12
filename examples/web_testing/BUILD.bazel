@@ -1,0 +1,102 @@
+load("@npm_bazel_karma//:index.bzl", "karma_web_test_suite", "ts_web_test_suite")
+load("@npm_bazel_typescript//:index.bzl", "ts_config", "ts_library")
+
+ts_library(
+    name = "lib",
+    srcs = ["decrement.ts"],
+)
+
+ts_config(
+    name = "tsconfig-test",
+    src = "tsconfig-test.json",
+    deps = [":tsconfig.json"],
+)
+
+ts_library(
+    name = "tests",
+    testonly = 1,
+    srcs = glob(["*.spec.ts"]),
+    tsconfig = ":tsconfig-test",
+    deps = [
+        ":lib",
+        "@npm//@types/jasmine",
+        "@npm//@types/node",
+    ],
+)
+
+ts_library(
+    name = "tests_setup",
+    testonly = 1,
+    srcs = ["setup_script.ts"],
+    tsconfig = ":tsconfig-test",
+    deps = [
+        "@npm//@types/jasmine",
+        "@npm//@types/node",
+    ],
+)
+
+karma_web_test_suite(
+    name = "testing_karma",
+    browsers = [
+        "@io_bazel_rules_webtesting//browsers:chromium-local",
+        "@io_bazel_rules_webtesting//browsers:firefox-local",
+    ],
+    config_file = ":karma.conf.js",
+    static_files = [
+        "static_script.js",
+    ],
+    runtime_deps = [
+        ":tests_setup",
+    ],
+    deps = [
+        ":tests",
+        "@npm//karma-json-result-reporter",
+    ],
+)
+
+karma_web_test_suite(
+    name = "testing_karma_sauce",
+    browsers = [
+        "@io_bazel_rules_webtesting//browsers/sauce:chrome-win10",
+    ],
+    tags = [
+        "sauce",
+        # TODO(alexeagle): enable on CI once we have set the SAUCE env variables
+        "manual",
+    ],
+    deps = [
+        ":tests",
+    ],
+)
+
+ts_web_test_suite(
+    name = "testing",
+    browsers = [
+        "@io_bazel_rules_webtesting//browsers:chromium-local",
+        "@io_bazel_rules_webtesting//browsers:firefox-local",
+    ],
+    static_files = [
+        "static_script.js",
+    ],
+    runtime_deps = [
+        ":tests_setup",
+    ],
+    deps = [
+        ":tests",
+    ],
+)
+
+ts_web_test_suite(
+    name = "testing_sauce",
+    browsers = [
+        "@io_bazel_rules_webtesting//browsers/sauce:chrome-win10",
+    ],
+    tags = [
+        "sauce",
+        # TODO(alexeagle): enable on CI once we have set the SAUCE env variables
+        "manual",
+    ],
+    deps = [
+        ":tests",
+    ],
+)

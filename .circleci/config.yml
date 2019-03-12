@@ -185,7 +185,7 @@ jobs:
       # We should also be able to test targets in a different workspace
       # TODO(gmagolan): move these tests into `build` job once
       # https://github.com/bazelbuild/bazel/issues/6481 is resolved
-      - run: bazel test @program_example//...
+      - run: bazel test @examples_program//...
       - run: bazel test @packages_example//...
 
   build_release:
@@ -298,13 +298,17 @@ jobs:
   # See https://github.com/bazelbuild/continuous-integration/issues/225
   test_examples:
     <<: *job_defaults
+    docker:
+      # Needed because some tests require local chrome
+      - image: *browsers_docker_image
     resource_class: xlarge
-    parallelism: 3
+    parallelism: 4
     steps:
       - *attach_workspace
       - *init_environment
       - *init_bazel
-      - run: ./scripts/test_examples_all.sh ${CIRCLE_NODE_INDEX} ${CIRCLE_NODE_TOTAL}
+      # Some examples such as app require xvfb
+      - run: xvfb-run -a ./scripts/test_examples_all.sh ${CIRCLE_NODE_INDEX} ${CIRCLE_NODE_TOTAL}
 
 workflows:
   version: 2
@@ -355,3 +359,7 @@ workflows:
       - test_examples:
           requires:
           - build_release
+          - build_typescript_package
+          - build_jasmine_package
+          - build_labs_package
+          - build_karma_package

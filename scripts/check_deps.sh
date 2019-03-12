@@ -15,7 +15,7 @@ fi
 
 ALL_GOOD=1
 
-printf "\n\nChecking deps: ${DEPS}\n"
+echo "checking deps: ${DEPS}"
 for dep in ${DEPS} ; do
   if [[ ${dep} == "release" ]] ; then
     if [[ ! -d "${RULES_NODEJS_DIR}/dist/build_bazel_rules_nodejs" ]] ; then
@@ -33,4 +33,6 @@ done
 if [[ ${ALL_GOOD} -eq "0" ]] ; then
   echo "ERROR: Some dependencies are not built. Please build all dependencies and try again."
   exit 1
+else
+  echo "all deps built"
 fi

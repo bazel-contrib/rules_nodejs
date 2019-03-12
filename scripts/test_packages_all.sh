@@ -27,6 +27,4 @@ done
 echo "Testing packages: ${SHARD_DIRS[@]}"
 
 # Test packages
-for packagesDir in ${SHARD_DIRS[@]} ; do
-  ${RULES_NODEJS_DIR}/scripts/test_packages.sh ${packagesDir}
-done
+${RULES_NODEJS_DIR}/scripts/test_packages.sh ${SHARD_DIRS[@]}

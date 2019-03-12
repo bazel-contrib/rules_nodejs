@@ -10,7 +10,5 @@ source "${RULES_NODEJS_DIR}/scripts/packages.sh"
 
 echo_and_run() { echo "+ $@" ; "$@" ; }
 
-for package in ${PACKAGES[@]} ; do
-  ${RULES_NODEJS_DIR}/scripts/build_packages.sh ${package}
-done
+${RULES_NODEJS_DIR}/scripts/build_packages.sh ${PACKAGES[@]}
 

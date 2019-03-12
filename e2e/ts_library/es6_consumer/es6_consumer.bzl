@@ -12,17 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"Defaults for rules_typescript repository not meant to be used downstream"
+"""Example of a rule that requires ES6 inputs.
+"""
 
-load(
-    "@npm_bazel_typescript//:index.bzl",
-    _ts_library = "ts_library",
+load("@build_bazel_rules_nodejs//internal/common:collect_es6_sources.bzl", "collect_es6_sources")
+
+def _es6_consumer(ctx):
+    es6_sources = collect_es6_sources(ctx)
+
+    return [DefaultInfo(
+        files = es6_sources,
+        runfiles = ctx.runfiles(es6_sources.to_list()),
+    )]
+
+es6_consumer = rule(
+    implementation = _es6_consumer,
+    attrs = {
+        "deps": attr.label_list(),
+    },
 )
-
-# We can't use the defaults for ts_library compiler and ts_web_test_suite karma
-# internally because the defaults are .js dependencies on the npm packages that are
-# published and internally we are building the things themselves to publish to npm
-INTERNAL_TS_LIBRARY_COMPILER = "@npm_bazel_typescript//internal:tsc_wrapped_bin"
-
-def ts_library(compiler = INTERNAL_TS_LIBRARY_COMPILER, **kwargs):
-    _ts_library(compiler = compiler, **kwargs)

@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "lib": ["es2015.promise", "dom", "es5"],
+    // Auto-discover all types in this configuration since we don't
+    // specify `types = []` and the ts_library rule depends on `@npm//@types`.
+    // Typescript will automatically discover all types under node_modules/@types
+    // and included them in the build. See getAutomaticTypeDirectiveNames in
+    // https://github.com/Microsoft/TypeScript/blob/master/src/compiler/moduleNameResolver.ts.
+  }
+}

@@ -29,7 +29,7 @@ check_bazel_version(minimum_bazel_version = "0.23.0")
 #
 
 local_repository(
-    name = "program_example",
+    name = "examples_program",
     path = "examples/program",
 )
 
@@ -56,7 +56,7 @@ load("//:defs.bzl", "node_repositories", "npm_install", "yarn_install")
 node_repositories(
     package_json = [
         "//:package.json",
-        "@program_example//:package.json",
+        "@examples_program//:package.json",
         "//internal/npm_install/test:package/package.json",
     ],
     preserve_symlinks = True,

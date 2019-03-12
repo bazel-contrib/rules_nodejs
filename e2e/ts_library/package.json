@@ -1,0 +1,17 @@
+{
+  "//": "When setting bazelOpts { tsickle: true }, you must also add a devDependency on the tsickle npm package",
+  "dependencies": {
+    "@bazel/jasmine": "bazel://@npm_bazel_jasmine//:npm_package",
+    "@bazel/typescript": "bazel://@npm_bazel_typescript//:npm_package",
+    "@types/hammerjs": "2.0.35",
+    "@types/jasmine": "3.3.9",
+    "@types/node": "11.11.2",
+    "typescript": "^3.3.1",
+    "tsickle": "0.33.1",
+    "zone.js": "0.8.26"
+  },
+  "scripts": {
+    "pretest": "../../scripts/link_deps.sh && bazel run @nodejs//:yarn",
+    "test": "bazel build ... && bazel test ... && bazel build @disable_tsetse_for_external_test//..."
+  }
+}
