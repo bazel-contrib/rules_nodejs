@@ -59,7 +59,6 @@ js_library(
 npm_package(
     name = "npm_bazel_typescript_package",
     srcs = [
-        "//devserver:npm_package_assets",
         "//third_party/github.com/bazelbuild/bazel/src/main/protobuf:npm_package_assets",
         "//internal:common/compilation.bzl",
         "//internal:common/json_marshal.bzl",

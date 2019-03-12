@@ -64,11 +64,3 @@ go_binary(
     pure = "on",
     visibility = ["//visibility:public"],
 )
-
-filegroup(	
-    name = "npm_package_assets",	
-    srcs = [	
-        "BUILD.bazel",	
-    ],	
-    visibility = ["//visibility:public"],	
-)
