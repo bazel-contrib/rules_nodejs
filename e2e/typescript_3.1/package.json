@@ -1,7 +1,7 @@
 {
   "dependencies": {
-    "@bazel/jasmine": "file:///home/markus/Projects/github.com/ecosia/rules_nodejs/dist/npm_bazel_jasmine",
-    "@bazel/typescript": "file:///home/markus/Projects/github.com/ecosia/rules_nodejs/dist/npm_bazel_typescript",
+    "@bazel/jasmine": "bazel://@npm_bazel_jasmine//:npm_package",
+    "@bazel/typescript": "bazel://@npm_bazel_typescript//:npm_package",
     "@types/jasmine": "2.8.2",
     "@types/node": "7.0.18",
     "date-fns": "^1.30.1",
