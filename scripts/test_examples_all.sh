@@ -27,6 +27,4 @@ done
 echo "Running examples: ${SHARD_DIRS[@]}"
 
 # Run examples
-for examplesDir in ${SHARD_DIRS[@]} ; do
-  ${RULES_NODEJS_DIR}/scripts/test_examples.sh ${examplesDir}
-done
+${RULES_NODEJS_DIR}/scripts/test_examples.sh ${SHARD_DIRS[@]}

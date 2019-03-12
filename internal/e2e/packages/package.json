@@ -6,6 +6,7 @@
   },
   "scripts": {
     "postinstall": "node ./postinstall.js",
-    "test": "bazel run @nodejs//:yarn && bazel test //..."
+    "pretest": "bazel run @nodejs//:yarn",
+    "test": "bazel test //..."
   }
 }

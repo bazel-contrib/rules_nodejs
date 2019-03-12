@@ -1,0 +1,17 @@
+workspace(name = "examples_define_var")
+
+# In your code, you'd fetch this repository with an `http_archive` call.
+# We do this local repository only because this example lives in the same
+# repository with the rules_nodejs code and we want to test them together.
+local_repository(
+    name = "build_bazel_rules_nodejs",
+    path = "../../dist/build_bazel_rules_nodejs/release",
+)
+
+load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
+
+yarn_install(
+    name = "npm",
+    package_json = "//:package.json",
+    yarn_lock = "//:yarn.lock",
+)

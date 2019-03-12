@@ -24,6 +24,4 @@ done
 echo "Running e2e tests: ${SHARD_DIRS[@]}"
 
 # Run legacy e2e tests
-for shardDir in ${SHARD_DIRS[@]} ; do
-  ${RULES_NODEJS_DIR}/scripts/test_legacy_e2e.sh ${shardDir}
-done
+${RULES_NODEJS_DIR}/scripts/test_legacy_e2e.sh ${SHARD_DIRS[@]}
