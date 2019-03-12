@@ -3,5 +3,6 @@ BasedOnStyle: Google
 ColumnLimit: 100
 ---
 Language: Proto
-# Don't format .proto files.
-DisableFormat: true
+ColumnLimit: 100
+SpacesInContainerLiterals: false
+AllowShortFunctionsOnASingleLine: false
