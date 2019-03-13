@@ -20,9 +20,9 @@ ts_library(
     name = "lib",
     srcs = ["lib.ts"],
     deps = [
-        "@npm//date-fns",
         "@npm//@types/node",
-    ]
+        "@npm//date-fns",
+    ],
 )
 
 ts_library(
@@ -30,7 +30,7 @@ ts_library(
     srcs = ["main.ts"],
     deps = [
         ":lib",
-    ]
+    ],
 )
 
 ts_library(
@@ -38,7 +38,7 @@ ts_library(
     srcs = ["app.ts"],
     deps = [
         ":main",
-    ]
+    ],
 )
 
 ts_library(
@@ -65,35 +65,35 @@ jasmine_node_test(
 )
 
 nodejs_binary(
-  name = "main_js",
-  entry_point = "e2e_typescript_3_1/main.js",
-  data = [
-    ":main",
-  ],
+    name = "main_js",
+    data = [
+        ":main",
+    ],
+    entry_point = "e2e_typescript_3_1/main.js",
 )
 
 nodejs_binary(
-  name = "main_js_sm",
-  entry_point = "e2e_typescript_3_1/main.js",
-  data = [
-    ":main",
-    "@npm//source-map-support",
-  ],
+    name = "main_js_sm",
+    data = [
+        ":main",
+        "@npm//source-map-support",
+    ],
+    entry_point = "e2e_typescript_3_1/main.js",
 )
 
 rollup_bundle(
     name = "bundle",
+    entry_point = "main",
     deps = [
         ":main",
     ],
-    entry_point = "main",
 )
 
 rollup_bundle(
     name = "bundle_sm",
+    entry_point = "main",
     deps = [
         ":main",
         "@npm//source-map-support",
     ],
-    entry_point = "main",
 )
