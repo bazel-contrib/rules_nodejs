@@ -34,14 +34,6 @@ ts_library(
 )
 
 ts_library(
-    name = "app",
-    srcs = ["app.ts"],
-    deps = [
-        ":main",
-    ],
-)
-
-ts_library(
     name = "test_lib",
     testonly = True,
     srcs = glob(["*.spec.ts"]),
