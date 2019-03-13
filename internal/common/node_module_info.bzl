@@ -39,6 +39,7 @@ def _collect_node_modules_aspect_impl(target, ctx):
         print(target)
         return [NodeModuleInfo(workspace = nm_wksp, transitive = False)]
 
+    # This ensures that NodeModuleInfo about transitive dependencies is tracked.
     if hasattr(ctx.rule.attr, "deps"):
         for dep in ctx.rule.attr.deps:
             if NodeModuleInfo in dep:
