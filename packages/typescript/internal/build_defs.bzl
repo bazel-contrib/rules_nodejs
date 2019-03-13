@@ -252,7 +252,7 @@ def _ts_library_impl(ctx):
         # strict_deps checking currently skips node_modules.
         # TODO(alexeagle): turn on strict deps checking when we have a real
         # provider for JS/DTS inputs to ts_library.
-        deps = [d for d in ctx.attr.deps if not NodeModuleInfo in d],
+        deps = [d for d in ctx.attr.deps if not NodeModuleInfo in d or (NodeModuleInfo in d and d[NodeModuleInfo].transitive == True)],
         compile_action = _compile_action,
         devmode_compile_action = _devmode_compile_action,
         tsc_wrapped_tsconfig = tsc_wrapped_tsconfig,
