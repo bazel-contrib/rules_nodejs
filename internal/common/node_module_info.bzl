@@ -36,7 +36,6 @@ def _collect_node_modules_aspect_impl(target, ctx):
 
     if hasattr(ctx.rule.attr, "tags") and "NODE_MODULE_MARKER" in ctx.rule.attr.tags:
         nm_wksp = target.label.workspace_root.split("/")[1] if target.label.workspace_root else ctx.workspace_name
-        print(target)
         return [NodeModuleInfo(workspace = nm_wksp, transitive = False)]
 
     # This ensures that NodeModuleInfo about transitive dependencies is tracked.
