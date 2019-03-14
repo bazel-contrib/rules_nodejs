@@ -30,7 +30,7 @@ echo_and_run bazel build ...
 
 printf "\n\nTesting all targets\n"
 if [[ ${machine} == "Windows" ]] ; then
-    echo_and_runbazel test ... --test_tag_filters=-fix-windows
+    echo_and_run bazel test ... --test_tag_filters=-fix-windows
 else
     echo_and_run bazel test ...
 fi
