@@ -79,11 +79,27 @@ function main(params, read = fs.readFileSync, write = fs.writeFileSync, timestam
   }
 
   for (const s of params.filter(s => /\.m?js$/.test(s))) {
-    const script = treeAdapter.createElement('script', undefined, [
-      {name: 'type', value: 'text/javascript'},
-      {name: 'src', value: `/${relative(s)}?v=${timestamp()}`},
-    ]);
-    treeAdapter.appendChild(body, script);
+    // Differential loading: for filenames like
+    //  foo.mjs
+    //  bar.es2015.js
+    // we use a <script type="module" tag so these are only run in browsers that have ES2015 module
+    // loading
+    if (/\.(es2015\.|m)js$/.test(s)) {
+      const moduleScript = treeAdapter.createElement('script', undefined, [
+        {name: 'type', value: 'module'},
+        {name: 'src', value: `/${relative(s)}?v=${timestamp()}`},
+      ]);
+      treeAdapter.appendChild(body, moduleScript);
+    } else {
+      // Other filenames we assume are for non-ESModule browsers, so we add a 'nomodule' attribute
+      const noModuleScript = treeAdapter.createElement('script', undefined, [
+        // Note: empty string value is equivalent to a bare attribute, according to
+        // https://github.com/inikulin/parse5/issues/1
+        {name: 'nomodule', value: ''},
+        {name: 'src', value: `/${relative(s)}?v=${timestamp()}`},
+      ]);
+      treeAdapter.appendChild(body, noModuleScript);
+    }
   }
 
   for (const s of params.filter(s => /\.css$/.test(s))) {
