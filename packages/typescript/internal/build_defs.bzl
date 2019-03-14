@@ -250,6 +250,8 @@ def _ts_library_impl(ctx):
         # since they don't have the required providers.
         # They were added to the action inputs for tsc_wrapped already.
         # strict_deps checking currently skips node_modules.
+        # Make sure we are including dependencies with transitive node module
+        # dependencies.
         # TODO(alexeagle): turn on strict deps checking when we have a real
         # provider for JS/DTS inputs to ts_library.
         deps = [d for d in ctx.attr.deps if not NodeModuleInfo in d or (NodeModuleInfo in d and d[NodeModuleInfo].transitive == True)],
