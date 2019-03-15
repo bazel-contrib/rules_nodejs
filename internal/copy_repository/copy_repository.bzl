@@ -35,6 +35,10 @@ def _copy_repository_impl(rctx):
 copy_repository = repository_rule(
     implementation = _copy_repository_impl,
     attrs = {
+        "lock_file": attr.label(
+            allow_single_file = True,
+            doc = "Though unused, this attribute is necessary to cause this rule to be re-executed anytime the node_modules changes.",
+        ),
         "marker_file": attr.label(allow_single_file = True),
     },
 )
