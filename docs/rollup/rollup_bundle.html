@@ -411,7 +411,7 @@ option of rollup.</p>
 <p>The default output of a <code>rollup_bundle</code> rule is the non-debug-minified es5 bundle.</p>
 <p>However you can request one of the other outputs with a dot-suffix on the target's name.
 For example, if your <code>rollup_bundle</code> is named <code>my_rollup_bundle</code>, you can use one of these labels:</p>
-<p>To request the ES2015 syntax (e.g. <code>class</code> keyword) without downleveling or minification, use the <code>:my_rollup_bundle.mjs</code> label.
+<p>To request the ES2015 syntax (e.g. <code>class</code> keyword) without downleveling or minification, use the <code>:my_rollup_bundle.es2015.js</code> label.
 To request the ES5 downleveled bundle without minification, use the <code>:my_rollup_bundle.js</code> label
 To request the debug-minified es5 bundle, use the <code>:my_rollup_bundle.min_debug.js</code> label.
 To request a UMD-bundle, use the <code>:my_rollup_bundle.umd.js</code> label.
@@ -481,7 +481,7 @@ See <a href="https://github.com/bazelbuild/rules_nodejs/issues/175">https://gith
     SystemJS boilerplate to map the entry points to their file
     names and load the main entry point:
     flavors:
-    - &lt;label-name&gt;.mjs // es2015 with EcmaScript modules
+    - &lt;label-name&gt;.es2015.js // es2015 with EcmaScript modules
     - &lt;label-name&gt;.js // es5 syntax with CJS modules
     - &lt;label-name&gt;.min.js // es5 minified
     - &lt;label-name&gt;.min_debug.js // es5 minified debug
