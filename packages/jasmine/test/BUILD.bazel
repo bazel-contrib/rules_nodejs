@@ -30,3 +30,13 @@ jasmine_node_test(
     jasmine = "@npm//jasmine",
     shard_count = 3,
 )
+
+jasmine_node_test(
+    name = "filtering_test",
+    srcs = ["filtering_test.js"],
+    jasmine = "@npm//jasmine",
+    # Only run this test when explicitly included in the target patterns
+    # It will fail because usage of `fit` and `fdescribe` cause Jasmine
+    # to return a 'incomplete' status
+    tags = ["manual"],
+)

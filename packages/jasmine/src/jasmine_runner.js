@@ -93,30 +93,20 @@ function main(args) {
     process.exit(exitCode);
   });
 
-  // Re-do logic from jrunner.execute() here so that
-  // we can control which specs are executed below
-  jrunner.loadRequires();
-  jrunner.loadHelpers();
-  if (!jrunner.defaultReporterConfigured) {
-    jrunner.configureDefaultReporter({showColors: jrunner.showingColors});
-  }
-  jrunner.loadSpecs();
-  jrunner.addReporter(jrunner.completionReporter);
-
-  const allSpecs = getAllSpecs(jasmine.getEnv());
   if (TOTAL_SHARDS) {
     // Partition the specs among the shards.
     // This ensures that the specs are evenly divided over the shards.
     // Also it keeps specs in the same order and prefers to keep specs grouped together.
     // This way, common beforeEach/beforeAll setup steps aren't repeated as much over different
     // shards.
+    const allSpecs = getAllSpecs(jasmine.getEnv());
     const start = allSpecs.length * SHARD_INDEX / TOTAL_SHARDS;
     const end = allSpecs.length * (SHARD_INDEX + 1) / TOTAL_SHARDS;
-    jasmine.getEnv().execute(allSpecs.slice(start, end));
-  } else {
-    jasmine.getEnv().execute(allSpecs);
+    const enabledSpecs = allSpecs.slice(start, end);
+    jasmine.getEnv().configure({specFilter: (s) => enabledSpecs.includes(s.id)});
   }
 
+  jrunner.execute();
   return 0;
 }
 
