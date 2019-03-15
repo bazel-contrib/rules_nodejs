@@ -10,17 +10,63 @@ import (
 
 func TestResolveAgainstModuleRoot(t *testing.T) {
 	tests := []struct {
-		label, moduleRoot, moduleName, imported string
-		expectedResolution                      string
+		ruleLiteral string
+		imported    string
+		expected    string
 	}{
-		{"//a", "", "", "foo", "foo"},
-		{"//b", "", "foo", "bar", "bar"},
-		{"//c", "", "foo", "foo/bar", "c/bar"},
-		{"//actual/loc:target", "mod/root", "foo/bar", "foo/bar/baz/bam", "actual/loc/mod/root/baz/bam"},
+		{
+			ruleLiteral: `name: "//a"
+			rule_class: "ts_library"`,
+			imported: "foo",
+			expected: "foo",
+		},
+		{
+			ruleLiteral: `name: "//b"
+			rule_class: "ts_library"
+			attribute: <
+				type: 4
+				name: "module_name"
+				string_value: "foo"
+			>`,
+			imported: "bar",
+			expected: "bar",
+		},
+		{
+			ruleLiteral: `name: "//c"
+			rule_class: "ts_library"
+			attribute: <
+				type: 4
+				name: "module_name"
+				string_value: "foo"
+			>`,
+			imported: "foo/bar",
+			expected: "c/bar",
+		},
+		{
+			ruleLiteral: `name: "//actual/loc:target"
+			rule_class: "ts_library"
+			attribute: <
+				type: 4
+				name: "module_name"
+				string_value: "foo/bar"
+			>
+			attribute: <
+			type: 4
+			name: "module_root"
+			string_value: "mod/root"
+			>`,
+			imported: "foo/bar/baz/bam",
+			expected: "actual/loc/mod/root/baz/bam",
+		},
 	}
 	for _, test := range tests {
-		if resolution := resolveAgainstModuleRoot(test.label, test.moduleRoot, test.moduleName, test.imported); resolution != test.expectedResolution {
-			t.Errorf("resolveAgainstModuleRoot(%q): got %q, want %q", test.label, resolution, test.expectedResolution)
+		rule, err := parseRuleLiteral(test.ruleLiteral)
+		if err != nil {
+			t.Errorf("isRuleAnAlias(%q): failed to parse literal: %s", test.ruleLiteral, err)
+			continue
+		}
+		if actual := resolveAgainstModuleRoot(rule, test.imported); actual != test.expected {
+			t.Errorf("resolveAgainstModuleRoot(%q): got %q, want %q", rule.GetName(), actual, test.expected)
 		}
 	}
 }

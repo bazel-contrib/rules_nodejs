@@ -158,30 +158,42 @@ func (q *QueryBasedTargetLoader) LoadImportPaths(ctx context.Context, currentPkg
 	results := make(map[string]*appb.Rule)
 
 	addedPaths := make(map[string]bool)
-	var possiblePaths []string
+	var possibleFilePaths []string
+	possiblePathToPath := make(map[string]string)
+	// for all the normalized typescript import paths, generate all the possible
+	// corresponding file paths
 	for _, path := range paths {
 		if strings.HasPrefix(path, "goog:") {
 			// 'goog:' imports are resolved using an sstable.
 			results[path] = nil
 			continue
 		}
-		if !strings.HasPrefix(path, "@") {
-			if _, ok := addedPaths[path]; !ok {
-				addedPaths[path] = true
+		if strings.HasPrefix(path, "@") {
+			continue
+		}
 
-				// there isn't a one to one mapping from ts import paths to file
-				// paths, so look for all the possible file paths
-				possiblePaths = append(possiblePaths, possibleFilepaths(path)...)
+		if _, ok := addedPaths[path]; !ok {
+			addedPaths[path] = true
+
+			// there isn't a one to one mapping from ts import paths to file
+			// paths, so look for all the possible file paths
+			pfs := possibleFilepaths(path)
+			possibleFilePaths = append(possibleFilePaths, pfs...)
+			for _, pf := range pfs {
+				possiblePathToPath[pf] = path
 			}
 		}
 	}
 
-	r, err := q.batchQuery(possiblePaths)
+	// query for all the possible filepaths, to determine which ones are real
+	r, err := q.batchQuery(possibleFilePaths)
 	if err != nil {
 		return nil, err
 	}
-	var fileLabels, generators []string
-	generatorsToFiles := make(map[string][]*appb.GeneratedFile)
+	var fileLabels, packages []string
+	fileToGeneratorLabel := make(map[string]string)
+	pathToLabels := make(map[string][]string)
+	// get the labels for all the files which exist
 	for _, target := range r.GetTarget() {
 		label, err := q.fileLabel(target)
 		if err != nil {
@@ -191,50 +203,64 @@ func (q *QueryBasedTargetLoader) LoadImportPaths(ctx context.Context, currentPkg
 		case appb.Target_GENERATED_FILE:
 			file := target.GetGeneratedFile()
 			generator := file.GetGeneratingRule()
+			label = file.GetName()
 
+			fileLabels = append(fileLabels, label)
+			_, pkg, _ := edit.ParseLabel(label)
+			packages = append(packages, pkg)
 			// a generated file can be included as a source by referencing the label
 			// of the generated file, or the label of the generating rule, so check
 			// for both
-			fileLabels = append(fileLabels, file.GetName())
-			generators = append(generators, generator)
-			generatorsToFiles[generator] = append(generatorsToFiles[generator], file)
+			fileToGeneratorLabel[labelToPath(label)] = labelToPath(generator)
+			pathToLabels[possiblePathToPath[labelToPath(label)]] = append(pathToLabels[possiblePathToPath[labelToPath(label)]], label)
 		case appb.Target_SOURCE_FILE:
 			fileLabels = append(fileLabels, label)
+			_, pkg, _ := edit.ParseLabel(label)
+			packages = append(packages, pkg)
+			pathToLabels[possiblePathToPath[labelToPath(label)]] = append(pathToLabels[possiblePathToPath[labelToPath(label)]], label)
 		}
 	}
 
-	filepathToRules := make(map[string][]*appb.Rule)
-
-	// load all the rules with file srcs (either literal or generated)
-	sourceLabelToRules, err := q.loadRulesWithSources(workspaceRoot, fileLabels)
+	// load all the rules in all the packages files were found in, so we can look
+	// for aliases and reexporting libraries in the same package
+	pkgToAllRules, pkgToActualToAlias, err := q.loadAllRulesInPackages("", packages)
 	if err != nil {
 		return nil, err
-	}
-	for label, rules := range sourceLabelToRules {
-		for _, rule := range rules {
-			filepathToRules[labelToPath(label)] = append(filepathToRules[labelToPath(label)], rule)
-		}
-	}
-
-	// load all the rules with generator rule srcs
-	generatorLabelToRules, err := q.loadRulesWithSources(workspaceRoot, generators)
-	if err != nil {
-		return nil, err
-	}
-	for label, rules := range generatorLabelToRules {
-		for _, rule := range rules {
-			for _, generated := range generatorsToFiles[label] {
-				filepathToRules[labelToPath(generated.GetName())] = append(filepathToRules[labelToPath(generated.GetName())], rule)
-			}
-		}
 	}
 
 	for _, path := range paths {
-		// check all the possible file paths for the import path
-		for _, fp := range possibleFilepaths(path) {
-			if rules, ok := filepathToRules[fp]; ok {
-				rule := chooseCanonicalRule(rules)
-				results[path] = rule
+		// look up the corresponding file label(s) for the normalized typescript
+		// import path
+		for _, label := range pathToLabels[path] {
+			_, pkg, _ := edit.ParseLabel(label)
+			// get the file path that corresponds to the normalized typescript import
+			// path
+			filePath := labelToPath(label)
+			var matchingDeps []*appb.Rule
+			allRules := pkgToAllRules[pkg]
+			actualToAlias := pkgToActualToAlias[pkg]
+			for _, candidate := range typeScriptRules(allRules) {
+				// check if the rule has the file or the generator of the file in its
+				// srcs
+				possibleSources := []string{filePath}
+				if gl, ok := fileToGeneratorLabel[filePath]; ok {
+					possibleSources = append(possibleSources, gl)
+				}
+				provides, err := q.ruleProvidesImports(candidate, srcsContainsAnyFilePath(possibleSources))
+				if err != nil {
+					return nil, err
+				}
+				if !provides {
+					continue
+				}
+
+				if alias, ok := actualToAlias[candidate.GetName()]; ok {
+					candidate = alias
+				}
+				matchingDeps = append(matchingDeps, candidate)
+			}
+			if len(matchingDeps) > 0 {
+				results[path] = chooseCanonicalRule(matchingDeps)
 			}
 		}
 	}
@@ -243,14 +269,12 @@ func (q *QueryBasedTargetLoader) LoadImportPaths(ctx context.Context, currentPkg
 }
 
 // chooseCanonicalRule chooses between rules which includes the imported file as
-// a source.  It applies heuristics, such as prefering ts_library to other rule
-// types to narrow down the choices.  After narrowing, it chooses the first
-// rule.  If no rules are left after narrowing, it returns the first rule from
-// the original list.
+// a source.
 func chooseCanonicalRule(rules []*appb.Rule) *appb.Rule {
-	// filter down to only ts_library rules
+	// if any of the rules is a reexporting lib assume that the reexport was
+	// created for a reason
 	for _, r := range rules {
-		if r.GetRuleClass() == "ts_library" {
+		if isReexportingLib(r) {
 			return r
 		}
 	}
@@ -298,44 +322,6 @@ func (q *QueryBasedTargetLoader) targetLabel(target *appb.Target) (string, error
 	default:
 		return "", fmt.Errorf("target contains object of unknown type %q", t)
 	}
-}
-
-// loadRulesWithSources loads all rules which include the labels in sources as
-// srcs attributes. Returns a map from source label to a list of rules which
-// include it.  A source label can be the label of a source file or a generated
-// file or a generating rule.
-func (q *QueryBasedTargetLoader) loadRulesWithSources(workspaceRoot string, sources []string) (map[string][]*appb.Rule, error) {
-	pkgToLabels := make(map[string][]string)
-	queries := make([]string, 0, len(sources))
-	for _, label := range sources {
-		_, pkg, file := edit.ParseLabel(label)
-		pkgToLabels[pkg] = append(pkgToLabels[pkg], label)
-		// Query for all targets in the package which use file.
-		queries = append(queries, fmt.Sprintf("attr('srcs', %s, //%s:*)", file, pkg))
-	}
-	r, err := q.batchQuery(queries)
-	if err != nil {
-		return nil, err
-	}
-	labelToRules := make(map[string][]*appb.Rule)
-	for _, target := range r.GetTarget() {
-		label, err := q.ruleLabel(target)
-		if err != nil {
-			return nil, err
-		}
-		rule := target.GetRule()
-		_, pkg, _ := edit.ParseLabel(label)
-		labels := pkgToLabels[pkg]
-		for _, src := range listAttribute(rule, "srcs") {
-			for _, l := range labels {
-				if src == l {
-					labelToRules[l] = append(labelToRules[l], rule)
-					break
-				}
-			}
-		}
-	}
-	return labelToRules, nil
 }
 
 // batchQuery runs a set of queries with a single call to Bazel query and the
@@ -388,6 +374,180 @@ func (q *QueryBasedTargetLoader) query(args ...string) (*appb.QueryResult, error
 	return &result, nil
 }
 
+// ruleProvidesImports checks if the rule directly provides the import, or if
+// it's a reexporting lib, if one of its deps does.
+func (q *QueryBasedTargetLoader) ruleProvidesImports(rule *appb.Rule, srcMatcher func(rule *appb.Rule) bool) (bool, error) {
+	if srcMatcher(rule) {
+		return true, nil
+	}
+
+	if !isReexportingLib(rule) {
+		return false, nil
+	}
+
+	// if the rule is a reexporting library, load all the rules that the rule
+	// reexports, and check if they provide the imported paths.  This only handles
+	// one level of reexport.
+	_, pkg, _ := edit.ParseLabel(rule.GetName())
+	// TODO(alexeagle): Batch calls to LoadLabels. Batching calls to ruleProvidesImport
+	// would also be required.
+	exportedRules, err := q.LoadRules(pkg, exportedLabels(rule))
+	if err != nil {
+		return false, err
+	}
+	for _, exportedRule := range exportedRules {
+		if srcMatcher(exportedRule) {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
+// exportedLabels returns the labels exported by rule. Exported labels are the
+// deps of a rule if the rule is an alias.
+func exportedLabels(rule *appb.Rule) []string {
+	var exported []string
+	if isReexportingLib(rule) {
+		exported = append(exported, listAttribute(rule, "deps")...)
+	}
+	return exported
+}
+
+// isReexportingLib checks if a library has no sources, which the TS rules use a
+// way to mark a library as an alias.
+func isReexportingLib(rule *appb.Rule) bool {
+	return len(listAttribute(rule, "srcs")) == 0
+}
+
+// srcsContainsPath returns a function, which takes a rule, which returns true
+// if the rule has a src which matches one of the possible filepaths for the
+// provided typescript import path.
+func srcsContainsPath(path string) func(rule *appb.Rule) bool {
+	return func(rule *appb.Rule) bool {
+		resolvedImportPath := resolveAgainstModuleRoot(rule, path)
+
+		// enumerate all the possible filepaths for the resolved import path, and
+		// compare against all the srcs
+		possibleImportPaths := possibleFilepaths(resolvedImportPath)
+		for _, src := range listAttribute(rule, "srcs") {
+			for _, mi := range possibleImportPaths {
+				if mi == labelToPath(src) {
+					return true
+				}
+			}
+		}
+
+		return false
+	}
+}
+
+// srcsContainsFilePath returns a function which takes a rule, which returns
+// true if the rule has a src which, if pathified, equals one of the filePaths.
+func srcsContainsAnyFilePath(filePaths []string) func(rule *appb.Rule) bool {
+	return func(rule *appb.Rule) bool {
+		for _, filePath := range filePaths {
+			for _, src := range listAttribute(rule, "srcs") {
+				if filePath == labelToPath(src) {
+					return true
+				}
+			}
+		}
+
+		return false
+	}
+}
+
+// loadAllRulesInPackages loads all rules in all packages.
+//
+// If an alias or aliases are present in the package, the rules for each alias'
+// 'actual' attribute are loaded and a map from each 'actual' rule to its alias
+// rule is constructed.
+//
+// loadAllRulesInPackages returns two maps. The first map is a map from a package
+// label to all of the rules in the package. The second map is a map from a
+// package to the map of 'actual' rules to alias rules for that package.
+func (q *QueryBasedTargetLoader) loadAllRulesInPackages(currentPkg string, packages []string) (map[string][]*appb.Rule, map[string]map[string]*appb.Rule, error) {
+	var missingPackages []string
+	for _, pkg := range packages {
+		if _, ok := q.pkgCache[pkgCacheKey(currentPkg, pkg)]; !ok {
+			missingPackages = append(missingPackages, pkg)
+		}
+	}
+	if len(missingPackages) > 0 {
+		// Load any packages not already available in the cache.
+		var queries []string
+		pkgToRules := make(map[string][]*appb.Rule)
+		pkgToAliasToRule := make(map[string]map[string]*appb.Rule)
+		for _, pkg := range missingPackages {
+			if currentPkg != "" {
+				queries = append(queries, fmt.Sprintf("visible(%s:*, %s:*)", currentPkg, pkg))
+			} else {
+				queries = append(queries, fmt.Sprintf("%s:*", pkg))
+			}
+			pkgToAliasToRule[pkg] = make(map[string]*appb.Rule)
+		}
+		r, err := q.batchQuery(queries)
+		if err != nil {
+			return nil, nil, err
+		}
+		actualToAlias := make(map[string]*appb.Rule)
+		pkgToActuals := make(map[string][]string)
+		for _, target := range r.GetTarget() {
+			if target.GetType() == appb.Target_RULE {
+				rule := target.GetRule()
+				_, pkg, _ := edit.ParseLabel(rule.GetName())
+				if rule.GetRuleClass() == "alias" {
+					// if the package contains an alias, derefence it (but only one layer
+					// of aliases)
+					actual := stringAttribute(rule, "actual")
+					if actual == "" {
+						return nil, nil, fmt.Errorf(`alias %q missing "actual" attribute`, rule.GetName())
+					}
+					actualToAlias[actual] = rule
+					pkgToActuals[pkg] = append(pkgToActuals[pkg], actual)
+				} else {
+					pkgToRules[pkg] = append(pkgToRules[pkg], rule)
+				}
+			}
+		}
+		for pkg, actuals := range pkgToActuals {
+			// Load all the aliased rules, checking if they're visible from the
+			// package where they're aliased from
+			resolvedActuals, err := q.LoadRules(pkg, actuals)
+			if err != nil {
+				return nil, nil, err
+			}
+			for actual, rule := range resolvedActuals {
+				alias := actualToAlias[actual]
+				_, pkg, _ := edit.ParseLabel(alias.GetName())
+				pkgToAliasToRule[pkg][rule.GetName()] = alias
+				pkgToRules[pkg] = append(pkgToRules[pkg], rule)
+			}
+		}
+		for _, pkg := range missingPackages {
+			q.pkgCache[pkgCacheKey(currentPkg, pkg)] = &pkgCacheEntry{
+				rules:   pkgToRules[pkg],
+				aliases: pkgToAliasToRule[pkg],
+			}
+		}
+	}
+
+	pkgToRules := make(map[string][]*appb.Rule)
+	pkgToRuleToAlias := make(map[string]map[string]*appb.Rule)
+	for _, pkg := range packages {
+		cacheEntry := q.pkgCache[pkgCacheKey(currentPkg, pkg)]
+		pkgToRules[pkg] = cacheEntry.rules
+		pkgToRuleToAlias[pkg] = cacheEntry.aliases
+	}
+
+	return pkgToRules, pkgToRuleToAlias, nil
+}
+
+func pkgCacheKey(currentPkg, pkg string) string {
+	return currentPkg + "|" + pkg
+}
+
 // dedupeLabels returns a new set of labels with no duplicates.
 func dedupeLabels(labels []string) []string {
 	addedLabels := make(map[string]bool)
@@ -420,16 +580,48 @@ func typeScriptRules(rules []*appb.Rule) []*appb.Rule {
 }
 
 // resolveAgainstModuleRoot resolves imported against moduleRoot and moduleName.
-func resolveAgainstModuleRoot(label, moduleRoot, moduleName, imported string) string {
-	if moduleRoot == "" && moduleName == "" {
+func resolveAgainstModuleRoot(rule *appb.Rule, imported string) string {
+	moduleName := stringAttribute(rule, "module_name")
+	if moduleName == "" {
 		return imported
 	}
-	trim := strings.TrimPrefix(imported, moduleName)
-	if trim == imported {
+	if !pathStartsWith(imported, moduleName) {
 		return imported
 	}
-	_, pkg, _ := edit.ParseLabel(label)
-	return platform.Normalize(filepath.Join(pkg, moduleRoot, trim))
+	// if module root is a file, remove the file extension, since it'll be added
+	// by possibleFilepaths below
+	moduleRoot := stripTSExtension(stringAttribute(rule, "module_root"))
+	_, pkg, _ := edit.ParseLabel(rule.GetName())
+
+	// resolve the import path against the module name and module root, ie if
+	// the import path is @foo/bar and there's a moduleName of @foo the resolved
+	// import path is location/of/foo/bar, or if there's also a moduleRoot of
+	// baz, the resolved import path is location/of/foo/baz/bar
+	//
+	// using strings.TrimPrefix for trimming the path is ok, since
+	// pathStartsWith already checked that moduleName is a proper prefix of
+	// i.importPath
+	return platform.Normalize(filepath.Join(pkg, moduleRoot, strings.TrimPrefix(imported, moduleName)))
+}
+
+// pathStartsWith checks if path starts with prefix, checking each path segment,
+// so that @angular/core starts with @angular/core, but @angular/core-bananas
+// does not
+func pathStartsWith(path, prefix string) bool {
+	pathParts := strings.Split(path, "/")
+	prefixParts := strings.Split(prefix, "/")
+
+	if len(prefixParts) > len(pathParts) {
+		return false
+	}
+
+	for i, prefixPart := range prefixParts {
+		if prefixPart != pathParts[i] {
+			return false
+		}
+	}
+
+	return true
 }
 
 // parsePackageName parses and returns the scope and package of imported. For
