@@ -1,7 +1,8 @@
 {
   "name": "e2e-jasmine",
   "dependencies": {
-    "@bazel/jasmine": "bazel://@npm_bazel_jasmine//:npm_package"
+    "@bazel/jasmine": "bazel://@npm_bazel_jasmine//:npm_package",
+    "zone.js": "0.8.29"
   },
   "scripts": {
     "pretest": "../../scripts/link_deps.sh",

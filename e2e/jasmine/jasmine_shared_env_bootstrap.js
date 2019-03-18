@@ -8,22 +8,9 @@ require('zone.js/dist/async-test.js');
 require('zone.js/dist/fake-async-test.js');
 require('zone.js/dist/task-tracking.js');
 
-// This hack is needed to get jasmine, node and zone working inside bazel.
-// Initialize jasmine by calling jasmineCore boot. This will initialize
+// Initialize jasmine with @bazel/jasmine boot() function. This will initialize
 // global.jasmine so that it can be patched by zone.js jasmine-patch.js.
-let jasmineCore;
-try {
-  // Try unhoisted jasmine-core first so that we don't
-  // need an @npm//jasmine-core dep in the unhoisted case.
-  jasmineCore = require('jasmine/node_modules/jasmine-core');
-} catch (e) {
-  if (e.code !== 'MODULE_NOT_FOUND') {
-    // rethrow other errors
-    throw e;
-  }
-  jasmineCore = require('jasmine-core');
-}
-jasmineCore.boot(jasmineCore);
+require('@bazel/jasmine').boot();
 
 // Test that a bootstrap afterEach() is preserved in the jasmine tests
 afterEach(() => global.foobar++);

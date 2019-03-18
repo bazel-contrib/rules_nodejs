@@ -4,24 +4,28 @@ jasmine_node_test(
     name = "underscore_spec_test",
     srcs = ["foo_spec.js"],
     jasmine = "@npm//jasmine",
+    deps = ["//:jasmine_runner"],
 )
 
 jasmine_node_test(
     name = "underscore_test_test",
     srcs = ["foo_test.js"],
     jasmine = "@npm//jasmine",
+    deps = ["//:jasmine_runner"],
 )
 
 jasmine_node_test(
     name = "dot_spec_test",
     srcs = ["foo.spec.js"],
     jasmine = "@npm//jasmine",
+    deps = ["//:jasmine_runner"],
 )
 
 jasmine_node_test(
     name = "dot_test_test",
     srcs = ["foo.test.js"],
     jasmine = "@npm//jasmine",
+    deps = ["//:jasmine_runner"],
 )
 
 jasmine_node_test(
@@ -29,6 +33,7 @@ jasmine_node_test(
     srcs = ["sharded_test.js"],
     jasmine = "@npm//jasmine",
     shard_count = 3,
+    deps = ["//:jasmine_runner"],
 )
 
 jasmine_node_test(
@@ -39,4 +44,5 @@ jasmine_node_test(
     # It will fail because usage of `fit` and `fdescribe` cause Jasmine
     # to return a 'incomplete' status
     tags = ["manual"],
+    deps = ["//:jasmine_runner"],
 )
