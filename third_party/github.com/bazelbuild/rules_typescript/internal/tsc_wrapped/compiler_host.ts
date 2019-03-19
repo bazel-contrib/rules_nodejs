@@ -340,6 +340,10 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
       }
     }
 
+    if (fileName.startsWith('node_modules/')) {
+      return fileName.substring('node_modules/'.length);
+    }
+
     // path/to/file ->
     // myWorkspace/path/to/file
     return path.posix.join(workspace, fileName);
