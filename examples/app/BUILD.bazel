@@ -1,4 +1,5 @@
 load("@build_bazel_rules_nodejs//:defs.bzl", "http_server", "rollup_bundle")
+load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_package")
 load("@npm_bazel_typescript//:index.bzl", "ts_config", "ts_devserver", "ts_library")
 
 ts_library(
@@ -8,11 +9,8 @@ ts_library(
 
 ts_devserver(
     name = "devserver",
+    index_html = "index.html",
     port = 8080,
-    # This is the path we'll request from the browser, see index.html
-    serving_path = "/bundle.min.js",
-    # The devserver can serve our static files too
-    static_files = ["index.html"],
     # We'll collect all the devmode JS sources from these TypeScript libraries
     deps = [":app"],
 )
@@ -23,13 +21,22 @@ rollup_bundle(
     deps = [":app"],
 )
 
+web_package(
+    name = "package",
+    assets = [
+        # For differential loading, we supply both an ESModule entry point and an es5 entry point
+        # The injector will put two complimentary script tags in the index.html
+        ":bundle.min.js",
+        ":bundle.min.es2015.js",
+    ],
+    index_html = "index.html",
+)
+
 http_server(
     name = "prodserver",
-    data = [
-        "index.html",
-        ":bundle",
-    ],
+    data = [":package"],
     templated_args = [
+        "package",
         "-p",
         "8080",
     ],
