@@ -73,15 +73,6 @@ var_9: &job_defaults
   docker:
     - image: *default_docker_image
 
-var_8: &post_checkout
-  run:
-    name: Post checkout step
-    command: |
-      # After checkout, rebase on top of master.
-      # Similar to travis behavior, but not quite the same.
-      # See https://discuss.circleci.com/t/1662
-      git pull --ff-only origin "refs/pull/${CI_PULL_REQUEST//*pull\//}/merge"
-
 var_10: &restore_cache
   restore_cache:
     keys:
@@ -100,7 +91,6 @@ jobs:
     <<: *job_defaults
     steps:
       - checkout
-      - *post_checkout
       - *restore_cache
       - *init_environment
       - *yarn_install
