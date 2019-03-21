@@ -11,6 +11,11 @@
     "bugs": {
         "url": "https://github.com/bazelbuild/rules_nodejs/issues"
     },
+    "keywords": [
+        "jasmine",
+        "bazel"
+    ],
+    "main": "index.js",
     "dependencies": {
         "jasmine": "~3.3.1"
     },

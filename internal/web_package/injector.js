@@ -78,26 +78,40 @@ function main(params, read = fs.readFileSync, write = fs.writeFileSync, timestam
     return execPath;
   }
 
-  for (const s of params.filter(s => /\.m?js$/.test(s))) {
+  const jsFiles = params.filter(s => /\.m?js$/i.test(s));
+  for (const s of jsFiles) {
     // Differential loading: for filenames like
     //  foo.mjs
     //  bar.es2015.js
     // we use a <script type="module" tag so these are only run in browsers that have ES2015 module
     // loading
-    if (/\.(es2015\.|m)js$/.test(s)) {
+    if (/\.(es2015\.|m)js$/i.test(s)) {
       const moduleScript = treeAdapter.createElement('script', undefined, [
         {name: 'type', value: 'module'},
         {name: 'src', value: `/${relative(s)}?v=${timestamp()}`},
       ]);
       treeAdapter.appendChild(body, moduleScript);
     } else {
-      // Other filenames we assume are for non-ESModule browsers, so we add a 'nomodule' attribute
-      const noModuleScript = treeAdapter.createElement('script', undefined, [
-        // Note: empty string value is equivalent to a bare attribute, according to
-        // https://github.com/inikulin/parse5/issues/1
-        {name: 'nomodule', value: ''},
+      // Other filenames we assume are for non-ESModule browsers, so if the file has a matching
+      // ESModule script we add a 'nomodule' attribute
+      function hasMatchingModule(file, files) {
+        const noExt = file.substring(0, file.length - 3);
+        const testMjs = (noExt + '.mjs').toLowerCase();
+        const testEs2015 = (noExt + '.es2015.js').toLowerCase();
+        const matches = files.filter(t => {
+          const lc = t.toLowerCase();
+          return lc === testMjs || lc === testEs2015;
+        });
+        return matches.length > 0;
+      }
+
+      // Note: empty string value is equivalent to a bare attribute, according to
+      // https://github.com/inikulin/parse5/issues/1
+      const nomodule = hasMatchingModule(s, jsFiles) ? [{name: 'nomodule', value: ''}] : [];
+
+      const noModuleScript = treeAdapter.createElement('script', undefined, nomodule.concat([
         {name: 'src', value: `/${relative(s)}?v=${timestamp()}`},
-      ]);
+      ]));
       treeAdapter.appendChild(body, noModuleScript);
     }
   }

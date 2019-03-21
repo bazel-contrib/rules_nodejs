@@ -8,6 +8,7 @@
         "minimist": "1.2.0"
     },
     "scripts": {
-        "test": "bazel run @nodejs//:yarn && bazel test //..."
+        "pretest": "bazel run @nodejs//:yarn",
+        "test": "bazel test //..."
     }
 }

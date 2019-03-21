@@ -85,7 +85,6 @@ npm_package(
         "BUILD.bazel",
         "WORKSPACE",
         "browser_repositories.bzl",
-        "defaults.bzl",
         "defs.bzl",
         "index.bzl",
         "karma.conf.js",

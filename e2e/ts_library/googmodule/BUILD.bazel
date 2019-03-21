@@ -1,0 +1,36 @@
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
+load("@npm_bazel_typescript//:index.bzl", "ts_library")
+load("//devmode_consumer:devmode_consumer.bzl", "devmode_consumer")
+
+package(default_visibility = ["//visibility:public"])
+
+# Needed to make @npm//tsickle a data dependency of tsc_wrapped so that
+# we can compile :googmodule which sets "bazelOptions": { "tsickle": true }
+nodejs_binary(
+    name = "tsc_wrapped__bin",
+    data = [
+        "@npm//@bazel/typescript",
+        "@npm//tsickle",
+    ],
+    entry_point = "@bazel/typescript/internal/tsc_wrapped/tsc_wrapped.js",
+    install_source_map_support = False,
+)
+
+ts_library(
+    name = "googmodule",
+    srcs = ["a.ts"],
+    compiler = ":tsc_wrapped__bin",
+    tsconfig = ":tsconfig-googmodule.json",
+)
+
+devmode_consumer(
+    name = "devmode_output",
+    deps = [":googmodule"],
+)
+
+jasmine_node_test(
+    name = "googmodule_output_test",
+    srcs = ["googmodule_output_test.js"],
+    data = [":devmode_output"],
+)

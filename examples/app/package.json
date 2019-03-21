@@ -1,0 +1,17 @@
+{
+  "dependencies": {
+    "@bazel/typescript": "bazel://@npm_bazel_typescript//:npm_package",
+    "@types/jasmine": "2.8.2",
+    "@types/node": "7.0.18",
+    "concurrently": "^3.5.1",
+    "jasmine": "2.8.0",
+    "protractor": "^5.2.0",
+    "typescript": "2.7.x"
+  },
+  "scripts": {
+    "pretest": "../../scripts/link_deps.sh && bazel run @nodejs//:yarn && webdriver-manager update $CHROMEDRIVER_VERSION_ARG",
+    "e2e-devserver": "concurrently \"bazel run //:devserver\" \"while ! nc -z 127.0.0.1 8080; do sleep 1; done && protractor\" --kill-others --success first",
+    "e2e-prodserver": "concurrently \"bazel run //:prodserver\" \"while ! nc -z 127.0.0.1 8080; do sleep 1; done && protractor\" --kill-others --success first",
+    "test": "bazel build ... && yarn e2e-devserver && yarn e2e-prodserver"
+  }
+}

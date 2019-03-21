@@ -38,7 +38,7 @@ So with no other code, we can already run Parcel itself.
 $ bazel run @npm//parcel-bundler/bin:parcel
 Server running at http://localhost:1234 
 🚨  No entries found.
-    at Bundler.bundle (execroot/parcel_example/bazel-out/k8-fastbuild/bin/external/npm/node_modules/parcel-bundler/parcel__bin.runfiles/npm/node_modules/parcel-bundler/src/Bundler.js:261:17)
+    at Bundler.bundle (execroot/examples_parcel/bazel-out/k8-fastbuild/bin/external/npm/node_modules/parcel-bundler/parcel__bin.runfiles/npm/node_modules/parcel-bundler/src/Bundler.js:261:17)
 ```
 
 ## 2. Wrapping parcel in a rule (plugin)

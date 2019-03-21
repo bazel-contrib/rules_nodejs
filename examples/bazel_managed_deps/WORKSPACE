@@ -1,4 +1,4 @@
-workspace(name = "bazel_managed_deps_example")
+workspace(name = "examples_bazel_managed_deps")
 
 # In your code, you'd fetch this repository with an `http_archive` call.
 # We do this local repository only because this example lives in the same

@@ -1,0 +1,12 @@
+load("@npm_bazel_typescript//:index.bzl", "ts_library")
+
+package(default_visibility = ["//visibility:public"])
+
+ts_library(
+    name = "lib",
+    srcs = ["library.ts"],
+    # Allow this library to be imported from `some-lib`
+    module_name = "some-lib",
+    # The imported path should be the library.d.ts file
+    module_root = "library",
+)

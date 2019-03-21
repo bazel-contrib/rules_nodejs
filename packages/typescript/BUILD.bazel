@@ -14,6 +14,7 @@
 
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@build_bazel_rules_nodejs//:defs.bzl", "COMMON_REPLACEMENTS", "npm_package")
+load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
 
 bzl_library(
     name = "bzl",
@@ -38,13 +39,6 @@ genrule(
     cmd = "cp $< $@",
 )
 
-genrule(
-    name = "generate_BUILD",
-    srcs = [],
-    outs = ["BUILD"],
-    cmd = "echo \"#marker that this is a bazel package\" > $@",
-)
-
 # Ugly genrule depending on local linux environment to build the README out of skylark doc generation.
 # Only referenced when we do a release.
 # TODO: This ought to be possible with stardoc alone. Need to coordinate with Chris Parsons.
@@ -61,6 +55,7 @@ genrule(
 npm_package(
     name = "npm_package",
     srcs = [
+        "BUILD.bazel",
         "defs.bzl",
         "index.bzl",
         "package.bzl",
@@ -90,7 +85,23 @@ npm_package(
     vendor_external = ["build_bazel_rules_typescript"],
     deps = [
         ":copy_LICENSE",
-        ":generate_BUILD",
         ":generate_README",
     ],
+)
+
+# Runtime libraries needed by the protobufjs library.
+# Any JS code produced by the ts_proto_library rule has a runtime dependency on these scripts.
+js_library(
+    name = "protobufjs_bootstrap_scripts",
+    srcs = [
+        "@build_bazel_rules_typescript_protobufs_compiletime_deps//node_modules/long:dist/long.js",
+        "@build_bazel_rules_typescript_protobufs_compiletime_deps//node_modules/protobufjs:dist/minimal/protobuf.min.js",
+    ],
+    # Make devmode loading work when it does require("protobufjs/minimal")
+    # so this is shimmed to define it to equal global.protobuf
+    amd_names = {
+        "long": "Long",
+        "protobufjs/minimal": "protobuf",
+    },
+    visibility = ["//visibility:public"],
 )

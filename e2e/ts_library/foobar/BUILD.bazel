@@ -1,0 +1,37 @@
+load("@npm_bazel_typescript//:index.bzl", "ts_library")
+
+package(default_visibility = ["//visibility:public"])
+
+ts_library(
+    name = "types",
+    srcs = ["types.d.ts"],
+)
+
+ts_library(
+    name = "foo_ts_library",
+    srcs = ["foo.ts"],
+    tsconfig = ":tsconfig-foo.json",
+    deps = [
+        ":types",
+        "//generated_ts",
+    ],
+)
+
+ts_library(
+    name = "bar_ts_library",
+    srcs = ["bar.ts"],
+    tsconfig = ":tsconfig-bar.json",
+    deps = [
+        ":foo_ts_library",
+        "//generated_ts",
+        "//some_library:lib",
+        "@npm//typescript",
+        # Example of using the `@npm//@types` target to depend on all
+        # @types packages and with the types attribute of tsconfig not
+        # specified. In this case, typescript will automatically discover
+        # all types under node_modules/@types and included them in the compile.
+        # See getAutomaticTypeDirectiveNames in
+        # https://github.com/Microsoft/TypeScript/blob/master/src/compiler/moduleNameResolver.ts.
+        "@npm//@types",
+    ],
+)

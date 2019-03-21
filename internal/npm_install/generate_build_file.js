@@ -53,6 +53,7 @@ package(default_visibility = ["//visibility:public"])
 const args = process.argv.slice(2);
 const WORKSPACE = args[0];
 const INCLUDED_FILES = args[1] ? args[1].split(',') : [];
+const LOCK_FILE_LABEL = args[2];
 
 if (require.main === module) {
   main();
@@ -326,6 +327,8 @@ def _maybe(repo_rule, name, **kwargs):
         copy_repository,
         name = "${bwName}",
         marker_file = "@${WORKSPACE}//_workspaces/${bwName}:_bazel_workspace_marker",
+        # Ensure that changes to the node_modules cause the copy to re-execute
+        lock_file = "@${WORKSPACE}${LOCK_FILE_LABEL}",
     )
 `;
 

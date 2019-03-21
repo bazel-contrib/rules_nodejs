@@ -1,0 +1,61 @@
+load("@build_bazel_rules_nodejs//:defs.bzl", "http_server", "rollup_bundle")
+load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_package")
+load("@npm_bazel_typescript//:index.bzl", "ts_config", "ts_devserver", "ts_library")
+
+ts_library(
+    name = "app",
+    srcs = ["app.ts"],
+)
+
+ts_devserver(
+    name = "devserver",
+    index_html = "index.html",
+    port = 8080,
+    # We'll collect all the devmode JS sources from these TypeScript libraries
+    deps = [":app"],
+)
+
+rollup_bundle(
+    name = "bundle",
+    entry_point = "examples_app/app",
+    deps = [":app"],
+)
+
+web_package(
+    name = "package",
+    assets = [
+        # For differential loading, we supply both an ESModule entry point and an es5 entry point
+        # The injector will put two complimentary script tags in the index.html
+        ":bundle.min.js",
+        ":bundle.min.es2015.js",
+    ],
+    index_html = "index.html",
+)
+
+http_server(
+    name = "prodserver",
+    data = [":package"],
+    templated_args = [
+        "package",
+        "-p",
+        "8080",
+    ],
+)
+
+ts_config(
+    name = "tsconfig-test",
+    src = "tsconfig-test.json",
+    deps = [":tsconfig.json"],
+)
+
+ts_library(
+    name = "e2e",
+    testonly = 1,
+    srcs = ["app_e2e_test.ts"],
+    tsconfig = ":tsconfig-test",
+    deps = [
+        "@npm//@types/jasmine",
+        "@npm//@types/node",
+        "@npm//protractor",
+    ],
+)

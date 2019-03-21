@@ -33,11 +33,6 @@ bzl_library(
 exports_files(["launcher_template.sh"])
 
 filegroup(
-    name = "source_tree",
-    srcs = glob(["**/*"]),
-)
-
-filegroup(
     name = "npm_package_assets",
     srcs = glob(["*"]),
     visibility = ["//internal:__pkg__"],

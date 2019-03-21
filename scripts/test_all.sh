@@ -30,7 +30,7 @@ echo_and_run bazel build ...
 
 printf "\n\nTesting all targets\n"
 if [[ ${machine} == "Windows" ]] ; then
-    echo_and_runbazel test ... --test_tag_filters=-fix-windows
+    echo_and_run bazel test ... --test_tag_filters=-fix-windows
 else
     echo_and_run bazel test ...
 fi
@@ -44,7 +44,7 @@ echo_and_run bazel run //internal/node/test:has_deps_hybrid
 echo_and_run bazel run //internal/e2e/fine_grained_no_bin:index
 echo_and_run bazel run @fine_grained_deps_yarn//typescript/bin:tsc
 
-# bazel test @program_example//... # DOES NOT WORK WITH --nolegacy_external_runfiles
+# bazel test @examples_program//... # DOES NOT WORK WITH --nolegacy_external_runfiles
 # bazel test @packages_example//... # DOES NOT WORK WITH --nolegacy_external_runfiles
 
 echo_and_run ./scripts/build_release.sh
