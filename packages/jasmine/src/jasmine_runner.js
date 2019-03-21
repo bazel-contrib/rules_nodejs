@@ -94,16 +94,34 @@ function main(args) {
   });
 
   if (TOTAL_SHARDS) {
-    // Partition the specs among the shards.
-    // This ensures that the specs are evenly divided over the shards.
-    // Also it keeps specs in the same order and prefers to keep specs grouped together.
-    // This way, common beforeEach/beforeAll setup steps aren't repeated as much over different
-    // shards.
-    const allSpecs = getAllSpecs(jasmine.getEnv());
-    const start = allSpecs.length * SHARD_INDEX / TOTAL_SHARDS;
-    const end = allSpecs.length * (SHARD_INDEX + 1) / TOTAL_SHARDS;
-    const enabledSpecs = allSpecs.slice(start, end);
-    jasmine.getEnv().configure({specFilter: (s) => enabledSpecs.includes(s.id)});
+    // Since we want to collect all the loaded specs, we have to do this after
+    // loadSpecs() in jasmine/lib/jasmine.js
+    // However, we must add our filter before the runnable specs are calculated
+    // so that our filtering is applied.
+    // The jasmineStarted() callback is called by the "inner" execute function
+    // in jasmine-core, which is too late.
+    // Patch the inner execute function to do our filtering first.
+    const env = jasmine.getEnv();
+    const originalExecute = env.execute.bind(env);
+    env.execute = () => {
+      const allSpecs = getAllSpecs(env);
+      // Partition the specs among the shards.
+      // This ensures that the specs are evenly divided over the shards.
+      // Also it keeps specs in the same order and prefers to keep specs grouped together.
+      // This way, common beforeEach/beforeAll setup steps aren't repeated as much over different
+      // shards.
+      const start = allSpecs.length * SHARD_INDEX / TOTAL_SHARDS;
+      const end = allSpecs.length * (SHARD_INDEX + 1) / TOTAL_SHARDS;
+      const enabledSpecs = allSpecs.slice(start, end);
+      env.configure({specFilter: (s) => enabledSpecs.includes(s.id)});
+      originalExecute();
+    };
+    // Special case!
+    // To allow us to test sharding, always run the specs in the order they are declared
+    if (process.env['TEST_WORKSPACE'] === 'npm_bazel_jasmine' &&
+        process.env['BAZEL_TARGET'] === '//test:sharding_test') {
+      jrunner.randomizeTests(false);
+    }
   }
 
   jrunner.execute();

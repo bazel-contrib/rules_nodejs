@@ -37,12 +37,23 @@ jasmine_node_test(
 )
 
 jasmine_node_test(
+    name = "failing_sharding_test",
+    srcs = ["failing_sharded_test.js"],
+    expected_exit_code = 3,
+    jasmine = "@npm//jasmine",
+    shard_count = 2,
+    deps = ["//:jasmine_runner"],
+)
+
+jasmine_node_test(
     name = "filtering_test",
     srcs = ["filtering_test.js"],
-    jasmine = "@npm//jasmine",
-    # Only run this test when explicitly included in the target patterns
-    # It will fail because usage of `fit` and `fdescribe` cause Jasmine
+    # This test will fail because usage of `fit` and `fdescribe` cause Jasmine
     # to return a 'incomplete' status
-    tags = ["manual"],
+    # TODO(alexeagle): find a way to assert that the right things were filtered
+    # maybe sniff the stdout for Ran 1 of 3 specs
+    # or change the exit code for Jasmine 'incomplete' status
+    expected_exit_code = 3,
+    jasmine = "@npm//jasmine",
     deps = ["//:jasmine_runner"],
 )
