@@ -1,7 +1,7 @@
-import {sayFive} from './lib';
+import {sayDate} from './lib';
 
-console.log(sayFive());
+console.log(sayDate());
 
 export function test() {
-  return `test ${sayFive()}`;
+  return `test ${sayDate()}`;
 }
