@@ -260,7 +260,11 @@ func (q *QueryBasedTargetLoader) LoadImportPaths(ctx context.Context, currentPkg
 				matchingDeps = append(matchingDeps, candidate)
 			}
 			if len(matchingDeps) > 0 {
-				results[path] = chooseCanonicalRule(matchingDeps)
+				canonicalRule, err := q.chooseCanonicalRule(currentPkg, matchingDeps)
+				if err != nil {
+					return nil, err
+				}
+				results[path] = canonicalRule
 			}
 		}
 	}
@@ -268,19 +272,53 @@ func (q *QueryBasedTargetLoader) LoadImportPaths(ctx context.Context, currentPkg
 	return results, nil
 }
 
-// chooseCanonicalRule chooses between rules which includes the imported file as
-// a source.
-func chooseCanonicalRule(rules []*appb.Rule) *appb.Rule {
-	// if any of the rules is a reexporting lib assume that the reexport was
-	// created for a reason
+// chooseCanonicalRule chooses between rules which include the imported file as
+// a source (ie the rule that includes the file as a src, and any reexporting
+// libraries).
+//
+// It filters the rules in a 2 stage process:
+//
+// 1. If only one of the rules is visible, choose that one, since the rule
+// creator intended it to be imported.
+//
+// 2. If all or none of the rules are visible, choose the rule that directly
+// includes the file as a src, since that reduces the chance of introducing
+// circular dependencies.
+func (q *QueryBasedTargetLoader) chooseCanonicalRule(currentPkg string, rules []*appb.Rule) (*appb.Rule, error) {
+	// check for visibility
+	var labels []string
 	for _, r := range rules {
-		if isReexportingLib(r) {
-			return r
+		labels = append(labels, r.GetName())
+	}
+	visibleRulesMap, err := q.LoadRules(currentPkg, labels)
+	if err != nil {
+		return nil, err
+	}
+
+	var visibleRules []*appb.Rule
+	for _, r := range visibleRulesMap {
+		if r != nil {
+			visibleRules = append(visibleRules, r)
+		}
+	}
+
+	if len(visibleRules) == 1 {
+		return visibleRules[0], nil
+	} else if len(visibleRules) > 0 {
+		rules = visibleRules
+	}
+
+	// if there's a visible reexporting lib and a visible lib with the src, favor
+	// the lib with the src, to reduce the chance of introducing a circular
+	// dependency
+	for _, r := range rules {
+		if !isReexportingLib(r) {
+			return r, nil
 		}
 	}
 
 	// if no rules matched the filter, just return the first rule
-	return rules[0]
+	return rules[0], nil
 }
 
 // ruleLabel returns the label for a target which is a rule.  Returns an error if
