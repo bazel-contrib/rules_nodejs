@@ -579,6 +579,7 @@ def node_repositories(
         name = "build_bazel_rules_nodejs_rollup_deps",
         package_json = "@build_bazel_rules_nodejs//internal/rollup:package.json",
         yarn_lock = "@build_bazel_rules_nodejs//internal/rollup:yarn.lock",
+        data = ["@build_bazel_rules_nodejs//internal/rollup:postinstall-patches.js"],
     )
 
     _maybe(
