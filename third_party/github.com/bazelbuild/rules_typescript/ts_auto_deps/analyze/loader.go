@@ -159,7 +159,7 @@ func (q *QueryBasedTargetLoader) LoadImportPaths(ctx context.Context, currentPkg
 
 	addedPaths := make(map[string]bool)
 	var possibleFilePaths []string
-	possiblePathToPath := make(map[string]string)
+	possiblePathToPaths := make(map[string][]string)
 	// for all the normalized typescript import paths, generate all the possible
 	// corresponding file paths
 	for _, path := range paths {
@@ -179,8 +179,10 @@ func (q *QueryBasedTargetLoader) LoadImportPaths(ctx context.Context, currentPkg
 			// paths, so look for all the possible file paths
 			pfs := possibleFilepaths(path)
 			possibleFilePaths = append(possibleFilePaths, pfs...)
+			// map the file paths back to the import paths so we can map the file
+			// labels back to the import paths
 			for _, pf := range pfs {
-				possiblePathToPath[pf] = path
+				possiblePathToPaths[pf] = append(possiblePathToPaths[pf], path)
 			}
 		}
 	}
@@ -212,12 +214,20 @@ func (q *QueryBasedTargetLoader) LoadImportPaths(ctx context.Context, currentPkg
 			// of the generated file, or the label of the generating rule, so check
 			// for both
 			fileToGeneratorLabel[labelToPath(label)] = labelToPath(generator)
-			pathToLabels[possiblePathToPath[labelToPath(label)]] = append(pathToLabels[possiblePathToPath[labelToPath(label)]], label)
+			// map file label back to the import paths so that they can be looked for
+			// in the srcs of the rules
+			for _, path := range possiblePathToPaths[labelToPath(label)] {
+				pathToLabels[path] = append(pathToLabels[path], label)
+			}
 		case appb.Target_SOURCE_FILE:
 			fileLabels = append(fileLabels, label)
 			_, pkg, _ := edit.ParseLabel(label)
 			packages = append(packages, pkg)
-			pathToLabels[possiblePathToPath[labelToPath(label)]] = append(pathToLabels[possiblePathToPath[labelToPath(label)]], label)
+			// map file label back to the import paths so that they can be looked for
+			// in the srcs of the rules
+			for _, path := range possiblePathToPaths[labelToPath(label)] {
+				pathToLabels[path] = append(pathToLabels[path], label)
+			}
 		}
 	}
 
