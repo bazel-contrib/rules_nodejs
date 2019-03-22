@@ -75,7 +75,7 @@ func (q *QueryBasedTargetLoader) LoadRules(pkg string, labels []string) (map[str
 		if target.GetType() == appb.Target_RULE {
 			labelToRule[label] = target.GetRule()
 		} else {
-			return nil, fmt.Errorf("target contains object of type %q instead of type %q", target.GetType(), appb.Target_RULE)
+			return nil, fmt.Errorf("target %s contains object of type %q instead of type %q", label, target.GetType(), appb.Target_RULE)
 		}
 	}
 	return labelToRule, nil
@@ -560,13 +560,20 @@ func (q *QueryBasedTargetLoader) loadAllRulesInPackages(currentPkg string, packa
 			}
 		}
 		for pkg, actuals := range pkgToActuals {
-			// Load all the aliased rules, checking if they're visible from the
+			// Load all the aliased targets, checking if they're visible from the
 			// package where they're aliased from
-			resolvedActuals, err := q.LoadRules(pkg, actuals)
+			resolvedActuals, err := q.LoadTargets(pkg, actuals)
 			if err != nil {
 				return nil, nil, err
 			}
-			for actual, rule := range resolvedActuals {
+			for actual, target := range resolvedActuals {
+				// aliases can be for anything, but deps can only be rules, so ignore
+				// other aliased targets
+				if target.GetType() != appb.Target_RULE {
+					continue
+				}
+
+				rule := target.GetRule()
 				alias := actualToAlias[actual]
 				_, pkg, _ := edit.ParseLabel(alias.GetName())
 				pkgToAliasToRule[pkg][rule.GetName()] = alias
