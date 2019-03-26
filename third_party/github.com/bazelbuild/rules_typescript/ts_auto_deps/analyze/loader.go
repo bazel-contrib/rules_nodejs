@@ -550,7 +550,10 @@ func (q *QueryBasedTargetLoader) loadAllRulesInPackages(currentPkg string, packa
 					// of aliases)
 					actual := stringAttribute(rule, "actual")
 					if actual == "" {
-						return nil, nil, fmt.Errorf(`alias %q missing "actual" attribute`, rule.GetName())
+						// probably an alias with a select statement as the value for
+						// 'actual' - just ignore
+						platform.Infof(`alias %q has non-string "actual" attribute`, rule.GetName())
+						continue
 					}
 					actualToAlias[actual] = rule
 					pkgToActuals[pkg] = append(pkgToActuals[pkg], actual)
