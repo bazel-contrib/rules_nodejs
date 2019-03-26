@@ -1,0 +1,15 @@
+load("@npm_angular_bazel//:index.bzl", "ng_module")
+
+package(default_visibility = ["//visibility:public"])
+
+ng_module(
+    name = "material",
+    srcs = glob(["*.ts"]),
+    deps = [
+        "@npm//@angular/core",
+        "@npm//@angular/forms",
+        "@npm//@angular/material",
+        "@npm//@angular/platform-browser",
+        "@npm//@types",
+    ],
+)

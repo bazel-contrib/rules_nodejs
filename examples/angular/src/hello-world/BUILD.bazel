@@ -1,0 +1,122 @@
+package(default_visibility = ["//visibility:public"])
+
+load("@npm_bazel_karma//:defs.bzl", "ts_web_test_suite")
+load("@npm_bazel_typescript//:defs.bzl", "ts_library")
+load("@io_bazel_rules_sass//sass:sass.bzl", "sass_binary")
+load("@npm_angular_bazel//:index.bzl", "ng_module", "ng_package")
+
+sass_binary(
+    name = "hello-world-styles",
+    src = "hello-world.component.scss",
+    deps = ["//src/styles:shared"],
+)
+
+ng_module(
+    name = "hello-world",
+    srcs = [
+        "hello-world.component.ts",
+        "hello-world.module.ts",
+    ],
+    assets = [
+        ":hello-world.component.html",
+        ":hello-world-styles",
+    ],
+    deps = [
+        "//src/material",
+        "@npm//@angular/core",
+        "@npm//@angular/forms",
+        "@npm//@angular/material",
+        "@npm//@types",
+    ],
+)
+
+ts_library(
+    name = "test_lib",
+    testonly = 1,
+    srcs = glob(["*.spec.ts"]),
+    deps = [
+        ":hello-world",
+        "@npm//@angular/core",
+        "@npm//@angular/platform-browser",
+        "@npm//@angular/platform-browser-dynamic",
+        "@npm//@types",
+        "@npm//jasmine",
+    ],
+)
+
+ts_web_test_suite(
+    name = "test",
+    srcs = [
+        "@npm//node_modules/@angular/animations:bundles/animations.umd.js",
+        "@npm//node_modules/@angular/animations:bundles/animations-browser.umd.js",
+        "@npm//node_modules/@angular/cdk:bundles/cdk-observers.umd.js",
+        "@npm//node_modules/@angular/cdk:bundles/cdk-collections.umd.js",
+        "@npm//node_modules/@angular/cdk:bundles/cdk-bidi.umd.js",
+        "@npm//node_modules/@angular/cdk:bundles/cdk-text-field.umd.js",
+        "@npm//node_modules/@angular/cdk:bundles/cdk-keycodes.umd.js",
+        "@npm//node_modules/@angular/cdk:bundles/cdk-coercion.umd.js",
+        "@npm//node_modules/@angular/cdk:bundles/cdk-platform.umd.js",
+        "@npm//node_modules/@angular/cdk:bundles/cdk-a11y.umd.js",
+        "@npm//node_modules/@angular/common:bundles/common.umd.js",
+        "@npm//node_modules/@angular/common:bundles/common-http.umd.js",
+        "@npm//node_modules/@angular/compiler:bundles/compiler.umd.js",
+        "@npm//node_modules/@angular/compiler:bundles/compiler-testing.umd.js",
+        "@npm//node_modules/@angular/core:bundles/core.umd.js",
+        "@npm//node_modules/@angular/core:bundles/core-testing.umd.js",
+        "@npm//node_modules/@angular/forms:bundles/forms.umd.js",
+        "@npm//node_modules/@angular/material:bundles/material-core.umd.js",
+        "@npm//node_modules/@angular/material:bundles/material-button.umd.js",
+        "@npm//node_modules/@angular/material:bundles/material-card.umd.js",
+        "@npm//node_modules/@angular/material:bundles/material-form-field.umd.js",
+        "@npm//node_modules/@angular/material:bundles/material-icon.umd.js",
+        "@npm//node_modules/@angular/material:bundles/material-input.umd.js",
+        "@npm//node_modules/@angular/material:bundles/material-list.umd.js",
+        "@npm//node_modules/@angular/material:bundles/material-toolbar.umd.js",
+        "@npm//node_modules/@angular/material:bundles/material-divider.umd.js",
+        "@npm//node_modules/@angular/platform-browser:bundles/platform-browser.umd.js",
+        "@npm//node_modules/@angular/platform-browser:bundles/platform-browser-testing.umd.js",
+        "@npm//node_modules/@angular/platform-browser:bundles/platform-browser-animations.umd.js",
+        "@npm//node_modules/@angular/platform-browser-dynamic:bundles/platform-browser-dynamic.umd.js",
+        "@npm//node_modules/@angular/platform-browser-dynamic:bundles/platform-browser-dynamic-testing.umd.js",
+        "@npm//node_modules/@angular/forms:forms.ngsummary.js",
+        "@npm//node_modules/tslib:tslib.js",
+        # ngsummary files
+        "@npm//node_modules/@angular/common:common.ngsummary.js",
+        "@npm//node_modules/@angular/cdk:bidi/typings/index.ngsummary.js",
+        "@npm//node_modules/@angular/cdk:platform/typings/index.ngsummary.js",
+        "@npm//node_modules/@angular/cdk:observers/typings/index.ngsummary.js",
+        "@npm//node_modules/@angular/cdk:text-field/typings/index.ngsummary.js",
+        "@npm//node_modules/@angular/material:core/typings/index.ngsummary.js",
+        "@npm//node_modules/@angular/material:button/typings/index.ngsummary.js",
+        "@npm//node_modules/@angular/material:card/typings/index.ngsummary.js",
+        "@npm//node_modules/@angular/material:form-field/typings/index.ngsummary.js",
+        "@npm//node_modules/@angular/material:icon/typings/index.ngsummary.js",
+        "@npm//node_modules/@angular/material:input/typings/index.ngsummary.js",
+        "@npm//node_modules/@angular/material:divider/typings/index.ngsummary.js",
+        "@npm//node_modules/@angular/material:list/typings/index.ngsummary.js",
+        "@npm//node_modules/@angular/material:toolbar/typings/index.ngsummary.js",
+        # ngfactory files
+        "@npm//node_modules/@angular/material:core/typings/index.ngfactory.js",
+        "@npm//node_modules/@angular/material:button/typings/index.ngfactory.js",
+        "@npm//node_modules/@angular/material:card/typings/index.ngfactory.js",
+        "@npm//node_modules/@angular/material:form-field/typings/index.ngfactory.js",
+        "@npm//node_modules/@angular/material:icon/typings/index.ngfactory.js",
+        "@npm//node_modules/@angular/material:divider/typings/index.ngfactory.js",
+        "@npm//node_modules/@angular/material:list/typings/index.ngfactory.js",
+        "@npm//node_modules/@angular/material:toolbar/typings/index.ngfactory.js",
+    ],
+    bootstrap = [
+        "@npm//node_modules/zone.js:dist/zone-testing-bundle.js",
+        "@npm//node_modules/reflect-metadata:Reflect.js",
+    ],
+    browsers = [
+        "@io_bazel_rules_webtesting//browsers:chromium-local",
+        # TODO(gregmagolan): re-enable firefox testing once fixed
+        # See https://github.com/bazelbuild/rules_typescript/issues/296
+        # "@io_bazel_rules_webtesting//browsers:firefox-local",
+    ],
+    deps = [
+        ":test_lib",
+        "//src:rxjs_umd_modules",
+    ],
+)

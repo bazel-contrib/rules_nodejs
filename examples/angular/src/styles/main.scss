@@ -1,0 +1,47 @@
+@import "./fonts";
+@import "./colors";
+
+html, body {
+  font-family: $default-font-stack;
+  padding: 0;
+  margin: 0;
+
+  .content {
+    margin: 2rem;
+  }
+}
+
+nav > .mat-toolbar {
+	background: $theme-secondary;
+	color: #fff;
+
+	.nav-logo {
+		padding-top: 12px;
+		height: 28px;
+	}
+
+	.flex-spacer {
+		flex: 1 1 auto;
+	}
+
+	a {
+		text-decoration: none;
+	}
+}
+
+.mobile-nav > a {
+	flex: 1 1 auto;
+}
+
+.hide-small {
+	@media screen and (max-width: 720px) {
+		display: none !important;
+	}
+}
+
+.show-small {
+	@media screen and (min-width: 720px) {
+		display: none !important;
+	}
+}
+
