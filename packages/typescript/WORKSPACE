@@ -23,7 +23,7 @@ rules_nodejs_dev_dependencies()
 # With http_archive it only sees releases/download/*.tar.gz urls
 git_repository(
     name = "build_bazel_rules_typescript",
-    commit = "3a85a90c259e9c49f652142ce439044baad0f24e",
+    commit = "d6fe9d41fdba46f401e76ac656475e9e98cacf03",
     remote = "http://github.com/bazelbuild/rules_typescript.git",
 )
 
