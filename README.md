@@ -34,7 +34,7 @@ See sections below for details and alternative methods.
     $ npm install --save-dev @bazel/bazel @bazel/ibazel @bazel/buildifier
     ```
 
-2. Create a file called `WORKSPACE` in the root of your repo, containing
+1. Create a file called `WORKSPACE` in the root of your repo, containing
 
     ```python
     load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
@@ -76,7 +76,9 @@ See sections below for details and alternative methods.
     install_bazel_dependencies()
     ```
 
-3. In your `package.json`, find the `"scripts"` section, or create one.
+1. Create a file `BUILD.bazel` in the root of your repo, next to the `package.json` file. It can be empty for now.
+
+1. In your `package.json`, find the `"scripts"` section, or create one.
 
     ```json
     "scripts": {
@@ -85,7 +87,7 @@ See sections below for details and alternative methods.
     }
     ```
 
-4. Test that you can do an initial build. It will report that no targets were found yet.
+1. Test that you can do an initial build. It will report that no targets were found yet.
 
     ```sh
     $ yarn build
