@@ -16,7 +16,7 @@ import (
 )
 
 var (
-	port            = flag.Int("port", 5432, "server port to listen on")
+	port = flag.Int("port", 5432, "server port to listen on")
 	// The "base" CLI flag is only kept because within Google3 because removing would be a breaking change due to
 	// ConcatJS and "devserver/devserver.go" still respecting the specified base flag.
 	base            = flag.String("base", "", "server base (required, runfiles of the binary)")
@@ -112,6 +112,12 @@ func main() {
 	h, err := os.Hostname()
 	if err != nil {
 		h = "localhost"
+	}
+	// Detect if we are running in a linux container inside ChromeOS
+	// If so, we assume you want to use the native browser (outside the container)
+	// so you'll need to modify the hostname to access the server
+	if _, err := os.Stat("/etc/apt/sources.list.d/cros.list"); err == nil {
+		h = h + ".linux.test"
 	}
 
 	fmt.Printf("Server listening on http://%s:%d/\n", h, *port)
