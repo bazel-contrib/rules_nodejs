@@ -13,7 +13,7 @@
 # limitations under the License.
 
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
-load("//:defs.bzl", "jasmine_node_test", "nodejs_binary")
+load("//:defs.bzl", "nodejs_binary")
 
 licenses(["notice"])  # Apache 2.0
 
@@ -86,6 +86,12 @@ nodejs_binary(
     visibility = ["//visibility:public"],
 )
 
+# BEGIN-INTERNAL
+# TODO: switch to npm_bazel_jasmine
+# buildozer: disable=load-on-top
+# buildozer: disable=out-of-order-load
+load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
+
 jasmine_node_test(
     name = "test",
     srcs = glob(["*.spec.js"]),
@@ -104,6 +110,7 @@ jasmine_node_test(
     ],
 )
 
+# END-INTERNAL
 filegroup(
     name = "package_contents",
     srcs = glob(

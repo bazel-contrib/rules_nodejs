@@ -1,5 +1,5 @@
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
-load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test", "nodejs_binary")
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -36,6 +36,12 @@ nodejs_binary(
     install_source_map_support = False,
 )
 
+# BEGIN-INTERNAL
+# TODO: switch to npm_bazel_jasmine
+# buildozer: disable=load-on-top
+# buildozer: disable=same-origin-load
+load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
+
 jasmine_node_test(
     name = "injector_test",
     srcs = ["injector_spec.js"],
@@ -57,6 +63,7 @@ jasmine_node_test(
     ],
 )
 
+# END-INTERNAL
 filegroup(
     name = "package_contents",
     srcs = glob(
