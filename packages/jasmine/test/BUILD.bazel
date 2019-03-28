@@ -57,3 +57,17 @@ jasmine_node_test(
     jasmine = "@npm//jasmine",
     deps = ["//:jasmine_runner"],
 )
+
+jasmine_node_test(
+    name = "coverage_test",
+    srcs = [
+        "coverage.spec.js",
+        "coverage_source.js",
+    ],
+    coverage = True,
+    jasmine = "@npm//jasmine",
+    deps = [
+        "//:jasmine_runner",
+        "@npm//v8-coverage",
+    ],
+)
