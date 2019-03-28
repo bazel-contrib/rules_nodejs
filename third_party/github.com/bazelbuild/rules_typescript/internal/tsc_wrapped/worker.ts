@@ -1,20 +1,24 @@
 import * as path from 'path';
-/* tslint:disable:no-require-imports */
-const protobufjs = require('protobufjs');
-// tslint:disable-next-line:variable-name: ByteBuffer is instantiatable.
-const ByteBuffer = require('bytebuffer');
+import * as protobufjs from 'protobufjs';
 
 // Equivalent of running node with --expose-gc
 // but easier to write tooling since we don't need to inject that arg to
 // nodejs_binary
 if (typeof global.gc !== 'function') {
+  // tslint:disable-next-line:no-require-imports
   require('v8').setFlagsFromString('--expose_gc');
+  // tslint:disable-next-line:no-require-imports
   global.gc = require('vm').runInNewContext('gc');
 }
 
+/**
+ * Whether to print debug messages (to console.error) from the debug function
+ * below.
+ */
 export const DEBUG = false;
 
-export function debug(...args: Array<{}>) {
+/** Maybe print a debug message (depending on a flag defaulting to false). */
+export function debug(...args: Array<unknown>) {
   if (DEBUG) console.error.apply(console, args);
 }
 
@@ -26,14 +30,52 @@ export function log(...args: Array<{}>) {
   console.error.apply(console, args);
 }
 
+/**
+ * runAsWorker returns true if the given arguments indicate the process should
+ * run as a persistent worker.
+ */
 export function runAsWorker(args: string[]) {
   return args.indexOf('--persistent_worker') !== -1;
 }
 
-const workerpb = (function loadWorkerPb() {
-  const protoPath = '../worker_protocol.proto';
+/**
+ * workerProto declares the static type of the object constructed at runtime by
+ * protobufjs, based on reading the protocol buffer definition.
+ */
+declare namespace workerProto {
+  /** Input represents the blaze.worker.Input message. */
+  interface Input extends protobufjs.Message<Input> {
+    path: string;
+    /**
+     * In Node, digest is a Buffer. In the browser, it's a replacement
+     * implementation. We only care about its toString(encoding) method.
+     */
+    digest: {toString(encoding: string): string};
+  }
 
-  // Use node module resolution so we can find the .proto file in any of the root dirs
+  /** WorkRequest repesents the blaze.worker.WorkRequest message. */
+  interface WorkRequest extends protobufjs.Message<WorkRequest> {
+    arguments: string[];
+    inputs: Input[];
+  }
+
+  // tslint:disable:variable-name reflected, constructable types.
+  const WorkRequest: protobufjs.Type;
+  const WorkResponse: protobufjs.Type;
+  // tslint:enable:variable-name
+}
+
+/**
+ * loadWorkerPb finds and loads the protocol buffer definition for bazel's
+ * worker protocol using protobufjs. In protobufjs, this means it's a reflection
+ * object that also contains properties for the individual messages.
+ */
+function loadWorkerPb() {
+  const protoPath =
+      '../worker_protocol.proto';
+
+  // Use node module resolution so we can find the .proto file in any of the
+  // root dirs
   let protofile;
   try {
     // Look for the .proto file relative in its @bazel/typescript npm package
@@ -50,35 +92,32 @@ const workerpb = (function loadWorkerPb() {
         '../../third_party/github.com/bazelbuild/bazel/src/main/protobuf/worker_protocol.proto');
   }
 
-  // Under Bazel, we use the version of TypeScript installed in the user's
-  // workspace This means we also use their version of protobuf.js. Handle both.
-  // v5 and v6 by checking which one is present.
-  if (protobufjs.loadProtoFile) {
-    // Protobuf.js v5
-    const protoNamespace = protobufjs.loadProtoFile(protofile);
-    if (!protoNamespace) {
-      throw new Error('Cannot find ' + path.resolve(protoPath));
-    }
-    return protoNamespace.build('blaze.worker');
-  } else {
-    // Protobuf.js v6
-    const protoNamespace = protobufjs.loadSync(protofile);
-    if (!protoNamespace) {
-      throw new Error('Cannot find ' + path.resolve(protoPath));
-    }
-    return protoNamespace.lookup('blaze.worker');
+  const protoNamespace = protobufjs.loadSync(protofile);
+  if (!protoNamespace) {
+    throw new Error('Cannot find ' + path.resolve(protoPath));
   }
-})();
-
-interface Input {
-  getPath(): string;
-  getDigest(): {toString(encoding: string): string};  // npm:ByteBuffer
-}
-interface WorkRequest {
-  getArguments(): string[];
-  getInputs(): Input[];
+  const workerpb = protoNamespace.lookup('blaze.worker');
+  if (!workerpb) {
+    throw new Error(`Cannot find namespace blaze.worker`);
+  }
+  return workerpb as protobufjs.ReflectionObject & typeof workerProto;
 }
 
+/**
+ * workerpb contains the runtime representation of the worker protocol buffer,
+ * including accessor for the defined messages.
+ */
+const workerpb = loadWorkerPb();
+
+/**
+ * runWorkerLoop handles the interacton between bazel workers and the
+ * TypeScript compiler. It reads compilation requests from stdin, unmarshals the
+ * data, and dispatches into `runOneBuild` for the actual compilation to happen.
+ *
+ * The compilation handler is parameterized so that this code can be used by
+ * different compiler entry points (currently TypeScript compilation and Angular
+ * compilation).
+ */
 export function runWorkerLoop(
     runOneBuild: (args: string[], inputs?: {[path: string]: string}) =>
         boolean) {
@@ -88,39 +127,54 @@ export function runWorkerLoop(
   // user as expected.
   let consoleOutput = '';
   process.stderr.write =
-      (chunk: string | Buffer, ...otherArgs: any[]): boolean => {
+      (chunk: string|Buffer, ...otherArgs: Array<unknown>): boolean => {
         consoleOutput += chunk.toString();
         return true;
       };
 
   // Accumulator for asynchronously read input.
-  // tslint:disable-next-line:no-any protobufjs is untyped
-  let buf: any;
+  // protobufjs uses node's Buffer, but has its own reader abstraction on top of
+  // it (for browser compatiblity). It ignores Buffer's builtin start and
+  // offset, which means the handling code below cannot use Buffer in a
+  // meaningful way (such as cycling data through it). The handler below reads
+  // any data available on stdin, concatenating it into this buffer. It then
+  // attempts to read a delimited Message from it. If a message is incomplete,
+  // it exits and waits for more input. If a message has been read, it strips
+  // its data of this buffer.
+  let buf: Buffer = Buffer.alloc(0);
   process.stdin.on('readable', () => {
-    const chunk = process.stdin.read();
+    const chunk = process.stdin.read() as Buffer;
     if (!chunk) return;
-
-    const wrapped = ByteBuffer.wrap(chunk);
-    buf = buf ? ByteBuffer.concat([buf, wrapped]) : wrapped;
+    buf = Buffer.concat([buf, chunk]);
     try {
-      let req: WorkRequest;
+      const reader = new protobufjs.Reader(buf);
       // Read all requests that have accumulated in the buffer.
-      while ((req = workerpb.WorkRequest.decodeDelimited(buf)) != null) {
+      while (reader.len - reader.pos > 0) {
+        const messageStart = reader.len;
+        const msgLength: number = reader.uint32();
+        // chunk might be an incomplete read from stdin. If there are not enough
+        // bytes for the next full message, wait for more input.
+        if ((reader.len - reader.pos) < msgLength) return;
+
+        const req = workerpb.WorkRequest.decode(reader, msgLength) as
+            workerProto.WorkRequest;
+        // Once a message has been read, remove it from buf so that if we pause
+        // to read more input, this message will not be processed again.
+        buf = buf.slice(messageStart);
         debug('=== Handling new build request');
         // Reset accumulated log output.
         consoleOutput = '';
-        const args = req.getArguments();
+        const args = req.arguments;
         const inputs: {[path: string]: string} = {};
-        for (const input of req.getInputs()) {
-          inputs[input.getPath()] = input.getDigest().toString('hex');
+        for (const input of req.inputs) {
+          inputs[input.path] = input.digest.toString('hex');
         }
         debug('Compiling with:\n\t' + args.join('\n\t'));
         const exitCode = runOneBuild(args, inputs) ? 0 : 1;
-        process.stdout.write(new workerpb.WorkResponse()
-                                 .setExitCode(exitCode)
-                                 .setOutput(consoleOutput)
-                                 .encodeDelimited()
-                                 .toBuffer());
+        process.stdout.write((workerpb.WorkResponse.encodeDelimited({
+                               exitCode,
+                               output: consoleOutput,
+                             })).finish() as Buffer);
         // Force a garbage collection pass.  This keeps our memory usage
         // consistent across multiple compilations, and allows the file
         // cache to use the current memory usage as a guideline for expiring
@@ -128,17 +182,19 @@ export function runWorkerLoop(
         // we want to gc only after all its locals have gone out of scope.
         global.gc();
       }
-      // Avoid growing the buffer indefinitely.
-      buf.compact();
+      // All messages have been handled, make sure the invariant holds and
+      // Buffer is empty once all messages have been read.
+      if (buf.length > 0) {
+        throw new Error('buffer not empty after reading all messages');
+      }
     } catch (e) {
       log('Compilation failed', e.stack);
-      process.stdout.write(new workerpb.WorkResponse()
-                               .setExitCode(1)
-                               .setOutput(consoleOutput)
-                               .encodeDelimited()
-                               .toBuffer());
+      process.stdout.write(
+          workerpb.WorkResponse
+              .encodeDelimited({exitCode: 1, output: consoleOutput})
+              .finish() as Buffer);
       // Clear buffer so the next build won't read an incomplete request.
-      buf = null;
+      buf = Buffer.alloc(0);
     }
   });
 }

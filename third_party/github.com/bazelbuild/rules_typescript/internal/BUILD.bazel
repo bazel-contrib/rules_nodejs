@@ -67,6 +67,7 @@ ts_library(
     # Workaround for https://github.com/Microsoft/TypeScript/issues/22208
     deps = [
         "@npm//@types/node",
+        "@npm//protobufjs",
         "@npm//tsickle",
         "@npm//tsutils",
         "@npm//typescript",
