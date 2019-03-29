@@ -11,6 +11,8 @@ jasmine_node_test(
     bootstrap = ["e2e_jasmine/jasmine_shared_env_bootstrap.js"],
     data = ["jasmine_shared_env_bootstrap.js"],
     deps = [
+        "@npm//jasmine",
+        "@npm//jasmine-core",
         "@npm//zone.js",
     ],
 )
