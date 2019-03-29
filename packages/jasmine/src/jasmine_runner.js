@@ -1,24 +1,16 @@
 const fs = require('fs');
 const path = require('path');
+const bazelJasmine = require('@bazel/jasmine');
+
+const JasmineRunner = bazelJasmine.jasmine;
 
 let jasmineCore = null
-let JasmineRunner = require('jasmine/lib/jasmine');
 if (global.jasmine) {
   // global.jasmine has been initialized which means a bootstrap script
   // has already required `jasmine-core` and called jasmineCore.boot()
   jasmineCore = global.jasmineCore;
   if (!jasmineCore) {
-    try {
-      // Try unhoisted jasmine-core first so that we don't
-      // need an @npm//jasmine-core dep in the unhoisted case.
-      jasmineCore = require('jasmine/node_modules/jasmine-core');
-    } catch (e) {
-      if (e.code !== 'MODULE_NOT_FOUND') {
-        // rethrow other errors
-        throw e;
-      }
-      jasmineCore = require('jasmine-core');
-    }
+    jasmineCore = bazelJasmine.jasmineCore;
   }
   // Override the jasmineCore boot function so that the jasmine
   // runner gets the already initialize jasmine and its shared environment
