@@ -4,6 +4,11 @@
     "@bazel/jasmine": "bazel://@npm_bazel_jasmine//:npm_package",
     "zone.js": "0.8.29"
   },
+  "//": "Include an incompatible jasmine as a devDependency to verify that jasmine_node_test works regardless",
+  "devDependencies": {
+    "jasmine": "2.99.0",
+    "jasmine-core": "2.5.2"
+  },
   "scripts": {
     "pretest": "../../scripts/link_deps.sh",
     "test": "bazel test ..."
