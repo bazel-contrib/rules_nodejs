@@ -23,6 +23,9 @@ for example in ${EXAMPLES[@]} ; do
       printf "\n\nRunning example ${example}\n"
       ${RULES_NODEJS_DIR}/scripts/link_deps.sh
       echo_and_run yarn test
+      if grep -q "\"e2e\":" package.json; then
+        echo_and_run yarn e2e
+      fi
     fi
   )
 done
