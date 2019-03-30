@@ -297,6 +297,7 @@ jobs:
       - *attach_workspace
       - *init_environment
       - *init_bazel
+      - run: ./scripts/setup_examples_angular.sh
       # Some examples such as app require xvfb
       - run: xvfb-run -a ./scripts/test_examples_all.sh ${CIRCLE_NODE_INDEX} ${CIRCLE_NODE_TOTAL}
 
