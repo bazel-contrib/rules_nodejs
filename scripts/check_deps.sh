@@ -23,7 +23,8 @@ for dep in ${DEPS} ; do
         ALL_GOOD=0
     fi
   else
-    if [[ ! -d "${RULES_NODEJS_DIR}/dist/npm_bazel_${dep}" ]] ; then
+    results=$(ls -d ${RULES_NODEJS_DIR}/dist/npm_bazel_${dep}\$* 2> /dev/null || :)
+    if [[ -z "${results}" ]] ; then
       echo "ERROR: You must first run 'yarn build_packages ${dep}' or 'yarn build_packages_all'";
       ALL_GOOD=0
     fi

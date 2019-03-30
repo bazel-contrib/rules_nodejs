@@ -17,6 +17,7 @@ for e2eTest in ${E2E_TESTS[@]} ; do
     # Clean e2e test
     cd "${E2E_DIR}/${e2eTest}"
     printf "\n\nCleaning e2e test ${e2eTest}\n"
+    ${RULES_NODEJS_DIR}/scripts/unlink_deps.sh
     echo_and_run bazel clean --expunge
     echo_and_run rm -rf node_modules
   )

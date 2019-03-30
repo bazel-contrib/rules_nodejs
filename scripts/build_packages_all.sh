@@ -8,7 +8,5 @@ set -eu -o pipefail
 readonly RULES_NODEJS_DIR=$(cd $(dirname "$0")/..; pwd)
 source "${RULES_NODEJS_DIR}/scripts/packages.sh"
 
-echo_and_run() { echo "+ $@" ; "$@" ; }
-
 ${RULES_NODEJS_DIR}/scripts/build_packages.sh ${PACKAGES[@]}
 
