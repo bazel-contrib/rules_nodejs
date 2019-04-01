@@ -1,0 +1,7 @@
+# Verify that we can do something with the devserver manifest
+genrule(
+    name = "consume_manifest",
+    srcs = ["//:devserver.MF"],
+    outs = [":MANIFEST"],
+    cmd = "cp $< $@",
+)
