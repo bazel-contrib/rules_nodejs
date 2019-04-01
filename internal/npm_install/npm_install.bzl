@@ -107,6 +107,12 @@ def _add_scripts(repository_ctx):
         {},
     )
 
+    repository_ctx.template(
+        "ng_apf_library.js",
+        repository_ctx.path(Label("//internal/npm_install:ng_apf_library.js")),
+        {},
+    )
+
 def _add_data_dependencies(repository_ctx):
     """Add data dependencies to the repository."""
     for f in repository_ctx.attr.data:

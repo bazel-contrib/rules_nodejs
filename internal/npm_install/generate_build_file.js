@@ -41,6 +41,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const apf = require('./ng_apf_library.js');
 
 const BUILD_FILE_HEADER = `# Generated file from yarn_install/npm_install rule.
 # See $(bazel info output_base)/external/build_bazel_rules_nodejs/internal/npm_install/generate_build_file.js
@@ -86,7 +87,6 @@ function main() {
   // find all packages (including packages in nested node_modules)
   const pkgs = findPackages();
   const scopes = findScopes();
-
   // flatten dependencies
   const pkgsMap = new Map();
   pkgs.forEach(pkg => pkgsMap.set(pkg._dir, pkg));
@@ -668,17 +668,12 @@ function filterFilesForFilegroup(files, exts = []) {
 }
 
 /**
- * Given a pkg, return the skylark `filegroup` targets for the package.
+ * Given a `pkg`, return the skylark `filegroup` target which is the default
+ * target for the alias `@npm//${pkg.name}`.
  */
-function printPackage(pkg) {
-  const sources = filterFilesForFilegroup(pkg._files, INCLUDED_FILES);
-  const dtsSources = filterFilesForFilegroup(pkg._files, ['.d.ts']);
-  const pkgDeps = pkg._dependencies.filter(dep => dep != pkg).filter(dep => !dep._isNested);
-
-  let result = `
-# Generated targets for npm package "${pkg._dir}"
-${printJson(pkg)}
-
+function printPkgTarget(pkg) {
+  const pkgDeps = pkg._dependencies.filter(dep => dep !== pkg && !dep._isNested);
+  return `
 filegroup(
     name = "${pkg._name}__pkg",
     srcs = [
@@ -690,6 +685,21 @@ filegroup(
     ],
     tags = ["NODE_MODULE_MARKER"],
 )
+`;
+}
+
+/**
+ * Given a pkg, return the skylark `filegroup` targets for the package.
+ */
+function printPackage(pkg) {
+  const sources = filterFilesForFilegroup(pkg._files, INCLUDED_FILES);
+  const dtsSources = filterFilesForFilegroup(pkg._files, ['.d.ts']);
+
+  let result = `
+# Generated targets for npm package "${pkg._dir}"
+${printJson(pkg)}
+
+${apf.isNgApfPackage(pkg) ? apf.printNgApfLibrary(pkg) : printPkgTarget(pkg)}
 
 filegroup(
     name = "${pkg._name}__files",
