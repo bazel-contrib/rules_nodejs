@@ -11,6 +11,8 @@ ts_devserver(
     name = "devserver",
     index_html = "index.html",
     port = 8080,
+    # Expose this to other examples, so we can test visibility of generated manifest file
+    visibility = ["//:__subpackages__"],
     # We'll collect all the devmode JS sources from these TypeScript libraries
     deps = [":app"],
 )
