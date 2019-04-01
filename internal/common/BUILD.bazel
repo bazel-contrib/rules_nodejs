@@ -22,6 +22,9 @@ bzl_library(
     name = "bzl",
     srcs = glob(["*.bzl"]),
     visibility = ["//visibility:public"],
+    deps = [
+        "//internal/ng_apf_library:bzl",
+    ],
 )
 
 # Exported to be consumed for generating skydoc.

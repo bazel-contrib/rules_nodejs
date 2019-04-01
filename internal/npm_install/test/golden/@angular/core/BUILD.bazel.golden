@@ -1,0 +1,14 @@
+
+package(default_visibility = ["//visibility:public"])
+alias(
+  name = "core",
+  actual = "//node_modules/@angular/core:core__pkg"
+)
+alias(
+  name = "core__files",
+  actual = "//node_modules/@angular/core:core__files"
+)
+alias(
+  name = "core__typings",
+  actual = "//node_modules/@angular/core:core__typings"
+)

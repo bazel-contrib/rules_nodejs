@@ -41,6 +41,9 @@
 
 const fs = require('fs');
 const path = require('path');
+// When ng_apf_library.js is executed at installation time the script is copied
+// from internal/ng_apf_library to external/npm so import path here is relative
+// to current directory.
 const apf = require('./ng_apf_library.js');
 
 const BUILD_FILE_HEADER = `# Generated file from yarn_install/npm_install rule.
@@ -671,8 +674,7 @@ function filterFilesForFilegroup(files, exts = []) {
  * Given a `pkg`, return the skylark `filegroup` target which is the default
  * target for the alias `@npm//${pkg.name}`.
  */
-function printPkgTarget(pkg) {
-  const pkgDeps = pkg._dependencies.filter(dep => dep !== pkg && !dep._isNested);
+function printPkgTarget(pkg, pkgDeps) {
   return `
 filegroup(
     name = "${pkg._name}__pkg",
@@ -689,17 +691,18 @@ filegroup(
 }
 
 /**
- * Given a pkg, return the skylark `filegroup` targets for the package.
+ * Given a pkg, return the skylark `filegroup` and/or `ng_apf_library` targets for the package.
  */
 function printPackage(pkg) {
   const sources = filterFilesForFilegroup(pkg._files, INCLUDED_FILES);
   const dtsSources = filterFilesForFilegroup(pkg._files, ['.d.ts']);
+  const pkgDeps = pkg._dependencies.filter(dep => dep !== pkg && !dep._isNested);
 
   let result = `
 # Generated targets for npm package "${pkg._dir}"
 ${printJson(pkg)}
 
-${apf.isNgApfPackage(pkg) ? apf.printNgApfLibrary(pkg) : printPkgTarget(pkg)}
+${apf.isNgApfPackage(pkg) ? apf.printNgApfLibrary(pkg, pkgDeps) : printPkgTarget(pkg, pkgDeps)}
 
 filegroup(
     name = "${pkg._name}__files",
