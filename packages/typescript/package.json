@@ -4,8 +4,8 @@
     "license": "Apache-2.0",
     "version": "0.0.0-PLACEHOLDER",
     "repository": {
-        "type" : "git",
-        "url" : "https://github.com/bazelbuild/rules_nodejs.git",
+        "type": "git",
+        "url": "https://github.com/bazelbuild/rules_nodejs.git",
         "directory": "packages/typescript"
     },
     "bugs": {
@@ -22,7 +22,7 @@
         "tsc_wrapped": "./internal/tsc_wrapped/tsc_wrapped.js"
     },
     "dependencies": {
-        "protobufjs": "5.0.3",
+        "protobufjs": "6.8.8",
         "semver": "5.6.0",
         "source-map-support": "0.5.9",
         "tsutils": "2.27.2"
