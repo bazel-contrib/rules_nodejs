@@ -23,7 +23,7 @@ rules_nodejs_dev_dependencies()
 # With http_archive it only sees releases/download/*.tar.gz urls
 git_repository(
     name = "build_bazel_rules_typescript",
-    commit = "d6fe9d41fdba46f401e76ac656475e9e98cacf03",
+    commit = "34f21af0284d6c4dbd5575f0ae86ac45be76c7c4",
     remote = "http://github.com/bazelbuild/rules_typescript.git",
 )
 
@@ -53,6 +53,10 @@ go_register_toolchains()
 load("@build_bazel_rules_typescript//internal:ts_repositories.bzl", "ts_setup_dev_workspace")
 
 ts_setup_dev_workspace()
+
+load("//internal:ts_repositories.bzl", "ts_setup_workspace")
+
+ts_setup_workspace()
 
 # Dependencies for generating documentation
 load("@io_bazel_rules_sass//sass:sass_repositories.bzl", "sass_repositories")
