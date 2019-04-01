@@ -29,15 +29,17 @@ function check(file, updateGolden = false) {
 
   // Load the golden file for comparison
   const golden = path.posix.join(path.dirname(__filename), 'golden', file + '.golden');
-  const goldenContents = fs.readFileSync(golden, {encoding: 'utf-8'}).replace(/\r\n/g, '\n');
 
-  // Check if actualContents matches golden file
-  if (actualContents !== goldenContents) {
-    if (updateGolden) {
-      // Write to golden file
-      fs.writeFileSync(golden, actualContents);
-      console.error(`Replaced ${path.join(process.cwd(), golden)}`);
-    } else {
+  if (updateGolden) {
+    // Write to golden file
+    // TODO(kyliau): Consider calling mkdirp() here, otherwise write operation
+    // would fail if directory does not already exist.
+    fs.writeFileSync(golden, actualContents);
+    console.error(`Replaced ${path.join(process.cwd(), golden)}`);
+  } else {
+    const goldenContents = fs.readFileSync(golden, {encoding: 'utf-8'}).replace(/\r\n/g, '\n');
+    // Check if actualContents matches golden file
+    if (actualContents !== goldenContents) {
       // Generated does not match golden
       const diff = unidiff.diffLines(goldenContents, actualContents);
       const prettyDiff = unidiff.formatLines(diff);
@@ -58,21 +60,27 @@ module.exports = {
   check,
   files: [
     'BUILD.bazel',
+    '@angular/core/BUILD.bazel',
     '@gregmagolan/BUILD.bazel',
-    '@gregmagolan/test-a/BUILD.bazel',
     '@gregmagolan/test-a/bin/BUILD.bazel',
-    '@gregmagolan/test-b/BUILD.bazel',
+    '@gregmagolan/test-a/BUILD.bazel',
     '@gregmagolan/test-b/bin/BUILD.bazel',
+    '@gregmagolan/test-b/BUILD.bazel',
     'ajv/BUILD.bazel',
-    'jasmine/BUILD.bazel',
     'jasmine/bin/BUILD.bazel',
-    'unidiff/BUILD.bazel',
+    'jasmine/BUILD.bazel',
+    'rxjs/BUILD.bazel',
     'unidiff/bin/BUILD.bazel',
+    'unidiff/BUILD.bazel',
+    'zone.js/BUILD.bazel',
+    'node_modules/@angular/core/BUILD.bazel',
     'node_modules/@gregmagolan/BUILD.bazel',
     'node_modules/@gregmagolan/test-a/BUILD.bazel',
     'node_modules/@gregmagolan/test-b/BUILD.bazel',
     'node_modules/ajv/BUILD.bazel',
     'node_modules/jasmine/BUILD.bazel',
+    'node_modules/rxjs/BUILD.bazel',
     'node_modules/unidiff/BUILD.bazel',
+    'node_modules/zone.js/BUILD.bazel',
   ],
 };

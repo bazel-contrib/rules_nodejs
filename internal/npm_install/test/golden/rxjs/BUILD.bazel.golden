@@ -1,0 +1,14 @@
+
+package(default_visibility = ["//visibility:public"])
+alias(
+  name = "rxjs",
+  actual = "//node_modules/rxjs:rxjs__pkg"
+)
+alias(
+  name = "rxjs__files",
+  actual = "//node_modules/rxjs:rxjs__files"
+)
+alias(
+  name = "rxjs__typings",
+  actual = "//node_modules/rxjs:rxjs__typings"
+)

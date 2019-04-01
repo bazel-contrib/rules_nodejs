@@ -1,0 +1,14 @@
+
+package(default_visibility = ["//visibility:public"])
+alias(
+  name = "zone.js",
+  actual = "//node_modules/zone.js:zone.js__pkg"
+)
+alias(
+  name = "zone.js__files",
+  actual = "//node_modules/zone.js:zone.js__files"
+)
+alias(
+  name = "zone.js__typings",
+  actual = "//node_modules/zone.js:zone.js__typings"
+)

@@ -29,8 +29,12 @@ filegroup(
     srcs = [
         "BUILD.bazel",
         "ng_apf_library.bzl",
+        "ng_apf_library.js",
     ],
     visibility = ["//:__pkg__"],
 )
 
-exports_files(["ng_apf_library.bzl"])
+exports_files([
+    "ng_apf_library.bzl",
+    "ng_apf_library.js",
+])

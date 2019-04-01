@@ -109,7 +109,7 @@ def _add_scripts(repository_ctx):
 
     repository_ctx.template(
         "ng_apf_library.js",
-        repository_ctx.path(Label("//internal/npm_install:ng_apf_library.js")),
+        repository_ctx.path(Label("//internal/ng_apf_library:ng_apf_library.js")),
         {},
     )
 
