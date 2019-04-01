@@ -54,6 +54,7 @@ npm_package(
         "//internal/js_library:package_contents",
         # TODO(alexeagle): distribute separately as @bazel/rollup
         "//internal/rollup:package_contents",
+        "//internal/ng_apf_library:package_contents",
         "//internal/node:package_contents",
         "//internal/npm_install:package_contents",
         "//internal/npm_package:package_contents",

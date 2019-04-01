@@ -195,6 +195,8 @@ def run_karma_web_test(ctx):
             files = depset(transitive = [files, d.node_sources])
         elif hasattr(d, "files"):
             files = depset(transitive = [files, d.files])
+        if hasattr(d, "dev_scripts"):
+            files = depset(transitive = [files, d.dev_scripts])
 
     amd_names_shim = _write_amd_names_shim(ctx)
 
