@@ -1,8 +1,5 @@
 # build_bazel_rules_typescript
 
-> Looking for documentation for TypeScript bazel rules that used to be here?
-> See https://npmjs.com/package/@bazel/typescript
-
 This repo contains a mirror of some Google-internal bits that support TypeScript development under Bazel.
 
 It contains these utilities:

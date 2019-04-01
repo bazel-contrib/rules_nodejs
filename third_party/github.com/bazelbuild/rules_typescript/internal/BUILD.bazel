@@ -16,7 +16,7 @@
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test", "nodejs_binary")
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
-load("//internal:defaults.bzl", "ts_library")
+load("@npm_bazel_typescript//:defs.bzl", "ts_library")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -87,7 +87,7 @@ nodejs_binary(
         "@npm//tsutils",
         "@npm//typescript",
     ],
-    entry_point = "npm_bazel_typescript/internal/tsc_wrapped/tsc_wrapped.js",
+    entry_point = "build_bazel_rules_typescript/internal/tsc_wrapped/tsc_wrapped.js",
     visibility = ["//visibility:public"],
 )
 
@@ -95,6 +95,7 @@ ts_library(
     name = "test_lib",
     srcs = glob(["tsc_wrapped/*_test.ts"]) + ["tsc_wrapped/test_support.ts"],
     tsconfig = "//internal:tsc_wrapped/tsconfig.json",
+    compiler = "@build_bazel_rules_typescript//internal:tsc_wrapped_bin",
     deps = [
         ":tsc_wrapped",
         "@npm//@types/jasmine",

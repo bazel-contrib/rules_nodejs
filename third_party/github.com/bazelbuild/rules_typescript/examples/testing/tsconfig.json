@@ -1,7 +1,0 @@
-{
-  "compilerOptions": {
-    "strict": true,
-    "lib": ["es2015.promise", "dom", "es5"],
-  }
-}
-

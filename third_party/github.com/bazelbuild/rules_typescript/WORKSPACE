@@ -12,26 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-workspace(name = "npm_bazel_typescript")
-
-# Load nested npm_bazel_karma repository
-local_repository(
-    name = "npm_bazel_karma",
-    path = "internal/karma",
-)
+workspace(name = "build_bazel_rules_typescript")
 
 # Load our dependencies
 load("//:package.bzl", "rules_typescript_dev_dependencies")
 
 rules_typescript_dev_dependencies()
 
-# Load rules_karma dependencies
-load("@npm_bazel_karma//:package.bzl", "rules_karma_dependencies")
-
-rules_karma_dependencies()
-
 # Setup nodejs toolchain
-load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "yarn_install")
+load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
 
 # Use a bazel-managed npm dependency, allowing us to test resolution to these paths
 yarn_install(
@@ -40,15 +29,15 @@ yarn_install(
     yarn_lock = "//examples/bazel_managed_deps:yarn.lock",
 )
 
-# Install a hermetic version of node.
-node_repositories()
-
 # Download npm dependencies
 yarn_install(
     name = "npm",
     package_json = "//:package.json",
     yarn_lock = "//:yarn.lock",
 )
+
+load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
+install_bazel_dependencies()
 
 # Setup rules_go toolchain
 load("@io_bazel_rules_go//go:def.bzl", "go_register_toolchains", "go_rules_dependencies")
@@ -66,21 +55,6 @@ gazelle_dependencies()
 load("//internal:ts_repositories.bzl", "ts_setup_dev_workspace")
 
 ts_setup_dev_workspace()
-
-# Dependencies for generating documentation
-load("@io_bazel_rules_sass//sass:sass_repositories.bzl", "sass_repositories")
-
-sass_repositories()
-
-# Setup rules_webtesting toolchain
-load("@io_bazel_rules_webtesting//web:repositories.bzl", "web_test_repositories")
-
-web_test_repositories()
-
-# Setup browser repositories
-load("@npm_bazel_karma//:browser_repositories.bzl", "browser_repositories")
-
-browser_repositories()
 
 local_repository(
     name = "devserver_test_workspace",

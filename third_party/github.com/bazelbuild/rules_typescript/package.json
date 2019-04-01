@@ -10,7 +10,7 @@
         "@bazel/bazel": "~0.22.0",
         "@bazel/buildifier": "^0.20.0",
         "@bazel/ibazel": "^0.2.0",
-        "@bazel/typescript": "0.19.1",
+        "@bazel/typescript": "0.27.9",
         "@types/jasmine": "^2.8.2",
         "@types/long": "^4.0.0",
         "@types/node": "7.0.18",

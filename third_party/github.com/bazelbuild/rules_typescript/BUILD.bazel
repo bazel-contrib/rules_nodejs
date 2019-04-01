@@ -22,48 +22,19 @@ load("@bazel_gazelle//:def.bzl", "gazelle")
 load("@build_bazel_rules_nodejs//:defs.bzl", "npm_package")
 load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
 
-# ts_library defaults to this label in the top-level package.
-# Point to where the file actually lives.
-alias(
-    name = "tsconfig.json",
-    actual = "//examples:tsconfig.json",
-    visibility = ["//visibility:public"],
-)
-
-exports_files(["LICENSE"])
+exports_files(["LICENSE", "tsconfig.json"])
 
 gazelle(
     name = "gazelle",
     prefix = "github.com/bazelbuild/rules_typescript",
 )
 
-# Runtime libraries needed by the protobufjs library.
-# Any JS code produced by the ts_proto_library rule has a runtime dependency on these scripts.
-js_library(
-    name = "protobufjs_bootstrap_scripts",
-    srcs = [
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//node_modules/long:dist/long.js",
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//node_modules/protobufjs:dist/minimal/protobuf.min.js",
-    ],
-    # Make devmode loading work when it does require("protobufjs/minimal")
-    # so this is shimmed to define it to equal global.protobuf
-    amd_names = {
-        "long": "Long",
-        "protobufjs/minimal": "protobuf",
-    },
-    visibility = ["//visibility:public"],
-)
-
-
 # This package is included in the npm_bazel_typescript package in rules_nodejs/packages/typescript
 npm_package(
     name = "npm_bazel_typescript_package",
     srcs = [
         "//third_party/github.com/bazelbuild/bazel/src/main/protobuf:npm_package_assets",
-        "//internal:common/compilation.bzl",
-        "//internal:common/json_marshal.bzl",
-        "//internal:common/module_mappings.bzl",
-        "//internal:common/tsconfig.bzl",
+        "//internal:npm_package_assets",
     ],
     deps = [
         "//internal:generated_BUILD",

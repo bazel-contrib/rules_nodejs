@@ -35,27 +35,6 @@ def ts_setup_workspace():
     # 0.16.8: ng_package fix for packaging binary files
     check_rules_nodejs_version("0.16.8")
 
-    # Included here for backward compatability for downstream repositories
-    # that use @build_bazel_rules_typescript_tsc_wrapped_deps such as rxjs.
-    # @build_bazel_rules_typescript_tsc_wrapped_deps is not used locally.
-    yarn_install(
-        name = "build_bazel_rules_typescript_tsc_wrapped_deps",
-        package_json = "@npm_bazel_typescript//internal:tsc_wrapped/package.json",
-        yarn_lock = "@npm_bazel_typescript//internal:tsc_wrapped/yarn.lock",
-    )
-
-    yarn_install(
-        name = "build_bazel_rules_typescript_devserver_deps",
-        package_json = "@npm_bazel_typescript//internal/devserver:package.json",
-        yarn_lock = "@npm_bazel_typescript//internal/devserver:yarn.lock",
-    )
-
-    yarn_install(
-        name = "build_bazel_rules_typescript_protobufs_compiletime_deps",
-        package_json = "@npm_bazel_typescript//internal/protobufjs:package.json",
-        yarn_lock = "@npm_bazel_typescript//internal/protobufjs:yarn.lock",
-    )
-
 # BEGIN-DEV-ONLY
 def ts_setup_dev_workspace():
     """
