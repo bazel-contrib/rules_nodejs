@@ -12,26 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+ScriptsProvider = provider(fields = ["scripts"])
+
 def _ng_apf_library_impl(ctx):
     umds = []
     factories = []
+    summaries = []
 
     for file in ctx.files.srcs:
         if file.basename.endswith(".umd.js"):
             umds.append(file)
         elif file.basename.endswith(".ngfactory.js"):
             factories.append(file)
+        elif file.basename.endswith(".ngsummary.js"):
+            summaries.append(file)
 
-    return struct(
-        files = depset(
+    return [
+        DefaultInfo(files = depset(
             transitive = [src.files for src in ctx.attr.srcs] + [dep.files for dep in ctx.attr.deps],
+        )),
+        ScriptsProvider(
+            scripts = depset(umds + factories + summaries),
         ),
-        scripts = depset(umds + factories),
-    )
+    ]
 
-"""Provides a replacement for the default filegroup target, with the addition of
-`scripts` provider.
-"""
 ng_apf_library = rule(
     implementation = _ng_apf_library_impl,
     attrs = {
@@ -39,7 +43,8 @@ ng_apf_library = rule(
             doc = "The list of files that comprise the package",
         ),
         "deps": attr.label_list(
-            doc = "Flatten dependencies of the package",
+            doc = "Flattened dependencies of the package",
         ),
     },
+    doc = "Provides a replacement for the default filegroup target, with the addition of `scripts` provider.",
 )

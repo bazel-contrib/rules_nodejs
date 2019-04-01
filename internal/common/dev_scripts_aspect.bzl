@@ -16,20 +16,24 @@
 """Aspect to collect dev scripts from `deps` attribute.
 """
 
+load("//internal/ng_apf_library:ng_apf_library.bzl", "ScriptsProvider")
+
+DevScriptsProvider = provider(fields = ["dev_scripts"])
+
 def _dev_scripts_aspect_impl(target, ctx):
     result = depset()
 
     # If target is a node module it'd provide a list of `scripts`.
-    if hasattr(target, "scripts"):
-        result = depset(transitive = [result, target.scripts])
+    if ScriptsProvider in target:
+        result = depset(transitive = [result, target[ScriptsProvider].scripts])
 
     # Recursively collect transitive `dev_scripts` from the deps.
     if hasattr(ctx.rule.attr, "deps"):
         for dep in ctx.rule.attr.deps:
-            if hasattr(dep, "dev_scripts"):
-                result = depset(transitive = [result, dep.dev_scripts])
+            if DevScriptsProvider in dep:
+                result = depset(transitive = [result, dep[DevScriptsProvider].dev_scripts])
 
-    return struct(dev_scripts = result)
+    return [DevScriptsProvider(dev_scripts = result)]
 
 dev_scripts_aspect = aspect(
     _dev_scripts_aspect_impl,

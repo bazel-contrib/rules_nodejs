@@ -35,10 +35,11 @@ function isNgApfPackage(pkg) {
 }
 
 /**
- * Prints a `ng_apf_library` rule that replaces the default filegroup target.
+ * Prints a `ng_apf_library` rule that replaces the generated filegroup target
+ * that the user will depend on, e.g. `@npm//@angular/core` will be an
+ * `ng_apf_library`.
  */
-function printNgApfLibrary(pkg) {
-  const pkgDeps = pkg._dependencies.filter(dep => dep !== pkg && !dep._isNested);
+function printNgApfLibrary(pkg, pkgDeps) {
   return `
 load("@build_bazel_rules_nodejs//internal/ng_apf_library:ng_apf_library.bzl", "ng_apf_library")
 ng_apf_library(

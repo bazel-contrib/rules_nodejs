@@ -14,7 +14,7 @@
 
 "Simple development server"
 
-load("@build_bazel_rules_nodejs//internal/common:dev_scripts_aspect.bzl", "dev_scripts_aspect")
+load("@build_bazel_rules_nodejs//internal/common:dev_scripts_aspect.bzl", "DevScriptsProvider", "dev_scripts_aspect")
 load("@build_bazel_rules_nodejs//internal/common:sources_aspect.bzl", "sources_aspect")
 load(
     "@build_bazel_rules_nodejs//internal/js_library:js_library.bzl",
@@ -41,8 +41,8 @@ def _ts_devserver(ctx):
             files = depset(transitive = [files, d.node_sources])
         elif hasattr(d, "files"):
             files = depset(transitive = [files, d.files])
-        if hasattr(d, "dev_scripts"):
-            dev_scripts = depset(transitive = [dev_scripts, d.dev_scripts])
+        if DevScriptsProvider in d:
+            dev_scripts = depset(transitive = [dev_scripts, d[DevScriptsProvider].dev_scripts])
 
     if ctx.label.workspace_root:
         # We need the workspace_name for the target being visited.
