@@ -1,4 +1,11 @@
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+
+bzl_library(
+    name = "bzl",
+    srcs = glob(["*.bzl"]),
+    visibility = ["//visibility:public"],
+)
 
 # Exported to be consumed for generating skydoc.
 exports_files(["npm_package.bzl"])

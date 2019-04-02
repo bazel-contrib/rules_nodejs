@@ -12,7 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+
 package(default_visibility = ["//visibility:public"])
+
+bzl_library(
+    name = "bzl",
+    srcs = glob(["*.bzl"]),
+    visibility = ["//visibility:public"],
+    deps = [
+        "//internal/npm_install:bzl",
+        "//third_party/github.com/bazelbuild/bazel-skylib:bzl",
+    ],
+)
 
 exports_files([
     "node.bzl",  # Exported to be consumed for generating skydoc.

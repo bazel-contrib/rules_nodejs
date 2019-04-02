@@ -5,7 +5,11 @@
   },
   "version": "0.20.0",
   "description": "A tool for formatting bazel BUILD and .bzl files with a standard convention",
-  "homepage": "https://github.com/bazelbuild/buildtools/tree/master/buildifier",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/bazelbuild/rules_nodejs.git",
+    "directory": "packages/buildifier"
+  },
   "bugs": {
     "url": "https://github.com/bazelbuild/buildtools/issues"
   },

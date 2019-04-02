@@ -3,15 +3,20 @@
   "bin": {
     "bazel": "./index.js"
   },
-  "version": "0.23.0-rc1b",
+  "version": "0.23.0",
   "description": "Build and test software of any size, quickly and reliably",
   "homepage": "https://bazel.build/",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/bazelbuild/rules_nodejs.git",
+    "directory": "packages/bazel"
+  },
   "bugs": {
     "url": "https://github.com/bazelbuild/bazel/issues"
   },
   "optionalDependencies": {
-    "@bazel/bazel-linux_x64": "0.23.0-rc1b",
-    "@bazel/bazel-darwin_x64": "0.23.0-rc1b",
-    "@bazel/bazel-win32_x64": "0.23.0-rc1b"
+    "@bazel/bazel-linux_x64": "0.23.0",
+    "@bazel/bazel-darwin_x64": "0.23.0",
+    "@bazel/bazel-win32_x64": "0.23.0"
   }
 }

@@ -17,9 +17,122 @@ so this repo can be thought of as "JavaScript rules for Bazel" as well.
 Generated documentation for using each rule is at:
 https://bazelbuild.github.io/rules_nodejs/
 
-## Installation
+## Quickstart
 
-First, install a current bazel distribution, following the [bazel instructions].
+This is the most common workflow to get started.
+See sections below for details and alternative methods.
+
+1. Add dependencies
+
+    ```sh
+    $ yarn add -D @bazel/bazel @bazel/ibazel @bazel/buildifier
+    ```
+
+    or if you prefer `npm`,
+
+    ```sh
+    $ npm install --save-dev @bazel/bazel @bazel/ibazel @bazel/buildifier
+    ```
+
+1. Create a file called `WORKSPACE` in the root of your repo, containing
+
+    ```python
+    load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+    http_archive(
+        name = "build_bazel_rules_nodejs",
+        sha256 = "213dcf7e72f3acd4d1e369b7a356f3e5d9560f380bd655b13b7c0ea425d7c419",
+        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.27.9/rules_nodejs-0.27.9.tar.gz"],
+    )
+
+    load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
+    yarn_install(
+        name = "npm",
+        package_json = "//:package.json",
+        yarn_lock = "//:yarn.lock",
+    )
+    
+    load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
+    install_bazel_dependencies()
+    ```
+
+    or if you used `npm`:
+
+    ```python
+    load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+    http_archive(
+        name = "build_bazel_rules_nodejs",
+        sha256 = "213dcf7e72f3acd4d1e369b7a356f3e5d9560f380bd655b13b7c0ea425d7c419",
+        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.27.9/rules_nodejs-0.27.9.tar.gz"],
+    )
+
+    load("@build_bazel_rules_nodejs//:defs.bzl", "npm_install")
+    npm_install(
+        name = "npm",
+        package_json = "//:package.json",
+        package_lock_json = "//:package-lock.json",
+    )
+    
+    load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
+    install_bazel_dependencies()
+    ```
+
+1. Create a file `BUILD.bazel` in the root of your repo, next to the `package.json` file. It can be empty for now.
+
+1. In your `package.json`, find the `"scripts"` section, or create one.
+
+    ```json
+    "scripts": {
+        "build": "bazel build //...",
+        "test": "ibazel test //..."
+    }
+    ```
+
+1. Test that you can do an initial build. It will report that no targets were found yet.
+
+    ```sh
+    $ yarn build
+    ```
+
+    or 
+
+    ```sh
+    $ npm run build
+    ```
+
+## Adding Build Targets
+
+Consult the documentation at http://bazel.build for details.
+
+Create a file called `BUILD.bazel` and invoke some rules to create targets.
+
+Some of the available rules are:
+
+| Rule | Description    |
+| -------| ------|
+| [nodejs_binary]  | Allows you to run an application by giving the entry point. The entry point can come from an external dependency installed by the package manager, or it can be a `.js` file from a package built by Bazel. |
+| [nodejs_test]    | The same as `nodejs_binary`, but instead of calling it with `bazel run`, you call it with `bazel test`. The test passes if the program exits with a zero exit code. |
+| [jasmine_node_test] | Allows you to write a test that executes in NodeJS using the [Jasmine] test framework. |
+| [rollup_bundle] | Runs the Rollup and Terser toolchain to produce a single JavaScript bundle from multiple JavaScript sources. |
+| [npm_package] | Creates a package format ready to publish to npm. Can also do the publishing. |
+| [ts_library] | Compiles TypeScript code into JavaScript |
+| [karma_web_test] | Runs tests in a browser using the [Karma] test runner |
+
+[nodejs_binary]: https://bazelbuild.github.io/rules_nodejs/node/node.html#nodejs_binary
+[nodejs_test]: https://bazelbuild.github.io/rules_nodejs/node/node.html#nodejs_test
+[jasmine_node_test]: https://www.npmjs.com/package/@bazel/jasmine
+[Jasmine]: https://jasmine.github.io/
+[rollup_bundle]: https://bazelbuild.github.io/rules_nodejs/rollup/rollup_bundle.html#rollup_bundle
+[npm_package]: https://bazelbuild.github.io/rules_nodejs/npm_package/npm_package.html#npm_package
+[ts_library]: https://www.npmjs.com/package/@bazel/typescript
+[Karma]: https://karma-runner.github.io/latest/index.html
+[karma_web_test]: https://www.npmjs.com/package/@bazel/karma
+
+## Custom installation
+
+First, you need Bazel.
+We recommend fetching it from npm to keep your frontend workflow similar.
+
+> You could install a current bazel distribution, following the [bazel instructions].
 
 Next, create a `WORKSPACE` file in your project root (or edit the existing one)
 containing:
@@ -28,8 +141,8 @@ containing:
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 http_archive(
     name = "build_bazel_rules_nodejs",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.18.6/rules_nodejs-0.18.6.tar.gz"],
-    sha256 = "1416d03823fed624b49a0abbd9979f7c63bbedfd37890ddecedd2fe25cccebc6",
+    sha256 = "213dcf7e72f3acd4d1e369b7a356f3e5d9560f380bd655b13b7c0ea425d7c419",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.27.9/rules_nodejs-0.27.9.tar.gz"],
 )
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
@@ -207,6 +320,9 @@ npm_install(
 )
 ```
 
+> If you don't need to pass any arguments to `node_repositories`,
+  you can skip calling that function. `yarn_install` and `npm_install` will do it by default.
+
 #### yarn_install vs. npm_install
 
 `yarn_install` is the preferred rule for setting up Bazel-managed dependencies for a number of reasons:
@@ -252,7 +368,7 @@ jasmine_node_test(
 
 #### Fine-grained npm package nodejs_binary targets
 
-If an npm package lists one of more `bin` entry points in its `package.json`,
+If an npm package lists one or more `bin` entry points in its `package.json`,
 `nodejs_binary` targets will be generated for these.
 
 For example, the `protractor` package has two bin entries in its `package.json`:
@@ -387,23 +503,6 @@ Note: the arguments passed to `bazel run` after `--` are forwarded to the execut
 
 ## Usage
 
-The complete API documentation is at https://bazelbuild.github.io/rules_nodejs/
-
-A few examples of rules contained in this repository:
-
-The `nodejs_binary` rule allows you to run an application by giving the entry point.
-The entry point can come from an external dependency installed by the package manager,
-or it can be a `.js` file from a package built by Bazel.
-
-`nodejs_test` is the same as nodejs_binary, but instead of calling it with `bazel run`,
-you call it with `bazel test`. The test passes if the program exits with a zero exit code.
-
-The `jasmine_node_test` rule allows you to write a test that executes in NodeJS.
-
-`rollup_bundle` runs the Rollup and Uglify toolchain to produce a single JavaScript bundle.
-
-`npm_package` packages up a library to publish to npm.
-
 ### Running a program from npm
 
 The `nodejs_binary` rule lets you run a program with Node.js.
@@ -458,11 +557,7 @@ See the `examples/program` directory in this repository.
 
 ### Testing
 
-The `jasmine_node_test` rule can be used to run unit tests in NodeJS, using the Jasmine framework.
-Targets declared with this rule can be run with `bazel test`.
-See https://bazelbuild.github.io/rules_nodejs/jasmine_node_test/jasmine_node_test.html
-
-The `examples/program/index.spec.js` file illustrates this. Another usage is in https://github.com/angular/tsickle/blob/master/test/BUILD
+The `examples/program/index.spec.js` file illustrates testing. Another usage is in https://github.com/angular/tsickle/blob/master/test/BUILD
 
 ### Stamping
 
@@ -497,20 +592,6 @@ Ideally, `rollup_bundle` and `npm_package` should honor the `--stamp` argument t
 See https://www.kchodorow.com/blog/2017/03/27/stamping-your-builds/ for more background.
 
 [bazel_stamp_vars in Angular]: https://github.com/angular/angular/blob/master/tools/bazel_stamp_vars.sh
-
-### Bundling/optimizing
-
-A `rollup_bundle` rule produces several bundle files.
-See https://bazelbuild.github.io/rules_nodejs/rollup/rollup_bundle.html
-
-> Note: we expect other bundling rules will follow later, such as Closure compiler and Webpack.
-
-### Publishing to npm
-
-The `npm_package` rule is used to create a package to publish to external users who do not use Bazel.
-See https://bazelbuild.github.io/rules_nodejs/npm_package/npm_package.html
-
-> For those downstream dependencies that use Bazel, they can simply write BUILD files to consume your library.
 
 # Scope of the project
 

@@ -1,0 +1,13 @@
+{
+  "extends": [
+    "config:base"
+  ],
+  "ignorePaths": [
+    "e2e",
+    "tools",
+    "third_party"
+  ],
+  "enabledManagers": [
+    "bazel"
+  ]
+}

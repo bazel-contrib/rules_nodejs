@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("//:defs.bzl", "jasmine_node_test", "nodejs_binary")
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("//:defs.bzl", "nodejs_binary")
 
 licenses(["notice"])  # Apache 2.0
 
@@ -25,6 +26,12 @@ exports_files([
     # Exported to be consumed for generating skydoc.
     "rollup_bundle.bzl",
 ])
+
+bzl_library(
+    name = "bzl",
+    srcs = glob(["*.bzl"]),
+    visibility = ["//visibility:public"],
+)
 
 nodejs_binary(
     name = "rollup",
@@ -46,17 +53,17 @@ nodejs_binary(
 )
 
 nodejs_binary(
-    name = "uglify",
-    entry_point = "build_bazel_rules_nodejs_rollup_deps/node_modules/uglify-es/bin/uglifyjs",
+    name = "terser",
+    entry_point = "build_bazel_rules_nodejs_rollup_deps/node_modules/terser/bin/uglifyjs",
     install_source_map_support = False,
     node_modules = "@build_bazel_rules_nodejs_rollup_deps//:node_modules",
     visibility = ["//visibility:public"],
 )
 
 nodejs_binary(
-    name = "uglify-wrapped",
-    data = [":uglify-wrapped.js"],
-    entry_point = "build_bazel_rules_nodejs/internal/rollup/uglify-wrapped.js",
+    name = "terser-wrapped",
+    data = [":terser-wrapped.js"],
+    entry_point = "build_bazel_rules_nodejs/internal/rollup/terser-wrapped.js",
     install_source_map_support = False,
     node_modules = "@build_bazel_rules_nodejs_rollup_deps//:node_modules",
     visibility = ["//visibility:public"],
@@ -79,6 +86,12 @@ nodejs_binary(
     visibility = ["//visibility:public"],
 )
 
+# BEGIN-INTERNAL
+# TODO: switch to npm_bazel_jasmine
+# buildozer: disable=load-on-top
+# buildozer: disable=out-of-order-load
+load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
+
 jasmine_node_test(
     name = "test",
     srcs = glob(["*.spec.js"]),
@@ -86,9 +99,18 @@ jasmine_node_test(
         ["*.js"],
         exclude = ["*.spec.js"],
     ),
-    node_modules = "//internal/test:node_modules",
+    deps = [
+        "@npm//is-builtin-module",
+        "@npm//jasmine",
+        "@npm//rollup",
+        "@npm//rollup-plugin-amd",
+        "@npm//rollup-plugin-commonjs",
+        "@npm//rollup-plugin-node-resolve",
+        "@npm//rollup-plugin-sourcemaps",
+    ],
 )
 
+# END-INTERNAL
 filegroup(
     name = "package_contents",
     srcs = glob(

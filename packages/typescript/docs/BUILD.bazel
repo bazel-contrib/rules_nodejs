@@ -1,0 +1,21 @@
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_test")
+load("@io_bazel_skydoc//stardoc:stardoc.bzl", "stardoc")
+
+exports_files(["install.md"])
+
+stardoc(
+    name = "docs",
+    out = "index.md",
+    input = "//:index.docs.bzl",
+    visibility = ["//:__subpackages__"],
+    deps = ["//:bzl"],
+)
+
+nodejs_test(
+    name = "test",
+    data = [
+        "docs_test.js",
+        ":index.md",
+    ],
+    entry_point = "npm_bazel_typescript/docs/docs_test.js",
+)

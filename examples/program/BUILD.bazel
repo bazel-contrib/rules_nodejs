@@ -38,7 +38,7 @@ nodejs_binary(
         "index.js",
         ":node_modules",
     ],
-    entry_point = "program_example/index.js",
+    entry_point = "examples_program/index.js",
 )
 
 jasmine_node_test(

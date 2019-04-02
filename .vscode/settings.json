@@ -1,0 +1,4 @@
+{
+    "bazel.buildifierExecutable": "${workspaceFolder}/node_modules/.bin/buildifier",
+    "bazel.buildifierFixOnFormat": true
+}

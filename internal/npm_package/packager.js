@@ -47,12 +47,18 @@ function main(args) {
   args = fs.readFileSync(args[0], {encoding: 'utf-8'}).split('\n').map(unquoteArgs);
   const
       [outDir, baseDir, srcsArg, binDir, genDir, depsArg, packagesArg, replacementsArg, packPath,
-       publishPath, replaceWithVersion, stampFile] = args;
+       publishPath, replaceWithVersion, stampFile, vendorExternalArg] = args;
 
   const replacements = [
     // Strip content between BEGIN-INTERNAL / END-INTERNAL comments
     [/(#|\/\/)\s+BEGIN-INTERNAL[\w\W]+?END-INTERNAL/g, ''],
   ];
+  const rawReplacements = JSON.parse(replacementsArg);
+  for (let key of Object.keys(rawReplacements)) {
+    replacements.push([new RegExp(key, 'g'), rawReplacements[key]])
+  }
+  // Replace version last so that earlier replacements can add
+  // the version placeholder
   if (replaceWithVersion) {
     let version = '0.0.0';
     if (stampFile) {
@@ -73,10 +79,6 @@ function main(args) {
     }
     replacements.push([new RegExp(replaceWithVersion, 'g'), version]);
   }
-  const rawReplacements = JSON.parse(replacementsArg);
-  for (let key of Object.keys(rawReplacements)) {
-    replacements.push([new RegExp(key, 'g'), rawReplacements[key]])
-  }
 
   // src like baseDir/my/path is just copied to outDir/my/path
   for (src of srcsArg.split(',').filter(s => !!s)) {
@@ -84,21 +86,28 @@ function main(args) {
   }
 
   function outPath(f) {
-    let rootDir;
-    if (!path.relative(binDir, f).startsWith('..')) {
-      rootDir = binDir;
-    } else if (!path.relative(genDir, f).startsWith('..')) {
-      rootDir = genDir;
-    } else {
-      // It might be nice to enforce here that deps don't contain sources
-      // since those belong in srcs above.
-      // The `deps` attribute should typically be outputs of other rules.
-      // However, things like .d.ts sources of a ts_library or data attributes
-      // of ts_library will result in source files that appear in the deps
-      // so we have to allow this.
-      rootDir = '.';
+    function findRoot() {
+      for (ext of vendorExternalArg.split(',').filter(s => !!s)) {
+        const candidate = path.join(binDir, 'external', ext);
+        if (!path.relative(candidate, f).startsWith('..')) {
+          return candidate;
+        }
+      }
+      if (!path.relative(binDir, f).startsWith('..')) {
+        return binDir;
+      } else if (!path.relative(genDir, f).startsWith('..')) {
+        return genDir;
+      } else {
+        // It might be nice to enforce here that deps don't contain sources
+        // since those belong in srcs above.
+        // The `deps` attribute should typically be outputs of other rules.
+        // However, things like .d.ts sources of a ts_library or data attributes
+        // of ts_library will result in source files that appear in the deps
+        // so we have to allow this.
+        return '.';
+      }
     }
-    return path.join(outDir, path.relative(path.join(rootDir, baseDir), f));
+    return path.join(outDir, path.relative(path.join(findRoot(), baseDir), f));
   }
 
   // deps like bazel-bin/baseDir/my/path is copied to outDir/my/path
@@ -124,7 +133,15 @@ function main(args) {
           copyRecursive(base, path.join(file, f));
         });
       } else {
-        copyWithReplace(path.join(base, file), path.join(outDir, file), replacements);
+        function outFile() {
+          for (ext of vendorExternalArg.split(',').filter(s => !!s)) {
+            if (file.startsWith(`external/${ext}`)) {
+              return file.substr(`external/${ext}`.length);
+            }
+          }
+          return file;
+        }
+        copyWithReplace(path.join(base, file), path.join(outDir, outFile()), replacements);
       }
     }
     fs.readdirSync(pkg).forEach(f => {

@@ -1,0 +1,17 @@
+load(":devmode_consumer.bzl", "devmode_consumer")
+
+package(default_visibility = ["//visibility:public"])
+
+devmode_consumer(
+    name = "devmode_consumer",
+    deps = ["//foobar:bar_ts_library"],
+)
+
+sh_test(
+    name = "devmode_consumer_test",
+    srcs = ["devmode_consumer_test.sh"],
+    data = [
+        ":devmode_consumer",
+        "@bazel_tools//tools/bash/runfiles",
+    ],
+)

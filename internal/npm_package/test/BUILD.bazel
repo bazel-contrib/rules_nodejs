@@ -39,5 +39,5 @@ jasmine_node_test(
     name = "test",
     srcs = ["npm_package.spec.js"],
     data = [":test_pkg"],
-    node_modules = "//internal/test:node_modules",
+    deps = ["@npm//jasmine"],
 )

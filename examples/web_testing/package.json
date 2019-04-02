@@ -1,0 +1,14 @@
+{
+  "devDependencies": {
+    "@bazel/karma": "bazel://@npm_bazel_karma//:npm_package",
+    "@bazel/typescript": "bazel://@npm_bazel_typescript//:npm_package",
+    "@types/jasmine": "2.8.2",
+    "@types/node": "11.11.1",
+    "karma-json-result-reporter": "1.0.0",
+    "typescript": "^3.3.1"
+  },
+  "scripts": {
+    "pretest": "../../scripts/link_deps.sh",
+    "test": "bazel test ..."
+  }
+}

@@ -2,12 +2,10 @@ workspace(name = "test_workspace")
 
 local_repository(
     name = "build_bazel_rules_nodejs",
-    path = "../../../../../bazel-bin/local_testing_package",
+    path = "../../../../../dist/build_bazel_rules_nodejs/release",
 )
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "yarn_install")
-
-node_repositories()
+load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
 
 yarn_install(
     name = "npm",

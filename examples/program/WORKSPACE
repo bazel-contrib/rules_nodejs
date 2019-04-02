@@ -1,11 +1,11 @@
-workspace(name = "program_example")
+workspace(name = "examples_program")
 
 # In your code, you'd fetch this repository with an `http_archive` call.
 # We do this local repository only because this example lives in the same
 # repository with the rules_nodejs code and we want to test them together.
 local_repository(
     name = "build_bazel_rules_nodejs",
-    path = "../../bazel-bin/local_testing_package",
+    path = "../../dist/build_bazel_rules_nodejs/release",
 )
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
@@ -18,13 +18,13 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
 #   @nodejs//:npm
 # - The yarn package manager:
 #   @nodejs//:yarn
+#
+# To install the node_modules of all the listed package_json files run:
+#   bazel run @nodejs//:yarn
+# or
+#   bazel run @nodejs//:npm
 node_repositories(
     node_version = "8.11.1",
     package_json = ["//:package.json"],
     yarn_version = "1.5.1",
 )
-
-# Now the user must run either
-# bazel run @nodejs//:yarn
-# or
-# bazel run @nodejs//:npm

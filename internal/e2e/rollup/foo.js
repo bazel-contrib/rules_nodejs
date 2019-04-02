@@ -6,6 +6,18 @@ import {name} from './bar';
 
 console.log(`${hello}, ${name} in ${fum}`);
 
+// Tests for @PURE annotations
+/*@__PURE__*/
+console.log('side-effect');
+
+class Impure {
+  constructor() {
+    console.log('side-effect')
+  }
+}
+
+/*@__PURE__*/new Impure();
+
 // Test for sequences = false
 export class A {
   a() {

@@ -18,35 +18,6 @@ Fulfills similar role as the package.json file.
 """
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-load("//internal/common:check_version.bzl", "check_version")
-
-# This version is synced with the version in package.json.
-# It will be automatically synced via the npm "version" script
-# that is run when running `npm version` during the release
-# process. See `Releasing` section in README.md.
-VERSION = "0.18.6"
-
-def check_rules_nodejs_version(minimum_version_string):
-    """
-    Verify that a minimum build_bazel_rules_nodejs is loaded a WORKSPACE.
-
-    This should be called from the `WORKSPACE` file so that the build fails as
-    early as possible. For example:
-
-    ```
-    # in WORKSPACE:
-    load("@build_bazel_rules_nodejs//:package.bzl", "check_rules_nodejs_version")
-    check_rules_nodejs_version("0.11.2")
-    ```
-
-    Args:
-      minimum_version_string: a string indicating the minimum version
-    """
-    if not check_version(VERSION, minimum_version_string):
-        fail("\nCurrent build_bazel_rules_nodejs version is {}, expected at least {}\n".format(
-            VERSION,
-            minimum_version_string,
-        ))
 
 def rules_nodejs_dependencies():
     print("""DEPRECATION WARNING:
@@ -63,13 +34,7 @@ def rules_nodejs_dev_dependencies():
     shorter.
     """
 
-    http_archive(
-        name = "com_github_bazelbuild_buildtools",
-        url = "https://github.com/bazelbuild/buildtools/archive/0.15.0.zip",
-        strip_prefix = "buildtools-0.15.0",
-        sha256 = "76d1837a86fa6ef5b4a07438f8489f00bfa1b841e5643b618e01232ba884b1fe",
-    )
-
+    # Dependencies for generating documentation
     http_archive(
         name = "io_bazel_rules_sass",
         url = "https://github.com/bazelbuild/rules_sass/archive/8ccf4f1c351928b55d5dddf3672e3667f6978d60.zip",  # 2018-11-23
@@ -77,31 +42,30 @@ def rules_nodejs_dev_dependencies():
         sha256 = "894d7928df8da85e263d743c8434d4c10ab0a3f0708fed0d53394e688e3faf70",
     )
 
-    http_archive(
-        name = "io_bazel_skydoc",
-        url = "https://github.com/bazelbuild/skydoc/archive/1cdb612e31448c2f6eb25b8aa67d406152275482.zip",
-        strip_prefix = "skydoc-1cdb612e31448c2f6eb25b8aa67d406152275482",
-        sha256 = "282ab93ea7477ad703b3e8108a274c21344c3b59ee4e5b1e6a89cdbe3ecbe68f",
-    )
-
-    # Fetching the Bazel source code allows us to compile the Skylark linter
+    # Needed for stardoc
+    # TODO(gregmagolan): switch to https://github.com/bazelbuild/bazel/archive/0.23.x.tar.gz when
+    # the commit pulled here makes it into a release
     http_archive(
         name = "io_bazel",
-        url = "https://github.com/bazelbuild/bazel/archive/0.17.2.zip",
-        strip_prefix = "bazel-0.17.2",
-        sha256 = "a6d7ae3939e7bb2e410949adab8aa2759eda0b017bf5fc18658dc635552ce56e",
+        url = "https://github.com/bazelbuild/bazel/archive/1488f91fec238adacbd0517fcee15d8ec0599b8d.zip",
+        sha256 = "f0dba27ac4e5145de7fc727229fe87f01399a1ef3c5225dc9b8c7e77156d91af",
+        strip_prefix = "bazel-1488f91fec238adacbd0517fcee15d8ec0599b8d",
     )
 
-    # Needed for Remote Build Execution
-    # See https://releases.bazel.build/bazel-toolchains.html
     http_archive(
-        name = "bazel_toolchains",
-        sha256 = "109a99384f9d08f9e75136d218ebaebc68cc810c56897aea2224c57932052d30",
-        strip_prefix = "bazel-toolchains-94d31935a2c94fe7e7c7379a0f3393e181928ff7",
-        urls = [
-            "https://mirror.bazel.build/github.com/bazelbuild/bazel-toolchains/archive/94d31935a2c94fe7e7c7379a0f3393e181928ff7.tar.gz",
-            "https://github.com/bazelbuild/bazel-toolchains/archive/94d31935a2c94fe7e7c7379a0f3393e181928ff7.tar.gz",
-        ],
+        name = "com_google_protobuf",
+        sha256 = "9510dd2afc29e7245e9e884336f848c8a6600a14ae726adb6befdb4f786f0be2",
+        strip_prefix = "protobuf-3.6.1.3",
+        type = "zip",
+        # v3.6.1.3 as of 2019-01-15
+        urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.6.1.3.zip"],
+    )
+
+    http_archive(
+        name = "io_bazel_skydoc",
+        sha256 = "75fd965a71ca1f0d0406d0d0fb0964d24090146a853f58b432761a1a6c6b47b9",
+        strip_prefix = "skydoc-82fdbfe797c6591d8732df0c0389a2b1c3e50992",
+        url = "https://github.com/bazelbuild/skydoc/archive/82fdbfe797c6591d8732df0c0389a2b1c3e50992.zip",  # 2018-12-12
     )
 
     http_archive(
@@ -109,6 +73,18 @@ def rules_nodejs_dev_dependencies():
         url = "https://github.com/bazelbuild/bazel-skylib/archive/0.6.0.zip",
         strip_prefix = "bazel-skylib-0.6.0",
         sha256 = "54ee22e5b9f0dd2b42eb8a6c1878dee592cfe8eb33223a7dbbc583a383f6ee1a",
+    )
+
+    # Needed for Remote Build Execution
+    # See https://releases.bazel.build/bazel-toolchains.html
+    http_archive(
+        name = "bazel_toolchains",
+        sha256 = "4b1468b254a572dbe134cc1fd7c6eab1618a72acd339749ea343bd8f55c3b7eb",
+        strip_prefix = "bazel-toolchains-d665ccfa3e9c90fa789671bf4ef5f7c19c5715c4",
+        urls = [
+            "https://mirror.bazel.build/github.com/bazelbuild/bazel-toolchains/archive/d665ccfa3e9c90fa789671bf4ef5f7c19c5715c4.tar.gz",
+            "https://github.com/bazelbuild/bazel-toolchains/archive/d665ccfa3e9c90fa789671bf4ef5f7c19c5715c4.tar.gz",
+        ],
     )
 
 def _maybe(repo_rule, name, **kwargs):

@@ -8,15 +8,24 @@ jasmine_node_test(
         "module_resolution.spec.js",
     ],
     data = ["data/data.json"],
-    node_modules = "//internal/test:node_modules",
-    deps = ["//internal/e2e/node/lib1"],
+    deps = [
+        "//internal/e2e/node/lib1",
+        "@npm//jasmine",
+        "@npm//node_resolve_index",
+        "@npm//node_resolve_index_2",
+        "@npm//node_resolve_index_3",
+        "@npm//node_resolve_index_4",
+        "@npm//node_resolve_main",
+        "@npm//node_resolve_main_2",
+        "@npm//node_resolve_nested_main",
+    ],
 )
 
 jasmine_node_test(
     name = "fail_test",
     srcs = ["jasmine_node_fail_test.spec.js"],
     expected_exit_code = 3,
-    node_modules = "//internal/test:node_modules",
+    deps = ["@npm//jasmine"],
 )
 
 # Also test resolution from built files.
@@ -30,8 +39,17 @@ jasmine_node_test(
         "data/data.json",
         ":genfile-runfile",
     ],
-    node_modules = "//internal/test:node_modules",
-    deps = ["//internal/e2e/node/lib1"],
+    deps = [
+        "//internal/e2e/node/lib1",
+        "@npm//jasmine",
+        "@npm//node_resolve_index",
+        "@npm//node_resolve_index_2",
+        "@npm//node_resolve_index_3",
+        "@npm//node_resolve_index_4",
+        "@npm//node_resolve_main",
+        "@npm//node_resolve_main_2",
+        "@npm//node_resolve_nested_main",
+    ],
 )
 
 genrule(

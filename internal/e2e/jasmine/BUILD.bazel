@@ -1,9 +1,0 @@
-load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
-
-jasmine_node_test(
-    name = "shared_env_test",
-    srcs = ["jasmine_shared_env_test.spec.js"],
-    bootstrap = ["build_bazel_rules_nodejs/internal/e2e/jasmine/jasmine_shared_env_bootstrap.js"],
-    data = ["jasmine_shared_env_bootstrap.js"],
-    node_modules = "//internal/test:node_modules",
-)

@@ -1,7 +1,10 @@
 .idea
 rules_nodejs-*.tar.gz
+/dist
 /bazel-*
+/e2e/*/bazel-*
 /examples/*/bazel-*
+/packages/*/bazel-*
 /internal/e2e/*/bazel-*
 /internal/npm_install/test/package/*
 node_modules

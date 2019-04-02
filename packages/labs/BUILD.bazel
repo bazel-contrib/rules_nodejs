@@ -1,0 +1,20 @@
+load("@build_bazel_rules_nodejs//:defs.bzl", "npm_package")
+
+genrule(
+    name = "copy_LICENSE",
+    srcs = ["@build_bazel_rules_nodejs//:LICENSE"],
+    outs = ["LICENSE"],
+    cmd = "cp $< $@",
+)
+
+npm_package(
+    name = "npm_package",
+    srcs = [
+        "BUILD.bazel",
+        "README.md",
+        "package.json",
+    ],
+    deps = [
+        ":copy_LICENSE",
+    ],
+)

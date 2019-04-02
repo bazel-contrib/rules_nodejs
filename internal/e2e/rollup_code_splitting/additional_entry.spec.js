@@ -8,30 +8,38 @@ describe('bundling additional entry point', () => {
     check(path, 'bundle.min.js', 'bundle-min_golden.js_');
   });
 
-  it('bundle.cs.es6 should work', () => {
+  // Disabled because native ESModules can't be loaded in current nodejs
+  // see https://github.com/bazelbuild/rules_nodejs/issues/593
+  xit('bundle_chunks_es6 should work', () => {
     const additional_entry = require(
-        'build_bazel_rules_nodejs/internal/e2e/rollup_code_splitting/bundle.cs.es6/additional_entry.js')
+        'build_bazel_rules_nodejs/internal/e2e/rollup_code_splitting/bundle_chunks_es6/additional_entry.js');
     const actual = (new additional_entry()).test();
     expect(actual).toEqual(expected);
   });
 
-  it('bundle.cs should work', () => {
-    const additional_entry = require(
-        'build_bazel_rules_nodejs/internal/e2e/rollup_code_splitting/bundle.cs/additional_entry.js')
+  it('bundle_chunks should work', () => {
+    const additional_entry =
+        require(
+            'build_bazel_rules_nodejs/internal/e2e/rollup_code_splitting/bundle_chunks/additional_entry.js')
+            .default;
     const actual = (new additional_entry()).test();
     expect(actual).toEqual(expected);
   });
 
-  it('bundle.cs.min should work', () => {
-    const additional_entry = require(
-        'build_bazel_rules_nodejs/internal/e2e/rollup_code_splitting/bundle.cs.min/additional_entry.js')
+  it('bundle_chunks_min should work', () => {
+    const additional_entry =
+        require(
+            'build_bazel_rules_nodejs/internal/e2e/rollup_code_splitting/bundle_chunks_min/additional_entry.js')
+            .default;
     const actual = (new additional_entry()).test();
     expect(actual).toEqual(expected);
   });
 
-  it('bundle.cs.min_debug should work', () => {
-    const additional_entry = require(
-        'build_bazel_rules_nodejs/internal/e2e/rollup_code_splitting/bundle.cs.min_debug/additional_entry.js')
+  it('bundle_chunks_min_debug should work', () => {
+    const additional_entry =
+        require(
+            'build_bazel_rules_nodejs/internal/e2e/rollup_code_splitting/bundle_chunks_min_debug/additional_entry.js')
+            .default;
     const actual = (new additional_entry()).test();
     expect(actual).toEqual(expected);
   });
@@ -39,7 +47,7 @@ describe('bundling additional entry point', () => {
   it('should have a license header', () => {
     const content = fs.readFileSync(
         require.resolve(
-            'build_bazel_rules_nodejs/internal/e2e/rollup_code_splitting/bundle.cs.min_debug/additional_entry.js'),
+            'build_bazel_rules_nodejs/internal/e2e/rollup_code_splitting/bundle_chunks_min_debug/additional_entry.js'),
         {encoding: 'utf-8'});
     expect(content).toContain('dummy license banner');
   });

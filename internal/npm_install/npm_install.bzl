@@ -81,11 +81,11 @@ COMMON_ATTRIBUTES = dict(dict(), **{
     ),
 })
 
-def _create_build_file(repository_ctx, node):
+def _create_build_file(repository_ctx, node, lock_file):
     repository_ctx.report_progress("Processing node_modules: installing Bazel packages and generating BUILD files")
     if repository_ctx.attr.manual_build_file_contents:
         repository_ctx.file("manual_build_file_contents", repository_ctx.attr.manual_build_file_contents)
-    result = repository_ctx.execute([node, "generate_build_file.js", repository_ctx.attr.name, ",".join(repository_ctx.attr.included_files)])
+    result = repository_ctx.execute([node, "generate_build_file.js", repository_ctx.attr.name, ",".join(repository_ctx.attr.included_files), str(lock_file)])
     if result.return_code:
         fail("node failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
 
@@ -114,7 +114,11 @@ def _add_data_dependencies(repository_ctx):
         if f.package:
             to += [f.package]
         to += [f.name]
-        repository_ctx.symlink(f, repository_ctx.path("/".join(to)))
+
+        # Make copies of the data files instead of symlinking
+        # as yarn under linux will have trouble using symlinked
+        # files as npm file:// packages
+        repository_ctx.template("/".join(to), f, {})
 
 def _npm_install_impl(repository_ctx):
     """Core implementation of npm_install."""
@@ -204,7 +208,7 @@ cd "{root}" && "{npm}" {npm_args}
     if result.return_code:
         fail("remove_npm_absolute_paths failed: %s (%s)" % (result.stdout, result.stderr))
 
-    _create_build_file(repository_ctx, node)
+    _create_build_file(repository_ctx, node, repository_ctx.attr.package_lock_json)
 
 npm_install = repository_rule(
     attrs = dict(COMMON_ATTRIBUTES, **{
@@ -219,8 +223,7 @@ npm_install = repository_rule(
     }),
     implementation = _npm_install_impl,
 )
-"""Runs npm install during workspace setup.
-"""
+"""Runs npm install during workspace setup."""
 
 def _yarn_install_impl(repository_ctx):
     """Core implementation of yarn_install."""
@@ -283,7 +286,7 @@ def _yarn_install_impl(repository_ctx):
     if result.return_code:
         fail("yarn_install failed: %s (%s)" % (result.stdout, result.stderr))
 
-    _create_build_file(repository_ctx, node)
+    _create_build_file(repository_ctx, node, repository_ctx.attr.yarn_lock)
 
 _yarn_install = repository_rule(
     attrs = dict(COMMON_ATTRIBUTES, **{

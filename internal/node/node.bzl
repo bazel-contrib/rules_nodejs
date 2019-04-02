@@ -362,8 +362,7 @@ nodejs_binary = rule(
     outputs = _NODEJS_EXECUTABLE_OUTPUTS,
     toolchains = ["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"],
 )
-"""
-Runs some JavaScript code in NodeJS.
+"""Runs some JavaScript code in NodeJS.
 """
 
 nodejs_test = rule(

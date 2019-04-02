@@ -1,0 +1,16 @@
+workspace(name = "npm_bazel_labs")
+
+local_repository(
+    name = "build_bazel_rules_nodejs",
+    path = "../..",
+)
+
+# Pull in build_bazel_rules_nodejs dev dependencies which are
+# needed for generating documentation
+load("@build_bazel_rules_nodejs//:package.bzl", "rules_nodejs_dev_dependencies")
+
+rules_nodejs_dev_dependencies()
+
+load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
+
+node_repositories()
