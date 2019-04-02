@@ -21,7 +21,7 @@ as the package manager.
 See discussion in the README.
 """
 
-load("//internal/common:os_name.bzl", "os_name", "OS_ARCH_NAMES", "OS_NAMES")
+load("//internal/common:os_name.bzl", "OS_NAMES", "os_name")
 load("//internal/node:node_labels.bzl", "get_node_label", "get_npm_label", "get_yarn_label")
 
 COMMON_ATTRIBUTES = dict(dict(), **{
@@ -323,11 +323,11 @@ def yarn_install(**kwargs):
     name = kwargs.pop(name)
     _yarn_install(
         name = name,
-        **kwargs,
+        **kwargs
     )
 
     for os in OS_NAMES:
         _yarn_install(
             name = "%s_%s" % (name, os),
-            **kwargs,
+            **kwargs
         )

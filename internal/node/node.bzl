@@ -148,6 +148,7 @@ def _nodejs_binary_impl(ctx):
         print(node_tool)
         if node_tool_info.target_tool:
             node_tool = _short_path_to_manifest_path(ctx, node_tool_info.target_tool.files.to_list()[0].short_path)
+
             # print(node.short_path)
             # print(_short_path_to_manifest_path(ctx, node.short_path))
             # print(node_tool.path)
@@ -157,6 +158,7 @@ def _nodejs_binary_impl(ctx):
             node_tool_files += node_tool_info.target_tool.files.to_list()
 
     print("------------")
+
     # print(node_tool)
     # print(node_tool.path)
     # print(_short_path_to_manifest_path(ctx, node_tool))

@@ -15,19 +15,6 @@
 Defines a repository rule for configuring the node binary.
 """
 
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-load(
-    ":defaults.bzl",
-    _k8s_commit = "k8s_commit",
-    _k8s_org = "k8s_org",
-    _k8s_prefix = "k8s_prefix",
-    _k8s_repo = "k8s_repo",
-    _k8s_repo_tools_commit = "k8s_repo_tools_commit",
-    _k8s_repo_tools_prefix = "k8s_repo_tools_prefix",
-    _k8s_repo_tools_repo = "k8s_repo_tools_repo",
-    _k8s_repo_tools_sha = "k8s_repo_tools_sha",
-    _k8s_sha256 = "k8s_sha256",
-)
 load("//internal/common:os_name.bzl", "OS_ARCH_NAMES")
 
 def _impl(repository_ctx):
@@ -43,17 +30,17 @@ def _impl(repository_ctx):
                 target_repo_name = repo_name
             if host_os in repo_name:
                 host_tool = "@%s//:node" % repo_name
-        
+
         if not target_tool or not host_tool:
             fail("No host_tool nor target_tool found")
 
         substitutions = {
-            "%{NODE_TARGET_TOOL}": "%s" % target_tool,
-            "%{NODE_TARGET_RUNFILES}": "@%s//:node_runfiles" % target_repo_name,
-            "%{NODE_TARGET_ARGS}": "@%s//:bin/node_args.sh" % target_repo_name,
-            "%{NODE_HOST_TOOL}": "%s" % host_tool,
-            "%{OS}": "%s" % repository_ctx.attr.os,
             "%{ARCH}": "%s" % repository_ctx.attr.arch,
+            "%{NODE_HOST_TOOL}": "%s" % host_tool,
+            "%{NODE_TARGET_ARGS}": "@%s//:bin/node_args.sh" % target_repo_name,
+            "%{NODE_TARGET_RUNFILES}": "@%s//:node_runfiles" % target_repo_name,
+            "%{NODE_TARGET_TOOL}": "%s" % target_tool,
+            "%{OS}": "%s" % repository_ctx.attr.os,
         }
         template = Label("@build_bazel_rules_nodejs//toolchains/node:BUILD.target.tpl")
 
@@ -72,20 +59,12 @@ def _impl(repository_ctx):
 _node_configure = repository_rule(
     implementation = _impl,
     attrs = {
-        "os": attr.string(
-            mandatory = True,
-            doc = "Default target OS",
-        ),
         "arch": attr.string(
             mandatory = True,
             doc = "Default target architecture",
         ),
-        "target_tool_path": attr.string(
-            doc = "Absolute path to a pre-installed nodejs binary for the target os.",
-            mandatory = False,
-        ),
-        "target_tool": attr.label(
-            doc = "Target for a downloaded nodejs binary for the target os.",
+        "host_tool": attr.label(
+            doc = "Target for a downloaded nodejs binary for the host os.",
             mandatory = False,
             allow_single_file = True,
         ),
@@ -93,12 +72,20 @@ _node_configure = repository_rule(
             doc = "Absolute path to a pre-installed nodejs binary for the host os.",
             mandatory = False,
         ),
-        "host_tool": attr.label(
-            doc = "Target for a downloaded nodejs binary for the host os.",
+        "nodejs_repository_names": attr.string_list(
+            mandatory = False,
+        ),
+        "os": attr.string(
+            mandatory = True,
+            doc = "Default target OS",
+        ),
+        "target_tool": attr.label(
+            doc = "Target for a downloaded nodejs binary for the target os.",
             mandatory = False,
             allow_single_file = True,
         ),
-        "nodejs_repository_names": attr.string_list(
+        "target_tool_path": attr.string(
+            doc = "Absolute path to a pre-installed nodejs binary for the target os.",
             mandatory = False,
         ),
     },
@@ -165,7 +152,8 @@ def node_configure(node_repositories):
     if node_repositories:
         print("!!!!!!!!!InHERE!!!!!!!!!!!!")
         for os, arch in OS_ARCH_NAMES:
-            _node_configure(name = "nodejs_config_%s_%s" % (os, arch), os=os, arch=arch, nodejs_repository_names=node_repositories)
+            _node_configure(name = "nodejs_config_%s_%s" % (os, arch), os = os, arch = arch, nodejs_repository_names = node_repositories)
+
     # _node_configure(name = name + "_osx", os="osx", arch="x86_64", host_tool="@nodejs_linux//:node", target_tool="@nodejs_darwin//:node")
 
     # build_srcs = False

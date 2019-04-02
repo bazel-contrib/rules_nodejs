@@ -18,12 +18,12 @@ This module implements the node toolchain rule.
 NodeInfo = provider(
     doc = "Information about how to invoke the node binary.",
     fields = {
-        "target_tool_path": "Path to an existing nodejs executable",
-        "target_tool": "A hermetically downloaded nodejs executable target.",
-        "target_tool_runfiles": "A hermetically downloaded nodejs executable target.",
-        "target_tool_args": "A hermetically downloaded nodejs executable target.",
-        "host_tool_path": "Path to an existing nodejs executable",
         "host_tool": "A hermetically downloaded nodejs executable target.",
+        "host_tool_path": "Path to an existing nodejs executable",
+        "target_tool": "A hermetically downloaded nodejs executable target.",
+        "target_tool_args": "A hermetically downloaded nodejs executable target.",
+        "target_tool_path": "Path to an existing nodejs executable",
+        "target_tool_runfiles": "A hermetically downloaded nodejs executable target.",
     },
 )
 
@@ -45,30 +45,12 @@ def _node_toolchain_impl(ctx):
 node_toolchain = rule(
     implementation = _node_toolchain_impl,
     attrs = {
-        "os": attr.string(
-            mandatory = True,
-            doc = "Default target OS",
-        ),
         "arch": attr.string(
             mandatory = True,
             doc = "Default target architecture",
         ),
-        "target_tool_path": attr.string(
-            doc = "Absolute path to a pre-installed nodejs binary for the target os.",
-            mandatory = False,
-        ),
-        "target_tool": attr.label(
-            doc = "Target for a downloaded nodejs binary for the target os.",
-            mandatory = False,
-            allow_single_file = True,
-        ),
-        "target_tool_runfiles": attr.label(
-            doc = "Target for a downloaded nodejs binary for the target os.",
-            mandatory = False,
-            allow_files = False,
-        ),
-        "target_tool_args": attr.label(
-            doc = "Target for a downloaded nodejs binary for the target os.",
+        "host_tool": attr.label(
+            doc = "Target for a downloaded nodejs binary for the host os.",
             mandatory = False,
             allow_single_file = True,
         ),
@@ -76,10 +58,28 @@ node_toolchain = rule(
             doc = "Absolute path to a pre-installed nodejs binary for the host os.",
             mandatory = False,
         ),
-        "host_tool": attr.label(
-            doc = "Target for a downloaded nodejs binary for the host os.",
+        "os": attr.string(
+            mandatory = True,
+            doc = "Default target OS",
+        ),
+        "target_tool": attr.label(
+            doc = "Target for a downloaded nodejs binary for the target os.",
             mandatory = False,
             allow_single_file = True,
+        ),
+        "target_tool_args": attr.label(
+            doc = "Target for a downloaded nodejs binary for the target os.",
+            mandatory = False,
+            allow_single_file = True,
+        ),
+        "target_tool_path": attr.string(
+            doc = "Absolute path to a pre-installed nodejs binary for the target os.",
+            mandatory = False,
+        ),
+        "target_tool_runfiles": attr.label(
+            doc = "Target for a downloaded nodejs binary for the target os.",
+            mandatory = False,
+            allow_files = False,
         ),
     },
 )

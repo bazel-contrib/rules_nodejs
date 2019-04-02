@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load(":node_toolchain.bzl", "node_toolchain")
-
 package(default_visibility = ["//visibility:private"])
 
 licenses(["notice"])  # Apache 2.0
