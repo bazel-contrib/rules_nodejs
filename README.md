@@ -76,6 +76,12 @@ See sections below for details and alternative methods.
     install_bazel_dependencies()
     ```
 
+1. Since Bazel manages a copy of the node_modules, we don't want it to discover configuration in your locally installed copy. Create a file `.bazelignore` in the root of your repo containing this line:
+
+    ```
+    node_modules
+    ```
+
 1. Create a file `BUILD.bazel` in the root of your repo, next to the `package.json` file. It can be empty for now.
 
 1. In your `package.json`, find the `"scripts"` section, or create one.

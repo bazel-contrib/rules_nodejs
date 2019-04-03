@@ -17,6 +17,8 @@ $ yarn add -D @bazel/typescript
 $ npm install --save-dev @bazel/typescript
 ```
 
+Watch for any peerDependency warnings - we assume you have already installed the `typescript` package from npm.
+
 Your `WORKSPACE` should declare a `yarn_install` or `npm_install` rule named `npm`.
 It should then install the rules found in the npm packages using the `install_bazel_dependencies` function.
 See https://github.com/bazelbuild/rules_nodejs/#quickstart
