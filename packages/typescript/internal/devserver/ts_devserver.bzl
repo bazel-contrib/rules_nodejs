@@ -14,7 +14,6 @@
 
 "Simple development server"
 
-load("@build_bazel_rules_nodejs//internal/common:dev_scripts_aspect.bzl", "DevScriptsProvider", "dev_scripts_aspect")
 load("@build_bazel_rules_nodejs//internal/common:sources_aspect.bzl", "sources_aspect")
 load(
     "@build_bazel_rules_nodejs//internal/js_library:js_library.bzl",
@@ -41,8 +40,8 @@ def _ts_devserver(ctx):
             files = depset(transitive = [files, d.node_sources])
         elif hasattr(d, "files"):
             files = depset(transitive = [files, d.files])
-        if DevScriptsProvider in d:
-            dev_scripts = depset(transitive = [dev_scripts, d[DevScriptsProvider].dev_scripts])
+        if hasattr(d, "dev_scripts"):
+            dev_scripts = depset(transitive = [dev_scripts, d.dev_scripts])
 
     if ctx.label.workspace_root:
         # We need the workspace_name for the target being visited.
@@ -190,7 +189,7 @@ ts_devserver = rule(
         "deps": attr.label_list(
             doc = "Targets that produce JavaScript, such as `ts_library`",
             allow_files = True,
-            aspects = [sources_aspect, dev_scripts_aspect],
+            aspects = [sources_aspect],
         ),
         "_bash_runfile_helpers": attr.label(default = Label("@bazel_tools//tools/bash/runfiles")),
         "_devserver": attr.label(
