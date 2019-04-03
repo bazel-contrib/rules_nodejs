@@ -1,0 +1,8 @@
+sh_test(
+    name = "test",
+    srcs = ["test.sh"],
+    data = [
+        "@bazel_tools//tools/bash/runfiles",
+        "@npm//testy/bin:testy",
+    ],
+)

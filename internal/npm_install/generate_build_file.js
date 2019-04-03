@@ -711,12 +711,29 @@ filegroup(
 
   if (pkg._executables) {
     for (const [name, path] of pkg._executables.entries()) {
+      // Handle additionalAttributes of format:
+      // ```
+      // "bazelBin": {
+      //   "ngc-wrapped": {
+      //     "additionalAttributes": {
+      //       "configuration_env_vars": "[\"compile\"]"
+      //   }
+      // },
+      // ```
+      let additionalAttributes = '';
+      if (pkg.bazelBin && pkg.bazelBin[name] && pkg.bazelBin[name].additionalAttributes) {
+        const attrs = pkg.bazelBin[name].additionalAttributes;
+        for (const attrName of Object.keys(attrs)) {
+          const attrValue = attrs[attrName];
+          additionalAttributes += `\n    ${attrName} = ${attrValue},`;
+        }
+      }
       result += `# Wire up the \`bin\` entry \`${name}\`
 nodejs_binary(
     name = "${name}__bin",
     entry_point = "${pkg._dir}/${path}",
     install_source_map_support = False,
-    data = [":${pkg._name}__pkg"],
+    data = [":${pkg._name}__pkg"],${additionalAttributes}
 )
 
 `;
