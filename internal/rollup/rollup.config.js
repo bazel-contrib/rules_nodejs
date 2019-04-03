@@ -177,6 +177,7 @@ const config = {
       module: true,
       jsnext: true,
       main: true,
+      jail: process.cwd(),
       customResolveOptions: {moduleDirectory: nodeModulesRoot}
     }),
     amd({
@@ -193,6 +194,7 @@ const config = {
     banner,
     format: 'TMPL_output_format',
   },
+  preserveSymlinks: true,
 }
 
 if (enableCodeSplitting) {
