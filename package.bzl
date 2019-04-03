@@ -17,7 +17,6 @@
 Fulfills similar role as the package.json file.
 """
 
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 def rules_nodejs_dependencies():
@@ -44,10 +43,13 @@ def rules_nodejs_dev_dependencies():
     )
 
     # Needed for stardoc
-    git_repository(
+    # TODO(gregmagolan): switch to https://github.com/bazelbuild/bazel/archive/0.23.x.tar.gz when
+    # the commit pulled here makes it into a release
+    http_archive(
         name = "io_bazel",
-        commit = "1488f91fec238adacbd0517fcee15d8ec0599b8d",
-        remote = "https://github.com/bazelbuild/bazel.git",
+        url = "https://github.com/bazelbuild/bazel/archive/1488f91fec238adacbd0517fcee15d8ec0599b8d.zip",
+        sha256 = "f0dba27ac4e5145de7fc727229fe87f01399a1ef3c5225dc9b8c7e77156d91af",
+        strip_prefix = "bazel-1488f91fec238adacbd0517fcee15d8ec0599b8d",
     )
 
     http_archive(

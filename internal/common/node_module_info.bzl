@@ -12,14 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Definitions for handling path re-mapping, to support short module names.
-# See pathMapping doc: https://github.com/Microsoft/TypeScript/issues/5039
-#
-# This reads the module_root and module_name attributes from typescript rules in
-# the transitive closure, rolling these up to provide a mapping to the
-# TypeScript compiler and to editors.
-#
-
 """NodeModuleInfo provider and apsect to collect node_modules from deps.
 """
 

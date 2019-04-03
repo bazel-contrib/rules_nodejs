@@ -9,7 +9,7 @@
     "typescript": "2.7.x"
   },
   "scripts": {
-    "pretest": "../../scripts/link_deps.sh && bazel run @nodejs//:yarn && webdriver-manager update $CHROMEDRIVER_VERSION_ARG",
+    "pretest": "../../scripts/link_deps.sh && bazel run @nodejs//:yarn && webdriver-manager update --standalone false --gecko false $CHROMEDRIVER_VERSION_ARG",
     "test_root": "concurrently \"bazel run //:devserver\" \"while ! nc -z 127.0.0.1 8080; do sleep 1; done && protractor --suite root\" --kill-others --success first",
     "test_subpackage": "concurrently \"bazel run //subpackage:devserver\" \"while ! nc -z 127.0.0.1 8080; do sleep 1; done && protractor --suite subpackage\" --kill-others --success first",
     "test_genrule": "concurrently \"bazel run //genrule:devserver\" \"while ! nc -z 127.0.0.1 8080; do sleep 1; done && protractor --suite genrule\" --kill-others --success first",

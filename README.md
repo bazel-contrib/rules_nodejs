@@ -34,14 +34,14 @@ See sections below for details and alternative methods.
     $ npm install --save-dev @bazel/bazel @bazel/ibazel @bazel/buildifier
     ```
 
-2. Create a file called `WORKSPACE` in the root of your repo, containing
+1. Create a file called `WORKSPACE` in the root of your repo, containing
 
     ```python
     load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
     http_archive(
         name = "build_bazel_rules_nodejs",
-        sha256 = "fb87ed5965cef93188af9a7287511639403f4b0da418961ce6defb9dcf658f51",
-        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.27.7/rules_nodejs-0.27.7.tar.gz"],
+        sha256 = "213dcf7e72f3acd4d1e369b7a356f3e5d9560f380bd655b13b7c0ea425d7c419",
+        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.27.9/rules_nodejs-0.27.9.tar.gz"],
     )
 
     load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
@@ -61,8 +61,8 @@ See sections below for details and alternative methods.
     load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
     http_archive(
         name = "build_bazel_rules_nodejs",
-        sha256 = "fb87ed5965cef93188af9a7287511639403f4b0da418961ce6defb9dcf658f51",
-        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.27.7/rules_nodejs-0.27.7.tar.gz"],
+        sha256 = "213dcf7e72f3acd4d1e369b7a356f3e5d9560f380bd655b13b7c0ea425d7c419",
+        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.27.9/rules_nodejs-0.27.9.tar.gz"],
     )
 
     load("@build_bazel_rules_nodejs//:defs.bzl", "npm_install")
@@ -76,7 +76,9 @@ See sections below for details and alternative methods.
     install_bazel_dependencies()
     ```
 
-3. In your `package.json`, find the `"scripts"` section, or create one.
+1. Create a file `BUILD.bazel` in the root of your repo, next to the `package.json` file. It can be empty for now.
+
+1. In your `package.json`, find the `"scripts"` section, or create one.
 
     ```json
     "scripts": {
@@ -85,7 +87,7 @@ See sections below for details and alternative methods.
     }
     ```
 
-4. Test that you can do an initial build. It will report that no targets were found yet.
+1. Test that you can do an initial build. It will report that no targets were found yet.
 
     ```sh
     $ yarn build
@@ -139,8 +141,8 @@ containing:
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 http_archive(
     name = "build_bazel_rules_nodejs",
-    sha256 = "fb87ed5965cef93188af9a7287511639403f4b0da418961ce6defb9dcf658f51",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.27.7/rules_nodejs-0.27.7.tar.gz"],
+    sha256 = "213dcf7e72f3acd4d1e369b7a356f3e5d9560f380bd655b13b7c0ea425d7c419",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.27.9/rules_nodejs-0.27.9.tar.gz"],
 )
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
