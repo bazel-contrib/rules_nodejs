@@ -67,7 +67,7 @@ func (bl *fakeTargetLoader) byLabel(label, value string) {
 	bl.targetsByLabels[label] = value
 }
 
-func (bl *fakeTargetLoader) LoadImportPaths(_ context.Context, _, _ string, paths []string) (map[string]*appb.Rule, error) {
+func (bl *fakeTargetLoader) LoadImportPaths(_ context.Context, _ *appb.Rule, _, _ string, paths []string) (map[string]*appb.Rule, error) {
 	return bl.loadRules(bl.targetsByImportPaths, paths)
 }
 

@@ -82,7 +82,7 @@ type TargetLoader interface {
 	//
 	// Only returns rules visible to currentPkg. If currentPkg is an empty string
 	// returns all targets regardless of visibility.
-	LoadImportPaths(ctx context.Context, currentPkg, root string, paths []string) (map[string]*appb.Rule, error)
+	LoadImportPaths(ctx context.Context, targetToAnalyze *appb.Rule, currentPkg, root string, paths []string) (map[string]*appb.Rule, error)
 }
 
 // Analyzer uses a BuildLoader to generate dependency reports.
@@ -315,9 +315,9 @@ func (a *Analyzer) resolveImportsForTargets(ctx context.Context, currentPkg, roo
 // resolveImports finds targets which provide the imported file or library
 // for imports without known targets.
 func (a *Analyzer) resolveImports(ctx context.Context, currentPkg, root string, targets map[string]*resolvedTarget) error {
-	var paths []string
-	needingResolution := make(map[string][]*ts_auto_depsImport)
 	for _, target := range targets {
+		var paths []string
+		needingResolution := make(map[string][]*ts_auto_depsImport)
 		for _, imports := range target.imports {
 		handlingImports:
 			for _, imp := range imports {
@@ -343,18 +343,18 @@ func (a *Analyzer) resolveImports(ctx context.Context, currentPkg, root string, 
 				imp.knownTarget = d
 			}
 		}
-	}
-	if len(needingResolution) == 0 {
-		return nil
-	}
-	res, err := a.loader.LoadImportPaths(ctx, currentPkg, root, paths)
-	if err != nil {
-		return err
-	}
-	for path, imports := range needingResolution {
-		if target, ok := res[path]; ok {
-			for _, imp := range imports {
-				imp.knownTarget = redirectedLabel(target)
+		if len(needingResolution) == 0 {
+			continue
+		}
+		res, err := a.loader.LoadImportPaths(ctx, target.rule, currentPkg, root, paths)
+		if err != nil {
+			return err
+		}
+		for path, imports := range needingResolution {
+			if target, ok := res[path]; ok {
+				for _, imp := range imports {
+					imp.knownTarget = redirectedLabel(target)
+				}
 			}
 		}
 	}

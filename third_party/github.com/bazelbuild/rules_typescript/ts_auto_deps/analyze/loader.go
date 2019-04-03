@@ -153,7 +153,7 @@ func possibleFilepaths(importPath string) []string {
 
 // LoadImportPaths uses Bazel Query to load targets associated with import
 // paths from BUILD files.
-func (q *QueryBasedTargetLoader) LoadImportPaths(ctx context.Context, currentPkg, workspaceRoot string, paths []string) (map[string]*appb.Rule, error) {
+func (q *QueryBasedTargetLoader) LoadImportPaths(ctx context.Context, targetToAnalyze *appb.Rule, currentPkg, workspaceRoot string, paths []string) (map[string]*appb.Rule, error) {
 	debugf("loading imports visible to %q relative to %q: %q", currentPkg, workspaceRoot, paths)
 	results := make(map[string]*appb.Rule)
 
@@ -270,7 +270,7 @@ func (q *QueryBasedTargetLoader) LoadImportPaths(ctx context.Context, currentPkg
 				matchingDeps = append(matchingDeps, candidate)
 			}
 			if len(matchingDeps) > 0 {
-				canonicalRule, err := q.chooseCanonicalRule(currentPkg, matchingDeps)
+				canonicalRule, err := q.chooseCanonicalDep(currentPkg, targetToAnalyze, matchingDeps)
 				if err != nil {
 					return nil, err
 				}
@@ -282,11 +282,11 @@ func (q *QueryBasedTargetLoader) LoadImportPaths(ctx context.Context, currentPkg
 	return results, nil
 }
 
-// chooseCanonicalRule chooses between rules which include the imported file as
+// chooseCanonicalDep chooses between rules which include the imported file as
 // a source (ie the rule that includes the file as a src, and any reexporting
 // libraries).
 //
-// It filters the rules in a 2 stage process:
+// It filters the rules in a 3 stage process:
 //
 // 1. If only one of the rules is visible, choose that one, since the rule
 // creator intended it to be imported.
@@ -294,41 +294,81 @@ func (q *QueryBasedTargetLoader) LoadImportPaths(ctx context.Context, currentPkg
 // 2. If all or none of the rules are visible, choose the rule that directly
 // includes the file as a src, since that reduces the chance of introducing
 // circular dependencies.
-func (q *QueryBasedTargetLoader) chooseCanonicalRule(currentPkg string, rules []*appb.Rule) (*appb.Rule, error) {
+//
+// 3. Choose the rule that is already included as a dep.
+func (q *QueryBasedTargetLoader) chooseCanonicalDep(currentPkg string, targetToAnalyze *appb.Rule, deps []*appb.Rule) (*appb.Rule, error) {
 	// check for visibility
-	var labels []string
-	for _, r := range rules {
-		labels = append(labels, r.GetName())
-	}
-	visibleRulesMap, err := q.LoadRules(currentPkg, labels)
-	if err != nil {
-		return nil, err
-	}
-
-	var visibleRules []*appb.Rule
-	for _, r := range visibleRulesMap {
-		if r != nil {
-			visibleRules = append(visibleRules, r)
+	filterForVisibility := func(deps []*appb.Rule) ([]*appb.Rule, error) {
+		var labels []string
+		for _, d := range deps {
+			labels = append(labels, d.GetName())
 		}
-	}
+		visibleDepsMap, err := q.LoadRules(currentPkg, labels)
+		if err != nil {
+			return nil, err
+		}
 
-	if len(visibleRules) == 1 {
-		return visibleRules[0], nil
-	} else if len(visibleRules) > 0 {
-		rules = visibleRules
+		var visibleDeps []*appb.Rule
+		for _, d := range visibleDepsMap {
+			if d != nil {
+				visibleDeps = append(visibleDeps, d)
+			}
+		}
+
+		return visibleDeps, nil
 	}
 
 	// if there's a visible reexporting lib and a visible lib with the src, favor
 	// the lib with the src, to reduce the chance of introducing a circular
 	// dependency
-	for _, r := range rules {
-		if !isReexportingLib(r) {
-			return r, nil
+	filterForBaseLibs := func(deps []*appb.Rule) ([]*appb.Rule, error) {
+		var baseDeps []*appb.Rule
+		for _, d := range deps {
+			if !isReexportingLib(d) {
+				baseDeps = append(baseDeps, d)
+			}
+		}
+
+		return baseDeps, nil
+	}
+
+	// favor the dep that's already on the rule
+	filterForExistingDeps := func(deps []*appb.Rule) ([]*appb.Rule, error) {
+		var existingDeps []*appb.Rule
+		for _, d := range deps {
+			for _, existing := range listAttribute(targetToAnalyze, "deps") {
+				if d.GetName() == existing {
+					existingDeps = append(existingDeps, d)
+				}
+			}
+		}
+
+		return existingDeps, nil
+	}
+
+	filters := []func(deps []*appb.Rule) ([]*appb.Rule, error){
+		filterForVisibility,
+		filterForBaseLibs,
+		filterForExistingDeps,
+	}
+
+	// for each filter, return if it returned a single rule, narrow the set of deps if
+	// it discarded some, but not all, and try the full set with the next filter if it
+	// discarded them all
+	for _, filter := range filters {
+		filteredDeps, err := filter(deps)
+		if err != nil {
+			return nil, err
+		}
+		if len(filteredDeps) == 1 {
+			return filteredDeps[0], nil
+		} else if len(filteredDeps) > 0 {
+			deps = filteredDeps
 		}
 	}
 
-	// if no rules matched the filter, just return the first rule
-	return rules[0], nil
+	// no filter got down to a single rule, just return the first
+	return deps[0], nil
 }
 
 // ruleLabel returns the label for a target which is a rule.  Returns an error if
