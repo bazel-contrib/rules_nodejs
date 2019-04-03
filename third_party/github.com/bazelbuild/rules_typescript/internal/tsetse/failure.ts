@@ -6,22 +6,45 @@ import * as ts from 'typescript';
  * (1) The error code is defined by each individual Tsetse rule.
  * (2) The optional `source` property is set to `Tsetse` so the host (VS Code
  * for instance) would use that to indicate where the error comes from.
+ * (3) There's an optional suggestedFix field.
  */
 export class Failure {
   constructor(
-      private sourceFile: ts.SourceFile, private start: number,
-      private end: number, private failureText: string, private code: number) {}
+      private readonly sourceFile: ts.SourceFile,
+      private readonly start: number, private readonly end: number,
+      private readonly failureText: string, private readonly code: number,
+      private readonly suggestedFix?: Fix) {}
 
-  toDiagnostic(): ts.Diagnostic {
+  /**
+   * This returns a structure compatible with ts.Diagnostic, but with added
+   * fields, for convenience and to support suggested fixes.
+   */
+  toDiagnostic(): ts.Diagnostic&{end: number, fix?: Fix} {
     return {
       file: this.sourceFile,
       start: this.start,
+      end: this.end,  // Not in ts.Diagnostic, but always useful for
+                      // start-end-using systems.
       length: this.end - this.start,
       messageText: this.failureText,
       category: ts.DiagnosticCategory.Error,
       code: this.code,
       // source is the name of the plugin.
       source: 'Tsetse',
+      fix: this.suggestedFix
     };
   }
+}
+
+/**
+ * A Fix is a potential repair to the associated Failure.
+ */
+export interface Fix {
+  /**
+   * The individual text replacements composing that fix.
+   */
+  changes: IndividualChange[],
+}
+export interface IndividualChange {
+  sourceFile: ts.SourceFile, start: number, end: number, replacement: string
 }
