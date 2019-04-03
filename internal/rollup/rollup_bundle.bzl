@@ -190,6 +190,10 @@ def _run_rollup(ctx, sources, config, output, map_output = None):
             # Note: we can't avoid calling .to_list() on files
             direct_inputs += _filter_js_inputs(d.files.to_list())
 
+            # Make sure to get transitive node modules
+            if d[NodeModuleInfo].transitive:
+                direct_inputs += _filter_js_inputs(d[NodeModuleInfo].files.to_list())
+
     if ctx.file.license_banner:
         direct_inputs += [ctx.file.license_banner]
     if ctx.version_file:

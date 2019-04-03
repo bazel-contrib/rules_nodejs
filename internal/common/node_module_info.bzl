@@ -18,6 +18,7 @@
 NodeModuleInfo = provider(
     doc = "This provider contains information about npm dependencies installed with yarn_install and npm_install rules",
     fields = {
+        "files": "The transitive files",
         "transitive": "If true this dependency has transitive npm dependencies but is not and npm package itself",
         "workspace": "The workspace name that the npm dependencies are provided from",
     },
@@ -30,11 +31,19 @@ def _collect_node_modules_aspect_impl(target, ctx):
         nm_wksp = target.label.workspace_root.split("/")[1] if target.label.workspace_root else ctx.workspace_name
         return [NodeModuleInfo(workspace = nm_wksp, transitive = False)]
 
-    # This ensures that NodeModuleInfo about transitive dependencies is tracked.
+    # This ensures that NodeModuleInfo about transitive dependencies is tracked as well as their files accessible.
+    info = []
+    result = None
     if hasattr(ctx.rule.attr, "deps"):
         for dep in ctx.rule.attr.deps:
             if NodeModuleInfo in dep:
-                return [NodeModuleInfo(workspace = dep[NodeModuleInfo].workspace, transitive = True)]
+                if dep[NodeModuleInfo].transitive:
+                    result = depset(transitive = [dep[NodeModuleInfo].files, result or depset()])
+                else:
+                    result = depset(transitive = [dep.files, result or depset()])
+
+    if result:
+        info = [NodeModuleInfo(workspace = dep[NodeModuleInfo].workspace, transitive = True, files = result)]
 
     return []
 
