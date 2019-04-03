@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ScriptsProvider = provider(fields = ["scripts"])
+load("@build_bazel_rules_nodejs//internal/common:providers.bzl", "ScriptsProvider")
 
 def _ng_apf_library_impl(ctx):
     umds = []

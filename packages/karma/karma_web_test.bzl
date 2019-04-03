@@ -13,7 +13,6 @@
 # limitations under the License.
 "Unit testing with Karma"
 
-load("@build_bazel_rules_nodejs//internal/common:dev_scripts_aspect.bzl", "DevScriptsProvider", "dev_scripts_aspect")
 load("@build_bazel_rules_nodejs//internal/common:expand_into_runfiles.bzl", "expand_path_into_runfiles")
 load("@build_bazel_rules_nodejs//internal/common:sources_aspect.bzl", "sources_aspect")
 load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "write_amd_names_shim")
@@ -52,7 +51,7 @@ KARMA_GENERIC_WEB_TEST_ATTRS = dict(COMMON_WEB_TEST_ATTRS, **{
         These should be a list of targets which produce JavaScript such as `ts_library`.
         The files will be loaded in the same order they are declared by that rule.""",
         allow_files = True,
-        aspects = [sources_aspect, dev_scripts_aspect],
+        aspects = [sources_aspect],
     ),
     "_conf_tmpl": attr.label(
         default = Label(_CONF_TMPL),
@@ -192,12 +191,14 @@ def run_karma_web_test(ctx):
     """
     files = depset(ctx.files.srcs)
     for d in ctx.attr.deps + ctx.attr.runtime_deps:
-        if hasattr(d, "node_sources"):
+        has_node_sources = hasattr(d, "node_sources")
+        has_dev_scripts = hasattr(d, "dev_scripts")
+        if has_node_sources:
             files = depset(transitive = [files, d.node_sources])
-        elif hasattr(d, "files"):
+        if has_dev_scripts:
+            files = depset(transitive = [files, d.dev_scripts])
+        if not has_node_sources and not has_dev_scripts and hasattr(d, "files"):
             files = depset(transitive = [files, d.files])
-        if DevScriptsProvider in d:
-            files = depset(transitive = [files, d[DevScriptsProvider].dev_scripts])
 
     amd_names_shim = _write_amd_names_shim(ctx)
 

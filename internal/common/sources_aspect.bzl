@@ -12,32 +12,50 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Aspect to collect es5 js sources from deps.
+"""Aspect to collect es5 js sources and scripts from deps.
 """
 
+load("@build_bazel_rules_nodejs//internal/common:providers.bzl", "ScriptsProvider")
+
 def _sources_aspect_impl(target, ctx):
-    result = depset()
+    # TODO(kyliau): node_sources here is a misnomer because it implies that
+    # the sources have got something to do with node modules. In fact,
+    # node_sources collects es5 output from typescript and "javascript-like"
+    # targets that are *not* node modules. This name is kept as-is to maintain
+    # compatibility with existing rules but should be renamed and cleaned up.
+    node_sources = depset()
 
-    # Sources from npm fine grained deps which are tagged with NODE_MODULE_MARKER
-    # should not be included
-    if hasattr(ctx.rule.attr, "tags") and "NODE_MODULE_MARKER" in ctx.rule.attr.tags:
-        return struct(node_sources = result)
-
-    if hasattr(ctx.rule.attr, "deps"):
-        for dep in ctx.rule.attr.deps:
-            if hasattr(dep, "node_sources"):
-                result = depset(transitive = [result, dep.node_sources])
+    # dev_scripts is a collection of "scripts" from "node-module-like" targets
+    # such as `ng_apf_library`. Note that nothing is collected from the default
+    # filegroup target for generic node modules because it does not have the
+    # `scripts` provider nor does it have the `deps` attribute.
+    dev_scripts = depset()
 
     # Note layering: until we have JS interop providers, this needs to know how to
     # get TypeScript outputs.
     if hasattr(target, "typescript"):
-        result = depset(transitive = [result, target.typescript.es5_sources])
-    elif hasattr(target, "files"):
-        result = depset(
-            [f for f in target.files.to_list() if f.path.endswith(".js")],
-            transitive = [result],
+        node_sources = depset(transitive = [node_sources, target.typescript.es5_sources])
+    elif ScriptsProvider in target:
+        dev_scripts = depset(transitive = [dev_scripts, target[ScriptsProvider].scripts])
+    elif hasattr(target, "files") and "NODE_MODULE_MARKER" not in ctx.rule.attr.tags:
+        # Sources from npm fine grained deps which are tagged with NODE_MODULE_MARKER
+        # should not be included
+        node_sources = depset(
+            [f for f in target.files if f.path.endswith(".js")],
+            transitive = [node_sources],
         )
-    return struct(node_sources = result)
+
+    if hasattr(ctx.rule.attr, "deps"):
+        for dep in ctx.rule.attr.deps:
+            if hasattr(dep, "node_sources"):
+                node_sources = depset(transitive = [node_sources, dep.node_sources])
+            if hasattr(dep, "dev_scripts"):
+                dev_scripts = depset(transitive = [dev_scripts, dep.dev_scripts])
+
+    return struct(
+        node_sources = node_sources,
+        dev_scripts = dev_scripts,
+    )
 
 sources_aspect = aspect(
     _sources_aspect_impl,
