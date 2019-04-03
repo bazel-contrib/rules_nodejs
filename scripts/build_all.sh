@@ -6,8 +6,6 @@ set -eu -o pipefail
 # -o pipefail: causes a pipeline to produce a failure return code if any command errors
 
 readonly RULES_NODEJS_DIR=$(cd $(dirname "$0")/..; pwd)
-readonly E2E_DIR="${RULES_NODEJS_DIR}/e2e"
 
-readonly E2E=$(ls -l ${E2E_DIR} | grep "^d" | awk -F" " '{print $9}')
-
-${RULES_NODEJS_DIR}/scripts/clean_e2e.sh ${E2E[@]}
+${RULES_NODEJS_DIR}/scripts/build_release.sh
+${RULES_NODEJS_DIR}/scripts/build_packages_all.sh

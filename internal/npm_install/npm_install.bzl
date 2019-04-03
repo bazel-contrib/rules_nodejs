@@ -178,7 +178,10 @@ cd "{root}" && "{npm}" {npm_args}
     _add_data_dependencies(repository_ctx)
     _add_scripts(repository_ctx)
 
-    result = repository_ctx.execute([node, "process_package_json.js", ",".join(repository_ctx.attr.exclude_packages)])
+    result = repository_ctx.execute(
+        [node, "process_package_json.js", "npm", ",".join(repository_ctx.attr.exclude_packages)],
+        quiet = repository_ctx.attr.quiet,
+    )
     if result.return_code:
         fail("node failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
 
@@ -249,7 +252,10 @@ def _yarn_install_impl(repository_ctx):
     _add_data_dependencies(repository_ctx)
     _add_scripts(repository_ctx)
 
-    result = repository_ctx.execute([node, "process_package_json.js", ",".join(repository_ctx.attr.exclude_packages)])
+    result = repository_ctx.execute(
+        [node, "process_package_json.js", "yarn", ",".join(repository_ctx.attr.exclude_packages)],
+        quiet = repository_ctx.attr.quiet,
+    )
     if result.return_code:
         fail("node failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
 

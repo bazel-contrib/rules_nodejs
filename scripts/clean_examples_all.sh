@@ -8,6 +8,6 @@ set -eu -o pipefail
 readonly RULES_NODEJS_DIR=$(cd $(dirname "$0")/..; pwd)
 readonly EXAMPLES_DIR="${RULES_NODEJS_DIR}/examples"
 
-readonly EXAMPLES=$(ls ${EXAMPLES_DIR})
+readonly EXAMPLES=$(ls -l ${EXAMPLES_DIR} | grep "^d" | awk -F" " '{print $9}')
 
 ${RULES_NODEJS_DIR}/scripts/clean_examples.sh ${EXAMPLES[@]}

@@ -17,19 +17,21 @@ echo_and_run rm -rf ./internal/npm_install/test/package/node_modules
 
 echo_and_run bazel clean --expunge
 
-for rootDir in examples e2e internal/e2e packages ; do
-  (
-    cd ${rootDir}
-    for subDir in $(ls) ; do
-      [[ -d "${subDir}" ]] || continue
-      (
-        cd ${subDir}
-        if [[ -e 'WORKSPACE' ]] ; then
-          printf "\n\nCleaning /${rootDir}/${subDir}\n"
-          echo_and_run bazel clean --expunge
-          echo_and_run rm -rf node_modules
-        fi
-      )
-    done
-  )
-done
+${RULES_NODEJS_DIR}/scripts/clean_e2e_all.sh
+${RULES_NODEJS_DIR}/scripts/clean_examples_all.sh
+${RULES_NODEJS_DIR}/scripts/clean_packages_all.sh
+
+(
+  cd internal/e2e
+  for subDir in $(ls) ; do
+    [[ -d "${subDir}" ]] || continue
+    (
+      cd ${subDir}
+      if [[ -e 'WORKSPACE' ]] ; then
+        printf "\n\nCleaning /internal/e2e/${subDir}\n"
+        echo_and_run bazel clean --expunge
+        echo_and_run rm -rf node_modules
+      fi
+    )
+  done
+)
