@@ -41,8 +41,8 @@ nodejs_binary(
     entry_point = "build_bazel_rules_nodejs_rollup_deps/node_modules/rollup/bin/rollup",
     install_source_map_support = False,
     node_modules = "@build_bazel_rules_nodejs_rollup_deps//:node_modules",
-    visibility = ["//visibility:public"],
     templated_args = ["--node_options=--preserve-symlinks-main"],
+    visibility = ["//visibility:public"],
 )
 
 nodejs_binary(
