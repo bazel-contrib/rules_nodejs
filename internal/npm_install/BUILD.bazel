@@ -11,12 +11,18 @@ exports_files(["npm_install.bzl"])
 
 filegroup(
     name = "generate_build_file",
-    srcs = ["generate_build_file.js"],
+    srcs = [
+        "generate_build_file.js",
+        "//internal/ng_apf_library:ng_apf_library.js",
+    ],
     visibility = ["//internal:__subpackages__"],
 )
 
 filegroup(
     name = "package_contents",
-    srcs = glob(["*"]),
+    srcs = glob(
+        include = ["*"],
+        exclude = ["test"],
+    ),
     visibility = ["//:__pkg__"],
 )

@@ -34,11 +34,14 @@ def _short_path_to_manifest_path(ctx, short_path):
 
 def _ts_devserver(ctx):
     files = depset()
+    dev_scripts = depset()
     for d in ctx.attr.deps:
         if hasattr(d, "node_sources"):
             files = depset(transitive = [files, d.node_sources])
         elif hasattr(d, "files"):
             files = depset(transitive = [files, d.files])
+        if hasattr(d, "dev_scripts"):
+            dev_scripts = depset(transitive = [dev_scripts, d.dev_scripts])
 
     if ctx.label.workspace_root:
         # We need the workspace_name for the target being visited.
@@ -72,6 +75,7 @@ def _ts_devserver(ctx):
     script_files.append(ctx.file._requirejs_script)
     script_files.append(amd_names_shim)
     script_files.extend(ctx.files.scripts)
+    script_files.extend(dev_scripts.to_list())
     ctx.actions.write(ctx.outputs.scripts_manifest, "".join([
         workspace_name + "/" + f.short_path + "\n"
         for f in script_files
@@ -245,6 +249,13 @@ def ts_devserver_macro(name, data = [], args = [], visibility = None, tags = [],
         visibility = ["//visibility:private"],
         tags = tags,
         **kwargs
+    )
+
+    # Expose the manifest file label
+    native.alias(
+        name = "%s.MF" % name,
+        actual = "%s_launcher.MF" % name,
+        visibility = visibility,
     )
 
     native.sh_binary(

@@ -41,6 +41,10 @@
 
 const fs = require('fs');
 const path = require('path');
+// When ng_apf_library.js is executed at installation time the script is copied
+// from internal/ng_apf_library to external/npm so import path here is relative
+// to current directory.
+const apf = require('./ng_apf_library.js');
 
 const BUILD_FILE_HEADER = `# Generated file from yarn_install/npm_install rule.
 # See $(bazel info output_base)/external/build_bazel_rules_nodejs/internal/npm_install/generate_build_file.js
@@ -86,7 +90,6 @@ function main() {
   // find all packages (including packages in nested node_modules)
   const pkgs = findPackages();
   const scopes = findScopes();
-
   // flatten dependencies
   const pkgsMap = new Map();
   pkgs.forEach(pkg => pkgsMap.set(pkg._dir, pkg));
@@ -668,17 +671,11 @@ function filterFilesForFilegroup(files, exts = []) {
 }
 
 /**
- * Given a pkg, return the skylark `filegroup` targets for the package.
+ * Given a `pkg`, return the skylark `filegroup` target which is the default
+ * target for the alias `@npm//${pkg.name}`.
  */
-function printPackage(pkg) {
-  const sources = filterFilesForFilegroup(pkg._files, INCLUDED_FILES);
-  const dtsSources = filterFilesForFilegroup(pkg._files, ['.d.ts']);
-  const pkgDeps = pkg._dependencies.filter(dep => dep != pkg).filter(dep => !dep._isNested);
-
-  let result = `
-# Generated targets for npm package "${pkg._dir}"
-${printJson(pkg)}
-
+function printPkgTarget(pkg, pkgDeps) {
+  return `
 filegroup(
     name = "${pkg._name}__pkg",
     srcs = select({
@@ -703,6 +700,22 @@ filegroup(
     }),
     tags = ["NODE_MODULE_MARKER"],
 )
+`;
+}
+
+/**
+ * Given a pkg, return the skylark `filegroup` and/or `ng_apf_library` targets for the package.
+ */
+function printPackage(pkg) {
+  const sources = filterFilesForFilegroup(pkg._files, INCLUDED_FILES);
+  const dtsSources = filterFilesForFilegroup(pkg._files, ['.d.ts']);
+  const pkgDeps = pkg._dependencies.filter(dep => dep !== pkg && !dep._isNested);
+
+  let result = `
+# Generated targets for npm package "${pkg._dir}"
+${printJson(pkg)}
+
+${apf.isNgApfPackage(pkg) ? apf.printNgApfLibrary(pkg, pkgDeps) : printPkgTarget(pkg, pkgDeps)}
 
 filegroup(
     name = "${pkg._name}__files",
@@ -724,12 +737,29 @@ filegroup(
 
   if (pkg._executables) {
     for (const [name, path] of pkg._executables.entries()) {
+      // Handle additionalAttributes of format:
+      // ```
+      // "bazelBin": {
+      //   "ngc-wrapped": {
+      //     "additionalAttributes": {
+      //       "configuration_env_vars": "[\"compile\"]"
+      //   }
+      // },
+      // ```
+      let additionalAttributes = '';
+      if (pkg.bazelBin && pkg.bazelBin[name] && pkg.bazelBin[name].additionalAttributes) {
+        const attrs = pkg.bazelBin[name].additionalAttributes;
+        for (const attrName of Object.keys(attrs)) {
+          const attrValue = attrs[attrName];
+          additionalAttributes += `\n    ${attrName} = ${attrValue},`;
+        }
+      }
       result += `# Wire up the \`bin\` entry \`${name}\`
 nodejs_binary(
     name = "${name}__bin",
     entry_point = "${pkg._dir}/${path}",
     install_source_map_support = False,
-    data = [":${pkg._name}__pkg"],
+    data = [":${pkg._name}__pkg"],${additionalAttributes}
 )
 
 `;

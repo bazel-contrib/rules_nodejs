@@ -6,8 +6,7 @@ set -eu -o pipefail
 # -o pipefail: causes a pipeline to produce a failure return code if any command errors
 
 readonly RULES_NODEJS_DIR=$(cd $(dirname "$0")/..; pwd)
-readonly PACKAGES_DIR="${RULES_NODEJS_DIR}/package"
+source "${RULES_NODEJS_DIR}/scripts/packages.sh"
 
-readonly PACKAGES=$(ls ${PACKAGES_DIR})
+${RULES_NODEJS_DIR}/scripts/clean_packages.sh ${PACKAGES[@]}
 
-${RULES_NODEJS_DIR}/scripts/clean_package.sh ${PACKAGES[@]}
