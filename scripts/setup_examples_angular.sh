@@ -43,6 +43,16 @@ printf "\n\nSetting up /examples/angular\n"
     echo_and_run sedi "s#urls* = \[*\"https:\/\/github\.com\/[a-zA-Z_]*\/rules_nodejs[^\"]*\"\]*#url = \"file://${RULES_NODEJS_DIR}/dist/build_bazel_rules_nodejs/release.tar.gz\"#" WORKSPACE
     echo_and_run sedi "s#sha256 =#\# sha256 =#" WORKSPACE
 
+    # TEMPORARY for managed_directories
+    echo_and_run sedi "s#name \= \"angular_bazel_example\"#name = \"angular_bazel_example\", managed_directories = {\"@npm\": [\"node_modules\"]}#" WORKSPACE
+    echo_and_run sedi "s#\"\@bazel\/bazel\"\: \"0\.25\.1\"#\"@bazel/bazel\": \"0.26.0-rc7\"#" package.json
+    echo "" >> .bazelrc
+    echo "##################################################" >> .bazelrc
+    echo "# Turn on managed_directories" >> .bazelrc
+    echo "build --experimental_allow_incremental_repository_updates" >> .bazelrc
+    echo "test --experimental_allow_incremental_repository_updates" >> .bazelrc
+    echo "run --experimental_allow_incremental_repository_updates" >> .bazelrc
+
     # Check that above replacements worked
     if ! grep -q "dist/npm_bazel_" package.json; then
       echo "package.json replacements failed!"

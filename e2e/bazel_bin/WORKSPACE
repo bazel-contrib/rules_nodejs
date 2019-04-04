@@ -12,7 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-workspace(name = "e2e_bazel_bin")
+workspace(
+    name = "e2e_bazel_bin",
+    managed_directories = {"@npm": ["node_modules"]},
+)
 
 local_repository(
     name = "build_bazel_rules_nodejs",
@@ -23,10 +26,6 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
 
 yarn_install(
     name = "npm",
-    data = [
-        "@e2e_bazel_bin//:npm/testy/index.js",
-        "@e2e_bazel_bin//:npm/testy/package.json",
-    ],
     package_json = "//:package.json",
     yarn_lock = "//:yarn.lock",
 )

@@ -1,4 +1,9 @@
-workspace(name = "node_loader_e2e_no_preserve_symlinks")
+workspace(
+    name = "node_loader_e2e_no_preserve_symlinks",
+    managed_directories = {
+        "@node_loader_e2e_no_preserve_symlinks_deps": ["deps/node_modules"],
+    },
+)
 
 local_repository(
     name = "build_bazel_rules_nodejs",

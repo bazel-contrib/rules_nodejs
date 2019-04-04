@@ -12,7 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-workspace(name = "examples_webtesting")
+workspace(
+    name = "examples_webtesting",
+    managed_directories = {"@npm": ["node_modules"]},
+)
 
 local_repository(
     name = "build_bazel_rules_nodejs",

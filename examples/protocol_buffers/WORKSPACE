@@ -12,7 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-workspace(name = "examples_protocol_buffers")
+workspace(
+    name = "examples_protocol_buffers",
+    managed_directories = {"@npm": ["node_modules"]},
+)
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
@@ -27,13 +30,7 @@ http_archive(
     urls = ["https://github.com/bazelbuild/rules_go/releases/download/0.18.4/rules_go-0.18.4.tar.gz"],
 )
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "yarn_install")
-
-# The tests in this example depend on there being a user node_modules folder
-# TODO(gregmagolan): remove this once yarn_install sets up the user's node_modules folder
-node_repositories(
-    package_json = ["//:package.json"],
-)
+load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
 
 # This runs yarn install, then our generate_build_file.js to create BUILD files
 # inside the resulting node_modules directory.

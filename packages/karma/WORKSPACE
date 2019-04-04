@@ -12,7 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-workspace(name = "npm_bazel_karma")
+workspace(
+    name = "npm_bazel_karma",
+    managed_directories = {"@npm": ["node_modules"]},
+)
 
 local_repository(
     name = "build_bazel_rules_nodejs",

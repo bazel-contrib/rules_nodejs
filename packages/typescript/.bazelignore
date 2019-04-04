@@ -1,4 +1,1 @@
 node_modules
-internal/tsc_wrapped/node_modules
-internal/devserver/node_modules
-internal/protobufjs/node_modules
