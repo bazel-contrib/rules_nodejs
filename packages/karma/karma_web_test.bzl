@@ -165,13 +165,13 @@ def _write_karma_config(ctx, files, amd_names_shim):
         output = configuration,
         template = ctx.file._conf_tmpl,
         substitutions = {
-            "TMPL_bootstrap_files": "\n".join(["      '%s'," % e for e in bootstrap_entries]),
+            "TMPL_bootstrap_files": "\n      ".join(["'%s'," % e for e in bootstrap_entries]),
             "TMPL_config_file": expand_path_into_runfiles(ctx, config_file.short_path) if config_file else "",
             "TMPL_env_vars": env_vars,
             "TMPL_runfiles_path": "/".join([".."] * config_segments),
-            "TMPL_runtime_files": "\n".join(["      '%s'," % e for e in runtime_files]),
-            "TMPL_static_files": "\n".join(["      '%s'," % e for e in static_files]),
-            "TMPL_user_files": "\n".join(["      '%s'," % e for e in user_entries]),
+            "TMPL_runtime_files": "\n    ".join(["'%s'," % e for e in runtime_files]),
+            "TMPL_static_files": "\n        ".join(["'%s'," % e for e in static_files]),
+            "TMPL_user_files": "\n      ".join(["'%s'," % e for e in user_entries]),
         },
     )
 
@@ -198,6 +198,9 @@ def run_karma_web_test(ctx):
         if has_dev_scripts:
             files = depset(transitive = [files, d.dev_scripts])
         if not has_node_sources and not has_dev_scripts and hasattr(d, "files"):
+            # These are Javascript files directly specified in "deps".
+            # They are not collected by `sources_aspect` due to the absence of
+            # `deps` attr. These files must be in named AMD format.
             files = depset(transitive = [files, d.files])
 
     amd_names_shim = _write_amd_names_shim(ctx)
