@@ -421,13 +421,13 @@ if %errorlevel% neq 0 exit /b %errorlevel%
             "TEMPLATED_yarn_dir": YARN_DIR,
         },
     )
-    host_os = repository_ctx.os.name.lower()
+    host_os = os_name(repository_ctx)
     if host_os in repository_ctx.attr.name:
         # We have to use the relative path here otherwise bazel report a cycle
         result = repository_ctx.execute([node_entry, "generate_build_file.js"])
     else:
         # Note: It seems we can only get a string identifying the os but not the architecture
-        result = repository_ctx.execute([repository_ctx.path(Label("@nodejs_%s_amd64//:bin/node" % host_os)), "generate_build_file.js"])
+        result = repository_ctx.execute([repository_ctx.path(Label("@nodejs_%s//:bin/node" % host_os)), "generate_build_file.js"])
 
     if result.return_code:
         fail("node failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
