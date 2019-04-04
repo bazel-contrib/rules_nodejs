@@ -133,8 +133,7 @@ def _download_node(repository_ctx):
     if repository_ctx.name == "nodejs":
         host = os_name(repository_ctx)
     else:
-        host = repository_ctx.name.lstrip("nodejs_")
-    print(host)
+        host = repository_ctx.name.split("nodejs_", 1)[1]
     node_version = repository_ctx.attr.node_version
     node_repositories = repository_ctx.attr.node_repositories
     node_urls = repository_ctx.attr.node_urls
