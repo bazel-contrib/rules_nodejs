@@ -20,7 +20,7 @@ You do not need to install them into your project.
 
 load("//internal/common:collect_es6_sources.bzl", _collect_es2015_sources = "collect_es6_sources")
 load("//internal/common:module_mappings.bzl", "get_module_mappings")
-load("//internal/common:node_module_info.bzl", "NodeModuleInfo", "collect_node_modules_aspect")
+load("//internal/common:node_module_info.bzl", "NodeModuleInfo", "NodeModuleSources", "collect_node_modules_aspect")
 
 _ROLLUP_MODULE_MAPPINGS_ATTR = "rollup_module_mappings"
 
@@ -190,9 +190,8 @@ def _run_rollup(ctx, sources, config, output, map_output = None):
             # Note: we can't avoid calling .to_list() on files
             direct_inputs += _filter_js_inputs(d.files.to_list())
 
-            # Make sure to get transitive node modules
-            if d[NodeModuleInfo].transitive:
-                direct_inputs += _filter_js_inputs(d[NodeModuleInfo].files.to_list())
+        if NodeModuleSources in d:
+            direct_inputs += _filter_js_inputs(d.files.to_list())
 
     if ctx.file.license_banner:
         direct_inputs += [ctx.file.license_banner]

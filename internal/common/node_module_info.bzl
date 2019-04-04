@@ -18,9 +18,14 @@
 NodeModuleInfo = provider(
     doc = "This provider contains information about npm dependencies installed with yarn_install and npm_install rules",
     fields = {
-        "files": "The transitive files",
-        "transitive": "If true this dependency has transitive npm dependencies but is not and npm package itself",
         "workspace": "The workspace name that the npm dependencies are provided from",
+    },
+)
+
+NodeModuleSources = provider(
+    doc = "This provider contains all the transtive npm dependency sources of a non-npm dependency.",
+    fields = {
+        "srcs": "List of source files that are npm dependencies",
     },
 )
 
@@ -29,23 +34,25 @@ def _collect_node_modules_aspect_impl(target, ctx):
 
     if hasattr(ctx.rule.attr, "tags") and "NODE_MODULE_MARKER" in ctx.rule.attr.tags:
         nm_wksp = target.label.workspace_root.split("/")[1] if target.label.workspace_root else ctx.workspace_name
-        return [NodeModuleInfo(workspace = nm_wksp, transitive = False)]
+        return [NodeModuleInfo(workspace = nm_wksp)]
 
-    # This ensures that NodeModuleInfo about transitive dependencies is tracked as well as their files accessible.
     info = []
-    result = None
+    srcs = depset()
     if hasattr(ctx.rule.attr, "deps"):
         for dep in ctx.rule.attr.deps:
+            if NodeModuleInfo in dep and NodeModuleSources in dep:
+                fail("Dependency %s has both NodeModuleInfo and NodeModuleSources provider. It can only have one or the other." % dep)
             if NodeModuleInfo in dep:
-                if dep[NodeModuleInfo].transitive:
-                    result = depset(transitive = [dep[NodeModuleInfo].files, result or depset()])
-                else:
-                    result = depset(transitive = [dep.files, result or depset()])
+                if nm_wksp and dep[NodeModuleInfo].workspace != nm_wksp:
+                    fail("All npm dependencies need to come from a single workspace. Found '%s' and '%s'." % (nm_wksp, dep[NodeModuleInfo].workspace))
+                srcs = depset(transitive = [dep.files, srcs])
+            if NodeModuleSources in dep:
+                srcs = depset(transitive = [dep[NodeModuleSources].srcs, srcs])
 
-    if result:
-        info = [NodeModuleInfo(workspace = dep[NodeModuleInfo].workspace, transitive = True, files = result)]
+    if srcs:
+        return [NodeModuleSources(srcs = srcs)]
 
-    return info
+    return []
 
 collect_node_modules_aspect = aspect(
     implementation = _collect_node_modules_aspect_impl,
