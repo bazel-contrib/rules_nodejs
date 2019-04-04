@@ -5,6 +5,6 @@
     "jasmine": "2.8.0"
   },
   "scripts": {
-    "postinstall": "node ./postinstall.js"
+    "postinstall": "node ../postinstall.js"
   }
 }

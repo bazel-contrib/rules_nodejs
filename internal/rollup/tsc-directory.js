@@ -40,6 +40,15 @@ tsc-directory: running with
   project: ${project}
 `);
 
+/**
+ * Writes out to a file and flushes it to disk.
+ */
+function writeFileSync(p, content) {
+  const fd = fs.openSync(p, 'w');
+  fs.writeSync(fd, content);
+  fs.fdatasyncSync(fd);
+}
+
 function runTsc(inputDir, outputDir, projectFile) {
   if (DEBUG) console.error(`Running tsc with ${project}`);
 
@@ -57,7 +66,7 @@ function runTsc(inputDir, outputDir, projectFile) {
     'exclude': []
   };
 
-  fs.writeFileSync(projectFile, JSON.stringify(tsConfig));
+  writeFileSync(projectFile, JSON.stringify(tsConfig));
 
   const args = [
     require.resolve('build_bazel_rules_nodejs_rollup_deps/node_modules/typescript/lib/tsc.js'),

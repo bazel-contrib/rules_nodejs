@@ -13,7 +13,15 @@ echo_and_run() { echo "+ $@" ; "$@" ; }
 echo_and_run rm -rf ./dist
 echo_and_run rm -rf ./node_modules
 echo_and_run rm -rf ./examples/program/node_modules
+echo_and_run rm -rf ./internal/history-server/node_modules
+echo_and_run rm -rf ./internal/http-server/node_modules
 echo_and_run rm -rf ./internal/npm_install/test/package/node_modules
+echo_and_run rm -rf ./internal/npm_install/node_modules
+echo_and_run rm -rf ./internal/rollup/node_modules
+echo_and_run rm -rf ./internal/web_package/node_modules
+echo_and_run rm -rf ./internal/e2e/fine_grained_deps/npm/node_modules
+echo_and_run rm -rf ./internal/e2e/fine_grained_deps/yarn/node_modules
+echo_and_run rm -rf ./internal/e2e/fine_grained_no_bin/node_modules
 
 echo_and_run bazel clean --expunge
 

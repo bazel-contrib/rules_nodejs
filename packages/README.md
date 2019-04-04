@@ -47,7 +47,7 @@ To test your package locally, you can run `yarn test_packages bar`. If you packa
 
 ### End-to-end tests
 
-Any e2e tests that depend on your package should go under `/e2e`. The `package.json` for your e2e test should link to your package like so:
+Any e2e tests that depend on your package should go under `/e2e`. The `package.json` for your e2e test should link to your package in `pretest` like so:
 
 ```
 {

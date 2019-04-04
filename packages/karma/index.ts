@@ -19,6 +19,15 @@ function sha1(data) {
 }
 
 /**
+ * Writes a file and flushes it to disk.
+ */
+function writeFileSync(p, content) {
+  const fd = fs.openSync(p, 'w');
+  fs.writeSync(fd, content);
+  fs.fdatasyncSync(fd);
+}
+
+/**
  * Entry-point for the Karma plugin.
  */
 function initConcatJs(logger, emitter, basePath, hostname, port) {
@@ -63,7 +72,7 @@ function initConcatJs(logger, emitter, basePath, hostname, port) {
     files.served.push(bundleFile);
 
     log.debug('Writing concatjs bundle to tmp file %s', bundleFile.contentPath);
-    fs.writeFileSync(bundleFile.contentPath, bundleFile.content);
+    writeFileSync(bundleFile.contentPath, bundleFile.content);
   });
 }
 

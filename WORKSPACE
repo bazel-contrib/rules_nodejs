@@ -64,24 +64,6 @@ node_repositories(
 
 yarn_install(
     name = "npm",
-    data = [
-        "@build_bazel_rules_nodejs//:tools/npm_packages/hello/index.js",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/hello/package.json",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_index/index.js",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_index_2/index.js",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_index_2/package.json",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_index_3/index.js",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_index_3/package.json",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_index_4/index.js",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_index_4/package.json",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_main/main.js",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_main/package.json",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_main_2/main.js",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_main_2/package.json",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_nested_main/nested/main.js",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_nested_main/nested/package.json",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_nested_main/package.json",
-    ],
     package_json = "//:package.json",
     yarn_lock = "//:yarn.lock",
 )

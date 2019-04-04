@@ -29,6 +29,17 @@ function mkdirp(p) {
   }
 }
 
+/**
+ * Writes a file, first ensuring that the directory to
+ * write to exists, and flushes it to disk.
+ */
+function writeFileSync(p, content) {
+  mkdirp(path.dirname(p));
+  const fd = fs.openSync(p, 'w');
+  fs.writeSync(fd, content);
+  fs.fdatasyncSync(fd);
+}
+
 function copyWithReplace(src, dest, replacements) {
   mkdirp(path.dirname(dest));
   if (!isBinary(src)) {
@@ -37,7 +48,7 @@ function copyWithReplace(src, dest, replacements) {
       const [regexp, newvalue] = r;
       content = content.replace(regexp, newvalue);
     });
-    fs.writeFileSync(dest, content);
+    writeFileSync(dest, content);
   } else {
     fs.copyFileSync(src, dest);
   }
@@ -156,8 +167,8 @@ function main(args) {
   const npmTemplate =
       fs.readFileSync(require.resolve('nodejs/run_npm.sh.template'), {encoding: 'utf-8'});
   // Resolve the outDir to an absolute path so it doesn't depend on Bazel's bazel-out symlink
-  fs.writeFileSync(packPath, npmTemplate.replace('TMPL_args', `pack "${path.resolve(outDir)}"`));
-  fs.writeFileSync(publishPath, npmTemplate.replace('TMPL_args', `publish "${path.resolve(outDir)}"`));
+  writeFileSync(packPath, npmTemplate.replace('TMPL_args', `pack "${path.resolve(outDir)}"`));
+  writeFileSync(publishPath, npmTemplate.replace('TMPL_args', `publish "${path.resolve(outDir)}"`));
 }
 
 if (require.main === module) {

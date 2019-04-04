@@ -9,13 +9,6 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
 
 yarn_install(
     name = "npm",
-    data = [
-        "@bazel_workspaces//:npm/test_workspace/WORKSPACE",
-        "@bazel_workspaces//:npm/test_workspace/package.json",
-        "@bazel_workspaces//:npm/test_workspace/src/BUILD.bazel",
-        "@bazel_workspaces//:npm/test_workspace/src/test.spec.js",
-        "@bazel_workspaces//:npm/test_workspace/yarn.lock",
-    ],
     package_json = "//:package.json",
     yarn_lock = "//:yarn.lock",
 )

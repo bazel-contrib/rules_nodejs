@@ -44,9 +44,15 @@ function mkdirp(p) {
   }
 }
 
-function writeFileSync(filePath, contents) {
-  mkdirp(path.dirname(filePath));
-  fs.writeFileSync(filePath, contents);
+/**
+ * Writes a file, first ensuring that the directory to
+ * write to exists, and flushes it to disk.
+ */
+function writeFileSync(p, content) {
+  mkdirp(path.dirname(p));
+  const fd = fs.openSync(p, 'w');
+  fs.writeSync(fd, content);
+  fs.fdatasyncSync(fd);
 }
 
 /**

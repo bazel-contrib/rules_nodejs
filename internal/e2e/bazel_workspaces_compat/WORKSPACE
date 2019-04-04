@@ -9,23 +9,6 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
 
 yarn_install(
     name = "npm",
-    data = [
-        "@bazel_workspaces_compat//:npm/test_workspace_a/WORKSPACE",
-        "@bazel_workspaces_compat//:npm/test_workspace_a/package.json",
-        "@bazel_workspaces_compat//:npm/test_workspace_a/src/BUILD.bazel",
-        "@bazel_workspaces_compat//:npm/test_workspace_a/src/test.spec.js",
-        "@bazel_workspaces_compat//:npm/test_workspace_a/yarn.lock",
-        "@bazel_workspaces_compat//:npm/test_workspace_b/WORKSPACE",
-        "@bazel_workspaces_compat//:npm/test_workspace_b/package.json",
-        "@bazel_workspaces_compat//:npm/test_workspace_b/src/BUILD.bazel",
-        "@bazel_workspaces_compat//:npm/test_workspace_b/src/test.spec.js",
-        "@bazel_workspaces_compat//:npm/test_workspace_b/yarn.lock",
-        "@bazel_workspaces_compat//:npm/test_workspace_c/WORKSPACE",
-        "@bazel_workspaces_compat//:npm/test_workspace_c/package.json",
-        "@bazel_workspaces_compat//:npm/test_workspace_c/src/BUILD.bazel",
-        "@bazel_workspaces_compat//:npm/test_workspace_c/src/test.spec.js",
-        "@bazel_workspaces_compat//:npm/test_workspace_c/yarn.lock",
-    ],
     package_json = "//:package.json",
     yarn_lock = "//:yarn.lock",
 )

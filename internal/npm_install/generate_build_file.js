@@ -51,9 +51,10 @@ package(default_visibility = ["//visibility:public"])
 `
 
 const args = process.argv.slice(2);
-const WORKSPACE = args[0];
-const INCLUDED_FILES = args[1] ? args[1].split(',') : [];
-const LOCK_FILE_LABEL = args[2];
+const USER_DIR = args[0] ? args[0] : process.cwd();
+const WORKSPACE = args[1];
+const INCLUDED_FILES = args[2] ? args[2].split(',') : [];
+const LOCK_FILE_LABEL = args[3];
 
 if (require.main === module) {
   main();
@@ -72,11 +73,21 @@ function mkdirp(p) {
 
 /**
  * Writes a file, first ensuring that the directory to
- * write to exists.
+ * write to exists, and flushes it to disk.
  */
-function writeFileSync(filePath, contents) {
-  mkdirp(path.dirname(filePath));
-  fs.writeFileSync(filePath, contents);
+function writeFileSync(p, content) {
+  mkdirp(path.dirname(p));
+  const fd = fs.openSync(p, 'w');
+  fs.writeSync(fd, content);
+  fs.fdatasyncSync(fd);
+}
+
+/**
+ * Given a relative path, returns the absolute path to the user's
+ * package.json directory.
+ */
+function userDir(p) {
+  return path.posix.join(USER_DIR, p);
 }
 
 /**
@@ -87,6 +98,7 @@ function main() {
   // find all packages (including packages in nested node_modules)
   const pkgs = findPackages();
   const scopes = findScopes();
+
   // flatten dependencies
   const pkgsMap = new Map();
   pkgs.forEach(pkg => pkgsMap.set(pkg._dir, pkg));
@@ -98,10 +110,18 @@ function main() {
   generateBazelWorkspaces(bazelWorkspaces)
   generateInstallBazelDependencies(Object.keys(bazelWorkspaces));
 
-  // now that we have processed all the bazel workspaces in all
-  // npm packages we can delete the Bazel files from these packages
-  // so that filegroups do not cross Bazel package boundaries
-  pkgs.forEach(pkg => deleteBazelFiles(pkg));
+  // symlink all files (except BUILD & WORKSPACES files) before generating BUILD file
+  listFiles(userDir('node_modules')).forEach(f => {
+    const basename = path.basename(f);
+    if (/^WORKSPACE$/i.test(basename) || /^BUILD$/i.test(basename) ||
+        /^BUILD\.bazel$/i.test(basename)) {
+      return;
+    }
+    const src = path.posix.join(USER_DIR, 'node_modules', f);
+    const dest = path.posix.join('node_modules', f);
+    mkdirp(path.dirname(dest));
+    fs.symlinkSync(src, dest);
+  });
 
   // generate BUILD files
   generateRootBuildFile(pkgs)
@@ -284,8 +304,7 @@ def _maybe(repo_rule, name, **kwargs):
 `;
 
   // Copy all files for this workspace to a folder under _workspaces
-  // to preserve the Bazel files which will be deleted from the npm package
-  // by deleteBazelFiles()
+  // to restore the Bazel files which have bee renamed from the npm package
   const workspaceSourcePath = path.posix.join('_workspaces', bwName);
   mkdirp(workspaceSourcePath);
   bwDetails.pkg._files.forEach(file => {
@@ -293,11 +312,11 @@ def _maybe(repo_rule, name, **kwargs):
       // don't copy over nested node_modules
       return;
     }
-    const src = path.posix.join('node_modules', bwDetails.pkg._dir, file);
-    const dest = path.posix.join(workspaceSourcePath, file);
+    const src = path.posix.join(USER_DIR, 'node_modules', bwDetails.pkg._dir, file);
+    let dest = path.posix.join(workspaceSourcePath, file);
     mkdirp(path.dirname(dest));
-    console.error(`copying ${src} -> ${dest}`);
     fs.copyFileSync(src, dest);
+    console.error(src, dest);
   });
 
   // We create _bazel_workspace_marker that is used by the custom copy_repository
@@ -417,29 +436,6 @@ function listFiles(rootDir, subDir = '') {
 }
 
 /**
- * Delete all WORKSPACE, BUILD and .bzl files from an npm package.
- */
-function deleteBazelFiles(pkg) {
-  pkg._files = pkg._files.filter(file => {
-    const basename = path.basename(file);
-    if (/^WORKSPACE$/i.test(basename) || /^BUILD$/i.test(basename) ||
-        /^BUILD\.bazel$/i.test(basename) || /\.bzl$/i.test(basename)) {
-      // Delete BUILD and BUILD.bazel files so that so that files do not cross Bazel packages
-      // boundaries
-      const fullPath = path.posix.join('node_modules', pkg._dir, file);
-      if (!fs.existsSync(fullPath)) {
-        // It is possible that the file no longer exists as reported in
-        // https://github.com/bazelbuild/rules_nodejs/issues/522
-        return false;
-      }
-      fs.unlinkSync(fullPath);
-      return false;
-    }
-    return true;
-  });
-}
-
-/**
  * Returns true if a pkg._files contains a root /BUILD or /BUILD.bazel file.
  */
 function hasRootBuildFile(pkg) {
@@ -455,23 +451,24 @@ function hasRootBuildFile(pkg) {
  * Finds and returns an array of all packages under a given path.
  */
 function findPackages(p = 'node_modules') {
-  if (!isDirectory(p)) {
+  const fp = userDir(p);
+  if (!isDirectory(fp)) {
     return [];
   }
 
   const result = [];
 
-  const listing = fs.readdirSync(p);
+  const listing = fs.readdirSync(fp);
 
   const packages = listing.filter(f => !f.startsWith('@'))
                        .map(f => path.posix.join(p, f))
-                       .filter(f => isDirectory(f));
+                       .filter(f => isDirectory(userDir(f)));
   packages.forEach(
       f => result.push(parsePackage(f), ...findPackages(path.posix.join(f, 'node_modules'))));
 
   const scopes = listing.filter(f => f.startsWith('@'))
                      .map(f => path.posix.join(p, f))
-                     .filter(f => fs.statSync(f).isDirectory());
+                     .filter(f => isDirectory(userDir(f)));
   scopes.forEach(f => result.push(...findPackages(f)));
 
   return result;
@@ -482,15 +479,16 @@ function findPackages(p = 'node_modules') {
  */
 function findScopes() {
   const p = 'node_modules';
-  if (!isDirectory(p)) {
+  const fp = userDir(p);
+  if (!isDirectory(fp)) {
     return [];
   }
 
-  const listing = fs.readdirSync(p);
+  const listing = fs.readdirSync(fp);
 
   const scopes = listing.filter(f => f.startsWith('@'))
                      .map(f => path.posix.join(p, f))
-                     .filter(f => fs.statSync(f).isDirectory())
+                     .filter(f => isDirectory(userDir(f)))
                      .map(f => f.replace(/^node_modules\//, ''));
 
   return scopes;
@@ -503,10 +501,10 @@ function findScopes() {
  */
 function parsePackage(p) {
   // Parse the package.json file of this package
-  const packageJson = path.posix.join(p, 'package.json');
-  const pkg = isFile(packageJson) ?
-      JSON.parse(fs.readFileSync(`${p}/package.json`, {encoding: 'utf8'})) :
-      {version: '0.0.0'};
+  const fp = userDir(p);
+  const packageJson = path.posix.join(fp, 'package.json');
+  const pkg = isFile(packageJson) ? JSON.parse(fs.readFileSync(packageJson, {encoding: 'utf8'})) :
+                                    {version: '0.0.0'};
 
   // Trim the leading node_modules from the path and
   // assign to _dir for future use
@@ -519,7 +517,7 @@ function parsePackage(p) {
   pkg._isNested = p.match(/\/node_modules\//);
 
   // List all the files in the npm package for later use
-  pkg._files = listFiles(p);
+  pkg._files = listFiles(fp);
 
   // Initialize _dependencies to an empty array
   // which is later filled with the flattened dependency list
@@ -641,6 +639,15 @@ function filterFiles(files, exts = []) {
   // Files with spaces (\x20) or unicode characters (<\x20 && >\x7E) are not allowed in
   // Bazel runfiles. See https://github.com/bazelbuild/bazel/issues/4327
   files = files.filter(f => !f.match(/[^\x21-\x7E]/));
+  files = files.filter(f => {
+    const basename = path.basename(f);
+    if (/^WORKSPACE$/i.test(basename) || /^BUILD$/i.test(basename) ||
+        /^BUILD\.bazel$/i.test(basename)) {
+      return false;
+    } else {
+      return true;
+    }
+  });
   if (exts.length) {
     const allowNoExts = exts.includes('');
     files = files.filter(f => {

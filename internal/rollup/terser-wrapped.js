@@ -58,6 +58,15 @@ if (inputs.length != 1) {
 
 const input = inputs[0];
 
+/**
+ * Writes out to a file and flushes it to disk.
+ */
+function writeFileSync(p, content) {
+  const fd = fs.openSync(p, 'w');
+  fs.writeSync(fd, content);
+  fs.fdatasyncSync(fd);
+}
+
 function runterser(inputFile, outputFile, sourceMapFile) {
   if (DEBUG) console.error(`Minifying ${inputFile} -> ${outputFile} (sourceMap ${sourceMapFile})`);
 
@@ -80,7 +89,7 @@ function runterser(inputFile, outputFile, sourceMapFile) {
     config = tmp.fileSync({keep: false, postfix: '.json'}).name;
   }
 
-  fs.writeFileSync(config, JSON.stringify(terserConfig));
+  writeFileSync(config, JSON.stringify(terserConfig));
 
   const args = [
     require.resolve('build_bazel_rules_nodejs_rollup_deps/node_modules/terser/bin/uglifyjs'),

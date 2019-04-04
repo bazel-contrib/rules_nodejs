@@ -23,8 +23,4 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
 #   bazel run @nodejs//:yarn
 # or
 #   bazel run @nodejs//:npm
-node_repositories(
-    node_version = "8.11.1",
-    package_json = ["//:package.json"],
-    yarn_version = "1.5.1",
-)
+node_repositories(package_json = ["//:package.json"])

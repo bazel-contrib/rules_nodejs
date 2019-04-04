@@ -20,6 +20,15 @@ try {
     configPath: ${configPath}`);
 
   /**
+   * Writes out to a file and flushes it to disk.
+   */
+  function writeFileSync(p, content) {
+    const fd = fs.openSync(p, 'w');
+    fs.writeSync(fd, content);
+    fs.fdatasyncSync(fd);
+  }
+
+  /**
    * Helper function to find a particular namedFile
    * within the webTestMetadata webTestFiles
    */
@@ -260,7 +269,7 @@ try {
 
       const requireConfigFile =
           tmp.fileSync({keep: false, postfix: '.js', dir: process.env['TEST_TMPDIR']});
-      fs.writeFileSync(requireConfigFile.name, requireConfigContent);
+      writeFileSync(requireConfigFile.name, requireConfigContent);
       conf.files.push(requireConfigFile.name);
   }
 

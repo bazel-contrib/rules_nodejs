@@ -21,6 +21,8 @@ jasmine_node_test(
         "@npm//jasmine",
         "@npm//unidiff",
     ],
+    # TODO(gregmagolan): fix
+    tags = ["manual"],
 )
 
 nodejs_binary(
