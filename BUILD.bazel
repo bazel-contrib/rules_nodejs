@@ -16,6 +16,7 @@ bzl_library(
         "//internal/jasmine_node_test:bzl",
         "//internal/npm_package:bzl",
         "//internal/rollup:bzl",
+        "//toolchains/node:bzl",
     ],
 )
 
