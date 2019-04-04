@@ -130,8 +130,11 @@ def _download_node(repository_ctx):
     """
     if repository_ctx.attr.vendored_node:
         return
-
-    host = os_name(repository_ctx)
+    if repository_ctx.name == "nodejs":
+        host = os_name(repository_ctx)
+    else:
+        host = repository_ctx.name.lstrip("nodejs_")
+    print(host)
     node_version = repository_ctx.attr.node_version
     node_repositories = repository_ctx.attr.node_repositories
     node_urls = repository_ctx.attr.node_urls
@@ -551,6 +554,22 @@ def node_repositories(
     # 0.17.1: allow @ in package names is required for fine grained deps
     # 0.21.0: repository_ctx.report_progress API
     check_bazel_version("0.21.0")
+
+    # This "nodejs" repo is just for convinience so one does not have to target @nodejs_<os_name>//...
+    _maybe(
+        _nodejs_repo,
+        name = "nodejs",
+        package_json = package_json,
+        node_version = node_version,
+        yarn_version = yarn_version,
+        vendored_node = vendored_node,
+        vendored_yarn = vendored_yarn,
+        node_repositories = node_repositories,
+        yarn_repositories = yarn_repositories,
+        node_urls = node_urls,
+        yarn_urls = yarn_urls,
+        preserve_symlinks = preserve_symlinks,
+    )
 
     # This needs to be setup so toolchains can access nodejs for all different versions
     nodejs_repositorie_names = []
