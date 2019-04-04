@@ -45,7 +45,7 @@ def _collect_node_modules_aspect_impl(target, ctx):
     if result:
         info = [NodeModuleInfo(workspace = dep[NodeModuleInfo].workspace, transitive = True, files = result)]
 
-    return [info]
+    return info
 
 collect_node_modules_aspect = aspect(
     implementation = _collect_node_modules_aspect_impl,
