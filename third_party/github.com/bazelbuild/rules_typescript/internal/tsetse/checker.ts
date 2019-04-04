@@ -5,8 +5,8 @@
 
 
 import * as ts from 'typescript';
+import {Failure, Fix} from './failure';
 
-import {Failure} from './failure';
 
 /**
  * A Handler contains a handler function and its corresponding error code so
@@ -28,7 +28,7 @@ export class Checker {
    */
   private nodeHandlersMap = new Map<ts.SyntaxKind, Handler[]>();
   private failures: Failure[] = [];
-  private currentSourceFile: ts.SourceFile | undefined;
+  private currentSourceFile: ts.SourceFile|undefined;
   // currentCode will be set before invoking any handler functions so the value
   // initialized here is never used.
   private currentCode = 0;
@@ -48,8 +48,8 @@ export class Checker {
    * handlers, the source file AST will be traversed.
    */
   on<T extends ts.Node>(
-      nodeKind: T['kind'],
-      handlerFunction: (checker: Checker, node: T) => void, code: number) {
+      nodeKind: T['kind'], handlerFunction: (checker: Checker, node: T) => void,
+      code: number) {
     const newHandler: Handler = {handlerFunction, code};
     const registeredHandlers: Handler[]|undefined =
         this.nodeHandlersMap.get(nodeKind);
@@ -64,7 +64,8 @@ export class Checker {
    * Add a failure with a span. addFailure() is currently private because
    * `addFailureAtNode` is preferred.
    */
-  private addFailure(start: number, end: number, failureText: string) {
+  private addFailure(
+      start: number, end: number, failureText: string, fix?: Fix) {
     if (!this.currentSourceFile) {
       throw new Error('Source file not defined');
     }
@@ -76,15 +77,15 @@ export class Checker {
     }
 
     const failure = new Failure(
-        this.currentSourceFile, start, end, failureText, this.currentCode);
+        this.currentSourceFile, start, end, failureText, this.currentCode, fix);
     this.failures.push(failure);
   }
 
-  addFailureAtNode(node: ts.Node, failureText: string) {
+  addFailureAtNode(node: ts.Node, failureText: string, fix?: Fix) {
     // node.getStart() takes a sourceFile as argument whereas node.getEnd()
     // doesn't need it.
     this.addFailure(
-        node.getStart(this.currentSourceFile), node.getEnd(), failureText);
+        node.getStart(this.currentSourceFile), node.getEnd(), failureText, fix);
   }
 
   /**
