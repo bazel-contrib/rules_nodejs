@@ -131,8 +131,7 @@ def _download_node(repository_ctx):
     if repository_ctx.attr.vendored_node:
         return
 
-    # host = os_name(repository_ctx)
-    host = "darwin_amd64" if "darwin" in repository_ctx.attr.name else "linux_amd64"
+    host = os_name(repository_ctx)
     node_version = repository_ctx.attr.node_version
     node_repositories = repository_ctx.attr.node_repositories
     node_urls = repository_ctx.attr.node_urls

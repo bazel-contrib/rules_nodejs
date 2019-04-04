@@ -300,7 +300,7 @@ def _yarn_install_impl(repository_ctx):
 
     _create_build_file(repository_ctx, node, repository_ctx.attr.yarn_lock)
 
-_yarn_install = repository_rule(
+yarn_install = repository_rule(
     attrs = dict(COMMON_ATTRIBUTES, **{
         "timeout": attr.int(
             default = 3600,
@@ -331,15 +331,3 @@ _yarn_install = repository_rule(
 """Runs yarn install during workspace setup.
 """
 
-def yarn_install(**kwargs):
-    name = kwargs.pop(name)
-    _yarn_install(
-        name = name,
-        **kwargs
-    )
-
-    for os in OS_NAMES:
-        _yarn_install(
-            name = "%s_%s" % (name, os),
-            **kwargs
-        )
