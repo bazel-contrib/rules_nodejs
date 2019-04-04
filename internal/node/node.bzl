@@ -22,7 +22,7 @@ a `module_name` attribute can be `require`d by that name.
 
 load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
 load("//internal/common:module_mappings.bzl", "module_mappings_runtime_aspect")
-load("//internal/common:node_module_info.bzl", "NodeModuleInfo", "collect_node_modules_aspect")
+load("//internal/common:node_module_info.bzl", "NodeModuleInfo", "NodeModuleSources", "collect_node_modules_aspect")
 load("//internal/common:sources_aspect.bzl", "sources_aspect")
 
 def _trim_package_node_modules(package_name):
@@ -58,8 +58,9 @@ def _write_loader_script(ctx):
             "node_modules",
         ] if f])
     for d in ctx.attr.data:
-        if NodeModuleInfo in d:
-            possible_root = "/".join([d[NodeModuleInfo].workspace, "node_modules"])
+        if NodeModuleInfo in d or NodeModuleSources in d:
+            wksp = d[NodeModuleInfo].workspace if NodeModuleInfo in d else d[NodeModuleSources].workspace
+            possible_root = "/".join([wksp, "node_modules"])
             if not node_modules_root:
                 node_modules_root = possible_root
             elif node_modules_root != possible_root:

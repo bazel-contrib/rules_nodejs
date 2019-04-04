@@ -92,8 +92,9 @@ def write_rollup_config(ctx, plugins = [], root_dir = None, filename = "_%s.roll
             "node_modules",
         ] if f])
     for d in ctx.attr.deps:
-        if NodeModuleInfo in d:
-            possible_root = "/".join(["external", d[NodeModuleInfo].workspace, "node_modules"])
+        if NodeModuleInfo in d or NodeModuleSources in d:
+            wksp = d[NodeModuleInfo].workspace if NodeModuleInfo in d else d[NodeModuleSources].workspace
+            possible_root = "/".join(["external", wksp, "node_modules"])
             if not node_modules_root:
                 node_modules_root = possible_root
             elif node_modules_root != possible_root:
@@ -189,9 +190,9 @@ def _run_rollup(ctx, sources, config, output, map_output = None):
         if NodeModuleInfo in d:
             # Note: we can't avoid calling .to_list() on files
             direct_inputs += _filter_js_inputs(d.files.to_list())
-
+        
         if NodeModuleSources in d:
-            direct_inputs += _filter_js_inputs(d.files.to_list())
+            direct_inputs += _filter_js_inputs(d[NodeModuleSources].srcs.to_list())
 
     if ctx.file.license_banner:
         direct_inputs += [ctx.file.license_banner]

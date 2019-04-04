@@ -26,6 +26,7 @@ NodeModuleSources = provider(
     doc = "This provider contains all the transtive npm dependency sources of a non-npm dependency.",
     fields = {
         "srcs": "List of source files that are npm dependencies",
+        "workspace": "The workspace name that the npm dependencies are provided from",
     },
 )
 
@@ -41,16 +42,18 @@ def _collect_node_modules_aspect_impl(target, ctx):
     if hasattr(ctx.rule.attr, "deps"):
         for dep in ctx.rule.attr.deps:
             if NodeModuleInfo in dep and NodeModuleSources in dep:
-                fail("Dependency %s has both NodeModuleInfo and NodeModuleSources provider. It can only have one or the other." % dep)
+                fail("Dependency %s has both NodeModuleInfo and NodeModuleSources provider. It can only have one or the other." % dep.label)
             if NodeModuleInfo in dep:
+                nm_wksp = dep.label.workspace_root.split("/")[1] if dep.label.workspace_root else ctx.workspace_name
                 if nm_wksp and dep[NodeModuleInfo].workspace != nm_wksp:
                     fail("All npm dependencies need to come from a single workspace. Found '%s' and '%s'." % (nm_wksp, dep[NodeModuleInfo].workspace))
                 srcs = depset(transitive = [dep.files, srcs])
             if NodeModuleSources in dep:
+                nm_wksp = dep[NodeModuleSources].workspace
                 srcs = depset(transitive = [dep[NodeModuleSources].srcs, srcs])
 
     if srcs:
-        return [NodeModuleSources(srcs = srcs)]
+        return [NodeModuleSources(srcs = srcs, workspace = nm_wksp)]
 
     return []
 

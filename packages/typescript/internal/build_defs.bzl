@@ -14,7 +14,7 @@
 
 "TypeScript compilation"
 
-load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleInfo", "collect_node_modules_aspect")
+load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleInfo", "NodeModuleSources", "collect_node_modules_aspect")
 
 # pylint: disable=unused-argument
 # pylint: disable=missing-docstring
@@ -250,8 +250,6 @@ def _ts_library_impl(ctx):
         # since they don't have the required providers.
         # They were added to the action inputs for tsc_wrapped already.
         # strict_deps checking currently skips node_modules.
-        # Make sure we are including dependencies with transitive node module
-        # dependencies.
         # TODO(alexeagle): turn on strict deps checking when we have a real
         # provider for JS/DTS inputs to ts_library.
         deps = [d for d in ctx.attr.deps if not NodeModuleInfo in d],
