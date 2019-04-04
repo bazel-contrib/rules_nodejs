@@ -20,6 +20,9 @@ filegroup(
 
 filegroup(
     name = "package_contents",
-    srcs = glob(["*"]),
+    srcs = glob(
+        include = ["*"],
+        exclude = ["test"],
+    ),
     visibility = ["//:__pkg__"],
 )
