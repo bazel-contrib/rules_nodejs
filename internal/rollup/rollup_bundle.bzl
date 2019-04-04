@@ -190,7 +190,7 @@ def _run_rollup(ctx, sources, config, output, map_output = None):
         if NodeModuleInfo in d:
             # Note: we can't avoid calling .to_list() on files
             direct_inputs += _filter_js_inputs(d.files.to_list())
-        
+
         if NodeModuleSources in d:
             direct_inputs += _filter_js_inputs(d[NodeModuleSources].srcs.to_list())
 
