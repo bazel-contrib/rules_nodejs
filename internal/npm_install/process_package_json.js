@@ -23,10 +23,13 @@
 'use strict';
 
 const fs = require('fs');
-const path = require('path');
+const child_process = require('child_process');
+
+const DEBUG = false;
 
 const args = process.argv.slice(2);
-const removePackages = args[0] ? args[0].split(',') : [];
+const packageManager = args[0];
+const excludePackages = args[1] ? args[1].split(',') : [];
 
 if (require.main === module) {
   main();
@@ -36,9 +39,26 @@ if (require.main === module) {
  * Main entrypoint.
  */
 function main() {
+  const isYarn = (packageManager === 'yarn');
+
   const pkg = JSON.parse(fs.readFileSync('_package.json', {encoding: 'utf8'}));
 
-  removePackages.forEach(p => {
+  if (DEBUG) console.error(`Pre-processing package.json`);
+
+  removeExcludedPackages(pkg);
+
+  if (isYarn) {
+    // Work-around for https://github.com/yarnpkg/yarn/issues/2165
+    // Note: there is no equivalent npm functionality to clean out individual packages
+    // from the npm cache.
+    clearYarnFilePathCaches(pkg);
+  }
+
+  fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
+}
+
+function removeExcludedPackages(pkg) {
+  excludePackages.forEach(p => {
     if (pkg.dependencies) {
       delete pkg.dependencies[p];
     }
@@ -52,8 +72,45 @@ function main() {
       delete pkg.optionalDependencies[p];
     }
   });
+}
 
-  fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
+/**
+ * Runs `yarn cache clean` for all packages that have `file://` URIs.
+ * Work-around for https://github.com/yarnpkg/yarn/issues/2165.
+ */
+function clearYarnFilePathCaches(pkg) {
+  const fileRegex = /^file\:\/\//i;
+  const clearPackages = [];
+
+  if (pkg.dependencies) {
+    Object.keys(pkg.dependencies).forEach(p => {
+      if (pkg.dependencies[p].match(fileRegex)) {
+        clearPackages.push(p);
+      }
+    });
+  }
+  if (pkg.devDependencies) {
+    Object.keys(pkg.devDependencies).forEach(p => {
+      if (pkg.devDependencies[p].match(fileRegex)) {
+        clearPackages.push(p);
+      }
+    });
+  }
+  if (pkg.optionalDependencies) {
+    Object.keys(pkg.optionalDependencies).forEach(p => {
+      if (pkg.optionalDependencies[p].match(fileRegex)) {
+        clearPackages.push(p);
+      }
+    });
+  }
+
+  if (clearPackages.length) {
+    if (DEBUG) console.error(`Cleaning packages from yarn cache: ${clearPackages.join(' ')}`);
+
+    child_process.execFileSync(
+        'yarn', ['cache', 'clean'].concat(clearPackages),
+        {stdio: [process.stdin, process.stdout, process.stderr]});
+  }
 }
 
 module.exports = {main};

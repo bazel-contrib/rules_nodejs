@@ -15,7 +15,8 @@ echo_and_run() { echo "+ $@" ; "$@" ; }
 
 for package in ${PACKAGES[@]} ; do
   (
-    readonly DEST_DIR="${DIST_DIR}/npm_bazel_${package}"
+    readonly DEST_DIR_BASE="${DIST_DIR}/npm_bazel_${package}"
+    readonly DEST_DIR="${DEST_DIR_BASE}\$${RANDOM}"
 
     # Build npm package
     cd "${PACKAGES_DIR}/${package}"
@@ -25,7 +26,7 @@ for package in ${PACKAGES[@]} ; do
 
     # Copy the npm_package to /dist
     echo "Copying npm package to ${DEST_DIR}"
-    rm -rf ${DEST_DIR}
+    rm -rf ${DEST_DIR_BASE}\$*
     mkdir -p ${DIST_DIR}
     readonly BAZEL_BIN=$(bazel info bazel-bin)
     echo_and_run cp -R "${BAZEL_BIN}/npm_package" ${DEST_DIR}
