@@ -422,7 +422,7 @@ if %errorlevel% neq 0 exit /b %errorlevel%
         },
     )
     host_os = os_name(repository_ctx)
-    if host_os in repository_ctx.attr.name:
+    if host_os in repository_ctx.attr.name or repository_ctx.attr.name == "nodejs":
         # We have to use the relative path here otherwise bazel report a cycle
         result = repository_ctx.execute([node_entry, "generate_build_file.js"])
     else:
