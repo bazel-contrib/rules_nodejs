@@ -330,4 +330,3 @@ yarn_install = repository_rule(
 )
 """Runs yarn install during workspace setup.
 """
-
