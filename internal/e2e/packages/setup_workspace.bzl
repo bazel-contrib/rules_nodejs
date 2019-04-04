@@ -25,6 +25,7 @@ def internal_e2e_packages_setup_workspace():
         package_json = "@internal_e2e_packages//:npm1/package.json",
         package_lock_json = "@internal_e2e_packages//:npm1/package-lock.json",
         data = ["@internal_e2e_packages//:postinstall.js"],
+        symlink_node_modules = False,
         # Just here as a smoke test for this attribute
         prod_only = True,
     )
@@ -34,12 +35,7 @@ def internal_e2e_packages_setup_workspace():
         package_json = "@internal_e2e_packages//:npm2/package.json",
         package_lock_json = "@internal_e2e_packages//:npm2/package-lock.json",
         data = ["@internal_e2e_packages//:postinstall.js"],
-    )
-
-    npm_install(
-        name = "internal_e2e_packages_npm_no_lockfile",
-        package_json = "@internal_e2e_packages//:npm3/package.json",
-        data = ["@internal_e2e_packages//:postinstall.js"],
+        symlink_node_modules = False,
     )
 
     yarn_install(
@@ -47,6 +43,7 @@ def internal_e2e_packages_setup_workspace():
         package_json = "@internal_e2e_packages//:yarn1/package.json",
         yarn_lock = "@internal_e2e_packages//:yarn1/yarn.lock",
         data = ["@internal_e2e_packages//:postinstall.js"],
+        symlink_node_modules = False,
     )
 
     yarn_install(
@@ -54,4 +51,5 @@ def internal_e2e_packages_setup_workspace():
         package_json = "@internal_e2e_packages//:yarn2/package.json",
         yarn_lock = "@internal_e2e_packages//:yarn2/yarn.lock",
         data = ["@internal_e2e_packages//:postinstall.js"],
+        symlink_node_modules = False,
     )

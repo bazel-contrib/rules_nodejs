@@ -12,7 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-workspace(name = "build_bazel_rules_nodejs")
+workspace(
+    name = "build_bazel_rules_nodejs",
+    managed_directories = {
+        "@fine_grained_deps_npm": ["internal/e2e/fine_grained_deps/npm/node_modules"],
+        "@fine_grained_deps_yarn": ["internal/e2e/fine_grained_deps/yarn/node_modules"],
+        "@fine_grained_no_bin": ["internal/e2e/fine_grained_no_bin/node_modules"],
+        "@npm": ["node_modules"],
+    },
+)
 
 load("//:package.bzl", "rules_nodejs_dev_dependencies")
 
@@ -64,29 +72,6 @@ node_repositories(
 
 yarn_install(
     name = "npm",
-    data = [
-        "@build_bazel_rules_nodejs//:tools/npm_packages/hello/index.js",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/hello/package.json",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_index/index.js",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_index_2/index.js",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_index_2/package.json",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_index_3/index.js",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_index_3/package.json",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_index_4/index.js",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_index_4/package.json",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_main/main.js",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_main/package.json",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_main_2/main.js",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_main_2/package.json",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_nested_main/nested/main.js",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_nested_main/nested/package.json",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_nested_main/package.json",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/test_workspace/BUILD.bazel",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/test_workspace/index.js",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/test_workspace/package.json",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/test_workspace/subdir/BUILD.bazel",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/test_workspace/subdir/index.js",
-    ],
     package_json = "//:package.json",
     yarn_lock = "//:yarn.lock",
 )

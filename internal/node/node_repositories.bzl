@@ -251,6 +251,8 @@ CALL "%SCRIPT_DIR%\\{node}" %*
 """.format(node = node_exec_relative))
 
     # Shell script to set repository arguments for node used by nodejs_binary & nodejs_test launcher
+    # TODO(gregmagolan): add --node_options=--preserve-symlinks-main as well if preserve_symlinks is True &
+    #                    node version >= 10.2.0
     repository_ctx.file("bin/node_args.sh", content = """#!/usr/bin/env bash
 # Immediately exit if any command fails.
 set -e
@@ -420,7 +422,7 @@ if %errorlevel% neq 0 exit /b %errorlevel%
     )
     result = repository_ctx.execute([node_entry, "generate_build_file.js"])
     if result.return_code:
-        fail("node failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
+        fail("generate_build_file.js failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
 
 def _nodejs_repo_impl(repository_ctx):
     _download_node(repository_ctx)
@@ -563,6 +565,10 @@ def node_repositories(
         yarn_lock = "@build_bazel_rules_nodejs//internal/npm_install:yarn.lock",
         # Just here as a smoke test for this attribute
         prod_only = True,
+        # Do not symlink node_modules as when used in downstream repos we should not create
+        # node_modules folders in the @build_bazel_rules_nodejs external repository. This is
+        # not supported by managed_directories.
+        symlink_node_modules = False,
     )
 
     _maybe(
@@ -571,6 +577,10 @@ def node_repositories(
         package_json = "@build_bazel_rules_nodejs//internal/rollup:package.json",
         yarn_lock = "@build_bazel_rules_nodejs//internal/rollup:yarn.lock",
         data = ["@build_bazel_rules_nodejs//internal/rollup:postinstall-patches.js"],
+        # Do not symlink node_modules as when used in downstream repos we should not create
+        # node_modules folders in the @build_bazel_rules_nodejs external repository. This is
+        # not supported by managed_directories.
+        symlink_node_modules = False,
     )
 
     _maybe(
@@ -578,6 +588,10 @@ def node_repositories(
         name = "history-server_runtime_deps",
         package_json = "@build_bazel_rules_nodejs//internal/history-server:package.json",
         yarn_lock = "@build_bazel_rules_nodejs//internal/history-server:yarn.lock",
+        # Do not symlink node_modules as when used in downstream repos we should not create
+        # node_modules folders in the @build_bazel_rules_nodejs external repository. This is
+        # not supported by managed_directories.
+        symlink_node_modules = False,
     )
 
     _maybe(
@@ -585,6 +599,10 @@ def node_repositories(
         name = "http-server_runtime_deps",
         package_json = "@build_bazel_rules_nodejs//internal/http-server:package.json",
         yarn_lock = "@build_bazel_rules_nodejs//internal/http-server:yarn.lock",
+        # Do not symlink node_modules as when used in downstream repos we should not create
+        # node_modules folders in the @build_bazel_rules_nodejs external repository. This is
+        # not supported by managed_directories.
+        symlink_node_modules = False,
     )
 
 def _maybe(repo_rule, name, **kwargs):

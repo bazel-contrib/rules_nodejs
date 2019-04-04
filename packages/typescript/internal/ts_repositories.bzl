@@ -36,16 +36,28 @@ def ts_setup_workspace():
         name = "build_bazel_rules_typescript_tsc_wrapped_deps",
         package_json = "@npm_bazel_typescript//internal:tsc_wrapped/package.json",
         yarn_lock = "@npm_bazel_typescript//internal:tsc_wrapped/yarn.lock",
+        # Do not symlink node_modules as when used in downstream repos we should not create
+        # node_modules folders in the @npm_bazel_typescript external repository. This is
+        # not supported by managed_directories.
+        symlink_node_modules = False,
     )
 
     yarn_install(
         name = "build_bazel_rules_typescript_devserver_deps",
         package_json = "@npm_bazel_typescript//internal/devserver:package.json",
         yarn_lock = "@npm_bazel_typescript//internal/devserver:yarn.lock",
+        # Do not symlink node_modules as when used in downstream repos we should not create
+        # node_modules folders in the @npm_bazel_typescript external repository. This is
+        # not supported by managed_directories.
+        symlink_node_modules = False,
     )
 
     yarn_install(
         name = "build_bazel_rules_typescript_protobufs_compiletime_deps",
         package_json = "@npm_bazel_typescript//internal/protobufjs:package.json",
         yarn_lock = "@npm_bazel_typescript//internal/protobufjs:yarn.lock",
+        # Do not symlink node_modules as when used in downstream repos we should not create
+        # node_modules folders in the @npm_bazel_typescript external repository. This is
+        # not supported by managed_directories.
+        symlink_node_modules = False,
     )

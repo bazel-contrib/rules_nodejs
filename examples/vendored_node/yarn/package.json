@@ -1,5 +1,5 @@
 {
   "dependencies": {
-    "fs.realpath": "1.0.0"
+    "jasmine": "3.2.0"
   }
 }

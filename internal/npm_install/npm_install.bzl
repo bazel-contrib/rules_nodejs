@@ -25,18 +25,14 @@ load("//internal/common:os_name.bzl", "os_name")
 load("//internal/node:node_labels.bzl", "get_node_label", "get_npm_label", "get_yarn_label")
 
 COMMON_ATTRIBUTES = dict(dict(), **{
-    "data": attr.label_list(),
+    "data": attr.label_list(
+        doc = """Data files required by this rule.
+
+        If symlink_node_modules is True, this attribute is ignored since
+        the dependency manager will run in the package.json location.""",
+    ),
     "exclude_packages": attr.string_list(
-        doc = """List of packages to exclude from install.
-
-        Use this when you want to install a package during manual yarn or npm
-        install but not install it when Bazel manages dependencies.
-
-        Note: this attribute may be removed in the future if bazel managed npm
-        dependencies are changed to install to the workspace `node_modules` folder
-        instead of `$(bazel info output_base)/external/wksp`.
-        """,
-        default = ["@bazel/bazel"],
+        doc = """DEPRECATED. This attribute is no longer used.""",
     ),
     "included_files": attr.string_list(
         doc = """List of file extensions to be included in the npm package targets.
@@ -79,32 +75,55 @@ COMMON_ATTRIBUTES = dict(dict(), **{
         default = True,
         doc = "If stdout and stderr should be printed to the terminal.",
     ),
+    "symlink_node_modules": attr.bool(
+        doc = """Turn symlinking of node_modules on
+        
+        This requires the use of Bazel 0.26.0 and the experimental
+        managed_directories feature.
+        
+        When true, the package manager will run in the package.json folder
+        and the resulting node_modules folder will be symlinked into the
+        external repository create by this rule.
+        
+        When false, the package manager will run in the external repository
+        created by this rule and any files other than the package.json file and
+        the lock file that are required for it to run should be listed in the
+        data attribute.""",
+        default = True,
+    ),
 })
 
-def _create_build_file(repository_ctx, node, lock_file):
+def _create_build_files(repository_ctx, node, lock_file):
     repository_ctx.report_progress("Processing node_modules: installing Bazel packages and generating BUILD files")
     if repository_ctx.attr.manual_build_file_contents:
         repository_ctx.file("manual_build_file_contents", repository_ctx.attr.manual_build_file_contents)
-    result = repository_ctx.execute([node, "generate_build_file.js", repository_ctx.attr.name, ",".join(repository_ctx.attr.included_files), str(lock_file)])
+    result = repository_ctx.execute([
+        node,
+        "generate_build_file.js",
+        repository_ctx.attr.name,
+        str(lock_file),
+        ",".join(repository_ctx.attr.included_files),
+    ])
     if result.return_code:
-        fail("node failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
-
-def _add_package_json(repository_ctx):
-    repository_ctx.symlink(
-        repository_ctx.attr.package_json,
-        repository_ctx.path("_package.json"),
-    )
+        fail("generate_build_file.js failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
 
 def _add_scripts(repository_ctx):
     repository_ctx.template(
-        "process_package_json.js",
-        repository_ctx.path(Label("//internal/npm_install:process_package_json.js")),
+        "pre_process_package_json.js",
+        repository_ctx.path(Label("//internal/npm_install:pre_process_package_json.js")),
         {},
     )
+
     repository_ctx.template(
         "generate_build_file.js",
         repository_ctx.path(Label("//internal/npm_install:generate_build_file.js")),
         {},
+    )
+
+def _add_package_json(repository_ctx):
+    repository_ctx.symlink(
+        repository_ctx.attr.package_json,
+        repository_ctx.path("package.json"),
     )
 
 def _add_data_dependencies(repository_ctx):
@@ -120,6 +139,10 @@ def _add_data_dependencies(repository_ctx):
         # files as npm file:// packages
         repository_ctx.template("/".join(to), f, {})
 
+def _symlink_node_modules(repository_ctx):
+    package_json_dir = repository_ctx.path(repository_ctx.attr.package_json).dirname
+    repository_ctx.symlink(repository_ctx.path(str(package_json_dir) + "/node_modules"), repository_ctx.path("node_modules"))
+
 def _npm_install_impl(repository_ctx):
     """Core implementation of npm_install."""
 
@@ -131,6 +154,14 @@ def _npm_install_impl(repository_ctx):
     if repository_ctx.attr.prod_only:
         npm_args.append("--production")
 
+    # If symlink_node_modules is true then run the package manager
+    # in the package.json folder; otherwise, run it in the root of
+    # the external repository
+    if repository_ctx.attr.symlink_node_modules:
+        root = repository_ctx.path(repository_ctx.attr.package_json).dirname
+    else:
+        root = repository_ctx.path("")
+
     # The entry points for npm install for osx/linux and windows
     if not is_windows:
         repository_ctx.file(
@@ -140,7 +171,7 @@ def _npm_install_impl(repository_ctx):
 set -e
 (cd "{root}"; "{npm}" {npm_args})
 """.format(
-                root = repository_ctx.path(""),
+                root = root,
                 npm = repository_ctx.path(npm),
                 npm_args = " ".join(npm_args),
             ),
@@ -152,38 +183,29 @@ set -e
             content = """@echo off
 cd "{root}" && "{npm}" {npm_args}
 """.format(
-                root = repository_ctx.path(""),
+                root = root,
                 npm = repository_ctx.path(npm),
                 npm_args = " ".join(npm_args),
             ),
             executable = True,
         )
 
-    if repository_ctx.attr.package_lock_json:
-        if repository_ctx.attr.exclude_packages:
-            # Copy the file over instead of using a symlink since the lock file
-            # will be modified if there are excluded_packages
-            repository_ctx.template(
-                "package-lock.json",
-                repository_ctx.path(repository_ctx.attr.package_lock_json),
-                {},
-            )
-        else:
-            repository_ctx.symlink(
-                repository_ctx.attr.package_lock_json,
-                repository_ctx.path("package-lock.json"),
-            )
+    if not repository_ctx.attr.symlink_node_modules:
+        repository_ctx.symlink(
+            repository_ctx.attr.package_lock_json,
+            repository_ctx.path("package-lock.json"),
+        )
+        _add_package_json(repository_ctx)
+        _add_data_dependencies(repository_ctx)
 
-    _add_package_json(repository_ctx)
-    _add_data_dependencies(repository_ctx)
     _add_scripts(repository_ctx)
 
     result = repository_ctx.execute(
-        [node, "process_package_json.js", "npm", ",".join(repository_ctx.attr.exclude_packages)],
+        [node, "pre_process_package_json.js", repository_ctx.path(repository_ctx.attr.package_json), "npm"],
         quiet = repository_ctx.attr.quiet,
     )
     if result.return_code:
-        fail("node failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
+        fail("pre_process_package_json.js failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
 
     repository_ctx.report_progress("Running npm install on %s" % repository_ctx.attr.package_json)
     result = repository_ctx.execute(
@@ -191,9 +213,6 @@ cd "{root}" && "{npm}" {npm_args}
         timeout = repository_ctx.attr.timeout,
         quiet = repository_ctx.attr.quiet,
     )
-
-    if not repository_ctx.attr.package_lock_json:
-        print("\n***********WARNING***********\n%s: npm_install will require a package_lock_json attribute in future versions\n*****************************" % repository_ctx.name)
 
     if result.return_code:
         fail("npm_install failed: %s (%s)" % (result.stdout, result.stderr))
@@ -204,13 +223,16 @@ cd "{root}" && "{npm}" {npm_args}
     # generated by npm are non-deterministic. They contain absolute install paths and other private
     # information fields starting with "_". removeNPMAbsolutePaths removes all fields starting with "_".
     result = repository_ctx.execute(
-        [node, repository_ctx.path(remove_npm_absolute_paths), repository_ctx.path("")],
+        [node, repository_ctx.path(remove_npm_absolute_paths), "/".join([root, "node_modules"])],
     )
 
     if result.return_code:
         fail("remove_npm_absolute_paths failed: %s (%s)" % (result.stdout, result.stderr))
 
-    _create_build_file(repository_ctx, node, repository_ctx.attr.package_lock_json)
+    if repository_ctx.attr.symlink_node_modules:
+        _symlink_node_modules(repository_ctx)
+
+    _create_build_files(repository_ctx, node, repository_ctx.attr.package_lock_json)
 
 npm_install = repository_rule(
     attrs = dict(COMMON_ATTRIBUTES, **{
@@ -220,6 +242,7 @@ npm_install = repository_rule(
             (default is 3600 seconds).""",
         ),
         "package_lock_json": attr.label(
+            mandatory = True,
             allow_single_file = True,
         ),
     }),
@@ -236,36 +259,35 @@ def _yarn_install_impl(repository_ctx):
     node = repository_ctx.path(get_node_label(repository_ctx))
     yarn = get_yarn_label(repository_ctx)
 
-    if repository_ctx.attr.yarn_lock:
-        if repository_ctx.attr.exclude_packages:
-            # Copy the file over instead of using a symlink since the lock file
-            # will be modified if there are excluded_packages
-            repository_ctx.template(
-                "yarn.lock",
-                repository_ctx.path(repository_ctx.attr.yarn_lock),
-                {},
-            )
-        else:
-            repository_ctx.symlink(
-                repository_ctx.attr.yarn_lock,
-                repository_ctx.path("yarn.lock"),
-            )
+    # If symlink_node_modules is true then run the package manager
+    # in the package.json folder; otherwise, run it in the root of
+    # the external repository
+    if repository_ctx.attr.symlink_node_modules:
+        root = repository_ctx.path(repository_ctx.attr.package_json).dirname
+    else:
+        root = repository_ctx.path("")
 
-    _add_package_json(repository_ctx)
-    _add_data_dependencies(repository_ctx)
+    if not repository_ctx.attr.symlink_node_modules:
+        repository_ctx.symlink(
+            repository_ctx.attr.yarn_lock,
+            repository_ctx.path("yarn.lock"),
+        )
+        _add_package_json(repository_ctx)
+        _add_data_dependencies(repository_ctx)
+
     _add_scripts(repository_ctx)
 
     result = repository_ctx.execute(
-        [node, "process_package_json.js", "yarn", ",".join(repository_ctx.attr.exclude_packages)],
+        [node, "pre_process_package_json.js", repository_ctx.path(repository_ctx.attr.package_json), "yarn"],
         quiet = repository_ctx.attr.quiet,
     )
     if result.return_code:
-        fail("node failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
+        fail("pre_process_package_json.js failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
 
     args = [
         repository_ctx.path(yarn),
         "--cwd",
-        repository_ctx.path(""),
+        root,
         "--network-timeout",
         str(repository_ctx.attr.network_timeout * 1000),  # in ms
     ]
@@ -293,7 +315,10 @@ def _yarn_install_impl(repository_ctx):
     if result.return_code:
         fail("yarn_install failed: %s (%s)" % (result.stdout, result.stderr))
 
-    _create_build_file(repository_ctx, node, repository_ctx.attr.yarn_lock)
+    if repository_ctx.attr.symlink_node_modules:
+        _symlink_node_modules(repository_ctx)
+
+    _create_build_files(repository_ctx, node, repository_ctx.attr.yarn_lock)
 
 yarn_install = repository_rule(
     attrs = dict(COMMON_ATTRIBUTES, **{
