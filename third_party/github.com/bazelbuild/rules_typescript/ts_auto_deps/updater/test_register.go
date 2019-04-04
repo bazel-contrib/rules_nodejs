@@ -56,7 +56,7 @@ func (upd *Updater) RegisterTestRules(ctx context.Context, paths ...string) (boo
 		if err != nil {
 			return false, err
 		}
-		if tr := getRule(bld, "ts_library", ruleTypeTest); tr != nil {
+		for _, tr := range getRules(bld, "ts_library", ruleTypeTest) {
 			// don't register all_test libraries themselves
 			if isAllTestLibrary(bld, tr) {
 				continue

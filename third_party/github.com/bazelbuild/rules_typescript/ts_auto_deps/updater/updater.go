@@ -995,10 +995,10 @@ func updateWebAssets(ctx context.Context, buildFilePath string, bld *build.File)
 	}
 
 	// Add to the last rule, to match behaviour with *.ts sources.
-	lastModule := getRule(bld, "ng_module", ruleTypeRegular)
+	lastModule := getLastRule(bld, "ng_module", ruleTypeRegular)
 	if lastModule == nil {
 		// Fall back to using any ng_module
-		lastModule = getRule(bld, "ng_module", ruleTypeAny)
+		lastModule = getLastRule(bld, "ng_module", ruleTypeAny)
 	}
 	if lastModule == nil {
 		// Should not happen by preconditions of this function.
@@ -1016,7 +1016,7 @@ func updateWebAssets(ctx context.Context, buildFilePath string, bld *build.File)
 // rt. If there's no such rule, it creates a new rule with the given ruleName.
 // If there is more than one rule matching, it returns the *last* rule.
 func getOrCreateRule(bld *build.File, ruleName, ruleKind string, rt ruleType) *build.Rule {
-	if r := getRule(bld, ruleKind, rt); r != nil {
+	if r := getLastRule(bld, ruleKind, rt); r != nil {
 		return r
 	}
 
@@ -1086,15 +1086,27 @@ func targetRegisteredInRule(bld *build.File, ruleKind string, rt ruleType, targe
 
 // getRule returns the last rule in bld that has the given ruleKind and matches
 // the specified rt value.
-func getRule(bld *build.File, ruleKind string, rt ruleType) *build.Rule {
-	rs := bld.Rules("")
-	for i := len(rs) - 1; i >= 0; i-- {
-		r := rs[i]
+func getLastRule(bld *build.File, ruleKind string, rt ruleType) *build.Rule {
+	rules := getRules(bld, ruleKind, rt)
+
+	if len(rules) == 0 {
+		return nil
+	}
+
+	return rules[len(rules)-1]
+}
+
+// getRules returns all the rules in bld that have the given ruleKind and
+// matches the specified rt value.
+func getRules(bld *build.File, ruleKind string, rt ruleType) []*build.Rule {
+	var rules []*build.Rule
+	for _, r := range bld.Rules("") {
 		if ruleMatches(bld, r, ruleKind, rt) {
-			return r
+			rules = append(rules, r)
 		}
 	}
-	return nil
+
+	return rules
 }
 
 // FilterPaths filters the given paths, returning the deduplicated set of
