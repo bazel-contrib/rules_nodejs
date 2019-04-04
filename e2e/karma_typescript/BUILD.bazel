@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
 load("@npm_bazel_karma//:index.bzl", "ts_web_test_suite")
 load("@npm_bazel_typescript//:defs.bzl", "ts_library")
 
@@ -23,20 +24,68 @@ ts_library(
 ts_library(
     name = "tests",
     testonly = 1,
-    srcs = glob(["*.spec.ts"]),
+    srcs = [
+        "decrement.spec.ts",
+        "foobar.spec.ts",
+    ],
     deps = [
         ":lib",
         "@npm//@types/jasmine",
     ],
 )
 
+ts_library(
+    name = "hello_world",
+    testonly = 1,
+    srcs = [
+        "hello_world.ts",
+    ],
+)
+
 ts_web_test_suite(
     name = "testing",
+    srcs = [
+        # JS files only in srcs - eval'ed but not require'd
+        "foobar.js",
+    ],
     browsers = [
         "@io_bazel_rules_webtesting//browsers:chromium-local",
         "@io_bazel_rules_webtesting//browsers:firefox-local",
     ],
+    runtime_deps = [
+        # typescript targets only in runtime_deps, must be TS module
+        ":hello_world",
+    ],
     deps = [
+        # JS file, must be AMD
+        "hello_world.spec.js",
+        # ts_library target, must be TS module
         ":tests",
+        # filegroup target (not actually used in test code)
+        ":rxjs_umd_modules",
+        # node module. This dep has no effect, no files is collected.
+        "@npm//jasmine",
+    ],
+)
+
+filegroup(
+    name = "rxjs_umd_modules",
+    srcs = [
+        # do not sort
+        "@npm//node_modules/rxjs:bundles/rxjs.umd.js",
+        ":rxjs_shims.js",
+    ],
+)
+
+jasmine_node_test(
+    name = "user_files_test",
+    srcs = [
+        "user_files.spec.js",
+    ],
+    data = [
+        ":testing_chromium-local",
+    ],
+    deps = [
+        "@npm//jasmine",
     ],
 )
