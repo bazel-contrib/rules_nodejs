@@ -21,7 +21,7 @@ as the package manager.
 See discussion in the README.
 """
 
-load("//internal/common:os_name.bzl", "OS_NAMES", "os_name")
+load("//internal/common:os_name.bzl", "os_name")
 load("//internal/node:node_labels.bzl", "get_node_label", "get_npm_label", "get_yarn_label")
 
 COMMON_ATTRIBUTES = dict(dict(), **{
