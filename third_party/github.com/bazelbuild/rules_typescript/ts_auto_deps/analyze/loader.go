@@ -246,9 +246,9 @@ func (q *QueryBasedTargetLoader) LoadImportPaths(ctx context.Context, targetToAn
 			// get the file path that corresponds to the normalized typescript import
 			// path
 			filePath := labelToPath(label)
-			var matchingDeps []*appb.Rule
 			allRules := pkgToAllRules[pkg]
 			actualToAlias := pkgToActualToAlias[pkg]
+			var matchingDeps []*appb.Rule
 			for _, candidate := range typeScriptRules(allRules) {
 				// check if the rule has the file or the generator of the file in its
 				// srcs
