@@ -1,4 +1,6 @@
 load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
+load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
+load("//third_party/github.com/bazelbuild/bazel-skylib:rules/write_file.bzl", "write_file")
 
 jasmine_node_test(
     name = "test",
@@ -52,26 +54,23 @@ jasmine_node_test(
     ],
 )
 
-genrule(
+copy_file(
     name = "module_resolution_lib",
-    srcs = ["module_resolution.spec.js"],
-    outs = ["module_resolution_built.spec.js"],
-    cmd = "cp $< $@",
+    src = "module_resolution.spec.js",
+    out = "module_resolution_built.spec.js",
 )
 
-genrule(
+copy_file(
     name = "data_resolution_lib",
-    srcs = ["data_resolution.spec.js"],
-    outs = ["data_resolution_built.spec.js"],
-    cmd = "cp $< $@",
+    src = "data_resolution.spec.js",
+    out = "data_resolution_built.spec.js",
 )
 
-# This genrule creates a file that alphabetically comes before any source file in this
+# This rule creates a file that alphabetically comes before any source file in this
 # package. This genfile can be then set up as runfile to verify that the "node_loader.js"
 # properly determines the local workspace path without incorrectly using the genfile as base
 # for the local workspace path. See: https://github.com/bazelbuild/rules_nodejs/issues/352
-genrule(
+write_file(
     name = "genfile-runfile",
-    outs = ["#LEADING.txt"],
-    cmd = "touch $@",
+    out = "#LEADING.txt",
 )
