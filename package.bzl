@@ -68,11 +68,13 @@ def rules_nodejs_dev_dependencies():
         url = "https://github.com/bazelbuild/skydoc/archive/82fdbfe797c6591d8732df0c0389a2b1c3e50992.zip",  # 2018-12-12
     )
 
+    # bazel-skylib 0.8.0 released 2019.03.20 (https://github.com/bazelbuild/bazel-skylib/releases/tag/0.8.0)
+    skylib_version = "0.8.0"
     http_archive(
         name = "bazel_skylib",
-        url = "https://github.com/bazelbuild/bazel-skylib/archive/0.6.0.zip",
-        strip_prefix = "bazel-skylib-0.6.0",
-        sha256 = "54ee22e5b9f0dd2b42eb8a6c1878dee592cfe8eb33223a7dbbc583a383f6ee1a",
+        type = "tar.gz",
+        url = "https://github.com/bazelbuild/bazel-skylib/releases/download/{}/bazel-skylib.{}.tar.gz".format (skylib_version, skylib_version),
+        sha256 = "2ef429f5d7ce7111263289644d233707dba35e39696377ebab8b0bc701f7818e",
     )
 
     # Needed for Remote Build Execution
