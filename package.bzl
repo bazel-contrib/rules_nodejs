@@ -73,7 +73,7 @@ def rules_nodejs_dev_dependencies():
     http_archive(
         name = "bazel_skylib",
         type = "tar.gz",
-        url = "https://github.com/bazelbuild/bazel-skylib/releases/download/{}/bazel-skylib.{}.tar.gz".format (skylib_version, skylib_version),
+        url = "https://github.com/bazelbuild/bazel-skylib/releases/download/{0}/bazel-skylib.{0}.tar.gz".format(skylib_version),
         sha256 = "2ef429f5d7ce7111263289644d233707dba35e39696377ebab8b0bc701f7818e",
     )
 
