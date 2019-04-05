@@ -42,13 +42,23 @@ function validateBazelOptions(bazelOpts: BazelOptions) {
 
   if (bazelOpts.compilationTargetSrc &&
       bazelOpts.compilationTargetSrc.length > 1) {
-    throw new Error("In JS transpilation mode, only one file can appear in " +
-                    "bazelOptions.compilationTargetSrc.");
+    throw new Error(
+        'In JS transpilation mode, only one file can appear in ' +
+        'bazelOptions.compilationTargetSrc.');
   }
 
-  if (!bazelOpts.transpiledJsOutputFileName) {
-    throw new Error("In JS transpilation mode, transpiledJsOutputFileName " +
-                    "must be specified in tsconfig.");
+  if (!bazelOpts.transpiledJsOutputFileName &&
+      !bazelOpts.transpiledJsOutputDirectory) {
+    throw new Error(
+        'In JS transpilation mode, either transpiledJsOutputFileName or ' +
+        'transpiledJsOutputDirectory must be specified in tsconfig.');
+  }
+
+  if (bazelOpts.transpiledJsOutputFileName &&
+      bazelOpts.transpiledJsOutputDirectory) {
+    throw new Error(
+        'In JS transpilation mode, cannot set both ' +
+        'transpiledJsOutputFileName and transpiledJsOutputDirectory.');
   }
 }
 
@@ -483,7 +493,17 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
     fileName = this.flattenOutDir(fileName);
 
     if (this.bazelOpts.isJsTranspilation) {
-      fileName = this.bazelOpts.transpiledJsOutputFileName!;
+      if (this.bazelOpts.transpiledJsOutputFileName) {
+        fileName = this.bazelOpts.transpiledJsOutputFileName!;
+      } else {
+        // Strip the input directory path off of fileName to get the logical
+        // path within the input directory.
+        fileName =
+            path.relative(this.bazelOpts.transpiledJsInputDirectory!, fileName);
+        // Then prepend the output directory name.
+        fileName =
+            path.join(this.bazelOpts.transpiledJsOutputDirectory!, fileName);
+      }
     } else if (!this.bazelOpts.es5Mode) {
       // Write ES6 transpiled files to *.closure.js.
       if (this.bazelOpts.locale) {

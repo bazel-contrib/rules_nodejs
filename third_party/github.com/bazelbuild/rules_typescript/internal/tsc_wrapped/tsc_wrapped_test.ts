@@ -149,12 +149,16 @@ describe('compiler host', () => {
       moduleRoots = {} as {[moduleName: string]: string},
       isJsTranspilation = false,
       transpiledJsOutputFileName = undefined as string | undefined,
+      transpiledJsInputDirectory = undefined as string | undefined,
+      transpiledJsOutputDirectory = undefined as string | undefined,
     } = {}) {
       const bazelOpts = {
         ...defaultBazelOpts,
         es5Mode: es5,
         isJsTranspilation,
         transpiledJsOutputFileName,
+        transpiledJsInputDirectory,
+        transpiledJsOutputDirectory,
       } as BazelOptions;
       return new CompilerHost(
           [], COMPILER_OPTIONS, bazelOpts, delegateHost, testFileLoader,
@@ -272,16 +276,32 @@ describe('compiler host', () => {
         ]);
       });
 
-      it('writes to closureOptions.transpiledJsOutputFileName in JS transpilation mode',
-         () => {
-           createFakeGoogle3Host({
-             isJsTranspilation: true,
-             transpiledJsOutputFileName: 'foo/bar/a/b.dev_es5.js',
-           }).writeFile('a/b.js', 'some.code();', false, undefined, []);
-           expect(Object.keys(writtenFiles)).toEqual([
-             '/root/google3/blaze-out/k8-fastbuild/bin/foo/bar/a/b.dev_es5.js'
-           ]);
-         });
+      describe('transpiled JS', () => {
+        it('writes to transpiledJsOutputFileName', () => {
+          const host = createFakeGoogle3Host({
+            isJsTranspilation: true,
+            transpiledJsOutputFileName: 'foo/bar/a/b.dev_es5.js',
+          });
+          host.writeFile('a/b.js', 'some.code();', false, undefined, []);
+          expect(Object.keys(writtenFiles)).toEqual([
+            '/root/google3/blaze-out/k8-fastbuild/bin/foo/bar/a/b.dev_es5.js'
+          ]);
+        });
+
+        it('writes to transpiledJsOutputDirectory', () => {
+          const host = createFakeGoogle3Host({
+            isJsTranspilation: true,
+            transpiledJsInputDirectory: 'foo/bar/jsinputdir',
+            transpiledJsOutputDirectory: 'foo/bar/jsoutputdir',
+          });
+          host.writeFile(
+              'foo/bar/jsinputdir/a/b.js', 'some.code();', false, undefined,
+              []);
+          expect(Object.keys(writtenFiles)).toEqual([
+            '/root/google3/blaze-out/k8-fastbuild/bin/foo/bar/jsoutputdir/a/b.js'
+          ]);
+        });
+      });
     });
   });
 });

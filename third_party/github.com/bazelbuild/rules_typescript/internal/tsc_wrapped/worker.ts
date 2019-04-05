@@ -26,7 +26,7 @@ export function debug(...args: Array<unknown>) {
  * Write a message to stderr, which appears in the bazel log and is visible to
  * the end user.
  */
-export function log(...args: Array<{}>) {
+export function log(...args: Array<unknown>) {
   console.error.apply(console, args);
 }
 

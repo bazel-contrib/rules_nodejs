@@ -47,6 +47,12 @@ const cache = new ProgramAndFileCache(debug);
 
 function isCompilationTarget(
     bazelOpts: BazelOptions, sf: ts.SourceFile): boolean {
+  if (bazelOpts.isJsTranspilation && bazelOpts.transpiledJsInputDirectory) {
+    // transpiledJsInputDirectory is a relative logical path, so we cannot
+    // compare it to the resolved, absolute path of sf here.
+    // compilationTargetSrc is resolved, so use that for the comparison.
+    return sf.fileName.startsWith(bazelOpts.compilationTargetSrc[0]);
+  }
   return (bazelOpts.compilationTargetSrc.indexOf(sf.fileName) !== -1);
 }
 
@@ -115,6 +121,24 @@ export function gatherDiagnostics(
 }
 
 /**
+ * expandSourcesFromDirectories finds any directories under filePath and expands
+ * them to their .js or .ts contents.
+ */
+function expandSourcesFromDirectories(fileList: string[], filePath: string) {
+  if (!fs.statSync(filePath).isDirectory()) {
+    if (filePath.endsWith('.ts') || filePath.endsWith('.tsx') ||
+        filePath.endsWith('.js')) {
+      fileList.push(filePath);
+    }
+    return;
+  }
+  const entries = fs.readdirSync(filePath);
+  for (const entry of entries) {
+    expandSourcesFromDirectories(fileList, path.join(filePath, entry));
+  }
+}
+
+/**
  * Runs a single build, returning false on failure.  This is potentially called
  * multiple times (once per bazel request) when running as a bazel worker.
  * Any encountered errors are written to stderr.
@@ -147,6 +171,12 @@ function runOneBuild(
     angularCompilerOptions
   } = parsed;
 
+  const sourceFiles: string[] = [];
+  for (let i = 0; i < files.length; i++) {
+    const filePath = files[i];
+    expandSourcesFromDirectories(sourceFiles, filePath);
+  }
+
   if (bazelOpts.maxCacheSizeMb !== undefined) {
     const maxCacheSizeBytes = bazelOpts.maxCacheSizeMb * (1 << 20);
     cache.setMaxCacheSize(maxCacheSizeBytes);
@@ -170,7 +200,7 @@ function runOneBuild(
   const perfTracePath = bazelOpts.perfTracePath;
   if (!perfTracePath) {
     return runFromOptions(
-        fileLoader, options, bazelOpts, files, disabledTsetseRules,
+        fileLoader, options, bazelOpts, sourceFiles, disabledTsetseRules,
         angularCompilerOptions);
   }
 
@@ -178,7 +208,7 @@ function runOneBuild(
   const success = perfTrace.wrap(
       'runOneBuild',
       () => runFromOptions(
-          fileLoader, options, bazelOpts, files, disabledTsetseRules,
+          fileLoader, options, bazelOpts, sourceFiles, disabledTsetseRules,
           angularCompilerOptions));
   if (!success) return false;
   // Force a garbage collection pass.  This keeps our memory usage
@@ -212,7 +242,7 @@ function runFromOptions(
   const moduleResolver = bazelOpts.isJsTranspilation ?
       makeJsModuleResolver(bazelOpts.workspaceName) :
       ts.resolveModuleName;
-  const tsickleCompilerHost: CompilerHost = new CompilerHost(
+  const tsickleCompilerHost = new CompilerHost(
       files, options, bazelOpts, compilerHostDelegate, fileLoader,
       moduleResolver);
   let compilerHost: PluginCompilerHost = tsickleCompilerHost;
