@@ -5,8 +5,8 @@ const packageJsonPath = require.resolve('jsesc').replace('jsesc.js', 'package.js
 const packageJson = JSON.parse(fs.readFileSync(packageJsonPath));
 
 const packageJsonPath2 = packageJsonPath.replace(
-    '/packages_example_yarn_install_duplicate_for_determinism_testing/',
-    '/packages_example_yarn_install/');
+    '/internal_e2e_packages_yarn_install_duplicate_for_determinism_testing/',
+    '/internal_e2e_packages_yarn_install/');
 const packageJson2 = JSON.parse(fs.readFileSync(packageJsonPath2));
 
 describe('jsesc package.json files', () => {

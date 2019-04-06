@@ -34,7 +34,7 @@ local_repository(
 )
 
 local_repository(
-    name = "packages_example",
+    name = "internal_e2e_packages",
     path = "internal/e2e/packages",
 )
 
@@ -91,9 +91,9 @@ load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
 
 install_bazel_dependencies()
 
-load("@packages_example//:setup_workspace.bzl", "packages_example_setup_workspace")
+load("@internal_e2e_packages//:setup_workspace.bzl", "internal_e2e_packages_setup_workspace")
 
-packages_example_setup_workspace()
+internal_e2e_packages_setup_workspace()
 
 # Dependencies to run skydoc
 load("@io_bazel_rules_sass//sass:sass_repositories.bzl", "sass_repositories")

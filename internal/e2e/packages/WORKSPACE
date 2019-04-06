@@ -1,4 +1,4 @@
-workspace(name = "packages_example")
+workspace(name = "internal_e2e_packages")
 
 local_repository(
     name = "build_bazel_rules_nodejs",
@@ -10,8 +10,8 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "check_rules_nodejs_version", "node
 # Test that check_rules_nodejs_version works as expected
 check_rules_nodejs_version(minimum_version_string = "0.11.2")
 
-node_repositories(package_json = ["//:package.json"])
+node_repositories()
 
-load(":setup_workspace.bzl", "packages_example_setup_workspace")
+load(":setup_workspace.bzl", "internal_e2e_packages_setup_workspace")
 
-packages_example_setup_workspace()
+internal_e2e_packages_setup_workspace()
