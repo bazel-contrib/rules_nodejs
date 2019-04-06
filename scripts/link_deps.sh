@@ -6,6 +6,7 @@ set -eu -o pipefail
 # -o pipefail: causes a pipeline to produce a failure return code if any command errors
 
 readonly RULES_NODEJS_DIR=$(cd $(dirname "$0")/..; pwd)
+readonly RELATIVE_DIR=$(pwd | cut -c 2- | cut -c ${#RULES_NODEJS_DIR}-)
 
 echo_and_run() { echo "+ $@" ; "$@" ; }
 
@@ -20,6 +21,7 @@ sedi () {
   sed "${sedi[@]}" "$@"
 }
 
+# Unlink first incase they are already linked
 ${RULES_NODEJS_DIR}/scripts/unlink_deps.sh
 
 DEPS=()
@@ -43,6 +45,8 @@ done
 if [[ ${DEPS:-} ]] ; then
   ${RULES_NODEJS_DIR}/scripts/check_deps.sh ${DEPS[@]}
 fi
+
+echo "Linking deps in ${RELATIVE_DIR}"
 
 for package in ${PACKAGES[@]:-} ; do
   # Find name of dist dir (the postfix $RANDOM changes each time it is re-generated)
