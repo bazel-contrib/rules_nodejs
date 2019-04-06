@@ -7,7 +7,6 @@
   "dependencies": {
     "@gregmagolan/test-a": "0.0.4",
     "@gregmagolan/test-b": "0.0.2",
-    "@bazel/bazel": "0.23.0",
     "ajv": "5.5.2",
     "chokidar": "2.0.4",
     "http-server": "github:alexeagle/http-server#97205e945b69091606ed83aa0c8489e9ce65d282",
