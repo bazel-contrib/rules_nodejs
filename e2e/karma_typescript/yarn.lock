@@ -2,8 +2,8 @@
 # yarn lockfile v1
 
 
-"@bazel/karma@file:../../dist/npm_bazel_karma$481":
-  version "0.27.10-3-g42ddef6"
+"@bazel/karma@file:../../dist/npm_bazel_karma$28979":
+  version "0.27.10-12-gaa09d94"
   dependencies:
     jasmine-core "2.8.0"
     karma "^4.0.0"
@@ -17,8 +17,8 @@
     semver "5.6.0"
     tmp "0.0.33"
 
-"@bazel/typescript@file:../../dist/npm_bazel_typescript$15307":
-  version "0.27.9-12-g32f77df"
+"@bazel/typescript@file:../../dist/npm_bazel_typescript$10515":
+  version "0.27.10-12-gaa09d94"
   dependencies:
     protobufjs "6.8.8"
     semver "5.6.0"

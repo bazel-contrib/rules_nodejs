@@ -2,8 +2,8 @@
 # yarn lockfile v1
 
 
-"@bazel/jasmine@file:../../packages/jasmine/bazel-bin/npm_package":
-  version "0.0.0"
+"@bazel/jasmine@file:../../dist/npm_bazel_jasmine$3535":
+  version "0.27.10-4-gca50827"
   dependencies:
     jasmine "~3.3.1"
     v8-coverage "1.0.8"
