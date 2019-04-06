@@ -12,46 +12,46 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Helper function to setup @package_example workspace.
+"""Helper function to setup @internal_e2e_packages workspace.
 """
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "npm_install", "yarn_install")
 
-def packages_example_setup_workspace():
-    """Node repositories for @packages_examples
+def internal_e2e_packages_setup_workspace():
+    """Node repositories for @internal_e2e_packagess
     """
     npm_install(
-        name = "packages_example_npm_install",
-        package_json = "@packages_example//:package.json",
-        package_lock_json = "@packages_example//:package-lock.json",
-        data = ["@packages_example//:postinstall.js"],
+        name = "internal_e2e_packages_npm_install",
+        package_json = "@internal_e2e_packages//:npm1/package.json",
+        package_lock_json = "@internal_e2e_packages//:npm1/package-lock.json",
+        data = ["@internal_e2e_packages//:postinstall.js"],
         # Just here as a smoke test for this attribute
         prod_only = True,
     )
 
     npm_install(
-        name = "packages_example_npm_install_duplicate_for_determinism_testing",
-        package_json = "@packages_example//:package.json",
-        package_lock_json = "@packages_example//:package-lock.json",
-        data = ["@packages_example//:postinstall.js"],
+        name = "internal_e2e_packages_npm_install_duplicate_for_determinism_testing",
+        package_json = "@internal_e2e_packages//:npm2/package.json",
+        package_lock_json = "@internal_e2e_packages//:npm2/package-lock.json",
+        data = ["@internal_e2e_packages//:postinstall.js"],
     )
 
     npm_install(
-        name = "packages_example_npm_no_lockfile",
-        package_json = "@packages_example//:package.json",
-        data = ["@packages_example//:postinstall.js"],
+        name = "internal_e2e_packages_npm_no_lockfile",
+        package_json = "@internal_e2e_packages//:npm3/package.json",
+        data = ["@internal_e2e_packages//:postinstall.js"],
     )
 
     yarn_install(
-        name = "packages_example_yarn_install",
-        package_json = "@packages_example//:package.json",
-        yarn_lock = "@packages_example//:yarn.lock",
-        data = ["@packages_example//:postinstall.js"],
+        name = "internal_e2e_packages_yarn_install",
+        package_json = "@internal_e2e_packages//:yarn1/package.json",
+        yarn_lock = "@internal_e2e_packages//:yarn1/yarn.lock",
+        data = ["@internal_e2e_packages//:postinstall.js"],
     )
 
     yarn_install(
-        name = "packages_example_yarn_install_duplicate_for_determinism_testing",
-        package_json = "@packages_example//:package.json",
-        yarn_lock = "@packages_example//:yarn.lock",
-        data = ["@packages_example//:postinstall.js"],
+        name = "internal_e2e_packages_yarn_install_duplicate_for_determinism_testing",
+        package_json = "@internal_e2e_packages//:yarn2/package.json",
+        yarn_lock = "@internal_e2e_packages//:yarn2/yarn.lock",
+        data = ["@internal_e2e_packages//:postinstall.js"],
     )

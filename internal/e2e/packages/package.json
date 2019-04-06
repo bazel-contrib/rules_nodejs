@@ -1,12 +1,6 @@
 {
-  "description": "runtime dependencies for packages example",
-  "dependencies": {
-    "jsesc": "~1.2.0",
-    "jasmine": "2.8.0"
-  },
   "scripts": {
     "postinstall": "node ./postinstall.js",
-    "pretest": "bazel run @nodejs//:yarn",
     "test": "bazel test //..."
   }
 }
