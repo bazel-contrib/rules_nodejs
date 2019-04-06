@@ -17,7 +17,7 @@ const bannerFile = TMPL_banner_file;
 const stampData = TMPL_stamp_data;
 const moduleMappings = TMPL_module_mappings;
 const nodeModulesRoot = 'TMPL_node_modules_root';
-const defaultNodeModules = TMPL_default_node_modules;
+const isDefaultNodeModules = TMPL_is_default_node_modules;
 
 if (DEBUG)
   console.error(`
@@ -29,7 +29,7 @@ Rollup: running with
   stampData: ${stampData}
   moduleMappings: ${JSON.stringify(moduleMappings)}
   nodeModulesRoot: ${nodeModulesRoot}
-  defaultNodeModules: ${defaultNodeModules}
+  isDefaultNodeModules: ${isDefaultNodeModules}
 `);
 
 function fileExists(filePath) {
@@ -138,7 +138,7 @@ function notResolved(importee, importer) {
   if (isBuiltinModule(importee)) {
     return null;
   }
-  if (defaultNodeModules) {
+  if (isDefaultNodeModules) {
     // This error is possibly due to a breaking change in 0.13.2 where
     // the default node_modules attribute of rollup_bundle was changed
     // from @//:node_modules to @build_bazel_rules_nodejs//:node_modules_none
