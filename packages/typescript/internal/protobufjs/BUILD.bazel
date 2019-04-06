@@ -17,8 +17,6 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
 
 package(default_visibility = ["//visibility:public"])
 
-exports_files(["node_modules/protobufjs/dist/minimal/protobuf.min.js"])
-
 bzl_library(
     name = "bzl",
     srcs = glob(["*.bzl"]),
