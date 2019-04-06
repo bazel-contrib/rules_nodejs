@@ -83,7 +83,7 @@ def write_rollup_config(ctx, plugins = [], root_dir = None, filename = "_%s.roll
         root_dir = "/".join([ctx.bin_dir.path, build_file_dirname, ctx.label.name + ".es6"])
 
     node_modules_root = None
-    default_node_modules = False
+    is_default_node_modules = False
     if ctx.files.node_modules:
         # ctx.files.node_modules is not an empty list
         node_modules_root = "/".join([f for f in [
@@ -103,7 +103,7 @@ def write_rollup_config(ctx, plugins = [], root_dir = None, filename = "_%s.roll
         # but we still need a node_modules_root even if its empty
         workspace = ctx.attr.node_modules.label.workspace_root.split("/")[1] if ctx.attr.node_modules.label.workspace_root else ctx.workspace_name
         if workspace == "build_bazel_rules_nodejs" and ctx.attr.node_modules.label.package == "" and ctx.attr.node_modules.label.name == "node_modules_none":
-            default_node_modules = True
+            is_default_node_modules = True
         node_modules_root = "/".join([f for f in [
             ctx.attr.node_modules.label.workspace_root,
             ctx.attr.node_modules.label.package,
@@ -116,9 +116,9 @@ def write_rollup_config(ctx, plugins = [], root_dir = None, filename = "_%s.roll
         substitutions = {
             "TMPL_additional_plugins": ",\n".join(plugins),
             "TMPL_banner_file": "\"%s\"" % ctx.file.license_banner.path if ctx.file.license_banner else "undefined",
-            "TMPL_default_node_modules": "true" if default_node_modules else "false",
             "TMPL_global_name": ctx.attr.global_name if ctx.attr.global_name else ctx.label.name,
             "TMPL_inputs": ",".join(["\"%s\"" % e for e in entry_points]),
+            "TMPL_is_default_node_modules": "true" if is_default_node_modules else "false",
             "TMPL_module_mappings": str(mappings),
             "TMPL_node_modules_root": node_modules_root,
             "TMPL_output_format": output_format,
