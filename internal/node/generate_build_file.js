@@ -33,10 +33,14 @@ if (require.main === module) {
   main();
 }
 
-function mkdirp(dirname) {
-  if (!fs.existsSync(dirname)) {
-    mkdirp(path.dirname(dirname));
-    fs.mkdirSync(dirname);
+/**
+ * Create a new directory and any necessary subdirectories
+ * if they do not exist.
+ */
+function mkdirp(p) {
+  if (!fs.existsSync(p)) {
+    mkdirp(path.dirname(p));
+    fs.mkdirSync(p);
   }
 }
 

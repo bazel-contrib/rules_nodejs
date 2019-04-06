@@ -64,12 +64,13 @@ if (require.main === module) {
 }
 
 /**
- * Create a directory if it does not exist.
+ * Create a new directory and any necessary subdirectories
+ * if they do not exist.
  */
-function mkdirp(dirname) {
-  if (!fs.existsSync(dirname)) {
-    mkdirp(path.dirname(dirname));
-    fs.mkdirSync(dirname);
+function mkdirp(p) {
+  if (!fs.existsSync(p)) {
+    mkdirp(path.dirname(p));
+    fs.mkdirSync(p);
   }
 }
 

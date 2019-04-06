@@ -18,6 +18,10 @@
 const fs = require('fs');
 const path = require('path');
 
+/**
+ * Create a new directory and any necessary subdirectories
+ * if they do not exist.
+ */
 function mkdirp(p) {
   if (!fs.existsSync(p)) {
     mkdirp(path.dirname(p));
@@ -25,14 +29,8 @@ function mkdirp(p) {
   }
 }
 
-function write(p, content) {
-  mkdirp(path.dirname(p));
-  fs.writeFileSync(p, content);
-}
-
 function main(params) {
   const outdir = params.shift();
-  if (!fs.existsSync(outdir)) fs.mkdirSync(outdir);
 
   const rootDirs = [];
   while (params.length && params[0] !== '--assets') {

@@ -18,6 +18,10 @@ const fs = require('fs');
 const path = require('path');
 const isBinary = require('isbinaryfile').isBinaryFileSync;
 
+/**
+ * Create a new directory and any necessary subdirectories
+ * if they do not exist.
+ */
 function mkdirp(p) {
   if (!fs.existsSync(p)) {
     mkdirp(path.dirname(p));
