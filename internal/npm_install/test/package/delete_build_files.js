@@ -19,5 +19,7 @@ const files = [
 ];
 
 for (const file of files) {
-  fs.unlinkSync(file);
+  if (fs.existsSync(file)) {
+    fs.unlinkSync(file);
+  }
 }
