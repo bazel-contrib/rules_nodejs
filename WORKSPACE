@@ -117,8 +117,8 @@ yarn_install(
         ".json",
         ".proto",
     ],
-    package_json = "//internal/e2e/fine_grained_deps:package.json",
-    yarn_lock = "//internal/e2e/fine_grained_deps:yarn.lock",
+    package_json = "//internal/e2e/fine_grained_deps:yarn/package.json",
+    yarn_lock = "//internal/e2e/fine_grained_deps:yarn/yarn.lock",
 )
 
 npm_install(
@@ -130,8 +130,8 @@ npm_install(
         ".json",
         ".proto",
     ],
-    package_json = "//internal/e2e/fine_grained_deps:package.json",
-    package_lock_json = "//internal/e2e/fine_grained_deps:package-lock.json",
+    package_json = "//internal/e2e/fine_grained_deps:npm/package.json",
+    package_lock_json = "//internal/e2e/fine_grained_deps:npm/package-lock.json",
 )
 
 yarn_install(
