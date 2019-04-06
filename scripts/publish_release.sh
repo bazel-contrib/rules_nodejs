@@ -24,4 +24,5 @@ for pkg in ${PACKAGES[@]} ; do (
     cd packages/$pkg
     ${RULES_NODEJS_DIR}/scripts/link_deps.sh
     echo_and_run ../../node_modules/.bin/bazel --output_base=$TMP run  --workspace_status_command=../../scripts/current_version.sh //:npm_package.${NPM_COMMAND}
+    ${RULES_NODEJS_DIR}/scripts/unlink_deps.sh
 ) done

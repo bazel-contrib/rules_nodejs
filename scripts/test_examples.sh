@@ -17,7 +17,7 @@ for example in ${EXAMPLES[@]} ; do
   (
     # Test example
     if [[ ${example} == "vendored_node" && ${KERNEL_NAME} != Linux* ]] ; then
-      echo "Skipping vendored_node test as it only runs on Linux while we are executing on ${KERNEL_NAME}"
+      printf "\n\nSkipping vendored_node test as it only runs on Linux while we are executing on ${KERNEL_NAME}\n"
     else
       cd "${EXAMPLES_DIR}/${example}"
       printf "\n\nRunning example ${example}\n"
@@ -26,6 +26,7 @@ for example in ${EXAMPLES[@]} ; do
       if grep -q "\"e2e\":" package.json; then
         echo_and_run yarn e2e
       fi
+      ${RULES_NODEJS_DIR}/scripts/unlink_deps.sh
     fi
   )
 done
