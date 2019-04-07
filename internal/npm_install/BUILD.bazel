@@ -13,7 +13,6 @@ filegroup(
     name = "generate_build_file",
     srcs = [
         "generate_build_file.js",
-        "//internal/ng_apf_library:ng_apf_library.js",
     ],
     visibility = ["//internal:__subpackages__"],
 )

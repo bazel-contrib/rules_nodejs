@@ -12,12 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""NodeModuleInfo provider and apsect to collect node_modules from deps.
+"""NodeModuleInfo & NodeModuleSources providers and apsect to collect node_modules from deps.
 """
 
 NodeModuleInfo = provider(
-    doc = "This provider contains information about npm dependencies installed with yarn_install and npm_install rules",
+    doc = "Provides information about npm dependencies installed with yarn_install and npm_install rules",
     fields = {
+        "workspace": "The workspace name that the npm dependencies are provided from",
+    },
+)
+
+NodeModuleSources = provider(
+    doc = "Provides sources for npm dependencies installed with yarn_install and npm_install rules",
+    fields = {
+        "sources": "Source files that are npm dependencies",
         "workspace": "The workspace name that the npm dependencies are provided from",
     },
 )
@@ -25,9 +33,19 @@ NodeModuleInfo = provider(
 def _collect_node_modules_aspect_impl(target, ctx):
     nm_wksp = None
 
-    if hasattr(ctx.rule.attr, "tags") and "NODE_MODULE_MARKER" in ctx.rule.attr.tags:
-        nm_wksp = target.label.workspace_root.split("/")[1] if target.label.workspace_root else ctx.workspace_name
-        return [NodeModuleInfo(workspace = nm_wksp)]
+    if NodeModuleSources in target:
+        return []
+
+    if hasattr(ctx.rule.attr, "deps"):
+        sources = depset()
+        for dep in ctx.rule.attr.deps:
+            if NodeModuleSources in dep:
+                if nm_wksp and dep[NodeModuleSources].workspace != nm_wksp:
+                    fail("All npm dependencies need to come from a single workspace. Found '%s' and '%s'." % (nm_wksp, dep[NodeModuleSources].workspace))
+                nm_wksp = dep[NodeModuleSources].workspace
+                sources = depset(transitive = [dep[NodeModuleSources].sources, sources])
+        if sources:
+            return [NodeModuleSources(sources = sources, workspace = nm_wksp)]
 
     return []
 

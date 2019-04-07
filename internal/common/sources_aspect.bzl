@@ -15,6 +15,7 @@
 """Aspect to collect es5 js sources and scripts from deps.
 """
 
+load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleInfo")
 load("@build_bazel_rules_nodejs//internal/common:providers.bzl", "ScriptsProvider")
 
 def _sources_aspect_impl(target, ctx):
@@ -26,7 +27,7 @@ def _sources_aspect_impl(target, ctx):
     node_sources = depset()
 
     # dev_scripts is a collection of "scripts" from "node-module-like" targets
-    # such as `ng_apf_library`. Note that nothing is collected from the default
+    # such as `node_module_library`. Note that nothing is collected from the default
     # filegroup target for generic node modules because it does not have the
     # `scripts` provider nor does it have the `deps` attribute.
     dev_scripts = depset()
@@ -37,9 +38,8 @@ def _sources_aspect_impl(target, ctx):
         node_sources = depset(transitive = [node_sources, target.typescript.es5_sources])
     elif ScriptsProvider in target:
         dev_scripts = depset(transitive = [dev_scripts, target[ScriptsProvider].scripts])
-    elif hasattr(target, "files") and "NODE_MODULE_MARKER" not in ctx.rule.attr.tags:
-        # Sources from npm fine grained deps which are tagged with NODE_MODULE_MARKER
-        # should not be included
+    elif hasattr(target, "files") and not NodeModuleInfo in target:
+        # Sources from npm fine grained deps should not be included
         node_sources = depset(
             [f for f in target.files if f.path.endswith(".js")],
             transitive = [node_sources],

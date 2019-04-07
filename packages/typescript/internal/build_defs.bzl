@@ -14,7 +14,7 @@
 
 "TypeScript compilation"
 
-load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleInfo", "collect_node_modules_aspect")
+load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleInfo", "NodeModuleSources", "collect_node_modules_aspect")
 
 # pylint: disable=unused-argument
 # pylint: disable=missing-docstring
@@ -35,6 +35,8 @@ def _trim_package_node_modules(package_name):
         segments += [n]
     return "/".join(segments)
 
+# This function is similar but slightly different than _compute_node_modules_root
+# in /internal/node/node.bzl. TODO(gregmagolan): consolidate these functions
 def _compute_node_modules_root(ctx):
     """Computes the node_modules root from the node_modules and deps attributes.
 
@@ -53,8 +55,8 @@ def _compute_node_modules_root(ctx):
             "node_modules",
         ] if f])
     for d in ctx.attr.deps:
-        if NodeModuleInfo in d:
-            possible_root = "/".join(["external", d[NodeModuleInfo].workspace, "node_modules"])
+        if NodeModuleSources in d:
+            possible_root = "/".join(["external", d[NodeModuleSources].workspace, "node_modules"])
             if not node_modules_root:
                 node_modules_root = possible_root
             elif node_modules_root != possible_root:
@@ -100,10 +102,11 @@ def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description 
     action_inputs.extend(_filter_ts_inputs(ctx.files.node_modules))
 
     # Also include files from npm fine grained deps as action_inputs.
-    # These deps are identified by the NodeModuleInfo provider.
+    # These deps are identified by the NodeModuleSources provider.
     for d in ctx.attr.deps:
-        if NodeModuleInfo in d:
-            action_inputs.extend(_filter_ts_inputs(d.files.to_list()))
+        if NodeModuleSources in d:
+            # Note: we can't avoid calling .to_list() on sources
+            action_inputs.extend(_filter_ts_inputs(d[NodeModuleSources].sources.to_list()))
 
     if ctx.file.tsconfig:
         action_inputs.append(ctx.file.tsconfig)

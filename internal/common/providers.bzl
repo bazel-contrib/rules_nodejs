@@ -12,6 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Provider for "node-module-like" rules such as `ng_apf_library`.
+# Provider for "node-module-like" rules such as `node_module_library`.
 # It tells downstream rules how to consume Javascript files in the NPM package.
 ScriptsProvider = provider(fields = ["scripts"])
