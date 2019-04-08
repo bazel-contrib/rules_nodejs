@@ -7,8 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
-	"sort"
-	"strconv"
 	"strings"
 	"testing"
 
@@ -493,145 +491,20 @@ func TestStringAttribute(t *testing.T) {
 	}
 }
 
-func createResolvedTarget(srcs []string) *resolvedTarget {
-	return &resolvedTarget{
-		rule: &appb.Rule{
-			Attribute: []*appb.Attribute{
-				&appb.Attribute{
-					Name:            proto.String("srcs"),
-					Type:            appb.Attribute_STRING_LIST.Enum(),
-					StringListValue: srcs,
-				},
-			},
-		},
-		sources: map[string]*appb.Target{
-			"//a:file.ts":   &appb.Target{Type: appb.Target_SOURCE_FILE.Enum()},
-			"//b:file.ts":   &appb.Target{Type: appb.Target_SOURCE_FILE.Enum()},
-			"//b:generator": &appb.Target{Type: appb.Target_RULE.Enum()},
-			"//b:wiz":       &appb.Target{Type: appb.Target_RULE.Enum()},
-		},
-	}
-}
-
-func TestLiteralSrcPaths(t *testing.T) {
-	tests := []struct {
-		name     string
-		srcs     []string
-		err      error
-		expected []string
-	}{
-		{
-			"OneLiteralSource",
-			[]string{"//a:file.ts"},
-			nil,
-			[]string{"a/file.ts"},
-		},
-		{
-			"MultipleLiteralSources",
-			[]string{"//a:file.ts", "//b:file.ts"},
-			nil,
-			[]string{"a/file.ts", "b/file.ts"},
-		},
-		{
-			"MultipleGeneratedSources",
-			[]string{"//b:generator", "//b:wiz"},
-			nil,
-			nil,
-		},
-		{
-			"MixedSources",
-			[]string{"//a:file.ts", "//b:file.ts", "//b:generator", "//b:wiz"},
-			nil,
-			[]string{"a/file.ts", "b/file.ts"},
-		},
-		{
-			"MissingSource",
-			[]string{"//not/in/the/set/of/resolved:sources"},
-			fmt.Errorf("src %q has no associated target", "//not/in/the/set/of/resolved:sources"),
-			nil,
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			rt := createResolvedTarget(test.srcs)
-			literalSrcPaths, err := rt.literalSrcPaths()
-			if !reflect.DeepEqual(err, test.err) {
-				t.Errorf("got err %q, expected %q", err, test.err)
-			}
-
-			if diff := pretty.Compare(literalSrcPaths, test.expected); diff != "" {
-				t.Errorf("failed to get correct literal source paths: (-got, +want)\n%s", diff)
-			}
-		})
-	}
-}
-
-func TestGetAllLiteralSrcPaths(t *testing.T) {
-	tests := []struct {
-		name      string
-		srcsLists [][]string
-		err       error
-		expected  []string
-	}{
-		{
-			"OneTarget",
-			[][]string{
-				[]string{"//a:file.ts", "//b:file.ts"},
-			},
-			nil,
-			[]string{"a/file.ts", "b/file.ts"},
-		},
-		{
-			"MultipleTargets",
-			[][]string{
-				[]string{"//a:file.ts"},
-				[]string{"//b:file.ts"},
-			},
-			nil,
-			[]string{"a/file.ts", "b/file.ts"},
-		},
-		{
-			"MissingSource",
-			[][]string{
-				[]string{"//not/in/the/set/of/resolved:sources"},
-			},
-			fmt.Errorf("src %q has no associated target", "//not/in/the/set/of/resolved:sources"),
-			nil,
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			rts := make(map[string]*resolvedTarget)
-			for i, srcs := range test.srcsLists {
-				rts[strconv.Itoa(i)] = createResolvedTarget(srcs)
-			}
-			literalSrcPaths, err := getAllLiteralSrcPaths(rts)
-			if !reflect.DeepEqual(err, test.err) {
-				t.Errorf("got err %q, expected %q", err, test.err)
-			}
-
-			// getAllLiteralSrcPaths takes a map, so its output ordering isn't
-			// deterministic
-			sort.Strings(literalSrcPaths)
-			if diff := pretty.Compare(literalSrcPaths, test.expected); diff != "" {
-				t.Errorf("failed to get correct literal source paths: (-got, +want)\n%s", diff)
-			}
-		})
-	}
-}
-
 func TestSetSources(t *testing.T) {
 	tests := []struct {
-		name       string
-		srcs       []string
-		loadedSrcs map[string]*appb.Target
-		err        error
-		expected   map[string]*appb.Target
+		name                   string
+		srcs                   []string
+		loadedSrcs             map[string]*appb.Target
+		err                    error
+		expected               map[string]*appb.Target
+		expectedLiteralPaths   []string
+		expectedGeneratedPaths []string
 	}{
 		{
 			"NoSources",
+			nil,
+			nil,
 			nil,
 			nil,
 			nil,
@@ -647,6 +520,8 @@ func TestSetSources(t *testing.T) {
 			map[string]*appb.Target{
 				"//a:file.ts": &appb.Target{Type: appb.Target_SOURCE_FILE.Enum()},
 			},
+			[]string{"a/file.ts"},
+			nil,
 		},
 		{
 			"ExtraSources",
@@ -661,12 +536,62 @@ func TestSetSources(t *testing.T) {
 			map[string]*appb.Target{
 				"//a:file.ts": &appb.Target{Type: appb.Target_SOURCE_FILE.Enum()},
 			},
+			[]string{"a/file.ts"},
+			nil,
+		},
+		{
+			"MultipleLiteralSources",
+			[]string{"//a:file.ts", "//b:file.ts"},
+			map[string]*appb.Target{
+				"//a:file.ts": &appb.Target{Type: appb.Target_SOURCE_FILE.Enum()},
+				"//b:file.ts": &appb.Target{Type: appb.Target_SOURCE_FILE.Enum()},
+			},
+			nil,
+			map[string]*appb.Target{
+				"//a:file.ts": &appb.Target{Type: appb.Target_SOURCE_FILE.Enum()},
+				"//b:file.ts": &appb.Target{Type: appb.Target_SOURCE_FILE.Enum()},
+			},
+			[]string{"a/file.ts", "b/file.ts"},
+			nil,
+		},
+		{
+			"MultipleGeneratedSources",
+			[]string{"//b:generator", "//b:wiz"},
+			map[string]*appb.Target{
+				"//b:generator": &appb.Target{Type: appb.Target_RULE.Enum()},
+				"//b:wiz":       &appb.Target{Type: appb.Target_RULE.Enum()},
+			},
+			fmt.Errorf("rule has generated sources - cannot determine dependencies"),
+			nil,
+			nil,
+			nil,
+		},
+		{
+			"MixedSources",
+			[]string{"//a:file.ts", "//b:file.ts", "//b:generator", "//b:wiz"},
+			map[string]*appb.Target{
+				"//a:file.ts":   &appb.Target{Type: appb.Target_SOURCE_FILE.Enum()},
+				"//b:file.ts":   &appb.Target{Type: appb.Target_SOURCE_FILE.Enum()},
+				"//b:generator": &appb.Target{Type: appb.Target_RULE.Enum()},
+				"//b:wiz":       &appb.Target{Type: appb.Target_RULE.Enum()},
+			},
+			nil,
+			map[string]*appb.Target{
+				"//a:file.ts":   &appb.Target{Type: appb.Target_SOURCE_FILE.Enum()},
+				"//b:file.ts":   &appb.Target{Type: appb.Target_SOURCE_FILE.Enum()},
+				"//b:generator": &appb.Target{Type: appb.Target_RULE.Enum()},
+				"//b:wiz":       &appb.Target{Type: appb.Target_RULE.Enum()},
+			},
+			[]string{"a/file.ts", "b/file.ts"},
+			[]string{"//b:generator", "//b:wiz"},
 		},
 		{
 			"MissingSources",
 			[]string{"//a:file.ts"},
 			nil,
 			fmt.Errorf("no source found for label %s", "//a:file.ts"),
+			nil,
+			nil,
 			nil,
 		},
 	}
@@ -691,7 +616,7 @@ func TestSetSources(t *testing.T) {
 				t.Errorf("got err %q, expected %q", err, test.err)
 			}
 
-			if diff := pretty.Compare(rt.sources, test.expected); diff != "" {
+			if diff := pretty.Compare(rt.sources, test.expected); err == nil && diff != "" {
 				t.Errorf("failed to set correct sources: (-got, +want)\n%s", diff)
 			}
 		})

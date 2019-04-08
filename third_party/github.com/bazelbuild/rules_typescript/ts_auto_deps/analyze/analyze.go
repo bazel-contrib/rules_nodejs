@@ -139,11 +139,16 @@ type resolvedTarget struct {
 	missingSources []string
 	// A map from the labels in the target's srcs to the Targets those
 	// labels refer.
-	sources map[string]*appb.Target
+	sources              map[string]*appb.Target
+	literalSourcePaths   []string
+	generatedSourcePaths []string
 }
 
 // setSources sets the sources on t.  It returns an error if one of the srcs of
-// t's rule isn't in loadedSrcs.
+// t's rule isn't in loadedSrcs.  It also sorts the sources into literal and
+// generated sources, setting literalSourcePaths and generatedSourcePaths.
+// Returns an error if all the sources are generated - ts_auto_deps can't read the
+// import statements to determine deps.
 func (t *resolvedTarget) setSources(loadedSrcs map[string]*appb.Target) error {
 	for _, label := range listAttribute(t.rule, "srcs") {
 		src := loadedSrcs[label]
@@ -151,6 +156,14 @@ func (t *resolvedTarget) setSources(loadedSrcs map[string]*appb.Target) error {
 			return fmt.Errorf("no source found for label %s", label)
 		}
 		t.sources[label] = src
+		if src.GetType() == appb.Target_SOURCE_FILE {
+			t.literalSourcePaths = append(t.literalSourcePaths, labelToPath(label))
+		} else {
+			t.generatedSourcePaths = append(t.generatedSourcePaths, labelToPath(label))
+		}
+	}
+	if len(t.literalSourcePaths) == 0 && len(t.generatedSourcePaths) > 0 {
+		return fmt.Errorf("rule has generated sources - cannot determine dependencies")
 	}
 	return nil
 }
@@ -165,37 +178,12 @@ func (t *resolvedTarget) srcs() ([]string, error) {
 	return srcs, nil
 }
 
-// literalSrcPaths returns the file paths of the non-generated sources of t.
-func (t *resolvedTarget) literalSrcPaths() ([]string, error) {
-	srcs := listAttribute(t.rule, "srcs")
-	if srcs == nil {
-		return nil, fmt.Errorf("target %q missing \"srcs\" attribute", t.label)
-	}
-	var literalFilePaths []string
-	for _, label := range listAttribute(t.rule, "srcs") {
-		src := t.sources[label]
-		if src == nil {
-			return nil, fmt.Errorf("src %q has no associated target", label)
-		}
-		// There's no syntactic way to determine if a label is a source file
-		// so check against the type of the relevant target
-		if src.GetType() == appb.Target_SOURCE_FILE {
-			literalFilePaths = append(literalFilePaths, labelToPath(label))
-		}
-	}
-	return literalFilePaths, nil
-}
-
 // getAllLiteralSrcPaths returns the file paths of all the non-generated sources
 // of the targets.
 func getAllLiteralSrcPaths(targets map[string]*resolvedTarget) ([]string, error) {
 	var allLiteralSrcPaths []string
 	for _, t := range targets {
-		literalSrcPaths, err := t.literalSrcPaths()
-		if err != nil {
-			return nil, err
-		}
-		allLiteralSrcPaths = append(allLiteralSrcPaths, literalSrcPaths...)
+		allLiteralSrcPaths = append(allLiteralSrcPaths, t.literalSourcePaths...)
 	}
 
 	return allLiteralSrcPaths, nil
@@ -292,10 +280,7 @@ func (a *Analyzer) resolveImportsForTargets(ctx context.Context, currentPkg, roo
 		}
 	}
 	for _, t := range targets {
-		srcs, err := t.literalSrcPaths()
-		if err != nil {
-			return nil, err
-		}
+		srcs := t.literalSourcePaths
 		for _, src := range srcs {
 			v, ok := imports[src]
 			if ok {
@@ -570,7 +555,12 @@ func (a *Analyzer) generateReport(target *resolvedTarget) (*arpb.DependencyRepor
 			// annotations.  Unlike ts_declaration, there's no flag to remove them, so
 			// there's no need to report a warning.
 		default:
-			report.UnnecessaryDependency = append(report.UnnecessaryDependency, label)
+			// The contents of generated files aren't visible, so ts_auto_deps can't discover
+			// the import statements/deps that they contain.  To be safe, don't remove
+			// any unused deps, since they might be used by the generated file(s).
+			if len(target.generatedSourcePaths) == 0 {
+				report.UnnecessaryDependency = append(report.UnnecessaryDependency, label)
+			}
 		}
 	}
 	return report, nil
