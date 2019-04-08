@@ -130,7 +130,7 @@ func loadScript(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return string(buf), nil
+	return fmt.Sprintf("// %s\n%s", path, buf), nil
 }
 
 // manifestFiles parses a manifest, returning a list of the files in the manifest.
