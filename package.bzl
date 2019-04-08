@@ -81,11 +81,11 @@ def rules_nodejs_dev_dependencies():
     # See https://releases.bazel.build/bazel-toolchains.html
     http_archive(
         name = "bazel_toolchains",
-        sha256 = "4b1468b254a572dbe134cc1fd7c6eab1618a72acd339749ea343bd8f55c3b7eb",
-        strip_prefix = "bazel-toolchains-d665ccfa3e9c90fa789671bf4ef5f7c19c5715c4",
+        sha256 = "712612a42eb3f42d405de2cfb13f5e1539ee6af4652419c8761b82d774a4bdf6",
+        strip_prefix = "bazel-toolchains-eedddd4f8f995839c651fdeec1373c0fa27e619e",
         urls = [
-            "https://mirror.bazel.build/github.com/bazelbuild/bazel-toolchains/archive/d665ccfa3e9c90fa789671bf4ef5f7c19c5715c4.tar.gz",
-            "https://github.com/bazelbuild/bazel-toolchains/archive/d665ccfa3e9c90fa789671bf4ef5f7c19c5715c4.tar.gz",
+            "https://mirror.bazel.build/github.com/bazelbuild/bazel-toolchains/archive/eedddd4f8f995839c651fdeec1373c0fa27e619e.tar.gz",
+            "https://github.com/bazelbuild/bazel-toolchains/archive/eedddd4f8f995839c651fdeec1373c0fa27e619e.tar.gz",
         ],
     )
 
