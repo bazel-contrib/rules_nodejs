@@ -1,10 +1,11 @@
 load("//:defs.bzl", "jasmine_node_test", "npm_package")
 load("//internal/common:typescript_mock_lib.bzl", "mock_typescript_lib")
+load("//third_party/github.com/bazelbuild/bazel-skylib:rules/write_file.bzl", "write_file")
 
-genrule(
+write_file(
     name = "produces_files",
-    outs = ["a_dep"],
-    cmd = "echo \"a_dep content\" > $@",
+    out = "a_dep",
+    content = ["a_dep content"],
 )
 
 mock_typescript_lib(
