@@ -22,6 +22,9 @@ case "${unameOut}" in
 esac
 echo "Running on ${machine}"
 
+rm -rf ./examples/angular
+./scripts/setup_examples_angular.sh
+
 printf "\n\nRunning @nodejs//:yarn\n"
 echo_and_run bazel run @nodejs//:yarn
 
