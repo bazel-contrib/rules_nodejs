@@ -25,6 +25,7 @@ NodeModuleInfo = provider(
 NodeModuleSources = provider(
     doc = "Provides sources for npm dependencies installed with yarn_install and npm_install rules",
     fields = {
+        "scripts": "Source files that are javascript named-UMD or named-AMD modules for use in rules such as ts_devserver",
         "sources": "Source files that are npm dependencies",
         "workspace": "The workspace name that the npm dependencies are provided from",
     },

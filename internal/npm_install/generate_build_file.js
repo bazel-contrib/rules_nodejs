@@ -631,11 +631,11 @@ function printJson(pkg) {
 }
 
 /**
- * A filter function for files in an npm package.
+ * A filter function for files in an npm package. Comparison is case-insensitive.
  * @param files array of files to filter
- * @param exts list of white listed extensions; if empty, no filter is done on extensions;
- *             '' empty string denotes to allow files with no extensions, other extensions
- *             are listed with '.ext' notation such as '.d.ts'.
+ * @param exts list of white listed case-insensitive extensions; if empty, no filter is
+ *             done on extensions; '' empty string denotes to allow files with no extensions,
+ *             other extensions are listed with '.ext' notation such as '.d.ts'.
  */
 function filterFiles(files, exts = []) {
   // Files with spaces (\x20) or unicode characters (<\x20 && >\x7E) are not allowed in
@@ -647,8 +647,9 @@ function filterFiles(files, exts = []) {
       // include files with no extensions if noExt is true
       if (allowNoExts && !path.extname(f)) return true;
       // filter files in exts
+      const lc = f.toLowerCase();
       for (const e of exts) {
-        if (e && f.endsWith(e)) {
+        if (e && lc.endsWith(e.toLowerCase())) {
           return true;
         }
       }
@@ -678,11 +679,25 @@ function isNgApfPackage(pkg) {
 }
 
 /**
+ * If the package is in the Angular package format returns list
+ * of package files that end with `.umd.js`, `.ngfactory.js` and `.ngsummary.js`.
+ */
+function getNgApfScripts(pkg) {
+  return isNgApfPackage(pkg) ?
+      filterFiles(pkg._files, ['.umd.js', '.ngfactory.js', '.ngsummary.js']) :
+      [];
+}
+
+/**
  * Given a pkg, return the skylark `node_module_library` targets for the package.
  */
 function printPackage(pkg) {
   const sources = filterFiles(pkg._files, INCLUDED_FILES);
   const dtsSources = filterFiles(pkg._files, ['.d.ts']);
+  // TODO(gmagolan): add UMD & AMD scripts to scripts even if not an APF package _but_ only if they
+  // are named?
+  const scripts = getNgApfScripts(pkg);
+
   const pkgDeps = pkg._dependencies.filter(dep => dep !== pkg && !dep._isNested);
 
   let result = `load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
@@ -702,15 +717,18 @@ node_module_library(
         ${
       pkgDeps.map(dep => `"//node_modules/${dep._dir}:${dep._name}__files",`).join('\n        ')}
     ],
-    is_apf = ${isNgApfPackage(pkg) ? 'True' : 'False'},
 )
 
+# ${pkg._name}__files target is used as dep for other package targets to prevent
+# circular dependencies errors
 node_module_library(
     name = "${pkg._name}__files",
     srcs = [
         ${sources.map(f => `":${f}",`).join('\n        ')}
     ],
-    is_apf = ${isNgApfPackage(pkg) ? 'True' : 'False'},
+    scripts = [
+        ${scripts.map(f => `":${f}",`).join('\n        ')}
+    ],
 )
 
 node_module_library(

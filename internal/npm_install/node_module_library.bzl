@@ -13,27 +13,16 @@
 # limitations under the License.
 
 load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleInfo", "NodeModuleSources")
-load("@build_bazel_rules_nodejs//internal/common:providers.bzl", "ScriptsProvider")
 
 def _node_module_library_impl(ctx):
-    apf_umds = []
-    apf_factories = []
-    apf_summaries = []
-
-    # If this npm package is in the Angular package format then collect
-    # umd bundles, ngfactory files & ngsummary files and provide them
-    # via the ScriptsProvider
-    if ctx.attr.is_apf:
-        for file in ctx.files.srcs:
-            if file.basename.endswith(".umd.js"):
-                apf_umds.append(file)
-            elif file.basename.endswith(".ngfactory.js"):
-                apf_factories.append(file)
-            elif file.basename.endswith(".ngsummary.js"):
-                apf_summaries.append(file)
-
-    sources = depset(transitive = [src.files for src in ctx.attr.srcs] + [dep.files for dep in ctx.attr.deps])
     workspace = ctx.label.workspace_root.split("/")[1] if ctx.label.workspace_root else ctx.workspace_name
+    sources = depset(ctx.files.srcs, transitive = [dep.files for dep in ctx.attr.deps])
+
+    scripts = depset()
+    for src in ctx.attr.srcs:
+        if NodeModuleSources in src:
+            scripts = depset(transitive = [scripts, src[NodeModuleSources].scripts])
+    scripts = depset(ctx.files.scripts, transitive = [scripts])
 
     return [
         DefaultInfo(
@@ -44,10 +33,8 @@ def _node_module_library_impl(ctx):
         ),
         NodeModuleSources(
             sources = sources,
+            scripts = scripts,
             workspace = workspace,
-        ),
-        ScriptsProvider(
-            scripts = depset(apf_umds + apf_factories + apf_summaries),
         ),
     ]
 
@@ -58,9 +45,9 @@ node_module_library = rule(
             doc = "The list of files that comprise the package",
             allow_files = True,
         ),
-        "is_apf": attr.bool(
-            default = False,
-            doc = "True if this npm package is in the Angular package format",
+        "scripts": attr.label_list(
+            doc = "A subset of srcs that are javascript named-UMD or named-AMD scripts for use in rules such as ts_devserver",
+            allow_files = True,
         ),
         "deps": attr.label_list(
             doc = "Transitive dependencies of the package",
