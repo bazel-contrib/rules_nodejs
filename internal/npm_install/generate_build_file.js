@@ -837,6 +837,8 @@ function printScope(scope, pkgs) {
   pkgs.forEach(pkg => {
     pkgDeps = pkgDeps.concat(pkg._dependencies.filter(dep => dep !== pkg && !dep._isNested));
   });
+  // filter out direct & duplicate deps
+  pkgDeps = [...new Set(pkgDeps)].filter(pkg => !pkgs.includes(pkg));
 
   let depsStarlark = '';
   if (pkgDeps.length) {
