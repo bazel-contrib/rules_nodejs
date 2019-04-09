@@ -835,10 +835,11 @@ function printScope(scope, pkgs) {
   pkgs = pkgs.filter(pkg => !pkg._isNested && pkg._dir.startsWith(`${scope}/`));
   let pkgDeps = [];
   pkgs.forEach(pkg => {
-    pkgDeps = pkgDeps.concat(pkg._dependencies.filter(dep => dep !== pkg && !dep._isNested));
+    pkgDeps =
+        pkgDeps.concat(pkg._dependencies.filter(dep => !dep._isNested && !pkgs.includes(pkg)));
   });
-  // filter out direct & duplicate deps
-  pkgDeps = [...new Set(pkgDeps)].filter(pkg => !pkgs.includes(pkg));
+  // filter out duplicate deps
+  pkgDeps = [...new Set(pkgDeps)];
 
   let depsStarlark = '';
   if (pkgDeps.length) {
