@@ -17,9 +17,9 @@
 /**
  * @fileoverview This script generates BUILD.bazel files by analyzing
  * the node_modules folder layed out by yarn or npm. It generates
- * fine grained Bazel filegroup targets for each root npm package
+ * fine grained Bazel `node_module_library` targets for each root npm package
  * and all files for that package and its transitive deps are included
- * in the filegroup. For example, `@<workspace>//jasmine` would
+ * in the target. For example, `@<workspace>//jasmine` would
  * include all files in the jasmine npm package and all of its
  * transitive dependencies.
  *
@@ -28,7 +28,7 @@
  * target will be generated for the `jasmine` binary in the `jasmine`
  * npm package.
  *
- * Additionally, a `@<workspace>//:node_modules` filegroup
+ * Additionally, a `@<workspace>//:node_modules` `node_module_library`
  * is generated that includes all packages under node_modules
  * as well as the .bin folder.
  *
@@ -41,10 +41,6 @@
 
 const fs = require('fs');
 const path = require('path');
-// When ng_apf_library.js is executed at installation time the script is copied
-// from internal/ng_apf_library to external/npm so import path here is relative
-// to current directory.
-const apf = require('./ng_apf_library.js');
 
 const BUILD_FILE_HEADER = `# Generated file from yarn_install/npm_install rule.
 # See $(bazel info output_base)/external/build_bazel_rules_nodejs/internal/npm_install/generate_build_file.js
@@ -121,20 +117,14 @@ module.exports = {main};
 function generateRootBuildFile(pkgs) {
   const srcs = pkgs.filter(pkg => !pkg._isNested);
 
-  let buildFile = BUILD_FILE_HEADER + `# The node_modules directory in one catch-all filegroup.
+  let buildFile = BUILD_FILE_HEADER +
+      `load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
+
+# The node_modules directory in one catch-all node_module_library.
 # NB: Using this target may have bad performance implications if
-# there are many files in filegroup.
+# there are many files in target.
 # See https://github.com/bazelbuild/bazel/issues/5153.
-#
-# This filegroup includes only js, d.ts, json and proto files as well as the
-# pkg/bin folders and .bin folder. This can be used in some cases to improve
-# performance by reducing the number of runfiles. The recommended approach
-# to reducing performance is to use fine grained deps such as
-# ["@npm//a", "@npm//b", ...]. There are cases where the node_modules
-# filegroup will not include files with no extension that are needed. The
-# feature request https://github.com/bazelbuild/bazel/issues/5769 would allow
-# this filegroup to include those files.
-filegroup(
+node_module_library(
     name = "node_modules",
     srcs = [
         ${srcs.map(pkg => `"//node_modules/${pkg._dir}:${pkg._name}__files",`).join('\n        ')}
@@ -156,10 +146,7 @@ filegroup(
  * Generates all BUILD files for a package.
  */
 function generatePackageBuildFiles(pkg) {
-  const buildFile =
-      BUILD_FILE_HEADER + `load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
-
-` + printPackage(pkg);
+  const buildFile = BUILD_FILE_HEADER + printPackage(pkg);
   writeFileSync(path.posix.join('node_modules', pkg._dir, 'BUILD.bazel'), buildFile);
 
   const aliasBuildFile = BUILD_FILE_HEADER + printPackageAliases(pkg);
@@ -644,13 +631,13 @@ function printJson(pkg) {
 }
 
 /**
- * A filter function for a bazel filegroup.
+ * A filter function for files in an npm package. Comparison is case-insensitive.
  * @param files array of files to filter
- * @param exts list of white listed extensions; if empty, no filter is done on extensions;
- *             '' empty string denotes to allow files with no extensions, other extensions
- *             are listed with '.ext' notation such as '.d.ts'.
+ * @param exts list of white listed case-insensitive extensions; if empty, no filter is
+ *             done on extensions; '' empty string denotes to allow files with no extensions,
+ *             other extensions are listed with '.ext' notation such as '.d.ts'.
  */
-function filterFilesForFilegroup(files, exts = []) {
+function filterFiles(files, exts = []) {
   // Files with spaces (\x20) or unicode characters (<\x20 && >\x7E) are not allowed in
   // Bazel runfiles. See https://github.com/bazelbuild/bazel/issues/4327
   files = files.filter(f => !f.match(/[^\x21-\x7E]/));
@@ -660,8 +647,9 @@ function filterFilesForFilegroup(files, exts = []) {
       // include files with no extensions if noExt is true
       if (allowNoExts && !path.extname(f)) return true;
       // filter files in exts
+      const lc = f.toLowerCase();
       for (const e of exts) {
-        if (e && f.endsWith(e)) {
+        if (e && lc.endsWith(e.toLowerCase())) {
           return true;
         }
       }
@@ -672,53 +660,91 @@ function filterFilesForFilegroup(files, exts = []) {
 }
 
 /**
- * Given a `pkg`, return the skylark `filegroup` target which is the default
- * target for the alias `@npm//${pkg.name}`.
+ * Returns true if the specified `pkg` conforms to Angular Package Format (APF),
+ * false otherwise. If the package contains `*.metadata.json` and a
+ * corresponding sibling `.d.ts` file, then the package is considered to be APF.
  */
-function printPkgTarget(pkg, pkgDeps) {
-  return `
-filegroup(
-    name = "${pkg._name}__pkg",
-    srcs = [
-        # ${pkg._dir} package contents (and contents of nested node_modules)
-        ":${pkg._name}__files",
-        # direct or transitive dependencies hoisted to root by the package manager
-        ${
-      pkgDeps.map(dep => `"//node_modules/${dep._dir}:${dep._name}__files",`).join('\n        ')}
-    ],
-    tags = ["NODE_MODULE_MARKER"],
-)
-`;
+function isNgApfPackage(pkg) {
+  const set = new Set(pkg._files);
+  const metadataExt = /\.metadata\.json$/;
+  return pkg._files.some((file) => {
+    if (metadataExt.test(file)) {
+      const sibling = file.replace(metadataExt, '.d.ts');
+      if (set.has(sibling)) {
+        return true;
+      }
+    }
+    return false;
+  });
 }
 
 /**
- * Given a pkg, return the skylark `filegroup` and/or `ng_apf_library` targets for the package.
+ * If the package is in the Angular package format returns list
+ * of package files that end with `.umd.js`, `.ngfactory.js` and `.ngsummary.js`.
+ */
+function getNgApfScripts(pkg) {
+  return isNgApfPackage(pkg) ?
+      filterFiles(pkg._files, ['.umd.js', '.ngfactory.js', '.ngsummary.js']) :
+      [];
+}
+
+/**
+ * Given a pkg, return the skylark `node_module_library` targets for the package.
  */
 function printPackage(pkg) {
-  const sources = filterFilesForFilegroup(pkg._files, INCLUDED_FILES);
-  const dtsSources = filterFilesForFilegroup(pkg._files, ['.d.ts']);
+  const sources = filterFiles(pkg._files, INCLUDED_FILES);
+  const dtsSources = filterFiles(pkg._files, ['.d.ts']);
+  // TODO(gmagolan): add UMD & AMD scripts to scripts even if not an APF package _but_ only if they
+  // are named?
+  const scripts = getNgApfScripts(pkg);
   const pkgDeps = pkg._dependencies.filter(dep => dep !== pkg && !dep._isNested);
 
-  let result = `
+  let scriptStarlark = '';
+  if (scripts.length) {
+    scriptStarlark = `
+    scripts = [
+        ${scripts.map(f => `":${f}",`).join('\n        ')}
+    ],`;
+  }
+
+  let depsStarlark = '';
+  if (pkgDeps.length) {
+    depsStarlark = `
+    # flattened list of direct and transitive dependencies hoisted to root by the package manager
+    deps = [
+        ${
+        pkgDeps.map(dep => `"//node_modules/${dep._dir}:${dep._name}__files",`).join('\n        ')}
+    ],`;
+  }
+
+  let result = `load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
+
 # Generated targets for npm package "${pkg._dir}"
 ${printJson(pkg)}
 
-${apf.isNgApfPackage(pkg) ? apf.printNgApfLibrary(pkg, pkgDeps) : printPkgTarget(pkg, pkgDeps)}
+node_module_library(
+    name = "${pkg._name}__pkg",
+    # ${pkg._dir} package contents (and contents of nested node_modules)
+    srcs = [
+        ":${pkg._name}__files",
+    ],${depsStarlark}
+)
 
-filegroup(
+# ${pkg._name}__files target is used as dep for other package targets to prevent
+# circular dependencies errors
+node_module_library(
     name = "${pkg._name}__files",
     srcs = [
         ${sources.map(f => `":${f}",`).join('\n        ')}
-    ],
-    tags = ["NODE_MODULE_MARKER"],
+    ],${scriptStarlark}
 )
 
-filegroup(
+node_module_library(
     name = "${pkg._name}__typings",
     srcs = [
         ${dtsSources.map(f => `":${f}",`).join('\n        ')}
     ],
-    tags = ["NODE_MODULE_MARKER"],
 )
 
 `;
@@ -803,18 +829,33 @@ alias(
 }
 
 /**
- * Given a scope, return the skylark `filegroup` target for the scope.
+ * Given a scope, return the skylark `node_module_library` target for the scope.
  */
 function printScope(scope, pkgs) {
-  const srcs = pkgs.filter(pkg => !pkg._isNested && pkg._dir.startsWith(`${scope}/`));
-  return `
+  pkgs = pkgs.filter(pkg => !pkg._isNested && pkg._dir.startsWith(`${scope}/`));
+  let pkgDeps = [];
+  pkgs.forEach(pkg => {
+    pkgDeps = pkgDeps.concat(pkg._dependencies.filter(dep => dep !== pkg && !dep._isNested));
+  });
+
+  let depsStarlark = '';
+  if (pkgDeps.length) {
+    depsStarlark = `
+    # flattened list of direct and transitive dependencies hoisted to root by the package manager
+    deps = [
+        ${
+        pkgDeps.map(dep => `"//node_modules/${dep._dir}:${dep._name}__files",`).join('\n        ')}
+    ],`;
+  }
+
+  return `load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
+
 # Generated target for npm scope ${scope}
-filegroup(
+node_module_library(
     name = "${scope}",
     srcs = [
-        ${srcs.map(pkg => `"//node_modules/${pkg._dir}:${pkg._name}__pkg",`).join('\n        ')}
-    ],
-    tags = ["NODE_MODULE_MARKER"],
+        ${pkgs.map(pkg => `"//node_modules/${pkg._dir}:${pkg._name}__files",`).join('\n        ')}
+    ],${depsStarlark}
 )
 
 `;

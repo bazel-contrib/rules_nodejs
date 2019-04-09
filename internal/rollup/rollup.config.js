@@ -43,6 +43,8 @@ function fileExists(filePath) {
 // This resolver mimics the TypeScript Path Mapping feature, which lets us resolve
 // modules based on a mapping of short names to paths.
 function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = require.resolve, root = rootDir) {
+  if (DEBUG) console.error(`\nRollup: resolving '${importee}' from ${importer}`);
+
   function resolveInRootDir(importee) {
     var candidate = path.join(baseDir, root, importee);
     if (DEBUG) console.error(`Rollup: try to resolve '${importee}' at '${candidate}'`);
@@ -53,8 +55,6 @@ function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = req
       return undefined;
     }
   }
-
-  if (DEBUG) console.error(`Rollup: resolving '${importee}' from ${importer}`);
 
   // Since mappings are always in POSIX paths, when comparing the importee to mappings
   // we should normalize the importee.
@@ -113,8 +113,13 @@ function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = req
     resolved = resolveInRootDir(userWorkspacePath.startsWith('..') ? importee : userWorkspacePath);
   }
 
-  if (DEBUG && !resolved)
-    console.error(`Rollup: allowing rollup to resolve '${importee}' with node module resolution`);
+  if (DEBUG) {
+    if (resolved) {
+      console.error(`Rollup: resolved to ${resolved}`);
+    } else {
+      console.error(`Rollup: allowing rollup to resolve '${importee}' with node module resolution`);
+    }
+  }
 
   return resolved;
 }
@@ -168,9 +173,13 @@ const config = {
     throw new Error(warning.message);
   },
   plugins: [TMPL_additional_plugins].concat([
-    {resolveId: resolveBazel},
+    {
+      name: 'resolveBazel',
+      resolveId: resolveBazel,
+    },
     nodeResolve({
       mainFields: ['es2015', 'module', 'jsnext:main', 'main'],
+      jail: process.cwd(),
       customResolveOptions: {moduleDirectory: nodeModulesRoot}
     }),
     amd({
@@ -180,13 +189,17 @@ const config = {
       include: /\.ngfactory\.js$/i,
     }),
     commonjs(),
-    {resolveId: notResolved},
+    {
+      name: 'notResolved',
+      resolveId: notResolved,
+    },
     sourcemaps(),
   ]),
   output: {
     banner,
     format: 'TMPL_output_format',
   },
+  preserveSymlinks: true,
 }
 
 if (enableCodeSplitting) {

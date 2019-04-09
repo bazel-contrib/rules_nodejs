@@ -13,10 +13,8 @@ filegroup(
 jasmine_node_test(
     name = "test",
     srcs = glob(["*.spec.js"]),
-    bootstrap = ["build_bazel_rules_nodejs/internal/npm_install/test/copy_ng_apf_library.js"],
     data = [
         ":check.js",
-        ":copy_ng_apf_library.js",
         ":goldens",
         ":package",
         "//internal/npm_install:generate_build_file",
@@ -27,10 +25,8 @@ jasmine_node_test(
 
 nodejs_binary(
     name = "test.accept",
-    bootstrap = ["build_bazel_rules_nodejs/internal/npm_install/test/copy_ng_apf_library.js"],
     data = [
         ":check.js",
-        ":copy_ng_apf_library.js",
         ":goldens",
         ":package",
         ":update_golden.js",

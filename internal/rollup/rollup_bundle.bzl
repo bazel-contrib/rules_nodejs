@@ -18,9 +18,9 @@ The versions of Rollup and terser are controlled by the Bazel toolchain.
 You do not need to install them into your project.
 """
 
+load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleSources", "collect_node_modules_aspect")
 load("//internal/common:collect_es6_sources.bzl", _collect_es2015_sources = "collect_es6_sources")
 load("//internal/common:module_mappings.bzl", "get_module_mappings")
-load("//internal/common:node_module_info.bzl", "NodeModuleInfo", "collect_node_modules_aspect")
 
 _ROLLUP_MODULE_MAPPINGS_ATTR = "rollup_module_mappings"
 
@@ -43,6 +43,42 @@ def _trim_package_node_modules(package_name):
             break
         segments += [n]
     return "/".join(segments)
+
+# This function is similar but slightly different than _compute_node_modules_root
+# in /internal/node/node.bzl. TODO(gregmagolan): consolidate these functions
+def _compute_node_modules_root(ctx):
+    """Computes the node_modules root from the node_modules and deps attributes.
+
+    Args:
+      ctx: the skylark execution context
+
+    Returns:
+      The node_modules root as a string
+    """
+    node_modules_root = None
+    if ctx.files.node_modules:
+        # ctx.files.node_modules is not an empty list
+        node_modules_root = "/".join([f for f in [
+            ctx.attr.node_modules.label.workspace_root,
+            _trim_package_node_modules(ctx.attr.node_modules.label.package),
+            "node_modules",
+        ] if f])
+    for d in ctx.attr.deps:
+        if NodeModuleSources in d:
+            possible_root = "/".join(["external", d[NodeModuleSources].workspace, "node_modules"])
+            if not node_modules_root:
+                node_modules_root = possible_root
+            elif node_modules_root != possible_root:
+                fail("All npm dependencies need to come from a single workspace. Found '%s' and '%s'." % (node_modules_root, possible_root))
+    if not node_modules_root:
+        # there are no fine grained deps and the node_modules attribute is an empty filegroup
+        # but we still need a node_modules_root even if its empty
+        node_modules_root = "/".join([f for f in [
+            ctx.attr.node_modules.label.workspace_root,
+            ctx.attr.node_modules.label.package,
+            "node_modules",
+        ] if f])
+    return node_modules_root
 
 def write_rollup_config(ctx, plugins = [], root_dir = None, filename = "_%s.rollup.conf.js", output_format = "iife", additional_entry_points = []):
     """Generate a rollup config file.
@@ -82,33 +118,10 @@ def write_rollup_config(ctx, plugins = [], root_dir = None, filename = "_%s.roll
         # This must be .es6 to match collect_es6_sources.bzl
         root_dir = "/".join([ctx.bin_dir.path, build_file_dirname, ctx.label.name + ".es6"])
 
-    node_modules_root = None
+    node_modules_root = _compute_node_modules_root(ctx)
     is_default_node_modules = False
-    if ctx.files.node_modules:
-        # ctx.files.node_modules is not an empty list
-        node_modules_root = "/".join([f for f in [
-            ctx.attr.node_modules.label.workspace_root,
-            _trim_package_node_modules(ctx.attr.node_modules.label.package),
-            "node_modules",
-        ] if f])
-    for d in ctx.attr.deps:
-        if NodeModuleInfo in d:
-            possible_root = "/".join(["external", d[NodeModuleInfo].workspace, "node_modules"])
-            if not node_modules_root:
-                node_modules_root = possible_root
-            elif node_modules_root != possible_root:
-                fail("All npm dependencies need to come from a single workspace. Found '%s' and '%s'." % (node_modules_root, possible_root))
-    if not node_modules_root:
-        # there are no fine grained deps and the node_modules attribute is an empty filegroup
-        # but we still need a node_modules_root even if its empty
-        workspace = ctx.attr.node_modules.label.workspace_root.split("/")[1] if ctx.attr.node_modules.label.workspace_root else ctx.workspace_name
-        if workspace == "build_bazel_rules_nodejs" and ctx.attr.node_modules.label.package == "" and ctx.attr.node_modules.label.name == "node_modules_none":
-            is_default_node_modules = True
-        node_modules_root = "/".join([f for f in [
-            ctx.attr.node_modules.label.workspace_root,
-            ctx.attr.node_modules.label.package,
-            "node_modules",
-        ] if f])
+    if node_modules_root == "node_modules" and ctx.attr.node_modules.label.package == "" and ctx.attr.node_modules.label.name == "node_modules_none":
+        is_default_node_modules = True
 
     ctx.actions.expand_template(
         output = config,
@@ -184,11 +197,11 @@ def _run_rollup(ctx, sources, config, output, map_output = None):
     direct_inputs += _filter_js_inputs(ctx.files.node_modules)
 
     # Also include files from npm fine grained deps as inputs.
-    # These deps are identified by the NodeModuleInfo provider.
+    # These deps are identified by the NodeModuleSources provider.
     for d in ctx.attr.deps:
-        if NodeModuleInfo in d:
-            # Note: we can't avoid calling .to_list() on files
-            direct_inputs += _filter_js_inputs(d.files.to_list())
+        if NodeModuleSources in d:
+            # Note: we can't avoid calling .to_list() on sources
+            direct_inputs += _filter_js_inputs(d[NodeModuleSources].sources.to_list())
 
     if ctx.file.license_banner:
         direct_inputs += [ctx.file.license_banner]
