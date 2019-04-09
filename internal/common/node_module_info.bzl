@@ -15,6 +15,19 @@
 """NodeModuleInfo & NodeModuleSources providers and apsect to collect node_modules from deps.
 """
 
+# NodeModuleInfo provider is only provided by targets that are npm dependencies by the
+# `node_module_library` rule. This provider is currently used by different rules to filter out
+# npm dependencies such as
+# ```
+# [d for d in ctx.attr.deps if not NodeModuleInfo in d]
+# ```
+# in `packages/typescript/internal/build_defs.bzl` or
+# ```
+# hasattr(target, "files") and not NodeModuleInfo in target:
+# ```
+# in `internal/common/sources_aspect.bzl`.
+# Similar filtering is done in downstream repositories such as angular/angular so this provider
+# needs to go through a deprecation period before it can be phased out.
 NodeModuleInfo = provider(
     doc = "Provides information about npm dependencies installed with yarn_install and npm_install rules",
     fields = {
@@ -22,6 +35,9 @@ NodeModuleInfo = provider(
     },
 )
 
+# NodeModuleSources provider is provided by targets that are npm dependencies by the
+# `node_module_library` rule as well as other targets that have direct or transitive deps on
+# `node_module_library` targets via the `collect_node_modules_aspect` below.
 NodeModuleSources = provider(
     doc = "Provides sources for npm dependencies installed with yarn_install and npm_install rules",
     fields = {
