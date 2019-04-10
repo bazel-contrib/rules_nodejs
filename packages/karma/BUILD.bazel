@@ -92,6 +92,7 @@ npm_package(
         "karma_web_test.bzl",
         "package.bzl",
         "package.json",
+        "plugins.js",
         "ts_web_test.bzl",
         "web_test.bzl",
     ],

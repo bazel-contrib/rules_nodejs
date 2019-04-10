@@ -119,12 +119,13 @@ try {
   function configureBazelConfig(config, conf) {
     // list of karma plugins
     mergeConfigArray(conf, 'plugins', [
+      // Loads 'concat_js', 'watcher', 'jasmine', 'requirejs' and 'sourcemap'
+      // from @bazel/karma. These packages are used in this config file.
+      ...require('@bazel/karma/plugins'),
+      // Loads user-installed karma-* packages in the root node_modules.
+      // If some of the plugins above are also installed in user project, the
+      // user version would override the default.
       'karma-*',
-      '@bazel/karma',
-      'karma-sourcemap-loader',
-      'karma-chrome-launcher',
-      'karma-firefox-launcher',
-      'karma-sauce-launcher',
     ]);
 
     // list of karma preprocessors
