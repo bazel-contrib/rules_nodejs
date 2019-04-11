@@ -9,7 +9,7 @@ const spawnSync = require('child_process').spawnSync;
 const warnGlobalInstall = `
   *** WARNING
     The Bazel binary is being run from a global install.
-    
+
     This means the version may not match the one used in your project.
     We recommend installing the @bazel/bazel package locally in your project.
   ***
@@ -53,8 +53,14 @@ function getNativeBinary() {
   return path.resolve(path.dirname(nativePackage), binary);
 }
 
-/** Starts a new synchronous child process that runs Bazel with the specified arguments. */
-const bazelProcess = spawnSync(getNativeBinary(), process.argv.slice(2), {stdio: 'inherit'});
+if (require.main === module) {
+  /** Starts a new synchronous child process that runs Bazel with the specified arguments. */
+  const bazelProcess = spawnSync(getNativeBinary(), process.argv.slice(2), {stdio: 'inherit'});
 
-// Ensure that this wrapper script exits with the same exit code as the child process.
-process.exit(bazelProcess.status);
+  // Ensure that this wrapper script exits with the same exit code as the child process.
+  process.exit(bazelProcess.status);
+}
+
+module.exports = {
+  getNativeBinary,
+};
