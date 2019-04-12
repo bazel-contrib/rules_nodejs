@@ -30,5 +30,5 @@ nodejs_test(
         "no_jasmine_test.js",
         "//internal/jasmine_node_test:jasmine_runner.js",
     ],
-    entry_point = "build_bazel_rules_nodejs/internal/jasmine_node_test/test/no_jasmine_test.js",
+    entry_point = ":no_jasmine_test.js",
 )

@@ -21,7 +21,7 @@ a `module_name` attribute can be `require`d by that name.
 """
 
 load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleSources", "collect_node_modules_aspect")
-load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
+load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles", "expand_path_into_runfiles")
 load("//internal/common:module_mappings.bzl", "module_mappings_runtime_aspect")
 load("//internal/common:sources_aspect.bzl", "sources_aspect")
 
@@ -86,6 +86,9 @@ def _write_loader_script(ctx):
 
     node_modules_root = _compute_node_modules_root(ctx)
 
+    if len(ctx.attr.entry_point.files) != 1:
+        fail("labels in entry_point must contain exactly one file")
+
     ctx.actions.expand_template(
         template = ctx.file._loader_template,
         output = ctx.outputs.loader,
@@ -94,7 +97,7 @@ def _write_loader_script(ctx):
             "TEMPLATED_bootstrap": "\n  " + ",\n  ".join(
                 ["\"" + d + "\"" for d in ctx.attr.bootstrap],
             ),
-            "TEMPLATED_entry_point": ctx.attr.entry_point,
+            "TEMPLATED_entry_point": expand_path_into_runfiles(ctx, ctx.file.entry_point.short_path),
             "TEMPLATED_gen_dir": ctx.genfiles_dir.path,
             "TEMPLATED_install_source_map_support": str(ctx.attr.install_source_map_support).lower(),
             "TEMPLATED_module_roots": "\n  " + ",\n  ".join(module_mappings),
@@ -169,7 +172,7 @@ def _nodejs_binary_impl(ctx):
         is_executable = True,
     )
 
-    runfiles = depset([node, ctx.outputs.loader, ctx.file._repository_args] + ctx.files._node_runfiles, transitive = [sources, node_modules])
+    runfiles = depset([node, ctx.outputs.loader, ctx.file._repository_args, ctx.file.entry_point] + ctx.files._node_runfiles, transitive = [sources])
 
     return [DefaultInfo(
         executable = ctx.outputs.script,
@@ -209,12 +212,38 @@ _NODEJS_EXECUTABLE_ATTRS = {
         allow_files = True,
         aspects = [sources_aspect, module_mappings_runtime_aspect, collect_node_modules_aspect],
     ),
-    "entry_point": attr.string(
+    "entry_point": attr.label(
         doc = """The script which should be executed first, usually containing a main function.
-        This attribute expects a string starting with the workspace name, so that it's not ambiguous
-        in cases where a script with the same name appears in another directory or external workspace.
+        The `entry_point` accepts a target's name as an entry point. 
+        If the target is a rule, it should produce the JavaScript entry file that will be passed to the nodejs_binary rule). 
+        For example:
+
+        ```
+        filegroup(
+            name = "entry_file",
+            srcs = ["workspace/path/to/entry/file"]
+        )
+        nodejs_binary(
+            name = "my_binary",
+            ...
+            entry_point = ":entry_file",
+        )
+        ```
+
+        If the entry JavaScript file belongs to the same package (as the BUILD file), 
+        you can simply reference it by its relative name to the package directory:
+
+        ```
+        nodejs_binary(
+            name = "my_binary",
+            ...
+            entry_point = ":file.js",
+        )
+        ```
+
         """,
         mandatory = True,
+        allow_single_file = True,
     ),
     "install_source_map_support": attr.bool(
         doc = """Install the source-map-support package.

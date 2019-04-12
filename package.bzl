@@ -35,11 +35,11 @@ def rules_nodejs_dev_dependencies():
     """
 
     # Dependencies for generating documentation
+    # TODO(manekinekko): switch to https://github.com/bazelbuild/rules_sass/ when the changes have been released
     http_archive(
         name = "io_bazel_rules_sass",
-        url = "https://github.com/bazelbuild/rules_sass/archive/8ccf4f1c351928b55d5dddf3672e3667f6978d60.zip",  # 2018-11-23
-        strip_prefix = "rules_sass-8ccf4f1c351928b55d5dddf3672e3667f6978d60",
-        sha256 = "894d7928df8da85e263d743c8434d4c10ab0a3f0708fed0d53394e688e3faf70",
+        url = "https://github.com/manekinekko/rules_sass/archive/9862dfc96a4a1f66fe171ef5e043b29853e8445b.zip",
+        strip_prefix = "rules_sass-9862dfc96a4a1f66fe171ef5e043b29853e8445b",
     )
 
     # Needed for stardoc
