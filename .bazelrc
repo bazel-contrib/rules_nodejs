@@ -10,3 +10,7 @@ test:debug --test_arg=--node_options=--inspect-brk --test_output=streamed --test
 # Turn off legacy external runfiles
 run --nolegacy_external_runfiles
 test --nolegacy_external_runfiles
+
+# Needed for refresh roots experimental bazel build as bazel_skylib fails on this
+build --incompatible_bzl_disallow_load_after_statement=false
+test --incompatible_bzl_disallow_load_after_statement=false

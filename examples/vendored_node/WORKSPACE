@@ -17,12 +17,12 @@ node_repositories(
 
 yarn_install(
     name = "yarn",
-    package_json = "//:package.json",
-    yarn_lock = "//:yarn.lock",
+    package_json = "//:yarn/package.json",
+    yarn_lock = "//:yarn/yarn.lock",
 )
 
 npm_install(
     name = "npm",
-    package_json = "//:package.json",
-    package_lock_json = "//:package-lock.json",
+    package_json = "//:npm/package.json",
+    package_lock_json = "//:npm/package-lock.json",
 )
