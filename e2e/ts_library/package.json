@@ -11,7 +11,7 @@
     "zone.js": "0.8.26"
   },
   "scripts": {
-    "pretest": "../../scripts/link_deps.sh && bazel run @nodejs//:yarn",
+    "pretest": "../../scripts/link_deps.sh",
     "test": "bazel build ... && bazel test ... && bazel build @disable_tsetse_for_external_test//..."
   }
 }
