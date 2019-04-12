@@ -56,10 +56,11 @@ def jasmine_node_test(
         tags = tags,
     )
 
+    jasmine_runner_label = Label("//internal/jasmine_node_test:jasmine_runner.js")
+
     all_data = data + srcs + deps
-    all_data += [Label("//internal/jasmine_node_test:jasmine_runner.js")]
     all_data += [":%s_devmode_srcs.MF" % name]
-    entry_point = "build_bazel_rules_nodejs/internal/jasmine_node_test/jasmine_runner.js"
+    entry_point = jasmine_runner_label.relative(":jasmine_runner.js")
 
     # If the target specified templated_args, pass it through.
     templated_args = kwargs.pop("templated_args", []) + ["$(location :%s_devmode_srcs.MF)" % name]

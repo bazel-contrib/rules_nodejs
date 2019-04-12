@@ -887,7 +887,7 @@ npm_umd_bundle(
       result += `# Wire up the \`bin\` entry \`${name}\`
 nodejs_binary(
     name = "${name}__bin",
-    entry_point = "${pkg._dir}/${path}",
+    entry_point = ":${path}",
     install_source_map_support = False,
     data = [":${pkg._name}__pkg"],${additionalAttributes}
 )

@@ -35,9 +35,9 @@ nodejs_binary(
     ],
     # BEGIN-INTERNAL
     # For local development, our module has this AMD name
-    entry_point = "npm_bazel_labs/webpack/src/cli.js",
+    entry_point = ":cli_lib",
     # END-INTERNAL
     # For external usage, we resolve the module from node_modules
-    #@external entry_point = "@bazel/labs/webpack/src/cli.js",
+    #@external entry_point = "@bazel/labs/webpack/src:cli_lib",
     visibility = ["//visibility:public"],
 )

@@ -45,7 +45,7 @@ If you didn't use the `yarn_install` or `npm_install` rule to create an `npm` wo
 # attribute when using self-managed dependencies
 nodejs_binary(
     name = "karma/karma",
-    entry_point = "karma/bin/karma",
+    entry_point = "//:node_modules/karma/bin/karma",
     # Point bazel to your node_modules to find the entry point
     node_modules = ["//:node_modules"],
 )
