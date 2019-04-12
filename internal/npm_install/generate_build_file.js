@@ -110,18 +110,10 @@ function main() {
   generateBazelWorkspaces(bazelWorkspaces)
   generateInstallBazelDependencies(Object.keys(bazelWorkspaces));
 
-  // symlink all files (except BUILD & WORKSPACES files) before generating BUILD file
-  listFiles(userDir('node_modules')).forEach(f => {
-    const basename = path.basename(f);
-    if (/^WORKSPACE$/i.test(basename) || /^BUILD$/i.test(basename) ||
-        /^BUILD\.bazel$/i.test(basename)) {
-      return;
-    }
-    const src = path.posix.join(USER_DIR, 'node_modules', f);
-    const dest = path.posix.join('node_modules', f);
-    mkdirp(path.dirname(dest));
-    fs.symlinkSync(src, dest);
-  });
+  // now that we have processed all the bazel workspaces in all
+  // npm packages we can delete the Bazel files from these packages
+  // so that filegroups do not cross Bazel package boundaries
+  pkgs.forEach(pkg => deleteBazelFiles(pkg));
 
   // generate BUILD files
   generateRootBuildFile(pkgs)
@@ -433,6 +425,29 @@ function listFiles(rootDir, subDir = '') {
       // We return a sorted array so that the order of files
       // is the same regardless of platform
       .sort();
+}
+
+/**
+ * Delete all WORKSPACE, BUILD and .bzl files from an npm package.
+ */
+function deleteBazelFiles(pkg) {
+  pkg._files = pkg._files.filter(file => {
+    const basename = path.basename(file);
+    if (/^WORKSPACE$/i.test(basename) || /^BUILD$/i.test(basename) ||
+        /^BUILD\.bazel$/i.test(basename) || /\.bzl$/i.test(basename)) {
+      // Delete BUILD and BUILD.bazel files so that so that files do not cross Bazel packages
+      // boundaries
+      const fullPath = path.posix.join('node_modules', pkg._dir, file);
+      if (!fs.existsSync(fullPath)) {
+        // It is possible that the file no longer exists as reported in
+        // https://github.com/bazelbuild/rules_nodejs/issues/522
+        return false;
+      }
+      fs.unlinkSync(fullPath);
+      return false;
+    }
+    return true;
+  });
 }
 
 /**

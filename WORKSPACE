@@ -22,7 +22,9 @@ load("//internal/common:check_bazel_version.bzl", "check_bazel_version")
 
 # 0.18.0: support for .bazelignore
 # 0.23.0: required fix for pkg_tar strip_prefix
-check_bazel_version(minimum_bazel_version = "0.23.0")
+# 0.24.0: fixed `ERROR: error loading package 'googmodule': Unable to load file '@npm_bazel_jasmine//:index.bzl': file doesn't exist` error
+#         observed in e2e/ts_devserver when running 0.23.0
+check_bazel_version(minimum_bazel_version = "0.24.0")
 
 #
 # Load and install our dependencies downloaded above.

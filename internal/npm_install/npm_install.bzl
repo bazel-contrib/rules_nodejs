@@ -102,6 +102,10 @@ def _add_scripts(repository_ctx):
         {},
     )
 
+def _symlink_node_modules(repository_ctx):
+    package_json_dir = repository_ctx.path(repository_ctx.attr.package_json).dirname
+    repository_ctx.symlink(repository_ctx.path(str(package_json_dir) + "/node_modules"), repository_ctx.path("node_modules"))
+
 def _npm_install_impl(repository_ctx):
     """Core implementation of npm_install."""
 
@@ -173,6 +177,7 @@ cd "{root}" && "{npm}" {npm_args}
     if result.return_code:
         fail("remove_npm_absolute_paths failed: %s (%s)" % (result.stdout, result.stderr))
 
+    _symlink_node_modules(repository_ctx)
     _create_build_files(repository_ctx, node, repository_ctx.attr.package_lock_json)
 
 npm_install = repository_rule(
@@ -238,6 +243,7 @@ def _yarn_install_impl(repository_ctx):
     if result.return_code:
         fail("yarn_install failed: %s (%s)" % (result.stdout, result.stderr))
 
+    _symlink_node_modules(repository_ctx)
     _create_build_files(repository_ctx, node, repository_ctx.attr.yarn_lock)
 
 yarn_install = repository_rule(
