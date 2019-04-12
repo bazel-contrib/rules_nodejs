@@ -53,7 +53,7 @@ nodejs_binary(
         "@npm//requirejs",
         "@npm//tmp",
     ],
-    entry_point = "karma/bin/karma",
+    entry_point = "@npm//node_modules/karma:bin/karma",
     install_source_map_support = False,
 )
 

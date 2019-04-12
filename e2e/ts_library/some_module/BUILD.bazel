@@ -25,7 +25,7 @@ nodejs_binary(
         ":main",
         ":some_module",
     ],
-    entry_point = "e2e_ts_library/some_module/main.js",
+    entry_point = ":main.js",
 )
 
 sh_test(

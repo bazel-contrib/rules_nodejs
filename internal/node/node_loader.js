@@ -49,16 +49,26 @@ var BOOTSTRAP = [TEMPLATED_bootstrap];
 const USER_WORKSPACE_NAME = 'TEMPLATED_user_workspace_name';
 const NODE_MODULES_ROOT = 'TEMPLATED_node_modules_root';
 const BIN_DIR = 'TEMPLATED_bin_dir';
+const ENTRY_POINT = 'TEMPLATED_entry_point';
 const GEN_DIR = 'TEMPLATED_gen_dir';
+const INSTALL_SOURCE_MAP_SUPPORT = TEMPLATED_install_source_map_support;
+const TARGET = 'TEMPLATED_target';
 
 if (DEBUG)
   console.error(`
-node_loader: running TEMPLATED_target with
-  MODULE_ROOTS: ${JSON.stringify(MODULE_ROOTS, undefined, 2)}
-  BOOTSTRAP: ${JSON.stringify(BOOTSTRAP, undefined, 2)}
-  NODE_MODULES_ROOT: ${NODE_MODULES_ROOT}
+node_loader: running ${TARGET} with
+  cwd: ${process.cwd()}
+  runfiles: ${process.env.RUNFILES}
+
   BIN_DIR: ${BIN_DIR}
+  BOOTSTRAP: ${JSON.stringify(BOOTSTRAP, undefined, 2)}
+  ENTRY_POINT: ${ENTRY_POINT}
   GEN_DIR: ${GEN_DIR}
+  INSTALL_SOURCE_MAP_SUPPORT: ${INSTALL_SOURCE_MAP_SUPPORT}
+  MODULE_ROOTS: ${JSON.stringify(MODULE_ROOTS, undefined, 2)}
+  NODE_MODULES_ROOT: ${NODE_MODULES_ROOT}
+  TARGET: ${TARGET}
+  USER_WORKSPACE_NAME: ${USER_WORKSPACE_NAME}
 `);
 
 function resolveToModuleRoot(path) {
@@ -448,7 +458,7 @@ module.constructor._resolveFilename = function(request, parent, isMain, options)
   }
 
   const error = new Error(
-      `TEMPLATED_target cannot find module '${request}' required by '${parentFilename}'\n  looked in:\n` +
+      `${TARGET} cannot find module '${request}' required by '${parentFilename}'\n  looked in:\n` +
       failedResolutions.map(r => `    ${r}`).join('\n') + '\n');
   error.code = 'MODULE_NOT_FOUND';
   throw error;
@@ -456,7 +466,7 @@ module.constructor._resolveFilename = function(request, parent, isMain, options)
 
 // Before loading anything that might print a stack, install the
 // source-map-support.
-if (TEMPLATED_install_source_map_support) {
+if (INSTALL_SOURCE_MAP_SUPPORT) {
   try {
     const sourcemap_support_package = path.resolve(process.cwd(),
           '../build_bazel_rules_nodejs/third_party/github.com/source-map-support');
@@ -465,7 +475,7 @@ if (TEMPLATED_install_source_map_support) {
     if (DEBUG) {
       console.error(`WARNING: source-map-support module not installed.
       Stack traces from languages like TypeScript will point to generated .js files.
-      Set install_source_map_support = False in TEMPLATED_target to turn off this warning.
+      Set install_source_map_support = False in ${TARGET} to turn off this warning.
       `);
     }
   }
@@ -484,7 +494,7 @@ if (require.main === module) {
   // Set the actual entry point in the arguments list.
   // argv[0] == node, argv[1] == entry point.
   // NB: entry_point below is replaced during the build process.
-  var mainScript = process.argv[1] = 'TEMPLATED_entry_point';
+  var mainScript = process.argv[1] = ENTRY_POINT;
   try {
     module.constructor._load(mainScript, this, /*isMain=*/true);
   } catch (e) {
@@ -496,7 +506,7 @@ if (require.main === module) {
       // (which is an empty filegroup).
       // See https://github.com/bazelbuild/rules_nodejs/wiki#migrating-to-rules_nodejs-013
       console.error(
-          `\nWARNING: Due to a breaking change in rules_nodejs 0.13.0, target TEMPLATED_target\n` +
+          `\nWARNING: Due to a breaking change in rules_nodejs 0.13.0, target ${TARGET}\n` +
           `must now declare either an explicit node_modules attribute, or\n` +
           `list explicit deps[] or data[] fine grained dependencies on npm labels\n` +
           `if it has any node_modules dependencies.\n` +

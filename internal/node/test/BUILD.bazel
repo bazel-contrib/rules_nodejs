@@ -5,7 +5,7 @@ load("//:defs.bzl", "nodejs_binary")
 nodejs_binary(
     name = "no_deps",
     data = ["no-deps.js"],
-    entry_point = "build_bazel_rules_nodejs/internal/node/test/no-deps",
+    entry_point = ":no-deps.js",
 )
 
 # You can have a nodejs_binary with a node_modules attribute
@@ -13,7 +13,7 @@ nodejs_binary(
 nodejs_binary(
     name = "has_deps_legacy",
     data = ["has-deps.js"],
-    entry_point = "build_bazel_rules_nodejs/internal/node/test/has-deps",
+    entry_point = ":has-deps.js",
     node_modules = "@fine_grained_deps_yarn//:node_modules",
 )
 
@@ -25,7 +25,7 @@ nodejs_binary(
         "has-deps.js",
         "@fine_grained_deps_yarn//typescript",
     ],
-    entry_point = "build_bazel_rules_nodejs/internal/node/test/has-deps",
+    entry_point = ":has-deps.js",
 )
 
 # You can have a nodejs_binary with both a node_modules attribute
@@ -36,6 +36,16 @@ nodejs_binary(
         "has-deps.js",
         "@fine_grained_deps_yarn//typescript",
     ],
-    entry_point = "build_bazel_rules_nodejs/internal/node/test/has-deps",
+    entry_point = ":has-deps.js",
     node_modules = "@fine_grained_deps_yarn//:node_modules",
+)
+
+filegroup(
+    name = "entry_file",
+    srcs = ["no-deps.js"],
+)
+
+nodejs_binary(
+    name = "has_entry_file",
+    entry_point = ":entry_file",
 )
