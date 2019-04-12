@@ -26,7 +26,7 @@ def history_server(templated_args = [], **kwargs):
 
     nodejs_binary_macro(
         node_modules = "@history-server_runtime_deps//:node_modules",
-        entry_point = "history-server/modules/cli.js",
+        entry_point = "@history-server_runtime_deps//node_modules/history-server:modules/cli.js",
         install_source_map_support = False,
         templated_args = templated_args,
         **kwargs

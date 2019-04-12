@@ -389,19 +389,8 @@ For example, the `protractor` package has two bin entries in its `package.json`:
 These will result in two generated `nodejs_binary` targets in the `@npm//protractor/bin`
 package (if your npm deps workspace is `@npm`):
 
-```python
-nodejs_binary(
-    name = "protractor",
-    entry_point = "protractor/bin/protractor",
-    data = ["//protractor"],
-)
-
-nodejs_binary(
-    name = "webdriver-manager",
-    entry_point = "protractor/bin/webdriver-manager",
-    data = ["//protractor"],
-)
-```
+* `@npm//protractor/bin:protractor`
+* `@npm//protractor/bin:webdriver-manager`
 
 These targets can be used as executables for actions in custom rules or can
 be run by Bazel directly. For example, you can run protractor with the
@@ -521,7 +510,7 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
 
 nodejs_binary(
     name = "rollup",
-    entry_point = "rollup/bin/rollup",
+    entry_point = "//:node_modules/rollup/bin/rollup",
 )
 ```
 
@@ -549,7 +538,7 @@ nodejs_binary(
         "@//:node_modules",
         "main.js",
     ],
-    entry_point = "workspace_name/main.js",
+    entry_point = ":main.js",
     args = ["--node_options=--expose-gc"],
 )
 ```

@@ -17,5 +17,5 @@ nodejs_test(
         "docs_test.js",
         ":index.md",
     ],
-    entry_point = "npm_bazel_typescript/docs/docs_test.js",
+    entry_point = ":docs_test.js",
 )

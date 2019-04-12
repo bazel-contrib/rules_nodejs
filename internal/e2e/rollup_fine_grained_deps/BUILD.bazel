@@ -93,6 +93,6 @@ nodejs_binary(
         "@npm//jasmine",
         "@npm//unidiff",
     ],
-    entry_point = "build_bazel_rules_nodejs/internal/e2e/rollup_fine_grained_deps/update_golden.js",
+    entry_point = ":update_golden.js",
     install_source_map_support = False,
 )

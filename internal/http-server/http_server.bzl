@@ -29,7 +29,7 @@ def http_server(templated_args = [], **kwargs):
 
     nodejs_binary_macro(
         node_modules = "@http-server_runtime_deps//:node_modules",
-        entry_point = "http-server/bin/http-server",
+        entry_point = "@http-server_runtime_deps//node_modules/http-server:bin/http-server",
         install_source_map_support = False,
         templated_args = templated_args,
         **kwargs
