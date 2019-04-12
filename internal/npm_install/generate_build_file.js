@@ -109,7 +109,10 @@ function main() {
   scopes.forEach(scope => generateScopeBuildFiles(scope, pkgs));
 }
 
-module.exports = {main};
+module.exports = {
+  main,
+  printPackage
+};
 
 /**
  * Generates the root BUILD file.
@@ -527,20 +530,51 @@ function parsePackage(p) {
 
   // For root packages, transform the pkg.bin entries
   // into a new Map called _executables
-  pkg._executables = new Map();
-  if (!pkg._isNested) {
-    if (Array.isArray(pkg.bin)) {
-      // should not happen, but ignore it if present
-    } else if (typeof pkg.bin === 'string') {
-      pkg._executables.set(pkg._dir, cleanupBinPath(pkg.bin));
-    } else if (typeof pkg.bin === 'object') {
-      for (let key in pkg.bin) {
-        pkg._executables.set(key, cleanupBinPath(pkg.bin[key]));
+  // NOTE: we do this only for non-empty bin paths
+  if (isValidBinPath(pkg.bin)) {
+    pkg._executables = new Map();
+    if (!pkg._isNested) {
+      if (Array.isArray(pkg.bin)) {
+        // should not happen, but ignore it if present
+      } else if (typeof pkg.bin === 'string') {
+        pkg._executables.set(pkg._dir, cleanupBinPath(pkg.bin));
+      } else if (typeof pkg.bin === 'object') {
+        for (let key in pkg.bin) {
+          if (isValidBinPathStringValue(pkg.bin[key])) {
+            pkg._executables.set(key, cleanupBinPath(pkg.bin[key]));
+          }
+        }
       }
     }
   }
 
   return pkg;
+}
+
+/**
+ * Check if a bin entry is a non-empty path
+ */
+function isValidBinPath(entry) {
+  return isValidBinPathStringValue(entry) || isValidBinPathObjectValues(entry);
+}
+
+/**
+ * If given a string, check if a bin entry is a non-empty path
+ */
+function isValidBinPathStringValue(entry) {
+  return typeof entry === 'string' && entry !== '';
+}
+
+/**
+ * If given an object literal, check if a bin entry objects has at least one a non-empty path
+ * Example 1: { entry: './path/to/script.js' } ==> VALID
+ * Example 2: { entry: '' } ==> INVALID
+ * Example 3: { entry: './path/to/script.js', empty: '' } ==> VALID
+ */
+function isValidBinPathObjectValues(entry) {
+  // We allow at least one valid entry path (if any).
+  return entry && typeof entry === 'object' &&
+      Object.values(entry).filter(_entry => isValidBinPath(_entry)).length > 0;
 }
 
 /**
@@ -717,7 +751,13 @@ function printPackage(pkg) {
     ],`;
   }
 
-  let result = `load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+  let result = '';
+  if (isValidBinPath(pkg.bin)) {
+    // load the nodejs_binary definition only for non-empty bin paths
+    result = 'load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")';
+  }
+
+  result = `${result}
 load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
 
 # Generated targets for npm package "${pkg._dir}"
