@@ -18,7 +18,7 @@ rollup_bundle(
 
 jasmine_node_test(
     name = "test",
-    srcs = glob(["*.spec.js"]),
+    srcs = ["rollup.spec.js"],
     configuration_env_vars = ["UPDATE_GOLDEN"],
     data = glob([
         "*_golden.js_",
@@ -33,5 +33,50 @@ jasmine_node_test(
         "//internal/e2e:check_lib",
         "@npm//jasmine",
         "@npm//unidiff",
+    ],
+)
+
+filegroup(
+    name = "bundle-outputgroups-cjs",
+    srcs = [":bundle"],
+    output_group = "cjs",
+)
+
+filegroup(
+    name = "bundle-outputgroups-umd",
+    srcs = [":bundle"],
+    output_group = "umd",
+)
+
+filegroup(
+    name = "bundle-outputgroups-es2015",
+    srcs = [":bundle"],
+    output_group = "es2015",
+)
+
+filegroup(
+    name = "bundle-outputgroups-es5_min",
+    srcs = [":bundle"],
+    output_group = "es5_min",
+)
+
+filegroup(
+    name = "bundle-outputgroups-es5_min_debug",
+    srcs = [":bundle"],
+    output_group = "es5_min_debug",
+)
+
+jasmine_node_test(
+    name = "test-outputgroups",
+    srcs = ["outputgroups.spec.js"],
+    data = [
+        ":bundle-outputgroups-cjs",
+        ":bundle-outputgroups-es2015",
+        ":bundle-outputgroups-es5_min",
+        ":bundle-outputgroups-es5_min_debug",
+        ":bundle-outputgroups-umd",
+    ],
+    deps = [
+        "@npm//jasmine",
     ],
 )
