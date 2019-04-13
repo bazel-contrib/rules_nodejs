@@ -474,24 +474,46 @@ def _rollup_bundle(ctx):
             code_split_es5_min_output_dir,
             code_split_es5_min_debug_output_dir,
         ]
+        output_group = OutputGroupInfo(
+            es2015 = depset([ctx.outputs.build_es2015, code_split_es2015_output_dir]),
+            es2015_min = depset([ctx.outputs.build_es2015_min, code_split_es2015_min_output_dir]),
+            es2015_min_debug = depset([ctx.outputs.build_es2015_min_debug, code_split_es2015_min_debug_output_dir]),
+            es5 = depset([ctx.outputs.build_es5, code_split_es5_output_dir]),
+            es5_min = depset([ctx.outputs.build_es5_min, code_split_es5_min_output_dir]),
+            es5_min_debug = depset([ctx.outputs.build_es5_min_debug, code_split_es5_min_debug_output_dir]),
+        )
 
     else:
         # Generate the bundles
         rollup_config = write_rollup_config(ctx)
-        run_rollup(ctx, _collect_es2015_sources(ctx), rollup_config, ctx.outputs.build_es2015)
-        run_terser(ctx, ctx.outputs.build_es2015, ctx.outputs.build_es2015_min, config_name = ctx.label.name + "es2015_min")
-        run_terser(ctx, ctx.outputs.build_es2015, ctx.outputs.build_es2015_min_debug, debug = True, config_name = ctx.label.name + "es2015_min_debug")
+        es2015_map = run_rollup(ctx, _collect_es2015_sources(ctx), rollup_config, ctx.outputs.build_es2015)
+        es2015_min_map = run_terser(ctx, ctx.outputs.build_es2015, ctx.outputs.build_es2015_min, config_name = ctx.label.name + "es2015_min", in_source_map = es2015_map)
+        es2015_min_debug_map = run_terser(ctx, ctx.outputs.build_es2015, ctx.outputs.build_es2015_min_debug, debug = True, config_name = ctx.label.name + "es2015_min_debug", in_source_map = es2015_map)
         _run_tsc(ctx, ctx.outputs.build_es2015, ctx.outputs.build_es5)
-        source_map = run_terser(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min)
-        run_terser(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min_debug, debug = True)
+        es5_min_map = run_terser(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min)
+        es5_min_debug_map = run_terser(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min_debug, debug = True)
         cjs_rollup_config = write_rollup_config(ctx, filename = "_%s_cjs.rollup.conf.js", output_format = "cjs")
-        run_rollup(ctx, _collect_es2015_sources(ctx), cjs_rollup_config, ctx.outputs.build_cjs)
+        cjs_map = run_rollup(ctx, _collect_es2015_sources(ctx), cjs_rollup_config, ctx.outputs.build_cjs)
         umd_rollup_config = write_rollup_config(ctx, filename = "_%s_umd.rollup.conf.js", output_format = "umd")
-        run_rollup(ctx, _collect_es2015_sources(ctx), umd_rollup_config, ctx.outputs.build_umd)
-        run_sourcemapexplorer(ctx, ctx.outputs.build_es5_min, source_map, ctx.outputs.explore_html)
-        files = [ctx.outputs.build_es5_min, source_map]
+        umd_map = run_rollup(ctx, _collect_es2015_sources(ctx), umd_rollup_config, ctx.outputs.build_umd)
+        run_sourcemapexplorer(ctx, ctx.outputs.build_es5_min, es5_min_map, ctx.outputs.explore_html)
 
-    return DefaultInfo(files = depset(files), runfiles = ctx.runfiles(files))
+        files = [ctx.outputs.build_es5_min, es5_min_map]
+        output_group = OutputGroupInfo(
+            cjs = depset([ctx.outputs.build_cjs, cjs_map]),
+            es2015 = depset([ctx.outputs.build_es2015, es2015_map]),
+            es2015_min = depset([ctx.outputs.build_es2015_min, es2015_min_map]),
+            es2015_min_debug = depset([ctx.outputs.build_es2015_min_debug, es2015_min_debug_map]),
+            es5 = depset([ctx.outputs.build_es5]),
+            es5_min = depset([ctx.outputs.build_es5_min, es5_min_map]),
+            es5_min_debug = depset([ctx.outputs.build_es5_min_debug, es5_min_debug_map]),
+            umd = depset([ctx.outputs.build_umd, umd_map]),
+        )
+
+    return [
+        DefaultInfo(files = depset(files), runfiles = ctx.runfiles(files)),
+        output_group,
+    ]
 
 # Expose our list of aspects so derivative rules can override the deps attribute and
 # add their own additional aspects.
