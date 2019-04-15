@@ -69,11 +69,10 @@ def rules_nodejs_dev_dependencies():
     )
 
     # bazel-skylib 0.8.0 released 2019.03.20 (https://github.com/bazelbuild/bazel-skylib/releases/tag/0.8.0)
-    skylib_version = "0.8.0"
     http_archive(
         name = "bazel_skylib",
         type = "tar.gz",
-        url = "https://github.com/bazelbuild/bazel-skylib/releases/download/{0}/bazel-skylib.{0}.tar.gz".format(skylib_version),
+        url = "https://github.com/bazelbuild/bazel-skylib/releases/download/0.8.0/bazel-skylib.0.8.0.tar.gz",
         sha256 = "2ef429f5d7ce7111263289644d233707dba35e39696377ebab8b0bc701f7818e",
     )
 
@@ -81,11 +80,11 @@ def rules_nodejs_dev_dependencies():
     # See https://releases.bazel.build/bazel-toolchains.html
     http_archive(
         name = "bazel_toolchains",
-        sha256 = "1cb20b9efe23377b9120ab7a9f0d9467235815fb127f1a73d34c820963300ee1",
-        strip_prefix = "bazel-toolchains-9c2e98bc434d1e280a5a6f93cf672e3b278fe29e",
+        sha256 = "ad524ca5720c2290d57b6198902a66ceb678c8983714d599e5076e59acf0ba0d",
+        strip_prefix = "bazel-toolchains-5a24a7e",
         urls = [
-            "https://mirror.bazel.build/github.com/bazelbuild/bazel-toolchains/archive/9c2e98bc434d1e280a5a6f93cf672e3b278fe29e.tar.gz",
-            "https://github.com/bazelbuild/bazel-toolchains/archive/9c2e98bc434d1e280a5a6f93cf672e3b278fe29e.tar.gz",
+            "https://mirror.bazel.build/github.com/bazelbuild/bazel-toolchains/archive/5a24a7e.tar.gz",
+            "https://github.com/bazelbuild/bazel-toolchains/archive/5a24a7e.tar.gz",
         ],
     )
 
