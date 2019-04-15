@@ -1,18 +1,18 @@
 {
   "name": "@bazel/bazel-win32_x64",
   "bin": {
-    "bazel": "./bazel-0.23.0-windows-x86_64.exe"
+    "bazel": "./bazel-0.24.1-windows-x86_64.exe"
   },
   "//": "Even though the platform is 64-bit, process.platform returns win32",
   "os": [
     "win32"
   ],
-  "version": "0.23.0",
+  "version": "0.24.1",
   "description": "Build and test software of any size, quickly and reliably",
   "homepage": "https://bazel.build/",
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/bazelbuild/rules_nodejs.git",
+    "type": "git",
+    "url": "https://github.com/bazelbuild/rules_nodejs.git",
     "directory": "packages/bazel-win32_x64"
   },
   "license": "Apache 2.0",
