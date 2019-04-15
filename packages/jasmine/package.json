@@ -18,6 +18,7 @@
     "main": "index.js",
     "dependencies": {
         "jasmine": "~3.3.1",
+        "jasmine-core": "~3.3.0",
         "v8-coverage": "1.0.8"
     },
     "bazelWorkspaces": {
