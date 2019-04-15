@@ -104,7 +104,10 @@ def _add_scripts(repository_ctx):
 
 def _symlink_node_modules(repository_ctx):
     package_json_dir = repository_ctx.path(repository_ctx.attr.package_json).dirname
-    repository_ctx.symlink(repository_ctx.path(str(package_json_dir) + "/node_modules"), repository_ctx.path("node_modules"))
+    node_modules_root = repository_ctx.path(str(package_json_dir) + "/node_modules")
+    for path in node_modules_root.readdir():
+        repository_ctx.symlink(path, repository_ctx.path("node_modules/{name}".format(name = path.basename)))
+    # repository_ctx.symlink(repository_ctx.path(str(package_json_dir) + "/node_modules"), repository_ctx.path("node_modules"))
 
 def _npm_install_impl(repository_ctx):
     """Core implementation of npm_install."""
