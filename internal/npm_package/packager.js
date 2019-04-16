@@ -86,6 +86,10 @@ function main(args) {
 
   // src like baseDir/my/path is just copied to outDir/my/path
   for (src of srcsArg.split(',').filter(s => !!s)) {
+    if (!src.startsWith(baseDir)) {
+      throw new Error(`${src} in 'srcs' does not reside in the base directory, ` +
+        `generated file should belong in 'deps' instead.`);
+    }
     copyWithReplace(src, path.join(outDir, path.relative(baseDir, src)), replacements);
   }
 
