@@ -8,7 +8,7 @@ function read(p) {
   // So instead we lookup the sibling file (the primary output of the test rule)
   // and bootstrap the filesystem lookup from there.
   const dir =
-      path.dirname(require.resolve('build_bazel_rules_nodejs/internal/npm_package/test/test.sh'));
+      path.dirname(require.resolve('build_bazel_rules_nodejs/internal/npm_package/test/test'));
   return fs.readFileSync(path.join(dir, 'test_pkg', p), {encoding: 'utf-8'}).trim();
 }
 
