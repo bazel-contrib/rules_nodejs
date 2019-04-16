@@ -9,8 +9,8 @@
 
 ## IMPORTANT
 # If you change the `docker_image` version, also change the `cache_key` version
-var_1: &docker_image angular/ngcontainer:0.9.0
-var_2: &cache_key angular/ngcontainer:0.9.0-{{ .Branch }}-{{ checksum "yarn.lock" }}-examples/rollup:{{ checksum "examples/rollup/yarn.lock" }}-examples/program:{{ checksum "examples/program/yarn.lock" }}-internal/test:{{ checksum "internal/test/yarn.lock" }}-internal/e2e/node_loader_no_preserve_symlinks:{{ checksum "internal/e2e/node_loader_no_preserve_symlinks/yarn.lock" }}-internal/e2e/node_loader_preserve_symlinks:{{ checksum "internal/e2e/node_loader_preserve_symlinks/yarn.lock" }}
+var_1: &docker_image circleci/node:10.12-browsers
+var_2: &cache_key circleci/node:10.12-browsers-{{ .Branch }}-{{ checksum "yarn.lock" }}-examples/rollup:{{ checksum "examples/rollup/yarn.lock" }}-examples/program:{{ checksum "examples/program/yarn.lock" }}-internal/test:{{ checksum "internal/test/yarn.lock" }}-internal/e2e/node_loader_no_preserve_symlinks:{{ checksum "internal/e2e/node_loader_no_preserve_symlinks/yarn.lock" }}-internal/e2e/node_loader_preserve_symlinks:{{ checksum "internal/e2e/node_loader_preserve_symlinks/yarn.lock" }}
 
 # Move node binaries out of the way to enforce that Bazel uses
 # only the hermetic ones it downloads
@@ -34,6 +34,21 @@ var_5: &setup_bazelrc_legacy_runfiles
       sed -i -e 's/run --nolegacy_external_runfiles//' .bazelrc
       sed -i -e 's/test --nolegacy_external_runfiles//' .bazelrc
       sudo cp .circleci/bazel.rc /etc/bazel.bazelrc
+
+var_6: &yarn_install
+  run:
+    name: Run yarn install
+    command: yarn install
+
+var_7: &init_bazel
+  run:
+    name: Initializing Bazel
+    command: |
+      # Symlink fetched bazel to /usr/local/bin/bazel
+      pathToBazel=$(ls $(realpath ./node_modules/@bazel/bazel-linux_x64)/bazel-*)
+      sudo ln -fs $pathToBazel /usr/local/bin/bazel
+      echo "Bazel version:"
+      bazel version
 
 # Settings common to each job
 anchor_1: &job_defaults
@@ -83,6 +98,8 @@ jobs:
       - checkout:
           <<: *post_checkout
       - *setup_bazelrc
+      - *yarn_install
+      - *init_bazel
       - *hide_node_and_yarn_local_binaries
       - restore_cache:
           key: *cache_key
@@ -119,6 +136,8 @@ jobs:
       - checkout:
           <<: *post_checkout
       - *setup_bazelrc_legacy_runfiles
+      - *yarn_install
+      - *init_bazel
       - *hide_node_and_yarn_local_binaries
       - restore_cache:
           key: *cache_key
