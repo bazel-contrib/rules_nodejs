@@ -158,6 +158,8 @@ jobs:
     steps:
       - checkout:
           <<: *post_checkout
+      - *yarn_install
+      - *init_bazel
       - *setup_bazelrc
 
       # Not using "bazel run @nodejs//:yarn test" as will attempt to run
