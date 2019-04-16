@@ -19,7 +19,7 @@ than launching a test in Karma, for example.
 """
 
 load("//internal/common:devmode_js_sources.bzl", "devmode_js_sources")
-load("//internal/node:node.bzl", "nodejs_test")
+load("//internal/node:node.bzl", "nodejs_test_macro")
 
 def jasmine_node_test(
         name,
@@ -59,15 +59,13 @@ def jasmine_node_test(
     all_data = data + srcs + deps
     all_data += [Label("//internal/jasmine_node_test:jasmine_runner.js")]
     all_data += [":%s_devmode_srcs.MF" % name]
-    all_data += [Label("@bazel_tools//tools/bash/runfiles")]
     entry_point = "build_bazel_rules_nodejs/internal/jasmine_node_test/jasmine_runner.js"
 
-    nodejs_test(
+    nodejs_test_macro(
         name = name,
         data = all_data,
         entry_point = entry_point,
         templated_args = ["$(location :%s_devmode_srcs.MF)" % name],
-        testonly = 1,
         expected_exit_code = expected_exit_code,
         tags = tags,
         **kwargs
