@@ -31,6 +31,9 @@ describe('npm_package srcs', () => {
   it('replaced 0.0.0-PLACEHOLDER', () => {
     expect(read('package.json').version).not.toEqual('0.0.0-PLACEHOLDER');
   });
+  it('copies files from deps', () => {
+    expect(read('bundle.min.js')).toBe('bundle content');
+  });
   it('vendors external workspaces',
      () => {
          // TODO(alexeagle): there isn't a way to test this yet, because the npm_package under test

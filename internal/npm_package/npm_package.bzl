@@ -88,9 +88,14 @@ def _npm_package(ctx):
             deps_sources,
             # Collect whatever is in the "data"
             dep.data_runfiles.files,
-            # For JavaScript-producing rules, gather up the devmode Node.js sources
-            dep.node_sources,
         ]
+
+        if hasattr(dep, "node_sources"):
+            # For JavaScript-producing rules, gather up the devmode Node.js sources
+            transitive.append(dep.node_sources)
+        else:
+            # For standalone Output File Targets (aspects not invoked on these)
+            transitive.append(dep.files)
 
         # ts_library doesn't include .d.ts outputs in the runfiles
         # see comment in rules_typescript/internal/common/compilation.bzl
@@ -133,6 +138,7 @@ NPM_PACKAGE_ATTRS = {
     "deps": attr.label_list(
         doc = """Other targets which produce files that should be included in the package, such as `rollup_bundle`""",
         aspects = [sources_aspect],
+        allow_files = True,
     ),
     "_packager": attr.label(
         default = Label("//internal/npm_package:packager"),

@@ -31,6 +31,7 @@ npm_package(
     packages = [":dependent_pkg"],
     replacements = {"replace_me": "replaced"},
     deps = [
+        ":bundle.min.js",
         ":produces_files",
         ":ts_library",
     ],
@@ -41,4 +42,10 @@ jasmine_node_test(
     srcs = ["npm_package.spec.js"],
     data = [":test_pkg"],
     deps = ["@npm//jasmine"],
+)
+
+genrule(
+    name = "bundle",
+    outs = ["bundle.min.js"],
+    cmd = "echo -n 'bundle content' > $@",
 )
