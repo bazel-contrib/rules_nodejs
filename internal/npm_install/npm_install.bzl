@@ -84,6 +84,12 @@ def _create_build_file(repository_ctx, node, lock_file):
 
 def _add_scripts(repository_ctx):
     repository_ctx.template(
+        "process_package_json.js",
+        repository_ctx.path(Label("//internal/npm_install:process_package_json.js")),
+        {},
+    )
+
+    repository_ctx.template(
         "generate_build_file.js",
         repository_ctx.path(Label("//internal/npm_install:generate_build_file.js")),
         {},
