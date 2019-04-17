@@ -14,9 +14,7 @@ if (global.jasmine) {
   }
   // Override the jasmineCore boot function so that the jasmine
   // runner gets the already initialize jasmine and its shared environment
-  jasmineCore.boot = function() {
-    return global.jasmine
-  };
+  jasmineCore.boot = function() { return global.jasmine };
 }
 
 const UTF8 = {
@@ -29,10 +27,12 @@ const BAZEL_EXIT_TESTS_FAILED = 3;
 const BAZEL_EXIT_NO_TESTS_FOUND = 4;
 
 // Test sharding support
-// See https://docs.bazel.build/versions/master/test-encyclopedia.html#role-of-the-test-runner
+// See
+// https://docs.bazel.build/versions/master/test-encyclopedia.html#role-of-the-test-runner
 const TOTAL_SHARDS = Number(process.env['TEST_TOTAL_SHARDS']);
 const SHARD_INDEX = Number(process.env['TEST_SHARD_INDEX']);
-// Tell Bazel that this test runner supports sharding by updating the last modified date of the
+// Tell Bazel that this test runner supports sharding by updating the last
+// modified date of the
 // magic file
 if (TOTAL_SHARDS) {
   fs.open(process.env['TEST_SHARD_STATUS_FILE'], 'w', (err, fd) => {
@@ -43,9 +43,12 @@ if (TOTAL_SHARDS) {
   });
 }
 
-// Set the StackTraceLimit to infinity. This will make stack capturing slower, but more useful.
-// Since we are running tests having proper stack traces is very useful and should be always set to
-// the maximum (See: https://nodejs.org/api/errors.html#errors_error_stacktracelimit)
+// Set the StackTraceLimit to infinity. This will make stack capturing slower,
+// but more useful.
+// Since we are running tests having proper stack traces is very useful and
+// should be always set to
+// the maximum (See:
+// https://nodejs.org/api/errors.html#errors_error_stacktracelimit)
 Error.stackTraceLimit = Infinity;
 
 const IS_TEST_FILE = /[^a-zA-Z0-9](spec|test)\.js$/i;
@@ -60,31 +63,35 @@ function main(args) {
   // second is always a flag to enable coverage or not
   const coverageArg = args[1];
   const enableCoverage = coverageArg === '--coverage';
+  // third arg is an optional seed
+  const seed = args[2] === '--seed' ? args[3] : null;
 
   // Remove the manifest, some tested code may process the argv.
   // Also remove the --coverage flag
   process.argv.splice(2, 2)[0];
 
-  // the relative directory the coverage reporter uses to find anf filter the files
+  // the relative directory the coverage reporter uses to find anf filter the
+  // files
   const cwd = process.cwd()
 
-  const jrunner = new JasmineRunner({jasmineCore: jasmineCore});
+                  const jrunner = new JasmineRunner({jasmineCore: jasmineCore});
   const allFiles = fs.readFileSync(manifest, UTF8)
                        .split('\n')
                        .filter(l => l.length > 0)
                        // Filter out files from node_modules
                        .filter(f => !IS_NODE_MODULE.test(f))
 
-  const sourceFiles = allFiles
-                          // Filter out all .spec and .test files so we only report
-                          // coverage against the source files
-                          .filter(f => !IS_TEST_FILE.test(f))
-                          // the jasmine_runner.js gets in here as a file to run
-                          .filter(f => !f.endsWith('jasmine_runner.js'))
-                          .map(f => require.resolve(f))
-                          // the reporting lib resolves the relative path to our cwd instead of
-                          // using the absolute one so match it here
-                          .map(f => path.relative(cwd, f))
+                           const sourceFiles =
+      allFiles
+          // Filter out all .spec and .test files so we only report
+          // coverage against the source files
+          .filter(f => !IS_TEST_FILE.test(f))
+          // the jasmine_runner.js gets in here as a file to run
+          .filter(f => !f.endsWith('jasmine_runner.js'))
+          .map(f => require.resolve(f))
+          // the reporting lib resolves the relative path to our cwd instead of
+          // using the absolute one so match it here
+          .map(f => path.relative(cwd, f))
 
   allFiles
       // Filter here so that only files ending in `spec.js` and `test.js`
@@ -97,9 +104,7 @@ function main(args) {
 
   var noSpecsFound = true;
   jrunner.addReporter({
-    specDone: () => {
-      noSpecsFound = false
-    },
+    specDone: () => { noSpecsFound = false },
   });
   // addReporter throws away the default console reporter
   // so we need to add it back
@@ -114,7 +119,9 @@ function main(args) {
     const Execute = require('v8-coverage/src/execute');
 
     // make a tmpdir inside our tmpdir for just this run
-    covDir = path.join(process.env['TEST_TMPDIR'], String(crypto.randomBytes(4).readUInt32LE(0)));
+    covDir = path.join(
+        process.env['TEST_TMPDIR'],
+        String(crypto.randomBytes(4).readUInt32LE(0)));
     covExecutor = new Execute({include: sourceFiles, exclude: []});
     covExecutor.startProfiler();
   }
@@ -132,8 +139,10 @@ function main(args) {
         }
         const sourceCoverge = covExecutor.filterResult(data.result);
         // we could do this all in memory if we wanted
-        // just take a look at v8-coverage/src/report.js and reimplement some of those methods
-        // but we're going to have to write a file at some point for bazel coverage
+        // just take a look at v8-coverage/src/report.js and reimplement some of
+        // those methods
+        // but we're going to have to write a file at some point for bazel
+        // coverage
         // so may as well support it now
         // the lib expects these paths to exist for some reason
         fs.mkdirSync(covDir);
@@ -151,7 +160,7 @@ function main(args) {
       process.exit(exitCode);
     }
 
-    
+
   });
 
   if (TOTAL_SHARDS) {
@@ -168,8 +177,10 @@ function main(args) {
       const allSpecs = getAllSpecs(env);
       // Partition the specs among the shards.
       // This ensures that the specs are evenly divided over the shards.
-      // Also it keeps specs in the same order and prefers to keep specs grouped together.
-      // This way, common beforeEach/beforeAll setup steps aren't repeated as much over different
+      // Also it keeps specs in the same order and prefers to keep specs grouped
+      // together.
+      // This way, common beforeEach/beforeAll setup steps aren't repeated as
+      // much over different
       // shards.
       const start = allSpecs.length * SHARD_INDEX / TOTAL_SHARDS;
       const end = allSpecs.length * (SHARD_INDEX + 1) / TOTAL_SHARDS;
@@ -178,11 +189,19 @@ function main(args) {
       originalExecute();
     };
     // Special case!
-    // To allow us to test sharding, always run the specs in the order they are declared
+    // To allow us to test sharding, always run the specs in the order they are
+    // declared
     if (process.env['TEST_WORKSPACE'] === 'npm_bazel_jasmine' &&
         process.env['BAZEL_TARGET'] === '//test:sharding_test') {
       jrunner.randomizeTests(false);
     }
+  }
+
+  if (seed) {
+    // Display that the seed has been overridden in bright green.
+    console.log(`\u001b[32mJasmine seed override: ${seed}\u001b[39m`);
+    const env = jasmine.getEnv();
+    env.seed(seed);
   }
 
   jrunner.execute();
