@@ -63,8 +63,17 @@ function main(args) {
   // second is always a flag to enable coverage or not
   const coverageArg = args[1];
   const enableCoverage = coverageArg === '--coverage';
-  // third arg is an optional seed
-  const seed = args[2] === '--seed' ? args[3] : null;
+
+  let randomize = true;
+  let seed = null;
+  switch (args[2]) {
+    case '--norandomize':
+      randomize = false;
+      break;
+    case '--randomize-seed':
+      seed = args[3];
+      break;
+  }
 
   // Remove the manifest, some tested code may process the argv.
   // Also remove the --coverage flag
@@ -197,11 +206,15 @@ function main(args) {
     }
   }
 
-  if (seed) {
-    // Display that the seed has been overridden in bright green.
-    console.log(`\u001b[32mJasmine seed override: ${seed}\u001b[39m`);
-    const env = jasmine.getEnv();
-    env.seed(seed);
+  const env = jasmine.getEnv();
+  if (randomize) {
+    if (seed != null) {
+      console.log(`Jasmine seed override: ${seed}`);
+      env.seed(seed);
+    }
+  } else {
+    console.log('Jasmine tests will be executed in order of declaration');
+    env.randomizeTests(false);
   }
 
   jrunner.execute();

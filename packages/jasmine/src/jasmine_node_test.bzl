@@ -31,6 +31,7 @@ def jasmine_node_test(
         jasmine = Label("@npm//@bazel/jasmine"),
         coverage = False,
         seed = None,
+        randomize = True,
         **kwargs):
     """Runs tests in NodeJS using the Jasmine test runner.
 
@@ -45,7 +46,8 @@ def jasmine_node_test(
       tags: bazel tags applied to test
       jasmine: a label providing the jasmine dependency
       coverage: Enables code coverage collection and reporting
-      seed: Override the randomized jasmine seed with a specific seed
+      seed: Override the randomize jasmine seed with a specific seed
+      randomize: Whether or not to randomize the test sequence (supercedes the `seed` arg)
       **kwargs: remaining arguments are passed to the test rule
     """
     devmode_js_sources(
@@ -67,8 +69,13 @@ def jasmine_node_test(
     else:
         templated_args = templated_args + ["--nocoverage"]
 
-    if seed:
-        templated_args = templated_args + ["--seed ", str(seed)]
+    if randomize:
+        if seed:
+            templated_args = templated_args + ["--randomize-seed", str(seed)]
+        else:
+            templated_args = templated_args + ["--randomize"]
+    else:
+        templated_args = templated_args + ["--norandomize"]
 
     nodejs_test(
         name = name,
