@@ -66,6 +66,7 @@ def create_package(ctx, deps_sources, nested_packages):
         inputs.append(ctx.version_file)
 
     ctx.actions.run(
+        progress_message = "Assembling npm package %s" % package_dir.short_path,
         executable = ctx.executable._packager,
         inputs = inputs,
         outputs = [package_dir, ctx.outputs.pack, ctx.outputs.publish],
