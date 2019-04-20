@@ -1,6 +1,11 @@
 node_modules
 examples/program/node_modules
+internal/history-server/node_modules
+internal/http-server/node_modules
 internal/npm_install/test/package/node_modules
+internal/npm_install/node_modules
+internal/rollup/node_modules
+internal/web_package/node_modules
 dist
 # Each e2e test is a nested workspace
 e2e/
@@ -12,6 +17,9 @@ packages/
 # TODO(gregmagolan): move these to /e2e
 internal/e2e/bazel_workspaces
 internal/e2e/bazel_workspaces_compat
+internal/e2e/fine_grained_deps/npm/node_modules
+internal/e2e/fine_grained_deps/yarn/node_modules
+internal/e2e/fine_grained_no_bin/node_modules
 internal/e2e/fine_grained_symlinks
 internal/e2e/node_loader_no_preserve_symlinks
 internal/e2e/node_loader_preserve_symlinks

@@ -36,12 +36,6 @@ def internal_e2e_packages_setup_workspace():
         data = ["@internal_e2e_packages//:postinstall.js"],
     )
 
-    npm_install(
-        name = "internal_e2e_packages_npm_no_lockfile",
-        package_json = "@internal_e2e_packages//:npm3/package.json",
-        data = ["@internal_e2e_packages//:postinstall.js"],
-    )
-
     yarn_install(
         name = "internal_e2e_packages_yarn_install",
         package_json = "@internal_e2e_packages//:yarn1/package.json",
