@@ -213,6 +213,7 @@ def _run_rollup(ctx, sources, config, output, map_output = None):
         outputs += [map_output]
 
     ctx.actions.run(
+        progress_message = "Bundling JavaScript %s [rollup]" % output.short_path,
         executable = ctx.executable._rollup,
         inputs = depset(direct_inputs, transitive = [sources]),
         outputs = outputs,
@@ -227,6 +228,7 @@ def _run_tsc(ctx, input, output):
     args.add_all(["--outFile", output.path])
 
     ctx.actions.run(
+        progress_message = "Downleveling JavaScript to ES5 %s [typescript]" % output.short_path,
         executable = ctx.executable._tsc,
         inputs = [input],
         outputs = [output],
@@ -242,6 +244,7 @@ def _run_tsc_on_directory(ctx, input_dir, output_dir):
     args.add_all(["--output", output_dir.path])
 
     ctx.actions.run(
+        progress_message = "Downleveling JavaScript to ES5 %s [typescript]" % output_dir.short_path,
         executable = ctx.executable._tsc_directory,
         inputs = [input_dir],
         outputs = [output_dir, config],
@@ -314,6 +317,7 @@ def _run_terser(ctx, input, output, map_output, debug = False, comments = True, 
         args.add("--beautify")
 
     ctx.actions.run(
+        progress_message = "Optimizing JavaScript %s [terser]" % output.short_path,
         executable = ctx.executable._terser_wrapped,
         inputs = inputs,
         outputs = outputs,
