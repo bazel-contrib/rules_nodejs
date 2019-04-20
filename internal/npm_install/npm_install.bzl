@@ -95,12 +95,6 @@ def _add_scripts(repository_ctx):
         {},
     )
 
-    repository_ctx.template(
-        "ng_apf_library.js",
-        repository_ctx.path(Label("//internal/ng_apf_library:ng_apf_library.js")),
-        {},
-    )
-
 def _symlink_node_modules(repository_ctx):
     package_json_dir = repository_ctx.path(repository_ctx.attr.package_json).dirname
     node_modules_root = repository_ctx.path(str(package_json_dir) + "/node_modules")
