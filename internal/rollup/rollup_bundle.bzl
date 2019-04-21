@@ -452,7 +452,10 @@ def _rollup_bundle(ctx):
 
         # There is no UMD/CJS bundle when code-splitting but we still need to satisfy the output
         _generate_code_split_entry(ctx, ctx.label.name + "_chunks", ctx.outputs.build_umd)
+        _generate_code_split_entry(ctx, ctx.label.name + "_chunks", ctx.outputs.build_umd_min)
         _generate_code_split_entry(ctx, ctx.label.name + "_chunks", ctx.outputs.build_cjs)
+        _generate_code_split_entry(ctx, ctx.label.name + "_chunks", ctx.outputs.build_es5_umd)
+        _generate_code_split_entry(ctx, ctx.label.name + "_chunks", ctx.outputs.build_es5_umd_min)
 
         # There is no source map explorer output when code-splitting but we still need to satisfy the output
         ctx.actions.expand_template(
@@ -492,10 +495,16 @@ def _rollup_bundle(ctx):
         _run_tsc(ctx, ctx.outputs.build_es2015, ctx.outputs.build_es5)
         es5_min_map = run_terser(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min)
         es5_min_debug_map = run_terser(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min_debug, debug = True)
+
         cjs_rollup_config = write_rollup_config(ctx, filename = "_%s_cjs.rollup.conf.js", output_format = "cjs")
         cjs_map = run_rollup(ctx, _collect_es2015_sources(ctx), cjs_rollup_config, ctx.outputs.build_cjs)
+
         umd_rollup_config = write_rollup_config(ctx, filename = "_%s_umd.rollup.conf.js", output_format = "umd")
         umd_map = run_rollup(ctx, _collect_es2015_sources(ctx), umd_rollup_config, ctx.outputs.build_umd)
+        umd_min_map = run_terser(ctx, ctx.outputs.build_umd, ctx.outputs.build_umd_min, config_name = ctx.label.name + "umd_min", in_source_map = umd_map)
+        _run_tsc(ctx, ctx.outputs.build_umd, ctx.outputs.build_es5_umd)
+        es5_umd_min_map = run_terser(ctx, ctx.outputs.build_es5_umd, ctx.outputs.build_es5_umd_min, config_name = ctx.label.name + "es5umd_min")
+
         run_sourcemapexplorer(ctx, ctx.outputs.build_es5_min, es5_min_map, ctx.outputs.explore_html)
 
         files = [ctx.outputs.build_es5_min, es5_min_map]
@@ -507,7 +516,10 @@ def _rollup_bundle(ctx):
             es5 = depset([ctx.outputs.build_es5]),
             es5_min = depset([ctx.outputs.build_es5_min, es5_min_map]),
             es5_min_debug = depset([ctx.outputs.build_es5_min_debug, es5_min_debug_map]),
+            es5_umd = depset([ctx.outputs.build_es5_umd]),
+            es5_umd_min = depset([ctx.outputs.build_es5_umd_min, es5_umd_min_map]),
             umd = depset([ctx.outputs.build_umd, umd_map]),
+            umd_min = depset([ctx.outputs.build_umd_min, umd_min_map]),
         )
 
     return [
@@ -705,7 +717,10 @@ ROLLUP_OUTPUTS = {
     "build_es5": "%{name}.js",
     "build_es5_min": "%{name}.min.js",
     "build_es5_min_debug": "%{name}.min_debug.js",
+    "build_es5_umd": "%{name}.es5umd.js",
+    "build_es5_umd_min": "%{name}.min.es5umd.js",
     "build_umd": "%{name}.umd.js",
+    "build_umd_min": "%{name}.min.umd.js",
     "explore_html": "%{name}.explore.html",
 }
 
