@@ -27,6 +27,8 @@ jasmine_node_test(
         ":bundle",
         ":bundle.cjs.js",
         ":bundle.umd.js",
+        ":bundle.es5umd.js",
+        ":bundle.min.es5umd.js",
         ":bundle.min_debug.js",
     ],
     deps = [
@@ -46,6 +48,24 @@ filegroup(
     name = "bundle-outputgroups-umd",
     srcs = [":bundle"],
     output_group = "umd",
+)
+
+filegroup(
+    name = "bundle-outputgroups-umd_min",
+    srcs = [":bundle"],
+    output_group = "umd_min",
+)
+
+filegroup(
+    name = "bundle-outputgroups-es5_umd",
+    srcs = [":bundle"],
+    output_group = "es5_umd",
+)
+
+filegroup(
+    name = "bundle-outputgroups-es5_umd_min",
+    srcs = [":bundle"],
+    output_group = "es5_umd_min",
 )
 
 filegroup(
@@ -74,7 +94,10 @@ jasmine_node_test(
         ":bundle-outputgroups-es2015",
         ":bundle-outputgroups-es5_min",
         ":bundle-outputgroups-es5_min_debug",
+        ":bundle-outputgroups-es5_umd",
+        ":bundle-outputgroups-es5_umd_min",
         ":bundle-outputgroups-umd",
+        ":bundle-outputgroups-umd_min",
     ],
     deps = [
         "@npm//jasmine",

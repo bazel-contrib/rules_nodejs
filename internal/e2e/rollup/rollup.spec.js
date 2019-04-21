@@ -19,4 +19,10 @@ describe('bundling', () => {
   it('should produce a CJS bundle', () => {
     check(path, 'bundle.cjs.js', 'bundle-cjs_golden.js_');
   });
+  it('should produce an es5 UMD bundle', () => {
+    check(path, 'bundle.es5umd.js', 'bundle-es5umd_golden.js_');
+  });
+  it('should produce an es5 minified UMD bundle', () => {
+    check(path, 'bundle.min.es5umd.js', 'bundle-min-es5umd_golden.js_');
+  });
 });

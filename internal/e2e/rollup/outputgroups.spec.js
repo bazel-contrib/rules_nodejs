@@ -31,4 +31,12 @@ describe('outputgroups', () => {
     checkExists('bundle.umd.js');
     checkExists('bundle.umd.js.map');
   });
+  it('should produce a umd_min sourcemap', () => {
+    checkExists('bundle.min.umd.js');
+    checkExists('bundle.min.umd.js.map');
+  });
+  it('should produce a es5_umd_min sourcemap', () => {
+    checkExists('bundle.min.es5umd.js');
+    checkExists('bundle.min.es5umd.js.map');
+  });
 });
