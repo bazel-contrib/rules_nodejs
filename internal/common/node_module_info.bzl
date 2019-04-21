@@ -38,6 +38,8 @@ NodeModuleInfo = provider(
 # NodeModuleSources provider is provided by targets that are npm dependencies by the
 # `node_module_library` rule as well as other targets that have direct or transitive deps on
 # `node_module_library` targets via the `collect_node_modules_aspect` below.
+# TODO: rename to NodeModuleSourcesInfo so name doesn't trigger name-conventions warning
+# buildozer: disable=name-conventions
 NodeModuleSources = provider(
     doc = "Provides sources for npm dependencies installed with yarn_install and npm_install rules",
     fields = {
