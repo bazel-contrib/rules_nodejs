@@ -54,8 +54,6 @@ ts_devserver(
     deps = [":app"],
 )
 
-""
-
 genrule(
     name = "say-hello",
     outs = ["say-hello.js"],

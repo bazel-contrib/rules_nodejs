@@ -12,6 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Contains the node_module_library which is used by yarn_install & npm_install.
+"""
+
 load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleInfo", "NodeModuleSources")
 
 def _node_module_library_impl(ctx):

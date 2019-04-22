@@ -13,8 +13,8 @@
 # limitations under the License.
 "Unit testing in a browser"
 
-load("@io_bazel_rules_webtesting//web/internal:constants.bzl", "DEFAULT_WRAPPED_TEST_TAGS")
 load("@io_bazel_rules_webtesting//web:web.bzl", "web_test_suite")
+load("@io_bazel_rules_webtesting//web/internal:constants.bzl", "DEFAULT_WRAPPED_TEST_TAGS")
 load(":karma_web_test.bzl", "KARMA_GENERIC_WEB_TEST_ATTRS", "run_karma_web_test")
 
 # Using generic karma_web_test attributes under the hood
