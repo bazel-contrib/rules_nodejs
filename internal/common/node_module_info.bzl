@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""NodeModuleInfo & NodeModuleSources providers and apsect to collect node_modules from deps.
+"""NodeModuleInfo & NodeModuleSourcesInfo providers and apsect to collect node_modules from deps.
 """
 
 # NodeModuleInfo provider is only provided by targets that are npm dependencies by the
@@ -35,12 +35,11 @@ NodeModuleInfo = provider(
     },
 )
 
-# NodeModuleSources provider is provided by targets that are npm dependencies by the
+# NodeModuleSourcesInfo provider is provided by targets that are npm dependencies by the
 # `node_module_library` rule as well as other targets that have direct or transitive deps on
 # `node_module_library` targets via the `collect_node_modules_aspect` below.
 # TODO: rename to NodeModuleSourcesInfo so name doesn't trigger name-conventions warning
-# buildozer: disable=name-conventions
-NodeModuleSources = provider(
+NodeModuleSourcesInfo = provider(
     doc = "Provides sources for npm dependencies installed with yarn_install and npm_install rules",
     fields = {
         "scripts": "Source files that are javascript named-UMD or named-AMD modules for use in rules such as ts_devserver",
@@ -52,19 +51,19 @@ NodeModuleSources = provider(
 def _collect_node_modules_aspect_impl(target, ctx):
     nm_wksp = None
 
-    if NodeModuleSources in target:
+    if NodeModuleSourcesInfo in target:
         return []
 
     if hasattr(ctx.rule.attr, "deps"):
         sources = depset()
         for dep in ctx.rule.attr.deps:
-            if NodeModuleSources in dep:
-                if nm_wksp and dep[NodeModuleSources].workspace != nm_wksp:
-                    fail("All npm dependencies need to come from a single workspace. Found '%s' and '%s'." % (nm_wksp, dep[NodeModuleSources].workspace))
-                nm_wksp = dep[NodeModuleSources].workspace
-                sources = depset(transitive = [dep[NodeModuleSources].sources, sources])
+            if NodeModuleSourcesInfo in dep:
+                if nm_wksp and dep[NodeModuleSourcesInfo].workspace != nm_wksp:
+                    fail("All npm dependencies need to come from a single workspace. Found '%s' and '%s'." % (nm_wksp, dep[NodeModuleSourcesInfo].workspace))
+                nm_wksp = dep[NodeModuleSourcesInfo].workspace
+                sources = depset(transitive = [dep[NodeModuleSourcesInfo].sources, sources])
         if sources:
-            return [NodeModuleSources(sources = sources, workspace = nm_wksp)]
+            return [NodeModuleSourcesInfo(sources = sources, workspace = nm_wksp)]
 
     return []
 

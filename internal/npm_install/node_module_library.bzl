@@ -15,7 +15,7 @@
 """Contains the node_module_library which is used by yarn_install & npm_install.
 """
 
-load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleInfo", "NodeModuleSources")
+load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleInfo", "NodeModuleSourcesInfo")
 
 def _node_module_library_impl(ctx):
     workspace = ctx.label.workspace_root.split("/")[1] if ctx.label.workspace_root else ctx.workspace_name
@@ -23,8 +23,8 @@ def _node_module_library_impl(ctx):
 
     scripts = depset()
     for src in ctx.attr.srcs:
-        if NodeModuleSources in src:
-            scripts = depset(transitive = [scripts, src[NodeModuleSources].scripts])
+        if NodeModuleSourcesInfo in src:
+            scripts = depset(transitive = [scripts, src[NodeModuleSourcesInfo].scripts])
     scripts = depset(ctx.files.scripts, transitive = [scripts])
 
     return [
@@ -34,7 +34,7 @@ def _node_module_library_impl(ctx):
         NodeModuleInfo(
             workspace = workspace,
         ),
-        NodeModuleSources(
+        NodeModuleSourcesInfo(
             sources = sources,
             scripts = scripts,
             workspace = workspace,

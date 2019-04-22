@@ -18,7 +18,7 @@ The versions of Rollup and terser are controlled by the Bazel toolchain.
 You do not need to install them into your project.
 """
 
-load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleSources", "collect_node_modules_aspect")
+load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleSourcesInfo", "collect_node_modules_aspect")
 load("//internal/common:collect_es6_sources.bzl", _collect_es2015_sources = "collect_es6_sources")
 load("//internal/common:module_mappings.bzl", "get_module_mappings")
 
@@ -64,8 +64,8 @@ def _compute_node_modules_root(ctx):
             "node_modules",
         ] if f])
     for d in ctx.attr.deps:
-        if NodeModuleSources in d:
-            possible_root = "/".join(["external", d[NodeModuleSources].workspace, "node_modules"])
+        if NodeModuleSourcesInfo in d:
+            possible_root = "/".join(["external", d[NodeModuleSourcesInfo].workspace, "node_modules"])
             if not node_modules_root:
                 node_modules_root = possible_root
             elif node_modules_root != possible_root:
@@ -197,11 +197,11 @@ def _run_rollup(ctx, sources, config, output, map_output = None):
     direct_inputs += _filter_js_inputs(ctx.files.node_modules)
 
     # Also include files from npm fine grained deps as inputs.
-    # These deps are identified by the NodeModuleSources provider.
+    # These deps are identified by the NodeModuleSourcesInfo provider.
     for d in ctx.attr.deps:
-        if NodeModuleSources in d:
+        if NodeModuleSourcesInfo in d:
             # Note: we can't avoid calling .to_list() on sources
-            direct_inputs += _filter_js_inputs(d[NodeModuleSources].sources.to_list())
+            direct_inputs += _filter_js_inputs(d[NodeModuleSourcesInfo].sources.to_list())
 
     if ctx.file.license_banner:
         direct_inputs += [ctx.file.license_banner]

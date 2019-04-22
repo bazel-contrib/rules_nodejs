@@ -15,7 +15,7 @@
 """Aspect to collect es5 js sources and scripts from deps.
 """
 
-load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleInfo", "NodeModuleSources")
+load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleInfo", "NodeModuleSourcesInfo")
 
 def _sources_aspect_impl(target, ctx):
     # TODO(kyliau): node_sources here is a misnomer because it implies that
@@ -33,8 +33,8 @@ def _sources_aspect_impl(target, ctx):
     # get TypeScript outputs.
     if hasattr(target, "typescript"):
         node_sources = depset(transitive = [node_sources, target.typescript.es5_sources])
-    elif NodeModuleSources in target:
-        dev_scripts = depset(transitive = [dev_scripts, target[NodeModuleSources].scripts])
+    elif NodeModuleSourcesInfo in target:
+        dev_scripts = depset(transitive = [dev_scripts, target[NodeModuleSourcesInfo].scripts])
     elif hasattr(target, "files") and not NodeModuleInfo in target:
         # Sources from npm fine grained deps should not be included
         node_sources = depset(

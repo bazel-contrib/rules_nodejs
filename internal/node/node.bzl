@@ -20,7 +20,7 @@ They support module mapping: any targets in the transitive dependencies with
 a `module_name` attribute can be `require`d by that name.
 """
 
-load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleSources", "collect_node_modules_aspect")
+load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleSourcesInfo", "collect_node_modules_aspect")
 load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
 load("//internal/common:module_mappings.bzl", "module_mappings_runtime_aspect")
 load("//internal/common:sources_aspect.bzl", "sources_aspect")
@@ -55,8 +55,8 @@ def _compute_node_modules_root(ctx):
             "node_modules",
         ] if f])
     for d in ctx.attr.data:
-        if NodeModuleSources in d:
-            possible_root = "/".join([d[NodeModuleSources].workspace, "node_modules"])
+        if NodeModuleSourcesInfo in d:
+            possible_root = "/".join([d[NodeModuleSourcesInfo].workspace, "node_modules"])
             if not node_modules_root:
                 node_modules_root = possible_root
             elif node_modules_root != possible_root:
@@ -116,10 +116,10 @@ def _nodejs_binary_impl(ctx):
     node_modules = depset(ctx.files.node_modules)
 
     # Also include files from npm fine grained deps as inputs.
-    # These deps are identified by the NodeModuleSources provider.
+    # These deps are identified by the NodeModuleSourcesInfo provider.
     for d in ctx.attr.data:
-        if NodeModuleSources in d:
-            node_modules = depset(transitive = [node_modules, d[NodeModuleSources].sources])
+        if NodeModuleSourcesInfo in d:
+            node_modules = depset(transitive = [node_modules, d[NodeModuleSourcesInfo].sources])
 
     # Using a depset will allow us to avoid flattening files and sources
     # inside this loop. This should reduce the performances hits,
