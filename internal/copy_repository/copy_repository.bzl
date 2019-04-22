@@ -18,17 +18,17 @@
 load("@build_bazel_rules_nodejs//internal/common:os_name.bzl", "os_name")
 
 def _copy_file(rctx, src):
-    src_path = rctx.path(src)
-    rctx.template(src_path.basename, src_path)
+    rctx.template(src.basename, src)
 
 def _copy_repository_impl(rctx):
+    src_path = "/".join(str(rctx.path(rctx.attr.marker_file)).split("/")[:-1])
     is_windows = os_name(rctx).find("windows") != -1
     if is_windows:
-        _copy_file(rctx, Label("@build_bazel_rules_nodejs//internal/copy_repository:_copy.ps1"))
-        result = rctx.execute(["powershell", "-file", "_copy.ps1", rctx.path(rctx.attr.marker_file), "."])
+        _copy_file(rctx, rctx.path(Label("@build_bazel_rules_nodejs//internal/copy_repository:_copy.bat")))
+        result = rctx.execute(["cmd.exe", "/C", "_copy.bat", src_path.replace("/", "\\"), "."])
     else:
-        _copy_file(rctx, Label("@build_bazel_rules_nodejs//internal/copy_repository:_copy.sh"))
-        result = rctx.execute(["./_copy.sh", rctx.path(rctx.attr.marker_file), "."])
+        _copy_file(rctx, rctx.path(Label("@build_bazel_rules_nodejs//internal/copy_repository:_copy.sh")))
+        result = rctx.execute(["./_copy.sh", src_path, "."])
     if result.return_code:
         fail("copy_repository failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
 
