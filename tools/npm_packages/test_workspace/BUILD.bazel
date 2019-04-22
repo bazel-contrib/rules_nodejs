@@ -1,0 +1,9 @@
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+
+nodejs_binary(
+    name = "bin",
+    data = [
+        ":index.js",
+    ],
+    entry_point = "test_workspace/index.js",
+)
