@@ -10,7 +10,6 @@ examples/
 packages/
 # A subset of legacy e2e tests are nested workspaces
 # TODO(gregmagolan): move these to /e2e
-internal/e2e/bazel_workspaces
 internal/e2e/bazel_workspaces_compat
 internal/e2e/fine_grained_symlinks
 internal/e2e/node_loader_no_preserve_symlinks
