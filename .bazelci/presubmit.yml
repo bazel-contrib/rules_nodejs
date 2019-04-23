@@ -1,6 +1,13 @@
 ---
 platforms:
-  ubuntu1404:
+  ubuntu1604:
+    run_targets:
+    - "@nodejs//:yarn"
+    build_targets:
+    - "//..."
+    test_targets:
+    - "//..."
+  ubuntu1804:
     run_targets:
     - "@nodejs//:yarn"
     build_targets:
@@ -8,13 +15,6 @@ platforms:
     # This target is tagged "manual" but we want some CI
     # coverage of it to make sure it doesn't break.
     - "//docs"
-    test_targets:
-    - "//..."
-  ubuntu1604:
-    run_targets:
-    - "@nodejs//:yarn"
-    build_targets:
-    - "//..."
     test_targets:
     - "//..."
   macos:
