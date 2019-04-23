@@ -170,7 +170,9 @@ def _filter_js_inputs(all_inputs):
     return [
         f
         for f in all_inputs
-        if f.path.endswith(".js") or f.path.endswith(".json")
+        # We also need to include ".map" files as these can be read by
+        # the "rollup-plugin-sourcemaps" plugin.
+        if f.path.endswith(".js") or f.path.endswith(".json") or f.path.endswith(".map")
     ]
 
 def _run_rollup(ctx, sources, config, output, map_output = None):
