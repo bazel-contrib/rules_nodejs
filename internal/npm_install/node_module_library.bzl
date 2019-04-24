@@ -17,8 +17,23 @@
 
 load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleInfo", "NodeModuleSources")
 
+def _trim_package_node_modules(package_name):
+    # trim a package name down to its path prior to a node_modules
+    # segment. 'foo/node_modules/bar' would become 'foo' and
+    # 'node_modules/bar' would become ''
+    segments = []
+    for n in package_name.split("/"):
+        if n == "node_modules":
+            break
+        segments += [n]
+    return "/".join(segments)
+
 def _node_module_library_impl(ctx):
     workspace = ctx.label.workspace_root.split("/")[1] if ctx.label.workspace_root else ctx.workspace_name
+    package = _trim_package_node_modules(ctx.label.package)
+    if package:
+        workspace = "/".join([workspace, package])
+
     sources = depset(ctx.files.srcs, transitive = [dep.files for dep in ctx.attr.deps])
 
     scripts = depset()

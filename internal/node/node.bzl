@@ -318,9 +318,7 @@ _NODEJS_EXECUTABLE_ATTRS = {
     ),
     "_source_map_support_files": attr.label_list(
         default = [
-            Label("//third_party/github.com/buffer-from:contents"),
-            Label("//third_party/github.com/source-map:contents"),
-            Label("//third_party/github.com/source-map-support:contents"),
+            Label("//third_party/npm/node_modules/source-map-support:source-map-support__contents"),
         ],
         allow_files = True,
     ),

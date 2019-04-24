@@ -1,0 +1,8 @@
+{
+  "description": "vendored npm dependencies for build_bazel_rules_nodejs rules",
+  "dependencies": {
+    "isbinaryfile": "4.0.0",
+    "removeNPMAbsolutePaths": "1.0.4",
+    "source-map-support": "0.5.12"
+  }
+}

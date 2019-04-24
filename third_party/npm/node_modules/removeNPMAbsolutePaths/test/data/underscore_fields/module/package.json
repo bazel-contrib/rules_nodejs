@@ -1,0 +1,57 @@
+{
+  "_from": "removeNPMAbsolutePaths",
+  "_id": "removeNPMAbsolutePaths@0.0.3",
+  "_inBundle": false,
+  "_integrity": "sha1-NkErwn66yL4JsbULf3MIl5K4xfE=",
+  "_location": "/removeNPMAbsolutePaths",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "removeNPMAbsolutePaths",
+    "name": "removeNPMAbsolutePaths",
+    "escapedName": "removeNPMAbsolutePaths",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/removeNPMAbsolutePaths/-/removeNPMAbsolutePaths-0.0.3.tgz",
+  "_shasum": "36412bc27ebac8be09b1b50b7f73089792b8c5f1",
+  "_spec": "removeNPMAbsolutePaths",
+  "_where": "/Users/juanjo/test",
+  "author": {
+    "name": "Juanjo Diaz",
+    "email": "juanjo.diazmo@gmail.com"
+  },
+  "bin": {
+    "removeNPMAbsolutePaths": "bin/removeNPMAbsolutePaths"
+  },
+  "bugs": {
+    "url": "https://github.com/removeNPMAbsolutePaths/issues",
+    "email": "juanjo.diazmo@gmail.com"
+  },
+  "bundleDependencies": false,
+  "deprecated": false,
+  "description": "Remove the fields containing local aboslute paths created by NPM",
+  "homepage": "https://github.com/juanjoDiaz/removeNPMAbsolutePaths#readme",
+  "keywords": [
+    "npm",
+    "modules"
+  ],
+  "license": "MIT",
+  "main": "src/removeNPMAbsolutePaths.js",
+  "name": "removeNPMAbsolutePaths",
+  "preferGlobal": "true",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/juanjoDiaz/removeNPMAbsolutePaths.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "0.0.3"
+}

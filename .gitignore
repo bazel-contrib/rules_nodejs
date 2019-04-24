@@ -9,6 +9,7 @@ rules_nodejs-*.tar.gz
 /internal/npm_install/test/package/*
 node_modules
 !/internal/npm_install/test/golden/node_modules
+!/third_party/npm/node_modules
 examples/vendored_node/node-v10.12.0-linux-x64
 examples/vendored_node/node-v10.12.0-linux-x64.tar.xz
 examples/vendored_node/yarn-v1.10.0

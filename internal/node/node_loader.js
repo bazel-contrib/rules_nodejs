@@ -457,7 +457,7 @@ module.constructor._resolveFilename = function(request, parent) {
 if (TEMPLATED_install_source_map_support) {
   try {
     const sourcemap_support_package = path.resolve(process.cwd(),
-          '../build_bazel_rules_nodejs/third_party/github.com/source-map-support');
+          '../build_bazel_rules_nodejs/third_party/npm/node_modules/source-map-support');
     require(sourcemap_support_package).install();
   } catch (_) {
     if (DEBUG) {
