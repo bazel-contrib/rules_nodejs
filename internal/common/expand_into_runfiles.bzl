@@ -32,22 +32,40 @@ def expand_location_into_runfiles(ctx, path):
     return expand_path_into_runfiles(ctx, path)
 
 def expand_path_into_runfiles(ctx, path):
-    """Expand a path into runfiles.
+    """Expand paths into runfiles.
 
-    Given a file path that might contain a $(location) label expansion,
-    provide the path to the file in runfiles.
+    Given a file path that might contain a $(location) or $(locations) label expansion,
+    provide the paths to the file in runfiles.
 
     See https://docs.bazel.build/versions/master/skylark/lib/ctx.html#expand_location
 
     Args:
       ctx: context
-      path: the path to expand
+      path: the paths to expand
 
     Returns:
-      The expanded path
+      The expanded paths
     """
     targets = ctx.attr.data if hasattr(ctx.attr, "data") else []
     expanded = ctx.expand_location(path, targets)
+
+    expansion = [resolve_expanded_path(ctx, exp) for exp in expanded.strip().split(" ")]
+
+    return " ".join(expansion)
+
+def resolve_expanded_path(ctx, expanded):
+    """Resolves an expanded path
+
+    Given a file path that has been expaned with $(location), resolve the path to include the workspace name,
+    handling when that path is within bin_dir or gen_fir
+
+    Args:
+      ctx: context
+      expanded: the expanded path to resolve
+
+    Returns:
+      The resolved path
+    """
     if expanded.startswith("../"):
         return expanded[len("../"):]
     if expanded.startswith(ctx.bin_dir.path):
