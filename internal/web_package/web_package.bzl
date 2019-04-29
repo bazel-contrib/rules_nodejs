@@ -73,18 +73,28 @@ def move_files(output_name, files, action_factory, assembler, root_paths):
     )
     return depset([www_dir])
 
-def _web_package(ctx):
-    root_paths = ctx.attr.additional_root_paths + [
+def additional_root_paths(ctx):
+    return ctx.attr.additional_root_paths + [
+        # package path is the root, including in bin/gen
         ctx.label.package,
         "/".join([ctx.bin_dir.path, ctx.label.package]),
         "/".join([ctx.genfiles_dir.path, ctx.label.package]),
+
+        # bazel-bin/gen dirs to absolute paths
+        ctx.genfiles_dir.path,
+        ctx.bin_dir.path,
+
+        # package re-rooted subdirectory
+        "/".join([p for p in [ctx.bin_dir.path, ctx.label.package, "_" + ctx.label.name, ctx.label.package] if p]),
     ]
+
+def _web_package(ctx):
+    root_paths = additional_root_paths(ctx)
 
     # Create the output file in a re-rooted subdirectory so it doesn't collide with the input file
     html = ctx.actions.declare_file("_%s/%s" % (ctx.label.name, ctx.file.index_html.path))
 
     # Move that index file back into place inside the package
-    root_paths.append("/".join([p for p in [ctx.bin_dir.path, ctx.label.package, "_" + ctx.label.name, ctx.label.package] if p]))
     populated_index = html_asset_inject(
         ctx.file.index_html,
         ctx.actions,
