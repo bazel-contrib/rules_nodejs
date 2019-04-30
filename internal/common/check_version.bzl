@@ -60,3 +60,21 @@ def check_version(current_version, minimum_version):
       True if current_version is greater or equal to the minimum_version, False otherwise
     """
     return parse_version(current_version) >= parse_version(minimum_version)
+
+def check_version_range(current_version, minimum_version, maximum_version):
+    """
+    Verify that a version string >= minimum version and <= maximum version.
+
+    The format handled for the version strings is "<major>.<minor>.<patch>-<date> <commit>"
+
+    Args:
+      current_version: a string indicating the version to check
+      minimum_version: a string indicating the minimum version
+      maximum_version: a string indicating the maximum version
+
+    Returns:
+      True if current_version >= minimum_version and <= maximum_version,
+      False otherwise.
+    """
+    return (parse_version(current_version) >= parse_version(minimum_version) and
+            parse_version(current_version) <= parse_version(maximum_version))
