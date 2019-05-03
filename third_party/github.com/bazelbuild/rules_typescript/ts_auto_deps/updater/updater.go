@@ -99,7 +99,7 @@ func (g *GarbledBazelResponseError) Error() string {
 // exchanging it for a different implementation in the ts_auto_deps presubmit service.
 func (upd *Updater) runBazelAnalyze(buildFilePath string, bld *build.File, rules []*build.Rule) ([]*arpb.DependencyReport, error) {
 	args := []string{}
-	args = append(args, "--analysis_output=PROTO")
+	args = append(args, "--analysis_output=PROTO", "--static_analysis_option=checkdeps=--ng_summary")
 	var targets []string
 	for _, r := range rules {
 		fullTarget := AbsoluteBazelTarget(bld, r.Name())
@@ -754,9 +754,10 @@ func buildHasDisableTaze(bld *build.File) bool {
 // QueryBasedBazelAnalyze uses bazel query to analyze targets. It is available under a flag or
 // an environment variable on engineer's workstations.
 func QueryBasedBazelAnalyze(buildFilePath string, args []string) ([]byte, []byte, error) {
-	// The first member of args is the '--analysis_output=PROTO' flag. Remove
-	// this flag to get only the targets.
-	targets := args[1:]
+	// The first 2 args are '--analysis_output=PROTO' and
+	// '--static_analysis_option=checkdeps=--ng_summary', which are needed for
+	// bazel. Remove them to get only the targets.
+	targets := args[2:]
 	root, err := workspace.Root(buildFilePath)
 	if err != nil {
 		return nil, nil, err
