@@ -5,6 +5,7 @@ const nodeResolve = require('rollup-plugin-node-resolve');
 const sourcemaps = require('rollup-plugin-sourcemaps');
 const amd = require('rollup-plugin-amd');
 const commonjs = require('rollup-plugin-commonjs');
+const rollupJson = require('rollup-plugin-json');
 const isBuiltinModule = require('is-builtin-module');
 const path = require('path');
 const fs = require('fs');
@@ -194,6 +195,9 @@ const config = {
       resolveId: notResolved,
     },
     sourcemaps(),
+    rollupJson({
+      preferConst: true
+    })
   ]),
   output: {
     banner,
