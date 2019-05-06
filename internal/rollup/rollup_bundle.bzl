@@ -224,7 +224,15 @@ def _run_rollup(ctx, sources, config, output, map_output = None):
 
 def _run_tsc(ctx, input, output):
     args = ctx.actions.args()
+
+    # No types needed since we are just downleveling.
+    # `--types` proceeded by another config argument means an empty types array
+    # for the command line parser.
+    # See https://github.com/Microsoft/TypeScript/issues/18581#issuecomment-330700612
+    args.add("--types")
+    args.add("--skipLibCheck")
     args.add_all(["--target", "es5"])
+    args.add_all(["--lib", "es2015,dom"])
     args.add("--allowJS")
     args.add(input.path)
     args.add_all(["--outFile", output.path])
