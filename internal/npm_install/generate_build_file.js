@@ -129,7 +129,8 @@ function generateRootBuildFile(pkgs) {
 # See https://github.com/bazelbuild/bazel/issues/5153.
 node_module_library(
     name = "node_modules",
-    srcs = [
+    # flattened list of direct and transitive dependencies hoisted to root by the package manager
+    deps = [
         ${srcs.map(pkg => `"//node_modules/${pkg._dir}:${pkg._name}__files",`).join('\n        ')}
     ],
 )
@@ -731,23 +732,14 @@ function printPackage(pkg) {
   // TODO(gmagolan): add UMD & AMD scripts to scripts even if not an APF package _but_ only if they
   // are named?
   const scripts = getNgApfScripts(pkg);
-  const pkgDeps = pkg._dependencies.filter(dep => dep !== pkg && !dep._isNested);
+  const pkgDeps = [pkg].concat(pkg._dependencies.filter(dep => dep !== pkg && !dep._isNested));
 
   let scriptStarlark = '';
   if (scripts.length) {
     scriptStarlark = `
+    # subset of srcs that are javascript named-UMD or named-AMD scripts
     scripts = [
         ${scripts.map(f => `":${f}",`).join('\n        ')}
-    ],`;
-  }
-
-  let depsStarlark = '';
-  if (pkgDeps.length) {
-    depsStarlark = `
-    # flattened list of direct and transitive dependencies hoisted to root by the package manager
-    deps = [
-        ${
-        pkgDeps.map(dep => `"//node_modules/${dep._dir}:${dep._name}__files",`).join('\n        ')}
     ],`;
   }
 
@@ -765,21 +757,24 @@ ${printJson(pkg)}
 
 node_module_library(
     name = "${pkg._name}__pkg",
-    # ${pkg._dir} package contents (and contents of nested node_modules)
-    srcs = [
-        ":${pkg._name}__files",
-    ],${depsStarlark}
+    # flattened list of direct and transitive dependencies hoisted to root by the package manager
+    deps = [
+        ${
+      pkgDeps.map(dep => `"//node_modules/${dep._dir}:${dep._name}__files",`).join('\n        ')}
+    ],
 )
 
 # ${pkg._name}__files target is used as dep for other package targets to prevent
 # circular dependencies errors
 node_module_library(
     name = "${pkg._name}__files",
+    # ${pkg._dir} package contents (and contents of nested node_modules)
     srcs = [
         ${sources.map(f => `":${f}",`).join('\n        ')}
     ],${scriptStarlark}
 )
 
+# ${pkg._name}__typings is the subset of ${pkg._name}__files that are declarations
 node_module_library(
     name = "${pkg._name}__typings",
     srcs = [
@@ -879,26 +874,18 @@ function printScope(scope, pkgs) {
         pkgDeps.concat(pkg._dependencies.filter(dep => !dep._isNested && !pkgs.includes(pkg)));
   });
   // filter out duplicate deps
-  pkgDeps = [...new Set(pkgDeps)];
-
-  let depsStarlark = '';
-  if (pkgDeps.length) {
-    depsStarlark = `
-    # flattened list of direct and transitive dependencies hoisted to root by the package manager
-    deps = [
-        ${
-        pkgDeps.map(dep => `"//node_modules/${dep._dir}:${dep._name}__files",`).join('\n        ')}
-    ],`;
-  }
+  pkgDeps = [...pkgs, ...new Set(pkgDeps)];
 
   return `load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
 
 # Generated target for npm scope ${scope}
 node_module_library(
     name = "${scope}",
-    srcs = [
-        ${pkgs.map(pkg => `"//node_modules/${pkg._dir}:${pkg._name}__files",`).join('\n        ')}
-    ],${depsStarlark}
+    # flattened list of direct and transitive dependencies hoisted to root by the package manager
+    deps = [
+        ${
+      pkgDeps.map(dep => `"//node_modules/${dep._dir}:${dep._name}__files",`).join('\n        ')}
+    ],
 )
 
 `;
