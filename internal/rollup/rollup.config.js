@@ -189,7 +189,9 @@ const config = {
       // with the amd plugin.
       include: /\.ngfactory\.js$/i,
     }),
-    commonjs(),
+    commonjs({
+      namedExports: TMPL_named_exports,
+    }),
     {
       name: 'notResolved',
       resolveId: notResolved,
