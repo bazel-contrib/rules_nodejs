@@ -9,6 +9,10 @@ alias(
   actual = "//node_modules/rxjs:rxjs__files"
 )
 alias(
+  name = "rxjs__contents",
+  actual = "//node_modules/rxjs:rxjs__contents"
+)
+alias(
   name = "rxjs__typings",
   actual = "//node_modules/rxjs:rxjs__typings"
 )

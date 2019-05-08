@@ -252,9 +252,6 @@ def _ts_library_impl(ctx):
     ts_providers = compile_ts(
         ctx,
         is_library = True,
-        # Strict_deps checking currently skips node_modules.
-        # TODO(alexeagle): turn on strict deps checking when we have a real
-        # provider for JS/DTS inputs to ts_library.
         deps = ctx.attr.deps,
         compile_action = _compile_action,
         devmode_compile_action = _devmode_compile_action,
