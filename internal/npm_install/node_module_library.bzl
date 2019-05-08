@@ -19,27 +19,60 @@ load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeMod
 
 def _node_module_library_impl(ctx):
     workspace = ctx.label.workspace_root.split("/")[1] if ctx.label.workspace_root else ctx.workspace_name
+
+    # All files in `srcs` and in `deps`
+    # TODO(gregmagolan): transitive sources should be collected an aspect to go
+    # into a NodeModuleSources.transitive_sources
     sources = depset(ctx.files.srcs, transitive = [dep.files for dep in ctx.attr.deps])
 
-    scripts = depset()
+    # scripts are a subset of sources that are javascript named-UMD or named-AMD scripts for
+    # use in rules such as ts_devserver
+    scripts = depset(ctx.files.scripts)
+
+    # TODO(gregmagolan): fix deps in generate_build_file.js and remove transitive lookup
     for src in ctx.attr.srcs:
         if NodeModuleSources in src:
             scripts = depset(transitive = [scripts, src[NodeModuleSources].scripts])
-    scripts = depset(ctx.files.scripts, transitive = [scripts])
 
-    return [
-        DefaultInfo(
-            files = sources,
+    # declarations are a subset of sources that are decleration files
+    declarations = depset([f for f in ctx.files.srcs if f.path.endswith(".d.ts")])
+
+    # transitive_declarations are all direct & transitive decleration files
+    transitive_declarations = depset()
+    for src in ctx.attr.srcs:
+        if hasattr(src, "typescript"):
+            transitive_declarations = depset(transitive = [transitive_declarations, src.typescript.transitive_declarations])
+    for dep in ctx.attr.deps:
+        if hasattr(dep, "typescript"):
+            transitive_declarations = depset(transitive = [transitive_declarations, dep.typescript.transitive_declarations])
+
+    return struct(
+        typescript = struct(
+            declarations = declarations,
+            devmode_manifest = None,
+            es5_sources = depset(),
+            es6_sources = depset(),
+            replay_params = None,
+            transitive_declarations = transitive_declarations,
+            transitive_es5_sources = depset(),
+            transitive_es6_sources = depset(),
+            tsickle_externs = [],
+            type_blacklisted_declarations = depset(),
         ),
-        NodeModuleInfo(
-            workspace = workspace,
-        ),
-        NodeModuleSources(
-            sources = sources,
-            scripts = scripts,
-            workspace = workspace,
-        ),
-    ]
+        providers = [
+            DefaultInfo(
+                files = sources,
+            ),
+            NodeModuleInfo(
+                workspace = workspace,
+            ),
+            NodeModuleSources(
+                sources = sources,
+                scripts = scripts,
+                workspace = workspace,
+            ),
+        ],
+    )
 
 node_module_library = rule(
     implementation = _node_module_library_impl,
