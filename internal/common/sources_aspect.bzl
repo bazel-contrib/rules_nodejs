@@ -33,14 +33,15 @@ def _sources_aspect_impl(target, ctx):
     # get TypeScript outputs.
     if hasattr(target, "typescript"):
         node_sources = depset(transitive = [node_sources, target.typescript.es5_sources])
-    elif NodeModuleSources in target:
-        dev_scripts = depset(transitive = [dev_scripts, target[NodeModuleSources].scripts])
     elif hasattr(target, "files") and not NodeModuleInfo in target:
         # Sources from npm fine grained deps should not be included
         node_sources = depset(
             [f for f in target.files if f.path.endswith(".js")],
             transitive = [node_sources],
         )
+
+    if NodeModuleSources in target:
+        dev_scripts = depset(target[NodeModuleSources].scripts)
 
     if hasattr(ctx.rule.attr, "deps"):
         for dep in ctx.rule.attr.deps:
