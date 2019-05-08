@@ -9,6 +9,10 @@ alias(
   actual = "//node_modules/ajv:ajv__files"
 )
 alias(
+  name = "ajv__contents",
+  actual = "//node_modules/ajv:ajv__contents"
+)
+alias(
   name = "ajv__typings",
   actual = "//node_modules/ajv:ajv__typings"
 )

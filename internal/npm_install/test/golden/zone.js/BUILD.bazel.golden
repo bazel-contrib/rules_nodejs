@@ -9,6 +9,10 @@ alias(
   actual = "//node_modules/zone.js:zone.js__files"
 )
 alias(
+  name = "zone.js__contents",
+  actual = "//node_modules/zone.js:zone.js__contents"
+)
+alias(
   name = "zone.js__typings",
   actual = "//node_modules/zone.js:zone.js__typings"
 )

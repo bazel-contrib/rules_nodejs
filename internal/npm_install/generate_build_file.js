@@ -119,6 +119,10 @@ module.exports = {
  */
 function generateRootBuildFile(pkgs) {
   const srcs = pkgs.filter(pkg => !pkg._isNested);
+  const srcsStarlark =
+      srcs.map(pkg => `"//node_modules/${pkg._dir}:${pkg._name}__files",`).join('\n        ');
+  const depsStarlark =
+      srcs.map(pkg => `"//node_modules/${pkg._dir}:${pkg._name}__contents",`).join('\n        ');
 
   let buildFile = BUILD_FILE_HEADER +
       `load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
@@ -129,9 +133,13 @@ function generateRootBuildFile(pkgs) {
 # See https://github.com/bazelbuild/bazel/issues/5153.
 node_module_library(
     name = "node_modules",
+    # direct sources listed for strict deps support
+    srcs = [
+        ${srcsStarlark}
+    ],
     # flattened list of direct and transitive dependencies hoisted to root by the package manager
     deps = [
-        ${srcs.map(pkg => `"//node_modules/${pkg._dir}:${pkg._name}__files",`).join('\n        ')}
+        ${depsStarlark}
     ],
 )
 
@@ -732,7 +740,7 @@ function printPackage(pkg) {
   // TODO(gmagolan): add UMD & AMD scripts to scripts even if not an APF package _but_ only if they
   // are named?
   const scripts = getNgApfScripts(pkg);
-  const pkgDeps = [pkg].concat(pkg._dependencies.filter(dep => dep !== pkg && !dep._isNested));
+  const deps = [pkg].concat(pkg._dependencies.filter(dep => dep !== pkg && !dep._isNested));
 
   let scriptStarlark = '';
   if (scripts.length) {
@@ -749,36 +757,47 @@ function printPackage(pkg) {
     result = 'load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")';
   }
 
+  const srcsStarlark = sources.map(f => `":${f}",`).join('\n        ');
+  const depsStarlark =
+      deps.map(dep => `"//node_modules/${dep._dir}:${dep._name}__contents",`).join('\n        ');
+  const dtsStarlark = dtsSources.map(f => `":${f}",`).join('\n        ');
+
   result = `${result}
 load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
 
 # Generated targets for npm package "${pkg._dir}"
 ${printJson(pkg)}
 
-node_module_library(
-    name = "${pkg._name}__pkg",
-    # flattened list of direct and transitive dependencies hoisted to root by the package manager
-    deps = [
-        ${
-      pkgDeps.map(dep => `"//node_modules/${dep._dir}:${dep._name}__files",`).join('\n        ')}
+filegroup(
+    name = "${pkg._name}__files",
+    # ${pkg._dir} package files (and files in nested node_modules)
+    srcs = [
+        ${srcsStarlark}
     ],
 )
 
-# ${pkg._name}__files target is used as dep for other package targets to prevent
-# circular dependencies errors
 node_module_library(
-    name = "${pkg._name}__files",
-    # ${pkg._dir} package contents (and contents of nested node_modules)
-    srcs = [
-        ${sources.map(f => `":${f}",`).join('\n        ')}
-    ],${scriptStarlark}
+    name = "${pkg._name}__pkg",
+    # direct sources listed for strict deps support
+    srcs = [":${pkg._name}__files"],
+    # flattened list of direct and transitive dependencies hoisted to root by the package manager
+    deps = [
+        ${depsStarlark}
+    ],
 )
 
-# ${pkg._name}__typings is the subset of ${pkg._name}__files that are declarations
+# ${pkg._name}__contents target is used as dep for __pkg targets to prevent
+# circular dependencies errors
+node_module_library(
+    name = "${pkg._name}__contents",
+    srcs = [":${pkg._name}__files"],${scriptStarlark}
+)
+
+# ${pkg._name}__typings is the subset of ${pkg._name}__contents that are declarations
 node_module_library(
     name = "${pkg._name}__typings",
     srcs = [
-        ${dtsSources.map(f => `":${f}",`).join('\n        ')}
+        ${dtsStarlark}
     ],
 )
 
@@ -836,6 +855,11 @@ alias(
 )
 
 alias(
+  name = "${pkg._name}__contents",
+  actual = "//node_modules/${pkg._dir}:${pkg._name}__contents"
+)
+
+alias(
   name = "${pkg._name}__typings",
   actual = "//node_modules/${pkg._dir}:${pkg._name}__typings"
 )
@@ -868,23 +892,30 @@ alias(
  */
 function printScope(scope, pkgs) {
   pkgs = pkgs.filter(pkg => !pkg._isNested && pkg._dir.startsWith(`${scope}/`));
-  let pkgDeps = [];
+  let deps = [];
   pkgs.forEach(pkg => {
-    pkgDeps =
-        pkgDeps.concat(pkg._dependencies.filter(dep => !dep._isNested && !pkgs.includes(pkg)));
+    deps = deps.concat(pkg._dependencies.filter(dep => !dep._isNested && !pkgs.includes(pkg)));
   });
   // filter out duplicate deps
-  pkgDeps = [...pkgs, ...new Set(pkgDeps)];
+  deps = [...pkgs, ...new Set(deps)];
+
+  const srcsStarlark =
+      deps.map(dep => `"//node_modules/${dep._dir}:${dep._name}__files",`).join('\n        ');
+  const depsStarlark =
+      deps.map(dep => `"//node_modules/${dep._dir}:${dep._name}__contents",`).join('\n        ');
 
   return `load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
 
 # Generated target for npm scope ${scope}
 node_module_library(
     name = "${scope}",
+    # direct sources listed for strict deps support
+    srcs = [
+        ${srcsStarlark}
+    ],
     # flattened list of direct and transitive dependencies hoisted to root by the package manager
     deps = [
-        ${
-      pkgDeps.map(dep => `"//node_modules/${dep._dir}:${dep._name}__files",`).join('\n        ')}
+        ${depsStarlark}
     ],
 )
 

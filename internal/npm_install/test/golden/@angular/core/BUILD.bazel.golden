@@ -9,6 +9,10 @@ alias(
   actual = "//node_modules/@angular/core:core__files"
 )
 alias(
+  name = "core__contents",
+  actual = "//node_modules/@angular/core:core__contents"
+)
+alias(
   name = "core__typings",
   actual = "//node_modules/@angular/core:core__typings"
 )
