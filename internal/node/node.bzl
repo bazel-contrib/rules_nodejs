@@ -162,6 +162,13 @@ def _nodejs_binary_impl(ctx):
         "TEMPLATED_repository_args": _short_path_to_manifest_path(ctx, ctx.file._repository_args.short_path),
         "TEMPLATED_script_path": script_path,
     }
+
+    files = [node, ctx.outputs.loader, ctx.file._repository_args] + ctx.files._node_runfiles
+
+    if ctx.attr.jasmine_config != None:
+        files += [ctx.file.jasmine_config]
+        substitutions["TEMPLATED_args"] += " " + ctx.attr.jasmine_config.files.to_list()[0].path
+
     ctx.actions.expand_template(
         template = ctx.file._launcher_template,
         output = ctx.outputs.script,
@@ -169,7 +176,7 @@ def _nodejs_binary_impl(ctx):
         is_executable = True,
     )
 
-    runfiles = depset([node, ctx.outputs.loader, ctx.file._repository_args] + ctx.files._node_runfiles, transitive = [sources, node_modules])
+    runfiles = depset(files, transitive = [sources, node_modules])
 
     return [DefaultInfo(
         executable = ctx.outputs.script,
@@ -196,6 +203,15 @@ _NODEJS_EXECUTABLE_ATTRS = {
         zone.js before the first `describe`.
         """,
         default = [],
+    ),
+    "jasmine_config": attr.label(
+        doc = """The path to the json configuration file of jasmine.
+        For example, you can turn off randomnization via the following flag in
+        the json config file:
+            "random": false
+        """,
+        allow_files = True,
+        single_file = True
     ),
     "configuration_env_vars": attr.string_list(
         doc = """Pass these configuration environment variables to the resulting binary.

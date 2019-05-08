@@ -69,6 +69,9 @@ function main(args) {
   const cwd = process.cwd()
 
   const jrunner = new JasmineRunner({jasmineCore: jasmineCore});
+  if (args.length == 3) {
+    jrunner.loadConfigFile(args[2]);
+  }
   const allFiles = fs.readFileSync(manifest, UTF8)
                        .split('\n')
                        .filter(l => l.length > 0)

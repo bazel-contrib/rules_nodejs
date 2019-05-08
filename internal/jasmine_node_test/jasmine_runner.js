@@ -63,6 +63,9 @@ function main(args) {
   process.argv.splice(2, 1)[0];
 
   const jrunner = new JasmineRunner({jasmineCore: jasmineCore});
+  if (args.length == 2) {
+    jrunner.loadConfigFile(args[1])
+  }
   fs.readFileSync(manifest, UTF8)
       .split('\n')
       .filter(l => l.length > 0)
