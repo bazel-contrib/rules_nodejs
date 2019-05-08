@@ -42,6 +42,7 @@ ts_library(
         "@npm//@bazel/typescript",
         "@npm//@types/jasmine",
         "@npm//@types/node",
+        "@npm//typescript",
     ],
 )
 
