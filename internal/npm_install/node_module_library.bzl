@@ -29,11 +29,6 @@ def _node_module_library_impl(ctx):
     # use in rules such as ts_devserver
     scripts = depset(ctx.files.scripts)
 
-    # TODO(gregmagolan): fix deps in generate_build_file.js and remove transitive lookup
-    for src in ctx.attr.srcs:
-        if NodeModuleSources in src:
-            scripts = depset(transitive = [scripts, src[NodeModuleSources].scripts])
-
     # declarations are a subset of sources that are decleration files
     declarations = depset([f for f in ctx.files.srcs if f.path.endswith(".d.ts")])
 
