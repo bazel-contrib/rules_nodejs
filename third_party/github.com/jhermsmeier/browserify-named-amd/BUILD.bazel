@@ -1,0 +1,18 @@
+package(default_visibility = ["//visibility:public"])
+
+licenses(["notice"])
+
+# Downloaded from https://github.com/jhermsmeier/browserify-named-amd/archive/1.0.0.tar.gz
+# Timestamp: 2019-05-08
+# SHA256: bf8ad9d49a7ba38faab85166d9801bdc1307e7aa08f16f833e5456396467f939
+exports_files(["LICENSE.md"])
+
+filegroup(
+    name = "sources",
+    srcs = ["named-amd.js"],
+)
+
+filegroup(
+    name = "package_contents",
+    srcs = glob(["*"]),
+)

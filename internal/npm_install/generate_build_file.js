@@ -42,6 +42,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const DEBUG = false;
+
 const BUILD_FILE_HEADER = `# Generated file from yarn_install/npm_install rule.
 # See $(bazel info output_base)/external/build_bazel_rules_nodejs/internal/npm_install/generate_build_file.js
 
@@ -587,17 +589,35 @@ function isValidBinPathObjectValues(entry) {
 }
 
 /**
- * Given a path, remove './' if it exists.
+ * Cleanup a package.json "bin" path.
+ *
+ * Bin paths usually come in 2 flavors: './bin/foo' or 'bin/foo',
+ * sometimes other stuff like 'lib/foo'.  Remove prefix './' if it
+ * exists.
  */
-function cleanupBinPath(path) {
-  // Bin paths usually come in 2 flavors: './bin/foo' or 'bin/foo',
-  // sometimes other stuff like 'lib/foo'.  Remove prefix './' if it
-  // exists.
-  path = path.replace(/\\/g, '/');
-  if (path.indexOf('./') === 0) {
-    path = path.slice(2);
+function cleanupBinPath(p) {
+  p = p.replace(/\\/g, '/');
+  if (p.indexOf('./') === 0) {
+    p = p.slice(2);
   }
-  return path;
+  return p;
+}
+
+/**
+ * Cleanup a package.json entry point such as "main"
+ *
+ * Removes './' if it exists.
+ * Appends `index.js` if p ends with `/`.
+ */
+function cleanupEntryPointPath(p) {
+  p = p.replace(/\\/g, '/');
+  if (p.indexOf('./') === 0) {
+    p = p.slice(2);
+  }
+  if (p.endsWith('/')) {
+    p += 'index.js';
+  }
+  return p;
 }
 
 /**
@@ -732,6 +752,19 @@ function getNgApfScripts(pkg) {
 }
 
 /**
+ * Looks for a file within a package and returns it if found.
+ */
+function findFile(pkg, m) {
+  const ml = m.toLowerCase();
+  for (const f of pkg._files) {
+    if (f.toLowerCase() === ml) {
+      return f;
+    }
+  }
+  return undefined;
+}
+
+/**
  * Given a pkg, return the skylark `node_module_library` targets for the package.
  */
 function printPackage(pkg) {
@@ -802,6 +835,39 @@ node_module_library(
 )
 
 `;
+
+  let mainEntryPoint = pkg.main ? cleanupEntryPointPath(pkg.main) : undefined;
+  if (mainEntryPoint) {
+    // check if main entry point exists
+    mainEntryPoint = findFile(pkg, mainEntryPoint) || findFile(pkg, `${mainEntryPoint}.js`);
+    if (!mainEntryPoint) {
+      // If "main" entry point listed could not be resolved to a file
+      // then don't create an npm_umd_bundle target. This can happen
+      // in some npm packages that list an incorrect main such as v8-coverage@1.0.8
+      // which lists `"main": "index.js"` but that file does not exist.
+      if (DEBUG)
+        console.error(`Could not find "main" entry point ${pkg.main} in npm package ${pkg._name}`);
+    }
+  } else {
+    // if "main" is not specified then look for a root index.js
+    mainEntryPoint = findFile(pkg, 'index.js');
+  }
+
+  // add an `npm_umd_bundle` target to generate an UMD bundle if one does
+  // not exists
+  if (mainEntryPoint && !findFile(pkg, `${pkg._name}.umd.js`)) {
+    result +=
+        `load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
+
+npm_umd_bundle(
+    name = "${pkg._name}__umd",
+    package_name = "${pkg._name}",
+    entry_point = ":${mainEntryPoint}",
+    package = ":${pkg._name}__pkg",
+)
+
+`;
+  }
 
   if (pkg._executables) {
     for (const [name, path] of pkg._executables.entries()) {

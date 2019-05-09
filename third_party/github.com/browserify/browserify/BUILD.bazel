@@ -1,0 +1,45 @@
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+
+package(default_visibility = ["//visibility:public"])
+
+licenses(["notice"])
+
+# LICENCE downloaded from browserify v16.2.3 release commit
+# https://github.com/browserify/browserify/blob/cfd3af23f6383bb5899dbb5e39beb7834b042d85/LICENSE
+# 
+# This directory contains the [browserify](https://github.com/browserify/browserify) v16.2.3 npm package
+# compiled into a single index.js file by [@zeit/ncc](https://github.com/zeit/ncc) and minified into
+# an index.min.js file by [terser](https://github.com/terser-js/terser).
+#
+# The script that generates this distribution is under `/scripts/vendor_browserify.sh`.
+# 
+# Licensing comments are preserved in the terser step with the following comments filter
+# `--comments '/(^!|@license|@preserve)/'`.
+exports_files(["LICENSE"])
+
+_SOURCES = [
+    "_empty.js",
+    "_prelude.js",
+    "advanced.txt",
+    "empty.js",
+    "index.min.js",
+    "usage.txt"
+]
+
+# Don't glob(["*"]) so that index.js is not included in the package as
+# it is very large and we only want to include index.min.js
+filegroup(
+    name = "package_contents",
+    srcs = _SOURCES + [
+        "BUILD.bazel",
+        "LICENSE",
+    ],
+    visibility = ["//:__pkg__"],
+)
+
+filegroup(
+    name = "sources",
+    srcs = _SOURCES + [
+        "//third_party/github.com/jhermsmeier/browserify-named-amd:sources",
+    ],
+)
