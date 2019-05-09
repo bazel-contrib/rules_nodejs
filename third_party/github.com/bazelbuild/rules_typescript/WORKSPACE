@@ -34,7 +34,6 @@ yarn_install(
     name = "npm",
     package_json = "//:package.json",
     yarn_lock = "//:yarn.lock",
-    data = ["//:postinstall-patches.js"],
 )
 
 load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
