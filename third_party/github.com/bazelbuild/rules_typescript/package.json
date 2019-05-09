@@ -10,7 +10,7 @@
         "@bazel/bazel": "~0.22.0",
         "@bazel/buildifier": "^0.20.0",
         "@bazel/ibazel": "^0.2.0",
-        "@bazel/typescript": "0.27.9",
+        "@bazel/typescript": "0.28.0",
         "@types/jasmine": "^2.8.2",
         "@types/long": "^4.0.0",
         "@types/node": "7.0.18",
@@ -37,6 +37,7 @@
         "which": "~1.0.5"
     },
     "scripts": {
+        "postinstall": "node --preserve-symlinks --preserve-symlinks-main ./postinstall-patches.js",
         "pree2e": "webdriver-manager update $CHROMEDRIVER_VERSION_ARG && bazel build //examples/app:e2e //examples/protocol_buffers:e2e",
         "e2e": "yarn e2e-examples-app-devserver && yarn e2e-examples-app-prodserver && yarn e2e-examples-protobuf-devserver && yarn e2e-examples-protobuf-prodserver",
         "e2e-examples-app-devserver": "concurrently \"bazel run //examples/app:devserver\" \"while ! nc -z 127.0.0.1 8080; do sleep 1; done && protractor --suite app\" --kill-others --success first",

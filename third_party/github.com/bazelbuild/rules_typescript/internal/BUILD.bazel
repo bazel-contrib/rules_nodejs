@@ -110,7 +110,6 @@ jasmine_node_test(
     srcs = [],
     deps = [
         ":test_lib",
-        "@npm//bytebuffer",
         "@npm//jasmine",
         "@npm//protobufjs",
         "@npm//source-map",
