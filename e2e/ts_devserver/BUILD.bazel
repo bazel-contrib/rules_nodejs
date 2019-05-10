@@ -24,8 +24,8 @@ ts_library(
     srcs = ["app.ts"],
     deps = [
         "@npm//date-fns",
-        "@npm//typeorm",
         "@npm//rxjs",
+        "@npm//typeorm",
     ],
 )
 
