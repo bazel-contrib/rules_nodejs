@@ -22,7 +22,11 @@ exports_files([
 ts_library(
     name = "app",
     srcs = ["app.ts"],
-    deps = ["@npm//date-fns"],
+    deps = [
+        "@npm//date-fns",
+        "@npm//typeorm",
+        "@npm//rxjs",
+    ],
 )
 
 ts_devserver(
@@ -31,6 +35,8 @@ ts_devserver(
     port = 8080,
     scripts = [
         "@npm//node_modules/date-fns:date-fns.umd.js",
+        "@npm//node_modules/typeorm:typeorm.umd.js",
+        "@npm//node_modules/rxjs:rxjs.umd.js",
     ],
     # We'll collect all the devmode JS sources from these TypeScript libraries
     deps = [":app"],
