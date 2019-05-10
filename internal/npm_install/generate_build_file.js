@@ -661,7 +661,7 @@ function resolveMainFile(pkg, mainFileName) {
     } else if(typeof mainEntryField === 'object' && mainFileName === 'browser') {
       // browser has a weird way of defining this
       // the browser value is an object listing files to alias, usually pointing to a browser dir
-      const indexEntryPoint = browserObj['index.js'] || browserObj['./index.js'];
+      const indexEntryPoint = mainEntryField['index.js'] || mainEntryField['./index.js'];
       if(indexEntryPoint) {
         return findEntryFile(pkg, indexEntryPoint)
       }
