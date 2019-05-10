@@ -637,17 +637,18 @@ function findEntryFile(pkg, path) {
     // in some npm packages that list an incorrect main such as v8-coverage@1.0.8
     // which lists `"main": "index.js"` but that file does not exist.
     if (DEBUG) {
-      console.error(`Could not find "main" entry point ${pkg.main} in npm package ${pkg._name}`);
+      console.error(
+          `Could not find entry point for the path ${cleanPath} given by npm package ${pkg._name}`)
     }
   }
   return entryFile;
 }
 
 /**
- * Tries to resolve the index file from the pkg for a given mainFileName  
- * 
- * @param {any} pkg 
- * @param {'browser' | 'module' | 'main'} mainFileName 
+ * Tries to resolve the entryPoint file from the pkg for a given mainFileName
+ *
+ * @param {any} pkg
+ * @param {'browser' | 'module' | 'main'} mainFileName
  * @returns {string | undefined} the path or undefined if we cant resolve the file
  */
 function resolveMainFile(pkg, mainFileName) {
@@ -659,7 +660,7 @@ function resolveMainFile(pkg, mainFileName) {
 
     } else if(typeof mainEntryField === 'object' && mainFileName === 'browser') {
       // browser has a weird way of defining this
-      // the browser value is an object listing files to alias, usually point to a browser dir
+      // the browser value is an object listing files to alias, usually pointing to a browser dir
       const indexEntryPoint = browserObj['index.js'] || browserObj['./index.js'];
       if(indexEntryPoint) {
         return findEntryFile(pkg, indexEntryPoint)
@@ -698,6 +699,11 @@ function resolvePkgMainFile(pkg) {
   const maybeSelfNamedIndex = findEntryFile(pkg, `${pkg._name}.js`);
   if(maybeSelfNamedIndex) {
     return maybeSelfNamedIndex;
+  }
+
+  if (DEBUG) {
+    // none of the methods we tried resulted in a file
+    console.error(`Could not find entry point for npm package ${pkg._name}`)
   }
 
   // at this point there's nothing left for us to try, so return nothing
