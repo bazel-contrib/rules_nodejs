@@ -31,6 +31,7 @@ def _npm_umd_bundle(ctx):
     args.add(ctx.attr.package_name)
     args.add(ctx.file.entry_point.path)
     args.add(output.path)
+    args.add_joined(ctx.attr.excluded, join_with = ",")
 
     sources = ctx.attr.package[NodeModuleSources].sources.to_list()
 
@@ -64,6 +65,28 @@ NPM_UMD_ATTRS = {
         doc = """Entry point for the npm package""",
         mandatory = True,
         allow_single_file = True,
+    ),
+    "excluded": attr.string_list(
+        doc = """List of excluded packages that should not be bundled by browserify.
+
+Packages listed here are passed to browserify with the `-u` argument. See https://github.com/browserify/browserify#usage
+for details.
+
+For example, `typeorm` npm package has an optional dependency on `react-native-sqlite-storage`. For browserify to
+ignore this optional require and leave it as `require('react-native-sqlite-storage')` in the output UMD bundle, you
+must specify `react-native-sqlite-storage` in the excluded attribute:
+
+```
+npm_umd_bundle(
+    name = "typeorm_umd",
+    package_name = "typeorm",
+    entry_point = "@npm//:node_modules/typeorm/browser/index.js",
+    excluded = ["react-native-sqlite-storage"],
+    package = "@npm//typeorm",
+)
+```
+
+This target would be then be used instead of the generated `@npm//typeorm:typeorm__umd` target in other rules.""",
     ),
     "package": attr.label(
         doc = """The npm package target""",

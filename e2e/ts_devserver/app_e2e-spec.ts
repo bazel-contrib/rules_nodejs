@@ -17,4 +17,16 @@ describe('app', () => {
     div.getText().then(t => expect(t).toEqual(`Hello, TypeScript today is May 7, 2019`));
     done();
   });
+
+  it('should display: firstname: foo', (done) => {
+    const div = element(by.css('div.entrypoint-browser'));
+    div.getText().then(t => expect(t).toEqual(`firstname: foo`));
+    done();
+  });
+
+  it('should display: rxjs works with modules!', (done) => {
+    const div = element(by.css('div.entrypoint-module'));
+    div.getText().then(t => expect(t).toEqual(`rxjs works with modules!`));
+    done();
+  });
 });

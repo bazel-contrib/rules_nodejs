@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
 load("@npm_bazel_protractor//:index.bzl", "protractor_web_test_suite")
 load("@npm_bazel_typescript//:index.bzl", "ts_devserver", "ts_library")
 
@@ -24,7 +25,21 @@ exports_files([
 ts_library(
     name = "app",
     srcs = ["app.ts"],
-    deps = ["@npm//date-fns"],
+    deps = [
+        "@npm//date-fns",
+        "@npm//rxjs",
+        "@npm//typeorm",
+    ],
+)
+
+# typeorm is a special case for npm_umd_bundle as we need to excluded
+# the `react-native-sqlite-storage` dynamic require from the umd bundle
+npm_umd_bundle(
+    name = "typeorm_umd",
+    package_name = "typeorm",
+    entry_point = "@npm//:node_modules/typeorm/browser/index.js",
+    excluded = ["react-native-sqlite-storage"],
+    package = "@npm//typeorm",
 )
 
 ts_devserver(
@@ -32,6 +47,8 @@ ts_devserver(
     entry_module = "e2e_ts_devserver/app",
     scripts = [
         "@npm//date-fns:date-fns.umd.js",
+        "@npm//rxjs:rxjs.umd.js",
+        ":typeorm.umd.js",
     ],
     # We'll collect all the devmode JS sources from these TypeScript libraries
     deps = [":app"],

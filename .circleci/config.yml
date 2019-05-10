@@ -154,6 +154,10 @@ jobs:
 
       - run: bazel test ... --test_tag_filters=-e2e,-examples
 
+      - store_artifacts:
+          path: dist/bin/release.tar.gz
+          destination: release.tar.gz
+
   test_e2e:
     <<: *job_defaults
     resource_class: xlarge

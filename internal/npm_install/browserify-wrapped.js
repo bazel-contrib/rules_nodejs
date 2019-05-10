@@ -22,9 +22,13 @@ const child_process = require('child_process');
 
 const DEBUG = false;
 
+const BABEL_PLUGINS = [
+  '@babel/plugin-transform-modules-commonjs',
+];
+
 runBrowserify(...process.argv.slice(2));
 
-function runBrowserify(workspaceName, packageName, entryPoint, output) {
+function runBrowserify(workspaceName, packageName, entryPoint, output, excluded = '') {
   if (DEBUG)
     console.error(`
 browserify-wrapped: running with
@@ -32,19 +36,17 @@ browserify-wrapped: running with
   workspaceName: ${workspaceName},
   packageName: ${packageName}
   entryPoint: ${entryPoint}
-  output: ${output}`);
+  output: ${output}
+  excluded: ${excluded}`);
 
-  // browserify is ncc bundled & terser minified into third_party
-  const browserify = require.resolve(
-      `build_bazel_rules_nodejs/third_party/github.com/browserify/browserify/index.${DEBUG ? '' : 'min.'}js`);
+  const browserify = require.resolve(`browserify/index${DEBUG ? '.debug' : ''}.js`);
+  const namedAmd = require.resolve('named-amd');
+  const babelify = require.resolve('babelify');
+  const plugins = BABEL_PLUGINS.map(p => require.resolve(p));
 
-  // named-amd plugin is vendored in under third_party
-  const namedAmd = require.resolve(
-      'build_bazel_rules_nodejs/third_party/github.com/jhermsmeier/browserify-named-amd/named-amd.js');
-
-  const args = [
-    browserify, entryPoint,
-    '--preserve-symlinks',
+  let args = [
+    browserify, entryPoint, '--preserve-symlinks', '-t', '[', babelify, '--plugins', '[',
+    ...plugins, ']', ']',
     // Supply the name to use for the AMD define with named-amd plugin
     '-p', '[', namedAmd, '--name', packageName, ']',
     // Output a stand-alone UMD bundle. Sanitized version the supplied name is used for
@@ -53,6 +55,9 @@ browserify-wrapped: running with
     // conflicts with other globals.
     '-s', `browserify_${workspaceName}_${packageName}`, '-o', output
   ];
+  for (const e of excluded.split(',')) {
+    args = args.concat(['-u', e])
+  }
 
   if (DEBUG) console.error(`\nRunning: node ${args.join(' ')}\n`);
 
