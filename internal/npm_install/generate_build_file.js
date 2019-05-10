@@ -582,6 +582,96 @@ function cleanupEntryPointPath(p) {
 }
 
 /**
+ * Cleans up the given path  
+ * Then tries to resolve the path into a file and warns if in DEBUG and the file dosen't exist
+ * @param {any} pkg 
+ * @param {string} path 
+ * @returns {string | undefined}
+ */
+function findEntryFile(pkg, path) {
+  const cleanPath = cleanupEntryPointPath(path);
+  // check if main entry point exists
+  const entryFile = findFile(pkg, cleanPath) || findFile(pkg, `${cleanPath}.js`);
+  if(!entryFile) {
+    // If entryPoint entry point listed could not be resolved to a file
+    // This can happen
+    // in some npm packages that list an incorrect main such as v8-coverage@1.0.8
+    // which lists `"main": "index.js"` but that file does not exist.
+    if (DEBUG) {
+      console.error(
+          `Could not find entry point for the path ${cleanPath} given by npm package ${pkg._name}`)
+    }
+  }
+  return entryFile;
+}
+
+/**
+ * Tries to resolve the entryPoint file from the pkg for a given mainFileName
+ *
+ * @param {any} pkg
+ * @param {'browser' | 'module' | 'main'} mainFileName
+ * @returns {string | undefined} the path or undefined if we cant resolve the file
+ */
+function resolveMainFile(pkg, mainFileName) {
+  const mainEntryField = pkg[mainFileName];
+
+  if (mainEntryField) {
+    if(typeof mainEntryField === 'string') {
+      return findEntryFile(pkg, mainEntryField)
+
+    } else if(typeof mainEntryField === 'object' && mainFileName === 'browser') {
+      // browser has a weird way of defining this
+      // the browser value is an object listing files to alias, usually pointing to a browser dir
+      const indexEntryPoint = mainEntryField['index.js'] || mainEntryField['./index.js'];
+      if(indexEntryPoint) {
+        return findEntryFile(pkg, indexEntryPoint)
+      }
+    }
+  }
+}
+
+/**
+ * Tries to resolve the mainFile from a given pkg  
+ * This uses seveal mainFileNames in priority to find a correct usable file
+ * @param {any} pkg 
+ * @returns {string | undefined}
+ */
+function resolvePkgMainFile(pkg) {
+  // es2015 is another option for mainFile here
+  // but its very uncommon and im not sure what priority it takes
+  //
+  // this list is ordered, we try resolve `browser` first, then `module` and finally fall back to `main`
+  const mainFileNames = ['browser', 'module', 'main']
+
+  for(const mainFile of mainFileNames) {
+    const resolvedMainFile = resolveMainFile(pkg, mainFile);
+    if(resolvedMainFile) {
+      return resolvedMainFile;
+    }
+  }
+
+  // if we cant find any correct file references from the pkg
+  // then we just try looking around for common patterns
+  const maybeRootIndex = findEntryFile(pkg, 'index.js');
+  if(maybeRootIndex) {
+    return maybeRootIndex
+  }
+
+  const maybeSelfNamedIndex = findEntryFile(pkg, `${pkg._name}.js`);
+  if(maybeSelfNamedIndex) {
+    return maybeSelfNamedIndex;
+  }
+
+  if (DEBUG) {
+    // none of the methods we tried resulted in a file
+    console.error(`Could not find entry point for npm package ${pkg._name}`)
+  }
+
+  // at this point there's nothing left for us to try, so return nothing
+  return undefined;
+}
+
+/**
  * Flattens all transitive dependencies of a package
  * into a _dependencies array.
  */
@@ -807,22 +897,7 @@ node_module_library(
 
 `;
 
-  let mainEntryPoint = pkg.main ? cleanupEntryPointPath(pkg.main) : undefined;
-  if (mainEntryPoint) {
-    // check if main entry point exists
-    mainEntryPoint = findFile(pkg, mainEntryPoint) || findFile(pkg, `${mainEntryPoint}.js`);
-    if (!mainEntryPoint) {
-      // If "main" entry point listed could not be resolved to a file
-      // then don't create an npm_umd_bundle target. This can happen
-      // in some npm packages that list an incorrect main such as v8-coverage@1.0.8
-      // which lists `"main": "index.js"` but that file does not exist.
-      if (DEBUG)
-        console.error(`Could not find "main" entry point ${pkg.main} in npm package ${pkg._name}`);
-    }
-  } else {
-    // if "main" is not specified then look for a root index.js
-    mainEntryPoint = findFile(pkg, 'index.js');
-  }
+  let mainEntryPoint = resolvePkgMainFile(pkg)
 
   // add an `npm_umd_bundle` target to generate an UMD bundle if one does
   // not exists

@@ -1,13 +1,9 @@
 .idea
 rules_nodejs-*.tar.gz
 dist
-release
 bazel-out
 /e2e/*/bazel-*
 /examples/*/bazel-*
 /packages/*/bazel-*
 node_modules
-examples/vendored_node/node-v10.12.0-linux-x64
-examples/vendored_node/node-v10.12.0-linux-x64.tar.xz
-examples/vendored_node/yarn-v1.10.0
-examples/vendored_node/yarn-v1.10.0.tar.gz
+!/third_party/npm/node_modules

@@ -54,14 +54,32 @@ npm_umd_bundle(
     package = "@npm//sinon",
 )
 
+npm_umd_bundle(
+    name = "test-rxjs-umd",
+    package_name = "rxjs",
+    entry_point = "@npm//:node_modules/rxjs/_esm5/index.js",
+    package = "@npm//rxjs",
+)
+
+npm_umd_bundle(
+    name = "test-typeorm-umd",
+    package_name = "typeorm",
+    entry_point = "@npm//:node_modules/typeorm/browser/index.js",
+    excluded = ["react-native-sqlite-storage"],
+    package = "@npm//typeorm",
+)
+
 jasmine_node_test(
     name = "browserify_test",
     srcs = ["browserify.spec.js"],
     data = [
         ":core-util-is.umd.js",
         ":minimist.umd.js",
+        ":rxjs.umd.js",
         ":sinon.umd.js",
+        ":typeorm.umd.js",
         "//internal/npm_install:browserify-wrapped",
+        "@npm//date-fns:date-fns.umd.js",
     ],
 )
 
