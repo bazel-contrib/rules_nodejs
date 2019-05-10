@@ -45,8 +45,7 @@ ts_library(
     srcs = glob(
         [
             "tsc_wrapped/*.ts",
-            "tsetse/*.ts",
-            "tsetse/rules/*.ts",
+            "tsetse/**/*.ts",
         ],
         exclude = [
             "**/test_support.ts",
@@ -93,9 +92,15 @@ nodejs_binary(
 
 ts_library(
     name = "test_lib",
-    srcs = glob(["tsc_wrapped/*_test.ts"]) + ["tsc_wrapped/test_support.ts"],
-    tsconfig = "//internal:tsc_wrapped/tsconfig.json",
+    srcs = glob([
+        "tsc_wrapped/*_test.ts",
+        "tsetse/**/*_test.ts",
+    ]) + [
+        "tsc_wrapped/test_support.ts",
+        "tsetse/util/testing/test_support.ts",
+    ],
     compiler = "@build_bazel_rules_typescript//internal:tsc_wrapped_bin",
+    tsconfig = "//internal:tsc_wrapped/tsconfig.json",
     deps = [
         ":tsc_wrapped",
         "@npm//@types/jasmine",

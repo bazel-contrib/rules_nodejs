@@ -38,8 +38,8 @@ def rules_typescript_dev_dependencies():
     _maybe(
         http_archive,
         name = "io_bazel",
-        urls = ["https://github.com/bazelbuild/bazel/releases/download/0.25.0/bazel-0.25.0-dist.zip"],
-        sha256 = "f624fe9ca8d51de192655369ac538c420afb7cde16e1ad052554b582fff09287",
+        urls = ["https://github.com/bazelbuild/bazel/releases/download/0.21.0/bazel-0.21.0-dist.zip"],
+        sha256 = "6ccb831e683179e0cfb351cb11ea297b4db48f9eab987601c038aa0f83037db4",
     )
 
     # For building ts_devserver and ts_auto_deps binaries
