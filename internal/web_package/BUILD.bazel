@@ -30,7 +30,7 @@ nodejs_binary(
     name = "injector",
     data = [
         "injector.js",
-        "@build_bazel_rules_nodejs_web_package_deps//parse5",
+        "//third_party/github.com/inikulin/parse5",
     ],
     entry_point = "build_bazel_rules_nodejs/internal/web_package/injector.js",
     install_source_map_support = False,
@@ -45,21 +45,22 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
 jasmine_node_test(
     name = "injector_test",
     srcs = ["injector_spec.js"],
-    node_modules = "@build_bazel_rules_nodejs_web_package_deps//:node_modules",
     deps = [
-        "injector.js",
+        ":injector.js",
+        "//third_party/github.com/inikulin/parse5",
+        "@npm//jasmine",
     ],
 )
 
 jasmine_node_test(
     name = "assembler_test",
     srcs = ["assembler_spec.js"],
-    node_modules = "@build_bazel_rules_nodejs_web_package_deps//:node_modules",
     tags = [
         "fix-windows",
     ],
     deps = [
         "assembler.js",
+        "@npm//jasmine",
     ],
 )
 

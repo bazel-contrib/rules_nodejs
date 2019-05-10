@@ -587,13 +587,6 @@ def node_repositories(
         yarn_lock = "@build_bazel_rules_nodejs//internal/http-server:yarn.lock",
     )
 
-    _maybe(
-        yarn_install,
-        name = "build_bazel_rules_nodejs_web_package_deps",
-        package_json = "@build_bazel_rules_nodejs//internal/web_package:package.json",
-        yarn_lock = "@build_bazel_rules_nodejs//internal/web_package:yarn.lock",
-    )
-
 def _maybe(repo_rule, name, **kwargs):
     if name not in native.existing_rules():
         repo_rule(name = name, **kwargs)

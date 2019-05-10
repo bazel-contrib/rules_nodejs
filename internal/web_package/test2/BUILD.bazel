@@ -38,8 +38,8 @@ jasmine_node_test(
     data = [
         "index_golden.html_",
         ":pkg",
+        "@npm//jasmine",
     ],
-    node_modules = "@build_bazel_rules_nodejs_web_package_deps//:node_modules",
     tags = [
         "fix-windows",
     ],
