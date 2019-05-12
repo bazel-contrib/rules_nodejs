@@ -38,10 +38,9 @@ def _impl(repository_ctx):
             if host_os in repo_name:
                 host_tool = "@%s//:node" % repo_name
 
-
         if not target_tool or not host_tool:
             fail(("No host_tool for Host OS '%s' and/or no target_tool for provided OS '%s' found with given nodejs" +
-                 " repository names: %s.") % (host_os, repository_ctx.attr.os, repository_ctx.attr.nodejs_repository_names))
+                  " repository names: %s.") % (host_os, repository_ctx.attr.os, repository_ctx.attr.nodejs_repository_names))
 
         substitutions = {
             "%{ARCH}": "%s" % repository_ctx.attr.arch,
