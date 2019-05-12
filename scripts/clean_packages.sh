@@ -19,6 +19,6 @@ for package in ${PACKAGES[@]} ; do
     printf "\n\nCleaning package ${package}\n"
     ${RULES_NODEJS_DIR}/scripts/unlink_deps.sh
     echo_and_run bazel clean --expunge
-    echo_and_run rm -rf node_modules
+    echo_and_run rm -rf `find . -type d -name node_modules -prune`
   )
 done

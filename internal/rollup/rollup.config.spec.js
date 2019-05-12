@@ -11,7 +11,7 @@ TMPL_additional_plugins = [];
 TMPL_banner_file = '';
 TMPL_stamp_data = '';
 TMPL_inputs = '';
-TMPL_default_node_modules = false;
+TMPL_is_default_node_modules = false;
 
 const baseDir = '/root/base';
 const files = [

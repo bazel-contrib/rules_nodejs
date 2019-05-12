@@ -1,10 +1,11 @@
 load("//:defs.bzl", "jasmine_node_test", "npm_package")
 load("//internal/common:typescript_mock_lib.bzl", "mock_typescript_lib")
+load("//third_party/github.com/bazelbuild/bazel-skylib:rules/write_file.bzl", "write_file")
 
-genrule(
+write_file(
     name = "produces_files",
-    outs = ["a_dep"],
-    cmd = "echo \"a_dep content\" > $@",
+    out = "a_dep",
+    content = ["a_dep content"],
 )
 
 mock_typescript_lib(
@@ -30,6 +31,7 @@ npm_package(
     packages = [":dependent_pkg"],
     replacements = {"replace_me": "replaced"},
     deps = [
+        ":bundle.min.js",
         ":produces_files",
         ":ts_library",
     ],
@@ -40,4 +42,10 @@ jasmine_node_test(
     srcs = ["npm_package.spec.js"],
     data = [":test_pkg"],
     deps = ["@npm//jasmine"],
+)
+
+genrule(
+    name = "bundle",
+    outs = ["bundle.min.js"],
+    cmd = "echo -n 'bundle content' > $@",
 )

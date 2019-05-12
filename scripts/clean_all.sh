@@ -11,9 +11,7 @@ cd ${RULES_NODEJS_DIR}
 echo_and_run() { echo "+ $@" ; "$@" ; }
 
 echo_and_run rm -rf ./dist
-echo_and_run rm -rf ./node_modules
-echo_and_run rm -rf ./examples/program/node_modules
-echo_and_run rm -rf ./internal/npm_install/test/package/node_modules
+echo_and_run rm -rf `find . -type d -name node_modules -prune -not -path "./internal/npm_install/test/golden/node_modules"`
 
 echo_and_run bazel clean --expunge
 
@@ -30,7 +28,7 @@ ${RULES_NODEJS_DIR}/scripts/clean_packages_all.sh
       if [[ -e 'WORKSPACE' ]] ; then
         printf "\n\nCleaning /internal/e2e/${subDir}\n"
         echo_and_run bazel clean --expunge
-        echo_and_run rm -rf node_modules
+        echo_and_run rm -rf `find . -type d -name node_modules -prune`
       fi
     )
   done

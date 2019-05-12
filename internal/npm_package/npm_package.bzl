@@ -66,6 +66,7 @@ def create_package(ctx, deps_sources, nested_packages):
         inputs.append(ctx.version_file)
 
     ctx.actions.run(
+        progress_message = "Assembling npm package %s" % package_dir.short_path,
         executable = ctx.executable._packager,
         inputs = inputs,
         outputs = [package_dir, ctx.outputs.pack, ctx.outputs.publish],
@@ -88,9 +89,14 @@ def _npm_package(ctx):
             deps_sources,
             # Collect whatever is in the "data"
             dep.data_runfiles.files,
-            # For JavaScript-producing rules, gather up the devmode Node.js sources
-            dep.node_sources,
         ]
+
+        if hasattr(dep, "node_sources"):
+            # For JavaScript-producing rules, gather up the devmode Node.js sources
+            transitive.append(dep.node_sources)
+        else:
+            # For standalone Output File Targets (aspects not invoked on these)
+            transitive.append(dep.files)
 
         # ts_library doesn't include .d.ts outputs in the runfiles
         # see comment in rules_typescript/internal/common/compilation.bzl
@@ -133,6 +139,7 @@ NPM_PACKAGE_ATTRS = {
     "deps": attr.label_list(
         doc = """Other targets which produce files that should be included in the package, such as `rollup_bundle`""",
         aspects = [sources_aspect],
+        allow_files = True,
     ),
     "_packager": attr.label(
         default = Label("//internal/npm_package:packager"),
@@ -213,3 +220,13 @@ $ bazel run :my_package.publish
 
 You can pass arguments to npm by escaping them from Bazel using a double-hyphen `bazel run my_package.publish -- --tag=next`
 """
+# Adding the above docstring as `doc` attribute
+# causes a build error but ONLY on Ubuntu 14.04 on BazelCI.
+# ```
+# File "internal/npm_package/npm_package.bzl", line 221, in <module>
+#     outputs = NPM_PACKAGE_OUTPUTS,
+# TypeError: rule() got an unexpected keyword argument 'doc'
+# ```
+# This error does not occur on any other platform on BazelCI including Ubuntu 16.04.
+# TOOD(gregmagolan): Figure out why and/or file a bug to Bazel
+# See https://github.com/bazelbuild/buildtools/issues/471#issuecomment-485283200

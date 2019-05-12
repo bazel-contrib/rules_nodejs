@@ -17,21 +17,8 @@
 # to the yarn_install/npm_install external repository before it is run.
 # This makes it less likely to conflict with user data files.
 
-wrap() {
-  out=$("$@" 2>&1)
-  ret="$?"
-  if [[ "$ret" -ne 0 ]]; then
-    >&2 printf "$out"
-    >&2 printf "\n"
-    exit "$ret"
-  fi
-}
-
-MARKER_FILE=$1
+SRC_DIR=$1
 OUT_DIR=$2
 
 mkdir -p "${OUT_DIR}"
-
-SRC_DIR=$(dirname "${MARKER_FILE}")
-
 cp -a $SRC_DIR/. $OUT_DIR

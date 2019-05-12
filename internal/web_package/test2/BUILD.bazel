@@ -1,0 +1,46 @@
+load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test", "rollup_bundle")
+load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_package")
+
+rollup_bundle(
+    name = "local_bundle",
+    srcs = glob(["*.js"]),
+    entry_point = "internal/web_package/test2/script.js",
+)
+
+# Same exts as //internal/web_package/test-exports, //internal/web_package/test2/rel-exports
+EXTS = [
+    "js",
+    "css",
+]
+
+web_package(
+    name = "pkg",
+    assets = [
+                 # a bundle from a different directory
+                 "//internal/web_package/test:bundle",
+                 # a bundle in the current path
+                 ":local_bundle",
+             ] +
+             # bin + gen + exported files from a different directory
+             ["//internal/web_package/test-exports:bin-" + e for e in EXTS] +
+             ["//internal/web_package/test-exports:gen-" + e for e in EXTS] +
+             ["//internal/web_package/test-exports:file." + e for e in EXTS] +
+             # bin + gen + exported files from a sub directory
+             ["//internal/web_package/test2/rel-exports:rel-bin-" + e for e in EXTS] +
+             ["//internal/web_package/test2/rel-exports:rel-gen-" + e for e in EXTS] +
+             ["//internal/web_package/test2/rel-exports:rel-file." + e for e in EXTS],
+    index_html = "index.html",
+)
+
+jasmine_node_test(
+    name = "test",
+    srcs = ["spec.js"],
+    data = [
+        "index_golden.html_",
+        ":pkg",
+        "@npm//jasmine",
+    ],
+    tags = [
+        "fix-windows",
+    ],
+)

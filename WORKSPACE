@@ -34,7 +34,7 @@ local_repository(
 )
 
 local_repository(
-    name = "packages_example",
+    name = "internal_e2e_packages",
     path = "internal/e2e/packages",
 )
 
@@ -81,6 +81,11 @@ yarn_install(
         "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_nested_main/nested/main.js",
         "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_nested_main/nested/package.json",
         "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_nested_main/package.json",
+        "@build_bazel_rules_nodejs//:tools/npm_packages/test_workspace/BUILD.bazel",
+        "@build_bazel_rules_nodejs//:tools/npm_packages/test_workspace/index.js",
+        "@build_bazel_rules_nodejs//:tools/npm_packages/test_workspace/package.json",
+        "@build_bazel_rules_nodejs//:tools/npm_packages/test_workspace/subdir/BUILD.bazel",
+        "@build_bazel_rules_nodejs//:tools/npm_packages/test_workspace/subdir/index.js",
     ],
     package_json = "//:package.json",
     yarn_lock = "//:yarn.lock",
@@ -91,9 +96,9 @@ load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
 
 install_bazel_dependencies()
 
-load("@packages_example//:setup_workspace.bzl", "packages_example_setup_workspace")
+load("@internal_e2e_packages//:setup_workspace.bzl", "internal_e2e_packages_setup_workspace")
 
-packages_example_setup_workspace()
+internal_e2e_packages_setup_workspace()
 
 # Dependencies to run skydoc
 load("@io_bazel_rules_sass//sass:sass_repositories.bzl", "sass_repositories")
@@ -117,8 +122,8 @@ yarn_install(
         ".json",
         ".proto",
     ],
-    package_json = "//internal/e2e/fine_grained_deps:package.json",
-    yarn_lock = "//internal/e2e/fine_grained_deps:yarn.lock",
+    package_json = "//internal/e2e/fine_grained_deps:yarn/package.json",
+    yarn_lock = "//internal/e2e/fine_grained_deps:yarn/yarn.lock",
 )
 
 npm_install(
@@ -130,8 +135,8 @@ npm_install(
         ".json",
         ".proto",
     ],
-    package_json = "//internal/e2e/fine_grained_deps:package.json",
-    package_lock_json = "//internal/e2e/fine_grained_deps:package-lock.json",
+    package_json = "//internal/e2e/fine_grained_deps:npm/package.json",
+    package_lock_json = "//internal/e2e/fine_grained_deps:npm/package-lock.json",
 )
 
 yarn_install(

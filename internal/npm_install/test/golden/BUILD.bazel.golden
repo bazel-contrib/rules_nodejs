@@ -1,6 +1,7 @@
 
 package(default_visibility = ["//visibility:public"])
-filegroup(
+load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
+node_module_library(
     name = "node_modules",
     srcs = [
         "//node_modules/.bin:.bin__files",
@@ -30,5 +31,34 @@ filegroup(
         "//node_modules/@angular/core:core__files",
         "//node_modules/@gregmagolan/test-a:test-a__files",
         "//node_modules/@gregmagolan/test-b:test-b__files",
+    ],
+    deps = [
+        "//node_modules/.bin:.bin__contents",
+        "//node_modules/ajv:ajv__contents",
+        "//node_modules/balanced-match:balanced-match__contents",
+        "//node_modules/brace-expansion:brace-expansion__contents",
+        "//node_modules/co:co__contents",
+        "//node_modules/concat-map:concat-map__contents",
+        "//node_modules/diff:diff__contents",
+        "//node_modules/fast-deep-equal:fast-deep-equal__contents",
+        "//node_modules/fast-json-stable-stringify:fast-json-stable-stringify__contents",
+        "//node_modules/fs.realpath:fs.realpath__contents",
+        "//node_modules/glob:glob__contents",
+        "//node_modules/inflight:inflight__contents",
+        "//node_modules/inherits:inherits__contents",
+        "//node_modules/jasmine:jasmine__contents",
+        "//node_modules/jasmine-core:jasmine-core__contents",
+        "//node_modules/json-schema-traverse:json-schema-traverse__contents",
+        "//node_modules/minimatch:minimatch__contents",
+        "//node_modules/once:once__contents",
+        "//node_modules/path-is-absolute:path-is-absolute__contents",
+        "//node_modules/rxjs:rxjs__contents",
+        "//node_modules/tslib:tslib__contents",
+        "//node_modules/unidiff:unidiff__contents",
+        "//node_modules/wrappy:wrappy__contents",
+        "//node_modules/zone.js:zone.js__contents",
+        "//node_modules/@angular/core:core__contents",
+        "//node_modules/@gregmagolan/test-a:test-a__contents",
+        "//node_modules/@gregmagolan/test-b:test-b__contents",
     ],
 )

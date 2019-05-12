@@ -36,7 +36,7 @@ def _parcel_impl(ctx):
         executable = ctx.executable.parcel,
         outputs = [ctx.outputs.bundle, ctx.outputs.sourcemap],
         arguments = args,
-        progress_message = "Running Parcel to produce %s" % ctx.outputs.bundle.path,
+        progress_message = "Bundling JavaScript %s [parcel]" % ctx.outputs.bundle.short_path,
     )
     return [DefaultInfo()]
 

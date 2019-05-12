@@ -1,8 +1,31 @@
 ---
 platforms:
-  ubuntu1404:
+  ubuntu1604:
     run_targets:
     - "@nodejs//:yarn"
+    - "//internal/node/test:no_deps"
+    - "//internal/node/test:has_deps_legacy"
+    - "//internal/node/test:has_deps"
+    - "//internal/node/test:has_deps_hybrid"
+    - "//internal/e2e/fine_grained_no_bin:index"
+    - "@fine_grained_deps_yarn//typescript/bin:tsc"
+    - "@test_workspace//:bin"
+    - "@test_workspace//subdir:bin"
+    build_targets:
+    - "//..."
+    test_targets:
+    - "//..."
+  ubuntu1804:
+    run_targets:
+    - "@nodejs//:yarn"
+    - "//internal/node/test:no_deps"
+    - "//internal/node/test:has_deps_legacy"
+    - "//internal/node/test:has_deps"
+    - "//internal/node/test:has_deps_hybrid"
+    - "//internal/e2e/fine_grained_no_bin:index"
+    - "@fine_grained_deps_yarn//typescript/bin:tsc"
+    - "@test_workspace//:bin"
+    - "@test_workspace//subdir:bin"
     build_targets:
     - "//..."
     # This target is tagged "manual" but we want some CI
@@ -10,16 +33,17 @@ platforms:
     - "//docs"
     test_targets:
     - "//..."
-  ubuntu1604:
-    run_targets:
-    - "@nodejs//:yarn"
-    build_targets:
-    - "//..."
-    test_targets:
-    - "//..."
   macos:
     run_targets:
     - "@nodejs//:yarn"
+    - "//internal/node/test:no_deps"
+    - "//internal/node/test:has_deps_legacy"
+    - "//internal/node/test:has_deps"
+    - "//internal/node/test:has_deps_hybrid"
+    - "//internal/e2e/fine_grained_no_bin:index"
+    - "@fine_grained_deps_yarn//typescript/bin:tsc"
+    - "@test_workspace//:bin"
+    - "@test_workspace//subdir:bin"
     build_targets:
     - "//..."
     test_targets:
@@ -27,6 +51,14 @@ platforms:
   windows:
     run_targets:
     - "@nodejs//:yarn"
+    - "//internal/node/test:no_deps"
+    - "//internal/node/test:has_deps_legacy"
+    - "//internal/node/test:has_deps"
+    - "//internal/node/test:has_deps_hybrid"
+    - "//internal/e2e/fine_grained_no_bin:index"
+    - "@fine_grained_deps_yarn//typescript/bin:tsc"
+    - "@test_workspace//:bin"
+    - "@test_workspace//subdir:bin"
     build_targets:
     - "//..."
     test_flags:

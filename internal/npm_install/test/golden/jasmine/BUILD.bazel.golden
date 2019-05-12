@@ -9,6 +9,10 @@ alias(
   actual = "//node_modules/jasmine:jasmine__files"
 )
 alias(
+  name = "jasmine__contents",
+  actual = "//node_modules/jasmine:jasmine__contents"
+)
+alias(
   name = "jasmine__typings",
   actual = "//node_modules/jasmine:jasmine__typings"
 )

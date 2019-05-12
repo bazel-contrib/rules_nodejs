@@ -21,6 +21,7 @@ load(
 )
 load(
     "@build_bazel_rules_nodejs//internal/web_package:web_package.bzl",
+    "additional_root_paths",
     "html_asset_inject",
 )
 
@@ -99,11 +100,7 @@ def _ts_devserver(ctx):
             ctx.file.index_html,
             ctx.actions,
             ctx.executable._injector,
-            ctx.attr.additional_root_paths + [
-                ctx.label.package,
-                "/".join([ctx.bin_dir.path, ctx.label.package]),
-                "/".join([ctx.genfiles_dir.path, ctx.label.package]),
-            ],
+            additional_root_paths(ctx),
             [_short_path_to_manifest_path(ctx, f.short_path) for f in ctx.files.static_files] + [bundle_script],
             injected_index,
         )
@@ -217,8 +214,8 @@ ts_devserver = rule(
     },
     doc = """ts_devserver is a simple development server intended for a quick "getting started" experience.
 
-Additional documentation at https://github.com/alexeagle/angular-bazel-example/wiki/Running-a-devserver-under-Bazel
-""",
+    Additional documentation at https://github.com/alexeagle/angular-bazel-example/wiki/Running-a-devserver-under-Bazel
+    """,
 )
 
 def ts_devserver_macro(name, data = [], args = [], visibility = None, tags = [], testonly = 0, **kwargs):

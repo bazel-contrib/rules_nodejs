@@ -9,6 +9,10 @@ alias(
   actual = "//node_modules/@gregmagolan/test-a:test-a__files"
 )
 alias(
+  name = "test-a__contents",
+  actual = "//node_modules/@gregmagolan/test-a:test-a__contents"
+)
+alias(
   name = "test-a__typings",
   actual = "//node_modules/@gregmagolan/test-a:test-a__typings"
 )

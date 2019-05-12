@@ -10,6 +10,6 @@ describe('web_package', () => {
     const actual = fs.readFileSync(require.resolve(output), {encoding: 'utf-8'});
     const expected = fs.readFileSync(require.resolve(golden), {encoding: 'utf-8'});
     // make the input hermetic by replacing the cache-buster timestamp
-    expect(actual.replace(/\?v=\d+/, '?v=123')).toBe(expected);
+    expect(actual.replace(/\?v=\d+/g, '?v=123')).toBe(expected);
   });
 });

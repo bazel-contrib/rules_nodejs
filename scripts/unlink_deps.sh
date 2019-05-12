@@ -6,6 +6,7 @@ set -eu -o pipefail
 # -o pipefail: causes a pipeline to produce a failure return code if any command errors
 
 readonly RULES_NODEJS_DIR=$(cd $(dirname "$0")/..; pwd)
+readonly RELATIVE_DIR=$(pwd | cut -c 2- | cut -c ${#RULES_NODEJS_DIR}-)
 
 echo_and_run() { echo "+ $@" ; "$@" ; }
 
@@ -19,6 +20,8 @@ sedi () {
 
   sed "${sedi[@]}" "$@"
 }
+
+echo "Unlinking deps in ${RELATIVE_DIR}"
 
 # Replaces "file://..." with absolute path to generated npm package under /dist/npm_bazel_foobar$RANDOM
 # back to "bazel://@npm_bazel_foobar//:npm_package"

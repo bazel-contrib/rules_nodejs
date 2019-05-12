@@ -19,5 +19,6 @@ for e2eTest in ${E2E_TESTS[@]} ; do
     printf "\n\nRunning e2e test ${e2eTest}\n"
     ${RULES_NODEJS_DIR}/scripts/link_deps.sh
     echo_and_run yarn test
+    ${RULES_NODEJS_DIR}/scripts/unlink_deps.sh
   )
 done

@@ -15,9 +15,9 @@ describe('app', () => {
     browser.wait(ExpectedConditions.presenceOf(element(by.css('div.ts1'))), timeoutMs);
   }, timeoutMs);
 
-  it('should display: Hello, TypeScript', (done) => {
+  it('should display: Hello, TypeScript today is May 7, 2019', (done) => {
     const div = element(by.css('div.ts1'));
-    div.getText().then(t => expect(t).toEqual(`Hello, TypeScript`));
+    div.getText().then(t => expect(t).toEqual(`Hello, TypeScript today is May 7, 2019`));
     done();
   });
 });

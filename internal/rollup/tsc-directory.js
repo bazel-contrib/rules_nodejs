@@ -48,8 +48,11 @@ function runTsc(inputDir, outputDir, projectFile) {
 
   const tsConfig = {
     'compilerOptions': {
+      // no types needed since we are just downleveling
+      'types': [],
+      'skipLibCheck': true,
       'target': 'es5',
-      'lib': ['es6'],
+      'lib': ['es2015', 'dom'],
       'allowJs': true,
       'outDir': outputBasename,
     },

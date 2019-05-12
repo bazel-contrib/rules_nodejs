@@ -1,0 +1,20 @@
+load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
+
+package(default_visibility = ["//visibility:public"])
+
+# This package vendored from https://github.com/inikulin/parse5/tree/v5.1.0
+licenses(["notice"])
+
+exports_files(["LICENSE"])
+
+js_library(
+    name = "parse5",
+    srcs = glob(["**/*.js"]),
+    module_name = "parse5",
+    module_root = "packages/parse5/lib",
+)
+
+filegroup(
+    name = "package_contents",
+    srcs = glob(["**/*"]),
+)

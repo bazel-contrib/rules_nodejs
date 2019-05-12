@@ -18,9 +18,9 @@ The versions of Rollup and terser are controlled by the Bazel toolchain.
 You do not need to install them into your project.
 """
 
+load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleSources", "collect_node_modules_aspect")
 load("//internal/common:collect_es6_sources.bzl", _collect_es2015_sources = "collect_es6_sources")
 load("//internal/common:module_mappings.bzl", "get_module_mappings")
-load("//internal/common:node_module_info.bzl", "NodeModuleInfo", "collect_node_modules_aspect")
 
 _ROLLUP_MODULE_MAPPINGS_ATTR = "rollup_module_mappings"
 
@@ -43,6 +43,42 @@ def _trim_package_node_modules(package_name):
             break
         segments += [n]
     return "/".join(segments)
+
+# This function is similar but slightly different than _compute_node_modules_root
+# in /internal/node/node.bzl. TODO(gregmagolan): consolidate these functions
+def _compute_node_modules_root(ctx):
+    """Computes the node_modules root from the node_modules and deps attributes.
+
+    Args:
+      ctx: the skylark execution context
+
+    Returns:
+      The node_modules root as a string
+    """
+    node_modules_root = None
+    if ctx.files.node_modules:
+        # ctx.files.node_modules is not an empty list
+        node_modules_root = "/".join([f for f in [
+            ctx.attr.node_modules.label.workspace_root,
+            _trim_package_node_modules(ctx.attr.node_modules.label.package),
+            "node_modules",
+        ] if f])
+    for d in ctx.attr.deps:
+        if NodeModuleSources in d:
+            possible_root = "/".join(["external", d[NodeModuleSources].workspace, "node_modules"])
+            if not node_modules_root:
+                node_modules_root = possible_root
+            elif node_modules_root != possible_root:
+                fail("All npm dependencies need to come from a single workspace. Found '%s' and '%s'." % (node_modules_root, possible_root))
+    if not node_modules_root:
+        # there are no fine grained deps and the node_modules attribute is an empty filegroup
+        # but we still need a node_modules_root even if its empty
+        node_modules_root = "/".join([f for f in [
+            ctx.attr.node_modules.label.workspace_root,
+            ctx.attr.node_modules.label.package,
+            "node_modules",
+        ] if f])
+    return node_modules_root
 
 def write_rollup_config(ctx, plugins = [], root_dir = None, filename = "_%s.rollup.conf.js", output_format = "iife", additional_entry_points = []):
     """Generate a rollup config file.
@@ -82,33 +118,10 @@ def write_rollup_config(ctx, plugins = [], root_dir = None, filename = "_%s.roll
         # This must be .es6 to match collect_es6_sources.bzl
         root_dir = "/".join([ctx.bin_dir.path, build_file_dirname, ctx.label.name + ".es6"])
 
-    node_modules_root = None
-    default_node_modules = False
-    if ctx.files.node_modules:
-        # ctx.files.node_modules is not an empty list
-        node_modules_root = "/".join([f for f in [
-            ctx.attr.node_modules.label.workspace_root,
-            _trim_package_node_modules(ctx.attr.node_modules.label.package),
-            "node_modules",
-        ] if f])
-    for d in ctx.attr.deps:
-        if NodeModuleInfo in d:
-            possible_root = "/".join(["external", d[NodeModuleInfo].workspace, "node_modules"])
-            if not node_modules_root:
-                node_modules_root = possible_root
-            elif node_modules_root != possible_root:
-                fail("All npm dependencies need to come from a single workspace. Found '%s' and '%s'." % (node_modules_root, possible_root))
-    if not node_modules_root:
-        # there are no fine grained deps and the node_modules attribute is an empty filegroup
-        # but we still need a node_modules_root even if its empty
-        workspace = ctx.attr.node_modules.label.workspace_root.split("/")[1] if ctx.attr.node_modules.label.workspace_root else ctx.workspace_name
-        if workspace == "build_bazel_rules_nodejs" and ctx.attr.node_modules.label.package == "" and ctx.attr.node_modules.label.name == "node_modules_none":
-            default_node_modules = True
-        node_modules_root = "/".join([f for f in [
-            ctx.attr.node_modules.label.workspace_root,
-            ctx.attr.node_modules.label.package,
-            "node_modules",
-        ] if f])
+    node_modules_root = _compute_node_modules_root(ctx)
+    is_default_node_modules = False
+    if node_modules_root == "node_modules" and ctx.attr.node_modules.label.package == "" and ctx.attr.node_modules.label.name == "node_modules_none":
+        is_default_node_modules = True
 
     ctx.actions.expand_template(
         output = config,
@@ -116,9 +129,9 @@ def write_rollup_config(ctx, plugins = [], root_dir = None, filename = "_%s.roll
         substitutions = {
             "TMPL_additional_plugins": ",\n".join(plugins),
             "TMPL_banner_file": "\"%s\"" % ctx.file.license_banner.path if ctx.file.license_banner else "undefined",
-            "TMPL_default_node_modules": "true" if default_node_modules else "false",
             "TMPL_global_name": ctx.attr.global_name if ctx.attr.global_name else ctx.label.name,
             "TMPL_inputs": ",".join(["\"%s\"" % e for e in entry_points]),
+            "TMPL_is_default_node_modules": "true" if is_default_node_modules else "false",
             "TMPL_module_mappings": str(mappings),
             "TMPL_node_modules_root": node_modules_root,
             "TMPL_output_format": output_format,
@@ -157,7 +170,9 @@ def _filter_js_inputs(all_inputs):
     return [
         f
         for f in all_inputs
-        if f.path.endswith(".js") or f.path.endswith(".json")
+        # We also need to include ".map" files as these can be read by
+        # the "rollup-plugin-sourcemaps" plugin.
+        if f.path.endswith(".js") or f.path.endswith(".json") or f.path.endswith(".map")
     ]
 
 def _run_rollup(ctx, sources, config, output, map_output = None):
@@ -184,11 +199,11 @@ def _run_rollup(ctx, sources, config, output, map_output = None):
     direct_inputs += _filter_js_inputs(ctx.files.node_modules)
 
     # Also include files from npm fine grained deps as inputs.
-    # These deps are identified by the NodeModuleInfo provider.
+    # These deps are identified by the NodeModuleSources provider.
     for d in ctx.attr.deps:
-        if NodeModuleInfo in d:
-            # Note: we can't avoid calling .to_list() on files
-            direct_inputs += _filter_js_inputs(d.files.to_list())
+        if NodeModuleSources in d:
+            # Note: we can't avoid calling .to_list() on sources
+            direct_inputs += _filter_js_inputs(d[NodeModuleSources].sources.to_list())
 
     if ctx.file.license_banner:
         direct_inputs += [ctx.file.license_banner]
@@ -200,6 +215,7 @@ def _run_rollup(ctx, sources, config, output, map_output = None):
         outputs += [map_output]
 
     ctx.actions.run(
+        progress_message = "Bundling JavaScript %s [rollup]" % output.short_path,
         executable = ctx.executable._rollup,
         inputs = depset(direct_inputs, transitive = [sources]),
         outputs = outputs,
@@ -208,12 +224,21 @@ def _run_rollup(ctx, sources, config, output, map_output = None):
 
 def _run_tsc(ctx, input, output):
     args = ctx.actions.args()
+
+    # No types needed since we are just downleveling.
+    # `--types` proceeded by another config argument means an empty types array
+    # for the command line parser.
+    # See https://github.com/Microsoft/TypeScript/issues/18581#issuecomment-330700612
+    args.add("--types")
+    args.add("--skipLibCheck")
     args.add_all(["--target", "es5"])
+    args.add_all(["--lib", "es2015,dom"])
     args.add("--allowJS")
     args.add(input.path)
     args.add_all(["--outFile", output.path])
 
     ctx.actions.run(
+        progress_message = "Downleveling JavaScript to ES5 %s [typescript]" % output.short_path,
         executable = ctx.executable._tsc,
         inputs = [input],
         outputs = [output],
@@ -229,6 +254,7 @@ def _run_tsc_on_directory(ctx, input_dir, output_dir):
     args.add_all(["--output", output_dir.path])
 
     ctx.actions.run(
+        progress_message = "Downleveling JavaScript to ES5 %s [typescript]" % output_dir.short_path,
         executable = ctx.executable._tsc_directory,
         inputs = [input_dir],
         outputs = [output_dir, config],
@@ -301,6 +327,7 @@ def _run_terser(ctx, input, output, map_output, debug = False, comments = True, 
         args.add("--beautify")
 
     ctx.actions.run(
+        progress_message = "Optimizing JavaScript %s [terser]" % output.short_path,
         executable = ctx.executable._terser_wrapped,
         inputs = inputs,
         outputs = outputs,
@@ -439,7 +466,10 @@ def _rollup_bundle(ctx):
 
         # There is no UMD/CJS bundle when code-splitting but we still need to satisfy the output
         _generate_code_split_entry(ctx, ctx.label.name + "_chunks", ctx.outputs.build_umd)
+        _generate_code_split_entry(ctx, ctx.label.name + "_chunks", ctx.outputs.build_umd_min)
         _generate_code_split_entry(ctx, ctx.label.name + "_chunks", ctx.outputs.build_cjs)
+        _generate_code_split_entry(ctx, ctx.label.name + "_chunks", ctx.outputs.build_es5_umd)
+        _generate_code_split_entry(ctx, ctx.label.name + "_chunks", ctx.outputs.build_es5_umd_min)
 
         # There is no source map explorer output when code-splitting but we still need to satisfy the output
         ctx.actions.expand_template(
@@ -461,24 +491,55 @@ def _rollup_bundle(ctx):
             code_split_es5_min_output_dir,
             code_split_es5_min_debug_output_dir,
         ]
+        output_group = OutputGroupInfo(
+            es2015 = depset([ctx.outputs.build_es2015, code_split_es2015_output_dir]),
+            es2015_min = depset([ctx.outputs.build_es2015_min, code_split_es2015_min_output_dir]),
+            es2015_min_debug = depset([ctx.outputs.build_es2015_min_debug, code_split_es2015_min_debug_output_dir]),
+            es5 = depset([ctx.outputs.build_es5, code_split_es5_output_dir]),
+            es5_min = depset([ctx.outputs.build_es5_min, code_split_es5_min_output_dir]),
+            es5_min_debug = depset([ctx.outputs.build_es5_min_debug, code_split_es5_min_debug_output_dir]),
+        )
 
     else:
         # Generate the bundles
         rollup_config = write_rollup_config(ctx)
-        run_rollup(ctx, _collect_es2015_sources(ctx), rollup_config, ctx.outputs.build_es2015)
-        run_terser(ctx, ctx.outputs.build_es2015, ctx.outputs.build_es2015_min, config_name = ctx.label.name + "es2015_min")
-        run_terser(ctx, ctx.outputs.build_es2015, ctx.outputs.build_es2015_min_debug, debug = True, config_name = ctx.label.name + "es2015_min_debug")
+        es2015_map = run_rollup(ctx, _collect_es2015_sources(ctx), rollup_config, ctx.outputs.build_es2015)
+        es2015_min_map = run_terser(ctx, ctx.outputs.build_es2015, ctx.outputs.build_es2015_min, config_name = ctx.label.name + "es2015_min", in_source_map = es2015_map)
+        es2015_min_debug_map = run_terser(ctx, ctx.outputs.build_es2015, ctx.outputs.build_es2015_min_debug, debug = True, config_name = ctx.label.name + "es2015_min_debug", in_source_map = es2015_map)
         _run_tsc(ctx, ctx.outputs.build_es2015, ctx.outputs.build_es5)
-        source_map = run_terser(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min)
-        run_terser(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min_debug, debug = True)
-        cjs_rollup_config = write_rollup_config(ctx, filename = "_%s_cjs.rollup.conf.js", output_format = "cjs")
-        run_rollup(ctx, _collect_es2015_sources(ctx), cjs_rollup_config, ctx.outputs.build_cjs)
-        umd_rollup_config = write_rollup_config(ctx, filename = "_%s_umd.rollup.conf.js", output_format = "umd")
-        run_rollup(ctx, _collect_es2015_sources(ctx), umd_rollup_config, ctx.outputs.build_umd)
-        run_sourcemapexplorer(ctx, ctx.outputs.build_es5_min, source_map, ctx.outputs.explore_html)
-        files = [ctx.outputs.build_es5_min, source_map]
+        es5_min_map = run_terser(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min)
+        es5_min_debug_map = run_terser(ctx, ctx.outputs.build_es5, ctx.outputs.build_es5_min_debug, debug = True)
 
-    return DefaultInfo(files = depset(files), runfiles = ctx.runfiles(files))
+        cjs_rollup_config = write_rollup_config(ctx, filename = "_%s_cjs.rollup.conf.js", output_format = "cjs")
+        cjs_map = run_rollup(ctx, _collect_es2015_sources(ctx), cjs_rollup_config, ctx.outputs.build_cjs)
+
+        umd_rollup_config = write_rollup_config(ctx, filename = "_%s_umd.rollup.conf.js", output_format = "umd")
+        umd_map = run_rollup(ctx, _collect_es2015_sources(ctx), umd_rollup_config, ctx.outputs.build_umd)
+        umd_min_map = run_terser(ctx, ctx.outputs.build_umd, ctx.outputs.build_umd_min, config_name = ctx.label.name + "umd_min", in_source_map = umd_map)
+        _run_tsc(ctx, ctx.outputs.build_umd, ctx.outputs.build_es5_umd)
+        es5_umd_min_map = run_terser(ctx, ctx.outputs.build_es5_umd, ctx.outputs.build_es5_umd_min, config_name = ctx.label.name + "es5umd_min")
+
+        run_sourcemapexplorer(ctx, ctx.outputs.build_es5_min, es5_min_map, ctx.outputs.explore_html)
+
+        files = [ctx.outputs.build_es5_min, es5_min_map]
+        output_group = OutputGroupInfo(
+            cjs = depset([ctx.outputs.build_cjs, cjs_map]),
+            es2015 = depset([ctx.outputs.build_es2015, es2015_map]),
+            es2015_min = depset([ctx.outputs.build_es2015_min, es2015_min_map]),
+            es2015_min_debug = depset([ctx.outputs.build_es2015_min_debug, es2015_min_debug_map]),
+            es5 = depset([ctx.outputs.build_es5]),
+            es5_min = depset([ctx.outputs.build_es5_min, es5_min_map]),
+            es5_min_debug = depset([ctx.outputs.build_es5_min_debug, es5_min_debug_map]),
+            es5_umd = depset([ctx.outputs.build_es5_umd]),
+            es5_umd_min = depset([ctx.outputs.build_es5_umd_min, es5_umd_min_map]),
+            umd = depset([ctx.outputs.build_umd, umd_map]),
+            umd_min = depset([ctx.outputs.build_umd_min, umd_min_map]),
+        )
+
+    return [
+        DefaultInfo(files = depset(files), runfiles = ctx.runfiles(files)),
+        output_group,
+    ]
 
 # Expose our list of aspects so derivative rules can override the deps attribute and
 # add their own additional aspects.
@@ -670,7 +731,10 @@ ROLLUP_OUTPUTS = {
     "build_es5": "%{name}.js",
     "build_es5_min": "%{name}.min.js",
     "build_es5_min_debug": "%{name}.min_debug.js",
+    "build_es5_umd": "%{name}.es5umd.js",
+    "build_es5_umd_min": "%{name}.min.es5umd.js",
     "build_umd": "%{name}.umd.js",
+    "build_umd_min": "%{name}.min.umd.js",
     "explore_html": "%{name}.explore.html",
 }
 
@@ -709,3 +773,13 @@ For debugging, note that the `rollup.config.js` and `terser.config.json` files c
 
 An example usage can be found in https://github.com/bazelbuild/rules_nodejs/tree/master/internal/e2e/rollup
 """
+# Adding the above docstring as `doc` attribute
+# causes a build error but ONLY on Ubuntu 14.04 on BazelCI.
+# ```
+# File "internal/npm_package/npm_package.bzl", line 221, in <module>
+#     outputs = NPM_PACKAGE_OUTPUTS,
+# TypeError: rule() got an unexpected keyword argument 'doc'
+# ```
+# This error does not occur on any other platform on BazelCI including Ubuntu 16.04.
+# TOOD(gregmagolan): Figure out why and/or file a bug to Bazel
+# See https://github.com/bazelbuild/buildtools/issues/471#issuecomment-485283200

@@ -5,6 +5,7 @@ const nodeResolve = require('rollup-plugin-node-resolve');
 const sourcemaps = require('rollup-plugin-sourcemaps');
 const amd = require('rollup-plugin-amd');
 const commonjs = require('rollup-plugin-commonjs');
+const rollupJson = require('rollup-plugin-json');
 const isBuiltinModule = require('is-builtin-module');
 const path = require('path');
 const fs = require('fs');
@@ -17,7 +18,7 @@ const bannerFile = TMPL_banner_file;
 const stampData = TMPL_stamp_data;
 const moduleMappings = TMPL_module_mappings;
 const nodeModulesRoot = 'TMPL_node_modules_root';
-const defaultNodeModules = TMPL_default_node_modules;
+const isDefaultNodeModules = TMPL_is_default_node_modules;
 
 if (DEBUG)
   console.error(`
@@ -29,7 +30,7 @@ Rollup: running with
   stampData: ${stampData}
   moduleMappings: ${JSON.stringify(moduleMappings)}
   nodeModulesRoot: ${nodeModulesRoot}
-  defaultNodeModules: ${defaultNodeModules}
+  isDefaultNodeModules: ${isDefaultNodeModules}
 `);
 
 function fileExists(filePath) {
@@ -43,6 +44,8 @@ function fileExists(filePath) {
 // This resolver mimics the TypeScript Path Mapping feature, which lets us resolve
 // modules based on a mapping of short names to paths.
 function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = require.resolve, root = rootDir) {
+  if (DEBUG) console.error(`\nRollup: resolving '${importee}' from ${importer}`);
+
   function resolveInRootDir(importee) {
     var candidate = path.join(baseDir, root, importee);
     if (DEBUG) console.error(`Rollup: try to resolve '${importee}' at '${candidate}'`);
@@ -53,8 +56,6 @@ function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = req
       return undefined;
     }
   }
-
-  if (DEBUG) console.error(`Rollup: resolving '${importee}' from ${importer}`);
 
   // Since mappings are always in POSIX paths, when comparing the importee to mappings
   // we should normalize the importee.
@@ -113,8 +114,13 @@ function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = req
     resolved = resolveInRootDir(userWorkspacePath.startsWith('..') ? importee : userWorkspacePath);
   }
 
-  if (DEBUG && !resolved)
-    console.error(`Rollup: allowing rollup to resolve '${importee}' with node module resolution`);
+  if (DEBUG) {
+    if (resolved) {
+      console.error(`Rollup: resolved to ${resolved}`);
+    } else {
+      console.error(`Rollup: allowing rollup to resolve '${importee}' with node module resolution`);
+    }
+  }
 
   return resolved;
 }
@@ -138,7 +144,7 @@ function notResolved(importee, importer) {
   if (isBuiltinModule(importee)) {
     return null;
   }
-  if (defaultNodeModules) {
+  if (isDefaultNodeModules) {
     // This error is possibly due to a breaking change in 0.13.2 where
     // the default node_modules attribute of rollup_bundle was changed
     // from @//:node_modules to @build_bazel_rules_nodejs//:node_modules_none
@@ -168,15 +174,13 @@ const config = {
     throw new Error(warning.message);
   },
   plugins: [TMPL_additional_plugins].concat([
-    {resolveId: resolveBazel},
-    // Use custom rollup-plugin-node-resolve dist which supports
-    // the 'es2015' option for rollup to prioritize the 'es2015' entry point
-    // with fallback to 'module' and 'main'.
+    {
+      name: 'resolveBazel',
+      resolveId: resolveBazel,
+    },
     nodeResolve({
-      es2015: true,
-      module: true,
-      jsnext: true,
-      main: true,
+      mainFields: ['es2015', 'module', 'jsnext:main', 'main'],
+      jail: process.cwd(),
       customResolveOptions: {moduleDirectory: nodeModulesRoot}
     }),
     amd({
@@ -186,13 +190,20 @@ const config = {
       include: /\.ngfactory\.js$/i,
     }),
     commonjs(),
-    {resolveId: notResolved},
+    {
+      name: 'notResolved',
+      resolveId: notResolved,
+    },
     sourcemaps(),
+    rollupJson({
+      preferConst: true
+    })
   ]),
   output: {
     banner,
     format: 'TMPL_output_format',
   },
+  preserveSymlinks: true,
 }
 
 if (enableCodeSplitting) {

@@ -24,6 +24,18 @@ class CheckVersionTest(unittest.TestCase):
     result = self.globals['check_version']('1.2.2', '1.2.3')
     self.assertIs(result, False)
 
+  def testVersionRangeWithin(self):
+    result = self.globals['check_version_range']('1.2.2', '1.2.1', '1.2.3')
+    self.assertIs(result, True)
+
+  def testVersionOutOfLowRange(self):
+    result = self.globals['check_version_range']('1.2.0', '1.2.1', '1.2.3')
+    self.assertIs(result, False)
+
+  def testVersionOutOfHighRange(self):
+    result = self.globals['check_version_range']('1.2.4', '1.2.1', '1.2.3')
+    self.assertIs(result, False)
+
   def testNotAlphaComparison(self):
     result = self.globals['check_version']('1.12.3', '1.2.1')
     self.assertIs(result, True)

@@ -20,9 +20,9 @@ They support module mapping: any targets in the transitive dependencies with
 a `module_name` attribute can be `require`d by that name.
 """
 
+load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleSources", "collect_node_modules_aspect")
 load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
 load("//internal/common:module_mappings.bzl", "module_mappings_runtime_aspect")
-load("//internal/common:node_module_info.bzl", "NodeModuleInfo", "collect_node_modules_aspect")
 load("//internal/common:sources_aspect.bzl", "sources_aspect")
 
 def _trim_package_node_modules(package_name):
@@ -36,18 +36,15 @@ def _trim_package_node_modules(package_name):
         segments += [n]
     return "/".join(segments)
 
-def _write_loader_script(ctx):
-    # Generates the JavaScript snippet of module roots mappings, with each entry
-    # in the form:
-    #   {module_name: /^mod_name\b/, module_root: 'path/to/mod_name'}
-    module_mappings = []
-    for d in ctx.attr.data:
-        if hasattr(d, "runfiles_module_mappings"):
-            for [mn, mr] in d.runfiles_module_mappings.items():
-                escaped = mn.replace("/", "\/").replace(".", "\.")
-                mapping = "{module_name: /^%s\\b/, module_root: '%s'}" % (escaped, mr)
-                module_mappings.append(mapping)
+def _compute_node_modules_root(ctx):
+    """Computes the node_modules root from the node_modules and deps attributes.
 
+    Args:
+      ctx: the skylark execution context
+
+    Returns:
+      The node_modules root as a string
+    """
     node_modules_root = None
     if ctx.files.node_modules:
         # ctx.files.node_modules is not an empty list
@@ -58,8 +55,8 @@ def _write_loader_script(ctx):
             "node_modules",
         ] if f])
     for d in ctx.attr.data:
-        if NodeModuleInfo in d:
-            possible_root = "/".join([d[NodeModuleInfo].workspace, "node_modules"])
+        if NodeModuleSources in d:
+            possible_root = "/".join([d[NodeModuleSources].workspace, "node_modules"])
             if not node_modules_root:
                 node_modules_root = possible_root
             elif node_modules_root != possible_root:
@@ -73,6 +70,21 @@ def _write_loader_script(ctx):
             ctx.attr.node_modules.label.package,
             "node_modules",
         ] if f])
+    return node_modules_root
+
+def _write_loader_script(ctx):
+    # Generates the JavaScript snippet of module roots mappings, with each entry
+    # in the form:
+    #   {module_name: /^mod_name\b/, module_root: 'path/to/mod_name'}
+    module_mappings = []
+    for d in ctx.attr.data:
+        if hasattr(d, "runfiles_module_mappings"):
+            for [mn, mr] in d.runfiles_module_mappings.items():
+                escaped = mn.replace("/", "\/").replace(".", "\.")
+                mapping = "{module_name: /^%s\\b/, module_root: '%s'}" % (escaped, mr)
+                module_mappings.append(mapping)
+
+    node_modules_root = _compute_node_modules_root(ctx)
 
     ctx.actions.expand_template(
         template = ctx.file._loader_template,
@@ -101,7 +113,13 @@ def _short_path_to_manifest_path(ctx, short_path):
 
 def _nodejs_binary_impl(ctx):
     # node = ctx.file.node
-    node_modules = ctx.files.node_modules
+    node_modules = depset(ctx.files.node_modules)
+
+    # Also include files from npm fine grained deps as inputs.
+    # These deps are identified by the NodeModuleSources provider.
+    for d in ctx.attr.data:
+        if NodeModuleSources in d:
+            node_modules = depset(transitive = [node_modules, d[NodeModuleSources].sources])
 
     # Using a depset will allow us to avoid flattening files and sources
     # inside this loop. This should reduce the performances hits,
@@ -189,8 +207,9 @@ def _nodejs_binary_impl(ctx):
         is_executable = True,
     )
 
-    runfiles = depset(node_tool_files + [ctx.outputs.loader, target_tool_args] + node_modules, transitive = [node_tool_info.target_tool_runfiles.files, sources])
+    runfiles = depset(node_tool_files + [ctx.outputs.loader, target_tool_args], transitive = [node_tool_info.target_tool_runfiles.files, sources, node_modules])
     # runfiles = depset(node_tool_files + [ctx.outputs.loader] + node_modules, transitive = [sources])
+    # runfiles = depset([node, ctx.outputs.loader, ctx.file._repository_args] + ctx.files._node_runfiles, transitive = [sources, node_modules])
 
     return [DefaultInfo(
         executable = ctx.outputs.script,
@@ -198,13 +217,13 @@ def _nodejs_binary_impl(ctx):
             transitive_files = runfiles,
             files = node_tool_files + [
                         ctx.outputs.loader,
-                    ] + ctx.files._source_map_support_files + node_modules +
+                    ] + ctx.files._source_map_support_files +
 
                     # We need this call to the list of Files.
                     # Calling the .to_list() method may have some perfs hits,
                     # so we should be running this method only once per rule.
                     # see: https://docs.bazel.build/versions/master/skylark/depsets.html#performance
-                    sources.to_list(),
+                    node_modules.to_list() + sources.to_list(),
             collect_data = True,
         ),
     )]
@@ -402,6 +421,16 @@ Now you can add `--config=debug` to any `bazel test` command line.
 The runtime will pause before executing the program, allowing you to connect a
 remote debugger.
 """
+# Adding the above nodejs_test & nodejs_binary docstrings as `doc` attributes
+# causes a build error but ONLY on Ubuntu 14.04 on BazelCI.
+# ```
+# File "internal/node/node.bzl", line 378, in <module>
+#     outputs = _NODEJS_EXECUTABLE_OUTPUTS,
+# TypeError: rule() got an unexpected keyword argument 'doc'
+# ```
+# This error does not occur on any other platform on BazelCI including Ubuntu 16.04.
+# TOOD(gregmagolan): Figure out why and/or file a bug to Bazel
+# See https://github.com/bazelbuild/buildtools/issues/471#issuecomment-485283200
 
 def nodejs_binary_macro(name, data = [], args = [], visibility = None, tags = [], testonly = 0, **kwargs):
     """This macro exists only to wrap the nodejs_binary as an .exe for Windows.

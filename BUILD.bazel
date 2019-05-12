@@ -42,8 +42,11 @@ npm_package(
     replacements = COMMON_REPLACEMENTS,
     deps = [
         "//third_party/github.com/bazelbuild/bazel-skylib:package_contents",
+        "//third_party/github.com/browserify/browserify:package_contents",
         "//third_party/github.com/buffer-from:package_contents",
+        "//third_party/github.com/inikulin/parse5:package_contents",
         "//third_party/github.com/gjtorikian/isBinaryFile:package_contents",
+        "//third_party/github.com/jhermsmeier/browserify-named-amd:package_contents",
         "//third_party/github.com/source-map:package_contents",
         "//third_party/github.com/source-map-support:package_contents",
         "//internal:package_contents",
@@ -55,7 +58,6 @@ npm_package(
         "//internal/js_library:package_contents",
         # TODO(alexeagle): distribute separately as @bazel/rollup
         "//internal/rollup:package_contents",
-        "//internal/ng_apf_library:package_contents",
         "//internal/node:package_contents",
         "//internal/npm_install:package_contents",
         "//internal/npm_package:package_contents",

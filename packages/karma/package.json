@@ -4,8 +4,8 @@
   "license": "Apache-2.0",
   "version": "0.0.0-PLACEHOLDER",
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/bazelbuild/rules_nodejs.git",
+    "type": "git",
+    "url": "https://github.com/bazelbuild/rules_nodejs.git",
     "directory": "packages/karma"
   },
   "bugs": {
@@ -25,7 +25,7 @@
     "karma": "^4.0.0",
     "karma-chrome-launcher": "2.2.0",
     "karma-firefox-launcher": "1.1.0",
-    "karma-jasmine": "1.1.1",
+    "karma-jasmine": "2.0.1",
     "karma-requirejs": "1.1.0",
     "karma-sauce-launcher": "2.0.2",
     "karma-sourcemap-loader": "0.3.7",
@@ -36,9 +36,7 @@
   "devDependencies": {
     "@bazel/typescript": "bazel://@npm_bazel_typescript//:npm_package",
     "@types/node": "7.0.18",
-    "jasmine-core": "2.8.0",
     "protobufjs": "5.0.3",
-    "semver": "5.6.0",
     "source-map-support": "0.5.9",
     "tsickle": "0.33.1",
     "tsutils": "2.27.2",

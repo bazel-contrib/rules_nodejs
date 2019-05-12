@@ -8,7 +8,9 @@ try {
 
   const DEBUG = false;
 
+  // BEGIN ENV VARS
   TMPL_env_vars
+  // END ENV VARS
 
   const configPath = 'TMPL_config_file';
 
@@ -117,12 +119,13 @@ try {
   function configureBazelConfig(config, conf) {
     // list of karma plugins
     mergeConfigArray(conf, 'plugins', [
+      // Loads 'concat_js', 'watcher', 'jasmine', 'requirejs' and 'sourcemap'
+      // from @bazel/karma. These packages are used in this config file.
+      ...require('@bazel/karma/plugins'),
+      // Loads user-installed karma-* packages in the root node_modules.
+      // If some of the plugins above are also installed in user project, the
+      // user version would override the default.
       'karma-*',
-      '@bazel/karma',
-      'karma-sourcemap-loader',
-      'karma-chrome-launcher',
-      'karma-firefox-launcher',
-      'karma-sauce-launcher',
     ]);
 
     // list of karma preprocessors
@@ -147,7 +150,9 @@ try {
     // level of logging
     // possible values: config.LOG_DISABLE || config.LOG_ERROR ||
     // config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
-    if (!conf.logLevel) {
+    if (DEBUG) {
+      conf.logLevel = config.LOG_DEBUG;
+    } else if (!conf.logLevel) {
       conf.logLevel = config.LOG_INFO;
     }
 
@@ -188,8 +193,12 @@ try {
    */
   function configureFiles(conf) {
     overrideConfigValue(conf, 'files', [
+      // BEGIN BOOTSTRAP FILES
       TMPL_bootstrap_files
+      // END BOOTSTRAP FILES
+      // BEGIN USER FILES
       TMPL_user_files
+      // END USER FILES
     ].map(f => {
       if (f.startsWith('NODE_MODULES/')) {
         try {
@@ -209,7 +218,11 @@ try {
       // static files are added to the files array but
       // configured to not be included so karma-concat-js does
       // not included them in the bundle
-      [TMPL_static_files].forEach((f) => {
+      [
+        // BEGIN STATIC FILES
+        TMPL_static_files
+        // END STATIC FILES
+      ].forEach((f) => {
         // In Windows, the runfile will probably not be symlinked. Se we need to
         // serve the real file through karma, and proxy calls to the expected file
         // location in the runfiles to the real file.
@@ -225,8 +238,16 @@ try {
 // A simplified version of Karma's requirejs.config.tpl.js for use with Karma under Bazel.
 // This does an explicit \`require\` on each test script in the files, otherwise nothing will be loaded.
 (function(){
-  var runtimeFiles = [TMPL_runtime_files].map(function(file) { return file.replace(/\\.js$/, ''); });
-  var allFiles = [TMPL_user_files];
+  var runtimeFiles = [
+    // BEGIN RUNTIME FILES
+    TMPL_runtime_files
+    // END RUNTIME FILES
+  ].map(function(file) { return file.replace(/\\.js$/, ''); });
+  var allFiles = [
+      // BEGIN USER FILES
+      TMPL_user_files
+      // END USER FILES
+  ];
   var allTestFiles = [];
   allFiles.forEach(function (file) {
     if (/[^a-zA-Z0-9](spec|test)\\.js$/i.test(file) && !/\\/node_modules\\//.test(file)) {

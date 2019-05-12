@@ -1,0 +1,18 @@
+# BEGIN-INTERNAL
+load("@build_bazel_rules_nodejs//:defs.bzl", "npm_package")
+
+npm_package(
+    name = "webpack",
+    srcs = [
+        "BUILD.bazel",
+        "index.bzl",
+    ],
+    replacements = {"#@external\\s": ""},
+    visibility = ["//:__pkg__"],
+    deps = [
+        "//webpack/src:cli",
+        "//webpack/src:package_contents",
+    ],
+)
+
+# END-INTERNAL

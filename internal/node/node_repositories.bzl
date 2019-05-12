@@ -523,23 +523,14 @@ def node_repositories(
                     when you manually run the package manager, e.g. with
                     `bazel run @nodejs//:yarn` or `bazel run @nodejs//:npm install`.
                     If you use bazel-managed dependencies, you can omit this attribute.
-
       node_version: optional; the specific version of NodeJS to install.
-
       yarn_version: optional; the specific version of Yarn to install.
-
       vendored_node: optional; the local path to a pre-installed NodeJS runtime.
-
       vendored_yarn: optional; the local path to a pre-installed yarn tool.
-
       node_repositories: optional; custom list of node repositories to use.
-
       yarn_repositories: optional; custom list of yarn repositories to use.
-
       node_urls: optional; custom list of URLs to use to download NodeJS.
-
       yarn_urls: optional; custom list of URLs to use to download Yarn.
-
       preserve_symlinks: Turn on --node_options=--preserve-symlinks for nodejs_binary and nodejs_test rules.
         The default for this is currently True but the options is deprecated and will be removed in the future.
         When this option is turned on, node will preserve the symlinked path for resolves instead of the default
@@ -627,13 +618,6 @@ def node_repositories(
         name = "http-server_runtime_deps",
         package_json = "@build_bazel_rules_nodejs//internal/http-server:package.json",
         yarn_lock = "@build_bazel_rules_nodejs//internal/http-server:yarn.lock",
-    )
-
-    _maybe(
-        yarn_install,
-        name = "build_bazel_rules_nodejs_web_package_deps",
-        package_json = "@build_bazel_rules_nodejs//internal/web_package:package.json",
-        yarn_lock = "@build_bazel_rules_nodejs//internal/web_package:yarn.lock",
     )
 
 def _maybe(repo_rule, name, **kwargs):

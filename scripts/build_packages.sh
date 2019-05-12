@@ -31,5 +31,8 @@ for package in ${PACKAGES[@]} ; do
     readonly BAZEL_BIN=$(bazel info bazel-bin)
     echo_and_run cp -R "${BAZEL_BIN}/npm_package" ${DEST_DIR}
     chmod -R u+w ${DEST_DIR}
+
+    # Unlink deps to undo local changes
+    ${RULES_NODEJS_DIR}/scripts/unlink_deps.sh
   )
 done

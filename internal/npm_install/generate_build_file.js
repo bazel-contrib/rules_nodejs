@@ -17,9 +17,9 @@
 /**
  * @fileoverview This script generates BUILD.bazel files by analyzing
  * the node_modules folder layed out by yarn or npm. It generates
- * fine grained Bazel filegroup targets for each root npm package
+ * fine grained Bazel `node_module_library` targets for each root npm package
  * and all files for that package and its transitive deps are included
- * in the filegroup. For example, `@<workspace>//jasmine` would
+ * in the target. For example, `@<workspace>//jasmine` would
  * include all files in the jasmine npm package and all of its
  * transitive dependencies.
  *
@@ -28,7 +28,7 @@
  * target will be generated for the `jasmine` binary in the `jasmine`
  * npm package.
  *
- * Additionally, a `@<workspace>//:node_modules` filegroup
+ * Additionally, a `@<workspace>//:node_modules` `node_module_library`
  * is generated that includes all packages under node_modules
  * as well as the .bin folder.
  *
@@ -41,10 +41,8 @@
 
 const fs = require('fs');
 const path = require('path');
-// When ng_apf_library.js is executed at installation time the script is copied
-// from internal/ng_apf_library to external/npm so import path here is relative
-// to current directory.
-const apf = require('./ng_apf_library.js');
+
+const DEBUG = false;
 
 const BUILD_FILE_HEADER = `# Generated file from yarn_install/npm_install rule.
 # See $(bazel info output_base)/external/build_bazel_rules_nodejs/internal/npm_install/generate_build_file.js
@@ -64,12 +62,13 @@ if (require.main === module) {
 }
 
 /**
- * Create a directory if it does not exist.
+ * Create a new directory and any necessary subdirectories
+ * if they do not exist.
  */
-function mkdirp(dirname) {
-  if (!fs.existsSync(dirname)) {
-    mkdirp(path.dirname(dirname));
-    fs.mkdirSync(dirname);
+function mkdirp(p) {
+  if (!fs.existsSync(p)) {
+    mkdirp(path.dirname(p));
+    fs.mkdirSync(p);
   }
 }
 
@@ -112,31 +111,37 @@ function main() {
   scopes.forEach(scope => generateScopeBuildFiles(scope, pkgs));
 }
 
-module.exports = {main};
+module.exports = {
+  main,
+  printPackage
+};
 
 /**
  * Generates the root BUILD file.
  */
 function generateRootBuildFile(pkgs) {
   const srcs = pkgs.filter(pkg => !pkg._isNested);
+  const srcsStarlark =
+      srcs.map(pkg => `"//node_modules/${pkg._dir}:${pkg._name}__files",`).join('\n        ');
+  const depsStarlark =
+      srcs.map(pkg => `"//node_modules/${pkg._dir}:${pkg._name}__contents",`).join('\n        ');
 
-  let buildFile = BUILD_FILE_HEADER + `# The node_modules directory in one catch-all filegroup.
+  let buildFile = BUILD_FILE_HEADER +
+      `load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
+
+# The node_modules directory in one catch-all node_module_library.
 # NB: Using this target may have bad performance implications if
-# there are many files in filegroup.
+# there are many files in target.
 # See https://github.com/bazelbuild/bazel/issues/5153.
-#
-# This filegroup includes only js, d.ts, json and proto files as well as the
-# pkg/bin folders and .bin folder. This can be used in some cases to improve
-# performance by reducing the number of runfiles. The recommended approach
-# to reducing performance is to use fine grained deps such as
-# ["@npm//a", "@npm//b", ...]. There are cases where the node_modules
-# filegroup will not include files with no extension that are needed. The
-# feature request https://github.com/bazelbuild/bazel/issues/5769 would allow
-# this filegroup to include those files.
-filegroup(
+node_module_library(
     name = "node_modules",
+    # direct sources listed for strict deps support
     srcs = [
-        ${srcs.map(pkg => `"//node_modules/${pkg._dir}:${pkg._name}__files",`).join('\n        ')}
+        ${srcsStarlark}
+    ],
+    # flattened list of direct and transitive dependencies hoisted to root by the package manager
+    deps = [
+        ${depsStarlark}
     ],
 )
 
@@ -155,10 +160,7 @@ filegroup(
  * Generates all BUILD files for a package.
  */
 function generatePackageBuildFiles(pkg) {
-  const buildFile =
-      BUILD_FILE_HEADER + `load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
-
-` + printPackage(pkg);
+  const buildFile = BUILD_FILE_HEADER + printPackage(pkg);
   writeFileSync(path.posix.join('node_modules', pkg._dir, 'BUILD.bazel'), buildFile);
 
   const aliasBuildFile = BUILD_FILE_HEADER + printPackageAliases(pkg);
@@ -539,15 +541,20 @@ function parsePackage(p) {
 
   // For root packages, transform the pkg.bin entries
   // into a new Map called _executables
-  pkg._executables = new Map();
-  if (!pkg._isNested) {
-    if (Array.isArray(pkg.bin)) {
-      // should not happen, but ignore it if present
-    } else if (typeof pkg.bin === 'string') {
-      pkg._executables.set(pkg._dir, cleanupBinPath(pkg.bin));
-    } else if (typeof pkg.bin === 'object') {
-      for (let key in pkg.bin) {
-        pkg._executables.set(key, cleanupBinPath(pkg.bin[key]));
+  // NOTE: we do this only for non-empty bin paths
+  if (isValidBinPath(pkg.bin)) {
+    pkg._executables = new Map();
+    if (!pkg._isNested) {
+      if (Array.isArray(pkg.bin)) {
+        // should not happen, but ignore it if present
+      } else if (typeof pkg.bin === 'string') {
+        pkg._executables.set(pkg._dir, cleanupBinPath(pkg.bin));
+      } else if (typeof pkg.bin === 'object') {
+        for (let key in pkg.bin) {
+          if (isValidBinPathStringValue(pkg.bin[key])) {
+            pkg._executables.set(key, cleanupBinPath(pkg.bin[key]));
+          }
+        }
       }
     }
   }
@@ -556,17 +563,61 @@ function parsePackage(p) {
 }
 
 /**
- * Given a path, remove './' if it exists.
+ * Check if a bin entry is a non-empty path
  */
-function cleanupBinPath(path) {
-  // Bin paths usually come in 2 flavors: './bin/foo' or 'bin/foo',
-  // sometimes other stuff like 'lib/foo'.  Remove prefix './' if it
-  // exists.
-  path = path.replace(/\\/g, '/');
-  if (path.indexOf('./') === 0) {
-    path = path.slice(2);
+function isValidBinPath(entry) {
+  return isValidBinPathStringValue(entry) || isValidBinPathObjectValues(entry);
+}
+
+/**
+ * If given a string, check if a bin entry is a non-empty path
+ */
+function isValidBinPathStringValue(entry) {
+  return typeof entry === 'string' && entry !== '';
+}
+
+/**
+ * If given an object literal, check if a bin entry objects has at least one a non-empty path
+ * Example 1: { entry: './path/to/script.js' } ==> VALID
+ * Example 2: { entry: '' } ==> INVALID
+ * Example 3: { entry: './path/to/script.js', empty: '' } ==> VALID
+ */
+function isValidBinPathObjectValues(entry) {
+  // We allow at least one valid entry path (if any).
+  return entry && typeof entry === 'object' &&
+      Object.values(entry).filter(_entry => isValidBinPath(_entry)).length > 0;
+}
+
+/**
+ * Cleanup a package.json "bin" path.
+ *
+ * Bin paths usually come in 2 flavors: './bin/foo' or 'bin/foo',
+ * sometimes other stuff like 'lib/foo'.  Remove prefix './' if it
+ * exists.
+ */
+function cleanupBinPath(p) {
+  p = p.replace(/\\/g, '/');
+  if (p.indexOf('./') === 0) {
+    p = p.slice(2);
   }
-  return path;
+  return p;
+}
+
+/**
+ * Cleanup a package.json entry point such as "main"
+ *
+ * Removes './' if it exists.
+ * Appends `index.js` if p ends with `/`.
+ */
+function cleanupEntryPointPath(p) {
+  p = p.replace(/\\/g, '/');
+  if (p.indexOf('./') === 0) {
+    p = p.slice(2);
+  }
+  if (p.endsWith('/')) {
+    p += 'index.js';
+  }
+  return p;
 }
 
 /**
@@ -643,13 +694,13 @@ function printJson(pkg) {
 }
 
 /**
- * A filter function for a bazel filegroup.
+ * A filter function for files in an npm package. Comparison is case-insensitive.
  * @param files array of files to filter
- * @param exts list of white listed extensions; if empty, no filter is done on extensions;
- *             '' empty string denotes to allow files with no extensions, other extensions
- *             are listed with '.ext' notation such as '.d.ts'.
+ * @param exts list of white listed case-insensitive extensions; if empty, no filter is
+ *             done on extensions; '' empty string denotes to allow files with no extensions,
+ *             other extensions are listed with '.ext' notation such as '.d.ts'.
  */
-function filterFilesForFilegroup(files, exts = []) {
+function filterFiles(files, exts = []) {
   // Files with spaces (\x20) or unicode characters (<\x20 && >\x7E) are not allowed in
   // Bazel runfiles. See https://github.com/bazelbuild/bazel/issues/4327
   files = files.filter(f => !f.match(/[^\x21-\x7E]/));
@@ -659,8 +710,9 @@ function filterFilesForFilegroup(files, exts = []) {
       // include files with no extensions if noExt is true
       if (allowNoExts && !path.extname(f)) return true;
       // filter files in exts
+      const lc = f.toLowerCase();
       for (const e of exts) {
-        if (e && f.endsWith(e)) {
+        if (e && lc.endsWith(e.toLowerCase())) {
           return true;
         }
       }
@@ -671,56 +723,151 @@ function filterFilesForFilegroup(files, exts = []) {
 }
 
 /**
- * Given a `pkg`, return the skylark `filegroup` target which is the default
- * target for the alias `@npm//${pkg.name}`.
+ * Returns true if the specified `pkg` conforms to Angular Package Format (APF),
+ * false otherwise. If the package contains `*.metadata.json` and a
+ * corresponding sibling `.d.ts` file, then the package is considered to be APF.
  */
-function printPkgTarget(pkg, pkgDeps) {
-  return `
-filegroup(
-    name = "${pkg._name}__pkg",
-    srcs = [
-        # ${pkg._dir} package contents (and contents of nested node_modules)
-        ":${pkg._name}__files",
-        # direct or transitive dependencies hoisted to root by the package manager
-        ${
-      pkgDeps.map(dep => `"//node_modules/${dep._dir}:${dep._name}__files",`).join('\n        ')}
-    ],
-    tags = ["NODE_MODULE_MARKER"],
-)
-`;
+function isNgApfPackage(pkg) {
+  const set = new Set(pkg._files);
+  const metadataExt = /\.metadata\.json$/;
+  return pkg._files.some((file) => {
+    if (metadataExt.test(file)) {
+      const sibling = file.replace(metadataExt, '.d.ts');
+      if (set.has(sibling)) {
+        return true;
+      }
+    }
+    return false;
+  });
 }
 
 /**
- * Given a pkg, return the skylark `filegroup` and/or `ng_apf_library` targets for the package.
+ * If the package is in the Angular package format returns list
+ * of package files that end with `.umd.js`, `.ngfactory.js` and `.ngsummary.js`.
+ */
+function getNgApfScripts(pkg) {
+  return isNgApfPackage(pkg) ?
+      filterFiles(pkg._files, ['.umd.js', '.ngfactory.js', '.ngsummary.js']) :
+      [];
+}
+
+/**
+ * Looks for a file within a package and returns it if found.
+ */
+function findFile(pkg, m) {
+  const ml = m.toLowerCase();
+  for (const f of pkg._files) {
+    if (f.toLowerCase() === ml) {
+      return f;
+    }
+  }
+  return undefined;
+}
+
+/**
+ * Given a pkg, return the skylark `node_module_library` targets for the package.
  */
 function printPackage(pkg) {
-  const sources = filterFilesForFilegroup(pkg._files, INCLUDED_FILES);
-  const dtsSources = filterFilesForFilegroup(pkg._files, ['.d.ts']);
-  const pkgDeps = pkg._dependencies.filter(dep => dep !== pkg && !dep._isNested);
+  const sources = filterFiles(pkg._files, INCLUDED_FILES);
+  const dtsSources = filterFiles(pkg._files, ['.d.ts']);
+  // TODO(gmagolan): add UMD & AMD scripts to scripts even if not an APF package _but_ only if they
+  // are named?
+  const scripts = getNgApfScripts(pkg);
+  const deps = [pkg].concat(pkg._dependencies.filter(dep => dep !== pkg && !dep._isNested));
 
-  let result = `
+  let scriptStarlark = '';
+  if (scripts.length) {
+    scriptStarlark = `
+    # subset of srcs that are javascript named-UMD or named-AMD scripts
+    scripts = [
+        ${scripts.map(f => `":${f}",`).join('\n        ')}
+    ],`;
+  }
+
+  let result = '';
+  if (isValidBinPath(pkg.bin)) {
+    // load the nodejs_binary definition only for non-empty bin paths
+    result = 'load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")';
+  }
+
+  const srcsStarlark = sources.map(f => `":${f}",`).join('\n        ');
+  const depsStarlark =
+      deps.map(dep => `"//node_modules/${dep._dir}:${dep._name}__contents",`).join('\n        ');
+  const dtsStarlark = dtsSources.map(f => `":${f}",`).join('\n        ');
+
+  result = `${result}
+load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
+
 # Generated targets for npm package "${pkg._dir}"
 ${printJson(pkg)}
 
-${apf.isNgApfPackage(pkg) ? apf.printNgApfLibrary(pkg, pkgDeps) : printPkgTarget(pkg, pkgDeps)}
-
 filegroup(
     name = "${pkg._name}__files",
+    # ${pkg._dir} package files (and files in nested node_modules)
     srcs = [
-        ${sources.map(f => `":${f}",`).join('\n        ')}
+        ${srcsStarlark}
     ],
-    tags = ["NODE_MODULE_MARKER"],
 )
 
-filegroup(
+node_module_library(
+    name = "${pkg._name}__pkg",
+    # direct sources listed for strict deps support
+    srcs = [":${pkg._name}__files"],
+    # flattened list of direct and transitive dependencies hoisted to root by the package manager
+    deps = [
+        ${depsStarlark}
+    ],
+)
+
+# ${pkg._name}__contents target is used as dep for __pkg targets to prevent
+# circular dependencies errors
+node_module_library(
+    name = "${pkg._name}__contents",
+    srcs = [":${pkg._name}__files"],${scriptStarlark}
+)
+
+# ${pkg._name}__typings is the subset of ${pkg._name}__contents that are declarations
+node_module_library(
     name = "${pkg._name}__typings",
     srcs = [
-        ${dtsSources.map(f => `":${f}",`).join('\n        ')}
+        ${dtsStarlark}
     ],
-    tags = ["NODE_MODULE_MARKER"],
 )
 
 `;
+
+  let mainEntryPoint = pkg.main ? cleanupEntryPointPath(pkg.main) : undefined;
+  if (mainEntryPoint) {
+    // check if main entry point exists
+    mainEntryPoint = findFile(pkg, mainEntryPoint) || findFile(pkg, `${mainEntryPoint}.js`);
+    if (!mainEntryPoint) {
+      // If "main" entry point listed could not be resolved to a file
+      // then don't create an npm_umd_bundle target. This can happen
+      // in some npm packages that list an incorrect main such as v8-coverage@1.0.8
+      // which lists `"main": "index.js"` but that file does not exist.
+      if (DEBUG)
+        console.error(`Could not find "main" entry point ${pkg.main} in npm package ${pkg._name}`);
+    }
+  } else {
+    // if "main" is not specified then look for a root index.js
+    mainEntryPoint = findFile(pkg, 'index.js');
+  }
+
+  // add an `npm_umd_bundle` target to generate an UMD bundle if one does
+  // not exists
+  if (mainEntryPoint && !findFile(pkg, `${pkg._name}.umd.js`)) {
+    result +=
+        `load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
+
+npm_umd_bundle(
+    name = "${pkg._name}__umd",
+    package_name = "${pkg._name}",
+    entry_point = ":${mainEntryPoint}",
+    package = ":${pkg._name}__pkg",
+)
+
+`;
+  }
 
   if (pkg._executables) {
     for (const [name, path] of pkg._executables.entries()) {
@@ -774,6 +921,11 @@ alias(
 )
 
 alias(
+  name = "${pkg._name}__contents",
+  actual = "//node_modules/${pkg._dir}:${pkg._name}__contents"
+)
+
+alias(
   name = "${pkg._name}__typings",
   actual = "//node_modules/${pkg._dir}:${pkg._name}__typings"
 )
@@ -802,18 +954,35 @@ alias(
 }
 
 /**
- * Given a scope, return the skylark `filegroup` target for the scope.
+ * Given a scope, return the skylark `node_module_library` target for the scope.
  */
 function printScope(scope, pkgs) {
-  const srcs = pkgs.filter(pkg => !pkg._isNested && pkg._dir.startsWith(`${scope}/`));
-  return `
+  pkgs = pkgs.filter(pkg => !pkg._isNested && pkg._dir.startsWith(`${scope}/`));
+  let deps = [];
+  pkgs.forEach(pkg => {
+    deps = deps.concat(pkg._dependencies.filter(dep => !dep._isNested && !pkgs.includes(pkg)));
+  });
+  // filter out duplicate deps
+  deps = [...pkgs, ...new Set(deps)];
+
+  const srcsStarlark =
+      deps.map(dep => `"//node_modules/${dep._dir}:${dep._name}__files",`).join('\n        ');
+  const depsStarlark =
+      deps.map(dep => `"//node_modules/${dep._dir}:${dep._name}__contents",`).join('\n        ');
+
+  return `load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
+
 # Generated target for npm scope ${scope}
-filegroup(
+node_module_library(
     name = "${scope}",
+    # direct sources listed for strict deps support
     srcs = [
-        ${srcs.map(pkg => `"//node_modules/${pkg._dir}:${pkg._name}__pkg",`).join('\n        ')}
+        ${srcsStarlark}
     ],
-    tags = ["NODE_MODULE_MARKER"],
+    # flattened list of direct and transitive dependencies hoisted to root by the package manager
+    deps = [
+        ${depsStarlark}
+    ],
 )
 
 `;

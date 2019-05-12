@@ -162,6 +162,8 @@ jobs:
       - run: bazel run //internal/node/test:has_deps_hybrid
       - run: bazel run //internal/e2e/fine_grained_no_bin:index
       - run: bazel run @fine_grained_deps_yarn//typescript/bin:tsc
+      - run: bazel run @test_workspace//:bin
+      - run: bazel run @test_workspace//subdir:bin
 
   test_legacy_runfiles:
     <<: *job_defaults
@@ -176,7 +178,7 @@ jobs:
       # TODO(gmagolan): move these tests into `build` job once
       # https://github.com/bazelbuild/bazel/issues/6481 is resolved
       - run: bazel test @examples_program//...
-      - run: bazel test @packages_example//...
+      - run: bazel test @internal_e2e_packages//...
 
   build_release:
     <<: *job_defaults
@@ -330,7 +332,7 @@ workflows:
           - build_typescript_package
       - build_labs_package:
           requires:
-          - setup
+          - build_typescript_package
       - build_typescript_package:
           requires:
           - setup

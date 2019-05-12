@@ -1,8 +1,38 @@
-def html_asset_inject(index_html, action_factory, injector, rootDirs, assets, output):
+# Copyright 2019 The Bazel Authors. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""Contains the web_package rule.
+"""
+
+def html_asset_inject(index_html, action_factory, injector, root_dirs, assets, output):
+    """Injects JS and CSS resources into the index.html.
+
+    Args:
+      index_html: The input html file
+      action_factory: Bazel's actions module from ctx.actions - see https://docs.bazel.build/versions/master/skylark/lib/actions.html
+      injector: The injector executable
+      root_dirs: Path prefixes to strip off all assets. Longest wins.
+      assets: Asset files to inject
+      output: The output html file
+
+    Returns:
+      The output html file
+    """
     args = action_factory.args()
     args.add(output.path)
     args.add(index_html.path)
-    args.add_all(rootDirs)
+    args.add_all(root_dirs)
     args.add("--assets")
     args.add_all(assets)
     args.use_param_file("%s", use_always = True)
@@ -15,6 +45,18 @@ def html_asset_inject(index_html, action_factory, injector, rootDirs, assets, ou
     return output
 
 def move_files(output_name, files, action_factory, assembler, root_paths):
+    """Moves files into an output directory
+
+    Args:
+      output_name: The name of the output directory
+      files: The files to move
+      action_factory: Bazel's actions module from ctx.actions - see https://docs.bazel.build/versions/master/skylark/lib/actions.html
+      assembler: The assembler executable
+      root_paths: Path prefixes to strip off all assets. Longest wins.
+
+    Returns:
+      The output directory tree-artifact
+    """
     www_dir = action_factory.declare_directory(output_name)
     args = action_factory.args()
     args.add(www_dir.path)
@@ -31,18 +73,28 @@ def move_files(output_name, files, action_factory, assembler, root_paths):
     )
     return depset([www_dir])
 
-def _web_package(ctx):
-    root_paths = ctx.attr.additional_root_paths + [
+def additional_root_paths(ctx):
+    return ctx.attr.additional_root_paths + [
+        # package path is the root, including in bin/gen
         ctx.label.package,
         "/".join([ctx.bin_dir.path, ctx.label.package]),
         "/".join([ctx.genfiles_dir.path, ctx.label.package]),
+
+        # bazel-bin/gen dirs to absolute paths
+        ctx.genfiles_dir.path,
+        ctx.bin_dir.path,
+
+        # package re-rooted subdirectory
+        "/".join([p for p in [ctx.bin_dir.path, ctx.label.package, "_" + ctx.label.name, ctx.label.package] if p]),
     ]
+
+def _web_package(ctx):
+    root_paths = additional_root_paths(ctx)
 
     # Create the output file in a re-rooted subdirectory so it doesn't collide with the input file
     html = ctx.actions.declare_file("_%s/%s" % (ctx.label.name, ctx.file.index_html.path))
 
     # Move that index file back into place inside the package
-    root_paths.append("/".join([p for p in [ctx.bin_dir.path, ctx.label.package, "_" + ctx.label.name, ctx.label.package] if p]))
     populated_index = html_asset_inject(
         ctx.file.index_html,
         ctx.actions,
@@ -91,9 +143,8 @@ web_package = rule(
             cfg = "host",
         ),
     },
-    doc = """
-Assembles a web application from source files.
+    doc = """Assembles a web application from source files.
 
-Injects JS and CSS resources into the index.html.
-""",
+    Injects JS and CSS resources into the index.html.
+    """,
 )

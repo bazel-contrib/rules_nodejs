@@ -1,5 +1,7 @@
 load("@build_bazel_rules_nodejs//:defs.bzl", "npm_package")
 
+exports_files(["tsconfig.json"])
+
 genrule(
     name = "copy_LICENSE",
     srcs = ["@build_bazel_rules_nodejs//:LICENSE"],
@@ -14,6 +16,7 @@ npm_package(
         "README.md",
         "package.json",
     ],
+    packages = ["//webpack"],
     deps = [
         ":copy_LICENSE",
     ],
