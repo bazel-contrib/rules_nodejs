@@ -25,13 +25,29 @@ def _impl(repository_ctx):
         host_tool = ""
         target_repo_name = ""
         for repo_name in repository_ctx.attr.nodejs_repository_names:
+            print("-----")
+            print("name", repository_ctx.attr.name)
+            print("repo_name", repo_name)
+            print("repository_ctx.attr.os", repository_ctx.attr.os)
+            print("host_os", host_os)
             if repository_ctx.attr.os in repo_name:
                 target_tool = "@%s//:node" % repo_name
                 target_repo_name = repo_name
+
+            if host_os == "mac os x":
+                print("host_os new", host_os)
+                host_os = "darwin"
+
             if host_os in repo_name:
                 host_tool = "@%s//:node" % repo_name
 
+            print("host_tool", host_tool)
+            print("target_tool", target_tool)
+            print("target_repo_name", target_repo_name)
+        print("-----")
+
         if not target_tool or not host_tool:
+            print("fail")
             fail("No host_tool nor target_tool found")
 
         substitutions = {
@@ -152,6 +168,7 @@ def node_configure(node_repositories):
     if node_repositories:
         print("!!!!!!!!!InHERE!!!!!!!!!!!!")
         for os, arch in OS_ARCH_NAMES:
+            print("nodejs_config_%s_%s" % (os, arch))
             _node_configure(name = "nodejs_config_%s_%s" % (os, arch), os = os, arch = arch, nodejs_repository_names = node_repositories)
 
     # _node_configure(name = name + "_osx", os="osx", arch="x86_64", host_tool="@nodejs_linux//:node", target_tool="@nodejs_darwin//:node")
