@@ -25,30 +25,23 @@ def _impl(repository_ctx):
         host_tool = ""
         target_repo_name = ""
         for repo_name in repository_ctx.attr.nodejs_repository_names:
-            print("-----")
-            print("name", repository_ctx.attr.name)
-            print("repo_name", repo_name)
-            print("repository_ctx.attr.os", repository_ctx.attr.os)
-            print("host_os", host_os)
             if repository_ctx.attr.os in repo_name:
                 target_tool = "@%s//:node" % repo_name
                 target_repo_name = repo_name
 
             if host_os == "mac os x":
-                print("host_os new", host_os)
                 host_os = "darwin"
+
+            if "windows" in host_os:
+                host_os = "windows"
 
             if host_os in repo_name:
                 host_tool = "@%s//:node" % repo_name
 
-            print("host_tool", host_tool)
-            print("target_tool", target_tool)
-            print("target_repo_name", target_repo_name)
-        print("-----")
 
         if not target_tool or not host_tool:
-            print("fail")
-            fail("No host_tool nor target_tool found")
+            fail(("No host_tool for Host OS '%s' and/or no target_tool for provided OS '%s' found with given nodejs" +
+                 " repository names: %s.") % (host_os, repository_ctx.attr.os, repository_ctx.attr.nodejs_repository_names))
 
         substitutions = {
             "%{ARCH}": "%s" % repository_ctx.attr.arch,
