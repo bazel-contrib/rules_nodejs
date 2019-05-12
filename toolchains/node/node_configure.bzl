@@ -159,9 +159,7 @@ def node_configure(node_repositories):
     )
 
     if node_repositories:
-        print("!!!!!!!!!InHERE!!!!!!!!!!!!")
         for os, arch in OS_ARCH_NAMES:
-            print("nodejs_config_%s_%s" % (os, arch))
             _node_configure(name = "nodejs_config_%s_%s" % (os, arch), os = os, arch = arch, nodejs_repository_names = node_repositories)
 
     # _node_configure(name = name + "_osx", os="osx", arch="x86_64", host_tool="@nodejs_linux//:node", target_tool="@nodejs_darwin//:node")
