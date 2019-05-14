@@ -133,7 +133,7 @@ function listFiles(rootDir, subDir = '') {
 function filterFilesForFilegroup(files, allowedExts = [], excludedExts = []) {
   // Files with spaces (\x20) or unicode characters (<\x20 && >\x7E) are not allowed in
   // Bazel runfiles. See https://github.com/bazelbuild/bazel/issues/4327
-  files = files.filter(f => !f.match(/[^\x21-\x7E]/));
+  files = files.filter(f => !/[^\x21-\x7E]/.test(f));
   if (allowedExts.length) {
     const allowNoExts = allowedExts.includes('');
     files = files.filter(f => {
