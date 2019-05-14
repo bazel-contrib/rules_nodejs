@@ -159,7 +159,6 @@ def _nodejs_binary_impl(ctx):
         "TEMPLATED_env_vars": env_vars,
         "TEMPLATED_expected_exit_code": str(expected_exit_code),
         "TEMPLATED_node": _short_path_to_manifest_path(ctx, node.short_path),
-        "TEMPLATED_repository_args": _short_path_to_manifest_path(ctx, ctx.file._repository_args.short_path),
         "TEMPLATED_script_path": script_path,
     }
     ctx.actions.expand_template(
@@ -169,7 +168,7 @@ def _nodejs_binary_impl(ctx):
         is_executable = True,
     )
 
-    runfiles = depset([node, ctx.outputs.loader, ctx.file._repository_args] + ctx.files._node_runfiles, transitive = [sources, node_modules])
+    runfiles = depset([node, ctx.outputs.loader] + ctx.files._node_runfiles, transitive = [sources, node_modules])
 
     return [DefaultInfo(
         executable = ctx.outputs.script,
@@ -311,10 +310,6 @@ _NODEJS_EXECUTABLE_ATTRS = {
     "_node_runfiles": attr.label(
         default = Label("@nodejs//:node_runfiles"),
         allow_files = True,
-    ),
-    "_repository_args": attr.label(
-        default = Label("@nodejs//:bin/node_args.sh"),
-        allow_single_file = True,
     ),
     "_source_map_support_files": attr.label_list(
         default = [

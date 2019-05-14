@@ -72,7 +72,6 @@ function generateBuildFile() {
 package(default_visibility = ["//visibility:public"])
 exports_files([
   "run_npm.sh.template",
-  "bin/node_args.sh",
   "${NODE_DIR}/bin/node",
   "bin/node${binaryExt}",
   "bin/npm${binaryExt}",

@@ -59,7 +59,6 @@ node_repositories(
         "@examples_program//:package.json",
         "//internal/npm_install/test:package/package.json",
     ],
-    preserve_symlinks = True,
 )
 
 yarn_install(

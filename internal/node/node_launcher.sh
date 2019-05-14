@@ -115,14 +115,11 @@ TEMPLATED_env_vars
 # find . -name thingImLookingFor 1>&2
 
 readonly node=$(rlocation "TEMPLATED_node")
-readonly repository_args=$(rlocation "TEMPLATED_repository_args")
 readonly script=$(rlocation "TEMPLATED_script_path")
-
-source $repository_args
 
 ARGS=()
 NODE_OPTIONS=()
-ALL_ARGS=(TEMPLATED_args $NODE_REPOSITORY_ARGS "$@")
+ALL_ARGS=(TEMPLATED_args --node_options=--preserve-symlinks "$@")
 for ARG in "${ALL_ARGS[@]}"; do
   case "$ARG" in
     --node_options=*) NODE_OPTIONS+=( "${ARG#--node_options=}" ) ;;
