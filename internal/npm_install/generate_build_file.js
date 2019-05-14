@@ -468,7 +468,7 @@ function listFiles(rootDir, subDir = '') {
           [])
       // Files with spaces (\x20) or unicode characters (<\x20 && >\x7E) are not allowed in
       // Bazel runfiles. See https://github.com/bazelbuild/bazel/issues/4327
-      .filter(f => !f.match(/[^\x21-\x7E]/))
+      .filter(f => !/[^\x21-\x7E]/.test(f))
       // We return a sorted array so that the order of files
       // is the same regardless of platform
       .sort();
@@ -553,7 +553,7 @@ function parsePackage(p) {
   pkg._name = pkg._dir.split('/').pop();
 
   // Keep track of whether or not this is a nested package
-  pkg._isNested = p.match(/\/node_modules\//);
+  pkg._isNested = /\/node_modules\//.test(p);
 
   // List all the files in the npm package for later use
   pkg._files = listFiles(p);
