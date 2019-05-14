@@ -36,7 +36,7 @@ def _sources_aspect_impl(target, ctx):
     elif hasattr(target, "files") and not NodeModuleInfo in target:
         # Sources from npm fine grained deps should not be included
         node_sources = depset(
-            [f for f in target.files if f.path.endswith(".js")],
+            [f for f in target.files.to_list() if f.path.endswith(".js")],
             transitive = [node_sources],
         )
 
