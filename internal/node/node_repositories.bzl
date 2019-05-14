@@ -562,12 +562,12 @@ def node_repositories(
     )
 
     # This needs to be setup so toolchains can access nodejs for all different versions
-    nodejs_repositorie_names = []
+    node_repository_names = []
     for os_name in OS_NAMES:
-        nodejs_repository = "nodejs_%s" % os_name
+        node_repository_name = "nodejs_%s" % os_name
         _maybe(
             _nodejs_repo,
-            name = nodejs_repository,
+            name = node_repository_name,
             package_json = package_json,
             node_version = node_version,
             yarn_version = yarn_version,
@@ -579,9 +579,9 @@ def node_repositories(
             yarn_urls = yarn_urls,
             preserve_symlinks = preserve_symlinks,
         )
-        nodejs_repositorie_names.append(nodejs_repository)
+        node_repository_names.append(node_repository_name)
 
-    node_toolchain_configure(nodejs_repositorie_names)
+    node_toolchain_configure(node_repository_names)
 
     _maybe(
         _yarn_repo,
