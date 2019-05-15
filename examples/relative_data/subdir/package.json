@@ -1,0 +1,6 @@
+{
+  "description": "runtime dependencies for relative data paths example",
+  "scripts": {
+    "postinstall": "bash example.sh"
+  }
+}

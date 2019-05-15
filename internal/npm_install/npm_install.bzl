@@ -23,6 +23,7 @@ See discussion in the README.
 
 load("//internal/common:os_name.bzl", "os_name")
 load("//internal/node:node_labels.bzl", "get_node_label", "get_npm_label", "get_yarn_label")
+load("//third_party/github.com/bazelbuild/bazel-skylib:lib/paths.bzl", "paths")
 
 COMMON_ATTRIBUTES = dict(dict(), **{
     "data": attr.label_list(),
@@ -109,16 +110,23 @@ def _add_scripts(repository_ctx):
 
 def _add_data_dependencies(repository_ctx):
     """Add data dependencies to the repository."""
+    package_json = repository_ctx.attr.package_json
+    toPackage = []
+    if package_json.package:
+        toPackage += [package_json.package]
+    toPackage += [package_json.name]
+    toPath = paths.dirname("/".join(toPackage))
     for f in repository_ctx.attr.data:
         to = []
         if f.package:
             to += [f.package]
         to += [f.name]
+        path = paths.relativize("/".join(to), toPath)
 
         # Make copies of the data files instead of symlinking
         # as yarn under linux will have trouble using symlinked
         # files as npm file:// packages
-        repository_ctx.template("/".join(to), f, {})
+        repository_ctx.template(path, f, {})
 
 def _npm_install_impl(repository_ctx):
     """Core implementation of npm_install."""

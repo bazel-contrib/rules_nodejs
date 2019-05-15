@@ -35,8 +35,6 @@ const path = require('path');
 set('-e');
 // print commands as being executed
 set('-v');
-// jump to project root
-cd(path.join(__dirname, '../..'));
 
 // Part of work-around for Angular ngfactory issue https://github.com/angular/angular/issues/29491.
 console.log(
