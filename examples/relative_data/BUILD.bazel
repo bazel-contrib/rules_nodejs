@@ -1,0 +1,20 @@
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+
+filegroup(
+    name = "node_modules",
+    srcs = glob([
+        "subdir/node_modules/**/*.js",
+        "subdir/node_modules/**/*.d.ts",
+        "subdir/node_modules/**/*.json",
+    ]),
+    visibility = ["//visibility:public"],
+)
+
+nodejs_binary(
+    name = "example",
+    data = [
+        "index.js",
+        ":node_modules",
+    ],
+    entry_point = "examples_relative_data/index.js",
+)

@@ -5,10 +5,11 @@ workspace(name = "examples_relative_data")
 # repository with the rules_nodejs code and we want to test them together.
 local_repository(
     name = "build_bazel_rules_nodejs",
-    path = "../..",
+    path = "../../dist/build_bazel_rules_nodejs/release",
 )
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
+load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
 
 # This runs yarn install, then our generate_build_file.js to create BUILD files
 # inside the resulting node_modules directory.
@@ -21,4 +22,9 @@ yarn_install(
     ],
     package_json = "//:subdir/package.json",
     yarn_lock = "//:subdir/yarn.lock",
+)
+node_repositories(
+    node_version = "8.11.1",
+    package_json = ["//:subdir/package.json"],
+    yarn_version = "1.5.1",
 )
