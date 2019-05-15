@@ -557,7 +557,8 @@ nodejs_binary(
 This example illustrates how to pass arguments to nodejs (as opposed to passing arguments to the program).
 
 The `data` attribute is optional, by default it includes the `node_modules` directory. To include your own
-sources, include a file or target that produces JavaScript.
+sources, include a file or target that produces JavaScript. Files included in the data argument will be 
+placed relative to the package.json file, rather than the project root. 
 
 See the `examples/program` directory in this repository.
 

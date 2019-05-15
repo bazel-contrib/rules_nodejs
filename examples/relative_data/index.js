@@ -1,1 +1,1 @@
-console.log("Running the program...");
+console.log('Running the program...');
