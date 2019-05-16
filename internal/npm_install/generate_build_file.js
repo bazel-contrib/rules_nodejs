@@ -738,7 +738,7 @@ function isNgApfPackage(pkg) {
  */
 function getNgApfScripts(pkg) {
   return isNgApfPackage(pkg) ?
-      filterFiles(pkg._files, ['.umd.js', '.ngfactory.js', '.ngsummary.js']) :
+      filterFiles(pkg._files, ['.umd.js', '.umd.js.map', '.ngfactory.js', '.ngsummary.js']) :
       [];
 }
 
