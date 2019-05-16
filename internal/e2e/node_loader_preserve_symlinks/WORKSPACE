@@ -1,7 +1,7 @@
 workspace(
     name = "node_loader_e2e_preserve_symlinks",
     managed_directories = {
-        "@node_loader_e2e_preserve_symlinks_deps": ["deps/node_modules"],
+        "@npm": ["node_modules"],
     },
 )
 
@@ -10,15 +10,10 @@ local_repository(
     path = "../../../dist/build_bazel_rules_nodejs/release",
 )
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "yarn_install")
-
-node_repositories(
-    package_json = ["//:package.json"],
-    preserve_symlinks = True,
-)
+load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
 
 yarn_install(
-    name = "node_loader_e2e_preserve_symlinks_deps",
-    package_json = "//deps:package.json",
-    yarn_lock = "//deps:yarn.lock",
+    name = "npm",
+    package_json = "//:package.json",
+    yarn_lock = "//:yarn.lock",
 )
