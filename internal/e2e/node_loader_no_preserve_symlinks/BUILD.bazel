@@ -2,15 +2,10 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
 
 package(default_visibility = ["//visibility:public"])
 
-filegroup(
-    name = "node_modules",
-    srcs = glob(["node_modules/**/*"]),
-)
-
 jasmine_node_test(
     name = "test",
     srcs = [
         "node_loader_test.spec.js",
     ],
-    node_modules = "@node_loader_e2e_no_preserve_symlinks_deps//:node_modules",
+    node_modules = "@npm//:node_modules",
 )

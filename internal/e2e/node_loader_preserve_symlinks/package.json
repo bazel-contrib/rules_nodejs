@@ -2,13 +2,12 @@
     "description": "e2e node_loader testing dependencies",
     "devDependencies": {},
     "dependencies": {
-        "@gregmagolan/test-a": "0.0.1",
-        "clang-format": "1.2.2",
-        "jasmine": "3.1.0",
-        "minimist": "1.2.0"
+        "@gregmagolan/test-b": "0.0.2",
+        "@gregmagolan/test-a": "0.0.2",
+        "jasmine": "~2.8.0",
+        "tmp": "0.0.33"
     },
     "scripts": {
-        "pretest": "bazel run @nodejs//:yarn",
         "test": "bazel test //..."
     }
 }
