@@ -45,7 +45,7 @@ printf "\n\nSetting up /examples/angular\n"
 
     # TEMPORARY for managed_directories
     echo_and_run sedi "s#name \= \"angular_bazel_example\"#name = \"angular_bazel_example\", managed_directories = {\"@npm\": [\"node_modules\"]}#" WORKSPACE
-    echo_and_run sedi "s#\"\@bazel\/bazel\"\: \"0\.25\.1\"#\"@bazel/bazel\": \"0.26.0-rc7\"#" package.json
+    echo_and_run sedi "s#\"\@bazel\/bazel\"\: \"0\.25\.1\"#\"@bazel/bazel\": \"file:../../node_modules/@bazel/bazel\"#" package.json
     echo "" >> .bazelrc
     echo "##################################################" >> .bazelrc
     echo "# Turn on managed_directories" >> .bazelrc
