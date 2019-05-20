@@ -152,10 +152,28 @@ function handleBazelFiles(pkg) {
  */
 function generateRootBuildFile(pkgs) {
   const srcs = pkgs.filter(pkg => !pkg._isNested);
-  const srcsStarlark =
-      srcs.map(pkg => `"//node_modules/${pkg._dir}:${pkg._name}__files",`).join('\n        ');
-  const depsStarlark =
-      srcs.map(pkg => `"//node_modules/${pkg._dir}:${pkg._name}__contents",`).join('\n        ');
+
+  let srcsStarlark = '';
+  if (srcs.length) {
+    const list =
+        srcs.map(pkg => `"//node_modules/${pkg._dir}:${pkg._name}__files",`).join('\n        ');
+    srcsStarlark = `
+    # direct sources listed for strict deps support
+    srcs = [
+        ${list}
+    ],`;
+  }
+
+  let depsStarlark = '';
+  if (srcs.length) {
+    const list =
+        srcs.map(pkg => `"//node_modules/${pkg._dir}:${pkg._name}__contents",`).join('\n        ');
+    depsStarlark = `
+    # flattened list of direct and transitive dependencies hoisted to root by the package manager
+    deps = [
+        ${list}
+    ],`;
+  }
 
   let buildFile = BUILD_FILE_HEADER +
       `load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
@@ -165,15 +183,7 @@ function generateRootBuildFile(pkgs) {
 # there are many files in target.
 # See https://github.com/bazelbuild/bazel/issues/5153.
 node_module_library(
-    name = "node_modules",
-    # direct sources listed for strict deps support
-    srcs = [
-        ${srcsStarlark}
-    ],
-    # flattened list of direct and transitive dependencies hoisted to root by the package manager
-    deps = [
-        ${depsStarlark}
-    ],
+    name = "node_modules",${srcsStarlark}${depsStarlark}
 )
 
 `
@@ -815,16 +825,40 @@ function printPackage(pkg) {
     ],`;
   }
 
+  let srcsStarlark = '';
+  if (sources.length) {
+    srcsStarlark = `
+    # ${pkg._dir} package files (and files in nested node_modules)
+    srcs = [
+        ${sources.map(f => `":${f}",`).join('\n        ')}
+    ],`;
+  }
+
+  let depsStarlark = '';
+  if (deps.length) {
+    const list =
+        deps.map(dep => `"//node_modules/${dep._dir}:${dep._name}__contents",`).join('\n        ');
+    depsStarlark = `
+    # flattened list of direct and transitive dependencies hoisted to root by the package manager
+    deps = [
+        ${list}
+    ],`;
+  }
+
+  let dtsStarlark = '';
+  if (dtsSources.length) {
+    dtsStarlark = `
+    # ${pkg._dir} package declaration files (and declaration files in nested node_modules)
+    srcs = [
+        ${dtsSources.map(f => `":${f}",`).join('\n        ')}
+    ],`;
+  }
+
   let result = '';
   if (isValidBinPath(pkg.bin)) {
     // load the nodejs_binary definition only for non-empty bin paths
     result = 'load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")';
   }
-
-  const srcsStarlark = sources.map(f => `":${f}",`).join('\n        ');
-  const depsStarlark =
-      deps.map(dep => `"//node_modules/${dep._dir}:${dep._name}__contents",`).join('\n        ');
-  const dtsStarlark = dtsSources.map(f => `":${f}",`).join('\n        ');
 
   result = `${result}
 load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
@@ -833,21 +867,13 @@ load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", 
 ${printJson(pkg)}
 
 filegroup(
-    name = "${pkg._name}__files",
-    # ${pkg._dir} package files (and files in nested node_modules)
-    srcs = [
-        ${srcsStarlark}
-    ],
+    name = "${pkg._name}__files",${srcsStarlark}
 )
 
 node_module_library(
     name = "${pkg._name}__pkg",
     # direct sources listed for strict deps support
-    srcs = [":${pkg._name}__files"],
-    # flattened list of direct and transitive dependencies hoisted to root by the package manager
-    deps = [
-        ${depsStarlark}
-    ],
+    srcs = [":${pkg._name}__files"],${depsStarlark}
 )
 
 # ${pkg._name}__contents target is used as dep for __pkg targets to prevent
@@ -859,10 +885,7 @@ node_module_library(
 
 # ${pkg._name}__typings is the subset of ${pkg._name}__contents that are declarations
 node_module_library(
-    name = "${pkg._name}__typings",
-    srcs = [
-        ${dtsStarlark}
-    ],
+    name = "${pkg._name}__typings",${dtsStarlark}
 )
 
 `;
@@ -996,24 +1019,33 @@ function printScope(scope, pkgs) {
   // filter out duplicate deps
   deps = [...pkgs, ...new Set(deps)];
 
-  const srcsStarlark =
-      deps.map(dep => `"//node_modules/${dep._dir}:${dep._name}__files",`).join('\n        ');
-  const depsStarlark =
-      deps.map(dep => `"//node_modules/${dep._dir}:${dep._name}__contents",`).join('\n        ');
+  let srcsStarlark = '';
+  if (deps.length) {
+    const list =
+        deps.map(dep => `"//node_modules/${dep._dir}:${dep._name}__files",`).join('\n        ');
+    srcsStarlark = `
+    # direct sources listed for strict deps support
+    srcs = [
+        ${list}
+    ],`;
+  }
+
+  let depsStarlark = '';
+  if (deps.length) {
+    const list =
+        deps.map(dep => `"//node_modules/${dep._dir}:${dep._name}__contents",`).join('\n        ');
+    depsStarlark = `
+    # flattened list of direct and transitive dependencies hoisted to root by the package manager
+    deps = [
+        ${list}
+    ],`;
+  }
 
   return `load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
 
 # Generated target for npm scope ${scope}
 node_module_library(
-    name = "${scope}",
-    # direct sources listed for strict deps support
-    srcs = [
-        ${srcsStarlark}
-    ],
-    # flattened list of direct and transitive dependencies hoisted to root by the package manager
-    deps = [
-        ${depsStarlark}
-    ],
+    name = "${scope}",${srcsStarlark}${depsStarlark}
 )
 
 `;
