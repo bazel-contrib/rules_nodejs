@@ -511,7 +511,12 @@ function findPackages(p = 'node_modules') {
 
   const listing = fs.readdirSync(p);
 
-  const packages = listing.filter(f => !f.startsWith('@'))
+  const packages = listing
+                       // filter out scopes
+                       .filter(f => !f.startsWith('@'))
+                       // filter out folders such as `.bin` which can create
+                       // issues on Windows since these are "hidden" by default
+                       .filter(f => !f.startsWith('.'))
                        .map(f => path.posix.join(p, f))
                        .filter(f => isDirectory(f));
   packages.forEach(
