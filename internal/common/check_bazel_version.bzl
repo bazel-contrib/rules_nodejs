@@ -35,7 +35,7 @@ def check_bazel_version(minimum_bazel_version, message = ""):
     ```
     # in WORKSPACE:
     load("@build_bazel_rules_nodejs//:defs.bzl", "check_bazel_version")
-    check_bazel_version("0.11.0")
+    check_bazel_version("0.26.0")
     ```
 
     Args:
