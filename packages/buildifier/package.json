@@ -3,19 +3,20 @@
   "bin": {
     "buildifier": "./buildifier.js"
   },
-  "version": "0.20.0",
+  "version": "0.25.1",
   "description": "A tool for formatting bazel BUILD and .bzl files with a standard convention",
   "license": "Apache 2.0",
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/bazelbuild/rules_nodejs.git",
+    "type": "git",
+    "url": "https://github.com/bazelbuild/rules_nodejs.git",
     "directory": "packages/buildifier"
   },
   "bugs": {
     "url": "https://github.com/bazelbuild/buildtools/issues"
   },
   "optionalDependencies": {
-    "@bazel/buildifier-linux_x64": "0.20.0",
-    "@bazel/buildifier-darwin_x64": "0.20.0"
+    "@bazel/buildifier-linux_x64": "0.25.1",
+    "@bazel/buildifier-darwin_x64": "0.25.1",
+    "@bazel/buildifier-win32_x64": "0.25.1"
   }
 }

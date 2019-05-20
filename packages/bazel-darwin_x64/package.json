@@ -1,12 +1,12 @@
 {
   "name": "@bazel/bazel-darwin_x64",
   "bin": {
-    "bazel": "./bazel-0.24.1-darwin-x86_64"
+    "bazel": "./bazel-0.26.0rc10-darwin-x86_64"
   },
   "os": [
     "darwin"
   ],
-  "version": "0.24.1",
+  "version": "0.26.0-rc10",
   "description": "Build and test software of any size, quickly and reliably",
   "homepage": "https://bazel.build/",
   "repository": {

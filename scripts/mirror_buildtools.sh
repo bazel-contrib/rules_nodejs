@@ -30,8 +30,9 @@ function doMirror () {
   node --max-old-space-size=8192 $NPM publish $PACKAGE
 }
 
-doMirror buildifier-darwin_x64 buildifier.osx
+doMirror buildifier-darwin_x64 buildifier.mac
 doMirror buildifier-linux_x64 buildifier
+doMirror buildifier-win32_x64 buildifier.exe
 
 tmp=$(mktemp)
 jq ".version = \"${VERSION}\" | .optionalDependencies[] = \"${VERSION}\"" < buildifier/package.json > $tmp

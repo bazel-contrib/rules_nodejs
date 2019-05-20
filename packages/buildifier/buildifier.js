@@ -16,7 +16,6 @@ function getNativeBinary() {
   if (!fs.existsSync(nativePackage)) {
     const message = 'Bazel has not published a buildifier executable for your platform. ' +
         `(${os.platform()}_${os.arch()})\n` +
-        '  (Note that the Windows executable is known to be missing: https://github.com/bazelbuild/buildtools/issues/375)\n' +
         'Consider building it from source instead.\n';
     throw new Error(message);
   }

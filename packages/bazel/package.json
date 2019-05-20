@@ -3,7 +3,7 @@
   "bin": {
     "bazel": "./index.js"
   },
-  "version": "0.24.1",
+  "version": "0.26.0-rc10",
   "license": "Apache 2.0",
   "description": "Build and test software of any size, quickly and reliably",
   "homepage": "https://bazel.build/",
@@ -16,8 +16,8 @@
     "url": "https://github.com/bazelbuild/bazel/issues"
   },
   "optionalDependencies": {
-    "@bazel/bazel-linux_x64": "0.24.1",
-    "@bazel/bazel-darwin_x64": "0.24.1",
-    "@bazel/bazel-win32_x64": "0.24.1"
+    "@bazel/bazel-linux_x64": "0.26.0-rc10",
+    "@bazel/bazel-darwin_x64": "0.26.0-rc10",
+    "@bazel/bazel-win32_x64": "0.26.0-rc10"
   }
 }
