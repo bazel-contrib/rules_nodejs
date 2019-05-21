@@ -1,16 +1,5 @@
 ---
 platforms:
-  ubuntu1404:
-    run_targets:
-    - "//:gazelle"
-    - "@nodejs//:yarn"
-    build_targets:
-    - "..."
-    test_flags:
-    # TODO(gregmagolan): shared libs needed by chrome & firefox not available on ubuntu1404
-    - "--test_tag_filters=-browser:chromium-local,-browser:firefox-local"
-    test_targets:
-    - "..."
   ubuntu1604:
     run_targets:
     - "//:gazelle"
@@ -19,6 +8,17 @@ platforms:
     - "..."
     test_flags:
     # TODO(gregmagolan): shared libs needed by chrome & firefox not available on ubuntu1604
+    - "--test_tag_filters=-browser:chromium-local,-browser:firefox-local"
+    test_targets:
+    - "..."
+  ubuntu1804:
+    run_targets:
+    - "//:gazelle"
+    - "@nodejs//:yarn"
+    build_targets:
+    - "..."
+    test_flags:
+    # TODO(gregmagolan): shared libs needed by chrome & firefox not available on ubuntu1404
     - "--test_tag_filters=-browser:chromium-local,-browser:firefox-local"
     test_targets:
     - "..."
