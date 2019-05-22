@@ -7,6 +7,7 @@ jasmine_node_test(
     name = "test",
     srcs = glob(["*.spec.js"]),
     node_modules = "@npm//:node_modules",
+    data = ["@npm//:bin_files"],
 )
 
 # Test what happens when only certain NPM packages are in our dependencies.
@@ -19,4 +20,5 @@ jasmine_node_test(
         "@npm//jasmine",
         "@npm//typescript",
     ],
+    data = ["@npm//:bin_files"],
 )
