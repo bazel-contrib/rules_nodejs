@@ -332,6 +332,7 @@ module.constructor._resolveFilename = function(request, parent) {
     console.error(`node_loader: resolve ${request} from ${parentFilename}`);
 
   const failedResolutions = [];
+  const slicedArgs = Array.prototype.slice.call(arguments, 2);
 
   // Attempt to resolve to module root.
   // This should be the first attempted resolution because:
@@ -391,7 +392,9 @@ module.constructor._resolveFilename = function(request, parent) {
   // If the import is not a built-in module, an absolute, relative import or a
   // dependency of an npm package, attempt to resolve against the runfiles location
   try {
-    const resolved = originalResolveFilename(resolveRunfiles(parentFilename, request), parent);
+    const newArgs = [resolveRunfiles(parentFilename, request), parent];
+    newArgs.push.apply(slicedArgs);
+    const resolved = originalResolveFilename.apply(null, newArgs);
     if (DEBUG)
       console.error(
           `node_loader: resolved ${request} within runfiles to ${resolved} from ${parentFilename}`
@@ -416,8 +419,9 @@ module.constructor._resolveFilename = function(request, parent) {
     const parentSegments = relativeParentFilename.split('/');
     if (parentSegments[0] !== USER_WORKSPACE_NAME) {
       try {
-        const resolved = originalResolveFilename(
-            resolveRunfiles(undefined, parentSegments[0], 'node_modules', request), parent);
+        const newArgs = [resolveRunfiles(undefined, parentSegments[0], 'node_modules', request), parent]
+        newArgs.push.apply(slicedArgs);
+        const resolved = originalResolveFilename.apply(null, newArgs);
         if (DEBUG)
           console.error(
               `node_loader: resolved ${request} within node_modules ` +
@@ -433,8 +437,9 @@ module.constructor._resolveFilename = function(request, parent) {
   // If import was not resolved above then attempt to resolve
   // within the node_modules filegroup in use
   try {
-    const resolved = originalResolveFilename(
-        resolveRunfiles(undefined, NODE_MODULES_ROOT, request), parent);
+    const newArgs = [resolveRunfiles(undefined, NODE_MODULES_ROOT, request), parent];
+    newArgs.push.apply(slicedArgs);
+    const resolved = originalResolveFilename.apply(newArgs);
     if (DEBUG)
       console.error(
           `node_loader: resolved ${request} within node_modules (${NODE_MODULES_ROOT}) to ` +
