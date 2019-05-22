@@ -440,7 +440,6 @@ module.constructor._resolveFilename = function(request, parent, isMain, options)
       );
     return resolved;
   } catch (e) {
-    console.error(e);
     failedResolutions.push(`node_modules attribute (${NODE_MODULES_ROOT}) - ${e.toString()}`);
   }
 
