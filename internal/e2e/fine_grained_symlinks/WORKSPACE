@@ -1,4 +1,7 @@
-workspace(name = "fine_grained_symlinks")
+workspace(
+    name = "fine_grained_symlinks",
+    managed_directories = {"@npm": ["node_modules"]},
+)
 
 local_repository(
     name = "build_bazel_rules_nodejs",
@@ -12,7 +15,6 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "yarn_install"
 # https://github.com/bazelbuild/rules_nodejs/issues/428
 node_repositories(
     node_version = "10.3.0",
-    package_json = ["//:package.json"],
     yarn_version = "1.9.2",
 )
 

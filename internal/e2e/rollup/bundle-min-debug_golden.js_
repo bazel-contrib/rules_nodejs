@@ -15,7 +15,7 @@ var bundle = function(exports, some_global_var) {
     function inline_me() {
         return "abc";
     }
-    console.error(new A().a(), inline_me(), some_global_var.thing);
+    console.error(new A().a(), inline_me(), some_global_var.thing, !1, !1);
     exports.A = A;
     return exports;
 }({}, runtime_name_of_global_var);

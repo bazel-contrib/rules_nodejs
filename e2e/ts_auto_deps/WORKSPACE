@@ -12,20 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-workspace(name = "e2e_ts_auto_deps")
+workspace(
+    name = "e2e_ts_auto_deps",
+    managed_directories = {"@npm": ["node_modules"]},
+)
 
 local_repository(
     name = "build_bazel_rules_nodejs",
     path = "../../dist/build_bazel_rules_nodejs/release",
 )
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "yarn_install")
-
-# This test depend on there being a user node_modules folder
-# TODO(gregmagolan): remove this once yarn_install sets up the user's node_modules folder
-node_repositories(
-    package_json = ["//:package.json"],
-)
+load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
 
 yarn_install(
     name = "npm",

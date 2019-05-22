@@ -44,9 +44,13 @@ function mkdirp(p) {
   }
 }
 
-function writeFileSync(filePath, contents) {
-  mkdirp(path.dirname(filePath));
-  fs.writeFileSync(filePath, contents);
+/**
+ * Writes a file, first ensuring that the directory to
+ * write to exists.
+ */
+function writeFileSync(p, content) {
+  mkdirp(path.dirname(p));
+  fs.writeFileSync(p, content);
 }
 
 /**
@@ -128,7 +132,7 @@ function listFiles(rootDir, subDir = '') {
 function filterFilesForFilegroup(files, allowedExts = [], excludedExts = []) {
   // Files with spaces (\x20) or unicode characters (<\x20 && >\x7E) are not allowed in
   // Bazel runfiles. See https://github.com/bazelbuild/bazel/issues/4327
-  files = files.filter(f => !f.match(/[^\x21-\x7E]/));
+  files = files.filter(f => !/[^\x21-\x7E]/.test(f));
   if (allowedExts.length) {
     const allowNoExts = allowedExts.includes('');
     files = files.filter(f => {

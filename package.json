@@ -1,7 +1,7 @@
 {
     "name": "@bazel/javascript",
     "description": "Build JavaScript with Bazel",
-    "version": "0.29.0",
+    "version": "0.30.0",
     "keywords": [
         "javascript",
         "bazel"
@@ -9,7 +9,7 @@
     "homepage": "https://github.com/bazelbuild/rules_nodejs",
     "license": "Apache-2.0",
     "devDependencies": {
-        "@bazel/bazel": "0.25.1",
+        "@bazel/bazel": "0.26.0-rc10",
         "@bazel/buildifier": "0.22.0",
         "@bazel/ibazel": "0.10.1",
         "@zeit/ncc": "0.18.1",

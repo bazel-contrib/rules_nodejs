@@ -10,3 +10,8 @@ test --nolegacy_external_runfiles
 
 # Faster TypeScript compiles
 build --strategy=TypeScriptCompile=worker
+
+# Turn on managed_directories
+build --experimental_allow_incremental_repository_updates
+test --experimental_allow_incremental_repository_updates
+run --experimental_allow_incremental_repository_updates

@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 /**
- * @fileoverview This script processes the user's package.json file
- * which is named _package.json in the install context and removes
- * packages that are listed in the exclude_packages attribute
- * which are passed to this script as the first argument.
+ * @fileoverview This script reads the package.json file
+ * of a yarn_install or npm_install rule and performs steps
+ * that may be required before running yarn or npm such as
+ * clearing the yarn cache for `file://` URIs to work-around
+ * https://github.com/yarnpkg/yarn/issues/2165.
  */
 'use strict';
 
@@ -28,8 +29,8 @@ const child_process = require('child_process');
 const DEBUG = false;
 
 const args = process.argv.slice(2);
-const packageManager = args[0];
-const excludePackages = args[1] ? args[1].split(',') : [];
+const packageJson = args[0];
+const packageManager = args[1];
 
 if (require.main === module) {
   main();
@@ -41,11 +42,9 @@ if (require.main === module) {
 function main() {
   const isYarn = (packageManager === 'yarn');
 
-  const pkg = JSON.parse(fs.readFileSync('_package.json', {encoding: 'utf8'}));
+  const pkg = JSON.parse(fs.readFileSync(packageJson, {encoding: 'utf8'}));
 
   if (DEBUG) console.error(`Pre-processing package.json`);
-
-  removeExcludedPackages(pkg);
 
   if (isYarn) {
     // Work-around for https://github.com/yarnpkg/yarn/issues/2165
@@ -53,25 +52,6 @@ function main() {
     // from the npm cache.
     clearYarnFilePathCaches(pkg);
   }
-
-  fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
-}
-
-function removeExcludedPackages(pkg) {
-  excludePackages.forEach(p => {
-    if (pkg.dependencies) {
-      delete pkg.dependencies[p];
-    }
-    if (pkg.devDependencies) {
-      delete pkg.devDependencies[p];
-    }
-    if (pkg.peerDependencies) {
-      delete pkg.peerDependencies[p];
-    }
-    if (pkg.optionalDependencies) {
-      delete pkg.optionalDependencies[p];
-    }
-  });
 }
 
 /**

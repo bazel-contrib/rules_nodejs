@@ -54,11 +54,19 @@ def rules_nodejs_dev_dependencies():
 
     http_archive(
         name = "com_google_protobuf",
-        sha256 = "9510dd2afc29e7245e9e884336f848c8a6600a14ae726adb6befdb4f786f0be2",
-        strip_prefix = "protobuf-3.6.1.3",
-        type = "zip",
-        # v3.6.1.3 as of 2019-01-15
-        urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.6.1.3.zip"],
+        sha256 = "b404fe166de66e9a5e6dab43dc637070f950cdba2a8a4c9ed9add354ed4f6525",
+        strip_prefix = "protobuf-b4f193788c9f0f05d7e0879ea96cd738630e5d51",
+        # Commit from 2019-05-15, update to protobuf 3.8 when available.
+        url = "https://github.com/protocolbuffers/protobuf/archive/b4f193788c9f0f05d7e0879ea96cd738630e5d51.zip",
+    )
+
+    # Needed for com_google_protobuf
+    http_archive(
+        name = "zlib",
+        build_file = "@com_google_protobuf//:third_party/zlib.BUILD",
+        sha256 = "c3e5e9fdd5004dcb542feda5ee4f0ff0744628baf8ed2dd5d66f8ca1197cb1a1",
+        strip_prefix = "zlib-1.2.11",
+        urls = ["https://zlib.net/zlib-1.2.11.tar.gz"],
     )
 
     http_archive(

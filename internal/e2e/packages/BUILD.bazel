@@ -9,7 +9,6 @@ filegroup(
 
 VARIANTS = [
     "npm_install",
-    "npm_no_lockfile",
     "yarn_install",
 ]
 

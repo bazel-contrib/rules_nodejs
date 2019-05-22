@@ -2,14 +2,14 @@
 # yarn lockfile v1
 
 
-"@bazel/karma@file:../../dist/npm_bazel_karma$28979":
-  version "0.27.10-12-gaa09d94"
+"@bazel/karma@file:../../dist/npm_bazel_karma$2011":
+  version "0.29.0-7-g61d4b0a"
   dependencies:
     jasmine-core "2.8.0"
     karma "^4.0.0"
     karma-chrome-launcher "2.2.0"
     karma-firefox-launcher "1.1.0"
-    karma-jasmine "1.1.1"
+    karma-jasmine "2.0.1"
     karma-requirejs "1.1.0"
     karma-sauce-launcher "2.0.2"
     karma-sourcemap-loader "0.3.7"
@@ -17,8 +17,8 @@
     semver "5.6.0"
     tmp "0.0.33"
 
-"@bazel/typescript@file:../../dist/npm_bazel_typescript$10515":
-  version "0.27.10-12-gaa09d94"
+"@bazel/typescript@file:../../dist/npm_bazel_typescript$7423":
+  version "0.29.0-7-g61d4b0a"
   dependencies:
     protobufjs "6.8.8"
     semver "5.6.0"
@@ -1105,6 +1105,11 @@ jasmine-core@2.8.0:
   resolved "https://registry.yarnpkg.com/jasmine-core/-/jasmine-core-2.8.0.tgz#bcc979ae1f9fd05701e45e52e65d3a5d63f1a24e"
   integrity sha1-vMl5rh+f0FcB5F5S5l06XWPxok4=
 
+jasmine-core@^3.3:
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/jasmine-core/-/jasmine-core-3.4.0.tgz#2a74618e966026530c3518f03e9f845d26473ce3"
+  integrity sha512-HU/YxV4i6GcmiH4duATwAbJQMlE0MsDIR5XmSVxURxKHn3aGAdbY1/ZJFmVRbKtnLwIxxMJD7gYaPsypcbYimg==
+
 jsonfile@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/jsonfile/-/jsonfile-4.0.0.tgz#8771aae0799b64076b76640fca058f9c10e33ecb"
@@ -1135,10 +1140,12 @@ karma-firefox-launcher@1.1.0:
   resolved "https://registry.yarnpkg.com/karma-firefox-launcher/-/karma-firefox-launcher-1.1.0.tgz#2c47030452f04531eb7d13d4fc7669630bb93339"
   integrity sha512-LbZ5/XlIXLeQ3cqnCbYLn+rOVhuMIK9aZwlP6eOLGzWdo1UVp7t6CN3DP4SafiRLjexKwHeKHDm0c38Mtd3VxA==
 
-karma-jasmine@1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/karma-jasmine/-/karma-jasmine-1.1.1.tgz#6fe840e75a11600c9d91e84b33c458e1c46a3529"
-  integrity sha1-b+hA51oRYAydkehLM8RY4cRqNSk=
+karma-jasmine@2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/karma-jasmine/-/karma-jasmine-2.0.1.tgz#26e3e31f2faf272dd80ebb0e1898914cc3a19763"
+  integrity sha512-iuC0hmr9b+SNn1DaUD2QEYtUxkS1J+bSJSn7ejdEexs7P8EYvA1CWkEdrDQ+8jVH3AgWlCNwjYsT1chjcNW9lA==
+  dependencies:
+    jasmine-core "^3.3"
 
 karma-json-result-reporter@1.0.0:
   version "1.0.0"

@@ -326,7 +326,7 @@ function resolveRunfiles(parent, ...pathSegments) {
 }
 
 var originalResolveFilename = module.constructor._resolveFilename;
-module.constructor._resolveFilename = function(request, parent) {
+module.constructor._resolveFilename = function(request, parent, isMain, options) {
   const parentFilename = (parent && parent.filename) ? parent.filename : undefined;
   if (DEBUG)
     console.error(`node_loader: resolve ${request} from ${parentFilename}`);
@@ -351,7 +351,7 @@ module.constructor._resolveFilename = function(request, parent) {
   // Built-in modules, relative, absolute imports and npm dependencies
   // can be resolved using request
   try {
-    const resolved = originalResolveFilename(request, parent);
+    const resolved = originalResolveFilename(request, parent, isMain, options);
     if (resolved === request || request.startsWith('.') || request.startsWith('/') ||
         request.match(/^[A-Z]\:[\\\/]/i)) {
       if (DEBUG)
@@ -391,7 +391,7 @@ module.constructor._resolveFilename = function(request, parent) {
   // If the import is not a built-in module, an absolute, relative import or a
   // dependency of an npm package, attempt to resolve against the runfiles location
   try {
-    const resolved = originalResolveFilename(resolveRunfiles(parentFilename, request), parent);
+    const resolved = originalResolveFilename(resolveRunfiles(parentFilename, request), parent, isMain, options);
     if (DEBUG)
       console.error(
           `node_loader: resolved ${request} within runfiles to ${resolved} from ${parentFilename}`
@@ -416,8 +416,7 @@ module.constructor._resolveFilename = function(request, parent) {
     const parentSegments = relativeParentFilename.split('/');
     if (parentSegments[0] !== USER_WORKSPACE_NAME) {
       try {
-        const resolved = originalResolveFilename(
-            resolveRunfiles(undefined, parentSegments[0], 'node_modules', request), parent);
+        const resolved = originalResolveFilename(resolveRunfiles(undefined, parentSegments[0], 'node_modules', request), parent, isMain, options);
         if (DEBUG)
           console.error(
               `node_loader: resolved ${request} within node_modules ` +
@@ -433,8 +432,7 @@ module.constructor._resolveFilename = function(request, parent) {
   // If import was not resolved above then attempt to resolve
   // within the node_modules filegroup in use
   try {
-    const resolved = originalResolveFilename(
-        resolveRunfiles(undefined, NODE_MODULES_ROOT, request), parent);
+    const resolved = originalResolveFilename(resolveRunfiles(undefined, NODE_MODULES_ROOT, request), parent, isMain, options);
     if (DEBUG)
       console.error(
           `node_loader: resolved ${request} within node_modules (${NODE_MODULES_ROOT}) to ` +

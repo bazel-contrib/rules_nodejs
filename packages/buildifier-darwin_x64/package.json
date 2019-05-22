@@ -1,16 +1,16 @@
 {
   "name": "@bazel/buildifier-darwin_x64",
   "bin": {
-    "buildifier": "./buildifier.osx"
+    "buildifier": "./buildifier.mac"
   },
   "os": [
     "darwin"
   ],
-  "version": "0.20.0",
+  "version": "0.25.1",
   "description": "A tool for formatting bazel BUILD and .bzl files with a standard convention",
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/bazelbuild/rules_nodejs.git",
+    "type": "git",
+    "url": "https://github.com/bazelbuild/rules_nodejs.git",
     "directory": "packages/buildifier-darwin_x64"
   },
   "license": "Apache 2.0",

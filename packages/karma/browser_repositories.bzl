@@ -23,20 +23,23 @@ def browser_repositories():
     platform_http_file(
         name = "org_chromium_chromium",
         amd64_sha256 =
-            "941de83d78b27d43db07f427136ba159d661bb111db8d9ffe12499b863a003e1",
+            "eb6754c7918da5eab42a42bbda7efdf7f1661eaa3802b8940841f0c2c312299f",
         amd64_urls = [
-            # Chromium 69.0.3497.0 (2018-07-19 snaphot 576668)
-            # https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?prefix=Linux_x64/576668/
-            "https://commondatastorage.googleapis.com/chromium-browser-snapshots/Linux_x64/576668/chrome-linux.zip",
+            # Chromium 74.0.3729.0 (2019-03-08 snaphot 638880)
+            # https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?prefix=Linux_x64/638880/
+            # Current linux stable as of 2019-05-15
+            # https://www.chromium.org/developers/calendar
+            "https://commondatastorage.googleapis.com/chromium-browser-snapshots/Linux_x64/638880/chrome-linux.zip",
         ],
         licenses = ["notice"],  # BSD 3-clause (maybe more?)
         macos_sha256 =
-            "bd01783e7d179e9f85d4b6f0c9df53118d13977cc7d365a1caa9d198c6afcfd8",
+            "c48bdffac6a91c85c17a848012b1a45fbf36e3a2d4aaac5b6ded8ac65b1d96e3",
         macos_urls = [
-            # Chromium 69.0.3497.0 (2018-07-19 snaphot 576668)
-            # https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?prefix=Mac/576668/
-            # NOTE: There is an issue with ChromeHeadless on OSX chromium 70+
-            "https://commondatastorage.googleapis.com/chromium-browser-snapshots/Mac/576668/chrome-mac.zip",
+            # Chromium 74.0.3729.0 (2019-03-08 snaphot 638880)
+            # https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?prefix=Mac/638880/
+            # Current mac stable as of 2019-05-15
+            # https://www.chromium.org/developers/calendar
+            "https://commondatastorage.googleapis.com/chromium-browser-snapshots/Mac/638880/chrome-mac.zip",
         ],
         windows_sha256 =
             "d1bb728118c12ea436d8ea07dba980789e7d860aa664dd1fad78bc20e8d9391c",
@@ -53,19 +56,19 @@ def browser_repositories():
     platform_http_file(
         name = "org_chromium_chromedriver",
         amd64_sha256 =
-            "687d2e15c42908e2911344c08a949461b3f20a83017a7a682ef4d002e05b5d46",
+            "ec9dbe021338f0befaecca702abc576cb7cc31a2f5a852c2c41e94721af5d3ad",
         amd64_urls = [
-            # ChromeDriver 2.44 supports Chrome v69-71
+            # ChromeDriver 74.0.3729.6 supports Chrome 74
             # http://chromedriver.chromium.org/downloads
-            "https://chromedriver.storage.googleapis.com/2.44/chromedriver_linux64.zip",
+            "https://chromedriver.storage.googleapis.com/74.0.3729.6/chromedriver_linux64.zip",
         ],
         licenses = ["reciprocal"],  # BSD 3-clause, ICU, MPL 1.1, libpng (BSD/MIT-like), Academic Free License v. 2.0, BSD 2-clause, MIT
         macos_sha256 =
-            "3fd49c2782a5f93cb48ff2dee021004d9a7fb393798e4c4807b391cedcd30ed9",
+            "b4b73681404d231d81a9b7ab9d4f0cb090f3e69240296eca2eb46e2629519152",
         macos_urls = [
-            # ChromeDriver 2.44 supports Chrome v69-71
+            # ChromeDriver 74.0.3729.6 supports Chrome 74
             # http://chromedriver.chromium.org/downloads
-            "https://chromedriver.storage.googleapis.com/2.44/chromedriver_mac64.zip",
+            "https://chromedriver.storage.googleapis.com/74.0.3729.6/chromedriver_mac64.zip",
         ],
         windows_sha256 =
             "a8fa028acebef7b931ef9cb093f02865f9f7495e49351f556e919f7be77f072e",

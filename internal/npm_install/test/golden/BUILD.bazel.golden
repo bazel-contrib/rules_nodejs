@@ -4,7 +4,6 @@ load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", 
 node_module_library(
     name = "node_modules",
     srcs = [
-        "//node_modules/.bin:.bin__files",
         "//node_modules/ajv:ajv__files",
         "//node_modules/balanced-match:balanced-match__files",
         "//node_modules/brace-expansion:brace-expansion__files",
@@ -33,7 +32,6 @@ node_module_library(
         "//node_modules/@gregmagolan/test-b:test-b__files",
     ],
     deps = [
-        "//node_modules/.bin:.bin__contents",
         "//node_modules/ajv:ajv__contents",
         "//node_modules/balanced-match:balanced-match__contents",
         "//node_modules/brace-expansion:brace-expansion__contents",

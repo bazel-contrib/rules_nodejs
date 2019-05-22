@@ -12,7 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-workspace(name = "build_bazel_rules_nodejs")
+workspace(
+    name = "build_bazel_rules_nodejs",
+    managed_directories = {
+        "@fine_grained_deps_npm": ["internal/e2e/fine_grained_deps/npm/node_modules"],
+        "@fine_grained_deps_yarn": ["internal/e2e/fine_grained_deps/yarn/node_modules"],
+        "@fine_grained_no_bin": ["internal/e2e/fine_grained_no_bin/node_modules"],
+        "@npm": ["node_modules"],
+    },
+)
 
 load("//:package.bzl", "rules_nodejs_dev_dependencies")
 
@@ -22,7 +30,8 @@ load("//internal/common:check_bazel_version.bzl", "check_bazel_version")
 
 # 0.18.0: support for .bazelignore
 # 0.23.0: required fix for pkg_tar strip_prefix
-check_bazel_version(minimum_bazel_version = "0.23.0")
+# 0.26.0: managed_directories feature added
+check_bazel_version(minimum_bazel_version = "0.26.0")
 
 #
 # Load and install our dependencies downloaded above.
@@ -63,29 +72,6 @@ node_repositories(
 
 yarn_install(
     name = "npm",
-    data = [
-        "@build_bazel_rules_nodejs//:tools/npm_packages/hello/index.js",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/hello/package.json",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_index/index.js",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_index_2/index.js",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_index_2/package.json",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_index_3/index.js",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_index_3/package.json",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_index_4/index.js",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_index_4/package.json",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_main/main.js",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_main/package.json",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_main_2/main.js",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_main_2/package.json",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_nested_main/nested/main.js",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_nested_main/nested/package.json",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/node_resolve_nested_main/package.json",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/test_workspace/BUILD.bazel",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/test_workspace/index.js",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/test_workspace/package.json",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/test_workspace/subdir/BUILD.bazel",
-        "@build_bazel_rules_nodejs//:tools/npm_packages/test_workspace/subdir/index.js",
-    ],
     package_json = "//:package.json",
     yarn_lock = "//:yarn.lock",
 )
@@ -107,6 +93,10 @@ sass_repositories()
 load("@io_bazel_skydoc//skylark:skylark.bzl", "skydoc_repositories")
 
 skydoc_repositories()
+
+load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+
+protobuf_deps()
 
 #
 # Install npm dependencies for tests

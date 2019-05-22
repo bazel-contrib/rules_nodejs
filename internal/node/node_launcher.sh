@@ -119,6 +119,7 @@ readonly script=$(rlocation "TEMPLATED_script_path")
 
 ARGS=()
 NODE_OPTIONS=()
+# TODO: Add --preserve-symlinks-main as well for node >= 10.2.0
 ALL_ARGS=(TEMPLATED_args --node_options=--preserve-symlinks "$@")
 for ARG in "${ALL_ARGS[@]}"; do
   case "$ARG" in

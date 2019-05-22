@@ -16,7 +16,7 @@ class Impure {
   }
 }
 
-/*@__PURE__*/new Impure();
+/*@__PURE__*/ new Impure();
 
 // Test for sequences = false
 export class A {
@@ -27,4 +27,6 @@ export class A {
 function inline_me() {
   return 'abc';
 }
-console.error(new A().a(), inline_me(), thing);
+console.error(new A().a(), inline_me(), thing, ngDevMode, ngI18nClosureMode);
+ngDevMode && console.log('ngDevMode is truthy');
+ngI18nClosureMode && console.log('ngI18nClosureMode is truthy');
