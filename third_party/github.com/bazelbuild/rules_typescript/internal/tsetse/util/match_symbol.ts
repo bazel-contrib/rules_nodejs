@@ -35,23 +35,23 @@ export class AbsoluteMatcher {
     }
   }
 
-  matches(n: ts.Node, tc: ts.TypeChecker, verbose?: boolean): boolean {
+  matches(n: ts.Node, tc: ts.TypeChecker): boolean {
     // Get the symbol (or the one at the other end of this alias) that we're
     // looking at.
     const s = dealias(tc.getSymbolAtLocation(n), tc);
     if (!s) {
-      debugLog(verbose, `cannot get symbol`);
+      debugLog(`cannot get symbol`);
       return false;
     }
 
     // The TS-provided FQN tells us the full identifier, and the origin file
     // in some circumstances.
     const fqn = tc.getFullyQualifiedName(s);
-    debugLog(verbose, `got FQN ${fqn}`);
+    debugLog(`got FQN ${fqn}`);
 
     // Name-based check
     if (!(fqn.endsWith('.' + this.bannedName) || fqn === this.bannedName)) {
-      debugLog(verbose, `FQN ${fqn} doesn't match name ${this.bannedName}`);
+      debugLog(`FQN ${fqn} doesn't match name ${this.bannedName}`);
       return false;  // not a use of the symbols we want
     }
 
@@ -61,7 +61,7 @@ export class AbsoluteMatcher {
     // and bad fixes.
     const p = n.parent;
     if (p && (isDeclaration(p) || isPartOfImportStatement(p))) {
-      debugLog(verbose, `We don't flag symbol declarations`);
+      debugLog(`We don't flag symbol declarations`);
       return false;
     }
 
@@ -74,18 +74,17 @@ export class AbsoluteMatcher {
       // We need to trace things back, so get declarations of the symbol.
       const declarations = s.getDeclarations();
       if (!declarations) {
-        debugLog(verbose, `Symbol never declared?`);
+        debugLog(`Symbol never declared?`);
         return false;
       }
       if (!declarations.some(isAmbientDeclaration) &&
           !declarations.some(isInStockLibraries)) {
-        debugLog(
-            verbose, `Symbol neither ambient nor from the stock libraries`);
+        debugLog(`Symbol neither ambient nor from the stock libraries`);
         return false;
       }
     }
 
-    debugLog(verbose, `all clear, report finding`);
+    debugLog(`all clear, report finding`);
     return true;
   }
 }
@@ -123,8 +122,7 @@ export class PropertyMatcher {
   /**
    * @param n The PropertyAccessExpression we're looking at.
    */
-  matches(
-      n: ts.PropertyAccessExpression, tc: ts.TypeChecker, verbose?: boolean) {
+  matches(n: ts.PropertyAccessExpression, tc: ts.TypeChecker) {
     return n.name.text === this.bannedProperty &&
         this.typeMatches(tc.getTypeAtLocation(n.expression));
   }

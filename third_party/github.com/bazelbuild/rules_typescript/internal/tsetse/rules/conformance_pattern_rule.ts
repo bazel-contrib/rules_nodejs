@@ -20,16 +20,14 @@ export class ConformancePatternRule<P extends PatternKind> implements
 
   private readonly engine: PatternEngine<P>;
 
-  constructor(
-      config: Config<P>, fixer?: Fixer<MatchedNodeTypes[P]>,
-      verbose?: boolean) {
+  constructor(config: Config<P>, fixer?: Fixer<MatchedNodeTypes[P]>) {
     // TODO(rjamet): This cheats a bit with the typing, as TS doesn't realize
     // that P is Config.kind.
     // tslint:disable-next-line:no-any See above.
     let engine: PatternEngine<any>;
     switch (config.kind) {
       case PatternKind.BANNED_PROPERTY_WRITE:
-        engine = new PropertyWriteEngine(config, fixer, verbose);
+        engine = new PropertyWriteEngine(config, fixer);
         break;
       default:
         throw new Error('Config type not recognized, or not implemented yet.');

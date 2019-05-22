@@ -52,20 +52,19 @@ export function buildReplacementFixer(
  */
 export function maybeAddNamedImport(
     source: ts.SourceFile, importWhat: string, fromFile: string,
-    importAs?: string, tazeComment?: string, v?: boolean): IndividualChange|
-    undefined {
+    importAs?: string, tazeComment?: string): IndividualChange|undefined {
   const importStatements = source.statements.filter(ts.isImportDeclaration);
   const importSpecifier =
       importAs ? `${importWhat} as ${importAs}` : importWhat;
 
   for (const iDecl of importStatements) {
-    const parsedDecl = maybeParseImportNode(iDecl, v);
+    const parsedDecl = maybeParseImportNode(iDecl);
     if (!parsedDecl || parsedDecl.fromFile !== fromFile) {
       // Not an import from the right file, or couldn't understand the import.
       continue;  // Jump to the next import.
     }
     if (ts.isNamespaceImport(parsedDecl.namedBindings)) {
-      debugLog(v, `... but it's a wildcard import`);
+      debugLog(`... but it's a wildcard import`);
       continue;  // Jump to the next import.
     }
 
@@ -78,12 +77,12 @@ export function maybeAddNamedImport(
             iSpec.name.getText() === importWhat);  // import {foo}
 
     if (foundRightImport) {
-      debugLog(v, `"${iDecl.getFullText()}" imports ${importWhat} as we want.`);
+      debugLog(`"${iDecl.getFullText()}" imports ${importWhat} as we want.`);
       return;  // Our request is already imported under the right name.
     }
 
     // Else, insert our symbol in the list of imports from that file.
-    debugLog(v, `No named imports from that file, generating new fix`);
+    debugLog(`No named imports from that file, generating new fix`);
     return {
       start: parsedDecl.namedBindings.elements[0].getStart(),
       end: parsedDecl.namedBindings.elements[0].getStart(),
@@ -117,27 +116,27 @@ export function maybeAddNamedImport(
  */
 export function maybeAddNamespaceImport(
     source: ts.SourceFile, fromFile: string, importAs: string,
-    tazeComment?: string, v?: boolean): IndividualChange|undefined {
+    tazeComment?: string): IndividualChange|undefined {
   const importStatements = source.statements.filter(ts.isImportDeclaration);
 
   const hasTheRightImport = importStatements.some(iDecl => {
-    const parsedDecl = maybeParseImportNode(iDecl, v);
+    const parsedDecl = maybeParseImportNode(iDecl);
     if (!parsedDecl || parsedDecl.fromFile !== fromFile) {
       // Not an import from the right file, or couldn't understand the import.
       return false;
     }
-    debugLog(v, `"${iDecl.getFullText()}" is an import from the right file`);
+    debugLog(`"${iDecl.getFullText()}" is an import from the right file`);
 
     if (ts.isNamedImports(parsedDecl.namedBindings)) {
-      debugLog(v, `... but it's a named import`);
+      debugLog(`... but it's a named import`);
       return false;  // irrelevant to our namespace imports
     }
     // Else, bindings is a NamespaceImport.
     if (parsedDecl.namedBindings.name.getText() !== importAs) {
-      debugLog(v, `... but not the right name, we need to reimport`);
+      debugLog(`... but not the right name, we need to reimport`);
       return false;
     }
-    debugLog(v, `... and the right name, no need to reimport`);
+    debugLog(`... and the right name, no need to reimport`);
     return true;
   });
 
@@ -162,14 +161,13 @@ export function maybeAddNamespaceImport(
  * parts, undefined if the import declaration is valid but not understandable by
  * the checker.
  */
-function maybeParseImportNode(iDecl: ts.ImportDeclaration, v?: boolean): {
+function maybeParseImportNode(iDecl: ts.ImportDeclaration): {
   namedBindings: ts.NamedImportBindings|ts.NamespaceImport,
   fromFile: string
 }|undefined {
   if (!iDecl.importClause) {
     // something like import "./file";
-    debugLog(
-        v, `Ignoring import without imported symbol: ${iDecl.getFullText()}`);
+    debugLog(`Ignoring import without imported symbol: ${iDecl.getFullText()}`);
     return;
   }
   if (iDecl.importClause.name || !iDecl.importClause.namedBindings) {
@@ -177,11 +175,11 @@ function maybeParseImportNode(iDecl: ts.ImportDeclaration, v?: boolean): {
     // Not much we can do with that when trying to get a hold of some symbols,
     // so just ignore that line (worst case, we'll suggest another import
     // style).
-    debugLog(v, `Ignoring import: ${iDecl.getFullText()}`);
+    debugLog(`Ignoring import: ${iDecl.getFullText()}`);
     return;
   }
   if (!ts.isStringLiteral(iDecl.moduleSpecifier)) {
-    debugLog(v, `Ignoring import whose module specifier is not literal`);
+    debugLog(`Ignoring import whose module specifier is not literal`);
     return;
   }
   return {

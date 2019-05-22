@@ -6,6 +6,25 @@
 import * as ts from 'typescript';
 
 /**
+ * Triggers increased verbosity in the rules.
+ */
+let DEBUG = false;
+
+/**
+ * Turns on or off logging for ConformancePatternRules.
+ */
+export function setDebug(state: boolean) {
+  DEBUG = state;
+}
+
+/**
+ * Debug helper.
+ */
+export function debugLog(msg: string) {
+  if (DEBUG) console.log(msg);
+}
+
+/**
  * Returns `n`'s parents in order.
  */
 export function parents(n: ts.Node): ts.Node[] {
@@ -146,13 +165,6 @@ export function isPropertyWriteExpression(node: ts.Node):
 }
 
 /**
- * Debug helper.
- */
-export function debugLog(verbose: boolean|undefined, msg: string) {
-  if (verbose) console.info(msg);
-}
-
-/**
  * If verbose, logs the given error that happened while walking n, with a
  * stacktrace.
  */
@@ -163,7 +175,6 @@ export function logASTWalkError(verbose: boolean, n: ts.Node, e: Error) {
   } catch {
   }
   debugLog(
-      verbose,
       `Walking node ${nodeText} failed with error ${e}.\n` +
-          `Stacktrace:\n${e.stack}`);
+      `Stacktrace:\n${e.stack}`);
 }

@@ -8,8 +8,7 @@ import {Config, MatchedNodeTypes, PatternKind} from '../../util/pattern_config';
 export abstract class PatternEngine<P extends PatternKind> {
   constructor(
       protected readonly config: Config<P>,
-      protected readonly fixer?: Fixer<MatchedNodeTypes[P]>,
-      protected readonly verbose?: boolean) {}
+      protected readonly fixer?: Fixer<MatchedNodeTypes[P]>) {}
 
   abstract register(checker: Checker): void;
 }
