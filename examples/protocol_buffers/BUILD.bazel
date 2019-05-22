@@ -70,7 +70,7 @@ ts_devserver(
 # Test for production mode
 rollup_bundle(
     name = "bundle",
-    entry_point = "examples_protocol_buffers/app",
+    entry_point = ":app.ts",
     # TODO(alexeagle): we should be able to get this from //:protobufjs_bootstrap_scripts
     # and automatically plumb it through to Rollup.
     globals = {

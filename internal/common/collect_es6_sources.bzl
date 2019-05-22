@@ -31,6 +31,11 @@ def collect_es6_sources(ctx):
     non_rerooted_files = [d for d in ctx.files.deps if d.is_source]
     if hasattr(ctx.attr, "srcs"):
         non_rerooted_files += ctx.files.srcs
+
+    # Some rules such as rollup_bundle specify an entry_point which should
+    # be collected if the file is a js file.
+    if hasattr(ctx.attr, "entry_point"):
+        non_rerooted_files += [s for s in ctx.files.entry_point if s.extension == "js"]
     for dep in ctx.attr.deps:
         if hasattr(dep, "typescript"):
             non_rerooted_files += dep.typescript.transitive_es6_sources.to_list()

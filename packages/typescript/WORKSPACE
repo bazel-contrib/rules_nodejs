@@ -39,11 +39,12 @@ rules_nodejs_dev_dependencies()
 # We use git_repository since Renovate knows how to update it.
 # With http_archive it only sees releases/download/*.tar.gz urls
 
-# TODO(manekinekko): switch to https://github.com/bazelbuild/rules_typescript/ when the changes have been released
+# TODO(gregmagolan): switch to https://github.com/bazelbuild/rules_typescript/ HEAD when
+#                    https://github.com/bazelbuild/rules_typescript/pull/453 lands
 git_repository(
     name = "build_bazel_rules_typescript",
-    commit = "4ae7cda81c7ea3215a024f10b00ee38a0755549d",
-    remote = "http://github.com/bazelbuild/rules_typescript.git",
+    commit = "6521ce4e0d4959eaf46a4738d45f3f480d4af25f",
+    remote = "http://github.com/gregmagolan/rules_typescript.git",
 )
 
 # We have a source dependency on build_bazel_rules_typescript

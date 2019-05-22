@@ -27,7 +27,7 @@ nodejs_test(
         ":npm_package",
         "@npm//minimist",
     ],
-    entry_point = "build_bazel_rules_nodejs/packages/create/test.js",
+    entry_point = ":test.js",
 )
 
 # TODO(alexeagle): add e2e testing by running bazel in a newly created project

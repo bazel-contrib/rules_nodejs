@@ -33,7 +33,7 @@ nodejs_binary(
         ":browserify-wrapped.js",
         "//third_party/github.com/browserify/browserify:sources",
     ],
-    entry_point = "build_bazel_rules_nodejs/internal/npm_install/browserify-wrapped.js",
+    entry_point = ":browserify-wrapped.js",
     install_source_map_support = False,
     visibility = ["//visibility:public"],
 )

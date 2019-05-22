@@ -5,5 +5,5 @@ nodejs_binary(
     data = [
         ":index.js",
     ],
-    entry_point = "bazel_workspace_b/subdir/index.js",
+    entry_point = ":index.js",
 )
