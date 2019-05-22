@@ -6,6 +6,7 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
 jasmine_node_test(
     name = "test",
     srcs = glob(["*.spec.js"]),
+    data = ["@npm//:bin_files"],
     node_modules = "@npm//:node_modules",
 )
 
@@ -15,6 +16,7 @@ jasmine_node_test(
 jasmine_node_test(
     name = "fine_grained_test",
     srcs = glob(["*.spec.js"]),
+    data = ["@npm//:bin_files"],
     deps = [
         "@npm//jasmine",
         "@npm//typescript",

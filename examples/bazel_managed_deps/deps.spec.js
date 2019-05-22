@@ -10,4 +10,15 @@ describe('dependencies', () => {
      () => {
        require('jasmine-core');
      });
+
+  it('.bin files should be in runfiles via @npm//:bin_files data dep', () => {
+    const files = ['jasmine', 'tsc', 'tsserver'];
+    for (const f of files) {
+      try {
+        expect(require.resolve(`.bin/${f}`).endsWith(`/npm/node_modules/.bin/${f}`)).toBe(true);
+      } catch (_) {
+        fail(`.bin/${f} not resolved`);
+      }
+    }
+  });
 });
