@@ -1,10 +1,6 @@
-# Print test logs for failed tests
-test --test_output=errors
+# Import shared settings first so we can override below
+import %workspace%/../../../common.bazelrc
 
-# Enable debugging tests with --config=debug
-test:debug --test_arg=--node_options=--inspect-brk --test_output=streamed --test_strategy=exclusive --test_timeout=9999 --nocache_test_results
-
-# Turn on managed_directories
-build --experimental_allow_incremental_repository_updates
-test --experimental_allow_incremental_repository_updates
-run --experimental_allow_incremental_repository_updates
+# Turn on legacy external runfiles to workaround https://github.com/bazelbuild/bazel/issues/8088
+run --legacy_external_runfiles
+test --legacy_external_runfiles
