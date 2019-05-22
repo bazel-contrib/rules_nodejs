@@ -5,5 +5,5 @@ nodejs_binary(
     data = [
         ":index.js",
     ],
-    entry_point = "test_workspace/index.js",
+    entry_point = ":index.js",
 )

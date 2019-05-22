@@ -6,6 +6,11 @@ webpack_bundle(
     name = "bundle",
     srcs = glob(["*.js"]),
     entry_point = "index.js",
+    # The webpack label here is specific to local testing since
+    # there is no @bazel/labs npm package here. Users
+    # will always have this label point to their @foobar//@bazel/labs/bin:webpack
+    # target if they are not using the default @npm//@bazel/labs/bin:webpack
+    webpack = "@npm_bazel_labs//webpack:cli",
 )
 
 ts_library(

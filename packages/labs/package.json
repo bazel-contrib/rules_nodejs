@@ -11,6 +11,9 @@
     "bugs": {
         "url": "https://github.com/bazelbuild/rules_nodejs/issues"
     },
+    "bin": {
+      "webpack": "./webpack/index.js"
+    },
     "devDependencies": {
         "@bazel/typescript": "bazel://@npm_bazel_typescript//:npm_package",
         "@types/jasmine": "^3.3.9",

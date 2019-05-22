@@ -9,7 +9,7 @@ jasmine_node_test(
     # target if they are not using the default @npm//@bazel/jasmine
     jasmine = "@npm_bazel_jasmine//:index.js",
     deps = [
-        "//:jasmine_runner",
+        "//:jasmine__pkg",
         "@npm//jasmine",
     ],
 )
@@ -23,7 +23,7 @@ jasmine_node_test(
     # target if they are not using the default @npm//@bazel/jasmine
     jasmine = "@npm_bazel_jasmine//:index.js",
     deps = [
-        "//:jasmine_runner",
+        "//:jasmine__pkg",
         "@npm//jasmine",
     ],
 )
@@ -37,7 +37,7 @@ jasmine_node_test(
     # target if they are not using the default @npm//@bazel/jasmine
     jasmine = "@npm_bazel_jasmine//:index.js",
     deps = [
-        "//:jasmine_runner",
+        "//:jasmine__pkg",
         "@npm//jasmine",
     ],
 )
@@ -51,7 +51,7 @@ jasmine_node_test(
     # target if they are not using the default @npm//@bazel/jasmine
     jasmine = "@npm_bazel_jasmine//:index.js",
     deps = [
-        "//:jasmine_runner",
+        "//:jasmine__pkg",
         "@npm//jasmine",
     ],
 )
@@ -66,7 +66,7 @@ jasmine_node_test(
     jasmine = "@npm_bazel_jasmine//:index.js",
     shard_count = 3,
     deps = [
-        "//:jasmine_runner",
+        "//:jasmine__pkg",
         "@npm//jasmine",
     ],
 )
@@ -78,7 +78,7 @@ jasmine_node_test(
     jasmine = "@npm_bazel_jasmine//:index.js",
     shard_count = 2,
     deps = [
-        "//:jasmine_runner",
+        "//:jasmine__pkg",
         "@npm//jasmine",
     ],
 )
@@ -102,7 +102,7 @@ jasmine_node_test(
     # to return a 'incomplete' status
     tags = ["manual"],
     deps = [
-        "//:jasmine_runner",
+        "//:jasmine__pkg",
         "@npm//jasmine",
     ],
 )
@@ -116,7 +116,7 @@ jasmine_node_test(
     coverage = True,
     jasmine = "@npm_bazel_jasmine//:index.js",
     deps = [
-        "//:jasmine_runner",
+        "//:jasmine__pkg",
         "@npm//jasmine",
         "@npm//v8-coverage",
     ],

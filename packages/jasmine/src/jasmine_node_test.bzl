@@ -29,22 +29,25 @@ def jasmine_node_test(
         expected_exit_code = 0,
         tags = [],
         coverage = False,
-        jasmine = "@npm//@bazel/jasmine",
+        jasmine = "@npm//node_modules/@bazel/jasmine:index.js",
         **kwargs):
     """Runs tests in NodeJS using the Jasmine test runner.
 
     To debug the test, see debugging notes in `nodejs_test`.
 
     Args:
-      name: name of the resulting label
+      name: Name of the resulting label
       srcs: JavaScript source files containing Jasmine specs
       data: Runtime dependencies which will be loaded while the test executes
       deps: Other targets which produce JavaScript, such as ts_library
       expected_exit_code: The expected exit code for the test. Defaults to 0.
-      tags: bazel tags applied to test
-      jasmine: a label providing the @bazel/jasmine npm dependency
-      coverage: Enables code coverage collection and reporting
-      **kwargs: remaining arguments are passed to the test rule
+      tags: Bazel tags applied to test
+      coverage: Enables code coverage collection and reporting. Defaults to False.
+      jasmine: A label providing the @bazel/jasmine npm dependency. Defaults
+               to "@npm//@bazel/jasmine" so that the correct jasmine & jasmine-core
+               dependencies are resolved unless they are overwritten in a bootstrap
+               file.
+      **kwargs: Remaining arguments are passed to the test rule
     """
     devmode_js_sources(
         name = "%s_devmode_srcs" % name,
@@ -53,7 +56,7 @@ def jasmine_node_test(
         tags = tags,
     )
 
-    all_data = data + srcs + deps + [jasmine]
+    all_data = data + srcs + deps + [Label(jasmine).relative(":jasmine__pkg")]
 
     all_data += [":%s_devmode_srcs.MF" % name]
     all_data += [Label("@bazel_tools//tools/bash/runfiles")]

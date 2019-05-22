@@ -21,7 +21,7 @@ function configure(args: string[]): webpack.Configuration {
   };
 }
 
-function main(config: webpack.Configuration): 0|1 {
+function compile(config: webpack.Configuration): 0|1 {
   const compiler = webpack(config);
   let exitCode: 0|1 = 0;
   compiler.run((err, stats) => {
@@ -41,10 +41,14 @@ function main(config: webpack.Configuration): 0|1 {
   return exitCode;
 }
 
-if (require.main === module) {
+export function main() {
   // Avoid limitations of length of argv by using a flagfile
   // This also makes it easier to debug - you can just look
   // at this flagfile to see what args were passed to webpack
   const args = fs.readFileSync(process.argv[2], {encoding: 'utf-8'}).split('\n').map(unquoteArgs);
-  process.exitCode = main(configure(args));
+  process.exitCode = compile(configure(args));
+}
+
+if (require.main === module) {
+  main()
 }

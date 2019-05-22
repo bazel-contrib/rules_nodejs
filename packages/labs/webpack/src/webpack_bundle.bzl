@@ -20,7 +20,7 @@ This rule is experimental, as part of Angular Labs! There may be breaking change
 WEBPACK_BUNDLE_ATTRS = {
     "srcs": attr.label_list(allow_files = True),
     "entry_point": attr.label(allow_single_file = True, mandatory = True),
-    "webpack": attr.label(default = "@npm_bazel_labs//webpack/src:cli", executable = True, cfg = "host"),
+    "webpack": attr.label(default = "@npm//@bazel/labs/bin:webpack", executable = True, cfg = "host"),
 }
 WEBPACK_BUNDLE_OUTS = {
     "bundle": "%{name}.js",
