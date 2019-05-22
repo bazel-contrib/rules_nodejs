@@ -6,8 +6,8 @@ rollup_bundle(
         ["*.js"],
         exclude = ["*.spec.js"],
     ),
-    additional_entry_points = ["internal/e2e/rollup_code_splitting/additional_entry.js"],
-    entry_point = "internal/e2e/rollup_code_splitting/main1.js",
+    additional_entry_points = ["build_bazel_rules_nodejs/internal/e2e/rollup_code_splitting/additional_entry.js"],
+    entry_point = ":main1.js",
     license_banner = ":license.txt",
 )
 
@@ -18,10 +18,11 @@ jasmine_node_test(
         "main1.spec.js",
     ],
     data = glob([
-        "*_golden.js_",
+        "goldens/*",
     ]) + [
         ":bundle",
         ":bundle.min.js",
+        ":bundle.min.es2015.js",
     ],
     deps = [
         "//internal/e2e:check_lib",

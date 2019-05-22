@@ -89,6 +89,13 @@ def _write_loader_script(ctx):
     if len(ctx.attr.entry_point.files) != 1:
         fail("labels in entry_point must contain exactly one file")
 
+    entry_point_path = expand_path_into_runfiles(ctx, ctx.file.entry_point.short_path)
+
+    # If the entry point specified is a typescript file then set the entry
+    # point to the corresponding .js file
+    if entry_point_path.endswith(".ts"):
+        entry_point_path = entry_point_path[:-3] + ".js"
+
     ctx.actions.expand_template(
         template = ctx.file._loader_template,
         output = ctx.outputs.loader,
@@ -97,7 +104,7 @@ def _write_loader_script(ctx):
             "TEMPLATED_bootstrap": "\n  " + ",\n  ".join(
                 ["\"" + d + "\"" for d in ctx.attr.bootstrap],
             ),
-            "TEMPLATED_entry_point": expand_path_into_runfiles(ctx, ctx.file.entry_point.short_path),
+            "TEMPLATED_entry_point": entry_point_path,
             "TEMPLATED_gen_dir": ctx.genfiles_dir.path,
             "TEMPLATED_install_source_map_support": str(ctx.attr.install_source_map_support).lower(),
             "TEMPLATED_module_roots": "\n  " + ",\n  ".join(module_mappings),
@@ -172,7 +179,11 @@ def _nodejs_binary_impl(ctx):
         is_executable = True,
     )
 
-    runfiles = depset([node, ctx.outputs.loader, ctx.file._repository_args, ctx.file.entry_point], transitive = [sources, node_modules])
+    runfiles = depset([node, ctx.outputs.loader, ctx.file._repository_args], transitive = [sources, node_modules])
+
+    # entry point is only needed in runfiles if it is a .js file
+    if ctx.file.entry_point.extension == "js":
+        runfiles = depset([ctx.file.entry_point], transitive = [runfiles])
 
     return [DefaultInfo(
         executable = ctx.outputs.script,
@@ -214,21 +225,6 @@ _NODEJS_EXECUTABLE_ATTRS = {
     ),
     "entry_point": attr.label(
         doc = """The script which should be executed first, usually containing a main function.
-        The `entry_point` accepts a target's name as an entry point. 
-        If the target is a rule, it should produce the JavaScript entry file that will be passed to the nodejs_binary rule). 
-        For example:
-
-        ```
-        filegroup(
-            name = "entry_file",
-            srcs = ["workspace/path/to/entry/file"]
-        )
-        nodejs_binary(
-            name = "my_binary",
-            ...
-            entry_point = ":entry_file",
-        )
-        ```
 
         If the entry JavaScript file belongs to the same package (as the BUILD file), 
         you can simply reference it by its relative name to the package directory:
@@ -241,6 +237,48 @@ _NODEJS_EXECUTABLE_ATTRS = {
         )
         ```
 
+        You can specify the entry point as a typescript file so long as you also include
+        the ts_library target in data:
+
+        ```
+        ts_library(
+            name = "main",
+            srcs = ["main.ts"],
+        )
+
+        nodejs_binary(
+            name = "bin",
+            data = [":main"]
+            entry_point = ":main.ts",
+        )
+        ```
+
+        The rule will use the corresponding `.js` output of the ts_library rule as the entry point.
+
+        If the entry point target is a rule, it should produce a single JavaScript entry file that will be passed to the nodejs_binary rule. 
+        For example:
+
+        ```
+        filegroup(
+            name = "entry_file",
+            srcs = ["main.js"],
+        )
+
+        nodejs_binary(
+            name = "my_binary",
+            entry_point = ":entry_file",
+        )
+        ```
+
+        The entry_point can also be a label in another workspace:
+
+        ```
+        nodejs_binary(
+            name = "history-server",
+            entry_point = "@npm//node_modules/history-server:modules/cli.js",
+            data = ["@npm//history-server"],
+        )
+        ```
         """,
         mandatory = True,
         allow_single_file = True,

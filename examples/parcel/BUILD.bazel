@@ -5,9 +5,8 @@ parcel(
     name = "bundle",
     srcs = [
         "bar.js",
-        "foo.js",
     ],
-    entry_point = "foo.js",
+    entry_point = ":foo.js",
 )
 
 jasmine_node_test(

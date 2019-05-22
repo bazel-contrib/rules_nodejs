@@ -20,6 +20,7 @@ You do not need to install them into your project.
 
 load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleSources", "collect_node_modules_aspect")
 load("//internal/common:collect_es6_sources.bzl", _collect_es2015_sources = "collect_es6_sources")
+load("//internal/common:expand_into_runfiles.bzl", "expand_path_into_runfiles")
 load("//internal/common:module_mappings.bzl", "get_module_mappings")
 
 _ROLLUP_MODULE_MAPPINGS_ATTR = "rollup_module_mappings"
@@ -80,6 +81,13 @@ def _compute_node_modules_root(ctx):
         ] if f])
     return node_modules_root
 
+# Expand entry_point into runfiles and strip the file extension
+def _entry_point_path(ctx):
+    return "/".join([
+        expand_path_into_runfiles(ctx, ctx.file.entry_point.dirname),
+        ctx.file.entry_point.basename,
+    ])[:-(len(ctx.file.entry_point.extension) + 1)]
+
 def write_rollup_config(ctx, plugins = [], root_dir = None, filename = "_%s.rollup.conf.js", output_format = "iife", additional_entry_points = []):
     """Generate a rollup config file.
 
@@ -102,7 +110,7 @@ def write_rollup_config(ctx, plugins = [], root_dir = None, filename = "_%s.roll
     # build_file_path includes the BUILD.bazel file, transform here to only include the dirname
     build_file_dirname = "/".join(ctx.build_file_path.split("/")[:-1])
 
-    entry_points = [ctx.attr.entry_point] + additional_entry_points
+    entry_points = [_entry_point_path(ctx)] + additional_entry_points
 
     mappings = dict()
     all_deps = ctx.attr.deps + ctx.attr.srcs
@@ -363,9 +371,7 @@ def run_sourcemapexplorer(ctx, js, map, output):
 def _generate_toplevel_entry(ctx, bundles_folder, output):
     """Generates a native ESmodule that imports the entry point
     """
-    main_entry_point_basename = ctx.attr.entry_point.split("/")[-1]
-    if not main_entry_point_basename.endswith(".js"):
-        main_entry_point_basename += ".js"
+    main_entry_point_basename = _entry_point_path(ctx).split("/")[-1] + ".js"
     ctx.actions.write(output, """import('./%s/%s');""" % (bundles_folder, main_entry_point_basename))
 
 def _generate_code_split_entry(ctx, bundles_folder, output):
@@ -419,10 +425,11 @@ def _generate_code_split_entry(ctx, bundles_folder, output):
       bundles_folder: the folder name with the bundled chunks to map to
       output: the file to generate
     """
-    main_entry_point_basename = ctx.attr.entry_point.split("/")[-1]
-    main_entry_point_dirname = "/".join(ctx.attr.entry_point.split("/")[:-1]) + "/"
+    entry_point_path = _entry_point_path(ctx)
+    main_entry_point_basename = entry_point_path.split("/")[-1] + ".js"
+    main_entry_point_dirname = "/".join(entry_point_path.split("/")[:-1]) + "/"
     entry_points = {}
-    for e in [ctx.attr.entry_point] + ctx.attr.additional_entry_points:
+    for e in [entry_point_path] + ctx.attr.additional_entry_points:
         entry_point = e[len(main_entry_point_dirname):]
         entry_points["./" + entry_point] = bundles_folder + "/" + entry_point.split("/")[-1]
 
@@ -436,6 +443,9 @@ def _generate_code_split_entry(ctx, bundles_folder, output):
     )
 
 def _rollup_bundle(ctx):
+    if len(ctx.attr.entry_point.files) != 1:
+        fail("labels in entry_point must contain exactly one file")
+
     if ctx.attr.additional_entry_points:
         # Generate code split bundles if additional entry points have been specified.
         # See doc for additional_entry_points for more information.
@@ -601,11 +611,54 @@ ROLLUP_ATTRS = {
         It is sufficient to load one of these SystemJS boilerplate/entry point
         files as a script in your HTML to load your application""",
     ),
-    "entry_point": attr.string(
+    "entry_point": attr.label(
         doc = """The starting point of the application, passed as the `--input` flag to rollup.
-        This should be a path relative to the workspace root.
+
+        If the entry JavaScript file belongs to the same package (as the BUILD file), 
+        you can simply reference it by its relative name to the package directory:
+
+        ```
+        rollup_bundle(
+            name = "bundle",
+            entry_point = ":main.js",
+        )
+        ```
+
+        You can specify the entry point as a typescript file so long as you also include
+        the ts_library target in deps:
+
+        ```
+        ts_library(
+            name = "main",
+            srcs = ["main.ts"],
+        )
+
+        rollup_bundle(
+            name = "bundle",
+            deps = [":main"]
+            entry_point = ":main.ts",
+        )
+        ```
+
+        The rule will use the corresponding `.js` output of the ts_library rule as the entry point.
+
+        If the entry point target is a rule, it should produce a single JavaScript entry file that will be passed to the nodejs_binary rule. 
+        For example:
+
+        ```
+        filegroup(
+            name = "entry_file",
+            srcs = ["main.js"],
+        )
+
+        rollup_bundle(
+            name = "bundle",
+            entry_point = ":entry_file",
+        )
+        ```
         """,
         mandatory = True,
+        allow_single_file = True,
     ),
     "global_name": attr.string(
         doc = """A name given to this package when referenced as a global variable.

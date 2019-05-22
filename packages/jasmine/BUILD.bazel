@@ -60,7 +60,7 @@ npm_package(
 )
 
 js_library(
-    name = "jasmine_runner",
+    name = "jasmine__pkg",
     srcs = [
         "index.js",
         "src/jasmine_runner.js",

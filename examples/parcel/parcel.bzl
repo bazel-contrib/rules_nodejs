@@ -27,12 +27,12 @@ def _parcel_impl(ctx):
     """
 
     # Options documented at https://parceljs.org/cli.html
-    args = ["build", ctx.attr.entry_point]
+    args = ["build", ctx.file.entry_point.short_path]
     args += ["--out-dir", ctx.outputs.bundle.dirname]
     args += ["--out-file", ctx.outputs.bundle.basename]
 
     ctx.actions.run(
-        inputs = ctx.files.srcs,
+        inputs = ctx.files.srcs + [ctx.file.entry_point],
         executable = ctx.executable.parcel,
         outputs = [ctx.outputs.bundle, ctx.outputs.sourcemap],
         arguments = args,
@@ -44,7 +44,10 @@ parcel = rule(
     implementation = _parcel_impl,
     attrs = {
         "srcs": attr.label_list(allow_files = True),
-        "entry_point": attr.string(mandatory = True),
+        "entry_point": attr.label(
+            allow_single_file = True,
+            mandatory = True,
+        ),
         "parcel": attr.label(
             # This default assumes that users name their install "npm"
             default = Label("@npm//parcel-bundler/bin:parcel"),

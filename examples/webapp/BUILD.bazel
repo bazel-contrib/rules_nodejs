@@ -6,7 +6,7 @@ load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_pac
 rollup_bundle(
     name = "bundle",
     srcs = glob(["*.js"]),
-    entry_point = "index.js",
+    entry_point = ":index.js",
 )
 
 web_package(

@@ -5,8 +5,7 @@ package(default_visibility = ["//visibility:public"])
 
 rollup_bundle(
     name = "bundle",
-    srcs = glob(["*.js"]),
-    entry_point = "internal/web_package/test/script.js",
+    entry_point = ":script.js",
 )
 
 web_package(

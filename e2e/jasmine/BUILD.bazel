@@ -3,10 +3,6 @@ load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
 jasmine_node_test(
     name = "test",
     srcs = ["test.spec.js"],
-    jasmine = "@npm_bazel_jasmine//:index.js",
-    deps = [
-        "@npm//@bazel/jasmine",
-    ],
 )
 
 jasmine_node_test(
@@ -14,9 +10,7 @@ jasmine_node_test(
     srcs = ["jasmine_shared_env_test.spec.js"],
     bootstrap = ["e2e_jasmine/jasmine_shared_env_bootstrap.js"],
     data = ["jasmine_shared_env_bootstrap.js"],
-    jasmine = "@npm_bazel_jasmine//:index.js",
     deps = [
-        "@npm//@bazel/jasmine",
         "@npm//jasmine",
         "@npm//jasmine-core",
         "@npm//zone.js",
@@ -30,8 +24,4 @@ jasmine_node_test(
         "coverage_source.js",
     ],
     coverage = True,
-    jasmine = "@npm_bazel_jasmine//:index.js",
-    deps = [
-        "@npm//@bazel/jasmine",
-    ],
 )

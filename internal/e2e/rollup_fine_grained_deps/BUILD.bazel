@@ -4,16 +4,14 @@ load("//:defs.bzl", "jasmine_node_test", "nodejs_binary", "rollup_bundle")
 # and no fine grained deps
 rollup_bundle(
     name = "bundle_no_deps",
-    srcs = ["no-deps.js"],
-    entry_point = "internal/e2e/rollup_fine_grained_deps/no-deps.js",
+    entry_point = ":no-deps.js",
 )
 
 # You can have a rollup_bundle with no node_modules attribute
 # and fine grained deps
 rollup_bundle(
     name = "bundle",
-    srcs = ["has-deps.js"],
-    entry_point = "internal/e2e/rollup_fine_grained_deps/has-deps.js",
+    entry_point = ":has-deps.js",
     deps = [
         "@fine_grained_deps_yarn//@gregmagolan/test-a",
         "@fine_grained_deps_yarn//@gregmagolan/test-b",
@@ -24,8 +22,7 @@ rollup_bundle(
 # and no fine grained deps
 rollup_bundle(
     name = "bundle_legacy",
-    srcs = ["has-deps.js"],
-    entry_point = "internal/e2e/rollup_fine_grained_deps/has-deps.js",
+    entry_point = ":has-deps.js",
     node_modules = "@fine_grained_deps_yarn//:node_modules",
 )
 
@@ -33,8 +30,7 @@ rollup_bundle(
 # and fine grained deps so long as they come from the same root
 rollup_bundle(
     name = "bundle_hybrid",
-    srcs = ["has-deps.js"],
-    entry_point = "internal/e2e/rollup_fine_grained_deps/has-deps.js",
+    entry_point = ":has-deps.js",
     node_modules = "@fine_grained_deps_yarn//:node_modules",
     deps = [
         "@fine_grained_deps_yarn//@gregmagolan/test-a",

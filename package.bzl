@@ -35,7 +35,8 @@ def rules_nodejs_dev_dependencies():
     """
 
     # Dependencies for generating documentation
-    # TODO(manekinekko): switch to https://github.com/bazelbuild/rules_sass/ when the changes have been released
+    # TODO(gregmagolan): switch to https://github.com/bazelbuild/rules_sass/ when
+    #                    https://github.com/bazelbuild/rules_sass/pull/87 lands
     http_archive(
         name = "io_bazel_rules_sass",
         url = "https://github.com/manekinekko/rules_sass/archive/9862dfc96a4a1f66fe171ef5e043b29853e8445b.zip",

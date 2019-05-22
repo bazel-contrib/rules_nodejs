@@ -5,7 +5,8 @@ const path = __dirname;
 
 describe('bundling additional entry point', () => {
   it('should work', () => {
-    check(path, 'bundle.min.js', 'bundle-min_golden.js_');
+    check(path, 'bundle.min.js', 'goldens/bundle.min.js_');
+    check(path, 'bundle.min.es2015.js', 'goldens/bundle.min.es2015.js_');
   });
 
   // Disabled because native ESModules can't be loaded in current nodejs

@@ -1,86 +1,36 @@
-load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
+load(":jasmine_node_test.bzl", "jasmine_node_test")
 
 jasmine_node_test(
     name = "underscore_spec_test",
     srcs = ["foo_spec.js"],
-    # The jasmine label here is specific to local testing since
-    # there is no @bazel/jasmine npm package here. Users
-    # will always have this label point to their @foobar//@bazel/jasmine
-    # target if they are not using the default @npm//@bazel/jasmine
-    jasmine = "@npm_bazel_jasmine//:index.js",
-    deps = [
-        "//:jasmine_runner",
-        "@npm//jasmine",
-    ],
 )
 
 jasmine_node_test(
     name = "underscore_test_test",
     srcs = ["foo_test.js"],
-    # The jasmine label here is specific to local testing since
-    # there is no @bazel/jasmine npm package here. Users
-    # will always have this label point to their @foobar//@bazel/jasmine
-    # target if they are not using the default @npm//@bazel/jasmine
-    jasmine = "@npm_bazel_jasmine//:index.js",
-    deps = [
-        "//:jasmine_runner",
-        "@npm//jasmine",
-    ],
 )
 
 jasmine_node_test(
     name = "dot_spec_test",
     srcs = ["foo.spec.js"],
-    # The jasmine label here is specific to local testing since
-    # there is no @bazel/jasmine npm package here. Users
-    # will always have this label point to their @foobar//@bazel/jasmine
-    # target if they are not using the default @npm//@bazel/jasmine
-    jasmine = "@npm_bazel_jasmine//:index.js",
-    deps = [
-        "//:jasmine_runner",
-        "@npm//jasmine",
-    ],
 )
 
 jasmine_node_test(
     name = "dot_test_test",
     srcs = ["foo.test.js"],
-    # The jasmine label here is specific to local testing since
-    # there is no @bazel/jasmine npm package here. Users
-    # will always have this label point to their @foobar//@bazel/jasmine
-    # target if they are not using the default @npm//@bazel/jasmine
-    jasmine = "@npm_bazel_jasmine//:index.js",
-    deps = [
-        "//:jasmine_runner",
-        "@npm//jasmine",
-    ],
 )
 
 jasmine_node_test(
     name = "sharding_test",
     srcs = ["sharded_test.js"],
-    # The jasmine label here is specific to local testing since
-    # there is no @bazel/jasmine npm package here. Users
-    # will always have this label point to their @foobar//@bazel/jasmine
-    # target if they are not using the default @npm//@bazel/jasmine
-    jasmine = "@npm_bazel_jasmine//:index.js",
     shard_count = 3,
-    deps = [
-        "//:jasmine_runner",
-        "@npm//jasmine",
-    ],
 )
 
 jasmine_node_test(
     name = "failing_sharding_test",
     srcs = ["failing_sharded_test.js"],
     expected_exit_code = 3,
-    jasmine = "@npm_bazel_jasmine//:index.js",
     shard_count = 2,
-    deps = [
-        "//:jasmine_runner",
-        "@npm//jasmine",
-    ],
 )
 
 jasmine_node_test(
@@ -92,19 +42,6 @@ jasmine_node_test(
     # maybe sniff the stdout for Ran 1 of 3 specs
     # or change the exit code for Jasmine 'incomplete' status
     expected_exit_code = 3,
-    # The jasmine label here is specific to local testing since
-    # there is no @bazel/jasmine npm package here. Users
-    # will always have this label point to their @foobar//@bazel/jasmine
-    # target if they are not using the default @npm//@bazel/jasmine
-    jasmine = "@npm_bazel_jasmine//:index.js",
-    # Only run this test when explicitly included in the target patterns
-    # It will fail because usage of `fit` and `fdescribe` cause Jasmine
-    # to return a 'incomplete' status
-    tags = ["manual"],
-    deps = [
-        "//:jasmine_runner",
-        "@npm//jasmine",
-    ],
 )
 
 jasmine_node_test(
@@ -114,10 +51,7 @@ jasmine_node_test(
         "coverage_source.js",
     ],
     coverage = True,
-    jasmine = "@npm_bazel_jasmine//:index.js",
     deps = [
-        "//:jasmine_runner",
-        "@npm//jasmine",
         "@npm//v8-coverage",
     ],
 )
@@ -125,9 +59,7 @@ jasmine_node_test(
 jasmine_node_test(
     name = "templated_args_test",
     srcs = ["templated_args_test.js"],
-    jasmine = "@npm//jasmine",
     templated_args = [
         "--node_options=--experimental-modules",
     ],
-    deps = ["//:jasmine_runner"],
 )

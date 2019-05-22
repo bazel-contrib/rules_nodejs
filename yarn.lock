@@ -442,7 +442,7 @@ base@^0.11.1:
     pascalcase "^0.1.1"
 
 "bazel_workspaces@file:./tools/npm_packages/bazel_workspaces":
-  version "0.0.1"
+  version "0.0.2"
 
 bn.js@^4.0.0, bn.js@^4.1.0, bn.js@^4.1.1, bn.js@^4.4.0:
   version "4.11.8"

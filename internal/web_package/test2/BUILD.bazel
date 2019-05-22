@@ -3,8 +3,7 @@ load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_pac
 
 rollup_bundle(
     name = "local_bundle",
-    srcs = glob(["*.js"]),
-    entry_point = "internal/web_package/test2/script.js",
+    entry_point = ":script.js",
 )
 
 # Same exts as //internal/web_package/test-exports, //internal/web_package/test2/rel-exports

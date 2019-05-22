@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary", "rollup_bundle")
+load("@build_bazel_rules_nodejs//:defs.bzl", "rollup_bundle")
 load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
 load("@npm_bazel_typescript//:index.bzl", "ts_library")
 
@@ -57,26 +57,9 @@ jasmine_node_test(
     ],
 )
 
-nodejs_binary(
-    name = "main_js",
-    data = [
-        ":main",
-    ],
-    entry_point = "e2e_typescript_3_1/main.js",
-)
-
-nodejs_binary(
-    name = "main_js_sm",
-    data = [
-        ":main",
-        "@npm//source-map-support",
-    ],
-    entry_point = "e2e_typescript_3_1/main.js",
-)
-
 rollup_bundle(
     name = "bundle",
-    entry_point = "main",
+    entry_point = ":main.ts",
     deps = [
         ":main",
     ],
@@ -84,7 +67,7 @@ rollup_bundle(
 
 rollup_bundle(
     name = "bundle_sm",
-    entry_point = "main",
+    entry_point = ":main.ts",
     deps = [
         ":main",
         "@npm//source-map-support",
