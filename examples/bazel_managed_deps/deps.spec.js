@@ -12,13 +12,13 @@ describe('dependencies', () => {
      });
 
   it('.bin files should be in runfiles via @npm//:bin_files data dep', () => {
-    try {
-      expect(require.resolve('.bin/jasmine').endsWith('npm/node_modules/.bin/jasmine')).toBe(true);
-      expect(require.resolve('.bin/tsc').endsWith('npm/node_modules/.bin/tsc')).toBe(true);
-      expect(require.resolve('.bin/tsserver').endsWith('npm/node_modules/.bin/tsserver'))
-          .toBe(true);
-    } catch (_) {
-      fail('.bin file not resolved');
+    const files = ['jasmine', 'tsc', 'tsserver'];
+    for (const f of files) {
+      try {
+        expect(require.resolve(`.bin/${f}`).endsWith(`/npm/node_modules/.bin/${f}`)).toBe(true);
+      } catch (_) {
+        fail(`.bin/${f} not resolved`);
+      }
     }
   });
 });
