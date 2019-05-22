@@ -6,6 +6,13 @@ TMPL_module_mappings = {
   '@bar/baz': 'path/to/bar/baz_lib',
 };
 
+TMPL_named_exports = {
+  'external/node_modules/foo/foo.js': [
+    'symbol1',
+    'symbol2',
+  ],
+}
+
 const rootDir = 'bazel-bin/path/to/a.esm5';
 TMPL_additional_plugins = [];
 TMPL_banner_file = '';
@@ -72,7 +79,7 @@ describe('rollup config', () => {
     expect(doResolve(`other${sep}thing`))
         .toEqual(`${baseDir}/bazel-bin/path/to/a.esm5/external/other_wksp/path/to/other_lib/thing`);
     expect(doResolve(`@bar${sep}baz${sep}foo`))
-      .toEqual(`${baseDir}/bazel-bin/path/to/a.esm5/path/to/bar/baz_lib/foo`);        
+      .toEqual(`${baseDir}/bazel-bin/path/to/a.esm5/path/to/bar/baz_lib/foo`);
   });
 
   it('should find paths in any root', () => {
