@@ -351,7 +351,7 @@ module.constructor._resolveFilename = function(request, parent) {
   // Built-in modules, relative, absolute imports and npm dependencies
   // can be resolved using request
   try {
-    const resolved = originalResolveFilename(request, parent);
+    const resolved = originalResolveFilename.apply(null, arguments);
     if (resolved === request || request.startsWith('.') || request.startsWith('/') ||
         request.match(/^[A-Z]\:[\\\/]/i)) {
       if (DEBUG)
