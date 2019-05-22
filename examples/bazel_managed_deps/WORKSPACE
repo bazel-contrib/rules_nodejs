@@ -33,11 +33,11 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
 # @npm//jasmine
 yarn_install(
     name = "npm",
-    package_json = "//:package.json",
-    yarn_lock = "//:yarn.lock",
-  manual_build_file_contents = """
+    manual_build_file_contents = """
 filegroup(
   name = "bin_files",
   srcs = glob(["node_modules/.bin/*"]),
-)"""
+)""",
+    package_json = "//:package.json",
+    yarn_lock = "//:yarn.lock",
 )

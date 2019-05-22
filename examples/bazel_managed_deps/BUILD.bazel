@@ -6,8 +6,8 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
 jasmine_node_test(
     name = "test",
     srcs = glob(["*.spec.js"]),
-    node_modules = "@npm//:node_modules",
     data = ["@npm//:bin_files"],
+    node_modules = "@npm//:node_modules",
 )
 
 # Test what happens when only certain NPM packages are in our dependencies.
@@ -16,9 +16,9 @@ jasmine_node_test(
 jasmine_node_test(
     name = "fine_grained_test",
     srcs = glob(["*.spec.js"]),
+    data = ["@npm//:bin_files"],
     deps = [
         "@npm//jasmine",
         "@npm//typescript",
     ],
-    data = ["@npm//:bin_files"],
 )
