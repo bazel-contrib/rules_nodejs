@@ -7,6 +7,7 @@ import * as ts from 'typescript';
  */
 export enum PatternKind {
   BANNED_PROPERTY_WRITE = 'banned-property-write',
+  BANNED_PROPERTY_NON_CONSTANT_WRITE = 'banned-property-non-constant-write'
 }
 
 /**
@@ -28,6 +29,9 @@ export interface Config<P extends PatternKind> {
 /** Maps the type of nodes that each `PatternType` produces. */
 export interface MatchedNodeTypes {
   [PatternKind.BANNED_PROPERTY_WRITE]: ts.BinaryExpression&{
+    left: ts.PropertyAccessExpression;
+  };
+  [PatternKind.BANNED_PROPERTY_NON_CONSTANT_WRITE]: ts.BinaryExpression&{
     left: ts.PropertyAccessExpression;
   };
 }

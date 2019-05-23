@@ -10,7 +10,13 @@ import {Failure, Fix} from '../../failure';
 import {AbstractRule} from '../../rule';
 
 
-function compile(...sourceCode: string[]): ts.Program {
+
+/**
+ * Turns the provided source (as strings) into a ts.Program. The source files
+ * will be named `.../file_${n}.ts`, with n the index of the source file in
+ * the `sourceCode` array.
+ */
+export function compile(...sourceCode: string[]): ts.Program {
   const temporaryFolder = os.tmpdir() +
       `/tslint_test_input_${crypto.randomBytes(16).toString('hex')}`;
   const fullPaths: string[] = [];
