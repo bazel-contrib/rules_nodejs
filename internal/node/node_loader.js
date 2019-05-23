@@ -384,7 +384,8 @@ module.constructor._resolveFilename = function(request, parent, isMain, options)
       const parentSegments = parentFilename ? parentFilename.replace(/\\/g, '/').split('/') : [];
       const parentNodeModulesSegment = parentSegments.indexOf('node_modules');
       if (parentNodeModulesSegment != -1) {
-        return resolvedWithinPath(parentFilename, parentSegments, parentNodeModulesSegment, request, resolved);
+        return resolvedWithinPath(
+            parentFilename, parentSegments, parentNodeModulesSegment, request, resolved);
       }
       // Also allow imports of npm packages that are within custom provided node_modules paths
       // Note: Note sure if this is something officially supported but it does exist in the wile
