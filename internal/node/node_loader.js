@@ -325,6 +325,23 @@ function resolveRunfiles(parent, ...pathSegments) {
   return defaultPath;
 }
 
+function resolvedWithinPath(parentFilename, parentSegments, parentNodeModulesSegment, request, resolved) {
+  const parentRoot = parentSegments.slice(0, parentNodeModulesSegment).join('/');
+  const relative = path.relative(parentRoot, resolved);
+  if (!relative.startsWith('..')) {
+    // Resolved within parent node_modules
+    if (DEBUG)
+      console.error(
+          `node_loader: resolved ${request} within parent node_modules to ` +
+          `${resolved} from ${parentFilename}`
+      );
+    return resolved;
+  } else {
+    throw new Error(
+        `Resolved to ${resolved} outside of parent node_modules ${parentFilename}`);
+  }
+}
+
 var originalResolveFilename = module.constructor._resolveFilename;
 module.constructor._resolveFilename = function(request, parent, isMain, options) {
   const parentFilename = (parent && parent.filename) ? parent.filename : undefined;
@@ -367,19 +384,17 @@ module.constructor._resolveFilename = function(request, parent, isMain, options)
       const parentSegments = parentFilename ? parentFilename.replace(/\\/g, '/').split('/') : [];
       const parentNodeModulesSegment = parentSegments.indexOf('node_modules');
       if (parentNodeModulesSegment != -1) {
-        const parentRoot = parentSegments.slice(0, parentNodeModulesSegment).join('/');
-        const relative = path.relative(parentRoot, resolved);
-        if (!relative.startsWith('..')) {
-          // Resolved within parent node_modules
-          if (DEBUG)
-            console.error(
-                `node_loader: resolved ${request} within parent node_modules to ` +
-                `${resolved} from ${parentFilename}`
-            );
-          return resolved;
-        } else {
-          throw new Error(
-              `Resolved to ${resolved} outside of parent node_modules ${parentFilename}`);
+        return resolvedWithinPath(parentFilename, parentSegments, parentNodeModulesSegment, request, resolved);
+      }
+      // Also allow imports of npm packages that are within custom provided node_modules paths
+      // Note: Note sure if this is something officially supported but it does exist in the wile
+      // and does work with the default node resolution algorithm
+      const parentPaths = parent.paths
+      if (Array.isArray(parentPaths) && parentPaths.length > 0) {
+        for (const p of parentPaths) {
+          const pSegments = p.replace(/\\/g, '/').split('/');
+          const pNodeModulesSegment = pSegments.indexOf('node_modules');
+          return resolvedWithinPath(p, pSegments, pNodeModulesSegment, request, resolved);
         }
       }
       throw new Error('Not a built-in module, relative or absolute import');
