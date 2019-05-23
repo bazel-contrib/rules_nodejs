@@ -13,4 +13,4 @@ test --nolegacy_external_runfiles
 
 # Turn on managed_directories
 build --experimental_allow_incremental_repository_updates
-run --experimental_allow_incremental_repository_updates
+query --experimental_allow_incremental_repository_updates
