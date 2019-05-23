@@ -50,8 +50,7 @@ printf "\n\nSetting up /examples/angular\n"
     echo "##################################################" >> .bazelrc
     echo "# Turn on managed_directories" >> .bazelrc
     echo "build --experimental_allow_incremental_repository_updates" >> .bazelrc
-    echo "test --experimental_allow_incremental_repository_updates" >> .bazelrc
-    echo "run --experimental_allow_incremental_repository_updates" >> .bazelrc
+    echo "query --experimental_allow_incremental_repository_updates" >> .bazelrc
 
     # Check that above replacements worked
     if ! grep -q "dist/npm_bazel_" package.json; then

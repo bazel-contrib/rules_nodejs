@@ -65,8 +65,8 @@ var_8: &use_legacy_runfiles
   run:
     name: Use legacy runfiles
     command: |
-      sed -i -e 's/run --nolegacy_external_runfiles//' .bazelrc
-      sed -i -e 's/test --nolegacy_external_runfiles//' .bazelrc
+      echo 'run --legacy_external_runfiles' >> .bazelrc
+      echo 'test --legacy_external_runfiles' >> .bazelrc
 
 var_9: &job_defaults
   working_directory: ~/rules_nodejs
