@@ -9,8 +9,8 @@ nodejs_binary(
     name = "index",
     data = [
         "index.js",
-        "test/test.js",
         "test/node_modules/test/index.js",
+        "test/test.js",
         "@fine_grained_no_bin//fs.realpath",
     ],
     entry_point = "build_bazel_rules_nodejs/internal/e2e/fine_grained_no_bin/index.js",
