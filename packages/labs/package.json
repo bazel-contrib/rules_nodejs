@@ -27,7 +27,6 @@
     },
     "bazelWorkspaces": {
         "npm_bazel_labs": {
-            "version": "0.0.0-PLACEHOLDER",
             "rootPath": "."
         }
     }

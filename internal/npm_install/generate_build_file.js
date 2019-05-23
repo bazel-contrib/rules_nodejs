@@ -83,34 +83,43 @@ function writeFileSync(p, content) {
 
 /**
  * Main entrypoint.
- * Write BUILD and .bzl files.
  */
 function main() {
   // find all packages (including packages in nested node_modules)
   const pkgs = findPackages();
-  const scopes = findScopes();
 
   // flatten dependencies
-  const pkgsMap = new Map();
-  pkgs.forEach(pkg => pkgsMap.set(pkg._dir, pkg));
-  pkgs.forEach(pkg => flattenDependencies(pkg, pkg, pkgsMap));
+  flattenDependencies(pkgs);
 
-  // generate Bazel workspaces install files
-  const bazelWorkspaces = {};
-  pkgs.forEach(pkg => processBazelWorkspaces(pkg, bazelWorkspaces));
-  generateBazelWorkspaces(bazelWorkspaces)
-  generateInstallBazelDependencies(Object.keys(bazelWorkspaces));
+  // generate Bazel workspaces
+  generateBazelWorkspaces(pkgs)
 
-  // generate BUILD files
-  generateRootBuildFile(pkgs)
-  pkgs.filter(pkg => !pkg._isNested).forEach(pkg => generatePackageBuildFiles(pkg));
-  scopes.forEach(scope => generateScopeBuildFiles(scope, pkgs));
+  // generate all BUILD files
+  generateBuildFiles(pkgs)
 }
 
 module.exports = {
   main,
   printPackage
 };
+
+/**
+ * Generates all build files
+ */
+function generateBuildFiles(pkgs) {
+  generateRootBuildFile(pkgs)
+  pkgs.filter(pkg => !pkg._isNested).forEach(pkg => generatePackageBuildFiles(pkg));
+  findScopes().forEach(scope => generateScopeBuildFiles(scope, pkgs));
+}
+
+/**
+ * Flattens dependencies on all packages
+ */
+function flattenDependencies(pkgs) {
+  const pkgsMap = new Map();
+  pkgs.forEach(pkg => pkgsMap.set(pkg._dir, pkg));
+  pkgs.forEach(pkg => flattenPkgDependencies(pkg, pkg, pkgsMap));
+}
 
 /**
  * Handles Bazel files in npm distributions.
@@ -216,124 +225,40 @@ function generatePackageBuildFiles(pkg) {
 }
 
 /**
- * Compares two version strings.
- * Note: This function only handles numeric versions such as `1.2.3`. Versions such as
- *       `0.22.0-26-g9088e46` should be reduced to `0.22.0` before calling.
- * @returns a number < 0 if a < b
- *          a number > 0 if a > b
- *          0 if a = b
- * From stack overflow:
- * https://stackoverflow.com/questions/6832596/how-to-compare-software-version-number-using-js-only-number
- */
-function cmpVersions(a, b) {
-  const regExStrip0 = /(\.0+)+$/;
-  const segmentsA = a.replace(regExStrip0, '').split('.');
-  const segmentsB = b.replace(regExStrip0, '').split('.');
-  const l = Math.min(segmentsA.length, segmentsB.length);
-  for (let i = 0; i < l; i++) {
-    const diff = parseInt(segmentsA[i], 10) - parseInt(segmentsB[i], 10);
-    if (diff) {
-      return diff;
-    }
-  }
-  return segmentsA.length - segmentsB.length;
-}
-
-/**
- * Process the `bazelWorkspaces` attribute in an npm package and adds
- * all workspaces to be installed to `bazelWorkspaces` map
- */
-function processBazelWorkspaces(pkg, bazelWorkspaces) {
-  if (pkg.bazelWorkspaces) {
-    // This npm package specifies one or more bazel packages to setup
-    Object.keys(pkg.bazelWorkspaces)
-        .forEach(
-            bwName =>
-                processBazelWorkspace(bwName, pkg.bazelWorkspaces[bwName], pkg, bazelWorkspaces));
-  }
-}
-
-/**
- * Process a bazel workspace request in an npm package and adds
- * all workspaces to be installed to `bazelWorkspaces` map
- */
-function processBazelWorkspace(bwName, bwDetails, pkg, bazelWorkspaces) {
-  let alreadySetup = bazelWorkspaces[bwName];
-
-  // Ensure bazel workspace object has required rootPath attribute
-  if (!bwDetails.rootPath) {
-    console.error(
-        `Malformed bazelWorkspaces attribute in ${pkg._dir}@${pkg.version}. ` +
-        `Missing rootPath for workspace ${bwName}.`);
-    process.exit(1);
-  }
-
-  // Trim development versions such as '0.22.0-26-g9088e46' down to their semver
-  const bwVersion = bwDetails.version ? bwDetails.version.split('-')[0] : undefined;
-  const bwDevVersion = bwDetails.version ? bwDetails.version != bwVersion : false;
-
-  // If no compatVersion is specified then it is equal to the version
-  if (!bwDetails.compatVersion) {
-    bwDetails.compatVersion = bwDetails.version
-  }
-
-  // If this workspace has been previously installed than check for compatibility
-  if (alreadySetup) {
-    if (bwVersion && alreadySetup.version) {
-      // Bazel workspace setup is versioned to allow for multiple
-      // setup requests from different npm packages as long as the versions are
-      // compatible
-      if (cmpVersions(bwVersion, alreadySetup.compatVersion) < 0 ||
-          cmpVersions(bwDetails.compatVersion, alreadySetup.compatVersion) !== 0) {
-        console.error(
-            `Could not setup Bazel workspace ${bwName}@${bwVersion} ` +
-            `requested by npm package ${pkg._dir}@${pkg.version}. Incompatible Bazel workspace ` +
-            `${bwName}@${alreadySetup.version} already setup by ` +
-            `${alreadySetup.sources.join(', ')}.`);
-        process.exit(1);
-      }
-      if (cmpVersions(bwVersion, alreadySetup.version) < 0 ||
-          (cmpVersions(bwVersion, alreadySetup.version) == 0 && !bwDevVersion)) {
-        // No reason to update to an older compatible version or an equal non-dev-version
-        alreadySetup.sources.push(`${pkg._dir}@${pkg.version}`);
-        return;
-      }
-    } else {
-      // Non-version bazel workspace setup requests can only be done once
-      console.error(
-          `Could not setup Bazel workspace ${bwName} requested by npm ` +
-          `package ${pkg._dir}@${pkg.version}. No version metadata to check compatibility ` +
-          `against Bazel workspace setup by ${alreadySetup.sources.join(', ')}.`);
-      process.exit(1);
-    }
-  }
-
-  // Keep track of which npm package setup this bazel workspace for later use
-  if (!alreadySetup) {
-    alreadySetup = bazelWorkspaces[bwName] = {
-      sources: [],
-    }
-  }
-  alreadySetup.version = bwVersion;
-  alreadySetup.devVersion = bwDevVersion;
-  alreadySetup.compatVersion = bwDetails.compatVersion;
-  alreadySetup.rootPath = bwDetails.rootPath;
-  alreadySetup.sources.push(`${pkg._dir}@${pkg.version}`);
-  alreadySetup.pkg = pkg;
-}
-
-/**
  * Generate install_<workspace_name>.bzl files with function to install each workspace.
  */
-function generateBazelWorkspaces(bazelWorkspaces) {
-  Object.keys(bazelWorkspaces)
-      .forEach(bwName => generateBazelWorkspace(bwName, bazelWorkspaces[bwName]));
+function generateBazelWorkspaces(pkgs) {
+  const workspaces = {};
+
+  for (const pkg of pkgs) {
+    if (!pkg.bazelWorkspaces) {
+      continue;
+    }
+
+    for (const workspace of Object.keys(pkg.bazelWorkspaces)) {
+      // A bazel workspace can only be setup by one npm package
+      if (workspaces[workspace]) {
+        console.error(
+            `Could not setup Bazel workspace ${workspace} requested by npm ` +
+            `package ${pkg._dir}@${pkg.version}. Already setup by ${workspaces[workspace]}`);
+        process.exit(1);
+      }
+
+      generateBazelWorkspace(pkg, workspace);
+
+      // Keep track of which npm package setup this bazel workspace for later use
+      workspaces[workspace] = `${pkg._dir}@${pkg.version}`;
+    }
+  }
+
+  // Finally generate install_bazel_dependencies.bzl
+  generateInstallBazelDependencies(Object.keys(workspaces));
 }
 
 /**
- * Generate install_<bwName>.bzl file with function to install the workspace.
+ * Generate install_<workspace>.bzl file with function to install the workspace.
  */
-function generateBazelWorkspace(bwName, bwDetails) {
+function generateBazelWorkspace(pkg, workspace) {
   let bzlFile = `# Generated by the yarn_install/npm_install rule
 load("@build_bazel_rules_nodejs//internal/copy_repository:copy_repository.bzl", "copy_repository")
 
@@ -342,24 +267,36 @@ def _maybe(repo_rule, name, **kwargs):
         repo_rule(name = name, **kwargs)
 `;
 
+  const rootPath = pkg.bazelWorkspaces[workspace].rootPath;
+  if (!rootPath) {
+    console.error(
+        `Malformed bazelWorkspaces attribute in ${pkg._dir}@${pkg.version}. ` +
+        `Missing rootPath for workspace ${workspace}.`);
+    process.exit(1);
+  }
+
   // Copy all files for this workspace to a folder under _workspaces
   // to restore the Bazel files which have be renamed from the npm package
-  const workspaceSourcePath = path.posix.join('_workspaces', bwName);
+  const workspaceSourcePath = path.posix.join('_workspaces', workspace);
   mkdirp(workspaceSourcePath);
-  bwDetails.pkg._files.forEach(file => {
+  pkg._files.forEach(file => {
     if (/^node_modules[/\\]/.test(file)) {
       // don't copy over nested node_modules
       return;
     }
-    let destFile = file;
+    let destFile = path.relative(rootPath, file);
+    if (destFile.startsWith('..')) {
+      // this file is not under the rootPath
+      return;
+    }
     const basename = path.basename(file);
     const basenameUc = basename.toUpperCase();
     // Bazel files from npm distribution would have been renamed earlier with a _ prefix so
     // we restore them on the copy; we do not copy generated BUILD files.
     if (basenameUc === '_WORKSPACE' || basenameUc === '_BUILD' || basenameUc === '_BUILD.BAZEL') {
-      destFile = path.posix.join(path.dirname(file), basename.substr(1));
+      destFile = path.posix.join(path.dirname(destFile), basename.substr(1));
     }
-    const src = path.posix.join('node_modules', bwDetails.pkg._dir, file);
+    const src = path.posix.join('node_modules', pkg._dir, file);
     const dest = path.posix.join(workspaceSourcePath, destFile);
     mkdirp(path.dirname(dest));
     fs.copyFileSync(src, dest);
@@ -369,7 +306,7 @@ def _maybe(repo_rule, name, **kwargs):
   // rule to resolve the path to the repository source root. A root BUILD file
   // is required to reference _bazel_workspace_marker as a target so we also create
   // an empty one if one does not exist.
-  if (!hasRootBuildFile(bwDetails.pkg)) {
+  if (!hasRootBuildFile(pkg, rootPath)) {
     writeFileSync(
         path.posix.join(workspaceSourcePath, 'BUILD.bazel'),
         '# Marker file that this directory is a bazel package');
@@ -378,34 +315,34 @@ def _maybe(repo_rule, name, **kwargs):
       path.posix.join(workspaceSourcePath, '_bazel_workspace_marker'),
       '# Marker file to used by custom copy_repository rule');
 
-  bzlFile += `def install_${bwName}():
+  bzlFile += `def install_${workspace}():
     _maybe(
         copy_repository,
-        name = "${bwName}",
-        marker_file = "@${WORKSPACE}//_workspaces/${bwName}:_bazel_workspace_marker",
+        name = "${workspace}",
+        marker_file = "@${WORKSPACE}//_workspaces/${workspace}:_bazel_workspace_marker",
         # Ensure that changes to the node_modules cause the copy to re-execute
         lock_file = "@${WORKSPACE}${LOCK_FILE_LABEL}",
     )
 `;
 
-  writeFileSync(`install_${bwName}.bzl`, bzlFile);
+  writeFileSync(`install_${workspace}.bzl`, bzlFile);
 }
 
 /**
  * Generate install_bazel_dependencies.bzl with function to install all workspaces.
  */
-function generateInstallBazelDependencies(bazelWorkspaceNames) {
+function generateInstallBazelDependencies(workspaces) {
   let bzlFile = `# Generated by the yarn_install/npm_install rule
 `;
-  bazelWorkspaceNames.forEach(bwName => {
-    bzlFile += `load(\":install_${bwName}.bzl\", \"install_${bwName}\")
+  workspaces.forEach(workspace => {
+    bzlFile += `load(\":install_${workspace}.bzl\", \"install_${workspace}\")
 `;
   });
   bzlFile += `def install_bazel_dependencies():
     """Installs all workspaces listed in bazelWorkspaces of all npm packages"""
 `;
-  bazelWorkspaceNames.forEach(bwName => {
-    bzlFile += `    install_${bwName}()
+  workspaces.forEach(workspace => {
+    bzlFile += `    install_${workspace}()
 `;
   });
 
@@ -488,10 +425,10 @@ function listFiles(rootDir, subDir = '') {
  * Returns true if the npm package distribution contained a
  * root /BUILD or /BUILD.bazel file.
  */
-function hasRootBuildFile(pkg) {
+function hasRootBuildFile(pkg, rootPath) {
   for (const file of pkg._files) {
     // Bazel files would have been renamed earlier with a `_` prefix
-    const fileUc = file.toUpperCase();
+    const fileUc = path.relative(rootPath, file).toUpperCase();
     if (fileUc === '_BUILD' || fileUc === '_BUILD.BAZEL') {
       return true;
     }
@@ -507,7 +444,7 @@ function findPackages(p = 'node_modules') {
     return [];
   }
 
-  const result = [];
+  const pkgs = [];
 
   const listing = fs.readdirSync(p);
 
@@ -520,14 +457,14 @@ function findPackages(p = 'node_modules') {
                        .map(f => path.posix.join(p, f))
                        .filter(f => isDirectory(f));
   packages.forEach(
-      f => result.push(parsePackage(f), ...findPackages(path.posix.join(f, 'node_modules'))));
+      f => pkgs.push(parsePackage(f), ...findPackages(path.posix.join(f, 'node_modules'))));
 
   const scopes = listing.filter(f => f.startsWith('@'))
                      .map(f => path.posix.join(p, f))
                      .filter(f => isDirectory(f));
-  scopes.forEach(f => result.push(...findPackages(f)));
+  scopes.forEach(f => pkgs.push(...findPackages(f)));
 
-  return result;
+  return pkgs;
 }
 
 /**
@@ -673,7 +610,7 @@ function cleanupEntryPointPath(p) {
  * Flattens all transitive dependencies of a package
  * into a _dependencies array.
  */
-function flattenDependencies(pkg, dep, pkgsMap) {
+function flattenPkgDependencies(pkg, dep, pkgsMap) {
   if (pkg._dependencies.indexOf(dep) !== -1) {
     // circular dependency
     return;
@@ -703,7 +640,7 @@ function flattenDependencies(pkg, dep, pkgsMap) {
           return null;
         })
         .filter(dep => !!dep)
-        .map(dep => flattenDependencies(pkg, dep, pkgsMap));
+        .map(dep => flattenPkgDependencies(pkg, dep, pkgsMap));
   };
   // npm will in some cases add optionalDependencies to the list
   // of dependencies to the package.json it writes to node_modules.

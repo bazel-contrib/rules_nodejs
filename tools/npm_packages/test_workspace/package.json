@@ -1,9 +1,0 @@
-{
-  "name": "test_workspace",
-  "version": "0.0.1",
-  "bazelWorkspaces": {
-    "test_workspace": {
-      "rootPath": "."
-    }
-  }
-}

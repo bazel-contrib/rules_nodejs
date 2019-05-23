@@ -10,8 +10,10 @@ platforms:
     - "//internal/node/test:has_deps_hybrid"
     - "//internal/e2e/fine_grained_no_bin:index"
     - "@fine_grained_deps_yarn//typescript/bin:tsc"
-    - "@test_workspace//:bin"
-    - "@test_workspace//subdir:bin"
+    - "@bazel_workspace_a//:bin"
+    - "@bazel_workspace_a//subdir:bin"
+    - "@bazel_workspace_b//:bin"
+    - "@bazel_workspace_b//subdir:bin"
     build_targets:
     - "//..."
     test_targets:
@@ -25,8 +27,10 @@ platforms:
     - "//internal/node/test:has_deps_hybrid"
     - "//internal/e2e/fine_grained_no_bin:index"
     - "@fine_grained_deps_yarn//typescript/bin:tsc"
-    - "@test_workspace//:bin"
-    - "@test_workspace//subdir:bin"
+    - "@bazel_workspace_a//:bin"
+    - "@bazel_workspace_a//subdir:bin"
+    - "@bazel_workspace_b//:bin"
+    - "@bazel_workspace_b//subdir:bin"
     build_targets:
     - "//..."
     # This target is tagged "manual" but we want some CI
@@ -43,8 +47,10 @@ platforms:
     - "//internal/node/test:has_deps_hybrid"
     - "//internal/e2e/fine_grained_no_bin:index"
     - "@fine_grained_deps_yarn//typescript/bin:tsc"
-    - "@test_workspace//:bin"
-    - "@test_workspace//subdir:bin"
+    - "@bazel_workspace_a//:bin"
+    - "@bazel_workspace_a//subdir:bin"
+    - "@bazel_workspace_b//:bin"
+    - "@bazel_workspace_b//subdir:bin"
     build_targets:
     - "//..."
     test_targets:
@@ -58,8 +64,10 @@ platforms:
     - "//internal/node/test:has_deps_hybrid"
     - "//internal/e2e/fine_grained_no_bin:index"
     - "@fine_grained_deps_yarn//typescript/bin:tsc"
-    - "@test_workspace//:bin"
-    - "@test_workspace//subdir:bin"
+    - "@bazel_workspace_a//:bin"
+    - "@bazel_workspace_a//subdir:bin"
+    - "@bazel_workspace_b//:bin"
+    - "@bazel_workspace_b//subdir:bin"
     build_targets:
     - "//..."
     test_flags:

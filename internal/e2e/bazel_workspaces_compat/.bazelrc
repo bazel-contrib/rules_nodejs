@@ -1,6 +1,0 @@
-# Import shared settings first so we can override below
-import %workspace%/../../../common.bazelrc
-
-# Turn on legacy external runfiles to workaround https://github.com/bazelbuild/bazel/issues/8088
-run --legacy_external_runfiles
-test --legacy_external_runfiles

@@ -34,7 +34,7 @@
         "rollup-plugin-sourcemaps": "^0.4.2",
         "shelljs": "0.8.3",
         "terser": "3.17.0",
-        "test_workspaces": "file:./tools/npm_packages/test_workspace",
+        "bazel_workspaces": "file:./tools/npm_packages/bazel_workspaces",
         "typescript": "^3.3.1",
         "unidiff": "1.0.1",
         "zone.js": "0.8.29"

@@ -44,8 +44,6 @@
   },
   "bazelWorkspaces": {
     "npm_bazel_karma": {
-      "version": "0.0.0-PLACEHOLDER",
-      "compatVersion": "0.0.0-COMPAT_VERSION",
       "rootPath": "."
     }
   },

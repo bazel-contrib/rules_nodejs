@@ -1,0 +1,12 @@
+{
+  "name": "bazel_workspace",
+  "version": "0.0.1",
+  "bazelWorkspaces": {
+    "bazel_workspace_a": {
+        "rootPath": "a"
+    },
+    "bazel_workspace_b": {
+        "rootPath": "b"
+    }
+  }
+}
