@@ -535,8 +535,12 @@ def node_repositories(
     # 0.14.0: @bazel_tools//tools/bash/runfiles is required for nodejs
     # 0.17.1: allow @ in package names is required for fine grained deps
     # 0.21.0: repository_ctx.report_progress API
-    # 0.26.0: managed_directories feature added
-    check_bazel_version("0.26.0")
+    check_bazel_version(
+        message = """
+    A minimum Bazel version of 0.21.0 is required to use build_bazel_rules_nodejs.
+    """,
+        minimum_bazel_version = "0.21.0",
+    )
 
     _maybe(
         _nodejs_repo,
