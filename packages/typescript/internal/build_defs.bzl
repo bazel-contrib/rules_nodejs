@@ -80,7 +80,7 @@ def _filter_ts_inputs(all_inputs):
 
 def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description = "prodmode"):
     externs_files = []
-    action_inputs = []
+    action_inputs = inputs
     action_outputs = []
     for output in outputs:
         if output.basename.endswith(".externs.js"):
@@ -130,7 +130,7 @@ def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description 
     ctx.actions.run(
         progress_message = "Compiling TypeScript (%s) %s" % (description, ctx.label),
         mnemonic = mnemonic,
-        inputs = depset(action_inputs, transitive = [inputs]),
+        inputs = action_inputs,
         outputs = action_outputs,
         # Use the built-in shell environment
         # Allow for users who set a custom shell that can locate standard binaries like tr and uname
@@ -147,7 +147,7 @@ def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description 
     return struct(
         label = ctx.label,
         tsconfig = tsconfig_file,
-        inputs = depset(action_inputs, transitive = [inputs]),
+        inputs = action_inputs,
         outputs = action_outputs,
         compiler = ctx.executable.compiler,
     )

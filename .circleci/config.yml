@@ -361,7 +361,8 @@ workflows:
           - build_typescript_package
       - build_typescript_package:
           requires:
-          - setup
+          # typescript package depends on jasmine package
+          - build_jasmine_package
       - test_packages:
           requires:
           - build_typescript_package
