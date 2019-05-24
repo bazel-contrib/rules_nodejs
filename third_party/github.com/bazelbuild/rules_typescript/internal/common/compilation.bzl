@@ -288,7 +288,7 @@ def compile_ts(
     if "TYPESCRIPT_PERF_TRACE_TARGET" in ctx.var:
         perf_trace = str(ctx.label) == ctx.var["TYPESCRIPT_PERF_TRACE_TARGET"]
 
-    compilation_inputs = depset(srcs_files, transitive = [input_declarations])
+    compilation_inputs = dep_declarations.transitive.to_list() + srcs_files
     tsickle_externs_path = tsickle_externs[0] if tsickle_externs else None
 
     # Calculate allowed dependencies for strict deps enforcement.
@@ -344,7 +344,7 @@ def compile_ts(
     replay_params = None
 
     if has_sources:
-        inputs = depset([ctx.outputs.tsconfig], transitive = [compilation_inputs])
+        inputs = compilation_inputs + [ctx.outputs.tsconfig]
         replay_params = compile_action(
             ctx,
             inputs,
@@ -388,10 +388,9 @@ def compile_ts(
         ctx.actions.write(output = tsconfig_json_es5, content = json_marshal(
             tsconfig_es5,
         ))
-        inputs = depset([tsconfig_json_es5], transitive = [compilation_inputs])
         devmode_compile_action(
             ctx,
-            inputs,
+            compilation_inputs + [tsconfig_json_es5],
             outputs,
             tsconfig_json_es5,
             node_profile_args,

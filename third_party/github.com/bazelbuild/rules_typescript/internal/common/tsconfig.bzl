@@ -54,6 +54,9 @@ def create_tsconfig(
     Returns:
       A nested dict that corresponds to a tsconfig.json structure
     """
+    if (type(files) != type([])):
+        fail("expected files argument to be a list, got " + type(files))
+
     outdir_path = out_dir if out_dir != None else ctx.configuration.bin_dir.path
 
     # Callers can choose the filename for the tsconfig, but it must always live
