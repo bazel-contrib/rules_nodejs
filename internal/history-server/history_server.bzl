@@ -1,6 +1,6 @@
 "Run history-server"
 
-load("@build_bazel_rules_nodejs//internal/node:node.bzl", "nodejs_binary_macro")
+load("@build_bazel_rules_nodejs//internal/node:node.bzl", "nodejs_binary")
 
 def history_server(templated_args = [], **kwargs):
     """
@@ -24,7 +24,7 @@ def history_server(templated_args = [], **kwargs):
         else:
             templated_args = ["."]
 
-    nodejs_binary_macro(
+    nodejs_binary(
         node_modules = "@history-server_runtime_deps//:node_modules",
         entry_point = "@history-server_runtime_deps//:node_modules/history-server/modules/cli.js",
         install_source_map_support = False,

@@ -22,11 +22,7 @@ load("//internal/common:check_version.bzl", "check_version")
 load("//internal/history-server:history_server.bzl", _history_server = "history_server")
 load("//internal/http-server:http_server.bzl", _http_server = "http_server")
 load("//internal/jasmine_node_test:jasmine_node_test.bzl", _jasmine_node_test = "jasmine_node_test")
-load(
-    "//internal/node:node.bzl",
-    _nodejs_binary = "nodejs_binary_macro",
-    _nodejs_test = "nodejs_test_macro",
-)
+load("//internal/node:node.bzl", _nodejs_binary = "nodejs_binary", _nodejs_test = "nodejs_test")
 load("//internal/node:node_repositories.bzl", _node_repositories = "node_repositories")
 load("//internal/npm_install:npm_install.bzl", _npm_install = "npm_install", _yarn_install = "yarn_install")
 load("//internal/npm_package:npm_package.bzl", _npm_package = "npm_package")

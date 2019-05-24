@@ -27,7 +27,7 @@ else
 fi
 # --- end runfiles.bash initialization ---
 
-readonly OUT=$($(rlocation "build_bazel_rules_nodejs/packages/typescript/test/some_module/bin"))
+readonly OUT=$($(rlocation "build_bazel_rules_nodejs/packages/typescript/test/some_module/bin.sh"))
 
 if [ "$OUT" != "hello world" ]; then
   echo "Expected output 'hello world' but was $OUT"

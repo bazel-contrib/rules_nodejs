@@ -27,9 +27,9 @@ else
 fi
 # --- end runfiles.bash initialization ---
 
-readonly OUT=$($(rlocation "npm/testy/bin/testy"))
+readonly OUT=$($(rlocation "npm/testy/bin/testy.sh"))
 
 if [ "$OUT" != "Hello some_value" ]; then
-  echo "Expected output 'Hello world' but was '$OUT'"
+  echo "Expected output 'Hello some_value' but was '$OUT'"
   exit 1
 fi
