@@ -1,7 +1,8 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 set -x -eu -o pipefail
 
+readonly DRY_RUN="" # uncomment for testing: "--dry-run"
 readonly RULES_NODEJS_DIR=$(cd $(dirname "$0")/..; pwd)
 cd "${RULES_NODEJS_DIR}/packages"
 
@@ -20,21 +21,30 @@ readonly NPM=$(which npm)
 
 function doMirror () {
   local PACKAGE=$1
-  local FILENAME=$2
-  local TOOL="buildifier"
+  local TOOL=$2
+  local EXT=${3-""}
+  local FILENAME=$TOOL
+  if [ ! -z "$EXT" ]; then
+    FILENAME="${FILENAME}.${EXT}"
+  fi
 
   wget -P ${PACKAGE}/ ${BASEURI}/${FILENAME}
   tmp=$(mktemp)
   jq ".bin.${TOOL} = \"./${FILENAME}\" | .version = \"${VERSION}\"" < ${PACKAGE}/package.json > $tmp
   mv $tmp ${PACKAGE}/package.json
-  node --max-old-space-size=8192 $NPM publish $PACKAGE
+  node --max-old-space-size=8192 $NPM publish --access=public $DRY_RUN $PACKAGE
 }
 
-doMirror buildifier-darwin_x64 buildifier.mac
+doMirror buildozer-linux_x64 buildozer
+doMirror buildozer-darwin_x64 buildozer mac
+doMirror buildozer-win32_x64 buildozer exe
 doMirror buildifier-linux_x64 buildifier
-doMirror buildifier-win32_x64 buildifier.exe
+doMirror buildifier-darwin_x64 buildifier mac
+doMirror buildifier-win32_x64 buildifier exe
 
 tmp=$(mktemp)
-jq ".version = \"${VERSION}\" | .optionalDependencies[] = \"${VERSION}\"" < buildifier/package.json > $tmp
-mv $tmp buildifier/package.json
-$NPM publish buildifier
+for p in buildozer buildifier; do
+  jq ".version = \"${VERSION}\" | .optionalDependencies[] = \"${VERSION}\"" < $p/package.json > $tmp
+  mv $tmp $p/package.json
+  $NPM publish --access=public $DRY_RUN $p
+done
