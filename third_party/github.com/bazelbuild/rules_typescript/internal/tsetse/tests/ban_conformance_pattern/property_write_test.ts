@@ -32,11 +32,9 @@ describe('BANNED_PROPERTY_WRITE', () => {
 
     expect(results.length).toBe(1);
     expect(results[0]).toBeFailureMatching({
-      start: 28,
-      end: 48,
+      matchedCode: 'q.cite = window.name;',
+      fileName: 'file_1.ts',
       errorMessage: 'do not cite',
-      // fileName: 'file_0.ts'
-      // TODO(rjamet): why is there no source file in the finding?
     });
   });
 
@@ -52,8 +50,7 @@ describe('BANNED_PROPERTY_WRITE', () => {
     // Both of these should have the same results: in `c.x`, `x` matches,
     // and `c` is both a Parent and a Child.
     const expectedFailure = {
-      start: 83,
-      end: 90,
+      matchedCode: 'c.x = 1;',
       errorMessage: 'found write to x',
     };
 

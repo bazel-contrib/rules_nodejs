@@ -34,6 +34,12 @@ export class Failure {
       fix: this.suggestedFix
     };
   }
+
+  toString(): string {
+    return `Failure{sourceFile:${
+        this.sourceFile ? this.sourceFile.fileName :
+                          'unknown'}, start:${this.start}, end:${this.end}}`;
+  }
 }
 
 /**

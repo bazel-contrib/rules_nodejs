@@ -6,7 +6,7 @@ import * as os from 'os';
 import * as ts from 'typescript';
 
 import {Checker} from '../../checker';
-import {Failure, Fix} from '../../failure';
+import {Failure} from '../../failure';
 import {AbstractRule} from '../../rule';
 
 
@@ -70,26 +70,44 @@ export function compileAndCheck(
 export const customMatchers: jasmine.CustomMatcherFactories = {
   toBeFailureMatching(): jasmine.CustomMatcher {
     return {
-      compare: (actual: ts.Diagnostic&{end: number, fix?: Fix}, exp: {
-        fileName?: string, start: number, end: number,
+      compare: (actualFailure: Failure, exp: {
+        fileName?: string,
+        start?: number,
+        end?: number,
+        matchedCode?: string
       }) => {
+        const actualDiagnostic = actualFailure.toDiagnostic();
         let regrets = '';
         if (exp === undefined) {
           regrets += 'The rule requires two arguments. ';
         }
         if (exp.fileName) {
-          if (!actual.file) {
-            regrets += 'Expected diagnostic to have a source file. ';
-          } else if (!actual.file.fileName.endsWith(exp.fileName)) {
-            regrets += `Expected ${actual.file.fileName} to end with ${
-                exp.fileName}. `;
+          if (!actualDiagnostic.file) {
+            regrets += `Expected diagnostic to have a source file, but it had ${
+                actualDiagnostic.file}. `;
+          } else if (!actualDiagnostic.file.fileName.endsWith(exp.fileName)) {
+            regrets += `Expected ${
+                actualDiagnostic.file.fileName} to end with ${exp.fileName}. `;
           }
         }
-        if (exp.start && actual.start !== exp.start) {
-          regrets += expectation('start', exp.start, actual.start);
+        if (exp.start && actualDiagnostic.start !== exp.start) {
+          regrets += expectation('start', exp.start, actualDiagnostic.start);
         }
-        if (exp.end && actual.end !== exp.end) {
-          regrets += expectation('end', exp.end, actual.end);
+        if (exp.end && actualDiagnostic.end !== exp.end) {
+          regrets += expectation('end', exp.end, actualDiagnostic.end);
+        }
+        if (exp.matchedCode) {
+          if (!actualDiagnostic.file) {
+            regrets += `Expected diagnostic to have a source file, but it had ${
+                actualDiagnostic.file}. `;
+          } else {
+            const foundMatchedCode = actualDiagnostic.file.getFullText().substr(
+                Number(actualDiagnostic.start), actualDiagnostic.end);
+            if (foundMatchedCode != exp.matchedCode) {
+              regrets += `Expected diagnostic to match ${
+                  exp.matchedCode}, but was ${foundMatchedCode}`;
+            }
+          }
         }
         return {pass: regrets === '', message: regrets};
       }
@@ -106,10 +124,11 @@ declare global {
   namespace jasmine {
     interface Matchers<T> {
       toBeFailureMatching(expected: {
+        [i: string]: any,  // the rest
         fileName?: string,
-                start: number,
-                end: number,
-                [i: string]: any  // the rest
+        start?: number,
+        end?: number,
+        matchedCode?: string,
       }): void;
     }
   }
