@@ -4,7 +4,10 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "COMMON_REPLACEMENTS", "npm_package
 
 package(default_visibility = ["//visibility:public"])
 
-exports_files(["tsconfig.json"])
+exports_files([
+    "common.bazelrc",
+    "tsconfig.json",
+])
 
 bzl_library(
     name = "bzl",
