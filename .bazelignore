@@ -6,8 +6,11 @@ dist
 e2e/
 # Examples are tested by running examples/test_example.sh outside of Bazel
 examples/
-# Each package is a nested workspace
-packages/
+# Most packages are nested workspaces
+packages/jasmine
+packages/karma
+packages/labs
+packages/typescript
 # A subset of legacy e2e tests are nested workspaces
 # TODO(gregmagolan): move these to /e2e
 internal/e2e/bazel_workspaces_compat

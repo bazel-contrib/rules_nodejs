@@ -1,0 +1,10 @@
+{
+    "name": "@bazel/create",
+    "bin": "index.js",
+    "license": "Apache 2.0",
+    "version": "0.0.0-PLACEHOLDER",
+    "keywords": [
+        "bazel"
+    ],
+    "description": "Create a new Bazel workspace"
+}
