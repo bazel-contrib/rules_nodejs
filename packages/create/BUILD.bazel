@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//:defs.bzl", "npm_package")
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_test", "npm_package")
 
 # Copy common bazelrc file to be included in this package
 genrule(
@@ -19,3 +19,16 @@ npm_package(
         ":common.bazelrc",
     ],
 )
+
+nodejs_test(
+    name = "test",
+    entry_point = "build_bazel_rules_nodejs/packages/create/test.js",
+    data = [
+        "test.js",
+        ":npm_package",
+    ],
+)
+
+# TODO(alexeagle): add e2e testing by running bazel in a newly created project
+# load("@build_bazel_integration_testing//tools:common.bzl", "GET_LATEST_BAZEL_VERSIONS")
+# some_nodejs_bazel_integration_test or use Java/Go existing libraries
