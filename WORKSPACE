@@ -151,5 +151,6 @@ rbe_autoconfig(
 )
 
 load("@build_bazel_integration_testing//tools:repositories.bzl", "bazel_binaries")
+
 #depend on the Bazel binaries, also accepts an array of versions
 bazel_binaries()

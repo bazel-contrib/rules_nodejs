@@ -22,11 +22,11 @@ npm_package(
 
 nodejs_test(
     name = "test",
-    entry_point = "build_bazel_rules_nodejs/packages/create/test.js",
     data = [
         "test.js",
         ":npm_package",
     ],
+    entry_point = "build_bazel_rules_nodejs/packages/create/test.js",
 )
 
 # TODO(alexeagle): add e2e testing by running bazel in a newly created project
