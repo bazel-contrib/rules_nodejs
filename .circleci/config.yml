@@ -206,7 +206,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - ./rules_nodejs/dist/npm_bazel_typescript$*
+            - ./rules_nodejs/dist/npm_bazel_typescript
 
   build_karma_package:
     <<: *job_defaults
@@ -219,7 +219,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - ./rules_nodejs/dist/npm_bazel_karma$*
+            - ./rules_nodejs/dist/npm_bazel_karma
 
   build_jasmine_package:
     <<: *job_defaults
@@ -232,7 +232,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - ./rules_nodejs/dist/npm_bazel_jasmine$*
+            - ./rules_nodejs/dist/npm_bazel_jasmine
 
   build_labs_package:
     <<: *job_defaults
@@ -245,7 +245,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - ./rules_nodejs/dist/npm_bazel_labs$*
+            - ./rules_nodejs/dist/npm_bazel_labs
 
   test_packages:
     <<: *job_defaults
@@ -320,7 +320,6 @@ jobs:
           name: Test angular-bazel-example
           command: |
             cd ./examples/angular
-            ../../scripts/link_deps.sh
             # Install Bazel from NPM
             yarn
             # Build and Test

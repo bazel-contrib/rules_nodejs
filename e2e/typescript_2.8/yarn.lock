@@ -2,15 +2,15 @@
 # yarn lockfile v1
 
 
-"@bazel/jasmine@file:../../dist/npm_bazel_jasmine$6825":
-  version "0.29.0-7-g61d4b0a"
+"@bazel/jasmine@file:../../dist/npm_bazel_jasmine":
+  version "0.30.1-2-g5cc5c06"
   dependencies:
     jasmine "~3.3.1"
     jasmine-core "~3.3.0"
     v8-coverage "1.0.9"
 
-"@bazel/typescript@file:../../dist/npm_bazel_typescript$7423":
-  version "0.29.0-7-g61d4b0a"
+"@bazel/typescript@file:../../dist/npm_bazel_typescript":
+  version "0.30.1-2-g5cc5c06"
   dependencies:
     protobufjs "6.8.8"
     semver "5.6.0"

@@ -15,24 +15,23 @@ echo_and_run() { echo "+ $@" ; "$@" ; }
 
 for package in ${PACKAGES[@]} ; do
   (
-    readonly DEST_DIR_BASE="${DIST_DIR}/npm_bazel_${package}"
-    readonly DEST_DIR="${DEST_DIR_BASE}\$${RANDOM}"
+    readonly DEST_DIR="${DIST_DIR}/npm_bazel_${package}"
 
     # Build npm package
     cd "${PACKAGES_DIR}/${package}"
     printf "\n\nBuilding package ${package} //:npm_package\n"
-    ${RULES_NODEJS_DIR}/scripts/link_deps.sh
+    ${RULES_NODEJS_DIR}/scripts/check_deps.sh
     echo_and_run bazel build --workspace_status_command=../../scripts/current_version.sh //:npm_package
 
     # Copy the npm_package to /dist
     echo "Copying npm package to ${DEST_DIR}"
-    rm -rf ${DEST_DIR_BASE}\$*
+    rm -rf ${DEST_DIR}
     mkdir -p ${DIST_DIR}
     readonly BAZEL_BIN=$(bazel info bazel-bin)
     echo_and_run cp -R "${BAZEL_BIN}/npm_package" ${DEST_DIR}
     chmod -R u+w ${DEST_DIR}
 
-    # Unlink deps to undo local changes
-    ${RULES_NODEJS_DIR}/scripts/unlink_deps.sh
+    # Touch downstream package.json that depend on this package
+    ${RULES_NODEJS_DIR}/scripts/touch_deps.sh ${package}
   )
 done

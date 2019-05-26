@@ -17,8 +17,7 @@ for package in ${PACKAGES[@]} ; do
     # Test package
     cd "${PACKAGES_DIR}/${package}"
     printf "\n\nTesting package ${package}\n"
-    ${RULES_NODEJS_DIR}/scripts/link_deps.sh
+    ${RULES_NODEJS_DIR}/scripts/check_deps.sh
     echo_and_run yarn test
-    ${RULES_NODEJS_DIR}/scripts/unlink_deps.sh
   )
 done

@@ -2,11 +2,10 @@
     "name": "e2e-webpack",
     "private": true,
     "devDependencies": {
-        "@bazel/jasmine": "bazel://@npm_bazel_jasmine//:npm_package",
-        "@bazel/labs": "bazel://@npm_bazel_labs//:npm_package"
+        "@bazel/jasmine": "file:../../dist/npm_bazel_jasmine",
+        "@bazel/labs": "file:../../dist/npm_bazel_labs"
     },
     "scripts": {
-      "pretest": "../../scripts/link_deps.sh",
       "test": "bazel test ..."
     }
   }

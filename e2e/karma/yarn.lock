@@ -2,8 +2,8 @@
 # yarn lockfile v1
 
 
-"@bazel/karma@file:../../dist/npm_bazel_karma$2011":
-  version "0.29.0-7-g61d4b0a"
+"@bazel/karma@file:../../dist/npm_bazel_karma":
+  version "0.30.1-2-g5cc5c06"
   dependencies:
     jasmine-core "2.8.0"
     karma "^4.0.0"

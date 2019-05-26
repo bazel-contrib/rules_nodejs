@@ -25,19 +25,11 @@ If your package depends on other packages then add the dependency to the `packag
 
 ```
   "devDependencies": {
-    "@bazel/foo": "bazel://@npm_bazel_foobar//:npm_package",
+    "@bazel/jasmine": "file:../../dist/npm_package_jasmine",
     ...
   }
 ```
 
-and add the following `pretest` script to expand this placeholder for when `yarn_install` is run:
-
-```
-  "scripts": {
-    "pretest": "../../scripts/link_deps.sh",
-    "test": "bazel build ..."
-  }
-```
 
 ### Testing your package
 
@@ -56,7 +48,6 @@ Any e2e tests that depend on your package should go under `/e2e`. The `package.j
     "@bazel/foo": "bazel://@npm_bazel_foo//:npm_package"
   },
   "scripts": {
-    "pretest": "../../scripts/link_deps.sh",
     "test": "bazel test ..."
   }
 }
