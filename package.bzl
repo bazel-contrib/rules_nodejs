@@ -95,6 +95,14 @@ def rules_nodejs_dev_dependencies():
         ],
     )
 
+    http_archive(
+        name = "build_bazel_integration_testing",
+        url = "https://github.com/bazelbuild/bazel-integration-testing/archive/13a7d5112aaae5572544c609f364d430962784b1.zip",
+        type = "zip",
+        strip_prefix= "bazel-integration-testing-13a7d5112aaae5572544c609f364d430962784b1",
+        sha256 = "8028ceaad3613404254d6b337f50dc52c0fe77522d0db897f093dd982c6e63ee",
+    )
+
 def _maybe(repo_rule, name, **kwargs):
     if name not in native.existing_rules():
         repo_rule(name = name, **kwargs)

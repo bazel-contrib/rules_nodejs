@@ -1,9 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 
-function main(args) {
-  if (args.length < 1) {
-    console.error(`Please specify the workspace directory:
+function main(args, error = console.error, log = console.log) {
+  if (!args || args.length < 1) {
+    error(`Please specify the workspace directory:
         
         npx @bazel/create [workspace name]
         npm init @bazel [workspace name]
@@ -15,7 +15,7 @@ function main(args) {
   const [wkspDir] = args;
   // TODO: user might want these to differ
   const wkspName = wkspDir;
-  console.log(`Creating Bazel workspace ${wkspName}...`);
+  log(`Creating Bazel workspace ${wkspName}...`);
   fs.mkdirSync(wkspDir);
 
   function write(workspaceRelativePath, content) {
@@ -75,12 +75,14 @@ install_bazel_dependencies()`);
   if (fs.existsSync('../../common.bazelrc')) {
     write('.bazelrc', fs.readFileSync('../../common.bazelrc'));
   } else {
-    console.error('ERROR: missing common.bazelrc file, continuing with no bazel settings...');
+    error('ERROR: missing common.bazelrc file, continuing with no bazel settings...');
   }
 
-  console.log(`Successfully created new Bazel workspace at ${path.resolve(wkspDir)}
+  log(`Successfully created new Bazel workspace at ${path.resolve(wkspDir)}
     Inside that directory you can run yarn build or yarn test.`)
 }
+
+module.exports = {main};
 
 if (require.main === module) {
   process.exitCode = main(process.argv.slice(2));

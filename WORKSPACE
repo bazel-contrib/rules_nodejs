@@ -149,3 +149,7 @@ load("@bazel_toolchains//rules:rbe_repo.bzl", "rbe_autoconfig")
 rbe_autoconfig(
     name = "buildkite_config",
 )
+
+load("@build_bazel_integration_testing//tools:repositories.bzl", "bazel_binaries")
+#depend on the Bazel binaries, also accepts an array of versions
+bazel_binaries()
