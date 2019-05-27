@@ -1,5 +1,5 @@
 ---
-bazel: 0.26.0rc13
+bazel: 0.26.0
 platforms:
   ubuntu1604:
     run_targets:
