@@ -54,6 +54,6 @@ parcel = rule(
     },
     outputs = {
         "bundle": "%{name}.js",
-        "sourcemap": "%{name}.map",
+        "sourcemap": "%{name}.js.map",
     },
 )

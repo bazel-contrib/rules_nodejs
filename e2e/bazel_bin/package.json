@@ -1,7 +1,7 @@
 {
     "private": true,
     "dependencies": {
-      "testy": "file:./npm/testy"
+        "testy": "file:./npm/testy"
     },
     "scripts": {
         "test": "bazel test :test --define=some_env=world"
