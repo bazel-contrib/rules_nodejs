@@ -79,7 +79,7 @@ export const customMatchers: jasmine.CustomMatcherFactories = {
         const actualDiagnostic = actualFailure.toDiagnostic();
         let regrets = '';
         if (exp === undefined) {
-          regrets += 'The rule requires two arguments. ';
+          regrets += 'The matcher requires two arguments. ';
         }
         if (exp.fileName) {
           if (!actualDiagnostic.file) {
@@ -100,12 +100,17 @@ export const customMatchers: jasmine.CustomMatcherFactories = {
           if (!actualDiagnostic.file) {
             regrets += `Expected diagnostic to have a source file, but it had ${
                 actualDiagnostic.file}. `;
+          } else if (!actualDiagnostic.start) {
+            // I don't know how this could happen, but typings say so.
+            regrets += `Expected diagnostic to have a starting position. `;
           } else {
-            const foundMatchedCode = actualDiagnostic.file.getFullText().substr(
+            const foundMatchedCode = actualDiagnostic.file.getFullText().slice(
                 Number(actualDiagnostic.start), actualDiagnostic.end);
             if (foundMatchedCode != exp.matchedCode) {
               regrets += `Expected diagnostic to match ${
-                  exp.matchedCode}, but was ${foundMatchedCode}`;
+                  exp.matchedCode}, but was ${foundMatchedCode} (from ${
+                  Number(
+                      actualDiagnostic.start)} to ${actualDiagnostic.end}). `;
             }
           }
         }

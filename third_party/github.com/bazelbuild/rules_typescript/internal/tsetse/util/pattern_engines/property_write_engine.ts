@@ -38,10 +38,12 @@ export class PropertyWriteEngine extends
         !isPropertyWriteExpression(n)) {
       return;
     }
-    debugLog(`inspecting ${n.getFullText().trim()}`);
+    debugLog(`inspecting ${n.getText().trim()}`);
     if (this.matcher.matches(n.left, c.typeChecker)) {
       const fix: Fix|undefined =
           this.fixer ? this.fixer.getFixForFlaggedNode(n) : undefined;
+      debugLog(`Match. Reporting failure (boundaries: ${n.getStart()}, ${
+          n.getEnd()}] on node [${n.getText()}]`);
       c.addFailureAtNode(n, this.config.errorMessage, fix);
     }
   }
