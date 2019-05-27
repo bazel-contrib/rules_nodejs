@@ -565,19 +565,6 @@ def node_repositories(
 
     _maybe(
         yarn_install,
-        name = "build_bazel_rules_nodejs_npm_install_deps",
-        package_json = "@build_bazel_rules_nodejs//internal/npm_install:package.json",
-        yarn_lock = "@build_bazel_rules_nodejs//internal/npm_install:yarn.lock",
-        # Just here as a smoke test for this attribute
-        prod_only = True,
-        # Do not symlink node_modules as when used in downstream repos we should not create
-        # node_modules folders in the @build_bazel_rules_nodejs external repository. This is
-        # not supported by managed_directories.
-        symlink_node_modules = False,
-    )
-
-    _maybe(
-        yarn_install,
         name = "build_bazel_rules_nodejs_rollup_deps",
         package_json = "@build_bazel_rules_nodejs//internal/rollup:package.json",
         yarn_lock = "@build_bazel_rules_nodejs//internal/rollup:yarn.lock",
