@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const DEBUG = false;
+const DEBUG = !!process.env['DEBUG'];
 
 /**
  * Detect if the user ran `yarn create @bazel` so we can default
@@ -21,6 +21,20 @@ function detectRunningUnderYarn() {
   return false;
 }
 
+function validateWorkspaceName(name, error) {
+  if (/^[_a-zA-Z0-9]+$/.test(name)) {
+    return true;
+  }
+  error(`ERROR: ${name} is not a valid Bazel workspace name.
+  
+  A workspace name must start with a letter and can contain letters, numbers, and underscores
+  (this is to maximize the number of languages for which this string can be a valid package/module name).
+  It should describe the project in reverse-DNS form, with elements separated by underscores.
+  For example, if a project is hosted at example.com/some-project,
+  you might use com_example_some_project as the workspace name.
+  From https://docs.bazel.build/versions/master/be/functions.html#workspace`);
+  return false;
+}
 function main(args, error = console.error, log = console.log) {
   if (!args || args.length < 1) {
     error(`Please specify the workspace directory:
@@ -46,6 +60,11 @@ function main(args, error = console.error, log = console.log) {
   const [wkspDir] = args;
   // TODO: user might want these to differ
   const wkspName = wkspDir;
+
+  if (!validateWorkspaceName(wkspName, error)) {
+    return 1;
+  }
+
   log(`Creating Bazel workspace ${wkspName}...`);
   fs.mkdirSync(wkspDir);
 
@@ -102,9 +121,15 @@ install_bazel_dependencies()`);
             name: wkspName,
             version: '0.1.0',
             private: true,
-            devDependencies:
-                {'@bazel/bazel': 'next', '@bazel/ibazel': 'latest', '@bazel/buildifier': 'latest'},
-            scripts: {'build': 'bazel build //...', 'test': 'bazel test //...'}
+            devDependencies: {
+              '@bazel/bazel': 'latest',
+              '@bazel/ibazel': 'latest',
+              '@bazel/buildifier': 'latest',
+            },
+            scripts: {
+              'build': 'bazel build //...',
+              'test': 'bazel test //...',
+            }
           },
           null, 4));
   // in the published distribution, this file will appear in the same folder as this file
@@ -133,6 +158,8 @@ install_bazel_dependencies()`);
     npm run build
     npm test`);
   }
+
+  return 0;
 }
 
 module.exports = {main};
