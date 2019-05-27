@@ -299,9 +299,35 @@ jobs:
       - *attach_workspace
       - *init_environment
       - *init_bazel
-      - run: ./scripts/setup_examples_angular.sh
       # Some examples such as app require xvfb
       - run: xvfb-run -a ./scripts/test_examples_all.sh ${CIRCLE_NODE_INDEX} ${CIRCLE_NODE_TOTAL}
+
+  # This job cannot run on BuildKite (BazelCI) because it requires changing
+  # directories to test inside nested workspaces.
+  # See https://github.com/bazelbuild/continuous-integration/issues/225
+  test_angular_bazel_example:
+    <<: *job_defaults
+    docker:
+      # Needed because some tests require local chrome
+      - image: *browsers_docker_image
+    resource_class: xlarge
+    steps:
+      - *attach_workspace
+      - *init_environment
+      - *init_bazel
+      - run: ./scripts/setup_examples_angular.sh
+      - run:
+          name: Test angular-bazel-example
+          command: |
+            cd ./examples/angular
+            ../../scripts/link_deps.sh
+            # Install Bazel from NPM
+            yarn
+            # Build and Test
+            yarn ng test
+            yarn ng e2e
+            # Also run prodserver test which is not covered by `ng e2e`
+            yarn bazel test //e2e:prodserver_test
 
 workflows:
   version: 2
@@ -335,7 +361,8 @@ workflows:
           - build_typescript_package
       - build_typescript_package:
           requires:
-          - setup
+          # typescript package depends on jasmine package
+          - build_jasmine_package
       - test_packages:
           requires:
           - build_typescript_package
@@ -350,6 +377,13 @@ workflows:
           requires:
           - build_release
       - test_examples:
+          requires:
+          - build_release
+          - build_typescript_package
+          - build_jasmine_package
+          - build_labs_package
+          - build_karma_package
+      - test_angular_bazel_example:
           requires:
           - build_release
           - build_typescript_package

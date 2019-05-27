@@ -28,6 +28,7 @@
         "tsutils": "2.27.2"
     },
     "devDependencies": {
+        "@bazel/jasmine": "bazel://@npm_bazel_jasmine//:npm_package",
         "@types/jasmine": "^2.8.2",
         "@types/long": "^4.0.0",
         "@types/node": "7.0.18",

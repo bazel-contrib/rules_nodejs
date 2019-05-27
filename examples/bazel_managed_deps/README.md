@@ -16,4 +16,4 @@ nodejs_binary(
 and only the contents of `node_modules/jasmine/` will be copied to workers.
 
 See design doc:
-https://docs.google.com/document/d/1BmQfTKhKMIsd27YKzWIhU7on-OVgRTSnUi1EHtHcceo/edit#
+https://docs.google.com/document/d/1AfjHMLVyE_vYwlHSK7k7yW_IIGppSxsQtPm9PTr1xEo/preview

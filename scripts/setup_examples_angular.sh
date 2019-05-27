@@ -34,7 +34,7 @@ printf "\n\nSetting up /examples/angular\n"
 
     # Replace @bazel/foobar packages in package.json with file paths to locally generated packages
     for package in ${PACKAGES[@]} ; do
-      echo_and_run sedi "s#\"@bazel\/${package}\":[[:blank:]]*\"[_\-\.a-zA-Z0-9]*\"#\"@bazel\/${package}\": \"file://${RULES_NODEJS_DIR}/dist/npm_bazel_${package}\"#" package.json
+      echo_and_run sedi "s#\"@bazel\/${package}\":[[:blank:]]*\"[~_\-\.a-zA-Z0-9]*\"#\"@bazel\/${package}\": \"file://${RULES_NODEJS_DIR}/dist/npm_bazel_${package}\"#" package.json
     done
 
     # We can't do multi-line replacements with sed so we'll keep the http_archive
@@ -42,15 +42,6 @@ printf "\n\nSetting up /examples/angular\n"
     # sha256 lines as well to make this work.
     echo_and_run sedi "s#urls* = \[*\"https:\/\/github\.com\/[a-zA-Z_]*\/rules_nodejs[^\"]*\"\]*#url = \"file://${RULES_NODEJS_DIR}/dist/build_bazel_rules_nodejs/release.tar.gz\"#" WORKSPACE
     echo_and_run sedi "s#sha256 =#\# sha256 =#" WORKSPACE
-
-    # TEMPORARY for managed_directories
-    echo_and_run sedi "s#name \= \"angular_bazel_example\"#name = \"angular_bazel_example\", managed_directories = {\"@npm\": [\"node_modules\"]}#" WORKSPACE
-    echo_and_run sedi "s#\"\@bazel\/bazel\"\: \"0\.25\.1\"#\"@bazel/bazel\": \"file:../../node_modules/@bazel/bazel\"#" package.json
-    echo "" >> .bazelrc
-    echo "##################################################" >> .bazelrc
-    echo "# Turn on managed_directories" >> .bazelrc
-    echo "build --experimental_allow_incremental_repository_updates" >> .bazelrc
-    echo "query --experimental_allow_incremental_repository_updates" >> .bazelrc
 
     # Check that above replacements worked
     if ! grep -q "dist/npm_bazel_" package.json; then
