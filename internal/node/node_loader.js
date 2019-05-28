@@ -25,6 +25,10 @@
 var path = require('path');
 var fs = require('fs');
 
+const isWindows = /^win/i.test(process.platform);
+// Ensure that node is added to the path for any subprocess calls
+process.env.PATH = [path.dirname(process.execPath), process.env.PATH].join(isWindows ? ';' : ':');
+
 const DEBUG = false;
 
 /**
