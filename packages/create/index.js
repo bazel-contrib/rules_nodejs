@@ -56,7 +56,6 @@ function main(args, error = console.error, log = console.log) {
     log('Environment', process.env);
   }
 
-  // FIXME: the workspace name should conform with Bazel rules
   const [wkspDir] = args;
   // TODO: user might want these to differ
   const wkspName = wkspDir;

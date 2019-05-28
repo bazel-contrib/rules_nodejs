@@ -4,7 +4,7 @@
 const fs = require('fs');
 const shell = require('shelljs');
 const version = require('../package.json').version;
-const artifact = 'bazel-bin/release.tar.gz';
+const artifact = 'dist/bin/release.tar.gz';
 const hash = require('crypto').createHash('sha256');
 // TODO(alexeagle): consider streaming the bytes into the hash function, if this consumes too much
 // RAM
