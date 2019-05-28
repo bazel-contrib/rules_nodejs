@@ -34,7 +34,7 @@
     "tmp": "0.0.33"
   },
   "devDependencies": {
-    "@bazel/typescript": "bazel://@npm_bazel_typescript//:npm_package",
+    "@bazel/typescript": "file:../../dist/npm_bazel_typescript",
     "@types/node": "7.0.18",
     "protobufjs": "5.0.3",
     "source-map-support": "0.5.9",
@@ -50,7 +50,6 @@
     }
   },
   "scripts": {
-    "pretest": "../../scripts/link_deps.sh",
     "test": "bazel build ..."
   }
 }

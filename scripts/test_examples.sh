@@ -21,12 +21,11 @@ for example in ${EXAMPLES[@]} ; do
     else
       cd "${EXAMPLES_DIR}/${example}"
       printf "\n\nRunning example ${example}\n"
-      ${RULES_NODEJS_DIR}/scripts/link_deps.sh
+      ${RULES_NODEJS_DIR}/scripts/check_deps.sh
       echo_and_run yarn test
       if grep -q "\"e2e\":" package.json; then
         echo_and_run yarn e2e
       fi
-      ${RULES_NODEJS_DIR}/scripts/unlink_deps.sh
     fi
   )
 done

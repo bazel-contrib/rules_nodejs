@@ -57,8 +57,7 @@ echo_and_run bazel run @test_workspace//subdir:bin
 # TODO: re-enable when after https://github.com/bazelbuild/bazel/pull/8090 makes it into a Bazel release
 # Related issue https://github.com/bazelbuild/bazel/issues/8088 on Windows
 
-echo_and_run ./scripts/build_release.sh
-echo_and_run ./scripts/build_packages_all.sh
+echo_and_run ./scripts/build_all.sh
 
 echo_and_run ./scripts/test_packages_all.sh
 echo_and_run ./scripts/test_e2e_all.sh
