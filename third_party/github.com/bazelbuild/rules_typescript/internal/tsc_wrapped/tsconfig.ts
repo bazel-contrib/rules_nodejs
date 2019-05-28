@@ -126,6 +126,7 @@ export interface BazelOptions {
 
   /**
    * Suppress warnings about tsconfig.json properties that are overridden.
+   * Currently unused, remains here for backwards compat for users who set it.
    */
   suppressTsconfigOverrideWarnings: boolean;
 
@@ -208,69 +209,6 @@ interface PluginImportWithConfig extends ts.PluginImport {
 }
 
 /**
- * Prints messages to stderr if the given config object contains certain known
- * properties that Bazel will override in the generated tsconfig.json.
- * Note that this is not an exhaustive list of such properties; just the ones
- * thought to commonly cause problems.
- * Note that we can't error out, because users might have a legitimate reason:
- * - during a transition to Bazel they can use the same tsconfig with other
- *   tools
- * - if they have multiple packages in their repo, they might need to use path
- *   mapping so the editor knows where to resolve some absolute imports
- *
- * @param userConfig the parsed json for the full tsconfig.json file
- */
-function warnOnOverriddenOptions(userConfig: any) {
-  const overrideWarnings: string[] = [];
-  if (userConfig.files) {
-    overrideWarnings.push(
-        'files is ignored because it is controlled by the srcs[] attribute');
-  }
-  const options: ts.CompilerOptions = userConfig.compilerOptions;
-  if (options) {
-    if (options.target || options.module) {
-      overrideWarnings.push(
-          'compilerOptions.target and compilerOptions.module are controlled by downstream dependencies, such as ts_devserver');
-    }
-    if (options.declaration) {
-      overrideWarnings.push(
-          `compilerOptions.declaration is always true, as it's needed for dependent libraries to type-check`);
-    }
-    if (options.paths) {
-      overrideWarnings.push(
-          'compilerOptions.paths is determined by the module_name attribute in transitive deps[]');
-    }
-    if (options.typeRoots) {
-      overrideWarnings.push(
-          'compilerOptions.typeRoots is always set to the @types subdirectory of the node_modules attribute');
-    }
-    if (options.traceResolution || (options as any).diagnostics) {
-      overrideWarnings.push(
-          'compilerOptions.traceResolution and compilerOptions.diagnostics are set by the DEBUG flag in tsconfig.bzl under rules_typescript');
-    }
-    if (options.rootDir || options.baseUrl) {
-      overrideWarnings.push(
-          'compilerOptions.rootDir and compilerOptions.baseUrl are always the workspace root directory');
-    }
-    if (options.preserveConstEnums) {
-      overrideWarnings.push(
-          'compilerOptions.preserveConstEnums is always false under Bazel');
-    }
-    if (options.noEmitOnError) {
-      // TODO(alexeagle): why??
-      overrideWarnings.push(
-          'compilerOptions.noEmitOnError is always false under Bazel');
-    }
-  }
-  if (overrideWarnings.length) {
-    console.error(
-        '\nWARNING: your tsconfig.json file specifies options which are overridden by Bazel:');
-    for (const w of overrideWarnings) console.error(` - ${w}`);
-    console.error('\n');
-  }
-}
-
-/**
  * The same as Node's path.resolve, however it returns a path with forward
  * slashes rather than joining the resolved path with the platform's path
  * separator.
@@ -338,10 +276,6 @@ export function parseTsconfig(
           devmodeTargetOverride: isUndefined(existingBazelOpts.devmodeTargetOverride)
             ? newBazelBazelOpts.devmodeTargetOverride
             : existingBazelOpts.devmodeTargetOverride,
-        }
-
-        if (!mergedConfig.bazelOptions.suppressTsconfigOverrideWarnings) {
-          warnOnOverriddenOptions(config);
         }
       }
 
