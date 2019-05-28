@@ -1,7 +1,7 @@
 .idea
 rules_nodejs-*.tar.gz
-/dist
-/bazel-*
+dist
+bazel-out
 /e2e/*/bazel-*
 /examples/*/bazel-*
 /packages/*/bazel-*
