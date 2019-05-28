@@ -16,15 +16,27 @@ load("@npm_bazel_karma//:index.bzl", "ts_web_test_suite")
 
 ts_web_test_suite(
     name = "testing",
-    srcs = glob(["*.js"]),
+    srcs = glob(
+        ["*.js"],
+        exclude = [
+            "unnamed-amd-module.js",
+            "init-test.js",
+        ],
+    ),
     browsers = [
         "@io_bazel_rules_webtesting//browsers:chromium-local",
         "@io_bazel_rules_webtesting//browsers:firefox-local",
     ],
     static_files = [
-        ":unnamed-amd-module.js",
+        "unnamed-amd-module.js",
+        # Add the "init-test.js" file to the "static_files" as well. This simulates
+        # a scenario where a developer has a NPM package in the "deps" that transitively
+        # brings in "tslib", whereas the target in the "static_files" can also bring
+        # in "tslib" transitively.
+        "init-test.js",
     ],
     deps = [
-        ":requirejs-config.js",
+        "init-test.js",
+        "requirejs-config.js",
     ],
 )
