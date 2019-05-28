@@ -26,6 +26,7 @@ const IS_WINDOWS = TEMPLATED_is_windows;
 const NODE_DIR = 'TEMPLATED_node_dir';
 const YARN_DIR = 'TEMPLATED_yarn_dir';
 const NODE_ACTUAL = 'TEMPLATED_node_actual';
+const NODE_BIN_ACTUAL = 'TEMPLATED_node_bin_actual';
 const NPM_ACTUAL = 'TEMPLATED_npm_actual';
 const YARN_ACTUAL = 'TEMPLATED_yarn_actual';
 
@@ -84,6 +85,7 @@ exports_files([
   "bin/yarn${binaryExt}",
   "bin/yarn_node_repositories${binaryExt}",
   ])
+alias(name = "node_bin", actual = "${NODE_BIN_ACTUAL}")
 alias(name = "node", actual = "${NODE_ACTUAL}")
 alias(name = "npm", actual = "${NPM_ACTUAL}")
 alias(name = "yarn", actual = "${YARN_ACTUAL}")

@@ -169,7 +169,7 @@ def _nodejs_binary_impl(ctx):
         is_executable = True,
     )
 
-    runfiles = depset([node, ctx.outputs.loader, ctx.file._repository_args] + ctx.files._node_runfiles, transitive = [sources, node_modules])
+    runfiles = depset([node, ctx.outputs.loader, ctx.file._repository_args], transitive = [sources, node_modules])
 
     return [DefaultInfo(
         executable = ctx.outputs.script,
@@ -224,7 +224,7 @@ _NODEJS_EXECUTABLE_ATTRS = {
     ),
     "node": attr.label(
         doc = """The node entry point target.""",
-        default = Label("@nodejs//:node"),
+        default = Label("@nodejs//:node_bin"),
         allow_single_file = True,
     ),
     "node_modules": attr.label(
@@ -307,10 +307,6 @@ _NODEJS_EXECUTABLE_ATTRS = {
     "_loader_template": attr.label(
         default = Label("//internal/node:node_loader.js"),
         allow_single_file = True,
-    ),
-    "_node_runfiles": attr.label(
-        default = Label("@nodejs//:node_runfiles"),
-        allow_files = True,
     ),
     "_repository_args": attr.label(
         default = Label("@nodejs//:bin/node_repo_args.sh"),

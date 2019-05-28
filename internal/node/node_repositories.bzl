@@ -197,6 +197,12 @@ def _prepare_node(repository_ctx):
             repository_ctx.attr.vendored_node.name,
             "bin/node" if not is_windows else "node.exe",
         ] if f])
+        node_exec_label = "@%s//%s:%s/%s" % (
+            repository_ctx.attr.vendored_node.workspace_name,
+            repository_ctx.attr.vendored_node.package,
+            repository_ctx.attr.vendored_node.name,
+            "bin/node" if not is_windows else "node.exe",
+        )
         npm_script = "/".join([f for f in [
             "../../..",
             repository_ctx.attr.vendored_node.workspace_root,
@@ -207,6 +213,7 @@ def _prepare_node(repository_ctx):
     else:
         node_exec = "{}/bin/node".format(NODE_DIR) if not is_windows else "{}/node.exe".format(NODE_DIR)
         npm_script = "{}/lib/node_modules/npm/bin/npm-cli.js".format(NODE_DIR) if not is_windows else "{}/node_modules/npm/bin/npm-cli.js".format(NODE_DIR)
+        node_exec_label = node_exec
     if repository_ctx.attr.vendored_yarn:
         yarn_script = "/".join([f for f in [
             "../../..",
@@ -428,6 +435,7 @@ if %errorlevel% neq 0 exit /b %errorlevel%
         {
             "TEMPLATED_is_windows": "true" if is_windows else "false",
             "TEMPLATED_node_actual": node_entry,
+            "TEMPLATED_node_bin_actual": node_exec_label,
             "TEMPLATED_node_dir": NODE_DIR,
             "TEMPLATED_npm_actual": npm_node_repositories_entry,
             "TEMPLATED_yarn_actual": yarn_node_repositories_entry,

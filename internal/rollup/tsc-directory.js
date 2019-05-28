@@ -71,7 +71,7 @@ function runTsc(inputDir, outputDir, projectFile) {
 
   const isWindows = /^win/i.test(process.platform);
   child_process.execFileSync(
-      isWindows ? 'node.cmd' : 'node', args,
+      isWindows ? 'node.exe' : 'node', args,
       {stdio: [process.stdin, process.stdout, process.stderr]});
 }
 

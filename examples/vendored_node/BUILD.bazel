@@ -1,5 +1,7 @@
 load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
 
+exports_files(["node-v10.12.0-linux-x64/bin/node"])
+
 jasmine_node_test(
     name = "yarn_test",
     srcs = glob(["*.spec.js"]),
