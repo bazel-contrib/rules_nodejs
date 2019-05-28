@@ -1,5 +1,5 @@
 # Import shared settings first so we can override below
-import common.bazelrc
+import %workspace%/common.bazelrc
 
 # Mock versioning command to test the --stamp behavior
 build --workspace_status_command="echo BUILD_SCM_VERSION 1.2.3"
