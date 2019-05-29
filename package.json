@@ -69,5 +69,8 @@
         "precommit": "check-clang-format \"yarn format\"",
         "skydoc": "bazel build //docs && unzip -o -d docs dist/bin/docs/docs-skydoc.zip",
         "version": "node ./scripts/on-version.js && bazel build //:release && node ./scripts/on-release.js && git stage defs.bzl README.md"
+    },
+    "dependencies": {
+        "minimist": "^1.2.0"
     }
 }

@@ -25,6 +25,7 @@ nodejs_test(
     data = [
         "test.js",
         ":npm_package",
+        "@npm//minimist"
     ],
     entry_point = "build_bazel_rules_nodejs/packages/create/test.js",
 )

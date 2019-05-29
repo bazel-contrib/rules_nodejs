@@ -6,5 +6,8 @@
     "keywords": [
         "bazel"
     ],
-    "description": "Create a new Bazel workspace"
+    "description": "Create a new Bazel workspace",
+    "dependencies": {
+        "minimist": "1.2.0"
+    }
 }
