@@ -5,7 +5,7 @@
   },
   "version": "0.25.1",
   "description": "A command line tool to rewrite multiple Bazel BUILD files using standard commands",
-  "license": "Apache 2.0",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/bazelbuild/rules_nodejs.git",

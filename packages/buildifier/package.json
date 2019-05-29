@@ -5,7 +5,7 @@
   },
   "version": "0.25.1",
   "description": "A tool for formatting bazel BUILD and .bzl files with a standard convention",
-  "license": "Apache 2.0",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/bazelbuild/rules_nodejs.git",

@@ -4,7 +4,7 @@
     "bazel": "./index.js"
   },
   "version": "0.26.0-rc10",
-  "license": "Apache 2.0",
+  "license": "Apache-2.0",
   "description": "Build and test software of any size, quickly and reliably",
   "homepage": "https://bazel.build/",
   "repository": {
