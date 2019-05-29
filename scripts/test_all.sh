@@ -49,8 +49,10 @@ echo_and_run bazel run @fine_grained_deps_yarn//typescript/bin:tsc
 
 # TODO: Once https://github.com/bazelbuild/bazel/pull/8090 lands targets
 # can be changed to test targets and we can run them with `bazel test`
-echo_and_run bazel run @test_workspace//:bin
-echo_and_run bazel run @test_workspace//subdir:bin
+echo_and_run bazel run @bazel_workspace_a//:bin
+echo_and_run bazel run @bazel_workspace_a//subdir:bin
+echo_and_run bazel run @bazel_workspace_b//:bin
+echo_and_run bazel run @bazel_workspace_b//subdir:bin
 
 # bazel test @examples_program//... # DOES NOT WORK WITH --nolegacy_external_runfiles
 # bazel test @internal_e2e_packages//... # DOES NOT WORK WITH --nolegacy_external_runfiles

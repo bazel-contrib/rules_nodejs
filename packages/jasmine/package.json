@@ -23,7 +23,6 @@
     },
     "bazelWorkspaces": {
         "npm_bazel_jasmine": {
-            "version": "0.0.0-PLACEHOLDER",
             "rootPath": "."
         }
     },

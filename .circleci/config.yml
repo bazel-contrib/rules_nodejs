@@ -162,8 +162,10 @@ jobs:
       - run: bazel run //internal/node/test:has_deps_hybrid
       - run: bazel run //internal/e2e/fine_grained_no_bin:index
       - run: bazel run @fine_grained_deps_yarn//typescript/bin:tsc
-      - run: bazel run @test_workspace//:bin
-      - run: bazel run @test_workspace//subdir:bin
+      - run: bazel run @bazel_workspace_a//:bin
+      - run: bazel run @bazel_workspace_a//subdir:bin
+      - run: bazel run @bazel_workspace_b//:bin
+      - run: bazel run @bazel_workspace_b//subdir:bin
 
   test_legacy_runfiles:
     <<: *job_defaults

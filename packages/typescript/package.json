@@ -47,8 +47,6 @@
     },
     "bazelWorkspaces": {
         "npm_bazel_typescript": {
-            "version": "0.0.0-PLACEHOLDER",
-            "compatVersion": "0.0.0-COMPAT_VERSION",
             "rootPath": "."
         }
     },
