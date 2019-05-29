@@ -9,7 +9,6 @@ nodejs_binary(
     name = "index",
     data = [
         "index.js",
-        "test/node_modules/test/index.js",
         "test/test.js",
         "@fine_grained_no_bin//fs.realpath",
     ],
