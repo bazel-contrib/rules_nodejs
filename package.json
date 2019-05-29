@@ -19,6 +19,7 @@
         "husky": "1.3.1",
         "is-builtin-module": "3.0.0",
         "jasmine": "3.4.0",
+        "minimist": "^1.2.0",
         "node_resolve_index": "file:./tools/npm_packages/node_resolve_index",
         "node_resolve_index_2": "file:./tools/npm_packages/node_resolve_index_2",
         "node_resolve_index_3": "file:./tools/npm_packages/node_resolve_index_3",
@@ -69,8 +70,5 @@
         "precommit": "check-clang-format \"yarn format\"",
         "skydoc": "bazel build //docs && unzip -o -d docs dist/bin/docs/docs-skydoc.zip",
         "version": "node ./scripts/on-version.js && bazel build //:release && node ./scripts/on-release.js && git stage defs.bzl README.md"
-    },
-    "dependencies": {
-        "minimist": "^1.2.0"
     }
 }
