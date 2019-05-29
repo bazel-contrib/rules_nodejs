@@ -46,7 +46,8 @@ function usage(error) {
     yarn create @bazel [workspace name] [options...]
 
   Options:
-    --packageManager=[yarn|npm] Select npm or yarn to install packages
+    --packageManager=[yarn|npm]   Select npm or yarn to install packages (default: npm)
+    --typescript                  Set up the workspace for TypeScript development
 
   Run @bazel/create --help to see all options
   `);
@@ -90,6 +91,27 @@ function main(argv, error = console.error, log = console.log) {
         path.join(wkspDir, workspaceRelativePath), content + require('os').EOL,
         {encoding: 'utf-8'});
   }
+
+  const devDependencies = {
+    '@bazel/bazel': 'latest',
+    '@bazel/ibazel': 'latest',
+    '@bazel/buildifier': 'latest',
+  };
+  let rootBuildContent = '# Add rules here to build your software\n' +
+      '# See https://docs.bazel.build/versions/master/build-ref.html#BUILD_files\n\n';
+
+  if (args['typescript']) {
+    devDependencies['@bazel/typescript'] = 'latest';
+    devDependencies['typescript'] = '~3.4.0';
+    write('tsconfig.json', '');
+    rootBuildContent += '# Allow any ts_library rules in this workspace to reference the config\n' +
+        '# Note: if you move the tsconfig.json file to a subdirectory, you can add an alias() here instead\n' +
+        '#   so that ts_library rules still use it by default.\n' +
+        '#   See https://www.npmjs.com/package/@bazel/typescript#installation\n' +
+        'exports_files(["tsconfig.json"], visibility = ["//:__subpackages__"])\n';
+  }
+
+  write('BUILD.bazel', rootBuildContent);
 
   const yarnInstallCmd =
       `# The yarn_install rule runs yarn anytime the package.json or yarn.lock file changes.
@@ -139,8 +161,6 @@ ${pkgMgr === 'yarn' ? yarnInstallCmd : npmInstallCmd}
 # Install any Bazel rules which were extracted earlier by the ${pkgMgr}_install rule.
 load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
 install_bazel_dependencies()`);
-  write('BUILD.bazel', `# Add rules here to build your software
-# See https://docs.bazel.build/versions/master/build-ref.html#BUILD_files`);
   write('.bazelignore', `node_modules`);
   write(
       'package.json',
@@ -149,11 +169,7 @@ install_bazel_dependencies()`);
             name: wkspName,
             version: '0.1.0',
             private: true,
-            devDependencies: {
-              '@bazel/bazel': 'latest',
-              '@bazel/ibazel': 'latest',
-              '@bazel/buildifier': 'latest',
-            },
+            devDependencies,
             scripts: {
               'build': 'bazel build //...',
               'test': 'bazel test //...',
