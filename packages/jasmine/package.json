@@ -1,7 +1,7 @@
 {
     "name": "@bazel/jasmine",
     "description": "Run Jasmine tests under Bazel",
-    "license": "Apache 2.0",
+    "license": "Apache-2.0",
     "version": "0.0.0-PLACEHOLDER",
     "repository": {
         "type" : "git",
