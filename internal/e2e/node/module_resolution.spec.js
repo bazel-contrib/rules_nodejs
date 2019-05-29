@@ -1,3 +1,6 @@
+const Module = require('module');
+const path = require('path');
+
 const node_resolve_index = require('node_resolve_index');
 const node_resolve_index_2 = require('node_resolve_index_2');
 const node_resolve_index_3 = require('node_resolve_index_3');
@@ -35,5 +38,15 @@ describe('node npm resolution', () => {
   });
   it('should be able to deep-import from a nested src dir', () => {
     expect(lib1some.a).toEqual('lib1 content');
+  });
+  it('should respect paths options for require.resolve', () => {
+    const customPath = path.join(__dirname, 'lib1', 'src');
+    const p = require.resolve('./index.js', {paths: [customPath]})
+    expect(p).toEqual(path.join(customPath, 'index.js'));
+  });
+  it('should respect parent paths option for Module._resolveFilename', () => {
+    const custom_path = path.join(__dirname, 'lib1', 'src', 'node_modules');
+    const p = Module._resolveFilename('test', {paths: [custom_path]});
+    expect(p).toEqual(path.join(custom_path, 'test', 'index.js'));
   });
 });
