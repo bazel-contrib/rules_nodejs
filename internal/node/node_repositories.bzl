@@ -439,7 +439,6 @@ if %errorlevel% neq 0 exit /b %errorlevel%
             "TEMPLATED_node_dir": NODE_DIR,
             "TEMPLATED_npm_actual": npm_node_repositories_entry,
             "TEMPLATED_yarn_actual": yarn_node_repositories_entry,
-            "TEMPLATED_yarn_dir": YARN_DIR,
         },
     )
     result = repository_ctx.execute([node_entry, "generate_build_file.js"])
