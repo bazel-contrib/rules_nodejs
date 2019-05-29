@@ -90,17 +90,17 @@ export const customMatchers: jasmine.CustomMatcherFactories = {
                 actualDiagnostic.file.fileName} to end with ${exp.fileName}. `;
           }
         }
-        if (exp.start && actualDiagnostic.start !== exp.start) {
+        if (exp.start !== undefined && actualDiagnostic.start !== exp.start) {
           regrets += expectation('start', exp.start, actualDiagnostic.start);
         }
-        if (exp.end && actualDiagnostic.end !== exp.end) {
+        if (exp.end !== undefined && actualDiagnostic.end !== exp.end) {
           regrets += expectation('end', exp.end, actualDiagnostic.end);
         }
         if (exp.matchedCode) {
           if (!actualDiagnostic.file) {
             regrets += `Expected diagnostic to have a source file, but it had ${
                 actualDiagnostic.file}. `;
-          } else if (!actualDiagnostic.start) {
+          } else if (actualDiagnostic.start === undefined) {
             // I don't know how this could happen, but typings say so.
             regrets += `Expected diagnostic to have a starting position. `;
           } else {
