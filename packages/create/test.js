@@ -8,14 +8,13 @@ const fs = require('fs');
 const {main} = require(pkg);
 
 function fail(...msg) {
-  console.error('test failed');
   console.error(...msg);
-  process.exitCode = 1;
+  throw new Error('test failed');
 }
 
 let error, exitCode;
 function captureError(...msg) {
-  error = msg.join(' ');
+  error = error + '\n' + msg.join(' ');
 }
 
 exitCode = main([], captureError);
@@ -44,15 +43,24 @@ const projFiles = fs.readdirSync('some_project');
 if (!projFiles.indexOf('.bazelrc') < 0) {
   fail('project should have .bazelrc');
 }
-const wkspContent = fs.readFileSync('some_project/WORKSPACE');
-if (wkspContent.indexOf('npm_install') < 0) {
+let wkspContent = fs.readFileSync('some_project/WORKSPACE', {encoding: 'utf-8'});
+if (wkspContent.indexOf('npm_install(') < 0) {
   fail('should use npm by default');
 }
 // TODO: run bazel in the new directory to verify a build works
 
+exitCode = main(['configure_pkgMgr', '--packageManager=yarn'], captureError);
+if (exitCode != 0) fail('should be success');
+wkspContent = fs.readFileSync('configure_pkgMgr/WORKSPACE', {encoding: 'utf-8'});
+if (wkspContent.indexOf('yarn_install(') < 0) {
+  fail('should use yarn when requested');
+}
+
 process.env['_'] = '/usr/bin/yarn';
-main(['default_to_yarn']);
-if (fs.readFileSync('default_to_yarn/WORKSPACE').indexOf('yarn_install') < 0) {
+exitCode = main(['default_to_yarn']);
+if (exitCode != 0) fail('should be success');
+wkspContent = fs.readFileSync('default_to_yarn/WORKSPACE', {encoding: 'utf-8'});
+if (wkspContent.indexOf('yarn_install(') < 0) {
   fail('should use yarn by default')
 }
 // TODO: run bazel in the new directory to verify a build works

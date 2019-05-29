@@ -33,30 +33,48 @@ function validateWorkspaceName(name, error) {
   For example, if a project is hosted at example.com/some-project,
   you might use com_example_some_project as the workspace name.
   From https://docs.bazel.build/versions/master/be/functions.html#workspace`);
+
   return false;
 }
-function main(args, error = console.error, log = console.log) {
-  if (!args || args.length < 1) {
-    error(`Please specify the workspace directory:
-        
-        npx @bazel/create [workspace name]
-        npm init @bazel [workspace name]
-        yarn create @bazel [workspace name]
-        `);
+
+function usage(error) {
+  error(`@bazel/create usage:
+
+  Invoke it with any of these equivalent commands:
+    npx  @bazel/create [workspace name] [options...]
+    npm  init   @bazel [workspace name] [options...]
+    yarn create @bazel [workspace name] [options...]
+
+  Options:
+    --packageManager=[yarn|npm] Select npm or yarn to install packages
+
+  Run @bazel/create --help to see all options
+  `);
+}
+
+function main(argv, error = console.error, log = console.log) {
+  const args = require('minimist')(argv);
+
+  if (!args['_'] || args['_'].length < 1) {
+    error('Please specify the workspace directory\n');
+    usage(error);
     return 1;
   }
 
+  if (args['help']) {
+    usage(error);
+    return 0;
+  }
+
   // Which package manager will be used in the new project
-  // TODO: make it a command line arg
-  // but don't make yargs a transitive dep because of global install
-  const pkgMgr = detectRunningUnderYarn() ? 'yarn' : 'npm';
+  const pkgMgr = args['packageManager'] || detectRunningUnderYarn() ? 'yarn' : 'npm';
 
   if (DEBUG) {
     log('Running with', process.argv);
     log('Environment', process.env);
   }
 
-  const [wkspDir] = args;
+  const [wkspDir] = args['_'];
   // TODO: user might want these to differ
   const wkspName = wkspDir;
 
@@ -73,32 +91,42 @@ function main(args, error = console.error, log = console.log) {
         {encoding: 'utf-8'});
   }
 
-  const yarnInstallCmd = `load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
+  const yarnInstallCmd =
+      `# The yarn_install rule runs yarn anytime the package.json or yarn.lock file changes.
+# It also extracts and installs any Bazel rules distributed in an npm package.
+load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
 yarn_install(
+    # Name this npm so that Bazel Label references look like @npm//package
     name = "npm",
     package_json = "//:package.json",
     yarn_lock = "//:yarn.lock",
 )`;
 
-  const npmInstallCmd = `load("@build_bazel_rules_nodejs//:defs.bzl", "npm_install")
+  const npmInstallCmd =
+      `# The npm_install rule runs yarn anytime the package.json or package-lock.json file changes.
+# It also extracts any Bazel rules distributed in an npm package.
+load("@build_bazel_rules_nodejs//:defs.bzl", "npm_install")
 npm_install(
+    # Name this npm so that Bazel Label references look like @npm//package
     name = "npm",
     package_json = "//:package.json",
     package_lock_json = "//:package-lock.json",
 )`;
 
-  write('WORKSPACE', `# Bazel workspace created by @bazel/create
+  write('WORKSPACE', `# Bazel workspace created by @bazel/create 0.0.0-PLACEHOLDER
 
 # Declares that this directory is the root of a Bazel workspace.
 # See https://docs.bazel.build/versions/master/build-ref.html#workspace
 workspace(
     # How this workspace would be referenced with absolute labels from another workspace
     name = "${wkspName}",
+    # Map the @npm bazel workspace to the node_modules directory.
+    # This lets Bazel use the same node_modules as other local tooling.
     managed_directories = {"@npm": ["node_modules"]},
 )
 
 # Install the nodejs "bootstrap" package
-# 
+# This provides the basic tools for running and packaging nodejs programs in Bazel
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 http_archive(
     name = "build_bazel_rules_nodejs",
@@ -108,6 +136,7 @@ http_archive(
 
 ${pkgMgr === 'yarn' ? yarnInstallCmd : npmInstallCmd}
 
+# Install any Bazel rules which were extracted earlier by the ${pkgMgr}_install rule.
 load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
 install_bazel_dependencies()`);
   write('BUILD.bazel', `# Add rules here to build your software
