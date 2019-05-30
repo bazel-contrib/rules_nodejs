@@ -19,91 +19,22 @@ https://bazelbuild.github.io/rules_nodejs/
 
 ## Quickstart
 
-This is the most common workflow to get started.
+This is the fastest way to get started.
 See sections below for details and alternative methods.
 
-1. Add dependencies
+```sh
+$ npm init @bazel
+```
 
-    ```sh
-    $ yarn add -D @bazel/bazel @bazel/ibazel @bazel/buildifier
-    ```
+or if you prefer yarn,
 
-    or if you prefer `npm`,
+```sh
+$ yarn create @bazel
+```
 
-    ```sh
-    $ npm install --save-dev @bazel/bazel @bazel/ibazel @bazel/buildifier
-    ```
+> These commands are equivalent to `npx run @bazel/create` which downloads the latest version of the `@bazel/create` package from npm and runs the program contained.
 
-1. Create a file called `WORKSPACE` in the root of your repo, containing
-
-    ```python
-    load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-    http_archive(
-        name = "build_bazel_rules_nodejs",
-        sha256 = "abcf497e89cfc1d09132adfcd8c07526d026e162ae2cb681dcb896046417ce91",
-        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.30.1/rules_nodejs-0.30.1.tar.gz"],
-    )
-
-    load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
-    yarn_install(
-        name = "npm",
-        package_json = "//:package.json",
-        yarn_lock = "//:yarn.lock",
-    )
-    
-    load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
-    install_bazel_dependencies()
-    ```
-
-    or if you used `npm`:
-
-    ```python
-    load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-    http_archive(
-        name = "build_bazel_rules_nodejs",
-        sha256 = "abcf497e89cfc1d09132adfcd8c07526d026e162ae2cb681dcb896046417ce91",
-        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.30.1/rules_nodejs-0.30.1.tar.gz"],
-    )
-
-    load("@build_bazel_rules_nodejs//:defs.bzl", "npm_install")
-    npm_install(
-        name = "npm",
-        package_json = "//:package.json",
-        package_lock_json = "//:package-lock.json",
-    )
-    
-    load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
-    install_bazel_dependencies()
-    ```
-
-1. Since Bazel manages a copy of the node_modules, we don't want it to discover configuration in your locally installed copy. Create a file `.bazelignore` in the root of your repo containing this line:
-
-    ```
-    node_modules
-    ```
-
-1. Create a file `BUILD.bazel` in the root of your repo, next to the `package.json` file. It can be empty for now.
-
-1. In your `package.json`, find the `"scripts"` section, or create one.
-
-    ```json
-    "scripts": {
-        "build": "bazel build //...",
-        "test": "ibazel test //..."
-    }
-    ```
-
-1. Test that you can do an initial build. It will report that no targets were found yet.
-
-    ```sh
-    $ yarn build
-    ```
-
-    or 
-
-    ```sh
-    $ npm run build
-    ```
+See the output of the tool for command-line options and next steps.
 
 ## Adding Build Targets
 
