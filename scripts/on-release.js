@@ -10,7 +10,7 @@ const hash = require('crypto').createHash('sha256');
 // RAM
 const sha256 = hash.update(fs.readFileSync(artifact)).digest('hex');
 
-for (const f in ['README.md', 'packages/create/index.js']) {
+for (const f of ['README.md', 'packages/create/index.js']) {
   shell.sed(
       '-i', 'download/[0-9\.]*/rules_nodejs-[0-9\.]*.tar.gz',
       `download/${version}/rules_nodejs-${version}.tar.gz`, f);

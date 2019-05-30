@@ -69,6 +69,6 @@
         "format-all": "clang-format --glob='{internal/**/,examples/**/}*.{js,ts}' -i",
         "precommit": "check-clang-format \"yarn format\"",
         "skydoc": "bazel build //docs && unzip -o -d docs dist/bin/docs/docs-skydoc.zip",
-        "version": "node ./scripts/on-version.js && bazel build //:release && node ./scripts/on-release.js && git stage defs.bzl README.md"
+        "version": "node ./scripts/on-version.js && bazel build //:release && node ./scripts/on-release.js && git stage defs.bzl packages/create/index.js README.md "
     }
 }
