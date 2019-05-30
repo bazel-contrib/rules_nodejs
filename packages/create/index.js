@@ -46,7 +46,8 @@ function usage(error) {
     yarn create @bazel [workspace name] [options...]
 
   Options:
-    --packageManager=[yarn|npm]   Select npm or yarn to install packages (default: npm)
+    --packageManager=[yarn|npm]   Select npm or yarn to install packages
+                                  (default: npm if you ran npm/npx, yarn if you ran yarn create)
     --typescript                  Set up the workspace for TypeScript development
 
   Run @bazel/create --help to see all options
@@ -191,17 +192,14 @@ install_bazel_dependencies()`);
 
   log(`Successfully created new Bazel workspace at ${path.resolve(wkspDir)}`);
   // TODO: we should probably run the package manager install now
-  if (pkgMgr === 'yarn') {
-    log(`Now in that directory, you can run
-    yarn install
-    yarn build
-    yarn test`);
-  } else {
-    log(`Now in that directory, you can run
-    npm install
-    npm run build
-    npm test`);
-  }
+
+  log(`Next steps:
+  1. cd ${wkspDir}
+  2. ${pkgMgr} install
+  3. ${pkgMgr === 'yarn' ? 'yarn build' : 'npm run build'}
+     Note that there is nothing to build, so this trivially succeeds.
+  4. Add contents to the BUILD.bazel file or create a new BUILD.bazel in a subdirectory.
+  `);
 
   return 0;
 }
