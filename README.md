@@ -32,7 +32,7 @@ or if you prefer yarn,
 $ yarn create @bazel
 ```
 
-> These commands are equivalent to `npx run @bazel/create` which downloads the latest version of the `@bazel/create` package from npm and runs the program contained.
+> These commands are equivalent to `npx @bazel/create` which downloads the latest version of the `@bazel/create` package from npm and runs the program contained.
 
 See the output of the tool for command-line options and next steps.
 
