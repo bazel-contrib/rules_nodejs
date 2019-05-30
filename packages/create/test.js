@@ -65,7 +65,7 @@ if (wkspContent.indexOf('yarn_install(') < 0) {
 }
 // TODO: run bazel in the new directory to verify a build works
 
-exitCode = main(['with_ts', '--typescript'], captureError);
+exitCode = main(['--typescript', 'with_ts'], captureError);
 if (exitCode != 0) fail('should be success');
 let pkgContent = fs.readFileSync('with_ts/package.json', {encoding: 'utf-8'});
 if (pkgContent.indexOf('"@bazel/typescript": "latest"') < 0) {

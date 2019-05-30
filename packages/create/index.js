@@ -55,7 +55,9 @@ function usage(error) {
 }
 
 function main(argv, error = console.error, log = console.log) {
-  const args = require('minimist')(argv);
+  const args = require('minimist')(argv, {
+    boolean: ['typescript'],
+  });
 
   if (!args['_'] || args['_'].length < 1) {
     error('Please specify the workspace directory\n');
