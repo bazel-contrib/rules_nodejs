@@ -89,7 +89,7 @@ function loadWorkerPb() {
     // This extra lookup should never happen in google3. It's only needed for
     // local development in the rules_typescript repo.
     protofile = require.resolve(
-        '../../third_party/github.com/bazelbuild/bazel/src/main/protobuf/worker_protocol.proto');
+        'build_bazel_rules_typescript/third_party/github.com/bazelbuild/bazel/src/main/protobuf/worker_protocol.proto');
   }
 
   const protoNamespace = protobufjs.loadSync(protofile);

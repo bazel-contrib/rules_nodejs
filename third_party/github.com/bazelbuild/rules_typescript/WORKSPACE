@@ -12,7 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-workspace(name = "build_bazel_rules_typescript")
+workspace(
+    name = "build_bazel_rules_typescript",
+    managed_directories = {"@npm": ["node_modules"]},
+)
 
 # Load our dependencies
 load("//:package.bzl", "rules_typescript_dev_dependencies")
@@ -21,13 +24,6 @@ rules_typescript_dev_dependencies()
 
 # Setup nodejs toolchain
 load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
-
-# Use a bazel-managed npm dependency, allowing us to test resolution to these paths
-yarn_install(
-    name = "build_bazel_rules_typescript_internal_bazel_managed_deps",
-    package_json = "//examples/bazel_managed_deps:package.json",
-    yarn_lock = "//examples/bazel_managed_deps:yarn.lock",
-)
 
 # Download npm dependencies
 yarn_install(

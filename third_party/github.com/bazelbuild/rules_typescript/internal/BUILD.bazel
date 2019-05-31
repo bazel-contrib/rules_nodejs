@@ -86,6 +86,7 @@ nodejs_binary(
         "@npm//tsickle",
         "@npm//tsutils",
         "@npm//typescript",
+        "//third_party/github.com/bazelbuild/bazel/src/main/protobuf:worker_protocol.proto",
     ],
     entry_point = "build_bazel_rules_typescript/internal/tsc_wrapped/tsc_wrapped.js",
     visibility = ["//visibility:public"],
