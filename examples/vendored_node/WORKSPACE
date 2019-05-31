@@ -31,6 +31,7 @@ local_repository(
 load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "npm_install", "yarn_install")
 
 node_repositories(
+    node_version = "10.12.0",
     vendored_node = "@examples_vendored_node//:node-v10.12.0-linux-x64",
     vendored_yarn = "@examples_vendored_node//:yarn-v1.10.0",
 )
