@@ -194,7 +194,7 @@ def tsc_wrapped_tsconfig(
     node_modules_root = _compute_node_modules_root(ctx)
     config = create_tsconfig(
         ctx,
-        files,
+        files.to_list(),
         srcs,
         devmode_manifest = devmode_manifest,
         node_modules_root = node_modules_root,
