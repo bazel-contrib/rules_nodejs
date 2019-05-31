@@ -313,7 +313,7 @@ _NODEJS_EXECUTABLE_ATTRS = {
         allow_files = True,
     ),
     "_repository_args": attr.label(
-        default = Label("@nodejs//:bin/node_args.sh"),
+        default = Label("@nodejs//:bin/node_repo_args.sh"),
         allow_single_file = True,
     ),
     "_source_map_support_files": attr.label_list(
