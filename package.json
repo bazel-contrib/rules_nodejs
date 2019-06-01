@@ -67,8 +67,12 @@
         "bazel:lint-fix": "yarn bazel:format --lint=fix",
         "format": "git-clang-format",
         "format-all": "clang-format --glob='{internal/**/,examples/**/}*.{js,ts}' -i",
-        "precommit": "check-clang-format \"yarn format\"",
         "skydoc": "bazel build //docs && unzip -o -d docs dist/bin/docs/docs-skydoc.zip",
         "version": "node ./scripts/on-version.js && bazel build //:release && node ./scripts/on-release.js && git stage defs.bzl packages/create/index.js README.md "
+    },
+    "husky" : {
+        "hooks": {
+          "pre-commit": "check-clang-format \"yarn format\""
+        }
     }
 }
