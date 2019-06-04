@@ -71,3 +71,13 @@ jasmine_node_test(
         "@npm//v8-coverage",
     ],
 )
+
+jasmine_node_test(
+    name = "templated_args_test",
+    srcs = ["templated_args_test.js"],
+    jasmine = "@npm//jasmine",
+    templated_args = [
+        "--node_options=--experimental-modules",
+    ],
+    deps = ["//:jasmine_runner"],
+)

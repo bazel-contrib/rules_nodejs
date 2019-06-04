@@ -59,7 +59,9 @@ def jasmine_node_test(
     all_data += [Label("@bazel_tools//tools/bash/runfiles")]
     entry_point = "@bazel/jasmine/src/jasmine_runner.js"
 
-    templated_args = ["$(location :%s_devmode_srcs.MF)" % name]
+    # If the target specified templated_args, pass it through.
+    templated_args = kwargs.pop("templated_args", []) + ["$(location :%s_devmode_srcs.MF)" % name]
+
     if coverage:
         templated_args = templated_args + ["--coverage"]
     else:
