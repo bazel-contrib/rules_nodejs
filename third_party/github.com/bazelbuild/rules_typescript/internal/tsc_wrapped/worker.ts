@@ -72,7 +72,7 @@ declare namespace workerProto {
  */
 function loadWorkerPb() {
   const protoPath =
-      '../worker_protocol.proto';
+      '../../third_party/github.com/bazelbuild/bazel/src/main/protobuf/worker_protocol.proto';
 
   // Use node module resolution so we can find the .proto file in any of the
   // root dirs

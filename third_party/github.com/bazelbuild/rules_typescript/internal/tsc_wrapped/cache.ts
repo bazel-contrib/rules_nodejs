@@ -186,15 +186,7 @@ export class FileCache<T = {}> {
    * updateCache must be called before loading files - only files that were
    * updated (with a digest) previously can be loaded.
    */
-  updateCache(digests: {[k: string]: string}): void;
-  updateCache(digests: Map<string, string>): void;
-  updateCache(digests: Map<string, string>|{[k: string]: string}) {
-    // TODO(martinprobst): drop the Object based version, it's just here for
-    // backwards compatibility.
-    if (!(digests instanceof Map)) {
-      digests = new Map(Object.keys(digests).map(
-          (k): [string, string] => [k, (digests as {[k: string]: string})[k]]));
-    }
+  updateCache(digests: Map<string, string>): void {
     this.debug('updating digests:', digests);
     this.lastDigests = digests;
     this.cannotEvict = false;
@@ -309,7 +301,7 @@ export class ProgramAndFileCache extends FileCache {
   }
 
   resetStats() {
-    super.resetStats()
+    super.resetStats();
     this.programCache.resetStats();
   }
 
