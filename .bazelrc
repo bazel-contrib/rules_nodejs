@@ -3,3 +3,5 @@ import %workspace%/common.bazelrc
 
 # Mock versioning command to test the --stamp behavior
 build --workspace_status_command="echo BUILD_SCM_VERSION 1.2.3"
+
+common --incompatible_string_join_requires_strings
