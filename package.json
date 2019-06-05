@@ -12,7 +12,10 @@
         "@bazel/bazel": "0.26.0",
         "@bazel/buildifier": "0.22.0",
         "@bazel/ibazel": "0.10.1",
+        "@commitlint/cli": "^8.0.0",
+        "@commitlint/config-conventional": "^8.0.0",
         "@zeit/ncc": "0.18.1",
+        "bazel_workspaces": "file:./tools/npm_packages/bazel_workspaces",
         "browserify": "16.2.3",
         "clang-format": "1.2.2",
         "hello": "file:./tools/npm_packages/hello",
@@ -35,7 +38,6 @@
         "rollup-plugin-sourcemaps": "^0.4.2",
         "shelljs": "0.8.3",
         "terser": "3.17.0",
-        "bazel_workspaces": "file:./tools/npm_packages/bazel_workspaces",
         "typescript": "^3.3.1",
         "unidiff": "1.0.1",
         "zone.js": "0.8.29"
@@ -71,10 +73,11 @@
         "skydoc": "bazel build //docs && unzip -o -d docs dist/bin/docs/docs-skydoc.zip",
         "version": "node ./scripts/on-version.js && bazel build //:release && node ./scripts/on-release.js && git stage defs.bzl packages/create/index.js README.md "
     },
-    "husky" : {
+    "husky": {
         "hooks": {
-          "pre-commit": "check-clang-format \"yarn format\"",
-          "pre-push": "yarn bazel:format-check && yarn bazel:lint"
+            "pre-commit": "check-clang-format \"yarn format\"",
+            "pre-push": "yarn bazel:format-check && yarn bazel:lint",
+            "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
         }
     }
 }
