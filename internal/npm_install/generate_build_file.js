@@ -40,6 +40,7 @@
 'use strict';
 
 const fs = require('fs');
+const graceful_fs = require('graceful-fs');
 const path = require('path');
 
 const DEBUG = false;
@@ -78,7 +79,7 @@ function mkdirp(p) {
  */
 function writeFileSync(p, content) {
   mkdirp(path.dirname(p));
-  fs.writeFileSync(p, content);
+  graceful_fs.writeFileSync(p, content);
 }
 
 /**
@@ -453,7 +454,7 @@ function findPackages(p = 'node_modules') {
                        .filter(f => !f.startsWith('@'))
                        // filter out folders such as `.bin` which can create
                        // issues on Windows since these are "hidden" by default
-                       .filter(f => !f.startsWith('.'))
+                       // .filter(f => !f.startsWith('.'))
                        .map(f => path.posix.join(p, f))
                        .filter(f => isDirectory(f));
   packages.forEach(
