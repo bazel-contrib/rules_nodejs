@@ -537,7 +537,11 @@ def _rollup_bundle(ctx):
         )
 
     return [
-        DefaultInfo(files = depset(files), runfiles = ctx.runfiles(files)),
+        DefaultInfo(
+            files = depset(files),
+            # NB: we don't include any runfiles here since they would always be built
+            # regardless if they are requested or not
+        ),
         output_group,
     ]
 
