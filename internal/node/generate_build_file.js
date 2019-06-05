@@ -50,7 +50,10 @@ function mkdirp(p) {
  */
 function writeFileSync(p, content) {
   mkdirp(path.dirname(p));
-  fs.writeFileSync(p, content);
+  const fd = fs.openSync(p, 'w');
+  fs.writeSync(fd, content);
+  fs.fsyncSync(fd);
+  fs.closeSync(fd);
 }
 
 /**
