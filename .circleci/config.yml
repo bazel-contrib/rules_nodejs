@@ -123,12 +123,12 @@ jobs:
       - *init_bazel
 
       # Run the Buildifier to check our Bazel rules for format issues.
-      - run: 'yarn bazel:format --mode=check ||
+      - run: 'yarn bazel:format-check ||
               (echo "BUILD files not formatted. Please run ''yarn bazel:format --mode=fix''" ; exit 1)'
 
       # Run the Buildifier to check our Bazel rules for lint issues.
       # Note: The `--lint=warn` will auto fixe (re-write) the affected files. 
-      - run: 'yarn bazel:format --lint=warn ||
+      - run: 'yarn bazel:lint ||
               (echo "BUILD files contain unresolved lint errors. Please fix manually the remaining errors." ; exit 1)'
 
   # Overlaps with testing we do on BuildKite. This is still here because:
