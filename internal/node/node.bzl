@@ -86,7 +86,7 @@ def _write_loader_script(ctx):
 
     node_modules_root = _compute_node_modules_root(ctx)
 
-    if len(ctx.attr.entry_point.files) != 1:
+    if len(ctx.attr.entry_point.files.to_list()) != 1:
         fail("labels in entry_point must contain exactly one file")
 
     entry_point_path = expand_path_into_runfiles(ctx, ctx.file.entry_point.short_path)

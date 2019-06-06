@@ -20,7 +20,7 @@ For use by yarn_install and npm_install. Not meant to be part of the public API.
 load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleSources", "collect_node_modules_aspect")
 
 def _npm_umd_bundle(ctx):
-    if len(ctx.attr.entry_point.files) != 1:
+    if len(ctx.attr.entry_point.files.to_list()) != 1:
         fail("labels in entry_point must contain exactly one file")
 
     output = ctx.actions.declare_file("%s.umd.js" % ctx.attr.package_name)
