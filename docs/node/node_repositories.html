@@ -188,7 +188,8 @@ If you use bazel-managed dependencies, you can omit this attribute.</p>
       <td><code>node_version</code></td>
       <td>
         <p><code>Unknown; Optional</code></p>
-        <p>optional; the specific version of NodeJS to install.</p>
+        <p>optional; the specific version of NodeJS to install or, if
+vendored_node is specified, the vendored version of node.</p>
       </td>
     </tr>
     <tr id="node_repositories.yarn_version">
@@ -202,7 +203,10 @@ If you use bazel-managed dependencies, you can omit this attribute.</p>
       <td><code>vendored_node</code></td>
       <td>
         <p><code>Unknown; Optional</code></p>
-        <p>optional; the local path to a pre-installed NodeJS runtime.</p>
+        <p>optional; the local path to a pre-installed NodeJS runtime.
+If set then also set node_version to the version that of node that is vendored.
+Bazel will automatically turn on features such as --preserve-symlinks-main if they
+are supported by the node version being used.</p>
       </td>
     </tr>
     <tr id="node_repositories.vendored_yarn">

@@ -504,9 +504,51 @@ See <a href="https://github.com/bazelbuild/rules_nodejs/issues/175">https://gith
     <tr id="rollup_bundle.entry_point">
       <td><code>entry_point</code></td>
       <td>
-        <p><code>String; Required</code></p>
-        <p>The starting point of the application, passed as the <code>--input</code> flag to rollup.
-        This should be a path relative to the workspace root.</p>
+        <p><code><a href="https://bazel.build/docs/build-ref.html#labels">Label</a>; Required</code></p>
+        <p>The starting point of the application, passed as the <code>--input</code> flag to rollup.</p>
+<pre><code>    If the entry JavaScript file belongs to the same package (as the BUILD file), 
+    you can simply reference it by its relative name to the package directory:
+
+    ```
+    rollup_bundle(
+        name = "bundle",
+        entry_point = ":main.js",
+    )
+    ```
+
+    You can specify the entry point as a typescript file so long as you also include
+    the ts_library target in deps:
+
+    ```
+    ts_library(
+        name = "main",
+        srcs = ["main.ts"],
+    )
+
+    rollup_bundle(
+        name = "bundle",
+        deps = [":main"]
+        entry_point = ":main.ts",
+    )
+    ```
+
+    The rule will use the corresponding `.js` output of the ts_library rule as the entry point.
+
+    If the entry point target is a rule, it should produce a single JavaScript entry file that will be passed to the nodejs_binary rule. 
+    For example:
+
+    ```
+    filegroup(
+        name = "entry_file",
+        srcs = ["main.js"],
+    )
+
+    rollup_bundle(
+        name = "bundle",
+        entry_point = ":entry_file",
+    )
+    ```
+</code></pre>
       </td>
     </tr>
     <tr id="rollup_bundle.global_name">

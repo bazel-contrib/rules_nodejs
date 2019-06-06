@@ -318,10 +318,62 @@ users loading <code>nodejs_test</code> are actually executing this macro.</p>
     <tr id="nodejs_binary.entry_point">
       <td><code>entry_point</code></td>
       <td>
-        <p><code>String; Required</code></p>
-        <p>The script which should be executed first, usually containing a main function.
-        This attribute expects a string starting with the workspace name, so that it's not ambiguous
-        in cases where a script with the same name appears in another directory or external workspace.</p>
+        <p><code><a href="https://bazel.build/docs/build-ref.html#labels">Label</a>; Required</code></p>
+        <p>The script which should be executed first, usually containing a main function.</p>
+<pre><code>    If the entry JavaScript file belongs to the same package (as the BUILD file), 
+    you can simply reference it by its relative name to the package directory:
+
+    ```
+    nodejs_binary(
+        name = "my_binary",
+        ...
+        entry_point = ":file.js",
+    )
+    ```
+
+    You can specify the entry point as a typescript file so long as you also include
+    the ts_library target in data:
+
+    ```
+    ts_library(
+        name = "main",
+        srcs = ["main.ts"],
+    )
+
+    nodejs_binary(
+        name = "bin",
+        data = [":main"]
+        entry_point = ":main.ts",
+    )
+    ```
+
+    The rule will use the corresponding `.js` output of the ts_library rule as the entry point.
+
+    If the entry point target is a rule, it should produce a single JavaScript entry file that will be passed to the nodejs_binary rule. 
+    For example:
+
+    ```
+    filegroup(
+        name = "entry_file",
+        srcs = ["main.js"],
+    )
+
+    nodejs_binary(
+        name = "my_binary",
+        entry_point = ":entry_file",
+    )
+    ```
+
+    The entry_point can also be a label in another workspace:
+
+    ```
+    nodejs_binary(
+        name = "history-server",
+        entry_point = "@npm//node_modules/history-server:modules/cli.js",
+        data = ["@npm//history-server"],
+    )
+    ```
+</code></pre>
       </td>
     </tr>
     <tr id="nodejs_binary.install_source_map_support">
@@ -336,7 +388,7 @@ users loading <code>nodejs_test</code> are actually executing this macro.</p>
     <tr id="nodejs_binary.node">
       <td><code>node</code></td>
       <td>
-        <p><code><a href="https://bazel.build/docs/build-ref.html#labels">Label</a>; Optional; Default is @nodejs//:node</code></p>
+        <p><code><a href="https://bazel.build/docs/build-ref.html#labels">Label</a>; Optional; Default is @nodejs//:node_bin</code></p>
         <p>The node entry point target.</p>
       </td>
     </tr>
@@ -488,10 +540,62 @@ remote debugger.</p>
     <tr id="nodejs_test.entry_point">
       <td><code>entry_point</code></td>
       <td>
-        <p><code>String; Required</code></p>
-        <p>The script which should be executed first, usually containing a main function.
-        This attribute expects a string starting with the workspace name, so that it's not ambiguous
-        in cases where a script with the same name appears in another directory or external workspace.</p>
+        <p><code><a href="https://bazel.build/docs/build-ref.html#labels">Label</a>; Required</code></p>
+        <p>The script which should be executed first, usually containing a main function.</p>
+<pre><code>    If the entry JavaScript file belongs to the same package (as the BUILD file), 
+    you can simply reference it by its relative name to the package directory:
+
+    ```
+    nodejs_binary(
+        name = "my_binary",
+        ...
+        entry_point = ":file.js",
+    )
+    ```
+
+    You can specify the entry point as a typescript file so long as you also include
+    the ts_library target in data:
+
+    ```
+    ts_library(
+        name = "main",
+        srcs = ["main.ts"],
+    )
+
+    nodejs_binary(
+        name = "bin",
+        data = [":main"]
+        entry_point = ":main.ts",
+    )
+    ```
+
+    The rule will use the corresponding `.js` output of the ts_library rule as the entry point.
+
+    If the entry point target is a rule, it should produce a single JavaScript entry file that will be passed to the nodejs_binary rule. 
+    For example:
+
+    ```
+    filegroup(
+        name = "entry_file",
+        srcs = ["main.js"],
+    )
+
+    nodejs_binary(
+        name = "my_binary",
+        entry_point = ":entry_file",
+    )
+    ```
+
+    The entry_point can also be a label in another workspace:
+
+    ```
+    nodejs_binary(
+        name = "history-server",
+        entry_point = "@npm//node_modules/history-server:modules/cli.js",
+        data = ["@npm//history-server"],
+    )
+    ```
+</code></pre>
       </td>
     </tr>
     <tr id="nodejs_test.expected_exit_code">
@@ -513,7 +617,7 @@ remote debugger.</p>
     <tr id="nodejs_test.node">
       <td><code>node</code></td>
       <td>
-        <p><code><a href="https://bazel.build/docs/build-ref.html#labels">Label</a>; Optional; Default is @nodejs//:node</code></p>
+        <p><code><a href="https://bazel.build/docs/build-ref.html#labels">Label</a>; Optional; Default is @nodejs//:node_bin</code></p>
         <p>The node entry point target.</p>
       </td>
     </tr>
