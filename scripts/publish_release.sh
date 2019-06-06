@@ -4,7 +4,7 @@ set -u -e -o pipefail
 
 # Publishes our npm packages
 # To dry-run:
-#   ./tools/publish_release.sh pack
+#   ./scripts/publish_release.sh pack
 # To verify:
 #   for p in $(ls packages); do if [[ -d packages/$p ]]; then b="@bazel/$p"; echo -ne "\n$b\n-------\n"; npm dist-tag ls $b; fi; done
 
@@ -19,10 +19,11 @@ readonly TMP=$(mktemp -d -t bazel-release.XXXXXXX)
 
 echo_and_run() { echo "+ $@" ; "$@" ; }
 
+${RULES_NODEJS_DIR}/scripts/build_packages_all.sh
+
 for pkg in ${PACKAGES[@]} ; do (
     printf "\n\nBuilding & ${NPM_COMMAND}ing package ${pkg} //:npm_package\n"
     cd packages/$pkg
-    ${RULES_NODEJS_DIR}/scripts/check_deps.sh
     echo_and_run ../../node_modules/.bin/bazel --output_base=$TMP run  --workspace_status_command=../../scripts/current_version.sh //:npm_package.${NPM_COMMAND}
 ) done
 
