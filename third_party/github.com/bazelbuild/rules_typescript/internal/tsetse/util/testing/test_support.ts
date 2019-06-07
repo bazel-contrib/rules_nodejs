@@ -3,11 +3,13 @@ import 'jasmine';
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as os from 'os';
+import * as path from 'path';
 import * as ts from 'typescript';
 
 import {Checker} from '../../checker';
 import {Failure} from '../../failure';
 import {AbstractRule} from '../../rule';
+import {Config} from '../pattern_config';
 
 
 
@@ -17,11 +19,11 @@ import {AbstractRule} from '../../rule';
  * the `sourceCode` array.
  */
 export function compile(...sourceCode: string[]): ts.Program {
-  const temporaryFolder = os.tmpdir() +
-      `/tslint_test_input_${crypto.randomBytes(16).toString('hex')}`;
+  const temporaryFolder = os.tmpdir() + path.sep +
+      `tslint_test_input_${crypto.randomBytes(16).toString('hex')}`;
   const fullPaths: string[] = [];
   sourceCode.forEach((s, i) => {
-    fullPaths.push(`${temporaryFolder}/file_${i}.ts`);
+    fullPaths.push(`${temporaryFolder}${path.sep}file_${i}.ts`);
   });
 
   let error: Error|undefined = undefined;
@@ -66,8 +68,43 @@ export function compileAndCheck(
   return check(rule, program);
 }
 
+/** Turns a Failure to a fileName. */
+export function toFileName(f: Failure) {
+  const file = f.toDiagnostic().file;
+  return file ? file.fileName : 'unknown';
+}
+
+export function getTempDirForWhitelist() {
+  // TS uses forward slashes on Windows ¯\_(ツ)_/¯
+  return os.platform() == 'win32' ? os.tmpdir().replace(/\\/g, '/') :
+                                    os.tmpdir();
+}
+
 // Custom matcher for Jasmine, for a better experience matching fixes.
 export const customMatchers: jasmine.CustomMatcherFactories = {
+
+  toHaveNFailures(): jasmine.CustomMatcher {
+    return {
+      compare: (actual: Failure[], expected: Number, config?: Config<any>) => {
+        if (actual.length === expected) {
+          return {pass: true};
+        } else {
+          let message =
+              `Expected ${expected} Failures, but found ${actual.length}.`;
+          if (actual.length) {
+            message += '\n' + actual.map(f => f.toString()).join('\n');
+          }
+          if (config) {
+            message += `\nConfig: {kind:${config.kind}, values:${
+                JSON.stringify(config.values)}, whitelist:${
+                JSON.stringify(config.whitelistEntries)} }`;
+          }
+          return {pass: false, message};
+        }
+      }
+    };
+  },
+
   toBeFailureMatching(): jasmine.CustomMatcher {
     return {
       compare: (actualFailure: Failure, exp: {
@@ -135,6 +172,8 @@ declare global {
         end?: number,
         matchedCode?: string,
       }): void;
+
+      toHaveNFailures(expected: Number, config?: Config<any>): void;
     }
   }
 }

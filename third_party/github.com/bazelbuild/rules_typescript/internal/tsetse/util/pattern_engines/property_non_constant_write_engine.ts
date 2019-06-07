@@ -1,8 +1,7 @@
 import * as ts from 'typescript';
 import {Checker} from '../../checker';
 import {ErrorCode} from '../../error_code';
-import {Fix} from '../../failure';
-import {debugLog, isPropertyWriteExpression, shouldExamineNode} from '../ast_tools';
+import {debugLog, isPropertyWriteExpression} from '../ast_tools';
 import {Fixer} from '../fixer';
 import {isLiteral} from '../is_literal';
 import {PropertyMatcher} from '../match_symbol';
@@ -32,27 +31,25 @@ export class PropertyNonConstantWriteEngine extends PatternEngine<BanKind> {
 
   register(checker: Checker) {
     checker.on(
-        ts.SyntaxKind.BinaryExpression, this.check.bind(this),
+        ts.SyntaxKind.BinaryExpression, this.checkAndFilterResults.bind(this),
         ErrorCode.CONFORMANCE_PATTERN);
   }
 
-  check(c: Checker, n: ts.BinaryExpression) {
-    if (!shouldExamineNode(n) || n.getSourceFile().isDeclarationFile ||
-        !isPropertyWriteExpression(n)) {
+  check(tc: ts.TypeChecker, n: MatchedNodeTypes[BanKind]):
+      MatchedNodeTypes[BanKind]|undefined {
+    if (!isPropertyWriteExpression(n)) {
       return;
     }
     debugLog(`inspecting ${n.getFullText().trim()}`);
-    if (!this.matcher.matches(n.left, c.typeChecker)) {
+    if (!this.matcher.matches(n.left, tc)) {
       debugLog('Not an assignment to the right property');
       return;
     }
-    if (isLiteral(c.typeChecker, n.right)) {
+    if (isLiteral(tc, n.right)) {
       debugLog(`Assigned value (${
           n.right.getFullText()}) is a compile-time constant.`);
       return;
     }
-    const fix: Fix|undefined =
-        this.fixer ? this.fixer.getFixForFlaggedNode(n) : undefined;
-    c.addFailureAtNode(n, this.config.errorMessage, fix);
+    return n;
   }
 }

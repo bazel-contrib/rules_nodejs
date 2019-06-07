@@ -36,9 +36,9 @@ export class Failure {
   }
 
   toString(): string {
-    return `Failure{sourceFile:${
+    return `{ sourceFile:${
         this.sourceFile ? this.sourceFile.fileName :
-                          'unknown'}, start:${this.start}, end:${this.end}}`;
+                          'unknown'}, start:${this.start}, end:${this.end} }`;
   }
 }
 
