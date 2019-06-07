@@ -9,7 +9,7 @@ run --nolegacy_external_runfiles
 test --nolegacy_external_runfiles
 
 # Enable the "Managed Directories" feature
-build --experimental_allow_incremental_repository_updates
+common --experimental_allow_incremental_repository_updates
 
 # Opt-in to upcoming breaking change
 build --incompatible_depset_is_not_iterable

@@ -36,7 +36,7 @@ nodejs_binary(
         "@npm//source-map-support",
         "@npm//typescript",
     ],
-    entry_point = "typescript/lib/tsc.js",
+    entry_point = "@npm//node_modules/typescript:lib/tsc.js",
     visibility = ["//internal:__subpackages__"],
 )
 
@@ -88,7 +88,7 @@ nodejs_binary(
         "@npm//typescript",
         "//third_party/github.com/bazelbuild/bazel/src/main/protobuf:worker_protocol.proto",
     ],
-    entry_point = "build_bazel_rules_typescript/internal/tsc_wrapped/tsc_wrapped.js",
+    entry_point = ":tsc_wrapped/tsc_wrapped.ts",
     visibility = ["//visibility:public"],
 )
 
