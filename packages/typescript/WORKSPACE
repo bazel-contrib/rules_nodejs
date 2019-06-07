@@ -43,7 +43,7 @@ rules_nodejs_dev_dependencies()
 #                    https://github.com/bazelbuild/rules_typescript/pull/453 lands
 git_repository(
     name = "build_bazel_rules_typescript",
-    commit = "bc7b3d3db3ecc4f5232586387638e7e4ccb67f17",
+    commit = "c6fdfefe4b245683de4836a38bbc0ca4bc4ae8eb",
     remote = "http://github.com/gregmagolan/rules_typescript.git",
 )
 
