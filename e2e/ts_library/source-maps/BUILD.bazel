@@ -1,0 +1,20 @@
+load("@npm_bazel_typescript//:index.bzl", "ts_library")
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_test")
+
+ts_library(
+    name = "check_lib",
+    srcs = ["source_map_check.ts"],
+    tsconfig = ":tsconfig.json",
+    deps = [
+        "@npm//@types/node",
+    ],
+)
+
+nodejs_test(
+    name = "app",
+    data = [
+        ":check_lib",
+        "@npm//source-map-resolve",
+    ],
+    entry_point = ":source_map_check.ts",
+)

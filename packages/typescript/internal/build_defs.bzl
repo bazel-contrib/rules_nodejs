@@ -232,6 +232,8 @@ def tsc_wrapped_tsconfig(
     config["compilerOptions"]["plugins"] = [{
         "name": "@bazel/tsetse",
         "disabledRules": tsetse_disabled_rules,
+    }, {
+        "name": "mysourcemapprocessor",
     }]
 
     return config
