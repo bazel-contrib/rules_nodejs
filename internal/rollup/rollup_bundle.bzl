@@ -334,6 +334,9 @@ def _run_terser(ctx, input, output, map_output, debug = False, comments = True, 
         args.add("--debug")
         args.add("--beautify")
 
+    # we need this arg to enable worker_threads
+    args.add("--node_options=--experimental-worker")
+
     ctx.actions.run(
         progress_message = "Optimizing JavaScript %s [terser]" % output.short_path,
         executable = ctx.executable._terser_wrapped,

@@ -20,47 +20,81 @@
 // each .js file in that folder and outputs to a specified output
 // folder. If the input is a file then terser is just run
 // one that individual file.
-
 const fs = require('fs');
 const path = require('path');
-const tmp = require('tmp');
-const child_process = require('child_process');
 
-const DEBUG = false;
+// worker_threads is only avilable on version > 10.5.0
+const [major, minor] = process.version.replace('v', '').split('.');
+const WORKER_THREADS_AVILABLE = major > 10 || major == 10 && minor > 5
+let worker_threads;
 
-// capture the inputs and output options
-const argv = require('minimist')(process.argv.slice(2));
-const inputs = argv._;
-const output = argv.output || argv.o;
-const debug = argv.debug;
-const configFile = argv['config-file'];
-// delete the properties extracted above as the remaining
-// arguments are forwarded to terser in execFileSync below
-delete argv._;
-delete argv.output;
-delete argv.o;
-delete argv.debug;
-delete argv['config-file'];
-
-if (DEBUG)
-  console.error(`
-terser: running with
-  cwd: ${process.cwd()}
-  argv: ${process.argv.slice(2).join(' ')}
-  inputs: ${JSON.stringify(inputs)}
-  output: ${output}
-  debug: ${debug}
-`);
-
-if (inputs.length != 1) {
-  throw new Error(`Only one input file supported: ${inputs}`);
+if (WORKER_THREADS_AVILABLE) {
+  worker_threads = require('worker_threads');
+} else {
+  console.warn(
+      `WARNING: worker_threads not are not avilable on your version of Nodejs: ${process.version}
+    Running Terser in serial mode
+    Upgrade your Nodejs version to 10.5.0 minimum for worker_threads to be avilable`)
 }
 
-const input = inputs[0];
+const DEBUG = false;
+const TERSER_MODULE_LOCATION = 'build_bazel_rules_nodejs_rollup_deps/node_modules/terser';
 
-function runterser(inputFile, outputFile, sourceMapFile) {
-  if (DEBUG) console.error(`Minifying ${inputFile} -> ${outputFile} (sourceMap ${sourceMapFile})`);
+function main() {
+  // capture the inputs and output options
+  const argv = require('minimist')(process.argv.slice(2));
+  const inputs = argv._;
+  const output = argv.output || argv.o;
+  const debug = argv.debug;
 
+  if (DEBUG)
+    console.error(`
+  terser: running with
+    cwd: ${process.cwd()}
+    argv: ${process.argv.slice(2).join(' ')}
+    inputs: ${JSON.stringify(inputs)}
+    output: ${output}
+    debug: ${debug}
+    worker_threads: ${WORKER_THREADS_AVILABLE}
+  `);
+
+  if (inputs.length != 1) {
+    throw new Error(`Only one input file supported: ${inputs}`);
+  }
+
+  const input = inputs[0];
+
+  const isDirectory = fs.lstatSync(path.join(process.cwd(), input)).isDirectory();
+
+  if (!isDirectory) {
+    runTerser(input, output, output + '.map', require(TERSER_MODULE_LOCATION));
+  } else {
+    if (!fs.existsSync(output)) {
+      fs.mkdirSync(output);
+    }
+    const dir = fs.readdirSync(input);
+    const files = dir.filter(f => f.endsWith('.js')).map(f => {
+      const inputFile = path.join(input, path.basename(f));
+      const outputFile = path.join(output, path.basename(f));
+      return {inputFile, outputFile, sourceMapFile: outputFile + '.map'};
+    })
+
+    if (WORKER_THREADS_AVILABLE) {
+      runTerserParallel(files, debug);
+    }
+    else {
+      runTerserSerial(files, debug)
+    }
+  }
+}
+
+/**
+ *
+ * @param {string} sourceMapFile
+ * @param {boolean} debug
+ * @returns {any}
+ */
+function buildTerserConfig(sourceMapFile, debug) {
   const terserConfig = {
     'sourceMap': {'filename': sourceMapFile},
     'compress': {
@@ -74,51 +108,92 @@ function runterser(inputFile, outputFile, sourceMapFile) {
     },
     'mangle': !debug,
   };
-
-  let config = configFile;
-  if (!config) {
-    config = tmp.fileSync({keep: false, postfix: '.json'}).name;
-  }
-
-  fs.writeFileSync(config, JSON.stringify(terserConfig));
-
-  const args = [
-    require.resolve('build_bazel_rules_nodejs_rollup_deps/node_modules/terser/bin/uglifyjs'),
-    inputFile, '--output', outputFile, '--config-file', config
-  ];
-
-  for (arg in argv) {
-    const prefix = arg.length == 1 ? '-' : '--';
-    const value = argv[arg];
-    args.push(prefix + arg);
-    if (value && value !== true) {
-      args.push(value);
-    }
-  }
-
-  if (DEBUG) console.error(`Running node ${args.join(' ')}`);
-
-  const isWindows = /^win/i.test(process.platform);
-  child_process.execFileSync(
-      isWindows ? 'node.exe' : 'node', args,
-      {stdio: [process.stdin, process.stdout, process.stderr]});
+  return terserConfig;
 }
 
-const isDirectory = fs.lstatSync(path.join(process.cwd(), input)).isDirectory();
-
-if (!isDirectory) {
-  runterser(input, output, output + '.map');
-} else {
-  if (!fs.existsSync(output)) {
-    fs.mkdirSync(output);
+/**
+ *
+ * @param {{inputFile: string, outputFile: string, sourceMapFile: string}[]} files
+ * @param {boolean} debug
+ */
+async function runTerserSerial(files, debug) {
+  const Terser = require(TERSER_MODULE_LOCATION);
+  for (const f of files) {
+    // run one set of terser at a time
+    await runTerser(f.inputFile, f.outputFile, f.sourceMapFile, Terser, debug);
   }
-  const dir = fs.readdirSync(input);
-  dir.forEach(f => {
-    if (f.endsWith('.js')) {
-      const inputFile = path.join(input, path.basename(f));
-      const outputFile = path.join(output, path.basename(f));
-      // TODO(gregmagolan): parallelize this into multiple processes?
-      runterser(inputFile, outputFile, outputFile + '.map');
-    }
-  });
+}
+
+/**
+ *
+ * @param {{inputFile: string, outputFile: string, sourceMapFile: string}[]} files
+ * @param {boolean} debug
+ */
+async function runTerserParallel(files, debug) {
+  // TODO: do some concurrency limiting here
+  await Promise.all(
+      files.map(f => runTerserThread(f.inputFile, f.outputFile, f.sourceMapFile, debug)));
+}
+
+/**
+ *
+ * @param {string} inputFile
+ * @param {string} outputFile
+ * @param {string} sourceMapFile
+ * @param {boolean} debug
+ * @returns {Promise<void>}
+ */
+function runTerserThread(inputFile, outputFile, sourceMapFile, debug) {
+  return new Promise((resolve, reject) => {
+    const task = {
+      inputFile,
+      outputFile,
+      sourceMapFile,
+      terser: require.resolve(TERSER_MODULE_LOCATION),
+      debug
+    } const worker = new worker_threads.Worker(__filename, {workerData: task});
+
+    worker.on('exit', () => resolve());
+    worker.on('error', err => reject(err));
+  })
+}
+
+/**
+ *
+ * @param {string} inputFile
+ * @param {string} outputFile
+ * @param {string} sourceMapFile
+ * @param {Function} Terser
+ * @param {boolean} debug
+ * @returns {Promise<void>}
+ */
+async function runTerser(inputFile, outputFile, sourceMapFile, Terser, debug) {
+  if (DEBUG) console.error(`Minifying ${inputFile} -> ${outputFile} (sourceMap ${sourceMapFile})`);
+
+  const terserOptions = buildTerserConfig(sourceMapFile, debug)
+  const inputCode = (await fs.promises.readFile(inputFile)).toString();
+  const result = Terser.minify(inputCode, terserOptions);
+
+  if (result.error) {
+    // TODO: is this the best way to handle this error?
+    throw result.error;
+  } else {
+    await fs.promises.writeFile(outputFile, result.code);
+  }
+}
+
+async function workerMain() {
+  const task = worker_threads.workerData;
+  const terser = require(task.terser);
+  runTerser(task.inputFile, task.outputFile, task.sourceMapFile, terser, task.debug);
+}
+
+if (WORKER_THREADS_AVILABLE) {
+  if (worker_threads.isMainThread) {
+    main();
+  } else {
+    workerMain();
+  }
+} else {
+  main();
 }
