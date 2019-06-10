@@ -7,6 +7,17 @@ rollup_bundle(
         ["*.js"],
         exclude = ["*.spec.js"],
     ),
+    enable_code_splitting = True,
+    entry_point = ":main1.js",
+    license_banner = ":license.txt",
+)
+
+rollup_bundle(
+    name = "bundle_multi_entry",
+    srcs = glob(
+        ["*.js"],
+        exclude = ["*.spec.js"],
+    ),
     additional_entry_points = ["build_bazel_rules_nodejs/internal/e2e/rollup_code_splitting/additional_entry.js"],
     entry_point = ":main1.js",
     license_banner = ":license.txt",
@@ -16,15 +27,19 @@ jasmine_node_test(
     name = "test",
     srcs = [
         "additional_entry.spec.js",
+        "code_splitting.spec.js",
         "main1.spec.js",
     ],
     data = glob([
         "goldens/*",
     ]) + [
         ":bundle",
+        ":bundle_multi_entry",
         ":bundle.min.js",
         ":bundle.min.es2015.js",
     ],
+    # TODO(alexeagle): update the test logic for directory lookups vs runfiles manifest
+    tags = ["fix-windows"],
     deps = [
         "//internal/e2e:check_lib",
         "@npm//unidiff",
@@ -49,6 +64,12 @@ filegroup(
     output_group = "es5_min_debug",
 )
 
+filegroup(
+    name = "bundle_multi_entry-outputgroups-es2015",
+    srcs = [":bundle_multi_entry"],
+    output_group = "es2015",
+)
+
 jasmine_node_test(
     name = "test-outputgroups",
     srcs = ["outputgroups.spec.js"],
@@ -56,5 +77,8 @@ jasmine_node_test(
         ":bundle-outputgroups-es2015",
         ":bundle-outputgroups-es5_min",
         ":bundle-outputgroups-es5_min_debug",
+        ":bundle_multi_entry-outputgroups-es2015",
     ],
+    # TODO(alexeagle): update the test logic for directory lookups vs runfiles manifest
+    tags = ["fix-windows"],
 )

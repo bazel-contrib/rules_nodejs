@@ -5,6 +5,7 @@ load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
 # and no fine grained deps
 rollup_bundle(
     name = "bundle_no_deps",
+    enable_code_splitting = False,
     entry_point = ":no-deps.js",
 )
 
@@ -12,6 +13,7 @@ rollup_bundle(
 # and fine grained deps
 rollup_bundle(
     name = "bundle",
+    enable_code_splitting = False,
     entry_point = ":has-deps.js",
     deps = [
         "@fine_grained_deps_yarn//@gregmagolan/test-a",
@@ -23,6 +25,7 @@ rollup_bundle(
 # and no fine grained deps
 rollup_bundle(
     name = "bundle_legacy",
+    enable_code_splitting = False,
     entry_point = ":has-deps.js",
     node_modules = "@fine_grained_deps_yarn//:node_modules",
 )
@@ -31,6 +34,7 @@ rollup_bundle(
 # and fine grained deps so long as they come from the same root
 rollup_bundle(
     name = "bundle_hybrid",
+    enable_code_splitting = False,
     entry_point = ":has-deps.js",
     node_modules = "@fine_grained_deps_yarn//:node_modules",
     deps = [

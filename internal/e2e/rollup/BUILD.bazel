@@ -4,6 +4,7 @@ load("//:defs.bzl", "rollup_bundle")
 rollup_bundle(
     name = "bundle",
     srcs = ["bar.js"],
+    enable_code_splitting = False,
     entry_point = ":foo.js",
     globals = {"some_global_var": "runtime_name_of_global_var"},
     license_banner = ":license.txt",

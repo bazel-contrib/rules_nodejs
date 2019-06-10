@@ -449,8 +449,10 @@ def _generate_code_split_entry(ctx, bundles_folder, output):
 def _rollup_bundle(ctx):
     if len(ctx.attr.entry_point.files.to_list()) != 1:
         fail("labels in entry_point must contain exactly one file")
+    if ctx.attr.additional_entry_points and not ctx.attr.enable_code_splitting:
+        fail("cannot disable code splitting when there are multiple entry points")
 
-    if ctx.attr.additional_entry_points:
+    if ctx.attr.additional_entry_points or ctx.attr.enable_code_splitting:
         # Generate code split bundles if additional entry points have been specified.
         # See doc for additional_entry_points for more information.
         # Note: "_chunks" is needed on the output folders since ctx.label.name + ".es2015" is already
@@ -614,6 +616,18 @@ ROLLUP_ATTRS = {
 
         It is sufficient to load one of these SystemJS boilerplate/entry point
         files as a script in your HTML to load your application""",
+    ),
+    "enable_code_splitting": attr.bool(
+        doc = """If True rollup will automatically determine entry points from
+        the source code. The rollup output format will be 'esm' and rollup will
+        create entry points based on ES6 import statements. See
+        https://rollupjs.org/guide/en#code-splitting
+
+        Code splitting is always enabled when additional_entry_points is
+        non-empty.
+
+        All automatic entry points will be named chunk-<HASH>.js.""",
+        default = True,
     ),
     "entry_point": attr.label(
         doc = """The starting point of the application, passed as the `--input` flag to rollup.
