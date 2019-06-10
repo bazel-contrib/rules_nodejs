@@ -163,7 +163,7 @@ function notResolved(importee, importer) {
 }
 
 const inputs = [TMPL_inputs];
-const enableCodeSplitting = inputs.length > 1;
+const multipleInputs = inputs.length > 1;
 
 const config = {
   resolveBazel,
@@ -189,15 +189,11 @@ const config = {
       // with the amd plugin.
       include: /\.ngfactory\.js$/i,
     }),
-    commonjs(),
-    {
+    commonjs(), {
       name: 'notResolved',
       resolveId: notResolved,
     },
-    sourcemaps(),
-    rollupJson({
-      preferConst: true
-    })
+    sourcemaps(), rollupJson({preferConst: true})
   ]),
   output: {
     banner,
@@ -206,17 +202,16 @@ const config = {
   preserveSymlinks: true,
 }
 
-if (enableCodeSplitting) {
-  config.experimentalCodeSplitting = true;
-  config.experimentalDynamicImport = true;
+if (multipleInputs) {
   config.input = inputs;
-  if (process.env.ROLLUP_BUNDLE_FIXED_CHUNK_NAMES) {
-    config.output.chunkFileNames = '[name].js';
-  }
 }
 else {
   config.input = inputs[0];
   config.output['name'] = 'TMPL_global_name';
+}
+
+if (process.env.ROLLUP_BUNDLE_FIXED_CHUNK_NAMES) {
+  config.output.chunkFileNames = '[name].js';
 }
 
 module.exports = config;

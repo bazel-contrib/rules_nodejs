@@ -19,6 +19,7 @@ ts_devserver(
 
 rollup_bundle(
     name = "bundle",
+    enable_code_splitting = False,
     entry_point = ":app.ts",
     deps = [":app"],
 )
