@@ -206,11 +206,10 @@ def tsc_wrapped_tsconfig(
     # Since g3 isn't ready to do this yet
     config["compilerOptions"]["target"] = "es2015"
 
-    # TODO: where do we get the real workspace_root from?
-    # config["compilerOptions"]["sourceRoot"] = ctx.label.workspace_root
-    config["compilerOptions"]["sourceRoot"] = "/Users/fabianwiles/Documents/rules_nodejs/e2e/ts_library"
-    # config["compilerOptions"]["sourceRoot"] = "../../../"
-    # config["compilerOptions"]["sourceRoot"] = "../../../../../../../../../../../../../../../Users/fabianwiles/Documents/rules_nodejs/e2e/ts_library"
+    # Set the source root to be the path to the workspace
+    # This allows programs loking at the source maps to find the real source mapped location
+    workspace_path = config["compilerOptions"]["rootDir"]
+    config["compilerOptions"]["sourceRoot"] = workspace_path
 
     # If the user gives a tsconfig attribute, the generated file should extend
     # from the user's tsconfig.
@@ -218,7 +217,6 @@ def tsc_wrapped_tsconfig(
     # We subtract the ".json" from the end before handing to TypeScript because
     # this gives extra error-checking.
     if ctx.file.tsconfig:
-        workspace_path = config["compilerOptions"]["rootDir"]
         config["extends"] = "/".join([workspace_path, ctx.file.tsconfig.path[:-len(".json")]])
 
     if jsx_factory:

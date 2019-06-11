@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 const sourceMapResolve = require('source-map-resolve');
 
-const DEBUG = true;
+const DEBUG = false;
 
 /**
  * Checks if the source map for this file points to it's orignal source file
