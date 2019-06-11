@@ -10,7 +10,7 @@
     "license": "Apache-2.0",
     "devDependencies": {
         "@bazel/bazel": "0.26.0",
-        "@bazel/buildifier": "0.22.0",
+        "@bazel/buildifier": "^0.25.1",
         "@bazel/ibazel": "0.10.1",
         "@commitlint/cli": "^8.0.0",
         "@commitlint/config-conventional": "^8.0.0",
@@ -18,6 +18,7 @@
         "bazel_workspaces": "file:./tools/npm_packages/bazel_workspaces",
         "browserify": "16.2.3",
         "clang-format": "1.2.2",
+        "conventional-changelog-cli": "^2.0.21",
         "hello": "file:./tools/npm_packages/hello",
         "husky": "1.3.1",
         "is-builtin-module": "3.0.0",
@@ -71,7 +72,7 @@
         "format": "git-clang-format",
         "format-all": "clang-format --glob='{internal/**/,examples/**/}*.{js,ts}' -i",
         "skydoc": "bazel build //docs && unzip -o -d docs dist/bin/docs/docs-skydoc.zip",
-        "version": "node ./scripts/on-version.js && bazel build //:release && node ./scripts/on-release.js && git stage defs.bzl packages/create/index.js README.md "
+        "version": "conventional-changelog -p angular -i CHANGELOG.md -s && node ./scripts/on-version.js && bazel build //:release && node ./scripts/on-release.js && git stage defs.bzl packages/create/index.js README.md CHANGELOG.md"
     },
     "husky": {
         "hooks": {
