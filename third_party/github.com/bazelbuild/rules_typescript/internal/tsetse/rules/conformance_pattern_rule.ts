@@ -3,6 +3,7 @@ import {ErrorCode} from '../error_code';
 import {AbstractRule} from '../rule';
 import {Fixer} from '../util/fixer';
 import {Config, MatchedNodeTypes, PatternKind} from '../util/pattern_config';
+import {NameEngine} from '../util/pattern_engines/name_engine';
 import {PatternEngine} from '../util/pattern_engines/pattern_engine';
 import {PropertyNonConstantWriteEngine} from '../util/pattern_engines/property_non_constant_write_engine';
 import {PropertyWriteEngine} from '../util/pattern_engines/property_write_engine';
@@ -35,6 +36,10 @@ export class ConformancePatternRule<P extends PatternKind> implements
         engine = new PropertyNonConstantWriteEngine(
             config as Config<PatternKind.BANNED_PROPERTY_NON_CONSTANT_WRITE>,
             fixer);
+        break;
+      case PatternKind.BANNED_NAME:
+        engine =
+            new NameEngine(config as Config<PatternKind.BANNED_NAME>, fixer);
         break;
       default:
         throw new Error('Config type not recognized, or not implemented yet.');

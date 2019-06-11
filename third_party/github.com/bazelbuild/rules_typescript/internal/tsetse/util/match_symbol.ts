@@ -11,6 +11,10 @@ const ABSOLUTE_RE = new RegExp(`^${FQN_FORMAT}$`);
 /**
  * This class matches symbols given a "foo.bar.baz" name, where none of the
  * steps are instances of classes.
+ *
+ * Note that this isn't smart about subclasses and types: to write a check, we
+ * strongly suggest finding the expected symbol in externs to find the object
+ * name on which the symbol was initially defined.
  */
 export class AbsoluteMatcher {
   /**

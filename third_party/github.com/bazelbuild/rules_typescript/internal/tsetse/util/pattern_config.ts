@@ -6,6 +6,7 @@ import * as ts from 'typescript';
  * https://github.com/google/closure-compiler/wiki/JS-Conformance-Framework)
  */
 export enum PatternKind {
+  BANNED_NAME = 'banned-name',
   BANNED_PROPERTY_WRITE = 'banned-property-write',
   BANNED_PROPERTY_NON_CONSTANT_WRITE = 'banned-property-non-constant-write'
 }
@@ -87,4 +88,5 @@ export interface MatchedNodeTypes {
   [PatternKind.BANNED_PROPERTY_NON_CONSTANT_WRITE]: ts.BinaryExpression&{
     left: ts.PropertyAccessExpression;
   };
+  [PatternKind.BANNED_NAME]: ts.Identifier;
 }
