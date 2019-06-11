@@ -206,6 +206,12 @@ def tsc_wrapped_tsconfig(
     # Since g3 isn't ready to do this yet
     config["compilerOptions"]["target"] = "es2015"
 
+    # TODO: where do we get the real workspace_root from?
+    # config["compilerOptions"]["sourceRoot"] = ctx.label.workspace_root
+    config["compilerOptions"]["sourceRoot"] = "/Users/fabianwiles/Documents/rules_nodejs/e2e/ts_library"
+    # config["compilerOptions"]["sourceRoot"] = "../../../"
+    # config["compilerOptions"]["sourceRoot"] = "../../../../../../../../../../../../../../../Users/fabianwiles/Documents/rules_nodejs/e2e/ts_library"
+
     # If the user gives a tsconfig attribute, the generated file should extend
     # from the user's tsconfig.
     # See https://github.com/Microsoft/TypeScript/issues/9876
