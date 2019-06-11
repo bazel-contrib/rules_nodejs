@@ -13,6 +13,7 @@
 # limitations under the License.
 
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load(":check_version_test.bzl", "check_version_test_suite")
 
 licenses(["notice"])  # Apache 2.0
 
@@ -27,15 +28,7 @@ bzl_library(
 # Exported to be consumed for generating skydoc.
 exports_files(["check_bazel_version.bzl"])
 
-py_test(
-    name = "check_version_test",
-    size = "small",
-    srcs = ["check_version_test.py"],
-    data = [":check_version.bzl"],
-    # Explicitly pin to Python 2 to avoid toolchain configuration
-    # TODO(alexeagle): switch to starlark test mechanism
-    python_version = "PY2",
-)
+check_version_test_suite()
 
 filegroup(
     name = "package_contents",
