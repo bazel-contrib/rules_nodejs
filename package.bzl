@@ -35,22 +35,19 @@ def rules_nodejs_dev_dependencies():
     """
 
     # Dependencies for generating documentation
-    # TODO(gregmagolan): switch to https://github.com/bazelbuild/rules_sass/ when
-    #                    https://github.com/bazelbuild/rules_sass/pull/87 lands
     http_archive(
         name = "io_bazel_rules_sass",
-        url = "https://github.com/manekinekko/rules_sass/archive/9862dfc96a4a1f66fe171ef5e043b29853e8445b.zip",
-        strip_prefix = "rules_sass-9862dfc96a4a1f66fe171ef5e043b29853e8445b",
+        url = "https://github.com/bazelbuild/rules_sass/archive/9a00e557c32ac0f26e5d3c66d1d17316874027b3.zip",
+        strip_prefix = "rules_sass-9a00e557c32ac0f26e5d3c66d1d17316874027b3",
+        sha256 = "f404a88872c5ffe9af7f5d54be35add624164b852c29c265843ba172bb0c7ac4",
     )
 
     # Needed for stardoc
-    # TODO(gregmagolan): switch to https://github.com/bazelbuild/bazel/archive/0.23.x.tar.gz when
-    # the commit pulled here makes it into a release
     http_archive(
         name = "io_bazel",
-        url = "https://github.com/bazelbuild/bazel/archive/1488f91fec238adacbd0517fcee15d8ec0599b8d.zip",
-        sha256 = "f0dba27ac4e5145de7fc727229fe87f01399a1ef3c5225dc9b8c7e77156d91af",
-        strip_prefix = "bazel-1488f91fec238adacbd0517fcee15d8ec0599b8d",
+        url = "https://github.com/bazelbuild/bazel/archive/0.26.1.tar.gz",
+        strip_prefix = "bazel-0.26.1",
+        sha256 = "560302a3414cf4dff79c417b4490c407a6e2b2f75a195c689b2b71ac2192ada0",
     )
 
     http_archive(
@@ -72,9 +69,9 @@ def rules_nodejs_dev_dependencies():
 
     http_archive(
         name = "io_bazel_skydoc",
-        sha256 = "75fd965a71ca1f0d0406d0d0fb0964d24090146a853f58b432761a1a6c6b47b9",
-        strip_prefix = "skydoc-82fdbfe797c6591d8732df0c0389a2b1c3e50992",
-        url = "https://github.com/bazelbuild/skydoc/archive/82fdbfe797c6591d8732df0c0389a2b1c3e50992.zip",  # 2018-12-12
+        sha256 = "c2d66a0cc7e25d857e480409a8004fdf09072a1bd564d6824441ab2f96448eea",
+        strip_prefix = "skydoc-0.3.0",
+        url = "https://github.com/bazelbuild/skydoc/archive/0.3.0.tar.gz",
     )
 
     # bazel-skylib 0.8.0 released 2019.03.20 (https://github.com/bazelbuild/bazel-skylib/releases/tag/0.8.0)
