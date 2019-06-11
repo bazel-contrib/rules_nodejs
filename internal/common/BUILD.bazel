@@ -32,6 +32,9 @@ py_test(
     size = "small",
     srcs = ["check_version_test.py"],
     data = [":check_version.bzl"],
+    # Explicitly pin to Python 2 to avoid toolchain configuration
+    # TODO(alexeagle): switch to starlark test mechanism
+    python_version = "PY2",
 )
 
 filegroup(

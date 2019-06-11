@@ -4,4 +4,10 @@ import %workspace%/common.bazelrc
 # Mock versioning command to test the --stamp behavior
 build --workspace_status_command="echo BUILD_SCM_VERSION 1.2.3"
 
+# Avoid python 3 which requires explicit toolchain config
+# This is needed only for the pkg_tar rule
+build --host_force_python=PY2
+
+# Opt-in to upcoming breaking changes
+build --incompatible_use_python_toolchains
 common --incompatible_string_join_requires_strings
