@@ -28,8 +28,7 @@ printf "\n\nSetting up /examples/angular\n"
   # Clean example
   echo_and_run cd ${EXAMPLES_DIR}
   rm -rf angular
-  # TODO(gmagolan): switch back upstream when https://github.com/angular/angular-bazel-example/pull/450 lands
-  echo_and_run git clone --single-branch --branch entry-point https://github.com/gregmagolan/angular-bazel-example.git angular
+  echo_and_run git clone --depth 1 --single-branch https://github.com/angular/angular-bazel-example.git angular
   (
     echo_and_run cd angular
 
