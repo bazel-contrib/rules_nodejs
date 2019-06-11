@@ -22,19 +22,21 @@
 // one that individual file.
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
+const pLimit = require('p-limit');
 
-// worker_threads is only avilable on version > 10.5.0
-const [major, minor] = process.version.replace('v', '').split('.');
-const WORKER_THREADS_AVILABLE = major > 10 || major == 10 && minor > 5
 let worker_threads;
+let WORKER_THREADS_AVILABLE = true;
 
-if (WORKER_THREADS_AVILABLE) {
+try {
   worker_threads = require('worker_threads');
-} else {
+} catch (_e) {
+  WORKER_THREADS_AVILABLE = false;
   console.warn(
-      `WARNING: worker_threads not are not avilable on your version of Nodejs: ${process.version}
-    Running Terser in serial mode
-    Upgrade your Nodejs version to 10.5.0 minimum for worker_threads to be avilable`)
+      `WARNING: worker_threads is not avilable on the version of Node.js you are running under Bazel: ${
+          process.version}
+  Optimizing one file at a time
+  Upgrade your version of Node.js to be at least 10.5.0 in your WORKSPACE file for faster builds with worker_threads`)
 }
 
 const DEBUG = false;
@@ -79,6 +81,7 @@ function main() {
       return {inputFile, outputFile, sourceMapFile: outputFile + '.map'};
     })
 
+    // TODO: allow config to force serial workers here
     if (WORKER_THREADS_AVILABLE) {
       runTerserParallel(files, debug);
     }
@@ -130,9 +133,13 @@ async function runTerserSerial(files, debug) {
  * @param {boolean} debug
  */
 async function runTerserParallel(files, debug) {
-  // TODO: do some concurrency limiting here
-  await Promise.all(
-      files.map(f => runTerserThread(f.inputFile, f.outputFile, f.sourceMapFile, debug)));
+  // TODO: make this configurable
+  const MAX_CONCURRENT_THREADS = os.cpus().length - 1;
+  const limit = pLimit(MAX_CONCURRENT_THREADS);
+
+  const concurrencyLimitedWorkers = files.map(
+      f => limit(() => runTerserThread(f.inputFile, f.outputFile, f.sourceMapFile, debug)));
+  await Promise.all(concurrencyLimitedWorkers);
 }
 
 /**
@@ -151,7 +158,8 @@ function runTerserThread(inputFile, outputFile, sourceMapFile, debug) {
       sourceMapFile,
       terser: require.resolve(TERSER_MODULE_LOCATION),
       debug
-    } const worker = new worker_threads.Worker(__filename, {workerData: task});
+    };
+    const worker = new worker_threads.Worker(__filename, {workerData: task});
 
     worker.on('exit', () => resolve());
     worker.on('error', err => reject(err));
@@ -175,9 +183,11 @@ async function runTerser(inputFile, outputFile, sourceMapFile, Terser, debug) {
   const result = Terser.minify(inputCode, terserOptions);
 
   if (result.error) {
-    // TODO: is this the best way to handle this error?
+    // TODO: figure out error reporting here
+    // scroll up a little from this: https://github.com/terser-js/terser#minify-options
     throw result.error;
   } else {
+    console.log(result.code);
     await fs.promises.writeFile(outputFile, result.code);
   }
 }
