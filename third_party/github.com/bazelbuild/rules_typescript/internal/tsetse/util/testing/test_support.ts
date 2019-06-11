@@ -7,7 +7,7 @@ import * as path from 'path';
 import * as ts from 'typescript';
 
 import {Checker} from '../../checker';
-import {Failure} from '../../failure';
+import {Failure, fixToString} from '../../failure';
 import {AbstractRule} from '../../rule';
 import {Config} from '../pattern_config';
 
@@ -111,7 +111,7 @@ export const customMatchers: jasmine.CustomMatcherFactories = {
         fileName?: string,
         start?: number,
         end?: number,
-        matchedCode?: string
+        matchedCode?: string,
       }) => {
         const actualDiagnostic = actualFailure.toDiagnostic();
         let regrets = '';
@@ -154,6 +154,59 @@ export const customMatchers: jasmine.CustomMatcherFactories = {
         return {pass: regrets === '', message: regrets};
       }
     };
+  },
+
+  /** Checks that a Failure has the expected Fix field. */
+  toHaveFixMatching(): jasmine.CustomMatcher {
+    return {
+      compare: (actualFailure: Failure, exp: [{
+                  fileName?: string,
+                  start?: number,
+                  end?: number,
+                  replacement?: string
+                }]) => {
+        let regrets = '';
+        const actualFix = actualFailure.toDiagnostic().fix;
+        if (!actualFix) {
+          regrets += `Expected ${actualFailure.toString()} to have fix ${
+              JSON.stringify(exp)}. `;
+        } else if (actualFix.changes.length != exp.length) {
+          regrets += `Expected ${exp.length} individual changes, got ${
+              actualFix.changes.length}. `;
+          if (actualFix.changes.length) {
+            regrets += '\n' + fixToString(actualFix);
+          }
+        } else {
+          for (let i = 0; i < exp.length; i++) {
+            const e = exp[i];
+            const a = actualFix.changes[i];
+            if (e.start !== undefined && e.start !== a.start) {
+              regrets += expectation(
+                  `${i}th individualChange's start`, e.start, a.start);
+            }
+            if (e.end !== undefined && e.end !== a.end) {
+              regrets +=
+                  expectation(`${i}th individualChange's end`, e.end, a.end);
+            }
+            if (e.replacement !== undefined &&
+                e.replacement !== a.replacement) {
+              regrets += expectation(
+                  `${i}th individualChange's replacement`, e.replacement,
+                  a.replacement);
+            }
+            if (e.fileName !== undefined &&
+                e.fileName !== a.sourceFile.fileName) {
+              regrets += expectation(
+                  `${i}th individualChange's fileName`, e.fileName,
+                  a.sourceFile.fileName);
+            }
+            // TODO: Consider adding matchedCode as for the failure matcher.
+          }
+        }
+
+        return {pass: regrets === '', message: regrets};
+      }
+    };
   }
 };
 
@@ -170,8 +223,12 @@ declare global {
         fileName?: string,
         start?: number,
         end?: number,
-        matchedCode?: string,
+        matchedCode?: string
       }): void;
+
+      toHaveFixMatching(expected: [
+        {fileName?: string, start?: number, end?: number, replacement?: string}
+      ]): void;
 
       toHaveNFailures(expected: Number, config?: Config<any>): void;
     }

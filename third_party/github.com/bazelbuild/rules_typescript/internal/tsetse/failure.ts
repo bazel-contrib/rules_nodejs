@@ -37,8 +37,8 @@ export class Failure {
 
   toString(): string {
     return `{ sourceFile:${
-        this.sourceFile ? this.sourceFile.fileName :
-                          'unknown'}, start:${this.start}, end:${this.end} }`;
+        this.sourceFile ? this.sourceFile.fileName : 'unknown'}, start:${
+        this.start}, end:${this.end}, fix:${fixToString(this.suggestedFix)} }`;
   }
 }
 
@@ -51,6 +51,23 @@ export interface Fix {
    */
   changes: IndividualChange[],
 }
+
 export interface IndividualChange {
   sourceFile: ts.SourceFile, start: number, end: number, replacement: string
+}
+
+/**
+ * Stringifies a Fix, replacing the ts.SourceFile with the matching filename.
+ */
+export function fixToString(f?: Fix) {
+  if (!f) return 'undefined';
+  return '{' + JSON.stringify(f.changes.map(ic => {
+    return {
+      start: ic.start,
+      end: ic.end,
+      replacement: ic.replacement,
+      fileName: ic.sourceFile.fileName
+    };
+  })) +
+      '}'
 }

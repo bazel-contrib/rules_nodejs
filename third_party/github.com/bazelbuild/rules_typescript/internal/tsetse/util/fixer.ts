@@ -9,7 +9,7 @@ import {debugLog} from './ast_tools';
  * of implementing a Fixer.
  */
 export interface Fixer<NodeType extends ts.Node = ts.Node> {
-  getFixForFlaggedNode(node: NodeType, v?: boolean): Fix|undefined;
+  getFixForFlaggedNode(node: NodeType): Fix|undefined;
 }
 
 /**
@@ -18,11 +18,11 @@ export interface Fixer<NodeType extends ts.Node = ts.Node> {
  * Fixer instead.
  */
 export function buildReplacementFixer(
-    potentialReplacementGenerator: (node: ts.Node, v?: boolean) =>
+    potentialReplacementGenerator: (node: ts.Node) =>
         ({replaceWith: string} | undefined)): Fixer {
   return {
-    getFixForFlaggedNode: (n: ts.Node, v?: boolean): Fix | undefined => {
-      const partialFix = potentialReplacementGenerator(n, v);
+    getFixForFlaggedNode: (n: ts.Node): Fix | undefined => {
+      const partialFix = potentialReplacementGenerator(n);
       if (!partialFix) {
         return;
       }
