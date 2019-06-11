@@ -350,16 +350,23 @@ module.constructor._resolveFilename = function(request, parent, isMain, options)
   // Attempt to resolve to module root.
   // This should be the first attempted resolution because:
   // - it's fairly cheap to check (regex over a small array); 
-  // - will throw if something is wrong and not cascade down;
   // - it is be very common when there are a lot of packages built from source;
-  const moduleRoot = resolveToModuleRoot(request);
-  if (moduleRoot) {
-    const moduleRootInRunfiles = resolveRunfiles(undefined, moduleRoot);
-    const filename = module.constructor._findPath(moduleRootInRunfiles, []);
-    if (!filename) {
-      throw new Error(`No file ${request} found in module root ${moduleRoot}`);
+  if (!isMain) {
+    // Don't resolve to module root if this is the main entry point
+    // as the main entry point will always be fully qualified with the
+    // workspace name and full path.
+    // See https://github.com/bazelbuild/rules_nodejs/issues/834
+    const moduleRoot = resolveToModuleRoot(request);
+    if (moduleRoot) {
+      const moduleRootInRunfiles = resolveRunfiles(undefined, moduleRoot);
+      const filename = module.constructor._findPath(moduleRootInRunfiles, []);
+      if (filename) {
+        return filename;
+      } else {
+        failedResolutions.push(
+            `module root ${moduleRoot} - No file ${request} found in module root ${moduleRoot}`);
+      }
     }
-    return filename;
   }
 
   // Built-in modules, relative, absolute imports and npm dependencies
