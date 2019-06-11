@@ -1,4 +1,5 @@
 load("//:defs.bzl", "nodejs_binary")
+load("//internal/js_library:js_library.bzl", "js_library")
 
 # You can have a nodejs_binary with no node_modules attribute
 # and no fine grained deps
@@ -48,4 +49,18 @@ filegroup(
 nodejs_binary(
     name = "has_entry_file",
     entry_point = ":entry_file",
+)
+
+# Coverage for issue https://github.com/bazelbuild/rules_nodejs/issues/834
+# where module_name is equal to the workspace naem
+js_library(
+    name = "module_name_lib",
+    srcs = ["module-name.js"],
+    module_name = "build_bazel_rules_nodejs",
+)
+
+nodejs_binary(
+    name = "module_name_test",
+    data = [":module_name_lib"],
+    entry_point = ":module-name.js",
 )

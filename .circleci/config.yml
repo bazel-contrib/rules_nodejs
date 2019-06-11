@@ -160,6 +160,7 @@ jobs:
       - run: bazel run //internal/node/test:has_deps_legacy
       - run: bazel run //internal/node/test:has_deps
       - run: bazel run //internal/node/test:has_deps_hybrid
+      - run: bazel run //internal/node/test:module_name_test
       - run: bazel run //internal/e2e/fine_grained_no_bin:index
       - run: bazel run @fine_grained_deps_yarn//typescript/bin:tsc
       - run: bazel run @bazel_workspace_a//:bin
