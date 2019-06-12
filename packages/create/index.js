@@ -179,6 +179,10 @@ install_bazel_dependencies()`);
             }
           },
           null, 4));
+  write('.gitignore', `
+dist
+bazel-out
+node_modules`);
   // in the published distribution, this file will appear in the same folder as this file
   try {
     const rc = require.resolve('./common.bazelrc');
