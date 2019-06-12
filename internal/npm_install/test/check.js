@@ -1,21 +1,11 @@
-const generator = require('../generate_build_file');
 const fs = require('fs');
 const path = require('path');
 const unidiff = require('unidiff')
 
-function runGenerator() {
-  // We must change the directory to the BUILD file path
-  // so the generator is able to run
-  process.chdir(path.posix.join(path.dirname(__filename), 'package'));
-
-  // Run the BUILD file generator
-  generator.main();
-}
-
 function check(file, updateGolden = false) {
   // Strip comments from generated file for comparison to golden
   // to make comparison less brittle
-  const actual = path.posix.join(path.dirname(__filename), 'package', file);
+  const actual = require.resolve(path.posix.join('npm_install_test', file));
   const actualContents =
       fs.readFileSync(actual, {encoding: 'utf-8'})
           .replace(/\r\n/g, '\n')
@@ -56,10 +46,12 @@ Update the golden file:
 }
 
 module.exports = {
-  runGenerator,
   check,
   files: [
     'BUILD.bazel',
+    'install_bazel_dependencies.bzl',
+    'manual_build_file_contents',
+    'WORKSPACE',
     '@angular/core/BUILD.bazel',
     '@gregmagolan/BUILD.bazel',
     '@gregmagolan/test-a/bin/BUILD.bazel',

@@ -702,7 +702,15 @@ function filterFiles(files, exts = []) {
       return false;
     })
   }
-  return files;
+  // Filter out internal files
+  return files.filter(file => {
+    const basenameUc = path.basename(file).toUpperCase();
+    if (basenameUc === '_WORKSPACE' || basenameUc === '_BUILD' || basenameUc === '_BUILD.BAZEL' ||
+        basenameUc === '_BAZEL_MARKER') {
+      return false;
+    }
+    return true;
+  });
 }
 
 /**
