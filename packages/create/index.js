@@ -138,7 +138,7 @@ npm_install(
     package_lock_json = "//:package-lock.json",
 )`;
 
-  write('WORKSPACE', `# Bazel workspace created by @bazel/create 0.0.0-PLACEHOLDER
+  let workspaceContent = `# Bazel workspace created by @bazel/create 0.0.0-PLACEHOLDER
 
 # Declares that this directory is the root of a Bazel workspace.
 # See https://docs.bazel.build/versions/master/build-ref.html#workspace
@@ -163,7 +163,15 @@ ${pkgMgr === 'yarn' ? yarnInstallCmd : npmInstallCmd}
 
 # Install any Bazel rules which were extracted earlier by the ${pkgMgr}_install rule.
 load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
-install_bazel_dependencies()`);
+install_bazel_dependencies()`;
+  if (args['typescript']) {
+    workspaceContent += `
+
+# Setup TypeScript toolchain 
+load("@npm_bazel_typescript//:index.bzl", "ts_setup_workspace")
+ts_setup_workspace()`;
+  }
+  write('WORKSPACE', workspaceContent);
   write('.bazelignore', `node_modules`);
   write(
       'package.json',

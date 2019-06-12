@@ -3,13 +3,16 @@
  * We don't use a test framework here since dependencies are awkward.
  */
 const pkg = 'build_bazel_rules_nodejs/packages/create/npm_package';
-const path = require('path');
 const fs = require('fs');
 const {main} = require(pkg);
 
 function fail(...msg) {
   console.error(...msg);
   throw new Error('test failed');
+}
+
+function read(path) {
+  return fs.readFileSync(path, {encoding: 'utf-8'});
 }
 
 let error, exitCode;
@@ -43,7 +46,7 @@ const projFiles = fs.readdirSync('some_project');
 if (!projFiles.indexOf('.bazelrc') < 0) {
   fail('project should have .bazelrc');
 }
-let wkspContent = fs.readFileSync('some_project/WORKSPACE', {encoding: 'utf-8'});
+let wkspContent = read('some_project/WORKSPACE');
 if (wkspContent.indexOf('npm_install(') < 0) {
   fail('should use npm by default');
 }
@@ -51,7 +54,7 @@ if (wkspContent.indexOf('npm_install(') < 0) {
 
 exitCode = main(['configure_pkgMgr', '--packageManager=yarn'], captureError);
 if (exitCode != 0) fail('should be success');
-wkspContent = fs.readFileSync('configure_pkgMgr/WORKSPACE', {encoding: 'utf-8'});
+wkspContent = read('configure_pkgMgr/WORKSPACE');
 if (wkspContent.indexOf('yarn_install(') < 0) {
   fail('should use yarn when requested');
 }
@@ -59,15 +62,19 @@ if (wkspContent.indexOf('yarn_install(') < 0) {
 process.env['_'] = '/usr/bin/yarn';
 exitCode = main(['default_to_yarn']);
 if (exitCode != 0) fail('should be success');
-wkspContent = fs.readFileSync('default_to_yarn/WORKSPACE', {encoding: 'utf-8'});
+wkspContent = read('default_to_yarn/WORKSPACE');
 if (wkspContent.indexOf('yarn_install(') < 0) {
-  fail('should use yarn by default')
+  fail('should use yarn by default');
 }
 // TODO: run bazel in the new directory to verify a build works
 
 exitCode = main(['--typescript', 'with_ts'], captureError);
 if (exitCode != 0) fail('should be success');
-let pkgContent = fs.readFileSync('with_ts/package.json', {encoding: 'utf-8'});
+let pkgContent = read('with_ts/package.json');
 if (pkgContent.indexOf('"@bazel/typescript": "latest"') < 0) {
   fail('should install @bazel/typescript dependency', pkgContent);
+}
+wkspContent = read('with_ts/WORKSPACE');
+if (wkspContent.indexOf('ts_setup_workspace(') < 0) {
+  fail('should install extra TS repositories');
 }
