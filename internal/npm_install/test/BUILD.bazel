@@ -1,11 +1,6 @@
 load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test", "nodejs_binary")
 
 filegroup(
-    name = "package",
-    srcs = glob(["package/**"]),
-)
-
-filegroup(
     name = "goldens",
     srcs = glob(["golden/**"]),
 )
@@ -16,10 +11,10 @@ jasmine_node_test(
     data = [
         ":check.js",
         ":goldens",
-        ":package",
         "//internal/npm_install:generate_build_file",
         "@npm//jasmine",
         "@npm//unidiff",
+        "@npm_install_test//:test_files",
     ],
 )
 
@@ -28,11 +23,10 @@ nodejs_binary(
     data = [
         ":check.js",
         ":goldens",
-        ":package",
         ":update_golden.js",
-        "//internal/npm_install:generate_build_file",
         "@npm//jasmine",
         "@npm//unidiff",
+        "@npm_install_test//:test_files",
     ],
     entry_point = ":update_golden.js",
     install_source_map_support = False,

@@ -6,7 +6,6 @@ bazel-out
 /examples/*/bazel-*
 /packages/*/bazel-*
 /internal/e2e/*/bazel-*
-/internal/npm_install/test/package/*
 node_modules
 !/internal/npm_install/test/golden/node_modules
 examples/vendored_node/node-v10.12.0-linux-x64

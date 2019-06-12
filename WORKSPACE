@@ -19,6 +19,7 @@ workspace(
         "@fine_grained_deps_yarn": ["internal/e2e/fine_grained_deps/yarn/node_modules"],
         "@fine_grained_no_bin": ["internal/e2e/fine_grained_no_bin/node_modules"],
         "@npm": ["node_modules"],
+        "@npm_install_test": ["internal/npm_install/test/node_modules"],
     },
 )
 
@@ -73,9 +74,7 @@ node_repositories(
     package_json = [
         "//:package.json",
         "@examples_program//:package.json",
-        "//internal/npm_install/test:package/package.json",
     ],
-    preserve_symlinks = True,
 )
 
 yarn_install(
@@ -145,6 +144,44 @@ yarn_install(
     name = "fine_grained_no_bin",
     package_json = "//internal/e2e/fine_grained_no_bin:package.json",
     yarn_lock = "//internal/e2e/fine_grained_no_bin:yarn.lock",
+)
+
+yarn_install(
+    name = "npm_install_test",
+    manual_build_file_contents = """
+filegroup(
+  name = "test_files",
+  srcs = [
+    "//:BUILD.bazel",
+    "//:install_bazel_dependencies.bzl",
+    "//:manual_build_file_contents",
+    "//:WORKSPACE",
+    "//@angular/core:BUILD.bazel",
+    "//@gregmagolan:BUILD.bazel",
+    "//@gregmagolan/test-a/bin:BUILD.bazel",
+    "//@gregmagolan/test-a:BUILD.bazel",
+    "//@gregmagolan/test-b/bin:BUILD.bazel",
+    "//@gregmagolan/test-b:BUILD.bazel",
+    "//ajv:BUILD.bazel",
+    "//jasmine/bin:BUILD.bazel",
+    "//jasmine:BUILD.bazel",
+    "//rxjs:BUILD.bazel",
+    "//unidiff/bin:BUILD.bazel",
+    "//unidiff:BUILD.bazel",
+    "//zone.js:BUILD.bazel",
+    "//node_modules/@angular/core:BUILD.bazel",
+    "//node_modules/@gregmagolan:BUILD.bazel",
+    "//node_modules/@gregmagolan/test-a:BUILD.bazel",
+    "//node_modules/@gregmagolan/test-b:BUILD.bazel",
+    "//node_modules/ajv:BUILD.bazel",
+    "//node_modules/jasmine:BUILD.bazel",
+    "//node_modules/rxjs:BUILD.bazel",
+    "//node_modules/unidiff:BUILD.bazel",
+    "//node_modules/zone.js:BUILD.bazel",
+  ],
+)""",
+    package_json = "//internal/npm_install/test:package.json",
+    yarn_lock = "//internal/npm_install/test:yarn.lock",
 )
 
 load("@bazel_toolchains//rules:rbe_repo.bzl", "rbe_autoconfig")

@@ -1,9 +1,8 @@
-const {runGenerator, check, files} = require('./check');
+const {check, files} = require('./check');
 const {printPackage} = require('../generate_build_file');
 
 describe('build file generator', () => {
   describe('integration test', () => {
-    runGenerator();
     files.forEach(file => {
       it(`should produce a BUILD file for ${file}`, () => {
         check(file);
@@ -43,7 +42,7 @@ describe('build file generator', () => {
       expect(printPackage({...pkg, _files: [], bin: {}})).not.toContain('nodejs_binary');
     });
 
-    it('bin entry is an object with an empth path', () => {
+    it('bin entry is an object with an empty path', () => {
       expect(printPackage(
                  {...pkg, _files: [], bin: {empty_string: '', _null: null, _undefined: undefined}}))
           .not.toContain('nodejs_binary');
