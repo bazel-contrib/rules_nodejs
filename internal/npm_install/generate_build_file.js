@@ -966,7 +966,11 @@ nodejs_binary(
  * Given a pkg, return the skylark aliases for the package.
  */
 function printPackageAliases(pkg) {
-  return `
+
+  const pkgJson = path.posix.join(pkg._dir, 'package.json');
+
+  let content = '';
+  content = `
 # Generated target alias for npm package "${pkg._dir}"
 ${printJson(pkg)}
 alias(
@@ -989,6 +993,22 @@ alias(
   actual = "//node_modules/${pkg._dir}:${pkg._name}__typings"
 )
 `;
+
+if (pkg.dependencies != null) {
+  const typingPackage = pkg.dependencies[`@types/${pkg.name}`];
+  if (typingPackage) {
+    content += `
+  node_module_library(
+    name = "${pkg._name}",
+    deps = [
+      "//node_modules/@types/${pkg.name}"
+    ]
+  )
+  `
+  }
+
+}
+return content;
 }
 
 /**
