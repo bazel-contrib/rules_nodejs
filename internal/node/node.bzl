@@ -221,7 +221,7 @@ def _nodejs_binary_impl(ctx):
             node_runfiles = depset([ctx.outputs.loader, ctx.file._repository_args] + ctx.files._source_map_support_files),
             sources = sources,
             node_modules = node_modules,
-        )
+        ),
     ]
 
 _NODEJS_EXECUTABLE_ATTRS = {
