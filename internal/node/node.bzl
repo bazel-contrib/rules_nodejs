@@ -25,6 +25,19 @@ load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfile
 load("//internal/common:module_mappings.bzl", "module_mappings_runtime_aspect")
 load("//internal/common:sources_aspect.bzl", "sources_aspect")
 
+NodeJSRuntimeInfo = provider(
+    doc = """All files needed to run the NodeJS binary, separated by its source files, node_modules, node_runfiles, and
+    the toolchain, i.e. the node binary itself.
+    This can be useful for example when creating a docker image to be able to put npm packages and data files on
+    separate layers for better caching.""",
+    fields = {
+        "node_modules": "A depset of node modules file objects, i.e. third party dependencies",
+        "node_runfiles": "A depset of files needed for each nodejs_binary to run",
+        "sources": "A depset of non node-module source file objects",
+        "toolchain": "A depset of non node-module source file objects",
+    },
+)
+
 def _trim_package_node_modules(package_name):
     # trim a package name down to its path prior to a node_modules
     # segment. 'foo/node_modules/bar' would become 'foo' and
@@ -185,23 +198,31 @@ def _nodejs_binary_impl(ctx):
     if ctx.file.entry_point.extension == "js":
         runfiles = depset([ctx.file.entry_point], transitive = [runfiles])
 
-    return [DefaultInfo(
-        executable = ctx.outputs.script,
-        runfiles = ctx.runfiles(
-            transitive_files = runfiles,
-            files = [
-                        node,
-                        ctx.outputs.loader,
-                    ] + ctx.files._source_map_support_files +
+    return [
+        DefaultInfo(
+            executable = ctx.outputs.script,
+            runfiles = ctx.runfiles(
+                transitive_files = runfiles,
+                files = [
+                            node,
+                            ctx.outputs.loader,
+                        ] + ctx.files._source_map_support_files +
 
-                    # We need this call to the list of Files.
-                    # Calling the .to_list() method may have some perfs hits,
-                    # so we should be running this method only once per rule.
-                    # see: https://docs.bazel.build/versions/master/skylark/depsets.html#performance
-                    node_modules.to_list() + sources.to_list(),
-            collect_data = True,
+                        # We need this call to the list of Files.
+                        # Calling the .to_list() method may have some perfs hits,
+                        # so we should be running this method only once per rule.
+                        # see: https://docs.bazel.build/versions/master/skylark/depsets.html#performance
+                        node_modules.to_list() + sources.to_list(),
+                collect_data = True,
+            ),
         ),
-    )]
+        NodeJSRuntimeInfo(
+            toolchain = node,
+            node_runfiles = depset([ctx.outputs.loader, ctx.file._repository_args] + ctx.files._source_map_support_files),
+            sources = sources,
+            node_modules = node_modules,
+        )
+    ]
 
 _NODEJS_EXECUTABLE_ATTRS = {
     "bootstrap": attr.string_list(
