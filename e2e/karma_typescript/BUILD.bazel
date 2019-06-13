@@ -73,7 +73,7 @@ filegroup(
     srcs = [
         # do not sort
         "@npm//node_modules/rxjs:bundles/rxjs.umd.js",
-        ":rxjs_shims.js",
+        "@build_bazel_rules_nodejs//umd_shims:rxjs-shims.umd.js",
     ],
 )
 

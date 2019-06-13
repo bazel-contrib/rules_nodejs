@@ -37,7 +37,7 @@ describe('ts_web_test_suite', () => {
       'e2e_karma_typescript/foobar.spec.js',
       'e2e_karma_typescript/decrement.js',
       'npm/node_modules/rxjs/bundles/rxjs.umd.js',
-      'e2e_karma_typescript/rxjs_shims.js',
+      'build_bazel_rules_nodejs/umd_shims/rxjs-shims.umd.js',
       'e2e_karma_typescript/hello_world.js',
     ]);
   });

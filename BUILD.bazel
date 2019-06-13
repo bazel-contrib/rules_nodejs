@@ -65,6 +65,7 @@ npm_package(
         "//internal/npm_install:package_contents",
         "//internal/npm_package:package_contents",
         "//internal/web_package:package_contents",
+        "//umd_shims:package_contents",
     ],
 )
 
