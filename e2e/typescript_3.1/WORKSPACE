@@ -13,7 +13,7 @@
 # limitations under the License.
 
 workspace(
-    name = "e2e_typescript_3_0",
+    name = "e2e_typescript_3_1",
     managed_directories = {"@npm": ["node_modules"]},
 )
 
@@ -37,3 +37,8 @@ install_bazel_dependencies()
 load("@npm_bazel_typescript//:index.bzl", "ts_setup_workspace")
 
 ts_setup_workspace()
+
+load("@npm_bazel_typescript//:version.bzl", "check_rules_typescript_version")
+
+# Smoke test for check_rules_typescript_version
+check_rules_typescript_version(minimum_version_string = "0.31.1")

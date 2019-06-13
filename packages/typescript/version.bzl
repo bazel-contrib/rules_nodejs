@@ -12,45 +12,39 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Package file which defines npm_bazel_typescript version in skylark
+"""Package file which defines npm_bazel_typescript version in skylark.
+
+The version here is valid only when @npm_bazel_typescript is installed
+via the @bazel/typescript npm package.
 """
 
 load("@build_bazel_rules_nodejs//internal/common:check_version.bzl", "check_version")
 
-VERSION = "0.25.1"
+VERSION = "0.0.0-PLACEHOLDER"
 
-# This version is the minimum version that is API compatible with this version
-# of rules_typescript. This version should be updated to equal VERSION for
-# releases with breaking changes and/or new features.
-COMPAT_VERSION = "0.25.0"
-
-def check_rules_typescript_version(version_string):
+def check_rules_typescript_version(minimum_version_string):
     """
-    Verify that a compatible npm_bazel_typescript is loaded a WORKSPACE.
+    Verify that a minimum npm_bazel_typescript is loaded a WORKSPACE.
 
-    Where COMPAT_VERSION and VERSION come from the npm_bazel_typescript that
-    is loaded in a WORKSPACE, this function will check:
-
-    VERSION >= version_string >= COMPAT_VERSION
+    This version check only works when the @npm_bazel_typescript repository
+    is installed via the @bazel/typescript and should not be used if installing
+    @npm_bazel_typescript manually in your WORKSPACE via a function such as
+    http_archive.
 
     This should be called from the `WORKSPACE` file so that the build fails as
     early as possible. For example:
 
     ```
     # in WORKSPACE:
-    load("@npm_bazel_typescript//:index.bzl", "check_rules_typescript_version")
-    check_rules_typescript_version(version_string = "0.22.0")
+    load("@npm_bazel_typescript//:version.bzl", "check_rules_typescript_version")
+    check_rules_typescript_version(minimum_version_string = "0.31.1")
     ```
 
     Args:
-      version_string: A version string to check for compatibility with the loaded version
-                      of npm_bazel_typescript. The version check performed is
-                      `VERSION >= version_string >= COMPAT_VERSION` where VERSION and COMPAT_VERSION
-                      come from the loaded version of npm_bazel_typescript.
+      minimum_version_string: a string indicating the minimum version
     """
-    if not check_version(VERSION, version_string) or not check_version(version_string, COMPAT_VERSION):
-        fail("\nLoaded npm_bazel_typescript version {} with mimimum compat version of {} is not compatible with checked version {}!\n\n".format(
+    if not check_version(VERSION, minimum_version_string):
+        fail("\nCurrent npm_bazel_typescript version is {}, expected at least {}\n".format(
             VERSION,
-            COMPAT_VERSION,
-            version_string,
+            minimum_version_string,
         ))
