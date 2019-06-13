@@ -1,30 +1,38 @@
 "Unit tests for node.bzl"
 
 load("@bazel_skylib//lib:unittest.bzl", "asserts", "unittest", "analysistest")
-load("@build_bazel_rules_nodejs//internal:node.bzl", "nodejs_binary", "NodeJSRuntimeInfo")
+load("@build_bazel_rules_nodejs//internal/node:node.bzl", "nodejs_binary", "NodeJSRuntimeInfo")
 
 def _provider_contents_test_impl(ctx):
   env = analysistest.begin(ctx)
   target_under_test = analysistest.target_under_test(env)
-  asserts.equals(env, "some value", target_under_test[NodeJSRuntimeInfo].val)
-  asserts.equals(env,
-      expected="some value",
-      actual=target_under_test[NodeJSRuntimeInfo].val)
+  # check toolchain
+  asserts.equals(env, "File", type(target_under_test[NodeJSRuntimeInfo].toolchain))
+  asserts.equals(env, "external/nodejs/bin/nodejs/bin/node", target_under_test[NodeJSRuntimeInfo].toolchain.path)
+  asserts.equals(env, True, target_under_test[NodeJSRuntimeInfo].toolchain.is_source)
+  asserts.equals(env, False, target_under_test[NodeJSRuntimeInfo].toolchain.is_directory)
+
+  # print(dir(target_under_test))
+
+  # check sources
+  # asserts.equals(env, "depset", type(target_under_test[NodeJSRuntimeInfo].sources))
+  # asserts.equals(env, 1, len(target_under_test[NodeJSRuntimeInfo].sources.to_list()))
+  # asserts.equals(env, target_under_test.files, target_under_test[NodeJSRuntimeInfo].sources)
   return analysistest.end(env)
 
 provider_contents_test = analysistest.make(_provider_contents_test_impl)
 
 def test_nodejs_runtime_info_contents():
-    # Rule under test.
-    myrule(name = "provider_contents_subject")
-    # Testing rule.
+    nodejs_binary(
+      name = "nodejs_runtime_info_test",
+      data = [":has-deps.js"],
+      entry_point = ":has-deps.js",
+    )
     provider_contents_test(name = "provider_contents",
-                          target_under_test = ":provider_contents_subject")
-    # Note the target_under_test attribute is how the test rule depends on
-    # the real rule target.
+                          target_under_test = ":nodejs_runtime_info_test")
 
-def nodejs_runtime_info_test_suite():
-    test_provider_contents()
+def nodejs_binary_test_suite():
+    test_nodejs_runtime_info_contents()
 
     native.test_suite(
         name = "nodejs_binary_test",
