@@ -1,5 +1,8 @@
 load("//:defs.bzl", "nodejs_binary")
 load("//internal/js_library:js_library.bzl", "js_library")
+load(":nodejs_toolchain_test.bzl", "nodejs_binary_test_suite")
+
+nodejs_binary_test_suite()
 
 # You can have a nodejs_binary with no node_modules attribute
 # and no fine grained deps
