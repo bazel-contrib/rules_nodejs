@@ -9,7 +9,7 @@
     "homepage": "https://github.com/bazelbuild/rules_nodejs",
     "license": "Apache-2.0",
     "devDependencies": {
-        "@bazel/bazel": "0.26.0",
+        "@bazel/bazel": "0.27.0rc5",
         "@bazel/buildifier": "^0.25.1",
         "@bazel/ibazel": "0.10.1",
         "@commitlint/cli": "^8.0.0",
