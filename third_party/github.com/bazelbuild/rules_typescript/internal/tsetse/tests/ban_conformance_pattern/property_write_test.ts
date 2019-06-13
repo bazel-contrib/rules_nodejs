@@ -19,7 +19,7 @@ describe('BANNED_PROPERTY_WRITE', () => {
     expect(results.length).toBe(1);
     expect(results[0]).toBeFailureMatching({
       matchedCode: `q.cite = 'some example string'`,
-      errorMessage: 'do not cite'
+      messageText: 'do not cite'
     });
   });
 
@@ -35,15 +35,15 @@ describe('BANNED_PROPERTY_WRITE', () => {
     expect(results.length).toBe(3);
     expect(results[0]).toBeFailureMatching({
       matchedCode: `q.cite = 'exampleA'`,
-      errorMessage: 'do not cite'
+      messageText: 'do not cite'
     });
     expect(results[1]).toBeFailureMatching({
       matchedCode: `q.cite = 'exampleB'`,
-      errorMessage: 'do not cite'
+      messageText: 'do not cite'
     });
     expect(results[2]).toBeFailureMatching({
       matchedCode: `q.cite = /* test2 */ 'exampleC'`,
-      errorMessage: 'do not cite'
+      messageText: 'do not cite'
     });
   })
 
@@ -58,7 +58,7 @@ describe('BANNED_PROPERTY_WRITE', () => {
     expect(results.length).toBe(1);
     expect(results[0]).toBeFailureMatching({
       matchedCode: `q.cite = 'some example string'`,
-      errorMessage: 'do not cite'
+      messageText: 'do not cite'
     });
   });
 
@@ -73,7 +73,7 @@ describe('BANNED_PROPERTY_WRITE', () => {
     expect(results[0]).toBeFailureMatching({
       matchedCode: 'q.cite = window.name',
       fileName: 'file_1.ts',
-      errorMessage: 'do not cite',
+      messageText: 'do not cite',
     });
   });
 
@@ -90,7 +90,7 @@ describe('BANNED_PROPERTY_WRITE', () => {
     // and `c` is both a Parent and a Child.
     const expectedFailure = {
       matchedCode: 'c.x = 1',
-      errorMessage: 'found write to x',
+      messageText: 'found write to x',
     };
 
     it('banning Parent.x matches (instance of Child).x', () => {

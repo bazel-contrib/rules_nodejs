@@ -17,7 +17,7 @@ describe('BANNED_NAME', () => {
     expect(results.length).toBe(1);
     expect(results[0]).toBeFailureMatching({
       matchedCode: `Infinity`,
-      errorMessage: 'no Infinity'
+      messageText: 'no Infinity'
     });
   });
 
@@ -35,7 +35,7 @@ describe('BANNED_NAME', () => {
     expect(results.length).toBe(1);
     expect(results[0]).toBeFailureMatching({
       matchedCode: `createObjectURL`,
-      errorMessage: 'no blob url'
+      messageText: 'no blob url'
     });
   });
 });

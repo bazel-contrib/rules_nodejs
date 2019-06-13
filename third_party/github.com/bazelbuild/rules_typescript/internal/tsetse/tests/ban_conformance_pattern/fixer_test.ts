@@ -42,7 +42,7 @@ describe('ConformancePatternRule\'s fixer', () => {
       expect(results).toHaveNFailures(1, baseConfig);
       expect(results[0]).toBeFailureMatching({
         matchedCode: `q.cite = 'some example string'`,
-        errorMessage: 'found citationz'
+        messageText: 'found citation'
       });
       expect(results[0]).toHaveFixMatching([
         {start: 50, end: 80, replacement: `Q.CITE = 'SOME EXAMPLE STRING'`}
@@ -57,7 +57,7 @@ describe('ConformancePatternRule\'s fixer', () => {
       expect(results).toHaveNFailures(1, baseConfig);
       expect(results[0]).toBeFailureMatching({
         matchedCode: `q.cite = 'some example string'`,
-        errorMessage: 'found citationz'
+        messageText: 'found citation'
       });
       expect(results[0]).toHaveFixMatching([
         {start: 50, end: 80, replacement: `Q.CITE = 'SOME EXAMPLE STRING'`}
@@ -73,11 +73,11 @@ describe('ConformancePatternRule\'s fixer', () => {
       expect(results).toHaveNFailures(2, baseConfig);
       expect(results[0]).toBeFailureMatching({
         matchedCode: `q.cite = 'some example string'`,
-        errorMessage: 'found citationz'
+        messageText: 'found citation'
       });
       expect(results[1]).toBeFailureMatching({
         matchedCode: `q.cite = 'some other example string'`,
-        errorMessage: 'found citationz'
+        messageText: 'found citation'
       });
       expect(results[0]).toHaveFixMatching([
         {start: 50, end: 80, replacement: `Q.CITE = 'SOME EXAMPLE STRING'`}

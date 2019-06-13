@@ -17,7 +17,7 @@ describe('BANNED_PROPERTY_NON_CONSTANT_WRITE', () => {
     expect(results.length).toBe(1);
     expect(results[0])
         .toBeFailureMatching(
-            {start: 71, end: 91, errorMessage: 'do not cite dynamically'});
+            {start: 71, end: 91, messageText: 'do not cite dynamically'});
   });
 });
 

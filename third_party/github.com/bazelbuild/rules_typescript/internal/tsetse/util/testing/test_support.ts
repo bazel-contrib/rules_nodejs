@@ -112,6 +112,7 @@ export const customMatchers: jasmine.CustomMatcherFactories = {
         start?: number,
         end?: number,
         matchedCode?: string,
+        messageText?: string,
       }) => {
         const actualDiagnostic = actualFailure.toDiagnostic();
         let regrets = '';
@@ -126,6 +127,11 @@ export const customMatchers: jasmine.CustomMatcherFactories = {
             regrets += `Expected ${
                 actualDiagnostic.file.fileName} to end with ${exp.fileName}. `;
           }
+        }
+        if (exp.messageText !== undefined &&
+            exp.messageText != actualDiagnostic.messageText) {
+          regrets += expectation(
+              'errorMessage', exp.messageText, actualDiagnostic.messageText);
         }
         if (exp.start !== undefined && actualDiagnostic.start !== exp.start) {
           regrets += expectation('start', exp.start, actualDiagnostic.start);
@@ -219,11 +225,11 @@ declare global {
   namespace jasmine {
     interface Matchers<T> {
       toBeFailureMatching(expected: {
-        [i: string]: any,  // the rest
         fileName?: string,
         start?: number,
         end?: number,
-        matchedCode?: string
+        matchedCode?: string,
+        messageText?: string,
       }): void;
 
       toHaveFixMatching(expected: [
