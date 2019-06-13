@@ -1,6 +1,14 @@
 
 package(default_visibility = ["//visibility:public"])
-alias(
+load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
+node_module_library(
     name = "@gregmagolan",
-    actual = "//node_modules/@gregmagolan",
+    srcs = [
+        "//@gregmagolan/test-a:test-a__files",
+        "//@gregmagolan/test-b:test-b__files",
+    ],
+    deps = [
+        "//@gregmagolan/test-a:test-a__contents",
+        "//@gregmagolan/test-b:test-b__contents",
+    ],
 )

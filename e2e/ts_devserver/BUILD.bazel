@@ -30,7 +30,7 @@ ts_devserver(
     entry_module = "e2e_ts_devserver/app",
     port = 8080,
     scripts = [
-        "@npm//node_modules/date-fns:date-fns.umd.js",
+        "@npm//date-fns:date-fns.umd.js",
     ],
     # We'll collect all the devmode JS sources from these TypeScript libraries
     deps = [":app"],

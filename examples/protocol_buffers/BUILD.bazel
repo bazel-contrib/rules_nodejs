@@ -85,8 +85,8 @@ rollup_bundle(
 genrule(
     name = "protobufjs",
     srcs = [
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//node_modules/protobufjs:dist/minimal/protobuf.min.js",
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//node_modules/long:dist/long.js",
+        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:node_modules/protobufjs/dist/minimal/protobuf.min.js",
+        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:node_modules/long/dist/long.js",
     ],
     outs = [
         "protobuf.min.js",

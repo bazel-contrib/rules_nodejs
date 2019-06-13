@@ -30,9 +30,9 @@ yarn_install(
 filegroup(
   name = "node_modules_filegroup",
   srcs = [
-    "//node_modules/@types/hammerjs:hammerjs__files",
-    "//node_modules/@types/jasmine:jasmine__files",
-    "//node_modules/typescript:typescript__files",
+    "//@types/hammerjs:hammerjs__files",
+    "//@types/jasmine:jasmine__files",
+    "//typescript:typescript__files",
   ],
 )""",
     package_json = "//:package.json",

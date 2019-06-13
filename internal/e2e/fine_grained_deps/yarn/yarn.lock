@@ -1121,10 +1121,10 @@ rimraf@^2.6.1:
   dependencies:
     glob "^7.0.5"
 
-rxjs@6.3.3:
-  version "6.3.3"
-  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-6.3.3.tgz#3c6a7fa420e844a81390fb1158a9ec614f4bad55"
-  integrity sha512-JTWmoY9tWCs7zvIk/CvRjhjGaOd+OVBM987mxFo+OW66cGpdKjZcpmc74ES1sB//7Kl/PAe8+wEakuhG4pcgOw==
+rxjs@6.5.0:
+  version "6.5.0"
+  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-6.5.0.tgz#1e4bc933f14a0c5c2ce7bb71ddd4244d42f4b04b"
+  integrity sha512-FOTfP3LK5VN3dDtr+wjFAeKVe5nTPPTC2+NUFJ8kyuO+YbIl/aME0eQDiX2MCVgnhKyuUYaEjgZEx8iL/4AV6A==
   dependencies:
     tslib "^1.9.0"
 

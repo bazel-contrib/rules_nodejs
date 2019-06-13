@@ -1,6 +1,9 @@
 
 package(default_visibility = ["//visibility:public"])
-alias(
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+nodejs_binary(
     name = "jasmine",
-    actual = "//node_modules/jasmine:jasmine__bin",
+    entry_point = "//:node_modules/jasmine/bin/jasmine.js",
+    install_source_map_support = False,
+    data = ["//jasmine:jasmine"],
 )

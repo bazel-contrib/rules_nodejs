@@ -19,15 +19,13 @@ load("//:src/jasmine_node_test.bzl", _jasmine_node_test = "jasmine_node_test")
 
 def jasmine_node_test(deps = [], **kwargs):
     deps = deps + [
-        "//:jasmine__pkg",
         "@npm//jasmine",
     ]
     _jasmine_node_test(
-        # The jasmine label here is specific to local testing since
-        # there is no @npm//@bazel/jasmine package here. Users
-        # will always have this label point to their @foobar//node_modules/@bazel/jasmine:index.js
-        # target if there is no @npm//@bazel/jasmine package
-        jasmine = "@npm_bazel_jasmine//:index.js",
+        # The jasmine & jasmine_entry_point labels here are specific to local testing
+        # since there is no @npm//@bazel/jasmine package here.
+        jasmine = "@npm_bazel_jasmine//:jasmine__pkg",
+        jasmine_entry_point = "@npm_bazel_jasmine//:src/jasmine_runner.js",
         deps = deps,
         **kwargs
     )

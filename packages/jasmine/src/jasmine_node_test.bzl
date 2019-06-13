@@ -29,7 +29,8 @@ def jasmine_node_test(
         expected_exit_code = 0,
         tags = [],
         coverage = False,
-        jasmine = "@npm//node_modules/@bazel/jasmine:index.js",
+        jasmine = "@npm//@bazel/jasmine",
+        jasmine_entry_point = "@npm//:node_modules/@bazel/jasmine/src/jasmine_runner.js",
         **kwargs):
     """Runs tests in NodeJS using the Jasmine test runner.
 
@@ -43,10 +44,8 @@ def jasmine_node_test(
       expected_exit_code: The expected exit code for the test. Defaults to 0.
       tags: Bazel tags applied to test
       coverage: Enables code coverage collection and reporting. Defaults to False.
-      jasmine: A label providing the @bazel/jasmine npm dependency. Defaults
-               to "@npm//node_modules/@bazel/jasmine:index.js" so that the correct
-               jasmine & jasmine-core dependencies are resolved unless they are
-               overwritten in a bootstrap file.
+      jasmine: A label providing the @bazel/jasmine npm dependency.
+      jasmine_entry_point: A label providing the @bazel/jasmine entry point.
       **kwargs: Remaining arguments are passed to the test rule
     """
     devmode_js_sources(
@@ -56,11 +55,10 @@ def jasmine_node_test(
         tags = tags,
     )
 
-    all_data = data + srcs + deps + [Label(jasmine).relative(":jasmine__pkg")]
+    all_data = data + srcs + deps + [Label(jasmine)]
 
     all_data += [":%s_devmode_srcs.MF" % name]
     all_data += [Label("@bazel_tools//tools/bash/runfiles")]
-    entry_point = Label(jasmine).relative(":src/jasmine_runner.js")
 
     # If the target specified templated_args, pass it through.
     templated_args = kwargs.pop("templated_args", []) + ["$(location :%s_devmode_srcs.MF)" % name]
@@ -73,7 +71,7 @@ def jasmine_node_test(
     nodejs_test(
         name = name,
         data = all_data,
-        entry_point = entry_point,
+        entry_point = jasmine_entry_point,
         templated_args = templated_args,
         testonly = 1,
         expected_exit_code = expected_exit_code,

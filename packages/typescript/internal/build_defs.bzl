@@ -59,13 +59,16 @@ def _compute_node_modules_root(ctx):
       The node_modules root as a string
     """
     node_modules_root = None
-    if ctx.files.node_modules:
-        # ctx.files.node_modules is not an empty list
-        node_modules_root = "/".join([f for f in [
-            ctx.attr.node_modules.label.workspace_root,
-            _trim_package_node_modules(ctx.attr.node_modules.label.package),
-            "node_modules",
-        ] if f])
+    if ctx.attr.node_modules:
+        if NodeModuleSources in ctx.attr.node_modules:
+            node_modules_root = "/".join(["external", ctx.attr.node_modules[NodeModuleSources].workspace, "node_modules"])
+        elif ctx.files.node_modules:
+            # ctx.files.node_modules is not an empty list
+            node_modules_root = "/".join([f for f in [
+                ctx.attr.node_modules.label.workspace_root,
+                _trim_package_node_modules(ctx.attr.node_modules.label.package),
+                "node_modules",
+            ] if f])
     for d in ctx.attr.deps:
         if NodeModuleSources in d:
             possible_root = "/".join(["external", d[NodeModuleSources].workspace, "node_modules"])
