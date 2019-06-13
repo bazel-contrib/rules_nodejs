@@ -11,7 +11,7 @@ cd ${RULES_NODEJS_DIR}
 echo_and_run() { echo "+ $@" ; "$@" ; }
 
 echo_and_run rm -rf ./dist
-echo_and_run rm -rf `find . -type d -name node_modules -prune -not -path "./internal/npm_install/test/golden/node_modules"`
+echo_and_run rm -rf `find . -type d -name node_modules -prune`
 
 echo_and_run bazel clean --expunge
 

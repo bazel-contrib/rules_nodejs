@@ -27,7 +27,7 @@ else
 fi
 # --- end runfiles.bash initialization ---
 
-readonly OUT=$($(rlocation "npm/node_modules/testy/testy__bin"))
+readonly OUT=$($(rlocation "npm/testy/bin/testy"))
 
 if [ "$OUT" != "Hello world" ]; then
   echo "Expected output 'Hello world' but was $OUT"

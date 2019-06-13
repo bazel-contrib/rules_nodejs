@@ -54,7 +54,8 @@ def create_package(ctx, deps_sources, nested_packages):
     args.add_all([ctx.outputs.pack.path, ctx.outputs.publish.path])
     args.add(ctx.attr.replace_with_version)
     args.add(ctx.version_file.path if ctx.version_file else "")
-    args.add_joined(ctx.attr.vendor_external, join_with = ",")
+    args.add_joined(ctx.attr.vendor_external, join_with = ",", omit_if_empty = False)
+    args.add("1" if ctx.attr.rename_build_files else "0")
 
     inputs = ctx.files.srcs + deps_sources + nested_packages + [ctx.file._run_npm_template]
 
@@ -121,6 +122,12 @@ NPM_PACKAGE_ATTRS = {
     "packages": attr.label_list(
         doc = """Other npm_package rules whose content is copied into this package.""",
         allow_files = True,
+    ),
+    "rename_build_files": attr.bool(
+        doc = """If set BUILD and BUILD.bazel files are prefixed with `_` in the npm package.
+        The default is True since npm packages that contain BUILD files don't work with
+        `yarn_install` and `npm_install` without a post-install step that deletes or renames them.""",
+        default = True,
     ),
     "replace_with_version": attr.string(
         doc = """If set this value is replaced with the version stamp data.

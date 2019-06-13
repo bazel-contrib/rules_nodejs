@@ -1,18 +1,33 @@
 
 package(default_visibility = ["//visibility:public"])
-alias(
-  name = "test-b",
-  actual = "//node_modules/@gregmagolan/test-b:test-b__pkg"
+load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
+filegroup(
+    name = "test-b__files",
+    srcs = [
+        "//:node_modules/@gregmagolan/test-b/main.js",
+        "//:node_modules/@gregmagolan/test-b/node_modules/@gregmagolan/test-a/main.js",
+        "//:node_modules/@gregmagolan/test-b/node_modules/@gregmagolan/test-a/package.json",
+        "//:node_modules/@gregmagolan/test-b/package.json",
+    ],
 )
-alias(
-  name = "test-b__files",
-  actual = "//node_modules/@gregmagolan/test-b:test-b__files"
+node_module_library(
+    name = "test-b",
+    srcs = [":test-b__files"],
+    deps = [
+        "//@gregmagolan/test-b:test-b__contents",
+    ],
 )
-alias(
-  name = "test-b__contents",
-  actual = "//node_modules/@gregmagolan/test-b:test-b__contents"
+node_module_library(
+    name = "test-b__contents",
+    srcs = [":test-b__files"],
 )
-alias(
-  name = "test-b__typings",
-  actual = "//node_modules/@gregmagolan/test-b:test-b__typings"
+node_module_library(
+    name = "test-b__typings",
+)
+load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
+npm_umd_bundle(
+    name = "test-b__umd",
+    package_name = "test-b",
+    entry_point = "//:node_modules/@gregmagolan/test-b/main.js",
+    package = ":test-b",
 )

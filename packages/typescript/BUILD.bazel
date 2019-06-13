@@ -82,8 +82,8 @@ npm_package(
 js_library(
     name = "protobufjs_bootstrap_scripts",
     srcs = [
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//node_modules/long:dist/long.js",
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//node_modules/protobufjs:dist/minimal/protobuf.min.js",
+        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:node_modules/long/dist/long.js",
+        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:node_modules/protobufjs/dist/minimal/protobuf.min.js",
     ],
     # Make devmode loading work when it does require("protobufjs/minimal")
     # so this is shimmed to define it to equal global.protobuf

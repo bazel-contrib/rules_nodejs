@@ -54,8 +54,10 @@ package(default_visibility = ["//visibility:public"])
 
 const args = process.argv.slice(2);
 const WORKSPACE = args[0];
-const LOCK_FILE_LABEL = args[1];
-const INCLUDED_FILES = args[2] ? args[2].split(',') : [];
+const RULE_TYPE = args[1];
+const ERROR_ON_BAZEL_FILES = parseInt(args[2]);
+const LOCK_FILE_LABEL = args[3];
+const INCLUDED_FILES = args[4] ? args[4].split(',') : [];
 
 if (require.main === module) {
   main();
@@ -100,14 +102,14 @@ function main() {
 
 module.exports = {
   main,
-  printPackage
+  printPackageBin,
 };
 
 /**
  * Generates all build files
  */
 function generateBuildFiles(pkgs) {
-  generateRootBuildFile(pkgs)
+  generateRootBuildFile(pkgs.filter(pkg => !pkg._isNested))
   pkgs.filter(pkg => !pkg._isNested).forEach(pkg => generatePackageBuildFiles(pkg));
   findScopes().forEach(scope => generateScopeBuildFiles(scope, pkgs));
 }
@@ -124,48 +126,44 @@ function flattenDependencies(pkgs) {
 /**
  * Handles Bazel files in npm distributions.
  */
-function handleBazelFiles(pkg) {
-  if (pkg._previouslyProcessed) {
-    // This npm package has already been processed and bazel files
-    // from the npm distribution prefixed with `_`. However, there are
-    // now generated Bazel files which must be filtered out.
-    pkg._files = pkg._files.filter(file => {
-      const basenameUc = path.basename(file).toUpperCase();
-      if (basenameUc === 'BUILD' || basenameUc === 'BUILD.BAZEL') {
-        return false;
-      }
-      return true;
-    });
-  } else {
-    // This is the first processing of this npm package.
-    // All Bazel files in the npm distribution should be renamed by
-    // adding a `_` prefix so they can be preserved for bazel workspaces
-    // and so that file targets don't cross package boundaries.
-    pkg._files = pkg._files.map(file => {
-      const basename = path.basename(file);
-      const basenameUc = basename.toUpperCase();
-      if (basenameUc === 'WORKSPACE' || basenameUc === 'BUILD' || basenameUc === 'BUILD.BAZEL') {
+function hideBazelFiles(pkg) {
+  pkg._files = pkg._files.map(file => {
+    const basename = path.basename(file);
+    const basenameUc = basename.toUpperCase();
+    if (basenameUc === 'BUILD' || basenameUc === 'BUILD.BAZEL') {
+      if (ERROR_ON_BAZEL_FILES) {
+        console.error(`npm package '${pkg._dir}' from @${WORKSPACE} ${RULE_TYPE} rule
+has a Bazel BUILD file '${file}'. Use the @bazel/hide-bazel-files utility to hide these files.
+See https://github.com/gregmagolan/rules_nodejs/blob/master/packages/hide-bazel-files/README.md
+for installation instructions.`);
+        process.exit(1);
+      } else {
+        // All Bazel files in the npm distribution should be renamed by
+        // adding a `_` prefix so that file targets don't cross package boundaries.
         const newFile = path.posix.join(path.dirname(file), `_${basename}`);
         const srcPath = path.posix.join('node_modules', pkg._dir, file);
         const dstPath = path.posix.join('node_modules', pkg._dir, newFile);
         fs.renameSync(srcPath, dstPath);
         return newFile;
       }
-      return file;
-    });
-  }
+    }
+    return file;
+  });
 }
 
 /**
  * Generates the root BUILD file.
  */
 function generateRootBuildFile(pkgs) {
-  const srcs = pkgs.filter(pkg => !pkg._isNested);
+  let exportsStarlark = '';
+  pkgs.forEach(pkg => {pkg._files.forEach(f => {
+                 exportsStarlark += `    "node_modules/${pkg._dir}/${f}",
+`;
+               })});
 
   let srcsStarlark = '';
-  if (srcs.length) {
-    const list =
-        srcs.map(pkg => `"//node_modules/${pkg._dir}:${pkg._name}__files",`).join('\n        ');
+  if (pkgs.length) {
+    const list = pkgs.map(pkg => `"//${pkg._dir}:${pkg._name}__files",`).join('\n        ');
     srcsStarlark = `
     # direct sources listed for strict deps support
     srcs = [
@@ -174,9 +172,8 @@ function generateRootBuildFile(pkgs) {
   }
 
   let depsStarlark = '';
-  if (srcs.length) {
-    const list =
-        srcs.map(pkg => `"//node_modules/${pkg._dir}:${pkg._name}__contents",`).join('\n        ');
+  if (pkgs.length) {
+    const list = pkgs.map(pkg => `"//${pkg._dir}:${pkg._name}__contents",`).join('\n        ');
     depsStarlark = `
     # flattened list of direct and transitive dependencies hoisted to root by the package manager
     deps = [
@@ -186,6 +183,9 @@ function generateRootBuildFile(pkgs) {
 
   let buildFile = BUILD_FILE_HEADER +
       `load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
+
+exports_files([
+${exportsStarlark}])
 
 # The node_modules directory in one catch-all node_module_library.
 # NB: Using this target may have bad performance implications if
@@ -211,17 +211,10 @@ node_module_library(
  */
 function generatePackageBuildFiles(pkg) {
   const buildFile = BUILD_FILE_HEADER + printPackage(pkg);
-  writeFileSync(path.posix.join('node_modules', pkg._dir, 'BUILD.bazel'), buildFile);
+  writeFileSync(path.posix.join(pkg._dir, 'BUILD.bazel'), buildFile);
 
-  const aliasBuildFile = BUILD_FILE_HEADER + printPackageAliases(pkg);
-  writeFileSync(path.posix.join(pkg._dir, 'BUILD.bazel'), aliasBuildFile);
-
-  const binAliasesBuildFile = BUILD_FILE_HEADER + printPackageBinAliases(pkg);
-  writeFileSync(path.posix.join(pkg._dir, 'bin', 'BUILD.bazel'), binAliasesBuildFile);
-
-  writeFileSync(
-      path.posix.join('node_modules', pkg._dir, '_bazel_marker'),
-      '# Marker file used by yarn_install & npm_install that indicates BUILD files have been generated for this npm package');
+  const binBuildFile = BUILD_FILE_HEADER + printPackageBin(pkg);
+  writeFileSync(path.posix.join(pkg._dir, 'bin', 'BUILD.bazel'), binBuildFile);
 }
 
 /**
@@ -291,9 +284,9 @@ def _maybe(repo_rule, name, **kwargs):
     }
     const basename = path.basename(file);
     const basenameUc = basename.toUpperCase();
-    // Bazel files from npm distribution would have been renamed earlier with a _ prefix so
-    // we restore them on the copy; we do not copy generated BUILD files.
-    if (basenameUc === '_WORKSPACE' || basenameUc === '_BUILD' || basenameUc === '_BUILD.BAZEL') {
+    // Bazel BUILD files from npm distribution would have been renamed earlier with a _ prefix so
+    // we restore the name on the copy
+    if (basenameUc === '_BUILD' || basenameUc === '_BUILD.BAZEL') {
       destFile = path.posix.join(path.dirname(destFile), basename.substr(1));
     }
     const src = path.posix.join('node_modules', pkg._dir, file);
@@ -354,10 +347,7 @@ function generateInstallBazelDependencies(workspaces) {
  */
 function generateScopeBuildFiles(scope, pkgs) {
   const buildFile = BUILD_FILE_HEADER + printScope(scope, pkgs);
-  writeFileSync(path.posix.join('node_modules', scope, 'BUILD.bazel'), buildFile);
-
-  const aliasBuildFile = BUILD_FILE_HEADER + printScopeAlias(scope);
-  writeFileSync(path.posix.join(scope, 'BUILD.bazel'), aliasBuildFile);
+  writeFileSync(path.posix.join(scope, 'BUILD.bazel'), buildFile);
 }
 
 /**
@@ -514,36 +504,10 @@ function parsePackage(p) {
   // which is later filled with the flattened dependency list
   pkg._dependencies = [];
 
-  // For root packages, transform the pkg.bin entries
-  // into a new Map called _executables
-  // NOTE: we do this only for non-empty bin paths
-  if (isValidBinPath(pkg.bin)) {
-    pkg._executables = new Map();
-    if (!pkg._isNested) {
-      if (Array.isArray(pkg.bin)) {
-        // should not happen, but ignore it if present
-      } else if (typeof pkg.bin === 'string') {
-        pkg._executables.set(pkg._dir, cleanupBinPath(pkg.bin));
-      } else if (typeof pkg.bin === 'object') {
-        for (let key in pkg.bin) {
-          if (isValidBinPathStringValue(pkg.bin[key])) {
-            pkg._executables.set(key, cleanupBinPath(pkg.bin[key]));
-          }
-        }
-      }
-    }
-  }
-
-  // Check for a `_bazel_marker` marker file in the package folder which
-  // indicates that this npm package has already been processed by this
-  // script. This can happen with symlinked node_modules.
-  pkg._previouslyProcessed =
-      fs.existsSync(path.posix.join('node_modules', pkg._dir, '_bazel_marker'));
-
-  // Handle bazel files in this package before parsing the next package.
-  // This is to prevent issues caused by symlinks between package and nested
-  // packages setup by the package manager.
-  handleBazelFiles(pkg)
+  // Hide bazel files in this package. We do this before parsing
+  // the next package to prevent issues caused by symlinks between
+  // package and nested packages setup by the package manager.
+  hideBazelFiles(pkg);
 
   return pkg;
 }
@@ -702,11 +666,10 @@ function filterFiles(files, exts = []) {
       return false;
     })
   }
-  // Filter out internal files
+  // Filter out BUILD files that came with the npm package
   return files.filter(file => {
     const basenameUc = path.basename(file).toUpperCase();
-    if (basenameUc === '_WORKSPACE' || basenameUc === '_BUILD' || basenameUc === '_BUILD.BAZEL' ||
-        basenameUc === '_BAZEL_MARKER') {
+    if (basenameUc === '_BUILD' || basenameUc === '_BUILD.BAZEL') {
       return false;
     }
     return true;
@@ -771,7 +734,7 @@ function printPackage(pkg) {
     scriptStarlark = `
     # subset of srcs that are javascript named-UMD or named-AMD scripts
     scripts = [
-        ${scripts.map(f => `":${f}",`).join('\n        ')}
+        ${scripts.map(f => `"//:node_modules/${pkg._dir}/${f}",`).join('\n        ')}
     ],`;
   }
 
@@ -780,14 +743,13 @@ function printPackage(pkg) {
     srcsStarlark = `
     # ${pkg._dir} package files (and files in nested node_modules)
     srcs = [
-        ${sources.map(f => `":${f}",`).join('\n        ')}
+        ${sources.map(f => `"//:node_modules/${pkg._dir}/${f}",`).join('\n        ')}
     ],`;
   }
 
   let depsStarlark = '';
   if (deps.length) {
-    const list =
-        deps.map(dep => `"//node_modules/${dep._dir}:${dep._name}__contents",`).join('\n        ');
+    const list = deps.map(dep => `"//${dep._dir}:${dep._name}__contents",`).join('\n        ');
     depsStarlark = `
     # flattened list of direct and transitive dependencies hoisted to root by the package manager
     deps = [
@@ -800,18 +762,12 @@ function printPackage(pkg) {
     dtsStarlark = `
     # ${pkg._dir} package declaration files (and declaration files in nested node_modules)
     srcs = [
-        ${dtsSources.map(f => `":${f}",`).join('\n        ')}
+        ${dtsSources.map(f => `"//:node_modules/${pkg._dir}/${f}",`).join('\n        ')}
     ],`;
   }
 
-  let result = '';
-  if (isValidBinPath(pkg.bin)) {
-    // load the nodejs_binary definition only for non-empty bin paths
-    result = 'load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")';
-  }
-
-  result = `${result}
-load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
+  let result =
+      `load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
 
 # Generated targets for npm package "${pkg._dir}"
 ${printJson(pkg)}
@@ -821,12 +777,12 @@ filegroup(
 )
 
 node_module_library(
-    name = "${pkg._name}__pkg",
+    name = "${pkg._name}",
     # direct sources listed for strict deps support
     srcs = [":${pkg._name}__files"],${depsStarlark}
 )
 
-# ${pkg._name}__contents target is used as dep for __pkg targets to prevent
+# ${pkg._name}__contents target is used as dep for main targets to prevent
 # circular dependencies errors
 node_module_library(
     name = "${pkg._name}__contents",
@@ -866,15 +822,53 @@ node_module_library(
 npm_umd_bundle(
     name = "${pkg._name}__umd",
     package_name = "${pkg._name}",
-    entry_point = ":${mainEntryPoint}",
-    package = ":${pkg._name}__pkg",
+    entry_point = "//:node_modules/${pkg._dir}/${mainEntryPoint}",
+    package = ":${pkg._name}",
 )
 
 `;
   }
 
-  if (pkg._executables) {
-    for (const [name, path] of pkg._executables.entries()) {
+  return result;
+}
+
+/**
+ * Given a pkg, return the skylark nodejs_binary targets for the package.
+ */
+function printPackageBin(pkg) {
+  let result = '';
+
+  const executables = new Map();
+
+  // For root packages, transform the pkg.bin entries
+  // into a new Map called _executables
+  // NOTE: we do this only for non-empty bin paths
+  if (isValidBinPath(pkg.bin)) {
+    if (!pkg._isNested) {
+      if (Array.isArray(pkg.bin)) {
+        if (pkg.bin.length == 1) {
+          executables.set(pkg._dir, cleanupBinPath(pkg.bin[0]));
+        } else {
+          // should not happen, but ignore it if present
+        }
+      } else if (typeof pkg.bin === 'string') {
+        executables.set(pkg._dir, cleanupBinPath(pkg.bin));
+      } else if (typeof pkg.bin === 'object') {
+        for (let key in pkg.bin) {
+          if (isValidBinPathStringValue(pkg.bin[key])) {
+            executables.set(key, cleanupBinPath(pkg.bin[key]));
+          }
+        }
+      }
+    }
+  }
+
+  if (executables.size) {
+    result = `load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+
+`;
+
+    for (const [name, path] of executables.entries()) {
       // Handle additionalAttributes of format:
       // ```
       // "bazelBin": {
@@ -894,60 +888,10 @@ npm_umd_bundle(
       }
       result += `# Wire up the \`bin\` entry \`${name}\`
 nodejs_binary(
-    name = "${name}__bin",
-    entry_point = ":${path}",
-    install_source_map_support = False,
-    data = [":${pkg._name}__pkg"],${additionalAttributes}
-)
-
-`;
-    }
-  }
-
-  return result;
-}
-
-/**
- * Given a pkg, return the skylark aliases for the package.
- */
-function printPackageAliases(pkg) {
-  return `
-# Generated target alias for npm package "${pkg._dir}"
-${printJson(pkg)}
-alias(
-  name = "${pkg._name}",
-  actual = "//node_modules/${pkg._dir}:${pkg._name}__pkg"
-)
-
-alias(
-  name = "${pkg._name}__files",
-  actual = "//node_modules/${pkg._dir}:${pkg._name}__files"
-)
-
-alias(
-  name = "${pkg._name}__contents",
-  actual = "//node_modules/${pkg._dir}:${pkg._name}__contents"
-)
-
-alias(
-  name = "${pkg._name}__typings",
-  actual = "//node_modules/${pkg._dir}:${pkg._name}__typings"
-)
-`;
-}
-
-/**
- * Given a pkg, return the skylark aliases for the package bins.
- */
-function printPackageBinAliases(pkg) {
-  let result = '';
-
-  if (pkg._executables) {
-    for (const [name, path] of pkg._executables.entries()) {
-      result += `# Wire up the \`bin\` entry \`${name}\`
-alias(
     name = "${name}",
-    actual = "//node_modules/${pkg._dir}:${name}__bin",
+    entry_point = "//:node_modules/${pkg._dir}/${path}",
+    install_source_map_support = False,
+    data = ["//${pkg._dir}:${pkg._name}"],${additionalAttributes}
 )
 
 `;
@@ -971,8 +915,7 @@ function printScope(scope, pkgs) {
 
   let srcsStarlark = '';
   if (deps.length) {
-    const list =
-        deps.map(dep => `"//node_modules/${dep._dir}:${dep._name}__files",`).join('\n        ');
+    const list = deps.map(dep => `"//${dep._dir}:${dep._name}__files",`).join('\n        ');
     srcsStarlark = `
     # direct sources listed for strict deps support
     srcs = [
@@ -982,8 +925,7 @@ function printScope(scope, pkgs) {
 
   let depsStarlark = '';
   if (deps.length) {
-    const list =
-        deps.map(dep => `"//node_modules/${dep._dir}:${dep._name}__contents",`).join('\n        ');
+    const list = deps.map(dep => `"//${dep._dir}:${dep._name}__contents",`).join('\n        ');
     depsStarlark = `
     # flattened list of direct and transitive dependencies hoisted to root by the package manager
     deps = [
@@ -996,20 +938,6 @@ function printScope(scope, pkgs) {
 # Generated target for npm scope ${scope}
 node_module_library(
     name = "${scope}",${srcsStarlark}${depsStarlark}
-)
-
-`;
-}
-
-/**
- * Given a scope, return the skylark alias for the scope.
- */
-function printScopeAlias(scope) {
-  return `
-# Generated alias target for npm scope ${scope}
-alias(
-    name = "${scope}",
-    actual = "//node_modules/${scope}",
 )
 
 `;

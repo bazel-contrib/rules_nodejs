@@ -29,7 +29,7 @@ function mkdirp(p) {
   }
 }
 
-function copyWithReplace(src, dest, replacements) {
+function copyWithReplace(src, dest, replacements, renameBuildFiles) {
   mkdirp(path.dirname(dest));
   if (!isBinary(src)) {
     let content = fs.readFileSync(src, {encoding: 'utf-8'});
@@ -37,6 +37,15 @@ function copyWithReplace(src, dest, replacements) {
       const [regexp, newvalue] = r;
       content = content.replace(regexp, newvalue);
     });
+    if (renameBuildFiles) {
+      // Prefix all Bazel BUILD files with _ for npm packages.
+      // npm packages should not publish build files as this
+      // breaks their usage within yarn_install & npm_install rules.
+      const basenameUc = path.basename(dest).toUpperCase();
+      if (basenameUc == 'BUILD' || basenameUc == 'BUILD.BAZEL') {
+        dest = path.posix.join(path.dirname(dest), `_${path.basename(dest)}`);
+      }
+    }
     fs.writeFileSync(dest, content);
   } else {
     fs.copyFileSync(src, dest);
@@ -51,7 +60,8 @@ function main(args) {
   args = fs.readFileSync(args[0], {encoding: 'utf-8'}).split('\n').map(unquoteArgs);
   const
       [outDir, baseDir, srcsArg, binDir, genDir, depsArg, packagesArg, replacementsArg, packPath,
-       publishPath, replaceWithVersion, stampFile, vendorExternalArg] = args;
+       publishPath, replaceWithVersion, stampFile, vendorExternalArg, renameBuildFilesArg] = args;
+  const renameBuildFiles = parseInt(renameBuildFilesArg);
 
   const replacements = [
     // Strip content between BEGIN-INTERNAL / END-INTERNAL comments
@@ -90,7 +100,8 @@ function main(args) {
       throw new Error(`${src} in 'srcs' does not reside in the base directory, ` +
         `generated file should belong in 'deps' instead.`);
     }
-    copyWithReplace(src, path.join(outDir, path.relative(baseDir, src)), replacements);
+    copyWithReplace(
+        src, path.join(outDir, path.relative(baseDir, src)), replacements, renameBuildFiles);
   }
 
   function outPath(f) {
@@ -123,7 +134,7 @@ function main(args) {
   // by users outside of the package.
   for (dep of depsArg.split(',').filter(s => !!s && !s.startsWith('external/'))) {
     try {
-      copyWithReplace(dep, outPath(dep), replacements);
+      copyWithReplace(dep, outPath(dep), replacements, renameBuildFiles);
     } catch (e) {
       console.error(`Failed to copy ${dep} to ${outPath(dep)}`);
       throw e;
@@ -149,7 +160,8 @@ function main(args) {
           }
           return file;
         }
-        copyWithReplace(path.join(base, file), path.join(outDir, outFile()), replacements);
+        copyWithReplace(
+            path.join(base, file), path.join(outDir, outFile()), replacements, renameBuildFiles);
       }
     }
     fs.readdirSync(pkg).forEach(f => {

@@ -1,5 +1,5 @@
 const {check, files} = require('./check');
-const {printPackage} = require('../generate_build_file');
+const {printPackageBin} = require('../generate_build_file');
 
 describe('build file generator', () => {
   describe('integration test', () => {
@@ -14,38 +14,50 @@ describe('build file generator', () => {
     const pkg = {_name: 'some_name', _dir: 'some_dir', _dependencies: [], _files: []};
 
     it('no bin entry is provided', () => {
-      expect(printPackage({...pkg, _files: []})).not.toContain('nodejs_binary');
+      expect(printPackageBin({...pkg, _files: []})).not.toContain('nodejs_binary(');
     });
 
     it('bin entry is null', () => {
-      expect(printPackage({...pkg, _files: [], bin: null})).not.toContain('nodejs_binary');
+      expect(printPackageBin({...pkg, _files: [], bin: null})).not.toContain('nodejs_binary(');
     });
 
     it('bin entry is undefined', () => {
-      expect(printPackage({...pkg, _files: [], bin: undefined})).not.toContain('nodejs_binary');
+      expect(printPackageBin({...pkg, _files: [], bin: undefined})).not.toContain('nodejs_binary(');
     });
 
     it('bin entry is empty string', () => {
-      expect(printPackage({...pkg, _files: [], bin: ''})).not.toContain('nodejs_binary');
+      expect(printPackageBin({...pkg, _files: [], bin: ''})).not.toContain('nodejs_binary(');
     });
 
     it('bin entry is empty array', () => {
-      expect(printPackage({...pkg, _files: [], bin: []})).not.toContain('nodejs_binary');
+      expect(printPackageBin({...pkg, _files: [], bin: []})).not.toContain('nodejs_binary(');
     });
 
     it('bin entry is an array with an empty path', () => {
-      expect(printPackage({...pkg, _files: [], bin: ['', null, undefined]}))
-          .not.toContain('nodejs_binary');
+      expect(printPackageBin({...pkg, _files: [], bin: ['', null, undefined]}))
+          .not.toContain('nodejs_binary(');
     });
 
     it('bin entry is empty object', () => {
-      expect(printPackage({...pkg, _files: [], bin: {}})).not.toContain('nodejs_binary');
+      expect(printPackageBin({...pkg, _files: [], bin: {}})).not.toContain('nodejs_binary(');
     });
 
     it('bin entry is an object with an empty path', () => {
-      expect(printPackage(
+      expect(printPackageBin(
                  {...pkg, _files: [], bin: {empty_string: '', _null: null, _undefined: undefined}}))
-          .not.toContain('nodejs_binary');
+          .not.toContain('nodejs_binary(');
+    });
+
+    it('bin entry is array of more than 1 element', () => {
+      expect(printPackageBin({...pkg, _files: [], bin: ['some/path', 'some/other/path']}))
+          .not.toContain('nodejs_binary(');
+      expect(printPackageBin(
+                 {...pkg, _files: [], bin: ['some/path', 'some/other/path', 'some/third/path']}))
+          .not.toContain('nodejs_binary(');
+    });
+
+    it('bin entry is an empty array', () => {
+      expect(printPackageBin({...pkg, _files: [], bin: []})).not.toContain('nodejs_binary(');
     });
   });
 
@@ -53,16 +65,16 @@ describe('build file generator', () => {
     const pkg = {_name: 'some_name', _dir: 'some_dir', _dependencies: [], _files: []};
 
     it('bin entry is valid path', () => {
-      expect(printPackage({...pkg, _files: [], bin: 'some/path'})).toContain('nodejs_binary');
+      expect(printPackageBin({...pkg, _files: [], bin: 'some/path'})).toContain('nodejs_binary(');
     });
 
-    it('bin entry is valid path in array', () => {
-      expect(printPackage({...pkg, _files: [], bin: ['some/path']})).toContain('nodejs_binary');
+    it('bin entry is valid path in array of 1 element', () => {
+      expect(printPackageBin({...pkg, _files: [], bin: ['some/path']})).toContain('nodejs_binary(');
     });
 
     it('bin entry is valid path in object', () => {
-      expect(printPackage({...pkg, _files: [], bin: {some_bin: 'some/path'}}))
-          .toContain('nodejs_binary');
+      expect(printPackageBin({...pkg, _files: [], bin: {some_bin: 'some/path'}}))
+          .toContain('nodejs_binary(');
     });
   });
 });

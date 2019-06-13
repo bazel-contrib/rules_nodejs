@@ -26,6 +26,47 @@ load("//internal/common:os_name.bzl", "os_name")
 load("//internal/node:node_labels.bzl", "get_node_label", "get_npm_label", "get_yarn_label")
 
 COMMON_ATTRIBUTES = dict(dict(), **{
+    "always_hide_bazel_files": attr.bool(
+        doc = """If True then Bazel build files such as `BUILD` and BUILD.bazel`
+        will always be hidden by prefixing them with `_`.
+        
+        Defaults to False, in which case Bazel files are _not_ hidden when `symlink_node_modules`
+        is True. In this case, the rule will report an error when there are Bazel files detected
+        in npm packages.
+        
+        Reporting the error is desirable as relying on this repository rule to hide
+        these files does not work in the case where a user deletes their node_modules folder
+        and manually re-creates it with yarn or npm outside of Bazel which would restore them.
+        On a subsequent Bazel build, this repository rule does not re-run and the presence
+        of the Bazel files leads to a build failure that looks like the following:
+
+        ```
+        ERROR: /private/var/tmp/_bazel_greg/37b273501bbecefcf5ce4f3afcd7c47a/external/npm/BUILD.bazel:9:1:
+        Label '@npm//:node_modules/rxjs/src/AsyncSubject.ts' crosses boundary of subpackage '@npm//node_modules/rxjs/src'
+        (perhaps you meant to put the colon here: '@npm//node_modules/rxjs/src:AsyncSubject.ts'?)
+        ```
+
+        See https://github.com/bazelbuild/rules_nodejs/issues/802 for more details.
+        
+        The recommended solution to the above is to add `@bazel/hide-bazel-files` to your `devDependencies`
+        and `hide-bazel-files` to your `postinstall` script like so:
+
+        ```
+        "devDependencies": {
+          "@bazel/hide-bazel-files": "latest"
+        },
+        "scripts": {
+          "postinstall": "hide-bazel-files"
+        }
+        ```
+
+        The alternate solution is to set `always_hide_bazel_files` to True which tell
+        this rule to hide Bazel files even when `symlink_node_modules` is True. This means
+        you won't need to use `@bazel/hide-bazel-files` utility but if you manually recreate
+        your `node_modules` folder via yarn or npm outside of Bazel you may run into the above
+        error.""",
+        default = False,
+    ),
     "data": attr.label_list(
         doc = """Data files required by this rule.
 
@@ -94,7 +135,9 @@ COMMON_ATTRIBUTES = dict(dict(), **{
     ),
 })
 
-def _create_build_files(repository_ctx, node, lock_file):
+def _create_build_files(repository_ctx, rule_type, node, lock_file):
+    error_on_build_files = repository_ctx.attr.symlink_node_modules and not repository_ctx.attr.always_hide_bazel_files
+
     repository_ctx.report_progress("Processing node_modules: installing Bazel packages and generating BUILD files")
     if repository_ctx.attr.manual_build_file_contents:
         repository_ctx.file("manual_build_file_contents", repository_ctx.attr.manual_build_file_contents)
@@ -102,6 +145,8 @@ def _create_build_files(repository_ctx, node, lock_file):
         node,
         "generate_build_file.js",
         repository_ctx.attr.name,
+        rule_type,
+        "1" if error_on_build_files else "0",
         str(lock_file),
         ",".join(repository_ctx.attr.included_files),
     ])
@@ -252,7 +297,7 @@ cd "{root}" && "{npm}" {npm_args}
     if repository_ctx.attr.symlink_node_modules:
         _symlink_node_modules(repository_ctx)
 
-    _create_build_files(repository_ctx, node, repository_ctx.attr.package_lock_json)
+    _create_build_files(repository_ctx, "npm_install", node, repository_ctx.attr.package_lock_json)
 
 npm_install = repository_rule(
     attrs = dict(COMMON_ATTRIBUTES, **{
@@ -340,7 +385,7 @@ def _yarn_install_impl(repository_ctx):
     if repository_ctx.attr.symlink_node_modules:
         _symlink_node_modules(repository_ctx)
 
-    _create_build_files(repository_ctx, node, repository_ctx.attr.yarn_lock)
+    _create_build_files(repository_ctx, "yarn_install", node, repository_ctx.attr.yarn_lock)
 
 yarn_install = repository_rule(
     attrs = dict(COMMON_ATTRIBUTES, **{

@@ -369,7 +369,7 @@ users loading <code>nodejs_test</code> are actually executing this macro.</p>
     ```
     nodejs_binary(
         name = "history-server",
-        entry_point = "@npm//node_modules/history-server:modules/cli.js",
+        entry_point = "@npm//:node_modules/history-server/modules/cli.js",
         data = ["@npm//history-server"],
     )
     ```
@@ -591,7 +591,7 @@ remote debugger.</p>
     ```
     nodejs_binary(
         name = "history-server",
-        entry_point = "@npm//node_modules/history-server:modules/cli.js",
+        entry_point = "@npm//:node_modules/history-server/modules/cli.js",
         data = ["@npm//history-server"],
     )
     ```

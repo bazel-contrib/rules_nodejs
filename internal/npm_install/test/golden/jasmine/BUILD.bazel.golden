@@ -1,18 +1,55 @@
 
 package(default_visibility = ["//visibility:public"])
-alias(
-  name = "jasmine",
-  actual = "//node_modules/jasmine:jasmine__pkg"
+load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
+filegroup(
+    name = "jasmine__files",
+    srcs = [
+        "//:node_modules/jasmine/.editorconfig",
+        "//:node_modules/jasmine/.travis.yml",
+        "//:node_modules/jasmine/Gruntfile.js",
+        "//:node_modules/jasmine/MIT.LICENSE",
+        "//:node_modules/jasmine/README.md",
+        "//:node_modules/jasmine/bin/jasmine.js",
+        "//:node_modules/jasmine/lib/command.js",
+        "//:node_modules/jasmine/lib/examples/jasmine.json",
+        "//:node_modules/jasmine/lib/filters/console_spec_filter.js",
+        "//:node_modules/jasmine/lib/jasmine.js",
+        "//:node_modules/jasmine/lib/reporters/completion_reporter.js",
+        "//:node_modules/jasmine/lib/reporters/console_reporter.js",
+        "//:node_modules/jasmine/package.json",
+        "//:node_modules/jasmine/tasks/jasmine.js",
+    ],
 )
-alias(
-  name = "jasmine__files",
-  actual = "//node_modules/jasmine:jasmine__files"
+node_module_library(
+    name = "jasmine",
+    srcs = [":jasmine__files"],
+    deps = [
+        "//jasmine:jasmine__contents",
+        "//glob:glob__contents",
+        "//fs.realpath:fs.realpath__contents",
+        "//inflight:inflight__contents",
+        "//once:once__contents",
+        "//wrappy:wrappy__contents",
+        "//inherits:inherits__contents",
+        "//minimatch:minimatch__contents",
+        "//brace-expansion:brace-expansion__contents",
+        "//balanced-match:balanced-match__contents",
+        "//concat-map:concat-map__contents",
+        "//path-is-absolute:path-is-absolute__contents",
+        "//jasmine-core:jasmine-core__contents",
+    ],
 )
-alias(
-  name = "jasmine__contents",
-  actual = "//node_modules/jasmine:jasmine__contents"
+node_module_library(
+    name = "jasmine__contents",
+    srcs = [":jasmine__files"],
 )
-alias(
-  name = "jasmine__typings",
-  actual = "//node_modules/jasmine:jasmine__typings"
+node_module_library(
+    name = "jasmine__typings",
+)
+load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
+npm_umd_bundle(
+    name = "jasmine__umd",
+    package_name = "jasmine",
+    entry_point = "//:node_modules/jasmine/lib/jasmine.js",
+    package = ":jasmine",
 )

@@ -46,14 +46,17 @@ def _compute_node_modules_root(ctx):
       The node_modules root as a string
     """
     node_modules_root = None
-    if ctx.files.node_modules:
-        # ctx.files.node_modules is not an empty list
-        workspace = ctx.attr.node_modules.label.workspace_root.split("/")[1] if ctx.attr.node_modules.label.workspace_root else ctx.workspace_name
-        node_modules_root = "/".join([f for f in [
-            workspace,
-            _trim_package_node_modules(ctx.attr.node_modules.label.package),
-            "node_modules",
-        ] if f])
+    if ctx.attr.node_modules:
+        if NodeModuleSources in ctx.attr.node_modules:
+            node_modules_root = "/".join([ctx.attr.node_modules[NodeModuleSources].workspace, "node_modules"])
+        elif ctx.files.node_modules:
+            # ctx.files.node_modules is not an empty list
+            workspace = ctx.attr.node_modules.label.workspace_root.split("/")[1] if ctx.attr.node_modules.label.workspace_root else ctx.workspace_name
+            node_modules_root = "/".join([f for f in [
+                workspace,
+                _trim_package_node_modules(ctx.attr.node_modules.label.package),
+                "node_modules",
+            ] if f])
     for d in ctx.attr.data:
         if NodeModuleSources in d:
             possible_root = "/".join([d[NodeModuleSources].workspace, "node_modules"])
@@ -275,7 +278,7 @@ _NODEJS_EXECUTABLE_ATTRS = {
         ```
         nodejs_binary(
             name = "history-server",
-            entry_point = "@npm//node_modules/history-server:modules/cli.js",
+            entry_point = "@npm//:node_modules/history-server/modules/cli.js",
             data = ["@npm//history-server"],
         )
         ```

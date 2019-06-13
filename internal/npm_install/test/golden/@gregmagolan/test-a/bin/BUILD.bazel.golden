@@ -1,6 +1,9 @@
 
 package(default_visibility = ["//visibility:public"])
-alias(
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+nodejs_binary(
     name = "test",
-    actual = "//node_modules/@gregmagolan/test-a:test__bin",
+    entry_point = "//:node_modules/@gregmagolan/test-a/@bin/test.js",
+    install_source_map_support = False,
+    data = ["//@gregmagolan/test-a:test-a"],
 )
