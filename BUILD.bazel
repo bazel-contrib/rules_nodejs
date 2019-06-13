@@ -19,6 +19,7 @@ bzl_library(
         "//internal/jasmine_node_test:bzl",
         "//internal/npm_package:bzl",
         "//internal/rollup:bzl",
+        "//toolchains/node:bzl",
     ],
 )
 
@@ -68,6 +69,7 @@ npm_package(
         "//internal/npm_install:package_contents",
         "//internal/npm_package:package_contents",
         "//internal/web_package:package_contents",
+        "//toolchains/node:package_contents",
     ],
 )
 

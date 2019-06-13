@@ -125,7 +125,6 @@ def _short_path_to_manifest_path(ctx, short_path):
         return ctx.workspace_name + "/" + short_path
 
 def _nodejs_binary_impl(ctx):
-    node = ctx.file.node
     node_modules = depset(ctx.files.node_modules)
 
     # Also include files from npm fine grained deps as inputs.
@@ -164,25 +163,41 @@ def _nodejs_binary_impl(ctx):
     if hasattr(ctx.attr, "expected_exit_code"):
         expected_exit_code = ctx.attr.expected_exit_code
 
-    substitutions = {
-        "TEMPLATED_args": " ".join([
-            expand_location_into_runfiles(ctx, a)
-            for a in ctx.attr.templated_args
-        ]),
-        "TEMPLATED_env_vars": env_vars,
-        "TEMPLATED_expected_exit_code": str(expected_exit_code),
-        "TEMPLATED_node": _short_path_to_manifest_path(ctx, node.short_path),
-        "TEMPLATED_repository_args": _short_path_to_manifest_path(ctx, ctx.file._repository_args.short_path),
-        "TEMPLATED_script_path": script_path,
-    }
-    ctx.actions.expand_template(
-        template = ctx.file._launcher_template,
-        output = ctx.outputs.script,
-        substitutions = substitutions,
-        is_executable = True,
-    )
+    node_tool_info = ctx.toolchains["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"].nodeinfo
+    node_tool_files = []
+    if node_tool_info.target_tool_path == "" and not node_tool_info.target_tool:
+        # If tool_path is empty and tool_target is None then there is no local
+        # node tool, we will just print a nice error message if the user
+        # attempts to do bazel run
+        ctx.actions.write(
+            content = ("echo node toolchain was not properly configured so %s cannot be executed." % ctx.attr.name),
+            output = ctx.outputs.script,
+        )
+    else:
+        node_tool = node_tool_info.target_tool_path
+        if node_tool_info.target_tool:
+            node_tool_files += node_tool_info.target_tool.files.to_list()
+            node_tool = _short_path_to_manifest_path(ctx, node_tool_files[0].short_path)
 
-    runfiles = depset([node, ctx.outputs.loader, ctx.file._repository_args], transitive = [sources, node_modules])
+        substitutions = {
+            "TEMPLATED_args": " ".join([
+                expand_location_into_runfiles(ctx, a)
+                for a in ctx.attr.templated_args
+            ]),
+            "TEMPLATED_env_vars": env_vars,
+            "TEMPLATED_expected_exit_code": str(expected_exit_code),
+            "TEMPLATED_node": node_tool,
+            "TEMPLATED_repository_args": _short_path_to_manifest_path(ctx, ctx.file._repository_args.short_path),
+            "TEMPLATED_script_path": script_path,
+        }
+        ctx.actions.expand_template(
+            template = ctx.file._launcher_template,
+            output = ctx.outputs.script,
+            substitutions = substitutions,
+            is_executable = True,
+        )
+
+    runfiles = depset(node_tool_files + [ctx.outputs.loader, ctx.file._repository_args], transitive = [sources, node_modules])
 
     # entry point is only needed in runfiles if it is a .js file
     if ctx.file.entry_point.extension == "js":
@@ -192,8 +207,7 @@ def _nodejs_binary_impl(ctx):
         executable = ctx.outputs.script,
         runfiles = ctx.runfiles(
             transitive_files = runfiles,
-            files = [
-                        node,
+            files = node_tool_files + [
                         ctx.outputs.loader,
                     ] + ctx.files._source_map_support_files +
 
@@ -291,11 +305,6 @@ _NODEJS_EXECUTABLE_ATTRS = {
         Enable this to get stack traces that point to original sources, e.g. if the program was written
         in TypeScript.""",
         default = True,
-    ),
-    "node": attr.label(
-        doc = """The node entry point target.""",
-        default = Label("@nodejs//:node_bin"),
-        allow_single_file = True,
     ),
     "node_modules": attr.label(
         doc = """The npm packages which should be available to `require()` during
@@ -406,6 +415,7 @@ nodejs_binary = rule(
     attrs = _NODEJS_EXECUTABLE_ATTRS,
     executable = True,
     outputs = _NODEJS_EXECUTABLE_OUTPUTS,
+    toolchains = ["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"],
 )
 """Runs some JavaScript code in NodeJS.
 """
@@ -420,6 +430,7 @@ nodejs_test = rule(
     }),
     test = True,
     outputs = _NODEJS_EXECUTABLE_OUTPUTS,
+    toolchains = ["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"],
 )
 """
 Identical to `nodejs_binary`, except this can be used with `bazel test` as well.

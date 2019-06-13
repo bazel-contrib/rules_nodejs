@@ -141,7 +141,7 @@ def _create_build_files(repository_ctx, rule_type, node, lock_file):
         "1" if error_on_build_files else "0",
         str(lock_file),
         ",".join(repository_ctx.attr.included_files),
-    ])
+    ], quiet = False)
     if result.return_code:
         fail("generate_build_file.js failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
 
@@ -203,9 +203,10 @@ def _npm_install_impl(repository_ctx):
 
     _check_min_bazel_version("npm_install", repository_ctx)
 
-    is_windows = os_name(repository_ctx).find("windows") != -1
-    node = repository_ctx.path(get_node_label(repository_ctx))
-    npm = get_npm_label(repository_ctx)
+    os = os_name(repository_ctx)
+    is_windows = os.find("windows") != -1
+    node = repository_ctx.path(get_node_label(os))
+    npm = get_npm_label(os)
     npm_args = ["install"]
 
     if repository_ctx.attr.prod_only:
@@ -315,8 +316,9 @@ def _yarn_install_impl(repository_ctx):
 
     _check_min_bazel_version("yarn_install", repository_ctx)
 
-    node = repository_ctx.path(get_node_label(repository_ctx))
-    yarn = get_yarn_label(repository_ctx)
+    os = os_name(repository_ctx)
+    node = repository_ctx.path(get_node_label(os))
+    yarn = get_yarn_label(os)
 
     # If symlink_node_modules is true then run the package manager
     # in the package.json folder; otherwise, run it in the root of
@@ -370,7 +372,6 @@ def _yarn_install_impl(repository_ctx):
         timeout = repository_ctx.attr.timeout,
         quiet = repository_ctx.attr.quiet,
     )
-
     if result.return_code:
         fail("yarn_install failed: %s (%s)" % (result.stdout, result.stderr))
 
