@@ -60,7 +60,8 @@ function main(args) {
   args = fs.readFileSync(args[0], {encoding: 'utf-8'}).split('\n').map(unquoteArgs);
   const
       [outDir, baseDir, srcsArg, binDir, genDir, depsArg, packagesArg, replacementsArg, packPath,
-       publishPath, replaceWithVersion, stampFile, vendorExternalArg, renameBuildFilesArg] = args;
+       publishPath, replaceWithVersion, stampFile, vendorExternalArg, renameBuildFilesArg,
+       runNpmTemplatePath] = args;
   const renameBuildFiles = parseInt(renameBuildFilesArg);
 
   const replacements = [
@@ -169,8 +170,7 @@ function main(args) {
     });
   }
 
-  const npmTemplate =
-      fs.readFileSync(require.resolve('nodejs/run_npm.sh.template'), {encoding: 'utf-8'});
+  const npmTemplate = fs.readFileSync(require.resolve(runNpmTemplatePath), {encoding: 'utf-8'});
   // Resolve the outDir to an absolute path so it doesn't depend on Bazel's bazel-out symlink
   fs.writeFileSync(packPath, npmTemplate.replace('TMPL_args', `pack "${path.resolve(outDir)}"`));
   fs.writeFileSync(publishPath, npmTemplate.replace('TMPL_args', `publish "${path.resolve(outDir)}"`));

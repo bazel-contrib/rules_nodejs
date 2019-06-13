@@ -31,6 +31,7 @@ exports_files([
     "node_repositories.bzl",  # Exported to be consumed for generating skydoc.
     "node_launcher.sh",
     "node_loader.js",
+    "BUILD.nodejs_host_os_alias.tpl",
 ])
 
 filegroup(
@@ -39,6 +40,9 @@ filegroup(
         "*.bzl",
         "*.js",
         "*.sh",
-    ]) + ["BUILD.bazel"],
+    ]) + [
+        "BUILD.bazel",
+        "BUILD.nodejs_host_os_alias.tpl",
+    ],
     visibility = ["//:__pkg__"],
 )

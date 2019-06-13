@@ -20,9 +20,10 @@ See https://docs.bazel.build/versions/master/skylark/repository_rules.html
 
 load("//internal/common:check_bazel_version.bzl", "check_bazel_version")
 load("//internal/common:check_version.bzl", "check_version")
-load("//internal/common:os_name.bzl", "os_name")
+load("//internal/common:os_name.bzl", "OS_ARCH_NAMES", "is_windows", "os_name")
 load("//internal/npm_install:npm_install.bzl", "yarn_install")
 load("//third_party/github.com/bazelbuild/bazel-skylib:lib/paths.bzl", "paths")
+load("//toolchains/node:node_configure.bzl", node_toolchain_configure = "node_configure")
 load(":node_labels.bzl", "get_yarn_node_repositories_label")
 
 # Callers that don't specify a particular version will get these.
@@ -134,8 +135,10 @@ def _download_node(repository_ctx):
     """
     if repository_ctx.attr.vendored_node:
         return
-
-    host = os_name(repository_ctx)
+    if repository_ctx.name == "nodejs":
+        host = os_name(repository_ctx)
+    else:
+        host = repository_ctx.name.split("nodejs_", 1)[1]
     node_version = repository_ctx.attr.node_version
     node_repositories = repository_ctx.attr.node_repositories
     node_urls = repository_ctx.attr.node_urls
@@ -192,7 +195,11 @@ def _prepare_node(repository_ctx):
     Args:
       repository_ctx: The repository rule context
     """
-    is_windows = os_name(repository_ctx).find("windows") != -1
+    is_windows_os = os_name(repository_ctx).find("windows") != -1
+
+    # TODO: Maybe we want to encode the OS as a specific attribute rather than do it based on naming?
+    is_windows_repository = repository_ctx.attr.name.find("windows") != -1
+    is_windows = is_windows_os or is_windows_repository
     if repository_ctx.attr.vendored_node:
         node_exec = "/".join([f for f in [
             "../../..",
@@ -440,12 +447,27 @@ if %errorlevel% neq 0 exit /b %errorlevel%
             "TEMPLATED_is_windows": "true" if is_windows else "false",
             "TEMPLATED_node_actual": node_entry,
             "TEMPLATED_node_bin_actual": node_exec_label,
-            "TEMPLATED_node_dir": NODE_DIR,
             "TEMPLATED_npm_actual": npm_node_repositories_entry,
+            "TEMPLATED_vendored_node": "true" if repository_ctx.attr.vendored_node else "false",
             "TEMPLATED_yarn_actual": yarn_node_repositories_entry,
         },
     )
-    result = repository_ctx.execute([node_entry, "generate_build_file.js"])
+    host_os = os_name(repository_ctx)
+    if ("_%s" % host_os) in repository_ctx.attr.name or repository_ctx.attr.name == "nodejs":
+        # We have to use the relative path here otherwise bazel reports a cycle
+        result = repository_ctx.execute([node_entry, "generate_build_file.js"])
+    else:
+        # NOTE: Ideally we would not need this logic here and could just depend on the @nodejs//:node_bin alias but it is not possible.
+        # See: https://github.com/bazelbuild/bazel/issues/8674
+        # We have to make sure that we run repository_ctx.execute with the right node executable, so if e.g. we are in the repository containing
+        # the linux executable but on windows we need to ensure that we use the executable for windows.
+        node_path = "node.exe" if is_windows_os else "bin/node"
+
+        # NOTE: If no vendored node is provided we just assume that there exists a nodejs external repository
+        node_label = Label(node_exec_label) if repository_ctx.attr.vendored_node else Label("@nodejs_%s//:bin/nodejs/%s" % (host_os, node_path))
+        host_node = repository_ctx.path(node_label)
+        result = repository_ctx.execute([host_node, "generate_build_file.js"])
+
     if result.return_code:
         fail("generate_build_file.js failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
 
@@ -481,6 +503,31 @@ alias(name = "yarn", actual = "{yarn}")
 _yarn_repo = repository_rule(
     _yarn_repo_impl,
     attrs = {"package_json": attr.label_list()},
+)
+
+def _nodejs_host_os_alias_impl(repository_ctx):
+    host_os = os_name(repository_ctx)
+    node_repository = "@nodejs_%s" % host_os
+    file_ending = ".cmd" if is_windows(host_os) else ""
+    actual_node_bin = "bin/nodejs/node.exe" if is_windows(host_os) else "bin/nodejs/bin/node"
+    repository_ctx.template(
+        "BUILD.bazel",
+        Label("@build_bazel_rules_nodejs//internal/node:BUILD.nodejs_host_os_alias.tpl"),
+        substitutions = {
+            "TEMPLATE__npm_node_repositories": "%s//:bin/npm_node_repositories%s" % (node_repository, file_ending),
+            "TEMPLATE__yarn_node_repositories": "%s//:bin/yarn_node_repositories%s" % (node_repository, file_ending),
+            "TEMPLATE_actual_node_bin": "%s//:%s" % (node_repository, actual_node_bin),
+            "TEMPLATE_node_repo_args": "%s//:bin/node_repo_args.sh" % node_repository,
+            "TEMPLATE_npm": "%s//:bin/npm%s" % (node_repository, file_ending),
+            "TEMPLATE_run_npm": "%s//:run_npm.sh.template" % node_repository,
+            "TEMPLATE_wrapped_node_bin": "%s//:bin/node%s" % (node_repository, file_ending),
+            "TEMPLATE_yarn": "%s//:bin/yarn%s" % (node_repository, file_ending),
+        },
+        executable = False,
+    )
+
+_nodejs_repo_host_os_alias = repository_rule(
+    _nodejs_host_os_alias_impl,
 )
 
 def node_repositories(
@@ -571,19 +618,35 @@ def node_repositories(
         minimum_bazel_version = "0.21.0",
     )
 
+    # This needs to be setup so toolchains can access nodejs for all different versions
+    for os_arch_name in OS_ARCH_NAMES:
+        os_name = "_".join(os_arch_name)
+        node_repository_name = "nodejs_%s" % os_name
+        _maybe(
+            _nodejs_repo,
+            name = node_repository_name,
+            package_json = package_json,
+            node_version = node_version,
+            yarn_version = yarn_version,
+            vendored_node = vendored_node,
+            vendored_yarn = vendored_yarn,
+            node_repositories = node_repositories,
+            yarn_repositories = yarn_repositories,
+            node_urls = node_urls,
+            yarn_urls = yarn_urls,
+            preserve_symlinks = preserve_symlinks,
+        )
+        native.register_toolchains("@build_bazel_rules_nodejs//toolchains/node:node_%s_toolchain" % os_arch_name[0])
+        node_toolchain_configure(
+            name = "%s_config" % node_repository_name,
+            target_tool = "@%s//:node_bin" % node_repository_name,
+        )
+
+    # This "nodejs" repo is just for convinience so one does not have to target @nodejs_<os_name>//...
+    # All it does is create aliases to the @nodejs_<host_os>_<host_arch> repository
     _maybe(
-        _nodejs_repo,
+        _nodejs_repo_host_os_alias,
         name = "nodejs",
-        package_json = package_json,
-        node_version = node_version,
-        yarn_version = yarn_version,
-        vendored_node = vendored_node,
-        vendored_yarn = vendored_yarn,
-        node_repositories = node_repositories,
-        yarn_repositories = yarn_repositories,
-        node_urls = node_urls,
-        yarn_urls = yarn_urls,
-        preserve_symlinks = preserve_symlinks,
     )
 
     _maybe(
