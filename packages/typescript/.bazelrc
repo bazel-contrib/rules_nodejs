@@ -1,1 +1,4 @@
 import %workspace%/../../common.bazelrc
+
+# TODO(gregmagolan): remove this flag once @io_bazel_rules_go is compatible with Bazel 0.27.0
+common --noincompatible_require_ctx_in_configure_features
