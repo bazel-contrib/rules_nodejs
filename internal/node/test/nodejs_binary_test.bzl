@@ -3,23 +3,13 @@
 load("@bazel_skylib//lib:unittest.bzl", "analysistest", "asserts")
 load("@build_bazel_rules_nodejs//internal/node:node.bzl", "NodeJSRuntimeInfo", "nodejs_binary")
 
-def _or(expected, expected_or, actual):
-    return expected == actual or expected_or == actual
-
 def _provider_contents_test_impl(ctx):
     env = analysistest.begin(ctx)
     target_under_test = analysistest.target_under_test(env)
 
     # check toolchain
     asserts.equals(env, "File", type(target_under_test[NodeJSRuntimeInfo].toolchain))
-    correct_node_path = _or(
-        "external/nodejs/bin/nodejs/bin/node",
-        "external/nodejs/bin/nodejs/bin/node.exe",
-        target_under_test[NodeJSRuntimeInfo].toolchain.path,
-    )
-    asserts.true(env, correct_node_path)
-    asserts.equals(env, True, target_under_test[NodeJSRuntimeInfo].toolchain.is_source)
-    asserts.equals(env, False, target_under_test[NodeJSRuntimeInfo].toolchain.is_directory)
+    asserts.equals(env, ctx.file.node, target_under_test[NodeJSRuntimeInfo].toolchain)
 
     # check sources
     asserts.equals(env, "depset", type(target_under_test[NodeJSRuntimeInfo].sources))
@@ -43,6 +33,10 @@ provider_contents_test = analysistest.make(
         "data": attr.label_list(
             allow_files = True,
             default = [Label("//internal/node/test:has-deps.js")],
+        ),
+        "node": attr.label(
+          default = Label("@nodejs//:node_bin"),
+          allow_single_file = True,
         ),
         "_repository_args": attr.label(
             default = Label("@nodejs//:bin/node_repo_args.sh"),
