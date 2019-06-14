@@ -23,6 +23,7 @@ load("@build_bazel_rules_typescript//internal:common/tsconfig.bzl", "create_tsco
 load("//internal:ts_config.bzl", "TsConfigInfo")
 
 _DEFAULT_COMPILER = "@npm//@bazel/typescript/bin:tsc_wrapped"
+_DEFAULT_NODE_MODULES = Label("@npm//typescript:typescript__typings")
 
 def _trim_package_node_modules(package_name):
     # trim a package name down to its path prior to a node_modules
@@ -34,6 +35,17 @@ def _trim_package_node_modules(package_name):
             break
         segments += [n]
     return "/".join(segments)
+
+# Detect use of bazel-managed node modules.
+# Return True if the node_modules is the default or a course-grained deps
+#   `node_modules = "@npm//:node_modules"`
+# Return False if the user used a hand-rolled filegroup
+#   `node_modules = "//:my_node_modules"`
+# Note: this works for ts_library since we have a default for node_modules
+#       but wouldn't work for other rules like nodejs_binary
+def _uses_bazel_managed_node_modules(ctx):
+    # If the user put a filegroup as the node_modules it will have no provider
+    return NodeModuleSources in ctx.attr.node_modules
 
 # This function is similar but slightly different than _compute_node_modules_root
 # in /internal/node/node.bzl. TODO(gregmagolan): consolidate these functions
@@ -206,6 +218,19 @@ def tsc_wrapped_tsconfig(
     # Since g3 isn't ready to do this yet
     config["compilerOptions"]["target"] = "es2015"
 
+    # It's fine for users to have types[] in their tsconfig.json to help the editor
+    # know which of the node_modules/@types/* entries to include in the program.
+    # But we don't want TypeScript to do any automatic resolution under tsc_wrapped
+    # because when not run in a sandbox, it will scan the @types directory and find
+    # entries that aren't in the action inputs.
+    # See https://github.com/bazelbuild/rules_typescript/issues/449
+    # This setting isn't shared with g3 because there is no node_modules directory there.
+    # NB: Under user-managed dependencies we don't have a Provider in the node_modules
+    #     so our mechanism to collect typings and put them into the program doesn't work.
+    #     In that case we leave the types[] alone.
+    if _uses_bazel_managed_node_modules(ctx):
+        config["compilerOptions"]["types"] = []
+
     # If the user gives a tsconfig attribute, the generated file should extend
     # from the user's tsconfig.
     # See https://github.com/Microsoft/TypeScript/issues/9876
@@ -349,7 +374,7 @@ ts_library = rule(
                 yarn_lock = "//:yarn.lock",
             )
             """,
-            default = Label("@npm//typescript:typescript__typings"),
+            default = _DEFAULT_NODE_MODULES,
         ),
         "supports_workers": attr.bool(
             doc = """Intended for internal use only.

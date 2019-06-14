@@ -26,6 +26,15 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
 
 yarn_install(
     name = "npm",
+    manual_build_file_contents = """
+filegroup(
+  name = "node_modules_filegroup",
+  srcs = [
+    "//node_modules/@types/hammerjs:hammerjs__files",
+    "//node_modules/@types/jasmine:jasmine__files",
+    "//node_modules/typescript:typescript__files",
+  ],
+)""",
     package_json = "//:package.json",
     yarn_lock = "//:yarn.lock",
 )
