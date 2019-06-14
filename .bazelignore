@@ -7,6 +7,7 @@ e2e/
 # Examples are tested by running examples/test_example.sh outside of Bazel
 examples/
 # Most packages are nested workspaces
+packages/hide-bazel-files
 packages/jasmine
 packages/karma
 packages/labs

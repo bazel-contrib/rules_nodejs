@@ -22,7 +22,9 @@ for example in ${EXAMPLES[@]} ; do
       cd "${EXAMPLES_DIR}/${example}"
       printf "\n\nRunning example ${example}\n"
       ${RULES_NODEJS_DIR}/scripts/check_deps.sh
-      echo_and_run yarn test
+      if grep -q "\"test\":" package.json; then
+        echo_and_run yarn test
+      fi
       if grep -q "\"e2e\":" package.json; then
         echo_and_run yarn e2e
       fi

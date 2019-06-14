@@ -7,4 +7,4 @@ set -eu -o pipefail
 
 # Define packages so that dependencies come first as locally
 # they will be built in the order provided
-export readonly PACKAGES=( jasmine typescript karma labs )
+export readonly PACKAGES=( hide-bazel-files jasmine typescript karma labs )

@@ -18,6 +18,8 @@ for package in ${PACKAGES[@]} ; do
     cd "${PACKAGES_DIR}/${package}"
     printf "\n\nTesting package ${package}\n"
     ${RULES_NODEJS_DIR}/scripts/check_deps.sh
-    echo_and_run yarn test
+    if grep -q "\"test\":" package.json; then
+      echo_and_run yarn test
+    fi
   )
 done
