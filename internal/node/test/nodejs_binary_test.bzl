@@ -22,41 +22,41 @@ def _provider_contents_test_impl(ctx):
     asserts.equals(env, False, target_under_test[NodeJSRuntimeInfo].toolchain.is_directory)
 
     # check sources
-    asserts.equals(env, 'depset', type(target_under_test[NodeJSRuntimeInfo].sources))
+    asserts.equals(env, "depset", type(target_under_test[NodeJSRuntimeInfo].sources))
     asserts.equals(env, ctx.files.data, target_under_test[NodeJSRuntimeInfo].sources.to_list())
 
     # check node_modules
-    asserts.equals(env, 'depset', type(target_under_test[NodeJSRuntimeInfo].node_modules))
+    asserts.equals(env, "depset", type(target_under_test[NodeJSRuntimeInfo].node_modules))
     asserts.equals(env, [], target_under_test[NodeJSRuntimeInfo].node_modules.to_list())
 
     # check node_runfiles
     actions = analysistest.target_actions(env)
     action_output = actions[0].outputs.to_list()[0]
-    asserts.equals(env, 'depset', type(target_under_test[NodeJSRuntimeInfo].node_runfiles))
+    asserts.equals(env, "depset", type(target_under_test[NodeJSRuntimeInfo].node_runfiles))
     node_runfiles = [action_output, ctx.file._repository_args] + ctx.files._source_map_support_files
-    asserts.equals(env, , target_under_test[NodeJSRuntimeInfo].node_runfiles.to_list())
+    asserts.equals(env, node_runfiles, target_under_test[NodeJSRuntimeInfo].node_runfiles.to_list())
     return analysistest.end(env)
 
 provider_contents_test = analysistest.make(
-  _provider_contents_test_impl,
-  attrs = {
-    "data": attr.label_list(
-      allow_files = True,
-      default = [Label("//internal/node/test:has-deps.js")]
-    ),
-    "_repository_args": attr.label(
-        default = Label("@nodejs//:bin/node_repo_args.sh"),
-        allow_single_file = True,
-    ),
-    "_source_map_support_files": attr.label_list(
-        default = [
-            Label("@build_bazel_rules_nodejs//third_party/github.com/buffer-from:contents"),
-            Label("@build_bazel_rules_nodejs//third_party/github.com/source-map:contents"),
-            Label("@build_bazel_rules_nodejs//third_party/github.com/source-map-support:contents"),
-        ],
-        allow_files = True,
-    ),
-  }
+    _provider_contents_test_impl,
+    attrs = {
+        "data": attr.label_list(
+            allow_files = True,
+            default = [Label("//internal/node/test:has-deps.js")],
+        ),
+        "_repository_args": attr.label(
+            default = Label("@nodejs//:bin/node_repo_args.sh"),
+            allow_single_file = True,
+        ),
+        "_source_map_support_files": attr.label_list(
+            default = [
+                Label("@build_bazel_rules_nodejs//third_party/github.com/buffer-from:contents"),
+                Label("@build_bazel_rules_nodejs//third_party/github.com/source-map:contents"),
+                Label("@build_bazel_rules_nodejs//third_party/github.com/source-map-support:contents"),
+            ],
+            allow_files = True,
+        ),
+    },
 )
 
 def test_nodejs_runtime_info_contents():
