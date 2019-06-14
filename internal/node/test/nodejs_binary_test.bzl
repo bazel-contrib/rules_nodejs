@@ -13,11 +13,11 @@ def _provider_contents_test_impl(ctx):
 
     # check sources
     asserts.equals(env, "depset", type(target_under_test[NodeJSRuntimeInfo].sources))
-    asserts.equals(env, ctx.files.data, target_under_test[NodeJSRuntimeInfo].sources.to_list())
+    asserts.equals(env, ctx.files.my_sources, target_under_test[NodeJSRuntimeInfo].sources.to_list())
 
     # check node_modules
     asserts.equals(env, "depset", type(target_under_test[NodeJSRuntimeInfo].node_modules))
-    asserts.equals(env, [], target_under_test[NodeJSRuntimeInfo].node_modules.to_list())
+    asserts.equals(env, ctx.files.node_modules, target_under_test[NodeJSRuntimeInfo].node_modules.to_list())
 
     # check node_runfiles
     actions = analysistest.target_actions(env)
@@ -30,9 +30,13 @@ def _provider_contents_test_impl(ctx):
 provider_contents_test = analysistest.make(
     _provider_contents_test_impl,
     attrs = {
-        "data": attr.label_list(
+        "my_sources": attr.label_list(
             allow_files = True,
             default = [Label("//internal/node/test:has-deps.js")],
+        ),
+        "node_modules": attr.label_list(
+            allow_files = True,
+            default = [Label("@fine_grained_deps_yarn//typescript")],
         ),
         "node": attr.label(
           default = Label("@nodejs//:node_bin"),
@@ -56,7 +60,10 @@ provider_contents_test = analysistest.make(
 def test_nodejs_runtime_info_contents():
     nodejs_binary(
         name = "nodejs_runtime_info_test",
-        data = [":has-deps.js"],
+        data = [
+          ":has-deps.js",
+          "@fine_grained_deps_yarn//typescript",
+        ],
         entry_point = ":has-deps.js",
     )
     provider_contents_test(

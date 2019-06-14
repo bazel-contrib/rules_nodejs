@@ -138,22 +138,21 @@ def _nodejs_binary_impl(ctx):
     node = ctx.file.node
     node_modules = depset(ctx.files.node_modules)
 
-    # Also include files from npm fine grained deps as inputs.
-    # These deps are identified by the NodeModuleSources provider.
-    for d in ctx.attr.data:
-        if NodeModuleSources in d:
-            node_modules = depset(transitive = [node_modules, d[NodeModuleSources].sources])
-
     # Using a depset will allow us to avoid flattening files and sources
     # inside this loop. This should reduce the performances hits,
     # since we don't need to call .to_list()
     sources = depset()
 
+    # Also include files from npm fine grained deps as inputs.
+    # These deps are identified by the NodeModuleSources provider.
     for d in ctx.attr.data:
-        if hasattr(d, "node_sources"):
-            sources = depset(transitive = [sources, d.node_sources])
-        if hasattr(d, "files"):
-            sources = depset(transitive = [sources, d.files])
+        if NodeModuleSources in d:
+            node_modules = depset(transitive = [node_modules, d[NodeModuleSources].sources])
+        else:
+            if hasattr(d, "node_sources"):
+                sources = depset(transitive = [sources, d.node_sources])
+            if hasattr(d, "files"):
+                sources = depset(transitive = [sources, d.files])
 
     _write_loader_script(ctx)
 
