@@ -249,6 +249,19 @@ jobs:
           paths:
             - ./rules_nodejs/dist/npm_bazel_labs
 
+  build_hide_bazel_files_package:
+    <<: *job_defaults
+    steps:
+      - *attach_workspace
+      - *init_environment
+      - *init_bazel
+      - *hide_node_and_yarn_local_binaries
+      - run: ./scripts/build_packages.sh hide-bazel-files
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - ./rules_nodejs/dist/npm_bazel_hide-bazel-files
+
   test_packages:
     <<: *job_defaults
     # Need to compile Go and protocol buffers from source for typescript package
@@ -364,8 +377,12 @@ workflows:
           requires:
           # typescript package depends on jasmine package
           - build_jasmine_package
+      - build_hide_bazel_files_package:
+          requires:
+          - setup
       - test_packages:
           requires:
+          - build_jasmine_package
           - build_typescript_package
       - test_e2e:
           requires:
@@ -374,6 +391,7 @@ workflows:
           - build_jasmine_package
           - build_labs_package
           - build_karma_package
+          - build_hide_bazel_files_package
       - test_e2e_legacy:
           requires:
           - build_release
@@ -384,6 +402,7 @@ workflows:
           - build_jasmine_package
           - build_labs_package
           - build_karma_package
+          - build_hide_bazel_files_package
       - test_angular_bazel_example:
           requires:
           - build_release
@@ -391,3 +410,4 @@ workflows:
           - build_jasmine_package
           - build_labs_package
           - build_karma_package
+          - build_hide_bazel_files_package
