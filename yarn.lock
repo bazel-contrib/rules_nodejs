@@ -50,6 +50,9 @@
     "@bazel/buildifier-linux_x64" "0.25.1"
     "@bazel/buildifier-win32_x64" "0.25.1"
 
+"@bazel/hide-bazel-files@file:./packages/hide-bazel-files":
+  version "0.0.0-PLACEHOLDER"
+
 "@bazel/ibazel@0.10.1":
   version "0.10.1"
   resolved "https://registry.yarnpkg.com/@bazel/ibazel/-/ibazel-0.10.1.tgz#cebcc5cf045fd0e7957e2c491b60094fce28667a"
