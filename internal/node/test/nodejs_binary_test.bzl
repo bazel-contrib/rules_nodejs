@@ -39,8 +39,8 @@ provider_contents_test = analysistest.make(
             default = [Label("@fine_grained_deps_yarn//typescript")],
         ),
         "node": attr.label(
-          default = Label("@nodejs//:node_bin"),
-          allow_single_file = True,
+            default = Label("@nodejs//:node_bin"),
+            allow_single_file = True,
         ),
         "_repository_args": attr.label(
             default = Label("@nodejs//:bin/node_repo_args.sh"),
@@ -61,8 +61,8 @@ def test_nodejs_runtime_info_contents():
     nodejs_binary(
         name = "nodejs_runtime_info_test",
         data = [
-          ":has-deps.js",
-          "@fine_grained_deps_yarn//typescript",
+            ":has-deps.js",
+            "@fine_grained_deps_yarn//typescript",
         ],
         entry_point = ":has-deps.js",
     )
