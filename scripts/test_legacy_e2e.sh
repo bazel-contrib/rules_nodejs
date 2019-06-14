@@ -18,6 +18,8 @@ for e2eTest in ${E2E_TESTS[@]} ; do
     cd "${E2E_DIR}/${e2eTest}"
     printf "\n\nRunning legacy e2e test ${e2eTest}\n"
     ${RULES_NODEJS_DIR}/scripts/check_deps.sh
-    echo_and_run yarn test
+    if grep -q "\"test\":" package.json; then
+      echo_and_run yarn test
+    fi
   )
 done
