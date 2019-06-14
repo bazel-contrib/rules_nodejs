@@ -463,6 +463,8 @@ Note: the arguments passed to `bazel run` after `--` are forwarded to the execut
 
 Aka cross-compilation aka building docker images on mac/windows. When you add `node_repositories()` to your `WORKSPAE` file it will setup node for all currently supported platforms, Linux, macOS and Windows. If you want to build an app or a docker image for another platform you have to pass in the `--platforms` flag to Bazel. E.g. `bazel build --platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64 //app` will ensure that the linux nodejs binary is downloaded and provided to the nodejs_binary.
 
+Note: The toolchain currently only provides a platform-specific nodejs binary. Any native modules will still be fetched/built, by npm/yarn, for your host platform, so they will not work on the target platform. Support for cross-compilation with native dependencies will follow.
+
 ## Usage
 
 ### Running a program from npm
