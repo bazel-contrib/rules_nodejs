@@ -30,13 +30,13 @@ def _provider_contents_test_impl(ctx):
 provider_contents_test = analysistest.make(
     _provider_contents_test_impl,
     attrs = {
-        "node_modules": attr.label_list(
-            allow_files = True,
-            default = [Label("@fine_grained_deps_yarn//typescript")],
-        ),
         "node": attr.label(
             default = Label("@nodejs//:node_bin"),
             allow_single_file = True,
+        ),
+        "node_modules": attr.label_list(
+            allow_files = True,
+            default = [Label("@fine_grained_deps_yarn//typescript")],
         ),
         "sources": attr.label_list(
             allow_files = True,
