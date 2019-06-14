@@ -7,7 +7,10 @@ ts_library(
     expected_diagnostics = [
         "TS2304: Cannot find name 'Hammer'",
     ],
-    node_modules = "@npm//:node_modules",
+    # Use a filegroup to simulate user-managed node modules
+    # This exercises logic in build_defs.bzl that must preserve
+    # the types[] in tsconfig.json so that jasmine is found.
+    node_modules = "@npm//:node_modules_filegroup",
     tsconfig = ":tsconfig.json",
 )
 
