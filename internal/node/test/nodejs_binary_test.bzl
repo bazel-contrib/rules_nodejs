@@ -13,7 +13,7 @@ def _provider_contents_test_impl(ctx):
 
     # check sources
     asserts.equals(env, "depset", type(target_under_test[NodeJSRuntimeInfo].sources))
-    asserts.equals(env, ctx.files.my_sources, target_under_test[NodeJSRuntimeInfo].sources.to_list())
+    asserts.equals(env, ctx.files.sources, target_under_test[NodeJSRuntimeInfo].sources.to_list())
 
     # check node_modules
     asserts.equals(env, "depset", type(target_under_test[NodeJSRuntimeInfo].node_modules))
@@ -30,10 +30,6 @@ def _provider_contents_test_impl(ctx):
 provider_contents_test = analysistest.make(
     _provider_contents_test_impl,
     attrs = {
-        "my_sources": attr.label_list(
-            allow_files = True,
-            default = [Label("//internal/node/test:has-deps.js")],
-        ),
         "node_modules": attr.label_list(
             allow_files = True,
             default = [Label("@fine_grained_deps_yarn//typescript")],
@@ -41,6 +37,10 @@ provider_contents_test = analysistest.make(
         "node": attr.label(
             default = Label("@nodejs//:node_bin"),
             allow_single_file = True,
+        ),
+        "sources": attr.label_list(
+            allow_files = True,
+            default = [Label("//internal/node/test:has-deps.js")],
         ),
         "_repository_args": attr.label(
             default = Label("@nodejs//:bin/node_repo_args.sh"),
