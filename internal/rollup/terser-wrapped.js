@@ -179,7 +179,7 @@ async function runTerser(inputFile, outputFile, sourceMapFile, Terser, debug) {
   if (DEBUG) console.error(`Minifying ${inputFile} -> ${outputFile} (sourceMap ${sourceMapFile})`);
 
   const terserOptions = buildTerserConfig(sourceMapFile, debug)
-  const inputCode = (await fs.promises.readFile(inputFile)).toString();
+  const inputCode = (await fs.promises.readFile(inputFile)).toString().trim();
   const result = Terser.minify(inputCode, terserOptions);
 
   if (result.error) {

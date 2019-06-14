@@ -335,7 +335,7 @@ def _run_terser(ctx, input, output, map_output, debug = False, comments = True, 
         args.add("--beautify")
 
     # we need this arg to enable worker_threads on Node.js v10
-    # TODO: Turn this off for Node.js v12?
+    # TODO: Turn this off for Node.js v12
     args.add("--node_options=--experimental-worker")
 
     ctx.actions.run(
