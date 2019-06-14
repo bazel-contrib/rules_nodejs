@@ -1,0 +1,13 @@
+{
+    "name": "@bazel/hide-bazel-files",
+    "bin": {
+        "hide-bazel-files": "index.js"
+    },
+    "license": "Apache-2.0",
+    "version": "0.0.0-PLACEHOLDER",
+    "keywords": [
+        "bazel",
+        "javascript"
+    ],
+    "description": "A tool that hides all Bazel files in node_modules by prefixing them with an underscore"
+}

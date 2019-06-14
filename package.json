@@ -11,6 +11,7 @@
     "devDependencies": {
         "@bazel/bazel": "0.27.0",
         "@bazel/buildifier": "^0.25.1",
+        "@bazel/hide-bazel-files": "file:./packages/hide-bazel-files",
         "@bazel/ibazel": "0.10.1",
         "@commitlint/cli": "^8.0.0",
         "@commitlint/config-conventional": "^8.0.0",
@@ -44,6 +45,7 @@
         "zone.js": "0.8.29"
     },
     "scripts": {
+        "postinstall": "hide-bazel-files",
         "build_packages_all": "./scripts/build_packages_all.sh",
         "build_packages": "./scripts/build_packages.sh",
         "build_release": "./scripts/build_release.sh",
