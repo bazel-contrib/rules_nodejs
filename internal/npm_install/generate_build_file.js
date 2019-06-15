@@ -134,7 +134,7 @@ function hideBazelFiles(pkg) {
       if (ERROR_ON_BAZEL_FILES) {
         console.error(`npm package '${pkg._dir}' from @${WORKSPACE} ${RULE_TYPE} rule
 has a Bazel BUILD file '${file}'. Use the @bazel/hide-bazel-files utility to hide these files.
-See https://github.com/gregmagolan/rules_nodejs/blob/master/packages/hide-bazel-files/README.md
+See https://github.com/bazelbuild/rules_nodejs/blob/master/packages/hide-bazel-files/README.md
 for installation instructions.`);
         process.exit(1);
       } else {

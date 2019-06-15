@@ -271,31 +271,6 @@ As of Bazel 0.26 this feature is still experimental, so also add this line to th
 common --experimental_allow_incremental_repository_updates
 ```
 
-#### @bazel/hide-bazel-files
-
-We recommend adding the `@bazel/hide-bazel-files` utility as a postinstall step to any `package.json` files that
-are being used by `yarn_install` or `npm_install`. This utility hides Bazel files that may be shipped with npm
-packages you are using by renaming them with a `_` prefix.
-
-Bazel files such as `BUILD` or `BUILD.bazel` in node_modules will cause build failures when using Bazel-managed dependencies. If you see an error such as
-
-```
-ERROR: /private/var/tmp/_bazel_greg/37b273501bbecefcf5ce4f3afcd7c47a/external/npm/BUILD.bazel:9:1: Label '@npm//:node_modules/rxjs/src/AsyncSubject.ts' crosses boundary of subpackage '@npm//node_modules/rxjs/src' (perhaps you meant to put the colon here: '@npm//node_modules/rxjs/src:AsyncSubject.ts'?)
-```
-
-then chances are there is an npm package in your dependencies that contains a `BUILD` file. To resolve this, add `@bazel/hide-bazel-files` to your `devDependencies` and `hide-bazel-files` to your `postinstall` script like so:
-
-```
-"devDependencies": {
-  "@bazel/hide-bazel-files": "0.0.0-PLACEHOLDER"
-},
-"scripts": {
-  "postinstall": "hide-bazel-files"
-}
-```
-
-Note: The commonly used npm package rxjs contains `BUILD` files from version 5.5.5 to 6.4.0 inclusive. These have now been removed in version 6.5.0. If you are using an rxjs version in that range and that is the only npm package in your dependencies that contains `BUILD` files then you can try upgrading to rxjs 6.4.0 instead of using `hide-bazel-files`.
-
 #### yarn_install vs. npm_install
 
 `yarn_install` is the preferred rule for setting up Bazel-managed dependencies for a number of reasons:

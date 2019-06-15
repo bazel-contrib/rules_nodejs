@@ -45,7 +45,6 @@
         "zone.js": "0.8.29"
     },
     "scripts": {
-        "postinstall": "hide-bazel-files",
         "build_packages_all": "./scripts/build_packages_all.sh",
         "build_packages": "./scripts/build_packages.sh",
         "build_release": "./scripts/build_release.sh",

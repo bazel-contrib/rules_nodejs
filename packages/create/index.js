@@ -99,7 +99,6 @@ function main(argv, error = console.error, log = console.log) {
     '@bazel/bazel': 'latest',
     '@bazel/ibazel': 'latest',
     '@bazel/buildifier': 'latest',
-    '@bazel/hide-bazel-files': 'latest',
   };
   let rootBuildContent = '# Add rules here to build your software\n' +
       '# See https://docs.bazel.build/versions/master/build-ref.html#BUILD_files\n\n';
@@ -183,7 +182,6 @@ ts_setup_workspace()`;
             private: true,
             devDependencies,
             scripts: {
-              'postinstall': 'hide-bazel-files',
               'build': 'bazel build //...',
               'test': 'bazel test //...',
             }

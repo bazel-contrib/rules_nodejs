@@ -4,6 +4,10 @@ const fs = require('fs');
 const path = require('path');
 
 function findBazelFiles(dir) {
+  if (!fs.existsSync(dir)) {
+    // Fail-safe
+    return [];
+  }
   return fs.readdirSync(dir).reduce((files, file) => {
     const fullPath = path.posix.join(dir, file);
     const isSymbolicLink = fs.lstatSync(fullPath).isSymbolicLink();
@@ -42,7 +46,12 @@ function findBazelFiles(dir) {
 
 function main() {
   // Rename all bazel files found by prefixing them with `_`
-  for (f of findBazelFiles('node_modules')) {
+  const cwd = process.cwd();
+  const rootNodeModules =
+      /\/node_modules\/@bazel\/hide-bazel-files$/.test(cwd.replace(/\\/g, '/')) ?
+      path.dirname(path.dirname(cwd)) :
+      path.posix.join(cwd, 'node_modules');
+  for (f of findBazelFiles(rootNodeModules)) {
     const d = path.posix.join(path.dirname(f), `_${path.basename(f)}`);
     fs.renameSync(f, d);
   }

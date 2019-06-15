@@ -48,17 +48,9 @@ COMMON_ATTRIBUTES = dict(dict(), **{
 
         See https://github.com/bazelbuild/rules_nodejs/issues/802 for more details.
         
-        The recommended solution to the above is to add `@bazel/hide-bazel-files` to your `devDependencies`
-        and `hide-bazel-files` to your `postinstall` script like so:
-
-        ```
-        "devDependencies": {
-          "@bazel/hide-bazel-files": "latest"
-        },
-        "scripts": {
-          "postinstall": "hide-bazel-files"
-        }
-        ```
+        The recommended solution is to use the @bazel/hide-bazel-files utility to hide these files.
+        See https://github.com/bazelbuild/rules_nodejs/blob/master/packages/hide-bazel-files/README.md
+        for installation instructions.
 
         The alternate solution is to set `always_hide_bazel_files` to True which tell
         this rule to hide Bazel files even when `symlink_node_modules` is True. This means
