@@ -15,10 +15,11 @@ build --symlink_prefix=dist/
 # build --symlink_prefix=/
 # however this makes it harder to find outputs.
 
-# This option is changed to true in Bazel 0.27 but exposes a known worker mode bug:
+# --incompatible_list_based_execution_strategy_selection is changed to true in Bazel 0.27
+# it exposes a known worker mode bug:
 # https://github.com/bazelbuild/rules_typescript/issues/449
-# While we are fixing that issue, we need to keep this breaking change disabled
-build --incompatible_list_based_execution_strategy_selection=false
+# To workaround this, we must run our workers in a sandbox so they get a unique pwd
+build --worker_sandboxing
 
 # Specifies desired output mode for running tests.
 # Valid values are
