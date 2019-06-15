@@ -9,5 +9,8 @@
         "bazel",
         "javascript"
     ],
-    "description": "A tool that hides all Bazel files in node_modules by prefixing them with an underscore"
+    "description": "A tool that hides all Bazel files in node_modules by prefixing them with an underscore",
+    "scripts": {
+      "postinstall": "node ./index.js"
+    }
 }
