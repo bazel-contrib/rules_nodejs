@@ -13,34 +13,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Immediately exit if any command fails.
-set -e
+# --- begin runfiles.bash initialization v2 ---
+# Copy-pasted from the Bazel Bash runfiles library v2.
+set -o pipefail; f=bazel_tools/tools/bash/runfiles/runfiles.bash
+source "${RUNFILES_DIR:-/dev/null}/$f" 2>/dev/null || \
+  source "$(grep -sm1 "^$f " "${RUNFILES_MANIFEST_FILE:-/dev/null}" | cut -f2- -d' ')" 2>/dev/null || \
+  source "$0.runfiles/$f" 2>/dev/null || \
+  source "$(grep -sm1 "^$f " "$0.runfiles_manifest" | cut -f2- -d' ')" 2>/dev/null || \
+  source "$(grep -sm1 "^$f " "$0.exe.runfiles_manifest" | cut -f2- -d' ')" 2>/dev/null || \
+  { echo>&2 "ERROR: cannot find $f"; exit 1; }; f=; set -e
+# --- end runfiles.bash initialization v2 ---
 
-# --- begin runfiles.bash initialization ---
-# Source the runfiles library:
-# https://github.com/bazelbuild/bazel/blob/master/tools/bash/runfiles/runfiles.bash
-# The runfiles library defines rlocation, which is a platform independent function
-# used to lookup the runfiles locations. This code snippet is needed at the top
-# of scripts that use rlocation to lookup the location of runfiles.bash and source it
-if [[ ! -d "${RUNFILES_DIR:-/dev/null}" && ! -f "${RUNFILES_MANIFEST_FILE:-/dev/null}" ]]; then
-    if [[ -f "$0.runfiles_manifest" ]]; then
-      export RUNFILES_MANIFEST_FILE="$0.runfiles_manifest"
-    elif [[ -f "$0.runfiles/MANIFEST" ]]; then
-      export RUNFILES_MANIFEST_FILE="$0.runfiles/MANIFEST"
-    elif [[ -f "$0.runfiles/bazel_tools/tools/bash/runfiles/runfiles.bash" ]]; then
-      export RUNFILES_DIR="$0.runfiles"
-    fi
-fi
-if [[ -f "${RUNFILES_DIR:-/dev/null}/bazel_tools/tools/bash/runfiles/runfiles.bash" ]]; then
-  source "${RUNFILES_DIR}/bazel_tools/tools/bash/runfiles/runfiles.bash"
-elif [[ -f "${RUNFILES_MANIFEST_FILE:-/dev/null}" ]]; then
-  source "$(grep -m1 "^bazel_tools/tools/bash/runfiles/runfiles.bash " \
-            "$RUNFILES_MANIFEST_FILE" | cut -d ' ' -f 2-)"
-else
-  echo >&2 "ERROR: cannot find @bazel_tools//tools/bash/runfiles:runfiles.bash"
-  exit 1
-fi
-# --- end runfiles.bash initialization ---
+# Immediately exit if any command fails (must be after runfiles init)
+set -e
 
 # Launcher for NodeJS applications.
 # Find our runfiles. We need this to launch node with the correct
@@ -71,10 +56,10 @@ case "$0" in
  *) self="$PWD/$0" ;;
 esac
 
-if [[ -n "$RUNFILES_MANIFEST_ONLY" ]]; then
+if [[ -n "${RUNFILES_MANIFEST_ONLY-}" ]]; then
   # Windows only has a manifest file instead of symlinks.
   RUNFILES=${RUNFILES_MANIFEST_FILE%/MANIFEST}
-elif [[ -n "$TEST_SRCDIR" ]]; then
+elif [[ -n "${TEST_SRCDIR-}" ]]; then
   # Case 4, bazel has identified runfiles for us.
   RUNFILES="${TEST_SRCDIR}"
 else
@@ -199,7 +184,7 @@ for ARG in "${ALL_ARGS[@]}"; do
 done
 
 # Link the first-party modules into node_modules directory before running the actual program
-if [[ -n "$MODULES_MANIFEST" ]]; then
+if [[ -n "${MODULES_MANIFEST:-}" ]]; then
   "${node}" "${link_modules_script}" "${MODULES_MANIFEST}"
 fi
 
