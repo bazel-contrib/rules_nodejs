@@ -1,7 +1,30 @@
 "Unit tests for node.bzl"
 
 load("@bazel_skylib//lib:unittest.bzl", "analysistest", "asserts")
-load("@build_bazel_rules_nodejs//internal/node:node.bzl", "NodeJSRuntimeInfo", "nodejs_binary")
+load("//internal/node:node.bzl", "NodeJSRuntimeInfo")
+
+_DEFAULT_ATTRS = {
+    "node": attr.label(
+        default = Label("@nodejs//:node_bin"),
+        allow_single_file = True,
+    ),
+    "_repository_args": attr.label(
+        default = Label("@nodejs//:bin/node_repo_args.sh"),
+        allow_single_file = True,
+    ),
+    "_source_map_support_files": attr.label_list(
+        default = [
+            Label("//third_party/github.com/buffer-from:contents"),
+            Label("//third_party/github.com/source-map:contents"),
+            Label("//third_party/github.com/source-map-support:contents"),
+        ],
+        allow_files = True,
+    ),
+    "_bash": attr.label(
+      default = "@bazel_tools//tools/bash/runfiles",
+      allow_single_file = True,
+    )
+}
 
 def _provider_contents_test_impl(ctx):
     env = analysistest.begin(ctx)
@@ -12,8 +35,9 @@ def _provider_contents_test_impl(ctx):
     asserts.equals(env, ctx.file.node, target_under_test[NodeJSRuntimeInfo].toolchain)
 
     # check sources
+    sources = ctx.files.sources + [ctx.file._bash]
     asserts.equals(env, "depset", type(target_under_test[NodeJSRuntimeInfo].sources))
-    asserts.equals(env, ctx.files.sources, target_under_test[NodeJSRuntimeInfo].sources.to_list())
+    asserts.equals(env, sources, target_under_test[NodeJSRuntimeInfo].sources.to_list())
 
     # check node_modules
     asserts.equals(env, "depset", type(target_under_test[NodeJSRuntimeInfo].node_modules))
@@ -21,19 +45,20 @@ def _provider_contents_test_impl(ctx):
 
     # check node_runfiles
     actions = analysistest.target_actions(env)
-    action_output = actions[0].outputs.to_list()[0]
+    loader_output = actions[0].outputs.to_list()[0]
+    launcher_script_output = actions[1].outputs.to_list()[0]
     asserts.equals(env, "depset", type(target_under_test[NodeJSRuntimeInfo].node_runfiles))
-    node_runfiles = [action_output, ctx.file._repository_args] + ctx.files._source_map_support_files
-    asserts.equals(env, node_runfiles, target_under_test[NodeJSRuntimeInfo].node_runfiles.to_list())
+    node_runfiles = sorted([loader_output, launcher_script_output, ctx.file._repository_args] + ctx.files._source_map_support_files)
+    asserts.equals(env, node_runfiles, sorted(target_under_test[NodeJSRuntimeInfo].node_runfiles.to_list()))
+
+    # check target's runfiles
+    all_files = sorted([ctx.file.node, ctx.file._bash] + ctx.files.sources + ctx.files.node_modules + node_runfiles)
+    asserts.equals(env, all_files, sorted(target_under_test[DefaultInfo].default_runfiles.files.to_list()))
     return analysistest.end(env)
 
 provider_contents_test = analysistest.make(
     _provider_contents_test_impl,
-    attrs = {
-        "node": attr.label(
-            default = Label("@nodejs//:node_bin"),
-            allow_single_file = True,
-        ),
+    attrs = dict(_DEFAULT_ATTRS, **{
         "node_modules": attr.label_list(
             allow_files = True,
             default = [Label("@fine_grained_deps_yarn//typescript")],
@@ -42,33 +67,35 @@ provider_contents_test = analysistest.make(
             allow_files = True,
             default = [Label("//internal/node/test:has-deps.js")],
         ),
-        "_repository_args": attr.label(
-            default = Label("@nodejs//:bin/node_repo_args.sh"),
-            allow_single_file = True,
-        ),
-        "_source_map_support_files": attr.label_list(
-            default = [
-                Label("@build_bazel_rules_nodejs//third_party/github.com/buffer-from:contents"),
-                Label("@build_bazel_rules_nodejs//third_party/github.com/source-map:contents"),
-                Label("@build_bazel_rules_nodejs//third_party/github.com/source-map-support:contents"),
-            ],
+    }),
+)
+
+transitive_provider_contents_test = analysistest.make(
+    _provider_contents_test_impl,
+    attrs = dict(_DEFAULT_ATTRS, **{
+        "node_modules": attr.label_list(
             allow_files = True,
+            default = [Label("@fine_grained_deps_yarn//typescript")],
         ),
-    },
+        "sources": attr.label_list(
+            allow_files = True,
+            default = [
+              Label("//internal/node/test:transitive-deps.js"),
+              Label("//internal/node/test:has-deps.js"),
+            ],
+        ),
+    }),
 )
 
 def test_nodejs_runtime_info_contents():
-    nodejs_binary(
-        name = "nodejs_runtime_info_test",
-        data = [
-            ":has-deps.js",
-            "@fine_grained_deps_yarn//typescript",
-        ],
-        entry_point = ":has-deps.js",
-    )
     provider_contents_test(
-        name = "provider_contents",
-        target_under_test = ":nodejs_runtime_info_test",
+        name = "provider_contents_test",
+        target_under_test = ":has_deps_bin",
+    )
+
+    transitive_provider_contents_test(
+      name = "transitive_provider_contents_test",
+      target_under_test = ":transitive_deps_bin"
     )
 
 def nodejs_binary_test_suite():
@@ -77,6 +104,7 @@ def nodejs_binary_test_suite():
     native.test_suite(
         name = "nodejs_binary_test",
         tests = [
-            ":provider_contents",
+            ":provider_contents_test",
+            ":transitive_provider_contents_test",
         ],
     )

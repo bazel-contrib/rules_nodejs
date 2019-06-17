@@ -1,10 +1,26 @@
 load("//:defs.bzl", "nodejs_binary")
 load("//internal/js_library:js_library.bzl", "js_library")
+load(":js_import.bzl", "js_import")
 load(":nodejs_binary_test.bzl", "nodejs_binary_test_suite")
 
 exports_files(["has-deps.js"])
 
 nodejs_binary_test_suite()
+
+js_import(
+    name = "transitive-dep",
+    srcs = [":has-deps.js"],
+    deps = ["@fine_grained_deps_yarn//typescript"],
+)
+
+nodejs_binary(
+    name = "transitive_deps",
+    data = [
+        "transitive-deps.js",
+        ":transitive-dep",
+    ],
+    entry_point = ":transitive-deps.js",
+)
 
 # You can have a nodejs_binary with no node_modules attribute
 # and no fine grained deps

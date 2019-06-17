@@ -20,7 +20,7 @@ They support module mapping: any targets in the transitive dependencies with
 a `module_name` attribute can be `require`d by that name.
 """
 
-load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleSources", "collect_node_modules_aspect")
+load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleSources", "NodeModuleInfo", "collect_node_modules_aspect")
 load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles", "expand_path_into_runfiles")
 load("//internal/common:module_mappings.bzl", "module_mappings_runtime_aspect")
 load("//internal/common:sources_aspect.bzl", "sources_aspect")
@@ -148,7 +148,8 @@ def _nodejs_binary_impl(ctx):
     for d in ctx.attr.data:
         if NodeModuleSources in d:
             node_modules = depset(transitive = [node_modules, d[NodeModuleSources].sources])
-        else:
+        if NodeModuleInfo not in d:
+            # Sources from npm fine grained deps should not be included
             if hasattr(d, "node_sources"):
                 sources = depset(transitive = [sources, d.node_sources])
             if hasattr(d, "files"):
@@ -191,7 +192,10 @@ def _nodejs_binary_impl(ctx):
         is_executable = True,
     )
 
-    runfiles = depset([node, ctx.outputs.loader, ctx.file._repository_args], transitive = [sources, node_modules])
+    # Not using ctx.files due to performance reasons. See: https://github.com/bazelbuild/bazel/issues/6496
+    source_map_support_files = depset(transitive = [t[DefaultInfo].files for t in ctx.attr._source_map_support_files])
+
+    runfiles = depset([node, ctx.outputs.loader, ctx.file._repository_args], transitive = [sources, node_modules, source_map_support_files])
 
     # entry point is only needed in runfiles if it is a .js file
     if ctx.file.entry_point.extension == "js":
@@ -200,24 +204,15 @@ def _nodejs_binary_impl(ctx):
     return [
         DefaultInfo(
             executable = ctx.outputs.script,
+            # The runfiles part of DefaultInfo is lacking docs. For more usage details see: https://github.com/bazelbuild/bazel/issues/3015 and
+            # https://github.com/bazelbuild/bazel/issues/6908
             runfiles = ctx.runfiles(
                 transitive_files = runfiles,
-                files = [
-                            node,
-                            ctx.outputs.loader,
-                        ] + ctx.files._source_map_support_files +
-
-                        # We need this call to the list of Files.
-                        # Calling the .to_list() method may have some perfs hits,
-                        # so we should be running this method only once per rule.
-                        # see: https://docs.bazel.build/versions/master/skylark/depsets.html#performance
-                        node_modules.to_list() + sources.to_list(),
-                collect_data = True,
             ),
         ),
         NodeJSRuntimeInfo(
             toolchain = node,
-            node_runfiles = depset([ctx.outputs.loader, ctx.file._repository_args] + ctx.files._source_map_support_files),
+            node_runfiles = depset([ctx.outputs.loader, ctx.outputs.script, ctx.file._repository_args], transitive = [source_map_support_files]),
             sources = sources,
             node_modules = node_modules,
         ),
