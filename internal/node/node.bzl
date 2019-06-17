@@ -208,6 +208,7 @@ def _nodejs_binary_impl(ctx):
             # https://github.com/bazelbuild/bazel/issues/6908
             runfiles = ctx.runfiles(
                 transitive_files = runfiles,
+                collect_data = True,
             ),
         ),
         NodeJSRuntimeInfo(
