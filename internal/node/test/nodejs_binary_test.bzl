@@ -8,6 +8,10 @@ _DEFAULT_ATTRS = {
         default = Label("@nodejs//:node_bin"),
         allow_single_file = True,
     ),
+    "_bash": attr.label(
+        default = "@bazel_tools//tools/bash/runfiles",
+        allow_single_file = True,
+    ),
     "_repository_args": attr.label(
         default = Label("@nodejs//:bin/node_repo_args.sh"),
         allow_single_file = True,
@@ -19,10 +23,6 @@ _DEFAULT_ATTRS = {
             Label("//third_party/github.com/source-map-support:contents"),
         ],
         allow_files = True,
-    ),
-    "_bash": attr.label(
-        default = "@bazel_tools//tools/bash/runfiles",
-        allow_single_file = True,
     ),
 }
 

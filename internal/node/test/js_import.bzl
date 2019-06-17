@@ -1,3 +1,5 @@
+"""Allow to test transtive depedency loading with nodejs_binary"""
+
 load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleInfo")
 
 def _collect_sources(ctx):
@@ -56,4 +58,3 @@ js_import = rule(
         "deps": attr.label_list(allow_files = True),
     },
 )
-"""Allow to test transtive depedency loading with nodejs_binary"""
