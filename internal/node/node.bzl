@@ -179,7 +179,7 @@ def _nodejs_binary_impl(ctx):
         is_executable = True,
     )
 
-    runfiles = depset([node, ctx.outputs.loader, ctx.file._repository_args], transitive = [sources, node_modules])
+    runfiles = depset([node, ctx.outputs.loader, ctx.file._repository_args] + ctx.files._source_map_support_files, transitive = [sources, node_modules])
 
     # entry point is only needed in runfiles if it is a .js file
     if ctx.file.entry_point.extension == "js":
@@ -189,17 +189,17 @@ def _nodejs_binary_impl(ctx):
         executable = ctx.outputs.script,
         runfiles = ctx.runfiles(
             transitive_files = runfiles,
-            files = [
-                        node,
-                        ctx.outputs.loader,
-                    ] + ctx.files._source_map_support_files +
+            # files = [
+            #             node,
+            #             ctx.outputs.loader,
+            #         ] + ctx.files._source_map_support_files +
 
-                    # We need this call to the list of Files.
-                    # Calling the .to_list() method may have some perfs hits,
-                    # so we should be running this method only once per rule.
-                    # see: https://docs.bazel.build/versions/master/skylark/depsets.html#performance
-                    node_modules.to_list() + sources.to_list(),
-            collect_data = True,
+            #         # We need this call to the list of Files.
+            #         # Calling the .to_list() method may have some perfs hits,
+            #         # so we should be running this method only once per rule.
+            #         # see: https://docs.bazel.build/versions/master/skylark/depsets.html#performance
+            #         node_modules.to_list() + sources.to_list(),
+            # collect_data = True,
         ),
     )]
 
