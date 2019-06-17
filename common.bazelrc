@@ -15,6 +15,11 @@ build --symlink_prefix=dist/
 # build --symlink_prefix=/
 # however this makes it harder to find outputs.
 
+# This option is changed to true in Bazel 0.27 but exposes a known worker mode bug:
+# https://github.com/bazelbuild/rules_typescript/issues/449
+# While we are fixing that issue, we need to keep this breaking change disabled
+build --incompatible_list_based_execution_strategy_selection=false
+
 # Specifies desired output mode for running tests.
 # Valid values are
 #   'summary' to output only test status summary
