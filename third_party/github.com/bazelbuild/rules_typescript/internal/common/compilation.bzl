@@ -123,6 +123,10 @@ def _collect_dep_declarations(ctx, deps):
         for dep in deps_and_helpers
     ]
 
+    # all reachable .d.ts files from node_modules attribute (if it has a typescript provider)
+    if hasattr(ctx.attr, "node_modules") and hasattr(ctx.attr.node_modules, "typescript"):
+        transitive_deps_declarations += [ctx.attr.node_modules.typescript.transitive_declarations]
+
     # .d.ts files whose types tsickle will not emit (used for ts_declaration(generate_externs=False).
     type_blacklisted_declarations = [
         dep.typescript.type_blacklisted_declarations
