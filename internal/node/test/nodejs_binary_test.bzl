@@ -21,9 +21,9 @@ _DEFAULT_ATTRS = {
         allow_files = True,
     ),
     "_bash": attr.label(
-      default = "@bazel_tools//tools/bash/runfiles",
-      allow_single_file = True,
-    )
+        default = "@bazel_tools//tools/bash/runfiles",
+        allow_single_file = True,
+    ),
 }
 
 def _provider_contents_test_impl(ctx):
@@ -80,8 +80,8 @@ transitive_provider_contents_test = analysistest.make(
         "sources": attr.label_list(
             allow_files = True,
             default = [
-              Label("//internal/node/test:transitive-deps.js"),
-              Label("//internal/node/test:has-deps.js"),
+                Label("//internal/node/test:transitive-deps.js"),
+                Label("//internal/node/test:has-deps.js"),
             ],
         ),
     }),
@@ -94,8 +94,8 @@ def test_nodejs_runtime_info_contents():
     )
 
     transitive_provider_contents_test(
-      name = "transitive_provider_contents_test",
-      target_under_test = ":transitive_deps_bin"
+        name = "transitive_provider_contents_test",
+        target_under_test = ":transitive_deps_bin",
     )
 
 def nodejs_binary_test_suite():
