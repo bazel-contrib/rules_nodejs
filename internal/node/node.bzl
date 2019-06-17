@@ -189,17 +189,7 @@ def _nodejs_binary_impl(ctx):
         executable = ctx.outputs.script,
         runfiles = ctx.runfiles(
             transitive_files = runfiles,
-            # files = [
-            #             node,
-            #             ctx.outputs.loader,
-            #         ] + ctx.files._source_map_support_files +
-
-            #         # We need this call to the list of Files.
-            #         # Calling the .to_list() method may have some perfs hits,
-            #         # so we should be running this method only once per rule.
-            #         # see: https://docs.bazel.build/versions/master/skylark/depsets.html#performance
-            #         node_modules.to_list() + sources.to_list(),
-            # collect_data = True,
+            collect_data = True,
         ),
     )]
 
