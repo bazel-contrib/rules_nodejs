@@ -57,13 +57,9 @@ function main(args) {
   }
   // first args is always the path to the manifest
   const manifest = require.resolve(args[0]);
-  // second is always a flag to enable coverage or not
-  const coverageArg = args[1];
-  const enableCoverage = coverageArg === '--coverage';
 
   // Remove the manifest, some tested code may process the argv.
-  // Also remove the --coverage flag
-  process.argv.splice(2, 2)[0];
+  process.argv.splice(1, 1)[0];
 
   // the relative directory the coverage reporter uses to find anf filter the files
   const cwd = process.cwd()
@@ -105,48 +101,42 @@ function main(args) {
   // so we need to add it back
   jrunner.configureDefaultReporter({});
 
-
-  let covExecutor;
-  let covDir;
-  if (enableCoverage) {
-    // lazily pull these deps in for only when we want to collect coverage
-    const crypto = require('crypto');
-    const Execute = require('v8-coverage/src/execute');
-
-    // make a tmpdir inside our tmpdir for just this run
-    covDir = path.join(process.env['TEST_TMPDIR'], String(crypto.randomBytes(4).readUInt32LE(0)));
-    covExecutor = new Execute({include: sourceFiles, exclude: []});
-    covExecutor.startProfiler();
-  }
-
   jrunner.onComplete((passed) => {
     let exitCode = passed ? 0 : BAZEL_EXIT_TESTS_FAILED;
     if (noSpecsFound) exitCode = BAZEL_EXIT_NO_TESTS_FOUND;
 
-    if (enableCoverage) {
-      const Report = require('v8-coverage/src/report');
-      covExecutor.stopProfiler((err, data) => {
-        if (err) {
-          console.error(err);
-          process.exit(1);
+    const covDir = process.env['NODE_V8_COVERAGE']
+    console.log(!!covDir)
+    if (covDir) {
+      console.log('asd');
+      try {
+        const Report = require('v8-coverage/src/report');
+
+        const coverageFiles = fs.readdirSync(covDir);
+        if (coverageFiles.length > 1) {
+          throw new Error(
+              `Expected only one v8 coverage file but got ${coverageFiles.length} in dir ${covDir}`)
         }
-        const sourceCoverge = covExecutor.filterResult(data.result);
-        // we could do this all in memory if we wanted
+        const coverageFile = coverageFiles[0];
+        const v8Coverage = JSON.parse(fs.readFileSync(path.join(covDir, coverageFile)).toString());
+        // We could do this all in memory if we wanted
         // just take a look at v8-coverage/src/report.js and reimplement some of those methods
         // but we're going to have to write a file at some point for bazel coverage
         // so may as well support it now
-        // the lib expects these paths to exist for some reason
-        fs.mkdirSync(covDir);
+        // The lib expects these paths to exist for some reason
         fs.mkdirSync(path.join(covDir, 'tmp'));
-        // only do a text summary for now
+        // Only do a text summary for now
         // once we know what format bazel coverage wants we can output
-        // lcov or some other format
+        // probably lcov or some other format
         const report = new Report(covDir, ['text-summary']);
-        report.store(sourceCoverge);
+        report.store(v8Coverage);
         report.generateReport();
 
         process.exit(exitCode);
-      });
+      } catch (e) {
+        console.error(e);
+        process.exit(1);
+      }
     } else {
       process.exit(exitCode);
     }
