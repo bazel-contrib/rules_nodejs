@@ -132,7 +132,7 @@ as the package manager.</p>
 
           <h2 id="npm_install">npm_install</h2>
 
-          <pre>npm_install(<a href="#npm_install.name">name</a>, <a href="#npm_install.data">data</a>, <a href="#npm_install.exclude_packages">exclude_packages</a>, <a href="#npm_install.included_files">included_files</a>, <a href="#npm_install.manual_build_file_contents">manual_build_file_contents</a>, <a href="#npm_install.package_json">package_json</a>, <a href="#npm_install.package_lock_json">package_lock_json</a>, <a href="#npm_install.prod_only">prod_only</a>, <a href="#npm_install.quiet">quiet</a>, <a href="#npm_install.symlink_node_modules">symlink_node_modules</a>, <a href="#npm_install.timeout">timeout</a>)</pre>
+          <pre>npm_install(<a href="#npm_install.name">name</a>, <a href="#npm_install.data">data</a>, <a href="#npm_install.always_hide_bazel_files">always_hide_bazel_files</a>, <a href="#npm_install.exclude_packages">exclude_packages</a>, <a href="#npm_install.included_files">included_files</a>, <a href="#npm_install.manual_build_file_contents">manual_build_file_contents</a>, <a href="#npm_install.package_json">package_json</a>, <a href="#npm_install.package_lock_json">package_lock_json</a>, <a href="#npm_install.prod_only">prod_only</a>, <a href="#npm_install.quiet">quiet</a>, <a href="#npm_install.symlink_node_modules">symlink_node_modules</a>, <a href="#npm_install.timeout">timeout</a>)</pre>
 
           <p>Runs npm install during workspace setup.</p>
 
@@ -159,6 +159,41 @@ as the package manager.</p>
         <p>Data files required by this rule.</p>
 <pre><code>    If symlink_node_modules is True, this attribute is ignored since
     the dependency manager will run in the package.json location.
+</code></pre>
+      </td>
+    </tr>
+    <tr id="npm_install.always_hide_bazel_files">
+      <td><code>always_hide_bazel_files</code></td>
+      <td>
+        <p><code>Boolean; Optional; Default is False</code></p>
+        <p>If True then Bazel build files such as <code>BUILD</code> and BUILD.bazel<code>will always be hidden by prefixing them with</code>_`.</p>
+<pre><code>    Defaults to False, in which case Bazel files are _not_ hidden when `symlink_node_modules`
+    is True. In this case, the rule will report an error when there are Bazel files detected
+    in npm packages.
+
+    Reporting the error is desirable as relying on this repository rule to hide
+    these files does not work in the case where a user deletes their node_modules folder
+    and manually re-creates it with yarn or npm outside of Bazel which would restore them.
+    On a subsequent Bazel build, this repository rule does not re-run and the presence
+    of the Bazel files leads to a build failure that looks like the following:
+
+    ```
+    ERROR: /private/var/tmp/_bazel_greg/37b273501bbecefcf5ce4f3afcd7c47a/external/npm/BUILD.bazel:9:1:
+    Label '@npm//:node_modules/rxjs/src/AsyncSubject.ts' crosses boundary of subpackage '@npm//node_modules/rxjs/src'
+    (perhaps you meant to put the colon here: '@npm//node_modules/rxjs/src:AsyncSubject.ts'?)
+    ```
+
+    See https://github.com/bazelbuild/rules_nodejs/issues/802 for more details.
+
+    The recommended solution is to use the @bazel/hide-bazel-files utility to hide these files.
+    See https://github.com/bazelbuild/rules_nodejs/blob/master/packages/hide-bazel-files/README.md
+    for installation instructions.
+
+    The alternate solution is to set `always_hide_bazel_files` to True which tell
+    this rule to hide Bazel files even when `symlink_node_modules` is True. This means
+    you won't need to use `@bazel/hide-bazel-files` utility but if you manually recreate
+    your `node_modules` folder via yarn or npm outside of Bazel you may run into the above
+    error.
 </code></pre>
       </td>
     </tr>
@@ -266,7 +301,7 @@ as the package manager.</p>
 
           <h2 id="yarn_install">yarn_install</h2>
 
-          <pre>yarn_install(<a href="#yarn_install.name">name</a>, <a href="#yarn_install.data">data</a>, <a href="#yarn_install.exclude_packages">exclude_packages</a>, <a href="#yarn_install.included_files">included_files</a>, <a href="#yarn_install.manual_build_file_contents">manual_build_file_contents</a>, <a href="#yarn_install.network_timeout">network_timeout</a>, <a href="#yarn_install.package_json">package_json</a>, <a href="#yarn_install.prod_only">prod_only</a>, <a href="#yarn_install.quiet">quiet</a>, <a href="#yarn_install.symlink_node_modules">symlink_node_modules</a>, <a href="#yarn_install.timeout">timeout</a>, <a href="#yarn_install.use_global_yarn_cache">use_global_yarn_cache</a>, <a href="#yarn_install.yarn_lock">yarn_lock</a>)</pre>
+          <pre>yarn_install(<a href="#yarn_install.name">name</a>, <a href="#yarn_install.data">data</a>, <a href="#yarn_install.always_hide_bazel_files">always_hide_bazel_files</a>, <a href="#yarn_install.exclude_packages">exclude_packages</a>, <a href="#yarn_install.included_files">included_files</a>, <a href="#yarn_install.manual_build_file_contents">manual_build_file_contents</a>, <a href="#yarn_install.network_timeout">network_timeout</a>, <a href="#yarn_install.package_json">package_json</a>, <a href="#yarn_install.prod_only">prod_only</a>, <a href="#yarn_install.quiet">quiet</a>, <a href="#yarn_install.symlink_node_modules">symlink_node_modules</a>, <a href="#yarn_install.timeout">timeout</a>, <a href="#yarn_install.use_global_yarn_cache">use_global_yarn_cache</a>, <a href="#yarn_install.yarn_lock">yarn_lock</a>)</pre>
 
           <p>Runs yarn install during workspace setup.</p>
 
@@ -293,6 +328,41 @@ as the package manager.</p>
         <p>Data files required by this rule.</p>
 <pre><code>    If symlink_node_modules is True, this attribute is ignored since
     the dependency manager will run in the package.json location.
+</code></pre>
+      </td>
+    </tr>
+    <tr id="yarn_install.always_hide_bazel_files">
+      <td><code>always_hide_bazel_files</code></td>
+      <td>
+        <p><code>Boolean; Optional; Default is False</code></p>
+        <p>If True then Bazel build files such as <code>BUILD</code> and BUILD.bazel<code>will always be hidden by prefixing them with</code>_`.</p>
+<pre><code>    Defaults to False, in which case Bazel files are _not_ hidden when `symlink_node_modules`
+    is True. In this case, the rule will report an error when there are Bazel files detected
+    in npm packages.
+
+    Reporting the error is desirable as relying on this repository rule to hide
+    these files does not work in the case where a user deletes their node_modules folder
+    and manually re-creates it with yarn or npm outside of Bazel which would restore them.
+    On a subsequent Bazel build, this repository rule does not re-run and the presence
+    of the Bazel files leads to a build failure that looks like the following:
+
+    ```
+    ERROR: /private/var/tmp/_bazel_greg/37b273501bbecefcf5ce4f3afcd7c47a/external/npm/BUILD.bazel:9:1:
+    Label '@npm//:node_modules/rxjs/src/AsyncSubject.ts' crosses boundary of subpackage '@npm//node_modules/rxjs/src'
+    (perhaps you meant to put the colon here: '@npm//node_modules/rxjs/src:AsyncSubject.ts'?)
+    ```
+
+    See https://github.com/bazelbuild/rules_nodejs/issues/802 for more details.
+
+    The recommended solution is to use the @bazel/hide-bazel-files utility to hide these files.
+    See https://github.com/bazelbuild/rules_nodejs/blob/master/packages/hide-bazel-files/README.md
+    for installation instructions.
+
+    The alternate solution is to set `always_hide_bazel_files` to True which tell
+    this rule to hide Bazel files even when `symlink_node_modules` is True. This means
+    you won't need to use `@bazel/hide-bazel-files` utility but if you manually recreate
+    your `node_modules` folder via yarn or npm outside of Bazel you may run into the above
+    error.
 </code></pre>
       </td>
     </tr>

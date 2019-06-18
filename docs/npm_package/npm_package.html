@@ -180,7 +180,7 @@ to be nested inside this package</p>
 
           <h2 id="npm_package">npm_package</h2>
 
-          <pre>npm_package(<a href="#npm_package.name">name</a>, <a href="#npm_package.deps">deps</a>, <a href="#npm_package.srcs">srcs</a>, <a href="#npm_package.packages">packages</a>, <a href="#npm_package.replace_with_version">replace_with_version</a>, <a href="#npm_package.replacements">replacements</a>, <a href="#npm_package.vendor_external">vendor_external</a>)</pre>
+          <pre>npm_package(<a href="#npm_package.name">name</a>, <a href="#npm_package.deps">deps</a>, <a href="#npm_package.srcs">srcs</a>, <a href="#npm_package.packages">packages</a>, <a href="#npm_package.rename_build_files">rename_build_files</a>, <a href="#npm_package.replace_with_version">replace_with_version</a>, <a href="#npm_package.replacements">replacements</a>, <a href="#npm_package.vendor_external">vendor_external</a>)</pre>
 
           <p>The npm_package rule creates a directory containing a publishable npm artifact.</p>
 <pre><code class="lang-python">load(&quot;@build_bazel_rules_nodejs//:defs.bzl&quot;, &quot;npm_package&quot;)
@@ -257,6 +257,15 @@ $ bazel run :my_package.publish
       <td>
         <p><code>List of <a href="https://bazel.build/docs/build-ref.html#labels">labels</a>; Optional; Default is []</code></p>
         <p>Other npm_package rules whose content is copied into this package.</p>
+      </td>
+    </tr>
+    <tr id="npm_package.rename_build_files">
+      <td><code>rename_build_files</code></td>
+      <td>
+        <p><code>Boolean; Optional; Default is True</code></p>
+        <p>If set BUILD and BUILD.bazel files are prefixed with <code>_</code> in the npm package.
+        The default is True since npm packages that contain BUILD files don't work with
+        <code>yarn_install</code> and <code>npm_install</code> without a post-install step that deletes or renames them.</p>
       </td>
     </tr>
     <tr id="npm_package.replace_with_version">
