@@ -1,0 +1,22 @@
+# [0.32.0](https://github.com/alexeagle/rules_nodejs/compare/0.31.1...0.32.0) (2019-06-18)
+
+
+### Bug Fixes
+
+* **builtin:** add @bazel/hide-bazel-files utility ([e7d2fbd](https://github.com/alexeagle/rules_nodejs/commit/e7d2fbd))
+* **builtin:** fix for issue 834 ([#847](https://github.com/alexeagle/rules_nodejs/issues/847)) ([c0fe512](https://github.com/alexeagle/rules_nodejs/commit/c0fe512))
+* **builtin:** fix for symlinked node_modules issue [#802](https://github.com/alexeagle/rules_nodejs/issues/802) ([43cebe7](https://github.com/alexeagle/rules_nodejs/commit/43cebe7))
+* **create:** run ts_setup_workspace in TypeScript workspaces ([c8e61c5](https://github.com/alexeagle/rules_nodejs/commit/c8e61c5))
+* **typescript:** fix issue with types[] in non-sandboxed tsc ([08b231a](https://github.com/alexeagle/rules_nodejs/commit/08b231a))
+* **typescript:** include transitive_declarations ([bbcfcdd](https://github.com/alexeagle/rules_nodejs/commit/bbcfcdd))
+
+
+### Features
+
+* **builtin:** e2e tests for symlinked node_modules and hide-bazel-files ([8cafe43](https://github.com/alexeagle/rules_nodejs/commit/8cafe43))
+* **create:** add a .gitignore file in new workspaces ([#849](https://github.com/alexeagle/rules_nodejs/issues/849)) ([3c05167](https://github.com/alexeagle/rules_nodejs/commit/3c05167))
+* **create:** add hide-bazel-files to @bazel/create ([03b7dae](https://github.com/alexeagle/rules_nodejs/commit/03b7dae))
+* implicit hide-bazel-files ([1a8175d](https://github.com/alexeagle/rules_nodejs/commit/1a8175d))
+
+
+
