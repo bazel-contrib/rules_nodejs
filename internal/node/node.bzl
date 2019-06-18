@@ -157,6 +157,9 @@ def _nodejs_binary_impl(ctx):
         if k in ctx.var.keys():
             env_vars += "export %s=\"%s\"\n" % (k, ctx.var[k])
 
+    if ctx.attr.coverage:   
+        env_vars += "export NODE_V8_COVERAGE=$TEST_TMPDIR/$BUILD_TIMESTAMP\n"
+
     expected_exit_code = 0
     if hasattr(ctx.attr, "expected_exit_code"):
         expected_exit_code = ctx.attr.expected_exit_code
@@ -366,6 +369,11 @@ _NODEJS_EXECUTABLE_ATTRS = {
         To pass a node startup option, prepend it with `--node_options=`, e.g.
         `--node_options=--preserve-symlinks`
         """,
+    ),
+    "coverage": attr.bool(
+        doc = """Weather to collect code coverage information
+        """,
+        default = False,
     ),
     "_launcher_template": attr.label(
         default = Label("//internal/node:node_launcher.sh"),
