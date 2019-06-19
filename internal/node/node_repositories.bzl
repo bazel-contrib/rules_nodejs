@@ -447,8 +447,8 @@ if %errorlevel% neq 0 exit /b %errorlevel%
             "TEMPLATED_is_windows": "true" if is_windows else "false",
             "TEMPLATED_node_actual": node_entry,
             "TEMPLATED_node_bin_actual": node_exec_label,
-            "TEMPLATED_vendored_node": "true" if repository_ctx.attr.vendored_node else "false",
             "TEMPLATED_npm_actual": npm_node_repositories_entry,
+            "TEMPLATED_vendored_node": "true" if repository_ctx.attr.vendored_node else "false",
             "TEMPLATED_yarn_actual": yarn_node_repositories_entry,
         },
     )
