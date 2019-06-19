@@ -453,7 +453,11 @@ if %errorlevel% neq 0 exit /b %errorlevel%
         # We have to use the relative path here otherwise bazel reports a cycle
         result = repository_ctx.execute([node_entry, "generate_build_file.js"])
     else:
-        fail("The repository name has to be either 'nodejs' or include one of the following OS identifiers in its name: %s" % ", ".join([os for os, _ in OS_ARCH_NAMES]))
+        node_name = "node.exe" if host_os == "windows" else "node"
+        # Note: If no vendored node is provided we just assume that there exists a nodejs external repository
+        node_label = repository_ctx.attr.vendored_node if repository_ctx.attr.vendored_node else Label(("@nodejs//:bin/nodejs/bin/%s" % node_name))
+        host_node = repository_ctx.path(node_label)
+        result = repository_ctx.execute([host_node, "generate_build_file.js"])
 
     if result.return_code:
         fail("generate_build_file.js failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
