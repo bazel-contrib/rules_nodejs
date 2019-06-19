@@ -81,7 +81,6 @@ def test_runfiles_contents():
         target_under_test = ":no_deps",
     )
 
-
 def nodejs_binary_test_suite():
     test_runfiles_contents()
 
