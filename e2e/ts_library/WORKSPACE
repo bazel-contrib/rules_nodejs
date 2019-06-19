@@ -46,9 +46,3 @@ install_bazel_dependencies()
 load("@npm_bazel_typescript//:index.bzl", "ts_setup_workspace")
 
 ts_setup_workspace()
-
-# Tell Bazel where the nested local repositories are that are used for tests
-local_repository(
-    name = "disable_tsetse_for_external_test",
-    path = "disable_tsetse_for_external",
-)

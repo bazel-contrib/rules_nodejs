@@ -12,6 +12,6 @@
   },
   "scripts": {
     "pretest": "bazel run @nodejs//:yarn",
-    "test": "bazel build ... && bazel test ... && bazel build @disable_tsetse_for_external_test//..."
+    "test": "bazel test ..."
   }
 }
