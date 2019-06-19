@@ -20,13 +20,13 @@ linux_platform_toolchain_test = analysistest.make(
         "//command_line_option:platforms": "@build_bazel_rules_nodejs//toolchains/node:linux_amd64",
     },
     attrs = {
-        "node_selected": attr.label(
-            default = Label("@nodejs_linux_amd64//:node_bin"),
-            allow_single_file = True,
-        ),
         "node_other": attr.label_list(
             default = [Label("@nodejs_windows_amd64//:node_bin"), Label("@nodejs_darwin_amd64//:node_bin")],
             allow_files = True,
+        ),
+        "node_selected": attr.label(
+            default = Label("@nodejs_linux_amd64//:node_bin"),
+            allow_single_file = True,
         ),
     },
 )
@@ -37,13 +37,13 @@ windows_platform_toolchain_test = analysistest.make(
         "//command_line_option:platforms": "@build_bazel_rules_nodejs//toolchains/node:windows_amd64",
     },
     attrs = {
-        "node_selected": attr.label(
-            default = Label("@nodejs_windows_amd64//:node_bin"),
-            allow_single_file = True,
-        ),
         "node_other": attr.label_list(
             default = [Label("@nodejs_linux_amd64//:node_bin"), Label("@nodejs_darwin_amd64//:node_bin")],
             allow_files = True,
+        ),
+        "node_selected": attr.label(
+            default = Label("@nodejs_windows_amd64//:node_bin"),
+            allow_single_file = True,
         ),
     },
 )
@@ -54,13 +54,13 @@ darwin_platform_toolchain_test = analysistest.make(
         "//command_line_option:platforms": "@build_bazel_rules_nodejs//toolchains/node:darwin_amd64",
     },
     attrs = {
-        "node_selected": attr.label(
-            default = Label("@nodejs_darwin_amd64//:node_bin"),
-            allow_single_file = True,
-        ),
         "node_other": attr.label_list(
             default = [Label("@nodejs_windows_amd64//:node_bin"), Label("@nodejs_linux_amd64//:node_bin")],
             allow_files = True,
+        ),
+        "node_selected": attr.label(
+            default = Label("@nodejs_darwin_amd64//:node_bin"),
+            allow_single_file = True,
         ),
     },
 )

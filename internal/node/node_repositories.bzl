@@ -20,7 +20,7 @@ See https://docs.bazel.build/versions/master/skylark/repository_rules.html
 
 load("//internal/common:check_bazel_version.bzl", "check_bazel_version")
 load("//internal/common:check_version.bzl", "check_version")
-load("//internal/common:os_name.bzl", "OS_ARCH_NAMES", "OS_NAMES", "os_name")
+load("//internal/common:os_name.bzl", "OS_NAMES", "os_name")
 load("//internal/npm_install:npm_install.bzl", "yarn_install")
 load("//third_party/github.com/bazelbuild/bazel-skylib:lib/paths.bzl", "paths")
 load("//toolchains/node:node_configure.bzl", node_toolchain_configure = "node_configure")
