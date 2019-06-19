@@ -23,7 +23,6 @@ const fs = require('fs');
 const path = require('path');
 
 const IS_WINDOWS = TEMPLATED_is_windows;
-const NODE_DIR = 'TEMPLATED_node_dir';
 const NODE_ACTUAL = 'TEMPLATED_node_actual';
 const NODE_BIN_ACTUAL = 'TEMPLATED_node_bin_actual';
 const NPM_ACTUAL = 'TEMPLATED_npm_actual';
@@ -70,7 +69,7 @@ package(default_visibility = ["//visibility:public"])
 exports_files([
   "run_npm.sh.template",
   "bin/node_repo_args.sh",
-  "${NODE_DIR}/bin/node",
+  "${NODE_BIN_ACTUAL}",
   "bin/node${binaryExt}",
   "bin/npm${binaryExt}",
   "bin/npm_node_repositories${binaryExt}",
