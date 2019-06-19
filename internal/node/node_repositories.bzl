@@ -196,6 +196,7 @@ def _prepare_node(repository_ctx):
       repository_ctx: The repository rule context
     """
     is_windows_os = os_name(repository_ctx).find("windows") != -1
+
     # TODO: Maybe we want to encode the OS as a specific attribute rather than do it based on naming?
     is_windows_repository = repository_ctx.attr.name.find("windows") != -1
     is_windows = is_windows_os or is_windows_repository
