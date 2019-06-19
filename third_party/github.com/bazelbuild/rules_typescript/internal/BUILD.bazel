@@ -36,7 +36,7 @@ nodejs_binary(
         "@npm//source-map-support",
         "@npm//typescript",
     ],
-    entry_point = "@npm//node_modules/typescript:lib/tsc.js",
+    entry_point = "@npm//:node_modules/typescript/lib/tsc.js",
     visibility = ["//internal:__subpackages__"],
 )
 
