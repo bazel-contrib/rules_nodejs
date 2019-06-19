@@ -456,9 +456,11 @@ if %errorlevel% neq 0 exit /b %errorlevel%
         # We have to use the relative path here otherwise bazel reports a cycle
         result = repository_ctx.execute([node_entry, "generate_build_file.js"])
     else:
+        # NOTE: Ideally we would not need this logic here and could just depend on the @nodejs//:node_bin alias but it is not possible.
+        # See: https://github.com/bazelbuild/bazel/issues/8674
         node_path = "node.exe" if is_windows_os else "bin/node"
 
-        # Note: If no vendored node is provided we just assume that there exists a nodejs external repository
+        # NOTE: If no vendored node is provided we just assume that there exists a nodejs external repository
         node_label = repository_ctx.attr.vendored_node if repository_ctx.attr.vendored_node else Label(("@nodejs//:bin/nodejs/%s" % node_path))
         host_node = repository_ctx.path(node_label)
         result = repository_ctx.execute([host_node, "generate_build_file.js"])
