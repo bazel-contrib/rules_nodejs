@@ -41,7 +41,7 @@ rules_nodejs_dev_dependencies()
 # TODO(gregmagolan): switch back to upstream
 git_repository(
     name = "build_bazel_rules_typescript",
-    commit = "a0cd838f80a70a65f6f82b0fa2bf5812ffc6a1ef",
+    commit = "0efe29e17efee84f722326378b7585dac4f48784",
     remote = "http://github.com/gregmagolan/rules_typescript.git",
 )
 
