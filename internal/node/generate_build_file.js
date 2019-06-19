@@ -23,7 +23,7 @@ const fs = require('fs');
 const path = require('path');
 
 const IS_WINDOWS = TEMPLATED_is_windows;
-const IS_VENDORED_NODE = 'TEMPLATED_vendored_node';
+const IS_VENDORED_NODE = TEMPLATED_vendored_node;
 const NODE_ACTUAL = 'TEMPLATED_node_actual';
 const NODE_BIN_ACTUAL = 'TEMPLATED_node_bin_actual';
 const NPM_ACTUAL = 'TEMPLATED_npm_actual';
