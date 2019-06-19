@@ -453,6 +453,7 @@ if %errorlevel% neq 0 exit /b %errorlevel%
         # We have to use the relative path here otherwise bazel reports a cycle
         result = repository_ctx.execute([node_entry, "generate_build_file.js"])
     else:
+        print(host_os)
         node_name = "node.exe" if host_os == "windows" else "node"
 
         # Note: If no vendored node is provided we just assume that there exists a nodejs external repository
