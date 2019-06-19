@@ -15,7 +15,7 @@ import {PropertyWriteEngine} from '../util/pattern_engines/property_write_engine
  * This is templated, mostly to ensure the nodes that have been matched
  * correspond to what the Fixer expects.
  */
-export class ConformancePatternRule<P extends PatternKind> implements
+export class ConformancePatternRule<P extends keyof MatchedNodeTypes> implements
     AbstractRule {
   readonly ruleName: string;
   readonly code = ErrorCode.CONFORMANCE_PATTERN;
@@ -27,23 +27,28 @@ export class ConformancePatternRule<P extends PatternKind> implements
     // that P is Config.kind.
     // tslint:disable-next-line:no-any See above.
     let engine: PatternEngine<any>;
+    // Formatter breaks the types, b/135552145
+    // clang-format off
     switch (config.kind) {
       case PatternKind.BANNED_PROPERTY_WRITE:
         engine = new PropertyWriteEngine(
-            config as Config<PatternKind.BANNED_PROPERTY_WRITE>, fixer);
+            config as Config<PatternKind.BANNED_PROPERTY_WRITE>,
+            fixer as Fixer<MatchedNodeTypes[PatternKind.BANNED_PROPERTY_WRITE]>);
         break;
       case PatternKind.BANNED_PROPERTY_NON_CONSTANT_WRITE:
         engine = new PropertyNonConstantWriteEngine(
             config as Config<PatternKind.BANNED_PROPERTY_NON_CONSTANT_WRITE>,
-            fixer);
+            fixer as Fixer<MatchedNodeTypes[PatternKind.BANNED_PROPERTY_NON_CONSTANT_WRITE]>);
         break;
       case PatternKind.BANNED_NAME:
-        engine =
-            new NameEngine(config as Config<PatternKind.BANNED_NAME>, fixer);
+        engine = new NameEngine(
+            config as Config<PatternKind.BANNED_NAME>,
+            fixer as Fixer<MatchedNodeTypes[PatternKind.BANNED_NAME]>);
         break;
       default:
         throw new Error('Config type not recognized, or not implemented yet.');
     }
+    // clang-format on
     this.ruleName = `conformance-pattern-${config.kind}`;
     this.engine = engine as PatternEngine<P>;
   }

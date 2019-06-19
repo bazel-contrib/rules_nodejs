@@ -80,13 +80,9 @@ export enum WhitelistReason {
   MANUALLY_REVIEWED
 }
 
-/** Maps the type of nodes that each `PatternType` produces. */
+/** Maps the type of nodes that each `PatternType` consumes. */
 export interface MatchedNodeTypes {
-  [PatternKind.BANNED_PROPERTY_WRITE]: ts.BinaryExpression&{
-    left: ts.PropertyAccessExpression;
-  };
-  [PatternKind.BANNED_PROPERTY_NON_CONSTANT_WRITE]: ts.BinaryExpression&{
-    left: ts.PropertyAccessExpression;
-  };
+  [PatternKind.BANNED_PROPERTY_WRITE]: ts.BinaryExpression;
+  [PatternKind.BANNED_PROPERTY_NON_CONSTANT_WRITE]: ts.BinaryExpression;
   [PatternKind.BANNED_NAME]: ts.Identifier;
 }
