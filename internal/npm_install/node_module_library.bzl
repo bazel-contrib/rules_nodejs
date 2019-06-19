@@ -35,8 +35,10 @@ def _node_module_library_impl(ctx):
         for f in ctx.files.srcs
         if f.path.endswith(".d.ts") and
            # exclude eg. external/npm/node_modules/protobufjs/node_modules/@types/node/index.d.ts
-           # these would be duplicates of the typings provided directly in another dependency
-           len(f.path.split("/node_modules/")) < 3
+           # these would be duplicates of the typings provided directly in another dependency.
+           # also exclude all /node_modules/typescript/lib/lib.*.d.ts files as these are determined by
+           # the tsconfig "lib" attribute
+           len(f.path.split("/node_modules/")) < 3 and f.path.find("/node_modules/typescript/lib/lib.") == -1
     ])
 
     # transitive_declarations are all .d.ts files in srcs plus those in direct & transitive dependencies
