@@ -11,6 +11,7 @@ def _runfiles_contents_test_impl(ctx):
     asserts.true(env, ctx.file.node_selected in runfiles)
     asserts.false(env, ctx.files.node_other[0] in runfiles)
     asserts.false(env, ctx.files.node_other[1] in runfiles)
+    asserts.false(env, ctx.files.node_other[2] in runfiles)
 
     return analysistest.end(env)
 
@@ -21,7 +22,7 @@ linux_platform_toolchain_test = analysistest.make(
     },
     attrs = {
         "node_other": attr.label_list(
-            default = [Label("@nodejs_windows_amd64//:node_bin"), Label("@nodejs_darwin_amd64//:node_bin")],
+            default = [Label("@nodejs//:node_bin"), Label("@nodejs_windows_amd64//:node_bin"), Label("@nodejs_darwin_amd64//:node_bin")],
             allow_files = True,
         ),
         "node_selected": attr.label(
@@ -38,7 +39,7 @@ windows_platform_toolchain_test = analysistest.make(
     },
     attrs = {
         "node_other": attr.label_list(
-            default = [Label("@nodejs_linux_amd64//:node_bin"), Label("@nodejs_darwin_amd64//:node_bin")],
+            default = [Label("@nodejs//:node_bin"), Label("@nodejs_linux_amd64//:node_bin"), Label("@nodejs_darwin_amd64//:node_bin")],
             allow_files = True,
         ),
         "node_selected": attr.label(
@@ -55,7 +56,7 @@ darwin_platform_toolchain_test = analysistest.make(
     },
     attrs = {
         "node_other": attr.label_list(
-            default = [Label("@nodejs_windows_amd64//:node_bin"), Label("@nodejs_linux_amd64//:node_bin")],
+            default = [Label("@nodejs//:node_bin"), Label("@nodejs_windows_amd64//:node_bin"), Label("@nodejs_linux_amd64//:node_bin")],
             allow_files = True,
         ),
         "node_selected": attr.label(
