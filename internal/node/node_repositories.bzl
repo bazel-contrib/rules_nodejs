@@ -196,7 +196,6 @@ def _prepare_node(repository_ctx):
       repository_ctx: The repository rule context
     """
     is_windows_os = os_name(repository_ctx).find("windows") != -1
-
     # TODO: Maybe we want to encode the OS as a specific attribute rather than do it based on naming?
     is_windows_repository = repository_ctx.attr.name.find("windows") != -1
     is_windows = is_windows_os or is_windows_repository
@@ -456,10 +455,10 @@ if %errorlevel% neq 0 exit /b %errorlevel%
         # We have to use the relative path here otherwise bazel reports a cycle
         result = repository_ctx.execute([node_entry, "generate_build_file.js"])
     else:
-        node_name = "node.exe" if is_windows_os else "node"
+        node_path = "node.exe" if is_windows_os else "bin/node"
 
         # Note: If no vendored node is provided we just assume that there exists a nodejs external repository
-        node_label = repository_ctx.attr.vendored_node if repository_ctx.attr.vendored_node else Label(("@nodejs//:bin/nodejs/bin/%s" % node_name))
+        node_label = repository_ctx.attr.vendored_node if repository_ctx.attr.vendored_node else Label(("@nodejs//:bin/nodejs/%s" % node_path))
         host_node = repository_ctx.path(node_label)
         result = repository_ctx.execute([host_node, "generate_build_file.js"])
 
