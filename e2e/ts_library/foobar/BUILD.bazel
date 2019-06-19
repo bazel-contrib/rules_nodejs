@@ -9,7 +9,10 @@ ts_library(
 
 ts_library(
     name = "foo_ts_library",
-    srcs = ["foo.ts"],
+    srcs = [
+        "conflict.d.ts",
+        "foo.ts",
+    ],
     tsconfig = ":tsconfig-foo.json",
     deps = [
         ":types",

@@ -20,6 +20,16 @@ import {a} from 'e2e_ts_library/generated_ts/foo';
 // Repro for #31, should automatically discover @types/node
 import * as fs from 'fs';
 import {cool} from 'some-lib';
+// Verify that typescript/lib/typescript.d.ts and typescript/lib/tsserverlibrary.d.ts
+// are available since we must exclude all other typescript/lib/*.d.ts which are
+// controlled by the compilerOptions.libs config.
+// See https://github.com/bazelbuild/rules_nodejs/pull/875 for more details.
 import * as ts from 'typescript';
+import * as tss from 'typescript/lib/tsserverlibrary';
 
 import('./foo').then(({greeter}) => {console.log(Greeter, fs, cool, ts, greeter, a);});
+
+const useTssType: tss.server.Project[] = [];
+if (useTssType) {
+  console.log('foobar');
+}
