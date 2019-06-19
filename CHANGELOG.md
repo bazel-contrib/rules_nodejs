@@ -1,3 +1,13 @@
+## [0.32.1](https://github.com/alexeagle/rules_nodejs/compare/0.32.0...0.32.1) (2019-06-19)
+
+
+### Bug Fixes
+
+* **typescript:** exclude typescript lib declarations in ([3d55b41](https://github.com/alexeagle/rules_nodejs/commit/3d55b41))
+* **typescript:** remove override of @bazel/tsetse ([2e128ce](https://github.com/alexeagle/rules_nodejs/commit/2e128ce))
+
+
+
 # [0.32.0](https://github.com/alexeagle/rules_nodejs/compare/0.31.1...0.32.0) (2019-06-18)
 
 
