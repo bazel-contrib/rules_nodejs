@@ -45,9 +45,9 @@ def rules_nodejs_dev_dependencies():
     # Needed for stardoc
     http_archive(
         name = "io_bazel",
-        url = "https://github.com/bazelbuild/bazel/archive/0.26.1.tar.gz",
-        strip_prefix = "bazel-0.26.1",
-        sha256 = "560302a3414cf4dff79c417b4490c407a6e2b2f75a195c689b2b71ac2192ada0",
+        url = "https://github.com/bazelbuild/bazel/archive/0.27.0.tar.gz",
+        strip_prefix = "bazel-0.27.0",
+        sha256 = "e6dfa13ffaeb3b31455d9fb7042605651412c121453ade95c0d7e67b04d27d8a",
     )
 
     http_archive(
