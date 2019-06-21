@@ -28,6 +28,7 @@
         "tsutils": "2.27.2"
     },
     "devDependencies": {
+        "@bazel/hide-bazel-files": "file:../../dist/npm_bazel_hide-bazel-files",
         "@bazel/jasmine": "file:../../dist/npm_bazel_jasmine",
         "@types/jasmine": "^2.8.2",
         "@types/long": "^4.0.0",
@@ -37,7 +38,7 @@
         "clang-format": "1.0.49",
         "concurrently": "^3.5.1",
         "http-server": "^0.11.1",
-        "protractor": "^5.2.0",
+        "protractor": "^5.4.2",
         "requirejs": "2.3.5",
         "shelljs": "^0.8.2",
         "tmp": "0.0.33",
