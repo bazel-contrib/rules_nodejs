@@ -1,3 +1,13 @@
+## [0.32.2](https://github.com/alexeagle/rules_nodejs/compare/0.32.1...0.32.2) (2019-06-21)
+
+
+### Bug Fixes
+
+* **builtin:** add test case for @bazel/hide-bazel-files bug ([2a63ed6](https://github.com/alexeagle/rules_nodejs/commit/2a63ed6))
+* **builtin:** always hide bazel files in yarn_install & npm install--- ([0104be7](https://github.com/alexeagle/rules_nodejs/commit/0104be7))
+
+
+
 ## [0.32.1](https://github.com/alexeagle/rules_nodejs/compare/0.32.0...0.32.1) (2019-06-19)
 
 
