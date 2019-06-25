@@ -1,5 +1,6 @@
 {
   "devDependencies": {
+    "@bazel/hide-bazel-files": "file:../../dist/npm_bazel_hide-bazel-files",
     "@bazel/karma": "file:../../dist/npm_bazel_karma",
     "@bazel/typescript": "file:../../dist/npm_bazel_typescript",
     "@types/jasmine": "2.8.2",
@@ -9,7 +10,7 @@
     "jasmine": "2.8.0",
     "long": "4.0.0",
     "protobufjs": "5.0.3",
-    "protractor": "^5.2.0",
+    "protractor": "^5.4.2",
     "typescript": "^3.3.1"
   },
   "scripts": {

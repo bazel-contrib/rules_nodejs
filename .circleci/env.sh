@@ -14,8 +14,8 @@ echo "source $envHelpersPath;" >> $BASH_ENV;
 # ChromeDriver version compatible with the Chrome version included in the docker image used in
 # `.circleci/config.yml`. See http://chromedriver.chromium.org/downloads for a list of versions.
 # This variable is intended to be passed as an arg to the `webdriver-manager update` command (e.g.
-# `"postinstall": "webdriver-manager update $CI_CHROMEDRIVER_VERSION_ARG"`).
-setPublicVar CHROMEDRIVER_VERSION_ARG "--versions.chrome 2.45";
+# `"postinstall": "webdriver-manager update $CHROMEDRIVER_VERSION_ARG"`).
+setPublicVar CHROMEDRIVER_VERSION_ARG "--versions.chrome 75.0.3770.90";
 
 # Source `$BASH_ENV` to make the variables available immediately.
 source $BASH_ENV;

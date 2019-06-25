@@ -17,7 +17,7 @@ if [[ "${LINES}" ]] ; then
 fi
 
 # Check for file:../../dist/npm_bazel_foobar dependencies in package.json
-LINES=$(egrep -oh "file:../../dist/npm_bazel_([a-z_]+)" package.json || echo "")
+LINES=$(egrep -oh "file:../../dist/npm_bazel_([a-z_\-]+)" package.json || echo "")
 for line in ${LINES[@]} ; do
   # Trim the match from `file:../../dist/npm_bazel_foobar` to `foobar`
   DEP=$(echo $line | cut -c 27-)
