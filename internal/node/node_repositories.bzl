@@ -20,7 +20,7 @@ See https://docs.bazel.build/versions/master/skylark/repository_rules.html
 
 load("//internal/common:check_bazel_version.bzl", "check_bazel_version")
 load("//internal/common:check_version.bzl", "check_version")
-load("//internal/common:os_name.bzl", "OS_NAMES", "os_name")
+load("//internal/common:os_name.bzl", "OS_ARCH_NAMES", "os_name")
 load("//internal/npm_install:npm_install.bzl", "yarn_install")
 load("//third_party/github.com/bazelbuild/bazel-skylib:lib/paths.bzl", "paths")
 load("//toolchains/node:node_configure.bzl", node_toolchain_configure = "node_configure")
@@ -452,8 +452,7 @@ if %errorlevel% neq 0 exit /b %errorlevel%
             "TEMPLATED_yarn_actual": yarn_node_repositories_entry,
         },
     )
-    host_os = os_name(repository_ctx)
-    if host_os in repository_ctx.attr.name or repository_ctx.attr.name == "nodejs":
+    if ("_%s_" % os_name(repository_ctx)) in repository_ctx.attr.name or repository_ctx.attr.name == "nodejs":
         # We have to use the relative path here otherwise bazel reports a cycle
         result = repository_ctx.execute([node_entry, "generate_build_file.js"])
     else:
@@ -610,8 +609,8 @@ def node_repositories(
     )
 
     # This needs to be setup so toolchains can access nodejs for all different versions
-    node_repository_names = []
-    for os_name in OS_NAMES:
+    for os_arch_name in OS_ARCH_NAMES:
+        os_name = "_".join(os_arch_name)
         node_repository_name = "nodejs_%s" % os_name
         _maybe(
             _nodejs_repo,
@@ -627,9 +626,11 @@ def node_repositories(
             yarn_urls = yarn_urls,
             preserve_symlinks = preserve_symlinks,
         )
-        node_repository_names.append(node_repository_name)
-
-    node_toolchain_configure(node_repository_names)
+        native.register_toolchains("@build_bazel_rules_nodejs//toolchains/node:node_%s_toolchain" % os_arch_name[0])
+        node_toolchain_configure(
+            name = "%s_config" % node_repository_name,
+            target_tool = "@%s//:node_bin" % node_repository_name,
+        )
 
     _maybe(
         _yarn_repo,

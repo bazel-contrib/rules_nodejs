@@ -24,8 +24,11 @@ NodeInfo = provider(
 )
 
 def _node_toolchain_impl(ctx):
+    if ctx.attr.target_tool and ctx.attr.target_tool_path:
+        fail("Can only set one of target_tool or target_tool_path but both where set.")
     if not ctx.attr.target_tool and not ctx.attr.target_tool_path:
         print("No nodejs binary was found or built, executing run for rules_nodejs targets might not work.")
+
     toolchain_info = platform_common.ToolchainInfo(
         nodeinfo = NodeInfo(
             target_tool_path = ctx.attr.target_tool_path,
