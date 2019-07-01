@@ -26,7 +26,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/mattn/go-isatty"
 
-	arpb "github.com/bazelbuild/rules_typescript/ts_auto_deps/proto"
+	arpb "google3/devtools/bazel/proto/analyze_result_go_proto"
 )
 
 var bazelErrorRE = regexp.MustCompile(`ERROR: ([^:]+):(\d+):\d+:`)
@@ -108,14 +108,7 @@ func (upd *Updater) runBazelAnalyze(buildFilePath string, bld *build.File, rules
 	args = append(args, targets...)
 	out, stderr, err := upd.bazelAnalyze(buildFilePath, args)
 	if err != nil {
-		return nil, &AnalysisFailedError{
-			[]AnalysisFailureCause{
-				AnalysisFailureCause{
-					Message: fmt.Sprintf("running bazel analyze %s failed: %v", args, err),
-					Path:    bld.Path,
-				},
-			},
-		}
+		return nil, err
 	}
 
 	var res arpb.AnalyzeResult
@@ -217,7 +210,25 @@ func readBUILD(ctx context.Context, workspaceRoot, buildFilePath string) (*build
 		}
 		return nil, fmt.Errorf("reading %q: %s", buildFilePath, err)
 	}
-	return build.ParseBuild(normalizedG3Path, data)
+	bld, err := build.ParseBuild(normalizedG3Path, data)
+	if err != nil {
+		if parseErr, ok := err.(build.ParseError); ok {
+			return nil, &AnalysisFailedError{
+				[]AnalysisFailureCause{
+					AnalysisFailureCause{
+						Message: parseErr.Error(),
+						Path:    parseErr.Filename,
+						Line:    parseErr.Pos.Line,
+					},
+				},
+			}
+
+		}
+
+		// wasn't an error we know how to parse
+		return nil, err
+	}
+	return bld, nil
 }
 
 type srcSet map[string]bool
@@ -433,9 +444,16 @@ func updateDeps(bld *build.File, reports []*arpb.DependencyReport) error {
 		}
 		hadUnresolved := len(report.UnresolvedImport) > 0
 		if hadUnresolved {
-			return fmt.Errorf("ERROR in %s: unresolved imports %s.\nMaybe you are missing a "+
-				"'// from ...'' comment, or the target BUILD files are incorrect?\n%s\n",
-				fullTarget, report.UnresolvedImport, strings.Join(report.GetFeedback(), "\n"))
+			return &AnalysisFailedError{
+				[]AnalysisFailureCause{
+					AnalysisFailureCause{
+						Message: fmt.Sprintf("ERROR in %s: unresolved imports %s.\nMaybe you are missing a "+
+							"'// from ...'' comment, or the target BUILD files are incorrect?\n%s\n",
+							fullTarget, report.UnresolvedImport, strings.Join(report.GetFeedback(), "\n")),
+						Path: bld.Path,
+					},
+				},
+			}
 		}
 		for _, d := range report.UnnecessaryDependency {
 			platform.Infof("Removing dependency on %s from %s\n", d, fullTarget)

@@ -16,7 +16,7 @@ import (
 	"github.com/golang/protobuf/proto"
 
 	appb "github.com/bazelbuild/buildtools/build_proto"
-	arpb "github.com/bazelbuild/rules_typescript/ts_auto_deps/proto"
+	arpb "google3/devtools/bazel/proto/analyze_result_go_proto"
 )
 
 var (

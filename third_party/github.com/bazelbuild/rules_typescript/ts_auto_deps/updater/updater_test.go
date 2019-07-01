@@ -2,17 +2,17 @@ package updater
 
 import (
 	"context"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/bazelbuild/buildtools/build"
 	"github.com/golang/protobuf/proto"
 
-	arpb "github.com/bazelbuild/rules_typescript/ts_auto_deps/proto"
+	arpb "google3/devtools/bazel/proto/analyze_result_go_proto"
 )
 
 var (
@@ -238,12 +238,11 @@ func TestUnresolvedImportError(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	expectedErr := fmt.Errorf("ERROR in %s: unresolved imports %s.\nMaybe you are missing a "+
-		"'// from ...'' comment, or the target BUILD files are incorrect?\n\n", "//foo:bar", []string{"unresolved/import"})
+	expectedErr := "'// from ...'' comment, or the target BUILD files are incorrect?"
 
 	err = updateDeps(bld, []*arpb.DependencyReport{report})
-	if !reflect.DeepEqual(err, expectedErr) {
-		t.Errorf("returned error %s: expected %s", err, expectedErr)
+	if !strings.Contains(err.Error(), expectedErr) {
+		t.Errorf("returned error %s: expected it to contain %s", err, expectedErr)
 	}
 }
 
