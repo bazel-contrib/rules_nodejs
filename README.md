@@ -36,6 +36,26 @@ $ yarn create @bazel
 
 See the output of the tool for command-line options and next steps.
 
+## Adopters
+
+Thanks to the following active users!
+
+Open-source repositories:
+
+- [Angular](https://github.com/angular/angular)
+- [Angular CLI](https://github.com/angular/angular-cli)
+- [Angular Components](https://github.com/angular/components)
+- [Selenium](https://github.com/SeleniumHQ/selenium)
+- [NgRX](https://github.com/ngrx/platform)
+- [tsickle](https://github.com/angular/tsickle)
+- [incremental-dom](https://github.com/google/incremental-dom)
+
+Organizations:
+
+- [LucidChart](https://www.lucidchart.com)
+
+Not on this list? [Send a PR](https://github.com/bazelbuild/rules_nodejs/edit/master/README.md) to add your repo or organization!
+
 ## Adding Build Targets
 
 Consult the documentation at http://bazel.build for details.
