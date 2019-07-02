@@ -15,7 +15,7 @@
         "@bazel/ibazel": "0.10.1",
         "@commitlint/cli": "^8.0.0",
         "@commitlint/config-conventional": "^8.0.0",
-        "@zeit/ncc": "0.18.1",
+        "@zeit/ncc": "0.20.2",
         "bazel_workspaces": "file:./tools/npm_packages/bazel_workspaces",
         "browserify": "16.2.3",
         "clang-format": "1.2.2",
