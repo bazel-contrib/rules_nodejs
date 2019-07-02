@@ -11,6 +11,6 @@ echo "Compiling browserify with ncc"
 echo "Copy LICENSE"
 cp -f ./node_modules/browserify/LICENSE ./third_party/github.com/browserify/browserify
 
-echo "Minifying browserify with tserver"
+echo "Minifying browserify with terser"
 ./node_modules/.bin/terser --compress --mangle --comments '/(^!|@license|@preserve|Copyright)/' -- third_party/github.com/browserify/browserify/index.js > third_party/github.com/browserify/browserify/index.min.js
 
