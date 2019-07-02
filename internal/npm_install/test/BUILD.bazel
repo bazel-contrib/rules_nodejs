@@ -1,4 +1,5 @@
 load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test", "nodejs_binary")
+load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
 
 filegroup(
     name = "goldens",
@@ -7,7 +8,7 @@ filegroup(
 
 jasmine_node_test(
     name = "test",
-    srcs = glob(["*.spec.js"]),
+    srcs = ["generate_build_file.spec.js"],
     data = [
         ":check.js",
         ":goldens",
@@ -30,4 +31,21 @@ nodejs_binary(
     ],
     entry_point = ":update_golden.js",
     install_source_map_support = False,
+)
+
+npm_umd_bundle(
+    name = "some-bundle",
+    package_name = "some-package-name",
+    entry_point = "@npm//:node_modules/minimist/index.js",
+    package = "@npm//minimist",
+)
+
+jasmine_node_test(
+    name = "browserify_test",
+    srcs = ["browserify.spec.js"],
+    data = [
+        ":some-package-name.umd.js",
+        "//internal/npm_install:browserify-wrapped",
+        "@npm//jasmine",
+    ],
 )
