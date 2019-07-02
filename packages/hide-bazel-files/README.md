@@ -14,7 +14,7 @@ then chances are there is an npm package in your dependencies that contains a `B
 
 ```
 "devDependencies": {
-  "@bazel/hide-bazel-files": "0.0.0-PLACEHOLDER"
+  "@bazel/hide-bazel-files": "latest"
 },
 ```
 
