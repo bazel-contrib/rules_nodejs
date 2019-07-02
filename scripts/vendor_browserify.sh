@@ -12,5 +12,5 @@ echo "Copy LICENSE"
 cp -f ./node_modules/browserify/LICENSE ./third_party/github.com/browserify/browserify
 
 echo "Minifying browserify with tserver"
-./node_modules/.bin/terser --compress --mangle --comments '/(^!|@license|@preserve)/' -- third_party/github.com/browserify/browserify/index.js > third_party/github.com/browserify/browserify/index.min.js
+./node_modules/.bin/terser --compress --mangle --comments '/(^!|@license|@preserve|Copyright)/' -- third_party/github.com/browserify/browserify/index.js > third_party/github.com/browserify/browserify/index.min.js
 
