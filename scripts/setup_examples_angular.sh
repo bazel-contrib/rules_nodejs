@@ -28,8 +28,7 @@ printf "\n\nSetting up /examples/angular\n"
   # Clean example
   echo_and_run cd ${EXAMPLES_DIR}
   rm -rf angular
-  # TODO(gregmagolan): switch back to upstream
-  echo_and_run git clone --depth 1 --single-branch --branch node_modules-fix-proto https://github.com/gregmagolan/angular-bazel-example.git angular
+  echo_and_run git clone --depth 1 --single-branch --branch master https://github.com/angular/angular-bazel-example.git angular
   (
     echo_and_run cd angular
 
