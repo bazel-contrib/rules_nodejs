@@ -20,7 +20,7 @@ See https://docs.bazel.build/versions/master/skylark/repository_rules.html
 
 load("//internal/common:check_bazel_version.bzl", "check_bazel_version")
 load("//internal/common:check_version.bzl", "check_version")
-load("//internal/common:os_name.bzl", "OS_ARCH_NAMES", "os_name", "is_windows")
+load("//internal/common:os_name.bzl", "OS_ARCH_NAMES", "is_windows", "os_name")
 load("//internal/npm_install:npm_install.bzl", "yarn_install")
 load("//third_party/github.com/bazelbuild/bazel-skylib:lib/paths.bzl", "paths")
 load("//toolchains/node:node_configure.bzl", node_toolchain_configure = "node_configure")
@@ -514,12 +514,12 @@ def _nodejs_host_os_alias_impl(repository_ctx):
         "BUILD.bazel",
         Label("@build_bazel_rules_nodejs//internal/node:BUILD.nodejs_host_os_alias.tpl"),
         substitutions = {
-            "TEMPLATE_run_npm": "%s//:run_npm.sh.template" % node_repository,
-            "TEMPLATE_node_repo_args": "%s//:bin/node_repo_args.sh" % node_repository,
             "TEMPLATE_actual_node_bin": "%s//:%s" % (node_repository, actual_node_bin),
-            "TEMPLATE_wrapped_node_bin": "%s//:bin/node%s" % (node_repository, file_ending),
+            "TEMPLATE_node_repo_args": "%s//:bin/node_repo_args.sh" % node_repository,
             "TEMPLATE_npm": "%s//:bin/npm%s" % (node_repository, file_ending),
             "TEMPLATE_npm_node_repositories": "%s//:bin/npm_node_repositories%s" % (node_repository, file_ending),
+            "TEMPLATE_run_npm": "%s//:run_npm.sh.template" % node_repository,
+            "TEMPLATE_wrapped_node_bin": "%s//:bin/node%s" % (node_repository, file_ending),
             "TEMPLATE_yarn": "%s//:bin/yarn%s" % (node_repository, file_ending),
             "TEMPLATE_yarn_node_repositories": "%s//:bin/yarn_node_repositories%s" % (node_repository, file_ending),
         },
@@ -527,7 +527,7 @@ def _nodejs_host_os_alias_impl(repository_ctx):
     )
 
 _nodejs_repo_host_os_alias = repository_rule(
-    _nodejs_host_os_alias_impl
+    _nodejs_host_os_alias_impl,
 )
 
 def node_repositories(
@@ -646,7 +646,7 @@ def node_repositories(
     # All it does is create aliases to the @nodejs_<host_os>_<host_arch> repository
     _maybe(
         _nodejs_repo_host_os_alias,
-        name = "nodejs"
+        name = "nodejs",
     )
 
     _maybe(
