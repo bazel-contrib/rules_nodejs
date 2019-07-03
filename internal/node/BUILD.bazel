@@ -40,6 +40,6 @@ filegroup(
         "*.bzl",
         "*.js",
         "*.sh",
-    ]) + ["BUILD.bazel"],
+    ]) + ["BUILD.bazel", "BUILD.nodejs_host_os_alias.tpl"],
     visibility = ["//:__pkg__"],
 )
