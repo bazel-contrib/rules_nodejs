@@ -461,7 +461,7 @@ Note: the arguments passed to `bazel run` after `--` are forwarded to the execut
 
 ### Toolchains
 
-When you add `node_repositories()` to your `WORKSPACE` file it will setup a node toolchain for all currently supported platforms, Linux, macOS and Windows. For more detailed information also see [Bazel Toolchains](https://docs.bazel.build/versions/master/toolchains.html).
+When you add `node_repositories()` to your `WORKSPACE` file it will setup a node toolchain for all currently supported platforms, Linux, macOS and Windows. Amongst other things this adds support for cross-compilations as well as Remote Build Execution support. For more detailed information also see [Bazel Toolchains](https://docs.bazel.build/versions/master/toolchains.html).
 
 If you have an advanced use-case you can also register your own toolchains and call `node_configure` directly to manually setup a toolchain.
 
