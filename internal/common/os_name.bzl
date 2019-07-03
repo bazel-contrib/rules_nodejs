@@ -23,6 +23,9 @@ OS_ARCH_NAMES = [
 
 OS_NAMES = ["_".join(os_arch_name) for os_arch_name in OS_ARCH_NAMES]
 
+def is_windows(os_name):
+    return os_name == OS_NAMES[1]
+
 def os_name(repository_ctx):
     """Get the os name for a repository rule
 
