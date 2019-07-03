@@ -459,7 +459,7 @@ if %errorlevel% neq 0 exit /b %errorlevel%
         # NOTE: Ideally we would not need this logic here and could just depend on the @nodejs//:node_bin alias but it is not possible.
         # See: https://github.com/bazelbuild/bazel/issues/8674
         # We have to make sure that we run repository_ctx.execute with the right node executable, so if e.g. we are in the repository containing
-        # the linux exectuable but on windows we need to ensure that we use the executable for windows.
+        # the linux executable but on windows we need to ensure that we use the executable for windows.
         node_path = "node.exe" if is_windows_os else "bin/node"
 
         # NOTE: If no vendored node is provided we just assume that there exists a nodejs external repository
