@@ -514,14 +514,14 @@ def _nodejs_host_os_alias_impl(repository_ctx):
         "BUILD.bazel",
         Label("@build_bazel_rules_nodejs//internal/node:BUILD.nodejs_host_os_alias.tpl"),
         substitutions = {
+            "TEMPLATE__npm_node_repositories": "%s//:bin/npm_node_repositories%s" % (node_repository, file_ending),
+            "TEMPLATE__yarn_node_repositories": "%s//:bin/yarn_node_repositories%s" % (node_repository, file_ending),
             "TEMPLATE_actual_node_bin": "%s//:%s" % (node_repository, actual_node_bin),
             "TEMPLATE_node_repo_args": "%s//:bin/node_repo_args.sh" % node_repository,
             "TEMPLATE_npm": "%s//:bin/npm%s" % (node_repository, file_ending),
-            "TEMPLATE_npm_node_repositories": "%s//:bin/npm_node_repositories%s" % (node_repository, file_ending),
             "TEMPLATE_run_npm": "%s//:run_npm.sh.template" % node_repository,
             "TEMPLATE_wrapped_node_bin": "%s//:bin/node%s" % (node_repository, file_ending),
             "TEMPLATE_yarn": "%s//:bin/yarn%s" % (node_repository, file_ending),
-            "TEMPLATE_yarn_node_repositories": "%s//:bin/yarn_node_repositories%s" % (node_repository, file_ending),
         },
         executable = False,
     )
