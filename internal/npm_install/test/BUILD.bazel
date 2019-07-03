@@ -34,17 +34,25 @@ nodejs_binary(
 )
 
 npm_umd_bundle(
-    name = "some-bundle",
-    package_name = "some-package-name",
+    name = "test-minimist-bundling",
+    package_name = "minimist",
     entry_point = "@npm//:node_modules/minimist/index.js",
     package = "@npm//minimist",
+)
+
+npm_umd_bundle(
+    name = "test-core-util-is-bundling",
+    package_name = "core-util-is",
+    entry_point = "@npm//:node_modules/core-util-is/lib/util.js",
+    package = "@npm//core-util-is",
 )
 
 jasmine_node_test(
     name = "browserify_test",
     srcs = ["browserify.spec.js"],
     data = [
-        ":some-package-name.umd.js",
+        ":core-util-is.umd.js",
+        ":minimist.umd.js",
         "//internal/npm_install:browserify-wrapped",
         "@npm//jasmine",
     ],

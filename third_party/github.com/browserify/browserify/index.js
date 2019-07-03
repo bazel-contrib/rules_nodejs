@@ -3413,9 +3413,6 @@ exports.realpath = function realpath(p, cache, cb) {
   }
 };
 
-    if (!this._skipValidation) {
-      this._validateMapping(generated, original, source, name);
-    }
 
 /***/ }),
 
@@ -12709,7 +12706,6 @@ pp$8.invalidStringToken = function(position, message) {
   } else {
     this.raise(position, message);
   }
-  return this;
 };
 
 pp$8.readTmplToken = function() {
@@ -15440,7 +15436,6 @@ Glob.prototype._processReaddir2 = function (prefix, read, abs, remain, index, in
     // This was the last one, and no stats were needed
     return cb()
   }
-  inherits(P192, MPrime);
 
   // now test all matched entries as stand-ins for that part
   // of the pattern.
@@ -22155,7 +22150,12 @@ function isNumber (x) {
 /***/ 731:
 /***/ (function(__unusedmodule, exports, __webpack_require__) {
 
-var inherits = __webpack_require__(207);
+/* -*- Mode: js; js-indent-level: 2; -*- */
+/*
+ * Copyright 2011 Mozilla Foundation and contributors
+ * Licensed under the New BSD license. See LICENSE or:
+ * http://opensource.org/licenses/BSD-3-Clause
+ */
 
 var util = __webpack_require__(913);
 var has = Object.prototype.hasOwnProperty;
@@ -22211,7 +22211,6 @@ ArraySet.prototype.add = function ArraySet_add(aStr, aAllowDuplicates) {
     } else {
       this._set[sStr] = idx;
     }
-    return objects.join(' ');
   }
 };
 
@@ -22674,10 +22673,6 @@ module.exports = __webpack_require__(654).reduce(function (acc, x) {
     acc[x] = true;
     return acc;
 }, {});
-
-function hasOwnProperty(obj, prop) {
-  return Object.prototype.hasOwnProperty.call(obj, prop);
-}
 
 
 /***/ }),
