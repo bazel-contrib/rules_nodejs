@@ -18,8 +18,8 @@ This module implements the node toolchain rule.
 NodeInfo = provider(
     doc = "Information about how to invoke the node binary.",
     fields = {
-        "target_tool": "A hermetically downloaded nodejs executable target.",
-        "target_tool_path": "Path to an existing nodejs executable",
+        "target_tool": "A hermetically downloaded nodejs executable target for the target platform.",
+        "target_tool_path": "Path to an existing nodejs executable for the target platform..",
     },
 )
 
@@ -41,12 +41,12 @@ node_toolchain = rule(
     implementation = _node_toolchain_impl,
     attrs = {
         "target_tool": attr.label(
-            doc = "Target for a downloaded nodejs binary for the target os.",
+            doc = "A hermetically downloaded nodejs executable target for the target platform..",
             mandatory = False,
             allow_single_file = True,
         ),
         "target_tool_path": attr.string(
-            doc = "Absolute path to a pre-installed nodejs binary for the target os.",
+            doc = "Path to an existing nodejs executable for the target platform..",
             mandatory = False,
         ),
     },

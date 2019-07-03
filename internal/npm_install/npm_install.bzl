@@ -141,7 +141,7 @@ def _create_build_files(repository_ctx, rule_type, node, lock_file):
         "1" if error_on_build_files else "0",
         str(lock_file),
         ",".join(repository_ctx.attr.included_files),
-    ], quiet = False)
+    ])
     if result.return_code:
         fail("generate_build_file.js failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
 

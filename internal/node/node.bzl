@@ -169,10 +169,7 @@ def _nodejs_binary_impl(ctx):
         # If tool_path is empty and tool_target is None then there is no local
         # node tool, we will just print a nice error message if the user
         # attempts to do bazel run
-        ctx.actions.write(
-            content = ("echo node toolchain was not properly configured so %s cannot be executed." % ctx.attr.name),
-            output = ctx.outputs.script,
-        )
+        fail("The node toolchain was not properly configured so %s cannot be executed. Make sure that target_tool_path or target_tool is set." % ctx.attr.name)
     else:
         node_tool = node_tool_info.target_tool_path
         if node_tool_info.target_tool:

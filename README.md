@@ -461,7 +461,19 @@ Note: the arguments passed to `bazel run` after `--` are forwarded to the execut
 
 ### Toolchains
 
-Aka cross-compilation aka building docker images on mac/windows. When you add `node_repositories()` to your `WORKSPAE` file it will setup node for all currently supported platforms, Linux, macOS and Windows. If you want to build an app or a docker image for another platform you have to pass in the `--platforms` flag to Bazel. E.g. `bazel build --platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64 //app` will ensure that the linux nodejs binary is downloaded and provided to the nodejs_binary.
+When you add `node_repositories()` to your `WORKSPACE` file it will setup a node toolchain for all currently supported platforms, Linux, macOS and Windows. For more detailed information also see [Bazel Toolchains](https://docs.bazel.build/versions/master/toolchains.html).
+
+If you have an advanced use-case you can also register your own toolchains and call `node_configure` directly to manually setup a toolchain.
+
+#### Cross-compilation
+
+Toolchains allow us to support cross-compilation, e.g. building a linux binary from mac or windows. To tell Bazel to provide a toolchain for a different platform you have to pass in  the `--platforms` flag. Currently supported values are:
+
+- `@build_bazel_rules_nodejs//toolchains/node:linux_amd64`
+- `@build_bazel_rules_nodejs//toolchains/node:darwin_amd64`
+- `@build_bazel_rules_nodejs//toolchains/node:windows_amd64`
+
+So if for example you want to build a docker image from a non-linux platform you would run `bazel build --platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64 //app`, which will ensure that the linux nodejs binary is downloaded and provided to the nodejs_binary target.
 
 Note: The toolchain currently only provides a platform-specific nodejs binary. Any native modules will still be fetched/built, by npm/yarn, for your host platform, so they will not work on the target platform. Support for cross-compilation with native dependencies will follow.
 
