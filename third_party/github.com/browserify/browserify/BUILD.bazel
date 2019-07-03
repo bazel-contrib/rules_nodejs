@@ -19,11 +19,11 @@ exports_files(["LICENSE"])
 
 filegroup(
     name = "package_contents",
-    srcs = glob(["**/*.js"]) + [
+    srcs = glob(["*.js"]) + [
         "advanced.txt",
         "BUILD.bazel",
         "LICENSE",
         "usage.txt",
     ],
-    visibility = ["//:__pkg__"],
+    visibility = ["//:__subpackages__"],
 )

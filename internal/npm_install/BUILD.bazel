@@ -31,7 +31,8 @@ nodejs_binary(
     name = "browserify-wrapped",
     data = [
         ":browserify-wrapped.js",
-        "//third_party/github.com/browserify/browserify:sources",
+        "//third_party/github.com/browserify/browserify:package_contents",
+        "//third_party/github.com/jhermsmeier/browserify-named-amd:package_contents",
     ],
     entry_point = ":browserify-wrapped.js",
     install_source_map_support = False,
