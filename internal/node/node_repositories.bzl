@@ -463,7 +463,7 @@ if %errorlevel% neq 0 exit /b %errorlevel%
         node_path = "node.exe" if is_windows_os else "bin/node"
 
         # NOTE: If no vendored node is provided we just assume that there exists a nodejs external repository
-        node_label = repository_ctx.attr.vendored_node if repository_ctx.attr.vendored_node else Label(("@nodejs//:bin/nodejs/%s" % node_path))
+        node_label = node_exec_label if repository_ctx.attr.vendored_node else Label("@nodejs//:bin/nodejs/%s" % node_path)
         host_node = repository_ctx.path(node_label)
         result = repository_ctx.execute([host_node, "generate_build_file.js"])
 
