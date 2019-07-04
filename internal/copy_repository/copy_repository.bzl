@@ -15,15 +15,14 @@
 """Custom copy_repository rule used by npm_install and yarn_install.
 """
 
-load("@build_bazel_rules_nodejs//internal/common:os_name.bzl", "os_name")
+load("@build_bazel_rules_nodejs//internal/common:os_name.bzl", "is_windows_os")
 
 def _copy_file(rctx, src):
     rctx.template(src.basename, src)
 
 def _copy_repository_impl(rctx):
     src_path = "/".join(str(rctx.path(rctx.attr.marker_file)).split("/")[:-1])
-    is_windows = os_name(rctx).find("windows") != -1
-    if is_windows:
+    if is_windows_os(rctx):
         _copy_file(rctx, rctx.path(Label("@build_bazel_rules_nodejs//internal/copy_repository:_copy.bat")))
         result = rctx.execute(["cmd.exe", "/C", "_copy.bat", src_path.replace("/", "\\"), "."])
     else:

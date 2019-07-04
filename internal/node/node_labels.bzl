@@ -17,37 +17,39 @@
 Labels are different on windows and linux/OSX.
 """
 
-def get_node_label(os_name):
-    if os_name.find("windows") != -1:
-        label = Label("@nodejs_%s//:bin/node.cmd" % os_name)
+load("@build_bazel_rules_nodejs//internal/common:os_name.bzl", "is_windows_os", "os_name")
+
+def get_node_label(rctx):
+    if is_windows_os(rctx):
+        label = Label("@nodejs_%s//:bin/node.cmd" % os_name(rctx))
     else:
-        label = Label("@nodejs_%s//:bin/node" % os_name)
+        label = Label("@nodejs_%s//:bin/node" % os_name(rctx))
     return label
 
-def get_npm_label(os_name):
-    if os_name.find("windows") != -1:
-        label = Label("@nodejs_%s//:bin/npm.cmd" % os_name)
+def get_npm_label(rctx):
+    if is_windows_os(rctx):
+        label = Label("@nodejs_%s//:bin/npm.cmd" % os_name(rctx))
     else:
-        label = Label("@nodejs_%s//:bin/npm" % os_name)
+        label = Label("@nodejs_%s//:bin/npm" % os_name(rctx))
     return label
 
-def get_npm_node_repositories_label(os_name):
-    if os_name.find("windows") != -1:
-        label = Label("@nodejs_%s//:bin/npm_node_repositories.cmd" % os_name)
+def get_npm_node_repositories_label(rctx):
+    if is_windows_os(rctx):
+        label = Label("@nodejs_%s//:bin/npm_node_repositories.cmd" % os_name(rctx))
     else:
-        label = Label("@nodejs_%s//:bin/npm_node_repositories" % os_name)
+        label = Label("@nodejs_%s//:bin/npm_node_repositories" % os_name(rctx))
     return label
 
-def get_yarn_label(os_name):
-    if os_name.find("windows") != -1:
-        label = Label("@nodejs_%s//:bin/yarn.cmd" % os_name)
+def get_yarn_label(rctx):
+    if is_windows_os(rctx):
+        label = Label("@nodejs_%s//:bin/yarn.cmd" % os_name(rctx))
     else:
-        label = Label("@nodejs_%s//:bin/yarn" % os_name)
+        label = Label("@nodejs_%s//:bin/yarn" % os_name(rctx))
     return label
 
-def get_yarn_node_repositories_label(os_name):
-    if os_name.find("windows") != -1:
-        label = Label("@nodejs%s//:bin/yarn_node_repositories.cmd" % os_name)
+def get_yarn_node_repositories_label(rctx):
+    if is_windows_os(rctx):
+        label = Label("@nodejs%s//:bin/yarn_node_repositories.cmd" % os_name(rctx))
     else:
-        label = Label("@nodejs_%s//:bin/yarn_node_repositories" % os_name)
+        label = Label("@nodejs_%s//:bin/yarn_node_repositories" % os_name(rctx))
     return label

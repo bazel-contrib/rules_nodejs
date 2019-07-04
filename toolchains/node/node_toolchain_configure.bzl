@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Defines a repository rule for configuring the node binary.
+Defines a repository rule for configuring the node executable.
 """
 
 def _impl(repository_ctx):
@@ -22,7 +22,12 @@ def _impl(repository_ctx):
     if repository_ctx.attr.target_tool:
         substitutions = {"%{TOOL_ATTRS}": "    target_tool = \"%s\"\n" % repository_ctx.attr.target_tool}
     else:
-        default_tool_path = repository_ctx.attr.target_tool_path or repository_ctx.which("node") or ""
+        if repository_ctx.attr.target_tool_path:
+            default_tool_path = repository_ctx.attr.target_tool_path
+        else:
+            default_tool_path = repository_ctx.which("node")
+            if not default_tool_path:
+                fail("No node found on local path. node must available on the PATH or target_tool_path must be provided")
         substitutions = {"%{TOOL_ATTRS}": "    target_tool_path = \"%s\"\n" % default_tool_path}
 
     repository_ctx.template(
@@ -32,7 +37,7 @@ def _impl(repository_ctx):
         False,
     )
 
-node_configure = repository_rule(
+node_toolchain_configure = repository_rule(
     implementation = _impl,
     attrs = {
         "target_tool": attr.label(
