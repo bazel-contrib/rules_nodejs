@@ -14,7 +14,7 @@
 
 """Executing programs
 
-These rules run the node binary with the given sources.
+These rules run the node executable with the given sources.
 
 They support module mapping: any targets in the transitive dependencies with
 a `module_name` attribute can be `require`d by that name.

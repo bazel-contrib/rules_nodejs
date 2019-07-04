@@ -16,7 +16,7 @@ This module implements the node toolchain rule.
 """
 
 NodeInfo = provider(
-    doc = "Information about how to invoke the node binary.",
+    doc = "Information about how to invoke the node executable.",
     fields = {
         "target_tool": "A hermetically downloaded nodejs executable target for the target platform.",
         "target_tool_path": "Path to an existing nodejs executable for the target platform..",
@@ -27,7 +27,7 @@ def _node_toolchain_impl(ctx):
     if ctx.attr.target_tool and ctx.attr.target_tool_path:
         fail("Can only set one of target_tool or target_tool_path but both where set.")
     if not ctx.attr.target_tool and not ctx.attr.target_tool_path:
-        print("No nodejs binary was found or built, executing run for rules_nodejs targets might not work.")
+        fail("Must set one of target_tool or target_tool_path.")
 
     toolchain_info = platform_common.ToolchainInfo(
         nodeinfo = NodeInfo(
@@ -51,3 +51,8 @@ node_toolchain = rule(
         ),
     },
 )
+"""
+Defines a node toolchain.
+
+For usage see https://docs.bazel.build/versions/master/toolchains.html#defining-toolchains.
+"""

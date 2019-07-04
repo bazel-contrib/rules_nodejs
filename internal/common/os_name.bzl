@@ -23,19 +23,16 @@ OS_ARCH_NAMES = [
 
 OS_NAMES = ["_".join(os_arch_name) for os_arch_name in OS_ARCH_NAMES]
 
-def is_windows(os_name):
-    return os_name == OS_NAMES[1]
-
-def os_name(repository_ctx):
+def os_name(rctx):
     """Get the os name for a repository rule
 
     Args:
-      repository_ctx: The repository rule context
+      rctx: The repository rule context
 
     Returns:
       A string describing the os for a repository rule
     """
-    os_name = repository_ctx.os.name.lower()
+    os_name = rctx.os.name.lower()
     if os_name.startswith("mac os"):
         return OS_NAMES[0]
     elif os_name.find("windows") != -1:
@@ -44,3 +41,12 @@ def os_name(repository_ctx):
         return OS_NAMES[2]
     else:
         fail("Unsupported operating system: " + os_name)
+
+def is_darwin_os(rctx):
+    return os_name(rctx) == OS_NAMES[0]
+
+def is_windows_os(rctx):
+    return os_name(rctx) == OS_NAMES[1]
+
+def is_linux_os(rctx):
+    return os_name(rctx) == OS_NAMES[2]
