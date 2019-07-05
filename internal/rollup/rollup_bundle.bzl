@@ -245,6 +245,7 @@ def _run_tsc(ctx, input, output):
     args.add_all(["--target", "es5"])
     args.add_all(["--lib", "es2015,dom"])
     args.add("--allowJS")
+    args.add("--downlevelIteration")
     args.add(input.path)
     args.add_all(["--outFile", output.path])
 
