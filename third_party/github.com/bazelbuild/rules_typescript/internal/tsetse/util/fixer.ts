@@ -8,8 +8,8 @@ import {debugLog} from './ast_tools';
  * ban-preset-pattern users). See also `buildReplacementFixer` for a simpler way
  * of implementing a Fixer.
  */
-export interface Fixer<NodeType extends ts.Node = ts.Node> {
-  getFixForFlaggedNode(node: NodeType): Fix|undefined;
+export interface Fixer {
+  getFixForFlaggedNode(node: ts.Node): Fix|undefined;
 }
 
 /**

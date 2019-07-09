@@ -1,11 +1,10 @@
-import * as ts from 'typescript';
 
 /**
  * The list of supported patterns useable in ConformancePatternRule. The
  * patterns whose name match JSConformance patterns should behave similarly (see
  * https://github.com/google/closure-compiler/wiki/JS-Conformance-Framework)
  */
-export enum PatternKind {
+export const enum PatternKind {
   BANNED_NAME = 'banned-name',
   BANNED_PROPERTY_WRITE = 'banned-property-write',
   BANNED_PROPERTY_NON_CONSTANT_WRITE = 'banned-property-non-constant-write'
@@ -14,8 +13,8 @@ export enum PatternKind {
 /**
  * A config for ConformancePatternRule.
  */
-export interface Config<P extends PatternKind> {
-  kind: P;
+export interface Config {
+  kind: PatternKind;
 
   /**
    * Values have a pattern-specific syntax.
@@ -78,11 +77,4 @@ export enum WhitelistReason {
   OUT_OF_SCOPE,
   /** Manually reviewed exceptions (supposedly okay). */
   MANUALLY_REVIEWED
-}
-
-/** Maps the type of nodes that each `PatternType` consumes. */
-export interface MatchedNodeTypes {
-  [PatternKind.BANNED_PROPERTY_WRITE]: ts.BinaryExpression;
-  [PatternKind.BANNED_PROPERTY_NON_CONSTANT_WRITE]: ts.BinaryExpression;
-  [PatternKind.BANNED_NAME]: ts.Identifier;
 }

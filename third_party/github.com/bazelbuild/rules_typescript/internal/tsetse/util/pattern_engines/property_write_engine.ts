@@ -4,19 +4,15 @@ import {ErrorCode} from '../../error_code';
 import {debugLog, isPropertyWriteExpression} from '../ast_tools';
 import {Fixer} from '../fixer';
 import {PropertyMatcher} from '../match_symbol';
-import {Config, MatchedNodeTypes, PatternKind} from '../pattern_config';
+import {Config} from '../pattern_config';
 import {PatternEngine} from '../pattern_engines/pattern_engine';
-
-// Just for conciseness.
-type BanKind = PatternKind.BANNED_PROPERTY_WRITE;
 
 /**
  * The engine for BANNED_PROPERTY_WRITE.
  */
-export class PropertyWriteEngine extends PatternEngine<BanKind> {
+export class PropertyWriteEngine extends PatternEngine {
   private readonly matcher: PropertyMatcher;
-  constructor(
-      config: Config<BanKind>, fixer?: Fixer<MatchedNodeTypes[BanKind]>) {
+  constructor(config: Config, fixer?: Fixer) {
     super(config, fixer);
     // TODO: Support more than one single value here, or even build a
     // multi-pattern engine. This would help for performance.
@@ -33,8 +29,7 @@ export class PropertyWriteEngine extends PatternEngine<BanKind> {
         ErrorCode.CONFORMANCE_PATTERN);
   }
 
-  check(tc: ts.TypeChecker, n: MatchedNodeTypes[BanKind]):
-      MatchedNodeTypes[BanKind]|undefined {
+  check(tc: ts.TypeChecker, n: ts.Node): ts.Node|undefined {
     if (!isPropertyWriteExpression(n)) {
       return;
     }

@@ -2,20 +2,19 @@ import * as ts from 'typescript';
 import {Checker} from '../../checker';
 import {Fix} from '../../failure';
 import {Fixer} from '../../util/fixer';
-import {Config, MatchedNodeTypes, PatternKind} from '../../util/pattern_config';
+import {Config} from '../../util/pattern_config';
 import {shouldExamineNode} from '../ast_tools';
 
 /**
  * A patternEngine is the logic that handles a specific PatternKind.
  */
-export abstract class PatternEngine<P extends PatternKind> {
+export abstract class PatternEngine {
   private readonly whitelistedPrefixes: string[] = [];
   private readonly whitelistedRegExps: RegExp[] = [];
   private readonly whitelistMemoizer: Map<string, boolean> = new Map();
 
   constructor(
-      protected readonly config: Config<P>,
-      protected readonly fixer?: Fixer<MatchedNodeTypes[P]>) {
+      protected readonly config: Config, protected readonly fixer?: Fixer) {
     if (config.whitelistEntries) {
       for (const e of config.whitelistEntries) {
         if (e.prefix) {
@@ -42,15 +41,14 @@ export abstract class PatternEngine<P extends PatternKind> {
    * with what the engine looks for, i.e., AST matching. The whitelisting logic
    * and fix generation are handled in `checkAndFilterResults`.
    */
-  abstract check(tc: ts.TypeChecker, n: MatchedNodeTypes[P]):
-      MatchedNodeTypes[P]|undefined;
+  abstract check(tc: ts.TypeChecker, n: ts.Node): ts.Node|undefined;
 
   /**
    * A wrapper for `check` that handles aspects of the analysis that are not
    * engine-specific, and which defers to the subclass-specific logic
    * afterwards.
    */
-  checkAndFilterResults(c: Checker, n: MatchedNodeTypes[P]) {
+  checkAndFilterResults(c: Checker, n: ts.Node) {
     if (!shouldExamineNode(n) || n.getSourceFile().isDeclarationFile) {
       return;
     }

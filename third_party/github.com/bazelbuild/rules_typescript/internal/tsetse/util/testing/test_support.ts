@@ -85,7 +85,7 @@ export const customMatchers: jasmine.CustomMatcherFactories = {
 
   toHaveNFailures(): jasmine.CustomMatcher {
     return {
-      compare: (actual: Failure[], expected: Number, config?: Config<any>) => {
+      compare: (actual: Failure[], expected: Number, config?: Config) => {
         if (actual.length === expected) {
           return {pass: true};
         } else {
@@ -236,7 +236,7 @@ declare global {
         {fileName?: string, start?: number, end?: number, replacement?: string}
       ]): void;
 
-      toHaveNFailures(expected: Number, config?: Config<any>): void;
+      toHaveNFailures(expected: Number, config?: Config): void;
     }
   }
 }
