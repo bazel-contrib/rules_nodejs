@@ -58,6 +58,18 @@ Organizations:
 
 Not on this list? [Send a PR](https://github.com/bazelbuild/rules_nodejs/edit/master/README.md) to add your repo or organization!
 
+## User testimonials
+
+From [Lewis Hemens](https://github.com/lewish) at Dataform:
+
+> At Dataform we manage a number of NPM packages, Webpack builds, Node services and Java pipelines across two separate repositories. This quickly became hard for us to manage, development was painful and and deploying code required a many manual steps. We decided to dive in and migrate our build system entirely to Bazel. This was a gradual transition that one engineer did over the course of about 2 months, during which we had both Bazel and non bazel build processes in place. Once we had fully migrated, we saw many benefits to all parts of our development workflow:
+> - Faster CI: we enabled the remote build caching which has reduced our average build time from 30 minutes to 5 (for the entire repository)
+> - Improvements to local development: no more random bash scripts that you forget to run, incremental builds reduced to seconds from minutes
+> - Simplified deployment processes: we can deploy our code to environments in Kubernetes with just one command that builds and pushes images
+> - A monorepo that scales: adding new libraries or packages to our repo became easy, which means we do it more and end up write more modular, shared, maintainable code
+> - Developing across machine types: our engineers have both Macbooks and Linux machines, bazel makes it easy to build code across both
+> - Developer setup time: New engineers can build all our code with just 3 dependencies - bazel, docker and the JVM. The last engineer to join our team managed to build all our code in < 30 minutes on a brand new, empty laptop
+
 ## Adding Build Targets
 
 Consult the documentation at http://bazel.build for details.
