@@ -204,9 +204,15 @@ export class FileCache<T = {}> {
   getLastDigest(filePath: string): string {
     const digest = this.lastDigests.get(filePath);
     if (!digest) {
-      throw new Error(
-          `missing input digest for ${filePath}.` +
-          `(only have ${Array.from(this.lastDigests.keys())})`);
+      const errorMsg = `missing input digest for ${filePath}. `;
+      let entriesToPrint = Array.from(this.lastDigests.keys());
+      if (entriesToPrint.length > 100) {
+        throw new Error(
+            errorMsg +
+            `(only have ${entriesToPrint.slice(0, 100)} and ${
+                entriesToPrint.length - 100} more)`);
+      }
+      throw new Error(errorMsg + `(only have ${entriesToPrint})`);
     }
     return digest;
   }
