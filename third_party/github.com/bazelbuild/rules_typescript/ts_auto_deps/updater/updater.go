@@ -64,11 +64,6 @@ type Updater struct {
 	updateFile               UpdateFile
 }
 
-func bazelBinary() string {
-
-	return "bazel"
-}
-
 func attrTruthy(r *build.Rule, attr string) bool {
 	attrVal := r.AttrLiteral(attr)
 	return attrVal == "True" || attrVal == "1"
@@ -98,15 +93,12 @@ func (g *GarbledBazelResponseError) Error() string {
 // function to actually run the `bazel analyze` operation, which allows
 // exchanging it for a different implementation in the ts_auto_deps presubmit service.
 func (upd *Updater) runBazelAnalyze(buildFilePath string, bld *build.File, rules []*build.Rule) ([]*arpb.DependencyReport, error) {
-	args := []string{}
-	args = append(args, "--analysis_output=PROTO", "--static_analysis_option=checkdeps=--ng_summary")
 	var targets []string
 	for _, r := range rules {
 		fullTarget := AbsoluteBazelTarget(bld, r.Name())
 		targets = append(targets, fullTarget)
 	}
-	args = append(args, targets...)
-	out, stderr, err := upd.bazelAnalyze(buildFilePath, args)
+	out, stderr, err := upd.bazelAnalyze(buildFilePath, targets)
 	if err != nil {
 		return nil, err
 	}
@@ -771,16 +763,12 @@ func buildHasDisableTaze(bld *build.File) bool {
 
 // QueryBasedBazelAnalyze uses bazel query to analyze targets. It is available under a flag or
 // an environment variable on engineer's workstations.
-func QueryBasedBazelAnalyze(buildFilePath string, args []string) ([]byte, []byte, error) {
-	// The first 2 args are '--analysis_output=PROTO' and
-	// '--static_analysis_option=checkdeps=--ng_summary', which are needed for
-	// bazel. Remove them to get only the targets.
-	targets := args[2:]
+func QueryBasedBazelAnalyze(buildFilePath string, targets []string) ([]byte, []byte, error) {
 	root, err := workspace.Root(buildFilePath)
 	if err != nil {
 		return nil, nil, err
 	}
-	reports, err := analyze.New(analyze.NewQueryBasedTargetLoader(root, bazelBinary())).Analyze(context.Background(), buildFilePath, targets)
+	reports, err := analyze.New(analyze.NewQueryBasedTargetLoader(root, "bazel")).Analyze(context.Background(), buildFilePath, targets)
 	if err != nil {
 		return nil, nil, err
 	}
