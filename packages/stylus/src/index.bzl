@@ -6,19 +6,22 @@ def _stylus_binary(ctx):
     src = ctx.file.src
 
     # We want foo.styl to produce foo.css
-    output = ctx.actions.declare_file(src.basename[:-5] + ".css")
+    output_name = src.basename[:-5] + ".css"
+    css_output = ctx.actions.declare_file(output_name)
+    map_output = ctx.actions.declare_file(output_name + ".map")
     ctx.actions.run(
-        outputs = [output],
+        outputs = [css_output, map_output],
         inputs = [src] + ctx.files.deps,
         executable = ctx.executable._compiler,
         arguments = [
+            "--sourcemap",
             "--out",
             ctx.bin_dir.path + "/" + ctx.label.package,
             src.path,
         ],
     )
     return [
-        DefaultInfo(files = depset([output])),
+        DefaultInfo(files = depset([css_output, map_output])),
     ]
 
 stylus_binary = rule(
