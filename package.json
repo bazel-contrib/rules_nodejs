@@ -49,6 +49,7 @@
         "shelljs": "0.8.3",
         "sinon": "^7.3.2",
         "source-map-support": "0.5.9",
+        "stylus": "~0.54.5",
         "terser": "3.17.0",
         "tmp": "0.1.0",
         "tsickle": "0.33.1",
