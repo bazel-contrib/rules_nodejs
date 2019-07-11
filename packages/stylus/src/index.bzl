@@ -9,7 +9,7 @@ def _stylus_binary(ctx):
     output = ctx.actions.declare_file(src.basename[:-5] + ".css")
     ctx.actions.run(
         outputs = [output],
-        inputs = [src],
+        inputs = [src] + ctx.files.deps,
         executable = ctx.executable._compiler,
         arguments = [
             "--out",
@@ -27,6 +27,9 @@ stylus_binary = rule(
         "src": attr.label(
             mandatory = True,
             allow_single_file = True,
+        ),
+        "deps": attr.label_list(
+            allow_files = True,
         ),
         "_compiler": attr.label(
             default = Label("@npm//stylus/bin:stylus"),

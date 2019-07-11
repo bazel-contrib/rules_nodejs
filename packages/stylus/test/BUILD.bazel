@@ -3,6 +3,7 @@ load("@npm_bazel_stylus//:index.bzl", "stylus_binary")
 stylus_binary(
     name = "styles",
     src = "file.styl",
+    deps = ["liba.styl"],
 )
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_test")
