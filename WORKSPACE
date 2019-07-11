@@ -72,6 +72,11 @@ local_repository(
     path = "packages/typescript/src",
 )
 
+local_repository(
+    name = "npm_bazel_stylus",
+    path = "packages/stylus/src",
+)
+
 #
 # Install rules_nodejs dev dependencies
 #
