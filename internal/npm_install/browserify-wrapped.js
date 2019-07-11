@@ -36,7 +36,7 @@ browserify-wrapped: running with
 
   // browserify is ncc bundled & terser minified into third_party
   const browserify = require.resolve(
-      'build_bazel_rules_nodejs/third_party/github.com/browserify/browserify/index.min.js');
+      `build_bazel_rules_nodejs/third_party/github.com/browserify/browserify/index.${DEBUG ? '' : 'min.'}js`);
 
   // named-amd plugin is vendored in under third_party
   const namedAmd = require.resolve(
@@ -44,6 +44,7 @@ browserify-wrapped: running with
 
   const args = [
     browserify, entryPoint,
+    '--preserve-symlinks',
     // Supply the name to use for the AMD define with named-amd plugin
     '-p', '[', namedAmd, '--name', packageName, ']',
     // Output a stand-alone UMD bundle. Sanitized version the supplied name is used for

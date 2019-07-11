@@ -8,6 +8,9 @@ set -eu -o pipefail
 echo "Compiling browserify with ncc"
 ./node_modules/.bin/ncc build node_modules/browserify/bin/cmd.js -o third_party/github.com/browserify/browserify
 
+echo "Local mod: revert https://github.com/browserify/browserify/pull/1801"
+sed -i 's#parent.id !== self._mdeps.top.id#parent.id#' third_party/github.com/browserify/browserify/index.js
+
 echo "Copy LICENSE"
 cp -f ./node_modules/browserify/LICENSE ./third_party/github.com/browserify/browserify
 
