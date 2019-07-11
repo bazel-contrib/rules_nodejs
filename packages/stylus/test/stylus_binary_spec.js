@@ -5,3 +5,7 @@ if (content.indexOf('body #logo') < 0) {
   console.error('Expected the css file to be transformed');
   process.exitCode = 1;
 }
+if (content.indexOf('width: 10px') < 0) {
+  console.error('Expected the css file to be transformed');
+  process.exitCode = 1;
+}
