@@ -1,3 +1,18 @@
+# [0.33.0](https://github.com/alexeagle/rules_nodejs/compare/0.32.2...0.33.0) (2019-07-12)
+
+
+### Bug Fixes
+
+* **builtin:** update to latest ncc ([c1e3f4d](https://github.com/alexeagle/rules_nodejs/commit/c1e3f4d)), closes [#771](https://github.com/alexeagle/rules_nodejs/issues/771)
+* **builtin:** use a local mod to revert a browserify change ([253e9cb](https://github.com/alexeagle/rules_nodejs/commit/253e9cb))
+
+
+### Features
+
+* **builtin:** add nodejs toolchain support ([9afb8db](https://github.com/alexeagle/rules_nodejs/commit/9afb8db))
+
+
+
 ## [0.32.2](https://github.com/alexeagle/rules_nodejs/compare/0.32.1...0.32.2) (2019-06-21)
 
 
