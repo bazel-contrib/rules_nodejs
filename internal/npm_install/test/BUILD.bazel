@@ -47,12 +47,20 @@ npm_umd_bundle(
     package = "@npm//core-util-is",
 )
 
+npm_umd_bundle(
+    name = "test-sinon-bundling",
+    package_name = "sinon",
+    entry_point = "@npm//:node_modules/sinon/lib/sinon.js",
+    package = "@npm//sinon",
+)
+
 jasmine_node_test(
     name = "browserify_test",
     srcs = ["browserify.spec.js"],
     data = [
         ":core-util-is.umd.js",
         ":minimist.umd.js",
+        ":sinon.umd.js",
         "//internal/npm_install:browserify-wrapped",
         "@npm//jasmine",
     ],
