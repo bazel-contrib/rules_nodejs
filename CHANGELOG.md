@@ -1,3 +1,12 @@
+## [0.33.1](https://github.com/alexeagle/rules_nodejs/compare/0.33.0...0.33.1) (2019-07-12)
+
+
+### Bug Fixes
+
+* **builtin:** include package.json files in browserify inputs ([13c09e6](https://github.com/alexeagle/rules_nodejs/commit/13c09e6))
+
+
+
 # [0.33.0](https://github.com/alexeagle/rules_nodejs/compare/0.32.2...0.33.0) (2019-07-12)
 
 
