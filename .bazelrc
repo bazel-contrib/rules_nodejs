@@ -11,3 +11,16 @@ build --host_force_python=PY2
 # Opt-in to upcoming breaking changes
 build --incompatible_use_python_toolchains
 common --incompatible_string_join_requires_strings
+
+###############################
+# Remote Build Execution support
+# Turn on these settings with
+#  --config=remote
+###############################
+
+# Load default settings for Remote Build Execution.
+import %workspace%/third_party/github.com/bazelbuild/bazel-toolchains/bazelrc/bazel-0.28.0.bazelrc
+
+# Remote instance, borrow the one used by Angular devs
+build:remote --remote_instance_name=projects/internal-200822/instances/default_instance
+build:remote --project_id=internal-200822
