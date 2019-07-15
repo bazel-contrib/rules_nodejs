@@ -11,6 +11,9 @@ echo "Compiling browserify with ncc"
 echo "Local mod: revert https://github.com/browserify/browserify/pull/1801"
 sed -i 's#parent.id !== self._mdeps.top.id#parent.id#' third_party/github.com/browserify/browserify/index.js
 
+echo "Local mod: workaround https://github.com/zeit/ncc/issues/461"
+sed -i "s#require('process/browser.js')#require('./browser1')#" third_party/github.com/browserify/browserify/main.js
+
 echo "Copy LICENSE"
 cp -f ./node_modules/browserify/LICENSE ./third_party/github.com/browserify/browserify
 

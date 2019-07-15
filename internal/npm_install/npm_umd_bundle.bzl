@@ -48,12 +48,6 @@ def _npm_umd_bundle(ctx):
         inputs = inputs,
         outputs = [output],
         arguments = [args],
-        # browserify may load files from nodejs but these aren't declared as action inputs
-        # looks like:
-        # ERROR: /workdir/internal/npm_install/test/BUILD.bazel:50:1: Couldn't build file internal/npm_install/test/sinon.umd.js: Generated UMD bundle for sinon npm package [browserify] failed (Exit 1)
-        # Error: Cannot find module 'process/browser.js' from '/b/f/w/bazel-out/host/bin/external/build_bazel_rules_nodejs/internal/npm_install/browserify-wrapped.runfiles/build_bazel_rules_nodejs/third_party/github.com/browserify/browserify
-        # TODO(alexeagle): remove this line and make the tests work with RBE
-        execution_requirements = {"local": "1"},
     )
 
     return [
