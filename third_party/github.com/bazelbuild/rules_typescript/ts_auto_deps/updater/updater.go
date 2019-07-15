@@ -26,7 +26,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/mattn/go-isatty"
 
-	arpb "google3/devtools/bazel/proto/analyze_result_go_proto"
+	arpb "github.com/bazelbuild/rules_typescript/ts_auto_deps/proto"
 )
 
 var bazelErrorRE = regexp.MustCompile(`ERROR: ([^:]+):(\d+):\d+:`)

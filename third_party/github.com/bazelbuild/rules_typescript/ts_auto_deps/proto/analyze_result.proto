@@ -27,7 +27,7 @@ message DependencyGroup {
   // dependencies is populated in dependency field, and both import_path's are
   // listed here.
   repeated string import_path = 3;
-};
+}
 
 // Represents information about arbitrary non-deps attributes.
 message AttributeReport {
@@ -88,8 +88,8 @@ message DependencyReport {
   repeated string feedback = 6;
 
   // Indicates whether the dependency analysis completed without errors.
-  optional bool successful = 10 [default=true];
-};
+  optional bool successful = 10 [default = true];
+}
 
 // Aggregate DependencyReports for multiple analysis
 // targets - used to support bazel analyze --analysis_output=proto
