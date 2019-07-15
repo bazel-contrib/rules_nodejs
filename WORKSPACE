@@ -183,6 +183,10 @@ rbe_autoconfig(
     name = "buildkite_config",
 )
 
+rbe_autoconfig(
+    name = "rbe_default",
+)
+
 load("@build_bazel_integration_testing//tools:repositories.bzl", "bazel_binaries")
 
 #depend on the Bazel binaries, also accepts an array of versions
