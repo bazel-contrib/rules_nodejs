@@ -1,4 +1,4 @@
-load(":jasmine_node_test.bzl", "jasmine_node_test")
+load("@npm_bazel_jasmine//:defaults.bzl", "jasmine_node_test")
 
 jasmine_node_test(
     name = "underscore_spec_test",
@@ -51,14 +51,14 @@ jasmine_node_test(
         "coverage_source.js",
     ],
     coverage = True,
-    deps = [
-        "@npm//v8-coverage",
-    ],
 )
 
 jasmine_node_test(
     name = "templated_args_test",
-    srcs = ["templated_args_test.js"],
+    srcs = [
+        "dynamic_import.js",
+        "templated_args_test.js",
+    ],
     templated_args = [
         "--node_options=--experimental-modules",
     ],

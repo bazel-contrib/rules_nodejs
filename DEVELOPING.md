@@ -16,11 +16,9 @@ To do a full clean run:
 yarn clean_all
 ```
 
-Other scripts allow you to test all or individual packages, e2e tests and examples. For example,
+Other scripts allow you to test all or e2e tests and examples. For example,
 
 ```
-yarn test_packages_all
-yarn test_packages typescript karma
 yarn test_e2e_all
 yarn test_e2e karma
 yarn test_examples_all

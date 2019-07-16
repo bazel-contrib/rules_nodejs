@@ -1,0 +1,33 @@
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
+
+package(default_visibility = ["//visibility:public"])
+
+bzl_library(
+    name = "bzl",
+    srcs = glob(["*.bzl"]),
+    deps = [
+        "@build_bazel_rules_nodejs//internal/common:bzl",
+    ],
+)
+
+filegroup(
+    name = "package_contents",
+    srcs = [
+        "BUILD.bazel",
+        "index.bzl",
+        "index.js",
+        "jasmine_node_test.bzl",
+        "jasmine_runner.js",
+        "package.json",
+    ],
+)
+
+js_library(
+    name = "jasmine__pkg",
+    srcs = [
+        "index.js",
+        "jasmine_runner.js",
+    ],
+    module_name = "@bazel/jasmine",
+)

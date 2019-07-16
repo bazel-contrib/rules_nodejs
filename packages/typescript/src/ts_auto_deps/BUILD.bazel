@@ -1,0 +1,7 @@
+filegroup(
+    name = "package_contents",
+    srcs = [
+        "ts_auto_deps.js",
+    ],
+    visibility = ["//:__pkg__"],
+)

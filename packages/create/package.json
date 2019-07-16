@@ -1,12 +1,20 @@
 {
     "name": "@bazel/create",
-    "bin": "index.js",
+    "description": "Create a new Bazel workspace",
     "license": "Apache-2.0",
     "version": "0.0.0-PLACEHOLDER",
+    "repository": {
+        "type" : "git",
+        "url" : "https://github.com/bazelbuild/rules_nodejs.git",
+        "directory": "packages/create"
+    },
+    "bugs": {
+        "url": "https://github.com/bazelbuild/rules_nodejs/issues"
+    },
     "keywords": [
         "bazel"
     ],
-    "description": "Create a new Bazel workspace",
+    "bin": "index.js",
     "dependencies": {
         "minimist": "1.2.0"
     }

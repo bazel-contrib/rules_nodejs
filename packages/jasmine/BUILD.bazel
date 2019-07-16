@@ -13,14 +13,6 @@
 # limitations under the License.
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "npm_package")
-load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
-
-package(default_visibility = ["//visibility:public"])
-
-exports_files([
-    # Exported to be consumed for generating skydoc.
-    "src/jasmine_node_test.bzl",
-])
 
 # Copy the license from our parent folder
 genrule(
@@ -36,34 +28,23 @@ genrule(
 genrule(
     name = "generate_README",
     srcs = [
-        "//docs",
-        "//docs:install.md",
+        "//packages/jasmine/docs:index.md",
+        "//packages/jasmine/docs:install.md",
     ],
     outs = ["README.md"],
-    cmd = "unzip -o -d docs $(location //docs:docs) && cat docs/install.md docs/src/*.md | sed 's/^##/\\\n##/' > $@",
+    cmd = """cat $(location //packages/jasmine/docs:install.md) $(location //packages/jasmine/docs:index.md) | sed 's/^##/\\\n##/' > $@""",
 )
 
 npm_package(
     name = "npm_package",
     srcs = [
-        "BUILD.bazel",
-        "index.bzl",
-        "index.js",
-        "package.json",
-        "src/jasmine_node_test.bzl",
-        "src/jasmine_runner.js",
+        "@npm_bazel_jasmine//:package_contents",
+    ],
+    vendor_external = [
+        "npm_bazel_jasmine",
     ],
     deps = [
         ":copy_LICENSE",
         ":generate_README",
     ],
-)
-
-js_library(
-    name = "jasmine__pkg",
-    srcs = [
-        "index.js",
-        "src/jasmine_runner.js",
-    ],
-    module_name = "@bazel/jasmine",
 )

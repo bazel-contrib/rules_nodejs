@@ -10,6 +10,7 @@ module.exports = {
         'buildozer',
         'builtin',
         'create',
+        'hide-bazel-files',
         'jasmine',
         'karma',
         'labs',

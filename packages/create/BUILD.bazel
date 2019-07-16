@@ -1,5 +1,13 @@
 load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_test", "npm_package")
 
+# Copy the license from our parent folder
+genrule(
+    name = "copy_LICENSE",
+    srcs = ["@build_bazel_rules_nodejs//:LICENSE"],
+    outs = ["LICENSE"],
+    cmd = "cp $< $@",
+)
+
 # Copy common bazelrc file to be included in this package
 genrule(
     name = "copy_bazelrc",
@@ -16,7 +24,8 @@ npm_package(
         "package.json",
     ],
     deps = [
-        ":common.bazelrc",
+        ":copy_LICENSE",
+        ":copy_bazelrc",
     ],
 )
 

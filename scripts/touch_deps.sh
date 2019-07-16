@@ -23,7 +23,7 @@ sedi () {
 }
 
 cd ${RULES_NODEJS_DIR}
-for rootDir in packages examples e2e internal/e2e ; do
+for rootDir in examples e2e internal/e2e ; do
   (
     cd ${rootDir}
     for subDir in $(ls) ; do

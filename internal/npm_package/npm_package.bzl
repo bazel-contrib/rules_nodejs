@@ -9,12 +9,17 @@ to the `deps` of one of their targets.
 load("//internal/common:sources_aspect.bzl", "sources_aspect")
 
 # Takes a depset of files and returns a corresponding list of file paths without any files
-# that aren't part of the specified package path.
-def _filter_out_external_files(files, package_path):
+# that aren't part of the specified package path. Also include files from external repositories
+# that explicitly specified in the vendor_external list.
+def _filter_out_external_files(ctx, files, package_path):
     result = []
     for file in files:
         if file.short_path.startswith(package_path):
             result.append(file.path)
+        else:
+            for v in ctx.attr.vendor_external:
+                if file.short_path.startswith("../%s/" % v):
+                    result.append(file.path)
     return result
 
 def create_package(ctx, deps_sources, nested_packages):
@@ -39,7 +44,7 @@ def create_package(ctx, deps_sources, nested_packages):
 
     # List of dependency sources which are local to the package that defines the current
     # target. We only want to package deps files which are inside of the current package.
-    local_deps_sources = _filter_out_external_files(deps_sources, package_path)
+    local_deps_sources = _filter_out_external_files(ctx, deps_sources, package_path)
 
     args = ctx.actions.args()
     args.use_param_file("%s", use_always = True)
@@ -143,9 +148,7 @@ NPM_PACKAGE_ATTRS = {
     ),
     "vendor_external": attr.string_list(
         doc = """External workspaces whose contents should be vendored into this workspace.
-        Avoids 'external/foo' path segments in the resulting package.
-        Note: only targets in the workspace root can include files from an external workspace.
-        Targets in nested packages only pick up files from within that package.""",
+        Avoids 'external/foo' path segments in the resulting package.""",
     ),
     "deps": attr.label_list(
         doc = """Other targets which produce files that should be included in the package, such as `rollup_bundle`""",

@@ -30,7 +30,7 @@ def jasmine_node_test(
         tags = [],
         coverage = False,
         jasmine = "@npm//@bazel/jasmine",
-        jasmine_entry_point = "@npm//:node_modules/@bazel/jasmine/src/jasmine_runner.js",
+        jasmine_entry_point = "@npm//:node_modules/@bazel/jasmine/jasmine_runner.js",
         **kwargs):
     """Runs tests in NodeJS using the Jasmine test runner.
 

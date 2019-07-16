@@ -12,6 +12,10 @@ build --host_force_python=PY2
 build --incompatible_use_python_toolchains
 common --incompatible_string_join_requires_strings
 
+# TODO(gregmagolan): remove the following flags once @io_bazel_rules_go is compatible with Bazel 0.27.0
+build --noincompatible_require_ctx_in_configure_features
+build --noincompatible_no_support_tools_in_action_inputs
+
 ###############################
 # Remote Build Execution support
 # Turn on these settings with

@@ -5,6 +5,4 @@ set -eu -o pipefail
 # -u: errors if an variable is referenced before being set
 # -o pipefail: causes a pipeline to produce a failure return code if any command errors
 
-# Define packages so that dependencies come first as locally
-# they will be built in the order provided
-export readonly PACKAGES=( hide-bazel-files jasmine typescript karma labs )
+export readonly PACKAGES=( create hide-bazel-files jasmine typescript karma labs )

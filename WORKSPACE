@@ -23,9 +23,9 @@ workspace(
     },
 )
 
-load("//:package.bzl", "rules_nodejs_dev_dependencies")
-
-rules_nodejs_dev_dependencies()
+#
+# Check that build is using a minimum compatible bazel version
+#
 
 load("//internal/common:check_bazel_version.bzl", "check_bazel_version")
 
@@ -42,18 +42,42 @@ Try running `yarn bazel` instead.
 )
 
 #
-# Load and install our dependencies downloaded above.
+# Since we don't have @npm//@bazel/foobar npm packages to setup
+# the npm_bazel_foobar repositories, we set these up manually as
+# local repositories.
 #
 
 local_repository(
-    name = "examples_program",
-    path = "examples/program",
+    name = "npm_bazel_jasmine",
+    path = "packages/jasmine/src",
 )
 
 local_repository(
-    name = "internal_e2e_packages",
-    path = "internal/e2e/packages",
+    name = "npm_bazel_karma",
+    path = "packages/karma/src",
 )
+
+local_repository(
+    name = "npm_bazel_labs",
+    path = "packages/labs/src",
+)
+
+local_repository(
+    name = "npm_bazel_typescript",
+    path = "packages/typescript/src",
+)
+
+#
+# Install rules_nodejs dev dependencies
+#
+
+load("//:package.bzl", "rules_nodejs_dev_dependencies")
+
+rules_nodejs_dev_dependencies()
+
+#
+# Setup rules_nodejs npm dependencies
+#
 
 load("//:defs.bzl", "node_repositories", "npm_install", "yarn_install")
 
@@ -71,10 +95,7 @@ load("//:defs.bzl", "node_repositories", "npm_install", "yarn_install")
 # or
 #   bazel run @nodejs//:npm
 node_repositories(
-    package_json = [
-        "//:package.json",
-        "@examples_program//:package.json",
-    ],
+    package_json = ["//:package.json"],
 )
 
 yarn_install(
@@ -88,11 +109,61 @@ load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
 
 install_bazel_dependencies()
 
-load("@internal_e2e_packages//:setup_workspace.bzl", "internal_e2e_packages_setup_workspace")
+#
+# Install npm_bazel_typescript dependencies
+#
 
-internal_e2e_packages_setup_workspace()
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
-# Dependencies to run skydoc
+# Uncomment for local development
+# local_repository(
+#     name = "build_bazel_rules_typescript",
+#     path = "../../../rules_typescript",
+# )
+
+# We use git_repository since Renovate knows how to update it.
+# With http_archive it only sees releases/download/*.tar.gz urls
+git_repository(
+    name = "build_bazel_rules_typescript",
+    commit = "a390e0a4b02baa93895ea9139fa13105d11258bd",
+    remote = "http://github.com/bazelbuild/rules_typescript.git",
+)
+
+# We have a source dependency on build_bazel_rules_typescript
+# so we must repeat its transitive toolchain deps
+load("@npm_bazel_typescript//:package.bzl", "rules_typescript_dev_dependencies")
+
+rules_typescript_dev_dependencies()
+
+load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
+load("@io_bazel_rules_go//go:def.bzl", "go_register_toolchains", "go_rules_dependencies")
+
+gazelle_dependencies()
+
+go_rules_dependencies()
+
+go_register_toolchains()
+
+load("@build_bazel_rules_typescript//internal:ts_repositories.bzl", "ts_setup_dev_workspace")
+
+ts_setup_dev_workspace()
+
+load("@npm_bazel_typescript//internal:ts_repositories.bzl", "ts_setup_workspace")
+
+ts_setup_workspace()
+
+#
+# Install npm_bazel_karma dependencies
+#
+
+load("@npm_bazel_karma//:package.bzl", "rules_karma_dependencies")
+
+rules_karma_dependencies()
+
+#
+# Dependencies to run skydoc & generating documentation
+#
+
 load("@io_bazel_rules_sass//sass:sass_repositories.bzl", "sass_repositories")
 
 sass_repositories()
@@ -111,8 +182,22 @@ load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
 bazel_skylib_workspace()
 
 #
-# Install npm dependencies for tests
+# Setup local respositories & install npm dependencies for tests
 #
+
+local_repository(
+    name = "examples_program",
+    path = "examples/program",
+)
+
+local_repository(
+    name = "internal_e2e_packages",
+    path = "internal/e2e/packages",
+)
+
+load("@internal_e2e_packages//:setup_workspace.bzl", "internal_e2e_packages_setup_workspace")
+
+internal_e2e_packages_setup_workspace()
 
 yarn_install(
     name = "fine_grained_deps_yarn",
@@ -174,6 +259,10 @@ filegroup(
     package_json = "//internal/npm_install/test:package.json",
     yarn_lock = "//internal/npm_install/test:yarn.lock",
 )
+
+#
+# RBE configuration
+#
 
 load("@bazel_toolchains//rules:rbe_repo.bzl", "rbe_autoconfig")
 

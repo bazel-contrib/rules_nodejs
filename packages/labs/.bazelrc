@@ -1,5 +1,0 @@
-# Import shared settings first so we can override below
-import %workspace%/../../common.bazelrc
-
-# Faster TypeScript compiles
-build --strategy=TypeScriptCompile=worker
