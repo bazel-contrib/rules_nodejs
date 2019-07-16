@@ -109,24 +109,6 @@ done
 SCRIPT_DIR="$(cd -P "$( dirname "$SOURCE" )" >/dev/null && pwd)"
 """
 
-# def _write_node_modules_impl(repository_ctx):
-# WORKAROUND for https://github.com/bazelbuild/bazel/issues/374#issuecomment-296217940
-# Bazel does not allow labels to start with `@`, so when installing eg. the `@types/node`
-# module from the @types scoped package, you'll get an error.
-# The workaround is to move the rule up one level, from /node_modules to the project root.
-# For now, users must instead write their own /BUILD file on setup.
-
-# repository_ctx.symlink(project_dir.get_child("node_modules"), "node_modules")
-# add a BUILD file inside the user's node_modules project folder
-# repository_ctx.file("installed/BUILD", """
-#   filegroup(name = "node_modules", srcs = glob(["node_modules/**/*"]), visibility = ["//visibility:public"])
-# """)
-
-# _write_node_modules = repository_rule(
-#     _write_node_modules_impl,
-#     attrs = { "package_json": attr.label() },
-# )
-
 def _download_node(repository_ctx):
     """Used to download a NodeJS runtime package.
 
