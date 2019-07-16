@@ -1,6 +1,8 @@
 ---
-platforms:
+tasks:
   ubuntu1604:
+    name: ubuntu1604
+    platform: ubuntu1604
     run_targets:
     - "@nodejs//:yarn"
     - "//internal/node/test:no_deps"
@@ -18,6 +20,8 @@ platforms:
     test_targets:
     - "//..."
   ubuntu1804:
+    name: ubuntu1804
+    platform: ubuntu1804
     run_targets:
     - "@nodejs//:yarn"
     - "//internal/node/test:no_deps"
@@ -38,6 +42,8 @@ platforms:
     test_targets:
     - "//..."
   macos:
+    name: macos
+    platform: macos
     run_targets:
     - "@nodejs//:yarn"
     - "//internal/node/test:no_deps"
@@ -54,7 +60,16 @@ platforms:
     - "//..."
     test_targets:
     - "//..."
+  macos_cross_compile:
+    name: macos_cross_compile
+    platform: macos
+    build_flags:
+    - "--platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64"
+    build_targets:
+    - "//..."
   windows:
+    name: windows
+    platform: windows
     run_targets:
     - "@nodejs//:yarn"
     - "//internal/node/test:no_deps"
@@ -73,6 +88,15 @@ platforms:
     - "--test_tag_filters=-fix-windows"
     test_targets:
     - "//..."
+  windows_cross_compile:
+    name: windows_cross_compile
+    platform: windows
+    build_flags:
+    - "--platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64"
+    build_targets:
+    - "//..."
   rbe_ubuntu1604:
+    name: rbe_ubuntu1604
+    platform: rbe_ubuntu1604
     build_targets:
     - "//..."
