@@ -18,17 +18,15 @@ for package in ${PACKAGES[@]} ; do
     readonly DEST_DIR="${DIST_DIR}/npm_bazel_${package}"
 
     # Build npm package
-    cd "${PACKAGES_DIR}/${package}"
-    printf "\n\nBuilding package ${package} //:npm_package\n"
-    ${RULES_NODEJS_DIR}/scripts/check_deps.sh
-    echo_and_run bazel build --workspace_status_command=../../scripts/current_version.sh //:npm_package
+    printf "\n\nBuilding package ${package} //packages/${package}:npm_package\n"
+    echo_and_run bazel build //packages/${package}:npm_package
 
     # Copy the npm_package to /dist
     echo "Copying npm package to ${DEST_DIR}"
     rm -rf ${DEST_DIR}
     mkdir -p ${DIST_DIR}
     readonly BAZEL_BIN=$(bazel info bazel-bin)
-    echo_and_run cp -R "${BAZEL_BIN}/npm_package" ${DEST_DIR}
+    echo_and_run cp -R "${BAZEL_BIN}/packages/${package}/npm_package" ${DEST_DIR}
     chmod -R u+w ${DEST_DIR}
 
     # Touch downstream package.json that depend on this package

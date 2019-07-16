@@ -12,26 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@build_bazel_rules_nodejs//:defs.bzl", "npm_package")
-load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
-load("//:index.bzl", "TYPESCRIPT_REPLACEMENTS")
-
-bzl_library(
-    name = "bzl",
-    srcs = glob(["*.bzl"]),
-    visibility = ["//docs:__pkg__"],
-    deps = [
-        "//internal:bzl",
-        "//internal/devserver:bzl",
-        "//internal/protobufjs:bzl",
-        "@build_bazel_rules_nodejs//internal/common:bzl",
-    ],
-)
-
-exports_files([
-    "index.docs.bzl",  # For generating documentation
-])
+load("@npm_bazel_typescript//:index.bzl", "TYPESCRIPT_REPLACEMENTS")
 
 genrule(
     name = "copy_LICENSE",
@@ -46,50 +28,29 @@ genrule(
 genrule(
     name = "generate_README",
     srcs = [
-        "//docs:index.md",
-        "//docs:install.md",
+        "//packages/typescript/docs:index.md",
+        "//packages/typescript/docs:install.md",
     ],
     outs = ["README.md"],
-    cmd = """cat docs/install.md $(location //docs:index.md) | sed 's/^##/\\\n##/' > $@""",
+    cmd = """cat $(location //packages/typescript/docs:install.md) $(location //packages/typescript/docs:index.md) | sed 's/^##/\\\n##/' > $@""",
 )
 
 npm_package(
     name = "npm_package",
     srcs = [
-        "BUILD.bazel",
-        "defs.bzl",
-        "index.bzl",
-        "package.bzl",
-        "package.json",
-        "version.bzl",
-        "//devserver:npm_package_assets",
-        "//internal:npm_package_assets",
-        "//ts_auto_deps:npm_package_assets",
+        "@npm_bazel_typescript//:package_contents",
     ],
     packages = [
         "@build_bazel_rules_typescript//:npm_bazel_typescript_package",
     ],
     replacements = TYPESCRIPT_REPLACEMENTS,
-    vendor_external = ["build_bazel_rules_typescript"],
+    vendor_external = [
+        "npm_bazel_typescript",
+        "build_bazel_rules_typescript",
+    ],
     deps = [
         ":copy_LICENSE",
         ":generate_README",
+        "@npm_bazel_typescript//internal:BUILD",
     ],
-)
-
-# Runtime libraries needed by the protobufjs library.
-# Any JS code produced by the ts_proto_library rule has a runtime dependency on these scripts.
-js_library(
-    name = "protobufjs_bootstrap_scripts",
-    srcs = [
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:node_modules/long/dist/long.js",
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:node_modules/protobufjs/dist/minimal/protobuf.min.js",
-    ],
-    # Make devmode loading work when it does require("protobufjs/minimal")
-    # so this is shimmed to define it to equal global.protobuf
-    amd_names = {
-        "long": "Long",
-        "protobufjs/minimal": "protobuf",
-    },
-    visibility = ["//visibility:public"],
 )

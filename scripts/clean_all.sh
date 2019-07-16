@@ -17,7 +17,6 @@ echo_and_run bazel clean --expunge
 
 ${RULES_NODEJS_DIR}/scripts/clean_e2e_all.sh
 ${RULES_NODEJS_DIR}/scripts/clean_examples_all.sh
-${RULES_NODEJS_DIR}/scripts/clean_packages_all.sh
 
 (
   cd internal/e2e

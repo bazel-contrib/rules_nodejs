@@ -14,28 +14,9 @@ Login to npm using the `angular` account. The password is shared in http://valen
 
 ## Adding a new package
 
-When adding a new package, you'll need to add the package explicitly in the following locations:
+When adding a new package, you'll need to add the package explicitly to:
 
-1. `/.circleci/config.yml`: Add a `build_foobar_package` job for your package and set its dependencies accordingly in the workflow if it depends on another package.
 1. `/scripts/packages.sh`: Add your package name to the list of packages to used for scripts.
-
-### Dependencies on other packages
-
-If your package depends on other packages then add the dependency to the `package.json` for your package such as
-
-```
-  "devDependencies": {
-    "@bazel/jasmine": "file:../../dist/npm_package_jasmine",
-    ...
-  }
-```
-
-
-### Testing your package
-
-The new package should be automatically tested with `yarn test` in CI by the `test_packages_all.sh` script.
-
-To test your package locally, you can run `yarn test_packages bar`. If you package depends on other packages you must run `yarn build_packages foo` to build a specific dependency or `yarn build_packages_all` to build all dependencies.
 
 ### End-to-end tests
 

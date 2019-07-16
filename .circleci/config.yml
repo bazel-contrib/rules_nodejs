@@ -143,7 +143,6 @@ jobs:
       - *init_bazel
       - *hide_node_and_yarn_local_binaries
 
-      - run: bazel build ...
       - run: bazel test ...
 
   runnable_targets:
@@ -179,99 +178,31 @@ jobs:
       # We should also be able to test targets in a different workspace
       # TODO(gmagolan): move these tests into `build` job once
       # https://github.com/bazelbuild/bazel/issues/6481 is resolved
+      - run: 'cd examples/program && bazel run @nodejs//:yarn'
       - run: bazel test @examples_program//...
       - run: bazel test @internal_e2e_packages//...
 
   build_release:
     <<: *job_defaults
+    # Need to compile Go and protocol buffers from source for typescript package
+    resource_class: xlarge
     steps:
       - *attach_workspace
       - *init_environment
       - *init_bazel
       - *hide_node_and_yarn_local_binaries
       - run: ./scripts/build_release.sh
+      - run: ./scripts/build_packages_all.sh
       - persist_to_workspace:
           root: ~/
           paths:
             - ./rules_nodejs/dist/build_bazel_rules_nodejs
-
-  build_typescript_package:
-    <<: *job_defaults
-    # Need to compile Go and protocol buffers from source for typescript package
-    resource_class: xlarge
-    steps:
-      - *attach_workspace
-      - *init_environment
-      - *init_bazel
-      - *hide_node_and_yarn_local_binaries
-      - run: ./scripts/build_packages.sh typescript
-      - persist_to_workspace:
-          root: ~/
-          paths:
             - ./rules_nodejs/dist/npm_bazel_typescript
-
-  build_karma_package:
-    <<: *job_defaults
-    steps:
-      - *attach_workspace
-      - *init_environment
-      - *init_bazel
-      - *hide_node_and_yarn_local_binaries
-      - run: ./scripts/build_packages.sh karma
-      - persist_to_workspace:
-          root: ~/
-          paths:
             - ./rules_nodejs/dist/npm_bazel_karma
-
-  build_jasmine_package:
-    <<: *job_defaults
-    steps:
-      - *attach_workspace
-      - *init_environment
-      - *init_bazel
-      - *hide_node_and_yarn_local_binaries
-      - run: ./scripts/build_packages.sh jasmine
-      - persist_to_workspace:
-          root: ~/
-          paths:
             - ./rules_nodejs/dist/npm_bazel_jasmine
-
-  build_labs_package:
-    <<: *job_defaults
-    steps:
-      - *attach_workspace
-      - *init_environment
-      - *init_bazel
-      - *hide_node_and_yarn_local_binaries
-      - run: ./scripts/build_packages.sh labs
-      - persist_to_workspace:
-          root: ~/
-          paths:
             - ./rules_nodejs/dist/npm_bazel_labs
-
-  build_hide_bazel_files_package:
-    <<: *job_defaults
-    steps:
-      - *attach_workspace
-      - *init_environment
-      - *init_bazel
-      - *hide_node_and_yarn_local_binaries
-      - run: ./scripts/build_packages.sh hide-bazel-files
-      - persist_to_workspace:
-          root: ~/
-          paths:
             - ./rules_nodejs/dist/npm_bazel_hide-bazel-files
-
-  test_packages:
-    <<: *job_defaults
-    # Need to compile Go and protocol buffers from source for typescript package
-    resource_class: xlarge
-    parallelism: 4
-    steps:
-      - *attach_workspace
-      - *init_environment
-      - *init_bazel
-      - run: ./scripts/test_packages_all.sh ${CIRCLE_NODE_INDEX} ${CIRCLE_NODE_TOTAL}
+            - ./rules_nodejs/dist/npm_bazel_create
 
   # This job cannot run on BuildKite (BazelCI) because it requires changing
   # directories to test inside nested workspaces.
@@ -357,56 +288,21 @@ workflows:
       - runnable_targets:
           requires:
           - setup
-      - test_legacy_runfiles:
-          requires:
-          - setup
       - build_release:
           requires:
           - setup
-      - build_jasmine_package:
+      - test_legacy_runfiles:
           requires:
-          - setup
-      - build_karma_package:
-          requires:
-          - build_typescript_package
-      - build_labs_package:
-          requires:
-          - build_typescript_package
-      - build_typescript_package:
-          requires:
-          - build_jasmine_package
-          - build_hide_bazel_files_package
-      - build_hide_bazel_files_package:
-          requires:
-          - setup
-      - test_packages:
-          requires:
-          - build_jasmine_package
-          - build_typescript_package
+          - build_release
       - test_e2e:
           requires:
           - build_release
-          - build_typescript_package
-          - build_jasmine_package
-          - build_labs_package
-          - build_karma_package
-          - build_hide_bazel_files_package
       - test_e2e_legacy:
           requires:
           - build_release
       - test_examples:
           requires:
           - build_release
-          - build_typescript_package
-          - build_jasmine_package
-          - build_labs_package
-          - build_karma_package
-          - build_hide_bazel_files_package
       - test_angular_bazel_example:
           requires:
           - build_release
-          - build_typescript_package
-          - build_jasmine_package
-          - build_labs_package
-          - build_karma_package
-          - build_hide_bazel_files_package

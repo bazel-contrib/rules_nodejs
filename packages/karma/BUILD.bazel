@@ -1,4 +1,4 @@
-# Copyright 2018 The Bazel Authors. All rights reserved.
+# Copyright 2019 The Bazel Authors. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,50 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# BEGIN-INTERNAL
-# Parts of this BUILD file only necessary when building within the bazelbuild/rules_typescript repo.
-# The generated `@bazel/karma` npm package contains a trimmed BUILD file using # INTERNAL fences.
-load("@build_bazel_rules_nodejs//:defs.bzl", "COMMON_REPLACEMENTS", "nodejs_binary", "npm_package")
-load("@npm_bazel_typescript//:defs.bzl", "ts_library")
-
-package(default_visibility = ["//visibility:public"])
-
-# Exports to be consumed for generating skydoc.
-exports_files([
-    "karma_web_test.bzl",
-    "ts_web_test.bzl",
-    "web_test.bzl",
-])
-
-ts_library(
-    name = "bazel_karma",
-    srcs = glob(["*.ts"]),
-    module_name = "@bazel/karma",
-    tsconfig = ":tsconfig.json",
-    deps = [
-        "@npm//@types/node",
-        "@npm//tmp",
-    ],
-)
-
-nodejs_binary(
-    name = "karma_bin",
-    data = [
-        ":bazel_karma",
-        "@npm//jasmine-core",
-        "@npm//karma",
-        "@npm//karma-chrome-launcher",
-        "@npm//karma-firefox-launcher",
-        "@npm//karma-jasmine",
-        "@npm//karma-requirejs",
-        "@npm//karma-sauce-launcher",
-        "@npm//karma-sourcemap-loader",
-        "@npm//requirejs",
-        "@npm//tmp",
-    ],
-    entry_point = "@npm//:node_modules/karma/bin/karma",
-    install_source_map_support = False,
-)
+load("@build_bazel_rules_nodejs//:defs.bzl", "COMMON_REPLACEMENTS", "npm_package")
 
 genrule(
     name = "copy_LICENSE",
@@ -70,37 +27,25 @@ genrule(
 genrule(
     name = "generate_README",
     srcs = [
-        "//docs",
-        "//docs:install.md",
+        "//packages/karma/docs:index.md",
+        "//packages/karma/docs:install.md",
     ],
     outs = ["README.md"],
-    cmd = "unzip -o -d docs $(location //docs:docs) && cat docs/install.md docs/*_web_test.md | sed 's/^##/\\\n##/' > $@",
+    cmd = """cat $(location //packages/karma/docs:install.md) $(location //packages/karma/docs:index.md) | sed 's/^##/\\\n##/' > $@""",
 )
 
 npm_package(
     name = "npm_package",
     srcs = [
-        "BUILD.bazel",
-        "WORKSPACE",
-        "browser_repositories.bzl",
-        "defs.bzl",
-        "index.bzl",
-        "karma.conf.js",
-        "karma.js",
-        "karma_web_test.bzl",
-        "package.bzl",
-        "package.json",
-        "plugins.js",
-        "ts_web_test.bzl",
-        "web_test.bzl",
+        "@npm_bazel_karma//:package_contents",
     ],
     replacements = COMMON_REPLACEMENTS,
+    vendor_external = [
+        "npm_bazel_karma",
+    ],
     deps = [
-        ":bazel_karma",
         ":copy_LICENSE",
         ":generate_README",
+        "@npm_bazel_karma//:bazel_karma_lib",
     ],
 )
-
-# END-INTERNAL
-exports_files(["karma.conf.js"])

@@ -97,43 +97,47 @@ function main(args) {
 
   // src like baseDir/my/path is just copied to outDir/my/path
   for (src of srcsArg.split(',').filter(s => !!s)) {
-    if (!src.startsWith(baseDir)) {
-      throw new Error(`${src} in 'srcs' does not reside in the base directory, ` +
-        `generated file should belong in 'deps' instead.`);
+    if (src.startsWith('external/')) {
+      // If srcs is from external workspace drop the external/wksp portion
+      copyWithReplace(
+          src, path.join(outDir, src.split('/').slice(2).join('/')), replacements,
+          renameBuildFiles);
+    } else {
+      // Source is from local workspace
+      if (baseDir && !src.startsWith(`${baseDir}/`)) {
+        throw new Error(
+            `${src} in 'srcs' does not reside in the base directory, ` +
+            `generated file should belong in 'deps' instead.`);
+      }
+      copyWithReplace(
+          src, path.join(outDir, path.relative(baseDir, src)), replacements, renameBuildFiles);
     }
-    copyWithReplace(
-        src, path.join(outDir, path.relative(baseDir, src)), replacements, renameBuildFiles);
   }
 
   function outPath(f) {
-    function findRoot() {
-      for (ext of vendorExternalArg.split(',').filter(s => !!s)) {
-        const candidate = path.join(binDir, 'external', ext);
-        if (!path.relative(candidate, f).startsWith('..')) {
-          return candidate;
-        }
-      }
-      if (!path.relative(binDir, f).startsWith('..')) {
-        return binDir;
-      } else if (!path.relative(genDir, f).startsWith('..')) {
-        return genDir;
-      } else {
-        // It might be nice to enforce here that deps don't contain sources
-        // since those belong in srcs above.
-        // The `deps` attribute should typically be outputs of other rules.
-        // However, things like .d.ts sources of a ts_library or data attributes
-        // of ts_library will result in source files that appear in the deps
-        // so we have to allow this.
-        return '.';
+    for (ext of vendorExternalArg.split(',').filter(s => !!s)) {
+      const candidate = path.join(binDir, 'external', ext);
+      if (!path.relative(candidate, f).startsWith('..')) {
+        return path.join(outDir, path.relative(candidate, f));
       }
     }
-    return path.join(outDir, path.relative(path.join(findRoot(), baseDir), f));
+    if (!path.relative(binDir, f).startsWith('..')) {
+      return path.join(outDir, path.relative(path.join(binDir, baseDir), f));
+    } else if (!path.relative(genDir, f).startsWith('..')) {
+      return path.join(outDir, path.relative(path.join(genDir, baseDir), f));
+    } else {
+      // It might be nice to enforce here that deps don't contain sources
+      // since those belong in srcs above.
+      // The `deps` attribute should typically be outputs of other rules.
+      // However, things like .d.ts sources of a ts_library or data attributes
+      // of ts_library will result in source files that appear in the deps
+      // so we have to allow this.
+      return path.join(outDir, path.relative(baseDir, f));
+    }
   }
 
-  // deps like bazel-bin/baseDir/my/path is copied to outDir/my/path
-  // Don't include external directories in the package, these should be installed
-  // by users outside of the package.
-  for (dep of depsArg.split(',').filter(s => !!s && !s.startsWith('external/'))) {
+  // Deps like bazel-bin/baseDir/my/path is copied to outDir/my/path.
+  for (dep of depsArg.split(',').filter(s => !!s)) {
     try {
       copyWithReplace(dep, outPath(dep), replacements, renameBuildFiles);
     } catch (e) {

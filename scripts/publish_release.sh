@@ -19,13 +19,9 @@ readonly TMP=$(mktemp -d -t bazel-release.XXXXXXX)
 
 echo_and_run() { echo "+ $@" ; "$@" ; }
 
-${RULES_NODEJS_DIR}/scripts/build_packages_all.sh
-
-for pkg in ${PACKAGES[@]} ; do (
-    printf "\n\nBuilding & ${NPM_COMMAND}ing package ${pkg} //:npm_package\n"
-    cd packages/$pkg
-    echo_and_run ../../node_modules/.bin/bazel --output_base=$TMP run  --workspace_status_command=../../scripts/current_version.sh //:npm_package.${NPM_COMMAND}
-) done
-
-# packages/create is not a nested workspace and has no deps
-echo_and_run node_modules/.bin/bazel --output_base=$TMP run  --workspace_status_command=scripts/current_version.sh //packages/create:npm_package.${NPM_COMMAND}
+for pkg in ${PACKAGES[@]} ; do
+  (
+    printf "\n\nBuilding & ${NPM_COMMAND}ing package ${pkg} //packages/${pkg}:npm_package\n"
+    echo_and_run ./node_modules/.bin/bazel --output_base=$TMP run  --workspace_status_command=./scripts/current_version.sh //packages/${pkg}:npm_package.${NPM_COMMAND}
+  )
+done

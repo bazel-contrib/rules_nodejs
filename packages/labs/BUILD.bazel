@@ -12,12 +12,13 @@ genrule(
 npm_package(
     name = "npm_package",
     srcs = [
-        "BUILD.bazel",
-        "README.md",
-        "package.json",
+        "@npm_bazel_labs//:package_contents",
     ],
-    packages = ["//webpack"],
+    vendor_external = [
+        "npm_bazel_labs",
+    ],
     deps = [
         ":copy_LICENSE",
+        "@npm_bazel_labs//webpack:cli_lib",
     ],
 )

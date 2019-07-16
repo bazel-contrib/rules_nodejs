@@ -62,7 +62,6 @@ echo_and_run bazel run @bazel_workspace_b//subdir:bin
 
 echo_and_run ./scripts/build_all.sh
 
-echo_and_run ./scripts/test_packages_all.sh
 echo_and_run ./scripts/test_e2e_all.sh
 echo_and_run ./scripts/test_legacy_e2e_all.sh
 echo_and_run ./scripts/test_examples_all.sh
