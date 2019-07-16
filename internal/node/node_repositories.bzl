@@ -197,7 +197,7 @@ def _prepare_node(repository_ctx):
     """
 
     # TODO: Maybe we want to encode the OS as a specific attribute rather than do it based on naming?
-    is_windows = is_windows_os(repository_ctx) or "_windows_" in repository_ctx.attr.name
+    is_windows = "_windows_" in repository_ctx.attr.name
     if repository_ctx.attr.vendored_node:
         node_exec = "/".join([f for f in [
             "../../..",
