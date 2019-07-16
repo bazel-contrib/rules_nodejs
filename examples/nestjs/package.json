@@ -1,0 +1,19 @@
+{
+  "private": true,
+  "dependencies": {
+    "@nestjs/common": "6.5.2",
+    "@nestjs/core": "6.5.2",
+    "@nestjs/platform-express": "6.5.2",
+    "minimist": "1.2.0",
+    "reflect-metadata": "0.1.13",
+    "rxjs": "6.5.2"
+  },
+  "devDependencies": {
+    "@bazel/typescript": "file:../../dist/npm_bazel_typescript",
+    "@types/node": "12.6.3",
+    "typescript": "3.5.3"
+  },
+  "scripts": {
+    "test": "bazel build ... && bazel build --platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64 ..."
+  }
+}
