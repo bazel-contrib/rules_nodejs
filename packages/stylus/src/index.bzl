@@ -12,8 +12,10 @@ def _stylus_binary(ctx):
     ctx.actions.run(
         outputs = [css_output, map_output],
         inputs = [src] + ctx.files.deps,
-        executable = ctx.executable._compiler,
+        executable = ctx.executable.compiler,
         arguments = [
+            "--resolve-url",
+            "--compress",
             "--sourcemap",
             "--out",
             ctx.bin_dir.path + "/" + ctx.label.package,
@@ -31,13 +33,16 @@ stylus_binary = rule(
             mandatory = True,
             allow_single_file = True,
         ),
-        "deps": attr.label_list(
-            allow_files = True,
-        ),
-        "_compiler": attr.label(
+        "compiler": attr.label(
+            doc = """Label that points to the stylus binary to run.
+            If you install your npm packages to a workspace named something other than "npm",
+            you may need to set this to `@my_npm_name//stylus/bin:stylus`""",
             default = Label("@npm//stylus/bin:stylus"),
             cfg = "host",
             executable = True,
+        ),
+        "deps": attr.label_list(
+            allow_files = True,
         ),
     },
 )
