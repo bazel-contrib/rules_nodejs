@@ -14,3 +14,18 @@ See https://github.com/bazelbuild/rules_nodejs/#quickstart
 
 This causes the `@bazel/stylus` package to be installed as a Bazel workspace named `npm_bazel_stylus`.
 
+## Installing with self-managed dependencies
+
+If you didn't use the `yarn_install` or `npm_install` rule to create an `npm` workspace, you'll have to declare a rule in your root `BUILD.bazel` file to execute stylus:
+
+```python
+# Create a stylus rule to use in stylus_binary#compiler
+# attribute when using self-managed dependencies
+nodejs_binary(
+    name = "stylus_bin",
+    entry_point = "//:node_modules/stylus/bin/stylus",
+    # Point bazel to your node_modules to find the entry point
+    node_modules = ["//:node_modules"],
+)
+```
+
