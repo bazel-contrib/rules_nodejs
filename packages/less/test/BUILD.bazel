@@ -1,0 +1,17 @@
+load("@npm_bazel_less//:index.bzl", "less_binary")
+
+less_binary(
+    name = "styles",
+    src = "foo.less",
+)
+
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_test")
+
+nodejs_test(
+    name = "test",
+    data = [
+        "less_binary_spec.js",
+        ":styles",
+    ],
+    entry_point = ":less_binary_spec.js",
+)

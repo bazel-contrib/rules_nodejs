@@ -1,0 +1,19 @@
+{
+  "name": "@bazel/less",
+  "description": "Run Less CSS preprocessor under Bazel",
+  "version": "0.0.0-PLACEHOLDER",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "less": "^3.9.0"
+  },
+  "keywords": [
+    "less",
+    "css",
+    "bazel"
+  ],
+  "bazelWorkspaces": {
+    "npm_bazel_less": {
+      "rootPath": "."
+    }
+  }
+}

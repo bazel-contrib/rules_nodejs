@@ -14,6 +14,7 @@ module.exports = {
         'jasmine',
         'karma',
         'labs',
+        'less',
         'protractor',
         'stylus',
         'rollup',
