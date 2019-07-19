@@ -276,15 +276,19 @@ function resolveManifestDirectory(res) {
 
 function resolveRunfiles(parent, ...pathSegments) {
   // Remove any empty strings from pathSegments
-  pathSegments = pathSegments.filter(segment => segment);
+  // Normalize to forward slash, because even on Windows the runfiles_manifest file
+  // is written with forward slash.
+  let runfilesEntry = pathSegments.filter(segment => segment).join('/').replace(/\\/g, '/');
 
-  const defaultPath = path.join(process.env.RUNFILES, ...pathSegments);
+  // Trim `${USER_WORKSPACE_NAME}/external/` from start of runfilesEntry
+  const externalWorkspacePrefix = `${USER_WORKSPACE_NAME}/external/`;
+  if (runfilesEntry.startsWith(externalWorkspacePrefix)) {
+    runfilesEntry = runfilesEntry.slice(externalWorkspacePrefix.length);
+  }
+
+  const runfilesPath = path.join(process.env.RUNFILES, runfilesEntry);
 
   if (runfilesManifest) {
-    // Normalize to forward slash, because even on Windows the runfiles_manifest file
-    // is written with forward slash.
-    let runfilesEntry = pathSegments.join('/').replace(/\\/g, '/');
-
     if (parent && runfilesEntry.startsWith('.')) {
       // Resolve relative paths from manifest files.
       const normalizedParent = parent.replace(/\\/g, '/');
@@ -321,29 +325,28 @@ function resolveRunfiles(parent, ...pathSegments) {
       return maybe;
     }
   } else {
-    if (DEBUG) console.error('node_loader: try to resolve in runfiles', defaultPath);
+    if (DEBUG) console.error('node_loader: try to resolve in runfiles', runfilesPath);
 
-    let maybe = loadAsFileSync(defaultPath);
+    let maybe = loadAsFileSync(runfilesPath);
     if (maybe) {
       if (DEBUG) console.error('node_loader: resolved file', maybe);
       return maybe;
     }
 
-    maybe = loadAsDirectorySync(defaultPath);
+    maybe = loadAsDirectorySync(runfilesPath);
     if (maybe) {
       if (DEBUG) console.error('node_loader: resolved via directory', maybe);
       return maybe;
     }
   }
 
-  return defaultPath;
+  return runfilesPath;
 }
 
 var originalResolveFilename = module.constructor._resolveFilename;
 module.constructor._resolveFilename = function(request, parent, isMain, options) {
   const parentFilename = (parent && parent.filename) ? parent.filename : undefined;
-  if (DEBUG)
-    console.error(`node_loader: resolve ${request} from ${parentFilename}`);
+  if (DEBUG) console.error(`\n\nnode_loader: resolve ${request} from ${parentFilename}`);
 
   const failedResolutions = [];
 
