@@ -13,5 +13,6 @@
   ],
   "enabledManagers": [
     "bazel"
-  ]
+  ],
+  "semanticPrefix": "chore"
 }
