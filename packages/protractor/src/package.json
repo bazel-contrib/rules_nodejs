@@ -1,0 +1,27 @@
+{
+  "name": "@bazel/protractor",
+  "description": "Run Protractor tests under Bazel",
+  "license": "Apache-2.0",
+  "version": "0.0.0-PLACEHOLDER",
+  "repository": {
+      "type" : "git",
+      "url" : "https://github.com/bazelbuild/rules_nodejs.git",
+      "directory": "packages/protractor"
+  },
+  "bugs": {
+      "url": "https://github.com/bazelbuild/rules_nodejs/issues"
+  },
+  "keywords": [
+      "protractor",
+      "bazel"
+  ],
+  "main": "index.js",
+  "dependencies": {
+      "protractor": "^5.4.2"
+  },
+  "bazelWorkspaces": {
+      "npm_bazel_protractor": {
+          "rootPath": "."
+      }
+  }
+}

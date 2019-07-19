@@ -1,0 +1,32 @@
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+load("@npm_bazel_jasmine//:defaults.bzl", "jasmine_node_test")
+load("@npm_bazel_typescript//:defaults.bzl", "ts_library")
+
+ts_library(
+    name = "protractor_utils_tests_lib",
+    testonly = True,
+    srcs = ["index_test.ts"],
+    deps = [
+        "@npm//@types/jasmine",
+        "@npm_bazel_protractor//:utils_lib",
+    ],
+)
+
+nodejs_binary(
+    name = "fake-devserver",
+    testonly = True,
+    data = [
+        "fake-devserver.js",
+        "@npm//minimist",
+    ],
+    entry_point = ":fake-devserver.ts",
+)
+
+jasmine_node_test(
+    name = "protractor_utils_tests",
+    size = "small",
+    srcs = [":protractor_utils_tests_lib"],
+    data = [
+        ":fake-devserver",
+    ],
+)

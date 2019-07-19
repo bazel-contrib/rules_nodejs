@@ -20,6 +20,13 @@ var_4: &init_environment
       # Setup circleci environment
       ./.circleci/env.sh
 
+      # Install GTK+ graphical user interface (libgtk-3-0), advanced linux sound architecture (libasound2)
+      # and network security service libraries (libnss3) & X11 Screen Saver extension library (libssx1)
+      # which are dependendies of chrome & needed for karma & protractor headless chrome tests.
+      # This is a very small install with the whole init_environment step taking less than 8 seconds.
+      sudo apt-get update
+      sudo apt-get -y install libgtk-3-0 libasound2 libnss3 libxss1
+
       # Overwrite the yarn installed in the docker container with our own version.
       pathToYarn=$(realpath ./third_party/github.com/yarnpkg/yarn/releases/download/v1.13.0/bin/yarn.js)
       sudo chmod a+x $pathToYarn
@@ -203,6 +210,7 @@ jobs:
             - ./rules_nodejs/dist/npm_bazel_labs
             - ./rules_nodejs/dist/npm_bazel_hide-bazel-files
             - ./rules_nodejs/dist/npm_bazel_create
+            - ./rules_nodejs/dist/npm_bazel_protractor
 
   # This job cannot run on BuildKite (BazelCI) because it requires changing
   # directories to test inside nested workspaces.

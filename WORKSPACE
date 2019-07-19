@@ -63,6 +63,11 @@ local_repository(
 )
 
 local_repository(
+    name = "npm_bazel_protractor",
+    path = "packages/protractor/src",
+)
+
+local_repository(
     name = "npm_bazel_typescript",
     path = "packages/typescript/src",
 )
@@ -159,6 +164,17 @@ ts_setup_workspace()
 load("@npm_bazel_karma//:package.bzl", "rules_karma_dependencies")
 
 rules_karma_dependencies()
+
+# Setup the rules_webtesting toolchain
+load("@io_bazel_rules_webtesting//web:repositories.bzl", "web_test_repositories")
+
+web_test_repositories()
+
+# Temporary work-around for https://github.com/angular/angular/issues/28681
+# TODO(gregmagolan): go back to @io_bazel_rules_webtesting browser_repositories
+load("@npm_bazel_karma//:browser_repositories.bzl", "browser_repositories")
+
+browser_repositories()
 
 #
 # Dependencies to run skydoc & generating documentation
