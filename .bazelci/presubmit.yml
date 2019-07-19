@@ -17,6 +17,8 @@ tasks:
     - "@bazel_workspace_b//subdir:bin"
     build_targets:
     - "//..."
+    test_flags:
+    - "--test_tag_filters=-fix-bazelci-ubuntu"
     test_targets:
     - "//..."
   ubuntu1804:
@@ -39,6 +41,8 @@ tasks:
     # This target is tagged "manual" but we want some CI
     # coverage of it to make sure it doesn't break.
     - "//docs"
+    test_flags:
+    - "--test_tag_filters=-fix-bazelci-ubuntu"
     test_targets:
     - "//..."
   macos:

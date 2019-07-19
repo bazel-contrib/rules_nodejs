@@ -1,0 +1,76 @@
+load("@build_bazel_rules_nodejs//:defs.bzl", "http_server", "rollup_bundle")
+load("@npm_bazel_protractor//:defaults.bzl", "protractor_web_test_suite")
+load("@npm_bazel_typescript//:defaults.bzl", "ts_devserver", "ts_library")
+load("@npm_bazel_typescript//:index.bzl", "ts_config")
+
+ts_config(
+    name = "tsconfig-test",
+    src = "tsconfig-test.json",
+    deps = [":tsconfig.json"],
+)
+
+ts_library(
+    name = "app",
+    srcs = ["app.ts"],
+    tsconfig = ":tsconfig.json",
+)
+
+ts_devserver(
+    name = "devserver",
+    serving_path = "/bundle.min.js",
+    static_files = ["index.html"],
+    deps = [":app"],
+)
+
+rollup_bundle(
+    name = "bundle",
+    entry_point = ":app.ts",
+    deps = [":app"],
+)
+
+http_server(
+    name = "prodserver",
+    data = [
+        "index.html",
+        ":bundle.min.js",
+    ],
+)
+
+ts_library(
+    name = "ts_spec",
+    testonly = True,
+    srcs = ["test.spec.ts"],
+    tsconfig = ":tsconfig-test",
+    deps = [
+        "@npm//@types/jasmine",
+        "@npm//@types/selenium-webdriver",
+        "@npm//protractor",
+    ],
+)
+
+protractor_web_test_suite(
+    name = "prodserver_test",
+    configuration = ":conf.js",
+    on_prepare = ":on-prepare.js",
+    server = ":prodserver",
+    tags = [
+        "fix-bazelci-ubuntu",  # ubuntu docker images on buildkite missing chrome dependencies & apt-get install not possible
+        "fix-windows",  # http_server (and history_server) do not work on Windows
+    ],
+    deps = [
+        ":ts_spec",
+    ],
+)
+
+protractor_web_test_suite(
+    name = "devserver_test",
+    configuration = ":conf.js",
+    on_prepare = ":on-prepare.js",
+    server = ":devserver",
+    tags = [
+        "fix-bazelci-ubuntu",  # ubuntu docker images on buildkite missing chrome dependencies & apt-get install not possible
+    ],
+    deps = [
+        ":ts_spec",
+    ],
+)

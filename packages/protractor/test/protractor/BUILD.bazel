@@ -1,0 +1,36 @@
+load("@npm_bazel_protractor//:defaults.bzl", "protractor_web_test_suite")
+load("@npm_bazel_typescript//:defaults.bzl", "ts_library")
+
+ts_library(
+    name = "ts_spec",
+    testonly = True,
+    srcs = ["test.spec.ts"],
+    tsconfig = ":tsconfig.json",
+    deps = [
+        "@npm//@types/jasmine",
+        "@npm//@types/selenium-webdriver",
+        "@npm//protractor",
+    ],
+)
+
+ts_library(
+    name = "ts_conf",
+    testonly = True,
+    srcs = ["conf.ts"],
+    tsconfig = ":tsconfig.json",
+    deps = [
+        "@npm//protractor",
+        "@npm_bazel_protractor//:utils_lib",
+    ],
+)
+
+protractor_web_test_suite(
+    name = "test",
+    configuration = ":ts_conf",
+    tags = [
+        "fix-bazelci-ubuntu",  # ubuntu docker images on buildkite missing chrome dependencies & apt-get install not possible
+    ],
+    deps = [
+        ":ts_spec",
+    ],
+)
