@@ -70,14 +70,14 @@ def _run_pbts(actions, executable, js_file):
 def _ts_proto_library(ctx):
     sources = depset()
     for dep in ctx.attr.deps:
-        if not hasattr(dep, "proto"):
+        if ProtoInfo not in dep:
             fail("ts_proto_library dep %s must be a proto_library rule" % dep.label)
 
         # TODO(alexeagle): go/new-proto-library suggests
         # > should not parse .proto files. Instead, they should use the descriptor
         # > set output from proto_library
         # but protobuf.js doesn't seem to accept that bin format
-        sources = depset(transitive = [sources, dep.proto.transitive_sources])
+        sources = depset(transitive = [sources, dep[ProtoInfo].transitive_sources])
 
     output_name = ctx.attr.output_name or ctx.label.name
 
