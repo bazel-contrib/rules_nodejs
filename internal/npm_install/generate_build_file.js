@@ -694,6 +694,9 @@ function filterFiles(files, exts = []) {
  */
 function isNgApfPackage(pkg) {
   const set = new Set(pkg._files);
+  if (set.has('ANGULAR_PACKAGE')) {
+    return true;
+  }
   const metadataExt = /\.metadata\.json$/;
   return pkg._files.some((file) => {
     if (metadataExt.test(file)) {
