@@ -77,9 +77,9 @@ def rules_nodejs_dev_dependencies():
     # bazel-skylib master 2019.05.03 to get support for https://github.com/bazelbuild/bazel-skylib/pull/140
     http_archive(
         name = "bazel_skylib",
-        sha256 = "afbe4d9d033c007940acd24bb9becf1580a0280ae0b2ebbb5a7cb12912d2c115",
-        strip_prefix = "bazel-skylib-ffad33e9bfc60bdfa98292ca655a4e7035792046",
-        urls = ["https://github.com/bazelbuild/bazel-skylib/archive/ffad33e9bfc60bdfa98292ca655a4e7035792046.tar.gz"],
+        sha256 = "1a79ca61b018723ec23829f8268750bbe719c4c7b0a1d320ed7a7f71fa9fa2aa",
+        strip_prefix = "bazel-skylib-d2cf1cc2bcd1e879743faf5216c4887b994705af",
+        urls = ["https://github.com/bazelbuild/bazel-skylib/archive/d2cf1cc2bcd1e879743faf5216c4887b994705af.tar.gz"],
     )
 
     # Needed for Remote Build Execution
