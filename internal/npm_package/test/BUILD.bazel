@@ -27,13 +27,18 @@ npm_package(
     srcs = [
         "package.json",
         "some_file",
+        "@internal_npm_package_test_vendored_external//:vendored_external_file",
     ],
     packages = [":dependent_pkg"],
     replacements = {"replace_me": "replaced"},
+    vendor_external = [
+        "internal_npm_package_test_vendored_external",
+    ],
     deps = [
         ":bundle.min.js",
         ":produces_files",
         ":ts_library",
+        "@internal_npm_package_test_vendored_external//:ts_library",
     ],
 )
 

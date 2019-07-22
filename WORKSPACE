@@ -195,6 +195,11 @@ local_repository(
     path = "internal/e2e/packages",
 )
 
+local_repository(
+    name = "internal_npm_package_test_vendored_external",
+    path = "internal/npm_package/test/vendored_external",
+)
+
 load("@internal_e2e_packages//:setup_workspace.bzl", "internal_e2e_packages_setup_workspace")
 
 internal_e2e_packages_setup_workspace()

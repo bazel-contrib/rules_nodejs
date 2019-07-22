@@ -1,0 +1,13 @@
+load("@npm_bazel_typescript//:defaults.bzl", "ts_library")
+
+package(default_visibility = ["//visibility:public"])
+
+# Exported file to be consumed by test
+exports_files(["vendored_external_file"])
+
+ts_library(
+    name = "ts_library",
+    srcs = [
+        "external.ts",
+    ],
+)

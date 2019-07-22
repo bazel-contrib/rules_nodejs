@@ -22,6 +22,9 @@ describe('npm_package srcs', () => {
   it('copies files from other packages', () => {
     expect(read('dependent_file')).toEqual('dependent_file content');
   });
+  it('copies js files from ts_library', () => {
+    expect(read('foo.js')).toEqual('export const a = \'\';');
+  });
   it('copies declaration files from ts_library', () => {
     expect(read('foo.d.ts')).toEqual('export const a: string;');
   });
@@ -34,6 +37,16 @@ describe('npm_package srcs', () => {
   it('copies files from deps', () => {
     expect(read('bundle.min.js')).toBe('bundle content');
   });
+  it('copies files from external workspace if included in srcs', () => {
+    expect(read('vendored_external_file')).toEqual('vendored_external_file content');
+  });
+  it('copies js files from external workspace ts_library if included in vendor_external', () => {
+    expect(read('external.js')).toContain('exports.b = \'\';');
+  });
+  it('copies declaration files from external workspace ts_library if included in vendor_external',
+     () => {
+       expect(read('external.d.ts')).toContain('export declare const b: string;');
+     });
   it('vendors external workspaces',
      () => {
          // TODO(alexeagle): there isn't a way to test this yet, because the npm_package under test

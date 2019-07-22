@@ -43,8 +43,10 @@ def create_package(ctx, deps_sources, nested_packages):
     package_path = ctx.label.package
 
     # List of dependency sources which are local to the package that defines the current
-    # target. We only want to package deps files which are inside of the current package.
-    local_deps_sources = _filter_out_external_files(ctx, deps_sources, package_path)
+    # target. Also include files from external repositories that explicitly specified in
+    # the vendor_external list. We only want to package deps files which are inside of the
+    # current package unless explicitely specified.
+    filtered_deps_sources = _filter_out_external_files(ctx, deps_sources, package_path)
 
     args = ctx.actions.args()
     args.use_param_file("%s", use_always = True)
@@ -53,7 +55,7 @@ def create_package(ctx, deps_sources, nested_packages):
     args.add_joined([s.path for s in ctx.files.srcs], join_with = ",", omit_if_empty = False)
     args.add(ctx.bin_dir.path)
     args.add(ctx.genfiles_dir.path)
-    args.add_joined(local_deps_sources, join_with = ",", omit_if_empty = False)
+    args.add_joined(filtered_deps_sources, join_with = ",", omit_if_empty = False)
     args.add_joined([p.path for p in nested_packages], join_with = ",", omit_if_empty = False)
     args.add(ctx.attr.replacements)
     args.add_all([ctx.outputs.pack.path, ctx.outputs.publish.path])
