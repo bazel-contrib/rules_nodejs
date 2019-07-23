@@ -24,6 +24,8 @@ var_4: &init_environment
       # and network security service libraries (libnss3) & X11 Screen Saver extension library (libssx1)
       # which are dependendies of chrome & needed for karma & protractor headless chrome tests.
       # This is a very small install with the whole init_environment step taking less than 8 seconds.
+      # TODO(gregmagolan): switch rules_webtesting to use a chrome headless_shell binary which does
+      #                    not depend on any dynamically linked libs
       sudo apt-get update
       sudo apt-get -y install libgtk-3-0 libasound2 libnss3 libxss1
 
