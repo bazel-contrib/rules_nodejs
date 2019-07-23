@@ -85,7 +85,7 @@ def yarn_install(**kwargs):
 # It will be automatically synced via the npm "version" script
 # that is run when running `npm version` during the release
 # process. See `Releasing` section in README.md.
-VERSION = "0.33.1"
+VERSION = "0.34.0"
 
 def check_rules_nodejs_version(minimum_version_string):
     """

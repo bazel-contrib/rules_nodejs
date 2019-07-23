@@ -1,3 +1,19 @@
+# [0.34.0](https://github.com/alexeagle/rules_nodejs/compare/0.33.1...0.34.0) (2019-07-23)
+
+
+### Bug Fixes
+
+* **builtin:** process/browser should resolve from browserify ([a98eda7](https://github.com/alexeagle/rules_nodejs/commit/a98eda7))
+* fix for node windows cross-compile ([001d945](https://github.com/alexeagle/rules_nodejs/commit/001d945)), closes [#909](https://github.com/alexeagle/rules_nodejs/issues/909)
+* node runfiles resolution from external workspaces ([82500de](https://github.com/alexeagle/rules_nodejs/commit/82500de))
+
+
+### Features
+
+* **protractor:** add protractor rule ([35a344c](https://github.com/alexeagle/rules_nodejs/commit/35a344c))
+
+
+
 ## [0.33.1](https://github.com/alexeagle/rules_nodejs/compare/0.33.0...0.33.1) (2019-07-12)
 
 
