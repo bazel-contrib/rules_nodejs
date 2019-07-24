@@ -1,0 +1,11 @@
+{
+    "name": "e2e-stylus",
+    "private": true,
+    "devDependencies": {
+        "@bazel/stylus": "file:../../dist/npm_bazel_stylus"
+    },
+    "scripts": {
+      "test": "bazel test ..."
+    }
+  }
+  
