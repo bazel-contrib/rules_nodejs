@@ -205,15 +205,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - ./rules_nodejs/dist/build_bazel_rules_nodejs
-            - ./rules_nodejs/dist/npm_bazel_typescript
-            - ./rules_nodejs/dist/npm_bazel_karma
-            - ./rules_nodejs/dist/npm_bazel_jasmine
-            - ./rules_nodejs/dist/npm_bazel_labs
-            - ./rules_nodejs/dist/npm_bazel_hide-bazel-files
-            - ./rules_nodejs/dist/npm_bazel_create
-            - ./rules_nodejs/dist/npm_bazel_protractor
-            - ./rules_nodejs/dist/npm_bazel_stylus
+            - ./rules_nodejs/release
 
   # This job cannot run on BuildKite (BazelCI) because it requires changing
   # directories to test inside nested workspaces.

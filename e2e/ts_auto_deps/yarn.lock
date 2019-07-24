@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-"@bazel/typescript@file:../../dist/npm_bazel_typescript":
+"@bazel/typescript@file:../../release/npm_bazel_typescript":
   version "1.2.3"
   dependencies:
     protobufjs "6.8.8"

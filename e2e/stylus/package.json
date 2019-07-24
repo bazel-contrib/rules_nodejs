@@ -2,7 +2,7 @@
     "name": "e2e-stylus",
     "private": true,
     "devDependencies": {
-        "@bazel/stylus": "file:../../dist/npm_bazel_stylus"
+        "@bazel/stylus": "file:../../release/npm_bazel_stylus"
     },
     "scripts": {
       "test": "bazel test ..."

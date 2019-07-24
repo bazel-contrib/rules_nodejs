@@ -32,10 +32,10 @@ for rootDir in examples e2e internal/e2e ; do
         cd ${subDir}
         if [[ -e 'package.json' ]] ; then
           DEPS=()
-          # Check for file:../../dist/npm_bazel_foobar dependencies in package.json
-          LINES=$(egrep -oh "file:../../dist/npm_bazel_([a-z_]+)" package.json || echo "")
+          # Check for file:../../release/npm_bazel_foobar dependencies in package.json
+          LINES=$(egrep -oh "file:../../release/npm_bazel_([a-z_]+)" package.json || echo "")
           for line in ${LINES[@]} ; do
-            # Trim the match from `file:../../dist/npm_bazel_foobar` to `foobar`
+            # Trim the match from `file:../../release/npm_bazel_foobar` to `foobar`
             DEP=$(echo $line | cut -c 27-)
             DEPS+=(${DEP})
           done
@@ -53,7 +53,7 @@ for rootDir in examples e2e internal/e2e ; do
                   # rule. Since package.json didn't change, yarn_install would
                   # not otherwise know that it has to re-run to re-install the @bazel/foobar
                   # npm package.
-                  echo_and_run sedi "s#/dist/npm_bazel_${package}\\\$\{0,1\}[0-9]\{0,10\}#/dist/npm_bazel_${package}\$${RANDOM}#" yarn.lock
+                  echo_and_run sedi "s#/release/npm_bazel_${package}\\\$\{0,1\}[0-9]\{0,10\}#/release/npm_bazel_${package}\$${RANDOM}#" yarn.lock
                 fi
               done
             done

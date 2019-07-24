@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-"@bazel/karma@file:../../dist/npm_bazel_karma":
+"@bazel/karma@file:../../release/npm_bazel_karma":
   version "1.2.3"
   dependencies:
     jasmine-core "2.8.0"
@@ -17,7 +17,7 @@
     semver "5.6.0"
     tmp "0.0.33"
 
-"@bazel/typescript@file:../../dist/npm_bazel_typescript":
+"@bazel/typescript@file:../../release/npm_bazel_typescript":
   version "1.2.3"
   dependencies:
     protobufjs "6.8.8"

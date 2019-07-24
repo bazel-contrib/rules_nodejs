@@ -10,16 +10,16 @@ source "${RULES_NODEJS_DIR}/scripts/packages.sh"
 
 DEPS=()
 
-# Check for WORKSPACE dependency on release dist
-LINES=$(grep "/dist/build_bazel_rules_nodejs/release\"" WORKSPACE || echo "")
+# Check for WORKSPACE dependency on release
+LINES=$(grep "/release/build_bazel_rules_nodejs/release\"" WORKSPACE || echo "")
 if [[ "${LINES}" ]] ; then
   DEPS+=(release)
 fi
 
-# Check for file:../../dist/npm_bazel_foobar dependencies in package.json
-LINES=$(egrep -oh "file:../../dist/npm_bazel_([a-z_\-]+)" package.json || echo "")
+# Check for file:../../release/npm_bazel_foobar dependencies in package.json
+LINES=$(egrep -oh "file:../../release/npm_bazel_([a-z_\-]+)" package.json || echo "")
 for line in ${LINES[@]} ; do
-  # Trim the match from `file:../../dist/npm_bazel_foobar` to `foobar`
+  # Trim the match from `file:../../release/npm_bazel_foobar` to `foobar`
   DEP=$(echo $line | cut -c 27-)
   DEPS+=(${DEP})
 done
@@ -30,12 +30,12 @@ if [[ ${DEPS:-} ]] ; then
   echo "checking deps: ${DEPS}"
   for dep in ${DEPS} ; do
     if [[ ${dep} == "release" ]] ; then
-      if [[ ! -d "${RULES_NODEJS_DIR}/dist/build_bazel_rules_nodejs" ]] ; then
-          echo "ERROR: You must first run 'yarn build_release' to build /dist/build_bazel_rules_nodejs";
+      if [[ ! -d "${RULES_NODEJS_DIR}/release/build_bazel_rules_nodejs" ]] ; then
+          echo "ERROR: You must first run 'yarn build_release' to build /release/build_bazel_rules_nodejs";
           ALL_GOOD=0
       fi
     else
-      if [[ ! -d "${RULES_NODEJS_DIR}/dist/npm_bazel_${dep}" ]] ; then
+      if [[ ! -d "${RULES_NODEJS_DIR}/release/npm_bazel_${dep}" ]] ; then
         echo "ERROR: You must first run 'yarn build_packages ${dep}' or 'yarn build_packages_all'";
         ALL_GOOD=0
       fi

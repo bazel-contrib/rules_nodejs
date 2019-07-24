@@ -1,7 +1,7 @@
 {
   "dependencies": {
-    "@bazel/karma": "file:../../dist/npm_bazel_karma",
-    "@bazel/typescript": "file:../../dist/npm_bazel_typescript",
+    "@bazel/karma": "file:../../release/npm_bazel_karma",
+    "@bazel/typescript": "file:../../release/npm_bazel_typescript",
     "@types/jasmine": "2.8.2",
     "typescript": "3.1.x"
   },

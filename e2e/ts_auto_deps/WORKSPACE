@@ -19,7 +19,7 @@ workspace(
 
 local_repository(
     name = "build_bazel_rules_nodejs",
-    path = "../../dist/build_bazel_rules_nodejs/release",
+    path = "../../release/build_bazel_rules_nodejs/release",
 )
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")

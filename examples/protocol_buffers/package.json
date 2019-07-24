@@ -1,8 +1,8 @@
 {
   "devDependencies": {
-    "@bazel/hide-bazel-files": "file:../../dist/npm_bazel_hide-bazel-files",
-    "@bazel/karma": "file:../../dist/npm_bazel_karma",
-    "@bazel/typescript": "file:../../dist/npm_bazel_typescript",
+    "@bazel/hide-bazel-files": "file:../../release/npm_bazel_hide-bazel-files",
+    "@bazel/karma": "file:../../release/npm_bazel_karma",
+    "@bazel/typescript": "file:../../release/npm_bazel_typescript",
     "@types/jasmine": "2.8.2",
     "@types/long": "^4.0.0",
     "@types/node": "11.11.1",
