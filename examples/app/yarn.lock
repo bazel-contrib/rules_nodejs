@@ -2,15 +2,15 @@
 # yarn lockfile v1
 
 
-"@bazel/hide-bazel-files@file:../../dist/npm_bazel_hide-bazel-files":
+"@bazel/hide-bazel-files@file:../../release/npm_bazel_hide-bazel-files":
   version "1.2.3"
 
-"@bazel/protractor@file:../../dist/npm_bazel_protractor":
+"@bazel/protractor@file:../../release/npm_bazel_protractor":
   version "1.2.3"
   dependencies:
     protractor "^5.4.2"
 
-"@bazel/typescript@file:../../dist/npm_bazel_typescript":
+"@bazel/typescript@file:../../release/npm_bazel_typescript":
   version "1.2.3"
   dependencies:
     protobufjs "6.8.8"

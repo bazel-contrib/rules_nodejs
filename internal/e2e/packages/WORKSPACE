@@ -2,7 +2,7 @@ workspace(name = "internal_e2e_packages")
 
 local_repository(
     name = "build_bazel_rules_nodejs",
-    path = "../../../dist/build_bazel_rules_nodejs/release",
+    path = "../../../release/build_bazel_rules_nodejs/release",
 )
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "check_rules_nodejs_version", "node_repositories")

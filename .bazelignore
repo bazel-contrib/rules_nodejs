@@ -1,6 +1,7 @@
 node_modules
 internal/npm_install/test/node_modules
 dist
+release
 # Each e2e test is a nested workspace
 e2e/
 # Examples are tested by running examples/test_example.sh outside of Bazel

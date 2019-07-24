@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@bazel/typescript": "file:../../dist/npm_bazel_typescript",
+    "@bazel/typescript": "file:../../release/npm_bazel_typescript",
     "typescript": "2.9.2"
   },
   "scripts": {

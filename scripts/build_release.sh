@@ -6,8 +6,8 @@ set -eu -o pipefail
 # -o pipefail: causes a pipeline to produce a failure return code if any command errors
 
 readonly RULES_NODEJS_DIR=$(cd $(dirname "$0")/..; pwd)
-readonly DEST_DIR="${RULES_NODEJS_DIR}/dist/build_bazel_rules_nodejs"
-readonly UNTAR_DIR="${RULES_NODEJS_DIR}/dist/build_bazel_rules_nodejs/release"
+readonly DEST_DIR="${RULES_NODEJS_DIR}/release/build_bazel_rules_nodejs"
+readonly UNTAR_DIR="${RULES_NODEJS_DIR}/release/build_bazel_rules_nodejs/release"
 
 echo_and_run() { echo "+ $@" ; "$@" ; }
 
@@ -16,7 +16,7 @@ printf "\n\nBuilding //:release archive\n"
 cd ${RULES_NODEJS_DIR}
 echo_and_run bazel build //:release
 
-# Copy the release archive to /dist
+# Copy the release archive to /release
 echo "Copying archive to ${DEST_DIR}"
 rm -rf ${DEST_DIR}
 mkdir -p ${DEST_DIR}

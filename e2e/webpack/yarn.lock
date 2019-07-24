@@ -2,14 +2,14 @@
 # yarn lockfile v1
 
 
-"@bazel/jasmine@file:../../dist/npm_bazel_jasmine":
+"@bazel/jasmine@file:../../release/npm_bazel_jasmine":
   version "1.2.3"
   dependencies:
     jasmine "~3.4.0"
     jasmine-core "~3.4.0"
     v8-coverage "1.0.9"
 
-"@bazel/labs@file:../../dist/npm_bazel_labs":
+"@bazel/labs@file:../../release/npm_bazel_labs":
   version "1.2.3"
   dependencies:
     webpack "~4.29.3"
