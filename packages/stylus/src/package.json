@@ -18,12 +18,12 @@
         "stylus",
         "bazel"
     ],
+    "bin": {
+        "stylus": "index.js"
+    },
     "bazelWorkspaces": {
         "npm_bazel_stylus": {
             "rootPath": "."
         }
-    },
-    "scripts": {
-        "test": "bazel test //..."
     }
 }

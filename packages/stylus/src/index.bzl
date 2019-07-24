@@ -48,7 +48,7 @@ stylus_binary = rule(
             doc = """Label that points to the stylus binary to run.
             If you install your npm packages to a workspace named something other than "npm",
             you may need to set this to `@my_npm_name//stylus/bin:stylus`""",
-            default = Label("@npm//stylus/bin:stylus"),
+            default = Label("@npm//@bazel/stylus/bin:stylus"),
             cfg = "host",
             executable = True,
         ),

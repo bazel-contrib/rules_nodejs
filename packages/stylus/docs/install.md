@@ -4,6 +4,8 @@
 
 The Stylus rules run the Stylus CSS preprocessor with Bazel.
 
+Wraps the Stylus CLI documented at http://stylus-lang.com/docs/executable.html
+
 ## Installation
 
 Add the `@bazel/stylus` npm package to your `devDependencies` in `package.json`.
