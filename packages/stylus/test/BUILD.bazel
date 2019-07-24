@@ -10,13 +10,14 @@ stylus_binary(
     ],
 )
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_test")
+load("@npm_bazel_jasmine//:defaults.bzl", "jasmine_node_test")
 
-nodejs_test(
+jasmine_node_test(
     name = "test",
-    data = [
+    srcs = [
         "stylus_binary_spec.js",
+    ],
+    deps = [
         ":styles",
     ],
-    entry_point = ":stylus_binary_spec.js",
 )
