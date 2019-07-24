@@ -1,4 +1,4 @@
-load("@npm_bazel_stylus//:index.bzl", "stylus_binary")
+load("@npm_bazel_stylus//:defaults.bzl", "stylus_binary")
 
 stylus_binary(
     name = "styles",

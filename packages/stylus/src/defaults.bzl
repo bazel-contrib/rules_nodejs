@@ -1,4 +1,4 @@
-# Copyright 2018 The Bazel Authors. All rights reserved.
+# Copyright 2019 The Bazel Authors. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,24 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+""" Defaults for usage without @npm//@bazel/stylus
+"""
 
-package(default_visibility = ["//visibility:public"])
-
-bzl_library(
-    name = "bzl",
-    srcs = glob(["*.bzl"]),
-    deps = [
-        "@build_bazel_rules_nodejs//:bzl",
-        "@build_bazel_rules_nodejs//internal/common:bzl",
-    ],
+load(
+    ":index.bzl",
+    _stylus_binary = "stylus_binary",
 )
 
-filegroup(
-    name = "package_contents",
-    srcs = [
-        "index.bzl",
-        "index.js",
-        "package.json",
-    ],
-)
+def stylus_binary(**kwargs):
+    _stylus_binary(
+        # Override to point to the one installed by build_bazel_rules_nodejs in the root
+        compiler = "@npm//stylus/bin:stylus",
+        **kwargs
+    )
