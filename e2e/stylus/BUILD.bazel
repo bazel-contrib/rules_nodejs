@@ -1,0 +1,17 @@
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_test")
+load("@npm_bazel_stylus//:index.bzl", "stylus_binary")
+
+stylus_binary(
+    name = "styles",
+    src = "test.styl",
+)
+
+nodejs_test(
+    name = "test",
+    data = [
+        "golden.css",
+        "test.js",
+        ":styles",
+    ],
+    entry_point = ":test.js",
+)

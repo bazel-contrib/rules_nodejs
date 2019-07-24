@@ -213,6 +213,7 @@ jobs:
             - ./rules_nodejs/dist/npm_bazel_hide-bazel-files
             - ./rules_nodejs/dist/npm_bazel_create
             - ./rules_nodejs/dist/npm_bazel_protractor
+            - ./rules_nodejs/dist/npm_bazel_stylus
 
   # This job cannot run on BuildKite (BazelCI) because it requires changing
   # directories to test inside nested workspaces.
