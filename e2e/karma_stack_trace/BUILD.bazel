@@ -35,6 +35,7 @@ ts_web_test_suite(
     name = "karma_test",
     browsers = [
         "@io_bazel_rules_webtesting//browsers:chromium-local",
+        "@io_bazel_rules_webtesting//browsers:firefox-local",
     ],
     tags = ["manual"],  # not run by CI
     deps = [

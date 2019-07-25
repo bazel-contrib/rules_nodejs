@@ -1,20 +1,15 @@
 {
   "dependencies": {
     "@bazel/hide-bazel-files": "file:../../release/npm_bazel_hide-bazel-files",
+    "@bazel/protractor": "file:../../release/npm_bazel_protractor",
     "@bazel/typescript": "file:../../release/npm_bazel_typescript",
     "@types/jasmine": "2.8.2",
     "@types/node": "7.0.18",
-    "concurrently": "^3.5.1",
     "date-fns": "1.30.1",
     "jasmine": "2.8.0",
-    "protractor": "^5.4.2",
     "typescript": "2.7.x"
   },
   "scripts": {
-    "pretest": "bazel run @nodejs//:yarn && webdriver-manager update --standalone false --gecko false $CHROMEDRIVER_VERSION_ARG",
-    "test_root": "concurrently \"bazel run //:devserver\" \"while ! nc -z 127.0.0.1 8080; do sleep 1; done && protractor --suite root\" --kill-others --success first",
-    "test_subpackage": "concurrently \"bazel run //subpackage:devserver\" \"while ! nc -z 127.0.0.1 8080; do sleep 1; done && protractor --suite subpackage\" --kill-others --success first",
-    "test_genrule": "concurrently \"bazel run //genrule:devserver\" \"while ! nc -z 127.0.0.1 8080; do sleep 1; done && protractor --suite genrule\" --kill-others --success first",
-    "test": "bazel build ... && yarn test_root && yarn test_subpackage && yarn test_genrule"
+    "test": "bazel test ..."
   }
 }
