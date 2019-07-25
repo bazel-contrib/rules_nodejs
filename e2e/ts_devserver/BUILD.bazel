@@ -12,11 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@npm_bazel_protractor//:index.bzl", "protractor_web_test_suite")
 load("@npm_bazel_typescript//:index.bzl", "ts_devserver", "ts_library")
 
 exports_files([
     "red-body-style.css",
     "tsconfig.json",
+    "protractor.on-prepare.js",
 ])
 
 ts_library(
@@ -28,7 +30,6 @@ ts_library(
 ts_devserver(
     name = "devserver",
     entry_module = "e2e_ts_devserver/app",
-    port = 8080,
     scripts = [
         "@npm//date-fns:date-fns.umd.js",
     ],
@@ -39,10 +40,17 @@ ts_devserver(
 ts_library(
     name = "e2e",
     testonly = 1,
-    srcs = ["app_e2e_test.ts"],
+    srcs = ["app_e2e-spec.ts"],
     deps = [
         "@npm//@types/jasmine",
         "@npm//@types/node",
         "@npm//protractor",
     ],
+)
+
+protractor_web_test_suite(
+    name = "devserver_test",
+    on_prepare = ":protractor.on-prepare.js",
+    server = ":devserver",
+    deps = [":e2e"],
 )

@@ -10,7 +10,6 @@
 ## IMPORTANT
 # If you change the `default_docker_image` version, also change the `cache_key` version
 var_1: &default_docker_image circleci/node:10.16
-var_2: &browsers_docker_image circleci/node:10.16-browsers
 var_3: &cache_key node-0.16-{{ checksum "yarn.lock" }}-{{ checksum "examples/program/yarn.lock" }}
 
 var_4: &init_environment
@@ -20,14 +19,16 @@ var_4: &init_environment
       # Setup circleci environment
       ./.circleci/env.sh
 
+      sudo apt-get update
       # Install GTK+ graphical user interface (libgtk-3-0), advanced linux sound architecture (libasound2)
       # and network security service libraries (libnss3) & X11 Screen Saver extension library (libssx1)
       # which are dependendies of chrome & needed for karma & protractor headless chrome tests.
       # This is a very small install with the whole init_environment step taking less than 8 seconds.
       # TODO(gregmagolan): switch rules_webtesting to use a chrome headless_shell binary which does
       #                    not depend on any dynamically linked libs
-      sudo apt-get update
       sudo apt-get -y install libgtk-3-0 libasound2 libnss3 libxss1
+      # Also install libraries required for firefox
+      sudo apt-get -y install libdbus-glib-1-2
 
       # Overwrite the yarn installed in the docker container with our own version.
       pathToYarn=$(realpath ./third_party/github.com/yarnpkg/yarn/releases/download/v1.13.0/bin/yarn.js)
@@ -212,9 +213,6 @@ jobs:
   # See https://github.com/bazelbuild/continuous-integration/issues/225
   test_e2e:
     <<: *job_defaults
-    docker:
-      # Needed because some tests require local chrome
-      - image: *browsers_docker_image
     resource_class: xlarge
     parallelism: 4
     steps:
@@ -239,9 +237,6 @@ jobs:
   # See https://github.com/bazelbuild/continuous-integration/issues/225
   test_examples:
     <<: *job_defaults
-    docker:
-      # Needed because some tests require local chrome
-      - image: *browsers_docker_image
     resource_class: xlarge
     parallelism: 4
     steps:
@@ -256,9 +251,6 @@ jobs:
   # See https://github.com/bazelbuild/continuous-integration/issues/225
   test_angular_bazel_example:
     <<: *job_defaults
-    docker:
-      # Needed because some tests require local chrome
-      - image: *browsers_docker_image
     resource_class: xlarge
     steps:
       - *attach_workspace
