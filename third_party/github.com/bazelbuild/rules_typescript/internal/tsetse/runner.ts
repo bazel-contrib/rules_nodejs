@@ -31,22 +31,19 @@ const ENABLED_RULES: AbstractRule[] = [
  * The Tsetse check plugin performs compile-time static analysis for TypeScript
  * code.
  */
-export const PLUGIN: pluginApi.Plugin = {
-  wrap(program: ts.Program, disabledTsetseRules: string[] = []): ts.Program {
-    const checker = new Checker(program);
-    registerRules(checker, disabledTsetseRules);
-    const proxy = pluginApi.createProxy(program);
-    proxy.getSemanticDiagnostics = (sourceFile: ts.SourceFile) => {
-      const result = [...program.getSemanticDiagnostics(sourceFile)];
-      perfTrace.wrap('checkConformance', () => {
-        result.push(...checker.execute(sourceFile)
-                        .map(failure => failure.toDiagnostic()));
-      });
-      return result;
-    };
-    return proxy;
-  },
-};
+export class Plugin implements pluginApi.DiagnosticPlugin {
+  readonly name = 'tsetse';
+  private readonly checker: Checker;
+  constructor(program: ts.Program, disabledTsetseRules: string[] = []) {
+    this.checker = new Checker(program);
+    registerRules(this.checker, disabledTsetseRules);
+  }
+
+  getDiagnostics(sourceFile: ts.SourceFile) {
+    return this.checker.execute(sourceFile)
+        .map(failure => failure.toDiagnostic());
+  }
+}
 
 export function registerRules(checker: Checker, disabledTsetseRules: string[]) {
   for (const rule of ENABLED_RULES) {

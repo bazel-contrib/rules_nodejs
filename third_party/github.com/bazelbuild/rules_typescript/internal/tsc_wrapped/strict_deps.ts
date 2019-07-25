@@ -47,21 +47,19 @@ export const TS_ERR_CANNOT_FIND_MODULE = 2307;
  *
  * strict_deps currently does not check ambient/global definitions.
  */
-export const PLUGIN: pluginApi.Plugin = {
-  wrap: (program: ts.Program, config: StrictDepsPluginConfig): ts.Program => {
-    const proxy = pluginApi.createProxy(program);
-    proxy.getSemanticDiagnostics = function(sourceFile: ts.SourceFile) {
-      const result = [...program.getSemanticDiagnostics(sourceFile)];
-      perfTrace.wrap('checkModuleDeps', () => {
-        result.push(...checkModuleDeps(
-            sourceFile, program.getTypeChecker(), config.allowedStrictDeps,
-            config.rootDir));
-      });
-      return result;
-    };
-    return proxy;
+export class Plugin implements pluginApi.DiagnosticPlugin {
+  constructor(
+      private readonly program: ts.Program,
+      private readonly config: StrictDepsPluginConfig) {}
+
+  readonly name = 'strictDeps';
+
+  getDiagnostics(sourceFile: ts.SourceFile) {
+    return checkModuleDeps(
+        sourceFile, this.program.getTypeChecker(),
+        this.config.allowedStrictDeps, this.config.rootDir);
   }
-};
+}
 
 // Exported for testing
 export function checkModuleDeps(

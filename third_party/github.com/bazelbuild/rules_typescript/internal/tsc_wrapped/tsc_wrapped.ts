@@ -3,15 +3,15 @@ import * as path from 'path';
 import * as tsickle from 'tsickle';
 import * as ts from 'typescript';
 
-import {PLUGIN as bazelConformancePlugin} from '../tsetse/runner';
+import {Plugin as BazelConformancePlugin} from '../tsetse/runner';
 
 import {CachedFileLoader, FileLoader, ProgramAndFileCache, UncachedFileLoader} from './cache';
 import {CompilerHost} from './compiler_host';
 import * as bazelDiagnostics from './diagnostics';
 import {constructManifest} from './manifest';
 import * as perfTrace from './perf_trace';
-import {PluginCompilerHost, TscPlugin} from './plugin_api';
-import {PLUGIN as strictDepsPlugin} from './strict_deps';
+import {DiagnosticPlugin, PluginCompilerHost, TscPlugin} from './plugin_api';
+import {Plugin as StrictDepsPlugin} from './strict_deps';
 import {BazelOptions, parseTsconfig, resolveNormalizedPath} from './tsconfig';
 import {debug, log, runAsWorker, runWorkerLoop} from './worker';
 
@@ -62,18 +62,11 @@ function isCompilationTarget(
  */
 export function gatherDiagnostics(
     options: ts.CompilerOptions, bazelOpts: BazelOptions, program: ts.Program,
-    disabledTsetseRules: string[], angularPlugin?: TscPlugin): ts.Diagnostic[] {
+    disabledTsetseRules: string[], angularPlugin?: TscPlugin,
+    plugins: DiagnosticPlugin[] = []): ts.Diagnostic[] {
   // Install extra diagnostic plugins
-  if (!bazelOpts.disableStrictDeps) {
-    program = strictDepsPlugin.wrap(program, {
-      ...bazelOpts,
-      rootDir: options.rootDir,
-    });
-  }
-  if (!bazelOpts.isJsTranspilation) {
-    let selectedTsetsePlugin = bazelConformancePlugin;
-    program = selectedTsetsePlugin.wrap(program, disabledTsetseRules);
-  }
+  plugins.push(
+      ...getCommonPlugins(options, bazelOpts, program, disabledTsetseRules));
   if (angularPlugin) {
     program = angularPlugin.wrap(program);
   }
@@ -101,9 +94,81 @@ export function gatherDiagnostics(
       });
       perfTrace.snapshotMemoryUsage();
     }
+    for (const plugin of plugins) {
+      perfTrace.wrap(`${plugin.name} diagnostics`, () => {
+        for (const sf of sourceFilesToCheck) {
+          perfTrace.wrap(`${plugin.name} checking ${sf.fileName}`, () => {
+            const pluginDiagnostics = plugin.getDiagnostics(sf).map((d) => {
+              return tagDiagnosticWithPlugin(plugin.name, d);
+            });
+            diagnostics.push(...pluginDiagnostics);
+          });
+          perfTrace.snapshotMemoryUsage();
+        }
+      });
+    }
   });
 
   return diagnostics;
+}
+
+/**
+ * Construct diagnostic plugins that we always want included.
+ *
+ * TODO: Call sites of getDiagnostics should initialize plugins themselves,
+ *   including these, and the arguments to getDiagnostics should be simplified.
+ */
+export function*
+    getCommonPlugins(
+        options: ts.CompilerOptions, bazelOpts: BazelOptions,
+        program: ts.Program,
+        disabledTsetseRules: string[]): Iterable<DiagnosticPlugin> {
+  if (!bazelOpts.disableStrictDeps) {
+    if (options.rootDir == null) {
+      throw new Error(`StrictDepsPlugin requires that rootDir be specified`);
+    }
+    yield new StrictDepsPlugin(program, {
+      ...bazelOpts,
+      rootDir: options.rootDir,
+    });
+  }
+  if (!bazelOpts.isJsTranspilation) {
+    let tsetsePluginConstructor:
+        {new (program: ts.Program, disabledRules: string[]): DiagnosticPlugin} =
+            BazelConformancePlugin;
+    yield new tsetsePluginConstructor(program, disabledTsetseRules);
+  }
+}
+
+/**
+ * Returns a copy of diagnostic with one whose text has been prepended with
+ * an indication of what plugin contributed that diagnostic.
+ *
+ * This is slightly complicated because a diagnostic's message text can be
+ * split up into a chain of diagnostics, e.g. when there's supplementary info
+ * about a diagnostic.
+ */
+function tagDiagnosticWithPlugin(
+    pluginName: string, diagnostic: Readonly<ts.Diagnostic>): ts.Diagnostic {
+  const tagMessageWithPluginName = (text: string) => `[${pluginName}] ${text}`;
+
+  let messageText;
+  if (typeof diagnostic.messageText === 'string') {
+    // The simple case, where a diagnostic's message is just a string.
+    messageText = tagMessageWithPluginName(diagnostic.messageText);
+  } else {
+    // In the case of a chain of messages we only want to tag the head of the
+    //   chain, as that's the first line of message on the CLI.
+    const chain: ts.DiagnosticMessageChain = diagnostic.messageText;
+    messageText = {
+      ...chain,
+      messageText: tagMessageWithPluginName(chain.messageText)
+    };
+  }
+  return {
+    ...diagnostic,
+    messageText,
+  };
 }
 
 /**
@@ -232,6 +297,7 @@ function runFromOptions(
       files, options, bazelOpts, compilerHostDelegate, fileLoader,
       moduleResolver);
   let compilerHost: PluginCompilerHost = tsickleCompilerHost;
+  const diagnosticPlugins: DiagnosticPlugin[] = [];
 
   let angularPlugin: TscPlugin|undefined;
   if (bazelOpts.compileAngularTemplates) {
@@ -271,7 +337,8 @@ function runFromOptions(
     // messages refer to the original source.  After any subsequent passes
     // (decorator downleveling or tsickle) we do not type check.
     let diagnostics = gatherDiagnostics(
-        options, bazelOpts, program, disabledTsetseRules, angularPlugin);
+        options, bazelOpts, program, disabledTsetseRules, angularPlugin,
+        diagnosticPlugins);
     if (!expectDiagnosticsWhitelist.length ||
         expectDiagnosticsWhitelist.some(p => bazelOpts.target.startsWith(p))) {
       diagnostics = bazelDiagnostics.filterExpected(

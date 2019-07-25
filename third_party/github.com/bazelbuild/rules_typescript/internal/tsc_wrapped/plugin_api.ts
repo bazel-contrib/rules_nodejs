@@ -96,3 +96,34 @@ export function createProxy<T>(delegate: T): T {
   }
   return proxy;
 }
+
+/**
+ * A plugin that contributes additional diagnostics during compilation.
+ *
+ * This is a more limited API than Plugin, which can overwrite any features of
+ * the Program. A DiagnosticPlugin can't affect the output, and can only reject
+ * otherwise valid programs.
+ *
+ * This means that disabling a DiagnosticPlugin is always safe. It will not
+ * break any downstream projects, either at build time or in production.
+ *
+ * It also lets us instrument the plugin to track performance, and tag the
+ * diagnostics it emits with the plugin name.
+ */
+export interface DiagnosticPlugin {
+  /**
+   * A brief descriptive name for the plugin.
+   *
+   * Should not include 'ts', 'typescript', or 'plugin'.
+   */
+  readonly name: string;
+
+  /**
+   * Return diagnostics for the given file.
+   *
+   * Should only include new diagnostics that your plugin is contributing.
+   * Should not include diagnostics from program.
+   */
+  getDiagnostics(sourceFile: ts.SourceFile):
+      ReadonlyArray<Readonly<ts.Diagnostic>>;
+}
