@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "jasmine": "3.1.0",
     "webpack": "4.26.1"
   },
   "scripts": {

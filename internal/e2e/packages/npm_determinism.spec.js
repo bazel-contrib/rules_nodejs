@@ -9,10 +9,13 @@ const packageJsonPath2 = packageJsonPath.replace(
     '/internal_e2e_packages_npm_install/');
 const packageJson2 = JSON.parse(fs.readFileSync(packageJsonPath2));
 
-describe('jsesc package.json files', () => {
-  it('jsesc package.json files from two different npm_install runs should have the same contents',
-     () => {
-       expect(packageJsonPath !== packageJsonPath2).toBeTruthy();
-       expect(JSON.stringify(packageJson)).toBe(JSON.stringify(packageJson2));
-     });
-});
+
+if (packageJsonPath === packageJsonPath2) {
+  console.error('expected different json paths');
+  process.exitCode = 1;
+}
+if (JSON.stringify(packageJson) !== JSON.stringify(packageJson2)) {
+  console.error(
+      'jsesc package.json files from two different yarn_install runs should have the same contents');
+  process.exitCode = 1;
+}

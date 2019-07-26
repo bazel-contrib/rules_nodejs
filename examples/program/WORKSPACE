@@ -8,6 +8,10 @@ local_repository(
     path = "../../release/build_bazel_rules_nodejs/release",
 )
 
+load("@build_bazel_rules_nodejs//:package.bzl", "rules_nodejs_dev_dependencies")
+
+rules_nodejs_dev_dependencies()
+
 load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
 
 # Install a hermetic version of node.
@@ -27,4 +31,12 @@ node_repositories(
     node_version = "8.11.1",
     package_json = ["//:package.json"],
     yarn_version = "1.5.1",
+)
+
+# In your code, you'd fetch this repository with an `http_archive` call.
+# We do this local repository only because this example lives in the same
+# repository with the rules_nodejs code and we want to test them together.
+local_repository(
+    name = "npm_bazel_jasmine",
+    path = "../../packages/jasmine/src",
 )

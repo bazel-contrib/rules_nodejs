@@ -1,5 +1,6 @@
-load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test", "nodejs_binary")
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
 load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
+load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
 
 filegroup(
     name = "goldens",
@@ -13,7 +14,6 @@ jasmine_node_test(
         ":check.js",
         ":goldens",
         "//internal/npm_install:generate_build_file",
-        "@npm//jasmine",
         "@npm//unidiff",
         "@npm_install_test//:test_files",
     ],
@@ -62,6 +62,5 @@ jasmine_node_test(
         ":minimist.umd.js",
         ":sinon.umd.js",
         "//internal/npm_install:browserify-wrapped",
-        "@npm//jasmine",
     ],
 )

@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
+load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
 
 # Test what happens when we depend on the catch-all "node_modules" rule rather
 # than declare our dependencies on individual npm packages.
@@ -8,6 +8,10 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
     srcs = [
         "coarse.spec.js",
         "common.spec.js",
+    ],
+    jasmine_deps = [
+        "@fine_grained_deps_%s//jasmine" % pkgmgr,
+        "@fine_grained_deps_%s//jasmine-core" % pkgmgr,
     ],
     node_modules = "@fine_grained_deps_%s//:node_modules" % pkgmgr,
 ) for pkgmgr in [
@@ -24,9 +28,12 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
         "common.spec.js",
         "fine.spec.js",
     ],
+    jasmine_deps = [
+        "@fine_grained_deps_%s//jasmine" % pkgmgr,
+        "@fine_grained_deps_%s//jasmine-core" % pkgmgr,
+    ],
     deps = [
         "@fine_grained_deps_%s//ajv" % pkgmgr,
-        "@fine_grained_deps_%s//jasmine" % pkgmgr,
         "@fine_grained_deps_%s//typescript" % pkgmgr,
         "@fine_grained_deps_%s//rxjs" % pkgmgr,
         # Note, test-b depends on test-a@0.0.1 which should get

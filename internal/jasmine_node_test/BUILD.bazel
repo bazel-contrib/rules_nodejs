@@ -23,7 +23,6 @@ bzl_library(
 )
 
 exports_files([
-    "jasmine_runner.js",
     # Exported to be consumed for generating skydoc.
     "jasmine_node_test.bzl",
 ])

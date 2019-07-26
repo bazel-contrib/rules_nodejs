@@ -1,5 +1,2 @@
-describe('dependencies', () => {
-  it(`should resolve webpack`, () => {
-    require('webpack');
-  });
-});
+// Assert that there isn't an exception here
+require('webpack');

@@ -1,14 +1,12 @@
-load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_test")
 
 # Test for regressions to https://github.com/bazelbuild/rules_nodejs/issues/428
 # and https://github.com/bazelbuild/rules_nodejs/issues/438.
-jasmine_node_test(
+nodejs_test(
     name = "test",
-    srcs = [
+    data = [
         "index.spec.js",
-    ],
-    deps = [
-        "@npm//jasmine",
         "@npm//webpack",
     ],
+    entry_point = ":index.spec.js",
 )

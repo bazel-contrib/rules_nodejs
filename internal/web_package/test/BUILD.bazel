@@ -1,5 +1,6 @@
-load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test", "rollup_bundle")
+load("@build_bazel_rules_nodejs//:defs.bzl", "rollup_bundle")
 load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_package")
+load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -24,7 +25,6 @@ jasmine_node_test(
     data = [
         "index_golden.html_",
         ":pkg",
-        "@npm//jasmine",
     ],
     tags = [
         "fix-windows",

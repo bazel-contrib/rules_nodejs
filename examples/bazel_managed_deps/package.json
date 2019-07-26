@@ -1,7 +1,7 @@
 {
   "description": "runtime dependencies for bazel_managed_deps example",
   "devDependencies": {
-    "jasmine": "^3.2.0",
+    "@bazel/jasmine": "file:../../release/npm_bazel_jasmine",
     "typescript": "^3.0.1"
   },
   "scripts": {
