@@ -688,38 +688,40 @@ type UpdateBUILDOptions struct {
 
 // UpdateBUILD drives the main process of creating/updating the BUILD file
 // underneath path based on the available sources. Returns true if it modified
-// the BUILD file, false if the BUILD file was up to date already.
-// bazelAnalyze is used to run the underlying `bazel analyze` process.
-func (upd *Updater) UpdateBUILD(ctx context.Context, path string, options UpdateBUILDOptions) (bool, error) {
+// the BUILD file, false if the BUILD file was up to date already. bazelAnalyze
+// is used to run the underlying `bazel analyze` process.  Returns another
+// boolean that's true iff the package doesn't contain any TypeScript (source
+// files or BUILD rules).
+func (upd *Updater) UpdateBUILD(ctx context.Context, path string, options UpdateBUILDOptions) (bool, bool, error) {
 	g3root, buildFilePath, bld, err := getBUILDPathAndBUILDFile(ctx, path)
 	if err != nil {
-		return false, err
+		return false, false, err
 	}
 
 	if isTazeDisabledInPackage(ctx, g3root, buildFilePath, bld) {
-		return false, nil
+		return false, false, nil
 	}
 
 	hasSubdirSrcs, err := directoryOrAncestorHasSubdirectorySources(ctx, g3root, buildFilePath, bld)
 	if err != nil {
-		return false, err
+		return false, false, err
 	}
 	if hasSubdirSrcs {
-		return false, &SubdirectorySourcesError{}
+		return false, false, &SubdirectorySourcesError{}
 	}
 
 	changed, err := upd.addSourcesToBUILD(ctx, path, buildFilePath, bld)
 	if err != nil {
-		return false, err
+		return false, false, err
 	}
 	if options.InNonWritableEnvironment && changed {
-		return true, &CantProgressAfterWriteError{}
+		return true, false, &CantProgressAfterWriteError{}
 	}
 
 	rules := allTSRules(bld)
 	if len(rules) == 0 && !options.IsRoot {
 		// No TypeScript rules, no need to query for dependencies etc, so just exit early.
-		return changed, nil
+		return changed, true, nil
 	}
 	rulesWithSrcs := []*build.Rule{}
 	for _, r := range rules {
@@ -733,19 +735,19 @@ func (upd *Updater) UpdateBUILD(ctx context.Context, path string, options Update
 	platform.Infof("analyzing...")
 	reports, err := upd.runBazelAnalyze(buildFilePath, bld, rulesWithSrcs)
 	if err != nil {
-		return false, err
+		return false, false, err
 	}
 
 	changedAfterBazelAnalyze, err := upd.updateBUILDAfterBazelAnalyze(ctx, options.IsRoot, g3root, buildFilePath, bld, reports)
 	if err != nil {
-		return false, err
+		return false, false, err
 	}
 	changed = changed || changedAfterBazelAnalyze
 	if options.InNonWritableEnvironment && changed {
-		return true, &CantProgressAfterWriteError{}
+		return true, false, &CantProgressAfterWriteError{}
 	}
 
-	return changed, nil
+	return changed, false, nil
 }
 
 // buildHasDisableTaze checks if the BUILD file should be managed using ts_auto_deps.
@@ -1250,7 +1252,7 @@ func Execute(host *Updater, paths []string, isRoot, recursive bool) error {
 	ctx := context.Background()
 	for i, p := range paths {
 		isLastAndRoot := isRoot && i == len(paths)-1
-		changed, err := host.UpdateBUILD(ctx, p, UpdateBUILDOptions{InNonWritableEnvironment: false, IsRoot: isLastAndRoot})
+		changed, _, err := host.UpdateBUILD(ctx, p, UpdateBUILDOptions{InNonWritableEnvironment: false, IsRoot: isLastAndRoot})
 		if err != nil {
 			if recursive {
 				return fmt.Errorf("ts_auto_deps failed on %s/BUILD: %s", p, err)
