@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
+load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/write_file.bzl", "write_file")
 
@@ -12,7 +12,6 @@ jasmine_node_test(
     data = ["data/data.json"],
     deps = [
         "//internal/e2e/node/lib1",
-        "@npm//jasmine",
         "@npm//node_resolve_index",
         "@npm//node_resolve_index_2",
         "@npm//node_resolve_index_3",
@@ -27,7 +26,6 @@ jasmine_node_test(
     name = "fail_test",
     srcs = ["jasmine_node_fail_test.spec.js"],
     expected_exit_code = 3,
-    deps = ["@npm//jasmine"],
 )
 
 # Also test resolution from built files.
@@ -43,7 +41,6 @@ jasmine_node_test(
     ],
     deps = [
         "//internal/e2e/node/lib1",
-        "@npm//jasmine",
         "@npm//node_resolve_index",
         "@npm//node_resolve_index_2",
         "@npm//node_resolve_index_3",

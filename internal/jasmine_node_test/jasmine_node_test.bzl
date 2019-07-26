@@ -18,9 +18,6 @@ These rules let you run tests outside of a browser. This is typically faster
 than launching a test in Karma, for example.
 """
 
-load("//internal/common:devmode_js_sources.bzl", "devmode_js_sources")
-load("//internal/node:node.bzl", "nodejs_test_macro")
-
 def jasmine_node_test(
         name,
         srcs = [],
@@ -42,33 +39,10 @@ def jasmine_node_test(
       tags: bazel tags applied to test
       **kwargs: remaining arguments are passed to the test rule
     """
-    print("""
-        WARNING: @build_bazel_rules_nodejs will no longer provide jasmine_node_test at a later release
+
+    fail("""
+        ERROR: @build_bazel_rules_nodejs no longer provides jasmine_node_test
         Instead, add a devDependency on @bazel/jasmine
         and change the load statement to
         load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
         """)
-
-    devmode_js_sources(
-        name = "%s_devmode_srcs" % name,
-        deps = srcs + deps,
-        testonly = 1,
-        tags = tags,
-    )
-
-    all_data = data + srcs + deps
-    all_data += [":%s_devmode_srcs.MF" % name]
-    entry_point = Label("//internal/jasmine_node_test:jasmine_runner.js")
-
-    # If the target specified templated_args, pass it through.
-    templated_args = kwargs.pop("templated_args", []) + ["$(location :%s_devmode_srcs.MF)" % name]
-
-    nodejs_test_macro(
-        name = name,
-        data = all_data,
-        entry_point = entry_point,
-        templated_args = templated_args,
-        expected_exit_code = expected_exit_code,
-        tags = tags,
-        **kwargs
-    )

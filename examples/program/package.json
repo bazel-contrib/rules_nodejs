@@ -1,7 +1,8 @@
 {
   "description": "runtime dependencies for program example",
   "devDependencies": {
-    "jasmine": "~2.8.0"
+    "jasmine": "~2.8.0",
+    "v8-coverage": "1.0.9"
   },
   "scripts": {
     "pretest": "bazel run @nodejs//:yarn",

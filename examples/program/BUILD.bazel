@@ -1,5 +1,6 @@
-load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test", "nodejs_binary")
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
 load("@build_bazel_rules_nodejs//internal/common:typescript_mock_lib.bzl", "mock_typescript_lib")
+load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
 
 # Make the jasmine library available at runtime by exposing our node_modules
 # directory.
@@ -44,6 +45,7 @@ nodejs_binary(
 jasmine_node_test(
     name = "test",
     srcs = glob(["*.spec.js"]),
+    jasmine_deps = [],
     node_modules = "//:node_modules",
     deps = [
         ":mock_ts_lib",

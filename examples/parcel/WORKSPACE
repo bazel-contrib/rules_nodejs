@@ -25,10 +25,22 @@ local_repository(
     path = "../../release/build_bazel_rules_nodejs/release",
 )
 
+load("@build_bazel_rules_nodejs//:package.bzl", "rules_nodejs_dev_dependencies")
+
+rules_nodejs_dev_dependencies()
+
 load("@build_bazel_rules_nodejs//:defs.bzl", "npm_install")
 
 npm_install(
     name = "npm",
     package_json = "//:package.json",
     package_lock_json = "//:package-lock.json",
+)
+
+# In your code, you'd fetch this repository with an `http_archive` call.
+# We do this local repository only because this example lives in the same
+# repository with the rules_nodejs code and we want to test them together.
+local_repository(
+    name = "npm_bazel_jasmine",
+    path = "../../packages/jasmine/src",
 )

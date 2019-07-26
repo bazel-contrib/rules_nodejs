@@ -1,19 +1,18 @@
-load("@build_bazel_rules_nodejs//:defs.bzl", "jasmine_node_test")
+load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
 
 exports_files(["node-v10.12.0-linux-x64/bin/node"])
 
 jasmine_node_test(
     name = "yarn_test",
     srcs = glob(["*.spec.js"]),
-    deps = [
+    jasmine_deps = [
         "@yarn//jasmine",
+        "@yarn//jasmine-core",
+        "@yarn//v8-coverage",
     ],
 )
 
 jasmine_node_test(
     name = "npm_test",
     srcs = glob(["*.spec.js"]),
-    deps = [
-        "@npm//jasmine",
-    ],
 )

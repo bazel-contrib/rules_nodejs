@@ -1,4 +1,5 @@
-load("//:defs.bzl", "jasmine_node_test", "rollup_bundle")
+load("@build_bazel_rules_nodejs//:defs.bzl", "rollup_bundle")
+load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
 
 rollup_bundle(
     name = "bundle",
@@ -26,7 +27,6 @@ jasmine_node_test(
     ],
     deps = [
         "//internal/e2e:check_lib",
-        "@npm//jasmine",
         "@npm//unidiff",
     ],
 )
@@ -56,8 +56,5 @@ jasmine_node_test(
         ":bundle-outputgroups-es2015",
         ":bundle-outputgroups-es5_min",
         ":bundle-outputgroups-es5_min_debug",
-    ],
-    deps = [
-        "@npm//jasmine",
     ],
 )

@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@bazel/jasmine": "file:../../release/npm_bazel_jasmine",
     "@bazel/karma": "file:../../release/npm_bazel_karma",
     "@bazel/typescript": "file:../../release/npm_bazel_typescript",
     "@types/jasmine": "^3.3.12",
