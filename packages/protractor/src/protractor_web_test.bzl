@@ -207,10 +207,17 @@ def protractor_web_test(
 
     protractor_bin_name = name + "_protractor_bin"
 
+    # templated_args are passed to nodejs_binary
+    templated_args = kwargs.pop("templated_args", [])
+
+    # TODO(gregmagolan): refactor and remove this nodejs_binary and
+    #   use @npm//@bazel/protractor/bin:protractor as the default "protractor"
+    #   binary
     nodejs_binary(
         name = protractor_bin_name,
         entry_point = protractor_entry_point,
         data = srcs + deps + data + [protractor],
+        templated_args = templated_args,
         testonly = 1,
         visibility = ["//visibility:private"],
     )
@@ -261,7 +268,7 @@ def protractor_web_test_suite(
         wrapped_test_tags = None,
         protractor = _DEFUALT_PROTRACTOR,
         protractor_entry_point = _DEFUALT_PROTRACTOR_ENTRY_POINT,
-        **remaining_keyword_args):
+        **kwargs):
     """Defines a test_suite of web_test targets that wrap a protractor_web_test target.
 
     Args:
@@ -297,7 +304,7 @@ def protractor_web_test_suite(
       protractor: Protractor entry_point. Defaults to @npm//:node_modules/protractor/bin/protractor
           but should be changed to @your_npm_workspace//:node_modules/protractor/bin/protractor if
           you are not using @npm for your npm dependencies.
-      **remaining_keyword_args: Arguments for the wrapped test target.
+      **kwargs: Arguments for the wrapped test target.
     """
 
     # Check explicitly for None so that users can set this to the empty list
@@ -309,13 +316,20 @@ def protractor_web_test_suite(
     wrapped_test_name = name + "_wrapped_test"
     protractor_bin_name = name + "_protractor_bin"
 
+    # templated_args are passed to nodejs_binary
+    templated_args = kwargs.pop("templated_args", [])
+
     # Users don't need to know that this tag is required to run under ibazel
     tags = tags + ["ibazel_notify_changes"]
 
+    # TODO(gregmagolan): refactor and remove this nodejs_binary and
+    #   use @npm//@bazel/protractor/bin:protractor as the default "protractor"
+    #   binary
     nodejs_binary(
         name = protractor_bin_name,
         entry_point = protractor_entry_point,
         data = srcs + deps + data + [protractor],
+        templated_args = templated_args,
         testonly = 1,
         visibility = ["//visibility:private"],
     )
@@ -343,7 +357,7 @@ def protractor_web_test_suite(
         tags = wrapped_test_tags,
         timeout = timeout,
         visibility = ["//visibility:private"],
-        **remaining_keyword_args
+        **kwargs
     )
 
     web_test_suite(

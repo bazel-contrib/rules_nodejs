@@ -57,6 +57,10 @@ protractor_web_test_suite(
         "fix-bazelci-ubuntu",  # ubuntu docker images on buildkite missing chrome dependencies & apt-get install not possible
         "fix-windows",  # http_server (and history_server) do not work on Windows
     ],
+    # Test that templated_args can be passed through to node
+    templated_args = [
+        "--no-warnings",
+    ],
     deps = [
         ":ts_spec",
     ],
