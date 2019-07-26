@@ -16,7 +16,7 @@
 # Parts of this BUILD file only necessary when building from source.
 # The generated `@bazel/protractor` npm package contains a trimmed BUILD file using INTERNAL fences.
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
-load("@npm_bazel_typescript//:defaults.bzl", "ts_library")
+load("@npm_bazel_typescript//:index.from_src.bzl", "ts_library")
 
 package(default_visibility = ["//visibility:public"])
 

@@ -1,4 +1,4 @@
-load("@npm_bazel_stylus//:defaults.bzl", "stylus_binary")
+load("@npm_bazel_stylus//:index.from_src.bzl", "stylus_binary")
 
 stylus_binary(
     name = "styles",
@@ -10,7 +10,7 @@ stylus_binary(
     ],
 )
 
-load("@npm_bazel_jasmine//:defaults.bzl", "jasmine_node_test")
+load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
 
 jasmine_node_test(
     name = "test",
