@@ -1,7 +1,7 @@
 load("@build_bazel_rules_nodejs//:defs.bzl", "http_server", "rollup_bundle")
-load("@npm_bazel_protractor//:defaults.bzl", "protractor_web_test_suite")
-load("@npm_bazel_typescript//:defaults.bzl", "ts_devserver", "ts_library")
+load("@npm_bazel_protractor//:index.from_src.bzl", "protractor_web_test_suite")
 load("@npm_bazel_typescript//:index.bzl", "ts_config")
+load("@npm_bazel_typescript//:index.from_src.bzl", "ts_devserver", "ts_library")
 
 ts_config(
     name = "tsconfig-test",
