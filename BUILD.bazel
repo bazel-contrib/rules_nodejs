@@ -14,6 +14,7 @@ bzl_library(
     srcs = ["defs.bzl"],
     visibility = ["//visibility:public"],
     deps = [
+        "//internal/common:bzl",
         "//internal/history-server:bzl",
         "//internal/http-server:bzl",
         "//internal/jasmine_node_test:bzl",
