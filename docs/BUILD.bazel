@@ -12,24 +12,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@io_bazel_skydoc//skylark:skylark.bzl", "skylark_doc")
+load("@io_bazel_skydoc//stardoc:stardoc.bzl", "stardoc")
 
-skylark_doc(
+stardoc(
     name = "docs",
-    srcs = [
-        "//internal/common:check_bazel_version.bzl",
-        "//internal/history-server:history_server.bzl",
-        "//internal/http-server:http_server.bzl",
-        "//internal/node:node.bzl",
-        "//internal/node:node_repositories.bzl",
-        "//internal/npm_install:npm_install.bzl",
-        "//internal/npm_package:npm_package.bzl",
-        "//internal/rollup:rollup_bundle.bzl",
-    ],
-    format = "html",
-    site_root = "/rules_nodejs",
-    strip_prefix = "internal/",
-    # This rule depends on building protoc which is annoying and slow
-    # we only need to build it when we cut a release.
-    tags = ["manual"],
+    out = "index.md",
+    input = "//:defs.bzl",
+    visibility = ["//:__subpackages__"],
+    deps = ["//:bzl"],
 )
+# skylark_doc(
+#     name = "docs",
+#     srcs = [
+#         "//internal/common:check_bazel_version.bzl",
+#         "//internal/history-server:history_server.bzl",
+#         "//internal/http-server:http_server.bzl",
+#         "//internal/jasmine_node_test:jasmine_node_test.bzl",
+#         "//internal/node:node.bzl",
+#         "//internal/node:node_repositories.bzl",
+#         "//internal/npm_install:npm_install.bzl",
+#         "//internal/npm_package:npm_package.bzl",
+#         "//internal/rollup:rollup_bundle.bzl",
+#     ],
+#     format = "html",
+#     site_root = "/rules_nodejs",
+#     strip_prefix = "internal/",
+#     # This rule depends on building protoc which is annoying and slow
+#     # we only need to build it when we cut a release.
+#     tags = ["manual"],
+# )
