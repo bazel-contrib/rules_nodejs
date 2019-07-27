@@ -38,6 +38,7 @@ def _stylus_binary(ctx):
 
 stylus_binary = rule(
     implementation = _stylus_binary,
+    doc = """Run the Stylus CLI tool to transform `foo.styl` into `foo.css`""",
     attrs = {
         "src": attr.label(
             doc = "A single .styl Stylus file to transform",

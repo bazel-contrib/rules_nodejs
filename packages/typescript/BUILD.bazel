@@ -33,6 +33,7 @@ genrule(
     ],
     outs = ["README.md"],
     cmd = """cat $(location //packages/typescript/docs:install.md) $(location //packages/typescript/docs:index.md) | sed 's/^##/\\\n##/' > $@""",
+    visibility = ["//docs:__pkg__"],
 )
 
 npm_package(

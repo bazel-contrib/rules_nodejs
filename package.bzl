@@ -42,7 +42,7 @@ def rules_nodejs_dev_dependencies():
         strip_prefix = "rules_sass-86ca977cf2a8ed481859f83a286e164d07335116",
     )
 
-    # Needed for stardoc
+    # Needed for @com_github_bazelbuild_buildtools which is used by ts_auto_deps
     http_archive(
         name = "io_bazel",
         url = "https://github.com/bazelbuild/bazel/archive/0.28.1.tar.gz",
@@ -50,6 +50,7 @@ def rules_nodejs_dev_dependencies():
         sha256 = "a3d6a8ba4c6dce86d3b3387a23b04cbdf4c435a58120bd9842588d3845fe689c",
     )
 
+    # Needed by stardoc
     http_archive(
         name = "com_google_protobuf",
         sha256 = "b404fe166de66e9a5e6dab43dc637070f950cdba2a8a4c9ed9add354ed4f6525",
@@ -69,9 +70,9 @@ def rules_nodejs_dev_dependencies():
 
     http_archive(
         name = "io_bazel_skydoc",
-        sha256 = "c2d66a0cc7e25d857e480409a8004fdf09072a1bd564d6824441ab2f96448eea",
-        strip_prefix = "skydoc-0.3.0",
-        url = "https://github.com/bazelbuild/skydoc/archive/0.3.0.tar.gz",
+        sha256 = "fdc34621839104b57363a258eab9d821b02ff7837923cfe7fb6fd67182780829",
+        strip_prefix = "skydoc-41c28e43dffbae39c52dd4b91932d1209e5a8893",
+        url = "https://github.com/bazelbuild/skydoc/archive/41c28e43dffbae39c52dd4b91932d1209e5a8893.tar.gz",
     )
 
     # bazel-skylib master 2019.05.03 to get support for https://github.com/bazelbuild/bazel-skylib/pull/140
@@ -80,6 +81,18 @@ def rules_nodejs_dev_dependencies():
         sha256 = "afbe4d9d033c007940acd24bb9becf1580a0280ae0b2ebbb5a7cb12912d2c115",
         strip_prefix = "bazel-skylib-ffad33e9bfc60bdfa98292ca655a4e7035792046",
         urls = ["https://github.com/bazelbuild/bazel-skylib/archive/ffad33e9bfc60bdfa98292ca655a4e7035792046.tar.gz"],
+    )
+
+    # Gross dep that leaked out of stardoc, see
+    # https://github.com/bazelbuild/skydoc/commit/9283f6a44811423756ab898e98ce410029c12f7b#commitcomment-34488585
+    http_archive(
+        name = "rules_java",
+        sha256 = "bc81f1ba47ef5cc68ad32225c3d0e70b8c6f6077663835438da8d5733f917598",
+        strip_prefix = "rules_java-7cf3cefd652008d0a64a419c34c13bdca6c8f178",
+        urls = [
+            "https://mirror.bazel.build/github.com/bazelbuild/rules_java/archive/7cf3cefd652008d0a64a419c34c13bdca6c8f178.zip",
+            "https://github.com/bazelbuild/rules_java/archive/7cf3cefd652008d0a64a419c34c13bdca6c8f178.zip",
+        ],
     )
 
     # Needed for Remote Build Execution

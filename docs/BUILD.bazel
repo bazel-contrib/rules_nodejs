@@ -12,32 +12,57 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@io_bazel_skydoc//stardoc:stardoc.bzl", "stardoc")
+load("//tools/stardoc:index.bzl", "stardoc")
 
 stardoc(
-    name = "docs",
-    out = "index.md",
+    name = "builtins",
+    out = "builtins.api",
     input = "//:defs.bzl",
-    visibility = ["//:__subpackages__"],
     deps = ["//:bzl"],
 )
-# skylark_doc(
-#     name = "docs",
-#     srcs = [
-#         "//internal/common:check_bazel_version.bzl",
-#         "//internal/history-server:history_server.bzl",
-#         "//internal/http-server:http_server.bzl",
-#         "//internal/jasmine_node_test:jasmine_node_test.bzl",
-#         "//internal/node:node.bzl",
-#         "//internal/node:node_repositories.bzl",
-#         "//internal/npm_install:npm_install.bzl",
-#         "//internal/npm_package:npm_package.bzl",
-#         "//internal/rollup:rollup_bundle.bzl",
-#     ],
-#     format = "html",
-#     site_root = "/rules_nodejs",
-#     strip_prefix = "internal/",
-#     # This rule depends on building protoc which is annoying and slow
-#     # we only need to build it when we cut a release.
-#     tags = ["manual"],
-# )
+
+_BUILTINS_README = "# Built-in rules\n\nThese rules are available without any npm installation, via the `WORKSPACE` install of the `build_bazel_rules_nodejs` workspace. This is necessary to bootstrap Bazel to run the package manager to download other rules from NPM."
+
+# Ugly genrule depending on local linux environment to build the README out of skylark doc generation.
+# Only referenced when we do a release.
+# TODO: This ought to be possible with stardoc alone. Need to coordinate with Chris Parsons.
+genrule(
+    name = "builtins_md",
+    srcs = [":builtins.api"],
+    outs = ["builtins.doc"],
+    cmd = "echo '%s' > $@;" % _BUILTINS_README +
+          "cat $< | sed 's/^##/\\\n##/' >> $@",
+)
+
+_PACKAGE_READMES = {
+    "Built-ins": ":builtins.doc",
+    "Jasmine": "//packages/jasmine:README.md",
+    "Karma": "//packages/karma:README.md",
+    "Protractor": "//packages/protractor:README.md",
+    "Stylus": "//packages/stylus:README.md",
+    "TypeScript": "//packages/typescript:README.md",
+}
+
+_FRONT_MATTER = "\n".join([
+    "---",
+    "title: %s",
+    "layout: default",
+    "stylesheet: docs",
+    "---",
+])
+
+[
+    genrule(
+        name = "%s_md" % readme[0],
+        srcs = [readme[1]],
+        outs = [readme[0] + ".md"],
+        cmd = "echo '%s' > $@;" % _FRONT_MATTER % readme[0] +
+              "cat $< >> $@",
+    )
+    for readme in _PACKAGE_READMES.items()
+]
+
+filegroup(
+    name = "docs",
+    srcs = [s[0] + ".md" for s in _PACKAGE_READMES.items()],
+)

@@ -576,46 +576,46 @@ ROLLUP_ATTRS = {
     ),
     "additional_entry_points": attr.string_list(
         doc = """Additional entry points of the application for code splitting, passed as the input to rollup.
-These should be a path relative to the workspace root.
+        These should be a path relative to the workspace root.
 
-When additional_entry_points are specified, rollup_bundle
-will split the bundle in multiple entry points and chunks.
-There will be a main entry point chunk as well as entry point
-chunks for each additional_entry_point. The file names
-of these entry points will correspond to the file names
-specified in entry_point and additional_entry_points.
-There will also be one or more common chunks that are shared
-between entry points named chunk-<HASH>.js. The number
-of common chunks is variable depending on the code being
-bundled.
+        When additional_entry_points are specified, rollup_bundle
+        will split the bundle in multiple entry points and chunks.
+        There will be a main entry point chunk as well as entry point
+        chunks for each additional_entry_point. The file names
+        of these entry points will correspond to the file names
+        specified in entry_point and additional_entry_points.
+        There will also be one or more common chunks that are shared
+        between entry points named chunk-<HASH>.js. The number
+        of common chunks is variable depending on the code being
+        bundled.
 
-Entry points and chunks will be outputted to folders:
-- <label-name>_chunks_es2015 // es2015
-- <label-name>_chunks // es5
-- <label-name>_chunks_min // es5 minified
-- <label-name>_chunks_min_debug // es5 minified debug
+        Entry points and chunks will be outputted to folders:
+        - <label-name>_chunks_es2015 // es2015
+        - <label-name>_chunks // es5
+        - <label-name>_chunks_min // es5 minified
+        - <label-name>_chunks_min_debug // es5 minified debug
 
-The following files will be outputted that contain the
-SystemJS boilerplate to map the entry points to their file
-names and load the main entry point:
-flavors:
-- <label-name>.es2015.js // es2015 with EcmaScript modules
-- <label-name>.js // es5 syntax with CJS modules
-- <label-name>.min.js // es5 minified
-- <label-name>.min_debug.js // es5 minified debug
+        The following files will be outputted that contain the
+        SystemJS boilerplate to map the entry points to their file
+        names and load the main entry point:
+        flavors:
+        - <label-name>.es2015.js // es2015 with EcmaScript modules
+        - <label-name>.js // es5 syntax with CJS modules
+        - <label-name>.min.js // es5 minified
+        - <label-name>.min_debug.js // es5 minified debug
 
-NOTE: additional_entry_points MUST be in the same folder or deeper than
-the main entry_point for the SystemJS boilerplate/entry point to
-be valid. For example, if the main entry_point is
-`src/main` then all additional_entry_points must be under
-`src/**` such as `src/bar` or `src/foo/bar`. Alternate
-additional_entry_points configurations are valid but the
-SystemJS boilerplate/entry point files will not be usable and
-it is up to the user in these cases to handle the SystemJS
-boilerplate manually.
+        NOTE: additional_entry_points MUST be in the same folder or deeper than
+        the main entry_point for the SystemJS boilerplate/entry point to
+        be valid. For example, if the main entry_point is
+        `src/main` then all additional_entry_points must be under
+        `src/**` such as `src/bar` or `src/foo/bar`. Alternate
+        additional_entry_points configurations are valid but the
+        SystemJS boilerplate/entry point files will not be usable and
+        it is up to the user in these cases to handle the SystemJS
+        boilerplate manually.
 
-It is sufficient to load one of these SystemJS boilerplate/entry point
-files as a script in your HTML to load your application""",
+        It is sufficient to load one of these SystemJS boilerplate/entry point
+        files as a script in your HTML to load your application""",
     ),
     "enable_code_splitting": attr.bool(
         doc = """If True rollup will automatically determine entry points from
@@ -632,69 +632,69 @@ files as a script in your HTML to load your application""",
     "entry_point": attr.label(
         doc = """The starting point of the application, passed as the `--input` flag to rollup.
 
-If the entry JavaScript file belongs to the same package (as the BUILD file), 
-you can simply reference it by its relative name to the package directory:
+        If the entry JavaScript file belongs to the same package (as the BUILD file), 
+        you can simply reference it by its relative name to the package directory:
 
-```
-rollup_bundle(
-    name = "bundle",
-    entry_point = ":main.js",
-)
-```
+        ```
+        rollup_bundle(
+            name = "bundle",
+            entry_point = ":main.js",
+        )
+        ```
 
-You can specify the entry point as a typescript file so long as you also include
-the ts_library target in deps:
+        You can specify the entry point as a typescript file so long as you also include
+        the ts_library target in deps:
 
-```
-ts_library(
-    name = "main",
-    srcs = ["main.ts"],
-)
+        ```
+        ts_library(
+            name = "main",
+            srcs = ["main.ts"],
+        )
 
-rollup_bundle(
-    name = "bundle",
-    deps = [":main"]
-    entry_point = ":main.ts",
-)
-```
+        rollup_bundle(
+            name = "bundle",
+            deps = [":main"]
+            entry_point = ":main.ts",
+        )
+        ```
 
-The rule will use the corresponding `.js` output of the ts_library rule as the entry point.
+        The rule will use the corresponding `.js` output of the ts_library rule as the entry point.
 
-If the entry point target is a rule, it should produce a single JavaScript entry file that will be passed to the nodejs_binary rule. 
-For example:
+        If the entry point target is a rule, it should produce a single JavaScript entry file that will be passed to the nodejs_binary rule. 
+        For example:
 
-```
-filegroup(
-    name = "entry_file",
-    srcs = ["main.js"],
-)
+        ```
+        filegroup(
+            name = "entry_file",
+            srcs = ["main.js"],
+        )
 
-rollup_bundle(
-    name = "bundle",
-    entry_point = ":entry_file",
-)
-```
-""",
+        rollup_bundle(
+            name = "bundle",
+            entry_point = ":entry_file",
+        )
+        ```
+        """,
         mandatory = True,
         allow_single_file = True,
     ),
     "global_name": attr.string(
         doc = """A name given to this package when referenced as a global variable.
-This name appears in the bundle module incantation at the beginning of the file,
-and governs the global symbol added to the global context (e.g. `window`) as a side-
-effect of loading the UMD/IIFE JS bundle.
+        This name appears in the bundle module incantation at the beginning of the file,
+        and governs the global symbol added to the global context (e.g. `window`) as a side-
+        effect of loading the UMD/IIFE JS bundle.
 
-Rollup doc: "The variable name, representing your iife/umd bundle, by which other scripts on the same page can access it."
+        Rollup doc: "The variable name, representing your iife/umd bundle, by which other scripts on the same page can access it."
 
-This is passed to the `output.name` setting in Rollup.""",
+        This is passed to the `output.name` setting in Rollup.""",
     ),
     "globals": attr.string_dict(
         doc = """A dict of symbols that reference external scripts.
-The keys are variable names that appear in the program,
-and the values are the symbol to reference at runtime in a global context (UMD bundles).
-For example, a program referencing @angular/core should use ng.core
-as the global reference, so Angular users should include the mapping
-`"@angular/core":"ng.core"` in the globals.""",
+        The keys are variable names that appear in the program,
+        and the values are the symbol to reference at runtime in a global context (UMD bundles).
+        For example, a program referencing @angular/core should use ng.core
+        as the global reference, so Angular users should include the mapping
+        `"@angular/core":"ng.core"` in the globals.""",
         default = {},
     ),
     "license_banner": attr.label(
@@ -705,52 +705,53 @@ as the global reference, so Angular users should include the mapping
         allow_single_file = [".txt"],
     ),
     "node_modules": attr.label(
-        doc = """Dependencies from npm that provide some modules that must be resolved by rollup.
+        doc = """Dependencies from npm that provide some modules that must be
+        resolved by rollup.
 
-This attribute is DEPRECATED. As of version 0.13.0 the recommended approach
-to npm dependencies is to use fine grained npm dependencies which are setup
-with the `yarn_install` or `npm_install` rules. For example, in a rollup_bundle
-target that used the `node_modules` attribute,
+        This attribute is DEPRECATED. As of version 0.13.0 the recommended approach
+        to npm dependencies is to use fine grained npm dependencies which are setup
+        with the `yarn_install` or `npm_install` rules. For example, in a rollup_bundle
+        target that used the `node_modules` attribute,
 
-```
-rollup_bundle(
-    name = "bundle",
-    ...
-    node_modules = "//:node_modules",
-)
-```
+        ```
+        rollup_bundle(
+          name = "bundle",
+          ...
+          node_modules = "//:node_modules",
+        )
+        ```
 
-which specifies all files within the `//:node_modules` filegroup
-to be inputs to the `bundle`. Using fine grained npm dependencies,
-`bundle` is defined with only the npm dependencies that are
-needed:
+        which specifies all files within the `//:node_modules` filegroup
+        to be inputs to the `bundle`. Using fine grained npm dependencies,
+        `bundle` is defined with only the npm dependencies that are
+        needed:
 
-```
-rollup_bundle(
-    name = "bundle",
-    ...
-    deps = [
-        "@npm//foo",
-        "@npm//bar",
-        ...
-    ],
-)
-```
+        ```
+        rollup_bundle(
+          name = "bundle",
+          ...
+          deps = [
+              "@npm//foo",
+              "@npm//bar",
+              ...
+          ],
+        )
+        ```
 
-In this case, only the `foo` and `bar` npm packages and their
-transitive deps are includes as inputs to the `bundle` target
-which reduces the time required to setup the runfiles for this
-target (see https://github.com/bazelbuild/bazel/issues/5153).
+        In this case, only the `foo` and `bar` npm packages and their
+        transitive deps are includes as inputs to the `bundle` target
+        which reduces the time required to setup the runfiles for this
+        target (see https://github.com/bazelbuild/bazel/issues/5153).
 
-The @npm external repository and the fine grained npm package
-targets are setup using the `yarn_install` or `npm_install` rule
-in your WORKSPACE file:
+        The @npm external repository and the fine grained npm package
+        targets are setup using the `yarn_install` or `npm_install` rule
+        in your WORKSPACE file:
 
-yarn_install(
-    name = "npm",
-    package_json = "//:package.json",
-    yarn_lock = "//:yarn.lock",
-)
+        yarn_install(
+          name = "npm",
+          package_json = "//:package.json",
+          yarn_lock = "//:yarn.lock",
+        )
         """,
         default = Label("//:node_modules_none"),
     ),

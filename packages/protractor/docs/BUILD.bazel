@@ -13,7 +13,7 @@
 # limitations under the License.
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_test")
-load("@io_bazel_skydoc//stardoc:stardoc.bzl", "stardoc")
+load("//tools/stardoc:index.bzl", "stardoc")
 
 package(default_visibility = ["//visibility:public"])
 
