@@ -1,0 +1,102 @@
+<footer class="mdl-mini-footer">
+    <div class="mdl-mini-footer__left-section">
+      <div class="mdl-logo">&copy; 2019 Google, Inc.</div>
+    </div>
+    <div class="mdl-mini-footer__right-section">
+      <a class="mdl-button mdl-js-button mdl-js-ripple-effect" href="#"
+        id="scroll-to-top">
+        Back to Top
+      </a>
+    </div>
+  </footer>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <script>
+    var shiftWindow = function() {
+      if (location.hash.length !== 0) {
+        window.scrollBy(0, -50);
+      }
+    };
+    window.addEventListener("hashchange", shiftWindow);
+
+    var highlightCurrentSidebarNav = function() {
+      var href = location.pathname;
+      var item = $('.drawer-nav [href$="' + href + '"]');
+      if (item) {
+        var li = item.parent();
+        li.addClass("active");
+      }
+    };
+
+    /**
+     * Creates a CSE search form and submits the search query.
+     *
+     * Since the Material Design Lite header expandable text field does not
+     * support having a <form> element around the <input> element, we need to
+     * capture the ENTER keypress and then submit the form using this handler.
+     */
+    var submitSearch = function(query) {
+      var form = document.createElement("form");
+      form.setAttribute("action", "search.html");
+
+      var cseParams = {
+        "cx": "008327220137350982602:0mpaowwcmvg",
+        "cof": "FORID:10",
+        "ie": "UTF-8",
+      };
+      for (key in cseParams) {
+        var hidden = document.createElement("input");
+        hidden.setAttribute("type", "hidden");
+        hidden.setAttribute("name", key);
+        hidden.setAttribute("value", cseParams[key]);
+        form.appendChild(hidden);
+      }
+
+      var text = document.createElement("input");
+      text.setAttribute("type", "text");
+      text.setAttribute("name", "q");
+      text.setAttribute("value", query);
+      form.appendChild(text);
+
+      document.body.appendChild(form);
+      form.submit();
+    };
+
+    $(document).ready(function() {
+      // Scroll to anchor of location hash, adjusted for fixed navbar.
+      window.setTimeout(function() {
+        shiftWindow();
+      }, 1);
+
+      // Highlight the current item on the sidebar.
+      highlightCurrentSidebarNav();
+
+      // Handler to capture the ENTER keypress for the CSE search input
+      // in the page header and then call submitSearch() to submit the search
+      // query.
+      $("#cse-search-box").keyup(function(e) {
+        if (e.keyCode == 13) {
+          let query = $("#cse-search-box").val();
+          submitSearch(query);
+        }
+      });
+
+      // Handler for the Scroll to Top link in the page footer to scroll the
+      // main content back to the top.
+      $("#scroll-to-top").click(function() {
+        $(".mdl-layout__content").animate({ scrollTop: 0 }, "slow");
+        return false;
+      });
+    });
+  </script>
+
+  <!-- Google Analytics tracking code -->
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-61082125-2', 'auto');
+    ga('send', 'pageview');
+  </script>

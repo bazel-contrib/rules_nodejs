@@ -1,3 +1,30 @@
+---
+title: Home
+layout: default
+stylesheet: docs
+---
+
+# Bazel JavaScript rules
+
+## Quickstart
+
+This is the fastest way to get started for most use cases.
+See [the installation page](install.md) for details and alternative methods.
+
+```sh
+$ npm init @bazel
+```
+
+or if you prefer yarn,
+
+```sh
+$ yarn create @bazel
+```
+
+> These commands are equivalent to `npx @bazel/create` which downloads the latest version of the `@bazel/create` package from npm and runs the program contained.
+
+See the output of the tool for command-line options and next steps.
+
 ## Usage
 
 ### Running a program from npm

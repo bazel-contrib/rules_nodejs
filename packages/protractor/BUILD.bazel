@@ -33,6 +33,7 @@ genrule(
     ],
     outs = ["README.md"],
     cmd = """cat $(location //packages/protractor/docs:install.md) $(location //packages/protractor/docs:index.md) | sed 's/^##/\\\n##/' > $@""",
+    visibility = ["//docs:__pkg__"],
 )
 
 npm_package(

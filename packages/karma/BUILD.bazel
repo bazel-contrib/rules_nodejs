@@ -32,6 +32,7 @@ genrule(
     ],
     outs = ["README.md"],
     cmd = """cat $(location //packages/karma/docs:install.md) $(location //packages/karma/docs:index.md) | sed 's/^##/\\\n##/' > $@""",
+    visibility = ["//docs:__pkg__"],
 )
 
 npm_package(

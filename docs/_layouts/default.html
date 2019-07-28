@@ -1,0 +1,25 @@
+---
+stylesheet: docs
+---
+<!DOCTYPE html>
+<html lang="en" itemscope itemtype="https://schema.org/WebPage">
+  {% include head.html %}
+  <body>
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer
+      mdl-layout--fixed-header">
+      {% include header.html %}
+
+      <main class="mdl-layout__content">
+        <div class="page-content">
+          {% if page.title %}
+          <h1 class="page-title">{{ page.title }}</h1>
+          {% endif %}
+
+          {{ content }}
+        </div>
+        <div class="mdl-layout-spacer"></div>
+        {% include footer.html %}
+      </main>
+    </div>
+  </body>
+</html>

@@ -1,3 +1,8 @@
+---
+title: Installation
+layout: home
+stylesheet: docs
+---
 
 ## Custom installation
 
