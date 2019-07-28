@@ -5,7 +5,7 @@ Circle CI | Bazel CI
 :---: | :---:
 [![CircleCI](https://circleci.com/gh/bazelbuild/rules_nodejs.svg?style=svg)](https://circleci.com/gh/bazelbuild/rules_nodejs) | [![Build status](https://badge.buildkite.com/af1a592b39b11923ef0f523cbb223dd3dbd61629f8bc813c07.svg?branch=master)](https://buildkite.com/bazel/nodejs-rules-nodejs-postsubmit)
 
-**This is a beta-quality release. Breaking changes are likely.**
+**This is beta-quality software. Breaking changes are likely.**
 
 The nodejs rules integrate NodeJS development toolchain and runtime with Bazel.
 

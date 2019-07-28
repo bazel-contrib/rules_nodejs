@@ -1,12 +1,22 @@
+---
+title: Built-ins
+layout: home
+stylesheet: docs
+---
+# Built-in rules
+
+These rules are available without any npm installation, via the `WORKSPACE` install of the `build_bazel_rules_nodejs` workspace. This is necessary to bootstrap Bazel to run the package manager to download other rules from NPM.
 <!-- Generated with Stardoc: http://skydoc.bazel.build -->
 
 <a name="#npm_package"></a>
+
 
 ## npm_package
 
 <pre>
 npm_package(<a href="#npm_package-name">name</a>, <a href="#npm_package-deps">deps</a>, <a href="#npm_package-packages">packages</a>, <a href="#npm_package-rename_build_files">rename_build_files</a>, <a href="#npm_package-replace_with_version">replace_with_version</a>, <a href="#npm_package-replacements">replacements</a>, <a href="#npm_package-srcs">srcs</a>, <a href="#npm_package-vendor_external">vendor_external</a>)
 </pre>
+
 
 
 
@@ -100,11 +110,13 @@ npm_package(<a href="#npm_package-name">name</a>, <a href="#npm_package-deps">de
 
 <a name="#rollup_bundle"></a>
 
+
 ## rollup_bundle
 
 <pre>
 rollup_bundle(<a href="#rollup_bundle-name">name</a>, <a href="#rollup_bundle-additional_entry_points">additional_entry_points</a>, <a href="#rollup_bundle-deps">deps</a>, <a href="#rollup_bundle-entry_point">entry_point</a>, <a href="#rollup_bundle-global_name">global_name</a>, <a href="#rollup_bundle-globals">globals</a>, <a href="#rollup_bundle-license_banner">license_banner</a>, <a href="#rollup_bundle-node_modules">node_modules</a>, <a href="#rollup_bundle-srcs">srcs</a>)
 </pre>
+
 
 
 
@@ -347,6 +359,7 @@ yarn_install(
 
 <a name="#check_bazel_version"></a>
 
+
 ## check_bazel_version
 
 <pre>
@@ -363,6 +376,7 @@ early as possible. For example:
 load("@build_bazel_rules_nodejs//:defs.bzl", "check_bazel_version")
 check_bazel_version("0.26.0")
 ```
+
 
 
 ### Parameters
@@ -397,6 +411,7 @@ check_bazel_version("0.26.0")
 
 <a name="#check_rules_nodejs_version"></a>
 
+
 ## check_rules_nodejs_version
 
 <pre>
@@ -413,6 +428,7 @@ early as possible. For example:
 load("@build_bazel_rules_nodejs//:package.bzl", "check_rules_nodejs_version")
 check_rules_nodejs_version("0.11.2")
 ```
+
 
 
 ### Parameters
@@ -438,11 +454,13 @@ check_rules_nodejs_version("0.11.2")
 
 <a name="#dummy_bzl_library"></a>
 
+
 ## dummy_bzl_library
 
 <pre>
 dummy_bzl_library(<a href="#dummy_bzl_library-name">name</a>, <a href="#dummy_bzl_library-kwargs">kwargs</a>)
 </pre>
+
 
 
 
@@ -472,6 +490,7 @@ dummy_bzl_library(<a href="#dummy_bzl_library-name">name</a>, <a href="#dummy_bz
 
 <a name="#history_server"></a>
 
+
 ## history_server
 
 <pre>
@@ -484,6 +503,7 @@ See https://www.npmjs.com/package/history-server
 
 A typical frontend project is served by a specific server.
 This one can support the Angular router.
+
 
 
 ### Parameters
@@ -518,6 +538,7 @@ This one can support the Angular router.
 
 <a name="#http_server"></a>
 
+
 ## http_server
 
 <pre>
@@ -535,6 +556,7 @@ Real projects might need history-server (for router support) or even better a fu
 This rule uses a modified http-server to support serving Brotli-compressed files, which end with a .br extension.
 This is equivalent to gzip-compression support.
 See https://github.com/alexeagle/http-server/commits/master which points to a modified ecstatic library.
+
 
 
 ### Parameters
@@ -569,6 +591,7 @@ See https://github.com/alexeagle/http-server/commits/master which points to a mo
 
 <a name="#jasmine_node_test"></a>
 
+
 ## jasmine_node_test
 
 <pre>
@@ -578,6 +601,7 @@ jasmine_node_test(<a href="#jasmine_node_test-name">name</a>, <a href="#jasmine_
 Runs tests in NodeJS using the Jasmine test runner.
 
 To debug the test, see debugging notes in `nodejs_test`.
+
 
 
 ### Parameters
@@ -657,11 +681,13 @@ To debug the test, see debugging notes in `nodejs_test`.
 
 <a name="#node_modules_filegroup"></a>
 
+
 ## node_modules_filegroup
 
 <pre>
 node_modules_filegroup(<a href="#node_modules_filegroup-packages">packages</a>, <a href="#node_modules_filegroup-patterns">patterns</a>, <a href="#node_modules_filegroup-kwargs">kwargs</a>)
 </pre>
+
 
 
 
@@ -696,6 +722,7 @@ node_modules_filegroup(<a href="#node_modules_filegroup-packages">packages</a>, 
 
 
 <a name="#node_repositories"></a>
+
 
 ## node_repositories
 
@@ -743,6 +770,7 @@ node_repositories(package_json = ["//:package.json", "//subpkg:package.json"])
 ```
 
 Running `bazel run @nodejs//:yarn` in this repo would create `/node_modules` and `/subpkg/node_modules`.
+
 
 
 ### Parameters
@@ -862,6 +890,7 @@ Running `bazel run @nodejs//:yarn` in this repo would create `/node_modules` and
 
 <a name="#nodejs_binary"></a>
 
+
 ## nodejs_binary
 
 <pre>
@@ -872,6 +901,7 @@ This macro exists only to wrap the nodejs_binary as an .exe for Windows.
 
 This is exposed in the public API at `//:defs.bzl` as `nodejs_binary`, so most
 users loading `nodejs_binary` are actually executing this macro.
+
 
 
 ### Parameters
@@ -951,6 +981,7 @@ users loading `nodejs_binary` are actually executing this macro.
 
 <a name="#nodejs_test"></a>
 
+
 ## nodejs_test
 
 <pre>
@@ -961,6 +992,7 @@ This macro exists only to wrap the nodejs_test as an .exe for Windows.
 
 This is exposed in the public API at `//:defs.bzl` as `nodejs_test`, so most
 users loading `nodejs_test` are actually executing this macro.
+
 
 
 ### Parameters
@@ -1031,11 +1063,13 @@ users loading `nodejs_test` are actually executing this macro.
 
 <a name="#npm_install"></a>
 
+
 ## npm_install
 
 <pre>
 npm_install(<a href="#npm_install-kwargs">kwargs</a>)
 </pre>
+
 
 
 
@@ -1059,11 +1093,13 @@ npm_install(<a href="#npm_install-kwargs">kwargs</a>)
 
 <a name="#yarn_install"></a>
 
+
 ## yarn_install
 
 <pre>
 yarn_install(<a href="#yarn_install-kwargs">kwargs</a>)
 </pre>
+
 
 
 
