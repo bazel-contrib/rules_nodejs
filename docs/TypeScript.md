@@ -1,6 +1,6 @@
 ---
 title: TypeScript
-layout: home
+layout: default
 stylesheet: docs
 ---
 # TypeScript rules for Bazel
@@ -343,6 +343,7 @@ Allows a tsconfig.json file to extend another file.
   </tbody>
 </table>
 
+
 <a name="#ts_devserver"></a>
 
 
@@ -484,6 +485,7 @@ ts_devserver is a simple development server intended for a quick "getting starte
     </tr>
   </tbody>
 </table>
+
 
 <a name="#ts_library"></a>
 
@@ -724,6 +726,7 @@ either:
   </tbody>
 </table>
 
+
 <a name="#ts_proto_library"></a>
 
 
@@ -829,6 +832,7 @@ Wraps https://github.com/dcodeIO/protobuf.js for use in Bazel.
   </tbody>
 </table>
 
+
 <a name="#check_rules_typescript_version"></a>
 
 
@@ -843,7 +847,7 @@ check_rules_typescript_version(<a href="#check_rules_typescript_version-version_
 Where COMPAT_VERSION and VERSION come from the npm_bazel_typescript that
 is loaded in a WORKSPACE, this function will check:
 
-VERSION >= version_string >= COMPAT_VERSION
+VERSION &gt;= version_string &gt;= COMPAT_VERSION
 
 This should be called from the `WORKSPACE` file so that the build fails as
 early as possible. For example:
@@ -879,6 +883,7 @@ check_rules_typescript_version(version_string = "0.22.0")
   </tbody>
 </table>
 
+
 <a name="#ts_setup_workspace"></a>
 
 
@@ -892,5 +897,6 @@ This repository rule should be called from your WORKSPACE file.
 
 It creates some additional Bazel external repositories that are used internally
 by the TypeScript rules.
+
 
 

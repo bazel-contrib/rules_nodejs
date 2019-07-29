@@ -1,6 +1,6 @@
 ---
 title: Protractor
-layout: home
+layout: default
 stylesheet: docs
 ---
 # Protractor rules for Bazel
@@ -145,6 +145,7 @@ Runs a protractor test in a browser.
     </tr>
   </tbody>
 </table>
+
 
 <a name="#protractor_web_test_suite"></a>
 
@@ -391,4 +392,5 @@ Defines a test_suite of web_test targets that wrap a protractor_web_test target.
     </tr>
   </tbody>
 </table>
+
 

@@ -1,6 +1,6 @@
 ---
 title: Jasmine
-layout: home
+layout: default
 stylesheet: docs
 ---
 # Jasmine rules for Bazel
@@ -136,4 +136,5 @@ To debug the test, see debugging notes in `nodejs_test`.
     </tr>
   </tbody>
 </table>
+
 

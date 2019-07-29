@@ -62,9 +62,9 @@ def rules_nodejs_dev_dependencies():
 
     http_archive(
         name = "io_bazel_skydoc",
-        sha256 = "d23c240fae021b76205c96b29afd7d1a57db83d88321e9f60d033e73b80a35aa",
-        strip_prefix = "skydoc-dc7260a67d012f6b9a78d361b16f902dbb612e94",
-        url = "https://github.com/bazelbuild/skydoc/archive/dc7260a67d012f6b9a78d361b16f902dbb612e94.tar.gz",
+        #sha256 = "d23c240fae021b76205c96b29afd7d1a57db83d88321e9f60d033e73b80a35aa",
+        strip_prefix = "skydoc-41c28e43dffbae39c52dd4b91932d1209e5a8893",
+        url = "https://github.com/bazelbuild/skydoc/archive/41c28e43dffbae39c52dd4b91932d1209e5a8893.tar.gz",
     )
 
     # bazel-skylib master 2019.05.03 to get support for https://github.com/bazelbuild/bazel-skylib/pull/140
@@ -74,7 +74,15 @@ def rules_nodejs_dev_dependencies():
         strip_prefix = "bazel-skylib-ffad33e9bfc60bdfa98292ca655a4e7035792046",
         urls = ["https://github.com/bazelbuild/bazel-skylib/archive/ffad33e9bfc60bdfa98292ca655a4e7035792046.tar.gz"],
     )
-
+    http_archive(
+        name = "rules_java",
+        sha256 = "bc81f1ba47ef5cc68ad32225c3d0e70b8c6f6077663835438da8d5733f917598",
+        strip_prefix = "rules_java-7cf3cefd652008d0a64a419c34c13bdca6c8f178",
+        urls = [
+            "https://mirror.bazel.build/github.com/bazelbuild/rules_java/archive/7cf3cefd652008d0a64a419c34c13bdca6c8f178.zip",
+            "https://github.com/bazelbuild/rules_java/archive/7cf3cefd652008d0a64a419c34c13bdca6c8f178.zip",
+        ],
+    )
     # Needed for Remote Build Execution
     # See https://releases.bazel.build/bazel-toolchains.html
     http_archive(

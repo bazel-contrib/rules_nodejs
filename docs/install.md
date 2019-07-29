@@ -1,6 +1,6 @@
 ---
 title: Installation
-layout: home
+layout: default
 stylesheet: docs
 ---
 

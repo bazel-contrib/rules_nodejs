@@ -1,6 +1,6 @@
 ---
 title: Built-ins
-layout: home
+layout: default
 stylesheet: docs
 ---
 # Built-in rules
@@ -106,6 +106,7 @@ npm_package(<a href="#npm_package-name">name</a>, <a href="#npm_package-deps">de
     </tr>
   </tbody>
 </table>
+
 
 <a name="#rollup_bundle"></a>
 
@@ -356,6 +357,7 @@ rollup_bundle(<a href="#rollup_bundle-name">name</a>, <a href="#rollup_bundle-ad
   </tbody>
 </table>
 
+
 <a name="#check_bazel_version"></a>
 
 
@@ -407,6 +409,7 @@ check_bazel_version("0.26.0")
   </tbody>
 </table>
 
+
 <a name="#check_rules_nodejs_version"></a>
 
 
@@ -449,6 +452,7 @@ check_rules_nodejs_version("0.11.2")
   </tbody>
 </table>
 
+
 <a name="#dummy_bzl_library"></a>
 
 
@@ -483,6 +487,7 @@ dummy_bzl_library(<a href="#dummy_bzl_library-name">name</a>, <a href="#dummy_bz
     </tr>
   </tbody>
 </table>
+
 
 <a name="#history_server"></a>
 
@@ -530,6 +535,7 @@ This one can support the Angular router.
     </tr>
   </tbody>
 </table>
+
 
 <a name="#http_server"></a>
 
@@ -582,6 +588,7 @@ See https://github.com/alexeagle/http-server/commits/master which points to a mo
     </tr>
   </tbody>
 </table>
+
 
 <a name="#jasmine_node_test"></a>
 
@@ -672,6 +679,7 @@ To debug the test, see debugging notes in `nodejs_test`.
   </tbody>
 </table>
 
+
 <a name="#node_modules_filegroup"></a>
 
 
@@ -712,6 +720,7 @@ node_modules_filegroup(<a href="#node_modules_filegroup-packages">packages</a>, 
     </tr>
   </tbody>
 </table>
+
 
 <a name="#node_repositories"></a>
 
@@ -879,6 +888,7 @@ Running `bazel run @nodejs//:yarn` in this repo would create `/node_modules` and
   </tbody>
 </table>
 
+
 <a name="#nodejs_binary"></a>
 
 
@@ -969,6 +979,7 @@ users loading `nodejs_binary` are actually executing this macro.
   </tbody>
 </table>
 
+
 <a name="#nodejs_test"></a>
 
 
@@ -1050,6 +1061,7 @@ users loading `nodejs_test` are actually executing this macro.
   </tbody>
 </table>
 
+
 <a name="#npm_install"></a>
 
 
@@ -1079,6 +1091,7 @@ npm_install(<a href="#npm_install-kwargs">kwargs</a>)
   </tbody>
 </table>
 
+
 <a name="#yarn_install"></a>
 
 
@@ -1107,4 +1120,5 @@ yarn_install(<a href="#yarn_install-kwargs">kwargs</a>)
     </tr>
   </tbody>
 </table>
+
 

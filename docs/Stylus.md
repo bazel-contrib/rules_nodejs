@@ -1,6 +1,6 @@
 ---
 title: Stylus
-layout: home
+layout: default
 stylesheet: docs
 ---
 # Stylus rules for Bazel
@@ -49,7 +49,7 @@ nodejs_binary(
 stylus_binary(<a href="#stylus_binary-name">name</a>, <a href="#stylus_binary-compiler">compiler</a>, <a href="#stylus_binary-compress">compress</a>, <a href="#stylus_binary-deps">deps</a>, <a href="#stylus_binary-sourcemap">sourcemap</a>, <a href="#stylus_binary-src">src</a>)
 </pre>
 
-
+Run the Stylus CLI tool to transform `foo.styl` into `foo.css`
 
 
 ### Attributes
@@ -118,4 +118,5 @@ stylus_binary(<a href="#stylus_binary-name">name</a>, <a href="#stylus_binary-co
     </tr>
   </tbody>
 </table>
+
 

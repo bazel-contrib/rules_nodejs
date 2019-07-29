@@ -46,7 +46,7 @@ _PACKAGE_READMES = {
 _FRONT_MATTER = "\n".join([
     "---",
     "title: %s",
-    "layout: home",
+    "layout: default",
     "stylesheet: docs",
     "---",
 ])
