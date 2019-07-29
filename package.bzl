@@ -42,14 +42,7 @@ def rules_nodejs_dev_dependencies():
         strip_prefix = "rules_sass-86ca977cf2a8ed481859f83a286e164d07335116",
     )
 
-    # Needed for stardoc
-    http_archive(
-        name = "io_bazel",
-        url = "https://github.com/bazelbuild/bazel/archive/0.28.1.tar.gz",
-        strip_prefix = "bazel-0.28.1",
-        sha256 = "a3d6a8ba4c6dce86d3b3387a23b04cbdf4c435a58120bd9842588d3845fe689c",
-    )
-
+    # Needed by stardoc
     http_archive(
         name = "com_google_protobuf",
         sha256 = "b404fe166de66e9a5e6dab43dc637070f950cdba2a8a4c9ed9add354ed4f6525",
@@ -69,9 +62,9 @@ def rules_nodejs_dev_dependencies():
 
     http_archive(
         name = "io_bazel_skydoc",
-        sha256 = "c2d66a0cc7e25d857e480409a8004fdf09072a1bd564d6824441ab2f96448eea",
-        strip_prefix = "skydoc-0.3.0",
-        url = "https://github.com/bazelbuild/skydoc/archive/0.3.0.tar.gz",
+        sha256 = "d23c240fae021b76205c96b29afd7d1a57db83d88321e9f60d033e73b80a35aa",
+        strip_prefix = "skydoc-dc7260a67d012f6b9a78d361b16f902dbb612e94",
+        url = "https://github.com/bazelbuild/skydoc/archive/dc7260a67d012f6b9a78d361b16f902dbb612e94.tar.gz",
     )
 
     # bazel-skylib master 2019.05.03 to get support for https://github.com/bazelbuild/bazel-skylib/pull/140

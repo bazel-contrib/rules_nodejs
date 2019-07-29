@@ -205,7 +205,6 @@ specified in the `config_file` attribute.
   </tbody>
 </table>
 
-
 <a name="#karma_web_test_suite"></a>
 
 
@@ -387,7 +386,6 @@ for details.
   </tbody>
 </table>
 
-
 <a name="#ts_web_test"></a>
 
 
@@ -524,7 +522,6 @@ an implementation detail. We might switch to another runner like Jest in the fut
     </tr>
   </tbody>
 </table>
-
 
 <a name="#ts_web_test_suite"></a>
 
@@ -702,5 +699,4 @@ details.
     </tr>
   </tbody>
 </table>
-
 

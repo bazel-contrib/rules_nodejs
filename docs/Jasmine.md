@@ -15,8 +15,7 @@ The Jasmine rules run tests under the Jasmine framework with Bazel.
 Add the `@bazel/jasmine` npm package to your `devDependencies` in `package.json`.
 
 Your `WORKSPACE` should declare a `yarn_install` or `npm_install` rule named `npm`.
-It should then install the rules found in the npm packages using the `install_bazel_dependencies' function.
-See https://github.com/bazelbuild/rules_nodejs/#quickstart
+It should then install the rules found in the npm packages using the `install_bazel_dependencies` function.
 
 This causes the `@bazel/jasmine` package to be installed as a Bazel workspace named `npm_bazel_jasmine`.
 
@@ -113,7 +112,7 @@ To debug the test, see debugging notes in `nodejs_test`.
       <td>
         optional. default is <code>"@npm//@bazel/jasmine"</code>
         <p>
-          A label providing the @bazel/jasmine npm dependency.
+          A label providing the `@bazel/jasmine` npm dependency.
         </p>
       </td>
     </tr>
@@ -122,7 +121,7 @@ To debug the test, see debugging notes in `nodejs_test`.
       <td>
         optional. default is <code>"@npm//:node_modules/@bazel/jasmine/jasmine_runner.js"</code>
         <p>
-          A label providing the @bazel/jasmine entry point.
+          A label providing the `@bazel/jasmine` entry point.
         </p>
       </td>
     </tr>
@@ -137,5 +136,4 @@ To debug the test, see debugging notes in `nodejs_test`.
     </tr>
   </tbody>
 </table>
-
 

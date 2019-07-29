@@ -12,6 +12,23 @@ pre code, pre.term code { overflow-wrap: normal; white-space: pre; }
 pre.term { background-color: #424242; color: #fff; font-size: 90%; }
 pre.term span.info { color: #81C784; }
 
+/* Override material styles */
+blockquote::before {
+    content: "";
+}
+
+/* Override material styles */
+blockquote::after {
+    content: "";
+    margin-left: 0;
+}
+
+blockquote {
+    border-left: 0.2em solid #4caf50;
+    padding-left: 1em;
+    margin-inline: 0;
+}
+
 code { display: inline-block; font-size: 90%; white-space: pre-wrap; }
 
 .mdl-layout__content { display: -webkit-flex; display: -ms-flexbox; display: flex; -webkit-flex-direction: column; -ms-flex-flow: column; flex-direction: column; }

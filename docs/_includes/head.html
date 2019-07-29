@@ -2,7 +2,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ page.title }} - Bazel JavaScript</title>
+    <title>{{ page.title }} - {{site.github.project_title}}</title>
 
     <!-- When we have javascript.bazel.build, we may want this:
     script>
@@ -13,7 +13,7 @@
       }
     </script-->
 
-    <link rel="canonical" href="{{ page.url | replace:'index.html','' | prepend: site_root }}">
+    <link rel="canonical" href="{{ page.url | replace:'index.html','' | prepend: site.github.repository_url }}">
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,600,700" type="text/css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
@@ -24,6 +24,6 @@
     <link rel="shortcut icon" type="image/png" href="/images/favicon.ico">
 
     <!-- metadata -->
-    <meta name="og:title" content="rules_nodejs"/>
-    <meta name="og:description" content="JavaScript in Bazel."/>
+    <meta name="og:title" content="{{site.github.project_title}}"/>
+    <meta name="og:description" content="{{site.github.project_tagline}}"/>
   </head>

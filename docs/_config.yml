@@ -1,0 +1,3 @@
+repository: bazelbuild/rules_nodejs
+plugins:
+  - "jekyll-github-metadata"

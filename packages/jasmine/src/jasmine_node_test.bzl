@@ -44,8 +44,8 @@ def jasmine_node_test(
       expected_exit_code: The expected exit code for the test. Defaults to 0.
       tags: Bazel tags applied to test
       coverage: Enables code coverage collection and reporting. Defaults to False.
-      jasmine: A label providing the @bazel/jasmine npm dependency.
-      jasmine_entry_point: A label providing the @bazel/jasmine entry point.
+      jasmine: A label providing the `@bazel/jasmine` npm dependency.
+      jasmine_entry_point: A label providing the `@bazel/jasmine` entry point.
       **kwargs: Remaining arguments are passed to the test rule
     """
     devmode_js_sources(

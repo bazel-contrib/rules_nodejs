@@ -267,7 +267,7 @@ Since this is an extension to the vanillia TypeScript compiler, editors which us
 }
 ```
 to `tsconfig.json` will fix the imports for the common case of using absolute paths.
-See https://www.typescriptlang.org/docs/handbook/module-resolution.html#path-mapping for more details on the paths syntax.
+See [path mapping] for more details on the paths syntax.
 
 Similarly, you can use path mapping to teach the editor how to resolve imports
 from `ts_library` rules which set the `module_name` attribute.
@@ -275,13 +275,14 @@ from `ts_library` rules which set the `module_name` attribute.
 
 ## Notes
 
-If you'd like a "watch mode", try https://github.com/bazelbuild/bazel-watcher
-(note, it's also quite new).
+If you'd like a "watch mode", try [ibazel].
 
 At some point, we plan to release a tool similar to [gazelle] to generate the
 BUILD files from your source code.
 
 [gazelle]: https://github.com/bazelbuild/rules_go/tree/master/go/tools/gazelle
+[ibazel]: https://github.com/bazelbuild/bazel-watcher
+[path mapping]: https://www.typescriptlang.org/docs/handbook/module-resolution.html#path-mapping
 
 # API documentation
 <!-- Generated with Stardoc: http://skydoc.bazel.build -->
@@ -341,7 +342,6 @@ Allows a tsconfig.json file to extend another file.
     </tr>
   </tbody>
 </table>
-
 
 <a name="#ts_devserver"></a>
 
@@ -484,7 +484,6 @@ ts_devserver is a simple development server intended for a quick "getting starte
     </tr>
   </tbody>
 </table>
-
 
 <a name="#ts_library"></a>
 
@@ -725,7 +724,6 @@ either:
   </tbody>
 </table>
 
-
 <a name="#ts_proto_library"></a>
 
 
@@ -831,7 +829,6 @@ Wraps https://github.com/dcodeIO/protobuf.js for use in Bazel.
   </tbody>
 </table>
 
-
 <a name="#check_rules_typescript_version"></a>
 
 
@@ -882,7 +879,6 @@ check_rules_typescript_version(version_string = "0.22.0")
   </tbody>
 </table>
 
-
 <a name="#ts_setup_workspace"></a>
 
 
@@ -896,6 +892,5 @@ This repository rule should be called from your WORKSPACE file.
 
 It creates some additional Bazel external repositories that are used internally
 by the TypeScript rules.
-
 
 

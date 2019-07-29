@@ -6,6 +6,13 @@ stylesheet: docs
 
 # Bazel JavaScript rules
 
+Bazel is Google's build system.
+It powers our development at large scale by caching intermediate build artifacts,
+allowing build and test to be incremental and massively parallelizable.
+Read more at [https://bazel.build](https://bazel.build)
+
+This JavaScript support lets you build and test code that targets a JavaScript runtime, including NodeJS and browsers.
+
 ## Quickstart
 
 This is the fastest way to get started for most use cases.
@@ -30,7 +37,7 @@ See the output of the tool for command-line options and next steps.
 ### Running a program from npm
 
 The `nodejs_binary` rule lets you run a program with Node.js.
-See https://bazelbuild.github.io/rules_nodejs/node/node.html
+See [Built-ins]
 
 If you have installed the [rollup] package, you could write this rule:
 
