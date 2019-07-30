@@ -87,7 +87,6 @@ nodejs_binary(
 )
 
 # BEGIN-INTERNAL
-# TODO: switch to npm_bazel_jasmine
 # buildozer: disable=load-on-top
 # buildozer: disable=out-of-order-load
 load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")

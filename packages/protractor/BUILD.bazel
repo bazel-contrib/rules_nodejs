@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "npm_package")
+load("@build_bazel_rules_nodejs//:defs.bzl", "COMMON_REPLACEMENTS", "npm_package")
 
 # Copy the license from our parent folder
 genrule(
@@ -40,6 +40,7 @@ npm_package(
     srcs = [
         "@npm_bazel_protractor//:package_contents",
     ],
+    replacements = COMMON_REPLACEMENTS,
     vendor_external = [
         "npm_bazel_protractor",
     ],

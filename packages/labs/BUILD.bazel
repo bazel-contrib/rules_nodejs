@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//:defs.bzl", "npm_package")
+load("@build_bazel_rules_nodejs//:defs.bzl", "COMMON_REPLACEMENTS", "npm_package")
 
 exports_files(["tsconfig.json"])
 
@@ -14,6 +14,7 @@ npm_package(
     srcs = [
         "@npm_bazel_labs//:package_contents",
     ],
+    replacements = COMMON_REPLACEMENTS,
     vendor_external = [
         "npm_bazel_labs",
     ],

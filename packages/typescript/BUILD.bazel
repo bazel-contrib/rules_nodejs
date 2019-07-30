@@ -13,7 +13,7 @@
 # limitations under the License.
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "npm_package")
-load("@npm_bazel_typescript//:index.bzl", "TYPESCRIPT_REPLACEMENTS")
+load(":replacements.bzl", "TYPESCRIPT_REPLACEMENTS")
 
 genrule(
     name = "copy_LICENSE",
