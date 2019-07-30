@@ -14,7 +14,7 @@
 
 # BEGIN-INTERNAL
 # Parts of this BUILD file only necessary when building from source.
-# The generated `@bazel/karma` npm package contains a trimmed BUILD file using # INTERNAL fences.
+# The generated `@bazel/karma` npm package contains a trimmed BUILD file using INTERNAL fences.
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
 load("@npm_bazel_typescript//:index.from_src.bzl", "ts_library")
@@ -82,4 +82,6 @@ filegroup(
 )
 
 # END-INTERNAL
-exports_files(["karma.conf.js"])
+exports_files([
+    "karma.conf.js",
+])

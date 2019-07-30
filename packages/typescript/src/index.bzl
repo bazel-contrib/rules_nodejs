@@ -17,7 +17,6 @@
 Users should not load files under "/internal"
 """
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "COMMON_REPLACEMENTS")
 load("//:version.bzl", _check_rules_typescript_version = "check_rules_typescript_version")
 load("//internal:build_defs.bzl", _ts_library = "ts_library_macro")
 load("//internal:ts_config.bzl", _ts_config = "ts_config")
@@ -32,15 +31,3 @@ ts_config = _ts_config
 ts_devserver = _ts_devserver
 ts_proto_library = _ts_proto_library
 # If adding rules here also add to index.docs.bzl
-
-TYPESCRIPT_REPLACEMENTS = dict(
-    COMMON_REPLACEMENTS,
-    **{
-        # This BEGIN-DEV fencing is required as files pulled in from
-        # @build_bazel_rules_typescript//:npm_bazel_typescript_package
-        # use this alternate fencing
-        "(#|\/\/)\\s+BEGIN-DEV-ONLY[\\w\W]+?(#|\/\/)\\s+END-DEV-ONLY": "",
-        # This file gets vendored into our repo
-        "@build_bazel_rules_typescript//internal:common": "//internal:common",
-    }
-)

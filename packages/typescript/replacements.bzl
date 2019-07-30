@@ -12,20 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# BEGIN-INTERNAL
-# Parts of this BUILD file only necessary when building from source.
-# The generated `@bazel/labs` npm package contains a trimmed BUILD file using INTERNAL fences.
-package(default_visibility = ["//visibility:public"])
+"""Replacements for @npm/typescript package
+"""
 
-exports_files(["tsconfig.json"])
+load("@build_bazel_rules_nodejs//:defs.bzl", "COMMON_REPLACEMENTS")
 
-filegroup(
-    name = "package_contents",
-    srcs = [
-        "BUILD.bazel",
-        "README.md",
-        "package.json",
-        "//webpack:package_contents",
-    ],
+TYPESCRIPT_REPLACEMENTS = dict(
+    COMMON_REPLACEMENTS,
+    **{
+        # This BEGIN-DEV fencing is required as files pulled in from
+        # @build_bazel_rules_typescript//:npm_bazel_typescript_package
+        # use this alternate fencing
+        "(#|\/\/)\\s+BEGIN-DEV-ONLY[\\w\W]+?(#|\/\/)\\s+END-DEV-ONLY": "",
+        # This file gets vendored into our repo
+        "@build_bazel_rules_typescript//internal:common": "//internal:common",
+    }
 )
-# END-INTERNAL
