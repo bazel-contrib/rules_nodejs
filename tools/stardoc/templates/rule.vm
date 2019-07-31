@@ -1,0 +1,22 @@
+#[[##]]# ${ruleName}
+
+```
+$ruleName ( $ruleInfo )
+```
+
+$ruleInfo.docString
+
+#[[###]]# Attributes
+
+#if (!$ruleInfo.getAttributeList().isEmpty())
+#foreach ($attribute in $ruleInfo.getAttributeList())
+    link ${ruleName}-${attribute.name}
+    `${attribute.name}`
+        ${util.attributeTypeString($attribute)}; ${util.mandatoryString($attribute)}
+#if (!$attribute.docString.isEmpty())
+        
+          ${attribute.docString.trim()}
+        
+#end
+#end
+#end

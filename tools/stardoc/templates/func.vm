@@ -1,0 +1,28 @@
+<a name="#${funcInfo.functionName}"></a>
+
+#[[##]]# ${funcInfo.functionName}
+
+```
+${util.funcSummary($funcInfo)}
+```
+
+$funcInfo.docString)
+
+#if (!$funcInfo.getParameterList().isEmpty())
+#[[###]]# Parameters
+
+#foreach ($param in $funcInfo.getParameterList())
+    link ${funcInfo.functionName}-${param.name}
+      `${param.name}`
+      
+        ${util.mandatoryString($param)}.#if(!$param.getDefaultValue().isEmpty()) default is <code>$param.getDefaultValue()</code>#end
+
+#if (!$param.docString.isEmpty())
+      
+          ${param.docString.trim()}
+      
+#end
+      
+#end
+
+#end
