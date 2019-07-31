@@ -211,8 +211,8 @@ ts_devserver = rule(
     },
     doc = """ts_devserver is a simple development server intended for a quick "getting started" experience.
 
-    Additional documentation at https://github.com/alexeagle/angular-bazel-example/wiki/Running-a-devserver-under-Bazel
-    """,
+Additional documentation at https://github.com/alexeagle/angular-bazel-example/wiki/Running-a-devserver-under-Bazel
+""",
 )
 
 def ts_devserver_macro(name, data = [], args = [], visibility = None, tags = [], testonly = 0, **kwargs):

@@ -1,27 +1,21 @@
-<a name="#${funcInfo.functionName}"></a>
-
 #[[##]]# ${funcInfo.functionName}
 
-```
-${util.funcSummary($funcInfo)}
-```
+$funcInfo.docString
 
-$funcInfo.docString)
+#[[###]]# Usage
+
+```
+${funcInfo.functionName}(#foreach( $param in $funcInfo.getParameterList() )$param.name#if( $foreach.hasNext ), #end#end)
+```
 
 #if (!$funcInfo.getParameterList().isEmpty())
-#[[###]]# Parameters
-
 #foreach ($param in $funcInfo.getParameterList())
-    link ${funcInfo.functionName}-${param.name}
-      `${param.name}`
-      
-        ${util.mandatoryString($param)}.#if(!$param.getDefaultValue().isEmpty()) default is <code>$param.getDefaultValue()</code>#end
 
-#if (!$param.docString.isEmpty())
+#[[####]]# `${param.name}`
       
-          ${param.docString.trim()}
-      
-#end
+#if(!$param.getDefaultValue().isEmpty()) default is <code>$param.getDefaultValue()</code>#end
+
+#if (!$param.docString.isEmpty())${param.docString.trim()}#end
       
 #end
 

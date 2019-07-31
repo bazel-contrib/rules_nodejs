@@ -136,57 +136,57 @@ ts_proto_library = rule(
     },
     doc = """Wraps https://github.com/dcodeIO/protobuf.js for use in Bazel.
 
-    `ts_proto_library` has identical outputs to `ts_library`, so it can be used anywhere
-    a `ts_library` can appear, such as in the `deps[]` of another `ts_library`.
+`ts_proto_library` has identical outputs to `ts_library`, so it can be used anywhere
+a `ts_library` can appear, such as in the `deps[]` of another `ts_library`.
 
-    Example:
+Example:
 
-    ```python
-    load("@npm_bazel_typescript//:index.bzl", "ts_library", "ts_proto_library")
+```python
+load("@npm_bazel_typescript//:index.bzl", "ts_library", "ts_proto_library")
 
-    proto_library(
-        name = "car_proto",
-        srcs = ["car.proto"],
-    )
+proto_library(
+    name = "car_proto",
+    srcs = ["car.proto"],
+)
 
-    ts_proto_library(
-        name = "car",
-        deps = [":car_proto"],
-    )
+ts_proto_library(
+    name = "car",
+    deps = [":car_proto"],
+)
 
-    ts_library(
-        name = "test_lib",
-        testonly = True,
-        srcs = ["car.spec.ts"],
-        deps = [":car"],
-    )
-    ```
+ts_library(
+    name = "test_lib",
+    testonly = True,
+    srcs = ["car.spec.ts"],
+    deps = [":car"],
+)
+```
 
-    Note in this example we named the `ts_proto_library` rule `car` so that the
-    result will be `car.d.ts`. This means our TypeScript code can just
-    `import {symbols} from './car'`. Use the `output_name` attribute if you want to
-    name the rule differently from the output file.
+Note in this example we named the `ts_proto_library` rule `car` so that the
+result will be `car.d.ts`. This means our TypeScript code can just
+`import {symbols} from './car'`. Use the `output_name` attribute if you want to
+name the rule differently from the output file.
 
-    The JavaScript produced by protobuf.js has a runtime dependency on a support library.
-    Under devmode (e.g. `ts_devserver`, `ts_web_test_suite`) you'll need to include these scripts
-    in the `bootstrap` phase (before Require.js loads). You can use the label
-    `@npm_bazel_typescript//:protobufjs_bootstrap_scripts` to reference these scripts
-    in the `bootstrap` attribute of `ts_web_test_suite` or `ts_devserver`.
+The JavaScript produced by protobuf.js has a runtime dependency on a support library.
+Under devmode (e.g. `ts_devserver`, `ts_web_test_suite`) you'll need to include these scripts
+in the `bootstrap` phase (before Require.js loads). You can use the label
+`@npm_bazel_typescript//:protobufjs_bootstrap_scripts` to reference these scripts
+in the `bootstrap` attribute of `ts_web_test_suite` or `ts_devserver`.
 
-    To complete the example above, you could write a `ts_web_test_suite`:
+To complete the example above, you could write a `ts_web_test_suite`:
 
-    ```python
-    load("@npm_bazel_karma//:index.bzl", "ts_web_test_suite")
+```python
+load("@npm_bazel_karma//:index.bzl", "ts_web_test_suite")
 
-    ts_web_test_suite(
-        name = "test",
-        deps = ["test_lib"],
-        bootstrap = ["@npm_bazel_typescript//:protobufjs_bootstrap_scripts"],
-        browsers = [
-          "@io_bazel_rules_webtesting//browsers:chromium-local",
-          "@io_bazel_rules_webtesting//browsers:firefox-local",
-        ],
-    )
-    ```
-    """,
+ts_web_test_suite(
+    name = "test",
+    deps = ["test_lib"],
+    bootstrap = ["@npm_bazel_typescript//:protobufjs_bootstrap_scripts"],
+    browsers = [
+        "@io_bazel_rules_webtesting//browsers:chromium-local",
+        "@io_bazel_rules_webtesting//browsers:firefox-local",
+    ],
+)
+```
+""",
 )
