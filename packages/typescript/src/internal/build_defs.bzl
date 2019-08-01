@@ -355,11 +355,13 @@ The @npm external repository and the fine grained npm package
 targets are setup using the `yarn_install` or `npm_install` rule
 in your WORKSPACE file:
 
+```
 yarn_install(
     name = "npm",
     package_json = "//:package.json",
     yarn_lock = "//:yarn.lock",
 )
+```
 """,
             default = _DEFAULT_NODE_MODULES,
         ),

@@ -62,6 +62,7 @@ nav.toc ul li a { color: #4caf50; }
 .page-content h1 { font-size: 24px; font-weight: 400; line-height: 40px; margin-bottom: 20px; color: #4caf50; }
 .page-content h2 { font-size: 20px; font-weight: 400; line-height: 32px; margin-bottom: 20px; color: #4caf50; }
 .page-content h3 { font-size: 18px; font-weight: 400; line-height: 32px; margin-bottom: 20px; color: #757575; }
+.page-content h4 { font-size: 14px; font-weight: 400; line-height: 32px; margin-bottom: 20px; color: #757575; }
 
 @media (max-width: 768px) { .page-content { width: 360px; } }
 @media (min-width: 768px) { .page-content { width: 760px; } }

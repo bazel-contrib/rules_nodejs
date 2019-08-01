@@ -38,85 +38,47 @@ nodejs_binary(
 )
 ```
 
-<!-- Generated with Stardoc: http://skydoc.bazel.build -->
-
-<a name="#stylus_binary"></a>
+[name]: https://bazel.build/docs/build-ref.html#name
+[label]: https://bazel.build/docs/build-ref.html#labels
+[labels]: https://bazel.build/docs/build-ref.html#labels
 
 
 ## stylus_binary
 
-<pre>
-stylus_binary(<a href="#stylus_binary-name">name</a>, <a href="#stylus_binary-compiler">compiler</a>, <a href="#stylus_binary-compress">compress</a>, <a href="#stylus_binary-deps">deps</a>, <a href="#stylus_binary-sourcemap">sourcemap</a>, <a href="#stylus_binary-src">src</a>)
-</pre>
-
 Run the Stylus CLI tool to transform `foo.styl` into `foo.css`
 
 
-### Attributes
+### Usage
 
-<table class="params-table">
-  <colgroup>
-    <col class="col-param" />
-    <col class="col-description" />
-  </colgroup>
-  <tbody>
-    <tr id="stylus_binary-name">
-      <td><code>name</code></td>
-      <td>
-        <a href="https://bazel.build/docs/build-ref.html#name">Name</a>; required
-        <p>
-          A unique name for this target.
-        </p>
-      </td>
-    </tr>
-    <tr id="stylus_binary-compiler">
-      <td><code>compiler</code></td>
-      <td>
-        <a href="https://bazel.build/docs/build-ref.html#labels">Label</a>; optional
-        <p>
-          Label that points to the stylus binary to run.
+```
+stylus_binary(name, compiler, compress, deps, sourcemap, src)
+```
+
+
+
+#### `name`
+(*[name], mandatory*): A unique name for this target.
+
+
+#### `compiler`
+(*[label]*): Label that points to the stylus binary to run.
             If you install your npm packages to a workspace named something other than "npm",
             you may need to set this to `@my_npm_name//stylus/bin:stylus`
-        </p>
-      </td>
-    </tr>
-    <tr id="stylus_binary-compress">
-      <td><code>compress</code></td>
-      <td>
-        Boolean; optional
-        <p>
-          Compress CSS output
-        </p>
-      </td>
-    </tr>
-    <tr id="stylus_binary-deps">
-      <td><code>deps</code></td>
-      <td>
-        <a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>; optional
-        <p>
-          Other stylus files that are imported from the src
-        </p>
-      </td>
-    </tr>
-    <tr id="stylus_binary-sourcemap">
-      <td><code>sourcemap</code></td>
-      <td>
-        Boolean; optional
-        <p>
-          Generates a sourcemap in sourcemaps v3 format
-        </p>
-      </td>
-    </tr>
-    <tr id="stylus_binary-src">
-      <td><code>src</code></td>
-      <td>
-        <a href="https://bazel.build/docs/build-ref.html#labels">Label</a>; required
-        <p>
-          A single .styl Stylus file to transform
-        </p>
-      </td>
-    </tr>
-  </tbody>
-</table>
+
+
+#### `compress`
+(*Boolean*): Compress CSS output
+
+
+#### `deps`
+(*[labels]*): Other stylus files that are imported from the src
+
+
+#### `sourcemap`
+(*Boolean*): Generates a sourcemap in sourcemaps v3 format
+
+
+#### `src`
+(*[label], mandatory*): A single .styl Stylus file to transform
 
 

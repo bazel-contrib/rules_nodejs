@@ -83,6 +83,7 @@ def rules_nodejs_dev_dependencies():
             "https://github.com/bazelbuild/rules_java/archive/7cf3cefd652008d0a64a419c34c13bdca6c8f178.zip",
         ],
     )
+
     # Needed for Remote Build Execution
     # See https://releases.bazel.build/bazel-toolchains.html
     http_archive(
