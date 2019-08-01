@@ -12,28 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-workspace(
-    name = "e2e_tsconfig_extends",
-    managed_directories = {"@npm": ["node_modules"]},
+load("@npm_bazel_typescript//:index.bzl", "ts_config")
+load("@npm_bazel_typescript//:index.from_src.bzl", "ts_library")
+
+# Because our tsconfig.json has an extends property, we must also tell the
+# ts_library to include the extended tsconfig file in compilations.
+# The ts_library rule will generate its own tsconfig which extends from the
+# src file.
+ts_config(
+    name = "tsconfig",
+    src = "tsconfig.json",
+    deps = ["tsconfig-base.json"],
 )
 
-local_repository(
-    name = "build_bazel_rules_nodejs",
-    path = "../../release/build_bazel_rules_nodejs/release",
+ts_library(
+    name = "tsconfig_extends",
+    srcs = [
+        "uses_promise.ts",
+    ],
+    tsconfig = ":tsconfig",
 )
-
-load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
-
-yarn_install(
-    name = "npm",
-    package_json = "//:package.json",
-    yarn_lock = "//:yarn.lock",
-)
-
-load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
-
-install_bazel_dependencies()
-
-load("@npm_bazel_typescript//:index.bzl", "ts_setup_workspace")
-
-ts_setup_workspace()
