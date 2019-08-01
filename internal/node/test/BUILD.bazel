@@ -1,4 +1,4 @@
-load("//:defs.bzl", "nodejs_binary")
+load("//:defs.bzl", "nodejs_binary", "nodejs_test")
 load("//internal/js_library:js_library.bzl", "js_library")
 load(":nodejs_toolchain_test.bzl", "nodejs_binary_test_suite")
 
@@ -66,4 +66,11 @@ nodejs_binary(
     name = "module_name_test",
     data = [":module_name_lib"],
     entry_point = ":module-name.js",
+)
+
+nodejs_test(
+    name = "define_var",
+    configuration_env_vars = ["SOME_TEST_ENV"],
+    data = glob(["*.spec.js"]),
+    entry_point = ":define.spec.js",
 )

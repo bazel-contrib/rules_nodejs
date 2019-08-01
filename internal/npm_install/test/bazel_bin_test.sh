@@ -29,7 +29,7 @@ fi
 
 readonly OUT=$($(rlocation "npm/testy/bin/testy"))
 
-if [ "$OUT" != "Hello world" ]; then
-  echo "Expected output 'Hello world' but was $OUT"
+if [ "$OUT" != "Hello some_value" ]; then
+  echo "Expected output 'Hello world' but was '$OUT'"
   exit 1
 fi
