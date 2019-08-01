@@ -42,6 +42,14 @@ def rules_nodejs_dev_dependencies():
         strip_prefix = "rules_sass-86ca977cf2a8ed481859f83a286e164d07335116",
     )
 
+    # Needed for @com_github_bazelbuild_buildtools which is used by ts_auto_deps
+    http_archive(
+        name = "io_bazel",
+        url = "https://github.com/bazelbuild/bazel/archive/0.28.1.tar.gz",
+        strip_prefix = "bazel-0.28.1",
+        sha256 = "a3d6a8ba4c6dce86d3b3387a23b04cbdf4c435a58120bd9842588d3845fe689c",
+    )
+
     # Needed by stardoc
     http_archive(
         name = "com_google_protobuf",
@@ -62,7 +70,7 @@ def rules_nodejs_dev_dependencies():
 
     http_archive(
         name = "io_bazel_skydoc",
-        #sha256 = "d23c240fae021b76205c96b29afd7d1a57db83d88321e9f60d033e73b80a35aa",
+        sha256 = "fdc34621839104b57363a258eab9d821b02ff7837923cfe7fb6fd67182780829",
         strip_prefix = "skydoc-41c28e43dffbae39c52dd4b91932d1209e5a8893",
         url = "https://github.com/bazelbuild/skydoc/archive/41c28e43dffbae39c52dd4b91932d1209e5a8893.tar.gz",
     )
@@ -74,6 +82,9 @@ def rules_nodejs_dev_dependencies():
         strip_prefix = "bazel-skylib-ffad33e9bfc60bdfa98292ca655a4e7035792046",
         urls = ["https://github.com/bazelbuild/bazel-skylib/archive/ffad33e9bfc60bdfa98292ca655a4e7035792046.tar.gz"],
     )
+
+    # Gross dep that leaked out of stardoc, see
+    # https://github.com/bazelbuild/skydoc/commit/9283f6a44811423756ab898e98ce410029c12f7b#commitcomment-34488585
     http_archive(
         name = "rules_java",
         sha256 = "bc81f1ba47ef5cc68ad32225c3d0e70b8c6f6077663835438da8d5733f917598",

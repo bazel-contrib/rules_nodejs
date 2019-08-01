@@ -675,11 +675,12 @@ check_rules_typescript_version(version_string)
 
 #### `version_string`
       
-
 A version string to check for compatibility with the loaded version
                 of npm_bazel_typescript. The version check performed is
                 `VERSION >= version_string >= COMPAT_VERSION` where VERSION and COMPAT_VERSION
-                come from the loaded version of npm_bazel_typescript.      
+                come from the loaded version of npm_bazel_typescript.
+
+
 
 
 

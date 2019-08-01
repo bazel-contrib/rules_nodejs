@@ -13,10 +13,14 @@ ${funcInfo.functionName}(#foreach( $param in $funcInfo.getParameterList() )$para
 
 #[[####]]# `${param.name}`
       
-#if(!$param.getDefaultValue().isEmpty()) default is <code>$param.getDefaultValue()</code>#end
+#if (!$param.docString.isEmpty())
+${param.docString.trim()}
+#end
 
-#if (!$param.docString.isEmpty())${param.docString.trim()}#end
-      
+#if(!$param.getDefaultValue().isEmpty())
+Defaults to `$param.getDefaultValue()`
+#end
+
 #end
 
 #end

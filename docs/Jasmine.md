@@ -42,62 +42,80 @@ jasmine_node_test(name, srcs, data, deps, expected_exit_code, tags, coverage, ja
 
 #### `name`
       
+Name of the resulting label
 
-Name of the resulting label      
+
 
 
 #### `srcs`
       
- default is <code>[]</code>
-JavaScript source files containing Jasmine specs      
+JavaScript source files containing Jasmine specs
+
+Defaults to `[]`
+
 
 
 #### `data`
       
- default is <code>[]</code>
-Runtime dependencies which will be loaded while the test executes      
+Runtime dependencies which will be loaded while the test executes
+
+Defaults to `[]`
+
 
 
 #### `deps`
       
- default is <code>[]</code>
-Other targets which produce JavaScript, such as ts_library      
+Other targets which produce JavaScript, such as ts_library
+
+Defaults to `[]`
+
 
 
 #### `expected_exit_code`
       
- default is <code>0</code>
-The expected exit code for the test. Defaults to 0.      
+The expected exit code for the test.
+
+Defaults to `0`
+
 
 
 #### `tags`
       
- default is <code>[]</code>
-Bazel tags applied to test      
+Bazel tags applied to test
+
+Defaults to `[]`
+
 
 
 #### `coverage`
       
- default is <code>False</code>
-Enables code coverage collection and reporting. Defaults to False.      
+Enables code coverage collection and reporting.
+
+Defaults to `False`
+
 
 
 #### `jasmine`
       
- default is <code>"@npm//@bazel/jasmine"</code>
-A label providing the `@bazel/jasmine` npm dependency.      
+A label providing the `@bazel/jasmine` npm dependency.
+
+Defaults to `"@npm//@bazel/jasmine"`
+
 
 
 #### `jasmine_entry_point`
       
- default is <code>"@npm//:node_modules/@bazel/jasmine/jasmine_runner.js"</code>
-A label providing the `@bazel/jasmine` entry point.      
+A label providing the `@bazel/jasmine` entry point.
+
+Defaults to `"@npm//:node_modules/@bazel/jasmine/jasmine_runner.js"`
+
 
 
 #### `kwargs`
       
+Remaining arguments are passed to the test rule
 
-Remaining arguments are passed to the test rule      
+
 
 
 
