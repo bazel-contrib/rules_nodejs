@@ -33,3 +33,7 @@ import %workspace%/third_party/github.com/bazelbuild/bazel-toolchains/bazelrc/ba
 # Remote instance, borrow the one used by Angular devs
 build:remote --remote_instance_name=projects/internal-200822/instances/default_instance
 build:remote --project_id=internal-200822
+
+# Our integration tests rely on accessing public registries which can fail
+# Let's give all failing tests a second try to mostly paper over flakiness
+test --flaky_test_attempts=2
