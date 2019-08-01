@@ -51,6 +51,7 @@
         "source-map-support": "0.5.9",
         "stylus": "~0.54.5",
         "terser": "3.17.0",
+        "testy": "file:./tools/npm_packages/testy",
         "tmp": "0.1.0",
         "tsickle": "0.33.1",
         "tsutils": "2.27.2",

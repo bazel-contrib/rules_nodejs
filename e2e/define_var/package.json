@@ -1,6 +1,0 @@
-{
-    "private": true,   
-    "scripts": {
-        "test": "bazel test :define_var --define=some_env=some_value"
-    }
-}

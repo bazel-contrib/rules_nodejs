@@ -64,3 +64,12 @@ jasmine_node_test(
         "//internal/npm_install:browserify-wrapped",
     ],
 )
+
+sh_test(
+    name = "bazel_bin_test",
+    srcs = ["bazel_bin_test.sh"],
+    data = [
+        "@bazel_tools//tools/bash/runfiles",
+        "@npm//testy/bin:testy",
+    ],
+)
