@@ -1,0 +1,36 @@
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+load("@npm_bazel_typescript//:index.from_src.bzl", "ts_library")
+
+# We compile this library with the module name "sm" to make it possible to
+# use `import {} from 'sm';` both at type-check time (we include the mapping in
+# the paths map in tsconfig) as well as runtime (we patch the nodejs module
+# loader to discover the path in the runfiles).
+ts_library(
+    name = "some_module",
+    srcs = ["index.ts"],
+    module_name = "sm",
+)
+
+ts_library(
+    name = "main",
+    srcs = ["main.ts"],
+    deps = [":some_module"],
+)
+
+nodejs_binary(
+    name = "bin",
+    data = [
+        ":main",
+        ":some_module",
+    ],
+    entry_point = ":main.ts",
+)
+
+sh_test(
+    name = "module_load_test",
+    srcs = ["module_load_test.sh"],
+    data = [
+        ":bin",
+        "@bazel_tools//tools/bash/runfiles",
+    ],
+)
