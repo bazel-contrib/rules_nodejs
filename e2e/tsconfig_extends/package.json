@@ -1,9 +1,0 @@
-{
-  "dependencies": {
-    "@bazel/typescript": "file:../../release/npm_bazel_typescript",
-    "typescript": "^3.3.1"
-  },
-  "scripts": {
-    "test": "bazel build ..."
-  }
-}
