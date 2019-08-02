@@ -70,9 +70,9 @@ def rules_nodejs_dev_dependencies():
 
     http_archive(
         name = "io_bazel_skydoc",
-        sha256 = "fdc34621839104b57363a258eab9d821b02ff7837923cfe7fb6fd67182780829",
-        strip_prefix = "skydoc-41c28e43dffbae39c52dd4b91932d1209e5a8893",
-        url = "https://github.com/bazelbuild/skydoc/archive/41c28e43dffbae39c52dd4b91932d1209e5a8893.tar.gz",
+        sha256 = "41d32e0d283532ae9b10869cc0f21b8d01f45a5dbd1ace8bf02f88c4193d86fe",
+        strip_prefix = "skydoc-2610545bb2839c1b574ffecdcd0cebf44d3fdf9b",
+        url = "https://github.com/bazelbuild/skydoc/archive/2610545bb2839c1b574ffecdcd0cebf44d3fdf9b.tar.gz",
     )
 
     # bazel-skylib master 2019.05.03 to get support for https://github.com/bazelbuild/bazel-skylib/pull/140
