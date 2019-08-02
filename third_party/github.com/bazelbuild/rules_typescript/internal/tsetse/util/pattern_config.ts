@@ -7,7 +7,9 @@
 export const enum PatternKind {
   BANNED_NAME = 'banned-name',
   BANNED_PROPERTY_WRITE = 'banned-property-write',
-  BANNED_PROPERTY_NON_CONSTANT_WRITE = 'banned-property-non-constant-write'
+  BANNED_PROPERTY_NON_CONSTANT_WRITE = 'banned-property-non-constant-write',
+  // Not from JSConformance.
+  BANNED_NAME_CALL_NON_CONSTANT_ARGUMENT = 'banned-call-non-constant-argument'
 }
 
 /**
@@ -19,8 +21,8 @@ export interface Config {
   /**
    * Values have a pattern-specific syntax.
    *
-   * TODO(rjamet): We'll document them, but for now see each patternKind's tests
-   * for examples.
+   * TODO(rjamet): We'll document them, but for now see each patternKind's
+   * tests for examples.
    */
   values: string[];
 
@@ -32,13 +34,13 @@ export interface Config {
 }
 
 /**
- * A whitelist entry, corresponding to a logical whitelisting rule. Use these to
- * distinguish between various logical reasons for whitelisting something: for
- * instance, tie these to particular bugs that needed whitelisting, per legacy
- * project, manually reviewed entries, and so on.
+ * A whitelist entry, corresponding to a logical whitelisting rule. Use these
+ * to distinguish between various logical reasons for whitelisting something:
+ * for instance, tie these to particular bugs that needed whitelisting, per
+ * legacy project, manually reviewed entries, and so on.
  *
- * Whitelists are based on the file paths provided by the TS compiler, with both
- * regexp-based checks and prefix-based checks.
+ * Whitelists are based on the file paths provided by the TS compiler, with
+ * both regexp-based checks and prefix-based checks.
  *
  *
  * Follows the logic in

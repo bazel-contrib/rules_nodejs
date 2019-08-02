@@ -15,6 +15,11 @@ const ABSOLUTE_RE = new RegExp(`^${FQN_FORMAT}$`);
  * Note that this isn't smart about subclasses and types: to write a check, we
  * strongly suggest finding the expected symbol in externs to find the object
  * name on which the symbol was initially defined.
+ *
+ * TODO(rjamet): add a file-based optional filter, since FQNs tell you where
+ * your imported symbols were initially defined. That would let us be more
+ * specific in matches (say, you want to ban the fromLiteral in foo.ts but not
+ * the one from bar.ts).
  */
 export class AbsoluteMatcher {
   /**
@@ -32,10 +37,11 @@ export class AbsoluteMatcher {
     // on `foo`. To avoid any confusion, throw there if we see `prototype` in
     // the spec: that way, it's obvious that you're not trying to match
     // properties.
-    if (this.bannedName.includes('.prototype')) {
+    if (this.bannedName.match('.prototype.')) {
       throw new Error(
           'Your pattern includes a .prototype, but the AbsoluteMatcher is ' +
-          'meant for non-object matches. Use the PropertyMatcher instead.');
+          'meant for non-object matches. Use the PropertyMatcher instead, or ' +
+          'the Property-based PatternKinds.');
     }
   }
 
