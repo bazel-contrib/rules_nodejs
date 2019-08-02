@@ -1,3 +1,35 @@
+# [0.35.0](https://github.com/alexeagle/rules_nodejs/compare/0.34.0...0.35.0) (2019-08-02)
+
+
+### Bug Fixes
+
+* **jasmine:** enforce that jasmine_node_test is loaded from new location ([7708858](https://github.com/alexeagle/rules_nodejs/commit/7708858)), closes [#838](https://github.com/alexeagle/rules_nodejs/issues/838)
+* fencing for npm packages ([#946](https://github.com/alexeagle/rules_nodejs/issues/946)) ([780dfb4](https://github.com/alexeagle/rules_nodejs/commit/780dfb4))
+
+
+### Features
+
+* **builtin:** do code splitting even if only one entry point ([f51c129](https://github.com/alexeagle/rules_nodejs/commit/f51c129))
+* **stylus:** add initial stylus rule ([804a788](https://github.com/alexeagle/rules_nodejs/commit/804a788))
+* **stylus:** output sourcemap ([dac014a](https://github.com/alexeagle/rules_nodejs/commit/dac014a))
+* **stylus:** support import by allowing files in deps ([3987070](https://github.com/alexeagle/rules_nodejs/commit/3987070))
+
+
+### BREAKING CHANGES
+
+* **jasmine:** You can no longer get jasmine_node_test from @build_bazel_rules_nodejs.
+- Use `load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")`
+instead
+- You need to remove `@npm//jasmine` from the deps of the
+jasmine_node_test
+- If you use user-managed dependencies, see the commit for examples of
+the change needed
+
+Also makes the repo bazel-lint-clean, so running yarn bazel:lint-fix no
+longer makes edits.
+
+
+
 # [0.34.0](https://github.com/alexeagle/rules_nodejs/compare/0.33.1...0.34.0) (2019-07-23)
 
 
