@@ -69,7 +69,7 @@ npm_package(name, deps, packages, rename_build_files, replace_with_version, repl
 ### Usage
 
 ```
-rollup_bundle(name, additional_entry_points, deps, entry_point, global_name, globals, license_banner, node_modules, srcs)
+rollup_bundle(name, additional_entry_points, deps, enable_code_splitting, entry_point, global_name, globals, license_banner, node_modules, srcs)
 ```
 
 
@@ -124,6 +124,18 @@ rollup_bundle(name, additional_entry_points, deps, entry_point, global_name, glo
 
 #### `deps`
 (*[labels]*): Other rules that produce JavaScript outputs, such as `ts_library`.
+
+
+#### `enable_code_splitting`
+(*Boolean*): If True rollup will automatically determine entry points from
+        the source code. The rollup output format will be 'esm' and rollup will
+        create entry points based on ES6 import statements. See
+        https://rollupjs.org/guide/en#code-splitting
+
+        Code splitting is always enabled when additional_entry_points is
+        non-empty.
+
+        All automatic entry points will be named chunk-<HASH>.js.
 
 
 #### `entry_point`
