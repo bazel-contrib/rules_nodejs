@@ -1,0 +1,179 @@
+# Copyright 2017 The Bazel Authors. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+load("@build_bazel_rules_nodejs//internal/bazel_integration_test:bazel_integration_test.bzl", "bazel_integration_test")
+
+CHECK_NPM_PACKAGES = [
+    "@bazel/hide-bazel-files",
+    "@bazel/jasmine",
+    "@bazel/karma",
+    "@bazel/labs",
+    "@bazel/protractor",
+    "@bazel/stylus",
+    "@bazel/typescript",
+]
+
+# Mappings of integration tests workspaces to their required npm packages
+# This mapping optimizes development so when making changes to files under packages
+# only affected e2e tests are run.
+E2E_TESTS = {
+    "e2e_jasmine": {
+        "//packages/jasmine:npm_package": "@bazel/jasmine",
+    },
+    "e2e_karma": {
+        "//packages/karma:npm_package": "@bazel/karma",
+    },
+    "e2e_karma_stack_trace": {
+        "//packages/jasmine:npm_package": "@bazel/jasmine",
+        "//packages/karma:npm_package": "@bazel/karma",
+        "//packages/typescript:npm_package": "@bazel/typescript",
+    },
+    "e2e_karma_typescript": {
+        "//packages/jasmine:npm_package": "@bazel/jasmine",
+        "//packages/karma:npm_package": "@bazel/karma",
+        "//packages/typescript:npm_package": "@bazel/typescript",
+    },
+    "e2e_stylus": {
+        "//packages/stylus:npm_package": "@bazel/stylus",
+    },
+    "e2e_symlinked_node_modules_npm": {
+        "//packages/hide-bazel-files:npm_package": "@bazel/hide-bazel-files",
+    },
+    "e2e_symlinked_node_modules_yarn": {
+        "//packages/hide-bazel-files:npm_package": "@bazel/hide-bazel-files",
+    },
+    "e2e_ts_auto_deps": {
+        "//packages/typescript:npm_package": "@bazel/typescript",
+    },
+    "e2e_ts_devserver": {
+        "//packages/hide-bazel-files:npm_package": "@bazel/hide-bazel-files",
+        "//packages/protractor:npm_package": "@bazel/protractor",
+        "//packages/typescript:npm_package": "@bazel/typescript",
+    },
+    "e2e_webpack": {
+        "//packages/jasmine:npm_package": "@bazel/jasmine",
+        "//packages/labs:npm_package": "@bazel/labs",
+    },
+}
+
+[bazel_integration_test(
+    name = wksp_name,
+    # some bazelrc imports are outside of the nested workspace so
+    # the test runner will handle these as special cases
+    bazelrc_imports = {
+        "//:common.bazelrc": "import %workspace%/../../common.bazelrc",
+    },
+    check_npm_packages = CHECK_NPM_PACKAGES,
+    # package.json will be updated with `file:` links to the absolute paths
+    # of the generated npm packages in runfiles
+    npm_packages = E2E_TESTS[wksp_name],
+    # replace the following repositories with the generated archives
+    repositories = {
+        "//:release": "build_bazel_rules_nodejs",
+    },
+    tags = [
+        "e2e",
+        # exclusive keyword will force the test to be run in the "exclusive" mode,
+        # ensuring that no other tests are running at the same time. Such tests
+        # will be executed in serial fashion after all build activity and non-exclusive
+        # tests have been completed. Remote execution is disabled for such tests
+        # because Bazel doesn't have control over what's running on a remote machine.
+        "exclusive",
+    ],
+    workspace_files = "@%s//:all_files" % wksp_name,
+    workspace_under_test = wksp_name,
+) for wksp_name in E2E_TESTS]
+
+[bazel_integration_test(
+    name = "e2e_typescript_%s" % tsc_version.replace(".", "_"),
+    # some bazelrc imports are outside of the nested workspace so
+    # the test runner will handle these as special cases
+    bazelrc_imports = {
+        "//:common.bazelrc": "import %workspace%/../../common.bazelrc",
+    },
+    check_npm_packages = CHECK_NPM_PACKAGES,
+    # package.json will be updated with `file:` links to the absolute paths
+    # of the generated npm packages in runfiles
+    npm_packages = {
+        "//packages/jasmine:npm_package": "@bazel/jasmine",
+        "//packages/typescript:npm_package": "@bazel/typescript",
+    },
+    # use these package.json packages instead
+    package_json_replacements = {
+        "typescript": tsc_version,
+    },
+    # replace the following repositories with the generated archives
+    repositories = {
+        "//:release": "build_bazel_rules_nodejs",
+    },
+    tags = [
+        "e2e",
+        # exclusive keyword will force the test to be run in the "exclusive" mode,
+        # ensuring that no other tests are running at the same time. Such tests
+        # will be executed in serial fashion after all build activity and non-exclusive
+        # tests have been completed. Remote execution is disabled for such tests
+        # because Bazel doesn't have control over what's running on a remote machine.
+        "exclusive",
+    ],
+    workspace_files = "@e2e_typescript//:all_files",
+    workspace_under_test = "e2e_typescript",
+) for tsc_version in [
+    "2.7.x",
+    "2.8.x",
+    "2.9.x",
+    "3.0.x",
+    "3.1.x",
+    "3.2.x",
+    "3.3.x",
+    "3.4.x",
+    "3.5.x",
+]]
+
+bazel_integration_test(
+    name = "e2e_angular_bazel_example",
+    size = "enormous",
+    timeout = "eternal",
+    # to reduce the chance of depleting all available system memory locally
+    # and on CI, limit the Bazel JVM memory usage for the nested bazel process
+    bazelrc_append = "startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx2g",
+    # package.json will be updated with `file:` links to the absolute paths
+    # of the generated npm packages in runfiles
+    check_npm_packages = CHECK_NPM_PACKAGES,
+    npm_packages = {
+        "//packages/karma:npm_package": "@bazel/karma",
+        "//packages/protractor:npm_package": "@bazel/protractor",
+        "//packages/typescript:npm_package": "@bazel/typescript",
+    },
+    # replace the following repositories with the generated archives
+    repositories = {
+        "//:release": "build_bazel_rules_nodejs",
+    },
+    tags = [
+        "e2e",
+        # exclusive keyword will force the test to be run in the "exclusive" mode,
+        # ensuring that no other tests are running at the same time. Such tests
+        # will be executed in serial fashion after all build activity and non-exclusive
+        # tests have been completed. Remote execution is disabled for such tests
+        # because Bazel doesn't have control over what's running on a remote machine.
+        "exclusive",
+        # manual keyword will force the test target to not be included in target
+        # pattern wildcards (..., :*, :all, etc); the test target will be neither
+        # built nor run. It will also be ignored by the test_suite rules that do
+        # not mention this test explicitly. The only way to build or run such a test
+        # is to specify it via an explicit target pattern on the command line.
+        "manual",
+    ],
+    workspace_files = "@e2e_angular_bazel_example//:bazel_integration_test_files",
+    workspace_under_test = "e2e_angular_bazel_example",
+)

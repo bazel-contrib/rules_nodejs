@@ -33,9 +33,9 @@ echo_and_run bazel build ...
 
 printf "\n\nTesting all targets\n"
 if [[ ${machine} == "Windows" ]] ; then
-    echo_and_run bazel test ... --test_tag_filters=-fix-windows
+    echo_and_run bazel test ... --test_tag_filters=-e2e,-fix-windows
 else
-    echo_and_run bazel test ...
+    echo_and_run bazel test ... --test_tag_filters=-e2e
 fi
 
 # These targets should run
@@ -59,6 +59,8 @@ echo_and_run bazel run @bazel_workspace_b//subdir:bin
 # bazel test @internal_e2e_packages//... # DOES NOT WORK WITH --nolegacy_external_runfiles
 # TODO: re-enable when after https://github.com/bazelbuild/bazel/pull/8090 makes it into a Bazel release
 # Related issue https://github.com/bazelbuild/bazel/issues/8088 on Windows
+
+echo_and_run bazel --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1280m test --test_tag_filters=e2e --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,1.0,1.0 ...
 
 echo_and_run ./scripts/build_all.sh
 

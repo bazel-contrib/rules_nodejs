@@ -108,10 +108,9 @@ def rules_nodejs_dev_dependencies():
 
     http_archive(
         name = "build_bazel_integration_testing",
-        url = "https://github.com/bazelbuild/bazel-integration-testing/archive/13a7d5112aaae5572544c609f364d430962784b1.zip",
-        type = "zip",
-        strip_prefix = "bazel-integration-testing-13a7d5112aaae5572544c609f364d430962784b1",
-        sha256 = "8028ceaad3613404254d6b337f50dc52c0fe77522d0db897f093dd982c6e63ee",
+        url = "https://github.com/bazelbuild/bazel-integration-testing/archive/922d2b04bfb9721ab14ff6d26d4a8a6ab847aa07.zip",
+        strip_prefix = "bazel-integration-testing-922d2b04bfb9721ab14ff6d26d4a8a6ab847aa07",
+        sha256 = "490554b98da4ce6e3e1e074e01b81e8440b760d4f086fccf50085a25528bf5cd",
     )
 
 def _maybe(repo_rule, name, **kwargs):
