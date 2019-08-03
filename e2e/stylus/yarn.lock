@@ -2,8 +2,10 @@
 # yarn lockfile v1
 
 
-"@bazel/stylus@file:../../release/npm_bazel_stylus":
-  version "1.2.3"
+"@bazel/stylus@latest":
+  version "0.35.0"
+  resolved "https://registry.yarnpkg.com/@bazel/stylus/-/stylus-0.35.0.tgz#d47e32ab76fbae01eff42f7bfc0a001d132345ff"
+  integrity sha512-KeBGuwj+fM8mGD2ClsMwKFnCnbHmOQViCtXJ8qVfpaN2XwzttEpE76a/LaeCnAn+HvtdJ7a3cBihF/U2R649sA==
   dependencies:
     stylus "~0.54.5"
 

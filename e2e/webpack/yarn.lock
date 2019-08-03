@@ -2,15 +2,19 @@
 # yarn lockfile v1
 
 
-"@bazel/jasmine@file:../../release/npm_bazel_jasmine":
-  version "1.2.3"
+"@bazel/jasmine@latest":
+  version "0.35.0"
+  resolved "https://registry.yarnpkg.com/@bazel/jasmine/-/jasmine-0.35.0.tgz#1f55145b01761579f8a9f0b525762912ea832d42"
+  integrity sha512-TBCxjg0CW/C5+GLjyvP1CLPbw66W9HqVMrl0vS/eUyD9WeITID1wzkrjdcSm+FMjftnV/2634Yzj+Wl3nWocMg==
   dependencies:
     jasmine "~3.4.0"
     jasmine-core "~3.4.0"
     v8-coverage "1.0.9"
 
-"@bazel/labs@file:../../release/npm_bazel_labs":
-  version "1.2.3"
+"@bazel/labs@latest":
+  version "0.35.0"
+  resolved "https://registry.yarnpkg.com/@bazel/labs/-/labs-0.35.0.tgz#d56861f1a0f73a59c1bf16e2058ffa521cec3a84"
+  integrity sha512-NZHgLRprexS9uBqew42I/q5Ld5/N/UjP5aisUlvXu3L7ucy1WdWbykQ7u9aen1tlM46Neck+BUwmpSFiwrOEWw==
   dependencies:
     webpack "~4.29.3"
 

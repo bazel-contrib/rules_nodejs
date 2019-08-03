@@ -2,8 +2,10 @@
 # yarn lockfile v1
 
 
-"@bazel/karma@file:../../release/npm_bazel_karma":
-  version "1.2.3"
+"@bazel/karma@latest":
+  version "0.35.0"
+  resolved "https://registry.yarnpkg.com/@bazel/karma/-/karma-0.35.0.tgz#f8edaac3c58db975cbbf444b7845abcd02b323a7"
+  integrity sha512-OKRyZFnbLTSmVMxBttsDEXKLlqKsj3cHn7gSyVQEP4wgC0D8nKZF8bUlu5awwh3UERE5EiLXZqIUqeO1rxlbGg==
   dependencies:
     jasmine-core "2.8.0"
     karma "^4.0.0"
