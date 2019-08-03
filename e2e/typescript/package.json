@@ -1,8 +1,11 @@
 {
   "dependencies": {
-    "@bazel/karma": "latest",
+    "@bazel/jasmine": "latest",
     "@bazel/typescript": "latest",
     "@types/jasmine": "2.8.2",
+    "@types/node": "7.0.18",
+    "date-fns": "^1.30.1",
+    "source-map-support": "^0.5.10",
     "typescript": "3.1.x"
   },
   "scripts": {

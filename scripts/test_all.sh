@@ -22,9 +22,6 @@ case "${unameOut}" in
 esac
 echo "Running on ${machine}"
 
-rm -rf ./examples/angular
-./scripts/setup_examples_angular.sh
-
 printf "\n\nRunning @nodejs//:yarn\n"
 echo_and_run bazel run @nodejs//:yarn
 
@@ -64,6 +61,5 @@ echo_and_run bazel --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1280m test --tes
 
 echo_and_run ./scripts/build_all.sh
 
-echo_and_run ./scripts/test_e2e_all.sh
 echo_and_run ./scripts/test_legacy_e2e_all.sh
 echo_and_run ./scripts/test_examples_all.sh

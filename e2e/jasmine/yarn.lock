@@ -2,8 +2,10 @@
 # yarn lockfile v1
 
 
-"@bazel/jasmine@file:../../release/npm_bazel_jasmine":
-  version "1.2.3"
+"@bazel/jasmine@latest":
+  version "0.34.0"
+  resolved "https://registry.yarnpkg.com/@bazel/jasmine/-/jasmine-0.34.0.tgz#74497def9766dee2c6b43e87ee288308d50bfd3f"
+  integrity sha512-vNUxQ1ss0aT7S3CQvQ6U6vJF8H+Cg/jr7kVUCesHQNYaNKqxwZOlZ8cevR/xUKRTcltE6PeJA+Ezgm5mP7sckg==
   dependencies:
     jasmine "~3.4.0"
     jasmine-core "~3.4.0"

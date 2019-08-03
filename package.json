@@ -70,8 +70,6 @@
         "build_release": "./scripts/build_release.sh",
         "clean_all": "./scripts/clean_all.sh",
         "test_all": "./scripts/test_all.sh",
-        "test_e2e_all": "./scripts/test_e2e_all.sh",
-        "test_e2e": "./scripts/test_e2e.sh",
         "test_examples_all": "./scripts/test_examples_all.sh",
         "test_examples": "./scripts/test_examples.sh",
         "test_legacy_e2e_all": "./scripts/test_legacy_e2e_all.sh",

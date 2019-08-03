@@ -35,7 +35,6 @@ E2E_TESTS = {
         "//packages/karma:npm_package": "@bazel/karma",
     },
     "e2e_karma_stack_trace": {
-        "//packages/jasmine:npm_package": "@bazel/jasmine",
         "//packages/karma:npm_package": "@bazel/karma",
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
@@ -92,7 +91,6 @@ E2E_TESTS = {
         "exclusive",
     ],
     workspace_files = "@%s//:all_files" % wksp_name,
-    workspace_under_test = wksp_name,
 ) for wksp_name in E2E_TESTS]
 
 [bazel_integration_test(
@@ -127,7 +125,6 @@ E2E_TESTS = {
         "exclusive",
     ],
     workspace_files = "@e2e_typescript//:all_files",
-    workspace_under_test = "e2e_typescript",
 ) for tsc_version in [
     "2.7.x",
     "2.8.x",
@@ -175,5 +172,4 @@ bazel_integration_test(
         "manual",
     ],
     workspace_files = "@e2e_angular_bazel_example//:bazel_integration_test_files",
-    workspace_under_test = "e2e_angular_bazel_example",
 )

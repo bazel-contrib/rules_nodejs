@@ -1,4 +1,4 @@
-# Copyright 2018 The Bazel Authors. All rights reserved.
+# Copyright 2017 The Bazel Authors. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
 # limitations under the License.
 
 workspace(
-    name = "e2e_stylus",
+    name = "e2e_typescript",
     managed_directories = {"@npm": ["node_modules"]},
 )
 
@@ -36,3 +36,7 @@ yarn_install(
 load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
 
 install_bazel_dependencies()
+
+load("@npm_bazel_typescript//:index.bzl", "ts_setup_workspace")
+
+ts_setup_workspace()

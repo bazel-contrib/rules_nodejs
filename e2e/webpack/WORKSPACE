@@ -17,9 +17,12 @@ workspace(
     managed_directories = {"@npm": ["node_modules"]},
 )
 
-local_repository(
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
     name = "build_bazel_rules_nodejs",
-    path = "../../release/build_bazel_rules_nodejs/release",
+    sha256 = "6625259f9f77ef90d795d20df1d0385d9b3ce63b6619325f702b6358abb4ab33",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.35.0/rules_nodejs-0.35.0.tar.gz"],
 )
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
