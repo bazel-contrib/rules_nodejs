@@ -86,10 +86,11 @@ function clearYarnFilePathCaches(pkg) {
 
   if (clearPackages.length) {
     if (DEBUG) console.error(`Cleaning packages from yarn cache: ${clearPackages.join(' ')}`);
-
-    child_process.execFileSync(
-        'yarn', ['cache', 'clean'].concat(clearPackages),
-        {stdio: [process.stdin, process.stdout, process.stderr]});
+    for (const c of clearPackages) {
+      child_process.execFileSync(
+          'yarn', ['--mutex', 'network', 'cache', 'clean', c],
+          {stdio: [process.stdin, process.stdout, process.stderr]});
+    }
   }
 }
 
