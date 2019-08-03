@@ -18,6 +18,7 @@ npm_package(
     vendor_external = [
         "npm_bazel_labs",
     ],
+    visibility = ["//e2e:__pkg__"],
     deps = [
         ":copy_LICENSE",
         "@npm_bazel_labs//webpack:cli_lib",

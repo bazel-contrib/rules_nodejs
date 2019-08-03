@@ -45,6 +45,7 @@ npm_package(
     vendor_external = [
         "npm_bazel_protractor",
     ],
+    visibility = ["//e2e:__pkg__"],
     deps = [
         ":copy_LICENSE",
         ":generate_README",
