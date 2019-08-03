@@ -4,7 +4,8 @@ describe('ts_web_test_suite', () => {
   let config;
 
   beforeAll(() => {
-    config = fs.readFileSync('testing_wrapped_test.conf.js', 'utf-8');
+    config = fs.readFileSync(
+        require.resolve('e2e_karma_typescript/testing_wrapped_test.conf.js'), 'utf-8');
   });
 
   it('should load default bootstrap files', () => {

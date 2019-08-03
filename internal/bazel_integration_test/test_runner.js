@@ -21,7 +21,7 @@ const DEBUG = false;
 // file code path on Linux and OSX
 const TEST_MANIFEST = false;
 
-const execFileSync = require('child_process').execFileSync;
+const spawnSync = require('child_process').spawnSync;
 const fs = require('fs');
 const path = require('path');
 const tmp = require('tmp');
@@ -263,13 +263,22 @@ const bazelBinary =
     require.resolve(`${config.bazelBinaryWorkspace}/bazel${isWindows ? '.exe' : ''}`);
 
 console.log(`\n\nRunning 'bazel version'`);
-execFileSync(bazelBinary, ['version'], {cwd: workspaceRoot, stdio: 'inherit'});
+let spawnedProcess = spawnSync(bazelBinary, ['version'], {cwd: workspaceRoot, stdio: 'inherit'});
+if (spawnedProcess.status) {
+  process.exit(spawnedProcess.status);
+}
 
 if (DEBUG) {
   console.log(`\n\nRunning 'bazel info'`);
-  execFileSync(bazelBinary, ['info'], {cwd: workspaceRoot, stdio: 'inherit'});
+  spawnedProcess = spawnSync(bazelBinary, ['info'], {cwd: workspaceRoot, stdio: 'inherit'});
+  if (spawnedProcess.status) {
+    process.exit(spawnedProcess.status);
+  }
 }
 
 const bazelArgs = config.bazelArgs.concat(args);
 console.log(`\n\nRunning 'bazel ${bazelArgs.join(' ')}'`);
-execFileSync(bazelBinary, bazelArgs, {cwd: workspaceRoot, stdio: 'inherit'});
+spawnedProcess = spawnSync(bazelBinary, bazelArgs, {cwd: workspaceRoot, stdio: 'inherit'});
+
+// Ensure that this wrapper script exits with the same exit code as the child process.
+process.exit(spawnedProcess.status);

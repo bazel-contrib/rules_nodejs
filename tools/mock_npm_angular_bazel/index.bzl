@@ -12,31 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@npm_bazel_typescript//:index.bzl", "ts_library")
+""" Mock index.bzl for mock npm_angular_bazel repository.
+"""
 
-package(default_visibility = ["//visibility:public"])
-
-ts_library(
-    name = "hello",
-    srcs = glob(
-        ["*.ts"],
-        exclude = ["*.spec.ts"],
-    ),
-)
-
-ts_library(
-    name = "test_lib",
-    testonly = True,
-    srcs = glob(["*.spec.ts"]),
-    deps = [
-        ":hello",
-        "@npm//@types/jasmine",
-    ],
-)
-
-# For testing from the root workspace of this repository with bazel_integration_test.
-filegroup(
-    name = "all_files",
-    srcs = glob(["**/*"]),
-    visibility = ["//visibility:public"],
-)
+def ng_module(name, **kwargs):
+    return ""

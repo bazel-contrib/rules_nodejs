@@ -36,5 +36,16 @@ protractor_web_test_suite(
     name = "devserver_test",
     on_prepare = "//:protractor.on-prepare.js",
     server = ":devserver",
+    tags = [
+        "no-bazelci-ubuntu",
+        "no-bazelci-windows",
+    ],
     deps = [":e2e"],
+)
+
+# For testing from the root workspace of this repository with bazel_integration_test.
+filegroup(
+    name = "all_files",
+    srcs = glob(["**/*"]),
+    visibility = ["//visibility:public"],
 )

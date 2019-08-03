@@ -23,6 +23,10 @@ workspace(
     },
 )
 
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("//internal/bazel_integration_test:git_repository_under_test.bzl", "git_repository_under_test")
+
 #
 # Check that build is using a minimum compatible bazel version
 #
@@ -121,8 +125,6 @@ install_bazel_dependencies()
 #
 # Install npm_bazel_typescript dependencies
 #
-
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 # Uncomment for local development
 # local_repository(
@@ -303,5 +305,84 @@ rbe_autoconfig(
 
 load("@build_bazel_integration_testing//tools:repositories.bzl", "bazel_binaries")
 
-#depend on the Bazel binaries, also accepts an array of versions
-bazel_binaries()
+# Depend on the Bazel binaries
+bazel_binaries(versions = ["0.28.1"])
+
+#
+# Support creating Docker images for our node apps #
+# Not used but needed for @e2e_angular_bazel_example//:bazel_integration_test_files target
+#
+
+http_archive(
+    name = "io_bazel_rules_docker",
+    sha256 = "aed1c249d4ec8f703edddf35cbe9dfaca0b5f5ea6e4cd9e83e99f3b0d1136c3d",
+    strip_prefix = "rules_docker-0.7.0",
+    urls = ["https://github.com/bazelbuild/rules_docker/archive/v0.7.0.tar.gz"],
+)
+
+load("@io_bazel_rules_docker//nodejs:image.bzl", nodejs_image_repos = "repositories")
+
+nodejs_image_repos()
+
+#
+# Kubernetes setup, for deployment to Google Cloud
+# Not used but needed for @e2e_angular_bazel_example//:bazel_integration_test_files target
+#
+
+git_repository(
+    name = "io_bazel_rules_k8s",
+    commit = "36ae5b534cc51ab0815c9bc723760469a9f7175c",
+    remote = "https://github.com/bazelbuild/rules_k8s.git",
+    shallow_since = "1545317854 -0500",
+)
+
+load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_defaults", "k8s_repositories")
+
+k8s_repositories()
+
+k8s_defaults(
+    # This creates a rule called "k8s_deploy" that we can call later
+    name = "k8s_deploy",
+    # This is the name of the cluster as it appears in:
+    #   kubectl config view --minify -o=jsonpath='{.contexts[0].context.cluster}'
+    cluster = "_".join([
+        "gke",
+        "internal-200822",
+        "us-west1-a",
+        "angular-bazel-example",
+    ]),
+    kind = "deployment",
+)
+
+#
+# Setup bazel_integration_test repositories
+#
+
+[local_repository(
+    name = "e2e_%s" % name,
+    path = "e2e/%s" % name,
+) for name in [
+    "jasmine",
+    "karma",
+    "karma_stack_trace",
+    "karma_typescript",
+    "stylus",
+    "symlinked_node_modules_npm",
+    "symlinked_node_modules_yarn",
+    "ts_auto_deps",
+    "ts_devserver",
+    "typescript",
+    "webpack",
+]]
+
+git_repository_under_test(
+    name = "e2e_angular_bazel_example",
+    branch = "add-buildkite-filter-flags",
+    remote = "http://github.com/gregmagolan/angular-bazel-example.git",
+)
+
+# Mock npm_angular_bazel for @e2e_angular_bazel_example//:bazel_integration_test_files target
+local_repository(
+    name = "npm_angular_bazel",
+    path = "tools/mock_npm_angular_bazel",
+)

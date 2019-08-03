@@ -153,7 +153,67 @@ jobs:
       - *init_bazel
       - *hide_node_and_yarn_local_binaries
 
-      - run: bazel test ...
+      - run: bazel test ... --test_tag_filters=-e2e
+
+  test_e2e:
+    <<: *job_defaults
+    resource_class: xlarge
+    # We need to reduce the memory & CPU usage of the top-level
+    # bazel process for this large bazel-in-bazel test to not
+    # deplete the system memory completely.
+    # - startup JVM memory reduced
+    # - top-level bazel process should use as little memory as possible and only 1 core
+    # - nested bazel process should have its memory & core optimally capped as well
+    steps:
+      - *attach_workspace
+      - *init_environment
+      - run:
+          name: Tune top-level bazel JVM memory usage
+          command: echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1280m' >> .bazelrc
+      - *init_bazel
+
+      # Additional e2e assertions that can only be done with `yarn test`
+      - run: cd e2e/symlinked_node_modules_npm && yarn test && bazel clean
+      - run: cd e2e/symlinked_node_modules_yarn && yarn test && bazel clean
+      - run: cd e2e/ts_auto_deps && yarn test && bazel clean
+
+      - *hide_node_and_yarn_local_binaries
+
+      # Split up the build & test as test takes a long time and has very
+      # little output so running build first makes CI output friendlier.
+      # The build step can also use up more memory which may be required
+      # to build the release package with this configuration.
+      - run: bazel build //e2e/...
+      - run:
+          command: bazel test --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,7.0,1.0 --test_arg=--test_tag_filters=-no-circleci //e2e/...
+          no_output_timeout: 20m
+
+  test_e2e_angular_bazel_example:
+    <<: *job_defaults
+    resource_class: xlarge
+    # We need to reduce the memory & CPU usage of the top-level
+    # bazel process for this large bazel-in-bazel test to not
+    # deplete the system memory completely.
+    # - startup JVM memory reduced
+    # - top-level bazel process should use as little memory as possible and only 1 core
+    # - nested bazel process should have its memory & core optimally capped as well
+    steps:
+      - *attach_workspace
+      - *init_environment
+      - run:
+          name: Tune top-level bazel JVM memory usage
+          command: echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1280m' >> .bazelrc
+      - *init_bazel
+      - *hide_node_and_yarn_local_binaries
+
+      # Split up the build & test as test takes a long time and has very
+      # little output so running build first makes CI output friendlier.
+      # The build step can also use up more memory which may be required
+      # to build the release package with this configuration.
+      - run: bazel build //e2e:e2e_angular_bazel_example
+      - run:
+          command: bazel test --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,7.0,1.0 --test_arg=--test_tag_filters=-no-circleci //e2e:e2e_angular_bazel_example
+          no_output_timeout: 20m
 
   runnable_targets:
     <<: *job_defaults
@@ -208,20 +268,6 @@ jobs:
           paths:
             - ./rules_nodejs/release
 
-  # This job cannot run on BuildKite (BazelCI) because it requires changing
-  # directories to test inside nested workspaces.
-  # See https://github.com/bazelbuild/continuous-integration/issues/225
-  test_e2e:
-    <<: *job_defaults
-    resource_class: xlarge
-    parallelism: 4
-    steps:
-      - *attach_workspace
-      - *init_environment
-      - *init_bazel
-      # Some e2e tests such as ts_devserver require xvfb
-      - run: xvfb-run -a ./scripts/test_e2e_all.sh ${CIRCLE_NODE_INDEX} ${CIRCLE_NODE_TOTAL}
-
   # These e2e tests are in the process of being moved to the test_e2e job
   test_e2e_legacy:
     <<: *job_defaults
@@ -243,31 +289,7 @@ jobs:
       - *attach_workspace
       - *init_environment
       - *init_bazel
-      # Some examples such as app require xvfb
-      - run: xvfb-run -a ./scripts/test_examples_all.sh ${CIRCLE_NODE_INDEX} ${CIRCLE_NODE_TOTAL}
-
-  # This job cannot run on BuildKite (BazelCI) because it requires changing
-  # directories to test inside nested workspaces.
-  # See https://github.com/bazelbuild/continuous-integration/issues/225
-  test_angular_bazel_example:
-    <<: *job_defaults
-    resource_class: xlarge
-    steps:
-      - *attach_workspace
-      - *init_environment
-      - *init_bazel
-      - run: ./scripts/setup_examples_angular.sh
-      - run:
-          name: Test angular-bazel-example
-          command: |
-            cd ./examples/angular
-            # Install Bazel from NPM
-            yarn
-            # Build and Test
-            yarn ng test
-            yarn ng e2e
-            # Also run prodserver test which is not covered by `ng e2e`
-            yarn bazel test //e2e:prodserver_test
+      - run: ./scripts/test_examples_all.sh ${CIRCLE_NODE_INDEX} ${CIRCLE_NODE_TOTAL}
 
 workflows:
   version: 2
@@ -280,6 +302,12 @@ workflows:
       - test:
           requires:
           - setup
+      - test_e2e:
+          requires:
+          - setup
+      - test_e2e_angular_bazel_example:
+          requires:
+          - setup
       - runnable_targets:
           requires:
           - setup
@@ -289,15 +317,9 @@ workflows:
       - test_legacy_runfiles:
           requires:
           - build_release
-      - test_e2e:
-          requires:
-          - build_release
       - test_e2e_legacy:
           requires:
           - build_release
       - test_examples:
-          requires:
-          - build_release
-      - test_angular_bazel_example:
           requires:
           - build_release
