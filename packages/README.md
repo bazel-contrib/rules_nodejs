@@ -17,19 +17,3 @@ Login to npm using the `angular` account. The password is shared in http://valen
 When adding a new package, you'll need to add the package explicitly to:
 
 1. `/scripts/packages.sh`: Add your package name to the list of packages to used for scripts.
-
-### End-to-end tests
-
-Any e2e tests that depend on your package should go under `/e2e`. The `package.json` for your e2e test should link to your package like so:
-
-```
-{
-  "name": "e2e-foo",
-  "dependencies": {
-    "@bazel/foo": "bazel://@npm_bazel_foo//:npm_package"
-  },
-  "scripts": {
-    "test": "bazel test ..."
-  }
-}
-```

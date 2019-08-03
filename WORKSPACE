@@ -47,35 +47,17 @@ Try running `yarn bazel` instead.
 # local repositories.
 #
 
-local_repository(
-    name = "npm_bazel_jasmine",
-    path = "packages/jasmine/src",
-)
-
-local_repository(
-    name = "npm_bazel_karma",
-    path = "packages/karma/src",
-)
-
-local_repository(
-    name = "npm_bazel_labs",
-    path = "packages/labs/src",
-)
-
-local_repository(
-    name = "npm_bazel_protractor",
-    path = "packages/protractor/src",
-)
-
-local_repository(
-    name = "npm_bazel_typescript",
-    path = "packages/typescript/src",
-)
-
-local_repository(
-    name = "npm_bazel_stylus",
-    path = "packages/stylus/src",
-)
+[local_repository(
+    name = "npm_bazel_%s" % name,
+    path = "packages/%s/src" % name,
+) for name in [
+    "jasmine",
+    "karma",
+    "labs",
+    "protractor",
+    "stylus",
+    "typescript",
+]]
 
 #
 # Install rules_nodejs dev dependencies

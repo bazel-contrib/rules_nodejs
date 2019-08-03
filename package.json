@@ -63,6 +63,8 @@
         "zone.js": "0.8.29"
     },
     "scripts": {
+        "test": "bazel test ... --test_tag_filters=-e2e",
+        "test_e2e": "bazel --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1280m test --test_tag_filters=e2e --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,1.0,1.0 ...",
         "build_packages_all": "./scripts/build_packages_all.sh",
         "build_packages": "./scripts/build_packages.sh",
         "build_release": "./scripts/build_release.sh",

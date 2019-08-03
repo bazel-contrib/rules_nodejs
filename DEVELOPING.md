@@ -4,7 +4,13 @@ We strongly encourage you to review the project's scope described in the `README
 
 ## Testing locally
 
-This repository contains nested workspaces. To test all targets locally in the main workspace and in all nested workspaces run:
+This repository contains nested workspaces with are in the process of being phased out. Some of these nested workspaces are now tested with the bazel-in-bazel bazel_integration_test rule. The integration tests must be run in series as they use up too many resources when run in parallel.
+
+`bazel test ...` includes all these integration tests so if you want to run all tests except the integration tests you can use `bazel test ... --test_tag_filters=-e2e`. A shortcut for this is `yarn test`.
+
+When running the integration tests, it is recommended to tune the memory usage of Bazel locally. This can be done with `bazel --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1280m test ... --test_tag_filters=e2e --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,1.0,1.0`. A shortcut for this is `yarn test_e2e`.
+
+To test all targets locally in the main workspace and in all nested workspaces (includes those that are not yet tested as integration tests) run:
 
 ```
 yarn test_all
@@ -19,8 +25,6 @@ yarn clean_all
 Other scripts allow you to test all or e2e tests and examples. For example,
 
 ```
-yarn test_e2e_all
-yarn test_e2e karma
 yarn test_examples_all
 yarn test_examples webapp
 ```
