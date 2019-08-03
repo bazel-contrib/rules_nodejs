@@ -96,33 +96,101 @@ Bazel is generally only a build tool, and is unaware of your version control sys
 However, when publishing releases, you typically want to embed version information in the resulting distribution.
 Bazel supports this natively, using the following approach:
 
-1) Your `tools/bazel.rc` should pass the `workspace_status_command` argument to `bazel build`.
-   This tells Bazel how to interact with the version control system when needed.
+First, pass the `workspace_status_command` argument to `bazel build`. We prefer to do this with an entry in `.bazelrc`:
 
-    ```
-    build --workspace_status_command=./tools/bazel_stamp_vars.sh
-    ```
+```sh    
+# This tells Bazel how to interact with the version control system
+# Enable this with --config=release
+build:release --workspace_status_command=./tools/bazel_stamp_vars.sh
+```
 
+Then create `tools/bazel_stamp_vars.sh`.
 
-1) Create `tools/bazel_stamp_vars.sh`.
-   This is a script that prints variable/value pairs.
-   Make sure you set the executable bit, eg. `chmod 755 tools/bazel_stamp_vars.sh`.
-   For example, we could run `git describe` to get the current tag:
+This is a script that prints variable/value pairs.
+Make sure you set the executable bit, eg. `chmod 755 tools/bazel_stamp_vars.sh`.
+For example, we could run `git describe` to get the current tag:
 
-    ```bash
-    #!/usr/bin/env bash
-    echo BUILD_SCM_VERSION $(git describe --abbrev=7 --tags HEAD)
-    ```
+```bash
+#!/usr/bin/env bash
+echo BUILD_SCM_VERSION $(git describe --abbrev=7 --tags HEAD)
+```
 
-   For a more full-featured script, take a look at the [bazel_stamp_vars in Angular]
+For a more full-featured script, take a look at the [bazel_stamp_vars in Angular]
 
 Ideally, `rollup_bundle` and `npm_package` should honor the `--stamp` argument to `bazel build`. However this is not currently possible, see https://github.com/bazelbuild/bazel/issues/1054
 
-> WARNING: Bazel doesn't rebuild a target if only the result of the workspace_status_command has changed. That means changes to the version information may not be reflected if you re-build the package or bundle, and nothing in the package or bundle has changed.
+Finally, we recommend a release script around Bazel. We typically have more than one npm package published from one Bazel workspace, so we do a `bazel query` to find them, and publish in a loop. Here is a template to get you started:
+
+```sh
+#!/usr/bin/env bash
+
+set -u -e -o pipefail
+
+# Call the script with argument "pack" or "publish"
+readonly NPM_COMMAND=${1:-publish}
+# Don't rely on $PATH to have the right version
+readonly BAZEL_BIN=./node_modules/.bin/bazel
+# Use a new output_base so we get a clean build
+# Bazel can't know if the git metadata changed
+readonly TMP=$(mktemp -d -t bazel-release.XXXXXXX)
+readonly BAZEL="$BAZEL_BIN --output_base=$TMP"
+# Find all the npm packages in the repo
+readonly NPM_PACKAGE_LABELS=`$BAZEL query --output=label 'kind("npm_package", //...)'`
+# Build them in one command to maximize parallelism
+$BAZEL build --config=release $NPM_PACKAGE_LABELS
+# publish one package at a time to make it easier to spot any errors or warnings
+for pkg in $NPM_PACKAGE_LABELS ; do
+  $BAZEL run -- ${pkg}.${NPM_COMMAND} --access public --tag latest
+done
+```
+
+> WARNING: Bazel can't track changes to git tags. That means it won't rebuild a target if only the result of the workspace_status_command has changed. So changes to the version information may not be reflected if you re-build the package or bundle, and nothing in the package or bundle has changed.
 
 See https://www.kchodorow.com/blog/2017/03/27/stamping-your-builds/ for more background.
 
 [bazel_stamp_vars in Angular]: https://github.com/angular/angular/blob/master/tools/bazel_stamp_vars.sh
+
+# Making changes to rules_nodejs
+
+One advantage of open-source software is that you can make your own changes that suit your needs.
+
+The packages published to npm and GitHub differ from the sources in this repo. The packages have only runtime bazel dependencies, but the sources depend on development dependencies. For example, the `@bazel_skylib` library is a development-time transitive dependency, while an npm package would have that dependency statically linked in.
+
+> This differs from much of the Bazel ecosystem, where you are expected to build the whole transitive toolchain from sources.
+
+If you have a small change, it's easiest to just patch the distributed artifacts rather than build from source. However if you're doing active development in rules_nodejs or have a policy of not depending on release artifacts, it's possible to depend directly on sources. This is not yet documented; file an issue on our repo if you think you need this.
+
+## Patching the npm packages
+
+The pattern we use most commonly is to add a `postinstall` hook to your `package.json` that patches files after they've been fetched from npm.
+
+See `/tools/postinstall-patches.js` in the [Angular repo] for an example.
+
+[Angular repo]: https://github.com/angular/angular/tree/master/tools/postinstall-patches.js
+
+## Patching the built-in release
+
+rules_nodejs has a distribution format which is a tgz published to GitHub, and this can make it tricky to make casual changes without forking the project and building your own release artifacts.
+
+Bazel has a handy patching mechanism that lets you easily apply a local patch to the release artifact for built-in rules: the `patches` attribute to `http_archive`.
+
+First, make your changes in a clone of the rules_nodejs repo. Export a patch file simply using `git diff`:
+
+```sh
+git diff > my.patch
+```
+
+Then copy the patch file somewhere in your repo and point to it from your `WORKSPACE` file:
+
+```python
+http_archive(
+    name = "build_bazel_rules_nodejs",
+    patch_args = ["-p1"],
+    patches = ["//path/to/my.patch"],
+    sha256 = "6d4edbf28ff6720aedf5f97f9b9a7679401bf7fca9d14a0fff80f644a99992b4",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.32.2/rules_nodejs-0.32.2.tar.gz"],
+)
+```
 
 # Scope of the project
 
