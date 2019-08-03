@@ -9,6 +9,12 @@ stylesheet: docs
 First, you need Bazel.
 We recommend fetching it from npm to keep your frontend workflow similar.
 
+```sh
+$ yarn add -D @bazel/bazel @bazel/ibazel
+# or
+$ npm install --save-dev @bazel/bazel @bazel/ibazel
+```
+
 > You could install a current bazel distribution, following the [bazel instructions].
 > This has the advantage of setting up Bazel command-line completion.
 
