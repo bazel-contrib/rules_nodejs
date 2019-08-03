@@ -96,7 +96,8 @@ function main(args) {
   }
 
   // src like baseDir/my/path is just copied to outDir/my/path
-  for (src of srcsArg.split(',').filter(s => !!s)) {
+  for (let src of srcsArg.split(',').filter(s => !!s)) {
+    src = src.replace(/\\/g, '/');
     if (src.startsWith('external/')) {
       // If srcs is from external workspace drop the external/wksp portion
       copyWithReplace(
@@ -151,6 +152,7 @@ function main(args) {
   for (pkg of packagesArg.split(',').filter(s => !!s)) {
     const outDir = outPath(path.dirname(pkg));
     function copyRecursive(base, file) {
+      file = file.replace(/\\/g, '/');
       if (fs.lstatSync(path.join(base, file)).isDirectory()) {
         const files = fs.readdirSync(path.join(base, file));
         files.forEach(f => {
