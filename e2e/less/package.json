@@ -1,0 +1,11 @@
+{
+    "name": "e2e-less",
+    "private": true,
+    "devDependencies": {
+        "@bazel/less": "file:../../release/npm_bazel_less"
+    },
+    "scripts": {
+      "test": "bazel test ..."
+    }
+  }
+  
