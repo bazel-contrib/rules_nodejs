@@ -12,9 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# BEGIN-INTERNAL
-# Parts of this BUILD file only necessary when building from source.
-# The generated `@bazel/stylus` npm package contains a trimmed BUILD file using INTERNAL fences.
+# NB: this BUILD file is for development only, and isn't 
+# included in the @bazel/stylus npm package
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 
 package(default_visibility = ["//visibility:public"])
@@ -36,4 +35,3 @@ filegroup(
         "package.json",
     ],
 )
-# END-INTERNAL
