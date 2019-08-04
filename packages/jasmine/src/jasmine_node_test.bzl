@@ -28,6 +28,7 @@ def jasmine_node_test(
         deps = [],
         expected_exit_code = 0,
         tags = [],
+        config_file = None,
         coverage = False,
         jasmine = "@npm//@bazel/jasmine",
         jasmine_entry_point = "@npm//:node_modules/@bazel/jasmine/jasmine_runner.js",
@@ -43,6 +44,15 @@ def jasmine_node_test(
       deps: Other targets which produce JavaScript, such as ts_library
       expected_exit_code: The expected exit code for the test.
       tags: Bazel tags applied to test
+      config_file: (experimental) label of a file containing Jasmine JSON config.
+
+        Note that not all configuration options are honored, and
+        we expect some strange feature interations.
+        For example, if you list spec_files, they will be tested
+        but not instrumented for code coverage.
+
+        See https://jasmine.github.io/setup/nodejs.html#configuration
+
       coverage: Enables code coverage collection and reporting.
       jasmine: A label providing the `@bazel/jasmine` npm dependency.
       jasmine_entry_point: A label providing the `@bazel/jasmine` entry point.
@@ -61,12 +71,21 @@ def jasmine_node_test(
     all_data += [Label("@bazel_tools//tools/bash/runfiles")]
 
     # If the target specified templated_args, pass it through.
-    templated_args = kwargs.pop("templated_args", []) + ["$(location :%s_devmode_srcs.MF)" % name]
+    templated_args = kwargs.pop("templated_args", [])
+    templated_args.append("$(location :%s_devmode_srcs.MF)" % name)
 
     if coverage:
-        templated_args = templated_args + ["--coverage"]
+        templated_args.append("--coverage")
     else:
-        templated_args = templated_args + ["--nocoverage"]
+        templated_args.append("--nocoverage")
+
+    if config_file:
+        # Calculate a label relative to the user's BUILD file
+        pkg = Label("%s//%s:__pkg__" % (native.repository_name(), native.package_name()))
+        all_data.append(pkg.relative(config_file))
+        templated_args.append("$(location %s)" % config_file)
+    else:
+        templated_args.append("--noconfig")
 
     nodejs_test(
         name = name,

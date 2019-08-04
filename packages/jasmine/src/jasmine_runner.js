@@ -51,26 +51,34 @@ Error.stackTraceLimit = Infinity;
 const IS_TEST_FILE = /[^a-zA-Z0-9](spec|test)\.js$/i;
 const IS_NODE_MODULE = /\/node_modules\//
 
-function main(args) {
-  if (!args.length) {
-    throw new Error('Spec file manifest expected argument missing');
-  }
-  // first args is always the path to the manifest
-  const manifest = require.resolve(args[0]);
-  // second is always a flag to enable coverage or not
-  const coverageArg = args[1];
-  const enableCoverage = coverageArg === '--coverage';
+// We process arguments by splicing them out of the process.argv
+// Users could set their own templated_args on their test, then
+// the tested code might process the argv
+// So it shouldn't see these Bazel-specific ones
+function readArg() {
+  return process.argv.splice(2, 1)[0];
+}
 
-  // Remove the manifest, some tested code may process the argv.
-  // Also remove the --coverage flag
-  process.argv.splice(2, 2)[0];
+function main(args) {
+  if (args.length < 3) {
+    throw new Error('expected argument missing');
+  }
+
+
+  // first args is always the path to the manifest
+  const manifest = require.resolve(readArg());
+  // second is always a flag to enable coverage or not
+  const coverageArg = readArg();
+  const enableCoverage = coverageArg === '--coverage';
+  // config file is the next arg
+  const configFile = readArg();
 
   // the relative directory the coverage reporter uses to find anf filter the files
-  const cwd = process.cwd()
+  const cwd = process.cwd();
 
   const jrunner = new JasmineRunner({jasmineCore: jasmineCore});
-  if (args.length == 3) {
-    jrunner.loadConfigFile(args[2]);
+  if (configFile !== '--noconfig') {
+    jrunner.loadConfigFile(require.resolve(configFile));
   }
   const allFiles = fs.readFileSync(manifest, UTF8)
                        .split('\n')

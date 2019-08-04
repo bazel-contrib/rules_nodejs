@@ -63,3 +63,16 @@ jasmine_node_test(
         "--node_options=--experimental-modules",
     ],
 )
+
+# We have no srcs[] here because we set specs in the config file
+jasmine_node_test(
+    name = "config_file_test",
+    config_file = "test_config_file.json",
+    # The file isn't named following our usual conventions
+    # but since it's configured in the json config file
+    # Jasmine will still load it
+    data = ["test_config_file.js"],
+    # TODO(alexeagle): on Windows CI we get no specs found
+    # Maybe Jasmine doesn't normalize the slashes in the config
+    tags = ["fix-windows"],
+)

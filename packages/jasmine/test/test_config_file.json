@@ -1,0 +1,6 @@
+{
+    "random": false,
+    "spec_files": [
+        "**/test_config_*.js"
+    ]
+}
