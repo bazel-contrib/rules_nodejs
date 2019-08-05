@@ -17,6 +17,7 @@
 
 load(":common/module_mappings.bzl", "get_module_mappings")
 
+
 _DEBUG = False
 
 def create_tsconfig(
@@ -160,6 +161,7 @@ def create_tsconfig(
 
     if hasattr(ctx.attr, "compile_angular_templates") and ctx.attr.compile_angular_templates:
         bazel_options["compileAngularTemplates"] = True
+
 
     if disable_strict_deps:
         bazel_options["disableStrictDeps"] = disable_strict_deps

@@ -332,6 +332,7 @@ function runFromOptions(
           compilerHost.inputFiles, options, compilerHost, oldProgram));
   cache.putProgram(bazelOpts.target, program);
 
+
   if (!bazelOpts.isJsTranspilation) {
     // If there are any TypeScript type errors abort now, so the error
     // messages refer to the original source.  After any subsequent passes

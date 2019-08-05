@@ -18,6 +18,7 @@
 import * as path from 'path';
 import * as ts from 'typescript';
 
+
 /**
  * The configuration block provided by the tsconfig "bazelOptions".
  * Note that all paths here are relative to the rootDir, not absolute nor
@@ -181,6 +182,7 @@ export interface BazelOptions {
    * Enable the Angular ngtsc plugin.
    */
   compileAngularTemplates?: boolean;
+
 
   /**
    * Override for ECMAScript target language level to use for devmode.
