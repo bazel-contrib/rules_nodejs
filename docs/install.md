@@ -141,6 +141,11 @@ NOTE: Vendored Node.js and Yarn are not compatible with Remote Bazel Execution.
 
 ## Dependencies
 
+Bazel works alongside your existing package manager, either npm or yarn.
+You manage your `package.json` file, editing by hand or by running commands like `npm install` or `yarn add`.
+The package manager will also write a lock file, indicating exact versions for all transitive dependencies, which keeps your build hermetic and reproducible.
+Bazel will run the package manager when the `package.json` or `*lock.json` files change, but you can also run the package manager yourself.
+
 ### Bazel-managed vs self-managed dependencies
 
 You have two options for managing your `node_modules` dependencies: Bazel-managed or self-managed.
