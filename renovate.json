@@ -2,6 +2,10 @@
   "extends": [
     "config:base"
   ],
+  "ignoreDeps": [
+    "bazel_skylib",
+    "io_bazel_skydoc"
+  ],
   "ignorePaths": [
     "e2e",
     "tools",
