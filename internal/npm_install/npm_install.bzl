@@ -372,6 +372,9 @@ def _yarn_install_impl(repository_ctx):
         str(repository_ctx.attr.network_timeout * 1000),  # in ms
     ]
 
+    if repository_ctx.attr.frozen_lockfile:
+        args.append("--frozen-lockfile")
+
     if repository_ctx.attr.prod_only:
         args.append("--prod")
     if not repository_ctx.attr.use_global_yarn_cache:
@@ -405,6 +408,13 @@ yarn_install = repository_rule(
             default = 3600,
             doc = """Maximum duration of the command "yarn install" in seconds
             (default is 3600 seconds).""",
+        ),
+        "frozen_lockfile": attr.bool(
+            default = False,
+            doc = """Passes the --frozen-lockfile flag to prevent updating yarn.lock.
+            
+            Note that enabling this option will require that you run yarn outside of Bazel
+            when making changes to package.json.""",
         ),
         "network_timeout": attr.int(
             default = 300,
