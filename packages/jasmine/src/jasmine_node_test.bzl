@@ -48,8 +48,8 @@ def jasmine_node_test(
 
         Note that not all configuration options are honored, and
         we expect some strange feature interations.
-        For example, if you list spec_files, they will be tested
-        but not instrumented for code coverage.
+        For example, the filter for which files are instrumented for
+        code coverage doesn't understand the spec_files setting in the config.
 
         See https://jasmine.github.io/setup/nodejs.html#configuration
 
