@@ -27,7 +27,7 @@ This installs the `io_bazel_rules_webtesting` repository, if you haven't install
 Finally, configure the rules_webtesting:
 
 ```python
-# Setup web testing, choose browsers we can test on
+# Set up web testing, choose browsers we can test on
 load("@io_bazel_rules_webtesting//web:repositories.bzl", "browser_repositories", "web_test_repositories")
 
 web_test_repositories()
