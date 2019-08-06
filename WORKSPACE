@@ -46,22 +46,15 @@ Try running `yarn bazel` instead.
 )
 
 #
-# Since we don't have @npm//@bazel/foobar npm packages to setup
-# the npm_bazel_foobar repositories, we set these up manually as
-# local repositories.
+# Nested package worksapces required to build packages & reference rules
 #
+
+load("//packages:index.bzl", "NESTED_PACKAGES")
 
 [local_repository(
     name = "npm_bazel_%s" % name,
     path = "packages/%s/src" % name,
-) for name in [
-    "jasmine",
-    "karma",
-    "labs",
-    "protractor",
-    "stylus",
-    "typescript",
-]]
+) for name in NESTED_PACKAGES]
 
 #
 # Install rules_nodejs dev dependencies
