@@ -13,16 +13,7 @@
 # limitations under the License.
 
 load("@build_bazel_rules_nodejs//internal/bazel_integration_test:bazel_integration_test.bzl", "bazel_integration_test")
-
-CHECK_NPM_PACKAGES = [
-    "@bazel/hide-bazel-files",
-    "@bazel/jasmine",
-    "@bazel/karma",
-    "@bazel/labs",
-    "@bazel/protractor",
-    "@bazel/stylus",
-    "@bazel/typescript",
-]
+load("@build_bazel_rules_nodejs//packages:index.bzl", "NPM_PACKAGES")
 
 # Mappings of integration tests workspaces to their required npm packages
 # This mapping optimizes development so when making changes to files under packages
@@ -73,7 +64,7 @@ E2E_TESTS = {
     bazelrc_imports = {
         "//:common.bazelrc": "import %workspace%/../../common.bazelrc",
     },
-    check_npm_packages = CHECK_NPM_PACKAGES,
+    check_npm_packages = NPM_PACKAGES,
     # package.json will be updated with `file:` links to the absolute paths
     # of the generated npm packages in runfiles
     npm_packages = E2E_TESTS[wksp_name],
@@ -100,7 +91,7 @@ E2E_TESTS = {
     bazelrc_imports = {
         "//:common.bazelrc": "import %workspace%/../../common.bazelrc",
     },
-    check_npm_packages = CHECK_NPM_PACKAGES,
+    check_npm_packages = NPM_PACKAGES,
     # package.json will be updated with `file:` links to the absolute paths
     # of the generated npm packages in runfiles
     npm_packages = {
@@ -146,7 +137,7 @@ bazel_integration_test(
     bazelrc_append = "startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx2g",
     # package.json will be updated with `file:` links to the absolute paths
     # of the generated npm packages in runfiles
-    check_npm_packages = CHECK_NPM_PACKAGES,
+    check_npm_packages = NPM_PACKAGES,
     npm_packages = {
         "//packages/karma:npm_package": "@bazel/karma",
         "//packages/protractor:npm_package": "@bazel/protractor",

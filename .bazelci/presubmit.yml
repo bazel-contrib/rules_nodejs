@@ -32,6 +32,8 @@ tasks:
     # - nested bazel process should use a limited number of cores
     shell_commands:
     - echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1536m' >> .bazelrc
+    build_flags:
+    - "--build_tag_filters=e2e"
     build_targets:
     - "//..."
     test_flags:
@@ -87,6 +89,8 @@ tasks:
     # - nested bazel process should use a limited number of cores
     shell_commands:
     - echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1536m' >> .bazelrc
+    build_flags:
+    - "--build_tag_filters=e2e"
     build_targets:
     - "//..."
     test_flags:
@@ -139,6 +143,8 @@ tasks:
     # - nested bazel process should use a limited number of cores
     shell_commands:
     - echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1536m' >> .bazelrc
+    build_flags:
+    - "--build_tag_filters=e2e"
     build_targets:
     - "//..."
     test_flags:
@@ -205,6 +211,8 @@ tasks:
   windows_e2e:
     name: windows_e2e
     platform: windows
+    build_flags:
+    - "--build_tag_filters=e2e"
     build_targets:
     - "//..."
     test_flags:
