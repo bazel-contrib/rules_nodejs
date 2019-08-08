@@ -6,9 +6,7 @@ bazel-out
 /e2e/*/bazel-*
 /examples/*/bazel-*
 /packages/*/bazel-*
-/internal/e2e/*/bazel-*
 node_modules
-!/internal/npm_install/test/golden/node_modules
 examples/vendored_node/node-v10.12.0-linux-x64
 examples/vendored_node/node-v10.12.0-linux-x64.tar.xz
 examples/vendored_node/yarn-v1.10.0

@@ -8,7 +8,6 @@ set -u -e -o pipefail
 # To verify:
 #   for p in $(ls packages); do if [[ -d packages/$p ]]; then b="@bazel/$p"; echo -ne "\n$b\n-------\n"; npm dist-tag ls $b; fi; done
 
-readonly RULES_NODEJS_DIR=$(cd $(dirname "$0")/..; pwd)
 readonly NPM_COMMAND=${1:-publish}
 readonly BAZEL_BIN=./node_modules/.bin/bazel
 

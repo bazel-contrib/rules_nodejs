@@ -19,6 +19,11 @@ load("@build_bazel_rules_nodejs//packages:index.bzl", "NPM_PACKAGES")
 # This mapping optimizes development so when making changes to files under packages
 # only affected e2e tests are run.
 E2E_TESTS = {
+    "e2e_bazel_managed_deps": {
+        "//packages/jasmine:npm_package": "@bazel/jasmine",
+    },
+    "e2e_fine_grained_symlinks": {
+    },
     "e2e_jasmine": {
         "//packages/jasmine:npm_package": "@bazel/jasmine",
     },
@@ -33,6 +38,12 @@ E2E_TESTS = {
         "//packages/jasmine:npm_package": "@bazel/jasmine",
         "//packages/karma:npm_package": "@bazel/karma",
         "//packages/typescript:npm_package": "@bazel/typescript",
+    },
+    "e2e_node_loader_no_preserve_symlinks": {
+    },
+    "e2e_node_loader_preserve_symlinks": {
+    },
+    "e2e_packages": {
     },
     "e2e_stylus": {
         "//packages/stylus:npm_package": "@bazel/stylus",

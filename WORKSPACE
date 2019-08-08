@@ -14,13 +14,7 @@
 
 workspace(
     name = "build_bazel_rules_nodejs",
-    managed_directories = {
-        "@fine_grained_deps_npm": ["internal/e2e/fine_grained_deps/npm/node_modules"],
-        "@fine_grained_deps_yarn": ["internal/e2e/fine_grained_deps/yarn/node_modules"],
-        "@fine_grained_no_bin": ["internal/e2e/fine_grained_no_bin/node_modules"],
-        "@npm": ["node_modules"],
-        "@npm_install_test": ["internal/npm_install/test/node_modules"],
-    },
+    managed_directories = {"@npm": ["node_modules"]},
 )
 
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
@@ -68,24 +62,7 @@ rules_nodejs_dev_dependencies()
 # Setup rules_nodejs npm dependencies
 #
 
-load("//:defs.bzl", "node_repositories", "npm_install", "yarn_install")
-
-# Install a hermetic version of node.
-# After this is run, these labels will be available:
-# - NodeJS:
-#   @nodejs//:node
-# - NPM:
-#   @nodejs//:npm
-# - The yarn package manager:
-#   @nodejs//:yarn
-#
-# To install the node_modules of all the listed package_json files run:
-#   bazel run @nodejs//:yarn
-# or
-#   bazel run @nodejs//:npm
-node_repositories(
-    package_json = ["//:package.json"],
-)
+load("//:defs.bzl", "npm_install", "yarn_install")
 
 yarn_install(
     name = "npm",
@@ -201,23 +178,9 @@ bazel_skylib_workspace()
 #
 
 local_repository(
-    name = "examples_program",
-    path = "examples/program",
-)
-
-local_repository(
-    name = "internal_e2e_packages",
-    path = "internal/e2e/packages",
-)
-
-local_repository(
     name = "internal_npm_package_test_vendored_external",
     path = "internal/npm_package/test/vendored_external",
 )
-
-load("@internal_e2e_packages//:setup_workspace.bzl", "internal_e2e_packages_setup_workspace")
-
-internal_e2e_packages_setup_workspace()
 
 yarn_install(
     name = "fine_grained_deps_yarn",
@@ -229,6 +192,7 @@ yarn_install(
         ".proto",
     ],
     package_json = "//internal/e2e/fine_grained_deps:yarn/package.json",
+    symlink_node_modules = False,
     yarn_lock = "//internal/e2e/fine_grained_deps:yarn/yarn.lock",
 )
 
@@ -243,11 +207,13 @@ npm_install(
     ],
     package_json = "//internal/e2e/fine_grained_deps:npm/package.json",
     package_lock_json = "//internal/e2e/fine_grained_deps:npm/package-lock.json",
+    symlink_node_modules = False,
 )
 
 yarn_install(
     name = "fine_grained_no_bin",
     package_json = "//internal/e2e/fine_grained_no_bin:package.json",
+    symlink_node_modules = False,
     yarn_lock = "//internal/e2e/fine_grained_no_bin:yarn.lock",
 )
 
@@ -277,6 +243,7 @@ filegroup(
   ],
 )""",
     package_json = "//internal/npm_install/test:package.json",
+    symlink_node_modules = False,
     yarn_lock = "//internal/npm_install/test:yarn.lock",
 )
 
@@ -355,10 +322,15 @@ k8s_defaults(
     name = "e2e_%s" % name,
     path = "e2e/%s" % name,
 ) for name in [
+    "bazel_managed_deps",
+    "fine_grained_symlinks",
     "jasmine",
     "karma",
     "karma_stack_trace",
     "karma_typescript",
+    "node_loader_no_preserve_symlinks",
+    "node_loader_preserve_symlinks",
+    "packages",
     "stylus",
     "symlinked_node_modules_npm",
     "symlinked_node_modules_yarn",
@@ -367,6 +339,10 @@ k8s_defaults(
     "typescript",
     "webpack",
 ]]
+
+load("@e2e_packages//:setup_workspace.bzl", "e2e_packages_setup_workspace")
+
+e2e_packages_setup_workspace()
 
 git_repository_under_test(
     name = "e2e_angular_bazel_example",
@@ -379,3 +355,19 @@ local_repository(
     name = "npm_angular_bazel",
     path = "tools/mock_npm_angular_bazel",
 )
+
+[local_repository(
+    name = "examples_%s" % name,
+    path = "examples/%s" % name,
+) for name in [
+    "app",
+    "nestjs",
+    "parcel",
+    "program",
+    "protocol_buffers",
+    "user_managed_deps",
+    "vendored_node",
+    "vendored_node_and_yarn",
+    "web_testing",
+    "webapp",
+]]

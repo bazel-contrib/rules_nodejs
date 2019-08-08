@@ -1,0 +1,10 @@
+{
+  "description": "runtime dependencies for bazel_managed_deps example",
+  "devDependencies": {
+    "@bazel/jasmine": "latest",
+    "typescript": "^3.0.1"
+  },
+  "scripts": {
+    "test": "bazel test ..."
+  }
+}

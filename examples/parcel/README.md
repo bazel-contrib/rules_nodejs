@@ -75,7 +75,7 @@ You can run the test:
 
 ```sh
 $ bazel test :all
-//:test                                                         (cached) PASSED in 0.3s
+//:test (cached) PASSED in 0.3s
 
 Executed 0 out of 1 test: 1 test passes.
 ```

@@ -5,9 +5,6 @@ set -eu -o pipefail
 # -u: errors if an variable is referenced before being set
 # -o pipefail: causes a pipeline to produce a failure return code if any command errors
 
-readonly RULES_NODEJS_DIR=$(cd $(dirname "$0")/..; pwd)
-cd ${RULES_NODEJS_DIR}
-
 echo_and_run() { echo "+ $@" ; "$@" ; }
 
 # Check environment
@@ -22,17 +19,11 @@ case "${unameOut}" in
 esac
 echo "Running on ${machine}"
 
-printf "\n\nRunning @nodejs//:yarn\n"
-echo_and_run bazel run @nodejs//:yarn
-
-printf "\n\nBuilding all targets\n"
-echo_and_run bazel build ...
-
-printf "\n\nTesting all targets\n"
+printf "\n\nTesting all targets (except integration tests)\n"
 if [[ ${machine} == "Windows" ]] ; then
-    echo_and_run bazel test ... --test_tag_filters=-e2e,-fix-windows
+    echo_and_run yarn test_windows
 else
-    echo_and_run bazel test ... --test_tag_filters=-e2e
+    echo_and_run yarn test
 fi
 
 # These targets should run
@@ -52,14 +43,13 @@ echo_and_run bazel run @bazel_workspace_a//subdir:bin
 echo_and_run bazel run @bazel_workspace_b//:bin
 echo_and_run bazel run @bazel_workspace_b//subdir:bin
 
-# bazel test @examples_program//... # DOES NOT WORK WITH --nolegacy_external_runfiles
-# bazel test @internal_e2e_packages//... # DOES NOT WORK WITH --nolegacy_external_runfiles
+# bazel test @examples_user_managed_deps//... # DOES NOT WORK WITH --nolegacy_external_runfiles
+# bazel test @e2e_packages//... # DOES NOT WORK WITH --nolegacy_external_runfiles
 # TODO: re-enable when after https://github.com/bazelbuild/bazel/pull/8090 makes it into a Bazel release
 # Related issue https://github.com/bazelbuild/bazel/issues/8088 on Windows
 
-echo_and_run bazel --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1280m test --test_tag_filters=e2e --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,1.0,1.0 ...
+printf "\n\nRunning all e2e tests (this make take some time as these are run sequentially...)\n"
+echo_and_run yarn test_e2e
 
-echo_and_run ./scripts/build_all.sh
-
-echo_and_run ./scripts/test_legacy_e2e_all.sh
-echo_and_run ./scripts/test_examples_all.sh
+printf "\n\nRunning all examples (this make take some time as these are run sequentially...)\n"
+echo_and_run yarn test_examples

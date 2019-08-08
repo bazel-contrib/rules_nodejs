@@ -10,7 +10,7 @@
 ## IMPORTANT
 # If you change the `default_docker_image` version, also change the `cache_key` version
 var_1: &default_docker_image circleci/node:10.16
-var_3: &cache_key node-0.16-{{ checksum "yarn.lock" }}-{{ checksum "examples/program/yarn.lock" }}
+var_3: &cache_key node-0.16-{{ checksum "yarn.lock" }}
 
 var_4: &init_environment
   run:
@@ -107,14 +107,13 @@ jobs:
       - *init_bazel
 
       # Run yarn on all node_repositories
-      - run: bazel run @nodejs//:yarn
+      - run: bazel run @nodejs//:bin/yarn
 
       # Save all node_modules to the cache
       - save_cache:
           key: *cache_key
           paths:
             - "node_modules"
-            - "examples/program/node_modules"
 
       # Persist any changes at this point to be reused by further jobs.
       - persist_to_workspace:
@@ -153,7 +152,7 @@ jobs:
       - *init_bazel
       - *hide_node_and_yarn_local_binaries
 
-      - run: bazel test ... --test_tag_filters=-e2e
+      - run: bazel test ... --test_tag_filters=-e2e,-examples
 
   test_e2e:
     <<: *job_defaults
@@ -186,6 +185,39 @@ jobs:
       - run: bazel build --build_tag_filters=e2e ...
       - run:
           command: bazel test --test_tag_filters=e2e --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,7.0,1.0 --test_arg=--test_tag_filters=-no-circleci ...
+          no_output_timeout: 20m
+
+  test_examples:
+    <<: *job_defaults
+    resource_class: xlarge
+    # We need to reduce the memory & CPU usage of the top-level
+    # bazel process for this large bazel-in-bazel test to not
+    # deplete the system memory completely.
+    # - startup JVM memory reduced
+    # - top-level bazel process should use as little memory as possible and only 1 core
+    # - nested bazel process should have its memory & core optimally capped as well
+    steps:
+      - *attach_workspace
+      - *init_environment
+      - run:
+          name: Tune top-level bazel JVM memory usage
+          command: echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1280m' >> .bazelrc
+      - *init_bazel
+      - *hide_node_and_yarn_local_binaries
+
+      # Split up the build & test as test takes a long time and has very
+      # little output so running build first makes CI output friendlier.
+      # The build step can also use up more memory which may be required
+      # to build the release package with this configuration.
+      - run: bazel build --build_tag_filters=examples ...
+      - run:
+          command: bazel test --test_tag_filters=examples --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,7.0,1.0 --test_arg=--test_tag_filters=-no-circleci ...
+          no_output_timeout: 20m
+      # The following examples only works on linux as it downloads the linux node distribution
+      # It is tagged "manual" so we run it explicitly here
+      # TODO(gregmagolan): make node_repositories acccept different archives for different platforms
+      - run:
+          command: bazel test --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,7.0,1.0 //examples:examples_vendored_node //examples:examples_vendored_node_and_yarn
           no_output_timeout: 20m
 
   test_e2e_angular_bazel_example:
@@ -248,48 +280,9 @@ jobs:
       # We should also be able to test targets in a different workspace
       # TODO(gmagolan): move these tests into `build` job once
       # https://github.com/bazelbuild/bazel/issues/6481 is resolved
-      - run: 'cd examples/program && bazel run @nodejs//:yarn'
-      - run: bazel test @examples_program//...
-      - run: bazel test @internal_e2e_packages//...
-
-  build_release:
-    <<: *job_defaults
-    # Need to compile Go and protocol buffers from source for typescript package
-    resource_class: xlarge
-    steps:
-      - *attach_workspace
-      - *init_environment
-      - *init_bazel
-      - *hide_node_and_yarn_local_binaries
-      - run: ./scripts/build_release.sh
-      - run: ./scripts/build_packages_all.sh
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - ./rules_nodejs/release
-
-  # These e2e tests are in the process of being moved to the test_e2e job
-  test_e2e_legacy:
-    <<: *job_defaults
-    parallelism: 2
-    steps:
-      - *attach_workspace
-      - *init_environment
-      - *init_bazel
-      - run: ./scripts/test_legacy_e2e_all.sh ${CIRCLE_NODE_INDEX} ${CIRCLE_NODE_TOTAL}
-
-  # This job cannot run on BuildKite (BazelCI) because it requires changing
-  # directories to test inside nested workspaces.
-  # See https://github.com/bazelbuild/continuous-integration/issues/225
-  test_examples:
-    <<: *job_defaults
-    resource_class: xlarge
-    parallelism: 4
-    steps:
-      - *attach_workspace
-      - *init_environment
-      - *init_bazel
-      - run: ./scripts/test_examples_all.sh ${CIRCLE_NODE_INDEX} ${CIRCLE_NODE_TOTAL}
+      - run: 'cd examples/user_managed_deps && bazel run @nodejs//:yarn'
+      - run: bazel test @examples_user_managed_deps//...
+      - run: bazel test @e2e_packages//...
 
 workflows:
   version: 2
@@ -305,21 +298,12 @@ workflows:
       - test_e2e:
           requires:
           - setup
+      - test_examples:
+          requires:
+          - setup
       - test_e2e_angular_bazel_example:
           requires:
           - setup
       - runnable_targets:
           requires:
           - setup
-      - build_release:
-          requires:
-          - setup
-      - test_legacy_runfiles:
-          requires:
-          - build_release
-      - test_e2e_legacy:
-          requires:
-          - build_release
-      - test_examples:
-          requires:
-          - build_release

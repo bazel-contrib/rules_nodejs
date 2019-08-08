@@ -1,11 +1,12 @@
 {
     "private": true,
     "devDependencies": {
+        "@bazel/jasmine": "latest",
         "jasmine": "3.4.0",
         "parcel-bundler": "1.12.3",
         "v8-coverage": "1.0.9"
     },
     "scripts": {
-        "test": "bazel run @npm//parcel-bundler/bin:parcel -- --help && bazel test //..."
+        "test": "bazel run @npm//parcel-bundler/bin:parcel -- --help && bazel test ..."
     }
 }

@@ -18,7 +18,7 @@ tasks:
     build_targets:
     - "//..."
     test_flags:
-    - "--test_tag_filters=-e2e,-fix-bazelci-ubuntu"
+    - "--test_tag_filters=-e2e,-examples,-fix-bazelci-ubuntu"
     test_targets:
     - "//..."
   ubuntu1604_e2e:
@@ -44,6 +44,34 @@ tasks:
     - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-ubuntu"
     test_targets:
     - "//..."
+  ubuntu1604_examples:
+    name: ubuntu1604_examples
+    platform: ubuntu1604
+    # We need to reduce the memory & CPU usage of the top-level
+    # bazel process for bazel-in-bazel tests to not
+    # deplete the system memory completely.
+    # - startup JVM memory reduced
+    # - top-level bazel process should use as little memory as possible and only 1 core
+    # - nested bazel process should use a limited number of cores
+    shell_commands:
+    - echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1536m' >> .bazelrc
+    build_flags:
+    - "--build_tag_filters=examples"
+    build_targets:
+    - "//..."
+    test_flags:
+    - "--test_tag_filters=examples"
+    - "--local_resources=792,1.0,1.0"
+    # test_args will be passed to the nested bazel process
+    - "--test_arg=--local_resources=13288,7.0,1.0"
+    - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-ubuntu"
+    test_targets:
+    - "//..."
+    # The following examples only works on linux as it downloads the linux node distribution
+    # It is tagged "manual" so we run it explicitly here
+    # TODO(gregmagolan): make node_repositories acccept different archives for different platforms
+    - "//examples:examples_vendored_node"
+    - "//examples:examples_vendored_node_and_yarn"
   # ubuntu1604_angular_bazel_example:
     # name: ubuntu1604_angular_bazel_example
     # platform: ubuntu1604
@@ -75,7 +103,7 @@ tasks:
     # coverage of it to make sure it doesn't break.
     - "//docs"
     test_flags:
-    - "--test_tag_filters=-e2e,-fix-bazelci-ubuntu"
+    - "--test_tag_filters=-e2e,-examples,-fix-bazelci-ubuntu"
     test_targets:
     - "//..."
   ubuntu1804_e2e:
@@ -101,6 +129,34 @@ tasks:
     - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-ubuntu"
     test_targets:
     - "//..."
+  ubuntu1804_examples:
+    name: ubuntu1804_examples
+    platform: ubuntu1604
+    # We need to reduce the memory & CPU usage of the top-level
+    # bazel process for bazel-in-bazel tests to not
+    # deplete the system memory completely.
+    # - startup JVM memory reduced
+    # - top-level bazel process should use as little memory as possible and only 1 core
+    # - nested bazel process should use a limited number of cores
+    shell_commands:
+    - echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1536m' >> .bazelrc
+    build_flags:
+    - "--build_tag_filters=examples"
+    build_targets:
+    - "//..."
+    test_flags:
+    - "--test_tag_filters=examples"
+    - "--local_resources=792,1.0,1.0"
+    # test_args will be passed to the nested bazel process
+    - "--test_arg=--local_resources=13288,7.0,1.0"
+    - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-ubuntu"
+    test_targets:
+    - "//..."
+    # The following examples only works on linux as it downloads the linux node distribution
+    # It is tagged "manual" so we run it explicitly here
+    # TODO(gregmagolan): make node_repositories acccept different archives for different platforms
+    - "//examples:examples_vendored_node"
+    - "//examples:examples_vendored_node_and_yarn"
   # ubuntu1804_angular_bazel_example:
     # name: ubuntu1804_angular_bazel_example
     # platform: ubuntu1804
@@ -129,7 +185,7 @@ tasks:
     build_targets:
     - "//..."
     test_flags:
-    - "--test_tag_filters=-e2e"
+    - "--test_tag_filters=-e2e,-examples"
     test_targets:
     - "//..."
   macos_e2e:
@@ -152,7 +208,31 @@ tasks:
     - "--local_resources=792,1.0,1.0"
     # test_args will be passed to the nested bazel process
     # TODO(gregmagolan): fix frequent flake with multiple cores in nested bazel (osx buildkite & local)
-    - "--test_arg=--local_resources=8192,1.0,1.0"
+    - "--test_arg=--local_resources=13288,1.0,1.0"
+    - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-mac"
+    test_targets:
+    - "//..."
+  macos_examples:
+    name: macos_examples
+    platform: macos
+    # We need to reduce the memory & CPU usage of the top-level
+    # bazel process for bazel-in-bazel tests to not
+    # deplete the system memory completely.
+    # - startup JVM memory reduced
+    # - top-level bazel process should use as little memory as possible and only 1 core
+    # - nested bazel process should use a limited number of cores
+    shell_commands:
+    - echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1536m' >> .bazelrc
+    build_flags:
+    - "--build_tag_filters=examples"
+    build_targets:
+    - "//..."
+    test_flags:
+    - "--test_tag_filters=examples"
+    - "--local_resources=792,1.0,1.0"
+    # test_args will be passed to the nested bazel process
+    # TODO(gregmagolan): fix frequent flake with multiple cores in nested bazel (osx buildkite & local)
+    - "--test_arg=--local_resources=13288,1.0,1.0"
     - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-mac"
     test_targets:
     - "//..."
@@ -205,7 +285,7 @@ tasks:
     build_targets:
     - "//..."
     test_flags:
-    - "--test_tag_filters=-e2e,-fix-windows"
+    - "--test_tag_filters=-e2e,-examples,-fix-windows"
     test_targets:
     - "//..."
   windows_e2e:
@@ -219,8 +299,23 @@ tasks:
     - "--test_tag_filters=e2e"
     - "--local_resources=792,1.0,1.0"
     # test_args will be passed to the nested bazel process
-    - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-windows"
-    - "--test_arg=--local_resources=8192,1.0,1.0"
+    - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-windows,-fix-windows"
+    - "--test_arg=--local_resources=13288,1.0,1.0"
+    test_targets:
+    - "//..."
+  windows_examples:
+    name: windows_examples
+    platform: windows
+    build_flags:
+    - "--build_tag_filters=examples"
+    build_targets:
+    - "//..."
+    test_flags:
+    - "--test_tag_filters=examples,-fix-windows,-no-bazelci-windows"
+    - "--local_resources=792,1.0,1.0"
+    # test_args will be passed to the nested bazel process
+    - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-windows,-fix-windows"
+    - "--test_arg=--local_resources=13288,1.0,1.0"
     test_targets:
     - "//..."
   # windows_angular_bazel_example:

@@ -1,0 +1,230 @@
+# Copyright 2017 The Bazel Authors. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+load("@build_bazel_rules_nodejs//internal/bazel_integration_test:bazel_integration_test.bzl", "bazel_integration_test")
+load("@build_bazel_rules_nodejs//packages:index.bzl", "NPM_PACKAGES")
+
+# Mappings of integration tests workspaces to their required npm packages
+# This mapping optimizes development so when making changes to files under packages
+# only affected examples tests are run.
+EXAMPLES_TESTS = {
+    "examples_app": {
+        "//packages/hide-bazel-files:npm_package": "@bazel/hide-bazel-files",
+        "//packages/protractor:npm_package": "@bazel/protractor",
+        "//packages/typescript:npm_package": "@bazel/typescript",
+    },
+    "examples_parcel": {
+        "//packages/jasmine:npm_package": "@bazel/jasmine",
+    },
+    "examples_web_testing": {
+        "//packages/karma:npm_package": "@bazel/karma",
+        "//packages/typescript:npm_package": "@bazel/typescript",
+    },
+    "examples_webapp": {
+        "//packages/protractor:npm_package": "@bazel/protractor",
+    },
+}
+
+[bazel_integration_test(
+    name = wksp_name,
+    # some bazelrc imports are outside of the nested workspace so
+    # the test runner will handle these as special cases
+    bazelrc_imports = {
+        "//:common.bazelrc": "import %workspace%/../../common.bazelrc",
+    },
+    check_npm_packages = NPM_PACKAGES,
+    # package.json will be updated with `file:` links to the absolute paths
+    # of the generated npm packages in runfiles
+    npm_packages = EXAMPLES_TESTS[wksp_name],
+    # replace the following repositories with the generated archives
+    repositories = {
+        "//:release": "build_bazel_rules_nodejs",
+    },
+    tags = [
+        "examples",
+        # exclusive keyword will force the test to be run in the "exclusive" mode,
+        # ensuring that no other tests are running at the same time. Such tests
+        # will be executed in serial fashion after all build activity and non-exclusive
+        # tests have been completed. Remote execution is disabled for such tests
+        # because Bazel doesn't have control over what's running on a remote machine.
+        "exclusive",
+    ],
+    workspace_files = "@%s//:all_files" % wksp_name,
+) for wksp_name in EXAMPLES_TESTS]
+
+bazel_integration_test(
+    name = "examples_nestjs",
+    bazel_commands = [
+        "build ...",
+        # Test cross-platform build
+        "build --platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64 //src:docker",
+    ],
+    # some bazelrc imports are outside of the nested workspace so
+    # the test runner will handle these as special cases
+    bazelrc_imports = {
+        "//:common.bazelrc": "import %workspace%/../../common.bazelrc",
+    },
+    check_npm_packages = NPM_PACKAGES,
+    # package.json will be updated with `file:` links to the absolute paths
+    # of the generated npm packages in runfiles
+    npm_packages = {
+        "//packages/typescript:npm_package": "@bazel/typescript",
+    },
+    # replace the following repositories with the generated archives
+    repositories = {
+        "//:release": "build_bazel_rules_nodejs",
+    },
+    tags = [
+        # Breaks on Windows with `rules_docker requires a python interpreter installed. Please set
+        # BAZEL_PYTHON, or put it on your path.`
+        "fix-windows",
+        "examples",
+        # exclusive keyword will force the test to be run in the "exclusive" mode,
+        # ensuring that no other tests are running at the same time. Such tests
+        # will be executed in serial fashion after all build activity and non-exclusive
+        # tests have been completed. Remote execution is disabled for such tests
+        # because Bazel doesn't have control over what's running on a remote machine.
+        "exclusive",
+    ],
+    workspace_files = "@examples_nestjs//:all_files",
+)
+
+bazel_integration_test(
+    name = "examples_protocol_buffers",
+    # some bazelrc imports are outside of the nested workspace so
+    # the test runner will handle these as special cases
+    bazelrc_imports = {
+        "//:common.bazelrc": "import %workspace%/../../common.bazelrc",
+    },
+    check_npm_packages = NPM_PACKAGES,
+    # package.json will be updated with `file:` links to the absolute paths
+    # of the generated npm packages in runfiles
+    npm_packages = {
+        "//packages/hide-bazel-files:npm_package": "@bazel/hide-bazel-files",
+        "//packages/karma:npm_package": "@bazel/karma",
+        "//packages/protractor:npm_package": "@bazel/protractor",
+        "//packages/typescript:npm_package": "@bazel/typescript",
+    },
+    # replace the following repositories with the generated archives
+    repositories = {
+        "//:release": "build_bazel_rules_nodejs",
+    },
+    tags = [
+        # Runs out of memory on bazelci windows
+        # TODO(gregmagolan): fix on bazelci windows
+        "no-bazelci-windows",
+        "examples",
+        # exclusive keyword will force the test to be run in the "exclusive" mode,
+        # ensuring that no other tests are running at the same time. Such tests
+        # will be executed in serial fashion after all build activity and non-exclusive
+        # tests have been completed. Remote execution is disabled for such tests
+        # because Bazel doesn't have control over what's running on a remote machine.
+        "exclusive",
+    ],
+    workspace_files = "@examples_protocol_buffers//:all_files",
+)
+
+bazel_integration_test(
+    name = "examples_user_managed_deps",
+    # This test requires calling `bazel run @nodejs//:yarn` before `bazel test ...`
+    bazel_commands = [
+        "run @nodejs//:yarn",
+        "test ...",
+    ],
+    # some bazelrc imports are outside of the nested workspace so
+    # the test runner will handle these as special cases
+    bazelrc_imports = {
+        "//:common.bazelrc": "import %workspace%/../../common.bazelrc",
+    },
+    check_npm_packages = NPM_PACKAGES,
+    # replace the following repositories with the generated archives
+    repositories = {
+        "//:release": "build_bazel_rules_nodejs",
+        "@npm_bazel_jasmine//:release": "npm_bazel_jasmine",
+    },
+    tags = [
+        "examples",
+        # exclusive keyword will force the test to be run in the "exclusive" mode,
+        # ensuring that no other tests are running at the same time. Such tests
+        # will be executed in serial fashion after all build activity and non-exclusive
+        # tests have been completed. Remote execution is disabled for such tests
+        # because Bazel doesn't have control over what's running on a remote machine.
+        "exclusive",
+    ],
+    workspace_files = "@examples_user_managed_deps//:all_files",
+)
+
+bazel_integration_test(
+    name = "examples_vendored_node",
+    # some bazelrc imports are outside of the nested workspace so
+    # the test runner will handle these as special cases
+    bazelrc_imports = {
+        "//:common.bazelrc": "import %workspace%/../../common.bazelrc",
+    },
+    check_npm_packages = NPM_PACKAGES,
+    # package.json will be updated with `file:` links to the absolute paths
+    # of the generated npm packages in runfiles
+    npm_packages = {
+        "//packages/jasmine:npm_package": "@bazel/jasmine",
+    },
+    # replace the following repositories with the generated archives
+    repositories = {
+        "//:release": "build_bazel_rules_nodejs",
+    },
+    tags = [
+        # This example only works on linux as it downloads the linux node distribution
+        # TODO(gregmagolan): make node_repositories acccept different archives for different platforms
+        "manual",
+        "examples",
+        # exclusive keyword will force the test to be run in the "exclusive" mode,
+        # ensuring that no other tests are running at the same time. Such tests
+        # will be executed in serial fashion after all build activity and non-exclusive
+        # tests have been completed. Remote execution is disabled for such tests
+        # because Bazel doesn't have control over what's running on a remote machine.
+        "exclusive",
+    ],
+    workspace_files = "@examples_vendored_node//:all_files",
+)
+
+bazel_integration_test(
+    name = "examples_vendored_node_and_yarn",
+    # some bazelrc imports are outside of the nested workspace so
+    # the test runner will handle these as special cases
+    bazelrc_imports = {
+        "//:common.bazelrc": "import %workspace%/../../common.bazelrc",
+    },
+    check_npm_packages = NPM_PACKAGES,
+    # package.json will be updated with `file:` links to the absolute paths
+    # of the generated npm packages in runfiles
+    npm_packages = {
+        "//packages/jasmine:npm_package": "@bazel/jasmine",
+    },
+    # replace the following repositories with the generated archives
+    repositories = {
+        "//:release": "build_bazel_rules_nodejs",
+    },
+    tags = [
+        # This example only works on linux as it downloads the linux node distribution
+        # TODO(gregmagolan): make node_repositories acccept different archives for different platforms
+        "manual",
+        "examples",
+        # exclusive keyword will force the test to be run in the "exclusive" mode,
+        # ensuring that no other tests are running at the same time. Such tests
+        # will be executed in serial fashion after all build activity and non-exclusive
+        # tests have been completed. Remote execution is disabled for such tests
+        # because Bazel doesn't have control over what's running on a remote machine.
+        "exclusive",
+    ],
+    workspace_files = "@examples_vendored_node//:all_files",
+)

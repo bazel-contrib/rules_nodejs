@@ -1,0 +1,26 @@
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_test")
+
+# Test for regressions to https://github.com/bazelbuild/rules_nodejs/issues/428
+# and https://github.com/bazelbuild/rules_nodejs/issues/438.
+nodejs_test(
+    name = "test",
+    data = [
+        "index.spec.js",
+        "@npm//webpack",
+    ],
+    entry_point = ":index.spec.js",
+)
+
+# For testing from the root workspace of this repository with bazel_integration_test.
+filegroup(
+    name = "all_files",
+    srcs = glob(
+        include = ["**/*"],
+        exclude = [
+            "bazel-out/**/*",
+            "dist/**/*",
+            "node_modules/**/*",
+        ],
+    ),
+    visibility = ["//visibility:public"],
+)

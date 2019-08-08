@@ -49,7 +49,10 @@ npm_package(
         "npm_bazel_typescript",
         "build_bazel_rules_typescript",
     ],
-    visibility = ["//e2e:__pkg__"],
+    visibility = [
+        "//e2e:__pkg__",
+        "//examples:__pkg__",
+    ],
     deps = [
         ":copy_LICENSE",
         ":generate_README",
