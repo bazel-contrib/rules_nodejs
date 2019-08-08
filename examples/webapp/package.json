@@ -1,7 +1,9 @@
 {
     "private": true,
-    "devDependencies": {},
+    "devDependencies": {
+        "@bazel/protractor": "latest"
+    },
     "scripts": {
-        "test": "bazel build :all"
+        "test": "bazel test ..."
     }
 }

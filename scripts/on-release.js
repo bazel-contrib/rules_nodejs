@@ -36,7 +36,10 @@ function findFiles(regex, dir) {
   }, []);
 }
 
-for (const f of findFiles(/^WORKSPACE$/, 'e2e')) {
+const workspaceFiles = [
+  ...findFiles(/^WORKSPACE$/, 'e2e'),
+  ...findFiles(/^WORKSPACE$/, 'examples'),
+] for (const f of workspaceFiles) {
   let workspaceContents = fs.readFileSync(f, {encoding: 'utf-8'});
   const regex = new RegExp(`http_archive\\(\\s*name\\s*\\=\\s*"build_bazel_rules_nodejs"[^)]+`);
   const replacement = `http_archive(

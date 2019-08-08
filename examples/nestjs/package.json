@@ -9,11 +9,11 @@
     "rxjs": "6.5.2"
   },
   "devDependencies": {
-    "@bazel/typescript": "file:../../release/npm_bazel_typescript",
+    "@bazel/typescript": "latest",
     "@types/node": "12.6.3",
     "typescript": "3.5.3"
   },
   "scripts": {
-    "test": "bazel build ... && bazel build --platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64 ..."
+    "test": "bazel build ... && bazel build --platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64 //src:docker"
   }
 }

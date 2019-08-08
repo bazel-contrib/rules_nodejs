@@ -1,0 +1,28 @@
+workspace(
+    name = "e2e_fine_grained_symlinks",
+    managed_directories = {"@npm": ["node_modules"]},
+)
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+    name = "build_bazel_rules_nodejs",
+    sha256 = "6625259f9f77ef90d795d20df1d0385d9b3ce63b6619325f702b6358abb4ab33",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.35.0/rules_nodejs-0.35.0.tar.gz"],
+)
+
+load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "yarn_install")
+
+# This test needs to run with yarn 1.9.2 to test the fix for
+# https://github.com/bazelbuild/rules_nodejs/issues/438 and
+# https://github.com/bazelbuild/rules_nodejs/issues/428
+node_repositories(
+    node_version = "10.3.0",
+    yarn_version = "1.9.2",
+)
+
+yarn_install(
+    name = "npm",
+    package_json = "//:package.json",
+    yarn_lock = "//:yarn.lock",
+)

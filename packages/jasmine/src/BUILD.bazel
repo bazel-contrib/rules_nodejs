@@ -16,6 +16,7 @@
 # Parts of this BUILD file only necessary when building from source.
 # The generated `@bazel/jasmine` npm package contains a trimmed BUILD file using INTERNAL fences.
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
 load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
 
 package(default_visibility = ["//visibility:public"])
@@ -47,5 +48,15 @@ js_library(
         "jasmine_runner.js",
     ],
     module_name = "@bazel/jasmine",
+)
+
+pkg_tar(
+    name = "release",
+    srcs = [
+        "index.from_src.bzl",
+        ":package_contents",
+    ],
+    extension = "tar.gz",
+    tags = ["manual"],
 )
 # END-INTERNAL

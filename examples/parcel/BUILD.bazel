@@ -1,4 +1,4 @@
-load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
+load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
 load(":parcel.bzl", "parcel")
 
 parcel(
@@ -13,4 +13,18 @@ jasmine_node_test(
     name = "test",
     srcs = glob(["*.spec.js"]),
     deps = [":bundle"],
+)
+
+# For testing from the root workspace of this repository with bazel_integration_test.
+filegroup(
+    name = "all_files",
+    srcs = glob(
+        include = ["**/*"],
+        exclude = [
+            "bazel-out/**/*",
+            "dist/**/*",
+            "node_modules/**/*",
+        ],
+    ),
+    visibility = ["//visibility:public"],
 )

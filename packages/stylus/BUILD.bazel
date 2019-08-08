@@ -45,7 +45,10 @@ npm_package(
     vendor_external = [
         "npm_bazel_stylus",
     ],
-    visibility = ["//e2e:__pkg__"],
+    visibility = [
+        "//e2e:__pkg__",
+        "//examples:__pkg__",
+    ],
     deps = [
         ":copy_LICENSE",
         ":generate_README",

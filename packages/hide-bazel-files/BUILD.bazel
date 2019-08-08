@@ -29,7 +29,10 @@ npm_package(
         ":index.js",
         ":package.json",
     ],
-    visibility = ["//e2e:__pkg__"],
+    visibility = [
+        "//e2e:__pkg__",
+        "//examples:__pkg__",
+    ],
     deps = [
         ":copy_LICENSE",
     ],

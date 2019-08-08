@@ -1,0 +1,46 @@
+workspace(name = "examples_user_managed_deps")
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+    name = "build_bazel_rules_nodejs",
+    sha256 = "6625259f9f77ef90d795d20df1d0385d9b3ce63b6619325f702b6358abb4ab33",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.35.0/rules_nodejs-0.35.0.tar.gz"],
+)
+
+load("@build_bazel_rules_nodejs//:package.bzl", "rules_nodejs_dev_dependencies")
+
+rules_nodejs_dev_dependencies()
+
+load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
+
+# Install a hermetic version of node.
+# After this is run, these labels will be available:
+# - NodeJS:
+#   @nodejs//:node
+# - NPM:
+#   @nodejs//:npm
+# - The yarn package manager:
+#   @nodejs//:yarn
+#
+# To install the node_modules of all the listed package_json files run:
+#   bazel run @nodejs//:yarn
+# or
+#   bazel run @nodejs//:npm
+node_repositories(
+    package_json = ["//:package.json"],
+)
+
+# In your code, you'd fetch this repository with an `http_archive` call.
+# We do this local repository only because this example lives in the same
+# repository with the rules_nodejs code and we want to test them together.
+local_repository(
+    name = "npm_bazel_jasmine",
+    path = "../../packages/jasmine/src",
+)
+# http_archive(
+#     name = "npm_bazel_jasmine",
+#     urls = ["https://github.com/bazelbuild/rules_nodejs/archive/0.35.0.tar.gz"],
+#     strip_prefix = "rules_nodejs-0.35.0/packages/jasmine/src",
+#     sha256 = "48be6c21d4ee7bf2a6c3dd35ac54f8ff430944b65ab7a43a9cd742f23c9a7279",
+# )

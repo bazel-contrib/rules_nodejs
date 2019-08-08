@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@bazel/hide-bazel-files@file:../../release/npm_bazel_hide-bazel-files":
+"@bazel/hide-bazel-files@latest":
   version "1.2.3"
 
-"@bazel/karma@file:../../release/npm_bazel_karma":
+"@bazel/karma@latest":
   version "1.2.3"
   dependencies:
     jasmine-core "2.8.0"
@@ -20,12 +20,12 @@
     semver "5.6.0"
     tmp "0.0.33"
 
-"@bazel/protractor@file:../../release/npm_bazel_protractor":
+"@bazel/protractor@latest":
   version "1.2.3"
   dependencies:
     protractor "^5.4.2"
 
-"@bazel/typescript@file:../../release/npm_bazel_typescript":
+"@bazel/typescript@latest":
   version "1.2.3"
   dependencies:
     protobufjs "6.8.8"

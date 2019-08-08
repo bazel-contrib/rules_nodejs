@@ -14,48 +14,42 @@
 
 workspace(
     name = "examples_vendored_node",
-    managed_directories = {
-        "@npm": ["npm/node_modules"],
-        "@yarn": ["yarn/node_modules"],
-    },
+    managed_directories = {"@npm": ["npm/node_modules"]},
 )
 
-# In your code, you'd fetch this repository with an `http_archive` call.
-# We do this local repository only because this example lives in the same
-# repository with the rules_nodejs code and we want to test them together.
-local_repository(
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
     name = "build_bazel_rules_nodejs",
-    path = "../../release/build_bazel_rules_nodejs/release",
+    sha256 = "6625259f9f77ef90d795d20df1d0385d9b3ce63b6619325f702b6358abb4ab33",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.35.0/rules_nodejs-0.35.0.tar.gz"],
 )
 
-load("@build_bazel_rules_nodejs//:package.bzl", "rules_nodejs_dev_dependencies")
+http_archive(
+    name = "vendored_node_10_12_0",
+    build_file_content = """exports_files(["node-v10.12.0-linux-x64/bin/node"])""",
+    sha256 = "4eba2e9a6db95745b769915d58e57df6ca6724ec1f023f76556fce30ceca2367",
+    urls = ["https://nodejs.org/dist/v10.12.0/node-v10.12.0-linux-x64.tar.xz"],
+)
 
-rules_nodejs_dev_dependencies()
+load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "npm_install")
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "npm_install", "yarn_install")
-
+# This example only works on linux as it downloads the linux node distribution
+# TODO(gregmagolan): make node_repositories acccept different archives for different platforms
 node_repositories(
     node_version = "10.12.0",
-    vendored_node = "@examples_vendored_node//:node-v10.12.0-linux-x64",
-    vendored_yarn = "@examples_vendored_node//:yarn-v1.10.0",
-)
-
-yarn_install(
-    name = "yarn",
-    package_json = "//:yarn/package.json",
-    yarn_lock = "//:yarn/yarn.lock",
+    vendored_node = "@vendored_node_10_12_0//:node-v10.12.0-linux-x64",
 )
 
 npm_install(
     name = "npm",
-    package_json = "//:npm/package.json",
-    package_lock_json = "//:npm/package-lock.json",
+    data = [
+        "@vendored_node_10_12_0//:node-v10.12.0-linux-x64/bin/node",
+    ],
+    package_json = "//:package.json",
+    package_lock_json = "//:package-lock.json",
 )
 
-# In your code, you'd fetch this repository with an `http_archive` call.
-# We do this local repository only because this example lives in the same
-# repository with the rules_nodejs code and we want to test them together.
-local_repository(
-    name = "npm_bazel_jasmine",
-    path = "../../packages/jasmine/src",
-)
+load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
+
+install_bazel_dependencies()

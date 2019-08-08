@@ -3,10 +3,7 @@ import {browser, by, element, ExpectedConditions} from 'protractor';
 // This test uses Protractor without Angular, so disable Angular features
 browser.waitForAngularEnabled(false);
 
-// Since we don't have a protractor bazel rule yet, the test is brought up in
-// parallel with building the service under test. So the timeout must include
-// compiling the application as well as starting the server.
-const timeoutMs = 90 * 1000;
+const timeoutMs = 10 * 1000;
 
 describe('app', () => {
   beforeAll(() => {
