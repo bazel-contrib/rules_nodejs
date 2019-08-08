@@ -40,7 +40,7 @@ module.exports = {{
     testName: '{TMPL_test_name}',
     workspaceUnderTest: '{TMPL_workspace_under_test}',
     bazelBinaryWorkspace: '{TMPL_bazel_binary_workspace}',
-    bazelArgs: [ {TMPL_bazel_args} ],
+    bazelCommands: [ {TMPL_bazel_commands} ],
     repositories: {{ {TMPL_repositories} }},
     bazelrcAppend: `{TMPL_bazelrc_append}`,
     bazelrcImports: {{ {TMPL_bazelrc_imports} }},
@@ -54,7 +54,7 @@ module.exports = {{
             TMPL_test_name = ctx.label.name,
             TMPL_workspace_under_test = workspace_under_test,
             TMPL_bazel_binary_workspace = ctx.attr.bazel_binary.label.workspace_name,
-            TMPL_bazel_args = ", ".join(["'%s'" % s for s in ctx.attr.bazel_args]),
+            TMPL_bazel_commands = ", ".join(["'%s'" % s for s in ctx.attr.bazel_commands]),
             TMPL_repositories = ", ".join(["'%s': '%s'" % (ctx.attr.repositories[f], _file_to_manifest_path(ctx, f.files.to_list()[0])) for f in ctx.attr.repositories]),
             TMPL_bazelrc_append = ctx.attr.bazelrc_append,
             TMPL_bazelrc_imports = ", ".join(["'%s': '%s'" % (ctx.attr.bazelrc_imports[f], _file_to_manifest_path(ctx, f.files.to_list()[0])) for f in ctx.attr.bazelrc_imports]),
@@ -102,15 +102,15 @@ $TEST_RUNNER $ARGS "$@"
     )]
 
 BAZEL_INTEGRATION_TEST_ATTRS = {
-    "bazel_args": attr.string_list(
-        default = ["test", "..."],
-        doc = """The arguments to pass to Bazel to run the integration workspace test. Defaults to `["test", "..."]`.""",
-    ),
     "bazel_binary": attr.label(
         default = BAZEL_BINARY,
         doc = """The bazel binary files to test against.
 
 It is assumed by the test runner that the bazel binary is found at label_workspace/bazel (wksp/bazel.exe on Windows)""",
+    ),
+    "bazel_commands": attr.string_list(
+        default = ["test ..."],
+        doc = """The list of bazel commands to run. Defaults to `["test ..."]`.""",
     ),
     "bazelrc_append": attr.string(
         doc = """String to append to the .bazelrc file in the workspace-under-test.

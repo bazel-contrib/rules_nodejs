@@ -276,9 +276,11 @@ if (DEBUG) {
   }
 }
 
-const bazelArgs = config.bazelArgs.concat(args);
-console.log(`\n\nRunning 'bazel ${bazelArgs.join(' ')}'`);
-spawnedProcess = spawnSync(bazelBinary, bazelArgs, {cwd: workspaceRoot, stdio: 'inherit'});
-
-// Ensure that this wrapper script exits with the same exit code as the child process.
-process.exit(spawnedProcess.status);
+for (const bazelCommand of config.bazelCommands) {
+  const bazelArgs = bazelCommand.split(' ').concat(args);
+  console.log(`\n\nRunning 'bazel ${bazelArgs.join(' ')}'`);
+  spawnedProcess = spawnSync(bazelBinary, bazelArgs, {cwd: workspaceRoot, stdio: 'inherit'});
+  if (spawnedProcess.status) {
+    process.exit(spawnedProcess.status);
+  }
+}
