@@ -333,11 +333,14 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
 
     if (this.bazelOpts.moduleName) {
       const relativeFileName = path.posix.relative(this.bazelOpts.package, fileName);
+      // check that the fileName was actually underneath the package directory
       if (!relativeFileName.startsWith('..')) {
-        if (this.bazelOpts.moduleRoot &&
-            this.bazelOpts.moduleRoot.replace(SOURCE_EXT, '') ===
-                relativeFileName) {
-          return this.bazelOpts.moduleName;
+        if (this.bazelOpts.moduleRoot) {
+          const root = this.bazelOpts.moduleRoot.replace(SOURCE_EXT, '');
+          if (root === relativeFileName ||
+              path.posix.join(root, 'index') === relativeFileName) {
+            return this.bazelOpts.moduleName;
+          }
         }
         // Support the common case of commonjs convention that index is the
         // default module in a directory.
