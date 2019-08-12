@@ -11,6 +11,7 @@ build:release --workspace_status_command=./scripts/current_version.sh
 build --host_force_python=PY2
 
 # Opt-in to upcoming breaking changes
+build --incompatible_disable_legacy_proto_provider
 build --incompatible_use_python_toolchains
 common --incompatible_string_join_requires_strings
 
