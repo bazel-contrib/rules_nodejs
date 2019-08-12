@@ -958,13 +958,7 @@ func hasAngularDependency(r *build.Rule) bool {
 	for _, li := range edit.AllLists(e) {
 		for _, elem := range li.List {
 			str, ok := elem.(*build.StringExpr)
-			if !ok {
-				continue
-			}
-			if strings.HasPrefix(str.Value, "//third_party/javascript/angular2") {
-				return true
-			}
-			if str.Value == "//javascript/angular2/testing/catalyst" {
+			if ok && strings.HasPrefix(str.Value, "//third_party/javascript/angular2") {
 				return true
 			}
 		}
