@@ -50,15 +50,6 @@ def rules_nodejs_dev_dependencies():
         sha256 = "a3d6a8ba4c6dce86d3b3387a23b04cbdf4c435a58120bd9842588d3845fe689c",
     )
 
-    # Needed by stardoc
-    http_archive(
-        name = "com_google_protobuf",
-        sha256 = "b404fe166de66e9a5e6dab43dc637070f950cdba2a8a4c9ed9add354ed4f6525",
-        strip_prefix = "protobuf-b4f193788c9f0f05d7e0879ea96cd738630e5d51",
-        # Commit from 2019-05-15, update to protobuf 3.8 when available.
-        url = "https://github.com/protocolbuffers/protobuf/archive/b4f193788c9f0f05d7e0879ea96cd738630e5d51.zip",
-    )
-
     # Needed for com_google_protobuf
     http_archive(
         name = "zlib",

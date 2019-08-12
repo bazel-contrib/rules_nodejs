@@ -106,18 +106,18 @@ install_bazel_dependencies()
 # With http_archive it only sees releases/download/*.tar.gz urls
 git_repository(
     name = "build_bazel_rules_typescript",
-    commit = "ae6d6888ffb727f7d10918c2c2fee267de12aebb",
+    commit = "73ba7764363bbf760593a205329cb676095f53f9",
     remote = "http://github.com/bazelbuild/rules_typescript.git",
 )
 
 # We have a source dependency on build_bazel_rules_typescript
 # so we must repeat its transitive toolchain deps
-load("@npm_bazel_typescript//:package.bzl", "rules_typescript_dev_dependencies")
+load("@build_bazel_rules_typescript//:package.bzl", "rules_typescript_dev_dependencies")
 
 rules_typescript_dev_dependencies()
 
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
-load("@io_bazel_rules_go//go:def.bzl", "go_register_toolchains", "go_rules_dependencies")
+load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
 
 gazelle_dependencies()
 
