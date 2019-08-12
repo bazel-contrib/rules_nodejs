@@ -12,19 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Dependency-related rules defining our version and dependency versions.
+"""Dependency-related rules defining our dependency versions.
 
 Fulfills similar role as the package.json file.
 """
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-
-def rules_nodejs_dependencies():
-    print("""DEPRECATION WARNING:
-    rules_nodejs_dependencies is no longer needed, and will be removed in a future release.
-    Simply remove any calls to this function and the corresponding call to
-      load("@build_bazel_rules_nodejs//:package.bzl", "rules_nodejs_dependencies")
-    """)
 
 def rules_nodejs_dev_dependencies():
     """
