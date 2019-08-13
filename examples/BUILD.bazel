@@ -228,3 +228,24 @@ bazel_integration_test(
     ],
     workspace_files = "@examples_vendored_node//:all_files",
 )
+
+bazel_integration_test(
+    name = "examples_worker",
+    # There are no tests in this example
+    bazel_commands = [
+        # By default this will build with worker enabled
+        "build //:do_work",
+        # Build again without the worker
+        "build --define=cache_bust=true --strategy=DoWork=standalone //:do_work",
+    ],
+    bazelrc_imports = {
+        "//:common.bazelrc": "import %workspace%/../../common.bazelrc",
+    },
+    check_npm_packages = NPM_PACKAGES,
+    npm_packages = {"//packages/worker:npm_package": "@bazel/worker"},
+    repositories = {
+        "//:release": "build_bazel_rules_nodejs",
+    },
+    tags = ["examples"],
+    workspace_files = "@examples_worker//:all_files",
+)

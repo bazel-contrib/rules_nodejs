@@ -1,0 +1,63 @@
+# Copyright 2019 The Bazel Authors. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "npm_package")
+
+# We reach inside the @bazel/typescript npm package to grab this one .js file
+# This avoids a complex refactoring where we extract that .ts file from tsc_wrapped to a common library
+_worker_path = "external/build_bazel_rules_typescript/internal/tsc_wrapped/worker"
+
+# Copy the proto file to a matching third_party/... nested directory
+# so the runtime require() statements still work
+_worker_proto_dir = "third_party/github.com/bazelbuild/bazel/src/main/protobuf"
+
+genrule(
+    name = "copy_worker_js",
+    srcs = ["@build_bazel_rules_typescript//:npm_bazel_typescript_package"],
+    outs = ["index.js"],
+    cmd = "cp $(location @build_bazel_rules_typescript//:npm_bazel_typescript_package)/%s.js $@" % _worker_path,
+)
+
+genrule(
+    name = "copy_worker_dts",
+    srcs = ["@build_bazel_rules_typescript//:npm_bazel_typescript_package"],
+    outs = ["index.d.ts"],
+    cmd = "cp $(location @build_bazel_rules_typescript//:npm_bazel_typescript_package)/%s.d.ts $@" % _worker_path,
+)
+
+genrule(
+    name = "copy_worker_proto",
+    srcs = ["@build_bazel_rules_typescript//%s:worker_protocol.proto" % _worker_proto_dir],
+    outs = ["%s/worker_protocol.proto" % _worker_proto_dir],
+    cmd = "cp $< $@",
+)
+
+npm_package(
+    name = "npm_package",
+    srcs = [
+        "README.md",
+        "package.json",
+    ],
+    replacements = {
+        # Fix the require() statement that loads the worker_protocol.proto file
+        # we are re-rooting the sources into the @bazel/worker package so it's no longer
+        # relative to the build_bazel_rules_typescript workspace.
+        "build_bazel_rules_typescript": "@bazel/worker",
+    },
+    deps = [
+        ":copy_worker_dts",
+        ":copy_worker_js",
+        ":copy_worker_proto",
+    ],
+)
