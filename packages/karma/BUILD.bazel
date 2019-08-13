@@ -12,14 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "COMMON_REPLACEMENTS", "npm_package")
-
-genrule(
-    name = "copy_LICENSE",
-    srcs = ["@build_bazel_rules_nodejs//:LICENSE"],
-    outs = ["LICENSE"],
-    cmd = "cp $< $@",
-)
+load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "npm_package")
 
 # Ugly genrule depending on local linux environment to build the README out of skylark doc generation.
 # Only referenced when we do a release.
@@ -40,16 +33,10 @@ npm_package(
     srcs = [
         "@npm_bazel_karma//:package_contents",
     ],
-    replacements = COMMON_REPLACEMENTS,
     vendor_external = [
         "npm_bazel_karma",
     ],
-    visibility = [
-        "//e2e:__pkg__",
-        "//examples:__pkg__",
-    ],
     deps = [
-        ":copy_LICENSE",
         ":generate_README",
         "@npm_bazel_karma//:bazel_karma_lib",
     ],
