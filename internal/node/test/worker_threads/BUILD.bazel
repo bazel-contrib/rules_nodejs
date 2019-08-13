@@ -1,0 +1,11 @@
+# Disabled untill nodejs v12.x is the default
+# nodejs_test(
+#     name = "workers",
+#     data = [
+#         ":worker-thread.js",
+#         ":worker-main.js",
+#         "//internal/node/test/child_process/lib",
+#     ],
+#     entry_point = ":worker-main.js",
+#     templated_args = ["--node_options=--experimental-worker"],
+# )

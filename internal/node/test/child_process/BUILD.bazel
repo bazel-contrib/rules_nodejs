@@ -1,0 +1,11 @@
+load("//:defs.bzl", "nodejs_test")
+
+nodejs_test(
+    name = "workers",
+    data = [
+        ":worker-main.js",
+        ":worker-thread.js",
+        "//internal/node/test/child_process/lib",
+    ],
+    entry_point = ":worker-main.js",
+)

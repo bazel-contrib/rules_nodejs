@@ -117,6 +117,7 @@ TEMPLATED_env_vars
 readonly node=$(rlocation "TEMPLATED_node")
 readonly repository_args=$(rlocation "TEMPLATED_repository_args")
 readonly script=$(rlocation "TEMPLATED_script_path")
+readonly patcher=$(rlocation "TEMPLATED_patcher_path")
 
 source $repository_args
 
@@ -129,6 +130,9 @@ for ARG in "${ALL_ARGS[@]}"; do
     *) ARGS+=( "$ARG" )
   esac
 done
+
+# TODO: what happens if the user passed a require flag?
+NODE_OPTIONS+=( "--require=./$patcher" )
 
 # The EXPECTED_EXIT_CODE lets us write bazel tests which assert that
 # a binary fails to run. Otherwise any failure would make such a test

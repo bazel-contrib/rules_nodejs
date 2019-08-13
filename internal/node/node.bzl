@@ -103,19 +103,28 @@ def _write_loader_script(ctx):
         template = ctx.file._loader_template,
         output = ctx.outputs.loader,
         substitutions = {
-            "TEMPLATED_bin_dir": ctx.bin_dir.path,
             "TEMPLATED_bootstrap": "\n  " + ",\n  ".join(
                 ["\"" + d + "\"" for d in ctx.attr.bootstrap],
             ),
             "TEMPLATED_entry_point": entry_point_path,
-            "TEMPLATED_gen_dir": ctx.genfiles_dir.path,
             "TEMPLATED_install_source_map_support": str(ctx.attr.install_source_map_support).lower(),
+            "TEMPLATED_node_modules_root": node_modules_root,
+            "TEMPLATED_target": str(ctx.label),
+        },
+        is_executable = True,
+    )
+
+    ctx.actions.expand_template(
+        template = ctx.file._patcher_template,
+        output = ctx.outputs.patcher,
+        substitutions = {
+            "TEMPLATED_bin_dir": ctx.bin_dir.path,
+            "TEMPLATED_gen_dir": ctx.genfiles_dir.path,
             "TEMPLATED_module_roots": "\n  " + ",\n  ".join(module_mappings),
             "TEMPLATED_node_modules_root": node_modules_root,
             "TEMPLATED_target": str(ctx.label),
             "TEMPLATED_user_workspace_name": ctx.workspace_name,
         },
-        is_executable = True,
     )
 
 def _short_path_to_manifest_path(ctx, short_path):
@@ -149,10 +158,15 @@ def _nodejs_binary_impl(ctx):
     # Avoid writing non-normalized paths (workspace/../other_workspace/path)
     if ctx.outputs.loader.short_path.startswith("../"):
         script_path = ctx.outputs.loader.short_path[len("../"):]
+        patcher_path = ctx.outputs.patcher.short_path[len("../"):]
     else:
         script_path = "/".join([
             ctx.workspace_name,
             ctx.outputs.loader.short_path,
+        ])
+        patcher_path = "/".join([
+            ctx.workspace_name,
+            ctx.outputs.patcher.short_path,
         ])
     env_vars = "export BAZEL_TARGET=%s\n" % ctx.label
     for k in ctx.attr.configuration_env_vars:
@@ -184,6 +198,7 @@ def _nodejs_binary_impl(ctx):
             "TEMPLATED_env_vars": env_vars,
             "TEMPLATED_expected_exit_code": str(expected_exit_code),
             "TEMPLATED_node": node_tool,
+            "TEMPLATED_patcher_path": patcher_path,
             "TEMPLATED_repository_args": _short_path_to_manifest_path(ctx, ctx.file._repository_args.short_path),
             "TEMPLATED_script_path": script_path,
         }
@@ -194,7 +209,7 @@ def _nodejs_binary_impl(ctx):
             is_executable = True,
         )
 
-    runfiles = depset(node_tool_files + [ctx.outputs.loader, ctx.file._repository_args], transitive = [sources, node_modules])
+    runfiles = depset(node_tool_files + [ctx.outputs.loader, ctx.outputs.patcher, ctx.file._repository_args], transitive = [sources, node_modules])
 
     # entry point is only needed in runfiles if it is a .js file
     if ctx.file.entry_point.extension == "js":
@@ -206,6 +221,7 @@ def _nodejs_binary_impl(ctx):
             transitive_files = runfiles,
             files = node_tool_files + [
                         ctx.outputs.loader,
+                        ctx.outputs.patcher,
                     ] + ctx.files._source_map_support_files +
 
                     # We need this call to the list of Files.
@@ -384,6 +400,10 @@ _NODEJS_EXECUTABLE_ATTRS = {
         default = Label("//internal/node:node_loader.js"),
         allow_single_file = True,
     ),
+    "_patcher_template": attr.label(
+        default = Label("//internal/node:node_patcher.js"),
+        allow_single_file = True,
+    ),
     "_repository_args": attr.label(
         default = Label("@nodejs//:bin/node_repo_args.sh"),
         allow_single_file = True,
@@ -400,6 +420,7 @@ _NODEJS_EXECUTABLE_ATTRS = {
 
 _NODEJS_EXECUTABLE_OUTPUTS = {
     "loader": "%{name}_loader.js",
+    "patcher": "%{name}_patcher.js",
     "script": "%{name}.sh",
 }
 
