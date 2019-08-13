@@ -47,11 +47,23 @@ def rules_typescript_dev_dependencies():
     _maybe(
         http_archive,
         name = "io_bazel_rules_go",
+        patch_args = ["-p1"],
+        # Patch out a breaking change to runfiles support library
+        # See discussion on https://github.com/bazelbuild/rules_go/pull/2076
+        patches = ["@build_bazel_rules_typescript//:revert_rules_go_commit_4442d82a001f378d0605cbbca3fb529979a1c3a6.patch"],
+        sha256 = "8df59f11fb697743cbb3f26cfb8750395f30471e9eabde0d174c3aebc7a1cd39",
         urls = [
-            "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/0.18.5/rules_go-0.18.5.tar.gz",
-            "https://github.com/bazelbuild/rules_go/releases/download/0.18.5/rules_go-0.18.5.tar.gz",
+            "https://storage.googleapis.com/bazel-mirror/github.com/bazelbuild/rules_go/releases/download/0.19.1/rules_go-0.19.1.tar.gz",
+            "https://github.com/bazelbuild/rules_go/releases/download/0.19.1/rules_go-0.19.1.tar.gz",
         ],
-        sha256 = "a82a352bffae6bee4e95f68a8d80a70e87f42c4741e6a448bec11998fcc82329",
+    )
+
+    _maybe(
+        http_archive,
+        name = "com_google_protobuf",
+        sha256 = "98e615d592d237f94db8bf033fba78cd404d979b0b70351a9e5aaff725398357",
+        strip_prefix = "protobuf-3.9.1",
+        urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.9.1.tar.gz"],
     )
 
     # go_repository is defined in bazel_gazelle

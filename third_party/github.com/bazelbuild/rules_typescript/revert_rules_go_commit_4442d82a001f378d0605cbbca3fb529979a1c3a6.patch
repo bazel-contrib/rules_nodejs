@@ -1,0 +1,1365 @@
+diff --git a/go/tools/bazel/BUILD.bazel b/go/tools/bazel/BUILD.bazel
+index 6fbd4086..66656084 100644
+--- a/go/tools/bazel/BUILD.bazel
++++ b/go/tools/bazel/BUILD.bazel
+@@ -4,6 +4,8 @@ go_library(
+     name = "go_default_library",
+     srcs = [
+         "bazel.go",
++        "runfiledir.go",
++        "runfilemanifest.go",
+         "runfiles.go",
+     ],
+     importpath = "github.com/bazelbuild/rules_go/go/tools/bazel",
+@@ -13,8 +15,13 @@ go_library(
+ go_test(
+     name = "go_default_test",
+     size = "small",
+-    srcs = ["bazel_test.go"],
+-    data = ["README.md"],
++    srcs = [
++        "bazel_test.go",
++        "runfiles_test.go",
++    ],
++    data = [
++        "README.md",
++    ],
+     embed = [":go_default_library"],
+ )
+ 
+diff --git a/go/tools/bazel/bazel.go b/go/tools/bazel/bazel.go
+index 08bf3496..37f1b8d1 100644
+--- a/go/tools/bazel/bazel.go
++++ b/go/tools/bazel/bazel.go
+@@ -16,14 +16,76 @@
+ package bazel
+ 
+ import (
++	"fmt"
+ 	"io/ioutil"
+ 	"os"
++	"path/filepath"
++	"sync"
+ )
+ 
+ const TEST_SRCDIR = "TEST_SRCDIR"
+ const TEST_TMPDIR = "TEST_TMPDIR"
+ const TEST_WORKSPACE = "TEST_WORKSPACE"
+ 
++var (
++	defaultTestWorkspace = ""
++
++	runfileResolver     runfilesResolver
++	runfileResolverErr  error
++	runfileResolverOnce sync.Once
++)
++
++func getRunfilesResolver() (runfilesResolver, error) {
++	runfileResolverOnce.Do(func() {
++		runfileResolver, runfileResolverErr = newRunfilesResolver()
++	})
++	return runfileResolver, runfileResolverErr
++}
++
++// Runfile returns an absolute path to the specified file in the runfiles directory of the running target.
++// It searches the current working directory, the runfiles path, and the workspace subdirectory of runfiles.
++// If a runfiles manifest is present, it will be used to resolve files not present in the working directory.
++// Returns an error if the file could not be found, or if an error occurs trying to find the runfiles env.
++func Runfile(path string) (string, error) {
++	// Search in working directory
++	if _, err := os.Stat(path); err == nil {
++		return path, nil
++	}
++
++	resolver, err := getRunfilesResolver()
++	if err != nil {
++		return "", err
++	}
++
++	// Search in runfiles.
++	searchPath := []string{path}
++	if workspace, err := TestWorkspace(); err == nil {
++		searchPath = append(searchPath, filepath.Join(workspace, path))
++	}
++
++	for _, path := range searchPath {
++		filename, ok := resolver.Resolve(path)
++		if !ok {
++			continue
++		}
++
++		if _, err := os.Stat(filename); err == nil {
++			return filename, nil
++		}
++	}
++
++	return "", fmt.Errorf("unable to find file %q", path)
++}
++
++// RunfilesPath return the path to the run files tree for this test.
++// It returns an error if TEST_SRCDIR does not exist.
++func RunfilesPath() (string, error) {
++	if src, ok := os.LookupEnv(TEST_SRCDIR); ok {
++		return src, nil
++	}
++	return "", fmt.Errorf("environment variable %q is not defined, are you running with bazel test", TEST_SRCDIR)
++}
++
+ // NewTmpDir creates a new temporary directory in TestTmpDir().
+ func NewTmpDir(prefix string) (string, error) {
+ 	return ioutil.TempDir(TestTmpDir(), prefix)
+@@ -37,3 +99,90 @@ func TestTmpDir() string {
+ 	}
+ 	return os.TempDir()
+ }
++
++// TestWorkspace returns the name of the Bazel workspace for this test.
++// If TEST_WORKSPACE is not defined, it returns an error.
++func TestWorkspace() (string, error) {
++	if ws, ok := os.LookupEnv(TEST_WORKSPACE); ok {
++		return ws, nil
++	}
++	if defaultTestWorkspace != "" {
++		return defaultTestWorkspace, nil
++	}
++	return "", fmt.Errorf("Unable to find environment variable TEST_WORKSPACE")
++}
++
++// SetDefaultTestWorkspace allows you to set a fake value for the
++// environment variable TEST_WORKSPACE if it is not defined. This is useful
++// when running tests on the command line and not through Bazel.
++func SetDefaultTestWorkspace(w string) {
++	defaultTestWorkspace = w
++}
++
++// getCandidates returns the list of all possible "prefix/suffix" paths where there might be an
++// optional component in-between the two pieces.
++//
++// This function exists to cope with issues #1239 because we cannot tell where the built Go
++// binaries are located upfront.
++func getCandidates(prefix string, suffix string) []string {
++	candidates := []string{filepath.Join(prefix, suffix)}
++	if entries, err := ioutil.ReadDir(prefix); err == nil {
++		for _, entry := range entries {
++			candidate := filepath.Join(prefix, entry.Name(), suffix)
++			candidates = append(candidates, candidate)
++		}
++	}
++	return candidates
++}
++
++// FindBinary locates the given executable within bazel-bin or the current directory.
++//
++// "pkg" indicates the relative path to the build package that contains the binary target, and
++// "binary" indicates the basename of the binary searched for.
++func FindBinary(pkg string, binary string) (string, bool) {
++	candidates := getCandidates(filepath.Join("bazel-bin", pkg), binary)
++	candidates = append(candidates, getCandidates(pkg, binary)...)
++
++	for _, candidate := range candidates {
++		// Following symlinks here is intentional because Bazel generates symlinks in
++		// general and we don't care about that.
++		if fileInfo, err := os.Stat(candidate); err == nil {
++			if fileInfo.Mode()&os.ModeType == 0 && fileInfo.Mode()&0100 != 0 {
++				return candidate, true
++			}
++		}
++	}
++	return "", false
++}
++
++// findRunfiles locates the directory under which a built binary can find its data dependencies
++// using relative paths.
++func findRunfiles(workspace string, pkg string, binary string, cookie string) (string, bool) {
++	candidates := getCandidates(filepath.Join("bazel-bin", pkg), filepath.Join(binary+".runfiles", workspace))
++	candidates = append(candidates, ".")
++
++	for _, candidate := range candidates {
++		if _, err := os.Stat(filepath.Join(candidate, cookie)); err == nil {
++			return candidate, true
++		}
++	}
++	return "", false
++}
++
++// EnterRunfiles locates the directory under which a built binary can find its data dependencies
++// using relative paths, and enters that directory.
++//
++// "workspace" indicates the name of the current project, "pkg" indicates the relative path to the
++// build package that contains the binary target, "binary" indicates the basename of the binary
++// searched for, and "cookie" indicates an arbitrary data file that we expect to find within the
++// runfiles tree.
++func EnterRunfiles(workspace string, pkg string, binary string, cookie string) error {
++	runfiles, ok := findRunfiles(workspace, pkg, binary, cookie)
++	if !ok {
++		return fmt.Errorf("cannot find runfiles tree")
++	}
++	if err := os.Chdir(runfiles); err != nil {
++		return fmt.Errorf("cannot enter runfiles tree: %v", err)
++	}
++	return nil
++}
+diff --git a/go/tools/bazel/bazel_test.go b/go/tools/bazel/bazel_test.go
+index 66aa5876..41c9eed2 100644
+--- a/go/tools/bazel/bazel_test.go
++++ b/go/tools/bazel/bazel_test.go
+@@ -126,6 +126,137 @@ func TestTestWorkspace(t *testing.T) {
+ 	}
+ }
+ 
++func TestTestWorkspaceWithoutDefaultSet(t *testing.T) {
++	if oldVal, ok := os.LookupEnv(TEST_WORKSPACE); ok {
++		defer os.Setenv(TEST_WORKSPACE, oldVal)
++	} else {
++		t.Errorf("Terrible things are happening. You can't read env variables")
++	}
++	os.Unsetenv(TEST_WORKSPACE)
++
++	workspace, err := TestWorkspace()
++
++	if workspace != "" {
++		t.Errorf("Workspace should be left empty but was: %s", workspace)
++	}
++
++	if err == nil {
++		t.Errorf("Expected error but instead passed")
++	}
++}
++
++func TestTestWorkspaceWithDefaultSet(t *testing.T) {
++	if oldVal, ok := os.LookupEnv(TEST_WORKSPACE); ok {
++		defer os.Setenv(TEST_WORKSPACE, oldVal)
++	} else {
++		t.Errorf("Terrible things are happening. You can't read env variables")
++	}
++	os.Unsetenv(TEST_WORKSPACE)
++
++	SetDefaultTestWorkspace("default_value")
++	workspace, err := TestWorkspace()
++
++	if workspace == "" {
++		t.Errorf("Workspace is left empty")
++	}
++
++	if err != nil {
++		t.Errorf("Unable to get workspace with error %s", err)
++	}
++}
++
++func TestFindBinary(t *testing.T) {
++	testData := []struct {
++		name string
++
++		pathsToCreate []string
++		wantBinary    string
++		wantOk        bool
++	}{
++		{
++			"NoFiles",
++			[]string{},
++			"",
++			false,
++		},
++		{
++			"CurrentDirectoryNoConfigurationInPath",
++			[]string{
++				"some/package/",
++				"some/package/bin*",
++			},
++			"some/package/bin",
++			true,
++		},
++		{
++			"CurrentDirectoryConfigurationInPath",
++			[]string{
++				"some/package/amd64/",
++				"some/package/arm64/",
++				"some/package/arm64/bin*",
++				"some/package/powerpc/",
++			},
++			"some/package/arm64/bin",
++			true,
++		},
++		{
++			"BazelBinNoConfigurationInPath",
++			[]string{
++				"bazel-bin/some/package/",
++				"bazel-bin/some/package/bin*",
++				"bin", // bazel-bin should be preferred.
++			},
++			"bazel-bin/some/package/bin",
++			true,
++		},
++		{
++			"BazelBinConfigurationInPath",
++			[]string{
++				"bazel-bin/some/package/amd64/",
++				"bazel-bin/some/package/arm64/",
++				"bazel-bin/some/package/arm64/bin*",
++				"bazel-bin/some/package/powerpc/",
++				"bin", // bazel-bin should be preferred.
++				"some/package/amd64/",
++				"some/package/amd64/bin", // bazel-bin should be preferred.
++			},
++			"bazel-bin/some/package/arm64/bin",
++			true,
++		},
++		{
++			"IgnoreNonExecutable",
++			[]string{
++				"bazel-bin/some/package/amd64/",
++				"bazel-bin/some/package/amd64/bin",
++				"bazel-bin/some/package/arm64/",
++				"bazel-bin/some/package/arm64/bin*",
++				"bazel-bin/some/package/powerpc/",
++				"bazel-bin/some/package/powerpc/bin",
++			},
++			"bazel-bin/some/package/arm64/bin",
++			true,
++		},
++	}
++	for _, d := range testData {
++		t.Run(d.name, func(t *testing.T) {
++			cleanup, err := makeAndEnterTempdir()
++			if err != nil {
++				t.Fatal(err)
++			}
++			defer cleanup()
++
++			if err := createPaths(d.pathsToCreate); err != nil {
++				t.Fatal(err)
++			}
++
++			binary, ok := FindBinary("some/package", "bin")
++			if binary != d.wantBinary || ok != d.wantOk {
++				t.Errorf("Got %s, %v; want %s, %v", binary, ok, d.wantBinary, d.wantOk)
++			}
++		})
++	}
++}
++
+ func TestFindRunfiles(t *testing.T) {
+ 	testData := []struct {
+ 		name string
+diff --git a/go/tools/bazel/runfiledir.go b/go/tools/bazel/runfiledir.go
+new file mode 100644
+index 00000000..255d1452
+--- /dev/null
++++ b/go/tools/bazel/runfiledir.go
+@@ -0,0 +1,32 @@
++// Copyright 2018 The Bazel Authors.
++//
++// Licensed under the Apache License, Version 2.0 (the "License");
++// you may not use this file except in compliance with the License.
++// You may obtain a copy of the License at
++//
++//      http://www.apache.org/licenses/LICENSE-2.0
++//
++// Unless required by applicable law or agreed to in writing, software
++// distributed under the License is distributed on an "AS IS" BASIS,
++// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++// See the License for the specific language governing permissions and
++// limitations under the License.
++
++package bazel
++
++import (
++	"path/filepath"
++)
++
++type directoryResolver string
++
++// newDirectoryRunfilesResolver creates a new runfiles resolver that uses a runfiles directory to derive
++// filenames.
++func newDirectoryRunfilesResolver(directory string) (runfilesResolver, error) {
++	return directoryResolver(directory), nil
++}
++
++// Resolve implements the Resolver interface.
++func (r directoryResolver) Resolve(n string) (string, bool) {
++	return filepath.Join(string(r), n), true
++}
+diff --git a/go/tools/bazel/runfilemanifest.go b/go/tools/bazel/runfilemanifest.go
+new file mode 100644
+index 00000000..8392a4b0
+--- /dev/null
++++ b/go/tools/bazel/runfilemanifest.go
+@@ -0,0 +1,53 @@
++// Copyright 2018 The Bazel Authors.
++//
++// Licensed under the Apache License, Version 2.0 (the "License");
++// you may not use this file except in compliance with the License.
++// You may obtain a copy of the License at
++//
++//      http://www.apache.org/licenses/LICENSE-2.0
++//
++// Unless required by applicable law or agreed to in writing, software
++// distributed under the License is distributed on an "AS IS" BASIS,
++// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++// See the License for the specific language governing permissions and
++// limitations under the License.
++
++package bazel
++
++import (
++	"bufio"
++	"errors"
++	"io"
++	"path/filepath"
++	"strings"
++)
++
++var errManifestInvalid = errors.New("runfiles manifest syntax error")
++
++type manifestResolver map[string]string
++
++// newManifestRunfilesResolver creates a new runfiles resolver that uses a manifest file to resolve
++// filenames.
++func newManifestRunfilesResolver(manifest io.Reader) (runfilesResolver, error) {
++	resolver := manifestResolver{}
++	scanner := bufio.NewScanner(manifest)
++
++	for scanner.Scan() {
++		a := strings.SplitN(scanner.Text(), " ", 2)
++		if len(a) != 2 {
++			return nil, errManifestInvalid
++		}
++		resolver[filepath.Clean(a[0])] = a[1]
++	}
++
++	return resolver, nil
++}
++
++// Resolve implements the Resolver interface.
++func (r manifestResolver) Resolve(n string) (string, bool) {
++	if fn, ok := r[filepath.Clean(n)]; ok {
++		return fn, true
++	}
++
++	return "", false
++}
+diff --git a/go/tools/bazel/runfiles.go b/go/tools/bazel/runfiles.go
+index ed053e90..16ca3e16 100644
+--- a/go/tools/bazel/runfiles.go
++++ b/go/tools/bazel/runfiles.go
+@@ -15,17 +15,8 @@
+ package bazel
+ 
+ import (
+-	"bytes"
+ 	"errors"
+-	"fmt"
+-	"io/ioutil"
+ 	"os"
+-	"path"
+-	"path/filepath"
+-	"runtime"
+-	"sort"
+-	"strings"
+-	"sync"
+ )
+ 
+ const (
+@@ -33,393 +24,31 @@ const (
+ 	RUNFILES_DIR           = "RUNFILES_DIR"
+ )
+ 
+-// Runfile returns an absolute path to the file named by "path", which
+-// should be a relative path from the workspace root to the file within
+-// the bazel workspace.
+-//
+-// Runfile may be called from tests invoked with 'bazel test' and
+-// binaries invoked with 'bazel run'. On Windows,
+-// only tests invoked with 'bazel test' are supported.
+-func Runfile(path string) (string, error) {
+-	// Search in working directory
+-	if _, err := os.Stat(path); err == nil {
+-		return filepath.Abs(path)
+-	}
+-
+-	if err := ensureRunfiles(); err != nil {
+-		return "", err
+-	}
+-
+-	// Search manifest if we have one.
+-	if entry, ok := runfiles.index[path]; ok {
+-		return entry.Path, nil
+-	}
+-
+-	// Search the main workspace.
+-	if runfiles.workspace != "" {
+-		mainPath := filepath.Join(runfiles.dir, runfiles.workspace, path)
+-		if _, err := os.Stat(mainPath); err == nil {
+-			return mainPath, nil
+-		}
+-	}
+-
+-	// Search other workspaces.
+-	for _, w := range runfiles.workspaces {
+-		workPath := filepath.Join(runfiles.dir, w, path)
+-		if _, err := os.Stat(workPath); err == nil {
+-			return workPath, nil
+-		}
+-	}
+-
+-	return "", fmt.Errorf("Runfile %s: could not locate file", path)
+-}
+-
+-// FindBinary returns an absolute path to the binary built from a go_binary
+-// rule in the given package with the given name. FindBinary is similar to
+-// Runfile, but it accounts for varying configurations and file extensions,
+-// which may cause the binary to have different paths on different platforms.
+-//
+-// FindBinary may be called from tests invoked with 'bazel test' and
+-// binaries invoked with 'bazel run'. On Windows,
+-// only tests invoked with 'bazel test' are supported.
+-func FindBinary(pkg, name string) (string, bool) {
+-	if err := ensureRunfiles(); err != nil {
+-		return "", false
+-	}
+-
+-	// If we've gathered a list of runfiles, either by calling ListRunfiles or
+-	// parsing the manifest on Windows, just use that instead of searching
+-	// directories. Return the first match. The manifest on Windows may contain
+-	// multiple entries for the same file.
+-	if runfiles.list != nil {
+-		if runtime.GOOS == "windows" {
+-			name += ".exe"
+-		}
+-		for _, entry := range runfiles.list {
+-			if path.Base(entry.ShortPath) != name {
+-				continue
+-			}
+-			pkgDir := path.Dir(path.Dir(entry.ShortPath))
+-			if pkgDir == "." {
+-				pkgDir = ""
+-			}
+-			if pkgDir != pkg {
+-				continue
+-			}
+-			return entry.Path, true
+-		}
+-		return "", false
+-	}
+-
+-	dir, err := Runfile(pkg)
+-	if err != nil {
+-		return "", false
+-	}
+-	var found string
+-	stopErr := errors.New("stop")
+-	err = filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+-		if err != nil {
+-			return err
+-		}
+-		base := filepath.Base(path)
+-		stem := strings.TrimSuffix(base, ".exe")
+-		if stem != name {
+-			return nil
+-		}
+-		if runtime.GOOS != "windows" {
+-			if st, err := os.Stat(path); err != nil {
+-				return err
+-			} else if st.Mode()&0111 == 0 {
+-				return nil
+-			}
+-		}
+-		if stem == name {
+-			found = path
+-			return stopErr
+-		}
+-		return nil
+-	})
+-	if err == stopErr {
+-		return found, true
+-	} else {
+-		return "", false
+-	}
+-}
+-
+-// A RunfileEntry describes a runfile.
+-type RunfileEntry struct {
+-	// Workspace is the bazel workspace the file came from. For example,
+-	// this would be "io_bazel_rules_go" for a file in rules_go.
+-	Workspace string
+-
+-	// ShortPath is a relative, slash-separated path from the workspace root
+-	// to the file. For non-binary files, this may be passed to Runfile
+-	// to locate a file.
+-	ShortPath string
+-
+-	// Path is an absolute path to the file.
+-	Path string
+-}
+-
+-// ListRunfiles returns a list of available runfiles.
+-func ListRunfiles() ([]RunfileEntry, error) {
+-	if err := ensureRunfiles(); err != nil {
+-		return nil, err
+-	}
+-
+-	if runfiles.list == nil && runfiles.dir != "" {
+-		runfiles.listOnce.Do(func() {
+-			var list []RunfileEntry
+-			haveWorkspaces := strings.HasSuffix(runfiles.dir, ".runfiles") && runfiles.workspace != ""
+-
+-			err := filepath.Walk(runfiles.dir, func(path string, info os.FileInfo, err error) error {
+-				if err != nil {
+-					return err
+-				}
+-				rel, _ := filepath.Rel(runfiles.dir, path)
+-				rel = filepath.ToSlash(rel)
+-				if rel == "." {
+-					return nil
+-				}
+-
+-				var workspace, shortPath string
+-				if haveWorkspaces {
+-					if i := strings.IndexByte(rel, '/'); i < 0 {
+-						return nil
+-					} else {
+-						workspace, shortPath = rel[:i], rel[i+1:]
+-					}
+-				} else {
+-					workspace, shortPath = "", rel
+-				}
+-
+-				list = append(list, RunfileEntry{Workspace: workspace, ShortPath: shortPath, Path: path})
+-				return nil
+-			})
+-			if err != nil {
+-				runfiles.err = err
+-				return
+-			}
+-			runfiles.list = list
+-		})
+-	}
+-	return runfiles.list, runfiles.err
+-}
+-
+-// TestWorkspace returns the name of the Bazel workspace for this test.
+-// TestWorkspace returns an error if the TEST_WORKSPACE environment variable
+-// was not set or SetDefaultTestWorkspace was not called.
+-func TestWorkspace() (string, error) {
+-	if err := ensureRunfiles(); err != nil {
+-		return "", err
+-	}
+-	if runfiles.workspace != "" {
+-		return runfiles.workspace, nil
+-	}
+-	return "", errors.New("TEST_WORKSPACE not set and SetDefaultTestWorkspace not called")
+-}
++var errNoRunfilesEnv = errors.New("runfiles environment missing")
+ 
+-// SetDefaultTestWorkspace allows you to set a fake value for the
+-// environment variable TEST_WORKSPACE if it is not defined. This is useful
+-// when running tests on the command line and not through Bazel.
+-func SetDefaultTestWorkspace(w string) {
+-	ensureRunfiles()
+-	runfiles.workspace = w
++// runfilesResolver is an interface for a resolver that can take a runfiles path and resolve it to a path on
++// disk.
++type runfilesResolver interface {
++	Resolve(string) (string, bool)
+ }
+ 
+-// RunfilesPath return the path to the runfiles tree.
+-// It will return an error if there is no runfiles tree, for example because
+-// the executable is run on Windows or was not invoked with 'bazel test'
+-// or 'bazel run'.
+-func RunfilesPath() (string, error) {
+-	if err := ensureRunfiles(); err != nil {
+-		return "", err
+-	}
+-	if runfiles.dir == "" {
+-		if runtime.GOOS == "windows" {
+-			return "", errors.New("RunfilesPath: no runfiles directory on windows")
+-		} else {
+-			return "", errors.New("could not locate runfiles directory")
+-		}
+-	}
+-	if runfiles.workspace == "" {
+-		return "", errors.New("could not locate runfiles workspace")
+-	}
+-	return filepath.Join(runfiles.dir, runfiles.workspace), nil
+-}
+-
+-// EnterRunfiles locates the directory under which a built binary can find its data dependencies
+-// using relative paths, and enters that directory.
+-//
+-// "workspace" indicates the name of the current project, "pkg" indicates the relative path to the
+-// build package that contains the binary target, "binary" indicates the basename of the binary
+-// searched for, and "cookie" indicates an arbitrary data file that we expect to find within the
+-// runfiles tree.
+-//
+-// DEPRECATED: use RunfilesPath instead.
+-func EnterRunfiles(workspace string, pkg string, binary string, cookie string) error {
+-	runfiles, ok := findRunfiles(workspace, pkg, binary, cookie)
+-	if !ok {
+-		return fmt.Errorf("cannot find runfiles tree")
+-	}
+-	if err := os.Chdir(runfiles); err != nil {
+-		return fmt.Errorf("cannot enter runfiles tree: %v", err)
+-	}
+-	return nil
+-}
+-
+-var runfiles = struct {
+-	once, listOnce sync.Once
+-
+-	// list is a list of known runfiles, either loaded from the manifest
+-	// or discovered by walking the runfile directory.
+-	list []RunfileEntry
+-
+-	// index maps runfile short paths to absolute paths.
+-	index map[string]RunfileEntry
+-
+-	// dir is a path to the runfile directory. Typically this is a directory
+-	// named <target>.runfiles, with a subdirectory for each workspace.
+-	dir string
+-
+-	// workspace is workspace where the binary or test was built.
+-	workspace string
+-
+-	// workspaces is a list of other workspace names.
+-	workspaces []string
+-
+-	// err is set when there is an error loading runfiles, for example,
+-	// parsing the manifest.
+-	err error
+-}{}
+-
+-func ensureRunfiles() error {
+-	runfiles.once.Do(initRunfiles)
+-	return runfiles.err
+-}
+-
+-func initRunfiles() {
+-	manifest := os.Getenv("RUNFILES_MANIFEST_FILE")
++// newRunfilesResolver creates a new runfiles resolver. The type of resolver and its parameters are derived
++// from the environment.
++func newRunfilesResolver() (runfilesResolver, error) {
++	manifest := os.Getenv(RUNFILES_MANIFEST_FILE)
+ 	if manifest != "" {
+-		// On Windows, Bazel doesn't create a symlink tree of runfiles because
+-		// Windows doesn't support symbolic links by default. Instead, runfile
+-		// locations are written to a manifest file.
+-		runfiles.index = make(map[string]RunfileEntry)
+-		data, err := ioutil.ReadFile(manifest)
++		f, err := os.Open(manifest)
+ 		if err != nil {
+-			runfiles.err = err
+-			return
++			return nil, err
+ 		}
+-		lineno := 0
+-		for len(data) > 0 {
+-			i := bytes.IndexByte(data, '\n')
+-			var line []byte
+-			if i < 0 {
+-				line = data
+-				data = nil
+-			} else {
+-				line = data[:i]
+-				data = data[i+1:]
+-			}
+-			lineno++
+-			line = bytes.TrimSpace(line)
+-			if len(line) == 0 {
+-				continue
+-			}
+-			e := bytes.SplitN(line, []byte(" "), 2)
+-			if len(e) < 2 {
+-				runfiles.err = fmt.Errorf("error parsing runfiles manifest: %s:%d: no space", manifest, lineno)
+-				return
+-			}
+-
+-			entry := RunfileEntry{ShortPath: string(e[0]), Path: string(e[1])}
+-			if i := strings.IndexByte(entry.ShortPath, '/'); i >= 0 {
+-				entry.Workspace = entry.ShortPath[:i]
+-				entry.ShortPath = entry.ShortPath[i+1:]
+-			}
+-			if strings.HasPrefix(entry.ShortPath, "external/") {
+-				entry.ShortPath = entry.ShortPath[len("external/"):]
+-				if i := strings.IndexByte(entry.ShortPath, '/'); i >= 0 {
+-					entry.Workspace = entry.ShortPath[:i]
+-					entry.ShortPath = entry.ShortPath[i+1:]
+-				}
+-			}
+-
+-			runfiles.list = append(runfiles.list, entry)
+-			runfiles.index[entry.ShortPath] = entry
+-		}
+-	}
+-
+-	runfiles.workspace = os.Getenv("TEST_WORKSPACE")
+-
+-	if dir := os.Getenv("RUNFILES_DIR"); dir != "" {
+-		runfiles.dir = dir
+-	} else if dir = os.Getenv("TEST_SRCDIR"); dir != "" {
+-		runfiles.dir = dir
+-	} else if runtime.GOOS != "windows" {
+-		dir, err := os.Getwd()
+-		if err != nil {
+-			runfiles.err = fmt.Errorf("error localting runfiles dir: %v", err)
+-			return
+-		}
+-
+-		parent := filepath.Dir(dir)
+-		if strings.HasSuffix(parent, ".runfiles") {
+-			runfiles.dir = parent
+-			if runfiles.workspace == "" {
+-				runfiles.workspace = filepath.Base(dir)
+-			}
+-		} else {
+-			runfiles.err = errors.New("could not locate runfiles directory")
+-			return
+-		}
+-	}
+-
+-	if runfiles.dir != "" {
+-		fis, err := ioutil.ReadDir(runfiles.dir)
+-		if err != nil {
+-			runfiles.err = fmt.Errorf("could not open runfiles directory: %v", err)
+-			return
+-		}
+-		for _, fi := range fis {
+-			if fi.IsDir() {
+-				runfiles.workspaces = append(runfiles.workspaces, fi.Name())
+-			}
+-		}
+-		sort.Strings(runfiles.workspaces)
++		defer f.Close()
++		return newManifestRunfilesResolver(f)
+ 	}
+-}
+ 
+-// getCandidates returns the list of all possible "prefix/suffix" paths where there might be an
+-// optional component in-between the two pieces.
+-//
+-// This function exists to cope with issues #1239 because we cannot tell where the built Go
+-// binaries are located upfront.
+-//
+-// DEPRECATED: only used by EnterRunfiles.
+-func getCandidates(prefix string, suffix string) []string {
+-	candidates := []string{filepath.Join(prefix, suffix)}
+-	if entries, err := ioutil.ReadDir(prefix); err == nil {
+-		for _, entry := range entries {
+-			candidate := filepath.Join(prefix, entry.Name(), suffix)
+-			candidates = append(candidates, candidate)
+-		}
++	directory := os.Getenv(RUNFILES_DIR)
++	if directory != "" {
++		return newDirectoryRunfilesResolver(directory)
+ 	}
+-	return candidates
+-}
+-
+-// findRunfiles locates the directory under which a built binary can find its data dependencies
+-// using relative paths.
+-//
+-// DEPRECATED: only used by EnterRunfiles.
+-func findRunfiles(workspace string, pkg string, binary string, cookie string) (string, bool) {
+-	candidates := getCandidates(filepath.Join("bazel-bin", pkg), filepath.Join(binary+".runfiles", workspace))
+-	candidates = append(candidates, ".")
+ 
+-	for _, candidate := range candidates {
+-		if _, err := os.Stat(filepath.Join(candidate, cookie)); err == nil {
+-			return candidate, true
+-		}
+-	}
+-	return "", false
++	return nil, errNoRunfilesEnv
+ }
+diff --git a/go/tools/bazel/runfiles_test.go b/go/tools/bazel/runfiles_test.go
+new file mode 100644
+index 00000000..b7bd44f0
+--- /dev/null
++++ b/go/tools/bazel/runfiles_test.go
+@@ -0,0 +1,125 @@
++// Copyright 2018 The Bazel Authors.
++//
++// Licensed under the Apache License, Version 2.0 (the "License");
++// you may not use this file except in compliance with the License.
++// You may obtain a copy of the License at
++//
++//      http://www.apache.org/licenses/LICENSE-2.0
++//
++// Unless required by applicable law or agreed to in writing, software
++// distributed under the License is distributed on an "AS IS" BASIS,
++// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++// See the License for the specific language governing permissions and
++// limitations under the License.
++
++package bazel
++
++import (
++	"io/ioutil"
++	"os"
++	"path/filepath"
++	"testing"
++)
++
++func setenvForTest(key, value string) (cleanup func()) {
++	if old, ok := os.LookupEnv(key); ok {
++		cleanup = func() { os.Setenv(key, old) }
++	} else {
++		cleanup = func() { os.Unsetenv(key) }
++	}
++	os.Setenv(key, value)
++	return cleanup
++}
++
++func setupResolverForTest() {
++	// Prevent initialization code from running.
++	runfileResolverOnce.Do(func() {})
++	runfileResolver, runfileResolverErr = newRunfilesResolver()
++}
++
++func TestManifestRunfiles(t *testing.T) {
++	dir, err := NewTmpDir("test")
++	if err != nil {
++		t.Fatal(err)
++	}
++	defer os.RemoveAll(dir)
++
++	testStr := "This is a test"
++	mappedFilename := filepath.Join(dir, "mapped_file.txt")
++	if err := ioutil.WriteFile(mappedFilename, []byte(testStr), 0600); err != nil {
++		t.Fatal(err)
++	}
++
++	manifestFilename := filepath.Join(dir, "MANIFEST")
++	if err := ioutil.WriteFile(manifestFilename, []byte("runfiles/test.txt "+mappedFilename), 0600); err != nil {
++		t.Fatal(err)
++	}
++
++	cleanupManifestEnv := setenvForTest(RUNFILES_MANIFEST_FILE, manifestFilename)
++	defer cleanupManifestEnv()
++	cleanupDirEnv := setenvForTest(RUNFILES_DIR, "")
++	defer cleanupDirEnv()
++
++	setupResolverForTest()
++	if runfileResolverErr != nil {
++		t.Fatal(runfileResolverErr)
++	}
++	if _, ok := runfileResolver.(manifestResolver); !ok {
++		t.Error("resolver should be manifest resolver")
++	}
++
++	filename, err := Runfile("runfiles/test.txt")
++	if err != nil {
++		t.Fatal(err)
++	}
++
++	d, err := ioutil.ReadFile(filename)
++	if err != nil {
++		t.Fatal(err)
++	}
++
++	if string(d) != testStr {
++		t.Errorf("expected %s, got %s", testStr, string(d))
++	}
++}
++
++func TestDirectoryRunfiles(t *testing.T) {
++	dir, err := NewTmpDir("test")
++	if err != nil {
++		t.Fatal(err)
++	}
++	defer os.RemoveAll(dir)
++
++	testStr := "This is a test"
++	mappedfn := filepath.Join(dir, "runfile.txt")
++	if err := ioutil.WriteFile(mappedfn, []byte(testStr), 0600); err != nil {
++		t.Fatal(err)
++	}
++
++	cleanupManifestEnv := setenvForTest(RUNFILES_MANIFEST_FILE, "")
++	defer cleanupManifestEnv()
++	cleanupDirEnv := setenvForTest(RUNFILES_DIR, dir)
++	defer cleanupDirEnv()
++
++	setupResolverForTest()
++	if runfileResolverErr != nil {
++		t.Fatal(runfileResolverErr)
++	}
++	if _, ok := runfileResolver.(directoryResolver); !ok {
++		t.Error("resolver should be directory resolver")
++	}
++
++	filename, err := Runfile("runfile.txt")
++	if err != nil {
++		t.Fatal(err)
++	}
++
++	d, err := ioutil.ReadFile(filename)
++	if err != nil {
++		t.Fatal(err)
++	}
++
++	if string(d) != testStr {
++		t.Errorf("expected %s, got %s", testStr, string(d))
++	}
++}
+diff --git a/tests/core/runfiles/BUILD.bazel b/tests/core/runfiles/BUILD.bazel
+deleted file mode 100644
+index c7db6d3d..00000000
+--- a/tests/core/runfiles/BUILD.bazel
++++ /dev/null
+@@ -1,48 +0,0 @@
+-load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "go_test")
+-
+-package(default_visibility = ["//visibility:public"])
+-
+-test_suite(
+-    name = "runfiles_tests",
+-    tests = [
+-        ":local_test",
+-        "@runfiles_remote_test//:remote_test",
+-    ],
+-)
+-
+-go_test(
+-    name = "local_test",
+-    srcs = ["runfiles_test.go"],
+-    deps = [":check_runfiles"],
+-)
+-
+-go_binary(
+-    name = "local_cmd",
+-    srcs = ["runfiles_cmd.go"],
+-    deps = [":check_runfiles"],
+-)
+-
+-go_binary(
+-    name = "local_bin",
+-    srcs = ["empty_bin.go"],
+-)
+-
+-go_library(
+-    name = "check_runfiles",
+-    srcs = ["check_runfiles.go"],
+-    data = [
+-        "local_file.txt",
+-        ":local_bin",
+-        ":local_group",
+-        "@runfiles_remote_test//:remote_bin",
+-        "@runfiles_remote_test//:remote_file.txt",
+-        "@runfiles_remote_test//:remote_group",
+-    ],
+-    importpath = "github.com/bazelbuild/rules_go/tests/core/runfiles/check",
+-    deps = ["//go/tools/bazel:go_default_library"],
+-)
+-
+-filegroup(
+-    name = "local_group",
+-    srcs = ["local_group.txt"],
+-)
+diff --git a/tests/core/runfiles/README.rst b/tests/core/runfiles/README.rst
+deleted file mode 100644
+index ec357826..00000000
+--- a/tests/core/runfiles/README.rst
++++ /dev/null
+@@ -1,23 +0,0 @@
+-Runfiles functionality
+-=====================
+-
+-runfiles_tests
+---------------
+-
+-Checks that functions in ``//go/tools/bazel:go_default_library`` that
+-provide access to runfiles behave correctly. In particular, this checks:
+-
+-* ``Runfile`` works for regular files.
+-* ``FindBinary`` works for binaries.
+-* ``ListRunfiles`` lists all expected files.
+-* These functions work for runfiles in the local workspace and for files in
+-  external repositories (``@runfiles_remote_test`` is a ``local_repository``
+-  that points to a subdirectory here).
+-* These functions work in tests invoked with ``bazel test`` and
+-  binaries invoked with ``bazel run``.
+-* These functions work on Windows and other platforms. Bazel doesn't
+-  create a symlink tree for runfiles on Windows since symbolic links
+-  can't be created without administrative privilege by default.
+-
+-TODO: Verify binary behavior in CI. The ``local_bin`` and ``remote_bin``
+-targets verify behavior for binaries, but they are not tests.
+diff --git a/tests/core/runfiles/bin.go b/tests/core/runfiles/bin.go
+deleted file mode 100644
+index 0ced7a9e..00000000
+--- a/tests/core/runfiles/bin.go
++++ /dev/null
+@@ -1,17 +0,0 @@
+-// Copyright 2019 The Bazel Authors. All rights reserved.
+-//
+-// Licensed under the Apache License, Version 2.0 (the "License");
+-// you may not use this file except in compliance with the License.
+-// You may obtain a copy of the License at
+-//
+-//    http://www.apache.org/licenses/LICENSE-2.0
+-//
+-// Unless required by applicable law or agreed to in writing, software
+-// distributed under the License is distributed on an "AS IS" BASIS,
+-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-// See the License for the specific language governing permissions and
+-// limitations under the License.
+-
+-package main
+-
+-func main() {}
+diff --git a/tests/core/runfiles/check_runfiles.go b/tests/core/runfiles/check_runfiles.go
+deleted file mode 100644
+index 8858a573..00000000
+--- a/tests/core/runfiles/check_runfiles.go
++++ /dev/null
+@@ -1,121 +0,0 @@
+-// Copyright 2019 The Bazel Authors. All rights reserved.
+-//
+-// Licensed under the Apache License, Version 2.0 (the "License");
+-// you may not use this file except in compliance with the License.
+-// You may obtain a copy of the License at
+-//
+-//    http://www.apache.org/licenses/LICENSE-2.0
+-//
+-// Unless required by applicable law or agreed to in writing, software
+-// distributed under the License is distributed on an "AS IS" BASIS,
+-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-// See the License for the specific language governing permissions and
+-// limitations under the License.
+-
+-package check
+-
+-import (
+-	"fmt"
+-	"os"
+-	"path/filepath"
+-	"runtime"
+-	"sort"
+-	"strings"
+-
+-	"github.com/bazelbuild/rules_go/go/tools/bazel"
+-)
+-
+-type TestFile struct {
+-	Workspace, ShortPath, Path string
+-	Binary                     bool
+-}
+-
+-var DefaultTestFiles = []TestFile{
+-	{Workspace: "io_bazel_rules_go", Path: "tests/core/runfiles/local_file.txt"},
+-	{Workspace: "io_bazel_rules_go", Path: "tests/core/runfiles/local_group.txt"},
+-	{Workspace: "io_bazel_rules_go", Path: "tests/core/runfiles/local_bin", Binary: true},
+-	{Workspace: "runfiles_remote_test", Path: "remote_file.txt"},
+-	{Workspace: "runfiles_remote_test", Path: "remote_group.txt"},
+-	{Workspace: "runfiles_remote_test", Path: "remote_bin", Binary: true},
+-}
+-
+-func CheckRunfiles(files []TestFile) error {
+-	// Check that the runfiles directory matches the current workspace.
+-	// There is no runfiles directory on Windows.
+-	if runtime.GOOS != "windows" {
+-		dir, err := bazel.RunfilesPath()
+-		if err != nil {
+-			return err
+-		}
+-		root, base := filepath.Dir(dir), filepath.Base(dir)
+-		if !strings.HasSuffix(root, ".runfiles") {
+-			return fmt.Errorf("RunfilesPath: %q is not a .runfiles directory", dir)
+-		}
+-		workspace := os.Getenv("TEST_WORKSPACE")
+-		if workspace != "" && workspace != base {
+-			return fmt.Errorf("RunfilesPath: %q does not match test workspace %s", dir, workspace)
+-		}
+-		if srcDir := os.Getenv("TEST_SRCDIR"); srcDir != "" && filepath.Join(srcDir, workspace) != dir {
+-			return fmt.Errorf("RunfilesPath: %q does not match TEST_SRCDIR %q", dir, srcDir)
+-		}
+-	}
+-
+-	// Check that files can be found with Runfile or FindBinary.
+-	// Make sure the paths returned are absolute paths to actual files.
+-	seen := make(map[string]string)
+-	for _, f := range files {
+-		var got string
+-		var err error
+-		if !f.Binary {
+-			if got, err = bazel.Runfile(f.Path); err != nil {
+-				return err
+-			}
+-			if !filepath.IsAbs(got) {
+-				return fmt.Errorf("Runfile %s: got a relative path %q; want absolute", f.Path, got)
+-			}
+-			seen[f.Path] = got
+-		} else {
+-			var pkg, name string
+-			if i := strings.LastIndex(f.Path, "/"); i < 0 {
+-				name = f.Path
+-			} else {
+-				pkg = f.Path[:i]
+-				name = f.Path[i+1:]
+-			}
+-			var ok bool
+-			if got, ok = bazel.FindBinary(pkg, name); !ok {
+-				return fmt.Errorf("FindBinary %s %s: could not find binary", pkg, name)
+-			}
+-			if !filepath.IsAbs(got) {
+-				return fmt.Errorf("FindBinary %s %s: got a relative path %q; want absolute", pkg, name, got)
+-			}
+-		}
+-
+-		if _, err := os.Stat(got); err != nil {
+-			return fmt.Errorf("%s: could not stat: %v", f.Path, err)
+-		}
+-	}
+-
+-	// Check that the files can be listed.
+-	entries, err := bazel.ListRunfiles()
+-	if err != nil {
+-		return err
+-	}
+-	for _, e := range entries {
+-		if want, ok := seen[e.ShortPath]; ok && want != e.Path {
+-			return err
+-		}
+-		delete(seen, e.ShortPath)
+-	}
+-
+-	if len(seen) > 0 {
+-		unseen := make([]string, 0, len(seen))
+-		for short := range seen {
+-			unseen = append(unseen, short)
+-		}
+-		sort.Strings(unseen)
+-		return fmt.Errorf("ListRunfiles did not include files:\n\t%s", strings.Join(unseen, "\n\t"))
+-	}
+-
+-	return nil
+-}
+diff --git a/tests/core/runfiles/empty_bin.go b/tests/core/runfiles/empty_bin.go
+deleted file mode 100644
+index 38dd16da..00000000
+--- a/tests/core/runfiles/empty_bin.go
++++ /dev/null
+@@ -1,3 +0,0 @@
+-package main
+-
+-func main() {}
+diff --git a/tests/core/runfiles/local_file.txt b/tests/core/runfiles/local_file.txt
+deleted file mode 100644
+index e69de29b..00000000
+diff --git a/tests/core/runfiles/local_group.txt b/tests/core/runfiles/local_group.txt
+deleted file mode 100644
+index e69de29b..00000000
+diff --git a/tests/core/runfiles/runfiles_cmd.go b/tests/core/runfiles/runfiles_cmd.go
+deleted file mode 100644
+index 0ab124b5..00000000
+--- a/tests/core/runfiles/runfiles_cmd.go
++++ /dev/null
+@@ -1,28 +0,0 @@
+-// Copyright 2019 The Bazel Authors. All rights reserved.
+-//
+-// Licensed under the Apache License, Version 2.0 (the "License");
+-// you may not use this file except in compliance with the License.
+-// You may obtain a copy of the License at
+-//
+-//    http://www.apache.org/licenses/LICENSE-2.0
+-//
+-// Unless required by applicable law or agreed to in writing, software
+-// distributed under the License is distributed on an "AS IS" BASIS,
+-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-// See the License for the specific language governing permissions and
+-// limitations under the License.
+-
+-package main
+-
+-import (
+-	"fmt"
+-	"os"
+-
+-	"github.com/bazelbuild/rules_go/tests/core/runfiles/check"
+-)
+-
+-func main() {
+-	if err := check.CheckRunfiles(check.DefaultTestFiles); err != nil {
+-		fmt.Fprintln(os.Stderr, err.Error())
+-	}
+-}
+diff --git a/tests/core/runfiles/runfiles_remote_test/BUILD.bazel b/tests/core/runfiles/runfiles_remote_test/BUILD.bazel
+deleted file mode 100644
+index 112dcd35..00000000
+--- a/tests/core/runfiles/runfiles_remote_test/BUILD.bazel
++++ /dev/null
+@@ -1,27 +0,0 @@
+-load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_test")
+-
+-package(default_visibility = ["//visibility:public"])
+-
+-go_test(
+-    name = "remote_test",
+-    srcs = ["@io_bazel_rules_go//tests/core/runfiles:runfiles_test.go"],
+-    deps = ["@io_bazel_rules_go//tests/core/runfiles:check_runfiles"],
+-)
+-
+-go_binary(
+-    name = "remote_cmd",
+-    srcs = ["@io_bazel_rules_go//tests/core/runfiles:runfiles_cmd.go"],
+-    deps = ["@io_bazel_rules_go//tests/core/runfiles:check_runfiles"],
+-)
+-
+-go_binary(
+-    name = "remote_bin",
+-    srcs = ["@io_bazel_rules_go//tests/core/runfiles:empty_bin.go"],
+-)
+-
+-filegroup(
+-    name = "remote_group",
+-    srcs = ["remote_group.txt"],
+-)
+-
+-exports_files(["remote_file.txt"])
+diff --git a/tests/core/runfiles/runfiles_remote_test/WORKSPACE b/tests/core/runfiles/runfiles_remote_test/WORKSPACE
+deleted file mode 100644
+index c9af3f85..00000000
+--- a/tests/core/runfiles/runfiles_remote_test/WORKSPACE
++++ /dev/null
+@@ -1 +0,0 @@
+-workspace(name = "runfiles_remote_test")
+diff --git a/tests/core/runfiles/runfiles_remote_test/remote_file.txt b/tests/core/runfiles/runfiles_remote_test/remote_file.txt
+deleted file mode 100644
+index e69de29b..00000000
+diff --git a/tests/core/runfiles/runfiles_remote_test/remote_group.txt b/tests/core/runfiles/runfiles_remote_test/remote_group.txt
+deleted file mode 100644
+index e69de29b..00000000
+diff --git a/tests/core/runfiles/runfiles_test.go b/tests/core/runfiles/runfiles_test.go
+deleted file mode 100644
+index 62aab3af..00000000
+--- a/tests/core/runfiles/runfiles_test.go
++++ /dev/null
+@@ -1,27 +0,0 @@
+-// Copyright 2019 The Bazel Authors. All rights reserved.
+-//
+-// Licensed under the Apache License, Version 2.0 (the "License");
+-// you may not use this file except in compliance with the License.
+-// You may obtain a copy of the License at
+-//
+-//    http://www.apache.org/licenses/LICENSE-2.0
+-//
+-// Unless required by applicable law or agreed to in writing, software
+-// distributed under the License is distributed on an "AS IS" BASIS,
+-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-// See the License for the specific language governing permissions and
+-// limitations under the License.
+-
+-package main
+-
+-import (
+-	"testing"
+-
+-	"github.com/bazelbuild/rules_go/tests/core/runfiles/check"
+-)
+-
+-func Test(t *testing.T) {
+-	if err := check.CheckRunfiles(check.DefaultTestFiles); err != nil {
+-		t.Fatal(err)
+-	}
+-}
