@@ -370,4 +370,5 @@ local_repository(
     "vendored_node_and_yarn",
     "web_testing",
     "webapp",
+    "worker",
 ]]
