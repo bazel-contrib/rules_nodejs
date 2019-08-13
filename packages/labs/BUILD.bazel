@@ -1,29 +1,16 @@
-load("@build_bazel_rules_nodejs//:defs.bzl", "COMMON_REPLACEMENTS", "npm_package")
+load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "npm_package")
 
 exports_files(["tsconfig.json"])
-
-genrule(
-    name = "copy_LICENSE",
-    srcs = ["@build_bazel_rules_nodejs//:LICENSE"],
-    outs = ["LICENSE"],
-    cmd = "cp $< $@",
-)
 
 npm_package(
     name = "npm_package",
     srcs = [
         "@npm_bazel_labs//:package_contents",
     ],
-    replacements = COMMON_REPLACEMENTS,
     vendor_external = [
         "npm_bazel_labs",
     ],
-    visibility = [
-        "//e2e:__pkg__",
-        "//examples:__pkg__",
-    ],
     deps = [
-        ":copy_LICENSE",
         "@npm_bazel_labs//webpack:cli_lib",
     ],
 )

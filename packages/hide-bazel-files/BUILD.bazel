@@ -12,15 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "npm_package")
-
-# Copy the license from our parent folder
-genrule(
-    name = "copy_LICENSE",
-    srcs = ["@build_bazel_rules_nodejs//:LICENSE"],
-    outs = ["LICENSE"],
-    cmd = "cp $< $@",
-)
+load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "npm_package")
 
 npm_package(
     name = "npm_package",
@@ -28,12 +20,5 @@ npm_package(
         ":README.md",
         ":index.js",
         ":package.json",
-    ],
-    visibility = [
-        "//e2e:__pkg__",
-        "//examples:__pkg__",
-    ],
-    deps = [
-        ":copy_LICENSE",
     ],
 )
