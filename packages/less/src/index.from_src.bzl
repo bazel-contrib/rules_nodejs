@@ -1,4 +1,4 @@
-# Copyright 2017 The Bazel Authors. All rights reserved.
+# Copyright 2019 The Bazel Authors. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,22 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Index file for packages.
+""" Defaults for usage without @npm//@bazel/less
 """
 
-# packages that have nested workspaces in `src` folder
-NESTED_PACKAGES = [
-    "jasmine",
-    "karma",
-    "labs",
-    "less",
-    "protractor",
-    "stylus",
-    "typescript",
-]
+load(
+    ":index.bzl",
+    _less_binary = "less_binary",
+)
 
-NPM_PACKAGES = [
-    "@bazel/create",
-    "@bazel/hide-bazel-files",
-    "@bazel/worker",
-] + ["@bazel/%s" % pkg for pkg in NESTED_PACKAGES]
+def less_binary(**kwargs):
+    _less_binary(
+        # Override to point to the one installed by build_bazel_rules_nodejs in the root
+        compiler = "@npm//less/bin:lessc",
+        **kwargs
+    )

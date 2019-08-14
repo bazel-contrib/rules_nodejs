@@ -328,6 +328,7 @@ k8s_defaults(
     "karma",
     "karma_stack_trace",
     "karma_typescript",
+    "less",
     "node_loader_no_preserve_symlinks",
     "node_loader_preserve_symlinks",
     "packages",

@@ -29,6 +29,7 @@
         "is-builtin-module": "3.0.0",
         "jasmine": "~3.4.0",
         "jasmine-core": "~3.4.0",
+        "less": "^3.9.0",
         "minimist": "^1.2.0",
         "node_resolve_index": "file:./tools/npm_packages/node_resolve_index",
         "node_resolve_index_2": "file:./tools/npm_packages/node_resolve_index_2",
@@ -87,7 +88,8 @@
         "format": "git-clang-format",
         "format-all": "clang-format --glob='{internal/**/,examples/**/}*.{js,ts}' -i",
         "skydoc": "bazel build //docs && cp -f dist/bin/docs/*.md docs",
-        "version": "conventional-changelog -p angular -i CHANGELOG.md -s && node ./scripts/on-version.js && bazel build //:release && node ./scripts/on-release.js && git stage defs.bzl packages/create/index.js README.md CHANGELOG.md"
+        "version": "conventional-changelog -p angular -i CHANGELOG.md -s && node ./scripts/on-version.js && bazel build //:release && node ./scripts/on-release.js && git stage defs.bzl packages/create/index.js README.md CHANGELOG.md",
+        "clean":"bazel clean"
     },
     "husky": {
         "hooks": {
