@@ -1,0 +1,23 @@
+load("@npm_bazel_less//:index.from_src.bzl", "less_binary")
+
+less_binary(
+    name = "styles",
+    src = "file.less",
+    deps = [
+        "liba.less",
+        "subdir/bar.less",
+        "subdir/baz.png",
+    ],
+)
+
+load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
+
+jasmine_node_test(
+    name = "test",
+    srcs = [
+        "less_binary_spec.js",
+    ],
+    deps = [
+        ":styles",
+    ],
+)

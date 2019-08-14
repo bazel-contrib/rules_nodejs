@@ -39,6 +39,9 @@ E2E_TESTS = {
         "//packages/karma:npm_package": "@bazel/karma",
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
+    "e2e_less": {
+        "//packages/less:npm_package": "@bazel/less",
+    },
     "e2e_node_loader_no_preserve_symlinks": {
     },
     "e2e_node_loader_preserve_symlinks": {
