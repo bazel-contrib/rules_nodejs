@@ -102,6 +102,35 @@ nodejs_binary(
 See https://github.com/bazelbuild/rules_nodejs#dependencies for more information on
 managing npm dependencies with Bazel.
 
+## Customizing the TypeScript compiler binary
+
+An example is needing to increase the NodeJS heap size used for compilations.
+
+Similar to above, you declare your own binary for running tsc_wrapped, e.g.:
+
+```python
+nodejs_binary(
+    name = "tsc_wrapped_bin",
+    entry_point = "@npm//:node_modules/@bazel/typescript/internal/tsc_wrapped/tsc_wrapped.js",
+    templated_args = [
+        "--node_options=--max-old-space-size=2048",
+    ],
+    data = [
+        "@npm//protobufjs",
+        "@npm//source-map-support",
+        "@npm//tsutils",
+        "@npm//typescript",
+        "@npm//@bazel/typescript",
+    ],
+)
+```
+
+then refer to that target in the `compiler` attribute of your `ts_library` rule.
+
+Another use case is to use [tsickle], which is an optional dependency of `tsc_wrapped`. In case it needs `"@npm//tsickle"` added to the `data` attribute above.
+￼
+[tsickle]: https://github.com/angular/tsickle
+
 # Usage
 
 ## Compiling TypeScript: `ts_library`
