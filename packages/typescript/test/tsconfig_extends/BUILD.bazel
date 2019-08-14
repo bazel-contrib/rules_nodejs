@@ -19,10 +19,17 @@ load("@npm_bazel_typescript//:index.from_src.bzl", "ts_library")
 # ts_library to include the extended tsconfig file in compilations.
 # The ts_library rule will generate its own tsconfig which extends from the
 # src file.
+# Also test that a ts_config can have a dep on another ts_config
 ts_config(
     name = "tsconfig",
     src = "tsconfig.json",
-    deps = ["tsconfig-base.json"],
+    deps = [":tsconfig_base"],
+)
+
+ts_config(
+    name = "tsconfig_base",
+    src = "tsconfig-base.json",
+    deps = [":tsconfig-root.json"],
 )
 
 ts_library(
