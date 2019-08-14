@@ -18,7 +18,11 @@ TsConfigInfo = provider()
 
 def _ts_config_impl(ctx):
     files = depset([ctx.file.src])
-    return [DefaultInfo(files = files), TsConfigInfo(deps = ctx.files.deps)]
+    transitive_deps = []
+    for dep in ctx.attr.deps:
+        if TsConfigInfo in dep:
+            transitive_deps.extend(dep[TsConfigInfo].deps)
+    return [DefaultInfo(files = files), TsConfigInfo(deps = ctx.files.deps + transitive_deps)]
 
 ts_config = rule(
     implementation = _ts_config_impl,
