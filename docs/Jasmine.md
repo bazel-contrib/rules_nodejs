@@ -35,7 +35,7 @@ To debug the test, see debugging notes in `nodejs_test`.
 ### Usage
 
 ```
-jasmine_node_test(name, srcs, data, deps, expected_exit_code, tags, coverage, jasmine, jasmine_entry_point, kwargs)
+jasmine_node_test(name, srcs, data, deps, expected_exit_code, tags, config_file, coverage, jasmine, jasmine_entry_point, kwargs)
 ```
 
 
@@ -84,6 +84,21 @@ Defaults to `0`
 Bazel tags applied to test
 
 Defaults to `[]`
+
+
+
+#### `config_file`
+      
+(experimental) label of a file containing Jasmine JSON config.
+
+  Note that not all configuration options are honored, and
+  we expect some strange feature interations.
+  For example, the filter for which files are instrumented for
+  code coverage doesn't understand the spec_files setting in the config.
+
+  See https://jasmine.github.io/setup/nodejs.html#configuration
+
+Defaults to `None`
 
 
 
