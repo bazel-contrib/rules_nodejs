@@ -468,9 +468,15 @@ module.constructor._resolveFilename = function(request, parent, isMain, options)
   }
 
   const error = new Error(
-      `${TARGET} cannot find module '${request}' required by '${parentFilename}'\n  looked in:\n` +
-      failedResolutions.map(r => `    ${r}`).join('\n') + '\n');
+      `Cannot find module '${request}'. ` +
+      'Please verify that the package.json has a valid "main" entry'
+  );
   error.code = 'MODULE_NOT_FOUND';
+  // todo - error.path = ?;
+  error.requestPath = parentFilename;
+  error.bazelTarget = TARGET;
+  error.failedResolutions = failedResolutions;
+  
   throw error;
 }
 
