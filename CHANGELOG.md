@@ -1,3 +1,24 @@
+# [0.36.0](https://github.com/alexeagle/rules_nodejs/compare/0.35.0...0.36.0) (2019-08-15)
+
+
+### Bug Fixes
+
+* **jasmine:** correct comment about behavior of config_file attr ([59a7239](https://github.com/alexeagle/rules_nodejs/commit/59a7239))
+* fix yarn_install yarn cache mutex bug ([31aa1a6](https://github.com/alexeagle/rules_nodejs/commit/31aa1a6))
+* get rules_go dependency from build_bazel_rules_typescript ([ea6ee0b](https://github.com/alexeagle/rules_nodejs/commit/ea6ee0b))
+* npm_package issue with external files on windows ([8679b9e](https://github.com/alexeagle/rules_nodejs/commit/8679b9e))
+* sconfig deps sandbox bug ([161693c](https://github.com/alexeagle/rules_nodejs/commit/161693c))
+
+
+### Features
+
+* **jasmine:** introduce config_file attribute ([b0b2648](https://github.com/alexeagle/rules_nodejs/commit/b0b2648))
+* **jasmine_node_test:** add attr `jasmine_config` ([715ffc6](https://github.com/alexeagle/rules_nodejs/commit/715ffc6))
+* **worker:** new worker package ([9e26856](https://github.com/alexeagle/rules_nodejs/commit/9e26856))
+* add browser module main priority to generated umd bundles ([17cfac9](https://github.com/alexeagle/rules_nodejs/commit/17cfac9))
+
+
+
 # [0.35.0](https://github.com/alexeagle/rules_nodejs/compare/0.34.0...0.35.0) (2019-08-02)
 
 
