@@ -458,19 +458,13 @@ def compile_ts(
     if not is_library:
         files_depsets.append(depset(tsickle_externs))
 
-    transitive_es5_sources = depset()
     transitive_es6_sources = depset()
     for dep in deps:
         if hasattr(dep, "typescript"):
-            transitive_es5_sources = depset(transitive = [
-                transitive_es5_sources,
-                dep.typescript.transitive_es5_sources,
-            ])
             transitive_es6_sources = depset(transitive = [
                 transitive_es6_sources,
                 dep.typescript.transitive_es6_sources,
             ])
-    transitive_es5_sources = depset(transitive = [transitive_es5_sources, es5_sources])
     transitive_es6_sources = depset(transitive = [transitive_es6_sources, es6_sources])
 
     return {
@@ -505,7 +499,6 @@ def compile_ts(
             "es6_sources": es6_sources,
             "replay_params": replay_params,
             "transitive_declarations": transitive_decls,
-            "transitive_es5_sources": transitive_es5_sources,
             "transitive_es6_sources": transitive_es6_sources,
             "tsickle_externs": tsickle_externs,
             "type_blacklisted_declarations": type_blacklisted_declarations,
