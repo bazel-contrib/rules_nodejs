@@ -110,8 +110,6 @@ def _ts_proto_library(ctx):
             type_blacklisted_declarations = depset(),
             es5_sources = depset([js_es5]),
             es6_sources = depset([js_es6]),
-            transitive_es5_sources = depset(),
-            transitive_es6_sources = depset([js_es6]),
         ),
     )
 

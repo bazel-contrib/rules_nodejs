@@ -56,8 +56,6 @@ def _node_module_library_impl(ctx):
             es6_sources = depset(),
             replay_params = None,
             transitive_declarations = transitive_declarations,
-            transitive_es5_sources = depset(),
-            transitive_es6_sources = depset(),
             tsickle_externs = [],
             type_blacklisted_declarations = depset(),
         ),
