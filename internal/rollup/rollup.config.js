@@ -179,7 +179,7 @@ const config = {
       resolveId: resolveBazel,
     },
     nodeResolve({
-      mainFields: ['es2015', 'module', 'jsnext:main', 'main'],
+      mainFields: ['browser', 'es2015', 'module', 'jsnext:main', 'main'],
       jail: process.cwd(),
       customResolveOptions: {moduleDirectory: nodeModulesRoot}
     }),
