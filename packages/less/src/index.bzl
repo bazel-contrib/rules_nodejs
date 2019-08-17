@@ -41,8 +41,8 @@ less_binary = rule(
         "compiler": attr.label(
             doc = """Label that points to the lessc binary to run.
             If you install your npm packages to a workspace named something other than "npm",
-            you may need to set this to `@my_npm_name//less/bin:lessc`""",
-            default = Label("@npm//less/bin:lessc"),
+            you may need to set this to `@my_npm_name//@bazel/less/bin:less`""",
+            default = Label("@npm//@bazel/less/bin:less"),
             cfg = "host",
             executable = True,
         ),

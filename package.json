@@ -88,8 +88,7 @@
         "format": "git-clang-format",
         "format-all": "clang-format --glob='{internal/**/,examples/**/}*.{js,ts}' -i",
         "skydoc": "bazel build //docs && cp -f dist/bin/docs/*.md docs",
-        "version": "conventional-changelog -p angular -i CHANGELOG.md -s && node ./scripts/on-version.js && bazel build //:release && node ./scripts/on-release.js && git stage defs.bzl packages/create/index.js README.md CHANGELOG.md",
-        "clean":"bazel clean"
+        "version": "conventional-changelog -p angular -i CHANGELOG.md -s && node ./scripts/on-version.js && bazel build //:release && node ./scripts/on-release.js && git stage defs.bzl packages/create/index.js README.md CHANGELOG.md"
     },
     "husky": {
         "hooks": {
