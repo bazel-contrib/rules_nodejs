@@ -58,6 +58,7 @@ const RULE_TYPE = args[1];
 const ERROR_ON_BAZEL_FILES = parseInt(args[2]);
 const LOCK_FILE_LABEL = args[3];
 const INCLUDED_FILES = args[4] ? args[4].split(',') : [];
+const DYNAMIC_DEPS = JSON.parse(args[5] || '{}');
 
 if (require.main === module) {
   main();
@@ -103,6 +104,7 @@ function main() {
 module.exports = {
   main,
   printPackageBin,
+  addDynamicDependencies,
 };
 
 /**
@@ -436,6 +438,27 @@ function hasRootBuildFile(pkg, rootPath) {
   return false;
 }
 
+function addDynamicDependencies(pkgs, dynamic_deps = DYNAMIC_DEPS) {
+  pkgs.forEach(p => {
+    function match(name) {
+      // Automatically include dynamic dependency on plugins of the form pkg-plugin-foo
+      if (name.startsWith(`${p._name}-plugin-`)) return true;
+
+      const value = dynamic_deps[p._name];
+      if (name === value) return true;
+
+      // Support wildcard match
+      if (value && value.includes('*') && name.startsWith(value.substring(0, value.indexOf('*')))) {
+        return true;
+      }
+
+      return false;
+    }
+    p._dynamicDependencies =
+        pkgs.filter(x => !!x._name && match(x._name)).map(dyn => `//${dyn._dir}:${dyn._name}`);
+  });
+}
+
 /**
  * Finds and returns an array of all packages under a given path.
  */
@@ -459,6 +482,8 @@ function findPackages(p = 'node_modules') {
 
   packages.forEach(
       f => pkgs.push(parsePackage(f), ...findPackages(path.posix.join(f, 'node_modules'))));
+
+  addDynamicDependencies(pkgs);
 
   const scopes = listing.filter(f => f.startsWith('@'))
                      .map(f => path.posix.join(p, f))
@@ -582,10 +607,10 @@ function cleanupEntryPointPath(p) {
 }
 
 /**
- * Cleans up the given path  
+ * Cleans up the given path
  * Then tries to resolve the path into a file and warns if in DEBUG and the file dosen't exist
- * @param {any} pkg 
- * @param {string} path 
+ * @param {any} pkg
+ * @param {string} path
  * @returns {string | undefined}
  */
 function findEntryFile(pkg, path) {
@@ -631,9 +656,9 @@ function resolveMainFile(pkg, mainFileName) {
 }
 
 /**
- * Tries to resolve the mainFile from a given pkg  
+ * Tries to resolve the mainFile from a given pkg
  * This uses seveal mainFileNames in priority to find a correct usable file
- * @param {any} pkg 
+ * @param {any} pkg
  * @returns {string | undefined}
  */
 function resolvePkgMainFile(pkg) {
@@ -953,6 +978,10 @@ function printPackageBin(pkg) {
     result = `load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
 
 `;
+    const data = [`//${pkg._dir}:${pkg._name}`];
+    if (pkg._dynamicDependencies) {
+      data.push(...pkg._dynamicDependencies);
+    }
 
     for (const [name, path] of executables.entries()) {
       // Handle additionalAttributes of format:
@@ -977,7 +1006,7 @@ nodejs_binary(
     name = "${name}",
     entry_point = "//:node_modules/${pkg._dir}/${path}",
     install_source_map_support = False,
-    data = ["//${pkg._dir}:${pkg._name}"],${additionalAttributes}
+    data = [${data.map(p => `"${p}"`).join(', ')}],${additionalAttributes}
 )
 
 `;

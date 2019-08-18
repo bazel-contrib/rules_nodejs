@@ -1,5 +1,5 @@
 const {check, files} = require('./check');
-const {printPackageBin} = require('../generate_build_file');
+const {printPackageBin, addDynamicDependencies} = require('../generate_build_file');
 
 describe('build file generator', () => {
   describe('integration test', () => {
@@ -75,6 +75,29 @@ describe('build file generator', () => {
     it('bin entry is valid path in object', () => {
       expect(printPackageBin({...pkg, _files: [], bin: {some_bin: 'some/path'}}))
           .toContain('nodejs_binary(');
+    });
+  });
+
+  describe('dynamic dependencies', () => {
+    it('should include requested dynamic dependencies in nodejs_binary data', () => {
+      const pkgs = [{_name: 'foo', bin: 'foobin', _dir: 'some_dir'}, {_name: 'bar', _dir: 'bar'}];
+      addDynamicDependencies(pkgs, {'foo': 'bar'});
+      expect(pkgs[0]._dynamicDependencies).toEqual(['//bar:bar']);
+      expect(printPackageBin(pkgs[0])).toContain('data = ["//some_dir:foo", "//bar:bar"]');
+    });
+    it('should support wildcard', () => {
+      const pkgs = [{_name: 'foo', bin: 'foobin', _dir: 'some_dir'}, {_name: 'bar', _dir: 'bar'}];
+      addDynamicDependencies(pkgs, {'foo': 'b*'});
+      expect(pkgs[0]._dynamicDependencies).toEqual(['//bar:bar']);
+      expect(printPackageBin(pkgs[0])).toContain('data = ["//some_dir:foo", "//bar:bar"]');
+    });
+    it('should automatically include plugins in nodejs_binary data', () => {
+      const pkgs =
+          [{_name: 'foo', bin: 'foobin', _dir: 'some_dir'}, {_name: 'foo-plugin-bar', _dir: 'bar'}];
+      addDynamicDependencies(pkgs, {});
+      expect(pkgs[0]._dynamicDependencies).toEqual(['//bar:foo-plugin-bar']);
+      expect(printPackageBin(pkgs[0]))
+          .toContain('data = ["//some_dir:foo", "//bar:foo-plugin-bar"]');
     });
   });
 });
