@@ -219,6 +219,9 @@ yarn_install(
 
 yarn_install(
     name = "npm_install_test",
+    # exercise the dynamic_deps feature, even though it doesn't make sense for a real jasmine binary to depend on zone.js
+    # This will just inject an extra data[] dependency into the jasmine_bin generated target.
+    dynamic_deps = {"jasmine": "zone.js"},
     manual_build_file_contents = """
 filegroup(
   name = "test_files",
