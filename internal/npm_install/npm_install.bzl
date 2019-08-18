@@ -71,11 +71,18 @@ COMMON_ATTRIBUTES = dict(dict(), **{
         In many cases, an npm package doesn't list a dependency on another package, yet still require()s it.
         One example is plugins, where a tool like rollup can require rollup-plugin-json if the user installed it.
         Another example is the tsc_wrapped binary in @bazel/typescript which can require tsickle if its installed.
+        Under Bazel, we must declare these dependencies so that they are included as inputs to the program.
         
+        Note that the pattern used by many packages, which have plugins in the form pkg-plugin-someplugin, are automatically
+        added as implicit dependencies. Thus for example, `rollup` will automatically get `rollup-plugin-json` included in its
+        dependencies without needing to use this attribute.
+        
+        The keys in the dict are npm package names, and the value may be a particular package, or a prefix ending with *.     
+        For example, `dynamic_deps = {"@bazel/typescript": "tsickle", "karma": "my-karma-plugin-*"}`
+   
         Note, this may sound like "optionalDependencies" but that field in package.json actually means real dependencies
         which are installed, but failures on installation are ignored.
-
-        We must declare these dependencies so that Bazel includes the maybe-require()d package in the inputs to the program.""",
+       """,
         default = {"@bazel/typescript": "tsickle"},
     ),
     "exclude_packages": attr.string_list(
