@@ -24,6 +24,7 @@ load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeMod
 load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles", "expand_path_into_runfiles")
 load("//internal/common:module_mappings.bzl", "module_mappings_runtime_aspect")
 load("//internal/common:sources_aspect.bzl", "sources_aspect")
+load("//internal/common:windows_utils.bzl", "create_windows_native_launcher_script", "is_windows")
 
 def _trim_package_node_modules(package_name):
     # trim a package name down to its path prior to a node_modules
@@ -221,12 +222,18 @@ def _nodejs_binary_impl(ctx):
 
     runfiles = depset(node_tool_files + [ctx.outputs.loader, ctx.file._repository_args], transitive = [sources, node_modules])
 
+    if is_windows(ctx):
+        runfiles = depset([ctx.outputs.script], transitive = [runfiles])
+        executable = create_windows_native_launcher_script(ctx, ctx.outputs.script)
+    else:
+        executable = ctx.outputs.script
+
     # entry point is only needed in runfiles if it is a .js file
     if ctx.file.entry_point.extension == "js":
         runfiles = depset([ctx.file.entry_point], transitive = [runfiles])
 
     return [DefaultInfo(
-        executable = ctx.outputs.script,
+        executable = executable,
         runfiles = ctx.runfiles(
             transitive_files = runfiles,
             files = node_tool_files + [
@@ -265,7 +272,7 @@ _NODEJS_EXECUTABLE_ATTRS = {
     "entry_point": attr.label(
         doc = """The script which should be executed first, usually containing a main function.
 
-        If the entry JavaScript file belongs to the same package (as the BUILD file), 
+        If the entry JavaScript file belongs to the same package (as the BUILD file),
         you can simply reference it by its relative name to the package directory:
 
         ```
@@ -294,7 +301,7 @@ _NODEJS_EXECUTABLE_ATTRS = {
 
         The rule will use the corresponding `.js` output of the ts_library rule as the entry point.
 
-        If the entry point target is a rule, it should produce a single JavaScript entry file that will be passed to the nodejs_binary rule. 
+        If the entry point target is a rule, it should produce a single JavaScript entry file that will be passed to the nodejs_binary rule.
         For example:
 
         ```
@@ -445,7 +452,10 @@ nodejs_binary = rule(
     doc = "Runs some JavaScript code in NodeJS.",
     executable = True,
     outputs = _NODEJS_EXECUTABLE_OUTPUTS,
-    toolchains = ["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"],
+    toolchains = [
+        "@build_bazel_rules_nodejs//toolchains/node:toolchain_type",
+        "@bazel_tools//tools/sh:toolchain_type",
+    ],
 )
 
 nodejs_test = rule(
@@ -481,7 +491,10 @@ remote debugger.
 """,
     test = True,
     outputs = _NODEJS_EXECUTABLE_OUTPUTS,
-    toolchains = ["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"],
+    toolchains = [
+        "@build_bazel_rules_nodejs//toolchains/node:toolchain_type",
+        "@bazel_tools//tools/sh:toolchain_type",
+    ],
 )
 
 def nodejs_binary_macro(name, data = [], args = [], visibility = None, tags = [], testonly = 0, **kwargs):

@@ -37,8 +37,9 @@ def rules_karma_dependencies():
     _maybe(
         http_archive,
         name = "io_bazel_rules_webtesting",
-        urls = ["https://github.com/bazelbuild/rules_webtesting/releases/download/0.3.1/rules_webtesting.tar.gz"],
-        sha256 = "f89ca8e91ac53b3c61da356c685bf03e927f23b97b086cc593db8edc088c143f",
+        sha256 = "f1f4d2c2f88d2beac64c82499a1e762b037966675dd892da89c87e39d72b33f6",
+        # Using alexeagle to workaround https://github.com/bazelbuild/rules_webtesting/issues/382
+        urls = ["https://github.com/alexeagle/rules_webtesting/releases/download/0.3.2/rules_webtesting.tar.gz"],
     )
 
 def _maybe(repo_rule, name, **kwargs):
