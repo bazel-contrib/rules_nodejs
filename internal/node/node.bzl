@@ -240,7 +240,7 @@ _NODEJS_EXECUTABLE_ATTRS = {
     "entry_point": attr.label(
         doc = """The script which should be executed first, usually containing a main function.
 
-        If the entry JavaScript file belongs to the same package (as the BUILD file), 
+        If the entry JavaScript file belongs to the same package (as the BUILD file),
         you can simply reference it by its relative name to the package directory:
 
         ```
@@ -269,7 +269,7 @@ _NODEJS_EXECUTABLE_ATTRS = {
 
         The rule will use the corresponding `.js` output of the ts_library rule as the entry point.
 
-        If the entry point target is a rule, it should produce a single JavaScript entry file that will be passed to the nodejs_binary rule. 
+        If the entry point target is a rule, it should produce a single JavaScript entry file that will be passed to the nodejs_binary rule.
         For example:
 
         ```
@@ -478,11 +478,13 @@ def nodejs_binary_macro(name, data = [], args = [], visibility = None, tags = []
       testonly: applied to nodejs_binary and wrapper binary
       **kwargs: passed to the nodejs_binary
     """
-    all_data = data + ["@bazel_tools//tools/bash/runfiles"]
+    runfiles = Label("@bazel_tools//tools/bash/runfiles:runfiles")
+    if runfiles not in data:
+        data = data + [runfiles]
 
     nodejs_binary(
         name = "%s_bin" % name,
-        data = all_data,
+        data = data,
         testonly = testonly,
         visibility = ["//visibility:private"],
         **kwargs
@@ -498,7 +500,7 @@ def nodejs_binary_macro(name, data = [], args = [], visibility = None, tags = []
         visibility = visibility,
     )
 
-def nodejs_test_macro(name, data = [], args = [], visibility = None, tags = [], **kwargs):
+def nodejs_test_macro(name, data = [], args = [], visibility = None, tags = [], testonly = 1, **kwargs):
     """This macro exists only to wrap the nodejs_test as an .exe for Windows.
 
     This is exposed in the public API at `//:defs.bzl` as `nodejs_test`, so most
@@ -512,12 +514,14 @@ def nodejs_test_macro(name, data = [], args = [], visibility = None, tags = [], 
       tags: applied to the wrapper binary
       **kwargs: passed to the nodejs_test
     """
-    all_data = data + ["@bazel_tools//tools/bash/runfiles"]
+    runfiles = Label("@bazel_tools//tools/bash/runfiles:runfiles")
+    if runfiles not in data:
+        data = data + [runfiles]
 
     nodejs_test(
         name = "%s_bin" % name,
-        data = all_data,
-        testonly = 1,
+        data = data,
+        testonly = testonly,
         tags = ["manual"],
         **kwargs
     )
@@ -528,5 +532,6 @@ def nodejs_test_macro(name, data = [], args = [], visibility = None, tags = [], 
         tags = tags,
         visibility = visibility,
         srcs = [":%s_bin.sh" % name],
+        testonly = testonly,
         data = [":%s_bin" % name],
     )
