@@ -100,7 +100,8 @@ export function dealias(
   if (!symbol) {
     return undefined;
   }
-  if (symbol.getFlags() & (ts.SymbolFlags.Alias | ts.SymbolFlags.TypeAlias)) {
+  if (symbol.getFlags() & ts.SymbolFlags.Alias) {
+    // Note: something that has only TypeAlias is not acceptable here.
     return dealias(tc.getAliasedSymbol(symbol), tc);
   }
   return symbol;
