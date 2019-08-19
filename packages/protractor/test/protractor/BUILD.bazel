@@ -29,6 +29,7 @@ protractor_web_test_suite(
     configuration = ":ts_conf",
     tags = [
         "fix-bazelci-ubuntu",  # ubuntu docker images on buildkite missing chrome dependencies & apt-get install not possible
+        "native",
     ],
     deps = [
         ":ts_spec",

@@ -16,6 +16,7 @@
 load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
 load("@build_bazel_rules_nodejs//internal/common:expand_into_runfiles.bzl", "expand_path_into_runfiles")
 load("@build_bazel_rules_nodejs//internal/common:sources_aspect.bzl", "sources_aspect")
+load("@build_bazel_rules_nodejs//internal/common:windows_utils.bzl", "create_windows_native_launcher_script", "is_windows")
 load("@io_bazel_rules_webtesting//web:web.bzl", "web_test_suite")
 load("@io_bazel_rules_webtesting//web/internal:constants.bzl", "DEFAULT_WRAPPED_TEST_TAGS")
 
@@ -32,7 +33,7 @@ def _short_path_to_manifest_path(ctx, short_path):
 def _protractor_web_test_impl(ctx):
     configuration = ctx.actions.declare_file(
         "%s.conf.js" % ctx.label.name,
-        sibling = ctx.outputs.executable,
+        sibling = ctx.outputs.script,
     )
 
     files = depset(ctx.files.srcs)
@@ -82,7 +83,7 @@ def _protractor_web_test_impl(ctx):
     runfiles = [configuration] + configuration_sources + on_prepare_sources
 
     ctx.actions.write(
-        output = ctx.outputs.executable,
+        output = ctx.outputs.script,
         is_executable = True,
         content = """#!/usr/bin/env bash
 # Immediately exit if any command fails.
@@ -115,8 +116,15 @@ $PROTRACTOR $CONF
             TMPL_conf = _short_path_to_manifest_path(ctx, configuration.short_path),
         ),
     )
+
+    if is_windows(ctx):
+        runfiles = runfiles + [ctx.outputs.script]
+        executable = create_windows_native_launcher_script(ctx, ctx.outputs.script)
+    else:
+        executable = ctx.outputs.script
+
     return [DefaultInfo(
-        files = depset([ctx.outputs.executable]),
+        files = depset([ctx.outputs.script]),
         runfiles = ctx.runfiles(
             files = runfiles,
             transitive_files = files,
@@ -124,13 +132,15 @@ $PROTRACTOR $CONF
             collect_data = True,
             collect_default = True,
         ),
-        executable = ctx.outputs.executable,
+        executable = executable,
     )]
 
 _protractor_web_test = rule(
     implementation = _protractor_web_test_impl,
     test = True,
     executable = True,
+    outputs = {"script": "%{name}.sh"},
+    toolchains = ["@bazel_tools//tools/sh:toolchain_type"],
     attrs = {
         "srcs": attr.label_list(
             doc = "A list of JavaScript test files",

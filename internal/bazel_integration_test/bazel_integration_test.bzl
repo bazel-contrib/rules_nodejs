@@ -17,6 +17,7 @@
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "BAZEL_VERSION")
 load("@build_bazel_rules_nodejs//packages:index.bzl", "NPM_PACKAGES")
+load("//internal/common:windows_utils.bzl", "BATCH_RLOCATION_FUNCTION", "is_windows")
 
 BAZEL_BINARY = "@build_bazel_bazel_%s//:bazel_binary" % BAZEL_VERSION.replace(".", "_")
 
@@ -65,12 +66,22 @@ module.exports = {{
         ),
     )
 
-    # Test executable is a shell script that runs ctx.executable._test_runner
-    # and passes it the generated configuration file
-    ctx.actions.write(
-        output = ctx.outputs.executable,
-        is_executable = True,
-        content = """#!/usr/bin/env bash
+    if is_windows(ctx):
+        launcher_content = """@echo off
+SETLOCAL ENABLEEXTENSIONS
+SETLOCAL ENABLEDELAYEDEXPANSION
+{rlocation_function}
+call :rlocation {TMPL_test_runner} TEST_RUNNER
+call :rlocation {TMPL_args} ARGS
+%TEST_RUNNER% %ARGS% %*
+        """.format(
+            TMPL_test_runner = _file_to_manifest_path(ctx, ctx.executable._test_runner),
+            TMPL_args = _file_to_manifest_path(ctx, config),
+            rlocation_function = BATCH_RLOCATION_FUNCTION,
+        )
+        executable = ctx.actions.declare_file(ctx.attr.name + ".bat")
+    else:
+        launcher_content = """#!/usr/bin/env bash
 # Immediately exit if any command fails.
 set -e
 
@@ -89,17 +100,25 @@ else
 fi
 
 $TEST_RUNNER $ARGS "$@"
-""".format(
+        """.format(
             TMPL_test_runner = _file_to_manifest_path(ctx, ctx.executable._test_runner),
             TMPL_args = _file_to_manifest_path(ctx, config),
-        ),
+        )
+        executable = ctx.actions.declare_file(ctx.attr.name + ".sh")
+
+    # Test executable is a shell script on Linux and macOS and a Batch script on Windows,
+    # which runs ctx.executable._test_runner and passes it the generated configuration file
+    ctx.actions.write(
+        output = executable,
+        is_executable = True,
+        content = launcher_content,
     )
 
     runfiles = [config] + ctx.files.bazel_binary + ctx.files.workspace_files + ctx.files.repositories + ctx.files.bazelrc_imports + ctx.files.npm_packages
 
     return [DefaultInfo(
         runfiles = ctx.runfiles(files = runfiles).merge(ctx.attr._test_runner[DefaultInfo].data_runfiles),
-        executable = ctx.outputs.executable,
+        executable = executable,
     )]
 
 BAZEL_INTEGRATION_TEST_ATTRS = {
@@ -178,7 +197,7 @@ npm_packages = {
     ),
     "package_json_replacements": attr.string_dict(
         doc = """A string dictionary of other package.json package replacements to make.
-        
+
 This can be used for integration testing against multiple external npm dependencies without duplicating code. For example,
 ```
 [bazel_integration_test(
