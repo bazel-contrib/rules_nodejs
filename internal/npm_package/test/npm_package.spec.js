@@ -7,7 +7,7 @@ function read(p) {
   // require.resolve to lookup that entry. So instead we lookup the sibling file in runfiles and
   // bootstrap the filesystem lookup from there.
   const dir = path.dirname(
-      require.resolve('build_bazel_rules_nodejs/internal/npm_package/test/test_loader.js'));
+      require.resolve('build_bazel_rules_nodejs/internal/npm_package/test/test_bin_loader.js'));
   return fs.readFileSync(path.join(dir, 'test_pkg', p), {encoding: 'utf-8'}).trim();
 }
 
