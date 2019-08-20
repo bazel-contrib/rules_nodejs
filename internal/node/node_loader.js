@@ -467,16 +467,21 @@ module.constructor._resolveFilename = function(request, parent, isMain, options)
     failedResolutions.push(`node_modules attribute (${NODE_MODULES_ROOT}) - ${e.toString()}`);
   }
 
-  const error = new Error(
-      `Cannot find module '${request}'. ` +
-      'Please verify that the package.json has a valid "main" entry'
-  );
+  // Print the same error message that vanilla nodejs does.
+  // See https://github.com/bazelbuild/rules_nodejs/issues/1015
+  let moduleNotFoundError = `Cannot find module '${request}'. ` +
+      'Please verify that the package.json has a valid "main" entry';
+  if (DEBUG) {
+    moduleNotFoundError += `\nrequired in target ${TARGET} by '${parentFilename}'\n  looked in:\n` +
+        failedResolutions.map(r => `    ${r}`).join('\n') + '\n';
+  }
+  const error = new Error(moduleNotFoundError);
   error.code = 'MODULE_NOT_FOUND';
   // todo - error.path = ?;
   error.requestPath = parentFilename;
   error.bazelTarget = TARGET;
   error.failedResolutions = failedResolutions;
-  
+
   throw error;
 }
 
