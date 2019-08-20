@@ -190,6 +190,7 @@ describe('compiler host', () => {
         expectPath('', 'some|123').toBe('google3.some$7c123');
         expectPath('', '1some|').toBe('google3.1some$7c');
         expectPath('', 'bar/foo.bam.ts').toBe('google3.bar.foo$2ebam');
+        expectPath('', '-foo-').toBe('google3.$2dfoo$2d');
         // Underscore is unmodified, because it is common in google3 paths.
         expectPath('', 'foo_bar').toBe('google3.foo_bar');
       });

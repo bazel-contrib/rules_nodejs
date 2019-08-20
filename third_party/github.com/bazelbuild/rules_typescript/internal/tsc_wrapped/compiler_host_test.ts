@@ -58,5 +58,24 @@ describe('compiler host', () => {
                     createTsModule('path/to/package/root_dir/index.ts')))
              .toBe('my_lib');
        });
+
+    describe('#pathToModuleName', () => {
+      it('should escape non-identifier characters', () => {
+        expect(defaultHost.pathToModuleName('context', '$-!@'))
+            .toBe('$24$2d$21$40');
+      });
+
+      it('should escape leading numbers', () => {
+        expect(defaultHost.pathToModuleName('context', '1234')).toBe('$31234');
+      });
+
+      it('should transform slashes to dots', () => {
+        expect(defaultHost.pathToModuleName('context', 'a/b')).toBe('a.b');
+      });
+
+      it('should not escape valid identifers', () => {
+        expect(defaultHost.pathToModuleName('context', 'a1/b2')).toBe('a1.b2');
+      });
+    });
   });
 });

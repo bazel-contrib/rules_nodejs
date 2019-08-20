@@ -292,8 +292,7 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
     const escape = (c: string) => {
       return '$' + c.charCodeAt(0).toString(16);
     };
-    const moduleName = importPath.replace(/^[^a-zA-Z_/]/, escape)
-                           .replace(/[^a-zA-Z_0-9_/]/g, escape)
+    const moduleName = importPath.replace(/^[0-9]|[^a-zA-Z_0-9_/]/g, escape)
                            .replace(/\//g, '.');
     return moduleName;
   }
