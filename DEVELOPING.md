@@ -33,6 +33,8 @@ Note: if you are using a new clone, you'll need to configure `git-clang-format` 
 1. `git config clangFormat.binary node_modules/.bin/clang-format`
 1. `git config clangFormat.style file`
 
+Googlers: you should npm login using the go/npm-publish service: `$ npm login --registry https://wombat-dressing-room.appspot.com`
+
 Check if there are any breaking changes since the last tag - if so, this will be a minor, if not it's a patch.
 (This may not sound like semver, but since our major version is a zero, the rule is that minors are breaking changes and patches are new features.)
 

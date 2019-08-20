@@ -7,6 +7,8 @@ set -u -e -o pipefail
 #   ./scripts/publish_release.sh pack
 # To verify:
 #   for p in $(ls packages); do if [[ -d packages/$p ]]; then b="@bazel/$p"; echo -ne "\n$b\n-------\n"; npm dist-tag ls $b; fi; done
+# Googlers: you should npm login using the go/npm-publish service:
+# $ npm login --registry https://wombat-dressing-room.appspot.com
 
 readonly NPM_COMMAND=${1:-publish}
 readonly BAZEL_BIN=./node_modules/.bin/bazel
@@ -20,5 +22,5 @@ readonly NPM_PACKAGE_LABELS=`$BAZEL query --output=label 'kind("npm_package", //
 $BAZEL build --config=release $NPM_PACKAGE_LABELS
 # publish one package at a time to make it easier to spot any errors or warnings
 for pkg in $NPM_PACKAGE_LABELS ; do
-  $BAZEL run -- ${pkg}.${NPM_COMMAND} --access public --tag latest
+  $BAZEL run -- ${pkg}.${NPM_COMMAND} --access public --tag latest --registry https://wombat-dressing-room.appspot.com
 done
