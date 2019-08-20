@@ -1,3 +1,17 @@
+## [0.36.1](https://github.com/alexeagle/rules_nodejs/compare/0.36.0...0.36.1) (2019-08-20)
+
+
+### Features
+
+* **builtin:** add browser to rollup mainFields ([e488cb6](https://github.com/alexeagle/rules_nodejs/commit/e488cb6))
+* **builtin:** introduce dynamic dependencies concept ([a47410e](https://github.com/alexeagle/rules_nodejs/commit/a47410e))
+* **less:** add less link to the docs's drawer ([ec6e0d1](https://github.com/alexeagle/rules_nodejs/commit/ec6e0d1))
+* **less:** new less package ([462f6e9](https://github.com/alexeagle/rules_nodejs/commit/462f6e9))
+* **less:** updated default compiler to @bazel/less as mentioned in code review ([fd71f26](https://github.com/alexeagle/rules_nodejs/commit/fd71f26))
+* **less:** updated package.json in e2e/less to pull latest ([6027aa3](https://github.com/alexeagle/rules_nodejs/commit/6027aa3))
+
+
+
 # [0.36.0](https://github.com/alexeagle/rules_nodejs/compare/0.35.0...0.36.0) (2019-08-15)
 
 
