@@ -38,11 +38,13 @@ func getAllTestLibraries(bld *build.File) []*build.Rule {
 // RegisterTestRules registers ts_library test targets with the project's
 // ts_config and ts_development_sources rules.  It may also register the tests
 // with a testonly ts_library named "all_tests", which allows users to set up
-// their own BUILD layout.  It's separated from UpdateBUILD since it's non-local,
-// multiple packages may all need to make writes to the same ts_config.
-func (upd *Updater) RegisterTestRules(ctx context.Context, paths ...string) (bool, error) {
+// their own BUILD layout.  It's separated from UpdateBUILD since it's
+// non-local, multiple packages may all need to make writes to the same
+// ts_config.  It returns a set of the paths for the packages that were updated.
+func (upd *Updater) RegisterTestRules(ctx context.Context, paths ...string) (bool, map[string]bool, error) {
 	reg := &buildRegistry{make(map[string]*build.File), make(map[*build.File]bool)}
 	var g3root string
+	updatedAncestorPackages := make(map[string]bool)
 	for _, path := range paths {
 		// declare variables manually so that g3root doesn't get overwritten by a :=
 		// declaration
@@ -50,11 +52,11 @@ func (upd *Updater) RegisterTestRules(ctx context.Context, paths ...string) (boo
 		var buildPath string
 		g3root, buildPath, err = getBUILDPath(ctx, path)
 		if err != nil {
-			return false, err
+			return false, nil, err
 		}
 		bld, err := reg.readBUILD(ctx, g3root, buildPath)
 		if err != nil {
-			return false, err
+			return false, nil, err
 		}
 		for _, tr := range getRules(bld, "ts_library", ruleTypeTest) {
 			// don't register all_test libraries themselves
@@ -63,14 +65,22 @@ func (upd *Updater) RegisterTestRules(ctx context.Context, paths ...string) (boo
 			}
 			platform.Infof("Registering test rule in closest ts_config & ts_development_sources")
 			target := AbsoluteBazelTarget(bld, tr.Name())
-			if err := reg.registerTestRule(ctx, bld, tsConfig, g3root, target); err != nil {
-				return false, err
+			ancestorBuild, err := reg.registerTestRule(ctx, bld, tsConfig, g3root, target)
+			if err != nil {
+				return false, nil, err
+			}
+			if ancestorBuild != "" {
+				updatedAncestorPackages[ancestorBuild] = true
 			}
 			// NodeJS rules should not be added to ts_development_sources automatically, because
 			// they typically do not run in the browser.
 			if tr.AttrString("runtime") != "nodejs" {
-				if err := reg.registerTestRule(ctx, bld, tsDevSrcs, g3root, target); err != nil {
-					return false, err
+				ancestorBuild, err := reg.registerTestRule(ctx, bld, tsDevSrcs, g3root, target)
+				if err != nil {
+					return false, nil, err
+				}
+				if ancestorBuild != "" {
+					updatedAncestorPackages[ancestorBuild] = true
 				}
 			}
 		}
@@ -81,12 +91,12 @@ func (upd *Updater) RegisterTestRules(ctx context.Context, paths ...string) (boo
 		fmt.Printf("Registered test(s) in %s\n", b.Path)
 		fileChanged, err := upd.maybeWriteBUILD(ctx, filepath.Join(g3root, b.Path), b)
 		if err != nil {
-			return false, err
+			return false, nil, err
 		}
 		updated = updated || fileChanged
 	}
 
-	return updated, nil
+	return updated, updatedAncestorPackages, nil
 }
 
 // buildRegistry buffers reads and writes done while registering ts_libraries
@@ -149,16 +159,16 @@ func (rt registerTarget) ruleType() ruleType {
 // rule is registered with it, instead of specified register target. Prints a
 // warning if no rule is found, but only returns an error if adding the
 // dependency fails.
-func (reg *buildRegistry) registerTestRule(ctx context.Context, bld *build.File, rt registerTarget, g3root, target string) error {
+func (reg *buildRegistry) registerTestRule(ctx context.Context, bld *build.File, rt registerTarget, g3root, target string) (string, error) {
 	if buildHasDisableTaze(bld) {
-		return nil
+		return "", nil
 	}
 
 	var ruleToRegister *build.Rule
 	for _, r := range bld.Rules("") {
 		if isAllTestLibrary(bld, r) {
 			if hasDependency(bld, r, target) {
-				return nil
+				return "", nil
 			}
 
 			// an all_tests library takes presidence over a registerTarget, and there
@@ -169,7 +179,7 @@ func (reg *buildRegistry) registerTestRule(ctx context.Context, bld *build.File,
 		}
 		if ruleMatches(bld, r, rt.kind(), rt.ruleType()) {
 			if hasDependency(bld, r, target) {
-				return nil
+				return "", nil
 			}
 
 			// keep overwriting ruleToRegister so the last match in the BUILD gets
@@ -181,7 +191,7 @@ func (reg *buildRegistry) registerTestRule(ctx context.Context, bld *build.File,
 	if ruleToRegister != nil {
 		addDep(bld, ruleToRegister, target)
 		reg.registerForPossibleUpdate(bld)
-		return nil
+		return filepath.Dir(bld.Path), nil
 	}
 
 	parentDir := filepath.Dir(filepath.Dir(bld.Path))
@@ -190,7 +200,7 @@ func (reg *buildRegistry) registerTestRule(ctx context.Context, bld *build.File,
 		if _, err := platform.Stat(ctx, buildFile); err == nil {
 			parent, err := reg.readBUILD(ctx, g3root, buildFile)
 			if err != nil {
-				return err
+				return "", err
 			}
 			return reg.registerTestRule(ctx, parent, rt, g3root, target)
 		}
@@ -198,5 +208,5 @@ func (reg *buildRegistry) registerTestRule(ctx context.Context, bld *build.File,
 	}
 	fmt.Printf("WARNING: no %s rule in parent packages of %s to register with.\n",
 		rt.kind(), target)
-	return nil
+	return "", nil
 }
