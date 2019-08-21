@@ -5,6 +5,7 @@
   },
   "scripts": {
     "pretest": "bazel run @nodejs//:yarn",
-    "test": "cd simple && ts_auto_deps && bazel build simple"
+    "generate_build_file": "cd simple && ts_auto_deps",
+    "test": "yarn generate_build_file && bazel build simple"
   }
 }

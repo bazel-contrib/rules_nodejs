@@ -178,7 +178,6 @@ jobs:
       # Additional e2e assertions that can only be done with `yarn test`
       - run: cd e2e/symlinked_node_modules_npm && yarn test && bazel clean
       - run: cd e2e/symlinked_node_modules_yarn && yarn test && bazel clean
-      - run: cd e2e/ts_auto_deps && yarn test && bazel clean
 
       - *hide_node_and_yarn_local_binaries
 
