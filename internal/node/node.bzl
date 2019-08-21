@@ -176,11 +176,23 @@ def _nodejs_binary_impl(ctx):
             node_tool_files += node_tool_info.target_tool.files.to_list()
             node_tool = _short_path_to_manifest_path(ctx, node_tool_files[0].short_path)
 
+        templated_args_substitutions = ""
+
+        if ctx.outputs.templated_args_file:
+            # node_options args, plus the args file arg
+            templated_args_substitutions = " ".join([a for a in ctx.attr.templated_args if "--node_options=" in a]) + " %s" % ctx.outputs.templated_args_file.short_path
+            ctx.actions.write(
+                output = ctx.outputs.templated_args_file,
+                content = "\n".join([expand_location_into_runfiles(ctx, a) for a in ctx.attr.templated_args if "--node_options=" not in a]),
+                is_executable = False,
+            )
+            node_tool_files += [ctx.outputs.templated_args_file]
+        else:
+            templated_args = [expand_location_into_runfiles(ctx, a) for a in ctx.attr.templated_args]
+            templated_args_substitutions = " ".join(templated_args)
+
         substitutions = {
-            "TEMPLATED_args": " ".join([
-                expand_location_into_runfiles(ctx, a)
-                for a in ctx.attr.templated_args
-            ]),
+            "TEMPLATED_args": templated_args_substitutions,
             "TEMPLATED_env_vars": env_vars,
             "TEMPLATED_expected_exit_code": str(expected_exit_code),
             "TEMPLATED_node": node_tool,
@@ -374,6 +386,13 @@ _NODEJS_EXECUTABLE_ATTRS = {
         doc = """Arguments which are passed to every execution of the program.
         To pass a node startup option, prepend it with `--node_options=`, e.g.
         `--node_options=--preserve-symlinks`
+        """,
+    ),
+    "templated_args_file": attr.output(
+        mandatory = False,
+        doc = """If specified, arguments specified in `templated_args` are instead written to this file,
+        which is then passed as an argument to the program. Arguments prefix with `--node_options=` are ignored,
+        and still passed to node.
         """,
     ),
     "_launcher_template": attr.label(
