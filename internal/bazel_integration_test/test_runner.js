@@ -29,8 +29,8 @@ const tmp = require('tmp');
 const config = require(process.argv[2]);
 if (DEBUG) console.log(`config: ${JSON.stringify(config, null, 2)}`);
 
-const args = process.argv.slice(3);
-if (DEBUG) console.log(`args: ${JSON.stringify(args, null, 2)}`);
+const testArgs = process.argv.slice(3);
+if (DEBUG) console.log(`testArgs: ${JSON.stringify(testArgs, null, 2)}`);
 
 /**
  * Helper function to log out the contents of a file.
@@ -277,7 +277,15 @@ if (DEBUG) {
 }
 
 for (const bazelCommand of config.bazelCommands) {
-  const bazelArgs = bazelCommand.split(' ').concat(args);
+  const bazelArgs = bazelCommand.split(' ');
+  // look for `<test_args>` keyword and insert testArgs at that point
+  // if it exists, otherwise push to end of arguments
+  const testArgsPosition = bazelArgs.indexOf('<test_args>');
+  if (testArgsPosition !== -1) {
+    bazelArgs.splice(testArgsPosition, 1, ...testArgs);
+  } else {
+    bazelArgs.push(...testArgs);
+  }
   console.log(`\n\nRunning 'bazel ${bazelArgs.join(' ')}'`);
   spawnedProcess = spawnSync(bazelBinary, bazelArgs, {cwd: workspaceRoot, stdio: 'inherit'});
   if (spawnedProcess.status) {

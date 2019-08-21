@@ -57,9 +57,6 @@ E2E_TESTS = {
     "e2e_symlinked_node_modules_yarn": {
         "//packages/hide-bazel-files:npm_package": "@bazel/hide-bazel-files",
     },
-    "e2e_ts_auto_deps": {
-        "//packages/typescript:npm_package": "@bazel/typescript",
-    },
     "e2e_ts_devserver": {
         "//packages/hide-bazel-files:npm_package": "@bazel/hide-bazel-files",
         "//packages/protractor:npm_package": "@bazel/protractor",
@@ -141,6 +138,40 @@ E2E_TESTS = {
     "3.4.x",
     "3.5.x",
 ]]
+
+bazel_integration_test(
+    name = "e2e_ts_auto_deps",
+    bazel_commands = [
+        "run @nodejs//:yarn",
+        "run @nodejs//:bin/yarn <test_args> -- generate_build_file",
+        "build //simple:simple",
+    ],
+    # some bazelrc imports are outside of the nested workspace so
+    # the test runner will handle these as special cases
+    bazelrc_imports = {
+        "//:common.bazelrc": "import %workspace%/../../common.bazelrc",
+    },
+    check_npm_packages = NPM_PACKAGES,
+    # package.json will be updated with `file:` links to the absolute paths
+    # of the generated npm packages in runfiles
+    npm_packages = {
+        "//packages/typescript:npm_package": "@bazel/typescript",
+    },
+    # replace the following repositories with the generated archives
+    repositories = {
+        "//:release": "build_bazel_rules_nodejs",
+    },
+    tags = [
+        "e2e",
+        # exclusive keyword will force the test to be run in the "exclusive" mode,
+        # ensuring that no other tests are running at the same time. Such tests
+        # will be executed in serial fashion after all build activity and non-exclusive
+        # tests have been completed. Remote execution is disabled for such tests
+        # because Bazel doesn't have control over what's running on a remote machine.
+        "exclusive",
+    ],
+    workspace_files = "@e2e_ts_auto_deps//:all_files",
+)
 
 bazel_integration_test(
     name = "e2e_angular_bazel_example",
