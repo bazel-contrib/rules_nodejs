@@ -112,8 +112,7 @@ It is assumed by the test runner that the bazel binary is found at label_workspa
         default = ["test ..."],
         doc = """The list of bazel commands to run. Defaults to `["test ..."]`.
 
-`<test_args>` will be replaced with any `--test_args` arguments passed to the `bazel_integration_test` test target. If
-`<test_args>` is not found then any `--test_args` arguments will be added on to the end of the user arguments in the command.
+Note that if a command contains a bare `--` argument, the --test_arg passed to Bazel will appear before it.
 """,
     ),
     "bazelrc_append": attr.string(

@@ -143,7 +143,7 @@ bazel_integration_test(
     name = "e2e_ts_auto_deps",
     bazel_commands = [
         "run @nodejs//:yarn",
-        "run @nodejs//:bin/yarn <test_args> -- generate_build_file",
+        "run @nodejs//:bin/yarn -- generate_build_file",
         "build //simple:simple",
     ],
     # some bazelrc imports are outside of the nested workspace so
