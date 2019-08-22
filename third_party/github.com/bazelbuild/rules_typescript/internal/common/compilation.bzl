@@ -468,7 +468,18 @@ def compile_ts(
     transitive_es6_sources = depset(transitive = [transitive_es6_sources, es6_sources])
 
     return {
-        "files": depset(transitive = files_depsets),
+        "providers": [
+            DefaultInfo(
+                runfiles = ctx.runfiles(
+                    # Note: don't include files=... here, or they will *always* be built
+                    # by any dependent rule, regardless of whether it needs them.
+                    # But these attributes are needed to pass along any input runfiles:
+                    collect_default = True,
+                    collect_data = True,
+                ),
+                files = depset(transitive = files_depsets),
+            ),
+        ],
         "instrumented_files": {
             "dependency_attributes": ["deps", "runtime_deps"],
             "extensions": ["ts"],
@@ -482,13 +493,6 @@ def compile_ts(
             "es5_sources": es5_sources,
             "es6_sources": es6_sources,
         },
-        "runfiles": ctx.runfiles(
-            # Note: don't include files=... here, or they will *always* be built
-            # by any dependent rule, regardless of whether it needs them.
-            # But these attributes are needed to pass along any input runfiles:
-            collect_default = True,
-            collect_data = True,
-        ),
         # Expose the tags so that a Skylark aspect can access them.
         "tags": ctx.attr.tags if hasattr(ctx.attr, "tags") else ctx.rule.attr.tags,
         # TODO(martinprobst): Prune transitive deps, only re-export what's needed.
