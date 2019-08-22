@@ -278,11 +278,11 @@ if (DEBUG) {
 
 for (const bazelCommand of config.bazelCommands) {
   const bazelArgs = bazelCommand.split(' ');
-  // look for `<test_args>` keyword and insert testArgs at that point
+  // look for `--` argument and insert testArgs before it
   // if it exists, otherwise push to end of arguments
-  const testArgsPosition = bazelArgs.indexOf('<test_args>');
-  if (testArgsPosition !== -1) {
-    bazelArgs.splice(testArgsPosition, 1, ...testArgs);
+  const doubleHyphenPos = bazelArgs.indexOf('--');
+  if (doubleHyphenPos !== -1) {
+    bazelArgs.splice(doubleHyphenPos, 0, ...testArgs);
   } else {
     bazelArgs.push(...testArgs);
   }
