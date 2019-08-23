@@ -10,7 +10,7 @@
         "@bazel/typescript": "^0.32.0",
         "@types/jasmine": "^2.8.2",
         "@types/long": "^4.0.0",
-        "@types/node": "7.0.18",
+        "@types/node": "10.12.20",
         "@types/source-map": "^0.5.1",
         "@types/tmp": "^0.0.33",
         "clang-format": "1.0.49",

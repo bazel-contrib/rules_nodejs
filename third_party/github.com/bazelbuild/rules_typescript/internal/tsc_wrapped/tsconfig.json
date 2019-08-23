@@ -16,7 +16,10 @@
       "es2015.core",
       "es2015.collection",
       "es2015.iterable",
-      "es2015.promise"
+      "es2015.promise",
+      // This will need to become es2018.asynciterable when
+      // bumping the version of TypeScript in rules_typescript/package.json
+      "esnext.asynciterable"
     ]
   }
 }

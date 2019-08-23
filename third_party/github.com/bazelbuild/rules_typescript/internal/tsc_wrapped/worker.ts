@@ -115,12 +115,15 @@ const workerpb = loadWorkerPb();
  * data, and dispatches into `runOneBuild` for the actual compilation to happen.
  *
  * The compilation handler is parameterized so that this code can be used by
- * different compiler entry points (currently TypeScript compilation and Angular
- * compilation).
+ * different compiler entry points (currently TypeScript compilation, Angular
+ * compilation, and the contrib vulcanize worker).
+ *
+ * It's also exposed publicly as an npm package:
+ *   https://www.npmjs.com/package/@bazel/worker
  */
-export function runWorkerLoop(
+export async function runWorkerLoop(
     runOneBuild: (args: string[], inputs?: {[path: string]: string}) =>
-        boolean) {
+        boolean | Promise<boolean>) {
   // Hook all output to stderr and write it to a buffer, then include
   // that buffer's in the worker protcol proto's textual output.  This
   // means you can log via console.error() and it will appear to the
@@ -142,10 +145,8 @@ export function runWorkerLoop(
   // it exits and waits for more input. If a message has been read, it strips
   // its data of this buffer.
   let buf: Buffer = Buffer.alloc(0);
-  process.stdin.on('readable', () => {
-    const chunk = process.stdin.read() as Buffer;
-    if (!chunk) return;
-    buf = Buffer.concat([buf, chunk]);
+  stdinLoop: for await (const chunk of process.stdin) {
+    buf = Buffer.concat([buf, chunk as Buffer]);
     try {
       const reader = new protobufjs.Reader(buf);
       // Read all requests that have accumulated in the buffer.
@@ -154,7 +155,7 @@ export function runWorkerLoop(
         const msgLength: number = reader.uint32();
         // chunk might be an incomplete read from stdin. If there are not enough
         // bytes for the next full message, wait for more input.
-        if ((reader.len - reader.pos) < msgLength) return;
+        if ((reader.len - reader.pos) < msgLength) continue stdinLoop;
 
         const req = workerpb.WorkRequest.decode(reader, msgLength) as
             workerProto.WorkRequest;
@@ -170,7 +171,7 @@ export function runWorkerLoop(
           inputs[input.path] = input.digest.toString('hex');
         }
         debug('Compiling with:\n\t' + args.join('\n\t'));
-        const exitCode = runOneBuild(args, inputs) ? 0 : 1;
+        const exitCode = (await runOneBuild(args, inputs)) ? 0 : 1;
         process.stdout.write((workerpb.WorkResponse.encodeDelimited({
                                exitCode,
                                output: consoleOutput,
@@ -196,5 +197,5 @@ export function runWorkerLoop(
       // Clear buffer so the next build won't read an incomplete request.
       buf = Buffer.alloc(0);
     }
-  });
+  }
 }
