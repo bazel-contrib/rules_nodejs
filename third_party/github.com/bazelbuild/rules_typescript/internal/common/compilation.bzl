@@ -479,6 +479,10 @@ def compile_ts(
                 ),
                 files = depset(transitive = files_depsets),
             ),
+            OutputGroupInfo(
+                es5_sources = es5_sources,
+                es6_sources = es6_sources,
+            ),
         ],
         "instrumented_files": {
             "dependency_attributes": ["deps", "runtime_deps"],
@@ -489,10 +493,6 @@ def compile_ts(
         # e.g. rollup_bundle under Bazel needs to convert this into a UMD global
         # name in the Rollup configuration.
         "module_name": getattr(ctx.attr, "module_name", None),
-        "output_groups": {
-            "es5_sources": es5_sources,
-            "es6_sources": es6_sources,
-        },
         # Expose the tags so that a Skylark aspect can access them.
         "tags": ctx.attr.tags if hasattr(ctx.attr, "tags") else ctx.rule.attr.tags,
         # TODO(martinprobst): Prune transitive deps, only re-export what's needed.
