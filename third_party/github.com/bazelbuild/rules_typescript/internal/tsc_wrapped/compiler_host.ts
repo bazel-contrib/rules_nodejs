@@ -97,7 +97,6 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
   host: ts.ModuleResolutionHost = this;
   private allowActionInputReads = true;
 
-
   constructor(
       public inputFiles: string[], options: ts.CompilerOptions,
       readonly bazelOpts: BazelOptions, private delegate: ts.CompilerHost,
