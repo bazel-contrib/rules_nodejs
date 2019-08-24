@@ -214,7 +214,8 @@ jobs:
       # to build the release package with this configuration.
       - run: bazel build --build_tag_filters=examples ...
       - run:
-          command: bazel test --test_tag_filters=examples --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,7.0,1.0 --test_arg=--test_tag_filters=-no-circleci,-manual ...
+          # We don't have java installed on our circleci docker image
+          command: bazel test --test_tag_filters=examples,-requires-java --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,7.0,1.0 --test_arg=--test_tag_filters=-no-circleci,-manual ...
           no_output_timeout: 20m
       # The following examples only works on linux as it downloads the linux node distribution
       # It is tagged "manual" so we run it explicitly here
