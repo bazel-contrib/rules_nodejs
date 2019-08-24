@@ -321,28 +321,12 @@ k8s_defaults(
 # Setup bazel_integration_test repositories
 #
 
+load("//e2e:index.bzl", "ALL_E2E")
+
 [local_repository(
     name = "e2e_%s" % name,
     path = "e2e/%s" % name,
-) for name in [
-    "bazel_managed_deps",
-    "fine_grained_symlinks",
-    "jasmine",
-    "karma",
-    "karma_stack_trace",
-    "karma_typescript",
-    "less",
-    "node_loader_no_preserve_symlinks",
-    "node_loader_preserve_symlinks",
-    "packages",
-    "stylus",
-    "symlinked_node_modules_npm",
-    "symlinked_node_modules_yarn",
-    "ts_auto_deps",
-    "ts_devserver",
-    "typescript",
-    "webpack",
-]]
+) for name in ALL_E2E]
 
 load("@e2e_packages//:setup_workspace.bzl", "e2e_packages_setup_workspace")
 
@@ -360,19 +344,9 @@ local_repository(
     path = "tools/mock_npm_angular_bazel",
 )
 
+load("//examples:index.bzl", "ALL_EXAMPLES")
+
 [local_repository(
     name = "examples_%s" % name,
     path = "examples/%s" % name,
-) for name in [
-    "app",
-    "nestjs",
-    "parcel",
-    "program",
-    "protocol_buffers",
-    "user_managed_deps",
-    "vendored_node",
-    "vendored_node_and_yarn",
-    "web_testing",
-    "webapp",
-    "worker",
-]]
+) for name in ALL_EXAMPLES]

@@ -16,6 +16,7 @@
 """
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "BAZEL_VERSION")
+load("@build_bazel_rules_nodejs//packages:index.bzl", "NPM_PACKAGES")
 
 BAZEL_BINARY = "@build_bazel_bazel_%s//:bazel_binary" % BAZEL_VERSION.replace(".", "_")
 
@@ -229,3 +230,34 @@ bazel_integration_test = rule(
     attrs = BAZEL_INTEGRATION_TEST_ATTRS,
     test = True,
 )
+
+def rules_nodejs_integration_test(name, **kwargs):
+    "Set defaults for the bazel_integration_test common to our examples and e2e"
+    tags = kwargs.pop("tags", []) + [
+        # exclusive keyword will force the test to be run in the "exclusive" mode,
+        # ensuring that no other tests are running at the same time. Such tests
+        # will be executed in serial fashion after all build activity and non-exclusive
+        # tests have been completed. Remote execution is disabled for such tests
+        # because Bazel doesn't have control over what's running on a remote machine.
+        "exclusive",
+    ]
+
+    workspace_files = kwargs.pop("workspace_files", "@%s//:all_files" % name)
+
+    # replace the following repositories with the generated archives
+    repositories = kwargs.pop("repositories", {})
+    repositories["//:release"] = "build_bazel_rules_nodejs"
+
+    bazel_integration_test(
+        name = name,
+        check_npm_packages = NPM_PACKAGES,
+        repositories = repositories,
+        # some bazelrc imports are outside of the nested workspace so
+        # the test runner will handle these as special cases
+        bazelrc_imports = {
+            "//:common.bazelrc": "import %workspace%/../../common.bazelrc",
+        },
+        workspace_files = workspace_files,
+        tags = tags,
+        **kwargs
+    )

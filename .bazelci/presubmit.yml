@@ -228,7 +228,7 @@ tasks:
     build_targets:
     - "//..."
     test_flags:
-    - "--test_tag_filters=examples"
+    - "--test_tag_filters=-manual,examples"
     - "--local_resources=792,1.0,1.0"
     # test_args will be passed to the nested bazel process
     # TODO(gregmagolan): fix frequent flake with multiple cores in nested bazel (osx buildkite & local)
@@ -311,7 +311,7 @@ tasks:
     build_targets:
     - "//..."
     test_flags:
-    - "--test_tag_filters=examples,-fix-windows,-no-bazelci-windows"
+    - "--test_tag_filters=-manual,examples,-fix-windows,-no-bazelci-windows"
     - "--local_resources=792,1.0,1.0"
     # test_args will be passed to the nested bazel process
     - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-windows,-fix-windows"
