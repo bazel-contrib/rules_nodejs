@@ -17,6 +17,7 @@
 
 load(":common/json_marshal.bzl", "json_marshal")
 load(":common/module_mappings.bzl", "module_mappings_aspect")
+load("@build_bazel_rules_nodejs//:declaration_provider.bzl", "DeclarationInfo")
 
 _DEBUG = False
 
@@ -483,6 +484,11 @@ def compile_ts(
                 es5_sources = es5_sources,
                 es6_sources = es6_sources,
             ),
+            # TODO(martinprobst): Prune transitive deps, see go/dtspruning
+            DeclarationInfo(
+                declarations = depset(transitive = declarations_depsets),
+                transitive_declarations = transitive_decls,
+            ),
         ],
         "instrumented_files": {
             "dependency_attributes": ["deps", "runtime_deps"],
@@ -495,13 +501,14 @@ def compile_ts(
         "module_name": getattr(ctx.attr, "module_name", None),
         # Expose the tags so that a Skylark aspect can access them.
         "tags": ctx.attr.tags if hasattr(ctx.attr, "tags") else ctx.rule.attr.tags,
-        # TODO(martinprobst): Prune transitive deps, only re-export what's needed.
         "typescript": {
+            # TODO(b/139705078): remove when consumers migrated to DeclarationInfo
             "declarations": depset(transitive = declarations_depsets),
             "devmode_manifest": devmode_manifest,
             "es5_sources": es5_sources,
             "es6_sources": es6_sources,
             "replay_params": replay_params,
+            # TODO(b/139705078): remove when consumers migrated to DeclarationInfo
             "transitive_declarations": transitive_decls,
             "transitive_es6_sources": transitive_es6_sources,
             "tsickle_externs": tsickle_externs,
