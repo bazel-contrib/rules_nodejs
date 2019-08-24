@@ -119,6 +119,11 @@ readonly repository_args=$(rlocation "TEMPLATED_repository_args")
 readonly script=$(rlocation "TEMPLATED_script_path")
 readonly patcher=$(rlocation "TEMPLATED_patcher_path")
 
+echo $patcher
+echo $patcher
+echo $patcher
+echo $patcher
+
 source $repository_args
 
 ARGS=()
@@ -132,7 +137,18 @@ for ARG in "${ALL_ARGS[@]}"; do
 done
 
 # TODO: what happens if the user passed a require flag?
-NODE_OPTIONS+=( "--require=./$patcher" )
+# if [[ $patcher = /*]]
+# then 
+# else
+# fi
+
+if [[ $patcher = /* ]]
+then
+  NODE_OPTIONS+=( "--require=$patcher" )
+else
+  # if it's a relative dir then prefix it with a ./
+  NODE_OPTIONS+=( "--require=./$patcher" )
+fi
 
 # The EXPECTED_EXIT_CODE lets us write bazel tests which assert that
 # a binary fails to run. Otherwise any failure would make such a test
