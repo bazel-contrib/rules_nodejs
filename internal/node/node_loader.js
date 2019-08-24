@@ -25,7 +25,13 @@
 var path = require('path');
 
 // Ensure that node is added to the path for any subprocess calls
-process.env.PATH = [path.dirname(process.execPath), process.env.PATH].join(path.delimiter);
+let binDir = path.dirname(process.env.RULES_NODE_PROXY_SCRIPT);
+process.env.PATH = [path.dirname(process.execPath), binDir].join(path.delimiter);
+
+
+// resolve this path with the bazel module resolution
+// if it's not resolved then it would fail to run the patcher on the child program
+process.execPath = path.resolve(process.env.RULES_NODE_PROXY_SCRIPT)
 
 const DEBUG = false;
 

@@ -197,8 +197,7 @@ def _nodejs_binary_impl(ctx):
             ]),
             "TEMPLATED_env_vars": env_vars,
             "TEMPLATED_expected_exit_code": str(expected_exit_code),
-            "TEMPLATED_node": node_tool,
-            "TEMPLATED_patcher_path": patcher_path,
+            "TEMPLATED_node_proxy_path": _short_path_to_manifest_path(ctx, ctx.outputs.node_proxy.short_path),
             "TEMPLATED_repository_args": _short_path_to_manifest_path(ctx, ctx.file._repository_args.short_path),
             "TEMPLATED_script_path": script_path,
         }
@@ -206,6 +205,16 @@ def _nodejs_binary_impl(ctx):
             template = ctx.file._launcher_template,
             output = ctx.outputs.script,
             substitutions = substitutions,
+            is_executable = True,
+        )
+
+        ctx.actions.expand_template(
+            template = ctx.file._node_proxy_template,
+            output = ctx.outputs.node_proxy,
+            substitutions = {
+                "TEMPLATED_node": node_tool,
+                "TEMPLATED_patcher_path": patcher_path,
+            },
             is_executable = True,
         )
 
@@ -222,6 +231,7 @@ def _nodejs_binary_impl(ctx):
             files = node_tool_files + [
                         ctx.outputs.loader,
                         ctx.outputs.patcher,
+                        ctx.outputs.node_proxy,
                     ] + ctx.files._source_map_support_files +
 
                     # We need this call to the list of Files.
@@ -400,6 +410,10 @@ _NODEJS_EXECUTABLE_ATTRS = {
         default = Label("//internal/node:node_loader.js"),
         allow_single_file = True,
     ),
+    "_node_proxy_template": attr.label(
+        default = Label("//internal/node:node_proxy.sh"),
+        allow_single_file = True,
+    ),
     "_patcher_template": attr.label(
         default = Label("//internal/node:node_patcher.js"),
         allow_single_file = True,
@@ -420,6 +434,7 @@ _NODEJS_EXECUTABLE_ATTRS = {
 
 _NODEJS_EXECUTABLE_OUTPUTS = {
     "loader": "%{name}_loader.js",
+    "node_proxy": "%{name}_node_proxy/node",
     "patcher": "%{name}_patcher.js",
     "script": "%{name}.sh",
 }
