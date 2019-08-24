@@ -26,7 +26,10 @@ exports_files([
 
 bzl_library(
     name = "bzl",
-    srcs = ["defs.bzl"],
+    srcs = [
+        "declaration_provider.bzl",
+        "defs.bzl",
+    ],
     visibility = ["//visibility:public"],
     deps = [
         "//internal/common:bzl",
@@ -49,11 +52,9 @@ filegroup(
 
 npm_package(
     name = "rules_nodejs_package",
-    srcs = [
+    srcs = glob(["*.bzl"]) + [
         "BUILD.bazel",
         "LICENSE",
-        "defs.bzl",
-        "package.bzl",
     ],
     # Don't rename BUILD files as this package is not published to npm
     # but is compressed in "release" below and published as a .tar.gz to GitHub
