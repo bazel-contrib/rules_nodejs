@@ -319,6 +319,13 @@ k8s_defaults(
 # Setup bazel_integration_test repositories
 #
 
+# Don't need to build kotlin in the root workspace.
+# See tools/mock_rules_kotlin/README.md
+local_repository(
+    name = "io_bazel_rules_kotlin",
+    path = "tools/mock_rules_kotlin",
+)
+
 load("//e2e:index.bzl", "ALL_E2E")
 
 [local_repository(
