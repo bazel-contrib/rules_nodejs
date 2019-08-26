@@ -146,11 +146,9 @@ load("@io_bazel_rules_webtesting//web:repositories.bzl", "web_test_repositories"
 
 web_test_repositories()
 
-# Temporary work-around for https://github.com/angular/angular/issues/28681
-# TODO(gregmagolan): go back to @io_bazel_rules_webtesting browser_repositories
-load("@npm_bazel_karma//:browser_repositories.bzl", "browser_repositories")
+load("@io_bazel_rules_webtesting//web/versioned:browsers-0.3.2.bzl", "browser_repositories")
 
-browser_repositories()
+browser_repositories(chromium = True)
 
 #
 # Dependencies to run skydoc & generating documentation
@@ -335,7 +333,7 @@ e2e_packages_setup_workspace()
 git_repository_under_test(
     name = "e2e_angular_bazel_example",
     branch = "add-buildkite-filter-flags",
-    remote = "http://github.com/gregmagolan/angular-bazel-example.git",
+    remote = "http://github.com/angular/angular-bazel-example.git",
 )
 
 # Mock npm_angular_bazel for @e2e_angular_bazel_example//:bazel_integration_test_files target
