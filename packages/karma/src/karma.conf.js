@@ -418,7 +418,7 @@ try {
       // This is a bazel specific formatError that removes the workspace
       // name from stack traces.
       // Look for filenames of the format "(<filename>:<row>:<column>"
-      const FILENAME_REGEX = /\(([^:]+)(:\d+:\d+)/gm;
+      const FILENAME_REGEX = /\(([^:\n\r]+)(:\d+:\d+)/gm;
       msg = msg.replace(FILENAME_REGEX, (_, p1, p2) => {
         if (p1.startsWith('../')) {
           // Remove all leading "../"
