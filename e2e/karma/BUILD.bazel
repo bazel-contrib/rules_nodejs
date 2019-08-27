@@ -35,6 +35,7 @@ ts_web_test_suite(
         # in "tslib" transitively.
         "init-test.js",
     ],
+    tags = ["native"],
     deps = [
         "init-test.js",
         "requirejs-config.js",

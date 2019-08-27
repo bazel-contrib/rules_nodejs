@@ -1,10 +1,11 @@
 # Execute first test.
-OUTPUT=$(${RUNFILES_DIR}/e2e_karma_stack_trace/karma_test_chromium-local)
+OUTPUT=$(${RUNFILES_DIR}/e2e_karma_stack_trace/karma_test_chromium-local.sh)
 
 # Test whether the package relative TS path is printed in stack trace.
 echo ${OUTPUT} | grep -q "(failing.spec.ts:7:17"
 if [[ "$?" != "0" ]]; then
   echo "Did not find 'failing.spec.ts:7:17' in Karma stack trace"
+  echo $OUTPUT
   exit 1
 fi
 

@@ -52,6 +52,7 @@ ts_web_test_suite(
         "@io_bazel_rules_webtesting//browsers:chromium-local",
         "@io_bazel_rules_webtesting//browsers:firefox-local",
     ],
+    tags = ["native"],
     runtime_deps = [
         # typescript targets only in runtime_deps, must be TS module
         ":hello_world",

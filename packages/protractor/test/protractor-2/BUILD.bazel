@@ -57,7 +57,6 @@ protractor_web_test_suite(
     tags = [
         "fix-bazelci-ubuntu",  # ubuntu docker images on buildkite missing chrome dependencies & apt-get install not possible
         "fix-windows",  # http_server (and history_server) do not work on Windows
-        "native",
     ],
     deps = [
         ":ts_spec",
@@ -71,7 +70,6 @@ protractor_web_test_suite(
     server = ":devserver",
     tags = [
         "fix-bazelci-ubuntu",  # ubuntu docker images on buildkite missing chrome dependencies & apt-get install not possible
-        "native",
     ],
     deps = [
         ":ts_spec",

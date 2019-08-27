@@ -45,6 +45,7 @@ karma_web_test_suite(
     static_files = [
         "static_script.js",
     ],
+    tags = ["native"],
     runtime_deps = [
         ":tests_setup",
     ],
@@ -60,7 +61,9 @@ karma_web_test_suite(
         "@io_bazel_rules_webtesting//browsers/sauce:chrome-win10",
     ],
     tags = [
+        "exclusive",
         "sauce",
+        "native",
         # TODO(alexeagle): enable on CI once we have set the SAUCE env variables
         "manual",
     ],
@@ -78,6 +81,7 @@ ts_web_test_suite(
     static_files = [
         "static_script.js",
     ],
+    tags = ["native"],
     runtime_deps = [
         ":tests_setup",
     ],
@@ -92,6 +96,8 @@ ts_web_test_suite(
         "@io_bazel_rules_webtesting//browsers/sauce:chrome-win10",
     ],
     tags = [
+        "exclusive",
+        "native",
         "sauce",
         # TODO(alexeagle): enable on CI once we have set the SAUCE env variables
         "manual",

@@ -37,7 +37,10 @@ ts_web_test_suite(
         "@io_bazel_rules_webtesting//browsers:chromium-local",
         "@io_bazel_rules_webtesting//browsers:firefox-local",
     ],
-    tags = ["manual"],  # not run by CI
+    tags = [
+        "manual",  # not run by CI
+        "native",
+    ],
     deps = [
         ":test_lib",
         "//test_folder:test_lib",
