@@ -17,7 +17,9 @@
 'use strict';
 
 const args = process.argv.slice(2);
-const BAZEL_VERSION = args[0];
+// The arguments are passed via a params file
+const paramsFile = require.resolve('build_bazel_rules_nodejs/' + args[0]);
+const [BAZEL_VERSION] = require('fs').readFileSync(paramsFile, 'utf-8').split(/\r?\n/);
 
 const packageJson = require('build_bazel_rules_nodejs/package.json');
 

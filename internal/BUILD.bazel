@@ -30,4 +30,6 @@ nodejs_test(
     ],
     entry_point = ":check_package_json.js",
     templated_args = [BAZEL_VERSION],
+    # Not necessary here, just a regression test for #1043
+    templated_args_file = "package_json_test.params",
 )

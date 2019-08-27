@@ -176,23 +176,36 @@ def _nodejs_binary_impl(ctx):
             node_tool_files += node_tool_info.target_tool.files.to_list()
             node_tool = _short_path_to_manifest_path(ctx, node_tool_files[0].short_path)
 
-        templated_args_substitutions = ""
+        if not ctx.outputs.templated_args_file:
+            templated_args = ctx.attr.templated_args
+        else:
+            # Distribute the templated_args between the params file and the node options
+            params = []
+            templated_args = []
+            for a in ctx.attr.templated_args:
+                if a.startswith("--node_options="):
+                    templated_args.append(a)
+                else:
+                    params.append(a)
 
-        if ctx.outputs.templated_args_file:
-            # node_options args, plus the args file arg
-            templated_args_substitutions = " ".join([a for a in ctx.attr.templated_args if "--node_options=" in a]) + " %s" % ctx.outputs.templated_args_file.short_path
+            # Put the params into the params file
             ctx.actions.write(
                 output = ctx.outputs.templated_args_file,
-                content = "\n".join([expand_location_into_runfiles(ctx, a) for a in ctx.attr.templated_args if "--node_options=" not in a]),
+                content = "\n".join([expand_location_into_runfiles(ctx, p) for p in params]),
                 is_executable = False,
             )
+
+            # after the node_options args, pass the params file arg
+            templated_args.append(ctx.outputs.templated_args_file.short_path)
+
+            # also be sure to include the params file in the program inputs
             node_tool_files += [ctx.outputs.templated_args_file]
-        else:
-            templated_args = [expand_location_into_runfiles(ctx, a) for a in ctx.attr.templated_args]
-            templated_args_substitutions = " ".join(templated_args)
 
         substitutions = {
-            "TEMPLATED_args": templated_args_substitutions,
+            "TEMPLATED_args": " ".join([
+                expand_location_into_runfiles(ctx, a)
+                for a in templated_args
+            ]),
             "TEMPLATED_env_vars": env_vars,
             "TEMPLATED_expected_exit_code": str(expected_exit_code),
             "TEMPLATED_node": node_tool,
@@ -391,8 +404,8 @@ _NODEJS_EXECUTABLE_ATTRS = {
     "templated_args_file": attr.output(
         mandatory = False,
         doc = """If specified, arguments specified in `templated_args` are instead written to this file,
-        which is then passed as an argument to the program. Arguments prefix with `--node_options=` are ignored,
-        and still passed to node.
+        which is then passed as an argument to the program. Arguments prefixed with `--node_options=` are
+        passed directly to node and not included in the params file.
         """,
     ),
     "_launcher_template": attr.label(
