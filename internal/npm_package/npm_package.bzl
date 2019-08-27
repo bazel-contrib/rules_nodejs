@@ -176,9 +176,7 @@ NPM_PACKAGE_OUTPUTS = {
 npm_package = rule(
     implementation = _npm_package,
     attrs = NPM_PACKAGE_ATTRS,
-    outputs = NPM_PACKAGE_OUTPUTS,
-)
-"""The npm_package rule creates a directory containing a publishable npm artifact.
+    doc = """The npm_package rule creates a directory containing a publishable npm artifact.
 
 Example:
 
@@ -235,14 +233,6 @@ $ bazel run :my_package.publish
 ```
 
 You can pass arguments to npm by escaping them from Bazel using a double-hyphen `bazel run my_package.publish -- --tag=next`
-"""
-# Adding the above docstring as `doc` attribute
-# causes a build error but ONLY on Ubuntu 14.04 on BazelCI.
-# ```
-# File "internal/npm_package/npm_package.bzl", line 221, in <module>
-#     outputs = NPM_PACKAGE_OUTPUTS,
-# TypeError: rule() got an unexpected keyword argument 'doc'
-# ```
-# This error does not occur on any other platform on BazelCI including Ubuntu 16.04.
-# TOOD(gregmagolan): Figure out why and/or file a bug to Bazel
-# See https://github.com/bazelbuild/buildtools/issues/471#issuecomment-485283200
+""",
+    outputs = NPM_PACKAGE_OUTPUTS,
+)

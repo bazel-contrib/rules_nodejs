@@ -442,12 +442,11 @@ _NODEJS_EXECUTABLE_OUTPUTS = {
 nodejs_binary = rule(
     implementation = _nodejs_binary_impl,
     attrs = _NODEJS_EXECUTABLE_ATTRS,
+    doc = "Runs some JavaScript code in NodeJS.",
     executable = True,
     outputs = _NODEJS_EXECUTABLE_OUTPUTS,
     toolchains = ["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"],
 )
-"""Runs some JavaScript code in NodeJS.
-"""
 
 nodejs_test = rule(
     implementation = _nodejs_binary_impl,
@@ -457,11 +456,7 @@ nodejs_test = rule(
             default = 0,
         ),
     }),
-    test = True,
-    outputs = _NODEJS_EXECUTABLE_OUTPUTS,
-    toolchains = ["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"],
-)
-"""
+    doc = """
 Identical to `nodejs_binary`, except this can be used with `bazel test` as well.
 When the binary returns zero exit code, the test passes; otherwise it fails.
 
@@ -483,17 +478,11 @@ test:debug --test_arg=--node_options=--inspect-brk --test_output=streamed --test
 Now you can add `--config=debug` to any `bazel test` command line.
 The runtime will pause before executing the program, allowing you to connect a
 remote debugger.
-"""
-# Adding the above nodejs_test & nodejs_binary docstrings as `doc` attributes
-# causes a build error but ONLY on Ubuntu 14.04 on BazelCI.
-# ```
-# File "internal/node/node.bzl", line 378, in <module>
-#     outputs = _NODEJS_EXECUTABLE_OUTPUTS,
-# TypeError: rule() got an unexpected keyword argument 'doc'
-# ```
-# This error does not occur on any other platform on BazelCI including Ubuntu 16.04.
-# TOOD(gregmagolan): Figure out why and/or file a bug to Bazel
-# See https://github.com/bazelbuild/buildtools/issues/471#issuecomment-485283200
+""",
+    test = True,
+    outputs = _NODEJS_EXECUTABLE_OUTPUTS,
+    toolchains = ["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"],
+)
 
 def nodejs_binary_macro(name, data = [], args = [], visibility = None, tags = [], testonly = 0, **kwargs):
     """This macro exists only to wrap the nodejs_binary as an .exe for Windows.
