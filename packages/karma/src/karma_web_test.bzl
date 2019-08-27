@@ -366,7 +366,7 @@ def karma_web_test(
 
 def karma_web_test_suite(
         name,
-        browsers = ["@io_bazel_rules_webtesting//browsers:chromium-local"],
+        browsers = None,
         args = None,
         browser_overrides = None,
         config = None,
@@ -418,6 +418,11 @@ def karma_web_test_suite(
     # Check explicitly for None so that users can set this to the empty list
     if wrapped_test_tags == None:
         wrapped_test_tags = DEFAULT_WRAPPED_TEST_TAGS
+
+    if browsers == None:
+        browsers = ["@io_bazel_rules_webtesting//browsers:chromium-local"]
+        if not "native" in tags:
+            tags = tags + ["native"]
 
     size = size or "large"
 
