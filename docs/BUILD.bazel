@@ -17,7 +17,7 @@ load("//tools/stardoc:index.bzl", "stardoc")
 stardoc(
     name = "builtins",
     out = "builtins.api",
-    input = "//:defs.bzl",
+    input = "//:index.for_docs.bzl",
     deps = ["//:bzl"],
 )
 
@@ -65,5 +65,5 @@ _FRONT_MATTER = "\n".join([
 
 filegroup(
     name = "docs",
-    srcs = [s[0] + ".md" for s in _PACKAGE_READMES.items()],
+    srcs = [s + ".md" for s in _PACKAGE_READMES.keys()],
 )
