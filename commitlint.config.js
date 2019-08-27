@@ -18,6 +18,7 @@ module.exports = {
         'protractor',
         'stylus',
         'rollup',
+        'terser',
         'typescript',
         'worker',
       ]

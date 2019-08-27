@@ -1,0 +1,32 @@
+load("@build_bazel_rules_nodejs//internal/golden_file_test:golden_file_test.bzl", "golden_file_test")
+load("@npm_bazel_terser//:index.from_src.bzl", "terser_minified")
+
+terser_minified(
+    name = "out.min",
+    src = "input.js",
+    debug = True,
+    # Turn off sourcemap so we get only one output
+    sourcemap = False,
+)
+
+golden_file_test(
+    name = "test",
+    # Assert that the default output is a .js file
+    # by omitting the ".js" extension here
+    actual = "out.min",
+    golden = "output.golden.js_",
+)
+
+terser_minified(
+    name = "debug_from_env",
+    src = "input.js",
+    # Don't specify debug = True
+    # Instead we'll run the test with --define=DEBUG=true
+)
+
+golden_file_test(
+    name = "test_define_DEBUG",
+    actual = "debug_from_env.js",
+    golden = "output.golden.js_",
+    tags = ["manual"],  # Only passes when --define=DEBUG=true is set
+)

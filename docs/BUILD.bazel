@@ -41,6 +41,7 @@ _PACKAGE_READMES = {
     "Less": "//packages/less:README.md",
     "Protractor": "//packages/protractor:README.md",
     "Stylus": "//packages/stylus:README.md",
+    "Terser": "//packages/terser:README.md",
     "TypeScript": "//packages/typescript:README.md",
 }
 

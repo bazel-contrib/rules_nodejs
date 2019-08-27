@@ -13,6 +13,7 @@ ALL_E2E = [
     "stylus",
     "symlinked_node_modules_npm",
     "symlinked_node_modules_yarn",
+    "terser",
     "ts_auto_deps",
     "ts_devserver",
     "typescript",

@@ -97,6 +97,13 @@ e2e_integration_test(
 )
 
 e2e_integration_test(
+    name = "e2e_terser",
+    npm_packages = {
+        "//packages/terser:npm_package": "@bazel/terser",
+    },
+)
+
+e2e_integration_test(
     name = "e2e_ts_devserver",
     npm_packages = {
         "//packages/hide-bazel-files:npm_package": "@bazel/hide-bazel-files",
