@@ -27,62 +27,63 @@ load("//internal/node:node_labels.bzl", "get_node_label", "get_npm_label", "get_
 
 COMMON_ATTRIBUTES = dict(dict(), **{
     "always_hide_bazel_files": attr.bool(
-        doc = """If True then Bazel build files such as `BUILD` and BUILD.bazel`
-        will always be hidden by prefixing them with `_`.
+        doc = """Always hide Bazel build files such as `BUILD` and BUILD.bazel` by prefixing them with `_`.
         
-        Defaults to False, in which case Bazel files are _not_ hidden when `symlink_node_modules`
-        is True. In this case, the rule will report an error when there are Bazel files detected
-        in npm packages.
-        
-        Reporting the error is desirable as relying on this repository rule to hide
-        these files does not work in the case where a user deletes their node_modules folder
-        and manually re-creates it with yarn or npm outside of Bazel which would restore them.
-        On a subsequent Bazel build, this repository rule does not re-run and the presence
-        of the Bazel files leads to a build failure that looks like the following:
+Defaults to False, in which case Bazel files are _not_ hidden when `symlink_node_modules`
+is True. In this case, the rule will report an error when there are Bazel files detected
+in npm packages.
 
-        ```
-        ERROR: /private/var/tmp/_bazel_greg/37b273501bbecefcf5ce4f3afcd7c47a/external/npm/BUILD.bazel:9:1:
-        Label '@npm//:node_modules/rxjs/src/AsyncSubject.ts' crosses boundary of subpackage '@npm//node_modules/rxjs/src'
-        (perhaps you meant to put the colon here: '@npm//node_modules/rxjs/src:AsyncSubject.ts'?)
-        ```
+Reporting the error is desirable as relying on this repository rule to hide
+these files does not work in the case where a user deletes their node_modules folder
+and manually re-creates it with yarn or npm outside of Bazel which would restore them.
+On a subsequent Bazel build, this repository rule does not re-run and the presence
+of the Bazel files leads to a build failure that looks like the following:
 
-        See https://github.com/bazelbuild/rules_nodejs/issues/802 for more details.
-        
-        The recommended solution is to use the @bazel/hide-bazel-files utility to hide these files.
-        See https://github.com/bazelbuild/rules_nodejs/blob/master/packages/hide-bazel-files/README.md
-        for installation instructions.
+```
+ERROR: /private/var/tmp/_bazel_greg/37b273501bbecefcf5ce4f3afcd7c47a/external/npm/BUILD.bazel:9:1:
+Label '@npm//:node_modules/rxjs/src/AsyncSubject.ts' crosses boundary of subpackage '@npm//node_modules/rxjs/src'
+(perhaps you meant to put the colon here: '@npm//node_modules/rxjs/src:AsyncSubject.ts'?)
+```
 
-        The alternate solution is to set `always_hide_bazel_files` to True which tell
-        this rule to hide Bazel files even when `symlink_node_modules` is True. This means
-        you won't need to use `@bazel/hide-bazel-files` utility but if you manually recreate
-        your `node_modules` folder via yarn or npm outside of Bazel you may run into the above
-        error.""",
+See https://github.com/bazelbuild/rules_nodejs/issues/802 for more details.
+
+The recommended solution is to use the @bazel/hide-bazel-files utility to hide these files.
+See https://github.com/bazelbuild/rules_nodejs/blob/master/packages/hide-bazel-files/README.md
+for installation instructions.
+
+The alternate solution is to set `always_hide_bazel_files` to True which tell
+this rule to hide Bazel files even when `symlink_node_modules` is True. This means
+you won't need to use `@bazel/hide-bazel-files` utility but if you manually recreate
+your `node_modules` folder via yarn or npm outside of Bazel you may run into the above
+error.
+""",
         default = False,
     ),
     "data": attr.label_list(
         doc = """Data files required by this rule.
 
-        If symlink_node_modules is True, this attribute is ignored since
-        the dependency manager will run in the package.json location.""",
+If symlink_node_modules is True, this attribute is ignored since
+the dependency manager will run in the package.json location.
+""",
     ),
     "dynamic_deps": attr.string_dict(
         doc = """Declare implicit dependencies between npm packages.
-        
-        In many cases, an npm package doesn't list a dependency on another package, yet still require()s it.
-        One example is plugins, where a tool like rollup can require rollup-plugin-json if the user installed it.
-        Another example is the tsc_wrapped binary in @bazel/typescript which can require tsickle if its installed.
-        Under Bazel, we must declare these dependencies so that they are included as inputs to the program.
-        
-        Note that the pattern used by many packages, which have plugins in the form pkg-plugin-someplugin, are automatically
-        added as implicit dependencies. Thus for example, `rollup` will automatically get `rollup-plugin-json` included in its
-        dependencies without needing to use this attribute.
-        
-        The keys in the dict are npm package names, and the value may be a particular package, or a prefix ending with *.     
-        For example, `dynamic_deps = {"@bazel/typescript": "tsickle", "karma": "my-karma-plugin-*"}`
-   
-        Note, this may sound like "optionalDependencies" but that field in package.json actually means real dependencies
-        which are installed, but failures on installation are ignored.
-       """,
+
+In many cases, an npm package doesn't list a dependency on another package, yet still require()s it.
+One example is plugins, where a tool like rollup can require rollup-plugin-json if the user installed it.
+Another example is the tsc_wrapped binary in @bazel/typescript which can require tsickle if its installed.
+Under Bazel, we must declare these dependencies so that they are included as inputs to the program.
+
+Note that the pattern used by many packages, which have plugins in the form pkg-plugin-someplugin, are automatically
+added as implicit dependencies. Thus for example, `rollup` will automatically get `rollup-plugin-json` included in its
+dependencies without needing to use this attribute.
+
+The keys in the dict are npm package names, and the value may be a particular package, or a prefix ending with *.     
+For example, `dynamic_deps = {"@bazel/typescript": "tsickle", "karma": "my-karma-plugin-*"}`
+
+Note, this may sound like "optionalDependencies" but that field in package.json actually means real dependencies
+which are installed, but failures on installation are ignored.
+""",
         default = {"@bazel/typescript": "tsickle"},
     ),
     "exclude_packages": attr.string_list(
@@ -91,31 +92,33 @@ COMMON_ATTRIBUTES = dict(dict(), **{
     "included_files": attr.string_list(
         doc = """List of file extensions to be included in the npm package targets.
 
-        For example, [".js", ".d.ts", ".proto", ".json", ""].
+For example, [".js", ".d.ts", ".proto", ".json", ""].
 
-        This option is useful to limit the number of files that are inputs
-        to actions that depend on npm package targets. See
-        https://github.com/bazelbuild/bazel/issues/5153.
+This option is useful to limit the number of files that are inputs
+to actions that depend on npm package targets. See
+https://github.com/bazelbuild/bazel/issues/5153.
 
-        If set to an empty list then all files are included in the package targets.
-        If set to a list of extensions, only files with matching extensions are
-        included in the package targets. An empty string in the list is a special
-        string that denotes that files with no extensions such as `README` should
-        be included in the package targets.
+If set to an empty list then all files are included in the package targets.
+If set to a list of extensions, only files with matching extensions are
+included in the package targets. An empty string in the list is a special
+string that denotes that files with no extensions such as `README` should
+be included in the package targets.
 
-        This attribute applies to both the coarse `@wksp//:node_modules` target
-        as well as the fine grained targets such as `@wksp//foo`.""",
+This attribute applies to both the coarse `@wksp//:node_modules` target
+as well as the fine grained targets such as `@wksp//foo`.
+""",
         default = [],
     ),
     "manual_build_file_contents": attr.string(
-        doc = """Experimental attribute that can be used to override
-        the generated BUILD.bazel file and set its contents manually.
-        Can be used to work-around a bazel performance issue if the
-        default `@wksp//:node_modules` target has too many files in it.
-        See https://github.com/bazelbuild/bazel/issues/5153. If
-        you are running into performance issues due to a large
-        node_modules target it is recommended to switch to using
-        fine grained npm dependencies.""",
+        doc = """Experimental attribute that can be used to override the generated BUILD.bazel file and set its contents manually.
+
+Can be used to work-around a bazel performance issue if the
+default `@wksp//:node_modules` target has too many files in it.
+See https://github.com/bazelbuild/bazel/issues/5153. If
+you are running into performance issues due to a large
+node_modules target it is recommended to switch to using
+fine grained npm dependencies.
+""",
     ),
     "package_json": attr.label(
         mandatory = True,
@@ -132,17 +135,18 @@ COMMON_ATTRIBUTES = dict(dict(), **{
     "symlink_node_modules": attr.bool(
         doc = """Turn symlinking of node_modules on
         
-        This requires the use of Bazel 0.26.0 and the experimental
-        managed_directories feature.
-        
-        When true, the package manager will run in the package.json folder
-        and the resulting node_modules folder will be symlinked into the
-        external repository create by this rule.
-        
-        When false, the package manager will run in the external repository
-        created by this rule and any files other than the package.json file and
-        the lock file that are required for it to run should be listed in the
-        data attribute.""",
+This requires the use of Bazel 0.26.0 and the experimental
+managed_directories feature.
+
+When true, the package manager will run in the package.json folder
+and the resulting node_modules folder will be symlinked into the
+external repository create by this rule.
+
+When false, the package manager will run in the external repository
+created by this rule and any files other than the package.json file and
+the lock file that are required for it to run should be listed in the
+data attribute.
+""",
         default = True,
     ),
 })
@@ -410,8 +414,9 @@ yarn_install = repository_rule(
             default = False,
             doc = """Passes the --frozen-lockfile flag to prevent updating yarn.lock.
             
-            Note that enabling this option will require that you run yarn outside of Bazel
-            when making changes to package.json.""",
+Note that enabling this option will require that you run yarn outside of Bazel
+when making changes to package.json.
+""",
         ),
         "network_timeout": attr.int(
             default = 300,
@@ -421,11 +426,13 @@ yarn_install = repository_rule(
         "use_global_yarn_cache": attr.bool(
             default = True,
             doc = """Use the global yarn cache on the system.
-            The cache lets you avoid downloading packages multiple times.
-            However, it can introduce non-hermeticity, and the yarn cache can
-            have bugs.
-            Disabling this attribute causes every run of yarn to have a unique
-            cache_directory.""",
+
+The cache lets you avoid downloading packages multiple times.
+However, it can introduce non-hermeticity, and the yarn cache can
+have bugs.
+Disabling this attribute causes every run of yarn to have a unique
+cache_directory.
+""",
         ),
         "yarn_lock": attr.label(
             mandatory = True,
