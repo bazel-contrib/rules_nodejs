@@ -134,15 +134,13 @@ e2e_integration_test(
     },
     workspace_files = "@e2e_typescript//:all_files",
 ) for tsc_version in [
-    "2.7.x",
-    "2.8.x",
-    "2.9.x",
     "3.0.x",
     "3.1.x",
     "3.2.x",
     "3.3.x",
     "3.4.x",
     "3.5.x",
+    "3.6.x",
 ]]
 
 e2e_integration_test(
