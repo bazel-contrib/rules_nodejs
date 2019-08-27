@@ -324,12 +324,9 @@ npm_install = repository_rule(
             allow_single_file = True,
         ),
     }),
+    doc = "Runs npm install during workspace setup.",
     implementation = _npm_install_impl,
 )
-"""Runs npm install during workspace setup."""
-# Adding the above docstring as `doc` attribute causes a build
-# error since `doc` is not a valid attribute of repository_rule.
-# See https://github.com/bazelbuild/buildtools/issues/471#issuecomment-485278689.
 
 def _yarn_install_impl(repository_ctx):
     """Core implementation of yarn_install."""
@@ -435,9 +432,6 @@ yarn_install = repository_rule(
             allow_single_file = True,
         ),
     }),
+    doc = "Runs yarn install during workspace setup.",
     implementation = _yarn_install_impl,
 )
-"""Runs yarn install during workspace setup."""
-# Adding the above docstring as `doc` attribute causes a build
-# error since `doc` is not a valid attribute of repository_rule.
-# See https://github.com/bazelbuild/buildtools/issues/471#issuecomment-485278689.
