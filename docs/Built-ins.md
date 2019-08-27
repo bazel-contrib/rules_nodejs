@@ -11,8 +11,213 @@ These rules are available without any npm installation, via the `WORKSPACE` inst
 [labels]: https://bazel.build/docs/build-ref.html#labels
 
 
+## npm_install
+
+Runs npm install during workspace setup.
+
+
+### Usage
+
+```
+npm_install(name, always_hide_bazel_files, data, dynamic_deps, exclude_packages, included_files, manual_build_file_contents, package_json, package_lock_json, prod_only, quiet, symlink_node_modules, timeout)
+```
+
+
+
+#### `name`
+(*[name], mandatory*): A unique name for this repository.
+
+
+#### `always_hide_bazel_files`
+(*Boolean*): If True then Bazel build files such as `BUILD` and BUILD.bazel`
+        will always be hidden by prefixing them with `_`.
+        
+        Defaults to False, in which case Bazel files are _not_ hidden when `symlink_node_modules`
+        is True. In this case, the rule will report an error when there are Bazel files detected
+        in npm packages.
+        
+        Reporting the error is desirable as relying on this repository rule to hide
+        these files does not work in the case where a user deletes their node_modules folder
+        and manually re-creates it with yarn or npm outside of Bazel which would restore them.
+        On a subsequent Bazel build, this repository rule does not re-run and the presence
+        of the Bazel files leads to a build failure that looks like the following:
+
+        ```
+        ERROR: /private/var/tmp/_bazel_greg/37b273501bbecefcf5ce4f3afcd7c47a/external/npm/BUILD.bazel:9:1:
+        Label '@npm//:node_modules/rxjs/src/AsyncSubject.ts' crosses boundary of subpackage '@npm//node_modules/rxjs/src'
+        (perhaps you meant to put the colon here: '@npm//node_modules/rxjs/src:AsyncSubject.ts'?)
+        ```
+
+        See https://github.com/bazelbuild/rules_nodejs/issues/802 for more details.
+        
+        The recommended solution is to use the @bazel/hide-bazel-files utility to hide these files.
+        See https://github.com/bazelbuild/rules_nodejs/blob/master/packages/hide-bazel-files/README.md
+        for installation instructions.
+
+        The alternate solution is to set `always_hide_bazel_files` to True which tell
+        this rule to hide Bazel files even when `symlink_node_modules` is True. This means
+        you won't need to use `@bazel/hide-bazel-files` utility but if you manually recreate
+        your `node_modules` folder via yarn or npm outside of Bazel you may run into the above
+        error.
+
+
+#### `data`
+(*[labels]*): Data files required by this rule.
+
+        If symlink_node_modules is True, this attribute is ignored since
+        the dependency manager will run in the package.json location.
+
+
+#### `dynamic_deps`
+(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): Declare implicit dependencies between npm packages.
+        
+        In many cases, an npm package doesn't list a dependency on another package, yet still require()s it.
+        One example is plugins, where a tool like rollup can require rollup-plugin-json if the user installed it.
+        Another example is the tsc_wrapped binary in @bazel/typescript which can require tsickle if its installed.
+        Under Bazel, we must declare these dependencies so that they are included as inputs to the program.
+        
+        Note that the pattern used by many packages, which have plugins in the form pkg-plugin-someplugin, are automatically
+        added as implicit dependencies. Thus for example, `rollup` will automatically get `rollup-plugin-json` included in its
+        dependencies without needing to use this attribute.
+        
+        The keys in the dict are npm package names, and the value may be a particular package, or a prefix ending with *.     
+        For example, `dynamic_deps = {"@bazel/typescript": "tsickle", "karma": "my-karma-plugin-*"}`
+   
+        Note, this may sound like "optionalDependencies" but that field in package.json actually means real dependencies
+        which are installed, but failures on installation are ignored.
+
+
+#### `exclude_packages`
+(*List of strings*): DEPRECATED. This attribute is no longer used.
+
+
+#### `included_files`
+(*List of strings*): List of file extensions to be included in the npm package targets.
+
+        For example, [".js", ".d.ts", ".proto", ".json", ""].
+
+        This option is useful to limit the number of files that are inputs
+        to actions that depend on npm package targets. See
+        https://github.com/bazelbuild/bazel/issues/5153.
+
+        If set to an empty list then all files are included in the package targets.
+        If set to a list of extensions, only files with matching extensions are
+        included in the package targets. An empty string in the list is a special
+        string that denotes that files with no extensions such as `README` should
+        be included in the package targets.
+
+        This attribute applies to both the coarse `@wksp//:node_modules` target
+        as well as the fine grained targets such as `@wksp//foo`.
+
+
+#### `manual_build_file_contents`
+(*String*): Experimental attribute that can be used to override
+        the generated BUILD.bazel file and set its contents manually.
+        Can be used to work-around a bazel performance issue if the
+        default `@wksp//:node_modules` target has too many files in it.
+        See https://github.com/bazelbuild/bazel/issues/5153. If
+        you are running into performance issues due to a large
+        node_modules target it is recommended to switch to using
+        fine grained npm dependencies.
+
+
+#### `package_json`
+(*[label], mandatory*)
+
+
+#### `package_lock_json`
+(*[label], mandatory*)
+
+
+#### `prod_only`
+(*Boolean*): Don't install devDependencies
+
+
+#### `quiet`
+(*Boolean*): If stdout and stderr should be printed to the terminal.
+
+
+#### `symlink_node_modules`
+(*Boolean*): Turn symlinking of node_modules on
+        
+        This requires the use of Bazel 0.26.0 and the experimental
+        managed_directories feature.
+        
+        When true, the package manager will run in the package.json folder
+        and the resulting node_modules folder will be symlinked into the
+        external repository create by this rule.
+        
+        When false, the package manager will run in the external repository
+        created by this rule and any files other than the package.json file and
+        the lock file that are required for it to run should be listed in the
+        data attribute.
+
+
+#### `timeout`
+(*Integer*): Maximum duration of the command "npm install" in seconds
+            (default is 3600 seconds).
+
+
+
 ## npm_package
 
+The npm_package rule creates a directory containing a publishable npm artifact.
+
+Example:
+
+```python
+load("@build_bazel_rules_nodejs//:defs.bzl", "npm_package")
+
+npm_package(
+    name = "my_package",
+    srcs = ["package.json"],
+    deps = [":my_typescript_lib"],
+    replacements = {"//internal/": "//"},
+)
+```
+
+You can use a pair of `// BEGIN-INTERNAL ... // END-INTERNAL` comments to mark regions of files that should be elided during publishing.
+For example:
+
+```javascript
+function doThing() {
+    // BEGIN-INTERNAL
+    // This is a secret internal-only comment
+    doInternalOnlyThing();
+    // END-INTERNAL
+}
+```
+
+Usage:
+
+`npm_package` yields three labels. Build the package directory using the default label:
+
+```sh
+$ bazel build :my_package
+Target //:my_package up-to-date:
+  bazel-out/fastbuild/bin/my_package
+$ ls -R bazel-out/fastbuild/bin/my_package
+```
+
+Dry-run of publishing to npm, calling `npm pack` (it builds the package first if needed):
+
+```sh
+$ bazel run :my_package.pack
+INFO: Running command line: bazel-out/fastbuild/bin/my_package.pack
+my-package-name-1.2.3.tgz
+$ tar -tzf my-package-name-1.2.3.tgz
+```
+
+Actually publish the package with `npm publish` (also builds first):
+
+```sh
+# Check login credentials
+$ bazel run @nodejs//:npm who
+# Publishes the package
+$ bazel run :my_package.publish
+```
+
+You can pass arguments to npm by escaping them from Bazel using a double-hyphen `bazel run my_package.publish -- --tag=next`
 
 
 
@@ -63,6 +268,35 @@ npm_package(name, deps, packages, rename_build_files, replace_with_version, repl
 
 ## rollup_bundle
 
+Produces several bundled JavaScript files using Rollup and terser.
+
+Load it with
+`load("@build_bazel_rules_nodejs//:defs.bzl", "rollup_bundle")`
+
+It performs this work in several separate processes:
+1. Call rollup on the original sources
+2. Downlevel the resulting code to es5 syntax for older browsers
+3. Minify the bundle with terser, possibly with pretty output for human debugging.
+
+The default output of a `rollup_bundle` rule is the non-debug-minified es5 bundle.
+
+However you can request one of the other outputs with a dot-suffix on the target's name.
+For example, if your `rollup_bundle` is named `my_rollup_bundle`, you can use one of these labels:
+
+To request the ES2015 syntax (e.g. `class` keyword) without downleveling or minification, use the `:my_rollup_bundle.es2015.js` label.
+To request the ES5 downleveled bundle without minification, use the `:my_rollup_bundle.js` label
+To request the debug-minified es5 bundle, use the `:my_rollup_bundle.min_debug.js` label.
+To request a UMD-bundle, use the `:my_rollup_bundle.umd.js` label.
+To request a CommonJS bundle, use the `:my_rollup_bundle.cjs.js` label.
+
+You can also request an analysis from source-map-explorer by buildng the `:my_rollup_bundle.explore.html` label.
+However this is currently broken for `rollup_bundle` ES5 mode because we use tsc for downleveling and
+it doesn't compose the resulting sourcemaps with an input sourcemap.
+See https://github.com/bazelbuild/rules_nodejs/issues/175
+
+For debugging, note that the `rollup.config.js` and `terser.config.json` files can be found in the bazel-bin folder next to the resulting bundle.
+
+An example usage can be found in https://github.com/bazelbuild/rules_nodejs/tree/master/internal/e2e/rollup
 
 
 
@@ -268,6 +502,175 @@ rollup_bundle(name, additional_entry_points, deps, enable_code_splitting, entry_
 
 
 
+## yarn_install
+
+Runs yarn install during workspace setup.
+
+
+### Usage
+
+```
+yarn_install(name, always_hide_bazel_files, data, dynamic_deps, exclude_packages, frozen_lockfile, included_files, manual_build_file_contents, network_timeout, package_json, prod_only, quiet, symlink_node_modules, timeout, use_global_yarn_cache, yarn_lock)
+```
+
+
+
+#### `name`
+(*[name], mandatory*): A unique name for this repository.
+
+
+#### `always_hide_bazel_files`
+(*Boolean*): If True then Bazel build files such as `BUILD` and BUILD.bazel`
+        will always be hidden by prefixing them with `_`.
+        
+        Defaults to False, in which case Bazel files are _not_ hidden when `symlink_node_modules`
+        is True. In this case, the rule will report an error when there are Bazel files detected
+        in npm packages.
+        
+        Reporting the error is desirable as relying on this repository rule to hide
+        these files does not work in the case where a user deletes their node_modules folder
+        and manually re-creates it with yarn or npm outside of Bazel which would restore them.
+        On a subsequent Bazel build, this repository rule does not re-run and the presence
+        of the Bazel files leads to a build failure that looks like the following:
+
+        ```
+        ERROR: /private/var/tmp/_bazel_greg/37b273501bbecefcf5ce4f3afcd7c47a/external/npm/BUILD.bazel:9:1:
+        Label '@npm//:node_modules/rxjs/src/AsyncSubject.ts' crosses boundary of subpackage '@npm//node_modules/rxjs/src'
+        (perhaps you meant to put the colon here: '@npm//node_modules/rxjs/src:AsyncSubject.ts'?)
+        ```
+
+        See https://github.com/bazelbuild/rules_nodejs/issues/802 for more details.
+        
+        The recommended solution is to use the @bazel/hide-bazel-files utility to hide these files.
+        See https://github.com/bazelbuild/rules_nodejs/blob/master/packages/hide-bazel-files/README.md
+        for installation instructions.
+
+        The alternate solution is to set `always_hide_bazel_files` to True which tell
+        this rule to hide Bazel files even when `symlink_node_modules` is True. This means
+        you won't need to use `@bazel/hide-bazel-files` utility but if you manually recreate
+        your `node_modules` folder via yarn or npm outside of Bazel you may run into the above
+        error.
+
+
+#### `data`
+(*[labels]*): Data files required by this rule.
+
+        If symlink_node_modules is True, this attribute is ignored since
+        the dependency manager will run in the package.json location.
+
+
+#### `dynamic_deps`
+(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): Declare implicit dependencies between npm packages.
+        
+        In many cases, an npm package doesn't list a dependency on another package, yet still require()s it.
+        One example is plugins, where a tool like rollup can require rollup-plugin-json if the user installed it.
+        Another example is the tsc_wrapped binary in @bazel/typescript which can require tsickle if its installed.
+        Under Bazel, we must declare these dependencies so that they are included as inputs to the program.
+        
+        Note that the pattern used by many packages, which have plugins in the form pkg-plugin-someplugin, are automatically
+        added as implicit dependencies. Thus for example, `rollup` will automatically get `rollup-plugin-json` included in its
+        dependencies without needing to use this attribute.
+        
+        The keys in the dict are npm package names, and the value may be a particular package, or a prefix ending with *.     
+        For example, `dynamic_deps = {"@bazel/typescript": "tsickle", "karma": "my-karma-plugin-*"}`
+   
+        Note, this may sound like "optionalDependencies" but that field in package.json actually means real dependencies
+        which are installed, but failures on installation are ignored.
+
+
+#### `exclude_packages`
+(*List of strings*): DEPRECATED. This attribute is no longer used.
+
+
+#### `frozen_lockfile`
+(*Boolean*): Passes the --frozen-lockfile flag to prevent updating yarn.lock.
+            
+            Note that enabling this option will require that you run yarn outside of Bazel
+            when making changes to package.json.
+
+
+#### `included_files`
+(*List of strings*): List of file extensions to be included in the npm package targets.
+
+        For example, [".js", ".d.ts", ".proto", ".json", ""].
+
+        This option is useful to limit the number of files that are inputs
+        to actions that depend on npm package targets. See
+        https://github.com/bazelbuild/bazel/issues/5153.
+
+        If set to an empty list then all files are included in the package targets.
+        If set to a list of extensions, only files with matching extensions are
+        included in the package targets. An empty string in the list is a special
+        string that denotes that files with no extensions such as `README` should
+        be included in the package targets.
+
+        This attribute applies to both the coarse `@wksp//:node_modules` target
+        as well as the fine grained targets such as `@wksp//foo`.
+
+
+#### `manual_build_file_contents`
+(*String*): Experimental attribute that can be used to override
+        the generated BUILD.bazel file and set its contents manually.
+        Can be used to work-around a bazel performance issue if the
+        default `@wksp//:node_modules` target has too many files in it.
+        See https://github.com/bazelbuild/bazel/issues/5153. If
+        you are running into performance issues due to a large
+        node_modules target it is recommended to switch to using
+        fine grained npm dependencies.
+
+
+#### `network_timeout`
+(*Integer*): Maximum duration of a network request made by yarn in seconds
+            (default is 300 seconds).
+
+
+#### `package_json`
+(*[label], mandatory*)
+
+
+#### `prod_only`
+(*Boolean*): Don't install devDependencies
+
+
+#### `quiet`
+(*Boolean*): If stdout and stderr should be printed to the terminal.
+
+
+#### `symlink_node_modules`
+(*Boolean*): Turn symlinking of node_modules on
+        
+        This requires the use of Bazel 0.26.0 and the experimental
+        managed_directories feature.
+        
+        When true, the package manager will run in the package.json folder
+        and the resulting node_modules folder will be symlinked into the
+        external repository create by this rule.
+        
+        When false, the package manager will run in the external repository
+        created by this rule and any files other than the package.json file and
+        the lock file that are required for it to run should be listed in the
+        data attribute.
+
+
+#### `timeout`
+(*Integer*): Maximum duration of the command "yarn install" in seconds
+            (default is 3600 seconds).
+
+
+#### `use_global_yarn_cache`
+(*Boolean*): Use the global yarn cache on the system.
+            The cache lets you avoid downloading packages multiple times.
+            However, it can introduce non-hermeticity, and the yarn cache can
+            have bugs.
+            Disabling this attribute causes every run of yarn to have a unique
+            cache_directory.
+
+
+#### `yarn_lock`
+(*[label], mandatory*)
+
+
+
 ## check_bazel_version
 
     Verify the users Bazel version is at least the given one.
@@ -303,65 +706,6 @@ a string indicating the minimum version
 optional string to print to your users, could be used to help them update
 
 Defaults to `""`
-
-
-
-
-
-## check_rules_nodejs_version
-
-    Verify that a minimum build_bazel_rules_nodejs is loaded a WORKSPACE.
-
-This should be called from the `WORKSPACE` file so that the build fails as
-early as possible. For example:
-
-```
-# in WORKSPACE:
-load("@build_bazel_rules_nodejs//:package.bzl", "check_rules_nodejs_version")
-check_rules_nodejs_version("0.11.2")
-```
-
-
-
-### Usage
-
-```
-check_rules_nodejs_version(minimum_version_string)
-```
-
-
-
-#### `minimum_version_string`
-      
-a string indicating the minimum version
-
-
-
-
-
-
-## dummy_bzl_library
-
-
-
-
-### Usage
-
-```
-dummy_bzl_library(name, kwargs)
-```
-
-
-
-#### `name`
-      
-
-
-
-
-#### `kwargs`
-      
-
 
 
 
@@ -510,40 +854,6 @@ Defaults to `[]`
 #### `kwargs`
       
 remaining arguments are passed to the test rule
-
-
-
-
-
-
-## node_modules_filegroup
-
-
-
-
-### Usage
-
-```
-node_modules_filegroup(packages, patterns, kwargs)
-```
-
-
-
-#### `packages`
-      
-
-
-
-
-#### `patterns`
-      
-
-Defaults to `[]`
-
-
-
-#### `kwargs`
-      
 
 
 
@@ -830,48 +1140,6 @@ Defaults to `[]`
 #### `kwargs`
       
 passed to the nodejs_test
-
-
-
-
-
-
-## npm_install
-
-
-
-
-### Usage
-
-```
-npm_install(kwargs)
-```
-
-
-
-#### `kwargs`
-      
-
-
-
-
-
-
-## yarn_install
-
-
-
-
-### Usage
-
-```
-yarn_install(kwargs)
-```
-
-
-
-#### `kwargs`
-      
 
 
 

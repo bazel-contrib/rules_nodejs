@@ -41,7 +41,7 @@ rollup_bundle = _rollup_bundle
 npm_package = _npm_package
 history_server = _history_server
 http_server = _http_server
-# ANY RULES ADDED HERE SHOULD BE DOCUMENTED, run yarn skydoc to verify
+# ANY RULES ADDED HERE SHOULD BE DOCUMENTED, see index.for_docs.bzl
 
 # Allows us to avoid a transitive dependency on bazel_skylib from leaking to users
 def dummy_bzl_library(name, **kwargs):
