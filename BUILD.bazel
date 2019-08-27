@@ -20,7 +20,6 @@ package(default_visibility = ["//visibility:public"])
 
 exports_files([
     "common.bazelrc",
-    "index.for_docs.bzl",
     "tsconfig.json",
     "package.json",
 ])
