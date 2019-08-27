@@ -21,6 +21,10 @@
         "ts_auto_deps": "./ts_auto_deps/ts_auto_deps.js",
         "tsc_wrapped": "./internal/tsc_wrapped/tsc_wrapped.js"
     },
+    "//": "note that typescript doesn't follow semver, so technically anything 3.6 or higher might break us",
+    "peerDependencies": {
+        "typescript": ">=3.0.0 <4.0"
+    },
     "dependencies": {
         "protobufjs": "6.8.8",
         "semver": "5.6.0",
