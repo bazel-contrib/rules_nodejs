@@ -1,0 +1,13 @@
+load("//tools/stardoc:index.bzl", "stardoc")
+
+package(default_visibility = ["//visibility:public"])
+
+exports_files(["install.md"])
+
+stardoc(
+    name = "docs",
+    testonly = True,
+    out = "index.md",
+    input = "@npm_bazel_terser//:index.bzl",
+    deps = ["@npm_bazel_terser//:bzl"],
+)

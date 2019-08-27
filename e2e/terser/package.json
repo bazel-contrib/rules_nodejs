@@ -1,0 +1,10 @@
+{
+    "name": "e2e-terser",
+    "private": true,
+    "devDependencies": {
+        "@bazel/terser": "latest"
+    },
+    "scripts": {
+      "test": "bazel test ..."
+    }
+}

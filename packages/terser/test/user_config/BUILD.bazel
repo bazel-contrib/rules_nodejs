@@ -1,0 +1,14 @@
+load("@build_bazel_rules_nodejs//internal/golden_file_test:golden_file_test.bzl", "golden_file_test")
+load("@npm_bazel_terser//:index.from_src.bzl", "terser_minified")
+
+terser_minified(
+    name = "out.min",
+    src = "input.js",
+    config_file = "terser_config.json",
+)
+
+golden_file_test(
+    name = "test",
+    actual = "out.min.js",
+    golden = "output.golden.js_",
+)
