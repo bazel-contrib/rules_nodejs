@@ -509,19 +509,6 @@ if (require.main === module) {
     module.constructor._load(mainScript, this, /*isMain=*/true);
   } catch (e) {
     console.error(e.stack || e);
-    if (NODE_MODULES_ROOT === 'build_bazel_rules_nodejs/node_modules') {
-      // This error is possibly due to a breaking change in 0.13.0 where
-      // the default node_modules attribute of nodejs_binary was changed
-      // from @//:node_modules to @build_bazel_rules_nodejs//:node_modules_none
-      // (which is an empty filegroup).
-      // See https://github.com/bazelbuild/rules_nodejs/wiki#migrating-to-rules_nodejs-013
-      console.error(
-          `\nWARNING: Due to a breaking change in rules_nodejs 0.13.0, target ${TARGET}\n` +
-          `must now declare either an explicit node_modules attribute, or\n` +
-          `list explicit deps[] or data[] fine grained dependencies on npm labels\n` +
-          `if it has any node_modules dependencies.\n` +
-          `See https://github.com/bazelbuild/rules_nodejs/wiki#migrating-to-rules_nodejs-013\n`);
-    }
     process.exit(1);
   }
 }
