@@ -41,7 +41,7 @@ tasks:
     - "--local_resources=792,1.0,1.0"
     # test_args will be passed to the nested bazel process
     - "--test_arg=--local_resources=13288,7.0,1.0"
-    - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-ubuntu"
+    - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-ubuntu,-manual"
     test_targets:
     - "//..."
   ubuntu1604_examples:
@@ -64,7 +64,7 @@ tasks:
     - "--local_resources=792,1.0,1.0"
     # test_args will be passed to the nested bazel process
     - "--test_arg=--local_resources=13288,7.0,1.0"
-    - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-ubuntu"
+    - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-ubuntu,-manual"
     test_targets:
     - "//..."
     # The following examples only works on linux as it downloads the linux node distribution
@@ -126,7 +126,7 @@ tasks:
     - "--local_resources=792,1.0,1.0"
     # test_args will be passed to the nested bazel process
     - "--test_arg=--local_resources=13288,7.0,1.0"
-    - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-ubuntu"
+    - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-ubuntu,-manual"
     test_targets:
     - "//..."
   ubuntu1804_examples:
@@ -149,7 +149,7 @@ tasks:
     - "--local_resources=792,1.0,1.0"
     # test_args will be passed to the nested bazel process
     - "--test_arg=--local_resources=13288,7.0,1.0"
-    - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-ubuntu"
+    - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-ubuntu,-manual"
     test_targets:
     - "//..."
     # The following examples only works on linux as it downloads the linux node distribution
@@ -209,7 +209,7 @@ tasks:
     # test_args will be passed to the nested bazel process
     # TODO(gregmagolan): fix frequent flake with multiple cores in nested bazel (osx buildkite & local)
     - "--test_arg=--local_resources=13288,1.0,1.0"
-    - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-mac"
+    - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-mac,-manual"
     test_targets:
     - "//..."
   macos_examples:
@@ -233,7 +233,7 @@ tasks:
     # test_args will be passed to the nested bazel process
     # TODO(gregmagolan): fix frequent flake with multiple cores in nested bazel (osx buildkite & local)
     - "--test_arg=--local_resources=13288,1.0,1.0"
-    - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-mac"
+    - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-mac,-manual"
     test_targets:
     - "//..."
   macos_angular_bazel_example:
@@ -257,7 +257,7 @@ tasks:
     - "--local_resources=792,1.0,1.0"
     # test_args will be passed to the nested bazel process
     - "--test_arg=--local_resources=14336,4.0,1.0"
-    - "--test_arg=--test_tag_filters=-no-bazelci"
+    - "--test_arg=--test_tag_filters=-no-bazelci,-manual"
     test_targets:
     - "//e2e:e2e_angular_bazel_example"
   macos_cross_compile:
@@ -299,7 +299,7 @@ tasks:
     - "--test_tag_filters=e2e"
     - "--local_resources=792,1.0,1.0"
     # test_args will be passed to the nested bazel process
-    - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-windows,-fix-windows"
+    - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-windows,-fix-windows,-manual"
     - "--test_arg=--local_resources=13288,1.0,1.0"
     test_targets:
     - "//..."
@@ -314,7 +314,7 @@ tasks:
     - "--test_tag_filters=-manual,examples,-fix-windows,-no-bazelci-windows"
     - "--local_resources=792,1.0,1.0"
     # test_args will be passed to the nested bazel process
-    - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-windows,-fix-windows"
+    - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-windows,-fix-windows,-manual"
     - "--test_arg=--local_resources=13288,1.0,1.0"
     test_targets:
     - "//..."

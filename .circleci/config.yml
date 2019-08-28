@@ -187,7 +187,7 @@ jobs:
       # to build the release package with this configuration.
       - run: bazel build --build_tag_filters=e2e ...
       - run:
-          command: bazel test --test_tag_filters=e2e --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,7.0,1.0 --test_arg=--test_tag_filters=-no-circleci ...
+          command: bazel test --test_tag_filters=e2e --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,7.0,1.0 --test_arg=--test_tag_filters=-no-circleci,-manual ...
           no_output_timeout: 20m
 
   test_examples:
@@ -214,7 +214,7 @@ jobs:
       # to build the release package with this configuration.
       - run: bazel build --build_tag_filters=examples ...
       - run:
-          command: bazel test --test_tag_filters=examples --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,7.0,1.0 --test_arg=--test_tag_filters=-no-circleci ...
+          command: bazel test --test_tag_filters=examples --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,7.0,1.0 --test_arg=--test_tag_filters=-no-circleci,-manual ...
           no_output_timeout: 20m
       # The following examples only works on linux as it downloads the linux node distribution
       # It is tagged "manual" so we run it explicitly here
@@ -247,7 +247,7 @@ jobs:
       # to build the release package with this configuration.
       - run: bazel build //e2e:e2e_angular_bazel_example
       - run:
-          command: bazel test --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,7.0,1.0 --test_arg=--test_tag_filters=-no-circleci //e2e:e2e_angular_bazel_example
+          command: bazel test --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,7.0,1.0 --test_arg=--test_tag_filters=-no-circleci,-manual //e2e:e2e_angular_bazel_example
           no_output_timeout: 20m
 
   runnable_targets:
