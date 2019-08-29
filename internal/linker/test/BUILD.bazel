@@ -1,0 +1,7 @@
+load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
+
+jasmine_node_test(
+    name = "unit_tests",
+    srcs = glob(["*.js"]),
+    data = ["//internal/linker:link_node_modules.js"],
+)

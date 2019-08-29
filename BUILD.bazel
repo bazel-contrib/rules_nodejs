@@ -89,6 +89,7 @@ npm_package(
         "//internal/http-server:package_contents",
         "//internal/jasmine_node_test:package_contents",
         "//internal/js_library:package_contents",
+        "//internal/linker:package_contents",
         # TODO(alexeagle): distribute separately as @bazel/rollup
         "//internal/rollup:package_contents",
         "//internal/node:package_contents",
