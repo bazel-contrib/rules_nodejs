@@ -30,8 +30,7 @@ test:debug --test_arg=--node_options=--inspect-brk --test_output=streamed --test
 
 # Turn off legacy external runfiles
 # This prevents accidentally depending on this feature, which Bazel will remove.
-run --nolegacy_external_runfiles
-test --nolegacy_external_runfiles
+build --nolegacy_external_runfiles
 
 # Turn on the "Managed Directories" feature.
 # This allows Bazel to share the same node_modules directory with other tools
