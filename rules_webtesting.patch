@@ -1,14 +1,3 @@
-commit 324d178e836b8f93c93321312e890176c986147a
-Author: Yun Peng <pcloudy@google.com>
-Date:   Tue Aug 27 13:42:35 2019 +0200
-
-    Fix chromium rule and definition for Windows
-    
-    1. Write output dir of named_files in metadata. This could help us locate named
-    files in runfiles, because they are under the tree artifact of the output dir.
-    
-    2. Fix the chromium path for Windows
-
 diff --git a/third_party/chromium/BUILD.bazel b/third_party/chromium/BUILD.bazel
 index 384d018..2cbbb4a 100644
 --- a/third_party/chromium/BUILD.bazel
