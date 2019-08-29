@@ -1,0 +1,12 @@
+exports_files(["link_node_modules.js"])
+
+filegroup(
+    name = "package_contents",
+    srcs = glob([
+        "*.bzl",
+        "*.js",
+    ]) + [
+        "BUILD.bazel",
+    ],
+    visibility = ["//:__pkg__"],
+)

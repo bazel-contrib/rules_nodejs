@@ -1,0 +1,32 @@
+load(":rule.bzl", "linked")
+
+linked(
+    name = "example",
+    deps = [
+        "//internal/linker/test/integration/pkg_a",
+        "@npm//semver",
+    ],
+)
+
+# Use the node binary supplied by the bazel toolchain
+genrule(
+    name = "replace_node_path",
+    srcs = [":test.sh"],
+    outs = ["test_with_node.sh"],
+    cmd = "sed s#NODE_PATH#$(NODE_PATH)# $< > $@",
+    toolchains = ["@build_bazel_rules_nodejs//toolchains/node:toolchain"],
+)
+
+sh_test(
+    name = "test",
+    srcs = ["test_with_node.sh"],
+    data = [
+        ":example",
+        ":program.js",
+        "//internal/linker:link_node_modules.js",
+        "@bazel_tools//tools/bash/runfiles",
+        "@build_bazel_rules_nodejs//toolchains/node:node_bin",
+        # TODO: we shouldn't need to repeat this here. There's a bug somewhere
+        "@npm//semver",
+    ],
+)
