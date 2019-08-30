@@ -21,20 +21,17 @@ ts_library(
 
 ts_devserver(
     name = "devserver",
-    data = [
-        "//:node_modules/react-dom/umd/react-dom.development.js",
-        "//:node_modules/react/umd/react.development.js",
-    ],
     entry_module = "examples_reactjs/app",
     index_html = ":index.html",
-    scripts = [
-        ":react-fix.js",
-    ],
     static_files = [
         ":index.html",
     ],
     # We'll collect all the devmode JS sources from these TypeScript libraries
-    deps = [":app"],
+    deps = [
+        ":app",
+        "@npm//react:react__umd",
+        "@npm//react-dom:react-dom__umd",
+    ],
 )
 
 rollup_bundle(

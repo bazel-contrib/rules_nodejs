@@ -5,6 +5,7 @@ ALL_EXAMPLES = [
     "nestjs",
     "parcel",
     "protocol_buffers",
+    "reactjs",
     "user_managed_deps",
     "vendored_node",
     "vendored_node_and_yarn",
