@@ -1,3 +1,24 @@
+## [0.36.2](https://github.com/alexeagle/rules_nodejs/compare/0.36.1...0.36.2) (2019-08-30)
+
+
+### Bug Fixes
+
+* account for breaking path change in new chromedriver distro ([d8a0ccb](https://github.com/alexeagle/rules_nodejs/commit/d8a0ccb)), closes [/github.com/bazelbuild/rules_webtesting/commit/62062b4bd111acc8598bfc816e87cda012bdaae6#diff-bb710201187c4ad0a3fbbe941ffc4b0](https://github.com//github.com/bazelbuild/rules_webtesting/commit/62062b4bd111acc8598bfc816e87cda012bdaae6/issues/diff-bb710201187c4ad0a3fbbe941ffc4b0)
+* patching rules_webtesting to fix chrome path ([97933d8](https://github.com/alexeagle/rules_nodejs/commit/97933d8))
+* **builtin:** reformat the error message for Node loader.js ([67bca8f](https://github.com/alexeagle/rules_nodejs/commit/67bca8f)), closes [/github.com/nodejs/node/blob/a49b20d3245dd2a4d890e28582f3c013c07c3136/lib/internal/modules/cjs/loader.js#L264](https://github.com//github.com/nodejs/node/blob/a49b20d3245dd2a4d890e28582f3c013c07c3136/lib/internal/modules/cjs/loader.js/issues/L264)
+* **karma:** error messages truncated due to custom formatter ([f871be6](https://github.com/alexeagle/rules_nodejs/commit/f871be6))
+* **typescript:** add peerDependency on typescript ([48c5088](https://github.com/alexeagle/rules_nodejs/commit/48c5088))
+
+
+### Features
+
+* **builtin:** add a DeclarationInfo provider ([3d7eb13](https://github.com/alexeagle/rules_nodejs/commit/3d7eb13))
+* add templated_args_file to allow long agrs to be written to a file ([b34d7bb](https://github.com/alexeagle/rules_nodejs/commit/b34d7bb))
+* **builtin:** support yarn --frozen_lockfile ([426861f](https://github.com/alexeagle/rules_nodejs/commit/426861f))
+* **terser:** introduce @bazel/terser package ([232acfe](https://github.com/alexeagle/rules_nodejs/commit/232acfe))
+
+
+
 ## [0.36.1](https://github.com/alexeagle/rules_nodejs/compare/0.36.0...0.36.1) (2019-08-20)
 
 
