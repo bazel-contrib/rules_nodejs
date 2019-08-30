@@ -1,0 +1,16 @@
+{
+  "devDependencies": {
+    "@bazel/hide-bazel-files": "latest",
+    "@bazel/typescript": "latest",
+    "typescript": "2.7.x"
+  },
+  "scripts": {
+    "test": "bazel test ..."
+  },
+  "dependencies": {
+    "@types/react": "^16.9.2",
+    "@types/react-dom": "^16.9.0",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0"
+  }
+}

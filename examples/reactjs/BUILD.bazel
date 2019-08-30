@@ -1,0 +1,82 @@
+load("@build_bazel_rules_nodejs//:defs.bzl", "http_server", "rollup_bundle")
+load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_package")
+load("@npm_bazel_typescript//:index.bzl", "ts_devserver", "ts_library")
+
+package(default_visibility = ["//visibility:public"])
+
+ts_library(
+    name = "app",
+    srcs = [
+        "app.ts",
+        "greeting.tsx",
+        "react-fix.ts",
+    ],
+    deps = [
+        "@npm//@types/react",
+        "@npm//@types/react-dom",
+        "@npm//react",
+        "@npm//react-dom",
+    ],
+)
+
+ts_devserver(
+    name = "devserver",
+    data = [
+        "//:node_modules/react-dom/umd/react-dom.development.js",
+        "//:node_modules/react/umd/react.development.js",
+    ],
+    entry_module = "examples_reactjs/app",
+    index_html = ":index.html",
+    scripts = [
+        ":react-fix.js",
+    ],
+    static_files = [
+        ":index.html",
+    ],
+    # We'll collect all the devmode JS sources from these TypeScript libraries
+    deps = [":app"],
+)
+
+rollup_bundle(
+    name = "bundle",
+    enable_code_splitting = False,
+    entry_point = ":app.ts",
+    deps = [":app"],
+)
+
+web_package(
+    name = "package",
+    assets = [
+        # For differential loading, we supply both an ESModule entry point and an es5 entry point
+        # The injector will put two complimentary script tags in the index.html
+        ":bundle.min.js",
+        ":bundle.min.es2015.js",
+    ],
+    index_html = "index.html",
+)
+
+http_server(
+    name = "prodserver",
+    data = [":package"],
+    templated_args = ["package"],
+)
+
+# Just a dummy test so that we have a test target for //... on certain bazelci platforms with bazel_integration_test
+sh_test(
+    name = "dummy_test",
+    srcs = ["dummy_test.sh"],
+)
+
+# For testing from the root workspace of this repository with bazel_integration_test.
+filegroup(
+    name = "all_files",
+    srcs = glob(
+        ["**/*"],
+        exclude = [
+            "bazel-out/**/*",
+            "dist/**/*",
+            "node_modules/**/*",
+        ],
+    ),
+    visibility = ["//visibility:public"],
+)
