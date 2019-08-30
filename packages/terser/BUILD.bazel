@@ -33,6 +33,7 @@ npm_package(
     srcs = [
         "@npm_bazel_terser//:package_contents",
     ],
+    tags = ["do-not-publish"],
     vendor_external = [
         "npm_bazel_terser",
     ],

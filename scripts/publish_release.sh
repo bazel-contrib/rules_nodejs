@@ -17,7 +17,7 @@ readonly BAZEL_BIN=./node_modules/.bin/bazel
 # Bazel can't know if the git metadata changed
 readonly TMP=$(mktemp -d -t bazel-release.XXXXXXX)
 readonly BAZEL="$BAZEL_BIN --output_base=$TMP"
-readonly NPM_PACKAGE_LABELS=`$BAZEL query --output=label 'kind("npm_package", //packages/...)'`
+readonly NPM_PACKAGE_LABELS=`$BAZEL query --output=label 'kind("npm_package", //packages/...) - attr("tags", "\[.*do-not-publish.*\]", //packages/...)'`
 
 $BAZEL build --config=release $NPM_PACKAGE_LABELS
 # publish one package at a time to make it easier to spot any errors or warnings

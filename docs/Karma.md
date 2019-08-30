@@ -217,7 +217,7 @@ The base name of the test
       
 A sequence of labels specifying the browsers to use.
 
-Defaults to `["@io_bazel_rules_webtesting//browsers:chromium-local"]`
+Defaults to `None`
 
 
 
@@ -491,7 +491,7 @@ The base name of the test.
       
 A sequence of labels specifying the browsers to use.
 
-Defaults to `["@io_bazel_rules_webtesting//browsers:chromium-local"]`
+Defaults to `None`
 
 
 

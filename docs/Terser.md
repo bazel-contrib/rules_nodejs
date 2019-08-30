@@ -59,6 +59,7 @@ terser_minified(
 ```
 
 Note that the `name` attribute determines what the resulting files will be called.
+So the example above will output `out.min.js` and `out.min.js.map` (since `sourcemap` defaults to `true`).
 
 
 
@@ -81,11 +82,25 @@ This is the file you would pass to the --config-file argument in terser's CLI.
 https://github.com/terser-js/terser#minify-options documents the content of the file.
 
 Bazel will make a copy of your config file, treating it as a template.
-If you use the magic strings `bazel_debug` or `bazel_no_debug`, these will be
+
+> Run bazel with `--subcommands` to see the path to the copied file.
+
+If you use the magic strings `"bazel_debug"` or `"bazel_no_debug"`, these will be
 replaced with `true` and `false` respecting the value of the `debug` attribute
 or the `--define=DEBUG=true` bazel flag.
 
-If this isn't supplied, Bazel will use a default config file.
+For example,
+
+```
+{
+    "compress": {
+        "arrows": "bazel_no_debug"
+    }
+}
+```
+Will disable the `arrows` compression setting when debugging.
+
+If `config_file` isn't supplied, Bazel will use a default config file.
 
 
 #### `debug`
@@ -97,7 +112,7 @@ so that it only affects the current build.
 
 
 #### `sourcemap`
-(*Boolean*): Whether to produce a .js.map file for each .js output
+(*Boolean*): Whether to produce a .js.map output
 
 
 #### `src`

@@ -1,3 +1,4 @@
+.bazelrc.user
 .idea
 rules_nodejs-*.tar.gz
 dist
