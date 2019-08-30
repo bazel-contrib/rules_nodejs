@@ -5,6 +5,7 @@ const nodeResolve = require('rollup-plugin-node-resolve');
 const sourcemaps = require('rollup-plugin-sourcemaps');
 const amd = require('rollup-plugin-amd');
 const commonjs = require('rollup-plugin-commonjs');
+const replace = require('rollup-plugin-replace');
 const rollupJson = require('rollup-plugin-json');
 const isBuiltinModule = require('is-builtin-module');
 const path = require('path');
@@ -158,6 +159,7 @@ const config = {
     throw new Error(warning.message);
   },
   plugins: [TMPL_additional_plugins].concat([
+    replace({'process.env.NODE_ENV': JSON.stringify('production')}),
     {
       name: 'resolveBazel',
       resolveId: resolveBazel,
@@ -173,11 +175,13 @@ const config = {
       // with the amd plugin.
       include: /\.ngfactory\.js$/i,
     }),
-    commonjs(), {
+    commonjs(),
+    {
       name: 'notResolved',
       resolveId: notResolved,
     },
-    sourcemaps(), rollupJson({preferConst: true})
+    sourcemaps(),
+    rollupJson({preferConst: true}),
   ]),
   output: {
     banner,

@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "jsx": "react",
     "strict": true,
     "lib": ["es2015.promise", "dom", "es5"],
     // to fix https://github.com/bazelbuild/rules_nodejs/issues/933

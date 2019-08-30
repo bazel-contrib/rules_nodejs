@@ -24,6 +24,14 @@ example_integration_test(
 )
 
 example_integration_test(
+    name = "examples_reactjs",
+    npm_packages = {
+        "//packages/jasmine:npm_package": "@bazel/jasmine",
+        "//packages/typescript:npm_package": "@bazel/typescript",
+    },
+)
+
+example_integration_test(
     name = "examples_parcel",
     npm_packages = {
         "//packages/jasmine:npm_package": "@bazel/jasmine",

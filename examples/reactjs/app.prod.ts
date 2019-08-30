@@ -1,4 +1,4 @@
-import './environment.dev';
+import './environment.prod';
 import * as ReactDOM from 'react-dom';
 import greeting from './greeting';
 
