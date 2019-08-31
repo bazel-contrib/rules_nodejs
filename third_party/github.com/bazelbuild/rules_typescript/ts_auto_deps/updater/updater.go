@@ -686,42 +686,60 @@ type UpdateBUILDOptions struct {
 	IsRoot bool
 }
 
+// LatencyReport contains timing measurements of the functions that are called
+// when running the presubmit on a package without any TypeScript (since we
+// return early to avoid the latency of RAS analyze).
+type LatencyReport struct {
+	GetBUILD, TazeDisabled, SubdirSrcs, AddSrcs time.Duration
+}
+
 // UpdateBUILD drives the main process of creating/updating the BUILD file
 // underneath path based on the available sources. Returns true if it modified
 // the BUILD file, false if the BUILD file was up to date already. bazelAnalyze
 // is used to run the underlying `bazel analyze` process.  Returns another
 // boolean that's true iff the package doesn't contain any TypeScript (source
 // files or BUILD rules).
-func (upd *Updater) UpdateBUILD(ctx context.Context, path string, options UpdateBUILDOptions) (bool, bool, error) {
+func (upd *Updater) UpdateBUILD(ctx context.Context, path string, options UpdateBUILDOptions) (bool, *LatencyReport, error) {
+	latencyReport := &LatencyReport{}
+
+	start := time.Now()
 	g3root, buildFilePath, bld, err := getBUILDPathAndBUILDFile(ctx, path)
+	latencyReport.GetBUILD = time.Since(start)
 	if err != nil {
-		return false, false, err
+		return false, nil, err
 	}
 
-	if isTazeDisabledInPackage(ctx, g3root, buildFilePath, bld) {
-		return false, false, nil
+	start = time.Now()
+	ts_auto_depsDisabled := isTazeDisabledInPackage(ctx, g3root, buildFilePath, bld)
+	latencyReport.TazeDisabled = time.Since(start)
+	if ts_auto_depsDisabled {
+		return false, nil, nil
 	}
 
+	start = time.Now()
 	hasSubdirSrcs, err := directoryOrAncestorHasSubdirectorySources(ctx, g3root, buildFilePath, bld)
+	latencyReport.SubdirSrcs = time.Since(start)
 	if err != nil {
-		return false, false, err
+		return false, nil, err
 	}
 	if hasSubdirSrcs {
-		return false, false, &SubdirectorySourcesError{}
+		return false, nil, &SubdirectorySourcesError{}
 	}
 
+	start = time.Now()
 	changed, err := upd.addSourcesToBUILD(ctx, path, buildFilePath, bld)
+	latencyReport.AddSrcs = time.Since(start)
 	if err != nil {
-		return false, false, err
+		return false, nil, err
 	}
 	if options.InNonWritableEnvironment && changed {
-		return true, false, &CantProgressAfterWriteError{}
+		return true, nil, &CantProgressAfterWriteError{}
 	}
 
 	rules := allTSRules(bld)
 	if len(rules) == 0 && !options.IsRoot {
 		// No TypeScript rules, no need to query for dependencies etc, so just exit early.
-		return changed, true, nil
+		return changed, latencyReport, nil
 	}
 	rulesWithSrcs := []*build.Rule{}
 	for _, r := range rules {
@@ -735,19 +753,19 @@ func (upd *Updater) UpdateBUILD(ctx context.Context, path string, options Update
 	platform.Infof("analyzing...")
 	reports, err := upd.runBazelAnalyze(buildFilePath, bld, rulesWithSrcs)
 	if err != nil {
-		return false, false, err
+		return false, nil, err
 	}
 
 	changedAfterBazelAnalyze, err := upd.updateBUILDAfterBazelAnalyze(ctx, options.IsRoot, g3root, buildFilePath, bld, reports)
 	if err != nil {
-		return false, false, err
+		return false, nil, err
 	}
 	changed = changed || changedAfterBazelAnalyze
 	if options.InNonWritableEnvironment && changed {
-		return true, false, &CantProgressAfterWriteError{}
+		return true, nil, &CantProgressAfterWriteError{}
 	}
 
-	return changed, false, nil
+	return changed, nil, nil
 }
 
 // buildHasDisableTaze checks if the BUILD file should be managed using ts_auto_deps.
