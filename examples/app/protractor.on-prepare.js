@@ -14,7 +14,7 @@ module.exports = function(config) {
   // selected port (given a port flag to pass to the server as an argument).
   // The port used is returned in serverSpec and the protractor serverUrl
   // is the configured.
-  const isProdserver = config.server.endsWith('prodserver');
+  const isProdserver = config.server.endsWith('prodserver.sh') || config.server.endsWith('prodserver.bat');
   return protractorUtils
       .runServer(config.workspace, config.server, isProdserver ? '-p' : '-port', [])
       .then(serverSpec => {
