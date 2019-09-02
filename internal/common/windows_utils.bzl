@@ -35,9 +35,19 @@ if "%RUNFILES_MANIFEST_ONLY%" neq "1" (
   set %~2=%~1
   exit /b 0
 )
+if "%RUNFILES_MANIFEST_FILE%" equ "" (
+  set RUNFILES_MANIFEST_FILE=%~f0.runfiles\MANIFEST
+)
+if not exist "%RUNFILES_MANIFEST_FILE%" (
+  set RUNFILES_MANIFEST_FILE=%~f0.runfiles_manifest
+)
 set MF=%RUNFILES_MANIFEST_FILE:/=\%
+if not exist "%MF%" (
+  echo>&2 ERROR: Manifest file %MF% does not exist.
+  exit 1
+)
 set runfile_path=%~1
-for /F "tokens=2* usebackq" %%i in (`findstr.exe /l /c:"!runfile_path! " "%MF%"`) do (
+for /F "tokens=2* usebackq" %%i in (`%SYSTEMROOT%\system32\findstr.exe /l /c:"!runfile_path! " "%MF%"`) do (
   set abs_path=%%i
 )
 if "!abs_path!" equ "" (
@@ -81,9 +91,12 @@ def create_windows_native_launcher_script(ctx, shell_script):
         content = r"""@echo off
 SETLOCAL ENABLEEXTENSIONS
 SETLOCAL ENABLEDELAYEDEXPANSION
+set RUNFILES_MANIFEST_ONLY=1
 {rlocation_function}
 call :rlocation "{sh_script}" run_script
-{bash_bin} -c "!run_script!"
+for %%a in ("{bash_bin}") do set "bash_bin_dir=%%~dpa"
+set PATH=%bash_bin_dir%;%PATH%
+{bash_bin} -c "!run_script! %*"
 """.format(
             bash_bin = ctx.toolchains["@bazel_tools//tools/sh:toolchain_type"].path,
             sh_script = _to_manifest_path(ctx, shell_script),

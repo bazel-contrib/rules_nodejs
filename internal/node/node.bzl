@@ -212,7 +212,7 @@ def _nodejs_binary_impl(ctx):
         is_executable = True,
     )
 
-    runfiles = depset(node_tool_files + [ctx.outputs.loader, ctx.file._repository_args], transitive = [sources, node_modules])
+    runfiles = depset(node_tool_files + ctx.files._bash_runfile_helpers + [ctx.outputs.loader, ctx.file._repository_args], transitive = [sources, node_modules])
 
     if is_windows(ctx):
         runfiles = depset([ctx.outputs.script], transitive = [runfiles])
@@ -420,6 +420,7 @@ The set of default  environment variables is:
         passed directly to node and not included in the params file.
         """,
     ),
+    "_bash_runfile_helpers": attr.label(default = Label("@bazel_tools//tools/bash/runfiles")),
     "_launcher_template": attr.label(
         default = Label("//internal/node:node_launcher.sh"),
         allow_single_file = True,
@@ -501,71 +502,3 @@ remote debugger.
         "@bazel_tools//tools/sh:toolchain_type",
     ],
 )
-
-def nodejs_binary_macro(name, data = [], args = [], visibility = None, tags = [], testonly = 0, **kwargs):
-    """This macro exists only to wrap the nodejs_binary as an .exe for Windows.
-
-    This is exposed in the public API at `//:defs.bzl` as `nodejs_binary`, so most
-    users loading `nodejs_binary` are actually executing this macro.
-
-    Args:
-      name: name of the label
-      data: runtime dependencies
-      args: applied to the wrapper binary
-      visibility: applied to the wrapper binary
-      tags: applied to the wrapper binary
-      testonly: applied to nodejs_binary and wrapper binary
-      **kwargs: passed to the nodejs_binary
-    """
-    all_data = data + ["@bazel_tools//tools/bash/runfiles"]
-
-    nodejs_binary(
-        name = "%s_bin" % name,
-        data = all_data,
-        testonly = testonly,
-        visibility = ["//visibility:private"],
-        **kwargs
-    )
-
-    native.sh_binary(
-        name = name,
-        args = args,
-        tags = tags,
-        srcs = [":%s_bin.sh" % name],
-        data = [":%s_bin" % name],
-        testonly = testonly,
-        visibility = visibility,
-    )
-
-def nodejs_test_macro(name, data = [], args = [], visibility = None, tags = [], **kwargs):
-    """This macro exists only to wrap the nodejs_test as an .exe for Windows.
-
-    This is exposed in the public API at `//:defs.bzl` as `nodejs_test`, so most
-    users loading `nodejs_test` are actually executing this macro.
-
-    Args:
-      name: name of the label
-      data: runtime dependencies
-      args: applied to the wrapper binary
-      visibility: applied to the wrapper binary
-      tags: applied to the wrapper binary
-      **kwargs: passed to the nodejs_test
-    """
-    all_data = data + ["@bazel_tools//tools/bash/runfiles"]
-
-    nodejs_test(
-        name = "%s_bin" % name,
-        data = all_data,
-        testonly = 1,
-        tags = ["manual"],
-        **kwargs
-    )
-
-    native.sh_test(
-        name = name,
-        args = args,
-        tags = tags,
-        visibility = visibility,
-        srcs = [":%s_bin.sh" % name],
-        data = [":%s_bin" % name],
-    )
