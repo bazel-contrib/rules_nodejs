@@ -21,12 +21,12 @@ terser_minified(
     name = "debug_from_env",
     src = "input.js",
     # Don't specify debug = True
-    # Instead we'll run the test with --define=DEBUG=true
+    # Instead we'll run the test with --define=DEBUG=1
 )
 
 golden_file_test(
     name = "test_define_DEBUG",
     actual = "debug_from_env.js",
     golden = "output.golden.js_",
-    tags = ["manual"],  # Only passes when --define=DEBUG=true is set
+    tags = ["manual"],  # Only passes when --define=DEBUG=1 is set
 )

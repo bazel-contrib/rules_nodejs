@@ -106,6 +106,16 @@ tasks:
     - "--test_tag_filters=-e2e,-examples,-fix-bazelci-ubuntu"
     test_targets:
     - "//..."
+  ubuntu1804_debug:
+    name: ubuntu1804_debug
+    platform: ubuntu1804
+    test_flags:
+    - "--define=VERBOSE_LOGS=1"
+    - "--define=DEBUG=1"
+    - "--test_tag_filters=-e2e,-examples,-fix-bazelci-ubuntu"
+    test_targets:
+    - "//..."
+    - "//packages/terser/test/debug:test_define_DEBUG"
   ubuntu1804_e2e:
     name: ubuntu1804_e2e
     platform: ubuntu1804

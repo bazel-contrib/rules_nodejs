@@ -156,7 +156,7 @@ def _nodejs_binary_impl(ctx):
             ctx.outputs.loader.short_path,
         ])
     env_vars = "export BAZEL_TARGET=%s\n" % ctx.label
-    for k in ctx.attr.configuration_env_vars:
+    for k in ctx.attr.configuration_env_vars + ctx.attr.default_env_vars:
         if k in ctx.var.keys():
             env_vars += "export %s=\"%s\"\n" % (k, ctx.var[k])
 
@@ -268,6 +268,19 @@ _NODEJS_EXECUTABLE_ATTRS = {
         doc = """Runtime dependencies which may be loaded during execution.""",
         allow_files = True,
         aspects = [sources_aspect, module_mappings_runtime_aspect, collect_node_modules_aspect],
+    ),
+    "default_env_vars": attr.string_list(
+        doc = """Default environment variables that are added to `configuration_env_vars`.
+
+This is separate from the default of `configuration_env_vars` so that a user can set `configuration_env_vars`
+without losing the defaults that should be set in most cases.
+
+The set of default  environment variables is:
+
+`DEBUG`: rules use this environment variable to turn on debug information in their output artifacts
+`VERBOSE_LOGS`: rules use this environment variable to turn on debug output in their logs
+""",
+        default = ["DEBUG", "VERBOSE_LOGS"],
     ),
     "entry_point": attr.label(
         doc = """The script which should be executed first, usually containing a main function.

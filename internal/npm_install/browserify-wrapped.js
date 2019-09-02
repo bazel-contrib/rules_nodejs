@@ -20,7 +20,9 @@
 
 const child_process = require('child_process');
 
-const DEBUG = false;
+function log_verbose(...m) {
+  if (!!process.env['VERBOSE_LOGS']) console.error('[browserify-wrapped.js]', ...m);
+}
 
 const BABEL_PLUGINS = [
   '@babel/plugin-transform-modules-commonjs',
@@ -29,9 +31,7 @@ const BABEL_PLUGINS = [
 runBrowserify(...process.argv.slice(2));
 
 function runBrowserify(workspaceName, packageName, entryPoint, output, excluded = '') {
-  if (DEBUG)
-    console.error(`
-browserify-wrapped: running with
+  log_verbose(`running with
   cwd: ${process.cwd()}
   workspaceName: ${workspaceName},
   packageName: ${packageName}
@@ -39,7 +39,7 @@ browserify-wrapped: running with
   output: ${output}
   excluded: ${excluded}`);
 
-  const browserify = require.resolve(`browserify/index${DEBUG ? '.debug' : ''}.js`);
+  const browserify = require.resolve(`browserify/index.js`);
   const namedAmd = require.resolve('named-amd');
   const babelify = require.resolve('babelify');
   const plugins = BABEL_PLUGINS.map(p => require.resolve(p));
@@ -59,7 +59,7 @@ browserify-wrapped: running with
     args = args.concat(['-u', e])
   }
 
-  if (DEBUG) console.error(`\nRunning: node ${args.join(' ')}\n`);
+  log_verbose(`running node ${args.join(' ')}\n`);
 
   const isWindows = /^win/i.test(process.platform);
   child_process.execFileSync(

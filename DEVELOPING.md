@@ -24,6 +24,10 @@ To do a full clean run:
 yarn clean_all
 ```
 
+## Debugging
+
+See `Debugging` section under `/docs/index.md`.
+
 ## Releasing
 
 Start from a clean checkout at master/HEAD.
