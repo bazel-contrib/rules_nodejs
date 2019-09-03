@@ -151,6 +151,16 @@ data attribute.
     ),
 })
 
+ENVIRONMENT_KEYS = [
+    "CC",
+    "CFLAGS",
+    "CXX",
+    "CXXFLAGS",
+    "JAVA_HOME",
+    "LDFLAGS",
+    "PATH",
+]
+
 def _create_build_files(repository_ctx, rule_type, node, lock_file):
     error_on_build_files = repository_ctx.attr.symlink_node_modules and not repository_ctx.attr.always_hide_bazel_files
 
@@ -292,6 +302,7 @@ cd "{root}" && "{npm}" {npm_args}
     repository_ctx.report_progress("Running npm install on %s" % repository_ctx.attr.package_json)
     result = repository_ctx.execute(
         [repository_ctx.path("npm.cmd" if is_windows_host else "npm")],
+        environment = {k: repository_ctx.os.environ[k] for k in ENVIRONMENT_KEYS},
         timeout = repository_ctx.attr.timeout,
         quiet = repository_ctx.attr.quiet,
     )
@@ -330,6 +341,7 @@ npm_install = repository_rule(
     }),
     doc = "Runs npm install during workspace setup.",
     implementation = _npm_install_impl,
+    environ = ENVIRONMENT_KEYS,
 )
 
 def _yarn_install_impl(repository_ctx):
@@ -392,6 +404,7 @@ def _yarn_install_impl(repository_ctx):
     repository_ctx.report_progress("Running yarn install on %s" % repository_ctx.attr.package_json)
     result = repository_ctx.execute(
         args,
+        environment = {k: repository_ctx.os.environ[k] for k in ENVIRONMENT_KEYS},
         timeout = repository_ctx.attr.timeout,
         quiet = repository_ctx.attr.quiet,
     )
@@ -441,4 +454,5 @@ cache_directory.
     }),
     doc = "Runs yarn install during workspace setup.",
     implementation = _yarn_install_impl,
+    environ = ENVIRONMENT_KEYS,
 )
