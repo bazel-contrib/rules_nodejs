@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-const DEBUG = false;
-
 // Set TEST_MANIFEST to true and use `bazel run` to excersize the MANIFEST
 // file code path on Linux and OSX
 const TEST_MANIFEST = false;
@@ -26,17 +24,28 @@ const fs = require('fs');
 const path = require('path');
 const tmp = require('tmp');
 
+const DEBUG = !!process.env['DEBUG'];
+const VERBOSE_LOGS = !!process.env['VERBOSE_LOGS'];
+
+function log(...m) {
+  console.error('[test_runner.js]', ...m);
+}
+
+function log_verbose(...m) {
+  if (VERBOSE_LOGS) console.error('[test_runner.js]', ...m);
+}
+
 const config = require(process.argv[2]);
-if (DEBUG) console.log(`config: ${JSON.stringify(config, null, 2)}`);
+log_verbose(`config: ${JSON.stringify(config, null, 2)}`);
 
 const testArgs = process.argv.slice(3);
-if (DEBUG) console.log(`testArgs: ${JSON.stringify(testArgs, null, 2)}`);
+log_verbose(`testArgs: ${JSON.stringify(testArgs, null, 2)}`);
 
 /**
- * Helper function to log out the contents of a file.
+ * Helper function to debug log out the contents of a file.
  */
 function logFileContents(desc, contents) {
-  console.log(`\n\n${
+  log_verbose(`${
       desc}\n========================================================================================\n${
       contents}\n^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n`);
 }
@@ -82,7 +91,7 @@ function copyFolderSync(from, to) {
     if (fs.statSync(src).isFile()) {
       mkdirp(path.dirname(dest));
       fs.copyFileSync(src, dest);
-      if (DEBUG) console.log(`copying ${src} -> ${dest}`);
+      log_verbose(`copying ${src} -> ${dest}`);
     } else {
       copyFolderSync(src, dest);
     }
@@ -130,7 +139,7 @@ function copyWorkspace(workspace) {
         const element = key.slice(start.length);
         const dest = path.posix.join(to, element);
         mkdirp(path.dirname(dest));
-        if (DEBUG) console.log(`copying (MANIFEST) ${RUNFILES_MANIFEST[key]} -> ${dest}`);
+        log_verbose(`copying (MANIFEST) ${RUNFILES_MANIFEST[key]} -> ${dest}`);
         fs.copyFileSync(RUNFILES_MANIFEST[key], dest);
       }
     }
@@ -158,7 +167,7 @@ function copyNpmPackage(packagePath) {
   return to;
 }
 
-if (DEBUG) console.log(`\n\ncopying workspace under test ${config.workspaceUnderTest} to tmp`);
+log_verbose(`copying workspace under test ${config.workspaceUnderTest} to tmp`);
 const workspaceRoot = copyWorkspace(config.workspaceUnderTest);
 
 // Handle .bazelrc import replacements
@@ -172,7 +181,7 @@ if (bazelrcImportsKeys.length && isFile(bazelrcFile)) {
     bazelrcContents = bazelrcContents.replace(importKey, importContents);
   }
   fs.writeFileSync(bazelrcFile, bazelrcContents);
-  if (DEBUG) logFileContents('.bazelrc file with replacements:', bazelrcContents);
+  logFileContents('.bazelrc file with replacements:', bazelrcContents);
 }
 
 // Handle appending to .bazelrc
@@ -182,7 +191,7 @@ if (config.bazelrcAppend) {
   bazelrcContents += '\n\n# Appended by bazel_integration_test\n';
   bazelrcContents += config.bazelrcAppend;
   fs.writeFileSync(bazelrcFile, bazelrcContents);
-  if (DEBUG) logFileContents('.bazelrc file after appending:', bazelrcContents);
+  logFileContents('.bazelrc file after appending:', bazelrcContents);
 }
 
 // Handle WORKSPACE replacements
@@ -206,7 +215,7 @@ if (config.bazelrcAppend) {
     }
   }
   fs.writeFileSync(workspaceFile, workspaceContents);
-  if (DEBUG) logFileContents('WORKSPACE file with replacements:', workspaceContents);
+  logFileContents('WORKSPACE file with replacements:', workspaceContents);
 }
 
 // Handle package.json replacements
@@ -217,7 +226,7 @@ if (isFile(packageJsonFile)) {
   const npmPackageKeys = Object.keys(config.npmPackages);
   if (npmPackageKeys.length) {
     for (const packageJsonKey of npmPackageKeys) {
-      if (DEBUG) console.log(`\n\ncopying npm package ${packageJsonKey} to tmp`);
+      log_verbose(`copying npm package ${packageJsonKey} to tmp`);
       const packagePath = copyNpmPackage(config.npmPackages[packageJsonKey]).replace(/\\/g, '/');
       const regex = new RegExp(`\"${packageJsonKey}\"\\s*\:\\s*\"[^"]+`)
       const replacement = `"${packageJsonKey}": "file:${packagePath}`;
@@ -255,21 +264,21 @@ if (isFile(packageJsonFile)) {
     }
   }
 
-  if (DEBUG) logFileContents('package.json file with replacements:', packageJsonContents);
+  logFileContents('package.json file with replacements:', packageJsonContents);
 }
 
 const isWindows = process.platform === 'win32';
 const bazelBinary =
     require.resolve(`${config.bazelBinaryWorkspace}/bazel${isWindows ? '.exe' : ''}`);
 
-console.log(`\n\nRunning 'bazel version'`);
+log(`running 'bazel version'`);
 let spawnedProcess = spawnSync(bazelBinary, ['version'], {cwd: workspaceRoot, stdio: 'inherit'});
 if (spawnedProcess.status) {
   process.exit(spawnedProcess.status);
 }
 
-if (DEBUG) {
-  console.log(`\n\nRunning 'bazel info'`);
+if (VERBOSE_LOGS) {
+  log_verbose(`running 'bazel info'`);
   spawnedProcess = spawnSync(bazelBinary, ['info'], {cwd: workspaceRoot, stdio: 'inherit'});
   if (spawnedProcess.status) {
     process.exit(spawnedProcess.status);
@@ -286,7 +295,7 @@ for (const bazelCommand of config.bazelCommands) {
   } else {
     bazelArgs.push(...testArgs);
   }
-  console.log(`\n\nRunning 'bazel ${bazelArgs.join(' ')}'`);
+  log(`running 'bazel ${bazelArgs.join(' ')}'`);
   spawnedProcess = spawnSync(bazelBinary, bazelArgs, {cwd: workspaceRoot, stdio: 'inherit'});
   if (spawnedProcess.status) {
     process.exit(spawnedProcess.status);

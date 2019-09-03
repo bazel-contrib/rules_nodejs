@@ -14,15 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const DEBUG = false;
+const path = require('path');
+
+function log_verbose(...m) {
+  // This is a template file so we use __filename to output the actual filename
+  if (!!process.env['VERBOSE_LOGS']) console.error(`[${path.basename(__filename)}]`, ...m);
+}
 
 const configPath = 'TMPL_config';
 const onPreparePath = 'TMPL_on_prepare';
 const workspace = 'TMPL_workspace';
 const server = 'TMPL_server';
 
-if (DEBUG)
-  console.info(`Protractor test starting with:
+log_verbose(`running with
   cwd: ${process.cwd()}
   configPath: ${configPath}
   onPreparePath: ${onPreparePath}
@@ -77,7 +81,7 @@ if (configPath) {
     throw new Error('Invalid base protractor configuration. Expected config to be exported.');
   }
   conf = baseConf.config;
-  if (DEBUG) console.info(`Base protractor configuration: ${JSON.stringify(conf, null, 2)}`);
+  log_verbose(`base protractor configuration: ${JSON.stringify(conf, null, 2)}`);
 }
 
 // Import the user's on prepare function if specified
@@ -109,7 +113,7 @@ setConf(conf, 'specs', specs, 'are determined by the srcs and deps attribute');
 // We setup the protractor configuration based on the values in this object
 if (process.env['WEB_TEST_METADATA']) {
   const webTestMetadata = require(process.env['WEB_TEST_METADATA']);
-  if (DEBUG) console.info(`WEB_TEST_METADATA: ${JSON.stringify(webTestMetadata, null, 2)}`);
+  log_verbose(`WEB_TEST_METADATA: ${JSON.stringify(webTestMetadata, null, 2)}`);
   if (webTestMetadata['environment'] === 'sauce') {
     // If a sauce labs browser is chosen for the test such as
     // "@io_bazel_rules_webtesting//browsers/sauce:chrome-win10"
@@ -183,6 +187,6 @@ if (process.env['WEB_TEST_METADATA']) {
 }
 
 // Export the complete protractor configuration
-if (DEBUG) console.info(`Protractor configuration: ${JSON.stringify(conf, null, 2)}`);
+log_verbose(`protractor configuration: ${JSON.stringify(conf, null, 2)}`);
 
 exports.config = conf;

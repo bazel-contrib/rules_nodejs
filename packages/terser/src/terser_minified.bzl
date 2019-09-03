@@ -35,7 +35,7 @@ Bazel will make a copy of your config file, treating it as a template.
 
 If you use the magic strings `"bazel_debug"` or `"bazel_no_debug"`, these will be
 replaced with `true` and `false` respecting the value of the `debug` attribute
-or the `--define=DEBUG=true` bazel flag.
+or the `--define=DEBUG=1` bazel flag.
 
 For example,
 
@@ -59,7 +59,7 @@ If `config_file` isn't supplied, Bazel will use a default config file.
         doc = """Configure terser to produce more readable output.
 
 Instead of setting this attribute, consider setting the DEBUG variable instead
-bazel build --define=DEBUG=true //my/terser:target
+bazel build --define=DEBUG=1 //my/terser:target
 so that it only affects the current build.
 """,
     ),

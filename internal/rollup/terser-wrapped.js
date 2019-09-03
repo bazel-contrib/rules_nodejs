@@ -26,13 +26,15 @@ const path = require('path');
 const tmp = require('tmp');
 const child_process = require('child_process');
 
-const DEBUG = false;
+function log_verbose(...m) {
+  if (!!process.env['VERBOSE_LOGS']) console.error('[terser-wrapped.js]', ...m);
+}
 
 // capture the inputs and output options
 const argv = require('minimist')(process.argv.slice(2));
 const inputs = argv._;
 const output = argv.output || argv.o;
-const debug = argv.debug;
+const debug = !!process.env['debug'] || argv.debug;
 const configFile = argv['config-file'];
 // delete the properties extracted above as the remaining
 // arguments are forwarded to terser in execFileSync below
@@ -42,9 +44,7 @@ delete argv.o;
 delete argv.debug;
 delete argv['config-file'];
 
-if (DEBUG)
-  console.error(`
-terser: running with
+log_verbose(`running with
   cwd: ${process.cwd()}
   argv: ${process.argv.slice(2).join(' ')}
   inputs: ${JSON.stringify(inputs)}
@@ -59,7 +59,7 @@ if (inputs.length != 1) {
 const input = inputs[0];
 
 function runterser(inputFile, outputFile, sourceMapFile) {
-  if (DEBUG) console.error(`Minifying ${inputFile} -> ${outputFile} (sourceMap ${sourceMapFile})`);
+  log_verbose(`minifying ${inputFile} -> ${outputFile} (sourceMap ${sourceMapFile})`);
 
   const terserConfig = {
     'sourceMap': {'filename': sourceMapFile},
@@ -96,7 +96,7 @@ function runterser(inputFile, outputFile, sourceMapFile) {
     }
   }
 
-  if (DEBUG) console.error(`Running node ${args.join(' ')}`);
+  log_verbose(`running node ${args.join(' ')}`);
 
   const isWindows = /^win/i.test(process.platform);
   child_process.execFileSync(

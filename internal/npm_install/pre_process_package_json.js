@@ -26,7 +26,9 @@
 const fs = require('fs');
 const child_process = require('child_process');
 
-const DEBUG = false;
+function log_verbose(...m) {
+  if (!!process.env['VERBOSE_LOGS']) console.error('[pre_process_package_json.js]', ...m);
+}
 
 const args = process.argv.slice(2);
 const packageJson = args[0];
@@ -44,7 +46,7 @@ function main() {
 
   const pkg = JSON.parse(fs.readFileSync(packageJson, {encoding: 'utf8'}));
 
-  if (DEBUG) console.error(`Pre-processing package.json`);
+  log_verbose(`pre-processing package.json`);
 
   if (isYarn) {
     // Work-around for https://github.com/yarnpkg/yarn/issues/2165
@@ -85,7 +87,7 @@ function clearYarnFilePathCaches(pkg) {
   }
 
   if (clearPackages.length) {
-    if (DEBUG) console.error(`Cleaning packages from yarn cache: ${clearPackages.join(' ')}`);
+    log_verbose(`cleaning packages from yarn cache: ${clearPackages.join(' ')}`);
     for (const c of clearPackages) {
       child_process.execFileSync(
           'yarn', ['--mutex', 'network', 'cache', 'clean', c],

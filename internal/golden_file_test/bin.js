@@ -3,7 +3,9 @@ const path = require('path');
 const unidiff = require('unidiff');
 
 function main(args) {
-  const [mode, golden, actual] = args;
+  const [mode, golden_no_debug, golden_debug, actual] = args;
+  const debug = !!process.env['DEBUG'];
+  const golden = debug ? golden_debug : golden_no_debug;
   const actualContents = fs.readFileSync(require.resolve(actual), 'utf-8').replace(/\r\n/g, '\n');
   const goldenContents = fs.readFileSync(require.resolve(golden), 'utf-8').replace(/\r\n/g, '\n');
 
@@ -22,7 +24,8 @@ ${prettyDiff}
       
 Update the golden file:
 
-            bazel run ${process.env['BAZEL_TARGET'].replace(/_bin$/, '')}.accept
+            bazel run ${debug ? '--define=DEBUG=1 ' : ''}${
+          process.env['BAZEL_TARGET'].replace(/_bin$/, '')}.accept
 `);
     } else {
       throw new Error('unknown mode', mode);

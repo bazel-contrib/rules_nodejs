@@ -42,7 +42,9 @@
 const fs = require('fs');
 const path = require('path');
 
-const DEBUG = false;
+function log_verbose(...m) {
+  if (!!process.env['VERBOSE_LOGS']) console.error('[generate_build_file.js]', ...m);
+}
 
 const BUILD_FILE_HEADER = `# Generated file from yarn_install/npm_install rule.
 # See $(bazel info output_base)/external/build_bazel_rules_nodejs/internal/npm_install/generate_build_file.js
@@ -608,7 +610,8 @@ function cleanupEntryPointPath(p) {
 
 /**
  * Cleans up the given path
- * Then tries to resolve the path into a file and warns if in DEBUG and the file dosen't exist
+ * Then tries to resolve the path into a file and warns if VERBOSE_LOGS set and the file dosen't
+ * exist
  * @param {any} pkg
  * @param {string} path
  * @returns {string | undefined}
@@ -622,10 +625,8 @@ function findEntryFile(pkg, path) {
     // This can happen
     // in some npm packages that list an incorrect main such as v8-coverage@1.0.8
     // which lists `"main": "index.js"` but that file does not exist.
-    if (DEBUG) {
-      console.error(
-          `Could not find entry point for the path ${cleanPath} given by npm package ${pkg._name}`)
-    }
+    log_verbose(
+        `could not find entry point for the path ${cleanPath} given by npm package ${pkg._name}`);
   }
   return entryFile;
 }
@@ -687,10 +688,8 @@ function resolvePkgMainFile(pkg) {
     return maybeSelfNamedIndex;
   }
 
-  if (DEBUG) {
-    // none of the methods we tried resulted in a file
-    console.error(`Could not find entry point for npm package ${pkg._name}`)
-  }
+  // none of the methods we tried resulted in a file
+  log_verbose(`could not find entry point for npm package ${pkg._name}`);
 
   // at this point there's nothing left for us to try, so return nothing
   return undefined;
@@ -724,7 +723,7 @@ function flattenPkgDependencies(pkg, dep, pkgsMap) {
           }
           // dependency not found
           if (required) {
-            console.error(`Could not find ${depType} '${targetDep}' of '${dep._dir}'`);
+            console.error(`could not find ${depType} '${targetDep}' of '${dep._dir}'`);
             process.exit(1);
           }
           return null;

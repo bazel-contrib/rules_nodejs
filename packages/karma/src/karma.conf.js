@@ -6,7 +6,12 @@ try {
   const tmp = require('tmp');
   const child_process = require('child_process');
 
-  const DEBUG = false;
+  const VERBOSE_LOGS = !!process.env['VERBOSE_LOGS'];
+
+  function log_verbose(...m) {
+    // This is a template file so we use __filename to output the actual filename
+    if (VERBOSE_LOGS) console.error(`[${path.basename(__filename)}]`, ...m);
+  }
 
   // BEGIN ENV VARS
   TMPL_env_vars
@@ -14,8 +19,7 @@ try {
 
   const configPath = 'TMPL_config_file';
 
-  if (DEBUG)
-    console.info(`Karma test starting with:
+  log_verbose(`running with
     cwd: ${process.cwd()}
     configPath: ${configPath}`);
 
@@ -49,9 +53,8 @@ try {
       }
       child_process.execFileSync(
           extractExe, [archiveFile, '.'], {stdio: [process.stdin, process.stdout, process.stderr]});
-      if (DEBUG)
-        console.info(`Extracting web archive ${archiveFile} with ${extractExe} to ${
-            extractedExecutablePath}`);
+      log_verbose(
+          `Extracting web archive ${archiveFile} with ${extractExe} to ${extractedExecutablePath}`);
       return extractedExecutablePath;
     } catch (e) {
       console.error(`Failed to extract ${archiveFile}`);
@@ -170,11 +173,7 @@ try {
     // level of logging
     // possible values: config.LOG_DISABLE || config.LOG_ERROR ||
     // config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
-    if (DEBUG) {
-      conf.logLevel = config.LOG_DEBUG;
-    } else if (!conf.logLevel) {
-      conf.logLevel = config.LOG_INFO;
-    }
+    conf.logLevel = VERBOSE_LOGS ? config.LOG_DEBUG : config.LOG_INFO;
 
     // enable / disable watching file and executing tests whenever
     // any file changes
@@ -307,7 +306,7 @@ try {
     overrideConfigValue(conf, 'customLaunchers', null);
 
     const webTestMetadata = require(process.env['WEB_TEST_METADATA']);
-    if (DEBUG) console.info(`WEB_TEST_METADATA: ${JSON.stringify(webTestMetadata, null, 2)}`);
+    log_verbose(`WEB_TEST_METADATA: ${JSON.stringify(webTestMetadata, null, 2)}`);
     if (webTestMetadata['environment'] === 'sauce') {
       // If a sauce labs browser is chosen for the test such as
       // "@io_bazel_rules_webtesting//browsers/sauce:chrome-win10"
@@ -454,7 +453,7 @@ try {
       };
       baseConf(config);
       config.set = originalSetConfig;
-      if (DEBUG) console.info(`Base karma configuration: ${JSON.stringify(conf, null, 2)}`);
+      log_verbose(`base karma configuration: ${JSON.stringify(conf, null, 2)}`);
     }
 
     configureBazelConfig(config, conf);
@@ -463,7 +462,7 @@ try {
     configureTsWebTestConfig(conf);
     configureFormatError(conf);
 
-    if (DEBUG) console.info(`Karma configuration: ${JSON.stringify(conf, null, 2)}`);
+    log_verbose(`karma configuration: ${JSON.stringify(conf, null, 2)}`);
 
     config.set(conf);
   }

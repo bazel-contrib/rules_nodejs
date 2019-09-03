@@ -23,7 +23,9 @@ const fs = require('fs');
 const path = require('path');
 const child_process = require('child_process');
 
-const DEBUG = false;
+function log_verbose(...m) {
+  if (!!process.env['VERBOSE_LOGS']) console.error('[terser-wrapped.js]', ...m);
+}
 
 // capture the inputs and output options
 const argv = require('minimist')(process.argv.slice(2));
@@ -31,9 +33,7 @@ const input = argv.input;
 const output = argv.output;
 const project = argv.project;
 
-if (DEBUG)
-  console.error(`
-tsc-directory: running with
+log_verbose(`running with
   cwd: ${process.cwd()}
   input: ${input}
   output: ${output}
@@ -41,7 +41,7 @@ tsc-directory: running with
 `);
 
 function runTsc(inputDir, outputDir, projectFile) {
-  if (DEBUG) console.error(`Running tsc with ${project}`);
+  log_verbose(`running tsc with ${project}`);
 
   const inputBasename = path.relative(path.dirname(projectFile), inputDir);
   const outputBasename = path.relative(path.dirname(projectFile), outputDir);
@@ -67,7 +67,7 @@ function runTsc(inputDir, outputDir, projectFile) {
     '--project', projectFile
   ];
 
-  if (DEBUG) console.error(`Running node ${args.join(' ')}`);
+  log_verbose(`running node ${args.join(' ')}`);
 
   const isWindows = /^win/i.test(process.platform);
   child_process.execFileSync(

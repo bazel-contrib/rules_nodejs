@@ -29,7 +29,12 @@ const isWindows = /^win/i.test(process.platform);
 // Ensure that node is added to the path for any subprocess calls
 process.env.PATH = [path.dirname(process.execPath), process.env.PATH].join(isWindows ? ';' : ':');
 
-const DEBUG = false;
+const VERBOSE_LOGS = !!process.env['VERBOSE_LOGS'];
+
+function log_verbose(...m) {
+  // This is a template file so we use __filename to output the actual filename
+  if (VERBOSE_LOGS) console.error(`[${path.basename(__filename)}]`, ...m);
+}
 
 /**
  * The module roots as pairs of a RegExp to match the require path, and a
@@ -54,9 +59,7 @@ const GEN_DIR = 'TEMPLATED_gen_dir';
 const INSTALL_SOURCE_MAP_SUPPORT = TEMPLATED_install_source_map_support;
 const TARGET = 'TEMPLATED_target';
 
-if (DEBUG)
-  console.error(`
-node_loader: running ${TARGET} with
+log_verbose(`running ${TARGET} with
   cwd: ${process.cwd()}
   runfiles: ${process.env.RUNFILES}
 
@@ -98,7 +101,7 @@ function resolveToModuleRoot(path) {
  * See https://github.com/bazelbuild/bazel/issues/3726
  */
 function loadRunfilesManifest(manifestPath) {
-  if (DEBUG) console.error(`node_loader: using manifest ${manifestPath}`);
+  log_verbose(`using manifest ${manifestPath}`);
 
   // Create the manifest and reverse manifest maps.
   const runfilesManifest = Object.create(null);
@@ -146,9 +149,9 @@ function loadRunfilesManifest(manifestPath) {
     genRoot = `${execRoot}${GEN_DIR}/`;
   }
 
-  if (DEBUG) console.error(`node_loader: using binRoot ${binRoot}`);
-  if (DEBUG) console.error(`node_loader: using genRoot ${genRoot}`);
-  if (DEBUG) console.error(`node_loader: using localWorkspacePath ${localWorkspacePath}`);
+  log_verbose(`using binRoot ${binRoot}`);
+  log_verbose(`using genRoot ${genRoot}`);
+  log_verbose(`using localWorkspacePath ${localWorkspacePath}`);
 
   return { runfilesManifest, reverseRunfilesManifest, binRoot, genRoot, localWorkspacePath };
 }
@@ -311,31 +314,31 @@ function resolveRunfiles(parent, ...pathSegments) {
     // Normalize and replace path separators to conform to the ones in the manifest.
     runfilesEntry = path.normalize(runfilesEntry).replace(/\\/g, '/');
 
-    if (DEBUG) console.error('node_loader: try to resolve in runfiles manifest', runfilesEntry);
+    log_verbose('try to resolve in runfiles manifest', runfilesEntry);
 
     let maybe = resolveManifestFile(runfilesEntry);
     if (maybe) {
-      if (DEBUG) console.error('node_loader: resolved manifest file', maybe);
+      log_verbose('resolved manifest file', maybe);
       return maybe;
     }
 
     maybe = resolveManifestDirectory(runfilesEntry);
     if (maybe) {
-      if (DEBUG) console.error('node_loader: resolved via manifest directory', maybe);
+      log_verbose('resolved via manifest directory', maybe);
       return maybe;
     }
   } else {
-    if (DEBUG) console.error('node_loader: try to resolve in runfiles', runfilesPath);
+    log_verbose('try to resolve in runfiles', runfilesPath);
 
     let maybe = loadAsFileSync(runfilesPath);
     if (maybe) {
-      if (DEBUG) console.error('node_loader: resolved file', maybe);
+      log_verbose('resolved file', maybe);
       return maybe;
     }
 
     maybe = loadAsDirectorySync(runfilesPath);
     if (maybe) {
-      if (DEBUG) console.error('node_loader: resolved via directory', maybe);
+      log_verbose('resolved via directory', maybe);
       return maybe;
     }
   }
@@ -346,7 +349,7 @@ function resolveRunfiles(parent, ...pathSegments) {
 var originalResolveFilename = module.constructor._resolveFilename;
 module.constructor._resolveFilename = function(request, parent, isMain, options) {
   const parentFilename = (parent && parent.filename) ? parent.filename : undefined;
-  if (DEBUG) console.error(`\n\nnode_loader: resolve ${request} from ${parentFilename}`);
+  log_verbose(`resolve ${request} from ${parentFilename}`);
 
   const failedResolutions = [];
 
@@ -378,11 +381,9 @@ module.constructor._resolveFilename = function(request, parent, isMain, options)
     const resolved = originalResolveFilename(request, parent, isMain, options);
     if (resolved === request || request.startsWith('.') || request.startsWith('/') ||
         request.match(/^[A-Z]\:[\\\/]/i)) {
-      if (DEBUG)
-        console.error(
-            `node_loader: resolved ${request} to built-in, relative or absolute import ` +
-            `${resolved} from ${parentFilename}`
-        );
+      log_verbose(
+          `resolved ${request} to built-in, relative or absolute import ` +
+          `${resolved} from ${parentFilename}`);
       return resolved;
     } else {
       // Resolved is not a built-in module, relative or absolute import
@@ -395,11 +396,9 @@ module.constructor._resolveFilename = function(request, parent, isMain, options)
         const relative = path.relative(parentRoot, resolved);
         if (!relative.startsWith('..')) {
           // Resolved within parent node_modules
-          if (DEBUG)
-            console.error(
-                `node_loader: resolved ${request} within parent node_modules to ` +
-                `${resolved} from ${parentFilename}`
-            );
+          log_verbose(
+              `resolved ${request} within parent node_modules to ` +
+              `${resolved} from ${parentFilename}`);
           return resolved;
         } else {
           throw new Error(
@@ -416,10 +415,7 @@ module.constructor._resolveFilename = function(request, parent, isMain, options)
   // dependency of an npm package, attempt to resolve against the runfiles location
   try {
     const resolved = originalResolveFilename(resolveRunfiles(parentFilename, request), parent, isMain, options);
-    if (DEBUG)
-      console.error(
-          `node_loader: resolved ${request} within runfiles to ${resolved} from ${parentFilename}`
-      );
+    log_verbose(`resolved ${request} within runfiles to ${resolved} from ${parentFilename}`);
     return resolved;
   } catch (e) {
     failedResolutions.push(`runfiles - ${e.toString()}`);
@@ -441,11 +437,9 @@ module.constructor._resolveFilename = function(request, parent, isMain, options)
     if (parentSegments[0] !== USER_WORKSPACE_NAME) {
       try {
         const resolved = originalResolveFilename(resolveRunfiles(undefined, parentSegments[0], 'node_modules', request), parent, isMain, options);
-        if (DEBUG)
-          console.error(
-              `node_loader: resolved ${request} within node_modules ` +
-              `(${parentSegments[0]}/node_modules) to ${resolved} from ${relativeParentFilename}`
-          );
+        log_verbose(
+            `resolved ${request} within node_modules ` +
+            `(${parentSegments[0]}/node_modules) to ${resolved} from ${relativeParentFilename}`);
         return resolved;
       } catch (e) {
         failedResolutions.push(`${parentSegments[0]}/node_modules - ${e.toString()}`);
@@ -457,11 +451,9 @@ module.constructor._resolveFilename = function(request, parent, isMain, options)
   // within the node_modules filegroup in use
   try {
     const resolved = originalResolveFilename(resolveRunfiles(undefined, NODE_MODULES_ROOT, request), parent, isMain, options);
-    if (DEBUG)
-      console.error(
-          `node_loader: resolved ${request} within node_modules (${NODE_MODULES_ROOT}) to ` +
-          `${resolved} from ${parentFilename}`
-      );
+    log_verbose(
+        `resolved ${request} within node_modules (${NODE_MODULES_ROOT}) to ` +
+        `${resolved} from ${parentFilename}`);
     return resolved;
   } catch (e) {
     failedResolutions.push(`node_modules attribute (${NODE_MODULES_ROOT}) - ${e.toString()}`);
@@ -471,7 +463,7 @@ module.constructor._resolveFilename = function(request, parent, isMain, options)
   // See https://github.com/bazelbuild/rules_nodejs/issues/1015
   let moduleNotFoundError = `Cannot find module '${request}'. ` +
       'Please verify that the package.json has a valid "main" entry';
-  if (DEBUG) {
+  if (VERBOSE_LOGS) {
     moduleNotFoundError += `\nrequired in target ${TARGET} by '${parentFilename}'\n  looked in:\n` +
         failedResolutions.map(r => `    ${r}`).join('\n') + '\n';
   }
@@ -493,12 +485,9 @@ if (INSTALL_SOURCE_MAP_SUPPORT) {
           '../build_bazel_rules_nodejs/third_party/github.com/source-map-support');
     require(sourcemap_support_package).install();
   } catch (_) {
-    if (DEBUG) {
-      console.error(`WARNING: source-map-support module not installed.
+    log_verbose(`WARNING: source-map-support module not installed.
       Stack traces from languages like TypeScript will point to generated .js files.
-      Set install_source_map_support = False in ${TARGET} to turn off this warning.
-      `);
-    }
+      Set install_source_map_support = False in ${TARGET} to turn off this warning.`);
   }
 }
 // Load all bootstrap modules before loading the entrypoint.

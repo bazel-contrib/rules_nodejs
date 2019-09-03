@@ -10,7 +10,10 @@ const isBuiltinModule = require('is-builtin-module');
 const path = require('path');
 const fs = require('fs');
 
-const DEBUG = false;
+function log_verbose(...m) {
+  // This is a template file so we use __filename to output the actual filename
+  if (!!process.env['VERBOSE_LOGS']) console.error(`[${path.basename(__filename)}]`, ...m);
+}
 
 const workspaceName = 'TMPL_workspace_name';
 const rootDir = 'TMPL_rootDir';
@@ -20,9 +23,7 @@ const moduleMappings = TMPL_module_mappings;
 const nodeModulesRoot = 'TMPL_node_modules_root';
 const isDefaultNodeModules = TMPL_is_default_node_modules;
 
-if (DEBUG)
-  console.error(`
-Rollup: running with
+log_verbose(`running with
   cwd: ${process.cwd()}
   workspaceName: ${workspaceName}
   rootDir: ${rootDir}
@@ -44,11 +45,11 @@ function fileExists(filePath) {
 // This resolver mimics the TypeScript Path Mapping feature, which lets us resolve
 // modules based on a mapping of short names to paths.
 function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = require.resolve, root = rootDir) {
-  if (DEBUG) console.error(`\nRollup: resolving '${importee}' from ${importer}`);
+  log_verbose(`resolving '${importee}' from ${importer}`);
 
   function resolveInRootDir(importee) {
     var candidate = path.join(baseDir, root, importee);
-    if (DEBUG) console.error(`Rollup: try to resolve '${importee}' at '${candidate}'`);
+    log_verbose(`try to resolve '${importee}' at '${candidate}'`);
     try {
       var result = resolve(candidate);
       return result;
@@ -64,7 +65,7 @@ function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = req
 
   // If import is fully qualified then resolve it directly
   if (fileExists(importee)) {
-    if (DEBUG) console.error(`Rollup: resolved fully qualified '${importee}'`);
+    log_verbose(`resolved fully qualified '${importee}'`);
     return importee;
   }
 
@@ -101,7 +102,7 @@ function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = req
         // .d.ts suffix and let node require.resolve do its thing.
         var v = moduleMappings[k].replace(/\.d\.ts$/, '');
         const mappedImportee = path.join(v, normalizedImportee.slice(k.length + 1));
-        if (DEBUG) console.error(`Rollup: module mapped '${importee}' to '${mappedImportee}'`);
+        log_verbose(`module mapped '${importee}' to '${mappedImportee}'`);
         resolved = resolveInRootDir(mappedImportee);
         if (resolved) break;
       }
@@ -114,12 +115,10 @@ function resolveBazel(importee, importer, baseDir = process.cwd(), resolve = req
     resolved = resolveInRootDir(userWorkspacePath.startsWith('..') ? importee : userWorkspacePath);
   }
 
-  if (DEBUG) {
-    if (resolved) {
-      console.error(`Rollup: resolved to ${resolved}`);
-    } else {
-      console.error(`Rollup: allowing rollup to resolve '${importee}' with node module resolution`);
-    }
+  if (resolved) {
+    log_verbose(`resolved to ${resolved}`);
+  } else {
+    log_verbose(`allowing rollup to resolve '${importee}' with node module resolution`);
   }
 
   return resolved;
