@@ -518,8 +518,8 @@ def _rollup_bundle(ctx):
 
     else:
         # Generate the bundles
-        rollup_config = write_rollup_config(ctx)
-        es2015_map = run_rollup(ctx, _collect_es2015_sources(ctx), rollup_config, ctx.outputs.build_es2015)
+        es2015_rollup_config = write_rollup_config(ctx, output_format="esm")
+        es2015_map = run_rollup(ctx, _collect_es2015_sources(ctx), es2015_rollup_config, ctx.outputs.build_es2015)
         es2015_min_map = run_terser(ctx, ctx.outputs.build_es2015, ctx.outputs.build_es2015_min, config_name = ctx.label.name + "es2015_min", in_source_map = es2015_map)
         es2015_min_debug_map = run_terser(ctx, ctx.outputs.build_es2015, ctx.outputs.build_es2015_min_debug, debug = True, config_name = ctx.label.name + "es2015_min_debug", in_source_map = es2015_map)
         _run_tsc(ctx, ctx.outputs.build_es2015, ctx.outputs.build_es5)
