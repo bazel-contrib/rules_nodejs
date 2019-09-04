@@ -51,6 +51,7 @@ Open-source repositories:
 - [incremental-dom](https://github.com/google/incremental-dom)
 - [dataform](https://github.com/dataform-co/dataform)
 - [Kubernetes test-infra](https://github.com/kubernetes/test-infra)
+- Tensorflow: [tf.js](https://github.com/tensorflow/tfjs) and [tensorboard](https://github.com/tensorflow/tensorboard)
 
 Organizations:
 
