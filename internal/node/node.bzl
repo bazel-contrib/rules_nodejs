@@ -119,11 +119,12 @@ def _write_loader_script(ctx):
         is_executable = True,
     )
 
-def _short_path_to_manifest_path(ctx, short_path):
-    if short_path.startswith("../"):
-        return short_path[3:]
+# Avoid writing non-normalized paths (workspace/../other_workspace/path)
+def _to_manifest_path(ctx, file):
+    if file.short_path.startswith("../"):
+        return file.short_path[3:]
     else:
-        return ctx.workspace_name + "/" + short_path
+        return ctx.workspace_name + "/" + file.short_path
 
 def _nodejs_binary_impl(ctx):
     node_modules = depset(ctx.files.node_modules)
@@ -147,14 +148,8 @@ def _nodejs_binary_impl(ctx):
 
     _write_loader_script(ctx)
 
-    # Avoid writing non-normalized paths (workspace/../other_workspace/path)
-    if ctx.outputs.loader.short_path.startswith("../"):
-        script_path = ctx.outputs.loader.short_path[len("../"):]
-    else:
-        script_path = "/".join([
-            ctx.workspace_name,
-            ctx.outputs.loader.short_path,
-        ])
+    script_path = _to_manifest_path(ctx, ctx.outputs.loader)
+
     env_vars = "export BAZEL_TARGET=%s\n" % ctx.label
     for k in ctx.attr.configuration_env_vars + ctx.attr.default_env_vars:
         if k in ctx.var.keys():
@@ -165,60 +160,57 @@ def _nodejs_binary_impl(ctx):
         expected_exit_code = ctx.attr.expected_exit_code
 
     node_tool_info = ctx.toolchains["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"].nodeinfo
-    node_tool_files = []
-    if node_tool_info.target_tool_path == "" and not node_tool_info.target_tool:
+
+    # Make a copy so we don't try to mutate a frozen object
+    node_tool_files = node_tool_info.tool_files[:]
+    if node_tool_info.target_tool_path == "":
         # If tool_path is empty and tool_target is None then there is no local
         # node tool, we will just print a nice error message if the user
         # attempts to do bazel run
         fail("The node toolchain was not properly configured so %s cannot be executed. Make sure that target_tool_path or target_tool is set." % ctx.attr.name)
+
+    if not ctx.outputs.templated_args_file:
+        templated_args = ctx.attr.templated_args
     else:
-        node_tool = node_tool_info.target_tool_path
-        if node_tool_info.target_tool:
-            node_tool_files += node_tool_info.target_tool.files.to_list()
-            node_tool = _short_path_to_manifest_path(ctx, node_tool_files[0].short_path)
+        # Distribute the templated_args between the params file and the node options
+        params = []
+        templated_args = []
+        for a in ctx.attr.templated_args:
+            if a.startswith("--node_options="):
+                templated_args.append(a)
+            else:
+                params.append(a)
 
-        if not ctx.outputs.templated_args_file:
-            templated_args = ctx.attr.templated_args
-        else:
-            # Distribute the templated_args between the params file and the node options
-            params = []
-            templated_args = []
-            for a in ctx.attr.templated_args:
-                if a.startswith("--node_options="):
-                    templated_args.append(a)
-                else:
-                    params.append(a)
-
-            # Put the params into the params file
-            ctx.actions.write(
-                output = ctx.outputs.templated_args_file,
-                content = "\n".join([expand_location_into_runfiles(ctx, p) for p in params]),
-                is_executable = False,
-            )
-
-            # after the node_options args, pass the params file arg
-            templated_args.append(ctx.outputs.templated_args_file.short_path)
-
-            # also be sure to include the params file in the program inputs
-            node_tool_files += [ctx.outputs.templated_args_file]
-
-        substitutions = {
-            "TEMPLATED_args": " ".join([
-                expand_location_into_runfiles(ctx, a)
-                for a in templated_args
-            ]),
-            "TEMPLATED_env_vars": env_vars,
-            "TEMPLATED_expected_exit_code": str(expected_exit_code),
-            "TEMPLATED_node": node_tool,
-            "TEMPLATED_repository_args": _short_path_to_manifest_path(ctx, ctx.file._repository_args.short_path),
-            "TEMPLATED_script_path": script_path,
-        }
-        ctx.actions.expand_template(
-            template = ctx.file._launcher_template,
-            output = ctx.outputs.script,
-            substitutions = substitutions,
-            is_executable = True,
+        # Put the params into the params file
+        ctx.actions.write(
+            output = ctx.outputs.templated_args_file,
+            content = "\n".join([expand_location_into_runfiles(ctx, p) for p in params]),
+            is_executable = False,
         )
+
+        # after the node_options args, pass the params file arg
+        templated_args.append(ctx.outputs.templated_args_file.short_path)
+
+        # also be sure to include the params file in the program inputs
+        node_tool_files.append(ctx.outputs.templated_args_file)
+
+    substitutions = {
+        "TEMPLATED_args": " ".join([
+            expand_location_into_runfiles(ctx, a)
+            for a in templated_args
+        ]),
+        "TEMPLATED_env_vars": env_vars,
+        "TEMPLATED_expected_exit_code": str(expected_exit_code),
+        "TEMPLATED_node": node_tool_info.target_tool_path,
+        "TEMPLATED_repository_args": _to_manifest_path(ctx, ctx.file._repository_args),
+        "TEMPLATED_script_path": script_path,
+    }
+    ctx.actions.expand_template(
+        template = ctx.file._launcher_template,
+        output = ctx.outputs.script,
+        substitutions = substitutions,
+        is_executable = True,
+    )
 
     runfiles = depset(node_tool_files + [ctx.outputs.loader, ctx.file._repository_args], transitive = [sources, node_modules])
 
