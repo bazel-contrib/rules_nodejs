@@ -332,7 +332,7 @@ e2e_packages_setup_workspace()
 
 git_repository_under_test(
     name = "e2e_angular_bazel_example",
-    branch = "add-buildkite-filter-flags",
+    branch = "master",
     remote = "http://github.com/angular/angular-bazel-example.git",
 )
 
