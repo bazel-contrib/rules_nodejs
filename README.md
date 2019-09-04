@@ -42,16 +42,15 @@ Thanks to the following active users!
 
 Open-source repositories:
 
-- [Angular](https://github.com/angular/angular)
-- [Angular CLI](https://github.com/angular/angular-cli)
-- [Angular Components](https://github.com/angular/components)
+- Angular: [Angular monorepo](https://github.com/angular/angular), [CLI](https://github.com/angular/angular-cli), [Components](https://github.com/angular/components), [Universal](https://github.com/angular/universal)
+- Tensorflow: [tf.js](https://github.com/tensorflow/tfjs) and [tensorboard](https://github.com/tensorflow/tensorboard)
 - [Selenium](https://github.com/SeleniumHQ/selenium)
 - [NgRX](https://github.com/ngrx/platform)
 - [tsickle](https://github.com/angular/tsickle)
 - [incremental-dom](https://github.com/google/incremental-dom)
 - [dataform](https://github.com/dataform-co/dataform)
 - [Kubernetes test-infra](https://github.com/kubernetes/test-infra)
-- Tensorflow: [tf.js](https://github.com/tensorflow/tfjs) and [tensorboard](https://github.com/tensorflow/tensorboard)
+- [ts-protoc-gen](https://github.com/improbable-eng/ts-protoc-gen)
 
 Organizations:
 
