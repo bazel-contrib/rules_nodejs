@@ -4697,7 +4697,7 @@ node_module_library(
     ],
 )
 filegroup(
-  name = "test_files",
+  name = "golden_files",
   srcs = [
     "//:BUILD.bazel",
     "//:install_bazel_dependencies.bzl",
