@@ -3,8 +3,8 @@ const path = require('path');
 const unidiff = require('unidiff')
 
 function check(file, updateGolden = false) {
-  const actual = require.resolve(
-      path.posix.join('build_bazel_rules_nodejs/internal/e2e/rollup_fine_grained_deps', file));
+  const actual = require.resolve(path.posix.join(
+      'build_bazel_rules_nodejs/internal/rollup/test/rollup_fine_grained_deps', file));
   const actualContents = fs.readFileSync(actual, {encoding: 'utf-8'}).replace(/\r\n/g, '\n');
   const golden = path.posix.join(path.dirname(__filename), 'golden', file + '.golden');
   const goldenContents = fs.readFileSync(golden, {encoding: 'utf-8'}).replace(/\r\n/g, '\n');

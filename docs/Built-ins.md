@@ -295,7 +295,7 @@ See https://github.com/bazelbuild/rules_nodejs/issues/175
 
 For debugging, note that the `rollup.config.js` and `terser.config.json` files can be found in the bazel-bin folder next to the resulting bundle.
 
-An example usage can be found in https://github.com/bazelbuild/rules_nodejs/tree/master/internal/e2e/rollup
+An example usage can be found in https://github.com/bazelbuild/rules_nodejs/tree/master/internal/rollup/test/rollup
 
 
 

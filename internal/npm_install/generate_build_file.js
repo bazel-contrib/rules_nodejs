@@ -411,7 +411,7 @@ function listFiles(rootDir, subDir = '') {
               // which leads to Bazel targets that cross package boundaries.
               // See https://github.com/bazelbuild/rules_nodejs/issues/428 and
               // https://github.com/bazelbuild/rules_nodejs/issues/438.
-              // This is tested in internal/e2e/fine_grained_symlinks.
+              // This is tested in /e2e/fine_grained_symlinks.
               return files;
             }
             return isDirectory ? files.concat(listFiles(rootDir, relPath)) : files.concat(relPath);

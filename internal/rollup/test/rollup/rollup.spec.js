@@ -1,4 +1,4 @@
-check = require('../check.js');
+check = require('check');
 const path = __dirname;
 
 describe('bundling', () => {

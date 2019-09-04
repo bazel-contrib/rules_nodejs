@@ -6,4 +6,5 @@ js_library(
     name = "check_lib",
     srcs = ["check.js"],
     module_name = "check",
+    module_root = "check.js",
 )
