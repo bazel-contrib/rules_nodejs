@@ -76,3 +76,14 @@ jasmine_node_test(
     # Maybe Jasmine doesn't normalize the slashes in the config
     tags = ["fix-windows"],
 )
+
+jasmine_node_test(
+    name = "fail_test",
+    srcs = ["fail.spec.js"],
+    expected_exit_code = 3,
+)
+
+jasmine_node_test(
+    name = "stack_test",
+    srcs = ["stack.spec.js"],
+)

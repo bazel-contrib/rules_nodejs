@@ -1,5 +1,7 @@
 load("//:defs.bzl", "nodejs_binary", "nodejs_test")
 load("//internal/js_library:js_library.bzl", "js_library")
+load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
+load("//third_party/github.com/bazelbuild/bazel-skylib:rules/write_file.bzl", "write_file")
 load(":nodejs_toolchain_test.bzl", "nodejs_binary_test_suite")
 
 nodejs_binary_test_suite()
@@ -73,4 +75,73 @@ nodejs_test(
     configuration_env_vars = ["SOME_TEST_ENV"],
     data = glob(["*.spec.js"]),
     entry_point = ":define.spec.js",
+)
+
+nodejs_test(
+    name = "mode_resolution_test",
+    data = [
+        "//internal/node/test/lib1",
+        "@npm//node_resolve_index",
+        "@npm//node_resolve_index_2",
+        "@npm//node_resolve_index_3",
+        "@npm//node_resolve_index_4",
+        "@npm//node_resolve_main",
+        "@npm//node_resolve_main_2",
+        "@npm//node_resolve_nested_main",
+    ],
+    entry_point = ":module_resolution.spec.js",
+)
+
+nodejs_test(
+    name = "data_resolution_test",
+    data = [
+        "data/data.json",
+    ],
+    entry_point = ":data_resolution.spec.js",
+)
+
+# Also test resolution from built files.
+copy_file(
+    name = "module_resolution_lib",
+    src = "module_resolution.spec.js",
+    out = "module_resolution_built.spec.js",
+)
+
+copy_file(
+    name = "data_resolution_lib",
+    src = "data_resolution.spec.js",
+    out = "data_resolution_built.spec.js",
+)
+
+# This rule creates a file that alphabetically comes before any source file in this
+# package. This genfile can be then set up as runfile to verify that the "node_loader.js"
+# properly determines the local workspace path without incorrectly using the genfile as base
+# for the local workspace path. See: https://github.com/bazelbuild/rules_nodejs/issues/352
+write_file(
+    name = "genfile-runfile",
+    out = "#LEADING.txt",
+)
+
+nodejs_test(
+    name = "mode_resolution_built_test",
+    data = [
+        "//internal/node/test/lib1",
+        "@npm//node_resolve_index",
+        "@npm//node_resolve_index_2",
+        "@npm//node_resolve_index_3",
+        "@npm//node_resolve_index_4",
+        "@npm//node_resolve_main",
+        "@npm//node_resolve_main_2",
+        "@npm//node_resolve_nested_main",
+    ],
+    entry_point = ":module_resolution_built.spec.js",
+)
+
+nodejs_test(
+    name = "data_resolution_built_test",
+    data = [
+        "data/data.json",
+        ":genfile-runfile",
+    ],
+    entry_point = ":data_resolution_built.spec.js",
 )
