@@ -107,6 +107,7 @@ function loadRunfilesManifest(manifestPath) {
   const runfilesManifest = Object.create(null);
   const reverseRunfilesManifest = Object.create(null);
   const input = fs.readFileSync(manifestPath, {encoding: 'utf-8'});
+  const outputBase = manifestPath.substring(0, manifestPath.indexOf('/execroot/'));
 
   // Absolute path that refers to the local workspace path. We need to determine the absolute
   // path to the local workspace because it allows us to support absolute path resolving
@@ -124,7 +125,7 @@ function loadRunfilesManifest(manifestPath) {
     // runfile refers to a different workspace, or the current runfile resolves to a file
     // in the bazel-out directory (bin/genfiles directory).
     if (localWorkspacePath || !runfilesPath.startsWith(USER_WORKSPACE_NAME) ||
-        realPath.includes(BIN_DIR) || realPath.includes(GEN_DIR)) {
+        realPath.startsWith(outputBase)) {
       continue;
     }
 
@@ -149,6 +150,7 @@ function loadRunfilesManifest(manifestPath) {
     genRoot = `${execRoot}${GEN_DIR}/`;
   }
 
+  log_verbose(`using outputBase ${outputBase}`);
   log_verbose(`using binRoot ${binRoot}`);
   log_verbose(`using genRoot ${genRoot}`);
   log_verbose(`using localWorkspacePath ${localWorkspacePath}`);
