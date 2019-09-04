@@ -189,9 +189,9 @@ yarn_install(
         ".json",
         ".proto",
     ],
-    package_json = "//internal/e2e/fine_grained_deps:yarn/package.json",
+    package_json = "//:tools/fine_grained_deps_yarn/package.json",
     symlink_node_modules = False,
-    yarn_lock = "//internal/e2e/fine_grained_deps:yarn/yarn.lock",
+    yarn_lock = "//:tools/fine_grained_deps_yarn/yarn.lock",
 )
 
 npm_install(
@@ -203,26 +203,26 @@ npm_install(
         ".json",
         ".proto",
     ],
-    package_json = "//internal/e2e/fine_grained_deps:npm/package.json",
-    package_lock_json = "//internal/e2e/fine_grained_deps:npm/package-lock.json",
+    package_json = "//:tools/fine_grained_deps_npm/package.json",
+    package_lock_json = "//:tools/fine_grained_deps_npm/package-lock.json",
     symlink_node_modules = False,
 )
 
 yarn_install(
     name = "fine_grained_no_bin",
-    package_json = "//internal/e2e/fine_grained_no_bin:package.json",
+    package_json = "//:tools/fine_grained_no_bin/package.json",
     symlink_node_modules = False,
-    yarn_lock = "//internal/e2e/fine_grained_no_bin:yarn.lock",
+    yarn_lock = "//:tools/fine_grained_no_bin/yarn.lock",
 )
 
 yarn_install(
-    name = "npm_install_test",
+    name = "fine_grained_goldens",
     # exercise the dynamic_deps feature, even though it doesn't make sense for a real jasmine binary to depend on zone.js
     # This will just inject an extra data[] dependency into the jasmine_bin generated target.
     dynamic_deps = {"jasmine": "zone.js"},
     manual_build_file_contents = """
 filegroup(
-  name = "test_files",
+  name = "golden_files",
   srcs = [
     "//:BUILD.bazel",
     "//:install_bazel_dependencies.bzl",
@@ -243,9 +243,9 @@ filegroup(
     "//zone.js:BUILD.bazel",
   ],
 )""",
-    package_json = "//internal/npm_install/test:package.json",
+    package_json = "//:tools/fine_grained_goldens/package.json",
     symlink_node_modules = False,
-    yarn_lock = "//internal/npm_install/test:yarn.lock",
+    yarn_lock = "//:tools/fine_grained_goldens/yarn.lock",
 )
 
 #

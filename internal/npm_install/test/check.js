@@ -5,7 +5,7 @@ const unidiff = require('unidiff')
 function check(file, updateGolden = false) {
   // Strip comments from generated file for comparison to golden
   // to make comparison less brittle
-  const actual = require.resolve(path.posix.join('npm_install_test', file));
+  const actual = require.resolve(path.posix.join('fine_grained_goldens', file));
   const actualContents =
       fs.readFileSync(actual, {encoding: 'utf-8'})
           .replace(/\r\n/g, '\n')
