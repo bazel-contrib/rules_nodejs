@@ -18,7 +18,7 @@ rollup_bundle(
         ["*.js"],
         exclude = ["*.spec.js"],
     ),
-    additional_entry_points = ["build_bazel_rules_nodejs/internal/e2e/rollup_code_splitting/additional_entry.js"],
+    additional_entry_points = ["build_bazel_rules_nodejs/internal/rollup/test/rollup_code_splitting/additional_entry.js"],
     entry_point = ":main1.js",
     license_banner = ":license.txt",
 )
@@ -41,7 +41,7 @@ jasmine_node_test(
     # TODO(alexeagle): update the test logic for directory lookups vs runfiles manifest
     tags = ["fix-windows"],
     deps = [
-        "//internal/e2e:check_lib",
+        "//internal/rollup/test:check_lib",
         "@npm//unidiff",
     ],
 )

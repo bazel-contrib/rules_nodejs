@@ -33,7 +33,7 @@ echo_and_run bazel run //internal/node/test:has_deps_legacy
 echo_and_run bazel run //internal/node/test:has_deps
 echo_and_run bazel run //internal/node/test:has_deps_hybrid
 echo_and_run bazel run //internal/node/test:module_name_test
-echo_and_run bazel run //internal/e2e/fine_grained_no_bin:index
+echo_and_run bazel run //internal/npm_install/test:index
 echo_and_run bazel run @fine_grained_deps_yarn//typescript/bin:tsc
 
 # TODO: Once https://github.com/bazelbuild/bazel/pull/8090 lands targets
