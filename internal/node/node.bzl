@@ -169,6 +169,8 @@ def _nodejs_binary_impl(ctx):
         # attempts to do bazel run
         fail("The node toolchain was not properly configured so %s cannot be executed. Make sure that target_tool_path or target_tool is set." % ctx.attr.name)
 
+    node_tool_files.append(ctx.file._link_modules_script)
+
     if not ctx.outputs.templated_args_file:
         templated_args = ctx.attr.templated_args
     else:
@@ -201,6 +203,7 @@ def _nodejs_binary_impl(ctx):
         ]),
         "TEMPLATED_env_vars": env_vars,
         "TEMPLATED_expected_exit_code": str(expected_exit_code),
+        "TEMPLATED_link_modules_script": _to_manifest_path(ctx, ctx.file._link_modules_script),
         "TEMPLATED_node": node_tool_info.target_tool_path,
         "TEMPLATED_repository_args": _to_manifest_path(ctx, ctx.file._repository_args),
         "TEMPLATED_script_path": script_path,
@@ -423,6 +426,10 @@ The set of default  environment variables is:
     "_bash_runfile_helpers": attr.label(default = Label("@bazel_tools//tools/bash/runfiles")),
     "_launcher_template": attr.label(
         default = Label("//internal/node:node_launcher.sh"),
+        allow_single_file = True,
+    ),
+    "_link_modules_script": attr.label(
+        default = Label("//internal/linker:index.js"),
         allow_single_file = True,
     ),
     "_loader_template": attr.label(
