@@ -101,6 +101,9 @@ function resolveToModuleRoot(path) {
  * See https://github.com/bazelbuild/bazel/issues/3726
  */
 function loadRunfilesManifest(manifestPath) {
+  // Normalize slashes in manifestPath so they match slashes in manifest file
+  manifestPath = manifestPath.replace(/\\/g, '/');
+
   log_verbose(`using manifest ${manifestPath}`);
 
   // Create the manifest and reverse manifest maps.
