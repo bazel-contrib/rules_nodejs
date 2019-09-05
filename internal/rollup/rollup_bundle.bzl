@@ -20,10 +20,16 @@ You do not need to install them into your project.
 
 load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleSources", "collect_node_modules_aspect")
 load("//internal/common:collect_es6_sources.bzl", _collect_es2015_sources = "collect_es6_sources")
-load("//internal/common:expand_into_runfiles.bzl", "expand_path_into_runfiles")
 load("//internal/common:module_mappings.bzl", "get_module_mappings")
 
 _ROLLUP_MODULE_MAPPINGS_ATTR = "rollup_module_mappings"
+
+# Avoid using non-normalized paths (workspace/../other_workspace/path)
+def _to_manifest_path(ctx, file):
+    if file.short_path.startswith("../"):
+        return file.short_path[3:]
+    else:
+        return ctx.workspace_name + "/" + file.short_path
 
 def _rollup_module_mappings_aspect_impl(target, ctx):
     mappings = get_module_mappings(target.label, ctx.rule.attr)
@@ -86,10 +92,7 @@ def _compute_node_modules_root(ctx):
 
 # Expand entry_point into runfiles and strip the file extension
 def _entry_point_path(ctx):
-    return "/".join([
-        expand_path_into_runfiles(ctx, ctx.file.entry_point.dirname),
-        ctx.file.entry_point.basename,
-    ])[:-(len(ctx.file.entry_point.extension) + 1)]
+    return _to_manifest_path(ctx, ctx.file.entry_point)[:-(len(ctx.file.entry_point.extension) + 1)]
 
 def write_rollup_config(ctx, plugins = [], root_dir = None, filename = "_%s.rollup.conf.js", output_format = "iife", additional_entry_points = []):
     """Generate a rollup config file.

@@ -14,7 +14,6 @@
 "Run end-to-end tests with Protractor"
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
-load("@build_bazel_rules_nodejs//internal/common:expand_into_runfiles.bzl", "expand_path_into_runfiles")
 load("@build_bazel_rules_nodejs//internal/common:sources_aspect.bzl", "sources_aspect")
 load("@build_bazel_rules_nodejs//internal/common:windows_utils.bzl", "create_windows_native_launcher_script", "is_windows")
 load("@io_bazel_rules_webtesting//web:web.bzl", "web_test_suite")
@@ -24,11 +23,12 @@ _CONF_TMPL = "//:protractor.conf.js"
 _DEFUALT_PROTRACTOR = "@npm//@bazel/protractor"
 _DEFUALT_PROTRACTOR_ENTRY_POINT = "@npm//:node_modules/@bazel/protractor/protractor.js"
 
-def _short_path_to_manifest_path(ctx, short_path):
-    if short_path.startswith("../"):
-        return short_path[3:]
+# Avoid using non-normalized paths (workspace/../other_workspace/path)
+def _to_manifest_path(ctx, file):
+    if file.short_path.startswith("../"):
+        return file.short_path[3:]
     else:
-        return ctx.workspace_name + "/" + short_path
+        return ctx.workspace_name + "/" + file.short_path
 
 def _protractor_web_test_impl(ctx):
     configuration = ctx.actions.declare_file(
@@ -44,7 +44,7 @@ def _protractor_web_test_impl(ctx):
             files = depset(transitive = [files, d.files])
 
     specs = [
-        expand_path_into_runfiles(ctx, f.short_path)
+        _to_manifest_path(ctx, f)
         for f in files.to_list()
     ]
 
@@ -72,8 +72,8 @@ def _protractor_web_test_impl(ctx):
         output = configuration,
         template = ctx.file._conf_tmpl,
         substitutions = {
-            "TMPL_config": expand_path_into_runfiles(ctx, configuration_file.short_path) if configuration_file else "",
-            "TMPL_on_prepare": expand_path_into_runfiles(ctx, on_prepare_file.short_path) if on_prepare_file else "",
+            "TMPL_config": _to_manifest_path(ctx, configuration_file) if configuration_file else "",
+            "TMPL_on_prepare": _to_manifest_path(ctx, on_prepare_file) if on_prepare_file else "",
             "TMPL_server": ctx.executable.server.short_path if ctx.executable.server else "",
             "TMPL_specs": "\n".join(["      '%s'," % e for e in specs]),
             "TMPL_workspace": ctx.workspace_name,
@@ -112,8 +112,8 @@ echo "Protractor $PROTRACTOR_VERSION"
 # Run the protractor binary
 $PROTRACTOR $CONF
 """.format(
-            TMPL_protractor = _short_path_to_manifest_path(ctx, ctx.executable.protractor.short_path),
-            TMPL_conf = _short_path_to_manifest_path(ctx, configuration.short_path),
+            TMPL_protractor = _to_manifest_path(ctx, ctx.executable.protractor),
+            TMPL_conf = _to_manifest_path(ctx, configuration),
         ),
     )
 

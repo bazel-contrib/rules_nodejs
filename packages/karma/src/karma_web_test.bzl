@@ -13,7 +13,6 @@
 # limitations under the License.
 "Unit testing with Karma"
 
-load("@build_bazel_rules_nodejs//internal/common:expand_into_runfiles.bzl", "expand_path_into_runfiles")
 load("@build_bazel_rules_nodejs//internal/common:sources_aspect.bzl", "sources_aspect")
 load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "write_amd_names_shim")
 load("@io_bazel_rules_webtesting//web:web.bzl", "web_test_suite")
@@ -70,13 +69,12 @@ KARMA_WEB_TEST_ATTRS = dict(KARMA_GENERIC_WEB_TEST_ATTRS, **{
     ),
 })
 
-# Helper function to convert a short path to a path that is
-# found in the MANIFEST file.
-def _short_path_to_manifest_path(ctx, short_path):
-    if short_path.startswith("../"):
-        return short_path[3:]
+# Avoid using non-normalized paths (workspace/../other_workspace/path)
+def _to_manifest_path(ctx, file):
+    if file.short_path.startswith("../"):
+        return file.short_path[3:]
     else:
-        return ctx.workspace_name + "/" + short_path
+        return ctx.workspace_name + "/" + file.short_path
 
 # Write the AMD names shim bootstrap file
 def _write_amd_names_shim(ctx):
@@ -108,7 +106,7 @@ def _write_karma_config(ctx, files, amd_names_shim):
     # karma-jasmine/lib/adapter.js
     # This is desired so that the bootstrap entries can patch jasmine, as zone.js does.
     bootstrap_entries = [
-        expand_path_into_runfiles(ctx, f.short_path)
+        _to_manifest_path(ctx, f)
         for f in ctx.files.bootstrap
     ]
 
@@ -138,17 +136,17 @@ def _write_karma_config(ctx, files, amd_names_shim):
             # can be loaded by require.js
             fail("labels in runtime_deps must be created by ts_library")
         for src in d.typescript.es5_sources.to_list():
-            runtime_files.append(expand_path_into_runfiles(ctx, src.short_path))
+            runtime_files.append(_to_manifest_path(ctx, src))
 
     # Finally we load the user's srcs and deps
     user_entries = [
-        expand_path_into_runfiles(ctx, f.short_path)
+        _to_manifest_path(ctx, f)
         for f in files.to_list()
     ]
 
     # Expand static_files paths to runfiles for config
     static_files = [
-        expand_path_into_runfiles(ctx, f.short_path)
+        _to_manifest_path(ctx, f)
         for f in ctx.files.static_files
     ]
 
@@ -166,7 +164,7 @@ def _write_karma_config(ctx, files, amd_names_shim):
         template = ctx.file._conf_tmpl,
         substitutions = {
             "TMPL_bootstrap_files": "\n      ".join(["'%s'," % e for e in bootstrap_entries]),
-            "TMPL_config_file": expand_path_into_runfiles(ctx, config_file.short_path) if config_file else "",
+            "TMPL_config_file": _to_manifest_path(ctx, config_file) if config_file else "",
             "TMPL_env_vars": env_vars,
             "TMPL_runfiles_path": "/".join([".."] * config_segments),
             "TMPL_runtime_files": "\n    ".join(["'%s'," % e for e in runtime_files]),
@@ -246,8 +244,8 @@ fi
 $KARMA ${{ARGV[@]}}
 """.format(
             TMPL_workspace = ctx.workspace_name,
-            TMPL_karma = _short_path_to_manifest_path(ctx, ctx.executable.karma.short_path),
-            TMPL_conf = _short_path_to_manifest_path(ctx, configuration.short_path),
+            TMPL_karma = _to_manifest_path(ctx, ctx.executable.karma),
+            TMPL_conf = _to_manifest_path(ctx, configuration),
         ),
     )
 

@@ -21,13 +21,12 @@ load("//internal/common:windows_utils.bzl", "BATCH_RLOCATION_FUNCTION", "is_wind
 
 BAZEL_BINARY = "@build_bazel_bazel_%s//:bazel_binary" % BAZEL_VERSION.replace(".", "_")
 
-# Helper function to convert a file to a path in the MANIFEST file
-def _file_to_manifest_path(ctx, f):
-    p = f.short_path
-    if p.startswith("../"):
-        return p[3:]
+# Avoid using non-normalized paths (workspace/../other_workspace/path)
+def _to_manifest_path(ctx, file):
+    if file.short_path.startswith("../"):
+        return file.short_path[3:]
     else:
-        return ctx.workspace_name + "/" + p
+        return ctx.workspace_name + "/" + file.short_path
 
 def _bazel_integration_test(ctx):
     # Serialize configuration file for test runner
@@ -57,10 +56,10 @@ module.exports = {{
             TMPL_workspace_under_test = workspace_under_test,
             TMPL_bazel_binary_workspace = ctx.attr.bazel_binary.label.workspace_name,
             TMPL_bazel_commands = ", ".join(["'%s'" % s for s in ctx.attr.bazel_commands]),
-            TMPL_repositories = ", ".join(["'%s': '%s'" % (ctx.attr.repositories[f], _file_to_manifest_path(ctx, f.files.to_list()[0])) for f in ctx.attr.repositories]),
+            TMPL_repositories = ", ".join(["'%s': '%s'" % (ctx.attr.repositories[f], _to_manifest_path(ctx, f.files.to_list()[0])) for f in ctx.attr.repositories]),
             TMPL_bazelrc_append = ctx.attr.bazelrc_append,
-            TMPL_bazelrc_imports = ", ".join(["'%s': '%s'" % (ctx.attr.bazelrc_imports[f], _file_to_manifest_path(ctx, f.files.to_list()[0])) for f in ctx.attr.bazelrc_imports]),
-            TMPL_npm_packages = ", ".join(["'%s': '%s'" % (ctx.attr.npm_packages[f], _file_to_manifest_path(ctx, f.files.to_list()[0])) for f in ctx.attr.npm_packages]),
+            TMPL_bazelrc_imports = ", ".join(["'%s': '%s'" % (ctx.attr.bazelrc_imports[f], _to_manifest_path(ctx, f.files.to_list()[0])) for f in ctx.attr.bazelrc_imports]),
+            TMPL_npm_packages = ", ".join(["'%s': '%s'" % (ctx.attr.npm_packages[f], _to_manifest_path(ctx, f.files.to_list()[0])) for f in ctx.attr.npm_packages]),
             TMPL_check_npm_packages = ", ".join(["'%s'" % s for s in ctx.attr.check_npm_packages]),
             TMPL_package_json_replacements = ", ".join(["'%s': '%s'" % (f, ctx.attr.package_json_replacements[f]) for f in ctx.attr.package_json_replacements]),
         ),
@@ -75,8 +74,8 @@ call :rlocation {TMPL_test_runner} TEST_RUNNER
 call :rlocation {TMPL_args} ARGS
 %TEST_RUNNER% %ARGS% %*
         """.format(
-            TMPL_test_runner = _file_to_manifest_path(ctx, ctx.executable._test_runner),
-            TMPL_args = _file_to_manifest_path(ctx, config),
+            TMPL_test_runner = _to_manifest_path(ctx, ctx.executable._test_runner),
+            TMPL_args = _to_manifest_path(ctx, config),
             rlocation_function = BATCH_RLOCATION_FUNCTION,
         )
         executable = ctx.actions.declare_file(ctx.attr.name + ".bat")
@@ -101,8 +100,8 @@ fi
 
 $TEST_RUNNER $ARGS "$@"
         """.format(
-            TMPL_test_runner = _file_to_manifest_path(ctx, ctx.executable._test_runner),
-            TMPL_args = _file_to_manifest_path(ctx, config),
+            TMPL_test_runner = _to_manifest_path(ctx, ctx.executable._test_runner),
+            TMPL_args = _to_manifest_path(ctx, config),
         )
         executable = ctx.actions.declare_file(ctx.attr.name + ".sh")
 
