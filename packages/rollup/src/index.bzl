@@ -1,4 +1,4 @@
-# Copyright 2017 The Bazel Authors. All rights reserved.
+# Copyright 2019 The Bazel Authors. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,24 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Index file for packages.
-"""
+"Public API for terser rules"
 
-# packages that have nested workspaces in `src` folder
-NESTED_PACKAGES = [
-    "jasmine",
-    "karma",
-    "labs",
-    "less",
-    "protractor",
-    "rollup",
-    "stylus",
-    "terser",
-    "typescript",
-]
+load(":rollup_bundle.bzl", _rollup_bundle = "rollup_bundle")
 
-NPM_PACKAGES = [
-    "@bazel/create",
-    "@bazel/hide-bazel-files",
-    "@bazel/worker",
-] + ["@bazel/%s" % pkg for pkg in NESTED_PACKAGES]
+rollup_bundle = _rollup_bundle
