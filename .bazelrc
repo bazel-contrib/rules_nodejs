@@ -35,3 +35,20 @@ import %workspace%/third_party/github.com/bazelbuild/bazel-toolchains/bazelrc/ba
 # Remote instance, borrow the one used by Angular devs
 build:remote --remote_instance_name=projects/internal-200822/instances/default_instance
 build:remote --project_id=internal-200822
+
+# To reproduce Windows issues where there is no runfiles symlink there
+build:no-runfiles --noenable_runfiles
+# workaround https://github.com/bazelbuild/bazel/issues/7994
+build:no-runfiles --spawn_strategy=standalone
+# This config is probably only used while debugging
+build:no-runfiles --define=VERBOSE_LOG=1
+
+# Docker Sandbox Mode
+# Useful for troubleshooting Remote Build Execution problems
+# See https://docs.bazel.build/versions/master/remote-execution-sandbox.html#prerequisites
+build:docker-sandbox --spawn_strategy=docker --strategy=Javac=docker --genrule_strategy=docker
+build:docker-sandbox --define=EXECUTOR=remote
+build:docker-sandbox --experimental_docker_verbose
+build:docker-sandbox --experimental_enable_docker_sandbox
+# This is the same image used on BazelCI rbe_ubuntu1604 job
+build:docker-sandbox --experimental_docker_image=gcr.io/cloud-marketplace/google/rbe-ubuntu16-04

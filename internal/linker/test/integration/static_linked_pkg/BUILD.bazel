@@ -3,7 +3,7 @@ load("//internal/js_library:js_library.bzl", "js_library")
 package(default_visibility = ["//internal/linker/test:__subpackages__"])
 
 js_library(
-    name = "pkg_a",
+    name = "static_linked_pkg",
     srcs = ["index.js"],
-    module_name = "a",
+    module_name = "static_linked",
 )

@@ -1,4 +1,19 @@
-exports_files(["link_node_modules.js"])
+# BEGIN-INTERNAL
+load("@npm_bazel_typescript//:index.from_src.bzl", "checked_in_ts_library")
+
+# We can't bootstrap the ts_library rule using the linker itself,
+# because the implementation of ts_library depends on the linker so that would be a cycle.
+# So we compile it to JS and check in the result as index.js
+checked_in_ts_library(
+    name = "linker_lib",
+    srcs = ["link_node_modules.ts"],
+    checked_in_js = "index.js",
+    visibility = ["//internal/linker:__subpackages__"],
+    deps = ["@npm//@types/node"],
+)
+
+# END-INTERNAL
+exports_files(["index.js"])
 
 filegroup(
     name = "package_contents",
