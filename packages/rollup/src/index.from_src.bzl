@@ -1,4 +1,4 @@
-# Copyright 2017 The Bazel Authors. All rights reserved.
+# Copyright 2019 The Bazel Authors. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,24 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Index file for packages.
+""" Defaults for usage without @npm//@bazel/rollup	
 """
 
-# packages that have nested workspaces in `src` folder
-NESTED_PACKAGES = [
-    "jasmine",
-    "karma",
-    "labs",
-    "less",
-    "protractor",
-    "rollup",
-    "stylus",
-    "terser",
-    "typescript",
-]
+load(
+    ":index.bzl",
+    _rollup_bundle = "rollup_bundle",
+)
 
-NPM_PACKAGES = [
-    "@bazel/create",
-    "@bazel/hide-bazel-files",
-    "@bazel/worker",
-] + ["@bazel/%s" % pkg for pkg in NESTED_PACKAGES]
+def rollup_bundle(**kwargs):
+    _rollup_bundle(
+        # Override to point to the one installed by build_bazel_rules_nodejs in the root
+        rollup_bin = "@npm//rollup/bin:rollup",
+        **kwargs
+    )

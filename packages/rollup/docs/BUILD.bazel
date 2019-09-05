@@ -1,0 +1,24 @@
+load("//tools/stardoc:index.bzl", "stardoc")
+
+package(default_visibility = ["//visibility:public"])
+
+exports_files(["install.md"])
+
+stardoc(
+    name = "docs",
+    testonly = True,
+    out = "index.md",
+    input = "@npm_bazel_rollup//:index.bzl",
+    deps = [
+        "@npm_bazel_rollup//:bzl",
+        # We need to restate local workspace dependencies here in `//foo:bzl`
+        # format to work-around a bug in stardoc where .bzl files from
+        # `@build_bazel_rules_nodejs//foo:bzl` style deps are not found
+        # by the doc generator:
+        # ```
+        # Exception in thread "main" java.lang.IllegalStateException: File external/npm_bazel_karma/karma_node_test.bzl imported '@build_bazel_rules_nodejs//internal/common:devmode_js_sources.bzl', yet internal/common/devmode_js_sources.bzl was not found, even at roots [.].
+        # ```
+        "//internal/common:bzl",
+        "//internal/linker:bzl",
+    ],
+)
