@@ -1,6 +1,5 @@
 load("@build_bazel_rules_nodejs//internal/golden_file_test:golden_file_test.bzl", "golden_file_test")
 load("@npm_bazel_rollup//:index.from_src.bzl", "rollup_bundle")
-load("@npm_bazel_terser//:index.from_src.bzl", "terser_minified")
 
 [
     rollup_bundle(
@@ -10,6 +9,9 @@ load("@npm_bazel_terser//:index.from_src.bzl", "terser_minified")
         entry_point = "foo.js",
         format = format,
         globals = {"some_global_var": "runtime_name_of_global_var"},
+        # TODO(alexeagle): this tickles a bug in the linker
+        # when packages come from execroot but not runfiles
+        tags = ["fix-windows"],
         deps = [
             "//%s/fum:fumlib" % package_name(),
             "@npm//hello",
@@ -31,6 +33,9 @@ load("@npm_bazel_terser//:index.from_src.bzl", "terser_minified")
         srcs = ["//internal/rollup/test/rollup:bundle-%s_golden.js_" % format],
         outs = ["%s_golden.js_" % format],
         cmd = "sed s/bundle.%s.js.map/foo.js.map/ $< > $@" % format,
+        # TODO(alexeagle): this tickles a bug in the linker
+        # when packages come from execroot but not runfiles
+        tags = ["fix-windows"],
     )
     for format in [
         "cjs",
@@ -43,24 +48,14 @@ load("@npm_bazel_terser//:index.from_src.bzl", "terser_minified")
         name = "test_%s" % format,
         actual = "bundle.%s/foo.js" % format,
         golden = "%s_golden.js_" % format,
+        # TODO(alexeagle): this tickles a bug in the linker
+        # when packages come from execroot but not runfiles
+        tags = ["fix-windows"],
     )
     for format in [
         "cjs",
         "umd",
     ]
 ]
-
-terser_minified(
-    name = "bundle.debug.min",
-    src = "bundle.umd/foo.js",
-    debug = True,
-)
-
-golden_file_test(
-    name = "bundle-min-debug",
-    actual = "bundle.debug.min.js",
-    golden = "//internal/rollup/test/rollup:bundle-min-debug_golden.js_",
-    tags = ["manual"],  # not working yet, needs something to do transpilation to es5
-)
 
 # TODO(alexeagle): verify against remaining golden files
