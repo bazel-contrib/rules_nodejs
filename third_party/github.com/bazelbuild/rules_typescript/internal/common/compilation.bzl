@@ -194,13 +194,13 @@ def _outputs(ctx, label, srcs_files = []):
             if basename.endswith(ext):
                 basename = basename[:-len(ext)]
                 break
-        closure_js_files += [ctx.actions.declare_file(basename + ".closure.js")]
+        closure_js_files += [ctx.actions.declare_file(basename + ".mjs")]
 
         # Temporary until all imports of ngfactory/ngsummary files are removed
         # TODO(alexeagle): clean up after Ivy launch
         if getattr(ctx, "compile_angular_templates", False):
-            closure_js_files += [ctx.actions.declare_file(basename + ".ngfactory.closure.js")]
-            closure_js_files += [ctx.actions.declare_file(basename + ".ngsummary.closure.js")]
+            closure_js_files += [ctx.actions.declare_file(basename + ".ngfactory.mjs")]
+            closure_js_files += [ctx.actions.declare_file(basename + ".ngsummary.mjs")]
 
         if not is_dts:
             devmode_js_files += [ctx.actions.declare_file(basename + ".js")]
@@ -428,7 +428,7 @@ def compile_ts(
     # deps (do not re-export transitive types from the transitive closure).
     transitive_decls = depset(src_declarations + gen_declarations, transitive = [dep_declarations.transitive])
 
-    # both ts_library and ts_declarations generate .closure.js files:
+    # both ts_library and ts_declarations generate .mjs files:
     # - for libraries, this is the ES6/production code
     # - for declarations, these are generated shims
     es6_sources = depset(transpiled_closure_js + tsickle_externs)

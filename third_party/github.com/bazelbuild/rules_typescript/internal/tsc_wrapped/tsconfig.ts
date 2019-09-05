@@ -39,7 +39,7 @@ export interface BazelOptions {
 
   /**
    * If true, emit devmode output into filename.js.
-   * If false, emit prodmode output into filename.closure.js.
+   * If false, emit prodmode output into filename.mjs.
    */
   es5Mode: boolean;
 

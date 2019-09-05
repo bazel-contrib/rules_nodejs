@@ -259,12 +259,12 @@ describe('compiler host', () => {
     });
 
     describe('output files', () => {
-      it('writes to .closure.js in ES6 mode', () => {
+      it('writes to .mjs in ES6 mode', () => {
         createFakeGoogle3Host({
           es5: false,
         }).writeFile('a.js', 'some.code();', false, undefined, []);
         expect(Object.keys(writtenFiles)).toEqual([
-          '/root/google3/blaze-out/k8-fastbuild/bin/a.closure.js'
+          '/root/google3/blaze-out/k8-fastbuild/bin/a.mjs'
         ]);
       });
 
