@@ -250,27 +250,6 @@ jobs:
           command: bazel test --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,7.0,1.0 --test_arg=--test_tag_filters=-no-circleci,-manual //e2e:e2e_angular_bazel_example
           no_output_timeout: 20m
 
-  runnable_targets:
-    <<: *job_defaults
-    steps:
-      - *attach_workspace
-      - *init_environment
-      - *init_bazel
-      - *hide_node_and_yarn_local_binaries
-
-      # These targets should run
-      - run: bazel run //internal/node/test:no_deps
-      - run: bazel run //internal/node/test:has_deps_legacy
-      - run: bazel run //internal/node/test:has_deps
-      - run: bazel run //internal/node/test:has_deps_hybrid
-      - run: bazel run //internal/node/test:module_name_test
-      - run: bazel run //internal/npm_install/test:index
-      - run: bazel run @fine_grained_deps_yarn//typescript/bin:tsc
-      - run: bazel run @bazel_workspace_a//:bin
-      - run: bazel run @bazel_workspace_a//subdir:bin
-      - run: bazel run @bazel_workspace_b//:bin
-      - run: bazel run @bazel_workspace_b//subdir:bin
-
   test_legacy_runfiles:
     <<: *job_defaults
     steps:
@@ -305,8 +284,5 @@ workflows:
           requires:
           - setup
       - test_e2e_angular_bazel_example:
-          requires:
-          - setup
-      - runnable_targets:
           requires:
           - setup
