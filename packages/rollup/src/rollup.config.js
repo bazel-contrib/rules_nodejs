@@ -2,7 +2,6 @@
 
 module.exports = {
   output: {
-    name: 'bundle',
   },
   plugins: [],
 };
