@@ -1,0 +1,28 @@
+load("@build_bazel_rules_nodejs//internal/golden_file_test:golden_file_test.bzl", "golden_file_test")
+load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
+
+rollup_bundle(
+    name = "bundle",
+    srcs = ["msg.js"],
+    entry_point = "input.js",
+)
+
+golden_file_test(
+    name = "test",
+    actual = "bundle/input.js",
+    golden = "golden.js_",
+)
+
+# For testing from the root workspace of this repository with bazel_integration_test.
+filegroup(
+    name = "all_files",
+    srcs = glob(
+        include = ["**/*"],
+        exclude = [
+            "bazel-out/**/*",
+            "dist/**/*",
+            "node_modules/**/*",
+        ],
+    ),
+    visibility = ["//visibility:public"],
+)

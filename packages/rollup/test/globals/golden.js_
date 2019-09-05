@@ -1,0 +1,9 @@
+(function (global, factory) {
+	typeof exports === 'object' && typeof module !== 'undefined' ? factory(require('some_global_var')) :
+	typeof define === 'function' && define.amd ? define(['some_global_var'], factory) :
+	(global = global || self, factory(global.runtime_name_of_global_var));
+}(this, function (some_global_var) { 'use strict';
+
+	console.error(some_global_var.thing);
+
+}));

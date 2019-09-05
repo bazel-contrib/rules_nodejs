@@ -1,6 +1,9 @@
 load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
 load("//:defs.bzl", "rollup_bundle")
 
+# Tests in the new implementation want to reuse the golden files
+exports_files(glob(["*.js_"]))
+
 rollup_bundle(
     name = "bundle",
     srcs = ["bar.js"],

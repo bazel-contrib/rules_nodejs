@@ -1,0 +1,15 @@
+load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
+load("@npm_bazel_rollup//:index.from_src.bzl", "rollup_bundle")
+
+rollup_bundle(
+    name = "bundle",
+    srcs = ["s.js"],
+    entry_point = "input.js",
+)
+
+jasmine_node_test(
+    name = "test",
+    srcs = ["spec.js"],
+    data = ["@npm//source-map"],
+    deps = [":bundle/input.js.map"],
+)

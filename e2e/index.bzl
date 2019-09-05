@@ -10,6 +10,7 @@ ALL_E2E = [
     "node_loader_no_preserve_symlinks",
     "node_loader_preserve_symlinks",
     "packages",
+    "rollup",
     "stylus",
     "symlinked_node_modules_npm",
     "symlinked_node_modules_yarn",

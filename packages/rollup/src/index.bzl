@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"Public API for terser rules"
+"Public API for rollup rules"
 
 load(":rollup_bundle.bzl", _rollup_bundle = "rollup_bundle")
 

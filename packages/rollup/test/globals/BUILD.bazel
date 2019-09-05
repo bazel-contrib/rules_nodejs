@@ -1,0 +1,16 @@
+load("@build_bazel_rules_nodejs//internal/golden_file_test:golden_file_test.bzl", "golden_file_test")
+load("@npm_bazel_rollup//:index.from_src.bzl", "rollup_bundle")
+
+rollup_bundle(
+    name = "bundle",
+    entry_point = "input.js",
+    format = "umd",
+    globals = {"some_global_var": "runtime_name_of_global_var"},
+    sourcemap = False,
+)
+
+golden_file_test(
+    name = "test",
+    actual = "bundle/input.js",
+    golden = "golden.js_",
+)
