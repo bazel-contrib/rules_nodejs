@@ -55,7 +55,7 @@ Open-source repositories:
 Organizations:
 
 - [Evertz](https://www.evertz.com)
-- [LucidChart](https://www.lucidchart.com)
+- [Lucidchart](https://www.lucidchart.com)
 - [Webdox](https://www.webdox.cl)
 
 Not on this list? [Send a PR](https://github.com/bazelbuild/rules_nodejs/edit/master/README.md) to add your repo or organization!
