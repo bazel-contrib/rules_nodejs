@@ -117,6 +117,7 @@ TEMPLATED_env_vars
 readonly node=$(rlocation "TEMPLATED_node")
 readonly repository_args=$(rlocation "TEMPLATED_repository_args")
 readonly script=$(rlocation "TEMPLATED_script_path")
+readonly link_modules_script=$(rlocation "TEMPLATED_link_modules_script")
 
 source $repository_args
 
@@ -125,10 +126,16 @@ NODE_OPTIONS=()
 ALL_ARGS=(TEMPLATED_args $NODE_REPOSITORY_ARGS "$@")
 for ARG in "${ALL_ARGS[@]}"; do
   case "$ARG" in
+    --bazel_node_modules_manifest=*) MODULES_MANIFEST="${ARG#--bazel_node_modules_manifest=}" ;;
     --node_options=*) NODE_OPTIONS+=( "${ARG#--node_options=}" ) ;;
     *) ARGS+=( "$ARG" )
   esac
 done
+
+# Link the first-party modules into node_modules directory before running the actual program
+if [[ -n "$MODULES_MANIFEST" ]]; then
+  "${node}" "${link_modules_script}" "${MODULES_MANIFEST}"
+fi
 
 # The EXPECTED_EXIT_CODE lets us write bazel tests which assert that
 # a binary fails to run. Otherwise any failure would make such a test

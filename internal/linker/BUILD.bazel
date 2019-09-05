@@ -1,4 +1,5 @@
 # BEGIN-INTERNAL
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@npm_bazel_typescript//:index.from_src.bzl", "checked_in_ts_library")
 
 # We can't bootstrap the ts_library rule using the linker itself,
@@ -10,6 +11,12 @@ checked_in_ts_library(
     checked_in_js = "index.js",
     visibility = ["//internal/linker:__subpackages__"],
     deps = ["@npm//@types/node"],
+)
+
+bzl_library(
+    name = "bzl",
+    srcs = glob(["*.bzl"]),
+    visibility = ["//visibility:public"],
 )
 
 # END-INTERNAL
