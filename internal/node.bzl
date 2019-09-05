@@ -22,10 +22,8 @@ NOTE: This file is DEPRECATED and will be removed in a future release.
 load(
     "//internal/common:expand_into_runfiles.bzl",
     _expand_location_into_runfiles = "expand_location_into_runfiles",
-    _expand_path_into_runfiles = "expand_path_into_runfiles",
 )
 load("//internal/common:sources_aspect.bzl", _sources_aspect = "sources_aspect")
 
 sources_aspect = _sources_aspect
 expand_location_into_runfiles = _expand_location_into_runfiles
-expand_path_into_runfiles = _expand_path_into_runfiles

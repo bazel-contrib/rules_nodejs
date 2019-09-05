@@ -60,13 +60,12 @@ def is_windows(ctx):
     # https://github.com/bazelbuild/bazel/issues/9209 is resolved.
     return ctx.configuration.host_path_separator == ";"
 
-# Helper function to convert a file to a path in the MANIFEST file
-def _file_to_manifest_path(ctx, f):
-    p = f.short_path
-    if p.startswith("../"):
-        return p[3:]
+# Avoid using non-normalized paths (workspace/../other_workspace/path)
+def _to_manifest_path(ctx, file):
+    if file.short_path.startswith("../"):
+        return file.short_path[3:]
     else:
-        return ctx.workspace_name + "/" + p
+        return ctx.workspace_name + "/" + file.short_path
 
 def create_windows_native_launcher_script(ctx, shell_script):
     """
@@ -87,7 +86,7 @@ call :rlocation "{sh_script}" run_script
 {bash_bin} -c "!run_script!"
 """.format(
             bash_bin = ctx.toolchains["@bazel_tools//tools/sh:toolchain_type"].path,
-            sh_script = _file_to_manifest_path(ctx, shell_script),
+            sh_script = _to_manifest_path(ctx, shell_script),
             rlocation_function = BATCH_RLOCATION_FUNCTION,
         ),
         is_executable = True,

@@ -31,6 +31,8 @@ def expand_location_into_runfiles(ctx, path):
         return path
     return expand_path_into_runfiles(ctx, path)
 
+# TODO(gregmagolan): rename to _expand_path_into_runfiles after angular/angular protractor rule
+#                    is removed and no longer references this function
 def expand_path_into_runfiles(ctx, path):
     """Expand paths into runfiles.
 
@@ -49,11 +51,11 @@ def expand_path_into_runfiles(ctx, path):
     targets = ctx.attr.data if hasattr(ctx.attr, "data") else []
     expanded = ctx.expand_location(path, targets)
 
-    expansion = [resolve_expanded_path(ctx, exp) for exp in expanded.strip().split(" ")]
+    expansion = [_resolve_expanded_path(ctx, exp) for exp in expanded.strip().split(" ")]
 
     return " ".join(expansion)
 
-def resolve_expanded_path(ctx, expanded):
+def _resolve_expanded_path(ctx, expanded):
     """Resolves an expanded path
 
     Given a file path that has been expaned with $(location), resolve the path to include the workspace name,

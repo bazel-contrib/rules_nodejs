@@ -25,13 +25,12 @@ load(
     "html_asset_inject",
 )
 
-# Helper function to convert a short path to a path that is
-# found in the MANIFEST file.
-def _short_path_to_manifest_path(ctx, short_path):
-    if short_path.startswith("../"):
-        return short_path[3:]
+# Avoid using non-normalized paths (workspace/../other_workspace/path)
+def _to_manifest_path(ctx, file):
+    if file.short_path.startswith("../"):
+        return file.short_path[3:]
     else:
-        return ctx.workspace_name + "/" + short_path
+        return ctx.workspace_name + "/" + file.short_path
 
 def _ts_devserver(ctx):
     files = depset()
@@ -101,7 +100,7 @@ def _ts_devserver(ctx):
             ctx.actions,
             ctx.executable._injector,
             additional_root_paths(ctx),
-            [_short_path_to_manifest_path(ctx, f.short_path) for f in ctx.files.static_files] + [bundle_script],
+            [_to_manifest_path(ctx, f) for f in ctx.files.static_files] + [bundle_script],
             injected_index,
         )
         devserver_runfiles += [injected_index]
@@ -113,11 +112,11 @@ def _ts_devserver(ctx):
         output = ctx.outputs.script,
         substitutions = {
             "TEMPLATED_entry_module": ctx.attr.entry_module,
-            "TEMPLATED_main": _short_path_to_manifest_path(ctx, ctx.executable.devserver.short_path),
-            "TEMPLATED_manifest": _short_path_to_manifest_path(ctx, ctx.outputs.manifest.short_path),
+            "TEMPLATED_main": _to_manifest_path(ctx, ctx.executable.devserver),
+            "TEMPLATED_manifest": _to_manifest_path(ctx, ctx.outputs.manifest),
             "TEMPLATED_packages": ",".join(packages.to_list()),
             "TEMPLATED_port": str(ctx.attr.port),
-            "TEMPLATED_scripts_manifest": _short_path_to_manifest_path(ctx, ctx.outputs.scripts_manifest.short_path),
+            "TEMPLATED_scripts_manifest": _to_manifest_path(ctx, ctx.outputs.scripts_manifest),
             "TEMPLATED_serving_path": ctx.attr.serving_path if ctx.attr.serving_path else "",
             "TEMPLATED_workspace": workspace_name,
         },

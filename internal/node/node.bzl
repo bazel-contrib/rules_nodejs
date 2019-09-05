@@ -21,7 +21,7 @@ a `module_name` attribute can be `require`d by that name.
 """
 
 load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleSources", "collect_node_modules_aspect")
-load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles", "expand_path_into_runfiles")
+load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
 load("//internal/common:module_mappings.bzl", "module_mappings_runtime_aspect")
 load("//internal/common:sources_aspect.bzl", "sources_aspect")
 load("//internal/common:windows_utils.bzl", "create_windows_native_launcher_script", "is_windows")
@@ -93,7 +93,7 @@ def _write_loader_script(ctx):
     if len(ctx.attr.entry_point.files.to_list()) != 1:
         fail("labels in entry_point must contain exactly one file")
 
-    entry_point_path = expand_path_into_runfiles(ctx, ctx.file.entry_point.short_path)
+    entry_point_path = _to_manifest_path(ctx, ctx.file.entry_point)
 
     # If the entry point specified is a typescript file then set the entry
     # point to the corresponding .js file
@@ -119,7 +119,7 @@ def _write_loader_script(ctx):
         is_executable = True,
     )
 
-# Avoid writing non-normalized paths (workspace/../other_workspace/path)
+# Avoid using non-normalized paths (workspace/../other_workspace/path)
 def _to_manifest_path(ctx, file):
     if file.short_path.startswith("../"):
         return file.short_path[3:]
