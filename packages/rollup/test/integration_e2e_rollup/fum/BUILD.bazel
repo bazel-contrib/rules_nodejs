@@ -1,0 +1,12 @@
+load("//internal/js_library:js_library.bzl", "js_library")
+
+package(default_visibility = ["//packages/rollup:__subpackages__"])
+
+js_library(
+    name = "fumlib",
+    srcs = ["index.js"],
+    module_name = "fumlib",
+    # Don't allow deep imports under here,
+    # and give it the AMD name "fumlib", not "fumlib/index"
+    module_root = "index.d.ts",
+)

@@ -1,0 +1,12 @@
+{
+    "name": "e2e-rollup",
+    "private": true,
+    "devDependencies": {
+        "@bazel/rollup": "latest",
+        "rollup": "1.20.3",
+        "unidiff": "1.0.1"
+    },
+    "scripts": {
+      "test": "bazel test ..."
+    }
+}

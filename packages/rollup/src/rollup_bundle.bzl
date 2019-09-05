@@ -8,7 +8,8 @@ _ROLLUP_ATTRS = {
 
 The file passed to entry_point is automatically added.
 """,
-        allow_files = [".js", ".json"],
+        # Don't try to constrain the filenames, could be json, svg, whatever
+        allow_files = True,
     ),
     "config_file": attr.label(
         doc = """A rollup.config.js file
