@@ -1,3 +1,33 @@
+# [0.37.0](https://github.com/alexeagle/rules_nodejs/compare/0.36.2...0.37.0) (2019-09-06)
+
+
+### Bug Fixes
+
+* **builtin:** --nolegacy_external_runfiles on build ([38814aa](https://github.com/alexeagle/rules_nodejs/commit/38814aa))
+* **builtin:** fix localWorkspacePath logic ([0a7fb01](https://github.com/alexeagle/rules_nodejs/commit/0a7fb01)), closes [#1087](https://github.com/alexeagle/rules_nodejs/issues/1087)
+* **npm_install:** dynamic_deps attribute not working for scoped packages ([bf68577](https://github.com/alexeagle/rules_nodejs/commit/bf68577))
+* node executables not running on windows if bash toolchain path ([#1104](https://github.com/alexeagle/rules_nodejs/issues/1104)) ([c82b43d](https://github.com/alexeagle/rules_nodejs/commit/c82b43d))
+* node_loader windows fix for RUNFILES_MANIFEST_FILE slashes ([d3886ce](https://github.com/alexeagle/rules_nodejs/commit/d3886ce))
+
+
+### chore
+
+* remove tsc_wrapped_deps compatibility ([#1100](https://github.com/alexeagle/rules_nodejs/issues/1100)) ([5e98bda](https://github.com/alexeagle/rules_nodejs/commit/5e98bda)), closes [#1086](https://github.com/alexeagle/rules_nodejs/issues/1086)
+
+
+### Features
+
+* add default DEBUG and VERBOSE_LOGS configuration_env_vars to nodejs_binary ([#1080](https://github.com/alexeagle/rules_nodejs/issues/1080)) ([df37fca](https://github.com/alexeagle/rules_nodejs/commit/df37fca))
+* **builtin:** add Kotlin example ([0912014](https://github.com/alexeagle/rules_nodejs/commit/0912014))
+* **builtin:** introduce a linker ([62037c9](https://github.com/alexeagle/rules_nodejs/commit/62037c9))
+
+
+### BREAKING CHANGES
+
+* A compatibility layer was removed. See discussion in https://github.com/bazelbuild/rules_nodejs/issues/1086
+
+
+
 ## [0.36.2](https://github.com/alexeagle/rules_nodejs/compare/0.36.1...0.36.2) (2019-08-30)
 
 
