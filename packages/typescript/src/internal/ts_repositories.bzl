@@ -29,19 +29,6 @@ def ts_setup_workspace():
     # 0.16.8: ng_package fix for packaging binary files
     check_rules_nodejs_version("0.16.8")
 
-    # Included here for backward compatability for downstream repositories
-    # that use @build_bazel_rules_typescript_tsc_wrapped_deps such as rxjs.
-    # @build_bazel_rules_typescript_tsc_wrapped_deps is not used locally.
-    yarn_install(
-        name = "build_bazel_rules_typescript_tsc_wrapped_deps",
-        package_json = "@npm_bazel_typescript//internal:tsc_wrapped/package.json",
-        yarn_lock = "@npm_bazel_typescript//internal:tsc_wrapped/yarn.lock",
-        # Do not symlink node_modules as when used in downstream repos we should not create
-        # node_modules folders in the @npm_bazel_typescript external repository. This is
-        # not supported by managed_directories.
-        symlink_node_modules = False,
-    )
-
     yarn_install(
         name = "build_bazel_rules_typescript_devserver_deps",
         package_json = "@npm_bazel_typescript//internal/devserver:package.json",
