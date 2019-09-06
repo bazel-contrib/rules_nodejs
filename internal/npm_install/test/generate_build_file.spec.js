@@ -80,20 +80,32 @@ describe('build file generator', () => {
 
   describe('dynamic dependencies', () => {
     it('should include requested dynamic dependencies in nodejs_binary data', () => {
-      const pkgs = [{_name: 'foo', bin: 'foobin', _dir: 'some_dir'}, {_name: 'bar', _dir: 'bar'}];
-      addDynamicDependencies(pkgs, {'foo': 'bar'});
+      const pkgs = [
+        {_name: 'foo', bin: 'foobin', _dir: 'some_dir', _moduleName: 'foo'},
+        {_name: 'bar', _dir: 'bar', _moduleName: 'bar'},
+        {_name: 'typescript', bin: 'tsc_wrapped', _dir: 'a', _moduleName: '@bazel/typescript'},
+        {_name: 'tsickle', _dir: 'b', _moduleName: 'tsickle'},
+      ];
+      addDynamicDependencies(pkgs, {'foo': 'bar', '@bazel/typescript': 'tsickle'});
       expect(pkgs[0]._dynamicDependencies).toEqual(['//bar:bar']);
+      expect(pkgs[2]._dynamicDependencies).toEqual(['//b:tsickle']);
       expect(printPackageBin(pkgs[0])).toContain('data = ["//some_dir:foo", "//bar:bar"]');
+      expect(printPackageBin(pkgs[2])).toContain('data = ["//a:typescript", "//b:tsickle"]');
     });
     it('should support wildcard', () => {
-      const pkgs = [{_name: 'foo', bin: 'foobin', _dir: 'some_dir'}, {_name: 'bar', _dir: 'bar'}];
+      const pkgs = [
+        {_name: 'foo', bin: 'foobin', _dir: 'some_dir', _moduleName: 'foo'},
+        {_name: 'bar', _dir: 'bar', _moduleName: 'bar'}
+      ];
       addDynamicDependencies(pkgs, {'foo': 'b*'});
       expect(pkgs[0]._dynamicDependencies).toEqual(['//bar:bar']);
       expect(printPackageBin(pkgs[0])).toContain('data = ["//some_dir:foo", "//bar:bar"]');
     });
     it('should automatically include plugins in nodejs_binary data', () => {
-      const pkgs =
-          [{_name: 'foo', bin: 'foobin', _dir: 'some_dir'}, {_name: 'foo-plugin-bar', _dir: 'bar'}];
+      const pkgs = [
+        {_name: 'foo', bin: 'foobin', _dir: 'some_dir', _moduleName: 'foo'},
+        {_name: 'foo-plugin-bar', _dir: 'bar', _moduleName: 'foo-plugin-bar'}
+      ];
       addDynamicDependencies(pkgs, {});
       expect(pkgs[0]._dynamicDependencies).toEqual(['//bar:foo-plugin-bar']);
       expect(printPackageBin(pkgs[0]))

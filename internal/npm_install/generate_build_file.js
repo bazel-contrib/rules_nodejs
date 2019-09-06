@@ -444,9 +444,9 @@ function addDynamicDependencies(pkgs, dynamic_deps = DYNAMIC_DEPS) {
   pkgs.forEach(p => {
     function match(name) {
       // Automatically include dynamic dependency on plugins of the form pkg-plugin-foo
-      if (name.startsWith(`${p._name}-plugin-`)) return true;
+      if (name.startsWith(`${p._moduleName}-plugin-`)) return true;
 
-      const value = dynamic_deps[p._name];
+      const value = dynamic_deps[p._moduleName];
       if (name === value) return true;
 
       // Support wildcard match
@@ -456,8 +456,8 @@ function addDynamicDependencies(pkgs, dynamic_deps = DYNAMIC_DEPS) {
 
       return false;
     }
-    p._dynamicDependencies =
-        pkgs.filter(x => !!x._name && match(x._name)).map(dyn => `//${dyn._dir}:${dyn._name}`);
+    p._dynamicDependencies = pkgs.filter(x =>
+        !!x._moduleName && match(x._moduleName)).map(dyn => `//${dyn._dir}:${dyn._name}`);
   });
 }
 
@@ -485,12 +485,12 @@ function findPackages(p = 'node_modules') {
   packages.forEach(
       f => pkgs.push(parsePackage(f), ...findPackages(path.posix.join(f, 'node_modules'))));
 
-  addDynamicDependencies(pkgs);
-
   const scopes = listing.filter(f => f.startsWith('@'))
                      .map(f => path.posix.join(p, f))
                      .filter(f => isDirectory(f));
   scopes.forEach(f => pkgs.push(...findPackages(f)));
+
+  addDynamicDependencies(pkgs);
 
   return pkgs;
 }
@@ -531,6 +531,10 @@ function parsePackage(p) {
 
   // Stash the package directory name for future use
   pkg._name = pkg._dir.split('/').pop();
+
+  // Module name of the package. Unlike "_name" this represents the
+  // full package name (including scope name).
+  pkg._moduleName = pkg.name || `${pkg._dir}/${pkg._name}`;
 
   // Keep track of whether or not this is a nested package
   pkg._isNested = /\/node_modules\//.test(p);

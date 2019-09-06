@@ -17,13 +17,15 @@
 
 const protractorUtils = require('@bazel/protractor/protractor-utils');
 const protractor = require('protractor');
+const path = require('path');
 
 module.exports = function(config) {
   if (!global.userOnPrepareGotCalled) {
     throw new Error('Expecting user configuration onPrepare to have been called');
   }
-  const portFlag = /prodserver(\.exe)?$/.test(config.server) ? '-p' : '-port';
-  return protractorUtils.runServer(config.workspace, config.server, portFlag, [])
+  const isProdserver = path.basename(config.server, path.extname(config.server)) === 'prodserver';
+  return protractorUtils
+      .runServer(config.workspace, config.server, isProdserver ? '-p' : '-port', [])
       .then(serverSpec => {
         const serverUrl = `http://localhost:${serverSpec.port}`;
         protractor.browser.baseUrl = serverUrl;

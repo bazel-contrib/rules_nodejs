@@ -217,9 +217,14 @@ yarn_install(
 
 yarn_install(
     name = "fine_grained_goldens",
-    # exercise the dynamic_deps feature, even though it doesn't make sense for a real jasmine binary to depend on zone.js
-    # This will just inject an extra data[] dependency into the jasmine_bin generated target.
-    dynamic_deps = {"jasmine": "zone.js"},
+    # exercise the dynamic_deps feature, even though it doesn't make sense for the targets to
+    # depend on zone.js or Angular core. This will just inject an extra data[] dependency into
+    # the generated binary targets. Note that we also ensure that scoped packages can be properly
+    # modified.
+    dynamic_deps = {
+        "@gregmagolan/test-a": "@angular/core",
+        "jasmine": "zone.js",
+    },
     manual_build_file_contents = """
 filegroup(
   name = "golden_files",
@@ -318,6 +323,13 @@ k8s_defaults(
 #
 # Setup bazel_integration_test repositories
 #
+
+# Don't need to build kotlin in the root workspace.
+# See tools/mock_rules_kotlin/README.md
+local_repository(
+    name = "io_bazel_rules_kotlin",
+    path = "tools/mock_rules_kotlin",
+)
 
 load("//e2e:index.bzl", "ALL_E2E")
 

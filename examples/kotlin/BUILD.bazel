@@ -1,0 +1,74 @@
+# Add rules here to build your software
+# See https://docs.bazel.build/versions/master/build-ref.html#BUILD_files
+
+load("@build_bazel_rules_nodejs//:defs.bzl", "http_server", "rollup_bundle")
+load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_package")
+load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kt_js_import", "kt_js_library")
+load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
+
+# Grab a Maven dependency
+kt_js_import(
+    name = "kotlinx-html-js",
+    jars = ["@maven//:v1/http/dl.bintray.com/kotlin/kotlinx.html/org/jetbrains/kotlinx/kotlinx-html-js/0.6.12/kotlinx-html-js-0.6.12.jar"],
+    srcjar = "@maven//:v1/http/dl.bintray.com/kotlin/kotlinx.html/org/jetbrains/kotlinx/kotlinx-html-js/0.6.12/kotlinx-html-js-0.6.12-sources.jar",
+)
+
+# This will create hello.js
+kt_js_library(
+    name = "hello",
+    srcs = [":HelloWorld.kt"],
+    deps = [":kotlinx-html-js"],
+)
+
+rollup_bundle(
+    name = "bundle",
+    srcs = ["hello.js"],
+    entry_point = "bootstrap.js",
+    deps = [
+        "@npm//kotlin",
+        "@npm//kotlinx-html-js",
+    ],
+)
+
+web_package(
+    name = "package",
+    assets = [
+        # For differential loading, we supply both an ESModule entry point and an es5 entry point
+        # The injector will put two complimentary script tags in the index.html
+        ":bundle.min.js",
+        ":bundle.min.es2015.js",
+    ],
+    data = [":bundle"],
+    index_html = "index.html",
+)
+
+http_server(
+    name = "server",
+    data = [":package"],
+    templated_args = ["package"],
+)
+
+jasmine_node_test(
+    name = "test",
+    srcs = ["spec.js"],
+    data = [
+        ":bundle",
+        ":bundle.js",
+        "@npm//domino",
+    ],
+    templated_args = ["--node_options=--experimental-modules"],
+)
+
+# For testing from the root workspace of this repository with bazel_integration_test.
+filegroup(
+    name = "all_files",
+    srcs = glob(
+        include = ["**/*"],
+        exclude = [
+            "bazel-out/**/*",
+            "dist/**/*",
+            "node_modules/**/*",
+        ],
+    ),
+    visibility = ["//visibility:public"],
+)

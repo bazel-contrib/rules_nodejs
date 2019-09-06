@@ -143,22 +143,7 @@ function notResolved(importee, importer) {
   if (isBuiltinModule(importee)) {
     return null;
   }
-  if (isDefaultNodeModules) {
-    // This error is possibly due to a breaking change in 0.13.2 where
-    // the default node_modules attribute of rollup_bundle was changed
-    // from @//:node_modules to @build_bazel_rules_nodejs//:node_modules_none
-    // (which is an empty filegroup).
-    // See https://github.com/bazelbuild/rules_nodejs/wiki#migrating-to-rules_nodejs-013
-    throw new Error(
-        `Could not resolve import '${importee}' from '${importer}'` +
-        `\n\nWARNING: Due to a breaking change in rules_nodejs 0.13.2, target TMPL_target\n` +
-        `must now declare either an explicit node_modules attribute, or\n` +
-        `list explicit deps[] fine grained dependencies on npm labels\n` +
-        `if it has any node_modules dependencies.\n` +
-        `See https://github.com/bazelbuild/rules_nodejs/wiki#migrating-to-rules_nodejs-013\n`);
-  } else {
-    throw new Error(`Could not resolve import '${importee}' from '${importer}'`);
-  }
+  throw new Error(`Could not resolve import '${importee}' from '${importer}'`);
 }
 
 const inputs = [TMPL_inputs];
