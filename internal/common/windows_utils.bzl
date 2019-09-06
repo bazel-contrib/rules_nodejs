@@ -96,7 +96,7 @@ set RUNFILES_MANIFEST_ONLY=1
 call :rlocation "{sh_script}" run_script
 for %%a in ("{bash_bin}") do set "bash_bin_dir=%%~dpa"
 set PATH=%bash_bin_dir%;%PATH%
-{bash_bin} -c "!run_script! %*"
+"{bash_bin}" -c "!run_script! %*"
 """.format(
             bash_bin = ctx.toolchains["@bazel_tools//tools/sh:toolchain_type"].path,
             sh_script = _to_manifest_path(ctx, shell_script),
