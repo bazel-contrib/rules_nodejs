@@ -83,7 +83,7 @@ SETLOCAL ENABLEEXTENSIONS
 SETLOCAL ENABLEDELAYEDEXPANSION
 {rlocation_function}
 call :rlocation "{sh_script}" run_script
-{bash_bin} -c "!run_script!"
+"{bash_bin}" -c "!run_script!"
 """.format(
             bash_bin = ctx.toolchains["@bazel_tools//tools/sh:toolchain_type"].path,
             sh_script = _to_manifest_path(ctx, shell_script),
