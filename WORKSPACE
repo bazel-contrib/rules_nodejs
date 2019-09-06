@@ -30,13 +30,14 @@ load("//internal/common:check_bazel_version.bzl", "check_bazel_version")
 # 0.18.0: support for .bazelignore
 # 0.23.0: required fix for pkg_tar strip_prefix
 # 0.26.0: managed_directories feature added
+# 0.29.0: repository_ctx.patch added which is used by git_repository_under_test
 check_bazel_version(
     message = """
 You no longer need to install Bazel on your machine.
 rules_nodejs has a dependency on the @bazel/bazel package which supplies it.
 Try running `yarn bazel` instead.
 """,
-    minimum_bazel_version = "0.26.0",
+    minimum_bazel_version = "0.29.0",
 )
 
 #
@@ -62,7 +63,7 @@ rules_nodejs_dev_dependencies()
 # Setup rules_nodejs npm dependencies
 #
 
-load("//:defs.bzl", "npm_install", "yarn_install")
+load("//:defs.bzl", "BAZEL_VERSION", "npm_install", "yarn_install")
 
 yarn_install(
     name = "npm",
@@ -272,7 +273,7 @@ rbe_autoconfig(
 load("@build_bazel_integration_testing//tools:repositories.bzl", "bazel_binaries")
 
 # Depend on the Bazel binaries
-bazel_binaries(versions = ["0.28.1"])
+bazel_binaries(versions = [BAZEL_VERSION])
 
 #
 # Support creating Docker images for our node apps #
