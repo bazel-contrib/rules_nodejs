@@ -18,14 +18,14 @@ function check(file, updateGolden = false) {
           .replace(/[\n]+/g, '\n');
 
   // Load the golden file for comparison
-  const golden = path.posix.join(path.dirname(__filename), 'golden', file + '.golden');
+  const golden = require.resolve('./golden/' + file + '.golden');
 
   if (updateGolden) {
     // Write to golden file
     // TODO(kyliau): Consider calling mkdirp() here, otherwise write operation
     // would fail if directory does not already exist.
     fs.writeFileSync(golden, actualContents);
-    console.error(`Replaced ${path.join(process.cwd(), golden)}`);
+    console.error(`Replaced ${path.join(golden)}`);
   } else {
     const goldenContents = fs.readFileSync(golden, {encoding: 'utf-8'}).replace(/\r\n/g, '\n');
     // Check if actualContents matches golden file
