@@ -2,10 +2,9 @@
 # yarn lockfile v1
 
 
-"@angular/core@^7.2.11":
-  version "7.2.11"
-  resolved "https://registry.yarnpkg.com/@angular/core/-/core-7.2.11.tgz#c42164cdc1d4cf98973bae078384bb3845207f99"
-  integrity sha512-2FUgXbGn75D6HQESVVmnrjqP1l2YNwwIZISembzpr4WvTm0lxzq/9WsuPFJNWggwCerajyjYz+kDJT3RsonGZg==
+"@angular/core@angular/core-builds#9.0.0-next.5+b5eda603a":
+  version "9.0.0-next.5"
+  resolved "https://codeload.github.com/angular/core-builds/tar.gz/f3a485dfd5fd2b42d4fb1b8645dc2488f204743e"
   dependencies:
     tslib "^1.9.0"
 

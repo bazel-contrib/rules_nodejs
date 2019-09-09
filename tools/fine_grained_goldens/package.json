@@ -2,7 +2,7 @@
   "name": "test",
   "private": true,
   "devDependencies": {
-    "@angular/core": "^7.2.11",
+    "@angular/core": "angular/core-builds#9.0.0-next.5+b5eda603a",
     "@gregmagolan/test-a": "0.0.4",
     "@gregmagolan/test-b": "0.0.2",
     "ajv": "5.5.2",

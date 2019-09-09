@@ -812,6 +812,11 @@ function filterFiles(files, exts = []) {
  */
 function isNgApfPackage(pkg) {
   const set = new Set(pkg._files);
+  if (set.has('ANGULAR_PACKAGE')) {
+    // This file is used by the npm/yarn_install rule to detect APF. See
+    // https://github.com/bazelbuild/rules_nodejs/issues/927
+    return true;
+  }
   const metadataExt = /\.metadata\.json$/;
   return pkg._files.some((file) => {
     if (metadataExt.test(file)) {
