@@ -12,6 +12,11 @@ Under Bazel, we have exactly this monorepo feature. But, we want users to have a
 To make this seamless, we run a linker as a separate program inside the Bazel action, right before node.
 It does essentially the same job as Lerna: make sure there is a `$PWD/node_modules` tree and that all the semantics from Bazel (such as `module_name`/`module_root` attributes) are mapped to the node module resolution algorithm, so that the node runtime behaves the same way as if the packages had been installed from npm.
 
+Note that the behavior of the linker depends on whether the package to link was declared as:
+
+1. a runtime dependency of a binary run by Bazel, which we call "statically linked", and which is resolved from Bazel's Runfiles tree or manifest
+1. a dependency declared by a user of that binary, which we call "dynamically linked", and which is resolved from the execution root
+
 In the future the linker should also generate `package.json` files so that things like `main` and `typings` fields are present and reflect the Bazel semantics, so that we can entirely eliminate custom loading and pathmapping logic from binaries we execute.
 
 [lerna]: https://github.com/lerna/lerna

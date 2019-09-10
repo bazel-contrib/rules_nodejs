@@ -1,32 +1,46 @@
+load("@build_bazel_rules_nodejs//internal/golden_file_test:golden_file_test.bzl", "golden_file_test")
 load(":rule.bzl", "linked")
 
-linked(
-    name = "example",
-    deps = [
-        "//internal/linker/test/integration/pkg_a",
-        "@npm//semver",
-    ],
-)
-
 # Use the node binary supplied by the bazel toolchain
+# Normally the nodejs_binary rule would do this,
+# but we want to have a more minimal test fixture
 genrule(
     name = "replace_node_path",
-    srcs = [":test.sh"],
-    outs = ["test_with_node.sh"],
+    srcs = [":run_program.sh"],
+    outs = ["run_program_with_node.sh"],
     cmd = "sed s#NODE_PATH#$(NODE_PATH)# $< > $@",
     toolchains = ["@build_bazel_rules_nodejs//toolchains/node:toolchain"],
 )
 
-sh_test(
-    name = "test",
-    srcs = ["test_with_node.sh"],
+# Make our program executable and include the linker
+# The runfiles here are only the ones included with the program itself
+sh_binary(
+    name = "run_program",
+    srcs = ["run_program_with_node.sh"],
     data = [
-        ":example",
         ":program.js",
-        "//internal/linker:link_node_modules.js",
+        "//internal/linker:index.js",
+        "//internal/linker/test/integration/static_linked_pkg",
         "@bazel_tools//tools/bash/runfiles",
         "@build_bazel_rules_nodejs//toolchains/node:node_bin",
-        # TODO: we shouldn't need to repeat this here. There's a bug somewhere
+    ],
+)
+
+# How a users rule might want to run a node program
+linked(
+    name = "example",
+    out = "actual",
+    program = ":run_program",
+    deps = [
+        ":run_program",
+        "//internal/linker/test/integration/dynamic_linked_pkg",
         "@npm//semver",
     ],
+)
+
+golden_file_test(
+    # default rule in this package
+    name = "integration",
+    actual = "actual",
+    golden = "golden.txt",
 )

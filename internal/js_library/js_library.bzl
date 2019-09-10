@@ -48,7 +48,10 @@ def write_amd_names_shim(actions, amd_names_shim, targets):
 
 def _js_library(ctx):
     return [
-        DefaultInfo(files = depset(ctx.files.srcs)),
+        DefaultInfo(
+            files = depset(ctx.files.srcs),
+            runfiles = ctx.runfiles(files = ctx.files.srcs),
+        ),
         AmdNamesInfo(names = ctx.attr.amd_names),
     ]
 
