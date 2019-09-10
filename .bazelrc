@@ -16,6 +16,10 @@ build --incompatible_use_python_toolchains
 test --incompatible_windows_native_test_wrapper
 common --incompatible_string_join_requires_strings
 
+# Opt-out from this breaking change that won't come until Bazel 2.0
+# See https://github.com/bazelbuild/bazel/issues/9006
+build --noincompatible_load_python_rules_from_bzl
+
 # TODO(gregmagolan): remove the following flags once @io_bazel_rules_go is compatible with Bazel 0.27.0
 build --noincompatible_require_ctx_in_configure_features
 build --noincompatible_no_support_tools_in_action_inputs

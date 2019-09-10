@@ -38,9 +38,9 @@ def rules_nodejs_dev_dependencies():
     # Needed for @com_github_bazelbuild_buildtools which is used by ts_auto_deps
     http_archive(
         name = "io_bazel",
-        url = "https://github.com/bazelbuild/bazel/archive/0.28.1.tar.gz",
-        strip_prefix = "bazel-0.28.1",
-        sha256 = "a3d6a8ba4c6dce86d3b3387a23b04cbdf4c435a58120bd9842588d3845fe689c",
+        url = "https://github.com/bazelbuild/bazel/archive/0.29.1.tar.gz",
+        strip_prefix = "bazel-0.29.1",
+        sha256 = "577741574c24d97f1a1a6dba9d33bdaad6bea13290b3ee0dc5d72e4a248530bf",
     )
 
     # Needed for com_google_protobuf
