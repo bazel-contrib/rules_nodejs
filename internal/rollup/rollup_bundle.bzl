@@ -199,10 +199,6 @@ def _run_rollup(ctx, sources, config, output, map_output = None):
         args.add_all(["--output.dir", output.path])
         args.add_all(["--output.sourcemap"])
 
-    # We will produce errors as needed. Anything else is spammy: a well-behaved
-    # bazel rule prints nothing on success.
-    args.add("--silent")
-
     if ctx.attr.globals:
         args.add("--external")
         args.add_joined(ctx.attr.globals.keys(), join_with = ",")

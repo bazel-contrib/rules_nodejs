@@ -13,6 +13,6 @@ describe('react webapp', () => {
     // Make all Domino types available as types in the global env.
     Object.assign(global, domino.impl);
 
-import(path.join(__dirname, 'bundle.es2015')).then(() => {expect(global.document.body.textContent).toEqual('Hello from React!')});
+import(path.join(__dirname, 'bundle.es2015')).then(() => {expect(global.document.body.textContent.trim()).toEqual('Hello from React!')});
   });
 });

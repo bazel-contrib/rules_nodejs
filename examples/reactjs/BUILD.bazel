@@ -60,7 +60,6 @@ http_server(
     templated_args = ["package"],
 )
 
-# Just a dummy test so that we have a test target for //... on certain bazelci platforms with bazel_integration_test
 jasmine_node_test(
     name = "prodmode_test",
     srcs = ["prodmode.spec.js"],

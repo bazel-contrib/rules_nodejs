@@ -5,7 +5,6 @@ const nodeResolve = require('rollup-plugin-node-resolve');
 const sourcemaps = require('rollup-plugin-sourcemaps');
 const amd = require('rollup-plugin-amd');
 const commonjs = require('rollup-plugin-commonjs');
-const replace = require('rollup-plugin-replace');
 const rollupJson = require('rollup-plugin-json');
 const isBuiltinModule = require('is-builtin-module');
 const path = require('path');
@@ -151,7 +150,6 @@ const inputs = [TMPL_inputs];
 const multipleInputs = inputs.length > 1;
 
 const config = {
-  resolveBazel,
   onwarn: (warning) => {
     // Always fail on warnings, assuming we don't know which are harmless.
     // We can add exclusions here based on warning.code, if we discover some
@@ -159,7 +157,6 @@ const config = {
     throw new Error(warning.message);
   },
   plugins: [TMPL_additional_plugins].concat([
-    replace({'process.env.NODE_ENV': JSON.stringify('production')}),
     {
       name: 'resolveBazel',
       resolveId: resolveBazel,
@@ -175,7 +172,16 @@ const config = {
       // with the amd plugin.
       include: /\.ngfactory\.js$/i,
     }),
-    commonjs(),
+    commonjs({
+      // We bundle react itself into the bundle, so commonjs plugin wants to know that
+      // these symbols are exported.
+      namedExports: {
+        'bazel-out/k8-fastbuild/bin/bundle.es6/external/npm/node_modules/react/index.js':
+            ['createElement'],
+        'bazel-out/k8-fastbuild/bin/bundle.es6/external/npm/node_modules/react-dom/index.js':
+            ['render']
+      }
+    }),
     {
       name: 'notResolved',
       resolveId: notResolved,
