@@ -3,7 +3,7 @@ const sm = require('source-map');
 
 describe('rollup sourcemap handling', () => {
   it('should produce a sourcemap output', async () => {
-    const file = require.resolve(__dirname + '/bundle/input.js.map');
+    const file = require.resolve(__dirname + '/bundle.js.map');
     const rawSourceMap = JSON.parse(fs.readFileSync(file, 'utf-8'));
     await sm.SourceMapConsumer.with(rawSourceMap, null, consumer => {
       const pos = consumer.originalPositionFor({line: 1, column: 12});

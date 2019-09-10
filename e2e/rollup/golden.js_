@@ -3,4 +3,4 @@ function hello(place) {
 }
 
 console.log(hello('world'));
-//# sourceMappingURL=input.js.map
+//# sourceMappingURL=bundle.js.map

@@ -30,8 +30,11 @@ module.exports = {
 }
 ```
 
-The rollup_bundle rule always produces a directory output, because it isn't known until
-rollup runs whether the output has many chunks or is a single file.
+You must determine ahead of time whether Rollup needs to produce a directory output.
+This is the case if you have dynamic imports which cause code-splitting, or if you
+provide multiple entry points. Use the `output_dir` attribute to specify that you want a
+directory output.
+Rollup's CLI has the same behavior, forcing you to pick `--output.file` or `--output.dir`.
 
 To get multiple output formats, wrap the rule with a macro or list comprehension, e.g.
 
@@ -49,7 +52,7 @@ To get multiple output formats, wrap the rule with a macro or list comprehension
 ]
 ```
 
-This will produce one output directory per requested format.
+This will produce one output per requested format.
 """
 
 _ROLLUP_ATTRS = {
@@ -75,7 +78,7 @@ If not set, a default basic Rollup config is used.
     "entry_point": attr.label(
         doc = """The bundle's entry point (e.g. your main.js or app.js or index.js).
 
-This is just a shortcut for the `entry_points` attribute with a single output chunk named the same as the entry_point attribute.
+This is just a shortcut for the `entry_points` attribute with a single output chunk named the same as the rule.
 
 For example, these are equivalent:
 
@@ -90,31 +93,7 @@ rollup_bundle(
 rollup_bundle(
     name = "bundle",
     entry_points = {
-        "index.js": "index"
-    }
-)
-```
-
-If the entry_point attribute is instead a label that produces a single .js file,
-this will work, but the resulting output will be named after the label,
-so these are equivalent:
-
-```python
-# Outputs index.js
-produces_js(
-    name = "producer",
-)
-rollup_bundle(
-    name = "bundle",
-    entry_point = "producer",
-)
-```
-
-```python
-rollup_bundle(
-    name = "bundle",
-    entry_points = {
-        "index.js": "producer"
+        "index.js": "bundle"
     }
 )
 ```
@@ -154,9 +133,12 @@ Also, the keys from the map are passed to the [`--external` option](https://gith
 """,
     ),
     "output_dir": attr.string(
-        doc = """The directory in which all generated chunks are placed.
+        doc = """A directory in which generated chunks are placed.
 
-By default, the directory is named the same as the target name.
+Passed to the [`--output.dir` option](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#outputdir) in rollup.
+
+If the program produces multiple chunks, you must specify this attribute.
+Otherwise, the outputs are assumed to be a single file.
 """,
     ),
     "rollup_bin": attr.label(
@@ -178,10 +160,7 @@ Passed to the [`--sourcemap` option](https://github.com/rollup/rollup/blob/maste
     ),
 }
 
-def _chunks_dir_out(output_dir, name):
-    return output_dir if output_dir else name
-
-def _desugar_entry_point_names(entry_point, entry_points):
+def _desugar_entry_point_names(name, entry_point, entry_points):
     """Users can specify entry_point (sugar) or entry_points (long form).
 
     This function allows our code to treat it like they always used the long form.
@@ -194,15 +173,10 @@ def _desugar_entry_point_names(entry_point, entry_points):
     if not entry_point and not entry_points:
         fail("One of entry_point or entry_points must be specified")
     if entry_point:
-        name = entry_point.name
-        if name.endswith(".js"):
-            name = name[:-3]
-        if name.endswith(".mjs"):
-            name = name[:-4]
         return [name]
     return entry_points.values()
 
-def _desugar_entry_points(entry_point, entry_points):
+def _desugar_entry_points(name, entry_point, entry_points):
     """Like above, but used by the implementation function, where the types differ.
 
     It also performs validation:
@@ -211,7 +185,7 @@ def _desugar_entry_points(entry_point, entry_points):
 
     It converts from dict[target: string] to dict[file: string]
     """
-    names = _desugar_entry_point_names(entry_point.label if entry_point else None, entry_points)
+    names = _desugar_entry_point_names(name, entry_point.label if entry_point else None, entry_points)
 
     if entry_point:
         return {entry_point.files.to_list()[0]: names[0]}
@@ -229,8 +203,20 @@ def _desugar_entry_points(entry_point, entry_points):
 def _rollup_outs(sourcemap, name, entry_point, entry_points, output_dir):
     """Supply some labelled outputs in the common case of a single entry point"""
     result = {}
-    for out in _desugar_entry_point_names(entry_point, entry_points):
-        result[out] = "/".join([_chunks_dir_out(output_dir, name), out + ".js"])
+    entry_point_outs = _desugar_entry_point_names(name, entry_point, entry_points)
+    if output_dir:
+        # We can't declare a directory output here, because RBE will be confused, like
+        # com.google.devtools.build.lib.remote.ExecutionStatusException:
+        # INTERNAL: failed to upload outputs: failed to construct CAS files:
+        # failed to calculate file hash:
+        # read /b/f/w/bazel-out/k8-fastbuild/bin/packages/rollup/test/multiple_entry_points/chunks: is a directory
+        #result["chunks"] = output_dir
+        return {}
+    else:
+        if len(entry_point_outs) > 1:
+            fail("Multiple entry points require that output_dir be set")
+        out = entry_point_outs[0]
+        result[out] = out + ".js"
         if sourcemap:
             result[out + "_map"] = "%s.map" % result[out]
     return result
@@ -250,15 +236,19 @@ def _rollup_bundle(ctx):
     # List entry point argument first to save some argv space
     # Rollup doc says
     # When provided as the first options, it is equivalent to not prefix them with --input
-    for entry_point in _desugar_entry_points(ctx.attr.entry_point, ctx.attr.entry_points).items():
-        args.add_joined([entry_point[1], _no_ext(entry_point[0])], join_with = "=")
+    entry_points = _desugar_entry_points(ctx.label.name, ctx.attr.entry_point, ctx.attr.entry_points).items()
+
+    # If user requests an output_dir, then use output.dir rather than output.file
+    if ctx.attr.output_dir:
+        outputs.append(ctx.actions.declare_directory(ctx.attr.output_dir))
+        for entry_point in entry_points:
+            args.add_joined([entry_point[1], _no_ext(entry_point[0])], join_with = "=")
+        args.add_all(["--output.dir", outputs[0].path])
+    else:
+        args.add(_no_ext(entry_points[0][0]))
+        args.add_all(["--output.file", outputs[0].path])
 
     args.add_all(["--format", ctx.attr.format])
-
-    # Assume we always want to generate chunked output, so supply output.dir rather than output.file
-    out_dir = ctx.actions.declare_directory(_chunks_dir_out(ctx.attr.output_dir, ctx.label.name))
-    outputs.append(out_dir)
-    args.add_all(["--output.dir", out_dir.path])
 
     register_node_modules_linker(ctx, args, inputs)
 
@@ -292,12 +282,16 @@ def _rollup_bundle(ctx):
         args.add_joined(["%s:%s" % g for g in ctx.attr.globals.items()], join_with = ",")
 
     ctx.actions.run(
-        progress_message = "Bundling JavaScript %s [rollup]" % out_dir.short_path,
+        progress_message = "Bundling JavaScript %s [rollup]" % outputs[0].short_path,
         executable = ctx.executable.rollup_bin,
         inputs = inputs,
         outputs = outputs,
         arguments = [args],
     )
+
+    return [
+        DefaultInfo(files = depset(outputs)),
+    ]
 
 rollup_bundle = rule(
     doc = _DOC,

@@ -11,6 +11,6 @@ rollup_bundle(
 
 golden_file_test(
     name = "test",
-    actual = "bundle/input.js",
+    actual = "bundle.js",
     golden = "golden.js_",
 )

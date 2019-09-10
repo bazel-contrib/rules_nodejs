@@ -9,9 +9,6 @@ load("@npm_bazel_rollup//:index.from_src.bzl", "rollup_bundle")
         entry_point = "foo.js",
         format = format,
         globals = {"some_global_var": "runtime_name_of_global_var"},
-        # TODO(alexeagle): this tickles a bug in the linker
-        # when packages come from execroot but not runfiles
-        tags = ["fix-windows"],
         deps = [
             "//%s/fum:fumlib" % package_name(),
             "@npm//hello",
@@ -23,34 +20,11 @@ load("@npm_bazel_rollup//:index.from_src.bzl", "rollup_bundle")
     ]
 ]
 
-# Adapt the sourcemap line
-# In the prior golden test the output was called bundle.umd.js
-# so the sourcemap included that filename
-
-[
-    genrule(
-        name = "fix_%s_sourcemap" % format,
-        srcs = ["//internal/rollup/test/rollup:bundle-%s_golden.js_" % format],
-        outs = ["%s_golden.js_" % format],
-        cmd = "sed s/bundle.%s.js.map/foo.js.map/ $< > $@" % format,
-        # TODO(alexeagle): this tickles a bug in the linker
-        # when packages come from execroot but not runfiles
-        tags = ["fix-windows"],
-    )
-    for format in [
-        "cjs",
-        "umd",
-    ]
-]
-
 [
     golden_file_test(
         name = "test_%s" % format,
-        actual = "bundle.%s/foo.js" % format,
-        golden = "%s_golden.js_" % format,
-        # TODO(alexeagle): this tickles a bug in the linker
-        # when packages come from execroot but not runfiles
-        tags = ["fix-windows"],
+        actual = "bundle.%s.js" % format,
+        golden = "//internal/rollup/test/rollup:bundle-%s_golden.js_" % format,
     )
     for format in [
         "cjs",
