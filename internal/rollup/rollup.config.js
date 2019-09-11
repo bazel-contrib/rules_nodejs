@@ -150,7 +150,6 @@ const inputs = [TMPL_inputs];
 const multipleInputs = inputs.length > 1;
 
 const config = {
-  resolveBazel,
   onwarn: (warning) => {
     // Always fail on warnings, assuming we don't know which are harmless.
     // We can add exclusions here based on warning.code, if we discover some
