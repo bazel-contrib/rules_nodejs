@@ -13,6 +13,7 @@
 # limitations under the License.
 
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -37,4 +38,10 @@ filegroup(
         "terser_config.default.json",
         "terser_minified.bzl",
     ],
+)
+
+nodejs_binary(
+    name = "terser",
+    data = ["@npm//terser"],
+    entry_point = "index.js",
 )
