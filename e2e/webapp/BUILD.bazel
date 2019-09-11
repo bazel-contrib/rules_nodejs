@@ -1,16 +1,23 @@
-load("@build_bazel_rules_nodejs//internal/golden_file_test:golden_file_test.bzl", "golden_file_test")
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_test")
 load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
+load("@npm_bazel_terser//:index.bzl", "terser_minified")
 
 rollup_bundle(
-    name = "bundle",
-    srcs = ["msg.js"],
-    entry_point = "input.js",
+    name = "app",
+    srcs = ["strings.js"],
+    entry_point = "app.js",
+    output_dir = "bundle",
 )
 
-golden_file_test(
+terser_minified(
+    name = "out.min",
+    src_dir = "app",
+)
+
+nodejs_test(
     name = "test",
-    actual = "bundle.js",
-    golden = "golden.js_",
+    data = ["out.min"],
+    entry_point = ":test.js",
 )
 
 # For testing from the root workspace of this repository with bazel_integration_test.

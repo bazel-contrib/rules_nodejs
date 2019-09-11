@@ -1,6 +1,0 @@
-function hello(place) {
-  return `Hello, ${place}`;
-}
-
-console.log(hello('world'));
-//# sourceMappingURL=bundle.js.map
