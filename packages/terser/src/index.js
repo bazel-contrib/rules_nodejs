@@ -55,11 +55,8 @@ function terserDirectory(input) {
       //        we need to limit the concurrency with something like the p-limit package.
       // TODO: under Node 12 it should use the worker threads API to saturate all local cores
       child_process.fork(
-          // __dirname will be the path to npm_bazel_terser (Bazel's name for our src/ directory)
-          // and our node_modules are installed in the ../npm directory since they're external
           // Note that the fork API doesn't do any module resolution.
-          path.join(__dirname, '../npm/node_modules/terser/bin/uglifyjs'),
-          [inputFile, '--output', outputFile, ...residual]);
+          require.resolve('terser/bin/uglifyjs'), [inputFile, '--output', outputFile, ...residual]);
     }
   });
 }

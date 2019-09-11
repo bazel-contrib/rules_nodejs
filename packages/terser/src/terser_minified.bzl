@@ -142,8 +142,6 @@ def _terser(ctx):
         args.add("--beautify")
 
     if ctx.attr.sourcemap:
-        outputs.append(ctx.outputs.sourcemap)
-
         # Source mapping options are comma-packed into one argv
         # see https://github.com/terser-js/terser#command-line-usage
         source_map_opts = ["includeSources", "base=" + ctx.bin_dir.path]

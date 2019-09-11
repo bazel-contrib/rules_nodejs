@@ -2,7 +2,9 @@
     "name": "e2e-terser",
     "private": true,
     "devDependencies": {
-        "@bazel/terser": "latest"
+        "@bazel/rollup": "latest",
+        "@bazel/terser": "latest",
+        "rollup": "1.20.3"
     },
     "scripts": {
       "test": "bazel test ..."
