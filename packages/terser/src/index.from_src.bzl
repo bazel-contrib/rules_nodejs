@@ -22,7 +22,7 @@ load(
 
 def terser_minified(**kwargs):
     _terser_minified(
-        # Override to point to the one installed by build_bazel_rules_nodejs in the root
-        terser_bin = "@npm//terser/bin:terser",
+        # Override to point to the one we declare locally
+        terser_bin = "@npm_bazel_terser//:terser",
         **kwargs
     )

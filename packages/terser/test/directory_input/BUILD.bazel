@@ -1,0 +1,22 @@
+load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
+load("@npm_bazel_terser//:index.from_src.bzl", "terser_minified")
+load(":rule.bzl", "declare_directory")
+
+# Check that filegroups work
+declare_directory(
+    name = "dir",
+    srcs = glob(["input*.js"]),
+)
+
+terser_minified(
+    name = "out.min",
+    # TODO: support sourcemaps too
+    sourcemap = False,
+    src_dir = "dir",
+)
+
+jasmine_node_test(
+    name = "test",
+    srcs = ["spec.js"],
+    data = [":out.min"],
+)
