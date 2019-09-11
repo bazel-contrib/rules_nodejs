@@ -30,6 +30,8 @@ const isWindows = /^win/i.test(process.platform);
 process.env.PATH = [path.dirname(process.execPath), process.env.PATH].join(isWindows ? ';' : ':');
 
 const VERBOSE_LOGS = !!process.env['VERBOSE_LOGS'];
+// If you're really in trouble debugging a module resolution, change this to true
+const SILLY_VERBOSE = false;
 
 function log_verbose(...m) {
   // This is a template file so we use __filename to output the actual filename
@@ -354,7 +356,7 @@ function resolveRunfiles(parent, ...pathSegments) {
 var originalResolveFilename = module.constructor._resolveFilename;
 module.constructor._resolveFilename = function(request, parent, isMain, options) {
   const parentFilename = (parent && parent.filename) ? parent.filename : undefined;
-  log_verbose(`resolve ${request} from ${parentFilename}`);
+  if (SILLY_VERBOSE) log_verbose(`resolve ${request} from ${parentFilename}`);
 
   const failedResolutions = [];
 
@@ -386,9 +388,10 @@ module.constructor._resolveFilename = function(request, parent, isMain, options)
     const resolved = originalResolveFilename(request, parent, isMain, options);
     if (resolved === request || request.startsWith('.') || request.startsWith('/') ||
         request.match(/^[A-Z]\:[\\\/]/i)) {
-      log_verbose(
-          `resolved ${request} to built-in, relative or absolute import ` +
-          `${resolved} from ${parentFilename}`);
+      if (SILLY_VERBOSE)
+        log_verbose(
+            `resolved ${request} to built-in, relative or absolute import ` +
+            `${resolved} from ${parentFilename}`);
       return resolved;
     } else {
       // Resolved is not a built-in module, relative or absolute import
