@@ -31,9 +31,14 @@ const resolve =
     }
 
 const rollupConfig = require('./rollup.config');
+const resolveBazelPlugin = rollupConfig.plugins.find(p => p.name === 'resolveBazel');
+
+if (!resolveBazelPlugin) {
+  throw new Error('Could not find "resolveBazel" plugin in the rollup config.');
+}
 
 function doResolve(importee, importer) {
-  const resolved = rollupConfig.resolveBazel(importee, importer, baseDir, resolve, rootDir);
+  const resolved = resolveBazelPlugin.resolveId(importee, importer, baseDir, resolve, rootDir);
   if (resolved) {
     return resolved.replace(/\\/g, '/');
   } else {
