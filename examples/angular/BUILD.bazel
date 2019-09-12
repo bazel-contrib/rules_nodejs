@@ -1,0 +1,37 @@
+load("@k8s_deploy//:defaults.bzl", "k8s_deploy")
+
+package(default_visibility = ["//:__subpackages__"])
+
+# ts_library and ng_module use the `//:tsconfig.json` target
+# by default. This alias allows omitting explicit tsconfig
+# attribute.
+alias(
+    name = "tsconfig.json",
+    actual = "//src:tsconfig.json",
+)
+
+k8s_deploy(
+    name = "deploy",
+    images = {
+        "gcr.io/internal-200822/src:nodejs_image": "//src:image",
+    },
+    template = ":deployment.yaml",
+)
+
+# For testing from the root workspace of this repository with bazel_integration_test.
+filegroup(
+    name = "all_files",
+    srcs = glob(
+        include = ["**/*"],
+        exclude = [
+            "bazel-out/**/*",
+            "dist/**/*",
+            "node_modules/**/*",
+        ],
+    ) + [
+        "//e2e:all_files",
+        "//src:all_files",
+        "//tools:all_files",
+    ],
+    visibility = ["//visibility:public"],
+)

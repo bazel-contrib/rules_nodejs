@@ -175,23 +175,6 @@ e2e_integration_test(
     },
 )
 
-e2e_integration_test(
-    name = "e2e_angular_bazel_example",
-    size = "enormous",
-    timeout = "eternal",
-    # to reduce the chance of depleting all available system memory locally
-    # and on CI, limit the Bazel JVM memory usage for the nested bazel process
-    bazelrc_append = "startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx2g",
-    npm_packages = {
-        "//packages/karma:npm_package": "@bazel/karma",
-        "//packages/protractor:npm_package": "@bazel/protractor",
-        "//packages/typescript:npm_package": "@bazel/typescript",
-    },
-    # TODO(gregmagolan): why is this tagged manual?
-    tags = ["manual"],
-    workspace_files = "@e2e_angular_bazel_example//:bazel_integration_test_files",
-)
-
 load(":index.bzl", "ALL_E2E")
 
 # Ensure that all e2e directories have a test target

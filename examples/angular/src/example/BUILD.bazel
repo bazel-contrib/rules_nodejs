@@ -1,0 +1,14 @@
+package(default_visibility = ["//:__subpackages__"])
+
+filegroup(
+    name = "assets",
+    srcs = [
+        "index.html",
+    ],
+)
+
+# For testing from the root workspace of this repository with bazel_integration_test.
+filegroup(
+    name = "all_files",
+    srcs = glob(["**/*"]),
+)

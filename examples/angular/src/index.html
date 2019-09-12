@@ -1,0 +1,755 @@
+<html>
+  <head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=UA-8594346-33"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+
+      gtag("config", "UA-8594346-33");
+    </script>
+
+    <meta charset="utf-8" />
+    <title>ABC: Angular Buildtools Convergence</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+
+    <link rel="stylesheet" href="assets/landing.css" />
+  </head>
+
+  <body class="docs-app-background">
+    <material-docs-app
+      ><app-navbar class="mat-elevation-z6" _nghost-c1=""
+        ><nav _ngcontent-c1="" class="docs-navbar-header">
+          <a
+            _ngcontent-c1=""
+            aria-label="Angular & Bazel"
+            class="docs-button mat-button"
+            mat-button=""
+            routerlink="/"
+            tabindex="0"
+            aria-disabled="false"
+            href="/"
+            ><span class="mat-button-wrapper">
+              <img
+                _ngcontent-c1=""
+                alt="angular"
+                class="docs-angular-logo"
+                src="assets/angular-white-transparent.svg"/>
+              <img
+                _ngcontent-c1=""
+                alt="angular"
+                class="docs-angular-logo"
+                src="assets/bazel-white-transparent.svg"
+                width="20"
+            /></span>
+            <div class="mat-button-ripple mat-ripple" matripple=""></div>
+            <div class="mat-button-focus-overlay"></div></a
+          ><!----><a
+            _ngcontent-c1=""
+            class="docs-navbar-hide-small docs-button mat-button ng-star-inserted"
+            mat-button=""
+            tabindex="0"
+            aria-disabled="false"
+            href="https://next.angular.io/guide/bazel"
+            ><span class="mat-button-wrapper">Documentation</span>
+            <div class="mat-button-ripple mat-ripple" matripple=""></div>
+            <div class="mat-button-focus-overlay"></div></a
+          ><a
+            _ngcontent-c1=""
+            class="docs-navbar-hide-small docs-button mat-button ng-star-inserted"
+            mat-button=""
+            tabindex="0"
+            aria-disabled="false"
+            href="https://goo.gl/forms/Tv8lMdH0N3D4yo8Q2"
+            ><span class="mat-button-wrapper">Request Support</span>
+            <div class="mat-button-ripple mat-ripple" matripple=""></div>
+            <div class="mat-button-focus-overlay"></div></a
+          ><a
+            _ngcontent-c1=""
+            class="docs-navbar-hide-small docs-button mat-button"
+            mat-button=""
+            tabindex="0"
+            aria-disabled="false"
+            href="https://github.com/angular/angular-bazel-example"
+            ><span class="mat-button-wrapper">Example</span>
+            <div class="mat-button-ripple mat-ripple" matripple=""></div>
+            <div class="mat-button-focus-overlay"></div
+          ></a>
+          <div _ngcontent-c1="" class="flex-spacer"></div>
+          <version-picker _ngcontent-c1=""
+            ><mat-menu class="ng-tns-c6-0"><!----></mat-menu></version-picker
+          >
+          <a
+            _ngcontent-c1=""
+            aria-label="GitHub Repository"
+            class="docs-button docs-navbar-hide-small mat-button"
+            href="https://github.com/angular/angular/tree/master/packages/bazel"
+            mat-button=""
+            tabindex="0"
+            aria-disabled="false"
+            ><span class="mat-button-wrapper"
+              ><img
+                _ngcontent-c1=""
+                alt="angular"
+                class="docs-angular-logo"
+                src="assets/github-circle-white-transparent.svg"
+              />
+              GitHub
+            </span>
+            <div class="mat-button-ripple mat-ripple" matripple=""></div>
+            <div class="mat-button-focus-overlay"></div></a
+          ><a
+            _ngcontent-c1=""
+            aria-label="GitHub Repository"
+            class="docs-button docs-navbar-show-small mat-icon-button"
+            href="https://github.com/angular/angular/tree/master/packages/bazel"
+            mat-icon-button=""
+            tabindex="0"
+            aria-disabled="false"
+          >
+            <div
+              class="mat-button-ripple mat-ripple mat-button-ripple-round"
+              matripple=""
+            ></div>
+            <div class="mat-button-focus-overlay"></div
+          ></a>
+        </nav>
+      </app-navbar>
+      <app-homepage _nghost-c9="" class="ng-star-inserted"
+        ><header _ngcontent-c9="" class="docs-header-background">
+          <div _ngcontent-c9="" class="docs-header-section">
+            <div _ngcontent-c9="" class="docs-header-headline">
+              <h1 _ngcontent-c9="" class="mat-h1">Angular and Bazel</h1>
+              <h2 _ngcontent-c9="">
+                Build and test Angular applications at scale like Google
+              </h2>
+            </div>
+            <div _ngcontent-c9="" class="docs-header-start">
+              <a
+                _ngcontent-c9=""
+                class="docs-button mat-raised-button"
+                mat-raised-button=""
+                tabindex="0"
+                aria-disabled="false"
+                href="https://github.com/angular/angular/issues/19058"
+                ><span class="mat-button-wrapper">Subscribe for Updates</span>
+                <div class="mat-button-ripple mat-ripple" matripple=""></div>
+                <div class="mat-button-focus-overlay"></div
+              ></a>
+            </div>
+          </div>
+        </header>
+        <div _ngcontent-c9="" class="docs-homepage-promo first">
+          <div _ngcontent-c9="" class="docs-homepage-row">
+            <div _ngcontent-c9="" class="docs-homepage-promo-img">
+              <svg
+                version="1.1"
+                id="Capa_1"
+                xmlns="http://www.w3.org/2000/svg"
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+                x="0px"
+                y="0px"
+                viewBox="0 0 512 512"
+                style="enable-background:new 0 0 512 512;"
+                xml:space="preserve"
+              >
+                <circle style="fill:#7EC359;" cx="256" cy="256" r="256" />
+                <circle style="fill:#F1592F;" cx="256" cy="256" r="210" />
+                <circle style="fill:#FDFEFF;" cx="256" cy="256" r="187.512" />
+                <path
+                  style="fill:#70B1E1;"
+                  d="M256,90.824c-91.088,0-165.176,74.092-165.176,165.176h2.156
+                c13.4-75.576,85.896-127.472,163.02-113.8C256,121.968,256,109.9,256,90.824z"
+                />
+                <path
+                  style="fill:#F1592F;"
+                  d="M372.748,139.252c-48.828,48.828-23.236,23.236-42,42.004c19.936,19.94,33.936,45.824,39.064,74.744
+                h51.364C421.18,210.456,402.656,169.16,372.748,139.252z"
+                />
+                <path
+                  style="fill:#F5EA07;"
+                  d="M372.748,139.252C342.84,109.344,301.544,90.824,256,90.824c0,19.08,0,31.14,0,51.38
+                c28.916,5.128,54.804,19.112,74.744,39.056C359.452,152.548,354.548,157.452,372.748,139.252z"
+                />
+                <g>
+                  <polygon
+                    style="fill:#656D7A;"
+                    points="248.592,274.82 319.32,192.624 237.124,263.352 	"
+                  />
+                  <circle style="fill:#656D7A;" cx="256" cy="256" r="14.96" />
+                </g>
+                <circle style="fill:#FDFEFF;" cx="256" cy="256" r="7.104" />
+                <path
+                  style="fill:#656D7A;"
+                  d="M329.432,390.116H182.568c-7.324,0-13.26-5.936-13.26-13.26v-38.58c0-7.324,5.936-13.26,13.26-13.26
+                h146.864c7.324,0,13.26,5.936,13.26,13.26v38.58C342.692,384.18,336.756,390.116,329.432,390.116z"
+                />
+                <g>
+                  <path
+                    style="fill:#FDFEFF;"
+                    d="M186.976,338.648c2.748-2.172,6.192-3.26,10.336-3.26s7.588,1.088,10.336,3.26
+                  s4.124,4.912,4.124,8.212s-1.54,6.224-4.616,8.768c4.144,2.624,6.216,6.316,6.216,11.072c0,3.692-1.476,6.788-4.432,9.288
+                  c-2.952,2.504-6.828,3.756-11.628,3.756s-8.672-1.252-11.628-3.756c-2.952-2.5-4.428-5.596-4.428-9.288
+                  c0-4.756,2.072-8.444,6.212-11.072c-3.076-2.544-4.612-5.464-4.612-8.768S184.228,340.824,186.976,338.648z M191.284,371.656
+                  c1.884,1.208,3.896,1.816,6.028,1.816s4.144-0.604,6.032-1.816c1.884-1.208,2.828-2.944,2.828-5.2s-0.9-3.996-2.704-5.228
+                  c-1.804-1.228-3.856-1.844-6.152-1.844s-4.348,0.616-6.152,1.844c-1.808,1.232-2.708,2.972-2.708,5.228
+                  C188.452,368.712,189.396,370.444,191.284,371.656z M191.868,352.092c1.54,1.252,3.356,1.876,5.444,1.876
+                  c2.092,0,3.908-0.624,5.444-1.876c1.54-1.252,2.308-2.788,2.308-4.616c0-1.824-0.768-3.352-2.308-4.58
+                  c-1.536-1.232-3.352-1.848-5.444-1.848s-3.904,0.616-5.444,1.848c-1.536,1.228-2.304,2.76-2.304,4.58
+                  C189.56,349.304,190.328,350.84,191.868,352.092z"
+                  />
+                  <path
+                    style="fill:#FDFEFF;"
+                    d="M226.1,338.648c2.748-2.172,6.192-3.26,10.336-3.26s7.588,1.088,10.336,3.26
+                  s4.124,4.912,4.124,8.212s-1.54,6.224-4.616,8.768c4.144,2.624,6.216,6.316,6.216,11.072c0,3.692-1.476,6.788-4.432,9.288
+                  c-2.952,2.504-6.828,3.756-11.628,3.756s-8.672-1.252-11.628-3.756c-2.952-2.5-4.428-5.596-4.428-9.288
+                  c0-4.756,2.072-8.444,6.212-11.072c-3.076-2.544-4.612-5.464-4.612-8.768S223.356,340.824,226.1,338.648z M230.408,371.656
+                  c1.884,1.208,3.896,1.816,6.028,1.816s4.144-0.604,6.032-1.816c1.884-1.208,2.828-2.944,2.828-5.2s-0.9-3.996-2.704-5.228
+                  c-1.804-1.228-3.856-1.844-6.152-1.844s-4.348,0.616-6.152,1.844c-1.808,1.232-2.708,2.972-2.708,5.228
+                  C227.576,368.712,228.52,370.444,230.408,371.656z M230.992,352.092c1.54,1.252,3.356,1.876,5.444,1.876
+                  c2.092,0,3.908-0.624,5.444-1.876c1.54-1.252,2.308-2.788,2.308-4.616c0-1.824-0.768-3.352-2.308-4.58
+                  c-1.536-1.232-3.352-1.848-5.444-1.848s-3.904,0.616-5.444,1.848c-1.536,1.228-2.304,2.76-2.304,4.58
+                  C228.688,349.304,229.456,350.84,230.992,352.092z"
+                  />
+                  <path
+                    style="fill:#FDFEFF;"
+                    d="M265.224,338.648c2.748-2.172,6.192-3.26,10.336-3.26s7.588,1.088,10.336,3.26
+                  s4.124,4.912,4.124,8.212s-1.54,6.224-4.616,8.768c4.144,2.624,6.216,6.316,6.216,11.072c0,3.692-1.476,6.788-4.432,9.288
+                  c-2.952,2.504-6.828,3.756-11.628,3.756s-8.672-1.252-11.628-3.756c-2.952-2.5-4.428-5.596-4.428-9.288
+                  c0-4.756,2.072-8.444,6.212-11.072c-3.076-2.544-4.612-5.464-4.612-8.768S262.48,340.824,265.224,338.648z M269.532,371.656
+                  c1.884,1.208,3.896,1.816,6.028,1.816s4.144-0.604,6.032-1.816c1.884-1.208,2.828-2.944,2.828-5.2s-0.9-3.996-2.704-5.228
+                  c-1.804-1.228-3.856-1.844-6.152-1.844s-4.348,0.616-6.152,1.844c-1.808,1.232-2.708,2.972-2.708,5.228
+                  C266.704,368.712,267.648,370.444,269.532,371.656z M270.116,352.092c1.54,1.252,3.356,1.876,5.444,1.876
+                  c2.092,0,3.908-0.624,5.444-1.876c1.54-1.252,2.308-2.788,2.308-4.616c0-1.824-0.768-3.352-2.308-4.58
+                  c-1.536-1.232-3.352-1.848-5.444-1.848s-3.904,0.616-5.444,1.848c-1.536,1.228-2.304,2.76-2.304,4.58
+                  C267.812,349.304,268.58,350.84,270.116,352.092z"
+                  />
+                  <path
+                    style="fill:#FDFEFF;"
+                    d="M304.352,338.648c2.748-2.172,6.192-3.26,10.336-3.26s7.588,1.088,10.336,3.26
+                  s4.124,4.912,4.124,8.212s-1.54,6.224-4.616,8.768c4.144,2.624,6.216,6.316,6.216,11.072c0,3.692-1.476,6.788-4.432,9.288
+                  c-2.952,2.504-6.828,3.756-11.628,3.756s-8.672-1.252-11.628-3.756c-2.952-2.5-4.428-5.596-4.428-9.288
+                  c0-4.756,2.072-8.444,6.212-11.072c-3.076-2.544-4.612-5.464-4.612-8.768S301.604,340.824,304.352,338.648z M308.66,371.656
+                  c1.884,1.208,3.896,1.816,6.028,1.816s4.144-0.604,6.032-1.816c1.884-1.208,2.828-2.944,2.828-5.2s-0.9-3.996-2.704-5.228
+                  c-1.804-1.228-3.856-1.844-6.152-1.844s-4.348,0.616-6.152,1.844c-1.808,1.232-2.708,2.972-2.708,5.228
+                  C305.828,368.712,306.772,370.444,308.66,371.656z M309.24,352.092c1.54,1.252,3.356,1.876,5.444,1.876
+                  c2.092,0,3.908-0.624,5.444-1.876c1.54-1.252,2.308-2.788,2.308-4.616c0-1.824-0.768-3.352-2.308-4.58
+                  c-1.536-1.232-3.352-1.848-5.444-1.848s-3.904,0.616-5.444,1.848c-1.536,1.228-2.304,2.76-2.304,4.58
+                  C306.936,349.304,307.704,350.84,309.24,352.092z"
+                  />
+                </g>
+                <g></g>
+                <g></g>
+                <g></g>
+                <g></g>
+                <g></g>
+                <g></g>
+                <g></g>
+                <g></g>
+                <g></g>
+                <g></g>
+                <g></g>
+                <g></g>
+                <g></g>
+                <g></g>
+                <g></g>
+              </svg>
+            </div>
+            <div _ngcontent-c9="" class="docs-homepage-promo-desc">
+              <h2 _ngcontent-c9="">Incremental re-builds</h2>
+              <p _ngcontent-c9="">
+                A small change to your app should require a small re-build.
+              </p>
+            </div>
+          </div>
+          <div
+            _ngcontent-c9=""
+            class="docs-homepage-row docs-homepage-reverse-row"
+          >
+            <div _ngcontent-c9="" class="docs-homepage-promo-img">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 185.6 200">
+                <defs>
+                  <style>
+                    .cls-1 {
+                      fill: #5480ae;
+                    }
+                    .cls-2 {
+                      fill: #3c5c7d;
+                    }
+                    .cls-3 {
+                      fill: #fff;
+                    }
+                  </style>
+                </defs>
+                <title>cli</title>
+                <g id="Layer_2" data-name="Layer 2">
+                  <g id="Layer_1-2" data-name="Layer 1">
+                    <polygon
+                      class="cls-1"
+                      points="92.4 0 92.4 0 92.4 0 0 33.3 14 156.1 92.4 200 92.4 200 92.4 200 171.3 156.1 185.6 33.3 92.4 0"
+                    />
+                    <polygon
+                      class="cls-2"
+                      points="92.4 0 92.4 22.2 92.4 22.2 92.4 123.2 92.4 123.2 92.4 200 92.4 200 171.3 156.1 185.6 33.3 92.4 0"
+                    />
+                    <path
+                      class="cls-3"
+                      d="M42.8,55v90h100V55ZM138,139.9H47.5V60.1h90.6v79.8Z"
+                    />
+                    <polygon
+                      class="cls-3"
+                      points="60.1 111.4 63.5 114.9 82.8 95.5 63.2 75.9 59.8 79.3 76 95.5 60.1 111.4"
+                    />
+                    <rect
+                      class="cls-3"
+                      x="82.8"
+                      y="117.2"
+                      width="30"
+                      height="4"
+                    />
+                  </g>
+                </g>
+              </svg>
+            </div>
+            <div _ngcontent-c9="" class="docs-homepage-promo-desc">
+              <h2 _ngcontent-c9="">Works with Angular CLI</h2>
+              <p _ngcontent-c9="">
+                Use the same <code>ng</code> commands you're used to.
+              </p>
+            </div>
+          </div>
+          <div _ngcontent-c9="" class="docs-homepage-row">
+            <div _ngcontent-c9="" class="docs-homepage-promo-img">
+              <svg
+                version="1.1"
+                id="Capa_1"
+                xmlns="http://www.w3.org/2000/svg"
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+                x="0px"
+                y="0px"
+                viewBox="0 0 511.999 511.999"
+                style="enable-background:new 0 0 511.999 511.999;"
+                xml:space="preserve"
+              >
+                <path
+                  style="fill:#A6E2E3;"
+                  d="M420.79,234.945c50.372,0,91.209,40.824,91.209,91.197s-40.837,91.209-91.209,91.209H117.356
+	C52.539,417.351,0,364.799,0,299.982s52.539-117.369,117.356-117.369c12.021,0,23.613,1.812,34.52,5.166
+	c-0.379-3.244-0.6-6.537-0.6-9.879c0-45.978,37.274-83.252,83.24-83.252c44.435,0,80.731,34.802,83.118,78.637
+	c10.576-9.536,24.556-15.338,39.906-15.338c32.929,0,59.615,26.686,59.615,59.615c0,6.133-0.93,12.045-2.656,17.615
+	C416.579,235.043,418.673,234.945,420.79,234.945z"
+                />
+                <path
+                  style="opacity:0.1;enable-background:new    ;"
+                  d="M295.399,197.154c8.173-13.942,22.235-23.867,22.235-23.867
+	c-2.387-43.836-38.682-78.638-83.118-78.638c-3.937,0-7.804,0.293-11.596,0.822C262.131,100.63,295.399,130.666,295.399,197.154z"
+                />
+                <path
+                  style="fill:#7CCBCC;"
+                  d="M420.79,234.945c-2.118,0-4.211,0.098-6.292,0.232c1.726-5.569,2.656-11.482,2.656-17.615
+	c0-32.929-26.686-59.615-59.615-59.615c-1.501,0-2.983,0.072-4.456,0.18c25.967,1.045,51.447,48.16,32.206,90.219
+	c28.375,0,57.955,1.255,79.625,35.73c17.954,28.563,12.313,68.178-13.057,91.401c-9.052,8.286-35.091,23.953-61.817,23.953
+	c-0.76-0.008-1.536-0.013-2.33-0.013H84.277c-13.524,0-26.509-2.295-38.598-6.505c19.826,15.318,44.685,24.438,71.678,24.438H420.79
+	c50.372,0,91.209-40.836,91.209-91.209C511.999,275.769,471.163,234.945,420.79,234.945z"
+                />
+                <g>
+                  <polygon
+                    style="fill:#FFFFFF;"
+                    points="330.548,238.066 385.291,309.335 357.344,309.335 357.344,369.267 303.765,369.267 
+		303.765,309.335 275.818,309.335 	"
+                  />
+                  <polygon
+                    style="fill:#FFFFFF;"
+                    points="236.169,297.999 181.439,369.267 126.708,297.999 154.643,297.999 154.643,238.066 
+		208.235,238.066 208.235,297.999 	"
+                  />
+                </g>
+                <g></g>
+                <g></g>
+                <g></g>
+                <g></g>
+                <g></g>
+                <g></g>
+                <g></g>
+                <g></g>
+                <g></g>
+                <g></g>
+                <g></g>
+                <g></g>
+                <g></g>
+                <g></g>
+                <g></g>
+              </svg>
+            </div>
+            <div _ngcontent-c9="" class="docs-homepage-promo-desc">
+              <h2 _ngcontent-c9="">Cloud Ready</h2>
+              <p _ngcontent-c9="">
+                Expand your build and test to run in parallel on a cluster of
+                workers.
+              </p>
+            </div>
+          </div>
+          <div
+            _ngcontent-c9=""
+            class="docs-homepage-row docs-homepage-reverse-row"
+          >
+            <div _ngcontent-c9="" class="docs-homepage-promo-img">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 179.2 192.7">
+                <defs>
+                  <style>
+                    .cls-labs-1 {
+                      fill: #1de9b6;
+                    }
+                    .cls-labs-2 {
+                      fill: #00bfa5;
+                    }
+                    .cls-labs-3 {
+                      fill: #bbf8e9;
+                    }
+                    .cls-labs-4 {
+                      fill: #fff;
+                    }
+                  </style>
+                </defs>
+                <title>labs</title>
+                <g id="Layer_2" data-name="Layer 2">
+                  <g id="Layer_1-2" data-name="Layer 1">
+                    <polygon
+                      class="cls-labs-1"
+                      points="89.4 0 89.4 0 89.4 0 0 32 13.5 150.4 89.4 192.7 89.4 192.7 89.4 192.7 165.4 150.4 179.2 32 89.4 0"
+                    />
+                    <polygon
+                      class="cls-labs-2"
+                      points="89.4 0 89.4 21.4 89.4 21.4 89.4 118.7 89.4 118.7 89.4 192.7 89.4 192.7 165.4 150.4 179.2 32 89.4 0"
+                    />
+                    <path
+                      class="cls-labs-3"
+                      d="M124.1,75.8l-37-11.5a2.8,2.8,0,0,0-3.5,1.9l-.2.5a2.9,2.9,0,0,0,1.9,3.5l7.1,2.2L85.2,95.5a30.4,30.4,0,0,0,1.7,60.7A30.7,30.7,0,0,0,98,153.8h0l1.5-.7a30.5,30.5,0,0,0,4.8-51.5l7.2-23.3,10.7,3.4a3,3,0,0,0,3.6-1.9v-.5A2.7,2.7,0,0,0,124.1,75.8Z"
+                    />
+                    <ellipse
+                      class="cls-labs-4"
+                      cx="90.4"
+                      cy="44.1"
+                      rx="7.8"
+                      ry="7.9"
+                    />
+                    <ellipse
+                      class="cls-labs-4"
+                      cx="126.8"
+                      cy="60.3"
+                      rx="3.8"
+                      ry="3.8"
+                    />
+                    <ellipse
+                      class="cls-labs-4"
+                      cx="51.5"
+                      cy="73.9"
+                      rx="4.9"
+                      ry="4.9"
+                    />
+                    <path
+                      class="cls-labs-4"
+                      d="M111.3,134.2a26.3,26.3,0,1,1-50.2-15.6"
+                    />
+                  </g>
+                </g>
+              </svg>
+            </div>
+            <div _ngcontent-c9="" class="docs-homepage-promo-desc">
+              <h2 _ngcontent-c9="">Part of Angular Labs</h2>
+              <p _ngcontent-c9="">
+                Not a stable, supported API, so use Bazel with caution in
+                production applications. We expect to promote it to stable for
+                Angular version 9.
+              </p>
+            </div>
+          </div>
+          <div
+            _ngcontent-c9=""
+            class="docs-homepage-bottom-start"
+            style="text-align: left"
+          >
+            <h2>📚 Resources</h2>
+            <h3>Projects</h3>
+            <ul>
+              <li>
+                <a
+                  href="https://groups.google.com/forum/#!forum/rbe-alpha-customers"
+                  >Remote Build Execution for Google Cloud Platform</a
+                >
+              </li>
+              <li>
+                <a href="https://github.com/bazelbuild/bazel-buildfarm"
+                  >On-prem Bazel remote caching and execution service</a
+                >
+              </li>
+
+              <li>
+                <a href="https://github.com/jin/awesome-bazel"
+                  >A curated list of Bazel rules, tooling and resources</a
+                >
+              </li>
+            </ul>
+
+            <h3>Talks</h3>
+            <ul>
+              <li>
+                Building Apps Like Google with Angular, Bazel, and GCP
+                <a href="https://www.youtube.com/watch?v=lDyIc2Abkwg">Video</a>
+                (Google Cloud Next, April 2019)
+              </li>
+
+              <li>
+                Layering in JS tooling
+                <a href="https://hackmd.io/p/HJZ_ekxuN">Slides</a>
+                <a
+                  href="https://drive.google.com/file/d/1AxrwjLUf_35Z2C9VK5Ut7wo5L89roHH2/view"
+                  >Video</a
+                >
+                (ModernWeb Meetup, March 2019)
+              </li>
+
+              <li>
+                Angular, Bazel, and CLI
+                <a
+                  href="https://docs.google.com/presentation/d/1weKiN44mj02uriWMnpVm-CYDVTjP-NT2nYmZe3ii4X0/preview"
+                  >Slides</a
+                >
+                (AngularSF Meetup, January 2019)
+              </li>
+
+              <li>
+                Bazel in Angular CLI
+                <a href="https://www.youtube.com/watch?v=fEUgZopCK8E">Video</a>
+                <a
+                  href="https://docs.google.com/presentation/d/1VcSkWDFkmkZKCP9yTfKbq-lTMU3qW_3zNabKItCWDec/preview"
+                  >Slides</a
+                >
+                (AngularNYC Meetup, January 2019)
+              </li>
+
+              <li>
+                The CLI Roadmap
+                <a href="ttps://www.youtube.com/watch?v=tUCd6QSzEy4">Video</a>
+                (AngularConnect, November 2018)
+              </li>
+
+              <li>
+                Develop Angular like Google Does
+                <a
+                  href="https://docs.google.com/presentation/d/1b0PdG-bxN0nwHa3ZuA0a_anOEYeMoI_CSsZl6ngZWp8/preview?slide=id.g26d86d3325_0_0"
+                  >Slides</a
+                >
+                (AngularMIX, October 2018)
+              </li>
+
+              <li>
+                Building large Angular apps with Bazel
+                <a
+                  href="https://docs.google.com/presentation/d/1ZIKO07h9fFAyJnMGK-TE3Tr-NXi-9jOYEaQDXcIMZ-A/preview"
+                  >Slides</a
+                >
+                <a href="https://www.youtube.com/watch?v=yBg9zG6ZGb4">Video</a>
+                (BazelCon, October 2018)
+              </li>
+
+              <li>
+                How I love being ejected
+                <a href="https://goo.gl/Szcnfk">Slides</a>
+                <a href="https://www.youtube.com/watch?v=ieRJwFGWEOM">Video</a>
+                (ng-conf, April 2018)
+              </li>
+              <li>
+                Angular Libraries in Bazel
+                <a
+                  href="https://docs.google.com/presentation/d/1SU3rjpj8YEAyLAhHJwtO7TR1d_Sx1e9iGI3osiasPhA/preview "
+                  >Slides</a
+                >
+                (AngularSF Meetup, April 2018)
+              </li>
+
+              <li>
+                Bazel for building Angular Applications
+                <a href="https://www.youtube.com/watch?v=KmaE6z_ECRg ">Video</a>
+                (St. Louis Angular Lunch, February 2018)
+              </li>
+
+              <li>
+                Building Angular Applications like Google
+                <a
+                  href="https://docs.google.com/presentation/d/1EudIzQvz9gzVPr0UdP1DymlbhfG29kFCeiJVVEE_FVw/preview"
+                  >Slides</a
+                >
+                <a href="https://www.youtube.com/watch?v=CeUF9hjdoZQ">Video</a>
+                (AngularConnect, November 2017)
+              </li>
+
+              <li>
+                Bazel for Web Frontends
+                <a href="https://goo.gl/ebcPXi">Slides</a>
+                <a href="https://www.youtube.com/watch?v=0pgERydGyqo">Video</a>
+                (BazelCon November 2017)
+              </li>
+
+              <li>
+                Angular with Bazel and Closure
+                <a
+                  href="https://docs.google.com/presentation/d/1gFta6MSrafNap4YFA6SfL8uRKJMsQlZ8RsZj8RJ0_6k/preview"
+                  >Slides</a
+                >
+                <a href="https://www.youtube.com/watch?v=tnKyXH_5028">Video</a>
+                (AngularMIX October 2017)
+              </li>
+            </ul>
+            <h3>Articles</h3>
+            <ul>
+              <li>
+                <a
+                  href="https://medium.com/@Jakeherringbone/automated-testing-of-each-commit-ci-6f718d93d0da"
+                >
+                  Automated testing of each commit != CI
+                </a>
+                (January 2019)
+              </li>
+              <li>
+                <a
+                  href="https://medium.com/@Jakeherringbone/running-tools-under-bazel-8aa416e7090c"
+                >
+                  Running tools under Bazel
+                </a>
+                (November 2018)
+              </li>
+
+              <li>
+                <a
+                  href="https://medium.com/@Jakeherringbone/multiple-npm-packages-in-a-bazel-monorepo-5072f2aebdb2"
+                >
+                  Multiple npm packages in a Bazel monorepo
+                </a>
+                (March 2018)
+              </li>
+
+              <li>
+                <a
+                  href="https://medium.com/@Jakeherringbone/deploying-an-angular-app-to-kubernetes-using-bazel-preview-91432b8690b5"
+                >
+                  Deploying an Angular app to Kubernetes using Bazel (preview)
+                </a>
+                (January 2018)
+              </li>
+
+              <li>
+                <a
+                  href="https://medium.com/dailyjs/building-angular-apps-at-scale-813ef42add04"
+                >
+                  Building Angular apps at Scale</a
+                >
+                (August 2017)
+              </li>
+
+              <li>
+                <a
+                  href="https://medium.com/@Jakeherringbone/what-angular-is-doing-with-bazel-and-closure-21f526f64a34"
+                  >What Angular is doing with Bazel and Closure</a
+                >
+                (April 2017)
+              </li>
+            </ul>
+
+            <h3>Trainings</h3>
+            <ul>
+              <li>
+                LiveCoding a Bazel rule for Stylus
+                <a
+                  href="https://drive.google.com/drive/folders/1I71w8JSGcZk1nUX2oXvT8NLT47Onb1t0"
+                  >Video</a
+                >
+                (July 2019)
+              </li>
+                
+              <li>
+                Bazel Training for Angular Team
+                <a
+                  href="https://docs.google.com/presentation/d/1OwktccLvV3VvWn3i7H2SuZkBeAQ8z-E5RdJODVLf8SA/preview"
+                  >Slides</a
+                >
+                (January 2019)
+              </li>
+
+              <li>
+                Full Stack development with Nx and Bazel
+                <a
+                  href="https://docs.google.com/presentation/d/1fSZwcpO9hUBFd_k9hUS45ZyVJcZLEyz0VxISSOnIZ1I/preview"
+                  >Slides</a
+                >
+                <a href="https://www.youtube.com/watch?v=1KDDIhcQORM">Video</a>
+                (ng-conf, April 2018)
+              </li>
+
+              <li>
+                ABC Deep Dive tech talk
+                <a href="https://goo.gl/zDYWsq">Slides</a>
+                <a href="https://youtu.be/z9Q_2N9oaG8">Video</a>
+                (February 2018)
+              </li>
+            </ul>
+
+            <h3>Examples</h3>
+            <ul>
+              <li>
+                <a href="https://github.com/mgechev/bazel-demo">TypeScript Bazel "Hello World" example</a>
+              </li>
+              <li>
+                <a href="https://github.com/mgechev/real-world-bazel">The "Real World Angular Example" with Bazel build</a>
+              </li>
+              <li>
+                <a href="https://github.com/angular/angular-bazel-example">Enterprise example build &amp; test angular with bazel</a>
+              </li>
+              <li>
+                <a href="https://github.com/GoogleCloudPlatform/gke-bazel-demo">Java backend and Angular frontend deployed together to Kubernetes</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <app-footer _ngcontent-c9="" _nghost-c10=""
+          ><footer _ngcontent-c10="" class="docs-footer">
+            <div _ngcontent-c10="" class="docs-footer-list">
+              <div _ngcontent-c10="" class="docs-footer-logo">
+                <div _ngcontent-c10="" class="footer-logo">
+                  <img
+                    _ngcontent-c10=""
+                    alt="angular"
+                    class="docs-footer-angular-logo"
+                    src="assets/angular-white-transparent.svg"
+                  /><span _ngcontent-c10=""
+                    ><a _ngcontent-c10="" href="https://angular.io"
+                      >Learn Angular</a
+                    ></span
+                  >
+                </div>
+              </div>
+              <div _ngcontent-c10="" class="docs-footer-copyright">
+                <span _ngcontent-c10="">Powered by Google ©2010-2019.</span
+                ><span _ngcontent-c10=""
+                  >Code licensed under an MIT-style License.</span
+                ><span _ngcontent-c10=""
+                  >Documentation licensed under CC BY 4.0.</span
+                >
+              </div>
+            </div>
+          </footer></app-footer
+        ></app-homepage
+      ></material-docs-app
+    >
+  </body>
+</html>

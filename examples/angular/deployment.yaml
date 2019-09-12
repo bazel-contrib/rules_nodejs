@@ -1,0 +1,19 @@
+# Configuration for deployment to kubernetes
+
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: angular-bazel-example-prod
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: angular-bazel-example-prod
+    spec:
+      containers:
+      - name: angular-bazel-example
+        image: gcr.io/internal-200822/src:nodejs_image
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080

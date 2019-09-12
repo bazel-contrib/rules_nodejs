@@ -1,5 +1,6 @@
 "Used to reference the nested workspaces for examples in /WORKSPACE"
 ALL_EXAMPLES = [
+    "angular",
     "app",
     "kotlin",
     "nestjs",
