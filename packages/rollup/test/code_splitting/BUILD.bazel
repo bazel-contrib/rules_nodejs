@@ -9,7 +9,7 @@ rollup_bundle(
     # TODO: if this isn't here, the error is
     # [!] Error: You must set output.dir instead of output.file when generating multiple chunks.
     # which will confuse users because it references output.dir instead of output_dir
-    output_dir = "chunks",
+    output_dir = True,
 )
 
 jasmine_node_test(

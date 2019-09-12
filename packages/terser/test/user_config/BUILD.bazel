@@ -5,11 +5,12 @@ terser_minified(
     name = "out.min",
     src = "input.js",
     config_file = "terser_config.json",
+    sourcemap = False,
 )
 
 golden_file_test(
     name = "test",
-    actual = "out.min.js",
+    actual = "out.min",
     golden = "output.golden.js_",
     golden_debug = "output.debug.golden.js_",
 )

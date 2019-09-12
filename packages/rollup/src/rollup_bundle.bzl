@@ -132,10 +132,11 @@ Passed to the [`--globals` option](https://github.com/rollup/rollup/blob/master/
 Also, the keys from the map are passed to the [`--external` option](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#external).
 """,
     ),
-    "output_dir": attr.string(
-        doc = """A directory in which generated chunks are placed.
+    "output_dir": attr.bool(
+        doc = """Whether to produce a directory output.
 
-Passed to the [`--output.dir` option](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#outputdir) in rollup.
+We will use the [`--output.dir` option](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#outputdir) in rollup
+rather than `--output.file`.
 
 If the program produces multiple chunks, you must specify this attribute.
 Otherwise, the outputs are assumed to be a single file.
@@ -240,7 +241,7 @@ def _rollup_bundle(ctx):
 
     # If user requests an output_dir, then use output.dir rather than output.file
     if ctx.attr.output_dir:
-        outputs.append(ctx.actions.declare_directory(ctx.attr.output_dir))
+        outputs.append(ctx.actions.declare_directory(ctx.label.name))
         for entry_point in entry_points:
             args.add_joined([entry_point[1], _no_ext(entry_point[0])], join_with = "=")
         args.add_all(["--output.dir", outputs[0].path])
