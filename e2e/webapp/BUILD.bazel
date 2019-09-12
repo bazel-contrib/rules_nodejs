@@ -6,12 +6,12 @@ rollup_bundle(
     name = "app",
     srcs = ["strings.js"],
     entry_point = "app.js",
-    output_dir = "bundle",
+    output_dir = True,
 )
 
 terser_minified(
     name = "out.min",
-    src_dir = "app",
+    src = "app",
 )
 
 nodejs_test(

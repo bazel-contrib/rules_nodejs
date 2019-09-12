@@ -29,15 +29,19 @@ terser_minified(
 
 Note that the `name` attribute determines what the resulting files will be called.
 So the example above will output `out.min.js` and `out.min.js.map` (since `sourcemap` defaults to `true`).
+If the input is a directory, then the output will also be a directory, named after the `name` attribute.
 """
 
 _TERSER_ATTRS = {
     "src": attr.label(
-        doc = """A JS file, or a rule producing .js files as its default output
+        doc = """File(s) to minify.
+        
+Can be a .js file, a rule producing .js files as its default output, or a rule producing a directory of .js files.
 
 Note that you can pass multiple files to terser, which it will bundle together.
 If you want to do this, you can pass a filegroup here.""",
         allow_files = [".js"],
+        mandatory = True,
     ),
     "config_file": attr.label(
         doc = """A JSON file containing Terser minify() options.
@@ -83,14 +87,6 @@ so that it only affects the current build.
         doc = "Whether to produce a .js.map output",
         default = True,
     ),
-    "src_dir": attr.label(
-        doc = """A directory containing some .js files.
-
-Each `.js` file will be run through terser, and the rule will output a directory of minified files.
-The output will be a directory named the same as the "name" attribute.
-Any files not ending in `.js` will be ignored.
-""",
-    ),
     "terser_bin": attr.label(
         doc = "An executable target that runs Terser",
         default = Label("@npm//@bazel/terser/bin:terser"),
@@ -99,41 +95,25 @@ Any files not ending in `.js` will be ignored.
     ),
 }
 
-def _terser_outs(src_dir, sourcemap):
-    if src_dir:
-        # Tree artifact outputs must be declared with ctx.actions.declare_directory
-        return {}
-    result = {"minified": "%{name}.js"}
-    if sourcemap:
-        result["sourcemap"] = "%{name}.js.map"
-    return result
-
 def _terser(ctx):
     "Generate actions to create terser config run terser"
 
     # CLI arguments; see https://www.npmjs.com/package/terser#command-line-usage
     args = ctx.actions.args()
-    inputs = []
-    outputs = [getattr(ctx.outputs, o) for o in dir(ctx.outputs)]
+    inputs = ctx.files.src[:]
+    outputs = []
 
-    if ctx.attr.src and ctx.attr.src_dir:
-        fail("Only one of src and src_dir attributes should be specified")
-    if not ctx.attr.src and not ctx.attr.src_dir:
-        fail("Either src or src_dir is required")
-    if ctx.attr.src:
-        for src in ctx.files.src:
-            if src.is_directory:
-                fail("Directories should be specified in the src_dir attribute, not src")
-            args.add(src.path)
-        inputs.extend(ctx.files.src)
-    else:
-        for src in ctx.files.src_dir:
-            if not src.is_directory:
-                fail("Individual files should be specifed in the src attribute, not src_dir")
-            args.add(src.path)
-        inputs.extend(ctx.files.src_dir)
+    directory_srcs = [s for s in ctx.files.src if s.is_directory]
+    if len(directory_srcs) > 0:
+        if len(ctx.files.src) > 1:
+            fail("When directories are passed to terser_minified, there should be only one input")
         outputs.append(ctx.actions.declare_directory(ctx.label.name))
+    else:
+        outputs.append(ctx.actions.declare_file("%s.js" % ctx.label.name))
+        if ctx.attr.sourcemap:
+            outputs.append(ctx.actions.declare_file("%s.js.map" % ctx.label.name))
 
+    args.add_all([s.path for s in ctx.files.src])
     args.add_all(["--output", outputs[0].path])
 
     debug = ctx.attr.debug or "DEBUG" in ctx.var.keys()
@@ -182,5 +162,4 @@ terser_minified = rule(
     doc = _DOC,
     implementation = _terser,
     attrs = _TERSER_ATTRS,
-    outputs = _terser_outs,
 )

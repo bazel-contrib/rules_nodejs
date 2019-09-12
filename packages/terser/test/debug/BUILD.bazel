@@ -11,8 +11,6 @@ terser_minified(
 
 golden_file_test(
     name = "test",
-    # Assert that the default output is a .js file
-    # by omitting the ".js" extension here
     actual = "out.min",
     golden = "output.golden.js_",
 )

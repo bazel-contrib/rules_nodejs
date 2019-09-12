@@ -10,9 +10,9 @@ declare_directory(
 
 terser_minified(
     name = "out.min",
+    src = "dir",
     # TODO: support sourcemaps too
     sourcemap = False,
-    src_dir = "dir",
 )
 
 jasmine_node_test(
