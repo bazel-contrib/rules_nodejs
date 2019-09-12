@@ -15,6 +15,15 @@
 load(":test.bzl", "example_integration_test")
 
 example_integration_test(
+    name = "examples_angular",
+    npm_packages = {
+        "//packages/karma:npm_package": "@bazel/karma",
+        "//packages/protractor:npm_package": "@bazel/protractor",
+        "//packages/typescript:npm_package": "@bazel/typescript",
+    },
+)
+
+example_integration_test(
     name = "examples_app",
     npm_packages = {
         "//packages/hide-bazel-files:npm_package": "@bazel/hide-bazel-files",

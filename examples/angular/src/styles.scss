@@ -1,0 +1,77 @@
+$theme-primary: #3e236e;
+$theme-secondary: #43a047;
+
+$default-font-stack: Cambria, "Hoefler Text", Utopia, "Liberation Serif", "Nimbus Roman No9 L Regular", Times, "Times New Roman", serif;
+$modern-font-stack: Constantia, "Lucida Bright", Lucidabright, "Lucida Serif", Lucida, "DejaVu Serif", "Bitstream Vera Serif", "Liberation Serif", Georgia, serif;
+
+html, body {
+  font-family: $default-font-stack;
+  padding: 0;
+  margin: 0;
+
+  .content {
+    margin: 2rem;
+  }
+}
+
+app-component {
+	display: flex;
+	flex-direction: column;
+	position: absolute;
+	top: 0;
+	right: 0;
+	left: 0;
+	bottom: 0;
+}
+
+mat-drawer-container {
+	flex: 1;
+}
+
+nav > .mat-toolbar {
+	background: $theme-secondary;
+	color: #fff;
+
+	.nav-logo {
+		height: 28px;
+	}
+
+	.flex-spacer {
+		flex: 1 1 auto;
+	}
+
+	a {
+		text-decoration: none;
+	}
+}
+
+.mobile-nav > a {
+	flex: 1 1 auto;
+}
+
+.hide-small {
+	@media screen and (max-width: 720px) {
+		display: none !important;
+	}
+}
+
+.show-small {
+	@media screen and (min-width: 720px) {
+		display: none !important;
+	}
+}
+
+.mat-card {
+	margin: 1em;
+}
+
+mat-drawer mat-nav-list .mat-icon {
+	margin-right: 0.5em;
+}
+
+h1 {
+	font-family: $modern-font-stack;
+	color: $theme-primary;
+  }
+  
+  

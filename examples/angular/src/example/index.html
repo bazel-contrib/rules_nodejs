@@ -1,0 +1,18 @@
+<!doctype html>
+
+<html>
+  <head>
+    <title>Angular Bazel Example</title>
+    <base href="/example">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  </head>
+  <body>
+    <!-- The Angular application will be bootstrapped into this element. -->
+    <app-component></app-component>
+
+    <!-- in browsers that don't support ESModules, we polyfill with system.js-->
+    <script nomodule src="/core.min.js"></script>
+    <script nomodule src="/system.js"></script>
+  </body>
+</html>

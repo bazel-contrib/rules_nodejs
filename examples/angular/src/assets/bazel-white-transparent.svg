@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 86.5 86.5" style="enable-background:new 0 0 86.5 86.5;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:none;stroke:#FFFFFF;stroke-width:2;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st1{opacity:0.2;fill:none;stroke:#FFFFFF;stroke-width:2;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st2{fill:#FFFFFF;}
+</style>
+<rect x="39" y="2.8" transform="matrix(-0.7071 -0.7071 0.7071 -0.7071 69.033 94.234)" class="st0" width="30" height="60"/>
+<rect x="17.8" y="2.8" transform="matrix(-0.7071 0.7071 -0.7071 -0.7071 79.234 32.8198)" class="st0" width="30" height="60"/>
+<rect x="39" y="23.6" transform="matrix(-0.7071 -0.7071 0.7071 -0.7071 54.3112 129.7757)" class="st1" width="30" height="60"/>
+<rect x="17.8" y="23.6" transform="matrix(-0.7071 0.7071 -0.7071 -0.7071 93.9558 68.3614)" class="st1" width="30" height="60"/>
+<polygon class="st0" points="1,22.2 1,43 22.2,64.2 22.2,43.4 "/>
+<polygon class="st0" points="43.4,64.6 43.4,85.5 22.2,64.2 22.2,43.4 "/>
+<polygon class="st0" points="85.9,22.2 85.9,43 64.6,64.2 64.6,43.4 "/>
+<polygon class="st0" points="43.4,64.6 64.6,43.4 64.6,64.2 43.4,85.5 "/>
+<line class="st1" x1="22.2" y1="1" x2="22.2" y2="21.8"/>
+<line class="st1" x1="64.6" y1="1" x2="64.6" y2="21.8"/>
+<line class="st1" x1="43.4" y1="22.1" x2="43.4" y2="43.1"/>
+
+</svg>

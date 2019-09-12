@@ -224,33 +224,6 @@ jobs:
           command: bazel test --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,7.0,1.0 //examples:examples_vendored_node //examples:examples_vendored_node_and_yarn
           no_output_timeout: 20m
 
-  test_e2e_angular_bazel_example:
-    <<: *job_defaults
-    resource_class: xlarge
-    # We need to reduce the memory & CPU usage of the top-level
-    # bazel process for this large bazel-in-bazel test to not
-    # deplete the system memory completely.
-    # - startup JVM memory reduced
-    # - top-level bazel process should use as little memory as possible and only 1 core
-    # - nested bazel process should have its memory & core optimally capped as well
-    steps:
-      - *attach_workspace
-      - *init_environment
-      - run:
-          name: Tune top-level bazel JVM memory usage
-          command: echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1280m' >> .bazelrc
-      - *init_bazel
-      - *hide_node_and_yarn_local_binaries
-
-      # Split up the build & test as test takes a long time and has very
-      # little output so running build first makes CI output friendlier.
-      # The build step can also use up more memory which may be required
-      # to build the release package with this configuration.
-      - run: bazel build //e2e:e2e_angular_bazel_example
-      - run:
-          command: bazel test --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,7.0,1.0 --test_arg=--test_tag_filters=-no-circleci,-manual //e2e:e2e_angular_bazel_example
-          no_output_timeout: 20m
-
   test_legacy_runfiles:
     <<: *job_defaults
     steps:
@@ -282,8 +255,5 @@ workflows:
           requires:
           - setup
       - test_examples:
-          requires:
-          - setup
-      - test_e2e_angular_bazel_example:
           requires:
           - setup
