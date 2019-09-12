@@ -26,3 +26,13 @@ ng_module(
         "@npm//@ngrx/store",
     ],
 )
+
+# For testing from the root workspace of this repository with bazel_integration_test.
+filegroup(
+    name = "all_files",
+    srcs = glob(["**/*"]) + [
+        "//src/app/hello-world:all_files",
+        "//src/app/todos:all_files",
+        "//src/app/home:all_files",
+    ],
+)

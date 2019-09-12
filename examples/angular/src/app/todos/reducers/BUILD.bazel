@@ -9,3 +9,9 @@ ts_library(
         "@npm//@ngrx/store",
     ],
 )
+
+# For testing from the root workspace of this repository with bazel_integration_test.
+filegroup(
+    name = "all_files",
+    srcs = glob(["**/*"]),
+)
