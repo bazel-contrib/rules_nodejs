@@ -9,6 +9,7 @@
 const fs = require('fs');
 const path = require('path');
 const child_process = require('child_process');
+const os = require('os')
 
 // Run Bazel with --define=VERBOSE_LOGS=1 to enable this logging
 const VERBOSE_LOGS = !!process.env['VERBOSE_LOGS'];
@@ -43,8 +44,39 @@ function terserDirectory(input) {
     fs.mkdirSync(output);
   }
 
+  let work = []
+  let concurrency = (os.cpus().length-1||1);
+  let active = 0
+  errors = []
+
+  function done(){
+    if(work.length) exec(work.shift()); 
+    else if(!active) {
+      // todo actuall resolve
+      if(errors.length) {
+        console.error(JSON.stringify(errors,null,'  '));
+        process.exit(1)
+      }
+
+      // NOTE: PROGRAM IS FINISHED HERE
+    }
+  }
+
+  function exec([inputFile,outputFile]){
+    active++;
+    let args = [process.execPath,require.resolve('terser/bin/uglifyjs'),inputFile, '--output', outputFile, ...residual]
+    child_process.exec(args.join(' '),(err,stdout,stderr)=>{
+      if(err){
+        errors.push({error:err,stderr:stderr+'',args});
+      }
+      process.stdout.write(stdout);
+      done()
+    })
+  }
+
   fs.readdirSync(input).forEach(f => {
     if (f.endsWith('.js')) {
+
       const inputFile = path.join(input, path.basename(f));
       const outputFile = path.join(output, path.basename(f));
       // We don't want to implement a command-line parser for terser
@@ -54,9 +86,16 @@ function terserDirectory(input) {
       // machine;
       //        we need to limit the concurrency with something like the p-limit package.
       // TODO: under Node 12 it should use the worker threads API to saturate all local cores
-      child_process.fork(
-          // Note that the fork API doesn't do any module resolution.
-          require.resolve('terser/bin/uglifyjs'), [inputFile, '--output', outputFile, ...residual]);
+      
+      if(active < concurrency){
+        exec([inputFile, outputFile])
+      } else {
+        work.push([inputFile,outputFile])
+      }
+
+      //child_process.fork(
+      //    // Note that the fork API doesn't do any module resolution.
+      //    require.resolve('terser/bin/uglifyjs'), [inputFile, '--output', outputFile, ...residual]);
     }
   });
 }
