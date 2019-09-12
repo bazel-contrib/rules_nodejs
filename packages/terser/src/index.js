@@ -44,58 +44,52 @@ function terserDirectory(input) {
     fs.mkdirSync(output);
   }
 
-  let work = []
-  let concurrency = (os.cpus().length-1||1);
-  let active = 0
-  errors = []
+  let work = [];
+  let concurrency = (os.cpus().length - 1 || 1);
+  let active = 0;
+  let errors = [];
 
-  function done(){
-    if(work.length) exec(work.shift()); 
-    else if(!active) {
-      // todo actuall resolve
-      if(errors.length) {
-        console.error(JSON.stringify(errors,null,'  '));
-        process.exit(1)
+  function exec([inputFile, outputFile]) {
+    active++;
+    let args =
+        [require.resolve('terser/bin/uglifyjs'), inputFile, '--output', outputFile, ...residual];
+
+    spawn(process.execPath, args).then((data) => {
+      if (data.code) {
+        errors.push({file: inputFile, out: data.out + '', err: data.error + '', code: data.code})
       }
 
+      console.log('finished: ', inputFile, '\n', data.out + '');
+      done();
+    }, (err) => {errors.push({error: err + '', code: -1})})
+  }
+
+  function done() {
+    if (work.length)
+      exec(work.shift());
+    else if (!active) {
+      if (errors.length) {
+        console.error(JSON.stringify(errors, null, '  '));
+        process.exit(1);
+      }
       // NOTE: PROGRAM IS FINISHED HERE
     }
   }
 
-  function exec([inputFile,outputFile]){
-    active++;
-    let args = [process.execPath,require.resolve('terser/bin/uglifyjs'),inputFile, '--output', outputFile, ...residual]
-    child_process.exec(args.join(' '),(err,stdout,stderr)=>{
-      if(err){
-        errors.push({error:err,stderr:stderr+'',args});
-      }
-      process.stdout.write(stdout);
-      done()
-    })
-  }
-
   fs.readdirSync(input).forEach(f => {
     if (f.endsWith('.js')) {
-
       const inputFile = path.join(input, path.basename(f));
       const outputFile = path.join(output, path.basename(f));
       // We don't want to implement a command-line parser for terser
       // so we invoke its CLI as child processes, just altering the input/output
       // arguments. See discussion: https://github.com/bazelbuild/rules_nodejs/issues/822
-      // FIXME: this causes unlimited concurrency, which will definitely eat all the RAM on your
-      // machine;
-      //        we need to limit the concurrency with something like the p-limit package.
       // TODO: under Node 12 it should use the worker threads API to saturate all local cores
-      
-      if(active < concurrency){
-        exec([inputFile, outputFile])
-      } else {
-        work.push([inputFile,outputFile])
-      }
 
-      //child_process.fork(
-      //    // Note that the fork API doesn't do any module resolution.
-      //    require.resolve('terser/bin/uglifyjs'), [inputFile, '--output', outputFile, ...residual]);
+      if (active < concurrency) {
+        exec([inputFile, outputFile]);
+      } else {
+        work.push([inputFile, outputFile])
+      }
     }
   });
 }
@@ -109,4 +103,20 @@ if (!inputs.find(isDirectory)) {
   throw new Error('terser_minified only allows a single input when minifying a directory');
 } else {
   terserDirectory(inputs[0]);
+}
+
+function spawn(cmd, args) {
+  return new Promise((resolve, reject) => {
+    const err = [];
+    const out = [];
+    let proc = child_process.spawn(cmd, args);
+
+    proc.stdout.on('data', (buf) => {
+      out.push(buf);
+    })
+    proc.stderr.on('data', (buf) => {err.push(buf)})
+    proc.on('exit', (code) => {
+      resolve({out: Buffer.concat(out), err: err.length ? Buffer.concat(err) : false, code: code});
+    })
+  })
 }
