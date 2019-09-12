@@ -18,13 +18,14 @@ golden_file_test(
 terser_minified(
     name = "debug_from_env",
     src = "input.js",
+    sourcemap = False,
     # Don't specify debug = True
     # Instead we'll run the test with --define=DEBUG=1
 )
 
 golden_file_test(
     name = "test_define_DEBUG",
-    actual = "debug_from_env.js",
+    actual = "debug_from_env",
     golden = "output.golden.js_",
     tags = ["manual"],  # Only passes when --define=DEBUG=1 is set
 )
