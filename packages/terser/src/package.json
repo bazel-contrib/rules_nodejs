@@ -1,7 +1,7 @@
 {
     "name": "@bazel/terser",
-    "dependencies": {
-        "terser": "4.1.2"
+    "peerDependencies": {
+        "terser": ">4.0.0 <5.0.0"
     },
     "description": "Run Terser JS optimizer under Bazel",
     "license": "Apache-2.0",
