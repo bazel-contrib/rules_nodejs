@@ -213,7 +213,22 @@ export const customMatchers: jasmine.CustomMatcherFactories = {
         return {pass: regrets === '', message: regrets};
       }
     };
+  },
+
+  /**
+   * Asserts that a Failure has no fix.
+   */
+  toHaveNoFix(): jasmine.CustomMatcher {
+    return {
+      compare: (actualFailure: Failure) => {
+        return {
+          pass: actualFailure.toDiagnostic().fix === undefined,
+          message: 'This failure should not have a fix.'
+        };
+      }
+    };
   }
+
 };
 
 function expectation(fieldname: string, expectation: any, actual: any) {
@@ -232,11 +247,15 @@ declare global {
         messageText?: string,
       }): void;
 
+      /** Checks that a Failure has the expected Fix field. */
       toHaveFixMatching(expected: [
         {fileName?: string, start?: number, end?: number, replacement?: string}
       ]): void;
 
       toHaveNFailures(expected: Number, config?: Config): void;
+
+      /** Asserts that a Failure has no fix. */
+      toHaveNoFix(): void;
     }
   }
 }
