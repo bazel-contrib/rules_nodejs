@@ -1,0 +1,16 @@
+{
+  "hosting": {
+    "public": "dist/bin/src/prodapp",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/example/**",
+        "destination": "/example/index.html"
+      }
+    ]
+  }
+}
