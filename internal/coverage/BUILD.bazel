@@ -1,0 +1,40 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+
+exports_files([
+    "lcov_merger-js.js",
+])
+
+# BEGIN-INTERNAL
+load("//packages/typescript:checked_in_ts_project.bzl", "checked_in_ts_project")
+
+checked_in_ts_project(
+    name = "lcov_merger_js_lib",
+    src = "lcov_merger.ts",
+    checked_in_js = "lcov_merger-js.js",
+    visibility = ["//visibility:public"],
+    deps = ["@npm//@types/node"],
+)
+# END-INTERNAL
+
+nodejs_binary(
+    name = "lcov_merger_js",
+    entry_point = "lcov_merger.js",
+    visibility = ["//visibility:public"],
+)
+
+sh_binary(
+    name = "lcov_merger_sh",
+    srcs = ["lcov_merger.sh"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "package_contents",
+    srcs = glob([
+        "*.sh",
+        "*.js",
+    ]) + [
+        "BUILD.bazel",
+    ],
+    visibility = ["//:__pkg__"],
+)

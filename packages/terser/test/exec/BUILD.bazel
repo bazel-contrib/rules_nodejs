@@ -3,7 +3,6 @@ load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
 jasmine_node_test(
     name = "test",
     srcs = ["spec.js"],
-    coverage = True,
     data = [
         "//packages/terser:index.js",
     ],

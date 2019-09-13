@@ -62,26 +62,20 @@ function readArg() {
 }
 
 function main(args) {
-  if (args.length < 3) {
+  if (args.length < 2) {
     throw new Error('expected argument missing');
   }
 
   // first args is always the path to the manifest
   const manifest = runfiles.resolveWorkspaceRelative(readArg());
-  // second is always a flag to enable coverage or not
-  const coverageArg = readArg();
-  const enableCoverage = coverageArg === '--coverage';
   // config file is the next arg
   const configFile = readArg();
-
-  // the relative directory the coverage reporter uses to find anf filter the files
-  const cwd = process.cwd();
 
   const jrunner = new JasmineRunner({jasmineCore: jasmineCore});
   if (configFile !== '--noconfig') {
     jrunner.loadConfigFile(runfiles.resolveWorkspaceRelative(configFile));
   }
-  const allFiles = fs.readFileSync(manifest, UTF8)
+  fs.readFileSync(manifest, UTF8)
                        .split('\n')
                        .filter(l => l.length > 0)
                        // Filter out files from node_modules
@@ -89,15 +83,13 @@ function main(args) {
                        // Use runfiles resolve to resolve the file path that
                        // bazel passes to the runner to its absolute path
                        .map(f => runfiles.resolveWorkspaceRelative(f))
-
-  allFiles
-      // Filter here so that only files ending in `spec.js` and `test.js`
-      // are added to jasmine as spec files. This is important as other
-      // deps such as "@npm//typescript" if executed may cause the test to
-      // fail or have unexpected side-effects. "@npm//typescript" would
-      // try to execute tsc, print its help, and process.exit(1)
-      .filter(f => IS_TEST_FILE.test(f))
-      .forEach(f => jrunner.addSpecFile(f));
+                      // Filter here so that only files ending in `spec.js` and `test.js`
+                      // are added to jasmine as spec files. This is important as other
+                      // deps such as "@npm//typescript" if executed may cause the test to
+                      // fail or have unexpected side-effects. "@npm//typescript" would
+                      // try to execute tsc, print its help, and process.exit(1)
+                      .filter(f => IS_TEST_FILE.test(f))
+                      .forEach(f => jrunner.addSpecFile(f));
 
   var noSpecsFound = true;
   jrunner.addReporter({
@@ -124,59 +116,11 @@ function main(args) {
   // so we need to add it back
   jrunner.configureDefaultReporter({});
 
-  let covExecutor;
-  let covDir;
-  if (enableCoverage) {
-    // lazily pull these deps in for only when we want to collect coverage
-    const crypto = require('crypto');
-    const Execute = require('v8-coverage/src/execute');
-
-    // Filter out all .spec and .test files so we only report coverage against the source files
-    const sourceFiles = allFiles
-                            .filter(f => !IS_TEST_FILE.test(f))
-                            // the jasmine_runner.js gets in here as a file to run
-                            .filter(f => !f.endsWith('jasmine_runner.js'))
-                            // the reporting lib resolves the relative path to our cwd instead of
-                            // using the absolute one so match it here
-                            .map(f => path.relative(cwd, f))
-
-    // make a tmpdir inside our tmpdir for just this run
-    covDir = path.join(process.env['TEST_TMPDIR'], String(crypto.randomBytes(4).readUInt32LE(0)));
-    covExecutor = new Execute({include: sourceFiles, exclude: []});
-    covExecutor.startProfiler();
-  }
-
   jrunner.onComplete((passed) => {
     let exitCode = passed ? 0 : BAZEL_EXIT_TESTS_FAILED;
     if (noSpecsFound) exitCode = BAZEL_EXIT_NO_TESTS_FOUND;
 
-    if (enableCoverage) {
-      const Report = require('v8-coverage/src/report');
-      covExecutor.stopProfiler((err, data) => {
-        if (err) {
-          console.error(err);
-          process.exit(1);
-        }
-        const sourceCoverge = covExecutor.filterResult(data.result);
-        // we could do this all in memory if we wanted
-        // just take a look at v8-coverage/src/report.js and reimplement some of those methods
-        // but we're going to have to write a file at some point for bazel coverage
-        // so may as well support it now
-        // the lib expects these paths to exist for some reason
-        fs.mkdirSync(covDir);
-        fs.mkdirSync(path.join(covDir, 'tmp'));
-        // only do a text summary for now
-        // once we know what format bazel coverage wants we can output
-        // lcov or some other format
-        const report = new Report(covDir, ['text-summary']);
-        report.store(sourceCoverge);
-        report.generateReport();
-
-        process.exit(exitCode);
-      });
-    } else {
-      process.exit(exitCode);
-    }
+    process.exit(exitCode);
   });
 
   if (TOTAL_SHARDS) {

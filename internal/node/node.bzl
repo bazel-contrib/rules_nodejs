@@ -225,6 +225,7 @@ fi
     node_tool_files.append(ctx.file._link_modules_script)
     node_tool_files.append(ctx.file._runfiles_helper_script)
     node_tool_files.append(ctx.file._node_patches_script)
+    node_tool_files.append(ctx.file._lcov_merger_script)
     node_tool_files.append(node_modules_manifest)
 
     is_builtin = ctx.attr._node.label.workspace_name in ["nodejs_%s" % p for p in BUILT_IN_NODE_PLATFORMS]
@@ -248,6 +249,7 @@ fi
         "TEMPLATED_args": " ".join(expanded_args),
         "TEMPLATED_env_vars": env_vars,
         "TEMPLATED_expected_exit_code": str(expected_exit_code),
+        "TEMPLATED_lcov_merger_script": _to_manifest_path(ctx, ctx.file._lcov_merger_script),
         "TEMPLATED_link_modules_script": _to_manifest_path(ctx, ctx.file._link_modules_script),
         "TEMPLATED_loader_script": _to_manifest_path(ctx, ctx.outputs.loader_script),
         "TEMPLATED_modules_manifest": _to_manifest_path(ctx, node_modules_manifest),
@@ -315,6 +317,11 @@ fi
             deps = depset([ctx.file.entry_point], transitive = [node_modules, sources]),
             pkgs = ctx.attr.data,
         ),
+        # indicates that the this binary should be instrumented by coverage
+        # see https://docs.bazel.build/versions/master/skylark/lib/coverage_common.html
+        # since this will be called from a nodejs_test, where the entrypoint is going to be the test file
+        # we shouldn't add the entrypoint as a attribute to collect here
+        coverage_common.instrumented_files_info(ctx, dependency_attributes = ["data"], extensions = ["js", "ts"]),
     ]
 
 _NODEJS_EXECUTABLE_ATTRS = {
@@ -561,6 +568,10 @@ Predefined genrule variables are not supported in this context.
         default = Label("//internal/node:launcher.sh"),
         allow_single_file = True,
     ),
+    "_lcov_merger_script": attr.label(
+        default = Label("//internal/coverage:lcov_merger-js.js"),
+        allow_single_file = True,
+    ),
     "_link_modules_script": attr.label(
         default = Label("//internal/linker:index.js"),
         allow_single_file = True,
@@ -627,6 +638,12 @@ nodejs_test = rule(
         "expected_exit_code": attr.int(
             doc = "The expected exit code for the test. Defaults to 0.",
             default = 0,
+        ),
+        # See the content of lcov_merger_sh for the reason we need this
+        "_lcov_merger": attr.label(
+            executable = True,
+            default = Label("@build_bazel_rules_nodejs//internal/coverage:lcov_merger_sh"),
+            cfg = "target",
         ),
     }),
     doc = """

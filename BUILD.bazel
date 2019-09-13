@@ -77,6 +77,7 @@ pkg_npm(
         "//internal/bazel_integration_test:package_contents",
         "//internal/common:package_contents",
         "//internal/copy_repository:package_contents",
+        "//internal/coverage:package_contents",
         "//internal/golden_file_test:package_contents",
         "//internal/js_library:package_contents",
         "//internal/linker:package_contents",
