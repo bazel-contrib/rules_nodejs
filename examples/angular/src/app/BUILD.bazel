@@ -1,4 +1,5 @@
 load("@npm_angular_bazel//:index.bzl", "ng_module")
+load("//src/app:modules.bzl", "APP_MODULES")
 
 package(default_visibility = ["//:__subpackages__"])
 
@@ -15,10 +16,8 @@ ng_module(
     srcs = glob(["*.ts"]),
     assets = ["app.component.html"],
     tsconfig = "//src:tsconfig.json",
-    deps = NG_FACTORY_ADDED_IMPORTS + [
-        "//src/app/hello-world",
-        "//src/app/home",
-        "//src/app/todos",
+    deps = NG_FACTORY_ADDED_IMPORTS +
+           APP_MODULES + [
         "//src/shared/material",
         "@npm//@angular/core",
         "@npm//@angular/router",
