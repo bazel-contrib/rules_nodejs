@@ -158,6 +158,7 @@ MAIN=$(rlocation "TEMPLATED_loader_script")
 
 readonly repository_args=$(rlocation "TEMPLATED_repository_args")
 readonly link_modules_script=$(rlocation "TEMPLATED_link_modules_script")
+readonly lcov_merger_script=$(rlocation "TEMPLATED_lcov_merger_script")
 node_patches_script=$(rlocation "TEMPLATED_node_patches_script")
 require_patch_script=${BAZEL_NODE_PATCH_REQUIRE}
 
@@ -254,31 +255,67 @@ fi
 # a binary fails to run. Otherwise any failure would make such a test
 # fail before we could assert that we expected that failure.
 readonly EXPECTED_EXIT_CODE="TEMPLATED_expected_exit_code"
-if [ "${EXPECTED_EXIT_CODE}" -eq "0" ]; then
-  # Replace the current process (bash) with a node process.
-  # This means that stdin, stdout, signals, etc will be transparently
-  # handled by the node process.
-  # If we had merely forked a child process here, we'd be responsible
-  # for forwarding those OS interactions.
-  exec "${node}" "${LAUNCHER_NODE_OPTIONS[@]:-}" "${USER_NODE_OPTIONS[@]:-}" "${MAIN}" ${ARGS[@]+"${ARGS[@]}"}
-  # exec terminates execution of this shell script, nothing later will run.
+
+if [[ -n "${COVERAGE_DIR:-}" ]]; then
+  if [[ -n "${VERBOSE_LOGS:-}" ]]; then
+    echo "Turning on node coverage with NODE_V8_COVERAGE=${COVERAGE_DIR}"
+  fi
+  # Setting NODE_V8_COVERAGE=${COVERAGE_DIR} causes NodeJS to write coverage
+  # information our to the COVERAGE_DIR once the process exits
+  export NODE_V8_COVERAGE=${COVERAGE_DIR}
 fi
 
+# Bash does not forward termination signals to any child process when
+# running in docker so need to manually trap and forward the signals
+_term() {
+  kill -TERM "${child}" 2>/dev/null
+}
+
+_int() {
+  kill -INT "${child}" 2>/dev/null
+}
+
+# Execute the main program
 set +e
-"${node}" "${LAUNCHER_NODE_OPTIONS[@]:-}" "${USER_NODE_OPTIONS[@]:-}" "${MAIN}" ${ARGS[@]+"${ARGS[@]}"}
+"${node}" "${LAUNCHER_NODE_OPTIONS[@]:-}" "${USER_NODE_OPTIONS[@]:-}" "${MAIN}" ${ARGS[@]+"${ARGS[@]}"} <&0 &
+readonly child=$!
+trap _term SIGTERM
+trap _int SIGINT
+wait "${child}"
 RESULT="$?"
 set -e
 
-if [ ${RESULT} != ${EXPECTED_EXIT_CODE} ]; then
-  echo "Expected exit code to be ${EXPECTED_EXIT_CODE}, but got ${RESULT}" >&2
-  if [ "${RESULT}" -eq "0" ]; then
-    # This exit code is handled specially by Bazel:
-    # https://github.com/bazelbuild/bazel/blob/486206012a664ecb20bdb196a681efc9a9825049/src/main/java/com/google/devtools/build/lib/util/ExitCode.java#L44
-    readonly BAZEL_EXIT_TESTS_FAILED=3;
-    exit ${BAZEL_EXIT_TESTS_FAILED}
+if [ "${EXPECTED_EXIT_CODE}" != "0" ]; then
+  if [ ${RESULT} != ${EXPECTED_EXIT_CODE} ]; then
+    echo "Expected exit code to be ${EXPECTED_EXIT_CODE}, but got ${RESULT}" >&2
+    if [ "${RESULT}" -eq "0" ]; then
+      # This exit code is handled specially by Bazel:
+      # https://github.com/bazelbuild/bazel/blob/486206012a664ecb20bdb196a681efc9a9825049/src/main/java/com/google/devtools/build/lib/util/ExitCode.java#L44
+      readonly BAZEL_EXIT_TESTS_FAILED=3;
+      exit ${BAZEL_EXIT_TESTS_FAILED}
+    fi
+  else 
+    exit 0
   fi
-else
-  exit 0
+fi
+
+# Post process the coverage information after the process has exited
+if [[ -n "${COVERAGE_DIR:-}" ]]; then
+  if [[ -n "${VERBOSE_LOGS:-}" ]]; then
+    echo "Running coverage lcov merger script with arguments"
+    echo "  --coverage_dir="${COVERAGE_DIR}""
+    echo "  --output_file="${COVERAGE_OUTPUT_FILE}""
+    echo "  --source_file_manifest="${COVERAGE_MANIFEST}""
+  fi
+
+  set +e
+  "${node}" "${lcov_merger_script}" --coverage_dir="${COVERAGE_DIR}" --output_file="${COVERAGE_OUTPUT_FILE}" --source_file_manifest="${COVERAGE_MANIFEST}"
+  RESULT="$?"
+  set -e
+
+  if [ ${RESULT} -ne 0 ]; then
+    exit ${RESULT}
+  fi
 fi
 
 exit ${RESULT}

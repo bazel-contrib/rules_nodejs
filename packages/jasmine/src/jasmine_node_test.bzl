@@ -62,7 +62,6 @@ def jasmine_node_test(
         expected_exit_code = 0,
         tags = [],
         config_file = None,
-        coverage = False,
         # Replaced by pkg_npm with jasmine = "@npm//@bazel/jasmine",
         jasmine = "@npm_bazel_jasmine//:jasmine__pkg",
         # Replaced by pkg_npm with jasmine_entry_point = "@npm//:node_modules/@bazel/jasmine/jasmine_runner.js",
@@ -92,11 +91,13 @@ def jasmine_node_test(
 
         See https://jasmine.github.io/setup/nodejs.html#configuration
 
-      coverage: Enables code coverage collection and reporting.
       jasmine: A label providing the `@bazel/jasmine` npm dependency.
       jasmine_entry_point: A label providing the `@bazel/jasmine` entry point.
       **kwargs: Remaining arguments are passed to the test rule
     """
+    if kwargs.pop("coverage", False):
+        fail("The coverage attribute has been removed, run your target with \"bazel coverage\" instead")
+
     _devmode_js_sources(
         name = "%s_devmode_srcs" % name,
         srcs = srcs + deps,
@@ -110,7 +111,7 @@ def jasmine_node_test(
     # Only used when running tests in the rules_nodejs repo.
     # Avoid adding duplicate deps though, some rules use this from source and declared the dep
     if not "@npm//jasmine" in all_data and not str(Label("@npm//jasmine")) in all_data and not "no-local-jasmine-deps" in tags:
-        all_data.extend(["@npm//jasmine", "@npm//jasmine-reporters", "@npm//v8-coverage"])
+        all_data.extend(["@npm//jasmine", "@npm//jasmine-reporters", "@npm//c8"])
 
     # END-INTERNAL
     all_data += [":%s_devmode_srcs.MF" % name]
@@ -121,7 +122,6 @@ def jasmine_node_test(
     # specs to consume.
     templated_args = [
         "$(rootpath :%s_devmode_srcs.MF)" % name,
-        "--coverage" if coverage else "--nocoverage",
         "$(rootpath %s)" % config_file if config_file else "--noconfig",
     ] + kwargs.pop("templated_args", [])
 

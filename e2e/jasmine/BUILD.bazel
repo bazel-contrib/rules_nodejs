@@ -18,12 +18,3 @@ jasmine_node_test(
         "@npm//zone.js",
     ],
 )
-
-jasmine_node_test(
-    name = "coverage_test",
-    srcs = [
-        "coverage.spec.js",
-        "coverage_source.js",
-    ],
-    coverage = True,
-)
