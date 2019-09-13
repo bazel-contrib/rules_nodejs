@@ -44,8 +44,11 @@ function terserDirectory(input) {
     fs.mkdirSync(output);
   }
 
+
+  // we should allow users to configure this.
+  // tracking issue: https://github.com/bazelbuild/rules_nodejs/issues/1132
+  const maxConcurrency = (os.cpus().length - 1 || 1);
   let work = [];
-  let concurrency = (os.cpus().length - 1 || 1);
   let active = 0;
   let errors = [];
 
@@ -54,25 +57,37 @@ function terserDirectory(input) {
     let args =
         [require.resolve('terser/bin/uglifyjs'), inputFile, '--output', outputFile, ...residual];
 
-    spawn(process.execPath, args).then((data) => {
-      if (data.code) {
-        errors.push({file: inputFile, out: data.out + '', err: data.error + '', code: data.code})
-      }
-
-      console.log('finished: ', inputFile, '\n', data.out + '');
-      done();
-    }, (err) => {errors.push({error: err + '', code: -1})})
+    spawn(process.execPath, args)
+        .then(
+            (data) => {
+              if (data.code) {
+                errors.push(
+                    {file: inputFile, out: data.out + '', err: data.error + '', code: data.code})
+                // NOTE: Even though a terser process has errored we continue here to collect all of
+                // the errors. this behavior is another candidate for user configuration because
+                // there is value in stopping at the first error in some use cases.
+              }
+              console.log(data.code ? 'errored: ' : 'finished: ', inputFile);
+              --active;
+              next();
+            },
+            (err) => {
+              --active;
+              console.log('errored:', inputFile)
+              errors.push({file: inputFile, error: err + '', code: -1})
+              next();
+            })
   }
 
-  function done() {
-    if (work.length)
+  function next() {
+    if (work.length) {
       exec(work.shift());
-    else if (!active) {
+    } else if (!active) {
       if (errors.length) {
         console.error(JSON.stringify(errors, null, '  '));
-        process.exit(1);
+        process.exitCode = 1;
       }
-      // NOTE: PROGRAM IS FINISHED HERE
+      // NOTE: node should exit here.
     }
   }
 
@@ -85,7 +100,7 @@ function terserDirectory(input) {
       // arguments. See discussion: https://github.com/bazelbuild/rules_nodejs/issues/822
       // TODO: under Node 12 it should use the worker threads API to saturate all local cores
 
-      if (active < concurrency) {
+      if (active < maxConcurrency) {
         exec([inputFile, outputFile]);
       } else {
         work.push([inputFile, outputFile])
@@ -113,10 +128,10 @@ function spawn(cmd, args) {
 
     proc.stdout.on('data', (buf) => {
       out.push(buf);
-    })
+    });
     proc.stderr.on('data', (buf) => {err.push(buf)})
     proc.on('exit', (code) => {
       resolve({out: Buffer.concat(out), err: err.length ? Buffer.concat(err) : false, code: code});
-    })
+    });
   })
 }
