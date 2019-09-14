@@ -33,6 +33,8 @@ npm_package(
     srcs = [
         "@npm_bazel_less//:package_contents",
     ],
+    # less package is deprecated
+    tags = ["do-not-publish"],
     vendor_external = [
         "npm_bazel_less",
     ],

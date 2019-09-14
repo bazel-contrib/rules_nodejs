@@ -2,8 +2,10 @@
 # yarn lockfile v1
 
 
-"@bazel/less@file:../../dist/bin/packages/less/npm_package":
-  version "1.2.3"
+"@bazel/less@latest":
+  version "0.37.1"
+  resolved "https://registry.yarnpkg.com/@bazel/less/-/less-0.37.1.tgz#915bd08f3f164b106639482ce3feebac30f63773"
+  integrity sha512-Ch+wN17E4CF5Gk7eX+mJ/i42LHXwDvDe6WMFHxBD0zwY3Omi/DozGYcaM+byCKSmssiPKK4g//d4ZIljVCsdfQ==
   dependencies:
     less "^3.9.0"
 

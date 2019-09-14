@@ -1,9 +1,20 @@
 load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_test")
-load("@npm_bazel_less//:index.bzl", "less_binary")
+load("@npm//less:index.bzl", "lessc")
 
-less_binary(
+lessc(
     name = "styles",
-    src = "test.less",
+    srcs = ["test.less"],
+    outs = [
+        "test.css",
+        "test.css.map",
+    ],
+    args = [
+        "test.less",
+        # Output paths must use $(location) since Bazel puts them in a platform-dependent output directory
+        "$(location test.css)",
+        "--silent",
+        "--source-map",
+    ],
 )
 
 nodejs_test(

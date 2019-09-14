@@ -1,4 +1,4 @@
-load("//:defs.bzl", "nodejs_binary", "nodejs_test")
+load("//:defs.bzl", "nodejs_binary", "nodejs_test", "npm_package_bin")
 load("//internal/js_library:js_library.bzl", "js_library")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/write_file.bzl", "write_file")
@@ -144,4 +144,22 @@ nodejs_test(
         ":genfile-runfile",
     ],
     entry_point = ":data_resolution_built.spec.js",
+)
+
+npm_package_bin(
+    name = "run_terser",
+    srcs = ["terser_input.js"],
+    outs = ["minified.js"],
+    args = [
+        "$(location terser_input.js)",
+        "--output",
+        "$(location minified.js)",
+    ],
+    package = "terser",
+)
+
+nodejs_test(
+    name = "npm_package_bin_test",
+    data = ["minified.js"],
+    entry_point = "npm_package_bin.spec.js",
 )

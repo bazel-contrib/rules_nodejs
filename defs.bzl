@@ -28,6 +28,7 @@ load(
     _nodejs_test = "nodejs_test",
 )
 load("//internal/node:node_repositories.bzl", _node_repositories = "node_repositories")
+load("//internal/node:npm_package_bin.bzl", _npm_bin = "npm_package_bin")
 load("//internal/npm_install:npm_install.bzl", _npm_install = "npm_install", _yarn_install = "yarn_install")
 load("//internal/npm_package:npm_package.bzl", _npm_package = "npm_package")
 load("//internal/rollup:rollup_bundle.bzl", _rollup_bundle = "rollup_bundle")
@@ -41,6 +42,7 @@ rollup_bundle = _rollup_bundle
 npm_package = _npm_package
 history_server = _history_server
 http_server = _http_server
+npm_package_bin = _npm_bin
 # ANY RULES ADDED HERE SHOULD BE DOCUMENTED, see index.for_docs.bzl
 
 # Allows us to avoid a transitive dependency on bazel_skylib from leaking to users
