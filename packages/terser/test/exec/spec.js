@@ -60,14 +60,21 @@ describe('run terser', () => {
   })
 
   it('errors when any file in a directory fails', () => {
-    fs.mkdirSync('fruit')
-    fs.mkdirSync('frout')
+    // retries are not run in clean directories
+    try {
+      fs.mkdirSync('fruit')
+      fs.mkdirSync('frout')
+    } catch (e) {
+    }
+
     fs.writeFileSync('fruit/apples.js', 'yay apple!');
     fs.writeFileSync('fruit/orange.js', '"orange.js"');
     stderr = '';
     try {
       terser('fruit', 'frout')
     } catch (e) {
+      console.log(e + '', e.status, e.stderr + '', e.stdout + '')
+
       assert.strictEqual(e.status, 2, 'exit code 2');
       stderr = e.stderr + ''
     }
@@ -83,8 +90,13 @@ describe('run terser', () => {
   // always uses concurrency >= to the number of items to process
   // this excercies a code path where the pending work queue is never used.
   it('processes all files in a directory', () => {
-    fs.mkdirSync('fruit2');
-    fs.mkdirSync('frout2');
+    // retries are not run in clean directories.
+    try {
+      fs.mkdirSync('fruit2');
+      fs.mkdirSync('frout2');
+    } catch (e) {
+    }
+
     fs.writeFileSync('fruit2/apples.js', '"apple";');
     fs.writeFileSync('fruit2/orange.js', '"orange!";');
 
@@ -101,8 +113,13 @@ describe('run terser', () => {
   // this excercies the code path where work has to be queued an dequeued based on exhausting the
   // avaiable concurrency.
   it('processes all files in a directory with single concurrency', () => {
-    fs.mkdirSync('fruit3');
-    fs.mkdirSync('frout3');
+    // retries are not run in clean directories
+    try {
+      fs.mkdirSync('fruit3');
+      fs.mkdirSync('frout3');
+    } catch (e) {
+    }
+
     fs.writeFileSync('fruit3/apples.js', '"apple";');
     fs.writeFileSync('fruit3/orange.js', '"orange!";');
 
