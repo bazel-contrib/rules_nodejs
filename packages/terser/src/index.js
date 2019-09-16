@@ -18,6 +18,10 @@ function log_verbose(...m) {
   if (VERBOSE_LOGS) console.error('[terser/index.js]', ...m);
 }
 
+function log_error(...m) {
+  console.error('[terser/index.js]', ...m);
+}
+
 // Peek at the arguments to find any directories declared as inputs
 let argv = process.argv.slice(2);
 // terser_minified.bzl always passes the inputs first,
@@ -44,6 +48,8 @@ function terserDirectory(input) {
     fs.mkdirSync(output);
   }
 
+  console.log('directory inputs>', input)
+
 
   // we should allow users to configure this.
   // tracking issue: https://github.com/bazelbuild/rules_nodejs/issues/1132
@@ -53,6 +59,7 @@ function terserDirectory(input) {
   let errors = [];
 
   function exec([inputFile, outputFile]) {
+    console.log('exec ', inputFile)
     active++;
     let args =
         [require.resolve('terser/bin/uglifyjs'), inputFile, '--output', outputFile, ...residual];
@@ -61,19 +68,24 @@ function terserDirectory(input) {
         .then(
             (data) => {
               if (data.code) {
-                errors.push(
-                    {file: inputFile, out: data.out + '', err: data.error + '', code: data.code})
+                errors.push(inputFile)
                 // NOTE: Even though a terser process has errored we continue here to collect all of
                 // the errors. this behavior is another candidate for user configuration because
                 // there is value in stopping at the first error in some use cases.
+
+                log_error(
+                    'errored: ' + inputFile + '\n', 'OUT: ' + data.out + '\n',
+                    ' ERR: ' + data.err + '\n', ' code:' + data.code);
+              } else {
+                log_verbose('finished: ', inputFile);
               }
-              console.log(data.code ? 'errored: ' : 'finished: ', inputFile);
               --active;
               next();
             },
             (err) => {
+              console.error(err);
               --active;
-              console.log('errored:', inputFile)
+              log_verbose('errored: [spawn exception]', inputFile)
               errors.push({file: inputFile, error: err + '', code: -1})
               next();
             })
@@ -84,8 +96,8 @@ function terserDirectory(input) {
       exec(work.shift());
     } else if (!active) {
       if (errors.length) {
-        console.error(JSON.stringify(errors, null, '  '));
-        process.exitCode = 1;
+        console.error('terser errored processing javascript in directory.')
+        process.exitCode = 2;
       }
       // NOTE: node should exit here.
     }
@@ -109,16 +121,20 @@ function terserDirectory(input) {
   });
 }
 
-if (!inputs.find(isDirectory)) {
+if (!inputs.find(isDirectory) && inputs.length) {
   // Inputs were only files
   // Just use terser CLI exactly as it works outside bazel
   require('terser/bin/uglifyjs');
+
 } else if (inputs.length > 1) {
   // We don't know how to merge multiple input dirs to one output dir
   throw new Error('terser_minified only allows a single input when minifying a directory');
-} else {
+
+} else if (inputs[0]) {
   terserDirectory(inputs[0]);
 }
+
+console.log('end!')
 
 function spawn(cmd, args) {
   return new Promise((resolve, reject) => {
