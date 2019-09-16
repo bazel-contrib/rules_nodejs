@@ -4,20 +4,18 @@ const path = require('path');
 const util = require('util');
 const assert = require('assert');
 
-const terserWrap = path.join(process.env.RUNFILES, 'npm_bazel_terser', 'index.js')
+const terserWrap = require.resolve('npm_bazel_terser/index.js');
 
 if (!fs.existsSync(terserWrap)) {
   throw new Error(
       'expected to find terserwrap javascript file at \n' + terserWrap + '\nbut it does not exist!')
 }
 
+
 function terser(inputFile, outputFile, opts) {
   return cp.execFileSync(
       process.execPath, [terserWrap, inputFile, '--output', outputFile], opts || {env: []})
 }
-
-
-console.log('4444444444444444444444444444444444444444444444444444')
 
 describe('run terser', () => {
   it('should fail', () => {
@@ -28,7 +26,7 @@ describe('run terser', () => {
       assert.strictEqual(e.status, 1, 'exit code should be 1');
       thrown = true;
     }
-    assert.ok(thrown, 'should have thrown on missing inpout file.')
+    assert.ok(thrown, 'should have thrown on missing input file.')
 
     fs.writeFileSync('soup.js', 'omg soup!');
 
@@ -38,10 +36,6 @@ describe('run terser', () => {
     } catch (e) {
       assert.ok(e.status, 'exit code');
       stderr = e.stderr + ''
-      console.error('------------------------')
-      console.error(e.stdout + '')
-      console.error(e.stderr + '')
-      console.error('------------------------')
     }
 
     assert.ok(
@@ -56,10 +50,6 @@ describe('run terser', () => {
     } catch (e) {
       assert.ok(e.status, 'exit code');
       stderr = e.stderr + ''
-      console.error('------------------------')
-      console.error(e.stdout + '')
-      console.error(e.stderr + '')
-      console.error('------------------------')
     }
   })
 
@@ -80,10 +70,6 @@ describe('run terser', () => {
     } catch (e) {
       assert.strictEqual(e.status, 2, 'exit code 2');
       stderr = e.stderr + ''
-      console.error('------------------------')
-      console.error(e.stdout + '')
-      console.error(e.stderr + '')
-      console.error('------------------------')
     }
 
     assert.ok(
