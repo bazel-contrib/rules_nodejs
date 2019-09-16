@@ -1,3 +1,28 @@
+## [0.37.1](https://github.com/alexeagle/rules_nodejs/compare/0.37.0...0.37.1) (2019-09-16)
+
+
+### Bug Fixes
+
+* **protractor:** update rules_webtesting patch to include additional windows fixes ([#1140](https://github.com/alexeagle/rules_nodejs/issues/1140)) ([f76e97b](https://github.com/alexeagle/rules_nodejs/commit/f76e97b))
+* **rollup:** npm requires an index.js file ([2ababdf](https://github.com/alexeagle/rules_nodejs/commit/2ababdf))
+* add golden file ([9a02ee0](https://github.com/alexeagle/rules_nodejs/commit/9a02ee0))
+* add missing async test fixes ([12f711a](https://github.com/alexeagle/rules_nodejs/commit/12f711a))
+* **builtin:** linker test should run program as an action ([#1113](https://github.com/alexeagle/rules_nodejs/issues/1113)) ([7f0102e](https://github.com/alexeagle/rules_nodejs/commit/7f0102e))
+
+
+### Features
+
+* **examples:** the Angular example now lives in rules_nodejs ([9072ddb](https://github.com/alexeagle/rules_nodejs/commit/9072ddb))
+* add angular example ([#1124](https://github.com/alexeagle/rules_nodejs/issues/1124)) ([c376355](https://github.com/alexeagle/rules_nodejs/commit/c376355))
+* **builtin:** detect APF node module format if ANGULAR_PACKAGE file found ([#1112](https://github.com/alexeagle/rules_nodejs/issues/1112)) ([162e436](https://github.com/alexeagle/rules_nodejs/commit/162e436))
+* **builtin:** expose the new linker to node programs ([65d8a36](https://github.com/alexeagle/rules_nodejs/commit/65d8a36))
+* **rollup:** new implementation of rollup_bundle in @bazel/rollup package ([3873715](https://github.com/alexeagle/rules_nodejs/commit/3873715)), closes [#532](https://github.com/alexeagle/rules_nodejs/issues/532) [#724](https://github.com/alexeagle/rules_nodejs/issues/724)
+* **rollup:** support multiple entry points ([f660d39](https://github.com/alexeagle/rules_nodejs/commit/f660d39))
+* **rollup:** tests and docs for new rollup_bundle ([cfef773](https://github.com/alexeagle/rules_nodejs/commit/cfef773))
+* **terser:** support directory inputs ([21b5142](https://github.com/alexeagle/rules_nodejs/commit/21b5142))
+
+
+
 # [0.37.0](https://github.com/alexeagle/rules_nodejs/compare/0.36.2...0.37.0) (2019-09-06)
 
 
