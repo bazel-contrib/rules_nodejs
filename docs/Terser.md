@@ -46,7 +46,7 @@ nodejs_binary(
 ## terser_minified
 
 Run the terser minifier.
-    
+
 Typical example:
 ```python
 load("@npm_bazel_terser//:index.bzl", "terser_minified")
@@ -60,6 +60,7 @@ terser_minified(
 
 Note that the `name` attribute determines what the resulting files will be called.
 So the example above will output `out.min.js` and `out.min.js.map` (since `sourcemap` defaults to `true`).
+If the input is a directory, then the output will also be a directory, named after the `name` attribute.
 
 
 
@@ -116,7 +117,9 @@ so that it only affects the current build.
 
 
 #### `src`
-(*[label], mandatory*): A JS file, or a rule producing .js as its default output
+(*[label], mandatory*): File(s) to minify.
+        
+Can be a .js file, a rule producing .js files as its default output, or a rule producing a directory of .js files.
 
 Note that you can pass multiple files to terser, which it will bundle together.
 If you want to do this, you can pass a filegroup here.

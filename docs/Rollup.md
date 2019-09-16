@@ -1,0 +1,205 @@
+---
+title: Rollup
+layout: default
+stylesheet: docs
+---
+# rollup rules for Bazel
+
+**WARNING: this is beta-quality software. Breaking changes are likely. Not recommended for production use without expert support.**
+
+The rollup rules run the rollup JS bundler with Bazel.
+
+Wraps the rollup CLI documented at https://rollupjs.org/guide/en/#command-line-reference
+
+
+## Installation
+
+Add the `@bazel/rollup` npm package to your `devDependencies` in `package.json`.
+
+Your `WORKSPACE` should declare a `yarn_install` or `npm_install` rule named `npm`.
+It should then install the rules found in the npm packages using the `install_bazel_dependencies` function.
+See https://github.com/bazelbuild/rules_nodejs/#quickstart
+
+This causes the `@bazel/rollup` package to be installed as a Bazel workspace named `npm_bazel_rollup`.
+
+
+## Installing with self-managed dependencies
+
+If you didn't use the `yarn_install` or `npm_install` rule to create an `npm` workspace, you'll have to declare a rule in your root `BUILD.bazel` file to execute rollup:
+
+```python
+# Create a rollup rule to use in rollup_bundle#rollup_bin
+# attribute when using self-managed dependencies
+nodejs_binary(
+    name = "rollup_bin",
+    entry_point = "//:node_modules/rollup/bin/rollup",
+    # Point bazel to your node_modules to find the entry point
+    node_modules = ["//:node_modules"],
+)
+```
+
+[name]: https://bazel.build/docs/build-ref.html#name
+[label]: https://bazel.build/docs/build-ref.html#labels
+[labels]: https://bazel.build/docs/build-ref.html#labels
+
+
+## rollup_bundle
+
+Runs the Rollup.js CLI under Bazel.
+
+See https://rollupjs.org/guide/en/#command-line-reference
+
+Typical example:
+```python
+load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
+
+rollup_bundle(
+    name = "bundle",
+    srcs = ["dependency.js"],
+    entry_point = "input.js",
+    config_file = "rollup.config.js",
+)
+```
+
+Note that the command-line options set by Bazel override what appears in the rollup config file.
+This means that typically a single `rollup.config.js` can contain settings for your whole repo,
+and multiple `rollup_bundle` rules can share the configuration.
+
+Thus, setting options that Bazel controls will have no effect, e.g.
+
+```javascript
+module.exports = {
+    output: { file: 'this_is_ignored.js' },
+}
+```
+
+You must determine ahead of time whether Rollup needs to produce a directory output.
+This is the case if you have dynamic imports which cause code-splitting, or if you
+provide multiple entry points. Use the `output_dir` attribute to specify that you want a
+directory output.
+Rollup's CLI has the same behavior, forcing you to pick `--output.file` or `--output.dir`.
+
+To get multiple output formats, wrap the rule with a macro or list comprehension, e.g.
+
+```python
+[
+    rollup_bundle(
+        name = "bundle.%s" % format,
+        entry_point = "foo.js",
+        format = format,
+    )
+    for format in [
+        "cjs",
+        "umd",
+    ]
+]
+```
+
+This will produce one output per requested format.
+
+
+
+### Usage
+
+```
+rollup_bundle(name, config_file, deps, entry_point, entry_points, format, globals, output_dir, rollup_bin, sourcemap, srcs)
+```
+
+
+
+#### `name`
+(*[name], mandatory*): A unique name for this target.
+
+
+#### `config_file`
+(*[label]*): A rollup.config.js file
+
+Passed to the --config 
+See https://rollupjs.org/guide/en/#configuration-files
+
+If not set, a default basic Rollup config is used.
+
+
+#### `deps`
+(*[labels]*): Other libraries that are required by the code, or by the rollup.config.js
+
+
+#### `entry_point`
+(*[label]*): The bundle's entry point (e.g. your main.js or app.js or index.js).
+
+This is just a shortcut for the `entry_points` attribute with a single output chunk named the same as the rule.
+
+For example, these are equivalent:
+
+```python
+rollup_bundle(
+    name = "bundle",
+    entry_point = "index.js",
+)
+```
+
+```python
+rollup_bundle(
+    name = "bundle",
+    entry_points = {
+        "index.js": "bundle"
+    }
+)
+```
+
+
+#### `entry_points`
+(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: Label -> String</a>*): The bundle's entry points (e.g. your main.js or app.js or index.js).
+
+Passed to the [`--input` option](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#input) in Rollup.
+
+Keys in this dictionary are labels pointing to .js entry point files.
+Values are the name to be given to the corresponding output chunk.
+
+Either this attribute or `entry_point` must be specified, but not both.
+
+
+#### `format`
+(*String*): "Specifies the format of the generated bundle. One of the following:
+
+- `amd`: Asynchronous Module Definition, used with module loaders like RequireJS
+- `cjs`: CommonJS, suitable for Node and other bundlers
+- `esm`: Keep the bundle as an ES module file, suitable for other bundlers and inclusion as a `<script type=module>` tag in modern browsers
+- `iife`: A self-executing function, suitable for inclusion as a `<script>` tag. (If you want to create a bundle for your application, you probably want to use this.)
+- `umd`: Universal Module Definition, works as amd, cjs and iife all in one
+- `system`: Native format of the SystemJS loader
+
+
+#### `globals`
+(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): Specifies id: variableName pairs necessary for external imports in umd/iife bundles.
+
+Passed to the [`--globals` option](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#outputglobals) in Rollup.
+Also, the keys from the map are passed to the [`--external` option](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#external).
+
+
+#### `output_dir`
+(*Boolean*): Whether to produce a directory output.
+
+We will use the [`--output.dir` option](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#outputdir) in rollup
+rather than `--output.file`.
+
+If the program produces multiple chunks, you must specify this attribute.
+Otherwise, the outputs are assumed to be a single file.
+
+
+#### `rollup_bin`
+(*[label]*): Target that executes the rollup binary
+
+
+#### `sourcemap`
+(*Boolean*): Whether to produce a .js.map output
+
+Passed to the [`--sourcemap` option](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#outputsourcemap") in Rollup
+
+
+#### `srcs`
+(*[labels]*): Non-entry point JavaScript source files from the workspace.
+
+You must not repeat file(s) passed to entry_point/entry_points.
+
+

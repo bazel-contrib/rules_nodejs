@@ -6,6 +6,8 @@ stylesheet: docs
 # Built-in rules
 
 These rules are available without any npm installation, via the `WORKSPACE` install of the `build_bazel_rules_nodejs` workspace. This is necessary to bootstrap Bazel to run the package manager to download other rules from NPM.
+
+
 [name]: https://bazel.build/docs/build-ref.html#name
 [label]: https://bazel.build/docs/build-ref.html#labels
 [labels]: https://bazel.build/docs/build-ref.html#labels
@@ -36,7 +38,7 @@ nodejs_binary(name, bootstrap, configuration_env_vars, data, default_env_vars, e
 
 #### `configuration_env_vars`
 (*List of strings*): Pass these configuration environment variables to the resulting binary.
-        Chooses a subset of the configuration environment variables (taken from ctx.var), which also
+        Chooses a subset of the configuration environment variables (taken from `ctx.var`), which also
         includes anything specified via the --define flag.
         Note, this can lead to different outputs produced by this rule.
 
@@ -53,66 +55,66 @@ without losing the defaults that should be set in most cases.
 
 The set of default  environment variables is:
 
-`DEBUG`: rules use this environment variable to turn on debug information in their output artifacts
-`VERBOSE_LOGS`: rules use this environment variable to turn on debug output in their logs
+- `DEBUG`: rules use this environment variable to turn on debug information in their output artifacts
+- `VERBOSE_LOGS`: rules use this environment variable to turn on debug output in their logs
 
 
 #### `entry_point`
 (*[label], mandatory*): The script which should be executed first, usually containing a main function.
 
-        If the entry JavaScript file belongs to the same package (as the BUILD file),
-        you can simply reference it by its relative name to the package directory:
+If the entry JavaScript file belongs to the same package (as the BUILD file),
+you can simply reference it by its relative name to the package directory:
 
-        ```
-        nodejs_binary(
-            name = "my_binary",
-            ...
-            entry_point = ":file.js",
-        )
-        ```
+```
+nodejs_binary(
+    name = "my_binary",
+    ...
+    entry_point = ":file.js",
+)
+```
 
-        You can specify the entry point as a typescript file so long as you also include
-        the ts_library target in data:
+You can specify the entry point as a typescript file so long as you also include
+the ts_library target in data:
 
-        ```
-        ts_library(
-            name = "main",
-            srcs = ["main.ts"],
-        )
+```
+ts_library(
+    name = "main",
+    srcs = ["main.ts"],
+)
 
-        nodejs_binary(
-            name = "bin",
-            data = [":main"]
-            entry_point = ":main.ts",
-        )
-        ```
+nodejs_binary(
+    name = "bin",
+    data = [":main"]
+    entry_point = ":main.ts",
+)
+```
 
-        The rule will use the corresponding `.js` output of the ts_library rule as the entry point.
+The rule will use the corresponding `.js` output of the ts_library rule as the entry point.
 
-        If the entry point target is a rule, it should produce a single JavaScript entry file that will be passed to the nodejs_binary rule.
-        For example:
+If the entry point target is a rule, it should produce a single JavaScript entry file that will be passed to the nodejs_binary rule.
+For example:
 
-        ```
-        filegroup(
-            name = "entry_file",
-            srcs = ["main.js"],
-        )
+```
+filegroup(
+    name = "entry_file",
+    srcs = ["main.js"],
+)
 
-        nodejs_binary(
-            name = "my_binary",
-            entry_point = ":entry_file",
-        )
-        ```
+nodejs_binary(
+    name = "my_binary",
+    entry_point = ":entry_file",
+)
+```
 
-        The entry_point can also be a label in another workspace:
+The entry_point can also be a label in another workspace:
 
-        ```
-        nodejs_binary(
-            name = "history-server",
-            entry_point = "@npm//:node_modules/history-server/modules/cli.js",
-            data = ["@npm//history-server"],
-        )
-        ```
+```
+nodejs_binary(
+    name = "history-server",
+    entry_point = "@npm//:node_modules/history-server/modules/cli.js",
+    data = ["@npm//history-server"],
+)
+```
 
 
 #### `install_source_map_support`
@@ -125,66 +127,66 @@ The set of default  environment variables is:
 (*[label]*): The npm packages which should be available to `require()` during
         execution.
 
-        This attribute is DEPRECATED. As of version 0.13.0 the recommended approach
-        to npm dependencies is to use fine grained npm dependencies which are setup
-        with the `yarn_install` or `npm_install` rules. For example, in targets
-        that used a `//:node_modules` filegroup,
+This attribute is DEPRECATED. As of version 0.13.0 the recommended approach
+to npm dependencies is to use fine grained npm dependencies which are setup
+with the `yarn_install` or `npm_install` rules. For example, in targets
+that used a `//:node_modules` filegroup,
 
-        ```
-        nodejs_binary(
-          name = "my_binary",
-          ...
-          node_modules = "//:node_modules",
-        )
-        ```
+```
+nodejs_binary(
+    name = "my_binary",
+    ...
+    node_modules = "//:node_modules",
+)
+```
 
-        which specifies all files within the `//:node_modules` filegroup
-        to be inputs to the `my_binary`. Using fine grained npm dependencies,
-        `my_binary` is defined with only the npm dependencies that are
-        needed:
+which specifies all files within the `//:node_modules` filegroup
+to be inputs to the `my_binary`. Using fine grained npm dependencies,
+`my_binary` is defined with only the npm dependencies that are
+needed:
 
-        ```
-        nodejs_binary(
-          name = "my_binary",
-          ...
-          data = [
-              "@npm//foo",
-              "@npm//bar",
-              ...
-          ],
-        )
-        ```
+```
+nodejs_binary(
+    name = "my_binary",
+    ...
+    data = [
+        "@npm//foo",
+        "@npm//bar",
+        ...
+    ],
+)
+```
 
-        In this case, only the `foo` and `bar` npm packages and their
-        transitive deps are includes as inputs to the `my_binary` target
-        which reduces the time required to setup the runfiles for this
-        target (see https://github.com/bazelbuild/bazel/issues/5153).
+In this case, only the `foo` and `bar` npm packages and their
+transitive deps are includes as inputs to the `my_binary` target
+which reduces the time required to setup the runfiles for this
+target (see https://github.com/bazelbuild/bazel/issues/5153).
 
-        The @npm external repository and the fine grained npm package
-        targets are setup using the `yarn_install` or `npm_install` rule
-        in your WORKSPACE file:
+The @npm external repository and the fine grained npm package
+targets are setup using the `yarn_install` or `npm_install` rule
+in your WORKSPACE file:
 
-        yarn_install(
-          name = "npm",
-          package_json = "//:package.json",
-          yarn_lock = "//:yarn.lock",
-        )
+yarn_install(
+    name = "npm",
+    package_json = "//:package.json",
+    yarn_lock = "//:yarn.lock",
+)
 
-        For other rules such as `jasmine_node_test`, fine grained
-        npm dependencies are specified in the `deps` attribute:
+For other rules such as `jasmine_node_test`, fine grained
+npm dependencies are specified in the `deps` attribute:
 
-        ```
-        jasmine_node_test(
-            name = "my_test",
-            ...
-            deps = [
-                "@npm//jasmine",
-                "@npm//foo",
-                "@npm//bar",
-                ...
-            ],
-        )
-        ```
+```
+jasmine_node_test(
+    name = "my_test",
+    ...
+    deps = [
+        "@npm//jasmine",
+        "@npm//foo",
+        "@npm//bar",
+        ...
+    ],
+)
+```
 
 
 #### `templated_args`
@@ -247,7 +249,7 @@ nodejs_test(name, bootstrap, configuration_env_vars, data, default_env_vars, ent
 
 #### `configuration_env_vars`
 (*List of strings*): Pass these configuration environment variables to the resulting binary.
-        Chooses a subset of the configuration environment variables (taken from ctx.var), which also
+        Chooses a subset of the configuration environment variables (taken from `ctx.var`), which also
         includes anything specified via the --define flag.
         Note, this can lead to different outputs produced by this rule.
 
@@ -264,66 +266,66 @@ without losing the defaults that should be set in most cases.
 
 The set of default  environment variables is:
 
-`DEBUG`: rules use this environment variable to turn on debug information in their output artifacts
-`VERBOSE_LOGS`: rules use this environment variable to turn on debug output in their logs
+- `DEBUG`: rules use this environment variable to turn on debug information in their output artifacts
+- `VERBOSE_LOGS`: rules use this environment variable to turn on debug output in their logs
 
 
 #### `entry_point`
 (*[label], mandatory*): The script which should be executed first, usually containing a main function.
 
-        If the entry JavaScript file belongs to the same package (as the BUILD file),
-        you can simply reference it by its relative name to the package directory:
+If the entry JavaScript file belongs to the same package (as the BUILD file),
+you can simply reference it by its relative name to the package directory:
 
-        ```
-        nodejs_binary(
-            name = "my_binary",
-            ...
-            entry_point = ":file.js",
-        )
-        ```
+```
+nodejs_binary(
+    name = "my_binary",
+    ...
+    entry_point = ":file.js",
+)
+```
 
-        You can specify the entry point as a typescript file so long as you also include
-        the ts_library target in data:
+You can specify the entry point as a typescript file so long as you also include
+the ts_library target in data:
 
-        ```
-        ts_library(
-            name = "main",
-            srcs = ["main.ts"],
-        )
+```
+ts_library(
+    name = "main",
+    srcs = ["main.ts"],
+)
 
-        nodejs_binary(
-            name = "bin",
-            data = [":main"]
-            entry_point = ":main.ts",
-        )
-        ```
+nodejs_binary(
+    name = "bin",
+    data = [":main"]
+    entry_point = ":main.ts",
+)
+```
 
-        The rule will use the corresponding `.js` output of the ts_library rule as the entry point.
+The rule will use the corresponding `.js` output of the ts_library rule as the entry point.
 
-        If the entry point target is a rule, it should produce a single JavaScript entry file that will be passed to the nodejs_binary rule.
-        For example:
+If the entry point target is a rule, it should produce a single JavaScript entry file that will be passed to the nodejs_binary rule.
+For example:
 
-        ```
-        filegroup(
-            name = "entry_file",
-            srcs = ["main.js"],
-        )
+```
+filegroup(
+    name = "entry_file",
+    srcs = ["main.js"],
+)
 
-        nodejs_binary(
-            name = "my_binary",
-            entry_point = ":entry_file",
-        )
-        ```
+nodejs_binary(
+    name = "my_binary",
+    entry_point = ":entry_file",
+)
+```
 
-        The entry_point can also be a label in another workspace:
+The entry_point can also be a label in another workspace:
 
-        ```
-        nodejs_binary(
-            name = "history-server",
-            entry_point = "@npm//:node_modules/history-server/modules/cli.js",
-            data = ["@npm//history-server"],
-        )
-        ```
+```
+nodejs_binary(
+    name = "history-server",
+    entry_point = "@npm//:node_modules/history-server/modules/cli.js",
+    data = ["@npm//history-server"],
+)
+```
 
 
 #### `expected_exit_code`
@@ -340,66 +342,66 @@ The set of default  environment variables is:
 (*[label]*): The npm packages which should be available to `require()` during
         execution.
 
-        This attribute is DEPRECATED. As of version 0.13.0 the recommended approach
-        to npm dependencies is to use fine grained npm dependencies which are setup
-        with the `yarn_install` or `npm_install` rules. For example, in targets
-        that used a `//:node_modules` filegroup,
+This attribute is DEPRECATED. As of version 0.13.0 the recommended approach
+to npm dependencies is to use fine grained npm dependencies which are setup
+with the `yarn_install` or `npm_install` rules. For example, in targets
+that used a `//:node_modules` filegroup,
 
-        ```
-        nodejs_binary(
-          name = "my_binary",
-          ...
-          node_modules = "//:node_modules",
-        )
-        ```
+```
+nodejs_binary(
+    name = "my_binary",
+    ...
+    node_modules = "//:node_modules",
+)
+```
 
-        which specifies all files within the `//:node_modules` filegroup
-        to be inputs to the `my_binary`. Using fine grained npm dependencies,
-        `my_binary` is defined with only the npm dependencies that are
-        needed:
+which specifies all files within the `//:node_modules` filegroup
+to be inputs to the `my_binary`. Using fine grained npm dependencies,
+`my_binary` is defined with only the npm dependencies that are
+needed:
 
-        ```
-        nodejs_binary(
-          name = "my_binary",
-          ...
-          data = [
-              "@npm//foo",
-              "@npm//bar",
-              ...
-          ],
-        )
-        ```
+```
+nodejs_binary(
+    name = "my_binary",
+    ...
+    data = [
+        "@npm//foo",
+        "@npm//bar",
+        ...
+    ],
+)
+```
 
-        In this case, only the `foo` and `bar` npm packages and their
-        transitive deps are includes as inputs to the `my_binary` target
-        which reduces the time required to setup the runfiles for this
-        target (see https://github.com/bazelbuild/bazel/issues/5153).
+In this case, only the `foo` and `bar` npm packages and their
+transitive deps are includes as inputs to the `my_binary` target
+which reduces the time required to setup the runfiles for this
+target (see https://github.com/bazelbuild/bazel/issues/5153).
 
-        The @npm external repository and the fine grained npm package
-        targets are setup using the `yarn_install` or `npm_install` rule
-        in your WORKSPACE file:
+The @npm external repository and the fine grained npm package
+targets are setup using the `yarn_install` or `npm_install` rule
+in your WORKSPACE file:
 
-        yarn_install(
-          name = "npm",
-          package_json = "//:package.json",
-          yarn_lock = "//:yarn.lock",
-        )
+yarn_install(
+    name = "npm",
+    package_json = "//:package.json",
+    yarn_lock = "//:yarn.lock",
+)
 
-        For other rules such as `jasmine_node_test`, fine grained
-        npm dependencies are specified in the `deps` attribute:
+For other rules such as `jasmine_node_test`, fine grained
+npm dependencies are specified in the `deps` attribute:
 
-        ```
-        jasmine_node_test(
-            name = "my_test",
-            ...
-            deps = [
-                "@npm//jasmine",
-                "@npm//foo",
-                "@npm//bar",
-                ...
-            ],
-        )
-        ```
+```
+jasmine_node_test(
+    name = "my_test",
+    ...
+    deps = [
+        "@npm//jasmine",
+        "@npm//foo",
+        "@npm//bar",
+        ...
+    ],
+)
+```
 
 
 #### `templated_args`
