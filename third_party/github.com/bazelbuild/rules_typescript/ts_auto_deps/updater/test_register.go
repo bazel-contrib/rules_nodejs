@@ -121,6 +121,10 @@ func (reg *buildRegistry) readBUILD(ctx context.Context, workspaceRoot, buildFil
 	if err != nil {
 		return nil, err
 	}
+	if bld == nil {
+		// The BUILD file didn't exist, so create a new, empty one.
+		bld = &build.File{Path: normalizedG3Path, Type: build.TypeBuild}
+	}
 
 	reg.bldFiles[normalizedG3Path] = bld
 

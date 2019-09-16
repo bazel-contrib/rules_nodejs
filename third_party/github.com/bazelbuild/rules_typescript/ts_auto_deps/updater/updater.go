@@ -173,14 +173,14 @@ func spin(prefix string) chan<- struct{} {
 	return done
 }
 
-// readBUILD loads the BUILD file, if present, or returns a new empty one.
+// readBUILD loads the BUILD file, if present, or returns a nil pointer, if not.
 // buildFilePath is relative to CWD, and workspaceRelativePath is relative to
 // the workspace root (the directory containing the WORKSPACE file).
 func readBUILD(ctx context.Context, buildFilePath, workspaceRelativePath string) (*build.File, error) {
 	data, err := platform.ReadFile(ctx, buildFilePath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return &build.File{Path: workspaceRelativePath, Type: build.TypeBuild}, nil
+			return nil, nil
 		}
 		return nil, fmt.Errorf("reading %q: %s", buildFilePath, err)
 	}
@@ -512,28 +512,32 @@ func getBUILDPath(ctx context.Context, path string) (string, string, string, err
 
 // isTazeDisabledInPackage checks the BUILD file, or if the BUILD doesn't exist,
 // the nearest ancestor BUILD file for a disable_ts_auto_deps() rule.
-func isTazeDisabledInPackage(ctx context.Context, g3root string, buildFilePath string, bld *build.File) bool {
-	if _, err := platform.Stat(ctx, buildFilePath); err != nil && os.IsNotExist(err) {
+func isTazeDisabledInPackage(ctx context.Context, g3root, buildFilePath, workspaceRelativePath string, bld *build.File) (bool, error) {
+	if bld == nil {
 		// Make sure ts_auto_deps hasn't been disabled in the next closest ancestor package.
-		ancestor, err := FindBUILDFile(ctx, make(map[string]*build.File), g3root, filepath.Dir(bld.Path))
-		if err != nil {
+		ancestor, err := FindBUILDFile(ctx, make(map[string]*build.File), g3root, filepath.Dir(workspaceRelativePath))
+		if _, ok := err.(*noAncestorBUILDError); ok {
 			platform.Infof("Could not find any ancestor BUILD for %q, continuing with a new BUILD file",
 				buildFilePath)
+			return false, nil
+		} else if err != nil {
+			return false, err
 		} else if buildHasDisableTaze(ancestor) {
 			fmt.Printf("ts_auto_deps disabled below %q\n", ancestor.Path)
-			return true
+			return true, nil
 		} else {
 			platform.Infof("BUILD file missing and ts_auto_deps is enabled below %q. Creating new BUILD file.",
 				ancestor.Path)
+			return false, nil
 		}
 	}
 
 	if buildHasDisableTaze(bld) {
 		fmt.Printf("ts_auto_deps disabled on %q\n", buildFilePath)
-		return true
+		return true, nil
 	}
 
-	return false
+	return false, nil
 }
 
 // SubdirectorySourcesError is returned when ts_auto_deps detects a BUILD file
@@ -589,10 +593,10 @@ func hasSubdirectorySources(bld *build.File) bool {
 // directoryOrAncestorHasSubdirectorySources checks for ts_libraries referencing sources in subdirectories.
 // It checks the current directory's BUILD if it exists, otherwise it checks the nearest
 // ancestor package.
-func directoryOrAncestorHasSubdirectorySources(ctx context.Context, g3root string, buildFilePath string, bld *build.File) (bool, error) {
-	if _, err := platform.Stat(ctx, buildFilePath); err != nil && os.IsNotExist(err) {
+func directoryOrAncestorHasSubdirectorySources(ctx context.Context, g3root, workspaceRelativePath string, bld *build.File) (bool, error) {
+	if bld == nil {
 		// Make sure the next closest ancestor package doesn't reference sources in a subdirectory.
-		ancestor, err := FindBUILDFile(ctx, make(map[string]*build.File), g3root, filepath.Dir(bld.Path))
+		ancestor, err := FindBUILDFile(ctx, make(map[string]*build.File), g3root, filepath.Dir(workspaceRelativePath))
 		if _, ok := err.(*noAncestorBUILDError); ok {
 			// couldn't find an ancestor BUILD, so there aren't an subdirectory sources
 			return false, nil
@@ -600,6 +604,9 @@ func directoryOrAncestorHasSubdirectorySources(ctx context.Context, g3root strin
 			return false, err
 		} else if hasSubdirectorySources(ancestor) {
 			return true, nil
+		} else {
+			// there was an ancestor BUILD, but it didn't reference subdirectory sources
+			return false, nil
 		}
 	}
 
@@ -657,7 +664,7 @@ func IsTazeDisabledForDir(ctx context.Context, dir string) (bool, error) {
 		return false, err
 	}
 
-	return isTazeDisabledInPackage(ctx, g3root, buildFilePath, bld), nil
+	return isTazeDisabledInPackage(ctx, g3root, buildFilePath, workspaceRelativePath, bld)
 }
 
 // CantProgressAfterWriteError reports that ts_auto_deps was run in an environment
@@ -716,20 +723,28 @@ func (upd *Updater) UpdateBUILD(ctx context.Context, path string, options Update
 	latencyReport.GetBUILD = time.Since(start)
 
 	start = time.Now()
-	ts_auto_depsDisabled := isTazeDisabledInPackage(ctx, g3root, buildFilePath, bld)
+	ts_auto_depsDisabled, err := isTazeDisabledInPackage(ctx, g3root, buildFilePath, workspaceRelativePath, bld)
+	if err != nil {
+		return false, nil, err
+	}
 	latencyReport.TazeDisabled = time.Since(start)
 	if ts_auto_depsDisabled {
 		return false, nil, nil
 	}
 
 	start = time.Now()
-	hasSubdirSrcs, err := directoryOrAncestorHasSubdirectorySources(ctx, g3root, buildFilePath, bld)
+	hasSubdirSrcs, err := directoryOrAncestorHasSubdirectorySources(ctx, g3root, workspaceRelativePath, bld)
 	latencyReport.SubdirSrcs = time.Since(start)
 	if err != nil {
 		return false, nil, err
 	}
 	if hasSubdirSrcs {
 		return false, nil, &SubdirectorySourcesError{}
+	}
+
+	if bld == nil {
+		// The BUILD file didn't exist, so create a new, empty one.
+		bld = &build.File{Path: workspaceRelativePath, Type: build.TypeBuild}
 	}
 
 	start = time.Now()
@@ -1197,15 +1212,12 @@ func FindBUILDFile(ctx context.Context, pkgToBUILD map[string]*build.File,
 		return bld, nil
 	}
 	buildPath := filepath.Join(workspaceRoot, packagePath, "BUILD")
-	_, err := platform.Stat(ctx, buildPath)
-	var bld *build.File
-	if err == nil {
-		bld, err = readBUILD(ctx, buildPath, filepath.Join(packagePath, "BUILD"))
-	} else if os.IsNotExist(err) {
+	bld, err := readBUILD(ctx, buildPath, filepath.Join(packagePath, "BUILD"))
+	if err != nil {
+		return nil, err
+	} else if bld == nil {
 		// Recursively search parent package and cache its location below if found.
 		bld, err = FindBUILDFile(ctx, pkgToBUILD, workspaceRoot, filepath.Dir(packagePath))
-	} else {
-		return nil, err
 	}
 	if err == nil {
 		// NB: The cache key is packagePath ('foo/bar/baz'), even if build file was
