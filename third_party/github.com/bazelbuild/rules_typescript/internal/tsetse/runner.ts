@@ -40,8 +40,12 @@ export class Plugin implements pluginApi.DiagnosticPlugin {
   }
 
   getDiagnostics(sourceFile: ts.SourceFile) {
+    // Tsetse, in its plugin form, outputs ts.Diagnostic that don't make use
+    // of the potential suggested fixes Tsetse generates. These diagnostics are
+    // however displayed in context: we can therefore stringify any potential
+    // suggested fixes in the error message, so they don't go to waste.
     return this.checker.execute(sourceFile)
-        .map(failure => failure.toDiagnostic());
+        .map(failure => failure.toDiagnosticWithStringifiedFix());
   }
 }
 
