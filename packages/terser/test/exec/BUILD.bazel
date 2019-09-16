@@ -6,5 +6,5 @@ jasmine_node_test(
     coverage = True,
     data = [
         "@npm_bazel_terser//:index.js",
-    ]
+    ],
 )

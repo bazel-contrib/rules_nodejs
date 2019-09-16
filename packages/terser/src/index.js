@@ -30,9 +30,17 @@ let argv = process.argv.slice(2);
 // Avoid a dependency on a library like minimist; keep it simple.
 const outputArgIndex = argv.findIndex((arg) => arg.startsWith('--'));
 
+// We don't want to implement a command-line parser for terser
+// so we invoke its CLI as child processes when a directory is provided, just altering the
+// input/output arguments. See discussion: https://github.com/bazelbuild/rules_nodejs/issues/822
+
 const inputs = argv.slice(0, outputArgIndex);
 const output = argv[outputArgIndex + 1];
 const residual = argv.slice(outputArgIndex + 2);
+
+const TERSER_BINARY = process.env.TERSER_BINARY || require.resolve('terser/bin/uglifyjs')
+// choose a default concurrency of the number of cores -1 but at least 1.
+const TERSER_CONCURENCY = (process.env.TERSER_CONCURRENCY || os.cpus().length - 1) || 1
 
 log_verbose(`Running terser/index.js
   inputs: ${inputs}
@@ -48,21 +56,14 @@ function terserDirectory(input) {
     fs.mkdirSync(output);
   }
 
-  console.log('directory inputs>', input)
 
-
-  // we should allow users to configure this.
-  // tracking issue: https://github.com/bazelbuild/rules_nodejs/issues/1132
-  const maxConcurrency = (os.cpus().length - 1 || 1);
   let work = [];
   let active = 0;
   let errors = [];
 
   function exec([inputFile, outputFile]) {
-    console.log('exec ', inputFile)
     active++;
-    let args =
-        [require.resolve('terser/bin/uglifyjs'), inputFile, '--output', outputFile, ...residual];
+    let args = [TERSER_BINARY, inputFile, '--output', outputFile, ...residual];
 
     spawn(process.execPath, args)
         .then(
@@ -83,10 +84,9 @@ function terserDirectory(input) {
               next();
             },
             (err) => {
-              console.error(err);
               --active;
-              log_verbose('errored: [spawn exception]', inputFile)
-              errors.push({file: inputFile, error: err + '', code: -1})
+              log_error('errored: [spawn exception]', inputFile, '\n' + err)
+              errors.push(inputFile)
               next();
             })
   }
@@ -99,7 +99,7 @@ function terserDirectory(input) {
         console.error('terser errored processing javascript in directory.')
         process.exitCode = 2;
       }
-      // NOTE: node should exit here.
+      // NOTE: work is done at this point and node should exit here.
     }
   }
 
@@ -107,12 +107,8 @@ function terserDirectory(input) {
     if (f.endsWith('.js')) {
       const inputFile = path.join(input, path.basename(f));
       const outputFile = path.join(output, path.basename(f));
-      // We don't want to implement a command-line parser for terser
-      // so we invoke its CLI as child processes, just altering the input/output
-      // arguments. See discussion: https://github.com/bazelbuild/rules_nodejs/issues/822
-      // TODO: under Node 12 it should use the worker threads API to saturate all local cores
 
-      if (active < maxConcurrency) {
+      if (active < TERSER_CONCURENCY) {
         exec([inputFile, outputFile]);
       } else {
         work.push([inputFile, outputFile])
@@ -133,8 +129,6 @@ if (!inputs.find(isDirectory) && inputs.length) {
 } else if (inputs[0]) {
   terserDirectory(inputs[0]);
 }
-
-console.log('end!')
 
 function spawn(cmd, args) {
   return new Promise((resolve, reject) => {

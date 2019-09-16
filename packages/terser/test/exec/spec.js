@@ -63,14 +63,5 @@ describe('run terser', () => {
 
     assert.ok(
         stderr.indexOf('Parse error at') > -1, 'should have parse error in output from terser.');
-
-    // assert.strictEqual(res.status,1,'should have exit code.')
-
-    // console.log(res.stdout+'')
-    // console.log(res.stderr+'')
-
-    // process.stdout.write(cp.execSync('find',{cwd:root}));
-
-    // throw new Error('ohai')
   });
 });
