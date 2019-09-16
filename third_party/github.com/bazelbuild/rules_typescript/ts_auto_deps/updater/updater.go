@@ -173,36 +173,18 @@ func spin(prefix string) chan<- struct{} {
 	return done
 }
 
-// getAbsoluteBUILDPath relativizes the absolute build path so that buildFilePath
-// is definitely below workspaceRoot.
-func getAbsoluteBUILDPath(workspaceRoot, buildFilePath string) (string, error) {
-	absPath, err := filepath.Abs(buildFilePath)
-	if err != nil {
-		return "", err
-	}
-	g3Path, err := filepath.Rel(workspaceRoot, absPath)
-	if err != nil {
-		return "", err
-	}
-	return platform.Normalize(g3Path), nil
-}
-
 // readBUILD loads the BUILD file, if present, or returns a new empty one.
-// workspaceRoot must be an absolute path and buildFilePath is interpreted as
-// relative to CWD, and must be underneath workspaceRoot.
-func readBUILD(ctx context.Context, workspaceRoot, buildFilePath string) (*build.File, error) {
-	normalizedG3Path, err := getAbsoluteBUILDPath(workspaceRoot, buildFilePath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to resolve workspace relative path: %s", err)
-	}
+// buildFilePath is relative to CWD, and workspaceRelativePath is relative to
+// the workspace root (the directory containing the WORKSPACE file).
+func readBUILD(ctx context.Context, buildFilePath, workspaceRelativePath string) (*build.File, error) {
 	data, err := platform.ReadFile(ctx, buildFilePath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return &build.File{Path: normalizedG3Path, Type: build.TypeBuild}, nil
+			return &build.File{Path: workspaceRelativePath, Type: build.TypeBuild}, nil
 		}
 		return nil, fmt.Errorf("reading %q: %s", buildFilePath, err)
 	}
-	bld, err := build.ParseBuild(normalizedG3Path, data)
+	bld, err := build.ParseBuild(workspaceRelativePath, data)
 	if err != nil {
 		if parseErr, ok := err.(build.ParseError); ok {
 			return nil, &AnalysisFailedError{
@@ -487,33 +469,45 @@ func (upd *Updater) maybeWriteBUILD(ctx context.Context, path string, bld *build
 	return true, nil
 }
 
-func getBUILDPath(ctx context.Context, path string) (string, string, error) {
-	path = strings.TrimSuffix(path, "/BUILD") // Support both package paths and BUILD files
-	if _, err := platform.Stat(ctx, path); os.IsNotExist(err) {
-		return "", "", err
-	}
-	buildFilePath := filepath.Join(path, "BUILD")
-	g3root, err := workspace.Root(buildFilePath)
+// getWorkspaceRelativePath takes a buildFilePath that's relative to the working
+// directory, and returns a path to the BUILD file that's relative to the
+// workspaceRoot (the absolute path of the directory containing the WORKSPACE
+// file).
+func getWorkspaceRelativePath(workspaceRoot, buildFilePath string) (string, error) {
+	absPath, err := filepath.Abs(buildFilePath)
 	if err != nil {
-		return "", "", err
+		return "", err
 	}
+	workspaceRelativePath, err := filepath.Rel(workspaceRoot, absPath)
+	if err != nil {
+		return "", err
+	}
+	platform.Normalize(workspaceRelativePath)
 
-	return g3root, buildFilePath, nil
+	return workspaceRelativePath, nil
 }
 
-func getBUILDPathAndBUILDFile(ctx context.Context, path string) (string, string, *build.File, error) {
-	g3root, buildFilePath, err := getBUILDPath(ctx, path)
+// getBUILDPath takes in a package or BUILD file path, and returns the path of
+// the workspace root (the absolute path of the directory containing the
+// WORKSPACE file), the BUILD file path relative to the working directory, and
+// the BUILD file path relative to the workspace root.
+func getBUILDPath(ctx context.Context, path string) (string, string, string, error) {
+	path = strings.TrimSuffix(path, "/BUILD") // Support both package paths and BUILD files
+	if _, err := platform.Stat(ctx, path); os.IsNotExist(err) {
+		return "", "", "", err
+	}
+	buildFilePath := filepath.Join(path, "BUILD")
+	workspaceRoot, err := workspace.Root(buildFilePath)
 	if err != nil {
-		return "", "", nil, err
+		return "", "", "", err
 	}
 
-	bld, err := readBUILD(ctx, g3root, buildFilePath)
+	workspaceRelativePath, err := getWorkspaceRelativePath(workspaceRoot, buildFilePath)
 	if err != nil {
-		platform.Infof("Error reading building file!")
-		return "", "", nil, err
+		return "", "", "", err
 	}
 
-	return g3root, buildFilePath, bld, nil
+	return workspaceRoot, buildFilePath, workspaceRelativePath, nil
 }
 
 // isTazeDisabledInPackage checks the BUILD file, or if the BUILD doesn't exist,
@@ -652,8 +646,14 @@ func (upd *Updater) updateBUILDAfterBazelAnalyze(ctx context.Context, isRoot boo
 // IsTazeDisabledForDir checks if ts_auto_deps is disabled in the BUILD file in the dir,
 // or if no BUILD file exists, in the closest ancestor BUILD
 func IsTazeDisabledForDir(ctx context.Context, dir string) (bool, error) {
-	g3root, buildFilePath, bld, err := getBUILDPathAndBUILDFile(ctx, dir)
+	g3root, buildFilePath, workspaceRelativePath, err := getBUILDPath(ctx, dir)
 	if err != nil {
+		return false, err
+	}
+
+	bld, err := readBUILD(ctx, buildFilePath, workspaceRelativePath)
+	if err != nil {
+		platform.Infof("Error reading building file!")
 		return false, err
 	}
 
@@ -703,11 +703,17 @@ func (upd *Updater) UpdateBUILD(ctx context.Context, path string, options Update
 	latencyReport := &LatencyReport{}
 
 	start := time.Now()
-	g3root, buildFilePath, bld, err := getBUILDPathAndBUILDFile(ctx, path)
-	latencyReport.GetBUILD = time.Since(start)
+	g3root, buildFilePath, workspaceRelativePath, err := getBUILDPath(ctx, path)
 	if err != nil {
 		return false, nil, err
 	}
+
+	bld, err := readBUILD(ctx, buildFilePath, workspaceRelativePath)
+	if err != nil {
+		platform.Infof("Error reading building file!")
+		return false, nil, err
+	}
+	latencyReport.GetBUILD = time.Since(start)
 
 	start = time.Now()
 	ts_auto_depsDisabled := isTazeDisabledInPackage(ctx, g3root, buildFilePath, bld)
@@ -1194,7 +1200,7 @@ func FindBUILDFile(ctx context.Context, pkgToBUILD map[string]*build.File,
 	_, err := platform.Stat(ctx, buildPath)
 	var bld *build.File
 	if err == nil {
-		bld, err = readBUILD(ctx, workspaceRoot, buildPath)
+		bld, err = readBUILD(ctx, buildPath, filepath.Join(packagePath, "BUILD"))
 	} else if os.IsNotExist(err) {
 		// Recursively search parent package and cache its location below if found.
 		bld, err = FindBUILDFile(ctx, pkgToBUILD, workspaceRoot, filepath.Dir(packagePath))

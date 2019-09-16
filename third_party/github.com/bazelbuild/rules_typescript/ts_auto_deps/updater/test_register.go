@@ -50,7 +50,7 @@ func (upd *Updater) RegisterTestRules(ctx context.Context, paths ...string) (boo
 		// declaration
 		var err error
 		var buildPath string
-		g3root, buildPath, err = getBUILDPath(ctx, path)
+		g3root, buildPath, _, err = getBUILDPath(ctx, path)
 		if err != nil {
 			return false, nil, err
 		}
@@ -108,7 +108,7 @@ type buildRegistry struct {
 }
 
 func (reg *buildRegistry) readBUILD(ctx context.Context, workspaceRoot, buildFilePath string) (*build.File, error) {
-	normalizedG3Path, err := getAbsoluteBUILDPath(workspaceRoot, buildFilePath)
+	normalizedG3Path, err := getWorkspaceRelativePath(workspaceRoot, buildFilePath)
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +117,7 @@ func (reg *buildRegistry) readBUILD(ctx context.Context, workspaceRoot, buildFil
 		return bld, nil
 	}
 
-	bld, err := readBUILD(ctx, workspaceRoot, buildFilePath)
+	bld, err := readBUILD(ctx, buildFilePath, normalizedG3Path)
 	if err != nil {
 		return nil, err
 	}

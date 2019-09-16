@@ -37,7 +37,7 @@ ts_library(name = 'a', srcs = ['b.ts'])
 	if err != nil {
 		t.Fatal(err)
 	}
-	bld, err := readBUILD(context.Background(), filepath.Join(testTmpDir, "google3"), p)
+	bld, err := readBUILD(context.Background(), p, "foo/bar/BUILD")
 	if err != nil {
 		t.Fatal(err)
 	}
