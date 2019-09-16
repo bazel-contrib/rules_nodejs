@@ -38,6 +38,7 @@ const inputs = argv.slice(0, outputArgIndex);
 const output = argv[outputArgIndex + 1];
 const residual = argv.slice(outputArgIndex + 2);
 
+// user override for the terser binary location. used in testing.
 const TERSER_BINARY = process.env.TERSER_BINARY || require.resolve('terser/bin/uglifyjs')
 // choose a default concurrency of the number of cores -1 but at least 1.
 const TERSER_CONCURENCY = (process.env.TERSER_CONCURRENCY || os.cpus().length - 1) || 1
@@ -55,7 +56,6 @@ function terserDirectory(input) {
   if (!fs.existsSync(output)) {
     fs.mkdirSync(output);
   }
-
 
   let work = [];
   let active = 0;
@@ -96,7 +96,7 @@ function terserDirectory(input) {
       exec(work.shift());
     } else if (!active) {
       if (errors.length) {
-        console.error('terser errored processing javascript in directory.')
+        log_error('terser errored processing javascript in directory.')
         process.exitCode = 2;
       }
       // NOTE: work is done at this point and node should exit here.
@@ -120,7 +120,7 @@ function terserDirectory(input) {
 if (!inputs.find(isDirectory) && inputs.length) {
   // Inputs were only files
   // Just use terser CLI exactly as it works outside bazel
-  require('terser/bin/uglifyjs');
+  require(TERSER_BINARY || 'terser/bin/uglifyjs');
 
 } else if (inputs.length > 1) {
   // We don't know how to merge multiple input dirs to one output dir
