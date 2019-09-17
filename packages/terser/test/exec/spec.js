@@ -12,9 +12,17 @@ if (!fs.existsSync(terserWrap)) {
 }
 
 
-function terser(inputFile, outputFile, opts) {
-  return cp.execFileSync(
-      process.execPath, [terserWrap, inputFile, '--output', outputFile], opts || {env: []})
+function terser(inputFile, outputFile, opts, attempts = 0) {
+  try {
+    return cp.execFileSync(
+        process.execPath, [terserWrap, inputFile, '--output', outputFile], opts || {env: []})
+  } catch (e) {
+    if (e.code === 'ENOMEM' && attempts < 3) {
+      if (global.gc) gc();
+      return terser(inputFile, outputFile, opts, attempts + 1);
+    }
+    throw e;
+  }
 }
 
 describe('run terser', () => {
@@ -23,6 +31,7 @@ describe('run terser', () => {
     try {
       terser('loop.js', 'boop.js')
     } catch (e) {
+      console.error(e, e + '')
       assert.strictEqual(e.status, 1, 'exit code should be 1');
       thrown = true;
     }
@@ -48,6 +57,7 @@ describe('run terser', () => {
     try {
       terser('soup.js', 'boop.js', {env: {TERSER_BINARY: 'DOES_NOT_EXIST'}})
     } catch (e) {
+      console.error(e, e + '')
       assert.ok(e.status, 'exit code');
       stderr = e.stderr + ''
     }
