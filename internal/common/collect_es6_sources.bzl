@@ -49,9 +49,7 @@ def collect_es6_sources(ctx):
         rerooted_file = ctx.actions.declare_file(
             "%s.es6/%s" % (
                 ctx.label.name,
-                # the .closure.js filename is an artifact of the rules_typescript layout
-                # TODO(mrmeku): pin to end of string, eg. don't match foo.closure.jso.js
-                path.replace(".closure.js", ".js"),
+                path.replace(".mjs", ".js"),
             ),
         )
 
