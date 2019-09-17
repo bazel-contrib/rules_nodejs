@@ -57,7 +57,6 @@ npm_package(
     srcs = glob(["*.bzl"]) + [
         "BUILD.bazel",
         "LICENSE",
-        "rules_webtesting.patch",
     ],
     # Don't rename BUILD files as this package is not published to npm
     # but is compressed in "release" below and published as a .tar.gz to GitHub
