@@ -50,7 +50,7 @@ def _run_pbjs(actions, executable, output_name, proto_files, suffix = ".js", wra
     return js_file
 
 def _run_pbts(actions, executable, js_file):
-    ts_file = actions.declare_file(js_file.basename[:-len(".closure.js")] + ".d.ts")
+    ts_file = actions.declare_file(js_file.basename[:-len(".js")] + ".d.ts")
 
     # Reference of arguments:
     # https://github.com/dcodeIO/ProtoBuf.js/#pbts-for-typescript
@@ -96,10 +96,12 @@ def _ts_proto_library(ctx):
         ctx.executable,
         output_name,
         sources,
-        suffix = ".closure.js",
+        suffix = ".mjs",
         wrap = "es6",
     )
-    dts = _run_pbts(ctx.actions, ctx.executable, js_es6)
+
+    # pbts doesn't understand '.mjs' extension so give it the es5 file
+    dts = _run_pbts(ctx.actions, ctx.executable, js_es5)
 
     # Return a structure that is compatible with the deps[] of a ts_library.
     return struct(
