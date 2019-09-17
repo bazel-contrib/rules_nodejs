@@ -20,7 +20,7 @@ load("//internal/common:check_bazel_version.bzl", _check_bazel_version = "check_
 load("//internal/history-server:history_server.bzl", _history_server = "history_server")
 load("//internal/http-server:http_server.bzl", _http_server = "http_server")
 load("//internal/node:node.bzl", _nodejs_binary = "nodejs_binary", _nodejs_test = "nodejs_test")
-load("//internal/node:node_repositories.bzl", _node_repositories = "node_repositories")
+load("//internal/node:node_repositories.bzl", _node_repositories = "node_repositories_rule")
 load("//internal/npm_install:npm_install.bzl", _npm_install = "npm_install", _yarn_install = "yarn_install")
 load("//internal/npm_package:npm_package.bzl", _npm_package = "npm_package")
 load("//internal/rollup:rollup_bundle.bzl", _rollup_bundle = "rollup_bundle")
