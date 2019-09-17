@@ -915,7 +915,7 @@ func removeSourcesUsed(bld *build.File, ruleKind, attrName string, srcs srcSet) 
 }
 
 const (
-	tsSkylarkLabel = "@npm_bazel_typescript//:defs.bzl"
+	tsSkylarkLabel = "@npm_bazel_typescript//:index.bzl"
 	ngSkylarkLabel = "@angular//:index.bzl"
 )
 
