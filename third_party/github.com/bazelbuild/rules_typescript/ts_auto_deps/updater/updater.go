@@ -207,6 +207,11 @@ func readBUILD(ctx context.Context, buildFilePath, workspaceRelativePath string)
 
 type srcSet map[string]bool
 
+type globResult struct {
+	srcs srcSet
+	err  error
+}
+
 // globSources finds sources in path with any of the given extensions.
 // It also filters out temporary files, dangling symlinks, and symlinks into bazel-bin specifically.
 // It returns file names relative to path.
@@ -617,12 +622,7 @@ func directoryOrAncestorHasSubdirectorySources(ctx context.Context, g3root, work
 	return false, nil
 }
 
-func (upd *Updater) addSourcesToBUILD(ctx context.Context, path string, buildFilePath string, bld *build.File) (bool, error) {
-	platform.Infof("Globbing TS sources in %s", path)
-	srcs, err := globSources(ctx, path, []string{"ts", "tsx"})
-	if err != nil {
-		return false, err
-	}
+func (upd *Updater) addSourcesToBUILD(ctx context.Context, path string, buildFilePath string, bld *build.File, srcs srcSet) (bool, error) {
 
 	platform.Infof("Updating sources")
 	if len(srcs) == 0 && len(allTSRules(bld)) == 0 {
@@ -709,6 +709,15 @@ type LatencyReport struct {
 func (upd *Updater) UpdateBUILD(ctx context.Context, path string, options UpdateBUILDOptions) (bool, *LatencyReport, error) {
 	latencyReport := &LatencyReport{}
 
+	// asynchronously glob for TS sources in the package, since it can be slow on
+	// a network file system.
+	globChan := make(chan globResult)
+	go func() {
+		platform.Infof("Globbing TS sources in %s", path)
+		srcs, err := globSources(ctx, path, []string{"ts", "tsx"})
+		globChan <- globResult{srcs, err}
+	}()
+
 	start := time.Now()
 	g3root, buildFilePath, workspaceRelativePath, err := getBUILDPath(ctx, path)
 	if err != nil {
@@ -748,7 +757,11 @@ func (upd *Updater) UpdateBUILD(ctx context.Context, path string, options Update
 	}
 
 	start = time.Now()
-	changed, err := upd.addSourcesToBUILD(ctx, path, buildFilePath, bld)
+	globRes := <-globChan
+	if globRes.err != nil {
+		return false, nil, globRes.err
+	}
+	changed, err := upd.addSourcesToBUILD(ctx, path, buildFilePath, bld, globRes.srcs)
 	latencyReport.AddSrcs = time.Since(start)
 	if err != nil {
 		return false, nil, err
