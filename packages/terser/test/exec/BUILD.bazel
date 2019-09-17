@@ -7,5 +7,5 @@ jasmine_node_test(
     data = [
         "@npm_bazel_terser//:index.js",
     ],
-    tags=['exclusive']
+    tags = ["exclusive"],
 )

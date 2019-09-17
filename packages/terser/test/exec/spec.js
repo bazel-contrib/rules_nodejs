@@ -11,6 +11,10 @@ if (!fs.existsSync(terserWrap)) {
       'expected to find terserwrap javascript file at \n' + terserWrap + '\nbut it does not exist!')
 }
 
+if (process.platform === 'win32') {
+  console.error('---->', cp.execSync('systeminfo') + '', '<-----')
+}
+
 
 function terser(inputFile, outputFile, opts, attempts = 0) {
   try {
