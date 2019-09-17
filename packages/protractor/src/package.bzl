@@ -25,14 +25,12 @@ def npm_bazel_protractor_dependencies():
     from their WORKSPACE before calling this function, or not call this function at all.
     """
 
-    # ts_web_test depends on the web testing rules to provision browsers.
+    # protractor rules depend on the web testing rules to provision browsers.
     _maybe(
         http_archive,
         name = "io_bazel_rules_webtesting",
-        sha256 = "f1f4d2c2f88d2beac64c82499a1e762b037966675dd892da89c87e39d72b33f6",
-        urls = ["https://github.com/bazelbuild/rules_webtesting/releases/download/0.3.2/rules_webtesting.tar.gz"],
-        patches = ["@build_bazel_rules_nodejs//:rules_webtesting.patch"],
-        patch_args = ["-p1"],
+        sha256 = "9bb461d5ef08e850025480bab185fd269242d4e533bca75bfb748001ceb343c3",
+        urls = ["https://github.com/bazelbuild/rules_webtesting/releases/download/0.3.3/rules_webtesting.tar.gz"],
     )
 
 def _maybe(repo_rule, name, **kwargs):

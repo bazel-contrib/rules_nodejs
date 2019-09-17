@@ -25,22 +25,12 @@ def rules_karma_dependencies():
     from their WORKSPACE before calling this function, or not call this function at all.
     """
 
-    # TypeScript compiler runs on node.js runtime
-    _maybe(
-        http_archive,
-        name = "build_bazel_rules_nodejs",
-        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.18.5/rules_nodejs-0.18.5.tar.gz"],
-        sha256 = "c8cd6a77433f7d3bb1f4ac87f15822aa102989f8e9eb1907ca0cad718573985b",
-    )
-
-    # ts_web_test depends on the web testing rules to provision browsers.
+    # karma rules depend on the web testing rules to provision browsers.
     _maybe(
         http_archive,
         name = "io_bazel_rules_webtesting",
-        sha256 = "f1f4d2c2f88d2beac64c82499a1e762b037966675dd892da89c87e39d72b33f6",
-        urls = ["https://github.com/bazelbuild/rules_webtesting/releases/download/0.3.2/rules_webtesting.tar.gz"],
-        patches = ["@build_bazel_rules_nodejs//:rules_webtesting.patch"],
-        patch_args = ["-p1"],
+        sha256 = "9bb461d5ef08e850025480bab185fd269242d4e533bca75bfb748001ceb343c3",
+        urls = ["https://github.com/bazelbuild/rules_webtesting/releases/download/0.3.3/rules_webtesting.tar.gz"],
     )
 
 def _maybe(repo_rule, name, **kwargs):
