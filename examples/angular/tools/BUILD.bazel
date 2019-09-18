@@ -1,6 +1,19 @@
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+
 # For testing from the root workspace of this repository with bazel_integration_test.
 filegroup(
     name = "all_files",
     srcs = glob(["**/*"]),
     visibility = ["//:__subpackages__"],
+)
+
+nodejs_binary(
+    name = "generate",
+    data = [
+        "@npm//:node_modules",
+        '//src',
+        '//:angular.json',
+        ":all_files"
+    ],
+    entry_point = "generator/index.js",
 )

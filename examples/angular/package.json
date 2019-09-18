@@ -59,7 +59,7 @@
         "bazel:lint-fix": "yarn bazel:format --lint=fix",
         "format": "git-clang-format",
         "precommit": "check-clang-format \"yarn format\"",
-        "generate": "node tools/generator/index.js",
-        "generate:clean": "node tools/generator/index.js --clean"
+        "generate": "bazel run //tools:generate",
+        "generate:clean": "bazel run //tools:generate -- --clean"
     }
 }

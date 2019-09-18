@@ -3,4 +3,3 @@ APP_MODULES = [
     "//src/app/home",
     "//src/app/todos",
 ]
-
