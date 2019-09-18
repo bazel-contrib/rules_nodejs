@@ -11,22 +11,17 @@ if (!fs.existsSync(terserWrap)) {
       'expected to find terserwrap javascript file at \n' + terserWrap + '\nbut it does not exist!')
 }
 
-if (process.platform === 'win32') {
-  console.error('---->', cp.execSync('systeminfo') + '', '<-----')
+if (process.platform === 'win32' && process.versions.node.split('.')[0] < 12) {
+  // skip this test if we're on node10.
+  // TODO: remove this when node 12 is the default
+  console.error(
+      'this test is only run on windows with nodejs >= 12 because there is an issue with spawning processes and ENOMEM errors.')
+  process.exit(0)
 }
 
-
 function terser(inputFile, outputFile, opts, attempts = 0) {
-  try {
-    return cp.execFileSync(
-        process.execPath, [terserWrap, inputFile, '--output', outputFile], opts || {env: []})
-  } catch (e) {
-    if (e.code === 'ENOMEM' && attempts < 3) {
-      if (global.gc) gc();
-      return terser(inputFile, outputFile, opts, attempts + 1);
-    }
-    throw e;
-  }
+  return cp.execFileSync(
+      process.execPath, [terserWrap, inputFile, '--output', outputFile], opts || {env: []})
 }
 
 describe('run terser', () => {
