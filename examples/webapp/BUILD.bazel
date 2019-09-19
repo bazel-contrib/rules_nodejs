@@ -1,7 +1,8 @@
-load("@build_bazel_rules_nodejs//:defs.bzl", "http_server", "rollup_bundle")
+load("@build_bazel_rules_nodejs//:defs.bzl", "rollup_bundle")
 
 # TODO(alexeagle): promote web_package rule to the public API
 load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_package")
+load("@npm//http-server:index.bzl", "http_server")
 load("@npm_bazel_protractor//:index.bzl", "protractor_web_test_suite")
 
 rollup_bundle(

@@ -148,13 +148,13 @@ nodejs_test(
 
 npm_package_bin(
     name = "run_terser",
-    srcs = ["terser_input.js"],
     outs = ["minified.js"],
     args = [
         "$(location terser_input.js)",
         "--output",
         "$(location minified.js)",
     ],
+    data = ["terser_input.js"],
     package = "terser",
 )
 

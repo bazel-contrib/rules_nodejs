@@ -1,9 +1,0 @@
-{
-  "name": "history-server",
-  "version": "1.0.0",
-  "main": "index.js",
-  "license": "MIT",
-  "dependencies": {
-    "history-server": "1.3.1"
-  }
-}

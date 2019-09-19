@@ -18,7 +18,10 @@ stardoc(
     name = "builtins",
     out = "builtins.api",
     input = "//:index.for_docs.bzl",
-    deps = ["//:bzl"],
+    deps = [
+        "//:bzl",
+        "//internal/node:bzl",
+    ],
 )
 
 _BUILTINS_README = "# Built-in rules\n\nThese rules are available without any npm installation, via the `WORKSPACE` install of the `build_bazel_rules_nodejs` workspace. This is necessary to bootstrap Bazel to run the package manager to download other rules from NPM.\n\n"

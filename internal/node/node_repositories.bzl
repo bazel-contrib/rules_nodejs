@@ -283,7 +283,6 @@ def _download_node(repository_ctx):
     else:
         fail("Unknown NodeJS host/version {}".format(node_host_version))
 
-    print("node urls", [url.format(version = node_version, filename = filename) for url in node_urls])
     repository_ctx.download_and_extract(
         url = [url.format(version = node_version, filename = filename) for url in node_urls],
         output = NODE_DIR,
@@ -700,28 +699,6 @@ def node_repositories(package_json = [], **kwargs):
         package_json = "@build_bazel_rules_nodejs//internal/rollup:package.json",
         yarn_lock = "@build_bazel_rules_nodejs//internal/rollup:yarn.lock",
         data = ["@build_bazel_rules_nodejs//internal/rollup:postinstall-patches.js"],
-        # Do not symlink node_modules as when used in downstream repos we should not create
-        # node_modules folders in the @build_bazel_rules_nodejs external repository. This is
-        # not supported by managed_directories.
-        symlink_node_modules = False,
-    )
-
-    _maybe(
-        yarn_install,
-        name = "history-server_runtime_deps",
-        package_json = "@build_bazel_rules_nodejs//internal/history-server:package.json",
-        yarn_lock = "@build_bazel_rules_nodejs//internal/history-server:yarn.lock",
-        # Do not symlink node_modules as when used in downstream repos we should not create
-        # node_modules folders in the @build_bazel_rules_nodejs external repository. This is
-        # not supported by managed_directories.
-        symlink_node_modules = False,
-    )
-
-    _maybe(
-        yarn_install,
-        name = "http-server_runtime_deps",
-        package_json = "@build_bazel_rules_nodejs//internal/http-server:package.json",
-        yarn_lock = "@build_bazel_rules_nodejs//internal/http-server:yarn.lock",
         # Do not symlink node_modules as when used in downstream repos we should not create
         # node_modules folders in the @build_bazel_rules_nodejs external repository. This is
         # not supported by managed_directories.

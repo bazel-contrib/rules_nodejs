@@ -19,8 +19,6 @@ Users should not load files under "/internal"
 
 load("//internal/common:check_bazel_version.bzl", _check_bazel_version = "check_bazel_version")
 load("//internal/common:check_version.bzl", "check_version")
-load("//internal/history-server:history_server.bzl", _history_server = "history_server")
-load("//internal/http-server:http_server.bzl", _http_server = "http_server")
 load("//internal/jasmine_node_test:jasmine_node_test.bzl", _jasmine_node_test = "jasmine_node_test")
 load(
     "//internal/node:node.bzl",
@@ -40,8 +38,6 @@ node_repositories = _node_repositories
 jasmine_node_test = _jasmine_node_test
 rollup_bundle = _rollup_bundle
 npm_package = _npm_package
-history_server = _history_server
-http_server = _http_server
 npm_package_bin = _npm_bin
 # ANY RULES ADDED HERE SHOULD BE DOCUMENTED, see index.for_docs.bzl
 

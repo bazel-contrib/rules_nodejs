@@ -2,25 +2,26 @@
 
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect", "register_node_modules_linker")
 
+# Note: this API is chosen to match nodejs_binary
+# so that we can generate macros that act as either an output-producing tool or an executable
 _ATTRS = {
-    "srcs": attr.label_list(allow_files = True),
     "outs": attr.output_list(),
     "args": attr.string_list(mandatory = True),
+    "data": attr.label_list(allow_files = True, aspects = [module_mappings_aspect]),
     "tool": attr.label(
         executable = True,
         cfg = "host",
         mandatory = True,
     ),
-    "deps": attr.label_list(aspects = [module_mappings_aspect]),
 }
 
 def _impl(ctx):
     args = ctx.actions.args()
-    inputs = ctx.files.srcs + ctx.files.deps
+    inputs = ctx.files.data[:]
     outputs = ctx.outputs.outs
     register_node_modules_linker(ctx, args, inputs)
     for a in ctx.attr.args:
-        args.add(ctx.expand_location(a))
+        args.add(ctx.expand_location(a, targets = ctx.attr.data))
     ctx.actions.run(
         executable = ctx.executable.tool,
         inputs = inputs,
@@ -28,23 +29,24 @@ def _impl(ctx):
         arguments = [args],
     )
 
-_npm_genrule = rule(
+_npm_package_bin = rule(
     _impl,
     attrs = _ATTRS,
 )
 
 def npm_package_bin(tool = None, package = None, package_bin = None, **kwargs):
     """Run an arbitrary npm package binary (anything under node_modules/.bin/*) under Bazel.
+    It must produce outputs. If you just want to run a program with `bazel run`, use the nodejs_binary rule.
 
     This is like a genrule() except that it runs our launcher script that first
     links the node_modules tree before running the program.
 
-    It's probably easy to wrap this with macros, so something with no rule logic
-    like stylus_binary could probably just be a macro wrapping this.
+    This is a great candidate to wrap with a macro, as documented:
+    https://docs.bazel.build/versions/master/skylark/macros.html#full-example
 
     Args:
-        srcs: identical to [genrule.srcs](https://docs.bazel.build/versions/master/be/general.html#genrule.srcs)
-        deps: Targets that produce or reference npm packages which are needed by the tool
+        data: identical to [genrule.srcs](https://docs.bazel.build/versions/master/be/general.html#genrule.srcs)
+              may also include targets that produce or reference npm packages which are needed by the tool
         outs: identical to [genrule.outs](https://docs.bazel.build/versions/master/be/general.html#genrule.outs)
         args: Command-line arguments to the tool.
 
@@ -61,8 +63,7 @@ def npm_package_bin(tool = None, package = None, package_bin = None, **kwargs):
         if not package_bin:
             package_bin = package
         tool = "@npm//%s/bin:%s" % (package, package_bin)
-
-    _npm_genrule(
+    _npm_package_bin(
         tool = tool,
         **kwargs
     )

@@ -34,6 +34,7 @@ stardoc(
         # ```
         "//:bzl",
         "//internal/common:bzl",
+        "//internal/node:bzl",
     ],
 )
 

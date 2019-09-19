@@ -1,5 +1,5 @@
 const {check, files} = require('./check');
-const {printPackageBin, addDynamicDependencies} = require('../generate_build_file');
+const {printPackageBin, printIndexBzl, addDynamicDependencies} = require('../generate_build_file');
 
 describe('build file generator', () => {
   describe('integration test', () => {
@@ -110,6 +110,13 @@ describe('build file generator', () => {
       expect(pkgs[0]._dynamicDependencies).toEqual(['//bar:foo-plugin-bar']);
       expect(printPackageBin(pkgs[0]))
           .toContain('data = ["//some_dir:foo", "//bar:foo-plugin-bar"]');
+    });
+  });
+
+  describe('index.bzl files', () => {
+    it('should encode npm binaries to be valid macro names', () => {
+      const bzl = printIndexBzl({_dir: 'http-server', bin: 'http-server'});
+      expect(bzl).toContain('def http_server(');
     });
   });
 });
