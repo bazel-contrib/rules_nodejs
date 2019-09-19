@@ -33,6 +33,8 @@ npm_package(
     srcs = [
         "@npm_bazel_stylus//:package_contents",
     ],
+    # stylus package is deprecated
+    tags = ["do-not-publish"],
     vendor_external = [
         "npm_bazel_stylus",
     ],

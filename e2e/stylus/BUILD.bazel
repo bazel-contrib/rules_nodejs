@@ -1,9 +1,21 @@
 load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_test")
-load("@npm_bazel_stylus//:index.bzl", "stylus_binary")
+load("@npm//stylus:index.bzl", "stylus")
 
-stylus_binary(
+stylus(
     name = "styles",
-    src = "test.styl",
+    srcs = ["test.styl"],
+    outs = [
+        "test.css",
+        "test.css.map",
+    ],
+    args = [
+        "test.styl",
+        "--out",
+        # Output paths must use $(location) since Bazel puts them in a platform-dependent output directory
+        "$(location test.css)",
+        "--compress",
+        "--sourcemap",
+    ],
 )
 
 nodejs_test(

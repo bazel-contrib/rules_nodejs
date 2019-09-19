@@ -221,14 +221,27 @@ node_module_library(
 }
 
 /**
- * Generates all BUILD files for a package.
+ * Generates all BUILD & bzl files for a package.
  */
 function generatePackageBuildFiles(pkg) {
-  const buildFile = BUILD_FILE_HEADER + printPackage(pkg);
-  writeFileSync(path.posix.join(pkg._dir, 'BUILD.bazel'), buildFile);
+  let buildFile = printPackage(pkg);
 
-  const binBuildFile = BUILD_FILE_HEADER + printPackageBin(pkg);
-  writeFileSync(path.posix.join(pkg._dir, 'bin', 'BUILD.bazel'), binBuildFile);
+  const binBuildFile = printPackageBin(pkg);
+  if (binBuildFile.length) {
+    writeFileSync(
+        path.posix.join(pkg._dir, 'bin', 'BUILD.bazel'), BUILD_FILE_HEADER + binBuildFile);
+  }
+
+  const indexFile = printIndexBzl(pkg);
+  if (indexFile.length) {
+    writeFileSync(path.posix.join(pkg._dir, 'index.bzl'), indexFile);
+    buildFile = `${buildFile}
+# For integration testing
+exports_files(["index.bzl"])
+`;
+  }
+
+  writeFileSync(path.posix.join(pkg._dir, 'BUILD.bazel'), BUILD_FILE_HEADER + buildFile);
 }
 
 /**
@@ -951,12 +964,7 @@ npm_umd_bundle(
   return result;
 }
 
-/**
- * Given a pkg, return the skylark nodejs_binary targets for the package.
- */
-function printPackageBin(pkg) {
-  let result = '';
-
+function _findExecutables(pkg) {
   const executables = new Map();
 
   // For root packages, transform the pkg.bin entries
@@ -982,6 +990,16 @@ function printPackageBin(pkg) {
     }
   }
 
+  return executables;
+}
+
+
+/**
+ * Given a pkg, return the skylark nodejs_binary targets for the package.
+ */
+function printPackageBin(pkg) {
+  let result = '';
+  const executables = _findExecutables(pkg);
   if (executables.size) {
     result = `load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
 
@@ -1019,6 +1037,26 @@ nodejs_binary(
 
 `;
     }
+  }
+
+  return result;
+}
+
+function printIndexBzl(pkg) {
+  let result = '';
+  const executables = _findExecutables(pkg);
+  if (executables.size) {
+    result = `load("@build_bazel_rules_nodejs//:defs.bzl", "npm_package_bin")
+
+`;
+  }
+  for (const name of executables.keys()) {
+    result = `${result}
+
+# Generated helper macro to call ${name}
+def ${name}(**kwargs):
+    npm_package_bin(tool = "@${WORKSPACE}//${pkg._dir}/bin:${name}", **kwargs)
+`;
   }
 
   return result;
