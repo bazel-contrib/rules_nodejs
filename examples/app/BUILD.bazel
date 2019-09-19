@@ -31,6 +31,8 @@ web_package(
         # The injector will put two complimentary script tags in the index.html
         ":bundle.min.js",
         ":bundle.min.es2015.js",
+        "//styles:base.css",
+        "//styles:test.css",
     ],
     index_html = "index.html",
 )
@@ -108,6 +110,7 @@ filegroup(
             "node_modules/**/*",
         ],
     ) + [
+        "//styles:all_files",
         "//test:all_files",
     ],
     visibility = ["//visibility:public"],
