@@ -4,6 +4,8 @@
     "@bazel/protractor": "latest",
     "@bazel/typescript": "latest",
     "@types/jasmine": "3.3.15",
+    "less": "^3.10.3",
+    "stylus": "^0.54.7",
     "typescript": "2.7.x"
   },
   "scripts": {

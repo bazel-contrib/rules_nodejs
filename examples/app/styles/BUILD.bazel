@@ -1,0 +1,46 @@
+load("@npm//less:index.bzl", "lessc")
+load("@npm//stylus:index.bzl", "stylus")
+
+package(default_visibility = ["//:__pkg__"])
+
+lessc(
+    name = "base",
+    srcs = [
+        "base.less",
+        "variables.less",
+    ],
+    outs = [
+        "base.css",
+        "base.css.map",
+    ],
+    args = [
+        "$(location base.less)",
+        # Output paths must use $(location) since Bazel puts them in a platform-dependent output directory
+        "$(location base.css)",
+        "--silent",
+        "--source-map",
+    ],
+)
+
+stylus(
+    name = "styles",
+    srcs = ["test.styl"],
+    outs = [
+        "test.css",
+        "test.css.map",
+    ],
+    args = [
+        "$(location test.styl)",
+        "--out",
+        # Output paths must use $(location) since Bazel puts them in a platform-dependent output directory
+        "$(location test.css)",
+        "--compress",
+        "--sourcemap",
+    ],
+)
+
+# For testing from the root workspace of this repository with bazel_integration_test.
+filegroup(
+    name = "all_files",
+    srcs = glob(["**/*"]),
+)
