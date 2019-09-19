@@ -74,9 +74,8 @@ function terserDirectory(input) {
                 // the errors. this behavior is another candidate for user configuration because
                 // there is value in stopping at the first error in some use cases.
 
-                log_error(
-                    'errored: ' + inputFile + '\n', 'OUT: ' + data.out + '\n',
-                    ' ERR: ' + data.err + '\n', ' code:' + data.code);
+                log_error(`errored: ${inputFile}\nOUT: ${data.out}\nERR: ${data.err}\ncode: ${
+                    data.code}`);
               } else {
                 log_verbose('finished: ', inputFile);
               }
@@ -134,6 +133,7 @@ function spawn(cmd, args) {
   return new Promise((resolve, reject) => {
     const err = [];
     const out = [];
+    // this may throw syncronously if the process cannot be created.
     let proc = child_process.spawn(cmd, args);
 
     proc.stdout.on('data', (buf) => {
@@ -141,7 +141,9 @@ function spawn(cmd, args) {
     });
     proc.stderr.on('data', (buf) => {err.push(buf)})
     proc.on('exit', (code) => {
-      resolve({out: Buffer.concat(out), err: err.length ? Buffer.concat(err) : false, code: code});
+      // we never reject here based on exit code because an error is a valid result of running a
+      // process.
+      resolve({out: Buffer.concat(out), err: err.length ? Buffer.concat(err) : false, code});
     });
   })
 }
