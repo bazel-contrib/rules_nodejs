@@ -17,8 +17,6 @@
 This differs from :defs.bzl because we don't have wrapping macros that hide the real doc"""
 
 load("//internal/common:check_bazel_version.bzl", _check_bazel_version = "check_bazel_version")
-load("//internal/history-server:history_server.bzl", _history_server = "history_server")
-load("//internal/http-server:http_server.bzl", _http_server = "http_server")
 load("//internal/node:node.bzl", _nodejs_binary = "nodejs_binary", _nodejs_test = "nodejs_test")
 load("//internal/node:node_repositories.bzl", _node_repositories = "node_repositories_rule")
 load("//internal/npm_install:npm_install.bzl", _npm_install = "npm_install", _yarn_install = "yarn_install")
@@ -31,8 +29,6 @@ nodejs_test = _nodejs_test
 node_repositories = _node_repositories
 rollup_bundle = _rollup_bundle
 npm_package = _npm_package
-history_server = _history_server
-http_server = _http_server
 npm_install = _npm_install
 yarn_install = _yarn_install
 # ANY RULES ADDED HERE SHOULD BE DOCUMENTED, run yarn skydoc to verify

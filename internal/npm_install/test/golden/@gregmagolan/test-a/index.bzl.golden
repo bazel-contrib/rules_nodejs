@@ -1,3 +1,12 @@
-load("@build_bazel_rules_nodejs//:defs.bzl", "npm_package_bin")
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary", "npm_package_bin")
 def test(**kwargs):
-    npm_package_bin(tool = "@fine_grained_goldens//@gregmagolan/test-a/bin:test", **kwargs)
+    if "outs" in kwargs:
+        npm_package_bin(tool = "@fine_grained_goldens//@gregmagolan/test-a/bin:test", **kwargs)
+    else:
+        nodejs_binary(
+            entry_point = "@fine_grained_goldens//:node_modules/@gregmagolan/test-a/@bin/test.js",
+            install_source_map_support = False,
+            data = ["@fine_grained_goldens//@gregmagolan/test-a:test-a", "//@angular/core:core"] + kwargs.pop("data", []),
+            **kwargs
+        )
+  

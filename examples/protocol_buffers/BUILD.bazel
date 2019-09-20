@@ -1,4 +1,5 @@
-load("@build_bazel_rules_nodejs//:defs.bzl", "http_server", "rollup_bundle")
+load("@build_bazel_rules_nodejs//:defs.bzl", "rollup_bundle")
+load("@npm//http-server:index.bzl", "http_server")
 load("@npm_bazel_protractor//:index.bzl", "protractor_web_test_suite")
 load("@npm_bazel_typescript//:index.bzl", "ts_config", "ts_devserver", "ts_library", "ts_proto_library")
 load("//:defaults.bzl", "ts_web_test_suite")

@@ -1,7 +1,8 @@
 {
     "private": true,
     "devDependencies": {
-        "@bazel/protractor": "latest"
+        "@bazel/protractor": "latest",
+        "http-server": "^0.11.1"
     },
     "scripts": {
         "test": "bazel test ..."

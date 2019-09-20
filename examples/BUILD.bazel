@@ -16,6 +16,7 @@ load(":test.bzl", "example_integration_test")
 
 example_integration_test(
     name = "examples_angular",
+    timeout = "long",
     npm_packages = {
         "//packages/karma:npm_package": "@bazel/karma",
         "//packages/protractor:npm_package": "@bazel/protractor",

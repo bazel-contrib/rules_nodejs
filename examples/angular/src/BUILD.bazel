@@ -1,8 +1,9 @@
-load("@build_bazel_rules_nodejs//:defs.bzl", "history_server", "rollup_bundle")
+load("@build_bazel_rules_nodejs//:defs.bzl", "rollup_bundle")
 load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_package")
 load("@io_bazel_rules_docker//container:container.bzl", "container_image")
 load("@io_bazel_rules_docker//nodejs:image.bzl", "nodejs_image")
 load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
+load("@npm//history-server:index.bzl", "history_server")
 load("@npm_angular_bazel//:index.bzl", "ng_module")
 load("@npm_bazel_typescript//:defs.bzl", "ts_config", "ts_devserver", "ts_library")
 
@@ -176,8 +177,8 @@ history_server(
 nodejs_image(
     name = "nodejs_image",
     data = [":prodapp"],
-    entry_point = "@history-server_runtime_deps//:node_modules/history-server/modules/cli.js",
-    node_modules = "@history-server_runtime_deps//:node_modules",
+    entry_point = "@npm//:node_modules/history-server/modules/cli.js",
+    node_modules = "@npm//:node_modules",
     # Actions created by this rule are I/O-bound,
     # so there is no benefit to running them remotely
     tags = ["local"],

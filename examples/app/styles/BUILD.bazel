@@ -5,10 +5,6 @@ package(default_visibility = ["//:__pkg__"])
 
 lessc(
     name = "base",
-    srcs = [
-        "base.less",
-        "variables.less",
-    ],
     outs = [
         "base.css",
         "base.css.map",
@@ -20,11 +16,14 @@ lessc(
         "--silent",
         "--source-map",
     ],
+    data = [
+        "base.less",
+        "variables.less",
+    ],
 )
 
 stylus(
     name = "styles",
-    srcs = ["test.styl"],
     outs = [
         "test.css",
         "test.css.map",
@@ -37,6 +36,7 @@ stylus(
         "--compress",
         "--sourcemap",
     ],
+    data = ["test.styl"],
 )
 
 # For testing from the root workspace of this repository with bazel_integration_test.

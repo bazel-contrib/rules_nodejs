@@ -107,6 +107,7 @@ module.exports = {
   main,
   printPackageBin,
   addDynamicDependencies,
+  printIndexBzl,
 };
 
 /**
@@ -993,6 +994,26 @@ function _findExecutables(pkg) {
   return executables;
 }
 
+// Handle additionalAttributes of format:
+// ```
+// "bazelBin": {
+//   "ngc-wrapped": {
+//     "additionalAttributes": {
+//       "configuration_env_vars": "[\"compile\"]"
+//   }
+// },
+// ```
+function additionalAttributes(pkg, name) {
+  let additionalAttributes = '';
+  if (pkg.bazelBin && pkg.bazelBin[name] && pkg.bazelBin[name].additionalAttributes) {
+    const attrs = pkg.bazelBin[name].additionalAttributes;
+    for (const attrName of Object.keys(attrs)) {
+      const attrValue = attrs[attrName];
+      additionalAttributes += `\n    ${attrName} = ${attrValue},`;
+    }
+  }
+  return additionalAttributes;
+}
 
 /**
  * Given a pkg, return the skylark nodejs_binary targets for the package.
@@ -1010,29 +1031,12 @@ function printPackageBin(pkg) {
     }
 
     for (const [name, path] of executables.entries()) {
-      // Handle additionalAttributes of format:
-      // ```
-      // "bazelBin": {
-      //   "ngc-wrapped": {
-      //     "additionalAttributes": {
-      //       "configuration_env_vars": "[\"compile\"]"
-      //   }
-      // },
-      // ```
-      let additionalAttributes = '';
-      if (pkg.bazelBin && pkg.bazelBin[name] && pkg.bazelBin[name].additionalAttributes) {
-        const attrs = pkg.bazelBin[name].additionalAttributes;
-        for (const attrName of Object.keys(attrs)) {
-          const attrValue = attrs[attrName];
-          additionalAttributes += `\n    ${attrName} = ${attrValue},`;
-        }
-      }
       result += `# Wire up the \`bin\` entry \`${name}\`
 nodejs_binary(
     name = "${name}",
     entry_point = "//:node_modules/${pkg._dir}/${path}",
     install_source_map_support = False,
-    data = [${data.map(p => `"${p}"`).join(', ')}],${additionalAttributes}
+    data = [${data.map(p => `"${p}"`).join(', ')}],${additionalAttributes(pkg, name)}
 )
 
 `;
@@ -1046,19 +1050,32 @@ function printIndexBzl(pkg) {
   let result = '';
   const executables = _findExecutables(pkg);
   if (executables.size) {
-    result = `load("@build_bazel_rules_nodejs//:defs.bzl", "npm_package_bin")
+    result = `load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary", "npm_package_bin")
 
 `;
-  }
-  for (const name of executables.keys()) {
-    result = `${result}
+    const data = [`@${WORKSPACE}//${pkg._dir}:${pkg._name}`];
+    if (pkg._dynamicDependencies) {
+      data.push(...pkg._dynamicDependencies);
+    }
+
+    for (const [name, path] of executables.entries()) {
+      result = `${result}
 
 # Generated helper macro to call ${name}
-def ${name}(**kwargs):
-    npm_package_bin(tool = "@${WORKSPACE}//${pkg._dir}/bin:${name}", **kwargs)
-`;
+def ${name.replace(/-/g, '_')}(**kwargs):
+    if "outs" in kwargs:
+        npm_package_bin(tool = "@${WORKSPACE}//${pkg._dir}/bin:${name}", **kwargs)
+    else:
+        nodejs_binary(
+            entry_point = "@${WORKSPACE}//:node_modules/${pkg._dir}/${path}",
+            install_source_map_support = False,
+            data = [${data.map(p => `"${p}"`).join(', ')}] + kwargs.pop("data", []),${
+          additionalAttributes(pkg, name)}
+            **kwargs
+        )
+  `;
+    }
   }
-
   return result;
 }
 

@@ -1,4 +1,5 @@
-load("@build_bazel_rules_nodejs//:defs.bzl", "http_server", "rollup_bundle")
+load("@build_bazel_rules_nodejs//:defs.bzl", "rollup_bundle")
+load("@npm//http-server:index.bzl", "http_server")
 load("@npm_bazel_protractor//:index.from_src.bzl", "protractor_web_test_suite")
 load("@npm_bazel_typescript//:index.bzl", "ts_config")
 load("@npm_bazel_typescript//:index.from_src.bzl", "ts_devserver", "ts_library")
@@ -35,6 +36,7 @@ http_server(
         "index.html",
         ":bundle.min.js",
     ],
+    templated_args = [package_name()],
 )
 
 ts_library(
