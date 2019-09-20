@@ -41,10 +41,8 @@ _PACKAGE_READMES = {
     "Built-ins": ":builtins.doc",
     "Jasmine": "//packages/jasmine:README.md",
     "Karma": "//packages/karma:README.md",
-    "Less": "//packages/less:README.md",
     "Protractor": "//packages/protractor:README.md",
     "Rollup": "//packages/rollup:README.md",
-    "Stylus": "//packages/stylus:README.md",
     "Terser": "//packages/terser:README.md",
     "TypeScript": "//packages/typescript:README.md",
 }

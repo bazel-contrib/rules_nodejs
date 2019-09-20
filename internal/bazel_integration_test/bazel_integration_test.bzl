@@ -169,9 +169,7 @@ check_npm_packages = [
     "@bazel/jasmine",
     "@bazel/karma",
     "@bazel/labs",
-    "@bazel/less",
     "@bazel/protractor",
-    "@bazel/stylus",
     "@bazel/typescript",
 ],
 ```
