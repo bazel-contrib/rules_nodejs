@@ -67,7 +67,7 @@ def npm_package_bin(tool = None, package = None, package_bin = None, **kwargs):
               may also include targets that produce or reference npm packages which are needed by the tool
         outs: similar to [genrule.outs](https://docs.bazel.build/versions/master/be/general.html#genrule.outs)
         output_dir: set to True if you want the output to be a directory
-                 Exactly one of `outs`, `out_dir` may be used.
+                 Exactly one of `outs`, `output_dir` may be used.
                  If you output a directory, there can only be one output, which will be named the same as the target.
 
         args: Command-line arguments to the tool.

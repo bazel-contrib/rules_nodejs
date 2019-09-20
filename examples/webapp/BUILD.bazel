@@ -1,68 +1,17 @@
-# TODO(alexeagle): promote web_package rule to the public API
-load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_package")
-load("@npm//@babel/cli:index.bzl", "babel")
 load("@npm//http-server:index.bzl", "http_server")
 load("@npm_bazel_protractor//:index.bzl", "protractor_web_test_suite")
-load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
-load("@npm_bazel_terser//:index.bzl", "terser_minified")
+load(":differential_loading.bzl", "differential_loading")
 
-rollup_bundle(
-    name = "chunks",
+differential_loading(
+    name = "app",
     srcs = glob(["*.js"]),
     entry_point = "index.js",
-    output_dir = True,
-)
-
-# For older browsers, we'll transform the output chunks to es5 + systemjs loader
-babel(
-    name = "chunks_es5",
-    args = [
-        "$(location chunks)",
-        "--config-file",
-        "$(location es5.babelrc)",
-        "--out-dir",
-        "$@",
-    ],
-    data = [
-        "chunks",
-        "es5.babelrc",
-        "@npm//@babel/preset-env",
-    ],
-    output_dir = True,
-)
-
-# Run terser against both modern and legacy browser chunks
-terser_minified(
-    name = "chunks_es5.min",
-    src = "chunks_es5",
-)
-
-terser_minified(
-    name = "chunks.min",
-    src = "chunks",
-)
-
-web_package(
-    name = "package",
-    # FIXME: need something like:
-    # entry_point = "index.js",
-    assets = [
-        "styles.css",
-    ],
-    data = [
-        "favicon.png",
-        # For differential loading, we supply both ESModule chunks and es5 chunks.
-        # The injector will put two complimentary script tags in the index.html
-        ":chunks.min",
-        ":chunks_es5.min",
-    ],
-    index_html = "index.html",
 )
 
 http_server(
     name = "server",
-    data = [":package"],
-    templated_args = ["package"],
+    data = [":app"],
+    templated_args = ["app"],
 )
 
 # BazelCI docker images are missing shares libs to run a subset browser tests:
