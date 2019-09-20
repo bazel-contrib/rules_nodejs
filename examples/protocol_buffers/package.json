@@ -2,6 +2,7 @@
   "devDependencies": {
     "@bazel/hide-bazel-files": "latest",
     "@bazel/karma": "latest",
+    "@bazel/labs": "latest",
     "@bazel/protractor": "latest",
     "@bazel/typescript": "latest",
     "@types/jasmine": "2.8.2",

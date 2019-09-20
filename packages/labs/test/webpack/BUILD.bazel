@@ -1,5 +1,5 @@
 load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
-load("@npm_bazel_labs//webpack:index.bzl", "webpack_bundle")
+load("@npm_bazel_labs//:index.bzl", "webpack_bundle")
 load("@npm_bazel_typescript//:index.from_src.bzl", "ts_library")
 
 webpack_bundle(

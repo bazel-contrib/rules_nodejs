@@ -36,7 +36,6 @@ filegroup(
     name = "package_contents",
     srcs = [
         "BUILD.bazel",
-        "index.bzl",
         "webpack_bundle.bzl",
     ],
 )

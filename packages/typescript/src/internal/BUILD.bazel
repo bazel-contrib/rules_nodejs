@@ -51,6 +51,5 @@ filegroup(
         "ts_config.bzl",
         "ts_repositories.bzl",
         "//internal/devserver:package_contents",
-        "//internal/protobufjs:package_contents",
     ],
 )

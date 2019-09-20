@@ -1,5 +1,5 @@
 load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
-load("@npm_bazel_labs//webpack:index.bzl", "webpack_bundle")
+load("@npm_bazel_labs//:index.bzl", "webpack_bundle")
 
 webpack_bundle(
     name = "bundle",

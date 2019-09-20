@@ -13,7 +13,6 @@
 # limitations under the License.
 
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
-load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -23,7 +22,6 @@ bzl_library(
     deps = [
         "//internal:bzl",
         "//internal/devserver:bzl",
-        "//internal/protobufjs:bzl",
         "@build_bazel_rules_nodejs//internal/common:bzl",
     ],
 )
@@ -39,22 +37,7 @@ filegroup(
         "version.bzl",
         "//devserver:package_contents",
         "//internal:package_contents",
+        "//third_party/npm/requirejs:package_contents",
         "//ts_auto_deps:package_contents",
     ],
-)
-
-# Runtime libraries needed by the protobufjs library.
-# Any JS code produced by the ts_proto_library rule has a runtime dependency on these scripts.
-js_library(
-    name = "protobufjs_bootstrap_scripts",
-    srcs = [
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:node_modules/long/dist/long.js",
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:node_modules/protobufjs/dist/minimal/protobuf.min.js",
-    ],
-    # Make devmode loading work when it does require("protobufjs/minimal")
-    # so this is shimmed to define it to equal global.protobuf
-    amd_names = {
-        "long": "Long",
-        "protobufjs/minimal": "protobuf",
-    },
 )
