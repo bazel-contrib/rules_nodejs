@@ -1,7 +1,8 @@
 load("@build_bazel_rules_nodejs//:defs.bzl", "rollup_bundle")
 load("@npm//http-server:index.bzl", "http_server")
+load("@npm_bazel_labs//:index.bzl", "ts_proto_library")
 load("@npm_bazel_protractor//:index.bzl", "protractor_web_test_suite")
-load("@npm_bazel_typescript//:index.bzl", "ts_config", "ts_devserver", "ts_library", "ts_proto_library")
+load("@npm_bazel_typescript//:index.bzl", "ts_config", "ts_devserver", "ts_library")
 load("//:defaults.bzl", "ts_web_test_suite")
 
 proto_library(
@@ -45,7 +46,7 @@ ts_library(
 
 ts_web_test_suite(
     name = "test",
-    bootstrap = ["@npm_bazel_typescript//:protobufjs_bootstrap_scripts"],
+    bootstrap = ["@npm_bazel_labs//protobufjs:bootstrap_scripts"],
     browsers = [
         "@io_bazel_rules_webtesting//browsers:chromium-local",
         "@io_bazel_rules_webtesting//browsers:firefox-local",
@@ -62,7 +63,7 @@ ts_library(
 
 ts_devserver(
     name = "devserver",
-    bootstrap = ["@npm_bazel_typescript//:protobufjs_bootstrap_scripts"],
+    bootstrap = ["@npm_bazel_labs//protobufjs:bootstrap_scripts"],
     entry_module = "examples_protocol_buffers/app",
     deps = [":bundle"],
 )
@@ -72,7 +73,7 @@ rollup_bundle(
     name = "bundle",
     enable_code_splitting = False,
     entry_point = ":app.ts",
-    # TODO(alexeagle): we should be able to get this from //:protobufjs_bootstrap_scripts
+    # TODO(alexeagle): we should be able to get this from protobufjs:bootstrap_scripts
     # and automatically plumb it through to Rollup.
     globals = {
         "long": "Long",

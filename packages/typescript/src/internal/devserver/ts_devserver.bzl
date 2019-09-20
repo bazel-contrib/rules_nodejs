@@ -201,7 +201,7 @@ ts_devserver = rule(
             cfg = "host",
         ),
         "_launcher_template": attr.label(allow_single_file = True, default = Label("//internal/devserver:launcher_template.sh")),
-        "_requirejs_script": attr.label(allow_single_file = True, default = Label("@build_bazel_rules_typescript_devserver_deps//:node_modules/requirejs/require.js")),
+        "_requirejs_script": attr.label(allow_single_file = True, default = Label("//third_party/npm/requirejs:require.js")),
     },
     outputs = {
         "manifest": "%{name}.MF",

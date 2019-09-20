@@ -21,10 +21,11 @@ exports_files(["tsconfig.json"])
 
 filegroup(
     name = "package_contents",
-    srcs = [
+    srcs = glob(["*.bzl"]) + [
         "BUILD.bazel",
         "README.md",
         "package.json",
+        "//protobufjs:package_contents",
         "//webpack:package_contents",
     ],
 )
