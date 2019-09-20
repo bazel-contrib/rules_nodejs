@@ -158,8 +158,28 @@ npm_package_bin(
     package = "terser",
 )
 
+nodejs_binary(
+    name = "copy_to_directory",
+    entry_point = "copy_to_directory.js",
+)
+
+npm_package_bin(
+    name = "produces_directory",
+    args = [
+        "--output-dir",
+        "$@",
+        "$(location terser_input.js)",
+    ],
+    data = ["terser_input.js"],
+    out_dir = "dir_output",
+    tool = ":copy_to_directory",
+)
+
 nodejs_test(
     name = "npm_package_bin_test",
-    data = ["minified.js"],
+    data = [
+        "minified.js",
+        "produces_directory",
+    ],
     entry_point = "npm_package_bin.spec.js",
 )

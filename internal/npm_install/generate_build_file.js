@@ -1063,7 +1063,7 @@ function printIndexBzl(pkg) {
 
 # Generated helper macro to call ${name}
 def ${name.replace(/-/g, '_')}(**kwargs):
-    if "outs" in kwargs:
+    if "outs" in kwargs or "out_dir" in kwargs:
         npm_package_bin(tool = "@${WORKSPACE}//${pkg._dir}/bin:${name}", **kwargs)
     else:
         nodejs_binary(

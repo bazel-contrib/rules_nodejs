@@ -1,6 +1,6 @@
 load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary", "npm_package_bin")
 def test(**kwargs):
-    if "outs" in kwargs:
+    if "outs" in kwargs or "out_dir" in kwargs:
         npm_package_bin(tool = "@fine_grained_goldens//@gregmagolan/test-a/bin:test", **kwargs)
     else:
         nodejs_binary(
