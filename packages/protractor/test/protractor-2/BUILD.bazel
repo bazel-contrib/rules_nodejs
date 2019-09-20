@@ -36,6 +36,9 @@ http_server(
         "index.html",
         ":bundle.min.js",
     ],
+    # This repeats the default, but is here for coverage
+    # to make sure the generated index.bzl handles it
+    output_dir = False,
     templated_args = [package_name()],
 )
 

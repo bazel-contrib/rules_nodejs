@@ -1,1 +1,3 @@
-export const hello = 'Hello Webapp';
+export function hello() {
+  return 'Hello Webapp';
+}
