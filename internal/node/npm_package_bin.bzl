@@ -8,6 +8,7 @@ _ATTRS = {
     "outs": attr.output_list(),
     "args": attr.string_list(mandatory = True),
     "data": attr.label_list(allow_files = True, aspects = [module_mappings_aspect]),
+    "out_dir": attr.string(),
     "tool": attr.label(
         executable = True,
         cfg = "host",
@@ -15,19 +16,36 @@ _ATTRS = {
     ),
 }
 
+# Need a custom expand_location function
+# because the out_dir is a tree artifact
+# so we weren't able to give it a label
+def _expand_location(ctx, s):
+    s = s.replace("$@", "/".join([ctx.bin_dir.path, ctx.label.package, ctx.attr.out_dir]))
+    return ctx.expand_location(s, targets = ctx.attr.data)
+
 def _impl(ctx):
+    if ctx.attr.out_dir and ctx.attr.outs:
+        fail("Only one of out_dir and outs may be specified")
+    if not ctx.attr.out_dir and not ctx.attr.outs:
+        fail("One of out_dir and outs must be specified")
+
     args = ctx.actions.args()
     inputs = ctx.files.data[:]
-    outputs = ctx.outputs.outs
+    outputs = []
+    if ctx.attr.out_dir:
+        outputs = [ctx.actions.declare_directory(ctx.attr.out_dir)]
+    else:
+        outputs = ctx.outputs.outs
     register_node_modules_linker(ctx, args, inputs)
     for a in ctx.attr.args:
-        args.add(ctx.expand_location(a, targets = ctx.attr.data))
+        args.add(_expand_location(ctx, a))
     ctx.actions.run(
         executable = ctx.executable.tool,
         inputs = inputs,
         outputs = outputs,
         arguments = [args],
     )
+    return [DefaultInfo(files = depset(outputs))]
 
 _npm_package_bin = rule(
     _impl,
@@ -45,17 +63,22 @@ def npm_package_bin(tool = None, package = None, package_bin = None, **kwargs):
     https://docs.bazel.build/versions/master/skylark/macros.html#full-example
 
     Args:
-        data: identical to [genrule.srcs](https://docs.bazel.build/versions/master/be/general.html#genrule.srcs)
+        data: similar to [genrule.srcs](https://docs.bazel.build/versions/master/be/general.html#genrule.srcs)
               may also include targets that produce or reference npm packages which are needed by the tool
-        outs: identical to [genrule.outs](https://docs.bazel.build/versions/master/be/general.html#genrule.outs)
+        outs: similar to [genrule.outs](https://docs.bazel.build/versions/master/be/general.html#genrule.outs)
+        out_dir: use this instead of `outs` if you want the output to be a directory
+                 Exactly one of `outs`, `out_dir` may be used.
+                 If you output a directory, there can only be one output.
         args: Command-line arguments to the tool.
 
             Subject to 'Make variable' substitution.
             Can use $(location) expansion. See https://docs.bazel.build/versions/master/be/make-variables.html
+            You may also refer to the location of the out_dir with the special `$@` replacement, like genrule.
 
         package: an npm package whose binary to run, like "terser". Assumes your node_modules are installed in a workspace called "npm"
         package_bin: the "bin" entry from `package` that should be run. By default package_bin is the same string as `package`
-        tool: a label for a binary to run, like `@npm//terser/bin:terser`. This is the longer form of package/package_bin
+        tool: a label for a binary to run, like `@npm//terser/bin:terser`. This is the longer form of package/package_bin.
+              Note that you can also refer to a binary in your local workspace.
     """
     if not tool:
         if not package:
