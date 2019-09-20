@@ -1,5 +1,7 @@
-import {hello} from './strings.en';
-const el = document.createElement('div');
-el.innerText = hello;
-el.className = 'ts1';
-document.body.appendChild(el);
+// clang-format off
+import('./strings.en').then(m => {
+    const msg = document.createElement('div');
+    msg.innerText = m.hello();
+    msg.className = 'ts1';
+    document.body.appendChild(msg);
+});

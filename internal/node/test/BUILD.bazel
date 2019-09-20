@@ -164,22 +164,22 @@ nodejs_binary(
 )
 
 npm_package_bin(
-    name = "produces_directory",
+    name = "dir_output",
     args = [
         "--output-dir",
         "$@",
         "$(location terser_input.js)",
     ],
     data = ["terser_input.js"],
-    out_dir = "dir_output",
+    output_dir = True,
     tool = ":copy_to_directory",
 )
 
 nodejs_test(
     name = "npm_package_bin_test",
     data = [
+        "dir_output",
         "minified.js",
-        "produces_directory",
     ],
     entry_point = "npm_package_bin.spec.js",
 )

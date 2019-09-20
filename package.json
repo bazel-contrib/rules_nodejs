@@ -9,6 +9,8 @@
     "homepage": "https://github.com/bazelbuild/rules_nodejs",
     "license": "Apache-2.0",
     "devDependencies": {
+        "@babel/cli": "^7.6.0",
+        "@babel/core": "^7.6.0",
         "@bazel/bazel": "^0.28.1",
         "@bazel/buildifier": "^0.26.0",
         "@bazel/hide-bazel-files": "file:./packages/hide-bazel-files",

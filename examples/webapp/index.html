@@ -2,7 +2,10 @@
     <head>
         <title>rules_nodejs webapp example</title>
         <link rel="icon" href="/favicon.png">
-        <!-- CSS will be linked here -->
+        <!-- CSS will be linked here from web_package#assets -->
     </head>
-    <!-- JS scripts will be included here -->
+    <!-- TODO: figure out how diff. loading interacts with 
+         https://www.npmjs.com/package/rollup-plugin-bundle-html -->
+    <script type="module" src="/chunks.min/chunks.js"></script>
+    <script nomodule="" src="/chunks_es5.min/chunks.js"></script>
 </html>

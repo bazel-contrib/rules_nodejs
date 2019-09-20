@@ -88,6 +88,8 @@ example_integration_test(
     name = "examples_webapp",
     npm_packages = {
         "//packages/protractor:npm_package": "@bazel/protractor",
+        "//packages/rollup:npm_package": "@bazel/rollup",
+        "//packages/terser:npm_package": "@bazel/terser",
     },
 )
 
