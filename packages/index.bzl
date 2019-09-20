@@ -20,10 +20,8 @@ NESTED_PACKAGES = [
     "jasmine",
     "karma",
     "labs",
-    "less",
     "protractor",
     "rollup",
-    "stylus",
     "terser",
     "typescript",
 ]
