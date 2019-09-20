@@ -1,6 +1,6 @@
 "Set some defaults for karma rules"
 
-load("@npm_bazel_karma//:defs.bzl", _ts_web_test_suite = "ts_web_test_suite")
+load("@npm_bazel_karma//:index.bzl", _ts_web_test_suite = "ts_web_test_suite")
 
 def ts_web_test_suite(name, browsers = [], tags = [], **kwargs):
     _ts_web_test_suite(

@@ -30,7 +30,6 @@ filegroup(
     name = "package_contents",
     srcs = [
         "BUILD.bazel",
-        "defs.bzl",
         "index.bzl",
         "package.bzl",
         "package.json",
