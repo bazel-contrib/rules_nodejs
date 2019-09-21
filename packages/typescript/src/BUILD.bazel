@@ -33,7 +33,6 @@ filegroup(
         "index.bzl",
         "package.bzl",
         "package.json",
-        "version.bzl",
         "//devserver:package_contents",
         "//internal:package_contents",
         "//third_party/npm/requirejs:package_contents",
