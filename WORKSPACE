@@ -137,9 +137,9 @@ ts_setup_workspace()
 # Install npm_bazel_karma dependencies
 #
 
-load("@npm_bazel_karma//:package.bzl", "rules_karma_dependencies")
+load("@npm_bazel_karma//:package.bzl", "npm_bazel_karma_dependencies")
 
-rules_karma_dependencies()
+npm_bazel_karma_dependencies()
 
 # Setup the rules_webtesting toolchain
 load("@io_bazel_rules_webtesting//web:repositories.bzl", "web_test_repositories")

@@ -17,7 +17,7 @@
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-def rules_karma_dependencies():
+def npm_bazel_karma_dependencies():
     """
     Fetch our transitive dependencies.
 
