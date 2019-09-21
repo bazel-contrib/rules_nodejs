@@ -42,7 +42,7 @@ See [Built-ins]
 If you have installed the [rollup] package, you could write this rule:
 
 ```python
-load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 
 nodejs_binary(
     name = "rollup",
@@ -66,7 +66,7 @@ See the `examples/parcel` example.
 We can reference a path in the local workspace to run a program we write.
 
 ```python
-load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 
 nodejs_binary(
     name = "example",

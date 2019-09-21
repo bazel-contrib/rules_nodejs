@@ -119,7 +119,7 @@ function main(argv, error = console.error, log = console.log) {
   const yarnInstallCmd =
       `# The yarn_install rule runs yarn anytime the package.json or yarn.lock file changes.
 # It also extracts and installs any Bazel rules distributed in an npm package.
-load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
+load("@build_bazel_rules_nodejs//:index.bzl", "yarn_install")
 yarn_install(
     # Name this npm so that Bazel Label references look like @npm//package
     name = "npm",
@@ -130,7 +130,7 @@ yarn_install(
   const npmInstallCmd =
       `# The npm_install rule runs yarn anytime the package.json or package-lock.json file changes.
 # It also extracts any Bazel rules distributed in an npm package.
-load("@build_bazel_rules_nodejs//:defs.bzl", "npm_install")
+load("@build_bazel_rules_nodejs//:index.bzl", "npm_install")
 npm_install(
     # Name this npm so that Bazel Label references look like @npm//package
     name = "npm",

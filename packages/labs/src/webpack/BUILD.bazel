@@ -15,7 +15,7 @@
 # BEGIN-INTERNAL
 # Parts of this BUILD file only necessary when building from source.
 # The generated `@bazel/labs` npm package contains a trimmed BUILD file using INTERNAL fences.
-load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 load("@npm_bazel_typescript//:index.from_src.bzl", "ts_library")
 
 package(default_visibility = ["//visibility:public"])

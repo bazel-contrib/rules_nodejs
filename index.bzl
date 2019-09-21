@@ -30,7 +30,6 @@ load("//internal/node:npm_package_bin.bzl", _npm_bin = "npm_package_bin")
 load("//internal/npm_install:npm_install.bzl", _npm_install = "npm_install", _yarn_install = "yarn_install")
 load("//internal/npm_package:npm_package.bzl", _npm_package = "npm_package")
 load("//internal/rollup:rollup_bundle.bzl", _rollup_bundle = "rollup_bundle")
-load(":index.bzl", "VERSION")
 
 check_bazel_version = _check_bazel_version
 nodejs_binary = _nodejs_binary
@@ -41,6 +40,19 @@ rollup_bundle = _rollup_bundle
 npm_package = _npm_package
 npm_package_bin = _npm_bin
 # ANY RULES ADDED HERE SHOULD BE DOCUMENTED, see index.for_docs.bzl
+
+# Allows us to avoid a transitive dependency on bazel_skylib from leaking to users
+def dummy_bzl_library(name, **kwargs):
+    native.filegroup(name = name)
+
+# @unsorted-dict-items
+COMMON_REPLACEMENTS = {
+    # Replace loads from @bazel_skylib with the dummy rule above
+    "(load\\(\"@bazel_skylib//:bzl_library.bzl\", \"bzl_library\"\\))": "# bazel_skylib mocked out\n# $1\nload(\"@build_bazel_rules_nodejs//:index.bzl\", bzl_library = \"dummy_bzl_library\")",
+    # Cleanup up package.json @bazel/foobar package deps for published packages:
+    # "@bazel/foobar": "file:///..." => "@bazel/foobar": "0.0.0-PLACEHOLDER"
+    "\"@bazel/([a-zA-Z_-]+)\":\\s+\"(file|bazel)[^\"]+\"": "\"@bazel/$1\": \"0.0.0-PLACEHOLDER\"",
+}
 
 def node_modules_filegroup(packages, patterns = [], **kwargs):
     native.filegroup(
@@ -66,6 +78,20 @@ def yarn_install(**kwargs):
     # Just in case the user didn't install nodejs, do it now
     _node_repositories()
     _yarn_install(**kwargs)
+
+# This version is synced with the version in package.json.
+# It will be automatically synced via the npm "version" script
+# that is run when running `npm version` during the release
+# process. See `Releasing` section in README.md.
+VERSION = "0.37.1"
+
+# Currently supported Bazel version. This version is what he rules here are tested
+# against. It is also the version used when testing nested workspaces with
+# bazel_integration_test. In the future, after an LTS version of Bazel is released
+# we will test against multiple versions.
+# This version should be updated together with the version of the @bazel/bazel
+# package in package.json. This is asserted in //internal:package_json_test.
+BAZEL_VERSION = "0.28.1"
 
 def check_rules_nodejs_version(minimum_version_string):
     """

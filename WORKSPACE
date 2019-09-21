@@ -62,7 +62,7 @@ rules_nodejs_dev_dependencies()
 # Setup rules_nodejs npm dependencies
 #
 
-load("//:defs.bzl", "npm_install", "yarn_install")
+load("@build_bazel_rules_nodejs//:index.bzl", "npm_install", "yarn_install")
 
 yarn_install(
     name = "npm",

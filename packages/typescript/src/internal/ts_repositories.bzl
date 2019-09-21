@@ -14,7 +14,7 @@
 
 "Install toolchain dependencies"
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "check_bazel_version", "check_rules_nodejs_version")
+load("@build_bazel_rules_nodejs//:index.bzl", "check_bazel_version", "check_rules_nodejs_version")
 
 def ts_setup_workspace():
     """This repository rule should be called from your WORKSPACE file.

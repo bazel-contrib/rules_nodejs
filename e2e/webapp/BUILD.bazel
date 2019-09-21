@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_test")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
 load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
 load("@npm_bazel_terser//:index.bzl", "terser_minified")
 

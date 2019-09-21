@@ -1022,7 +1022,7 @@ function printPackageBin(pkg) {
   let result = '';
   const executables = _findExecutables(pkg);
   if (executables.size) {
-    result = `load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+    result = `load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 
 `;
     const data = [`//${pkg._dir}:${pkg._name}`];
@@ -1050,7 +1050,7 @@ function printIndexBzl(pkg) {
   let result = '';
   const executables = _findExecutables(pkg);
   if (executables.size) {
-    result = `load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary", "npm_package_bin")
+    result = `load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "npm_package_bin")
 
 `;
     const data = [`@${WORKSPACE}//${pkg._dir}:${pkg._name}`];

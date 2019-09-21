@@ -30,7 +30,7 @@ http_archive(
 )
 
 # Check the bazel version and download npm dependencies
-load("@build_bazel_rules_nodejs//:defs.bzl", "check_bazel_version", "yarn_install")
+load("@build_bazel_rules_nodejs//:index.bzl", "check_bazel_version", "yarn_install")
 
 # Bazel version must be at least the following version because:
 #   - 0.27.0 Adds managed directories support

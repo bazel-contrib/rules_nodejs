@@ -56,7 +56,7 @@ See the `npm_install` and `yarn_install` rules, and the discussion in the README
 Example:
 
 ```
-load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
+load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories")
 node_repositories(package_json = ["//:package.json", "//subpkg:package.json"])
 ```
 

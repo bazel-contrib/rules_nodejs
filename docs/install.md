@@ -29,7 +29,7 @@ http_archive(
     urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.37.1/rules_nodejs-0.37.1.tar.gz"],
 )
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
+load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories")
 ```
 
 Now you can choose from a few options to finish installation.
@@ -96,7 +96,7 @@ If you'd like to use a version of NodeJS and/or Yarn that are not currently supp
 specify those in your `WORKSPACE`:
 
 ```python
-load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
+load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories")
 
 # NOTE: this rule does NOT install your npm dependencies into your node_modules folder.
 # You must still run the package manager to do this.
@@ -124,7 +124,7 @@ Finally, you could check Node.js and Yarn into your repository, and not fetch
 them from the internet. This is what we do internally at Google.
 
 ```python
-load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
+load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories")
 
 # Point node_repositories to use locally installed versions of Node.js and Yarn.
 # The vendored_node and vendored_yarn labels point to the extracted contents of
@@ -182,7 +182,7 @@ file:
 Using Yarn (preferred):
 
 ```python
-load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
+load("@build_bazel_rules_nodejs//:index.bzl", "yarn_install")
 
 yarn_install(
     name = "npm",
@@ -194,7 +194,7 @@ yarn_install(
 Using NPM:
 
 ```python
-load("@build_bazel_rules_nodejs//:defs.bzl", "npm_install")
+load("@build_bazel_rules_nodejs//:index.bzl", "npm_install")
 
 npm_install(
     name = "npm",
@@ -234,7 +234,7 @@ common --experimental_allow_incremental_repository_updates
 You can then reference individual npm packages in your `BUILD` rules via:
 
 ```python
-load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 
 nodejs_binary(
     name = "bar",
@@ -308,7 +308,7 @@ with the `node_modules` attribute of nodejs rules.
 * `@npm//:node_modules` includes all packages under `node_modules` as well as the `.bin` folder
 
 ```python
-load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 
 nodejs_binary(
     name = "bar",

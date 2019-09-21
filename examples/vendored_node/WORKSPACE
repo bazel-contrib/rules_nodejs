@@ -32,7 +32,7 @@ http_archive(
     urls = ["https://nodejs.org/dist/v10.12.0/node-v10.12.0-linux-x64.tar.xz"],
 )
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "npm_install")
+load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "npm_install")
 
 # This example only works on linux as it downloads the linux node distribution
 # TODO(gregmagolan): make node_repositories acccept different archives for different platforms

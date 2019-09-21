@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary", "rollup_bundle")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "rollup_bundle")
 load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
 
 # You can have a rollup_bundle with no node_modules attribute

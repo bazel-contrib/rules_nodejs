@@ -1,7 +1,7 @@
 # Add rules here to build your software
 # See https://docs.bazel.build/versions/master/build-ref.html#BUILD_files
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "rollup_bundle")
+load("@build_bazel_rules_nodejs//:index.bzl", "rollup_bundle")
 load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_package")
 load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kt_js_import", "kt_js_library")
 load("@npm//http-server:index.bzl", "http_server")

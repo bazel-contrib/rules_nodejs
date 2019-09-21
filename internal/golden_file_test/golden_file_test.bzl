@@ -1,6 +1,6 @@
 "Convenience for testing that an output matches a file"
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary", "nodejs_test")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "nodejs_test")
 
 def golden_file_test(name, golden, actual, **kwargs):
     """Tests an actual output against a golden output.

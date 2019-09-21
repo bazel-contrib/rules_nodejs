@@ -4,7 +4,7 @@ These set common default attributes and behaviors for our local repo
 """
 
 load(
-    "@build_bazel_rules_nodejs//:defs.bzl",
+    "@build_bazel_rules_nodejs//:index.bzl",
     _COMMON_REPLACEMENTS = "COMMON_REPLACEMENTS",
     _nodejs_test = "nodejs_test",
     _npm_package = "npm_package",

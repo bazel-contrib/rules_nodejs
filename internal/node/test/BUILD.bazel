@@ -1,4 +1,4 @@
-load("//:defs.bzl", "nodejs_binary", "nodejs_test", "npm_package_bin")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "nodejs_test", "npm_package_bin")
 load("//internal/js_library:js_library.bzl", "js_library")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/write_file.bzl", "write_file")

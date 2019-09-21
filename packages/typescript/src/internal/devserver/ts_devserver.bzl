@@ -223,7 +223,7 @@ def ts_devserver_macro(name, data = [], args = [], visibility = None, tags = [],
     that runs the Go devserver implementation. The `sh_binary` is the primary
     target that matches the specified "name" and executes the generated bash
     launcher script.
-    This is re-exported in `//:defs.bzl` as `ts_devserver` so if you load the rule
+    This is re-exported in `//:index.bzl` as `ts_devserver` so if you load the rule
     from there, you actually get this macro.
 
     Args:

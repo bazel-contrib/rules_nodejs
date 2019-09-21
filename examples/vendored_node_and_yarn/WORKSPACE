@@ -38,7 +38,7 @@ http_archive(
     urls = ["https://github.com/yarnpkg/yarn/releases/download/v1.10.0/yarn-v1.10.0.tar.gz"],
 )
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "yarn_install")
+load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "yarn_install")
 
 # This example only works on linux as it downloads the linux node distribution
 # TODO(gregmagolan): make node_repositories acccept different archives for different platforms

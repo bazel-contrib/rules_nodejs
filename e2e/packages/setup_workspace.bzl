@@ -15,7 +15,7 @@
 """Helper function to setup @e2e_packages workspace.
 """
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "npm_install", "yarn_install")
+load("@build_bazel_rules_nodejs//:index.bzl", "npm_install", "yarn_install")
 
 def e2e_packages_setup_workspace():
     """Node repositories for @e2e_packagess
