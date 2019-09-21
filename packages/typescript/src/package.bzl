@@ -17,14 +17,6 @@
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-def rules_typescript_dependencies():
-    print("""DEPRECATION WARNING:
-    rules_typescript_dependencies is no longer needed, and will be removed in a future release.
-    We assume you will fetch rules_nodejs in your WORKSPACE file, and no other dependencies remain here.
-    Simply remove any calls to this function and the corresponding call to
-      load("@npm_bazel_typescript//:package.bzl", "rules_typescript_dependencies")
-    """)
-
 def rules_typescript_dev_dependencies():
     """
     Fetch dependencies needed for local development.

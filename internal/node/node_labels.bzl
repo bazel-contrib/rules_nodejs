@@ -46,10 +46,3 @@ def get_yarn_label(rctx):
     else:
         label = Label("@nodejs_%s//:bin/yarn" % os_name(rctx))
     return label
-
-def get_yarn_node_repositories_label(rctx):
-    if is_windows_os(rctx):
-        label = Label("@nodejs%s//:bin/yarn_node_repositories.cmd" % os_name(rctx))
-    else:
-        label = Label("@nodejs_%s//:bin/yarn_node_repositories" % os_name(rctx))
-    return label

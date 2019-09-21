@@ -68,7 +68,6 @@ filegroup(
         "BUILD.bazel",
         "WORKSPACE",
         "browser_repositories.bzl",
-        "defs.bzl",
         "index.bzl",
         "karma.conf.js",
         "karma.js",
