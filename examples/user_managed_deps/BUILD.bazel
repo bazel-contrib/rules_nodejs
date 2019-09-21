@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 load("@build_bazel_rules_nodejs//internal/common:typescript_mock_lib.bzl", "mock_typescript_lib")
 load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
 

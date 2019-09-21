@@ -822,7 +822,7 @@ rollup_bundle = rule(
     doc = """Produces several bundled JavaScript files using Rollup and terser.
 
 Load it with
-`load("@build_bazel_rules_nodejs//:defs.bzl", "rollup_bundle")`
+`load("@build_bazel_rules_nodejs//:index.bzl", "rollup_bundle")`
 
 It performs this work in several separate processes:
 1. Call rollup on the original sources

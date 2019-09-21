@@ -14,7 +14,7 @@
 
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
-load("@build_bazel_rules_nodejs//:defs.bzl", "COMMON_REPLACEMENTS", "npm_package")
+load("@build_bazel_rules_nodejs//:index.bzl", "COMMON_REPLACEMENTS", "npm_package")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -28,7 +28,7 @@ bzl_library(
     name = "bzl",
     srcs = [
         "declaration_provider.bzl",
-        "defs.bzl",
+        "index.bzl",
         "index.for_docs.bzl",
     ],
     visibility = ["//visibility:public"],

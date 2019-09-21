@@ -8,7 +8,7 @@ http_archive(
     urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.37.1/rules_nodejs-0.37.1.tar.gz"],
 )
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "check_rules_nodejs_version", "node_repositories")
+load("@build_bazel_rules_nodejs//:index.bzl", "check_rules_nodejs_version", "node_repositories")
 
 # Test that check_rules_nodejs_version works as expected
 check_rules_nodejs_version(minimum_version_string = "0.11.2")

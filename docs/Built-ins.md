@@ -50,7 +50,7 @@ See the `npm_install` and `yarn_install` rules, and the discussion in the README
 Example:
 
 ```
-load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
+load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories")
 node_repositories(package_json = ["//:package.json", "//subpkg:package.json"])
 ```
 
@@ -746,7 +746,7 @@ The npm_package rule creates a directory containing a publishable npm artifact.
 Example:
 
 ```python
-load("@build_bazel_rules_nodejs//:defs.bzl", "npm_package")
+load("@build_bazel_rules_nodejs//:index.bzl", "npm_package")
 
 npm_package(
     name = "my_package",
@@ -851,7 +851,7 @@ npm_package(name, deps, packages, rename_build_files, replace_with_version, repl
 Produces several bundled JavaScript files using Rollup and terser.
 
 Load it with
-`load("@build_bazel_rules_nodejs//:defs.bzl", "rollup_bundle")`
+`load("@build_bazel_rules_nodejs//:index.bzl", "rollup_bundle")`
 
 It performs this work in several separate processes:
 1. Call rollup on the original sources
@@ -1260,7 +1260,7 @@ early as possible. For example:
 
 ```
 # in WORKSPACE:
-load("@build_bazel_rules_nodejs//:defs.bzl", "check_bazel_version")
+load("@build_bazel_rules_nodejs//:index.bzl", "check_bazel_version")
 check_bazel_version("0.26.0")
 ```
 

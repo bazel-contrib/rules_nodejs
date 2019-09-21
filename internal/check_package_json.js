@@ -23,12 +23,12 @@ const [BAZEL_VERSION] = require('fs').readFileSync(paramsFile, 'utf-8').split(/\
 
 const packageJson = require('build_bazel_rules_nodejs/package.json');
 
-// Test that the BAZEL_VERSION defined in //:defs.bzl is in sync with the @bazel/bazel
+// Test that the BAZEL_VERSION defined in //:index.bzl is in sync with the @bazel/bazel
 // version in //:pacakge.json
 if (packageJson['devDependencies']['@bazel/bazel'] !== `^${BAZEL_VERSION}`) {
   console.error(`package.json @bazel/bazel '${
       packageJson['devDependencies']
-                 ['@bazel/bazel']}' does not match BAZEL_VERSION in //:defs.bzl '${
+                 ['@bazel/bazel']}' does not match BAZEL_VERSION in //:index.bzl '${
       BAZEL_VERSION}'`);
   process.exitCode = 1;
 }

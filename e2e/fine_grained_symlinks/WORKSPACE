@@ -11,7 +11,7 @@ http_archive(
     urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.37.1/rules_nodejs-0.37.1.tar.gz"],
 )
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "yarn_install")
+load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "yarn_install")
 
 # This test needs to run with yarn 1.9.2 to test the fix for
 # https://github.com/bazelbuild/rules_nodejs/issues/438 and

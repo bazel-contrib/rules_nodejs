@@ -15,7 +15,7 @@
 """Bazel integration testing
 """
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "BAZEL_VERSION")
+load("@build_bazel_rules_nodejs//:index.bzl", "BAZEL_VERSION")
 load("@build_bazel_rules_nodejs//packages:index.bzl", "NPM_PACKAGES")
 load("//internal/common:windows_utils.bzl", "BATCH_RLOCATION_FUNCTION", "is_windows")
 

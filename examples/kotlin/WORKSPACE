@@ -12,7 +12,7 @@ http_archive(
 )
 
 # Install external npm dependencies
-load("@build_bazel_rules_nodejs//:defs.bzl", "npm_install")
+load("@build_bazel_rules_nodejs//:index.bzl", "npm_install")
 
 npm_install(
     # Name this npm so that Bazel Label references look like @npm//package

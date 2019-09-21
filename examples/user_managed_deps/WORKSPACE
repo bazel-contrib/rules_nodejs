@@ -12,7 +12,7 @@ load("@build_bazel_rules_nodejs//:package.bzl", "rules_nodejs_dev_dependencies")
 
 rules_nodejs_dev_dependencies()
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
+load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories")
 
 # Install a hermetic version of node.
 # After this is run, these labels will be available:
