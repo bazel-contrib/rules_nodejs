@@ -7,6 +7,7 @@
         "bazel"
     ],
     "homepage": "https://github.com/bazelbuild/rules_nodejs",
+    "repository": "https://github.com/bazelbuild/rules_nodejs",
     "license": "Apache-2.0",
     "devDependencies": {
         "@babel/cli": "^7.6.0",
