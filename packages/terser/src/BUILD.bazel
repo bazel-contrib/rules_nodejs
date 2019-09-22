@@ -44,4 +44,5 @@ nodejs_binary(
     name = "terser",
     data = ["@npm//terser"],
     entry_point = "index.js",
+    templated_args = ["--node_options=--experimental-worker"]
 )
