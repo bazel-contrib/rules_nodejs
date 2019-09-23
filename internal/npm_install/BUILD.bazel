@@ -1,5 +1,6 @@
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+load("@npm_bazel_typescript//:index.from_src.bzl", "checked_in_ts_library")
 
 bzl_library(
     name = "bzl",
@@ -11,11 +12,20 @@ bzl_library(
 exports_files(["npm_install.bzl"])
 
 filegroup(
-    name = "generate_build_file",
+    name = "_generate_build_file",
     srcs = [
         "generate_build_file.js",
     ],
     visibility = ["//internal:__subpackages__"],
+)
+
+# using checked in ts libraray like the linker
+checked_in_ts_library(
+    name = "compile_generate_build_file",
+    srcs = ["generate_build_file.ts"],
+    checked_in_js = "generate_build_file.js",
+    visibility = ["//internal/npm_install:__subpackages__"],
+    deps = ["@npm//@types/node"],
 )
 
 filegroup(
