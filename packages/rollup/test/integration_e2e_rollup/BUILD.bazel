@@ -9,6 +9,7 @@ load("@npm_bazel_rollup//:index.from_src.bzl", "rollup_bundle")
         entry_point = "foo.js",
         format = format,
         globals = {"some_global_var": "runtime_name_of_global_var"},
+        sourcemap = "true",
         deps = [
             "//%s/fum:fumlib" % package_name(),
             "@npm//hello",

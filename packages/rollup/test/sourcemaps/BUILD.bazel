@@ -6,6 +6,7 @@ rollup_bundle(
     srcs = ["s.js"],
     # Use the desugared form to assert that it works
     entry_points = {"input.js": "bundle"},
+    sourcemap = "true",
 )
 
 jasmine_node_test(

@@ -5,8 +5,7 @@ rollup_bundle(
     name = "version_stamp",
     config_file = "rollup.config.js",
     entry_point = "input.js",
-    # Disable sourcemap so we only get a single output
-    sourcemap = False,
+    sourcemap = "false",
 )
 
 golden_file_test(

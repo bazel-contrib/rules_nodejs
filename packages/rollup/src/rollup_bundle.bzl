@@ -148,12 +148,13 @@ Otherwise, the outputs are assumed to be a single file.
         cfg = "host",
         default = "@npm//rollup/bin:rollup",
     ),
-    "sourcemap": attr.bool(
-        doc = """Whether to produce a .js.map output
+    "sourcemap": attr.string(
+        doc = """Whether to produce sourcemaps.
 
 Passed to the [`--sourcemap` option](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#outputsourcemap") in Rollup
 """,
-        default = True,
+        default = "inline",
+        values = ["inline", "true", "false"],
     ),
     "deps": attr.label_list(
         aspects = [module_mappings_aspect],
@@ -218,7 +219,7 @@ def _rollup_outs(sourcemap, name, entry_point, entry_points, output_dir):
             fail("Multiple entry points require that output_dir be set")
         out = entry_point_outs[0]
         result[out] = out + ".js"
-        if sourcemap:
+        if sourcemap == "true":
             result[out + "_map"] = "%s.map" % result[out]
     return result
 
@@ -273,8 +274,8 @@ def _rollup_bundle(ctx):
     # where the link is.
     args.add("--preserveSymlinks")
 
-    if (ctx.attr.sourcemap):
-        args.add("--sourcemap")
+    if (ctx.attr.sourcemap and ctx.attr.sourcemap != "false"):
+        args.add_all(["--sourcemap", ctx.attr.sourcemap])
 
     if ctx.attr.globals:
         args.add("--external")

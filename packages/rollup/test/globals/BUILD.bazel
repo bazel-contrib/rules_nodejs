@@ -6,7 +6,7 @@ rollup_bundle(
     entry_point = "input.js",
     format = "umd",
     globals = {"some_global_var": "runtime_name_of_global_var"},
-    sourcemap = False,
+    sourcemap = "false",
 )
 
 golden_file_test(
