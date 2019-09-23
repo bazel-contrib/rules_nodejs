@@ -18,6 +18,7 @@ sh_binary(
     name = "run_program",
     srcs = ["run_program_with_node.sh"],
     data = [
+        "absolute_import/index.js",
         ":program.js",
         "//internal/linker:index.js",
         "//internal/linker/test/integration/static_linked_pkg",
