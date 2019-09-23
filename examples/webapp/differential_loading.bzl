@@ -12,6 +12,7 @@ def differential_loading(name, entry_point, srcs):
     rollup_bundle(
         name = name + "_chunks",
         srcs = srcs,
+        sourcemap = "inline",
         entry_points = {
             entry_point: "index",
         },
