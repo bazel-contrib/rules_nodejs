@@ -4,7 +4,7 @@
  * patterns whose name match JSConformance patterns should behave similarly (see
  * https://github.com/google/closure-compiler/wiki/JS-Conformance-Framework)
  */
-export const enum PatternKind {
+export enum PatternKind {
   BANNED_NAME = 'banned-name',
   BANNED_PROPERTY_WRITE = 'banned-property-write',
   BANNED_PROPERTY_NON_CONSTANT_WRITE = 'banned-property-non-constant-write',
