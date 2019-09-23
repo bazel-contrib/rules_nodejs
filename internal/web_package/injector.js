@@ -18,7 +18,6 @@
 const parse5 = require('parse5');
 const treeAdapter = require('parse5/tree-adapters/default');
 const fs = require('fs');
-const path = require('path');
 
 function findElementByName(d, name) {
   if (treeAdapter.isTextNode(d)) return undefined;
@@ -79,13 +78,20 @@ function main(params, read = fs.readFileSync, write = fs.writeFileSync, timestam
   }
 
   const jsFiles = params.filter(s => /\.m?js$/i.test(s));
+  const moduleFileRegExp = /\.(es2015(\.min)?\.|(min\.)?m)js$/i;
+  const normalizedJsModuleNames = new Set(
+    jsFiles
+      .filter(s => moduleFileRegExp.test(s))
+      .map(s => s.replace(moduleFileRegExp, '').toLowerCase()),
+  );
+
   for (const s of jsFiles) {
     // Differential loading: for filenames like
     //  foo.mjs
     //  bar.es2015.js
     // we use a <script type="module" tag so these are only run in browsers that have ES2015 module
     // loading
-    if (/\.(es2015\.|m)js$/i.test(s)) {
+    if (moduleFileRegExp.test(s)) {
       const moduleScript = treeAdapter.createElement('script', undefined, [
         {name: 'type', value: 'module'},
         {name: 'src', value: `/${relative(s)}?v=${timestamp()}`},
@@ -94,20 +100,12 @@ function main(params, read = fs.readFileSync, write = fs.writeFileSync, timestam
     } else {
       // Other filenames we assume are for non-ESModule browsers, so if the file has a matching
       // ESModule script we add a 'nomodule' attribute
-      function hasMatchingModule(file, files) {
-        const noExt = file.substring(0, file.length - 3);
-        const testMjs = (noExt + '.mjs').toLowerCase();
-        const testEs2015 = (noExt + '.es2015.js').toLowerCase();
-        const matches = files.filter(t => {
-          const lc = t.toLowerCase();
-          return lc === testMjs || lc === testEs2015;
-        });
-        return matches.length > 0;
-      }
-
       // Note: empty string value is equivalent to a bare attribute, according to
       // https://github.com/inikulin/parse5/issues/1
-      const nomodule = hasMatchingModule(s, jsFiles) ? [{name: 'nomodule', value: ''}] : [];
+      const normalizedFileName = s.replace(/\.(min\.)?m?js$/i, '').toLowerCase();
+      const nomodule = normalizedJsModuleNames.has(normalizedFileName)
+        ? [{name: 'nomodule', value: ''}]
+        : [];
 
       const noModuleScript = treeAdapter.createElement('script', undefined, nomodule.concat([
         {name: 'src', value: `/${relative(s)}?v=${timestamp()}`},

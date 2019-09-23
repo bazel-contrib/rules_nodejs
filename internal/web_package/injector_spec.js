@@ -70,4 +70,22 @@ describe('HTML injector', () => {
     expect(output).toBe(
         '<html><head></head><body><script nomodule="" src="/path/to/my.js?v=123"></script><script type="module" src="/path/to/my.es2015.js?v=123"></script></body></html>');
   });
+
+  it('should create a pair of script tags for differential loading when minified (ES2015)', () => {
+    expect(injector.main(
+               [outFile, inFile, '--assets', 'path/to/my.min.js', 'path/to/my.es2015.min.js'], read, write,
+               () => 123))
+        .toBe(0);
+    expect(output).toBe(
+        '<html><head></head><body><script nomodule="" src="/path/to/my.min.js?v=123"></script><script type="module" src="/path/to/my.es2015.min.js?v=123"></script></body></html>');
+  });
+
+  it('should create a pair of script tags for differential loading when minified (MJS)', () => {
+    expect(injector.main(
+               [outFile, inFile, '--assets', 'path/to/my.min.js', 'path/to/my.min.mjs'], read, write,
+               () => 123))
+        .toBe(0);
+    expect(output).toBe(
+        '<html><head></head><body><script nomodule="" src="/path/to/my.min.js?v=123"></script><script type="module" src="/path/to/my.min.mjs?v=123"></script></body></html>');
+  });
 });
