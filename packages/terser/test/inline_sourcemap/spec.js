@@ -1,6 +1,8 @@
 const fs = require('fs');
+const path = require('path');
 const sm = require('source-map');
 const {runfiles} = require('build_bazel_rules_nodejs/internal/linker');
+const os = require('os');
 
 describe('terser sourcemap handling', () => {
   it('should produce a sourcemap output', async () => {
@@ -15,4 +17,17 @@ describe('terser sourcemap handling', () => {
       expect(pos.column).toBe(14);
     });
   });
+
+  it('should link the source to the source map', () => {
+    const minFile = runfiles.resolvePackageRelative('out.min.js');
+    const expectedSourceMapUrl = runfiles.resolvePackageRelative('out.min.js.map');
+    const content = fs.readFileSync(minFile, 'utf8');
+    const sourceMapLine = content.split(/r?\n/).find(l => l.startsWith('//#'));
+
+    expect(sourceMapLine).toBeDefined();
+
+    const [_, sourceMapUrl] = sourceMapLine.split('=');
+
+    expect(sourceMapUrl).toEqual(path.basename(expectedSourceMapUrl));
+  })
 });

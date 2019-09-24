@@ -138,6 +138,14 @@ def _terser(ctx):
         else:
             fail("When sourcemap is True, there should only be one or none input sourcemaps")
 
+        if len(directory_srcs) == 0:
+            source_map_opts.append("url='%s.js.map'" % ctx.label.name)
+        else:
+            # since the input here is a dir, we don't know the names of the
+            # source map files yet, so we use this key to do a replacement
+            # when we expand the dir into specific files
+            source_map_opts.append("url='<OUTPUT_MAP_FILE>'")
+
         # This option doesn't work in the config file, only on the CLI
         args.add_all(["--source-map", ",".join(source_map_opts)])
 

@@ -22,40 +22,39 @@ function log_error(...m) {
   console.error('[terser/index.js]', ...m);
 }
 
-// Peek at the arguments to find any directories declared as inputs
-let argv = process.argv.slice(2);
-// terser_minified.bzl always passes the inputs first,
-// then --output [out], then remaining args
-// We want to keep those remaining ones to pass to terser
-// Avoid a dependency on a library like minimist; keep it simple.
-const outputArgIndex = argv.findIndex((arg) => arg.startsWith('--'));
-
-// We don't want to implement a command-line parser for terser
-// so we invoke its CLI as child processes when a directory is provided, just altering the
-// input/output arguments. See discussion: https://github.com/bazelbuild/rules_nodejs/issues/822
-
-const inputs = argv.slice(0, outputArgIndex);
-const output = argv[outputArgIndex + 1];
-const residual = argv.slice(outputArgIndex + 2);
-
-// user override for the terser binary location. used in testing.
-const TERSER_BINARY = process.env.TERSER_BINARY || require.resolve('terser/bin/uglifyjs')
-// choose a default concurrency of the number of cores -1 but at least 1.
-const TERSER_CONCURENCY = (process.env.TERSER_CONCURRENCY || os.cpus().length - 1) || 1
-
-log_verbose(`Running terser/index.js
-  inputs: ${inputs}
-  output: ${output}
-  residual: ${residual}`);
-
 function isDirectory(input) {
   return fs.lstatSync(path.join(process.cwd(), input)).isDirectory();
 }
 
-function terserDirectory(input) {
+/**
+ * Replaces <OUTPUT_MAP_FILE> with the outputFile name in the source-map options argument
+ */
+function directoryArgs(residualArgs, outputFile) {
+  const sourceMapIndex = residualArgs.indexOf('--source-map');
+  if (sourceMapIndex === -1) {
+    return residualArgs;
+  }
+
+  // copy args so we don't accidently mutate and process the same set of args twice
+  const argsCopy = [...residualArgs];
+
+  // the options for the source map arg is the next one
+  // if it changes in terser_minified.bzl this needs to be updated
+  const sourceMapOptsIndex = sourceMapIndex + 1
+  const sourceMapOptsStr = argsCopy[sourceMapOptsIndex];
+
+  argsCopy[sourceMapOptsIndex] =
+      sourceMapOptsStr.replace('<OUTPUT_MAP_FILE>', `${path.basename(outputFile)}.map`);
+
+  return argsCopy;
+}
+
+function terserDirectory(input, output, residual, terserBinary) {
   if (!fs.existsSync(output)) {
     fs.mkdirSync(output);
   }
+
+  const TERSER_CONCURENCY = (process.env.TERSER_CONCURRENCY || os.cpus().length - 1) || 1
 
   let work = [];
   let active = 0;
@@ -63,7 +62,8 @@ function terserDirectory(input) {
 
   function exec([inputFile, outputFile]) {
     active++;
-    let args = [TERSER_BINARY, inputFile, '--output', outputFile, ...residual];
+    let args =
+        [terserBinary, inputFile, '--output', outputFile, ...directoryArgs(residual, outputFile)];
 
     spawn(process.execPath, args)
         .then(
@@ -116,19 +116,6 @@ function terserDirectory(input) {
   });
 }
 
-if (!inputs.find(isDirectory) && inputs.length) {
-  // Inputs were only files
-  // Just use terser CLI exactly as it works outside bazel
-  require(TERSER_BINARY || 'terser/bin/uglifyjs');
-
-} else if (inputs.length > 1) {
-  // We don't know how to merge multiple input dirs to one output dir
-  throw new Error('terser_minified only allows a single input when minifying a directory');
-
-} else if (inputs[0]) {
-  terserDirectory(inputs[0]);
-}
-
 function spawn(cmd, args) {
   return new Promise((resolve, reject) => {
     const err = [];
@@ -146,4 +133,51 @@ function spawn(cmd, args) {
       resolve({out: Buffer.concat(out), err: err.length ? Buffer.concat(err) : false, code});
     });
   })
+}
+
+function main() {
+  // Peek at the arguments to find any directories declared as inputs
+  let argv = process.argv.slice(2);
+  // terser_minified.bzl always passes the inputs first,
+  // then --output [out], then remaining args
+  // We want to keep those remaining ones to pass to terser
+  // Avoid a dependency on a library like minimist; keep it simple.
+  const outputArgIndex = argv.findIndex((arg) => arg.startsWith('--'));
+
+  // We don't want to implement a command-line parser for terser
+  // so we invoke its CLI as child processes when a directory is provided, just altering the
+  // input/output arguments. See discussion: https://github.com/bazelbuild/rules_nodejs/issues/822
+
+  const inputs = argv.slice(0, outputArgIndex);
+  const output = argv[outputArgIndex + 1];
+  const residual = argv.slice(outputArgIndex + 2);
+
+  // user override for the terser binary location. used in testing.
+  const terserBinary = process.env.TERSER_BINARY || require.resolve('terser/bin/uglifyjs')
+  // choose a default concurrency of the number of cores -1 but at least 1.
+
+  log_verbose(`Running terser/index.js
+  inputs: ${inputs}
+  output: ${output}
+  residual: ${residual}`);
+
+  if (!inputs.find(isDirectory) && inputs.length) {
+    // Inputs were only files
+    // Just use terser CLI exactly as it works outside bazel
+    require(terserBinary || 'terser/bin/uglifyjs');
+
+  } else if (inputs.length > 1) {
+    // We don't know how to merge multiple input dirs to one output dir
+    throw new Error('terser_minified only allows a single input when minifying a directory');
+
+  } else if (inputs[0]) {
+    terserDirectory(inputs[0], output, residual, terserBinary);
+  }
+}
+
+// export this for unit testing purposes
+exports.directoryArgs = directoryArgs;
+
+if (require.main === module) {
+  main();
 }
