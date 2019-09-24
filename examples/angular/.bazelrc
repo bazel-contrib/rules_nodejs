@@ -1,1 +1,2 @@
 import %workspace%/../../common.bazelrc
+build --define=compile=aot
