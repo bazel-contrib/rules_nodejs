@@ -10,18 +10,18 @@ const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    loadChildren: () => import('./home/home.ngfactory').then(m => m.HomeModuleNgFactory)
+    loadChildren: () => import('./home/home').then(m => m.HomeModule)
   },
   {
     path: 'hello',
     pathMatch: 'full',
     loadChildren: () =>
-        import('./hello-world/hello-world.module.ngfactory').then(m => m.HelloWorldModuleNgFactory)
+        import('./hello-world/hello-world.module').then(m => m.HelloWorldModule)
   },
   {
     path: 'todos',
     pathMatch: 'full',
-    loadChildren: () => import('./todos/todos.module.ngfactory').then(m => m.TodosModuleNgFactory)
+    loadChildren: () => import('./todos/todos.module').then(m => m.TodosModule)
   }
 ];
 
