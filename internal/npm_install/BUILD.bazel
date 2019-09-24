@@ -12,7 +12,7 @@ bzl_library(
 exports_files(["npm_install.bzl"])
 
 filegroup(
-    name = "_generate_build_file",
+    name = "generate_build_file",
     srcs = [
         "generate_build_file.js",
     ],

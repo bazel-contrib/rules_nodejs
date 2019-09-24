@@ -39,11 +39,11 @@
  */
 'use strict';
 
+
 import * as fs from 'fs';
 import * as path from 'path';
 
-
-function log_verbose(...m: any) {
+function log_verbose(...m: any[]) {
   if (!!process.env['VERBOSE_LOGS']) console.error('[generate_build_file.js]', ...m);
 }
 
@@ -397,14 +397,14 @@ function isDirectory(p: string) {
  * Returns an array of all the files under a directory as relative
  * paths to the directory.
  */
-function listFiles(rootDir: string, subDir = ''): string[] {
+function listFiles(rootDir: string, subDir: string = ''): string[] {
   const dir = path.posix.join(rootDir, subDir);
   if (!isDirectory(dir)) {
     return [];
   }
   return fs.readdirSync(dir)
       .reduce(
-          (files: string[], file: string) => {
+          (files: string[], file) => {
             const fullPath = path.posix.join(dir, file);
             const relPath = path.posix.join(subDir, file);
             const isSymbolicLink = fs.lstatSync(fullPath).isSymbolicLink();
@@ -454,6 +454,7 @@ function hasRootBuildFile(pkg: Dep, rootPath: string) {
   }
   return false;
 }
+
 
 function addDynamicDependencies(pkgs: Dep[], dynamic_deps = DYNAMIC_DEPS) {
   function match(name: string, p: Dep) {
@@ -513,7 +514,7 @@ function findPackages(p = 'node_modules') {
 /**
  * Finds and returns an array of all package scopes in node_modules.
  */
-function findScopes(): string[] {
+function findScopes() {
   const p = 'node_modules';
   if (!isDirectory(p)) {
     return [];
@@ -526,7 +527,7 @@ function findScopes(): string[] {
                      .filter(f => isDirectory(f))
                      .map(f => f.replace(/^node_modules\//, ''));
 
-  return scopes as string[];
+  return scopes;
 }
 
 /**
@@ -534,7 +535,7 @@ function findScopes(): string[] {
  * package json and return it as an object along with
  * some additional internal attributes prefixed with '_'.
  */
-function parsePackage(p: string) {
+function parsePackage(p: string): Dep {
   // Parse the package.json file of this package
   const packageJson = path.posix.join(p, 'package.json');
   const pkg = isFile(packageJson) ? JSON.parse(fs.readFileSync(packageJson, {encoding: 'utf8'})) :
@@ -572,15 +573,14 @@ function parsePackage(p: string) {
 /**
  * Check if a bin entry is a non-empty path
  */
-function isValidBinPath(entry: string|Bag<string>) {
-  return isValidBinPathStringValue(entry as string) ||
-      isValidBinPathObjectValues(entry as Bag<string>);
+function isValidBinPath(entry: any) {
+  return isValidBinPathStringValue(entry) || isValidBinPathObjectValues(entry);
 }
 
 /**
  * If given a string, check if a bin entry is a non-empty path
  */
-function isValidBinPathStringValue(entry: string) {
+function isValidBinPathStringValue(entry: any) {
   return typeof entry === 'string' && entry !== '';
 }
 
@@ -590,7 +590,7 @@ function isValidBinPathStringValue(entry: string) {
  * Example 2: { entry: '' } ==> INVALID
  * Example 3: { entry: './path/to/script.js', empty: '' } ==> VALID
  */
-function isValidBinPathObjectValues(entry: {[k: string]: string}): boolean {
+function isValidBinPathObjectValues(entry: Bag<string>): boolean {
   // We allow at least one valid entry path (if any).
   return entry && typeof entry === 'object' &&
       Object['values'](entry).filter(_entry => isValidBinPath(_entry)).length > 0;
@@ -716,6 +716,11 @@ function resolvePkgMainFile(pkg: Dep) {
   return undefined;
 }
 
+type Bag<T> =
+    {
+      [k: string]: T
+    }
+
 /**
  * Flattens all transitive dependencies of a package
  * into a _dependencies array.
@@ -726,8 +731,7 @@ function flattenPkgDependencies(pkg: Dep, dep: Dep, pkgsMap: Map<string, Dep>) {
     return;
   }
   pkg._dependencies.push(dep);
-
-  const findDeps = function(targetDeps: {[k: string]: Dep}, required: boolean, depType: string) {
+  const findDeps = function(targetDeps: Bag<string>, required: boolean, depType: string) {
     Object.keys(targetDeps || {})
         .map(targetDep => {
           // look for matching nested package
@@ -785,7 +789,7 @@ function printJson(pkg: Dep) {
   // Clone and modify _dependencies to avoid circular issues when JSONifying
   // & delete _files array
   const cloned: any = {...pkg};
-  cloned._dependencies = cloned._dependencies.map((dep: any) => dep._dir);
+  cloned._dependencies = pkg._dependencies.map(dep => dep._dir);
   delete cloned._files;
   return JSON.stringify(cloned, null, 2).split('\n').map(line => `# ${line}`).join('\n');
 }
@@ -797,7 +801,7 @@ function printJson(pkg: Dep) {
  *             done on extensions; '' empty string denotes to allow files with no extensions,
  *             other extensions are listed with '.ext' notation such as '.d.ts'.
  */
-function filterFiles(files: string[], exts: string[] = []): string[] {
+function filterFiles(files: string[], exts: string[] = []) {
   if (exts.length) {
     const allowNoExts = exts.includes('');
     files = files.filter(f => {
@@ -851,7 +855,7 @@ function isNgApfPackage(pkg: Dep) {
  * If the package is in the Angular package format returns list
  * of package files that end with `.umd.js`, `.ngfactory.js` and `.ngsummary.js`.
  */
-function getNgApfScripts(pkg: Dep): string[] {
+function getNgApfScripts(pkg: Dep) {
   return isNgApfPackage(pkg) ?
       filterFiles(pkg._files, ['.umd.js', '.ngfactory.js', '.ngsummary.js']) :
       [];
@@ -886,7 +890,7 @@ function printPackage(pkg: Dep) {
     scriptStarlark = `
     # subset of srcs that are javascript named-UMD or named-AMD scripts
     scripts = [
-        ${scripts.map(f => `"//:node_modules/${pkg._dir}/${f}",`).join('\n        ')}
+        ${scripts.map((f: string) => `"//:node_modules/${pkg._dir}/${f}",`).join('\n        ')}
     ],`;
   }
 
@@ -895,7 +899,7 @@ function printPackage(pkg: Dep) {
     srcsStarlark = `
     # ${pkg._dir} package files (and files in nested node_modules)
     srcs = [
-        ${sources.map(f => `"//:node_modules/${pkg._dir}/${f}",`).join('\n        ')}
+        ${sources.map((f: string) => `"//:node_modules/${pkg._dir}/${f}",`).join('\n        ')}
     ],`;
   }
 
@@ -1087,24 +1091,21 @@ def ${name.replace(/-/g, '_')}(**kwargs):
 
 type Dep = {
   _dir: string,
-  _name: string,
   _isNested: boolean,
-  _dynamicDependencies?: string[], _dependencies: Dep[], _files: string[], [k: string]: any
-};
+  _dependencies: Dep[],
+  _files: string[],
+  [k: string]: any
+}
+
 /**
  * Given a scope, return the skylark `node_module_library` target for the scope.
  */
 function printScope(scope: string, pkgs: Dep[]) {
   pkgs = pkgs.filter(pkg => !pkg._isNested && pkg._dir.startsWith(`${scope}/`));
-
   let deps: Dep[] = [];
   pkgs.forEach(pkg => {
     deps = deps.concat(pkg._dependencies.filter(dep => !dep._isNested && !pkgs.includes(pkg)));
   });
-
-  // TODO: rewrite this to create the set  as items are filtered.
-  // and not use filter because we dont intend to use the copied array
-
   // filter out duplicate deps
   deps = [...pkgs, ...new Set(deps)];
 
@@ -1137,7 +1138,3 @@ node_module_library(
 
 `;
 }
-
-type Bag<T> = {
-  [k: string]: T
-};
