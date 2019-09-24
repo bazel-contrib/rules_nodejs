@@ -53,7 +53,7 @@
         "e2e": "bazel test //e2e:all",
         "test": "bazel test //src/...",
         "benchmark": "ibazel-benchmark-runner //src:devserver src/app/hello-world/hello-world.component.ts --url=http://localhost:5432",
-        "postinstall": "patch-package",
+        "postinstall": "patch-package && ivy-ngcc",
         "generate": "node tools/generator/index.js",
         "generate:clean": "node tools/generator/index.js --clean"
     }
