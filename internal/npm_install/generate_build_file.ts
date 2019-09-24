@@ -82,7 +82,7 @@ function mkdirp(p: string) {
  * Writes a file, first ensuring that the directory to
  * write to exists.
  */
-function writeFileSync(p: string, content: any) {
+function writeFileSync(p: string, content: string) {
   mkdirp(path.dirname(p));
   fs.writeFileSync(p, content);
 }
