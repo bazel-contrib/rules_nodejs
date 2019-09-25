@@ -271,6 +271,20 @@ const isWindows = process.platform === 'win32';
 const bazelBinary =
     require.resolve(`${config.bazelBinaryWorkspace}/bazel${isWindows ? '.exe' : ''}`);
 
+if (DEBUG || VERBOSE_LOGS) {
+  // If DEBUG is set then the tmp folders created by the `tmp.dirSync` are not
+  // cleaned up so we should log out the location of the workspace under test
+  // tmp folder in that case even if VERBOSE_LOGS is not set as it may be useful
+  // to `cd /path/to/workspace/tmp` for manual testing at that point.
+  log(`
+
+********************************************************************************
+bazel binary under test is ${bazelBinary}
+workspace under test root is ${workspaceRoot}
+********************************************************************************
+`);
+}
+
 log(`running 'bazel version'`);
 let spawnedProcess = spawnSync(bazelBinary, ['version'], {cwd: workspaceRoot, stdio: 'inherit'});
 if (spawnedProcess.status) {
