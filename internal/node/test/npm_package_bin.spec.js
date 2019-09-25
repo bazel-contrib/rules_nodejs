@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
-const min_js = path.join(require.resolve(__dirname + '/minified.js'));
+const {runfiles} = require('build_bazel_rules_nodejs/internal/linker');
+
+const min_js = path.join(runfiles.resolvePackageRelative('minified.js'));
 const content = fs.readFileSync(min_js, 'utf-8');
 if (!content.includes('{console.error("thing")}')) {
   console.error(content);

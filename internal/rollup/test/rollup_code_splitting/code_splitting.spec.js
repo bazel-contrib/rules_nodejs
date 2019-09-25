@@ -1,12 +1,14 @@
 check = require('../check.js');
 const fs = require('fs');
 const expected = 'dep4 fn';
-const path = require('path');
+const {runfiles} = require('build_bazel_rules_nodejs/internal/linker');
 
 describe('code splitting', () => {
   function findChunk() {
-    let chunks = fs.readdirSync(path.join(__dirname, 'bundle_chunks'))
-                     .filter(name => name.startsWith('chunk-') && name.endsWith('.js'));
+    const chunkDir = runfiles.resolvePackageRelative('bundle_chunks');
+    console.error(chunkDir);
+    let chunks =
+        fs.readdirSync(chunkDir).filter(name => name.startsWith('chunk-') && name.endsWith('.js'));
     if (chunks.length != 1) {
       fail('Not 1 chunk ' + chunks);
     }
@@ -14,9 +16,9 @@ describe('code splitting', () => {
   }
 
   it('should work', () => {
-    check(__dirname, 'bundle.min.js', 'goldens/bundle.min.js_');
-    check(__dirname, 'bundle.min.es2015.js', 'goldens/bundle.min.es2015.js_');
-    check(__dirname, 'bundle_multi_entry.min.js', 'goldens/bundle_multi_entry.min.js_');
+    check('bundle.min.js', 'goldens/bundle.min.js_');
+    check('bundle.min.es2015.js', 'goldens/bundle.min.es2015.js_');
+    check('bundle_multi_entry.min.js', 'goldens/bundle_multi_entry.min.js_');
   });
 
   // Disabled because native ESModules can't be loaded in current nodejs

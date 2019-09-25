@@ -1,9 +1,10 @@
 const fs = require('fs');
 const sm = require('source-map');
+const {runfiles} = require('build_bazel_rules_nodejs/internal/linker');
 
 describe('rollup sourcemap handling', () => {
   it('should produce a sourcemap output', async () => {
-    const file = require.resolve(__dirname + '/bundle.js.map');
+    const file = runfiles.resolvePackageRelative('bundle.js.map');
     const rawSourceMap = JSON.parse(fs.readFileSync(file, 'utf-8'));
     await sm.SourceMapConsumer.with(rawSourceMap, null, consumer => {
       const pos = consumer.originalPositionFor({line: 1, column: 12});
