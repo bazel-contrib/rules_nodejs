@@ -19,7 +19,6 @@ workspace(
 
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-load("//internal/bazel_integration_test:git_repository_under_test.bzl", "git_repository_under_test")
 
 #
 # Check that build is using a minimum compatible bazel version
@@ -341,12 +340,6 @@ load("//e2e:index.bzl", "ALL_E2E")
 load("@e2e_packages//:setup_workspace.bzl", "e2e_packages_setup_workspace")
 
 e2e_packages_setup_workspace()
-
-git_repository_under_test(
-    name = "e2e_angular_bazel_example",
-    branch = "master",
-    remote = "http://github.com/angular/angular-bazel-example.git",
-)
 
 # Mock npm_angular_bazel for @e2e_angular_bazel_example//:bazel_integration_test_files target
 local_repository(
