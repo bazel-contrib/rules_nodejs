@@ -1,6 +1,21 @@
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 
+# BEGIN-INTERNAL
+# avoid leaking a ts dependency
+load("@npm_bazel_typescript//:index.from_src.bzl", "checked_in_ts_library")
+
+# using checked in ts library like the linker
+checked_in_ts_library(
+    name = "compile_generate_build_file",
+    srcs = ["generate_build_file.ts"],
+    checked_in_js = "generate_build_file.js",
+    visibility = ["//internal/npm_install:__subpackages__"],
+    deps = ["@npm//@types/node"],
+)
+
+# END-INTERNAL
+
 bzl_library(
     name = "bzl",
     srcs = glob(["*.bzl"]),
