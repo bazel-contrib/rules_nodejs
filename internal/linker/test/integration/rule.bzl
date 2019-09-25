@@ -18,5 +18,8 @@ def _linked(ctx):
 linked = rule(_linked, attrs = {
     "out": attr.output(),
     "program": attr.label(executable = True, cfg = "host", mandatory = True),
-    "deps": attr.label_list(aspects = [module_mappings_aspect]),
+    "deps": attr.label_list(
+        allow_files = True,
+        aspects = [module_mappings_aspect],
+    ),
 })
