@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@build_bazel_rules_nodejs//:index.bzl", "rollup_bundle")
 load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
 load("@npm_bazel_typescript//:index.bzl", "ts_library")
 
@@ -54,23 +53,6 @@ jasmine_node_test(
     ],
     deps = [
         ":test_lib",
-    ],
-)
-
-rollup_bundle(
-    name = "bundle",
-    entry_point = ":main.ts",
-    deps = [
-        ":main",
-    ],
-)
-
-rollup_bundle(
-    name = "bundle_sm",
-    entry_point = ":main.ts",
-    deps = [
-        ":main",
-        "@npm//source-map-support",
     ],
 )
 
