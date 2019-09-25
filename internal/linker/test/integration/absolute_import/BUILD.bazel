@@ -1,0 +1,8 @@
+package(default_visibility = ["//internal/linker/test:__subpackages__"])
+
+genrule(
+    name = "copy_to_bin",
+    srcs = ["index.js_"],
+    outs = ["index.js"],
+    cmd = "cp $< $@",
+)

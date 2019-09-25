@@ -60,6 +60,7 @@ js_library = rule(
     attrs = {
         "srcs": attr.label_list(allow_files = [".js"]),
         "amd_names": attr.string_dict(doc = _AMD_NAMES_DOC),
+        "module_from_src": attr.bool(),
         # Used to determine module mappings
         "module_name": attr.string(),
         "module_root": attr.string(),
