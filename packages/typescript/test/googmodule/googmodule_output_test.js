@@ -1,9 +1,10 @@
 const fs = require('fs');
+const {runfiles} = require('build_bazel_rules_nodejs/internal/linker');
 
 describe('googmodule', () => {
   let output;
   beforeAll(() => {
-    output = require.resolve('build_bazel_rules_nodejs/packages/typescript/test/googmodule/a.js');
+    output = runfiles.resolvePackageRelative('a.js');
   });
 
   it('should have goog module syntax in devmode', () => {

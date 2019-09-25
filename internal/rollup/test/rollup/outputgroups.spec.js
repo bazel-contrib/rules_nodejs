@@ -1,8 +1,8 @@
 const fs = require('fs');
-const path = require('path');
+const {runfiles} = require('build_bazel_rules_nodejs/internal/linker');
 
 function checkExists(name) {
-  if (!fs.existsSync(require.resolve(path.join(__dirname, name)))) {
+  if (!fs.existsSync(runfiles.resolvePackageRelative(name))) {
     fail(`Output ${name} does not exist.`);
   }
 }

@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const unidiff = require('unidiff')
+const {runfiles} = require('build_bazel_rules_nodejs/internal/linker');
 
 function read(readPath) {
   // TODO(#32) Can shorten the path if
@@ -21,9 +22,9 @@ if (process.env[update_var] && !process.env['BUILD_WORKSPACE_DIRECTORY']) {
   throw new Error(`Cannot use ${update_var} when run as a test. Use bazel run instead.`);
 }
 
-function check(dir, actual, expected) {
-  const actualPath = path.join(dir, actual);
-  const expectedPath = path.join(dir, expected);
+function check(actual, expected) {
+  const actualPath = runfiles.resolvePackageRelative(actual);
+  const expectedPath = runfiles.resolvePackageRelative(expected);
   const actualContents = read(actualPath);
   const expectedContents = read(expectedPath);
   if (actualContents !== expectedContents) {
