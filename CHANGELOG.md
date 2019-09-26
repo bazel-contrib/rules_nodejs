@@ -1,3 +1,60 @@
+# [0.38.0](https://github.com/bazelbuild/rules_nodejs/compare/0.37.0...0.38.0) (2019-09-26)
+
+
+### Bug Fixes
+
+* **builtin:** linker test should run program as an action ([#1113](https://github.com/bazelbuild/rules_nodejs/issues/1113)) ([7f0102e](https://github.com/bazelbuild/rules_nodejs/commit/7f0102e))
+* add golden file ([9a02ee0](https://github.com/bazelbuild/rules_nodejs/commit/9a02ee0))
+* add missing async test fixes ([12f711a](https://github.com/bazelbuild/rules_nodejs/commit/12f711a))
+* **builtin:** support for scoped modules in linker ([#1199](https://github.com/bazelbuild/rules_nodejs/issues/1199)) ([94abf68](https://github.com/bazelbuild/rules_nodejs/commit/94abf68))
+* **protractor:** update rules_webtesting patch to include additional windows fixes ([#1140](https://github.com/bazelbuild/rules_nodejs/issues/1140)) ([f76e97b](https://github.com/bazelbuild/rules_nodejs/commit/f76e97b))
+* **rollup:** npm requires an index.js file ([2ababdf](https://github.com/bazelbuild/rules_nodejs/commit/2ababdf))
+
+
+### chore
+
+* cleanup some deprecated APIs ([#1160](https://github.com/bazelbuild/rules_nodejs/issues/1160)) ([cefc2ae](https://github.com/bazelbuild/rules_nodejs/commit/cefc2ae)), closes [#1144](https://github.com/bazelbuild/rules_nodejs/issues/1144)
+
+
+### Code Refactoring
+
+* remove http_server and history_server rules ([#1158](https://github.com/bazelbuild/rules_nodejs/issues/1158)) ([01fdeec](https://github.com/bazelbuild/rules_nodejs/commit/01fdeec))
+
+
+### Features
+
+* **builtin:** detect APF node module format if ANGULAR_PACKAGE file found ([#1112](https://github.com/bazelbuild/rules_nodejs/issues/1112)) ([162e436](https://github.com/bazelbuild/rules_nodejs/commit/162e436))
+* **builtin:** expose the new linker to node programs ([65d8a36](https://github.com/bazelbuild/rules_nodejs/commit/65d8a36))
+* **builtin:** introduce npm_package_bin ([#1139](https://github.com/bazelbuild/rules_nodejs/issues/1139)) ([2fd80cf](https://github.com/bazelbuild/rules_nodejs/commit/2fd80cf))
+* **builtin:** linker should resolve workspace-absolute paths ([307a796](https://github.com/bazelbuild/rules_nodejs/commit/307a796))
+* **builtin:** npm_package_bin can produce directory output ([#1164](https://github.com/bazelbuild/rules_nodejs/issues/1164)) ([6d8c625](https://github.com/bazelbuild/rules_nodejs/commit/6d8c625))
+* **examples:** demonstrate that a macro assembles a workflow ([7231aaa](https://github.com/bazelbuild/rules_nodejs/commit/7231aaa))
+* **examples:** replace examples/webapp with new rollup_bundle ([c6cd91c](https://github.com/bazelbuild/rules_nodejs/commit/c6cd91c))
+* **examples:** the Angular example now lives in rules_nodejs ([9072ddb](https://github.com/bazelbuild/rules_nodejs/commit/9072ddb))
+* **rollup:** ensure that sourcemaps work end-to-end ([f340589](https://github.com/bazelbuild/rules_nodejs/commit/f340589))
+* **rollup:** new implementation of rollup_bundle in @bazel/rollup package ([3873715](https://github.com/bazelbuild/rules_nodejs/commit/3873715)), closes [#532](https://github.com/bazelbuild/rules_nodejs/issues/532) [#724](https://github.com/bazelbuild/rules_nodejs/issues/724)
+* **rollup:** support multiple entry points ([f660d39](https://github.com/bazelbuild/rules_nodejs/commit/f660d39))
+* **rollup:** tests and docs for new rollup_bundle ([cfef773](https://github.com/bazelbuild/rules_nodejs/commit/cfef773))
+* **terser:** support directory inputs ([21b5142](https://github.com/bazelbuild/rules_nodejs/commit/21b5142))
+* add angular example ([#1124](https://github.com/bazelbuild/rules_nodejs/issues/1124)) ([c376355](https://github.com/bazelbuild/rules_nodejs/commit/c376355))
+* **terser:** support source map files ([#1195](https://github.com/bazelbuild/rules_nodejs/issues/1195)) ([d5bac48](https://github.com/bazelbuild/rules_nodejs/commit/d5bac48))
+* **typescript:** add JSEcmaScriptModuleInfo provider to ts_library outputs ([1433eb9](https://github.com/bazelbuild/rules_nodejs/commit/1433eb9))
+
+
+### BREAKING CHANGES
+
+* @bazel/typescript and @bazel/karma no longer have a defs.bzl file. Use
+index.bzl instead.
+
+The @yarn workspace is no longer created. Use @nodejs//:yarn instead.
+* history_server and http_server rules are no longer built-in.
+
+To use them, first install the http-server and/or history-server packages
+Then load("@npm//http-server:index.bzl", "http_server")
+(or replace with history-server, noting that the rule has underscore where the package has hyphen)
+
+
+
 ## [0.37.1](https://github.com/bazelbuild/rules_nodejs/compare/0.37.0...0.37.1) (2019-09-16)
 
 
