@@ -125,13 +125,6 @@ Either this attribute or `entry_point` must be specified, but not both.
         values = ["amd", "cjs", "esm", "iife", "umd", "system"],
         default = "esm",
     ),
-    "globals": attr.string_dict(
-        doc = """Specifies id: variableName pairs necessary for external imports in umd/iife bundles.
-
-Passed to the [`--globals` option](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#outputglobals) in Rollup.
-Also, the keys from the map are passed to the [`--external` option](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#external).
-""",
-    ),
     "output_dir": attr.bool(
         doc = """Whether to produce a directory output.
 
@@ -276,12 +269,6 @@ def _rollup_bundle(ctx):
 
     if (ctx.attr.sourcemap and ctx.attr.sourcemap != "false"):
         args.add_all(["--sourcemap", ctx.attr.sourcemap])
-
-    if ctx.attr.globals:
-        args.add("--external")
-        args.add_joined(ctx.attr.globals.keys(), join_with = ",")
-        args.add("--globals")
-        args.add_joined(["%s:%s" % g for g in ctx.attr.globals.items()], join_with = ",")
 
     ctx.actions.run(
         progress_message = "Bundling JavaScript %s [rollup]" % outputs[0].short_path,
