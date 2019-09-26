@@ -1,0 +1,26 @@
+load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
+load("@npm_bazel_terser//:index.from_src.bzl", "terser_minified")
+
+filegroup(
+    name = "src1_and_map",
+    srcs = [
+        "src1.js",
+        "src1.js.map",
+    ],
+)
+
+terser_minified(
+    name = "src1.min",
+    src = ":src1_and_map",
+)
+
+jasmine_node_test(
+    name = "test",
+    srcs = [
+        "terser_spec.js",
+    ],
+    data = ["@npm//source-map"],
+    deps = [
+        ":src1.min",
+    ],
+)
