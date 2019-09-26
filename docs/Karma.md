@@ -24,8 +24,8 @@ Now add this to your `WORKSPACE` to install the Karma dependencies:
 
 ```python
 # Fetch transitive Bazel dependencies of npm_bazel_karma
-load("@npm_bazel_karma//:package.bzl", "rules_karma_dependencies")
-rules_karma_dependencies()
+load("@npm_bazel_karma//:package.bzl", "npm_bazel_karma_dependencies")
+npm_bazel_karma_dependencies()
 ```
 
 This installs the `io_bazel_rules_webtesting` repository, if you haven't installed it earlier.

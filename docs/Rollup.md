@@ -102,7 +102,7 @@ This will produce one output per requested format.
 ### Usage
 
 ```
-rollup_bundle(name, config_file, deps, entry_point, entry_points, format, globals, output_dir, rollup_bin, sourcemap, srcs)
+rollup_bundle(name, config_file, deps, entry_point, entry_points, format, output_dir, rollup_bin, sourcemap, srcs)
 ```
 
 
@@ -170,13 +170,6 @@ Either this attribute or `entry_point` must be specified, but not both.
 - `system`: Native format of the SystemJS loader
 
 
-#### `globals`
-(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): Specifies id: variableName pairs necessary for external imports in umd/iife bundles.
-
-Passed to the [`--globals` option](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#outputglobals) in Rollup.
-Also, the keys from the map are passed to the [`--external` option](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#external).
-
-
 #### `output_dir`
 (*Boolean*): Whether to produce a directory output.
 
@@ -192,7 +185,7 @@ Otherwise, the outputs are assumed to be a single file.
 
 
 #### `sourcemap`
-(*Boolean*): Whether to produce a .js.map output
+(*String*): Whether to produce sourcemaps.
 
 Passed to the [`--sourcemap` option](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#outputsourcemap") in Rollup
 

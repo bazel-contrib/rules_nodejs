@@ -38,10 +38,6 @@ This rule exposes the `@nodejs` workspace containing some rules the user can cal
 - Install dependencies using npm: `bazel run @nodejs//:npm install`
 - Install dependencies using yarn: `bazel run @nodejs//:yarn`
 
-This rule also exposes the `@yarn` workspace for backwards compatibility:
-
-- Alternately install dependencies using yarn: `bazel run @yarn//:yarn`
-
 Note that the dependency installation scripts will run in each subpackage indicated by the `package_json` attribute.
 
 This approach uses npm/yarn as the package manager. You could instead have Bazel act as the package manager, running the install behind the scenes.
@@ -72,7 +68,7 @@ node_repositories(name, node_repositories, node_urls, node_version, package_json
 
 #### `node_repositories`
 (*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> List of strings</a>*): Custom list of node repositories to use
-        
+
 A dictionary mapping NodeJS versions to sets of hosts and their corresponding (filename, strip_prefix, sha256) tuples.
 You should list a node binary for every platform users have, likely Mac, Windows, and Linux.
 
@@ -1286,83 +1282,6 @@ a string indicating the minimum version
 optional string to print to your users, could be used to help them update
 
 Defaults to `""`
-
-
-
-
-
-## history_server
-
-    This is a simple Bazel wrapper around the history-server npm package.
-
-See https://www.npmjs.com/package/history-server
-
-A typical frontend project is served by a specific server.
-This one can support the Angular router.
-
-
-
-### Usage
-
-```
-history_server(templated_args, kwargs)
-```
-
-
-
-#### `templated_args`
-      
-arguments to pass to every invocation of the binary
-
-Defaults to `[]`
-
-
-
-#### `kwargs`
-      
-passed through to the underlying nodejs_binary
-
-
-
-
-
-
-## http_server
-
-    This is a simple Bazel wrapper around the http-server npm package.
-
-See https://www.npmjs.com/package/http-server
-
-A typical frontend project is served by a specific server.
-For typical example applications, our needs are simple so we can just use http-server.
-Real projects might need history-server (for router support) or even better a full-featured production server like express.
-
-This rule uses a modified http-server to support serving Brotli-compressed files, which end with a .br extension.
-This is equivalent to gzip-compression support.
-See https://github.com/alexeagle/http-server/commits/master which points to a modified ecstatic library.
-
-
-
-### Usage
-
-```
-http_server(templated_args, kwargs)
-```
-
-
-
-#### `templated_args`
-      
-arguments to pass to every invocation of the binary
-
-Defaults to `[]`
-
-
-
-#### `kwargs`
-      
-passed through to the underlying nodejs_binary
-
 
 
 
