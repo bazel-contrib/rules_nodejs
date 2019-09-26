@@ -1286,3 +1286,97 @@ Defaults to `""`
 
 
 
+
+## npm_package_bin
+
+Run an arbitrary npm package binary (anything under node_modules/.bin/*) under Bazel.
+
+It must produce outputs. If you just want to run a program with `bazel run`, use the nodejs_binary rule.
+
+This is like a genrule() except that it runs our launcher script that first
+links the node_modules tree before running the program.
+
+This is a great candidate to wrap with a macro, as documented:
+https://docs.bazel.build/versions/master/skylark/macros.html#full-example
+
+
+
+### Usage
+
+```
+npm_package_bin(tool, package, package_bin, data, outs, args, output_dir, kwargs)
+```
+
+
+
+#### `tool`
+      
+a label for a binary to run, like `@npm//terser/bin:terser`. This is the longer form of package/package_bin.
+      Note that you can also refer to a binary in your local workspace.
+
+Defaults to `None`
+
+
+
+#### `package`
+      
+an npm package whose binary to run, like "terser". Assumes your node_modules are installed in a workspace called "npm"
+
+Defaults to `None`
+
+
+
+#### `package_bin`
+      
+the "bin" entry from `package` that should be run. By default package_bin is the same string as `package`
+
+Defaults to `None`
+
+
+
+#### `data`
+      
+similar to [genrule.srcs](https://docs.bazel.build/versions/master/be/general.html#genrule.srcs)
+      may also include targets that produce or reference npm packages which are needed by the tool
+
+Defaults to `[]`
+
+
+
+#### `outs`
+      
+similar to [genrule.outs](https://docs.bazel.build/versions/master/be/general.html#genrule.outs)
+
+Defaults to `[]`
+
+
+
+#### `args`
+      
+Command-line arguments to the tool.
+
+    Subject to 'Make variable' substitution.
+    Can use $(location) expansion. See https://docs.bazel.build/versions/master/be/make-variables.html
+    You may also refer to the location of the output_dir with the special `$@` replacement, like genrule.
+
+Defaults to `[]`
+
+
+
+#### `output_dir`
+      
+set to True if you want the output to be a directory
+         Exactly one of `outs`, `output_dir` may be used.
+         If you output a directory, there can only be one output, which will be named the same as the target.
+
+Defaults to `False`
+
+
+
+#### `kwargs`
+      
+
+
+
+
+

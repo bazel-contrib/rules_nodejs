@@ -52,8 +52,9 @@ _npm_package_bin = rule(
     attrs = _ATTRS,
 )
 
-def npm_package_bin(tool = None, package = None, package_bin = None, **kwargs):
+def npm_package_bin(tool = None, package = None, package_bin = None, data = [], outs = [], args = [], output_dir = False, **kwargs):
     """Run an arbitrary npm package binary (anything under node_modules/.bin/*) under Bazel.
+
     It must produce outputs. If you just want to run a program with `bazel run`, use the nodejs_binary rule.
 
     This is like a genrule() except that it runs our launcher script that first
@@ -88,6 +89,10 @@ def npm_package_bin(tool = None, package = None, package_bin = None, **kwargs):
             package_bin = package
         tool = "@npm//%s/bin:%s" % (package, package_bin)
     _npm_package_bin(
+        data = data,
+        outs = outs,
+        args = args,
+        output_dir = output_dir,
         tool = tool,
         **kwargs
     )
