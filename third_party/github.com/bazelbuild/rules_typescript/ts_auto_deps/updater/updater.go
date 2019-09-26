@@ -182,7 +182,7 @@ func readBUILD(ctx context.Context, buildFilePath, workspaceRelativePath string)
 		if os.IsNotExist(err) {
 			return nil, nil
 		}
-		return nil, fmt.Errorf("reading %q: %s", buildFilePath, err)
+		return nil, err
 	}
 	bld, err := build.ParseBuild(workspaceRelativePath, data)
 	if err != nil {
