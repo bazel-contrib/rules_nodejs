@@ -12,6 +12,7 @@
     "devDependencies": {
         "@babel/cli": "^7.6.0",
         "@babel/core": "^7.6.0",
+        "@babel/preset-env": "^7.6.0",
         "@bazel/bazel": "^0.28.1",
         "@bazel/buildifier": "^0.26.0",
         "@bazel/hide-bazel-files": "file:./packages/hide-bazel-files",

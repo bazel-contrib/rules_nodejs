@@ -1,3 +1,4 @@
 const el = document.createElement('div');
-el.innerText = 'Hello, World';
+const text: string = 'Hello, World';
+el.innerText = text;
 document.body.appendChild(el);

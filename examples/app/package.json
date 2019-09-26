@@ -2,11 +2,15 @@
   "devDependencies": {
     "@bazel/hide-bazel-files": "latest",
     "@bazel/protractor": "latest",
+    "@bazel/rollup": "latest",
+    "@bazel/terser": "latest",
     "@bazel/typescript": "latest",
     "@types/jasmine": "3.3.15",
     "http-server": "^0.11.1",
     "less": "^3.10.3",
+    "rollup": "1.20.3",
     "stylus": "^0.54.7",
+    "terser": "4.3.1",
     "typescript": "2.7.x"
   },
   "scripts": {

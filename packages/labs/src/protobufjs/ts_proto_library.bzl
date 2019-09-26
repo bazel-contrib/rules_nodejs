@@ -13,6 +13,9 @@
 # limitations under the License.
 "Protocol Buffers"
 
+load("@build_bazel_rules_nodejs//:declaration_provider.bzl", "DeclarationInfo")
+load("@build_bazel_rules_nodejs//:providers.bzl", "JSEcmaScriptModuleInfo")
+
 def _run_pbjs(actions, executable, output_name, proto_files, suffix = ".js", wrap = "amd", amd_name = ""):
     js_file = actions.declare_file(output_name + suffix)
 
@@ -104,16 +107,29 @@ def _ts_proto_library(ctx):
     dts = _run_pbts(ctx.actions, ctx.executable, js_es5)
 
     # Return a structure that is compatible with the deps[] of a ts_library.
+    declarations = depset([dts])
+    es5_sources = depset([js_es5])
+    es6_sources = depset([js_es6])
+
     return struct(
-        files = depset([dts]),
+        providers = [
+            DefaultInfo(files = declarations),
+            DeclarationInfo(
+                declarations = declarations,
+                transitive_declarations = declarations,
+            ),
+            JSEcmaScriptModuleInfo(
+                sources = es6_sources,
+            ),
+        ],
         typescript = struct(
-            declarations = depset([dts]),
-            transitive_declarations = depset([dts]),
+            declarations = declarations,
+            transitive_declarations = declarations,
             type_blacklisted_declarations = depset(),
-            es5_sources = depset([js_es5]),
-            es6_sources = depset([js_es6]),
-            transitive_es5_sources = depset(),
-            transitive_es6_sources = depset([js_es6]),
+            es5_sources = es5_sources,
+            es6_sources = es6_sources,
+            transitive_es5_sources = es5_sources,
+            transitive_es6_sources = es6_sources,
         ),
     )
 

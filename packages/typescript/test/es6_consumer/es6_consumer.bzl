@@ -15,14 +15,18 @@
 """Example of a rule that requires ES6 inputs.
 """
 
-load("@build_bazel_rules_nodejs//internal/common:collect_es6_sources.bzl", "collect_es6_sources")
+load("@build_bazel_rules_nodejs//:providers.bzl", "JSEcmaScriptModuleInfo")
 
 def _es6_consumer(ctx):
-    es6_sources = collect_es6_sources(ctx)
+    sources_depsets = []
+    for dep in ctx.attr.deps:
+        if JSEcmaScriptModuleInfo in dep:
+            sources_depsets.append(dep[JSEcmaScriptModuleInfo].sources)
+    sources = depset(transitive = sources_depsets)
 
     return [DefaultInfo(
-        files = es6_sources,
-        runfiles = ctx.runfiles(es6_sources.to_list()),
+        files = sources,
+        runfiles = ctx.runfiles(transitive_files = sources),
     )]
 
 es6_consumer = rule(

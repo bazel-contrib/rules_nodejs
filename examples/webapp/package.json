@@ -5,13 +5,15 @@
         "@babel/core": "^7.6.0",
         "@babel/preset-env": "^7.6.0",
         "@bazel/jasmine": "^0.37.1",
-        "@bazel/protractor": "file:/tmp/tmp-164023L7r1MgY0dmka",
-        "@bazel/rollup": "file:/tmp/tmp-164023xwqtzUemMOVT",
-        "@bazel/terser": "file:/tmp/tmp-164023K73Ev0H45uDb",
+        "@bazel/protractor": "latest",
+        "@bazel/rollup": "latest",
+        "@bazel/terser": "latest",
+        "@bazel/typescript": "latest",
         "http-server": "^0.11.1",
         "rollup": "1.21.4",
         "source-map": "^0.7.3",
-        "terser": "^4.3.1"
+        "terser": "^4.3.1",
+        "typescript": "^3.1.6"
     },
     "scripts": {
         "test": "bazel test ..."

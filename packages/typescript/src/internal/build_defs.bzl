@@ -14,6 +14,7 @@
 
 "TypeScript compilation"
 
+load("@build_bazel_rules_nodejs//:providers.bzl", "transitive_js_ecma_script_module_info")
 load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleSources", "collect_node_modules_aspect")
 
 # pylint: disable=unused-argument
@@ -269,6 +270,20 @@ def _ts_library_impl(ctx):
         devmode_compile_action = _devmode_compile_action,
         tsc_wrapped_tsconfig = tsc_wrapped_tsconfig,
     )
+
+    # Add in shared JS providers.
+    # See design doc https://docs.google.com/document/d/1ggkY5RqUkVL4aQLYm7esRW978LgX3GUCnQirrk5E1C0/edit#
+    # and issue https://github.com/bazelbuild/rules_nodejs/issues/57 for more details.
+    ts_providers["providers"].extend([
+        transitive_js_ecma_script_module_info(
+            sources = ts_providers["typescript"]["es6_sources"],
+            deps = ctx.attr.deps,
+        ),
+        # TODO: Add remaining shared JS providers from design doc
+        # (JSModuleInfo and JSNamedModuleInfo) and remove legacy "typescript" provider
+        # once it is no longer needed.
+    ])
+
     return ts_providers_dict_to_struct(ts_providers)
 
 ts_library = rule(

@@ -1,21 +1,81 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "rollup_bundle")
 load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_package")
+load("@npm//@babel/cli:index.bzl", "babel")
 load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
+load("@npm_bazel_rollup//:index.from_src.bzl", "rollup_bundle")
+load("@npm_bazel_terser//:index.from_src.bzl", "terser_minified")
+load("@npm_bazel_typescript//:index.from_src.bzl", "ts_library")
 
 package(default_visibility = ["//visibility:public"])
 
+ts_library(
+    name = "script",
+    srcs = ["script.ts"],
+)
+
 rollup_bundle(
     name = "bundle",
-    entry_point = ":script.js",
+    entry_point = ":script.ts",
+    sourcemap = "true",
+    deps = [":script"],
+)
+
+babel(
+    name = "bundle.es2015",
+    outs = [
+        "bundle.es2015.js",
+        "bundle.es2015.js.map",
+    ],
+    args = [
+        "$(location :bundle.js)",
+        "--no-babelrc",
+        "--source-maps",
+        "--presets=@babel/preset-env",
+        "--out-file",
+        "$(location :bundle.es2015.js)",
+    ],
+    data = [
+        "bundle.js",
+        "bundle.js.map",
+        "@npm//@babel/preset-env",
+    ],
+)
+
+terser_minified(
+    name = "bundle.min",
+    src = ":bundle",
+)
+
+terser_minified(
+    name = "bundle.min_debug",
+    src = ":bundle",
+    debug = True,
+)
+
+terser_minified(
+    name = "bundle.min.es2015",
+    src = ":bundle.es2015.js",
+)
+
+terser_minified(
+    name = "bundle.min_debug.es2015",
+    src = ":bundle.es2015.js",
+    debug = True,
 )
 
 web_package(
     name = "pkg",
-    # Intentionally duplicating `bundle.min.js` in assets and data
-    # to test for regression of the issues fixed by
+    # Intentionally duplicating `:bundle.min` (`bundle.min.js`) in assets
+    # and data to test for regression of the issues fixed by
     # https://github.com/bazelbuild/rules_nodejs/pull/546
-    assets = [":bundle.min.js"],
-    data = [":bundle"],
+    assets = [":bundle.min"],
+    data = [
+        ":bundle",
+        ":bundle.es2015",
+        ":bundle.min",
+        ":bundle.min.es2015",
+        ":bundle.min_debug",
+        ":bundle.min_debug.es2015",
+    ],
     index_html = "index.html",
 )
 

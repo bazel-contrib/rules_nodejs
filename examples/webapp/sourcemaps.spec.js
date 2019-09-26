@@ -36,10 +36,10 @@ function find(text, s = 'ts1') {
 function asserts(pos) {
   // This doesn't work because the output dir is different from input
   // so it actually starts with a bunch of '/../..'
-  // expect(pos.source).toBe('index.js');
+  // expect(pos.source).toBe('index.mjs');
 
-  expect(pos.source.endsWith('index.js')).toBeTruthy();
-  expect(pos.line).toBe(6);     // one-based
+  expect(pos.source.endsWith('index.mjs')).toBeTruthy();
+  expect(pos.line).toBe(7);     // one-based
   expect(pos.column).toBe(20);  // zero-based
 }
 

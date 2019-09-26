@@ -5,13 +5,19 @@ load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_pac
 load("@npm//@babel/cli:index.bzl", "babel")
 load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
 load("@npm_bazel_terser//:index.bzl", "terser_minified")
+load("@npm_bazel_typescript//:index.bzl", "ts_library")
 
 def differential_loading(name, entry_point, srcs):
-    "Common workflow to serve native ESModules to modern browsers"
+    "Common workflow to serve TypeScript to modern browsers"
+
+    ts_library(
+        name = name + "_lib",
+        srcs = srcs,
+    )
 
     rollup_bundle(
         name = name + "_chunks",
-        srcs = srcs,
+        deps = [name + "_lib"],
         sourcemap = "inline",
         entry_points = {
             entry_point: "index",
