@@ -1,0 +1,26 @@
+load("@npm_bazel_typescript//:index.from_src.bzl", "ts_library")
+
+package(default_visibility = ["//packages/rollup:__subpackages__"])
+
+genrule(
+    name = "copy_user",
+    srcs = [
+        ":user.mjs",
+    ],
+    outs = [
+        ":user.js",
+    ],
+    cmd = "cp $< $@",
+)
+
+ts_library(
+    name = "foolib",
+    srcs = [
+        "index.ts",
+        "user.d.ts",
+    ],
+    module_name = "foolib",
+    # Don't allow deep imports under here,
+    # and give it the AMD name "foolib", not "foolib/index"
+    module_root = "index.d.ts",
+)
