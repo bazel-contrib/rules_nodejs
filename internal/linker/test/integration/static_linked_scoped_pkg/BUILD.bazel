@@ -1,0 +1,9 @@
+load("//internal/js_library:js_library.bzl", "js_library")
+
+package(default_visibility = ["//internal/linker/test:__subpackages__"])
+
+js_library(
+    name = "static_linked_scoped_pkg",
+    srcs = ["index.js"],
+    module_name = "@linker_scoped/static_linked",
+)
