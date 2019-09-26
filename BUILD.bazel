@@ -30,6 +30,7 @@ bzl_library(
         "declaration_provider.bzl",
         "index.bzl",
         "index.for_docs.bzl",
+        "providers.bzl",
     ],
     visibility = ["//visibility:public"],
     deps = [

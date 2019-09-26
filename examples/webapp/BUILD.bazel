@@ -5,8 +5,8 @@ load(":differential_loading.bzl", "differential_loading")
 
 differential_loading(
     name = "app",
-    srcs = glob(["*.js"]),
-    entry_point = "index.js",
+    srcs = glob(["*.ts"]),
+    entry_point = "index.ts",
 )
 
 http_server(

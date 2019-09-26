@@ -50,6 +50,8 @@ example_integration_test(
     npm_packages = {
         "//packages/hide-bazel-files:npm_package": "@bazel/hide-bazel-files",
         "//packages/protractor:npm_package": "@bazel/protractor",
+        "//packages/rollup:npm_package": "@bazel/rollup",
+        "//packages/terser:npm_package": "@bazel/terser",
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
 )
@@ -65,6 +67,8 @@ example_integration_test(
     name = "examples_kotlin",
     npm_packages = {
         "//packages/jasmine:npm_package": "@bazel/jasmine",
+        "//packages/rollup:npm_package": "@bazel/rollup",
+        "//packages/terser:npm_package": "@bazel/terser",
     },
     # Kotlin's kt_js_import relies on a helper written in Python
     # https://github.com/bazelbuild/rules_kotlin/blob/master/kotlin/internal/js/importer.py
@@ -91,6 +95,7 @@ example_integration_test(
         "//packages/protractor:npm_package": "@bazel/protractor",
         "//packages/rollup:npm_package": "@bazel/rollup",
         "//packages/terser:npm_package": "@bazel/terser",
+        "//packages/typescript:npm_package": "@bazel/typescript",
     },
 )
 
@@ -117,6 +122,8 @@ example_integration_test(
         "//packages/karma:npm_package": "@bazel/karma",
         "//packages/labs:npm_package": "@bazel/labs",
         "//packages/protractor:npm_package": "@bazel/protractor",
+        "//packages/rollup:npm_package": "@bazel/rollup",
+        "//packages/terser:npm_package": "@bazel/terser",
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
     # Runs out of memory on bazelci windows

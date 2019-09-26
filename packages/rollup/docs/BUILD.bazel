@@ -18,6 +18,7 @@ stardoc(
         # ```
         # Exception in thread "main" java.lang.IllegalStateException: File external/npm_bazel_karma/karma_node_test.bzl imported '@build_bazel_rules_nodejs//internal/common:devmode_js_sources.bzl', yet internal/common/devmode_js_sources.bzl was not found, even at roots [.].
         # ```
+        "//:bzl",
         "//internal/common:bzl",
         "//internal/linker:bzl",
     ],

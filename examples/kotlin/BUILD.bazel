@@ -1,11 +1,12 @@
 # Add rules here to build your software
 # See https://docs.bazel.build/versions/master/build-ref.html#BUILD_files
 
-load("@build_bazel_rules_nodejs//:index.bzl", "rollup_bundle")
 load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_package")
 load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kt_js_import", "kt_js_library")
 load("@npm//http-server:index.bzl", "http_server")
 load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
+load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
+load("@npm_bazel_terser//:index.bzl", "terser_minified")
 
 # Grab a Maven dependency
 kt_js_import(
@@ -21,28 +22,41 @@ kt_js_library(
     deps = [":kotlinx-html-js"],
 )
 
+# Copy boostrap.js to the bin folder as _bootstrap.js
+# so that relative import to `./hello.js` is valid
+genrule(
+    name = "bootstrap",
+    srcs = ["bootstrap.js"],
+    outs = ["_bootstrap.js"],
+    cmd = "cp $< $@",
+)
+
 rollup_bundle(
     name = "bundle",
     srcs = ["hello.js"],
-    entry_point = "bootstrap.js",
+    config_file = "rollup.config.js",
+    entry_point = "_bootstrap.js",
+    # TODO: make this example work with format = "esm"
+    format = "cjs",
+    output_dir = True,
     deps = [
         "@npm//kotlin",
         "@npm//kotlinx-html-js",
     ],
 )
 
+terser_minified(
+    name = "bundle.min",
+    src = ":bundle",
+)
+
 web_package(
     name = "package",
-    assets = [
-        # For differential loading, we supply both an ESModule entry point and an es5 entry point
-        # The injector will put two complimentary script tags in the index.html
-        ":bundle.min.js",
-        ":bundle.min.es2015.js",
-    ],
-    data = [":bundle"],
+    data = [":bundle.min"],
     index_html = "index.html",
 )
 
+# TODO: fix prodserver; require.js is needed if rollup_bundle output is cjs
 http_server(
     name = "server",
     data = [":package"],
@@ -54,7 +68,6 @@ jasmine_node_test(
     srcs = ["spec.js"],
     data = [
         ":bundle",
-        ":bundle.js",
         "@npm//domino",
     ],
     templated_args = ["--node_options=--experimental-modules"],

@@ -1,10 +1,56 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "rollup_bundle")
 load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_package")
+load("@npm//@babel/cli:index.bzl", "babel")
 load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
+load("@npm_bazel_rollup//:index.from_src.bzl", "rollup_bundle")
+load("@npm_bazel_terser//:index.from_src.bzl", "terser_minified")
 
 rollup_bundle(
     name = "local_bundle",
     entry_point = ":script.js",
+    sourcemap = "true",
+)
+
+babel(
+    name = "local_bundle.es2015",
+    outs = [
+        "local_bundle.es2015.js",
+        "local_bundle.es2015.js.map",
+    ],
+    args = [
+        "$(location :local_bundle.js)",
+        "--no-babelrc",
+        "--source-maps",
+        "--presets=@babel/preset-env",
+        "--out-file",
+        "$(location :local_bundle.es2015.js)",
+    ],
+    data = [
+        "local_bundle.js",
+        "local_bundle.js.map",
+        "@npm//@babel/preset-env",
+    ],
+)
+
+terser_minified(
+    name = "local_bundle.min",
+    src = ":local_bundle",
+)
+
+terser_minified(
+    name = "local_bundle.min_debug",
+    src = ":local_bundle",
+    debug = True,
+)
+
+terser_minified(
+    name = "local_bundle.min.es2015",
+    src = ":local_bundle.es2015.js",
+)
+
+terser_minified(
+    name = "local_bundle.min_debug.es2015",
+    src = ":local_bundle.es2015.js",
+    debug = True,
 )
 
 # Same exts as //internal/web_package/test-exports, //internal/web_package/test2/rel-exports
@@ -16,10 +62,20 @@ EXTS = [
 web_package(
     name = "pkg",
     assets = [
-                 # a bundle from a different directory
+                 # bundles from a different directory
+                 "//internal/web_package/test:bundle.es2015",
+                 "//internal/web_package/test:bundle.min.es2015",
+                 "//internal/web_package/test:bundle.min_debug.es2015",
                  "//internal/web_package/test:bundle",
-                 # a bundle in the current path
+                 "//internal/web_package/test:bundle.min",
+                 "//internal/web_package/test:bundle.min_debug",
+                 # bundles in the current path
+                 ":local_bundle.es2015",
+                 ":local_bundle.min.es2015",
+                 ":local_bundle.min_debug.es2015",
                  ":local_bundle",
+                 ":local_bundle.min",
+                 ":local_bundle.min_debug",
              ] +
              # bin + gen + exported files from a different directory
              ["//internal/web_package/test-exports:bin-" + e for e in EXTS] +

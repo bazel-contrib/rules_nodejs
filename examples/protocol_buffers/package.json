@@ -4,6 +4,8 @@
     "@bazel/karma": "latest",
     "@bazel/labs": "latest",
     "@bazel/protractor": "latest",
+    "@bazel/rollup": "latest",
+    "@bazel/terser": "latest",
     "@bazel/typescript": "latest",
     "@types/jasmine": "2.8.2",
     "@types/long": "^4.0.0",
@@ -11,6 +13,8 @@
     "http-server": "^0.11.1",
     "long": "4.0.0",
     "protobufjs": "5.0.3",
+    "rollup": "1.20.3",
+    "terser": "4.3.1",
     "typescript": "^3.3.1"
   },
   "scripts": {

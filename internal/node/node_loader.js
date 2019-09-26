@@ -198,6 +198,9 @@ function loadAsFileSync(res) {
   if (isFile(res)) {
     return res;
   }
+  if (isFile(res + '.mjs')) {
+    return res;
+  }
   if (isFile(res + '.js')) {
     return res;
   }
@@ -232,7 +235,8 @@ function loadAsDirectorySync(res) {
 }
 
 function resolveManifestFile(res) {
-  const maybe = runfilesManifest[res] || runfilesManifest[res + '.js'];
+  const maybe =
+      runfilesManifest[res] || runfilesManifest[res + '.mjs'] || runfilesManifest[res + '.js'];
   if (maybe) {
     return maybe;
   }
@@ -251,7 +255,8 @@ function resolveManifestFile(res) {
       files.forEach(f => {
         runfilesManifest[path.posix.join(test, f)] = path.posix.join(tree, f);
       })
-      return runfilesManifest[res] || runfilesManifest[res + '.js'];
+      return runfilesManifest[res] || runfilesManifest[res + '.mjs'] ||
+          runfilesManifest[res + '.js'];
     }
     segments.pop();
   }
