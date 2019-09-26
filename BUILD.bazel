@@ -64,7 +64,6 @@ npm_package(
     replace_with_version = "",
     replacements = COMMON_REPLACEMENTS,
     deps = [
-        "//third_party/github.com/bazelbuild/bazel:package_contents",
         "//third_party/github.com/bazelbuild/bazel-skylib:package_contents",
         "//third_party/github.com/buffer-from:package_contents",
         "//third_party/github.com/inikulin/parse5:package_contents",
