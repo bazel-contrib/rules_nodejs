@@ -13,7 +13,7 @@ jasmine_node_test(
     data = [
         ":check.js",
         ":goldens",
-        "//internal/npm_install:generate_build_file",
+        "//internal/npm_install:compile_generate_build_file",
         "@fine_grained_goldens//:golden_files",
         "@npm//unidiff",
     ],

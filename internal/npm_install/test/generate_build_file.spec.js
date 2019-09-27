@@ -111,6 +111,17 @@ describe('build file generator', () => {
       expect(printPackageBin(pkgs[0]))
           .toContain('data = ["//some_dir:foo", "//bar:foo-plugin-bar"]');
     });
+    it('should not include nested packages', () => {
+      const pkgs = [
+        {_name: 'foo', bin: 'foobin', _dir: 'some_dir', _moduleName: 'foo'}, {
+          _name: 'foo-plugin-bar',
+          _dir: 'top-level/node_modules/bar',
+          _moduleName: 'foo-plugin-bar'
+        }
+      ];
+      addDynamicDependencies(pkgs, {});
+      expect(pkgs[0]._dynamicDependencies).toEqual([]);
+    });
   });
 
   describe('index.bzl files', () => {

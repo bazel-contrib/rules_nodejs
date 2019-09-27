@@ -473,8 +473,13 @@ function addDynamicDependencies(pkgs: Dep[], dynamic_deps = DYNAMIC_DEPS) {
     return false;
   }
   pkgs.forEach(p => {
-    p._dynamicDependencies = pkgs.filter(x => !!x._moduleName && match(x._moduleName, p))
-                                 .map(dyn => `//${dyn._dir}:${dyn._name}`);
+    p._dynamicDependencies =
+        pkgs.filter(
+                // Filter entries like
+                // "_dir":"check-side-effects/node_modules/rollup-plugin-node-resolve"
+                x => !x._dir.includes('/node_modules/') && !!x._moduleName &&
+                    match(x._moduleName, p))
+            .map(dyn => `//${dyn._dir}:${dyn._name}`);
   });
 }
 
