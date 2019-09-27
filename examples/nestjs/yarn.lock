@@ -3,7 +3,9 @@
 
 
 "@bazel/typescript@latest":
-  version "1.2.3"
+  version "0.38.0"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-0.38.0.tgz#0fce6ac5618a11bf7a9803455c24dbdcdf4a85cd"
+  integrity sha512-3xZNQ1aHBRMPvxyDUR7yHxT5o/2IUkZh0s/eMMBB9GvU/uit0HpxOOdEADHqoID/8afU0SPYX0LKw+jDn6tfFA==
   dependencies:
     protobufjs "6.8.8"
     semver "5.6.0"

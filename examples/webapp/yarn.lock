@@ -655,10 +655,10 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@bazel/jasmine@^0.37.1":
-  version "0.37.1"
-  resolved "https://registry.yarnpkg.com/@bazel/jasmine/-/jasmine-0.37.1.tgz#e5111f4f913b542cbfad767e0f903be026246c5a"
-  integrity sha512-EQJ2bbmF3w+BeoCMEDY8mKd5lrVuZ4tEc1wqth4Jl2UIYwyEepDAKVMiEeM+seXxmzqle38ksdsf7uSUWMjthA==
+"@bazel/jasmine@latest":
+  version "0.38.0"
+  resolved "https://registry.yarnpkg.com/@bazel/jasmine/-/jasmine-0.38.0.tgz#d40bc3fa5b9cdaf9125ff422a1ed5fc25c41203e"
+  integrity sha512-p4faogKschhMiZ4+g5z0On0VkhQzjsa4gCg8WMbHbxwSrjMYVQmiwqwEtNN2jBV0mqRRKOvRrH7O1snD2MyihA==
   dependencies:
     jasmine "~3.4.0"
     jasmine-core "~3.4.0"
@@ -670,6 +670,16 @@
   integrity sha512-fpmhiYiTx0mqW3PKTx1/Z9PrKfMeIVaHVC5KDxuBwktAPyhiusbQ9O7xRnfircjKGbP6Lhf1DvIwi0U/SV9cGw==
   dependencies:
     protractor "^5.4.2"
+
+"@bazel/rollup@latest":
+  version "0.38.0"
+  resolved "https://registry.yarnpkg.com/@bazel/rollup/-/rollup-0.38.0.tgz#3bb2a0b82347b5fc32d00f1831b39382898e77ed"
+  integrity sha512-L6UxsBUi5xhjUvzaSk5PCnBkCsUgxMn/S0rQ2kD/vjS6M23QYuDC0WScaPrNUseovpQaoy0Y3yjAuq6scrEaZg==
+
+"@bazel/terser@latest":
+  version "0.38.0"
+  resolved "https://registry.yarnpkg.com/@bazel/terser/-/terser-0.38.0.tgz#662046e1ba016a3dfee1992453064fa3e611f602"
+  integrity sha512-1yvVwhcg4r8h1CqhgB5IT4erSXY9fUFCJ02hcGL6/yUhUh1K1L8hxGqUaqpQE8HgpKeoz9vfn2Yw69951kikIQ==
 
 "@bazel/typescript@latest":
   version "0.37.1"
