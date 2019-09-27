@@ -277,10 +277,10 @@
   resolved "https://registry.yarnpkg.com/@bazel/ibazel/-/ibazel-0.3.1.tgz#5f02f208f138e581bbdb1534d5c013d7a0ac9799"
   integrity sha1-XwLyCPE45YG72xU01cAT16Csl5k=
 
-"@bazel/karma@~0.37.0":
-  version "0.37.0"
-  resolved "https://registry.yarnpkg.com/@bazel/karma/-/karma-0.37.0.tgz#e420e32f4309fa28a980ee47072865b2aa3cb858"
-  integrity sha512-XBQpEVyQCYNlN6bzz+1AGLBLCCd4CAvlp7ubklLGCFXuFKOnvU/ADaN0t/t7V3Pjx+uZqgAHamOFQla+21UXDg==
+"@bazel/karma@latest":
+  version "0.38.0"
+  resolved "https://registry.yarnpkg.com/@bazel/karma/-/karma-0.38.0.tgz#c738f769691196884f985c18a903b326c152854f"
+  integrity sha512-toDlcQy6z69D/aZfzzkWjWd4eAn0gxwJmfCnomsC/P56mWEsFNj1BBjuINEd8xcQhXyBi8q1zHa9MyAoDqrYWQ==
   dependencies:
     jasmine-core "2.8.0"
     karma "^4.0.0"
@@ -294,17 +294,17 @@
     semver "5.6.0"
     tmp "0.0.33"
 
-"@bazel/protractor@~0.37.0":
-  version "0.37.0"
-  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-0.37.0.tgz#4756c4874ca3577eb495cb825f764e61bcef836b"
-  integrity sha512-byibZCRGbYwbLAouPyhZGwynFoJreurxsb63OdPmN5g6BkmLfVYZxDDKtTki+ccjLIiyWoZUoV5YMc5l+SN6iA==
+"@bazel/protractor@latest":
+  version "0.38.0"
+  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-0.38.0.tgz#08be006d29543fc3c417c4d9f59e1eb927bb2fa6"
+  integrity sha512-omvQwYjvMTd6/xI9WNDfscl9GVhuaXs+lahhv2b7D3DGUuVStihQp4Ux4/xT6jlmOkru2uk38nfes/jfOoalkQ==
   dependencies:
     protractor "^5.4.2"
 
-"@bazel/typescript@~0.37.0":
-  version "0.37.0"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-0.37.0.tgz#9213d963cf132db614a9780b87815cda256a3e14"
-  integrity sha512-4Pz5x87ihPjKQxo/XMfFXJeGHiNEOdaIqLOqzuIXbwczJvMxPKMwnXzikr9XkjHrHs26zZo4iMtXALqW2j7C5w==
+"@bazel/typescript@latest":
+  version "0.38.0"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-0.38.0.tgz#0fce6ac5618a11bf7a9803455c24dbdcdf4a85cd"
+  integrity sha512-3xZNQ1aHBRMPvxyDUR7yHxT5o/2IUkZh0s/eMMBB9GvU/uit0HpxOOdEADHqoID/8afU0SPYX0LKw+jDn6tfFA==
   dependencies:
     protobufjs "6.8.8"
     semver "5.6.0"
