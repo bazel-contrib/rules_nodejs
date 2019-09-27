@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 )
@@ -42,20 +43,27 @@ func TestWriteJSEscaped(t *testing.T) {
 }
 
 type fakeFileSystem struct {
+	mux             sync.Mutex
 	fakeReadFile    func(filename string) ([]byte, error)
 	fakeStatMtime   func(filename string) (time.Time, error)
 	fakeResolvePath func(root string, filename string) (string, error)
 }
 
 func (fs *fakeFileSystem) ReadFile(filename string) ([]byte, error) {
+	fs.mux.Lock()
+	defer fs.mux.Unlock()
 	return fs.fakeReadFile(filename)
 }
 
 func (fs *fakeFileSystem) StatMtime(filename string) (time.Time, error) {
+	fs.mux.Lock()
+	defer fs.mux.Unlock()
 	return fs.fakeStatMtime(filename)
 }
 
-func (fs *fakeFileSystem) ResolvePath(root string,  filename string) (string, error) {
+func (fs *fakeFileSystem) ResolvePath(root string, filename string) (string, error) {
+	fs.mux.Lock()
+	defer fs.mux.Unlock()
 	return fs.fakeResolvePath(root, filename)
 }
 
@@ -167,7 +175,7 @@ func TestCustomFileResolving(t *testing.T) {
 			}
 		},
 		fakeStatMtime: func(filename string) (time.Time, error) {
-				return time.Now(), nil
+			return time.Now(), nil
 		},
 		fakeResolvePath: func(root string, filename string) (string, error) {
 			// For this test, we use an absolute root. This is similar to how
