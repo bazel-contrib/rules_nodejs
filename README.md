@@ -20,7 +20,7 @@ https://bazelbuild.github.io/rules_nodejs/
 ## Quickstart
 
 This is the fastest way to get started.
-See sections below for details and alternative methods.
+See the [installation documentation](https://bazelbuild.github.io/rules_nodejs/install.html) for details and alternative methods.
 
 ```sh
 $ npm init @bazel
