@@ -1,6 +1,6 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "npm_package")
 load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
-load("//internal/common:typescript_mock_lib.bzl", "mock_typescript_lib")
+load("@npm_bazel_typescript//:index.from_src.bzl", "ts_library")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/write_file.bzl", "write_file")
 
 write_file(
@@ -9,12 +9,9 @@ write_file(
     content = ["a_dep content"],
 )
 
-mock_typescript_lib(
+ts_library(
     name = "ts_library",
-    srcs = [
-        "foo.d.ts",
-        "foo.js",
-    ],
+    srcs = ["foo.ts"],
     data = ["data.json"],
 )
 

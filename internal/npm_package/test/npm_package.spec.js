@@ -22,10 +22,10 @@ describe('npm_package srcs', () => {
     expect(read('dependent_file')).toEqual('dependent_file content');
   });
   it('copies js files from ts_library', () => {
-    expect(read('foo.js')).toEqual('export const a = \'\';');
+    expect(read('foo.js')).toContain('exports.a = \'\';');
   });
   it('copies declaration files from ts_library', () => {
-    expect(read('foo.d.ts')).toEqual('export const a: string;');
+    expect(read('foo.d.ts')).toContain('export declare const a: string;');
   });
   it('copies data dependencies', () => {
     expect(read('data.json')).toEqual('[]');

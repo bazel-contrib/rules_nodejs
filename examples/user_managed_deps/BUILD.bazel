@@ -1,5 +1,4 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
-load("@build_bazel_rules_nodejs//internal/common:typescript_mock_lib.bzl", "mock_typescript_lib")
 load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
 
 # Make the jasmine library available at runtime by exposing our node_modules
@@ -19,13 +18,11 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
-mock_typescript_lib(
-    name = "mock_ts_lib",
+filegroup(
+    name = "decrement",
     srcs = ["decrement.js"],
 )
 
-# This is like a "js_library", but there are no actions to run on JS files so a
-# filegroup is semantically equivalent.
 filegroup(
     name = "program",
     srcs = ["index.js"],
@@ -48,7 +45,7 @@ jasmine_node_test(
     jasmine_deps = [],
     node_modules = "//:node_modules",
     deps = [
-        ":mock_ts_lib",
+        ":decrement",
         ":program",
     ],
 )
