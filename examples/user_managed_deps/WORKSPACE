@@ -40,7 +40,6 @@ local_repository(
 )
 # http_archive(
 #     name = "npm_bazel_jasmine",
-#     urls = ["https://github.com/bazelbuild/rules_nodejs/archive/0.35.0.tar.gz"],
-#     strip_prefix = "rules_nodejs-0.35.0/packages/jasmine/src",
-#     sha256 = "48be6c21d4ee7bf2a6c3dd35ac54f8ff430944b65ab7a43a9cd742f23c9a7279",
+#     urls = ["https://github.com/bazelbuild/rules_nodejs/archive/x.x.x.tar.gz"],
+#     strip_prefix = "rules_nodejs-x.x.x/packages/jasmine/src",
 # )
