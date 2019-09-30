@@ -3,7 +3,9 @@
 
 
 "@bazel/jasmine@latest":
-  version "1.2.3"
+  version "0.38.0"
+  resolved "https://registry.yarnpkg.com/@bazel/jasmine/-/jasmine-0.38.0.tgz#d40bc3fa5b9cdaf9125ff422a1ed5fc25c41203e"
+  integrity sha512-p4faogKschhMiZ4+g5z0On0VkhQzjsa4gCg8WMbHbxwSrjMYVQmiwqwEtNN2jBV0mqRRKOvRrH7O1snD2MyihA==
   dependencies:
     jasmine "~3.4.0"
     jasmine-core "~3.4.0"
