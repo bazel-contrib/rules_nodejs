@@ -62,6 +62,7 @@ const ERROR_ON_BAZEL_FILES = parseInt(args[2]);
 const LOCK_FILE_LABEL = args[3];
 const INCLUDED_FILES = args[4] ? args[4].split(',') : [];
 const DYNAMIC_DEPS = JSON.parse(args[5] || '{}');
+const PEER_DEPS_HANDLING = args[6] || 'strict';
 
 if (require.main === module) {
   main();
@@ -725,7 +726,8 @@ type Bag<T> =
  * Flattens all transitive dependencies of a package
  * into a _dependencies array.
  */
-function flattenPkgDependencies(pkg: Dep, dep: Dep, pkgsMap: Map<string, Dep>) {
+function flattenPkgDependencies(
+    pkg: Dep, dep: Dep, pkgsMap: Map<string, Dep>, peerDepsHandling = PEER_DEPS_HANDLING) {
   if (pkg._dependencies.indexOf(dep) !== -1) {
     // circular dependency
     return;
@@ -755,7 +757,7 @@ function flattenPkgDependencies(pkg: Dep, dep: Dep, pkgsMap: Map<string, Dep>) {
           return null;
         })
         .filter(dep => !!dep)
-        .forEach(dep => flattenPkgDependencies(pkg, dep!, pkgsMap));
+        .forEach(dep => flattenPkgDependencies(pkg, dep!, pkgsMap, peerDepsHandling));
   };
   // npm will in some cases add optionalDependencies to the list
   // of dependencies to the package.json it writes to node_modules.
@@ -768,7 +770,7 @@ function flattenPkgDependencies(pkg: Dep, dep: Dep, pkgsMap: Map<string, Dep>) {
   }
 
   findDeps(dep.dependencies, true, 'dependency');
-  findDeps(dep.peerDependencies, true, 'peer dependency');
+  findDeps(dep.peerDependencies, peerDepsHandling === 'ignore' ? false : true, 'peer dependency');
   // `optionalDependencies` that are missing should be silently
   // ignored since the npm/yarn will not fail if these dependencies
   // fail to install. Packages should handle the cases where these

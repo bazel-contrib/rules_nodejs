@@ -124,6 +124,10 @@ fine grained npm dependencies.
         mandatory = True,
         allow_single_file = True,
     ),
+    "peer_deps_handling": attr.string(
+        default = "strict",
+        doc = "Set to 'ignore' to ignore unmet peer dependencies",
+    ),
     "prod_only": attr.bool(
         default = False,
         doc = "Don't install devDependencies",
@@ -166,6 +170,7 @@ def _create_build_files(repository_ctx, rule_type, node, lock_file):
         str(lock_file),
         ",".join(repository_ctx.attr.included_files),
         str(repository_ctx.attr.dynamic_deps),
+        repository_ctx.attr.peer_deps_handling,
     ])
     if result.return_code:
         fail("generate_build_file.js failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))

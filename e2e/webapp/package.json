@@ -5,7 +5,8 @@
         "@bazel/rollup": "latest",
         "@bazel/terser": "latest",
         "rollup": "1.20.3",
-        "terser": "4.3.1"
+        "terser": "4.3.1",
+        "@angular/core": "8.2.8"
     },
     "scripts": {
       "test": "bazel test ..."
