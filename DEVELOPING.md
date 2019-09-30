@@ -48,6 +48,8 @@ Check if there are any breaking changes since the last tag - if so, this will be
 1. `git commit -a -m 'docs: update docs for release'`
 1. `npm version minor` (replace `minor` with `patch` if no breaking changes)
 1. Build npm packages and publish them: `./scripts/publish_release.sh`
+1. Run `./scripts/update_nested_lock_files.sh` to update the lock files in all nested workspaces to new release
+1. `git commit -a -m 'chore: update lock files for release'`
 1. `git push upstream && git push upstream --tags`
 1. (Manual for now): go to the [releases] page, edit the release with rough changelog (especially note any breaking changes!) and upload the release artifact from `rules_nodejs-[version].tar.gz` 
 1. Announce the release on Angular slack in `#tools-abc-discuss`
