@@ -950,7 +950,6 @@ nodejs_binary(
     install_source_map_support = False,
     data = [${data.map(p => `"${p}"`).join(', ')}],${additionalAttributes(pkg, name)}
 )
-
 `;
             }
         }
@@ -960,7 +959,8 @@ nodejs_binary(
         let result = '';
         const executables = _findExecutables(pkg);
         if (executables.size) {
-            result = `load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "npm_package_bin")
+            result =
+                `load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "nodejs_test", "npm_package_bin")
 
 `;
             const data = [`@${WORKSPACE}//${pkg._dir}:${pkg._name}`];
@@ -982,7 +982,16 @@ def ${name.replace(/-/g, '_')}(**kwargs):
             data = [${data.map(p => `"${p}"`).join(', ')}] + kwargs.pop("data", []),${additionalAttributes(pkg, name)}
             **kwargs
         )
-  `;
+
+# Just in case ${name} is a test runner, also make a test rule for it
+def ${name.replace(/-/g, '_')}_test(**kwargs):
+    nodejs_test(
+      entry_point = "@${WORKSPACE}//:node_modules/${pkg._dir}/${path}",
+      install_source_map_support = False,
+      data = [${data.map(p => `"${p}"`).join(', ')}] + kwargs.pop("data", []),${additionalAttributes(pkg, name)}
+      **kwargs
+    )
+`;
             }
         }
         return result;

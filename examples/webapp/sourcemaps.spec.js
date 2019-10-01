@@ -1,5 +1,6 @@
 // Ensure we have working sourcemaps when the app runs in a browser
 
+const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const sm = require('source-map');
@@ -38,9 +39,9 @@ function asserts(pos) {
   // so it actually starts with a bunch of '/../..'
   // expect(pos.source).toBe('index.mjs');
 
-  expect(pos.source.endsWith('index.mjs')).toBeTruthy();
-  expect(pos.line).toBe(7);     // one-based
-  expect(pos.column).toBe(20);  // zero-based
+  assert(pos.source.endsWith('index.mjs'));
+  assert(pos.line == 7);     // one-based
+  assert(pos.column == 20);  // zero-based
 }
 
 describe('application sourcemaps in the browser', () => {
