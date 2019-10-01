@@ -40,7 +40,7 @@ export class ConformancePatternRule implements AbstractRule {
       default:
         throw new Error('Config type not recognized, or not implemented yet.');
     }
-    this.ruleName = `conformance-pattern-${config.kind}`;
+    this.ruleName = config.name || `conformance-pattern-${config.kind}`;
   }
 
   register(checker: Checker) {

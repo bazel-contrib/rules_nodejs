@@ -31,6 +31,12 @@ export interface Config {
 
   /** A list of whitelist blocks. */
   whitelistEntries?: WhitelistEntry[];
+
+  /**
+   * An optional name for that rule, which will be the rule's `ruleName`.
+   * Should be lower-dashed-case.
+   */
+  name?: string;
 }
 
 /**

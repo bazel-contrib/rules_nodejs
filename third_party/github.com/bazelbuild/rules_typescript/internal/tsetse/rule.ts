@@ -6,6 +6,11 @@ import {Checker} from './checker';
  * files.
  */
 export abstract class AbstractRule {
+  /**
+   * A lower-dashed-case name for that rule. This is not used by Tsetse itself,
+   * but the integrators might (such as the TypeScript Bazel rules, for
+   * instance).
+   */
   abstract readonly ruleName: string;
   abstract readonly code: number;
 
