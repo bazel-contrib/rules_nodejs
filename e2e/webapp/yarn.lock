@@ -2,12 +2,12 @@
 # yarn lockfile v1
 
 
-"@bazel/rollup@latest":
+"@bazel/rollup@^0.38.0":
   version "0.38.0"
   resolved "https://registry.yarnpkg.com/@bazel/rollup/-/rollup-0.38.0.tgz#3bb2a0b82347b5fc32d00f1831b39382898e77ed"
   integrity sha512-L6UxsBUi5xhjUvzaSk5PCnBkCsUgxMn/S0rQ2kD/vjS6M23QYuDC0WScaPrNUseovpQaoy0Y3yjAuq6scrEaZg==
 
-"@bazel/terser@latest":
+"@bazel/terser@^0.38.0":
   version "0.38.0"
   resolved "https://registry.yarnpkg.com/@bazel/terser/-/terser-0.38.0.tgz#662046e1ba016a3dfee1992453064fa3e611f602"
   integrity sha512-1yvVwhcg4r8h1CqhgB5IT4erSXY9fUFCJ02hcGL6/yUhUh1K1L8hxGqUaqpQE8HgpKeoz9vfn2Yw69951kikIQ==

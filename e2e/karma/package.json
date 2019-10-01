@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@bazel/karma": "latest",
+    "@bazel/karma": "^0.38.0",
     "karma": "3.0.0"
   },
   "scripts": {

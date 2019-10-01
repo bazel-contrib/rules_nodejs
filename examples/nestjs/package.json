@@ -9,7 +9,7 @@
     "rxjs": "6.5.2"
   },
   "devDependencies": {
-    "@bazel/typescript": "latest",
+    "@bazel/typescript": "^0.38.0",
     "@types/node": "12.6.3",
     "typescript": "3.5.3"
   },

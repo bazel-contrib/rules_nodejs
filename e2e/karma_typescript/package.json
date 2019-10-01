@@ -1,8 +1,8 @@
 {
   "dependencies": {
-    "@bazel/jasmine": "latest",
-    "@bazel/karma": "latest",
-    "@bazel/typescript": "latest",
+    "@bazel/jasmine": "^0.38.0",
+    "@bazel/karma": "^0.38.0",
+    "@bazel/typescript": "^0.38.0",
     "@types/jasmine": "^3.3.12",
     "jasmine": "^3.4.0",
     "rxjs": "6.5.0",

@@ -1,7 +1,7 @@
 {
   "devDependencies": {
-    "@bazel/karma": "latest",
-    "@bazel/typescript": "latest",
+    "@bazel/karma": "^0.38.0",
+    "@bazel/typescript": "^0.38.0",
     "@types/jasmine": "2.8.2",
     "@types/node": "11.11.1",
     "karma-json-result-reporter": "1.0.0",
