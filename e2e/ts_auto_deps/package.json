@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@bazel/typescript": "latest",
+    "@bazel/typescript": "^0.38.0",
     "typescript": "2.9.2"
   },
   "scripts": {

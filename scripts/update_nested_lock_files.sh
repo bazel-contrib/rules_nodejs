@@ -18,12 +18,22 @@ for workspaceRoot in ${workspaceRoots[@]} ; do
         if [ -f "./yarn.lock" ]; then
             printf "\n\nupdating ${workspaceDir}/yarn.lock\n"
             echo_and_run rm -rf node_modules
+            # `yarn install` will not update stale deps so we also need to run
+            # `yarn upgrade` for the `@bazel/scope`
             echo_and_run yarn install
+            echo_and_run yarn upgrade --scope @bazel
         fi
         if [ -f "./package-lock.json" ]; then
             printf "\n\nupdating ${workspaceDir}/package-lock.json\n"
             echo_and_run rm -rf node_modules
-            echo_and_run npm install
+            # `npm ci` will not update stale deps so we also need to run
+            # `npm install @bazel/foobar@latest` for each package in the @bazel
+            # scope
+            readonly packages=$(cat package.json | grep \"@bazel/ | awk -F: '{ print $1 }' | sed 's/[",]//g' | tr -d ' ')
+            echo_and_run npm ci
+            for package in ${packages[@]} ; do
+              echo_and_run npm install ${package}@latest
+            done
         fi
         echo_and_run rm -rf node_modules
       )
