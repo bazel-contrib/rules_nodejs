@@ -103,7 +103,6 @@ ts_devserver(
     # These scripts will be included in the JS bundle after require.js
     # They should have only named UMD modules, or require.js will throw.
     scripts = [
-        "@npm//:node_modules/@ngrx/store/bundles/store.umd.min.js",
         "@npm//:node_modules/tslib/tslib.js",
         ":rxjs_umd_modules",
         # We are manaully adding the bazel generated named-UMD date-fns bundle here as
