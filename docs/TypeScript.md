@@ -179,7 +179,7 @@ ts_library(
 )
 ```
 
-You can also you the `@npm//@types` target which will include all
+You can also use the `@npm//@types` target which will include all
 packages in the `@types` scope as dependencies.
 
 If you are using self-managed npm dependencies, you can use the
