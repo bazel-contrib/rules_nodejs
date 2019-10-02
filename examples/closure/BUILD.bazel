@@ -1,0 +1,28 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
+load("@npm//google-closure-compiler:index.bzl", "google_closure_compiler")
+
+google_closure_compiler(
+    name = "closure",
+    outs = ["bundle.js"],
+    args = [
+        # workaround https://github.com/google/closure-compiler-npm/issues/147
+        # --platform native would be faster but is failing on Windows
+        "--platform=javascript",
+        "--js=$(location hello.js)",
+        "--js_output_file=$(location bundle.js)",
+    ],
+    data = ["hello.js"],
+)
+
+nodejs_test(
+    name = "test",
+    data = ["bundle.js"],
+    entry_point = "test.js",
+)
+
+# For testing from the root workspace of this repository with bazel_integration_test.
+filegroup(
+    name = "all_files",
+    srcs = glob(["*"]),
+    visibility = ["//visibility:public"],
+)
