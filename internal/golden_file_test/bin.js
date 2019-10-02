@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const unidiff = require('unidiff');
 
 function main(args) {
   const [mode, golden_no_debug, golden_debug, actual] = args;
@@ -15,9 +14,13 @@ function main(args) {
       fs.writeFileSync(require.resolve(golden), actualContents);
       console.error(`Replaced ${path.join(process.cwd(), golden)}`);
     } else if (mode === '--verify') {
+      const unidiff = require('unidiff');
       // Generated does not match golden
       const diff = unidiff.diffLines(goldenContents, actualContents);
-      const prettyDiff = unidiff.formatLines(diff, {aname: golden, bname: actual});
+      let prettyDiff = unidiff.formatLines(diff, {aname: golden, bname: actual});
+      if (prettyDiff.length > 5000) {
+        prettyDiff = prettyDiff.substr(0, 5000) + '/n...elided...';
+      }
       throw new Error(`Actual output doesn't match golden file:
       
 ${prettyDiff}
