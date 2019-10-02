@@ -57,6 +57,10 @@ example_integration_test(
 )
 
 example_integration_test(
+    name = "examples_closure",
+)
+
+example_integration_test(
     name = "examples_parcel",
     npm_packages = {
         "//packages/jasmine:npm_package": "@bazel/jasmine",

@@ -2,6 +2,7 @@
 ALL_EXAMPLES = [
     "angular",
     "app",
+    "closure",
     "kotlin",
     "nestjs",
     "parcel",
