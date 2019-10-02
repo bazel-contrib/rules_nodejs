@@ -42,6 +42,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import * as crypto from 'crypto';
 
 function log_verbose(...m: any[]) {
   if (!!process.env['VERBOSE_LOGS']) console.error('[generate_build_file.js]', ...m);
@@ -59,7 +60,7 @@ const args = process.argv.slice(2);
 const WORKSPACE = args[0];
 const RULE_TYPE = args[1];
 const ERROR_ON_BAZEL_FILES = parseInt(args[2]);
-const LOCK_FILE_LABEL = args[3];
+const LOCK_FILE_PATH = args[3];
 const INCLUDED_FILES = args[4] ? args[4].split(',') : [];
 const DYNAMIC_DEPS = JSON.parse(args[5] || '{}');
 
@@ -333,17 +334,17 @@ def _maybe(repo_rule, name, **kwargs):
         path.posix.join(workspaceSourcePath, 'BUILD.bazel'),
         '# Marker file that this directory is a bazel package');
   }
+  const sha256sum = crypto.createHash('sha256');
+  sha256sum.update(fs.readFileSync(LOCK_FILE_PATH, {encoding: 'utf8'}));
   writeFileSync(
       path.posix.join(workspaceSourcePath, '_bazel_workspace_marker'),
-      '# Marker file to used by custom copy_repository rule');
+      `# Marker file to used by custom copy_repository rule\n${sha256sum.digest('hex')}`);
 
   bzlFile += `def install_${workspace}():
     _maybe(
         copy_repository,
         name = "${workspace}",
         marker_file = "@${WORKSPACE}//_workspaces/${workspace}:_bazel_workspace_marker",
-        # Ensure that changes to the node_modules cause the copy to re-execute
-        lock_file = "@${WORKSPACE}${LOCK_FILE_LABEL}",
     )
 `;
 

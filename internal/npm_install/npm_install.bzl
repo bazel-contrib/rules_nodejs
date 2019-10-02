@@ -28,7 +28,7 @@ load("//internal/node:node_labels.bzl", "get_node_label", "get_npm_label", "get_
 COMMON_ATTRIBUTES = dict(dict(), **{
     "always_hide_bazel_files": attr.bool(
         doc = """Always hide Bazel build files such as `BUILD` and BUILD.bazel` by prefixing them with `_`.
-        
+
 Defaults to False, in which case Bazel files are _not_ hidden when `symlink_node_modules`
 is True. In this case, the rule will report an error when there are Bazel files detected
 in npm packages.
@@ -78,7 +78,7 @@ Note that the pattern used by many packages, which have plugins in the form pkg-
 added as implicit dependencies. Thus for example, `rollup` will automatically get `rollup-plugin-json` included in its
 dependencies without needing to use this attribute.
 
-The keys in the dict are npm package names, and the value may be a particular package, or a prefix ending with *.     
+The keys in the dict are npm package names, and the value may be a particular package, or a prefix ending with *.
 For example, `dynamic_deps = {"@bazel/typescript": "tsickle", "karma": "my-karma-plugin-*"}`
 
 Note, this may sound like "optionalDependencies" but that field in package.json actually means real dependencies
@@ -134,7 +134,7 @@ fine grained npm dependencies.
     ),
     "symlink_node_modules": attr.bool(
         doc = """Turn symlinking of node_modules on
-        
+
 This requires the use of Bazel 0.26.0 and the experimental
 managed_directories feature.
 
@@ -163,7 +163,7 @@ def _create_build_files(repository_ctx, rule_type, node, lock_file):
         repository_ctx.attr.name,
         rule_type,
         "1" if error_on_build_files else "0",
-        str(lock_file),
+        repository_ctx.path(lock_file),
         ",".join(repository_ctx.attr.included_files),
         str(repository_ctx.attr.dynamic_deps),
     ])
@@ -413,7 +413,7 @@ yarn_install = repository_rule(
         "frozen_lockfile": attr.bool(
             default = False,
             doc = """Passes the --frozen-lockfile flag to prevent updating yarn.lock.
-            
+
 Note that enabling this option will require that you run yarn outside of Bazel
 when making changes to package.json.
 """,
