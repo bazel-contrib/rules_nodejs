@@ -10,13 +10,13 @@ echo_and_run() { echo "+ $@" ; "$@" ; }
 readonly workspaceRoots=("e2e" "examples" "packages")
 for workspaceRoot in ${workspaceRoots[@]} ; do
   (
-    readonly workspaceFiles=($(find ./${workspaceRoot} -type f -name WORKSPACE -prune))
+    readonly workspaceFiles=($(find ./${workspaceRoot} -type f -name WORKSPACE -prune -maxdepth 2))
     for workspaceFile in ${workspaceFiles[@]} ; do
       (
         readonly workspaceDir=$(dirname ${workspaceFile})
         printf "\n\nCleaning ${workspaceDir}\n"
         cd ${workspaceDir}
-        echo_and_run rm -rf `find . -type d -name node_modules -prune`
+        echo_and_run rm -rf `find . -type d -name node_modules -prune -maxdepth 1`
         echo_and_run bazel clean --expunge
       )
     done
