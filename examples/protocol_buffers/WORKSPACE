@@ -27,9 +27,9 @@ http_archive(
 
 http_archive(
     name = "com_google_protobuf",
-    sha256 = "1fbf1c2962af287607232b2eddeaec9b4f4a7a6f5934e1a9276e9af76952f7e0",
-    strip_prefix = "protobuf-3.9.2",
-    urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.9.2.tar.gz"],
+    sha256 = "758249b537abba2f21ebc2d02555bf080917f0f2f88f4cbe2903e0e28c4187ed",
+    strip_prefix = "protobuf-3.10.0",
+    urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.10.0.tar.gz"],
 )
 
 load("@build_bazel_rules_nodejs//:index.bzl", "yarn_install")
