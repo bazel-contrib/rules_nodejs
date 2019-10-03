@@ -1,3 +1,22 @@
+## [0.38.1](https://github.com/bazelbuild/rules_nodejs/compare/0.38.0...0.38.1) (2019-10-03)
+
+
+### Bug Fixes
+
+* **builtin:** bugs in 0.38 found while rolling out to angular repo ([d2262c8](https://github.com/bazelbuild/rules_nodejs/commit/d2262c8))
+* **README:** update "sections below" reference ([#1210](https://github.com/bazelbuild/rules_nodejs/issues/1210)) ([a59203c](https://github.com/bazelbuild/rules_nodejs/commit/a59203c))
+* invalidate installed npm repositories correctly ([#1200](https://github.com/bazelbuild/rules_nodejs/issues/1200)) ([#1205](https://github.com/bazelbuild/rules_nodejs/issues/1205)) ([0312800](https://github.com/bazelbuild/rules_nodejs/commit/0312800))
+* **docs:** fix typo in TypeScript.md ([#1211](https://github.com/bazelbuild/rules_nodejs/issues/1211)) ([893f61e](https://github.com/bazelbuild/rules_nodejs/commit/893f61e))
+* pin @bazel/karma karma dep to ~4.1.0 as 4.2.0 breaks stack traces in karma output ([4e86283](https://github.com/bazelbuild/rules_nodejs/commit/4e86283))
+
+
+### Features
+
+* **examples:** updated to angular 8.2.8 in examples/angular ([#1226](https://github.com/bazelbuild/rules_nodejs/issues/1226)) ([697bd22](https://github.com/bazelbuild/rules_nodejs/commit/697bd22))
+* **examples:** upgrade to v9 and enable ivy ([#1227](https://github.com/bazelbuild/rules_nodejs/issues/1227)) ([1c7426f](https://github.com/bazelbuild/rules_nodejs/commit/1c7426f))
+
+
+
 # [0.38.0](https://github.com/bazelbuild/rules_nodejs/compare/0.37.0...0.38.0) (2019-09-26)
 
 
