@@ -607,7 +607,7 @@ npm_install(name, always_hide_bazel_files, data, dynamic_deps, exclude_packages,
 
 #### `always_hide_bazel_files`
 (*Boolean*): Always hide Bazel build files such as `BUILD` and BUILD.bazel` by prefixing them with `_`.
-        
+
 Defaults to False, in which case Bazel files are _not_ hidden when `symlink_node_modules`
 is True. In this case, the rule will report an error when there are Bazel files detected
 in npm packages.
@@ -656,7 +656,7 @@ Note that the pattern used by many packages, which have plugins in the form pkg-
 added as implicit dependencies. Thus for example, `rollup` will automatically get `rollup-plugin-json` included in its
 dependencies without needing to use this attribute.
 
-The keys in the dict are npm package names, and the value may be a particular package, or a prefix ending with *.     
+The keys in the dict are npm package names, and the value may be a particular package, or a prefix ending with *.
 For example, `dynamic_deps = {"@bazel/typescript": "tsickle", "karma": "my-karma-plugin-*"}`
 
 Note, this may sound like "optionalDependencies" but that field in package.json actually means real dependencies
@@ -715,7 +715,7 @@ fine grained npm dependencies.
 
 #### `symlink_node_modules`
 (*Boolean*): Turn symlinking of node_modules on
-        
+
 This requires the use of Bazel 0.26.0 and the experimental
 managed_directories feature.
 
@@ -1097,7 +1097,7 @@ yarn_install(name, always_hide_bazel_files, data, dynamic_deps, exclude_packages
 
 #### `always_hide_bazel_files`
 (*Boolean*): Always hide Bazel build files such as `BUILD` and BUILD.bazel` by prefixing them with `_`.
-        
+
 Defaults to False, in which case Bazel files are _not_ hidden when `symlink_node_modules`
 is True. In this case, the rule will report an error when there are Bazel files detected
 in npm packages.
@@ -1146,7 +1146,7 @@ Note that the pattern used by many packages, which have plugins in the form pkg-
 added as implicit dependencies. Thus for example, `rollup` will automatically get `rollup-plugin-json` included in its
 dependencies without needing to use this attribute.
 
-The keys in the dict are npm package names, and the value may be a particular package, or a prefix ending with *.     
+The keys in the dict are npm package names, and the value may be a particular package, or a prefix ending with *.
 For example, `dynamic_deps = {"@bazel/typescript": "tsickle", "karma": "my-karma-plugin-*"}`
 
 Note, this may sound like "optionalDependencies" but that field in package.json actually means real dependencies
@@ -1159,7 +1159,7 @@ which are installed, but failures on installation are ignored.
 
 #### `frozen_lockfile`
 (*Boolean*): Passes the --frozen-lockfile flag to prevent updating yarn.lock.
-            
+
 Note that enabling this option will require that you run yarn outside of Bazel
 when making changes to package.json.
 
@@ -1213,7 +1213,7 @@ fine grained npm dependencies.
 
 #### `symlink_node_modules`
 (*Boolean*): Turn symlinking of node_modules on
-        
+
 This requires the use of Bazel 0.26.0 and the experimental
 managed_directories feature.
 
