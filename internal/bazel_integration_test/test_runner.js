@@ -130,10 +130,11 @@ const RUNFILES_MANIFEST = loadRunfilesManifest();
 /**
  * Helper function to copy the workspace under test to tmp
  */
-function copyWorkspace(workspace) {
+function copyWorkspace(workspacePath) {
   const to = tmp.dirSync({keep: DEBUG, unsafeCleanup: !DEBUG}).name;
   if (RUNFILES_MANIFEST) {
-    const start = `${workspace}/`;
+    const start = `${workspacePath}/`;
+    const copied = 0;
     for (const key of Object.keys(RUNFILES_MANIFEST)) {
       if (key.startsWith(start)) {
         const element = key.slice(start.length);
@@ -141,11 +142,17 @@ function copyWorkspace(workspace) {
         mkdirp(path.dirname(dest));
         log_verbose(`copying (MANIFEST) ${RUNFILES_MANIFEST[key]} -> ${dest}`);
         fs.copyFileSync(RUNFILES_MANIFEST[key], dest);
+        ++copied;
+      }
+      if (!copied) {
+        throw new Error(`no workspace files found under path ${workspacePath}`)
       }
     }
   } else {
-    const from = `../${workspace}`;
-    copyFolderSync(from, to);
+    if (!fs.existsSync(workspacePath)) {
+      throw new Error(`workspace under test not found at ${workspacePath}`);
+    }
+    copyFolderSync(workspacePath, to);
   }
   return to;
 }
@@ -167,8 +174,11 @@ function copyNpmPackage(packagePath) {
   return to;
 }
 
-log_verbose(`copying workspace under test ${config.workspaceUnderTest} to tmp`);
-const workspaceRoot = copyWorkspace(config.workspaceUnderTest);
+// testName is like examples_webapp or e2e_bazel_managed_deps
+// transform to the path we expect by changing first underscore to slash
+let workspacePath = config.testName.replace(/_/, '/');
+log_verbose(`copying workspace under test ${workspacePath} to tmp`);
+const workspaceRoot = copyWorkspace(workspacePath);
 
 // Handle .bazelrc import replacements
 const bazelrcImportsKeys = Object.keys(config.bazelrcImports);

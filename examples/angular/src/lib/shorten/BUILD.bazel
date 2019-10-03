@@ -11,9 +11,3 @@ ts_library(
 )
 
 # TODO(alexeagle): show how it can be deployed to npm
-
-# For testing from the root workspace of this repository with bazel_integration_test.
-filegroup(
-    name = "all_files",
-    srcs = glob(["**/*"]),
-)

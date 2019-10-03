@@ -66,6 +66,7 @@ e2e_integration_test(
 
 e2e_integration_test(
     name = "e2e_packages",
+    workspace_files = "@e2e_packages//:all_files",
 )
 
 e2e_integration_test(
@@ -119,15 +120,6 @@ e2e_integration_test(
     },
 )
 
-e2e_integration_test(
-    name = "e2e_typescript",
-    npm_packages = {
-        "//packages/jasmine:npm_package": "@bazel/jasmine",
-        "//packages/typescript:npm_package": "@bazel/typescript",
-    },
-    workspace_files = "@e2e_typescript//:all_files",
-)
-
 [e2e_integration_test(
     name = "e2e_typescript_%s" % tsc_version.replace(".", "_"),
     npm_packages = {
@@ -138,7 +130,6 @@ e2e_integration_test(
     package_json_replacements = {
         "typescript": tsc_version,
     },
-    workspace_files = "@e2e_typescript//:all_files",
 ) for tsc_version in [
     "3.0.x",
     "3.1.x",
@@ -159,13 +150,4 @@ e2e_integration_test(
     npm_packages = {
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
-)
-
-load(":index.bzl", "ALL_E2E")
-
-# Ensure that all e2e directories have a test target
-# Otherwise it would be easy to add a new one, but not have a test registered for it
-test_suite(
-    name = "all_e2e",
-    tests = [":e2e_%s" % t for t in ALL_E2E],
 )

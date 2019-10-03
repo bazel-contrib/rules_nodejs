@@ -169,7 +169,6 @@ example_integration_test(
     # This example only works on linux as it downloads the linux node distribution
     # TODO(gregmagolan): make node_repositories acccept different archives for different platforms
     tags = ["manual"],
-    workspace_files = "@examples_vendored_node//:all_files",
 )
 
 example_integration_test(
@@ -182,13 +181,4 @@ example_integration_test(
         "build --define=cache_bust=true --strategy=DoWork=standalone //:do_work",
     ],
     npm_packages = {"//packages/worker:npm_package": "@bazel/worker"},
-)
-
-load(":index.bzl", "ALL_EXAMPLES")
-
-# Ensure that all e2e directories have a test target
-# Otherwise it would be easy to add a new one, but not have a test registered for it
-test_suite(
-    name = "all_examples",
-    tests = [":examples_%s" % t for t in ALL_EXAMPLES],
 )
