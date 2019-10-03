@@ -3,21 +3,21 @@
 
 
 "@bazel/hide-bazel-files@^0.38.0":
-  version "0.38.0"
-  resolved "https://registry.yarnpkg.com/@bazel/hide-bazel-files/-/hide-bazel-files-0.38.0.tgz#84007bc5653e7aaa671a072760342e00a494008a"
-  integrity sha512-zXUCVxx2DZZ1CD1k04tLEhs/V1Dey96q6CBQafC9gux72Z93xsF4qQer5RcglCCdLcBut2KBeky87ueRwgPOjw==
+  version "0.38.1"
+  resolved "https://registry.yarnpkg.com/@bazel/hide-bazel-files/-/hide-bazel-files-0.38.1.tgz#a2447e04775de262290adf3afa533d4472a75641"
+  integrity sha512-9psDbiOS53tdHSpVVhxf01aBHjdOOwljAkJdleuAPhGif/jl2GrAfVXcSSgmMogeTlDT1xMG24sryPxn7M/3Zw==
 
 "@bazel/protractor@^0.38.0":
-  version "0.38.0"
-  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-0.38.0.tgz#08be006d29543fc3c417c4d9f59e1eb927bb2fa6"
-  integrity sha512-omvQwYjvMTd6/xI9WNDfscl9GVhuaXs+lahhv2b7D3DGUuVStihQp4Ux4/xT6jlmOkru2uk38nfes/jfOoalkQ==
+  version "0.38.1"
+  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-0.38.1.tgz#0785c863254071f6d848d1d78c7ceb47af9ae218"
+  integrity sha512-bAixjddJyGA4OKxkhKIWNH1u5atOm7qCQKTR5GFhEEECuxwabwuyZGDtGzWGKgngCwy7UZitG8BTX2CKU4cknw==
   dependencies:
     protractor "^5.4.2"
 
 "@bazel/typescript@^0.38.0":
-  version "0.38.0"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-0.38.0.tgz#0fce6ac5618a11bf7a9803455c24dbdcdf4a85cd"
-  integrity sha512-3xZNQ1aHBRMPvxyDUR7yHxT5o/2IUkZh0s/eMMBB9GvU/uit0HpxOOdEADHqoID/8afU0SPYX0LKw+jDn6tfFA==
+  version "0.38.1"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-0.38.1.tgz#fe9a84e0992580a4b67cbc48fbe72f9154bacf56"
+  integrity sha512-etTftAm6jN0cdHS9Pgb6fJXgHaot+nRhgr8VjUKZr/ITs31U7iDA/9ehjoVFVbqzJzQy4BfdicbydP+cqXz2Xg==
   dependencies:
     protobufjs "6.8.8"
     semver "5.6.0"
@@ -418,9 +418,9 @@ emoji-regex@^7.0.1:
   integrity sha512-CwBLREIQ7LvYFB0WyRvwhq5N5qPhc6PMjD6bYggFlI5YyDgl+0vxq5VHbMOFqLg7hfWzmu8T5Z1QofhmTIhItA==
 
 es-abstract@^1.5.1:
-  version "1.14.2"
-  resolved "https://registry.yarnpkg.com/es-abstract/-/es-abstract-1.14.2.tgz#7ce108fad83068c8783c3cdf62e504e084d8c497"
-  integrity sha512-DgoQmbpFNOofkjJtKwr87Ma5EW4Dc8fWhD0R+ndq7Oc456ivUfGOOP6oAZTTKl5/CcNMP+EN+e3/iUzgE0veZg==
+  version "1.15.0"
+  resolved "https://registry.yarnpkg.com/es-abstract/-/es-abstract-1.15.0.tgz#8884928ec7e40a79e3c9bc812d37d10c8b24cc57"
+  integrity sha512-bhkEqWJ2t2lMeaJDuk7okMkJWI/yqgH/EoGwpcvv0XW9RWQsRspI4wt6xuyuvMvvQE3gg/D9HXppgk21w78GyQ==
   dependencies:
     es-to-primitive "^1.2.0"
     function-bind "^1.1.1"
@@ -430,8 +430,8 @@ es-abstract@^1.5.1:
     is-regex "^1.0.4"
     object-inspect "^1.6.0"
     object-keys "^1.1.1"
-    string.prototype.trimleft "^2.0.0"
-    string.prototype.trimright "^2.0.0"
+    string.prototype.trimleft "^2.1.0"
+    string.prototype.trimright "^2.1.0"
 
 es-to-primitive@^1.2.0:
   version "1.2.0"
@@ -1231,7 +1231,7 @@ string-width@^3.0.0, string-width@^3.1.0:
     is-fullwidth-code-point "^2.0.0"
     strip-ansi "^5.1.0"
 
-string.prototype.trimleft@^2.0.0:
+string.prototype.trimleft@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/string.prototype.trimleft/-/string.prototype.trimleft-2.1.0.tgz#6cc47f0d7eb8d62b0f3701611715a3954591d634"
   integrity sha512-FJ6b7EgdKxxbDxc79cOlok6Afd++TTs5szo+zJTUyow3ycrRfJVE2pq3vcN53XexvKZu/DJMDfeI/qMiZTrjTw==
@@ -1239,7 +1239,7 @@ string.prototype.trimleft@^2.0.0:
     define-properties "^1.1.3"
     function-bind "^1.1.1"
 
-string.prototype.trimright@^2.0.0:
+string.prototype.trimright@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/string.prototype.trimright/-/string.prototype.trimright-2.1.0.tgz#669d164be9df9b6f7559fa8e89945b168a5a6c58"
   integrity sha512-fXZTSV55dNBwv16uw+hh5jkghxSnc5oHq+5K/gXgizHwAvMetdAJlHqqoFC1FSDVPYWLkAKl2cxpUT41sV7nSg==

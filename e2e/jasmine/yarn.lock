@@ -3,9 +3,9 @@
 
 
 "@bazel/jasmine@^0.38.0":
-  version "0.38.0"
-  resolved "https://registry.yarnpkg.com/@bazel/jasmine/-/jasmine-0.38.0.tgz#d40bc3fa5b9cdaf9125ff422a1ed5fc25c41203e"
-  integrity sha512-p4faogKschhMiZ4+g5z0On0VkhQzjsa4gCg8WMbHbxwSrjMYVQmiwqwEtNN2jBV0mqRRKOvRrH7O1snD2MyihA==
+  version "0.38.1"
+  resolved "https://registry.yarnpkg.com/@bazel/jasmine/-/jasmine-0.38.1.tgz#0741e090de1d69a9ef0a961a88e4fdfb6c7d6c77"
+  integrity sha512-tUVVBceOt3Of2RsY/ys298HfVkPyz44nO+quZ5eU5hwf16KW62rFZsIo+ZgVguUsDmzjjWFN+pUcfA535rPsiw==
   dependencies:
     jasmine "~3.4.0"
     jasmine-core "~3.4.0"
@@ -184,9 +184,9 @@ graceful-fs@^4.1.2:
   integrity sha512-IItsdsea19BoLC7ELy13q1iJFNmd7ofZH5+X/pJr90/nRoPEX0DJo1dHDbgtYWOhJhcCgMDTOw84RZ72q6lB+Q==
 
 handlebars@^4.0.3:
-  version "4.4.0"
-  resolved "https://registry.yarnpkg.com/handlebars/-/handlebars-4.4.0.tgz#22e1a897c5d83023d39801f35f6b65cf97ed8b25"
-  integrity sha512-xkRtOt3/3DzTKMOt3xahj2M/EqNhY988T+imYSlMgs5fVhLN2fmKVVj0LtEGmb+3UUYV5Qmm1052Mm3dIQxOvw==
+  version "4.4.2"
+  resolved "https://registry.yarnpkg.com/handlebars/-/handlebars-4.4.2.tgz#8810a9821a9d6d52cb2f57d326d6ce7c3dfe741d"
+  integrity sha512-cIv17+GhL8pHHnRJzGu2wwcthL5sb8uDKBHvZ2Dtu5s1YNt0ljbzKbamnc+gr69y7bzwQiBdr5+hOpRd5pnOdg==
   dependencies:
     neo-async "^2.6.0"
     optimist "^0.6.1"

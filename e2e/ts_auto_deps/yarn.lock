@@ -3,9 +3,9 @@
 
 
 "@bazel/typescript@^0.38.0":
-  version "0.38.0"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-0.38.0.tgz#0fce6ac5618a11bf7a9803455c24dbdcdf4a85cd"
-  integrity sha512-3xZNQ1aHBRMPvxyDUR7yHxT5o/2IUkZh0s/eMMBB9GvU/uit0HpxOOdEADHqoID/8afU0SPYX0LKw+jDn6tfFA==
+  version "0.38.1"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-0.38.1.tgz#fe9a84e0992580a4b67cbc48fbe72f9154bacf56"
+  integrity sha512-etTftAm6jN0cdHS9Pgb6fJXgHaot+nRhgr8VjUKZr/ITs31U7iDA/9ehjoVFVbqzJzQy4BfdicbydP+cqXz2Xg==
   dependencies:
     protobufjs "6.8.8"
     semver "5.6.0"
