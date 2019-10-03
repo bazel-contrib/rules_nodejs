@@ -21,6 +21,7 @@ _BUNDLE_FORMATS = [
         config_file = "rollup.config.js",
         entry_point = "foo.js",
         format = format,
+        sourcemap = "true",
         deps = [
             "//%s/fum:fumlib" % package_name(),
             "//%s/foo:foolib" % package_name(),
@@ -38,8 +39,6 @@ _BUNDLE_FORMATS = [
             package_name(),
             format,
         ),
-        # base64 encoded inline sourcemap data in golden files differs on Windows
-        tags = ["fix-windows"],
     )
     for format in _BUNDLE_FORMATS
 ]
