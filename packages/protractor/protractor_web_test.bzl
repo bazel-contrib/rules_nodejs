@@ -14,7 +14,7 @@
 "Run end-to-end tests with Protractor"
 
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
-load("@build_bazel_rules_nodejs//:providers.bzl", "JSNamedModuleInfo", "NpmPackageInfo", "node_modules_aspect")
+load("@build_bazel_rules_nodejs//:providers.bzl", "JSModuleInfo", "JSNamedModuleInfo", "NpmPackageInfo", "node_modules_aspect")
 load("@build_bazel_rules_nodejs//internal/common:windows_utils.bzl", "create_windows_native_launcher_script", "is_windows")
 load("@io_bazel_rules_webtesting//web:web.bzl", "web_test_suite")
 load("@io_bazel_rules_webtesting//web/internal:constants.bzl", "DEFAULT_WRAPPED_TEST_TAGS")
@@ -80,10 +80,9 @@ def _protractor_web_test_impl(ctx):
     configuration_sources = []
     configuration_file = None
     if ctx.attr.configuration:
-        # TODO: switch to JSModuleInfo when it is available
-        if JSNamedModuleInfo in ctx.attr.configuration:
-            configuration_sources = ctx.attr.configuration[JSNamedModuleInfo].sources.to_list()
-            configuration_file = _filter_js(ctx.attr.configuration[JSNamedModuleInfo].direct_sources.to_list())[0]
+        if JSModuleInfo in ctx.attr.configuration:
+            configuration_sources = ctx.attr.configuration[JSModuleInfo].sources.to_list()
+            configuration_file = _filter_js(ctx.attr.configuration[JSModuleInfo].direct_sources.to_list())[0]
         else:
             configuration_sources = [ctx.file.configuration]
             configuration_file = ctx.file.configuration
@@ -91,10 +90,9 @@ def _protractor_web_test_impl(ctx):
     on_prepare_sources = []
     on_prepare_file = None
     if ctx.attr.on_prepare:
-        # TODO: switch to JSModuleInfo when it is available
-        if JSNamedModuleInfo in ctx.attr.on_prepare:
-            on_prepare_sources = ctx.attr.on_prepare[JSNamedModuleInfo].sources.to_list()
-            on_prepare_file = _filter_js(ctx.attr.on_prepare[JSNamedModuleInfo].direct_sources.to_list())[0]
+        if JSModuleInfo in ctx.attr.on_prepare:
+            on_prepare_sources = ctx.attr.on_prepare[JSModuleInfo].sources.to_list()
+            on_prepare_file = _filter_js(ctx.attr.on_prepare[JSModuleInfo].direct_sources.to_list())[0]
         else:
             on_prepare_sources = [ctx.file.on_prepare]
             on_prepare_file = ctx.file.on_prepare

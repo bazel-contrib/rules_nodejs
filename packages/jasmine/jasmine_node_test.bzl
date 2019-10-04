@@ -18,14 +18,14 @@ These rules let you run tests outside of a browser. This is typically faster
 than launching a test in Karma, for example.
 """
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "JSNamedModuleInfo")
+load("@build_bazel_rules_nodejs//:providers.bzl", "JSModuleInfo")
 load("@build_bazel_rules_nodejs//internal/node:node.bzl", "nodejs_test")
 
-def _devmode_js_sources_impl(ctx):
+def _js_sources_impl(ctx):
     depsets = []
     for src in ctx.attr.srcs:
-        if JSNamedModuleInfo in src:
-            depsets.append(src[JSNamedModuleInfo].sources)
+        if JSModuleInfo in src:
+            depsets.append(src[JSModuleInfo].sources)
         if hasattr(src, "files"):
             depsets.append(src.files)
     sources = depset(transitive = depsets)
@@ -38,12 +38,12 @@ def _devmode_js_sources_impl(ctx):
 
     return [DefaultInfo(files = sources)]
 
-"""Rule to get devmode js sources from deps.
+"""Rule to get js sources from deps.
 
 Outputs a manifest file with the sources listed.
 """
-_devmode_js_sources = rule(
-    implementation = _devmode_js_sources_impl,
+_js_sources = rule(
+    implementation = _js_sources_impl,
     attrs = {
         "srcs": attr.label_list(
             allow_files = True,
@@ -98,8 +98,8 @@ def jasmine_node_test(
     if kwargs.pop("coverage", False):
         fail("The coverage attribute has been removed, run your target with \"bazel coverage\" instead")
 
-    _devmode_js_sources(
-        name = "%s_devmode_srcs" % name,
+    _js_sources(
+        name = "%s_js_sources" % name,
         srcs = srcs + deps,
         testonly = 1,
         tags = tags,
@@ -114,14 +114,14 @@ def jasmine_node_test(
         all_data.extend(["@npm//jasmine", "@npm//jasmine-reporters", "@npm//c8"])
 
     # END-INTERNAL
-    all_data += [":%s_devmode_srcs.MF" % name]
+    all_data += [":%s_js_sources.MF" % name]
     all_data += [Label("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles")]
 
     # jasmine_runner.js consumes the first 3 args.
     # The remaining target templated_args will be passed through to jasmine or
     # specs to consume.
     templated_args = [
-        "$(rootpath :%s_devmode_srcs.MF)" % name,
+        "$(rootpath :%s_js_sources.MF)" % name,
         "$(rootpath %s)" % config_file if config_file else "--noconfig",
     ] + kwargs.pop("templated_args", [])
 

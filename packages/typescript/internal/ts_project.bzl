@@ -1,6 +1,6 @@
 "ts_project rule"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "NpmPackageInfo", "declaration_info", "run_node")
+load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "NpmPackageInfo", "declaration_info", "js_module_info", "run_node")
 
 _DEFAULT_TSC = (
     # BEGIN-INTERNAL
@@ -127,6 +127,10 @@ def _ts_project_impl(ctx):
                 transitive_files = runtime_outputs,
                 collect_default = True,
             ),
+        ),
+        js_module_info(
+            sources = runtime_outputs,
+            deps = ctx.attr.deps,
         ),
         _TsConfigInfo(tsconfigs = depset([ctx.file.tsconfig] + ctx.files.extends, transitive = [
             dep[_TsConfigInfo].tsconfigs

@@ -17,7 +17,7 @@
 DO NOT USE - this is not fully designed, and exists only to enable testing within this repo.
 """
 
-load("//:providers.bzl", "LinkablePackageInfo", "declaration_info")
+load("//:providers.bzl", "LinkablePackageInfo", "declaration_info", "js_module_info")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/private/copy_file_private.bzl", "copy_bash", "copy_cmd")
 
 _AMD_NAMES_DOC = """Mapping from require module names to global variables.
@@ -52,6 +52,7 @@ def write_amd_names_shim(actions, amd_names_shim, targets):
 def _impl(ctx):
     files = []
     typings = []
+    js_files = []
 
     for src in ctx.files.srcs:
         if src.is_source and not src.path.startswith("external/"):
@@ -69,6 +70,10 @@ def _impl(ctx):
         else:
             files.append(src)
 
+    for p in files:
+        if p.basename.endswith(".js") or p.basename.endswith(".js.map") or p.basename.endswith(".json"):
+            js_files.append(p)
+
     files_depset = depset(files)
 
     providers = [
@@ -77,6 +82,7 @@ def _impl(ctx):
             runfiles = ctx.runfiles(files = ctx.files.srcs),
         ),
         AmdNamesInfo(names = ctx.attr.amd_names),
+        js_module_info(depset(js_files)),
     ]
 
     if ctx.attr.package_name:
