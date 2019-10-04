@@ -18,6 +18,10 @@ These are expected to be used by the production toolchain, such as bundlers.
 The tree will be flattened, such that all the es6 files are under a single tree.
 """
 
+load("@build_bazel_rules_nodejs//:providers.bzl", "JSEcmaScriptModuleInfo")
+
+# TODO(gregmagolan): Only the legacy rollup_bundle depends on this as it still uses
+# re-rooting. This can be removed along with the legacy rollup_bundle.
 def collect_es6_sources(ctx):
     """Returns a file tree containing only production files.
 
@@ -36,9 +40,10 @@ def collect_es6_sources(ctx):
     # be collected if the file is a js file.
     if hasattr(ctx.attr, "entry_point"):
         non_rerooted_files += [s for s in ctx.files.entry_point if s.extension == "js"]
+
     for dep in ctx.attr.deps:
-        if hasattr(dep, "typescript"):
-            non_rerooted_files += dep.typescript.transitive_es6_sources.to_list()
+        if JSEcmaScriptModuleInfo in dep:
+            non_rerooted_files += dep[JSEcmaScriptModuleInfo].sources.to_list()
 
     rerooted_files = []
     for file in non_rerooted_files:
