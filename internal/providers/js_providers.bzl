@@ -36,6 +36,36 @@ If users really need to produce both in a single build, they'll need two rules w
 differing 'debug' attributes.
 """
 
+JSModuleInfo = provider(
+    doc = """JavaScript files and sourcemaps.""",
+    fields = {
+        "direct_sources": "Depset of direct JavaScript files and sourcemaps",
+        "module_format": "A string like [amd, cjs, esm, iife, umd] or \"mixed\" if the sources are of mixed formats",
+        "sources": "Depset of direct and transitive JavaScript files and sourcemaps",
+    },
+)
+
+def js_module_info(module_format, sources, deps = []):
+    """Constructs a JSModuleInfo including all transitive sources from JSModuleInfo providers in a list of deps.
+
+`module_format` is set to `mixed` if there are JSModuleInfo providers with mixed module formats.
+
+Returns a single JSModuleInfo.
+"""
+    transitive_depsets = [sources]
+    for dep in deps:
+        if JSModuleInfo in dep:
+            # Set module_format as "mixed" if sources have mixed module formats
+            if module_format != dep[JSModuleInfo].module_format:
+                module_format = "mixed"
+            transitive_depsets.append(dep[JSModuleInfo].sources)
+
+    return JSModuleInfo(
+        direct_sources = sources,
+        module_format = module_format,
+        sources = depset(transitive = transitive_depsets),
+    )
+
 JSNamedModuleInfo = provider(
     doc = """JavaScript files whose module name is self-contained.
 

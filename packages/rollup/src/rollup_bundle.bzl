@@ -1,6 +1,6 @@
 "Rules for running Rollup under Bazel"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "JSEcmaScriptModuleInfo", "NodeContextInfo", "NpmPackageInfo", "node_modules_aspect", "run_node")
+load("@build_bazel_rules_nodejs//:providers.bzl", "JSEcmaScriptModuleInfo", "JSModuleInfo", "NodeContextInfo", "NpmPackageInfo", "node_modules_aspect", "run_node")
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 
 _DOC = """Runs the Rollup.js CLI under Bazel.
@@ -271,6 +271,8 @@ def _rollup_bundle(ctx):
     for dep in ctx.attr.deps:
         if JSEcmaScriptModuleInfo in dep:
             deps_depsets.append(dep[JSEcmaScriptModuleInfo].sources)
+        elif JSModuleInfo in dep:
+            deps_depsets.append(dep[JSModuleInfo].sources)
         elif hasattr(dep, "files"):
             deps_depsets.append(dep.files)
 
@@ -338,8 +340,11 @@ def _rollup_bundle(ctx):
         arguments = [args],
     )
 
+    outputs_depset = depset(outputs)
+
     return [
-        DefaultInfo(files = depset(outputs)),
+        DefaultInfo(files = outputs_depset),
+        JSModuleInfo(module_format = ctx.attr.format, sources = outputs_depset),
     ]
 
 rollup_bundle = rule(

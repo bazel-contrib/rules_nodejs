@@ -1,0 +1,38 @@
+load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
+load("@npm_bazel_terser//:index.from_src.bzl", "terser_minified")
+load(":consumes_jsinfo.bzl", "consumes_jsinfo")
+
+# Use the JS providers to find inputs from *_bundle rule
+load(":produces_jsinfo.bzl", "produces_jsinfo")
+
+produces_jsinfo(
+    name = "in",
+    srcs = ["esnext.mjs"],
+    format = "esm",
+)
+
+terser_minified(
+    name = "terser",
+    src = ":in",
+    sourcemap = False,
+)
+
+consumes_jsinfo(
+    name = "out",
+    src = ":terser",
+)
+
+jasmine_node_test(
+    name = "test",
+    srcs = [
+        "terser_spec.js",
+    ],
+    # TODO(alexeagle): fix this up
+    tags = ["manual"],
+    deps = [
+        ":out",
+        ":terser.js",
+    ],
+)
+
+# Case 4: test that terser also outputs a JS provider

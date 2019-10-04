@@ -15,7 +15,7 @@
 """Contains the node_module_library which is used by yarn_install & npm_install.
 """
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "NpmPackageInfo", "js_named_module_info")
+load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "NpmPackageInfo", "js_module_info", "js_named_module_info")
 
 def _node_module_library_impl(ctx):
     workspace = ctx.label.workspace_root.split("/")[1] if ctx.label.workspace_root else ctx.workspace_name
@@ -69,6 +69,11 @@ def _node_module_library_impl(ctx):
             DeclarationInfo(
                 declarations = declarations,
                 transitive_declarations = transitive_declarations,
+            ),
+            js_module_info(
+                module_format = "",
+                sources = direct_sources,
+                deps = ctx.attr.deps,
             ),
             js_named_module_info(
                 sources = depset(ctx.files.named_module_srcs),
