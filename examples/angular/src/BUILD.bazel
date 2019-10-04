@@ -1,10 +1,12 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "rollup_bundle")
 load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_package")
 load("@io_bazel_rules_docker//container:container.bzl", "container_image")
 load("@io_bazel_rules_docker//nodejs:image.bzl", "nodejs_image")
 load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
+load("@npm//@babel/cli:index.bzl", "babel")
 load("@npm//history-server:index.bzl", "history_server")
 load("@npm_angular_bazel//:index.bzl", "ng_module")
+load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
+load("@npm_bazel_terser//:index.bzl", "terser_minified")
 load("@npm_bazel_typescript//:index.bzl", "ts_config", "ts_devserver", "ts_library")
 
 package(default_visibility = ["//:__subpackages__"])
@@ -99,7 +101,7 @@ ts_devserver(
     # Start from the development version of the main
     entry_module = "angular_bazel_example/src/main.dev",
     # <script> and <link> tags will be automatically injected into this index file
-    index_html = "//src/example:assets",
+    index_html = "//src/example:index.dev.html",
     # These scripts will be included in the JS bundle after require.js
     # They should have only named UMD modules, or require.js will throw.
     scripts = [
@@ -120,17 +122,37 @@ ts_devserver(
 
 rollup_bundle(
     name = "bundle",
+    config_file = "rollup.config.js",
     entry_point = ":main.prod.ts",
-    deps = [
-        "//src",
-        "@npm//@angular/common",
-        "@npm//@angular/core",
-        "@npm//@angular/material",
-        "@npm//@angular/platform-browser",
-        "@npm//@angular/router",
-        "@npm//@ngrx/store",
-        "@npm//rxjs",
+    output_dir = True,
+    deps = ["//src"],
+)
+
+babel(
+    name = "bundle.es2015",
+    args = [
+        "$(location :bundle)",
+        "--no-babelrc",
+        "--source-maps",
+        "--presets=@babel/preset-env",
+        "--out-dir",
+        "$@",
     ],
+    data = [
+        ":bundle",
+        "@npm//@babel/preset-env",
+    ],
+    output_dir = True,
+)
+
+terser_minified(
+    name = "bundle.min",
+    src = ":bundle",
+)
+
+terser_minified(
+    name = "bundle.min.es2015",
+    src = ":bundle.es2015",
 )
 
 web_package(
@@ -143,13 +165,10 @@ web_package(
     ],
     # do not sort
     assets = _ASSETS + [
-        # For differential loading, we supply both an ESModule entry point and an es5 entry point
-        # The injector will put two complimentary script tags in the example.html
-        ":bundle.min.js",
-        ":bundle.min.es2015.js",
+        ":bundle.min",
+        ":bundle.min.es2015",
     ],
     data = [
-        ":bundle",
         "//src/assets",
         # Include polyfills that will be requested by old browsers
         "@npm//:node_modules/systemjs/dist/system.js",
@@ -157,7 +176,7 @@ web_package(
         "index.html",
     ],
     # <script> and <link> tags will be automatically injected into this index.
-    index_html = "//src/example:assets",
+    index_html = "//src/example:index.html",
 )
 
 history_server(

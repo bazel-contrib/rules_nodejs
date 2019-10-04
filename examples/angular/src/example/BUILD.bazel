@@ -1,11 +1,9 @@
 package(default_visibility = ["//:__subpackages__"])
 
-filegroup(
-    name = "assets",
-    srcs = [
-        "index.html",
-    ],
-)
+exports_files([
+    "index.html",
+    "index.dev.html",
+])
 
 # For testing from the root workspace of this repository with bazel_integration_test.
 filegroup(
