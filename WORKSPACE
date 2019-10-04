@@ -98,7 +98,7 @@ install_bazel_dependencies()
 # Uncomment for local development
 # local_repository(
 #     name = "build_bazel_rules_typescript",
-#     path = "../../../rules_typescript",
+#     path = "../rules_typescript",
 # )
 
 # We use git_repository since Renovate knows how to update it.
