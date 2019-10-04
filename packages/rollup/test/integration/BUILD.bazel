@@ -1,3 +1,4 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "npm_package_bin")
 load("@build_bazel_rules_nodejs//internal/golden_file_test:golden_file_test.bzl", "golden_file_test")
 load("@npm_bazel_rollup//:index.from_src.bzl", "rollup_bundle")
 
@@ -42,3 +43,35 @@ _BUNDLE_FORMATS = [
     )
     for format in _BUNDLE_FORMATS
 ]
+
+nodejs_binary(
+    name = "sha256",
+    entry_point = ":sha256.js",
+)
+
+npm_package_bin(
+    name = "bundle_umd_sha256",
+    outs = ["bundle.umd.sha256"],
+    args = [
+        "$(location :bundle.umd.js)",
+        "$(location :bundle.umd.sha256)",
+    ],
+    data = [
+        # ":bundle.umd.js" included as a dep as Bazel requires it for
+        # the "$(location :bundle.umd.js)" location expansion to work
+        ":bundle.umd.js",
+        # Also include ":bundle.umd" as a dep so that the module mappings
+        # from the ":bundle.umd" as propogated to ensure the linker
+        # handles these propogated mappings property
+        ":bundle.umd",
+    ],
+    tool = ":sha256",
+)
+
+golden_file_test(
+    name = "test_umd_sha256",
+    actual = "bundle.umd.sha256",
+    golden = ":golden.umd.sha256_",
+    # TODO: fix this test on Windows as sha256 differs
+    tags = ["fix-windows"],
+)
