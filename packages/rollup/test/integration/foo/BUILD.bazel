@@ -23,4 +23,5 @@ ts_library(
     # Don't allow deep imports under here,
     # and give it the AMD name "foolib", not "foolib/index"
     module_root = "index.d.ts",
+    deps = ["@npm//date-fns"],
 )
