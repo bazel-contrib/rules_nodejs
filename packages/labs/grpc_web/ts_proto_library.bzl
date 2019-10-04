@@ -13,7 +13,7 @@
 # limitations under the License.
 "Protocol Buffers"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "JSEcmaScriptModuleInfo", "JSNamedModuleInfo")
+load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "JSEcmaScriptModuleInfo", "JSModuleInfo", "JSNamedModuleInfo")
 load("@rules_proto//proto:defs.bzl", "ProtoInfo")
 
 typescript_proto_library_aspect = provider(
@@ -242,6 +242,10 @@ def _ts_proto_library_impl(ctx):
                 declarations = dts_outputs,
                 transitive_declarations = transitive_declarations,
                 type_blacklisted_declarations = depset([]),
+            ),
+            JSModuleInfo(
+                direct_sources = es5_srcs,
+                sources = es5_srcs,
             ),
             JSNamedModuleInfo(
                 direct_sources = es5_srcs,

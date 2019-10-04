@@ -25,8 +25,10 @@ load(
 load(
     "//internal/providers:js_providers.bzl",
     _JSEcmaScriptModuleInfo = "JSEcmaScriptModuleInfo",
+    _JSModuleInfo = "JSModuleInfo",
     _JSNamedModuleInfo = "JSNamedModuleInfo",
     _js_ecma_script_module_info = "js_ecma_script_module_info",
+    _js_module_info = "js_module_info",
     _js_named_module_info = "js_named_module_info",
 )
 load(
@@ -46,6 +48,8 @@ load(
 
 DeclarationInfo = _DeclarationInfo
 declaration_info = _declaration_info
+JSModuleInfo = _JSModuleInfo
+js_module_info = _js_module_info
 JSNamedModuleInfo = _JSNamedModuleInfo
 js_named_module_info = _js_named_module_info
 JSEcmaScriptModuleInfo = _JSEcmaScriptModuleInfo

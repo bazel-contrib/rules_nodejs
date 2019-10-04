@@ -20,7 +20,7 @@ They support module mapping: any targets in the transitive dependencies with
 a `module_name` attribute can be `require`d by that name.
 """
 
-load("//:providers.bzl", "JSNamedModuleInfo", "NodeRuntimeDepsInfo", "NpmPackageInfo", "node_modules_aspect")
+load("//:providers.bzl", "JSModuleInfo", "NodeRuntimeDepsInfo", "NpmPackageInfo", "node_modules_aspect")
 load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
 load("//internal/common:module_mappings.bzl", "module_mappings_runtime_aspect")
 load("//internal/common:path_utils.bzl", "strip_external")
@@ -165,9 +165,8 @@ def _nodejs_binary_impl(ctx):
     sources_depsets = []
 
     for d in ctx.attr.data:
-        # TODO: switch to JSModuleInfo when it is available
-        if JSNamedModuleInfo in d:
-            sources_depsets.append(d[JSNamedModuleInfo].sources)
+        if JSModuleInfo in d:
+            sources_depsets.append(d[JSModuleInfo].sources)
         if hasattr(d, "files"):
             sources_depsets.append(d.files)
     sources = depset(transitive = sources_depsets)

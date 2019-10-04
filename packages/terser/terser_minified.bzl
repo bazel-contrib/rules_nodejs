@@ -14,7 +14,7 @@
 
 "Rule to run the terser binary under bazel"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "run_node")
+load("@build_bazel_rules_nodejs//:providers.bzl", "JSModuleInfo", "run_node")
 
 _DOC = """Run the terser minifier.
 
@@ -112,8 +112,15 @@ def _terser(ctx):
 
     # CLI arguments; see https://www.npmjs.com/package/terser#command-line-usage
     args = ctx.actions.args()
-    inputs = ctx.files.src[:]
+
+    inputs = []
     outputs = []
+
+    # If src has a JSModuleInfo provider than use that otherwise use DefaultInfo files
+    if JSModuleInfo in ctx.attr.src:
+        inputs.extend(ctx.attr.src[JSModuleInfo].sources.to_list())
+    else:
+        inputs.extend(ctx.files.src[:])
 
     sources = _filter_js(inputs)
     sourcemaps = [f for f in inputs if f.extension == "map"]
@@ -179,6 +186,7 @@ def _terser(ctx):
 
     return [
         DefaultInfo(files = depset(outputs)),
+        JSModuleInfo(sources = depset(outputs)),
     ]
 
 terser_minified = rule(

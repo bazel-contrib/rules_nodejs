@@ -6,7 +6,7 @@ If all users of your library code use Bazel, they should just add your library
 to the `deps` of one of their targets.
 """
 
-load("//:providers.bzl", "DeclarationInfo", "JSNamedModuleInfo", "LinkablePackageInfo", "NodeContextInfo")
+load("//:providers.bzl", "DeclarationInfo", "JSModuleInfo", "LinkablePackageInfo", "NodeContextInfo")
 
 _DOC = """The pkg_npm rule creates a directory containing a publishable npm artifact.
 
@@ -253,9 +253,8 @@ def _pkg_npm(ctx):
         deps_files_depsets.append(dep.files)
 
         # All direct & transitive JavaScript-producing deps
-        # TODO: switch to JSModuleInfo when it is available
-        if JSNamedModuleInfo in dep:
-            deps_files_depsets.append(dep[JSNamedModuleInfo].sources)
+        if JSModuleInfo in dep:
+            deps_files_depsets.append(dep[JSModuleInfo].sources)
 
         # Include all transitive declerations
         if DeclarationInfo in dep:
