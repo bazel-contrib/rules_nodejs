@@ -1,5 +1,6 @@
-const nodeResolve = require('rollup-plugin-node-resolve');
+import commonjs from 'rollup-plugin-commonjs';
 import json from 'rollup-plugin-json';
+import nodeResolve from 'rollup-plugin-node-resolve';
 
 // Parse the stamp file produced by Bazel from the version control system
 let version = '<unknown>';
@@ -32,6 +33,7 @@ module.exports = {
   output: {name: 'bundle', banner, globals: {some_global_var: 'runtime_name_of_global_var'}},
   plugins: [
     nodeResolve(),
+    commonjs(),
     json({preferConst: true}),
   ],
 };
