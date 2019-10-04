@@ -15,21 +15,16 @@
 """Contains the node_module_library which is used by yarn_install & npm_install.
 """
 
-load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleInfo", "NodeModuleSources")
+load("@build_bazel_rules_nodejs//:declaration_provider.bzl", "DeclarationInfo")
+load("@build_bazel_rules_nodejs//:providers.bzl", "js_named_module_info")
+load("@build_bazel_rules_nodejs//internal/common:npm_package_info.bzl", "NpmPackageInfo")
 
 def _node_module_library_impl(ctx):
     workspace = ctx.label.workspace_root.split("/")[1] if ctx.label.workspace_root else ctx.workspace_name
 
-    # All files in `srcs` and in `deps`
-    # TODO(gregmagolan): transitive sources should be collected an aspect to go
-    # into a NodeModuleSources.transitive_sources
-    sources = depset(ctx.files.srcs, transitive = [dep.files for dep in ctx.attr.deps])
+    direct_sources = depset(ctx.files.srcs)
+    sources_depsets = [direct_sources]
 
-    # scripts are a subset of sources that are javascript named-UMD or named-AMD scripts for
-    # use in rules such as ts_devserver
-    scripts = depset(ctx.files.scripts)
-
-    # declarations are a subset of sources that are declaration files
     declarations = depset([
         f
         for f in ctx.files.srcs
@@ -41,12 +36,15 @@ def _node_module_library_impl(ctx):
            len(f.path.split("/node_modules/")) < 3 and f.path.find("/node_modules/typescript/lib/lib.") == -1
     ])
 
-    # transitive_declarations are all .d.ts files in srcs plus those in direct & transitive dependencies
-    transitive_declarations = depset(transitive = [declarations])
+    transitive_declarations_depsets = [declarations]
 
     for dep in ctx.attr.deps:
-        if hasattr(dep, "typescript"):
-            transitive_declarations = depset(transitive = [transitive_declarations, dep.typescript.transitive_declarations])
+        if DeclarationInfo in dep:
+            transitive_declarations_depsets.append(dep[DeclarationInfo].transitive_declarations)
+        if NpmPackageInfo in dep:
+            sources_depsets.append(dep[NpmPackageInfo].sources)
+
+    transitive_declarations = depset(transitive = transitive_declarations_depsets)
 
     return struct(
         typescript = struct(
@@ -63,15 +61,20 @@ def _node_module_library_impl(ctx):
         ),
         providers = [
             DefaultInfo(
-                files = sources,
+                files = direct_sources,
             ),
-            NodeModuleInfo(
+            NpmPackageInfo(
+                direct_sources = direct_sources,
+                sources = depset(transitive = sources_depsets),
                 workspace = workspace,
             ),
-            NodeModuleSources(
-                sources = sources,
-                scripts = scripts,
-                workspace = workspace,
+            DeclarationInfo(
+                declarations = declarations,
+                transitive_declarations = transitive_declarations,
+            ),
+            js_named_module_info(
+                sources = depset(ctx.files.named_module_srcs),
+                deps = ctx.attr.deps,
             ),
         ],
     )
@@ -83,8 +86,8 @@ node_module_library = rule(
             doc = "The list of files that comprise the package",
             allow_files = True,
         ),
-        "scripts": attr.label_list(
-            doc = "A subset of srcs that are javascript named-UMD or named-AMD scripts for use in rules such as ts_devserver",
+        "named_module_srcs": attr.label_list(
+            doc = "A subset of srcs that are javascript named-UMD or named-AMD for use in rules such as ts_devserver",
             allow_files = True,
         ),
         "deps": attr.label_list(

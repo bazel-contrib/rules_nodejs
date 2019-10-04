@@ -14,7 +14,8 @@
 "Run end-to-end tests with Protractor"
 
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
-load("@build_bazel_rules_nodejs//internal/common:sources_aspect.bzl", "sources_aspect")
+load("@build_bazel_rules_nodejs//:providers.bzl", "JSNamedModuleInfo")
+load("@build_bazel_rules_nodejs//internal/common:npm_package_info.bzl", "NpmPackageInfo", "node_modules_aspect")
 load("@build_bazel_rules_nodejs//internal/common:windows_utils.bzl", "create_windows_native_launcher_script", "is_windows")
 load("@io_bazel_rules_webtesting//web:web.bzl", "web_test_suite")
 load("@io_bazel_rules_webtesting//web/internal:constants.bzl", "DEFAULT_WRAPPED_TEST_TAGS")
@@ -30,18 +31,34 @@ def _to_manifest_path(ctx, file):
     else:
         return ctx.workspace_name + "/" + file.short_path
 
+def _filter_js(files):
+    return [f for f in files if f.extension == "js" or f.extension == "mjs"]
+
 def _protractor_web_test_impl(ctx):
     configuration = ctx.actions.declare_file(
         "%s.conf.js" % ctx.label.name,
         sibling = ctx.outputs.script,
     )
 
-    files = depset(ctx.files.srcs)
-    for d in ctx.attr.deps:
-        if hasattr(d, "node_sources"):
-            files = depset(transitive = [files, d.node_sources])
-        elif hasattr(d, "files"):
-            files = depset(transitive = [files, d.files])
+    files_depsets = [depset(ctx.files.srcs)]
+    for dep in ctx.attr.deps:
+        if JSNamedModuleInfo in dep:
+            files_depsets.append(dep[JSNamedModuleInfo].sources)
+        if not JSNamedModuleInfo in dep and not NpmPackageInfo in dep and hasattr(dep, "files"):
+            # These are javascript files provided by DefaultInfo from a direct
+            # dep that has no JSNamedModuleInfo provider or NpmPackageInfo
+            # provider (not an npm dep). These files must be in named AMD or named
+            # UMD format.
+            files_depsets.append(dep.files)
+    files = depset(transitive = files_depsets)
+
+    # Also include files from npm fine grained deps as inputs.
+    # These deps are identified by the NpmPackageInfo provider.
+    node_modules_depsets = []
+    for dep in ctx.attr.deps:
+        if NpmPackageInfo in dep:
+            node_modules_depsets.append(dep[NpmPackageInfo].sources)
+    node_modules = depset(transitive = node_modules_depsets)
 
     specs = [
         _to_manifest_path(ctx, f)
@@ -49,24 +66,26 @@ def _protractor_web_test_impl(ctx):
     ]
 
     configuration_sources = []
-    if ctx.file.configuration:
-        configuration_sources = [ctx.file.configuration]
-    if hasattr(ctx.attr.configuration, "node_sources"):
-        configuration_sources = ctx.attr.configuration.node_sources.to_list()
-
-    configuration_file = ctx.file.configuration
-    if hasattr(ctx.attr.configuration, "typescript"):
-        configuration_file = ctx.attr.configuration.typescript.es5_sources.to_list()[0]
+    configuration_file = None
+    if ctx.attr.configuration:
+        # TODO: switch to JSModuleInfo when it is available
+        if JSNamedModuleInfo in ctx.attr.configuration:
+            configuration_sources = ctx.attr.configuration[JSNamedModuleInfo].sources.to_list()
+            configuration_file = _filter_js(ctx.attr.configuration[JSNamedModuleInfo].direct_sources.to_list())[0]
+        else:
+            configuration_sources = [ctx.file.configuration]
+            configuration_file = ctx.file.configuration
 
     on_prepare_sources = []
-    if ctx.file.on_prepare:
-        on_prepare_sources = [ctx.file.on_prepare]
-    if hasattr(ctx.attr.on_prepare, "node_sources"):
-        on_prepare_sources = ctx.attr.on_prepare.node_sources.to_list()
-
-    on_prepare_file = ctx.file.on_prepare
-    if hasattr(ctx.attr.on_prepare, "typescript"):
-        on_prepare_file = ctx.attr.on_prepare.typescript.es5_sources.to_list()[0]
+    on_prepare_file = None
+    if ctx.attr.on_prepare:
+        # TODO: switch to JSModuleInfo when it is available
+        if JSNamedModuleInfo in ctx.attr.on_prepare:
+            on_prepare_sources = ctx.attr.on_prepare[JSNamedModuleInfo].sources.to_list()
+            on_prepare_file = _filter_js(ctx.attr.on_prepare[JSNamedModuleInfo].direct_sources.to_list())[0]
+        else:
+            on_prepare_sources = [ctx.file.on_prepare]
+            on_prepare_file = ctx.file.on_prepare
 
     ctx.actions.expand_template(
         output = configuration,
@@ -127,7 +146,7 @@ $PROTRACTOR $CONF
         files = depset([ctx.outputs.script]),
         runfiles = ctx.runfiles(
             files = runfiles,
-            transitive_files = files,
+            transitive_files = depset(transitive = [files, node_modules]),
             # Propagate protractor_bin and its runfiles
             collect_data = True,
             collect_default = True,
@@ -149,7 +168,6 @@ _protractor_web_test = rule(
         "configuration": attr.label(
             doc = "Protractor configuration file",
             allow_single_file = True,
-            aspects = [sources_aspect],
         ),
         "data": attr.label_list(
             doc = "Runtime dependencies",
@@ -159,7 +177,6 @@ _protractor_web_test = rule(
             If the script exports a function which returns a promise, protractor
             will wait for the promise to resolve before beginning tests.""",
             allow_single_file = True,
-            aspects = [sources_aspect],
         ),
         "protractor": attr.label(
             doc = "Protractor executable target",
@@ -176,7 +193,7 @@ _protractor_web_test = rule(
         "deps": attr.label_list(
             doc = "Other targets which produce JavaScript such as `ts_library`",
             allow_files = True,
-            aspects = [sources_aspect],
+            aspects = [node_modules_aspect],
         ),
         "_conf_tmpl": attr.label(
             default = Label(_CONF_TMPL),

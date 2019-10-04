@@ -14,7 +14,7 @@
 "Protocol Buffers"
 
 load("@build_bazel_rules_nodejs//:declaration_provider.bzl", "DeclarationInfo")
-load("@build_bazel_rules_nodejs//:providers.bzl", "JSEcmaScriptModuleInfo")
+load("@build_bazel_rules_nodejs//:providers.bzl", "JSEcmaScriptModuleInfo", "JSNamedModuleInfo")
 
 def _run_pbjs(actions, executable, output_name, proto_files, suffix = ".js", wrap = "amd", amd_name = ""):
     js_file = actions.declare_file(output_name + suffix)
@@ -118,7 +118,12 @@ def _ts_proto_library(ctx):
                 declarations = declarations,
                 transitive_declarations = declarations,
             ),
+            JSNamedModuleInfo(
+                direct_sources = es5_sources,
+                sources = es5_sources,
+            ),
             JSEcmaScriptModuleInfo(
+                direct_sources = es6_sources,
                 sources = es6_sources,
             ),
         ],

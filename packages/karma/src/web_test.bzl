@@ -13,7 +13,7 @@
 # limitations under the License.
 "Common web_test attributes"
 
-load("@build_bazel_rules_nodejs//internal/common:sources_aspect.bzl", "sources_aspect")
+load("@build_bazel_rules_nodejs//internal/common:npm_package_info.bzl", "node_modules_aspect")
 
 # Attributes shared by any web_test rule (ts_web_test, karma_web_test, protractor_web_test)
 COMMON_WEB_TEST_ATTRS = {
@@ -35,6 +35,6 @@ COMMON_WEB_TEST_ATTRS = {
     "deps": attr.label_list(
         doc = "Other targets which produce JavaScript such as `ts_library`",
         allow_files = True,
-        aspects = [sources_aspect],
+        aspects = [node_modules_aspect],
     ),
 }

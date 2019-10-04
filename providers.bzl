@@ -22,6 +22,37 @@ If users really need to produce both in a single build, they'll need two rules w
 differing 'debug' attributes.
 """
 
+JSNamedModuleInfo = provider(
+    doc = """JavaScript files whose module name is self-contained.
+
+For example named AMD/UMD or goog.module format.
+These files can be efficiently served with the concatjs bundler.
+These outputs should be named "foo.umd.js"
+(note that renaming it from "foo.js" doesn't affect the module id)
+
+Historical note: this was the typescript.es5_sources output.
+""",
+    fields = {
+        "direct_sources": "Depset of direct JavaScript files and sourcemaps",
+        "sources": "Depset of direct and transitive JavaScript files and sourcemaps",
+    },
+)
+
+def js_named_module_info(sources, deps = []):
+    """Constructs a JSNamedModuleInfo including all transitive sources from JSNamedModuleInfo providers in a list of deps.
+
+Returns a single JSNamedModuleInfo.
+"""
+    transitive_depsets = [sources]
+    for dep in deps:
+        if JSNamedModuleInfo in dep:
+            transitive_depsets.append(dep[JSNamedModuleInfo].sources)
+
+    return JSNamedModuleInfo(
+        direct_sources = sources,
+        sources = depset(transitive = transitive_depsets),
+    )
+
 JSEcmaScriptModuleInfo = provider(
     doc = """JavaScript files (and sourcemaps) that are intended to be consumed by downstream tooling.
 
@@ -31,8 +62,8 @@ TODO: should we require that?
 
 Historical note: this was the typescript.es6_sources output""",
     fields = {
-        "direct_sources": "depset of direct JavaScript files and sourcemaps",
-        "sources": "depset of direct and transitive JavaScript files and sourcemaps",
+        "direct_sources": "Depset of direct JavaScript files and sourcemaps",
+        "sources": "Depset of direct and transitive JavaScript files and sourcemaps",
     },
 )
 
