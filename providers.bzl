@@ -31,36 +31,22 @@ TODO: should we require that?
 
 Historical note: this was the typescript.es6_sources output""",
     fields = {
+        "direct_sources": "depset of direct JavaScript files and sourcemaps",
         "sources": "depset of direct and transitive JavaScript files and sourcemaps",
     },
 )
 
-def transitive_js_ecma_script_module_info(sources, deps = []):
+def js_ecma_script_module_info(sources, deps = []):
     """Constructs a JSEcmaScriptModuleInfo including all transitive sources from JSEcmaScriptModuleInfo providers in a list of deps.
 
 Returns a single JSEcmaScriptModuleInfo.
 """
-    return combine_js_ecma_script_module_info([JSEcmaScriptModuleInfo(sources = sources)] + collect_js_ecma_script_module_infos(deps))
-
-def combine_js_ecma_script_module_info(modules):
-    """Combines all JavaScript sources and sourcemaps from a list of JSEcmaScriptModuleInfo providers.
-
-Returns a single JSEcmaScriptModuleInfo.
-"""
-    sources_depsets = []
-    for module in modules:
-        sources_depsets.extend([module.sources])
-    return JSEcmaScriptModuleInfo(
-        sources = depset(transitive = sources_depsets),
-    )
-
-def collect_js_ecma_script_module_infos(deps):
-    """Collects all JSEcmaScriptModuleInfo providers from a list of deps.
-
-Returns a list of JSEcmaScriptModuleInfo providers.
-"""
-    modules = []
+    transitive_depsets = [sources]
     for dep in deps:
         if JSEcmaScriptModuleInfo in dep:
-            modules.extend([dep[JSEcmaScriptModuleInfo]])
-    return modules
+            transitive_depsets.append(dep[JSEcmaScriptModuleInfo].sources)
+
+    return JSEcmaScriptModuleInfo(
+        direct_sources = sources,
+        sources = depset(transitive = transitive_depsets),
+    )

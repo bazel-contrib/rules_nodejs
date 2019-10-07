@@ -14,7 +14,7 @@
 
 "TypeScript compilation"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "transitive_js_ecma_script_module_info")
+load("@build_bazel_rules_nodejs//:providers.bzl", "js_ecma_script_module_info")
 load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleSources", "collect_node_modules_aspect")
 
 # pylint: disable=unused-argument
@@ -275,7 +275,7 @@ def _ts_library_impl(ctx):
     # See design doc https://docs.google.com/document/d/1ggkY5RqUkVL4aQLYm7esRW978LgX3GUCnQirrk5E1C0/edit#
     # and issue https://github.com/bazelbuild/rules_nodejs/issues/57 for more details.
     ts_providers["providers"].extend([
-        transitive_js_ecma_script_module_info(
+        js_ecma_script_module_info(
             sources = ts_providers["typescript"]["es6_sources"],
             deps = ctx.attr.deps,
         ),
