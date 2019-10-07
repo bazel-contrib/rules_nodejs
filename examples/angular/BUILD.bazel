@@ -17,21 +17,3 @@ k8s_deploy(
     },
     template = ":deployment.yaml",
 )
-
-# For testing from the root workspace of this repository with bazel_integration_test.
-filegroup(
-    name = "all_files",
-    srcs = glob(
-        include = ["**/*"],
-        exclude = [
-            "bazel-out/**/*",
-            "dist/**/*",
-            "node_modules/**/*",
-        ],
-    ) + [
-        "//e2e:all_files",
-        "//src:all_files",
-        "//tools:all_files",
-    ],
-    visibility = ["//visibility:public"],
-)

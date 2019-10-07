@@ -211,15 +211,3 @@ container_image(
     tags = ["local"],
     workdir = "/app/src/nodejs_image.binary.runfiles/angular_bazel_example",
 )
-
-# For testing from the root workspace of this repository with bazel_integration_test.
-filegroup(
-    name = "all_files",
-    srcs = glob(["**/*"]) + [
-        "//src/app:all_files",
-        "//src/shared/material:all_files",
-        "//src/assets:all_files",
-        "//src/example:all_files",
-        "//src/lib/shorten:all_files",
-    ],
-)

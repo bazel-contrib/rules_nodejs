@@ -78,9 +78,3 @@ ts_web_test_suite(
         "//src:rxjs_umd_modules",
     ],
 )
-
-# For testing from the root workspace of this repository with bazel_integration_test.
-filegroup(
-    name = "all_files",
-    srcs = glob(["**/*"]),
-)

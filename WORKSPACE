@@ -330,12 +330,10 @@ local_repository(
     path = "tools/mock_rules_kotlin",
 )
 
-load("//e2e:index.bzl", "ALL_E2E")
-
-[local_repository(
-    name = "e2e_%s" % name,
-    path = "e2e/%s" % name,
-) for name in ALL_E2E]
+local_repository(
+    name = "e2e_packages",
+    path = "e2e/packages",
+)
 
 load("@e2e_packages//:setup_workspace.bzl", "e2e_packages_setup_workspace")
 
@@ -346,10 +344,3 @@ local_repository(
     name = "npm_angular_bazel",
     path = "tools/mock_npm_angular_bazel",
 )
-
-load("//examples:index.bzl", "ALL_EXAMPLES")
-
-[local_repository(
-    name = "examples_%s" % name,
-    path = "examples/%s" % name,
-) for name in ALL_EXAMPLES]

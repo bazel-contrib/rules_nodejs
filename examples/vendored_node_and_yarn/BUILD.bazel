@@ -4,17 +4,3 @@ jasmine_node_test(
     name = "test",
     srcs = glob(["*.spec.js"]),
 )
-
-# For testing from the root workspace of this repository with bazel_integration_test.
-filegroup(
-    name = "all_files",
-    srcs = glob(
-        include = ["**/*"],
-        exclude = [
-            "bazel-out/**/*",
-            "dist/**/*",
-            "node_modules/**/*",
-        ],
-    ),
-    visibility = ["//visibility:public"],
-)

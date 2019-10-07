@@ -18,18 +18,3 @@ work(
     name = "do_work",
     src = "foo.js",
 )
-
-# For running this example as a bazel_integration_test
-# See //examples:BUILD.bazel
-filegroup(
-    name = "all_files",
-    srcs = glob(
-        include = ["**/*"],
-        exclude = [
-            "bazel-out/**/*",
-            "dist/**/*",
-            "node_modules/**/*",
-        ],
-    ),
-    visibility = ["//visibility:public"],
-)

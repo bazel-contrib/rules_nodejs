@@ -81,23 +81,6 @@ protractor_web_test_suite(
     deps = [":e2e"],
 )
 
-# For testing from the root workspace of this repository with bazel_integration_test.
-filegroup(
-    name = "all_files",
-    srcs = glob(
-        include = ["**/*"],
-        exclude = [
-            "bazel-out/**/*",
-            "dist/**/*",
-            "node_modules/**/*",
-        ],
-    ) + [
-        "//genrule:all_files",
-        "//subpackage:all_files",
-    ],
-    visibility = ["//visibility:public"],
-)
-
 # Just a dummy test so that we have a test target for //... on bazelci ubuntu with bazel_integration_test
 sh_test(
     name = "dummy_test",
