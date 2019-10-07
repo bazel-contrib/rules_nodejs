@@ -50,3 +50,10 @@ Returns a single JSEcmaScriptModuleInfo.
         direct_sources = sources,
         sources = depset(transitive = transitive_depsets),
     )
+
+def transitive_js_ecma_script_module_info(**kwargs):
+    """Alias of js_ecma_script_module_info.
+
+TODO(gregmagolan): Remove this alias before 1.0 release.
+"""
+    return js_ecma_script_module_info(**kwargs)
