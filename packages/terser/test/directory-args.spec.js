@@ -11,15 +11,19 @@ describe('directoryArgs', () => {
     expect(directoryArgs(args)).toBe(args);
   });
 
-  it('not mutate the args when theres no replacement token', () => {
-    const args = ['--source-map', 'url=index.js.map'];
+  it('should replace the directory url with the file url', () => {
+    const args = [
+      '--ie8',
+      '--source-map',
+      `root='http://foo.com/src',url='some_wrong_name'`,
+      '--keep-fnames',
+    ];
     const output = '/test/file.js';
-    expect(directoryArgs(args, output)).toEqual(args);
-  });
-
-  it('should replace the <OUTPUT_MAP_FILE> with the basename', () => {
-    const args = ['--source-map', `url='<OUTPUT_MAP_FILE>'`];
-    const output = '/test/file.js';
-    expect(directoryArgs(args, output)).toEqual(['--source-map', `url='file.js.map'`]);
+    expect(directoryArgs(args, output)).toEqual([
+      '--ie8',
+      '--source-map',
+      `root='http://foo.com/src',url='file.js.map'`,
+      '--keep-fnames',
+    ]);
   });
 })
