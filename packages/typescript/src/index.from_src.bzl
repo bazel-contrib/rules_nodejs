@@ -58,7 +58,7 @@ def checked_in_ts_library(name, checked_in_js, **kwargs):
         name = "_%s_skip_formatting" % name,
         srcs = ["_%s_es5" % name],
         outs = ["_%s_es5_no_format.js" % name],
-        cmd = """echo -n "/* THIS FILE GENERATED FROM .ts; see BUILD.bazel */ /* clang-format off */" > $@; cat $< >> $@""",
+        cmd = """echo -n "/* THIS FILE GENERATED FROM .ts; see BUILD.bazel */ /* clang-format off */" > $@; grep -v "//# sourceMappingURL=data" $< >> $@""",
     )
 
     # Assert that we kept the index.js up-to-date when changing the TS code
