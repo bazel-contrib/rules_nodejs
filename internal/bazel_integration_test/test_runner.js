@@ -133,8 +133,10 @@ const RUNFILES_MANIFEST = loadRunfilesManifest();
 function copyWorkspace(workspacePath) {
   const to = tmp.dirSync({keep: DEBUG, unsafeCleanup: !DEBUG}).name;
   if (RUNFILES_MANIFEST) {
-    const start = `${workspacePath}/`;
-    const copied = 0;
+    const start = workspacePath.startsWith('../') ?
+        workspacePath.slice(3) :
+        `${process.env['TEST_WORKSPACE']}/${workspacePath}/`;
+    let copied = 0;
     for (const key of Object.keys(RUNFILES_MANIFEST)) {
       if (key.startsWith(start)) {
         const element = key.slice(start.length);
@@ -144,9 +146,9 @@ function copyWorkspace(workspacePath) {
         fs.copyFileSync(RUNFILES_MANIFEST[key], dest);
         ++copied;
       }
-      if (!copied) {
-        throw new Error(`no workspace files found under path ${workspacePath}`)
-      }
+    }
+    if (!copied) {
+      throw new Error(`no workspace files found under path ${workspacePath}`)
     }
   } else {
     if (!fs.existsSync(workspacePath)) {
@@ -176,7 +178,9 @@ function copyNpmPackage(packagePath) {
 
 // testName is like examples_webapp or e2e_bazel_managed_deps
 // transform to the path we expect by changing first underscore to slash
-let workspacePath = config.testName.replace(/_/, '/');
+const workspacePath = config.workspaceRoot.startsWith('external/') ?
+    '..' + config.workspaceRoot.slice('external'.length) :
+    config.workspaceRoot;
 log_verbose(`copying workspace under test ${workspacePath} to tmp`);
 const workspaceRoot = copyWorkspace(workspacePath);
 

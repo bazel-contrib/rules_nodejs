@@ -8,8 +8,11 @@ def example_integration_test(name, **kwargs):
     native.filegroup(
         name = "_%s_sources" % name,
         srcs = native.glob(
-            ["%s/**" % dirname],
-            exclude = ["%s/node_modules" % dirname],
+            [
+                "%s/*" % dirname,
+                "%s/**/*" % dirname,
+            ],
+            exclude = ["%s/node_modules/**" % dirname],
         ),
     )
 

@@ -130,6 +130,7 @@ e2e_integration_test(
     package_json_replacements = {
         "typescript": tsc_version,
     },
+    workspace_root = "typescript",
 ) for tsc_version in [
     "3.0.x",
     "3.1.x",
