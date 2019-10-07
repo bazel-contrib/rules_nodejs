@@ -27,7 +27,7 @@ function isDirectory(input) {
 }
 
 /**
- * Replaces <OUTPUT_MAP_FILE> with the outputFile name in the source-map options argument
+ * Replaces directory url with the outputFile name in the url option of source-map argument
  */
 function directoryArgs(residualArgs, outputFile) {
   const sourceMapIndex = residualArgs.indexOf('--source-map');
@@ -35,18 +35,15 @@ function directoryArgs(residualArgs, outputFile) {
     return residualArgs;
   }
 
-  // copy args so we don't accidently mutate and process the same set of args twice
-  const argsCopy = [...residualArgs];
+  const sourceMapOptions = residualArgs[sourceMapIndex + 1].split(',');
+  const newSourceMapOptions = sourceMapOptions.map(
+      o => o.startsWith('url=') ? `url='${path.basename(outputFile)}.map'` : o);
 
-  // the options for the source map arg is the next one
-  // if it changes in terser_minified.bzl this needs to be updated
-  const sourceMapOptsIndex = sourceMapIndex + 1
-  const sourceMapOptsStr = argsCopy[sourceMapOptsIndex];
-
-  argsCopy[sourceMapOptsIndex] =
-      sourceMapOptsStr.replace('<OUTPUT_MAP_FILE>', `${path.basename(outputFile)}.map`);
-
-  return argsCopy;
+  return [
+    ...residualArgs.slice(0, sourceMapIndex + 1),
+    newSourceMapOptions.join(','),
+    ...residualArgs.slice(sourceMapIndex + 2),
+  ];
 }
 
 function terserDirectory(input, output, residual, terserBinary) {
