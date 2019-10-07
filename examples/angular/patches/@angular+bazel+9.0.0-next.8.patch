@@ -11,11 +11,32 @@ index 667f601..7907c12 100755
  
      # short_path is meant to be used when accessing runfiles in a binary, where
      # the CWD is inside the current repo. Therefore files in external repo have a
+diff --git a/node_modules/@angular/bazel/src/modify_tsconfig.js b/node_modules/@angular/bazel/src/modify_tsconfig.js
+index 9d3c491..3c99746 100755
+--- a/node_modules/@angular/bazel/src/modify_tsconfig.js
++++ b/node_modules/@angular/bazel/src/modify_tsconfig.js
+@@ -44,7 +44,7 @@ function main(args) {
+     // ngc-wrapped is expecting POSIX paths and the TypeScript Bazel rules by default only pass
+     // POSIX paths as well.
+     angularCompilerOptions['expectedOut'] = angularCompilerOptions['expectedOut'].map(
+-        f => f.replace(/\.closure\.js$/, '.js').replace(binDir, newOutputBase));
++        f => f.replace(/\.mjs$/, '.js').replace(binDir, newOutputBase));
+   }
+   fs.writeFileSync(output, JSON.stringify(data));
+ }
 diff --git a/node_modules/@angular/bazel/src/ng_module.bzl b/node_modules/@angular/bazel/src/ng_module.bzl
-index 9b88fbb..d2eb8aa 100755
+index 9b88fbb..68217d0 100755
 --- a/node_modules/@angular/bazel/src/ng_module.bzl
 +++ b/node_modules/@angular/bazel/src/ng_module.bzl
-@@ -237,7 +237,7 @@ def _expected_outs(ctx):
+@@ -20,6 +20,7 @@ load(
+     "ts_providers_dict_to_struct",
+     "tsc_wrapped_tsconfig",
+ )
++load("@build_bazel_rules_nodejs//:providers.bzl", "transitive_js_ecma_script_module_info")
+ 
+ _FLAT_DTS_FILE_SUFFIX = ".bundle.d.ts"
+ _R3_SYMBOLS_DTS_FILE = "src/r3_symbols.d.ts"
+@@ -237,7 +238,7 @@ def _expected_outs(ctx):
              continue
  
          filter_summaries = ctx.attr.filter_summaries
@@ -24,7 +45,7 @@ index 9b88fbb..d2eb8aa 100755
          declarations = [f.replace(".js", ".d.ts") for f in devmode_js]
  
          devmode_js_files += [ctx.actions.declare_file(basename + ext) for ext in devmode_js]
-@@ -262,7 +262,7 @@ def _expected_outs(ctx):
+@@ -262,7 +263,7 @@ def _expected_outs(ctx):
      if _should_produce_flat_module_outs(ctx):
          flat_module_out = _flat_module_out_file(ctx)
          devmode_js_files.append(ctx.actions.declare_file("%s.js" % flat_module_out))
@@ -33,3 +54,22 @@ index 9b88fbb..d2eb8aa 100755
          bundle_index_typings = ctx.actions.declare_file("%s.d.ts" % flat_module_out)
          declaration_files.append(bundle_index_typings)
          if is_legacy_ngc:
+@@ -603,7 +604,17 @@ def ng_module_impl(ctx, ts_compile_actions):
+     return providers
+ 
+ def _ng_module_impl(ctx):
+-    return ts_providers_dict_to_struct(ng_module_impl(ctx, compile_ts))
++    ts_providers = ng_module_impl(ctx, compile_ts)
++
++    # Add in new JS providers
++    ts_providers["providers"].extend([
++        transitive_js_ecma_script_module_info(
++            sources = ts_providers["typescript"]["es6_sources"],
++            deps = ctx.attr.deps,
++        ),
++    ])
++
++    return ts_providers_dict_to_struct(ts_providers)
+ 
+ local_deps_aspects = [collect_node_modules_aspect, _collect_summaries_aspect]
+ 

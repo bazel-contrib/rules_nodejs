@@ -20,6 +20,8 @@ example_integration_test(
     npm_packages = {
         "//packages/karma:npm_package": "@bazel/karma",
         "//packages/protractor:npm_package": "@bazel/protractor",
+        "//packages/rollup:npm_package": "@bazel/rollup",
+        "//packages/terser:npm_package": "@bazel/terser",
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
     tags = [

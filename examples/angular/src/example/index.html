@@ -14,5 +14,10 @@
     <!-- in browsers that don't support ESModules, we polyfill with system.js-->
     <script nomodule src="/core.min.js"></script>
     <script nomodule src="/system.js"></script>
+
+    <!-- TODO: figure out how diff. loading interacts with 
+    https://www.npmjs.com/package/rollup-plugin-bundle-html -->
+    <script type="module" src="/bundle.min/bundle.js"></script>
+    <script nomodule="" src="/bundle.min.es2015/bundle.js"></script>     
   </body>
 </html>
