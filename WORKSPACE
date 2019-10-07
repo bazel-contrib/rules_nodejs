@@ -280,9 +280,9 @@ bazel_binaries(versions = ["0.28.1"])
 
 http_archive(
     name = "io_bazel_rules_docker",
-    sha256 = "7d453450e1eb70e238eea6b31f4115607ec1200e91afea01c25f9804f37e39c8",
-    strip_prefix = "rules_docker-0.10.0",
-    urls = ["https://github.com/bazelbuild/rules_docker/archive/v0.10.0.tar.gz"],
+    sha256 = "480daa8737bf4370c1a05bfced903827e75046fea3123bd8c81389923d968f55",
+    strip_prefix = "rules_docker-0.11.0",
+    urls = ["https://github.com/bazelbuild/rules_docker/archive/v0.11.0.tar.gz"],
 )
 
 load("@io_bazel_rules_docker//nodejs:image.bzl", nodejs_image_repos = "repositories")
