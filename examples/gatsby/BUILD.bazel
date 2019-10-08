@@ -1,0 +1,25 @@
+load("@npm//gatsby-cli:index.bzl", "gatsby")
+
+gatsby(
+    name = "build",
+    args = ["build"],
+    data = [
+        ":src",
+        "@npm//:node_modules",
+    ],
+)
+
+filegroup(
+    name = "src",
+    srcs = glob(
+        [
+            "config/*.js",
+            "plugins/**/*",
+            "src/**/*",
+            "gatsby-*.js",
+        ],
+        exclude = ["node_modules/**"],
+    ) + [
+        "package.json",
+    ],
+)
