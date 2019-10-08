@@ -1,3 +1,4 @@
+load("@build_bazel_rules_nodejs//:tools/declare_directory.bzl", "declare_directory")
 load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
 load("@npm_bazel_terser//:index.from_src.bzl", "terser_minified")
 
@@ -22,5 +23,29 @@ jasmine_node_test(
     data = ["@npm//source-map"],
     deps = [
         ":src1.min",
+    ],
+)
+
+declare_directory(
+    name = "dir",
+    srcs = [
+        "src1.js",
+        "src1.js.map",
+    ],
+)
+
+terser_minified(
+    name = "dir.min",
+    src = "dir",
+)
+
+jasmine_node_test(
+    name = "directory_test",
+    srcs = [
+        "directory_spec.js",
+    ],
+    data = ["@npm//source-map"],
+    deps = [
+        ":dir.min",
     ],
 )

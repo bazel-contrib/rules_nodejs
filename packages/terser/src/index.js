@@ -29,19 +29,27 @@ function isDirectory(input) {
 /**
  * Replaces directory url with the outputFile name in the url option of source-map argument
  */
-function directoryArgs(residualArgs, outputFile) {
+function directoryArgs(residualArgs, inputFile, outputFile) {
   const sourceMapIndex = residualArgs.indexOf('--source-map');
   if (sourceMapIndex === -1) {
     return residualArgs;
   }
 
-  const sourceMapOptions = residualArgs[sourceMapIndex + 1].split(',');
-  const newSourceMapOptions = sourceMapOptions.map(
+  // set the correct sourcemap url for this output file
+  let sourceMapOptions = residualArgs[sourceMapIndex + 1].split(',').map(
       o => o.startsWith('url=') ? `url='${path.basename(outputFile)}.map'` : o);
+
+  // if an input .map file exists then set the correct sourcemap content option
+  if (fs.existsSync(`${inputFile}.map`)) {
+    // even on Windows terser expects '/' path separators so we normalize these in the sourcemap
+    // content file path below
+    sourceMapOptions = sourceMapOptions.map(
+        o => o.startsWith('content=') ? `content='${inputFile.replace(/\\/g, '/')}.map'` : o);
+  }
 
   return [
     ...residualArgs.slice(0, sourceMapIndex + 1),
-    newSourceMapOptions.join(','),
+    sourceMapOptions.join(','),
     ...residualArgs.slice(sourceMapIndex + 2),
   ];
 }
@@ -59,8 +67,10 @@ function terserDirectory(input, output, residual, terserBinary) {
 
   function exec([inputFile, outputFile]) {
     active++;
-    let args =
-        [terserBinary, inputFile, '--output', outputFile, ...directoryArgs(residual, outputFile)];
+    let args = [
+      terserBinary, inputFile, '--output', outputFile,
+      ...directoryArgs(residual, inputFile, outputFile)
+    ];
 
     spawn(process.execPath, args)
         .then(
