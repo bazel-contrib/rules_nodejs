@@ -20,7 +20,13 @@ _ATTRS = {
 # because the output_dir is a tree artifact
 # so we weren't able to give it a label
 def _expand_location(ctx, s):
-    s = s.replace("$@", "/".join([ctx.bin_dir.path, ctx.label.package, ctx.attr.name]))
+    outdir_segments = [ctx.bin_dir.path, ctx.label.package]
+    if ctx.attr.output_dir:
+        # We'll write into a newly created directory named after the rule
+        outdir_segments.append(ctx.attr.name)
+
+    # The list comprehension removes empty segments like if we are in the root package
+    s = s.replace("$@", "/".join([o for o in outdir_segments if o]))
     return ctx.expand_location(s, targets = ctx.attr.data)
 
 def _impl(ctx):
@@ -53,7 +59,7 @@ _npm_package_bin = rule(
 )
 
 def npm_package_bin(tool = None, package = None, package_bin = None, data = [], outs = [], args = [], output_dir = False, **kwargs):
-    """Run an arbitrary npm package binary (anything under node_modules/.bin/*) under Bazel.
+    """Run an arbitrary npm package binary (e.g. a program under node_modules/.bin/*) under Bazel.
 
     It must produce outputs. If you just want to run a program with `bazel run`, use the nodejs_binary rule.
 
@@ -69,13 +75,14 @@ def npm_package_bin(tool = None, package = None, package_bin = None, data = [], 
         outs: similar to [genrule.outs](https://docs.bazel.build/versions/master/be/general.html#genrule.outs)
         output_dir: set to True if you want the output to be a directory
                  Exactly one of `outs`, `output_dir` may be used.
-                 If you output a directory, there can only be one output, which will be named the same as the target.
+                 If you output a directory, there can only be one output, which will be a directory named the same as the target.
 
         args: Command-line arguments to the tool.
 
             Subject to 'Make variable' substitution.
             Can use $(location) expansion. See https://docs.bazel.build/versions/master/be/make-variables.html
             You may also refer to the location of the output_dir with the special `$@` replacement, like genrule.
+            If output_dir=False then $@ will refer to the output directory for this package.
 
         package: an npm package whose binary to run, like "terser". Assumes your node_modules are installed in a workspace called "npm"
         package_bin: the "bin" entry from `package` that should be run. By default package_bin is the same string as `package`

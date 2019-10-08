@@ -1,9 +1,10 @@
 load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_package")
 load("@npm//http-server:index.bzl", "http_server")
+load("@npm//typescript:index.bzl", "tsc")
 load("@npm_bazel_protractor//:index.bzl", "protractor_web_test_suite")
 load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
 load("@npm_bazel_terser//:index.bzl", "terser_minified")
-load("@npm_bazel_typescript//:index.bzl", "ts_config", "ts_devserver", "ts_library")
+load("@npm_bazel_typescript//:index.bzl", "ts_devserver", "ts_library")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -46,20 +47,28 @@ http_server(
     templated_args = ["package"],
 )
 
-ts_config(
-    name = "tsconfig-test",
-    src = "tsconfig-test.json",
-    deps = [":tsconfig.json"],
-)
-
-ts_library(
+# we could use ts_library here, but we use plain typescript to demonstrate that it works
+tsc(
     name = "e2e",
     testonly = 1,
-    srcs = ["app.e2e-spec.ts"],
-    tsconfig = ":tsconfig-test",
-    deps = [
+    # Remember that Bazel requires it know what outputs are created ahead of time
+    # so that it can construct a dependency graph.
+    outs = [
+        "app.e2e-spec.js",
+    ],
+    args = [
+        "-p",
+        "$(location tsconfig-test.json)",
+        "--outDir",
+        # $@ is a shorthand for the dist/bin directory where Bazel requires we write outputs
+        "$@",
+    ],
+    data = [
+        "app.e2e-spec.ts",
+        "tsconfig.json",
+        "tsconfig-test.json",
         "@npm//@types/jasmine",
-        "@npm//jasmine",
+        "@npm//@types/node",
         "@npm//protractor",
     ],
 )
