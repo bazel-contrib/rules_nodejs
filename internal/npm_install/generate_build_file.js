@@ -458,7 +458,12 @@ def _maybe(repo_rule, name, **kwargs):
             .filter(f => !f.startsWith('.'))
             .map(f => path.posix.join(p, f))
             .filter(f => isDirectory(f));
-        packages.forEach(f => pkgs.push(parsePackage(f), ...findPackages(path.posix.join(f, 'node_modules'))));
+        packages.forEach(f => {
+            if (fs.lstatSync(f).isSymbolicLink()) {
+                return;
+            }
+            pkgs.push(parsePackage(f), ...findPackages(path.posix.join(f, 'node_modules')));
+        });
         const scopes = listing.filter(f => f.startsWith('@'))
             .map(f => path.posix.join(p, f))
             .filter(f => isDirectory(f));
