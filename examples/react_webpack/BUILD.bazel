@@ -1,0 +1,64 @@
+load("@npm//http-server:index.bzl", "http_server")
+load("@npm//sass:index.bzl", "sass")
+load("@npm//typescript:index.bzl", "tsc")
+load("@npm//webpack-cli:index.bzl", webpack = "webpack_cli")
+
+sass(
+    name = "styles",
+    outs = ["styles.css"],
+    args = [
+        "$(location styles.scss)",
+        "$(location styles.css)",
+    ],
+    data = ["styles.scss"],
+)
+
+tsc(
+    name = "compile",
+    outs = ["index.js"],
+    args = [
+        "$(location index.tsx)",
+        "$(location types.d.ts)",
+        "--outDir",
+        "$@",
+        "--lib",
+        "es2015,dom",
+        "--jsx",
+        "react",
+    ],
+    data = [
+        "index.tsx",
+        "types.d.ts",
+        "@npm//@types",
+        "@npm//csstype",
+    ],
+)
+
+webpack(
+    name = "bundle",
+    outs = ["app.bundle.js"],
+    args = [
+        "$(location index.js)",
+        "--config",
+        "$(location webpack.config.js)",
+        "-o",
+        "$(location app.bundle.js)",
+    ],
+    data = [
+        "index.js",
+        "styles.css",
+        "webpack.config.js",
+        "@npm//css-loader",
+        "@npm//style-loader",
+    ],
+)
+
+# Note, on Windows you need `--enable_runfiles`
+http_server(
+    name = "server",
+    data = [
+        "app.bundle.js",
+        "index.html",
+    ],
+    templated_args = ["."],
+)
