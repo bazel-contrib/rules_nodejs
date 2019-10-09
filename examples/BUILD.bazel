@@ -81,6 +81,12 @@ example_integration_test(
 )
 
 example_integration_test(
+    name = "examples_react_webpack",
+    # TODO: add some tests in the example
+    bazel_commands = ["build ..."],
+)
+
+example_integration_test(
     name = "examples_app",
     npm_packages = {
         "//packages/hide-bazel-files:npm_package": "@bazel/hide-bazel-files",
