@@ -1,3 +1,27 @@
+## [0.38.2](https://github.com/bazelbuild/rules_nodejs/compare/0.38.1...0.38.2) (2019-10-09)
+
+
+### Bug Fixes
+
+* clean_nested_workspaces.sh ([acaa5fb](https://github.com/bazelbuild/rules_nodejs/commit/acaa5fb))
+* **rollup:** handle transitive npm deps in rollup_bundle ([77289e0](https://github.com/bazelbuild/rules_nodejs/commit/77289e0))
+* dont generate build files in symlinked node_modules ([#1111](https://github.com/bazelbuild/rules_nodejs/issues/1111)) ([2e7de34](https://github.com/bazelbuild/rules_nodejs/commit/2e7de34)), closes [#871](https://github.com/bazelbuild/rules_nodejs/issues/871)
+* linker can't assume that transitive module_mappings are in the sandbox ([a67a844](https://github.com/bazelbuild/rules_nodejs/commit/a67a844))
+
+
+### Features
+
+* **examples:** add closure compiler example ([79b0927](https://github.com/bazelbuild/rules_nodejs/commit/79b0927))
+* document the escape hatch from ts_library ([#1247](https://github.com/bazelbuild/rules_nodejs/issues/1247)) ([baa9aa8](https://github.com/bazelbuild/rules_nodejs/commit/baa9aa8))
+* **examples:** illustrate how to run a mocha test ([#1216](https://github.com/bazelbuild/rules_nodejs/issues/1216)) ([5485a8a](https://github.com/bazelbuild/rules_nodejs/commit/5485a8a))
+* **examples:** update examples/angular to new rollup_bundle ([#1238](https://github.com/bazelbuild/rules_nodejs/issues/1238)) ([54f5d8c](https://github.com/bazelbuild/rules_nodejs/commit/54f5d8c))
+* **terser:** add source map links ([32eb7ca](https://github.com/bazelbuild/rules_nodejs/commit/32eb7ca))
+* **typescript:** add a transitive_js_ecma_script_module_info alias to js_ecma_script_module_info ([#1243](https://github.com/bazelbuild/rules_nodejs/issues/1243)) ([77e2d4a](https://github.com/bazelbuild/rules_nodejs/commit/77e2d4a))
+* **typescript:** add direct_sources field to JSEcmaScriptModuleInfo ([1ee00e6](https://github.com/bazelbuild/rules_nodejs/commit/1ee00e6))
+* **typescript:** add JSNamedModuleInfo provider to ts_library outputs ([#1215](https://github.com/bazelbuild/rules_nodejs/issues/1215)) ([bb1f9b4](https://github.com/bazelbuild/rules_nodejs/commit/bb1f9b4))
+
+
+
 ## [0.38.1](https://github.com/bazelbuild/rules_nodejs/compare/0.38.0...0.38.1) (2019-10-03)
 
 
