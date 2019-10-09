@@ -504,8 +504,13 @@ function findPackages(p = 'node_modules') {
                        .map(f => path.posix.join(p, f))
                        .filter(f => isDirectory(f));
 
-  packages.forEach(
-      f => pkgs.push(parsePackage(f), ...findPackages(path.posix.join(f, 'node_modules'))));
+  packages.forEach(f => {
+    let hide = true;
+    if (fs.lstatSync(f).isSymbolicLink()) {
+      hide = false;
+    }
+    pkgs.push(parsePackage(f, hide), ...findPackages(path.posix.join(f, 'node_modules')))
+  });
 
   const scopes = listing.filter(f => f.startsWith('@'))
                      .map(f => path.posix.join(p, f))
@@ -541,7 +546,7 @@ function findScopes() {
  * package json and return it as an object along with
  * some additional internal attributes prefixed with '_'.
  */
-function parsePackage(p: string): Dep {
+function parsePackage(p: string, hide: boolean = true): Dep {
   // Parse the package.json file of this package
   const packageJson = path.posix.join(p, 'package.json');
   const pkg = isFile(packageJson) ? JSON.parse(fs.readFileSync(packageJson, {encoding: 'utf8'})) :
@@ -571,7 +576,7 @@ function parsePackage(p: string): Dep {
   // Hide bazel files in this package. We do this before parsing
   // the next package to prevent issues caused by symlinks between
   // package and nested packages setup by the package manager.
-  hideBazelFiles(pkg);
+  if (hide) hideBazelFiles(pkg);
 
   return pkg;
 }
