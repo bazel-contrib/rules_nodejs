@@ -3,14 +3,14 @@
 
 
 "@bazel/hide-bazel-files@^0.38.0":
-  version "0.38.1"
-  resolved "https://registry.yarnpkg.com/@bazel/hide-bazel-files/-/hide-bazel-files-0.38.1.tgz#a2447e04775de262290adf3afa533d4472a75641"
-  integrity sha512-9psDbiOS53tdHSpVVhxf01aBHjdOOwljAkJdleuAPhGif/jl2GrAfVXcSSgmMogeTlDT1xMG24sryPxn7M/3Zw==
+  version "0.38.2"
+  resolved "https://registry.yarnpkg.com/@bazel/hide-bazel-files/-/hide-bazel-files-0.38.2.tgz#3c4c4ed025e8193851a21685898ce24cf8851945"
+  integrity sha512-Twwxneh3VXE6EHC82R2v799kHGuVNfs9l0D+N+PrgE0yTpbCek4AbowFp2HQznlYqIswicfeMQGYVVKX9+s7ww==
 
 "@bazel/karma@^0.38.0":
-  version "0.38.1"
-  resolved "https://registry.yarnpkg.com/@bazel/karma/-/karma-0.38.1.tgz#7175b2284d21b1a725f24d8ca24577ec7c54c222"
-  integrity sha512-Hz6+7tm70Qv59iX+iryln7WC1GT8R2Jc93zu6EdqlkyVSWbTb6J+pmp3hcBKG+4Y2iAlLk+Czaj8cQu1DRt8GQ==
+  version "0.38.2"
+  resolved "https://registry.yarnpkg.com/@bazel/karma/-/karma-0.38.2.tgz#13c0eb8f09fdc579ef3a2493d6014d77cdc03670"
+  integrity sha512-pTeHciOyg5ViCCl8Vn5N/wSJSTrxh+26+drlh0GBW8gzUTGIfWDVnma3oA6lLp8zyaCzkpoMP2ukrwBky3nk1Q==
   dependencies:
     jasmine-core "2.8.0"
     karma "~4.1.0"
@@ -25,33 +25,33 @@
     tmp "0.0.33"
 
 "@bazel/labs@^0.38.0":
-  version "0.38.1"
-  resolved "https://registry.yarnpkg.com/@bazel/labs/-/labs-0.38.1.tgz#519f8dd43622fb89429249d3c4519e28a8c1771f"
-  integrity sha512-UjPTKyBT4fWgpll1wVqSFOWCfD0NO00wMjqv9YC+WEGcRU0sOrXkuGSWpip4J4J90XBzg5O79kvlLA7i9E+OTQ==
+  version "0.38.2"
+  resolved "https://registry.yarnpkg.com/@bazel/labs/-/labs-0.38.2.tgz#22ab9bf8ff156a57f588ad9d96c05747456e4b08"
+  integrity sha512-6XRBIjyXQTksjIHwXFPsf7shpGbL4AhARYH2mAoDoVCqftVXFSwq7aOQdLLyeLf69uKcOHgS/KfLq6MMVHBdSw==
   dependencies:
     webpack "~4.29.3"
 
 "@bazel/protractor@^0.38.0":
-  version "0.38.1"
-  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-0.38.1.tgz#0785c863254071f6d848d1d78c7ceb47af9ae218"
-  integrity sha512-bAixjddJyGA4OKxkhKIWNH1u5atOm7qCQKTR5GFhEEECuxwabwuyZGDtGzWGKgngCwy7UZitG8BTX2CKU4cknw==
+  version "0.38.2"
+  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-0.38.2.tgz#be0804c246d412f8b285fc22a320ab9b471c7a5d"
+  integrity sha512-bo5v7CpG9TlPX2lx/XueviMt8KY7KDaL7rcw5SR3uU+4w+gX6bTjdnSsVXCUH2YrTTz6VgZaBZO3O0GTbjDP+w==
   dependencies:
     protractor "^5.4.2"
 
 "@bazel/rollup@^0.38.0":
-  version "0.38.1"
-  resolved "https://registry.yarnpkg.com/@bazel/rollup/-/rollup-0.38.1.tgz#d114aaa384a2adb4fb3fa365700268b8c46eef2b"
-  integrity sha512-a9SJKEipqiaaRQ8n7lIf4IhEao3XflvcsHOYXFFnf4z4BVZ2V4bEKNVgsM6tVuKqzYwMFfpQoXvqqPbuKi7ZEw==
+  version "0.38.2"
+  resolved "https://registry.yarnpkg.com/@bazel/rollup/-/rollup-0.38.2.tgz#ed24c93e95ff013d0aaf8d0f6b964075dd744b08"
+  integrity sha512-LwhAakuXzoi/Z2S8FoBjcG4F4jXUE4RbC7qEIo89Gyi3ZA6TUn+UoGemtO/X7GO+/tWxsQhqTDrB03GPTXuf2g==
 
 "@bazel/terser@^0.38.0":
-  version "0.38.1"
-  resolved "https://registry.yarnpkg.com/@bazel/terser/-/terser-0.38.1.tgz#58528eef6c291a1bb5c8b842ea7b79ae82f1d63c"
-  integrity sha512-Xl28RCHDl6joDqybF7+zm4qVtcZpPxlysP7qcRkGQaMdn2ltOzctt270eSHw7xXwvvoAj00bJL1NBVTQO5m44Q==
+  version "0.38.2"
+  resolved "https://registry.yarnpkg.com/@bazel/terser/-/terser-0.38.2.tgz#ab6e899b77a7823a3102fcc464ea56e09e3314ef"
+  integrity sha512-Vhh5mRpuIPUwYKHF9F+WHKzO5kC1+PW9zHY1l4KJcXhsQiZ0fDauE5jiNjgAnjaw+SoRuFPIcvfvSMZaYdgrTg==
 
 "@bazel/typescript@^0.38.0":
-  version "0.38.1"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-0.38.1.tgz#fe9a84e0992580a4b67cbc48fbe72f9154bacf56"
-  integrity sha512-etTftAm6jN0cdHS9Pgb6fJXgHaot+nRhgr8VjUKZr/ITs31U7iDA/9ehjoVFVbqzJzQy4BfdicbydP+cqXz2Xg==
+  version "0.38.2"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-0.38.2.tgz#d07e20c910e0e7250ebbdf64f3ef3014ad8e3039"
+  integrity sha512-KATYNcRaF5JxtmEAczpr1CRZwmPSTAWUA/3Ogp8R17SA7ts9P+K8WPr3eml1b9JkiUzmNvERMU8HNEslDMuhvg==
   dependencies:
     protobufjs "6.8.8"
     semver "5.6.0"
@@ -132,9 +132,9 @@
   integrity sha512-2azXFP9n4aA2QNLkKm/F9pzKxgYj1SMawZ5Eh9iC21RH3XNcFsivLVU2NhpMgQm7YobSByvIol4c42ZFusXFHQ==
 
 "@types/node@^10.1.0":
-  version "10.14.19"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-10.14.19.tgz#f52742c7834a815dedf66edfc8a51547e2a67342"
-  integrity sha512-j6Sqt38ssdMKutXBUuAcmWF8QtHW1Fwz/mz4Y+Wd9mzpBiVFirjpNQf363hG5itkG+yGaD+oiLyb50HxJ36l9Q==
+  version "10.14.21"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-10.14.21.tgz#4a9db7ef1d1671c0015e632c5fa3d46c86c58c1e"
+  integrity sha512-nuFlRdBiqbF+PJIEVxm2jLFcQWN7q7iWEJGsBV4n7v1dbI9qXB8im2pMMKMCUZe092sQb5SQft2DHfuQGK5hqQ==
 
 "@types/node@^12.7.2":
   version "12.7.8"
@@ -1373,12 +1373,12 @@ engine.io@~3.2.0:
     ws "~3.3.1"
 
 enhanced-resolve@^4.1.0:
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/enhanced-resolve/-/enhanced-resolve-4.1.0.tgz#41c7e0bfdfe74ac1ffe1e57ad6a5c6c9f3742a7f"
-  integrity sha512-F/7vkyTtyc/llOIn8oWclcB25KdRaiPBpZYDgJHgh/UHtpgT2p2eldQgtQnLtUvfMKPKxbRaQM/hHkvLHt1Vng==
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/enhanced-resolve/-/enhanced-resolve-4.1.1.tgz#2937e2b8066cd0fe7ce0990a98f0d71a35189f66"
+  integrity sha512-98p2zE+rL7/g/DzMHMTF4zZlCgeVdJ7yr6xzEpJRYwFYrGi9ANdn5DnJURg6RpBkyk60XYDnWIv51VfIhfNGuA==
   dependencies:
     graceful-fs "^4.1.2"
-    memory-fs "^0.4.0"
+    memory-fs "^0.5.0"
     tapable "^1.0.0"
 
 ent@~2.2.0:
@@ -1946,9 +1946,9 @@ iferr@^0.1.5:
   integrity sha1-xg7taebY/bazEEofy8ocGS3FtQE=
 
 ignore-walk@^3.0.1:
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/ignore-walk/-/ignore-walk-3.0.2.tgz#99d83a246c196ea5c93ef9315ad7b0819c35069b"
-  integrity sha512-EXyErtpHbn75ZTsOADsfx6J/FPo6/5cjev46PXrcTpd8z3BoRkXgYu9/JVqrI7tusjmwCZutGeRJeU0Wo1e4Cw==
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/ignore-walk/-/ignore-walk-3.0.3.tgz#017e2447184bfeade7c238e4aefdd1e8f95b1e37"
+  integrity sha512-m7o6xuOaT1aqheYHKf8W6J5pYH85ZI9w077erOzLje3JsB1gkafkAhHHY19dqjulgIZHFm32Cp5uNZgcQqdJKw==
   dependencies:
     minimatch "^3.0.4"
 
@@ -2514,7 +2514,15 @@ media-typer@0.3.0:
   resolved "https://registry.yarnpkg.com/media-typer/-/media-typer-0.3.0.tgz#8710d7af0aa626f8fffa1ce00168545263255748"
   integrity sha1-hxDXrwqmJvj/+hzgAWhUUmMlV0g=
 
-memory-fs@^0.4.0, memory-fs@~0.4.1:
+memory-fs@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/memory-fs/-/memory-fs-0.5.0.tgz#324c01288b88652966d161db77838720845a8e3c"
+  integrity sha512-jA0rdU5KoQMC0e6ppoNRtpp6vjFq6+NY7r8hywnC7V+1Xj/MtHwGIbB1QaK/dunyjWteJzmkpd7ooeWg10T7GA==
+  dependencies:
+    errno "^0.1.3"
+    readable-stream "^2.0.1"
+
+memory-fs@~0.4.1:
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/memory-fs/-/memory-fs-0.4.1.tgz#3a9a20b8462523e447cfbc7e8bb80ed667bfc552"
   integrity sha1-OpoguEYlI+RHz7x+i7gO1me/xVI=
@@ -2783,9 +2791,9 @@ npm-bundled@^1.0.1:
   integrity sha512-8/JCaftHwbd//k6y2rEWp6k1wxVfpFzB6t1p825+cUb7Ym2XQfhwIC5KwhrvzZRJu+LtDE585zVaS32+CGtf0g==
 
 npm-packlist@^1.1.6:
-  version "1.4.4"
-  resolved "https://registry.yarnpkg.com/npm-packlist/-/npm-packlist-1.4.4.tgz#866224233850ac534b63d1a6e76050092b5d2f44"
-  integrity sha512-zTLo8UcVYtDU3gdeaFu2Xu0n0EvelfHDGuqtNIn5RO7yQj4H1TqNdBc/yZjxnWA0PVB8D3Woyp0i5B43JwQ6Vw==
+  version "1.4.6"
+  resolved "https://registry.yarnpkg.com/npm-packlist/-/npm-packlist-1.4.6.tgz#53ba3ed11f8523079f1457376dd379ee4ea42ff4"
+  integrity sha512-u65uQdb+qwtGvEJh/DgQgW1Xg7sqeNbmxYyrvlNznaVTjV3E5P6F/EFjM+BVHXl7JJlsdG8A64M0XI8FI/IOlg==
   dependencies:
     ignore-walk "^3.0.1"
     npm-bundled "^1.0.1"
@@ -3881,9 +3889,9 @@ terser@4.3.1:
     source-map-support "~0.5.12"
 
 terser@^4.1.2:
-  version "4.3.4"
-  resolved "https://registry.yarnpkg.com/terser/-/terser-4.3.4.tgz#ad91bade95619e3434685d69efa621a5af5f877d"
-  integrity sha512-Kcrn3RiW8NtHBP0ssOAzwa2MsIRQ8lJWiBG/K7JgqPlomA3mtb2DEmp4/hrUA+Jujx+WZ02zqd7GYD+QRBB/2Q==
+  version "4.3.8"
+  resolved "https://registry.yarnpkg.com/terser/-/terser-4.3.8.tgz#707f05f3f4c1c70c840e626addfdb1c158a17136"
+  integrity sha512-otmIRlRVmLChAWsnSFNO0Bfk6YySuBp6G9qrHiJwlLDd4mxe2ta4sjI7TzIR+W1nBMjilzrMcPOz9pSusgx3hQ==
   dependencies:
     commander "^2.20.0"
     source-map "~0.6.1"

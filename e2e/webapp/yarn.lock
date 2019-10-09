@@ -3,14 +3,14 @@
 
 
 "@bazel/rollup@^0.38.0":
-  version "0.38.1"
-  resolved "https://registry.yarnpkg.com/@bazel/rollup/-/rollup-0.38.1.tgz#d114aaa384a2adb4fb3fa365700268b8c46eef2b"
-  integrity sha512-a9SJKEipqiaaRQ8n7lIf4IhEao3XflvcsHOYXFFnf4z4BVZ2V4bEKNVgsM6tVuKqzYwMFfpQoXvqqPbuKi7ZEw==
+  version "0.38.2"
+  resolved "https://registry.yarnpkg.com/@bazel/rollup/-/rollup-0.38.2.tgz#ed24c93e95ff013d0aaf8d0f6b964075dd744b08"
+  integrity sha512-LwhAakuXzoi/Z2S8FoBjcG4F4jXUE4RbC7qEIo89Gyi3ZA6TUn+UoGemtO/X7GO+/tWxsQhqTDrB03GPTXuf2g==
 
 "@bazel/terser@^0.38.0":
-  version "0.38.1"
-  resolved "https://registry.yarnpkg.com/@bazel/terser/-/terser-0.38.1.tgz#58528eef6c291a1bb5c8b842ea7b79ae82f1d63c"
-  integrity sha512-Xl28RCHDl6joDqybF7+zm4qVtcZpPxlysP7qcRkGQaMdn2ltOzctt270eSHw7xXwvvoAj00bJL1NBVTQO5m44Q==
+  version "0.38.2"
+  resolved "https://registry.yarnpkg.com/@bazel/terser/-/terser-0.38.2.tgz#ab6e899b77a7823a3102fcc464ea56e09e3314ef"
+  integrity sha512-Vhh5mRpuIPUwYKHF9F+WHKzO5kC1+PW9zHY1l4KJcXhsQiZ0fDauE5jiNjgAnjaw+SoRuFPIcvfvSMZaYdgrTg==
 
 "@types/estree@0.0.39":
   version "0.0.39"

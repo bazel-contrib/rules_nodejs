@@ -3,9 +3,9 @@
 
 
 "@bazel/typescript@^0.38.0":
-  version "0.38.1"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-0.38.1.tgz#fe9a84e0992580a4b67cbc48fbe72f9154bacf56"
-  integrity sha512-etTftAm6jN0cdHS9Pgb6fJXgHaot+nRhgr8VjUKZr/ITs31U7iDA/9ehjoVFVbqzJzQy4BfdicbydP+cqXz2Xg==
+  version "0.38.2"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-0.38.2.tgz#d07e20c910e0e7250ebbdf64f3ef3014ad8e3039"
+  integrity sha512-KATYNcRaF5JxtmEAczpr1CRZwmPSTAWUA/3Ogp8R17SA7ts9P+K8WPr3eml1b9JkiUzmNvERMU8HNEslDMuhvg==
   dependencies:
     protobufjs "6.8.8"
     semver "5.6.0"
@@ -116,9 +116,9 @@
   integrity sha512-7TEYTQT1/6PP53NftXXabIZDaZfaoBdeBm8Md/i7zsWRoBe0YwOXguyK8vhHs8ehgB/w9U4K/6EWuTyp0W6nIA==
 
 "@types/node@^10.1.0":
-  version "10.14.19"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-10.14.19.tgz#f52742c7834a815dedf66edfc8a51547e2a67342"
-  integrity sha512-j6Sqt38ssdMKutXBUuAcmWF8QtHW1Fwz/mz4Y+Wd9mzpBiVFirjpNQf363hG5itkG+yGaD+oiLyb50HxJ36l9Q==
+  version "10.14.21"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-10.14.21.tgz#4a9db7ef1d1671c0015e632c5fa3d46c86c58c1e"
+  integrity sha512-nuFlRdBiqbF+PJIEVxm2jLFcQWN7q7iWEJGsBV4n7v1dbI9qXB8im2pMMKMCUZe092sQb5SQft2DHfuQGK5hqQ==
 
 accepts@~1.3.7:
   version "1.3.7"
