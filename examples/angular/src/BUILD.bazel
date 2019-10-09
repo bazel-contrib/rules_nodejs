@@ -99,7 +99,7 @@ ts_devserver(
         "//src/assets",
     ],
     # Start from the development version of the main
-    entry_module = "angular_bazel_example/src/main.dev",
+    entry_module = "examples_angular/src/main.dev",
     # <script> and <link> tags will be automatically injected into this index file
     index_html = "//src/example:index.dev.html",
     # These scripts will be included in the JS bundle after require.js
@@ -209,5 +209,5 @@ container_image(
     # Actions created by this rule are I/O-bound,
     # so there is no benefit to running them remotely
     tags = ["local"],
-    workdir = "/app/src/nodejs_image.binary.runfiles/angular_bazel_example",
+    workdir = "/app/src/nodejs_image.binary.runfiles/examples_angular",
 )
