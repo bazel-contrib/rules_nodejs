@@ -29,6 +29,15 @@ def _to_manifest_path(ctx, file):
         return ctx.workspace_name + "/" + file.short_path
 
 def _bazel_integration_test(ctx):
+    if len(ctx.files.workspace_files) == 0:
+        fail("""
+No files were found to run under integration testing. See comment in /.bazelrc.
+You probably need to run
+
+    yarn bazel:update-deleted-packages
+
+""")
+
     # Serialize configuration file for test runner
     config = ctx.actions.declare_file("%s.config.js" % ctx.attr.name)
     ctx.actions.write(
