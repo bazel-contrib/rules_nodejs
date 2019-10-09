@@ -1,8 +1,8 @@
 diff --git a/node_modules/@angular/bazel/src/external.bzl b/node_modules/@angular/bazel/src/external.bzl
-index 4959f22..43f1c96 100755
+index 9cdb543..8b8d4d6 100755
 --- a/node_modules/@angular/bazel/src/external.bzl
 +++ b/node_modules/@angular/bazel/src/external.bzl
-@@ -14,17 +14,17 @@ load(
+@@ -14,9 +14,9 @@ load(
      _ts_providers_dict_to_struct = "ts_providers_dict_to_struct",
  )
  load(
@@ -15,7 +15,13 @@ index 4959f22..43f1c96 100755
  )
  load(
      "@npm_bazel_typescript//internal:ts_config.bzl",
-     _TsConfigInfo = "TsConfigInfo",
+@@ -24,11 +24,12 @@ load(
+ )
+ load(
+     "@build_bazel_rules_nodejs//:providers.bzl",
+-    _transitive_js_ecma_script_module_info = "transitive_js_ecma_script_module_info",
++    _js_ecma_script_module_info = "js_ecma_script_module_info",
++    _js_named_module_info = "js_named_module_info",
  )
  
 -NodeModuleSources = _NodeModuleSources
@@ -25,24 +31,18 @@ index 4959f22..43f1c96 100755
  
  tsc_wrapped_tsconfig = _tsc_wrapped_tsconfig
  COMMON_ATTRIBUTES = _COMMON_ATTRIBUTES
-diff --git a/node_modules/@angular/bazel/src/modify_tsconfig.js b/node_modules/@angular/bazel/src/modify_tsconfig.js
-index 9d3c491..3c99746 100755
---- a/node_modules/@angular/bazel/src/modify_tsconfig.js
-+++ b/node_modules/@angular/bazel/src/modify_tsconfig.js
-@@ -44,7 +44,7 @@ function main(args) {
-     // ngc-wrapped is expecting POSIX paths and the TypeScript Bazel rules by default only pass
-     // POSIX paths as well.
-     angularCompilerOptions['expectedOut'] = angularCompilerOptions['expectedOut'].map(
--        f => f.replace(/\.closure\.js$/, '.js').replace(binDir, newOutputBase));
-+        f => f.replace(/\.mjs$/, '.js').replace(binDir, newOutputBase));
-   }
-   fs.writeFileSync(output, JSON.stringify(data));
- }
+@@ -42,4 +43,5 @@ DEFAULT_NG_COMPILER = "@npm//@angular/bazel/bin:ngc-wrapped"
+ DEFAULT_NG_XI18N = "@npm//@angular/bazel/bin:xi18n"
+ FLAT_DTS_FILE_SUFFIX = ".bundle.d.ts"
+ TsConfigInfo = _TsConfigInfo
+-transitive_js_ecma_script_module_info = _transitive_js_ecma_script_module_info
++js_ecma_script_module_info = _js_ecma_script_module_info
++js_named_module_info = _js_named_module_info
 diff --git a/node_modules/@angular/bazel/src/ng_module.bzl b/node_modules/@angular/bazel/src/ng_module.bzl
-index 9b88fbb..54bf2c7 100755
+index 2b31963..98479f7 100755
 --- a/node_modules/@angular/bazel/src/ng_module.bzl
 +++ b/node_modules/@angular/bazel/src/ng_module.bzl
-@@ -13,13 +13,14 @@ load(
+@@ -13,11 +13,12 @@ load(
      "DEFAULT_NG_COMPILER",
      "DEFAULT_NG_XI18N",
      "DEPS_ASPECTS",
@@ -52,32 +52,13 @@ index 9b88fbb..54bf2c7 100755
 -    "collect_node_modules_aspect",
 +    "node_modules_aspect",
      "compile_ts",
+-    "transitive_js_ecma_script_module_info",
++    "js_ecma_script_module_info",
++    "js_named_module_info",
      "ts_providers_dict_to_struct",
      "tsc_wrapped_tsconfig",
  )
-+load("@build_bazel_rules_nodejs//:providers.bzl", "js_ecma_script_module_info", "js_named_module_info")
- 
- _FLAT_DTS_FILE_SUFFIX = ".bundle.d.ts"
- _R3_SYMBOLS_DTS_FILE = "src/r3_symbols.d.ts"
-@@ -237,7 +238,7 @@ def _expected_outs(ctx):
-             continue
- 
-         filter_summaries = ctx.attr.filter_summaries
--        closure_js = [f.replace(".js", ".closure.js") for f in devmode_js if not filter_summaries or not f.endswith(".ngsummary.js")]
-+        closure_js = [f.replace(".js", ".mjs") for f in devmode_js if not filter_summaries or not f.endswith(".ngsummary.js")]
-         declarations = [f.replace(".js", ".d.ts") for f in devmode_js]
- 
-         devmode_js_files += [ctx.actions.declare_file(basename + ext) for ext in devmode_js]
-@@ -262,7 +263,7 @@ def _expected_outs(ctx):
-     if _should_produce_flat_module_outs(ctx):
-         flat_module_out = _flat_module_out_file(ctx)
-         devmode_js_files.append(ctx.actions.declare_file("%s.js" % flat_module_out))
--        closure_js_files.append(ctx.actions.declare_file("%s.closure.js" % flat_module_out))
-+        closure_js_files.append(ctx.actions.declare_file("%s.mjs" % flat_module_out))
-         bundle_index_typings = ctx.actions.declare_file("%s.d.ts" % flat_module_out)
-         declaration_files.append(bundle_index_typings)
-         if is_legacy_ngc:
-@@ -517,11 +518,11 @@ def _compile_action(ctx, inputs, outputs, dts_bundles_out, messages_out, tsconfi
+@@ -527,11 +528,11 @@ def _compile_action(
              file_inputs += ctx.attr.tsconfig[TsConfigInfo].deps
  
      # Also include files from npm fine grained deps as action_inputs.
@@ -92,35 +73,30 @@ index 9b88fbb..54bf2c7 100755
  
      # Collect the inputs and summary files from our deps
      action_inputs = depset(
-@@ -603,9 +604,23 @@ def ng_module_impl(ctx, ts_compile_actions):
-     return providers
+@@ -617,7 +618,11 @@ def _ng_module_impl(ctx):
  
- def _ng_module_impl(ctx):
--    return ts_providers_dict_to_struct(ng_module_impl(ctx, compile_ts))
--
--local_deps_aspects = [collect_node_modules_aspect, _collect_summaries_aspect]
-+    ts_providers = ng_module_impl(ctx, compile_ts)
-+
-+    # Add in new JS providers
-+    ts_providers["providers"].extend([
+     # Add in new JS providers
+     ts_providers["providers"].extend([
+-        transitive_js_ecma_script_module_info(
 +        js_named_module_info(
 +            sources = ts_providers["typescript"]["es5_sources"],
 +            deps = ctx.attr.deps,
 +        ),
 +        js_ecma_script_module_info(
-+            sources = ts_providers["typescript"]["es6_sources"],
-+            deps = ctx.attr.deps,
-+        ),
-+    ])
-+
-+    return ts_providers_dict_to_struct(ts_providers)
-+
+             sources = ts_providers["typescript"]["es6_sources"],
+             deps = ctx.attr.deps,
+         ),
+@@ -625,7 +630,7 @@ def _ng_module_impl(ctx):
+ 
+     return ts_providers_dict_to_struct(ts_providers)
+ 
+-local_deps_aspects = [collect_node_modules_aspect, _collect_summaries_aspect]
 +local_deps_aspects = [node_modules_aspect, _collect_summaries_aspect]
  
  # Workaround skydoc bug which assumes DEPS_ASPECTS is a str type
  [local_deps_aspects.append(a) for a in DEPS_ASPECTS]
 diff --git a/node_modules/@angular/bazel/src/ng_package/ng_package.bzl b/node_modules/@angular/bazel/src/ng_package/ng_package.bzl
-index 48d7619..ea635bb 100755
+index 2eb79b1..c1e886a 100755
 --- a/node_modules/@angular/bazel/src/ng_package/ng_package.bzl
 +++ b/node_modules/@angular/bazel/src/ng_package/ng_package.bzl
 @@ -13,9 +13,8 @@ It packages your library following the Angular Package Format, see the
@@ -130,7 +106,7 @@ index 48d7619..ea635bb 100755
 -load("@build_bazel_rules_nodejs//internal/common:collect_es6_sources.bzl", "collect_es6_sources")
 -load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleSources")
 -load("@build_bazel_rules_nodejs//internal/common:sources_aspect.bzl", "sources_aspect")
-+load("@build_bazel_rules_nodejs//:providers.bzl", "JSEcmaScriptModuleInfo", "JSNamedModuleInfo")
++load("@build_bazel_rules_nodejs//:providers.bzl", "JSEcmaScriptModuleInfo")
 +load("@build_bazel_rules_nodejs//internal/common:npm_package_info.bzl", "NpmPackageInfo")
  load(
      "@build_bazel_rules_nodejs//internal/rollup:rollup_bundle.bzl",
