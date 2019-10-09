@@ -25,7 +25,7 @@ example_integration_test(
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
     tags = [
-        # bazel-in-bazel angular_bazel_example fails on ubuntu as the bazelci
+        # bazel-in-bazel examples_angular fails on ubuntu as the bazelci
         # ubuntu docker image is missing shares libs required for the versions
         # of chrome and firefox fetched by rules_webtesting. On circleci
         # we have the same issue but we can work around it using apt-get.
@@ -33,7 +33,7 @@ example_integration_test(
         # command to switch to root.
         # TODO(gregmagolan): figure out how to install the shared libs on bazelci
         "no-bazelci-ubuntu",
-        # bazel-in-bazel angular_bazel_example fails on Windows on bazelci cloning a git repo:
+        # bazel-in-bazel examples_angular fails on Windows on bazelci cloning a git repo:
         # ```
         # ERROR: no such package '@io_bazel_rules_k8s//k8s': Traceback (most recent call last):
         # 	File "D:/b/ftxm343s/execroot/build_bazel_rules_nodejs/_tmp/3726d3573001cb4068a18af89eb255de/_bazel_b/ktluxf26/external/bazel_tools/tools/build_defs/repo/git.bzl", line 163

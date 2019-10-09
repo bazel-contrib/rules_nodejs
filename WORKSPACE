@@ -18,7 +18,6 @@ workspace(
 )
 
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 #
 # Check that build is using a minimum compatible bazel version
@@ -273,61 +272,8 @@ load("@build_bazel_integration_testing//tools:repositories.bzl", "bazel_binaries
 bazel_binaries(versions = ["0.28.1"])
 
 #
-# Support creating Docker images for our node apps #
-# Not used but needed for @e2e_angular_bazel_example//:bazel_integration_test_files target
-#
-
-http_archive(
-    name = "io_bazel_rules_docker",
-    sha256 = "7d453450e1eb70e238eea6b31f4115607ec1200e91afea01c25f9804f37e39c8",
-    strip_prefix = "rules_docker-0.10.0",
-    urls = ["https://github.com/bazelbuild/rules_docker/archive/v0.10.0.tar.gz"],
-)
-
-load("@io_bazel_rules_docker//nodejs:image.bzl", nodejs_image_repos = "repositories")
-
-nodejs_image_repos()
-
-#
-# Kubernetes setup, for deployment to Google Cloud
-# Not used but needed for @e2e_angular_bazel_example//:bazel_integration_test_files target
-#
-
-git_repository(
-    name = "io_bazel_rules_k8s",
-    commit = "36ae5b534cc51ab0815c9bc723760469a9f7175c",
-    remote = "https://github.com/bazelbuild/rules_k8s.git",
-    shallow_since = "1545317854 -0500",
-)
-
-load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_defaults", "k8s_repositories")
-
-k8s_repositories()
-
-k8s_defaults(
-    # This creates a rule called "k8s_deploy" that we can call later
-    name = "k8s_deploy",
-    # This is the name of the cluster as it appears in:
-    #   kubectl config view --minify -o=jsonpath='{.contexts[0].context.cluster}'
-    cluster = "_".join([
-        "gke",
-        "internal-200822",
-        "us-west1-a",
-        "angular-bazel-example",
-    ]),
-    kind = "deployment",
-)
-
-#
 # Setup bazel_integration_test repositories
 #
-
-# Don't need to build kotlin in the root workspace.
-# See tools/mock_rules_kotlin/README.md
-local_repository(
-    name = "io_bazel_rules_kotlin",
-    path = "tools/mock_rules_kotlin",
-)
 
 local_repository(
     name = "e2e_packages",
@@ -337,9 +283,3 @@ local_repository(
 load("@e2e_packages//:setup_workspace.bzl", "e2e_packages_setup_workspace")
 
 e2e_packages_setup_workspace()
-
-# Mock npm_angular_bazel for @e2e_angular_bazel_example//:bazel_integration_test_files target
-local_repository(
-    name = "npm_angular_bazel",
-    path = "tools/mock_npm_angular_bazel",
-)
