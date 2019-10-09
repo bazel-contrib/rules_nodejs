@@ -798,14 +798,14 @@ def _maybe(repo_rule, name, **kwargs):
         const dtsSources = filterFiles(pkg._files, ['.d.ts']);
         // TODO(gmagolan): add UMD & AMD scripts to scripts even if not an APF package _but_ only if they
         // are named?
-        const scripts = getNgApfScripts(pkg);
+        const namedSources = getNgApfScripts(pkg);
         const deps = [pkg].concat(pkg._dependencies.filter(dep => dep !== pkg && !dep._isNested));
-        let scriptStarlark = '';
-        if (scripts.length) {
-            scriptStarlark = `
+        let namedSourcesStarlark = '';
+        if (namedSources.length) {
+            namedSourcesStarlark = `
     # subset of srcs that are javascript named-UMD or named-AMD scripts
-    scripts = [
-        ${scripts.map((f) => `"//:node_modules/${pkg._dir}/${f}",`).join('\n        ')}
+    named_module_srcs = [
+        ${namedSources.map((f) => `"//:node_modules/${pkg._dir}/${f}",`).join('\n        ')}
     ],`;
         }
         let srcsStarlark = '';
@@ -852,7 +852,7 @@ node_module_library(
 # circular dependencies errors
 node_module_library(
     name = "${pkg._name}__contents",
-    srcs = [":${pkg._name}__files"],${scriptStarlark}
+    srcs = [":${pkg._name}__files"],${namedSourcesStarlark}
 )
 
 # ${pkg._name}__typings is the subset of ${pkg._name}__contents that are declarations

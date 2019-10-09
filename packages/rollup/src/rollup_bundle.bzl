@@ -1,7 +1,7 @@
 "Rules for running Rollup under Bazel"
 
 load("@build_bazel_rules_nodejs//:providers.bzl", "JSEcmaScriptModuleInfo")
-load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleSources", "collect_node_modules_aspect")
+load("@build_bazel_rules_nodejs//internal/common:npm_package_info.bzl", "NpmPackageInfo", "node_modules_aspect")
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect", "register_node_modules_linker")
 
 _DOC = """Runs the Rollup.js CLI under Bazel.
@@ -152,7 +152,7 @@ Passed to the [`--sourcemap` option](https://github.com/rollup/rollup/blob/maste
         values = ["inline", "true", "false"],
     ),
     "deps": attr.label_list(
-        aspects = [module_mappings_aspect, collect_node_modules_aspect],
+        aspects = [module_mappings_aspect, node_modules_aspect],
         doc = """Other libraries that are required by the code, or by the rollup.config.js""",
     ),
 }
@@ -250,9 +250,9 @@ def _rollup_bundle(ctx):
             deps_depsets.append(dep.files)
 
         # Also include files from npm deps as inputs.
-        # These deps are identified by the NodeModuleSources provider.
-        if NodeModuleSources in dep:
-            deps_depsets.append(dep[NodeModuleSources].sources)
+        # These deps are identified by the NpmPackageInfo provider.
+        if NpmPackageInfo in dep:
+            deps_depsets.append(dep[NpmPackageInfo].sources)
     deps_inputs = depset(transitive = deps_depsets).to_list()
 
     inputs = _filter_js(ctx.files.entry_point) + _filter_js(ctx.files.entry_points) + ctx.files.srcs + deps_inputs

@@ -677,7 +677,7 @@ node_module_library(
 node_module_library(
     name = "core__contents",
     srcs = [":core__files"],
-    scripts = [
+    named_module_srcs = [
         "//:node_modules/@angular/core/bundles/core-testing.umd.js",
         "//:node_modules/@angular/core/bundles/core.umd.js",
     ],

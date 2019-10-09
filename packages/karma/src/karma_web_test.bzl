@@ -13,7 +13,8 @@
 # limitations under the License.
 "Unit testing with Karma"
 
-load("@build_bazel_rules_nodejs//internal/common:sources_aspect.bzl", "sources_aspect")
+load("@build_bazel_rules_nodejs//:providers.bzl", "JSNamedModuleInfo")
+load("@build_bazel_rules_nodejs//internal/common:npm_package_info.bzl", "NpmPackageInfo", "node_modules_aspect")
 load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "write_amd_names_shim")
 load("@io_bazel_rules_webtesting//web:web.bzl", "web_test_suite")
 load("@io_bazel_rules_webtesting//web/internal:constants.bzl", "DEFAULT_WRAPPED_TEST_TAGS")
@@ -50,7 +51,7 @@ KARMA_GENERIC_WEB_TEST_ATTRS = dict(COMMON_WEB_TEST_ATTRS, **{
         These should be a list of targets which produce JavaScript such as `ts_library`.
         The files will be loaded in the same order they are declared by that rule.""",
         allow_files = True,
-        aspects = [sources_aspect],
+        aspects = [node_modules_aspect],
     ),
     "_conf_tmpl": attr.label(
         default = Label(_CONF_TMPL),
@@ -65,7 +66,6 @@ KARMA_WEB_TEST_ATTRS = dict(KARMA_GENERIC_WEB_TEST_ATTRS, **{
         certain attributes of this configuration file. Attributes that are
         overridden will be outputted to the test log.""",
         allow_single_file = True,
-        aspects = [sources_aspect],
     ),
 })
 
@@ -85,6 +85,9 @@ def _write_amd_names_shim(ctx):
     write_amd_names_shim(ctx.actions, amd_names_shim, ctx.attr.bootstrap)
     return amd_names_shim
 
+def _filter_js(files):
+    return [f for f in files if f.extension == "js" or f.extension == "mjs"]
+
 # Generates the karma configuration file for the rule
 def _write_karma_config(ctx, files, amd_names_shim):
     configuration = ctx.actions.declare_file(
@@ -92,11 +95,15 @@ def _write_karma_config(ctx, files, amd_names_shim):
         sibling = ctx.outputs.executable,
     )
 
-    config_file = ""
-    if hasattr(ctx.file, "config_file"):
-        config_file = ctx.file.config_file
-        if hasattr(ctx.attr.config_file, "typescript"):
-            config_file = ctx.attr.config_file.typescript.es5_sources.to_list()[0]
+    config_file = None
+
+    # Check for config_file since ts_web_test does not have this attribute
+    if hasattr(ctx.attr, "config_file") and ctx.attr.config_file:
+        # TODO: switch to JSModuleInfo when it is available
+        if JSNamedModuleInfo in ctx.attr.config_file:
+            config_file = _filter_js(ctx.attr.config_file[JSNamedModuleInfo].direct_sources.to_list())[0]
+        else:
+            config_file = ctx.file.config_file
 
     # The files in the bootstrap attribute come before the require.js support.
     # Note that due to frameworks = ['jasmine'], a few scripts will come before
@@ -129,19 +136,23 @@ def _write_karma_config(ctx, files, amd_names_shim):
     # Next we load the "runtime_deps" which we expect to contain named AMD modules
     # Thus they should come after the require.js script, but before any srcs or deps
     runtime_files = []
-    for d in ctx.attr.runtime_deps:
-        if not hasattr(d, "typescript"):
-            # Workaround https://github.com/bazelbuild/rules_nodejs/issues/57
-            # We should allow any JS source as long as it yields something that
-            # can be loaded by require.js
-            fail("labels in runtime_deps must be created by ts_library")
-        for src in d.typescript.es5_sources.to_list():
-            runtime_files.append(_to_manifest_path(ctx, src))
+    for dep in ctx.attr.runtime_deps:
+        if JSNamedModuleInfo in dep:
+            for src in dep[JSNamedModuleInfo].direct_sources.to_list():
+                runtime_files.append(_to_manifest_path(ctx, src))
+        if not JSNamedModuleInfo in dep and not NpmPackageInfo in dep and hasattr(dep, "files"):
+            # These are javascript files provided by DefaultInfo from a direct
+            # dep that has no JSNamedModuleInfo provider or NpmPackageInfo
+            # provider (not an npm dep). These files must be in named AMD or named
+            # UMD format.
+            for src in dep.files.to_list():
+                runtime_files.append(_to_manifest_path(ctx, src))
 
     # Finally we load the user's srcs and deps
     user_entries = [
         _to_manifest_path(ctx, f)
         for f in files.to_list()
+        if f.path.endswith(".js")
     ]
 
     # Expand static_files paths to runfiles for config
@@ -187,19 +198,25 @@ def run_karma_web_test(ctx):
     Returns:
       The runfiles for the generated action.
     """
-    files = depset(ctx.files.srcs)
-    for d in ctx.attr.deps + ctx.attr.runtime_deps:
-        has_node_sources = hasattr(d, "node_sources")
-        has_dev_scripts = hasattr(d, "dev_scripts")
-        if has_node_sources:
-            files = depset(transitive = [files, d.node_sources])
-        if has_dev_scripts:
-            files = depset(transitive = [files, d.dev_scripts])
-        if not has_node_sources and not has_dev_scripts and hasattr(d, "files"):
-            # These are Javascript files directly specified in "deps".
-            # They are not collected by `sources_aspect` due to the absence of
-            # `deps` attr. These files must be in named AMD format.
-            files = depset(transitive = [files, d.files])
+    files_depsets = [depset(ctx.files.srcs)]
+    for dep in ctx.attr.deps + ctx.attr.runtime_deps:
+        if JSNamedModuleInfo in dep:
+            files_depsets.append(dep[JSNamedModuleInfo].sources)
+        if not JSNamedModuleInfo in dep and not NpmPackageInfo in dep and hasattr(dep, "files"):
+            # These are javascript files provided by DefaultInfo from a direct
+            # dep that has no JSNamedModuleInfo provider or NpmPackageInfo
+            # provider (not an npm dep). These files must be in named AMD or named
+            # UMD format.
+            files_depsets.append(dep.files)
+    files = depset(transitive = files_depsets)
+
+    # Also include files from npm fine grained deps as inputs.
+    # These deps are identified by the NpmPackageInfo provider.
+    node_modules_depsets = []
+    for dep in ctx.attr.deps + ctx.attr.runtime_deps:
+        if NpmPackageInfo in dep:
+            node_modules_depsets.append(dep[NpmPackageInfo].sources)
+    node_modules = depset(transitive = node_modules_depsets)
 
     amd_names_shim = _write_amd_names_shim(ctx)
 
@@ -250,11 +267,14 @@ $KARMA ${{ARGV[@]}}
     )
 
     config_sources = []
-    if hasattr(ctx.file, "config_file"):
-        if ctx.file.config_file:
+
+    # Check for config_file since ts_web_test does not have this attribute
+    if hasattr(ctx.attr, "config_file") and ctx.attr.config_file:
+        # TODO: switch to JSModuleInfo when it is available
+        if JSNamedModuleInfo in ctx.attr.config_file:
+            config_sources = ctx.attr.config_file[JSNamedModuleInfo].sources.to_list()
+        else:
             config_sources = [ctx.file.config_file]
-        if hasattr(ctx.attr.config_file, "node_sources"):
-            config_sources = ctx.attr.config_file.node_sources.to_list()
 
     runfiles = [
         configuration,
@@ -270,7 +290,7 @@ $KARMA ${{ARGV[@]}}
 
     return ctx.runfiles(
         files = runfiles,
-        transitive_files = files,
+        transitive_files = depset(transitive = [files, node_modules]),
     ).merge(ctx.attr.karma[DefaultInfo].data_runfiles)
 
 def _karma_web_test_impl(ctx):

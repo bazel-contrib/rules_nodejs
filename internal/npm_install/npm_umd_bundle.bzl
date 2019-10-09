@@ -17,7 +17,7 @@
 For use by yarn_install and npm_install. Not meant to be part of the public API.
 """
 
-load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleSources", "collect_node_modules_aspect")
+load("@build_bazel_rules_nodejs//internal/common:npm_package_info.bzl", "NpmPackageInfo", "node_modules_aspect")
 
 def _npm_umd_bundle(ctx):
     if len(ctx.attr.entry_point.files.to_list()) != 1:
@@ -33,7 +33,7 @@ def _npm_umd_bundle(ctx):
     args.add(output.path)
     args.add_joined(ctx.attr.excluded, join_with = ",")
 
-    sources = ctx.attr.package[NodeModuleSources].sources.to_list()
+    sources = ctx.attr.package[NpmPackageInfo].sources.to_list()
 
     # Only pass .js and package.json files as inputs to browserify.
     # The latter is required for module resolution in some cases.
@@ -91,7 +91,7 @@ This target would be then be used instead of the generated `@npm//typeorm:typeor
     "package": attr.label(
         doc = """The npm package target""",
         mandatory = True,
-        aspects = [collect_node_modules_aspect],
+        aspects = [node_modules_aspect],
     ),
     "_browserify_wrapped": attr.label(
         executable = True,

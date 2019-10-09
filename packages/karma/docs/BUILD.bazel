@@ -35,6 +35,7 @@ stardoc(
         # ```
         "//internal/common:bzl",
         "//internal/js_library:bzl",
+        "//:bzl",
     ],
 )
 
