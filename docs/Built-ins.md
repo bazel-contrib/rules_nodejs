@@ -1289,7 +1289,7 @@ Defaults to `""`
 
 ## npm_package_bin
 
-Run an arbitrary npm package binary (anything under node_modules/.bin/*) under Bazel.
+Run an arbitrary npm package binary (e.g. a program under node_modules/.bin/*) under Bazel.
 
 It must produce outputs. If you just want to run a program with `bazel run`, use the nodejs_binary rule.
 
@@ -1358,6 +1358,7 @@ Command-line arguments to the tool.
     Subject to 'Make variable' substitution.
     Can use $(location) expansion. See https://docs.bazel.build/versions/master/be/make-variables.html
     You may also refer to the location of the output_dir with the special `$@` replacement, like genrule.
+    If output_dir=False then $@ will refer to the output directory for this package.
 
 Defaults to `[]`
 
@@ -1367,7 +1368,7 @@ Defaults to `[]`
       
 set to True if you want the output to be a directory
          Exactly one of `outs`, `output_dir` may be used.
-         If you output a directory, there can only be one output, which will be named the same as the target.
+         If you output a directory, there can only be one output, which will be a directory named the same as the target.
 
 Defaults to `False`
 

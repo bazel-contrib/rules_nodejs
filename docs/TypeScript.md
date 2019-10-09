@@ -13,6 +13,46 @@ Looking for Karma rules `ts_web_test` and `karma_web_test`?
 These are now documented in the README at http://npmjs.com/package/@bazel/karma
 
 
+## Alternatives
+
+This package provides Bazel wrappers around the TypeScript compiler, and are how we compile TS code at Google.
+
+These rules are opinionated, for example:
+
+- Your TS code must compile under the `--declaration` flag so that downstream libraries depend only on types, not implementation. This makes Bazel faster by avoiding cascading rebuilds in cases where the types aren't changed.
+- We control the output format and module syntax so that downstream rules can rely on them.
+
+They are also fast and optimized:
+
+- We keep a running TypeScript compile running as a daemon, using Bazel workers. This process avoids re-parse and re-JIT of the >1MB `typescript.js` and keeps cached bound ASTs for input files which saves time.
+
+We understand this is a tradeoff. If you want to use the plain TypeScript compiler provided by the TS team at Microsoft, you can do this by calling its CLI directly. For example,
+
+```python
+load("@npm//typescript:index.bzl", "tsc")
+
+srcs = glob(["*.ts"])
+deps = ["@npm//@types/node"]
+
+tsc(
+    name = "compile",
+    data = srcs + deps,
+    outs = [s.replace(".ts", ext) for ext in [".js", ".d.ts"] for s in srcs],
+    args = [
+        "--outDir",
+        "$@",
+        "--lib",
+        "es2017,dom",
+        "--downlevelIteration",
+        "--declaration",
+    ] + [
+        "$(location %s)" % s
+        for s in srcs
+    ],
+)
+```
+
+
 ## Installation
 
 Add a devDependency on `@bazel/typescript`
@@ -216,6 +256,38 @@ directory. See the notes about the `tsconfig` attribute in the [ts_library API d
 > compiler option will be silently overwritten if present.
 
 [ts_library API docs]: http://tsetse.info/api/build_defs.html#ts_library
+
+
+## Accessing JavaScript outputs
+
+The default output of the `ts_library` rule is the `.d.ts` files.
+This is for a couple reasons:
+
+- help ensure that downstream rules which access default outputs will not require
+  a cascading re-build when only the implementation changes but not the types
+- make you think about whether you want the devmode (named UMD) or prodmode outputs
+
+You can access the JS output by adding a `filegroup` rule after the `ts_library`,
+for example
+
+```python
+ts_library(
+    name = "compile",
+    srcs = ["thing.ts"],
+)
+
+filegroup(
+    name = "thing.js",
+    srcs = ["compile"],
+    # Change to es6_sources to get the 'prodmode' JS
+    output_group = "es5_sources",
+)
+
+my_rule(
+    name = "uses_js",
+    deps = ["thing.js"],
+)
+```
 
 
 ## Serving TypeScript for development
