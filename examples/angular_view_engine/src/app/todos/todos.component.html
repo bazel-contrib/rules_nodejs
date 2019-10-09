@@ -1,0 +1,44 @@
+<h1>Todos</h1>
+
+<mat-card>
+  <mat-card-title>
+    <div>{{ editing ? "Edit" : "Add" }} your todo</div>
+  </mat-card-title>
+  <mat-card-content>
+    <mat-form-field><input matInput placeholder="your todo" [(ngModel)]="todo"></mat-form-field>
+  </mat-card-content>
+
+  <mat-card-actions>
+    <button mat-raised-button color="primary"
+      (click)="addTodo(todo)"
+      [disabled]=!todo
+      *ngIf="!editing">
+        Create
+    </button>
+
+    <button mat-raised-button
+      (click)="updateTodo(todo)"
+      *ngIf="editing">
+        Update
+    </button>
+
+    <button mat-raised-button color="warn"
+      (click)="cancelEdit()"
+      *ngIf="editing">
+        Cancel
+    </button>
+  </mat-card-actions>
+</mat-card>
+
+<mat-list>
+  <mat-list-item *ngFor="let todo of todos$ | async; let i = index;">
+    <mat-icon matListIcon (click)="toggleDone(todo, i)">{{ todo.done ? "check_box" : "check_box_outline_blank" }}</mat-icon>
+    <div class="mat-list-text" [class.done]="todo.done">{{ todo.value }}</div>
+		<div>
+			<mat-icon matListIcon (click)="editTodo(todo, i)" class="edit-icon">edit</mat-icon>
+		</div>
+		<div>
+			<mat-icon matListIcon (click)="deleteTodo(i)">delete</mat-icon>
+		</div>
+  </mat-list-item>
+</mat-list>

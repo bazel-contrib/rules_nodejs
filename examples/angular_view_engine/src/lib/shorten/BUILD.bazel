@@ -1,0 +1,13 @@
+load("@npm_bazel_typescript//:index.bzl", "ts_library")
+
+package(default_visibility = ["//:__subpackages__"])
+
+# TODO: change entry to something other than index.js & add a package.json here
+# with a main field to show how to create a first-party npm lib with a package.json
+ts_library(
+    name = "shorten",
+    srcs = ["index.ts"],
+    module_name = "@bazel/shorten",
+)
+
+# TODO(alexeagle): show how it can be deployed to npm

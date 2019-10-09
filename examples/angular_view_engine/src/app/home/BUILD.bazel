@@ -1,0 +1,14 @@
+load("@npm_angular_bazel//:index.bzl", "ng_module")
+
+package(default_visibility = ["//:__subpackages__"])
+
+ng_module(
+    name = "home",
+    srcs = ["home.ts"],
+    assets = ["home.html"],
+    tsconfig = "//src:tsconfig.json",
+    deps = [
+        "@npm//@angular/core",
+        "@npm//@angular/router",
+    ],
+)
