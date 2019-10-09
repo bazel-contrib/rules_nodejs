@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "npm_package_bin")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "nodejs_test", "npm_package_bin")
 def test(**kwargs):
     output_dir = kwargs.pop("output_dir", False)
     if "outs" in kwargs or output_dir:
@@ -10,4 +10,10 @@ def test(**kwargs):
             data = ["@fine_grained_goldens//@gregmagolan/test-a:test-a", "//@angular/core:core"] + kwargs.pop("data", []),
             **kwargs
         )
-  
+def test_test(**kwargs):
+    nodejs_test(
+      entry_point = "@fine_grained_goldens//:node_modules/@gregmagolan/test-a/@bin/test.js",
+      install_source_map_support = False,
+      data = ["@fine_grained_goldens//@gregmagolan/test-a:test-a", "//@angular/core:core"] + kwargs.pop("data", []),
+      **kwargs
+    )
