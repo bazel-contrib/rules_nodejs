@@ -265,6 +265,34 @@ jasmine_node_test(
 )
 ```
 
+#### Multiple sets of npm dependencies
+
+If your workspace has multiple applications, each with their own `package.json`
+and npm deps, `yarn_install` (or `npm_install`) can be called separately for
+each.
+
+```python
+workspace(
+    name = "my_wksp",
+    managed_directories = {"@app1_npm": ["app1/node_modules"],
+                           "@app2_npm": ["app2/node_modules"]}},
+)
+
+yarn_install(
+    name = "app1_npm",
+    package_json = "//app1:package.json",
+    yarn_lock = "//app1:yarn.lock",
+)
+
+yarn_install(
+    name = "app2_npm",
+    package_json = "//app2:package.json",
+    yarn_lock = "//app2:yarn.lock",
+)
+```
+
+Your application would then reference its deps as (for example) `@app1//lodash`, or `@app2//jquery`.
+
 #### Fine-grained npm package nodejs_binary targets
 
 If an npm package lists one or more `bin` entry points in its `package.json`,
