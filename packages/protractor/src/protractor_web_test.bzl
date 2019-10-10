@@ -14,8 +14,7 @@
 "Run end-to-end tests with Protractor"
 
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
-load("@build_bazel_rules_nodejs//:providers.bzl", "JSNamedModuleInfo")
-load("@build_bazel_rules_nodejs//internal/common:npm_package_info.bzl", "NpmPackageInfo", "node_modules_aspect")
+load("@build_bazel_rules_nodejs//:providers.bzl", "JSNamedModuleInfo", "NpmPackageInfo", "node_modules_aspect")
 load("@build_bazel_rules_nodejs//internal/common:windows_utils.bzl", "create_windows_native_launcher_script", "is_windows")
 load("@io_bazel_rules_webtesting//web:web.bzl", "web_test_suite")
 load("@io_bazel_rules_webtesting//web/internal:constants.bzl", "DEFAULT_WRAPPED_TEST_TAGS")

@@ -18,7 +18,7 @@ The versions of Rollup and terser are controlled by the Bazel toolchain.
 You do not need to install them into your project.
 """
 
-load("@build_bazel_rules_nodejs//internal/common:npm_package_info.bzl", "NpmPackageInfo", "node_modules_aspect")
+load("@build_bazel_rules_nodejs//:providers.bzl", "NpmPackageInfo", "node_modules_aspect")
 load("//internal/common:collect_es6_sources.bzl", _collect_es2015_sources = "collect_es6_sources")
 load("//internal/common:module_mappings.bzl", "get_module_mappings")
 

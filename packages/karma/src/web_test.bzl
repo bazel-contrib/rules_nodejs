@@ -13,7 +13,7 @@
 # limitations under the License.
 "Common web_test attributes"
 
-load("@build_bazel_rules_nodejs//internal/common:npm_package_info.bzl", "node_modules_aspect")
+load("@build_bazel_rules_nodejs//:providers.bzl", "node_modules_aspect")
 
 # Attributes shared by any web_test rule (ts_web_test, karma_web_test, protractor_web_test)
 COMMON_WEB_TEST_ATTRS = {

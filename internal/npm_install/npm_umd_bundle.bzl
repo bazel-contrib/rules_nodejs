@@ -17,7 +17,7 @@
 For use by yarn_install and npm_install. Not meant to be part of the public API.
 """
 
-load("@build_bazel_rules_nodejs//internal/common:npm_package_info.bzl", "NpmPackageInfo", "node_modules_aspect")
+load("@build_bazel_rules_nodejs//:providers.bzl", "NpmPackageInfo", "node_modules_aspect")
 
 def _npm_umd_bundle(ctx):
     if len(ctx.attr.entry_point.files.to_list()) != 1:
