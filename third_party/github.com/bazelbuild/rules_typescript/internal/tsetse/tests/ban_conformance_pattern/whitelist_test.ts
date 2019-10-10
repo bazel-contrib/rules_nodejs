@@ -26,7 +26,7 @@ describe('ConformancePatternRule', () => {
       const rule = new ConformancePatternRule(config);
       const results = compileAndCheck(rule, source);
 
-      expect(results).toHaveNFailures(1, config);
+      expect(results).toHaveNFailures(1);
     });
 
     it('matches if there is an empty whitelist group', () => {
@@ -39,7 +39,7 @@ describe('ConformancePatternRule', () => {
       const rule = new ConformancePatternRule(config);
       const results = compileAndCheck(rule, source);
 
-      expect(results).toHaveNFailures(1, config);
+      expect(results).toHaveNFailures(1);
     });
 
     it('respects prefix-based whitelists (matching test)', () => {
@@ -53,7 +53,7 @@ describe('ConformancePatternRule', () => {
       const rule = new ConformancePatternRule(config);
       const results = compileAndCheck(rule, source);
 
-      expect(results).toHaveNFailures(0, config);
+      expect(results).toHaveNoFailures();
     });
 
     it('respects prefix-based whitelists (non-matching test)', () => {
@@ -67,7 +67,7 @@ describe('ConformancePatternRule', () => {
       const rule = new ConformancePatternRule(config);
       const results = compileAndCheck(rule, source);
 
-      expect(results).toHaveNFailures(1, config);
+      expect(results).toHaveNFailures(1);
     });
 
     it('respects regex-based whitelists', () => {
@@ -81,7 +81,7 @@ describe('ConformancePatternRule', () => {
       const rule = new ConformancePatternRule(config);
       const results = compileAndCheck(rule, source);
 
-      expect(results).toHaveNFailures(0, config);
+      expect(results).toHaveNoFailures();
     });
 
     it('accepts several regex-based whitelists', () => {
@@ -99,7 +99,7 @@ describe('ConformancePatternRule', () => {
       // Testing two times the same file so that both regexps match.
       const results = compileAndCheck(rule, source, source);
 
-      expect(results).toHaveNFailures(0, config);
+      expect(results).toHaveNoFailures();
     });
 
     it('throws on creation of invalid regexps', () => {
@@ -111,6 +111,7 @@ describe('ConformancePatternRule', () => {
         }]
       };
       expect(() => {
+        // tslint:disable-next-line:no-unused-expression
         new ConformancePatternRule(config);
       }).toThrowError(/Invalid regular expression/);
     });

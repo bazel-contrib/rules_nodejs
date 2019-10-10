@@ -20,7 +20,7 @@ const uppercaseFixer: Fixer = {
 
 const uppercaseFixerBuilt: Fixer = buildReplacementFixer((node: ts.Node) => {
   return {replaceWith: node.getText().toUpperCase()};
-})
+});
 
 // The initial config and source off which we run those checks.
 const baseConfig = {
@@ -39,28 +39,26 @@ describe('ConformancePatternRule\'s fixer', () => {
       const rule = new ConformancePatternRule(baseConfig, uppercaseFixer);
       const results = compileAndCheck(rule, source);
 
-      expect(results).toHaveNFailures(1, baseConfig);
-      expect(results[0]).toBeFailureMatching({
+      expect(results).toHaveFailuresMatching({
         matchedCode: `q.cite = 'some example string'`,
-        messageText: 'found citation'
+        messageText: 'found citation',
+        fix: [
+          {start: 50, end: 80, replacement: `Q.CITE = 'SOME EXAMPLE STRING'`}
+        ]
       });
-      expect(results[0]).toHaveFixMatching([
-        {start: 50, end: 80, replacement: `Q.CITE = 'SOME EXAMPLE STRING'`}
-      ]);
     });
 
     it('for a single match (alternate fixer)', () => {
       const rule = new ConformancePatternRule(baseConfig, uppercaseFixerBuilt);
       const results = compileAndCheck(rule, source);
 
-      expect(results).toHaveNFailures(1, baseConfig);
-      expect(results[0]).toBeFailureMatching({
+      expect(results).toHaveFailuresMatching({
         matchedCode: `q.cite = 'some example string'`,
-        messageText: 'found citation'
+        messageText: 'found citation',
+        fix: [
+          {start: 50, end: 80, replacement: `Q.CITE = 'SOME EXAMPLE STRING'`}
+        ]
       });
-      expect(results[0]).toHaveFixMatching([
-        {start: 50, end: 80, replacement: `Q.CITE = 'SOME EXAMPLE STRING'`}
-      ]);
     });
 
     it('for several matches', () => {
@@ -69,27 +67,30 @@ describe('ConformancePatternRule\'s fixer', () => {
           source + `q.cite = 'some other example string';\n`;
       const results = compileAndCheck(rule, sourceTwoMatches);
 
-      expect(results).toHaveNFailures(2, baseConfig);
-      expect(results[0]).toBeFailureMatching({
-        matchedCode: `q.cite = 'some example string'`,
-        messageText: 'found citation'
-      });
-      expect(results[1]).toBeFailureMatching({
-        matchedCode: `q.cite = 'some other example string'`,
-        messageText: 'found citation'
-      });
-      expect(results[0]).toHaveFixMatching([
-        {start: 50, end: 80, replacement: `Q.CITE = 'SOME EXAMPLE STRING'`}
-      ]);
+      expect(results).toHaveFailuresMatching(
+          {
+            matchedCode: `q.cite = 'some example string'`,
+            messageText: 'found citation',
+            fix: [{
+              start: 50,
+              end: 80,
+              replacement: `Q.CITE = 'SOME EXAMPLE STRING'`
+            }]
+          },
+          {
+            matchedCode: `q.cite = 'some other example string'`,
+            messageText: 'found citation',
+            fix: [{
+              start: 82,
+              end: 118,
+              replacement: `Q.CITE = 'SOME OTHER EXAMPLE STRING'`
+            }]
+          });
+
       expect(results[0].fixToReadableStringInContext())
           .toBe(
               `Suggested fix:\n` +
               `- Replace the full match with: Q.CITE = 'SOME EXAMPLE STRING'`);
-      expect(results[1]).toHaveFixMatching([{
-        start: 82,
-        end: 118,
-        replacement: `Q.CITE = 'SOME OTHER EXAMPLE STRING'`
-      }]);
       expect(results[1].fixToReadableStringInContext())
           .toBe(
               `Suggested fix:\n` +

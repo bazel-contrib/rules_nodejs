@@ -9,7 +9,6 @@ import * as ts from 'typescript';
 import {Checker} from '../../checker';
 import {Failure, fixToString} from '../../failure';
 import {AbstractRule} from '../../rule';
-import {Config} from '../pattern_config';
 
 
 
@@ -74,18 +73,146 @@ export function toFileName(f: Failure) {
   return file ? file.fileName : 'unknown';
 }
 
+/**
+ * Returns the location the temp directory for that platform (with forward
+ * slashes).
+ */
 export function getTempDirForWhitelist() {
   // TS uses forward slashes on Windows ¯\_(ツ)_/¯
-  return os.platform() == 'win32' ? os.tmpdir().replace(/\\/g, '/') :
-                                    os.tmpdir();
+  return os.platform() === 'win32' ? os.tmpdir().replace(/\\/g, '/') :
+                                     os.tmpdir();
 }
 
-// Custom matcher for Jasmine, for a better experience matching fixes.
+interface FailureExpectations {
+  fileName?: string;
+  start?: number;
+  end?: number;
+  matchedCode?: string;
+  messageText?: string;
+  fix?: FixExpectations;
+}
+
+type FixExpectations = [{
+  fileName?: string;
+  start?: number;
+  end?: number;
+  replacement?: string;
+}];
+
+
+function failureMatchesExpectation(
+    f1: Failure, exp: FailureExpectations): {pass: boolean, message: string} {
+  const diagnostic = f1.toDiagnostic();
+  let regrets = '';
+  if (exp === undefined) {
+    regrets += 'The matcher requires two arguments. ';
+  }
+  if (exp.fileName) {
+    if (!diagnostic.file) {
+      regrets += `Expected diagnostic to have a source file, but it had ${
+          diagnostic.file}. `;
+    } else if (!diagnostic.file.fileName.endsWith(exp.fileName)) {
+      regrets +=
+          `Expected ${diagnostic.file.fileName} to end with ${exp.fileName}. `;
+    }
+  }
+  if (exp.messageText !== undefined &&
+      exp.messageText !== diagnostic.messageText) {
+    regrets +=
+        expectation('errorMessage', exp.messageText, diagnostic.messageText);
+  }
+  if (exp.start !== undefined && diagnostic.start !== exp.start) {
+    regrets += expectation('start', exp.start, diagnostic.start);
+  }
+  if (exp.end !== undefined && diagnostic.end !== exp.end) {
+    regrets += expectation('end', exp.end, diagnostic.end);
+  }
+  if (exp.matchedCode) {
+    if (!diagnostic.file) {
+      regrets += `Expected diagnostic to have a source file, but it had ${
+          diagnostic.file}. `;
+    } else if (diagnostic.start === undefined) {
+      // I don't know how this could happen, but typings say so.
+      regrets += `Expected diagnostic to have a starting position. `;
+    } else {
+      const foundMatchedCode = diagnostic.file.getFullText().slice(
+          Number(diagnostic.start), diagnostic.end);
+      if (foundMatchedCode !== exp.matchedCode) {
+        regrets += `Expected diagnostic to match ${exp.matchedCode}, but was ${
+            foundMatchedCode} (from ${Number(diagnostic.start)} to ${
+            diagnostic.end}). `;
+      }
+    }
+  }
+  if (exp.fix) {
+    const {pass, message: fixMessage} = fixMatchesExpectation(f1, exp.fix);
+    if (!pass) {
+      regrets += fixMessage;
+    }
+  }
+  return {pass: regrets === '', message: regrets};
+}
+
+function fixMatchesExpectation(failure: Failure, expected: FixExpectations):
+    {pass: boolean, message: string} {
+  let regrets = '';
+  const actualFix = failure.toDiagnostic().fix;
+  if (!actualFix) {
+    regrets += `Expected ${failure.toString()} to have fix ${
+        JSON.stringify(expected)}. `;
+  } else if (actualFix.changes.length !== expected.length) {
+    regrets += `Expected ${expected.length} individual changes, got ${
+        actualFix.changes.length}. `;
+    if (actualFix.changes.length) {
+      regrets += '\n' + fixToString(actualFix);
+    }
+  } else {
+    for (let i = 0; i < expected.length; i++) {
+      const e = expected[i];
+      const a = actualFix.changes[i];
+      if (e.start !== undefined && e.start !== a.start) {
+        regrets +=
+            expectation(`${i}th individualChange's start`, e.start, a.start);
+      }
+      if (e.end !== undefined && e.end !== a.end) {
+        regrets += expectation(`${i}th individualChange's end`, e.end, a.end);
+      }
+      if (e.replacement !== undefined && e.replacement !== a.replacement) {
+        regrets += expectation(
+            `${i}th individualChange's replacement`, e.replacement,
+            a.replacement);
+      }
+      if (e.fileName !== undefined && e.fileName !== a.sourceFile.fileName) {
+        regrets += expectation(
+            `${i}th individualChange's fileName`, e.fileName,
+            a.sourceFile.fileName);
+      }
+      // TODO: Consider adding matchedCode as for the failure matcher.
+    }
+  }
+
+  return {pass: regrets === '', message: regrets};
+}
+
+
+/**
+ * Custom matcher for Jasmine, for a better experience matching failures and
+ * fixes.
+ */
 export const customMatchers: jasmine.CustomMatcherFactories = {
+
+  toBeFailureMatching(): jasmine.CustomMatcher {
+    return {compare: failureMatchesExpectation};
+  },
+
+  /** Checks that a Failure has the expected Fix field. */
+  toHaveFixMatching(): jasmine.CustomMatcher {
+    return {compare: fixMatchesExpectation};
+  },
 
   toHaveNFailures(): jasmine.CustomMatcher {
     return {
-      compare: (actual: Failure[], expected: Number, config?: Config) => {
+      compare: (actual: Failure[], expected: number) => {
         if (actual.length === expected) {
           return {pass: true};
         } else {
@@ -94,123 +221,33 @@ export const customMatchers: jasmine.CustomMatcherFactories = {
           if (actual.length) {
             message += '\n' + actual.map(f => f.toString()).join('\n');
           }
-          if (config) {
-            message += `\nConfig: {kind:${config.kind}, values:${
-                JSON.stringify(config.values)}, whitelist:${
-                JSON.stringify(config.whitelistEntries)} }`;
-          }
           return {pass: false, message};
         }
       }
     };
   },
 
-  toBeFailureMatching(): jasmine.CustomMatcher {
+  toHaveFailuresMatching(): jasmine.CustomMatcher {
     return {
-      compare: (actualFailure: Failure, exp: {
-        fileName?: string,
-        start?: number,
-        end?: number,
-        matchedCode?: string,
-        messageText?: string,
-      }) => {
-        const actualDiagnostic = actualFailure.toDiagnostic();
-        let regrets = '';
-        if (exp === undefined) {
-          regrets += 'The matcher requires two arguments. ';
-        }
-        if (exp.fileName) {
-          if (!actualDiagnostic.file) {
-            regrets += `Expected diagnostic to have a source file, but it had ${
-                actualDiagnostic.file}. `;
-          } else if (!actualDiagnostic.file.fileName.endsWith(exp.fileName)) {
-            regrets += `Expected ${
-                actualDiagnostic.file.fileName} to end with ${exp.fileName}. `;
+      compare: (actual: Failure[], ...expected: FailureExpectations[]) => {
+        if (actual.length !== expected.length) {
+          let message =
+              `Expected ${expected} Failures, but found ${actual.length}.`;
+          if (actual.length) {
+            message += '\n' + actual.map(f => f.toString()).join('\n');
           }
+          return {pass: false, message};
         }
-        if (exp.messageText !== undefined &&
-            exp.messageText != actualDiagnostic.messageText) {
-          regrets += expectation(
-              'errorMessage', exp.messageText, actualDiagnostic.messageText);
-        }
-        if (exp.start !== undefined && actualDiagnostic.start !== exp.start) {
-          regrets += expectation('start', exp.start, actualDiagnostic.start);
-        }
-        if (exp.end !== undefined && actualDiagnostic.end !== exp.end) {
-          regrets += expectation('end', exp.end, actualDiagnostic.end);
-        }
-        if (exp.matchedCode) {
-          if (!actualDiagnostic.file) {
-            regrets += `Expected diagnostic to have a source file, but it had ${
-                actualDiagnostic.file}. `;
-          } else if (actualDiagnostic.start === undefined) {
-            // I don't know how this could happen, but typings say so.
-            regrets += `Expected diagnostic to have a starting position. `;
-          } else {
-            const foundMatchedCode = actualDiagnostic.file.getFullText().slice(
-                Number(actualDiagnostic.start), actualDiagnostic.end);
-            if (foundMatchedCode != exp.matchedCode) {
-              regrets += `Expected diagnostic to match ${
-                  exp.matchedCode}, but was ${foundMatchedCode} (from ${
-                  Number(
-                      actualDiagnostic.start)} to ${actualDiagnostic.end}). `;
-            }
+        let pass = true, message = '';
+        for (let i = 0; i < actual.length; i++) {
+          const comparison = failureMatchesExpectation(actual[i], expected[i]);
+          pass = pass && comparison.pass;
+          if (comparison.message) {
+            message += `For failure ${i}: ${comparison.message}\n`;
           }
+          message += comparison.message;
         }
-        return {pass: regrets === '', message: regrets};
-      }
-    };
-  },
-
-  /** Checks that a Failure has the expected Fix field. */
-  toHaveFixMatching(): jasmine.CustomMatcher {
-    return {
-      compare: (actualFailure: Failure, exp: [{
-                  fileName?: string,
-                  start?: number,
-                  end?: number,
-                  replacement?: string
-                }]) => {
-        let regrets = '';
-        const actualFix = actualFailure.toDiagnostic().fix;
-        if (!actualFix) {
-          regrets += `Expected ${actualFailure.toString()} to have fix ${
-              JSON.stringify(exp)}. `;
-        } else if (actualFix.changes.length != exp.length) {
-          regrets += `Expected ${exp.length} individual changes, got ${
-              actualFix.changes.length}. `;
-          if (actualFix.changes.length) {
-            regrets += '\n' + fixToString(actualFix);
-          }
-        } else {
-          for (let i = 0; i < exp.length; i++) {
-            const e = exp[i];
-            const a = actualFix.changes[i];
-            if (e.start !== undefined && e.start !== a.start) {
-              regrets += expectation(
-                  `${i}th individualChange's start`, e.start, a.start);
-            }
-            if (e.end !== undefined && e.end !== a.end) {
-              regrets +=
-                  expectation(`${i}th individualChange's end`, e.end, a.end);
-            }
-            if (e.replacement !== undefined &&
-                e.replacement !== a.replacement) {
-              regrets += expectation(
-                  `${i}th individualChange's replacement`, e.replacement,
-                  a.replacement);
-            }
-            if (e.fileName !== undefined &&
-                e.fileName !== a.sourceFile.fileName) {
-              regrets += expectation(
-                  `${i}th individualChange's fileName`, e.fileName,
-                  a.sourceFile.fileName);
-            }
-            // TODO: Consider adding matchedCode as for the failure matcher.
-          }
-        }
-
-        return {pass: regrets === '', message: regrets};
+        return {pass, message};
       }
     };
   },
@@ -227,11 +264,23 @@ export const customMatchers: jasmine.CustomMatcherFactories = {
         };
       }
     };
-  }
+  },
 
+  toHaveNoFailures(): jasmine.CustomMatcher {
+    return {
+      compare: (actual: Failure[]) => {
+        if (actual.length !== 0) {
+          let message = `Expected no Failures, but found ${actual.length}.`;
+          message += '\n' + actual.map(f => f.toString()).join('\n');
+          return {pass: false, message};
+        }
+        return {pass: true, message: ''};
+      }
+    };
+  }
 };
 
-function expectation(fieldname: string, expectation: any, actual: any) {
+function expectation<T>(fieldname: string, expectation: T, actual: T) {
   return `Expected .${fieldname} to be ${expectation}, was ${actual}. `;
 }
 
@@ -239,23 +288,21 @@ function expectation(fieldname: string, expectation: any, actual: any) {
 declare global {
   namespace jasmine {
     interface Matchers<T> {
-      toBeFailureMatching(expected: {
-        fileName?: string,
-        start?: number,
-        end?: number,
-        matchedCode?: string,
-        messageText?: string,
-      }): void;
+      toBeFailureMatching(expected: FailureExpectations): void;
+
 
       /** Checks that a Failure has the expected Fix field. */
-      toHaveFixMatching(expected: [
-        {fileName?: string, start?: number, end?: number, replacement?: string}
-      ]): void;
-
-      toHaveNFailures(expected: Number, config?: Config): void;
+      toHaveFixMatching(expected: FixExpectations): void;
 
       /** Asserts that a Failure has no fix. */
       toHaveNoFix(): void;
+
+      toHaveNFailures(expected: number): void;
+
+      toHaveFailuresMatching(...expected: FailureExpectations[]): void;
+
+      /** Asserts that the results are empty. */
+      toHaveNoFailures(): void;
     }
   }
 }

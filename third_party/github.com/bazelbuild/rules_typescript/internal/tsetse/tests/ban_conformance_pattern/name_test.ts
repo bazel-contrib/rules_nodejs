@@ -4,39 +4,29 @@ import {compileAndCheck, customMatchers} from '../../util/testing/test_support';
 
 describe('BANNED_NAME', () => {
   it('matches simple example of globals', () => {
-    const rule = new ConformancePatternRule({
+    const config = {
       errorMessage: 'no Infinity',
       kind: PatternKind.BANNED_NAME,
       values: ['Infinity']
-    });
-    const source = [
-      `Infinity; 1+1;`,
-    ].join('\n');
-    const results = compileAndCheck(rule, source);
+    };
+    const source = `Infinity; 1+1;`;
+    const results = compileAndCheck(new ConformancePatternRule(config), source);
 
-    expect(results.length).toBe(1);
-    expect(results[0]).toBeFailureMatching({
-      matchedCode: `Infinity`,
-      messageText: 'no Infinity'
-    });
+    expect(results).toHaveFailuresMatching(
+        {matchedCode: `Infinity`, messageText: 'no Infinity'});
   });
 
   it('matches namespaced globals', () => {
-    const rule = new ConformancePatternRule({
+    const config = {
       errorMessage: 'no blob url',
       kind: PatternKind.BANNED_NAME,
       values: ['URL.createObjectURL']
-    });
-    const source = [
-      `URL.createObjectURL({});`,
-    ].join('\n');
-    const results = compileAndCheck(rule, source);
+    };
+    const source = `URL.createObjectURL({});`;
+    const results = compileAndCheck(new ConformancePatternRule(config), source);
 
-    expect(results.length).toBe(1);
-    expect(results[0]).toBeFailureMatching({
-      matchedCode: `createObjectURL`,
-      messageText: 'no blob url'
-    });
+    expect(results).toHaveFailuresMatching(
+        {matchedCode: `createObjectURL`, messageText: 'no blob url'});
   });
 
   it('does not choke on type aliases', () => {
@@ -46,21 +36,21 @@ describe('BANNED_NAME', () => {
     // Symbols that verify ts.SymbolFlags.Alias, and ts.SymbolFlags.TypeAlias is
     // not acceptable (the typechecker will throw).
 
+    const config = {
+      errorMessage: 'should not trigger',
+      kind: PatternKind.BANNED_NAME,
+      values: ['whatever']
+    };
     const sources = [
       `export type Foo = {bar: number, baz: (x:string)=>void}`,
       `import {Foo} from './file_0';
        export const c: Foo["baz"] = (x:string)=>{};`,
       `import {c} from './file_1'; c(window.name);`
     ];
-    const results = compileAndCheck(
-        new ConformancePatternRule({
-          errorMessage: 'should not trigger',
-          kind: PatternKind.BANNED_NAME,
-          values: ['whatever']
-        }),
-        ...sources);
+    const results =
+        compileAndCheck(new ConformancePatternRule(config), ...sources);
 
-    expect(results.length).toBe(0);
+    expect(results).toHaveNoFailures();
   });
 });
 

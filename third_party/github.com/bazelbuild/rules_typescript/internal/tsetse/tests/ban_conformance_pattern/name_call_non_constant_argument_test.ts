@@ -3,11 +3,12 @@ import {ConformancePatternRule, PatternKind} from '../../rules/conformance_patte
 import {compileAndCheck, customMatchers} from '../../util/testing/test_support';
 
 describe('BANNED_NAME_CALL_NON_CONSTANT_ARGUMENT', () => {
-  const rule = new ConformancePatternRule({
+  const config = {
     errorMessage: 'do not call bar.foo with non-literal 1st arg',
     kind: PatternKind.BANNED_NAME_CALL_NON_CONSTANT_ARGUMENT,
     values: ['bar:0']
-  });
+  };
+  const rule = new ConformancePatternRule(config);
 
   it('matches simple examples', () => {
     const sources = [
@@ -17,8 +18,7 @@ describe('BANNED_NAME_CALL_NON_CONSTANT_ARGUMENT', () => {
     ];
     const results = compileAndCheck(rule, ...sources);
 
-    expect(results.length).toBe(1);
-    expect(results[0]).toBeFailureMatching({
+    expect(results).toHaveFailuresMatching({
       matchedCode: `foo.bar(window.name, 1)`,
       messageText: 'do not call bar.foo with non-literal 1st arg'
     });
@@ -31,7 +31,7 @@ describe('BANNED_NAME_CALL_NON_CONSTANT_ARGUMENT', () => {
     ];
     const results = compileAndCheck(rule, ...sources);
 
-    expect(results.length).toBe(0);
+    expect(results).toHaveNoFailures();
   });
 
   it('looks at the right position', () => {
@@ -48,13 +48,13 @@ describe('BANNED_NAME_CALL_NON_CONSTANT_ARGUMENT', () => {
     ];
     const results = compileAndCheck(rule, ...sources);
 
-    expect(results.length).toBe(2);
-    expect(results[0]).toBeFailureMatching({
-      matchedCode: `foo.aaa(1, window.name)`,
-    });
-    expect(results[1]).toBeFailureMatching({
-      matchedCode: `foo.bbb(window.name)`,
-    });
+    expect(results).toHaveFailuresMatching(
+        {
+          matchedCode: `foo.aaa(1, window.name)`,
+        },
+        {
+          matchedCode: `foo.bbb(window.name)`,
+        });
   });
 
   it('supports static methods', () => {
@@ -72,8 +72,7 @@ describe('BANNED_NAME_CALL_NON_CONSTANT_ARGUMENT', () => {
     ];
     const results = compileAndCheck(rule, ...sources);
 
-    expect(results.length).toBe(1);
-    expect(results[0]).toBeFailureMatching({
+    expect(results).toHaveFailuresMatching({
       matchedCode: `Car.buildFromParts(window.name)`,
     });
   });
@@ -88,8 +87,7 @@ describe('BANNED_NAME_CALL_NON_CONSTANT_ARGUMENT', () => {
     const sources = [`URL.createObjectURL(window.name);\n`];
     const results = compileAndCheck(rule, ...sources);
 
-    expect(results.length).toBe(1);
-    expect(results[0]).toBeFailureMatching({
+    expect(results).toHaveFailuresMatching({
       matchedCode: `URL.createObjectURL(window.name)`,
     });
   });
@@ -104,8 +102,7 @@ describe('BANNED_NAME_CALL_NON_CONSTANT_ARGUMENT', () => {
     const sources = [`eval(window.name);\n`];
     const results = compileAndCheck(rule, ...sources);
 
-    expect(results.length).toBe(1);
-    expect(results[0]).toBeFailureMatching({
+    expect(results).toHaveFailuresMatching({
       matchedCode: `eval(window.name)`,
     });
   });
