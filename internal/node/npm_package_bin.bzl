@@ -1,6 +1,6 @@
 "A generic rule to run a tool that appears in node_modules/.bin"
 
-load("@build_bazel_rules_nodejs//internal/common:npm_package_info.bzl", "NpmPackageInfo", "node_modules_aspect")
+load("@build_bazel_rules_nodejs//:providers.bzl", "NpmPackageInfo", "node_modules_aspect")
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect", "register_node_modules_linker")
 
 # Note: this API is chosen to match nodejs_binary

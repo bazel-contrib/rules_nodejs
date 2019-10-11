@@ -13,8 +13,7 @@
 # limitations under the License.
 "Protocol Buffers"
 
-load("@build_bazel_rules_nodejs//:declaration_provider.bzl", "DeclarationInfo")
-load("@build_bazel_rules_nodejs//:providers.bzl", "JSEcmaScriptModuleInfo", "JSNamedModuleInfo")
+load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "JSEcmaScriptModuleInfo", "JSNamedModuleInfo")
 
 def _run_pbjs(actions, executable, output_name, proto_files, suffix = ".js", wrap = "amd", amd_name = ""):
     js_file = actions.declare_file(output_name + suffix)

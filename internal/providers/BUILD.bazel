@@ -12,15 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Legacy load point for NpmPackageInfo
-"""
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 
-load(
-    "//:providers.bzl",
-    _NpmPackageInfo = "NpmPackageInfo",
-    _node_modules_aspect = "node_modules_aspect",
+bzl_library(
+    name = "bzl",
+    srcs = glob(["*.bzl"]),
+    visibility = ["//visibility:public"],
 )
 
-NpmPackageInfo = _NpmPackageInfo
-node_modules_aspect = _node_modules_aspect
-# TODO: remove this file before 1.0 release
+filegroup(
+    name = "package_contents",
+    srcs = glob(["*.bzl"]) + [
+        "BUILD.bazel",
+    ],
+    visibility = ["//:__pkg__"],
+)
