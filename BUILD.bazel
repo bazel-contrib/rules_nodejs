@@ -15,9 +15,20 @@
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
 load("@build_bazel_rules_nodejs//:index.bzl", "COMMON_REPLACEMENTS", "npm_package")
+load("//:tools/defaults.bzl", "codeowners")
 
 package(default_visibility = ["//visibility:public"])
 
+# BEGIN-INTERNAL
+codeowners(
+    pattern = "*",
+    teams = [
+        "@gregmagolan",
+        "@soldair",
+    ],
+)
+
+# END-INTERNAL
 exports_files([
     "common.bazelrc",
     "tsconfig.json",

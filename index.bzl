@@ -49,6 +49,8 @@ def dummy_bzl_library(name, **kwargs):
 COMMON_REPLACEMENTS = {
     # Replace loads from @bazel_skylib with the dummy rule above
     "(load\\(\"@bazel_skylib//:bzl_library.bzl\", \"bzl_library\"\\))": "# bazel_skylib mocked out\n# $1\nload(\"@build_bazel_rules_nodejs//:index.bzl\", bzl_library = \"dummy_bzl_library\")",
+    # Make sure we don't try to load from under tools/ which isn't in the distro
+    "(load\\(\"//:tools/defaults.bzl\", \"codeowners\"\\))": "# defaults.bzl not included in distribution\n# $1",
     # Cleanup up package.json @bazel/foobar package deps for published packages:
     # "@bazel/foobar": "file:///..." => "@bazel/foobar": "0.0.0-PLACEHOLDER"
     "\"@bazel/([a-zA-Z_-]+)\":\\s+\"(file|bazel)[^\"]+\"": "\"@bazel/$1\": \"0.0.0-PLACEHOLDER\"",

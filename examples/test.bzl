@@ -1,8 +1,9 @@
 "Define a convenience macro for examples integration testing"
 
 load("@build_bazel_rules_nodejs//internal/bazel_integration_test:bazel_integration_test.bzl", "rules_nodejs_integration_test")
+load("//:tools/defaults.bzl", "codeowners")
 
-def example_integration_test(name, **kwargs):
+def example_integration_test(name, owners = [], **kwargs):
     "Set defaults for the bazel_integration_test common to our examples"
     dirname = name[len("examples_"):]
     native.filegroup(
@@ -15,7 +16,12 @@ def example_integration_test(name, **kwargs):
             exclude = ["%s/node_modules/**" % dirname],
         ),
     )
-
+    if len(owners):
+        codeowners(
+            name = "OWNERS." + name,
+            teams = owners,
+            pattern = dirname + "/**",
+        )
     rules_nodejs_integration_test(
         name = name,
         tags = kwargs.pop("tags", []) + ["examples"],

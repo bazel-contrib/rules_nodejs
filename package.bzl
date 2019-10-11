@@ -97,6 +97,13 @@ def rules_nodejs_dev_dependencies():
         sha256 = "490554b98da4ce6e3e1e074e01b81e8440b760d4f086fccf50085a25528bf5cd",
     )
 
+    http_archive(
+        name = "rules_codeowners",
+        strip_prefix = "rules_codeowners-826b742ee0d6703736c8c4f45fd07d65315cf599",
+        sha256 = "64f64459b41201f7236880763e72de9384b237dfc44d61949520a2994bff18cd",
+        url = "https://github.com/zegl/rules_codeowners/archive/826b742ee0d6703736c8c4f45fd07d65315cf599.zip",
+    )
+
 def _maybe(repo_rule, name, **kwargs):
     if name not in native.existing_rules():
         repo_rule(name = name, **kwargs)

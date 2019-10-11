@@ -9,6 +9,7 @@ load(
     _nodejs_test = "nodejs_test",
     _npm_package = "npm_package",
 )
+load("@rules_codeowners//tools:codeowners.bzl", _codeowners = "codeowners")
 
 nodejs_test = _nodejs_test
 
@@ -40,5 +41,33 @@ def npm_package(**kwargs):
         deps = deps,
         replacements = replacements,
         visibility = visibility,
+        **kwargs
+    )
+
+_GLOBAL_OWNERS = "@alexeagle"
+
+def codeowners(name = "OWNERS", no_parent = False, **kwargs):
+    """Convenience macro to set some defaults
+
+    Args:
+        no_parent: Mimic the google3 OWNERS file which allows a .no-parent rule to avoid inheriting global approvers, see http://go/owners#noparent
+        **kwargs: see codeowners rule docs
+    """
+    pkg = native.package_name()
+    teams = [kwargs.pop("team")] if "team" in kwargs.keys() else kwargs.pop("teams", [])
+    patterns = kwargs.pop("patterns") if "patterns" in kwargs.keys() else [kwargs.pop("pattern", "**")]
+
+    if pkg.startswith("."):
+        print(pkg, name)
+
+    # Googlers: see http://go/owners#noparent
+    if not no_parent:
+        teams.append(_GLOBAL_OWNERS)
+
+    _codeowners(
+        name = name,
+        patterns = patterns,
+        teams = teams,
+        visibility = ["//.github:__pkg__"],
         **kwargs
     )
