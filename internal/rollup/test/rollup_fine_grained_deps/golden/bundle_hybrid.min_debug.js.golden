@@ -1,5 +1,0 @@
-var bundle_hybrid = function(exports) {
-    "use strict";
-    exports.__moduleExports = "test-b-0.0.2/test-a-0.0.4";
-    return exports;
-}({});
