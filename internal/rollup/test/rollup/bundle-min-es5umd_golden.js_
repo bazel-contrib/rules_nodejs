@@ -1,5 +1,0 @@
-/**
- * @license A dummy license banner that goes at the top of the file.
- * This is version v1.2.3
- */
-!function(e,o){"object"==typeof exports&&"undefined"!=typeof module?o(exports,require("some_global_var")):"function"==typeof define&&define.amd?define(["exports","some_global_var"],o):o((e=e||self).bundle={},e.runtime_name_of_global_var)}(this,function(e,o){"use strict";console.log("Hello, Alice in Wonderland");var n=function(){function e(){}return e.prototype.a=function(){return document.a},e}();console.error((new n).a(),"abc",o.thing,!1,!1),e.A=n,Object.defineProperty(e,"__esModule",{value:!0})});

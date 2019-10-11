@@ -451,6 +451,19 @@ def _generate_code_split_entry(ctx, bundles_folder, output):
     )
 
 def _rollup_bundle(ctx):
+    if "enable_legacy_rollup_rule" not in ctx.var:
+        fail("""***********
+        
+The legacy rollup_bundle rule has been deprecated
+
+As announced in https://github.com/bazelbuild/rules_nodejs/releases/tag/0.38.0,
+there is a new rollup_bundle Bazel rule.
+Migration instructions are at
+https://github.com/bazelbuild/rules_nodejs/wiki#migrating-off-internalrollup
+
+To continue using the old rule, add --define=enable_legacy_rollup_rule=1 to your bazel command.
+************
+""")
     if len(ctx.attr.entry_point.files.to_list()) != 1:
         fail("labels in entry_point must contain exactly one file")
     if ctx.attr.additional_entry_points and not ctx.attr.enable_code_splitting:
