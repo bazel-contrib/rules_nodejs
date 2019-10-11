@@ -110,7 +110,7 @@ function terserDirectory(input, output, residual, terserBinary) {
   }
 
   fs.readdirSync(input).forEach(f => {
-    if (f.endsWith('.js')) {
+    if (path.extname(f) === '.js' || path.extname(f) === '.mjs') {
       const inputFile = path.join(input, path.basename(f));
       const outputFile = path.join(output, path.basename(f));
 
