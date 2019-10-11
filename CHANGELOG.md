@@ -1,3 +1,18 @@
+## [0.38.3](https://github.com/bazelbuild/rules_nodejs/compare/0.38.2...0.38.3) (2019-10-11)
+
+
+### Bug Fixes
+
+* **terser:** terser_minified should support .mjs files when running on directory ([#1264](https://github.com/bazelbuild/rules_nodejs/issues/1264)) ([6b09b51](https://github.com/bazelbuild/rules_nodejs/commit/6b09b51))
+
+
+### Features
+
+* **examples:** angular view engine example ([#1252](https://github.com/bazelbuild/rules_nodejs/issues/1252)) ([c10272a](https://github.com/bazelbuild/rules_nodejs/commit/c10272a))
+* **terser:** support .map files in directory inputs ([#1250](https://github.com/bazelbuild/rules_nodejs/issues/1250)) ([dfefc11](https://github.com/bazelbuild/rules_nodejs/commit/dfefc11))
+
+
+
 ## [0.38.2](https://github.com/bazelbuild/rules_nodejs/compare/0.38.1...0.38.2) (2019-10-09)
 
 

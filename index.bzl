@@ -83,7 +83,7 @@ def yarn_install(**kwargs):
 # It will be automatically synced via the npm "version" script
 # that is run when running `npm version` during the release
 # process. See `Releasing` section in README.md.
-VERSION = "0.38.2"
+VERSION = "0.38.3"
 
 # Currently supported Bazel version. This version is what he rules here are tested
 # against. It is also the version used when testing nested workspaces with
