@@ -5,7 +5,9 @@ describe('ts_web_test_suite', () => {
 
   beforeAll(() => {
     config = fs.readFileSync(
-        require.resolve('e2e_karma_typescript/testing_wrapped_test.conf.js'), 'utf-8');
+        require.resolve(
+            'build_bazel_rules_nodejs/packages/karma/test/karma_typescript/testing_wrapped_test.conf.js'),
+        'utf-8');
   });
 
   it('should load default bootstrap files', () => {
@@ -18,7 +20,7 @@ describe('ts_web_test_suite', () => {
     expect(files).toEqual([
       'NODE_MODULES/requirejs/require.js',
       'NODE_MODULES/karma-requirejs/lib/adapter.js',
-      'e2e_karma_typescript/_testing_wrapped_test.amd_names_shim.js',
+      'build_bazel_rules_nodejs/packages/karma/test/karma_typescript/_testing_wrapped_test.amd_names_shim.js',
     ]);
   });
 
@@ -32,14 +34,14 @@ describe('ts_web_test_suite', () => {
     // These are files that Karma should load, they are not necessarily
     // topologically sorted.
     expect(files).toEqual([
-      'e2e_karma_typescript/foobar.js',
-      'e2e_karma_typescript/hello_world.spec.js',
-      'e2e_karma_typescript/decrement.spec.js',
-      'e2e_karma_typescript/foobar.spec.js',
-      'e2e_karma_typescript/decrement.js',
+      'build_bazel_rules_nodejs/packages/karma/test/karma_typescript/foobar.js',
+      'build_bazel_rules_nodejs/packages/karma/test/karma_typescript/hello_world.spec.js',
+      'build_bazel_rules_nodejs/packages/karma/test/karma_typescript/decrement.spec.js',
+      'build_bazel_rules_nodejs/packages/karma/test/karma_typescript/foobar.spec.js',
+      'build_bazel_rules_nodejs/packages/karma/test/karma_typescript/decrement.js',
       'npm/node_modules/rxjs/bundles/rxjs.umd.js',
-      'e2e_karma_typescript/rxjs_shims.js',
-      'e2e_karma_typescript/hello_world.js',
+      'build_bazel_rules_nodejs/packages/karma/test/karma_typescript/rxjs_shims.js',
+      'build_bazel_rules_nodejs/packages/karma/test/karma_typescript/hello_world.js',
     ]);
   });
 });

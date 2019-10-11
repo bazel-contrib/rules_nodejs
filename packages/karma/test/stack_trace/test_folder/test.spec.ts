@@ -1,4 +1,4 @@
-import {error, sayHello} from './hello';
+import {throws, sayHello} from './hello';
 
 describe('multiple stack frames', () => {
   it('failing test', () => {
@@ -6,6 +6,6 @@ describe('multiple stack frames', () => {
   });
 
   it('another failing test', () => {
-    expect(error()).toBe(null);
+    expect(throws()).toBe('something');
   });
 });

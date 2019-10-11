@@ -145,7 +145,10 @@ web_test_repositories()
 
 load("@io_bazel_rules_webtesting//web/versioned:browsers-0.3.2.bzl", "browser_repositories")
 
-browser_repositories(chromium = True)
+browser_repositories(
+    chromium = True,
+    firefox = True,
+)
 
 #
 # Dependencies to run skydoc & generating documentation

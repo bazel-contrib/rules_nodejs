@@ -3,7 +3,9 @@ if (typeof module === 'object' && typeof module.exports === 'object') {
   var v = factory(require, exports);
   if (v !== undefined) module.exports = v;
 } else if (typeof define === 'function' && define.amd) {
-  define('e2e_karma/decrement', ['require', 'exports'], factory);
+  define(
+      'build_bazel_rules_nodejs/packages/karma/test/karma/decrement', ['require', 'exports'],
+      factory);
 }
 })(function(require, exports) {
 'use strict';

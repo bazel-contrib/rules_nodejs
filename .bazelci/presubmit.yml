@@ -18,7 +18,7 @@ tasks:
     build_targets:
     - "//..."
     test_flags:
-    - "--test_tag_filters=-e2e,-examples,-fix-bazelci-ubuntu"
+    - "--test_tag_filters=-e2e,-examples,-no-bazelci,-no-bazelci-ubuntu,-manual"
     test_targets:
     - "//..."
   ubuntu1604_e2e:
@@ -93,7 +93,7 @@ tasks:
     # coverage of it to make sure it doesn't break.
     - "//docs"
     test_flags:
-    - "--test_tag_filters=-e2e,-examples,-fix-bazelci-ubuntu"
+    - "--test_tag_filters=-e2e,-examples,-no-bazelci,-no-bazelci-ubuntu,-manual"
     test_targets:
     - "//..."
   ubuntu1804_debug:
@@ -102,7 +102,7 @@ tasks:
     test_flags:
     - "--define=VERBOSE_LOGS=1"
     - "--define=DEBUG=1"
-    - "--test_tag_filters=-e2e,-examples,-fix-bazelci-ubuntu"
+    - "--test_tag_filters=-e2e,-examples,-no-bazelci,-no-bazelci-ubuntu,-manual"
     test_targets:
     - "//..."
     - "//packages/terser/test/debug:test_define_DEBUG"
@@ -175,7 +175,7 @@ tasks:
     build_targets:
     - "//..."
     test_flags:
-    - "--test_tag_filters=-e2e,-examples"
+    - "--test_tag_filters=-e2e,-examples,-no-bazelci,-no-bazelci-mac,-manual"
     test_targets:
     - "//..."
   macos_e2e:
@@ -218,7 +218,7 @@ tasks:
     build_targets:
     - "//..."
     test_flags:
-    - "--test_tag_filters=-manual,examples"
+    - "--test_tag_filters=examples,-manual"
     - "--local_resources=792,1.0,1.0"
     # test_args will be passed to the nested bazel process
     # TODO(gregmagolan): fix frequent flake with multiple cores in nested bazel (osx buildkite & local)
@@ -251,7 +251,7 @@ tasks:
     build_targets:
     - "//..."
     test_flags:
-    - "--test_tag_filters=-e2e,-examples,-fix-windows"
+    - "--test_tag_filters=-e2e,-examples,-no-bazelci,-no-bazelci-windows,-fix-windows,-manual"
     test_targets:
     - "//..."
   windows_e2e:
@@ -277,7 +277,7 @@ tasks:
     build_targets:
     - "//..."
     test_flags:
-    - "--test_tag_filters=-manual,examples,-fix-windows,-no-bazelci-windows"
+    - "--test_tag_filters=examples,-manual,-fix-windows,-no-bazelci-windows"
     - "--local_resources=792,1.0,1.0"
     # test_args will be passed to the nested bazel process
     - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-windows,-fix-windows,-manual"

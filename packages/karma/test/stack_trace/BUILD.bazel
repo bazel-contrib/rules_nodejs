@@ -12,12 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@npm_bazel_karma//:index.bzl", "ts_web_test_suite")
-load("@npm_bazel_typescript//:index.bzl", "ts_library")
-
-package(default_visibility = ["//visibility:public"])
-
-exports_files(["tsconfig.json"])
+load("@npm_bazel_typescript//:index.from_src.bzl", "ts_library")
+load("//packages/karma/test:defaults.bzl", "ts_web_test_suite")
 
 ts_library(
     name = "test_lib",
@@ -43,7 +39,7 @@ ts_web_test_suite(
     ],
     deps = [
         ":test_lib",
-        "//test_folder:test_lib",
+        "//packages/karma/test/stack_trace/test_folder:test_lib",
     ],
 )
 
@@ -56,10 +52,4 @@ sh_test(
     ],
     # TODO(gregmagolan): enable this test on bazelci once browers work on all platforms
     tags = ["no-bazelci"],
-)
-
-# Just a dummy test so that we have a test target for //... on bazelci ubuntu with bazel_integration_test
-sh_test(
-    name = "dummy_test",
-    srcs = ["dummy_test.sh"],
 )

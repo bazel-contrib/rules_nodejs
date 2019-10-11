@@ -4,7 +4,9 @@
       if (v !== undefined) module.exports = v;
   }
   else if (typeof define === "function" && define.amd) {
-      define("e2e_karma_typescript/hello_world.spec", ["require", "exports"], factory);
+    define(
+        'build_bazel_rules_nodejs/packages/karma/test/karma_typescript/hello_world.spec',
+        ['require', 'exports'], factory);
   }
 })(function (require, exports) {
   "use strict";

@@ -26,13 +26,17 @@ load(
 INTERNAL_KARMA_BIN = "@npm_bazel_karma//:karma_bin"
 
 def karma_web_test(karma = INTERNAL_KARMA_BIN, **kwargs):
-    _karma_web_test(karma = karma, **kwargs)
+    data = kwargs.pop("data", []) + ["@npm_bazel_karma//:karma_plugins"]
+    _karma_web_test(karma = karma, data = data, **kwargs)
 
 def karma_web_test_suite(karma = INTERNAL_KARMA_BIN, **kwargs):
-    _karma_web_test_suite(karma = karma, **kwargs)
+    data = kwargs.pop("data", []) + ["@npm_bazel_karma//:karma_plugins"]
+    _karma_web_test_suite(karma = karma, data = data, **kwargs)
 
 def ts_web_test(karma = INTERNAL_KARMA_BIN, **kwargs):
-    _ts_web_test(karma = karma, **kwargs)
+    data = kwargs.pop("data", []) + ["@npm_bazel_karma//:karma_plugins"]
+    _ts_web_test(karma = karma, data = data, **kwargs)
 
 def ts_web_test_suite(karma = INTERNAL_KARMA_BIN, **kwargs):
-    _ts_web_test_suite(karma = karma, **kwargs)
+    data = kwargs.pop("data", []) + ["@npm_bazel_karma//:karma_plugins"]
+    _ts_web_test_suite(karma = karma, data = data, **kwargs)
