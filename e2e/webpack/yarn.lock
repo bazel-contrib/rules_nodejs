@@ -3,18 +3,18 @@
 
 
 "@bazel/jasmine@^0.38.0":
-  version "0.38.2"
-  resolved "https://registry.yarnpkg.com/@bazel/jasmine/-/jasmine-0.38.2.tgz#567a7b5f9639d8c0b757f8ab41bfff6b84029484"
-  integrity sha512-O5J/vSQBUwsUqV5dTqOg9SJUuQgLlYAY2NPkC6asYQ+IgtmrtZV+IxWoCC8eZEiu0ZWhV/EwgzXS1FjXI9GR0Q==
+  version "0.38.3"
+  resolved "https://registry.yarnpkg.com/@bazel/jasmine/-/jasmine-0.38.3.tgz#f010f0555acd1d363eca9fc90865704fcf510d3f"
+  integrity sha512-wTD+EoNUvOfLNmicLa7g/09gFHEpJE3A6xhz/UMF2KowCg+yBfzKGa2bSuqIMhwoDH0EpIOWZg2lmiBqz/w9/Q==
   dependencies:
     jasmine "~3.4.0"
     jasmine-core "~3.4.0"
     v8-coverage "1.0.9"
 
 "@bazel/labs@^0.38.0":
-  version "0.38.2"
-  resolved "https://registry.yarnpkg.com/@bazel/labs/-/labs-0.38.2.tgz#22ab9bf8ff156a57f588ad9d96c05747456e4b08"
-  integrity sha512-6XRBIjyXQTksjIHwXFPsf7shpGbL4AhARYH2mAoDoVCqftVXFSwq7aOQdLLyeLf69uKcOHgS/KfLq6MMVHBdSw==
+  version "0.38.3"
+  resolved "https://registry.yarnpkg.com/@bazel/labs/-/labs-0.38.3.tgz#2982249f6c1a7dc079d1a2d70da7ad287cbc70c2"
+  integrity sha512-yTMkFUSGUfIAxKopE1NmWt5B1Ri+lU8orGbaq/3QE+Pzf9rX07gZ4PjPgkxoeJEGnFN6ViOyadX/hzujoEHPwg==
   dependencies:
     webpack "~4.29.3"
 
@@ -565,9 +565,9 @@ commander@2.20.0:
   integrity sha512-7j2y+40w61zy6YC2iRNpUe/NwhNyoXrYpHMrSunaMG64nRnaf96zO/KMQR4OyN/UnE5KLyEBnKHd4aG3rskjpQ==
 
 commander@^2.20.0:
-  version "2.20.1"
-  resolved "https://registry.yarnpkg.com/commander/-/commander-2.20.1.tgz#3863ce3ca92d0831dcf2a102f5fb4b5926afd0f9"
-  integrity sha512-cCuLsMhJeWQ/ZpsFTbE765kvVfoeSddc4nU3up4fV+fDBcfUXnbITJ+JzhkdjzOqhURjZgujxaioam4RM9yGUg==
+  version "2.20.3"
+  resolved "https://registry.yarnpkg.com/commander/-/commander-2.20.3.tgz#fd485e84c03eb4881c20722ba48035e8531aeb33"
+  integrity sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==
 
 commondir@^1.0.1:
   version "1.0.1"

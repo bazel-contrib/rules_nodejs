@@ -656,26 +656,26 @@
     to-fast-properties "^2.0.0"
 
 "@bazel/protractor@^0.38.0":
-  version "0.38.2"
-  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-0.38.2.tgz#be0804c246d412f8b285fc22a320ab9b471c7a5d"
-  integrity sha512-bo5v7CpG9TlPX2lx/XueviMt8KY7KDaL7rcw5SR3uU+4w+gX6bTjdnSsVXCUH2YrTTz6VgZaBZO3O0GTbjDP+w==
+  version "0.38.3"
+  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-0.38.3.tgz#e9599271e87527378e56d97de960919f72256746"
+  integrity sha512-vs5Zi9Gw3FZ0OnmdJxDzOZJaA2Aeqq3GcAvK8jlQ6fzVc9w8TP6BmAhraOHJYFPj5rMz2fQF/e3Ovrtn4KA3Zw==
   dependencies:
     protractor "^5.4.2"
 
 "@bazel/rollup@^0.38.0":
-  version "0.38.2"
-  resolved "https://registry.yarnpkg.com/@bazel/rollup/-/rollup-0.38.2.tgz#ed24c93e95ff013d0aaf8d0f6b964075dd744b08"
-  integrity sha512-LwhAakuXzoi/Z2S8FoBjcG4F4jXUE4RbC7qEIo89Gyi3ZA6TUn+UoGemtO/X7GO+/tWxsQhqTDrB03GPTXuf2g==
+  version "0.38.3"
+  resolved "https://registry.yarnpkg.com/@bazel/rollup/-/rollup-0.38.3.tgz#ccf407fbe906333cecfcf28da4f4a3c4228eff7d"
+  integrity sha512-rColSiacPOZLgL/nwsKHIi2ZQ7RPwqGLHFEY959yeKIMp39oUlEuf6ZzNRuSnjCoqgwsFeanodplsWdvsPdxTg==
 
 "@bazel/terser@^0.38.0":
-  version "0.38.2"
-  resolved "https://registry.yarnpkg.com/@bazel/terser/-/terser-0.38.2.tgz#ab6e899b77a7823a3102fcc464ea56e09e3314ef"
-  integrity sha512-Vhh5mRpuIPUwYKHF9F+WHKzO5kC1+PW9zHY1l4KJcXhsQiZ0fDauE5jiNjgAnjaw+SoRuFPIcvfvSMZaYdgrTg==
+  version "0.38.3"
+  resolved "https://registry.yarnpkg.com/@bazel/terser/-/terser-0.38.3.tgz#bd1077284745a3e1363dd535daa2777e5e901b14"
+  integrity sha512-vYxAlO7Y7QWP0JILnpfPRh2UEDLS7dvH4AvYmSKxr0PaDhjJGJGZDD/8dBRDou2LxNnMMLG4lH4e0xCVkShhVA==
 
 "@bazel/typescript@^0.38.0":
-  version "0.38.2"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-0.38.2.tgz#d07e20c910e0e7250ebbdf64f3ef3014ad8e3039"
-  integrity sha512-KATYNcRaF5JxtmEAczpr1CRZwmPSTAWUA/3Ogp8R17SA7ts9P+K8WPr3eml1b9JkiUzmNvERMU8HNEslDMuhvg==
+  version "0.38.3"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-0.38.3.tgz#0e452413ca81fc9429404ceabf60ebfb4f13474a"
+  integrity sha512-sFPYNDEE5h/k+Arop3q8XWaqoTwSy0IUS0a/YSeLhR/yz7pNmOltjPyeseLmo004BhgH7X4X+LjUQjcgv7lpXw==
   dependencies:
     protobufjs "6.8.8"
     semver "5.6.0"

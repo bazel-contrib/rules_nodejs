@@ -3,9 +3,9 @@
 
 
 "@bazel/worker@^0.38.0":
-  version "0.38.2"
-  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-0.38.2.tgz#ef7af78f537541b61c832028662fe35b84ce2961"
-  integrity sha512-PaFhCVNL5KUhHz83O4c6Pq7t2tyk1z1+JePF3g6jK4ykGxV7tdeoCtfmpFG/UQ5Ucxk5Nz1Y/80HLAkmTGZ/pg==
+  version "0.38.3"
+  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-0.38.3.tgz#7d389aa3a33650ee33a7031da6fb276952c50f67"
+  integrity sha512-FfxomkggzWIaJ3W9XZrqD3tEJW+goexpC7euU2YTgZ+TeucXGd+X+L9L6hy+blcH56BRYqrINc2Owdl3Oye7XA==
   dependencies:
     protobufjs "6.8.8"
 

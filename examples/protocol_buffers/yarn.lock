@@ -3,14 +3,14 @@
 
 
 "@bazel/hide-bazel-files@^0.38.0":
-  version "0.38.2"
-  resolved "https://registry.yarnpkg.com/@bazel/hide-bazel-files/-/hide-bazel-files-0.38.2.tgz#3c4c4ed025e8193851a21685898ce24cf8851945"
-  integrity sha512-Twwxneh3VXE6EHC82R2v799kHGuVNfs9l0D+N+PrgE0yTpbCek4AbowFp2HQznlYqIswicfeMQGYVVKX9+s7ww==
+  version "0.38.3"
+  resolved "https://registry.yarnpkg.com/@bazel/hide-bazel-files/-/hide-bazel-files-0.38.3.tgz#e98231d3d360d51860d9c1a7c3345b40dab4cf81"
+  integrity sha512-o+dNkfDm3qxWQ8h/04cWuTcjR7qnjZi3pQGv4aklVb16oPWx2jF8BzbkwvWuIkdbOl9VnqYP0vaHzwQVJRRcIA==
 
 "@bazel/karma@^0.38.0":
-  version "0.38.2"
-  resolved "https://registry.yarnpkg.com/@bazel/karma/-/karma-0.38.2.tgz#13c0eb8f09fdc579ef3a2493d6014d77cdc03670"
-  integrity sha512-pTeHciOyg5ViCCl8Vn5N/wSJSTrxh+26+drlh0GBW8gzUTGIfWDVnma3oA6lLp8zyaCzkpoMP2ukrwBky3nk1Q==
+  version "0.38.3"
+  resolved "https://registry.yarnpkg.com/@bazel/karma/-/karma-0.38.3.tgz#4db94a2227d7e8863505dfcfe9de81a2cb1f7d0b"
+  integrity sha512-5ywjZsigJpdG4wr1iy2UNkfEgQcBvRjHoVfUQqLF1Dp0uBdqG7Qq2quu0Zypd/UodbvTye1pHWQ+Lq7cEz6JWg==
   dependencies:
     jasmine-core "2.8.0"
     karma "~4.1.0"
@@ -25,33 +25,33 @@
     tmp "0.0.33"
 
 "@bazel/labs@^0.38.0":
-  version "0.38.2"
-  resolved "https://registry.yarnpkg.com/@bazel/labs/-/labs-0.38.2.tgz#22ab9bf8ff156a57f588ad9d96c05747456e4b08"
-  integrity sha512-6XRBIjyXQTksjIHwXFPsf7shpGbL4AhARYH2mAoDoVCqftVXFSwq7aOQdLLyeLf69uKcOHgS/KfLq6MMVHBdSw==
+  version "0.38.3"
+  resolved "https://registry.yarnpkg.com/@bazel/labs/-/labs-0.38.3.tgz#2982249f6c1a7dc079d1a2d70da7ad287cbc70c2"
+  integrity sha512-yTMkFUSGUfIAxKopE1NmWt5B1Ri+lU8orGbaq/3QE+Pzf9rX07gZ4PjPgkxoeJEGnFN6ViOyadX/hzujoEHPwg==
   dependencies:
     webpack "~4.29.3"
 
 "@bazel/protractor@^0.38.0":
-  version "0.38.2"
-  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-0.38.2.tgz#be0804c246d412f8b285fc22a320ab9b471c7a5d"
-  integrity sha512-bo5v7CpG9TlPX2lx/XueviMt8KY7KDaL7rcw5SR3uU+4w+gX6bTjdnSsVXCUH2YrTTz6VgZaBZO3O0GTbjDP+w==
+  version "0.38.3"
+  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-0.38.3.tgz#e9599271e87527378e56d97de960919f72256746"
+  integrity sha512-vs5Zi9Gw3FZ0OnmdJxDzOZJaA2Aeqq3GcAvK8jlQ6fzVc9w8TP6BmAhraOHJYFPj5rMz2fQF/e3Ovrtn4KA3Zw==
   dependencies:
     protractor "^5.4.2"
 
 "@bazel/rollup@^0.38.0":
-  version "0.38.2"
-  resolved "https://registry.yarnpkg.com/@bazel/rollup/-/rollup-0.38.2.tgz#ed24c93e95ff013d0aaf8d0f6b964075dd744b08"
-  integrity sha512-LwhAakuXzoi/Z2S8FoBjcG4F4jXUE4RbC7qEIo89Gyi3ZA6TUn+UoGemtO/X7GO+/tWxsQhqTDrB03GPTXuf2g==
+  version "0.38.3"
+  resolved "https://registry.yarnpkg.com/@bazel/rollup/-/rollup-0.38.3.tgz#ccf407fbe906333cecfcf28da4f4a3c4228eff7d"
+  integrity sha512-rColSiacPOZLgL/nwsKHIi2ZQ7RPwqGLHFEY959yeKIMp39oUlEuf6ZzNRuSnjCoqgwsFeanodplsWdvsPdxTg==
 
 "@bazel/terser@^0.38.0":
-  version "0.38.2"
-  resolved "https://registry.yarnpkg.com/@bazel/terser/-/terser-0.38.2.tgz#ab6e899b77a7823a3102fcc464ea56e09e3314ef"
-  integrity sha512-Vhh5mRpuIPUwYKHF9F+WHKzO5kC1+PW9zHY1l4KJcXhsQiZ0fDauE5jiNjgAnjaw+SoRuFPIcvfvSMZaYdgrTg==
+  version "0.38.3"
+  resolved "https://registry.yarnpkg.com/@bazel/terser/-/terser-0.38.3.tgz#bd1077284745a3e1363dd535daa2777e5e901b14"
+  integrity sha512-vYxAlO7Y7QWP0JILnpfPRh2UEDLS7dvH4AvYmSKxr0PaDhjJGJGZDD/8dBRDou2LxNnMMLG4lH4e0xCVkShhVA==
 
 "@bazel/typescript@^0.38.0":
-  version "0.38.2"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-0.38.2.tgz#d07e20c910e0e7250ebbdf64f3ef3014ad8e3039"
-  integrity sha512-KATYNcRaF5JxtmEAczpr1CRZwmPSTAWUA/3Ogp8R17SA7ts9P+K8WPr3eml1b9JkiUzmNvERMU8HNEslDMuhvg==
+  version "0.38.3"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-0.38.3.tgz#0e452413ca81fc9429404ceabf60ebfb4f13474a"
+  integrity sha512-sFPYNDEE5h/k+Arop3q8XWaqoTwSy0IUS0a/YSeLhR/yz7pNmOltjPyeseLmo004BhgH7X4X+LjUQjcgv7lpXw==
   dependencies:
     protobufjs "6.8.8"
     semver "5.6.0"
@@ -939,9 +939,9 @@ combined-stream@^1.0.6, combined-stream@~1.0.6:
     delayed-stream "~1.0.0"
 
 commander@^2.20.0:
-  version "2.20.1"
-  resolved "https://registry.yarnpkg.com/commander/-/commander-2.20.1.tgz#3863ce3ca92d0831dcf2a102f5fb4b5926afd0f9"
-  integrity sha512-cCuLsMhJeWQ/ZpsFTbE765kvVfoeSddc4nU3up4fV+fDBcfUXnbITJ+JzhkdjzOqhURjZgujxaioam4RM9yGUg==
+  version "2.20.3"
+  resolved "https://registry.yarnpkg.com/commander/-/commander-2.20.3.tgz#fd485e84c03eb4881c20722ba48035e8531aeb33"
+  integrity sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==
 
 commondir@^1.0.1:
   version "1.0.1"
