@@ -1,3 +1,4 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_package")
 load("@io_bazel_rules_docker//container:container.bzl", "container_image")
 load("@io_bazel_rules_docker//nodejs:image.bzl", "nodejs_image")
@@ -183,6 +184,21 @@ web_package(
     ],
     # <script> and <link> tags will be automatically injected into this index.
     index_html = "//src/example:index.html",
+)
+
+ts_library(
+    name = "universal_server_lib",
+    srcs = [":server.ts"],
+)
+
+nodejs_binary(
+    name = "universal_server",
+    data = [
+        ":prodapp",
+        ":src",
+        ":universal_server_lib",
+    ],
+    entry_point = ":server.ts",
 )
 
 history_server(
