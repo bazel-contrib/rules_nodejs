@@ -22,6 +22,7 @@ ts_library(
     module_name = "foolib",
     # Don't allow deep imports under here,
     # and give it the AMD name "foolib", not "foolib/index"
-    module_root = "index.d.ts",
+    # TODO: We currently cannot set module_root to a file name for rollup usage
+    # module_root = "index.d.ts",
     deps = ["@npm//date-fns"],
 )
