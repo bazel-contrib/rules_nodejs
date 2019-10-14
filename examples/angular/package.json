@@ -25,7 +25,7 @@
         "zone.js": "0.10.2"
     },
     "devDependencies": {
-        "@angular/bazel": "9.0.0-next.10",
+        "@angular/bazel": "angular/bazel-builds#9.0.0-next.10+c3aaa5211",
         "@angular/cli": "9.0.0-next.6",
         "@angular/compiler": "9.0.0-next.10",
         "@angular/compiler-cli": "9.0.0-next.10",
@@ -46,7 +46,6 @@
         "core-js": "2.6.9",
         "firebase-tools": "7.1.0",
         "history-server": "^1.3.1",
-        "patch-package": "^6.2.0",
         "rollup": "^1.21.4",
         "rollup-plugin-node-resolve": "^5.2.0",
         "rollup-plugin-commonjs": "^10.1.0",
@@ -61,7 +60,7 @@
         "e2e": "bazel test //e2e:all",
         "test": "bazel test //src/...",
         "benchmark": "ibazel-benchmark-runner //src:devserver src/app/hello-world/hello-world.component.ts --url=http://localhost:5432",
-        "postinstall": "patch-package && ivy-ngcc",
+        "postinstall": "ivy-ngcc",
         "generate": "node tools/generator/index.js",
         "generate:clean": "node tools/generator/index.js --clean"
     }
