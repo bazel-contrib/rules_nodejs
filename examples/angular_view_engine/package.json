@@ -25,7 +25,7 @@
         "zone.js": "0.10.2"
     },
     "devDependencies": {
-        "@angular/bazel": "9.0.0-next.10",
+        "@angular/bazel": "angular/bazel-builds#9.0.0-next.10+c3aaa5211",
         "@angular/cli": "8.3.8",
         "@angular/compiler": "8.2.9",
         "@angular/compiler-cli": "8.2.9",
