@@ -422,12 +422,15 @@ def _maybe(repo_rule, name, **kwargs):
             // Automatically include dynamic dependency on plugins of the form pkg-plugin-foo
             if (name.startsWith(`${p._moduleName}-plugin-`))
                 return true;
-            const value = dynamic_deps[p._moduleName];
-            if (name === value)
-                return true;
-            // Support wildcard match
-            if (value && value.includes('*') && name.startsWith(value.substring(0, value.indexOf('*')))) {
-                return true;
+            if (!dynamic_deps[p._moduleName])
+                return false;
+            for (const value of dynamic_deps[p._moduleName].split(',')) {
+                if (name === value)
+                    return true;
+                // Support wildcard match
+                if (value && value.includes('*') && name.startsWith(value.substring(0, value.indexOf('*')))) {
+                    return true;
+                }
             }
             return false;
         }

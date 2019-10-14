@@ -78,7 +78,7 @@ Note that the pattern used by many packages, which have plugins in the form pkg-
 added as implicit dependencies. Thus for example, `rollup` will automatically get `rollup-plugin-json` included in its
 dependencies without needing to use this attribute.
 
-The keys in the dict are npm package names, and the value may be a particular package, or a prefix ending with *.
+The keys in the dict are npm package names, and the value may be a particular package, a comma-separated list of packages, or a prefix ending with *.
 For example, `dynamic_deps = {"@bazel/typescript": "tsickle", "karma": "my-karma-plugin-*"}`
 
 Note, this may sound like "optionalDependencies" but that field in package.json actually means real dependencies

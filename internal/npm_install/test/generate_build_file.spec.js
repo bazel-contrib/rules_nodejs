@@ -85,10 +85,23 @@ describe('build file generator', () => {
         {_name: 'bar', _dir: 'bar', _moduleName: 'bar'},
         {_name: 'typescript', bin: 'tsc_wrapped', _dir: 'a', _moduleName: '@bazel/typescript'},
         {_name: 'tsickle', _dir: 'b', _moduleName: 'tsickle'},
+        {
+          _name: 'architect-cli',
+          bin: 'architect',
+          _dir: 'architect-cli',
+          _moduleName: '@angular-devkit/architect-cli'
+        },
+        {_name: 'core', _dir: 'core', _moduleName: '@angular/core'},
+        {_name: 'cli', _dir: 'cli', _moduleName: '@angular/cli'},
       ];
-      addDynamicDependencies(pkgs, {'foo': 'bar', '@bazel/typescript': 'tsickle'});
+      addDynamicDependencies(pkgs, {
+        'foo': 'bar',
+        '@bazel/typescript': 'tsickle',
+        '@angular-devkit/architect-cli': '@angular/core,@angular/cli',
+      });
       expect(pkgs[0]._dynamicDependencies).toEqual(['//bar:bar']);
       expect(pkgs[2]._dynamicDependencies).toEqual(['//b:tsickle']);
+      expect(pkgs[4]._dynamicDependencies).toEqual(['//core:core', '//cli:cli']);
       expect(printPackageBin(pkgs[0])).toContain('data = ["//some_dir:foo", "//bar:bar"]');
       expect(printPackageBin(pkgs[2])).toContain('data = ["//a:typescript", "//b:tsickle"]');
     });
