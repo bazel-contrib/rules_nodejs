@@ -15,9 +15,16 @@
 """Overrides for ts_web_test_suite to support bazelci testing
 """
 
-load("@npm_bazel_karma//:index.bzl", _ts_web_test_suite = "ts_web_test_suite")
+load("@npm_bazel_karma//:index.from_src.bzl", _ts_web_test_suite = "ts_web_test_suite")
 
 def ts_web_test_suite(name, browsers = [], tags = [], **kwargs):
+    # BazelCI docker images are missing shares libs to run a subset browser tests:
+    # mac: firefox does not work, chrome works
+    # ubuntu: firefox and chrome do not work --- there are 0 tests to run
+    # windows: firefox (disabled by rules_webtesting) and chrome do not work --- there are 0 tests to run
+    # TODO(gregmagolan): fix underlying issue in bazelci and remove this macro
+
+    # For CircleCI and local testing
     _ts_web_test_suite(
         name = name,
         tags = tags + ["no-bazelci"],
@@ -25,24 +32,12 @@ def ts_web_test_suite(name, browsers = [], tags = [], **kwargs):
         **kwargs
     )
 
-    # BazelCI docker images are missing shares libs to run a subset browser tests:
-    # mac: firefox does not work, chrome works
-    # ubuntu: firefox and chrome do not work --- there are 0 tests to run
-    # windows: firefox works, chrome does not work
-    # TODO(gregmagolan): fix underlying issue in bazelci and remove this macro
+    # For BazelCI mac only
     _ts_web_test_suite(
         name = "bazelci_chrome_" + name,
         tags = tags + ["no-circleci", "no-bazelci-ubuntu", "no-bazelci-windows", "no-local"],
         browsers = [
             "@io_bazel_rules_webtesting//browsers:chromium-local",
-        ],
-        **kwargs
-    )
-    _ts_web_test_suite(
-        name = "bazelci_firefox_" + name,
-        tags = tags + ["no-circleci", "no-bazelci-ubuntu", "no-bazelci-mac", "no-local"],
-        browsers = [
-            "@io_bazel_rules_webtesting//browsers:firefox-local",
         ],
         **kwargs
     )

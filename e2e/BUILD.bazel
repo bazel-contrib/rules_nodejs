@@ -33,30 +33,6 @@ e2e_integration_test(
 )
 
 e2e_integration_test(
-    name = "e2e_karma",
-    npm_packages = {
-        "//packages/karma:npm_package": "@bazel/karma",
-    },
-)
-
-e2e_integration_test(
-    name = "e2e_karma_stack_trace",
-    npm_packages = {
-        "//packages/karma:npm_package": "@bazel/karma",
-        "//packages/typescript:npm_package": "@bazel/typescript",
-    },
-)
-
-e2e_integration_test(
-    name = "e2e_karma_typescript",
-    npm_packages = {
-        "//packages/jasmine:npm_package": "@bazel/jasmine",
-        "//packages/karma:npm_package": "@bazel/karma",
-        "//packages/typescript:npm_package": "@bazel/typescript",
-    },
-)
-
-e2e_integration_test(
     name = "e2e_node_loader_no_preserve_symlinks",
 )
 
