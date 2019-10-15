@@ -103,6 +103,10 @@ example_integration_test(
 )
 
 example_integration_test(
+    name = "examples_jest",
+)
+
+example_integration_test(
     name = "examples_kotlin",
     npm_packages = {
         "//packages/jasmine:npm_package": "@bazel/jasmine",

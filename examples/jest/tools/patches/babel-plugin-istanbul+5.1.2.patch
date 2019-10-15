@@ -1,0 +1,31 @@
+diff --git a/node_modules/babel-plugin-istanbul/lib/index.js b/node_modules/babel-plugin-istanbul/lib/index.js
+index 259adb4..102a54f 100644
+--- a/node_modules/babel-plugin-istanbul/lib/index.js
++++ b/node_modules/babel-plugin-istanbul/lib/index.js
+@@ -27,7 +27,7 @@ function makeShouldSkip() {
+   var exclude;
+   return function shouldSkip(file, opts) {
+     if (!exclude || exclude.cwd !== opts.cwd) {
+-      var cwd = getRealpath(process.env.NYC_CWD || process.cwd());
++      var cwd = process.env.NYC_CWD || process.cwd();
+       var nycConfig = process.env.NYC_CONFIG ? JSON.parse(process.env.NYC_CONFIG) : {};
+       var config = {};
+ 
+@@ -68,7 +68,7 @@ function makeVisitor(_ref) {
+       Program: {
+         enter: function enter(path) {
+           this.__dv__ = null;
+-          var realPath = getRealpath(this.file.opts.filename);
++          var realPath = this.file.opts.filename;
+ 
+           if (shouldSkip(realPath, this.opts)) {
+             return;
+@@ -101,7 +101,7 @@ function makeVisitor(_ref) {
+           var result = this.__dv__.exit(path);
+ 
+           if (this.opts.onCover) {
+-            this.opts.onCover(getRealpath(this.file.opts.filename), result.fileCoverage);
++            this.opts.onCover(this.file.opts.filename, result.fileCoverage);
+           }
+         }
+       }
