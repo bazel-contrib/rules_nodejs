@@ -1,0 +1,35 @@
+diff --git a/node_modules/jest-config/build/getCacheDirectory.js b/node_modules/jest-config/build/getCacheDirectory.js
+index 7e64ba6..6ea2cfd 100644
+--- a/node_modules/jest-config/build/getCacheDirectory.js
++++ b/node_modules/jest-config/build/getCacheDirectory.js
+@@ -50,7 +50,7 @@ const getCacheDirectory = () => {
+     getuid = _process.getuid;
+ 
+   const tmpdir = _path().default.join(
+-    (0, _realpathNative().sync)(_os().default.tmpdir()),
++    _os().default.tmpdir(),
+     'jest'
+   );
+ 
+diff --git a/node_modules/jest-config/build/normalize.js b/node_modules/jest-config/build/normalize.js
+index ce37c38..c34497a 100644
+--- a/node_modules/jest-config/build/normalize.js
++++ b/node_modules/jest-config/build/normalize.js
+@@ -428,7 +428,7 @@ const normalizeRootDir = options => {
+ 
+   try {
+     // try to resolve windows short paths, ignoring errors (permission errors, mostly)
+-    options.rootDir = (0, _realpathNative().sync)(options.rootDir);
++    options.rootDir = options.rootDir;
+   } catch (e) {
+     // ignored
+   }
+@@ -1004,7 +1004,7 @@ function normalize(options, argv, configPath, projectIndex = Infinity) {
+ 
+   try {
+     // try to resolve windows short paths, ignoring errors (permission errors, mostly)
+-    newOptions.cwd = (0, _realpathNative().sync)(process.cwd());
++    newOptions.cwd = process.cwd();
+   } catch (e) {
+     // ignored
+   }

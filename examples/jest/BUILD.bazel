@@ -1,0 +1,24 @@
+load(":jest.bzl", "jest_test")
+
+jest_test(
+    name = "test",
+    srcs = [
+        "index.test.js",
+        "index2.test.js",
+    ],
+    jest_config = ":jest.config.js",
+    deps = [
+        ":extra.js",
+        ":index.js",
+        "@npm//@babel/core",
+        "@npm//@babel/preset-env",
+        "@npm//@jest/transform",
+        "@npm//babel-jest",
+    ],
+)
+
+# Just a dummy test so that we have a test target for //... on certain bazelci platforms with bazel_integration_test
+sh_test(
+    name = "dummy_test",
+    srcs = ["dummy_test.sh"],
+)
