@@ -121,17 +121,19 @@ ts_devserver(
 )
 
 rollup_bundle(
-    name = "bundle",
+    name = "bundle-es2015",
     config_file = "rollup.config.js",
-    entry_point = ":main.prod.ts",
+    entry_points = {
+        ":main.prod.ts": "index",
+    },
     output_dir = True,
     deps = ["//src"],
 )
 
 babel(
-    name = "bundle.es2015",
+    name = "bundle-es5",
     args = [
-        "$(location :bundle)",
+        "$(location :bundle-es2015)",
         "--no-babelrc",
         "--source-maps",
         "--presets=@babel/preset-env",
@@ -139,20 +141,20 @@ babel(
         "$@",
     ],
     data = [
-        ":bundle",
+        ":bundle-es2015",
         "@npm//@babel/preset-env",
     ],
     output_dir = True,
 )
 
 terser_minified(
-    name = "bundle.min",
-    src = ":bundle",
+    name = "bundle-es2015.min",
+    src = ":bundle-es2015",
 )
 
 terser_minified(
-    name = "bundle.min.es2015",
-    src = ":bundle.es2015",
+    name = "bundle-es5.min",
+    src = ":bundle-es5",
 )
 
 web_package(
@@ -165,8 +167,8 @@ web_package(
     ],
     # do not sort
     assets = _ASSETS + [
-        ":bundle.min",
-        ":bundle.min.es2015",
+        ":bundle-es2015.min",
+        ":bundle-es5.min",
     ],
     data = [
         "//src/assets",
