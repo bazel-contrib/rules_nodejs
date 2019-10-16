@@ -66,26 +66,6 @@ If symlink_node_modules is True, this attribute is ignored since
 the dependency manager will run in the package.json location.
 """,
     ),
-    "dynamic_deps": attr.string_dict(
-        doc = """Declare implicit dependencies between npm packages.
-
-In many cases, an npm package doesn't list a dependency on another package, yet still require()s it.
-One example is plugins, where a tool like rollup can require rollup-plugin-json if the user installed it.
-Another example is the tsc_wrapped binary in @bazel/typescript which can require tsickle if its installed.
-Under Bazel, we must declare these dependencies so that they are included as inputs to the program.
-
-Note that the pattern used by many packages, which have plugins in the form pkg-plugin-someplugin, are automatically
-added as implicit dependencies. Thus for example, `rollup` will automatically get `rollup-plugin-json` included in its
-dependencies without needing to use this attribute.
-
-The keys in the dict are npm package names, and the value may be a particular package, or a prefix ending with *.
-For example, `dynamic_deps = {"@bazel/typescript": "tsickle", "karma": "my-karma-plugin-*"}`
-
-Note, this may sound like "optionalDependencies" but that field in package.json actually means real dependencies
-which are installed, but failures on installation are ignored.
-""",
-        default = {"@bazel/typescript": "tsickle"},
-    ),
     "exclude_packages": attr.string_list(
         doc = """DEPRECATED. This attribute is no longer used.""",
     ),
@@ -165,7 +145,6 @@ def _create_build_files(repository_ctx, rule_type, node, lock_file):
         "1" if error_on_build_files else "0",
         repository_ctx.path(lock_file),
         ",".join(repository_ctx.attr.included_files),
-        str(repository_ctx.attr.dynamic_deps),
     ])
     if result.return_code:
         fail("generate_build_file.js failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
