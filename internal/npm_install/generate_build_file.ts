@@ -779,7 +779,7 @@ function flattenPkgDependencies(pkg: Dep, dep: Dep, pkgsMap: Map<string, Dep>) {
   }
 
   findDeps(dep.dependencies, true, 'dependency');
-  findDeps(dep.peerDependencies, true, 'peer dependency');
+  findDeps(dep.peerDependencies, false, 'peer dependency');
   // `optionalDependencies` that are missing should be silently
   // ignored since the npm/yarn will not fail if these dependencies
   // fail to install. Packages should handle the cases where these
