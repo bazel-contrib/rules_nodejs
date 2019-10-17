@@ -1,0 +1,9 @@
+load("@npm_bazel_typescript//:index.from_src.bzl", "ts_library")
+
+package(default_visibility = ["//packages/rollup:__subpackages__"])
+
+ts_library(
+    name = "a",
+    srcs = ["index.ts"],
+    module_name = "@far/a",
+)

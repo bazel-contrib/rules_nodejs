@@ -25,7 +25,11 @@ _BUNDLE_FORMATS = [
         sourcemap = "true",
         deps = [
             "//%s/fum:fumlib" % package_name(),
-            "//%s/foo:foolib" % package_name(),
+            "//%s/foo:foo_lib" % package_name(),
+            "//%s/foo_a:foo_lib_a" % package_name(),
+            "//%s/foo_aaa:foo_lib_a_a_a" % package_name(),
+            "//%s/far/a/b/c" % package_name(),
+            "//%s/far/a" % package_name(),
             "@npm//hello",
             "@npm//rollup-plugin-commonjs",
             "@npm//rollup-plugin-json",

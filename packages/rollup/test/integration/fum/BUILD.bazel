@@ -7,7 +7,4 @@ js_library(
     srcs = ["index.js"],
     module_from_src = True,
     module_name = "fumlib",
-    # Don't allow deep imports under here,
-    # and give it the AMD name "fumlib", not "fumlib/index"
-    module_root = "index.d.ts",
 )
