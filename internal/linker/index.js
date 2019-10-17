@@ -30,6 +30,9 @@
         if (VERBOSE_LOGS)
             console.error('[link_node_modules.js]', ...m);
     }
+    function log_error(...m) {
+        console.error('[link_node_modules.js]', ...m);
+    }
     function panic(m) {
         throw new Error(`Internal error! Please run again with
    --define=VERBOSE_LOG=1
@@ -45,18 +48,41 @@ Include as much of the build output as you can without disclosing anything confi
      * if they do not exist.
      */
     function mkdirp(p) {
-        if (!fs.existsSync(p)) {
-            mkdirp(path.dirname(p));
-            fs.mkdirSync(p);
-        }
+        return __awaiter(this, void 0, void 0, function* () {
+            if (p && !(yield exists(p))) {
+                yield mkdirp(path.dirname(p));
+                log_verbose(`mkdir( ${p} )`);
+                try {
+                    yield fs.promises.mkdir(p);
+                }
+                catch (e) {
+                    if (e.code !== 'EEXIST') {
+                        // can happen if path being created exists via a symlink
+                        throw e;
+                    }
+                }
+            }
+        });
     }
     function symlink(target, path) {
         return __awaiter(this, void 0, void 0, function* () {
             log_verbose(`symlink( ${path} -> ${target} )`);
+            // Check if the target exists before creating the symlink.
+            // This is an extra filesystem access on top of the symlink but
+            // it is necessary for the time being.
+            if (!(yield exists(target))) {
+                // This can happen if a module mapping is propogated from a dependency
+                // but the targat that generated the mapping in not in the deps. We don't
+                // want to create symlinks to non-existant targets as this will
+                // break any nested symlinks that may be created under the module name
+                // after this.
+                return false;
+            }
             // Use junction on Windows since symlinks require elevated permissions.
             // We only link to directories so junctions work for us.
             try {
                 yield fs.promises.symlink(target, path, 'junction');
+                return true;
             }
             catch (e) {
                 if (e.code !== 'EEXIST') {
@@ -65,15 +91,16 @@ Include as much of the build output as you can without disclosing anything confi
                 // We assume here that the path is already linked to the correct target.
                 // Could add some logic that asserts it here, but we want to avoid an extra
                 // filesystem access so we should only do it under some kind of strict mode.
-            }
-            if (VERBOSE_LOGS) {
-                // Be verbose about creating a bad symlink
-                // Maybe this should fail in production as well, but again we want to avoid
-                // any unneeded file I/O
-                if (!fs.existsSync(path)) {
-                    log_verbose('ERROR\n***\nLooks like we created a bad symlink:' +
-                        `\n  pwd ${process.cwd()}\n  target ${target}\n  path ${path}\n***`);
+                if (VERBOSE_LOGS) {
+                    // Be verbose about creating a bad symlink
+                    // Maybe this should fail in production as well, but again we want to avoid
+                    // any unneeded file I/O
+                    if (!(yield exists(path))) {
+                        log_verbose('ERROR\n***\nLooks like we created a bad symlink:' +
+                            `\n  pwd ${process.cwd()}\n  target ${target}\n  path ${path}\n***`);
+                    }
                 }
+                return false;
             }
         });
     }
@@ -83,30 +110,32 @@ Include as much of the build output as you can without disclosing anything confi
      * @param root a string like 'npm/node_modules'
      */
     function resolveRoot(root, runfiles) {
-        // create a node_modules directory if no root
-        // this will be the case if only first-party modules are installed
-        if (!root) {
-            if (!fs.existsSync('node_modules')) {
-                log_verbose('no third-party packages; mkdir node_modules in ', process.cwd());
-                fs.mkdirSync('node_modules');
+        return __awaiter(this, void 0, void 0, function* () {
+            // create a node_modules directory if no root
+            // this will be the case if only first-party modules are installed
+            if (!root) {
+                if (!(yield exists('node_modules'))) {
+                    log_verbose('no third-party packages; mkdir node_modules in ', process.cwd());
+                    yield fs.promises.mkdir('node_modules');
+                }
+                return 'node_modules';
             }
-            return 'node_modules';
-        }
-        // If we got a runfilesManifest map, look through it for a resolution
-        // This will happen if we are running a binary that had some npm packages
-        // "statically linked" into its runfiles
-        const fromManifest = runfiles.lookupDirectory(root);
-        if (fromManifest)
-            return fromManifest;
-        // Account for Bazel --legacy_external_runfiles
-        // which look like 'my_wksp/external/npm/node_modules'
-        if (fs.existsSync(path.join('external', root))) {
-            log_verbose('Found legacy_external_runfiles, switching root to', path.join('external', root));
-            return path.join('external', root);
-        }
-        // The repository should be layed out in the parent directory
-        // since bazel sets our working directory to the repository where the build is happening
-        return path.join('..', root);
+            // If we got a runfilesManifest map, look through it for a resolution
+            // This will happen if we are running a binary that had some npm packages
+            // "statically linked" into its runfiles
+            const fromManifest = runfiles.lookupDirectory(root);
+            if (fromManifest)
+                return fromManifest;
+            // Account for Bazel --legacy_external_runfiles
+            // which look like 'my_wksp/external/npm/node_modules'
+            if (yield exists(path.join('external', root))) {
+                log_verbose('found legacy_external_runfiles, switching root to', path.join('external', root));
+                return path.join('external', root);
+            }
+            // The repository should be layed out in the parent directory
+            // since bazel sets our working directory to the repository where the build is happening
+            return path.join('..', root);
+        });
     }
     class Runfiles {
         constructor(env) {
@@ -217,16 +246,71 @@ Include as much of the build output as you can without disclosing anything confi
             }
         });
     }
+    function groupAndReduceModules(modules) {
+        // Group nested modules names as these need to be symlinked in order.
+        // For example, given a list of module keys such as:
+        // ['a', '@foo/c/c/c/c', 'b/b', 'b', '@foo/c', '@foo/c/c']
+        // this reducer should output the groups list:
+        // [ [ '@foo/c', '@foo/c/c', '@foo/c/c/c/c' ], [ 'a' ], [ 'b', 'b/b' ] ]
+        const grouped = Object.keys(modules).sort().reduce((grouped, module, index, array) => {
+            if (index > 0 && module.startsWith(`${array[index - 1]}/`)) {
+                grouped[grouped.length - 1].push(module);
+            }
+            else {
+                grouped.push([module]);
+            }
+            return grouped;
+        }, []);
+        // Reduce links such as `@foo/b/c => /path/to/a/b/c` to their
+        // lowest common denominator `@foo => /path/to/a` & then remove
+        // duplicates.
+        return grouped.map(group => {
+            return group
+                .map(name => {
+                let [kind, modulePath] = modules[name];
+                for (;;) {
+                    const bn = path.basename(name);
+                    const bmp = path.basename(modulePath);
+                    if (bn == bmp && bn !== name && bmp !== modulePath) {
+                        // strip off the last segment as it is common
+                        name = path.dirname(name);
+                        modulePath = path.dirname(modulePath);
+                        log_verbose(`module mapping ( ${name}/${bn} => ${modulePath}/${bmp} ) reduced to ( ${name} => ${modulePath} )`);
+                    }
+                    else {
+                        break;
+                    }
+                }
+                return { name, root: kind, modulePath };
+            })
+                .reduce((result, current) => {
+                if (result.length > 0) {
+                    const last = result[result.length - 1];
+                    if (current.name === last.name && current.modulePath === last.modulePath) {
+                        // duplicate mapping after reduction
+                        if (current.root !== last.root) {
+                            throw new Error(`conflicting module mappings for '${last.name}' => '${last.modulePath}' of kind '${last.root}' and '${current.root}'`);
+                        }
+                        return result;
+                    }
+                }
+                result.push(current);
+                return result;
+            }, []);
+        });
+    }
+    exports.groupAndReduceModules = groupAndReduceModules;
     function main(args, runfiles) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!args || args.length < 1)
-                throw new Error('link_node_modules.js requires one argument: modulesManifest path');
+                throw new Error('requires one argument: modulesManifest path');
             const [modulesManifest] = args;
             let { bin, root, modules, workspace } = JSON.parse(fs.readFileSync(modulesManifest));
             modules = modules || {};
             log_verbose(`module manifest: workspace ${workspace}, bin ${bin}, root ${root} with first-party packages\n`, modules);
-            const rootDir = resolveRoot(root, runfiles);
+            const rootDir = yield resolveRoot(root, runfiles);
             log_verbose('resolved root', root, 'to', rootDir);
+            log_verbose('cwd', process.cwd());
             // Bazel starts actions with pwd=execroot/my_wksp
             const workspaceDir = path.resolve('.');
             // Convert from runfiles path
@@ -250,37 +334,40 @@ Include as much of the build output as you can without disclosing anything confi
             const workspaceAbs = path.resolve(workspaceDir);
             // Now add symlinks to each of our first-party packages so they appear under the node_modules tree
             const links = [];
-            const linkModule = (name, root, modulePath) => __awaiter(this, void 0, void 0, function* () {
-                let target = '<package linking failed>';
-                switch (root) {
-                    case 'bin':
-                        // FIXME(#1196)
-                        target = path.join(workspaceAbs, bin, toWorkspaceDir(modulePath));
-                        break;
-                    case 'src':
-                        target = path.join(workspaceAbs, toWorkspaceDir(modulePath));
-                        break;
-                    case 'runfiles':
-                        target = runfiles.resolve(modulePath) || '<runfiles resolution failed>';
-                        break;
-                }
-                yield symlink(target, name);
-            });
-            for (const m of Object.keys(modules)) {
-                const segments = m.split('/');
-                if (segments.length > 2) {
-                    throw new Error(`module ${m} has more than 2 segments which is not a valid node module name`);
-                }
-                if (segments.length == 2) {
-                    // ensure the scope exists
-                    mkdirp(segments[0]);
-                }
-                const [kind, modulePath] = modules[m];
-                links.push(linkModule(m, kind, modulePath));
+            function linkModules(modules) {
+                return __awaiter(this, void 0, void 0, function* () {
+                    for (const m of modules) {
+                        let target = '<package linking failed>';
+                        switch (m.root) {
+                            case 'bin':
+                                // FIXME(#1196)
+                                target = path.join(workspaceAbs, bin, toWorkspaceDir(m.modulePath));
+                                break;
+                            case 'src':
+                                target = path.join(workspaceAbs, toWorkspaceDir(m.modulePath));
+                                break;
+                            case 'runfiles':
+                                target = runfiles.resolve(m.modulePath) || '<runfiles resolution failed>';
+                                break;
+                        }
+                        // ensure the subdirectories exist
+                        yield mkdirp(path.dirname(m.name));
+                        yield symlink(target, m.name);
+                    }
+                });
+            }
+            const groupedMappings = groupAndReduceModules(modules);
+            log_verbose(`grouped mappings ${JSON.stringify(groupedMappings)}`);
+            for (const mappings of groupedMappings) {
+                // ensure that common directories between groups exists
+                // to prevent race conditions between parallelized linkModules
+                yield mkdirp(path.dirname(mappings[0].name));
+                // call linkModules for each group
+                links.push(linkModules(mappings));
             }
             let code = 0;
             yield Promise.all(links).catch(e => {
-                console.error(e);
+                log_error(e);
                 code = 1;
             });
             return code;
@@ -290,7 +377,13 @@ Include as much of the build output as you can without disclosing anything confi
     exports.runfiles = new Runfiles(process.env);
     if (require.main === module) {
         (() => __awaiter(this, void 0, void 0, function* () {
-            process.exitCode = yield main(process.argv.slice(2), exports.runfiles);
+            try {
+                process.exitCode = yield main(process.argv.slice(2), exports.runfiles);
+            }
+            catch (e) {
+                log_error(e);
+                process.exitCode = 1;
+            }
         }))();
     }
 });

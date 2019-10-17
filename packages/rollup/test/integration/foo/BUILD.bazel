@@ -14,14 +14,11 @@ genrule(
 )
 
 ts_library(
-    name = "foolib",
+    name = "foo_lib",
     srcs = [
         "index.ts",
         "user.d.ts",
     ],
-    module_name = "foolib",
-    # Don't allow deep imports under here,
-    # and give it the AMD name "foolib", not "foolib/index"
-    module_root = "index.d.ts",
+    module_name = "@foo/lib",
     deps = ["@npm//date-fns"],
 )
