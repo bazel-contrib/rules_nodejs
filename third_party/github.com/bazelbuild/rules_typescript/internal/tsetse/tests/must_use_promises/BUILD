@@ -32,6 +32,4 @@ ts_library(
         "\(34,3\)" + error_message,
     ],
     tsconfig = "//internal:tsetse/tsconfig.json",
-    deps = [
-    ],
 )

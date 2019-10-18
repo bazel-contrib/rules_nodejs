@@ -37,8 +37,6 @@ ts_library(
         "\(45,34\).*" + error_message,
     ],
     tsconfig = "//internal:tsetse/tsconfig.json",
-    deps = [
-    ],
 )
 
 ts_library(
@@ -46,6 +44,4 @@ ts_library(
     testonly = 1,
     srcs = ["negatives.ts"],
     tsconfig = "//internal:tsetse/tsconfig.json",
-    deps = [
-    ],
 )

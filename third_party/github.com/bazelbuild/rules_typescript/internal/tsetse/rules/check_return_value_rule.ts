@@ -1,5 +1,3 @@
-
-
 /**
  * @fileoverview A Tsetse rule that checks the return value of certain functions
  * must be used.

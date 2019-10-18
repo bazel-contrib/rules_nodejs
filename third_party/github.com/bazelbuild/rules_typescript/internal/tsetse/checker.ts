@@ -3,7 +3,6 @@
  * file AST traversals and report errors.
  */
 
-
 import * as ts from 'typescript';
 import {Failure, Fix} from './failure';
 

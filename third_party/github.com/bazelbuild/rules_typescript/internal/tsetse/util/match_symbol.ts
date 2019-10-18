@@ -1,5 +1,3 @@
-
-
 import * as ts from 'typescript';
 import {dealias, debugLog, isAmbientDeclaration, isDeclaration, isInStockLibraries, isPartOfImportStatement} from './ast_tools';
 
