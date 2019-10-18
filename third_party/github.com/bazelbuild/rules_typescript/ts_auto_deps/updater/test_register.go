@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/bazelbuild/buildtools/build"
+	"github.com/bazelbuild/buildtools/edit"
 	"github.com/bazelbuild/rules_typescript/ts_auto_deps/platform"
 )
 
@@ -213,4 +214,38 @@ func (reg *buildRegistry) registerTestRule(ctx context.Context, bld *build.File,
 	fmt.Printf("WARNING: no %s rule in parent packages of %s to register with.\n",
 		rt.kind(), target)
 	return "", nil
+}
+
+var wellKnownBuildRules = []struct {
+	name     string
+	attrName string
+}{
+	{
+		name:     "karma_polymer_test",
+		attrName: "test_ts_deps",
+	},
+	{
+		name:     "wct_closure_test_suite",
+		attrName: "js_deps",
+	},
+	{
+		name:     "jasmine_node_test",
+		attrName: "deps",
+	},
+}
+
+// isRegisteredWithAlternateTestRule returns true if the rule is already
+// registered with a well known test rule, such as karma_polymer_test,
+// wct_closure_test_suite or jasmine_node_test.
+func isRegisteredWithAlternateTestRule(bld *build.File, r *build.Rule, dep string) bool {
+	pkg := filepath.Dir(bld.Path)
+	for _, wkbr := range wellKnownBuildRules {
+		if isKind(r, wkbr.name) {
+			testTsDeps := r.Attr(wkbr.attrName)
+			if edit.ListFind(testTsDeps, dep, pkg) != nil {
+				return true
+			}
+		}
+	}
+	return false
 }
