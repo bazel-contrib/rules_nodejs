@@ -8,6 +8,7 @@ ts_library(
     name = "shorten",
     srcs = ["index.ts"],
     module_name = "@bazel/shorten",
+    deps = ["@npm//@types/lodash"],
 )
 
 # TODO(alexeagle): show how it can be deployed to npm
