@@ -127,7 +127,10 @@ ALL_ARGS=(TEMPLATED_args $NODE_REPOSITORY_ARGS "$@")
 for ARG in "${ALL_ARGS[@]}"; do
   case "$ARG" in
     --bazel_node_modules_manifest=*) MODULES_MANIFEST="${ARG#--bazel_node_modules_manifest=}" ;;
-    --nobazel_patch_module_resolver) MAIN="./TEMPLATED_script_path" ;;
+    --nobazel_patch_module_resolver)
+      MAIN="./TEMPLATED_script_path"
+      NODE_OPTIONS+=( "--require" "./$(rlocation "TEMPLATED_bazel_require_script")" )
+      ;;
     --node_options=*) NODE_OPTIONS+=( "${ARG#--node_options=}" ) ;;
     *) ARGS+=( "$ARG" )
   esac

@@ -1,7 +1,6 @@
 "Rules for running Rollup under Bazel"
 
 load("@build_bazel_rules_nodejs//:providers.bzl", "JSEcmaScriptModuleInfo", "NpmPackageInfo", "node_modules_aspect", "run_node")
-load("@build_bazel_rules_nodejs//internal/common:windows_utils.bzl", "is_windows")
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 
 _DOC = """Runs the Rollup.js CLI under Bazel.
@@ -287,14 +286,7 @@ def _rollup_bundle(ctx):
         },
     )
 
-    # On platforms with symlinks, we need to avoid the fs.realpathSync call in rollup/bin/rollup
-    # But on windows the slashes would be wrong, and we don't need to avoid the realpathSync
-    # Perhaps we should use a --require script that monkeypatches realpathSync to make all binaries
-    # behave as expected under Bazel execroot/runfiles trees?
-    if is_windows(ctx):
-        args.add_all(["--config", config.path])
-    else:
-        args.add_all(["--config", "node:./" + config.path])
+    args.add_all(["--config", config.path])
     inputs.append(config)
 
     if ctx.version_file:
