@@ -1,7 +1,7 @@
 "A generic rule to run a tool that appears in node_modules/.bin"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "NpmPackageInfo", "node_modules_aspect")
-load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect", "register_node_modules_linker")
+load("@build_bazel_rules_nodejs//:providers.bzl", "NpmPackageInfo", "node_modules_aspect", "run_node")
+load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 
 # Note: this API is chosen to match nodejs_binary
 # so that we can generate macros that act as either an output-producing tool or an executable
@@ -52,11 +52,12 @@ def _impl(ctx):
         outputs = [ctx.actions.declare_directory(ctx.attr.name)]
     else:
         outputs = ctx.outputs.outs
-    register_node_modules_linker(ctx, args, inputs)
+
     for a in ctx.attr.args:
         args.add(_expand_location(ctx, a))
-    ctx.actions.run(
-        executable = ctx.executable.tool,
+    run_node(
+        ctx,
+        executable = "tool",
         inputs = inputs,
         outputs = outputs,
         arguments = [args],
