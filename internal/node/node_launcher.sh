@@ -118,6 +118,19 @@ readonly node=$(rlocation "TEMPLATED_node")
 readonly repository_args=$(rlocation "TEMPLATED_repository_args")
 MAIN=$(rlocation "TEMPLATED_loader_path")
 readonly link_modules_script=$(rlocation "TEMPLATED_link_modules_script")
+bazel_require_script=$(rlocation "TEMPLATED_bazel_require_script")
+
+# Node's --require option assumes that a non-absolute path not starting with `.` is
+# a module, so that you can do --require=source-map-support/register
+# So if the require script is not absolute, we must make it so
+case "${bazel_require_script}" in
+  # Absolute path on unix
+  /*          ) ;;
+  # Absolute path on Windows, e.g. C:/path/to/thing
+  [a-zA-Z]:/* ) ;;
+  # Otherwise it needs to be made relative
+  *           ) bazel_require_script="./${bazel_require_script}" ;;
+esac
 
 source $repository_args
 
@@ -128,8 +141,8 @@ for ARG in "${ALL_ARGS[@]}"; do
   case "$ARG" in
     --bazel_node_modules_manifest=*) MODULES_MANIFEST="${ARG#--bazel_node_modules_manifest=}" ;;
     --nobazel_patch_module_resolver)
-      MAIN="./TEMPLATED_script_path"
-      NODE_OPTIONS+=( "--require" "./$(rlocation "TEMPLATED_bazel_require_script")" )
+      MAIN="TEMPLATED_script_path"
+      NODE_OPTIONS+=( "--require" "$bazel_require_script" )
       ;;
     --node_options=*) NODE_OPTIONS+=( "${ARG#--node_options=}" ) ;;
     *) ARGS+=( "$ARG" )

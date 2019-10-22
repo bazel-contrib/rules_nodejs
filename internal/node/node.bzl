@@ -134,6 +134,8 @@ def _to_execroot_path(ctx, file):
             # external/npm/node_modules -> node_modules/foo
             # the linker will make sure we can resolve node_modules from npm
             return "/".join(parts[2:])
+    if file.is_source:
+        return file.path
 
     return ("<ERROR> _to_execroot_path not yet implemented for " + file.path)
 
@@ -262,7 +264,7 @@ def _nodejs_binary_impl(ctx):
         # TODO(alexeagle): remove sources and node_modules from the runfiles
         # when downstream usage is ready to rely on linker
         NodeRuntimeDepsInfo(
-            deps = depset(transitive = [node_modules, sources]),
+            deps = depset([ctx.file.entry_point], transitive = [node_modules, sources]),
             pkgs = ctx.attr.data,
         ),
     ]
