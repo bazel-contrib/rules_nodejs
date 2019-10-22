@@ -42,6 +42,8 @@ rollup_bundle(
     deps = [
         "@npm//kotlin",
         "@npm//kotlinx-html-js",
+        "@npm//rollup-plugin-commonjs",
+        "@npm//rollup-plugin-node-resolve",
     ],
 )
 

@@ -127,7 +127,11 @@ rollup_bundle(
         ":main.prod.ts": "index",
     },
     output_dir = True,
-    deps = ["//src"],
+    deps = [
+        "//src",
+        "@npm//rollup-plugin-commonjs",
+        "@npm//rollup-plugin-node-resolve",
+    ],
 )
 
 babel(

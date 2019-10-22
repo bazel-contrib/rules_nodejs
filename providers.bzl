@@ -31,6 +31,11 @@ load(
     _transitive_js_ecma_script_module_info = "transitive_js_ecma_script_module_info",
 )
 load(
+    "//internal/providers:node_runtime_deps_info.bzl",
+    _NodeRuntimeDepsInfo = "NodeRuntimeDepsInfo",
+    _run_node = "run_node",
+)
+load(
     "//internal/providers:npm_package_info.bzl",
     _NpmPackageInfo = "NpmPackageInfo",
     _node_modules_aspect = "node_modules_aspect",
@@ -45,4 +50,7 @@ js_ecma_script_module_info = _js_ecma_script_module_info
 transitive_js_ecma_script_module_info = _transitive_js_ecma_script_module_info
 NpmPackageInfo = _NpmPackageInfo
 node_modules_aspect = _node_modules_aspect
+
 # TODO: remove transitive_js_ecma_script_module_info alias before 1.0 release
+NodeRuntimeDepsInfo = _NodeRuntimeDepsInfo
+run_node = _run_node

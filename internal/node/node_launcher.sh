@@ -116,7 +116,7 @@ TEMPLATED_env_vars
 
 readonly node=$(rlocation "TEMPLATED_node")
 readonly repository_args=$(rlocation "TEMPLATED_repository_args")
-readonly script=$(rlocation "TEMPLATED_script_path")
+MAIN=$(rlocation "TEMPLATED_loader_path")
 readonly link_modules_script=$(rlocation "TEMPLATED_link_modules_script")
 
 source $repository_args
@@ -127,6 +127,7 @@ ALL_ARGS=(TEMPLATED_args $NODE_REPOSITORY_ARGS "$@")
 for ARG in "${ALL_ARGS[@]}"; do
   case "$ARG" in
     --bazel_node_modules_manifest=*) MODULES_MANIFEST="${ARG#--bazel_node_modules_manifest=}" ;;
+    --nobazel_patch_module_resolver) MAIN="./TEMPLATED_script_path" ;;
     --node_options=*) NODE_OPTIONS+=( "${ARG#--node_options=}" ) ;;
     *) ARGS+=( "$ARG" )
   esac
@@ -147,12 +148,12 @@ if [ "${EXPECTED_EXIT_CODE}" -eq "0" ]; then
   # handled by the node process.
   # If we had merely forked a child process here, we'd be responsible
   # for forwarding those OS interactions.
-  exec "${node}" "${NODE_OPTIONS[@]}" "${script}" "${ARGS[@]}"
+  exec "${node}" "${NODE_OPTIONS[@]}" "${MAIN}" "${ARGS[@]}"
   # exec terminates execution of this shell script, nothing later will run.
 fi
 
 set +e
-"${node}" "${NODE_OPTIONS[@]}" "${script}" "${ARGS[@]}"
+"${node}" "${NODE_OPTIONS[@]}" "${MAIN}" "${ARGS[@]}"
 RESULT="$?"
 set -e
 

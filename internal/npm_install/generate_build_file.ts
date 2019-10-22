@@ -459,9 +459,6 @@ function hasRootBuildFile(pkg: Dep, rootPath: string) {
 
 function addDynamicDependencies(pkgs: Dep[], dynamic_deps = DYNAMIC_DEPS) {
   function match(name: string, p: Dep) {
-    // Automatically include dynamic dependency on plugins of the form pkg-plugin-foo
-    if (name.startsWith(`${p._moduleName}-plugin-`)) return true;
-
     const value = dynamic_deps[p._moduleName];
     if (name === value) return true;
 

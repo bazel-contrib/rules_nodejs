@@ -419,9 +419,6 @@ def _maybe(repo_rule, name, **kwargs):
     }
     function addDynamicDependencies(pkgs, dynamic_deps = DYNAMIC_DEPS) {
         function match(name, p) {
-            // Automatically include dynamic dependency on plugins of the form pkg-plugin-foo
-            if (name.startsWith(`${p._moduleName}-plugin-`))
-                return true;
             const value = dynamic_deps[p._moduleName];
             if (name === value)
                 return true;

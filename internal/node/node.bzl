@@ -20,7 +20,7 @@ They support module mapping: any targets in the transitive dependencies with
 a `module_name` attribute can be `require`d by that name.
 """
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "JSNamedModuleInfo", "NpmPackageInfo", "node_modules_aspect")
+load("@build_bazel_rules_nodejs//:providers.bzl", "JSNamedModuleInfo", "NodeRuntimeDepsInfo", "NpmPackageInfo", "node_modules_aspect")
 load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
 load("//internal/common:module_mappings.bzl", "module_mappings_runtime_aspect")
 load("//internal/common:windows_utils.bzl", "create_windows_native_launcher_script", "is_windows")
@@ -125,6 +125,18 @@ def _to_manifest_path(ctx, file):
     else:
         return ctx.workspace_name + "/" + file.short_path
 
+def _to_execroot_path(ctx, file):
+    parts = file.path.split("/")
+
+    #print("_to_execroot", file.path, file.is_source)
+    if parts[0] == "external":
+        if parts[2] == "node_modules":
+            # external/npm/node_modules -> node_modules/foo
+            # the linker will make sure we can resolve node_modules from npm
+            return "/".join(parts[2:])
+
+    return ("<ERROR> _to_execroot_path not yet implemented for " + file.path)
+
 def _nodejs_binary_impl(ctx):
     node_modules = depset(ctx.files.node_modules)
 
@@ -204,9 +216,10 @@ def _nodejs_binary_impl(ctx):
         "TEMPLATED_env_vars": env_vars,
         "TEMPLATED_expected_exit_code": str(expected_exit_code),
         "TEMPLATED_link_modules_script": _to_manifest_path(ctx, ctx.file._link_modules_script),
+        "TEMPLATED_loader_path": script_path,
         "TEMPLATED_node": node_tool_info.target_tool_path,
         "TEMPLATED_repository_args": _to_manifest_path(ctx, ctx.file._repository_args),
-        "TEMPLATED_script_path": script_path,
+        "TEMPLATED_script_path": _to_execroot_path(ctx, ctx.file.entry_point),
     }
     ctx.actions.expand_template(
         template = ctx.file._launcher_template,
@@ -227,22 +240,30 @@ def _nodejs_binary_impl(ctx):
     if ctx.file.entry_point.extension == "js":
         runfiles = depset([ctx.file.entry_point], transitive = [runfiles])
 
-    return [DefaultInfo(
-        executable = executable,
-        runfiles = ctx.runfiles(
-            transitive_files = runfiles,
-            files = node_tool_files + [
-                        ctx.outputs.loader,
-                    ] + ctx.files._source_map_support_files +
+    return [
+        DefaultInfo(
+            executable = executable,
+            runfiles = ctx.runfiles(
+                transitive_files = runfiles,
+                files = node_tool_files + [
+                            ctx.outputs.loader,
+                        ] + ctx.files._source_map_support_files +
 
-                    # We need this call to the list of Files.
-                    # Calling the .to_list() method may have some perfs hits,
-                    # so we should be running this method only once per rule.
-                    # see: https://docs.bazel.build/versions/master/skylark/depsets.html#performance
-                    node_modules.to_list() + sources.to_list(),
-            collect_data = True,
+                        # We need this call to the list of Files.
+                        # Calling the .to_list() method may have some perfs hits,
+                        # so we should be running this method only once per rule.
+                        # see: https://docs.bazel.build/versions/master/skylark/depsets.html#performance
+                        node_modules.to_list() + sources.to_list(),
+                collect_data = True,
+            ),
         ),
-    )]
+        # TODO(alexeagle): remove sources and node_modules from the runfiles
+        # when downstream usage is ready to rely on linker
+        NodeRuntimeDepsInfo(
+            deps = depset(transitive = [node_modules, sources]),
+            pkgs = ctx.attr.data,
+        ),
+    ]
 
 _NODEJS_EXECUTABLE_ATTRS = {
     "bootstrap": attr.string_list(
@@ -274,8 +295,9 @@ The set of default  environment variables is:
 
 - `DEBUG`: rules use this environment variable to turn on debug information in their output artifacts
 - `VERBOSE_LOGS`: rules use this environment variable to turn on debug output in their logs
+- `NODE_DEBUG`: used by node.js itself to print more logs
 """,
-        default = ["DEBUG", "VERBOSE_LOGS"],
+        default = ["DEBUG", "VERBOSE_LOGS", "NODE_DEBUG"],
     ),
     "entry_point": attr.label(
         doc = """The script which should be executed first, usually containing a main function.

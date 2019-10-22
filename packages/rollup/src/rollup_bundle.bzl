@@ -1,7 +1,8 @@
 "Rules for running Rollup under Bazel"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "JSEcmaScriptModuleInfo", "NpmPackageInfo", "node_modules_aspect")
-load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect", "register_node_modules_linker")
+load("@build_bazel_rules_nodejs//:providers.bzl", "JSEcmaScriptModuleInfo", "NpmPackageInfo", "node_modules_aspect", "run_node")
+load("@build_bazel_rules_nodejs//internal/common:windows_utils.bzl", "is_windows")
+load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 
 _DOC = """Runs the Rollup.js CLI under Bazel.
 
@@ -277,8 +278,6 @@ def _rollup_bundle(ctx):
 
     args.add_all(["--format", ctx.attr.format])
 
-    register_node_modules_linker(ctx, args, inputs)
-
     config = ctx.actions.declare_file("_%s.rollup_config.js" % ctx.label.name)
     ctx.actions.expand_template(
         template = ctx.file.config_file,
@@ -287,7 +286,15 @@ def _rollup_bundle(ctx):
             "bazel_stamp_file": "\"%s\"" % ctx.version_file.path if ctx.version_file else "undefined",
         },
     )
-    args.add_all(["--config", config.path])
+
+    # On platforms with symlinks, we need to avoid the fs.realpathSync call in rollup/bin/rollup
+    # But on windows the slashes would be wrong, and we don't need to avoid the realpathSync
+    # Perhaps we should use a --require script that monkeypatches realpathSync to make all binaries
+    # behave as expected under Bazel execroot/runfiles trees?
+    if is_windows(ctx):
+        args.add_all(["--config", config.path])
+    else:
+        args.add_all(["--config", "node:./" + config.path])
     inputs.append(config)
 
     if ctx.version_file:
@@ -302,9 +309,10 @@ def _rollup_bundle(ctx):
     if (ctx.attr.sourcemap and ctx.attr.sourcemap != "false"):
         args.add_all(["--sourcemap", ctx.attr.sourcemap])
 
-    ctx.actions.run(
+    run_node(
+        ctx,
         progress_message = "Bundling JavaScript %s [rollup]" % outputs[0].short_path,
-        executable = ctx.executable.rollup_bin,
+        executable = "rollup_bin",
         inputs = inputs,
         outputs = outputs,
         arguments = [args],

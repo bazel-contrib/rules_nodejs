@@ -7,6 +7,7 @@ rollup_bundle(
     config_file = "rollup.config.js",
     entry_point = "input.js",
     sourcemap = "false",
+    deps = ["@npm//rollup-plugin-json"],
 )
 
 golden_file_test(

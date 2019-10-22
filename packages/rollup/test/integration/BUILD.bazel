@@ -27,6 +27,9 @@ _BUNDLE_FORMATS = [
             "//%s/fum:fumlib" % package_name(),
             "//%s/foo:foolib" % package_name(),
             "@npm//hello",
+            "@npm//rollup-plugin-commonjs",
+            "@npm//rollup-plugin-json",
+            "@npm//rollup-plugin-node-resolve",
         ],
     )
     for format in _BUNDLE_FORMATS
