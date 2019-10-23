@@ -25,10 +25,32 @@ http_archive(
     urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.38.3/rules_nodejs-0.38.3.tar.gz"],
 )
 
+http_archive(
+    name = "rules_jvm_external",
+    sha256 = "79c9850690d7614ecdb72d68394f994fef7534b292c4867ce5e7dec0aa7bdfad",
+    strip_prefix = "rules_jvm_external-2.8",
+    url = "https://github.com/bazelbuild/rules_jvm_external/archive/2.8.zip",
+)
+
 load("@build_bazel_rules_nodejs//:index.bzl", "yarn_install")
 
 yarn_install(
     name = "npm",
     package_json = "//:package.json",
     yarn_lock = "//:yarn.lock",
+)
+
+load("@rules_jvm_external//:defs.bzl", "maven_install")
+
+# https://www.npmjs.com/package/google-closure-templates is a broken package
+# Working with @iteriani to fix that - in the meantime fetch it from Maven
+maven_install(
+    artifacts = [
+        "com.google.template:soy:2019-10-08",
+    ],
+    repositories = [
+        "https://jcenter.bintray.com/",
+        "https://maven.google.com",
+        "https://repo1.maven.org/maven2",
+    ],
 )

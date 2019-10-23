@@ -1,6 +1,23 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
 load("@npm//google-closure-compiler:index.bzl", "google_closure_compiler")
 
+java_binary(
+    name = "google_closure_templates_compiler",
+    main_class = "com.google.template.soy.SoyToIncrementalDomSrcCompiler",
+    runtime_deps = ["@maven//:com_google_template_soy"],
+)
+
+genrule(
+    name = "compile_soy",
+    srcs = ["index.soy"],
+    outs = ["index.soy.js"],
+    cmd = """$(location google_closure_templates_compiler) \
+      --srcs $(SRCS) \
+      --outputPathFormat $(@D)/{INPUT_FILE_NAME}.js\
+    """,
+    tools = ["google_closure_templates_compiler"],
+)
+
 google_closure_compiler(
     name = "closure",
     outs = ["bundle.js"],
@@ -9,9 +26,13 @@ google_closure_compiler(
         # --platform native would be faster but is failing on Windows
         "--platform=javascript",
         "--js=$(location hello.js)",
+        "--js=$(location index.soy.js)",
         "--js_output_file=$(location bundle.js)",
     ],
-    data = ["hello.js"],
+    data = [
+        "hello.js",
+        "index.soy.js",
+    ],
 )
 
 nodejs_test(
