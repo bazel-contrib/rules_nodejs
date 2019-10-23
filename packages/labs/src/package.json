@@ -18,8 +18,8 @@
     "bin": {
         "webpack": "./webpack/cli.js"
     },
-    "dependencies": {
-        "webpack": "~4.29.3"
+    "peerDependencies": {
+        "webpack": ">=4.0.0"
     },
     "bazelWorkspaces": {
         "npm_bazel_labs": {
