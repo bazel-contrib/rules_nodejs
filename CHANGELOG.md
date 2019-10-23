@@ -1,3 +1,32 @@
+# [0.39.0](https://github.com/bazelbuild/rules_nodejs/compare/0.38.3...0.39.0) (2019-10-23)
+
+
+### Bug Fixes
+
+* bundle names in angular examples ([b4f01e2](https://github.com/bazelbuild/rules_nodejs/commit/b4f01e2))
+* **builtin:** allow more than 2 segments in linker module names ([7e98089](https://github.com/bazelbuild/rules_nodejs/commit/7e98089))
+* webpack should be a peerDep of @bazel/labs ([312aa4d](https://github.com/bazelbuild/rules_nodejs/commit/312aa4d))
+
+
+### Code Refactoring
+
+* remove dynamic_deps feature ([#1276](https://github.com/bazelbuild/rules_nodejs/issues/1276)) ([b916d61](https://github.com/bazelbuild/rules_nodejs/commit/b916d61))
+
+
+### Features
+
+* **builtin:** turn off a strict requirement for peer dependencies ([#1163](https://github.com/bazelbuild/rules_nodejs/issues/1163)) ([bd2f108](https://github.com/bazelbuild/rules_nodejs/commit/bd2f108))
+* **examples:** add Jest example ([#1274](https://github.com/bazelbuild/rules_nodejs/issues/1274)) ([f864462](https://github.com/bazelbuild/rules_nodejs/commit/f864462)), closes [/github.com/ecosia/bazel_rules_nodejs_contrib/issues/4#issuecomment-475291612](https://github.com//github.com/ecosia/bazel_rules_nodejs_contrib/issues/4/issues/issuecomment-475291612)
+
+
+### BREAKING CHANGES
+
+* The dynamic_deps attribute of yarn_install and npm_install is removed,
+in favor of declaring needed packages in the deps/data of the rule that
+invokes the tool.
+
+
+
 ## [0.38.3](https://github.com/bazelbuild/rules_nodejs/compare/0.38.2...0.38.3) (2019-10-11)
 
 
