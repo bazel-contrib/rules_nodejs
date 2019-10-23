@@ -228,6 +228,7 @@ The set of default  environment variables is:
 
 - `DEBUG`: rules use this environment variable to turn on debug information in their output artifacts
 - `VERBOSE_LOGS`: rules use this environment variable to turn on debug output in their logs
+- `NODE_DEBUG`: used by node.js itself to print more logs
 
 
 #### `entry_point`
@@ -439,6 +440,7 @@ The set of default  environment variables is:
 
 - `DEBUG`: rules use this environment variable to turn on debug information in their output artifacts
 - `VERBOSE_LOGS`: rules use this environment variable to turn on debug output in their logs
+- `NODE_DEBUG`: used by node.js itself to print more logs
 
 
 #### `entry_point`
@@ -596,7 +598,7 @@ Runs npm install during workspace setup.
 ### Usage
 
 ```
-npm_install(name, always_hide_bazel_files, data, dynamic_deps, exclude_packages, included_files, manual_build_file_contents, package_json, package_lock_json, prod_only, quiet, symlink_node_modules, timeout)
+npm_install(name, always_hide_bazel_files, data, exclude_packages, included_files, manual_build_file_contents, package_json, package_lock_json, prod_only, quiet, symlink_node_modules, timeout)
 ```
 
 
@@ -642,25 +644,6 @@ error.
 
 If symlink_node_modules is True, this attribute is ignored since
 the dependency manager will run in the package.json location.
-
-
-#### `dynamic_deps`
-(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): Declare implicit dependencies between npm packages.
-
-In many cases, an npm package doesn't list a dependency on another package, yet still require()s it.
-One example is plugins, where a tool like rollup can require rollup-plugin-json if the user installed it.
-Another example is the tsc_wrapped binary in @bazel/typescript which can require tsickle if its installed.
-Under Bazel, we must declare these dependencies so that they are included as inputs to the program.
-
-Note that the pattern used by many packages, which have plugins in the form pkg-plugin-someplugin, are automatically
-added as implicit dependencies. Thus for example, `rollup` will automatically get `rollup-plugin-json` included in its
-dependencies without needing to use this attribute.
-
-The keys in the dict are npm package names, and the value may be a particular package, or a prefix ending with *.
-For example, `dynamic_deps = {"@bazel/typescript": "tsickle", "karma": "my-karma-plugin-*"}`
-
-Note, this may sound like "optionalDependencies" but that field in package.json actually means real dependencies
-which are installed, but failures on installation are ignored.
 
 
 #### `exclude_packages`
@@ -1086,7 +1069,7 @@ Runs yarn install during workspace setup.
 ### Usage
 
 ```
-yarn_install(name, always_hide_bazel_files, data, dynamic_deps, exclude_packages, frozen_lockfile, included_files, manual_build_file_contents, network_timeout, package_json, prod_only, quiet, symlink_node_modules, timeout, use_global_yarn_cache, yarn_lock)
+yarn_install(name, always_hide_bazel_files, data, exclude_packages, frozen_lockfile, included_files, manual_build_file_contents, network_timeout, package_json, prod_only, quiet, symlink_node_modules, timeout, use_global_yarn_cache, yarn_lock)
 ```
 
 
@@ -1132,25 +1115,6 @@ error.
 
 If symlink_node_modules is True, this attribute is ignored since
 the dependency manager will run in the package.json location.
-
-
-#### `dynamic_deps`
-(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): Declare implicit dependencies between npm packages.
-
-In many cases, an npm package doesn't list a dependency on another package, yet still require()s it.
-One example is plugins, where a tool like rollup can require rollup-plugin-json if the user installed it.
-Another example is the tsc_wrapped binary in @bazel/typescript which can require tsickle if its installed.
-Under Bazel, we must declare these dependencies so that they are included as inputs to the program.
-
-Note that the pattern used by many packages, which have plugins in the form pkg-plugin-someplugin, are automatically
-added as implicit dependencies. Thus for example, `rollup` will automatically get `rollup-plugin-json` included in its
-dependencies without needing to use this attribute.
-
-The keys in the dict are npm package names, and the value may be a particular package, or a prefix ending with *.
-For example, `dynamic_deps = {"@bazel/typescript": "tsickle", "karma": "my-karma-plugin-*"}`
-
-Note, this may sound like "optionalDependencies" but that field in package.json actually means real dependencies
-which are installed, but failures on installation are ignored.
 
 
 #### `exclude_packages`
