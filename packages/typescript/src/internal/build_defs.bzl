@@ -128,15 +128,17 @@ def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description 
         if TsConfigInfo in ctx.attr.tsconfig:
             action_inputs.extend(ctx.attr.tsconfig[TsConfigInfo].deps)
 
+    unused_inputs_list = ctx.actions.declare_file(ctx.label.name + ".unused")
     # Pass actual options for the node binary in the special "--node_options" argument.
     arguments = ["--node_options=%s" % opt for opt in node_opts]
-
     # One at-sign makes this a params-file, enabling the worker strategy.
     # Two at-signs escapes the argument so it's passed through to tsc_wrapped
     # rather than the contents getting expanded.
     if ctx.attr.supports_workers:
         arguments.append("@@" + tsconfig_file.path)
         mnemonic = "TypeScriptCompile"
+        arguments.append(unused_inputs_list.path)
+        action_outputs.append(unused_inputs_list.path)
     else:
         arguments.append("-p")
         arguments.append(tsconfig_file.path)
@@ -153,6 +155,7 @@ def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description 
         use_default_shell_env = True,
         arguments = arguments,
         executable = ctx.executable.compiler,
+        unused_inputs_list = unused_inputs_list,
         execution_requirements = {
             "supports-workers": str(int(ctx.attr.supports_workers)),
         },
