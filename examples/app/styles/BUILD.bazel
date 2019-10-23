@@ -1,5 +1,5 @@
-load("@npm//less:index.bzl", "lessc")
-load("@npm//stylus:index.bzl", "stylus")
+load("@npm//less/bin", "lessc")
+load("@npm//stylus/bin", "stylus")
 
 package(default_visibility = ["//:__pkg__"])
 

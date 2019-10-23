@@ -2,10 +2,10 @@
 
 # TODO(alexeagle): promote web_package rule to the public API
 load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_package")
-load("@npm//@babel/cli:index.bzl", "babel")
 load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
 load("@npm_bazel_terser//:index.bzl", "terser_minified")
 load("@npm_bazel_typescript//:index.bzl", "ts_library")
+load("@npm//@babel/cli/bin", "babel")
 
 def differential_loading(name, entry_point, srcs):
     "Common workflow to serve TypeScript to modern browsers"

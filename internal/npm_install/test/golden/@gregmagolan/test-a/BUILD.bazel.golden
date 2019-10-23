@@ -30,4 +30,3 @@ npm_umd_bundle(
     entry_point = "//:node_modules/@gregmagolan/test-a/main.js",
     package = ":test-a",
 )
-exports_files(["index.bzl"])

@@ -225,23 +225,23 @@ node_module_library(
  * Generates all BUILD & bzl files for a package.
  */
 function generatePackageBuildFiles(pkg: Dep) {
-  let buildFile = printPackage(pkg);
-
-  const binBuildFile = printPackageBin(pkg);
-  if (binBuildFile.length) {
-    writeFileSync(
-        path.posix.join(pkg._dir, 'bin', 'BUILD.bazel'), BUILD_FILE_HEADER + binBuildFile);
-  }
-
+  const buildFile = printPackage(pkg);
+  let binBuildFile = printPackageBin(pkg);
   const indexFile = printIndexBzl(pkg);
+
   if (indexFile.length) {
-    writeFileSync(path.posix.join(pkg._dir, 'index.bzl'), indexFile);
-    buildFile = `${buildFile}
+    writeFileSync(path.posix.join(pkg._dir, 'bin', 'index.bzl'), indexFile);
+    binBuildFile = `${binBuildFile}
+alias(name = "bin", actual = "index.bzl")
 # For integration testing
 exports_files(["index.bzl"])
 `;
   }
 
+  if (binBuildFile.length) {
+    writeFileSync(
+        path.posix.join(pkg._dir, 'bin', 'BUILD.bazel'), BUILD_FILE_HEADER + binBuildFile);
+  }
   writeFileSync(path.posix.join(pkg._dir, 'BUILD.bazel'), BUILD_FILE_HEADER + buildFile);
 }
 

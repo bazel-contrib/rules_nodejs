@@ -23,7 +23,7 @@ They are also fast and optimized:
 We understand this is a tradeoff. If you want to use the plain TypeScript compiler provided by the TS team at Microsoft, you can do this by calling its CLI directly. For example,
 
 ```python
-load("@npm//typescript:index.bzl", "tsc")
+load("@npm//typescript/bin", "tsc")
 
 srcs = glob(["*.ts"])
 deps = ["@npm//@types/node"]

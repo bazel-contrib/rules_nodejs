@@ -7,3 +7,5 @@ nodejs_binary(
     install_source_map_support = False,
     data = ["//@gregmagolan/test-a:test-a"],
 )
+alias(name = "bin", actual = "index.bzl")
+exports_files(["index.bzl"])

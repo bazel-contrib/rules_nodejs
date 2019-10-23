@@ -53,4 +53,3 @@ npm_umd_bundle(
     entry_point = "//:node_modules/jasmine/lib/jasmine.js",
     package = ":jasmine",
 )
-exports_files(["index.bzl"])
