@@ -17,5 +17,5 @@ def jest_test(name, srcs, deps, jest_config, **kwargs):
         name = name,
         data = [jest_config] + srcs + deps,
         args = args,
-        **kwargs,
+        **kwargs
     )
