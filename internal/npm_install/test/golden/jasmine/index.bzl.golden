@@ -7,13 +7,13 @@ def jasmine(**kwargs):
         nodejs_binary(
             entry_point = "@fine_grained_goldens//:node_modules/jasmine/bin/jasmine.js",
             install_source_map_support = False,
-            data = ["@fine_grained_goldens//jasmine:jasmine", "//zone.js:zone.js"] + kwargs.pop("data", []),
+            data = ["@fine_grained_goldens//jasmine:jasmine"] + kwargs.pop("data", []),
             **kwargs
         )
 def jasmine_test(**kwargs):
     nodejs_test(
       entry_point = "@fine_grained_goldens//:node_modules/jasmine/bin/jasmine.js",
       install_source_map_support = False,
-      data = ["@fine_grained_goldens//jasmine:jasmine", "//zone.js:zone.js"] + kwargs.pop("data", []),
+      data = ["@fine_grained_goldens//jasmine:jasmine"] + kwargs.pop("data", []),
       **kwargs
     )

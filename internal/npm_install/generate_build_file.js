@@ -68,7 +68,6 @@ package(default_visibility = ["//visibility:public"])
     const ERROR_ON_BAZEL_FILES = parseInt(args[2]);
     const LOCK_FILE_PATH = args[3];
     const INCLUDED_FILES = args[4] ? args[4].split(',') : [];
-    const DYNAMIC_DEPS = JSON.parse(args[5] || '{}');
     if (require.main === module) {
         main();
     }
@@ -106,7 +105,6 @@ package(default_visibility = ["//visibility:public"])
     module.exports = {
         main,
         printPackageBin,
-        addDynamicDependencies,
         printIndexBzl,
     };
     /**
@@ -417,27 +415,6 @@ def _maybe(repo_rule, name, **kwargs):
         }
         return false;
     }
-    function addDynamicDependencies(pkgs, dynamic_deps = DYNAMIC_DEPS) {
-        function match(name, p) {
-            const value = dynamic_deps[p._moduleName];
-            if (name === value)
-                return true;
-            // Support wildcard match
-            if (value && value.includes('*') && name.startsWith(value.substring(0, value.indexOf('*')))) {
-                return true;
-            }
-            return false;
-        }
-        pkgs.forEach(p => {
-            p._dynamicDependencies =
-                pkgs.filter(
-                // Filter entries like
-                // "_dir":"check-side-effects/node_modules/rollup-plugin-node-resolve"
-                x => !x._dir.includes('/node_modules/') && !!x._moduleName &&
-                    match(x._moduleName, p))
-                    .map(dyn => `//${dyn._dir}:${dyn._name}`);
-        });
-    }
     /**
      * Finds and returns an array of all packages under a given path.
      */
@@ -466,7 +443,6 @@ def _maybe(repo_rule, name, **kwargs):
             .map(f => path.posix.join(p, f))
             .filter(f => isDirectory(f));
         scopes.forEach(f => pkgs.push(...findPackages(f)));
-        addDynamicDependencies(pkgs);
         return pkgs;
     }
     /**

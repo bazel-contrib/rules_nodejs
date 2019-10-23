@@ -7,13 +7,13 @@ def test(**kwargs):
         nodejs_binary(
             entry_point = "@fine_grained_goldens//:node_modules/@gregmagolan/test-a/@bin/test.js",
             install_source_map_support = False,
-            data = ["@fine_grained_goldens//@gregmagolan/test-a:test-a", "//@angular/core:core"] + kwargs.pop("data", []),
+            data = ["@fine_grained_goldens//@gregmagolan/test-a:test-a"] + kwargs.pop("data", []),
             **kwargs
         )
 def test_test(**kwargs):
     nodejs_test(
       entry_point = "@fine_grained_goldens//:node_modules/@gregmagolan/test-a/@bin/test.js",
       install_source_map_support = False,
-      data = ["@fine_grained_goldens//@gregmagolan/test-a:test-a", "//@angular/core:core"] + kwargs.pop("data", []),
+      data = ["@fine_grained_goldens//@gregmagolan/test-a:test-a"] + kwargs.pop("data", []),
       **kwargs
     )

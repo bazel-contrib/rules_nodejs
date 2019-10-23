@@ -217,14 +217,6 @@ yarn_install(
 
 yarn_install(
     name = "fine_grained_goldens",
-    # exercise the dynamic_deps feature, even though it doesn't make sense for the targets to
-    # depend on zone.js or Angular core. This will just inject an extra data[] dependency into
-    # the generated binary targets. Note that we also ensure that scoped packages can be properly
-    # modified.
-    dynamic_deps = {
-        "@gregmagolan/test-a": "@angular/core",
-        "jasmine": "zone.js",
-    },
     manual_build_file_contents = """
 filegroup(
   name = "golden_files",
