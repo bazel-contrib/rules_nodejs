@@ -5,10 +5,11 @@ import * as util from 'util';
 // also even though imports are mutable in typescript the cognitive dissonance is too high because es modules
 const _fs = require('fs');
 
-export const patcher = (fs:any,root:string) => {
-  fs = fs||_fs;
+//tslint:disable-next-line:no-any
+export const patcher = (fs: any, root: string) => {
+  fs = fs || _fs;
   root = root || process.env.BAZEL_SYMLINK_PATCHER_ROOT || '';
-  if (root) root = fs.realpath(root);
+  if (root) root = fs.realpathSync(root);
 
   let promises = false;
   if (fs.promises) {

@@ -1,0 +1,28 @@
+{
+  "name": "@bazel/node-patches",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "c8 mocha build/test",
+    "check": "gts check",
+    "clean": "gts clean",
+    "compile": "tsc -p .",
+    "fix": "gts fix",
+    "prepare": "npm run compile",
+    "pretest": "npm run compile",
+    "posttest": "npm run check"
+  },
+  "keywords": [],
+  "author": "Ryan Day <ryaneday@google.com>",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@types/mocha": "^5.2.7",
+    "@types/node": "^10.0.3",
+    "c8": "^5.0.4",
+    "gts": "^1.1.0",
+    "inline-fixtures": "^1.1.0",
+    "mocha": "^6.2.2",
+    "typescript": "~3.5.0"
+  }
+}
