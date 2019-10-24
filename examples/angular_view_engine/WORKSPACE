@@ -23,9 +23,12 @@ http_archive(
 # Fetch sass rules for compiling sass files
 http_archive(
     name = "io_bazel_rules_sass",
-    sha256 = "4f05239080175a3f4efa8982d2b7775892d656bb47e8cf56914d5f9441fb5ea6",
-    strip_prefix = "rules_sass-86ca977cf2a8ed481859f83a286e164d07335116",
-    url = "https://github.com/bazelbuild/rules_sass/archive/86ca977cf2a8ed481859f83a286e164d07335116.zip",
+    sha256 = "617e444f47a1f3e25eb1b6f8e88a2451d54a2afdc7c50518861d9f706fc8baaa",
+    strip_prefix = "rules_sass-1.23.7",
+    urls = [
+        "https://github.com/bazelbuild/rules_sass/archive/1.23.7.zip",
+        "https://mirror.bazel.build/github.com/bazelbuild/rules_sass/archive/1.23.7.zip",
+    ],
 )
 
 # Check the bazel version and download npm dependencies
