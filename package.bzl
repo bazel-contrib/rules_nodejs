@@ -35,14 +35,6 @@ def rules_nodejs_dev_dependencies():
         strip_prefix = "rules_sass-86ca977cf2a8ed481859f83a286e164d07335116",
     )
 
-    # Needed for @com_github_bazelbuild_buildtools which is used by ts_auto_deps
-    http_archive(
-        name = "io_bazel",
-        url = "https://github.com/bazelbuild/bazel/archive/0.28.1.tar.gz",
-        strip_prefix = "bazel-0.28.1",
-        sha256 = "a3d6a8ba4c6dce86d3b3387a23b04cbdf4c435a58120bd9842588d3845fe689c",
-    )
-
     # Needed for com_google_protobuf
     http_archive(
         name = "zlib",
