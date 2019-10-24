@@ -19,10 +19,12 @@
 # https://github.com/bazelbuild/rules_go/blob/master/go/tools/gazelle/README.rst#directives
 # gazelle:exclude node_modules
 load("@bazel_gazelle//:def.bzl", "gazelle")
-load("@build_bazel_rules_nodejs//:defs.bzl", "npm_package")
-load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
+load("@build_bazel_rules_nodejs//:index.bzl", "npm_package")
 
-exports_files(["LICENSE", "tsconfig.json"])
+exports_files([
+    "LICENSE",
+    "tsconfig.json",
+])
 
 gazelle(
     name = "gazelle",
@@ -33,18 +35,18 @@ gazelle(
 npm_package(
     name = "npm_bazel_typescript_package",
     srcs = [
-        "//third_party/github.com/bazelbuild/bazel/src/main/protobuf:npm_package_assets",
         "//internal:npm_package_assets",
+        "//third_party/github.com/bazelbuild/bazel/src/main/protobuf:npm_package_assets",
     ],
+    visibility = ["//visibility:public"],
     deps = [
-        "//internal:generated_BUILD",
-        "//internal:tsc_wrapped",
         "//devserver:devserver-darwin",
         "//devserver:devserver-linux",
         "//devserver:devserver-windows",
+        "//internal:generated_BUILD",
+        "//internal:tsc_wrapped",
         "//ts_auto_deps:ts_auto_deps-darwin",
         "//ts_auto_deps:ts_auto_deps-linux",
         "//ts_auto_deps:ts_auto_deps-windows",
     ],
-    visibility = ["//visibility:public"],
 )

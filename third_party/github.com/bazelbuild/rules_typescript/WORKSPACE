@@ -23,7 +23,7 @@ load("//:package.bzl", "rules_typescript_dev_dependencies")
 rules_typescript_dev_dependencies()
 
 # Setup nodejs toolchain
-load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
+load("@build_bazel_rules_nodejs//:index.bzl", "yarn_install")
 
 # Download npm dependencies
 yarn_install(
