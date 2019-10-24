@@ -100,11 +100,20 @@ describe('ConformancePatternRule\'s fixer', () => {
 
   describe('adds imports', () => {
     const addNamedImportFixer: Fixer = {
-      getFixForFlaggedNode(n: ts.Node) {
-        const ic =
+      getFixForFlaggedNode(n: ts.Node): Fix |
+      undefined {
+        const changes = [];
+        const ic1 =
             maybeAddNamedImport(n.getSourceFile(), 'foo', './file_1', 'bar');
-        if (ic) return {changes: [ic]};
-        return;
+        if (ic1) {
+          changes.push(ic1);
+        }
+        const ic2 =
+            maybeAddNamedImport(n.getSourceFile(), 'foo2', './file_2', 'bar2');
+        if (ic2) {
+          changes.push(ic2);
+        }
+        return changes.length ? {changes} : undefined;
       }
     };
 
@@ -112,15 +121,23 @@ describe('ConformancePatternRule\'s fixer', () => {
       const results = compileAndCheck(
           new ConformancePatternRule(baseConfig, addNamedImportFixer), source);
 
-      expect(results[0]).toHaveFixMatching([{
-        start: 0,
-        end: 0,
-        replacement: `import {foo as bar} from './file_1';\n`
-      }]);
+      expect(results[0]).toHaveFixMatching([
+        {
+          start: 0,
+          end: 0,
+          replacement: `import {foo as bar} from './file_1';\n`
+        },
+        {
+          start: 0,
+          end: 0,
+          replacement: `import {foo2 as bar2} from './file_2';\n`
+        }
+      ]);
       expect(results[0].fixToReadableStringInContext())
           .toBe(
               `Suggested fix:\n` +
-              `- Add new import: import {foo as bar} from './file_1';`);
+              `- Add new import: import {foo as bar} from './file_1';\n` +
+              `- Add new import: import {foo2 as bar2} from './file_2';`);
     });
 
     it('maybeAddNamedImport already there', () => {
@@ -129,8 +146,15 @@ describe('ConformancePatternRule\'s fixer', () => {
           'import {foo as bar} from \'./file_1\';\n' + source,
           'export const foo = 1;');
 
-      expect(results[0]).toHaveNoFix();
-      expect(results[0].fixToReadableStringInContext()).toBe('');
+      expect(results[0]).toHaveFixMatching([{
+        start: 37,
+        end: 37,
+        replacement: `import {foo2 as bar2} from './file_2';\n`
+      }]);
+      expect(results[0].fixToReadableStringInContext())
+          .toBe(
+              `Suggested fix:\n` +
+              `- Add new import: import {foo2 as bar2} from './file_2';`);
     });
 
     it('maybeAddNamedImport different name', () => {
@@ -140,12 +164,17 @@ describe('ConformancePatternRule\'s fixer', () => {
           'export const foo = 1;');
 
       expect(results[0]).toHaveFixMatching([
-        {start: 8, end: 8, replacement: `foo as bar, `}
+        {start: 8, end: 8, replacement: `foo as bar, `}, {
+          start: 37,
+          end: 37,
+          replacement: `import {foo2 as bar2} from './file_2';\n`
+        }
       ]);
       expect(results[0].fixToReadableStringInContext())
           .toBe(
               `Suggested fix:\n` +
-              `- Insert at line 1, char 9: foo as bar,`);
+              `- Insert at line 1, char 9: foo as bar,\n` +
+              `- Add new import: import {foo2 as bar2} from './file_2';`);
     });
 
     it('maybeAddNamespacedImport', () => {

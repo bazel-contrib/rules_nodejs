@@ -66,30 +66,38 @@ export class Failure {
     let fixText = '';
 
     for (const c of f.changes) {
+      // Remove leading/trailing whitespace from the stringified suggestions:
+      // since we add line breaks after each line of stringified suggestion, and
+      // since users will manually apply the fix, there is no need to show
+      // trailing whitespace. This is however just for stringification of the
+      // fixes: the suggested fix itself still keeps trailing whitespace.
+      const printableReplacement = c.replacement.trim();
+
       // Insertion.
       if (c.start === c.end) {
         // Try to see if that's an import.
         if (c.replacement.indexOf('import') !== -1) {
-          fixText += `- Add new import: ${c.replacement}\n`;
+          fixText += `- Add new import: ${printableReplacement}\n`;
         } else {
           // Insertion that's not a full import. This should rarely happen in
           // our context, and we don't have a great message for these.
           // For instance, this could be the addition of a new symbol in an
           // existing import (`import {foo}` becoming `import {foo, bar}`).
           fixText += `- Insert ${this.readableRange(c.start, c.end)}: ${
-              c.replacement}\n`;
+              printableReplacement}\n`;
         }
       } else if (c.start === this.start && c.end === this.end) {
         // We assume the replacement is the main part of the fix, so put that
         // individual change first in `fixText`.
-        fixText = `- Replace the full match with: ${c.replacement}\n` + fixText;
+        fixText = `- Replace the full match with: ${printableReplacement}\n` +
+            fixText;
       } else {
         // Fallback case: Use a numerical range to specify a replacement. In
         // general, falling through in this case should be avoided, as it's not
         // really readable without an IDE (the range can be outside of the
         // matched code).
         fixText = `- Replace ${this.readableRange(c.start, c.end)} with: ` +
-            `${c.replacement}\n${fixText}`;
+            `${printableReplacement}\n${fixText}`;
       }
     }
 

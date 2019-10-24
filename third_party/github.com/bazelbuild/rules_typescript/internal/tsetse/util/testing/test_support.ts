@@ -92,12 +92,8 @@ interface FailureExpectations {
   fix?: FixExpectations;
 }
 
-type FixExpectations = [{
-  fileName?: string;
-  start?: number;
-  end?: number;
-  replacement?: string;
-}];
+type FixExpectations = Array<
+    {fileName?: string; start?: number; end?: number; replacement?: string;}>;
 
 
 function failureMatchesExpectation(
