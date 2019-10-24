@@ -24,9 +24,12 @@ http_archive(
 # Fetch sass rules for compiling sass files
 http_archive(
     name = "io_bazel_rules_sass",
-    sha256 = "4f05239080175a3f4efa8982d2b7775892d656bb47e8cf56914d5f9441fb5ea6",
-    strip_prefix = "rules_sass-86ca977cf2a8ed481859f83a286e164d07335116",
-    url = "https://github.com/bazelbuild/rules_sass/archive/86ca977cf2a8ed481859f83a286e164d07335116.zip",
+    sha256 = "617e444f47a1f3e25eb1b6f8e88a2451d54a2afdc7c50518861d9f706fc8baaa",
+    strip_prefix = "rules_sass-1.23.7",
+    urls = [
+        "https://github.com/bazelbuild/rules_sass/archive/1.23.7.zip",
+        "https://mirror.bazel.build/github.com/bazelbuild/rules_sass/archive/1.23.7.zip",
+    ],
 )
 
 # Check the bazel version and download npm dependencies
@@ -109,9 +112,10 @@ http_archive(
 
 http_archive(
     name = "io_bazel_rules_docker",
-    sha256 = "413bb1ec0895a8d3249a01edf24b82fd06af3c8633c9fb833a0cb1d4b234d46d",
-    strip_prefix = "rules_docker-0.12.0",
-    urls = ["https://github.com/bazelbuild/rules_docker/releases/download/v0.12.0/rules_docker-v0.12.0.tar.gz"],
+    patches = ["//:rules_docker.patch"],
+    sha256 = "7d453450e1eb70e238eea6b31f4115607ec1200e91afea01c25f9804f37e39c8",
+    strip_prefix = "rules_docker-0.10.0",
+    urls = ["https://github.com/bazelbuild/rules_docker/archive/v0.10.0.tar.gz"],
 )
 
 load("@io_bazel_rules_docker//repositories:repositories.bzl", container_repositories = "repositories")
