@@ -182,28 +182,18 @@
   resolved "https://registry.yarnpkg.com/@angular/platform-browser/-/platform-browser-9.0.0-next.11.tgz#61562bacd79fcbc8daf17d061c11e90dddd23dc1"
   integrity sha512-MBAbCfPR+dBNEWqPqiTcoKHLotfCwAAoBFwx3tUQi6oz1+SPJIownBHyUiyBSG0FqfHcLDqCO1FYkSIiLVysEw==
 
-<<<<<<< HEAD
+"@angular/platform-server@9.0.0-next.11":
+  version "9.0.0-next.11"
+  resolved "https://registry.yarnpkg.com/@angular/platform-server/-/platform-server-9.0.0-next.11.tgz#55fb51f3fc487f9b39f801d9c338f2481a9ba91f"
+  integrity sha512-jbIwPSUPGoVREAv5aNxBvHUmO1f9fpzMVm4sP0KwFSNdO9rarljmyy86G5sh2n8c2/eEsVAm9wfpN/5JHgsnqg==
+  dependencies:
+    domino "^2.1.2"
+    xhr2 "^0.1.4"
+
 "@angular/router@9.0.0-next.11":
   version "9.0.0-next.11"
   resolved "https://registry.yarnpkg.com/@angular/router/-/router-9.0.0-next.11.tgz#ccce71094dcf846ec12a804a59333e8ccd7f1835"
   integrity sha512-JFdxfbZEkOIPHg2/vL/JMuu668uyq10fqwu2rmvoFKVqfHj0zHbcG86kank7NfNpmn+LlJwxeZVRps/yWt4pUA==
-=======
-"@angular/platform-server@9.0.0-next.10":
-  version "9.0.0-next.10"
-  resolved "https://registry.yarnpkg.com/@angular/platform-server/-/platform-server-9.0.0-next.10.tgz#6be104812274259c6e822b754ab137f762da1125"
-  integrity sha512-PnEhgE6p4+mo76vymN0yINGcTtMPZSX+9kIJWTCo7pF+s3ExnZl+usHuFV9fBPn2REvnZQlPR0DytyA75ZOYgg==
-  dependencies:
-    domino "^2.1.2"
-    tslib "^1.9.0"
-    xhr2 "^0.1.4"
-
-"@angular/router@9.0.0-next.10":
-  version "9.0.0-next.10"
-  resolved "https://registry.yarnpkg.com/@angular/router/-/router-9.0.0-next.10.tgz#d36aa9763d99fd532616eac985399118f881eced"
-  integrity sha512-Il0KaD3Orm5HWGZvywJy8I9oH3uJVQZFX3FlZweaOsmlsAlrRw9tE4n51aOOVDff/NwJANdDLoQ5Kd8tBRqRPQ==
-  dependencies:
-    tslib "^1.9.0"
->>>>>>> feat(examples): add example of angular universal
 
 "@babel/cli@^7.6.0":
   version "7.6.2"
@@ -1029,17 +1019,17 @@
   resolved "https://registry.yarnpkg.com/@ngrx/store/-/store-8.3.0.tgz#f2eaf428ec9e8379801cc37e3f6bffe88c2af472"
   integrity sha512-QtM5T6/wTYqAlqeW60ptqqrsBwYF7jvQHsh0yE3AnwZIQvSbLFM2t5S2kN+753v4rHiXVRrA5pLaLzjGhAKcSg==
 
-"@nguniversal/common@v9.0.0-next.3":
-  version "9.0.0-next.3"
-  resolved "https://registry.yarnpkg.com/@nguniversal/common/-/common-9.0.0-next.3.tgz#955aea148772ff4fa3257a5933df88f7e3115572"
-  integrity sha512-Cyfm1UMYCx3Og5tYeFcf5ow+e/mgIcJDUs4F18psVd1HIs2JSIWrrqR2Jtp7W5vBfNcjPA3jbM8Oji+Qk3vnlQ==
+"@nguniversal/common@9.0.0-next.6":
+  version "9.0.0-next.6"
+  resolved "https://registry.yarnpkg.com/@nguniversal/common/-/common-9.0.0-next.6.tgz#bd2b42ed79929c9260fddc4635a04df8f60f0aaf"
+  integrity sha512-sPLhXtIyIwxNcfXcw9p7WvZgxZO7zEt9vtsLc6x5KlUQ7IUVncgeC5puviPfdhy/zRG5DfTaqr/Bou8i3hj7ng==
 
-"@nguniversal/express-engine@9.0.0-next.3":
-  version "9.0.0-next.3"
-  resolved "https://registry.yarnpkg.com/@nguniversal/express-engine/-/express-engine-9.0.0-next.3.tgz#f7b52ddd1ca0559bd8942c199453266fc9063ec9"
-  integrity sha512-wuk2XO405uMz2jXMYmepa2M+Mun3X8bRrL+7pfrbv7HTqulPbSh+uHKX485w3GeCHPbHScjwY9tdyDH4M5jGyA==
+"@nguniversal/express-engine@9.0.0-next.6":
+  version "9.0.0-next.6"
+  resolved "https://registry.yarnpkg.com/@nguniversal/express-engine/-/express-engine-9.0.0-next.6.tgz#523075a8f198704bf15ac07b9f28c0a41115f141"
+  integrity sha512-Qzo05h/69aQQtkRAF//52H0LjhwvukWlefSRgdH2kuhj8wftVUWIf/cl1nibfb8ldjQGMZhwKulPuML90Qil0Q==
   dependencies:
-    "@nguniversal/common" v9.0.0-next.3
+    "@nguniversal/common" "9.0.0-next.6"
 
 "@phenomnomnominal/tsquery@3.0.0":
   version "3.0.0"

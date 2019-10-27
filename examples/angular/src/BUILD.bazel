@@ -189,13 +189,18 @@ web_package(
 ts_library(
     name = "universal_server_lib",
     srcs = [":server.ts"],
+    deps = [
+        "@npm//@types/node",
+        "@npm//@nguniversal/express-engine",
+        "@npm//express",
+        "//src/app:app_server"
+    ]
 )
 
 nodejs_binary(
     name = "universal_server",
     data = [
-        ":prodapp",
-        ":src",
+        # ":prodapp",
         ":universal_server_lib",
     ],
     entry_point = ":server.ts",
