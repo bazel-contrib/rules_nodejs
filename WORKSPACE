@@ -264,7 +264,9 @@ rbe_autoconfig(
 load("@build_bazel_integration_testing//tools:repositories.bzl", "bazel_binaries")
 
 # Depend on the Bazel binaries
-bazel_binaries(versions = ["0.28.1"])
+load("//:index.bzl", "BAZEL_VERSION")
+
+bazel_binaries(versions = [BAZEL_VERSION])
 
 #
 # Setup bazel_integration_test repositories
