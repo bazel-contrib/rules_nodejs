@@ -36,25 +36,50 @@ function initConcatJs(logger, emitter, basePath, hostname, port) {
       content: '',
       encodings: {},
     } as any;
-    const included = [];
+    // Preserve all non-JS that were there in the included list.
+    const included = files.included.filter(f => path.extname(f.originalPath) !== '.js');
+    const bundledFiles =
+        files.included.filter(f => path.extname(f.originalPath) === '.js').map((file) => {
+          const relativePath = path.relative(basePath, file.originalPath).replace(/\\/g, '/');
 
-    files.included.forEach(file => {
-      if (path.extname(file.originalPath) !== '.js') {
-        // Preserve all non-JS that were there in the included list.
-        included.push(file);
+          let content = file.content + `\n//# sourceURL=http://${hostname}:${port}/base/` +
+              relativePath + '\n';
+
+          return `
+  loadFile(
+      ${JSON.stringify(relativePath)},
+      ${JSON.stringify(content)});`;
+        });
+
+    // Execute each file by putting it in a <script> tag. This makes them create
+    // global variables, even with 'use strict'; (unlike eval).
+    bundleFile.content = `
+(function() {  // Hide local variables
+  // IE 8 and below do not support document.head.
+  var parent = document.getElementsByTagName('head')[0] ||
+                    document.documentElement;
+  function loadFile(path, src) {
+    try {
+      var script = document.createElement('script');
+      if ('textContent' in script) {
+        script.textContent = src;
       } else {
-        const relativePath = path.relative(basePath, file.originalPath).replace(/\\/g, '/');
-
-        // Remove 'use strict'.
-        let content = file.content.replace(/('use strict'|"use strict");?/, '');
-        content = JSON.stringify(
-            `${content}\n//# sourceURL=http://${hostname}:${port}/base/` +
-            `${relativePath}\n`);
-        content = `//${relativePath}\neval(${content});\n`;
-        bundleFile.content += content;
+        // This is for IE 8 and below.
+        script.text = src;
       }
-    });
-
+      parent.appendChild(script);
+      // Don't pollute the DOM with hundreds of <script> tags.
+      parent.removeChild(script);
+    } catch(err) {
+      window.__karma__ && window.__karma__.error(
+          'An error occurred while loading ' + path + ':\\n' +
+          (err.stack || err.message || err.toString()));
+      console.error('An error occurred while loading ' + path, err);
+      throw err;
+    }
+  }
+${bundledFiles.join('')}
+})();`;
     bundleFile.sha = sha1(Buffer.from(bundleFile.content));
     bundleFile.mtime = new Date();
     included.unshift(bundleFile);
