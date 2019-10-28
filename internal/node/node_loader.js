@@ -128,8 +128,9 @@ function loadRunfilesManifest(manifestPath) {
     // We don't need to try determining the local workspace path for the current runfile
     // mapping in case we already determined the local workspace path, the current
     // runfile refers to a different workspace, or the current runfile resolves to a file
-    // in the bazel-out directory (bin/genfiles directory).
-    if (localWorkspacePath || !runfilesPath.startsWith(USER_WORKSPACE_NAME) ||
+    // in the bazel-out directory (bin/genfiles directory). Also exclude the case of no
+    // realpath which fixes https://github.com/bazelbuild/rules_nodejs/issues/1307.
+    if (localWorkspacePath || !runfilesPath.startsWith(USER_WORKSPACE_NAME) || !realPath ||
         realPath.startsWith(outputBase)) {
       continue;
     }
