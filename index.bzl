@@ -93,7 +93,7 @@ VERSION = "0.39.0"
 # we will test against multiple versions.
 # This version should be updated together with the version of the @bazel/bazel
 # package in package.json. This is asserted in //internal:package_json_test.
-BAZEL_VERSION = "0.28.1"
+BAZEL_VERSION = "1.1.0"
 
 def check_rules_nodejs_version(minimum_version_string):
     """

@@ -28,7 +28,7 @@ const packageJson = require('build_bazel_rules_nodejs/package.json');
 if (packageJson['devDependencies']['@bazel/bazel'] !== `^${BAZEL_VERSION}`) {
   console.error(`package.json @bazel/bazel '${
       packageJson['devDependencies']
-                 ['@bazel/bazel']}' does not match BAZEL_VERSION in //:index.bzl '${
+                 ['@bazel/bazel']}' does not match ^BAZEL_VERSION in //:index.bzl '^${
       BAZEL_VERSION}'`);
   process.exitCode = 1;
 }
