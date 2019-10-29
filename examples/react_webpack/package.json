@@ -1,7 +1,7 @@
 {
     "private": true,
     "devDependencies": {
-        "@bazel/bazel": "latest",
+        "@bazel/bazel": "^1.1.0",
         "@bazel/buildifier": "latest",
         "@bazel/ibazel": "latest",
         "@types/react": "^16.9.5",
