@@ -94,7 +94,11 @@ export const patcher = (fs: any, root: string) => {
       args[args.length - 1] = (err: Error, str: string) => {
         if (err) return cb(err);
         if (isOutLink(str)) {
-          cb(false, path.resolve(args[0]));
+          const e =  new Error('EINVAL: invalid argument, readlink \''+args[0]+'\'');
+          //tslint:disable-next-line:no-any
+          (e as any).code = 'EINVAL';
+          // if its not supposed to be a link we have to trigger an EINAVL error.
+          cb(e);
         } else {
           cb(false, str);
         }
@@ -125,14 +129,64 @@ export const patcher = (fs: any, root: string) => {
   fs.readlinkSync = (...args: any[]) => {
     let str = origReadlinkSync(...args);
     if (isOutLink(origRealpathSync(str))) {
-      str = path.resolve(str);
+      const e =  new Error('EINVAL: invalid argument, readlink \''+args[0]+'\'');
+      //tslint:disable-next-line:no-any
+      (e as any).code = 'EINVAL';
+      throw e;
     }
     return str;
   };
 
-  if (promises) {
-    fs.promises.lstat = util.promisify(fs.lstat);
-    fs.promises.realpath = util.promisify(fs.realpath);
-    fs.promises.readlink = util.promisify(fs.readlink);
+
+  /**
+   * patch fs.promises here.
+   * 
+   * this requires a light touch because if we trigger the getter on older nodejs versions 
+   * it will log an experimental warning to stderr
+   * 
+   * `(node:62945) ExperimentalWarning: The fs.promises API is experimental`
+   * 
+   * this api is available as experimental without a flag so users can access it at any time.
+   */
+  const promisePropertyDescriptor = Object.getOwnPropertyDescriptor(fs,'promises');
+  if(promisePropertyDescriptor){
+    //tslint:disable-next-line:no-any
+    let promises:any = {};
+    promises.lstat = util.promisify(fs.lstat);
+    promises.realpath = util.promisify(fs.realpath);
+    promises.readlink = util.promisify(fs.readlink);
+
+    // handle experimental api patching
+    if(promisePropertyDescriptor.get){
+
+      let oldGetter = promisePropertyDescriptor.get.bind(fs)
+      promisePropertyDescriptor.get = ()=>{
+        let _promises = oldGetter()
+
+        fs.promises = _promises
+      }
+      Object.defineProperty(fs,'promises',promisePropertyDescriptor);
+
+    } else {
+      // api can be patched directly
+      Object.assign(fs.promises,promises);
+    }
   }
+
+  if(fs.Dir){
+    /*
+    class Dir extends fs.Dir{
+      //tslint:disable-next-line:no-any
+      constructor(handle:any, path:any, options:any){
+        super(handle, path, options)
+      }
+
+      read(){}
+
+    }
+
+    fs.Dir = Dir;
+    */
+  }
+
 };
