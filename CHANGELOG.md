@@ -1,3 +1,18 @@
+## [0.39.1](https://github.com/bazelbuild/rules_nodejs/compare/0.39.0...0.39.1) (2019-10-29)
+
+
+### Bug Fixes
+
+* fix for https://github.com/bazelbuild/rules_nodejs/issues/1307 ([7163571](https://github.com/bazelbuild/rules_nodejs/commit/7163571))
+* **karma:** load scripts in strict mode ([5498f93](https://github.com/bazelbuild/rules_nodejs/commit/5498f93)), closes [#922](https://github.com/bazelbuild/rules_nodejs/issues/922)
+
+
+### Features
+
+* **examples:** demonstrate using Webpack to build and serve a React app ([c5d0909](https://github.com/bazelbuild/rules_nodejs/commit/c5d0909))
+
+
+
 # [0.39.0](https://github.com/bazelbuild/rules_nodejs/compare/0.38.3...0.39.0) (2019-10-23)
 
 
