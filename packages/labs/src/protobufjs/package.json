@@ -11,7 +11,7 @@
     "glob": "^7.1.2",
     "jsdoc": "^3.6.3",
     "minimist": "^1.2.0",
-    "protobufjs": "github:dcodeIO/protobuf.js#65d113b0079fa2570837f3cf95268ce24714a248",
+    "protobufjs": "^6.8.8",
     "semver": "^5.5.0",
     "tmp": "0.0.33",
     "uglify-js": "^2.8.29"
