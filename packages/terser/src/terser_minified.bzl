@@ -43,6 +43,13 @@ If you want to do this, you can pass a filegroup here.""",
         allow_files = [".js", ".map", ".mjs"],
         mandatory = True,
     ),
+    "args": attr.string_list(
+        doc = """Additional command line arguments to pass to terser.
+
+Terser only parses minify() args from the config file so additional arguments such as `--comments` may
+be passed to the rule using this attribute. See https://github.com/terser/terser#command-line-usage for the
+full list of terser CLI options.""",
+    ),
     "config_file": attr.label(
         doc = """A JSON file containing Terser minify() options.
 
@@ -156,6 +163,7 @@ def _terser(ctx):
     )
 
     args.add_all(["--config-file", opts.path])
+    args.add_all(ctx.attr.args)
 
     ctx.actions.run(
         inputs = inputs,
