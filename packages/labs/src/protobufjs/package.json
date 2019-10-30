@@ -11,7 +11,8 @@
     "glob": "^7.1.2",
     "jsdoc": "^3.5.5",
     "minimist": "^1.2.0",
-    "protobufjs": "^6.8.8",
+    "protobufjs": "On update, other dependencies here to be updated to the same versions as in protobufjs package.json",
+    "protobufjs": "=6.8.8",
     "semver": "^5.5.0",
     "tmp": "0.0.33",
     "uglify-js": "^3.3.25"
