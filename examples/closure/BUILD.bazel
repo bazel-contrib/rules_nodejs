@@ -18,21 +18,49 @@ genrule(
     tools = ["google_closure_templates_compiler"],
 )
 
+# _CLOSURE_LIB_DEPS = [
+#     "@npm//:node_modules/google-closure-library/closure/goog/soy/data.js",
+#     "@closure-templates//:api_idom.js",
+#     "@closure-templates//:soyutils_velog.js",
+# ]
+
+_CLOSURE_LIB_DEPS = glob([
+    #"@npm//:node_modules/google-closure-library/closure/goog/**/*.js",
+    #"@closure-templates//*.js",
+])
+
+genrule(
+    name = "closure_config",
+    srcs = [
+        "@closure-templates//:all",
+        "@npm//google-closure-library:google-closure-library__files",
+        "@npm//google-protobuf:google-protobuf__files",
+    ],
+    outs = ["closure.conf"],
+    cmd = """echo $(locations @closure-templates//:all) $(locations @npm//google-closure-library:google-closure-library__files) $(locations @npm//google-protobuf:google-protobuf__files) | xargs -n 1 echo "--js " | grep ".js$$" > $@""",
+)
+
 google_closure_compiler(
     name = "closure",
     outs = ["bundle.js"],
     args = [
         # workaround https://github.com/google/closure-compiler-npm/issues/147
         # --platform native would be faster but is failing on Windows
-        "--platform=javascript",
+        #"--platform=javascript",
+        "--platform=native",
+        "--flagfile=$(location :closure_config)",
         "--js=$(location hello.js)",
         "--js=$(location index.soy.js)",
         "--js_output_file=$(location bundle.js)",
-    ],
+    ] + ["--js=$(location %s)" % s for s in _CLOSURE_LIB_DEPS],
     data = [
         "hello.js",
         "index.soy.js",
-    ],
+        ":closure_config",
+        "@closure-templates//:all",
+        "@npm//google-protobuf:google-protobuf__files",
+        "@npm//google-closure-library:google-closure-library__files",
+    ] + _CLOSURE_LIB_DEPS,
 )
 
 nodejs_test(

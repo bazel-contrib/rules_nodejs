@@ -105,6 +105,16 @@ google-closure-compiler@20190729.0.0:
     google-closure-compiler-osx "^20190729.0.0"
     google-closure-compiler-windows "^20190729.0.0"
 
+google-closure-library@^20190929.0.0:
+  version "20190929.0.0"
+  resolved "https://registry.yarnpkg.com/google-closure-library/-/google-closure-library-20190929.0.0.tgz#a323319d87ec10ebdef8135a0ef539eb07602c5d"
+  integrity sha512-ChL2te1OLBqI7z2FYohjapHxoo2Jd7KsFTBKoNv9TiOlWR+7zcS4z1RxeUgczWAW9sji3q5OhbbtG/fJlbs1lw==
+
+google-protobuf@^3.10.0:
+  version "3.10.0"
+  resolved "https://registry.yarnpkg.com/google-protobuf/-/google-protobuf-3.10.0.tgz#f36171128090615049f9b0e42252b1a10a4bc534"
+  integrity sha512-d0cMO8TJ6xtB/WrVHCv5U81L2ulX+aCD58IljyAN6mHwdHHJ2jbcauX5glvivi3s3hx7EYEo7eUA9WftzamMnw==
+
 has-flag@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/has-flag/-/has-flag-3.0.0.tgz#b5d454dc2199ae225699f3467e5a07f3b955bafd"
