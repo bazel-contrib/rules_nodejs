@@ -105,7 +105,6 @@ tasks:
     - "--test_tag_filters=-e2e,-examples,-no-bazelci,-no-bazelci-ubuntu,-manual"
     test_targets:
     - "//..."
-    - "//packages/terser/test/debug:test_define_DEBUG"
   ubuntu1804_e2e:
     name: ubuntu1804_e2e
     platform: ubuntu1804

@@ -12,7 +12,7 @@ terser_minified(
 golden_file_test(
     name = "test",
     actual = "out.min",
-    golden = "output.golden.js_",
+    golden = "output.debug.golden.js_",
 )
 
 terser_minified(
@@ -27,5 +27,5 @@ golden_file_test(
     name = "test_define_DEBUG",
     actual = "debug_from_env",
     golden = "output.golden.js_",
-    tags = ["manual"],  # Only passes when --define=DEBUG=1 is set
+    golden_debug = "output.debug.golden.js_",
 )
