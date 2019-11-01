@@ -1,101 +1,63 @@
-"Unit tests for node.bzl toolchain support"
+# Copyright 2017 The Bazel Authors. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-load("@bazel_skylib//lib:unittest.bzl", "analysistest", "asserts")
+"""Testing for node toolchains
 
-def _runfiles_contents_test_impl(ctx):
-    env = analysistest.begin(ctx)
-    target_under_test = analysistest.target_under_test(env)
+This test verifies that if --platforms=@build_bazel_rules_nodejs//toolchains/node:<platform> is set then
+the correct node path is available to rules via
+ctx.toolchains["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"].nodeinfo.tool_files[0].path
+"""
 
-    # check target's runfiles
-    runfiles = sorted(target_under_test[DefaultInfo].default_runfiles.files.to_list())
-    asserts.true(env, ctx.file.node_selected in runfiles)
-    asserts.false(env, ctx.files.node_other[0] in runfiles)
-    asserts.false(env, ctx.files.node_other[1] in runfiles)
+load("//internal/node:node_repositories.bzl", "NODE_EXTRACT_DIR")
 
-    # This is a bit of a hack, but because "@nodejs//:node_bin" is just an alias to one of the other nodejs repositories
-    # bazel automatically filters it from the list if the aliased label already exists.
-    # So we have to check that it has not been filtered out and then we do expect it to be in runfiles, as it just points
-    # to the same file as "node_selected"
-    if len(ctx.files.node_other) == 3:
-        asserts.true(env, ctx.files.node_other[2] in runfiles)
+_SCRIPT_TEMPLATE = """#!/bin/bash
+EXPECTED_NODE_PATH="{expected_node_path}"
+TOOLCHAIN_NODE_PATH="{toolchain_node_path}"
+if [ "$EXPECTED_NODE_PATH" != "$TOOLCHAIN_NODE_PATH" ]; then
+    echo "Expected platform node path to be '$EXPECTED_NODE_PATH' but got '$TOOLCHAIN_NODE_PATH'"
+    exit 1
+fi
+"""
 
-    return analysistest.end(env)
+_ATTRS = {
+    "platform": attr.string(
+        values = ["linux_amd64", "darwin_amd64", "windows_amd64"],
+    ),
+}
 
-linux_platform_toolchain_test = analysistest.make(
-    _runfiles_contents_test_impl,
-    config_settings = {
-        "//command_line_option:platforms": "@build_bazel_rules_nodejs//toolchains/node:linux_amd64",
-    },
-    attrs = {
-        "node_other": attr.label_list(
-            default = [Label("@nodejs_windows_amd64//:node_bin"), Label("@nodejs_darwin_amd64//:node_bin"), Label("@nodejs//:node_bin")],
-            allow_files = True,
+def _nodejs_toolchain_test(ctx):
+    script = ctx.actions.declare_file(ctx.label.name)
+
+    is_windows = ctx.attr.platform == "windows_amd64"
+    expected_node_path = "external/nodejs_%s/%s/%s" % (ctx.attr.platform, NODE_EXTRACT_DIR, "node.exe" if is_windows else "bin/node")
+
+    ctx.actions.write(
+        script,
+        _SCRIPT_TEMPLATE.format(
+            expected_node_path = expected_node_path,
+            toolchain_node_path = ctx.toolchains["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"].nodeinfo.tool_files[0].path,
         ),
-        "node_selected": attr.label(
-            default = Label("@nodejs_linux_amd64//:node_bin"),
-            allow_single_file = True,
-        ),
-    },
+        is_executable = True,
+    )
+    return [DefaultInfo(executable = script)]
+
+nodejs_toolchain_test = rule(
+    implementation = _nodejs_toolchain_test,
+    attrs = _ATTRS,
+    test = True,
+    toolchains = [
+        "@build_bazel_rules_nodejs//toolchains/node:toolchain_type",
+        "@bazel_tools//tools/sh:toolchain_type",
+    ],
 )
-
-windows_platform_toolchain_test = analysistest.make(
-    _runfiles_contents_test_impl,
-    config_settings = {
-        "//command_line_option:platforms": "@build_bazel_rules_nodejs//toolchains/node:windows_amd64",
-    },
-    attrs = {
-        "node_other": attr.label_list(
-            default = [Label("@nodejs_linux_amd64//:node_bin"), Label("@nodejs_darwin_amd64//:node_bin"), Label("@nodejs//:node_bin")],
-            allow_files = True,
-        ),
-        "node_selected": attr.label(
-            default = Label("@nodejs_windows_amd64//:node_bin"),
-            allow_single_file = True,
-        ),
-    },
-)
-
-darwin_platform_toolchain_test = analysistest.make(
-    _runfiles_contents_test_impl,
-    config_settings = {
-        "//command_line_option:platforms": "@build_bazel_rules_nodejs//toolchains/node:darwin_amd64",
-    },
-    attrs = {
-        "node_other": attr.label_list(
-            default = [Label("@nodejs_windows_amd64//:node_bin"), Label("@nodejs_linux_amd64//:node_bin"), Label("@nodejs//:node_bin")],
-            allow_files = True,
-        ),
-        "node_selected": attr.label(
-            default = Label("@nodejs_darwin_amd64//:node_bin"),
-            allow_single_file = True,
-        ),
-    },
-)
-
-def test_runfiles_contents():
-    linux_platform_toolchain_test(
-        name = "linux_platform_toolchain_test",
-        target_under_test = ":no_deps",
-    )
-
-    windows_platform_toolchain_test(
-        name = "windows_platform_toolchain_test",
-        target_under_test = ":no_deps",
-    )
-
-    darwin_platform_toolchain_test(
-        name = "darwin_platform_toolchain_test",
-        target_under_test = ":no_deps",
-    )
-
-def nodejs_binary_test_suite():
-    test_runfiles_contents()
-
-    native.test_suite(
-        name = "nodejs_toolchain_test",
-        tests = [
-            ":linux_platform_toolchain_test",
-            ":windows_platform_toolchain_test",
-            ":darwin_platform_toolchain_test",
-        ],
-    )
