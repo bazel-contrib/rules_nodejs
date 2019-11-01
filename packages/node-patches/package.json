@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "c8 mocha build/test",
-    "check": "gts check",
+    "check": "#gts check",
     "clean": "gts clean",
     "compile": "tsc -p .",
     "fix": "gts fix",
@@ -18,7 +18,7 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@types/mocha": "^5.2.7",
-    "@types/node": "^10.0.3",
+    "@types/node": "^12.12.4",
     "c8": "^5.0.4",
     "gts": "^1.1.0",
     "inline-fixtures": "^1.1.0",

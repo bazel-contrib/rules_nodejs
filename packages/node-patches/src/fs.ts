@@ -1,4 +1,4 @@
-import { Stats } from 'fs';
+import { Stats, Dirent } from 'fs';
 import * as path from 'path';
 import * as util from 'util';
 // using require here on purpose so we can override methods with any
@@ -11,20 +11,17 @@ export const patcher = (fs: any, root: string) => {
   root = root || process.env.BAZEL_SYMLINK_PATCHER_ROOT || '';
   if (root) root = fs.realpathSync(root);
 
-  let promises = false;
-  if (fs.promises) {
-    promises = true;
-  }
-
   const origRealpath = fs.realpath.bind(fs);
   const origLstat = fs.lstat.bind(fs);
   const origReadlink = fs.readlink.bind(fs);
   const origLstatSync = fs.lstatSync.bind(fs);
   const origRealpathSync = fs.realpathSync.bind(fs);
   const origReadlinkSync = fs.readlinkSync.bind(fs);
+  const origReaddir = fs.readdir.bind(fs);
+  const origReaddirSync = fs.readdirSync.bind(fs);
 
-  function isOutLink(str: string) {
-    return root && (str.startsWith(root + path.sep) || str === root);
+  function isOutPath(str: string) {
+    return !root || (!str.startsWith(root + path.sep) && str !== root);
   }
 
   //tslint:disable-next-line:no-any
@@ -49,7 +46,7 @@ export const patcher = (fs: any, root: string) => {
                   return cb(err);
                 }
 
-                if (isOutLink(str)) {
+                if (isOutPath(str)) {
                   // if it's an out link we have to return the original stat.
                   return fs.stat(args[0], cb);
                 }
@@ -70,7 +67,7 @@ export const patcher = (fs: any, root: string) => {
     if (cb) {
       args[args.length - 1] = (err: Error, str: string) => {
         if (err) return cb(err);
-        if (isOutLink(str)) {
+        if (isOutPath(str)) {
           cb(false, path.resolve(args[0]));
         } else {
           cb(false, str);
@@ -80,24 +77,19 @@ export const patcher = (fs: any, root: string) => {
     origRealpath(...args);
   };
 
-  // this leaks the patch a bit.
-  // readlink will return the absolute path of the link it read
-  // but if its an "out link" read link has to return the same path it just read
-  // its unlikely that a user program will depend on readlink returning a different
-  // string than was passed in but its possible.
-  // with the other fs patches in place the only way to hit this is to blindly readlink
-  // without stating first.
   //tslint:disable-next-line:no-any
   fs.readlink = (...args: any[]) => {
     const cb = args.length > 1 ? args[args.length - 1] : undefined;
     if (cb) {
       args[args.length - 1] = (err: Error, str: string) => {
         if (err) return cb(err);
-        if (isOutLink(str)) {
-          const e =  new Error('EINVAL: invalid argument, readlink \''+args[0]+'\'');
+        if (isOutPath(str)) {
+          const e = new Error(
+            "EINVAL: invalid argument, readlink '" + args[0] + "'"
+          );
           //tslint:disable-next-line:no-any
           (e as any).code = 'EINVAL';
-          // if its not supposed to be a link we have to trigger an EINAVL error.
+          // if its not supposed to be a link we have to trigger an EINVAL error.
           cb(e);
         } else {
           cb(false, str);
@@ -110,7 +102,7 @@ export const patcher = (fs: any, root: string) => {
   //tslint:disable-next-line:no-any
   fs.lstatSync = (...args: any[]) => {
     let stats = origLstatSync(...args);
-    if (stats.isSymbolicLink() && isOutLink(origRealpathSync(args[0]))) {
+    if (stats.isSymbolicLink() && isOutPath(origRealpathSync(args[0]))) {
       stats = fs.statSync(...args);
     }
     return stats;
@@ -119,17 +111,19 @@ export const patcher = (fs: any, root: string) => {
   //tslint:disable-next-line:no-any
   fs.realpathSync = (...args: any[]) => {
     const str = origRealpathSync(...args);
-    if (isOutLink(str)) {
-      return path.resolve(str);
+    if (isOutPath(str)) {
+      return path.resolve(args[0]);
     }
     return str;
   };
 
   //tslint:disable-next-line:no-any
   fs.readlinkSync = (...args: any[]) => {
-    let str = origReadlinkSync(...args);
-    if (isOutLink(origRealpathSync(str))) {
-      const e =  new Error('EINVAL: invalid argument, readlink \''+args[0]+'\'');
+    const str = origReadlinkSync(...args);
+    if (isOutPath(str)) {
+      const e = new Error(
+        "EINVAL: invalid argument, readlink '" + args[0] + "'"
+      );
       //tslint:disable-next-line:no-any
       (e as any).code = 'EINVAL';
       throw e;
@@ -137,43 +131,162 @@ export const patcher = (fs: any, root: string) => {
     return str;
   };
 
+  //tslint:disable-next-line:no-any
+  fs.readdir = (...args: any[]) => {
+    const p = path.resolve(args[0]);
 
-  /**
-   * patch fs.promises here.
-   * 
-   * this requires a light touch because if we trigger the getter on older nodejs versions 
-   * it will log an experimental warning to stderr
-   * 
-   * `(node:62945) ExperimentalWarning: The fs.promises API is experimental`
-   * 
-   * this api is available as experimental without a flag so users can access it at any time.
-   */
-  const promisePropertyDescriptor = Object.getOwnPropertyDescriptor(fs,'promises');
-  if(promisePropertyDescriptor){
-    //tslint:disable-next-line:no-any
-    let promises:any = {};
-    promises.lstat = util.promisify(fs.lstat);
-    promises.realpath = util.promisify(fs.realpath);
-    promises.readlink = util.promisify(fs.readlink);
+    const cb = args[args.length - 1];
+    if (typeof cb !== 'function') {
+      // this will likely throw callback required error.
+      return origReaddir(...args);
+    }
 
-    // handle experimental api patching
-    if(promisePropertyDescriptor.get){
+    args[args.length - 1] = (err: Error, result: Dirent[]) => {
+      if (err) return cb(err);
+      // user requested withFileTypes
+      if (result[0] && result[0].isSymbolicLink) {
+        // the point of the map is to await all the promises not to collect the results.
+        Promise.all(
+          result.map((v: Dirent) => {
+            return new Promise((resolve, reject) => {
+              if (v.isSymbolicLink()) {
+                origReadlink(
+                  path.join(p, v.name),
+                  (err: Error, target: string) => {
+                    if (err) {
+                      return reject(err);
+                    }
 
-      let oldGetter = promisePropertyDescriptor.get.bind(fs)
-      promisePropertyDescriptor.get = ()=>{
-        let _promises = oldGetter()
+                    if (isOutPath(target)) {
+                      fs.stat(
+                        target,
+                        (err: Error & { code: string }, stat: Stats) => {
+                          if (err) {
+                            if (err.code === 'ENOENT') {
+                              // this is a broken symlink
+                              // even though this broken symlink points outside of the root
+                              // we'll return it.
+                              // the alternative choice here is to omit it from the directory listing altogether
+                              // this would add complexity because readdir output would be different than readdir withFileTypes
+                              // unless readdir was changed to match. if readdir was changed to match it's performance would be
+                              // greatly impacted because we would always have to use the withFileTypes version which is slower.
+                              return resolve(v);
+                            }
+                            // transient fs related error. busy etc.
+                            return reject(err);
+                          }
 
-        fs.promises = _promises
+                          // add all stat is methods to Dirent instances with their result.
+                          patchDirent(v, stat);
+                          v.isSymbolicLink = () => false;
+                          resolve(v);
+                        }
+                      );
+                      return;
+                    }
+                    resolve(v);
+                  }
+                );
+                return;
+              }
+              resolve(v);
+            });
+          })
+        )
+          .then(() => {
+            cb(null, result);
+          })
+          .catch(err => {
+            cb(err);
+          });
+      } else {
+        // string array return for readdir.
+        cb(null, result);
       }
-      Object.defineProperty(fs,'promises',promisePropertyDescriptor);
+    };
 
-    } else {
-      // api can be patched directly
-      Object.assign(fs.promises,promises);
+    origReaddir(...args);
+  };
+
+  //tslint:disable-next-line:no-any
+  fs.readdirSync = (...args: any[]) => {
+    const res = origReaddirSync(...args);
+    const p = path.resolve(args[0]);
+    //tslint:disable-next-line:no-any
+    res.forEach((v: Dirent | any) => {
+      if (v && v.isSymbolicLink) {
+        if (v.isSymbolicLink()) {
+          // any errors thrown here are valid. things like transient fs errors
+          const target = path.resolve(
+            p,
+            origReadlinkSync(path.join(p, v.name))
+          );
+          if (isOutPath(target)) {
+            // Dirent exposes file type so if we want to hide that this is a link
+            // we need to find out if it's a file or directory.
+            v.isSymbolicLink = () => false;
+            //tslint:disable-next-line:no-any
+            const stat: Stats | any = fs.statSync(target);
+            // add all stat is methods to Dirent instances with their result.
+            patchDirent(v, stat);
+          }
+        }
+      }
+    });
+    return res;
+  };
+
+  // i need to use this twice in bodt readdor and readdirSync. maybe in fs.Dir
+  //tslint:disable-next-line:no-any
+  function patchDirent(dirent: Dirent | any, stat: Stats | any) {
+    // add all stat is methods to Dirent instances with their result.
+    for (const i in stat) {
+      if (i.indexOf('is') === 0 && typeof stat[i] === 'function') {
+        const result = stat[i]();
+        if (result) dirent[i] = () => true;
+        else dirent[i] = () => false;
+      }
     }
   }
 
-  if(fs.Dir){
+  /**
+   * patch fs.promises here.
+   *
+   * this requires a light touch because if we trigger the getter on older nodejs versions
+   * it will log an experimental warning to stderr
+   *
+   * `(node:62945) ExperimentalWarning: The fs.promises API is experimental`
+   *
+   * this api is available as experimental without a flag so users can access it at any time.
+   */
+  const promisePropertyDescriptor = Object.getOwnPropertyDescriptor(
+    fs,
+    'promises'
+  );
+  if (promisePropertyDescriptor) {
+    //tslint:disable-next-line:no-any
+    const promises: any = {};
+    promises.lstat = util.promisify(fs.lstat);
+    promises.realpath = util.promisify(fs.realpath);
+    promises.readlink = util.promisify(fs.readlink);
+    promises.readdir = util.promisify(fs.readdir);
+    // handle experimental api warnings.
+    // only applies to version of node where promises is a getter property.
+    if (promisePropertyDescriptor.get) {
+      const oldGetter = promisePropertyDescriptor.get.bind(fs);
+      promisePropertyDescriptor.get = () => {
+        const _promises = oldGetter();
+
+        fs.promises = _promises;
+      };
+      Object.defineProperty(fs, 'promises', promisePropertyDescriptor);
+    } else {
+      // api can be patched directly
+      Object.assign(fs.promises, promises);
+    }
+  }
+
+  if (fs.Dir) {
     /*
     class Dir extends fs.Dir{
       //tslint:disable-next-line:no-any
@@ -188,5 +301,4 @@ export const patcher = (fs: any, root: string) => {
     fs.Dir = Dir;
     */
   }
-
 };

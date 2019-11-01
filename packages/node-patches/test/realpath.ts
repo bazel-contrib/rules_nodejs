@@ -4,11 +4,12 @@
 import * as assert from 'assert';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as util from 'util';
 
 import { withFixtures } from 'inline-fixtures';
 import { patcher } from '../src/fs';
 
-describe('testing', () => {
+describe('testing realpath', () => {
   it('can resolve symlink in root', async () => {
     await withFixtures(
       {
@@ -25,13 +26,25 @@ describe('testing', () => {
         const patchedFs = Object.assign({}, fs);
         patchedFs.promises = Object.assign({}, fs.promises);
 
-        patcher(patchedFs, fixturesDir);
+        patcher(patchedFs, path.join(fixturesDir));
         const linkPath = path.join(fs.realpathSync(fixturesDir), 'a', 'link');
 
-        assert.strictEqual(
+        assert.deepStrictEqual(
           patchedFs.realpathSync(linkPath),
-          fs.realpathSync(linkPath),
-          'should resolve the symlink the same because its within root'
+          path.join(fixturesDir, 'b', 'file'),
+          'SYNC: should resolve the symlink the same because its within root'
+        );
+
+        assert.deepStrictEqual(
+          await util.promisify(patchedFs.realpath)(linkPath),
+          path.join(fixturesDir, 'b', 'file'),
+          'CB: should resolve the symlink the same because its within root'
+        );
+
+        assert.deepStrictEqual(
+          await patchedFs.promises.realpath(linkPath),
+          path.join(fixturesDir, 'b', 'file'),
+          'Promise: should resolve the symlink the same because its within root'
         );
       }
     );
@@ -56,8 +69,20 @@ describe('testing', () => {
         patcher(patchedFs, path.join(fixturesDir, 'a'));
         const linkPath = path.join(fs.realpathSync(fixturesDir), 'a', 'link');
 
-        assert.strictEqual(
+        assert.deepStrictEqual(
           patchedFs.realpathSync(linkPath),
+          path.join(fixturesDir, 'a', 'link'),
+          'should pretend symlink is in the root'
+        );
+
+        assert.deepStrictEqual(
+          await util.promisify(patchedFs.realpath)(linkPath),
+          path.join(fixturesDir, 'a', 'link'),
+          'should pretend symlink is in the root'
+        );
+
+        assert.deepStrictEqual(
+          await patchedFs.promises.realpath(linkPath),
           path.join(fixturesDir, 'a', 'link'),
           'should pretend symlink is in the root'
         );
