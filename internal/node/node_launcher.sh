@@ -114,7 +114,50 @@ TEMPLATED_env_vars
 # This redirects to stderr so it doesn't interfere with Bazel's worker protocol
 # find . -name thingImLookingFor 1>&2
 
-readonly node=$(rlocation "TEMPLATED_node")
+readonly vendored_node="TEMPLATED_vendored_node"
+
+if [ -n "${vendored_node}" ]; then
+  # Use the vendored node path
+  readonly node=$(rlocation "${vendored_node}")
+
+  if [ ! -f "${node}" ]; then
+      printf "\n>>>> FAIL: The vendored node binary '${vendored_node}' not found in runfiles. <<<<\n\n" >&2
+      exit 1
+  fi
+else
+  # Check environment for which node path to use
+  unameOut="$(uname -s)"
+  case "${unameOut}" in
+      Linux*)     machine=linux ;;
+      Darwin*)    machine=darwin ;;
+      CYGWIN*)    machine=windows ;;
+      MINGW*)     machine=windows ;;
+      MSYS_NT*)   machine=windows ;;
+      *)          machine=linux
+                  printf "\nUnrecongized uname '${unameOut}'; defaulting to use node for linux.\n" >&2
+                  printf "Please file an issue to https://github.com/bazelbuild/rules_nodejs/issues if \n" >&2
+                  printf "you would like to add your platform to the supported rules_nodejs node platforms.\n\n" >&2
+                  ;;
+  esac
+
+  case "${machine}" in
+    # The following paths must match up with _download_node in node_repositories
+    darwin) readonly node_toolchain="nodejs_darwin_amd64/bin/nodejs/bin/node" ;;
+    windows) readonly node_toolchain="nodejs_windows_amd64/bin/nodejs/node.exe" ;;
+    *) readonly node_toolchain="nodejs_linux_amd64/bin/nodejs/bin/node" ;;
+  esac
+
+  readonly node=$(rlocation "${node_toolchain}")
+
+  if [ ! -f "${node}" ]; then
+      printf "\n>>>> FAIL: The node binary '${node_toolchain}' not found in runfiles.\n" >&2
+      printf "This node toolchain was chosen based on your uname '${unameOut}'.\n" >&2
+      printf "Please file an issue to https://github.com/bazelbuild/rules_nodejs/issues if \n" >&2
+      printf "you would like to add your platform to the supported rules_nodejs node platforms. <<<<\n\n" >&2
+      exit 1
+  fi
+fi
+
 readonly repository_args=$(rlocation "TEMPLATED_repository_args")
 MAIN=$(rlocation "TEMPLATED_loader_path")
 readonly link_modules_script=$(rlocation "TEMPLATED_link_modules_script")

@@ -23,7 +23,9 @@ a `module_name` attribute can be `require`d by that name.
 load("@build_bazel_rules_nodejs//:providers.bzl", "JSNamedModuleInfo", "NodeRuntimeDepsInfo", "NpmPackageInfo", "node_modules_aspect")
 load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
 load("//internal/common:module_mappings.bzl", "module_mappings_runtime_aspect")
+load("//internal/common:path_utils.bzl", "strip_external")
 load("//internal/common:windows_utils.bzl", "create_windows_native_launcher_script", "is_windows")
+load("//internal/node:node_repositories.bzl", "BUILT_IN_NODE_PLATFORMS")
 
 def _trim_package_node_modules(package_name):
     # trim a package name down to its path prior to a node_modules
@@ -173,15 +175,17 @@ def _nodejs_binary_impl(ctx):
     if hasattr(ctx.attr, "expected_exit_code"):
         expected_exit_code = ctx.attr.expected_exit_code
 
-    node_tool_info = ctx.toolchains["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"].nodeinfo
-
-    # Make a copy so we don't try to mutate a frozen object
-    node_tool_files = node_tool_info.tool_files[:]
-    if node_tool_info.target_tool_path == "":
-        # If tool_path is empty and tool_target is None then there is no local
-        # node tool, we will just print a nice error message if the user
-        # attempts to do bazel run
-        fail("The node toolchain was not properly configured so %s cannot be executed. Make sure that target_tool_path or target_tool is set." % ctx.attr.name)
+    # Add both the node executable for the user's local machine which is in ctx.files._node and comes
+    # from @nodejs//:node_bin and the node executable from the selected node --platform which comes from
+    # ctx.toolchains["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"].nodeinfo.
+    # In most cases these are the same files but for RBE and when explitely setting --platform for cross-compilation
+    # any given nodejs_binary should be able to run on both the user's local machine and on the RBE or selected
+    # platform.
+    #
+    # Rules such as nodejs_image should use only ctx.toolchains["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"].nodeinfo
+    # when building the image as that will reflect the selected --platform.
+    node_tool_files = ctx.files._node[:]
+    node_tool_files.extend(ctx.toolchains["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"].nodeinfo.tool_files)
 
     node_tool_files.append(ctx.file._link_modules_script)
     node_tool_files.append(ctx.file._bazel_require_script)
@@ -211,6 +215,8 @@ def _nodejs_binary_impl(ctx):
         # also be sure to include the params file in the program inputs
         node_tool_files.append(ctx.outputs.templated_args_file)
 
+    is_builtin = ctx.attr._node.label.workspace_name in ["nodejs_%s" % p for p in BUILT_IN_NODE_PLATFORMS]
+
     substitutions = {
         "TEMPLATED_args": " ".join([
             expand_location_into_runfiles(ctx, a)
@@ -221,9 +227,9 @@ def _nodejs_binary_impl(ctx):
         "TEMPLATED_expected_exit_code": str(expected_exit_code),
         "TEMPLATED_link_modules_script": _to_manifest_path(ctx, ctx.file._link_modules_script),
         "TEMPLATED_loader_path": script_path,
-        "TEMPLATED_node": node_tool_info.target_tool_path,
         "TEMPLATED_repository_args": _to_manifest_path(ctx, ctx.file._repository_args),
         "TEMPLATED_script_path": _to_execroot_path(ctx, ctx.file.entry_point),
+        "TEMPLATED_vendored_node": "" if is_builtin else strip_external(ctx.file._node.path),
     }
     ctx.actions.expand_template(
         template = ctx.file._launcher_template,
@@ -464,6 +470,10 @@ jasmine_node_test(
     ),
     "_loader_template": attr.label(
         default = Label("//internal/node:node_loader.js"),
+        allow_single_file = True,
+    ),
+    "_node": attr.label(
+        default = Label("@nodejs//:node_bin"),
         allow_single_file = True,
     ),
     "_repository_args": attr.label(
