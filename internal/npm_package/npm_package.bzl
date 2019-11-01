@@ -7,6 +7,7 @@ to the `deps` of one of their targets.
 """
 
 load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "JSNamedModuleInfo")
+load("//internal/common:path_utils.bzl", "strip_external")
 
 # Takes a depset of files and returns a corresponding list of file paths without any files
 # that aren't part of the specified package path. Also include files from external repositories
@@ -65,7 +66,7 @@ def create_package(ctx, deps_sources, nested_packages):
     args.add("1" if ctx.attr.rename_build_files else "0")
 
     # require.resolve expects the path to start with the workspace name and not "external"
-    run_npm_template_path = ctx.file._run_npm_template.path[len("external") + 1:] if ctx.file._run_npm_template.path.startswith("external") else ctx.file._run_npm_template.path
+    run_npm_template_path = strip_external(ctx.file._run_npm_template.path)
     args.add(run_npm_template_path)
 
     inputs = ctx.files.srcs + deps_sources + nested_packages + [ctx.file._run_npm_template]
