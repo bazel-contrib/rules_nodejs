@@ -232,6 +232,17 @@ tasks:
     - "--platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64"
     build_targets:
     - "//..."
+  macos_fake_rbe:
+    name: macos_fake_rbe
+    platform: macos
+    shell_commands:
+    # Reproduce https://github.com/bazelbuild/rules_nodejs/issues/1305
+    # TODO: switch to use real mac cross-platform RBE on CI when
+    #       https://github.com/bazelbuild/continuous-integration/pull/749
+    #       lands on bazelci master.
+    - echo 'build --platforms=@rbe_default//config:platform' >> .bazelrc
+    run_targets:
+    - "//internal/node/test:no_deps"
   windows:
     name: windows
     platform: windows
