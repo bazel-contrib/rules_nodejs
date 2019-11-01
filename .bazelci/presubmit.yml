@@ -21,6 +21,9 @@ tasks:
     - "--test_tag_filters=-e2e,-examples,-no-bazelci,-no-bazelci-ubuntu,-manual"
     test_targets:
     - "//..."
+    # //internal/node/test:nodejs_toolchain_linux_amd64_test is a "manual" test that must be run
+    # explicitly; it should pass when running on Linux with no --platform set.
+    - "//internal/node/test:nodejs_toolchain_linux_amd64_test"
   ubuntu1604_e2e:
     name: ubuntu1604_e2e
     platform: ubuntu1604
@@ -96,6 +99,9 @@ tasks:
     - "--test_tag_filters=-e2e,-examples,-no-bazelci,-no-bazelci-ubuntu,-manual"
     test_targets:
     - "//..."
+    # //internal/node/test:nodejs_toolchain_linux_amd64_test is a "manual" test that must be run
+    # explicitly; it should pass when running on Linux with no --platform set.
+    - "//internal/node/test:nodejs_toolchain_linux_amd64_test"
   ubuntu1804_debug:
     name: ubuntu1804_debug
     platform: ubuntu1804
@@ -130,7 +136,7 @@ tasks:
     - "//..."
   ubuntu1804_examples:
     name: ubuntu1804_examples
-    platform: ubuntu1604
+    platform: ubuntu1804
     # We need to reduce the memory & CPU usage of the top-level
     # bazel process for bazel-in-bazel tests to not
     # deplete the system memory completely.
@@ -156,6 +162,34 @@ tasks:
     # TODO(gregmagolan): make node_repositories acccept different archives for different platforms
     - "//examples:examples_vendored_node"
     - "//examples:examples_vendored_node_and_yarn"
+  ubuntu1804_cross_compile_darwin:
+    name: ubuntu1804_cross_compile_darwin
+    platform: ubuntu1804
+    # Build on linux with the node --platform set to darwin
+    build_flags:
+    - "--platforms=@build_bazel_rules_nodejs//toolchains/node:darwin_amd64"
+    build_targets:
+    - "//internal/..."
+    test_flags:
+    - "--platforms=@build_bazel_rules_nodejs//toolchains/node:darwin_amd64"
+    test_targets:
+    # //internal/node/test:nodejs_toolchain_darwin_amd64_test is a "manual" test that must be run
+    # explicitly with --platforms=@build_bazel_rules_nodejs//toolchains/node:darwin_amd64 set
+    - "//internal/node/test:nodejs_toolchain_darwin_amd64_test"
+  ubuntu1804_cross_compile_windows:
+    name: ubuntu1804_cross_compile_windows
+    platform: ubuntu1804
+    # Build on linux with the node --platform set to Windows
+    build_flags:
+    - "--platforms=@build_bazel_rules_nodejs//toolchains/node:windows_amd64"
+    build_targets:
+    - "//internal/..."
+    test_flags:
+    - "--platforms=@build_bazel_rules_nodejs//toolchains/node:windows_amd64"
+    test_targets:
+    # //internal/node/test:nodejs_toolchain_windows_amd64_test is a "manual" test that must be run
+    # explicitly with --platforms=@build_bazel_rules_nodejs//toolchains/node:windows_amd64 set
+    - "//internal/node/test:nodejs_toolchain_windows_amd64_test"
   macos:
     name: macos
     platform: macos
@@ -177,6 +211,9 @@ tasks:
     - "--test_tag_filters=-e2e,-examples,-no-bazelci,-no-bazelci-mac,-manual"
     test_targets:
     - "//..."
+    # //internal/node/test:nodejs_toolchain_darwin_amd64_test is a "manual" test that must be run
+    # explicitly; it should pass when running on OSX with no --platform set.
+    - "//internal/node/test:nodejs_toolchain_darwin_amd64_test"
   macos_e2e:
     name: macos_e2e
     platform: macos
@@ -225,13 +262,20 @@ tasks:
     - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-mac,-manual"
     test_targets:
     - "//..."
-  macos_cross_compile:
-    name: macos_cross_compile
+  macos_cross_compile_linux:
+    name: macos_cross_compile_linux
     platform: macos
+    # Build on mac with the node --platform set to linux
     build_flags:
     - "--platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64"
     build_targets:
-    - "//..."
+    - "//internal/..."
+    test_flags:
+    - "--platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64"
+    test_targets:
+    # //internal/node/test:nodejs_toolchain_linux_amd64_test is a "manual" test that must be run
+    # explicitly with --platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64 set
+    - "//internal/node/test:nodejs_toolchain_linux_amd64_test"
   macos_fake_rbe:
     name: macos_fake_rbe
     platform: macos
@@ -264,6 +308,9 @@ tasks:
     - "--test_tag_filters=-e2e,-examples,-no-bazelci,-no-bazelci-windows,-fix-windows,-manual"
     test_targets:
     - "//..."
+    # //internal/node/test:nodejs_toolchain_windows_amd64_test is a "manual" test that must be run
+    # explicitly; it should pass when running on Windows with no --platform set.
+    - "//internal/node/test:nodejs_toolchain_windows_amd64_test"
   windows_e2e:
     name: windows_e2e
     platform: windows
@@ -294,13 +341,14 @@ tasks:
     - "--test_arg=--local_resources=13288,1.0,1.0"
     test_targets:
     - "//..."
-  windows_cross_compile:
-    name: windows_cross_compile
+  windows_cross_compile_linux:
+    name: windows_cross_compile_linux
     platform: windows
+    # Build on windows with the node --platform set to linux
     build_flags:
     - "--platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64"
     build_targets:
-    - "//..."
+    - "//internal/..."
   rbe_ubuntu1604:
     name: rbe_ubuntu1604
     platform: rbe_ubuntu1604

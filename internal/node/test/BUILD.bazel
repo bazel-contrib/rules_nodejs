@@ -1,10 +1,9 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "nodejs_test", "npm_package_bin")
 load("//internal/js_library:js_library.bzl", "js_library")
+load("//internal/node:node_repositories.bzl", "BUILT_IN_NODE_PLATFORMS")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/write_file.bzl", "write_file")
-load(":nodejs_toolchain_test.bzl", "nodejs_binary_test_suite")
-
-nodejs_binary_test_suite()
+load(":nodejs_toolchain_test.bzl", "nodejs_toolchain_test")
 
 # You can have a nodejs_binary with no node_modules attribute
 # and no fine grained deps
@@ -183,3 +182,11 @@ nodejs_test(
     ],
     entry_point = "npm_package_bin.spec.js",
 )
+
+[nodejs_toolchain_test(
+    name = "nodejs_toolchain_%s_test" % platform,
+    platform = platform,
+    # must be run with --platforms=@build_bazel_rules_nodejs//toolchains/node:PLATFORM
+    # where PLATFORM is one of BUILT_IN_NODE_PLATFORMS
+    tags = ["manual"],
+) for platform in BUILT_IN_NODE_PLATFORMS]
