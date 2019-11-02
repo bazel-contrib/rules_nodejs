@@ -148,7 +148,7 @@ Otherwise, the outputs are assumed to be a single file.
 Passed to the [`--sourcemap` option](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#outputsourcemap") in Rollup
 """,
         default = "inline",
-        values = ["inline", "true", "false"],
+        values = ["inline", "hidden", "true", "false"],
     ),
     "deps": attr.label_list(
         aspects = [module_mappings_aspect, node_modules_aspect],
