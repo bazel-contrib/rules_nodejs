@@ -44,7 +44,9 @@ def npm_package(**kwargs):
         **kwargs
     )
 
-_GLOBAL_OWNERS = "@alexeagle"
+_GLOBAL_OWNERS = [
+    "@alexeagle",
+]
 
 def codeowners(name = "OWNERS", no_parent = False, **kwargs):
     """Convenience macro to set some defaults
@@ -62,7 +64,7 @@ def codeowners(name = "OWNERS", no_parent = False, **kwargs):
 
     # Googlers: see http://go/owners#noparent
     if not no_parent:
-        teams.append(_GLOBAL_OWNERS)
+        teams += [owner for owner in _GLOBAL_OWNERS if owner not in teams]
 
     _codeowners(
         name = name,
