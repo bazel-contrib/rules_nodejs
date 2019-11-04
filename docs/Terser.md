@@ -96,7 +96,7 @@ Bazel will make a copy of your config file, treating it as a template.
 
 If you use the magic strings `"bazel_debug"` or `"bazel_no_debug"`, these will be
 replaced with `true` and `false` respecting the value of the `debug` attribute
-or the `--define=DEBUG=1` bazel flag.
+or the `--compilation_mode=dbg` bazel flag.
 
 For example,
 
@@ -115,8 +115,8 @@ If `config_file` isn't supplied, Bazel will use a default config file.
 #### `debug`
 (*Boolean*): Configure terser to produce more readable output.
 
-Instead of setting this attribute, consider setting the DEBUG variable instead
-bazel build --define=DEBUG=1 //my/terser:target
+Instead of setting this attribute, consider using debugging compilation mode instead
+bazel build --compilation_mode=dbg //my/terser:target
 so that it only affects the current build.
 
 
@@ -126,7 +126,7 @@ so that it only affects the current build.
 
 #### `src`
 (*[label], mandatory*): File(s) to minify.
-        
+
 Can be a .js file, a rule producing .js files as its default output, or a rule producing a directory of .js files.
 
 Note that you can pass multiple files to terser, which it will bundle together.

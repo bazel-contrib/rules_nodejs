@@ -83,7 +83,7 @@
         "test_e2e": "bazel --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1280m test --test_tag_filters=e2e --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,1.0,1.0 ...",
         "test_examples": "bazel --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1280m test --test_tag_filters=examples --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,1.0,1.0 ...",
         "run_integration_test": "bazel --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1280m run --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,1.0,1.0",
-        "run_integration_test_debug": "yarn run_integration_test --define=DEBUG=1",
+        "run_integration_test_debug": "yarn run_integration_test --compilation_mode=dbg",
         "test_all": "./scripts/test_all.sh",
         "clean_all": "./scripts/clean_all.sh",
         "// Unchecked warnings": "The following warnings are not checked as disabling them locally is broken",

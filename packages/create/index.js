@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const DEBUG = !!process.env['DEBUG'];
+const DEBUG = process.env['COMPILATION_MODE'] === 'dbg';
 
 /**
  * Detect if the user ran `yarn create @bazel` so we can default
@@ -26,7 +26,7 @@ function validateWorkspaceName(name, error) {
     return true;
   }
   error(`ERROR: ${name} is not a valid Bazel workspace name.
-  
+
   A workspace name must start with a letter and can contain letters, numbers, and underscores
   (this is to maximize the number of languages for which this string can be a valid package/module name).
   It should describe the project in reverse-DNS form, with elements separated by underscores.
@@ -167,7 +167,7 @@ install_bazel_dependencies()`;
   if (args['typescript']) {
     workspaceContent += `
 
-# Setup TypeScript toolchain 
+# Setup TypeScript toolchain
 load("@npm_bazel_typescript//:index.bzl", "ts_setup_workspace")
 ts_setup_workspace()`;
   }

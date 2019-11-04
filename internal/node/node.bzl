@@ -171,6 +171,13 @@ def _nodejs_binary_impl(ctx):
         if k in ctx.var.keys():
             env_vars += "export %s=\"%s\"\n" % (k, ctx.var[k])
 
+    if "DEBUG" in ctx.var and ctx.var["COMPILATION_MODE"] != "dbg":
+        print("""
+        WARNING: `--define DEBUG` no longer triggers a debugging build, use
+        `--compilation_mode=dbg` instead.
+
+        """)
+
     expected_exit_code = 0
     if hasattr(ctx.attr, "expected_exit_code"):
         expected_exit_code = ctx.attr.expected_exit_code
@@ -303,11 +310,12 @@ without losing the defaults that should be set in most cases.
 
 The set of default  environment variables is:
 
-- `DEBUG`: rules use this environment variable to turn on debug information in their output artifacts
+- `COMPILATION_MODE`: rules use this environment variable to produce optimized (eg. mangled and minimized) or debugging output
 - `VERBOSE_LOGS`: rules use this environment variable to turn on debug output in their logs
+- `DEBUG`: used by some npm packages to print debugging logs
 - `NODE_DEBUG`: used by node.js itself to print more logs
 """,
-        default = ["DEBUG", "VERBOSE_LOGS", "NODE_DEBUG"],
+        default = ["COMPILATION_MODE", "VERBOSE_LOGS", "DEBUG", "NODE_DEBUG"],
     ),
     "entry_point": attr.label(
         doc = """The script which should be executed first, usually containing a main function.

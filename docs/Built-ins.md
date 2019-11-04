@@ -226,9 +226,12 @@ without losing the defaults that should be set in most cases.
 
 The set of default  environment variables is:
 
-- `DEBUG`: rules use this environment variable to turn on debug information in their output artifacts
+- `COMPILATION_MODE`: rules use this environment variable to produce optimized (eg. mangled and minimized) or debugging output
 - `VERBOSE_LOGS`: rules use this environment variable to turn on debug output in their logs
+- `DEBUG`: used by some npm packages to print debugging logs
 - `NODE_DEBUG`: used by node.js itself to print more logs
+
+Note that, `DEBUG` is derived from bazel compilation mode if not present in --define.
 
 
 #### `entry_point`
@@ -438,9 +441,12 @@ without losing the defaults that should be set in most cases.
 
 The set of default  environment variables is:
 
-- `DEBUG`: rules use this environment variable to turn on debug information in their output artifacts
+- `COMPILATION_MODE`: rules use this environment variable to produce optimized (eg. mangled and minimized) or debugging output
 - `VERBOSE_LOGS`: rules use this environment variable to turn on debug output in their logs
+- `DEBUG`: used by some npm packages to print debugging logs
 - `NODE_DEBUG`: used by node.js itself to print more logs
+
+Note that, `DEBUG` is derived from bazel compilation mode if not present in --define.
 
 
 #### `entry_point`

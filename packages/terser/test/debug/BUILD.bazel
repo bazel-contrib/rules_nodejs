@@ -20,7 +20,7 @@ terser_minified(
     src = "input.js",
     sourcemap = False,
     # Don't specify debug = True
-    # Instead we'll run the test with --define=DEBUG=1
+    # Instead we'll run the test with --compilation_mode=dbg
 )
 
 golden_file_test(

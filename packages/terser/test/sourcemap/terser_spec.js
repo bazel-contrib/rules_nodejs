@@ -1,6 +1,7 @@
 const fs = require('fs');
 const sm = require('source-map');
 const DIR = 'build_bazel_rules_nodejs/packages/terser/test/sourcemap';
+const DEBUG = process.env['COMPILATION_MODE'] === 'dbg';
 
 describe('terser sourcemap handling', () => {
   it('should produce a sourcemap output', async () => {
@@ -10,7 +11,7 @@ describe('terser sourcemap handling', () => {
       const pos = consumer.originalPositionFor(
           // position of MyClass in terser_minified output src1.min.js
           // depends on DEBUG flag
-          !process.env['DEBUG'] ? {line: 1, column: 18} : {line: 3, column: 5});
+          !DEBUG ? {line: 1, column: 18} : {line: 3, column: 5});
       expect(pos.source).toBe('src1.ts');
       expect(pos.line).toBe(2);
       expect(pos.column).toBe(14);

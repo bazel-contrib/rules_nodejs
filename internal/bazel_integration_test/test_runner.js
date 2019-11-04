@@ -24,7 +24,7 @@ const fs = require('fs');
 const path = require('path');
 const tmp = require('tmp');
 
-const DEBUG = !!process.env['DEBUG'];
+const DEBUG = process.env['COMPILATION_MODE'] === 'dbg';
 const VERBOSE_LOGS = !!process.env['VERBOSE_LOGS'];
 
 function log(...m) {
