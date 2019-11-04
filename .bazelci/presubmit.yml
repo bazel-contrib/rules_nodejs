@@ -100,8 +100,8 @@ tasks:
     name: ubuntu1804_debug
     platform: ubuntu1804
     test_flags:
+    - "--compilation_mode=dbg"
     - "--define=VERBOSE_LOGS=1"
-    - "--define=DEBUG=1"
     - "--test_tag_filters=-e2e,-examples,-no-bazelci,-no-bazelci-ubuntu,-manual"
     test_targets:
     - "//..."

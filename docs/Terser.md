@@ -67,13 +67,21 @@ If the input is a directory, then the output will also be a directory, named aft
 ### Usage
 
 ```
-terser_minified(name, config_file, debug, sourcemap, src, terser_bin)
+terser_minified(name, args, config_file, debug, sourcemap, src, terser_bin)
 ```
 
 
 
 #### `name`
 (*[name], mandatory*): A unique name for this target.
+
+
+#### `args`
+(*List of strings*): Additional command line arguments to pass to terser.
+
+Terser only parses minify() args from the config file so additional arguments such as `--comments` may
+be passed to the rule using this attribute. See https://github.com/terser/terser#command-line-usage for the
+full list of terser CLI options.
 
 
 #### `config_file`
@@ -88,7 +96,7 @@ Bazel will make a copy of your config file, treating it as a template.
 
 If you use the magic strings `"bazel_debug"` or `"bazel_no_debug"`, these will be
 replaced with `true` and `false` respecting the value of the `debug` attribute
-or the `--define=DEBUG=1` bazel flag.
+or the `--compilation_mode=dbg` bazel flag.
 
 For example,
 
@@ -107,8 +115,8 @@ If `config_file` isn't supplied, Bazel will use a default config file.
 #### `debug`
 (*Boolean*): Configure terser to produce more readable output.
 
-Instead of setting this attribute, consider setting the DEBUG variable instead
-bazel build --define=DEBUG=1 //my/terser:target
+Instead of setting this attribute, consider using debugging compilation mode instead
+bazel build --compilation_mode=dbg //my/terser:target
 so that it only affects the current build.
 
 
@@ -118,7 +126,7 @@ so that it only affects the current build.
 
 #### `src`
 (*[label], mandatory*): File(s) to minify.
-        
+
 Can be a .js file, a rule producing .js files as its default output, or a rule producing a directory of .js files.
 
 Note that you can pass multiple files to terser, which it will bundle together.
