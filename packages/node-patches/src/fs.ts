@@ -1,4 +1,4 @@
-import { Stats, Dirent } from 'fs';
+import { Stats, Dirent, Dir } from 'fs';
 import * as path from 'path';
 import * as util from 'util';
 // using require here on purpose so we can override methods with any
@@ -145,54 +145,7 @@ export const patcher = (fs: any, root: string) => {
       if (err) return cb(err);
       // user requested withFileTypes
       if (result[0] && result[0].isSymbolicLink) {
-        // the point of the map is to await all the promises not to collect the results.
-        Promise.all(
-          result.map((v: Dirent) => {
-            return new Promise((resolve, reject) => {
-              if (v.isSymbolicLink()) {
-                origReadlink(
-                  path.join(p, v.name),
-                  (err: Error, target: string) => {
-                    if (err) {
-                      return reject(err);
-                    }
-
-                    if (isOutPath(target)) {
-                      fs.stat(
-                        target,
-                        (err: Error & { code: string }, stat: Stats) => {
-                          if (err) {
-                            if (err.code === 'ENOENT') {
-                              // this is a broken symlink
-                              // even though this broken symlink points outside of the root
-                              // we'll return it.
-                              // the alternative choice here is to omit it from the directory listing altogether
-                              // this would add complexity because readdir output would be different than readdir withFileTypes
-                              // unless readdir was changed to match. if readdir was changed to match it's performance would be
-                              // greatly impacted because we would always have to use the withFileTypes version which is slower.
-                              return resolve(v);
-                            }
-                            // transient fs related error. busy etc.
-                            return reject(err);
-                          }
-
-                          // add all stat is methods to Dirent instances with their result.
-                          patchDirent(v, stat);
-                          v.isSymbolicLink = () => false;
-                          resolve(v);
-                        }
-                      );
-                      return;
-                    }
-                    resolve(v);
-                  }
-                );
-                return;
-              }
-              resolve(v);
-            });
-          })
-        )
+        Promise.all(result.map((v: Dirent) => handleDirent(p, v)))
           .then(() => {
             cb(null, result);
           })
@@ -214,24 +167,7 @@ export const patcher = (fs: any, root: string) => {
     const p = path.resolve(args[0]);
     //tslint:disable-next-line:no-any
     res.forEach((v: Dirent | any) => {
-      if (v && v.isSymbolicLink) {
-        if (v.isSymbolicLink()) {
-          // any errors thrown here are valid. things like transient fs errors
-          const target = path.resolve(
-            p,
-            origReadlinkSync(path.join(p, v.name))
-          );
-          if (isOutPath(target)) {
-            // Dirent exposes file type so if we want to hide that this is a link
-            // we need to find out if it's a file or directory.
-            v.isSymbolicLink = () => false;
-            //tslint:disable-next-line:no-any
-            const stat: Stats | any = fs.statSync(target);
-            // add all stat is methods to Dirent instances with their result.
-            patchDirent(v, stat);
-          }
-        }
-      }
+      handleDirentSync(p, v);
     });
     return res;
   };
@@ -245,6 +181,126 @@ export const patcher = (fs: any, root: string) => {
         const result = stat[i]();
         if (result) dirent[i] = () => true;
         else dirent[i] = () => false;
+      }
+    }
+  }
+
+  if (fs.opendir) {
+    const origOpendir = fs.opendir.bind(fs);
+    //tslint:disable-next-line:no-any
+    fs.opendir = (...args: any[]) => {
+      const cb = args[args.length - 1];
+      // if this is not a function opendir should throw an error.
+      //we call it so we don't have to throw a mock
+      if (typeof cb === 'function') {
+        args[args.length - 1] = async (err: Error, dir: Dir) => {
+          try {
+            cb(null, await handleDir(dir));
+          } catch (e) {
+            cb(e);
+          }
+        };
+        origOpendir(...args);
+      } else {
+        return origOpendir(...args).then((dir: Dir) => {
+          return handleDir(dir);
+        });
+      }
+    };
+  }
+
+  async function handleDir(dir: Dir) {
+    const p = path.resolve(dir.path);
+    const origIterator = dir[Symbol.asyncIterator].bind(dir);
+    //tslint:disable-next-line:no-any
+    const origRead: any = dir.read.bind(dir);
+
+    dir[Symbol.asyncIterator] = async function*() {
+      for await (const entry of origIterator()) {
+        await handleDirent(p, entry);
+        yield entry;
+      }
+    };
+
+    //tslint:disable-next-line:no-any
+    (dir.read as any) = async (...args: any[]) => {
+      if (typeof args[args.length - 1] === 'function') {
+        const cb = args[args.length - 1];
+        args[args.length - 1] = async (err: Error, entry: Dirent) => {
+          cb(err, entry ? await handleDirent(p, entry) : null);
+        };
+        origRead(...args);
+      } else {
+        const entry = await origRead(...args);
+        if (entry) {
+          handleDirent(p, entry);
+        }
+        return entry;
+      }
+    };
+    //tslint:disable-next-line:no-any
+    const origReadSync: any = dir.readSync.bind(dir);
+    //tslint:disable-next-line:no-any
+    (dir.readSync as any) = () => {
+      return handleDirentSync(p, origReadSync());
+    };
+
+    return dir;
+  }
+
+  function handleDirent(p: string, v: Dirent): Promise<Dirent> {
+    return new Promise((resolve, reject) => {
+      if (!v.isSymbolicLink()) {
+        return resolve(v);
+      }
+      origReadlink(path.join(p, v.name), (err: Error, target: string) => {
+        if (err) {
+          return reject(err);
+        }
+
+        if (!isOutPath(path.resolve(target))) {
+          return resolve(v);
+        }
+
+        fs.stat(target, (err: Error & { code: string }, stat: Stats) => {
+          if (err) {
+            if (err.code === 'ENOENT') {
+              // this is a broken symlink
+              // even though this broken symlink points outside of the root
+              // we'll return it.
+              // the alternative choice here is to omit it from the directory listing altogether
+              // this would add complexity because readdir output would be different than readdir withFileTypes
+              // unless readdir was changed to match. if readdir was changed to match it's performance would be
+              // greatly impacted because we would always have to use the withFileTypes version which is slower.
+              return resolve(v);
+            }
+            // transient fs related error. busy etc.
+            return reject(err);
+          }
+
+          // add all stat is methods to Dirent instances with their result.
+          patchDirent(v, stat);
+          v.isSymbolicLink = () => false;
+          resolve(v);
+        });
+      });
+    });
+  }
+
+  function handleDirentSync(p: string, v: Dirent | null) {
+    if (v && v.isSymbolicLink) {
+      if (v.isSymbolicLink()) {
+        // any errors thrown here are valid. things like transient fs errors
+        const target = path.resolve(p, origReadlinkSync(path.join(p, v.name)));
+        if (isOutPath(target)) {
+          // Dirent exposes file type so if we want to hide that this is a link
+          // we need to find out if it's a file or directory.
+          v.isSymbolicLink = () => false;
+          //tslint:disable-next-line:no-any
+          const stat: Stats | any = fs.statSync(target);
+          // add all stat is methods to Dirent instances with their result.
+          patchDirent(v, stat);
+        }
       }
     }
   }
@@ -270,6 +326,7 @@ export const patcher = (fs: any, root: string) => {
     promises.realpath = util.promisify(fs.realpath);
     promises.readlink = util.promisify(fs.readlink);
     promises.readdir = util.promisify(fs.readdir);
+    if (fs.opendir) promises.opendir = util.promisify(fs.opendir);
     // handle experimental api warnings.
     // only applies to version of node where promises is a getter property.
     if (promisePropertyDescriptor.get) {
@@ -284,21 +341,5 @@ export const patcher = (fs: any, root: string) => {
       // api can be patched directly
       Object.assign(fs.promises, promises);
     }
-  }
-
-  if (fs.Dir) {
-    /*
-    class Dir extends fs.Dir{
-      //tslint:disable-next-line:no-any
-      constructor(handle:any, path:any, options:any){
-        super(handle, path, options)
-      }
-
-      read(){}
-
-    }
-
-    fs.Dir = Dir;
-    */
   }
 };

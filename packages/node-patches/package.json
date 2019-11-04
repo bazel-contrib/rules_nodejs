@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "c8 mocha build/test",
-    "check": "#gts check",
+    "test": "c8 mocha -r source-map-support/register build/test",
+    "check": "gts check",
     "clean": "gts clean",
     "compile": "tsc -p .",
     "fix": "gts fix",
@@ -23,6 +23,7 @@
     "gts": "^1.1.0",
     "inline-fixtures": "^1.1.0",
     "mocha": "^6.2.2",
+    "source-map-support": "^0.5.16",
     "typescript": "~3.5.0"
   }
 }
