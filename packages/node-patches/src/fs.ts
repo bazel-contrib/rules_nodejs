@@ -24,9 +24,10 @@ export const patcher = (fs: any, root: string) => {
 
   //tslint:disable-next-line:no-any
   fs.lstat = (...args: any[]) => {
-    const cb = args.length > 1 ? args[args.length - 1] : undefined;
+    let cb = args.length > 1 ? args[args.length - 1] : undefined;
     // preserve error when calling function without required callback.
     if (cb) {
+      cb = once(cb);
       args[args.length - 1] = (err: Error, stats: Stats) => {
         if (err) return cb(err);
 
@@ -66,8 +67,9 @@ export const patcher = (fs: any, root: string) => {
 
   //tslint:disable-next-line:no-any
   fs.realpath = (...args: any[]) => {
-    const cb = args.length > 1 ? args[args.length - 1] : undefined;
+    let cb = args.length > 1 ? args[args.length - 1] : undefined;
     if (cb) {
+      cb = once(cb);
       args[args.length - 1] = (err: Error, str: string) => {
         if (err) return cb(err);
         if (isEscape(str, args[0])) {
@@ -82,8 +84,9 @@ export const patcher = (fs: any, root: string) => {
 
   //tslint:disable-next-line:no-any
   fs.readlink = (...args: any[]) => {
-    const cb = args.length > 1 ? args[args.length - 1] : undefined;
+    let cb = args.length > 1 ? args[args.length - 1] : undefined;
     if (cb) {
+      cb = once(cb);
       args[args.length - 1] = (err: Error, str: string) => {
         if (err) return cb(err);
         if (isEscape(str, args[0])) {
@@ -151,12 +154,13 @@ export const patcher = (fs: any, root: string) => {
   fs.readdir = (...args: any[]) => {
     const p = path.resolve(args[0]);
 
-    const cb = args[args.length - 1];
+    let cb = args[args.length - 1];
     if (typeof cb !== 'function') {
       // this will likely throw callback required error.
       return origReaddir(...args);
     }
 
+    cb = once(cb);
     args[args.length - 1] = (err: Error, result: Dirent[]) => {
       if (err) return cb(err);
       // user requested withFileTypes
@@ -194,6 +198,7 @@ export const patcher = (fs: any, root: string) => {
     // add all stat is methods to Dirent instances with their result.
     for (const i in stat) {
       if (i.indexOf('is') === 0 && typeof stat[i] === 'function') {
+        //
         const result = stat[i]();
         if (result) dirent[i] = () => true;
         else dirent[i] = () => false;
@@ -205,10 +210,11 @@ export const patcher = (fs: any, root: string) => {
     const origOpendir = fs.opendir.bind(fs);
     //tslint:disable-next-line:no-any
     fs.opendir = (...args: any[]) => {
-      const cb = args[args.length - 1];
+      let cb = args[args.length - 1];
       // if this is not a function opendir should throw an error.
       //we call it so we don't have to throw a mock
       if (typeof cb === 'function') {
+        cb = once(cb);
         args[args.length - 1] = async (err: Error, dir: Dir) => {
           try {
             cb(null, await handleDir(dir));
@@ -384,3 +390,14 @@ export const escapeFunction = (root: string) => {
 
   return { isEscape, isOutPath };
 };
+
+//tslint:disable-next-line:no-any
+function once<T>(fn: (...args: any[]) => T) {
+  let called = false;
+  //tslint:disable-next-line:no-any
+  return (...args: any[]) => {
+    if (called) return;
+    called = true;
+    return fn(...args);
+  };
+}
