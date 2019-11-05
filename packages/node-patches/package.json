@@ -1,7 +1,7 @@
 {
   "name": "@bazel/node-patches",
   "version": "1.0.0",
-  "description": "",
+  "description": "Runtime modifications to nodejs internals to help node/npm distributed programs run in bazel",
   "main": "index.js",
   "scripts": {
     "test": "c8 mocha -r source-map-support/register build/test",
