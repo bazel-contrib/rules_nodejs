@@ -1,3 +1,3 @@
-import { patcher as _patchfs } from './fs';
+import { patcher as patchfs } from './fs';
 
-export const patchfs = _patchfs;
+export const fs = patchfs;

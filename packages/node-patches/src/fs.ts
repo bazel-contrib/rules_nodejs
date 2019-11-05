@@ -20,9 +20,7 @@ export const patcher = (fs: any, root: string) => {
   const origReaddir = fs.readdir.bind(fs);
   const origReaddirSync = fs.readdirSync.bind(fs);
 
-  function isOutPath(str: string) {
-    return !root || (!str.startsWith(root + path.sep) && str !== root);
-  }
+  const { isEscape, isOutPath } = escapeFunction(root);
 
   //tslint:disable-next-line:no-any
   fs.lstat = (...args: any[]) => {
@@ -31,31 +29,36 @@ export const patcher = (fs: any, root: string) => {
     if (cb) {
       args[args.length - 1] = (err: Error, stats: Stats) => {
         if (err) return cb(err);
-        if (stats.isSymbolicLink()) {
-          if (root) {
-            return origRealpath(
-              args[0],
-              (err: Error & { code: string }, str: string) => {
-                // if realpath returns an ENOENT error we know this is an invalid link.
-                // lstat doesn't return an error when stating invalid links so we return the original stat.
-                // the only way to read this link without throwing is to use readlink and we'll patch that below.
-                if (err && err.code === 'ENOENT') {
-                  return cb(false, stats);
-                } else if (err) {
-                  // some other file system related error
-                  return cb(err);
-                }
 
-                if (isOutPath(str)) {
-                  // if it's an out link we have to return the original stat.
-                  return fs.stat(args[0], cb);
-                }
-                // its a symlink and its inside of the root.
-                cb(false, stats);
-              }
-            );
-          }
+        const linkPath = path.resolve(args[0]);
+        // if this is not a symlink or the path is not inside the root it has no way to escape.
+        if (!stats.isSymbolicLink() || !root || isOutPath(linkPath)) {
+          return cb(null, stats);
         }
+
+        // this uses realpath here and this creates a divergence in behavior.
+        // the benefit is that if the
+        return origRealpath(
+          args[0],
+          (err: Error & { code: string }, str: string) => {
+            // if realpath returns an ENOENT error we know this is an invalid link.
+            // lstat doesn't return an error when stating invalid links so we return the original stat.
+            // the only way to read this link without throwing is to use readlink and we'll patch that below.
+            if (err && err.code === 'ENOENT') {
+              return cb(false, stats);
+            } else if (err) {
+              // some other file system related error
+              return cb(err);
+            }
+
+            if (isEscape(str, args[0])) {
+              // if it's an out link we have to return the original stat.
+              return fs.stat(args[0], cb);
+            }
+            // its a symlink and its inside of the root.
+            cb(false, stats);
+          }
+        );
       };
     }
     origLstat(...args);
@@ -67,7 +70,7 @@ export const patcher = (fs: any, root: string) => {
     if (cb) {
       args[args.length - 1] = (err: Error, str: string) => {
         if (err) return cb(err);
-        if (isOutPath(str)) {
+        if (isEscape(str, args[0])) {
           cb(false, path.resolve(args[0]));
         } else {
           cb(false, str);
@@ -83,7 +86,7 @@ export const patcher = (fs: any, root: string) => {
     if (cb) {
       args[args.length - 1] = (err: Error, str: string) => {
         if (err) return cb(err);
-        if (isOutPath(str)) {
+        if (isEscape(str, args[0])) {
           const e = new Error(
             "EINVAL: invalid argument, readlink '" + args[0] + "'"
           );
@@ -102,7 +105,20 @@ export const patcher = (fs: any, root: string) => {
   //tslint:disable-next-line:no-any
   fs.lstatSync = (...args: any[]) => {
     let stats = origLstatSync(...args);
-    if (stats.isSymbolicLink() && isOutPath(origRealpathSync(args[0]))) {
+    const linkPath = path.resolve(args[0]);
+    // if this is not a symlink or the path is not inside the root it has no way to escape.
+    if (!stats.isSymbolicLink() || isOutPath(linkPath)) return stats;
+    let linkTarget: string;
+    try {
+      linkTarget = path.resolve(origRealpathSync(linkPath));
+    } catch (e) {
+      if (e.code === 'ENOENT') {
+        return stats;
+      }
+      throw e;
+    }
+
+    if (isEscape(linkTarget, linkPath)) {
       stats = fs.statSync(...args);
     }
     return stats;
@@ -111,7 +127,7 @@ export const patcher = (fs: any, root: string) => {
   //tslint:disable-next-line:no-any
   fs.realpathSync = (...args: any[]) => {
     const str = origRealpathSync(...args);
-    if (isOutPath(str)) {
+    if (isEscape(str, args[0])) {
       return path.resolve(args[0]);
     }
     return str;
@@ -120,7 +136,7 @@ export const patcher = (fs: any, root: string) => {
   //tslint:disable-next-line:no-any
   fs.readlinkSync = (...args: any[]) => {
     const str = origReadlinkSync(...args);
-    if (isOutPath(str)) {
+    if (isEscape(str, args[0])) {
       const e = new Error(
         "EINVAL: invalid argument, readlink '" + args[0] + "'"
       );
@@ -258,7 +274,7 @@ export const patcher = (fs: any, root: string) => {
           return reject(err);
         }
 
-        if (!isOutPath(path.resolve(target))) {
+        if (!isEscape(path.resolve(target), p)) {
           return resolve(v);
         }
 
@@ -292,7 +308,7 @@ export const patcher = (fs: any, root: string) => {
       if (v.isSymbolicLink()) {
         // any errors thrown here are valid. things like transient fs errors
         const target = path.resolve(p, origReadlinkSync(path.join(p, v.name)));
-        if (isOutPath(target)) {
+        if (isEscape(target, path.join(p, v.name))) {
           // Dirent exposes file type so if we want to hide that this is a link
           // we need to find out if it's a file or directory.
           v.isSymbolicLink = () => false;
@@ -342,4 +358,29 @@ export const patcher = (fs: any, root: string) => {
       Object.assign(fs.promises, promises);
     }
   }
+};
+
+export const escapeFunction = (root: string) => {
+  function isEscape(linkTarget: string, linkPath: string) {
+    if (!path.isAbsolute(linkPath)) {
+      linkPath = path.resolve(linkPath);
+    }
+
+    if (!path.isAbsolute(linkTarget)) {
+      linkTarget = path.resolve(linkTarget);
+    }
+
+    if (root) {
+      if (isOutPath(linkTarget) && !isOutPath(linkPath)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function isOutPath(str: string) {
+    return !root || (!str.startsWith(root + path.sep) && str !== root);
+  }
+
+  return { isEscape, isOutPath };
 };
