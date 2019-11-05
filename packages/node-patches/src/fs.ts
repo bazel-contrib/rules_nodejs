@@ -6,9 +6,16 @@ import * as util from 'util';
 const _fs = require('fs');
 
 //tslint:disable-next-line:no-any
-export const patcher = (fs: any, root: string) => {
+export const patcher = (fs: any = _fs, root: string) => {
   fs = fs || _fs;
   root = root || process.env.BAZEL_SYMLINK_PATCHER_ROOT || '';
+  if (!root) {
+    if (process.env.VERBOSE_LOGS) {
+      console.error('fs patcher called without root path');
+    }
+    return;
+  }
+
   if (root) root = fs.realpathSync(root);
 
   const origRealpath = fs.realpath.bind(fs);
@@ -398,6 +405,19 @@ function once<T>(fn: (...args: any[]) => T) {
   return (...args: any[]) => {
     if (called) return;
     called = true;
-    return fn(...args);
+    // blow the stack.
+    // could be better if i only did this when something threw an exception
+    let err: Error | false = false;
+    try {
+      fn(...args);
+    } catch (_e) {
+      err = _e;
+    }
+
+    if (err) {
+      setImmediate(() => {
+        throw err;
+      });
+    }
   };
 }
