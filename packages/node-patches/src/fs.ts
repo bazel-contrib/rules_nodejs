@@ -1,3 +1,20 @@
+/**
+ * @license
+ * Copyright 2019 The Bazel Authors. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ *
+ * You may obtain a copy of the License at
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import { Stats, Dirent, Dir } from 'fs';
 import * as path from 'path';
 import * as util from 'util';
@@ -11,12 +28,12 @@ export const patcher = (fs: any = _fs, root: string) => {
   root = root || process.env.BAZEL_SYMLINK_PATCHER_ROOT || '';
   if (!root) {
     if (process.env.VERBOSE_LOGS) {
-      console.error('fs patcher called without root path');
+      console.error('fs patcher called without root path ' + __filename);
     }
     return;
   }
 
-  if (root) root = fs.realpathSync(root);
+  root = fs.realpathSync(root);
 
   const origRealpath = fs.realpath.bind(fs);
   const origLstat = fs.lstat.bind(fs);
@@ -398,15 +415,13 @@ export const escapeFunction = (root: string) => {
   return { isEscape, isOutPath };
 };
 
-//tslint:disable-next-line:no-any
-function once<T>(fn: (...args: any[]) => T) {
+function once<T>(fn: (...args: unknown[]) => T) {
   let called = false;
-  //tslint:disable-next-line:no-any
-  return (...args: any[]) => {
+
+  return (...args: unknown[]) => {
     if (called) return;
     called = true;
-    // blow the stack.
-    // could be better if i only did this when something threw an exception
+
     let err: Error | false = false;
     try {
       fn(...args);
@@ -414,6 +429,7 @@ function once<T>(fn: (...args: any[]) => T) {
       err = _e;
     }
 
+    // blow the stack to make sure this doesn't fall into any unresolved promise contexts
     if (err) {
       setImmediate(() => {
         throw err;
