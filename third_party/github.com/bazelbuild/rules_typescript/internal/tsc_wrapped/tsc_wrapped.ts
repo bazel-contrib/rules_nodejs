@@ -118,26 +118,26 @@ export function gatherDiagnostics(
  * TODO: Call sites of getDiagnostics should initialize plugins themselves,
  *   including these, and the arguments to getDiagnostics should be simplified.
  */
-export function*
-    getCommonPlugins(
-        options: ts.CompilerOptions, bazelOpts: BazelOptions,
-        program: ts.Program,
-        disabledTsetseRules: string[]): Iterable<DiagnosticPlugin> {
+export function getCommonPlugins(
+    options: ts.CompilerOptions, bazelOpts: BazelOptions, program: ts.Program,
+    disabledTsetseRules: string[]): DiagnosticPlugin[] {
+  const plugins: DiagnosticPlugin[] = [];
   if (!bazelOpts.disableStrictDeps) {
     if (options.rootDir == null) {
       throw new Error(`StrictDepsPlugin requires that rootDir be specified`);
     }
-    yield new StrictDepsPlugin(program, {
+    plugins.push(new StrictDepsPlugin(program, {
       ...bazelOpts,
       rootDir: options.rootDir,
-    });
+    }));
   }
   if (!bazelOpts.isJsTranspilation) {
     let tsetsePluginConstructor:
         {new (program: ts.Program, disabledRules: string[]): DiagnosticPlugin} =
             BazelConformancePlugin;
-    yield new tsetsePluginConstructor(program, disabledTsetseRules);
+    plugins.push(new tsetsePluginConstructor(program, disabledTsetseRules));
   }
+  return plugins;
 }
 
 /**
@@ -250,17 +250,27 @@ function runOneBuild(
 
   const perfTracePath = bazelOpts.perfTracePath;
   if (!perfTracePath) {
-    return runFromOptions(
+    const {diagnostics} = createProgramAndEmit(
         fileLoader, options, bazelOpts, sourceFiles, disabledTsetseRules,
         angularCompilerOptions);
+    if (diagnostics.length > 0) {
+      console.error(bazelDiagnostics.format(bazelOpts.target, diagnostics));
+      return false;
+    }
+    return true;
   }
 
   log('Writing trace to', perfTracePath);
-  const success = perfTrace.wrap(
-      'runOneBuild',
-      () => runFromOptions(
-          fileLoader, options, bazelOpts, sourceFiles, disabledTsetseRules,
-          angularCompilerOptions));
+  const success = perfTrace.wrap('runOneBuild', () => {
+    const {diagnostics} = createProgramAndEmit(
+        fileLoader, options, bazelOpts, sourceFiles, disabledTsetseRules,
+        angularCompilerOptions);
+    if (diagnostics.length > 0) {
+      console.error(bazelDiagnostics.format(bazelOpts.target, diagnostics));
+      return false;
+    }
+    return true;
+  });
   if (!success) return false;
   // Force a garbage collection pass.  This keeps our memory usage
   // consistent across multiple compilations, and allows the file
@@ -279,10 +289,32 @@ function runOneBuild(
 const expectDiagnosticsWhitelist: string[] = [
 ];
 
-function runFromOptions(
+/** errorDiag produces an error diagnostic not bound to a file or location. */
+function errorDiag(messageText: string) {
+  return {
+    category: ts.DiagnosticCategory.Error,
+    code: 0,
+    file: undefined,
+    start: undefined,
+    length: undefined,
+    messageText,
+  };
+}
+
+/**
+ * createProgramAndEmit creates a ts.Program from the given options and emits it
+ * according to them (e.g. including running various plugins and tsickle). It
+ * returns the program and any diagnostics generated.
+ *
+ * Callers should check and emit diagnostics.
+ */
+export function createProgramAndEmit(
     fileLoader: FileLoader, options: ts.CompilerOptions,
     bazelOpts: BazelOptions, files: string[], disabledTsetseRules: string[],
-    angularCompilerOptions?: {[key: string]: unknown}): boolean {
+    angularCompilerOptions?: {[key: string]: unknown}):
+    {program?: ts.Program, diagnostics: ts.Diagnostic[]} {
+  // Beware! createProgramAndEmit must not print to console, nor exit etc.
+  // Handle errors by reporting and returning diagnostics.
   perfTrace.snapshotMemoryUsage();
   cache.resetStats();
   cache.traceStats();
@@ -313,10 +345,11 @@ function runFromOptions(
       const ngtsc = require('@angular/compiler-cli');
       angularPlugin = new ngtsc.NgTscPlugin(ngOptions);
     } catch (e) {
-      console.error(e);
-      throw new Error(
-          'when using `ts_library(compile_angular_templates=True)`, ' +
-          'you must install @angular/compiler-cli');
+      return {
+        diagnostics: [errorDiag(
+            'when using `ts_library(compile_angular_templates=True)`, ' +
+            `you must install @angular/compiler-cli (was: ${e})`)]
+      };
     }
 
     // Wrap host only needed until after Ivy cleanup
@@ -345,17 +378,15 @@ function runFromOptions(
       diagnostics = bazelDiagnostics.filterExpected(
           bazelOpts, diagnostics, bazelDiagnostics.uglyFormat);
     } else if (bazelOpts.expectedDiagnostics.length > 0) {
-      console.error(
+      diagnostics.push(errorDiag(
           `Only targets under ${
               expectDiagnosticsWhitelist.join(', ')} can use ` +
-              'expected_diagnostics, but got',
-          bazelOpts.target);
+          'expected_diagnostics, but got ' + bazelOpts.target));
     }
 
     if (diagnostics.length > 0) {
-      console.error(bazelDiagnostics.format(bazelOpts.target, diagnostics));
       debug('compilation failed at', new Error().stack!);
-      return false;
+      return {program, diagnostics};
     }
   }
 
@@ -383,13 +414,10 @@ function runFromOptions(
   }
 
   if (diagnostics.length > 0) {
-    console.error(bazelDiagnostics.format(bazelOpts.target, diagnostics));
     debug('compilation failed at', new Error().stack!);
-    return false;
   }
-
   cache.printStats();
-  return true;
+  return {program, diagnostics};
 }
 
 function emitWithTypescript(
@@ -465,7 +493,7 @@ export function emitWithTsickle(
         optTsickle.getGeneratedExterns(emitResult.externs, options.rootDir!);
   }
 
-  if (bazelOpts.tsickleExternsPath) {
+  if (!options.noEmit && bazelOpts.tsickleExternsPath) {
     // Note: when tsickleExternsPath is provided, we always write a file as a
     // marker that compilation succeeded, even if it's empty (just containing an
     // @externs).
@@ -493,7 +521,7 @@ export function emitWithTsickle(
     }
   }
 
-  if (bazelOpts.manifest) {
+  if (!options.noEmit && bazelOpts.manifest) {
     perfTrace.wrap('manifest', () => {
       const manifest =
           constructManifest(emitResult.modulesManifest, compilerHost);
