@@ -66,7 +66,7 @@ function runterser(inputFile, outputFile, sourceMapFile) {
     'compress': {
       'pure_getters': true,
       'passes': 3,
-      'global_defs': {'ngDevMode': false, 'ngI18nClosureMode': false},
+      'global_defs': {'ngDevMode': false, 'ngI18nClosureMode': false, 'ngJitMode': false},
       'keep_fnames': !debug,
       'reduce_funcs': !debug,
       'reduce_vars': !debug,
