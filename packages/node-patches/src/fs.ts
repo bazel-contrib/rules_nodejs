@@ -70,19 +70,21 @@ export const patcher = (fs: any = _fs, root: string) => {
           return cb(null, stats);
         }
 
-        // this uses realpath here and this creates a divergence in behavior.
-        // the benefit is that if the
         return origReadlink(
           args[0],
           (err: Error & { code: string }, str: string) => {
-            // if realpath returns an ENOENT error we know this is an invalid link.
-            // lstat doesn't return an error when stating invalid links so we return the original stat.
-            // the only way to read this link without throwing is to use readlink and we'll patch that below.
-            if (err && err.code === 'ENOENT') {
-              return cb(false, stats);
-            } else if (err) {
-              // some other file system related error
-              return cb(err);
+            if (err) {
+              if (err.code === 'ENOENT') {
+                return cb(false, stats);
+              } else if (err.code === 'EINVAL') {
+                // readlink only returns einval when the target is not a link.
+                // so if we found a link and it's no longer a link someone raced file system modifications.
+                // we return the error but a strong case could be made to return the original stat.
+                return cb(err);
+              } else {
+                // some other file system related error.
+                return cb(err);
+              }
             }
             str = path.resolve(path.dirname(args[0]), str);
             if (isEscape(str, args[0])) {

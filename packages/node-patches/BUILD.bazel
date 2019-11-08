@@ -34,9 +34,3 @@ npm_package(
         ":node_patches",
     ],
 )
-
-#sh_binary(
-#    name = "ls",
-#    srcs = ["a.sh"],
-#    data = [":npm_package"],
-#)
