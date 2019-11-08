@@ -40,24 +40,16 @@ const util = require("util");
 // using require here on purpose so we can override methods with any
 // also even though imports are mutable in typescript the cognitive dissonance is too high because es modules
 const _fs = require('fs');
-const stream = _fs.createWriteStream('/tmp/bazel-log', { flags: 'a+' });
-//tslint:disable-next-line:no-any
-function log(...args) {
-    stream.write(util.format(process.pid + '-', ...args) + '\n');
-}
-global.log = log;
 //tslint:disable-next-line:no-any
 exports.patcher = (fs = _fs, root) => {
     fs = fs || _fs;
-    root = root || process.env.BAZEL_SYMLINK_PATCHER_ROOT || '';
+    root = root || '';
     if (!root) {
-        log('P:---------- not patching fs. no root.');
         if (process.env.VERBOSE_LOGS) {
-            log('fs patcher called without root path ' + __filename);
+            console.error('fs patcher called without root path ' + __filename);
         }
         return;
     }
-    console.log('patching fs!!', root);
     root = fs.realpathSync(root);
     const origRealpath = fs.realpath.bind(fs);
     const origLstat = fs.lstat.bind(fs);
@@ -70,13 +62,12 @@ exports.patcher = (fs = _fs, root) => {
     const origReaddir = fs.readdir.bind(fs);
     const origReaddirSync = fs.readdirSync.bind(fs);
     const { isEscape, isOutPath } = exports.escapeFunction(root);
-    let logged = {};
+    const logged = {};
     //tslint:disable-next-line:no-any
     fs.lstat = (...args) => {
-        let ekey = (new Error('')).stack || '';
+        const ekey = new Error('').stack || '';
         if (!logged[ekey]) {
             logged[ekey] = true;
-            log('ZZZ: lstat ', args[0], ekey);
         }
         let cb = args.length > 1 ? args[args.length - 1] : undefined;
         // preserve error when calling function without required callback.
@@ -90,23 +81,32 @@ exports.patcher = (fs = _fs, root) => {
                 if (!stats.isSymbolicLink() || !root || isOutPath(linkPath)) {
                     return cb(null, stats);
                 }
-                // this uses realpath here and this creates a divergence in behavior.
-                // the benefit is that if the
                 return origReadlink(args[0], (err, str) => {
-                    // if realpath returns an ENOENT error we know this is an invalid link.
-                    // lstat doesn't return an error when stating invalid links so we return the original stat.
-                    // the only way to read this link without throwing is to use readlink and we'll patch that below.
-                    if (err && err.code === 'ENOENT') {
-                        return cb(false, stats);
-                    }
-                    else if (err) {
-                        // some other file system related error
-                        return cb(err);
+                    if (err) {
+                        if (err.code === 'ENOENT') {
+                            return cb(false, stats);
+                        }
+                        else if (err.code === 'EINVAL') {
+                            // readlink only returns einval when the target is not a link.
+                            // so if we found a link and it's no longer a link someone raced file system modifications.
+                            // we return the error but a strong case could be made to return the original stat.
+                            return cb(err);
+                        }
+                        else {
+                            // some other file system related error.
+                            return cb(err);
+                        }
                     }
                     str = path.resolve(path.dirname(args[0]), str);
                     if (isEscape(str, args[0])) {
                         // if it's an out link we have to return the original stat.
-                        return origStat(args[0], cb);
+                        return origStat(args[0], (err, plainStat) => {
+                            if (err && err.code === 'ENOENT') {
+                                //broken symlink. return link stats.
+                                return cb(null, stats);
+                            }
+                            cb(err, plainStat);
+                        });
                     }
                     // its a symlink and its inside of the root.
                     cb(false, stats);
@@ -117,7 +117,6 @@ exports.patcher = (fs = _fs, root) => {
     };
     //tslint:disable-next-line:no-any
     fs.realpath = (...args) => {
-        log('ZZZ: realpath ', args[0]);
         let cb = args.length > 1 ? args[args.length - 1] : undefined;
         if (cb) {
             cb = once(cb);
@@ -143,17 +142,8 @@ exports.patcher = (fs = _fs, root) => {
                 args[0] = path.resolve(args[0]);
                 if (str)
                     str = path.resolve(path.dirname(args[0]), str);
-                log('readlink error ', args[0]);
                 if (err)
                     return cb(err);
-                /*log(
-                  'ZZZ: readlink ',
-                  args[0],
-                  '-->',
-                  str,
-                  'escape?:',
-                  isEscape(str || '', args[0]) || str === args[0]
-                );*/
                 if (isEscape(str, args[0])) {
                     const e = new Error("EINVAL: invalid argument, readlink '" + args[0] + "'");
                     //tslint:disable-next-line:no-any
@@ -161,7 +151,6 @@ exports.patcher = (fs = _fs, root) => {
                     // if its not supposed to be a link we have to trigger an EINVAL error.
                     return cb(e);
                 }
-                log('returning readlink symlink result.', args[0], '->', str);
                 cb(false, str);
             };
         }
@@ -169,8 +158,7 @@ exports.patcher = (fs = _fs, root) => {
     };
     //tslint:disable-next-line:no-any
     fs.lstatSync = (...args) => {
-        log('ZZZ: lstatSync ', args[0]);
-        let stats = origLstatSync(...args);
+        const stats = origLstatSync(...args);
         const linkPath = path.resolve(args[0]);
         // if this is not a symlink or the path is not inside the root it has no way to escape.
         if (!stats.isSymbolicLink() || isOutPath(linkPath))
@@ -186,13 +174,21 @@ exports.patcher = (fs = _fs, root) => {
             throw e;
         }
         if (isEscape(linkTarget, linkPath)) {
-            stats = origStatSync(...args);
+            try {
+                return origStatSync(...args);
+            }
+            catch (e) {
+                // enoent means we have a broken link.
+                // broken links that escape are returned as lstat results
+                if (e.code !== 'ENOENT') {
+                    throw e;
+                }
+            }
         }
         return stats;
     };
     //tslint:disable-next-line:no-any
     fs.realpathSync = (...args) => {
-        log('ZZZ: realpathSync ', args[0]);
         const str = origRealpathSync(...args);
         if (isEscape(str, args[0])) {
             return path.resolve(args[0]);
@@ -203,7 +199,6 @@ exports.patcher = (fs = _fs, root) => {
     fs.readlinkSync = (...args) => {
         args[0] = path.resolve(args[0]);
         const str = path.resolve(path.dirname(args[0]), origReadlinkSync(...args));
-        log('ZZZ: readlinkSync ', args[0], '-->', str, 'scape:', isEscape(str, args[0]) || str === args[0]);
         if (isEscape(str, args[0]) || str === args[0]) {
             const e = new Error("EINVAL: invalid argument, readlink '" + args[0] + "'");
             //tslint:disable-next-line:no-any
@@ -214,7 +209,6 @@ exports.patcher = (fs = _fs, root) => {
     };
     //tslint:disable-next-line:no-any
     fs.readdir = (...args) => {
-        log('ZZZ: readdir ', args[0]);
         const p = path.resolve(args[0]);
         let cb = args[args.length - 1];
         if (typeof cb !== 'function') {
@@ -244,7 +238,6 @@ exports.patcher = (fs = _fs, root) => {
     };
     //tslint:disable-next-line:no-any
     fs.readdirSync = (...args) => {
-        log('ZZZ: readdirSync ', args[0]);
         const res = origReaddirSync(...args);
         const p = path.resolve(args[0]);
         //tslint:disable-next-line:no-any

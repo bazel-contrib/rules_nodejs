@@ -1,6 +1,14 @@
 // Adapt node programs to run under Bazel
 // Meant to be run in a --require hook
 
+if(global.BAZEL_NODE_PATCHES) {
+  return;
+}
+global.BAZEL_NODE_PATCHES = true;
+
+
+
+
 const fs = require('fs');
 const path = require('path');
 const orig = {};

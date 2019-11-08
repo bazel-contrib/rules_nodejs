@@ -86,10 +86,21 @@ export const patcher = (fs: any = _fs, root: string) => {
                 return cb(err);
               }
             }
+
             str = path.resolve(path.dirname(args[0]), str);
+
             if (isEscape(str, args[0])) {
               // if it's an out link we have to return the original stat.
-              return origStat(args[0], cb);
+              return origStat(
+                args[0],
+                (err: Error & { code: string }, plainStat: Stats) => {
+                  if (err && err.code === 'ENOENT') {
+                    //broken symlink. return link stats.
+                    return cb(null, stats);
+                  }
+                  cb(err, plainStat);
+                }
+              );
             }
             // its a symlink and its inside of the root.
             cb(false, stats);
@@ -145,7 +156,7 @@ export const patcher = (fs: any = _fs, root: string) => {
 
   //tslint:disable-next-line:no-any
   fs.lstatSync = (...args: any[]) => {
-    let stats = origLstatSync(...args);
+    const stats = origLstatSync(...args);
     const linkPath = path.resolve(args[0]);
     // if this is not a symlink or the path is not inside the root it has no way to escape.
     if (!stats.isSymbolicLink() || isOutPath(linkPath)) return stats;
@@ -163,7 +174,15 @@ export const patcher = (fs: any = _fs, root: string) => {
     }
 
     if (isEscape(linkTarget, linkPath)) {
-      stats = origStatSync(...args);
+      try {
+        return origStatSync(...args);
+      } catch (e) {
+        // enoent means we have a broken link.
+        // broken links that escape are returned as lstat results
+        if (e.code !== 'ENOENT') {
+          throw e;
+        }
+      }
     }
     return stats;
   };

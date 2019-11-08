@@ -15,5 +15,7 @@
  * limitations under the License.
  */
 import { patcher as patchfs } from './fs';
+import { patcher as patchProcess } from './subprocess';
 
 export const fs = patchfs;
+export const subprocess = patchProcess;

@@ -17,5 +17,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * limitations under the License.
  */
 const fs_1 = require("./fs");
+const subprocess_1 = require("./subprocess");
 exports.fs = fs_1.patcher;
+exports.subprocess = subprocess_1.patcher;
 //# sourceMappingURL=index.js.map

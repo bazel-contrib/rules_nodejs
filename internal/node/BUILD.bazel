@@ -45,4 +45,5 @@ filegroup(
         "BUILD.nodejs_host_os_alias.tpl",
     ],
     visibility = ["//:__pkg__"],
+    deps = ["//internal/node-patches:"]
 )
