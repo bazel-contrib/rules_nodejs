@@ -13,24 +13,30 @@
 # limitations under the License.
 
 load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "npm_package")
+
 package(default_visibility = ["//visibility:public"])
 
-
 filegroup(
-  name = "node_patches",
-  srcs = ["register.js","package.json"] + glob(["build/src/*.js","build/src/**/*.js"])
+    name = "node_patches",
+    srcs = [
+        "register.js",
+        "package.json",
+    ] + glob([
+        "build/src/*.js",
+        "build/src/**/*.js",
+    ]),
 )
 
 npm_package(
     name = "npm_package",
     srcs = [
+        "readme.md",
         ":node_patches",
-        "readme.md"
-    ]
+    ],
 )
 
-sh_binary(
-    name = "ls",
-    srcs = ["a.sh"],
-    data = [":npm_package"],
-)
+#sh_binary(
+#    name = "ls",
+#    srcs = ["a.sh"],
+#    data = [":npm_package"],
+#)
