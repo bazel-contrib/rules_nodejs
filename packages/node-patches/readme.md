@@ -42,3 +42,11 @@ BAZEL_PATCH_ROOT=~/.cache/bazel node -r @bazel/node-patches/register <your app j
 
 `{fs} = require('@bazel/node-patches')`
   - fs(fsLikeObject: require('fs'), root:string)
+
+## bazel
+
+to use this package as a dependency in bazel depend on it's exposed file group rule.
+
+`:node_patches`
+
+this filegroup will always expose one or more files needed to run this package and will not depend on npm install etc.
