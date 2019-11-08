@@ -16,6 +16,7 @@
  */
 import { escapeFunction } from '../src/fs';
 import * as assert from 'assert';
+import * as path from 'path';
 
 describe('escape function', () => {
   it('isOutPath is correct', () => {
@@ -37,5 +38,16 @@ describe('escape function', () => {
     assert.ok(isEscape('/a', '/a/b'));
     assert.ok(!isEscape('/a/c/boop', '/a/c'));
     assert.ok(!isEscape('/a/b/f', '/a/b/l'));
+  });
+
+  it('isEscape handles relative paths', () => {
+    const root = './a/b';
+    const { isEscape } = escapeFunction(root);
+
+    assert.ok(isEscape('./a/c/boop', './a/b/l'));
+    assert.ok(isEscape('./a/c/boop', './a/b'));
+    assert.ok(isEscape('./a', './a/b'));
+    assert.ok(!isEscape('./a/c/boop', './a/c'));
+    assert.ok(!isEscape('./a/b/f', './a/b/l'));
   });
 });

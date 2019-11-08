@@ -25,7 +25,7 @@ const _fs = require('fs');
 //tslint:disable-next-line:no-any
 export const patcher = (fs: any = _fs, root: string) => {
   fs = fs || _fs;
-  root = root || process.env.BAZEL_SYMLINK_PATCHER_ROOT || '';
+  root = root || '';
   if (!root) {
     if (process.env.VERBOSE_LOGS) {
       console.error('fs patcher called without root path ' + __filename);
@@ -37,6 +37,8 @@ export const patcher = (fs: any = _fs, root: string) => {
 
   const origRealpath = fs.realpath.bind(fs);
   const origLstat = fs.lstat.bind(fs);
+  const origStat = fs.stat.bind(fs);
+  const origStatSync = fs.statSync.bind(fs);
   const origReadlink = fs.readlink.bind(fs);
   const origLstatSync = fs.lstatSync.bind(fs);
   const origRealpathSync = fs.realpathSync.bind(fs);
@@ -46,8 +48,15 @@ export const patcher = (fs: any = _fs, root: string) => {
 
   const { isEscape, isOutPath } = escapeFunction(root);
 
+  const logged: { [k: string]: boolean } = {};
+
   //tslint:disable-next-line:no-any
   fs.lstat = (...args: any[]) => {
+    const ekey = new Error('').stack || '';
+    if (!logged[ekey]) {
+      logged[ekey] = true;
+    }
+
     let cb = args.length > 1 ? args[args.length - 1] : undefined;
     // preserve error when calling function without required callback.
     if (cb) {
@@ -63,7 +72,7 @@ export const patcher = (fs: any = _fs, root: string) => {
 
         // this uses realpath here and this creates a divergence in behavior.
         // the benefit is that if the
-        return origRealpath(
+        return origReadlink(
           args[0],
           (err: Error & { code: string }, str: string) => {
             // if realpath returns an ENOENT error we know this is an invalid link.
@@ -75,10 +84,10 @@ export const patcher = (fs: any = _fs, root: string) => {
               // some other file system related error
               return cb(err);
             }
-
+            str = path.resolve(path.dirname(args[0]), str);
             if (isEscape(str, args[0])) {
               // if it's an out link we have to return the original stat.
-              return fs.stat(args[0], cb);
+              return origStat(args[0], cb);
             }
             // its a symlink and its inside of the root.
             cb(false, stats);
@@ -112,7 +121,11 @@ export const patcher = (fs: any = _fs, root: string) => {
     if (cb) {
       cb = once(cb);
       args[args.length - 1] = (err: Error, str: string) => {
+        args[0] = path.resolve(args[0]);
+        if (str) str = path.resolve(path.dirname(args[0]), str);
+
         if (err) return cb(err);
+
         if (isEscape(str, args[0])) {
           const e = new Error(
             "EINVAL: invalid argument, readlink '" + args[0] + "'"
@@ -120,10 +133,9 @@ export const patcher = (fs: any = _fs, root: string) => {
           //tslint:disable-next-line:no-any
           (e as any).code = 'EINVAL';
           // if its not supposed to be a link we have to trigger an EINVAL error.
-          cb(e);
-        } else {
-          cb(false, str);
+          return cb(e);
         }
+        cb(false, str);
       };
     }
     origReadlink(...args);
@@ -137,7 +149,10 @@ export const patcher = (fs: any = _fs, root: string) => {
     if (!stats.isSymbolicLink() || isOutPath(linkPath)) return stats;
     let linkTarget: string;
     try {
-      linkTarget = path.resolve(origRealpathSync(linkPath));
+      linkTarget = path.resolve(
+        path.dirname(args[0]),
+        origReadlinkSync(linkPath)
+      );
     } catch (e) {
       if (e.code === 'ENOENT') {
         return stats;
@@ -146,7 +161,7 @@ export const patcher = (fs: any = _fs, root: string) => {
     }
 
     if (isEscape(linkTarget, linkPath)) {
-      stats = fs.statSync(...args);
+      stats = origStatSync(...args);
     }
     return stats;
   };
@@ -162,8 +177,10 @@ export const patcher = (fs: any = _fs, root: string) => {
 
   //tslint:disable-next-line:no-any
   fs.readlinkSync = (...args: any[]) => {
-    const str = origReadlinkSync(...args);
-    if (isEscape(str, args[0])) {
+    args[0] = path.resolve(args[0]);
+
+    const str = path.resolve(path.dirname(args[0]), origReadlinkSync(...args));
+    if (isEscape(str, args[0]) || str === args[0]) {
       const e = new Error(
         "EINVAL: invalid argument, readlink '" + args[0] + "'"
       );
@@ -343,7 +360,7 @@ export const patcher = (fs: any = _fs, root: string) => {
           // we need to find out if it's a file or directory.
           v.isSymbolicLink = () => false;
           //tslint:disable-next-line:no-any
-          const stat: Stats | any = fs.statSync(target);
+          const stat: Stats | any = origStatSync(target);
           // add all stat is methods to Dirent instances with their result.
           patchDirent(v, stat);
         }
@@ -391,6 +408,8 @@ export const patcher = (fs: any = _fs, root: string) => {
 };
 
 export const escapeFunction = (root: string) => {
+  // ensure root is always absolute.
+  root = path.resolve(root);
   function isEscape(linkTarget: string, linkPath: string) {
     if (!path.isAbsolute(linkPath)) {
       linkPath = path.resolve(linkPath);
