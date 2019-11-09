@@ -4,7 +4,7 @@ load("@npm_bazel_protractor//:index.bzl", "protractor_web_test_suite")
 load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
 load("@npm_bazel_terser//:index.bzl", "terser_minified")
 load("@npm_bazel_typescript//:index.bzl", "ts_config", "ts_devserver", "ts_library")
-load("//:defaults.bzl", "ts_web_test_suite")
+load("//:defaults.bzl", "karma_web_test_suite")
 
 proto_library(
     name = "tire_proto",
@@ -45,7 +45,7 @@ ts_library(
     ],
 )
 
-ts_web_test_suite(
+karma_web_test_suite(
     name = "test",
     bootstrap = ["@npm_bazel_labs//protobufjs:bootstrap_scripts"],
     browsers = [

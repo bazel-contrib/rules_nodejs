@@ -17,19 +17,37 @@ load("@build_bazel_rules_nodejs//:providers.bzl", "JSNamedModuleInfo", "NpmPacka
 load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "write_amd_names_shim")
 load("@io_bazel_rules_webtesting//web:web.bzl", "web_test_suite")
 load("@io_bazel_rules_webtesting//web/internal:constants.bzl", "DEFAULT_WRAPPED_TEST_TAGS")
-load(":web_test.bzl", "COMMON_WEB_TEST_ATTRS")
 
 _CONF_TMPL = "//:karma.conf.js"
 _DEFAULT_KARMA_BIN = "@npm//@bazel/karma/bin:karma"
 
-# Attributes for karma_web_test that are shared with ts_web_test which
-# uses Karma under the hood
-KARMA_GENERIC_WEB_TEST_ATTRS = dict(COMMON_WEB_TEST_ATTRS, **{
+KARMA_WEB_TEST_ATTRS = {
+    "srcs": attr.label_list(
+        doc = "A list of JavaScript test files",
+        allow_files = [".js"],
+    ),
     "bootstrap": attr.label_list(
         doc = """JavaScript files to include *before* the module loader (require.js).
         For example, you can include Reflect,js for TypeScript decorator metadata reflection,
         or UMD bundles for third-party libraries.""",
         allow_files = [".js"],
+    ),
+    "config_file": attr.label(
+        doc = """User supplied Karma configuration file. Bazel will override
+        certain attributes of this configuration file. Attributes that are
+        overridden will be outputted to the test log.""",
+        allow_single_file = True,
+    ),
+    "configuration_env_vars": attr.string_list(
+        doc = """Pass these configuration environment variables to the resulting binary.
+        Chooses a subset of the configuration environment variables (taken from ctx.var), which also
+        includes anything specified via the --define flag.
+        Note, this can lead to different outputs produced by this rule.""",
+        default = [],
+    ),
+    "data": attr.label_list(
+        doc = "Runtime dependencies",
+        allow_files = True,
     ),
     "karma": attr.label(
         doc = "karma binary label",
@@ -52,21 +70,16 @@ KARMA_GENERIC_WEB_TEST_ATTRS = dict(COMMON_WEB_TEST_ATTRS, **{
         allow_files = True,
         aspects = [node_modules_aspect],
     ),
+    "deps": attr.label_list(
+        doc = "Other targets which produce JavaScript such as `ts_library`",
+        allow_files = True,
+        aspects = [node_modules_aspect],
+    ),
     "_conf_tmpl": attr.label(
         default = Label(_CONF_TMPL),
         allow_single_file = True,
     ),
-})
-
-# Attributes for karma_web_test that are specific to karma_web_test
-KARMA_WEB_TEST_ATTRS = dict(KARMA_GENERIC_WEB_TEST_ATTRS, **{
-    "config_file": attr.label(
-        doc = """User supplied Karma configuration file. Bazel will override
-        certain attributes of this configuration file. Attributes that are
-        overridden will be outputted to the test log.""",
-        allow_single_file = True,
-    ),
-})
+}
 
 # Avoid using non-normalized paths (workspace/../other_workspace/path)
 def _to_manifest_path(ctx, file):
@@ -96,8 +109,7 @@ def _write_karma_config(ctx, files, amd_names_shim):
 
     config_file = None
 
-    # Check for config_file since ts_web_test does not have this attribute
-    if hasattr(ctx.attr, "config_file") and ctx.attr.config_file:
+    if ctx.attr.config_file:
         # TODO: switch to JSModuleInfo when it is available
         if JSNamedModuleInfo in ctx.attr.config_file:
             config_file = _filter_js(ctx.attr.config_file[JSNamedModuleInfo].direct_sources.to_list())[0]
@@ -185,18 +197,7 @@ def _write_karma_config(ctx, files, amd_names_shim):
 
     return configuration
 
-def run_karma_web_test(ctx):
-    """Internal utility for use by Bazel rule authors.
-
-    Creates an action that can run karma.
-    This is also used by ts_web_test_rule.
-
-    Args:
-      ctx: Bazel rule execution context
-
-    Returns:
-      The runfiles for the generated action.
-    """
+def _karma_web_test_impl(ctx):
     files_depsets = [depset(ctx.files.srcs)]
     for dep in ctx.attr.deps + ctx.attr.runtime_deps:
         if JSNamedModuleInfo in dep:
@@ -267,8 +268,7 @@ $KARMA ${{ARGV[@]}}
 
     config_sources = []
 
-    # Check for config_file since ts_web_test does not have this attribute
-    if hasattr(ctx.attr, "config_file") and ctx.attr.config_file:
+    if ctx.attr.config_file:
         # TODO: switch to JSModuleInfo when it is available
         if JSNamedModuleInfo in ctx.attr.config_file:
             config_sources = ctx.attr.config_file[JSNamedModuleInfo].sources.to_list()
@@ -287,17 +287,12 @@ $KARMA ${{ARGV[@]}}
     runfiles += ctx.files.static_files
     runfiles += ctx.files.data
 
-    return ctx.runfiles(
-        files = runfiles,
-        transitive_files = depset(transitive = [files, node_modules]),
-    ).merge(ctx.attr.karma[DefaultInfo].data_runfiles)
-
-def _karma_web_test_impl(ctx):
-    runfiles = run_karma_web_test(ctx)
-
     return [DefaultInfo(
         files = depset([ctx.outputs.executable]),
-        runfiles = runfiles,
+        runfiles = ctx.runfiles(
+            files = runfiles,
+            transitive_files = depset(transitive = [files, node_modules]),
+        ).merge(ctx.attr.karma[DefaultInfo].data_runfiles),
         executable = ctx.outputs.executable,
     )]
 

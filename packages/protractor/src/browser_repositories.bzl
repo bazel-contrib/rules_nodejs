@@ -17,6 +17,7 @@
 
 load("@io_bazel_rules_webtesting//web/versioned:browsers-0.3.2.bzl", _browser_repositories = "browser_repositories")
 
+# TODO(gregmagolan): remove this for 1.0 release
 def browser_repositories():
     print("""
     WARNING: @npm_bazel_karma//:browser_repositories.bzl is deprecated.

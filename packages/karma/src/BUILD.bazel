@@ -76,8 +76,6 @@ filegroup(
         "package.bzl",
         "package.json",
         "plugins.js",
-        "ts_web_test.bzl",
-        "web_test.bzl",
     ],
 )
 

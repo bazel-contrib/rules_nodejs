@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Overrides for ts_web_test_suite to support bazelci testing
+"""Overrides for karma_web_test_suite to support bazelci testing
 """
 
-load("@npm_bazel_karma//:index.bzl", _ts_web_test_suite = "ts_web_test_suite")
+load("@npm_bazel_karma//:index.bzl", _karma_web_test_suite = "karma_web_test_suite")
 
-def ts_web_test_suite(name, browsers = [], tags = [], **kwargs):
+def karma_web_test_suite(name, browsers = [], tags = [], **kwargs):
     # BazelCI docker images are missing shares libs to run a subset browser tests:
     # mac: firefox does not work, chrome works
     # ubuntu: firefox and chrome do not work --- there are 0 tests to run
@@ -25,7 +25,7 @@ def ts_web_test_suite(name, browsers = [], tags = [], **kwargs):
     # TODO(gregmagolan): fix underlying issue in bazelci and remove this macro
 
     # For CircleCI and local testing
-    _ts_web_test_suite(
+    _karma_web_test_suite(
         name = name,
         tags = tags + ["no-bazelci"],
         browsers = browsers,
@@ -33,7 +33,7 @@ def ts_web_test_suite(name, browsers = [], tags = [], **kwargs):
     )
 
     # For BazelCI mac only
-    _ts_web_test_suite(
+    _karma_web_test_suite(
         name = "bazelci_chrome_" + name,
         tags = tags + ["no-circleci", "no-bazelci-ubuntu", "no-bazelci-windows", "no-local"],
         browsers = [

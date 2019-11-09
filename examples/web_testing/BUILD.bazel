@@ -1,5 +1,5 @@
 load("@npm_bazel_typescript//:index.bzl", "ts_config", "ts_library")
-load("//:defaults.bzl", "karma_web_test_suite", "ts_web_test_suite")
+load("//:defaults.bzl", "karma_web_test_suite")
 
 ts_library(
     name = "lib",
@@ -36,7 +36,7 @@ ts_library(
 )
 
 karma_web_test_suite(
-    name = "testing_karma",
+    name = "config_test",
     browsers = [
         "@io_bazel_rules_webtesting//browsers:chromium-local",
         "@io_bazel_rules_webtesting//browsers:firefox-local",
@@ -56,24 +56,7 @@ karma_web_test_suite(
 )
 
 karma_web_test_suite(
-    name = "testing_karma_sauce",
-    browsers = [
-        "@io_bazel_rules_webtesting//browsers/sauce:chrome-win10",
-    ],
-    tags = [
-        "exclusive",
-        "sauce",
-        "native",
-        # TODO(alexeagle): enable on CI once we have set the SAUCE env variables
-        "manual",
-    ],
-    deps = [
-        ":tests",
-    ],
-)
-
-ts_web_test_suite(
-    name = "testing",
+    name = "no_config_test",
     browsers = [
         "@io_bazel_rules_webtesting//browsers:chromium-local",
         "@io_bazel_rules_webtesting//browsers:firefox-local",
@@ -90,8 +73,8 @@ ts_web_test_suite(
     ],
 )
 
-ts_web_test_suite(
-    name = "testing_sauce",
+karma_web_test_suite(
+    name = "sauce_test",
     browsers = [
         "@io_bazel_rules_webtesting//browsers/sauce:chrome-win10",
     ],

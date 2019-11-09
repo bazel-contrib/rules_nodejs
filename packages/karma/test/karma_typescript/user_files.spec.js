@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-describe('ts_web_test_suite', () => {
+describe('karma_web_test_suite', () => {
   let config;
 
   beforeAll(() => {

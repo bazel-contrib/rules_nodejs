@@ -79,7 +79,7 @@ $ bazel test //e2e/...
 ```
 
 In this example, there is a unit test for the `hello-world` component which uses
-the `ts_web_test_suite` rule. There are also protractor e2e tests for both the
+the `karma_web_test_suite` rule. There are also protractor e2e tests for both the
 `prodserver` and `devserver` which use the `protractor_web_test_suite` rule.
 
 Note that Bazel will only re-run the tests whose inputs changed since the last run.
