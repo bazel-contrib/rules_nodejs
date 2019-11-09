@@ -17,7 +17,7 @@
 
 load("@npm_bazel_karma//:index.from_src.bzl", _karma_web_test_suite = "karma_web_test_suite")
 
-def karma_web_test_suite(name, browsers = [], tags = [], **kwargs):
+def karma_web_test_suite(name, browsers = None, tags = [], **kwargs):
     # BazelCI docker images are missing shares libs to run a subset browser tests:
     # mac: firefox does not work, chrome works
     # ubuntu: firefox and chrome do not work --- there are 0 tests to run

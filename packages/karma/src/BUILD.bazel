@@ -17,7 +17,6 @@
 # The generated `@bazel/karma` npm package contains a trimmed BUILD file using INTERNAL fences.
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
-load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
 load("@npm_bazel_typescript//:index.from_src.bzl", "ts_library")
 
 package(default_visibility = ["//visibility:public"])
@@ -43,7 +42,6 @@ nodejs_binary(
         "@npm//karma-firefox-launcher",
         "@npm//karma-jasmine",
         "@npm//karma-requirejs",
-        "@npm//karma-sauce-launcher",
         "@npm//karma-sourcemap-loader",
         "@npm//requirejs",
         "@npm//tmp",
@@ -71,21 +69,10 @@ filegroup(
         "browser_repositories.bzl",
         "index.bzl",
         "karma.conf.js",
-        "karma.js",
         "karma_web_test.bzl",
         "package.bzl",
         "package.json",
-        "plugins.js",
     ],
-)
-
-js_library(
-    name = "karma_plugins",
-    srcs = [
-        "plugins.js",
-    ],
-    module_name = "@bazel/karma/plugins",
-    module_root = "plugins.js",
 )
 
 # END-INTERNAL
