@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@bazel/karma@^0.38.0":
-  version "0.38.3"
-  resolved "https://registry.yarnpkg.com/@bazel/karma/-/karma-0.38.3.tgz#4db94a2227d7e8863505dfcfe9de81a2cb1f7d0b"
-  integrity sha512-5ywjZsigJpdG4wr1iy2UNkfEgQcBvRjHoVfUQqLF1Dp0uBdqG7Qq2quu0Zypd/UodbvTye1pHWQ+Lq7cEz6JWg==
+"@bazel/karma@^0.39.1":
+  version "0.39.1"
+  resolved "https://registry.yarnpkg.com/@bazel/karma/-/karma-0.39.1.tgz#23898875444a5ef1fd9ac0dbaebcdd05b90d51f8"
+  integrity sha512-P4LNCeopKGmhwRJrA6qtMLAvMgIalq5I9XYlaPOLjkoYKcjwAReBKyWY9VYhDEYld2P/P1YJmx/+nQDZAowocA==
   dependencies:
     jasmine-core "2.8.0"
     karma "~4.1.0"
@@ -19,10 +19,10 @@
     semver "5.6.0"
     tmp "0.0.33"
 
-"@bazel/typescript@^0.38.0":
-  version "0.38.3"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-0.38.3.tgz#0e452413ca81fc9429404ceabf60ebfb4f13474a"
-  integrity sha512-sFPYNDEE5h/k+Arop3q8XWaqoTwSy0IUS0a/YSeLhR/yz7pNmOltjPyeseLmo004BhgH7X4X+LjUQjcgv7lpXw==
+"@bazel/typescript@^0.39.1":
+  version "0.39.1"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-0.39.1.tgz#fbe3f9e287aa294935987bbbd9f2dce5341a9b02"
+  integrity sha512-n4P6VKir1L3+rM/DgHa5mnlCfT7Wo0ra+TnkbTuZ08SeN/r8HTmClK6YADoDc5ORMQhzq8eXuVuLWeUUsFJyHQ==
   dependencies:
     protobufjs "6.8.8"
     semver "5.6.0"
