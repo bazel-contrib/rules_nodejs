@@ -190,17 +190,17 @@ result will be `car.d.ts`. This means our TypeScript code can just
 name the rule differently from the output file.
 
 The JavaScript produced by protobuf.js has a runtime dependency on a support library.
-Under devmode (e.g. `ts_devserver`, `ts_web_test_suite`) you'll need to include these scripts
+Under devmode (e.g. `ts_devserver`, `karma_web_test_suite`) you'll need to include these scripts
 in the `bootstrap` phase (before Require.js loads). You can use the label
 `@npm_bazel_labs//protobufjs:bootstrap_scripts` to reference these scripts
-in the `bootstrap` attribute of `ts_web_test_suite` or `ts_devserver`.
+in the `bootstrap` attribute of `karma_web_test_suite` or `ts_devserver`.
 
-To complete the example above, you could write a `ts_web_test_suite`:
+To complete the example above, you could write a `karma_web_test_suite`:
 
 ```python
-load("@npm_bazel_karma//:index.bzl", "ts_web_test_suite")
+load("@npm_bazel_karma//:index.bzl", "karma_web_test_suite")
 
-ts_web_test_suite(
+karma_web_test_suite(
     name = "test",
     deps = ["test_lib"],
     bootstrap = ["@npm_bazel_labs//protobufjs:bootstrap_scripts"],

@@ -1,7 +1,7 @@
 load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
 load("@npm_angular_bazel//:index.bzl", "ng_module")
 load("@npm_bazel_typescript//:index.bzl", "ts_library")
-load("//tools:defaults.bzl", "ts_web_test_suite")
+load("//tools:defaults.bzl", "karma_web_test_suite")
 
 package(default_visibility = ["//:__subpackages__"])
 
@@ -52,7 +52,7 @@ ts_library(
     ],
 )
 
-ts_web_test_suite(
+karma_web_test_suite(
     name = "test",
     srcs = [
         # We are manaully adding the bazel generated named-UMD date-fns bundle here as
