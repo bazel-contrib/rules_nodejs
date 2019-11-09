@@ -33,7 +33,6 @@ filegroup(
     srcs = [
         "BUILD.bazel",
         "index.bzl",
-        "index.js",
         "package.json",
         "rollup.config.js",
         "rollup_bundle.bzl",
