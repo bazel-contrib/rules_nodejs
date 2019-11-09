@@ -15,14 +15,6 @@
 """ Defaults for usage without @npm//@bazel/rollup	
 """
 
-load(
-    ":index.bzl",
-    _rollup_bundle = "rollup_bundle",
-)
+load(":index.bzl", _rollup_bundle = "rollup_bundle")
 
-def rollup_bundle(**kwargs):
-    _rollup_bundle(
-        # Override to point to the one installed by build_bazel_rules_nodejs in the root
-        rollup_bin = "@npm//rollup/bin:rollup",
-        **kwargs
-    )
+rollup_bundle = _rollup_bundle
