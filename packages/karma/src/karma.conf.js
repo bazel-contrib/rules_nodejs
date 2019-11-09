@@ -142,12 +142,15 @@ try {
   function configureBazelConfig(config, conf) {
     // list of karma plugins
     mergeConfigArray(conf, 'plugins', [
-      // Loads 'concat_js', 'watcher', 'jasmine', 'requirejs' and 'sourcemap'
-      // from @bazel/karma. These packages are used in this config file.
-      ...require('@bazel/karma/plugins'),
+      // Loads 'concat_js'
+      require('@bazel/karma'),
+      // Load plugins that are peer deps. These packages are used in this config file.
+      require('karma-chrome-launcher'),
+      require('karma-firefox-launcher'),
+      require('karma-jasmine'),
+      require('karma-requirejs'),
+      require('karma-sourcemap-loader'),
       // Loads user-installed karma-* packages in the root node_modules.
-      // If some of the plugins above are also installed in user project, the
-      // user version would override the default.
       'karma-*',
     ]);
 
@@ -307,29 +310,7 @@ try {
 
     const webTestMetadata = require(process.env['WEB_TEST_METADATA']);
     log_verbose(`WEB_TEST_METADATA: ${JSON.stringify(webTestMetadata, null, 2)}`);
-    if (webTestMetadata['environment'] === 'sauce') {
-      // If a sauce labs browser is chosen for the test such as
-      // "@io_bazel_rules_webtesting//browsers/sauce:chrome-win10"
-      // than the 'environment' will equal 'sauce'.
-      // We expect that a SAUCE_USERNAME and SAUCE_ACCESS_KEY is available
-      // from the environment for this test to run
-      if (!process.env.SAUCE_USERNAME || !process.env.SAUCE_ACCESS_KEY) {
-        console.error(
-            'Make sure the SAUCE_USERNAME and SAUCE_ACCESS_KEY environment variables are set.');
-        process.exit(1);
-      }
-      // 'capabilities' will specify the sauce labs configuration to use
-      const capabilities = webTestMetadata['capabilities'];
-      conf.customLaunchers = {
-        'sauce': {
-          base: 'SauceLabs',
-          browserName: capabilities['browserName'],
-          platform: capabilities['platform'],
-          version: capabilities['version'],
-        }
-      };
-      conf.browsers.push('sauce');
-    } else if (webTestMetadata['environment'] === 'local') {
+    if (webTestMetadata['environment'] === 'local') {
       // When a local chrome or firefox browser is chosen such as
       // "@io_bazel_rules_webtesting//browsers:chromium-local" or
       // "@io_bazel_rules_webtesting//browsers:firefox-local"
@@ -375,26 +356,6 @@ try {
 
     if (!conf.browsers.length) {
       throw new Error('No browsers configured in web test suite');
-    }
-
-    // Extra configuration is needed for saucelabs
-    // See: https://github.com/karma-runner/karma-sauce-launcher
-    if (conf.customLaunchers) {
-      // set the test name for sauce labs to use
-      // TEST_BINARY is set by Bazel and contains the name of the test
-      // target postfixed with the browser name such as
-      // 'examples/testing/testing_sauce_chrome-win10' for the
-      // test target examples/testing:testing
-      if (!conf.sauceLabs) {
-        conf.sauceLabs = {}
-      }
-      conf.sauceLabs.testName = process.env['TEST_BINARY'] || 'karma';
-
-      // Try "websocket" for a faster transmission first. Fallback to "polling" if necessary.
-      overrideConfigValue(conf, 'transports', ['websocket', 'polling']);
-
-      // add the saucelabs reporter
-      mergeConfigArray(conf, 'reporters', ['saucelabs']);
     }
   }
 

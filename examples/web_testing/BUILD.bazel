@@ -73,23 +73,6 @@ karma_web_test_suite(
     ],
 )
 
-karma_web_test_suite(
-    name = "sauce_test",
-    browsers = [
-        "@io_bazel_rules_webtesting//browsers/sauce:chrome-win10",
-    ],
-    tags = [
-        "exclusive",
-        "native",
-        "sauce",
-        # TODO(alexeagle): enable on CI once we have set the SAUCE env variables
-        "manual",
-    ],
-    deps = [
-        ":tests",
-    ],
-)
-
 # Just a dummy test so that we have a test target for //... on certain bazelci platforms with bazel_integration_test
 sh_test(
     name = "dummy_test",

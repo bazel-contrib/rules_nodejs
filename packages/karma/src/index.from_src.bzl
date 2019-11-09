@@ -21,12 +21,21 @@ load(
     _karma_web_test_suite = "karma_web_test_suite",
 )
 
-INTERNAL_KARMA_BIN = "@npm_bazel_karma//:karma_bin"
+_KARMA_BIN = "@npm_bazel_karma//:karma_bin"
+_KARMA_PEER_DEPS = [
+    "@npm//jasmine-core",
+    "@npm//karma",
+    "@npm//karma-chrome-launcher",
+    "@npm//karma-firefox-launcher",
+    "@npm//karma-jasmine",
+    "@npm//karma-requirejs",
+    "@npm//karma-sourcemap-loader",
+    "@npm//requirejs",
+    "@npm//tmp",
+]
 
-def karma_web_test(karma = INTERNAL_KARMA_BIN, **kwargs):
-    data = kwargs.pop("data", []) + ["@npm_bazel_karma//:karma_plugins"]
-    _karma_web_test(karma = karma, data = data, **kwargs)
+def karma_web_test(karma = _KARMA_BIN, **kwargs):
+    _karma_web_test(karma = karma, peer_deps = _KARMA_PEER_DEPS, **kwargs)
 
-def karma_web_test_suite(karma = INTERNAL_KARMA_BIN, **kwargs):
-    data = kwargs.pop("data", []) + ["@npm_bazel_karma//:karma_plugins"]
-    _karma_web_test_suite(karma = karma, data = data, **kwargs)
+def karma_web_test_suite(karma = _KARMA_BIN, **kwargs):
+    _karma_web_test_suite(karma = karma, peer_deps = _KARMA_PEER_DEPS, **kwargs)
