@@ -18,9 +18,6 @@
         "rollup",
         "bazel"
     ],
-    "bin": {
-        "rollup": "index.js"
-    },
     "bazelWorkspaces": {
         "npm_bazel_rollup": {
             "rootPath": "."
