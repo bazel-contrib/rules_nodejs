@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 const path = require('path');
+const child_process = require('child_process');
 
 function log_verbose(...m) {
   // This is a template file so we use __filename to output the actual filename
@@ -41,6 +42,49 @@ function setConf(conf, name, value, msg) {
             name}' ${msg}`);
   }
   conf[name] = value;
+}
+
+/**
+ * Helper function to find a particular namedFile
+ * within the webTestMetadata webTestFiles
+ */
+function findNamedFile(webTestMetadata, key) {
+  let result;
+  webTestMetadata['webTestFiles'].forEach(entry => {
+    const webTestNamedFiles = entry['namedFiles'];
+    if (webTestNamedFiles && webTestNamedFiles[key]) {
+      if (entry['archiveFile']) {
+        const extractExe = findNamedFile(webTestMetadata, 'EXTRACT_EXE');
+        result = extractWebArchive(extractExe, entry['archiveFile'], webTestNamedFiles[key]);
+      } else {
+        result = require.resolve(webTestNamedFiles[key]);
+      }
+    }
+  });
+  return result;
+}
+
+/**
+ * Helper function to extract a browser archive
+ * and return the path to extracted executable
+ */
+function extractWebArchive(extractExe, archiveFile, executablePath) {
+  try {
+    if (!extractExe) {
+      throw new Error('No EXTRACT_EXE found');
+    }
+    extractExe = require.resolve(extractExe);
+    archiveFile = require.resolve(archiveFile);
+    const extractedExecutablePath = path.join(process.cwd(), executablePath);
+    child_process.execFileSync(
+        extractExe, [archiveFile, '.'], {stdio: [process.stdin, process.stdout, process.stderr]});
+    log_verbose(
+        `Extracting web archive ${archiveFile} with ${extractExe} to ${extractedExecutablePath}`);
+    return extractedExecutablePath;
+  } catch (e) {
+    console.error(`Failed to extract ${archiveFile}`);
+    throw e;
+  }
 }
 
 function mergeCapabilities(conf, capabilities) {
@@ -120,12 +164,10 @@ if (process.env['WEB_TEST_METADATA']) {
     // "@io_bazel_rules_webtesting//browsers:firefox-local"
     // then the 'environment' will equal 'local' and
     // 'webTestFiles' will contain the path to the binary to use
-    const webTestNamedFiles = webTestMetadata['webTestFiles'][0]['namedFiles'];
     const headless = !process.env['DISPLAY'];
-    if (webTestNamedFiles['CHROMIUM']) {
-      const chromeBin = require.resolve(webTestNamedFiles['CHROMIUM']);
-      const chromeDriver = require.resolve(webTestNamedFiles['CHROMEDRIVER']);
-
+    const chromeBin = findNamedFile(webTestMetadata, 'CHROMIUM');
+    const chromeDriver = findNamedFile(webTestMetadata, 'CHROMEDRIVER');
+    if (chromeBin && chromeDriver) {
       // The sandbox needs to be disabled, because it causes Chrome to crash on some environments.
       // See: http://chromedriver.chromium.org/help/chrome-doesn-t-start
       const args = ['--no-sandbox'];
@@ -142,25 +184,9 @@ if (process.env['WEB_TEST_METADATA']) {
         }
       });
     }
-    if (webTestNamedFiles['FIREFOX']) {
-      // TODO(gmagolan): implement firefox support for protractor
-      throw new Error('Firefox not yet support by protractor_web_test_suite');
-
-      // const firefoxBin = require.resolve(webTestNamedFiles['FIREFOX'])
-      // const args = [];
-      // if (headless) {
-      //   args.push("--headless")
-      //   args.push("--marionette")
-      // }
-      // setConf(conf, 'seleniumAddress', process.env.WEB_TEST_HTTP_SERVER.trim() + "/wd/hub", 'is
-      // configured by Bazel for firefox browser')
-      // mergeCapabilities(conf, {
-      //   browserName: "firefox",
-      //   'moz:firefoxOptions': {
-      //     binary: firefoxBin,
-      //     args: args,
-      //   }
-      // }, 'is determined by the browsers attribute');
+    else {
+      // TODO(gmagolan): implement support for other browsers
+      throw new Error('Only chrome supported by protractor_web_test_suite');
     }
   } else {
     console.warn(`Unknown WEB_TEST_METADATA environment '${webTestMetadata['environment']}'`);
