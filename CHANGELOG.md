@@ -1,3 +1,19 @@
+# [0.40.0](https://github.com/bazelbuild/rules_nodejs/compare/0.39.1...0.40.0) (2019-11-13)
+
+
+### Bug Fixes
+
+* fix nodejs_binary cross-platform RBE issue [#1305](https://github.com/bazelbuild/rules_nodejs/issues/1305) ([38d0b3d](https://github.com/bazelbuild/rules_nodejs/commit/38d0b3d))
+* prevent dpulicate entries in owners files for global owners ([afea290](https://github.com/bazelbuild/rules_nodejs/commit/afea290))
+
+
+### Features
+
+* **karma:** remove ts_web_test and ts_web_test_suite rules ([8384562](https://github.com/bazelbuild/rules_nodejs/commit/8384562))
+* **terser:** add `args` attribute to support additional command line arguments ([563bad7](https://github.com/bazelbuild/rules_nodejs/commit/563bad7))
+
+
+
 ## [0.39.1](https://github.com/bazelbuild/rules_nodejs/compare/0.39.0...0.39.1) (2019-10-29)
 
 
