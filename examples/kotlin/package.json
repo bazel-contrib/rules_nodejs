@@ -2,9 +2,9 @@
     "name": "kotlin_example",
     "private": true,
     "devDependencies": {
-        "@bazel/jasmine": "^0.39.1",
-        "@bazel/rollup": "^0.39.1",
-        "@bazel/terser": "^0.39.1",
+        "@bazel/jasmine": "^0.40.0",
+        "@bazel/rollup": "^0.40.0",
+        "@bazel/terser": "^0.40.0",
         "domino": "^2.1.3",
         "http-server": "^0.11.1",
         "kotlin": "^1.3.41",
