@@ -20,7 +20,7 @@ import * as path from 'path';
 import * as util from 'util';
 
 import { withFixtures } from 'inline-fixtures';
-import { patcher } from '../src/fs';
+import { patcher } from '../../src/fs';
 
 describe('testing readdir', () => {
   it('can readdir dirent in root', async () => {

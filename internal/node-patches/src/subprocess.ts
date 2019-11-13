@@ -3,23 +3,24 @@
 const fs = require('fs');
 const path = require('path');
 
-export const patcher = (requireScriptName: string) => {
+export const patcher = (requireScriptName: string, binDir?: string) => {
   requireScriptName = path.resolve(requireScriptName);
   const dir = path.dirname(requireScriptName);
   const file = path.basename(requireScriptName);
-  const nodeDir = path.join(dir, '_node_bin');
+  const nodeDir = path.join(binDir || dir, '_node_bin');
 
-  if (!fs.existsSync(nodeDir)) {
+  if (!process.env.NP_PATCHED_NODEJS) {
     //TODO: WINDOWS.
-    fs.mkdirSync(nodeDir);
+
+    fs.mkdirSync(nodeDir, { recursive: true });
     fs.writeFileSync(
       path.join(nodeDir, 'node'),
       `#!/bin/bash
-export PATCHED_NODEJS=1
+export NP_PATCHED_NODEJS=${nodeDir}
 export PATH=${nodeDir}:$PATH
-hasScript=\`echo "$@" | grep ${path.basename(__filename)}\`
+hasScript=\`echo "$@" | grep ${path.basename(requireScriptName)}\`
 if [ "$hasScript"=="" ]; then
-  exec ${process.execPath} --require "${__filename}" "$@"
+  exec ${process.execPath} --require "${requireScriptName}" "$@"
 else
   exec ${process.execPath} "$@"
 fi

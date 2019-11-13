@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { escapeFunction } from '../src/fs';
+import { escapeFunction } from '../../src/fs';
 import * as assert from 'assert';
 import * as path from 'path';
 
