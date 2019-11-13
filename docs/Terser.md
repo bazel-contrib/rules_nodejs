@@ -67,13 +67,21 @@ If the input is a directory, then the output will also be a directory, named aft
 ### Usage
 
 ```
-terser_minified(name, config_file, debug, sourcemap, src, terser_bin)
+terser_minified(name, args, config_file, debug, sourcemap, src, terser_bin)
 ```
 
 
 
 #### `name`
 (*[name], mandatory*): A unique name for this target.
+
+
+#### `args`
+(*List of strings*): Additional command line arguments to pass to terser.
+
+Terser only parses minify() args from the config file so additional arguments such as `--comments` may
+be passed to the rule using this attribute. See https://github.com/terser/terser#command-line-usage for the
+full list of terser CLI options.
 
 
 #### `config_file`
