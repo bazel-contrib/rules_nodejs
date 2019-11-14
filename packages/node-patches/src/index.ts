@@ -1,5 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * @license
  * Copyright 2019 The Bazel Authors. All rights reserved.
@@ -16,8 +14,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const fs_1 = require("./fs");
-const subprocess_1 = require("./subprocess");
-exports.fs = fs_1.patcher;
-exports.subprocess = subprocess_1.patcher;
-//# sourceMappingURL=index.js.map
+import {patcher as patchfs} from './fs';
+import {patcher as patchProcess} from './subprocess';
+
+export const fs = patchfs;
+export const subprocess = patchProcess;

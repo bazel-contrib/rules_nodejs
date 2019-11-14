@@ -10,12 +10,11 @@ export const patcher = (requireScriptName: string, binDir?: string) => {
   const nodeDir = path.join(binDir || dir, '_node_bin');
 
   if (!process.env.NP_PATCHED_NODEJS) {
-    //TODO: WINDOWS.
+    // TODO: WINDOWS.
 
-    fs.mkdirSync(nodeDir, { recursive: true });
+    fs.mkdirSync(nodeDir, {recursive: true});
     fs.writeFileSync(
-      path.join(nodeDir, 'node'),
-      `#!/bin/bash
+        path.join(nodeDir, 'node'), `#!/bin/bash
 export NP_PATCHED_NODEJS=${nodeDir}
 export PATH=${nodeDir}:$PATH
 hasScript=\`echo "$@" | grep ${path.basename(requireScriptName)}\`
@@ -25,8 +24,7 @@ else
   exec ${process.execPath} "$@"
 fi
   `,
-      { mode: 0o777 }
-    );
+        {mode: 0o777});
   }
 
   if (!process.env.PATH) {

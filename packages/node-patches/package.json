@@ -1,17 +1,13 @@
 {
   "name": "@bazel/node-patches",
   "version": "1.0.0",
-  "description": "Runtime modifications to nodejs internals to help node/npm distributed programs run in bazel",
+  "description": "Runtime modifications to nodejs internals to help node/npm programs run in bazel",
   "main": "build/src/index.js",
   "scripts": {
     "test": "c8 mocha -r source-map-support/register build/test/fs/*.js build/test/subprocess/test.js",
-    "check": "prettier -c register.js && gts check",
-    "clean": "gts clean",
     "compile": "tsc -p .",
-    "fix": "prettier --write register.js && gts fix",
     "prepare": "npm run compile",
-    "pretest": "npm run compile",
-    "posttest": "npm run check"
+    "pretest": "npm run compile"
   },
   "keywords": [],
   "author": "Ryan Day <ryaneday@google.com>",

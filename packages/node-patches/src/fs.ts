@@ -15,14 +15,16 @@
  * limitations under the License.
  */
 
-import { Stats, Dirent, Dir } from 'fs';
+import {Dir, Dirent, Stats} from 'fs';
 import * as path from 'path';
 import * as util from 'util';
+
 // using require here on purpose so we can override methods with any
-// also even though imports are mutable in typescript the cognitive dissonance is too high because es modules
+// also even though imports are mutable in typescript the cognitive dissonance is too high because
+// es modules
 const _fs = require('fs');
 
-//tslint:disable-next-line:no-any
+// tslint:disable-next-line:no-any
 export const patcher = (fs: any = _fs, root: string) => {
   fs = fs || _fs;
   root = root || '';
@@ -46,11 +48,11 @@ export const patcher = (fs: any = _fs, root: string) => {
   const origReaddir = fs.readdir.bind(fs);
   const origReaddirSync = fs.readdirSync.bind(fs);
 
-  const { isEscape, isOutPath } = escapeFunction(root);
+  const {isEscape, isOutPath} = escapeFunction(root);
 
-  const logged: { [k: string]: boolean } = {};
+  const logged: {[k: string]: boolean} = {};
 
-  //tslint:disable-next-line:no-any
+  // tslint:disable-next-line:no-any
   fs.lstat = (...args: any[]) => {
     const ekey = new Error('').stack || '';
     if (!logged[ekey]) {
@@ -70,48 +72,43 @@ export const patcher = (fs: any = _fs, root: string) => {
           return cb(null, stats);
         }
 
-        return origReadlink(
-          args[0],
-          (err: Error & { code: string }, str: string) => {
-            if (err) {
-              if (err.code === 'ENOENT') {
-                return cb(false, stats);
-              } else if (err.code === 'EINVAL') {
-                // readlink only returns einval when the target is not a link.
-                // so if we found a link and it's no longer a link someone raced file system modifications.
-                // we return the error but a strong case could be made to return the original stat.
-                return cb(err);
-              } else {
-                // some other file system related error.
-                return cb(err);
-              }
+        return origReadlink(args[0], (err: Error&{code: string}, str: string) => {
+          if (err) {
+            if (err.code === 'ENOENT') {
+              return cb(false, stats);
+            } else if (err.code === 'EINVAL') {
+              // readlink only returns einval when the target is not a link.
+              // so if we found a link and it's no longer a link someone raced file system
+              // modifications. we return the error but a strong case could be made to return the
+              // original stat.
+              return cb(err);
+            } else {
+              // some other file system related error.
+              return cb(err);
             }
-
-            str = path.resolve(path.dirname(args[0]), str);
-
-            if (isEscape(str, args[0])) {
-              // if it's an out link we have to return the original stat.
-              return origStat(
-                args[0],
-                (err: Error & { code: string }, plainStat: Stats) => {
-                  if (err && err.code === 'ENOENT') {
-                    //broken symlink. return link stats.
-                    return cb(null, stats);
-                  }
-                  cb(err, plainStat);
-                }
-              );
-            }
-            // its a symlink and its inside of the root.
-            cb(false, stats);
           }
-        );
+
+          str = path.resolve(path.dirname(args[0]), str);
+
+          if (isEscape(str, args[0])) {
+            // if it's an out link we have to return the original stat.
+            return origStat(args[0], (err: Error&{code: string}, plainStat: Stats) => {
+              if (err && err.code === 'ENOENT') {
+                // broken symlink. return link stats.
+                return cb(null, stats);
+              }
+              cb(err, plainStat);
+            });
+          }
+          // its a symlink and its inside of the root.
+          cb(false, stats);
+        });
       };
     }
     origLstat(...args);
   };
 
-  //tslint:disable-next-line:no-any
+  // tslint:disable-next-line:no-any
   fs.realpath = (...args: any[]) => {
     let cb = args.length > 1 ? args[args.length - 1] : undefined;
     if (cb) {
@@ -128,7 +125,7 @@ export const patcher = (fs: any = _fs, root: string) => {
     origRealpath(...args);
   };
 
-  //tslint:disable-next-line:no-any
+  // tslint:disable-next-line:no-any
   fs.readlink = (...args: any[]) => {
     let cb = args.length > 1 ? args[args.length - 1] : undefined;
     if (cb) {
@@ -140,10 +137,8 @@ export const patcher = (fs: any = _fs, root: string) => {
         if (err) return cb(err);
 
         if (isEscape(str, args[0])) {
-          const e = new Error(
-            "EINVAL: invalid argument, readlink '" + args[0] + "'"
-          );
-          //tslint:disable-next-line:no-any
+          const e = new Error('EINVAL: invalid argument, readlink \'' + args[0] + '\'');
+          // tslint:disable-next-line:no-any
           (e as any).code = 'EINVAL';
           // if its not supposed to be a link we have to trigger an EINVAL error.
           return cb(e);
@@ -154,7 +149,7 @@ export const patcher = (fs: any = _fs, root: string) => {
     origReadlink(...args);
   };
 
-  //tslint:disable-next-line:no-any
+  // tslint:disable-next-line:no-any
   fs.lstatSync = (...args: any[]) => {
     const stats = origLstatSync(...args);
     const linkPath = path.resolve(args[0]);
@@ -162,10 +157,7 @@ export const patcher = (fs: any = _fs, root: string) => {
     if (!stats.isSymbolicLink() || isOutPath(linkPath)) return stats;
     let linkTarget: string;
     try {
-      linkTarget = path.resolve(
-        path.dirname(args[0]),
-        origReadlinkSync(linkPath)
-      );
+      linkTarget = path.resolve(path.dirname(args[0]), origReadlinkSync(linkPath));
     } catch (e) {
       if (e.code === 'ENOENT') {
         return stats;
@@ -187,7 +179,7 @@ export const patcher = (fs: any = _fs, root: string) => {
     return stats;
   };
 
-  //tslint:disable-next-line:no-any
+  // tslint:disable-next-line:no-any
   fs.realpathSync = (...args: any[]) => {
     const str = origRealpathSync(...args);
     if (isEscape(str, args[0])) {
@@ -196,23 +188,21 @@ export const patcher = (fs: any = _fs, root: string) => {
     return str;
   };
 
-  //tslint:disable-next-line:no-any
+  // tslint:disable-next-line:no-any
   fs.readlinkSync = (...args: any[]) => {
     args[0] = path.resolve(args[0]);
 
     const str = path.resolve(path.dirname(args[0]), origReadlinkSync(...args));
     if (isEscape(str, args[0]) || str === args[0]) {
-      const e = new Error(
-        "EINVAL: invalid argument, readlink '" + args[0] + "'"
-      );
-      //tslint:disable-next-line:no-any
+      const e = new Error('EINVAL: invalid argument, readlink \'' + args[0] + '\'');
+      // tslint:disable-next-line:no-any
       (e as any).code = 'EINVAL';
       throw e;
     }
     return str;
   };
 
-  //tslint:disable-next-line:no-any
+  // tslint:disable-next-line:no-any
   fs.readdir = (...args: any[]) => {
     const p = path.resolve(args[0]);
 
@@ -228,12 +218,12 @@ export const patcher = (fs: any = _fs, root: string) => {
       // user requested withFileTypes
       if (result[0] && result[0].isSymbolicLink) {
         Promise.all(result.map((v: Dirent) => handleDirent(p, v)))
-          .then(() => {
-            cb(null, result);
-          })
-          .catch(err => {
-            cb(err);
-          });
+            .then(() => {
+              cb(null, result);
+            })
+            .catch(err => {
+              cb(err);
+            });
       } else {
         // string array return for readdir.
         cb(null, result);
@@ -243,38 +233,40 @@ export const patcher = (fs: any = _fs, root: string) => {
     origReaddir(...args);
   };
 
-  //tslint:disable-next-line:no-any
+  // tslint:disable-next-line:no-any
   fs.readdirSync = (...args: any[]) => {
     const res = origReaddirSync(...args);
     const p = path.resolve(args[0]);
-    //tslint:disable-next-line:no-any
-    res.forEach((v: Dirent | any) => {
+    // tslint:disable-next-line:no-any
+    res.forEach((v: Dirent|any) => {
       handleDirentSync(p, v);
     });
     return res;
   };
 
   // i need to use this twice in bodt readdor and readdirSync. maybe in fs.Dir
-  //tslint:disable-next-line:no-any
-  function patchDirent(dirent: Dirent | any, stat: Stats | any) {
+  // tslint:disable-next-line:no-any
+  function patchDirent(dirent: Dirent|any, stat: Stats|any) {
     // add all stat is methods to Dirent instances with their result.
     for (const i in stat) {
       if (i.indexOf('is') === 0 && typeof stat[i] === 'function') {
         //
         const result = stat[i]();
-        if (result) dirent[i] = () => true;
-        else dirent[i] = () => false;
+        if (result)
+          dirent[i] = () => true;
+        else
+          dirent[i] = () => false;
       }
     }
   }
 
   if (fs.opendir) {
     const origOpendir = fs.opendir.bind(fs);
-    //tslint:disable-next-line:no-any
+    // tslint:disable-next-line:no-any
     fs.opendir = (...args: any[]) => {
       let cb = args[args.length - 1];
       // if this is not a function opendir should throw an error.
-      //we call it so we don't have to throw a mock
+      // we call it so we don't have to throw a mock
       if (typeof cb === 'function') {
         cb = once(cb);
         args[args.length - 1] = async (err: Error, dir: Dir) => {
@@ -296,7 +288,7 @@ export const patcher = (fs: any = _fs, root: string) => {
   async function handleDir(dir: Dir) {
     const p = path.resolve(dir.path);
     const origIterator = dir[Symbol.asyncIterator].bind(dir);
-    //tslint:disable-next-line:no-any
+    // tslint:disable-next-line:no-any
     const origRead: any = dir.read.bind(dir);
 
     dir[Symbol.asyncIterator] = async function*() {
@@ -306,7 +298,7 @@ export const patcher = (fs: any = _fs, root: string) => {
       }
     };
 
-    //tslint:disable-next-line:no-any
+    // tslint:disable-next-line:no-any
     (dir.read as any) = async (...args: any[]) => {
       if (typeof args[args.length - 1] === 'function') {
         const cb = args[args.length - 1];
@@ -322,9 +314,9 @@ export const patcher = (fs: any = _fs, root: string) => {
         return entry;
       }
     };
-    //tslint:disable-next-line:no-any
+    // tslint:disable-next-line:no-any
     const origReadSync: any = dir.readSync.bind(dir);
-    //tslint:disable-next-line:no-any
+    // tslint:disable-next-line:no-any
     (dir.readSync as any) = () => {
       return handleDirentSync(p, origReadSync());
     };
@@ -346,16 +338,17 @@ export const patcher = (fs: any = _fs, root: string) => {
           return resolve(v);
         }
 
-        fs.stat(target, (err: Error & { code: string }, stat: Stats) => {
+        fs.stat(target, (err: Error&{code: string}, stat: Stats) => {
           if (err) {
             if (err.code === 'ENOENT') {
               // this is a broken symlink
               // even though this broken symlink points outside of the root
               // we'll return it.
               // the alternative choice here is to omit it from the directory listing altogether
-              // this would add complexity because readdir output would be different than readdir withFileTypes
-              // unless readdir was changed to match. if readdir was changed to match it's performance would be
-              // greatly impacted because we would always have to use the withFileTypes version which is slower.
+              // this would add complexity because readdir output would be different than readdir
+              // withFileTypes unless readdir was changed to match. if readdir was changed to match
+              // it's performance would be greatly impacted because we would always have to use the
+              // withFileTypes version which is slower.
               return resolve(v);
             }
             // transient fs related error. busy etc.
@@ -371,7 +364,7 @@ export const patcher = (fs: any = _fs, root: string) => {
     });
   }
 
-  function handleDirentSync(p: string, v: Dirent | null) {
+  function handleDirentSync(p: string, v: Dirent|null) {
     if (v && v.isSymbolicLink) {
       if (v.isSymbolicLink()) {
         // any errors thrown here are valid. things like transient fs errors
@@ -380,8 +373,8 @@ export const patcher = (fs: any = _fs, root: string) => {
           // Dirent exposes file type so if we want to hide that this is a link
           // we need to find out if it's a file or directory.
           v.isSymbolicLink = () => false;
-          //tslint:disable-next-line:no-any
-          const stat: Stats | any = origStatSync(target);
+          // tslint:disable-next-line:no-any
+          const stat: Stats|any = origStatSync(target);
           // add all stat is methods to Dirent instances with their result.
           patchDirent(v, stat);
         }
@@ -399,12 +392,9 @@ export const patcher = (fs: any = _fs, root: string) => {
    *
    * this api is available as experimental without a flag so users can access it at any time.
    */
-  const promisePropertyDescriptor = Object.getOwnPropertyDescriptor(
-    fs,
-    'promises'
-  );
+  const promisePropertyDescriptor = Object.getOwnPropertyDescriptor(fs, 'promises');
   if (promisePropertyDescriptor) {
-    //tslint:disable-next-line:no-any
+    // tslint:disable-next-line:no-any
     const promises: any = {};
     promises.lstat = util.promisify(fs.lstat);
     promises.realpath = util.promisify(fs.realpath);
@@ -452,7 +442,7 @@ export const escapeFunction = (root: string) => {
     return !root || (!str.startsWith(root + path.sep) && str !== root);
   }
 
-  return { isEscape, isOutPath };
+  return {isEscape, isOutPath};
 };
 
 function once<T>(fn: (...args: unknown[]) => T) {
@@ -462,7 +452,7 @@ function once<T>(fn: (...args: unknown[]) => T) {
     if (called) return;
     called = true;
 
-    let err: Error | false = false;
+    let err: Error|false = false;
     try {
       fn(...args);
     } catch (_e) {
