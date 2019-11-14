@@ -236,6 +236,10 @@ var wellKnownBuildRules = []struct {
 		name:     "karma_web_test_suite",
 		attrName: "deps",
 	},
+	{
+		name:     "boq_jswire_test_library",
+		attrName: "deps",
+	},
 }
 
 // isRegisteredWithAlternateTestRule returns true if the rule is already
