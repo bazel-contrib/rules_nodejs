@@ -13,6 +13,7 @@
 # limitations under the License.
 
 load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "npm_package")
+#load("@build_bazel_rules_nodejs//:defs.bzl", "npm_install")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -31,6 +32,25 @@ npm_package(
     name = "npm_package",
     srcs = [
         "readme.md",
+        ":node_patches",
+    ],
+)
+
+genrule(
+    name = "install",
+    srcs = [
+        "package.json",
+        "package-lock.json",
+    ],
+    outs = ["node_modules/*"],
+    cmd = "cd ./packages/node-patches && find . && HOME=. npm install --ignore-scripts && mkdir -p `dirname $(OUTS)` && mv node_modules $(OUTS) && find .",
+)
+
+sh_binary(
+    name = "test",
+    srcs = ["run.sh"],
+    data = [
+        ":install",
         ":node_patches",
     ],
 )

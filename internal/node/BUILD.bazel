@@ -43,7 +43,6 @@ filegroup(
     ]) + [
         "BUILD.bazel",
         "BUILD.nodejs_host_os_alias.tpl",
-        "//internal/node-patches:node_patches",
     ],
     visibility = ["//:__pkg__"],
 )

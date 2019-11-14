@@ -1,9 +1,4 @@
-const {
-  Worker,
-  isMainThread,
-  parentPort,
-  workerData,
-} = require('worker_threads');
+import {isMainThread, parentPort, Worker} from 'worker_threads';
 
 if (isMainThread) {
   new Promise((resolve, reject) => {
@@ -36,7 +31,7 @@ if (isMainThread) {
             throw err;
           });
 } else {
-  parentPort.postMessage(JSON.stringify([
+  parentPort!.postMessage(JSON.stringify([
     process.execPath,
     process.execArgv,
     process.argv,
