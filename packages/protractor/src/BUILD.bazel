@@ -40,7 +40,6 @@ filegroup(
         "package.bzl",
         "package.json",
         "protractor.conf.js",
-        "protractor.js",
         "protractor_web_test.bzl",
     ],
 )
