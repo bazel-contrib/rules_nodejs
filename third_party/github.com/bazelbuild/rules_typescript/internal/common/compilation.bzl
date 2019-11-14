@@ -459,14 +459,11 @@ def compile_ts(
     if not is_library:
         files_depsets.append(depset(tsickle_externs))
 
-    transitive_es6_sources = depset()
+    transitive_es6_sources_sets = [es6_sources]
     for dep in deps:
         if hasattr(dep, "typescript"):
-            transitive_es6_sources = depset(transitive = [
-                transitive_es6_sources,
-                dep.typescript.transitive_es6_sources,
-            ])
-    transitive_es6_sources = depset(transitive = [transitive_es6_sources, es6_sources])
+            transitive_es6_sources_sets += [dep.typescript.transitive_es6_sources]
+    transitive_es6_sources = depset(transitive = transitive_es6_sources_sets)
 
     return {
         "providers": [
