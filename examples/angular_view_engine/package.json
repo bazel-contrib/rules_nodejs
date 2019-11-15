@@ -53,6 +53,7 @@
         "karma-requirejs": "1.1.0",
         "karma-sourcemap-loader": "0.3.7",
         "patch-package": "^6.2.0",
+        "protractor": "^5.4.2",
         "requirejs": "2.3.6",
         "rollup": "^1.21.4",
         "rollup-plugin-amd": "^4.0.0",

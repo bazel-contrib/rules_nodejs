@@ -54,7 +54,6 @@ ts_library(
     tsconfig = ":tsconfig-test",
     deps = [
         "@npm//@types/jasmine",
-        "@npm//@types/selenium-webdriver",
         "@npm//protractor",
     ],
 )

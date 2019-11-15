@@ -15,9 +15,8 @@
       "protractor",
       "bazel"
   ],
-  "main": "index.js",
-  "dependencies": {
-      "protractor": "^5.4.2"
+  "peerDependencies": {
+      "protractor": ">=5.0.0"
   },
   "bazelWorkspaces": {
       "npm_bazel_protractor": {

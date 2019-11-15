@@ -21,27 +21,13 @@ load(
     _protractor_web_test_suite = "protractor_web_test_suite",
 )
 
-INTERNAL_PROTRACTOR = "@npm//protractor"
-INTERNAL_PROTRACTOR_ENTRY_POINT = "@npm_bazel_protractor//:protractor.js"
+_PROTRACTOR_PEER_DEPS = [
+    "@npm_bazel_protractor//:utils_lib",
+    "@npm//protractor",
+]
 
 def protractor_web_test(data = [], **kwargs):
-    _protractor_web_test(
-        # When there is no @npm//@bazel/protractor package we use @npm_bazel_protractor instead.
-        # @npm_bazel_protractor//:utils_lib dependency must also be added manually since without a dep on
-        # @npm//@bazel/protractor "@bazel/protractor/protractor-utils" will not resolve.
-        data = data + ["@npm_bazel_protractor//:utils_lib"],
-        protractor = INTERNAL_PROTRACTOR,
-        protractor_entry_point = INTERNAL_PROTRACTOR_ENTRY_POINT,
-        **kwargs
-    )
+    _protractor_web_test(peer_deps = _PROTRACTOR_PEER_DEPS, **kwargs)
 
 def protractor_web_test_suite(data = [], **kwargs):
-    _protractor_web_test_suite(
-        # When there is no @npm//@bazel/protractor package we use @npm_bazel_protractor instead.
-        # @npm_bazel_protractor//:utils_lib dependency must also be added manually since without a dep on
-        # @npm//@bazel/protractor "@bazel/protractor/protractor-utils" will not resolve.
-        data = data + ["@npm_bazel_protractor//:utils_lib"],
-        protractor = INTERNAL_PROTRACTOR,
-        protractor_entry_point = INTERNAL_PROTRACTOR_ENTRY_POINT,
-        **kwargs
-    )
+    _protractor_web_test_suite(peer_deps = _PROTRACTOR_PEER_DEPS, **kwargs)
