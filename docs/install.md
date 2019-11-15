@@ -56,10 +56,15 @@ node_repositories(package_json = ["//:package.json"])
 ```
 ### Installation with a specific supported version of Node.js and Yarn
 
-You can choose a specific version of Node.js that's built into these rules.
+You can choose a specific version of Node.js that's built into these rules. Note that some of our packages have started to use features from Node 12, so you may see warnings if you use an older version.
+
+> Now that Node 12 is LTS (Long-term support) we encourage you to upgrade, and don't intend to fix bugs which are only observed in Node 10 or lower.
+
 Currently these versions are:
 
-* 10.13.0 (default)
+* 12.13.0 (default)
+* 10.16.0
+* 10.13.0
 * 10.10.0
 * 10.9.0
 * 10.3.0
@@ -70,7 +75,10 @@ Currently these versions are:
 
 You can also choose a specific version of Yarn.
 Currently these versions are:
-* 1.12.1 (default)
+* 1.19.1 (default)
+* 1.13.0
+* 1.12.3
+* 1.12.1
 * 1.9.4
 * 1.9.2
 * 1.6.0
