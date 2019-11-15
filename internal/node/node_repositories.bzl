@@ -21,7 +21,6 @@ See https://docs.bazel.build/versions/master/skylark/repository_rules.html
 load("//internal/common:check_bazel_version.bzl", "check_bazel_version")
 load("//internal/common:check_version.bzl", "check_version")
 load("//internal/common:os_name.bzl", "OS_ARCH_NAMES", "is_windows_os", "os_name")
-load("//internal/npm_install:npm_install.bzl", "yarn_install")
 load("//third_party/github.com/bazelbuild/bazel-skylib:lib/paths.bzl", "paths")
 load("//toolchains/node:node_toolchain_configure.bzl", "node_toolchain_configure")
 
@@ -701,18 +700,6 @@ def node_repositories(**kwargs):
         _nodejs_repo_host_os_alias,
         name = "nodejs",
         vendored_node = vendored_node,
-    )
-
-    _maybe(
-        yarn_install,
-        name = "build_bazel_rules_nodejs_rollup_deps",
-        package_json = "@build_bazel_rules_nodejs//internal/rollup:package.json",
-        yarn_lock = "@build_bazel_rules_nodejs//internal/rollup:yarn.lock",
-        data = ["@build_bazel_rules_nodejs//internal/rollup:postinstall-patches.js"],
-        # Do not symlink node_modules as when used in downstream repos we should not create
-        # node_modules folders in the @build_bazel_rules_nodejs external repository. This is
-        # not supported by managed_directories.
-        symlink_node_modules = False,
     )
 
 def _maybe(repo_rule, name, **kwargs):
