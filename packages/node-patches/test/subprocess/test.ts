@@ -7,7 +7,7 @@ import * as rimraf from 'rimraf';
 
 import {patcher} from '../../src/subprocess';
 
-const requireScript = path.resolve(path.join(__dirname, '..', '..', '..', 'register.js'));
+const requireScript = path.resolve(path.join(__dirname, '..', '..', 'register.js'));
 
 const tmp = path.join(os.tmpdir(), 'node-patches-test-tmp');
 

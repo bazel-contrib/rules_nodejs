@@ -13,44 +13,60 @@
 # limitations under the License.
 
 load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "npm_package")
-#load("@build_bazel_rules_nodejs//:defs.bzl", "npm_install")
+load("@npm_node_patches//mocha:index.bzl", "mocha_test")
+load("@npm_node_patches//typescript:index.bzl", "tsc")
 
 package(default_visibility = ["//visibility:public"])
 
 filegroup(
-    name = "node_patches",
+    name = "node-patches",
     srcs = [
-        "register.js",
         "package.json",
-    ] + glob([
-        "build/src/*.js",
-        "build/src/**/*.js",
-    ]),
+        ":compile",
+    ],
 )
 
 npm_package(
     name = "npm_package",
     srcs = [
-        "readme.md",
-        ":node_patches",
+        "README.md",
+    ],
+    deps = [
+        ":node-patches",
     ],
 )
 
-genrule(
-    name = "install",
-    srcs = [
-        "package.json",
-        "package-lock.json",
+sources = glob([
+    "src/*.ts",
+]) + ["register.ts"]
+
+tests = glob(["test/**/*.ts"])
+
+tsc(
+    name = "compile",
+    # TODO: we ought to compile tests separately?
+    outs = [s.replace(".ts", ext) for ext in [
+        ".js",
+        ".d.ts",
+    ] for s in sources + tests],
+    args = [
+        "-p",
+        "$(location tsconfig.json)",
+        "--outDir",
+        "$@",
     ],
-    outs = ["node_modules/*"],
-    cmd = "cd ./packages/node-patches && find . && HOME=. npm install --ignore-scripts && mkdir -p `dirname $(OUTS)` && mv node_modules $(OUTS) && find .",
+    data = sources + tests + [
+        "tsconfig.json",
+        "@npm_node_patches//:node_modules",
+    ],
 )
 
-sh_binary(
-    name = "test",
-    srcs = ["run.sh"],
-    data = [
-        ":install",
-        ":node_patches",
+test_js = [s.replace(".ts", ".js") for s in tests]
+
+mocha_test(
+    name = "unit_test",
+    args = ["$(location %s)" % s for s in test_js],
+    data = test_js + [s.replace(".ts", ".js") for s in sources] + [
+        "@npm_node_patches//:node_modules",
     ],
 )

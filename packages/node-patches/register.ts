@@ -17,7 +17,7 @@
 /**
  * @fileoverview Description of this file.
  */
-const patcher = require('./build/src/index.js');
+const patcher = require('./src');
 // todo auto detect bazel env vars instead of adding a new one.
 const {BAZEL_PATCH_ROOT, NP_SUBPROCESS_BIN_DIR, VERBOSE_LOGS} = process.env;
 

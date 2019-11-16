@@ -1,14 +1,13 @@
 {
   "name": "@bazel/node-patches",
-  "version": "1.0.0",
+  "version": "0.0.0-PLACEHOLDER",
   "description": "Runtime modifications to nodejs internals to help node/npm programs run in bazel",
-  "main": "build/src/index.js",
+  "main": "src/index.js",
   "scripts": {
     "test": "c8 mocha -r source-map-support/register build/test/fs/*.js build/test/subprocess/test.js",
     "compile": "tsc -p .",
-    "prepare": "npm run compile",
     "pretest": "npm run compile",
-    "fix":"git-clang-format"
+    "fix": "git-clang-format"
   },
   "keywords": [],
   "author": "Ryan Day <ryaneday@google.com>",

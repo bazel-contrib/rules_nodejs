@@ -14,7 +14,10 @@
 
 workspace(
     name = "build_bazel_rules_nodejs",
-    managed_directories = {"@npm": ["node_modules"]},
+    managed_directories = {
+        "@npm": ["node_modules"],
+        "@npm_node_patches": ["packages/node-patches/node_modules"],
+    },
 )
 
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
@@ -82,6 +85,12 @@ filegroup(
 """,
     package_json = "//:package.json",
     yarn_lock = "//:yarn.lock",
+)
+
+npm_install(
+    name = "npm_node_patches",
+    package_json = "//packages/node-patches:package.json",
+    package_lock_json = "//packages/node-patches:package-lock.json",
 )
 
 # Install all Bazel dependencies needed for npm packages that supply Bazel rules
