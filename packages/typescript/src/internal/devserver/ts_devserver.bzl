@@ -19,11 +19,6 @@ load(
     "@build_bazel_rules_nodejs//internal/js_library:js_library.bzl",
     "write_amd_names_shim",
 )
-load(
-    "@build_bazel_rules_nodejs//internal/web_package:web_package.bzl",
-    "additional_root_paths",
-    "html_asset_inject",
-)
 
 # Avoid using non-normalized paths (workspace/../other_workspace/path)
 def _to_manifest_path(ctx, file):
@@ -100,21 +95,6 @@ def _ts_devserver(ctx):
     devserver_runfiles += script_files
     devserver_runfiles += ctx.files._bash_runfile_helpers
 
-    if ctx.file.index_html:
-        injected_index = ctx.actions.declare_file("index.html")
-        bundle_script = ctx.attr.serving_path
-        if bundle_script.startswith("/"):
-            bundle_script = bundle_script[1:]
-        html_asset_inject(
-            ctx.file.index_html,
-            ctx.actions,
-            ctx.executable._injector,
-            additional_root_paths(ctx),
-            [_to_manifest_path(ctx, f) for f in ctx.files.static_files] + [bundle_script],
-            injected_index,
-        )
-        devserver_runfiles += [injected_index]
-
     packages = depset(["/".join([workspace_name, ctx.label.package])] + ctx.attr.additional_root_paths)
 
     ctx.actions.expand_template(
@@ -173,12 +153,6 @@ ts_devserver = rule(
             `require(["entry_module"]);`
             """,
         ),
-        "index_html": attr.label(
-            allow_single_file = True,
-            doc = """An index.html file, we'll inject the script tag for the bundle,
-            as well as script tags for .js static_files and link tags for .css
-            static_files""",
-        ),
         "port": attr.int(
             doc = """The port that the devserver will listen on.""",
             default = 5432,
@@ -205,11 +179,6 @@ ts_devserver = rule(
             aspects = [node_modules_aspect],
         ),
         "_bash_runfile_helpers": attr.label(default = Label("@bazel_tools//tools/bash/runfiles")),
-        "_injector": attr.label(
-            default = "@build_bazel_rules_nodejs//internal/web_package:injector",
-            executable = True,
-            cfg = "host",
-        ),
         "_launcher_template": attr.label(allow_single_file = True, default = Label("//internal/devserver:launcher_template.sh")),
         "_requirejs_script": attr.label(allow_single_file = True, default = Label("//third_party/npm/requirejs:require.js")),
     },

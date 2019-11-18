@@ -7,10 +7,7 @@ load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
 # END-INTERNAL
 package(default_visibility = ["//visibility:public"])
 
-exports_files([
-    "web_package.bzl",
-    "inject_html.bzl",
-])
+exports_files(["web_package.bzl"])
 
 bzl_library(
     name = "bzl",
@@ -30,26 +27,7 @@ nodejs_binary(
     node_modules = ":node_modules_none",
 )
 
-nodejs_binary(
-    name = "injector",
-    data = [
-        "injector.js",
-        "//third_party/github.com/inikulin/parse5",
-    ],
-    entry_point = ":injector.js",
-    install_source_map_support = False,
-)
-
 # BEGIN-INTERNAL
-jasmine_node_test(
-    name = "injector_test",
-    srcs = ["injector_spec.js"],
-    deps = [
-        ":injector.js",
-        "//third_party/github.com/inikulin/parse5",
-    ],
-)
-
 jasmine_node_test(
     name = "assembler_test",
     srcs = ["assembler_spec.js"],

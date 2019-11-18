@@ -57,6 +57,7 @@ def differential_loading(name, entry_point, srcs):
     web_package(
         name = name,
         assets = [
+            "index.html",
             "styles.css",
         ],
         data = [
@@ -64,5 +65,4 @@ def differential_loading(name, entry_point, srcs):
             name + "_chunks.min",
             name + "_chunks_es5.min",
         ],
-        index_html = "index.html",
     )

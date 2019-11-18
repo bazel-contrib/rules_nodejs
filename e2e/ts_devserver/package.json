@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@bazel/hide-bazel-files": "^0.40.0",
+    "@bazel/inject-html": "^0.40.0",
     "@bazel/protractor": "^0.40.0",
     "@bazel/typescript": "^0.40.0",
     "@types/jasmine": "2.8.2",

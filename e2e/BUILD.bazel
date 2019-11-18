@@ -83,6 +83,7 @@ e2e_integration_test(
     name = "e2e_ts_devserver",
     npm_packages = {
         "//packages/hide-bazel-files:npm_package": "@bazel/hide-bazel-files",
+        "//packages/inject-html:npm_package": "@bazel/inject-html",
         "//packages/protractor:npm_package": "@bazel/protractor",
         "//packages/typescript:npm_package": "@bazel/typescript",
     },

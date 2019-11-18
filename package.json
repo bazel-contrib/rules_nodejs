@@ -50,6 +50,7 @@
         "node_resolve_main": "file:./tools/npm_packages/node_resolve_main",
         "node_resolve_main_2": "file:./tools/npm_packages/node_resolve_main_2",
         "node_resolve_nested_main": "file:./tools/npm_packages/node_resolve_nested_main",
+        "parse5": "5.1.0",
         "protobufjs": "6.8.8",
         "protractor": "^5.4.2",
         "requirejs": "2.3.6",

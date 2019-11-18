@@ -4,6 +4,7 @@
 load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_package")
 load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kt_js_import", "kt_js_library")
 load("@npm//http-server:index.bzl", "http_server")
+load("@npm_bazel_inject_html//:index.bzl", "inject_html")
 load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
 load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
 load("@npm_bazel_terser//:index.bzl", "terser_minified")
@@ -48,14 +49,24 @@ rollup_bundle(
 )
 
 terser_minified(
+    # This will output bundle.min.js
     name = "bundle.min",
     src = ":bundle",
 )
 
+inject_html(
+    name = "inject_script_tag",
+    src = "index.html",
+    # Having a .js file here causes the injector to add a script tag
+    assets = [":bundle.min.js"],
+)
+
 web_package(
     name = "package",
-    data = [":bundle.min"],
-    index_html = "index.html",
+    srcs = [
+        "inject_script_tag",
+        ":bundle.min",
+    ],
 )
 
 # TODO: fix prodserver; require.js is needed if rollup_bundle output is cjs

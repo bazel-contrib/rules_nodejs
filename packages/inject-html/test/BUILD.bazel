@@ -1,0 +1,36 @@
+load("//internal/golden_file_test:golden_file_test.bzl", "golden_file_test")
+load("//packages/inject-html:inject_html.bzl", "inject_html")
+
+inject_html(
+    name = "inject",
+    src = "index.html",
+    assets = [
+        "file.css",
+        "script.js",
+    ],
+    injector = "//packages/inject-html:injector",
+)
+
+inject_html(
+    name = "named_out",
+    src = "index.html",
+    out = "named_index.html",
+    assets = ["file.css"],
+    injector = "//packages/inject-html:injector",
+)
+
+# make the input hermetic by replacing the cache-buster timestamp
+genrule(
+    name = "stable_timestamp",
+    srcs = ["inject"],
+    outs = ["inject_stable.html"],
+    cmd = "sed 's/\\?v=[0-9]\\+/?v=123/g' <$< >$@",
+)
+
+golden_file_test(
+    name = "test",
+    actual = "stable_timestamp",
+    golden = "index_golden.html_",
+    # Sed script doesn't work on Mac :shrug:
+    tags = ["no-bazelci-mac"],
+)

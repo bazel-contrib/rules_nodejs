@@ -15,35 +15,6 @@
 """Contains the web_package rule.
 """
 
-def html_asset_inject(index_html, action_factory, injector, root_dirs, assets, output):
-    """Injects JS and CSS resources into the index.html.
-
-    Args:
-      index_html: The input html file
-      action_factory: Bazel's actions module from ctx.actions - see https://docs.bazel.build/versions/master/skylark/lib/actions.html
-      injector: The injector executable
-      root_dirs: Path prefixes to strip off all assets. Longest wins.
-      assets: Asset files to inject
-      output: The output html file
-
-    Returns:
-      The output html file
-    """
-    args = action_factory.args()
-    args.add(output.path)
-    args.add(index_html.path)
-    args.add_all(root_dirs)
-    args.add("--assets")
-    args.add_all(assets)
-    args.use_param_file("%s", use_always = True)
-    action_factory.run(
-        inputs = [index_html],
-        outputs = [output],
-        executable = injector,
-        arguments = [args],
-    )
-    return output
-
 def move_files(output_name, files, action_factory, assembler, root_paths):
     """Moves files into an output directory
 
@@ -91,21 +62,9 @@ def additional_root_paths(ctx):
 def _web_package(ctx):
     root_paths = additional_root_paths(ctx)
 
-    # Create the output file in a re-rooted subdirectory so it doesn't collide with the input file
-    html = ctx.actions.declare_file("_%s/%s" % (ctx.label.name, ctx.file.index_html.path))
-
-    # Move that index file back into place inside the package
-    populated_index = html_asset_inject(
-        ctx.file.index_html,
-        ctx.actions,
-        ctx.executable._injector,
-        root_paths,
-        [f.path for f in ctx.files.assets],
-        html,
-    )
     package_layout = move_files(
         ctx.label.name,
-        ctx.files.data + ctx.files.assets + [html],
+        ctx.files.data + ctx.files.assets,
         ctx.actions,
         ctx.executable._assembler,
         root_paths,
@@ -128,17 +87,8 @@ web_package = rule(
             allow_files = True,
             doc = """Additional files which should be served on request""",
         ),
-        "index_html": attr.label(
-            allow_single_file = True,
-            doc = """The entry point of the application""",
-        ),
         "_assembler": attr.label(
             default = "@build_bazel_rules_nodejs//internal/web_package:assembler",
-            executable = True,
-            cfg = "host",
-        ),
-        "_injector": attr.label(
-            default = "@build_bazel_rules_nodejs//internal/web_package:injector",
             executable = True,
             cfg = "host",
         ),

@@ -62,6 +62,7 @@ EXTS = [
 web_package(
     name = "pkg",
     assets = [
+                 "index.html",
                  # bundles from a different directory
                  "//internal/web_package/test:bundle.es2015",
                  "//internal/web_package/test:bundle.min.es2015",
@@ -85,7 +86,6 @@ web_package(
              ["//internal/web_package/test2/rel-exports:rel-bin-" + e for e in EXTS] +
              ["//internal/web_package/test2/rel-exports:rel-gen-" + e for e in EXTS] +
              ["//internal/web_package/test2/rel-exports:rel-file." + e for e in EXTS],
-    index_html = "index.html",
 )
 
 jasmine_node_test(

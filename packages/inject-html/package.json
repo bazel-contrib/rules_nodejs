@@ -1,0 +1,16 @@
+{
+    "name": "@bazel/inject-html",
+    "version": "0.0.0-PLACEHOLDER",
+    "description": "Inject script and link tags in html",
+    "bin": {
+        "injector": "index.js"
+    },
+    "dependencies": {
+        "parse5": "5.1.0"
+    },
+    "bazelWorkspaces": {
+        "npm_bazel_inject_html": {
+            "rootPath": "."
+        }
+    }
+}

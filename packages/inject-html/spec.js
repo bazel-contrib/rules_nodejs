@@ -1,4 +1,4 @@
-const injector = require('./injector');
+const injector = require('./');
 
 describe('HTML injector', () => {
   const inFile = 'some/index.html';

@@ -2,6 +2,7 @@
     "name": "kotlin_example",
     "private": true,
     "devDependencies": {
+        "@bazel/inject-html": "^0.40.0",
         "@bazel/jasmine": "^0.40.0",
         "@bazel/rollup": "^0.40.0",
         "@bazel/terser": "^0.40.0",
