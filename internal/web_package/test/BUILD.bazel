@@ -68,7 +68,7 @@ web_package(
     # and data to test for regression of the issues fixed by
     # https://github.com/bazelbuild/rules_nodejs/pull/546
     assets = [
-        ":bundle.min"
+        ":bundle.min",
         "index.html",
     ],
     data = [
