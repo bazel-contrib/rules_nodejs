@@ -13,8 +13,10 @@
 # limitations under the License.
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+# BEGIN-INTERNAL
 load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
 
+# END-INTERNAL
 licenses(["notice"])  # Apache 2.0
 
 package(default_visibility = [
@@ -43,18 +45,20 @@ nodejs_binary(
     name = "injector",
     data = [
         "injector.js",
-        #"//third_party/github.com/inikulin/parse5",
+        "@npm//parse5",
     ],
     entry_point = ":injector.js",
     install_source_map_support = False,
     visibility = ["//visibility:public"],
 )
 
+# BEGIN-INTERNAL
 jasmine_node_test(
     name = "injector_test",
     srcs = ["injector_spec.js"],
     deps = [
         ":injector.js",
-        #"//third_party/github.com/inikulin/parse5",
     ],
 )
+
+# END-INTERNAL

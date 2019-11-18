@@ -16,7 +16,7 @@
  */
 
 const parse5 = require('parse5');
-const treeAdapter = require('parse5/tree-adapters/default');
+const treeAdapter = require('parse5/lib/tree-adapters/default');
 const fs = require('fs');
 const path = require('path');
 
