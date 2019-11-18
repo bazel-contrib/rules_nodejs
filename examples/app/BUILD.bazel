@@ -15,7 +15,6 @@ ts_library(
 
 ts_devserver(
     name = "devserver",
-    index_html = "index.html",
     # We'll collect all the devmode JS sources from these TypeScript libraries
     deps = [":app"],
 )

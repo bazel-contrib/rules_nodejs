@@ -6,10 +6,15 @@
     <base href="/example">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="/npm/node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css">
+    <link rel="stylesheet" href="/styles.css">
   </head>
   <body>
     <!-- The Angular application will be bootstrapped into this element. -->
     <app-component></app-component>
+
+    <!-- Zone.js polyfill required for Angular apps -->
+    <script src="/npm/node_modules/zone.js/dist/zone.min.js"></script>
 
     <!-- in browsers that don't support ESModules, we polyfill with system.js-->
     <script nomodule src="/core.min.js"></script>
