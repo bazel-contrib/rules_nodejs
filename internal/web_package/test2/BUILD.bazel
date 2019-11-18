@@ -76,6 +76,7 @@ web_package(
                  ":local_bundle",
                  ":local_bundle.min",
                  ":local_bundle.min_debug",
+                 "index.html",
              ] +
              # bin + gen + exported files from a different directory
              ["//internal/web_package/test-exports:bin-" + e for e in EXTS] +
@@ -85,7 +86,6 @@ web_package(
              ["//internal/web_package/test2/rel-exports:rel-bin-" + e for e in EXTS] +
              ["//internal/web_package/test2/rel-exports:rel-gen-" + e for e in EXTS] +
              ["//internal/web_package/test2/rel-exports:rel-file." + e for e in EXTS],
-    index_html = "index.html",
 )
 
 jasmine_node_test(

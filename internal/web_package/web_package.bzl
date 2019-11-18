@@ -15,6 +15,27 @@
 """Contains the web_package rule.
 """
 
+_DOC = """Assembles a web application from source files."""
+
+_ATTRS = {
+    "additional_root_paths": attr.string_list(
+        doc = """Path prefixes to strip off all assets, in addition to the current package. Longest wins.""",
+    ),
+    "assets": attr.label_list(
+        allow_files = True,
+        doc = """Files which should be referenced from the index_html""",
+    ),
+    "data": attr.label_list(
+        allow_files = True,
+        doc = """Additional files which should be served on request""",
+    ),
+    "_assembler": attr.label(
+        default = "@build_bazel_rules_nodejs//internal/web_package:assembler",
+        executable = True,
+        cfg = "host",
+    ),
+}
+
 def html_asset_inject(index_html, action_factory, injector, root_dirs, assets, output):
     """Injects JS and CSS resources into the index.html.
 
@@ -93,7 +114,7 @@ def _web_package(ctx):
 
     package_layout = move_files(
         ctx.label.name,
-        ctx.files.data + ctx.files.assets + ctx.files.index_html,
+        ctx.files.data + ctx.files.assets,
         ctx.actions,
         ctx.executable._assembler,
         root_paths,
@@ -104,27 +125,13 @@ def _web_package(ctx):
 
 web_package = rule(
     implementation = _web_package,
-    attrs = {
-        "additional_root_paths": attr.string_list(
-            doc = """Path prefixes to strip off all assets, in addition to the current package. Longest wins.""",
-        ),
-        "assets": attr.label_list(
-            allow_files = True,
-            doc = """Files which should be referenced from the index_html""",
-        ),
-        "data": attr.label_list(
-            allow_files = True,
-            doc = """Additional files which should be served on request""",
-        ),
-        "index_html": attr.label(
-            allow_single_file = True,
-            doc = """The entry point of the application""",
-        ),
-        "_assembler": attr.label(
-            default = "@build_bazel_rules_nodejs//internal/web_package:assembler",
-            executable = True,
-            cfg = "host",
-        ),
-    },
-    doc = """Assembles a web application from source files.""",
+    attrs = _ATTRS,
+    doc = _DOC,
 )
+
+# Backwards compat for passing index_html as an additional asset
+def web_package_macro(index_html = None, **kwargs):
+    assets = kwargs.pop("assets", [])
+    if index_html:
+        assets.append(index_html)
+    web_package(assets = assets, **kwargs)

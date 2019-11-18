@@ -29,7 +29,7 @@ load("//internal/node:node_repositories.bzl", _node_repositories = "node_reposit
 load("//internal/node:npm_package_bin.bzl", _npm_bin = "npm_package_bin")
 load("//internal/npm_install:npm_install.bzl", _npm_install = "npm_install", _yarn_install = "yarn_install")
 load("//internal/npm_package:npm_package.bzl", _npm_package = "npm_package")
-load("//internal/web_package:web_package.bzl", _web_package = "web_package")
+load("//internal/web_package:web_package.bzl", _web_package = "web_package_macro")
 
 check_bazel_version = _check_bazel_version
 nodejs_binary = _nodejs_binary

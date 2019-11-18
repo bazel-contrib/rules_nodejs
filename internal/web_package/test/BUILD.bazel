@@ -67,7 +67,10 @@ web_package(
     # Intentionally duplicating `:bundle.min` (`bundle.min.js`) in assets
     # and data to test for regression of the issues fixed by
     # https://github.com/bazelbuild/rules_nodejs/pull/546
-    assets = [":bundle.min"],
+    assets = [
+        ":bundle.min"
+        "index.html",
+    ],
     data = [
         ":bundle",
         ":bundle.es2015",
@@ -76,7 +79,6 @@ web_package(
         ":bundle.min_debug",
         ":bundle.min_debug.es2015",
     ],
-    index_html = "index.html",
 )
 
 jasmine_node_test(
