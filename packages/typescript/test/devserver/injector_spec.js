@@ -1,4 +1,4 @@
-const injector = require('./injector');
+const injector = require('npm_bazel_typescript/internal/devserver/injector');
 
 describe('HTML injector', () => {
   const inFile = 'some/index.html';

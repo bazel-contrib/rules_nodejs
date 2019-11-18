@@ -14,10 +14,6 @@
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 
-# BEGIN-INTERNAL
-load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
-
-# END-INTERNAL
 licenses(["notice"])  # Apache 2.0
 
 package(default_visibility = [
@@ -34,7 +30,11 @@ bzl_library(
     ],
 )
 
-exports_files(["launcher_template.sh"])
+exports_files([
+    "launcher_template.sh",
+    # For visibility from the unit test
+    "injector.js",
+])
 
 filegroup(
     name = "package_contents",
@@ -52,14 +52,3 @@ nodejs_binary(
     install_source_map_support = False,
     visibility = ["//visibility:public"],
 )
-
-# BEGIN-INTERNAL
-jasmine_node_test(
-    name = "injector_test",
-    srcs = ["injector_spec.js"],
-    deps = [
-        ":injector.js",
-    ],
-)
-
-# END-INTERNAL
