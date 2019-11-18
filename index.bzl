@@ -29,6 +29,7 @@ load("//internal/node:node_repositories.bzl", _node_repositories = "node_reposit
 load("//internal/node:npm_package_bin.bzl", _npm_bin = "npm_package_bin")
 load("//internal/npm_install:npm_install.bzl", _npm_install = "npm_install", _yarn_install = "yarn_install")
 load("//internal/npm_package:npm_package.bzl", _npm_package = "npm_package")
+load("//internal/web_package:web_package.bzl", _web_package = "web_package")
 
 check_bazel_version = _check_bazel_version
 nodejs_binary = _nodejs_binary
@@ -37,6 +38,7 @@ node_repositories = _node_repositories
 jasmine_node_test = _jasmine_node_test
 npm_package = _npm_package
 npm_package_bin = _npm_bin
+web_package = _web_package
 # ANY RULES ADDED HERE SHOULD BE DOCUMENTED, see index.for_docs.bzl
 
 # Allows us to avoid a transitive dependency on bazel_skylib from leaking to users

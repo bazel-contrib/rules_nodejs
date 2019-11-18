@@ -1,7 +1,7 @@
 "Illustrates how a reusable high-level workflow can be assembled from individual tools"
 
 # TODO(alexeagle): promote web_package rule to the public API
-load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_package")
+load("@build_bazel_rules_nodejs//:index.bzl", "web_package")
 load("@npm//@babel/cli:index.bzl", "babel")
 load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
 load("@npm_bazel_terser//:index.bzl", "terser_minified")

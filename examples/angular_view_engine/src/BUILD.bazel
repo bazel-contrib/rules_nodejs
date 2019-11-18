@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_package")
+load("@build_bazel_rules_nodejs//:index.bzl", "web_package")
 load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
 load("@npm//@babel/cli:index.bzl", "babel")
 load("@npm//history-server:index.bzl", "history_server")
