@@ -206,7 +206,7 @@ ts_devserver = rule(
         ),
         "_bash_runfile_helpers": attr.label(default = Label("@bazel_tools//tools/bash/runfiles")),
         "_injector": attr.label(
-            default = "@build_bazel_rules_nodejs//internal/web_package:injector",
+            default = "@npm_bazel_typescript//internal/devserver:injector",
             executable = True,
             cfg = "host",
         ),

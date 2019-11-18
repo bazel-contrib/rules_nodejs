@@ -91,21 +91,9 @@ def additional_root_paths(ctx):
 def _web_package(ctx):
     root_paths = additional_root_paths(ctx)
 
-    # Create the output file in a re-rooted subdirectory so it doesn't collide with the input file
-    html = ctx.actions.declare_file("_%s/%s" % (ctx.label.name, ctx.file.index_html.path))
-
-    # Move that index file back into place inside the package
-    populated_index = html_asset_inject(
-        ctx.file.index_html,
-        ctx.actions,
-        ctx.executable._injector,
-        root_paths,
-        [f.path for f in ctx.files.assets],
-        html,
-    )
     package_layout = move_files(
         ctx.label.name,
-        ctx.files.data + ctx.files.assets + [html],
+        ctx.files.data + ctx.files.assets + ctx.files.index_html,
         ctx.actions,
         ctx.executable._assembler,
         root_paths,
@@ -137,14 +125,6 @@ web_package = rule(
             executable = True,
             cfg = "host",
         ),
-        "_injector": attr.label(
-            default = "@build_bazel_rules_nodejs//internal/web_package:injector",
-            executable = True,
-            cfg = "host",
-        ),
     },
-    doc = """Assembles a web application from source files.
-
-    Injects JS and CSS resources into the index.html.
-    """,
+    doc = """Assembles a web application from source files.""",
 )
