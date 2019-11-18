@@ -50,6 +50,7 @@ bzl_library(
         "//internal/linker:bzl",
         "//internal/npm_package:bzl",
         "//internal/providers:bzl",
+        "//internal/web_package:bzl",
         "//toolchains/node:bzl",
     ],
 )
@@ -91,7 +92,6 @@ npm_package(
         "//third_party/github.com/bazelbuild/bazel-skylib:package_contents",
         "//third_party/github.com/buffer-from:package_contents",
         "//third_party/github.com/gjtorikian/isBinaryFile:package_contents",
-        "//third_party/github.com/inikulin/parse5:package_contents",
         "//third_party/github.com/juanjoDiaz/removeNPMAbsolutePaths:package_contents",
         "//third_party/github.com/source-map:package_contents",
         "//third_party/github.com/source-map-support:package_contents",
