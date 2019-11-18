@@ -176,8 +176,6 @@ function copyNpmPackage(packagePath) {
   return to;
 }
 
-// testName is like examples_webapp or e2e_bazel_managed_deps
-// transform to the path we expect by changing first underscore to slash
 const workspacePath = config.workspaceRoot.startsWith('external/') ?
     '..' + config.workspaceRoot.slice('external'.length) :
     config.workspaceRoot;
