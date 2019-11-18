@@ -8,7 +8,7 @@ global.BAZEL_NODE_PATCHES = true;
 
 
 
-
+/*
 const fs = require('fs');
 const path = require('path');
 const orig = {};
@@ -44,3 +44,4 @@ function unmonkeypatch() {
 }
 
 monkeypatch();
+*/

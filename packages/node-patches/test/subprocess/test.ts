@@ -11,10 +11,12 @@ const requireScript = path.resolve(path.join(__dirname, '..', '..', 'register.js
 
 const tmp = path.join(os.tmpdir(), 'node-patches-test-tmp');
 
-function assertPatched(prefix: string, arr: string[]) {
+// tslint:disable-next-line:no-any
+function assertPatched(prefix: string, arr: any) {
   const binDir = path.join(tmp, '_node_bin');
 
   const [execPath, execArgv, argv, pathEnv] = arr;
+
   assert.deepStrictEqual(
       path.join(binDir, 'node'), execPath,
       prefix + ' exec path has been rewritten to subprocess proxy');
@@ -22,8 +24,13 @@ function assertPatched(prefix: string, arr: string[]) {
       path.join(binDir, 'node'), argv[0],
       prefix + ' argv[0] has been rewritten to subprocess proxy');
 
+  let found = false;
+  (execArgv as string[]).forEach((v) => {
+    if (!found) found = v.indexOf('node-patches/register.js') > -1
+  })
+
   assert.ok(
-      execArgv.indexOf(requireScript) > -1,
+      found,
       prefix +
           ' the require script must be in process.execArgv in order for node to use it in worker threads.');
   // this has a downside in that a user can delete it from execArgv and workerThreads will not use
