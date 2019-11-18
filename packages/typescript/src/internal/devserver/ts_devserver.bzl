@@ -25,6 +25,79 @@ load(
     "html_asset_inject",
 )
 
+_DOC = """ts_devserver is a simple development server intended for a quick "getting started" experience.
+
+Additional documentation at https://github.com/alexeagle/angular-bazel-example/wiki/Running-a-devserver-under-Bazel
+"""
+
+_ATTRS = {
+    "additional_root_paths": attr.string_list(
+        doc = """Additional root paths to serve `static_files` from.
+        Paths should include the workspace name such as `["__main__/resources"]`
+        """,
+    ),
+    "bootstrap": attr.label_list(
+        doc = "Scripts to include in the JS bundle before the module loader (require.js)",
+        allow_files = [".js"],
+    ),
+    "data": attr.label_list(
+        doc = "Dependencies that can be require'd while the server is running",
+        allow_files = True,
+    ),
+    "devserver": attr.label(
+        doc = """Go based devserver executable.
+        Defaults to precompiled go binary in @npm_bazel_typescript setup by @bazel/typescript npm package""",
+        default = Label("//devserver"),
+        executable = True,
+        cfg = "host",
+    ),
+    "entry_module": attr.string(
+        doc = """The `entry_module` should be the AMD module name of the entry module such as `"__main__/src/index".`
+        `ts_devserver` concats the following snippet after the bundle to load the application:
+        `require(["entry_module"]);`
+        """,
+    ),
+    "index_html": attr.label(
+        allow_single_file = True,
+        doc = """An index.html file, we'll inject the script tag for the bundle,
+        as well as script tags for .js static_files and link tags for .css
+        static_files""",
+    ),
+    "injector": attr.label(
+        default = "@npm//@bazel/typescript/bin:injector",
+        executable = True,
+        cfg = "host",
+    ),
+    "port": attr.int(
+        doc = """The port that the devserver will listen on.""",
+        default = 5432,
+    ),
+    "scripts": attr.label_list(
+        doc = "User scripts to include in the JS bundle before the application sources",
+        allow_files = [".js"],
+    ),
+    "serving_path": attr.string(
+        # This default repeats the one in the go program. We make it explicit here so we can read it
+        # when injecting scripts into the index file.
+        default = "/_/ts_scripts.js",
+        doc = """The path you can request from the client HTML which serves the JavaScript bundle.
+        If you don't specify one, the JavaScript can be loaded at /_/ts_scripts.js""",
+    ),
+    "static_files": attr.label_list(
+        doc = """Arbitrary files which to be served, such as index.html.
+        They are served relative to the package where this rule is declared.""",
+        allow_files = True,
+    ),
+    "deps": attr.label_list(
+        doc = "Targets that produce JavaScript, such as `ts_library`",
+        allow_files = True,
+        aspects = [node_modules_aspect],
+    ),
+    "_bash_runfile_helpers": attr.label(default = Label("@bazel_tools//tools/bash/runfiles")),
+    "_launcher_template": attr.label(allow_single_file = True, default = Label("//internal/devserver:launcher_template.sh")),
+    "_requirejs_script": attr.label(allow_single_file = True, default = Label("//third_party/npm/requirejs:require.js")),
+}
+
 # Avoid using non-normalized paths (workspace/../other_workspace/path)
 def _to_manifest_path(ctx, file):
     if file.short_path.startswith("../"):
@@ -108,7 +181,7 @@ def _ts_devserver(ctx):
         html_asset_inject(
             ctx.file.index_html,
             ctx.actions,
-            ctx.executable._injector,
+            ctx.executable.injector,
             additional_root_paths(ctx),
             [_to_manifest_path(ctx, f) for f in ctx.files.static_files] + [bundle_script],
             injected_index,
@@ -146,82 +219,13 @@ def _ts_devserver(ctx):
 
 ts_devserver = rule(
     implementation = _ts_devserver,
-    attrs = {
-        "additional_root_paths": attr.string_list(
-            doc = """Additional root paths to serve `static_files` from.
-            Paths should include the workspace name such as `["__main__/resources"]`
-            """,
-        ),
-        "bootstrap": attr.label_list(
-            doc = "Scripts to include in the JS bundle before the module loader (require.js)",
-            allow_files = [".js"],
-        ),
-        "data": attr.label_list(
-            doc = "Dependencies that can be require'd while the server is running",
-            allow_files = True,
-        ),
-        "devserver": attr.label(
-            doc = """Go based devserver executable.
-            Defaults to precompiled go binary in @npm_bazel_typescript setup by @bazel/typescript npm package""",
-            default = Label("//devserver"),
-            executable = True,
-            cfg = "host",
-        ),
-        "entry_module": attr.string(
-            doc = """The `entry_module` should be the AMD module name of the entry module such as `"__main__/src/index".`
-            `ts_devserver` concats the following snippet after the bundle to load the application:
-            `require(["entry_module"]);`
-            """,
-        ),
-        "index_html": attr.label(
-            allow_single_file = True,
-            doc = """An index.html file, we'll inject the script tag for the bundle,
-            as well as script tags for .js static_files and link tags for .css
-            static_files""",
-        ),
-        "port": attr.int(
-            doc = """The port that the devserver will listen on.""",
-            default = 5432,
-        ),
-        "scripts": attr.label_list(
-            doc = "User scripts to include in the JS bundle before the application sources",
-            allow_files = [".js"],
-        ),
-        "serving_path": attr.string(
-            # This default repeats the one in the go program. We make it explicit here so we can read it
-            # when injecting scripts into the index file.
-            default = "/_/ts_scripts.js",
-            doc = """The path you can request from the client HTML which serves the JavaScript bundle.
-            If you don't specify one, the JavaScript can be loaded at /_/ts_scripts.js""",
-        ),
-        "static_files": attr.label_list(
-            doc = """Arbitrary files which to be served, such as index.html.
-            They are served relative to the package where this rule is declared.""",
-            allow_files = True,
-        ),
-        "deps": attr.label_list(
-            doc = "Targets that produce JavaScript, such as `ts_library`",
-            allow_files = True,
-            aspects = [node_modules_aspect],
-        ),
-        "_bash_runfile_helpers": attr.label(default = Label("@bazel_tools//tools/bash/runfiles")),
-        "_injector": attr.label(
-            default = "@npm_bazel_typescript//internal/devserver:injector",
-            executable = True,
-            cfg = "host",
-        ),
-        "_launcher_template": attr.label(allow_single_file = True, default = Label("//internal/devserver:launcher_template.sh")),
-        "_requirejs_script": attr.label(allow_single_file = True, default = Label("//third_party/npm/requirejs:require.js")),
-    },
+    attrs = _ATTRS,
     outputs = {
         "manifest": "%{name}.MF",
         "script": "%{name}.sh",
         "scripts_manifest": "scripts_%{name}.MF",
     },
-    doc = """ts_devserver is a simple development server intended for a quick "getting started" experience.
-
-Additional documentation at https://github.com/alexeagle/angular-bazel-example/wiki/Running-a-devserver-under-Bazel
-""",
+    doc = _DOC,
 )
 
 def ts_devserver_macro(name, data = [], args = [], visibility = None, tags = [], testonly = 0, **kwargs):
