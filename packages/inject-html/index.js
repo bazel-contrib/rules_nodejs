@@ -16,9 +16,8 @@
  */
 
 const parse5 = require('parse5');
-const treeAdapter = require('parse5/tree-adapters/default');
+const treeAdapter = require('parse5/lib/tree-adapters/default');
 const fs = require('fs');
-const path = require('path');
 
 function findElementByName(d, name) {
   if (treeAdapter.isTextNode(d)) return undefined;
@@ -67,10 +66,10 @@ function main(params, read = fs.readFileSync, write = fs.writeFileSync, timestam
    * Trims the longest prefix from the path
    */
   function relative(execPath) {
+    if (execPath.startsWith('external/')) {
+      execPath = execPath.substring('external/'.length);
+    }
     for (const r of rootDirs) {
-      if (execPath.startsWith('external/')) {
-        execPath = execPath.substring('external/'.length);
-      }
       if (execPath.startsWith(r)) {
         return execPath.substring(r.length);
       }

@@ -1,6 +1,7 @@
 load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_package")
 load("@npm//http-server:index.bzl", "http_server")
 load("@npm//typescript:index.bzl", "tsc")
+load("@npm_bazel_inject_html//:index.bzl", "inject_html")
 load("@npm_bazel_protractor//:index.bzl", "protractor_web_test_suite")
 load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
 load("@npm_bazel_terser//:index.bzl", "terser_minified")
@@ -15,7 +16,6 @@ ts_library(
 
 ts_devserver(
     name = "devserver",
-    index_html = "index.html",
     # We'll collect all the devmode JS sources from these TypeScript libraries
     deps = [":app"],
 )
@@ -31,14 +31,21 @@ terser_minified(
     src = ":bundle",
 )
 
+_ASSETS = [
+    ":bundle.min",
+    "//styles:base.css",
+    "//styles:test.css",
+]
+
+inject_html(
+    name = "inject_js_css_tags",
+    src = "index.html",
+    assets = _ASSETS,
+)
+
 web_package(
     name = "package",
-    assets = [
-        ":bundle.min",
-        "//styles:base.css",
-        "//styles:test.css",
-    ],
-    index_html = "index.html",
+    srcs = [":inject_js_css_tags"] + _ASSETS,
 )
 
 http_server(

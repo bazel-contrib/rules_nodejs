@@ -12,13 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@npm_bazel_inject_html//:index.bzl", "inject_html")
 load("@npm_bazel_protractor//:index.bzl", "protractor_web_test_suite")
 load("@npm_bazel_typescript//:index.bzl", "ts_devserver", "ts_library")
 
+inject_html(
+    name = "inject",
+    src = "index.html",
+    assets = ["//:red-body-style.css"],
+)
+
 ts_devserver(
     name = "devserver",
-    index_html = "index.html",
-    static_files = ["//:red-body-style.css"],
+    static_files = [
+        "inject",
+        "//:red-body-style.css",
+    ],
 )
 
 ts_library(
