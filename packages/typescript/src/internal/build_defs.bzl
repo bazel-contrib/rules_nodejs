@@ -90,7 +90,7 @@ def _filter_ts_inputs(all_inputs):
     return [
         f
         for f in all_inputs
-        if f.path.endswith(".js") or f.path.endswith(".ts") or f.path.endswith(".json")
+        if f.extension in ["js", "jsx", "ts", "tsx", "json"]
     ]
 
 def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description = "prodmode"):
