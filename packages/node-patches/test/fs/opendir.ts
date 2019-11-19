@@ -24,7 +24,7 @@ import {patcher} from '../../src/fs';
 
 describe('testing opendir', () => {
   it('can opendir dirent in root', async () => {
-    await withFixtures(
+    console.log('versions>>>> ', process.versions) await withFixtures(
         {
           a: {apples: 'contents'},
           b: {file: 'contents'},
