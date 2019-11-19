@@ -64,7 +64,7 @@ def _web_package(ctx):
 
     package_layout = move_files(
         ctx.label.name,
-        ctx.files.data + ctx.files.assets,
+        ctx.files.assets,
         ctx.actions,
         ctx.executable._assembler,
         root_paths,
@@ -81,11 +81,7 @@ web_package = rule(
         ),
         "assets": attr.label_list(
             allow_files = True,
-            doc = """Files which should be referenced from the index_html""",
-        ),
-        "data": attr.label_list(
-            allow_files = True,
-            doc = """Additional files which should be served on request""",
+            doc = """Files which should be copied into the package""",
         ),
         "_assembler": attr.label(
             default = "@build_bazel_rules_nodejs//internal/web_package:assembler",

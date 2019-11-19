@@ -69,9 +69,6 @@ web_package(
     # https://github.com/bazelbuild/rules_nodejs/pull/546
     assets = [
         "index.html",
-        ":bundle.min",
-    ],
-    data = [
         ":bundle",
         ":bundle.es2015",
         ":bundle.min",
