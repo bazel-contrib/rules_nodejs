@@ -31,7 +31,10 @@ def rules_nodejs_dev_dependencies():
     http_archive(
         name = "io_bazel_rules_sass",
         sha256 = "4f05239080175a3f4efa8982d2b7775892d656bb47e8cf56914d5f9441fb5ea6",
-        url = "https://github.com/bazelbuild/rules_sass/archive/86ca977cf2a8ed481859f83a286e164d07335116.zip",
+        urls = [
+            "https://mirror.bazel.build/github.com/bazelbuild/rules_sass/archive/86ca977cf2a8ed481859f83a286e164d07335116.zip",
+            "https://github.com/bazelbuild/rules_sass/archive/86ca977cf2a8ed481859f83a286e164d07335116.zip",
+        ],
         strip_prefix = "rules_sass-86ca977cf2a8ed481859f83a286e164d07335116",
     )
 
@@ -41,14 +44,20 @@ def rules_nodejs_dev_dependencies():
         build_file = "@com_google_protobuf//:third_party/zlib.BUILD",
         sha256 = "c3e5e9fdd5004dcb542feda5ee4f0ff0744628baf8ed2dd5d66f8ca1197cb1a1",
         strip_prefix = "zlib-1.2.11",
-        urls = ["https://zlib.net/zlib-1.2.11.tar.gz"],
+        urls = [
+            "https://mirror.bazel.build/zlib.net/zlib-1.2.11.tar.gz",
+            "https://zlib.net/zlib-1.2.11.tar.gz",
+        ],
     )
 
     http_archive(
         name = "io_bazel_skydoc",
         sha256 = "fdc34621839104b57363a258eab9d821b02ff7837923cfe7fb6fd67182780829",
         strip_prefix = "skydoc-41c28e43dffbae39c52dd4b91932d1209e5a8893",
-        url = "https://github.com/bazelbuild/skydoc/archive/41c28e43dffbae39c52dd4b91932d1209e5a8893.tar.gz",
+        urls = [
+            "https://mirror.bazel.build/github.com/bazelbuild/skydoc/archive/41c28e43dffbae39c52dd4b91932d1209e5a8893.tar.gz",
+            "https://github.com/bazelbuild/skydoc/archive/41c28e43dffbae39c52dd4b91932d1209e5a8893.tar.gz",
+        ],
     )
 
     # bazel-skylib master 2019.05.03 to get support for https://github.com/bazelbuild/bazel-skylib/pull/140
@@ -56,7 +65,10 @@ def rules_nodejs_dev_dependencies():
         name = "bazel_skylib",
         sha256 = "afbe4d9d033c007940acd24bb9becf1580a0280ae0b2ebbb5a7cb12912d2c115",
         strip_prefix = "bazel-skylib-ffad33e9bfc60bdfa98292ca655a4e7035792046",
-        urls = ["https://github.com/bazelbuild/bazel-skylib/archive/ffad33e9bfc60bdfa98292ca655a4e7035792046.tar.gz"],
+        urls = [
+            "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/archive/ffad33e9bfc60bdfa98292ca655a4e7035792046.tar.gz",
+            "https://github.com/bazelbuild/bazel-skylib/archive/ffad33e9bfc60bdfa98292ca655a4e7035792046.tar.gz",
+        ],
     )
 
     # Gross dep that leaked out of stardoc, see
@@ -85,7 +97,10 @@ def rules_nodejs_dev_dependencies():
 
     http_archive(
         name = "build_bazel_integration_testing",
-        url = "https://github.com/bazelbuild/bazel-integration-testing/archive/922d2b04bfb9721ab14ff6d26d4a8a6ab847aa07.zip",
+        urls = [
+            "https://mirror.bazel.build/github.com/bazelbuild/bazel-integration-testing/archive/922d2b04bfb9721ab14ff6d26d4a8a6ab847aa07.zip",
+            "https://github.com/bazelbuild/bazel-integration-testing/archive/922d2b04bfb9721ab14ff6d26d4a8a6ab847aa07.zip",
+        ],
         strip_prefix = "bazel-integration-testing-922d2b04bfb9721ab14ff6d26d4a8a6ab847aa07",
         sha256 = "490554b98da4ce6e3e1e074e01b81e8440b760d4f086fccf50085a25528bf5cd",
     )
@@ -94,7 +109,10 @@ def rules_nodejs_dev_dependencies():
         name = "rules_codeowners",
         strip_prefix = "rules_codeowners-826b742ee0d6703736c8c4f45fd07d65315cf599",
         sha256 = "64f64459b41201f7236880763e72de9384b237dfc44d61949520a2994bff18cd",
-        url = "https://github.com/zegl/rules_codeowners/archive/826b742ee0d6703736c8c4f45fd07d65315cf599.zip",
+        urls = [
+            "https://mirror.bazel.build/github.com/zegl/rules_codeowners/archive/826b742ee0d6703736c8c4f45fd07d65315cf599.zip",
+            "https://github.com/zegl/rules_codeowners/archive/826b742ee0d6703736c8c4f45fd07d65315cf599.zip",
+        ],
     )
 
 def _maybe(repo_rule, name, **kwargs):
