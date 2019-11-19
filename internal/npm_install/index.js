@@ -88,11 +88,19 @@ function generateRootBuildFile(pkgs) {
     ],`;
     }
     let exportsStarlark = '';
-    pkgs.forEach(pkg => {
-        pkg._files.forEach(f => {
+    for (const pkg of pkgs) {
+        exportsStarlark += `    "node_modules/${pkg._dir}",\n`;
+        const dirs = [];
+        for (const f of pkg._files) {
+            dirs.push(path.dirname(f));
             exportsStarlark += `    "node_modules/${pkg._dir}/${f}",\n`;
-        });
-    });
+        }
+        for (const d of [...new Set(dirs)]) {
+            if (d !== '.') {
+                exportsStarlark += `    "node_modules/${pkg._dir}/${d}",\n`;
+            }
+        }
+    }
     let buildFile = generateBuildFileHeader() + `load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 
 exports_files([
