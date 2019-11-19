@@ -1,10 +1,5 @@
 {
-  //"extends": "./node_modules/gts/tsconfig-google.json",
   "compilerOptions": {
-    //"rootDir": ".",
-    //"outDir": "bazel-out/k8-fastbuild/bin/packages/node-patches",
-    //"typeRoots":["./node_modules/@types"],
-    //"baseUrl":"./",
     "lib": ["es2016"],
     "declaration": true
   },
