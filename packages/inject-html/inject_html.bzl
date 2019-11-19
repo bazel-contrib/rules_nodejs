@@ -19,7 +19,7 @@ _ATTRS = {
     ),
     "assets": attr.label_list(
         allow_files = True,
-        doc = """Files which should be referenced from the index_html""",
+        doc = """Files which should be referenced from the output html""",
     ),
     "injector": attr.label(
         default = "@npm//@bazel/inject-html/bin:injector",
@@ -27,35 +27,6 @@ _ATTRS = {
         cfg = "host",
     ),
 }
-
-def html_asset_inject(index_html, action_factory, injector, root_dirs, assets, output):
-    """Injects JS and CSS resources into the index.html.
-
-    Args:
-      index_html: The input html file
-      action_factory: Bazel's actions module from ctx.actions - see https://docs.bazel.build/versions/master/skylark/lib/actions.html
-      injector: The injector executable
-      root_dirs: Path prefixes to strip off all assets. Longest wins.
-      assets: Asset files to inject
-      output: The output html file
-
-    Returns:
-      The output html file
-    """
-    args = action_factory.args()
-    args.add(output.path)
-    args.add(index_html.path)
-    args.add_all(root_dirs)
-    args.add("--assets")
-    args.add_all(assets)
-    args.use_param_file("%s", use_always = True)
-    action_factory.run(
-        inputs = [index_html],
-        outputs = [output],
-        executable = injector,
-        arguments = [args],
-    )
-    return output
 
 def _impl(ctx):
     src = ctx.file.src
@@ -67,13 +38,18 @@ def _impl(ctx):
         # foo/index.html -> bazel-bin/foo/index.html
         out = ctx.actions.declare_file(src.basename, sibling = src)
 
-    html_asset_inject(
-        src,
-        ctx.actions,
-        ctx.executable.injector,
-        additional_root_paths(ctx),
-        [f.path for f in ctx.files.assets],
-        out,
+    args = ctx.actions.args()
+    args.add(out.path)
+    args.add(src.path)
+    args.add_all(additional_root_paths(ctx))
+    args.add("--assets")
+    args.add_all([f.path for f in ctx.files.assets])
+    args.use_param_file("%s", use_always = True)
+    ctx.actions.run(
+        inputs = [src],
+        outputs = [out],
+        executable = ctx.executable.injector,
+        arguments = [args],
     )
 
     return [
