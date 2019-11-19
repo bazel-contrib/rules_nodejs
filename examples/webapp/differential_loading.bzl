@@ -56,7 +56,7 @@ def differential_loading(name, entry_point, srcs):
 
     web_package(
         name = name,
-        assets = [
+        srcs = [
             "index.html",
             "styles.css",
             "favicon.png",

@@ -15,6 +15,23 @@
 """Contains the web_package rule.
 """
 
+_DOC = """Assembles a web application from source files."""
+
+_ATTRS = {
+    "srcs": attr.label_list(
+        allow_files = True,
+        doc = """Files which should be copied into the package""",
+    ),
+    "additional_root_paths": attr.string_list(
+        doc = """Path prefixes to strip off all srcs, in addition to the current package. Longest wins.""",
+    ),
+    "_assembler": attr.label(
+        default = "@build_bazel_rules_nodejs//internal/web_package:assembler",
+        executable = True,
+        cfg = "host",
+    ),
+}
+
 def move_files(output_name, files, action_factory, assembler, root_paths):
     """Moves files into an output directory
 
@@ -23,7 +40,7 @@ def move_files(output_name, files, action_factory, assembler, root_paths):
       files: The files to move
       action_factory: Bazel's actions module from ctx.actions - see https://docs.bazel.build/versions/master/skylark/lib/actions.html
       assembler: The assembler executable
-      root_paths: Path prefixes to strip off all assets. Longest wins.
+      root_paths: Path prefixes to strip off all srcs. Longest wins.
 
     Returns:
       The output directory tree-artifact
@@ -64,7 +81,7 @@ def _web_package(ctx):
 
     package_layout = move_files(
         ctx.label.name,
-        ctx.files.assets,
+        ctx.files.srcs,
         ctx.actions,
         ctx.executable._assembler,
         root_paths,
@@ -75,22 +92,6 @@ def _web_package(ctx):
 
 web_package = rule(
     implementation = _web_package,
-    attrs = {
-        "additional_root_paths": attr.string_list(
-            doc = """Path prefixes to strip off all assets, in addition to the current package. Longest wins.""",
-        ),
-        "assets": attr.label_list(
-            allow_files = True,
-            doc = """Files which should be copied into the package""",
-        ),
-        "_assembler": attr.label(
-            default = "@build_bazel_rules_nodejs//internal/web_package:assembler",
-            executable = True,
-            cfg = "host",
-        ),
-    },
-    doc = """Assembles a web application from source files.
-
-    Injects JS and CSS resources into the index.html.
-    """,
+    attrs = _ATTRS,
+    doc = _DOC,
 )
