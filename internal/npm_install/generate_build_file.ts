@@ -195,10 +195,23 @@ function generateRootBuildFile(pkgs: Dep[]) {
   }
 
   let exportsStarlark = '';
-  pkgs.forEach(pkg => {pkg._files.forEach(f => {
-                 exportsStarlark += `    "node_modules/${pkg._dir}/${f}",
-`;
-               })});
+  for (const pkg of pkgs) {
+    // export the package dir itself so that it can be reference
+    // by the `@wksp//:node_modules/pkg` label
+    exportsStarlark += `    "node_modules/${pkg._dir}",\n`;
+    const dirs = [];
+    for (const f of pkg._files) {
+      dirs.push(path.dirname(f))
+      exportsStarlark += `    "node_modules/${pkg._dir}/${f}",\n`;
+    }
+    // export the all dirs so that they can be reference
+    // by the `@wksp//:node_modules/pkg/path/to/dir` label
+    for (const d of [...new Set(dirs)]) {
+      if (d !== '.') {
+        exportsStarlark += `    "node_modules/${pkg._dir}/${d}",\n`;
+      }
+    }
+  }
 
   let buildFile = BUILD_FILE_HEADER +
       `load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
