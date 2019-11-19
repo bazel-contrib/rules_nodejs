@@ -517,6 +517,7 @@ def compile_ts(
 # This allows users of compile_ts to modify or augment the returned dict before
 # converting it to an immutable struct.
 def ts_providers_dict_to_struct(d):
+
     for key, value in d.items():
         if key != "output_groups" and type(value) == type({}):
             d[key] = struct(**value)
