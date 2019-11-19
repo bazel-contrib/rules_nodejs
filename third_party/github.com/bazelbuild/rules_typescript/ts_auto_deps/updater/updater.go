@@ -623,6 +623,7 @@ func directoryOrAncestorHasSubdirectorySources(ctx context.Context, g3root, work
 }
 
 func (upd *Updater) addSourcesToBUILD(ctx context.Context, path string, buildFilePath string, bld *build.File, srcs srcSet) (bool, error) {
+
 	platform.Infof("Updating sources")
 	if len(srcs) == 0 && len(allTSRules(bld)) == 0 {
 		// No TypeScript rules/sources, no need to update anything
