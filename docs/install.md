@@ -299,7 +299,7 @@ yarn_install(
 )
 ```
 
-Your application would then reference its deps as (for example) `@app1//lodash`, or `@app2//jquery`.
+Your application would then reference its deps as (for example) `@app1_npm//lodash`, or `@app2_npm//jquery`.
 
 #### Fine-grained npm package nodejs_binary targets
 
