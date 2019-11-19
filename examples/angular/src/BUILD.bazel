@@ -174,14 +174,7 @@ inject_html(
 
 web_package(
     name = "prodapp",
-    # In production mode we serve some polyfills with script tags that have hard-coded paths in the index.html
-    # so we must serve them at that path, by stripping a prefix
-    additional_root_paths = [
-        "npm/node_modules/core-js/client",
-        "npm/node_modules/systemjs/dist",
-        "src/_prodapp",
-    ],
-    assets = _ASSETS + [
+    srcs = _ASSETS + [
         ":bundle-es2015.min",
         ":bundle-es5.min",
         ":inject_scripts_for_prod",
