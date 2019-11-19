@@ -46,11 +46,13 @@ describe('testing opendir', () => {
           const entry2 = await util.promisify(dir.read.bind(dir))();
           const empty = await dir.read();
 
-          assert.ok(!empty);
-          equal(entry1!.name, 'link');
-          equal(entry2!.name, 'apples');
-          assert.ok(entry1!.isSymbolicLink());
-          assert.ok(entry2!.isFile());
+          let names = [entry1.name, entry2.name]
+          names.sort()
+          equal(names, ['apples', 'link']);
+
+          let maybeLink = entry1.name === 'link' ? entry1 : entry2;
+          assert.ok(!maybeLink!.isSymbolicLink());
+
           assert.ok(!empty, 'last read should be null');
         });
   });
@@ -77,11 +79,14 @@ describe('testing opendir', () => {
           const entry2 = await util.promisify(dir.read.bind(dir))();
           const empty = await dir.read();
 
+          let names = [entry1.name, entry2.name]
+          names.sort()
+
           assert.ok(!empty);
-          equal(entry1!.name, 'link');
-          equal(entry2!.name, 'apples');
-          assert.ok(!entry1!.isSymbolicLink());
-          assert.ok(entry2!.isFile());
+          equal(names, ['apples', 'link']);
+
+          let maybeLink = entry1.name === 'link' ? entry1 : entry2;
+          assert.ok(!maybeLink!.isSymbolicLink());
         });
   });
 
