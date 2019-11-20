@@ -2,7 +2,8 @@
   "compilerOptions": {
     "lib": ["es2016"],
     "declaration": true,
-    "typeRoots":["../../node_modules/@types"],
+    "types":["node","mocha","rimraf"],
+    "typeRoots":["../../node_modules/@types"]
   },
   "include": [
     "register.ts",

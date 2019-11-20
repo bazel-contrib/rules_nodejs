@@ -153,7 +153,7 @@ done
 if [[ -n "$MODULES_MANIFEST" ]]; then
   "${node}" "${link_modules_script}" "${MODULES_MANIFEST}"
 fi
-
+find .
 # The EXPECTED_EXIT_CODE lets us write bazel tests which assert that
 # a binary fails to run. Otherwise any failure would make such a test
 # fail before we could assert that we expected that failure.

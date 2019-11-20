@@ -2,6 +2,7 @@
   "compilerOptions": {
     "lib": ["es2016"],
     "declaration": true,
+    "types":["node","mocha","rimraf"],
     "typeRoots":["./node_modules/@types"],
   },
   "include": [
