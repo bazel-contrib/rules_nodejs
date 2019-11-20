@@ -30,6 +30,9 @@ describe('testing realpath', () => {
           b: {file: 'contents'},
         },
         async fixturesDir => {
+          // on mac, inside of bazel, the fixtures dir returned here is not realpath-ed.
+          fixturesDir = fs.realpathSync(fixturesDir);
+
           // create symlink from a to b
           fs.symlinkSync(path.join(fixturesDir, 'b', 'file'), path.join(fixturesDir, 'a', 'link'));
 
@@ -61,6 +64,9 @@ describe('testing realpath', () => {
           b: {file: 'contents'},
         },
         async fixturesDir => {
+          // ensure realpath.
+          fixturesDir = fs.realpathSync(fixturesDir);
+
           // create symlink from a to b
           fs.symlinkSync(path.join(fixturesDir, 'b', 'file'), path.join(fixturesDir, 'a', 'link'));
 
