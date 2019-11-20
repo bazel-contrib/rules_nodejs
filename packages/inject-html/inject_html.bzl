@@ -1,6 +1,6 @@
 "Inject script and link tags into html files"
 
-load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "additional_root_paths")
+load("@build_bazel_rules_nodejs//internal/pkg_web:pkg_web.bzl", "additional_root_paths")
 
 _DOC = """Inject script and link tags into html file
 

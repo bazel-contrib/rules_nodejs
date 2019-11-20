@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_package")
+load("@build_bazel_rules_nodejs//:index.bzl", "pkg_web")
 load("@npm//@babel/cli:index.bzl", "babel")
 load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
 load("@npm_bazel_rollup//:index.from_src.bzl", "rollup_bundle")
@@ -53,23 +53,23 @@ terser_minified(
     debug = True,
 )
 
-# Same exts as //internal/web_package/test-exports, //internal/web_package/test2/rel-exports
+# Same exts as //internal/pkg_web/test-exports, //internal/pkg_web/test2/rel-exports
 EXTS = [
     "js",
     "css",
 ]
 
-web_package(
+pkg_web(
     name = "pkg",
     srcs = [
                "index.html",
                # bundles from a different directory
-               "//internal/web_package/test:bundle.es2015",
-               "//internal/web_package/test:bundle.min.es2015",
-               "//internal/web_package/test:bundle.min_debug.es2015",
-               "//internal/web_package/test:bundle",
-               "//internal/web_package/test:bundle.min",
-               "//internal/web_package/test:bundle.min_debug",
+               "//internal/pkg_web/test:bundle.es2015",
+               "//internal/pkg_web/test:bundle.min.es2015",
+               "//internal/pkg_web/test:bundle.min_debug.es2015",
+               "//internal/pkg_web/test:bundle",
+               "//internal/pkg_web/test:bundle.min",
+               "//internal/pkg_web/test:bundle.min_debug",
                # bundles in the current path
                ":local_bundle.es2015",
                ":local_bundle.min.es2015",
@@ -79,13 +79,13 @@ web_package(
                ":local_bundle.min_debug",
            ] +
            # bin + gen + exported files from a different directory
-           ["//internal/web_package/test-exports:bin-" + e for e in EXTS] +
-           ["//internal/web_package/test-exports:gen-" + e for e in EXTS] +
-           ["//internal/web_package/test-exports:file." + e for e in EXTS] +
+           ["//internal/pkg_web/test-exports:bin-" + e for e in EXTS] +
+           ["//internal/pkg_web/test-exports:gen-" + e for e in EXTS] +
+           ["//internal/pkg_web/test-exports:file." + e for e in EXTS] +
            # bin + gen + exported files from a sub directory
-           ["//internal/web_package/test2/rel-exports:rel-bin-" + e for e in EXTS] +
-           ["//internal/web_package/test2/rel-exports:rel-gen-" + e for e in EXTS] +
-           ["//internal/web_package/test2/rel-exports:rel-file." + e for e in EXTS],
+           ["//internal/pkg_web/test2/rel-exports:rel-bin-" + e for e in EXTS] +
+           ["//internal/pkg_web/test2/rel-exports:rel-gen-" + e for e in EXTS] +
+           ["//internal/pkg_web/test2/rel-exports:rel-file." + e for e in EXTS],
 )
 
 jasmine_node_test(

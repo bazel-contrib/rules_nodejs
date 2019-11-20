@@ -7,7 +7,7 @@ load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
 # END-INTERNAL
 package(default_visibility = ["//visibility:public"])
 
-exports_files(["web_package.bzl"])
+exports_files(["pkg_web.bzl"])
 
 bzl_library(
     name = "bzl",
