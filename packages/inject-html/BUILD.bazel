@@ -1,5 +1,7 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "npm_package")
-load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
+
+# For unit test
+exports_files(["index.js"])
 
 # For local testing without an npm install
 nodejs_binary(
@@ -8,15 +10,6 @@ nodejs_binary(
     entry_point = ":index.js",
     install_source_map_support = False,
     visibility = ["//packages/inject-html:__subpackages__"],
-)
-
-jasmine_node_test(
-    name = "test",
-    srcs = ["spec.js"],
-    deps = [
-        ":index.js",
-        "@npm//parse5",
-    ],
 )
 
 npm_package(

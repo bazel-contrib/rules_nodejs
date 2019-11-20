@@ -37,15 +37,16 @@ _ASSETS = [
     "//styles:test.css",
 ]
 
+# Copy index.html to the output folder, adding <script> and <link> tags
 inject_html(
-    name = "inject_js_css_tags",
+    name = "inject_tags",
     src = "index.html",
     assets = _ASSETS,
 )
 
 pkg_web(
     name = "package",
-    srcs = [":inject_js_css_tags"] + _ASSETS,
+    srcs = [":inject_tags"] + _ASSETS,
 )
 
 http_server(

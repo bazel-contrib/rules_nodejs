@@ -57,7 +57,6 @@ def differential_loading(name, entry_point, srcs):
         name = name,
         srcs = [
             "index.html",
-            "styles.css",
             "favicon.png",
             name + "_chunks.min",
             name + "_chunks_es5.min",

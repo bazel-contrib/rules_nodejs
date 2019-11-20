@@ -1,3 +1,4 @@
+load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
 load("//internal/golden_file_test:golden_file_test.bzl", "golden_file_test")
 load("//packages/inject-html:inject_html.bzl", "inject_html")
 
@@ -33,4 +34,13 @@ golden_file_test(
     golden = "index_golden.html_",
     # Sed script doesn't work on Mac :shrug:
     tags = ["no-bazelci-mac"],
+)
+
+jasmine_node_test(
+    name = "unit_test",
+    srcs = ["spec.js"],
+    deps = [
+        "//packages/inject-html:index.js",
+        "@npm//parse5",
+    ],
 )
