@@ -43,7 +43,10 @@ sources = glob(
     exclude = ["src/*.d.ts"],
 ) + ["register.ts"]
 
-tests = glob(["test/**/*.ts"])
+tests = glob(
+    ["test/**/*.ts"],
+    exclude = ["test/**/*.d.ts"],
+)
 
 tsc(
     name = "compile",

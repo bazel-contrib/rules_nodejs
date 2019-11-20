@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "test": "c8 mocha -r source-map-support/register build/test/fs/*.js build/test/subprocess/test.js",
-    "compile": "tsc -p .",
+    "compile": "tsc -p tsconfig-local.json",
     "pretest": "npm run compile",
     "fix": "git-clang-format"
   },
