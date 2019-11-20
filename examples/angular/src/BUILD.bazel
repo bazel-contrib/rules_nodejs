@@ -1,3 +1,4 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "pkg_web")
 load("@io_bazel_rules_docker//container:container.bzl", "container_image")
 load("@io_bazel_rules_docker//nodejs:image.bzl", "nodejs_image")
 load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
@@ -8,7 +9,6 @@ load("@npm_bazel_inject_html//:index.bzl", "inject_html")
 load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
 load("@npm_bazel_terser//:index.bzl", "terser_minified")
 load("@npm_bazel_typescript//:index.bzl", "ts_config", "ts_devserver", "ts_library")
-load("@build_bazel_rules_nodejs//index.bzl", "pkg_web")
 
 package(default_visibility = ["//:__subpackages__"])
 
@@ -166,8 +166,10 @@ terser_minified(
 inject_html(
     name = "inject_scripts_for_prod",
     src = "//src:example/index.prod.html",
-    # we can't produce "example/index.html" since that collides with the devmode file
-    # pkg_web rule will re-root this path because it starts with _prodapp
+    # we can't output "src/example/index.html" since that collides with the devmode file.
+    # pkg_web rule will re-root paths that start with _{name} by default
+    # so we output "_prodapp/src/example/index.html" so that it is mapped to
+    # `example/index.html` in the web package.
     out = "_prodapp/src/example/index.html",
     assets = _ASSETS,
 )
