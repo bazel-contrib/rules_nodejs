@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_package")
+load("@build_bazel_rules_nodejs//:index.bzl", "pkg_web")
 load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
 load("@npm//@babel/cli:index.bzl", "babel")
 load("@npm//history-server:index.bzl", "history_server")
@@ -167,12 +167,12 @@ inject_html(
     name = "inject_scripts_for_prod",
     src = "//src:example/index.prod.html",
     # we can't produce "example/index.html" since that collides with the devmode file
-    # web_package rule will re-root this path because it starts with _prodapp
+    # pkg_web rule will re-root this path because it starts with _prodapp
     out = "_prodapp/src/example/index.html",
     assets = _ASSETS,
 )
 
-web_package(
+pkg_web(
     name = "prodapp",
     srcs = _ASSETS + [
         ":bundle-es2015.min",

@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_package")
+load("@build_bazel_rules_nodejs//:index.bzl", "pkg_web")
 load("@npm//http-server:index.bzl", "http_server")
 load("@npm//typescript:index.bzl", "tsc")
 load("@npm_bazel_inject_html//:index.bzl", "inject_html")
@@ -43,7 +43,7 @@ inject_html(
     assets = _ASSETS,
 )
 
-web_package(
+pkg_web(
     name = "package",
     srcs = [":inject_js_css_tags"] + _ASSETS,
 )

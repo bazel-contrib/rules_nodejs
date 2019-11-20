@@ -1,7 +1,7 @@
 # Add rules here to build your software
 # See https://docs.bazel.build/versions/master/build-ref.html#BUILD_files
 
-load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_package")
+load("@build_bazel_rules_nodejs//:index.bzl", "pkg_web")
 load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kt_js_import", "kt_js_library")
 load("@npm//http-server:index.bzl", "http_server")
 load("@npm_bazel_inject_html//:index.bzl", "inject_html")
@@ -61,7 +61,7 @@ inject_html(
     assets = [":bundle.min.js"],
 )
 
-web_package(
+pkg_web(
     name = "package",
     srcs = [
         "inject_script_tag",

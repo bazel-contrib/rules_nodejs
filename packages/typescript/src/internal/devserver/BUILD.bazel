@@ -26,7 +26,7 @@ bzl_library(
     visibility = ["//:__pkg__"],
     deps = [
         "@build_bazel_rules_nodejs//internal/js_library:bzl",
-        "@build_bazel_rules_nodejs//internal/web_package:bzl",
+        "@build_bazel_rules_nodejs//internal/pkg_web:bzl",
     ],
 )
 

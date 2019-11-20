@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_package")
+load("@build_bazel_rules_nodejs//:index.bzl", "pkg_web")
 load("@npm//@babel/cli:index.bzl", "babel")
 load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
 load("@npm_bazel_rollup//:index.from_src.bzl", "rollup_bundle")
@@ -62,7 +62,7 @@ terser_minified(
     debug = True,
 )
 
-web_package(
+pkg_web(
     name = "pkg",
     srcs = [
         "index.html",

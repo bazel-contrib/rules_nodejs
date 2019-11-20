@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Contains the web_package rule.
+"""Contains the pkg_web rule.
 """
 
 _DOC = """Assembles a web application from source files."""
@@ -26,7 +26,7 @@ _ATTRS = {
         doc = """Path prefixes to strip off all srcs, in addition to the current package. Longest wins.""",
     ),
     "_assembler": attr.label(
-        default = "@build_bazel_rules_nodejs//internal/web_package:assembler",
+        default = "@build_bazel_rules_nodejs//internal/pkg_web:assembler",
         executable = True,
         cfg = "host",
     ),
@@ -76,7 +76,7 @@ def additional_root_paths(ctx):
         "/".join([p for p in [ctx.bin_dir.path, ctx.label.package, "_" + ctx.label.name, ctx.label.package] if p]),
     ]
 
-def _web_package(ctx):
+def _impl(ctx):
     root_paths = additional_root_paths(ctx)
 
     package_layout = move_files(
@@ -90,8 +90,8 @@ def _web_package(ctx):
         DefaultInfo(files = package_layout),
     ]
 
-web_package = rule(
-    implementation = _web_package,
+pkg_web = rule(
+    implementation = _impl,
     attrs = _ATTRS,
     doc = _DOC,
 )
