@@ -2,7 +2,7 @@
   "compilerOptions": {
     "lib": ["es2016"],
     "declaration": true,
-    "typeRoots":["./node_modules/@types"],
+    "typeRoots":["../../node_modules/@types"],
   },
   "include": [
     "register.ts",

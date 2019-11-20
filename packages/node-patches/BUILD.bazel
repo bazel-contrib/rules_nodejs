@@ -57,12 +57,12 @@ tsc(
     ] for s in sources + tests],
     args = [
         "-p",
-        "$(location tsconfig.json)",
+        "$(location tsconfig-bazel.json)",
         "--outDir",
         "$@",
     ],
     data = sources + tests + [
-        "tsconfig.json",
+        "tsconfig-bazel.json",
         "@npm_node_patches//:node_modules",
     ],
 )
