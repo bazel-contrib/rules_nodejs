@@ -24,7 +24,9 @@ import {patcher} from '../../src/fs';
 
 describe('testing opendir', () => {
   it('can opendir dirent in root', async () => {
-    console.log('versions>>>> ', process.versions);
+    // tslint:disable-next-line:no-any
+    console.log('====>', (global as any).BAZEL_NODE_PATCHES);
+
     await withFixtures(
         {
           a: {apples: 'contents'},
@@ -51,9 +53,9 @@ describe('testing opendir', () => {
           equal(names, ['apples', 'link']);
 
           let maybeLink = entry1.name === 'link' ? entry1 : entry2;
-          assert.ok(!maybeLink!.isSymbolicLink());
+          assert.ok(maybeLink!.isSymbolicLink());
 
-          assert.ok(!empty, 'last read should be null');
+          assert.ok(!empty, 'last read should be falsey');
         });
   });
 

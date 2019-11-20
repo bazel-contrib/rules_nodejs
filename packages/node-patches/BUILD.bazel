@@ -38,7 +38,7 @@ npm_package(
 
 sources = glob([
     "src/*.ts",
-]) + ["register.ts"]
+],["*.d.ts"]) + ["register.ts"]
 
 tests = glob(["test/**/*.ts"])
 
