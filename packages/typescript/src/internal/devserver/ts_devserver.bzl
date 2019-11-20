@@ -118,7 +118,7 @@ def _ts_devserver(ctx):
             files = devserver_runfiles,
             # We don't expect executable targets to depend on the devserver, but if they do,
             # they can see the JavaScript code.
-            transitive_files = depset(ctx.files.data, transitive = [files, node_modules]),
+            transitive_files = depset(transitive = [files, node_modules]),
             collect_data = True,
             collect_default = True,
         ),
@@ -135,10 +135,6 @@ ts_devserver = rule(
         "bootstrap": attr.label_list(
             doc = "Scripts to include in the JS bundle before the module loader (require.js)",
             allow_files = [".js"],
-        ),
-        "data": attr.label_list(
-            doc = "Dependencies that can be require'd while the server is running",
-            allow_files = True,
         ),
         "devserver": attr.label(
             doc = """Go based devserver executable.
@@ -193,7 +189,7 @@ Additional documentation at https://github.com/alexeagle/angular-bazel-example/w
 """,
 )
 
-def ts_devserver_macro(name, data = [], args = [], visibility = None, tags = [], testonly = 0, **kwargs):
+def ts_devserver_macro(name, args = [], visibility = None, tags = [], testonly = 0, **kwargs):
     """Macro for creating a `ts_devserver`
 
     This macro re-exposes a `sh_binary` and `ts_devserver` target that can run the
@@ -207,7 +203,6 @@ def ts_devserver_macro(name, data = [], args = [], visibility = None, tags = [],
 
     Args:
       name: Name of the devserver target
-      data: Runtime dependencies for the devserver
       args: Command line arguments that will be passed to the devserver Go implementation
       visibility: Visibility of the devserver targets
       tags: Standard Bazel tags, this macro adds a couple for ibazel
@@ -216,7 +211,6 @@ def ts_devserver_macro(name, data = [], args = [], visibility = None, tags = [],
     """
     ts_devserver(
         name = "%s_launcher" % name,
-        data = data + ["@bazel_tools//tools/bash/runfiles"],
         testonly = testonly,
         visibility = ["//visibility:private"],
         tags = tags,
