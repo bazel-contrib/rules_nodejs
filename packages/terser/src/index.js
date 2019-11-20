@@ -159,8 +159,15 @@ function main() {
   const output = argv[outputArgIndex + 1];
   const residual = argv.slice(outputArgIndex + 2);
 
-  // user override for the terser binary location. used in testing.
-  const terserBinary = process.env.TERSER_BINARY || require.resolve('terser/bin/terser')
+  // Allow for user to override terser binary for testing.
+  let terserBinary = process.env.TERSER_BINARY;
+  try {
+    // If necessary, get the new `terser` binary, added for >=4.3.0
+    terserBinary = terserBinary || require.resolve('terser/bin/terser');
+  } finally {
+    // If necessary, get the old `uglifyjs` binary from <4.3.0
+    terserBinary = terserBinary || require.resolve('terser/bin/uglifyjs');
+  }
   // choose a default concurrency of the number of cores -1 but at least 1.
 
   log_verbose(`Running terser/index.js
@@ -171,7 +178,7 @@ function main() {
   if (!inputs.find(isDirectory) && inputs.length) {
     // Inputs were only files
     // Just use terser CLI exactly as it works outside bazel
-    require(terserBinary || 'terser/bin/terser');
+    require(terserBinary);
 
   } else if (inputs.length > 1) {
     // We don't know how to merge multiple input dirs to one output dir
