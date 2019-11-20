@@ -40,7 +40,7 @@ sources = glob(
     [
         "src/*.ts",
     ],
-    ["*.d.ts"],
+    exclude = ["src/*.d.ts"],
 ) + ["register.ts"]
 
 tests = glob(["test/**/*.ts"])
