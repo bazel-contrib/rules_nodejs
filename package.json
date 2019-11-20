@@ -22,7 +22,7 @@
         "@commitlint/config-conventional": "^8.0.0",
         "@types/hammerjs": "2.0.35",
         "@types/jasmine": "~3.3.13",
-        "@types/node": "10.12.20",
+        "@types/node": "^12.12.4",
         "@types/webpack": "~4.4.35",
         "bazel_workspaces": "file:./tools/npm_packages/bazel_workspaces",
         "clang-format": "1.2.2",
