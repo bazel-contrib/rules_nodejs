@@ -326,6 +326,8 @@ export const patcher = (fs: any = _fs, root: string) => {
 
   function handleDirent(p: string, v: Dirent): Promise<Dirent> {
     return new Promise((resolve, reject) => {
+      if (fs.DEBUG)
+        console.error('opendir: found link? ', path.join(p, v.name), v.isSymbolicLink());
       if (!v.isSymbolicLink()) {
         return resolve(v);
       }
@@ -334,6 +336,10 @@ export const patcher = (fs: any = _fs, root: string) => {
           return reject(err);
         }
 
+        if (fs.DEBUG)
+          console.error(
+              'opendir: escapes? ', path.resolve(target), isEscape(path.resolve(target), p));
+
         if (!isEscape(path.resolve(target), p)) {
           return resolve(v);
         }
@@ -341,6 +347,8 @@ export const patcher = (fs: any = _fs, root: string) => {
         fs.stat(target, (err: Error&{code: string}, stat: Stats) => {
           if (err) {
             if (err.code === 'ENOENT') {
+              if (fs.DEBUG)
+                console.error('opendir: broken link! resolving to link ', path.resolve(target));
               // this is a broken symlink
               // even though this broken symlink points outside of the root
               // we'll return it.
@@ -355,6 +363,9 @@ export const patcher = (fs: any = _fs, root: string) => {
             return reject(err);
           }
 
+          if (fs.DEBUG)
+            console.error(
+                'opendir: patching dirent to look like it\'s target', path.resolve(target));
           // add all stat is methods to Dirent instances with their result.
           patchDirent(v, stat);
           v.isSymbolicLink = () => false;
