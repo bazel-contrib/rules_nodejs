@@ -24,9 +24,6 @@ import {patcher} from '../../src/fs';
 
 describe('testing opendir', () => {
   it('can opendir dirent in root', async () => {
-    // tslint:disable-next-line:no-any
-    console.log('====>', (global as any).BAZEL_NODE_PATCHES);
-
     await withFixtures(
         {
           a: {apples: 'contents'},
