@@ -30,6 +30,7 @@ describe('testing opendir', () => {
           b: {file: 'contents'},
         },
         async fixturesDir => {
+          fixturesDir = fs.realpathSync(fixturesDir);
           // create symlink from a to b
           fs.symlinkSync(path.join(fixturesDir, 'b', 'file'), path.join(fixturesDir, 'a', 'link'));
 
@@ -64,6 +65,7 @@ describe('testing opendir', () => {
           b: {file: 'contents'},
         },
         async fixturesDir => {
+          fixturesDir = fs.realpathSync(fixturesDir);
           // create symlink from a to b
           fs.symlinkSync(path.join(fixturesDir, 'b', 'file'), path.join(fixturesDir, 'a', 'link'));
 
@@ -100,6 +102,7 @@ describe('testing opendir', () => {
           b: {file: 'contents'},
         },
         async fixturesDir => {
+          fixturesDir = fs.realpathSync(fixturesDir);
           // create symlink from a to b
           fs.symlinkSync(path.join(fixturesDir, 'b', 'file'), path.join(fixturesDir, 'a', 'link'));
 
@@ -130,6 +133,7 @@ describe('testing opendir', () => {
           b: {file: 'contents'},
         },
         async fixturesDir => {
+          fixturesDir = fs.realpathSync(fixturesDir);
           // create symlink from a to b
           fs.symlinkSync(path.join(fixturesDir, 'b', 'file'), path.join(fixturesDir, 'a', 'link'));
 
