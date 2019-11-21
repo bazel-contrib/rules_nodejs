@@ -65,7 +65,7 @@
         "sinon": "^7.3.2",
         "source-map": "^0.7.3",
         "source-map-support": "0.5.9",
-        "terser": "3.17.0",
+        "terser": "^4.4.0",
         "testy": "file:./tools/npm_packages/testy",
         "tmp": "0.1.0",
         "tsickle": "0.33.1",
