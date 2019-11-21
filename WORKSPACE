@@ -18,6 +18,7 @@ workspace(
 )
 
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+load("//:index.bzl", "BAZEL_VERSION")
 
 #
 # Check that build is using a minimum compatible bazel version
@@ -259,13 +260,12 @@ rbe_autoconfig(
 
 rbe_autoconfig(
     name = "rbe_default",
+    bazel_version = BAZEL_VERSION,
 )
 
 load("@build_bazel_integration_testing//tools:repositories.bzl", "bazel_binaries")
 
 # Depend on the Bazel binaries
-load("//:index.bzl", "BAZEL_VERSION")
-
 bazel_binaries(versions = [BAZEL_VERSION])
 
 #
