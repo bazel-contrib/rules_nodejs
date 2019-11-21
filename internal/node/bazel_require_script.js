@@ -9,7 +9,7 @@ global.BAZEL_NODE_PATCHES = true;
 if (process.platform === 'win32') {
   try {
     const cp = require('child_process')
-    let res = cp.execSync('find .')
+    let res = cp.execSync('find ../../ | grep \'node-patches\\|node_modules\'')
     console.log(
         '-----------------------------\nfindoutput:\n',
         res + '\n------------------------------------------')
