@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "lib": ["es2016"],
+    "types":["node"],
+    "target": "es2017",
+    "module": "es2015",
+    "moduleResolution": "node"
+  },
+  "include": [
+    "register.ts",
+    "src/**/*.ts"
+  ]
+}
