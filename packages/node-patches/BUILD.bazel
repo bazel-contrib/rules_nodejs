@@ -75,4 +75,7 @@ mocha_test(
     data = test_js + [s.replace(".ts", ".js") for s in sources] + [
         "@npm_node_patches//:node_modules",
     ],
+    tags = [
+        "fix-windows",
+    ],
 )
