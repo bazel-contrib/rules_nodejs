@@ -106,8 +106,8 @@ jobs:
       - *yarn_install
       - *init_bazel
 
-      # Run yarn on all node_repositories
-      - run: bazel run @nodejs//:bin/yarn
+      # Run yarn
+      - run: bazel run @nodejs//:yarn
 
       # Save all node_modules to the cache
       - save_cache:
@@ -236,7 +236,7 @@ jobs:
       # We should also be able to test targets in a different workspace
       # TODO(gmagolan): move these tests into `build` job once
       # https://github.com/bazelbuild/bazel/issues/6481 is resolved
-      - run: 'cd examples/user_managed_deps && bazel run @nodejs//:yarn'
+      - run: 'cd examples/user_managed_deps && bazel run @nodejs//:yarn_node_repositories'
       - run: bazel test @examples_user_managed_deps//...
       - run: bazel test @e2e_packages//...
 

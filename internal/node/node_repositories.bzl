@@ -20,7 +20,7 @@ See https://docs.bazel.build/versions/master/skylark/repository_rules.html
 
 load("//internal/common:check_bazel_version.bzl", "check_bazel_version")
 load("//internal/common:check_version.bzl", "check_version")
-load("//internal/common:os_name.bzl", "OS_ARCH_NAMES", "is_windows_os", "os_name")
+load("//internal/common:os_name.bzl", "OS_ARCH_NAMES", "os_name")
 load("//third_party/github.com/bazelbuild/bazel-skylib:lib/paths.bzl", "paths")
 load("//toolchains/node:node_toolchain_configure.bzl", "node_toolchain_configure")
 
@@ -44,8 +44,8 @@ to point to those before calling node_repositories.
 This rule exposes the `@nodejs` workspace containing some rules the user can call later:
 
 - Run node: `bazel run @nodejs//:node path/to/program.js`
-- Install dependencies using npm: `bazel run @nodejs//:npm install`
-- Install dependencies using yarn: `bazel run @nodejs//:yarn`
+- Install dependencies using npm: `bazel run @nodejs//:npm_node_repositories install`
+- Install dependencies using yarn: `bazel run @nodejs//:yarn_node_repositories`
 
 Note that the dependency installation scripts will run in each subpackage indicated by the `package_json` attribute.
 
@@ -59,7 +59,7 @@ load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories")
 node_repositories(package_json = ["//:package.json", "//subpkg:package.json"])
 ```
 
-Running `bazel run @nodejs//:yarn` in this repo would create `/node_modules` and `/subpkg/node_modules`.
+Running `bazel run @nodejs//:yarn_node_repositories` in this repo would create `/node_modules` and `/subpkg/node_modules`.
 """
 
 _ATTRS = {
@@ -159,7 +159,7 @@ and expect that file to have sha256sum `00b7a8426e076e9bf9d12ba2d571312e833fe962
     "package_json": attr.label_list(
         doc = """a list of labels, which indicate the package.json files that will be installed
             when you manually run the package manager, e.g. with
-            `bazel run @nodejs//:yarn` or `bazel run @nodejs//:npm install`.
+            `bazel run @nodejs//:yarn_node_repositories` or `bazel run @nodejs//:npm_node_repositories install`.
             If you use bazel-managed dependencies, you can omit this attribute.""",
     ),
     "preserve_symlinks": attr.bool(
@@ -341,46 +341,64 @@ def _prepare_node(repository_ctx):
 
     # TODO: Maybe we want to encode the OS as a specific attribute rather than do it based on naming?
     is_windows = "_windows_" in repository_ctx.attr.name
+
     if repository_ctx.attr.vendored_node:
-        node_exec = "/".join([f for f in [
+        node_path = "/".join([f for f in [
             "../../..",
             repository_ctx.attr.vendored_node.workspace_root,
             repository_ctx.attr.vendored_node.package,
             repository_ctx.attr.vendored_node.name,
-            "bin/node" if not is_windows else "node.exe",
         ] if f])
-        node_exec_label = "@%s//%s:%s/%s" % (
+        node_package = "@%s//%s:%s" % (
             repository_ctx.attr.vendored_node.workspace_name,
             repository_ctx.attr.vendored_node.package,
             repository_ctx.attr.vendored_node.name,
-            "bin/node" if not is_windows else "node.exe",
         )
-        npm_script = "/".join([f for f in [
-            "../../..",
-            repository_ctx.attr.vendored_node.workspace_root,
-            repository_ctx.attr.vendored_node.package,
-            repository_ctx.attr.vendored_node.name,
-            "lib/node_modules/npm/bin/npm-cli.js" if not is_windows else "node_modules/npm/bin/npm-cli.js",
-        ] if f])
     else:
-        node_exec = ("%s/bin/node" % NODE_EXTRACT_DIR) if not is_windows else ("%s/node.exe" % NODE_EXTRACT_DIR)
-        npm_script = ("%s/lib/node_modules/npm/bin/npm-cli.js" % NODE_EXTRACT_DIR) if not is_windows else ("%s/node_modules/npm/bin/npm-cli.js" % NODE_EXTRACT_DIR)
-        node_exec_label = node_exec
+        node_path = NODE_EXTRACT_DIR
+        node_package = NODE_EXTRACT_DIR
+
     if repository_ctx.attr.vendored_yarn:
-        yarn_script = "/".join([f for f in [
+        yarn_path = "/".join([f for f in [
             "../../..",
             repository_ctx.attr.vendored_yarn.workspace_root,
             repository_ctx.attr.vendored_yarn.package,
             repository_ctx.attr.vendored_yarn.name,
-            "bin/yarn.js",
         ] if f])
+        yarn_package = "@%s//%s:%s" % (
+            repository_ctx.attr.vendored_yarn.workspace_name,
+            repository_ctx.attr.vendored_yarn.package,
+            repository_ctx.attr.vendored_yarn.name,
+        )
     else:
-        yarn_script = "%s/bin/yarn.js" % YARN_EXTRACT_DIR
-    node_entry = "bin/node" if not is_windows else "bin/node.cmd"
-    npm_node_repositories_entry = "bin/npm_node_repositories" if not is_windows else "bin/npm_node_repositories.cmd"
-    yarn_node_repositories_entry = "bin/yarn_node_repositories" if not is_windows else "bin/yarn_node_repositories.cmd"
+        yarn_path = YARN_EXTRACT_DIR
+        yarn_package = YARN_EXTRACT_DIR
 
-    node_exec_relative = node_exec if repository_ctx.attr.vendored_node else paths.relativize(node_exec, "bin")
+    node_bin = ("%s/bin/node" % node_path) if not is_windows else ("%s/node.exe" % node_path)
+    node_bin_label = ("%s/bin/node" % node_package) if not is_windows else ("%s/node.exe" % node_package)
+
+    # Use the npm-cli.js script as the bin for oxs & linux so there are no symlink issues with `%s/bin/npm`
+    npm_bin = ("%s/lib/node_modules/npm/bin/npm-cli.js" % node_path) if not is_windows else ("%s/npm.cmd" % node_path)
+    npm_bin_label = ("%s/lib/node_modules/npm/bin/npm-cli.js" % node_package) if not is_windows else ("%s/npm.cmd" % node_package)
+    npm_script = ("%s/lib/node_modules/npm/bin/npm-cli.js" % node_path) if not is_windows else ("%s/node_modules/npm/bin/npm-cli.js" % node_path)
+
+    # Use the npx-cli.js script as the bin for oxs & linux so there are no symlink issues with `%s/bin/npx`
+    npx_bin = ("%s/lib/node_modules/npm/bin/npx-cli.js" % node_path) if not is_windows else ("%s/npx.cmd" % node_path)
+    npx_bin_label = ("%s/lib/node_modules/npm/bin/npx-cli.js" % node_package) if not is_windows else ("%s/npx.cmd" % node_package)
+
+    # Use the yarn.js script as the bin for oxs & linux so there are no symlink issues with `%s/bin/npm`
+    yarn_bin = ("%s/bin/yarn.js" % yarn_path) if not is_windows else ("%s/yarn.cmd" % yarn_path)
+    yarn_bin_label = ("%s/bin/yarn.js" % yarn_package) if not is_windows else ("%s/yarn.cmd" % yarn_package)
+    yarn_script = "%s/bin/yarn.js" % yarn_path
+
+    entry_ext = ".cmd" if is_windows else ""
+    node_entry = "bin/node%s" % entry_ext
+    npm_entry = "bin/npm%s" % entry_ext
+    yarn_entry = "bin/yarn%s" % entry_ext
+    npm_node_repositories_entry = "bin/npm_node_repositories%s" % entry_ext
+    yarn_node_repositories_entry = "bin/yarn_node_repositories%s" % entry_ext
+
+    node_bin_relative = node_bin if repository_ctx.attr.vendored_node else paths.relativize(node_bin, "bin")
     npm_script_relative = npm_script if repository_ctx.attr.vendored_node else paths.relativize(npm_script, "bin")
     yarn_script_relative = yarn_script if repository_ctx.attr.vendored_yarn else paths.relativize(yarn_script, "bin")
 
@@ -413,7 +431,7 @@ export PATH="$SCRIPT_DIR":$PATH
 exec "$SCRIPT_DIR/{node}" {args} "$@"
 """.format(
             get_script_dir = GET_SCRIPT_DIR,
-            node = node_exec_relative,
+            node = node_bin_relative,
             args = node_args,
         ))
     else:
@@ -423,7 +441,7 @@ exec "$SCRIPT_DIR/{node}" {args} "$@"
 SET SCRIPT_DIR=%~dp0
 SET PATH=%SCRIPT_DIR%;%PATH%
 CALL "%SCRIPT_DIR%\\{node}" {args} %*
-""".format(node = node_exec_relative, args = node_args))
+""".format(node = node_bin_relative, args = node_args))
 
     # Shell script to set repository arguments for node used by nodejs_binary & nodejs_test launcher
     repository_ctx.file("bin/node_repo_args.sh", content = """#!/usr/bin/env bash
@@ -585,24 +603,48 @@ if %errorlevel% neq 0 exit /b %errorlevel%
 package(default_visibility = ["//visibility:public"])
 exports_files([
   "run_npm.sh.template",
-  "bin/node_repo_args.sh",{exported_node_bin}
-  "bin/node{entry_ext}",
-  "bin/npm{entry_ext}",
-  "bin/npm_node_repositories{entry_ext}",
-  "bin/yarn{entry_ext}",
-  "bin/yarn_node_repositories{entry_ext}",
+  "bin/node_repo_args.sh",{node_bin_export}{npm_bin_export}{npx_bin_export}{yarn_bin_export}
+  "{node_entry}",
+  "{npm_entry}",
+  "{yarn_entry}",
+  "{npm_node_repositories_entry}",
+  "{yarn_node_repositories_entry}",
   ])
-alias(name = "node_bin", actual = "{node_bin_actual}")
-alias(name = "node", actual = "{node_actual}")
-alias(name = "npm", actual = "{npm_actual}")
-alias(name = "yarn", actual = "{yarn_actual}")
+alias(name = "node_bin", actual = "{node_bin_label}")
+alias(name = "npm_bin", actual = "{npm_bin_label}")
+alias(name = "npx_bin", actual = "{npx_bin_label}")
+alias(name = "yarn_bin", actual = "{yarn_bin_label}")
+alias(name = "node", actual = "{node_entry}")
+alias(name = "npm", actual = "{npm_entry}")
+alias(name = "yarn", actual = "{yarn_entry}")
+alias(name = "npm_node_repositories", actual = "{npm_node_repositories_entry}")
+alias(name = "yarn_node_repositories", actual = "{yarn_node_repositories_entry}")
+filegroup(
+  name = "node_files",
+  srcs = [":node", ":node_bin"],
+)
+filegroup(
+  name = "yarn_files",
+  srcs = glob(["bin/yarnpkg/**"]) + [":node_files"],
+)
+filegroup(
+  name = "npm_files",
+  srcs = glob(["bin/nodejs/**"]) + [":node_files"],
+)
 """.format(
-        entry_ext = ".cmd" if is_windows else "",
-        exported_node_bin = "" if repository_ctx.attr.vendored_node else ("\n  \"%s\"," % node_exec_label),
-        node_bin_actual = node_exec_label,
-        node_actual = node_entry,
-        npm_actual = npm_node_repositories_entry,
-        yarn_actual = yarn_node_repositories_entry,
+        node_bin_export = "" if repository_ctx.attr.vendored_node else ("\n  \"%s\"," % node_bin),
+        npm_bin_export = "" if repository_ctx.attr.vendored_node else ("\n  \"%s\"," % npm_bin),
+        npx_bin_export = "" if repository_ctx.attr.vendored_node else ("\n  \"%s\"," % npx_bin),
+        yarn_bin_export = "" if repository_ctx.attr.vendored_yarn else ("\n  \"%s\"," % yarn_bin),
+        node_bin_label = node_bin_label,
+        npm_bin_label = npm_bin_label,
+        npx_bin_label = npx_bin_label,
+        yarn_bin_label = yarn_bin_label,
+        node_entry = node_entry,
+        npm_entry = npm_entry,
+        yarn_entry = yarn_entry,
+        npm_node_repositories_entry = npm_node_repositories_entry,
+        yarn_node_repositories_entry = yarn_node_repositories_entry,
     ))
 
 def _nodejs_repo_impl(repository_ctx):
@@ -619,44 +661,28 @@ node_repositories_rule = repository_rule(
 )
 
 def _nodejs_host_os_alias_impl(repository_ctx):
-    is_windows_host = is_windows_os(repository_ctx)
-    file_ending = ".cmd" if is_windows_host else ""
-    node_repository = "@nodejs_%s" % os_name(repository_ctx)
-    if repository_ctx.attr.vendored_node:
-        node_bin_repository = "@%s" % repository_ctx.attr.vendored_node.workspace_name
-        actual_node_bin = "/".join([f for f in [
-            repository_ctx.attr.vendored_node.package,
-            repository_ctx.attr.vendored_node.name,
-            "bin/node" if not is_windows_host else "node.exe",
-        ] if f])
-    else:
-        node_bin_repository = node_repository
-        actual_node_bin = "%s/%s" % (
-            NODE_EXTRACT_DIR,
-            "node.exe" if is_windows_host else "bin/node",
-        )
-    repository_ctx.template(
-        "BUILD.bazel",
-        Label("@build_bazel_rules_nodejs//internal/node:BUILD.nodejs_host_os_alias.tpl"),
-        substitutions = {
-            "TEMPLATE__npm_node_repositories": "%s//:bin/npm_node_repositories%s" % (node_repository, file_ending),
-            "TEMPLATE__yarn_node_repositories": "%s//:bin/yarn_node_repositories%s" % (node_repository, file_ending),
-            "TEMPLATE_actual_node_bin": "%s//:%s" % (node_bin_repository, actual_node_bin),
-            "TEMPLATE_node_repo_args": "%s//:bin/node_repo_args.sh" % node_repository,
-            "TEMPLATE_npm": "%s//:bin/npm%s" % (node_repository, file_ending),
-            "TEMPLATE_run_npm": "%s//:run_npm.sh.template" % node_repository,
-            "TEMPLATE_wrapped_node_bin": "%s//:bin/node%s" % (node_repository, file_ending),
-            "TEMPLATE_yarn": "%s//:bin/yarn%s" % (node_repository, file_ending),
-        },
-        executable = False,
-    )
+    # Base BUILD file for this repository
+    repository_ctx.file("BUILD.bazel", content = """# Generated by node_repositories.bzl
+package(default_visibility = ["//visibility:public"])
+# aliases for exports_files
+alias(name = "run_npm.sh.template", actual = "{node_repository}//:run_npm.sh.template")
+alias(name = "bin/node_repo_args.sh", actual = "{node_repository}//:bin/node_repo_args.sh")
+# aliases for other aliases
+alias(name = "node_bin", actual = "{node_repository}//:node_bin")
+alias(name = "npm_bin", actual = "{node_repository}//:npm_bin")
+alias(name = "npx_bin", actual = "{node_repository}//:npx_bin")
+alias(name = "yarn_bin", actual = "{node_repository}//:yarn_bin")
+alias(name = "node", actual = "{node_repository}//:node")
+alias(name = "npm", actual = "{node_repository}//:npm")
+alias(name = "yarn", actual = "{node_repository}//:yarn")
+alias(name = "npm_node_repositories", actual = "{node_repository}//:npm_node_repositories")
+alias(name = "yarn_node_repositories", actual = "{node_repository}//:yarn_node_repositories")
+alias(name = "node_files", actual = "{node_repository}//:node_files")
+alias(name = "yarn_files", actual = "{node_repository}//:yarn_files")
+alias(name = "npm_files", actual = "{node_repository}//:npm_files")
+""".format(node_repository = "@nodejs_%s" % os_name(repository_ctx)))
 
-_nodejs_repo_host_os_alias = repository_rule(
-    _nodejs_host_os_alias_impl,
-    attrs = {
-        "vendored_node": attr.label(allow_single_file = True),
-    },
-)
+_nodejs_repo_host_os_alias = repository_rule(_nodejs_host_os_alias_impl)
 
 def node_repositories(**kwargs):
     """
@@ -676,8 +702,6 @@ def node_repositories(**kwargs):
         minimum_bazel_version = "0.21.0",
     )
 
-    vendored_node = kwargs.pop("vendored_node", None)
-
     # This needs to be setup so toolchains can access nodejs for all different versions
     for os_arch_name in OS_ARCH_NAMES:
         os_name = "_".join(os_arch_name)
@@ -685,7 +709,6 @@ def node_repositories(**kwargs):
         _maybe(
             node_repositories_rule,
             name = node_repository_name,
-            vendored_node = vendored_node,
             **kwargs
         )
         native.register_toolchains("@build_bazel_rules_nodejs//toolchains/node:node_%s_toolchain" % os_arch_name[0])
@@ -699,7 +722,6 @@ def node_repositories(**kwargs):
     _maybe(
         _nodejs_repo_host_os_alias,
         name = "nodejs",
-        vendored_node = vendored_node,
     )
 
 def _maybe(repo_rule, name, **kwargs):

@@ -35,8 +35,8 @@ to point to those before calling node_repositories.
 This rule exposes the `@nodejs` workspace containing some rules the user can call later:
 
 - Run node: `bazel run @nodejs//:node path/to/program.js`
-- Install dependencies using npm: `bazel run @nodejs//:npm install`
-- Install dependencies using yarn: `bazel run @nodejs//:yarn`
+- Install dependencies using npm: `bazel run @nodejs//:npm_node_repositories install`
+- Install dependencies using yarn: `bazel run @nodejs//:yarn_node_repositories`
 
 Note that the dependency installation scripts will run in each subpackage indicated by the `package_json` attribute.
 
@@ -50,7 +50,7 @@ load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories")
 node_repositories(package_json = ["//:package.json", "//subpkg:package.json"])
 ```
 
-Running `bazel run @nodejs//:yarn` in this repo would create `/node_modules` and `/subpkg/node_modules`.
+Running `bazel run @nodejs//:yarn_node_repositories` in this repo would create `/node_modules` and `/subpkg/node_modules`.
 
 
 
@@ -114,7 +114,7 @@ and expect that file to have sha256sum `00b7a8426e076e9bf9d12ba2d571312e833fe962
 #### `package_json`
 (*[labels]*): a list of labels, which indicate the package.json files that will be installed
             when you manually run the package manager, e.g. with
-            `bazel run @nodejs//:yarn` or `bazel run @nodejs//:npm install`.
+            `bazel run @nodejs//:yarn_node_repositories` or `bazel run @nodejs//:npm_node_repositories install`.
             If you use bazel-managed dependencies, you can omit this attribute.
 
 
@@ -777,7 +777,7 @@ Actually publish the package with `npm publish` (also builds first):
 
 ```sh
 # Check login credentials
-$ bazel run @nodejs//:npm who
+$ bazel run @nodejs//:npm_node_repositories who
 # Publishes the package
 $ bazel run :my_package.publish
 ```

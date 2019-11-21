@@ -121,8 +121,8 @@ e2e_integration_test(
 e2e_integration_test(
     name = "e2e_ts_auto_deps",
     bazel_commands = [
-        "run @nodejs//:yarn",
-        "run @nodejs//:bin/yarn -- generate_build_file",
+        "run @nodejs//:yarn_node_repositories",
+        "run @nodejs//:yarn -- generate_build_file",
         "build //simple:simple",
     ],
     npm_packages = {
