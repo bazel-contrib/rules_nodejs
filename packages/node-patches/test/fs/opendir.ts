@@ -88,6 +88,8 @@ describe('testing opendir', () => {
           equal(names, ['apples', 'link']);
 
           let maybeLink = entry1.name === 'link' ? entry1 : entry2;
+
+          console.error(entry1, entry2)
           assert.ok(!maybeLink!.isSymbolicLink());
         });
   });

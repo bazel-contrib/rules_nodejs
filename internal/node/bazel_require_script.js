@@ -6,6 +6,18 @@ if(global.BAZEL_NODE_PATCHES) {
 }
 global.BAZEL_NODE_PATCHES = true;
 
+if (process.platform === 'win32') {
+  try {
+    const cp = require('child_process')
+    let res = cp.execSync('find .')
+    console.log(
+        '-----------------------------\nfindoutput:\n',
+        res + '\n------------------------------------------')
+  } catch (e) {
+    console.error('error running find on windows! ' + e)
+  }
+}
+/*
 const fs = require('fs');
 const path = require('path');
 const orig = {};
@@ -41,3 +53,4 @@ function unmonkeypatch() {
 }
 
 monkeypatch();
+*/
