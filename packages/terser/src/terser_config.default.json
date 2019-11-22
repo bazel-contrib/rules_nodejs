@@ -1,6 +1,5 @@
 {
     "compress": {
-        "global_defs": {"ngDevMode": false, "ngI18nClosureMode": false},
         "keep_fnames": "bazel_no_debug",
         "passes": 3,
         "pure_getters": true,
