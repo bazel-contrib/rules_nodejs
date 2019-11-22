@@ -1,0 +1,10 @@
+coverage
+node_modules
+build
+.nyc_output
+src/*.js
+src/*.d.ts
+test/**/*.js
+test/**/*.d.ts
+register.js
+register.d.ts

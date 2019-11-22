@@ -1,0 +1,81 @@
+# Copyright 2017 The Bazel Authors. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "npm_package")
+load("@npm_node_patches//mocha:index.bzl", "mocha_test")
+load("@npm_node_patches//typescript:index.bzl", "tsc")
+
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "node-patches",
+    srcs = [
+        "package.json",
+        ":compile",
+    ],
+)
+
+npm_package(
+    name = "npm_package",
+    srcs = [
+        "README.md",
+    ],
+    deps = [
+        ":node-patches",
+    ],
+)
+
+sources = glob(
+    [
+        "src/*.ts",
+    ],
+    exclude = ["src/*.d.ts"],
+) + ["register.ts"]
+
+tests = glob(
+    ["test/**/*.ts"],
+    exclude = ["test/**/*.d.ts"],
+)
+
+tsc(
+    name = "compile",
+    # TODO: we ought to compile tests separately?
+    outs = [s.replace(".ts", ext) for ext in [
+        ".js",
+        ".d.ts",
+    ] for s in sources + tests],
+    args = [
+        "-p",
+        "$(location tsconfig-bazel.json)",
+        "--outDir",
+        "$@",
+    ],
+    data = sources + tests + [
+        "tsconfig-bazel.json",
+        "@npm_node_patches//:node_modules",
+    ],
+)
+
+test_js = [s.replace(".ts", ".js") for s in tests]
+
+mocha_test(
+    name = "unit_test",
+    args = ["$(location %s)" % s for s in test_js],
+    data = test_js + [s.replace(".ts", ".js") for s in sources] + [
+        "@npm_node_patches//:node_modules",
+    ],
+    tags = [
+        "fix-windows",
+    ],
+)
