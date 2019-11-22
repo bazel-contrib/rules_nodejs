@@ -427,10 +427,12 @@ export const patcher = (fs: any = _fs, root: string) => {
     // only applies to version of node where promises is a getter property.
     if (promisePropertyDescriptor.get) {
       const oldGetter = promisePropertyDescriptor.get.bind(fs);
+      const cachedPromises = {};
+
       promisePropertyDescriptor.get = () => {
         const _promises = oldGetter();
-
-        fs.promises = _promises;
+        Object.assign(cachedPromises, _promises, promises);
+        return cachedPromises;
       };
       Object.defineProperty(fs, 'promises', promisePropertyDescriptor);
     } else {

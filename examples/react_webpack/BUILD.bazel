@@ -48,8 +48,7 @@ webpack(
         "index.js",
         "styles.css",
         "webpack.config.js",
-        "@npm//css-loader",
-        "@npm//style-loader",
+        "@npm//:node_modules",
     ],
 )
 
