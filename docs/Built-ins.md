@@ -231,8 +231,6 @@ The set of default  environment variables is:
 - `DEBUG`: used by some npm packages to print debugging logs
 - `NODE_DEBUG`: used by node.js itself to print more logs
 
-Note that, `DEBUG` is derived from bazel compilation mode if not present in --define.
-
 
 #### `entry_point`
 (*[label], mandatory*): The script which should be executed first, usually containing a main function.
@@ -445,8 +443,6 @@ The set of default  environment variables is:
 - `VERBOSE_LOGS`: rules use this environment variable to turn on debug output in their logs
 - `DEBUG`: used by some npm packages to print debugging logs
 - `NODE_DEBUG`: used by node.js itself to print more logs
-
-Note that, `DEBUG` is derived from bazel compilation mode if not present in --define.
 
 
 #### `entry_point`
@@ -831,44 +827,15 @@ npm_package(name, deps, packages, rename_build_files, replace_with_version, repl
 
 
 
-## rollup_bundle
+## pkg_web
 
-Produces several bundled JavaScript files using Rollup and terser.
-
-Load it with
-`load("@build_bazel_rules_nodejs//:index.bzl", "rollup_bundle")`
-
-It performs this work in several separate processes:
-1. Call rollup on the original sources
-2. Downlevel the resulting code to es5 syntax for older browsers
-3. Minify the bundle with terser, possibly with pretty output for human debugging.
-
-The default output of a `rollup_bundle` rule is the non-debug-minified es5 bundle.
-
-However you can request one of the other outputs with a dot-suffix on the target's name.
-For example, if your `rollup_bundle` is named `my_rollup_bundle`, you can use one of these labels:
-
-To request the ES2015 syntax (e.g. `class` keyword) without downleveling or minification, use the `:my_rollup_bundle.es2015.js` label.
-To request the ES5 downleveled bundle without minification, use the `:my_rollup_bundle.js` label
-To request the debug-minified es5 bundle, use the `:my_rollup_bundle.min_debug.js` label.
-To request a UMD-bundle, use the `:my_rollup_bundle.umd.js` label.
-To request a CommonJS bundle, use the `:my_rollup_bundle.cjs.js` label.
-
-You can also request an analysis from source-map-explorer by buildng the `:my_rollup_bundle.explore.html` label.
-However this is currently broken for `rollup_bundle` ES5 mode because we use tsc for downleveling and
-it doesn't compose the resulting sourcemaps with an input sourcemap.
-See https://github.com/bazelbuild/rules_nodejs/issues/175
-
-For debugging, note that the `rollup.config.js` and `terser.config.json` files can be found in the bazel-bin folder next to the resulting bundle.
-
-An example usage can be found in https://github.com/bazelbuild/rules_nodejs/tree/master/internal/rollup/test/rollup
-
+Assembles a web application from source files.
 
 
 ### Usage
 
 ```
-rollup_bundle(name, additional_entry_points, deps, enable_code_splitting, entry_point, global_name, globals, license_banner, node_modules, srcs)
+pkg_web(name, additional_root_paths, srcs)
 ```
 
 
@@ -877,193 +844,12 @@ rollup_bundle(name, additional_entry_points, deps, enable_code_splitting, entry_
 (*[name], mandatory*): A unique name for this target.
 
 
-#### `additional_entry_points`
-(*List of strings*): Additional entry points of the application for code splitting, passed as the input to rollup.
-        These should be a path relative to the workspace root.
-
-        When additional_entry_points are specified, rollup_bundle
-        will split the bundle in multiple entry points and chunks.
-        There will be a main entry point chunk as well as entry point
-        chunks for each additional_entry_point. The file names
-        of these entry points will correspond to the file names
-        specified in entry_point and additional_entry_points.
-        There will also be one or more common chunks that are shared
-        between entry points named chunk-<HASH>.js. The number
-        of common chunks is variable depending on the code being
-        bundled.
-
-        Entry points and chunks will be outputted to folders:
-        - <label-name>_chunks_es2015 // es2015
-        - <label-name>_chunks // es5
-        - <label-name>_chunks_min // es5 minified
-        - <label-name>_chunks_min_debug // es5 minified debug
-
-        The following files will be outputted that contain the
-        SystemJS boilerplate to map the entry points to their file
-        names and load the main entry point:
-        flavors:
-        - <label-name>.es2015.js // es2015 with EcmaScript modules
-        - <label-name>.js // es5 syntax with CJS modules
-        - <label-name>.min.js // es5 minified
-        - <label-name>.min_debug.js // es5 minified debug
-
-        NOTE: additional_entry_points MUST be in the same folder or deeper than
-        the main entry_point for the SystemJS boilerplate/entry point to
-        be valid. For example, if the main entry_point is
-        `src/main` then all additional_entry_points must be under
-        `src/**` such as `src/bar` or `src/foo/bar`. Alternate
-        additional_entry_points configurations are valid but the
-        SystemJS boilerplate/entry point files will not be usable and
-        it is up to the user in these cases to handle the SystemJS
-        boilerplate manually.
-
-        It is sufficient to load one of these SystemJS boilerplate/entry point
-        files as a script in your HTML to load your application
-
-
-#### `deps`
-(*[labels]*): Other rules that produce JavaScript outputs, such as `ts_library`.
-
-
-#### `enable_code_splitting`
-(*Boolean*): If True rollup will automatically determine entry points from
-        the source code. The rollup output format will be 'esm' and rollup will
-        create entry points based on ES6 import statements. See
-        https://rollupjs.org/guide/en#code-splitting
-
-        Code splitting is always enabled when additional_entry_points is
-        non-empty.
-
-        All automatic entry points will be named chunk-<HASH>.js.
-
-
-#### `entry_point`
-(*[label], mandatory*): The starting point of the application, passed as the `--input` flag to rollup.
-
-        If the entry JavaScript file belongs to the same package (as the BUILD file), 
-        you can simply reference it by its relative name to the package directory:
-
-        ```
-        rollup_bundle(
-            name = "bundle",
-            entry_point = ":main.js",
-        )
-        ```
-
-        You can specify the entry point as a typescript file so long as you also include
-        the ts_library target in deps:
-
-        ```
-        ts_library(
-            name = "main",
-            srcs = ["main.ts"],
-        )
-
-        rollup_bundle(
-            name = "bundle",
-            deps = [":main"]
-            entry_point = ":main.ts",
-        )
-        ```
-
-        The rule will use the corresponding `.js` output of the ts_library rule as the entry point.
-
-        If the entry point target is a rule, it should produce a single JavaScript entry file that will be passed to the nodejs_binary rule. 
-        For example:
-
-        ```
-        filegroup(
-            name = "entry_file",
-            srcs = ["main.js"],
-        )
-
-        rollup_bundle(
-            name = "bundle",
-            entry_point = ":entry_file",
-        )
-        ```
-
-
-#### `global_name`
-(*String*): A name given to this package when referenced as a global variable.
-        This name appears in the bundle module incantation at the beginning of the file,
-        and governs the global symbol added to the global context (e.g. `window`) as a side-
-        effect of loading the UMD/IIFE JS bundle.
-
-        Rollup doc: "The variable name, representing your iife/umd bundle, by which other scripts on the same page can access it."
-
-        This is passed to the `output.name` setting in Rollup.
-
-
-#### `globals`
-(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): A dict of symbols that reference external scripts.
-        The keys are variable names that appear in the program,
-        and the values are the symbol to reference at runtime in a global context (UMD bundles).
-        For example, a program referencing @angular/core should use ng.core
-        as the global reference, so Angular users should include the mapping
-        `"@angular/core":"ng.core"` in the globals.
-
-
-#### `license_banner`
-(*[label]*): A .txt file passed to the `banner` config option of rollup.
-        The contents of the file will be copied to the top of the resulting bundles.
-        Note that you can replace a version placeholder in the license file, by using
-        the special version `0.0.0-PLACEHOLDER`. See the section on stamping in the README.
-
-
-#### `node_modules`
-(*[label]*): Dependencies from npm that provide some modules that must be
-        resolved by rollup.
-
-        This attribute is DEPRECATED. As of version 0.13.0 the recommended approach
-        to npm dependencies is to use fine grained npm dependencies which are setup
-        with the `yarn_install` or `npm_install` rules. For example, in a rollup_bundle
-        target that used the `node_modules` attribute,
-
-        ```
-        rollup_bundle(
-          name = "bundle",
-          ...
-          node_modules = "//:node_modules",
-        )
-        ```
-
-        which specifies all files within the `//:node_modules` filegroup
-        to be inputs to the `bundle`. Using fine grained npm dependencies,
-        `bundle` is defined with only the npm dependencies that are
-        needed:
-
-        ```
-        rollup_bundle(
-          name = "bundle",
-          ...
-          deps = [
-              "@npm//foo",
-              "@npm//bar",
-              ...
-          ],
-        )
-        ```
-
-        In this case, only the `foo` and `bar` npm packages and their
-        transitive deps are includes as inputs to the `bundle` target
-        which reduces the time required to setup the runfiles for this
-        target (see https://github.com/bazelbuild/bazel/issues/5153).
-
-        The @npm external repository and the fine grained npm package
-        targets are setup using the `yarn_install` or `npm_install` rule
-        in your WORKSPACE file:
-
-        yarn_install(
-          name = "npm",
-          package_json = "//:package.json",
-          yarn_lock = "//:yarn.lock",
-        )
+#### `additional_root_paths`
+(*List of strings*): Path prefixes to strip off all srcs, in addition to the current package. Longest wins.
 
 
 #### `srcs`
-(*[labels]*): JavaScript source files from the workspace.
-        These can use ES2015 syntax and ES Modules (import/export)
+(*[labels]*): Files which should be copied into the package
 
 
 

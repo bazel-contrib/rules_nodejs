@@ -436,7 +436,7 @@ Additional documentation at https://github.com/alexeagle/angular-bazel-example/w
 ### Usage
 
 ```
-ts_devserver(name, additional_root_paths, bootstrap, data, deps, devserver, entry_module, index_html, port, scripts, serving_path, static_files)
+ts_devserver(name, additional_root_paths, bootstrap, deps, devserver, entry_module, port, scripts, serving_path, static_files)
 ```
 
 
@@ -454,10 +454,6 @@ ts_devserver(name, additional_root_paths, bootstrap, data, deps, devserver, entr
 (*[labels]*): Scripts to include in the JS bundle before the module loader (require.js)
 
 
-#### `data`
-(*[labels]*): Dependencies that can be require'd while the server is running
-
-
 #### `deps`
 (*[labels]*): Targets that produce JavaScript, such as `ts_library`
 
@@ -471,12 +467,6 @@ ts_devserver(name, additional_root_paths, bootstrap, data, deps, devserver, entr
 (*String*): The `entry_module` should be the AMD module name of the entry module such as `"__main__/src/index".`
             `ts_devserver` concats the following snippet after the bundle to load the application:
             `require(["entry_module"]);`
-
-
-#### `index_html`
-(*[label]*): An index.html file, we'll inject the script tag for the bundle,
-            as well as script tags for .js static_files and link tags for .css
-            static_files
 
 
 #### `port`
