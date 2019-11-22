@@ -1,13 +1,7 @@
 {
+  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "lib": ["es2016"],
-    "declaration": true,
-    "types":["node","mocha","rimraf"],
+    // workaround issue 1373
     "typeRoots":["../../node_modules/@types"]
-  },
-  "include": [
-    "register.ts",
-    "src/**/*.ts",
-    "test/**/*.ts"
-  ]
+  }
 }

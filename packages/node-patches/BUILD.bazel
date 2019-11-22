@@ -12,49 +12,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "npm_package")
+load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
 load("@npm_node_patches//mocha:index.bzl", "mocha_test")
 load("@npm_node_patches//typescript:index.bzl", "tsc")
 
-package(default_visibility = ["//visibility:public"])
+package(default_visibility = ["//:__subpackages__"])
 
-filegroup(
-    name = "node-patches",
-    srcs = [
-        "package.json",
-        ":compile",
-    ],
-)
+sources = glob([
+    "*.ts",
+    "src/*.ts",
+])
 
-npm_package(
-    name = "npm_package",
-    srcs = [
-        "README.md",
-    ],
-    deps = [
-        ":node-patches",
-    ],
-)
+js = [s.replace(".ts", ".js") for s in sources]
 
-sources = glob(
-    [
-        "src/*.ts",
-    ],
-    exclude = ["src/*.d.ts"],
-) + ["register.ts"]
+tests = glob(["test/**/*.ts"])
 
-tests = glob(
-    ["test/**/*.ts"],
-    exclude = ["test/**/*.d.ts"],
-)
+test_js = [t.replace(".ts", ".js") for t in tests]
 
 tsc(
     name = "compile",
     # TODO: we ought to compile tests separately?
-    outs = [s.replace(".ts", ext) for ext in [
-        ".js",
-        ".d.ts",
-    ] for s in sources + tests],
+    outs = js + test_js,
     args = [
         "-p",
         "$(location tsconfig-bazel.json)",
@@ -62,20 +40,29 @@ tsc(
         "$@",
     ],
     data = sources + tests + [
+        "tsconfig.json",
         "tsconfig-bazel.json",
         "@npm_node_patches//:node_modules",
     ],
 )
 
-test_js = [s.replace(".ts", ".js") for s in tests]
-
 mocha_test(
     name = "unit_test",
     args = ["$(location %s)" % s for s in test_js],
-    data = test_js + [s.replace(".ts", ".js") for s in sources] + [
+    data = js + test_js + [
         "@npm_node_patches//:node_modules",
     ],
     tags = [
         "fix-windows",
     ],
+)
+
+rollup_bundle(
+    name = "bundle",
+    srcs = js,
+    config_file = "rollup.config.js",
+    entry_point = "register.js",
+    format = "cjs",
+    sourcemap = "false",
+    deps = ["@npm//rollup-plugin-commonjs"],
 )
