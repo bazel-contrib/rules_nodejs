@@ -15,7 +15,9 @@
  * limitations under the License.
  */
 import * as assert from 'assert';
-import * as fs from 'fs';
+// windows cant find the right types
+// import * as fs from 'fs';
+const fs = require('fs');
 import {withFixtures} from 'inline-fixtures';
 import * as path from 'path';
 import * as util from 'util';

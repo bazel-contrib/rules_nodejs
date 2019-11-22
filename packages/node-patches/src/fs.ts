@@ -15,9 +15,13 @@
  * limitations under the License.
  */
 
-import {Dir, Dirent, Stats} from 'fs';
+import {Stats} from 'fs';
 import * as path from 'path';
 import * as util from 'util';
+
+// windows cant find the right types
+type Dir = any;
+type Dirent = any;
 
 // using require here on purpose so we can override methods with any
 // also even though imports are mutable in typescript the cognitive dissonance is too high because
