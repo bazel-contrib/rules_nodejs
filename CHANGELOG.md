@@ -1,3 +1,48 @@
+# [0.41.0](https://github.com/bazelbuild/rules_nodejs/compare/0.40.0...0.41.0) (2019-11-22)
+
+
+### Bug Fixes
+
+* **builtin:** allow .tsx entry_point in node binary/test ([313d484](https://github.com/bazelbuild/rules_nodejs/commit/313d484)), closes [#1351](https://github.com/bazelbuild/rules_nodejs/issues/1351)
+* **terser:** call terser binary instead of uglifyjs ([#1360](https://github.com/bazelbuild/rules_nodejs/issues/1360)) ([a100420](https://github.com/bazelbuild/rules_nodejs/commit/a100420))
+* **terser:** remove ngDevMode & ngI18nClosureMode global_defs from default terser config ([98c8dbc](https://github.com/bazelbuild/rules_nodejs/commit/98c8dbc))
+
+
+### chore
+
+* remove deprecated re-export file ([148bf8a](https://github.com/bazelbuild/rules_nodejs/commit/148bf8a))
+* remove old rollup_bundle ([9a824ac](https://github.com/bazelbuild/rules_nodejs/commit/9a824ac)), closes [#740](https://github.com/bazelbuild/rules_nodejs/issues/740)
+
+
+### Code Refactoring
+
+* move injector feature to own rule ([be06d23](https://github.com/bazelbuild/rules_nodejs/commit/be06d23))
+
+
+### Features
+
+* node-patches\filesystem patcher. ([#1332](https://github.com/bazelbuild/rules_nodejs/issues/1332)) ([0b2f675](https://github.com/bazelbuild/rules_nodejs/commit/0b2f675))
+* support --compilation_mode flag ([9fa4343](https://github.com/bazelbuild/rules_nodejs/commit/9fa4343))
+* **builtin:** rename @nodejs//:npm and @nodejs//:yarn to @nodejs//:[yarn/npm]_node_repositories ([#1369](https://github.com/bazelbuild/rules_nodejs/issues/1369)) ([01079a3](https://github.com/bazelbuild/rules_nodejs/commit/01079a3))
+* **karma:** npm peer deps & remove [@rules](https://github.com/rules)_webtesting//browsers/sauce:chrome-win10 support ([318bbf3](https://github.com/bazelbuild/rules_nodejs/commit/318bbf3))
+* **protractor:** protractor npm package is now a peer deps ([#1352](https://github.com/bazelbuild/rules_nodejs/issues/1352)) ([5db7c8e](https://github.com/bazelbuild/rules_nodejs/commit/5db7c8e))
+
+
+### BREAKING CHANGES
+
+* ts_devserver and web_package no longer have an index_html attribute.
+
+They expect an index.html file to be among the assets, and to already
+have the script and link tags needed for the app to work.
+
+The feature where those tags were injected into the html dynamically has
+been moved to its own rule, inject_html.
+* internal/rollup_bundle rule is removed. see https://github.com/bazelbuild/rules_nodejs/wiki for migration instructions
+* Removed the expand_location_into_runfiles helper from //internal:node.bzl
+Load it from //internal/common:expand_into_runfiles instead
+
+
+
 # [0.40.0](https://github.com/bazelbuild/rules_nodejs/compare/0.39.1...0.40.0) (2019-11-13)
 
 
