@@ -34,6 +34,4 @@ export class A {
 function inline_me() {
   return 'abc';
 }
-console.error(new A().a(), inline_me(), thing, ngDevMode, ngI18nClosureMode);
-ngDevMode && console.log('ngDevMode is truthy');
-ngI18nClosureMode && console.log('ngI18nClosureMode is truthy');
+console.error(new A().a(), inline_me(), thing);
