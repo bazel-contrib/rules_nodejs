@@ -1,5 +1,67 @@
 # [0.41.0](https://github.com/bazelbuild/rules_nodejs/compare/0.40.0...0.41.0) (2019-11-22)
 
+To upgrade:
+
+```
+http_archive(
+    name = "build_bazel_rules_nodejs",
+    sha256 = "8dc1466f8563f3aa4ac7ab7aa3c96651eb7764108219f40b2d1c918e1a81c601",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.41.0/rules_nodejs-0.41.0.tar.gz"],
+)
+```
+
+and run `yarn upgrade --scope @bazel` to update all your `@bazel`-scoped npm packages to the latest versions.
+(or manually do the npm equivalent - they don't have a way to update a scope)
+
+### BREAKING CHANGES
+
+As mentioned before, we are close to a 1.0 release, so we are making all our breaking changes now to prepare for a period of stability. Sorry for the long list this time!
+
+* `web_package` rule has been renamed to `pkg_web` and is now a public API
+
+Update your load statements from
+
+```python
+load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_package")
+```
+
+to
+
+```python
+load("@build_bazel_rules_nodejs//:index.bzl", "pkg_web")
+```
+
+* `ts_devserver` and `pkg_web` (previously `web_package`) no longer have an `index_html` attribute.
+
+They expect an index.html file to be among the assets, and to already
+have the script and link tags needed for the app to work.
+
+The feature where those tags were injected into the html dynamically has
+been moved to its own rule, inject_html.
+
+We are in a transition state where the `inject_html` rule is not published, because we want this to be a plain npm package and not Bazel-specific. We will publish this functionality soon. If you depend on it, you may want to delay this upgrade.
+
+* internal/rollup_bundle rule is removed. see https://github.com/bazelbuild/rules_nodejs/wiki for migration instructions
+
+* Removed the expand_location_into_runfiles helper from //internal:node.bzl
+Load it from //internal/common:expand_into_runfiles instead
+
+* npm karma deps for karma_web_test and karma_web_suite are now peer deps so that the versions used can be chosen by the user.
+
+This PR also removes the built-in  `@io_bazel_rules_webtesting//browsers/sauce:chrome-win10` saucelabs support. It is not very useful as it only tests a single browser and it difficult to use. In the angular repo, saucelabs support was implemented with a custom karma config using karma_web_test. This is the recommended approach.
+
+* `--define=DEBUG=1` is no longer functional to request debugging outputs. Use `-c dbg` instead (this matches Bazel's behavior for C++).
+
+* We renamed some of the generated targets in the `@nodejs//` workspace:
+
+`bazel run @nodejs//:npm` is replaced with `bazel run @nodejs//:npm_node_repositories` and `bazel run @nodejs//:yarn` is replaced with `bazel run @nodejs//:yarn_node_repositories`. `@nodejs//:yarn` and `@nodejs//:npm` now run yarn & npm in the current working directory instead of on all of the `package.json` files in `node_repositories()`.
+
+`@nodejs//:bin/node` & `@nodejs//:bin/node.cmd` (on Windows) are no longer valid targets. Use `@nodejs//:node` instead on all platforms. You can still call the old targets in their platform specific node repositories such as `@nodejs_darwin_amd64//:bin/node`.
+
+`@nodejs//:bin/yarn` & `@nodejs//:bin/yarn.cmd` (on Windows) are no longer valid targets. Use `@nodejs//:yarn` instead on all platforms. You can still call the old targets in their platform specific node repositories such as `@nodejs_darwin_amd64//:bin/yarn`.
+
+`@nodejs//:bin/npm` & `@nodejs//:bin/npm.cmd` (on Windows) are no longer valid targets. Use `@nodejs//:npm` instead on all platforms. You can still call the old targets in their platform specific node repositories such as `@nodejs_darwin_amd64//:bin/npm`.
+
 
 ### Bug Fixes
 
@@ -26,21 +88,6 @@
 * **builtin:** rename @nodejs//:npm and @nodejs//:yarn to @nodejs//:[yarn/npm]_node_repositories ([#1369](https://github.com/bazelbuild/rules_nodejs/issues/1369)) ([01079a3](https://github.com/bazelbuild/rules_nodejs/commit/01079a3))
 * **karma:** npm peer deps & remove [@rules](https://github.com/rules)_webtesting//browsers/sauce:chrome-win10 support ([318bbf3](https://github.com/bazelbuild/rules_nodejs/commit/318bbf3))
 * **protractor:** protractor npm package is now a peer deps ([#1352](https://github.com/bazelbuild/rules_nodejs/issues/1352)) ([5db7c8e](https://github.com/bazelbuild/rules_nodejs/commit/5db7c8e))
-
-
-### BREAKING CHANGES
-
-* ts_devserver and web_package no longer have an index_html attribute.
-
-They expect an index.html file to be among the assets, and to already
-have the script and link tags needed for the app to work.
-
-The feature where those tags were injected into the html dynamically has
-been moved to its own rule, inject_html.
-* internal/rollup_bundle rule is removed. see https://github.com/bazelbuild/rules_nodejs/wiki for migration instructions
-* Removed the expand_location_into_runfiles helper from //internal:node.bzl
-Load it from //internal/common:expand_into_runfiles instead
-
 
 
 # [0.40.0](https://github.com/bazelbuild/rules_nodejs/compare/0.39.1...0.40.0) (2019-11-13)
