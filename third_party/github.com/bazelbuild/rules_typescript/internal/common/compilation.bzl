@@ -50,7 +50,7 @@ COMMON_ATTRIBUTES = {
     # any closure JS code.
     "runtime_deps": attr.label_list(
         default = [],
-        providers = ["js"],
+        providers = [JsInfo],
     ),
     "deps": attr.label_list(aspects = DEPS_ASPECTS),
     "_additional_d_ts": _ADDITIONAL_D_TS,
@@ -72,7 +72,7 @@ def assert_js_or_typescript_deps(ctx, deps = None):
     # Fallback to `ctx.attr.deps`.
     deps = deps if deps != None else ctx.attr.deps
     for dep in deps:
-        if not hasattr(dep, "typescript") and not hasattr(dep, "js"):
+        if not hasattr(dep, "typescript") and not JsInfo in dep:
             allowed_deps_msg = "Dependencies must be ts_library"
 
             fail("%s is neither a TypeScript nor a JS producing rule.\n%s\n" % (dep.label, allowed_deps_msg))
