@@ -13,11 +13,9 @@
         "jest-config": "24.7.1",
         "jest-haste-map": "24.7.1",
         "jest-resolve": "24.7.1",
-        "jest-runtime": "24.7.1",
-        "patch-package": "6.1.2"
+        "jest-runtime": "24.7.1"
     },
     "scripts": {
-        "test": "bazel test ...",
-        "postinstall": "patch-package --patch-dir=./tools/patches"
+        "test": "bazel test ..."
     }
 }
