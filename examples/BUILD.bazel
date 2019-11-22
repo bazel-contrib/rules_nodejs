@@ -191,9 +191,9 @@ example_integration_test(
 
 example_integration_test(
     name = "examples_user_managed_deps",
-    # This test requires calling `bazel run @nodejs//:yarn` before `bazel test ...`
+    # This test requires calling `bazel run @nodejs//:yarn_node_repositories` before `bazel test ...`
     bazel_commands = [
-        "run @nodejs//:yarn",
+        "run @nodejs//:yarn_node_repositories",
         "test ...",
     ],
     # replace the following repositories with the generated archives

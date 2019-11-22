@@ -5,7 +5,7 @@
     "v8-coverage": "1.0.9"
   },
   "scripts": {
-    "pretest": "bazel run @nodejs//:yarn",
+    "pretest": "bazel run @nodejs//:yarn_node_repositories",
     "test": "bazel test ..."
   }
 }

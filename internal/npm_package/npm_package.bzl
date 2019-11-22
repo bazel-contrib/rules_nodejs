@@ -225,7 +225,7 @@ Actually publish the package with `npm publish` (also builds first):
 
 ```sh
 # Check login credentials
-$ bazel run @nodejs//:npm who
+$ bazel run @nodejs//:npm_node_repositories who
 # Publishes the package
 $ bazel run :my_package.publish
 ```

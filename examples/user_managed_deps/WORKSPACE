@@ -19,14 +19,14 @@ load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories")
 # - NodeJS:
 #   @nodejs//:node
 # - NPM:
-#   @nodejs//:npm
+#   @nodejs//:npm_node_repositories
 # - The yarn package manager:
-#   @nodejs//:yarn
+#   @nodejs//:yarn_node_repositories
 #
 # To install the node_modules of all the listed package_json files run:
-#   bazel run @nodejs//:yarn
+#   bazel run @nodejs//:yarn_node_repositories
 # or
-#   bazel run @nodejs//:npm
+#   bazel run @nodejs//:npm_node_repositories
 node_repositories(
     package_json = ["//:package.json"],
 )

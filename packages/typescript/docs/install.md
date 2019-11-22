@@ -99,7 +99,7 @@ node_repositories(package_json = ["//:package.json"])
 You can then run `yarn` in your workspace with:
 
 ```sh
-$ bazel run @nodejs//:yarn
+$ bazel run @nodejs//:yarn_node_repositories
 ```
 
 To use your workspace `node_modules` folder as a dependency in `ts_library` and

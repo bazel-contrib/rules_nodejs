@@ -4,7 +4,7 @@ tasks:
     name: ubuntu1604
     platform: ubuntu1604
     run_targets:
-    - "@nodejs//:yarn"
+    - "@nodejs//:yarn_node_repositories"
     - "//internal/node/test:no_deps"
     - "//internal/node/test:has_deps_legacy"
     - "//internal/node/test:has_deps"
@@ -79,7 +79,7 @@ tasks:
     name: ubuntu1804
     platform: ubuntu1804
     run_targets:
-    - "@nodejs//:yarn"
+    - "@nodejs//:yarn_node_repositories"
     - "//internal/node/test:no_deps"
     - "//internal/node/test:has_deps_legacy"
     - "//internal/node/test:has_deps"
@@ -194,7 +194,7 @@ tasks:
     name: macos
     platform: macos
     run_targets:
-    - "@nodejs//:yarn"
+    - "@nodejs//:yarn_node_repositories"
     - "//internal/node/test:no_deps"
     - "//internal/node/test:has_deps_legacy"
     - "//internal/node/test:has_deps"
@@ -291,7 +291,7 @@ tasks:
     name: windows
     platform: windows
     run_targets:
-    - "@nodejs//:yarn"
+    - "@nodejs//:yarn_node_repositories"
     - "//internal/node/test:no_deps"
     - "//internal/node/test:has_deps_legacy"
     - "//internal/node/test:has_deps"
