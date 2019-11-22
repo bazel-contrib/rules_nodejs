@@ -5674,9 +5674,7 @@ var bundle = (function (exports, some_global_var) {
   function inline_me() {
     return 'abc';
   }
-  console.error(new A().a(), inline_me(), some_global_var.thing, ngDevMode, ngI18nClosureMode);
-  ngDevMode && console.log('ngDevMode is truthy');
-  ngI18nClosureMode && console.log('ngI18nClosureMode is truthy');
+  console.error(new A().a(), inline_me(), some_global_var.thing);
 
   exports.A = A;
 
