@@ -29,6 +29,9 @@ _ADDITIONAL_D_TS = attr.label_list(
     allow_files = True,
 )
 
+# Mock out the JsInfo blaze-only provider
+JsInfo = provider()
+
 # Attributes shared by any typescript-compatible rule (ts_library, ng_module)
 COMMON_ATTRIBUTES = {
     "data": attr.label_list(
