@@ -1,0 +1,11 @@
+package(default_visibility = ["//visibility:public"])
+
+exports_files(
+    [
+        "tsconfig.json",
+        "tslint.json",
+        "package.json",
+        "angular.json",
+        "jest.config.js",
+    ],
+)

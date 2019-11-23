@@ -1,0 +1,50 @@
+load("@npm//@angular-devkit/architect-cli:index.bzl", "architect")
+
+architect(
+    name = "build",
+    args = [
+        "schematics-angular-app:build",
+        "--outputPath=$@",
+    ],
+    data = glob(
+        [
+            "src/*",
+            "src/**",
+        ],
+        exclude = [
+            "src/**/*.spec.ts",
+            "src/test.ts",
+        ],
+    ) + [
+        "//:angular.json",
+        "browserslist",
+        "//libs/shared-buildable-lib",
+        "tsconfig.app.json",
+        "//:tsconfig.json",
+        "@npm//:node_modules",
+    ],
+    output_dir = True,
+)
+
+# TODO: Change to architect_test when it is hooked up to new linker
+architect(
+    name = "lint",
+    args = [
+        "schematics-angular-app:lint",
+    ],
+    data = glob(
+        [
+            "src/*",
+            "src/**",
+        ],
+    ) + [
+        "//:angular.json",
+        "tsconfig.app.json",
+        "tsconfig.spec.json",
+        "//:tsconfig.json",
+        "//:tslint.json",
+        "@npm//:node_modules",
+    ],
+    # TODO: Remove when architect_test is hooked up to new linker
+    output_dir = True,
+)

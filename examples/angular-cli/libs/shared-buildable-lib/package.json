@@ -1,0 +1,8 @@
+{
+  "name": "example-angular-cli/shared-buildable-lib",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@angular/common": "9.0.0-next.11",
+    "@angular/core": "9.0.0-next.11"
+  }
+}

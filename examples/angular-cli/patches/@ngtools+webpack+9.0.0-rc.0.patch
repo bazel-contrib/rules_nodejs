@@ -1,0 +1,21 @@
+diff --git a/node_modules/@ngtools/webpack/src/ngcc_processor.js b/node_modules/@ngtools/webpack/src/ngcc_processor.js
+index 77f218a..676df46 100644
+--- a/node_modules/@ngtools/webpack/src/ngcc_processor.js
++++ b/node_modules/@ngtools/webpack/src/ngcc_processor.js
+@@ -49,6 +49,16 @@ class NgccProcessor {
+             this._processedModules.add(moduleName);
+             return;
+         }
++        // If the package.json is read only we should skip calling NGCC.
++        // With Bazel when running under sandbox the filesystem is read-only.
++        try {
++            fs_1.accessSync(packageJsonPath, fs_1.constants.W_OK);
++        }
++        catch (_a) {
++            // add it to processed so the second time round we skip this.
++            this._processedModules.add(moduleName);
++            return;
++        }
+         const timeLabel = `NgccProcessor.processModule.ngcc.process+${moduleName}`;
+         benchmark_1.time(timeLabel);
+         ngcc_1.process({
