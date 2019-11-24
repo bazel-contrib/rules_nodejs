@@ -172,6 +172,7 @@ _protractor_web_test = rule(
         ),
         "data": attr.label_list(
             doc = "Runtime dependencies",
+            allow_files = True,
         ),
         "on_prepare": attr.label(
             doc = """A file with a node.js script to run once before all tests run.
