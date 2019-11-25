@@ -11,13 +11,13 @@ import (
 	"github.com/bazelbuild/rules_typescript/ts_auto_deps/workspace"
 )
 
-// ts_auto_depsImport represents a single import in a TypeScript source.
-type ts_auto_depsImport struct {
+// tazeImport represents a single import in a TypeScript source.
+type tazeImport struct {
 	// importPath can be an ES6 path ('./foo/bar'), but also a namespace ('goog:...').
 	// This is the import path as it appears in the TypeScript source.
 	importPath string
-	// knownTarget is the (fully qualified) bazel target providing importPath.
-	// It's either found by locateMissingTargets or taken from a ts_auto_deps comment.
+	// knownTarget is the (fully qualified) blaze target providing importPath.
+	// It's either found by locateMissingTargets or taken from a taze comment.
 	knownTarget string
 	location    sourceLocation
 }
@@ -30,7 +30,7 @@ type ts_auto_depsImport struct {
 // these imports depends on the dependencies of the target the source
 // location is a member of. For example, an import of 'foo/bar' would have
 // no resolvedPath.
-func (i *ts_auto_depsImport) resolvedPath() string {
+func (i *tazeImport) resolvedPath() string {
 	if strings.HasPrefix(i.importPath, "./") || strings.HasPrefix(i.importPath, "../") {
 		// If the import is relative to the source location, use the source
 		// location to form a "canonical" path from the root.
@@ -55,9 +55,9 @@ type sourceLocation struct {
 //
 // paths should be relative to root. The root will be joined to each path
 // to construct a physical path to each file.
-func extractAllImports(root string, paths []string) (map[string][]*ts_auto_depsImport, []error) {
+func extractAllImports(root string, paths []string) (map[string][]*tazeImport, []error) {
 	debugf("extracting imports from TypeScript files relative to %q: %q", root, paths)
-	allImports := make(map[string][]*ts_auto_depsImport)
+	allImports := make(map[string][]*tazeImport)
 	var (
 		errors []error
 		mutex  sync.Mutex
@@ -84,7 +84,7 @@ func extractAllImports(root string, paths []string) (map[string][]*ts_auto_depsI
 
 // extractImports extracts the TypeScript imports from a single file. path
 // should be a path from the root to the file.
-func extractImports(root, path string) ([]*ts_auto_depsImport, error) {
+func extractImports(root, path string) ([]*tazeImport, error) {
 	d, err := ioutil.ReadFile(filepath.Join(root, path))
 	if err != nil {
 		return nil, err
@@ -93,7 +93,7 @@ func extractImports(root, path string) ([]*ts_auto_depsImport, error) {
 }
 
 const (
-	ts_auto_depsFrom  = `^[ \t]*//[ \t]+ts_auto_deps:[^\n]*?from[ \t]+(?P<Target>//\S+)$`
+	tazeFrom          = `^[ \t]*//[ \t]+taze:[^\n]*?from[ \t]+(?P<Target>//\S+)$`
 	importPreface     = `^[ \t]*(?:import|export)\b\s*`
 	wildcardTerm      = `\*(?:\s*as\s+\S+)?` // "as..." is optional to match exports.
 	identifiersClause = `(?:\{[^}]*\}|\S+|` + wildcardTerm + `)`
@@ -103,26 +103,26 @@ const (
 )
 
 var importRE = regexp.MustCompile("(?ms)" +
-	"(?:" + ts_auto_depsFrom + ")|" +
+	"(?:" + tazeFrom + ")|" +
 	"(?:" + importPreface + symbolsTerm + url + namespaceComment + ")")
 
-// parseImports scans contents for imports (ES6 modules, ts_auto_deps comments), and
-// returns a list of ts_auto_depsImports. knownTarget is already filled in for imports
-// that have ts_auto_deps comments.
-func parseImports(sourcePath string, contents []byte) []*ts_auto_depsImport {
-	var imports []*ts_auto_depsImport
+// parseImports scans contents for imports (ES6 modules, taze comments), and
+// returns a list of tazeImports. knownTarget is already filled in for imports
+// that have taze comments.
+func parseImports(sourcePath string, contents []byte) []*tazeImport {
+	var imports []*tazeImport
 	lastOffset := 0
 	line := 1
 	column := 1
 	for _, matchIndices := range importRE.FindAllSubmatchIndex(contents, -1) {
-		imp := &ts_auto_depsImport{}
+		imp := &tazeImport{}
 		imports = append(imports, imp)
 		// matchIndices[0, 1]: full RE match
 		imp.location.sourcePath = sourcePath
 		for lastOffset < matchIndices[1] {
 			// Iterate to the *end* of the import statement.
-			// The ts_auto_deps comment must be placed at the end of the "import" statement.
-			// This offset has to be exactly the end of the import for ts_auto_deps later on
+			// The taze comment must be placed at the end of the "import" statement.
+			// This offset has to be exactly the end of the import for taze later on
 			// to insert the '// from' comment in the correct line.
 			column++
 			if contents[lastOffset] == '\n' {
@@ -135,7 +135,7 @@ func parseImports(sourcePath string, contents []byte) []*ts_auto_depsImport {
 		imp.location.length = matchIndices[1] - matchIndices[0]
 		imp.location.line = line
 		if matchIndices[2] >= 0 {
-			// matchIndices[2, 3]: Target for a // ts_auto_deps: ... from ... comment.
+			// matchIndices[2, 3]: Target for a // taze: ... from ... comment.
 			imp.knownTarget = string(contents[matchIndices[2]:matchIndices[3]])
 		} else {
 			// matchIndices[4, 5]: URL in import x from 'url';

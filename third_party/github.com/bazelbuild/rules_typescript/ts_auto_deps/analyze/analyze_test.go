@@ -10,12 +10,14 @@ import (
 	"strings"
 	"testing"
 
+	"google3/net/proto2/go/proto"
 	"github.com/bazelbuild/rules_typescript/ts_auto_deps/platform"
-	"github.com/golang/protobuf/proto"
-	"github.com/kylelemons/godebug/pretty"
+	"google3/third_party/golang/cmp/cmp"
+	"google3/third_party/golang/cmp/cmpopts/cmpopts"
+	"google3/third_party/golang/godebug/pretty/pretty"
 
-	appb "github.com/bazelbuild/buildtools/build_proto"
-	arpb "github.com/bazelbuild/rules_typescript/ts_auto_deps/proto"
+	appb "google3/third_party/bazel/src/main/protobuf/build_go_proto"
+	arpb "google3/third_party/bazel_rules/rules_typescript/ts_auto_deps/proto/analyze_result_go_proto"
 )
 
 var (
@@ -204,7 +206,7 @@ func TestUnnecessaryDependencies(t *testing.T) {
 func TestNecessaryDependencies(t *testing.T) {
 	tests := [][]string{
 		[]string{"import x from 'b/target';"},
-		[]string{"// ts_auto_deps: x from //b:b_lib"},
+		[]string{"// taze: x from //b:b_lib"},
 		[]string{"export x from 'b/target';"},
 	}
 	for _, test := range tests {
@@ -616,7 +618,7 @@ func TestSetSources(t *testing.T) {
 				t.Errorf("got err %q, expected %q", err, test.err)
 			}
 
-			if diff := pretty.Compare(rt.sources, test.expected); err == nil && diff != "" {
+			if diff := cmp.Diff(rt.sources, test.expected, cmpopts.EquateEmpty(), cmp.Comparer(proto.Equal)); err == nil && diff != "" {
 				t.Errorf("failed to set correct sources: (-got, +want)\n%s", diff)
 			}
 		})
@@ -646,7 +648,7 @@ func createFile(path string, content ...string) error {
 	return ioutil.WriteFile(path, []byte(strings.Join(content, "\n")), 0666)
 }
 
-// This method creates a WORKSPACE file in the root of the Bazel test
+// This method creates a WORKSPACE file in the root of the Blaze test
 // directory. This allows the tests to resolve the root path of the
 // workspace by looking for the WORKSPACE file on disk.
 func createWorkspaceFile() error {

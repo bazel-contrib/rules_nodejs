@@ -3,10 +3,11 @@ package analyze
 import (
 	"testing"
 
-	"github.com/golang/protobuf/proto"
+	"google3/net/proto2/go/proto"
 
-	appb "github.com/bazelbuild/buildtools/build_proto"
+	appb "google3/third_party/bazel/src/main/protobuf/build_go_proto"
 )
+
 
 func TestResolveAgainstModuleRoot(t *testing.T) {
 	tests := []struct {

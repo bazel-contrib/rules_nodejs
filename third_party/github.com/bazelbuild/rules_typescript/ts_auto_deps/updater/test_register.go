@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/bazelbuild/buildtools/build"
-	"github.com/bazelbuild/buildtools/edit"
+	"google3/third_party/bazel_buildifier/build/build"
+	"google3/third_party/bazel_buildifier/edit/edit"
 	"github.com/bazelbuild/rules_typescript/ts_auto_deps/platform"
 )
 
@@ -65,7 +65,7 @@ func (upd *Updater) RegisterTestRules(ctx context.Context, paths ...string) (boo
 				continue
 			}
 			platform.Infof("Registering test rule in closest ts_config & ts_development_sources")
-			target := AbsoluteBazelTarget(bld, tr.Name())
+			target := AbsoluteBlazeTarget(bld, tr.Name())
 			ancestorBuild, err := reg.registerTestRule(ctx, bld, tsConfig, g3root, target)
 			if err != nil {
 				return false, nil, err
@@ -221,23 +221,23 @@ var wellKnownBuildRules = []struct {
 	attrName string
 }{
 	{
-		name:     "karma_polymer_test",
+		name: "karma_polymer_test",
 		attrName: "test_ts_deps",
 	},
 	{
-		name:     "wct_closure_test_suite",
+		name: "wct_closure_test_suite",
 		attrName: "js_deps",
 	},
 	{
-		name:     "jasmine_node_test",
+		name: "jasmine_node_test",
 		attrName: "deps",
 	},
 	{
-		name:     "karma_web_test_suite",
+		name: "karma_web_test_suite",
 		attrName: "deps",
 	},
 	{
-		name:     "boq_jswire_test_library",
+		name: "boq_jswire_test_library",
 		attrName: "deps",
 	},
 }
@@ -247,13 +247,13 @@ var wellKnownBuildRules = []struct {
 // wct_closure_test_suite or jasmine_node_test.
 func isRegisteredWithAlternateTestRule(bld *build.File, r *build.Rule, dep string) bool {
 	pkg := filepath.Dir(bld.Path)
-	for _, wkbr := range wellKnownBuildRules {
+	for _, wkbr := range wellKnownBuildRules{
 		if isKind(r, wkbr.name) {
 			testTsDeps := r.Attr(wkbr.attrName)
 			if edit.ListFind(testTsDeps, dep, pkg) != nil {
 				return true
 			}
-		}
+		}	
 	}
 	return false
 }

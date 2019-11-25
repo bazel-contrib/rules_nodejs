@@ -1,6 +1,7 @@
 package analyze
 
 import (
+
 	"bytes"
 	"context"
 	"fmt"
@@ -9,12 +10,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bazelbuild/buildtools/edit"
+	"google3/net/proto2/go/proto"
+	"google3/third_party/bazel_buildifier/edit/edit"
 	"github.com/bazelbuild/rules_typescript/ts_auto_deps/platform"
 	"github.com/bazelbuild/rules_typescript/ts_auto_deps/workspace"
-	"github.com/golang/protobuf/proto"
 
-	appb "github.com/bazelbuild/buildtools/build_proto"
+	appb "google3/third_party/bazel/src/main/protobuf/build_go_proto"
 )
 
 // pkgCacheEntry represents a set of loaded rules and a mapping from alias
@@ -26,10 +27,10 @@ type pkgCacheEntry struct {
 	aliases map[string]*appb.Rule
 }
 
-// QueryBasedTargetLoader uses Bazel query to load targets from BUILD files.
+// QueryBasedTargetLoader uses Blaze query to load targets from BUILD files.
 type QueryBasedTargetLoader struct {
 	workdir     string
-	bazelBinary string
+	blazeBinary string
 
 	// pkgCache is a mapping from a package to all of the rules in said
 	// package along with a map from aliases to actual rules.
@@ -51,17 +52,17 @@ type QueryBasedTargetLoader struct {
 
 // NewQueryBasedTargetLoader constructs a new QueryBasedTargetLoader rooted
 // in workdir.
-func NewQueryBasedTargetLoader(workdir, bazelBinary string) *QueryBasedTargetLoader {
+func NewQueryBasedTargetLoader(workdir, blazeBinary string) *QueryBasedTargetLoader {
 	return &QueryBasedTargetLoader{
 		workdir:     workdir,
-		bazelBinary: bazelBinary,
+		blazeBinary: blazeBinary,
 
 		pkgCache:   make(map[string]*pkgCacheEntry),
 		labelCache: make(map[string]*appb.Target),
 	}
 }
 
-// LoadRules uses Bazel query to load rules associated with labels from BUILD
+// LoadRules uses Blaze query to load rules associated with labels from BUILD
 // files.
 func (q *QueryBasedTargetLoader) LoadRules(pkg string, labels []string) (map[string]*appb.Rule, error) {
 	labelToTarget, err := q.LoadTargets(pkg, labels)
@@ -81,7 +82,7 @@ func (q *QueryBasedTargetLoader) LoadRules(pkg string, labels []string) (map[str
 	return labelToRule, nil
 }
 
-// LoadTargets uses Bazel query to load targets associated with labels from BUILD
+// LoadTargets uses Blaze query to load targets associated with labels from BUILD
 // files.
 func (q *QueryBasedTargetLoader) LoadTargets(pkg string, labels []string) (map[string]*appb.Target, error) {
 	var labelCacheMisses []string
@@ -151,7 +152,7 @@ func possibleFilepaths(importPath string) []string {
 	return possiblePaths
 }
 
-// LoadImportPaths uses Bazel Query to load targets associated with import
+// LoadImportPaths uses Blaze Query to load targets associated with import
 // paths from BUILD files.
 func (q *QueryBasedTargetLoader) LoadImportPaths(ctx context.Context, targetToAnalyze *appb.Rule, currentPkg, workspaceRoot string, paths []string) (map[string]*appb.Rule, error) {
 	debugf("loading imports visible to %q relative to %q: %q", currentPkg, workspaceRoot, paths)
@@ -278,6 +279,7 @@ func (q *QueryBasedTargetLoader) LoadImportPaths(ctx context.Context, targetToAn
 			}
 		}
 	}
+
 
 	return results, nil
 }
@@ -412,10 +414,11 @@ func (q *QueryBasedTargetLoader) targetLabel(target *appb.Target) (string, error
 	}
 }
 
-// batchQuery runs a set of queries with a single call to Bazel query and the
+
+// batchQuery runs a set of queries with a single call to Blaze query and the
 // '--keep_going' flag.
 func (q *QueryBasedTargetLoader) batchQuery(queries []string) (*appb.QueryResult, error) {
-	// Join all of the queries with a '+' character according to Bazel's
+	// Join all of the queries with a '+' character according to Blaze's
 	// syntax for running multiple queries.
 	return q.query("--keep_going", strings.Join(queries, "+"))
 }
@@ -428,14 +431,14 @@ func (q *QueryBasedTargetLoader) query(args ...string) (*appb.QueryResult, error
 	query := args[n-1]
 	if query == "" {
 		// An empty query was provided so return an empty result without
-		// making a call to Bazel.
+		// making a call to Blaze.
 		return &appb.QueryResult{}, nil
 	}
 	var stdout, stderr bytes.Buffer
 	args = append([]string{"query", "--output=proto"}, args...)
 	q.queryCount++
-	debugf("executing query #%d in %q: %s %s %q", q.queryCount, q.workdir, q.bazelBinary, strings.Join(args[:len(args)-1], " "), query)
-	cmd := exec.Command(q.bazelBinary, args...)
+	debugf("executing query #%d in %q: %s %s %q", q.queryCount, q.workdir, q.blazeBinary, strings.Join(args[:len(args)-1], " "), query)
+	cmd := exec.Command(q.blazeBinary, args...)
 	cmd.Dir = q.workdir
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
@@ -446,7 +449,7 @@ func (q *QueryBasedTargetLoader) query(args ...string) (*appb.QueryResult, error
 		// flag. Since one query failing to return a result does not hinder the
 		// other queries from returning a result, ignore these errors.
 		//
-		// Herb prints "printing partial results" to indicate the same as bazel's
+		// Herb prints "printing partial results" to indicate the same as blaze's
 		// exit status 3
 		if err.Error() != "exit status 3" && !strings.Contains(stderr.String(), "printing partial results") {
 			// The error provided as a result is less useful than the contents of
@@ -461,6 +464,7 @@ func (q *QueryBasedTargetLoader) query(args ...string) (*appb.QueryResult, error
 	}
 	return &result, nil
 }
+
 
 // ruleProvidesImports checks if the rule directly provides the import, or if
 // it's a reexporting lib, if one of its deps does.

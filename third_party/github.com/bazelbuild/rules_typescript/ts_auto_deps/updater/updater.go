@@ -1,5 +1,5 @@
-// Package updater implements the main logic of the ts_auto_deps command. It reads BUILD files,
-// discovers TypeScript sources, uses `bazel analyze` to update import/dependency information,
+// Package updater implements the main logic of the taze command. It reads BUILD files,
+// discovers TypeScript sources, uses `blaze analyze` to update import/dependency information,
 // and then modifies the BUILD file accordingly.
 package updater
 
@@ -17,26 +17,27 @@ import (
 	"sync"
 	"time"
 
-	"flag"
-	"github.com/bazelbuild/buildtools/build"
-	"github.com/bazelbuild/buildtools/edit"
+	"google3/base/go/flag"
+	"google3/net/proto2/go/proto"
+	"google3/third_party/bazel_buildifier/build/build"
+	"google3/third_party/bazel_buildifier/edit/edit"
 	"github.com/bazelbuild/rules_typescript/ts_auto_deps/analyze"
 	"github.com/bazelbuild/rules_typescript/ts_auto_deps/platform"
 	"github.com/bazelbuild/rules_typescript/ts_auto_deps/workspace"
-	"github.com/golang/protobuf/proto"
-	"github.com/mattn/go-isatty"
+	"google3/third_party/golang/isatty/isatty"
 
-	arpb "github.com/bazelbuild/rules_typescript/ts_auto_deps/proto"
+	arpb "google3/third_party/bazel_rules/rules_typescript/ts_auto_deps/proto/analyze_result_go_proto"
 )
 
-var bazelErrorRE = regexp.MustCompile(`ERROR: ([^:]+):(\d+):\d+:`)
+
+var blazeErrorRE = regexp.MustCompile(`ERROR: ([^:]+):(\d+):\d+:`)
 
 // New creates a new updater from the given arguments. One updater can be used
 // to update many packages, repeatedly, but not concurrently.
-// bazelAnalyze and updateFile can be passed in to handle ts_auto_deps operation in
+// blazeAnalyze and updateFile can be passed in to handle taze operation in
 // different environments and for fakes in tests.
-func New(removeUnusedDeclarations bool, updateComments bool, bazelAnalyze BazelAnalyzer, updateFile UpdateFile) *Updater {
-	return &Updater{removeUnusedDeclarations, updateComments, bazelAnalyze, updateFile}
+func New(removeUnusedDeclarations bool, updateComments bool, blazeAnalyze BlazeAnalyzer, updateFile UpdateFile) *Updater {
+	return &Updater{removeUnusedDeclarations, updateComments, blazeAnalyze, updateFile}
 }
 
 // UpdateFile updates the contents of filePath. Implementations may postpone or batch actually writing the given file, i.e.
@@ -48,19 +49,19 @@ func LocalUpdateFile(ctx context.Context, filePath string, contents string) erro
 	return platform.WriteFile(ctx, filePath, []byte(contents))
 }
 
-// BazelAnalyzer is a function that executes bazel analyze for the given
-// absolute build file path and bazel targets, and returns the raw analysis
+// BlazeAnalyzer is a function that executes blaze analyze for the given
+// absolute build file path and blaze targets, and returns the raw analysis
 // result proto, or an error if the analyze call failed.
 // It's used to abstract over execution using rabbit vs local execution.
 // Returns the main output (serialized AnalysisResult proto), any error
 // messages, or an error.
-type BazelAnalyzer func(buildFilePath string, targets []string) ([]byte, []byte, error)
+type BlazeAnalyzer func(buildFilePath string, targets []string) ([]byte, []byte, error)
 
-// Updater encapsulates configuration for the ts_auto_deps process.
+// Updater encapsulates configuration for the taze process.
 type Updater struct {
 	removeUnusedDeclarations bool
 	updateComments           bool
-	bazelAnalyze             BazelAnalyzer
+	blazeAnalyze             BlazeAnalyzer
 	updateFile               UpdateFile
 }
 
@@ -74,31 +75,31 @@ func attrTruthy(r *build.Rule, attr string) bool {
 var unusedDeclarationRE = regexp.MustCompile(
 	`WARNING: [^:]+:\d+:(?:\d+:)? keeping possibly used ts_declaration '([^']+)'`)
 
-// GarbledBazelResponseError signals to callers that the proto returned by bazel
+// GarbledBlazeResponseError signals to callers that the proto returned by blaze
 // analyze was garbled, and couldn't be unmarshalled.
 // TODO(lucassloan): remove when b/112891536 is fixed
-// Build Rabbit rewrites paths produced by bazel, which garbles the error
-// messages from bazel analyze, since they're encoded in protobufs.
-type GarbledBazelResponseError struct {
+// Build Rabbit rewrites paths produced by blaze, which garbles the error
+// messages from blaze analyze, since they're encoded in protobufs.
+type GarbledBlazeResponseError struct {
 	Message string
 }
 
-func (g *GarbledBazelResponseError) Error() string {
+func (g *GarbledBlazeResponseError) Error() string {
 	return g.Message
 }
 
-// runBazelAnalyze executes the `bazel analyze` command and extracts reports.
+// runBlazeAnalyze executes the `blaze analyze` command and extracts reports.
 // It returns the dependency report with rule names referring to rules *before*
-// macro expansion, or an error. runBazelAnalyze uses the given `analyze`
-// function to actually run the `bazel analyze` operation, which allows
-// exchanging it for a different implementation in the ts_auto_deps presubmit service.
-func (upd *Updater) runBazelAnalyze(buildFilePath string, bld *build.File, rules []*build.Rule) ([]*arpb.DependencyReport, error) {
+// macro expansion, or an error. runBlazeAnalyze uses the given `analyze`
+// function to actually run the `blaze analyze` operation, which allows
+// exchanging it for a different implementation in the taze presubmit service.
+func (upd *Updater) runBlazeAnalyze(buildFilePath string, bld *build.File, rules []*build.Rule) ([]*arpb.DependencyReport, error) {
 	var targets []string
 	for _, r := range rules {
-		fullTarget := AbsoluteBazelTarget(bld, r.Name())
+		fullTarget := AbsoluteBlazeTarget(bld, r.Name())
 		targets = append(targets, fullTarget)
 	}
-	out, stderr, err := upd.bazelAnalyze(buildFilePath, targets)
+	out, stderr, err := upd.blazeAnalyze(buildFilePath, targets)
 	if err != nil {
 		return nil, err
 	}
@@ -106,15 +107,15 @@ func (upd *Updater) runBazelAnalyze(buildFilePath string, bld *build.File, rules
 	var res arpb.AnalyzeResult
 	if err := proto.Unmarshal(out, &res); err != nil {
 		// TODO(lucassloan): remove when b/112891536 is fixed
-		// Build Rabbit rewrites paths produced by bazel, which garbles the error
-		// messages from bazel analyze, since they're encoded in protobufs.
-		return nil, &GarbledBazelResponseError{fmt.Sprintf("failed to unmarshal analysis result: %v\nin: %q", err, string(out))}
+		// Build Rabbit rewrites paths produced by blaze, which garbles the error
+		// messages from blaze analyze, since they're encoded in protobufs.
+		return nil, &GarbledBlazeResponseError{fmt.Sprintf("failed to unmarshal analysis result: %v\nin: %q", err, string(out))}
 	}
 	platform.Infof("analyze result %v", res)
 	reports := res.GetDependencyReport()
 	if len(targets) != len(reports) {
 		if len(stderr) > 0 {
-			// TODO(b/73321854): pretend second rule has a syntactical error, so bazel analyze produces no
+			// TODO(b/73321854): pretend second rule has a syntactical error, so blaze analyze produces no
 			// report for it, but also doesn't return an error code. Remove workaround once fixed.
 			return nil, fmt.Errorf("parsing reports failed (%d reports for %s):\n%s",
 				len(reports), targets, stderr)
@@ -134,6 +135,7 @@ func (upd *Updater) runBazelAnalyze(buildFilePath string, bld *build.File, rules
 				// TODO(martinprobst): this warning is to educate users after changing removeUnusedDeclarations to true by default.
 				// Once existing code is fixed, this constitutes normal operation, and the logging below should be dropped.
 				fmt.Fprintf(os.Stderr, "WARNING: removing apparently unused ts_declaration() dependency from %q.\n", report.GetRule())
+
 
 				report.UnnecessaryDependency = append(report.UnnecessaryDependency, target)
 			}
@@ -213,7 +215,7 @@ type globResult struct {
 }
 
 // globSources finds sources in path with any of the given extensions.
-// It also filters out temporary files, dangling symlinks, and symlinks into bazel-bin specifically.
+// It also filters out temporary files, dangling symlinks, and symlinks into blaze-bin specifically.
 // It returns file names relative to path.
 func globSources(ctx context.Context, path string, extensions []string) (srcSet, error) {
 	var allSourcePaths []string
@@ -315,9 +317,9 @@ func addToSrcsClobbering(bld *build.File, r *build.Rule, s string) {
 	case nil, *build.ListExpr:
 		// expected - a list of files (labels) or absent.
 	default:
-		// Remove any glob calls, variables, etc. ts_auto_deps uses explicit source lists.
+		// Remove any glob calls, variables, etc. taze uses explicit source lists.
 		fmt.Fprintf(os.Stderr, "WARNING: clobbering non-list srcs attribute on %s\n",
-			AbsoluteBazelTarget(bld, r.Name()))
+			AbsoluteBlazeTarget(bld, r.Name()))
 		r.DelAttr("srcs")
 	}
 	val := &build.StringExpr{Value: s}
@@ -331,10 +333,11 @@ func determineRuleType(path, s string) ruleType {
 		return ruleTypeTest
 	}
 
+
 	return ruleTypeRegular
 }
 
-// AnalysisFailedError is returned by ts_auto_deps when the underlying analyze operation
+// AnalysisFailedError is returned by taze when the underlying analyze operation
 // fails, e.g. because the BUILD files have syntactical errors.
 type AnalysisFailedError struct {
 	Causes []AnalysisFailureCause
@@ -371,7 +374,7 @@ func updateDeps(bld *build.File, reports []*arpb.DependencyReport) error {
 				msg := fmt.Sprintf("dependency analysis failed for %s:\n%s",
 					report.GetRule(), fb)
 
-				m := bazelErrorRE.FindStringSubmatch(fb)
+				m := blazeErrorRE.FindStringSubmatch(fb)
 				if m == nil {
 					// error message didn't contain file and line number, so just use the
 					// path of the BUILD file that was analyzed
@@ -404,7 +407,7 @@ func updateDeps(bld *build.File, reports []*arpb.DependencyReport) error {
 		}
 		for _, md := range report.MissingDependencyGroup {
 			for _, d := range md.Dependency {
-				d = AbsoluteBazelTarget(bld, d)
+				d = AbsoluteBlazeTarget(bld, d)
 				if d == fullTarget {
 					return &AnalysisFailedError{
 						[]AnalysisFailureCause{
@@ -445,6 +448,7 @@ func updateDeps(bld *build.File, reports []*arpb.DependencyReport) error {
 	}
 	return nil
 }
+
 
 // maybeWriteBUILD checks if the given file needs updating, i.e. whether the
 // canonical serialized form of bld has changed from the file contents on disk.
@@ -516,10 +520,10 @@ func getBUILDPath(ctx context.Context, path string) (string, string, string, err
 }
 
 // isTazeDisabledInPackage checks the BUILD file, or if the BUILD doesn't exist,
-// the nearest ancestor BUILD file for a disable_ts_auto_deps() rule.
+// the nearest ancestor BUILD file for a disable_taze() rule.
 func isTazeDisabledInPackage(ctx context.Context, g3root, buildFilePath, workspaceRelativePath string, bld *build.File) (bool, error) {
 	if bld == nil {
-		// Make sure ts_auto_deps hasn't been disabled in the next closest ancestor package.
+		// Make sure taze hasn't been disabled in the next closest ancestor package.
 		ancestor, err := FindBUILDFile(ctx, make(map[string]*build.File), g3root, filepath.Dir(workspaceRelativePath))
 		if _, ok := err.(*noAncestorBUILDError); ok {
 			platform.Infof("Could not find any ancestor BUILD for %q, continuing with a new BUILD file",
@@ -528,32 +532,32 @@ func isTazeDisabledInPackage(ctx context.Context, g3root, buildFilePath, workspa
 		} else if err != nil {
 			return false, err
 		} else if buildHasDisableTaze(ancestor) {
-			fmt.Printf("ts_auto_deps disabled below %q\n", ancestor.Path)
+			fmt.Printf("taze disabled below %q\n", ancestor.Path)
 			return true, nil
 		} else {
-			platform.Infof("BUILD file missing and ts_auto_deps is enabled below %q. Creating new BUILD file.",
+			platform.Infof("BUILD file missing and taze is enabled below %q. Creating new BUILD file.",
 				ancestor.Path)
 			return false, nil
 		}
 	}
 
 	if buildHasDisableTaze(bld) {
-		fmt.Printf("ts_auto_deps disabled on %q\n", buildFilePath)
+		fmt.Printf("taze disabled on %q\n", buildFilePath)
 		return true, nil
 	}
 
 	return false, nil
 }
 
-// SubdirectorySourcesError is returned when ts_auto_deps detects a BUILD file
+// SubdirectorySourcesError is returned when taze detects a BUILD file
 // that references sources in another directory, either in the directory
-// being ts_auto_depsd, or in a super directory.
+// being tazed, or in a super directory.
 type SubdirectorySourcesError struct{}
 
 func (a *SubdirectorySourcesError) Error() string {
-	return "ts_auto_deps doesn't handle referencing sources in another directory " +
-		"- to use ts_auto_deps, migrate to having a BUILD file in every directory. " +
-		"For more details, see go/ts_auto_deps#subdirectory-sources"
+	return "taze doesn't handle referencing sources in another directory " +
+		"- to use taze, migrate to having a BUILD file in every directory. " +
+		"For more details, see go/taze#subdirectory-sources"
 }
 
 // hasSubdirectorySources checks if the BUILD file has ts_libraries that contain
@@ -631,17 +635,19 @@ func (upd *Updater) addSourcesToBUILD(ctx context.Context, path string, buildFil
 	}
 	updateSources(bld, srcs)
 
+
 	return upd.maybeWriteBUILD(ctx, buildFilePath, bld)
 }
 
-// updateBUILDAfterBazelAnalyze applies the BUILD file updates that depend on bazel
+// updateBUILDAfterBlazeAnalyze applies the BUILD file updates that depend on blaze
 // analyze's DependencyReports, most notably updating any rules' deps.
-func (upd *Updater) updateBUILDAfterBazelAnalyze(ctx context.Context, isRoot bool,
+func (upd *Updater) updateBUILDAfterBlazeAnalyze(ctx context.Context, isRoot bool,
 	g3root string, buildFilePath string, bld *build.File, reports []*arpb.DependencyReport) (bool, error) {
 	platform.Infof("Updating deps")
 	if err := updateDeps(bld, reports); err != nil {
 		return false, err
 	}
+
 
 	platform.Infof("Setting library rule kinds")
 	if err := setLibraryRuleKinds(ctx, buildFilePath, bld); err != nil {
@@ -650,7 +656,7 @@ func (upd *Updater) updateBUILDAfterBazelAnalyze(ctx context.Context, isRoot boo
 	return upd.maybeWriteBUILD(ctx, buildFilePath, bld)
 }
 
-// IsTazeDisabledForDir checks if ts_auto_deps is disabled in the BUILD file in the dir,
+// IsTazeDisabledForDir checks if taze is disabled in the BUILD file in the dir,
 // or if no BUILD file exists, in the closest ancestor BUILD
 func IsTazeDisabledForDir(ctx context.Context, dir string) (bool, error) {
 	g3root, buildFilePath, workspaceRelativePath, err := getBUILDPath(ctx, dir)
@@ -667,23 +673,23 @@ func IsTazeDisabledForDir(ctx context.Context, dir string) (bool, error) {
 	return isTazeDisabledInPackage(ctx, g3root, buildFilePath, workspaceRelativePath, bld)
 }
 
-// CantProgressAfterWriteError reports that ts_auto_deps was run in an environment
-// where it can't make writes to the file system (such as when ts_auto_deps is running
-// as a service for cider) and the writes it made need to be visible to bazel analyze,
+// CantProgressAfterWriteError reports that taze was run in an environment
+// where it can't make writes to the file system (such as when taze is running
+// as a service for cider) and the writes it made need to be visible to blaze analyze,
 // so it can continue updating the BUILD file(s).  In such a case, the caller should
-// collect the writes using a custom UpdateFile function, and re-call ts_auto_deps after
+// collect the writes using a custom UpdateFile function, and re-call taze after
 // applying the writes.
 type CantProgressAfterWriteError struct{}
 
 func (a *CantProgressAfterWriteError) Error() string {
-	return "running ts_auto_deps in a non-writable environment, can't continue until writes are applied"
+	return "running taze in a non-writable environment, can't continue until writes are applied"
 }
 
 // UpdateBUILDOptions bundles options for the UpdateBUILD function.
 type UpdateBUILDOptions struct {
-	// InNonWritableEnvironment boolean indicates to ts_auto_deps that the writes it makes
-	// won't be immediately visible to bazel analyze, so it cannot proceed normally.
-	// In this case, if it makes a write that needs to be visible to bazel analyze, it
+	// InNonWritableEnvironment boolean indicates to taze that the writes it makes
+	// won't be immediately visible to blaze analyze, so it cannot proceed normally.
+	// In this case, if it makes a write that needs to be visible to blaze analyze, it
 	// will return a CantProgressAfterWriteError, which indicates that the caller
 	// should apply the writes made to its UpdateFile function, and re-call UpdateBUILD
 	// after the writes have been applied.
@@ -702,8 +708,8 @@ type LatencyReport struct {
 
 // UpdateBUILD drives the main process of creating/updating the BUILD file
 // underneath path based on the available sources. Returns true if it modified
-// the BUILD file, false if the BUILD file was up to date already. bazelAnalyze
-// is used to run the underlying `bazel analyze` process.  Returns another
+// the BUILD file, false if the BUILD file was up to date already. blazeAnalyze
+// is used to run the underlying `blaze analyze` process.  Returns another
 // boolean that's true iff the package doesn't contain any TypeScript (source
 // files or BUILD rules).
 func (upd *Updater) UpdateBUILD(ctx context.Context, path string, options UpdateBUILDOptions) (bool, *LatencyReport, error) {
@@ -732,12 +738,12 @@ func (upd *Updater) UpdateBUILD(ctx context.Context, path string, options Update
 	latencyReport.GetBUILD = time.Since(start)
 
 	start = time.Now()
-	ts_auto_depsDisabled, err := isTazeDisabledInPackage(ctx, g3root, buildFilePath, workspaceRelativePath, bld)
+	tazeDisabled, err := isTazeDisabledInPackage(ctx, g3root, buildFilePath, workspaceRelativePath, bld)
 	if err != nil {
 		return false, nil, err
 	}
 	latencyReport.TazeDisabled = time.Since(start)
-	if ts_auto_depsDisabled {
+	if tazeDisabled {
 		return false, nil, nil
 	}
 
@@ -785,16 +791,17 @@ func (upd *Updater) UpdateBUILD(ctx context.Context, path string, options Update
 		}
 	}
 	platform.Infof("analyzing...")
-	reports, err := upd.runBazelAnalyze(buildFilePath, bld, rulesWithSrcs)
+	reports, err := upd.runBlazeAnalyze(buildFilePath, bld, rulesWithSrcs)
 	if err != nil {
 		return false, nil, err
 	}
 
-	changedAfterBazelAnalyze, err := upd.updateBUILDAfterBazelAnalyze(ctx, options.IsRoot, g3root, buildFilePath, bld, reports)
+
+	changedAfterBlazeAnalyze, err := upd.updateBUILDAfterBlazeAnalyze(ctx, options.IsRoot, g3root, buildFilePath, bld, reports)
 	if err != nil {
 		return false, nil, err
 	}
-	changed = changed || changedAfterBazelAnalyze
+	changed = changed || changedAfterBlazeAnalyze
 	if options.InNonWritableEnvironment && changed {
 		return true, nil, &CantProgressAfterWriteError{}
 	}
@@ -802,12 +809,12 @@ func (upd *Updater) UpdateBUILD(ctx context.Context, path string, options Update
 	return changed, nil, nil
 }
 
-// buildHasDisableTaze checks if the BUILD file should be managed using ts_auto_deps.
-// Users can disable ts_auto_deps by adding a "disable_ts_auto_deps()" (or "dont_ts_auto_deps_me()") statement.
+// buildHasDisableTaze checks if the BUILD file should be managed using taze.
+// Users can disable taze by adding a "disable_taze()" (or "dont_taze_me()") statement.
 func buildHasDisableTaze(bld *build.File) bool {
 	for _, stmt := range bld.Stmt {
 		if call, ok := stmt.(*build.CallExpr); ok {
-			if fnName, ok := call.X.(*build.Ident); ok && (fnName.Name == "disable_ts_auto_deps" || fnName.Name == "dont_ts_auto_deps_me") {
+			if fnName, ok := call.X.(*build.Ident); ok && (fnName.Name == "disable_taze" || fnName.Name == "dont_taze_me") {
 				return true
 			}
 		}
@@ -815,14 +822,14 @@ func buildHasDisableTaze(bld *build.File) bool {
 	return false
 }
 
-// QueryBasedBazelAnalyze uses bazel query to analyze targets. It is available under a flag or
+// QueryBasedBlazeAnalyze uses blaze query to analyze targets. It is available under a flag or
 // an environment variable on engineer's workstations.
-func QueryBasedBazelAnalyze(buildFilePath string, targets []string) ([]byte, []byte, error) {
+func QueryBasedBlazeAnalyze(buildFilePath string, targets []string) ([]byte, []byte, error) {
 	root, err := workspace.Root(buildFilePath)
 	if err != nil {
 		return nil, nil, err
 	}
-	reports, err := analyze.New(analyze.NewQueryBasedTargetLoader(root, "bazel")).Analyze(context.Background(), buildFilePath, targets)
+	reports, err := analyze.New(analyze.NewQueryBasedTargetLoader(root, "blaze")).Analyze(context.Background(), buildFilePath, targets)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -853,7 +860,7 @@ func buildRules(bld *build.File, kind string) []*build.Rule {
 	// Find all rules, then filter by kind.
 	// This is nearly the same as just calling bld.Rules(kind), but allows to
 	// retrieve ng_module and ts_library intermixed, in the order in which they
-	// appear in the BUILD file. That allows ts_auto_deps to consistently always pick the
+	// appear in the BUILD file. That allows taze to consistently always pick the
 	// last build rule in the file in case multiple match, regardless of kind.
 	allRules := bld.Rules("")
 	var res []*build.Rule
@@ -886,12 +893,12 @@ func addDep(bld *build.File, r *build.Rule, dep string) {
 	edit.AddValueToListAttribute(r, "deps", pkg, &build.StringExpr{Value: dep}, nil)
 }
 
-// AbsoluteBazelTarget converts a ruleName to an absolute target string (//foo/bar:bar).
+// AbsoluteBlazeTarget converts a ruleName to an absolute target string (//foo/bar:bar).
 // It interprets ruleName relative to the given build file's package. It
 // supports plain names, names starting with colons, absolute paths, and
 // absolute paths with shorthand target syntax (i.e. "bar", ":bar", "//foo/bar",
 // "//foo/bar:bar").
-func AbsoluteBazelTarget(bld *build.File, ruleName string) string {
+func AbsoluteBlazeTarget(bld *build.File, ruleName string) string {
 	if strings.HasPrefix(ruleName, "//") {
 		// already absolute
 		if colonIdx := strings.LastIndex(ruleName, ":"); colonIdx == -1 {
@@ -928,8 +935,8 @@ func removeSourcesUsed(bld *build.File, ruleKind, attrName string, srcs srcSet) 
 }
 
 const (
-	tsSkylarkLabel = "@npm_bazel_typescript//:index.bzl"
-	ngSkylarkLabel = "@angular//:index.bzl"
+	tsSkylarkLabel = "//javascript/typescript:build_defs.bzl"
+	ngSkylarkLabel = "//javascript/angular2:build_defs.bzl"
 )
 
 func removeUnusedLoad(bld *build.File, kind string) {
@@ -947,6 +954,7 @@ func removeUnusedLoad(bld *build.File, kind string) {
 			// a load statement without actually loaded symbols, skip
 			continue
 		}
+
 
 		var from, to []*build.Ident
 		for i, ca := range load.To {
@@ -1036,7 +1044,7 @@ func updateWebAssets(ctx context.Context, buildFilePath string, bld *build.File)
 	for _, r := range bld.Rules("ng_module") {
 		srcs := r.Attr("assets")
 		if call, ok := srcs.(*build.CallExpr); ok && call.X.(*build.Ident).Name == "glob" {
-			// Remove any glob calls, ts_auto_deps uses explicit source lists.
+			// Remove any glob calls, taze uses explicit source lists.
 			r.DelAttr("assets")
 		}
 
@@ -1241,7 +1249,7 @@ func FindBUILDFile(ctx context.Context, pkgToBUILD map[string]*build.File,
 	return bld, err
 }
 
-// Paths gets the list of paths for the current execution of ts_auto_deps.
+// Paths gets the list of paths for the current execution of taze.
 func Paths(isRoot bool, files bool, recursive bool) ([]string, error) {
 	paths := flag.Args()
 	if len(paths) == 0 {
@@ -1280,7 +1288,7 @@ func Paths(isRoot bool, files bool, recursive bool) ([]string, error) {
 				return nil
 			})
 			if err != nil {
-				return nil, fmt.Errorf("ts_auto_deps -recursive failed: %s", err)
+				return nil, fmt.Errorf("taze -recursive failed: %s", err)
 			}
 		}
 		sort.Sort(byLengthInverted(allPaths))
@@ -1290,7 +1298,7 @@ func Paths(isRoot bool, files bool, recursive bool) ([]string, error) {
 	return paths, nil
 }
 
-// Execute runs ts_auto_deps on paths using host.
+// Execute runs taze on paths using host.
 func Execute(host *Updater, paths []string, isRoot, recursive bool) error {
 	ctx := context.Background()
 	for i, p := range paths {
@@ -1298,9 +1306,9 @@ func Execute(host *Updater, paths []string, isRoot, recursive bool) error {
 		changed, _, err := host.UpdateBUILD(ctx, p, UpdateBUILDOptions{InNonWritableEnvironment: false, IsRoot: isLastAndRoot})
 		if err != nil {
 			if recursive {
-				return fmt.Errorf("ts_auto_deps failed on %s/BUILD: %s", p, err)
+				return fmt.Errorf("taze failed on %s/BUILD: %s", p, err)
 			}
-			return fmt.Errorf("ts_auto_deps failed: %s", err)
+			return fmt.Errorf("taze failed: %s", err)
 		}
 		if changed {
 			if filepath.Base(p) == "BUILD" {

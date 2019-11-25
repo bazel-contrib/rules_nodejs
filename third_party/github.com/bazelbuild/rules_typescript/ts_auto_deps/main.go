@@ -47,7 +47,7 @@ func main() {
 		platform.Error(err)
 	}
 
-	host := updater.New(false, false, updater.QueryBasedBazelAnalyze, updater.LocalUpdateFile)
+	host := updater.New(false, false, updater.QueryBasedBlazeAnalyze, updater.LocalUpdateFile)
 	if err := updater.Execute(host, paths, *isRoot, *recursive); err != nil {
 		platform.Error(err)
 	}

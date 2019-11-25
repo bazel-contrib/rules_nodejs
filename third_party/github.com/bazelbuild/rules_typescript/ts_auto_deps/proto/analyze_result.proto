@@ -1,6 +1,6 @@
 syntax = "proto2";
 
-package bazel_analyze;
+package blaze_analyze;
 
 // A DependencyGroup represents a list of alternatives for satisfying
 // a missing dependency.
@@ -42,7 +42,7 @@ message AttributeReport {
 // The result of checking a single build rule (called X in comments
 // below) for missing or unnecessary dependencies.  Produced by
 // java/com/google/devtools/build/checkbuilddeps (which for external
-// users means it's produced by bazel analyze).
+// users means it's produced by blaze analyze).
 message DependencyReport {
   required string rule = 1;  // Name of rule X, in canonical google3 format.
 
@@ -92,7 +92,7 @@ message DependencyReport {
 }
 
 // Aggregate DependencyReports for multiple analysis
-// targets - used to support bazel analyze --analysis_output=proto
+// targets - used to support blaze analyze --analysis_output=proto
 message AnalyzeResult {
   repeated DependencyReport dependency_report = 1;
 }

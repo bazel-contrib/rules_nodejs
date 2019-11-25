@@ -1,9 +1,0 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library")
-
-go_library(
-    name = "go_default_library",
-    srcs = ["workspace.go"],
-    importpath = "github.com/bazelbuild/rules_typescript/ts_auto_deps/workspace",
-    visibility = ["//visibility:public"],
-    deps = ["@com_github_bazelbuild_buildtools//wspace:go_default_library"],
-)

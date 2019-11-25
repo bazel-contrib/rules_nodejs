@@ -1,4 +1,4 @@
-// Package analyze uses bazel query to determine and locate missing imports
+// Package analyze uses blaze query to determine and locate missing imports
 // in TypeScript source files.
 package analyze
 
@@ -10,13 +10,13 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/bazelbuild/buildtools/edit"
+	"google3/net/proto2/go/proto"
+	"google3/third_party/bazel_buildifier/edit/edit"
 	"github.com/bazelbuild/rules_typescript/ts_auto_deps/platform"
 	"github.com/bazelbuild/rules_typescript/ts_auto_deps/workspace"
-	"github.com/golang/protobuf/proto"
 
-	appb "github.com/bazelbuild/buildtools/build_proto"
-	arpb "github.com/bazelbuild/rules_typescript/ts_auto_deps/proto"
+	appb "google3/third_party/bazel/src/main/protobuf/build_go_proto"
+	arpb "google3/third_party/bazel_rules/rules_typescript/ts_auto_deps/proto/analyze_result_go_proto"
 )
 
 var (
@@ -97,7 +97,7 @@ func New(loader TargetLoader) *Analyzer {
 
 // Analyze generates a dependency report for each target label in labels.
 //
-// dir is the directory that ts_auto_deps should execute in. Must be a sub-directory
+// dir is the directory that taze should execute in. Must be a sub-directory
 // of the workspace root.
 func (a *Analyzer) Analyze(ctx context.Context, dir string, labels []string) ([]*arpb.DependencyReport, error) {
 	if len(labels) == 0 {
@@ -124,14 +124,14 @@ func (a *Analyzer) Analyze(ctx context.Context, dir string, labels []string) ([]
 	return a.generateReports(labels, resolved)
 }
 
-// resolvedTarget represents a Bazel target and all resolved information.
+// resolvedTarget represents a Blaze target and all resolved information.
 type resolvedTarget struct {
 	label string
 	// A map of all existing dependencies on a target at the time of analysis.
 	// The keys are labels and the values are thes loaded target.
 	dependencies map[string]*appb.Rule
 	// A map of source file paths to their imports.
-	imports map[string][]*ts_auto_depsImport
+	imports map[string][]*tazeImport
 	// rule is the original rule the target was constructed from.
 	rule *appb.Rule
 	// missingSources are source files which could not be opened on disk.
@@ -147,7 +147,7 @@ type resolvedTarget struct {
 // setSources sets the sources on t.  It returns an error if one of the srcs of
 // t's rule isn't in loadedSrcs.  It also sorts the sources into literal and
 // generated sources, setting literalSourcePaths and generatedSourcePaths.
-// Returns an error if all the sources are generated - ts_auto_deps can't read the
+// Returns an error if all the sources are generated - taze can't read the
 // import statements to determine deps.
 func (t *resolvedTarget) setSources(loadedSrcs map[string]*appb.Target) error {
 	for _, label := range listAttribute(t.rule, "srcs") {
@@ -220,7 +220,7 @@ func newResolvedTarget(r *appb.Rule) *resolvedTarget {
 	return &resolvedTarget{
 		label:        r.GetName(),
 		dependencies: make(map[string]*appb.Rule),
-		imports:      make(map[string][]*ts_auto_depsImport),
+		imports:      make(map[string][]*tazeImport),
 		rule:         r,
 		sources:      make(map[string]*appb.Target),
 	}
@@ -264,7 +264,7 @@ func (a *Analyzer) resolveImportsForTargets(ctx context.Context, currentPkg, roo
 			return nil, err
 		}
 	}
-	// only extract the imports out of the literal sources, since ts_auto_deps can't
+	// only extract the imports out of the literal sources, since taze can't
 	// see the contents of generated files
 	allLiteralSrcPaths, err := getAllLiteralSrcPaths(targets)
 	if err != nil {
@@ -302,7 +302,7 @@ func (a *Analyzer) resolveImportsForTargets(ctx context.Context, currentPkg, roo
 func (a *Analyzer) resolveImports(ctx context.Context, currentPkg, root string, targets map[string]*resolvedTarget) error {
 	for _, target := range targets {
 		var paths []string
-		needingResolution := make(map[string][]*ts_auto_depsImport)
+		needingResolution := make(map[string][]*tazeImport)
 		for _, imports := range target.imports {
 		handlingImports:
 			for _, imp := range imports {
@@ -363,7 +363,7 @@ var ambientModuleDeclRE = regexp.MustCompile("(?m)^\\s*declare\\s+module\\s+['\"
 //
 // If the import already has a knownTarget, findRuleProvidingImport will
 // return the knownTarget.
-func (a *Analyzer) findExistingDepProvidingImport(ctx context.Context, root string, rt *resolvedTarget, i *ts_auto_depsImport) (string, error) {
+func (a *Analyzer) findExistingDepProvidingImport(ctx context.Context, root string, rt *resolvedTarget, i *tazeImport) (string, error) {
 	if i.knownTarget != "" {
 		return i.knownTarget, nil
 	}
@@ -545,17 +545,17 @@ func (a *Analyzer) generateReport(target *resolvedTarget) (*arpb.DependencyRepor
 			// TypeScript declarations might declare arbitrary global symbols, so it
 			// is impossible to detect reliably if the import is being used (without
 			// compiling, at least).  Report that the rule has no explicit import as a
-			// warning, so that ts_auto_deps can decide to import remove or not based on a
+			// warning, so that taze can decide to import remove or not based on a
 			// flag.
 			warning := fmt.Sprintf("WARNING: %s: keeping possibly used %s '%s'", rule.GetLocation(), class, label)
 			report.Feedback = append(report.Feedback, warning)
 		case "css_library":
-			// Similar to ts_declaration, ts_auto_deps can't reliably detect if css_library
-			// imports are being used, since ts_auto_deps can't currently parse @requirecss
+			// Similar to ts_declaration, taze can't reliably detect if css_library
+			// imports are being used, since taze can't currently parse @requirecss
 			// annotations.  Unlike ts_declaration, there's no flag to remove them, so
 			// there's no need to report a warning.
 		default:
-			// The contents of generated files aren't visible, so ts_auto_deps can't discover
+			// The contents of generated files aren't visible, so taze can't discover
 			// the import statements/deps that they contain.  To be safe, don't remove
 			// any unused deps, since they might be used by the generated file(s).
 			if len(target.generatedSourcePaths) == 0 {

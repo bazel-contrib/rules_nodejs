@@ -9,10 +9,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/bazelbuild/buildtools/build"
-	"github.com/golang/protobuf/proto"
+	"google3/net/proto2/go/proto"
+	"google3/third_party/bazel_buildifier/build/build"
 
-	arpb "github.com/bazelbuild/rules_typescript/ts_auto_deps/proto"
+	arpb "google3/third_party/bazel_rules/rules_typescript/ts_auto_deps/proto/analyze_result_go_proto"
 )
 
 var (
@@ -52,7 +52,7 @@ func TestGlobSources(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	if err := os.Symlink("../bazel-bin/symlink.d.ts", filepath.Join(testTmpDir, "symlink.d.ts")); err != nil {
+	if err := os.Symlink("../blaze-bin/symlink.d.ts", filepath.Join(testTmpDir, "symlink.d.ts")); err != nil {
 		t.Fatal(err)
 	}
 	if err := os.Symlink("whatever", filepath.Join(testTmpDir, "whatever.d.ts")); err != nil {
@@ -83,6 +83,7 @@ func TestDetermineRuleType(t *testing.T) {
 		{"java/com/google/myapp/BUILD", "foo_test.ts", ruleTypeTest},
 		{"java/com/google/myapp/BUILD", "foo_test.tsx", ruleTypeTest},
 
+
 		{"java/com/google/testing/mytesttool/BUILD", "foo.ts", ruleTypeRegular},
 		{"testing/mytesttool/BUILD", "foo.ts", ruleTypeRegular},
 		{"testing/mytesttool/BUILD", "foo_test.ts", ruleTypeTest},
@@ -104,7 +105,7 @@ func parseReport(t *testing.T, input string) *arpb.DependencyReport {
 	return report
 }
 
-func TestBazelAnalyzeError(t *testing.T) {
+func TestBlazeAnalyzeError(t *testing.T) {
 	bld, err := build.ParseBuild("rules/BUILD", []byte(`
 ts_library(
 	name = "firstrule",
@@ -127,15 +128,15 @@ ts_library(
 		return data, []byte(`Here's the actual error`), err
 	}
 	upd := &Updater{}
-	upd.bazelAnalyze = mockAnalyze
-	report, err := upd.runBazelAnalyze("firstrule/BUILD", bld, bld.Rules("ts_library"))
+	upd.blazeAnalyze = mockAnalyze
+	report, err := upd.runBlazeAnalyze("firstrule/BUILD", bld, bld.Rules("ts_library"))
 	if err == nil {
 		t.Fatalf("expected an error, got a report: %v", report)
 	}
 	expected := `parsing reports failed (1 reports for [//rules:firstrule //rules:secondrule]):
 Here's the actual error`
 	if err.Error() != expected {
-		t.Errorf("runBazelAnalyze: got %q, expected %q", err.Error(), expected)
+		t.Errorf("runBlazeAnalyze: got %q, expected %q", err.Error(), expected)
 	}
 }
 
@@ -472,7 +473,7 @@ func TestWebAssetReferredByColon(t *testing.T) {
 	}
 }
 
-func TestAbsoluteBazelTarget(t *testing.T) {
+func TestAbsoluteBlazeTarget(t *testing.T) {
 	bld := &build.File{Path: "foo/bar/BUILD", Type: build.TypeBuild}
 	tests := []struct{ target, expected string }{
 		{"//foo/bar:bar", "//foo/bar:bar"},
@@ -481,9 +482,9 @@ func TestAbsoluteBazelTarget(t *testing.T) {
 		{"//foo/bar", "//foo/bar:bar"},
 	}
 	for _, tst := range tests {
-		abs := AbsoluteBazelTarget(bld, tst.target)
+		abs := AbsoluteBlazeTarget(bld, tst.target)
 		if abs != tst.expected {
-			t.Errorf("AbsoluteBazelTarget(%q): got %q, expected %q", tst.target, abs, tst.expected)
+			t.Errorf("AbsoluteBlazeTarget(%q): got %q, expected %q", tst.target, abs, tst.expected)
 		}
 	}
 }

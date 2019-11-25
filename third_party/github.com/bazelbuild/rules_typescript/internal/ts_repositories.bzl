@@ -47,6 +47,12 @@ def ts_setup_dev_workspace():
     ts_setup_workspace()
 
     go_repository(
+        name = "com_github_google_go_cmp",
+        commit = "2d0692c2e9617365a95b295612ac0d4415ba4627",
+        importpath = "github.com/google/go-cmp",
+    )
+
+    go_repository(
         name = "com_github_kylelemons_godebug",
         commit = "d65d576e9348f5982d7f6d83682b694e731a45c6",
         importpath = "github.com/kylelemons/godebug",

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/kylelemons/godebug/pretty"
+	"google3/third_party/golang/godebug/pretty/pretty"
 )
 
 func TestParseImports(t *testing.T) {
@@ -41,8 +41,8 @@ func TestParseImports(t *testing.T) {
 		{"export*from'no whitespace';", "no whitespace", ""},
 		{"export{}from'no whitespace';", "no whitespace", ""},
 		// Comments
-		{"x;\n// ts_auto_deps: ng from //some/global:rule\ny;", "", "//some/global:rule"},
-		{"// ts_auto_deps: ng from //foo/bar from //some/global:rule", "", "//some/global:rule"},
+		{"x;\n// taze: ng from //some/global:rule\ny;", "", "//some/global:rule"},
+		{"// taze: ng from //foo/bar from //some/global:rule", "", "//some/global:rule"},
 	}
 
 	for i, tst := range tests {
