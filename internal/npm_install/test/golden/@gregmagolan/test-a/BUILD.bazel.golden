@@ -9,16 +9,23 @@ filegroup(
         "//:node_modules/@gregmagolan/test-a/package.json",
     ],
 )
+filegroup(
+    name = "test-a__nested_node_modules",
+)
+filegroup(
+    name = "test-a__all_files",
+    srcs = [":test-a__files", ":test-a__nested_node_modules"],
+)
 node_module_library(
     name = "test-a",
-    srcs = [":test-a__files"],
+    srcs = [":test-a__all_files"],
     deps = [
         "//@gregmagolan/test-a:test-a__contents",
     ],
 )
 node_module_library(
     name = "test-a__contents",
-    srcs = [":test-a__files"],
+    srcs = [":test-a__all_files"],
 )
 node_module_library(
     name = "test-a__typings",

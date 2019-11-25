@@ -176,10 +176,10 @@ function generateRootBuildFile(pkgs: Dep[]) {
 `;
                })});
 
-  let srcsStarlark = '';
+  let filesStarlark = '';
   if (pkgs.length) {
-    const list = pkgs.map(pkg => `"//${pkg._dir}:${pkg._name}__files",`).join('\n        ');
-    srcsStarlark = `
+    const list = pkgs.map(pkg => `"//${pkg._dir}:${pkg._name}__all_files",`).join('\n        ');
+    filesStarlark = `
     # direct sources listed for strict deps support
     srcs = [
         ${list}
@@ -207,7 +207,7 @@ ${exportsStarlark}])
 # there are many files in target.
 # See https://github.com/bazelbuild/bazel/issues/5153.
 node_module_library(
-    name = "node_modules",${srcsStarlark}${depsStarlark}
+    name = "node_modules",${filesStarlark}${depsStarlark}
 )
 
 `
@@ -859,6 +859,8 @@ function findFile(pkg: Dep, m: string) {
  */
 function printPackage(pkg: Dep) {
   const sources = filterFiles(pkg._files, INCLUDED_FILES);
+  const files = sources.filter((f: string) => !f.startsWith('node_modules/'));
+  const nestedNodeModules = sources.filter((f: string) => f.startsWith('node_modules/'));
   const dtsSources = filterFiles(pkg._files, ['.d.ts']);
   // TODO(gmagolan): add UMD & AMD scripts to scripts even if not an APF package _but_ only if they
   // are named?
@@ -874,12 +876,23 @@ function printPackage(pkg: Dep) {
     ],`;
   }
 
-  let srcsStarlark = '';
-  if (sources.length) {
-    srcsStarlark = `
+  let filesStarlark = '';
+  if (files.length) {
+    filesStarlark = `
     # ${pkg._dir} package files (and files in nested node_modules)
     srcs = [
-        ${sources.map((f: string) => `"//:node_modules/${pkg._dir}/${f}",`).join('\n        ')}
+        ${files.map((f: string) => `"//:node_modules/${pkg._dir}/${f}",`).join('\n        ')}
+    ],`;
+  }
+
+  let nestedNodeModulesStarlark = '';
+  if (nestedNodeModules.length) {
+    nestedNodeModulesStarlark = `
+    # ${pkg._dir} package files (and files in nested node_modules)
+    srcs = [
+        ${
+        nestedNodeModules.map((f: string) => `"//:node_modules/${pkg._dir}/${f}",`)
+            .join('\n        ')}
     ],`;
   }
 
@@ -909,20 +922,29 @@ function printPackage(pkg: Dep) {
 ${printJson(pkg)}
 
 filegroup(
-    name = "${pkg._name}__files",${srcsStarlark}
+    name = "${pkg._name}__files",${filesStarlark}
+)
+
+filegroup(
+    name = "${pkg._name}__nested_node_modules",${nestedNodeModulesStarlark}
+)
+
+filegroup(
+    name = "${pkg._name}__all_files",
+    srcs = [":${pkg._name}__files", ":${pkg._name}__nested_node_modules"],
 )
 
 node_module_library(
     name = "${pkg._name}",
     # direct sources listed for strict deps support
-    srcs = [":${pkg._name}__files"],${depsStarlark}
+    srcs = [":${pkg._name}__all_files"],${depsStarlark}
 )
 
 # ${pkg._name}__contents target is used as dep for main targets to prevent
 # circular dependencies errors
 node_module_library(
     name = "${pkg._name}__contents",
-    srcs = [":${pkg._name}__files"],${namedSourcesStarlark}
+    srcs = [":${pkg._name}__all_files"],${namedSourcesStarlark}
 )
 
 # ${pkg._name}__typings is the subset of ${pkg._name}__contents that are declarations
@@ -1099,10 +1121,10 @@ function printScope(scope: string, pkgs: Dep[]) {
   // filter out duplicate deps
   deps = [...pkgs, ...new Set(deps)];
 
-  let srcsStarlark = '';
+  let filesStarlark = '';
   if (deps.length) {
-    const list = deps.map(dep => `"//${dep._dir}:${dep._name}__files",`).join('\n        ');
-    srcsStarlark = `
+    const list = deps.map(dep => `"//${dep._dir}:${dep._name}__all_files",`).join('\n        ');
+    filesStarlark = `
     # direct sources listed for strict deps support
     srcs = [
         ${list}
@@ -1123,7 +1145,7 @@ function printScope(scope: string, pkgs: Dep[]) {
 
 # Generated target for npm scope ${scope}
 node_module_library(
-    name = "${scope}",${srcsStarlark}${depsStarlark}
+    name = "${scope}",${filesStarlark}${depsStarlark}
 )
 
 `;

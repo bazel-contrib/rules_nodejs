@@ -20,9 +20,16 @@ filegroup(
         "//:node_modules/jasmine/tasks/jasmine.js",
     ],
 )
+filegroup(
+    name = "jasmine__nested_node_modules",
+)
+filegroup(
+    name = "jasmine__all_files",
+    srcs = [":jasmine__files", ":jasmine__nested_node_modules"],
+)
 node_module_library(
     name = "jasmine",
-    srcs = [":jasmine__files"],
+    srcs = [":jasmine__all_files"],
     deps = [
         "//jasmine:jasmine__contents",
         "//glob:glob__contents",
@@ -41,7 +48,7 @@ node_module_library(
 )
 node_module_library(
     name = "jasmine__contents",
-    srcs = [":jasmine__files"],
+    srcs = [":jasmine__all_files"],
 )
 node_module_library(
     name = "jasmine__typings",

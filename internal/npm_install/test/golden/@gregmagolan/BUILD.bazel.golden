@@ -4,8 +4,8 @@ load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", 
 node_module_library(
     name = "@gregmagolan",
     srcs = [
-        "//@gregmagolan/test-a:test-a__files",
-        "//@gregmagolan/test-b:test-b__files",
+        "//@gregmagolan/test-a:test-a__all_files",
+        "//@gregmagolan/test-b:test-b__all_files",
     ],
     deps = [
         "//@gregmagolan/test-a:test-a__contents",

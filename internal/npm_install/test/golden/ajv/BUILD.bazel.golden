@@ -94,9 +94,16 @@ filegroup(
         "//:node_modules/ajv/scripts/travis-gh-pages",
     ],
 )
+filegroup(
+    name = "ajv__nested_node_modules",
+)
+filegroup(
+    name = "ajv__all_files",
+    srcs = [":ajv__files", ":ajv__nested_node_modules"],
+)
 node_module_library(
     name = "ajv",
-    srcs = [":ajv__files"],
+    srcs = [":ajv__all_files"],
     deps = [
         "//ajv:ajv__contents",
         "//co:co__contents",
@@ -107,7 +114,7 @@ node_module_library(
 )
 node_module_library(
     name = "ajv__contents",
-    srcs = [":ajv__files"],
+    srcs = [":ajv__all_files"],
 )
 node_module_library(
     name = "ajv__typings",

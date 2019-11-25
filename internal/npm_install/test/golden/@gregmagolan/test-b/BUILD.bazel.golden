@@ -5,21 +5,30 @@ filegroup(
     name = "test-b__files",
     srcs = [
         "//:node_modules/@gregmagolan/test-b/main.js",
-        "//:node_modules/@gregmagolan/test-b/node_modules/@gregmagolan/test-a/main.js",
-        "//:node_modules/@gregmagolan/test-b/node_modules/@gregmagolan/test-a/package.json",
         "//:node_modules/@gregmagolan/test-b/package.json",
     ],
 )
+filegroup(
+    name = "test-b__nested_node_modules",
+    srcs = [
+        "//:node_modules/@gregmagolan/test-b/node_modules/@gregmagolan/test-a/main.js",
+        "//:node_modules/@gregmagolan/test-b/node_modules/@gregmagolan/test-a/package.json",
+    ],
+)
+filegroup(
+    name = "test-b__all_files",
+    srcs = [":test-b__files", ":test-b__nested_node_modules"],
+)
 node_module_library(
     name = "test-b",
-    srcs = [":test-b__files"],
+    srcs = [":test-b__all_files"],
     deps = [
         "//@gregmagolan/test-b:test-b__contents",
     ],
 )
 node_module_library(
     name = "test-b__contents",
-    srcs = [":test-b__files"],
+    srcs = [":test-b__all_files"],
 )
 node_module_library(
     name = "test-b__typings",

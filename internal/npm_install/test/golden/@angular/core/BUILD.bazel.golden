@@ -664,9 +664,16 @@ filegroup(
         "//:node_modules/@angular/core/testing/testing.metadata.json",
     ],
 )
+filegroup(
+    name = "core__nested_node_modules",
+)
+filegroup(
+    name = "core__all_files",
+    srcs = [":core__files", ":core__nested_node_modules"],
+)
 node_module_library(
     name = "core",
-    srcs = [":core__files"],
+    srcs = [":core__all_files"],
     deps = [
         "//@angular/core:core__contents",
         "//tslib:tslib__contents",
@@ -676,7 +683,7 @@ node_module_library(
 )
 node_module_library(
     name = "core__contents",
-    srcs = [":core__files"],
+    srcs = [":core__all_files"],
     named_module_srcs = [
         "//:node_modules/@angular/core/bundles/core-testing.umd.js",
         "//:node_modules/@angular/core/bundles/core.umd.js",
