@@ -1,40 +1,66 @@
 load("@npm//@angular-devkit/architect-cli:index.bzl", "architect")
 
-_NG_PROJECT = package_name().split("/")[-1]
-
 filegroup(
-    name = _NG_PROJECT,
+    name = "shared-buildable-lib",
     srcs = glob(
         [
-            "src/**/*.ts",
+            "**/*.ts",
         ],
         exclude = [
-            "src/**/*.spec.ts",
+            "**/*.spec.ts",
         ],
     ),
-    # FIXME: other rules should depend on :build maybe?
-    # by depending on .ts sources they lose incrementality
-    visibility = ["//apps/schematics-angular-app:__pkg__"],
+    visibility = ["//visibility:public"],
 )
 
 filegroup(
     name = "test-srcs",
     srcs = glob([
-        "src/**/*.spec.ts",
+        "**/*.spec.ts",
     ]),
 )
 
 architect(
     name = "build",
     args = [
-        _NG_PROJECT + ":build",
+        "shared-buildable-lib:build",
         # NOTE: Bazel should override the output path specified in angular.json but this builder doesn't have a flag for this.
         # "--outputPath=$@",
     ],
-    data = glob(["*.json"]) + [
-        _NG_PROJECT,
-        "//:global_config",
+    data = [
+        "ng-package.json",
+        "package.json",
+        "tsconfig.json",
+        "tsconfig.lib.json",
+        "tslint.json",
+        ":shared-buildable-lib",
+        "//:angular.json",
+        "//:package.json",
+        "//:tsconfig.json",
         "@npm//:node_modules",
     ],
+    output_dir = True,
+)
+
+# TODO: Change to architect_test when nodejs_test is hooked up to new linker
+# https://github.com/bazelbuild/rules_nodejs/issues/1382
+architect(
+    name = "lint",
+    args = [
+        "shared-buildable-lib:lint",
+    ],
+    data = [
+        "tsconfig.json",
+        "tsconfig.lib.json",
+        "tslint.json",
+        ":test-srcs",
+        "//:angular.json",
+        "//:package.json",
+        "//:tsconfig.json",
+        "//:tslint.json",
+        "@npm//:node_modules",
+    ],
+    # TODO: Remove output_dir attribute when nodejs_test is hooked up to new linker
+    # https://github.com/bazelbuild/rules_nodejs/issues/1382
     output_dir = True,
 )

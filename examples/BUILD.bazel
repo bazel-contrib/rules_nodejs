@@ -85,6 +85,9 @@ example_integration_test(
 example_integration_test(
     name = "examples_angular-cli",
     timeout = "long",
+    # TODO: Remove bazel_commands attribute when nodejs_test is hooked up to new linker
+    # https://github.com/bazelbuild/rules_nodejs/issues/1382
+    bazel_commands = ["build ..."],
 )
 
 example_integration_test(
