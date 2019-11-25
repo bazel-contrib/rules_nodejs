@@ -1,9 +1,11 @@
 load("@npm//@angular-devkit/architect-cli:index.bzl", "architect")
 
+_NG_PROJECT = package_name().split("/")[-1]
+
 architect(
     name = "build",
     args = [
-        "schematics-angular-app:build",
+        _NG_PROJECT + ":build",
         "--outputPath=$@",
     ],
     data = glob(
@@ -16,11 +18,10 @@ architect(
             "src/test.ts",
         ],
     ) + [
-        "//:angular.json",
+        "//:global_config",
         "browserslist",
         "//libs/shared-buildable-lib",
         "tsconfig.app.json",
-        "//:tsconfig.json",
         "@npm//:node_modules",
     ],
     output_dir = True,
@@ -30,7 +31,7 @@ architect(
 architect(
     name = "lint",
     args = [
-        "schematics-angular-app:lint",
+        _NG_PROJECT + ":lint",
     ],
     data = glob(
         [
@@ -38,7 +39,7 @@ architect(
             "src/**",
         ],
     ) + [
-        "//:angular.json",
+        "//:global_config",
         "tsconfig.app.json",
         "tsconfig.spec.json",
         "//:tsconfig.json",

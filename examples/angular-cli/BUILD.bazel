@@ -1,11 +1,12 @@
 package(default_visibility = ["//visibility:public"])
 
-exports_files(
-    [
+filegroup(
+    name = "global_config",
+    srcs = [
+        "angular.json",
+        "karma.conf.js",
+        "package.json",
         "tsconfig.json",
         "tslint.json",
-        "package.json",
-        "angular.json",
-        "jest.config.js",
     ],
 )

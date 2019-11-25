@@ -1,70 +1,39 @@
 load("@npm//@angular-devkit/architect-cli:index.bzl", "architect")
 
+_NG_PROJECT = package_name().split("/")[-1]
+
 filegroup(
-    name = "shared-buildable-lib",
+    name = _NG_PROJECT,
     srcs = glob(
         [
-            "**/*.ts",
+            "src/**/*.ts",
         ],
         exclude = [
-            "**/*.spec.ts",
+            "src/**/*.spec.ts",
         ],
     ),
-    visibility = ["//visibility:public"],
+    # FIXME: other rules should depend on :build maybe?
+    # by depending on .ts sources they lose incrementality
+    visibility = ["//apps/schematics-angular-app:__pkg__"],
 )
 
 filegroup(
     name = "test-srcs",
     srcs = glob([
-        "**/*.spec.ts",
+        "src/**/*.spec.ts",
     ]),
-)
-
-# NOTE: should be ng_test when linker works for nodejs_test
-architect(
-    name = "lint",
-    args = [
-        "lint",
-        "shared-buildable-lib",
-    ],
-    data = [
-        "tsconfig.json",
-        "tsconfig.lib.json",
-        "tslint.json",
-        ":test-srcs",
-        "//:angular.json",
-        "//:package.json",
-        "//:tsconfig.json",
-        "//:tslint.json",
-        "@npm//@angular-devkit/build-angular",
-        "@npm//@angular-devkit/build-ng-packagr",
-        "@npm//@angular/cli",
-        "@npm//@angular/core",
-        "@npm//@babel/preset-env",
-        "@npm//ng-packagr",
-        "@npm//tslib",
-    ],
-    # NOTE: remove when linker works for nodejs_test
-    output_dir = True,
 )
 
 architect(
     name = "build",
     args = [
-        "shared-buildable-lib:build",
+        _NG_PROJECT + ":build",
         # NOTE: Bazel should override the output path specified in angular.json but this builder doesn't have a flag for this.
         # "--outputPath=$@",
     ],
-    data = [
-        "ng-package.json",
-        "package.json",
-        "tsconfig.json",
-        "tsconfig.lib.json",
-        "tslint.json",
-        ":shared-buildable-lib",
-        "//:angular.json",
-        "//:package.json",
-        "//:tsconfig.json",
+    data = glob(["*.json"]) + [
+        _NG_PROJECT,
+        "//:global_config",
         "@npm//:node_modules",
     ],
     output_dir = True,
