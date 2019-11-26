@@ -2,22 +2,20 @@
 # yarn lockfile v1
 
 
-"@bazel/hide-bazel-files@^0.40.0":
-  version "0.40.0"
-  resolved "https://registry.yarnpkg.com/@bazel/hide-bazel-files/-/hide-bazel-files-0.40.0.tgz#710d658580d97bdf6472829abf49e4bdf8d9aeb3"
-  integrity sha512-1Ew6r/i0J2H6h31Uo+ZkLFpV7l4gysdJSbCUueqbWlT8g+UHJuPtdMtPEDij1aI29ZrUbs7w4P0DTxMvOvgjwg==
+"@bazel/hide-bazel-files@^0.41.0":
+  version "0.41.0"
+  resolved "https://registry.yarnpkg.com/@bazel/hide-bazel-files/-/hide-bazel-files-0.41.0.tgz#19de0490bb658b317f64e6b5e029e66e5c56b8e1"
+  integrity sha512-RKDZ02VfA1Xpz9DJ5MP+PPXqz7mG/zDLFmYY+QXo9RGpRUEHX0/c50rio0mdd94IgheUypSKfdGRhdQnea/nFw==
 
-"@bazel/protractor@^0.40.0":
-  version "0.40.0"
-  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-0.40.0.tgz#0c64ddbf5a063417f43520ec1fed5cbc485792cf"
-  integrity sha512-qio8c8ie6Ajwu6hEs3vYf5+18JvrYH/6bv2b5YcE7HnyQZKGeJCDyTUErIUkCHwq8RsIqpsgxtCj69xmUxZXbw==
-  dependencies:
-    protractor "^5.4.2"
+"@bazel/protractor@^0.41.0":
+  version "0.41.0"
+  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-0.41.0.tgz#56075a657f236602bd762e712dd42c514baede0c"
+  integrity sha512-sQtAYheBOEcX32BWNyRj5VssCrMbPzEun4x9QPWnoxtBebkxeuZplRjbaoc+PFdVYys+ixwAqTkS49qlV4Ng1w==
 
-"@bazel/typescript@^0.40.0":
-  version "0.40.0"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-0.40.0.tgz#4f70d1365ee28fb8c1fd430a25034b74deecada9"
-  integrity sha512-826LXZYVlvcf9zNNcywzGprMUgCFqcwCeM/VLp+xG8/q6idJpqCBxABfJy2U6iZ8qIg5+wlxgYkOcmAZBfKMfA==
+"@bazel/typescript@^0.41.0":
+  version "0.41.0"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-0.41.0.tgz#b767c4972cc42fd76c118f21e83e98860afdc249"
+  integrity sha512-i+PXf5BR7aUEA49V+D8OatHonNCDm2MhtjFwEJ7yKKLTPEm4riHWSDASNuOi4iAAe+EB8eKe1Fxh8iSjh/hm4A==
   dependencies:
     protobufjs "6.8.8"
     semver "5.6.0"
@@ -608,6 +606,13 @@ highlight.js@^9.6.0:
   resolved "https://registry.yarnpkg.com/highlight.js/-/highlight.js-9.15.9.tgz#865257da1dbb4a58c4552d46c4b3854f77f0e6d5"
   integrity sha512-M0zZvfLr5p0keDMCAhNBp03XJbKBxUx5AfyfufMdFMEP4N/Xj6dh0IqC75ys7BAzceR34NgcvXjupRVaHBPPVQ==
 
+html-insert-assets@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/html-insert-assets/-/html-insert-assets-0.1.0.tgz#45987e6591297b12182cbebb8e551aac077b185d"
+  integrity sha512-0XsuYUo5XWljsjoBb13LZgdnaz+wxfCTzyoJ/TK9QoEaSO/+bBA7aF7VGhh+j4LZOMLtg6kb7WDXX027UY8qJg==
+  dependencies:
+    parse5 "^5.1.1"
+
 http-signature@~1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/http-signature/-/http-signature-1.2.0.tgz#9aecd925114772f3d95b65a60abb8f7c18fbace1"
@@ -939,6 +944,11 @@ parse5@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/parse5/-/parse5-4.0.0.tgz#6d78656e3da8d78b4ec0b906f7c08ef1dfe3f608"
   integrity sha512-VrZ7eOd3T1Fk4XWNXMgiGBK/z0MG48BWG2uQNU4I72fkQuKUTZpl+u9k+CxEG0twMVzSmXEEz12z5Fnw1jIQFA==
+
+parse5@^5.1.1:
+  version "5.1.1"
+  resolved "https://registry.yarnpkg.com/parse5/-/parse5-5.1.1.tgz#f68e4e5ba1852ac2cadc00f4555fff6c2abb6178"
+  integrity sha512-ugq4DFI0Ptb+WWjAdOK16+u/nHfiIrcE+sh8kZMaM0WllQKLI9rOUq6c2b7cwPkXdzfQESqvoqK6ug7U/Yyzug==
 
 path-exists@^3.0.0:
   version "3.0.0"

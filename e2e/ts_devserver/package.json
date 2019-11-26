@@ -1,12 +1,12 @@
 {
   "dependencies": {
-    "@bazel/hide-bazel-files": "^0.40.0",
-    "@bazel/inject-html": "^0.40.0",
-    "@bazel/protractor": "^0.40.0",
-    "@bazel/typescript": "^0.40.0",
+    "@bazel/hide-bazel-files": "^0.41.0",
+    "@bazel/protractor": "^0.41.0",
+    "@bazel/typescript": "^0.41.0",
     "@types/jasmine": "2.8.2",
     "@types/node": "7.0.18",
     "date-fns": "1.30.1",
+    "html-insert-assets": "^0.1.0",
     "jasmine": "2.8.0",
     "protractor": "^5.4.2",
     "rxjs": "^6.5.2",

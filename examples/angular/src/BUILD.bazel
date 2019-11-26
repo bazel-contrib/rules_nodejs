@@ -4,8 +4,8 @@ load("@io_bazel_rules_docker//nodejs:image.bzl", "nodejs_image")
 load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
 load("@npm//@babel/cli:index.bzl", "babel")
 load("@npm//history-server:index.bzl", "history_server")
+load("@npm//html-insert-assets:index.bzl", "html_insert_assets")
 load("@npm_angular_bazel//:index.bzl", "ng_module")
-load("@npm_bazel_inject_html//:index.bzl", "inject_html")
 load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
 load("@npm_bazel_terser//:index.bzl", "terser_minified")
 load("@npm_bazel_typescript//:index.bzl", "ts_config", "ts_devserver", "ts_library")
@@ -86,10 +86,20 @@ _ASSETS = [
     "@npm//:node_modules/zone.js/dist/zone.min.js",
 ]
 
-inject_html(
+html_insert_assets(
     name = "inject_scripts_for_dev",
-    src = "//src:example/index.html",
-    assets = _ASSETS + ["_/ts_scripts.js"],
+    outs = ["index.html"],
+    args = [
+        "--html",
+        "$(location //src:example/index.html)",
+        "--out",
+        "$(location index.html)",
+        "--assets",
+    ] + ["$(location %s)" % s for s in _ASSETS] + [
+        # This file doesn't exist during the build, but will be served by ts_devserver
+        "_/ts_scripts.js",
+    ],
+    data = ["//src:example/index.html"] + _ASSETS,
 )
 
 # This devserver is written in Go and is super-fast.
@@ -163,15 +173,21 @@ terser_minified(
     src = ":bundle-es5",
 )
 
-inject_html(
+html_insert_assets(
     name = "inject_scripts_for_prod",
-    src = "//src:example/index.prod.html",
     # we can't output "src/example/index.html" since that collides with the devmode file.
     # pkg_web rule will re-root paths that start with _{name} by default
     # so we output "_prodapp/src/example/index.html" so that it is mapped to
     # `example/index.html` in the web package.
-    out = "_prodapp/src/example/index.html",
-    assets = _ASSETS,
+    outs = ["_prodapp/src/example/index.html"],
+    args = [
+        "--html",
+        "$(location //src:example/index.prod.html)",
+        "--out",
+        "$(location _prodapp/src/example/index.html)",
+        "--assets",
+    ] + ["$(location %s)" % s for s in _ASSETS],
+    data = ["//src:example/index.prod.html"] + _ASSETS,
 )
 
 pkg_web(
