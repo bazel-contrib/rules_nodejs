@@ -158,72 +158,6 @@ jobs:
           path: dist/bin/release.tar.gz
           destination: release.tar.gz
 
-  test_e2e:
-    <<: *job_defaults
-    resource_class: xlarge
-    # We need to reduce the memory & CPU usage of the top-level
-    # bazel process for this large bazel-in-bazel test to not
-    # deplete the system memory completely.
-    # - startup JVM memory reduced
-    # - top-level bazel process should use as little memory as possible and only 1 core
-    # - nested bazel process should have its memory & core optimally capped as well
-    steps:
-      - *attach_workspace
-      - *init_environment
-      - run:
-          name: Tune top-level bazel JVM memory usage
-          command: echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1280m' >> .bazelrc
-      - *init_bazel
-
-      # Additional e2e assertions that can only be done with `yarn test`
-      - run: cd e2e/symlinked_node_modules_npm && yarn test && bazel clean
-      - run: cd e2e/symlinked_node_modules_yarn && yarn test && bazel clean
-
-      - *hide_node_and_yarn_local_binaries
-
-      # Split up the build & test as test takes a long time and has very
-      # little output so running build first makes CI output friendlier.
-      # The build step can also use up more memory which may be required
-      # to build the release package with this configuration.
-      - run: bazel build --build_tag_filters=e2e ...
-      - run:
-          command: bazel test --test_tag_filters=e2e --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,7.0,1.0 --test_arg=--test_tag_filters=-no-circleci,-manual ...
-          no_output_timeout: 20m
-
-  test_examples:
-    <<: *job_defaults
-    resource_class: xlarge
-    # We need to reduce the memory & CPU usage of the top-level
-    # bazel process for this large bazel-in-bazel test to not
-    # deplete the system memory completely.
-    # - startup JVM memory reduced
-    # - top-level bazel process should use as little memory as possible and only 1 core
-    # - nested bazel process should have its memory & core optimally capped as well
-    steps:
-      - *attach_workspace
-      - *init_environment
-      - run:
-          name: Tune top-level bazel JVM memory usage
-          command: echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1280m' >> .bazelrc
-      - *init_bazel
-      - *hide_node_and_yarn_local_binaries
-
-      # Split up the build & test as test takes a long time and has very
-      # little output so running build first makes CI output friendlier.
-      # The build step can also use up more memory which may be required
-      # to build the release package with this configuration.
-      - run: bazel build --build_tag_filters=examples ...
-      - run:
-          # We don't have java installed on our circleci docker image
-          command: bazel test --test_tag_filters=examples,-requires-java --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,7.0,1.0 --test_arg=--test_tag_filters=-no-circleci,-manual ...
-          no_output_timeout: 20m
-      # The following examples only works on linux as it downloads the linux node distribution
-      # It is tagged "manual" so we run it explicitly here
-      # TODO(gregmagolan): make node_repositories acccept different archives for different platforms
-      - run:
-          command: bazel test --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,7.0,1.0 //examples:examples_vendored_node //examples:examples_vendored_node_and_yarn
-          no_output_timeout: 20m
-
   test_legacy_runfiles:
     <<: *job_defaults
     steps:
@@ -249,11 +183,5 @@ workflows:
           requires:
           - setup
       - test:
-          requires:
-          - setup
-      - test_e2e:
-          requires:
-          - setup
-      - test_examples:
           requires:
           - setup
