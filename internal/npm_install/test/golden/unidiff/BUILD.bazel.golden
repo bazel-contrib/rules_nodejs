@@ -18,10 +18,12 @@ filegroup(
 )
 filegroup(
     name = "unidiff__nested_node_modules",
+    visibility = ["//visibility:private"],
 )
 filegroup(
     name = "unidiff__all_files",
     srcs = [":unidiff__files", ":unidiff__nested_node_modules"],
+    visibility = ["//:__subpackages__"],
 )
 node_module_library(
     name = "unidiff",
@@ -34,6 +36,7 @@ node_module_library(
 node_module_library(
     name = "unidiff__contents",
     srcs = [":unidiff__all_files"],
+    visibility = ["//:__subpackages__"],
 )
 node_module_library(
     name = "unidiff__typings",

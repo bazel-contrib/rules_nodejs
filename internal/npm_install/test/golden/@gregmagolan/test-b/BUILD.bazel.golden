@@ -14,10 +14,12 @@ filegroup(
         "//:node_modules/@gregmagolan/test-b/node_modules/@gregmagolan/test-a/main.js",
         "//:node_modules/@gregmagolan/test-b/node_modules/@gregmagolan/test-a/package.json",
     ],
+    visibility = ["//visibility:private"],
 )
 filegroup(
     name = "test-b__all_files",
     srcs = [":test-b__files", ":test-b__nested_node_modules"],
+    visibility = ["//:__subpackages__"],
 )
 node_module_library(
     name = "test-b",
@@ -29,6 +31,7 @@ node_module_library(
 node_module_library(
     name = "test-b__contents",
     srcs = [":test-b__all_files"],
+    visibility = ["//:__subpackages__"],
 )
 node_module_library(
     name = "test-b__typings",

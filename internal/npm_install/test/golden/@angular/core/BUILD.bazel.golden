@@ -666,10 +666,12 @@ filegroup(
 )
 filegroup(
     name = "core__nested_node_modules",
+    visibility = ["//visibility:private"],
 )
 filegroup(
     name = "core__all_files",
     srcs = [":core__files", ":core__nested_node_modules"],
+    visibility = ["//:__subpackages__"],
 )
 node_module_library(
     name = "core",
@@ -688,6 +690,7 @@ node_module_library(
         "//:node_modules/@angular/core/bundles/core-testing.umd.js",
         "//:node_modules/@angular/core/bundles/core.umd.js",
     ],
+    visibility = ["//:__subpackages__"],
 )
 node_module_library(
     name = "core__typings",

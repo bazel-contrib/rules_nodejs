@@ -835,11 +835,13 @@ filegroup(
 
 filegroup(
     name = "${pkg._name}__nested_node_modules",${nestedNodeModulesStarlark}
+    visibility = ["//visibility:private"],
 )
 
 filegroup(
     name = "${pkg._name}__all_files",
     srcs = [":${pkg._name}__files", ":${pkg._name}__nested_node_modules"],
+    visibility = ["//:__subpackages__"],
 )
 
 node_module_library(
@@ -853,6 +855,7 @@ node_module_library(
 node_module_library(
     name = "${pkg._name}__contents",
     srcs = [":${pkg._name}__all_files"],${namedSourcesStarlark}
+    visibility = ["//:__subpackages__"],
 )
 
 # ${pkg._name}__typings is the subset of ${pkg._name}__contents that are declarations

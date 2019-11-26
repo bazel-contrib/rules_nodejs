@@ -96,10 +96,12 @@ filegroup(
 )
 filegroup(
     name = "ajv__nested_node_modules",
+    visibility = ["//visibility:private"],
 )
 filegroup(
     name = "ajv__all_files",
     srcs = [":ajv__files", ":ajv__nested_node_modules"],
+    visibility = ["//:__subpackages__"],
 )
 node_module_library(
     name = "ajv",
@@ -115,6 +117,7 @@ node_module_library(
 node_module_library(
     name = "ajv__contents",
     srcs = [":ajv__all_files"],
+    visibility = ["//:__subpackages__"],
 )
 node_module_library(
     name = "ajv__typings",

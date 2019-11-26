@@ -11,10 +11,12 @@ filegroup(
 )
 filegroup(
     name = "test-a__nested_node_modules",
+    visibility = ["//visibility:private"],
 )
 filegroup(
     name = "test-a__all_files",
     srcs = [":test-a__files", ":test-a__nested_node_modules"],
+    visibility = ["//:__subpackages__"],
 )
 node_module_library(
     name = "test-a",
@@ -26,6 +28,7 @@ node_module_library(
 node_module_library(
     name = "test-a__contents",
     srcs = [":test-a__all_files"],
+    visibility = ["//:__subpackages__"],
 )
 node_module_library(
     name = "test-a__typings",

@@ -22,10 +22,12 @@ filegroup(
 )
 filegroup(
     name = "jasmine__nested_node_modules",
+    visibility = ["//visibility:private"],
 )
 filegroup(
     name = "jasmine__all_files",
     srcs = [":jasmine__files", ":jasmine__nested_node_modules"],
+    visibility = ["//:__subpackages__"],
 )
 node_module_library(
     name = "jasmine",
@@ -49,6 +51,7 @@ node_module_library(
 node_module_library(
     name = "jasmine__contents",
     srcs = [":jasmine__all_files"],
+    visibility = ["//:__subpackages__"],
 )
 node_module_library(
     name = "jasmine__typings",
