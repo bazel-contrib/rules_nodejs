@@ -1,3 +1,22 @@
+# [0.42.0](https://github.com/bazelbuild/rules_nodejs/compare/0.41.0...0.42.0) (2019-11-26)
+
+
+### Bug Fixes
+
+* @npm//foobar:foobar__files target no longer includes nested node_modules ([#1390](https://github.com/bazelbuild/rules_nodejs/issues/1390)) ([a13f2b6](https://github.com/bazelbuild/rules_nodejs/commit/a13f2b6))
+* allow files in protractor data attribute ([3feb13c](https://github.com/bazelbuild/rules_nodejs/commit/3feb13c))
+* **builtin:** locations arg of npm_package_bin should result in separate argv ([242379f](https://github.com/bazelbuild/rules_nodejs/commit/242379f))
+* **builtin:** use correct genrule-style make vars ([77039b1](https://github.com/bazelbuild/rules_nodejs/commit/77039b1))
+* **examples:** kotlin example server working ([adf6934](https://github.com/bazelbuild/rules_nodejs/commit/adf6934))
+
+
+### BREAKING CHANGES
+
+* **builtin:** Usage of the $@ shortcut in npm_package_bin-generated rules should now be $(RULEDIR)
+and you can now use $@ to refer to the location of a single output
+
+
+
 # [0.41.0](https://github.com/bazelbuild/rules_nodejs/compare/0.40.0...0.41.0) (2019-11-22)
 
 To upgrade:
