@@ -4,7 +4,6 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "pkg_web")
 load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kt_js_import", "kt_js_library")
 load("@npm//http-server:index.bzl", "http_server")
-load("@npm_bazel_inject_html//:index.bzl", "inject_html")
 load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
 load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
 load("@npm_bazel_terser//:index.bzl", "terser_minified")
@@ -23,7 +22,7 @@ kt_js_library(
     deps = [":kotlinx-html-js"],
 )
 
-# Copy boostrap.js to the bin folder as _bootstrap.js
+# Copy bootstrap.js to the bin folder as _bootstrap.js
 # so that relative import to `./hello.js` is valid
 genrule(
     name = "bootstrap",
@@ -49,23 +48,16 @@ rollup_bundle(
 )
 
 terser_minified(
-    # This will output bundle.min.js
+    # This will output bundle.min directory since rollup produces a directory 
     name = "bundle.min",
     src = ":bundle",
-)
-
-inject_html(
-    name = "inject_script_tag",
-    src = "index.html",
-    # Having a .js file here causes the injector to add a script tag
-    assets = [":bundle.min.js"],
 )
 
 pkg_web(
     name = "package",
     srcs = [
-        "inject_script_tag",
-        ":bundle.min",
+        "bundle.min",
+        "index.html",
     ],
 )
 
