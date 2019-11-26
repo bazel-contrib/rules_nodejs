@@ -151,7 +151,7 @@ npm_package_bin(
     args = [
         "$(location terser_input.js)",
         "--output",
-        "$(location minified.js)",
+        "$@",
     ],
     data = ["terser_input.js"],
     package = "terser",
@@ -166,7 +166,7 @@ npm_package_bin(
     name = "dir_output",
     args = [
         "--output-dir",
-        "$@",
+        "$(RULEDIR)",
         "$(location terser_input.js)",
     ],
     data = ["terser_input.js"],

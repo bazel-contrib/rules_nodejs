@@ -23,7 +23,7 @@ html_insert_assets(
         "--html",
         "$(location index.tmpl.html)",
         "--out",
-        "$(location index.html)",
+        "$@",
         "--assets",
         "$(location //:red-body-style.css)",
     ],

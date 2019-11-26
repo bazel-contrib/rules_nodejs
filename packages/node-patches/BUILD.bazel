@@ -37,7 +37,7 @@ tsc(
         "-p",
         "$(location tsconfig-bazel.json)",
         "--outDir",
-        "$@",
+        "$(RULEDIR)",
     ],
     data = sources + tests + [
         "tsconfig.json",

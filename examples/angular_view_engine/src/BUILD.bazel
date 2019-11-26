@@ -91,7 +91,7 @@ html_insert_assets(
         "--html",
         "$(location //src:example/index.html)",
         "--out",
-        "$(location index.html)",
+        "$@",
         "--assets",
     ] + ["$(location %s)" % s for s in _ASSETS] + [
         # This file doesn't exist during the build, but will be served by ts_devserver
@@ -154,7 +154,7 @@ babel(
         "--source-maps",
         "--presets=@babel/preset-env",
         "--out-dir",
-        "$@",
+        "$(RULEDIR)",
     ],
     data = [
         ":bundle-es2015",
@@ -184,7 +184,7 @@ html_insert_assets(
         "--html",
         "$(location //src:example/index.prod.html)",
         "--out",
-        "$(location _prodapp/src/example/index.html)",
+        "$@",
         "--assets",
     ] + ["$(location %s)" % s for s in _ASSETS],
     data = ["//src:example/index.prod.html"] + _ASSETS,
