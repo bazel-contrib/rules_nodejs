@@ -302,7 +302,7 @@ def compile_ts(
     input_declarations = depset(src_declarations, transitive = [dep_declarations.transitive])
     type_blacklisted_declarations = dep_declarations.type_blacklisted
     if not is_library and not _should_generate_externs(ctx):
-        type_blacklisted_declarations += srcs_files
+        type_blacklisted_declarations = depset(srcs_files, transitive = [type_blacklisted_declarations])
 
     # The depsets of output files. These are the files that are always built
     # (including e.g. if you "blaze build :the_target" directly).
