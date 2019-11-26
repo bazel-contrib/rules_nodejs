@@ -22,7 +22,7 @@ export function filterExpected(
   // 2. Required TS error: 'TS2000: message text.'
   // Need triple escapes because the expected diagnostics that we're matching
   // here are regexes, too.
-  const ERROR_RE = /^(?:\\\((\d*),(\d*)\\\).*)?TS(\d+):(.*)/;
+  const ERROR_RE = /^(?:\\\((\d*),(\d*)\\\).*)?TS(-?\d+):(.*)/;
   const incorrectErrors =
       bazelOpts.expectedDiagnostics.filter(e => !e.match(ERROR_RE));
   if (incorrectErrors.length) {
@@ -52,7 +52,7 @@ export function filterExpected(
 
   const expectedDiags: ExpectedDiagnostics[] =
       bazelOpts.expectedDiagnostics.map(expected => {
-        const m = expected.match(/^(?:\\\((\d*),(\d*)\\\).*)?TS(\d+):(.*)$/);
+        const m = expected.match(/^(?:\\\((\d*),(\d*)\\\).*)?TS(-?\d+):(.*)$/);
         if (!m) {
           throw new Error(
               'Incorrect expected error, did you forget character escapes in ' +

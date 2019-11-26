@@ -58,5 +58,10 @@ describe('diagnostics', () => {
               'Incorrect expected error, did you forget character escapes in ' +
               'TS1234:unescaped \n newline');
     });
+
+    it('handle negative diagnostic codes', () => {
+      expect(filter(['TS-999:custom error'], [diag(-999, 'custom error')]))
+          .toEqual([]);
+    });
   });
 });
