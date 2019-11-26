@@ -1113,8 +1113,10 @@ Command-line arguments to the tool.
 
     Subject to 'Make variable' substitution.
     Can use $(location) expansion. See https://docs.bazel.build/versions/master/be/make-variables.html
-    You may also refer to the location of the output_dir with the special `$@` replacement, like genrule.
-    If output_dir=False then $@ will refer to the output directory for this package.
+    Like genrule, you may also use some syntax sugar for locations:
+    - `$@`: if you have only one output file, the location of the output
+    - `$(RULEDIR)`: the output directory of the rule, corresponding with its package
+        (can be used with output_dir=True or False)
 
 Defaults to `[]`
 
