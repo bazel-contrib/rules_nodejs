@@ -17,7 +17,6 @@ describe('app', () => {
 
   it('should display: Hello, TypeScript', (done) => {
     const div = element(by.css('div.ts1'));
-    div.getText().then(t => expect(t).toEqual(`Hello, TypeScript`));
-    done();
+    div.getText().then(t => expect(t).toEqual(`Hello, TypeScript`)).then(done);
   });
 });
