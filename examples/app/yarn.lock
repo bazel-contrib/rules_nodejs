@@ -2,32 +2,30 @@
 # yarn lockfile v1
 
 
-"@bazel/hide-bazel-files@^0.40.0":
-  version "0.40.0"
-  resolved "https://registry.yarnpkg.com/@bazel/hide-bazel-files/-/hide-bazel-files-0.40.0.tgz#710d658580d97bdf6472829abf49e4bdf8d9aeb3"
-  integrity sha512-1Ew6r/i0J2H6h31Uo+ZkLFpV7l4gysdJSbCUueqbWlT8g+UHJuPtdMtPEDij1aI29ZrUbs7w4P0DTxMvOvgjwg==
+"@bazel/hide-bazel-files@^0.41.0":
+  version "0.41.0"
+  resolved "https://registry.yarnpkg.com/@bazel/hide-bazel-files/-/hide-bazel-files-0.41.0.tgz#19de0490bb658b317f64e6b5e029e66e5c56b8e1"
+  integrity sha512-RKDZ02VfA1Xpz9DJ5MP+PPXqz7mG/zDLFmYY+QXo9RGpRUEHX0/c50rio0mdd94IgheUypSKfdGRhdQnea/nFw==
 
-"@bazel/protractor@^0.40.0":
-  version "0.40.0"
-  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-0.40.0.tgz#0c64ddbf5a063417f43520ec1fed5cbc485792cf"
-  integrity sha512-qio8c8ie6Ajwu6hEs3vYf5+18JvrYH/6bv2b5YcE7HnyQZKGeJCDyTUErIUkCHwq8RsIqpsgxtCj69xmUxZXbw==
-  dependencies:
-    protractor "^5.4.2"
+"@bazel/protractor@^0.41.0":
+  version "0.41.0"
+  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-0.41.0.tgz#56075a657f236602bd762e712dd42c514baede0c"
+  integrity sha512-sQtAYheBOEcX32BWNyRj5VssCrMbPzEun4x9QPWnoxtBebkxeuZplRjbaoc+PFdVYys+ixwAqTkS49qlV4Ng1w==
 
-"@bazel/rollup@^0.40.0":
-  version "0.40.0"
-  resolved "https://registry.yarnpkg.com/@bazel/rollup/-/rollup-0.40.0.tgz#8ee08e1967c1ff7d549ce81b676872fa7e45afdb"
-  integrity sha512-7ZKzOIfHm0lEc3G/o2ykCZQlc7xcKSHiwIV4GIeaYJIbFUnO/L0cmaWzxOhdlr7NFfTdXcltTFnCrG7wlaad9A==
+"@bazel/rollup@^0.41.0":
+  version "0.41.0"
+  resolved "https://registry.yarnpkg.com/@bazel/rollup/-/rollup-0.41.0.tgz#8dfaccc239f3efbae1c816b0ce2aeb6069d23582"
+  integrity sha512-M+ybGfcxTXnAS1QiaijLEfUznNYLA0cqeGXnYHSRrOhq2U7yesfavxbBtfLSKtg32ktmlHts5te8Zg82BS4DPQ==
 
-"@bazel/terser@^0.40.0":
-  version "0.40.0"
-  resolved "https://registry.yarnpkg.com/@bazel/terser/-/terser-0.40.0.tgz#e31c76c32055a6bdffc711b05b530ae8df7ed1d5"
-  integrity sha512-XSnoLnB9i+RTJ4T1Tyrq0NMcIStzb9LQ1szMBOkJY4mBTRRNpf8Qnq+k5Vu9YY/dNIKVWtowNYBSWHzxxcL05g==
+"@bazel/terser@^0.41.0":
+  version "0.41.0"
+  resolved "https://registry.yarnpkg.com/@bazel/terser/-/terser-0.41.0.tgz#2a0db8985ef2a4d015c3fda16d07c6813b29062a"
+  integrity sha512-NNC3o4yLlVoJgPAG1/6cir+aX3lYSn5ggVzQIDQKZHbePevr8E0PA5SMjthnKp/pQVs5URfZNADdXZnROTeu0w==
 
-"@bazel/typescript@^0.40.0":
-  version "0.40.0"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-0.40.0.tgz#4f70d1365ee28fb8c1fd430a25034b74deecada9"
-  integrity sha512-826LXZYVlvcf9zNNcywzGprMUgCFqcwCeM/VLp+xG8/q6idJpqCBxABfJy2U6iZ8qIg5+wlxgYkOcmAZBfKMfA==
+"@bazel/typescript@^0.41.0":
+  version "0.41.0"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-0.41.0.tgz#b767c4972cc42fd76c118f21e83e98860afdc249"
+  integrity sha512-i+PXf5BR7aUEA49V+D8OatHonNCDm2MhtjFwEJ7yKKLTPEm4riHWSDASNuOi4iAAe+EB8eKe1Fxh8iSjh/hm4A==
   dependencies:
     protobufjs "6.8.8"
     semver "5.6.0"
@@ -591,6 +589,13 @@ he@^1.1.1:
   resolved "https://registry.yarnpkg.com/he/-/he-1.2.0.tgz#84ae65fa7eafb165fddb61566ae14baf05664f0f"
   integrity sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==
 
+html-insert-assets@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/html-insert-assets/-/html-insert-assets-0.1.0.tgz#45987e6591297b12182cbebb8e551aac077b185d"
+  integrity sha512-0XsuYUo5XWljsjoBb13LZgdnaz+wxfCTzyoJ/TK9QoEaSO/+bBA7aF7VGhh+j4LZOMLtg6kb7WDXX027UY8qJg==
+  dependencies:
+    parse5 "^5.1.1"
+
 http-proxy@^1.8.1:
   version "1.18.0"
   resolved "https://registry.yarnpkg.com/http-proxy/-/http-proxy-1.18.0.tgz#dbe55f63e75a347db7f3d99974f2692a314a6a3a"
@@ -917,6 +922,11 @@ pako@~1.0.2:
   version "1.0.10"
   resolved "https://registry.yarnpkg.com/pako/-/pako-1.0.10.tgz#4328badb5086a426aa90f541977d4955da5c9732"
   integrity sha512-0DTvPVU3ed8+HNXOu5Bs+o//Mbdj9VNQMUOe9oKCwh8l0GNwpTDMKCWbRjgtD291AWnkAgkqA/LOnQS8AmS1tw==
+
+parse5@^5.1.1:
+  version "5.1.1"
+  resolved "https://registry.yarnpkg.com/parse5/-/parse5-5.1.1.tgz#f68e4e5ba1852ac2cadc00f4555fff6c2abb6178"
+  integrity sha512-ugq4DFI0Ptb+WWjAdOK16+u/nHfiIrcE+sh8kZMaM0WllQKLI9rOUq6c2b7cwPkXdzfQESqvoqK6ug7U/Yyzug==
 
 path-is-absolute@^1.0.0:
   version "1.0.1"

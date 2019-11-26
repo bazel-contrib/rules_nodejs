@@ -1,13 +1,19 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "pkg_web")
+load("@npm//html-insert-assets:index.bzl", "html_insert_assets")
 load("@npm//http-server:index.bzl", "http_server")
 load("@npm//typescript:index.bzl", "tsc")
-load("@npm_bazel_inject_html//:index.bzl", "inject_html")
 load("@npm_bazel_protractor//:index.bzl", "protractor_web_test_suite")
 load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
 load("@npm_bazel_terser//:index.bzl", "terser_minified")
 load("@npm_bazel_typescript//:index.bzl", "ts_devserver", "ts_library")
 
 package(default_visibility = ["//visibility:public"])
+
+_ASSETS = [
+    ":bundle.min",
+    "//styles:base.css",
+    "//styles:test.css",
+]
 
 ts_library(
     name = "app",
@@ -16,6 +22,7 @@ ts_library(
 
 ts_devserver(
     name = "devserver",
+    static_files = [":inject_tags"] + _ASSETS,
     # We'll collect all the devmode JS sources from these TypeScript libraries
     deps = [":app"],
 )
@@ -31,17 +38,21 @@ terser_minified(
     src = ":bundle",
 )
 
-_ASSETS = [
-    ":bundle.min",
-    "//styles:base.css",
-    "//styles:test.css",
-]
-
 # Copy index.html to the output folder, adding <script> and <link> tags
-inject_html(
+html_insert_assets(
     name = "inject_tags",
-    src = "index.html",
-    assets = _ASSETS,
+    outs = ["index.html"],
+    args = [
+        "--out",
+        "$(location index.html)",
+        "--html",
+        "$(location :index.tmpl.html)",
+        "--roots",
+        "$@",
+    ] + [
+        "--assets",
+    ] + ["$(locations %s)" % a for a in _ASSETS],
+    data = [":index.tmpl.html"] + _ASSETS,
 )
 
 pkg_web(
