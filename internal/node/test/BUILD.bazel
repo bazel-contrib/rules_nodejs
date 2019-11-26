@@ -166,7 +166,7 @@ npm_package_bin(
     name = "dir_output",
     args = [
         "--output-dir",
-        "$(RULEDIR)",
+        "$(@D)",
         "$(location terser_input.js)",
     ],
     data = ["terser_input.js"],

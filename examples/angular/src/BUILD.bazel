@@ -154,7 +154,7 @@ babel(
         "--source-maps",
         "--presets=@babel/preset-env",
         "--out-dir",
-        "$(RULEDIR)",
+        "$(@D)",
     ],
     data = [
         ":bundle-es2015",
