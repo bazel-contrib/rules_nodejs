@@ -43,11 +43,11 @@ html_insert_assets(
     outs = ["index.html"],
     args = [
         "--out",
-        "$(location index.html)",
+        "$@",
         "--html",
         "$(location :index.tmpl.html)",
         "--roots",
-        "$@",
+        "$(RULEDIR)",
         "--assets",
     ] + ["$(locations %s)" % a for a in _ASSETS],
     data = [":index.tmpl.html"] + _ASSETS,
@@ -77,8 +77,8 @@ tsc(
         "-p",
         "$(location tsconfig-test.json)",
         "--outDir",
-        # $@ is a shorthand for the dist/bin directory where Bazel requires we write outputs
-        "$@",
+        # $(RULEDIR) is a shorthand for the dist/bin directory where Bazel requires we write outputs
+        "$(RULEDIR)",
     ],
     data = [
         "app.e2e-spec.ts",

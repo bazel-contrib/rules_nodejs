@@ -9,7 +9,7 @@ google_closure_compiler(
         # --platform native would be faster but is failing on Windows
         "--platform=javascript",
         "--js=$(location hello.js)",
-        "--js_output_file=$(location bundle.js)",
+        "--js_output_file=$@",
     ],
     data = ["hello.js"],
 )

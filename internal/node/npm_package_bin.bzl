@@ -26,8 +26,15 @@ def _expand_location(ctx, s):
         # We'll write into a newly created directory named after the rule
         outdir_segments.append(ctx.attr.name)
 
+    if not ctx.attr.output_dir:
+        if s.find("$@") != -1 and len(ctx.outputs.outs) > 1:
+            fail("""$@ substitution may only be used with a single out
+            Upgrading rules_nodejs? Maybe you need to switch from $@ to $(RULEDIR)
+            See https://github.com/bazelbuild/rules_nodejs/releases/tag/0.42.0""")
+        s = s.replace("$@", ctx.outputs.outs[0].path)
+
     # The list comprehension removes empty segments like if we are in the root package
-    s = s.replace("$@", "/".join([o for o in outdir_segments if o]))
+    s = s.replace("$(RULEDIR)", "/".join([o for o in outdir_segments if o]))
     return ctx.expand_location(s, targets = ctx.attr.data)
 
 def _inputs(ctx):
@@ -95,8 +102,10 @@ def npm_package_bin(tool = None, package = None, package_bin = None, data = [], 
 
             Subject to 'Make variable' substitution.
             Can use $(location) expansion. See https://docs.bazel.build/versions/master/be/make-variables.html
-            You may also refer to the location of the output_dir with the special `$@` replacement, like genrule.
-            If output_dir=False then $@ will refer to the output directory for this package.
+            Like genrule, you may also use some syntax sugar for locations:
+            - `$@`: if you have only one output file, the location of the output
+            - `$(RULEDIR)`: the output directory of the rule, corresponding with its package
+                (can be used with output_dir=True or False)
 
         package: an npm package whose binary to run, like "terser". Assumes your node_modules are installed in a workspace called "npm"
         package_bin: the "bin" entry from `package` that should be run. By default package_bin is the same string as `package`

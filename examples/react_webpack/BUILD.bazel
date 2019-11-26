@@ -20,7 +20,7 @@ tsc(
         "$(location index.tsx)",
         "$(location types.d.ts)",
         "--outDir",
-        "$@",
+        "$(RULEDIR)",
         "--lib",
         "es2015,dom",
         "--jsx",
@@ -42,7 +42,7 @@ webpack(
         "--config",
         "$(location webpack.config.js)",
         "-o",
-        "$(location app.bundle.js)",
+        "$@",
     ],
     data = [
         "index.js",
