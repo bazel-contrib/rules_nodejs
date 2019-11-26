@@ -54,7 +54,10 @@ def _impl(ctx):
         outputs = ctx.outputs.outs
 
     for a in ctx.attr.args:
-        args.add(_expand_location(ctx, a))
+        # Workaround bazelbuild/bazel#10309
+        # If one of the files has a space in the name, we will
+        # incorrectly split it into multiple argv
+        args.add_all(_expand_location(ctx, a).split(" "))
     run_node(
         ctx,
         executable = "tool",
