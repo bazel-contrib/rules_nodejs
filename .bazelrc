@@ -21,7 +21,6 @@ build --host_force_python=PY2
 build --incompatible_disable_legacy_proto_provider
 build --incompatible_use_python_toolchains
 test --incompatible_windows_native_test_wrapper
-common --incompatible_string_join_requires_strings
 
 # TODO(gregmagolan): remove the following flags once @io_bazel_rules_go is compatible with Bazel 0.27.0
 build --noincompatible_require_ctx_in_configure_features
