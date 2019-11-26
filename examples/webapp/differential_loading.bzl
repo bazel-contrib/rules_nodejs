@@ -38,7 +38,7 @@ def differential_loading(name, entry_point, srcs):
             "--config-file",
             "$(location es5.babelrc)",
             "--out-dir",
-            "$(RULEDIR)",
+            "$(@D)",
         ],
     )
 

@@ -21,20 +21,31 @@ _ATTRS = {
 # because the output_dir is a tree artifact
 # so we weren't able to give it a label
 def _expand_location(ctx, s):
-    outdir_segments = [ctx.bin_dir.path, ctx.label.package]
-    if ctx.attr.output_dir:
-        # We'll write into a newly created directory named after the rule
-        outdir_segments.append(ctx.attr.name)
+    rule_dir = [ctx.bin_dir.path, ctx.label.package]
 
-    if not ctx.attr.output_dir:
+    if ctx.attr.output_dir:
+        if s.find("$@") != -1:
+            fail("""$@ substitution may only be used with output_dir=False.
+            Upgrading rules_nodejs? Maybe you need to switch from $@ to $(@D)
+            See https://github.com/bazelbuild/rules_nodejs/releases/tag/0.42.0""")
+
+        # We'll write into a newly created directory named after the rule
+        output_dir = [ctx.bin_dir.path, ctx.label.package, ctx.attr.name]
+    else:
         if s.find("$@") != -1 and len(ctx.outputs.outs) > 1:
             fail("""$@ substitution may only be used with a single out
             Upgrading rules_nodejs? Maybe you need to switch from $@ to $(RULEDIR)
             See https://github.com/bazelbuild/rules_nodejs/releases/tag/0.42.0""")
         s = s.replace("$@", ctx.outputs.outs[0].path)
+        if len(ctx.outputs.outs) == 1:
+            output_dir = ctx.outputs.outs[0].dirname.split("/")
+        else:
+            output_dir = rule_dir[:]
 
     # The list comprehension removes empty segments like if we are in the root package
-    s = s.replace("$(RULEDIR)", "/".join([o for o in outdir_segments if o]))
+    s = s.replace("$(@D)", "/".join([o for o in output_dir if o]))
+    s = s.replace("$(RULEDIR)", "/".join([o for o in rule_dir if o]))
+
     return ctx.expand_location(s, targets = ctx.attr.data)
 
 def _inputs(ctx):
@@ -104,7 +115,11 @@ def npm_package_bin(tool = None, package = None, package_bin = None, data = [], 
             Can use $(location) expansion. See https://docs.bazel.build/versions/master/be/make-variables.html
             Like genrule, you may also use some syntax sugar for locations:
             - `$@`: if you have only one output file, the location of the output
-            - `$(RULEDIR)`: the output directory of the rule, corresponding with its package
+            - `$(@D)`: The output directory. If output_dir=False and there is only one file name in outs, this expands to the directory
+                containing that file. If there are multiple files, this instead expands to the package's root directory in the genfiles
+                tree, even if all generated files belong to the same subdirectory! If output_dir=True then this corresponds
+                to the output directory which is the $(RULEDIR)/{target_name}.
+            - `$(RULEDIR)`: the root output directory of the rule, corresponding with its package
                 (can be used with output_dir=True or False)
 
         package: an npm package whose binary to run, like "terser". Assumes your node_modules are installed in a workspace called "npm"
