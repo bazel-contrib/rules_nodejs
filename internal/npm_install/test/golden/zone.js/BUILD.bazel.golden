@@ -134,16 +134,26 @@ filegroup(
         "//:node_modules/zone.js/package.json",
     ],
 )
+filegroup(
+    name = "zone.js__nested_node_modules",
+    visibility = ["//visibility:private"],
+)
+filegroup(
+    name = "zone.js__all_files",
+    srcs = [":zone.js__files", ":zone.js__nested_node_modules"],
+    visibility = ["//:__subpackages__"],
+)
 node_module_library(
     name = "zone.js",
-    srcs = [":zone.js__files"],
+    srcs = [":zone.js__all_files"],
     deps = [
         "//zone.js:zone.js__contents",
     ],
 )
 node_module_library(
     name = "zone.js__contents",
-    srcs = [":zone.js__files"],
+    srcs = [":zone.js__all_files"],
+    visibility = ["//:__subpackages__"],
 )
 node_module_library(
     name = "zone.js__typings",

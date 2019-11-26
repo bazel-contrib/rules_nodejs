@@ -3613,9 +3613,18 @@ filegroup(
         "//:node_modules/rxjs/webSocket/package.json",
     ],
 )
+filegroup(
+    name = "rxjs__nested_node_modules",
+    visibility = ["//visibility:private"],
+)
+filegroup(
+    name = "rxjs__all_files",
+    srcs = [":rxjs__files", ":rxjs__nested_node_modules"],
+    visibility = ["//:__subpackages__"],
+)
 node_module_library(
     name = "rxjs",
-    srcs = [":rxjs__files"],
+    srcs = [":rxjs__all_files"],
     deps = [
         "//rxjs:rxjs__contents",
         "//tslib:tslib__contents",
@@ -3623,7 +3632,8 @@ node_module_library(
 )
 node_module_library(
     name = "rxjs__contents",
-    srcs = [":rxjs__files"],
+    srcs = [":rxjs__all_files"],
+    visibility = ["//:__subpackages__"],
 )
 node_module_library(
     name = "rxjs__typings",
