@@ -12,14 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@npm_bazel_inject_html//:index.bzl", "inject_html")
+load("@npm//html-insert-assets:index.bzl", "html_insert_assets")
 load("@npm_bazel_protractor//:index.bzl", "protractor_web_test_suite")
 load("@npm_bazel_typescript//:index.bzl", "ts_devserver", "ts_library")
 
-inject_html(
+html_insert_assets(
     name = "inject",
-    src = "index.html",
-    assets = ["//:red-body-style.css"],
+    outs = ["index.html"],
+    args = [
+        "--html",
+        "$(location index.tmpl.html)",
+        "--out",
+        "$(location index.html)",
+        "--assets",
+        "$(location //:red-body-style.css)",
+    ],
+    data = [
+        "index.tmpl.html",
+        "//:red-body-style.css",
+    ],
 )
 
 ts_devserver(

@@ -48,7 +48,7 @@ rollup_bundle(
 )
 
 terser_minified(
-    # This will output bundle.min directory since rollup produces a directory 
+    # This will output bundle.min directory since rollup produces a directory
     name = "bundle.min",
     src = ":bundle",
 )
