@@ -40,7 +40,7 @@ tsc(
     outs = [s.replace(".ts", ext) for ext in [".js", ".d.ts"] for s in srcs],
     args = [
         "--outDir",
-        "$@",
+        "$(RULEDIR)",
         "--lib",
         "es2017,dom",
         "--downlevelIteration",
