@@ -45,8 +45,5 @@ npm_package(
         "//devserver:devserver-windows",
         "//internal:generated_BUILD",
         "//internal:tsc_wrapped",
-        "//ts_auto_deps:ts_auto_deps-darwin",
-        "//ts_auto_deps:ts_auto_deps-linux",
-        "//ts_auto_deps:ts_auto_deps-windows",
     ],
 )

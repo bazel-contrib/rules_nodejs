@@ -42,7 +42,7 @@ def rules_typescript_dev_dependencies():
         sha256 = "f624fe9ca8d51de192655369ac538c420afb7cde16e1ad052554b582fff09287",
     )
 
-    # For building ts_devserver and ts_auto_deps binaries
+    # For building ts_devserver binary
     # See https://github.com/bazelbuild/rules_go#setup for the latest version.
     _maybe(
         http_archive,
@@ -75,15 +75,6 @@ def rules_typescript_dev_dependencies():
             "https://github.com/bazelbuild/bazel-gazelle/releases/download/0.17.0/bazel-gazelle-0.17.0.tar.gz",
         ],
         sha256 = "3c681998538231a2d24d0c07ed5a7658cb72bfb5fd4bf9911157c0e9ac6a2687",
-    )
-
-    # ts_auto_deps depends on com_github_bazelbuild_buildtools
-    _maybe(
-        http_archive,
-        name = "com_github_bazelbuild_buildtools",
-        url = "https://github.com/bazelbuild/buildtools/archive/0.19.2.1.zip",
-        strip_prefix = "buildtools-0.19.2.1",
-        sha256 = "9176a7df34dbed2cf5171eb56271868824560364e60644348219f852f593ae79",
     )
 
 def _maybe(repo_rule, name, **kwargs):
