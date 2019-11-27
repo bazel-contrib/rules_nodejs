@@ -63,6 +63,13 @@ def move_files(output_name, files, action_factory, assembler, root_paths):
 
 def additional_root_paths(ctx):
     return ctx.attr.additional_root_paths + [
+        # also add additional_root_paths variants from genfiles dir and bin dir
+        "/".join([ctx.genfiles_dir.path, p])
+        for p in ctx.attr.additional_root_paths
+    ] + [
+        "/".join([ctx.bin_dir.path, p])
+        for p in ctx.attr.additional_root_paths
+    ] + [
         # package path is the root, including in bin/gen
         ctx.label.package,
         "/".join([ctx.bin_dir.path, ctx.label.package]),
