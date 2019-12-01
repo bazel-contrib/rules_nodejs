@@ -20,10 +20,9 @@ html_insert_assets(
     name = "inject",
     outs = ["index.html"],
     args = [
-        "--html",
-        "$(location index.tmpl.html)",
-        "--out",
-        "$@",
+        "--html=$(location index.tmpl.html)",
+        "--out=$@",
+        "--roots=$(RULEDIR)",
         "--assets",
         "$(location //:red-body-style.css)",
     ],
