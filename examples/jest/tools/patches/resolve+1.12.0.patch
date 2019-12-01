@@ -1,0 +1,13 @@
+diff --git a/node_modules/resolve/lib/sync.js b/node_modules/resolve/lib/sync.js
+index e8d83de..8ab9c6a 100644
+--- a/node_modules/resolve/lib/sync.js
++++ b/node_modules/resolve/lib/sync.js
+@@ -39,6 +39,8 @@ var maybeUnwrapSymlink = function maybeUnwrapSymlink(x, opts) {
+ };
+ 
+ module.exports = function (x, options) {
++	return require.resolve(x);
++
+     if (typeof x !== 'string') {
+         throw new TypeError('Path must be a string.');
+     }
