@@ -36,6 +36,5 @@ filegroup(
         "//devserver:package_contents",
         "//internal:package_contents",
         "//third_party/npm/requirejs:package_contents",
-        "//ts_auto_deps:package_contents",
     ],
 )

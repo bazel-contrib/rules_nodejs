@@ -113,7 +113,7 @@ install_bazel_dependencies()
 # With http_archive it only sees releases/download/*.tar.gz urls
 git_repository(
     name = "build_bazel_rules_typescript",
-    commit = "62bbdc8b3b4f9a8222b135648e8e425e23cad056",
+    commit = "09f0469fe9b90b0f031994019e7e104f1ca1ce43",
     remote = "http://github.com/bazelbuild/rules_typescript.git",
 )
 
