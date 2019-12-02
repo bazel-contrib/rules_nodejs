@@ -116,15 +116,3 @@ e2e_integration_test(
     "3.5.x",
     "3.6.x",
 ]]
-
-e2e_integration_test(
-    name = "e2e_ts_auto_deps",
-    bazel_commands = [
-        "run @nodejs//:yarn_node_repositories",
-        "run @nodejs//:yarn -- generate_build_file",
-        "build //simple:simple",
-    ],
-    npm_packages = {
-        "//packages/typescript:npm_package": "@bazel/typescript",
-    },
-)
