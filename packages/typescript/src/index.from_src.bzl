@@ -25,6 +25,7 @@ load(
 def ts_devserver(**kwargs):
     _ts_devserver(
         devserver = "@build_bazel_rules_typescript//devserver:devserver_bin",
+        devserver_host = "@build_bazel_rules_typescript//devserver:devserver_bin",
         **kwargs
     )
 

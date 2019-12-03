@@ -42,8 +42,45 @@ else
 fi
 # --- end runfiles.bash initialization ---
 
+# Check environment for which node path to use
+unameOut="$(uname -s)"
+case "${unameOut}" in
+    Linux*)     machine=linux ;;
+    Darwin*)    machine=darwin ;;
+    CYGWIN*)    machine=windows ;;
+    MINGW*)     machine=windows ;;
+    MSYS_NT*)   machine=windows ;;
+    *)          machine=linux
+                printf "\nUnrecongized uname '${unameOut}'; defaulting to use node for linux.\n" >&2
+                printf "Please file an issue to https://github.com/bazelbuild/rules_nodejs/issues if \n" >&2
+                printf "you would like to add your platform to the supported ts_devserver platforms.\n\n" >&2
+                ;;
+esac
 
-readonly main=$(rlocation "TEMPLATED_main")
+case "${machine}" in
+  # The following paths must match up with @npm_bazel_typescript//devserver binaries
+  darwin) readonly platform_main_manifest="npm_bazel_typescript/devserver/devserver-darwin_x64" ;;
+  windows) readonly platform_main_manifest="npm_bazel_typescript/devserver/devserver-windows_x64.exe" ;;
+  *) readonly platform_main_manifest="npm_bazel_typescript/devserver/devserver-linux_x64" ;;
+esac
+
+readonly platform_main=$(rlocation "${platform_main_manifest}")
+
+if [ -f "${platform_main}" ]; then
+  readonly main=${platform_main}
+else
+  # If the devserver binary is overridden then use the templated binary
+  readonly main=$(rlocation "TEMPLATED_main")
+fi
+
+if [ ! -f "${main}" ]; then
+    printf "\n>>>> FAIL: The ts_devserver binary '${main_platform}' not found in runfiles.\n" >&2
+    printf "This node toolchain was chosen based on your uname '${unameOut}'.\n" >&2
+    printf "Please file an issue to https://github.com/bazelbuild/rules_nodejs/issues if \n" >&2
+    printf "you would like to add your platform to the supported ts_devserver platforms. <<<<\n\n" >&2
+    exit 1
+fi
+
 readonly manifest=$(rlocation "TEMPLATED_manifest")
 readonly scripts_manifest=$(rlocation "TEMPLATED_scripts_manifest")
 

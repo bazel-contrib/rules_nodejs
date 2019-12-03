@@ -12,12 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
 load("//tools/stardoc:index.bzl", "stardoc")
 
 package(default_visibility = ["//visibility:public"])
 
 exports_files(["install.md"])
+
+# Work-around since we don't have and don't wnat a bzl_library in the generated
+# @nodejs//:BUILD.bazel file
+bzl_library(
+    name = "nodejs_bzl",
+    srcs = ["@nodejs//:index.bzl"],
+)
 
 stardoc(
     name = "docs",
@@ -37,6 +45,7 @@ stardoc(
         "//internal/js_library:bzl",
         "//internal/node:bzl",
         "//internal/pkg_web:bzl",
+        ":nodejs_bzl",
     ],
 )
 

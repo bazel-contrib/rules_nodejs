@@ -19,6 +19,7 @@ load(
     "@build_bazel_rules_nodejs//internal/js_library:js_library.bzl",
     "write_amd_names_shim",
 )
+load("@nodejs//:index.bzl", "host_platform")
 
 # Avoid using non-normalized paths (workspace/../other_workspace/path)
 def _to_manifest_path(ctx, file):
@@ -86,8 +87,14 @@ def _ts_devserver(ctx):
         for f in script_files
     ]))
 
+    # With cross-platform RBE for OSX & Windows ctx.executable.devserver will be linux as --cpu and
+    # --host_cpu must be overridden to k8. However, we still want to be able to run the devserver on the host
+    # machine so we need to include the host devserver binary, which is ctx.executable.devserver_host, in the
+    # runfiles. For non-RBE and for RBE with a linux host, ctx.executable.devserver & ctx.executable.devserver_host
+    # will be the same binary.
     devserver_runfiles = [
         ctx.executable.devserver,
+        ctx.executable.devserver_host,
         ctx.outputs.manifest,
         ctx.outputs.scripts_manifest,
     ]
@@ -138,8 +145,22 @@ ts_devserver = rule(
         ),
         "devserver": attr.label(
             doc = """Go based devserver executable.
+
+            With cross-platform RBE for OSX & Windows ctx.executable.devserver will be linux as --cpu and
+            --host_cpu must be overridden to k8. However, we still want to be able to run the devserver on the host
+            machine so we need to include the host devserver binary, which is ctx.executable.devserver_host, in the
+            runfiles. For non-RBE and for RBE with a linux host, ctx.executable.devserver & ctx.executable.devserver_host
+            will be the same binary.
+
             Defaults to precompiled go binary in @npm_bazel_typescript setup by @bazel/typescript npm package""",
             default = Label("//devserver"),
+            executable = True,
+            cfg = "host",
+        ),
+        "devserver_host": attr.label(
+            doc = """Go based devserver executable for the host platform.
+            Defaults to precompiled go binary in @npm_bazel_typescript setup by @bazel/typescript npm package""",
+            default = Label("//devserver:devserver_%s" % host_platform),
             executable = True,
             cfg = "host",
         ),
