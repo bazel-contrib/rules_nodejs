@@ -11,7 +11,14 @@ export const patcher = (requireScriptName: string, binDir?: string) => {
 
   if (!process.env.NP_PATCHED_NODEJS) {
     // TODO: WINDOWS.
-    fs.mkdirSync(nodeDir, {recursive: true});
+    try {
+      fs.mkdirSync(nodeDir, {recursive: true});
+    } catch (e) {
+      // with node versions that don't have recursive mkdir this may throw an error.
+      if (e.code !== 'EEXIST') {
+        throw e;
+      }
+    }
     if (process.platform == 'win32') {
       fs.writeFileSync(path.join(nodeDir, 'node.bat'), `@if not defined DEBUG_HELPER @ECHO OFF
 set NP_PATCHED_NODEJS=${nodeDir}
