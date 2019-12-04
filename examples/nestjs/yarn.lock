@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@bazel/typescript@^0.42.1":
-  version "0.42.1"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-0.42.1.tgz#afa4c2e3de7ef60777fd7cd1828d1af57d09afb0"
-  integrity sha512-fObLUXlI3E9ZdGjCIGzXX6VkEo3x417PZvpIUBrVI3YONhbMoqAERB2yD4Mp8waoFKKu7ePnKCmoCWEa7PSTtA==
+"@bazel/typescript@^0.42.2":
+  version "0.42.2"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-0.42.2.tgz#6c8e2187e9f7f937650c8b4e2350dc7d46284cb1"
+  integrity sha512-9HS8W6Wv74zhjvyP2rwym05TwzB8/c3Pxxi4gfjwjwxaDAIZCQfC8UGSRxeCm5t0JNz485W1/0WScoACjcASCQ==
   dependencies:
     protobufjs "6.8.8"
     semver "5.6.0"

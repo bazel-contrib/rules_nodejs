@@ -1,8 +1,8 @@
 {
   "dependencies": {
-    "@bazel/hide-bazel-files": "^0.42.1",
-    "@bazel/protractor": "^0.42.1",
-    "@bazel/typescript": "^0.42.1",
+    "@bazel/hide-bazel-files": "^0.42.2",
+    "@bazel/protractor": "^0.42.2",
+    "@bazel/typescript": "^0.42.2",
     "@types/jasmine": "2.8.2",
     "@types/node": "7.0.18",
     "date-fns": "1.30.1",
