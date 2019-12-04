@@ -436,7 +436,7 @@ Additional documentation at https://github.com/alexeagle/angular-bazel-example/w
 ### Usage
 
 ```
-ts_devserver(name, additional_root_paths, bootstrap, deps, devserver, entry_module, port, scripts, serving_path, static_files)
+ts_devserver(name, additional_root_paths, bootstrap, deps, devserver, devserver_host, entry_module, port, scripts, serving_path, static_files)
 ```
 
 
@@ -460,6 +460,18 @@ ts_devserver(name, additional_root_paths, bootstrap, deps, devserver, entry_modu
 
 #### `devserver`
 (*[label]*): Go based devserver executable.
+
+            With cross-platform RBE for OSX & Windows ctx.executable.devserver will be linux as --cpu and
+            --host_cpu must be overridden to k8. However, we still want to be able to run the devserver on the host
+            machine so we need to include the host devserver binary, which is ctx.executable.devserver_host, in the
+            runfiles. For non-RBE and for RBE with a linux host, ctx.executable.devserver & ctx.executable.devserver_host
+            will be the same binary.
+
+            Defaults to precompiled go binary in @npm_bazel_typescript setup by @bazel/typescript npm package
+
+
+#### `devserver_host`
+(*[label]*): Go based devserver executable for the host platform.
             Defaults to precompiled go binary in @npm_bazel_typescript setup by @bazel/typescript npm package
 
 
