@@ -1,3 +1,14 @@
+## [0.42.2](https://github.com/bazelbuild/rules_nodejs/compare/0.42.1...0.42.2) (2019-12-04)
+
+
+### Bug Fixes
+
+* **builtin:** additional_root_paths in pkg_web should also include paths in genfiles and bin dirs ([#1402](https://github.com/bazelbuild/rules_nodejs/issues/1402)) ([9ce8c85](https://github.com/bazelbuild/rules_nodejs/commit/9ce8c85))
+* **typescript:** fix for cross platform ts_devserver issue [#1409](https://github.com/bazelbuild/rules_nodejs/issues/1409) ([#1413](https://github.com/bazelbuild/rules_nodejs/issues/1413)) ([172caff](https://github.com/bazelbuild/rules_nodejs/commit/172caff)), closes [#1415](https://github.com/bazelbuild/rules_nodejs/issues/1415)
+* support realpath.native and fix crash in mkdirp ([b9282b9](https://github.com/bazelbuild/rules_nodejs/commit/b9282b9))
+
+
+
 ## [0.42.1](https://github.com/bazelbuild/rules_nodejs/compare/0.41.0...0.42.1) (2019-11-27)
 
 To upgrade:
