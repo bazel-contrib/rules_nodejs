@@ -21,11 +21,11 @@ package(default_visibility = ["//:__subpackages__"])
 sources = glob([
     "*.ts",
     "src/*.ts",
-])
+],exclude=["**/*.d.ts"])
 
 js = [s.replace(".ts", ".js") for s in sources]
 
-tests = glob(["test/**/*.ts"])
+tests = glob(["test/**/*.ts"],exclude=["**/*.d.ts"])
 
 test_js = [t.replace(".ts", ".js") for t in tests]
 

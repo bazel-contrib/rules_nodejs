@@ -72,12 +72,14 @@ exports.patcher = (fs = fs$1, root) => {
     }
     root = fs.realpathSync(root);
     const origRealpath = fs.realpath.bind(fs);
+    const origRealpathNative = fs.realpath.native;
     const origLstat = fs.lstat.bind(fs);
     const origStat = fs.stat.bind(fs);
     const origStatSync = fs.statSync.bind(fs);
     const origReadlink = fs.readlink.bind(fs);
     const origLstatSync = fs.lstatSync.bind(fs);
     const origRealpathSync = fs.realpathSync.bind(fs);
+    const origRealpathSyncNative = fs.realpathSync.native;
     const origReadlinkSync = fs.readlinkSync.bind(fs);
     const origReaddir = fs.readdir.bind(fs);
     const origReaddirSync = fs.readdirSync.bind(fs);
@@ -149,6 +151,24 @@ exports.patcher = (fs = fs$1, root) => {
         }
         origRealpath(...args);
     };
+    fs.realpath.native =
+        (...args) => {
+            let cb = args.length > 1 ? args[args.length - 1] : undefined;
+            if (cb) {
+                cb = once(cb);
+                args[args.length - 1] = (err, str) => {
+                    if (err)
+                        return cb(err);
+                    if (isEscape(str, args[0])) {
+                        cb(false, path.resolve(args[0]));
+                    }
+                    else {
+                        cb(false, str);
+                    }
+                };
+            }
+            origRealpathNative(...args);
+        };
     // tslint:disable-next-line:no-any
     fs.readlink = (...args) => {
         let cb = args.length > 1 ? args[args.length - 1] : undefined;
@@ -206,6 +226,14 @@ exports.patcher = (fs = fs$1, root) => {
     // tslint:disable-next-line:no-any
     fs.realpathSync = (...args) => {
         const str = origRealpathSync(...args);
+        if (isEscape(str, args[0])) {
+            return path.resolve(args[0]);
+        }
+        return str;
+    };
+    // tslint:disable-next-line:no-any
+    fs.realpathSync = (...args) => {
+        const str = origRealpathSyncNative(...args);
         if (isEscape(str, args[0])) {
             return path.resolve(args[0]);
         }
@@ -431,7 +459,8 @@ exports.patcher = (fs = fs$1, root) => {
         // tslint:disable-next-line:no-any
         const promises = {};
         promises.lstat = util.promisify(fs.lstat);
-        promises.realpath = util.promisify(fs.realpath);
+        // NOTE: node core uses the newer realpath function fs.promises.native instead of fs.realPath
+        promises.realpath = util.promisify(fs.realpath.native);
         promises.readlink = util.promisify(fs.readlink);
         promises.readdir = util.promisify(fs.readdir);
         if (fs.opendir)
@@ -516,7 +545,15 @@ exports.patcher = (requireScriptName, binDir) => {
     const nodeDir = path.join(binDir || dir, '_node_bin');
     if (!process.env.NP_PATCHED_NODEJS) {
         // TODO: WINDOWS.
-        fs$1.mkdirSync(nodeDir, { recursive: true });
+        try {
+            fs$1.mkdirSync(nodeDir, { recursive: true });
+        }
+        catch (e) {
+            // with node versions that don't have recursive mkdir this may throw an error.
+            if (e.code !== 'EEXIST') {
+                throw e;
+            }
+        }
         if (process.platform == 'win32') {
             fs$1.writeFileSync(path.join(nodeDir, 'node.bat'), `@if not defined DEBUG_HELPER @ECHO OFF
 set NP_PATCHED_NODEJS=${nodeDir}

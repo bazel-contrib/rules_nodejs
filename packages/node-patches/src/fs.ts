@@ -42,12 +42,14 @@ export const patcher = (fs: any = _fs, root: string) => {
   root = fs.realpathSync(root);
 
   const origRealpath = fs.realpath.bind(fs);
+  const origRealpathNative = fs.realpath.native;
   const origLstat = fs.lstat.bind(fs);
   const origStat = fs.stat.bind(fs);
   const origStatSync = fs.statSync.bind(fs);
   const origReadlink = fs.readlink.bind(fs);
   const origLstatSync = fs.lstatSync.bind(fs);
   const origRealpathSync = fs.realpathSync.bind(fs);
+  const origRealpathSyncNative = fs.realpathSync.native;
   const origReadlinkSync = fs.readlinkSync.bind(fs);
   const origReaddir = fs.readdir.bind(fs);
   const origReaddirSync = fs.readdirSync.bind(fs);
@@ -129,29 +131,46 @@ export const patcher = (fs: any = _fs, root: string) => {
     origRealpath(...args);
   };
 
-  // tslint:disable-next-line:no-any
-  fs.readlink = (...args: any[]) => {
-    let cb = args.length > 1 ? args[args.length - 1] : undefined;
-    if (cb) {
-      cb = once(cb);
-      args[args.length - 1] = (err: Error, str: string) => {
-        args[0] = path.resolve(args[0]);
-        if (str) str = path.resolve(path.dirname(args[0]), str);
-
-        if (err) return cb(err);
-
-        if (isEscape(str, args[0])) {
-          const e = new Error('EINVAL: invalid argument, readlink \'' + args[0] + '\'');
-          // tslint:disable-next-line:no-any
-          (e as any).code = 'EINVAL';
-          // if its not supposed to be a link we have to trigger an EINVAL error.
-          return cb(e);
+  fs.realpath.native =
+      (...args) => {
+        let cb = args.length > 1 ? args[args.length - 1] : undefined;
+        if (cb) {
+          cb = once(cb);
+          args[args.length - 1] = (err: Error, str: string) => {
+            if (err) return cb(err);
+            if (isEscape(str, args[0])) {
+              cb(false, path.resolve(args[0]));
+            } else {
+              cb(false, str);
+            }
+          };
         }
-        cb(false, str);
+        origRealpathNative(...args)
+      }
+
+                   // tslint:disable-next-line:no-any
+                   fs.readlink = (...args: any[]) => {
+        let cb = args.length > 1 ? args[args.length - 1] : undefined;
+        if (cb) {
+          cb = once(cb);
+          args[args.length - 1] = (err: Error, str: string) => {
+            args[0] = path.resolve(args[0]);
+            if (str) str = path.resolve(path.dirname(args[0]), str);
+
+            if (err) return cb(err);
+
+            if (isEscape(str, args[0])) {
+              const e = new Error('EINVAL: invalid argument, readlink \'' + args[0] + '\'');
+              // tslint:disable-next-line:no-any
+              (e as any).code = 'EINVAL';
+              // if its not supposed to be a link we have to trigger an EINVAL error.
+              return cb(e);
+            }
+            cb(false, str);
+          };
+        }
+        origReadlink(...args);
       };
-    }
-    origReadlink(...args);
-  };
 
   // tslint:disable-next-line:no-any
   fs.lstatSync = (...args: any[]) => {
@@ -186,6 +205,15 @@ export const patcher = (fs: any = _fs, root: string) => {
   // tslint:disable-next-line:no-any
   fs.realpathSync = (...args: any[]) => {
     const str = origRealpathSync(...args);
+    if (isEscape(str, args[0])) {
+      return path.resolve(args[0]);
+    }
+    return str;
+  };
+
+  // tslint:disable-next-line:no-any
+  fs.realpathSync = (...args: any[]) => {
+    const str = origRealpathSyncNative(...args);
     if (isEscape(str, args[0])) {
       return path.resolve(args[0]);
     }
@@ -419,7 +447,8 @@ export const patcher = (fs: any = _fs, root: string) => {
     // tslint:disable-next-line:no-any
     const promises: any = {};
     promises.lstat = util.promisify(fs.lstat);
-    promises.realpath = util.promisify(fs.realpath);
+    // NOTE: node core uses the newer realpath function fs.promises.native instead of fs.realPath
+    promises.realpath = util.promisify(fs.realpath.native);
     promises.readlink = util.promisify(fs.readlink);
     promises.readdir = util.promisify(fs.readdir);
     if (fs.opendir) promises.opendir = util.promisify(fs.opendir);
