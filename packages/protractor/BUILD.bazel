@@ -20,11 +20,11 @@ load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "npm_package")
 genrule(
     name = "generate_README",
     srcs = [
-        "//packages/protractor/docs:index.md",
+        "@npm_bazel_protractor//:index.md",
         "//packages/protractor/docs:install.md",
     ],
     outs = ["README.md"],
-    cmd = """cat $(location //packages/protractor/docs:install.md) $(location //packages/protractor/docs:index.md) | sed 's/^##/\\\n##/' > $@""",
+    cmd = """cat $(location //packages/protractor/docs:install.md) $(location @npm_bazel_protractor//:index.md) | sed 's/^##/\\\n##/' > $@""",
     visibility = ["//docs:__pkg__"],
 )
 
@@ -33,6 +33,7 @@ npm_package(
     srcs = [
         "@npm_bazel_protractor//:package_contents",
     ],
+    build_file_content = """exports_files(["protractor.conf.js"])""",
     vendor_external = [
         "npm_bazel_protractor",
     ],

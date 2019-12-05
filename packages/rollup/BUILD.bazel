@@ -20,11 +20,11 @@ load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "npm_package")
 genrule(
     name = "generate_README",
     srcs = [
-        "//packages/rollup/docs:index.md",
+        "@npm_bazel_rollup//:index.md",
         "//packages/rollup/docs:install.md",
     ],
     outs = ["README.md"],
-    cmd = """cat $(location //packages/rollup/docs:install.md) $(location //packages/rollup/docs:index.md) | sed 's/^##/\\\n##/' > $@""",
+    cmd = """cat $(location //packages/rollup/docs:install.md) $(location @npm_bazel_rollup//:index.md) | sed 's/^##/\\\n##/' > $@""",
     visibility = ["//docs:__pkg__"],
 )
 
@@ -33,6 +33,7 @@ npm_package(
     srcs = [
         "@npm_bazel_rollup//:package_contents",
     ],
+    build_file_content = """exports_files(["rollup.config.js"])""",
     vendor_external = [
         "npm_bazel_rollup",
     ],

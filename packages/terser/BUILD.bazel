@@ -20,11 +20,11 @@ load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "npm_package")
 genrule(
     name = "generate_README",
     srcs = [
-        "//packages/terser/docs:index.md",
+        "@npm_bazel_terser//:index.md",
         "//packages/terser/docs:install.md",
     ],
     outs = ["README.md"],
-    cmd = """cat $(location //packages/terser/docs:install.md) $(location //packages/terser/docs:index.md) | sed 's/^##/\\\n##/' > $@""",
+    cmd = """cat $(location //packages/terser/docs:install.md) $(location @npm_bazel_terser//:index.md) | sed 's/^##/\\\n##/' > $@""",
     visibility = ["//docs:__pkg__"],
 )
 
@@ -33,6 +33,7 @@ npm_package(
     srcs = [
         "@npm_bazel_terser//:package_contents",
     ],
+    build_file_content = """exports_files(["terser_config.default.json"])""",
     vendor_external = [
         "npm_bazel_terser",
     ],

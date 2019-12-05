@@ -421,14 +421,11 @@ ts_config(name, deps, src)
 #### `name`
 (*[name], mandatory*): A unique name for this target.
 
-
 #### `deps`
 (*[labels], mandatory*): Additional tsconfig.json files referenced via extends
 
-
 #### `src`
 (*[label], mandatory*): The tsconfig.json file passed to the TypeScript compiler
-
 
 
 ## ts_devserver
@@ -450,19 +447,21 @@ ts_devserver(name, additional_root_paths, bootstrap, deps, devserver, devserver_
 #### `name`
 (*[name], mandatory*): A unique name for this target.
 
-
 #### `additional_root_paths`
 (*List of strings*): Additional root paths to serve `static_files` from.
             Paths should include the workspace name such as `["__main__/resources"]`
 
+Defaults to `[]`
 
 #### `bootstrap`
 (*[labels]*): Scripts to include in the JS bundle before the module loader (require.js)
 
+Defaults to `[]`
 
 #### `deps`
 (*[labels]*): Targets that produce JavaScript, such as `ts_library`
 
+Defaults to `[]`
 
 #### `devserver`
 (*[label]*): Go based devserver executable.
@@ -475,35 +474,42 @@ ts_devserver(name, additional_root_paths, bootstrap, deps, devserver, devserver_
 
             Defaults to precompiled go binary in @npm_bazel_typescript setup by @bazel/typescript npm package
 
+Defaults to `//devserver:devserver`
 
 #### `devserver_host`
 (*[label]*): Go based devserver executable for the host platform.
             Defaults to precompiled go binary in @npm_bazel_typescript setup by @bazel/typescript npm package
 
+Defaults to `//devserver:devserver_darwin_amd64`
 
 #### `entry_module`
 (*String*): The `entry_module` should be the AMD module name of the entry module such as `"__main__/src/index".`
             `ts_devserver` concats the following snippet after the bundle to load the application:
             `require(["entry_module"]);`
 
+Defaults to `""`
 
 #### `port`
 (*Integer*): The port that the devserver will listen on.
 
+Defaults to `5432`
 
 #### `scripts`
 (*[labels]*): User scripts to include in the JS bundle before the application sources
 
+Defaults to `[]`
 
 #### `serving_path`
 (*String*): The path you can request from the client HTML which serves the JavaScript bundle.
             If you don't specify one, the JavaScript can be loaded at /_/ts_scripts.js
 
+Defaults to `"/_/ts_scripts.js"`
 
 #### `static_files`
 (*[labels]*): Arbitrary files which to be served, such as index.html.
             They are served relative to the package where this rule is declared.
 
+Defaults to `[]`
 
 
 ## ts_library
@@ -526,10 +532,10 @@ ts_library(name, compile_angular_templates, compiler, data, deps, expected_diagn
 #### `name`
 (*[name], mandatory*): A unique name for this target.
 
-
 #### `compile_angular_templates`
 (*Boolean*): Run the Angular ngtsc compiler under ts_library
 
+Defaults to `False`
 
 #### `compiler`
 (*[label]*): Sets a different TypeScript compiler binary to use for this library.
@@ -543,34 +549,42 @@ the workspace name `@npm` for bazel managed deps so the default
 compiler works out of the box. Otherwise, you'll have to override
 the compiler attribute manually.
 
+Defaults to `@npm//@bazel/typescript/bin:tsc_wrapped`
 
 #### `data`
 (*[labels]*)
 
+Defaults to `[]`
 
 #### `deps`
 (*[labels]*): Compile-time dependencies, typically other ts_library targets
 
+Defaults to `[]`
 
 #### `expected_diagnostics`
 (*List of strings*)
 
+Defaults to `[]`
 
 #### `generate_externs`
 (*Boolean*)
 
+Defaults to `True`
 
 #### `internal_testing_type_check_dependencies`
 (*Boolean*): Testing only, whether to type check inputs that aren't srcs.
 
+Defaults to `False`
 
 #### `module_name`
 (*String*)
 
+Defaults to `""`
 
 #### `module_root`
 (*String*)
 
+Defaults to `""`
 
 #### `node_modules`
 (*[label]*): The npm packages which should be available during the compile.
@@ -635,18 +649,20 @@ yarn_install(
 )
 ```
 
+Defaults to `@npm//typescript:typescript__typings`
 
 #### `runtime`
 (*String*)
 
+Defaults to `"browser"`
 
 #### `runtime_deps`
 (*[labels]*)
 
+Defaults to `[]`
 
 #### `srcs`
 (*[labels], mandatory*): The TypeScript source files to compile.
-
 
 #### `supports_workers`
 (*Boolean*): Intended for internal use only.
@@ -655,6 +671,7 @@ Allows you to disable the Bazel Worker strategy for this library.
 Typically used together with the "compiler" setting when using a
 non-worker aware compiler binary.
 
+Defaults to `True`
 
 #### `tsconfig`
 (*[label]*): A tsconfig.json file containing settings for TypeScript compilation.
@@ -669,10 +686,12 @@ either:
     `alias(name="tsconfig.json", actual="//path/to:tsconfig-something.json")`
 - Give an explicit `tsconfig` attribute to all `ts_library` targets
 
+Defaults to `None`
 
 #### `tsickle_typed`
 (*Boolean*): If using tsickle, instruct it to translate types to ClosureJS format
 
+Defaults to `True`
 
 
 ## ts_setup_workspace

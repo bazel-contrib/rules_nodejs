@@ -1,7 +1,7 @@
 "A generic rule to run a tool that appears in node_modules/.bin"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "NpmPackageInfo", "node_modules_aspect", "run_node")
-load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
+load("//:providers.bzl", "NpmPackageInfo", "node_modules_aspect", "run_node")
+load("//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 
 # Note: this API is chosen to match nodejs_binary
 # so that we can generate macros that act as either an output-producing tool or an executable

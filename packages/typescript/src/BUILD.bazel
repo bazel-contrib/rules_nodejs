@@ -13,23 +13,36 @@
 # limitations under the License.
 
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("@build_bazel_rules_nodejs//tools/stardoc:index.bzl", "stardoc")
 
 package(default_visibility = ["//visibility:public"])
 
 bzl_library(
     name = "bzl",
-    srcs = glob(["*.bzl"]),
+    srcs = glob(["*.bzl"]) + [
+        # Work-around since we don't have and don't wnat a bzl_library in the generated
+        # @nodejs//:BUILD.bazel file
+        "@nodejs//:index.bzl",
+    ],
     deps = [
         "//internal:bzl",
         "//internal/devserver:bzl",
+        "@build_bazel_rules_nodejs//:bzl",
         "@build_bazel_rules_nodejs//internal/common:bzl",
+        "@build_bazel_rules_nodejs//internal/node:bzl",
     ],
+)
+
+stardoc(
+    name = "docs",
+    out = "index.md",
+    input = "index.docs.bzl",
+    deps = [":bzl"],
 )
 
 filegroup(
     name = "package_contents",
     srcs = [
-        "BUILD.bazel",
         "index.bzl",
         "package.bzl",
         "package.json",

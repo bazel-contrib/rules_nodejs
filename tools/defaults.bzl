@@ -24,8 +24,16 @@ def npm_package(**kwargs):
         cmd = "cp $< $@",
     )
 
-    deps = kwargs.pop("deps", [])
-    deps.append(":copy_LICENSE")
+    deps = [":copy_LICENSE"] + kwargs.pop("deps", [])
+    build_file_content = kwargs.pop("build_file_content", None)
+    if build_file_content:
+        native.genrule(
+            name = "generate_BUILD",
+            srcs = [],
+            outs = ["_BUILD.bazel"],
+            cmd = """echo '%s' >$@""" % build_file_content,
+        )
+        deps.append(":generate_BUILD")
 
     # Make every package visible to tests
     visibility = kwargs.pop("visibility", [

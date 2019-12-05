@@ -21,11 +21,11 @@ load(":replacements.bzl", "TYPESCRIPT_REPLACEMENTS")
 genrule(
     name = "generate_README",
     srcs = [
-        "//packages/typescript/docs:index.md",
+        "@npm_bazel_typescript//:index.md",
         "//packages/typescript/docs:install.md",
     ],
     outs = ["README.md"],
-    cmd = """cat $(location //packages/typescript/docs:install.md) $(location //packages/typescript/docs:index.md) | sed 's/^##/\\\n##/' > $@""",
+    cmd = """cat $(location //packages/typescript/docs:install.md) $(location @npm_bazel_typescript//:index.md) | sed 's/^##/\\\n##/' > $@""",
     visibility = ["//docs:__pkg__"],
 )
 
@@ -34,6 +34,7 @@ npm_package(
     srcs = [
         "@npm_bazel_typescript//:package_contents",
     ],
+    build_file_content = "",
     packages = [
         "@build_bazel_rules_typescript//:npm_bazel_typescript_package",
     ],

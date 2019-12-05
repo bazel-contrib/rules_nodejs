@@ -116,7 +116,6 @@ rollup_bundle(name, config_file, deps, entry_point, entry_points, format, output
 #### `name`
 (*[name], mandatory*): A unique name for this target.
 
-
 #### `config_file`
 (*[label]*): A rollup.config.js file
 
@@ -125,10 +124,12 @@ See https://rollupjs.org/guide/en/#configuration-files
 
 If not set, a default basic Rollup config is used.
 
+Defaults to `@npm_bazel_rollup//:rollup.config.js`
 
 #### `deps`
 (*[labels]*): Other libraries that are required by the code, or by the rollup.config.js
 
+Defaults to `[]`
 
 #### `entry_point`
 (*[label]*): The bundle's entry point (e.g. your main.js or app.js or index.js).
@@ -153,6 +154,7 @@ rollup_bundle(
 )
 ```
 
+Defaults to `None`
 
 #### `entry_points`
 (*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: Label -> String</a>*): The bundle's entry points (e.g. your main.js or app.js or index.js).
@@ -164,6 +166,7 @@ Values are the name to be given to the corresponding output chunk.
 
 Either this attribute or `entry_point` must be specified, but not both.
 
+Defaults to `{}`
 
 #### `format`
 (*String*): "Specifies the format of the generated bundle. One of the following:
@@ -175,6 +178,7 @@ Either this attribute or `entry_point` must be specified, but not both.
 - `umd`: Universal Module Definition, works as amd, cjs and iife all in one
 - `system`: Native format of the SystemJS loader
 
+Defaults to `"esm"`
 
 #### `output_dir`
 (*Boolean*): Whether to produce a directory output.
@@ -185,20 +189,24 @@ rather than `--output.file`.
 If the program produces multiple chunks, you must specify this attribute.
 Otherwise, the outputs are assumed to be a single file.
 
+Defaults to `False`
 
 #### `rollup_bin`
 (*[label]*): Target that executes the rollup binary
 
+Defaults to `@npm//rollup/bin:rollup`
 
 #### `sourcemap`
 (*String*): Whether to produce sourcemaps.
 
 Passed to the [`--sourcemap` option](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#outputsourcemap") in Rollup
 
+Defaults to `"inline"`
 
 #### `srcs`
 (*[labels]*): Non-entry point JavaScript source files from the workspace.
 
 You must not repeat file(s) passed to entry_point/entry_points.
 
+Defaults to `[]`
 

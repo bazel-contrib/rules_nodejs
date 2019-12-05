@@ -20,11 +20,11 @@ load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "npm_package")
 genrule(
     name = "generate_README",
     srcs = [
-        "//packages/karma/docs:index.md",
+        "@npm_bazel_karma//:index.md",
         "//packages/karma/docs:install.md",
     ],
     outs = ["README.md"],
-    cmd = """cat $(location //packages/karma/docs:install.md) $(location //packages/karma/docs:index.md) | sed 's/^##/\\\n##/' > $@""",
+    cmd = """cat $(location //packages/karma/docs:install.md) $(location @npm_bazel_karma//:index.md) | sed 's/^##/\\\n##/' > $@""",
     visibility = ["//docs:__pkg__"],
 )
 
@@ -33,6 +33,7 @@ npm_package(
     srcs = [
         "@npm_bazel_karma//:package_contents",
     ],
+    build_file_content = """exports_files(["karma.conf.js"])""",
     vendor_external = [
         "npm_bazel_karma",
     ],
