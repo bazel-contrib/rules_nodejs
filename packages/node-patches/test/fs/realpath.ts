@@ -48,7 +48,16 @@ describe('testing realpath', () => {
               'SYNC: should resolve the symlink the same because its within root');
 
           assert.deepStrictEqual(
+              patchedFs.realpathSync.native(linkPath), path.join(fixturesDir, 'b', 'file'),
+              'SYNC.native: should resolve the symlink the same because its within root');
+
+          assert.deepStrictEqual(
               await util.promisify(patchedFs.realpath)(linkPath),
+              path.join(fixturesDir, 'b', 'file'),
+              'CB: should resolve the symlink the same because its within root');
+
+          assert.deepStrictEqual(
+              await util.promisify(patchedFs.realpath.native)(linkPath),
               path.join(fixturesDir, 'b', 'file'),
               'CB: should resolve the symlink the same because its within root');
 

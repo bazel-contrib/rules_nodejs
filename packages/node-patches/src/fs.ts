@@ -212,7 +212,7 @@ export const patcher = (fs: any = _fs, root: string) => {
   };
 
   // tslint:disable-next-line:no-any
-  fs.realpathSync = (...args: any[]) => {
+  fs.realpathSync.native = (...args: any[]) => {
     const str = origRealpathSyncNative(...args);
     if (isEscape(str, args[0])) {
       return path.resolve(args[0]);
