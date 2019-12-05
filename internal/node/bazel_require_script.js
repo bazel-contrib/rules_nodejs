@@ -232,7 +232,7 @@ exports.patcher = (fs = fs$1, root) => {
         return str;
     };
     // tslint:disable-next-line:no-any
-    fs.realpathSync = (...args) => {
+    fs.realpathSync.native = (...args) => {
         const str = origRealpathSyncNative(...args);
         if (isEscape(str, args[0])) {
             return path.resolve(args[0]);
