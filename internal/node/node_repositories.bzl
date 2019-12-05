@@ -166,13 +166,11 @@ and expect that file to have sha256sum `00b7a8426e076e9bf9d12ba2d571312e833fe962
         default = True,
         doc = """Turn on --node_options=--preserve-symlinks for nodejs_binary and nodejs_test rules.
 
-The default for this is currently True but the options is deprecated and will be removed in the future.
-
 When this option is turned on, node will preserve the symlinked path for resolves instead of the default
 behavior of resolving to the real path. This means that all required files must be in be included in your
 runfiles as it prevents the default behavior of potentially resolving outside of the runfiles. For example,
 all required files need to be included in your node_modules filegroup. This option is desirable as it gives
-a stronger guarantee of hermiticity which is required for remote execution.""",
+a stronger guarantee of hermeticity which is required for remote execution.""",
     ),
     "vendored_node": attr.label(
         allow_single_file = True,
@@ -401,9 +399,6 @@ def _prepare_node(repository_ctx):
     node_bin_relative = node_bin if repository_ctx.attr.vendored_node else paths.relativize(node_bin, "bin")
     npm_script_relative = npm_script if repository_ctx.attr.vendored_node else paths.relativize(npm_script, "bin")
     yarn_script_relative = yarn_script if repository_ctx.attr.vendored_yarn else paths.relativize(yarn_script, "bin")
-
-    if not repository_ctx.attr.preserve_symlinks:
-        print("\nWARNING: The preserve_symlinks option is deprecated and will go away in the future.\n")
 
     if repository_ctx.attr.preserve_symlinks:
         # --preserve-symlinks-main flag added in node 10.2.0
