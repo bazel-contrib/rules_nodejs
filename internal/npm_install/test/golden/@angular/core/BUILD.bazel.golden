@@ -760,7 +760,7 @@ node_module_library(
 load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
 npm_umd_bundle(
     name = "core__umd",
-    package_name = "core",
+    package_name = "@angular/core",
     entry_point = "//:node_modules/@angular/core/fesm5/core.js",
     package = ":core",
 )

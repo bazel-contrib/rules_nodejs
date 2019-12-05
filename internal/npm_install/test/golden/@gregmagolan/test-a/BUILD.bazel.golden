@@ -36,7 +36,7 @@ node_module_library(
 load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
 npm_umd_bundle(
     name = "test-a__umd",
-    package_name = "test-a",
+    package_name = "@gregmagolan/test-a",
     entry_point = "//:node_modules/@gregmagolan/test-a/main.js",
     package = ":test-a",
 )

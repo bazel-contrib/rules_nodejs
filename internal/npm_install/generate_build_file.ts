@@ -967,7 +967,7 @@ node_module_library(
 
 npm_umd_bundle(
     name = "${pkg._name}__umd",
-    package_name = "${pkg._name}",
+    package_name = "${pkg._moduleName}",
     entry_point = "//:node_modules/${pkg._dir}/${mainEntryPoint}",
     package = ":${pkg._name}",
 )
