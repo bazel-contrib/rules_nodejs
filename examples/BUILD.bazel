@@ -189,20 +189,6 @@ example_integration_test(
 )
 
 example_integration_test(
-    name = "examples_user_managed_deps",
-    # This test requires calling `bazel run @nodejs//:yarn_node_repositories` before `bazel test ...`
-    bazel_commands = [
-        "run @nodejs//:yarn_node_repositories",
-        "test ...",
-    ],
-    # replace the following repositories with the generated archives
-    repositories = {
-        "//:release": "build_bazel_rules_nodejs",
-        "@npm_bazel_jasmine//:release": "npm_bazel_jasmine",
-    },
-)
-
-example_integration_test(
     name = "examples_vendored_node",
     npm_packages = {
         "//packages/jasmine:npm_package": "@bazel/jasmine",

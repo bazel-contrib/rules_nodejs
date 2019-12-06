@@ -42,7 +42,6 @@ e2e_integration_test(
 
 e2e_integration_test(
     name = "e2e_packages",
-    workspace_files = "@e2e_packages//:all_files",
 )
 
 e2e_integration_test(

@@ -8,13 +8,43 @@ http_archive(
     urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.42.2/rules_nodejs-0.42.2.tar.gz"],
 )
 
-load("@build_bazel_rules_nodejs//:index.bzl", "check_rules_nodejs_version", "node_repositories")
+load("@build_bazel_rules_nodejs//:index.bzl", "check_rules_nodejs_version", "node_repositories", "npm_install", "yarn_install")
 
 # Test that check_rules_nodejs_version works as expected
 check_rules_nodejs_version(minimum_version_string = "0.11.2")
 
 node_repositories()
 
-load(":setup_workspace.bzl", "e2e_packages_setup_workspace")
+npm_install(
+    name = "e2e_packages_npm_install",
+    data = ["//:postinstall.js"],
+    package_json = "//:npm1/package.json",
+    package_lock_json = "//:npm1/package-lock.json",
+    # Just here as a smoke test for this attribute
+    prod_only = True,
+    symlink_node_modules = False,
+)
 
-e2e_packages_setup_workspace()
+npm_install(
+    name = "e2e_packages_npm_install_duplicate_for_determinism_testing",
+    data = ["//:postinstall.js"],
+    package_json = "//:npm2/package.json",
+    package_lock_json = "//:npm2/package-lock.json",
+    symlink_node_modules = False,
+)
+
+yarn_install(
+    name = "e2e_packages_yarn_install",
+    data = ["//:postinstall.js"],
+    package_json = "//:yarn1/package.json",
+    symlink_node_modules = False,
+    yarn_lock = "//:yarn1/yarn.lock",
+)
+
+yarn_install(
+    name = "e2e_packages_yarn_install_duplicate_for_determinism_testing",
+    data = ["//:postinstall.js"],
+    package_json = "//:yarn2/package.json",
+    symlink_node_modules = False,
+    yarn_lock = "//:yarn2/yarn.lock",
+)
