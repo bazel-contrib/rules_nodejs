@@ -6,4 +6,5 @@ nodejs_binary(
     entry_point = "//:node_modules/@gregmagolan/test-a/@bin/test.js",
     install_source_map_support = False,
     data = ["//@gregmagolan/test-a:test-a"],
+    templated_args = ["--nobazel_patch_module_resolver"],
 )
