@@ -71,13 +71,6 @@ var_7: &hide_node_and_yarn_local_binaries
       sudo mv /usr/local/bin/npm /usr/local/bin/npm_
       sudo mv /usr/local/bin/yarn /usr/local/bin/yarn_
 
-var_8: &use_legacy_runfiles
-  run:
-    name: Use legacy runfiles
-    command: |
-      echo 'run --legacy_external_runfiles' >> .bazelrc
-      echo 'test --legacy_external_runfiles' >> .bazelrc
-
 var_9: &job_defaults
   working_directory: ~/rules_nodejs
   docker:
@@ -224,21 +217,14 @@ jobs:
           command: bazel test --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,7.0,1.0 //examples:examples_vendored_node //examples:examples_vendored_node_and_yarn
           no_output_timeout: 20m
 
-  test_legacy_runfiles:
+  test_user_managed_deps:
     <<: *job_defaults
+    resource_class: xlarge
     steps:
       - *attach_workspace
       - *init_environment
-      - *use_legacy_runfiles
       - *init_bazel
-      - *hide_node_and_yarn_local_binaries
-
-      # We should also be able to test targets in a different workspace
-      # TODO(gmagolan): move these tests into `build` job once
-      # https://github.com/bazelbuild/bazel/issues/6481 is resolved
-      - run: 'cd examples/user_managed_deps && bazel run @nodejs//:yarn_node_repositories'
-      - run: bazel test @examples_user_managed_deps//...
-      - run: bazel test @e2e_packages//...
+      - run: cd examples/user_managed_deps && yarn install && bazel test ...
 
 workflows:
   version: 2
@@ -255,5 +241,8 @@ workflows:
           requires:
           - setup
       - test_examples:
+          requires:
+          - setup
+      - test_user_managed_deps:
           requires:
           - setup

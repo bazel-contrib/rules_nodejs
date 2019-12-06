@@ -276,16 +276,3 @@ load("@build_bazel_integration_testing//tools:repositories.bzl", "bazel_binaries
 
 # Depend on the Bazel binaries
 bazel_binaries(versions = [BAZEL_VERSION])
-
-#
-# Setup bazel_integration_test repositories
-#
-
-local_repository(
-    name = "e2e_packages",
-    path = "e2e/packages",
-)
-
-load("@e2e_packages//:setup_workspace.bzl", "e2e_packages_setup_workspace")
-
-e2e_packages_setup_workspace()
