@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
 load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
-load("@npm_node_patches//mocha:index.bzl", "mocha_test")
 load("@npm_node_patches//typescript:index.bzl", "tsc")
 
 package(default_visibility = ["//:__subpackages__"])
@@ -52,12 +52,14 @@ tsc(
     ],
 )
 
-mocha_test(
+# Like the generated mocha_test but we don't want to run the patches before testing the patches
+nodejs_test(
     name = "unit_test",
     args = ["$(location %s)" % s for s in test_js],
     data = js + test_js + [
         "@npm_node_patches//:node_modules",
     ],
+    entry_point = "@npm_node_patches//:node_modules/mocha/bin/mocha",
     tags = [
         "fix-windows",
     ],
