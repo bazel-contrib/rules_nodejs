@@ -14,7 +14,7 @@
 
 """ Custom provider that mimics the Runfiles, but doesn't incur the expense of creating the runfiles symlink tree"""
 
-load("//internal/linker:link_node_modules.bzl", "add_arg", "register_node_modules_linker")
+load("//internal/linker:link_node_modules.bzl", "add_arg", "write_node_modules_manifest")
 
 NodeRuntimeDepsInfo = provider(
     doc = """Stores runtime dependencies of a nodejs_binary or nodejs_test
@@ -54,7 +54,9 @@ def run_node(ctx, inputs, arguments, executable, **kwargs):
         extra_inputs = exec_attr[NodeRuntimeDepsInfo].deps.to_list()
         link_data = exec_attr[NodeRuntimeDepsInfo].pkgs
 
-    register_node_modules_linker(ctx, arguments, inputs, link_data)
+    modules_manifest = write_node_modules_manifest(ctx, link_data)
+    add_arg(arguments, "--bazel_node_modules_manifest=%s" % modules_manifest.path)
+    inputs.append(modules_manifest)
 
     # By using the run_node helper, you suggest that your program
     # doesn't implicitly use runfiles to require() things

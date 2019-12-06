@@ -1,18 +1,17 @@
 "Minimal fixture for executing the linker's starlark code"
 
-load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect", "register_node_modules_linker")
+load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect", "write_node_modules_manifest")
 
 def _linked(ctx):
-    inputs = ctx.files.deps[:]
-    outputs = [ctx.outputs.out]
-    args = ctx.actions.args()
-    register_node_modules_linker(ctx, args, inputs)
-    args.add(ctx.outputs.out.path)
+    modules_manifest = write_node_modules_manifest(ctx)
     ctx.actions.run(
-        inputs = inputs,
-        outputs = outputs,
+        inputs = ctx.files.deps + [modules_manifest],
+        outputs = [ctx.outputs.out],
         executable = ctx.executable.program,
-        arguments = [args],
+        arguments = [
+            "--bazel_node_modules_manifest=%s" % modules_manifest.path,
+            ctx.outputs.out.path,
+        ],
     )
 
 linked = rule(_linked, attrs = {
