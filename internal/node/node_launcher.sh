@@ -160,6 +160,10 @@ fi
 
 readonly repository_args=$(rlocation "TEMPLATED_repository_args")
 MAIN=$(rlocation "TEMPLATED_loader_path")
+# For programs which are called with bazel run or bazel test, there will be no additional runtime
+# dependencies to link, so we use the default modules_manifest which has only the static dependencies
+# of the binary itself
+MODULES_MANIFEST=$(rlocation "TEMPLATED_modules_manifest")
 readonly link_modules_script=$(rlocation "TEMPLATED_link_modules_script")
 bazel_require_script=$(rlocation "TEMPLATED_bazel_require_script")
 
