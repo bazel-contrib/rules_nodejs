@@ -25,6 +25,7 @@ load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfile
 load("//internal/common:module_mappings.bzl", "module_mappings_runtime_aspect")
 load("//internal/common:path_utils.bzl", "strip_external")
 load("//internal/common:windows_utils.bzl", "create_windows_native_launcher_script", "is_windows")
+load("//internal/linker:link_node_modules.bzl", "write_node_modules_manifest")
 load("//internal/node:node_repositories.bzl", "BUILT_IN_NODE_PLATFORMS")
 
 def _trim_package_node_modules(package_name):
@@ -132,18 +133,15 @@ def _to_manifest_path(ctx, file):
 def _to_execroot_path(ctx, file):
     parts = file.path.split("/")
 
-    #print("_to_execroot", file.path, file.is_source)
     if parts[0] == "external":
         if parts[2] == "node_modules":
             # external/npm/node_modules -> node_modules/foo
             # the linker will make sure we can resolve node_modules from npm
             return "/".join(parts[2:])
-    if file.is_source:
-        return file.path
-
-    return ("<ERROR> _to_execroot_path not yet implemented for " + file.path)
+    return file.path
 
 def _nodejs_binary_impl(ctx):
+    node_modules_manifest = write_node_modules_manifest(ctx)
     node_modules = depset(ctx.files.node_modules)
 
     # Also include files from npm fine grained deps as inputs.
@@ -155,14 +153,15 @@ def _nodejs_binary_impl(ctx):
     # Using a depset will allow us to avoid flattening files and sources
     # inside this loop. This should reduce the performances hits,
     # since we don't need to call .to_list()
-    sources = depset()
+    sources_sets = []
 
     for d in ctx.attr.data:
         # TODO: switch to JSModuleInfo when it is available
         if JSNamedModuleInfo in d:
-            sources = depset(transitive = [sources, d[JSNamedModuleInfo].sources])
+            sources_sets.append(d[JSNamedModuleInfo].sources)
         if hasattr(d, "files"):
-            sources = depset(transitive = [sources, d.files])
+            sources_sets.append(d.files)
+    sources = depset(transitive = sources_sets)
 
     _write_loader_script(ctx)
 
@@ -198,6 +197,7 @@ def _nodejs_binary_impl(ctx):
 
     node_tool_files.append(ctx.file._link_modules_script)
     node_tool_files.append(ctx.file._bazel_require_script)
+    node_tool_files.append(node_modules_manifest)
 
     if not ctx.outputs.templated_args_file:
         templated_args = ctx.attr.templated_args
@@ -236,6 +236,7 @@ def _nodejs_binary_impl(ctx):
         "TEMPLATED_expected_exit_code": str(expected_exit_code),
         "TEMPLATED_link_modules_script": _to_manifest_path(ctx, ctx.file._link_modules_script),
         "TEMPLATED_loader_path": script_path,
+        "TEMPLATED_modules_manifest": _to_manifest_path(ctx, node_modules_manifest),
         "TEMPLATED_repository_args": _to_manifest_path(ctx, ctx.file._repository_args),
         "TEMPLATED_script_path": _to_execroot_path(ctx, ctx.file.entry_point),
         "TEMPLATED_vendored_node": "" if is_builtin else strip_external(ctx.file._node.path),

@@ -186,6 +186,12 @@ for ARG in "${ALL_ARGS[@]}"; do
     --nobazel_patch_module_resolver)
       MAIN="TEMPLATED_script_path"
       NODE_OPTIONS+=( "--require" "$bazel_require_script" )
+
+      # In this case we should always run the linker
+      # For programs which are called with bazel run or bazel test, there will be no additional runtime
+      # dependencies to link, so we use the default modules_manifest which has only the static dependencies
+      # of the binary itself
+      MODULES_MANIFEST=${MODULES_MANIFEST:-$(rlocation "TEMPLATED_modules_manifest")}
       ;;
     --node_options=*) NODE_OPTIONS+=( "${ARG#--node_options=}" ) ;;
     *) ARGS+=( "$ARG" )
