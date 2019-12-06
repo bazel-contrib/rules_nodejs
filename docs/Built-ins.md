@@ -26,28 +26,29 @@ To be run in user's WORKSPACE to install rules_nodejs dependencies.
 This rule sets up node, npm, and yarn.
 
 The versions of these tools can be specified in one of three ways:
-- Normal Usage:
+- Simplest Usage:
 Specify no explicit versions. This will download and use the latest NodeJS & Yarn that were available when the
 version of rules_nodejs you're using was released.
+Note that you can skip calling `node_repositories` in your WORKSPACE file - if you later try to `yarn_install` or `npm_install`,
+we'll automatically select this simple usage for you.
 - Forced version(s):
 You can select the version of NodeJS and/or Yarn to download & use by specifying it when you call node_repositories,
-but you must use a value that matches a known version.
+using a value that matches a known version (see the default values)
 - Using a custom version:
 You can pass in a custom list of NodeJS and/or Yarn repositories and URLs for node_resositories to use.
 - Using a local version:
 To avoid downloads, you can check in vendored copies of NodeJS and/or Yarn and set vendored_node and or vendored_yarn
-to point to those before calling node_repositories.
+to point to those before calling node_repositories. You can also point to a location where node is installed on your computer,
+but we don't recommend this because it leads to version skew between you, your coworkers, and your Continuous Integration environment.
+It also ties your build to a single platform, preventing you from cross-compiling into a Linux docker image on Mac for example.
 
-This rule exposes the `@nodejs` workspace containing some rules the user can call later:
+See the [the repositories documentation](repositories.html) for how to use the resulting repositories.
 
-- Run node: `bazel run @nodejs//:node path/to/program.js`
-- Install dependencies using npm: `bazel run @nodejs//:npm_node_repositories install`
-- Install dependencies using yarn: `bazel run @nodejs//:yarn_node_repositories`
 
-Note that the dependency installation scripts will run in each subpackage indicated by the `package_json` attribute.
+## Creating dependency installation scripts for manually-managed dependencies
 
-This approach uses npm/yarn as the package manager. You could instead have Bazel act as the package manager, running the install behind the scenes.
-See the `npm_install` and `yarn_install` rules, and the discussion in the README.
+You can optionally pass a `package_json` array to node_repositories. This lets you use Bazel's version of yarn or npm, yet always run the package manager yourself.
+This is an advanced scenario you can use in place of the `npm_install` or `yarn_install` rules, but we don't recommend it, and might remove it in the future.
 
 Example:
 
@@ -57,6 +58,8 @@ node_repositories(package_json = ["//:package.json", "//subpkg:package.json"])
 ```
 
 Running `bazel run @nodejs//:yarn_node_repositories` in this repo would create `/node_modules` and `/subpkg/node_modules`.
+
+Note that the dependency installation scripts will run in each subpackage indicated by the `package_json` attribute.
 
 
 
@@ -118,10 +121,11 @@ and expect that file to have sha256sum `00b7a8426e076e9bf9d12ba2d571312e833fe962
 
 
 #### `package_json`
-(*[labels]*): a list of labels, which indicate the package.json files that will be installed
+(*[labels]*): (ADVANCED, not recommended)
+            a list of labels, which indicate the package.json files that will be installed
             when you manually run the package manager, e.g. with
             `bazel run @nodejs//:yarn_node_repositories` or `bazel run @nodejs//:npm_node_repositories install`.
-            If you use bazel-managed dependencies, you can omit this attribute.
+            If you use bazel-managed dependencies, you should omit this attribute.
 
 
 #### `preserve_symlinks`
