@@ -64,9 +64,9 @@ Include as much of the build output as you can without disclosing anything confi
             }
         });
     }
-    function symlink(target, path) {
+    function symlink(target, p) {
         return __awaiter(this, void 0, void 0, function* () {
-            log_verbose(`symlink( ${path} -> ${target} )`);
+            log_verbose(`symlink( ${p} -> ${target} )`);
             // Check if the target exists before creating the symlink.
             // This is an extra filesystem access on top of the symlink but
             // it is necessary for the time being.
@@ -81,7 +81,7 @@ Include as much of the build output as you can without disclosing anything confi
             // Use junction on Windows since symlinks require elevated permissions.
             // We only link to directories so junctions work for us.
             try {
-                yield fs.promises.symlink(target, path, 'junction');
+                yield fs.promises.symlink(target, p, 'junction');
                 return true;
             }
             catch (e) {
@@ -95,9 +95,9 @@ Include as much of the build output as you can without disclosing anything confi
                     // Be verbose about creating a bad symlink
                     // Maybe this should fail in production as well, but again we want to avoid
                     // any unneeded file I/O
-                    if (!(yield exists(path))) {
+                    if (!(yield exists(p))) {
                         log_verbose('ERROR\n***\nLooks like we created a bad symlink:' +
-                            `\n  pwd ${process.cwd()}\n  target ${target}\n  path ${path}\n***`);
+                            `\n  pwd ${process.cwd()}\n  target ${target}\n  path ${p}\n***`);
                     }
                 }
                 return false;
@@ -246,60 +246,139 @@ Include as much of the build output as you can without disclosing anything confi
             }
         });
     }
-    function groupAndReduceModules(modules) {
-        // Group nested modules names as these need to be symlinked in order.
-        // For example, given a list of module keys such as:
-        // ['a', '@foo/c/c/c/c', 'b/b', 'b', '@foo/c', '@foo/c/c']
-        // this reducer should output the groups list:
-        // [ [ '@foo/c', '@foo/c/c', '@foo/c/c/c/c' ], [ 'a' ], [ 'b', 'b/b' ] ]
-        const grouped = Object.keys(modules).sort().reduce((grouped, module, index, array) => {
-            if (index > 0 && module.startsWith(`${array[index - 1]}/`)) {
-                grouped[grouped.length - 1].push(module);
-            }
-            else {
-                grouped.push([module]);
-            }
-            return grouped;
-        }, []);
-        // Reduce links such as `@foo/b/c => /path/to/a/b/c` to their
-        // lowest common denominator `@foo => /path/to/a` & then remove
-        // duplicates.
-        return grouped.map(group => {
-            return group
-                .map(name => {
-                let [kind, modulePath] = modules[name];
-                for (;;) {
-                    const bn = path.basename(name);
-                    const bmp = path.basename(modulePath);
-                    if (bn == bmp && bn !== name && bmp !== modulePath) {
-                        // strip off the last segment as it is common
-                        name = path.dirname(name);
-                        modulePath = path.dirname(modulePath);
-                        log_verbose(`module mapping ( ${name}/${bn} => ${modulePath}/${bmp} ) reduced to ( ${name} => ${modulePath} )`);
-                    }
-                    else {
-                        break;
-                    }
-                }
-                return { name, root: kind, modulePath };
-            })
-                .reduce((result, current) => {
-                if (result.length > 0) {
-                    const last = result[result.length - 1];
-                    if (current.name === last.name && current.modulePath === last.modulePath) {
-                        // duplicate mapping after reduction
-                        if (current.root !== last.root) {
-                            throw new Error(`conflicting module mappings for '${last.name}' => '${last.modulePath}' of kind '${last.root}' and '${current.root}'`);
-                        }
-                        return result;
-                    }
-                }
-                result.push(current);
-                return result;
-            }, []);
-        });
+    /**
+     * Given a set of module aliases returns an array of recursive `LinkerTreeElement`s.
+     *
+     * The tree nodes represent the FS links required. Each node of the tree hierarchy
+     * depends on its parent node having been setup first. Each sibling node can be processed
+     * concurrently.
+     *
+     * The number of symlinks is minimized in situations such as:
+     *
+     * Shared parent path to lowest common denominator:
+     *    `@foo/b/c => /path/to/a/b/c`
+     *
+     *    can be represented as
+     *
+     *    `@foo => /path/to/a`
+     *
+     * Shared parent directory:
+     *    `@foo/p/a => /path/to/x/a`
+     *    `@foo/p/c => /path/to/x/a`
+     *
+     *    can be represented as a single parent
+     *
+     *    `@foo/p => /path/to/x`
+     */
+    function reduceModules(modules) {
+        return buildModuleHierarchy(Object.keys(modules).sort(), modules, '/').children || [];
     }
-    exports.groupAndReduceModules = groupAndReduceModules;
+    exports.reduceModules = reduceModules;
+    function buildModuleHierarchy(moduleNames, modules, elementPath) {
+        let element = {
+            name: elementPath.slice(0, -1),
+            link: modules[elementPath.slice(0, -1)],
+            children: [],
+        };
+        for (let i = 0; i < moduleNames.length;) {
+            const moduleName = moduleNames[i];
+            const next = moduleName.indexOf('/', elementPath.length + 1);
+            const moduleGroup = (next === -1) ? (moduleName + '/') : moduleName.slice(0, next + 1);
+            // If the first was an exact match (direct child of element) then it is the element parent, skip
+            // it
+            if (next === -1) {
+                i++;
+            }
+            const siblings = [];
+            while (i < moduleNames.length && moduleNames[i].startsWith(moduleGroup)) {
+                siblings.push(moduleNames[i++]);
+            }
+            let childElement = buildModuleHierarchy(siblings, modules, moduleGroup);
+            for (let cur = childElement; (cur = liftElement(childElement)) !== childElement;) {
+                childElement = cur;
+            }
+            element.children.push(childElement);
+        }
+        // Cleanup empty children+link
+        if (!element.link) {
+            delete element.link;
+        }
+        if (!element.children || element.children.length === 0) {
+            delete element.children;
+        }
+        return element;
+    }
+    function liftElement(element) {
+        let { name, link, children } = element;
+        if (!children || !children.length) {
+            return element;
+        }
+        // A link and all the child links align under => this link alone represents that
+        if (link && allElementsAlignUnder(name, link, children)) {
+            return { name, link };
+        }
+        // No link but all children align => the link can be lifted to here
+        if (!link && allElementsAlign(name, children)) {
+            return {
+                name,
+                link: toParentLink(children[0].link),
+            };
+        }
+        // Only a single child and this element is just a directory (no link) => only need the child link
+        // Do this last only after trying to lift child links up
+        if (children.length === 1 && !link) {
+            return children[0];
+        }
+        return element;
+    }
+    function toParentLink(link) {
+        return [link[0], path.dirname(link[1])];
+    }
+    function allElementsAlign(name, elements) {
+        if (!elements[0].link) {
+            return false;
+        }
+        const parentLink = toParentLink(elements[0].link);
+        // Every child needs a link with aligning parents
+        if (!elements.every(e => !!e.link && isDirectChildLink(parentLink, e.link))) {
+            return false;
+        }
+        return !!elements[0].link && allElementsAlignUnder(name, parentLink, elements);
+    }
+    function allElementsAlignUnder(parentName, parentLink, elements) {
+        for (const { name, link, children } of elements) {
+            if (!link || children) {
+                return false;
+            }
+            if (!isDirectChildPath(parentName, name)) {
+                return false;
+            }
+            if (!isDirectChildLink(parentLink, link)) {
+                return false;
+            }
+            if (!isNameLinkPathTopAligned(name, link)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    function isDirectChildPath(parent, child) {
+        return parent === path.dirname(child);
+    }
+    function isDirectChildLink([parentRel, parentPath], [childRel, childPath]) {
+        // Same link-relation type
+        if (parentRel !== childRel) {
+            return false;
+        }
+        // Child path is a directly-child of the parent path
+        if (!isDirectChildPath(parentPath, childPath)) {
+            return false;
+        }
+        return true;
+    }
+    function isNameLinkPathTopAligned(namePath, [, linkPath]) {
+        return path.basename(namePath) === path.basename(linkPath);
+    }
     function main(args, runfiles) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!args || args.length < 1)
@@ -332,39 +411,37 @@ Include as much of the build output as you can without disclosing anything confi
             process.chdir(rootDir);
             // Symlinks to packages need to reach back to the workspace/runfiles directory
             const workspaceAbs = path.resolve(workspaceDir);
-            // Now add symlinks to each of our first-party packages so they appear under the node_modules tree
-            const links = [];
-            function linkModules(modules) {
+            function linkModules(m) {
                 return __awaiter(this, void 0, void 0, function* () {
-                    for (const m of modules) {
+                    // ensure the parent directory exist
+                    yield mkdirp(path.dirname(m.name));
+                    if (m.link) {
+                        const [root, modulePath] = m.link;
                         let target = '<package linking failed>';
-                        switch (m.root) {
+                        switch (root) {
                             case 'bin':
                                 // FIXME(#1196)
-                                target = path.join(workspaceAbs, bin, toWorkspaceDir(m.modulePath));
+                                target = path.join(workspaceAbs, bin, toWorkspaceDir(modulePath));
                                 break;
                             case 'src':
-                                target = path.join(workspaceAbs, toWorkspaceDir(m.modulePath));
+                                target = path.join(workspaceAbs, toWorkspaceDir(modulePath));
                                 break;
                             case 'runfiles':
-                                target = runfiles.resolve(m.modulePath) || '<runfiles resolution failed>';
+                                target = runfiles.resolve(modulePath) || '<runfiles resolution failed>';
                                 break;
                         }
-                        // ensure the subdirectories exist
-                        yield mkdirp(path.dirname(m.name));
                         yield symlink(target, m.name);
+                    }
+                    // Process each child branch concurrently
+                    if (m.children) {
+                        yield Promise.all(m.children.map(linkModules));
                     }
                 });
             }
-            const groupedMappings = groupAndReduceModules(modules);
-            log_verbose(`grouped mappings ${JSON.stringify(groupedMappings)}`);
-            for (const mappings of groupedMappings) {
-                // ensure that common directories between groups exists
-                // to prevent race conditions between parallelized linkModules
-                yield mkdirp(path.dirname(mappings[0].name));
-                // call linkModules for each group
-                links.push(linkModules(mappings));
-            }
+            const moduleHeirarchy = reduceModules(modules);
+            log_verbose(`mapping hierarchy ${JSON.stringify(moduleHeirarchy)}`);
+            // Process each root branch concurrently
+            const links = moduleHeirarchy.map(linkModules);
             let code = 0;
             yield Promise.all(links).catch(e => {
                 log_error(e);
