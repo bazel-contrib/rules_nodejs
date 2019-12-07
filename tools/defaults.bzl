@@ -33,7 +33,9 @@ def npm_package(**kwargs):
             outs = ["_BUILD.bazel"],
             cmd = """echo '%s' >$@""" % build_file_content,
         )
-        deps.append(":generate_BUILD")
+
+        # deps.append() doesn't work here with deps = select({...}) passed in
+        deps = deps + [":generate_BUILD"]
 
     # Make every package visible to tests
     visibility = kwargs.pop("visibility", [

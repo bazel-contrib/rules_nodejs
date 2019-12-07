@@ -25,6 +25,7 @@ genrule(
     ],
     outs = ["README.md"],
     cmd = """cat $(location //packages/karma/docs:install.md) $(location @npm_bazel_karma//:index.md) | sed 's/^##/\\\n##/' > $@""",
+    tags = ["fix-windows"],
     visibility = ["//docs:__pkg__"],
 )
 
@@ -38,7 +39,12 @@ npm_package(
         "npm_bazel_karma",
     ],
     deps = [
-        ":generate_README",
         "@npm_bazel_karma//:bazel_karma_lib",
-    ],
+    ] + select({
+        # FIXME: fix stardoc on Windows; @npm_bazel_karma//:index.md generation fails with:
+        #   ERROR: D:/b/62unjjin/external/npm_bazel_karma/BUILD.bazel:65:1: Couldn't build file
+        #   external/npm_bazel_karma/docs.raw: Generating proto for Starlark doc for docs failed (Exit 1)
+        "@bazel_tools//src/conditions:windows": [],
+        "//conditions:default": [":generate_README"],
+    }),
 )

@@ -38,6 +38,7 @@ stardoc(
     testonly = True,
     out = "index.md",
     input = "@npm_bazel_protractor//:index.bzl",
+    tags = ["fix-windows"],
     deps = ["@npm_bazel_protractor//:bzl"],
 )
 

@@ -302,6 +302,8 @@ tasks:
     - "@bazel_workspace_a//subdir:bin"
     - "@bazel_workspace_b//:bin"
     - "@bazel_workspace_b//subdir:bin"
+    build_flags:
+    - "--build_tag_filters=-e2e,-examples,-no-bazelci,-no-bazelci-windows,-fix-windows,-manual"
     build_targets:
     - "//..."
     test_flags:
@@ -315,7 +317,7 @@ tasks:
     name: windows_e2e
     platform: windows
     build_flags:
-    - "--build_tag_filters=e2e"
+    - "--build_tag_filters=e2e,-fix-windows"
     build_targets:
     - "//..."
     test_flags:
@@ -330,7 +332,7 @@ tasks:
     name: windows_examples
     platform: windows
     build_flags:
-    - "--build_tag_filters=examples"
+    - "--build_tag_filters=examples,-fix-windows"
     build_targets:
     - "//..."
     test_flags:
