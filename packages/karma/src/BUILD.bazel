@@ -17,6 +17,7 @@
 # The generated `@bazel/karma` npm package contains a trimmed BUILD file using INTERNAL fences.
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+load("@build_bazel_rules_nodejs//tools/stardoc:index.bzl", "stardoc")
 load("@npm_bazel_typescript//:index.from_src.bzl", "ts_library")
 
 package(default_visibility = ["//visibility:public"])
@@ -55,16 +56,24 @@ bzl_library(
     testonly = True,
     srcs = glob(["*.bzl"]),
     deps = [
-        "@build_bazel_rules_nodejs//internal/common:bzl",
+        "@build_bazel_rules_nodejs//:bzl",
         "@build_bazel_rules_nodejs//internal/js_library:bzl",
         "@io_bazel_rules_webtesting//web",
     ],
 )
 
+stardoc(
+    name = "docs",
+    testonly = True,
+    out = "index.md",
+    input = "index.bzl",
+    tags = ["fix-windows"],
+    deps = [":bzl"],
+)
+
 filegroup(
     name = "package_contents",
     srcs = [
-        "BUILD.bazel",
         "WORKSPACE",
         "browser_repositories.bzl",
         "index.bzl",

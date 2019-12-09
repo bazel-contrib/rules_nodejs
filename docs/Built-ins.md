@@ -71,7 +71,6 @@ node_repositories(name, node_repositories, node_urls, node_version, package_json
 #### `name`
 (*[name], mandatory*): A unique name for this repository.
 
-
 #### `node_repositories`
 (*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> List of strings</a>*): Custom list of node repositories to use
 
@@ -90,6 +89,7 @@ node_repositories(
 )
 ```
 
+Defaults to `{"8.9.1-darwin_amd64": ("node-v8.9.1-darwin-x64.tar.gz", "node-v8.9.1-darwin-x64", "05c992a6621d28d564b92bf3051a5dc0adf83839237c0d4653a8cdb8a1c73b94"), "8.9.1-linux_amd64": ("node-v8.9.1-linux-x64.tar.xz", "node-v8.9.1-linux-x64", "8be82805f7c1ab3e64d4569fb9a90ded2de78dd27cadbb91bad1bf975dae1e2d"), "8.9.1-windows_amd64": ("node-v8.9.1-win-x64.zip", "node-v8.9.1-win-x64", "db89c6e041da359561fbe7da075bb4f9881a0f7d3e98c203e83732cfb283fa4a"), "8.11.1-darwin_amd64": ("node-v8.11.1-darwin-x64.tar.gz", "node-v8.11.1-darwin-x64", "5c7b05899ff56910a2b8180f139d48612f349ac2c5d20f08dbbeffbed9e3a089"), "8.11.1-linux_amd64": ("node-v8.11.1-linux-x64.tar.xz", "node-v8.11.1-linux-x64", "6617e245fa0f7fbe0e373e71d543fea878315324ab31dc64b4eba10e42d04c11"), "8.11.1-windows_amd64": ("node-v8.11.1-win-x64.zip", "node-v8.11.1-win-x64", "7d49b59c2b5d73a14c138e8a215d558a64a5241cd5035d9824f608e7bba097b1"), "8.12.0-darwin_amd64": ("node-v8.12.0-darwin-x64.tar.gz", "node-v8.12.0-darwin-x64", "ca131b84dfcf2b6f653a6521d31f7a108ad7d83f4d7e781945b2eca8172064aa"), "8.12.0-linux_amd64": ("node-v8.12.0-linux-x64.tar.xz", "node-v8.12.0-linux-x64", "29a20479cd1e3a03396a4e74a1784ccdd1cf2f96928b56f6ffa4c8dae40c88f2"), "8.12.0-windows_amd64": ("node-v8.12.0-win-x64.zip", "node-v8.12.0-win-x64", "9b22c9b23148b61ea0052826b3ac0255b8a3a542c125272b8f014f15bf11b091"), "9.11.1-darwin_amd64": ("node-v9.11.1-darwin-x64.tar.gz", "node-v9.11.1-darwin-x64", "7b1fb394aa41a62b477e36df16644bd383cc9084808511f6cd318b835a06aac6"), "9.11.1-linux_amd64": ("node-v9.11.1-linux-x64.tar.xz", "node-v9.11.1-linux-x64", "4d27a95d5c2f1c8ef99118794c9c4903e63963418d3e16ca7576760cff39879b"), "9.11.1-windows_amd64": ("node-v9.11.1-win-x64.zip", "node-v9.11.1-win-x64", "0a3566d57ccb7fed95d18fc6c3bc1552a1b1e4753f9bc6c5d45e04f325e1ee53"), "10.3.0-darwin_amd64": ("node-v10.3.0-darwin-x64.tar.gz", "node-v10.3.0-darwin-x64", "0bb5b7e3fe8cccda2abda958d1eb0408f1518a8b0cb58b75ade5d507cd5d6053"), "10.3.0-linux_amd64": ("node-v10.3.0-linux-x64.tar.xz", "node-v10.3.0-linux-x64", "eb3c3e2585494699716ad3197c8eedf4003d3f110829b30c5a0dc34414c47423"), "10.3.0-windows_amd64": ("node-v10.3.0-win-x64.zip", "node-v10.3.0-win-x64", "65d586afb087406a2800d8e51f664c88b26d510f077b85a3b177a1bb79f73677"), "10.9.0-darwin_amd64": ("node-v10.9.0-darwin-x64.tar.gz", "node-v10.9.0-darwin-x64", "3c4fe75dacfcc495a432a7ba2dec9045cff359af2a5d7d0429c84a424ef686fc"), "10.9.0-linux_amd64": ("node-v10.9.0-linux-x64.tar.xz", "node-v10.9.0-linux-x64", "c5acb8b7055ee0b6ac653dc4e458c5db45348cecc564b388f4ed1def84a329ff"), "10.9.0-windows_amd64": ("node-v10.9.0-win-x64.zip", "node-v10.9.0-win-x64", "6a75cdbb69d62ed242d6cbf0238a470bcbf628567ee339d4d098a5efcda2401e"), "10.10.0-darwin_amd64": ("node-v10.10.0-darwin-x64.tar.gz", "node-v10.10.0-darwin-x64", "00b7a8426e076e9bf9d12ba2d571312e833fe962c70afafd10ad3682fdeeaa5e"), "10.10.0-linux_amd64": ("node-v10.10.0-linux-x64.tar.xz", "node-v10.10.0-linux-x64", "686d2c7b7698097e67bcd68edc3d6b5d28d81f62436c7cf9e7779d134ec262a9"), "10.10.0-windows_amd64": ("node-v10.10.0-win-x64.zip", "node-v10.10.0-win-x64", "70c46e6451798be9d052b700ce5dadccb75cf917f6bf0d6ed54344c856830cfb"), "10.13.0-darwin_amd64": ("node-v10.13.0-darwin-x64.tar.gz", "node-v10.13.0-darwin-x64", "815a5d18516934a3963ace9f0574f7d41f0c0ce9186a19be3d89e039e57598c5"), "10.13.0-linux_amd64": ("node-v10.13.0-linux-x64.tar.xz", "node-v10.13.0-linux-x64", "0dc6dba645550b66f8f00541a428c29da7c3cde32fb7eda2eb626a9db3bbf08d"), "10.13.0-windows_amd64": ("node-v10.13.0-win-x64.zip", "node-v10.13.0-win-x64", "eb09c9e9677f1919ec1ca78623c09b2a718ec5388b72b7662d5c41e5f628a52c"), "10.16.0-darwin_amd64": ("node-v10.16.0-darwin-x64.tar.gz", "node-v10.16.0-darwin-x64", "6c009df1b724026d84ae9a838c5b382662e30f6c5563a0995532f2bece39fa9c"), "10.16.0-linux_amd64": ("node-v10.16.0-linux-x64.tar.xz", "node-v10.16.0-linux-x64", "1827f5b99084740234de0c506f4dd2202a696ed60f76059696747c34339b9d48"), "10.16.0-windows_amd64": ("node-v10.16.0-win-x64.zip", "node-v10.16.0-win-x64", "aa22cb357f0fb54ccbc06b19b60e37eefea5d7dd9940912675d3ed988bf9a059"), "12.13.0-darwin_amd64": ("node-v12.13.0-darwin-x64.tar.gz", "node-v12.13.0-darwin-x64", "49a7374670a111b033ce16611b20fd1aafd3296bbc662b184fe8fb26a29c22cc"), "12.13.0-linux_amd64": ("node-v12.13.0-linux-x64.tar.xz", "node-v12.13.0-linux-x64", "7a57ef2cb3036d7eacd50ae7ba07245a28336a93652641c065f747adb2a356d9"), "12.13.0-windows_amd64": ("node-v12.13.0-win-x64.zip", "node-v12.13.0-win-x64", "6f920cebeecb4957b4ef0def6d9b04c49d4582864f8d1a207ce8d0665865781a")}`
 
 #### `node_urls`
 (*List of strings*): custom list of URLs to use to download NodeJS
@@ -112,10 +112,12 @@ node_repositories(
 A Mac client will try to download node from `https://mycorpproxy/mirror/node/v10.10.0/node-v10.10.0-darwin-x64.tar.gz`
 and expect that file to have sha256sum `00b7a8426e076e9bf9d12ba2d571312e833fe962c70afafd10ad3682fdeeaa5e`
 
+Defaults to `["https://mirror.bazel.build/nodejs.org/dist/v{version}/{filename}", "https://nodejs.org/dist/v{version}/{filename}"]`
 
 #### `node_version`
 (*String*): the specific version of NodeJS to install or, if vendored_node is specified, the vendored version of node
 
+Defaults to `"12.13.0"`
 
 #### `package_json`
 (*[labels]*): a list of labels, which indicate the package.json files that will be installed
@@ -123,6 +125,7 @@ and expect that file to have sha256sum `00b7a8426e076e9bf9d12ba2d571312e833fe962
             `bazel run @nodejs//:yarn_node_repositories` or `bazel run @nodejs//:npm_node_repositories install`.
             If you use bazel-managed dependencies, you can omit this attribute.
 
+Defaults to `[]`
 
 #### `preserve_symlinks`
 (*Boolean*): Turn on --node_options=--preserve-symlinks for nodejs_binary and nodejs_test rules.
@@ -133,6 +136,7 @@ runfiles as it prevents the default behavior of potentially resolving outside of
 all required files need to be included in your node_modules filegroup. This option is desirable as it gives
 a stronger guarantee of hermeticity which is required for remote execution.
 
+Defaults to `True`
 
 #### `vendored_node`
 (*[label]*): the local path to a pre-installed NodeJS runtime.
@@ -141,10 +145,12 @@ If set then also set node_version to the version that of node that is vendored.
 Bazel will automatically turn on features such as --preserve-symlinks-main if they
 are supported by the node version being used.
 
+Defaults to `None`
 
 #### `vendored_yarn`
 (*[label]*): the local path to a pre-installed yarn tool
 
+Defaults to `None`
 
 #### `yarn_repositories`
 (*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> List of strings</a>*): Custom list of yarn repositories to use.
@@ -161,6 +167,7 @@ node_repositories(
 )
 ```
 
+Defaults to `{"1.3.2": ("yarn-v1.3.2.tar.gz", "yarn-v1.3.2", "6cfe82e530ef0837212f13e45c1565ba53f5199eec2527b85ecbcd88bf26821d"), "1.5.1": ("yarn-v1.5.1.tar.gz", "yarn-v1.5.1", "cd31657232cf48d57fdbff55f38bfa058d2fb4950450bd34af72dac796af4de1"), "1.6.0": ("yarn-v1.6.0.tar.gz", "yarn-v1.6.0", "a57b2fdb2bfeeb083d45a883bc29af94d5e83a21c25f3fc001c295938e988509"), "1.9.2": ("yarn-v1.9.2.tar.gz", "yarn-v1.9.2", "3ad69cc7f68159a562c676e21998eb21b44138cae7e8fe0749a7d620cf940204"), "1.9.4": ("yarn-v1.9.4.tar.gz", "yarn-v1.9.4", "7667eb715077b4bad8e2a832e7084e0e6f1ba54d7280dc573c8f7031a7fb093e"), "1.12.1": ("yarn-v1.12.1.tar.gz", "yarn-v1.12.1", "09bea8f4ec41e9079fa03093d3b2db7ac5c5331852236d63815f8df42b3ba88d"), "1.12.3": ("yarn-v1.12.3.tar.gz", "yarn-v1.12.3", "02cd4b589ec22c4bdbd2bc5ebbfd99c5e99b07242ad68a539cb37896b93a24f2"), "1.13.0": ("yarn-v1.13.0.tar.gz", "yarn-v1.13.0", "125d40ebf621ebb08e3f66a618bd2cc5cd77fa317a312900a1ab4360ed38bf14"), "1.19.1": ("yarn-v1.19.1.tar.gz", "yarn-v1.19.1", "34293da6266f2aae9690d59c2d764056053ff7eebc56b80b8df05010c3da9343")}`
 
 #### `yarn_urls`
 (*List of strings*): custom list of URLs to use to download Yarn
@@ -182,10 +189,12 @@ node_repositories(
 Will download yarn from https://github.com/yarnpkg/yarn/releases/download/v1.2.1/yarn-v1.12.1.tar.gz`
 and expect the file to have sha256sum `09bea8f4ec41e9079fa03093d3b2db7ac5c5331852236d63815f8df42b3ba88d`.
 
+Defaults to `["https://mirror.bazel.build/github.com/yarnpkg/yarn/releases/download/v{version}/{filename}", "https://github.com/yarnpkg/yarn/releases/download/v{version}/{filename}"]`
 
 #### `yarn_version`
 (*String*): the specific version of Yarn to install
 
+Defaults to `"1.19.1"`
 
 
 ## nodejs_binary
@@ -204,12 +213,12 @@ nodejs_binary(name, bootstrap, configuration_env_vars, data, default_env_vars, e
 #### `name`
 (*[name], mandatory*): A unique name for this target.
 
-
 #### `bootstrap`
 (*List of strings*): JavaScript modules to be loaded before the entry point.
         For example, Angular uses this to patch the Jasmine async primitives for
         zone.js before the first `describe`.
 
+Defaults to `[]`
 
 #### `configuration_env_vars`
 (*List of strings*): Pass these configuration environment variables to the resulting binary.
@@ -217,10 +226,12 @@ nodejs_binary(name, bootstrap, configuration_env_vars, data, default_env_vars, e
         includes anything specified via the --define flag.
         Note, this can lead to different outputs produced by this rule.
 
+Defaults to `[]`
 
 #### `data`
 (*[labels]*): Runtime dependencies which may be loaded during execution.
 
+Defaults to `[]`
 
 #### `default_env_vars`
 (*List of strings*): Default environment variables that are added to `configuration_env_vars`.
@@ -235,6 +246,7 @@ The set of default  environment variables is:
 - `DEBUG`: used by some npm packages to print debugging logs
 - `NODE_DEBUG`: used by node.js itself to print more logs
 
+Defaults to `["COMPILATION_MODE", "VERBOSE_LOGS", "DEBUG", "NODE_DEBUG"]`
 
 #### `entry_point`
 (*[label], mandatory*): The script which should be executed first, usually containing a main function.
@@ -293,12 +305,12 @@ nodejs_binary(
 )
 ```
 
-
 #### `install_source_map_support`
 (*Boolean*): Install the source-map-support package.
         Enable this to get stack traces that point to original sources, e.g. if the program was written
         in TypeScript.
 
+Defaults to `True`
 
 #### `node_modules`
 (*[label]*): The npm packages which should be available to `require()` during
@@ -365,18 +377,21 @@ jasmine_node_test(
 )
 ```
 
+Defaults to `//:node_modules_none`
 
 #### `templated_args`
 (*List of strings*): Arguments which are passed to every execution of the program.
         To pass a node startup option, prepend it with `--node_options=`, e.g.
         `--node_options=--preserve-symlinks`
 
+Defaults to `[]`
 
 #### `templated_args_file`
 (*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): If specified, arguments specified in `templated_args` are instead written to this file,
         which is then passed as an argument to the program. Arguments prefixed with `--node_options=` are
         passed directly to node and not included in the params file.
 
+Defaults to `None`
 
 
 ## nodejs_test
@@ -417,12 +432,12 @@ nodejs_test(name, bootstrap, configuration_env_vars, data, default_env_vars, ent
 #### `name`
 (*[name], mandatory*): A unique name for this target.
 
-
 #### `bootstrap`
 (*List of strings*): JavaScript modules to be loaded before the entry point.
         For example, Angular uses this to patch the Jasmine async primitives for
         zone.js before the first `describe`.
 
+Defaults to `[]`
 
 #### `configuration_env_vars`
 (*List of strings*): Pass these configuration environment variables to the resulting binary.
@@ -430,10 +445,12 @@ nodejs_test(name, bootstrap, configuration_env_vars, data, default_env_vars, ent
         includes anything specified via the --define flag.
         Note, this can lead to different outputs produced by this rule.
 
+Defaults to `[]`
 
 #### `data`
 (*[labels]*): Runtime dependencies which may be loaded during execution.
 
+Defaults to `[]`
 
 #### `default_env_vars`
 (*List of strings*): Default environment variables that are added to `configuration_env_vars`.
@@ -448,6 +465,7 @@ The set of default  environment variables is:
 - `DEBUG`: used by some npm packages to print debugging logs
 - `NODE_DEBUG`: used by node.js itself to print more logs
 
+Defaults to `["COMPILATION_MODE", "VERBOSE_LOGS", "DEBUG", "NODE_DEBUG"]`
 
 #### `entry_point`
 (*[label], mandatory*): The script which should be executed first, usually containing a main function.
@@ -506,16 +524,17 @@ nodejs_binary(
 )
 ```
 
-
 #### `expected_exit_code`
 (*Integer*): The expected exit code for the test. Defaults to 0.
 
+Defaults to `0`
 
 #### `install_source_map_support`
 (*Boolean*): Install the source-map-support package.
         Enable this to get stack traces that point to original sources, e.g. if the program was written
         in TypeScript.
 
+Defaults to `True`
 
 #### `node_modules`
 (*[label]*): The npm packages which should be available to `require()` during
@@ -582,18 +601,21 @@ jasmine_node_test(
 )
 ```
 
+Defaults to `//:node_modules_none`
 
 #### `templated_args`
 (*List of strings*): Arguments which are passed to every execution of the program.
         To pass a node startup option, prepend it with `--node_options=`, e.g.
         `--node_options=--preserve-symlinks`
 
+Defaults to `[]`
 
 #### `templated_args_file`
 (*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): If specified, arguments specified in `templated_args` are instead written to this file,
         which is then passed as an argument to the program. Arguments prefixed with `--node_options=` are
         passed directly to node and not included in the params file.
 
+Defaults to `None`
 
 
 ## npm_install
@@ -611,7 +633,6 @@ npm_install(name, always_hide_bazel_files, data, exclude_packages, included_file
 
 #### `name`
 (*[name], mandatory*): A unique name for this repository.
-
 
 #### `always_hide_bazel_files`
 (*Boolean*): Always hide Bazel build files such as `BUILD` and BUILD.bazel` by prefixing them with `_`.
@@ -644,6 +665,7 @@ you won't need to use `@bazel/hide-bazel-files` utility but if you manually recr
 your `node_modules` folder via yarn or npm outside of Bazel you may run into the above
 error.
 
+Defaults to `False`
 
 #### `data`
 (*[labels]*): Data files required by this rule.
@@ -651,10 +673,12 @@ error.
 If symlink_node_modules is True, this attribute is ignored since
 the dependency manager will run in the package.json location.
 
+Defaults to `[]`
 
 #### `exclude_packages`
 (*List of strings*): DEPRECATED. This attribute is no longer used.
 
+Defaults to `[]`
 
 #### `included_files`
 (*List of strings*): List of file extensions to be included in the npm package targets.
@@ -674,6 +698,7 @@ be included in the package targets.
 This attribute applies to both the coarse `@wksp//:node_modules` target
 as well as the fine grained targets such as `@wksp//foo`.
 
+Defaults to `[]`
 
 #### `manual_build_file_contents`
 (*String*): Experimental attribute that can be used to override the generated BUILD.bazel file and set its contents manually.
@@ -685,22 +710,23 @@ you are running into performance issues due to a large
 node_modules target it is recommended to switch to using
 fine grained npm dependencies.
 
+Defaults to `""`
 
 #### `package_json`
 (*[label], mandatory*)
 
-
 #### `package_lock_json`
 (*[label], mandatory*)
-
 
 #### `prod_only`
 (*Boolean*): Don't install devDependencies
 
+Defaults to `False`
 
 #### `quiet`
 (*Boolean*): If stdout and stderr should be printed to the terminal.
 
+Defaults to `True`
 
 #### `symlink_node_modules`
 (*Boolean*): Turn symlinking of node_modules on
@@ -717,11 +743,13 @@ created by this rule and any files other than the package.json file and
 the lock file that are required for it to run should be listed in the
 data attribute.
 
+Defaults to `True`
 
 #### `timeout`
 (*Integer*): Maximum duration of the command "npm install" in seconds
             (default is 3600 seconds).
 
+Defaults to `3600`
 
 
 ## npm_package
@@ -797,38 +825,44 @@ npm_package(name, deps, packages, rename_build_files, replace_with_version, repl
 #### `name`
 (*[name], mandatory*): A unique name for this target.
 
-
 #### `deps`
 (*[labels]*): Other targets which produce files that should be included in the package, such as `rollup_bundle`
 
+Defaults to `[]`
 
 #### `packages`
 (*[labels]*): Other npm_package rules whose content is copied into this package.
 
+Defaults to `[]`
 
 #### `rename_build_files`
 (*Boolean*): If set BUILD and BUILD.bazel files are prefixed with `_` in the npm package.
         The default is True since npm packages that contain BUILD files don't work with
         `yarn_install` and `npm_install` without a post-install step that deletes or renames them.
 
+Defaults to `True`
 
 #### `replace_with_version`
 (*String*): If set this value is replaced with the version stamp data.
         See the section on stamping in the README.
 
+Defaults to `"0.0.0-PLACEHOLDER"`
 
 #### `replacements`
 (*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): Key-value pairs which are replaced in all the files while building the package.
 
+Defaults to `{}`
 
 #### `srcs`
 (*[labels]*): Files inside this directory which are simply copied into the package.
 
+Defaults to `[]`
 
 #### `vendor_external`
 (*List of strings*): External workspaces whose contents should be vendored into this workspace.
         Avoids 'external/foo' path segments in the resulting package.
 
+Defaults to `[]`
 
 
 ## pkg_web
@@ -847,14 +881,15 @@ pkg_web(name, additional_root_paths, srcs)
 #### `name`
 (*[name], mandatory*): A unique name for this target.
 
-
 #### `additional_root_paths`
 (*List of strings*): Path prefixes to strip off all srcs, in addition to the current package. Longest wins.
 
+Defaults to `[]`
 
 #### `srcs`
 (*[labels]*): Files which should be copied into the package
 
+Defaults to `[]`
 
 
 ## yarn_install
@@ -872,7 +907,6 @@ yarn_install(name, always_hide_bazel_files, data, exclude_packages, frozen_lockf
 
 #### `name`
 (*[name], mandatory*): A unique name for this repository.
-
 
 #### `always_hide_bazel_files`
 (*Boolean*): Always hide Bazel build files such as `BUILD` and BUILD.bazel` by prefixing them with `_`.
@@ -905,6 +939,7 @@ you won't need to use `@bazel/hide-bazel-files` utility but if you manually recr
 your `node_modules` folder via yarn or npm outside of Bazel you may run into the above
 error.
 
+Defaults to `False`
 
 #### `data`
 (*[labels]*): Data files required by this rule.
@@ -912,10 +947,12 @@ error.
 If symlink_node_modules is True, this attribute is ignored since
 the dependency manager will run in the package.json location.
 
+Defaults to `[]`
 
 #### `exclude_packages`
 (*List of strings*): DEPRECATED. This attribute is no longer used.
 
+Defaults to `[]`
 
 #### `frozen_lockfile`
 (*Boolean*): Passes the --frozen-lockfile flag to prevent updating yarn.lock.
@@ -923,6 +960,7 @@ the dependency manager will run in the package.json location.
 Note that enabling this option will require that you run yarn outside of Bazel
 when making changes to package.json.
 
+Defaults to `False`
 
 #### `included_files`
 (*List of strings*): List of file extensions to be included in the npm package targets.
@@ -942,6 +980,7 @@ be included in the package targets.
 This attribute applies to both the coarse `@wksp//:node_modules` target
 as well as the fine grained targets such as `@wksp//foo`.
 
+Defaults to `[]`
 
 #### `manual_build_file_contents`
 (*String*): Experimental attribute that can be used to override the generated BUILD.bazel file and set its contents manually.
@@ -953,23 +992,26 @@ you are running into performance issues due to a large
 node_modules target it is recommended to switch to using
 fine grained npm dependencies.
 
+Defaults to `""`
 
 #### `network_timeout`
 (*Integer*): Maximum duration of a network request made by yarn in seconds
             (default is 300 seconds).
 
+Defaults to `300`
 
 #### `package_json`
 (*[label], mandatory*)
 
-
 #### `prod_only`
 (*Boolean*): Don't install devDependencies
 
+Defaults to `False`
 
 #### `quiet`
 (*Boolean*): If stdout and stderr should be printed to the terminal.
 
+Defaults to `True`
 
 #### `symlink_node_modules`
 (*Boolean*): Turn symlinking of node_modules on
@@ -986,11 +1028,13 @@ created by this rule and any files other than the package.json file and
 the lock file that are required for it to run should be listed in the
 data attribute.
 
+Defaults to `True`
 
 #### `timeout`
 (*Integer*): Maximum duration of the command "yarn install" in seconds
             (default is 3600 seconds).
 
+Defaults to `3600`
 
 #### `use_global_yarn_cache`
 (*Boolean*): Use the global yarn cache on the system.
@@ -1001,10 +1045,10 @@ have bugs.
 Disabling this attribute causes every run of yarn to have a unique
 cache_directory.
 
+Defaults to `True`
 
 #### `yarn_lock`
 (*[label], mandatory*)
-
 
 
 ## check_bazel_version

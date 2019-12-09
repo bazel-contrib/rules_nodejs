@@ -6,7 +6,7 @@ If all users of your library code use Bazel, they should just add your library
 to the `deps` of one of their targets.
 """
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "JSNamedModuleInfo")
+load("//:providers.bzl", "DeclarationInfo", "JSNamedModuleInfo")
 load("//internal/common:path_utils.bzl", "strip_external")
 
 # Takes a depset of files and returns a corresponding list of file paths without any files

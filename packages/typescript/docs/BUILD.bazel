@@ -12,48 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
-load("//tools/stardoc:index.bzl", "stardoc")
 
 package(default_visibility = ["//visibility:public"])
 
 exports_files(["install.md"])
 
-# Work-around since we don't have and don't wnat a bzl_library in the generated
-# @nodejs//:BUILD.bazel file
-bzl_library(
-    name = "nodejs_bzl",
-    srcs = ["@nodejs//:index.bzl"],
-)
-
-stardoc(
-    name = "docs",
-    out = "index.md",
-    input = "@npm_bazel_typescript//:index.docs.bzl",
-    deps = [
-        "@npm_bazel_typescript//:bzl",
-        # We need to restate local workspace dependencies here in `//foo:bzl`
-        # format to work-around a bug in stardoc where .bzl files from
-        # `@build_bazel_rules_nodejs//foo:bzl` style deps are not found
-        # by the doc generator:
-        # ```
-        # Exception in thread "main" java.lang.IllegalStateException: File external/npm_bazel_typescript/version.bzl imported '@build_bazel_rules_nodejs//internal/common:check_version.bzl', yet internal/common/check_version.bzl was not found, even at roots [.].
-        # ```
-        "//:bzl",
-        "//internal/common:bzl",
-        "//internal/js_library:bzl",
-        "//internal/node:bzl",
-        "//internal/pkg_web:bzl",
-        ":nodejs_bzl",
-    ],
-)
-
 nodejs_test(
     name = "test",
     data = [
         "docs_test.js",
-        ":index.md",
+        "@npm_bazel_typescript//:index.md",
     ],
     entry_point = ":docs_test.js",
     tags = [

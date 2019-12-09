@@ -14,7 +14,7 @@
 
 """ Custom provider that mimics the Runfiles, but doesn't incur the expense of creating the runfiles symlink tree"""
 
-load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "add_arg", "register_node_modules_linker")
+load("//internal/linker:link_node_modules.bzl", "add_arg", "register_node_modules_linker")
 
 NodeRuntimeDepsInfo = provider(
     doc = """Stores runtime dependencies of a nodejs_binary or nodejs_test
@@ -58,7 +58,7 @@ def run_node(ctx, inputs, arguments, executable, **kwargs):
 
     # By using the run_node helper, you suggest that your program
     # doesn't implicitly use runfiles to require() things
-    # To access runfiles, youu must use a runfiles helper in the program instead
+    # To access runfiles, you must use a runfiles helper in the program instead
     add_arg(arguments, "--nobazel_patch_module_resolver")
 
     ctx.actions.run(

@@ -81,7 +81,6 @@ terser_minified(name, args, config_file, debug, sourcemap, src, terser_bin)
 #### `name`
 (*[name], mandatory*): A unique name for this target.
 
-
 #### `args`
 (*List of strings*): Additional command line arguments to pass to terser.
 
@@ -89,6 +88,7 @@ Terser only parses minify() args from the config file so additional arguments su
 be passed to the rule using this attribute. See https://github.com/terser/terser#command-line-usage for the
 full list of terser CLI options.
 
+Defaults to `[]`
 
 #### `config_file`
 (*[label]*): A JSON file containing Terser minify() options.
@@ -117,6 +117,7 @@ Will disable the `arrows` compression setting when debugging.
 
 If `config_file` isn't supplied, Bazel will use a default config file.
 
+Defaults to `@npm_bazel_terser//:terser_config.default.json`
 
 #### `debug`
 (*Boolean*): Configure terser to produce more readable output.
@@ -125,10 +126,12 @@ Instead of setting this attribute, consider using debugging compilation mode ins
 bazel build --compilation_mode=dbg //my/terser:target
 so that it only affects the current build.
 
+Defaults to `False`
 
 #### `sourcemap`
 (*Boolean*): Whether to produce a .js.map output
 
+Defaults to `True`
 
 #### `src`
 (*[label], mandatory*): File(s) to minify.
@@ -138,8 +141,8 @@ Can be a .js file, a rule producing .js files as its default output, or a rule p
 Note that you can pass multiple files to terser, which it will bundle together.
 If you want to do this, you can pass a filegroup here.
 
-
 #### `terser_bin`
 (*[label]*): An executable target that runs Terser
 
+Defaults to `@npm//@bazel/terser/bin:terser`
 

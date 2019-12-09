@@ -20,11 +20,12 @@ load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "npm_package")
 genrule(
     name = "generate_README",
     srcs = [
-        "//packages/protractor/docs:index.md",
+        "@npm_bazel_protractor//:index.md",
         "//packages/protractor/docs:install.md",
     ],
     outs = ["README.md"],
-    cmd = """cat $(location //packages/protractor/docs:install.md) $(location //packages/protractor/docs:index.md) | sed 's/^##/\\\n##/' > $@""",
+    cmd = """cat $(location //packages/protractor/docs:install.md) $(location @npm_bazel_protractor//:index.md) | sed 's/^##/\\\n##/' > $@""",
+    tags = ["fix-windows"],
     visibility = ["//docs:__pkg__"],
 )
 
@@ -33,11 +34,17 @@ npm_package(
     srcs = [
         "@npm_bazel_protractor//:package_contents",
     ],
+    build_file_content = """exports_files(["protractor.conf.js"])""",
     vendor_external = [
         "npm_bazel_protractor",
     ],
     deps = [
-        ":generate_README",
         "@npm_bazel_protractor//:utils_lib",
-    ],
+    ] + select({
+        # FIXME: fix stardoc on Windows; @npm_bazel_protractor//:index.md generation fails with:
+        #   ERROR: D:/b/62unjjin/external/npm_bazel_protractor/BUILD.bazel:36:1: Couldn't build file
+        #   external/npm_bazel_protractor/docs.raw: Generating proto for Starlark doc for docs failed (Exit 1)
+        "@bazel_tools//src/conditions:windows": [],
+        "//conditions:default": [":generate_README"],
+    }),
 )
