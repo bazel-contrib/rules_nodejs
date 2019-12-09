@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
 load("@npm_bazel_karma//:index.from_src.bzl", "karma_web_test_suite")
 load("@npm_bazel_typescript//:index.from_src.bzl", "ts_library")
@@ -42,6 +43,12 @@ ts_library(
     ],
 )
 
+nodejs_binary(
+    name = "pre_test_js",
+    data = ["pre_test_dep.js"],
+    entry_point = ":pre_test.js",
+)
+
 karma_web_test_suite(
     name = "testing",
     srcs = [
@@ -52,6 +59,7 @@ karma_web_test_suite(
         "@io_bazel_rules_webtesting//browsers:chromium-local",
         "@io_bazel_rules_webtesting//browsers:firefox-local",
     ],
+    pre_test = ":pre_test_js",
     tags = ["native"],
     runtime_deps = [
         # typescript targets only in runtime_deps, must be TS module

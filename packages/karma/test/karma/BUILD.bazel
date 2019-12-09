@@ -14,6 +14,16 @@
 
 load("@npm_bazel_karma//:index.from_src.bzl", "karma_web_test_suite")
 
+sh_binary(
+    name = "pre_test_shell",
+    srcs = ["pre_test.sh"],
+)
+
+sh_binary(
+    name = "post_test_shell",
+    srcs = ["post_test.sh"],
+)
+
 karma_web_test_suite(
     name = "testing",
     srcs = glob(
@@ -27,6 +37,8 @@ karma_web_test_suite(
         "@io_bazel_rules_webtesting//browsers:chromium-local",
         "@io_bazel_rules_webtesting//browsers:firefox-local",
     ],
+    post_test = ":post_test_shell",
+    pre_test = ":pre_test_shell",
     static_files = [
         "unnamed-amd-module.js",
         # Add the "init-test.js" file to the "static_files" as well. This simulates

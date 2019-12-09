@@ -66,6 +66,18 @@ KARMA_WEB_TEST_ATTRS = {
         cfg = "target",
         allow_files = True,
     ),
+    "post_test": attr.label(
+        doc = "Optional binary to run after karma.",
+        allow_files = True,
+        cfg = "target",
+        executable = True,
+    ),
+    "pre_test": attr.label(
+        doc = "Optional binary to run before karma.",
+        allow_files = True,
+        cfg = "target",
+        executable = True,
+    ),
     "static_files": attr.label_list(
         doc = """Arbitrary files which are available to be served on request.
         Files are served at:
@@ -236,35 +248,35 @@ def _karma_web_test_impl(ctx):
         output = ctx.outputs.executable,
         is_executable = True,
         content = """#!/usr/bin/env bash
-# Immediately exit if any command fails.
-set -e
+# --- begin runfiles.bash initialization v2 ---
+# Copy-pasted from the Bazel Bash runfiles library v2.
+set -uo pipefail; f=bazel_tools/tools/bash/runfiles/runfiles.bash
+source "${{RUNFILES_DIR:-/dev/null}}/$f" 2>/dev/null || \
+  source "$(grep -sm1 "^$f " "${{RUNFILES_MANIFEST_FILE:-/dev/null}}" | cut -f2- -d' ')" 2>/dev/null || \
+  source "$0.runfiles/$f" 2>/dev/null || \
+  source "$(grep -sm1 "^$f " "$0.runfiles_manifest" | cut -f2- -d' ')" 2>/dev/null || \
+  source "$(grep -sm1 "^$f " "$0.exe.runfiles_manifest" | cut -f2- -d' ')" 2>/dev/null || \
+  {{ echo>&2 "ERROR: cannot find $f"; exit 1; }}; f=; set -e
+# --- end runfiles.bash initialization v2 ---
 
-if [ -e "$RUNFILES_MANIFEST_FILE" ]; then
-  while read line; do
-    declare -a PARTS=($line)
-    if [ "${{PARTS[0]}}" == "{TMPL_karma}" ]; then
-      readonly KARMA=${{PARTS[1]}}
-    elif [ "${{PARTS[0]}}" == "{TMPL_conf}" ]; then
-      readonly CONF=${{PARTS[1]}}
-    fi
-  done < $RUNFILES_MANIFEST_FILE
-else
-  readonly KARMA=../{TMPL_karma}
-  readonly CONF=../{TMPL_conf}
+readonly KARMA=$(rlocation "{TMPL_karma}")
+readonly CONF=$(rlocation "{TMPL_conf}")
+if [[ "{TMPL_pre_test}" != "" ]]; then
+    readonly PRE_TEST=$(rlocation "{TMPL_pre_test}")
+fi
+if [[ "{TMPL_post_test}" != "" ]]; then
+    readonly POST_TEST=$(rlocation "{TMPL_post_test}")
 fi
 
 export HOME=$(mktemp -d)
 
-# Print the karma version in the test log
-echo $($KARMA --version)
-
-ARGV=( "start" $CONF )
+ARGV=( "start" ${{CONF}} )
 
 # Detect that we are running as a test, by using well-known environment
 # variables. See go/test-encyclopedia
 # Note: in Bazel 0.14 and later, TEST_TMPDIR is set for both bazel test and bazel run
 # so we also check for the BUILD_WORKSPACE_DIRECTORY which is set only for bazel run
-if [[ ! -z "${{TEST_TMPDIR}}" && ! -n "${{BUILD_WORKSPACE_DIRECTORY}}" ]]; then
+if [[ ! -z "${{TEST_TMPDIR}}" && ! -n "${{BUILD_WORKSPACE_DIRECTORY:-}}" ]]; then
   ARGV+=( "--single-run" )
 fi
 
@@ -282,14 +294,26 @@ printf "\n\n\n\nRunning karma tests\n-------------------------------------------
 echo "version     :" ${{KARMA_VERSION#Karma version: }}
 echo "pwd         :" ${{PWD}}
 echo "conf        :" ${{CONF}}
-echo "node_options:" ${{NODE_OPTIONS[@]}}
+echo "node_options:" ${{NODE_OPTIONS[@]:-}}
 printf "\n"
 
-${{KARMA}} ${{ARGV[@]}} ${{NODE_OPTIONS[@]}}
+# Run optional pre-test step
+${{PRE_TEST:-}}
+
+set +e
+${{KARMA}} ${{ARGV[@]}} ${{NODE_OPTIONS[@]:-}}
+RESULT="$?"
+
+# Run optional post-test step
+${{POST_TEST:-}}
+set -e
+
+exit ${{RESULT}}
 """.format(
-            TMPL_workspace = ctx.workspace_name,
             TMPL_karma = _to_manifest_path(ctx, ctx.executable.karma),
             TMPL_conf = _to_manifest_path(ctx, configuration),
+            TMPL_pre_test = _to_manifest_path(ctx, ctx.executable.pre_test) if ctx.attr.pre_test else "",
+            TMPL_post_test = _to_manifest_path(ctx, ctx.executable.post_test) if ctx.attr.post_test else "",
         ),
     )
 
@@ -302,24 +326,31 @@ ${{KARMA}} ${{ARGV[@]}} ${{NODE_OPTIONS[@]}}
         else:
             config_sources = [ctx.file.config_file]
 
-    runfiles = [
+    runfiles_inputs = [
         configuration,
         amd_names_shim,
     ]
-    runfiles += config_sources
-    runfiles += ctx.files.srcs
-    runfiles += ctx.files.deps
-    runfiles += ctx.files.runtime_deps
-    runfiles += ctx.files.bootstrap
-    runfiles += ctx.files.static_files
-    runfiles += ctx.files.data
+    runfiles_inputs += config_sources
+    runfiles_inputs += ctx.files.srcs
+    runfiles_inputs += ctx.files.deps
+    runfiles_inputs += ctx.files.runtime_deps
+    runfiles_inputs += ctx.files.bootstrap
+    runfiles_inputs += ctx.files.static_files
+    runfiles_inputs += ctx.files.data
+
+    runfiles = ctx.runfiles(
+        files = runfiles_inputs,
+        transitive_files = depset(transitive = [files, node_modules]),
+    )
+    runfiles = runfiles.merge(ctx.attr.karma[DefaultInfo].data_runfiles)
+    if ctx.attr.pre_test:
+        runfiles = runfiles.merge(ctx.attr.pre_test[DefaultInfo].data_runfiles)
+    if ctx.attr.post_test:
+        runfiles = runfiles.merge(ctx.attr.post_test[DefaultInfo].data_runfiles)
 
     return [DefaultInfo(
         files = depset([ctx.outputs.executable]),
-        runfiles = ctx.runfiles(
-            files = runfiles,
-            transitive_files = depset(transitive = [files, node_modules]),
-        ).merge(ctx.attr.karma[DefaultInfo].data_runfiles),
+        runfiles = runfiles,
         executable = ctx.outputs.executable,
     )]
 
