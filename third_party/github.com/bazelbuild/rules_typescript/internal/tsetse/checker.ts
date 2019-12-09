@@ -96,7 +96,7 @@ export class Checker {
     const thisChecker = this;
     this.currentSourceFile = sourceFile;
     this.failures = [];
-    ts.forEachChild(sourceFile, run);
+    run(sourceFile);
     return this.failures;
 
     function run(node: ts.Node) {
