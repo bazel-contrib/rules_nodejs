@@ -6,7 +6,7 @@ If all users of your library code use Bazel, they should just add your library
 to the `deps` of one of their targets.
 """
 
-load("//:providers.bzl", "DeclarationInfo", "JSNamedModuleInfo")
+load("//:providers.bzl", "DeclarationInfo", "JSNamedModuleInfo", "NodeContextInfo")
 load("//internal/common:path_utils.bzl", "strip_external")
 
 # Takes a depset of files and returns a corresponding list of file paths without any files
@@ -40,6 +40,7 @@ def create_package(ctx, deps_sources, nested_packages):
       The tree artifact which is the publishable directory.
     """
 
+    stamp = ctx.attr.node_context_data[NodeContextInfo].stamp
     package_dir = ctx.actions.declare_directory(ctx.label.name)
     package_path = ctx.label.package
 
@@ -61,7 +62,7 @@ def create_package(ctx, deps_sources, nested_packages):
     args.add(ctx.attr.replacements)
     args.add_all([ctx.outputs.pack.path, ctx.outputs.publish.path])
     args.add(ctx.attr.replace_with_version)
-    args.add(ctx.version_file.path if ctx.version_file else "")
+    args.add(ctx.version_file.path if stamp else "")
     args.add_joined(ctx.attr.vendor_external, join_with = ",", omit_if_empty = False)
     args.add("1" if ctx.attr.rename_build_files else "0")
 
@@ -75,7 +76,7 @@ def create_package(ctx, deps_sources, nested_packages):
     # produced by the --workspace_status_command. That command will be executed whenever
     # this action runs, so we get the latest version info on each execution.
     # See https://github.com/bazelbuild/bazel/issues/1054
-    if ctx.version_file:
+    if stamp:
         inputs.append(ctx.version_file)
 
     ctx.actions.run(
@@ -128,6 +129,11 @@ NPM_PACKAGE_ATTRS = {
     "srcs": attr.label_list(
         doc = """Files inside this directory which are simply copied into the package.""",
         allow_files = True,
+    ),
+    "node_context_data": attr.label(
+        default = "@build_bazel_rules_nodejs//internal:node_context_data",
+        providers = [NodeContextInfo],
+        doc = "Internal use only",
     ),
     "packages": attr.label_list(
         doc = """Other npm_package rules whose content is copied into this package.""",

@@ -130,12 +130,19 @@ Bazel is generally only a build tool, and is unaware of your version control sys
 However, when publishing releases, you typically want to embed version information in the resulting distribution.
 Bazel supports this natively, using the following approach:
 
-First, pass the `workspace_status_command` argument to `bazel build`. We prefer to do this with an entry in `.bazelrc`:
+To stamp a build, you must pass the `--stamp` argument to Bazel.
+
+> Previous releases of rules_nodejs stamped builds always.
+> However this caused stamp-aware actions to never be remotely cached, since the volatile
+> status file is passed as an input and its checksum always changes.
+
+Also pass the `workspace_status_command` argument to `bazel build`.
+We prefer to do these with an entry in `.bazelrc`:
 
 ```sh    
 # This tells Bazel how to interact with the version control system
 # Enable this with --config=release
-build:release --workspace_status_command=./tools/bazel_stamp_vars.sh
+build:release --stamp --workspace_status_command=./tools/bazel_stamp_vars.sh
 ```
 
 Then create `tools/bazel_stamp_vars.sh`.
@@ -150,8 +157,6 @@ echo BUILD_SCM_VERSION $(git describe --abbrev=7 --tags HEAD)
 ```
 
 For a more full-featured script, take a look at the [bazel_stamp_vars in Angular]
-
-Ideally, `rollup_bundle` and `npm_package` should honor the `--stamp` argument to `bazel build`. However this is not currently possible, see https://github.com/bazelbuild/bazel/issues/1054
 
 Finally, we recommend a release script around Bazel. We typically have more than one npm package published from one Bazel workspace, so we do a `bazel query` to find them, and publish in a loop. Here is a template to get you started:
 

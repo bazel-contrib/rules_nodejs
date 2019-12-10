@@ -1,6 +1,7 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "npm_package")
 load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
 load("@npm_bazel_typescript//:index.from_src.bzl", "ts_library")
+load("//internal/node:context.bzl", "node_context_data")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/write_file.bzl", "write_file")
 
 write_file(
@@ -20,6 +21,13 @@ npm_package(
     srcs = ["dependent_file"],
 )
 
+# Force stamping behavior even in builds without --stamp config
+# by mocking out the config data
+node_context_data(
+    name = "force_stamp",
+    stamp = True,
+)
+
 npm_package(
     name = "test_pkg",
     srcs = [
@@ -27,6 +35,7 @@ npm_package(
         "some_file",
         "@internal_npm_package_test_vendored_external//:vendored_external_file",
     ],
+    node_context_data = ":force_stamp",
     packages = [":dependent_pkg"],
     replacements = {"replace_me": "replaced"},
     vendor_external = [
