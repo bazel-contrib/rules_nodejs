@@ -51,6 +51,12 @@ transitive_js_ecma_script_module_info = _transitive_js_ecma_script_module_info
 NpmPackageInfo = _NpmPackageInfo
 node_modules_aspect = _node_modules_aspect
 
+#Modelled after _GoContextData in rules_go/go/private/context.bzl
+NodeContextInfo = provider(
+    doc = "Provides data about the build context, like config_setting's",
+    fields = ["stamp"],
+)
+
 # TODO: remove transitive_js_ecma_script_module_info alias before 1.0 release
 NodeRuntimeDepsInfo = _NodeRuntimeDepsInfo
 run_node = _run_node

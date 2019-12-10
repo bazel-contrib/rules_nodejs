@@ -1,6 +1,6 @@
 /**
  * @license A dummy license banner that goes at the top of the file.
- * This is version v1.2.3
+ * This is version <unknown>
  */
 
 System.register('bundle', ['some_global_var'], function (exports, module) {

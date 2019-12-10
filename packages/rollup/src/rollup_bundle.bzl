@@ -1,6 +1,6 @@
 "Rules for running Rollup under Bazel"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "JSEcmaScriptModuleInfo", "NpmPackageInfo", "node_modules_aspect", "run_node")
+load("@build_bazel_rules_nodejs//:providers.bzl", "JSEcmaScriptModuleInfo", "NodeContextInfo", "NpmPackageInfo", "node_modules_aspect", "run_node")
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 
 _DOC = """Runs the Rollup.js CLI under Bazel.
@@ -125,6 +125,11 @@ Either this attribute or `entry_point` must be specified, but not both.
 """,
         values = ["amd", "cjs", "esm", "iife", "umd", "system"],
         default = "esm",
+    ),
+    "node_context_data": attr.label(
+        default = "@build_bazel_rules_nodejs//internal:node_context_data",
+        providers = [NodeContextInfo],
+        doc = "Internal use only",
     ),
     "output_dir": attr.bool(
         doc = """Whether to produce a directory output.
@@ -277,19 +282,21 @@ def _rollup_bundle(ctx):
 
     args.add_all(["--format", ctx.attr.format])
 
+    stamp = ctx.attr.node_context_data[NodeContextInfo].stamp
+
     config = ctx.actions.declare_file("_%s.rollup_config.js" % ctx.label.name)
     ctx.actions.expand_template(
         template = ctx.file.config_file,
         output = config,
         substitutions = {
-            "bazel_stamp_file": "\"%s\"" % ctx.version_file.path if ctx.version_file else "undefined",
+            "bazel_stamp_file": "\"%s\"" % ctx.version_file.path if stamp else "undefined",
         },
     )
 
     args.add_all(["--config", config.path])
     inputs.append(config)
 
-    if ctx.version_file:
+    if stamp:
         inputs.append(ctx.version_file)
 
     # Prevent rollup's module resolver from hopping outside Bazel's sandbox

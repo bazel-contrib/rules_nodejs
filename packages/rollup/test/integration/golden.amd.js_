@@ -1,6 +1,6 @@
 /**
  * @license A dummy license banner that goes at the top of the file.
- * This is version v1.2.3
+ * This is version <unknown>
  */
 
 define(['exports', 'some_global_var'], function (exports, some_global_var) { 'use strict';

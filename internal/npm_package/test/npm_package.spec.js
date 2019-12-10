@@ -31,7 +31,7 @@ describe('npm_package srcs', () => {
     expect(read('data.json')).toEqual('[]');
   });
   it('replaced 0.0.0-PLACEHOLDER', () => {
-    expect(read('package.json').version).not.toEqual('0.0.0-PLACEHOLDER');
+    expect(JSON.parse(read('package.json')).version).toEqual('1.2.3');
   });
   it('copies files from deps', () => {
     expect(read('bundle.min.js')).toBe('bundle content');
