@@ -108,7 +108,7 @@ This will produce one output per requested format.
 ### Usage
 
 ```
-rollup_bundle(name, config_file, deps, entry_point, entry_points, format, output_dir, rollup_bin, sourcemap, srcs)
+rollup_bundle(name, config_file, deps, entry_point, entry_points, format, node_context_data, output_dir, rollup_bin, sourcemap, srcs)
 ```
 
 
@@ -179,6 +179,11 @@ Defaults to `{}`
 - `system`: Native format of the SystemJS loader
 
 Defaults to `"esm"`
+
+#### `node_context_data`
+(*[label]*): Internal use only
+
+Defaults to `@build_bazel_rules_nodejs//internal:node_context_data`
 
 #### `output_dir`
 (*Boolean*): Whether to produce a directory output.

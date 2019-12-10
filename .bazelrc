@@ -11,7 +11,7 @@ query --deleted_packages=examples/angular,examples/angular/e2e,examples/angular/
 # Mock versioning command to test the --stamp behavior
 build --workspace_status_command="echo BUILD_SCM_VERSION 1.2.3"
 # ... but when releasing, use the real script instead
-build:release --workspace_status_command=./scripts/current_version.sh
+build:release --stamp --workspace_status_command=./scripts/current_version.sh
 
 # Avoid python 3 which requires explicit toolchain config
 # This is needed only for the pkg_tar rule

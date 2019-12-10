@@ -22,5 +22,5 @@ readonly NPM_PACKAGE_LABELS=`$BAZEL query --output=label 'kind("npm_package rule
 $BAZEL build --config=release $NPM_PACKAGE_LABELS
 # publish one package at a time to make it easier to spot any errors or warnings
 for pkg in $NPM_PACKAGE_LABELS ; do
-  $BAZEL run -- ${pkg}.${NPM_COMMAND} --access public --tag latest --registry https://wombat-dressing-room.appspot.com
+  $BAZEL run --config=release -- ${pkg}.${NPM_COMMAND} --access public --tag latest --registry https://wombat-dressing-room.appspot.com
 done

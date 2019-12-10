@@ -817,7 +817,7 @@ You can pass arguments to npm by escaping them from Bazel using a double-hyphen 
 ### Usage
 
 ```
-npm_package(name, deps, packages, rename_build_files, replace_with_version, replacements, srcs, vendor_external)
+npm_package(name, deps, node_context_data, packages, rename_build_files, replace_with_version, replacements, srcs, vendor_external)
 ```
 
 
@@ -829,6 +829,11 @@ npm_package(name, deps, packages, rename_build_files, replace_with_version, repl
 (*[labels]*): Other targets which produce files that should be included in the package, such as `rollup_bundle`
 
 Defaults to `[]`
+
+#### `node_context_data`
+(*[label]*): Internal use only
+
+Defaults to `@build_bazel_rules_nodejs//internal:node_context_data`
 
 #### `packages`
 (*[labels]*): Other npm_package rules whose content is copied into this package.
