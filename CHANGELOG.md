@@ -1,15 +1,27 @@
 ## [0.42.3](https://github.com/bazelbuild/rules_nodejs/compare/0.42.2...0.42.3) (2019-12-10)
 
+To upgrade:
+
+```python
+http_archive(
+    name = "build_bazel_rules_nodejs",
+    sha256 = "a54b2511d6dae42c1f7cdaeb08144ee2808193a088004fc3b464a04583d5aa2e",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.42.3/rules_nodejs-0.42.3.tar.gz"],
+)
+```
+
+and run `yarn upgrade --scope @bazel` to update all your `@bazel`-scoped npm packages to the latest versions.
+(or manually do the npm equivalent - they don't have a way to update a scope)
 
 ### Bug Fixes
 
 * **builtin:** handle scoped packages in generated npm_umd_bundle targets ([#1425](https://github.com/bazelbuild/rules_nodejs/issues/1425)) ([e9e2e8e](https://github.com/bazelbuild/rules_nodejs/commit/e9e2e8e)), closes [#1095](https://github.com/bazelbuild/rules_nodejs/issues/1095)
 * **builtin:** only stamp artifacts when --stamp is passed to bazel ([#1441](https://github.com/bazelbuild/rules_nodejs/issues/1441)) ([cbaab60](https://github.com/bazelbuild/rules_nodejs/commit/cbaab60))
-
+* **docs** default values are now documented for rule attributes
 
 ### Features
 
-* **builtin:** wire linker/node-patches to npm-generated bin and test ([3321ed5](https://github.com/bazelbuild/rules_nodejs/commit/3321ed5)), closes [#1382](https://github.com/bazelbuild/rules_nodejs/issues/1382)
+* **builtin:** wire linker/node-patches to npm-generated index.bzl rules ([3321ed5](https://github.com/bazelbuild/rules_nodejs/commit/3321ed5)), closes [#1382](https://github.com/bazelbuild/rules_nodejs/issues/1382)
 
 
 
