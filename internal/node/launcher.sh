@@ -152,79 +152,100 @@ if [[ "${BAZEL_NODE_RUNFILES_HELPER}" != /* ]] && [[ ! "${BAZEL_NODE_RUNFILES_HE
   export BAZEL_NODE_RUNFILES_HELPER=$(pwd)/${BAZEL_NODE_RUNFILES_HELPER}
 fi
 
-# Export the location of the require patch script as it can be used to boostrap
+# Export the location of the require patch script as it can be used to bootstrap
 # node require patch if needed
 export BAZEL_NODE_PATCH_REQUIRE=$(rlocation "TEMPLATED_require_patch_script")
 if [[ "${BAZEL_NODE_PATCH_REQUIRE}" != /* ]] && [[ ! "${BAZEL_NODE_PATCH_REQUIRE}" =~ ^[A-Z]:[\\/] ]]; then
   export BAZEL_NODE_PATCH_REQUIRE=$(pwd)/${BAZEL_NODE_PATCH_REQUIRE}
 fi
 
-# The main entry point
-MAIN=$(rlocation "TEMPLATED_loader_script")
-
 readonly repository_args=$(rlocation "TEMPLATED_repository_args")
-readonly link_modules_script=$(rlocation "TEMPLATED_link_modules_script")
 readonly lcov_merger_script=$(rlocation "TEMPLATED_lcov_merger_script")
-node_patches_script=$(rlocation "TEMPLATED_node_patches_script")
-require_patch_script=${BAZEL_NODE_PATCH_REQUIRE}
-
-# Node's --require option assumes that a non-absolute path not starting with `.` is
-# a module, so that you can do --require=source-map-support/register
-# So if the require script is not absolute, we must make it so
-case "${node_patches_script}" in
-  # Absolute path on unix
-  /*          ) ;;
-  # Absolute path on Windows, e.g. C:/path/to/thing
-  [a-zA-Z]:/* ) ;;
-  # Otherwise it needs to be made relative
-  *           ) node_patches_script="./${node_patches_script}" ;;
-esac
-case "${require_patch_script}" in
-  # Absolute path on unix
-  /*          ) ;;
-  # Absolute path on Windows, e.g. C:/path/to/thing
-  [a-zA-Z]:/* ) ;;
-  # Otherwise it needs to be made relative
-  *           ) require_patch_script="./${require_patch_script}" ;;
-esac
 
 source $repository_args
 
 ARGS=()
-LAUNCHER_NODE_OPTIONS=( "--require" "$require_patch_script" )
+LAUNCHER_NODE_OPTIONS=()
 USER_NODE_OPTIONS=()
 ALL_ARGS=(TEMPLATED_args $NODE_REPOSITORY_ARGS "$@")
 STDOUT_CAPTURE=""
 STDERR_CAPTURE=""
 
+RUN_LINKER=true
+NODE_PATCHES=true
+# TODO(alex): change the default to false
+PATCH_REQUIRE=true
 for ARG in "${ALL_ARGS[@]:-}"; do
   case "$ARG" in
+    # Supply custom linker arguments for first-party dependencies
     --bazel_node_modules_manifest=*) MODULES_MANIFEST="${ARG#--bazel_node_modules_manifest=}" ;;
     --bazel_capture_stdout=*) STDOUT_CAPTURE="${ARG#--bazel_capture_stdout=}" ;;
     --bazel_capture_stderr=*) STDERR_CAPTURE="${ARG#--bazel_capture_stderr=}" ;;
-    --nobazel_patch_module_resolver)
-      MAIN=TEMPLATED_entry_point_execroot_path
-      LAUNCHER_NODE_OPTIONS=( "--require" "$node_patches_script" )
-
-      # In this case we should always run the linker
-      # For programs which are called with bazel run or bazel test, there will be no additional runtime
-      # dependencies to link, so we use the default modules_manifest which has only the static dependencies
-      # of the binary itself
-      MODULES_MANIFEST=${MODULES_MANIFEST:-$(rlocation "TEMPLATED_modules_manifest")}
-      ;;
+    # Disable the node_loader.js monkey patches for require()
+    # Note that this means you need an explicit runfiles helper library
+    --nobazel_patch_module_resolver) PATCH_REQUIRE=false ;;
+    # Enable the node_loader.js monkey patches for require()
+    # Currently a no-op, but specifying this makes the behavior unchanged when we update
+    # the default for PATCH_REQUIRE above
+    --bazel_patch_module_resolver) PATCH_REQUIRE=true ;;
+    # Disable the --require node-patches (undocumented and unused; only here as an escape value)
+    --nobazel_node_patches) NODE_PATCHES=false ;;
+    # Disable the linker pre-process (undocumented and unused; only here as an escape value)
+    --nobazel_run_linker) RUN_LINKER=false ;;
+    # Let users pass through arguments to node itself
     --node_options=*) USER_NODE_OPTIONS+=( "${ARG#--node_options=}" ) ;;
+    # Remaining argv is collected to pass to the program
     *) ARGS+=( "$ARG" )
   esac
 done
 
 # Link the first-party modules into node_modules directory before running the actual program
-if [[ -n "${MODULES_MANIFEST:-}" ]]; then
+if [ "$RUN_LINKER" = true ]; then
+  link_modules_script=$(rlocation "TEMPLATED_link_modules_script")
+  # For programs which are called with bazel run or bazel test, there will be no additional runtime
+  # dependencies to link, so we use the default modules_manifest which has only the static dependencies
+  # of the binary itself.
+  MODULES_MANIFEST=${MODULES_MANIFEST:-$(rlocation "TEMPLATED_modules_manifest")}
   "${node}" "${link_modules_script}" "${MODULES_MANIFEST:-}"
 fi
 
-# TODO: after we link-all-bins we should not need this extra lookup
-if [[ ! -f "$MAIN" ]]; then
-  MAIN=TEMPLATED_entry_point_manifest_path
+if [ "$NODE_PATCHES" = true ]; then
+  node_patches_script=$(rlocation "TEMPLATED_node_patches_script")
+  # Node's --require option assumes that a non-absolute path not starting with `.` is
+  # a module, so that you can do --require=source-map-support/register
+  # So if the require script is not absolute, we must make it so
+  case "${node_patches_script}" in
+    # Absolute path on unix
+    /*          ) ;;
+    # Absolute path on Windows, e.g. C:/path/to/thing
+    [a-zA-Z]:/* ) ;;
+    # Otherwise it needs to be made relative
+    *           ) node_patches_script="./${node_patches_script}" ;;
+  esac
+  LAUNCHER_NODE_OPTIONS+=( "--require" "$node_patches_script" )
+fi
+
+if [ "$PATCH_REQUIRE" = true ]; then
+  require_patch_script=${BAZEL_NODE_PATCH_REQUIRE}
+  # See comment above
+  case "${require_patch_script}" in
+    # Absolute path on unix
+    /*          ) ;;
+    # Absolute path on Windows, e.g. C:/path/to/thing
+    [a-zA-Z]:/* ) ;;
+    # Otherwise it needs to be made relative
+    *           ) require_patch_script="./${require_patch_script}" ;;
+  esac
+  LAUNCHER_NODE_OPTIONS+=( "--require" "$require_patch_script" )
+  # Change the entry point to be the loader.js script so we run code before node
+  MAIN=$(rlocation "TEMPLATED_loader_script")
+else
+  # Entry point is the user-supplied script
+  MAIN=TEMPLATED_entry_point_execroot_path  
+  # TODO: after we link-all-bins we should not need this extra lookup
+  if [[ ! -f "$MAIN" ]]; then
+    MAIN=TEMPLATED_entry_point_manifest_path
+  fi
 fi
 
 # Tell the node_patches_script that programs should not escape the execroot

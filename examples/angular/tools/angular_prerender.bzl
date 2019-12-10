@@ -46,6 +46,7 @@ def ng_prerender(name, index, prerender_roots = [], **kwargs):
             "@npm//reflect-metadata",
         ],
         entry_point = "//src:prerender.ts",
+        templated_args = ["--nobazel_run_linker"],
     )
 
     root_at = "_prerender/" + native.package_name()

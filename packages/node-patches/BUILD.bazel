@@ -60,7 +60,7 @@ nodejs_test(
     ],
     entry_point = "@npm_node_patches//:node_modules/mocha/bin/mocha",
     tags = ["fix-windows"],
-    templated_args = ["$$(rlocation $(rootpath %s))" % s for s in test_js],
+    templated_args = ["$$(rlocation $(rootpath %s))" % s for s in test_js] + ["--nobazel_node_patches"],
 )
 
 rollup_bundle(
