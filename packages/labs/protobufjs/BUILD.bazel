@@ -44,6 +44,7 @@ nodejs_binary(
         "@build_bazel_rules_typescript_protobufs_compiletime_deps//estraverse",
     ],
     entry_point = "@build_bazel_rules_typescript_protobufs_compiletime_deps//:node_modules/protobufjs/bin/pbjs",
+    templated_args = ["--nobazel_run_linker"],
 )
 
 nodejs_binary(
@@ -66,6 +67,7 @@ nodejs_binary(
         "@build_bazel_rules_typescript_protobufs_compiletime_deps//estraverse",
     ],
     entry_point = "@build_bazel_rules_typescript_protobufs_compiletime_deps//:node_modules/protobufjs/bin/pbts",
+    templated_args = ["--nobazel_run_linker"],
 )
 
 # Runtime libraries needed by the protobufjs library.

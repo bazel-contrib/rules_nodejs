@@ -9,4 +9,5 @@ nodejs_test(
     ],
     entry_point = ":node_loader_test.spec.js",
     node_modules = "@npm//:node_modules",
+    templated_args = ["--nobazel_node_patches"],
 )
