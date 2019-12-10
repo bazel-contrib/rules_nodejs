@@ -150,6 +150,10 @@ Passed to the [`--sourcemap` option](https://github.com/rollup/rollup/blob/maste
         default = "inline",
         values = ["inline", "hidden", "true", "false"],
     ),
+    "stamp": attr.bool(
+        default = False,
+        doc = """Whether stamping is requested for the rollup_bundle.""",
+    ),
     "deps": attr.label_list(
         aspects = [module_mappings_aspect, node_modules_aspect],
         doc = """Other libraries that are required by the code, or by the rollup.config.js""",
@@ -282,14 +286,14 @@ def _rollup_bundle(ctx):
         template = ctx.file.config_file,
         output = config,
         substitutions = {
-            "bazel_stamp_file": "\"%s\"" % ctx.version_file.path if ctx.version_file else "undefined",
+            "bazel_stamp_file": "\"%s\"" % ctx.version_file.path if ctx.attr.stamp else "undefined",
         },
     )
 
     args.add_all(["--config", config.path])
     inputs.append(config)
 
-    if ctx.version_file:
+    if ctx.attr.stamp:
         inputs.append(ctx.version_file)
 
     # Prevent rollup's module resolver from hopping outside Bazel's sandbox

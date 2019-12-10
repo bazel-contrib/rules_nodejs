@@ -23,7 +23,7 @@ def _filter_out_external_files(ctx, files, package_path):
                     result.append(file.path)
     return result
 
-def create_package(ctx, deps_sources, nested_packages):
+def create_package(ctx, deps_sources, nested_packages, stamp):
     """Creates an action that produces the npm package.
 
     It copies srcs and deps into the artifact and produces the .pack and .publish
@@ -34,7 +34,8 @@ def create_package(ctx, deps_sources, nested_packages):
       deps_sources: Files which have been specified as dependencies. Usually ".js" or ".d.ts"
                     generated files.
       nested_packages: list of TreeArtifact outputs from other actions which are
-                       to be nested inside this package
+                       to be nested inside this package.
+      stamp: Whether version stamping has been requested.
 
     Returns:
       The tree artifact which is the publishable directory.
@@ -61,7 +62,7 @@ def create_package(ctx, deps_sources, nested_packages):
     args.add(ctx.attr.replacements)
     args.add_all([ctx.outputs.pack.path, ctx.outputs.publish.path])
     args.add(ctx.attr.replace_with_version)
-    args.add(ctx.version_file.path if ctx.version_file else "")
+    args.add(ctx.version_file.path if stamp else "")
     args.add_joined(ctx.attr.vendor_external, join_with = ",", omit_if_empty = False)
     args.add("1" if ctx.attr.rename_build_files else "0")
 
@@ -75,23 +76,17 @@ def create_package(ctx, deps_sources, nested_packages):
     # produced by the --workspace_status_command. That command will be executed whenever
     # this action runs, so we get the latest version info on each execution.
     # See https://github.com/bazelbuild/bazel/issues/1054
-    if ctx.version_file:
+    # If stamping is requested for the target, the version_file should be included in the inputs.
+    if stamp:
         inputs.append(ctx.version_file)
 
     ctx.actions.run(
         progress_message = "Assembling npm package %s" % package_dir.short_path,
+        mnemonic = "AssembleNpmPackage",
         executable = ctx.executable._packager,
         inputs = inputs,
         outputs = [package_dir, ctx.outputs.pack, ctx.outputs.publish],
         arguments = [args],
-        execution_requirements = {
-            # Never schedule this action remotely because it's not computationally expensive.
-            # It just copies files into a directory; it's not worth copying inputs and outputs to a remote worker.
-            # Also don't run it in a sandbox, because it resolves an absolute path to the bazel-out directory
-            # allowing the .pack and .publish runnables to work with no symlink_prefix
-            # See https://github.com/bazelbuild/rules_nodejs/issues/187
-            "local": "1",
-        },
     )
     return package_dir
 
@@ -117,7 +112,7 @@ def _npm_package(ctx):
     sources = depset(transitive = sources_depsets)
 
     # Note: to_list() should be called once per rule!
-    package_dir = create_package(ctx, sources.to_list(), ctx.files.packages)
+    package_dir = create_package(ctx, sources.to_list(), ctx.files.packages, ctx.attr.stamp)
 
     return [DefaultInfo(
         files = depset([package_dir]),
@@ -146,6 +141,10 @@ NPM_PACKAGE_ATTRS = {
     ),
     "replacements": attr.string_dict(
         doc = """Key-value pairs which are replaced in all the files while building the package.""",
+    ),
+    "stamp": attr.bool(
+        default = False,
+        doc = """Whether stamping is requested for the npm_package.""",
     ),
     "vendor_external": attr.string_list(
         doc = """External workspaces whose contents should be vendored into this workspace.
