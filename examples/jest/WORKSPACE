@@ -29,15 +29,6 @@ load("@build_bazel_rules_nodejs//:index.bzl", "yarn_install")
 
 yarn_install(
     name = "npm",
-    data = [
-        "//:tools/patches/@jest+core+24.7.1.patch",
-        "//:tools/patches/@jest+transform+24.7.1.patch",
-        "//:tools/patches/jest-cli+24.7.1.patch",
-        "//:tools/patches/jest-config+24.7.1.patch",
-        "//:tools/patches/jest-haste-map+24.7.1.patch",
-        "//:tools/patches/jest-resolve+24.7.1.patch",
-        "//:tools/patches/jest-runtime+24.7.1.patch",
-    ],
     package_json = "//:package.json",
     quiet = False,
     yarn_lock = "//:yarn.lock",
