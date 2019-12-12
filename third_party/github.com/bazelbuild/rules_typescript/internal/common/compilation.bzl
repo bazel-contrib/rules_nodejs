@@ -516,10 +516,23 @@ def compile_ts(
         },
     }
 
-# Converts a dict to a struct, recursing into a single level of nested dicts.
-# This allows users of compile_ts to modify or augment the returned dict before
-# converting it to an immutable struct.
-def ts_providers_dict_to_struct(d):
+def ts_providers_dict_to_struct(d, preserve_js_struct_field = False):
+    """ Converts a dict to a struct, recursing into a single level of nested dicts.
+
+    This allows users of compile_ts to modify or augment the returned dict before
+    converting it to an immutable struct.
+
+    Args:
+        d: the dict to convert
+        preserve_js_struct_field: whether to preserve the js provider as a "js" field.
+            Please only set this to True if you are using this struct in another provider.
+            e.g. MyProvider(some_field = ts_providers_dict_to_struct(d, preserve_js_struct_field = True))
+            *Do not use* if returning the struct from a rule.
+
+    Returns:
+        An immutable struct created from the input dict
+    """
+
 
     for key, value in d.items():
         if key != "output_groups" and type(value) == type({}):
