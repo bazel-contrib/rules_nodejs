@@ -19,7 +19,7 @@ export const DEBUG = false;
 
 /** Maybe print a debug message (depending on a flag defaulting to false). */
 export function debug(...args: Array<unknown>) {
-  if (DEBUG) console.error.apply(console, args);
+  if (DEBUG) console.error.call(console, ...args);
 }
 
 /**
@@ -27,7 +27,7 @@ export function debug(...args: Array<unknown>) {
  * the end user.
  */
 export function log(...args: Array<unknown>) {
-  console.error.apply(console, args);
+  console.error.call(console, ...args);
 }
 
 /**
