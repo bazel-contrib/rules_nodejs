@@ -1,0 +1,20 @@
+load("//internal/common:copy_to_bin.bzl", "copy_to_bin")
+
+licenses(["notice"])
+
+package(default_testonly = 1)
+
+sh_test(
+    name = "copy_to_bin_tests",
+    srcs = ["copy_to_bin_tests.sh"],
+    data = [
+        ":a",
+        "//third_party/github.com/bazelbuild/bazel-skylib:tests/unittest.bash",
+    ],
+    deps = ["@bazel_tools//tools/bash/runfiles"],
+)
+
+copy_to_bin(
+    name = "a",
+    srcs = ["foo/bar/a.txt"],
+)
