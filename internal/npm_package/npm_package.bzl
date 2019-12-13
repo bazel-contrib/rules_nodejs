@@ -81,18 +81,11 @@ def create_package(ctx, deps_sources, nested_packages):
 
     ctx.actions.run(
         progress_message = "Assembling npm package %s" % package_dir.short_path,
+        mnemonic = "AssembleNpmPackage",
         executable = ctx.executable._packager,
         inputs = inputs,
         outputs = [package_dir, ctx.outputs.pack, ctx.outputs.publish],
         arguments = [args],
-        execution_requirements = {
-            # Never schedule this action remotely because it's not computationally expensive.
-            # It just copies files into a directory; it's not worth copying inputs and outputs to a remote worker.
-            # Also don't run it in a sandbox, because it resolves an absolute path to the bazel-out directory
-            # allowing the .pack and .publish runnables to work with no symlink_prefix
-            # See https://github.com/bazelbuild/rules_nodejs/issues/187
-            "local": "1",
-        },
     )
     return package_dir
 
