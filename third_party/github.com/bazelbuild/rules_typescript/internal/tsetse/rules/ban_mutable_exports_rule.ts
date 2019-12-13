@@ -9,12 +9,6 @@ import {Checker} from '../checker';
 import {ErrorCode} from '../error_code';
 import {AbstractRule} from '../rule';
 
-const MUTABLE_EXPORTS_EXCEPTION_FILES = [
-  // Allow in d.ts files, which are modelling external JS that doesn't
-  // follow our rules.
-  '.d.ts',
-];
-
 export class Rule extends AbstractRule {
   readonly ruleName = 'ban-mutable-exports';
   readonly code = ErrorCode.BAN_MUTABLE_EXPORTS;
@@ -29,8 +23,9 @@ export class Rule extends AbstractRule {
 }
 
 function checkFile(checker: Checker, file: ts.SourceFile) {
-  if (MUTABLE_EXPORTS_EXCEPTION_FILES.some(
-          (suffix) => file.fileName.endsWith(suffix))) {
+  // Allow in d.ts files, which are modelling external JS that doesn't
+  // follow our rules.
+  if (file.fileName.endsWith('.d.ts')) {
     return;
   }
   const sym = checker.typeChecker.getSymbolAtLocation(file);
