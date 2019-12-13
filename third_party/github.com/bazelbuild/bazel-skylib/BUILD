@@ -6,7 +6,7 @@ exports_files(["tests/unittest.bash"])
 
 filegroup(
     name = "package_contents",
-    srcs = glob(["**"]),
+    srcs = glob(["**"], exclude = ["tests/**"]),
     visibility = ["//:__pkg__"],
 )
 
