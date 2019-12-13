@@ -90,7 +90,7 @@ function writeFileSync(p: string, content: string) {
 /**
  * Main entrypoint.
  */
-function main() {
+export function main() {
   // find all packages (including packages in nested node_modules)
   const pkgs = findPackages();
 
@@ -103,12 +103,6 @@ function main() {
   // generate all BUILD files
   generateBuildFiles(pkgs)
 }
-
-module.exports = {
-  main,
-  printPackageBin,
-  printIndexBzl,
-};
 
 /**
  * Generates all build files
@@ -515,11 +509,13 @@ function findScopes() {
  * package json and return it as an object along with
  * some additional internal attributes prefixed with '_'.
  */
-function parsePackage(p: string, hide: boolean = true): Dep {
+export function parsePackage(p: string, hide: boolean = true): Dep {
   // Parse the package.json file of this package
   const packageJson = path.posix.join(p, 'package.json');
-  const pkg = isFile(packageJson) ? JSON.parse(fs.readFileSync(packageJson, {encoding: 'utf8'})) :
-                                    {version: '0.0.0'};
+  const stripBom = (s: string) => s.charCodeAt(0) === 0xFEFF ? s.slice(1) : s;
+  const pkg = isFile(packageJson) ?
+      JSON.parse(stripBom(fs.readFileSync(packageJson, {encoding: 'utf8'}))) :
+      {version: '0.0.0'};
 
   // Trim the leading node_modules from the path and
   // assign to _dir for future use
@@ -1031,7 +1027,7 @@ function additionalAttributes(pkg: Dep, name: string) {
 /**
  * Given a pkg, return the skylark nodejs_binary targets for the package.
  */
-function printPackageBin(pkg: Dep) {
+export function printPackageBin(pkg: Dep) {
   let result = '';
   const executables = _findExecutables(pkg);
   if (executables.size) {
@@ -1058,7 +1054,7 @@ nodejs_binary(
   return result;
 }
 
-function printIndexBzl(pkg: Dep) {
+export function printIndexBzl(pkg: Dep) {
   let result = '';
   const executables = _findExecutables(pkg);
   if (executables.size) {

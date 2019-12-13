@@ -102,11 +102,7 @@ package(default_visibility = ["//visibility:public"])
         // generate all BUILD files
         generateBuildFiles(pkgs);
     }
-    module.exports = {
-        main,
-        printPackageBin,
-        printIndexBzl,
-    };
+    exports.main = main;
     /**
      * Generates all build files
      */
@@ -468,7 +464,9 @@ def _maybe(repo_rule, name, **kwargs):
     function parsePackage(p, hide = true) {
         // Parse the package.json file of this package
         const packageJson = path.posix.join(p, 'package.json');
-        const pkg = isFile(packageJson) ? JSON.parse(fs.readFileSync(packageJson, { encoding: 'utf8' })) :
+        const stripBom = (s) => s.charCodeAt(0) === 0xFEFF ? s.slice(1) : s;
+        const pkg = isFile(packageJson) ?
+            JSON.parse(stripBom(fs.readFileSync(packageJson, { encoding: 'utf8' }))) :
             { version: '0.0.0' };
         // Trim the leading node_modules from the path and
         // assign to _dir for future use
@@ -492,6 +490,7 @@ def _maybe(repo_rule, name, **kwargs):
             hideBazelFiles(pkg);
         return pkg;
     }
+    exports.parsePackage = parsePackage;
     /**
      * Check if a bin entry is a non-empty path
      */
@@ -958,6 +957,7 @@ nodejs_binary(
         }
         return result;
     }
+    exports.printPackageBin = printPackageBin;
     function printIndexBzl(pkg) {
         let result = '';
         const executables = _findExecutables(pkg);
@@ -1001,6 +1001,7 @@ def ${name.replace(/-/g, '_')}_test(**kwargs):
         }
         return result;
     }
+    exports.printIndexBzl = printIndexBzl;
     /**
      * Given a scope, return the skylark `node_module_library` target for the scope.
      */

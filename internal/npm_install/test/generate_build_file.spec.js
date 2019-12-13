@@ -1,5 +1,7 @@
+const fs = require('fs');
+const path = require('path');
 const {check, files} = require('./check');
-const {printPackageBin, printIndexBzl} = require('../generate_build_file');
+const {parsePackage, printPackageBin, printIndexBzl} = require('../generate_build_file');
 
 describe('build file generator', () => {
   describe('integration test', () => {
@@ -7,6 +9,14 @@ describe('build file generator', () => {
       it(`should produce a BUILD file for ${file}`, () => {
         check(file);
       });
+    });
+  });
+
+  describe('parsing package.json', () => {
+    it('should strip leading Byte-Order Mark character', () => {
+      const pkgPath = path.join(process.env['TEST_TMPDIR'], 'package.json');
+      fs.writeFileSync(pkgPath, `\uFEFF{"name": "foo"}`, 'utf-8');
+      expect(parsePackage(path.dirname(pkgPath)).name).toBe('foo');
     });
   });
 
