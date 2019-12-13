@@ -18,7 +18,6 @@
     "main": "./internal/tsc_wrapped/index.js",
     "typings": "./internal/tsc_wrapped/index.d.ts",
     "bin": {
-        "ts_auto_deps": "./ts_auto_deps/ts_auto_deps.js",
         "tsc_wrapped": "./internal/tsc_wrapped/tsc_wrapped.js"
     },
     "//": "note that typescript doesn't follow semver, so technically anything 3.6 or higher might break us",
