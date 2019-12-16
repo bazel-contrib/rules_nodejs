@@ -21,7 +21,9 @@ package(default_visibility = ["//internal:__subpackages__"])
 
 bzl_library(
     name = "bzl",
-    srcs = glob(["*.bzl"]),
+    srcs = glob(["*.bzl"]) + [
+        "//third_party/github.com/bazelbuild/bazel-skylib:bzl",
+    ],
     visibility = ["//visibility:public"],
 )
 

@@ -17,6 +17,7 @@
 This differs from :index.bzl because we don't have wrapping macros that hide the real doc"""
 
 load("//internal/common:check_bazel_version.bzl", _check_bazel_version = "check_bazel_version")
+load("//internal/common:copy_to_bin.bzl", _copy_to_bin = "copy_to_bin")
 load("//internal/node:node.bzl", _nodejs_binary = "nodejs_binary", _nodejs_test = "nodejs_test")
 load("//internal/node:node_repositories.bzl", _node_repositories = "node_repositories_rule")
 load("//internal/node:npm_package_bin.bzl", _npm_bin = "npm_package_bin")
@@ -25,6 +26,7 @@ load("//internal/npm_package:npm_package.bzl", _npm_package = "npm_package")
 load("//internal/pkg_web:pkg_web.bzl", _pkg_web = "pkg_web")
 
 check_bazel_version = _check_bazel_version
+copy_to_bin = _copy_to_bin
 nodejs_binary = _nodejs_binary
 nodejs_test = _nodejs_test
 node_repositories = _node_repositories

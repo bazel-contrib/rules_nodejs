@@ -10,6 +10,7 @@ load(
     _npm_package = "npm_package",
 )
 load("@rules_codeowners//tools:codeowners.bzl", _codeowners = "codeowners")
+load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
 
 nodejs_test = _nodejs_test
 
@@ -17,11 +18,10 @@ def npm_package(**kwargs):
     "Set some defaults for the npm_package rule"
 
     # Every package should have a copy of the root LICENSE file
-    native.genrule(
+    copy_file(
         name = "copy_LICENSE",
-        srcs = ["@build_bazel_rules_nodejs//:LICENSE"],
-        outs = ["LICENSE"],
-        cmd = "cp $< $@",
+        src = "@build_bazel_rules_nodejs//:LICENSE",
+        out = "LICENSE",
     )
 
     deps = [":copy_LICENSE"] + kwargs.pop("deps", [])

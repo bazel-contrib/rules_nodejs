@@ -19,43 +19,50 @@ cmd.exe (on Windows). '_copy_xfile' marks the resulting file executable,
 '_copy_file' does not.
 """
 
+def copy_cmd(ctx, src, dst):
+    # Most Windows binaries built with MSVC use a certain argument quoting
+    # scheme. Bazel uses that scheme too to quote arguments. However,
+    # cmd.exe uses different semantics, so Bazel's quoting is wrong here.
+    # To fix that we write the command to a .bat file so no command line
+    # quoting or escaping is required.
+    bat = ctx.actions.declare_file(ctx.label.name + "-cmd.bat")
+    ctx.actions.write(
+        output = bat,
+        # Do not use lib/shell.bzl's shell.quote() method, because that uses
+        # Bash quoting syntax, which is different from cmd.exe's syntax.
+        content = "@copy /Y \"%s\" \"%s\" >NUL" % (
+            src.path.replace("/", "\\"),
+            dst.path.replace("/", "\\"),
+        ),
+        is_executable = True,
+    )
+    ctx.actions.run(
+        inputs = [src],
+        tools = [bat],
+        outputs = [dst],
+        executable = "cmd.exe",
+        arguments = ["/C", bat.path.replace("/", "\\")],
+        mnemonic = "CopyFile",
+        progress_message = "Copying files",
+        use_default_shell_env = True,
+    )
+
+def copy_bash(ctx, src, dst):
+    ctx.actions.run_shell(
+        tools = [src],
+        outputs = [dst],
+        command = "cp -f \"$1\" \"$2\"",
+        arguments = [src.path, dst.path],
+        mnemonic = "CopyFile",
+        progress_message = "Copying files",
+        use_default_shell_env = True,
+    )
+
 def _common_impl(ctx, is_executable):
     if ctx.attr.is_windows:
-        # Most Windows binaries built with MSVC use a certain argument quoting
-        # scheme. Bazel uses that scheme too to quote arguments. However,
-        # cmd.exe uses different semantics, so Bazel's quoting is wrong here.
-        # To fix that we write the command to a .bat file so no command line
-        # quoting or escaping is required.
-        bat = ctx.actions.declare_file(ctx.label.name + "-cmd.bat")
-        ctx.actions.write(
-            output = bat,
-            # Do not use lib/shell.bzl's shell.quote() method, because that uses
-            # Bash quoting syntax, which is different from cmd.exe's syntax.
-            content = "@copy /Y \"%s\" \"%s\" >NUL" % (
-                ctx.file.src.path.replace("/", "\\"),
-                ctx.outputs.out.path.replace("/", "\\"),
-            ),
-            is_executable = True,
-        )
-        ctx.actions.run(
-            inputs = [ctx.file.src, bat],
-            outputs = [ctx.outputs.out],
-            executable = "cmd.exe",
-            arguments = ["/C", bat.path.replace("/", "\\")],
-            mnemonic = "CopyFile",
-            progress_message = "Copying files",
-            use_default_shell_env = True,
-        )
+        copy_cmd(ctx, ctx.file.src, ctx.outputs.out)
     else:
-        ctx.actions.run_shell(
-            inputs = [ctx.file.src],
-            outputs = [ctx.outputs.out],
-            command = "cp -f \"$1\" \"$2\"",
-            arguments = [ctx.file.src.path, ctx.outputs.out.path],
-            mnemonic = "CopyFile",
-            progress_message = "Copying files",
-            use_default_shell_env = True,
-        )
+        copy_bash(ctx, ctx.file.src, ctx.outputs.out)
 
     files = depset(direct = [ctx.outputs.out])
     runfiles = ctx.runfiles(files = [ctx.outputs.out])
