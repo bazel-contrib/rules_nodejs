@@ -70,7 +70,7 @@ def _run_pbts(actions, executable, js_file):
     return ts_file
 
 def _ts_proto_library(ctx):
-    sources = depset()
+    sources_depsets = []
     for dep in ctx.attr.deps:
         if ProtoInfo not in dep:
             fail("ts_proto_library dep %s must be a proto_library rule" % dep.label)
@@ -79,7 +79,9 @@ def _ts_proto_library(ctx):
         # > should not parse .proto files. Instead, they should use the descriptor
         # > set output from proto_library
         # but protobuf.js doesn't seem to accept that bin format
-        sources = depset(transitive = [sources, dep[ProtoInfo].transitive_sources])
+        sources_depsets.append(dep[ProtoInfo].transitive_sources)
+
+    sources = depset(transitive = sources_depsets)
 
     output_name = ctx.attr.output_name or ctx.label.name
 

@@ -142,26 +142,31 @@ def _to_execroot_path(ctx, file):
 
 def _nodejs_binary_impl(ctx):
     node_modules_manifest = write_node_modules_manifest(ctx)
-    node_modules = depset(ctx.files.node_modules)
+    node_modules_depsets = []
+    node_modules_depsets.append(depset(ctx.files.node_modules))
 
     # Also include files from npm fine grained deps as inputs.
     # These deps are identified by the NpmPackageInfo provider.
     for d in ctx.attr.data:
         if NpmPackageInfo in d:
-            node_modules = depset(transitive = [node_modules, d[NpmPackageInfo].sources])
+            node_modules_depsets.append(d[NpmPackageInfo].sources)
 
-    # Using a depset will allow us to avoid flattening files and sources
+    node_modules = depset(transitive = node_modules_depsets)
+
+    # Using an array of depsets will allow us to avoid flattening files and sources
     # inside this loop. This should reduce the performances hits,
     # since we don't need to call .to_list()
-    sources_sets = []
+    # Also avoid deap transitive depset()s by creating single array of
+    # transitive depset()s
+    sources_depsets = []
 
     for d in ctx.attr.data:
         # TODO: switch to JSModuleInfo when it is available
         if JSNamedModuleInfo in d:
-            sources_sets.append(d[JSNamedModuleInfo].sources)
+            sources_depsets.append(d[JSNamedModuleInfo].sources)
         if hasattr(d, "files"):
-            sources_sets.append(d.files)
-    sources = depset(transitive = sources_sets)
+            sources_depsets.append(d.files)
+    sources = depset(transitive = sources_depsets)
 
     _write_loader_script(ctx)
 
@@ -248,23 +253,27 @@ def _nodejs_binary_impl(ctx):
         is_executable = True,
     )
 
-    runfiles = depset(node_tool_files + ctx.files._bash_runfile_helpers + [ctx.outputs.loader, ctx.file._repository_args], transitive = [sources, node_modules])
+    runfiles = []
+    runfiles.extend(node_tool_files)
+    runfiles.extend(ctx.files._bash_runfile_helpers)
+    runfiles.append(ctx.outputs.loader)
+    runfiles.append(ctx.file._repository_args)
 
     if is_windows(ctx):
-        runfiles = depset([ctx.outputs.script], transitive = [runfiles])
+        runfiles.append(ctx.outputs.script)
         executable = create_windows_native_launcher_script(ctx, ctx.outputs.script)
     else:
         executable = ctx.outputs.script
 
     # entry point is only needed in runfiles if it is a .js file
     if ctx.file.entry_point.extension == "js":
-        runfiles = depset([ctx.file.entry_point], transitive = [runfiles])
+        runfiles.append(ctx.file.entry_point)
 
     return [
         DefaultInfo(
             executable = executable,
             runfiles = ctx.runfiles(
-                transitive_files = runfiles,
+                transitive_files = depset(runfiles),
                 files = node_tool_files + [
                             ctx.outputs.loader,
                         ] + ctx.files._source_map_support_files +
