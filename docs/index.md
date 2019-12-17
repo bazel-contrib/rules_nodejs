@@ -16,7 +16,7 @@ This JavaScript support lets you build and test code that targets a JavaScript r
 ## Quickstart
 
 This is the fastest way to get started for most use cases.
-See [the installation page](install.md) for details and alternative methods.
+See [the installation page](install.html) for details and alternative methods.
 
 ```sh
 $ npm init @bazel
