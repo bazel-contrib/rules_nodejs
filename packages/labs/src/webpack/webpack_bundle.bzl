@@ -20,6 +20,23 @@ This rule is experimental, as part of Angular Labs! There may be breaking change
 load("@build_bazel_rules_nodejs//:providers.bzl", "JSEcmaScriptModuleInfo", "NodeContextInfo", "NpmPackageInfo", "node_modules_aspect", "run_node")
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 
+_DOC = """Runs the Webpack.js CLI under Bazel.
+
+See https://webpack.js.org/api/cli/
+
+Typical example:
+```python
+load("@npm_bazel_labs//:index.bzl", "webpack_bundle")
+
+webpack_bundle(
+    name = "bundle",
+    srcs = ["dependency.js"],
+    entry_point = "input.js",
+    config_file = "webpack.config.js",
+)
+```
+"""
+
 _SOURCEMAP_INLINE_VALUES = [
     "eval",
     "eval-cheap-source-map",
@@ -41,15 +58,57 @@ _SOURCEMAP_VALUES = [
 ]
 
 WEBPACK_BUNDLE_ATTRS = {
-    "srcs": attr.label_list(allow_files = True),
+    "srcs": attr.label_list(
+        doc = """Non-entry point JavaScript source files from the workspace.
+
+You must not repeat file(s) passed to entry_point/entry_points.
+        """,
+        allow_files = True,
+    ),
     "config_file": attr.label(
+        doc = """A webpack.config.js file
+
+Passed to the --config
+See https://webpack.js.org/configuration/
+
+If not set, a default basic Webpack config is used.
+""",
         allow_single_file = True,
         default = ":webpack.config.js",
     ),
     "entry_points": attr.label_keyed_string_dict(
+        doc = """The bundle's entry points (e.g. your main.js or app.js or index.js).
+
+Keys in this dictionary are labels pointing to .js entry point files.
+Values are the name to be given to the corresponding output chunk.
+
+Either this attribute or `entry_point` must be specified, but not both.
+""",
         allow_files = True,
     ),
     "entry_point": attr.label(
+        doc = """The bundle's entry point (e.g. your main.js or app.js or index.js).
+
+This is just a shortcut for the `entry_points` attribute with a single output chunk named the same as the rule.
+
+For example, these are equivalent:
+
+```python
+webpack_bundle(
+    name = "bundle",
+    entry_point = "index.js",
+)
+```
+
+```python
+webpack_bundle(
+    name = "bundle",
+    entry_points = {
+        "index.js": "bundle"
+    }
+)
+```
+""",
         allow_single_file = True,
     ),
     "node_context_data": attr.label(
@@ -57,7 +116,13 @@ WEBPACK_BUNDLE_ATTRS = {
         providers = [NodeContextInfo],
         doc = "Internal use only",
     ),
-    "output_dir": attr.bool(),
+    "output_dir": attr.bool(
+        doc = """Whether to produce a directory output.
+
+If the program produces multiple chunks, you should specify this attribute.
+Otherwise, it will produce only one chunk.
+        """,
+    ),
     "webpack_bin": attr.label(
         default = "@npm//webpack-cli/bin:webpack-cli",
         executable = True,
@@ -73,6 +138,7 @@ Passed to the [`--devtool` option](https://webpack.js.org/configuration/devtool/
     ),
     "deps": attr.label_list(
         aspects = [module_mappings_aspect, node_modules_aspect],
+        doc = """Other libraries that are required by the code, or by the webpack.config.js""",
     ),
 }
 
