@@ -12,6 +12,8 @@ jest_test(
         # Windows users with permissions can use --enable_runfiles
         # to make this test work
         "no-bazelci-windows",
+        # TODO: why does this fail almost all the time, but pass on local Mac?
+        "no-bazelci-mac",
     ],
     deps = [
         "babel.config.js",

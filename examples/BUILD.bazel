@@ -113,8 +113,6 @@ example_integration_test(
 
 example_integration_test(
     name = "examples_jest",
-    # TODO: why does this fail almost all the time, but pass on local Mac?
-    tags = ["no-bazelci-mac"],
 )
 
 example_integration_test(
