@@ -38,7 +38,6 @@ exports_files([
 bzl_library(
     name = "bzl",
     srcs = [
-        "declaration_provider.bzl",
         "index.bzl",
         "index.for_docs.bzl",
         "providers.bzl",

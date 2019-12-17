@@ -75,7 +75,6 @@ filegroup(
     name = "package_contents",
     srcs = [
         "WORKSPACE",
-        "browser_repositories.bzl",
         "index.bzl",
         "karma.conf.js",
         "karma_web_test.bzl",
