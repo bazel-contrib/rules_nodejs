@@ -25,28 +25,3 @@ karma_web_test = _karma_web_test
 karma_web_test_suite = _karma_web_test_suite
 # DO NOT ADD MORE rules here unless they appear in the generated docsite.
 # Run yarn skydoc to re-generate the docsite.
-
-# TODO(gregmagolan): remove ts_web_test & ts_web_test_suite entirely for 1.0 release
-def ts_web_test(**kwargs):
-    """This rule has been removed. Replace with karma_web_test"""
-
-    fail("""***********
-        
-The ts_web_test rule has been removed.
-
-The existing karma_web_test rule with an identical API should be used instead.
-It can be loaded from `load("@npm_bazel_karma//:index.bzl", "karma_web_test")`.
-************
-""")
-
-def ts_web_test_suite(**kwargs):
-    """This rule has been removed. Replace with ts_web_test_suite"""
-
-    fail("""***********
-        
-The ts_web_test_suite rule has been removed.
-
-The existing karma_web_test_suite rule with an identical API should be used instead.
-It can be loaded from `load("@npm_bazel_karma//:index.bzl", "karma_web_test_suite")`.
-************
-""")

@@ -45,10 +45,9 @@ load("@io_bazel_rules_webtesting//web:repositories.bzl", "web_test_repositories"
 
 web_test_repositories()
 
-# Note: intentionally loads from the deprecated location to assert that it still works
-load("@npm_bazel_karma//:browser_repositories.bzl", "browser_repositories")
+load("@io_bazel_rules_webtesting//web/versioned:browsers-0.3.2.bzl", "browser_repositories")
 
-browser_repositories()
+browser_repositories(chromium = True)
 
 load("@npm_bazel_typescript//:index.bzl", "ts_setup_workspace")
 

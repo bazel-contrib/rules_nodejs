@@ -45,7 +45,6 @@ stardoc(
 filegroup(
     name = "package_contents",
     srcs = [
-        "browser_repositories.bzl",
         "index.bzl",
         "package.bzl",
         "package.json",

@@ -28,12 +28,13 @@ Finally, configure the rules_webtesting:
 
 ```python
 # Set up web testing, choose browsers we can test on
-load("@io_bazel_rules_webtesting//web:repositories.bzl", "browser_repositories", "web_test_repositories")
+load("@io_bazel_rules_webtesting//web:repositories.bzl", "web_test_repositories")
 
 web_test_repositories()
-browser_repositories(
-    chromium = True,
-)
+
+load("@io_bazel_rules_webtesting//web/versioned:browsers-0.3.2.bzl", "browser_repositories")
+
+browser_repositories(chromium = True)
 ```
 
 ## Installing with self-managed dependencies
