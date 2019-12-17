@@ -17,6 +17,8 @@
 This is not a full-featured Parcel bazel rule, just enough to demonstrate how to write one.
 """
 
+load("@build_bazel_rules_nodejs//:providers.bzl", "run_node")
+
 def _parcel_impl(ctx):
     """The "implementation function" for our rule.
 
@@ -31,9 +33,12 @@ def _parcel_impl(ctx):
     args += ["--out-dir", ctx.outputs.bundle.dirname]
     args += ["--out-file", ctx.outputs.bundle.basename]
 
-    ctx.actions.run(
+    # We use the run_node helper rather than ctx.actions.run so that the npm package
+    # gets automatically included in the action inputs
+    run_node(
+        ctx = ctx,
         inputs = ctx.files.srcs + [ctx.file.entry_point],
-        executable = ctx.executable.parcel,
+        executable = "parcel",
         outputs = [ctx.outputs.bundle, ctx.outputs.sourcemap],
         arguments = args,
         env = {"COMPILATION_MODE": ctx.var["COMPILATION_MODE"]},

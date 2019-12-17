@@ -110,6 +110,12 @@ def _write_amd_names_shim(ctx):
 def _filter_js(files):
     return [f for f in files if f.extension == "js" or f.extension == "mjs"]
 
+def _find_dep(ctx, suffix):
+    for d in ctx.files.deps:
+        if (d.path.endswith(suffix)):
+            return _to_manifest_path(ctx, d)
+    fail("couldn't find file %s in the deps" % suffix)
+
 # Generates the karma configuration file for the rule
 def _write_karma_config(ctx, files, amd_names_shim):
     configuration = ctx.actions.declare_file(
@@ -149,8 +155,8 @@ def _write_karma_config(ctx, files, amd_names_shim):
     # for a priority require of nested `@bazel/typescript/node_modules` before
     # looking in root node_modules.
     bootstrap_entries += [
-        "NODE_MODULES/requirejs/require.js",
-        "NODE_MODULES/karma-requirejs/lib/adapter.js",
+        "NODE_MODULES/%s" % _find_dep(ctx, "requirejs/require.js"),
+        "NODE_MODULES/%s" % _find_dep(ctx, "karma-requirejs/lib/adapter.js"),
         "/".join([ctx.workspace_name, amd_names_shim.short_path]),
     ]
 

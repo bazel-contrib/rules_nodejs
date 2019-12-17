@@ -6,4 +6,5 @@ nodejs_binary(
     entry_point = "//:node_modules/jasmine/bin/jasmine.js",
     install_source_map_support = False,
     data = ["//jasmine:jasmine"],
+    templated_args = ["--nobazel_patch_module_resolver"],
 )

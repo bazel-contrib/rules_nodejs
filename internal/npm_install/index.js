@@ -645,7 +645,8 @@ nodejs_binary(
     name = "${name}",
     entry_point = "//:node_modules/${pkg._dir}/${path}",
     install_source_map_support = False,
-    data = [${data.map(p => `"${p}"`).join(', ')}],${additionalAttributes(pkg, name)}
+    data = [${data.map(p => `"${p}"`).join(', ')}],
+    templated_args = ["--nobazel_patch_module_resolver"],${additionalAttributes(pkg, name)}
 )
 `;
         }

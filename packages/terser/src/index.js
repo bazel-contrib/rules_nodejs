@@ -72,7 +72,7 @@ function terserDirectory(input, output, residual, terserBinary) {
       ...directoryArgs(residual, inputFile, outputFile)
     ];
 
-    spawn(process.execPath, args)
+    spawn(process.execPath, [...process.execArgv, ...args])
         .then(
             (data) => {
               if (data.code) {

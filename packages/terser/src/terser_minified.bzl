@@ -14,6 +14,8 @@
 
 "Rule to run the terser binary under bazel"
 
+load("@build_bazel_rules_nodejs//:providers.bzl", "run_node")
+
 _DOC = """Run the terser minifier.
 
 Typical example:
@@ -166,10 +168,11 @@ def _terser(ctx):
     args.add_all(["--config-file", opts.path])
     args.add_all(ctx.attr.args)
 
-    ctx.actions.run(
+    run_node(
+        ctx,
         inputs = inputs,
         outputs = outputs,
-        executable = ctx.executable.terser_bin,
+        executable = "terser_bin",
         arguments = [args],
         env = {"COMPILATION_MODE": ctx.var["COMPILATION_MODE"]},
         progress_message = "Minifying JavaScript %s [terser]" % (outputs[0].short_path),
