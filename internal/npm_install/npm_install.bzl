@@ -66,9 +66,6 @@ If symlink_node_modules is True, this attribute is ignored since
 the dependency manager will run in the package.json location.
 """,
     ),
-    "exclude_packages": attr.string_list(
-        doc = """DEPRECATED. This attribute is no longer used.""",
-    ),
     "included_files": attr.string_list(
         doc = """List of file extensions to be included in the npm package targets.
 
