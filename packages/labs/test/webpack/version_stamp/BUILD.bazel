@@ -1,0 +1,24 @@
+load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
+load("@npm_bazel_labs//:index.bzl", "webpack_bundle")
+load("//internal/node:context.bzl", "node_context_data")
+
+# Force stamping behavior even in builds without --stamp config
+# by mocking out the config data
+node_context_data(
+    name = "force_stamp",
+    stamp = True,
+)
+
+webpack_bundle(
+    name = "version_stamp",
+    config_file = "webpack.config.js",
+    entry_point = "input.js",
+    node_context_data = ":force_stamp",
+    sourcemap = "false",
+)
+
+jasmine_node_test(
+    name = "test",
+    srcs = ["spec.js"],
+    deps = [":version_stamp.js"],
+)

@@ -2,14 +2,16 @@ load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
 load("@npm_bazel_labs//:index.bzl", "webpack_bundle")
 
 webpack_bundle(
-    name = "bundle",
-    srcs = ["strings.js"],
-    entry_point = "input.js",
+    name = "chunks",
+    entry_points = {
+        "entry1.js": "one",
+        "entry2.js": "two",
+    },
     output_dir = True,
 )
 
 jasmine_node_test(
     name = "test",
     srcs = ["spec.js"],
-    deps = [":bundle"],
+    deps = [":chunks"],
 )

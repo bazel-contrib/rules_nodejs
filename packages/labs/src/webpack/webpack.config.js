@@ -1,7 +1,7 @@
 module.exports = {
   mode: 'production',
   output: {},
-  plugins: [],
+  plugins: [TMPL_plugins],
   resolve: {
     symlinks: false,
   }

@@ -1,0 +1,20 @@
+load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
+load("@npm_bazel_labs//:index.bzl", "webpack_bundle")
+
+webpack_bundle(
+    name = "bundle",
+    srcs = ["s.js"],
+    # Use the desugared form to assert that it works
+    entry_points = {"input.js": "bundle"},
+    sourcemap = "true",
+)
+
+jasmine_node_test(
+    name = "test",
+    srcs = ["spec.js"],
+    data = ["@npm//source-map"],
+    deps = [
+        ":bundle.js",
+        ":bundle.js.map",
+    ],
+)

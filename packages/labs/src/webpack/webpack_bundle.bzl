@@ -17,7 +17,7 @@
 This rule is experimental, as part of Angular Labs! There may be breaking changes.
 """
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "JSEcmaScriptModuleInfo", "NpmPackageInfo", "node_modules_aspect", "run_node")
+load("@build_bazel_rules_nodejs//:providers.bzl", "JSEcmaScriptModuleInfo", "NodeContextInfo", "NpmPackageInfo", "node_modules_aspect", "run_node")
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 
 _SOURCEMAP_INLINE_VALUES = [
@@ -51,6 +51,11 @@ WEBPACK_BUNDLE_ATTRS = {
     ),
     "entry_point": attr.label(
         allow_single_file = True,
+    ),
+    "node_context_data": attr.label(
+        default = "@build_bazel_rules_nodejs//internal:node_context_data",
+        providers = [NodeContextInfo],
+        doc = "Internal use only",
     ),
     "output_dir": attr.bool(),
     "webpack_bin": attr.label(
@@ -164,13 +169,14 @@ def _webpack_bundle(ctx):
 
     # See CLI documentation at https://webpack.js.org/api/cli/
     args = ctx.actions.args()
+    output_dir = ctx.attr.output_dir
 
     # List entry point argument first to save some argv space
     # They should be provided as the first options
     entry_points = _desugar_entry_points(ctx.label.name, ctx.attr.entry_point, ctx.attr.entry_points, inputs).items()
 
     # If user requests an output_dir, then use output.dir rather than output.file
-    if ctx.attr.output_dir:
+    if output_dir:
         outputs.append(ctx.actions.declare_directory(ctx.label.name))
         for entry_point in entry_points:
             args.add_joined([entry_point[1], "./" + entry_point[0].path], join_with = "=")
@@ -187,6 +193,7 @@ def _webpack_bundle(ctx):
         template = ctx.file.config_file,
         output = config,
         substitutions = {
+            "TMPL_plugins": "" if output_dir else "new (require('webpack').optimize.LimitChunkCountPlugin)({ maxChunks: 1 })",
             "bazel_stamp_file": "\"%s\"" % ctx.version_file.path if ctx.version_file else "undefined",
         },
     )

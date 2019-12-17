@@ -5,7 +5,6 @@ webpack_bundle(
     name = "bundle",
     srcs = ["strings.js"],
     entry_point = "input.js",
-    output_dir = True,
 )
 
 jasmine_node_test(
