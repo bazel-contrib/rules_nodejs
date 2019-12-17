@@ -76,16 +76,6 @@ If not set, a default basic Webpack config is used.
         allow_single_file = True,
         default = ":webpack.config.js",
     ),
-    "entry_points": attr.label_keyed_string_dict(
-        doc = """The bundle's entry points (e.g. your main.js or app.js or index.js).
-
-Keys in this dictionary are labels pointing to .js entry point files.
-Values are the name to be given to the corresponding output chunk.
-
-Either this attribute or `entry_point` must be specified, but not both.
-""",
-        allow_files = True,
-    ),
     "entry_point": attr.label(
         doc = """The bundle's entry point (e.g. your main.js or app.js or index.js).
 
@@ -111,6 +101,16 @@ webpack_bundle(
 """,
         allow_single_file = True,
     ),
+    "entry_points": attr.label_keyed_string_dict(
+        doc = """The bundle's entry points (e.g. your main.js or app.js or index.js).
+
+Keys in this dictionary are labels pointing to .js entry point files.
+Values are the name to be given to the corresponding output chunk.
+
+Either this attribute or `entry_point` must be specified, but not both.
+""",
+        allow_files = True,
+    ),
     "node_context_data": attr.label(
         default = "@build_bazel_rules_nodejs//internal:node_context_data",
         providers = [NodeContextInfo],
@@ -123,11 +123,6 @@ If the program produces multiple chunks, you should specify this attribute.
 Otherwise, it will produce only one chunk.
         """,
     ),
-    "webpack_bin": attr.label(
-        default = "@npm//webpack-cli/bin:webpack-cli",
-        executable = True,
-        cfg = "host",
-    ),
     "sourcemap": attr.string(
         doc = """This option controls if and how source maps are generated.
 
@@ -135,6 +130,11 @@ Passed to the [`--devtool` option](https://webpack.js.org/configuration/devtool/
 """,
         default = "inline-cheap-source-map",
         values = _SOURCEMAP_INLINE_VALUES + _SOURCEMAP_VALUES,
+    ),
+    "webpack_bin": attr.label(
+        default = "@npm//webpack-cli/bin:webpack-cli",
+        executable = True,
+        cfg = "host",
     ),
     "deps": attr.label_list(
         aspects = [module_mappings_aspect, node_modules_aspect],
