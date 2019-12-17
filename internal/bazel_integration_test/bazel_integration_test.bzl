@@ -183,7 +183,7 @@ are missed for any one test.
     ),
     "npm_packages": attr.label_keyed_string_dict(
         doc = """A label keyed string dictionary of npm package replacements to make in the workspace-under-test's
-package.json with generated npm package targets. The targets should be npm_package rules.
+package.json with generated npm package targets. The targets should be pkg_npm rules.
 
 For example,
 ```

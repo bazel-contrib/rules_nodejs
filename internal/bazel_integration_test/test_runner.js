@@ -270,7 +270,7 @@ if (isFile(packageJsonFile)) {
     if (packageJsonContents.includes(`"${packageJsonKey}"`) &&
         !packageJsonContents.includes(`"${packageJsonKey}": "file:`)) {
       console.error(`bazel_integration_test: expected replacement of npm package ${
-          packageJsonKey} for locally generated npm_package not found; add ${
+          packageJsonKey} for locally generated npm package not found; add ${
           packageJsonKey} to npm_packages attribute`);
       process.exit(1);
     }

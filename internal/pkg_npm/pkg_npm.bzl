@@ -89,7 +89,7 @@ def create_package(ctx, deps_sources, nested_packages):
     )
     return package_dir
 
-def _npm_package(ctx):
+def _pkg_npm(ctx):
     sources_depsets = []
 
     for dep in ctx.attr.deps:
@@ -118,7 +118,7 @@ def _npm_package(ctx):
         runfiles = ctx.runfiles([package_dir]),
     )]
 
-NPM_PACKAGE_ATTRS = {
+PKG_NPM_ATTRS = {
     "srcs": attr.label_list(
         doc = """Files inside this directory which are simply copied into the package.""",
         allow_files = True,
@@ -129,7 +129,7 @@ NPM_PACKAGE_ATTRS = {
         doc = "Internal use only",
     ),
     "packages": attr.label_list(
-        doc = """Other npm_package rules whose content is copied into this package.""",
+        doc = """Other pkg_npm rules whose content is copied into this package.""",
         allow_files = True,
     ),
     "rename_build_files": attr.bool(
@@ -155,7 +155,7 @@ NPM_PACKAGE_ATTRS = {
         allow_files = True,
     ),
     "_packager": attr.label(
-        default = Label("//internal/npm_package:packager"),
+        default = Label("//internal/pkg_npm:packager"),
         cfg = "host",
         executable = True,
     ),
@@ -165,22 +165,22 @@ NPM_PACKAGE_ATTRS = {
     ),
 }
 
-NPM_PACKAGE_OUTPUTS = {
+PKG_NPM_OUTPUTS = {
     "pack": "%{name}.pack",
     "publish": "%{name}.publish",
 }
 
-npm_package = rule(
-    implementation = _npm_package,
-    attrs = NPM_PACKAGE_ATTRS,
-    doc = """The npm_package rule creates a directory containing a publishable npm artifact.
+pkg_npm = rule(
+    implementation = _pkg_npm,
+    attrs = PKG_NPM_ATTRS,
+    doc = """The pkg_npm rule creates a directory containing a publishable npm artifact.
 
 Example:
 
 ```python
-load("@build_bazel_rules_nodejs//:index.bzl", "npm_package")
+load("@build_bazel_rules_nodejs//:index.bzl", "pkg_npm")
 
-npm_package(
+pkg_npm(
     name = "my_package",
     srcs = ["package.json"],
     deps = [":my_typescript_lib"],
@@ -202,7 +202,7 @@ function doThing() {
 
 Usage:
 
-`npm_package` yields three labels. Build the package directory using the default label:
+`pkg_npm` yields three labels. Build the package directory using the default label:
 
 ```sh
 $ bazel build :my_package
@@ -231,5 +231,5 @@ $ bazel run :my_package.publish
 
 You can pass arguments to npm by escaping them from Bazel using a double-hyphen `bazel run my_package.publish -- --tag=next`
 """,
-    outputs = NPM_PACKAGE_OUTPUTS,
+    outputs = PKG_NPM_OUTPUTS,
 )

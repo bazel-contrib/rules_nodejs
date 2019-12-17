@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "npm_package")
+load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "pkg_npm")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
 
 # We reach inside the @bazel/typescript npm package to grab this one .js file
@@ -45,7 +45,7 @@ copy_file(
     out = "%s/worker_protocol.proto" % _worker_proto_dir,
 )
 
-npm_package(
+pkg_npm(
     name = "npm_package",
     srcs = [
         "README.md",

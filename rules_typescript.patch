@@ -1,3 +1,25 @@
+diff --git a/BUILD.bazel b/BUILD.bazel
+index b0a0051..3a519c5 100644
+--- a/BUILD.bazel
++++ b/BUILD.bazel
+@@ -19,7 +19,7 @@
+ # https://github.com/bazelbuild/rules_go/blob/master/go/tools/gazelle/README.rst#directives
+ # gazelle:exclude node_modules
+ load("@bazel_gazelle//:def.bzl", "gazelle")
+-load("@build_bazel_rules_nodejs//:index.bzl", "npm_package")
++load("@build_bazel_rules_nodejs//:index.bzl", "pkg_npm")
+ 
+ exports_files([
+     "LICENSE",
+@@ -32,7 +32,7 @@ gazelle(
+ )
+ 
+ # This package is included in the npm_bazel_typescript package in rules_nodejs/packages/typescript
+-npm_package(
++pkg_npm(
+     name = "npm_bazel_typescript_package",
+     srcs = [
+         "//internal:npm_package_assets",
 diff --git a/internal/common/compilation.bzl b/internal/common/compilation.bzl
 index e815f37..a2b6468 100644
 --- a/internal/common/compilation.bzl
