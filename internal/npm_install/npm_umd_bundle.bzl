@@ -104,14 +104,5 @@ npm_umd_bundle = rule(
     implementation = _npm_umd_bundle,
     attrs = NPM_UMD_ATTRS,
     outputs = {"umd": "%{package_name}.umd.js"},
+    doc = """Node package umd bundling""",
 )
-"""Node package umd bundling
-"""
-# TODO(gregolan): add the above docstring to `doc` attribute
-# once we upgrade to stardoc. Skydoc crashes with
-# ```
-# File "internal/npm_package/npm_package.bzl", line 221, in <module>
-#     outputs = NPM_PACKAGE_OUTPUTS,
-# TypeError: rule() got an unexpected keyword argument 'doc'
-# ```
-# when it encounters a `doc` attribute in a rule.

@@ -1100,6 +1100,52 @@ Defaults to `""`
 
 
 
+## copy_to_bin
+
+Copies a source file to bazel-bin at the same workspace-relative path path.
+
+e.g. `<workspace_root>/foo/bar/a.txt -> <bazel-bin>/foo/bar/a.txt`
+
+This is useful to populate the output folder with all files needed at runtime, even
+those which aren't outputs of a Bazel rule.
+
+This way you can run a binary in the output folder (execroot or runfiles_root)
+without that program needing to rely on a runfiles helper library or be aware that
+files are divided between the source tree and the output tree.
+
+
+
+### Usage
+
+```
+copy_to_bin(name, srcs, kwargs)
+```
+
+
+
+#### `name`
+      
+Name of the rule.
+
+
+
+
+#### `srcs`
+      
+A List of Labels. File(s) to to copy.
+
+
+
+
+#### `kwargs`
+      
+further keyword arguments, e.g. `visibility`
+
+
+
+
+
+
 ## npm_package_bin
 
 Run an arbitrary npm package binary (e.g. a program under node_modules/.bin/*) under Bazel.

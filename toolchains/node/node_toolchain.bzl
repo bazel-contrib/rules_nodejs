@@ -11,8 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""
-This module implements the node toolchain rule.
+
+"""This module implements the node toolchain rule.
 """
 
 NodeInfo = provider(
@@ -72,9 +72,8 @@ node_toolchain = rule(
             mandatory = False,
         ),
     },
-)
-"""
-Defines a node toolchain.
+    doc = """Defines a node toolchain.
 
 For usage see https://docs.bazel.build/versions/master/toolchains.html#defining-toolchains.
-"""
+""",
+)
