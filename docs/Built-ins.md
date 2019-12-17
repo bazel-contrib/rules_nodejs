@@ -756,16 +756,16 @@ Defaults to `True`
 Defaults to `3600`
 
 
-## npm_package
+## pkg_npm
 
-The npm_package rule creates a directory containing a publishable npm artifact.
+The pkg_npm rule creates a directory containing a publishable npm artifact.
 
 Example:
 
 ```python
-load("@build_bazel_rules_nodejs//:index.bzl", "npm_package")
+load("@build_bazel_rules_nodejs//:index.bzl", "pkg_npm")
 
-npm_package(
+pkg_npm(
     name = "my_package",
     srcs = ["package.json"],
     deps = [":my_typescript_lib"],
@@ -787,7 +787,7 @@ function doThing() {
 
 Usage:
 
-`npm_package` yields three labels. Build the package directory using the default label:
+`pkg_npm` yields three labels. Build the package directory using the default label:
 
 ```sh
 $ bazel build :my_package
@@ -821,7 +821,7 @@ You can pass arguments to npm by escaping them from Bazel using a double-hyphen 
 ### Usage
 
 ```
-npm_package(name, deps, node_context_data, packages, rename_build_files, replace_with_version, replacements, srcs, vendor_external)
+pkg_npm(name, deps, node_context_data, packages, rename_build_files, replace_with_version, replacements, srcs, vendor_external)
 ```
 
 
@@ -840,7 +840,7 @@ Defaults to `[]`
 Defaults to `@build_bazel_rules_nodejs//internal:node_context_data`
 
 #### `packages`
-(*[labels]*): Other npm_package rules whose content is copied into this package.
+(*[labels]*): Other pkg_npm rules whose content is copied into this package.
 
 Defaults to `[]`
 

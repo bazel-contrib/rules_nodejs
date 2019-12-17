@@ -7,15 +7,15 @@ load(
     "@build_bazel_rules_nodejs//:index.bzl",
     _COMMON_REPLACEMENTS = "COMMON_REPLACEMENTS",
     _nodejs_test = "nodejs_test",
-    _npm_package = "npm_package",
+    _pkg_npm = "pkg_npm",
 )
 load("@rules_codeowners//tools:codeowners.bzl", _codeowners = "codeowners")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
 
 nodejs_test = _nodejs_test
 
-def npm_package(**kwargs):
-    "Set some defaults for the npm_package rule"
+def pkg_npm(**kwargs):
+    "Set some defaults for the pkg_npm rule"
 
     # Every package should have a copy of the root LICENSE file
     copy_file(
@@ -47,7 +47,7 @@ def npm_package(**kwargs):
     replacements = kwargs.pop("replacements", _COMMON_REPLACEMENTS)
 
     # Finally call through to the rule with our defaults set
-    _npm_package(
+    _pkg_npm(
         deps = deps,
         replacements = replacements,
         visibility = visibility,

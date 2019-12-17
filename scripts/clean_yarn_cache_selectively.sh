@@ -11,9 +11,9 @@ echo_and_run() { echo "+ $@" ; "$@" ; }
 
 echo "yarn cache root: ${YARN_CACHE_ROOT}"
 
-readonly NPM_PACKAGE_LABELS=`bazel query --output=package 'kind("npm_package", //packages/...)'`
+readonly PKG_NPM_LABELS=`bazel query --output=package 'kind("pkg_npm", //packages/...)'`
 
-for npmPackageLabel in ${NPM_PACKAGE_LABELS[@]} ; do
+for npmPackageLabel in ${PKG_NPM_LABELS[@]} ; do
   # Trim packages/foobar to foobar
   package=$(echo ${npmPackageLabel} | cut -c 10-)
   echo_and_run yarn cache clean @bazel/${package}

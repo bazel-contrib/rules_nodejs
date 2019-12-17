@@ -29,7 +29,7 @@ load(
 load("//internal/node:node_repositories.bzl", _node_repositories = "node_repositories")
 load("//internal/node:npm_package_bin.bzl", _npm_bin = "npm_package_bin")
 load("//internal/npm_install:npm_install.bzl", _npm_install = "npm_install", _yarn_install = "yarn_install")
-load("//internal/npm_package:npm_package.bzl", _npm_package = "npm_package")
+load("//internal/pkg_npm:pkg_npm.bzl", _pkg_npm = "pkg_npm")
 load("//internal/pkg_web:pkg_web.bzl", _pkg_web = "pkg_web")
 
 check_bazel_version = _check_bazel_version
@@ -37,7 +37,7 @@ nodejs_binary = _nodejs_binary
 nodejs_test = _nodejs_test
 node_repositories = _node_repositories
 jasmine_node_test = _jasmine_node_test
-npm_package = _npm_package
+pkg_npm = _pkg_npm
 npm_package_bin = _npm_bin
 pkg_web = _pkg_web
 copy_to_bin = _copy_to_bin

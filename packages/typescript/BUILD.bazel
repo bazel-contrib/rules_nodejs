@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "npm_package")
+load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "pkg_npm")
 load(":replacements.bzl", "TYPESCRIPT_REPLACEMENTS")
 
 # Ugly genrule depending on local linux environment to build the README out of skylark doc generation.
@@ -30,7 +30,7 @@ genrule(
     visibility = ["//docs:__pkg__"],
 )
 
-npm_package(
+pkg_npm(
     name = "npm_package",
     srcs = [
         "@npm_bazel_typescript//:package_contents",

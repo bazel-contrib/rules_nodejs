@@ -189,7 +189,7 @@ bazel_skylib_workspace()
 
 local_repository(
     name = "internal_npm_package_test_vendored_external",
-    path = "internal/npm_package/test/vendored_external",
+    path = "internal/pkg_npm/test/vendored_external",
 )
 
 yarn_install(

@@ -14,7 +14,7 @@
 
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
-load("@build_bazel_rules_nodejs//:index.bzl", "COMMON_REPLACEMENTS", "npm_package")
+load("@build_bazel_rules_nodejs//:index.bzl", "COMMON_REPLACEMENTS", "pkg_npm")
 load("//:tools/defaults.bzl", "codeowners")
 
 package(default_visibility = ["//visibility:public"])
@@ -47,7 +47,7 @@ bzl_library(
         "//internal/common:bzl",
         "//internal/jasmine_node_test:bzl",
         "//internal/linker:bzl",
-        "//internal/npm_package:bzl",
+        "//internal/pkg_npm:bzl",
         "//internal/pkg_web:bzl",
         "//internal/providers:bzl",
         "//toolchains/node:bzl",
@@ -61,7 +61,7 @@ filegroup(
     srcs = [],
 )
 
-npm_package(
+pkg_npm(
     name = "rules_nodejs_package",
     srcs = glob(["*.bzl"]) + [
         "BUILD.bazel",
@@ -70,7 +70,7 @@ npm_package(
     # Don't rename BUILD files as this package is not published to npm
     # but is compressed in "release" below and published as a .tar.gz to GitHub
     rename_build_files = False,
-    # Don't replace the default 0.0.0-PLACEHOLDER for this npm_package since
+    # Don't replace the default 0.0.0-PLACEHOLDER for this pkg_npm since
     # we are packaging up the packager itself and this replacement will break it
     replace_with_version = "",
     replacements = COMMON_REPLACEMENTS,
@@ -85,7 +85,7 @@ npm_package(
         "//internal/linker:package_contents",
         "//internal/node:package_contents",
         "//internal/npm_install:package_contents",
-        "//internal/npm_package:package_contents",
+        "//internal/pkg_npm:package_contents",
         "//internal/pkg_web:package_contents",
         "//internal/providers:package_contents",
         "//third_party/github.com/bazelbuild/bazel-skylib:package_contents",

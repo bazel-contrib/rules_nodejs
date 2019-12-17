@@ -11,7 +11,7 @@ function read(p) {
   return fs.readFileSync(path.join(dir, 'test_pkg', p), {encoding: 'utf-8'}).trim();
 }
 
-describe('npm_package srcs', () => {
+describe('pkg_npm srcs', () => {
   it('copies srcs and replaces contents', () => {
     expect(read('some_file')).toEqual('replaced');
   });
@@ -48,7 +48,7 @@ describe('npm_package srcs', () => {
      });
   it('vendors external workspaces',
      () => {
-         // TODO(alexeagle): there isn't a way to test this yet, because the npm_package under test
+         // TODO(alexeagle): there isn't a way to test this yet, because the pkg_npm under test
          // has to live in the root of the repository in order for external/foo to appear inside it
      });
 });

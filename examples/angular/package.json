@@ -53,6 +53,7 @@
         "karma-jasmine": "2.0.1",
         "karma-requirejs": "1.1.0",
         "karma-sourcemap-loader": "0.3.7",
+        "patch-package": "^6.2.0",
         "protractor": "^5.4.2",
         "requirejs": "2.3.6",
         "rollup": "^1.21.4",
@@ -69,7 +70,7 @@
         "e2e": "bazel test //e2e:all",
         "test": "bazel test //src/...",
         "benchmark": "ibazel-benchmark-runner //src:devserver src/app/hello-world/hello-world.component.ts --url=http://localhost:5432",
-        "postinstall": "ngcc",
+        "postinstall": "patch-package && ngcc",
         "generate": "node tools/generator/index.js",
         "generate:clean": "node tools/generator/index.js --clean"
     }
