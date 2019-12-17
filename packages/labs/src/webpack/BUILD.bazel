@@ -20,33 +20,15 @@ load("@npm_bazel_typescript//:index.from_src.bzl", "ts_library")
 
 package(default_visibility = ["//visibility:public"])
 
-exports_files(["cli.ts"])
-
-ts_library(
-    name = "cli_lib",
-    srcs = glob(["*.ts"]),
-    deps = [
-        "@npm//@types/node",
-        "@npm//@types/webpack",
-        "@npm//webpack",
-    ],
-)
+exports_files(["webpack.config.js"])
 
 filegroup(
     name = "package_contents",
     srcs = [
         "BUILD.bazel",
+        "webpack.config.js",
         "webpack_bundle.bzl",
     ],
 )
 
-nodejs_binary(
-    name = "cli",
-    data = [
-        "//webpack:cli_lib",
-        "@npm//webpack",
-    ],
-    entry_point = "//webpack:cli.ts",
-    visibility = ["//visibility:public"],
-)
 # END-INTERNAL

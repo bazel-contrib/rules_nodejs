@@ -6,6 +6,6 @@ describe('webpack code splitting', () => {
     const chunks = runfiles.resolvePackageRelative('bundle');
 
     expect(fs.existsSync(chunks + '/bundle.js')).toBeTruthy();
-    expect(fs.existsSync(chunks + '/chunk.js')).toBeTruthy();
+    expect(fs.existsSync(chunks + '/1.chunk.js')).toBeTruthy();
   });
 });

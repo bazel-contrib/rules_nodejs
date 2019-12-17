@@ -15,11 +15,9 @@
         "labs",
         "bazel"
     ],
-    "bin": {
-        "webpack": "./webpack/cli.js"
-    },
     "peerDependencies": {
-        "webpack": ">=4.0.0"
+        "webpack": ">=4.0.0",
+        "webpack-cli": ">=3.0.0"
     },
     "bazelWorkspaces": {
         "npm_bazel_labs": {
