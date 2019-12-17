@@ -26,6 +26,10 @@ load("//internal/common:os_name.bzl", "is_windows_os")
 load("//internal/node:node_labels.bzl", "get_node_label", "get_npm_label", "get_yarn_label")
 
 COMMON_ATTRIBUTES = dict(dict(), **{
+    "timeout": attr.int(
+        default = 3600,
+        doc = """Maximum duration of the package manager execution in seconds.""",
+    ),
     "always_hide_bazel_files": attr.bool(
         doc = """Always hide Bazel build files such as `BUILD` and BUILD.bazel` by prefixing them with `_`.
 
@@ -100,10 +104,6 @@ fine grained npm dependencies.
     "package_json": attr.label(
         mandatory = True,
         allow_single_file = True,
-    ),
-    "prod_only": attr.bool(
-        default = False,
-        doc = "Don't install devDependencies",
     ),
     "quiet": attr.bool(
         default = True,
@@ -207,10 +207,7 @@ def _npm_install_impl(repository_ctx):
     is_windows_host = is_windows_os(repository_ctx)
     node = repository_ctx.path(get_node_label(repository_ctx))
     npm = get_npm_label(repository_ctx)
-    npm_args = ["install"]
-
-    if repository_ctx.attr.prod_only:
-        npm_args.append("--production")
+    npm_args = ["install"] + repository_ctx.attr.args
 
     # If symlink_node_modules is true then run the package manager
     # in the package.json folder; otherwise, run it in the root of
@@ -294,10 +291,11 @@ cd "{root}" && "{npm}" {npm_args}
 
 npm_install = repository_rule(
     attrs = dict(COMMON_ATTRIBUTES, **{
-        "timeout": attr.int(
-            default = 3600,
-            doc = """Maximum duration of the command "npm install" in seconds
-            (default is 3600 seconds).""",
+        "args": attr.string_list(
+            doc = """Arguments passed to npm install.
+
+See npm CLI docs https://docs.npmjs.com/cli/install.html for complete list of supported arguments.""",
+            default = [],
         ),
         "package_lock_json": attr.label(
             mandatory = True,
@@ -345,15 +343,8 @@ def _yarn_install_impl(repository_ctx):
         repository_ctx.path(yarn),
         "--cwd",
         root,
-        "--network-timeout",
-        str(repository_ctx.attr.network_timeout * 1000),  # in ms
     ]
 
-    if repository_ctx.attr.frozen_lockfile:
-        args.append("--frozen-lockfile")
-
-    if repository_ctx.attr.prod_only:
-        args.append("--prod")
     if not repository_ctx.attr.use_global_yarn_cache:
         args.extend(["--cache-folder", repository_ctx.path("_yarn_cache")])
     else:
@@ -364,6 +355,8 @@ def _yarn_install_impl(repository_ctx):
         # The shared cache is not necessarily hermetic, but we need to cache downloaded
         # artifacts somewhere, so we rely on yarn to be correct.
         args.extend(["--mutex", "network"])
+
+    args.extend(repository_ctx.attr.args)
 
     repository_ctx.report_progress("Running yarn install on %s" % repository_ctx.attr.package_json)
     result = repository_ctx.execute(
@@ -381,23 +374,11 @@ def _yarn_install_impl(repository_ctx):
 
 yarn_install = repository_rule(
     attrs = dict(COMMON_ATTRIBUTES, **{
-        "timeout": attr.int(
-            default = 3600,
-            doc = """Maximum duration of the command "yarn install" in seconds
-            (default is 3600 seconds).""",
-        ),
-        "frozen_lockfile": attr.bool(
-            default = False,
-            doc = """Passes the --frozen-lockfile flag to prevent updating yarn.lock.
+        "args": attr.string_list(
+            doc = """Arguments passed to yarn install.
 
-Note that enabling this option will require that you run yarn outside of Bazel
-when making changes to package.json.
-""",
-        ),
-        "network_timeout": attr.int(
-            default = 300,
-            doc = """Maximum duration of a network request made by yarn in seconds
-            (default is 300 seconds).""",
+See yarn CLI docs https://yarnpkg.com/en/docs/cli/install for complete list of supported arguments.""",
+            default = [],
         ),
         "use_global_yarn_cache": attr.bool(
             default = True,
@@ -406,8 +387,15 @@ when making changes to package.json.
 The cache lets you avoid downloading packages multiple times.
 However, it can introduce non-hermeticity, and the yarn cache can
 have bugs.
+
 Disabling this attribute causes every run of yarn to have a unique
 cache_directory.
+
+If True, this rule will pass `--mutex network` to yarn to ensure that
+the global cache can be shared by parallelized yarn_install rules.
+
+If False, this rule will pass `--cache-folder /path/to/external/repository/__yarn_cache`
+to yarn so that the local cache is contained within the external repository.
 """,
         ),
         "yarn_lock": attr.label(
