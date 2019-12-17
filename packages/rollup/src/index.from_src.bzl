@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-""" Defaults for usage without @npm//@bazel/rollup	
+"""Defaults for usage without @npm//@bazel/rollup	
 """
 
 load(":index.bzl", _rollup_bundle = "rollup_bundle")

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-""" Custom provider that mimics the Runfiles, but doesn't incur the expense of creating the runfiles symlink tree"""
+"""Custom provider that mimics the Runfiles, but doesn't incur the expense of creating the runfiles symlink tree"""
 
 load("//internal/linker:link_node_modules.bzl", "add_arg", "write_node_modules_manifest")
 

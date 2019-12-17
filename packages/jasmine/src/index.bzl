@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-""" Public API surface is re-exported here.
+"""Public API surface is re-exported here.
 """
 
 load("//:jasmine_node_test.bzl", _jasmine_node_test = "jasmine_node_test")

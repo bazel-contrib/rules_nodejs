@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-""" Defaults for usage without @npm//@bazel/typescript
+"""Defaults for usage without @npm//@bazel/typescript
 """
 
 load("@build_bazel_rules_nodejs//internal/golden_file_test:golden_file_test.bzl", "golden_file_test")

@@ -11,8 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""
-Defines a repository rule for configuring the node executable.
+
+"""Defines a repository rule for configuring the node executable.
 """
 
 def _impl(repository_ctx):
@@ -50,7 +50,5 @@ node_toolchain_configure = repository_rule(
             mandatory = False,
         ),
     },
+    doc = """Creates an external repository with a node_toolchain //:toolchain target properly configured.""",
 )
-"""
-Creates an external repository with a node_toolchain //:toolchain target properly configured.
-"""
