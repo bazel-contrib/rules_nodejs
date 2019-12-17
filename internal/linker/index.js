@@ -143,12 +143,16 @@ class Runfiles {
     }
     resolve(modulePath) {
         if (this.manifest) {
-            return this.lookupDirectory(modulePath);
+            const result = this.lookupDirectory(modulePath);
+            if (result)
+                return result;
         }
-        if (exports.runfiles.dir) {
+        if (exports.runfiles.dir && fs.existsSync(path.join(exports.runfiles.dir, modulePath))) {
             return path.join(exports.runfiles.dir, modulePath);
         }
-        throw new Error(`could not resolve modulePath ${modulePath}`);
+        const e = new Error(`could not resolve modulePath ${modulePath}`);
+        e.code = 'MODULE_NOT_FOUND';
+        throw e;
     }
     resolveWorkspaceRelative(modulePath) {
         if (!this.workspace) {
@@ -345,7 +349,12 @@ function main(args, runfiles) {
                             else {
                                 runfilesPath = `${workspace}/${runfilesPath}`;
                             }
-                            target = runfiles.resolve(runfilesPath) || '<runfiles resolution failed>';
+                            try {
+                                target = runfiles.resolve(runfilesPath);
+                            }
+                            catch (_a) {
+                                target = '<runfiles resolution failed>';
+                            }
                             break;
                     }
                     yield symlink(target, m.name);

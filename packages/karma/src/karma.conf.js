@@ -5,6 +5,7 @@ try {
   const path = require('path');
   const tmp = require('tmp');
   const child_process = require('child_process');
+  const runfiles = require(process.env['BAZEL_NODE_RUNFILES_HELPER']);
 
   const VERBOSE_LOGS = !!process.env['VERBOSE_LOGS'];
 
@@ -230,7 +231,7 @@ try {
       // In Windows, the runfile will probably not be symlinked. Se we need to
       // serve the real file through karma, and proxy calls to the expected file
       // location in the runfiles to the real file.
-      const resolvedFile = require.resolve(f);
+      const resolvedFile = runfiles.resolve(f);
       conf.files.push({pattern: resolvedFile, included: false});
       // Prefixing the proxy path with '/absolute' allows karma to load local
       // files. This doesn't see to be an official API.
@@ -249,14 +250,14 @@ try {
       let filePath = null;
       if (f.startsWith('NODE_MODULES/')) {
         try {
-          // attempt to resolve in @bazel/typescript nested node_modules first
-          filePath = require.resolve(f.replace(/^NODE_MODULES\//, '@bazel/karma/node_modules/'));
+          // attempt to resolve in nested node_modules first
+          filePath = runfiles.resolve(f.replace(/^NODE_MODULES\//, '@bazel/karma/node_modules/'));
         } catch (e) {
           // if that failed then attempt to resolve in root node_modules
-          filePath = require.resolve(f.replace(/^NODE_MODULES\//, ''));
+          filePath = runfiles.resolve(f.replace(/^NODE_MODULES\//, ''));
         }
       } else {
-        filePath = require.resolve(f);
+        filePath = runfiles.resolve(f);
       }
 
       conf.files.push(filePath);
@@ -308,7 +309,7 @@ try {
     overrideConfigValue(conf, 'browsers', []);
     overrideConfigValue(conf, 'customLaunchers', null);
 
-    const webTestMetadata = require(process.env['WEB_TEST_METADATA']);
+    const webTestMetadata = require(runfiles.resolve(process.env['WEB_TEST_METADATA']));
     log_verbose(`WEB_TEST_METADATA: ${JSON.stringify(webTestMetadata, null, 2)}`);
     if (webTestMetadata['environment'] === 'local') {
       // When a local chrome or firefox browser is chosen such as
@@ -327,7 +328,11 @@ try {
             process.env.CHROME_BIN =
                 extractWebArchive(extractExe, archiveFile, webTestNamedFiles['CHROMIUM']);
           } else {
-            process.env.CHROME_BIN = require.resolve(webTestNamedFiles['CHROMIUM']);
+            try {
+              process.env.CHROME_BIN = runfiles.resolve(webTestNamedFiles['CHROMIUM']);
+            } catch {
+              // Ignore; karma may still find Chrome another way
+            }
           }
           const browser = process.env['DISPLAY'] ? 'Chrome' : 'ChromeHeadless';
           if (!supportChromeSandboxing()) {
@@ -345,7 +350,11 @@ try {
             process.env.FIREFOX_BIN =
                 extractWebArchive(extractExe, archiveFile, webTestNamedFiles['FIREFOX']);
           } else {
-            process.env.FIREFOX_BIN = require.resolve(webTestNamedFiles['FIREFOX']);
+            try {
+              process.env.FIREFOX_BIN = runfiles.resolve(webTestNamedFiles['FIREFOX']);
+            } catch {
+              // Ignore; karma may still find Firefox another way
+            }
           }
           conf.browsers.push(process.env['DISPLAY'] ? 'Firefox' : 'FirefoxHeadless');
         }
@@ -403,7 +412,7 @@ try {
 
     // Import the user's base karma configuration if specified
     if (configPath) {
-      const baseConf = require(configPath);
+      const baseConf = require(runfiles.resolve(configPath));
       if (typeof baseConf !== 'function') {
         throw new Error(
             'Invalid base karma configuration. Expected config function to be exported.');

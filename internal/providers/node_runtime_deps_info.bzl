@@ -74,7 +74,6 @@ def run_node(ctx, inputs, arguments, executable, **kwargs):
 
     modules_manifest = write_node_modules_manifest(ctx, link_data)
     add_arg(arguments, "--bazel_node_modules_manifest=%s" % modules_manifest.path)
-    inputs.append(modules_manifest)
 
     # By using the run_node helper, you suggest that your program
     # doesn't implicitly use runfiles to require() things
@@ -98,7 +97,7 @@ def run_node(ctx, inputs, arguments, executable, **kwargs):
     env["BAZEL_NODE_MODULES_ROOT"] = _compute_node_modules_root(ctx)
 
     ctx.actions.run(
-        inputs = inputs + extra_inputs,
+        inputs = inputs + extra_inputs + [modules_manifest],
         arguments = arguments,
         executable = exec_exec,
         env = env,
