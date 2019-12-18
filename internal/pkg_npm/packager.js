@@ -60,9 +60,9 @@ function main(args) {
   args = fs.readFileSync(args[0], {encoding: 'utf-8'}).split('\n').map(unquoteArgs);
   const
       [outDir, baseDir, srcsArg, binDir, genDir, depsArg, packagesArg, substitutionsArg, packPath,
-       publishPath, replaceWithVersion, stampFile, vendorExternalArg, renameBuildFilesArg,
+       publishPath, replaceWithVersion, stampFile, vendorExternalArg, hideBuildFilesArg,
        runNpmTemplatePath] = args;
-  const renameBuildFiles = parseInt(renameBuildFilesArg);
+  const renameBuildFiles = parseInt(hideBuildFilesArg);
 
   const substitutions = [
     // Strip content between BEGIN-INTERNAL / END-INTERNAL comments
