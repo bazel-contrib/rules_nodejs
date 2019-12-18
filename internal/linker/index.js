@@ -247,11 +247,11 @@ Include as much of the build output as you can without disclosing anything confi
         });
     }
     /**
-     * Given a set of module aliases returns an array of recursive `LinkerTreeElement`s.
+     * Given a set of module aliases returns an array of recursive `LinkerTreeElement`.
      *
-     * The tree nodes represent the FS links required. Each node of the tree hierarchy
-     * depends on its parent node having been setup first. Each sibling node can be processed
-     * concurrently.
+     * The tree nodes represent the FS links required to represent the module aliases.
+     * Each node of the tree hierarchy depends on its parent node having been setup first.
+     * Each sibling node can be processed concurrently.
      *
      * The number of symlinks is minimized in situations such as:
      *
@@ -262,7 +262,7 @@ Include as much of the build output as you can without disclosing anything confi
      *
      *    `@foo => /path/to/a`
      *
-     * Shared parent directory:
+     * Shared parent path across multiple module names:
      *    `@foo/p/a => /path/to/x/a`
      *    `@foo/p/c => /path/to/x/a`
      *
@@ -284,8 +284,7 @@ Include as much of the build output as you can without disclosing anything confi
             const moduleName = moduleNames[i];
             const next = moduleName.indexOf('/', elementPath.length + 1);
             const moduleGroup = (next === -1) ? (moduleName + '/') : moduleName.slice(0, next + 1);
-            // If the first was an exact match (direct child of element) then it is the element parent, skip
-            // it
+            // An exact match (direct child of element) then it is the element parent, skip it
             if (next === -1) {
                 i++;
             }
@@ -313,11 +312,13 @@ Include as much of the build output as you can without disclosing anything confi
         if (!children || !children.length) {
             return element;
         }
-        // A link and all the child links align under => this link alone represents that
+        // This element has a link and all the child elements have aligning links
+        // => this link alone represents that structure
         if (link && allElementsAlignUnder(name, link, children)) {
             return { name, link };
         }
-        // No link but all children align => the link can be lifted to here
+        // No link but all child elements have aligning links
+        // => the link can be lifted to here
         if (!link && allElementsAlign(name, children)) {
             return {
                 name,
@@ -366,11 +367,11 @@ Include as much of the build output as you can without disclosing anything confi
         return parent === path.dirname(child);
     }
     function isDirectChildLink([parentRel, parentPath], [childRel, childPath]) {
-        // Same link-relation type
+        // Ensure same link-relation type
         if (parentRel !== childRel) {
             return false;
         }
-        // Child path is a directly-child of the parent path
+        // Ensure child path is a direct-child of the parent path
         if (!isDirectChildPath(parentPath, childPath)) {
             return false;
         }
