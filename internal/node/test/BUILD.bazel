@@ -99,6 +99,21 @@ nodejs_test(
     entry_point = ":data_resolution.spec.js",
 )
 
+nodejs_test(
+    name = "bootstrap_test",
+    bootstrap = [":bootstrap.js"],
+    entry_point = ":bootstrap.spec.js",
+)
+
+nodejs_test(
+    name = "bootstraps_test",
+    bootstrap = [
+        ":bootstrap1.js",
+        ":bootstrap2.js",
+    ],
+    entry_point = ":bootstraps.spec.js",
+)
+
 # Also test resolution from built files.
 copy_file(
     name = "module_resolution_lib",

@@ -110,7 +110,7 @@ def _write_loader_script(ctx):
         substitutions = {
             "TEMPLATED_bin_dir": ctx.bin_dir.path,
             "TEMPLATED_bootstrap": "\n  " + ",\n  ".join(
-                ["\"" + d + "\"" for d in ctx.attr.bootstrap],
+                ["\"" + _to_manifest_path(ctx, f) + "\"" for f in ctx.files.bootstrap],
             ),
             "TEMPLATED_entry_point": entry_point_path,
             "TEMPLATED_gen_dir": ctx.genfiles_dir.path,
@@ -269,6 +269,8 @@ def _nodejs_binary_impl(ctx):
     if ctx.file.entry_point.extension == "js":
         runfiles.append(ctx.file.entry_point)
 
+    runfiles.extend(ctx.files.bootstrap)
+
     return [
         DefaultInfo(
             executable = executable,
@@ -295,11 +297,12 @@ def _nodejs_binary_impl(ctx):
     ]
 
 _NODEJS_EXECUTABLE_ATTRS = {
-    "bootstrap": attr.string_list(
+    "bootstrap": attr.label_list(
         doc = """JavaScript modules to be loaded before the entry point.
         For example, Angular uses this to patch the Jasmine async primitives for
         zone.js before the first `describe`.
         """,
+        allow_files = True,
         default = [],
     ),
     "configuration_env_vars": attr.string_list(
