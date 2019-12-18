@@ -52,7 +52,7 @@ const IS_TEST_FILE = /[^a-zA-Z0-9](spec|test)\.js$/i;
 const IS_NODE_MODULE = /\/node_modules\//
 
 // We process arguments by splicing them out of the process.argv
-// Users could set their own templated_args on their test, then
+// Users could set their own args on their test, then
 // the tested code might process the argv
 // So it shouldn't see these Bazel-specific ones
 function readArg() {
@@ -66,7 +66,7 @@ function main(args) {
 
 
   // first args is always the path to the manifest
-  const manifest = require.resolve(readArg());
+  const manifest = readArg();
   // second is always a flag to enable coverage or not
   const coverageArg = readArg();
   const enableCoverage = coverageArg === '--coverage';
@@ -78,7 +78,7 @@ function main(args) {
 
   const jrunner = new JasmineRunner({jasmineCore: jasmineCore});
   if (configFile !== '--noconfig') {
-    jrunner.loadConfigFile(require.resolve(configFile));
+    jrunner.loadConfigFile(configFile);
   }
   const allFiles = fs.readFileSync(manifest, UTF8)
                        .split('\n')

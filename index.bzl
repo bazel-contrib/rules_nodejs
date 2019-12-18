@@ -20,6 +20,7 @@ Users should not load files under "/internal"
 load("//internal/common:check_bazel_version.bzl", _check_bazel_version = "check_bazel_version")
 load("//internal/common:check_version.bzl", "check_version")
 load("//internal/common:copy_to_bin.bzl", _copy_to_bin = "copy_to_bin")
+load("//internal/common:params_file.bzl", _params_file = "params_file")
 load(
     "//internal/node:node.bzl",
     _nodejs_binary = "nodejs_binary",
@@ -39,6 +40,7 @@ pkg_npm = _pkg_npm
 npm_package_bin = _npm_bin
 pkg_web = _pkg_web
 copy_to_bin = _copy_to_bin
+params_file = _params_file
 # ANY RULES ADDED HERE SHOULD BE DOCUMENTED, see index.for_docs.bzl
 
 # Allows us to avoid a transitive dependency on bazel_skylib from leaking to users

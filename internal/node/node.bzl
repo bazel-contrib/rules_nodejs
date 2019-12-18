@@ -21,7 +21,6 @@ a `module_name` attribute can be `require`d by that name.
 """
 
 load("//:providers.bzl", "JSNamedModuleInfo", "NodeRuntimeDepsInfo", "NpmPackageInfo", "node_modules_aspect")
-load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
 load("//internal/common:module_mappings.bzl", "module_mappings_runtime_aspect")
 load("//internal/common:path_utils.bzl", "strip_external")
 load("//internal/common:windows_utils.bzl", "create_windows_native_launcher_script", "is_windows")
@@ -109,9 +108,6 @@ def _write_loader_script(ctx):
         output = ctx.outputs.loader,
         substitutions = {
             "TEMPLATED_bin_dir": ctx.bin_dir.path,
-            "TEMPLATED_bootstrap": "\n  " + ",\n  ".join(
-                ["\"" + d + "\"" for d in ctx.attr.bootstrap],
-            ),
             "TEMPLATED_entry_point": entry_point_path,
             "TEMPLATED_gen_dir": ctx.genfiles_dir.path,
             "TEMPLATED_install_source_map_support": str(ctx.attr.install_source_map_support).lower(),
@@ -204,38 +200,9 @@ def _nodejs_binary_impl(ctx):
     node_tool_files.append(ctx.file._bazel_require_script)
     node_tool_files.append(node_modules_manifest)
 
-    if not ctx.outputs.templated_args_file:
-        templated_args = ctx.attr.templated_args
-    else:
-        # Distribute the templated_args between the params file and the node options
-        params = []
-        templated_args = []
-        for a in ctx.attr.templated_args:
-            if a.startswith("--node_options="):
-                templated_args.append(a)
-            else:
-                params.append(a)
-
-        # Put the params into the params file
-        ctx.actions.write(
-            output = ctx.outputs.templated_args_file,
-            content = "\n".join([expand_location_into_runfiles(ctx, p) for p in params]),
-            is_executable = False,
-        )
-
-        # after the node_options args, pass the params file arg
-        templated_args.append(ctx.outputs.templated_args_file.short_path)
-
-        # also be sure to include the params file in the program inputs
-        node_tool_files.append(ctx.outputs.templated_args_file)
-
     is_builtin = ctx.attr._node.label.workspace_name in ["nodejs_%s" % p for p in BUILT_IN_NODE_PLATFORMS]
 
     substitutions = {
-        "TEMPLATED_args": " ".join([
-            expand_location_into_runfiles(ctx, a)
-            for a in templated_args
-        ]),
         "TEMPLATED_bazel_require_script": _to_manifest_path(ctx, ctx.file._bazel_require_script),
         "TEMPLATED_env_vars": env_vars,
         "TEMPLATED_expected_exit_code": str(expected_exit_code),
@@ -295,13 +262,6 @@ def _nodejs_binary_impl(ctx):
     ]
 
 _NODEJS_EXECUTABLE_ATTRS = {
-    "bootstrap": attr.string_list(
-        doc = """JavaScript modules to be loaded before the entry point.
-        For example, Angular uses this to patch the Jasmine async primitives for
-        zone.js before the first `describe`.
-        """,
-        default = [],
-    ),
     "configuration_env_vars": attr.string_list(
         doc = """Pass these configuration environment variables to the resulting binary.
         Chooses a subset of the configuration environment variables (taken from `ctx.var`), which also
@@ -461,19 +421,6 @@ jasmine_node_test(
 ```
 """,
         default = Label("//:node_modules_none"),
-    ),
-    "templated_args": attr.string_list(
-        doc = """Arguments which are passed to every execution of the program.
-        To pass a node startup option, prepend it with `--node_options=`, e.g.
-        `--node_options=--preserve-symlinks`
-        """,
-    ),
-    "templated_args_file": attr.output(
-        mandatory = False,
-        doc = """If specified, arguments specified in `templated_args` are instead written to this file,
-        which is then passed as an argument to the program. Arguments prefixed with `--node_options=` are
-        passed directly to node and not included in the params file.
-        """,
     ),
     "_bash_runfile_helpers": attr.label(default = Label("@bazel_tools//tools/bash/runfiles")),
     "_bazel_require_script": attr.label(

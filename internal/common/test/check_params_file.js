@@ -18,16 +18,18 @@
 
 const args = process.argv.slice(2);
 
-const BAZEL_VERSION = args[0];
+// The arguments are passed via a params file
+const [a1, a2] = require('fs').readFileSync(args[0], 'utf-8').split(/\r?\n/);
 
-const packageJson = require('build_bazel_rules_nodejs/package.json');
+const a1_exp = './package.json';
+const a2_exp = './package.json internal/common/test/check_params_file.js';
 
-// Test that the BAZEL_VERSION defined in //:index.bzl is in sync with the @bazel/bazel
-// version in //:pacakge.json
-if (packageJson['devDependencies']['@bazel/bazel'] !== `^${BAZEL_VERSION}`) {
-  console.error(`package.json @bazel/bazel '${
-      packageJson['devDependencies']
-                 ['@bazel/bazel']}' does not match ^BAZEL_VERSION in //:index.bzl '^${
-      BAZEL_VERSION}'`);
-  process.exitCode = 1;
+if (a1 !== a1_exp) {
+  console.error(`expected first argument in params file to be '${a1_exp}'`)
+  process.exit(1);
+}
+
+if (a2 !== a2_exp) {
+  console.error(`expected second argument in params file to be '${a2_exp}'`)
+  process.exit(1);
 }

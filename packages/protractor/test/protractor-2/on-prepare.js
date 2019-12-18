@@ -25,7 +25,11 @@ module.exports = function(config) {
   }
   const isProdserver = path.basename(config.server, path.extname(config.server)) === 'prodserver';
   return protractorUtils
-      .runServer(config.workspace, config.server, isProdserver ? '-p' : '-port', [])
+      // If running prodserver (http-server) we need to pass the package
+      // name which we can get from the dirname of the TEST_BINARY.
+      .runServer(
+          config.workspace, config.server, isProdserver ? '-p' : '-port',
+          isProdserver ? [path.dirname(process.env['TEST_BINARY'])] : [])
       .then(serverSpec => {
         const serverUrl = `http://localhost:${serverSpec.port}`;
         protractor.browser.baseUrl = serverUrl;

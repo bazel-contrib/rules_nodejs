@@ -172,6 +172,9 @@ Include as much of the build output as you can without disclosing anything confi
                 const pkg = target.split(':')[0];
                 this.packagePath = path.posix.join(wksp, pkg);
             }
+            // If under runfiles (and not unit testing) then don't add a bin to taget for bin links
+            this.noBin = !!env['TEST_TARGET'] && wksp !== 'build_bazel_rules_nodejs' &&
+                target !== '//internal/linker/test:unit_tests';
         }
         lookupDirectory(dir) {
             if (!this.manifest)
@@ -422,7 +425,8 @@ Include as much of the build output as you can without disclosing anything confi
                         switch (root) {
                             case 'bin':
                                 // FIXME(#1196)
-                                target = path.join(workspaceAbs, bin, toWorkspaceDir(modulePath));
+                                target = runfiles.noBin ? path.join(workspaceAbs, toWorkspaceDir(modulePath)) :
+                                    path.join(workspaceAbs, bin, toWorkspaceDir(modulePath));
                                 break;
                             case 'src':
                                 target = path.join(workspaceAbs, toWorkspaceDir(modulePath));

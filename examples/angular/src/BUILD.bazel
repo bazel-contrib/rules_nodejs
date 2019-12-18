@@ -210,26 +210,26 @@ pkg_web(
 
 history_server(
     name = "prodserver",
-    data = [":prodapp"],
     # '-a src/prodapp' will ask history-server to scan for all apps under the
     # given folder this will result in the following auto-configuration:
     #   /example => src/prodapp/example
     #   /        => src/prodapp
-    templated_args = [
+    args = [
         "-a",
         "src/prodapp",
     ],
+    data = [":prodapp"],
 )
 
 nodejs_image(
     name = "nodejs_image",
+    args = ["src/prodapp"],
     data = [":prodapp"],
     entry_point = "@npm//:node_modules/history-server/modules/cli.js",
     node_modules = "@npm//:node_modules",
     # Actions created by this rule are I/O-bound,
     # so there is no benefit to running them remotely
     tags = ["local"],
-    templated_args = ["src/prodapp"],
 )
 
 container_image(

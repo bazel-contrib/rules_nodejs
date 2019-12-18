@@ -5,13 +5,13 @@ function main(args) {
   const [mode, golden_no_debug, golden_debug, actual] = args;
   const debug = process.env['COMPILATION_MODE'] === 'dbg';
   const golden = debug ? golden_debug : golden_no_debug;
-  const actualContents = fs.readFileSync(require.resolve(actual), 'utf-8').replace(/\r\n/g, '\n');
-  const goldenContents = fs.readFileSync(require.resolve(golden), 'utf-8').replace(/\r\n/g, '\n');
+  const actualContents = fs.readFileSync(actual, 'utf-8').replace(/\r\n/g, '\n');
+  const goldenContents = fs.readFileSync(golden, 'utf-8').replace(/\r\n/g, '\n');
 
   if (actualContents !== goldenContents) {
     if (mode === '--out') {
       // Write to golden file
-      fs.writeFileSync(require.resolve(golden), actualContents);
+      fs.writeFileSync(golden, actualContents);
       console.error(`Replaced ${path.join(process.cwd(), golden)}`);
     } else if (mode === '--verify') {
       const unidiff = require('unidiff');

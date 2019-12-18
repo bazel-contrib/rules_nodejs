@@ -179,7 +179,7 @@ source $repository_args
 
 ARGS=()
 NODE_OPTIONS=()
-ALL_ARGS=(TEMPLATED_args $NODE_REPOSITORY_ARGS "$@")
+ALL_ARGS=($NODE_REPOSITORY_ARGS "$@")
 for ARG in "${ALL_ARGS[@]}"; do
   case "$ARG" in
     --bazel_node_modules_manifest=*) MODULES_MANIFEST="${ARG#--bazel_node_modules_manifest=}" ;;

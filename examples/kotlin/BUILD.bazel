@@ -63,16 +63,16 @@ pkg_web(
 # TODO: fix prodserver; require.js is needed if rollup_bundle output is cjs
 http_server(
     name = "server",
+    args = ["package"],
     data = [":package"],
-    templated_args = ["package"],
 )
 
 jasmine_node_test(
     name = "test",
     srcs = ["spec.js"],
+    args = ["--node_options=--experimental-modules"],
     data = [
         ":bundle",
         "@npm//domino",
     ],
-    templated_args = ["--node_options=--experimental-modules"],
 )

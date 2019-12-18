@@ -55,9 +55,9 @@ webpack(
 # Note, on Windows you need `--enable_runfiles`
 http_server(
     name = "server",
+    args = ["."],
     data = [
         "app.bundle.js",
         "index.html",
     ],
-    templated_args = ["."],
 )

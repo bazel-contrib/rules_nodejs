@@ -54,12 +54,12 @@ jasmine_node_test(
 )
 
 jasmine_node_test(
-    name = "templated_args_test",
+    name = "args_test",
     srcs = [
+        "args_test.js",
         "dynamic_import.js",
-        "templated_args_test.js",
     ],
-    templated_args = [
+    args = [
         "--node_options=--experimental-modules",
     ],
 )

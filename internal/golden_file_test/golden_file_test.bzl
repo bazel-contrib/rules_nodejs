@@ -19,7 +19,7 @@ Use `golden_debug` if the actual output changes when DEBUG is set.
     nodejs_test(
         name = name,
         entry_point = "@build_bazel_rules_nodejs//internal/golden_file_test:bin.js",
-        templated_args = ["--verify", loc % golden, loc % golden_debug, loc % actual],
+        args = ["--verify", loc % golden, loc % golden_debug, loc % actual],
         data = data,
         **kwargs
     )
@@ -28,7 +28,7 @@ Use `golden_debug` if the actual output changes when DEBUG is set.
         name = name + ".accept",
         testonly = True,
         entry_point = "@build_bazel_rules_nodejs//internal/golden_file_test:bin.js",
-        templated_args = ["--out", loc % golden, loc % golden_debug, loc % actual],
+        args = ["--out", loc % golden, loc % golden_debug, loc % actual],
         data = data,
         **kwargs
     )

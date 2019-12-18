@@ -37,6 +37,7 @@ ts_devserver(
 
 http_server(
     name = "prodserver",
+    args = [package_name()],
     data = [
         "index.html",
         ":bundle.min",
@@ -44,7 +45,6 @@ http_server(
     # This repeats the default, but is here for coverage
     # to make sure the generated index.bzl handles it
     output_dir = False,
-    templated_args = [package_name()],
 )
 
 ts_library(

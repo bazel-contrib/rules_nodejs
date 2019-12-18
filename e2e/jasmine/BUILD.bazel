@@ -1,3 +1,4 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin")
 load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
 
 jasmine_node_test(
@@ -5,10 +6,18 @@ jasmine_node_test(
     srcs = ["test.spec.js"],
 )
 
+copy_to_bin(
+    name = "jasmine_shared_env_test.spec",
+    srcs = ["jasmine_shared_env_test.spec.js"],
+)
+
 jasmine_node_test(
     name = "shared_env_test",
-    srcs = ["jasmine_shared_env_test.spec.js"],
-    bootstrap = ["e2e_jasmine/jasmine_shared_env_bootstrap.js"],
+    srcs = [":jasmine_shared_env_test.spec"],
+    args = [
+        "--nobazel_patch_module_resolver",
+        "--node_options=--require=./$(location :jasmine_shared_env_bootstrap.js)",
+    ],
     data = ["jasmine_shared_env_bootstrap.js"],
     deps = [
         "@npm//jasmine",

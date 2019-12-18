@@ -1081,7 +1081,7 @@ def ${name.replace(/-/g, '_')}(**kwargs):
             entry_point = "@${WORKSPACE}//:node_modules/${pkg._dir}/${path}",
             install_source_map_support = False,
             data = [${data.map(p => `"${p}"`).join(', ')}] + kwargs.pop("data", []),
-            templated_args = ["--nobazel_patch_module_resolver"] + kwargs.pop("templated_args", []),${
+            args = ["--nobazel_patch_module_resolver"] + kwargs.pop("args", []),${
           additionalAttributes(pkg, name)}
             **kwargs
         )
@@ -1092,7 +1092,7 @@ def ${name.replace(/-/g, '_')}_test(**kwargs):
       entry_point = "@${WORKSPACE}//:node_modules/${pkg._dir}/${path}",
       install_source_map_support = False,
       data = [${data.map(p => `"${p}"`).join(', ')}] + kwargs.pop("data", []),
-      templated_args = ["--nobazel_patch_module_resolver"] + kwargs.pop("templated_args", []),${
+      args = ["--nobazel_patch_module_resolver"] + kwargs.pop("args", []),${
           additionalAttributes(pkg, name)}
       **kwargs
     )

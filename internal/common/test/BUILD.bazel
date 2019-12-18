@@ -1,4 +1,6 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
 load("//internal/common:copy_to_bin.bzl", "copy_to_bin")
+load("//internal/common:params_file.bzl", "params_file")
 
 licenses(["notice"])
 
@@ -17,4 +19,31 @@ sh_test(
 copy_to_bin(
     name = "a",
     srcs = ["foo/bar/a.txt"],
+)
+
+filegroup(
+    name = "locations_in",
+    srcs = [
+        "check_params_file.js",
+        "//:package.json",
+    ],
+)
+
+params_file(
+    name = "params_file",
+    args = [
+        "$(location //:package.json)",
+        "$(locations :locations_in)",
+    ],
+    data = [
+        ":locations_in",
+        "//:package.json",
+    ],
+)
+
+nodejs_test(
+    name = "params_file_test",
+    args = ["$(location :params_file)"],
+    data = [":params_file"],
+    entry_point = ":check_params_file.js",
 )

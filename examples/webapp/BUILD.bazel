@@ -11,8 +11,8 @@ differential_loading(
 
 http_server(
     name = "server",
+    args = ["app"],
     data = [":app"],
-    templated_args = ["app"],
 )
 
 # BazelCI docker images are missing shares libs to run a subset browser tests:

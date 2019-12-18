@@ -70,28 +70,28 @@ def jasmine_node_test(
     all_data += [":%s_devmode_srcs.MF" % name]
     all_data += [Label("@bazel_tools//tools/bash/runfiles")]
 
-    # If the target specified templated_args, pass it through.
-    templated_args = kwargs.pop("templated_args", [])
-    templated_args.append("$(location :%s_devmode_srcs.MF)" % name)
+    # If the target specified args, pass it through.
+    args = kwargs.pop("args", [])
+    args.append("$(location :%s_devmode_srcs.MF)" % name)
 
     if coverage:
-        templated_args.append("--coverage")
+        args.append("--coverage")
     else:
-        templated_args.append("--nocoverage")
+        args.append("--nocoverage")
 
     if config_file:
         # Calculate a label relative to the user's BUILD file
         pkg = Label("%s//%s:__pkg__" % (native.repository_name(), native.package_name()))
         all_data.append(pkg.relative(config_file))
-        templated_args.append("$(location %s)" % config_file)
+        args.append("$(location %s)" % config_file)
     else:
-        templated_args.append("--noconfig")
+        args.append("--noconfig")
 
     nodejs_test(
         name = name,
         data = all_data,
         entry_point = jasmine_entry_point,
-        templated_args = templated_args,
+        args = args,
         testonly = 1,
         expected_exit_code = expected_exit_code,
         tags = tags,
