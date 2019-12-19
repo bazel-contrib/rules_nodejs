@@ -46,7 +46,7 @@ const projFiles = fs.readdirSync('some_project');
 if (!projFiles.indexOf('.bazelrc') < 0) {
   fail('project should have .bazelrc');
 }
-let wkspContent = read('some_project/WORKSPACE');
+let wkspContent = read('some_project/WORKSPACE.bazel');
 if (wkspContent.indexOf('npm_install(') < 0) {
   fail('should use npm by default');
 }
@@ -54,7 +54,7 @@ if (wkspContent.indexOf('npm_install(') < 0) {
 
 exitCode = main(['configure_pkgMgr', '--packageManager=yarn'], captureError);
 if (exitCode != 0) fail('should be success');
-wkspContent = read('configure_pkgMgr/WORKSPACE');
+wkspContent = read('configure_pkgMgr/WORKSPACE.bazel');
 if (wkspContent.indexOf('yarn_install(') < 0) {
   fail('should use yarn when requested');
 }
@@ -62,7 +62,7 @@ if (wkspContent.indexOf('yarn_install(') < 0) {
 process.env['_'] = '/usr/bin/yarn';
 exitCode = main(['default_to_yarn']);
 if (exitCode != 0) fail('should be success');
-wkspContent = read('default_to_yarn/WORKSPACE');
+wkspContent = read('default_to_yarn/WORKSPACE.bazel');
 if (wkspContent.indexOf('yarn_install(') < 0) {
   fail('should use yarn by default');
 }
@@ -74,7 +74,7 @@ let pkgContent = read('with_ts/package.json');
 if (pkgContent.indexOf('"@bazel/typescript": "latest"') < 0) {
   fail('should install @bazel/typescript dependency', pkgContent);
 }
-wkspContent = read('with_ts/WORKSPACE');
+wkspContent = read('with_ts/WORKSPACE.bazel');
 if (wkspContent.indexOf('ts_setup_workspace(') < 0) {
   fail('should install extra TS repositories');
 }

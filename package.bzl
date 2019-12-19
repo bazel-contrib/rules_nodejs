@@ -52,6 +52,8 @@ def rules_nodejs_dev_dependencies():
 
     http_archive(
         name = "io_bazel_stardoc",
+        # Workaround for https://github.com/bazelbuild/stardoc/issues/43
+        patches = ["@build_bazel_rules_nodejs//:stardoc.patch"],
         sha256 = "6d07d18c15abb0f6d393adbd6075cd661a2219faab56a9517741f0fc755f6f3c",
         strip_prefix = "stardoc-0.4.0",
         urls = [

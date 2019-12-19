@@ -690,8 +690,9 @@ _nodejs_repo_host_os_alias = repository_rule(_nodejs_host_os_alias_impl)
 
 def node_repositories(**kwargs):
     """
-    Wrapper macro around node_repositories_rule to call it for each platform, register bazel toolchains,
-    and make other convenience repositories.
+    Wrapper macro around node_repositories_rule to call it for each platform.
+
+    Also register bazel toolchains, and make other convenience repositories.
 
     Note, the documentation is generated from the node_repositories_rule, not this macro.
     """

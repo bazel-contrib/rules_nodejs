@@ -171,7 +171,7 @@ install_bazel_dependencies()`;
 load("@npm_bazel_typescript//:index.bzl", "ts_setup_workspace")
 ts_setup_workspace()`;
   }
-  write('WORKSPACE', workspaceContent);
+  write('WORKSPACE.bazel', workspaceContent);
   write('.bazelignore', `node_modules`);
   write(
       'package.json',
