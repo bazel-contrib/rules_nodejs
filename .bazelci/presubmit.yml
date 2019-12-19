@@ -280,17 +280,18 @@ tasks:
     # //internal/node/test:nodejs_toolchain_linux_amd64_test is a "manual" test that must be run
     # explicitly with --platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64 set
     - "//internal/node/test:nodejs_toolchain_linux_amd64_test"
-  macos_fake_rbe:
-    name: macos_fake_rbe
-    platform: macos
-    shell_commands:
-    # Reproduce https://github.com/bazelbuild/rules_nodejs/issues/1305
-    # TODO: switch to use real mac cross-platform RBE on CI when
-    #       https://github.com/bazelbuild/continuous-integration/pull/749
-    #       lands on bazelci master.
-    - echo 'build --platforms=@rbe_default//config:platform' >> .bazelrc
-    run_targets:
-    - "//internal/node/test:no_deps"
+  # TODO(gregmagolan): fix platform configuraiton for this test job for Bazel 2.0
+  # macos_fake_rbe:
+  #   name: macos_fake_rbe
+  #   platform: macos
+  #   shell_commands:
+  #   # Reproduce https://github.com/bazelbuild/rules_nodejs/issues/1305
+  #   # TODO: switch to use real mac cross-platform RBE on CI when
+  #   #       https://github.com/bazelbuild/continuous-integration/pull/749
+  #   #       lands on bazelci master.
+  #   - echo 'build --platforms=@rbe_default//config:platform' >> .bazelrc
+  #   run_targets:
+  #   - "//internal/node/test:no_deps"
   windows:
     name: windows
     platform: windows
