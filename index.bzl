@@ -20,7 +20,6 @@ Users should not load files under "/internal"
 load("//internal/common:check_bazel_version.bzl", _check_bazel_version = "check_bazel_version")
 load("//internal/common:check_version.bzl", "check_version")
 load("//internal/common:copy_to_bin.bzl", _copy_to_bin = "copy_to_bin")
-load("//internal/jasmine_node_test:jasmine_node_test.bzl", _jasmine_node_test = "jasmine_node_test")
 load(
     "//internal/node:node.bzl",
     _nodejs_binary = "nodejs_binary",
@@ -36,7 +35,6 @@ check_bazel_version = _check_bazel_version
 nodejs_binary = _nodejs_binary
 nodejs_test = _nodejs_test
 node_repositories = _node_repositories
-jasmine_node_test = _jasmine_node_test
 pkg_npm = _pkg_npm
 npm_package_bin = _npm_bin
 pkg_web = _pkg_web
