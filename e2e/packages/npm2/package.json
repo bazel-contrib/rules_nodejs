@@ -4,6 +4,9 @@
     "jsesc": "~1.2.0",
     "jasmine": "2.8.0"
   },
+  "devDependencies": {
+    "tmp": "0.1.0"
+  },
   "scripts": {
     "postinstall": "node ./postinstall.js"
   }
