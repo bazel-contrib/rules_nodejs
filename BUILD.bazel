@@ -72,7 +72,7 @@ pkg_npm(
     # Don't replace the default 0.0.0-PLACEHOLDER for this pkg_npm since
     # we are packaging up the packager itself and this replacement will break it
     replace_with_version = "",
-    replacements = COMMON_REPLACEMENTS,
+    substitutions = COMMON_REPLACEMENTS,
     deps = [
         "//internal:package_contents",
         "//internal/bazel_integration_test:package_contents",
