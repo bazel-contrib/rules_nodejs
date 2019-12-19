@@ -1,5 +1,5 @@
 ---
-bazel: 1.2.1
+bazel: 2.0.0
 tasks:
   ubuntu1604:
     name: ubuntu1604
@@ -11,7 +11,8 @@ tasks:
     - "//internal/node/test:has_deps"
     - "//internal/node/test:has_deps_hybrid"
     - "//internal/npm_install/test:index"
-    - "@fine_grained_deps_yarn//typescript/bin:tsc"
+    # Disabled due to https://github.com/bazelbuild/rules_nodejs/issues/1486
+    #- "@fine_grained_deps_yarn//typescript/bin:tsc"
     - "@bazel_workspace_a//:bin"
     - "@bazel_workspace_a//subdir:bin"
     - "@bazel_workspace_b//:bin"
@@ -86,7 +87,8 @@ tasks:
     - "//internal/node/test:has_deps"
     - "//internal/node/test:has_deps_hybrid"
     - "//internal/npm_install/test:index"
-    - "@fine_grained_deps_yarn//typescript/bin:tsc"
+    # Disabled due to https://github.com/bazelbuild/rules_nodejs/issues/1486
+    #- "@fine_grained_deps_yarn//typescript/bin:tsc"
     - "@bazel_workspace_a//:bin"
     - "@bazel_workspace_a//subdir:bin"
     - "@bazel_workspace_b//:bin"
@@ -201,7 +203,8 @@ tasks:
     - "//internal/node/test:has_deps"
     - "//internal/node/test:has_deps_hybrid"
     - "//internal/npm_install/test:index"
-    - "@fine_grained_deps_yarn//typescript/bin:tsc"
+    # Disabled due to https://github.com/bazelbuild/rules_nodejs/issues/1486
+    #- "@fine_grained_deps_yarn//typescript/bin:tsc"
     - "@bazel_workspace_a//:bin"
     - "@bazel_workspace_a//subdir:bin"
     - "@bazel_workspace_b//:bin"
@@ -298,7 +301,8 @@ tasks:
     - "//internal/node/test:has_deps"
     - "//internal/node/test:has_deps_hybrid"
     - "//internal/npm_install/test:index"
-    - "@fine_grained_deps_yarn//typescript/bin:tsc"
+    # Disabled due to https://github.com/bazelbuild/rules_nodejs/issues/1486
+    #- "@fine_grained_deps_yarn//typescript/bin:tsc"
     - "@bazel_workspace_a//:bin"
     - "@bazel_workspace_a//subdir:bin"
     - "@bazel_workspace_b//:bin"
