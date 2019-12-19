@@ -1,4 +1,5 @@
 ---
+bazel: 1.2.1
 tasks:
   ubuntu1604:
     name: ubuntu1604
