@@ -59,7 +59,7 @@ def create_package(ctx, deps_sources, nested_packages):
     args.add(ctx.genfiles_dir.path)
     args.add_joined(filtered_deps_sources, join_with = ",", omit_if_empty = False)
     args.add_joined([p.path for p in nested_packages], join_with = ",", omit_if_empty = False)
-    args.add(ctx.attr.replacements)
+    args.add(ctx.attr.substitutions)
     args.add_all([ctx.outputs.pack.path, ctx.outputs.publish.path])
     args.add(ctx.attr.replace_with_version)
     args.add(ctx.version_file.path if stamp else "")
@@ -111,7 +111,7 @@ def _pkg_npm(ctx):
     sources = depset(transitive = sources_depsets)
 
     # Note: to_list() should be called once per rule!
-    package_dir = create_package(ctx, sources.to_list(), ctx.files.packages)
+    package_dir = create_package(ctx, sources.to_list(), ctx.files.nested_packages)
 
     return [DefaultInfo(
         files = depset([package_dir]),
@@ -123,14 +123,14 @@ PKG_NPM_ATTRS = {
         doc = """Files inside this directory which are simply copied into the package.""",
         allow_files = True,
     ),
+    "nested_packages": attr.label_list(
+        doc = """Other pkg_npm rules whose content is copied into this package.""",
+        allow_files = True,
+    ),
     "node_context_data": attr.label(
         default = "@build_bazel_rules_nodejs//internal:node_context_data",
         providers = [NodeContextInfo],
         doc = "Internal use only",
-    ),
-    "packages": attr.label_list(
-        doc = """Other pkg_npm rules whose content is copied into this package.""",
-        allow_files = True,
     ),
     "rename_build_files": attr.bool(
         doc = """If set BUILD and BUILD.bazel files are prefixed with `_` in the npm package.
@@ -143,7 +143,7 @@ PKG_NPM_ATTRS = {
         See the section on stamping in the README.""",
         default = "0.0.0-PLACEHOLDER",
     ),
-    "replacements": attr.string_dict(
+    "substitutions": attr.string_dict(
         doc = """Key-value pairs which are replaced in all the files while building the package.""",
     ),
     "vendor_external": attr.string_list(
@@ -184,7 +184,7 @@ pkg_npm(
     name = "my_package",
     srcs = ["package.json"],
     deps = [":my_typescript_lib"],
-    replacements = {"//internal/": "//"},
+    substitutions = {"//internal/": "//"},
 )
 ```
 

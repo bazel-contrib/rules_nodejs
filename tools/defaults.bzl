@@ -43,13 +43,13 @@ def pkg_npm(**kwargs):
         "//examples:__pkg__",
     ])
 
-    # Default replacements to scrub things like skylib references
-    replacements = kwargs.pop("replacements", _COMMON_REPLACEMENTS)
+    # Default substitutions to scrub things like skylib references
+    substitutions = kwargs.pop("substitutions", _COMMON_REPLACEMENTS)
 
     # Finally call through to the rule with our defaults set
     _pkg_npm(
         deps = deps,
-        replacements = replacements,
+        substitutions = substitutions,
         visibility = visibility,
         **kwargs
     )

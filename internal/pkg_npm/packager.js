@@ -29,11 +29,11 @@ function mkdirp(p) {
   }
 }
 
-function copyWithReplace(src, dest, replacements, renameBuildFiles) {
+function copyWithReplace(src, dest, substitutions, renameBuildFiles) {
   mkdirp(path.dirname(dest));
   if (!isBinary(src)) {
     let content = fs.readFileSync(src, {encoding: 'utf-8'});
-    replacements.forEach(r => {
+    substitutions.forEach(r => {
       const [regexp, newvalue] = r;
       content = content.replace(regexp, newvalue);
     });
@@ -59,20 +59,20 @@ function unquoteArgs(s) {
 function main(args) {
   args = fs.readFileSync(args[0], {encoding: 'utf-8'}).split('\n').map(unquoteArgs);
   const
-      [outDir, baseDir, srcsArg, binDir, genDir, depsArg, packagesArg, replacementsArg, packPath,
+      [outDir, baseDir, srcsArg, binDir, genDir, depsArg, packagesArg, substitutionsArg, packPath,
        publishPath, replaceWithVersion, stampFile, vendorExternalArg, renameBuildFilesArg,
        runNpmTemplatePath] = args;
   const renameBuildFiles = parseInt(renameBuildFilesArg);
 
-  const replacements = [
+  const substitutions = [
     // Strip content between BEGIN-INTERNAL / END-INTERNAL comments
     [/(#|\/\/)\s+BEGIN-INTERNAL[\w\W]+?END-INTERNAL/g, ''],
   ];
-  const rawReplacements = JSON.parse(replacementsArg);
+  const rawReplacements = JSON.parse(substitutionsArg);
   for (let key of Object.keys(rawReplacements)) {
-    replacements.push([new RegExp(key, 'g'), rawReplacements[key]])
+    substitutions.push([new RegExp(key, 'g'), rawReplacements[key]])
   }
-  // Replace version last so that earlier replacements can add
+  // Replace version last so that earlier substitutions can add
   // the version placeholder
   if (replaceWithVersion) {
     let version = '0.0.0';
@@ -92,7 +92,7 @@ function main(args) {
         version = versionTag.split(' ')[1].trim();
       }
     }
-    replacements.push([new RegExp(replaceWithVersion, 'g'), version]);
+    substitutions.push([new RegExp(replaceWithVersion, 'g'), version]);
   }
 
   // src like baseDir/my/path is just copied to outDir/my/path
@@ -101,7 +101,7 @@ function main(args) {
     if (src.startsWith('external/')) {
       // If srcs is from external workspace drop the external/wksp portion
       copyWithReplace(
-          src, path.join(outDir, src.split('/').slice(2).join('/')), replacements,
+          src, path.join(outDir, src.split('/').slice(2).join('/')), substitutions,
           renameBuildFiles);
     } else {
       // Source is from local workspace
@@ -111,7 +111,7 @@ function main(args) {
             `generated file should belong in 'deps' instead.`);
       }
       copyWithReplace(
-          src, path.join(outDir, path.relative(baseDir, src)), replacements, renameBuildFiles);
+          src, path.join(outDir, path.relative(baseDir, src)), substitutions, renameBuildFiles);
     }
   }
 
@@ -140,7 +140,7 @@ function main(args) {
   // Deps like bazel-bin/baseDir/my/path is copied to outDir/my/path.
   for (dep of depsArg.split(',').filter(s => !!s)) {
     try {
-      copyWithReplace(dep, outPath(dep), replacements, renameBuildFiles);
+      copyWithReplace(dep, outPath(dep), substitutions, renameBuildFiles);
     } catch (e) {
       console.error(`Failed to copy ${dep} to ${outPath(dep)}`);
       throw e;
@@ -168,7 +168,7 @@ function main(args) {
           return file;
         }
         copyWithReplace(
-            path.join(base, file), path.join(outDir, outFile()), replacements, renameBuildFiles);
+            path.join(base, file), path.join(outDir, outFile()), substitutions, renameBuildFiles);
       }
     }
     fs.readdirSync(pkg).forEach(f => {

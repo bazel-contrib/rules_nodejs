@@ -52,7 +52,7 @@ module.exports = {{
     bazelrcImports: {{ {TMPL_bazelrc_imports} }},
     npmPackages: {{ {TMPL_npm_packages} }},
     checkNpmPackages: [ {TMPL_check_npm_packages} ],
-    packageJsonRepacements: {{ {TMPL_package_json_replacements} }},
+    packageJsonRepacements: {{ {TMPL_package_json_substitutions} }},
 }};
 """.format(
             TMPL_workspace_root = ctx.files.workspace_files[0].dirname,
@@ -63,7 +63,7 @@ module.exports = {{
             TMPL_bazelrc_imports = ", ".join(["'%s': '%s'" % (ctx.attr.bazelrc_imports[f], _to_manifest_path(ctx, f.files.to_list()[0])) for f in ctx.attr.bazelrc_imports]),
             TMPL_npm_packages = ", ".join(["'%s': '%s'" % (ctx.attr.npm_packages[f], _to_manifest_path(ctx, f.files.to_list()[0])) for f in ctx.attr.npm_packages]),
             TMPL_check_npm_packages = ", ".join(["'%s'" % s for s in ctx.attr.check_npm_packages]),
-            TMPL_package_json_replacements = ", ".join(["'%s': '%s'" % (f, ctx.attr.package_json_replacements[f]) for f in ctx.attr.package_json_replacements]),
+            TMPL_package_json_substitutions = ", ".join(["'%s': '%s'" % (f, ctx.attr.package_json_substitutions[f]) for f in ctx.attr.package_json_substitutions]),
         ),
     )
 
@@ -194,7 +194,7 @@ npm_packages = {
 }
 ```""",
     ),
-    "package_json_replacements": attr.string_dict(
+    "package_json_substitutions": attr.string_dict(
         doc = """A string dictionary of other package.json package replacements to make.
 
 This can be used for integration testing against multiple external npm dependencies without duplicating code. For example,
@@ -202,7 +202,7 @@ This can be used for integration testing against multiple external npm dependenc
 [bazel_integration_test(
     name = "e2e_typescript_%s" % tsc_version.replace(".", "_"),
     ...
-    package_json_replacements = {
+    package_json_substitutions = {
         "typescript": tsc_version,
     },
     ...

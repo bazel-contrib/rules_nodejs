@@ -102,7 +102,7 @@ e2e_integration_test(
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
     # use these package.json packages instead
-    package_json_replacements = {
+    package_json_substitutions = {
         "typescript": tsc_version,
     },
     workspace_root = "typescript",

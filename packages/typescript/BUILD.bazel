@@ -36,10 +36,10 @@ pkg_npm(
         "@npm_bazel_typescript//:package_contents",
     ],
     build_file_content = "",
-    packages = [
+    nested_packages = [
         "@build_bazel_rules_typescript//:npm_bazel_typescript_package",
     ],
-    replacements = TYPESCRIPT_REPLACEMENTS,
+    substitutions = TYPESCRIPT_REPLACEMENTS,
     vendor_external = [
         "npm_bazel_typescript",
         "build_bazel_rules_typescript",

@@ -35,9 +35,9 @@ pkg_npm(
         "some_file",
         "@internal_npm_package_test_vendored_external//:vendored_external_file",
     ],
+    nested_packages = [":dependent_pkg"],
     node_context_data = ":force_stamp",
-    packages = [":dependent_pkg"],
-    replacements = {"replace_me": "replaced"},
+    substitutions = {"replace_me": "replaced"},
     vendor_external = [
         "internal_npm_package_test_vendored_external",
     ],
