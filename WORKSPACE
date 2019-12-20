@@ -163,7 +163,7 @@ browser_repositories(
 )
 
 #
-# Dependencies to run skydoc & generating documentation
+# Dependencies to run stardoc & generating documentation
 #
 
 load("@io_bazel_rules_sass//sass:sass_repositories.bzl", "sass_repositories")

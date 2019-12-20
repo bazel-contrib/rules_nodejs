@@ -1,7 +1,5 @@
 # rollup rules for Bazel
 
-**WARNING: this is beta-quality software. Breaking changes are likely. Not recommended for production use without expert support.**
-
 The rollup rules run the rollup JS bundler with Bazel.
 
 Wraps the rollup CLI documented at https://rollupjs.org/guide/en/#command-line-reference

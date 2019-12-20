@@ -37,4 +37,4 @@ npm_install = _npm_install
 yarn_install = _yarn_install
 npm_package_bin = _npm_bin
 pkg_web = _pkg_web
-# ANY RULES ADDED HERE SHOULD BE DOCUMENTED, run yarn skydoc to verify
+# ANY RULES ADDED HERE SHOULD BE DOCUMENTED, run yarn stardoc to verify

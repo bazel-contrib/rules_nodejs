@@ -11,8 +11,6 @@ stylesheet: docs
  ********************* -->
 # Terser rules for Bazel
 
-**WARNING: this is beta-quality software. Breaking changes are likely. Not recommended for production use without expert support.**
-
 The Terser rules run the Terser JS minifier with Bazel.
 
 Wraps the Terser CLI documented at https://github.com/terser-js/terser#command-line-usage

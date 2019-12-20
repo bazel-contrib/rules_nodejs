@@ -1,7 +1,5 @@
 # TypeScript rules for Bazel
 
-**WARNING: this is beta-quality software. Breaking changes are likely. Not recommended for production use without expert support.**
-
 The TypeScript rules integrate the TypeScript compiler with Bazel.
 
 Looking for Karma rules `ts_web_test` and `karma_web_test`?

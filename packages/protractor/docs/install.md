@@ -1,7 +1,5 @@
 # Protractor rules for Bazel
 
-**WARNING: this is beta-quality software. Breaking changes are likely. Not recommended for production use without expert support.**
-
 The Protractor rules run tests under the Protractor framework with Bazel.
 
 ## Installation

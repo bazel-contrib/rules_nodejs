@@ -11,8 +11,6 @@ stylesheet: docs
  ********************* -->
 # TypeScript rules for Bazel
 
-**WARNING: this is beta-quality software. Breaking changes are likely. Not recommended for production use without expert support.**
-
 The TypeScript rules integrate the TypeScript compiler with Bazel.
 
 Looking for Karma rules `ts_web_test` and `karma_web_test`?
@@ -480,7 +478,7 @@ Defaults to `//devserver:devserver`
 (*[label]*): Go based devserver executable for the host platform.
             Defaults to precompiled go binary in @npm_bazel_typescript setup by @bazel/typescript npm package
 
-Defaults to `//devserver:devserver_darwin_amd64`
+Defaults to `//devserver:devserver_linux_amd64`
 
 #### `entry_module`
 (*String*): The `entry_module` should be the AMD module name of the entry module such as `"__main__/src/index".`

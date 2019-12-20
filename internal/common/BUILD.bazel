@@ -27,7 +27,7 @@ bzl_library(
     visibility = ["//visibility:public"],
 )
 
-# Exported to be consumed for generating skydoc.
+# Exported to be consumed for generating stardoc.
 exports_files(["check_bazel_version.bzl"])
 
 check_version_test_suite()

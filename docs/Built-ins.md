@@ -209,20 +209,13 @@ Runs some JavaScript code in NodeJS.
 ### Usage
 
 ```
-nodejs_binary(name, bootstrap, configuration_env_vars, data, default_env_vars, entry_point, install_source_map_support, node_modules, templated_args, templated_args_file)
+nodejs_binary(name, configuration_env_vars, data, default_env_vars, entry_point, install_source_map_support, node_modules, templated_args)
 ```
 
 
 
 #### `name`
 (*[name], mandatory*): A unique name for this target.
-
-#### `bootstrap`
-(*List of strings*): JavaScript modules to be loaded before the entry point.
-        For example, Angular uses this to patch the Jasmine async primitives for
-        zone.js before the first `describe`.
-
-Defaults to `[]`
 
 #### `configuration_env_vars`
 (*List of strings*): Pass these configuration environment variables to the resulting binary.
@@ -390,13 +383,6 @@ Defaults to `//:node_modules_none`
 
 Defaults to `[]`
 
-#### `templated_args_file`
-(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): If specified, arguments specified in `templated_args` are instead written to this file,
-        which is then passed as an argument to the program. Arguments prefixed with `--node_options=` are
-        passed directly to node and not included in the params file.
-
-Defaults to `None`
-
 
 ## nodejs_test
 
@@ -428,20 +414,13 @@ remote debugger.
 ### Usage
 
 ```
-nodejs_test(name, bootstrap, configuration_env_vars, data, default_env_vars, entry_point, expected_exit_code, install_source_map_support, node_modules, templated_args, templated_args_file)
+nodejs_test(name, configuration_env_vars, data, default_env_vars, entry_point, expected_exit_code, install_source_map_support, node_modules, templated_args)
 ```
 
 
 
 #### `name`
 (*[name], mandatory*): A unique name for this target.
-
-#### `bootstrap`
-(*List of strings*): JavaScript modules to be loaded before the entry point.
-        For example, Angular uses this to patch the Jasmine async primitives for
-        zone.js before the first `describe`.
-
-Defaults to `[]`
 
 #### `configuration_env_vars`
 (*List of strings*): Pass these configuration environment variables to the resulting binary.
@@ -614,13 +593,6 @@ Defaults to `//:node_modules_none`
 
 Defaults to `[]`
 
-#### `templated_args_file`
-(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): If specified, arguments specified in `templated_args` are instead written to this file,
-        which is then passed as an argument to the program. Arguments prefixed with `--node_options=` are
-        passed directly to node and not included in the params file.
-
-Defaults to `None`
-
 
 ## npm_install
 
@@ -630,7 +602,7 @@ Runs npm install during workspace setup.
 ### Usage
 
 ```
-npm_install(name, always_hide_bazel_files, data, exclude_packages, included_files, manual_build_file_contents, package_json, package_lock_json, prod_only, quiet, symlink_node_modules, timeout)
+npm_install(name, always_hide_bazel_files, args, data, included_files, manual_build_file_contents, package_json, package_lock_json, quiet, symlink_node_modules, timeout)
 ```
 
 
@@ -671,16 +643,18 @@ error.
 
 Defaults to `False`
 
+#### `args`
+(*List of strings*): Arguments passed to npm install.
+
+See npm CLI docs https://docs.npmjs.com/cli/install.html for complete list of supported arguments.
+
+Defaults to `[]`
+
 #### `data`
 (*[labels]*): Data files required by this rule.
 
 If symlink_node_modules is True, this attribute is ignored since
 the dependency manager will run in the package.json location.
-
-Defaults to `[]`
-
-#### `exclude_packages`
-(*List of strings*): DEPRECATED. This attribute is no longer used.
 
 Defaults to `[]`
 
@@ -722,11 +696,6 @@ Defaults to `""`
 #### `package_lock_json`
 (*[label], mandatory*)
 
-#### `prod_only`
-(*Boolean*): Don't install devDependencies
-
-Defaults to `False`
-
 #### `quiet`
 (*Boolean*): If stdout and stderr should be printed to the terminal.
 
@@ -750,8 +719,7 @@ data attribute.
 Defaults to `True`
 
 #### `timeout`
-(*Integer*): Maximum duration of the command "npm install" in seconds
-            (default is 3600 seconds).
+(*Integer*): Maximum duration of the package manager execution in seconds.
 
 Defaults to `3600`
 
@@ -769,7 +737,7 @@ pkg_npm(
     name = "my_package",
     srcs = ["package.json"],
     deps = [":my_typescript_lib"],
-    replacements = {"//internal/": "//"},
+    substitutions = {"//internal/": "//"},
 )
 ```
 
@@ -821,7 +789,7 @@ You can pass arguments to npm by escaping them from Bazel using a double-hyphen 
 ### Usage
 
 ```
-pkg_npm(name, deps, node_context_data, packages, rename_build_files, replace_with_version, replacements, srcs, vendor_external)
+pkg_npm(name, deps, hide_build_files, nested_packages, node_context_data, replace_with_version, srcs, substitutions, vendor_external)
 ```
 
 
@@ -834,22 +802,26 @@ pkg_npm(name, deps, node_context_data, packages, rename_build_files, replace_wit
 
 Defaults to `[]`
 
-#### `node_context_data`
-(*[label]*): Internal use only
-
-Defaults to `@build_bazel_rules_nodejs//internal:node_context_data`
-
-#### `packages`
-(*[labels]*): Other pkg_npm rules whose content is copied into this package.
-
-Defaults to `[]`
-
-#### `rename_build_files`
+#### `hide_build_files`
 (*Boolean*): If set BUILD and BUILD.bazel files are prefixed with `_` in the npm package.
         The default is True since npm packages that contain BUILD files don't work with
         `yarn_install` and `npm_install` without a post-install step that deletes or renames them.
 
+        NB: Bazel has a change in https://github.com/bazelbuild/bazel/pull/10261
+        (expected in version 2.1) that adds .bazelignore
+        support for external repositories, which will make this attribute obsolete.
+
 Defaults to `True`
+
+#### `nested_packages`
+(*[labels]*): Other pkg_npm rules whose content is copied into this package.
+
+Defaults to `[]`
+
+#### `node_context_data`
+(*[label]*): Internal use only
+
+Defaults to `@build_bazel_rules_nodejs//internal:node_context_data`
 
 #### `replace_with_version`
 (*String*): If set this value is replaced with the version stamp data.
@@ -857,15 +829,15 @@ Defaults to `True`
 
 Defaults to `"0.0.0-PLACEHOLDER"`
 
-#### `replacements`
-(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): Key-value pairs which are replaced in all the files while building the package.
-
-Defaults to `{}`
-
 #### `srcs`
 (*[labels]*): Files inside this directory which are simply copied into the package.
 
 Defaults to `[]`
+
+#### `substitutions`
+(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): Key-value pairs which are replaced in all the files while building the package.
+
+Defaults to `{}`
 
 #### `vendor_external`
 (*List of strings*): External workspaces whose contents should be vendored into this workspace.
@@ -909,7 +881,7 @@ Runs yarn install during workspace setup.
 ### Usage
 
 ```
-yarn_install(name, always_hide_bazel_files, data, exclude_packages, frozen_lockfile, included_files, manual_build_file_contents, network_timeout, package_json, prod_only, quiet, symlink_node_modules, timeout, use_global_yarn_cache, yarn_lock)
+yarn_install(name, always_hide_bazel_files, args, data, included_files, manual_build_file_contents, package_json, quiet, symlink_node_modules, timeout, use_global_yarn_cache, yarn_lock)
 ```
 
 
@@ -950,6 +922,13 @@ error.
 
 Defaults to `False`
 
+#### `args`
+(*List of strings*): Arguments passed to yarn install.
+
+See yarn CLI docs https://yarnpkg.com/en/docs/cli/install for complete list of supported arguments.
+
+Defaults to `[]`
+
 #### `data`
 (*[labels]*): Data files required by this rule.
 
@@ -957,19 +936,6 @@ If symlink_node_modules is True, this attribute is ignored since
 the dependency manager will run in the package.json location.
 
 Defaults to `[]`
-
-#### `exclude_packages`
-(*List of strings*): DEPRECATED. This attribute is no longer used.
-
-Defaults to `[]`
-
-#### `frozen_lockfile`
-(*Boolean*): Passes the --frozen-lockfile flag to prevent updating yarn.lock.
-
-Note that enabling this option will require that you run yarn outside of Bazel
-when making changes to package.json.
-
-Defaults to `False`
 
 #### `included_files`
 (*List of strings*): List of file extensions to be included in the npm package targets.
@@ -1003,19 +969,8 @@ fine grained npm dependencies.
 
 Defaults to `""`
 
-#### `network_timeout`
-(*Integer*): Maximum duration of a network request made by yarn in seconds
-            (default is 300 seconds).
-
-Defaults to `300`
-
 #### `package_json`
 (*[label], mandatory*)
-
-#### `prod_only`
-(*Boolean*): Don't install devDependencies
-
-Defaults to `False`
 
 #### `quiet`
 (*Boolean*): If stdout and stderr should be printed to the terminal.
@@ -1040,8 +995,7 @@ data attribute.
 Defaults to `True`
 
 #### `timeout`
-(*Integer*): Maximum duration of the command "yarn install" in seconds
-            (default is 3600 seconds).
+(*Integer*): Maximum duration of the package manager execution in seconds.
 
 Defaults to `3600`
 
@@ -1051,8 +1005,15 @@ Defaults to `3600`
 The cache lets you avoid downloading packages multiple times.
 However, it can introduce non-hermeticity, and the yarn cache can
 have bugs.
+
 Disabling this attribute causes every run of yarn to have a unique
 cache_directory.
+
+If True, this rule will pass `--mutex network` to yarn to ensure that
+the global cache can be shared by parallelized yarn_install rules.
+
+If False, this rule will pass `--cache-folder /path/to/external/repository/__yarn_cache`
+to yarn so that the local cache is contained within the external repository.
 
 Defaults to `True`
 
@@ -1241,6 +1202,63 @@ Defaults to `False`
 
 #### `kwargs`
       
+
+
+
+
+
+
+## params_file
+
+Generates a UTF-8 encoded params file from a list of arguments.
+
+Handles $(location) expansions for arguments.
+
+
+
+### Usage
+
+```
+params_file(name, out, args, newline, kwargs)
+```
+
+
+
+#### `name`
+      
+Name of the rule.
+
+
+
+
+#### `out`
+      
+Path of the output file, relative to this package.
+
+
+
+
+#### `args`
+      
+Arguments to concatenate into a params file.
+    Subject to $(location) substitutions
+
+Defaults to `[]`
+
+
+
+#### `newline`
+      
+one of ["auto", "unix", "windows"]: line endings to use. "auto"
+    for platform-determined, "unix" for LF, and "windows" for CRLF.
+
+Defaults to `"auto"`
+
+
+
+#### `kwargs`
+      
+further keyword arguments, e.g. <code>visibility</code>
 
 
 

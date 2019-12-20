@@ -11,8 +11,6 @@ stylesheet: docs
  ********************* -->
 # rollup rules for Bazel
 
-**WARNING: this is beta-quality software. Breaking changes are likely. Not recommended for production use without expert support.**
-
 The rollup rules run the rollup JS bundler with Bazel.
 
 Wraps the rollup CLI documented at https://rollupjs.org/guide/en/#command-line-reference
@@ -151,6 +149,27 @@ rollup_bundle(
     entry_points = {
         "index.js": "bundle"
     }
+)
+```
+
+If `rollup_bundle` is used on a `ts_library`, the `rollup_bundle` rule handles selecting the correct outputs from `ts_library`.
+In this case, `entry_point` can be specified as the `.ts` file and `rollup_bundle` will handle the mapping to the `.mjs` output file.
+
+For example:
+
+```python
+ts_library(
+    name = "foo",
+    srcs = [
+        "foo.ts",
+        "index.ts",
+    ],
+)
+
+rollup_bundle(
+    name = "bundle",
+    deps = [ "foo" ],
+    entry_point = "index.ts",
 )
 ```
 

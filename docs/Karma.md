@@ -11,8 +11,6 @@ stylesheet: docs
  ********************* -->
 # Karma rules for Bazel
 
-**WARNING: this is beta-quality software. Breaking changes are likely. Not recommended for production use without expert support.**
-
 The Karma rules run karma tests with Bazel.
 
 
@@ -40,11 +38,15 @@ Finally, configure the rules_webtesting:
 
 ```python
 # Set up web testing, choose browsers we can test on
-load("@io_bazel_rules_webtesting//web:repositories.bzl", "browser_repositories", "web_test_repositories")
+load("@io_bazel_rules_webtesting//web:repositories.bzl", "web_test_repositories")
 
 web_test_repositories()
+
+load("@io_bazel_rules_webtesting//web/versioned:browsers-0.3.2.bzl", "browser_repositories")
+
 browser_repositories(
     chromium = True,
+    firefox = True,
 )
 ```
 
@@ -258,48 +260,6 @@ Defaults to `["manual", "noci"]`
 #### `kwargs`
       
 Arguments for the wrapped karma_web_test target.
-
-
-
-
-
-
-## ts_web_test
-
-This rule has been removed. Replace with karma_web_test
-
-
-### Usage
-
-```
-ts_web_test(kwargs)
-```
-
-
-
-#### `kwargs`
-      
-
-
-
-
-
-
-## ts_web_test_suite
-
-This rule has been removed. Replace with ts_web_test_suite
-
-
-### Usage
-
-```
-ts_web_test_suite(kwargs)
-```
-
-
-
-#### `kwargs`
-      
 
 
 

@@ -28,4 +28,4 @@ ts_library = _ts_library
 ts_config = _ts_config
 ts_devserver = _ts_devserver
 # DO NOT ADD MORE rules here unless they appear in the generated docsite.
-# Run yarn skydoc to re-generate the docsite.
+# Run yarn stardoc to re-generate the docsite.

@@ -24,4 +24,4 @@ load(
 karma_web_test = _karma_web_test
 karma_web_test_suite = _karma_web_test_suite
 # DO NOT ADD MORE rules here unless they appear in the generated docsite.
-# Run yarn skydoc to re-generate the docsite.
+# Run yarn stardoc to re-generate the docsite.

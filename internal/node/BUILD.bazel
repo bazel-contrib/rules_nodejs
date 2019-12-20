@@ -28,8 +28,8 @@ bzl_library(
 )
 
 exports_files([
-    "node.bzl",  # Exported to be consumed for generating skydoc.
-    "node_repositories.bzl",  # Exported to be consumed for generating skydoc.
+    "node.bzl",  # Exported to be consumed for generating stardoc.
+    "node_repositories.bzl",  # Exported to be consumed for generating stardoc.
     "node_launcher.sh",
     "node_loader.js",
 ])

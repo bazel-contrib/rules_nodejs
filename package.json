@@ -104,7 +104,7 @@
         "update-codeowners": "./scripts/update_codeowners.sh",
         "format": "git-clang-format",
         "format-all": "clang-format --glob='{internal/**/,examples/**/}*.{js,ts}' -i",
-        "skydoc": "bazel build //docs && cp -f dist/bin/docs/*.md docs",
+        "stardoc": "bazel build //docs && cp -f dist/bin/docs/*.md docs",
         "version": "conventional-changelog -p angular -i CHANGELOG.md -s && node ./scripts/on-version.js && bazel build //:release && node ./scripts/on-release.js && git stage index.bzl docs/install.md packages/create/index.js README.md CHANGELOG.md e2e/*/WORKSPACE examples/*/WORKSPACE"
     },
     "husky": {

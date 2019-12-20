@@ -19,4 +19,4 @@ load("//:jasmine_node_test.bzl", _jasmine_node_test = "jasmine_node_test")
 
 jasmine_node_test = _jasmine_node_test
 # DO NOT ADD MORE rules here unless they appear in the generated docsite.
-# Run yarn skydoc to re-generate the docsite.
+# Run yarn stardoc to re-generate the docsite.

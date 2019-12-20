@@ -1,7 +1,5 @@
 # Karma rules for Bazel
 
-**WARNING: this is beta-quality software. Breaking changes are likely. Not recommended for production use without expert support.**
-
 The Karma rules run karma tests with Bazel.
 
 ## Installation

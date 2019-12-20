@@ -11,8 +11,6 @@ stylesheet: docs
  ********************* -->
 # Jasmine rules for Bazel
 
-**WARNING: this is beta-quality software. Breaking changes are likely. Not recommended for production use without expert support.**
-
 The Jasmine rules run tests under the Jasmine framework with Bazel.
 
 
