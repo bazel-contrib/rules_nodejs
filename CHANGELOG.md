@@ -1,3 +1,122 @@
+# [1.0.0](https://github.com/bazelbuild/rules_nodejs/compare/0.42.3...1.0.0) (2019-12-20)
+
+
+### Bug Fixes
+
+* **builtin:** bin folder was included in runfiles path for tests when link type was 'bin' ([f938ab7](https://github.com/bazelbuild/rules_nodejs/commit/f938ab7))
+* **builtin:** link module_name to directories recursively to avoid directory clashes ([#1432](https://github.com/bazelbuild/rules_nodejs/issues/1432)) ([0217724](https://github.com/bazelbuild/rules_nodejs/commit/0217724)), closes [#1411](https://github.com/bazelbuild/rules_nodejs/issues/1411)
+* **builtin:** strip BOM when parsing package.json ([#1453](https://github.com/bazelbuild/rules_nodejs/issues/1453)) ([c65d9b7](https://github.com/bazelbuild/rules_nodejs/commit/c65d9b7)), closes [#1448](https://github.com/bazelbuild/rules_nodejs/issues/1448)
+* **typescript:** remove stray references to ts_auto_deps ([#1449](https://github.com/bazelbuild/rules_nodejs/issues/1449)) ([aacd924](https://github.com/bazelbuild/rules_nodejs/commit/aacd924))
+
+
+### chore
+
+* make defs.bzl error ([3339d46](https://github.com/bazelbuild/rules_nodejs/commit/3339d46)), closes [#1068](https://github.com/bazelbuild/rules_nodejs/issues/1068)
+
+
+### Code Refactoring
+
+* pkg_npm attributes renames packages=>nested_packages & replacements=>substitutions ([7e1b7df](https://github.com/bazelbuild/rules_nodejs/commit/7e1b7df))
+* remove `bootstrap` attribute & fix $(location) expansions in nodejs_binary templated_args ([1860a6a](https://github.com/bazelbuild/rules_nodejs/commit/1860a6a))
+* remove templated_args_file from nodejs_binary & nodejs_test ([799acb4](https://github.com/bazelbuild/rules_nodejs/commit/799acb4))
+* **builtin:** add `args` to yarn_install & npm_install ([#1462](https://github.com/bazelbuild/rules_nodejs/issues/1462)) ([d245d09](https://github.com/bazelbuild/rules_nodejs/commit/d245d09))
+* **builtin:** remove legacy jasmine_node_test ([6d731cf](https://github.com/bazelbuild/rules_nodejs/commit/6d731cf))
+* **builtin:** renamed npm_package to pkg_npm to match naming convention ([7df4109](https://github.com/bazelbuild/rules_nodejs/commit/7df4109))
+* pre-1.0 release breaking changes ([cc64818](https://github.com/bazelbuild/rules_nodejs/commit/cc64818))
+* remove unused exclude_packages from npm_install & yarn_install ([f50dea3](https://github.com/bazelbuild/rules_nodejs/commit/f50dea3))
+
+
+### Features
+
+* **builtin:** introduce copy_to_bin rule ([#1450](https://github.com/bazelbuild/rules_nodejs/issues/1450)) ([f19245b](https://github.com/bazelbuild/rules_nodejs/commit/f19245b))
+
+
+### Performance Improvements
+
+* avoid unnecessary nested depset() ([#1435](https://github.com/bazelbuild/rules_nodejs/issues/1435)) ([f386322](https://github.com/bazelbuild/rules_nodejs/commit/f386322))
+
+
+### BREAKING CHANGES
+
+* `templated_args_file` removed from nodejs_binary, nodejs_test & jasmine_node_test. This was a separation of concerns and complicated node.bzl more than necessary while also being rigid in how the params file is formatted. It is more flexible to expose this functionality as another simple rule named params_file.
+
+To match standard $(location) and $(locations) expansion, params_file args location expansions are also in the standard short_path form (this differs from the old templated_args behavior which was not Bazel idiomatic)
+Usage example:
+
+```
+load("@build_bazel_rules_nodejs//:index.bzl", "params_file", "nodejs_binary")
+
+params_file(
+    name = "params_file",
+    args = [
+        "--some_param",
+        "$(location //path/to/some:file)",
+        "--some_other_param",
+        "$(location //path/to/some/other:file)",
+    ],
+    data = [
+        "//path/to/some:file",
+        "//path/to/some/other:file",
+    ],
+)
+
+nodejs_binary(
+    name = "my_binary",
+    data = [":params_file"],
+    entry_point = ":my_binary.js",
+    templated_args = ["$(location :params_file)"],
+)
+```
+* bootstrap attribute in nodejs_binary, nodejs_test & jasmine_node_test removed
+
+This can be replaced with the `--node_options=--require=$(location label)` argument such as,
+
+```
+nodejs_test(
+name = "bootstrap_test",
+templated_args = ["--node_options=--require=$(rlocation $(location :bootstrap.js))"],
+entry_point = ":bootstrap.spec.js",
+data = ["bootstrap.js"],
+)
+```
+or
+```
+jasmine_node_test(
+name = "bootstrap_test",
+srcs = ["bootstrap.spec.js"],
+templated_args = ["--node_options=--require=$(rlocation $(location :bootstrap.js))"],
+data = ["bootstrap.js"],
+)
+```
+
+`templated_args` `$(location)` and `$(locations)` are now correctly expanded when there is no space before ` $(location`
+such as `templated_args = ["--node_options=--require=$(rlocation $(location :bootstrap.js))"]`.
+
+Path is returned in runfiles manifest path format such as `repo/path/to/file`. This differs from how $(location)
+and $(locations) expansion behaves in expansion the `args` attribute of a *_binary or *_test which returns
+the runfiles short path of the format `./path/to/file` for user repo and `../external_repo/path/to/file` for external
+repositories. We may change this behavior in the future with $(mlocation) and $(mlocations) used to expand
+to the runfiles manifest path.
+See https://docs.bazel.build/versions/master/be/common-definitions.html#common-attributes-binaries.
+* * pkg_npm attribute packages renamed to nested_packages
+* pkg_npm attribute replacements renamed to substitutions
+* **builtin:** legacy @build_bazel_rules_nodejs//internal/jasmine_node_test removed; use jasmine_node_test from @bazel/jasmine npm package instead
+* **builtin:** `args` in yarn_install and npm_install can be used to pass arbitrary arguments so we removed the following attributes:
+* prod_only from yarn_install and npm_install; should be replaced by args = ["--prod"] and args = ["--production"] respectively
+* frozen_lockfile from yarn_install; should be replaced by args = ["--frozen-lockfile"]
+* network_timeout from yanr_install; should be replaced by args = ["--network_timeout", "<time in ms>"]
+* **builtin:** `npm_package` renamed to `pkg_npm`. This is to match the naming convention for package rules https://docs.bazel.build/versions/master/be/pkg.html.
+* Users must now switch to loading from index.bzl
+* Removed unused exclude_packages from npm_install & yarn_install
+* //:declaration_provider.bzl deleted; load from //:providers.bzl instead
+//internal/common:npm_pacakge_info.bzl removed; load from //:providers.bzl instead
+transitive_js_ecma_script_module_info macro removed; use js_ecma_script_module_info instead
+@npm_bazel_karma//:browser_repositories.bzl removed; use @io_bazel_rules_webtesting//web/versioned:browsers-0.3.2.bzl instead
+@npm_bazel_protractor//:browser_repositories.bzl removed; use @io_bazel_rules_webtesting//web/versioned:browsers-0.3.2.bzl instead
+ts_web_test & ts_web_test_suite marcos removed; use karma_web_test & karma_web_test_suite instead
+
+
+
 ## [0.42.3](https://github.com/bazelbuild/rules_nodejs/compare/0.42.2...0.42.3) (2019-12-10)
 
 To upgrade:
