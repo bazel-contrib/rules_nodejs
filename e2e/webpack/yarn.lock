@@ -2,19 +2,19 @@
 # yarn lockfile v1
 
 
-"@bazel/jasmine@^0.42.3":
-  version "0.42.3"
-  resolved "https://registry.yarnpkg.com/@bazel/jasmine/-/jasmine-0.42.3.tgz#c27c3fb3ac861a9d9da1190e1906818ac5143dc9"
-  integrity sha512-O7hs+TZT+J+pPgDJZh0RhwMpMDpbZoU1Qd5jSk8xWyfuNK1T6iCq5YkPS641kE/yk/07x3cDE+9xpBmW1gsJzg==
+"@bazel/jasmine@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@bazel/jasmine/-/jasmine-1.0.0.tgz#12aa82c0e4b7b5658e9e496b73c0cf660df2b0ae"
+  integrity sha512-cheQWMYs0PaS4kYwJC9tmAiyd0tLbPNcgoM+S8plNUp5k0gUVosCvQ0TOrxvRlKEY0ni1hdn9owPx2rUO1J+Wg==
   dependencies:
     jasmine "~3.4.0"
     jasmine-core "~3.4.0"
     v8-coverage "1.0.9"
 
-"@bazel/labs@^0.42.3":
-  version "0.42.3"
-  resolved "https://registry.yarnpkg.com/@bazel/labs/-/labs-0.42.3.tgz#ed97d2ad3abd2bd961f212ed6b66e1fb409739ad"
-  integrity sha512-dWTr8czg96i7rGQI6Jg/l5JsikWNWQCusDJ5db256NFKL+lbB6ii16+4zjKw/Ge3YmcMNZBP3481+4ahRCzTkA==
+"@bazel/labs@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@bazel/labs/-/labs-1.0.0.tgz#ba8cf02c29b1e11a939b43fdca2f739494382df1"
+  integrity sha512-0afbbNKZxwGXKGqRKO0lLfJw6ZF8TI0cxlcQCVab9LGucIZ2MCh8F/SthEMWr4481tkrmlyPkaG4NSLZTGqwHg==
 
 "@webassemblyjs/ast@1.8.5":
   version "1.8.5"

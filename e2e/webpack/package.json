@@ -2,8 +2,8 @@
     "name": "e2e-webpack",
     "private": true,
     "devDependencies": {
-        "@bazel/jasmine": "^0.42.3",
-        "@bazel/labs": "^0.42.3",
+        "@bazel/jasmine": "^1.0.0",
+        "@bazel/labs": "^1.0.0",
         "webpack": "^4.41.2"
     },
     "scripts": {
