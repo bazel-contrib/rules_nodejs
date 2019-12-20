@@ -109,9 +109,6 @@ def _write_loader_script(ctx):
         output = ctx.outputs.loader,
         substitutions = {
             "TEMPLATED_bin_dir": ctx.bin_dir.path,
-            "TEMPLATED_bootstrap": "\n  " + ",\n  ".join(
-                ["\"" + d + "\"" for d in ctx.attr.bootstrap],
-            ),
             "TEMPLATED_entry_point": entry_point_path,
             "TEMPLATED_gen_dir": ctx.genfiles_dir.path,
             "TEMPLATED_install_source_map_support": str(ctx.attr.install_source_map_support).lower(),
@@ -219,7 +216,7 @@ def _nodejs_binary_impl(ctx):
         # Put the params into the params file
         ctx.actions.write(
             output = ctx.outputs.templated_args_file,
-            content = "\n".join([expand_location_into_runfiles(ctx, p) for p in params]),
+            content = "\n".join([expand_location_into_runfiles(ctx, p, ctx.attr.data) for p in params]),
             is_executable = False,
         )
 
@@ -233,7 +230,7 @@ def _nodejs_binary_impl(ctx):
 
     substitutions = {
         "TEMPLATED_args": " ".join([
-            expand_location_into_runfiles(ctx, a)
+            expand_location_into_runfiles(ctx, a, ctx.attr.data)
             for a in templated_args
         ]),
         "TEMPLATED_bazel_require_script": _to_manifest_path(ctx, ctx.file._bazel_require_script),
@@ -295,13 +292,6 @@ def _nodejs_binary_impl(ctx):
     ]
 
 _NODEJS_EXECUTABLE_ATTRS = {
-    "bootstrap": attr.string_list(
-        doc = """JavaScript modules to be loaded before the entry point.
-        For example, Angular uses this to patch the Jasmine async primitives for
-        zone.js before the first `describe`.
-        """,
-        default = [],
-    ),
     "configuration_env_vars": attr.string_list(
         doc = """Pass these configuration environment variables to the resulting binary.
         Chooses a subset of the configuration environment variables (taken from `ctx.var`), which also

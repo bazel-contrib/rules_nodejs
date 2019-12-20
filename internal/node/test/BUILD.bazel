@@ -99,6 +99,62 @@ nodejs_test(
     entry_point = ":data_resolution.spec.js",
 )
 
+nodejs_test(
+    name = "bootstrap_test",
+    data = ["bootstrap.js"],
+    entry_point = ":bootstrap.spec.js",
+    templated_args = ["--node_options=--require=$(rlocation $(location :bootstrap.js))"],
+)
+
+# Special case when $(location) is for a root file
+nodejs_test(
+    name = "bootstrap_root_test",
+    data = ["//:bootstrap.js"],
+    entry_point = ":bootstrap.spec.js",
+    templated_args = ["--node_options=--require=$(rlocation $(location //:bootstrap.js))"],
+)
+
+nodejs_test(
+    name = "bootstraps_test",
+    data = [
+        "bootstrap1.js",
+        "bootstrap2.js",
+    ],
+    entry_point = ":bootstraps.spec.js",
+    templated_args = [
+        "--node_options=--require=$(rlocation $(location :bootstrap1.js))",
+        "--node_options=--require=$(rlocation $(location :bootstrap2.js))",
+    ],
+)
+
+nodejs_test(
+    name = "bootstrap_mlocation_test",
+    data = ["bootstrap.js"],
+    entry_point = ":bootstrap.spec.js",
+    templated_args = ["--node_options=--require=$(rlocation $(mlocation :bootstrap.js))"],
+)
+
+# Special case when $(location) is for a root file
+nodejs_test(
+    name = "bootstrap_mlocation_root_test",
+    data = ["//:bootstrap.js"],
+    entry_point = ":bootstrap.spec.js",
+    templated_args = ["--node_options=--require=$(rlocation $(mlocation //:bootstrap.js))"],
+)
+
+nodejs_test(
+    name = "bootstraps_mlocation_test",
+    data = [
+        "bootstrap1.js",
+        "bootstrap2.js",
+    ],
+    entry_point = ":bootstraps.spec.js",
+    templated_args = [
+        "--node_options=--require=$(rlocation $(mlocation :bootstrap1.js))",
+        "--node_options=--require=$(rlocation $(mlocation :bootstrap2.js))",
+    ],
+)
+
 # Also test resolution from built files.
 copy_file(
     name = "module_resolution_lib",

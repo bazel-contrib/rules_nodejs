@@ -33,6 +33,7 @@ exports_files([
     "common.bazelrc",
     "tsconfig.json",
     "package.json",
+    "bootstrap.js",
 ])
 
 bzl_library(

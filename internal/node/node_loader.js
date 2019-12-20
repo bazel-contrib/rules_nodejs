@@ -48,11 +48,6 @@ var MODULE_ROOTS = [
   TEMPLATED_module_roots
 ].sort((a, b) => b.module_name.toString().length - a.module_name.toString().length);
 
-/**
- * Array of bootstrap modules that need to be loaded before the entry point.
- */
-var BOOTSTRAP = [TEMPLATED_bootstrap];
-
 const USER_WORKSPACE_NAME = 'TEMPLATED_user_workspace_name';
 const NODE_MODULES_ROOT = 'TEMPLATED_node_modules_root';
 const BIN_DIR = 'TEMPLATED_bin_dir';
@@ -66,7 +61,6 @@ log_verbose(`running ${TARGET} with
   runfiles: ${process.env.RUNFILES}
 
   BIN_DIR: ${BIN_DIR}
-  BOOTSTRAP: ${JSON.stringify(BOOTSTRAP, undefined, 2)}
   ENTRY_POINT: ${ENTRY_POINT}
   GEN_DIR: ${GEN_DIR}
   INSTALL_SOURCE_MAP_SUPPORT: ${INSTALL_SOURCE_MAP_SUPPORT}
@@ -502,15 +496,6 @@ if (INSTALL_SOURCE_MAP_SUPPORT) {
     log_verbose(`WARNING: source-map-support module not installed.
       Stack traces from languages like TypeScript will point to generated .js files.
       Set install_source_map_support = False in ${TARGET} to turn off this warning.`);
-  }
-}
-// Load all bootstrap modules before loading the entrypoint.
-for (var i = 0; i < BOOTSTRAP.length; i++) {
-  try {
-    module.constructor._load(BOOTSTRAP[i], this);
-  } catch (e) {
-    console.error('bootstrap failure ' + e.stack || e);
-    process.exit(1);
   }
 }
 
