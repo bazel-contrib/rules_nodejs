@@ -9,6 +9,129 @@ to the `deps` of one of their targets.
 load("//:providers.bzl", "DeclarationInfo", "JSNamedModuleInfo", "NodeContextInfo")
 load("//internal/common:path_utils.bzl", "strip_external")
 
+_DOC = """The pkg_npm rule creates a directory containing a publishable npm artifact.
+
+Example:
+
+```python
+load("@build_bazel_rules_nodejs//:index.bzl", "pkg_npm")
+
+pkg_npm(
+    name = "my_package",
+    srcs = ["package.json"],
+    deps = [":my_typescript_lib"],
+    substitutions = {"//internal/": "//"},
+)
+```
+
+You can use a pair of `// BEGIN-INTERNAL ... // END-INTERNAL` comments to mark regions of files that should be elided during publishing.
+For example:
+
+```javascript
+function doThing() {
+    // BEGIN-INTERNAL
+    // This is a secret internal-only comment
+    doInternalOnlyThing();
+    // END-INTERNAL
+}
+```
+
+With the Bazel stamping feature, pkg_npm will replace any placeholder version in your package with the actual version control tag.
+See the [stamping documentation](https://github.com/bazelbuild/rules_nodejs/blob/master/docs/index.md#stamping)
+
+Usage:
+
+`pkg_npm` yields three labels. Build the package directory using the default label:
+
+```sh
+$ bazel build :my_package
+Target //:my_package up-to-date:
+  bazel-out/fastbuild/bin/my_package
+$ ls -R bazel-out/fastbuild/bin/my_package
+```
+
+Dry-run of publishing to npm, calling `npm pack` (it builds the package first if needed):
+
+```sh
+$ bazel run :my_package.pack
+INFO: Running command line: bazel-out/fastbuild/bin/my_package.pack
+my-package-name-1.2.3.tgz
+$ tar -tzf my-package-name-1.2.3.tgz
+```
+
+Actually publish the package with `npm publish` (also builds first):
+
+```sh
+# Check login credentials
+$ bazel run @nodejs//:npm_node_repositories who
+# Publishes the package
+$ bazel run :my_package.publish
+```
+
+> Note that the `.pack` and `.publish` commands require that the `bazel-out` symlink exists in your project.
+> Also, you must run the command from the workspace root directory containing the `bazel-out` symlink.
+
+You can pass arguments to npm by escaping them from Bazel using a double-hyphen, for example:
+
+`bazel run my_package.publish -- --tag=next`
+"""
+
+PKG_NPM_ATTRS = {
+    "srcs": attr.label_list(
+        doc = """Files inside this directory which are simply copied into the package.""",
+        allow_files = True,
+    ),
+    "hide_build_files": attr.bool(
+        doc = """If set BUILD and BUILD.bazel files are prefixed with `_` in the npm package.
+        The default is True since npm packages that contain BUILD files don't work with
+        `yarn_install` and `npm_install` without a post-install step that deletes or renames them.
+
+        NB: Bazel has a change in https://github.com/bazelbuild/bazel/pull/10261
+        (expected in version 2.1) that adds .bazelignore
+        support for external repositories, which will make this attribute obsolete.""",
+        default = True,
+    ),
+    "nested_packages": attr.label_list(
+        doc = """Other pkg_npm rules whose content is copied into this package.""",
+        allow_files = True,
+    ),
+    "node_context_data": attr.label(
+        default = "@build_bazel_rules_nodejs//internal:node_context_data",
+        providers = [NodeContextInfo],
+        doc = "Internal use only",
+    ),
+    "replace_with_version": attr.string(
+        doc = """If set this value is replaced with the version stamp data.
+        See the section on stamping in the README.""",
+        default = "0.0.0-PLACEHOLDER",
+    ),
+    "substitutions": attr.string_dict(
+        doc = """Key-value pairs which are replaced in all the files while building the package.""",
+    ),
+    "vendor_external": attr.string_list(
+        doc = """External workspaces whose contents should be vendored into this workspace.
+        Avoids 'external/foo' path segments in the resulting package.""",
+    ),
+    "deps": attr.label_list(
+        doc = """Other targets which produce files that should be included in the package, such as `rollup_bundle`""",
+        allow_files = True,
+    ),
+    "_packager": attr.label(
+        default = Label("//internal/pkg_npm:packager"),
+        cfg = "host",
+        executable = True,
+    ),
+    "_run_npm_template": attr.label(
+        default = Label("@nodejs//:run_npm.sh.template"),
+        allow_single_file = True,
+    ),
+}
+
+PKG_NPM_OUTPUTS = {
+    "pack": "%{name}.pack",
+    "publish": "%{name}.publish",
+}
+
 # Takes a depset of files and returns a corresponding list of file paths without any files
 # that aren't part of the specified package path. Also include files from external repositories
 # that explicitly specified in the vendor_external list.
@@ -118,122 +241,9 @@ def _pkg_npm(ctx):
         runfiles = ctx.runfiles([package_dir]),
     )]
 
-PKG_NPM_ATTRS = {
-    "srcs": attr.label_list(
-        doc = """Files inside this directory which are simply copied into the package.""",
-        allow_files = True,
-    ),
-    "hide_build_files": attr.bool(
-        doc = """If set BUILD and BUILD.bazel files are prefixed with `_` in the npm package.
-        The default is True since npm packages that contain BUILD files don't work with
-        `yarn_install` and `npm_install` without a post-install step that deletes or renames them.
-
-        NB: Bazel has a change in https://github.com/bazelbuild/bazel/pull/10261
-        (expected in version 2.1) that adds .bazelignore
-        support for external repositories, which will make this attribute obsolete.""",
-        default = True,
-    ),
-    "nested_packages": attr.label_list(
-        doc = """Other pkg_npm rules whose content is copied into this package.""",
-        allow_files = True,
-    ),
-    "node_context_data": attr.label(
-        default = "@build_bazel_rules_nodejs//internal:node_context_data",
-        providers = [NodeContextInfo],
-        doc = "Internal use only",
-    ),
-    "replace_with_version": attr.string(
-        doc = """If set this value is replaced with the version stamp data.
-        See the section on stamping in the README.""",
-        default = "0.0.0-PLACEHOLDER",
-    ),
-    "substitutions": attr.string_dict(
-        doc = """Key-value pairs which are replaced in all the files while building the package.""",
-    ),
-    "vendor_external": attr.string_list(
-        doc = """External workspaces whose contents should be vendored into this workspace.
-        Avoids 'external/foo' path segments in the resulting package.""",
-    ),
-    "deps": attr.label_list(
-        doc = """Other targets which produce files that should be included in the package, such as `rollup_bundle`""",
-        allow_files = True,
-    ),
-    "_packager": attr.label(
-        default = Label("//internal/pkg_npm:packager"),
-        cfg = "host",
-        executable = True,
-    ),
-    "_run_npm_template": attr.label(
-        default = Label("@nodejs//:run_npm.sh.template"),
-        allow_single_file = True,
-    ),
-}
-
-PKG_NPM_OUTPUTS = {
-    "pack": "%{name}.pack",
-    "publish": "%{name}.publish",
-}
-
 pkg_npm = rule(
     implementation = _pkg_npm,
     attrs = PKG_NPM_ATTRS,
-    doc = """The pkg_npm rule creates a directory containing a publishable npm artifact.
-
-Example:
-
-```python
-load("@build_bazel_rules_nodejs//:index.bzl", "pkg_npm")
-
-pkg_npm(
-    name = "my_package",
-    srcs = ["package.json"],
-    deps = [":my_typescript_lib"],
-    substitutions = {"//internal/": "//"},
-)
-```
-
-You can use a pair of `// BEGIN-INTERNAL ... // END-INTERNAL` comments to mark regions of files that should be elided during publishing.
-For example:
-
-```javascript
-function doThing() {
-    // BEGIN-INTERNAL
-    // This is a secret internal-only comment
-    doInternalOnlyThing();
-    // END-INTERNAL
-}
-```
-
-Usage:
-
-`pkg_npm` yields three labels. Build the package directory using the default label:
-
-```sh
-$ bazel build :my_package
-Target //:my_package up-to-date:
-  bazel-out/fastbuild/bin/my_package
-$ ls -R bazel-out/fastbuild/bin/my_package
-```
-
-Dry-run of publishing to npm, calling `npm pack` (it builds the package first if needed):
-
-```sh
-$ bazel run :my_package.pack
-INFO: Running command line: bazel-out/fastbuild/bin/my_package.pack
-my-package-name-1.2.3.tgz
-$ tar -tzf my-package-name-1.2.3.tgz
-```
-
-Actually publish the package with `npm publish` (also builds first):
-
-```sh
-# Check login credentials
-$ bazel run @nodejs//:npm_node_repositories who
-# Publishes the package
-$ bazel run :my_package.publish
-```
-
-You can pass arguments to npm by escaping them from Bazel using a double-hyphen `bazel run my_package.publish -- --tag=next`
-""",
+    doc = _DOC,
     outputs = PKG_NPM_OUTPUTS,
 )
