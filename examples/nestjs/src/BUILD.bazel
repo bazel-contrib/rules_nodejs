@@ -73,11 +73,5 @@ jasmine_node_test(
 # bazel build --platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64 //src:docker
 nodejs_image(
     name = "docker",
-    data = [
-        ":app",
-    ],
-    entry_point = ":main.ts",
-    # TODO: switch to fine grained deps -- see bazelbuild/rules_docker#1000
-    # and add test for docker image
-    node_modules = "@npm//:node_modules",
+    binary = ":server",
 )
