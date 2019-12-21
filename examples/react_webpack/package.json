@@ -1,9 +1,9 @@
 {
     "private": true,
     "devDependencies": {
-        "@bazel/bazel": "^1.2.0",
+        "@bazel/bazel": "^2.0.0",
         "@bazel/buildifier": "^0.29.0",
-        "@bazel/ibazel": "^0.10.3",
+        "@bazel/ibazel": "^0.11.0",
         "@types/react": "^16.9.5",
         "@types/react-dom": "^16.9.1",
         "css-loader": "^3.2.0",
