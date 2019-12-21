@@ -37,12 +37,52 @@ load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
 
 install_bazel_dependencies()
 
+# We don't depend on rules_cc, but rules_docker depends on rules_go which optionally requires rules_cc
+# https://github.com/bazelbuild/rules_go/blob/v0.22.3/go/private/repositories.bzl#L96-L105
+# This uses git_repository fetch which breaks in bazel-in-bazel on CircleCI.
+# (we don't have the right environment for git to run correctly)
+# As a workaround we install it with http_archive - this should not be needed for typical users.
+#
+# The error looks like:
+# INFO: Call stack for the definition of repository 'rules_cc' which is a git_repository (rule definition at /home/circleci/.cache/bazel/_bazel_circleci/05f212f3bda034380c8096e2edc688d3/external/bazel_tools/tools/build_defs/repo/git.bzl:195:18):
+#  - <builtin>
+#  - /home/circleci/.cache/bazel/_bazel_circleci/05f212f3bda034380c8096e2edc688d3/external/io_bazel_rules_go/go/private/repositories.bzl:241:9
+#  - /home/circleci/.cache/bazel/_bazel_circleci/05f212f3bda034380c8096e2edc688d3/external/io_bazel_rules_go/go/private/repositories.bzl:99:5
+#  - /home/circleci/.cache/bazel/_bazel_circleci/05f212f3bda034380c8096e2edc688d3/external/io_bazel_rules_docker/repositories/go_repositories.bzl:33:5
+#  - /home/circleci/.cache/bazel/_bazel_circleci/05f212f3bda034380c8096e2edc688d3/external/io_bazel_rules_docker/nodejs/image.bzl:44:5
+#  - /tmp/tmp-19164Sgdxtn504V3o/WORKSPACE:59:1
+# ERROR: An error occurred during the fetch of repository 'rules_cc':
+#    Traceback (most recent call last):
+# 	File "/home/circleci/.cache/bazel/_bazel_circleci/05f212f3bda034380c8096e2edc688d3/external/bazel_tools/tools/build_defs/repo/git.bzl", line 177
+# 		_clone_or_update(ctx)
+# 	File "/home/circleci/.cache/bazel/_bazel_circleci/05f212f3bda034380c8096e2edc688d3/external/bazel_tools/tools/build_defs/repo/git.bzl", line 36, in _clone_or_update
+# 		git_repo(ctx, directory)
+# 	File "/home/circleci/.cache/bazel/_bazel_circleci/05f212f3bda034380c8096e2edc688d3/external/bazel_tools/tools/build_defs/repo/git_worker.bzl", line 91, in git_repo
+# 		_update(ctx, git_repo)
+# 	File "/home/circleci/.cache/bazel/_bazel_circleci/05f212f3bda034380c8096e2edc688d3/external/bazel_tools/tools/build_defs/repo/git_worker.bzl", line 103, in _update
+# 		fetch(ctx, git_repo)
+# 	File "/home/circleci/.cache/bazel/_bazel_circleci/05f212f3bda034380c8096e2edc688d3/external/bazel_tools/tools/build_defs/repo/git_worker.bzl", line 129, in fetch
+# 		_git_maybe_shallow(ctx, <5 more arguments>)
+# 	File "/home/circleci/.cache/bazel/_bazel_circleci/05f212f3bda034380c8096e2edc688d3/external/bazel_tools/tools/build_defs/repo/git_worker.bzl", line 171, in _git_maybe_shallow
+# 		_error(ctx.name, <2 more arguments>)
+# 	File "/home/circleci/.cache/bazel/_bazel_circleci/05f212f3bda034380c8096e2edc688d3/external/bazel_tools/tools/build_defs/repo/git_worker.bzl", line 181, in _error
+# 		fail(<1 more arguments>)
+# error running 'git fetch origin refs/heads/*:refs/remotes/origin/* refs/tags/*:refs/tags/*' while working with @rules_cc:
+# Permission denied (publickey).
+http_archive(
+    name = "rules_cc",
+    sha256 = "98d5f9324d346bdce89a1a9ced1b9a3fcb2bae8b9a71510de7afa0cfb466d7af",
+    strip_prefix = "rules_cc-726dd8157557f1456b3656e26ab21a1646653405",
+    urls = [
+        "https://github.com/bazelbuild/rules_cc/archive/726dd8157557f1456b3656e26ab21a1646653405.zip",
+    ],
+)
+
 http_archive(
     name = "io_bazel_rules_docker",
-    patches = ["//:rules_docker.patch"],
-    sha256 = "7d453450e1eb70e238eea6b31f4115607ec1200e91afea01c25f9804f37e39c8",
-    strip_prefix = "rules_docker-0.10.0",
-    urls = ["https://github.com/bazelbuild/rules_docker/archive/v0.10.0.tar.gz"],
+    sha256 = "dc97fccceacd4c6be14e800b2a00693d5e8d07f69ee187babfd04a80a9f8e250",
+    strip_prefix = "rules_docker-0.14.1",
+    urls = ["https://github.com/bazelbuild/rules_docker/releases/download/v0.14.1/rules_docker-v0.14.1.tar.gz"],
 )
 
 load(

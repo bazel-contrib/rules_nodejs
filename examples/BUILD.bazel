@@ -153,9 +153,6 @@ example_integration_test(
         "@rayman1104",
         "@siberex",
     ],
-    # Breaks on Windows with `rules_docker requires a python interpreter installed. Please set
-    # BAZEL_PYTHON, or put it on your path.`
-    tags = ["fix-windows"],
 )
 
 example_integration_test(

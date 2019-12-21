@@ -223,13 +223,10 @@ history_server(
 
 nodejs_image(
     name = "nodejs_image",
-    data = [":prodapp"],
-    entry_point = "@npm//:node_modules/history-server/modules/cli.js",
-    node_modules = "@npm//:node_modules",
+    binary = ":prodserver",
     # Actions created by this rule are I/O-bound,
     # so there is no benefit to running them remotely
     tags = ["local"],
-    templated_args = ["src/prodapp"],
 )
 
 container_image(
@@ -238,7 +235,6 @@ container_image(
     # Actions created by this rule are I/O-bound,
     # so there is no benefit to running them remotely
     tags = ["local"],
-    workdir = "/app/src/nodejs_image.binary.runfiles/examples_angular",
 )
 
 ts_library(
