@@ -11,7 +11,6 @@ workspace(
 )
 
 # These rules are built-into Bazel but we need to load them first to download more rules
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 # Fetch rules_nodejs so we can install our npm dependencies
@@ -99,10 +98,9 @@ http_archive(
 
 http_archive(
     name = "io_bazel_rules_docker",
-    patches = ["//:rules_docker.patch"],
-    sha256 = "7d453450e1eb70e238eea6b31f4115607ec1200e91afea01c25f9804f37e39c8",
-    strip_prefix = "rules_docker-0.10.0",
-    urls = ["https://github.com/bazelbuild/rules_docker/archive/v0.10.0.tar.gz"],
+    sha256 = "dc97fccceacd4c6be14e800b2a00693d5e8d07f69ee187babfd04a80a9f8e250",
+    strip_prefix = "rules_docker-0.14.1",
+    urls = ["https://github.com/bazelbuild/rules_docker/releases/download/v0.14.1/rules_docker-v0.14.1.tar.gz"],
 )
 
 load("@io_bazel_rules_docker//repositories:repositories.bzl", container_repositories = "repositories")
@@ -117,16 +115,20 @@ nodejs_image_repos()
 # Kubernetes setup, for deployment to Google Cloud #
 ####################################################
 
-git_repository(
+http_archive(
     name = "io_bazel_rules_k8s",
-    commit = "36ae5b534cc51ab0815c9bc723760469a9f7175c",
-    remote = "https://github.com/bazelbuild/rules_k8s.git",
-    shallow_since = "1545317854 -0500",
+    sha256 = "cc75cf0d86312e1327d226e980efd3599704e01099b58b3c2fc4efe5e321fcd9",
+    strip_prefix = "rules_k8s-0.3.1",
+    urls = ["https://github.com/bazelbuild/rules_k8s/releases/download/v0.3.1/rules_k8s-v0.3.1.tar.gz"],
 )
 
 load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_defaults", "k8s_repositories")
 
 k8s_repositories()
+
+load("@io_bazel_rules_k8s//k8s:k8s_go_deps.bzl", k8s_go_deps = "deps")
+
+k8s_go_deps()
 
 k8s_defaults(
     # This creates a rule called "k8s_deploy" that we can call later

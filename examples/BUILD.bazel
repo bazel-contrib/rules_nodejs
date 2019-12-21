@@ -153,9 +153,15 @@ example_integration_test(
         "@rayman1104",
         "@siberex",
     ],
-    # Breaks on Windows with `rules_docker requires a python interpreter installed. Please set
-    # BAZEL_PYTHON, or put it on your path.`
-    tags = ["fix-windows"],
+    # Fails on transitive dep of rules_docker
+    # error running 'git init C:/users/b/_bazel_b/3oe2yqkh/external/rules_cc' while working with @rules_cc:
+    # java.io.IOException: ERROR: src/main/native/windows/process.cc(199): CreateProcessW("git" init C:/users/b/_bazel_b/3oe2yqkh/external/rules_cc): The system cannot find the file specified
+    #
+    # NB: even after working around that by fetching rules_cc with an http_archive we get a follow-on failure
+    # ERROR: Analysis of target '//src:docker' failed; build aborted: no such package '@nodejs_image_base//image': Pull command failed: java.io.IOException: ERROR: src/main/native/windows/process.cc(199): CreateProcessW("C:\users\b\_bazel_b\vanuqgg3\external\go_puller_linux\file\downloaded" -directory C:/users/b/_bazel_b/vanuqgg3/external/nodejs_image_base/image -os linux -os-version "" -os-features "" -architecture amd64 -variant "" -features "" -name gcr.io/google-appengine/debian9@sha256:c05b781371f75d1bd7a199bc83de177173cc80c98dbfb6c1ef7075757addece4): %1 is not a valid Win32 application.
+    # (error: 193) (C:/users/b/_bazel_b/vanuqgg3/external/go_puller_linux/file/downloaded -directory
+    # C:/users/b/_bazel_b/vanuqgg3/external/nodejs_image_base/image -os linux -os-version  -os-features  -architecture amd64 -variant  -features  -name gcr.io/google-appengine/debian9@sha256:c05b781371f75d1bd7a199bc83de177173cc80c98dbfb6c1ef7075757addece4)
+    tags = ["no-bazelci-windows"],
 )
 
 example_integration_test(

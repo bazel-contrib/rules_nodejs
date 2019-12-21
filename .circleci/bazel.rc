@@ -19,3 +19,7 @@ build --local_cpu_resources=8
 # Our integration tests rely on accessing public registries which can fail
 # Let's give all failing tests a second try to mostly paper over flakiness
 test --flaky_test_attempts=2
+
+# Expose the SSH_AUTH_SOCK variable to integration tests that need to run git_repository repository rules
+# This is needed by the CircleCI git-over-ssh environment
+test --test_env=SSH_AUTH_SOCK
