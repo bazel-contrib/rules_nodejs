@@ -1,7 +1,7 @@
 load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
 load("@npm_angular_bazel//:index.bzl", "ng_module")
+load("@npm_bazel_karma//:index.bzl", "karma_web_test_suite")
 load("@npm_bazel_typescript//:index.bzl", "ts_library")
-load("//tools:defaults.bzl", "karma_web_test_suite")
 
 package(default_visibility = ["//:__subpackages__"])
 
@@ -70,6 +70,7 @@ karma_web_test_suite(
         "@io_bazel_rules_webtesting//browsers:chromium-local",
         "@io_bazel_rules_webtesting//browsers:firefox-local",
     ],
+    tags = ["native"],
     runtime_deps = [
         "//src:initialize_testbed",
     ],

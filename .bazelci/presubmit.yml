@@ -22,7 +22,12 @@ tasks:
     build_targets:
     - "//..."
     test_flags:
-    - "--test_tag_filters=-e2e,-examples,-no-bazelci,-no-bazelci-ubuntu,-manual"
+    # Both chrome & firefox are missing shared libs on bazelci ubuntu.
+    # On circleci we have the same issue but we can work around it using apt-get.
+    # on bazelci apt-get fails with permission denied and there is no sudo
+    # command to switch to root.
+    # TODO(gregmagolan): figure out how to install missing shared libs
+    - "--test_tag_filters=-e2e,-examples,-manual,-browser:chromium-local,-browser:firefox-local"
     test_targets:
     - "//..."
     # //internal/node/test:nodejs_toolchain_linux_amd64_test is a "manual" test that must be run
@@ -48,7 +53,12 @@ tasks:
     - "--local_resources=792,1.0,1.0"
     # test_args will be passed to the nested bazel process
     - "--test_arg=--local_resources=13288,7.0,1.0"
-    - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-ubuntu,-manual"
+    # Both chrome & firefox are missing shared libs on bazelci ubuntu.
+    # On circleci we have the same issue but we can work around it using apt-get.
+    # on bazelci apt-get fails with permission denied and there is no sudo
+    # command to switch to root.
+    # TODO(gregmagolan): figure out how to install missing shared libs
+    - "--test_arg=--test_tag_filters=-manual,-browser:chromium-local,-browser:firefox-local"
     test_targets:
     - "//..."
   ubuntu1604_examples:
@@ -67,11 +77,16 @@ tasks:
     build_targets:
     - "//..."
     test_flags:
-    - "--test_tag_filters=examples,-no-bazelci-ubuntu"
+    - "--test_tag_filters=examples"
     - "--local_resources=792,1.0,1.0"
     # test_args will be passed to the nested bazel process
     - "--test_arg=--local_resources=13288,7.0,1.0"
-    - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-ubuntu,-manual"
+    # Both chrome & firefox are missing shared libs on bazelci ubuntu.
+    # On circleci we have the same issue but we can work around it using apt-get.
+    # on bazelci apt-get fails with permission denied and there is no sudo
+    # command to switch to root.
+    # TODO(gregmagolan): figure out how to install missing shared libs
+    - "--test_arg=--test_tag_filters=-manual,-browser:chromium-local,-browser:firefox-local"
     test_targets:
     - "//..."
     # The following examples only works on linux as it downloads the linux node distribution
@@ -101,7 +116,12 @@ tasks:
     # coverage of it to make sure it doesn't break.
     - "//docs"
     test_flags:
-    - "--test_tag_filters=-e2e,-examples,-no-bazelci,-no-bazelci-ubuntu,-manual"
+    # Both chrome & firefox are missing shared libs on bazelci ubuntu.
+    # On circleci we have the same issue but we can work around it using apt-get.
+    # on bazelci apt-get fails with permission denied and there is no sudo
+    # command to switch to root.
+    # TODO(gregmagolan): figure out how to install missing shared libs
+    - "--test_tag_filters=-e2e,-examples,-manual,-browser:chromium-local,-browser:firefox-local"
     test_targets:
     - "//..."
     # //internal/node/test:nodejs_toolchain_linux_amd64_test is a "manual" test that must be run
@@ -113,7 +133,12 @@ tasks:
     test_flags:
     - "--compilation_mode=dbg"
     - "--define=VERBOSE_LOGS=1"
-    - "--test_tag_filters=-e2e,-examples,-no-bazelci,-no-bazelci-ubuntu,-manual"
+    # Both chrome & firefox are missing shared libs on bazelci ubuntu.
+    # On circleci we have the same issue but we can work around it using apt-get.
+    # on bazelci apt-get fails with permission denied and there is no sudo
+    # command to switch to root.
+    # TODO(gregmagolan): figure out how to install missing shared libs
+    - "--test_tag_filters=-e2e,-examples,-manual,-browser:chromium-local,-browser:firefox-local"
     test_targets:
     - "//..."
   ubuntu1804_e2e:
@@ -136,7 +161,12 @@ tasks:
     - "--local_resources=792,1.0,1.0"
     # test_args will be passed to the nested bazel process
     - "--test_arg=--local_resources=13288,7.0,1.0"
-    - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-ubuntu,-manual"
+    # Both chrome & firefox are missing shared libs on bazelci ubuntu.
+    # On circleci we have the same issue but we can work around it using apt-get.
+    # on bazelci apt-get fails with permission denied and there is no sudo
+    # command to switch to root.
+    # TODO(gregmagolan): figure out how to install missing shared libs
+    - "--test_arg=--test_tag_filters=-manual,-browser:chromium-local,-browser:firefox-local"
     test_targets:
     - "//..."
   ubuntu1804_examples:
@@ -155,11 +185,16 @@ tasks:
     build_targets:
     - "//..."
     test_flags:
-    - "--test_tag_filters=examples,-no-bazelci-ubuntu"
+    - "--test_tag_filters=examples"
     - "--local_resources=792,1.0,1.0"
     # test_args will be passed to the nested bazel process
     - "--test_arg=--local_resources=13288,7.0,1.0"
-    - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-ubuntu,-manual"
+    # Both chrome & firefox are missing shared libs on bazelci ubuntu.
+    # On circleci we have the same issue but we can work around it using apt-get.
+    # on bazelci apt-get fails with permission denied and there is no sudo
+    # command to switch to root.
+    # TODO(gregmagolan): figure out how to install missing shared libs
+    - "--test_arg=--test_tag_filters=-manual,-browser:chromium-local,-browser:firefox-local"
     test_targets:
     - "//..."
     # The following examples only works on linux as it downloads the linux node distribution
@@ -216,7 +251,9 @@ tasks:
     build_targets:
     - "//..."
     test_flags:
-    - "--test_tag_filters=-e2e,-examples,-no-bazelci,-no-bazelci-mac,-manual"
+    # Firefox are missing shared libs on bazelci mac
+    # TODO(gregmagolan): figure out how to install missing shared libs
+    - "--test_tag_filters=-e2e,-examples,-manual,-browser:firefox-local"
     test_targets:
     - "//..."
     # //internal/node/test:nodejs_toolchain_darwin_amd64_test is a "manual" test that must be run
@@ -243,7 +280,9 @@ tasks:
     # test_args will be passed to the nested bazel process
     # TODO(gregmagolan): fix frequent flake with multiple cores in nested bazel (osx buildkite & local)
     - "--test_arg=--local_resources=13288,1.0,1.0"
-    - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-mac,-manual"
+    # Firefox are missing shared libs on bazelci mac
+    # TODO(gregmagolan): figure out how to install missing shared libs
+    - "--test_arg=--test_tag_filters=-manual,-browser:firefox-local"
     test_targets:
     - "//..."
   macos_examples:
@@ -267,7 +306,9 @@ tasks:
     # test_args will be passed to the nested bazel process
     # TODO(gregmagolan): fix frequent flake with multiple cores in nested bazel (osx buildkite & local)
     - "--test_arg=--local_resources=13288,1.0,1.0"
-    - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-mac,-manual"
+    # Firefox are missing shared libs on bazelci mac
+    # TODO(gregmagolan): figure out how to install missing shared libs
+    - "--test_arg=--test_tag_filters=-no-bazelci-mac,-manual,-browser:firefox-local"
     test_targets:
     - "//..."
   macos_cross_compile_linux:
@@ -313,11 +354,13 @@ tasks:
     - "@bazel_workspace_b//:bin"
     - "@bazel_workspace_b//subdir:bin"
     build_flags:
-    - "--build_tag_filters=-e2e,-examples,-no-bazelci,-no-bazelci-windows,-fix-windows,-manual"
+    - "--build_tag_filters=-e2e,-examples,-fix-windows,-manual"
     build_targets:
     - "//..."
     test_flags:
-    - "--test_tag_filters=-e2e,-examples,-no-bazelci,-no-bazelci-windows,-fix-windows,-manual"
+    # Firefox not supported on Windows with rules_webtesting (if run it exit with success)
+    # See https://github.com/bazelbuild/rules_webtesting/blob/0.3.3/browsers/BUILD.bazel#L66.
+    - "--test_tag_filters=-e2e,-examples,-fix-windows,-manual,-browser:firefox-local"
     test_targets:
     - "//..."
     # //internal/node/test:nodejs_toolchain_windows_amd64_test is a "manual" test that must be run
@@ -331,11 +374,15 @@ tasks:
     build_targets:
     - "//..."
     test_flags:
-    - "--test_tag_filters=e2e"
+    - "--test_tag_filters=e2e,-fix-windows"
     - "--local_resources=792,1.0,1.0"
     # test_args will be passed to the nested bazel process
-    - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-windows,-fix-windows,-manual"
     - "--test_arg=--local_resources=13288,1.0,1.0"
+    # Firefox not supported on Windows with rules_webtesting (if run it exit with success)
+    # See https://github.com/bazelbuild/rules_webtesting/blob/0.3.3/browsers/BUILD.bazel#L66.
+    # Chrome fails to launch on Windows inside bazel-in-bazel with: [17:12:04] E/launcher -
+    # spawn D:\...\external\io_bazel_rules_webtesting\third_party\chromedriver\chromedriver.out\chromedriver_win32\chromedriver.exe ENOENT
+    - "--test_arg=--test_tag_filters=-fix-windows,-manual,-browser:chromium-local,-browser:firefox-local"
     test_targets:
     - "//..."
   windows_examples:
@@ -349,8 +396,12 @@ tasks:
     - "--test_tag_filters=examples,-manual,-fix-windows,-no-bazelci-windows"
     - "--local_resources=792,1.0,1.0"
     # test_args will be passed to the nested bazel process
-    - "--test_arg=--test_tag_filters=-no-bazelci,-no-bazelci-windows,-fix-windows,-manual"
     - "--test_arg=--local_resources=13288,1.0,1.0"
+    # Firefox not supported on Windows with rules_webtesting (if run it exit with success)
+    # See https://github.com/bazelbuild/rules_webtesting/blob/0.3.3/browsers/BUILD.bazel#L66.
+    # Chrome fails to launch on Windows inside bazel-in-bazel with: [17:12:04] E/launcher -
+    # spawn D:\...\external\io_bazel_rules_webtesting\third_party\chromedriver\chromedriver.out\chromedriver_win32\chromedriver.exe ENOENT
+    - "--test_arg=--test_tag_filters=-no-bazelci-windows,-fix-windows,-manual,-browser:chromium-local,-browser:firefox-local"
     test_targets:
     - "//..."
   windows_cross_compile_linux:
