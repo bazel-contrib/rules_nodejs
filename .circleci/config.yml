@@ -145,7 +145,7 @@ jobs:
       - *init_bazel
       - *hide_node_and_yarn_local_binaries
 
-      - run: bazel test --test_tag_filters=-e2e,-examples,-no-circleci,-manual ...
+      - run: bazel test --test_tag_filters=-e2e,-examples,-manual ...
 
       - store_artifacts:
           path: dist/bin/release.tar.gz
@@ -180,7 +180,7 @@ jobs:
       # to build the release package with this configuration.
       - run: bazel build --build_tag_filters=e2e ...
       - run:
-          command: bazel test --test_tag_filters=e2e --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,7.0,1.0 --test_arg=--test_tag_filters=-no-circleci,-manual ...
+          command: bazel test --test_tag_filters=e2e --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,7.0,1.0 --test_arg=--test_tag_filters=-manual ...
           no_output_timeout: 20m
 
   test_examples:
@@ -208,7 +208,7 @@ jobs:
       - run: bazel build --build_tag_filters=examples ...
       - run:
           # We don't have java installed on our circleci docker image
-          command: bazel test --test_tag_filters=examples,-requires-java --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,7.0,1.0 --test_arg=--test_tag_filters=-no-circleci,-manual ...
+          command: bazel test --test_tag_filters=examples,-requires-java --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,7.0,1.0 --test_arg=--test_tag_filters=-manual ...
           no_output_timeout: 20m
       # The following examples only works on linux as it downloads the linux node distribution
       # It is tagged "manual" so we run it explicitly here

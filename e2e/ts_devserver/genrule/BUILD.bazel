@@ -70,9 +70,5 @@ protractor_web_test_suite(
     name = "devserver_test",
     on_prepare = "//:protractor.on-prepare.js",
     server = ":devserver",
-    tags = [
-        "no-bazelci-ubuntu",
-        "no-bazelci-windows",
-    ],
     deps = [":e2e"],
 )

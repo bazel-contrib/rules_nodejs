@@ -24,27 +24,17 @@ example_integration_test(
         "//packages/terser:npm_package": "@bazel/terser",
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
-    tags = [
-        # bazel-in-bazel examples_angular fails on ubuntu as the bazelci
-        # ubuntu docker image is missing shares libs required for the versions
-        # of chrome and firefox fetched by rules_webtesting. On circleci
-        # we have the same issue but we can work around it using apt-get.
-        # on bazelci apt-get fails with permission denied and there is no sudo
-        # command to switch to root.
-        # TODO(gregmagolan): figure out how to install the shared libs on bazelci
-        "no-bazelci-ubuntu",
-        # bazel-in-bazel examples_angular fails on Windows on bazelci cloning a git repo:
-        # ```
-        # ERROR: no such package '@io_bazel_rules_k8s//k8s': Traceback (most recent call last):
-        # 	File "D:/b/ftxm343s/execroot/build_bazel_rules_nodejs/_tmp/3726d3573001cb4068a18af89eb255de/_bazel_b/ktluxf26/external/bazel_tools/tools/build_defs/repo/git.bzl", line 163
-        # 		_clone_or_update(ctx)
-        # 	File "D:/b/ftxm343s/execroot/build_bazel_rules_nodejs/_tmp/3726d3573001cb4068a18af89eb255de/_bazel_b/ktluxf26/external/bazel_tools/tools/build_defs/repo/git.bzl", line 36, in _clone_or_update
-        # 		git_repo(ctx, directory)
-        # ```
-        # This is most likely due to a memory issue with this large bazel-in-bazel test.
-        # TODO(gregmagolan): figure out what is broken with the above
-        "no-bazelci-windows",
-    ],
+    # bazel-in-bazel examples_angular fails on Windows on bazelci cloning a git repo:
+    # ```
+    # ERROR: no such package '@io_bazel_rules_k8s//k8s': Traceback (most recent call last):
+    # 	File "D:/b/ftxm343s/execroot/build_bazel_rules_nodejs/_tmp/3726d3573001cb4068a18af89eb255de/_bazel_b/ktluxf26/external/bazel_tools/tools/build_defs/repo/git.bzl", line 163
+    # 		_clone_or_update(ctx)
+    # 	File "D:/b/ftxm343s/execroot/build_bazel_rules_nodejs/_tmp/3726d3573001cb4068a18af89eb255de/_bazel_b/ktluxf26/external/bazel_tools/tools/build_defs/repo/git.bzl", line 36, in _clone_or_update
+    # 		git_repo(ctx, directory)
+    # ```
+    # This is most likely due to a memory issue with this large bazel-in-bazel test.
+    # TODO(gregmagolan): figure out what is broken with the above
+    tags = ["no-bazelci-windows"],
 )
 
 example_integration_test(
@@ -57,27 +47,17 @@ example_integration_test(
         "//packages/terser:npm_package": "@bazel/terser",
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
-    tags = [
-        # bazel-in-bazel examples_angular_view_engine fails on ubuntu as the bazelci
-        # ubuntu docker image is missing shares libs required for the versions
-        # of chrome and firefox fetched by rules_webtesting. On circleci
-        # we have the same issue but we can work around it using apt-get.
-        # on bazelci apt-get fails with permission denied and there is no sudo
-        # command to switch to root.
-        # TODO(gregmagolan): figure out how to install the shared libs on bazelci
-        "no-bazelci-ubuntu",
-        # bazel-in-bazel examples_angular_view_engine fails on Windows on bazelci cloning a git repo:
-        # ```
-        # ERROR: no such package '@io_bazel_rules_k8s//k8s': Traceback (most recent call last):
-        # 	File "D:/b/ftxm343s/execroot/build_bazel_rules_nodejs/_tmp/3726d3573001cb4068a18af89eb255de/_bazel_b/ktluxf26/external/bazel_tools/tools/build_defs/repo/git.bzl", line 163
-        # 		_clone_or_update(ctx)
-        # 	File "D:/b/ftxm343s/execroot/build_bazel_rules_nodejs/_tmp/3726d3573001cb4068a18af89eb255de/_bazel_b/ktluxf26/external/bazel_tools/tools/build_defs/repo/git.bzl", line 36, in _clone_or_update
-        # 		git_repo(ctx, directory)
-        # ```
-        # This is most likely due to a memory issue with this large bazel-in-bazel test.
-        # TODO(gregmagolan): figure out what is broken with the above
-        "no-bazelci-windows",
-    ],
+    # bazel-in-bazel examples_angular_view_engine fails on Windows on bazelci cloning a git repo:
+    # ```
+    # ERROR: no such package '@io_bazel_rules_k8s//k8s': Traceback (most recent call last):
+    # 	File "D:/b/ftxm343s/execroot/build_bazel_rules_nodejs/_tmp/3726d3573001cb4068a18af89eb255de/_bazel_b/ktluxf26/external/bazel_tools/tools/build_defs/repo/git.bzl", line 163
+    # 		_clone_or_update(ctx)
+    # 	File "D:/b/ftxm343s/execroot/build_bazel_rules_nodejs/_tmp/3726d3573001cb4068a18af89eb255de/_bazel_b/ktluxf26/external/bazel_tools/tools/build_defs/repo/git.bzl", line 36, in _clone_or_update
+    # 		git_repo(ctx, directory)
+    # ```
+    # This is most likely due to a memory issue with this large bazel-in-bazel test.
+    # TODO(gregmagolan): figure out what is broken with the above
+    tags = ["no-bazelci-windows"],
 )
 
 example_integration_test(

@@ -65,7 +65,6 @@ protractor_web_test_suite(
     server = ":prodserver",
     tags = [
         "fix-windows",  # http_server (and history_server) do not work on Windows
-        "no-bazelci-ubuntu",  # ubuntu docker images on buildkite missing chrome dependencies & apt-get install not possible
     ],
     deps = [
         ":ts_spec",
@@ -77,9 +76,6 @@ protractor_web_test_suite(
     configuration = ":conf.js",
     on_prepare = ":on-prepare.js",
     server = ":devserver",
-    tags = [
-        "no-bazelci-ubuntu",  # ubuntu docker images on buildkite missing chrome dependencies & apt-get install not possible
-    ],
     deps = [
         ":ts_spec",
     ],
