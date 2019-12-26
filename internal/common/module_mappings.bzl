@@ -80,7 +80,7 @@ def get_module_mappings(label, attrs, srcs = [], workspace_name = None, mappings
             mr = "%s/%s" % (workspace_name, mr)
         elif label.workspace_root:
             mr = "%s/%s" % (label.workspace_root, mr)
-        if attrs.module_root and attrs.module_root != ".":
+        if hasattr(attrs, "module_root") and attrs.module_root and attrs.module_root != ".":
             if attrs.module_root.endswith(".ts"):
                 if workspace_name:
                     # workspace_name is set only when doing module mapping for runtime.
