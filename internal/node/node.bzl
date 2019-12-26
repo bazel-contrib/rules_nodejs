@@ -169,7 +169,7 @@ def _nodejs_binary_impl(ctx):
 
     script_path = _to_manifest_path(ctx, ctx.outputs.loader)
 
-    env_vars = "export BAZEL_TARGET=%s\n" % ctx.label
+    env_vars = ""
     for k in ctx.attr.configuration_env_vars + ctx.attr.default_env_vars:
         if k in ctx.var.keys():
             env_vars += "export %s=\"%s\"\n" % (k, ctx.var[k])
