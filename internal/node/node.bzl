@@ -78,7 +78,7 @@ def _compute_node_modules_root(ctx):
         ] if f])
     return node_modules_root
 
-def _write_require_patch_script(ctx):
+def _write_require_patch_script(ctx, node_modules_root):
     # Generates the JavaScript snippet of module roots mappings, with each entry
     # in the form:
     #   {module_name: /^mod_name\b/, module_root: 'path/to/mod_name'}
@@ -174,11 +174,14 @@ def _nodejs_binary_impl(ctx):
             sources_depsets.append(d.files)
     sources = depset(transitive = sources_depsets)
 
-    _write_require_patch_script(ctx)
+    node_modules_root = _compute_node_modules_root(ctx)
+
+    _write_require_patch_script(ctx, node_modules_root)
     _write_loader_script(ctx)
 
     env_vars = "export BAZEL_TARGET=%s\n" % ctx.label
     env_vars += "export BAZEL_WORKSPACE=%s\n" % ctx.workspace_name
+    env_vars += "export NODE_MODULES_ROOT=%s\n" % node_modules_root
     for k in ctx.attr.configuration_env_vars + ctx.attr.default_env_vars:
         # Check ctx.var first & if env var not in there then check
         # ctx.configuration.default_shell_env. The former will contain values from --define=FOO=BAR
