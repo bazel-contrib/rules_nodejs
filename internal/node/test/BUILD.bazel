@@ -56,12 +56,10 @@ nodejs_binary(
     entry_point = ":entry_file",
 )
 
-# Coverage for issue https://github.com/bazelbuild/rules_nodejs/issues/834
-# where module_name is equal to the workspace naem
 js_library(
     name = "module_name_lib",
     srcs = ["module-name.js"],
-    module_name = "build_bazel_rules_nodejs",
+    module_name = "build_bazel_rules_nodejs/internal/node/test",
 )
 
 nodejs_binary(

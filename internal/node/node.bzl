@@ -25,7 +25,7 @@ load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfile
 load("//internal/common:module_mappings.bzl", "module_mappings_runtime_aspect")
 load("//internal/common:path_utils.bzl", "strip_external")
 load("//internal/common:windows_utils.bzl", "create_windows_native_launcher_script", "is_windows")
-load("//internal/linker:link_node_modules.bzl", "write_node_modules_manifest")
+load("//internal/linker:link_node_modules.bzl", "module_mappings_aspect", "write_node_modules_manifest")
 load("//internal/node:node_repositories.bzl", "BUILT_IN_NODE_PLATFORMS")
 
 def _trim_package_node_modules(package_name):
@@ -282,7 +282,7 @@ _NODEJS_EXECUTABLE_ATTRS = {
     "data": attr.label_list(
         doc = """Runtime dependencies which may be loaded during execution.""",
         allow_files = True,
-        aspects = [node_modules_aspect, module_mappings_runtime_aspect],
+        aspects = [node_modules_aspect, module_mappings_aspect, module_mappings_runtime_aspect],
     ),
     "default_env_vars": attr.string_list(
         doc = """Default environment variables that are added to `configuration_env_vars`.
