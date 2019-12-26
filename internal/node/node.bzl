@@ -181,7 +181,10 @@ def _nodejs_binary_impl(ctx):
 
     env_vars = "export BAZEL_TARGET=%s\n" % ctx.label
     env_vars += "export BAZEL_WORKSPACE=%s\n" % ctx.workspace_name
-    env_vars += "export NODE_MODULES_ROOT=%s\n" % node_modules_root
+    env_vars += """if [[ -z "${NODE_MODULES_ROOT:-}" ]]; then
+  export NODE_MODULES_ROOT=%s
+fi
+""" % node_modules_root
     for k in ctx.attr.configuration_env_vars + ctx.attr.default_env_vars:
         # Check ctx.var first & if env var not in there then check
         # ctx.configuration.default_shell_env. The former will contain values from --define=FOO=BAR
