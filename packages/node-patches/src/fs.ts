@@ -492,7 +492,16 @@ export const escapeFunction = (root: string) => {
   }
 
   function isOutPath(str: string) {
-    return !root || (!str.startsWith(root + path.sep) && str !== root);
+    return !root || (!str.startsWith(root + path.sep) && str !== root) ||
+        // don't allow symlink to escape to duplicate node_modules tree
+        (process.env.NODE_MODULES_ROOT &&
+         str.startsWith(root + path.sep + process.env.NODE_MODULES_ROOT + path.sep)) ||
+        // also cover the external legacy runfiles case for the above (incase
+        // --noexternal_legacy_runfiles not set)
+        (process.env.NODE_MODULES_ROOT && process.env.TEST_WORKSPACE &&
+         str.startsWith(
+             root + process.env.TEST_WORKSPACE + path.sep + 'external' + path.sep +
+             process.env.NODE_MODULES_ROOT + path.sep));
   }
 
   return {isEscape, isOutPath};
