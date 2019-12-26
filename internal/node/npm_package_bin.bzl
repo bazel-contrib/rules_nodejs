@@ -17,6 +17,7 @@ _ATTRS = {
         cfg = "host",
         mandatory = True,
     ),
+    "deps": attr.label_list(allow_files = True, aspects = [module_mappings_aspect, node_modules_aspect]),
 }
 
 def _expand_locations(ctx, s):
@@ -24,16 +25,25 @@ def _expand_locations(ctx, s):
     # _expand_locations returns an array of args to support $(execpaths) expansions.
     # TODO: If the string has intentional spaces or if one or more of the expanded file
     # locations has a space in the name, we will incorrectly split it into multiple arguments
-    return ctx.expand_location(s, targets = ctx.attr.data).split(" ")
+    return ctx.expand_location(s, targets = ctx.attr.data + ctx.attr.deps).split(" ")
 
 def _inputs(ctx):
     # Also include files from npm fine grained deps as inputs.
     # These deps are identified by the NpmPackageInfo provider.
     inputs_depsets = []
-    for d in ctx.attr.data:
+    for d in ctx.attr.data + ctx.attr.deps:
         if NpmPackageInfo in d:
             inputs_depsets.append(d[NpmPackageInfo].sources)
-    return depset(ctx.files.data, transitive = inputs_depsets).to_list()
+    return depset(ctx.files.data + ctx.files.deps, transitive = inputs_depsets).to_list()
+
+def _transitive(ctx):
+    # Also include files from npm fine grained deps as inputs.
+    # These deps are identified by the NpmPackageInfo provider.
+    transitive_depsets = [depset(ctx.files.deps)]
+    for d in ctx.attr.deps:
+        if NpmPackageInfo in d:
+            transitive_depsets.append(d[NpmPackageInfo].sources)
+    return transitive_depsets
 
 def _impl(ctx):
     if ctx.attr.output_dir and ctx.attr.outs:
@@ -60,14 +70,14 @@ def _impl(ctx):
         arguments = [args],
         configuration_env_vars = ctx.attr.configuration_env_vars,
     )
-    return [DefaultInfo(files = depset(outputs))]
+    return [DefaultInfo(files = depset(outputs, transitive = _transitive(ctx)))]
 
 _npm_package_bin = rule(
     _impl,
     attrs = _ATTRS,
 )
 
-def npm_package_bin(tool = None, package = None, package_bin = None, data = [], outs = [], args = [], output_dir = False, **kwargs):
+def npm_package_bin(tool = None, package = None, package_bin = None, data = [], deps = [], outs = [], args = [], output_dir = False, **kwargs):
     """Run an arbitrary npm package binary (e.g. a program under node_modules/.bin/*) under Bazel.
 
     It must produce outputs. If you just want to run a program with `bazel run`, use the nodejs_binary rule.
@@ -81,6 +91,7 @@ def npm_package_bin(tool = None, package = None, package_bin = None, data = [], 
     Args:
         data: similar to [genrule.srcs](https://docs.bazel.build/versions/master/be/general.html#genrule.srcs)
               may also include targets that produce or reference npm packages which are needed by the tool
+        deps: dependencies that are also passed downstream transitively via DefaultInfo files
         outs: similar to [genrule.outs](https://docs.bazel.build/versions/master/be/general.html#genrule.outs)
         output_dir: set to True if you want the output to be a directory
                  Exactly one of `outs`, `output_dir` may be used.
@@ -138,6 +149,7 @@ def npm_package_bin(tool = None, package = None, package_bin = None, data = [], 
         tool = "@npm//%s/bin:%s" % (package, package_bin)
     _npm_package_bin(
         data = data,
+        deps = deps,
         outs = outs,
         args = args,
         output_dir = output_dir,
