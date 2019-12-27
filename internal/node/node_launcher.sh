@@ -203,9 +203,10 @@ if [[ -n "$MODULES_MANIFEST" ]]; then
   "${node}" "${link_modules_script}" "${MODULES_MANIFEST}"
 fi
 
-# Tell the bazel_require_script that programs should not escape the execroot
-# Bazel always sets the PWD to execroot/my_wksp so we go up one directory.
-export BAZEL_PATCH_ROOT=$(dirname $PWD)
+# Tell the bazel_require_script that programs should not escape execroot/my_wksp.
+# Bazel always sets the PWD to execroot/my_wksp so we want to keep programs
+# within that root.
+export BAZEL_PATCH_ROOT=${PWD}
 
 # The EXPECTED_EXIT_CODE lets us write bazel tests which assert that
 # a binary fails to run. Otherwise any failure would make such a test
