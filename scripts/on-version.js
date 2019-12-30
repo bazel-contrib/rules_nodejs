@@ -4,4 +4,4 @@
 const shell = require('shelljs');
 const version = require('../package.json').version;
 
-shell.sed('-i', /^VERSION \= \"[0-9\.]*\"/, `VERSION = "${version}"`, 'internal/version.bzl');
+shell.sed('-i', /^VERSION \= \"[0-9\.]*\"/, `VERSION = "${version}"`, 'version.bzl');

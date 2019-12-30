@@ -29,6 +29,13 @@ genrule(
     visibility = ["//docs:__pkg__"],
 )
 
+genrule(
+    name = "npm_version_check",
+    srcs = ["//:tools/npm_version_check.js"],
+    outs = [":npm_version_check.js"],
+    cmd = "cp $< $@",
+)
+
 pkg_npm(
     name = "npm_package",
     srcs = [
@@ -40,6 +47,7 @@ pkg_npm(
     ],
     deps = [
         "@npm_bazel_karma//:bazel_karma_lib",
+        ":npm_version_check",
     ] + select({
         # FIXME: fix stardoc on Windows; @npm_bazel_karma//:index.md generation fails with:
         #   ERROR: D:/b/62unjjin/external/npm_bazel_karma/BUILD.bazel:65:1: Couldn't build file

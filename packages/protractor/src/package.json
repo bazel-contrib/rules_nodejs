@@ -22,5 +22,8 @@
       "npm_bazel_protractor": {
           "rootPath": "."
       }
+  },
+  "scripts": {
+    "postinstall": "node npm_version_check.js"
   }
 }

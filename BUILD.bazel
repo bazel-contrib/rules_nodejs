@@ -25,6 +25,7 @@ exports_files([
     "tsconfig.json",
     "package.json",
     "bootstrap.js",
+    "tools/npm_version_check.js",
 ])
 
 bzl_library(
@@ -33,6 +34,7 @@ bzl_library(
         "index.bzl",
         "index.for_docs.bzl",
         "providers.bzl",
+        "version.bzl",
     ],
     visibility = ["//visibility:public"],
     deps = [
