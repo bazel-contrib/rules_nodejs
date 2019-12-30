@@ -17,6 +17,7 @@
 Users should not load files under "/internal"
 """
 
+load("//internal:version.bzl", "VERSION")
 load("//internal/common:check_bazel_version.bzl", _check_bazel_version = "check_bazel_version")
 load("//internal/common:check_version.bzl", "check_version")
 load("//internal/common:copy_to_bin.bzl", _copy_to_bin = "copy_to_bin")
