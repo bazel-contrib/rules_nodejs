@@ -12,6 +12,7 @@ module.exports = {
         'jasmine',
         'karma',
         'labs',
+        'node-patches',
         'protractor',
         'rollup',
         'terser',
