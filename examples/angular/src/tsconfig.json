@@ -8,14 +8,6 @@
             "es2015.iterable",
             "es2015.promise"
         ],
-        // Allow type-checking to succeed when we import from generated files
-        // This lets us write out Angular AOT bootstrap by importing the
-        // ngfactory file.
-        // Under Angular Ivy, this is unneeded.
-        "rootDirs": [
-            ".",
-            "../dist/bin/src",
-        ],
         // Permit decorator syntax
         "experimentalDecorators": true,
         // Don't scan the node_modules/@types folder for ambient types.

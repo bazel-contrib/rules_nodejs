@@ -8,11 +8,6 @@ sass_binary(
     src = "todos.component.scss",
 )
 
-# We don't import from these, but the generated ngfactory code will
-NG_FACTORY_ADDED_IMPORTS = [
-    "@npm//@angular/material",
-]
-
 ng_module(
     name = "todos",
     srcs = [
@@ -24,9 +19,9 @@ ng_module(
         ":todos-styles",
     ],
     tsconfig = "//src:tsconfig.json",
-    deps = NG_FACTORY_ADDED_IMPORTS + [
-        "//src/shared/material",
+    deps = [
         "//src/app/todos/reducers",
+        "//src/shared/material",
         "@npm//@angular/common",
         "@npm//@angular/core",
         "@npm//@angular/forms",

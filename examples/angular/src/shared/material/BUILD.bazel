@@ -2,17 +2,11 @@ load("@npm_angular_bazel//:index.bzl", "ng_module")
 
 package(default_visibility = ["//:__subpackages__"])
 
-# We don't import from these, but the generated ngfactory code will
-NG_FACTORY_ADDED_IMPORTS = [
-    "@npm//@angular/forms",
-    "@npm//@angular/platform-browser",
-]
-
 ng_module(
     name = "material",
     srcs = glob(["*.ts"]),
     tsconfig = "//src:tsconfig.json",
-    deps = NG_FACTORY_ADDED_IMPORTS + [
+    deps = [
         "@npm//@angular/core",
         "@npm//@angular/material",
     ],

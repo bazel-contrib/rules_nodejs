@@ -25,14 +25,6 @@ sass_binary(
     src = "styles.scss",
 )
 
-# We don't import from these, but the generated ngfactory code will
-NG_FACTORY_ADDED_IMPORTS = [
-    "@npm//@angular/animations",
-    "@npm//@angular/cdk",
-    "@npm//@angular/material",
-    "@npm//@angular/forms",
-]
-
 ts_library(
     name = "initialize_testbed",
     testonly = 1,
@@ -53,7 +45,7 @@ ng_module(
         "main.prod.ts",
     ],
     tsconfig = ":tsconfig.json",
-    deps = NG_FACTORY_ADDED_IMPORTS + [
+    deps = [
         "//src/app",
         "@npm//@angular/core",
         "@npm//@angular/platform-browser",
