@@ -200,3 +200,16 @@ example_integration_test(
     ],
     npm_packages = {"//packages/worker:npm_package": "@bazel/worker"},
 )
+
+example_integration_test(
+    name = "examples_angular_bazel_architect",
+    bazel_commands = [
+        # should be test but since `ng test` uses a browser we exclude it in bazelci
+        # meaning that this fails since there's no tests to run
+        # so once there is this should be flipped to test
+        "build ...",
+    ],
+    npm_packages = {},
+    # windows fails CI with an error to do with a process fork not being able ot find node
+    tags = ["fix-windows"],
+)

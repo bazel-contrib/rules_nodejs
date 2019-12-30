@@ -1,0 +1,62 @@
+load("@npm//@angular-devkit/architect-cli:index.bzl", "architect", "architect_test")
+
+architect(
+    name = "build",
+    args = [
+        "frontend:build",
+        "--outputPath=$(@D)",
+    ],
+    configuration_env_vars = ["NG_BUILD_CACHE"],
+    data = glob(
+        [
+            "src/*",
+            "src/**",
+        ],
+        exclude = [
+            "src/**/*.spec.ts",
+            "src/test.ts",
+        ],
+    ) + [
+        "angular.json",
+        "browserslist",
+        "tsconfig.app.json",
+        "tsconfig.json",
+        "@npm//mime",
+        "@npm//@angular/cli",
+        "@npm//@angular/core",
+        "@npm//@angular/router",
+        "@npm//@angular/platform-browser-dynamic",
+        "@npm//@angular-devkit/architect-cli",
+        "@npm//@angular-devkit/build-angular",
+    ],
+    output_dir = True,
+)
+
+architect_test(
+    name = "test",
+    args = ["frontend:test"],
+    configuration_env_vars = ["NG_BUILD_CACHE"],
+    data = glob([
+        "src/*",
+        "src/**",
+    ]) + [
+        "angular.json",
+        "karma.conf.js",
+        "tsconfig.spec.json",
+        "tsconfig.json",
+        "@npm//@types/jasmine",
+        "@npm//@types/node",
+        "@npm//@angular/cli",
+        "@npm//@angular/core",
+        "@npm//@angular/router",
+        "@npm//@angular/platform-browser-dynamic",
+        "@npm//@angular-devkit/build-angular",
+        "@npm//karma",
+        "@npm//karma-chrome-launcher",
+        "@npm//karma-coverage-istanbul-reporter",
+        "@npm//karma-jasmine",
+        "@npm//puppeteer",
+        "@npm//karma-jasmine-html-reporter",
+    ],
+    tags = ["browser:chromium-local"],
+)
