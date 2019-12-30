@@ -10,7 +10,9 @@
 ## IMPORTANT
 # If you change the `default_docker_image` version, also change the `cache_key` version
 var_1: &default_docker_image circleci/node:10.16
+var_2: &browsers_docker_image circleci/node:10.16-browsers
 var_3: &cache_key node-0.16-{{ checksum "yarn.lock" }}-v2
+
 
 var_4: &init_environment
   run:
@@ -185,6 +187,9 @@ jobs:
 
   test_examples:
     <<: *job_defaults
+    docker:
+      # Needed because some tests require local chrome
+      - image: *browsers_docker_image
     resource_class: xlarge
     # We need to reduce the memory & CPU usage of the top-level
     # bazel process for this large bazel-in-bazel test to not
