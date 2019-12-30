@@ -25,6 +25,11 @@
      */
     const fs = require("fs");
     const path = require("path");
+    const REQUIRED_NODEJS_MAJOR_VERSION = 10;
+    const nodejsMajorVersion = Number(process.version.split('.')[0].replace('v', ''));
+    if (nodejsMajorVersion < REQUIRED_NODEJS_MAJOR_VERSION) {
+        panic(`Expected NodeJS version to v${REQUIRED_NODEJS_MAJOR_VERSION} or higher, but got ${nodejsMajorVersion}`);
+    }
     // Run Bazel with --define=VERBOSE_LOGS=1 to enable this logging
     const VERBOSE_LOGS = !!process.env['VERBOSE_LOGS'];
     function log_verbose(...m) {

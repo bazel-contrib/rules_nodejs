@@ -56,6 +56,11 @@ var __asyncGenerator = (commonjsGlobal && commonjsGlobal.__asyncGenerator) || fu
 Object.defineProperty(exports, "__esModule", { value: true });
 
 
+const REQUIRED_NODEJS_MAJOR_VERSION = 10;
+const nodejsMajorVersion = Number(process.version.split('.')[0].replace('v', ''));
+if (nodejsMajorVersion < REQUIRED_NODEJS_MAJOR_VERSION) {
+    throw new Error(`Expected NodeJS version to v${REQUIRED_NODEJS_MAJOR_VERSION} or higher, but got ${nodejsMajorVersion}`);
+}
 // using require here on purpose so we can override methods with any
 // also even though imports are mutable in typescript the cognitive dissonance is too high because
 // es modules
