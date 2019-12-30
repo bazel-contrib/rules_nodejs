@@ -10,12 +10,6 @@ sass_binary(
     src = "hello-world.component.scss",
 )
 
-# We don't import from these, but the generated ngfactory code will
-NG_FACTORY_ADDED_IMPORTS = [
-    "@npm//@angular/cdk",
-    "@npm//@angular/material",
-]
-
 ng_module(
     name = "hello-world",
     srcs = [
@@ -27,11 +21,9 @@ ng_module(
         ":hello-world-styles",
     ],
     tsconfig = "//src:tsconfig.json",
-    deps = NG_FACTORY_ADDED_IMPORTS + [
+    deps = [
         "//src/lib/shorten",
         "//src/shared/material",
-        "@npm//@angular/core",
-        "@npm//@angular/forms",
         "@npm//@angular/router",
         "@npm//date-fns",
     ],
@@ -44,11 +36,10 @@ ts_library(
     tsconfig = "//src:tsconfig-test",
     deps = [
         ":hello-world",
+        "//src/shared/material",
         "@npm//@angular/core",
         "@npm//@angular/platform-browser",
-        "@npm//@angular/platform-browser-dynamic",
         "@npm//@types/jasmine",
-        "@npm//@types/node",
     ],
 )
 
@@ -77,5 +68,7 @@ karma_web_test_suite(
     deps = [
         ":test_lib",
         "//src:rxjs_umd_modules",
+        # explicit tslib dependency comes from @angular/material
+        "@npm//:node_modules/tslib/tslib.js",
     ],
 )
