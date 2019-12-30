@@ -29,7 +29,7 @@ ${prettyDiff}
 Update the golden file:
 
             bazel run ${debugBuild ? '--compilation_mode=dbg ' : ''}${
-          process.env['BAZEL_TARGET'].replace(/_bin$/, '')}.accept
+          process.env['TEST_TARGET'].replace(/_bin$/, '')}.accept
 `);
     } else {
       throw new Error('unknown mode', mode);

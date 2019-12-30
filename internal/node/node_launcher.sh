@@ -158,6 +158,13 @@ else
   fi
 fi
 
+# Export the location of the runfiles helpers script
+export BAZEL_NODE_RUNFILES_HELPER=$(rlocation "TEMPLATED_runfiles_helper_script")
+
+# Export the location of the loader script as it can be used to boostrap
+# node require patch if needed
+export BAZEL_NODE_PATCH_REQUIRE=$(rlocation "TEMPLATED_loader_path")
+
 readonly repository_args=$(rlocation "TEMPLATED_repository_args")
 MAIN=$(rlocation "TEMPLATED_loader_path")
 readonly link_modules_script=$(rlocation "TEMPLATED_link_modules_script")

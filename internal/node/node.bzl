@@ -167,9 +167,8 @@ def _nodejs_binary_impl(ctx):
 
     _write_loader_script(ctx)
 
-    script_path = _to_manifest_path(ctx, ctx.outputs.loader)
-
     env_vars = "export BAZEL_TARGET=%s\n" % ctx.label
+    env_vars += "export BAZEL_WORKSPACE=%s\n" % ctx.workspace_name
     for k in ctx.attr.configuration_env_vars + ctx.attr.default_env_vars:
         if k in ctx.var.keys():
             env_vars += "export %s=\"%s\"\n" % (k, ctx.var[k])
@@ -191,6 +190,7 @@ def _nodejs_binary_impl(ctx):
     node_tool_files.extend(ctx.toolchains["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"].nodeinfo.tool_files)
 
     node_tool_files.append(ctx.file._link_modules_script)
+    node_tool_files.append(ctx.file._runfiles_helper_script)
     node_tool_files.append(ctx.file._bazel_require_script)
     node_tool_files.append(node_modules_manifest)
 
@@ -205,9 +205,10 @@ def _nodejs_binary_impl(ctx):
         "TEMPLATED_env_vars": env_vars,
         "TEMPLATED_expected_exit_code": str(expected_exit_code),
         "TEMPLATED_link_modules_script": _to_manifest_path(ctx, ctx.file._link_modules_script),
-        "TEMPLATED_loader_path": script_path,
+        "TEMPLATED_loader_path": _to_manifest_path(ctx, ctx.outputs.loader),
         "TEMPLATED_modules_manifest": _to_manifest_path(ctx, node_modules_manifest),
         "TEMPLATED_repository_args": _to_manifest_path(ctx, ctx.file._repository_args),
+        "TEMPLATED_runfiles_helper_script": _to_manifest_path(ctx, ctx.file._runfiles_helper_script),
         "TEMPLATED_script_path": _to_execroot_path(ctx, ctx.file.entry_point),
         "TEMPLATED_vendored_node": "" if is_builtin else strip_external(ctx.file._node.path),
     }
@@ -447,6 +448,10 @@ jasmine_node_test(
     ),
     "_repository_args": attr.label(
         default = Label("@nodejs//:bin/node_repo_args.sh"),
+        allow_single_file = True,
+    ),
+    "_runfiles_helper_script": attr.label(
+        default = Label("//internal/linker:runfiles_helper.js"),
         allow_single_file = True,
     ),
     "_source_map_support_files": attr.label_list(
