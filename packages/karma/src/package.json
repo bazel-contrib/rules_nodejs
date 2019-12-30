@@ -33,5 +33,8 @@
     "npm_bazel_karma": {
       "rootPath": "."
     }
+  },
+  "scripts": {
+    "postinstall": "node npm_version_check.js"
   }
 }

@@ -17,7 +17,7 @@
 Users should not load files under "/internal"
 """
 
-load("//internal:version.bzl", "VERSION")
+load("//:version.bzl", "VERSION")
 load("//internal/common:check_bazel_version.bzl", _check_bazel_version = "check_bazel_version")
 load("//internal/common:check_version.bzl", "check_version")
 load("//internal/common:copy_to_bin.bzl", _copy_to_bin = "copy_to_bin")
@@ -83,12 +83,6 @@ def yarn_install(**kwargs):
     # Just in case the user didn't install nodejs, do it now
     _node_repositories()
     _yarn_install(**kwargs)
-
-# This version is synced with the version in package.json.
-# It will be automatically synced via the npm "version" script
-# that is run when running `npm version` during the release
-# process. See `Releasing` section in README.md.
-VERSION = "1.5.0"
 
 # Currently used Bazel version. This version is what the rules here are tested
 # against.

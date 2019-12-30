@@ -29,6 +29,13 @@ genrule(
     visibility = ["//docs:__pkg__"],
 )
 
+genrule(
+    name = "npm_version_check",
+    srcs = ["//:tools/npm_version_check.js"],
+    outs = [":npm_version_check.js"],
+    cmd = "cp $< $@",
+)
+
 pkg_npm(
     name = "npm_package",
     srcs = [
@@ -39,6 +46,7 @@ pkg_npm(
         "npm_bazel_protractor",
     ],
     deps = [
+        ":npm_version_check",
         "@npm_bazel_protractor//:utils_lib",
     ] + select({
         # FIXME: fix stardoc on Windows; @npm_bazel_protractor//:index.md generation fails with:

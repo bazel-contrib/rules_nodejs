@@ -29,6 +29,13 @@ genrule(
     visibility = ["//docs:__pkg__"],
 )
 
+genrule(
+    name = "npm_version_check",
+    srcs = ["//:tools/npm_version_check.js"],
+    outs = [":npm_version_check.js"],
+    cmd = "cp $< $@",
+)
+
 pkg_npm(
     name = "npm_package",
     srcs = [
@@ -38,7 +45,9 @@ pkg_npm(
     vendor_external = [
         "npm_bazel_jasmine",
     ],
-    deps = select({
+    deps = [
+        ":npm_version_check",
+    ] + select({
         # FIXME: fix stardoc on Windows; @npm_bazel_jasmine//:index.md generation fails with:
         #   ERROR: D:/b/62unjjin/external/npm_bazel_jasmine/BUILD.bazel:34:1: Couldn't build file
         #   external/npm_bazel_jasmine/docs.raw: Generating proto for Starlark doc for docs failed (Exit 1)

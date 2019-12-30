@@ -25,5 +25,8 @@
         "npm_bazel_terser": {
             "rootPath": "."
         }
+    },
+    "scripts": {
+      "postinstall": "node npm_version_check.js"
     }
 }
