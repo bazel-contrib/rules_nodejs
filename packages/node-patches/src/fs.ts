@@ -19,6 +19,13 @@ import {Stats} from 'fs';
 import * as path from 'path';
 import * as util from 'util';
 
+const REQUIRED_NODEJS_MAJOR_VERSION = 10;
+const nodejsMajorVersion = Number(process.version.split('.')[0].replace('v', ''));
+if (nodejsMajorVersion < REQUIRED_NODEJS_MAJOR_VERSION) {
+  throw new Error(`Expected NodeJS version to v${
+      REQUIRED_NODEJS_MAJOR_VERSION} or higher, but got ${nodejsMajorVersion}`);
+}
+
 // windows cant find the right types
 type Dir = any;
 type Dirent = any;
