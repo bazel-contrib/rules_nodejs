@@ -21,6 +21,7 @@ as the package manager.
 See discussion in the README.
 """
 
+load("//internal:version.bzl", "VERSION")
 load("//internal/common:check_bazel_version.bzl", "check_bazel_version")
 load("//internal/common:os_name.bzl", "is_windows_os")
 load("//internal/node:node_labels.bzl", "get_node_label", "get_npm_label", "get_yarn_label")
@@ -275,6 +276,7 @@ cd /D "{root}" && "{npm}" {npm_args}
     env_key = "BAZEL_NPM_INSTALL"
     if env_key not in env.keys():
         env[env_key] = "1"
+    env["build_bazel_rules_nodejs_version"] = VERSION
 
     repository_ctx.report_progress("Running npm install on %s" % repository_ctx.attr.package_json)
     result = repository_ctx.execute(
@@ -412,6 +414,7 @@ cd /D "{root}" && "{yarn}" {yarn_args}
     env_key = "BAZEL_YARN_INSTALL"
     if env_key not in env.keys():
         env[env_key] = "1"
+    env["build_bazel_rules_nodejs_version"] = VERSION
 
     repository_ctx.report_progress("Running yarn install on %s" % repository_ctx.attr.package_json)
     result = repository_ctx.execute(
