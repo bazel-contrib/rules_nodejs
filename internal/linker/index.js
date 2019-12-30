@@ -165,16 +165,21 @@ Include as much of the build output as you can without disclosing anything confi
                  If you want to test runfiles manifest behavior, add
                  --spawn_strategy=standalone to the command line.`);
             }
-            const wksp = env['TEST_WORKSPACE'];
-            const target = env['TEST_TARGET'];
-            if (!!wksp && !!target) {
-                // //path/to:target -> //path/to
-                const pkg = target.split(':')[0];
-                this.packagePath = path.posix.join(wksp, pkg);
+            const wksp = env['BAZEL_WORKSPACE'];
+            if (!!wksp) {
+                this.workspace = wksp;
             }
-            // If under runfiles (and not unit testing) then don't add a bin to taget for bin links
-            this.noBin = !!env['TEST_TARGET'] && wksp !== 'build_bazel_rules_nodejs' &&
-                target !== '//internal/linker/test:unit_tests';
+            // If target is from an external workspace such as @npm//rollup/bin:rollup
+            // resolvePackageRelative is not supported since package is in an external
+            // workspace.
+            const target = env['BAZEL_TARGET'];
+            if (!!target && !target.startsWith('@')) {
+                // //path/to:target -> path/to
+                this.package = target.split(':')[0].replace(/^\/\//, '');
+            }
+            // We can derive if the process is being run in the execroot
+            // if there is a bazel-out folder at the cwd.
+            this.execroot = existsSync('bazel-out');
         }
         lookupDirectory(dir) {
             if (!this.manifest)
@@ -225,11 +230,27 @@ Include as much of the build output as you can without disclosing anything confi
             }
             throw new Error(`could not resolve modulePath ${modulePath}`);
         }
-        resolvePackageRelative(modulePath) {
-            if (!this.packagePath) {
-                throw new Error('packagePath could not be determined from the environment');
+        resolveWorkspaceRelative(modulePath) {
+            if (!this.workspace) {
+                throw new Error('workspace could not be determined from the environment');
             }
-            return this.resolve(path.posix.join(this.packagePath, modulePath));
+            return this.resolve(path.posix.join(this.workspace, modulePath));
+        }
+        resolvePackageRelative(modulePath) {
+            if (!this.workspace) {
+                throw new Error('workspace could not be determined from the environment');
+            }
+            if (!this.package) {
+                throw new Error('package could not be determined from the environment');
+            }
+            return this.resolve(path.posix.join(this.workspace, this.package, modulePath));
+        }
+        patchRequire() {
+            const requirePatch = process.env['BAZEL_NODE_PATCH_REQUIRE'];
+            if (!requirePatch) {
+                throw new Error('require patch location could not be determined from the environment');
+            }
+            require(requirePatch);
         }
     }
     exports.Runfiles = Runfiles;
@@ -248,6 +269,18 @@ Include as much of the build output as you can without disclosing anything confi
                 throw e;
             }
         });
+    }
+    function existsSync(p) {
+        try {
+            fs.statSync(p);
+            return true;
+        }
+        catch (e) {
+            if (e.code === 'ENOENT') {
+                return false;
+            }
+            throw e;
+        }
     }
     /**
      * Given a set of module aliases returns an array of recursive `LinkerTreeElement`.
@@ -424,9 +457,11 @@ Include as much of the build output as you can without disclosing anything confi
                         let target = '<package linking failed>';
                         switch (root) {
                             case 'bin':
+                                // If we are in the execroot then add the bin path to the target; otherwise
+                                // we are in runfiles and the bin path should be omitted.
                                 // FIXME(#1196)
-                                target = runfiles.noBin ? path.join(workspaceAbs, toWorkspaceDir(modulePath)) :
-                                    path.join(workspaceAbs, bin, toWorkspaceDir(modulePath));
+                                target = runfiles.execroot ? path.join(workspaceAbs, bin, toWorkspaceDir(modulePath)) :
+                                    path.join(workspaceAbs, toWorkspaceDir(modulePath));
                                 break;
                             case 'src':
                                 target = path.join(workspaceAbs, toWorkspaceDir(modulePath));

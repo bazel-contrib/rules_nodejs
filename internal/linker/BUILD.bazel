@@ -20,7 +20,10 @@ bzl_library(
 )
 
 # END-INTERNAL
-exports_files(["index.js"])
+exports_files([
+    "index.js",
+    "runfiles_helper.js",
+])
 
 filegroup(
     name = "package_contents",

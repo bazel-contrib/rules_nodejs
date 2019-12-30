@@ -5,17 +5,11 @@ jasmine_node_test(
     srcs = ["test.spec.js"],
 )
 
-# This requires the linker as jasmine_shared_env_bootstrap.js requires @bazel/jasmine
-# which only works with the linker as the --require script doesn't get the require.resolve
-# patches.
 jasmine_node_test(
     name = "shared_env_test",
     srcs = ["jasmine_shared_env_test.spec.js"],
     data = ["jasmine_shared_env_bootstrap.js"],
-    # TODO(gregmagolan): fix Windows error: Error: Cannot find module 'e2e_jasmine/shared_env_test_devmode_srcs.MF'
-    tags = ["fix-windows"],
     templated_args = [
-        "--nobazel_patch_module_resolver",
         "--node_options=--require=$(rlocation $(location :jasmine_shared_env_bootstrap.js))",
     ],
     deps = [
