@@ -19,6 +19,7 @@ package(default_visibility = ["//visibility:public"])
 
 nodejs_binary(
     name = "test_runner",
+    configuration_env_vars = ["BAZEL_INTEGRATION_TEST_DEBUG"],
     data = ["@npm//tmp"],
     entry_point = ":test_runner.js",
     # reduce memory usage by disabling source_map_support

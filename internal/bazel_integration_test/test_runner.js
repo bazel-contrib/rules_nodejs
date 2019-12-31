@@ -24,7 +24,7 @@ const fs = require('fs');
 const path = require('path');
 const tmp = require('tmp');
 
-const DEBUG = process.env['COMPILATION_MODE'] === 'dbg';
+const DEBUG = !!process.env['BAZEL_INTEGRATION_TEST_DEBUG'];
 const VERBOSE_LOGS = !!process.env['VERBOSE_LOGS'];
 
 function log(...m) {
@@ -283,18 +283,25 @@ const isWindows = process.platform === 'win32';
 const bazelBinary =
     require.resolve(`${config.bazelBinaryWorkspace}/bazel${isWindows ? '.exe' : ''}`);
 
-if (DEBUG || VERBOSE_LOGS) {
-  // If DEBUG is set then the tmp folders created by the `tmp.dirSync` are not
-  // cleaned up so we should log out the location of the workspace under test
-  // tmp folder in that case even if VERBOSE_LOGS is not set as it may be useful
-  // to `cd /path/to/workspace/tmp` for manual testing at that point.
+if (DEBUG) {
   log(`
 
-********************************************************************************
-bazel binary under test is ${bazelBinary}
-workspace under test root is ${workspaceRoot}
-********************************************************************************
+================================================================================
+Integration test put in DEBUG mode with BAZEL_INTEGRATION_TEST_DEBUG env set.
+
+    bazel binary: ${bazelBinary}
+    workspace under test root: ${workspaceRoot}
+
+Change directory to workspace under test root folder,
+
+    cd ${workspaceRoot}
+
+and run integration test manually.
+================================================================================
 `);
+  // Exit with error code so that BAZEL_INTEGRATION_TEST_DEBUG does not lead
+  // to a accidental passing test.
+  process.exit(1);
 }
 
 log(`running 'bazel version'`);
