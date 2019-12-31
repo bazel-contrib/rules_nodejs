@@ -3,9 +3,10 @@ const path = require('path');
 
 function main(args) {
   const [mode, golden_no_debug, golden_debug, actual] = args;
-  const debug = process.env['COMPILATION_MODE'] === 'dbg';
-  const golden = debug ? golden_debug : golden_no_debug;
-  const actualContents = fs.readFileSync(require.resolve(actual), 'utf-8').replace(/\r\n/g, '\n');
+  const actualPath = require.resolve(actual);
+  const debugBuild = /\/bazel-out\/[^/\s]*-dbg\//.test(actualPath);
+  const golden = debugBuild ? golden_debug : golden_no_debug;
+  const actualContents = fs.readFileSync(actualPath, 'utf-8').replace(/\r\n/g, '\n');
   const goldenContents = fs.readFileSync(require.resolve(golden), 'utf-8').replace(/\r\n/g, '\n');
 
   if (actualContents !== goldenContents) {
@@ -27,7 +28,7 @@ ${prettyDiff}
 
 Update the golden file:
 
-            bazel run ${debug ? '--compilation_mode=dbg ' : ''}${
+            bazel run ${debugBuild ? '--compilation_mode=dbg ' : ''}${
           process.env['BAZEL_TARGET'].replace(/_bin$/, '')}.accept
 `);
     } else {
