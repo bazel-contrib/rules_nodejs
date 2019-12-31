@@ -244,7 +244,13 @@ is published on GitHub.
 
 bazel_integration_test = rule(
     implementation = _bazel_integration_test,
-    doc = """Runs an integration test by running a specified version of bazel against an external workspace.""",
+    doc = """Runs an integration test by running a specified version of bazel against an external workspace.
+
+Run with --define=BAZEL_INTEGRATION_TEST_DEBUG=1 to put the test in debug mode which will
+preserve the workspace under test root /tmp folder and exit without running the test. This
+allows you to change directory into the workspace under test root folder and run the integration
+test manually.
+""",
     attrs = BAZEL_INTEGRATION_TEST_ATTRS,
     test = True,
 )
