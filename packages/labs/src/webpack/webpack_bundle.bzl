@@ -39,6 +39,7 @@ def _webpack_bundle(ctx):
         outputs = [ctx.outputs.bundle, ctx.outputs.sourcemap],
         arguments = [args],
         progress_message = "Bundling JavaScript %s [webpack]" % ctx.outputs.bundle.path,
+        env = {"COMPILATION_MODE": ctx.var["COMPILATION_MODE"]},
     )
     return [DefaultInfo()]
 
