@@ -2,7 +2,11 @@
 
 const fs = require('fs');
 const path = require('path');
-const DEBUG = process.env['COMPILATION_MODE'] === 'dbg';
+const VERBOSE_LOGS = !!process.env['VERBOSE_LOGS'];
+
+function log_verbose(...m) {
+  if (VERBOSE_LOGS) console.error('[@bazel/create]', ...m);
+}
 
 /**
  * Detect if the user ran `yarn create @bazel` so we can default
@@ -73,10 +77,8 @@ function main(argv, error = console.error, log = console.log) {
   // Which package manager will be used in the new project
   const pkgMgr = args['packageManager'] || detectRunningUnderYarn() ? 'yarn' : 'npm';
 
-  if (DEBUG) {
-    log('Running with', process.argv);
-    log('Environment', process.env);
-  }
+  log_verbose('Running with', process.argv);
+  log_verbose('Environment', process.env);
 
   const [wkspDir] = args['_'];
   // TODO: user might want these to differ
