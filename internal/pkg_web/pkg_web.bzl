@@ -32,7 +32,7 @@ _ATTRS = {
     ),
 }
 
-def move_files(output_name, files, action_factory, assembler, root_paths):
+def move_files(output_name, files, action_factory, var, assembler, root_paths):
     """Moves files into an output directory
 
     Args:
@@ -58,6 +58,7 @@ def move_files(output_name, files, action_factory, assembler, root_paths):
         executable = assembler,
         arguments = [args],
         execution_requirements = {"local": "1"},
+        env = {"COMPILATION_MODE": var["COMPILATION_MODE"]},
     )
     return depset([www_dir])
 
@@ -90,6 +91,7 @@ def _impl(ctx):
         ctx.label.name,
         ctx.files.srcs,
         ctx.actions,
+        ctx.var,
         ctx.executable._assembler,
         root_paths,
     )

@@ -1,3 +1,5 @@
+const DEBUG = process.env['COMPILATION_MODE'] === 'dbg';
+
 // Parse the stamp file produced by Bazel from the version control system
 let version = '<unknown>';
 if (bazel_stamp_file) {
@@ -8,6 +10,9 @@ if (bazel_stamp_file) {
   // Don't assume BUILD_SCM_VERSION exists
   if (versionTag) {
     version = 'v' + versionTag.split(' ')[1].trim();
+    if (DEBUG) {
+      version += '_debug';
+    }
   }
 }
 

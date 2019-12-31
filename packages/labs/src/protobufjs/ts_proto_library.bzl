@@ -15,7 +15,7 @@
 
 load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "JSEcmaScriptModuleInfo", "JSNamedModuleInfo")
 
-def _run_pbjs(actions, executable, output_name, proto_files, suffix = ".js", wrap = "amd", amd_name = ""):
+def _run_pbjs(actions, executable, var, output_name, proto_files, suffix = ".js", wrap = "amd", amd_name = ""):
     js_file = actions.declare_file(output_name + suffix)
 
     # Create an intermediate file so that we can do some manipulation of the
@@ -36,6 +36,7 @@ def _run_pbjs(actions, executable, output_name, proto_files, suffix = ".js", wra
         inputs = proto_files,
         outputs = [js_tmpl_file],
         arguments = [args],
+        env = {"COMPILATION_MODE": var["COMPILATION_MODE"]},
     )
 
     actions.expand_template(
@@ -51,7 +52,7 @@ def _run_pbjs(actions, executable, output_name, proto_files, suffix = ".js", wra
     )
     return js_file
 
-def _run_pbts(actions, executable, js_file):
+def _run_pbts(actions, executable, var, js_file):
     ts_file = actions.declare_file(js_file.basename[:-len(".js")] + ".d.ts")
 
     # Reference of arguments:
@@ -66,6 +67,7 @@ def _run_pbts(actions, executable, js_file):
         inputs = [js_file],
         outputs = [ts_file],
         arguments = [args],
+        env = {"COMPILATION_MODE": var["COMPILATION_MODE"]},
     )
     return ts_file
 
@@ -88,6 +90,7 @@ def _ts_proto_library(ctx):
     js_es5 = _run_pbjs(
         ctx.actions,
         ctx.executable,
+        ctx.var,
         output_name,
         sources,
         amd_name = "/".join([p for p in [
@@ -98,6 +101,7 @@ def _ts_proto_library(ctx):
     js_es6 = _run_pbjs(
         ctx.actions,
         ctx.executable,
+        ctx.var,
         output_name,
         sources,
         suffix = ".mjs",
@@ -105,7 +109,7 @@ def _ts_proto_library(ctx):
     )
 
     # pbts doesn't understand '.mjs' extension so give it the es5 file
-    dts = _run_pbts(ctx.actions, ctx.executable, js_es5)
+    dts = _run_pbts(ctx.actions, ctx.executable, ctx.var, js_es5)
 
     # Return a structure that is compatible with the deps[] of a ts_library.
     declarations = depset([dts])

@@ -22,4 +22,5 @@ golden_file_test(
     # Leave off the ".js" extension to test that it's the default output
     actual = "version_stamp",
     golden = "golden.js_",
+    golden_debug = "golden_debug.js_",
 )

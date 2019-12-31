@@ -63,9 +63,15 @@ def run_node(ctx, inputs, arguments, executable, **kwargs):
     # To access runfiles, you must use a runfiles helper in the program instead
     add_arg(arguments, "--nobazel_patch_module_resolver")
 
+    # Forward the COMPILATION_MODE to node process as an environment variable
+    env = kwargs.pop("env", {})
+    if "COMPILATION_MODE" not in env.keys():
+        env["COMPILATION_MODE"] = ctx.var["COMPILATION_MODE"]
+
     ctx.actions.run(
         inputs = inputs + extra_inputs,
         arguments = arguments,
         executable = exec_exec,
+        env = env,
         **kwargs
     )

@@ -156,6 +156,7 @@ def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description 
         execution_requirements = {
             "supports-workers": str(int(ctx.attr.supports_workers)),
         },
+        env = {"COMPILATION_MODE": ctx.var["COMPILATION_MODE"]},
     )
 
     # Enable the replay_params in case an aspect needs to re-build this library.

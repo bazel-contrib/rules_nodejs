@@ -170,6 +170,7 @@ def _terser(ctx):
         outputs = outputs,
         executable = ctx.executable.terser_bin,
         arguments = [args],
+        env = {"COMPILATION_MODE": ctx.var["COMPILATION_MODE"]},
         progress_message = "Minifying JavaScript %s [terser]" % (outputs[0].short_path),
     )
 
