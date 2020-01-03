@@ -53,9 +53,10 @@ def expand_location_into_runfiles(ctx, input, targets = []):
     Path is returned in runfiles manifest path format such as `repo/path/to/file`. This differs from how $(location)
     and $(locations) expansion behaves in expansion the `args` attribute of a *_binary or *_test which returns
     the runfiles short path of the format `./path/to/file` for user repo and `../external_repo/path/to/file` for external
-    repositories. We may change this behavior in the future with $(mlocation) and $(mlocations) used to expand
-    to the runfiles manifest path.
-    See https://docs.bazel.build/versions/master/be/common-definitions.html#common-attributes-binaries.
+    repositories.
+
+    This will be fixed in a future release major release as well as adding support for $(execpath) and $(rootpath)
+    substitions: https://docs.bazel.build/versions/master/be/make-variables.html#predefined_label_variables.
 
     Args:
       ctx: context
