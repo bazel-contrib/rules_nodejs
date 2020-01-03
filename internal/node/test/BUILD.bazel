@@ -1,6 +1,7 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "nodejs_test", "npm_package_bin")
 load("@build_bazel_rules_nodejs//internal/golden_file_test:golden_file_test.bzl", "golden_file_test")
 load("@npm//typescript:index.bzl", "tsc")
+load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
 load("//internal/js_library:js_library.bzl", "js_library")
 load("//internal/node:node_repositories.bzl", "BUILT_IN_NODE_PLATFORMS")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
@@ -104,71 +105,71 @@ nodejs_test(
 )
 
 nodejs_test(
-    name = "bootstrap_test",
+    name = "bootstrap_legacy_location_test",
     data = [
         "bootstrap.js",
         "@npm//tmp",
     ],
     entry_point = ":bootstrap.spec.js",
-    templated_args = ["--node_options=--require=$(rlocation $(location :bootstrap.js))"],
+    templated_args = ["--node_options=--require=$$(rlocation $(location :bootstrap.js))"],
 )
 
 nodejs_test(
     name = "bootstrap_patch_test",
     data = ["bootstrap_with_patch.js"],
     entry_point = ":bootstrap.spec.js",
-    templated_args = ["--node_options=--require=$(rlocation $(location :bootstrap_with_patch.js))"],
+    templated_args = ["--node_options=--require=$$(rlocation $(location :bootstrap_with_patch.js))"],
 )
 
 # Special case when $(location) is for a root file
 nodejs_test(
-    name = "bootstrap_root_test",
+    name = "bootstrap_legacy_location_root_test",
     data = ["//:bootstrap.js"],
     entry_point = ":bootstrap.spec.js",
-    templated_args = ["--node_options=--require=$(rlocation $(location //:bootstrap.js))"],
+    templated_args = ["--node_options=--require=$$(rlocation $(location //:bootstrap.js))"],
 )
 
 nodejs_test(
-    name = "bootstraps_test",
+    name = "bootstraps_legacy_location_test",
     data = [
         "bootstrap1.js",
         "bootstrap2.js",
     ],
     entry_point = ":bootstraps.spec.js",
     templated_args = [
-        "--node_options=--require=$(rlocation $(location :bootstrap1.js))",
-        "--node_options=--require=$(rlocation $(location :bootstrap2.js))",
+        "--node_options=--require=$$(rlocation $(location :bootstrap1.js))",
+        "--node_options=--require=$$(rlocation $(location :bootstrap2.js))",
     ],
 )
 
 nodejs_test(
-    name = "bootstrap_mlocation_test",
+    name = "bootstrap_rootpath_test",
     data = [
         "bootstrap.js",
         "@npm//tmp",
     ],
     entry_point = ":bootstrap.spec.js",
-    templated_args = ["--node_options=--require=$(rlocation $(mlocation :bootstrap.js))"],
+    templated_args = ["--node_options=--require=$$(rlocation $(rootpath :bootstrap.js))"],
 )
 
-# Special case when $(location) is for a root file
+# Special case when $(rootpath) is for a root file
 nodejs_test(
-    name = "bootstrap_mlocation_root_test",
+    name = "bootstrap_rootpath_root_test",
     data = ["//:bootstrap.js"],
     entry_point = ":bootstrap.spec.js",
-    templated_args = ["--node_options=--require=$(rlocation $(mlocation //:bootstrap.js))"],
+    templated_args = ["--node_options=--require=$$(rlocation $(rootpath //:bootstrap.js))"],
 )
 
 nodejs_test(
-    name = "bootstraps_mlocation_test",
+    name = "bootstraps_rootpath_test",
     data = [
         "bootstrap1.js",
         "bootstrap2.js",
     ],
     entry_point = ":bootstraps.spec.js",
     templated_args = [
-        "--node_options=--require=$(rlocation $(mlocation :bootstrap1.js))",
-        "--node_options=--require=$(rlocation $(mlocation :bootstrap2.js))",
+        "--node_options=--require=$$(rlocation $(rootpath :bootstrap1.js))",
+        "--node_options=--require=$$(rlocation $(rootpath :bootstrap2.js))",
     ],
 )
 
@@ -275,16 +276,25 @@ npm_package_bin(
     outs = ["expand_variables.out"],
     args = [
         "$@",
+        "$(COMPILATION_MODE)",
+        "$(TARGET_CPU)",
+        "$(BINDIR)",
         "$(SOME_TEST_ENV)",
     ],
-    configuration_env_vars = ["SOME_OTHER_ENV"],
     tool = ":expand_variables",
 )
 
-golden_file_test(
+jasmine_node_test(
     name = "expand_variables_test",
-    actual = ":expand_variables.out",
-    golden = "expand_variables.golden",
+    srcs = [":expand_variables.spec.js"],
+    data = [":expand_variables.out"],
+    templated_args = [
+        "$(rootpath :expand_variables.out)",
+        "$(COMPILATION_MODE)",
+        "$(TARGET_CPU)",
+        "$(BINDIR)",
+        "$(SOME_TEST_ENV)",
+    ],
 )
 
 nodejs_binary(
@@ -317,7 +327,7 @@ nodejs_test(
     data = ["bootstrap_fail.js"],
     entry_point = "fail.spec.js",
     expected_exit_code = 33,
-    templated_args = ["--node_options=--require=$(rlocation $(location :bootstrap_fail.js))"],
+    templated_args = ["--node_options=--require=$$(rlocation $(location :bootstrap_fail.js))"],
 )
 
 nodejs_test(
@@ -328,7 +338,7 @@ nodejs_test(
     ],
     entry_point = "fail.spec.js",
     expected_exit_code = 55,
-    templated_args = ["--node_options=--require=$(rlocation $(location :bootstrap.js))"],
+    templated_args = ["--node_options=--require=$$(rlocation $(location :bootstrap.js))"],
 )
 
 nodejs_test(
@@ -336,7 +346,7 @@ nodejs_test(
     data = ["bootstrap_with_patch.js"],
     entry_point = "fail.spec.js",
     expected_exit_code = 55,
-    templated_args = ["--node_options=--require=$(rlocation $(location :bootstrap_with_patch.js))"],
+    templated_args = ["--node_options=--require=$$(rlocation $(location :bootstrap_with_patch.js))"],
 )
 
 nodejs_test(

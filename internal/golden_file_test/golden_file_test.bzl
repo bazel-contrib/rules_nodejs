@@ -15,7 +15,7 @@ Use `golden_debug` if the actual output changes when DEBUG is set.
     else:
         golden_debug = golden
 
-    loc = "$(location %s)"
+    loc = "$(rootpath %s)"
     nodejs_test(
         name = name,
         entry_point = "@build_bazel_rules_nodejs//internal/golden_file_test:bin.js",

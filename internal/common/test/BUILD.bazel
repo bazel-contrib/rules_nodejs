@@ -36,8 +36,12 @@ params_file(
     out = ":params_file.out",
     args = [
         "$(SOME_TEST_ENV)",
-        "$(location //:package.json)",
+        "$(execpaths :locations_in)",
+        "$(execpath //:package.json)",
+        "$(rootpaths :locations_in)",
+        "$(rootpath //:package.json)",
         "$(locations :locations_in)",
+        "$(location //:package.json)",
     ],
     data = [
         ":locations_in",
@@ -49,6 +53,10 @@ jasmine_node_test(
     name = "params_file_test",
     srcs = [":params_file.spec.js"],
     data = [":params_file.out"],
+    templated_args = [
+        "$(TARGET_CPU)",
+        "$(COMPILATION_MODE)",
+    ],
 )
 
 nodejs_binary(
@@ -65,3 +73,7 @@ sh_test(
     ],
     deps = ["@bazel_tools//tools/bash/runfiles"],
 )
+
+load(":expand_into_runfiles_test.bzl", "expand_into_runfiles_test_suite")
+
+expand_into_runfiles_test_suite()

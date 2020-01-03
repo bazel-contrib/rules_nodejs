@@ -18,6 +18,10 @@
 
 const runfiles = require(process.env['BAZEL_NODE_RUNFILES_HELPER']);
 
+// The arguments are passed via a params file
+const TARGET_CPU = process.argv[2];
+const COMPILATION_MODE = process.argv[3];
+
 // The arguments that were outputted to the params file
 const actual = require('fs')
                    .readFileSync(runfiles.resolvePackageRelative('params_file.out'), 'utf-8')
@@ -26,12 +30,24 @@ const actual = require('fs')
 // The argument we expect to find in the params file
 const expected = [
   'some_value',
-  // $location (expands to runfiles manifest path of format repo/path/to/file)
-  'build_bazel_rules_nodejs/package.json',
+  // $execpaths
+  './package.json',
+  `bazel-out/${TARGET_CPU}-${COMPILATION_MODE}/bin/internal/common/test/foo/bar/a.txt`,
+  'internal/common/test/params_file.spec.js',
+  // $execpath
+  './package.json',
+  // $rootpaths
+  './package.json',
+  'internal/common/test/foo/bar/a.txt',
+  'internal/common/test/params_file.spec.js',
+  // $rootpath
+  './package.json',
   // $locations (expands to runfiles manifest path of format repo/path/to/file)
   'build_bazel_rules_nodejs/package.json',
   'build_bazel_rules_nodejs/internal/common/test/foo/bar/a.txt',
   'build_bazel_rules_nodejs/internal/common/test/params_file.spec.js',
+  // $location (expands to runfiles manifest path of format repo/path/to/file)
+  'build_bazel_rules_nodejs/package.json',
 ];
 
 describe('params_file', function() {

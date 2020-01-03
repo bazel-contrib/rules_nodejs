@@ -211,11 +211,19 @@ def _nodejs_binary_impl(ctx):
 
     is_builtin = ctx.attr._node.label.workspace_name in ["nodejs_%s" % p for p in BUILT_IN_NODE_PLATFORMS]
 
+    # First expand predefined source/output path variables:
+    # $(execpath), $(rootpath) & legacy $(location)
+    expanded_args = [expand_location_into_runfiles(ctx, a, ctx.attr.data) for a in ctx.attr.templated_args]
+
+    # Next expand predefined variables & custom variables
+    expanded_args = [ctx.expand_make_variables("templated_args", e, {}) for e in expanded_args]
+
     substitutions = {
-        "TEMPLATED_args": " ".join([
-            expand_location_into_runfiles(ctx, a, ctx.attr.data)
-            for a in ctx.attr.templated_args
-        ]),
+        # TODO: Split up results of multifile expansions into separate args and qoute them with
+        #       "TEMPLATED_args": " ".join(["\"%s\"" % a for a in expanded_args]),
+        #       Need a smarter split operation than `expanded_arg.split(" ")` as it will split
+        #       up args with intentional spaces and it will fail for expanded files with spaces.
+        "TEMPLATED_args": " ".join(expanded_args),
         "TEMPLATED_entry_point_execroot_path": _to_execroot_path(ctx, ctx.file.entry_point),
         "TEMPLATED_entry_point_manifest_path": _to_manifest_path(ctx, ctx.file.entry_point),
         "TEMPLATED_env_vars": env_vars,
@@ -302,8 +310,9 @@ The set of default  environment variables is:
 
 - `VERBOSE_LOGS`: use by some rules & tools to turn on debug output in their logs
 - `NODE_DEBUG`: used by node.js itself to print more logs
+- `RUNFILES_LIB_DEBUG`: print diagnostic message from Bazel runfiles.bash helper
 """,
-        default = ["VERBOSE_LOGS", "NODE_DEBUG"],
+        default = ["VERBOSE_LOGS", "NODE_DEBUG", "RUNFILES_LIB_DEBUG"],
     ),
     "entry_point": attr.label(
         doc = """The script which should be executed first, usually containing a main function.
@@ -441,8 +450,78 @@ jasmine_node_test(
     "templated_args": attr.string_list(
         doc = """Arguments which are passed to every execution of the program.
         To pass a node startup option, prepend it with `--node_options=`, e.g.
-        `--node_options=--preserve-symlinks`
-        """,
+        `--node_options=--preserve-symlinks`.
+
+Subject to 'Make variable' substitution. See https://docs.bazel.build/versions/master/be/make-variables.html.
+
+1. Subject to predefined source/output path variables substitutions.
+
+The predefined variables `execpath`, `execpaths`, `rootpath`, `rootpaths`, `location`, and `locations` take
+label parameters (e.g. `$(execpath //foo:bar)`) and substitute the file paths denoted by that label.
+
+See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_label_variables for more info.
+
+NB: This $(location) substition returns the manifest file path which differs from the *_binary & *_test
+args and genrule bazel substitions. This will be fixed in a future major release.
+See docs string of `expand_location_into_runfiles` macro in `internal/common/expand_into_runfiles.bzl`
+for more info.
+
+The recommended approach is to now use `$(rootpath)` where you previously used $(location).
+
+To get from a `$(rootpath)` to the absolute path that `$$(rlocation $(location))` returned you can either use
+`$$(rlocation $(rootpath))` if you are in the `templated_args` of a `nodejs_binary` or `nodejs_test`:
+
+BUILD.bazel:
+```
+nodejs_test(
+    name = "my_test",
+    data = [":bootstrap.js"],
+    templated_args = ["--node_options=--require=$$(rlocation $(rootpath :bootstrap.js))"],
+)
+```
+
+or if you're in the context of a .js script you can pass the $(rootpath) as an argument to the script
+and use the javascript runfiles helper to resolve to the absolute path:
+
+BUILD.bazel:
+```
+nodejs_test(
+    name = "my_test",
+    data = [":some_file"],
+    entry_point = ":my_test.js",
+    templated_args = ["$(rootpath :some_file)"],
+)
+```
+
+my_test.js
+```
+const runfiles = require(process.env['BAZEL_NODE_RUNFILES_HELPER']);
+const args = process.argv.slice(2);
+const some_file = runfiles.resolveWorkspaceRelative(args[0]);
+```
+
+NB: Bazel will error if it sees the single dollar sign $(rlocation path) in `templated_args` as it will try to
+expand `$(rlocation)` since we now expand predefined & custom "make" variables such as `$(COMPILATION_MODE)`,
+`$(BINDIR)` & `$(TARGET_CPU)` using `ctx.expand_make_variables`. See https://docs.bazel.build/versions/master/be/make-variables.html.
+
+To prevent expansion of `$(rlocation)` write it as `$$(rlocation)`. Bazel understands `$$` to be
+the string literal `$` and the expansion results in `$(rlocation)` being passed as an arg instead
+of being expanded. `$(rlocation)` is then evaluated by the bash node launcher script and it calls
+the `rlocation` function in the runfiles.bash helper. For example, the templated arg
+`$$(rlocation $(rootpath //:some_file))` is expanded by Bazel to `$(rlocation ./some_file)` which
+is then converted in bash to the absolute path of `//:some_file` in runfiles by the runfiles.bash helper
+before being passed as an argument to the program
+
+2. Subject to predefined variables & custom variable substitutions.
+
+Predefined "Make" variables such as $(COMPILATION_MODE) and $(TARGET_CPU) are expanded.
+See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_variables.
+
+Custom variables are also expanded including variables set through the Bazel CLI with --define=SOME_VAR=SOME_VALUE.
+See https://docs.bazel.build/versions/master/be/make-variables.html#custom_variables.
+
+Predefined genrule variables are not supported in this context.
+""",
     ),
     "_bash_runfile_helper": attr.label(default = Label("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles")),
     "_launcher_template": attr.label(

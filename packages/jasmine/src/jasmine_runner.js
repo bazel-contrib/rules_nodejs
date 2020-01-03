@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const bazelJasmine = require('@bazel/jasmine');
+const runfiles = require(process.env['BAZEL_NODE_RUNFILES_HELPER']);
 
 const JasmineRunner = bazelJasmine.jasmine;
 const JUnitXmlReporter = bazelJasmine.JUnitXmlReporter;
@@ -67,7 +68,7 @@ function main(args) {
 
 
   // first args is always the path to the manifest
-  const manifest = require.resolve(readArg());
+  const manifest = runfiles.resolveWorkspaceRelative(readArg());
   // second is always a flag to enable coverage or not
   const coverageArg = readArg();
   const enableCoverage = coverageArg === '--coverage';
@@ -79,7 +80,7 @@ function main(args) {
 
   const jrunner = new JasmineRunner({jasmineCore: jasmineCore});
   if (configFile !== '--noconfig') {
-    jrunner.loadConfigFile(require.resolve(configFile));
+    jrunner.loadConfigFile(runfiles.resolveWorkspaceRelative(configFile));
   }
   const allFiles = fs.readFileSync(manifest, UTF8)
                        .split('\n')
@@ -93,7 +94,7 @@ function main(args) {
                           .filter(f => !IS_TEST_FILE.test(f))
                           // the jasmine_runner.js gets in here as a file to run
                           .filter(f => !f.endsWith('jasmine_runner.js'))
-                          .map(f => require.resolve(f))
+                          .map(f => runfiles.resolve(f))
                           // the reporting lib resolves the relative path to our cwd instead of
                           // using the absolute one so match it here
                           .map(f => path.relative(cwd, f))
