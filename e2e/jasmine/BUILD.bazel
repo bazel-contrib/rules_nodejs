@@ -10,7 +10,7 @@ jasmine_node_test(
     srcs = ["jasmine_shared_env_test.spec.js"],
     data = ["jasmine_shared_env_bootstrap.js"],
     templated_args = [
-        "--node_options=--require=$(rlocation $(location :jasmine_shared_env_bootstrap.js))",
+        "--node_options=--require=$$(rlocation $(rootpath :jasmine_shared_env_bootstrap.js))",
     ],
     deps = [
         "@npm//jasmine",

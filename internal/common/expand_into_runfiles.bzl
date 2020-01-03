@@ -15,48 +15,62 @@
 """Helper functions to expand paths into runfiles
 """
 
-# Expand $(location) and $(locations) to runfiles manifest path
-def _expand_mlocations(ctx, input, targets):
+# Expand $(rootpath) and $(rootpaths) to runfiles manifest path.
+# Runfiles manifest path is of the form:
+# - repo/path/to/file
+def _expand_rootpath_to_manifest_path(ctx, input, targets):
     paths = ctx.expand_location(input, targets)
-    return " ".join([_short_path_to_runfiles_manifest_path(ctx, p, targets) for p in paths.split(" ")])
+    return " ".join([_rootpath_to_runfiles_manifest_path(ctx, p, targets) for p in paths.split(" ")])
 
-# Convert a short_path in the execroot to the runfiles manifest path
-def _short_path_to_runfiles_manifest_path(ctx, path, targets):
+# Convert an runfiles rootpath to a runfiles manifestpath.
+# Runfiles rootpath is returned from ctx.expand_location $(rootpath) and $(rootpaths):
+# - ./file
+# - path/to/file
+# - ../external_repo/path/to/file
+# This is converted to the runfiles manifest path of:
+# - repo/path/to/file
+def _rootpath_to_runfiles_manifest_path(ctx, path, targets):
     if path.startswith("../"):
         return path[len("../"):]
     if path.startswith("./"):
         path = path[len("./"):]
-    elif path.startswith(ctx.bin_dir.path):
-        path = path[len(ctx.bin_dir.path + "/"):]
-    elif path.startswith(ctx.genfiles_dir.path):
-        path = path[len(ctx.genfiles_dir.path + "/"):]
     return ctx.workspace_name + "/" + path
 
-# Expand $(location) and $(locations) to runfiles short path
-def _expand_locations(ctx, input, targets):
-    paths = ctx.expand_location(input, targets)
-    return " ".join([_short_path_to_runfiles_short_path(ctx, p, targets) for p in paths.split(" ")])
-
-# Convert a short_path in the execroot to the runfiles short path
-def _short_path_to_runfiles_short_path(ctx, path, targets):
-    path = path.replace(ctx.bin_dir.path + "/external/", "../", 1)
-    path = path.replace(ctx.bin_dir.path + "/", "", 1)
-    path = path.replace(ctx.genfiles_dir.path + "/external/", "../", 1)
-    path = path.replace(ctx.genfiles_dir.path + "/", "", 1)
-    return path
-
 def expand_location_into_runfiles(ctx, input, targets = []):
-    """Expands all $(location ...) templates in the given string by replacing $(location //x) with the path
-    in runfiles of the output file of target //x. Expansion only works for labels that point to direct dependencies
+    """Expands all `$(execpath ...)`, `$(rootpath ...)` and legacy `$(location ...)` templates in the
+    given string by replacing with the expanded path. Expansion only works for labels that point to direct dependencies
     of this rule or that are explicitly listed in the optional argument targets.
 
-    Path is returned in runfiles manifest path format such as `repo/path/to/file`. This differs from how $(location)
-    and $(locations) expansion behaves in expansion the `args` attribute of a *_binary or *_test which returns
-    the runfiles short path of the format `./path/to/file` for user repo and `../external_repo/path/to/file` for external
-    repositories.
+    See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_label_variables.
 
-    This will be fixed in a future release major release as well as adding support for $(execpath) and $(rootpath)
-    substitions: https://docs.bazel.build/versions/master/be/make-variables.html#predefined_label_variables.
+    Use `$(rootpath)` and `$(rootpaths)` to expand labels to the runfiles path that a built binary can use
+    to find its dependencies. This path is of the format:
+    - `./file`
+    - `path/to/file`
+    - `../external_repo/path/to/file`
+
+    Use `$(execpath)` and `$(execpaths)` to expand labels to the execroot (where Bazel runs build actions).
+    This is of the format:
+    - `./file`
+    - `path/to/file`
+    - `external/external_repo/path/to/file`
+    - `<bin_dir>/path/to/file`
+    - `<bin_dir>/external/external_repo/path/to/file`
+
+    The legacy `$(location)` and `$(locations)` expansion is DEPRECATED as it returns the runfiles manifest path of the
+    format `repo/path/to/file` which behaves differently than the built-in `$(location)` expansion in args of *_binary
+    and *_test rules which returns the rootpath.
+    See https://docs.bazel.build/versions/master/be/common-definitions.html#common-attributes-binaries.
+
+    The legacy `$(location)` and `$(locations)` expansion also differs from how the builtin `ctx.expand_location()` expansions
+    of `$(location)` and `$(locations)` behave as that function returns either the execpath or rootpath depending on the context.
+    See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_label_variables.
+
+    The behavior of `$(location)` and `$(locations)` expansion will be fixed in a future major release to match the
+    to default Bazel behavior and return the same path as `ctx.expand_location()` returns for these.
+
+    The recommended approach is to now use `$(rootpath)` where you previously used $(location). See the docstrings
+    of `nodejs_binary` or `params_file` for examples of how to use `$(rootpath)` in `templated_args` and `args` respectively.
 
     Args:
       ctx: context
@@ -68,28 +82,32 @@ def expand_location_into_runfiles(ctx, input, targets = []):
     """
     target = "@%s//%s:%s" % (ctx.workspace_name, "/".join(ctx.build_file_path.split("/")[:-1]), ctx.attr.name)
 
-    # Loop through input an expand all $(location) and $(locations) using _expand_to_mlocation()
+    # Loop through input an expand all predefined source/output path variables
+    # See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_label_variables.
     path = ""
     length = len(input)
     last = 0
     for i in range(length):
-        if (input[i:i + 12] == "$(mlocation ") or (input[i:i + 13] == "$(mlocations "):
+        # Support legacy $(location) and $(locations) expansions which return the runfiles manifest path
+        # in the format `repo/path/to/file`. This expansion is DEPRECATED. See docstring above.
+        # TODO: Change location to behave the same as the built-in $(location) expansion for args of *_binary
+        #       and *_test rules. This would be a BREAKING CHANGE.
+        if input[i:].startswith("$(location ") or input[i:].startswith("$(locations "):
             j = input.find(")", i) + 1
             if (j == 0):
-                fail("invalid $(mlocation) expansion in string \"%s\" part of target %s" % (input, target))
+                fail("invalid \"%s\" expansion in string \"%s\" part of target %s" % (input[i:j], input, target))
             path += input[last:i]
-            path += _expand_mlocations(ctx, "$(" + input[i + 3:j], targets)
+            path += _expand_rootpath_to_manifest_path(ctx, "$(rootpath" + input[i + 10:j], targets)
             last = j
             i = j
-        if (input[i:i + 11] == "$(location ") or (input[i:i + 12] == "$(locations "):
+
+        # Expand $(execpath) $(execpaths) $(rootpath) $(rootpaths) with plain ctx.expand_location()
+        if input[i:].startswith("$(execpath ") or input[i:].startswith("$(execpaths ") or input[i:].startswith("$(rootpath ") or input[i:].startswith("$(rootpaths "):
             j = input.find(")", i) + 1
             if (j == 0):
-                fail("invalid $(location) expansion in string \"%s\" part of target %s" % (input, target))
+                fail("invalid \"%s\" expansion in string \"%s\" part of target %s" % (input[i:j], input, target))
             path += input[last:i]
-
-            # TODO(gmagolan): flip to _expand_locations in the future so $(location) expands to runfiles short
-            # path which is more Bazel idiomatic and $(mlocation) can be used for runfiles manifest path
-            path += _expand_mlocations(ctx, input[i:j], targets)
+            path += ctx.expand_location(input[i:j], targets)
             last = j
             i = j
     path += input[last:]

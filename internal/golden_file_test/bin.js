@@ -1,18 +1,20 @@
 const fs = require('fs');
 const path = require('path');
+const runfiles = require(process.env['BAZEL_NODE_RUNFILES_HELPER']);
 
 function main(args) {
   const [mode, golden_no_debug, golden_debug, actual] = args;
-  const actualPath = require.resolve(actual);
+  const actualPath = runfiles.resolveWorkspaceRelative(actual);
   const debugBuild = /\/bazel-out\/[^/\s]*-dbg\//.test(actualPath);
   const golden = debugBuild ? golden_debug : golden_no_debug;
   const actualContents = fs.readFileSync(actualPath, 'utf-8').replace(/\r\n/g, '\n');
-  const goldenContents = fs.readFileSync(require.resolve(golden), 'utf-8').replace(/\r\n/g, '\n');
+  const goldenContents =
+      fs.readFileSync(runfiles.resolveWorkspaceRelative(golden), 'utf-8').replace(/\r\n/g, '\n');
 
   if (actualContents !== goldenContents) {
     if (mode === '--out') {
       // Write to golden file
-      fs.writeFileSync(require.resolve(golden), actualContents);
+      fs.writeFileSync(runfiles.resolveWorkspaceRelative(golden), actualContents);
       console.error(`Replaced ${path.join(process.cwd(), golden)}`);
     } else if (mode === '--verify') {
       const unidiff = require('unidiff');

@@ -55,14 +55,12 @@ tsc(
 # Like the generated mocha_test but we don't want to run the patches before testing the patches
 nodejs_test(
     name = "unit_test",
-    args = ["$(location %s)" % s for s in test_js],
     data = js + test_js + [
         "@npm_node_patches//:node_modules",
     ],
     entry_point = "@npm_node_patches//:node_modules/mocha/bin/mocha",
-    tags = [
-        "fix-windows",
-    ],
+    tags = ["fix-windows"],
+    templated_args = ["$$(rlocation $(rootpath %s))" % s for s in test_js],
 )
 
 rollup_bundle(

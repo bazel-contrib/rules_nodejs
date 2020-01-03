@@ -89,6 +89,19 @@ msys*|mingw*|cygwin*)
   ;;
 esac
 
+# --- begin rules_nodejs custom code ---
+# normpath() function removes all `/./` and `dir/..` sequences from a path
+function normpath() {
+  # Remove all /./ sequences.
+  local path=${1//\/.\//\/}
+  # Remove dir/.. sequences.
+  while [[ $path =~ ([^/][^/]*/\.\./) ]]; do
+    path=${path/${BASH_REMATCH[0]}/}
+  done
+  echo $path
+}
+# --- end rules_nodejs custom code ---
+
 # Prints to stdout the runtime location of a data-dependency.
 function rlocation() {
   if [[ "${RUNFILES_LIB_DEBUG:-}" == 1 ]]; then
@@ -100,28 +113,58 @@ function rlocation() {
     fi
     # If the path is absolute, print it as-is.
     echo "$1"
-  elif [[ "$1" == ../* || "$1" == */.. || "$1" == ./* || "$1" == */./* || "$1" == "*/." || "$1" == *//* ]]; then
-    if [[ "${RUNFILES_LIB_DEBUG:-}" == 1 ]]; then
-      echo >&2 "ERROR[runfiles.bash]: rlocation($1): path is not normalized"
-    fi
+  # --- begin rules_nodejs custom code ---
+  # We allow "./*" and "../*" as these are the formats returned from $(rootpath)
+  # "./*" for a root "//:file"
+  # "../*" for an external repo "@other_repo//path/to:file"
+  elif [[ "$1" == */.. || "$1" == */./* || "$1" == "*/." || "$1" == *//* ]]; then
+  # --- end rules_nodejs custom code ---
+    # --- begin rules_nodejs custom code ---
+    # We print error messages regardless of RUNFILES_LIB_DEBUG value
+    # TODO: upstream this change to Bazel as it seems correct
+    echo >&2 "ERROR[runfiles.bash]: rlocation($1): path is not normalized"
+    # --- end rules_nodejs custom code ---
     return 1
   elif [[ "$1" == \\* ]]; then
-    if [[ "${RUNFILES_LIB_DEBUG:-}" == 1 ]]; then
-      echo >&2 "ERROR[runfiles.bash]: rlocation($1): absolute path without" \
-               "drive name"
-    fi
+    # --- begin rules_nodejs custom code ---
+    # We print error messages regardless of RUNFILES_LIB_DEBUG value
+    # TODO: upstream this change to Bazel as it seems correct
+    echo >&2 "ERROR[runfiles.bash]: rlocation($1): absolute path without" \
+              "drive name"
+    # --- end rules_nodejs custom code ---
     return 1
   else
+    # --- begin rules_nodejs custom code ---
+    # Normalize ${BAZEL_WORKSPACE}/$1.
+    # If $1 is a $(rootpath) this will convert it to the runfiles manifest path
+    readonly from_rootpath=$(normpath ${BAZEL_WORKSPACE:-/dev/null}/$1)
+    # --- end rules_nodejs custom code ---
     if [[ -e "${RUNFILES_DIR:-/dev/null}/$1" ]]; then
       if [[ "${RUNFILES_LIB_DEBUG:-}" == 1 ]]; then
         echo >&2 "INFO[runfiles.bash]: rlocation($1): found under RUNFILES_DIR ($RUNFILES_DIR), return"
       fi
       echo "${RUNFILES_DIR}/$1"
+    # --- begin rules_nodejs custom code ---
+    # If $1 is a rootpath then check if the converted rootpath to runfiles manifest path file is found
+    elif [[ -e "${RUNFILES_DIR:-/dev/null}/${from_rootpath}" ]]; then
+      if [[ "${RUNFILES_LIB_DEBUG:-}" == 1 ]]; then
+        echo >&2 "INFO[runfiles.bash]: rlocation($1): found under RUNFILES_DIR/BAZEL_WORKSPACE ($RUNFILES_DIR/$BAZEL_WORKSPACE), return"
+      fi
+      echo "${RUNFILES_DIR}/${from_rootpath}"
+    # --- end rules_nodejs custom code ---
     elif [[ -f "${RUNFILES_MANIFEST_FILE:-/dev/null}" ]]; then
       if [[ "${RUNFILES_LIB_DEBUG:-}" == 1 ]]; then
         echo >&2 "INFO[runfiles.bash]: rlocation($1): looking in RUNFILES_MANIFEST_FILE ($RUNFILES_MANIFEST_FILE)"
       fi
-      local -r result=$(grep -m1 "^$1 " "${RUNFILES_MANIFEST_FILE}" | cut -d ' ' -f 2-)
+      local result=$(grep -m1 "^$1 " "${RUNFILES_MANIFEST_FILE}" | cut -d ' ' -f 2-)
+      # --- begin rules_nodejs custom code ---
+      # If $1 is not found in the MANIFEST then check if the converted rootpath
+      # to runfiles manifest path file is found in the MANIFEST in the case the
+      # $1 is a rootpath.
+      if [[ -z "${result}" ]]; then
+        result=$(grep -m1 "^${from_rootpath} " "${RUNFILES_MANIFEST_FILE}" | cut -d ' ' -f 2-)
+      fi
+      # --- end rules_nodejs custom code ---
       if [[ -e "${result:-/dev/null}" ]]; then
         if [[ "${RUNFILES_LIB_DEBUG:-}" == 1 ]]; then
           echo >&2 "INFO[runfiles.bash]: rlocation($1): found in manifest as ($result)"
@@ -134,11 +177,13 @@ function rlocation() {
         echo ""
       fi
     else
-      if [[ "${RUNFILES_LIB_DEBUG:-}" == 1 ]]; then
-        echo >&2 "ERROR[runfiles.bash]: cannot look up runfile \"$1\" " \
-                 "(RUNFILES_DIR=\"${RUNFILES_DIR:-}\"," \
-                 "RUNFILES_MANIFEST_FILE=\"${RUNFILES_MANIFEST_FILE:-}\")"
-      fi
+      # --- begin rules_nodejs custom code ---
+      # We print error messages regardless of RUNFILES_LIB_DEBUG value
+      # TODO: upstream this change to Bazel as it seems correct
+      echo >&2 "ERROR[runfiles.bash]: cannot look up runfile \"$1\" " \
+               "(RUNFILES_DIR=\"${RUNFILES_DIR:-}\"," \
+               "RUNFILES_MANIFEST_FILE=\"${RUNFILES_MANIFEST_FILE:-}\")"
+      # --- end rules_nodejs custom code ---
       return 1
     fi
   fi

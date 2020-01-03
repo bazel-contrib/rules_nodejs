@@ -10,7 +10,7 @@ jasmine_node_test(
     name = "underscore_spec_bootstrap_test",
     srcs = ["foo_spec.js"],
     data = ["bootstrap.js"],
-    templated_args = ["--node_options=--require=$(rlocation $(location :bootstrap.js))"],
+    templated_args = ["--node_options=--require=$$(rlocation $(location :bootstrap.js))"],
 )
 
 jasmine_node_test(
@@ -40,7 +40,7 @@ jasmine_node_test(
     srcs = ["sharded_test.js"],
     data = ["bootstrap.js"],
     shard_count = 3,
-    templated_args = ["--node_options=--require=$(rlocation $(location :bootstrap.js))"],
+    templated_args = ["--node_options=--require=$$(rlocation $(location :bootstrap.js))"],
 )
 
 jasmine_node_test(
@@ -57,7 +57,7 @@ jasmine_node_test(
     data = ["bootstrap.js"],
     expected_exit_code = 3,
     shard_count = 2,
-    templated_args = ["--node_options=--require=$(rlocation $(location :bootstrap.js))"],
+    templated_args = ["--node_options=--require=$$(rlocation $(location :bootstrap.js))"],
 )
 
 # Verify that a bootstrap script does not break a failing sharded test
@@ -67,7 +67,7 @@ jasmine_node_test(
     data = ["bootstrap_fail.js"],
     expected_exit_code = 33,
     shard_count = 2,
-    templated_args = ["--node_options=--require=$(rlocation $(location :bootstrap_fail.js))"],
+    templated_args = ["--node_options=--require=$$(rlocation $(location :bootstrap_fail.js))"],
 )
 
 jasmine_node_test(
@@ -152,7 +152,7 @@ jasmine_node_test(
     srcs = ["fail.spec.js"],
     data = ["bootstrap.js"],
     expected_exit_code = 3,
-    templated_args = ["--node_options=--require=$(rlocation $(location :bootstrap.js))"],
+    templated_args = ["--node_options=--require=$$(rlocation $(location :bootstrap.js))"],
 )
 
 # Verify that the error code is propogated out from a failing bootstrap script
@@ -161,7 +161,7 @@ jasmine_node_test(
     srcs = ["fail.spec.js"],
     data = ["bootstrap_fail.js"],
     expected_exit_code = 33,
-    templated_args = ["--node_options=--require=$(rlocation $(location :bootstrap_fail.js))"],
+    templated_args = ["--node_options=--require=$$(rlocation $(location :bootstrap_fail.js))"],
 )
 
 jasmine_node_test(

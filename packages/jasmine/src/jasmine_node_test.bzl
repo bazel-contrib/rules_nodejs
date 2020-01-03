@@ -78,9 +78,9 @@ def jasmine_node_test(
     # The remaining target templated_args will be passed through to jasmine or
     # specs to consume.
     templated_args = [
-        "$(location :%s_devmode_srcs.MF)" % name,
+        "$(rootpath :%s_devmode_srcs.MF)" % name,
         "--coverage" if coverage else "--nocoverage",
-        "$(location %s)" % config_file if config_file else "--noconfig",
+        "$(rootpath %s)" % config_file if config_file else "--noconfig",
     ] + kwargs.pop("templated_args", [])
 
     if config_file:
