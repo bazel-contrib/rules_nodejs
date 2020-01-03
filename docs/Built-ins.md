@@ -238,12 +238,10 @@ without losing the defaults that should be set in most cases.
 
 The set of default  environment variables is:
 
-- `COMPILATION_MODE`: rules use this environment variable to produce optimized (eg. mangled and minimized) or debugging output
-- `VERBOSE_LOGS`: rules use this environment variable to turn on debug output in their logs
-- `DEBUG`: used by some npm packages to print debugging logs
+- `VERBOSE_LOGS`: use by some rules & tools to turn on debug output in their logs
 - `NODE_DEBUG`: used by node.js itself to print more logs
 
-Defaults to `["COMPILATION_MODE", "VERBOSE_LOGS", "DEBUG", "NODE_DEBUG"]`
+Defaults to `["VERBOSE_LOGS", "NODE_DEBUG"]`
 
 #### `entry_point`
 (*[label], mandatory*): The script which should be executed first, usually containing a main function.
@@ -443,12 +441,10 @@ without losing the defaults that should be set in most cases.
 
 The set of default  environment variables is:
 
-- `COMPILATION_MODE`: rules use this environment variable to produce optimized (eg. mangled and minimized) or debugging output
-- `VERBOSE_LOGS`: rules use this environment variable to turn on debug output in their logs
-- `DEBUG`: used by some npm packages to print debugging logs
+- `VERBOSE_LOGS`: use by some rules & tools to turn on debug output in their logs
 - `NODE_DEBUG`: used by node.js itself to print more logs
 
-Defaults to `["COMPILATION_MODE", "VERBOSE_LOGS", "DEBUG", "NODE_DEBUG"]`
+Defaults to `["VERBOSE_LOGS", "NODE_DEBUG"]`
 
 #### `entry_point`
 (*[label], mandatory*): The script which should be executed first, usually containing a main function.
@@ -753,6 +749,9 @@ function doThing() {
 }
 ```
 
+With the Bazel stamping feature, pkg_npm will replace any placeholder version in your package with the actual version control tag.
+See the [stamping documentation](https://github.com/bazelbuild/rules_nodejs/blob/master/docs/index.md#stamping)
+
 Usage:
 
 `pkg_npm` yields three labels. Build the package directory using the default label:
@@ -782,7 +781,12 @@ $ bazel run @nodejs//:npm_node_repositories who
 $ bazel run :my_package.publish
 ```
 
-You can pass arguments to npm by escaping them from Bazel using a double-hyphen `bazel run my_package.publish -- --tag=next`
+> Note that the `.pack` and `.publish` commands require that the `bazel-out` symlink exists in your project.
+> Also, you must run the command from the workspace root directory containing the `bazel-out` symlink.
+
+You can pass arguments to npm by escaping them from Bazel using a double-hyphen, for example:
+
+`bazel run my_package.publish -- --tag=next`
 
 
 
