@@ -8,7 +8,7 @@ google_closure_compiler(
         # workaround https://github.com/google/closure-compiler-npm/issues/147
         # --platform native would be faster but is failing on Windows
         "--platform=javascript",
-        "--js=$(location hello.js)",
+        "--js=$(execpath hello.js)",
         "--js_output_file=$@",
     ],
     data = ["hello.js"],

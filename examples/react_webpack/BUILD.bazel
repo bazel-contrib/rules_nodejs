@@ -7,8 +7,8 @@ sass(
     name = "styles",
     outs = ["styles.css"],
     args = [
-        "$(location styles.scss)",
-        "$(location styles.css)",
+        "$(execpath styles.scss)",
+        "$(execpath styles.css)",
     ],
     data = ["styles.scss"],
 )
@@ -17,8 +17,8 @@ tsc(
     name = "compile",
     outs = ["index.js"],
     args = [
-        "$(location index.tsx)",
-        "$(location types.d.ts)",
+        "$(execpath index.tsx)",
+        "$(execpath types.d.ts)",
         "--outDir",
         "$(RULEDIR)",
         "--lib",
@@ -38,9 +38,9 @@ webpack(
     name = "bundle",
     outs = ["app.bundle.js"],
     args = [
-        "$(location index.js)",
+        "$(execpath index.js)",
         "--config",
-        "$(location webpack.config.js)",
+        "$(execpath webpack.config.js)",
         "-o",
         "$@",
     ],

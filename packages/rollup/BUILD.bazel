@@ -24,7 +24,7 @@ genrule(
         "//packages/rollup/docs:install.md",
     ],
     outs = ["README.md"],
-    cmd = """cat $(location //packages/rollup/docs:install.md) $(location @npm_bazel_rollup//:index.md) | sed 's/^##/\\\n##/' > $@""",
+    cmd = """cat $(execpath //packages/rollup/docs:install.md) $(execpath @npm_bazel_rollup//:index.md) | sed 's/^##/\\\n##/' > $@""",
     tags = ["fix-windows"],
     visibility = ["//docs:__pkg__"],
 )

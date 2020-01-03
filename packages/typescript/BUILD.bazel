@@ -25,7 +25,7 @@ genrule(
         "//packages/typescript/docs:install.md",
     ],
     outs = ["README.md"],
-    cmd = """cat $(location //packages/typescript/docs:install.md) $(location @npm_bazel_typescript//:index.md) | sed 's/^##/\\\n##/' > $@""",
+    cmd = """cat $(execpath //packages/typescript/docs:install.md) $(execpath @npm_bazel_typescript//:index.md) | sed 's/^##/\\\n##/' > $@""",
     tags = ["fix-windows"],
     visibility = ["//docs:__pkg__"],
 )

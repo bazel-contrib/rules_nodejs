@@ -17,12 +17,12 @@ babel(
         "local_bundle.es2015.js.map",
     ],
     args = [
-        "$(location :local_bundle.js)",
+        "$(execpath :local_bundle.js)",
         "--no-babelrc",
         "--source-maps",
         "--presets=@babel/preset-env",
         "--out-file",
-        "$(location :local_bundle.es2015.js)",
+        "$(execpath :local_bundle.es2015.js)",
     ],
     data = [
         "local_bundle.js",
