@@ -1,4 +1,5 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "nodejs_test", "npm_package_bin")
+load("@build_bazel_rules_nodejs//internal/golden_file_test:golden_file_test.bzl", "golden_file_test")
 load("//internal/js_library:js_library.bzl", "js_library")
 load("//internal/node:node_repositories.bzl", "BUILT_IN_NODE_PLATFORMS")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
@@ -246,3 +247,24 @@ nodejs_test(
     # where PLATFORM is one of BUILT_IN_NODE_PLATFORMS
     tags = ["manual"],
 ) for platform in BUILT_IN_NODE_PLATFORMS]
+
+nodejs_binary(
+    name = "expand_variables",
+    entry_point = "expand_variables.js",
+)
+
+npm_package_bin(
+    name = "expand_variables_ouput",
+    outs = ["expand_variables.out"],
+    args = [
+        "$@",
+        "$(SOME_TEST_ENV)",
+    ],
+    tool = ":expand_variables",
+)
+
+golden_file_test(
+    name = "expand_variables_test",
+    actual = ":expand_variables.out",
+    golden = "expand_variables.golden",
+)

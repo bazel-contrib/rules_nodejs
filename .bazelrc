@@ -22,6 +22,7 @@ build --noincompatible_require_ctx_in_configure_features
 build --noincompatible_no_support_tools_in_action_inputs
 
 # Define environment value used by some tests such as //internal/npm_install/test:bazel_bin_test
+build --define=SOME_TEST_ENV=some_value
 test --define=SOME_TEST_ENV=some_value
 
 ###############################
