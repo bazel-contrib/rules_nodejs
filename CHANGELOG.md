@@ -1,3 +1,19 @@
+## [1.0.1](https://github.com/bazelbuild/rules_nodejs/compare/1.0.0...1.0.1) (2020-01-03)
+
+
+### Bug Fixes
+
+* don't bake COMPILATION_MODE into launcher as exported environment var ([8a931d8](https://github.com/bazelbuild/rules_nodejs/commit/8a931d8))
+* **builtin:** make .pack and .publish targets work again ([43716d3](https://github.com/bazelbuild/rules_nodejs/commit/43716d3)), closes [#1493](https://github.com/bazelbuild/rules_nodejs/issues/1493)
+* **create:** @bazel/create should verbose log based on VERBOSE_LOGS instead of COMPILATION_MODE ([c1b97d6](https://github.com/bazelbuild/rules_nodejs/commit/c1b97d6))
+
+
+### Features
+
+* **builtin:** allow patching require in bootstrap scripts ([842dfb4](https://github.com/bazelbuild/rules_nodejs/commit/842dfb4))
+
+
+
 # [1.0.0](https://github.com/bazelbuild/rules_nodejs/compare/0.42.3...1.0.0) (2019-12-20)
 
 
