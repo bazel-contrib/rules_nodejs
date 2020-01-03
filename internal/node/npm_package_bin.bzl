@@ -1,6 +1,7 @@
 "A generic rule to run a tool that appears in node_modules/.bin"
 
 load("//:providers.bzl", "NpmPackageInfo", "node_modules_aspect", "run_node")
+load("//internal/common:expand_variables.bzl", "expand_variables")
 load("//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 
 # Note: this API is chosen to match nodejs_binary
@@ -17,36 +18,12 @@ _ATTRS = {
     ),
 }
 
-# Need a custom expand_location function
-# because the output_dir is a tree artifact
-# so we weren't able to give it a label
-def _expand_location(ctx, s):
-    rule_dir = [ctx.bin_dir.path, ctx.label.package]
-
-    if ctx.attr.output_dir:
-        if s.find("$@") != -1:
-            fail("""$@ substitution may only be used with output_dir=False.
-            Upgrading rules_nodejs? Maybe you need to switch from $@ to $(@D)
-            See https://github.com/bazelbuild/rules_nodejs/releases/tag/0.42.0""")
-
-        # We'll write into a newly created directory named after the rule
-        output_dir = [ctx.bin_dir.path, ctx.label.package, ctx.attr.name]
-    else:
-        if s.find("$@") != -1 and len(ctx.outputs.outs) > 1:
-            fail("""$@ substitution may only be used with a single out
-            Upgrading rules_nodejs? Maybe you need to switch from $@ to $(RULEDIR)
-            See https://github.com/bazelbuild/rules_nodejs/releases/tag/0.42.0""")
-        s = s.replace("$@", ctx.outputs.outs[0].path)
-        if len(ctx.outputs.outs) == 1:
-            output_dir = ctx.outputs.outs[0].dirname.split("/")
-        else:
-            output_dir = rule_dir[:]
-
-    # The list comprehension removes empty segments like if we are in the root package
-    s = s.replace("$(@D)", "/".join([o for o in output_dir if o]))
-    s = s.replace("$(RULEDIR)", "/".join([o for o in rule_dir if o]))
-
-    return ctx.expand_location(s, targets = ctx.attr.data)
+def _expand_locations(ctx, s):
+    # `.split(" ")` is a work-around https://github.com/bazelbuild/bazel/issues/10309
+    # _expand_locations returns an array of args to support $(execpaths) expansions.
+    # TODO: If the string has intentional spaces or if one or more of the expanded file
+    # locations has a space in the name, we will incorrectly split it into multiple arguments
+    return ctx.expand_location(s, targets = ctx.attr.data).split(" ")
 
 def _inputs(ctx):
     # Also include files from npm fine grained deps as inputs.
@@ -72,10 +49,8 @@ def _impl(ctx):
         outputs = ctx.outputs.outs
 
     for a in ctx.attr.args:
-        # Workaround bazelbuild/bazel#10309
-        # If one of the files has a space in the name, we will
-        # incorrectly split it into multiple argv
-        args.add_all(_expand_location(ctx, a).split(" "))
+        args.add_all([expand_variables(ctx, e, outs = ctx.attr.outs, output_dir = ctx.attr.output_dir) for e in _expand_locations(ctx, a)])
+
     run_node(
         ctx,
         executable = "tool",
@@ -111,9 +86,30 @@ def npm_package_bin(tool = None, package = None, package_bin = None, data = [], 
 
         args: Command-line arguments to the tool.
 
-            Subject to 'Make variable' substitution.
-            Can use $(location) expansion. See https://docs.bazel.build/versions/master/be/make-variables.html
-            Like genrule, you may also use some syntax sugar for locations:
+            Subject to 'Make variable' substitution. See https://docs.bazel.build/versions/master/be/make-variables.html.
+
+            1. Predefined source/output path substitions is applied first:
+
+            See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_label_variables.
+
+            Use $(execpath) $(execpaths) to expand labels to the execroot (where Bazel runs build actions).
+
+            Use $(rootpath) $(rootpaths) to expand labels to the runfiles path that a built binary can use
+            to find its dependencies.
+
+            Since npm_package_bin is used primarily for build actions, in most cases you'll want to
+            use $(execpath) or $(execpaths) to expand locations.
+
+            Using $(location) and $(locations) expansions is not recommended as these are a synonyms
+            for either $(execpath) or $(rootpath) depending on the context.
+
+            2. "Make" variables are expanded second:
+
+            Predefined "Make" variables such as $(COMPILATION_MODE) and $(TARGET_CPU) are expanded.
+            See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_variables.
+
+            Like genrule, you may also use some syntax sugar for locations.
+
             - `$@`: if you have only one output file, the location of the output
             - `$(@D)`: The output directory. If output_dir=False and there is only one file name in outs, this expands to the directory
                 containing that file. If there are multiple files, this instead expands to the package's root directory in the genfiles
@@ -121,6 +117,11 @@ def npm_package_bin(tool = None, package = None, package_bin = None, data = [], 
                 to the output directory which is the $(RULEDIR)/{target_name}.
             - `$(RULEDIR)`: the root output directory of the rule, corresponding with its package
                 (can be used with output_dir=True or False)
+
+            See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_genrule_variables.
+
+            Custom variables are also expanded including variables set through the Bazel CLI with --define=SOME_VAR=SOME_VALUE.
+            See https://docs.bazel.build/versions/master/be/make-variables.html#custom_variables.
 
         package: an npm package whose binary to run, like "terser". Assumes your node_modules are installed in a workspace called "npm"
         package_bin: the "bin" entry from `package` that should be run. By default package_bin is the same string as `package`
