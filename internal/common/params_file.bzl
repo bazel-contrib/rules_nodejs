@@ -19,27 +19,23 @@ load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfile
 
 _DOC = """Generates a params file from a list of arguments."""
 
+# See params_file macro below for docstrings
 _ATTRS = {
-    "out": attr.output(
-        doc = """Path of the output file, relative to this package.""",
-        mandatory = True,
-    ),
-    "args": attr.string_list(
-        doc = """Arguments to concatenate into a params file.
-Subject to $(location) substitutions""",
-    ),
-    "data": attr.label_list(
-        doc = """Data for $(location) expansions in args.""",
-        allow_files = True,
-    ),
+    "out": attr.output(mandatory = True),
+    "args": attr.string_list(),
+    "data": attr.label_list(allow_files = True),
     "is_windows": attr.bool(mandatory = True),
     "newline": attr.string(
-        doc = """one of ["auto", "unix", "windows"]: line endings to use. "auto"
-for platform-determined, "unix" for LF, and "windows" for CRLF.""",
         values = ["unix", "windows", "auto"],
         default = "auto",
     ),
 }
+
+def _expand_location_into_runfiles(ctx, s):
+    # `.split(" ")` is a work-around https://github.com/bazelbuild/bazel/issues/10309
+    # TODO: If the string has intentional spaces or if one or more of the expanded file
+    # locations has a space in the name, we will incorrectly split it into multiple arguments
+    return expand_location_into_runfiles(ctx, s, targets = ctx.attr.data).split(" ")
 
 def _impl(ctx):
     if ctx.attr.newline == "auto":
@@ -49,10 +45,19 @@ def _impl(ctx):
     else:
         newline = "\n"
 
+    expanded_args = []
+
+    # First expand $(location) args
+    for a in ctx.attr.args:
+        expanded_args += _expand_location_into_runfiles(ctx, a)
+
+    # Next expand predefined variables & custom variables
+    expanded_args = [ctx.expand_make_variables("args", e, {}) for e in expanded_args]
+
     # ctx.actions.write creates a FileWriteAction which uses UTF-8 encoding.
     ctx.actions.write(
         output = ctx.outputs.out,
-        content = newline.join([expand_location_into_runfiles(ctx, a, ctx.attr.data) for a in ctx.attr.args]),
+        content = newline.join(expanded_args),
         is_executable = False,
     )
     files = depset(direct = [ctx.outputs.out])
@@ -70,25 +75,44 @@ def params_file(
         name,
         out,
         args = [],
+        data = [],
         newline = "auto",
         **kwargs):
     """Generates a UTF-8 encoded params file from a list of arguments.
 
-    Handles $(location) expansions for arguments.
+    Handles variable substitutions for args.
 
     Args:
-      name: Name of the rule.
-      out: Path of the output file, relative to this package.
-      args: Arguments to concatenate into a params file.
-          Subject to $(location) substitutions
-      newline: one of ["auto", "unix", "windows"]: line endings to use. "auto"
-          for platform-determined, "unix" for LF, and "windows" for CRLF.
-      **kwargs: further keyword arguments, e.g. <code>visibility</code>
+        name: Name of the rule.
+        out: Path of the output file, relative to this package.
+        args: Arguments to concatenate into a params file.
+
+            1. Subject to $(location) substitutions.
+
+            NB: This substition returns the manifest file path which differs from the *_binary & *_test
+            args and genrule bazel substitions. This will be fixed in a future major release.
+            See docs string of `expand_location_into_runfiles` macro in
+            `internal/common/expand_into_runfiles.bzl` for more info.
+
+            2. Subject to predefined variables & custom variable substitutions.
+
+            See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_variables
+            and https://docs.bazel.build/versions/master/be/make-variables.html#custom_variables.
+
+            Predefined genrule variables are not supported in this context.
+
+        data: Data for $(location) expansions in args.
+        newline: Line endings to use. One of ["auto", "unix", "windows"].
+
+            "auto" for platform-determined
+            "unix" for LF
+            "windows" for CRLF
     """
     _params_file(
         name = name,
         out = out,
         args = args,
+        data = data,
         newline = newline or "auto",
         is_windows = select({
             "@bazel_tools//src/conditions:host_windows": True,
