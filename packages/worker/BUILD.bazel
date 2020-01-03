@@ -29,14 +29,14 @@ genrule(
     name = "copy_worker_js",
     srcs = ["@build_bazel_rules_typescript//:npm_bazel_typescript_package"],
     outs = ["index.js"],
-    cmd = "cp $(location @build_bazel_rules_typescript//:npm_bazel_typescript_package)/%s.js $@" % _worker_path,
+    cmd = "cp $(execpath @build_bazel_rules_typescript//:npm_bazel_typescript_package)/%s.js $@" % _worker_path,
 )
 
 genrule(
     name = "copy_worker_dts",
     srcs = ["@build_bazel_rules_typescript//:npm_bazel_typescript_package"],
     outs = ["index.d.ts"],
-    cmd = "cp $(location @build_bazel_rules_typescript//:npm_bazel_typescript_package)/%s.d.ts $@" % _worker_path,
+    cmd = "cp $(execpath @build_bazel_rules_typescript//:npm_bazel_typescript_package)/%s.d.ts $@" % _worker_path,
 )
 
 copy_file(

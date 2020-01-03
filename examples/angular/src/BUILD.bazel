@@ -82,11 +82,11 @@ html_insert_assets(
     name = "inject_scripts_for_dev",
     outs = ["index.html"],
     args = [
-        "--html=$(location //src:example/index.html)",
+        "--html=$(execpath //src:example/index.html)",
         "--out=$@",
         "--roots=. $(RULEDIR)",
         "--assets",
-    ] + ["$(location %s)" % s for s in _ASSETS] + [
+    ] + ["$(execpath %s)" % s for s in _ASSETS] + [
         # This file doesn't exist during the build, but will be served by ts_devserver
         "_/ts_scripts.js",
     ],
@@ -140,7 +140,7 @@ rollup_bundle(
 babel(
     name = "bundle-es5",
     args = [
-        "$(location :bundle-es2015)",
+        "$(execpath :bundle-es2015)",
         "--no-babelrc",
         "--source-maps",
         "--presets=@babel/preset-env",
@@ -172,11 +172,11 @@ html_insert_assets(
     # `example/index.html` in the web package.
     outs = ["_prodapp/src/example/index.html"],
     args = [
-        "--html=$(location //src:example/index.prod.html)",
+        "--html=$(execpath //src:example/index.prod.html)",
         "--out=$@",
         "--roots=. $(RULEDIR)",
         "--assets",
-    ] + ["$(location %s)" % s for s in _ASSETS],
+    ] + ["$(execpath %s)" % s for s in _ASSETS],
     data = ["//src:example/index.prod.html"] + _ASSETS,
 )
 

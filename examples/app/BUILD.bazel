@@ -43,10 +43,10 @@ html_insert_assets(
     outs = ["index.html"],
     args = [
         "--out=$@",
-        "--html=$(location :index.tmpl.html)",
+        "--html=$(execpath :index.tmpl.html)",
         "--roots=$(RULEDIR)",
         "--assets",
-    ] + ["$(locations %s)" % a for a in _ASSETS],
+    ] + ["$(execpaths %s)" % a for a in _ASSETS],
     data = [":index.tmpl.html"] + _ASSETS,
 )
 
@@ -72,7 +72,7 @@ tsc(
     ],
     args = [
         "-p",
-        "$(location tsconfig-test.json)",
+        "$(execpath tsconfig-test.json)",
         "--outDir",
         # $(RULEDIR) is a shorthand for the dist/bin directory where Bazel requires we write outputs
         "$(RULEDIR)",

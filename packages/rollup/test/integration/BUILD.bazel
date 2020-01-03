@@ -60,12 +60,12 @@ npm_package_bin(
     name = "bundle_umd_sha256",
     outs = ["bundle.umd.sha256"],
     args = [
-        "$(location :bundle.umd.js)",
-        "$(location :bundle.umd.sha256)",
+        "$(execpath :bundle.umd.js)",
+        "$(execpath :bundle.umd.sha256)",
     ],
     data = [
         # ":bundle.umd.js" included as a dep as Bazel requires it for
-        # the "$(location :bundle.umd.js)" location expansion to work
+        # the "$(execpath :bundle.umd.js)" location expansion to work
         ":bundle.umd.js",
         # Also include ":bundle.umd" as a dep so that the module mappings
         # from the ":bundle.umd" as propogated to ensure the linker

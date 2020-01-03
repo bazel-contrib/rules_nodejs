@@ -24,7 +24,7 @@ genrule(
         "//packages/protractor/docs:install.md",
     ],
     outs = ["README.md"],
-    cmd = """cat $(location //packages/protractor/docs:install.md) $(location @npm_bazel_protractor//:index.md) | sed 's/^##/\\\n##/' > $@""",
+    cmd = """cat $(execpath //packages/protractor/docs:install.md) $(execpath @npm_bazel_protractor//:index.md) | sed 's/^##/\\\n##/' > $@""",
     tags = ["fix-windows"],
     visibility = ["//docs:__pkg__"],
 )

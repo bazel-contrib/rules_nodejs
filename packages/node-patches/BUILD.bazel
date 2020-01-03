@@ -41,7 +41,7 @@ tsc(
     outs = js + test_js,
     args = [
         "-p",
-        "$(location tsconfig-bazel.json)",
+        "$(execpath tsconfig-bazel.json)",
         "--outDir",
         "$(RULEDIR)",
     ],

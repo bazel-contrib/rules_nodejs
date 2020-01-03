@@ -205,7 +205,7 @@ npm_package_bin(
     name = "run_terser",
     outs = ["minified.js"],
     args = [
-        "$(location terser_input.js)",
+        "$(execpath terser_input.js)",
         "--output",
         "$@",
     ],
@@ -223,7 +223,7 @@ npm_package_bin(
     args = [
         "--output-dir",
         "$(@D)",
-        "$(location terser_input.js)",
+        "$(execpath terser_input.js)",
     ],
     data = ["terser_input.js"],
     output_dir = True,
