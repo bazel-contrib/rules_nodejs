@@ -268,7 +268,24 @@ if [[ ! -z "${{TEST_TMPDIR}}" && ! -n "${{BUILD_WORKSPACE_DIRECTORY}}" ]]; then
   ARGV+=( "--single-run" )
 fi
 
-$KARMA ${{ARGV[@]}}
+# Pass --node_options from args on karma node process
+NODE_OPTIONS=()
+for ARG in "$@"; do
+  case "$ARG" in
+    --node_options=*) NODE_OPTIONS+=( "${{ARG}}" ) ;;
+  esac
+done
+
+KARMA_VERSION=$(${{KARMA}} --version)
+
+printf "\n\n\n\nRunning karma tests\n-----------------------------------------------------------------------------\n"
+echo "version     :" ${{KARMA_VERSION#Karma version: }}
+echo "pwd         :" ${{PWD}}
+echo "conf        :" ${{CONF}}
+echo "node_options:" ${{NODE_OPTIONS[@]}}
+printf "\n"
+
+${{KARMA}} ${{ARGV[@]}} ${{NODE_OPTIONS[@]}}
 """.format(
             TMPL_workspace = ctx.workspace_name,
             TMPL_karma = _to_manifest_path(ctx, ctx.executable.karma),
