@@ -1,12 +1,14 @@
-import {Logger} from '@nestjs/common';
+import {INestApplication, Logger} from '@nestjs/common';
 import {NestFactory} from '@nestjs/core';
+import {ExpressAdapter} from '@nestjs/platform-express';
 
 import {AppModule} from './app.module';
 
-async function bootstrap(port: number) {
-  const app = await NestFactory.create(AppModule);
+export async function bootstrap(port: number): Promise<INestApplication> {
+  const app = await NestFactory.create(AppModule, new ExpressAdapter());
   await app.listen(port);
   Logger.log(`Application served at http://localhost:${port}`);
+  return app;
 }
 
 if (require.main === module) {
