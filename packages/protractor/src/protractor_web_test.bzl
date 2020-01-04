@@ -125,12 +125,24 @@ fi
 
 export HOME=$(mktemp -d)
 
-# Print the protractor version in the test log
-PROTRACTOR_VERSION=$($PROTRACTOR --version)
-echo "Protractor $PROTRACTOR_VERSION"
+# Pass --node_options from args on protractor node process
+NODE_OPTIONS=()
+for ARG in "$@"; do
+  case "$ARG" in
+    --node_options=*) NODE_OPTIONS+=( "${{ARG}}" ) ;;
+  esac
+done
 
-# Run the protractor binary
-$PROTRACTOR $CONF
+PROTRACTOR_VERSION=$(${{PROTRACTOR}} --version)
+
+printf "\n\n\n\nRunning protractor tests\n-----------------------------------------------------------------------------\n"
+echo "version     :" ${{PROTRACTOR_VERSION#Version }}
+echo "pwd         :" ${{PWD}}
+echo "conf        :" ${{CONF}}
+echo "node_options:" ${{NODE_OPTIONS[@]}}
+printf "\n"
+
+${{PROTRACTOR}} ${{CONF}} "${{NODE_OPTIONS[@]}}"
 """.format(
             TMPL_protractor = _to_manifest_path(ctx, ctx.executable.protractor),
             TMPL_conf = _to_manifest_path(ctx, configuration),
