@@ -4,7 +4,7 @@ import {ExpressAdapter} from '@nestjs/platform-express';
 import * as cluster from 'cluster';
 import * as os from 'os';
 
-import {AppModule} from './app.module';
+import {AppModule} from './app/app.module';
 
 export async function bootstrap(port: number): Promise<INestApplication> {
   const app = await NestFactory.create(AppModule, new ExpressAdapter());

@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 
-import {bootstrap, bootstrapCluster} from './main';
+import {bootstrap} from './main';
 
 describe('App', () => {
   it(`GET /`, async () => {

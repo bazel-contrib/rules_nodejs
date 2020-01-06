@@ -26,6 +26,7 @@ ts_library(
         exclude = ["*.spec.ts"],
     ),
     deps = [
+        "//src/app",
         "@npm//@nestjs/common",
         "@npm//@nestjs/core",
         "@npm//@nestjs/platform-express",
@@ -55,8 +56,6 @@ nodejs_binary(
     name = "server",
     data = [
         ":app",
-        "@npm//@nestjs/common",
-        "@npm//@nestjs/core",
         "@npm//minimist",
     ],
     entry_point = ":main",
@@ -65,6 +64,7 @@ nodejs_binary(
 
 jasmine_node_test(
     name = "test",
+    templated_args = ["--nobazel_patch_module_resolver"],
     deps = [
         ":test_lib",
     ],
