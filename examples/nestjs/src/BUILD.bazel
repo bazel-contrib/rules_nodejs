@@ -40,8 +40,10 @@ ts_library(
         ":app",
         "@npm//@nestjs/common",
         "@npm//@types/jasmine",
+        "@npm//@types/superagent",
         "@npm//@types/supertest",
         "@npm//jasmine",
+        "@npm//superagent",
         "@npm//supertest",
     ],
 )

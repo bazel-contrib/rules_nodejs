@@ -1,21 +1,13 @@
-import {INestApplication} from '@nestjs/common';
 import * as request from 'supertest';
 
-import {bootstrap} from './main';
+import {bootstrap, bootstrapCluster} from './main';
 
 describe('App', () => {
-  let server: INestApplication;
-
-  beforeAll(async () => {
-    server = await bootstrap(3000);
-  });
-  afterAll(async () => {
-    await server.close();
-  })
-
-  it(`GET /`, () => {
-    return request(server.getHttpServer()).get('/hello').expect(200).expect({
+  it(`GET /`, async () => {
+    const server = await bootstrap(3000);
+    await request(server.getHttpServer()).get('/hello').expect(200).expect({
       message: 'Hello world!'
     });
+    await server.close();
   });
 });

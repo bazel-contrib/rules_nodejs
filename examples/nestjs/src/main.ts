@@ -13,26 +13,34 @@ export async function bootstrap(port: number): Promise<INestApplication> {
   return app;
 }
 
-function main(port: number) {
-  if (cluster.isMaster) {
-    const cpuCount = os.cpus().length;
+export async function bootstrapCluster(port: number): Promise<cluster.Worker[]|void> {
+  return new Promise((resolve, reject) => {
+    if (cluster.isMaster) {
+      const cpuCount = os.cpus().length;
 
-    for (let i = 0; i < cpuCount; i += 1) {
-      cluster.fork();
+      for (let i = 0; i < cpuCount; i += 1) {
+        cluster.fork();
+      }
+
+      let workers = [];
+      cluster.on('online', worker => {
+        Logger.log('Worker ' + worker.process.pid + ' is online.');
+        workers.push(worker);
+        if (workers.length === cpuCount) {
+          resolve(workers);
+        }
+      });
+      cluster.on('exit', ({process}, code, signal) => {
+        Logger.log('worker ' + process.pid + ' died.');
+      });
+    } else {
+      bootstrap(port);
+      resolve();
     }
-
-    cluster.on('online', worker => {
-      Logger.log('Worker ' + worker.process.pid + ' is online.');
-    });
-    cluster.on('exit', ({process}, code, signal) => {
-      Logger.log('worker ' + process.pid + ' died.');
-    });
-  } else {
-    bootstrap(port);
-  }
+  })
 }
 
 if (require.main === module) {
   const argv = require('minimist')(process.argv.slice(2));
-  main(argv.port || 3000);
+  bootstrapCluster(argv.port || 3000);
 }
