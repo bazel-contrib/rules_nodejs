@@ -41,7 +41,7 @@ sh_binary(
         "//internal/linker:index.js",
         "//internal/linker/test/integration/static_linked_pkg",
         "//internal/linker/test/integration/static_linked_scoped_pkg",
-        "@bazel_tools//tools/bash/runfiles",
+        "@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles",
         "@build_bazel_rules_nodejs//toolchains/node:node_bin",
     ],
 )

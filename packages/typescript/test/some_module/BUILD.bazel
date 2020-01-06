@@ -31,6 +31,6 @@ sh_test(
     srcs = ["module_load_test.sh"],
     data = [
         ":bin",
-        "@bazel_tools//tools/bash/runfiles",
+        "@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles",
     ],
 )

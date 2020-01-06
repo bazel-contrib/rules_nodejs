@@ -14,7 +14,7 @@ sh_test(
         ":a",
         "//third_party/github.com/bazelbuild/bazel-skylib:tests/unittest.bash",
     ],
-    deps = ["@bazel_tools//tools/bash/runfiles"],
+    deps = ["@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles"],
 )
 
 copy_to_bin(

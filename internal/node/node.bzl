@@ -238,7 +238,7 @@ def _nodejs_binary_impl(ctx):
 
     runfiles = []
     runfiles.extend(node_tool_files)
-    runfiles.extend(ctx.files._bash_runfile_helpers)
+    runfiles.extend(ctx.files._bash_runfile_helper)
     runfiles.append(ctx.outputs.loader_script)
     runfiles.append(ctx.outputs.require_patch_script)
     runfiles.append(ctx.file._repository_args)
@@ -444,7 +444,7 @@ jasmine_node_test(
         `--node_options=--preserve-symlinks`
         """,
     ),
-    "_bash_runfile_helpers": attr.label(default = Label("@bazel_tools//tools/bash/runfiles")),
+    "_bash_runfile_helper": attr.label(default = Label("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles")),
     "_launcher_template": attr.label(
         default = Label("//internal/node:launcher.sh"),
         allow_single_file = True,
