@@ -188,7 +188,7 @@ ts_devserver = rule(
             allow_files = True,
             aspects = [node_modules_aspect],
         ),
-        "_bash_runfile_helpers": attr.label(default = Label("@bazel_tools//tools/bash/runfiles")),
+        "_bash_runfile_helpers": attr.label(default = Label("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles")),
         "_launcher_template": attr.label(allow_single_file = True, default = Label("//internal/devserver:launcher_template.sh")),
         "_requirejs_script": attr.label(allow_single_file = True, default = Label("//third_party/npm/requirejs:require.js")),
     },
