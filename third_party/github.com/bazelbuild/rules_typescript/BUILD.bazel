@@ -19,7 +19,7 @@
 # https://github.com/bazelbuild/rules_go/blob/master/go/tools/gazelle/README.rst#directives
 # gazelle:exclude node_modules
 load("@bazel_gazelle//:def.bzl", "gazelle")
-load("@build_bazel_rules_nodejs//:index.bzl", "npm_package")
+load("@build_bazel_rules_nodejs//:index.bzl", "pkg_npm")
 
 exports_files([
     "LICENSE",
@@ -32,7 +32,7 @@ gazelle(
 )
 
 # This package is included in the npm_bazel_typescript package in rules_nodejs/packages/typescript
-npm_package(
+pkg_npm(
     name = "npm_bazel_typescript_package",
     srcs = [
         "//internal:npm_package_assets",
