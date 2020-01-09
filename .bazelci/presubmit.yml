@@ -48,6 +48,8 @@ tasks:
     - "--build_tag_filters=e2e"
     build_targets:
     - "//..."
+    # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
+    skip_use_bazel_version_for_test: true
     test_flags:
     - "--test_tag_filters=e2e"
     - "--local_resources=792,1.0,1.0"
@@ -76,6 +78,8 @@ tasks:
     - "--build_tag_filters=examples"
     build_targets:
     - "//..."
+    # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
+    skip_use_bazel_version_for_test: true
     test_flags:
     - "--test_tag_filters=examples"
     - "--local_resources=792,1.0,1.0"
@@ -156,6 +160,8 @@ tasks:
     - "--build_tag_filters=e2e"
     build_targets:
     - "//..."
+    # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
+    skip_use_bazel_version_for_test: true
     test_flags:
     - "--test_tag_filters=e2e"
     - "--local_resources=792,1.0,1.0"
@@ -184,6 +190,8 @@ tasks:
     - "--build_tag_filters=examples"
     build_targets:
     - "//..."
+    # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
+    skip_use_bazel_version_for_test: true
     test_flags:
     - "--test_tag_filters=examples"
     - "--local_resources=792,1.0,1.0"
@@ -274,6 +282,8 @@ tasks:
     - "--build_tag_filters=e2e"
     build_targets:
     - "//..."
+    # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
+    skip_use_bazel_version_for_test: true
     test_flags:
     - "--test_tag_filters=e2e"
     - "--local_resources=792,1.0,1.0"
@@ -300,6 +310,8 @@ tasks:
     - "--build_tag_filters=examples"
     build_targets:
     - "//..."
+    # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
+    skip_use_bazel_version_for_test: true
     test_flags:
     - "--test_tag_filters=examples,-manual"
     - "--local_resources=792,1.0,1.0"
@@ -373,6 +385,8 @@ tasks:
     - "--build_tag_filters=e2e,-fix-windows"
     build_targets:
     - "//..."
+    # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
+    skip_use_bazel_version_for_test: true
     test_flags:
     - "--test_tag_filters=e2e,-fix-windows"
     - "--local_resources=792,1.0,1.0"
@@ -392,6 +406,8 @@ tasks:
     - "--build_tag_filters=examples,-fix-windows"
     build_targets:
     - "//..."
+    # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
+    skip_use_bazel_version_for_test: true
     test_flags:
     - "--test_tag_filters=examples,-manual,-fix-windows,-no-bazelci-windows"
     - "--local_resources=792,1.0,1.0"
