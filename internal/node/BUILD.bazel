@@ -30,8 +30,8 @@ bzl_library(
 exports_files([
     "node.bzl",  # Exported to be consumed for generating stardoc.
     "node_repositories.bzl",  # Exported to be consumed for generating stardoc.
-    "node_launcher.sh",
-    "node_loader.js",
+    "launcher.sh",
+    "loader.js",
 ])
 
 filegroup(
@@ -49,5 +49,5 @@ filegroup(
 golden_file_test(
     name = "checked_in_node_patches",
     actual = "//packages/node-patches:bundle",
-    golden = "bazel_require_script.js",
+    golden = "node_patches.js",
 )
