@@ -25,11 +25,12 @@
 var path = require('path');
 var fs = require('fs');
 
-const isWindows = /^win/i.test(process.platform);
 // Ensure that node is added to the path for any subprocess calls
+const isWindows = /^win/i.test(process.platform);
 process.env.PATH = [path.dirname(process.execPath), process.env.PATH].join(isWindows ? ';' : ':');
 
 const VERBOSE_LOGS = !!process.env['VERBOSE_LOGS'];
+
 // If you're really in trouble debugging a module resolution, change this to true
 const SILLY_VERBOSE = false;
 
@@ -41,32 +42,28 @@ function log_verbose(...m) {
 /**
  * The module roots as pairs of a RegExp to match the require path, and a
  * module_root to substitute for the require path.
- * Ordered by regex length, longest to smallest. 
+ * Ordered by regex length, longest to smallest.
  * @type {!Array<{module_name: RegExp, module_root: string}>}
  */
-var MODULE_ROOTS = [
-  TEMPLATED_module_roots
-].sort((a, b) => b.module_name.toString().length - a.module_name.toString().length);
+var MODULE_ROOTS = [TEMPLATED_module_roots].sort(
+    (a, b) => b.module_name.toString().length - a.module_name.toString().length);
 
 const USER_WORKSPACE_NAME = 'TEMPLATED_user_workspace_name';
 const NODE_MODULES_ROOT = 'TEMPLATED_node_modules_root';
 const BIN_DIR = 'TEMPLATED_bin_dir';
-const ENTRY_POINT = 'TEMPLATED_entry_point';
 const GEN_DIR = 'TEMPLATED_gen_dir';
 const INSTALL_SOURCE_MAP_SUPPORT = TEMPLATED_install_source_map_support;
 const TARGET = 'TEMPLATED_target';
 
-log_verbose(`running ${TARGET} with
+log_verbose(`patching require for ${TARGET}
   cwd: ${process.cwd()}
-  runfiles: ${process.env.RUNFILES}
-
+  RUNFILES: ${process.env.RUNFILES}
+  TARGET: ${TARGET}
   BIN_DIR: ${BIN_DIR}
-  ENTRY_POINT: ${ENTRY_POINT}
   GEN_DIR: ${GEN_DIR}
   INSTALL_SOURCE_MAP_SUPPORT: ${INSTALL_SOURCE_MAP_SUPPORT}
   MODULE_ROOTS: ${JSON.stringify(MODULE_ROOTS, undefined, 2)}
   NODE_MODULES_ROOT: ${NODE_MODULES_ROOT}
-  TARGET: ${TARGET}
   USER_WORKSPACE_NAME: ${USER_WORKSPACE_NAME}
 `);
 
@@ -155,9 +152,9 @@ function loadRunfilesManifest(manifestPath) {
   log_verbose(`using genRoot ${genRoot}`);
   log_verbose(`using localWorkspacePath ${localWorkspacePath}`);
 
-  return { runfilesManifest, reverseRunfilesManifest, binRoot, genRoot, localWorkspacePath };
+  return {runfilesManifest, reverseRunfilesManifest, binRoot, genRoot, localWorkspacePath};
 }
-const { runfilesManifest, reverseRunfilesManifest, binRoot, genRoot, localWorkspacePath } =
+const {runfilesManifest, reverseRunfilesManifest, binRoot, genRoot, localWorkspacePath} =
     // On Windows, Bazel sets RUNFILES_MANIFEST_ONLY=1.
     // On every platform, Bazel also sets RUNFILES_MANIFEST_FILE, but on Linux
     // and macOS it's faster to use the symlinks in RUNFILES_DIR rather than resolve
@@ -306,16 +303,16 @@ function resolveRunfiles(parent, ...pathSegments) {
       if (parentRunfile) {
         runfilesEntry = path.join(path.dirname(parentRunfile), runfilesEntry);
       }
-    } else if (runfilesEntry.startsWith(binRoot) || runfilesEntry.startsWith(genRoot)
-        || runfilesEntry.startsWith(localWorkspacePath)) {
+    } else if (
+        runfilesEntry.startsWith(binRoot) || runfilesEntry.startsWith(genRoot) ||
+        runfilesEntry.startsWith(localWorkspacePath)) {
       // For absolute paths, replace binRoot, genRoot or localWorkspacePath with
       // USER_WORKSPACE_NAME to enable lookups.
       // It's OK to do multiple replacements because all of these are absolute paths with drive
       // names (e.g. C:\), and on Windows you can't have drive names in the middle of paths.
-      runfilesEntry = runfilesEntry
-        .replace(binRoot, `${USER_WORKSPACE_NAME}/`)
-        .replace(genRoot, `${USER_WORKSPACE_NAME}/`)
-        .replace(localWorkspacePath, `${USER_WORKSPACE_NAME}/`);
+      runfilesEntry = runfilesEntry.replace(binRoot, `${USER_WORKSPACE_NAME}/`)
+                          .replace(genRoot, `${USER_WORKSPACE_NAME}/`)
+                          .replace(localWorkspacePath, `${USER_WORKSPACE_NAME}/`);
     }
 
     // Normalize and replace path separators to conform to the ones in the manifest.
@@ -354,7 +351,9 @@ function resolveRunfiles(parent, ...pathSegments) {
 }
 
 var originalResolveFilename = module.constructor._resolveFilename;
-module.constructor._resolveFilename = function(request, parent, isMain, options) {
+
+module.constructor._resolveFilename =
+    function(request, parent, isMain, options) {
   const parentFilename = (parent && parent.filename) ? parent.filename : undefined;
   if (SILLY_VERBOSE) log_verbose(`resolve ${request} from ${parentFilename}`);
 
@@ -362,7 +361,7 @@ module.constructor._resolveFilename = function(request, parent, isMain, options)
 
   // Attempt to resolve to module root.
   // This should be the first attempted resolution because:
-  // - it's fairly cheap to check (regex over a small array); 
+  // - it's fairly cheap to check (regex over a small array);
   // - it is be very common when there are a lot of packages built from source;
   if (!isMain) {
     // Don't resolve to module root if this is the main entry point
@@ -422,7 +421,8 @@ module.constructor._resolveFilename = function(request, parent, isMain, options)
   // If the import is not a built-in module, an absolute, relative import or a
   // dependency of an npm package, attempt to resolve against the runfiles location
   try {
-    const resolved = originalResolveFilename(resolveRunfiles(parentFilename, request), parent, isMain, options);
+    const resolved =
+        originalResolveFilename(resolveRunfiles(parentFilename, request), parent, isMain, options);
     log_verbose(`resolved ${request} within runfiles to ${resolved} from ${parentFilename}`);
     return resolved;
   } catch (e) {
@@ -444,7 +444,9 @@ module.constructor._resolveFilename = function(request, parent, isMain, options)
     const parentSegments = relativeParentFilename.split('/');
     if (parentSegments[0] !== USER_WORKSPACE_NAME) {
       try {
-        const resolved = originalResolveFilename(resolveRunfiles(undefined, parentSegments[0], 'node_modules', request), parent, isMain, options);
+        const resolved = originalResolveFilename(
+            resolveRunfiles(undefined, parentSegments[0], 'node_modules', request), parent, isMain,
+            options);
         log_verbose(
             `resolved ${request} within node_modules ` +
             `(${parentSegments[0]}/node_modules) to ${resolved} from ${relativeParentFilename}`);
@@ -458,7 +460,8 @@ module.constructor._resolveFilename = function(request, parent, isMain, options)
   // If import was not resolved above then attempt to resolve
   // within the node_modules filegroup in use
   try {
-    const resolved = originalResolveFilename(resolveRunfiles(undefined, NODE_MODULES_ROOT, request), parent, isMain, options);
+    const resolved = originalResolveFilename(
+        resolveRunfiles(undefined, NODE_MODULES_ROOT, request), parent, isMain, options);
     log_verbose(
         `resolved ${request} within node_modules (${NODE_MODULES_ROOT}) to ` +
         `${resolved} from ${parentFilename}`);
@@ -489,25 +492,12 @@ module.constructor._resolveFilename = function(request, parent, isMain, options)
 // source-map-support.
 if (INSTALL_SOURCE_MAP_SUPPORT) {
   try {
-    const sourcemap_support_package = path.resolve(process.cwd(),
-          '../build_bazel_rules_nodejs/third_party/github.com/source-map-support');
+    const sourcemap_support_package = path.resolve(
+        process.cwd(), '../build_bazel_rules_nodejs/third_party/github.com/source-map-support');
     require(sourcemap_support_package).install();
   } catch (_) {
     log_verbose(`WARNING: source-map-support module not installed.
       Stack traces from languages like TypeScript will point to generated .js files.
       Set install_source_map_support = False in ${TARGET} to turn off this warning.`);
-  }
-}
-
-if (require.main === module) {
-  // Set the actual entry point in the arguments list.
-  // argv[0] == node, argv[1] == entry point.
-  // NB: entry_point below is replaced during the build process.
-  var mainScript = process.argv[1] = ENTRY_POINT;
-  try {
-    module.constructor._load(mainScript, this, /*isMain=*/true);
-  } catch (e) {
-    console.error(e.stack || e);
-    process.exit(1);
   }
 }

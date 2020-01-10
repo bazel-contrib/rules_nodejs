@@ -13,8 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This shell script is a minimal fixture for the node_launcher.sh script
-# with a critical difference: instead of calling the node_loader.js script
+# This shell script is a minimal fixture for the launcher.sh script
+# with a critical difference: instead of calling the loader.js script
 # with the users program passed as an argument (allowing us to patch the node
 # loader), this one just runs vanilla node with the users program as the argument
 # which lets us assert that the linker is the reason the program works.

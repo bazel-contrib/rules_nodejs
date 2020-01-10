@@ -143,38 +143,50 @@ fi
 # Export the location of the runfiles helpers script
 export BAZEL_NODE_RUNFILES_HELPER=$(rlocation "TEMPLATED_runfiles_helper_script")
 
-# Export the location of the loader script as it can be used to boostrap
+# Export the location of the require patch script as it can be used to boostrap
 # node require patch if needed
-export BAZEL_NODE_PATCH_REQUIRE=$(rlocation "TEMPLATED_loader_path")
+export BAZEL_NODE_PATCH_REQUIRE=$(rlocation "TEMPLATED_require_patch_script")
+
+# The main entry point
+MAIN=$(rlocation "TEMPLATED_loader_script")
 
 readonly repository_args=$(rlocation "TEMPLATED_repository_args")
-MAIN=$(rlocation "TEMPLATED_loader_path")
 readonly link_modules_script=$(rlocation "TEMPLATED_link_modules_script")
-bazel_require_script=$(rlocation "TEMPLATED_bazel_require_script")
+node_patches_script=$(rlocation "TEMPLATED_node_patches_script")
+require_patch_script=${BAZEL_NODE_PATCH_REQUIRE}
 
 # Node's --require option assumes that a non-absolute path not starting with `.` is
 # a module, so that you can do --require=source-map-support/register
 # So if the require script is not absolute, we must make it so
-case "${bazel_require_script}" in
+case "${node_patches_script}" in
   # Absolute path on unix
   /*          ) ;;
   # Absolute path on Windows, e.g. C:/path/to/thing
   [a-zA-Z]:/* ) ;;
   # Otherwise it needs to be made relative
-  *           ) bazel_require_script="./${bazel_require_script}" ;;
+  *           ) node_patches_script="./${node_patches_script}" ;;
+esac
+case "${require_patch_script}" in
+  # Absolute path on unix
+  /*          ) ;;
+  # Absolute path on Windows, e.g. C:/path/to/thing
+  [a-zA-Z]:/* ) ;;
+  # Otherwise it needs to be made relative
+  *           ) require_patch_script="./${require_patch_script}" ;;
 esac
 
 source $repository_args
 
 ARGS=()
-NODE_OPTIONS=()
+LAUNCHER_NODE_OPTIONS=( "--require" "$require_patch_script" )
+USER_NODE_OPTIONS=()
 ALL_ARGS=(TEMPLATED_args $NODE_REPOSITORY_ARGS "$@")
 for ARG in "${ALL_ARGS[@]:-}"; do
   case "$ARG" in
     --bazel_node_modules_manifest=*) MODULES_MANIFEST="${ARG#--bazel_node_modules_manifest=}" ;;
     --nobazel_patch_module_resolver)
       MAIN="TEMPLATED_script_path"
-      NODE_OPTIONS+=( "--require" "$bazel_require_script" )
+      LAUNCHER_NODE_OPTIONS=( "--require" "$node_patches_script" )
 
       # In this case we should always run the linker
       # For programs which are called with bazel run or bazel test, there will be no additional runtime
@@ -182,7 +194,7 @@ for ARG in "${ALL_ARGS[@]:-}"; do
       # of the binary itself
       MODULES_MANIFEST=${MODULES_MANIFEST:-$(rlocation "TEMPLATED_modules_manifest")}
       ;;
-    --node_options=*) NODE_OPTIONS+=( "${ARG#--node_options=}" ) ;;
+    --node_options=*) USER_NODE_OPTIONS+=( "${ARG#--node_options=}" ) ;;
     *) ARGS+=( "$ARG" )
   esac
 done
@@ -192,7 +204,7 @@ if [[ -n "${MODULES_MANIFEST:-}" ]]; then
   "${node}" "${link_modules_script}" "${MODULES_MANIFEST:-}"
 fi
 
-# Tell the bazel_require_script that programs should not escape the execroot
+# Tell the node_patches_script that programs should not escape the execroot
 # Bazel always sets the PWD to execroot/my_wksp so we go up one directory.
 export BAZEL_PATCH_ROOT=$(dirname $PWD)
 
@@ -206,12 +218,12 @@ if [ "${EXPECTED_EXIT_CODE}" -eq "0" ]; then
   # handled by the node process.
   # If we had merely forked a child process here, we'd be responsible
   # for forwarding those OS interactions.
-  exec "${node}" "${NODE_OPTIONS[@]:-}" "${MAIN}" "${ARGS[@]:-}"
+  exec "${node}" "${LAUNCHER_NODE_OPTIONS[@]:-}" "${USER_NODE_OPTIONS[@]:-}" "${MAIN}" "${ARGS[@]:-}"
   # exec terminates execution of this shell script, nothing later will run.
 fi
 
 set +e
-"${node}" "${NODE_OPTIONS[@]:-}" "${MAIN}" "${ARGS[@]:-}"
+"${node}" "${LAUNCHER_NODE_OPTIONS[@]:-}" "${USER_NODE_OPTIONS[@]:-}" "${MAIN}" "${ARGS[@]:-}"
 RESULT="$?"
 set -e
 
