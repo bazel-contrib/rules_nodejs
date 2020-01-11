@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const {runfiles} = require('build_bazel_rules_nodejs/internal/linker');
+const runfiles = require(process.env['BAZEL_NODE_RUNFILES_HELPER']);
 
 const min_js = path.join(runfiles.resolvePackageRelative('minified.js'));
 const content = fs.readFileSync(min_js, 'utf-8');

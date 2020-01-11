@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const {runfiles} = require('build_bazel_rules_nodejs/internal/linker');
+const runfiles = require(process.env['BAZEL_NODE_RUNFILES_HELPER']);
 
 function read(p) {
   // We want to look up the test_pkg directory artifact in the runfiles.
