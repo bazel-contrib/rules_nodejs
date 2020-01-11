@@ -473,7 +473,7 @@ jasmine_node_test(
         allow_single_file = True,
     ),
     "_runfiles_helper_script": attr.label(
-        default = Label("//internal/linker:runfiles_helper.js"),
+        default = Label("//internal/runfiles:index.js"),
         allow_single_file = True,
     ),
     "_source_map_support_files": attr.label_list(

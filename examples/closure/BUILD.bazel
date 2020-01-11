@@ -16,6 +16,9 @@ google_closure_compiler(
 
 nodejs_test(
     name = "test",
-    data = ["bundle.js"],
+    data = [
+        "bundle.js",
+        "@build_bazel_rules_nodejs//:runfiles",
+    ],
     entry_point = "test.js",
 )

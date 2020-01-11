@@ -250,6 +250,7 @@ nodejs_test(
     data = [
         "dir_output",
         "minified.js",
+        "//:runfiles",
     ],
     entry_point = "npm_package_bin.spec.js",
 )

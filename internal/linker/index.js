@@ -28,10 +28,10 @@
     const VERBOSE_LOGS = !!process.env['VERBOSE_LOGS'];
     function log_verbose(...m) {
         if (VERBOSE_LOGS)
-            console.error('[link_node_modules.js]', ...m);
+            console.error('[link_node_modules.ts]', ...m);
     }
     function log_error(...m) {
-        console.error('[link_node_modules.js]', ...m);
+        console.error('[link_node_modules.ts]', ...m);
     }
     function panic(m) {
         throw new Error(`Internal error! Please run again with

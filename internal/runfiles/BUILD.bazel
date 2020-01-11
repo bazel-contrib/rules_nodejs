@@ -1,0 +1,23 @@
+load("//internal/js_library:js_library.bzl", "js_library")
+
+exports_files(
+    ["index.js"],
+)
+
+js_library(
+    name = "runfiles_helper",
+    srcs = ["index.js"],
+    module_name = "@bazel/runfiles",
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "package_contents",
+    srcs = glob([
+        "*.bzl",
+        "*.js",
+    ]) + [
+        "BUILD.bazel",
+    ],
+    visibility = ["//:__pkg__"],
+)
