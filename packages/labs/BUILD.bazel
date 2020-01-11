@@ -1,3 +1,4 @@
+load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
 load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "codeowners", "pkg_npm")
 
 codeowners(
@@ -14,4 +15,13 @@ pkg_npm(
     vendor_external = [
         "npm_bazel_labs",
     ],
+)
+
+# This artifact is used for snapshot builds
+pkg_tar(
+    name = "archive",
+    srcs = [":npm_package"],
+    extension = "tar.gz",
+    strip_prefix = "./npm_package",
+    tags = ["manual"],
 )
