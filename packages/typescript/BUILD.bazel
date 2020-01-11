@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
 load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "pkg_npm")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
 load(":replacements.bzl", "TYPESCRIPT_REPLACEMENTS")
@@ -62,4 +63,13 @@ pkg_npm(
         "@bazel_tools//src/conditions:windows": [],
         "//conditions:default": [":generate_README"],
     }),
+)
+
+# This artifact is used for snapshot builds
+pkg_tar(
+    name = "archive",
+    srcs = [":npm_package"],
+    extension = "tar.gz",
+    strip_prefix = "./npm_package",
+    tags = ["manual"],
 )
