@@ -1,6 +1,6 @@
 const fs = require('fs');
 const sm = require('source-map');
-const {runfiles} = require('build_bazel_rules_nodejs/internal/linker');
+const runfiles = require(process.env['BAZEL_NODE_RUNFILES_HELPER']);
 
 describe('terser on a directory with map files', () => {
   it('should produce an output for each input', () => {
