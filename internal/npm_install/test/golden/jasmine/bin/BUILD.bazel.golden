@@ -4,7 +4,6 @@ load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 nodejs_binary(
     name = "jasmine",
     entry_point = "//:node_modules/jasmine/bin/jasmine.js",
-    install_source_map_support = False,
     data = ["//jasmine:jasmine"],
     templated_args = ["--nobazel_patch_module_resolver"],
 )
