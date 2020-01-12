@@ -1179,9 +1179,30 @@ Defaults to `[]`
       
 Command-line arguments to the tool.
 
-    Subject to 'Make variable' substitution.
-    Can use $(location) expansion. See https://docs.bazel.build/versions/master/be/make-variables.html
-    Like genrule, you may also use some syntax sugar for locations:
+    Subject to 'Make variable' substitution. See https://docs.bazel.build/versions/master/be/make-variables.html.
+
+    1. Predefined source/output path substitions is applied first:
+
+    See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_label_variables.
+
+    Use $(execpath) $(execpaths) to expand labels to the execroot (where Bazel runs build actions).
+
+    Use $(rootpath) $(rootpaths) to expand labels to the runfiles path that a built binary can use
+    to find its dependencies.
+
+    Since npm_package_bin is used primarily for build actions, in most cases you'll want to
+    use $(execpath) or $(execpaths) to expand locations.
+
+    Using $(location) and $(locations) expansions is not recommended as these are a synonyms
+    for either $(execpath) or $(rootpath) depending on the context.
+
+    2. "Make" variables are expanded second:
+
+    Predefined "Make" variables such as $(COMPILATION_MODE) and $(TARGET_CPU) are expanded.
+    See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_variables.
+
+    Like genrule, you may also use some syntax sugar for locations.
+
     - `$@`: if you have only one output file, the location of the output
     - `$(@D)`: The output directory. If output_dir=False and there is only one file name in outs, this expands to the directory
         containing that file. If there are multiple files, this instead expands to the package's root directory in the genfiles
@@ -1189,6 +1210,11 @@ Command-line arguments to the tool.
         to the output directory which is the $(RULEDIR)/{target_name}.
     - `$(RULEDIR)`: the root output directory of the rule, corresponding with its package
         (can be used with output_dir=True or False)
+
+    See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_genrule_variables.
+
+    Custom variables are also expanded including variables set through the Bazel CLI with --define=SOME_VAR=SOME_VALUE.
+    See https://docs.bazel.build/versions/master/be/make-variables.html#custom_variables.
 
 Defaults to `[]`
 
