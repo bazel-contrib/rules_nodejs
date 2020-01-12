@@ -22,6 +22,7 @@
         "@gregmagolan/test-a": "0.0.5",
         "@types/hammerjs": "2.0.35",
         "@types/jasmine": "~3.3.13",
+        "@types/jest": "~24.0.25",
         "@types/node": "10.12.20",
         "@types/semver": "6.2.0",
         "bazel_workspaces": "file:./tools/npm_packages/bazel_workspaces",
