@@ -1,3 +1,21 @@
+# [1.1.0](https://github.com/bazelbuild/rules_nodejs/compare/1.0.1...1.1.0) (2020-01-12)
+
+
+### Bug Fixes
+
+* separate nodejs require patches from loader and —require them first ([b10d230](https://github.com/bazelbuild/rules_nodejs/commit/b10d230))
+* **karma:** pass --node_options to karma ([d48f237](https://github.com/bazelbuild/rules_nodejs/commit/d48f237))
+* **protractor:** pass --node_options to protractor ([a3b39ab](https://github.com/bazelbuild/rules_nodejs/commit/a3b39ab))
+
+
+### Features
+
+* **builtin:** add support for Predefined variables and Custom variable to npm_package_bin ([34176e5](https://github.com/bazelbuild/rules_nodejs/commit/34176e5))
+* **examples:** add nestjs test ([f448931](https://github.com/bazelbuild/rules_nodejs/commit/f448931))
+* **examples:** add nodejs_binary cluster example ([#1515](https://github.com/bazelbuild/rules_nodejs/issues/1515)) ([f217519](https://github.com/bazelbuild/rules_nodejs/commit/f217519))
+
+
+
 ## [1.0.1](https://github.com/bazelbuild/rules_nodejs/compare/1.0.0...1.0.1) (2020-01-03)
 
 
