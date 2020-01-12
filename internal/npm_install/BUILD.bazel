@@ -5,7 +5,9 @@ load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 # avoid leaking a ts dependency
 load("//packages/typescript:checked_in_ts_project.bzl", "checked_in_ts_project")
 
-# using checked in ts library like the linker
+# Using checked in ts library like the linker
+# To update index.js run:
+#   bazel run //internal/npm_install:compile_generate_build_file_check_compiled.accept
 checked_in_ts_project(
     name = "compile_generate_build_file",
     src = "generate_build_file.ts",
@@ -54,6 +56,5 @@ nodejs_binary(
         "//third_party/npm/node_modules/named-amd",
     ],
     entry_point = ":browserify-wrapped.js",
-    install_source_map_support = False,
     visibility = ["//visibility:public"],
 )

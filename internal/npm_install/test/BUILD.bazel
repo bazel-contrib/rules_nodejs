@@ -30,7 +30,6 @@ nodejs_binary(
         "@npm//unidiff",
     ],
     entry_point = ":update_golden.js",
-    install_source_map_support = False,
 )
 
 npm_umd_bundle(

@@ -22,8 +22,6 @@ nodejs_binary(
     configuration_env_vars = ["BAZEL_INTEGRATION_TEST_DEBUG"],
     data = ["@npm//tmp"],
     entry_point = ":test_runner.js",
-    # reduce memory usage by disabling source_map_support
-    install_source_map_support = False,
     templated_args = ["--node_options=--max-old-space-size=1024"],
 )
 

@@ -16,13 +16,11 @@ nodejs_binary(
     name = "packager",
     data = ["//third_party/github.com/gjtorikian/isBinaryFile"],
     entry_point = ":packager.js",
-    install_source_map_support = False,
 )
 
 nodejs_binary(
     name = "npm_script_generator",
     entry_point = ":npm_script_generator.js",
-    install_source_map_support = False,
 )
 
 filegroup(

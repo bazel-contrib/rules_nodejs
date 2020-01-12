@@ -45,7 +45,6 @@ def ng_prerender(name, index, prerender_roots = [], **kwargs):
             "@npm//domino",
             "@npm//reflect-metadata",
         ],
-        install_source_map_support = False,
         entry_point = "//src:prerender.ts",
     )
 

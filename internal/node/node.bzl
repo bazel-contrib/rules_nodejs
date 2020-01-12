@@ -97,7 +97,6 @@ def _write_require_patch_script(ctx, node_modules_root):
         substitutions = {
             "TEMPLATED_bin_dir": ctx.bin_dir.path,
             "TEMPLATED_gen_dir": ctx.genfiles_dir.path,
-            "TEMPLATED_install_source_map_support": str(ctx.attr.install_source_map_support).lower(),
             "TEMPLATED_module_roots": "\n  " + ",\n  ".join(module_mappings),
             "TEMPLATED_node_modules_root": node_modules_root,
             "TEMPLATED_target": str(ctx.label),
@@ -410,12 +409,6 @@ nodejs_binary(
 """,
         mandatory = True,
         allow_single_file = True,
-    ),
-    "install_source_map_support": attr.bool(
-        doc = """Install the source-map-support package.
-        Enable this to get stack traces that point to original sources, e.g. if the program was written
-        in TypeScript.""",
-        default = True,
     ),
     "node_modules": attr.label(
         doc = """The npm packages which should be available to `require()` during

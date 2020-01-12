@@ -52,7 +52,6 @@ const USER_WORKSPACE_NAME = 'TEMPLATED_user_workspace_name';
 const NODE_MODULES_ROOT = 'TEMPLATED_node_modules_root';
 const BIN_DIR = 'TEMPLATED_bin_dir';
 const GEN_DIR = 'TEMPLATED_gen_dir';
-const INSTALL_SOURCE_MAP_SUPPORT = TEMPLATED_install_source_map_support;
 const TARGET = 'TEMPLATED_target';
 
 log_verbose(`patching require for ${TARGET}
@@ -61,7 +60,6 @@ log_verbose(`patching require for ${TARGET}
   TARGET: ${TARGET}
   BIN_DIR: ${BIN_DIR}
   GEN_DIR: ${GEN_DIR}
-  INSTALL_SOURCE_MAP_SUPPORT: ${INSTALL_SOURCE_MAP_SUPPORT}
   MODULE_ROOTS: ${JSON.stringify(MODULE_ROOTS, undefined, 2)}
   NODE_MODULES_ROOT: ${NODE_MODULES_ROOT}
   USER_WORKSPACE_NAME: ${USER_WORKSPACE_NAME}
@@ -490,14 +488,11 @@ module.constructor._resolveFilename =
 
 // Before loading anything that might print a stack, install the
 // source-map-support.
-if (INSTALL_SOURCE_MAP_SUPPORT) {
-  try {
-    const sourcemap_support_package = path.resolve(
-        process.cwd(), '../build_bazel_rules_nodejs/third_party/github.com/source-map-support');
-    require(sourcemap_support_package).install();
-  } catch (_) {
-    log_verbose(`WARNING: source-map-support module not installed.
-      Stack traces from languages like TypeScript will point to generated .js files.
-      Set install_source_map_support = False in ${TARGET} to turn off this warning.`);
-  }
+try {
+  const sourcemap_support_package = path.resolve(
+      process.cwd(), '../build_bazel_rules_nodejs/third_party/github.com/source-map-support');
+  require(sourcemap_support_package).install();
+} catch (_) {
+  log_verbose(`WARNING: source-map-support module not installed.
+    Stack traces from languages like TypeScript will point to generated .js files.`);
 }
