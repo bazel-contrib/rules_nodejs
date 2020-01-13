@@ -22,7 +22,7 @@ import * as ts from 'typescript';
 import {CachedFileLoader, FileCache, ProgramAndFileCache} from './cache';
 import {invalidateFileCache, writeTempFile} from './test_support';
 
-function fauxDebug(...args: any[]) {
+function fauxDebug(...args: [any?, ...any[]]) {
   console.error.apply(console, args);
 }
 

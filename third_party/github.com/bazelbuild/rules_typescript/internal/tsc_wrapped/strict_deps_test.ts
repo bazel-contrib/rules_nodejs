@@ -39,7 +39,7 @@ describe('strict deps', () => {
       if (!files[fileName]) {
         if (astCache.has(fileName)) return astCache.get(fileName);
         const file = originalGetSourceFile(fileName, ts.ScriptTarget.Latest);
-        astCache.set(fileName, file);
+        astCache.set(fileName, file!);
         return file;
       }
       return ts.createSourceFile(
