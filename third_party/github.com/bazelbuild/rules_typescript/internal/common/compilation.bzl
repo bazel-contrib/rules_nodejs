@@ -55,7 +55,13 @@ COMMON_ATTRIBUTES = {
         default = [],
         providers = [JsInfo],
     ),
-    "deps": attr.label_list(aspects = DEPS_ASPECTS),
+    "deps": attr.label_list(
+        aspects = DEPS_ASPECTS,
+        # TODO(b/139705078): require all deps have a DeclarationInfo provider
+        # and remove assert_js_or_typescript_deps which is attempting
+        # to enforce the same thing as this.
+        # providers = [DeclarationInfo],
+    ),
     "_additional_d_ts": _ADDITIONAL_D_TS,
 }
 
@@ -75,85 +81,48 @@ def assert_js_or_typescript_deps(ctx, deps = None):
     # Fallback to `ctx.attr.deps`.
     deps = deps if deps != None else ctx.attr.deps
     for dep in deps:
-        if not hasattr(dep, "typescript") and not JsInfo in dep:
+        if not hasattr(dep, "typescript") and not JsInfo in dep and not DeclarationInfo in dep:
             allowed_deps_msg = "Dependencies must be ts_library"
 
             fail("%s is neither a TypeScript nor a JS producing rule.\n%s\n" % (dep.label, allowed_deps_msg))
 
 _DEPSET_TYPE = type(depset())
 
-def _check_ts_provider(dep):
-    """Verifies the type shape of the typescript provider in dep, if it has one.
-    """
-
-    # Under Bazel, some third parties have created typescript providers which may not be compatible.
-    # Rather than users getting an obscure error later, explicitly check them and point to the
-    # target that created the bad provider.
-    # TODO(alexeagle): remove this after some transition period, maybe mid-2019
-    if hasattr(dep, "typescript"):
-        if type(dep.typescript.declarations) != _DEPSET_TYPE:
-            fail("typescript provider in %s defined declarations as a %s rather than a depset" % (
-                dep.label,
-                type(dep.typescript.declarations),
-            ))
-        if type(dep.typescript.transitive_declarations) != _DEPSET_TYPE:
-            fail("typescript provider in %s defined transitive_declarations as a %s rather than a depset" % (
-                dep.label,
-                type(dep.typescript.transitive_declarations),
-            ))
-        if type(dep.typescript.type_blacklisted_declarations) != _DEPSET_TYPE:
-            fail("typescript provider in %s defined type_blacklisted_declarations as a %s rather than a depset" % (
-                dep.label,
-                type(dep.typescript.type_blacklisted_declarations),
-            ))
-    return dep
-
-def _collect_dep_declarations(ctx, deps):
-    """Collects .d.ts files from typescript and javascript dependencies.
+def _collect_dep_declarations(ctx, declaration_infos):
+    """Flattens DeclarationInfo from typescript and javascript dependencies.
 
     Args:
       ctx: ctx.
-      deps: dependent targets, generally ctx.attr.deps
+      declaration_infos: list of DeclarationInfo collected from dependent targets
 
     Returns:
       A struct of depsets for direct, transitive and type-blacklisted declarations.
     """
 
-    deps_and_helpers = [
-        _check_ts_provider(dep)
-        for dep in deps + getattr(ctx.attr, "_helpers", [])
-        if hasattr(dep, "typescript")
-    ]
-
     # .d.ts files from direct dependencies, ok for strict deps
-    direct_deps_declarations = [dep.typescript.declarations for dep in deps_and_helpers]
+    direct_deps_declarations = [dep.declarations for dep in declaration_infos]
 
     # all reachable .d.ts files from dependencies.
-    transitive_deps_declarations = [
-        dep.typescript.transitive_declarations
-        for dep in deps_and_helpers
-    ]
+    transitive_deps_declarations = [dep.transitive_declarations for dep in declaration_infos]
 
     # all reachable .d.ts files from node_modules attribute (if it has a typescript provider)
-    if hasattr(ctx.attr, "node_modules") and hasattr(ctx.attr.node_modules, "typescript"):
-        transitive_deps_declarations += [ctx.attr.node_modules.typescript.transitive_declarations]
+    if hasattr(ctx.attr, "node_modules"):
+        if DeclarationInfo in ctx.attr.node_modules:
+            transitive_deps_declarations.append(ctx.attr.node_modules[DeclarationInfo].transitive_declarations)
+        elif hasattr(ctx.attr.node_modules, "typescript"):
+            # TODO(b/139705078): remove this case after bazel BUILD file generation for node_modules is updated
+            transitive_deps_declarations.append([ctx.attr.node_modules.typescript.transitive_declarations])
 
     # .d.ts files whose types tsickle will not emit (used for ts_declaration(generate_externs=False).
-    type_blacklisted_declarations = [
-        dep.typescript.type_blacklisted_declarations
-        for dep in deps_and_helpers
-    ]
+    type_blacklisted_declarations = [dep.type_blacklisted_declarations for dep in declaration_infos]
 
     # If a tool like github.com/angular/clutz can create .d.ts from type annotated .js
     # its output will be collected here.
 
-    return struct(
-        direct = depset(transitive = direct_deps_declarations),
-        transitive = depset(
-            [extra for extra in ctx.files._additional_d_ts],
-            transitive = transitive_deps_declarations,
-        ),
-        type_blacklisted = depset(transitive = type_blacklisted_declarations),
+    return DeclarationInfo(
+        declarations = depset(transitive = direct_deps_declarations),
+        transitive_declarations = depset(ctx.files._additional_d_ts, transitive = transitive_deps_declarations),
+        type_blacklisted_declarations = depset(transitive = type_blacklisted_declarations),
     )
 
 def _should_generate_externs(ctx):
@@ -224,7 +193,7 @@ def compile_ts(
         ctx,
         is_library,
         srcs = None,
-        deps = None,
+        declaration_infos = None,
         compile_action = None,
         devmode_compile_action = None,
         jsx_factory = None,
@@ -239,7 +208,7 @@ def compile_ts(
       ctx: ctx.
       is_library: boolean. False if only compiling .dts files.
       srcs: label list. Explicit list of sources to be used instead of ctx.attr.srcs.
-      deps: label list. Explicit list of deps to be used instead of ctx.attr.deps.
+      declaration_infos: list of DeclarationInfo. Explicit list of declarations to be used instead of those on ctx.attr.deps.
       compile_action: function. Creates the compilation action.
       devmode_compile_action: function. Creates the compilation action
         for devmode.
@@ -254,15 +223,27 @@ def compile_ts(
 
     ### Collect srcs and outputs.
     srcs = srcs if srcs != None else ctx.attr.srcs
-    deps = deps if deps != None else ctx.attr.deps
+    if declaration_infos == None:
+        if not hasattr(ctx.attr, "deps"):
+            fail("compile_ts must either be called from a rule with a deps attr, or must be given declaration_infos")
+
+        # Validate the user inputs.
+        # TODO(b/139705078): remove this when we require DeclarationInfo provider on deps
+        assert_js_or_typescript_deps(ctx, ctx.attr.deps)
+
+        # By default, we collect dependencies from the ctx, when used as a rule
+        declaration_infos = [
+            d[DeclarationInfo]
+            for d in ctx.attr.deps + getattr(ctx.attr, "_helpers", [])
+            # TODO(b/139705078): remove this when we require DeclarationInfo provider on deps
+            if DeclarationInfo in d
+        ]
+
     tsconfig = tsconfig if tsconfig != None else ctx.outputs.tsconfig
     srcs_files = [f for t in srcs for f in t.files.to_list()]
     src_declarations = []  # d.ts found in inputs.
     tsickle_externs = []  # externs.js generated by tsickle, if any.
     has_sources = False
-
-    # Validate the user inputs.
-    assert_js_or_typescript_deps(ctx, deps)
 
     for src in srcs:
         if src.label.package != ctx.label.package:
@@ -298,9 +279,9 @@ def compile_ts(
         # Note: setting this variable controls whether tsickle is run at all.
         tsickle_externs = [ctx.actions.declare_file(ctx.label.name + ".externs.js")]
 
-    dep_declarations = _collect_dep_declarations(ctx, deps)
-    input_declarations = depset(src_declarations, transitive = [dep_declarations.transitive])
-    type_blacklisted_declarations = dep_declarations.type_blacklisted
+    dep_declarations = _collect_dep_declarations(ctx, declaration_infos)
+
+    type_blacklisted_declarations = dep_declarations.type_blacklisted_declarations
     if not is_library and not _should_generate_externs(ctx):
         type_blacklisted_declarations = depset(srcs_files, transitive = [type_blacklisted_declarations])
 
@@ -319,7 +300,7 @@ def compile_ts(
     if "TYPESCRIPT_PERF_TRACE_TARGET" in ctx.var:
         perf_trace = str(ctx.label) == ctx.var["TYPESCRIPT_PERF_TRACE_TARGET"]
 
-    compilation_inputs = dep_declarations.transitive.to_list() + srcs_files
+    compilation_inputs = dep_declarations.transitive_declarations.to_list() + srcs_files
     tsickle_externs_path = tsickle_externs[0] if tsickle_externs else None
 
     # Calculate allowed dependencies for strict deps enforcement.
@@ -327,7 +308,7 @@ def compile_ts(
         # A target's sources may depend on each other,
         srcs_files,
         # or on a .d.ts from a direct dependency
-        transitive = [dep_declarations.direct],
+        transitive = [dep_declarations.declarations],
     )
 
     tsconfig_es6 = tsc_wrapped_tsconfig(
@@ -429,7 +410,7 @@ def compile_ts(
 
     # TODO(martinprobst): Merge the generated .d.ts files, and enforce strict
     # deps (do not re-export transitive types from the transitive closure).
-    transitive_decls = depset(src_declarations + gen_declarations, transitive = [dep_declarations.transitive])
+    transitive_decls = depset(src_declarations + gen_declarations, transitive = [dep_declarations.transitive_declarations])
 
     # both ts_library and ts_declarations generate .mjs files:
     # - for libraries, this is the ES6/production code
@@ -451,9 +432,8 @@ def compile_ts(
     if not srcs_files:
         # Re-export sources from deps.
         # TODO(b/30018387): introduce an "exports" attribute.
-        for dep in deps:
-            if hasattr(dep, "typescript"):
-                declarations_depsets.append(dep.typescript.declarations)
+        for dep in declaration_infos:
+            declarations_depsets.append(dep.declarations)
     files_depsets.extend(declarations_depsets)
 
     # If this is a ts_declaration, add tsickle_externs to the outputs list to
@@ -463,10 +443,16 @@ def compile_ts(
         files_depsets.append(depset(tsickle_externs))
 
     transitive_es6_sources_sets = [es6_sources]
-    for dep in deps:
+    for dep in getattr(ctx.attr, "deps", []):
         if hasattr(dep, "typescript"):
             transitive_es6_sources_sets += [dep.typescript.transitive_es6_sources]
     transitive_es6_sources = depset(transitive = transitive_es6_sources_sets)
+
+    declarations_provider = DeclarationInfo(
+        declarations = depset(transitive = declarations_depsets),
+        transitive_declarations = transitive_decls,
+        type_blacklisted_declarations = type_blacklisted_declarations,
+    )
 
     return {
         "providers": [
@@ -484,12 +470,11 @@ def compile_ts(
                 es5_sources = es5_sources,
                 es6_sources = es6_sources,
             ),
-            # TODO(martinprobst): Prune transitive deps, see go/dtspruning
-            DeclarationInfo(
-                declarations = depset(transitive = declarations_depsets),
-                transitive_declarations = transitive_decls,
-            ),
+            declarations_provider,
         ],
+        # Also expose the DeclarationInfo as a named provider so that aspect implementations can reference it
+        # Otherwise they would be forced to reference it by a numeric index out of the "providers" list above.
+        "declarations": declarations_provider,
         "instrumented_files": {
             "dependency_attributes": ["deps", "runtime_deps"],
             "extensions": ["ts"],
@@ -502,21 +487,16 @@ def compile_ts(
         # Expose the tags so that a Skylark aspect can access them.
         "tags": ctx.attr.tags if hasattr(ctx.attr, "tags") else ctx.rule.attr.tags,
         "typescript": {
-            # TODO(b/139705078): remove when consumers migrated to DeclarationInfo
-            "declarations": depset(transitive = declarations_depsets),
             "devmode_manifest": devmode_manifest,
             "es5_sources": es5_sources,
             "es6_sources": es6_sources,
             "replay_params": replay_params,
-            # TODO(b/139705078): remove when consumers migrated to DeclarationInfo
-            "transitive_declarations": transitive_decls,
             "transitive_es6_sources": transitive_es6_sources,
             "tsickle_externs": tsickle_externs,
-            "type_blacklisted_declarations": type_blacklisted_declarations,
         },
     }
 
-def ts_providers_dict_to_struct(d, preserve_js_struct_field = False):
+def ts_providers_dict_to_struct(d):
     """ Converts a dict to a struct, recursing into a single level of nested dicts.
 
     This allows users of compile_ts to modify or augment the returned dict before
@@ -524,17 +504,30 @@ def ts_providers_dict_to_struct(d, preserve_js_struct_field = False):
 
     Args:
         d: the dict to convert
-        preserve_js_struct_field: whether to preserve the js provider as a "js" field.
-            Please only set this to True if you are using this struct in another provider.
-            e.g. MyProvider(some_field = ts_providers_dict_to_struct(d, preserve_js_struct_field = True))
-            *Do not use* if returning the struct from a rule.
 
     Returns:
         An immutable struct created from the input dict
     """
 
+    # These keys are present in the dict so that aspects can reference them,
+    # however they should not be output as legacy providers since we have modern
+    # symbol-typed providers for them.
+    js_provider = d.pop("js", None)
+    declarations_provider = d.pop("declarations", None)
+
+    # Promote the "js" string-typed provider to a modern provider
+    if js_provider:
+        # Create a new providers list rather than modify the existing list
+        d["providers"] = d.get("providers", []) + [js_provider]
 
     for key, value in d.items():
         if key != "output_groups" and type(value) == type({}):
             d[key] = struct(**value)
-    return struct(**d)
+    result = struct(**d)
+
+    # Restore the elements we removed, to avoid side-effect of mutating the argument
+    if js_provider:
+        d["js"] = js_provider
+    if declarations_provider:
+        d["declarations"] = declarations_provider
+    return result
