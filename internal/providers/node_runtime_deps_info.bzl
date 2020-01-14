@@ -63,10 +63,20 @@ def run_node(ctx, inputs, arguments, executable, **kwargs):
     # To access runfiles, you must use a runfiles helper in the program instead
     add_arg(arguments, "--nobazel_patch_module_resolver")
 
-    # Forward the COMPILATION_MODE to node process as an environment variable
     env = kwargs.pop("env", {})
-    if "COMPILATION_MODE" not in env.keys():
-        env["COMPILATION_MODE"] = ctx.var["COMPILATION_MODE"]
+
+    # Always forward the COMPILATION_MODE to node process as an environment variable
+    configuration_env_vars = kwargs.pop("configuration_env_vars", []) + ["COMPILATION_MODE"]
+    for var in configuration_env_vars:
+        if var not in env.keys():
+            # If env is not explicitely specified, check ctx.var first & if env var not in there
+            # then check ctx.configuration.default_shell_env. The former will contain values from
+            # --define=FOO=BAR and latter will contain values from --action_env=FOO=BAR
+            # (but not from --action_env=FOO).
+            if var in ctx.var.keys():
+                env[var] = ctx.var[var]
+            elif var in ctx.configuration.default_shell_env.keys():
+                env[var] = ctx.configuration.default_shell_env[var]
 
     ctx.actions.run(
         inputs = inputs + extra_inputs,

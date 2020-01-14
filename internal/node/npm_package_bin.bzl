@@ -9,6 +9,7 @@ load("//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 _ATTRS = {
     "outs": attr.output_list(),
     "args": attr.string_list(mandatory = True),
+    "configuration_env_vars": attr.string_list(default = []),
     "data": attr.label_list(allow_files = True, aspects = [module_mappings_aspect, node_modules_aspect]),
     "output_dir": attr.bool(),
     "tool": attr.label(
@@ -57,6 +58,7 @@ def _impl(ctx):
         inputs = inputs,
         outputs = outputs,
         arguments = [args],
+        configuration_env_vars = ctx.attr.configuration_env_vars,
     )
     return [DefaultInfo(files = depset(outputs))]
 
