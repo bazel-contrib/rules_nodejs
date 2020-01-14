@@ -7,7 +7,7 @@
   "bazelBin": {
     "testy": {
       "additionalAttributes": {
-        "configuration_env_vars": "[\"SOME_TEST_ENV\"]"
+        "configuration_env_vars": "[\"SOME_TEST_ENV\", \"SOME_OTHER_ENV\"]"
       }
     }
   }
