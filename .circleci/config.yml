@@ -10,7 +10,7 @@
 ## IMPORTANT
 # If you change the `default_docker_image` version, also change the `cache_key` version
 var_1: &default_docker_image circleci/node:10.16
-var_3: &cache_key node-0.16-{{ checksum "yarn.lock" }}
+var_3: &cache_key node-0.16-{{ checksum "yarn.lock" }}-v2
 
 var_4: &init_environment
   run:

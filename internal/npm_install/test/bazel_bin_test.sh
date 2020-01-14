@@ -12,8 +12,9 @@ source "${RUNFILES_DIR:-/dev/null}/$f" 2>/dev/null || \
 # --- end runfiles.bash initialization v2 ---
 
 readonly OUT=$($(rlocation "npm/testy/bin/testy.sh"))
+readonly EXPECTED="Hello some_value && some_other_value"
 
-if [ "$OUT" != "Hello some_value" ]; then
-  echo "Expected output 'Hello world' but was '$OUT'"
+if [ "${OUT}" != "${EXPECTED}" ]; then
+  echo "Expected output '${EXPECTED}' but was '${OUT}'"
   exit 1
 fi

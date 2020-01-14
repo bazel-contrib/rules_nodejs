@@ -24,6 +24,7 @@ build --noincompatible_no_support_tools_in_action_inputs
 # Define environment value used by some tests such as //internal/npm_install/test:bazel_bin_test
 build --define=SOME_TEST_ENV=some_value
 test --define=SOME_TEST_ENV=some_value
+build --action_env=SOME_OTHER_ENV=some_other_value
 
 ###############################
 # Remote Build Execution support
