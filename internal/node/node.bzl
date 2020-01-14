@@ -178,8 +178,13 @@ def _nodejs_binary_impl(ctx):
     env_vars = "export BAZEL_TARGET=%s\n" % ctx.label
     env_vars += "export BAZEL_WORKSPACE=%s\n" % ctx.workspace_name
     for k in ctx.attr.configuration_env_vars + ctx.attr.default_env_vars:
+        # Check ctx.var first & if env var not in there then check
+        # ctx.configuration.default_shell_env. The former will contain values from --define=FOO=BAR
+        # and latter will contain values from --action_env=FOO=BAR (but not from --action_env=FOO).
         if k in ctx.var.keys():
             env_vars += "export %s=\"%s\"\n" % (k, ctx.var[k])
+        elif k in ctx.configuration.default_shell_env.keys():
+            env_vars += "export %s=\"%s\"\n" % (k, ctx.configuration.default_shell_env[k])
 
     expected_exit_code = 0
     if hasattr(ctx.attr, "expected_exit_code"):
