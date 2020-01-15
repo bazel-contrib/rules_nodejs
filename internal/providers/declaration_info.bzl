@@ -41,3 +41,18 @@ This prevents needing an aspect in rules that consume the typings, which improve
         "type_blacklisted_declarations": """A depset of .d.ts files that we should not use to infer JSCompiler types (via tsickle)""",
     },
 )
+
+def declaration_info(declarations, deps = []):
+    """Constructs a DeclarationInfo including all transitive declarations from DeclarationInfo providers in a list of deps.
+
+Returns a single DeclarationInfo.
+"""
+    transitive_depsets = [declarations]
+    for dep in deps:
+        if DeclarationInfo in dep:
+            transitive_depsets.append(dep[DeclarationInfo].transitive_declarations)
+
+    return DeclarationInfo(
+        declarations = declarations,
+        transitive_declarations = depset(transitive = transitive_depsets),
+    )

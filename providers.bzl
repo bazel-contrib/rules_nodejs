@@ -20,6 +20,7 @@ Users should not load files under "/internal"
 load(
     "//internal/providers:declaration_info.bzl",
     _DeclarationInfo = "DeclarationInfo",
+    _declaration_info = "declaration_info",
     _provide_declarations = "provide_declarations",
 )
 load(
@@ -46,8 +47,9 @@ load(
     _node_modules_aspect = "node_modules_aspect",
 )
 
-provide_declarations = _provide_declarations
 DeclarationInfo = _DeclarationInfo
+declaration_info = _declaration_info
+provide_declarations = _provide_declarations
 JSModuleInfo = _JSModuleInfo
 js_module_info = _js_module_info
 JSNamedModuleInfo = _JSNamedModuleInfo
