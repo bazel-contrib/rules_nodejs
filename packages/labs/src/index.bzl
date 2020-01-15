@@ -16,7 +16,5 @@
 """
 
 load("//protobufjs:ts_proto_library.bzl", _ts_proto_library = "ts_proto_library")
-load("//webpack:webpack_bundle.bzl", _webpack_bundle = "webpack_bundle")
 
 ts_proto_library = _ts_proto_library
-webpack_bundle = _webpack_bundle

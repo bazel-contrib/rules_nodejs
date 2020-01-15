@@ -23,7 +23,6 @@
         "@types/hammerjs": "2.0.35",
         "@types/jasmine": "~3.3.13",
         "@types/node": "10.12.20",
-        "@types/webpack": "~4.4.35",
         "bazel_workspaces": "file:./tools/npm_packages/bazel_workspaces",
         "clang-format": "1.2.2",
         "conventional-changelog-cli": "^2.0.21",
@@ -75,7 +74,6 @@
         "typescript": "3.1.6",
         "unidiff": "1.0.1",
         "v8-coverage": "1.0.9",
-        "webpack": "~4.41.0",
         "zone.js": "0.8.29"
     },
     "scripts": {

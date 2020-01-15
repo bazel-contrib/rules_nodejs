@@ -87,14 +87,6 @@ e2e_integration_test(
     },
 )
 
-e2e_integration_test(
-    name = "e2e_webpack",
-    npm_packages = {
-        "//packages/jasmine:npm_package": "@bazel/jasmine",
-        "//packages/labs:npm_package": "@bazel/labs",
-    },
-)
-
 [e2e_integration_test(
     name = "e2e_typescript_%s" % tsc_version.replace(".", "_"),
     npm_packages = {
