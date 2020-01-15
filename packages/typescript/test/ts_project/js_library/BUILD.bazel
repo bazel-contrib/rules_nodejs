@@ -1,0 +1,16 @@
+load("@npm_bazel_typescript//:index.bzl", "ts_project")
+load("//internal/js_library:js_library.bzl", "js_library")
+
+js_library(
+    name = "lib_a",
+    srcs = [
+        "a.d.ts",
+        "a.js",
+    ],
+)
+
+ts_project(
+    name = "tsconfig",
+    srcs = ["b.ts"],
+    deps = ["lib_a"],
+)

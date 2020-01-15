@@ -17,7 +17,7 @@
 DO NOT USE - this is not fully designed, and exists only to enable testing within this repo.
 """
 
-load("//:providers.bzl", "LinkablePackageInfo")
+load("//:providers.bzl", "LinkablePackageInfo", "declaration_info")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/private/copy_file_private.bzl", "copy_bash", "copy_cmd")
 
 _AMD_NAMES_DOC = """Mapping from require module names to global variables.
@@ -51,6 +51,7 @@ def write_amd_names_shim(actions, amd_names_shim, targets):
 
 def _impl(ctx):
     files = []
+    typings = []
 
     is_all_sources = ctx.files.srcs and ctx.files.srcs[0].is_source
     for src in ctx.files.srcs:
@@ -60,13 +61,18 @@ def _impl(ctx):
                 copy_cmd(ctx, src, dst)
             else:
                 copy_bash(ctx, src, dst)
-            files.append(dst)
+            if dst.basename.endswith(".d.ts"):
+                typings.append(dst)
+            else:
+                files.append(dst)
+        elif src.basename.endswith(".d.ts"):
+            typings.append(src)
         else:
             files.append(src)
 
     files_depset = depset(files)
 
-    result = [
+    providers = [
         DefaultInfo(
             files = files_depset,
             runfiles = ctx.runfiles(files = ctx.files.srcs),
@@ -76,13 +82,18 @@ def _impl(ctx):
 
     if ctx.attr.package_name:
         path = "/".join([p for p in [ctx.bin_dir.path, ctx.label.workspace_root, ctx.label.package] if p])
-        result.append(LinkablePackageInfo(
+        providers.append(LinkablePackageInfo(
             package_name = ctx.attr.package_name,
             path = path,
             files = files_depset,
         ))
 
-    return result
+    # Don't provide DeclarationInfo if there are no typings to provide.
+    # Improves error messaging downstream if DeclarationInfo is required.
+    if len(typings):
+        providers.append(declaration_info(depset(typings)))
+
+    return providers
 
 _js_library = rule(
     implementation = _impl,
