@@ -83,24 +83,22 @@ call :rlocation {TMPL_args} ARGS
         executable = ctx.actions.declare_file(ctx.attr.name + ".bat")
     else:
         launcher_content = """#!/usr/bin/env bash
-# Immediately exit if any command fails.
-set -e
+# --- begin runfiles.bash initialization v2 ---
+# Copy-pasted from the Bazel Bash runfiles library v2.
+set -uo pipefail; f=bazel_tools/tools/bash/runfiles/runfiles.bash
+source "${{RUNFILES_DIR:-/dev/null}}/$f" 2>/dev/null || \
+  source "$(grep -sm1 "^$f " "${{RUNFILES_MANIFEST_FILE:-/dev/null}}" | cut -f2- -d' ')" 2>/dev/null || \
+  source "$0.runfiles/$f" 2>/dev/null || \
+  source "$(grep -sm1 "^$f " "$0.runfiles_manifest" | cut -f2- -d' ')" 2>/dev/null || \
+  source "$(grep -sm1 "^$f " "$0.exe.runfiles_manifest" | cut -f2- -d' ')" 2>/dev/null || \
+  {{ echo>&2 "ERROR: cannot find $f"; exit 1; }}; f=; set -e
+# --- end runfiles.bash initialization v2 ---
 
-if [ -e "$RUNFILES_MANIFEST_FILE" ]; then
-  while read line; do
-    declare -a PARTS=($line)
-    if [ "${{PARTS[0]}}" == "{TMPL_test_runner}" ]; then
-      readonly TEST_RUNNER=${{PARTS[1]}}
-    elif [ "${{PARTS[0]}}" == "{TMPL_args}" ]; then
-      readonly ARGS=${{PARTS[1]}}
-    fi
-  done < $RUNFILES_MANIFEST_FILE
-else
-  readonly TEST_RUNNER=../{TMPL_test_runner}
-  readonly ARGS={TMPL_args}
-fi
+readonly TEST_RUNNER=$(rlocation "{TMPL_test_runner}")
+readonly ARGS=$(rlocation "{TMPL_args}")
 
-$TEST_RUNNER $ARGS "$@"
+readonly COMMAND="${{TEST_RUNNER}} ${{ARGS}} $@"
+${{COMMAND}}
         """.format(
             TMPL_test_runner = _to_manifest_path(ctx, ctx.executable._test_runner),
             TMPL_args = _to_manifest_path(ctx, config),

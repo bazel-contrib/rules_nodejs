@@ -106,29 +106,26 @@ def _protractor_web_test_impl(ctx):
         output = ctx.outputs.script,
         is_executable = True,
         content = """#!/usr/bin/env bash
-# Immediately exit if any command fails.
-set -e
+# --- begin runfiles.bash initialization v2 ---
+# Copy-pasted from the Bazel Bash runfiles library v2.
+set -uo pipefail; f=bazel_tools/tools/bash/runfiles/runfiles.bash
+source "${{RUNFILES_DIR:-/dev/null}}/$f" 2>/dev/null || \
+  source "$(grep -sm1 "^$f " "${{RUNFILES_MANIFEST_FILE:-/dev/null}}" | cut -f2- -d' ')" 2>/dev/null || \
+  source "$0.runfiles/$f" 2>/dev/null || \
+  source "$(grep -sm1 "^$f " "$0.runfiles_manifest" | cut -f2- -d' ')" 2>/dev/null || \
+  source "$(grep -sm1 "^$f " "$0.exe.runfiles_manifest" | cut -f2- -d' ')" 2>/dev/null || \
+  {{ echo>&2 "ERROR: cannot find $f"; exit 1; }}; f=; set -e
+# --- end runfiles.bash initialization v2 ---
 
-if [ -e "$RUNFILES_MANIFEST_FILE" ]; then
-  while read line; do
-    declare -a PARTS=($line)
-    if [ "${{PARTS[0]}}" == "{TMPL_protractor}" ]; then
-      readonly PROTRACTOR=${{PARTS[1]}}
-    elif [ "${{PARTS[0]}}" == "{TMPL_conf}" ]; then
-      readonly CONF=${{PARTS[1]}}
-    fi
-  done < $RUNFILES_MANIFEST_FILE
-else
-  readonly PROTRACTOR=../{TMPL_protractor}
-  readonly CONF=../{TMPL_conf}
-fi
+readonly PROTRACTOR=$(rlocation "{TMPL_protractor}")
+readonly CONF=$(rlocation "{TMPL_conf}")
 
 export HOME=$(mktemp -d)
 
 # Pass --node_options from args on protractor node process
 NODE_OPTIONS=()
 for ARG in "$@"; do
-  case "$ARG" in
+  case "${{ARG}}" in
     --node_options=*) NODE_OPTIONS+=( "${{ARG}}" ) ;;
   esac
 done
@@ -139,10 +136,11 @@ printf "\n\n\n\nRunning protractor tests\n--------------------------------------
 echo "version     :" ${{PROTRACTOR_VERSION#Version }}
 echo "pwd         :" ${{PWD}}
 echo "conf        :" ${{CONF}}
-echo "node_options:" ${{NODE_OPTIONS[@]}}
+echo "node_options:" ${{NODE_OPTIONS[@]:-}}
 printf "\n"
 
-${{PROTRACTOR}} ${{CONF}} "${{NODE_OPTIONS[@]}}"
+readonly COMMAND="${{PROTRACTOR}} ${{CONF}} ${{NODE_OPTIONS[@]:-}}"
+${{COMMAND}}
 """.format(
             TMPL_protractor = _to_manifest_path(ctx, ctx.executable.protractor),
             TMPL_conf = _to_manifest_path(ctx, configuration),

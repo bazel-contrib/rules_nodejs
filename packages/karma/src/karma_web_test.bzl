@@ -236,42 +236,36 @@ def _karma_web_test_impl(ctx):
         output = ctx.outputs.executable,
         is_executable = True,
         content = """#!/usr/bin/env bash
-# Immediately exit if any command fails.
-set -e
+# --- begin runfiles.bash initialization v2 ---
+# Copy-pasted from the Bazel Bash runfiles library v2.
+set -uo pipefail; f=bazel_tools/tools/bash/runfiles/runfiles.bash
+source "${{RUNFILES_DIR:-/dev/null}}/$f" 2>/dev/null || \
+  source "$(grep -sm1 "^$f " "${{RUNFILES_MANIFEST_FILE:-/dev/null}}" | cut -f2- -d' ')" 2>/dev/null || \
+  source "$0.runfiles/$f" 2>/dev/null || \
+  source "$(grep -sm1 "^$f " "$0.runfiles_manifest" | cut -f2- -d' ')" 2>/dev/null || \
+  source "$(grep -sm1 "^$f " "$0.exe.runfiles_manifest" | cut -f2- -d' ')" 2>/dev/null || \
+  {{ echo>&2 "ERROR: cannot find $f"; exit 1; }}; f=; set -e
+# --- end runfiles.bash initialization v2 ---
 
-if [ -e "$RUNFILES_MANIFEST_FILE" ]; then
-  while read line; do
-    declare -a PARTS=($line)
-    if [ "${{PARTS[0]}}" == "{TMPL_karma}" ]; then
-      readonly KARMA=${{PARTS[1]}}
-    elif [ "${{PARTS[0]}}" == "{TMPL_conf}" ]; then
-      readonly CONF=${{PARTS[1]}}
-    fi
-  done < $RUNFILES_MANIFEST_FILE
-else
-  readonly KARMA=../{TMPL_karma}
-  readonly CONF=../{TMPL_conf}
-fi
+readonly KARMA=$(rlocation "{TMPL_karma}")
+readonly CONF=$(rlocation "{TMPL_conf}")
 
 export HOME=$(mktemp -d)
 
-# Print the karma version in the test log
-echo $($KARMA --version)
-
-ARGV=( "start" $CONF )
+ARGV=( "start" ${{CONF}} )
 
 # Detect that we are running as a test, by using well-known environment
 # variables. See go/test-encyclopedia
 # Note: in Bazel 0.14 and later, TEST_TMPDIR is set for both bazel test and bazel run
 # so we also check for the BUILD_WORKSPACE_DIRECTORY which is set only for bazel run
-if [[ ! -z "${{TEST_TMPDIR}}" && ! -n "${{BUILD_WORKSPACE_DIRECTORY}}" ]]; then
+if [[ ! -z "${{TEST_TMPDIR}}" && ! -n "${{BUILD_WORKSPACE_DIRECTORY:-}}" ]]; then
   ARGV+=( "--single-run" )
 fi
 
 # Pass --node_options from args on karma node process
 NODE_OPTIONS=()
 for ARG in "$@"; do
-  case "$ARG" in
+  case "${{ARG}}" in
     --node_options=*) NODE_OPTIONS+=( "${{ARG}}" ) ;;
   esac
 done
@@ -282,12 +276,12 @@ printf "\n\n\n\nRunning karma tests\n-------------------------------------------
 echo "version     :" ${{KARMA_VERSION#Karma version: }}
 echo "pwd         :" ${{PWD}}
 echo "conf        :" ${{CONF}}
-echo "node_options:" ${{NODE_OPTIONS[@]}}
+echo "node_options:" ${{NODE_OPTIONS[@]:-}}
 printf "\n"
 
-${{KARMA}} ${{ARGV[@]}} ${{NODE_OPTIONS[@]}}
+readonly COMMAND="${{KARMA}} ${{ARGV[@]}} ${{NODE_OPTIONS[@]:-}}"
+${{COMMAND}}
 """.format(
-            TMPL_workspace = ctx.workspace_name,
             TMPL_karma = _to_manifest_path(ctx, ctx.executable.karma),
             TMPL_conf = _to_manifest_path(ctx, configuration),
         ),
