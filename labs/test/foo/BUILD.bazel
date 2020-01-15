@@ -1,0 +1,30 @@
+load("//labs/test:defaults.bzl", "jest_test", "node_module", "tsc")
+
+tsc(
+    name = "main",
+    srcs = ["main.ts"],
+)
+
+tsc(
+    name = "index",
+    srcs = ["index.ts"],
+    deps = [":main"],
+)
+
+tsc(
+    name = "specs",
+    srcs = glob(["*.spec.ts"]),
+)
+
+jest_test(
+    name = "test",
+    jest_config = ":jest.config.js",
+    tests = [":specs"],
+)
+
+node_module(
+    name = "foo",
+    module_name = "foo",
+    visibility = ["//visibility:public"],
+    deps = [":index"],
+)

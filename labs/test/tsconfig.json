@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+        "strict": true,
+        "target": "es2015",
+        "module": "commonjs",
+        "declaration": true,
+        "sourceMap": true,
+        "rootDirs": [
+            ".",
+            "../../bazel-out/darwin-fastbuild/bin/labs/test",
+            "../../bazel-out/darwin-dbg/bin/labs/test",
+            "../../bazel-out/k8-fastbuild/bin/labs/test",
+            "../../bazel-out/k8-dbg/bin/labs/test",
+            "../../bazel-out/x64_windows-fastbuild/bin/labs/test",
+            "../../bazel-out/x64_windows-dbg/bin/labs/test",
+        ],
+        "typeRoots": ["../../node_modules/@types"],
+        "types" : ["node", "jest"]
+    },
+    "exclude": [
+        "bazel-out",
+        "external",
+        "node_modules",
+    ]
+}

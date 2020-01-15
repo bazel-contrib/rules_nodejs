@@ -87,6 +87,7 @@ pkg_npm(
         "//internal/pkg_npm:package_contents",
         "//internal/pkg_web:package_contents",
         "//internal/providers:package_contents",
+        "//labs:package_contents",
         "//third_party/github.com/bazelbuild/bazel:package_contents",
         "//third_party/github.com/bazelbuild/bazel-skylib:package_contents",
         "//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles:package_contents",
