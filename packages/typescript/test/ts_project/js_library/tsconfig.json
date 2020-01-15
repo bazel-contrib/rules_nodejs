@@ -1,0 +1,15 @@
+{
+    "files": ["b.ts"],
+    "compilerOptions": {
+        // Help TypeScript locate the a.d.ts file from dep. Needed when running in a sandbox or remote.
+        "rootDirs": [
+            ".",
+            "../../../../../bazel-out/darwin-fastbuild/bin/packages/typescript/test/ts_project/js_library",
+            "../../../../../bazel-out/k8-fastbuild/bin/packages/typescript/test/ts_project/js_library",
+            "../../../../../bazel-out/x64_windows-fastbuild/bin/packages/typescript/test/ts_project/js_library",
+            "../../../../../bazel-out/darwin-dbg/bin/packages/typescript/test/ts_project/js_library",
+            "../../../../../bazel-out/k8-dbg/bin/packages/typescript/test/ts_project/js_library",
+            "../../../../../bazel-out/x64_windows-dbg/bin/packages/typescript/test/ts_project/js_library",
+        ],
+    }
+}

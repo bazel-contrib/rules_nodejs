@@ -1,6 +1,6 @@
 "ts_project rule"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "NpmPackageInfo", "run_node")
+load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "NpmPackageInfo", "declaration_info", "run_node")
 
 _DEFAULT_TSC = (
     # BEGIN-INTERNAL
@@ -138,18 +138,7 @@ def _ts_project_impl(ctx):
     # Don't provide DeclarationInfo if there are no typings to provide.
     # Improves error messaging if a ts_project needs declaration = True
     if len(typings_outputs) or len(ctx.attr.deps):
-        providers.append(
-            DeclarationInfo(
-                declarations = depset(typings_outputs),
-                transitive_declarations = depset(typings_outputs, transitive = [
-                    dep[DeclarationInfo].transitive_declarations
-                    for dep in ctx.attr.deps
-                ]),
-                # Downstream ts_library rules will fail if they don't find this field
-                # Even though it is only for Google Closure Compiler externs generation
-                type_blacklisted_declarations = depset(),
-            ),
-        )
+        providers.append(declaration_info(depset(typings_outputs), ctx.attr.deps))
 
     return providers
 
