@@ -6,7 +6,7 @@
     "repository": {
         "type" : "git",
         "url" : "https://github.com/bazelbuild/rules_nodejs.git",
-        "directory": "packages/typescript"
+        "directory": "packages/labs"
     },
     "bugs": {
         "url": "https://github.com/bazelbuild/rules_nodejs/issues"
@@ -15,12 +15,6 @@
         "labs",
         "bazel"
     ],
-    "bin": {
-        "webpack": "./webpack/cli.js"
-    },
-    "peerDependencies": {
-        "webpack": ">=4.0.0"
-    },
     "bazelWorkspaces": {
         "npm_bazel_labs": {
             "rootPath": "."

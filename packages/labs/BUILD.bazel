@@ -10,7 +10,4 @@ pkg_npm(
     vendor_external = [
         "npm_bazel_labs",
     ],
-    deps = [
-        "@npm_bazel_labs//webpack:cli_lib",
-    ],
 )
