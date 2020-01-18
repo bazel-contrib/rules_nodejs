@@ -132,4 +132,26 @@ describe('strict deps', () => {
     expect(diags[0].messageText)
         .toMatch(/dependency on blaze-bin\/p\/sd1.d.ts not allowed/);
   });
+
+  it('allows multiple declarations of the same clutz-generated module', () => {
+    const p = createProgram({
+      '/src/blaze-bin/p/js1.d.ts': `declare module 'goog:thing' {}`,
+      '/src/blaze-bin/p/js2.d.ts': `declare module 'goog:thing' {}`,
+      '/src/blaze-bin/p/js3.d.ts': `declare module 'goog:thing' {}`,
+      // Import from the middle one, to be sure it doesn't pass just because the
+      // order so happens that we checked the declaration from the first one
+      '/src/p/my.ts': `import {} from 'goog:thing'; // taze: from //p:js2`,
+    });
+    const good = checkModuleDeps(
+        p.getSourceFile('/src/p/my.ts')!, p.getTypeChecker(),
+        ['/src/blaze-bin/p/js2.d.ts'], '/src');
+    expect(good.length).toBe(0);
+
+    const bad = checkModuleDeps(
+        p.getSourceFile('/src/p/my.ts')!, p.getTypeChecker(), [], '/src');
+    expect(bad.length).toBe(1);
+    expect(bad[0].messageText)
+        .toContain(
+            '(It is also declared in blaze-bin/p/js2.d.ts, blaze-bin/p/js3.d.ts)');
+  });
 });

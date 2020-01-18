@@ -85,15 +85,24 @@ export function checkModuleDeps(
     if (!sym || !sym.declarations || sym.declarations.length < 1) {
       continue;
     }
-    // Module imports can only have one declaration location.
-    const declFileName = sym.declarations[0].getSourceFile().fileName;
-    if (allowedMap[stripExt(declFileName)]) continue;
-    const importName = path.posix.relative(rootDir, declFileName);
+    const declFileNames =
+        sym.declarations.map(decl => decl.getSourceFile().fileName);
+    if (declFileNames.find(
+            declFileName => !!allowedMap[stripExt(declFileName)])) {
+      continue;
+    }
+    const importNames = declFileNames.map(
+        declFileName => path.posix.relative(rootDir, declFileName));
+
+    const extraDeclarationLocationsMessage = (importNames.length < 2) ?
+        '' :
+        `(It is also declared in ${importNames.slice(1).join(', ')}) `;
     result.push({
       file: sf,
       start: modSpec.getStart(),
       length: modSpec.getEnd() - modSpec.getStart(),
-      messageText: `transitive dependency on ${importName} not allowed. ` +
+      messageText: `transitive dependency on ${importNames[0]} not allowed. ` +
+          extraDeclarationLocationsMessage +
           `Please add the BUILD target to your rule's deps.`,
       category: ts.DiagnosticCategory.Error,
       // semantics are close enough, needs taze.
