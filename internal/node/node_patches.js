@@ -563,10 +563,9 @@ set Path=${nodeDir};%Path%
         }
         else {
             fs$1.writeFileSync(path.join(nodeDir, 'node'), `#!/bin/bash
-export NP_PATCHED_NODEJS=${nodeDir}
-export PATH=${nodeDir}:$PATH
-hasScript=\`echo "$@" | grep ${path.basename(requireScriptName)}\`
-if [ "$hasScript"=="" ]; then
+export NP_PATCHED_NODEJS="${nodeDir}"
+export PATH="${nodeDir}":\$PATH
+if [[ ! "\${@}" =~ "${file}" ]]; then
   exec ${process.execPath} --require "${requireScriptName}" "$@"
 else
   exec ${process.execPath} "$@"
