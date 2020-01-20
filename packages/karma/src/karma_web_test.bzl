@@ -258,7 +258,7 @@ ARGV=( "start" ${{CONF}} )
 # variables. See go/test-encyclopedia
 # Note: in Bazel 0.14 and later, TEST_TMPDIR is set for both bazel test and bazel run
 # so we also check for the BUILD_WORKSPACE_DIRECTORY which is set only for bazel run
-if [[ ! -z "${{TEST_TMPDIR}}" && ! -n "${{BUILD_WORKSPACE_DIRECTORY:-}}" ]]; then
+if [[ ! -z "${{TEST_TMPDIR:-}}" && ! -n "${{BUILD_WORKSPACE_DIRECTORY:-}}" ]]; then
   ARGV+=( "--single-run" )
 fi
 
