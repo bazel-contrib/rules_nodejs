@@ -265,7 +265,6 @@ def _ts_library_impl(ctx):
     ts_providers = compile_ts(
         ctx,
         is_library = True,
-        deps = ctx.attr.deps,
         compile_action = _compile_action,
         devmode_compile_action = _devmode_compile_action,
         tsc_wrapped_tsconfig = tsc_wrapped_tsconfig,

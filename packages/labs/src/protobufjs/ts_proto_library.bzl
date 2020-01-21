@@ -122,6 +122,7 @@ def _ts_proto_library(ctx):
             DeclarationInfo(
                 declarations = declarations,
                 transitive_declarations = declarations,
+                type_blacklisted_declarations = depset([]),
             ),
             JSNamedModuleInfo(
                 direct_sources = es5_sources,
