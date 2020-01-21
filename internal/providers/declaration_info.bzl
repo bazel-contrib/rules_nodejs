@@ -38,5 +38,6 @@ Note: historically this was a subset of the string-typed "typescript" provider.
         "declarations": "A depset of .d.ts files produced by this rule",
         "transitive_declarations": """A depset of .d.ts files produced by this rule and all its transitive dependencies.
 This prevents needing an aspect in rules that consume the typings, which improves performance.""",
+        "type_blacklisted_declarations": """A depset of .d.ts files that we should not use to infer JSCompiler types (via tsickle)""",
     },
 )
