@@ -57,10 +57,7 @@ COMMON_ATTRIBUTES = {
     ),
     "deps": attr.label_list(
         aspects = DEPS_ASPECTS,
-        # TODO(b/139705078): require all deps have a DeclarationInfo provider
-        # and remove assert_js_or_typescript_deps which is attempting
-        # to enforce the same thing as this.
-        # providers = [DeclarationInfo],
+        providers = [DeclarationInfo],
     ),
     "_additional_d_ts": _ADDITIONAL_D_TS,
 }
@@ -74,17 +71,6 @@ COMMON_OUTPUTS = {
     # Allow the tsconfig.json to be generated without running compile actions.
     "tsconfig": "%{name}_tsconfig.json",
 }
-
-# TODO(plf): Enforce this at analysis time.
-def assert_js_or_typescript_deps(ctx, deps = None):
-    # `deps` args is optinal for backward compat.
-    # Fallback to `ctx.attr.deps`.
-    deps = deps if deps != None else ctx.attr.deps
-    for dep in deps:
-        if not hasattr(dep, "typescript") and not JsInfo in dep and not DeclarationInfo in dep:
-            allowed_deps_msg = "Dependencies must be ts_library"
-
-            fail("%s is neither a TypeScript nor a JS producing rule.\n%s\n" % (dep.label, allowed_deps_msg))
 
 _DEPSET_TYPE = type(depset())
 
@@ -227,16 +213,10 @@ def compile_ts(
         if not hasattr(ctx.attr, "deps"):
             fail("compile_ts must either be called from a rule with a deps attr, or must be given declaration_infos")
 
-        # Validate the user inputs.
-        # TODO(b/139705078): remove this when we require DeclarationInfo provider on deps
-        assert_js_or_typescript_deps(ctx, ctx.attr.deps)
-
         # By default, we collect dependencies from the ctx, when used as a rule
         declaration_infos = [
             d[DeclarationInfo]
             for d in ctx.attr.deps + getattr(ctx.attr, "_helpers", [])
-            # TODO(b/139705078): remove this when we require DeclarationInfo provider on deps
-            if DeclarationInfo in d
         ]
 
     tsconfig = tsconfig if tsconfig != None else ctx.outputs.tsconfig
