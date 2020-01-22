@@ -11,6 +11,7 @@ import {Checker} from './checker';
 import {AbstractRule} from './rule';
 import {Rule as BanExpectTruthyPromiseRule} from './rules/ban_expect_truthy_promise_rule';
 import {Rule as BanPromiseAsConditionRule} from './rules/ban_promise_as_condition_rule';
+import {Rule as BanStringInitializedSetsRule} from './rules/ban_string_initialized_sets_rule';
 import {Rule as CheckReturnValueRule} from './rules/check_return_value_rule';
 import {Rule as EqualsNanRule} from './rules/equals_nan_rule';
 import {Rule as MustUsePromisesRule} from './rules/must_use_promises_rule';
@@ -25,6 +26,7 @@ const ENABLED_RULES: AbstractRule[] = [
   new BanExpectTruthyPromiseRule(),
   new MustUsePromisesRule(),
   new BanPromiseAsConditionRule(),
+  new BanStringInitializedSetsRule(),
 ];
 
 /**
