@@ -311,8 +311,22 @@ def _yarn_install_impl(repository_ctx):
 
     _check_min_bazel_version("yarn_install", repository_ctx)
 
+    is_windows_host = is_windows_os(repository_ctx)
     node = repository_ctx.path(get_node_label(repository_ctx))
     yarn = get_yarn_label(repository_ctx)
+
+    yarn_args = []
+    if not repository_ctx.attr.use_global_yarn_cache:
+        yarn_args.extend(["--cache-folder", repository_ctx.path("_yarn_cache")])
+    else:
+        # Multiple yarn rules cannot run simultaneously using a shared cache.
+        # See https://github.com/yarnpkg/yarn/issues/683
+        # The --mutex option ensures only one yarn runs at a time, see
+        # https://yarnpkg.com/en/docs/cli#toc-concurrency-and-mutex
+        # The shared cache is not necessarily hermetic, but we need to cache downloaded
+        # artifacts somewhere, so we rely on yarn to be correct.
+        yarn_args.extend(["--mutex", "network"])
+    yarn_args.extend(repository_ctx.attr.args)
 
     # If symlink_node_modules is true then run the package manager
     # in the package.json folder; otherwise, run it in the root of
@@ -321,6 +335,34 @@ def _yarn_install_impl(repository_ctx):
         root = repository_ctx.path(repository_ctx.attr.package_json).dirname
     else:
         root = repository_ctx.path("")
+
+    # The entry points for npm install for osx/linux and windows
+    if not is_windows_host:
+        repository_ctx.file(
+            "yarn",
+            content = """#!/usr/bin/env bash
+# Immediately exit if any command fails.
+set -e
+(cd "{root}"; "{yarn}" {yarn_args})
+""".format(
+                root = root,
+                yarn = repository_ctx.path(yarn),
+                yarn_args = " ".join(yarn_args),
+            ),
+            executable = True,
+        )
+    else:
+        repository_ctx.file(
+            "yarn.cmd",
+            content = """@echo off
+cd "{root}" && "{yarn}" {yarn_args}
+""".format(
+                root = root,
+                yarn = repository_ctx.path(yarn),
+                yarn_args = " ".join(yarn_args),
+            ),
+            executable = True,
+        )
 
     if not repository_ctx.attr.symlink_node_modules:
         repository_ctx.symlink(
@@ -339,28 +381,9 @@ def _yarn_install_impl(repository_ctx):
     if result.return_code:
         fail("pre_process_package_json.js failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
 
-    args = [
-        repository_ctx.path(yarn),
-        "--cwd",
-        root,
-    ]
-
-    if not repository_ctx.attr.use_global_yarn_cache:
-        args.extend(["--cache-folder", repository_ctx.path("_yarn_cache")])
-    else:
-        # Multiple yarn rules cannot run simultaneously using a shared cache.
-        # See https://github.com/yarnpkg/yarn/issues/683
-        # The --mutex option ensures only one yarn runs at a time, see
-        # https://yarnpkg.com/en/docs/cli#toc-concurrency-and-mutex
-        # The shared cache is not necessarily hermetic, but we need to cache downloaded
-        # artifacts somewhere, so we rely on yarn to be correct.
-        args.extend(["--mutex", "network"])
-
-    args.extend(repository_ctx.attr.args)
-
     repository_ctx.report_progress("Running yarn install on %s" % repository_ctx.attr.package_json)
     result = repository_ctx.execute(
-        args,
+        [repository_ctx.path("yarn.cmd" if is_windows_host else "yarn")],
         timeout = repository_ctx.attr.timeout,
         quiet = repository_ctx.attr.quiet,
     )

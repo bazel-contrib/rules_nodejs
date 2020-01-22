@@ -505,12 +505,12 @@ SET SCRIPT_DIR=%~dp0
 
         # Npm entry point for node_repositories
         repository_ctx.file("bin/npm_node_repositories.cmd", content = """@echo off
+SET SCRIPT_DIR=%~dp0
 """ + "".join([
             """
-SET SCRIPT_DIR=%~dp0
 echo Running npm %* in {root}
 cd "{root}"
-call "%SCRIPT_DIR%\\{node}" "%SCRIPT_DIR%\\{script}" --scripts-prepend-node-path=false %*
+CALL "%SCRIPT_DIR%\\{node}" "%SCRIPT_DIR%\\{script}" --scripts-prepend-node-path=false %*
 if %errorlevel% neq 0 exit /b %errorlevel%
 """.format(
                 root = repository_ctx.path(package_json).dirname,
@@ -557,8 +557,8 @@ set -e
 # Executes the given yarn command over each of the package.json folders provided in node_repositories.
 """ + GET_SCRIPT_DIR + "".join([
             """
-echo Running yarn --cwd "{root}" "$@"
-"$SCRIPT_DIR/{node}" "$SCRIPT_DIR/{script}" --cwd "{root}" "$@"
+echo Running yarn "$@" in {root}
+(cd "{root}"; "$SCRIPT_DIR/{node}" "$SCRIPT_DIR/{script}" "$@")
 """.format(
                 root = repository_ctx.path(package_json).dirname,
                 node = paths.relativize(node_entry, "bin"),
@@ -585,8 +585,9 @@ SET SCRIPT_DIR=%~dp0
 SET SCRIPT_DIR=%~dp0
 """ + "".join([
             """
-echo Running yarn --cwd "{root}" %*
-CALL "%SCRIPT_DIR%\\{node}" "%SCRIPT_DIR%\\{script}" --cwd "{root}" %*
+echo Running yarn %* in {root}
+cd "{root}"
+CALL "%SCRIPT_DIR%\\{node}" "%SCRIPT_DIR%\\{script}" %*
 if %errorlevel% neq 0 exit /b %errorlevel%
 """.format(
                 root = repository_ctx.path(package_json).dirname,
