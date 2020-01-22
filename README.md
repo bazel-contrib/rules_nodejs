@@ -49,6 +49,7 @@ Open-source repositories:
 - [dataform](https://github.com/dataform-co/dataform)
 - [Kubernetes test-infra](https://github.com/kubernetes/test-infra)
 - [ts-protoc-gen](https://github.com/improbable-eng/ts-protoc-gen)
+- [protoc-gen-ts](https://github.com/thesayyn/protoc-gen-ts)
 
 Organizations:
 
