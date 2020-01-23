@@ -183,7 +183,6 @@ function fixMatchesExpectation(failure: Failure, expected: FixExpectations):
             `${i}th individualChange's fileName`, e.fileName,
             a.sourceFile.fileName);
       }
-      // TODO: Consider adding matchedCode as for the failure matcher.
     }
   }
 
