@@ -1,3 +1,19 @@
+# [1.2.0](https://github.com/bazelbuild/rules_nodejs/compare/1.1.0...1.2.0) (2020-01-24)
+
+
+### Bug Fixes
+
+* **builtin:** legacy module_mappings_runtime_aspect handles dep with module_name but no module_root ([9ac0534](https://github.com/bazelbuild/rules_nodejs/commit/9ac0534))
+* **builtin:** nodejs_binary collects module_mappings for linker ([4419f95](https://github.com/bazelbuild/rules_nodejs/commit/4419f95))
+* **builtin:** set cwd before running yarn for yarn_install ([#1569](https://github.com/bazelbuild/rules_nodejs/issues/1569)) ([d7083ac](https://github.com/bazelbuild/rules_nodejs/commit/d7083ac))
+
+
+### Features
+
+* **builtin:** add configuration_env_vars to npm_package_bin ([07d9f5d](https://github.com/bazelbuild/rules_nodejs/commit/07d9f5d))
+
+
+
 # [1.1.0](https://github.com/bazelbuild/rules_nodejs/compare/1.0.1...1.1.0) (2020-01-12)
 
 
