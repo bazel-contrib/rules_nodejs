@@ -39,14 +39,14 @@ Note: if you are using a new clone, you'll need to configure `git-clang-format` 
 
 Googlers: you should npm login using the go/npm-publish service: `$ npm login --registry https://wombat-dressing-room.appspot.com`
 
-Check if there are any breaking changes since the last tag - if so, this will be a minor, if not it's a patch.
-(This may not sound like semver, but since our major version is a zero, the rule is that minors are breaking changes and patches are new features.)
+Check if there are any breaking changes since the last tag - if so, this will be a major. Check if there were new features added since the last tag - if so, this will be a minor.
 
 1. Re-generate the API docs: `yarn stardoc`
 1. `git add docs/` (in case new files were created)
 1. `git commit -a -m 'docs: update docs for release'`
-1. `npm version minor` (replace `minor` with `patch` if no breaking changes)
+1. `npm version [major|minor|patch]` (`major` if there are breaking changes, `minor` if there are new features, otherwise `patch`)
 1. Manually update the CHANGELOG.md based on the commits since the last release. Look for breaking changes that weren't documented.
+1. If publishing from inside Google, set NPM_REGISTRY="--registry https://wombat-dressing-room.appspot.com" in your environment
 1. Build npm packages and publish them: `./scripts/publish_release.sh`
 1. Run `./scripts/update_nested_lock_files.sh` to update the lock files in all nested workspaces to new release
 1. `git commit -a -m 'chore: update lock files for release'`
