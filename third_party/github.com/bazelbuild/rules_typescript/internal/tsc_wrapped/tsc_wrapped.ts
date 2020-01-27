@@ -343,7 +343,13 @@ export function createProgramAndEmit(
 
       // Dynamically load the Angular compiler installed as a peerDep
       const ngtsc = require('@angular/compiler-cli');
-      angularPlugin = new ngtsc.NgTscPlugin(ngOptions);
+
+      // TODO(alexeagle): re-enable after Angular API changes land
+      // See https://github.com/angular/angular/pull/34792
+      // and pending CL/289493608
+      // By commenting this out, we allow Angular caretaker to sync changes from
+      // GitHub without having to coordinate any Piper patches in the same CL.
+      // angularPlugin = new ngtsc.NgTscPlugin(ngOptions);
     } catch (e) {
       return {
         diagnostics: [errorDiag(
