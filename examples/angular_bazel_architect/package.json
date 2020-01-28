@@ -5,7 +5,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "bazel build :build",
-    "test": "bazel test :test",
+    "test": "bazel test :test --test_output=streamed",
     "lint": "ng lint",
     "e2e": "ng e2e",
     "postinstall": "patch-package && ngcc --properties es2015 browser module main --first-only"
