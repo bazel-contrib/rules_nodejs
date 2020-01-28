@@ -219,8 +219,9 @@ def _npm_install_impl(repository_ctx):
 
     # The entry points for npm install for osx/linux and windows
     if not is_windows_host:
+        # Prefix filenames with _ so they don't conflict with the npm package `npm`
         repository_ctx.file(
-            "npm",
+            "_npm.sh",
             content = """#!/usr/bin/env bash
 # Immediately exit if any command fails.
 set -e
@@ -234,7 +235,7 @@ set -e
         )
     else:
         repository_ctx.file(
-            "npm.cmd",
+            "_npm.cmd",
             content = """@echo off
 cd "{root}" && "{npm}" {npm_args}
 """.format(
@@ -264,7 +265,7 @@ cd "{root}" && "{npm}" {npm_args}
 
     repository_ctx.report_progress("Running npm install on %s" % repository_ctx.attr.package_json)
     result = repository_ctx.execute(
-        [repository_ctx.path("npm.cmd" if is_windows_host else "npm")],
+        [repository_ctx.path("_npm.cmd" if is_windows_host else "_npm.sh")],
         timeout = repository_ctx.attr.timeout,
         quiet = repository_ctx.attr.quiet,
     )
@@ -338,8 +339,9 @@ def _yarn_install_impl(repository_ctx):
 
     # The entry points for npm install for osx/linux and windows
     if not is_windows_host:
+        # Prefix filenames with _ so they don't conflict with the npm packages
         repository_ctx.file(
-            "yarn",
+            "_yarn.sh",
             content = """#!/usr/bin/env bash
 # Immediately exit if any command fails.
 set -e
@@ -353,7 +355,7 @@ set -e
         )
     else:
         repository_ctx.file(
-            "yarn.cmd",
+            "_yarn.cmd",
             content = """@echo off
 cd "{root}" && "{yarn}" {yarn_args}
 """.format(
@@ -383,7 +385,7 @@ cd "{root}" && "{yarn}" {yarn_args}
 
     repository_ctx.report_progress("Running yarn install on %s" % repository_ctx.attr.package_json)
     result = repository_ctx.execute(
-        [repository_ctx.path("yarn.cmd" if is_windows_host else "yarn")],
+        [repository_ctx.path("_yarn.cmd" if is_windows_host else "_yarn.sh")],
         timeout = repository_ctx.attr.timeout,
         quiet = repository_ctx.attr.quiet,
     )
