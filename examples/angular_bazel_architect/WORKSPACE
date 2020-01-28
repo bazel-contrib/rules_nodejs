@@ -5,9 +5,6 @@
 workspace(
     # How this workspace would be referenced with absolute labels from another workspace
     name = "angular_cli_demo",
-    # Map the @npm bazel workspace to the node_modules directory.
-    # This lets Bazel use the same node_modules as other local tooling.
-    managed_directories = {"@npm": ["node_modules"]},
 )
 
 # Install the nodejs "bootstrap" package
@@ -27,8 +24,9 @@ load("@build_bazel_rules_nodejs//:index.bzl", "yarn_install")
 yarn_install(
     # Name this npm so that Bazel Label references look like @npm//package
     name = "npm",
-    data = ["//patches"],
+    data = ["//:patches/@angular-devkit+architect-cli+0.900.0-rc.7.patch"],
     package_json = "//:package.json",
+    symlink_node_modules = False,
     yarn_lock = "//:yarn.lock",
 )
 

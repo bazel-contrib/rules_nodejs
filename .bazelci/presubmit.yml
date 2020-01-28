@@ -309,10 +309,11 @@ tasks:
     build_flags:
     - "--build_tag_filters=examples"
     build_targets:
-    - "//..."
+    - "//examples:examples_angular_bazel_architect"
     # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
     skip_use_bazel_version_for_test: true
     test_flags:
+    - "--test_output=streamed"
     - "--test_tag_filters=examples,-manual"
     - "--local_resources=792,1.0,1.0"
     # test_args will be passed to the nested bazel process
@@ -322,7 +323,7 @@ tasks:
     # TODO(gregmagolan): figure out how to install missing shared libs
     - "--test_arg=--test_tag_filters=-no-bazelci-mac,-manual,-browser:firefox-local"
     test_targets:
-    - "//..."
+    - "//examples:examples_angular_bazel_architect"
   macos_cross_compile_linux:
     name: macos_cross_compile_linux
     platform: macos
