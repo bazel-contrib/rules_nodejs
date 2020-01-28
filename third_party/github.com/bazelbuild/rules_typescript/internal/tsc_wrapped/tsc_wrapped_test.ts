@@ -47,7 +47,7 @@ describe('tsc wrapped', () => {
     f(res, 'src/f3', 'src$f3', ['src$f1']);
     f(res, 'src/f1', 'src$f1', ['src$f2']);
     expect(() => constructManifest(res, {relativeOutputPath}))
-        .toThrowError(/src\/f2 -> src\/f3 -> src\/f1 -> src\/f2/g);
+        .toThrowError(/src\/f2 ->\nsrc\/f3 ->\nsrc\/f1 ->\nsrc\/f2/g);
   });
 
   it('toposorts diamonds', () => {

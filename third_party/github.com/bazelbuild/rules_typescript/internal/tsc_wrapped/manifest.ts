@@ -22,8 +22,8 @@ function topologicalSort(
     if (!referencedFileName) continue;  // Ambient modules.
     if (!result[referencedFileName]) {
       if (visiting[referencedFileName]) {
-        const path = current + ' -> ' + Object.keys(visiting).join(' -> ');
-        throw new Error('Cyclical dependency between files:\n' + path);
+        const path = [current, ...Object.keys(visiting)].join(' ->\n');
+        throw new Error(`\n\nCyclical dependency between files:\n${path}\n`);
       }
       visiting[referencedFileName] = true;
       topologicalSort(result, referencedFileName, modulesManifest, visiting);
