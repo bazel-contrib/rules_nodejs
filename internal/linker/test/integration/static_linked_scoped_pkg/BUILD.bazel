@@ -5,5 +5,6 @@ package(default_visibility = ["//internal/linker/test:__subpackages__"])
 js_library(
     name = "static_linked_scoped_pkg",
     srcs = ["index.js"],
+    module_from_src = True,
     module_name = "@linker_scoped/static_linked",
 )
