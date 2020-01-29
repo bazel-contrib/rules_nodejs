@@ -3,7 +3,7 @@
 # See https://docs.bazel.build/versions/master/build-ref.html#workspace
 workspace(
     # How this workspace would be referenced with absolute labels from another workspace
-    name = "angular_cli_demo",
+    name = "angular_bazel_architect",
 )
 
 # Install the nodejs "bootstrap" package
@@ -12,8 +12,8 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "build_bazel_rules_nodejs",
-    sha256 = "3887b948779431ac443e6a64f31b9e1e17b8d386a31eebc53ec1d9b0a6cabd2b",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/1.2.0/rules_nodejs-1.2.0.tar.gz"],
+    sha256 = "ecaa54955b314b5e33948bd8f39e35c35ee89e905d8de1c03868100293510573",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/1.2.1/rules_nodejs-1.2.1.tar.gz"],
 )
 
 # The yarn_install rule runs yarn anytime the package.json or yarn.lock file changes.

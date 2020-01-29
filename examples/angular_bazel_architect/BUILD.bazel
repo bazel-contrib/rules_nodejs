@@ -57,7 +57,20 @@ architect_test(
         "@npm//karma-jasmine",
         "@npm//karma-jasmine-html-reporter",
     ],
-    tags = ["browser:chromium-local"],
+    tags = [
+        "browser:chromium-local",
+        # This fails locally on macos buildkite trying to capture Chrome.
+        # Tested locally on OSX and it works so it is something to do with the
+        # buildkite osx machine chrome version/configuration.
+        # ==================== Test output for //:test:
+        # 29 01 2020 23:31:42.804:INFO [karma-server]: Karma v4.1.0 server started at http://0.0.0.0:9876/
+        # 29 01 2020 23:31:42.806:INFO [launcher]: Launching browsers ChromeHeadlessNoSandbox with concurrency unlimited
+        # 29 01 2020 23:31:42.808:INFO [launcher]: Starting browser ChromeHeadless
+        # 29 01 2020 23:32:42.815:WARN [launcher]: ChromeHeadless have not captured in 60000 ms, killing.
+        # 29 01 2020 23:32:44.818:WARN [launcher]: ChromeHeadless was not killed in 2000 ms, sending SIGKILL.
+        # 29 01 2020 23:32:46.822:WARN [launcher]: ChromeHeadless was not killed by SIGKILL in 2000 ms, continuing.
+        "no-bazelci-mac",
+    ],
 )
 
 # Just a dummy test so that we have a test target for //... on certain bazelci platforms with bazel_integration_test
