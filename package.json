@@ -49,6 +49,7 @@
         "node_resolve_main": "file:./tools/npm_packages/node_resolve_main",
         "node_resolve_main_2": "file:./tools/npm_packages/node_resolve_main_2",
         "node_resolve_nested_main": "file:./tools/npm_packages/node_resolve_nested_main",
+        "npm": "6.13.7",
         "parse5": "5.1.0",
         "protobufjs": "6.8.8",
         "protractor": "^5.4.2",
@@ -74,6 +75,7 @@
         "typescript": "3.1.6",
         "unidiff": "1.0.1",
         "v8-coverage": "1.0.9",
+        "yarn": "1.21.1",
         "zone.js": "0.8.29"
     },
     "scripts": {
