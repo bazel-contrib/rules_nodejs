@@ -10,7 +10,17 @@ function findBazelFiles(dir) {
   }
   return fs.readdirSync(dir).reduce((files, file) => {
     const fullPath = path.posix.join(dir, file);
-    const isSymbolicLink = fs.lstatSync(fullPath).isSymbolicLink();
+    let isSymbolicLink;
+    try {
+      isSymbolicLink = fs.lstatSync(fullPath).isSymbolicLink();
+    } catch (e) {
+      // If an optional dependency failed to install it is possible that readdirSync will
+      // return a folder name that no longer exists and lstatSync will throw with an error such as
+      // `Error: ENOENT: no such file or directory, lstat
+      // '/private/var/folders/0l/nj_q9kzj49gdz1w6f5v9tw3h0000gn/T/tmp-49206kt9HWV3A8daE/node_modules/fsevents'`
+      // This seems to be because yarn does parallel installs and runs parallel step.
+      return files;
+    }
     let stat;
     try {
       stat = fs.statSync(fullPath);
