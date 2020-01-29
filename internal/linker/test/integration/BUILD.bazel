@@ -69,9 +69,44 @@ linked(
     testonly = True,
 )
 
+# Test that the linker can handle duplicate module mappings. "src" and "bin"
+# mappings will win over the "runfiles" mapping that comes from a dep on a
+# *_binary or *_test rule.
+linked(
+    name = "example_with_conflicts",
+    out = "actual_with_conflicts",
+    program = ":run_program",
+    deps = [
+        # NB: reference the copy of index.js in the output folder
+        "//%s/absolute_import:copy_to_bin" % package_name(),
+        ":run_program",
+        # NB: static_linked maps to both
+        # ["runfiles", "build_bazel_rules_nodejs/internal/linker/test/integration/static_linked_pkg"] and
+        # ["bin", "build_bazel_rules_nodejs/internal/linker/test/integration/static_linked_pkg"]
+        # as the "runfiles" mapping comes from `:run_program`
+        "//internal/linker/test/integration/static_linked_pkg",
+        # NB: @linker_scoped/static_linked maps to both
+        # ["runfiles", "build_bazel_rules_nodejs/internal/linker/test/integration/static_linked_scoped_pkg"] and
+        # ["src", "build_bazel_rules_nodejs/internal/linker/test/integration/static_linked_scoped_pkg"]
+        # as the "runfiles" mapping comes from `:run_program`
+        "//internal/linker/test/integration/static_linked_scoped_pkg",
+        "//internal/linker/test/integration/dynamic_linked_pkg",
+        "//internal/linker/test/integration/dynamic_linked_scoped_pkg",
+        "@npm//semver",
+    ],
+    testonly = True,
+)
+
 golden_file_test(
     # default rule in this package
     name = "integration",
     actual = "actual",
+    golden = "golden.txt",
+)
+
+golden_file_test(
+    # default rule in this package
+    name = "integration_conflicts",
+    actual = "actual_with_conflicts",
     golden = "golden.txt",
 )
