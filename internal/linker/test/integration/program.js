@@ -2,6 +2,7 @@
 // they should get resolved through runfiles
 const a = require('static_linked');
 const e = require('@linker_scoped/static_linked');
+const t = require('transitive_static_linked');
 // First-party "dynamic linked" packages
 // they should get resolved from the execroot
 const b = require('dynamic_linked');
@@ -13,4 +14,4 @@ const c = require('build_bazel_rules_nodejs/internal/linker/test/integration/abs
 const semver = require('semver');
 
 // This output should match what's in the golden.txt file
-console.log(e.addE(d.addD(c.addC(b.addB(a.addA(semver.clean(' =v1.2.3 ')))))));
+console.log(t.addT(e.addE(d.addD(c.addC(b.addB(a.addA(semver.clean(' =v1.2.3 '))))))));

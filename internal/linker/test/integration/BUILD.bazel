@@ -15,10 +15,28 @@ genrule(
 # Make our program executable and include the linker
 # The runfiles here are only the ones included with the program itself
 sh_binary(
+    name = "some_program",
+    srcs = ["some_program.sh"],
+    data = [
+        "//internal/linker/test/integration/transitive_static_linked_pkg",
+    ],
+)
+
+# Make our program executable and include the linker
+# The runfiles here are only the ones included with the program itself
+sh_binary(
     name = "run_program",
     srcs = ["run_program_with_node.sh"],
     data = [
         ":program.js",
+        # Include `:some_program` as a data dep  so we get the
+        # transitive_static_linked_pkg "runfiles" mapping transitively. This test verifies that
+        # `bazel-out/darwin-fastbuild/bin/internal/linker/test/integration/run_program.runfiles`
+        # also contains the runfiles from
+        # `bazel-out/darwin-fastbuild/bin/internal/linker/test/integration/some_program.runfiles`
+        # as it has `:some_program` as a data dep and that the linker will correctly link
+        # "runfiles" module mappings from `:some_program` in `:run_program` under the
+        ":some_program",
         "//internal/linker:index.js",
         "//internal/linker/test/integration/static_linked_pkg",
         "//internal/linker/test/integration/static_linked_scoped_pkg",
