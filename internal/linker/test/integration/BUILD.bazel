@@ -12,9 +12,9 @@ genrule(
     toolchains = ["@build_bazel_rules_nodejs//toolchains/node:toolchain"],
 )
 
-# Make our program executable and include the linker
-# The runfiles here are only the ones included with the program itself
-sh_binary(
+# A program from a *_test rule with a module mapped package that will
+# by linked as "runfiles" mapping by downstream rules
+sh_test(
     name = "some_program",
     srcs = ["some_program.sh"],
     data = [
@@ -43,6 +43,7 @@ sh_binary(
         "@bazel_tools//tools/bash/runfiles",
         "@build_bazel_rules_nodejs//toolchains/node:node_bin",
     ],
+    testonly = True,
 )
 
 # How a users rule might want to run a node program
@@ -54,10 +55,18 @@ linked(
         # NB: reference the copy of index.js in the output folder
         "//%s/absolute_import:copy_to_bin" % package_name(),
         ":run_program",
+        # NB: Verify that a direct dep on :some_program and a transitive dep on
+        # the same via :run_program works with the linker. These should both
+        # bring in the transitive_static_linked mapping to
+        # ["runfiles", "build_bazel_rules_nodejs/internal/linker/test/integration/transitive_static_linked_pkg"].
+        # This tests that the linker does "runfiles" mappings for both  *_binary target
+        # and *_test targets.
+        ":some_program",
         "//internal/linker/test/integration/dynamic_linked_pkg",
         "//internal/linker/test/integration/dynamic_linked_scoped_pkg",
         "@npm//semver",
     ],
+    testonly = True,
 )
 
 golden_file_test(
