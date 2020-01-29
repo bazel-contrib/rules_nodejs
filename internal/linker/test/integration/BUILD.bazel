@@ -26,6 +26,7 @@ sh_test(
 # The runfiles here are only the ones included with the program itself
 sh_binary(
     name = "run_program",
+    testonly = True,
     srcs = ["run_program_with_node.sh"],
     data = [
         ":program.js",
@@ -43,12 +44,12 @@ sh_binary(
         "@bazel_tools//tools/bash/runfiles",
         "@build_bazel_rules_nodejs//toolchains/node:node_bin",
     ],
-    testonly = True,
 )
 
 # How a users rule might want to run a node program
 linked(
     name = "example",
+    testonly = True,
     out = "actual",
     program = ":run_program",
     deps = [
@@ -66,7 +67,6 @@ linked(
         "//internal/linker/test/integration/dynamic_linked_scoped_pkg",
         "@npm//semver",
     ],
-    testonly = True,
 )
 
 # Test that the linker can handle duplicate module mappings. "src" and "bin"
@@ -74,6 +74,7 @@ linked(
 # *_binary or *_test rule.
 linked(
     name = "example_with_conflicts",
+    testonly = True,
     out = "actual_with_conflicts",
     program = ":run_program",
     deps = [
@@ -94,7 +95,6 @@ linked(
         "//internal/linker/test/integration/dynamic_linked_scoped_pkg",
         "@npm//semver",
     ],
-    testonly = True,
 )
 
 golden_file_test(
