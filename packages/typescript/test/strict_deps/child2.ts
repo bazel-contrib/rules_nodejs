@@ -1,5 +1,5 @@
+// The line below is a strict deps violation of an @npm dep
 import * as semver from 'semver';
-import {Symbol} from './grandparent';
 semver.valid('1.2.3');
-export const x = 1;
+
 console.log(Symbol);
