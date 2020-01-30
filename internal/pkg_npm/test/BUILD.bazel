@@ -1,5 +1,6 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "pkg_npm")
 load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
+load("@npm_bazel_rollup//:index.from_src.bzl", "rollup_bundle")
 load("@npm_bazel_typescript//:index.from_src.bzl", "ts_library")
 load("//internal/node:context.bzl", "node_context_data")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/write_file.bzl", "write_file")
@@ -14,6 +15,15 @@ ts_library(
     name = "ts_library",
     srcs = ["foo.ts"],
     data = ["data.json"],
+)
+
+rollup_bundle(
+    name = "rollup/bundle/subdirectory",
+    entry_points = {
+        "foo.ts": "index",
+    },
+    output_dir = True,
+    deps = [":ts_library"],
 )
 
 pkg_npm(
@@ -44,6 +54,7 @@ pkg_npm(
     deps = [
         ":bundle.min.js",
         ":produces_files",
+        ":rollup/bundle/subdirectory",
         ":ts_library",
         "@internal_npm_package_test_vendored_external//:ts_library",
     ],
