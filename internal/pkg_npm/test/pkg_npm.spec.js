@@ -51,4 +51,7 @@ describe('pkg_npm srcs', () => {
          // TODO(alexeagle): there isn't a way to test this yet, because the pkg_npm under test
          // has to live in the root of the repository in order for external/foo to appear inside it
      });
+  it('copies entire contents of directories',
+     () => {expect(read('rollup/bundle/subdirectory/index.js'))
+                .toContain(`const a = '';\n\nexport { a }`)});
 });

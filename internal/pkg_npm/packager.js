@@ -31,7 +31,14 @@ function mkdirp(p) {
 
 function copyWithReplace(src, dest, substitutions, renameBuildFiles) {
   mkdirp(path.dirname(dest));
-  if (!isBinary(src)) {
+  if (fs.lstatSync(src).isDirectory()) {
+    const files = fs.readdirSync(src)
+    files.forEach((relativeChildSrc) => {
+      const childSrc = path.join(src, relativeChildSrc);
+      const childDest = path.join(dest, path.basename(childSrc));
+      copyWithReplace(childSrc, childDest, substitutions, renameBuildFiles);
+    });
+  } else if (!isBinary(src)) {
     let content = fs.readFileSync(src, {encoding: 'utf-8'});
     substitutions.forEach(r => {
       const [regexp, newvalue] = r;
