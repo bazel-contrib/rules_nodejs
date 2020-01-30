@@ -2,20 +2,20 @@
 # yarn lockfile v1
 
 
-"@bazel/hide-bazel-files@^1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@bazel/hide-bazel-files/-/hide-bazel-files-1.2.0.tgz#23480d00953d5ccdc1aa2721b121089e5a4d0808"
-  integrity sha512-c1N1oy4+Rp84iy5HJTWKl13WTfLfMmELqrnx1C5rkW8fvDcu56u+aeqf7UKW6xvmbbsMl0r7re92cHW+ogcqHQ==
+"@bazel/hide-bazel-files@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@bazel/hide-bazel-files/-/hide-bazel-files-1.2.1.tgz#4d43f9791d9290c29137153fe853d5cadb308b66"
+  integrity sha512-4oRMB/+yPVxOYX4EVL0ezinbgWaFVWOFajpAkoNlPD3n2hHcOqUXbyB9SojJMuG6f/Ic468XOWhD/gnyr9XkcA==
 
-"@bazel/protractor@^1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-1.2.0.tgz#db6848a72fd8e5a80279d451a54a7fd8cdecc523"
-  integrity sha512-X+ahKakCfHRQW/76YqGcGCRDNI38QcUKCJ49V21hvON984iluLnQ4m5kRU1KKdESbj3vQ6BJs2b/LFFKRQXrfA==
+"@bazel/protractor@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-1.2.1.tgz#bc08b82e3eca726c733972a247f3f266b631daf6"
+  integrity sha512-mN0u+OV5ANcvr0ntVDdzjqYv3vQcNjFA8cRcYiDf9Uke8ku8OFJIu5dz77mONksV34zE9LKGkxvYjGIgKFMDYg==
 
-"@bazel/typescript@^1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-1.2.0.tgz#ab2016e1d6eb7a86b44536e887f51eaf3d75f1a7"
-  integrity sha512-hPEG8K0psyEcs6HFRiqZNQwXL/dQ8sXKdrNFWv87+rh+YUNfd58uktoynhllympOPThcbUZcZicLWBEFQOc8nA==
+"@bazel/typescript@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-1.2.1.tgz#a83ecebe48f32c2443879a85f0766dab386ff9d3"
+  integrity sha512-RKgOWos1Ya7XoSUZOV/A8+LS4ZmCvIXv363w4xNdObKjwKFqSdOfsS+uYaVr8g5e0T24jl52QnbdS7i0eUJBqA==
   dependencies:
     protobufjs "6.8.8"
     semver "5.6.0"
