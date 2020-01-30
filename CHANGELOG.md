@@ -1,3 +1,15 @@
+## [1.2.1](https://github.com/bazelbuild/rules_nodejs/compare/1.2.0...1.2.1) (2020-01-30)
+
+
+### Bug Fixes
+
+* allow "src" and "bin" module mappings to win over "runfiles" ([110e00e](https://github.com/bazelbuild/rules_nodejs/commit/110e00e))
+* also link "runfiles" mappings from *_test rules ([79bedc5](https://github.com/bazelbuild/rules_nodejs/commit/79bedc5))
+* osx hide-bazel-files issue with fsevents ([#1578](https://github.com/bazelbuild/rules_nodejs/issues/1578)) ([64a31ab](https://github.com/bazelbuild/rules_nodejs/commit/64a31ab))
+* yarn_install failure if yarn is a dependency ([#1581](https://github.com/bazelbuild/rules_nodejs/issues/1581)) ([f712377](https://github.com/bazelbuild/rules_nodejs/commit/f712377))
+
+
+
 # [1.2.0](https://github.com/bazelbuild/rules_nodejs/compare/1.1.0...1.2.0) (2020-01-24)
 
 
