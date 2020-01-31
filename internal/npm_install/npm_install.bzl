@@ -363,7 +363,7 @@ unset YARN_IGNORE_PATH
         repository_ctx.file(
             "_yarn.cmd",
             content = """@echo off
-set "YARN_IGNORE_PATH=" 
+set "YARN_IGNORE_PATH="
 cd "{root}" && "{yarn}" {yarn_args}
 """.format(
                 root = root,
