@@ -96,7 +96,7 @@ function main(args) {
                              .find(s => s.startsWith('BUILD_SCM_VERSION'));
       // Don't assume BUILD_SCM_VERSION exists
       if (versionTag) {
-        version = versionTag.split(' ')[1].trim();
+        version = versionTag.split(' ')[1].replace(/^v/, '').trim();
       }
     }
     substitutions.push([new RegExp(replaceWithVersion, 'g'), version]);
