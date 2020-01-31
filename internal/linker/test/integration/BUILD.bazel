@@ -77,9 +77,13 @@ linked(
     testonly = True,
     out = "actual_with_conflicts",
     program = ":run_program",
+    # do not sort
     deps = [
         # NB: reference the copy of index.js in the output folder
         "//%s/absolute_import:copy_to_bin" % package_name(),
+        # Intentinally include this before static_linked_pkg as order matters for the linker.
+        # The order here exercises a different code path in the linker conflict resolution logic
+        # than `example_with_conflicts_alt`.
         ":run_program",
         # NB: static_linked maps to both
         # ["runfiles", "build_bazel_rules_nodejs/internal/linker/test/integration/static_linked_pkg"] and
@@ -97,6 +101,35 @@ linked(
     ],
 )
 
+linked(
+    name = "example_with_conflicts_alt",
+    testonly = True,
+    out = "actual_with_conflicts_alt",
+    program = ":run_program",
+    # do not sort
+    deps = [
+        # NB: reference the copy of index.js in the output folder
+        "//%s/absolute_import:copy_to_bin" % package_name(),
+        # NB: static_linked maps to both
+        # ["runfiles", "build_bazel_rules_nodejs/internal/linker/test/integration/static_linked_pkg"] and
+        # ["bin", "build_bazel_rules_nodejs/internal/linker/test/integration/static_linked_pkg"]
+        # as the "runfiles" mapping comes from `:run_program`
+        "//internal/linker/test/integration/static_linked_pkg",
+        # NB: @linker_scoped/static_linked maps to both
+        # ["runfiles", "build_bazel_rules_nodejs/internal/linker/test/integration/static_linked_scoped_pkg"] and
+        # ["src", "build_bazel_rules_nodejs/internal/linker/test/integration/static_linked_scoped_pkg"]
+        # as the "runfiles" mapping comes from `:run_program`
+        "//internal/linker/test/integration/static_linked_scoped_pkg",
+        # Intentinally include this before static_linked_pkg as order matters for the linker.
+        # The order here exercises a different code path in the linker conflict resolution logic
+        # than `example_with_conflicts`.
+        ":run_program",
+        "//internal/linker/test/integration/dynamic_linked_pkg",
+        "//internal/linker/test/integration/dynamic_linked_scoped_pkg",
+        "@npm//semver",
+    ],
+)
+
 golden_file_test(
     # default rule in this package
     name = "integration",
@@ -108,5 +141,12 @@ golden_file_test(
     # default rule in this package
     name = "integration_conflicts",
     actual = "actual_with_conflicts",
+    golden = "golden.txt",
+)
+
+golden_file_test(
+    # default rule in this package
+    name = "integration_conflicts_alt",
+    actual = "actual_with_conflicts_alt",
     golden = "golden.txt",
 )
