@@ -1,3 +1,24 @@
+## [1.2.2](https://github.com/bazelbuild/rules_nodejs/compare/1.2.1...1.2.2) (2020-01-31)
+
+
+### Bug Fixes
+
+* unset YARN_IGNORE_PATH in yarn_install before calling yarn ([5a2af71](https://github.com/bazelbuild/rules_nodejs/commit/5a2af71))
+* fixes bazelbuild/rules_nodejs#1567 Recursively copy files from subdirectories into mirrored structure in the npm archive ([c83b026](https://github.com/bazelbuild/rules_nodejs/commit/c83b026))
+
+
+### Code Refactoring
+
+* Replace grep with bash's regex operator ([9fb080b](https://github.com/bazelbuild/rules_nodejs/commit/9fb080b))
+
+
+### Examples
+
+* enable test file crawling for jest example ([8854bfd](https://github.com/bazelbuild/rules_nodejs/commit/8854bfd))
+* add angular bazel architect ([6dc919d](https://github.com/bazelbuild/rules_nodejs/commit/6dc919d))
+
+
+
 ## [1.2.1](https://github.com/bazelbuild/rules_nodejs/compare/1.2.0...1.2.1) (2020-01-30)
 
 
