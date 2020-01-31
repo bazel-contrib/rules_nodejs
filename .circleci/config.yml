@@ -9,8 +9,8 @@
 
 ## IMPORTANT
 # If you change the `default_docker_image` version, also change the `cache_key` version
-var_1: &default_docker_image circleci/node:10.16
-var_2: &browsers_docker_image circleci/node:10.16-browsers
+var_1: &default_docker_image circleci/node:12.14
+var_2: &browsers_docker_image circleci/node:12.14-browsers
 var_3: &cache_key node-0.16-{{ checksum "yarn.lock" }}-v2
 
 
