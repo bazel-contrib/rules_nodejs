@@ -2,19 +2,19 @@
 # yarn lockfile v1
 
 
-"@bazel/jasmine@^1.2.1":
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/@bazel/jasmine/-/jasmine-1.2.1.tgz#1da301b68f74387fbf92f568018d74d6a6df12a5"
-  integrity sha512-5XFOwbzHeRJWLRgxmUDUYtoR9ro88hsRRMbR5+QyHUpEDz9JepJPf0YEtztqCMgWhdC+CxWb83KURHsunD/79w==
+"@bazel/jasmine@^1.2.2":
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/@bazel/jasmine/-/jasmine-1.2.2.tgz#0fc9b0084b38311cf59c825a7dda8c6421351379"
+  integrity sha512-fFTWtxj8KWBPC1Gcl+uD641dEQwkVCclGCtpqIhogq+cZQDJk3/pc3qfVDGXjLKIRr7BId+Tnu5Y2sc+zdKeSg==
   dependencies:
     jasmine "~3.4.0"
     jasmine-core "~3.4.0"
     v8-coverage "1.0.9"
 
-"@bazel/typescript@^1.2.1":
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-1.2.1.tgz#a83ecebe48f32c2443879a85f0766dab386ff9d3"
-  integrity sha512-RKgOWos1Ya7XoSUZOV/A8+LS4ZmCvIXv363w4xNdObKjwKFqSdOfsS+uYaVr8g5e0T24jl52QnbdS7i0eUJBqA==
+"@bazel/typescript@^1.2.2":
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-1.2.2.tgz#9acb8e07d1bd2b5d9c7afd01b434687b277f9dcb"
+  integrity sha512-qEkkkLOsKvcTvyToiMLVTU67iEHTOzVUIJGDo3+7g8vRL4OqG9EWk0ooNzVLWZ129Caz9TyVyleh1RhuReJWOw==
   dependencies:
     protobufjs "6.8.8"
     semver "5.6.0"
