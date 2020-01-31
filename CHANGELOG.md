@@ -7,15 +7,6 @@
 
 
 
-## [1.2.3](https://github.com/bazelbuild/rules_nodejs/compare/1.2.2...1.2.3) (2020-01-31)
-
-
-### Bug Fixes
-
-* **builtin:** fix logic error in linker conflict resolution ([#1597](https://github.com/bazelbuild/rules_nodejs/issues/1597)) ([b864223](https://github.com/bazelbuild/rules_nodejs/commit/b864223))
-
-
-
 ## [1.2.2](https://github.com/bazelbuild/rules_nodejs/compare/1.2.1...1.2.2) (2020-01-31)
 
 
