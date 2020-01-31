@@ -15,7 +15,7 @@
 
 load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "JSEcmaScriptModuleInfo", "JSNamedModuleInfo")
 
-def _run_pbjs(actions, executable, var, output_name, proto_files, suffix = ".js", wrap = "amd", amd_name = ""):
+def _run_pbjs(actions, executable, var, output_name, proto_files, suffix = ".js", wrap = "default", amd_name = ""):
     js_file = actions.declare_file(output_name + suffix)
 
     # Create an intermediate file so that we can do some manipulation of the
