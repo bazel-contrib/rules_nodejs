@@ -3,6 +3,8 @@
 This package allows users to have a very simple quickstart to get up and running with Bazel via npm or yarn.
 
 ```bash
+$ npx @bazel/create
+# or
 $ yarn create @bazel
 # or
 $ npm init @bazel

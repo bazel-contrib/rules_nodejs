@@ -654,31 +654,10 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@bazel/bazel-darwin_x64@2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@bazel/bazel-darwin_x64/-/bazel-darwin_x64-2.0.0.tgz#bd678069216dd470c6816a22c405f21e7f048038"
-  integrity sha512-I/pP+B+2xfY0g+OEpEcVnk8rizuC761pAzBOQjP3b+gz3AzeRgm05CpcSY7tfPIppMSYoy3uTZJ1XlwgUg7IQQ==
-
-"@bazel/bazel-linux_x64@2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@bazel/bazel-linux_x64/-/bazel-linux_x64-2.0.0.tgz#2c76e3301e9178a90ec3ad00649e89b953eda0b7"
-  integrity sha512-iOr45G+511IbP7e+ISriG97WpfCAVXekTrTgL5mGg3NDBFCVNs350VquHAvmlXAoP5+IEug2pCOlkdEl4bLl8g==
-
-"@bazel/bazel-win32_x64@2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@bazel/bazel-win32_x64/-/bazel-win32_x64-2.0.0.tgz#f12ac0738d2eac0fd255f099776194807cedfe50"
-  integrity sha512-5qs2qoa/paG/YYEM0yvrwuJIShoPVK2FX+Oz9jEWAQJsmU4drHA9Aq+gbBOirEFLmvYhleZ9XORCwu/5uAo8vA==
-
-"@bazel/bazel@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@bazel/bazel/-/bazel-2.0.0.tgz#feb8cf5a40ea6437ef69cac2a92072118b11c230"
-  integrity sha512-KQbv5dHNSfutbhXCc3KVMuBXPpUh6Af/hT9IRIaMTuiB6Nq2gEW9Z3aNqncopdZqV848V/qYxnqPnQ+S37fMyQ==
-  dependencies:
-    "@bazel/hide-bazel-files" latest
-  optionalDependencies:
-    "@bazel/bazel-darwin_x64" "2.0.0"
-    "@bazel/bazel-linux_x64" "2.0.0"
-    "@bazel/bazel-win32_x64" "2.0.0"
+"@bazel/bazelisk@^1.3.0":
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/@bazel/bazelisk/-/bazelisk-1.3.0.tgz#dc312dd30ad01e9af86e53b40795ab6e545fa55b"
+  integrity sha512-73H1nq3572tTf+dhDT86aWQN+LCyfxrh05jabqPXp6cpR8soxte3gS5oUqkN36fUe+J2HzNiV4CXZTz4Xytd3Q==
 
 "@bazel/buildifier-darwin_x64@0.26.0":
   version "0.26.0"
@@ -730,11 +709,6 @@
 
 "@bazel/hide-bazel-files@file:./packages/hide-bazel-files":
   version "0.0.0-PLACEHOLDER"
-
-"@bazel/hide-bazel-files@latest":
-  version "0.36.0"
-  resolved "https://registry.yarnpkg.com/@bazel/hide-bazel-files/-/hide-bazel-files-0.36.0.tgz#3fb7c7c5f579f46dd1efd1b3890f11351aa8e65c"
-  integrity sha512-RgJWR1rOgyU4smruUK3MFA06DKt3AFCcfi9L8u/h11EjOrfLJgnzBJIGDXvW2zzhgnEJ9RRafOUHKN6blDksGg==
 
 "@bazel/ibazel@^0.10.3":
   version "0.10.3"

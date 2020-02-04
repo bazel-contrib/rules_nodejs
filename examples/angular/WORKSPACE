@@ -33,20 +33,7 @@ http_archive(
 )
 
 # Check the bazel version and download npm dependencies
-load("@build_bazel_rules_nodejs//:index.bzl", "check_bazel_version", "yarn_install")
-
-# Bazel version must be at least the following version because:
-#   - 0.27.0 Adds managed directories support
-check_bazel_version(
-    message = """
-You no longer need to install Bazel on your machine.
-Angular has a dependency on the @bazel/bazel package which supplies it.
-Try running `yarn bazel` instead.
-    (If you did run that, check that you've got a fresh `yarn install`)
-
-""",
-    minimum_bazel_version = "0.27.0",
-)
+load("@build_bazel_rules_nodejs//:index.bzl", "yarn_install")
 
 # Setup the Node.js toolchain & install our npm dependencies into @npm
 yarn_install(

@@ -58,8 +58,8 @@ var_6: &init_bazel
   run:
     name: Initializing Bazel
     command: |
-      # Symlink fetched bazel to /usr/local/bin/bazel
-      pathToBazel=$(ls $(realpath ./node_modules/@bazel/bazel-linux_x64)/bazel-*)
+      # Symlink fetched bazelisk to /usr/local/bin/bazel
+      pathToBazel=$(realpath ./node_modules/@bazel/bazelisk/bazelisk-linux_amd64)
       sudo ln -fs $pathToBazel /usr/local/bin/bazel
       echo "Bazel version:"
       bazel version

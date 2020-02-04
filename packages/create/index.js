@@ -98,7 +98,7 @@ function main(argv, error = console.error, log = console.log) {
   }
 
   const devDependencies = {
-    '@bazel/bazel': 'latest',
+    '@bazel/bazelisk': 'latest',
     '@bazel/ibazel': 'latest',
     '@bazel/buildifier': 'latest',
   };
@@ -184,8 +184,8 @@ ts_setup_workspace()`;
             private: true,
             devDependencies,
             scripts: {
-              'build': 'bazel build //...',
-              'test': 'bazel test //...',
+              'build': 'bazelisk build //...',
+              'test': 'bazelisk test //...',
             }
           },
           null, 4));
@@ -197,6 +197,8 @@ node_modules`);
   try {
     const rc = require.resolve('./common.bazelrc');
     write('.bazelrc', fs.readFileSync(rc));
+    const version = require.resolve('./.bazelversion');
+    write('.bazelversion', fs.readFileSync(version));
   } catch (_) {
     // but running locally against sources, it's in the root of the repo two directories up
     if (fs.existsSync('../../common.bazelrc')) {
@@ -204,6 +206,7 @@ node_modules`);
     } else {
       error('ERROR: missing common.bazelrc file, continuing with no bazel settings...');
     }
+    write('.bazelversion', 'latest');
   }
 
   log(`Successfully created new Bazel workspace at ${path.resolve(wkspDir)}`);

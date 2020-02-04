@@ -43,8 +43,11 @@ if (exitCode != 0) {
   fail('should exit 0 on success')
 }
 const projFiles = fs.readdirSync('some_project');
-if (!projFiles.indexOf('.bazelrc') < 0) {
+if (projFiles.indexOf('.bazelrc') < 0) {
   fail('project should have .bazelrc');
+}
+if (projFiles.indexOf('.bazelversion') < 0) {
+  fail('project should have .bazelversion');
 }
 let wkspContent = read('some_project/WORKSPACE.bazel');
 if (wkspContent.indexOf('npm_install(') < 0) {

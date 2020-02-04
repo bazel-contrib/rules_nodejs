@@ -8,6 +8,12 @@ copy_file(
     out = "common.bazelrc",
 )
 
+copy_file(
+    name = "copy_bazelversion",
+    src = "//:.bazelversion",
+    out = ".bazelversion",
+)
+
 pkg_npm(
     name = "npm_package",
     srcs = [
@@ -17,6 +23,7 @@ pkg_npm(
     ],
     deps = [
         ":copy_bazelrc",
+        ":copy_bazelversion",
     ],
 )
 
