@@ -92,7 +92,7 @@ sh_test(
     ],
 )
 
-# Test what happens when we depend on the catch-all "node_modules" rule rather
+# Test what happens when we depend on the catch-all "node_modules" target rather
 # than declare our dependencies on individual npm packages.
 # This is the legacy behavior prior to 0.13, so it also proves backwards-compatibility.
 [jasmine_node_test(
@@ -128,8 +128,8 @@ sh_test(
         "@fine_grained_deps_%s//ajv" % pkgmgr,
         "@fine_grained_deps_%s//typescript" % pkgmgr,
         "@fine_grained_deps_%s//rxjs" % pkgmgr,
-        # Note, test-b depends on test-a@0.0.1 which should get
-        # hoisted to node_modules/test-b/node_modules/test-a
+        # Note, test-b depends on test-a@0.0.1 which should be
+        # layed out at node_modules/test-b/node_modules/test-a
         "@fine_grained_deps_%s//@gregmagolan/test-b" % pkgmgr,
     ],
 ) for pkgmgr in [
