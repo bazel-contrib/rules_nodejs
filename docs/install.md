@@ -7,16 +7,17 @@ stylesheet: docs
 ## Custom installation
 
 First, you need Bazel.
-We recommend fetching it from npm to keep your frontend workflow similar.
+We recommend using Bazelisk, which is a version-selection wrapper, similar to
+the `nvm` tool managing your version of Node. This is available on npm.
 
 ```sh
-$ yarn add -D @bazel/bazel @bazel/ibazel
+$ yarn add -D @bazel/bazelisk @bazel/ibazel
 # or
-$ npm install --save-dev @bazel/bazel @bazel/ibazel
+$ npm install --save-dev @bazel/bazelisk @bazel/ibazel
 ```
 
 > You could install a current bazel distribution, following the [bazel instructions].
-> This has the advantage of setting up Bazel command-line completion.
+> If you use Bazelisk, see [this workaround](https://github.com/bazelbuild/bazelisk/issues/29#issuecomment-478062147) to get working command-line completion.
 
 Next, create a `WORKSPACE` file in your project root (or edit the existing one)
 containing:

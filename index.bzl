@@ -93,8 +93,8 @@ VERSION = "1.2.4"
 # against. It is also the version used when testing nested workspaces with
 # bazel_integration_test. In the future, after an LTS version of Bazel is released
 # we will test against multiple versions.
-# This version should be updated together with the version of the @bazel/bazel
-# package in package.json. This is asserted in //internal:package_json_test.
+# This version should be updated together with the version of the Bazel
+# in .bazelversion. This is asserted in //internal:bazel_version_test.
 BAZEL_VERSION = "2.0.0"
 
 def check_rules_nodejs_version(minimum_version_string):

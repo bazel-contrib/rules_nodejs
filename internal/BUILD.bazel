@@ -24,9 +24,9 @@ filegroup(
 )
 
 nodejs_test(
-    name = "package_json_test",
-    data = ["//:package.json"],
-    entry_point = ":check_package_json.js",
+    name = "bazel_version_test",
+    data = ["//:.bazelversion"],
+    entry_point = ":check_bazel_version.js",
     templated_args = [BAZEL_VERSION],
 )
 

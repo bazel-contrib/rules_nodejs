@@ -30,6 +30,7 @@ codeowners(
 
 # END-INTERNAL
 exports_files([
+    ".bazelversion",
     "common.bazelrc",
     "tsconfig.json",
     "package.json",

@@ -20,14 +20,14 @@ const args = process.argv.slice(2);
 
 const BAZEL_VERSION = args[0];
 
-const packageJson = require('build_bazel_rules_nodejs/package.json');
+const version =
+    require('fs')
+        .readFileSync(require.resolve('build_bazel_rules_nodejs/.bazelversion'), 'utf-8')
+        .trim();
 
-// Test that the BAZEL_VERSION defined in //:index.bzl is in sync with the @bazel/bazel
-// version in //:pacakge.json
-if (packageJson['devDependencies']['@bazel/bazel'] !== `^${BAZEL_VERSION}`) {
-  console.error(`package.json @bazel/bazel '${
-      packageJson['devDependencies']
-                 ['@bazel/bazel']}' does not match ^BAZEL_VERSION in //:index.bzl '^${
-      BAZEL_VERSION}'`);
+// Test that the BAZEL_VERSION defined in //:index.bzl is in sync with .bazelversion
+if (version !== BAZEL_VERSION) {
+  console.error(
+      `.bazelversion '${version}' does not match BAZEL_VERSION in //:index.bzl '${BAZEL_VERSION}'`);
   process.exitCode = 1;
 }

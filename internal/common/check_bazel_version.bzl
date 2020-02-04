@@ -29,14 +29,12 @@ def check_bazel_version(minimum_bazel_version, message = ""):
     """
     Verify the users Bazel version is at least the given one.
 
-    This should be called from the `WORKSPACE` file so that the build fails as
-    early as possible. For example:
+    This can be used in rule implementations that depend on changes in Bazel,
+    to warn users about a mismatch between the rule and their installed Bazel
+    version.
 
-    ```
-    # in WORKSPACE:
-    load("@build_bazel_rules_nodejs//:index.bzl", "check_bazel_version")
-    check_bazel_version("0.26.0")
-    ```
+    This should *not* be used in users WORKSPACE files. To locally pin your
+    Bazel version, just create the .bazelversion file in your workspace.
 
     Args:
       minimum_bazel_version: a string indicating the minimum version
