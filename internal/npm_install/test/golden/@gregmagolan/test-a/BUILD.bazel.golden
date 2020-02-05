@@ -11,23 +11,30 @@ filegroup(
 )
 filegroup(
     name = "test-a__nested_node_modules",
+    visibility = ["//:__subpackages__"],
+)
+filegroup(
+    name = "test-a__not_files",
+    srcs = [
+        "//:node_modules/@gregmagolan/test-a/filename with spaces.js",
+        "//:node_modules/@gregmagolan/test-a/filenamË-with-unicodË-chars.js",
+    ],
     visibility = ["//visibility:private"],
 )
 filegroup(
     name = "test-a__all_files",
-    srcs = [":test-a__files", ":test-a__nested_node_modules"],
-    visibility = ["//:__subpackages__"],
+    srcs = [":test-a__files", ":test-a__not_files"],
 )
 node_module_library(
     name = "test-a",
-    srcs = [":test-a__all_files"],
+    srcs = [":test-a__files"],
     deps = [
         "//@gregmagolan/test-a:test-a__contents",
     ],
 )
 node_module_library(
     name = "test-a__contents",
-    srcs = [":test-a__all_files"],
+    srcs = [":test-a__files", ":test-a__nested_node_modules"],
     visibility = ["//:__subpackages__"],
 )
 node_module_library(

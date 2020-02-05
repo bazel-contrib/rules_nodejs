@@ -227,6 +227,16 @@ yarn_install(
 
 yarn_install(
     name = "fine_grained_goldens",
+    included_files = [
+        "",
+        ".js",
+        ".jst",
+        ".ts",
+        ".map",
+        ".d.ts",
+        ".json",
+        ".proto",
+    ],
     manual_build_file_contents = """
 filegroup(
   name = "golden_files",

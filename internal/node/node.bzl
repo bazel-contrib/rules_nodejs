@@ -148,6 +148,8 @@ def _nodejs_binary_impl(ctx):
     node_modules_manifest = write_node_modules_manifest(ctx)
     node_modules_depsets = []
     node_modules_depsets.append(depset(ctx.files.node_modules))
+    if NpmPackageInfo in ctx.attr.node_modules:
+        node_modules_depsets.append(ctx.attr.node_modules[NpmPackageInfo].sources)
 
     # Also include files from npm fine grained deps as inputs.
     # These deps are identified by the NpmPackageInfo provider.

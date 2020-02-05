@@ -902,6 +902,11 @@
   dependencies:
     find-up "^4.0.0"
 
+"@gregmagolan/test-a@0.0.5":
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/@gregmagolan/test-a/-/test-a-0.0.5.tgz#70133ee86d5fd41d7a7bea425275813240ed7e65"
+  integrity sha512-3lapkuCUxoMicBemybiuBdCSMsU3A6RugvFTMlZr7feTw7RHUeal7U52Ys71jAz/Vk+LbSb6FZYP+TFe5/0bwA==
+
 "@marionebl/sander@^0.6.0":
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/@marionebl/sander/-/sander-0.6.1.tgz#1958965874f24bc51be48875feb50d642fc41f7b"

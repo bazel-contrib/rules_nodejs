@@ -6,7 +6,6 @@ filegroup(
     srcs = [
         "//:node_modules/@angular/core/ANGULAR_PACKAGE",
         "//:node_modules/@angular/core/BUILD_INFO",
-        "//:node_modules/@angular/core/README.md",
         "//:node_modules/@angular/core/bundles/core-testing.umd.js",
         "//:node_modules/@angular/core/bundles/core-testing.umd.js.map",
         "//:node_modules/@angular/core/bundles/core-testing.umd.min.js",
@@ -666,16 +665,22 @@ filegroup(
 )
 filegroup(
     name = "core__nested_node_modules",
+    visibility = ["//:__subpackages__"],
+)
+filegroup(
+    name = "core__not_files",
+    srcs = [
+        "//:node_modules/@angular/core/README.md",
+    ],
     visibility = ["//visibility:private"],
 )
 filegroup(
     name = "core__all_files",
-    srcs = [":core__files", ":core__nested_node_modules"],
-    visibility = ["//:__subpackages__"],
+    srcs = [":core__files", ":core__not_files"],
 )
 node_module_library(
     name = "core",
-    srcs = [":core__all_files"],
+    srcs = [":core__files"],
     deps = [
         "//@angular/core:core__contents",
         "//tslib:tslib__contents",
@@ -685,7 +690,7 @@ node_module_library(
 )
 node_module_library(
     name = "core__contents",
-    srcs = [":core__all_files"],
+    srcs = [":core__files", ":core__nested_node_modules"],
     named_module_srcs = [
         "//:node_modules/@angular/core/bundles/core-testing.umd.js",
         "//:node_modules/@angular/core/bundles/core.umd.js",
