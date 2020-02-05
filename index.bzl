@@ -89,13 +89,21 @@ def yarn_install(**kwargs):
 # process. See `Releasing` section in README.md.
 VERSION = "1.2.4"
 
-# Currently supported Bazel version. This version is what he rules here are tested
-# against. It is also the version used when testing nested workspaces with
-# bazel_integration_test. In the future, after an LTS version of Bazel is released
-# we will test against multiple versions.
+# Currently used Bazel version. This version is what the rules here are tested
+# against.
 # This version should be updated together with the version of the Bazel
 # in .bazelversion. This is asserted in //internal:bazel_version_test.
-BAZEL_VERSION = "2.0.0"
+BAZEL_VERSION = "2.1.0rc4"
+
+# Versions of Bazel which users should be able to use.
+# Ensures we don't break backwards-compatibility,
+# accidentally forcing users to update their LTS-supported bazel.
+# These are the versions used when testing nested workspaces with
+# bazel_integration_test.
+SUPPORTED_BAZEL_VERSIONS = [
+    # TODO: add LTS versions of bazel like 1.0.0, 2.0.0
+    BAZEL_VERSION,
+]
 
 def check_rules_nodejs_version(minimum_version_string):
     """

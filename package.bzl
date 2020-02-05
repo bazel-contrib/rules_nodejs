@@ -87,6 +87,7 @@ def rules_nodejs_dev_dependencies():
 
     http_archive(
         name = "build_bazel_integration_testing",
+        patches = ["//:bazel-integration-testing.patch"],
         urls = [
             "https://mirror.bazel.build/github.com/bazelbuild/bazel-integration-testing/archive/922d2b04bfb9721ab14ff6d26d4a8a6ab847aa07.zip",
             "https://github.com/bazelbuild/bazel-integration-testing/archive/922d2b04bfb9721ab14ff6d26d4a8a6ab847aa07.zip",

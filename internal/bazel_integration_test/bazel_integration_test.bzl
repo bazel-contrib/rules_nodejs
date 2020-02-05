@@ -15,11 +15,11 @@
 """Bazel integration testing
 """
 
-load("@build_bazel_rules_nodejs//:index.bzl", "BAZEL_VERSION")
+load("@build_bazel_rules_nodejs//:index.bzl", "SUPPORTED_BAZEL_VERSIONS")
 load("@build_bazel_rules_nodejs//packages:index.bzl", "NPM_PACKAGES")
 load("//internal/common:windows_utils.bzl", "BATCH_RLOCATION_FUNCTION", "is_windows")
 
-BAZEL_BINARY = "@build_bazel_bazel_%s//:bazel_binary" % BAZEL_VERSION.replace(".", "_")
+BAZEL_BINARY = "@build_bazel_bazel_%s//:bazel_binary" % SUPPORTED_BAZEL_VERSIONS[0].replace(".", "_")
 
 # Avoid using non-normalized paths (workspace/../other_workspace/path)
 def _to_manifest_path(ctx, file):
@@ -29,6 +29,10 @@ def _to_manifest_path(ctx, file):
         return ctx.workspace_name + "/" + file.short_path
 
 def _bazel_integration_test(ctx):
+    if len(SUPPORTED_BAZEL_VERSIONS) > 1:
+        fail("""
+        bazel_integration_test doesn't support multiple Bazel versions to test against yet.
+        """)
     if len(ctx.files.workspace_files) == 0:
         fail("""
 No files were found to run under integration testing. See comment in /.bazelrc.
