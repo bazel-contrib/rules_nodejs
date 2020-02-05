@@ -20,10 +20,23 @@ exports.config = {
   },
   capabilities: {
     browserName: 'chrome',
-    pageLoadStrategy: 'normal',
     chromeOptions: {
+      // `--no-sandbox` flag disables the chrome sandbox because it causes Chrome to crash on some
+      // environments
+      // http://chromedriver.chromium.org/help/chrome-doesn-t-start
+      // https://github.com/puppeteer/puppeteer/blob/v1.0.0/docs/troubleshooting.md#chrome-headless-fails-due-to-sandbox-issues
+      // `--headess` flag runs the browser in headless mode
+      // `--disable-gpu` flag disables GPU usage because it causes Chrome to crash on some
+      // environments
+      // `--disable-dev-shm-usage` flag disables the usage of `/dev/shm` because it causes Chrome to
+      // crash on some environments.
+      // https://github.com/puppeteer/puppeteer/blob/v1.0.0/docs/troubleshooting.md#tips
+      // https://stackoverflow.com/questions/50642308/webdriverexception-unknown-error-devtoolsactiveport-file-doesnt-exist-while-t
+      // `--hide-scrollbars` flag comes from puppeteer headless mode defaults
+      // `--mute-audio` flag comes from puppeteer headless mode defaults
       args: [
-        '--headless', '--disable-gpu', '--window-size=800,600', '--debuggerAddress=127.0.0.1:12633'
+        '--no-sandbox', '--headless', '--disable-gpu', '--disable-dev-shm-usage',
+        '--hide-scrollbars', '--mute-audio'
       ]
     }
   }
