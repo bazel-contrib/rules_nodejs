@@ -3540,11 +3540,12 @@ hosted-git-info@^2.1.4, hosted-git-info@^2.6.0, hosted-git-info@^2.7.1:
   resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-2.8.5.tgz#759cfcf2c4d156ade59b0b2dfabddc42a6b9c70c"
   integrity sha512-kssjab8CvdXfcXMXVcvsXum4Hwdq9XGtRD3TteMEvEbq0LXyiNQr6AprqKqfeaDXze7SxWvRxdpwE6ku7ikLkg==
 
-html-insert-assets@^0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/html-insert-assets/-/html-insert-assets-0.4.0.tgz#34a6e1daff93adb5fa15562696095032fdab89cb"
-  integrity sha512-BjCVzZi9hWxSzs/XYMTiWXnX/UyhkhSlNbI9xiR0J/4YGv8foj9a1HkK8Lb3V0Tm/TjaeOCWM8b8mMIdVrEtfA==
+html-insert-assets@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/html-insert-assets/-/html-insert-assets-0.5.0.tgz#c9bed8f04689c9aad3f2be26077a9e05e678dee5"
+  integrity sha512-HFvbKEkQOUZZkYLOAcMJKxpT7U16wPhIsnHAY1XXtTWR4urusQeRFgkONw3HdAQbKPtONOldq/Nse9KEZyYuqQ==
   dependencies:
+    mkdirp "^0.5.1"
     parse5 "^5.1.1"
 
 http-cache-semantics@^3.8.1:
