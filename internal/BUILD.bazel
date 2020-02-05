@@ -25,7 +25,10 @@ filegroup(
 
 nodejs_test(
     name = "bazel_version_test",
-    data = ["//:.bazelversion"],
+    data = [
+        "//:.bazelci/presubmit.yml",
+        "//:.bazelversion",
+    ],
     entry_point = ":check_bazel_version.js",
     templated_args = [BAZEL_VERSION],
 )

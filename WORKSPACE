@@ -21,7 +21,7 @@ workspace(
 )
 
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
-load("//:index.bzl", "BAZEL_VERSION")
+load("//:index.bzl", "BAZEL_VERSION", "SUPPORTED_BAZEL_VERSIONS")
 
 #
 # Nested package workspaces required to build packages & reference rules
@@ -285,7 +285,7 @@ rbe_autoconfig(
 load("@build_bazel_integration_testing//tools:repositories.bzl", "bazel_binaries")
 
 # Depend on the Bazel binaries
-bazel_binaries(versions = [BAZEL_VERSION])
+bazel_binaries(versions = SUPPORTED_BAZEL_VERSIONS)
 
 # Install labs dependencies
 load("@npm_bazel_labs//:package.bzl", "npm_bazel_labs_dependencies")

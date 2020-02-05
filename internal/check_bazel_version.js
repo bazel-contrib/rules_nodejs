@@ -16,18 +16,23 @@
  */
 'use strict';
 
+const fs = require('fs');
 const args = process.argv.slice(2);
 
 const BAZEL_VERSION = args[0];
 
 const version =
-    require('fs')
-        .readFileSync(require.resolve('build_bazel_rules_nodejs/.bazelversion'), 'utf-8')
-        .trim();
+    fs.readFileSync(require.resolve('build_bazel_rules_nodejs/.bazelversion'), 'utf-8').trim();
+const bazelci_version =
+    fs.readFileSync(require.resolve('build_bazel_rules_nodejs/.bazelci/presubmit.yml'), 'utf-8')
+        .split('\n')
+        .find(v => v.startsWith('bazel:'));
 
-// Test that the BAZEL_VERSION defined in //:index.bzl is in sync with .bazelversion
-if (version !== BAZEL_VERSION) {
-  console.error(
-      `.bazelversion '${version}' does not match BAZEL_VERSION in //:index.bzl '${BAZEL_VERSION}'`);
+// Test that the BAZEL_VERSION defined in //:index.bzl is in sync with .bazelversion and .bazelci
+if (version !== BAZEL_VERSION || bazelci_version.split(':')[1].trim() !== BAZEL_VERSION) {
+  console.error(`Bazel versions do not match.
+      //:index.bzl BAZEL_VERSION='${BAZEL_VERSION}'
+      //:.bazelversion '${version}'
+      //:.bazelci/presubmit.yml '${bazelci_version}'`);
   process.exitCode = 1;
 }

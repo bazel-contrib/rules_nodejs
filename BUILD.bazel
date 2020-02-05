@@ -30,6 +30,7 @@ codeowners(
 
 # END-INTERNAL
 exports_files([
+    ".bazelci/presubmit.yml",
     ".bazelversion",
     "common.bazelrc",
     "tsconfig.json",
