@@ -70,6 +70,10 @@ If symlink_node_modules is True, this attribute is ignored since
 the dependency manager will run in the package.json location.
 """,
     ),
+    "environment": attr.string_dict(
+        doc = """Environment variables to set before calling the package manager.""",
+        default = {},
+    ),
     "included_files": attr.string_list(
         doc = """List of file extensions to be included in the npm package targets.
 
@@ -263,11 +267,17 @@ cd "{root}" && "{npm}" {npm_args}
     if result.return_code:
         fail("pre_process_package_json.js failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
 
+    env = dict(repository_ctx.attr.environment)
+    env_key = "BAZEL_NPM_INSTALL"
+    if env_key not in env.keys():
+        env[env_key] = "1"
+
     repository_ctx.report_progress("Running npm install on %s" % repository_ctx.attr.package_json)
     result = repository_ctx.execute(
         [repository_ctx.path("_npm.cmd" if is_windows_host else "_npm.sh")],
         timeout = repository_ctx.attr.timeout,
         quiet = repository_ctx.attr.quiet,
+        environment = env,
     )
 
     if result.return_code:
@@ -303,7 +313,11 @@ See npm CLI docs https://docs.npmjs.com/cli/install.html for complete list of su
             allow_single_file = True,
         ),
     }),
-    doc = "Runs npm install during workspace setup.",
+    doc = """Runs npm install during workspace setup.
+
+This rule will set the environment variable `BAZEL_NPM_INSTALL` to '1' (unless it
+set to another value in the environment attribute). Scripts may use to this to 
+check if yarn is being run by the `npm_install` repository rule.""",
     implementation = _npm_install_impl,
 )
 
@@ -390,11 +404,17 @@ cd "{root}" && "{yarn}" {yarn_args}
     if result.return_code:
         fail("pre_process_package_json.js failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
 
+    env = dict(repository_ctx.attr.environment)
+    env_key = "BAZEL_YARN_INSTALL"
+    if env_key not in env.keys():
+        env[env_key] = "1"
+
     repository_ctx.report_progress("Running yarn install on %s" % repository_ctx.attr.package_json)
     result = repository_ctx.execute(
         [repository_ctx.path("_yarn.cmd" if is_windows_host else "_yarn.sh")],
         timeout = repository_ctx.attr.timeout,
         quiet = repository_ctx.attr.quiet,
+        environment = env,
     )
     if result.return_code:
         fail("yarn_install failed: %s (%s)" % (result.stdout, result.stderr))
@@ -435,6 +455,10 @@ to yarn so that the local cache is contained within the external repository.
             allow_single_file = True,
         ),
     }),
-    doc = "Runs yarn install during workspace setup.",
+    doc = """Runs yarn install during workspace setup.
+
+This rule will set the environment variable `BAZEL_YARN_INSTALL` to '1' (unless it
+set to another value in the environment attribute). Scripts may use to this to 
+check if yarn is being run by the `yarn_install` repository rule.""",
     implementation = _yarn_install_impl,
 )
