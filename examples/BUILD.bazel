@@ -208,7 +208,9 @@ example_integration_test(
     bazel_commands = [
         "test ...",
     ],
-    npm_packages = {},
+    npm_packages = {
+        "//packages/hide-bazel-files:npm_package": "@bazel/hide-bazel-files",
+    },
     # windows fails CI with an error to do with a process fork not being able ot find node
     tags = ["fix-windows"],
 )
