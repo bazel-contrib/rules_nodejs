@@ -94,7 +94,7 @@ html_insert_assets(
         "--assets",
     ] + ["$(execpath %s)" % s for s in _ASSETS] + [
         # This file doesn't exist during the build, but will be served by ts_devserver
-        "_/ts_scripts.js",
+        "./_/ts_scripts.js",
     ],
     data = ["//src:example/index.html"] + _ASSETS,
 )
