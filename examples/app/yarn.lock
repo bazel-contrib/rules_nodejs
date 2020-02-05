@@ -589,11 +589,12 @@ he@^1.1.1:
   resolved "https://registry.yarnpkg.com/he/-/he-1.2.0.tgz#84ae65fa7eafb165fddb61566ae14baf05664f0f"
   integrity sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==
 
-html-insert-assets@^0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/html-insert-assets/-/html-insert-assets-0.4.0.tgz#34a6e1daff93adb5fa15562696095032fdab89cb"
-  integrity sha512-BjCVzZi9hWxSzs/XYMTiWXnX/UyhkhSlNbI9xiR0J/4YGv8foj9a1HkK8Lb3V0Tm/TjaeOCWM8b8mMIdVrEtfA==
+html-insert-assets@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/html-insert-assets/-/html-insert-assets-0.5.0.tgz#c9bed8f04689c9aad3f2be26077a9e05e678dee5"
+  integrity sha512-HFvbKEkQOUZZkYLOAcMJKxpT7U16wPhIsnHAY1XXtTWR4urusQeRFgkONw3HdAQbKPtONOldq/Nse9KEZyYuqQ==
   dependencies:
+    mkdirp "^0.5.1"
     parse5 "^5.1.1"
 
 http-proxy@^1.8.1:
@@ -848,7 +849,7 @@ minimist@~0.0.1:
   resolved "https://registry.yarnpkg.com/minimist/-/minimist-0.0.10.tgz#de3f98543dbf96082be48ad1a0c7cda836301dcf"
   integrity sha1-3j+YVD2/lggr5IrRoMfNqDYwHc8=
 
-mkdirp@0.5.x, mkdirp@^0.5.0, mkdirp@~0.5.x:
+mkdirp@0.5.x, mkdirp@^0.5.0, mkdirp@^0.5.1, mkdirp@~0.5.x:
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-0.5.1.tgz#30057438eac6cf7f8c4767f38648d6697d75c903"
   integrity sha1-MAV0OOrGz3+MR2fzhkjWaX11yQM=
