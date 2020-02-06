@@ -44,6 +44,5 @@ platforms:
     test_flags:
     - "--action_env=PATH"
     - "--test_env=PATH"
-    - "--incompatible_windows_native_test_wrapper"
     test_targets:
     - "..."
