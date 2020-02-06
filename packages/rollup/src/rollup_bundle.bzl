@@ -162,12 +162,6 @@ If the program produces multiple chunks, you must specify this attribute.
 Otherwise, the outputs are assumed to be a single file.
 """,
     ),
-    "rollup_bin": attr.label(
-        doc = "Target that executes the rollup binary",
-        executable = True,
-        cfg = "host",
-        default = "@npm//rollup/bin:rollup",
-    ),
     "sourcemap": attr.string(
         doc = """Whether to produce sourcemaps.
 
@@ -179,6 +173,12 @@ Passed to the [`--sourcemap` option](https://github.com/rollup/rollup/blob/maste
     "deps": attr.label_list(
         aspects = [module_mappings_aspect, node_modules_aspect],
         doc = """Other libraries that are required by the code, or by the rollup.config.js""",
+    ),
+    "_worker": attr.label(
+        default = "@build_bazel_rules_nodejs//internal/rollup:worker",
+        executable = True,
+        cfg = "host",
+        doc = "Internal use only",
     ),
 }
 
@@ -283,8 +283,13 @@ def _rollup_bundle(ctx):
     inputs = _filter_js(ctx.files.entry_point) + _filter_js(ctx.files.entry_points) + ctx.files.srcs + deps_inputs
     outputs = [getattr(ctx.outputs, o) for o in dir(ctx.outputs)]
 
-    # See CLI documentation at https://rollupjs.org/guide/en/#command-line-reference
+    # See API documentation at https://rollupjs.org/guide/en/#javascript-api
+    # CLI arguments to worker.js are prefixed with "output." or "input." to indicate
+    # if they are API input vs output options.
+    # Set to use a multiline param-file as worker.js expects.
     args = ctx.actions.args()
+    args.use_param_file("@%s", use_always = True)
+    args.set_param_file_format("multiline")
 
     # List entry point argument first to save some argv space
     # Rollup doc says
@@ -294,14 +299,15 @@ def _rollup_bundle(ctx):
     # If user requests an output_dir, then use output.dir rather than output.file
     if ctx.attr.output_dir:
         outputs.append(ctx.actions.declare_directory(ctx.label.name))
+        args.add("--entries")
         for entry_point in entry_points:
             args.add_joined([entry_point[1], entry_point[0]], join_with = "=")
         args.add_all(["--output.dir", outputs[0].path])
     else:
-        args.add(entry_points[0][0])
+        args.add_all(["--entry", entry_points[0][0]])
         args.add_all(["--output.file", outputs[0].path])
 
-    args.add_all(["--format", ctx.attr.format])
+    args.add_all(["--output.format", ctx.attr.format])
 
     stamp = ctx.attr.node_context_data[NodeContextInfo].stamp
 
@@ -320,22 +326,19 @@ def _rollup_bundle(ctx):
     if stamp:
         inputs.append(ctx.version_file)
 
-    # Prevent rollup's module resolver from hopping outside Bazel's sandbox
-    # When set to false, symbolic links are followed when resolving a file.
-    # When set to true, instead of being followed, symbolic links are treated as if the file is
-    # where the link is.
-    args.add("--preserveSymlinks")
-
     if (ctx.attr.sourcemap and ctx.attr.sourcemap != "false"):
-        args.add_all(["--sourcemap", ctx.attr.sourcemap])
+        args.add_all(["--output.sourcemap", ctx.attr.sourcemap])
 
     run_node(
         ctx,
-        progress_message = "Bundling JavaScript %s [rollup]" % outputs[0].short_path,
-        executable = "rollup_bin",
+        executable = "_worker",
         inputs = inputs,
         outputs = outputs,
         arguments = [args],
+        progress_message = "Bundling JavaScript %s [rollup]" % outputs[0].short_path,
+        mnemonic = "Rollup",
+        execution_requirements = {"supports-workers": "1"},
+        env = {"COMPILATION_MODE": ctx.var["COMPILATION_MODE"]},
     )
 
     return [

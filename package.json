@@ -17,6 +17,7 @@
         "@bazel/buildifier": "^0.26.0",
         "@bazel/buildozer": "^0.29.0",
         "@bazel/ibazel": "^0.10.3",
+        "@bazel/worker": "^1.2.4",
         "@commitlint/cli": "^8.0.0",
         "@commitlint/config-conventional": "^8.0.0",
         "@gregmagolan/test-a": "0.0.5",

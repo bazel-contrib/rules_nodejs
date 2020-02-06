@@ -712,6 +712,13 @@
   resolved "https://registry.yarnpkg.com/@bazel/ibazel/-/ibazel-0.10.3.tgz#2e2b8a1d3e885946eac41db2b1aa6801fb319887"
   integrity sha512-v1nXbMTHVlMM4z4uWp6XiRoHAyUlYggF1SOboLLWRp0+D22kWixqArWqnozLw2mOtnxr97BdLjluWiho6A8Hjg==
 
+"@bazel/worker@^1.2.4":
+  version "1.2.4"
+  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-1.2.4.tgz#663006946e9967ab5ea2557aeeb33b65d1fd6b50"
+  integrity sha512-sJazdO5TiKE7h4HJ+qjYCcECnN45rZnDJOnbmOdw9T+PwYwDcxCdpZGBRVCc54dqEdNQRFIUafCpa7/+vIa6Ww==
+  dependencies:
+    protobufjs "6.8.8"
+
 "@buxlabs/amd-to-es6@^0.12.0":
   version "0.12.5"
   resolved "https://registry.yarnpkg.com/@buxlabs/amd-to-es6/-/amd-to-es6-0.12.5.tgz#18c12479512ae09106fc6f60ad1b4b9eb8e8eb62"
