@@ -18,7 +18,6 @@ example_integration_test(
     name = "examples_angular",
     timeout = "long",
     npm_packages = {
-        "//packages/hide-bazel-files:npm_package": "@bazel/hide-bazel-files",
         "//packages/karma:npm_package": "@bazel/karma",
         "//packages/protractor:npm_package": "@bazel/protractor",
         "//packages/rollup:npm_package": "@bazel/rollup",
@@ -42,7 +41,6 @@ example_integration_test(
     name = "examples_angular_view_engine",
     timeout = "long",
     npm_packages = {
-        "//packages/hide-bazel-files:npm_package": "@bazel/hide-bazel-files",
         "//packages/karma:npm_package": "@bazel/karma",
         "//packages/protractor:npm_package": "@bazel/protractor",
         "//packages/rollup:npm_package": "@bazel/rollup",
@@ -74,7 +72,6 @@ example_integration_test(
 example_integration_test(
     name = "examples_app",
     npm_packages = {
-        "//packages/hide-bazel-files:npm_package": "@bazel/hide-bazel-files",
         "//packages/protractor:npm_package": "@bazel/protractor",
         "//packages/rollup:npm_package": "@bazel/rollup",
         "//packages/terser:npm_package": "@bazel/terser",
@@ -158,7 +155,6 @@ example_integration_test(
     name = "examples_protocol_buffers",
     timeout = "long",
     npm_packages = {
-        "//packages/hide-bazel-files:npm_package": "@bazel/hide-bazel-files",
         "//packages/karma:npm_package": "@bazel/karma",
         "//packages/labs:npm_package": "@bazel/labs",
         "//packages/protractor:npm_package": "@bazel/protractor",
@@ -208,9 +204,6 @@ example_integration_test(
     bazel_commands = [
         "test ...",
     ],
-    npm_packages = {
-        "//packages/hide-bazel-files:npm_package": "@bazel/hide-bazel-files",
-    },
     # windows fails CI with an error to do with a process fork not being able ot find node
     tags = ["fix-windows"],
 )

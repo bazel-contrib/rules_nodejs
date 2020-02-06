@@ -1,6 +1,9 @@
 # @bazel/hide-bazel-files
 
-A tool to hide Bazel files that may be shipped with some npm packages. Packages with these files cause build failures when used with `npm_install` or `yarn_install`.
+> This package is a workaround for an issue prior to Bazel 2.1.
+> If you are on Bazel 2.1 or later, you should not need this, because the `.bazelignore` file contains `node_modules` so that Bazel doesn't try to read packages from this directory.
+
+A tool to hide Bazel files that may be shipped with some npm packages. Packages with these files cause build failures when used with `npm_install` or `yarn_install` when used in Bazel 2.0 or earlier.
 
 This tool renames all `BUILD` and `BUILD.bazel` files under node_modules to `_BUILD` and `_BUILD.bazel` respectively.
 

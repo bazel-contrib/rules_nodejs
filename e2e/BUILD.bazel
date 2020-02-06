@@ -46,16 +46,10 @@ e2e_integration_test(
 
 e2e_integration_test(
     name = "e2e_symlinked_node_modules_npm",
-    npm_packages = {
-        "//packages/hide-bazel-files:npm_package": "@bazel/hide-bazel-files",
-    },
 )
 
 e2e_integration_test(
     name = "e2e_symlinked_node_modules_yarn",
-    npm_packages = {
-        "//packages/hide-bazel-files:npm_package": "@bazel/hide-bazel-files",
-    },
 )
 
 # terser rules are tested in the e2e_webapp
@@ -81,7 +75,6 @@ e2e_integration_test(
 e2e_integration_test(
     name = "e2e_ts_devserver",
     npm_packages = {
-        "//packages/hide-bazel-files:npm_package": "@bazel/hide-bazel-files",
         "//packages/protractor:npm_package": "@bazel/protractor",
         "//packages/typescript:npm_package": "@bazel/typescript",
     },

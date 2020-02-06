@@ -33,6 +33,9 @@ COMMON_ATTRIBUTES = dict(dict(), **{
     "always_hide_bazel_files": attr.bool(
         doc = """Always hide Bazel build files such as `BUILD` and BUILD.bazel` by prefixing them with `_`.
 
+This is only needed in Bazel 2.0 or earlier.
+We recommend upgrading to a later version to avoid the problem this works around.
+
 Defaults to False, in which case Bazel files are _not_ hidden when `symlink_node_modules`
 is True. In this case, the rule will report an error when there are Bazel files detected
 in npm packages.
@@ -146,6 +149,7 @@ def _create_build_files(repository_ctx, rule_type, node, lock_file):
         "1" if error_on_build_files else "0",
         repository_ctx.path(lock_file),
         ",".join(repository_ctx.attr.included_files),
+        native.bazel_version,
     ])
     if result.return_code:
         fail("generate_build_file.js failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))

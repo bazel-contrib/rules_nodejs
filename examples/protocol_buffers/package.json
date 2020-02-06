@@ -1,6 +1,5 @@
 {
   "devDependencies": {
-    "@bazel/hide-bazel-files": "^1.2.4",
     "@bazel/karma": "^1.2.4",
     "@bazel/labs": "^1.2.4",
     "@bazel/protractor": "^1.2.4",

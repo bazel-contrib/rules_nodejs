@@ -169,7 +169,6 @@ This can be used to verify that all npm package artifacts that need to be tested
 replaced in all integration tests. For example,
 ```
 check_npm_packages = [
-    "@bazel/hide-bazel-files",
     "@bazel/jasmine",
     "@bazel/karma",
     "@bazel/labs",

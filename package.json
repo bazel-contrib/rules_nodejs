@@ -16,7 +16,6 @@
         "@bazel/bazelisk": "^1.3.0",
         "@bazel/buildifier": "^0.26.0",
         "@bazel/buildozer": "^0.29.0",
-        "@bazel/hide-bazel-files": "file:./packages/hide-bazel-files",
         "@bazel/ibazel": "^0.10.3",
         "@commitlint/cli": "^8.0.0",
         "@commitlint/config-conventional": "^8.0.0",
