@@ -707,9 +707,6 @@
     "@bazel/buildozer-linux_x64" "0.29.0"
     "@bazel/buildozer-win32_x64" "0.29.0"
 
-"@bazel/hide-bazel-files@file:./packages/hide-bazel-files":
-  version "0.0.0-PLACEHOLDER"
-
 "@bazel/ibazel@^0.10.3":
   version "0.10.3"
   resolved "https://registry.yarnpkg.com/@bazel/ibazel/-/ibazel-0.10.3.tgz#2e2b8a1d3e885946eac41db2b1aa6801fb319887"

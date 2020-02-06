@@ -68,6 +68,7 @@ package(default_visibility = ["//visibility:public"])
     const ERROR_ON_BAZEL_FILES = parseInt(args[2]);
     const LOCK_FILE_PATH = args[3];
     const INCLUDED_FILES = args[4] ? args[4].split(',') : [];
+    const BAZEL_VERSION = args[5];
     if (require.main === module) {
         main();
     }
@@ -101,6 +102,8 @@ package(default_visibility = ["//visibility:public"])
         generateBazelWorkspaces(pkgs);
         // generate all BUILD files
         generateBuildFiles(pkgs);
+        // write a .bazelignore file
+        writeFileSync('.bazelignore', 'node_modules');
     }
     exports.main = main;
     /**
@@ -139,7 +142,9 @@ package(default_visibility = ["//visibility:public"])
                 // was not run.
                 if (!hasHideBazelFiles && ERROR_ON_BAZEL_FILES) {
                     console.error(`npm package '${pkg._dir}' from @${WORKSPACE} ${RULE_TYPE} rule
-has a Bazel BUILD file '${file}'. Use the @bazel/hide-bazel-files utility to hide these files.
+has a Bazel BUILD file '${file}'. We recommend updating to Bazel 2.1 or greater which ignores such files.
+
+If you can't update Bazel from ${BAZEL_VERSION}, you can use the @bazel/hide-bazel-files utility to hide these files.
 See https://github.com/bazelbuild/rules_nodejs/blob/master/packages/hide-bazel-files/README.md
 for installation instructions.`);
                     process.exit(1);
@@ -429,6 +434,12 @@ def _maybe(repo_rule, name, **kwargs):
             .filter(f => isDirectory(f));
         packages.forEach(f => {
             let hide = true;
+            // Starting in version 2.1, Bazel honors the .bazelignore file we wrote into the
+            // root of the external repository, and won't see BUILD files under node_modules
+            // This parsing of the version number isn't accurate in some cases
+            // (eg. install bazel from commit hash)
+            if (BAZEL_VERSION.startsWith('2.1'))
+                hide = false;
             if (fs.lstatSync(f).isSymbolicLink()) {
                 hide = false;
             }

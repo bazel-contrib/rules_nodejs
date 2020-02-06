@@ -1,6 +1,5 @@
 {
   "devDependencies": {
-    "@bazel/hide-bazel-files": "^1.2.4",
     "@bazel/protractor": "^1.2.4",
     "@bazel/rollup": "^1.2.4",
     "@bazel/terser": "^1.2.4",
