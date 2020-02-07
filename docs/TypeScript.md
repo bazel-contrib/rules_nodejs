@@ -96,6 +96,8 @@ alias(
 )
 ```
 
+Make sure to remove the `--noEmit` compiler option from your `tsconfig.json`. This is not compatible with the `ts_library` rule.
+
 
 ## Self-managed npm dependencies
 

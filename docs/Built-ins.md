@@ -594,11 +594,15 @@ Defaults to `[]`
 
 Runs npm install during workspace setup.
 
+This rule will set the environment variable `BAZEL_NPM_INSTALL` to '1' (unless it
+set to another value in the environment attribute). Scripts may use to this to 
+check if yarn is being run by the `npm_install` repository rule.
+
 
 ### Usage
 
 ```
-npm_install(name, always_hide_bazel_files, args, data, included_files, manual_build_file_contents, package_json, package_lock_json, quiet, symlink_node_modules, timeout)
+npm_install(name, always_hide_bazel_files, args, data, environment, included_files, manual_build_file_contents, package_json, package_lock_json, quiet, symlink_node_modules, timeout)
 ```
 
 
@@ -608,6 +612,9 @@ npm_install(name, always_hide_bazel_files, args, data, included_files, manual_bu
 
 #### `always_hide_bazel_files`
 (*Boolean*): Always hide Bazel build files such as `BUILD` and BUILD.bazel` by prefixing them with `_`.
+
+This is only needed in Bazel 2.0 or earlier.
+We recommend upgrading to a later version to avoid the problem this works around.
 
 Defaults to False, in which case Bazel files are _not_ hidden when `symlink_node_modules`
 is True. In this case, the rule will report an error when there are Bazel files detected
@@ -653,6 +660,11 @@ If symlink_node_modules is True, this attribute is ignored since
 the dependency manager will run in the package.json location.
 
 Defaults to `[]`
+
+#### `environment`
+(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): Environment variables to set before calling the package manager.
+
+Defaults to `{}`
 
 #### `included_files`
 (*List of strings*): List of file extensions to be included in the npm package targets.
@@ -881,11 +893,15 @@ Defaults to `[]`
 
 Runs yarn install during workspace setup.
 
+This rule will set the environment variable `BAZEL_YARN_INSTALL` to '1' (unless it
+set to another value in the environment attribute). Scripts may use to this to 
+check if yarn is being run by the `yarn_install` repository rule.
+
 
 ### Usage
 
 ```
-yarn_install(name, always_hide_bazel_files, args, data, included_files, manual_build_file_contents, package_json, quiet, symlink_node_modules, timeout, use_global_yarn_cache, yarn_lock)
+yarn_install(name, always_hide_bazel_files, args, data, environment, included_files, manual_build_file_contents, package_json, quiet, symlink_node_modules, timeout, use_global_yarn_cache, yarn_lock)
 ```
 
 
@@ -895,6 +911,9 @@ yarn_install(name, always_hide_bazel_files, args, data, included_files, manual_b
 
 #### `always_hide_bazel_files`
 (*Boolean*): Always hide Bazel build files such as `BUILD` and BUILD.bazel` by prefixing them with `_`.
+
+This is only needed in Bazel 2.0 or earlier.
+We recommend upgrading to a later version to avoid the problem this works around.
 
 Defaults to False, in which case Bazel files are _not_ hidden when `symlink_node_modules`
 is True. In this case, the rule will report an error when there are Bazel files detected
@@ -940,6 +959,11 @@ If symlink_node_modules is True, this attribute is ignored since
 the dependency manager will run in the package.json location.
 
 Defaults to `[]`
+
+#### `environment`
+(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): Environment variables to set before calling the package manager.
+
+Defaults to `{}`
 
 #### `included_files`
 (*List of strings*): List of file extensions to be included in the npm package targets.
@@ -1029,14 +1053,12 @@ Defaults to `True`
 
     Verify the users Bazel version is at least the given one.
 
-This should be called from the `WORKSPACE` file so that the build fails as
-early as possible. For example:
+This can be used in rule implementations that depend on changes in Bazel,
+to warn users about a mismatch between the rule and their installed Bazel
+version.
 
-```
-# in WORKSPACE:
-load("@build_bazel_rules_nodejs//:index.bzl", "check_bazel_version")
-check_bazel_version("0.26.0")
-```
+This should *not* be used in users WORKSPACE files. To locally pin your
+Bazel version, just create the .bazelversion file in your workspace.
 
 
 
