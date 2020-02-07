@@ -1,3 +1,22 @@
+# [1.3.0](https://github.com/bazelbuild/rules_nodejs/compare/1.2.4...1.3.0) (2020-02-07)
+
+
+### Bug Fixes
+
+* **builtin:** strip leading v prefix from stamp ([#1591](https://github.com/bazelbuild/rules_nodejs/issues/1591)) ([39bb821](https://github.com/bazelbuild/rules_nodejs/commit/39bb821))
+* angular example ts_scripts path in Windows ([30d0f37](https://github.com/bazelbuild/rules_nodejs/commit/30d0f37)), closes [#1604](https://github.com/bazelbuild/rules_nodejs/issues/1604)
+* html script injection is broken on windows ([7f7a45b](https://github.com/bazelbuild/rules_nodejs/commit/7f7a45b)), closes [#1604](https://github.com/bazelbuild/rules_nodejs/issues/1604)
+* unset YARN_IGNORE_PATH before calling yarn in [@nodejs](https://github.com/nodejs) targets ([aee3003](https://github.com/bazelbuild/rules_nodejs/commit/aee3003)), closes [#1588](https://github.com/bazelbuild/rules_nodejs/issues/1588)
+
+
+### Features
+
+* **builtin:** add environment attribute to yarn_install & npm_install ([#1596](https://github.com/bazelbuild/rules_nodejs/issues/1596)) ([87b2a64](https://github.com/bazelbuild/rules_nodejs/commit/87b2a64))
+* **builtin:** expose `@npm//foo__all_files` filegroup that includes all files in the npm package ([#1600](https://github.com/bazelbuild/rules_nodejs/issues/1600)) ([8d77827](https://github.com/bazelbuild/rules_nodejs/commit/8d77827))
+* **examples:** add protractor angular architect ([#1594](https://github.com/bazelbuild/rules_nodejs/issues/1594)) ([d420019](https://github.com/bazelbuild/rules_nodejs/commit/d420019))
+
+
+
 ## [1.2.4](https://github.com/bazelbuild/rules_nodejs/compare/1.2.2...1.2.4) (2020-01-31)
 
 
