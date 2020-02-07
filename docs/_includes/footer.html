@@ -62,6 +62,26 @@
       form.submit();
     };
 
+    function setAnchors() {
+      const headerSelectors = ['h1', 'h2', 'h3'];
+
+      headerSelectors.forEach(selector => {
+        const headers = document.querySelectorAll(selector)
+        headers.forEach(header => {
+          anchor = document.createElement('a');
+          // headers id's are already set by jykell
+          const id = header.getAttribute('id');
+          if(id) {
+            anchor.href = '#' + id;
+            anchor.innerText = '# '
+            header.prepend(anchor);
+          }
+        });
+
+      })
+      
+    }
+
     $(document).ready(function() {
       // Scroll to anchor of location hash, adjusted for fixed navbar.
       window.setTimeout(function() {
@@ -70,6 +90,9 @@
 
       // Highlight the current item on the sidebar.
       highlightCurrentSidebarNav();
+
+      // setup anchors
+      setAnchors();
 
       // Handler to capture the ENTER keypress for the CSE search input
       // in the page header and then call submitSearch() to submit the search
