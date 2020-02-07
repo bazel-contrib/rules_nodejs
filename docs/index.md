@@ -124,6 +124,35 @@ A Chrome DevTools window should open and you should see `Debugger attached.` in 
 
 See https://nodejs.org/en/docs/guides/debugging-getting-started/ for more details.
 
+### Debugging with VS Code
+
+With the above configuration you can use VS Code as your debugger.  
+You will first need to configure your `.vscode/launch.json`:
+
+```
+{
+      "type": "node",
+      "request": "attach",
+      "name": "Attach nodejs_binary",
+      "internalConsoleOptions": "neverOpen",
+      "sourceMapPathOverrides": {
+        "../*": "${workspaceRoot}/*",
+        "../../*": "${workspaceRoot}/*",
+        "../../../*": "${workspaceRoot}/*",
+        "../../../../*": "${workspaceRoot}/*",
+        "../../../../../*": "${workspaceRoot}/*",
+        // do as many levels here as needed for your project
+      }
+``` 
+We use `sourceMapPathOverrides` here to rewrite the source maps produced by `ts_library` so that breakpoints line up with the source maps.  
+Once configured start your process with
+```
+bazel run --config=debug //test:test1
+```
+Then hit `F5` which will start the VS Code debugger with the `Attach nodejs_binary` configuration.  
+VS Code will immediatenly hit a breakpoint to which you can continue and debug using all the normal debug features provided.
+
+
 ### Stamping
 
 Bazel is generally only a build tool, and is unaware of your version control system.
