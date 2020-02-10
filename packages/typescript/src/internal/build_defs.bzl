@@ -14,7 +14,7 @@
 
 "TypeScript compilation"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "NpmPackageInfo", "js_ecma_script_module_info", "js_named_module_info", "node_modules_aspect")
+load("@build_bazel_rules_nodejs//:providers.bzl", "NpmPackageInfo", "js_ecma_script_module_info", "js_named_module_info", "node_modules_aspect", "run_node")
 
 # pylint: disable=unused-argument
 # pylint: disable=missing-docstring
@@ -142,7 +142,8 @@ def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description 
         arguments.append(tsconfig_file.path)
         mnemonic = "tsc"
 
-    ctx.actions.run(
+    run_node(
+        ctx,
         progress_message = "Compiling TypeScript (%s) %s" % (description, ctx.label),
         mnemonic = mnemonic,
         inputs = action_inputs,
@@ -152,7 +153,7 @@ def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description 
         # See https://github.com/NixOS/nixpkgs/issues/43955#issuecomment-407546331
         use_default_shell_env = True,
         arguments = arguments,
-        executable = ctx.executable.compiler,
+        executable = "compiler",
         execution_requirements = {
             "supports-workers": str(int(ctx.attr.supports_workers)),
         },

@@ -55,7 +55,7 @@ pkg_npm(
         # Fix the require() statement that loads the worker_protocol.proto file
         # we are re-rooting the sources into the @bazel/worker package so it's no longer
         # relative to the build_bazel_rules_typescript workspace.
-        "build_bazel_rules_typescript": "@bazel/worker",
+        "../../third_party": "@bazel/worker/third_party",
     },
     deps = [
         ":copy_worker_dts",
