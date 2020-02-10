@@ -8,9 +8,9 @@ This repository contains nested workspaces which are tested with the bazel-in-ba
 
 `bazel test ...` includes all these integration tests so if you want to run all tests except the integration tests you can use `bazel test ... --test_tag_filters=-e2e,-examples`. A shortcut for this is `yarn test`.
 
-When running the e2e tests, it is recommended to tune the memory usage of Bazel locally. This can be done with `bazel --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1280m test ... --test_tag_filters=e2e --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,1.0,1.0`. A shortcut for this is `yarn test_e2e`.
+When running the e2e tests, it is recommended to tune the memory usage of Bazel locally. This can be done with `bazel --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1280m test ... --test_tag_filters=e2e --local_ram_resources=792 --test_arg=--local_ram_resources=13288`. A shortcut for this is `yarn test_e2e`.
 
-Similarly, for test examples run  `bazel --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1280m test ... --test_tag_filters=examples --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,1.0,1.0`. A shortcut for this is `yarn test_examples`.
+Similarly, for test examples run  `bazel --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1280m test ... --test_tag_filters=examples --local_ram_resources=792 --test_arg=--local_ram_resources=13288`. A shortcut for this is `yarn test_examples`.
 
 To test all targets locally in the main workspace and in all nested workspaces run:
 
