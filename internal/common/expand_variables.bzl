@@ -53,13 +53,13 @@ def expand_variables(ctx, s, outs = [], output_dir = False):
         ] if f]
     else:
         if s.find("$@") != -1 or s.find("$(@)") != -1:
-            if len(ctx.outputs.outs) > 1:
+            if len(outs) > 1:
                 fail("""$@ substitution may only be used with a single out
                 Upgrading rules_nodejs? Maybe you need to switch from $@ to $(RULEDIR)
                 See https://github.com/bazelbuild/rules_nodejs/releases/tag/0.42.0""")
-        additional_substitutions["@"] = ctx.outputs.outs[0].path
-        if len(ctx.outputs.outs) == 1:
-            output_dir = ctx.outputs.outs[0].dirname.split("/")
+        if len(outs) == 1:
+            additional_substitutions["@"] = outs[0].path
+            output_dir = outs[0].dirname.split("/")
         else:
             output_dir = rule_dir[:]
 
