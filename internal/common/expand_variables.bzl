@@ -31,7 +31,11 @@ def expand_variables(ctx, s, outs = [], output_dir = False):
     https://docs.bazel.build/versions/master/be/make-variables.html#predefined_genrule_variables
     for more information of how these special variables are expanded.
     """
-    rule_dir = [ctx.bin_dir.path, ctx.label.package]
+    rule_dir = [f for f in [
+        ctx.bin_dir.path,
+        ctx.label.workspace_root,
+        ctx.label.package,
+    ] if f]
     additional_substitutions = {}
 
     if output_dir:
@@ -41,7 +45,12 @@ def expand_variables(ctx, s, outs = [], output_dir = False):
             See https://github.com/bazelbuild/rules_nodejs/releases/tag/0.42.0""")
 
         # We'll write into a newly created directory named after the rule
-        output_dir = [ctx.bin_dir.path, ctx.label.package, ctx.attr.name]
+        output_dir = [f for f in [
+            ctx.bin_dir.path,
+            ctx.label.workspace_root,
+            ctx.label.package,
+            ctx.label.name,
+        ] if f]
     else:
         if s.find("$@") != -1 or s.find("$(@)") != -1:
             if len(ctx.outputs.outs) > 1:
