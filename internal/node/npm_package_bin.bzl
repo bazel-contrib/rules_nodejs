@@ -36,9 +36,9 @@ def _inputs(ctx):
     return depset(ctx.files.data, transitive = inputs_depsets).to_list()
 
 def _impl(ctx):
-    if ctx.attr.output_dir and ctx.attr.outs:
+    if ctx.attr.output_dir and ctx.outputs.outs:
         fail("Only one of output_dir and outs may be specified")
-    if not ctx.attr.output_dir and not ctx.attr.outs:
+    if not ctx.attr.output_dir and not ctx.outputs.outs:
         fail("One of output_dir and outs must be specified")
 
     args = ctx.actions.args()
@@ -50,7 +50,7 @@ def _impl(ctx):
         outputs = ctx.outputs.outs
 
     for a in ctx.attr.args:
-        args.add_all([expand_variables(ctx, e, outs = ctx.attr.outs, output_dir = ctx.attr.output_dir) for e in _expand_locations(ctx, a)])
+        args.add_all([expand_variables(ctx, e, outs = ctx.outputs.outs, output_dir = ctx.attr.output_dir) for e in _expand_locations(ctx, a)])
 
     run_node(
         ctx,
