@@ -67,7 +67,7 @@ local_repository(
 # TODO(gregmagolan): keep this in sync with root WORKSPACE programatically
 git_repository(
     name = "build_bazel_rules_typescript",
-    commit = "5d79e42953eb8614d961ccf0e3440884e974eeb3",
+    commit = "9f4e2da7ea5ac2eb992b897f2a63cea66732fb62",
     remote = "http://github.com/bazelbuild/rules_typescript.git",
 )
 
