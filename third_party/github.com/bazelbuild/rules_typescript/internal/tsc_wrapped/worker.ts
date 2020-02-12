@@ -88,8 +88,15 @@ function loadWorkerPb() {
     // workspace location
     // This extra lookup should never happen in google3. It's only needed for
     // local development in the rules_typescript repo.
-    protofile = require.resolve(
-        'build_bazel_rules_typescript/third_party/github.com/bazelbuild/bazel/src/main/protobuf/worker_protocol.proto');
+
+    const runfiles = process.env['BAZEL_NODE_RUNFILES_HELPER'];
+    if (runfiles) {
+      protofile = require(runfiles).resolve(
+          'build_bazel_rules_typescript/third_party/github.com/bazelbuild/bazel/src/main/protobuf/worker_protocol.proto');
+    } else {
+      protofile =
+          'build_bazel_rules_typescript/third_party/github.com/bazelbuild/bazel/src/main/protobuf/worker_protocol.proto';
+    }
   }
 
   const protoNamespace = protobufjs.loadSync(protofile);

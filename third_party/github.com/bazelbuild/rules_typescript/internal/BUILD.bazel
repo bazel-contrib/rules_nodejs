@@ -17,6 +17,7 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
+load("@npm//typescript:index.bzl", "tsc")
 load("@npm_bazel_typescript//:index.bzl", "ts_library")
 
 package(default_visibility = ["//visibility:public"])
@@ -29,43 +30,35 @@ bzl_library(
     visibility = ["//visibility:public"],
 )
 
-# Vanilla typescript compiler: run the tsc.js binary distributed by TypeScript
-nodejs_binary(
-    name = "tsc",
-    data = [
-        "@npm//source-map-support",
-        "@npm//typescript",
+_TSC_WRAPPED_TESTS = [
+    "**/test_support.ts",
+    "**/*_test.ts",
+]
+
+_TSC_WRAPPED_SRCS = glob(
+    [
+        "tsc_wrapped/*.ts",
+        "tsetse/**/*.ts",
     ],
-    entry_point = "@npm//:node_modules/typescript/lib/tsc.js",
-    visibility = ["//internal:__subpackages__"],
+    exclude = _TSC_WRAPPED_TESTS + ["tsetse/tests/**"],
 )
 
+_TSC_WRAPPED_JS = [k[:-3] + ".js" for k in _TSC_WRAPPED_SRCS]
+_TSC_WRAPPED_TYPINGS = [k[:-3] + ".d.ts" for k in _TSC_WRAPPED_SRCS]
 # Build our custom compiler using the vanilla one
-ts_library(
+tsc(
     name = "tsc_wrapped",
-    srcs = glob(
-        [
-            "tsc_wrapped/*.ts",
-            "tsetse/**/*.ts",
-        ],
-        exclude = [
-            "**/test_support.ts",
-            "**/*_test.ts",
-        ],
-    ),
-    compiler = ":tsc",
-    data = [
-        "//third_party/github.com/bazelbuild/bazel/src/main/protobuf:worker_protocol.proto",
+    args = [
+        "--declaration",
+        "-p",
+        "$(execpath //internal:tsconfig.json)",
+        "--outDir",
+        "$(RULEDIR)",
     ],
-    module_name = "@bazel/typescript",
-    module_root = "tsc_wrapped/index.d.ts",
-    supports_workers = False,
-    tsconfig = "//internal:tsc_wrapped/tsconfig.json",
+    outs = _TSC_WRAPPED_JS + _TSC_WRAPPED_TYPINGS,
     visibility = ["//visibility:public"],
-    # Cannot have any deps (except npm fine grained deps) because it doesn't
-    # work with vanilla tsc.
-    # Workaround for https://github.com/Microsoft/TypeScript/issues/22208
-    deps = [
+    data = _TSC_WRAPPED_SRCS + [
+        "//internal:tsconfig.json",
         "@npm//@types/node",
         "@npm//protobufjs",
         "@npm//tsickle",
@@ -88,23 +81,16 @@ nodejs_binary(
         "@npm//tsutils",
         "@npm//typescript",
     ],
-    entry_point = ":tsc_wrapped/tsc_wrapped.ts",
+    entry_point = ":tsc_wrapped/tsc_wrapped.js",
     visibility = ["//visibility:public"],
 )
 
 ts_library(
     name = "test_lib",
-    srcs = glob([
-        "tsc_wrapped/*_test.ts",
-        "tsetse/**/*_test.ts",
-    ]) + [
-        "tsc_wrapped/test_support.ts",
-        "tsetse/util/testing/test_support.ts",
-    ],
+    srcs = glob(_TSC_WRAPPED_TESTS) + _TSC_WRAPPED_TYPINGS,
     compiler = "@build_bazel_rules_typescript//internal:tsc_wrapped_bin",
-    tsconfig = "//internal:tsc_wrapped/tsconfig.json",
+    tsconfig = "//internal:tsconfig.json",
     deps = [
-        ":tsc_wrapped",
         "@npm//@types/jasmine",
         "@npm//@types/node",
         "@npm//tsickle",
@@ -115,8 +101,9 @@ ts_library(
 jasmine_node_test(
     name = "test",
     srcs = [],
-    deps = [
+    deps = _TSC_WRAPPED_JS + [
         ":test_lib",
+        "//third_party/github.com/bazelbuild/bazel/src/main/protobuf:worker_protocol.proto",
         "@npm//jasmine",
         "@npm//protobufjs",
         "@npm//source-map",

@@ -1,4 +1,5 @@
 ---
+bazel: 2.1.0
 platforms:
   ubuntu1604:
     run_targets:
