@@ -284,6 +284,25 @@ golden_file_test(
     golden = "expand_variables.golden",
 )
 
+nodejs_binary(
+    name = "test_runfiles_helper",
+    data = [":test_runfiles_helper.golden"],
+    entry_point = "test_runfiles_helper.js",
+)
+
+npm_package_bin(
+    name = "test_runfiles_helper_ouput",
+    outs = ["test_runfiles_helper.out"],
+    args = ["$@"],
+    tool = ":test_runfiles_helper",
+)
+
+golden_file_test(
+    name = "test_runfiles_helper_test",
+    actual = ":test_runfiles_helper.out",
+    golden = "test_runfiles_helper.golden",
+)
+
 nodejs_test(
     name = "fail_test",
     entry_point = "fail.spec.js",
