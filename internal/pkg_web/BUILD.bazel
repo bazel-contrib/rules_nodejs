@@ -31,9 +31,6 @@ nodejs_binary(
 jasmine_node_test(
     name = "assembler_test",
     srcs = ["assembler_spec.js"],
-    tags = [
-        "fix-windows",
-    ],
     deps = [
         "assembler.js",
     ],

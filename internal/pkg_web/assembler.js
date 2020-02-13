@@ -59,7 +59,8 @@ function main(params) {
   function copy(f) {
     if (fs.statSync(f).isDirectory()) {
       for (const file of fs.readdirSync(f)) {
-        copy(path.join(f, file));
+        // Change paths to posix
+        copy(path.join(f, file).replace(/\\/g, '/'));
       }
     } else {
       const dest = path.join(outdir, relative(f));
