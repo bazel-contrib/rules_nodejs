@@ -113,6 +113,26 @@ architect_test(
 )
 
 architect(
+    name = "lint",
+    args = ["frontend:lint"],
+    data = glob([
+        "src/**/*",
+        "e2e/src/**/*",
+    ]) + [
+        "angular.json",
+        "tsconfig.json",
+        "tsconfig.spec.json",
+        "tsconfig.app.json",
+        "tslint.json",
+        "e2e/tsconfig.json",
+        "@npm//@angular/cli",
+        "@npm//@angular-devkit/build-angular",
+        "@npm//codelyzer",
+        "@npm//tslint",
+    ],
+)
+
+architect(
     name = "serve",
     args = [
         "frontend:serve",
