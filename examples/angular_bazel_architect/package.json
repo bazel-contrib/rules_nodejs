@@ -3,11 +3,11 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "bazel build :build",
-    "test": "bazel test :test",
-    "lint": "ng lint",
-    "e2e": "ng e2e",
+    "start": "bazelisk run :serve",
+    "build": "bazelisk build :build",
+    "test": "bazelisk test :test",
+    "lint": "bazelisk run :lint",
+    "e2e": "bazelisk test :e2e",
     "postinstall": "patch-package && ngcc --properties es2015 browser module main --first-only"
   },
   "private": true,
