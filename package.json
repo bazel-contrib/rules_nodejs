@@ -76,7 +76,7 @@
         "typescript": "3.1.6",
         "unidiff": "1.0.1",
         "v8-coverage": "1.0.9",
-        "yarn": "1.21.1",
+        "yarn": "1.22.0",
         "zone.js": "0.8.29"
     },
     "scripts": {
