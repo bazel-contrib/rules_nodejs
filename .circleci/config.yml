@@ -182,7 +182,7 @@ jobs:
       # to build the release package with this configuration.
       - run: bazel build --build_tag_filters=e2e ...
       - run:
-          command: bazel test --test_tag_filters=e2e --local_ram_resources=792 --test_arg=--local_ram_resources=13288 --test_arg=--local_cpu_resources=7 --test_arg=--test_tag_filters=-manual ...
+          command: bazel test --test_tag_filters=e2e --local_ram_resources=792 --test_arg=--local_ram_resources=13288 --test_arg=--local_cpu_resources=4 --test_arg=--test_tag_filters=-manual ...
           no_output_timeout: 20m
 
   test_examples:
@@ -213,13 +213,13 @@ jobs:
       - run: bazel build --build_tag_filters=examples ...
       - run:
           # We don't have java installed on our circleci docker image
-          command: bazel test --test_tag_filters=examples,-requires-java --local_ram_resources=792 --test_arg=--local_ram_resources=13288 --test_arg=--local_cpu_resources=7 --test_arg=--test_tag_filters=-manual ...
+          command: bazel test --test_tag_filters=examples,-requires-java --local_ram_resources=792 --test_arg=--local_ram_resources=13288 --test_arg=--local_cpu_resources=4 --test_arg=--test_tag_filters=-manual ...
           no_output_timeout: 20m
       # The following examples only works on linux as it downloads the linux node distribution
       # It is tagged "manual" so we run it explicitly here
       # TODO(gregmagolan): make node_repositories acccept different archives for different platforms
       - run:
-          command: bazel test --local_ram_resources=792 --test_arg=--local_ram_resources=13288 --test_arg=--local_cpu_resources=7 //examples:examples_vendored_node //examples:examples_vendored_node_and_yarn
+          command: bazel test --local_ram_resources=792 --test_arg=--local_ram_resources=13288 --test_arg=--local_cpu_resources=4 //examples:examples_vendored_node //examples:examples_vendored_node_and_yarn
           no_output_timeout: 20m
 
   test_user_managed_deps:

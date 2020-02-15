@@ -259,12 +259,11 @@ test manually.
 def rules_nodejs_integration_test(name, **kwargs):
     "Set defaults for the bazel_integration_test common to our examples and e2e"
     tags = kwargs.pop("tags", []) + [
-        # exclusive keyword will force the test to be run in the "exclusive" mode,
-        # ensuring that no other tests are running at the same time. Such tests
-        # will be executed in serial fashion after all build activity and non-exclusive
-        # tests have been completed. Remote execution is disabled for such tests
-        # because Bazel doesn't have control over what's running on a remote machine.
-        "exclusive",
+        # Since bazel-in-bazel integration tests are very resource intensive
+        # tell bazel to allocation a number of CPUs per test. This ensures that
+        # Bazel will not fully parallelize these tests which is would exhaust the
+        # resources on CI and locally.
+        "cpu:4",
     ]
 
     # replace the following repositories with the generated archives

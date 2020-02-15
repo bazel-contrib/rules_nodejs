@@ -56,7 +56,7 @@ tasks:
     - "--local_ram_resources=792"
     # test_args will be passed to the nested bazel process
     - "--test_arg=--local_ram_resources=13288"
-    - "--test_arg=--local_cpu_resources=7"
+    - "--test_arg=--local_cpu_resources=4"
     # Both chrome & firefox are missing shared libs on bazelci ubuntu.
     # On circleci we have the same issue but we can work around it using apt-get.
     # on bazelci apt-get fails with permission denied and there is no sudo
@@ -87,7 +87,7 @@ tasks:
     - "--local_ram_resources=792"
     # test_args will be passed to the nested bazel process
     - "--test_arg=--local_ram_resources=13288"
-    - "--test_arg=--local_cpu_resources=7"
+    - "--test_arg=--local_cpu_resources=4"
     # Both chrome & firefox are missing shared libs on bazelci ubuntu.
     # On circleci we have the same issue but we can work around it using apt-get.
     # on bazelci apt-get fails with permission denied and there is no sudo
@@ -171,7 +171,7 @@ tasks:
     - "--local_ram_resources=792"
     # test_args will be passed to the nested bazel process
     - "--test_arg=--local_ram_resources=13288"
-    - "--test_arg=--local_cpu_resources=7"
+    - "--test_arg=--local_cpu_resources=4"
     # Both chrome & firefox are missing shared libs on bazelci ubuntu.
     # On circleci we have the same issue but we can work around it using apt-get.
     # on bazelci apt-get fails with permission denied and there is no sudo
@@ -202,7 +202,7 @@ tasks:
     - "--local_ram_resources=792"
     # test_args will be passed to the nested bazel process
     - "--test_arg=--local_ram_resources=13288"
-    - "--test_arg=--local_cpu_resources=7"
+    - "--test_arg=--local_cpu_resources=4"
     # Both chrome & firefox are missing shared libs on bazelci ubuntu.
     # On circleci we have the same issue but we can work around it using apt-get.
     # on bazelci apt-get fails with permission denied and there is no sudo
