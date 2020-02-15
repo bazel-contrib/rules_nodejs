@@ -263,7 +263,7 @@ def rules_nodejs_integration_test(name, **kwargs):
         # tell bazel to allocation a number of CPUs per test. This ensures that
         # Bazel will not fully parallelize these tests which is would exhaust the
         # resources on CI and locally.
-        "cpu:4",
+        "cpu:8",
     ]
 
     # replace the following repositories with the generated archives
