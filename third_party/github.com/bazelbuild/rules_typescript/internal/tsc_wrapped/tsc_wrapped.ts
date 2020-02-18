@@ -360,7 +360,9 @@ export function createProgramAndEmit(
 
     // Wrap host only needed until after Ivy cleanup
     // TODO(alexeagle): remove after ngsummary and ngfactory files eliminated
-    compilerHost = angularPlugin!.wrapHost!(files, compilerHost);
+    if (angularPlugin) {
+      compilerHost = angularPlugin.wrapHost!(files, compilerHost);
+    }
   }
 
 
