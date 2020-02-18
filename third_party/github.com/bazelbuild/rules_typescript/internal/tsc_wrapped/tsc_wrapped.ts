@@ -64,9 +64,6 @@ export function gatherDiagnostics(
     options: ts.CompilerOptions, bazelOpts: BazelOptions, program: ts.Program,
     disabledTsetseRules: string[], angularPlugin?: TscPlugin,
     plugins: DiagnosticPlugin[] = []): ts.Diagnostic[] {
-  // Install extra diagnostic plugins
-  plugins.push(
-      ...getCommonPlugins(options, bazelOpts, program, disabledTsetseRules));
   if (angularPlugin) {
     program = angularPlugin.wrap(program);
   }
@@ -94,6 +91,10 @@ export function gatherDiagnostics(
       });
       perfTrace.snapshotMemoryUsage();
     }
+
+    // Install extra diagnostic plugins
+    plugins.push(
+        ...getCommonPlugins(options, bazelOpts, program, disabledTsetseRules));
     for (const plugin of plugins) {
       perfTrace.wrap(`${plugin.name} diagnostics`, () => {
         for (const sf of sourceFilesToCheck) {
