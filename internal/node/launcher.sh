@@ -224,28 +224,13 @@ if [ "${EXPECTED_EXIT_CODE}" -eq "0" ]; then
   # handled by the node process.
   # If we had merely forked a child process here, we'd be responsible
   # for forwarding those OS interactions.
-  if (( ${#ARGS[@]} )); then
-    # If the there are any arguments we execute the program with arguments
-    exec "${node}" "${LAUNCHER_NODE_OPTIONS[@]:-}" "${USER_NODE_OPTIONS[@]:-}" "${MAIN}" "${ARGS[@]:-}"
-  else
-    # If there are no arguments we skip the arguments because
-    # some programs do not handle empty arguments well
-    exec "${node}" "${LAUNCHER_NODE_OPTIONS[@]:-}" "${USER_NODE_OPTIONS[@]:-}" "${MAIN}"
-  fi
+  exec "${node}" "${LAUNCHER_NODE_OPTIONS[@]:-}" "${USER_NODE_OPTIONS[@]:-}" "${MAIN}" ${ARGS[@]+"${ARGS[@]}"}
   # exec terminates execution of this shell script, nothing later will run.
 fi
 
 set +e
-if (( ${#ARGS[@]} )); then
-  # If the there are any arguments we execute the program with arguments
-  "${node}" "${LAUNCHER_NODE_OPTIONS[@]:-}" "${USER_NODE_OPTIONS[@]:-}" "${MAIN}" "${ARGS[@]:-}"
-  RESULT="$?"
-else
-  # If there are no arguments we skip the arguments because
-  # some programs do not handle empty arguments well
-  "${node}" "${LAUNCHER_NODE_OPTIONS[@]:-}" "${USER_NODE_OPTIONS[@]:-}" "${MAIN}"
-  RESULT="$?"
-fi
+"${node}" "${LAUNCHER_NODE_OPTIONS[@]:-}" "${USER_NODE_OPTIONS[@]:-}" "${MAIN}" ${ARGS[@]+"${ARGS[@]}"}
+RESULT="$?"
 set -e
 
 if [ ${RESULT} != ${EXPECTED_EXIT_CODE} ]; then
