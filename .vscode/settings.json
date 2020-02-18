@@ -1,4 +1,3 @@
 {
-    "bazel.buildifierFixOnFormat": true,
-    "bazel.executable": "bazelisk"
+    "bazel.buildifierFixOnFormat": true
 }
