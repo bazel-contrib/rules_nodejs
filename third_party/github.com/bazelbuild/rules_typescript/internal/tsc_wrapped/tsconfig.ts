@@ -183,7 +183,6 @@ export interface BazelOptions {
    */
   compileAngularTemplates?: boolean;
 
-
   /**
    * Override for ECMAScript target language level to use for devmode.
    *

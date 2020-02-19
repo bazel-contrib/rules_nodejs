@@ -162,7 +162,6 @@ def create_tsconfig(
     if hasattr(ctx.attr, "compile_angular_templates") and ctx.attr.compile_angular_templates:
         bazel_options["compileAngularTemplates"] = True
 
-
     if disable_strict_deps:
         bazel_options["disableStrictDeps"] = disable_strict_deps
         bazel_options["allowedStrictDeps"] = []
@@ -263,7 +262,9 @@ def create_tsconfig(
         "inlineSources": True,
         # Implied by inlineSourceMap: True
         "sourceMap": False,
+        "plugins": [],
     }
+
 
     if hasattr(ctx.attr, "node_modules"):
         compiler_options["typeRoots"] = ["/".join([p for p in [
