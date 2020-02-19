@@ -107,7 +107,7 @@ function main(argv, error = console.error, log = console.log) {
 
   if (args['typescript']) {
     devDependencies['@bazel/typescript'] = 'latest';
-    devDependencies['typescript'] = '~3.4.0';
+    devDependencies['typescript'] = 'latest';
     write('tsconfig.json', '');
     rootBuildContent += '# Allow any ts_library rules in this workspace to reference the config\n' +
         '# Note: if you move the tsconfig.json file to a subdirectory, you can add an alias() here instead\n' +
