@@ -286,7 +286,10 @@ function runOneBuild(
   return true;
 }
 
-// We only allow our own code to use the expected_diagnostics attribute
+// We use the expected_diagnostics attribute for writing compilation tests.
+// We don't want to expose it to users as a general-purpose feature, because
+// we don't want users to end up using it like a fancy @ts-ignore.
+// So instead it's limited to a whitelist.
 const expectDiagnosticsWhitelist: string[] = [
 ];
 
