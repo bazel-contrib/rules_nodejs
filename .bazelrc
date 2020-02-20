@@ -13,10 +13,6 @@ build --workspace_status_command="echo BUILD_SCM_VERSION 1.2.3"
 # ... but when releasing, use the real script instead
 build:release --stamp --workspace_status_command=./scripts/current_version.sh
 
-# Avoid python 3 which requires explicit toolchain config
-# This is needed only for the pkg_tar rule
-build --host_force_python=PY2
-
 # Define environment value used by some tests such as //internal/npm_install/test:bazel_bin_test
 build --define=SOME_TEST_ENV=some_value
 test --define=SOME_TEST_ENV=some_value
