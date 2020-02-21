@@ -177,11 +177,14 @@ function tagDiagnosticWithPlugin(
  * them to their .js or .ts contents.
  */
 function expandSourcesFromDirectories(fileList: string[], filePath: string) {
+  if (filePath.endsWith('.ts') || filePath.endsWith('.tsx') ||
+      filePath.endsWith('.js')) {
+    fileList.push(filePath);
+    return;
+  }
+
   if (!fs.statSync(filePath).isDirectory()) {
-    if (filePath.endsWith('.ts') || filePath.endsWith('.tsx') ||
-        filePath.endsWith('.js')) {
-      fileList.push(filePath);
-    }
+    // subdirectories may also contain e.g. .java files, which we ignore.
     return;
   }
   const entries = fs.readdirSync(filePath);
@@ -223,10 +226,14 @@ function runOneBuild(
     angularCompilerOptions
   } = parsed;
 
-  const sourceFiles: string[] = [];
-  for (let i = 0; i < files.length; i++) {
-    const filePath = files[i];
-    expandSourcesFromDirectories(sourceFiles, filePath);
+  let sourceFiles: string[] = [];
+  if (bazelOpts.isJsTranspilation) {
+    // Under JS transpilations, some inputs might be directories.
+    for (const filePath of files) {
+      expandSourcesFromDirectories(sourceFiles, filePath);
+    }
+  } else {
+    sourceFiles = files;
   }
 
   if (bazelOpts.maxCacheSizeMb !== undefined) {
