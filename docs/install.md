@@ -204,11 +204,13 @@ workspace(
 )
 ```
 
-As of Bazel 0.26 this feature is still experimental, so also add this line to the `.bazelrc` to opt-in:
+With an old version of Bazel, this feature is still experimental, so also add this line to the `.bazelrc` to opt-in:
 
 ```
 common --experimental_allow_incremental_repository_updates
 ```
+
+As of Bazel 1.0.0, the the flag above is not needed.
 
 #### yarn_install vs. npm_install
 
