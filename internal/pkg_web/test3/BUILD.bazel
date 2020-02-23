@@ -1,0 +1,26 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "pkg_web")
+load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
+
+package(default_visibility = ["//visibility:public"])
+
+pkg_web(
+    name = "pkg",
+    srcs = [
+        "index.html",
+    ],
+    substitutions = {
+        "THIS_SHOULD_BE_REPLACED": "THIS_SHOULD_BE_REPLACED_WITH_THIS",
+    },
+)
+
+jasmine_node_test(
+    name = "test",
+    srcs = ["spec.js"],
+    data = [
+        "index_golden.html_",
+        ":pkg",
+    ],
+    tags = [
+        "fix-windows",
+    ],
+)

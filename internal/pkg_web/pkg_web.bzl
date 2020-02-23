@@ -25,6 +25,9 @@ _ATTRS = {
         allow_files = True,
         doc = """Files which should be copied into the package""",
     ),
+    "substitutions": attr.string_dict(
+        doc = """Key-value pairs which are replaced in all the files while building the package.""",
+    ),
     "_assembler": attr.label(
         default = "@build_bazel_rules_nodejs//internal/pkg_web:assembler",
         executable = True,
@@ -32,7 +35,7 @@ _ATTRS = {
     ),
 }
 
-def move_files(output_name, files, action_factory, var, assembler, root_paths):
+def move_files(output_name, substitutions, version_file, files, action_factory, var, assembler, root_paths):
     """Moves files into an output directory
 
     Args:
@@ -48,12 +51,15 @@ def move_files(output_name, files, action_factory, var, assembler, root_paths):
     www_dir = action_factory.declare_directory(output_name)
     args = action_factory.args()
     args.add(www_dir.path)
+    args.add(version_file.path)
+    args.add(substitutions)
     args.add_all(root_paths)
     args.add("--assets")
     args.add_all([f.path for f in files])
     args.use_param_file("%s", use_always = True)
+
     action_factory.run(
-        inputs = files,
+        inputs = files + [version_file],
         outputs = [www_dir],
         executable = assembler,
         arguments = [args],
@@ -89,6 +95,8 @@ def _impl(ctx):
 
     package_layout = move_files(
         ctx.label.name,
+        ctx.attr.substitutions,
+        ctx.version_file,
         ctx.files.srcs,
         ctx.actions,
         ctx.var,
