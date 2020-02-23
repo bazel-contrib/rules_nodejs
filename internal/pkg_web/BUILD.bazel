@@ -21,7 +21,10 @@ filegroup(
 
 nodejs_binary(
     name = "assembler",
-    data = ["assembler.js"],
+    data = [
+        "assembler.js",
+        "//third_party/github.com/gjtorikian/isBinaryFile",
+    ],
     entry_point = ":assembler.js",
     node_modules = ":node_modules_none",
 )
@@ -32,6 +35,7 @@ jasmine_node_test(
     srcs = ["assembler_spec.js"],
     deps = [
         "assembler.js",
+        "//third_party/github.com/gjtorikian/isBinaryFile",
     ],
 )
 
