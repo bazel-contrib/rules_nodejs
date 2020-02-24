@@ -25,15 +25,40 @@ load("//internal:ts_config.bzl", "TsConfigInfo")
 _DEFAULT_COMPILER = "@npm//@bazel/typescript/bin:tsc_wrapped"
 _DEFAULT_NODE_MODULES = Label("@npm//typescript:typescript__typings")
 
+TypeScriptModule = provider(
+    doc = """
+      This allows typescript files to be read out non compiled this is a bad idea,
+      but I couldn't get this to work with webpack with out using this.
+    """,
+    fields = {
+        "sources": "Depset of direct and transitive TypeScript files and sourcemaps",
+    },
+)
+
+def ts_module(sources, deps = []):
+    """Constructs a TypeScriptModule including all transitive sources from TypeScriptModule providers in a list of deps.
+
+Returns a single TypeScriptModule.
+"""
+    transitive_depsets = [sources]
+    for dep in deps:
+        if TypeScriptModule in dep:
+            transitive_depsets.append(dep[TypeScriptModule].sources)
+
+
+    return TypeScriptModule(
+        sources = depset(sources, transitive = transitive_depsets),
+    )
+
 def _trim_package_node_modules(package_name):
-    # trim a package name down to its path prior to a node_modules
+  # trim a package name down to its path prior to a node_modules
     # segment. 'foo/node_modules/bar' would become 'foo' and
     # 'node_modules/bar' would become ''
     segments = []
     for n in package_name.split("/"):
-        if n == "node_modules":
-            break
-        segments += [n]
+      if n == "node_modules":
+        break
+      segments += [n]
     return "/".join(segments)
 
 # Detect use of bazel-managed node modules.
@@ -44,13 +69,13 @@ def _trim_package_node_modules(package_name):
 # Note: this works for ts_library since we have a default for node_modules
 #       but wouldn't work for other rules like nodejs_binary
 def _uses_bazel_managed_node_modules(ctx):
-    # If the user put a filegroup as the node_modules it will have no provider
+  # If the user put a filegroup as the node_modules it will have no provider
     return NpmPackageInfo in ctx.attr.node_modules
 
 # This function is similar but slightly different than _compute_node_modules_root
 # in /internal/node/node.bzl. TODO(gregmagolan): consolidate these functions
 def _compute_node_modules_root(ctx):
-    """Computes the node_modules root from the node_modules and deps attributes.
+  """Computes the node_modules root from the node_modules and deps attributes.
 
     Args:
       ctx: the skylark execution context
@@ -60,73 +85,73 @@ def _compute_node_modules_root(ctx):
     """
     node_modules_root = None
     if ctx.attr.node_modules:
-        if NpmPackageInfo in ctx.attr.node_modules:
-            node_modules_root = "/".join(["external", ctx.attr.node_modules[NpmPackageInfo].workspace, "node_modules"])
-        elif ctx.files.node_modules:
-            # ctx.files.node_modules is not an empty list
+      if NpmPackageInfo in ctx.attr.node_modules:
+        node_modules_root = "/".join(["external", ctx.attr.node_modules[NpmPackageInfo].workspace, "node_modules"])
+      elif ctx.files.node_modules:
+        # ctx.files.node_modules is not an empty list
             node_modules_root = "/".join([f for f in [
                 ctx.attr.node_modules.label.workspace_root,
                 _trim_package_node_modules(ctx.attr.node_modules.label.package),
                 "node_modules",
-            ] if f])
-    for d in ctx.attr.deps:
-        if NpmPackageInfo in d:
-            possible_root = "/".join(["external", d[NpmPackageInfo].workspace, "node_modules"])
+                ] if f])
+            for d in ctx.attr.deps:
+              if NpmPackageInfo in d:
+                possible_root = "/".join(["external", d[NpmPackageInfo].workspace, "node_modules"])
             if not node_modules_root:
-                node_modules_root = possible_root
+              node_modules_root = possible_root
             elif node_modules_root != possible_root:
-                fail("All npm dependencies need to come from a single workspace. Found '%s' and '%s'." % (node_modules_root, possible_root))
+              fail("All npm dependencies need to come from a single workspace. Found '%s' and '%s'." % (node_modules_root, possible_root))
     if not node_modules_root:
-        # there are no fine grained deps and the node_modules attribute is an empty filegroup
+      # there are no fine grained deps and the node_modules attribute is an empty filegroup
         # but we still need a node_modules_root even if its empty
         node_modules_root = "/".join([f for f in [
             ctx.attr.node_modules.label.workspace_root,
             ctx.attr.node_modules.label.package,
             "node_modules",
-        ] if f])
-    return node_modules_root
+            ] if f])
+        return node_modules_root
 
 def _filter_ts_inputs(all_inputs):
-    return [
-        f
-        for f in all_inputs
-        if f.extension in ["js", "jsx", "ts", "tsx", "json"]
-    ]
+  return [
+      f
+      for f in all_inputs
+      if f.extension in ["js", "jsx", "ts", "tsx", "json"]
+      ]
 
-def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description = "prodmode"):
+  def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description = "prodmode"):
     externs_files = []
     action_inputs = inputs
     action_outputs = []
     for output in outputs:
-        if output.basename.endswith(".externs.js"):
-            externs_files.append(output)
-        elif output.basename.endswith(".es5.MF"):
-            ctx.actions.write(output, content = "")
-        else:
-            action_outputs.append(output)
+      if output.basename.endswith(".externs.js"):
+        externs_files.append(output)
+      elif output.basename.endswith(".es5.MF"):
+        ctx.actions.write(output, content = "")
+      else:
+        action_outputs.append(output)
 
     # TODO(plf): For now we mock creation of files other than {name}.js.
     for externs_file in externs_files:
-        ctx.actions.write(output = externs_file, content = "")
+      ctx.actions.write(output = externs_file, content = "")
 
     # A ts_library that has only .d.ts inputs will have no outputs,
     # therefore there are no actions to execute
     if not action_outputs:
-        return None
+      return None
 
     action_inputs.extend(_filter_ts_inputs(ctx.files.node_modules))
 
     # Also include files from npm fine grained deps as action_inputs.
     # These deps are identified by the NpmPackageInfo provider.
     for d in ctx.attr.deps:
-        if NpmPackageInfo in d:
-            # Note: we can't avoid calling .to_list() on sources
+      if NpmPackageInfo in d:
+        # Note: we can't avoid calling .to_list() on sources
             action_inputs.extend(_filter_ts_inputs(d[NpmPackageInfo].sources.to_list()))
 
     if ctx.file.tsconfig:
-        action_inputs.append(ctx.file.tsconfig)
+      action_inputs.append(ctx.file.tsconfig)
         if TsConfigInfo in ctx.attr.tsconfig:
-            action_inputs.extend(ctx.attr.tsconfig[TsConfigInfo].deps)
+          action_inputs.extend(ctx.attr.tsconfig[TsConfigInfo].deps)
 
     # Pass actual options for the node binary in the special "--node_options" argument.
     arguments = ["--node_options=%s" % opt for opt in node_opts]
@@ -135,10 +160,10 @@ def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description 
     # Two at-signs escapes the argument so it's passed through to tsc_wrapped
     # rather than the contents getting expanded.
     if ctx.attr.supports_workers:
-        arguments.append("@@" + tsconfig_file.path)
+      arguments.append("@@" + tsconfig_file.path)
         mnemonic = "TypeScriptCompile"
     else:
-        arguments.append("-p")
+      arguments.append("-p")
         arguments.append(tsconfig_file.path)
         mnemonic = "tsc"
 
@@ -155,9 +180,9 @@ def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description 
         executable = ctx.executable.compiler,
         execution_requirements = {
             "supports-workers": str(int(ctx.attr.supports_workers)),
-        },
+            },
         env = {"COMPILATION_MODE": ctx.var["COMPILATION_MODE"]},
-    )
+        )
 
     # Enable the replay_params in case an aspect needs to re-build this library.
     return struct(
@@ -166,26 +191,26 @@ def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description 
         inputs = action_inputs,
         outputs = action_outputs,
         compiler = ctx.executable.compiler,
-    )
+        )
 
-def _devmode_compile_action(ctx, inputs, outputs, tsconfig_file, node_opts):
-    _compile_action(
-        ctx,
-        inputs,
-        outputs,
-        tsconfig_file,
-        node_opts,
-        description = "devmode",
-    )
+    def _devmode_compile_action(ctx, inputs, outputs, tsconfig_file, node_opts):
+      _compile_action(
+          ctx,
+          inputs,
+          outputs,
+          tsconfig_file,
+          node_opts,
+          description = "devmode",
+          )
 
-def tsc_wrapped_tsconfig(
-        ctx,
-        files,
-        srcs,
-        devmode_manifest = None,
-        jsx_factory = None,
-        **kwargs):
-    """Produce a tsconfig.json that sets options required under Bazel.
+      def tsc_wrapped_tsconfig(
+          ctx,
+          files,
+          srcs,
+          devmode_manifest = None,
+          jsx_factory = None,
+          **kwargs):
+        """Produce a tsconfig.json that sets options required under Bazel.
 
     Args:
       ctx: the Bazel starlark execution context
@@ -215,7 +240,7 @@ def tsc_wrapped_tsconfig(
         devmode_manifest = devmode_manifest,
         node_modules_root = node_modules_root,
         **kwargs
-    )
+        )
     config["bazelOptions"]["nodeModulesPrefix"] = node_modules_root
 
     # Override the target so we use es2015 for devmode
@@ -233,7 +258,7 @@ def tsc_wrapped_tsconfig(
     #     so our mechanism to collect typings and put them into the program doesn't work.
     #     In that case we leave the types[] alone.
     if _uses_bazel_managed_node_modules(ctx):
-        config["compilerOptions"]["types"] = []
+      config["compilerOptions"]["types"] = []
 
     # If the user gives a tsconfig attribute, the generated file should extend
     # from the user's tsconfig.
@@ -241,11 +266,11 @@ def tsc_wrapped_tsconfig(
     # We subtract the ".json" from the end before handing to TypeScript because
     # this gives extra error-checking.
     if ctx.file.tsconfig:
-        workspace_path = config["compilerOptions"]["rootDir"]
+      workspace_path = config["compilerOptions"]["rootDir"]
         config["extends"] = "/".join([workspace_path, ctx.file.tsconfig.path[:-len(".json")]])
 
     if jsx_factory:
-        config["compilerOptions"]["jsxFactory"] = jsx_factory
+      config["compilerOptions"]["jsxFactory"] = jsx_factory
 
     return config
 
@@ -254,7 +279,7 @@ def tsc_wrapped_tsconfig(
 # ************ #
 
 def _ts_library_impl(ctx):
-    """Implementation of ts_library.
+  """Implementation of ts_library.
 
     Args:
       ctx: the context.
@@ -277,15 +302,14 @@ def _ts_library_impl(ctx):
         js_named_module_info(
             sources = ts_providers["typescript"]["es5_sources"],
             deps = ctx.attr.deps,
-        ),
+            ),
         js_ecma_script_module_info(
             sources = ts_providers["typescript"]["es6_sources"],
             deps = ctx.attr.deps,
-        ),
-        # TODO: Add remaining shared JS provider from design doc
-        # (JSModuleInfo) and remove legacy "typescript" provider
-        # once it is no longer needed.
+            ),
+        ts_module(sources = ctx.attr.src, deps = ctx.attr.deps),
     ])
+
 
     return ts_providers_dict_to_struct(ts_providers)
 
@@ -296,10 +320,10 @@ ts_library = rule(
             doc = "The TypeScript source files to compile.",
             allow_files = [".ts", ".tsx"],
             mandatory = True,
-        ),
+            ),
         "compile_angular_templates": attr.bool(
             doc = """Run the Angular ngtsc compiler under ts_library""",
-        ),
+            ),
         "compiler": attr.label(
             doc = """Sets a different TypeScript compiler binary to use for this library.
 For example, we use the vanilla TypeScript tsc.js for bootstrapping,
@@ -312,10 +336,10 @@ the workspace name `@npm` for bazel managed deps so the default
 compiler works out of the box. Otherwise, you'll have to override
 the compiler attribute manually.
 """,
-            default = Label(_DEFAULT_COMPILER),
-            allow_files = True,
-            executable = True,
-            cfg = "host",
+        default = Label(_DEFAULT_COMPILER),
+        allow_files = True,
+        executable = True,
+        cfg = "host",
         ),
         "internal_testing_type_check_dependencies": attr.bool(default = False, doc = "Testing only, whether to type check inputs that aren't srcs."),
         "node_modules": attr.label(
@@ -389,8 +413,8 @@ yarn_install(
 Allows you to disable the Bazel Worker strategy for this library.
 Typically used together with the "compiler" setting when using a
 non-worker aware compiler binary.""",
-            default = True,
-        ),
+default = True,
+),
 
         # TODO(alexeagle): reconcile with google3: ts_library rules should
         # be portable across internal/external, so we need this attribute
@@ -409,19 +433,19 @@ either:
 - Give an explicit `tsconfig` attribute to all `ts_library` targets
             """,
             allow_single_file = True,
-        ),
+            ),
         "tsickle_typed": attr.bool(
             default = True,
             doc = "If using tsickle, instruct it to translate types to ClosureJS format",
-        ),
+            ),
         "deps": attr.label_list(
             aspects = DEPS_ASPECTS + [node_modules_aspect],
             doc = "Compile-time dependencies, typically other ts_library targets",
-        ),
-    }),
+            ),
+        }),
     outputs = {
         "tsconfig": "%{name}_tsconfig.json",
-    },
+        },
     doc = """`ts_library` type-checks and compiles a set of TypeScript sources to JavaScript.
 
 It produces declarations files (`.d.ts`) which are used for compiling downstream
@@ -430,7 +454,7 @@ TypeScript targets and JavaScript for the browser and Closure compiler.
 )
 
 def ts_library_macro(tsconfig = None, **kwargs):
-    """Wraps `ts_library` to set the default for the `tsconfig` attribute.
+  """Wraps `ts_library` to set the default for the `tsconfig` attribute.
 
     This must be a macro so that the string is converted to a label in the context of the
     workspace that declares the `ts_library` target, rather than the workspace that defines
@@ -443,6 +467,6 @@ def ts_library_macro(tsconfig = None, **kwargs):
       **kwargs: remaining args to pass to the ts_library rule
     """
     if not tsconfig:
-        tsconfig = "//:tsconfig.json"
+      tsconfig = "//:tsconfig.json"
 
     ts_library(tsconfig = tsconfig, **kwargs)

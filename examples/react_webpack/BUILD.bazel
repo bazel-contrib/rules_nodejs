@@ -3,6 +3,7 @@ load("@npm//sass:index.bzl", "sass")
 load("@npm//typescript:index.bzl", "tsc")
 load("@npm//webpack-cli:index.bzl", webpack = "webpack_cli")
 
+
 sass(
     name = "styles",
     outs = ["styles.css"],
