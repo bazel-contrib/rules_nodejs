@@ -17,7 +17,6 @@
 
 load(":common/module_mappings.bzl", "get_module_mappings")
 
-
 _DEBUG = False
 
 def create_tsconfig(
@@ -272,9 +271,7 @@ def create_tsconfig(
         "inlineSources": True,
         # Implied by inlineSourceMap: True
         "sourceMap": False,
-        "plugins": [],
     }
-
 
     if hasattr(ctx.attr, "node_modules"):
         compiler_options["typeRoots"] = ["/".join([p for p in [
