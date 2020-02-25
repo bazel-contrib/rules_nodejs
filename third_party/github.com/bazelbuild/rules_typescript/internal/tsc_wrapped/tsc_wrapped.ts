@@ -10,7 +10,7 @@ import {CompilerHost} from './compiler_host';
 import * as bazelDiagnostics from './diagnostics';
 import {constructManifest} from './manifest';
 import * as perfTrace from './perf_trace';
-import {DiagnosticPlugin, PluginCompilerHost, TscPlugin} from './plugin_api';
+import {DiagnosticPlugin, PluginCompilerHost, EmitPlugin} from './plugin_api';
 import {Plugin as StrictDepsPlugin} from './strict_deps';
 import {BazelOptions, parseTsconfig, resolveNormalizedPath} from './tsconfig';
 import {debug, log, runAsWorker, runWorkerLoop} from './worker';
@@ -62,11 +62,8 @@ function isCompilationTarget(
  */
 export function gatherDiagnostics(
     options: ts.CompilerOptions, bazelOpts: BazelOptions, program: ts.Program,
-    disabledTsetseRules: string[], angularPlugin?: TscPlugin,
+    disabledTsetseRules: string[],
     plugins: DiagnosticPlugin[] = []): ts.Diagnostic[] {
-  if (angularPlugin) {
-    program = angularPlugin.wrap(program);
-  }
 
   const diagnostics: ts.Diagnostic[] = [];
   perfTrace.wrap('type checking', () => {
@@ -218,13 +215,7 @@ function runOneBuild(
     throw new Error(
         'Impossible state: if parseTsconfig returns no errors, then parsed should be non-null');
   }
-  const {
-    options,
-    bazelOpts,
-    files,
-    disabledTsetseRules,
-    angularCompilerOptions
-  } = parsed;
+  const {options, bazelOpts, files, disabledTsetseRules} = parsed;
 
   let sourceFiles: string[] = [];
   if (bazelOpts.isJsTranspilation) {
@@ -259,8 +250,7 @@ function runOneBuild(
   const perfTracePath = bazelOpts.perfTracePath;
   if (!perfTracePath) {
     const {diagnostics} = createProgramAndEmit(
-        fileLoader, options, bazelOpts, sourceFiles, disabledTsetseRules,
-        angularCompilerOptions);
+        fileLoader, options, bazelOpts, sourceFiles, disabledTsetseRules);
     if (diagnostics.length > 0) {
       console.error(bazelDiagnostics.format(bazelOpts.target, diagnostics));
       return false;
@@ -271,8 +261,7 @@ function runOneBuild(
   log('Writing trace to', perfTracePath);
   const success = perfTrace.wrap('runOneBuild', () => {
     const {diagnostics} = createProgramAndEmit(
-        fileLoader, options, bazelOpts, sourceFiles, disabledTsetseRules,
-        angularCompilerOptions);
+        fileLoader, options, bazelOpts, sourceFiles, disabledTsetseRules);
     if (diagnostics.length > 0) {
       console.error(bazelDiagnostics.format(bazelOpts.target, diagnostics));
       return false;
@@ -321,8 +310,7 @@ function errorDiag(messageText: string) {
  */
 export function createProgramAndEmit(
     fileLoader: FileLoader, options: ts.CompilerOptions,
-    bazelOpts: BazelOptions, files: string[], disabledTsetseRules: string[],
-    angularCompilerOptions?: {[key: string]: unknown}):
+    bazelOpts: BazelOptions, files: string[], disabledTsetseRules: string[]):
     {program?: ts.Program, diagnostics: ts.Diagnostic[]} {
   // Beware! createProgramAndEmit must not print to console, nor exit etc.
   // Handle errors by reporting and returning diagnostics.
@@ -336,44 +324,52 @@ export function createProgramAndEmit(
   const moduleResolver = bazelOpts.isJsTranspilation ?
       makeJsModuleResolver(bazelOpts.workspaceName) :
       ts.resolveModuleName;
+
+  // Files which should be allowed to be read, but aren't TypeScript code
+  const assets: string[] = [];
+  if (bazelOpts.angularCompilerOptions) {
+    if (bazelOpts.angularCompilerOptions.assets) {
+      assets.push(...bazelOpts.angularCompilerOptions.assets);
+    }
+  }
+
   const tsickleCompilerHost = new CompilerHost(
-      files, options, bazelOpts, compilerHostDelegate, fileLoader,
+      [...files, ...assets], options, bazelOpts, compilerHostDelegate, fileLoader,
       moduleResolver);
   let compilerHost: PluginCompilerHost = tsickleCompilerHost;
   const diagnosticPlugins: DiagnosticPlugin[] = [];
 
-  let angularPlugin: TscPlugin|undefined;
-  if (bazelOpts.compileAngularTemplates) {
+  let angularPlugin: EmitPlugin&DiagnosticPlugin|undefined;
+  if (bazelOpts.angularCompilerOptions) {
     try {
-      const ngOptions = angularCompilerOptions || {};
+      const ngOptions = bazelOpts.angularCompilerOptions;
       // Add the rootDir setting to the options passed to NgTscPlugin.
       // Required so that synthetic files added to the rootFiles in the program
       // can be given absolute paths, just as we do in tsconfig.ts, matching
       // the behavior in TypeScript's tsconfig parsing logic.
       ngOptions['rootDir'] = options.rootDir;
 
-      // Dynamically load the Angular compiler installed as a peerDep
-      const ngtsc = require('@angular/compiler-cli');
+      let angularPluginEntryPoint = '@angular/compiler-cli';
 
-      // TODO(alexeagle): re-enable after Angular API changes land
-      // See https://github.com/angular/angular/pull/34792
-      // and pending CL/289493608
-      // By commenting this out, we allow Angular caretaker to sync changes from
-      // GitHub without having to coordinate any Piper patches in the same CL.
-      // angularPlugin = new ngtsc.NgTscPlugin(ngOptions);
+      // Dynamically load the Angular compiler.
+      // Lazy load, so that code that does not use the plugin doesn't even
+      // have to spend the time to parse and load the plugin's source.
+      //
+      // tslint:disable-next-line:no-require-imports
+      const ngtsc = require(angularPluginEntryPoint);
+      angularPlugin = new ngtsc.NgTscPlugin(ngOptions);
+      diagnosticPlugins.push(angularPlugin!);
     } catch (e) {
       return {
         diagnostics: [errorDiag(
-            'when using `ts_library(compile_angular_templates=True)`, ' +
+            'when using `ts_library(use_angular_plugin=True)`, ' +
             `you must install @angular/compiler-cli (was: ${e})`)]
       };
     }
 
-    // Wrap host only needed until after Ivy cleanup
-    // TODO(alexeagle): remove after ngsummary and ngfactory files eliminated
-    if (angularPlugin) {
-      compilerHost = angularPlugin.wrapHost!(files, compilerHost);
-    }
+    // Wrap host so that Ivy compiler can add a file to it (has synthetic types for checking templates)
+    // TODO(arick): remove after ngsummary and ngfactory files eliminated
+    compilerHost = angularPlugin!.wrapHost!(compilerHost, files, options);
   }
 
 
@@ -383,6 +379,16 @@ export function createProgramAndEmit(
       () => ts.createProgram(
           compilerHost.inputFiles, options, compilerHost, oldProgram));
   cache.putProgram(bazelOpts.target, program);
+
+  let transformers: ts.CustomTransformers = {
+    before: [],
+    after: [],
+    afterDeclarations: [],
+  };
+  if (angularPlugin) {
+    angularPlugin.setupCompilation(program);
+    transformers = angularPlugin.createTransformers();
+  }
 
   for (const pluginConfig of options['plugins'] as ts.PluginImport[] || []) {
     if (pluginConfig.name === 'ts-lit-plugin') {
@@ -402,8 +408,7 @@ export function createProgramAndEmit(
     // messages refer to the original source.  After any subsequent passes
     // (decorator downleveling or tsickle) we do not type check.
     let diagnostics = gatherDiagnostics(
-        options, bazelOpts, program, disabledTsetseRules, angularPlugin,
-        diagnosticPlugins);
+        options, bazelOpts, program, disabledTsetseRules, diagnosticPlugins);
     if (!expectDiagnosticsWhitelist.length ||
         expectDiagnosticsWhitelist.some(p => bazelOpts.target.startsWith(p))) {
       diagnostics = bazelDiagnostics.filterExpected(
@@ -415,33 +420,43 @@ export function createProgramAndEmit(
           'expected_diagnostics, but got ' + bazelOpts.target));
     }
 
+    // The Angular plugin creates a new program with template type-check information
+    // This consumes (destroys) the old program so it's not suitable for re-use anymore
+    // Ask Angular to give us the updated reusable program.
+    if (angularPlugin) {
+      cache.putProgram(bazelOpts.target, angularPlugin.getNextProgram!());
+    }
+
     if (diagnostics.length > 0) {
       debug('compilation failed at', new Error().stack!);
       return {program, diagnostics};
     }
   }
 
+  // Angular might have added files like input.ngfactory.ts or input.ngsummary.ts
+  // and these need to be emitted.
+  // TODO(arick): remove after Ivy is enabled and ngsummary/ngfactory files no longer needed
+  function isAngularFile(sf: ts.SourceFile) {
+    if (!/\.ng(factory|summary)\.ts$/.test(sf.fileName)) {
+      return false;
+    }
+    return isCompilationTarget(bazelOpts, {
+      fileName: sf.fileName.slice(0, /*'.ngfactory|ngsummary.ts'.length*/ -13) + '.ts'
+    } as ts.SourceFile);
+  }
+
   const compilationTargets = program.getSourceFiles().filter(
-      fileName => isCompilationTarget(bazelOpts, fileName));
+      sf => isCompilationTarget(bazelOpts, sf) || isAngularFile(sf));
 
   let diagnostics: ts.Diagnostic[] = [];
   let useTsickleEmit = bazelOpts.tsickle;
-  let transforms: ts.CustomTransformers = {
-    before: [],
-    after: [],
-    afterDeclarations: [],
-  };
-
-  if (angularPlugin) {
-    transforms = angularPlugin.createTransformers!(compilerHost);
-  }
 
   if (useTsickleEmit) {
     diagnostics = emitWithTsickle(
         program, tsickleCompilerHost, compilationTargets, options, bazelOpts,
-        transforms);
+        transformers);
   } else {
-    diagnostics = emitWithTypescript(program, compilationTargets, transforms);
+    diagnostics = emitWithTypescript(program, compilationTargets, transformers);
   }
 
   if (diagnostics.length > 0) {

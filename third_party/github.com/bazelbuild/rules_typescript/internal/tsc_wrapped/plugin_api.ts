@@ -17,8 +17,8 @@
 
 /**
  * @fileoverview
- * Provides APIs for extending TypeScript.
- * Based on the LanguageService plugin API in TS 2.3
+ * Provides APIs for extending TypeScript command-line compiler.
+ * It's roughly analogous to how the Language Service allows plugins.
  */
 
 import * as ts from 'typescript';
@@ -29,13 +29,6 @@ export interface PluginCompilerHost extends ts.CompilerHost {
    * In vanilla tsc, these are the ts.ParsedCommandLine#fileNames
    */
   inputFiles: ReadonlyArray<string>;
-
-  /**
-   * A helper the transformer can use when generating new import statements
-   * @param fileName the absolute path to the file as referenced in the ts.Program
-   * @return a string suitable for use in an import statement
-   */
-  fileNameToModuleId: (fileName: string) => string;
 }
 
 /**
@@ -48,10 +41,10 @@ export interface PluginCompilerHost extends ts.CompilerHost {
  *
  * The methods on the plugin will be called in the order shown below:
  * - wrapHost to intercept CompilerHost methods and contribute inputFiles to the program
- * - wrap to intercept diagnostics requests on the program
+ * - setupCompilation to capture the ts.Program
  * - createTransformers once it's time to emit
  */
-export interface TscPlugin {
+export interface EmitPlugin {
   /**
    * Allow plugins to add additional files to the program.
    * For example, Angular creates ngsummary and ngfactory files.
@@ -59,26 +52,18 @@ export interface TscPlugin {
    * @param inputFiles the files that were part of the original program
    * @param compilerHost: the original host (likely a ts.CompilerHost) that we can delegate to
    */
-  wrapHost?(inputFiles: string[], compilerHost: PluginCompilerHost): PluginCompilerHost;
+  wrapHost?(compilerHost: ts.CompilerHost, inputFiles: string[], options: ts.CompilerOptions): PluginCompilerHost;
 
-  /**
-   * Same API as ts.LanguageService: allow the plugin to contribute additional
-   * diagnostics
-   * IMPORTANT: plugins must propagate the diagnostics from the original program.
-   * Execution of plugins is not additive; only the result from the top-most
-   * wrapped Program is used.
-   */
-  wrap(p: ts.Program, config?: {}, host?: ts.CompilerHost): ts.Program;
+  setupCompilation(program: ts.Program, oldProgram?: ts.Program): void;
 
+  getNextProgram?(): ts.Program;
+  
   /**
    * Allow plugins to contribute additional TypeScript CustomTransformers.
    * These can modify the TS AST, JS AST, or .d.ts output AST.
    */
-  createTransformers?(host: PluginCompilerHost): ts.CustomTransformers;
+  createTransformers(): ts.CustomTransformers;
 }
-
-// TODO(alexeagle): this should be unioned with tsserverlibrary.PluginModule
-export type Plugin = TscPlugin;
 
 /**
  * The proxy design pattern, allowing us to customize behavior of the delegate

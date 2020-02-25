@@ -179,9 +179,17 @@ export interface BazelOptions {
   hasImplementation?: boolean;
 
   /**
-   * Enable the Angular ngtsc plugin.
+   * If present, run the Angular ngtsc plugin with the given options.
    */
-  compileAngularTemplates?: boolean;
+  angularCompilerOptions?: {
+      [k: string]: any,
+      assets: string[],
+      // Ideally we would
+      // import {AngularCompilerOptions} from '@angular/compiler-cli';
+      // and the type would be AngularCompilerOptions&{assets: string[]};
+      // but we don't want a dependency from @bazel/typescript to @angular/compiler-cli
+      // as it's conceptually cyclical.
+  };
 
   /**
    * Override for ECMAScript target language level to use for devmode.
@@ -371,6 +379,10 @@ export function parseTsconfig(
   if (bazelOpts.nodeModulesPrefix) {
     bazelOpts.nodeModulesPrefix =
         resolveNormalizedPath(options.rootDir!, bazelOpts.nodeModulesPrefix);
+  }
+  if (bazelOpts.angularCompilerOptions && bazelOpts.angularCompilerOptions.assets) {
+    bazelOpts.angularCompilerOptions.assets = bazelOpts.angularCompilerOptions.assets.map(
+      f => resolveNormalizedPath(options.rootDir!, f));
   }
 
   let disabledTsetseRules: string[] = [];

@@ -159,8 +159,18 @@ def create_tsconfig(
         "expectedDiagnostics": getattr(ctx.attr, "expected_diagnostics", []),
     }
 
-    if hasattr(ctx.attr, "compile_angular_templates") and ctx.attr.compile_angular_templates:
-        bazel_options["compileAngularTemplates"] = True
+    if getattr(ctx.attr, "use_angular_plugin", False):
+        bazel_options["angularCompilerOptions"] = {
+            # Needed for back-compat with explicit AOT bootstrap
+            # which has imports from generated .ngfactory files
+            "generateNgFactoryShims": True,
+            # Needed for back-compat with AOT tests which import the
+            # .ngsummary files
+            "generateNgSummaryShims": True,
+            # Bazel expects output files will always be produced
+            "allowEmptyCodegenFiles": True,
+            "assets": [a.path for a in getattr(ctx.files, "angular_assets", [])],
+        }
 
     if disable_strict_deps:
         bazel_options["disableStrictDeps"] = disable_strict_deps

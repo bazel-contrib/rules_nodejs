@@ -156,7 +156,7 @@ def _outputs(ctx, label, srcs_files = []):
 
         # Temporary until all imports of ngfactory/ngsummary files are removed
         # TODO(alexeagle): clean up after Ivy launch
-        if getattr(ctx, "compile_angular_templates", False):
+        if getattr(ctx.attr, "use_angular_plugin", False):
             closure_js_files += [ctx.actions.declare_file(basename + ".ngfactory.mjs")]
             closure_js_files += [ctx.actions.declare_file(basename + ".ngsummary.mjs")]
 
@@ -166,9 +166,11 @@ def _outputs(ctx, label, srcs_files = []):
 
             # Temporary until all imports of ngfactory/ngsummary files are removed
             # TODO(alexeagle): clean up after Ivy launch
-            if getattr(ctx, "compile_angular_templates", False):
+            if getattr(ctx.attr, "use_angular_plugin", False):
                 devmode_js_files += [ctx.actions.declare_file(basename + ".ngfactory.js")]
                 devmode_js_files += [ctx.actions.declare_file(basename + ".ngsummary.js")]
+                declaration_files += [ctx.actions.declare_file(basename + ".ngfactory.d.ts")]
+                declaration_files += [ctx.actions.declare_file(basename + ".ngsummary.d.ts")]
     return struct(
         closure_js = closure_js_files,
         devmode_js = devmode_js_files,
@@ -336,7 +338,7 @@ def compile_ts(
     replay_params = None
 
     if has_sources:
-        inputs = compilation_inputs + [tsconfig]
+        inputs = compilation_inputs + [tsconfig] + getattr(ctx.files, "angular_assets", [])
         replay_params = compile_action(
             ctx,
             inputs,
@@ -382,7 +384,7 @@ def compile_ts(
         ))
         devmode_compile_action(
             ctx,
-            compilation_inputs + [tsconfig_json_es5],
+            compilation_inputs + [tsconfig_json_es5] + getattr(ctx.files, "angular_assets", []),
             outputs,
             tsconfig_json_es5,
             node_profile_args,
