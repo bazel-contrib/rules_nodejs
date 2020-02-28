@@ -65,12 +65,12 @@
         "typescript": "3.4.5"
     },
     "scripts": {
-        "build": "bazel build //src:bundle",
+        "build": "bazelisk build //src:bundle",
         "serve": "ibazel run //src:devserver",
         "deploy": "ng build && firebase deploy",
-        "serve-prod": "bazel run //src:prodserver",
-        "e2e": "bazel test //e2e:all",
-        "test": "bazel test //src/...",
+        "serve-prod": "bazelisk run //src:prodserver",
+        "e2e": "bazelisk test //e2e:all",
+        "test": "bazelisk test //src/...",
         "benchmark": "ibazel-benchmark-runner //src:devserver src/app/hello-world/hello-world.component.ts --url=http://localhost:5432",
         "postinstall": "patch-package && ngc -p angular-metadata.tsconfig.json",
         "generate": "node tools/generator/index.js",
