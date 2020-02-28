@@ -102,6 +102,7 @@ install_bazel_dependencies()
 git_repository(
     name = "build_bazel_rules_typescript",
     commit = "10a5a86885f95ab788fd841ade47b6a16e0c13d6",
+    patches = ["//:rules_typescript.patch"],
     remote = "http://github.com/bazelbuild/rules_typescript.git",
     shallow_since = "1582757372 -0800",
 )

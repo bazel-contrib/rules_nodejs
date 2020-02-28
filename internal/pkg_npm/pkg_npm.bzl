@@ -138,7 +138,7 @@ PKG_NPM_OUTPUTS = {
 def _filter_out_external_files(ctx, files, package_path):
     result = []
     for file in files:
-        if file.short_path.startswith(package_path):
+        if file.short_path.startswith(package_path) and not file.short_path.startswith("../"):
             result.append(file.path)
         else:
             for v in ctx.attr.vendor_external:

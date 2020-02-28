@@ -17,7 +17,7 @@ load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "co
 
 # We reach inside the @bazel/typescript npm package to grab this one .js file
 # This avoids a complex refactoring where we extract that .ts file from tsc_wrapped to a common library
-_worker_path = "external/build_bazel_rules_typescript/internal/tsc_wrapped/worker"
+_worker_path = "internal/tsc_wrapped/worker"
 
 # Copy the proto file to a matching third_party/... nested directory
 # so the runtime require() statements still work
