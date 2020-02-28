@@ -62,7 +62,7 @@
         "typescript": "3.6.4"
     },
     "scripts": {
-        "build": "bazelisk build //src:bundle",
+        "build": "bazelisk build //src:prodapp",
         "serve": "ibazel run //src:devserver",
         "deploy": "ng build && firebase deploy",
         "serve-prod": "bazelisk run //src:prodserver",
