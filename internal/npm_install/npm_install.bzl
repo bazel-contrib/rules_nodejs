@@ -336,7 +336,7 @@ def _yarn_install_impl(repository_ctx):
 
     yarn_args = []
     if not repository_ctx.attr.use_global_yarn_cache:
-        yarn_args.extend(["--cache-folder", repository_ctx.path("_yarn_cache")])
+        yarn_args.extend(["--cache-folder", str(repository_ctx.path("_yarn_cache"))])
     else:
         # Multiple yarn rules cannot run simultaneously using a shared cache.
         # See https://github.com/yarnpkg/yarn/issues/683
