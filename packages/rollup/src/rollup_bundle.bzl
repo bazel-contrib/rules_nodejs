@@ -168,6 +168,9 @@ Otherwise, the outputs are assumed to be a single file.
         cfg = "host",
         default = "@npm//rollup/bin:rollup",
     ),
+    "silent": attr.bool(
+        doc = "Whether to execute the rollup binary with the --silent flag",
+    ),
     "sourcemap": attr.string(
         doc = """Whether to produce sourcemaps.
 
@@ -302,6 +305,10 @@ def _rollup_bundle(ctx):
         args.add_all(["--output.file", outputs[0].path])
 
     args.add_all(["--format", ctx.attr.format])
+
+    if ctx.attr.silent:
+        # Run the rollup binary with the --silent flag
+        args.add("--silent")
 
     stamp = ctx.attr.node_context_data[NodeContextInfo].stamp
 
