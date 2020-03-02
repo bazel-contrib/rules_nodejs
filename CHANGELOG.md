@@ -1,3 +1,35 @@
+# [1.4.0](https://github.com/bazelbuild/rules_nodejs/compare/1.3.0...1.4.0) (2020-03-02)
+
+
+### Bug Fixes
+
+* **builtin:** don't include external files when pkg_npm is in root package ([#1677](https://github.com/bazelbuild/rules_nodejs/issues/1677)) ([8089999](https://github.com/bazelbuild/rules_nodejs/commit/8089999)), closes [#1499](https://github.com/bazelbuild/rules_nodejs/issues/1499)
+* **examples:** change build target label to //src:prodapp ([a7f07d1](https://github.com/bazelbuild/rules_nodejs/commit/a7f07d1))
+* **examples:** fix angular examples to use bazelisk ([02e6462](https://github.com/bazelbuild/rules_nodejs/commit/02e6462))
+* ensure BAZEL_NODE_RUNFILES_HELPER & BAZEL_NODE_PATCH_REQUIRE are absolute ([#1634](https://github.com/bazelbuild/rules_nodejs/issues/1634)) ([25600ea](https://github.com/bazelbuild/rules_nodejs/commit/25600ea))
+* expand_variables helper should handle external labels ([3af3a0d](https://github.com/bazelbuild/rules_nodejs/commit/3af3a0d))
+* logic error in expand_variables ([#1631](https://github.com/bazelbuild/rules_nodejs/issues/1631)) ([32c003f](https://github.com/bazelbuild/rules_nodejs/commit/32c003f))
+* yarn cache path should be a string ([#1679](https://github.com/bazelbuild/rules_nodejs/issues/1679)) ([a43809b](https://github.com/bazelbuild/rules_nodejs/commit/a43809b))
+* **builtin:** use posix paths in assembler ([d635dca](https://github.com/bazelbuild/rules_nodejs/commit/d635dca)), closes [#1635](https://github.com/bazelbuild/rules_nodejs/issues/1635)
+* **create:** use latest typescript ([a8ba18e](https://github.com/bazelbuild/rules_nodejs/commit/a8ba18e)), closes [#1602](https://github.com/bazelbuild/rules_nodejs/issues/1602)
+* **examples:** add fixes to angular architect ([f6f40c3](https://github.com/bazelbuild/rules_nodejs/commit/f6f40c3))
+* remove empty arguments from launcher ([#1650](https://github.com/bazelbuild/rules_nodejs/issues/1650)) ([aa3cd6c](https://github.com/bazelbuild/rules_nodejs/commit/aa3cd6c))
+
+
+### Features
+
+* **@bazel/jasmine:** update dependencies to jasmine v3.5.0 ([98fab93](https://github.com/bazelbuild/rules_nodejs/commit/98fab93))
+* **docs:** add authroing instructions ([4dde728](https://github.com/bazelbuild/rules_nodejs/commit/4dde728))
+* **docs:** add header anchor links ([2002046](https://github.com/bazelbuild/rules_nodejs/commit/2002046))
+* **docs:** add vscode debugging section ([78d308f](https://github.com/bazelbuild/rules_nodejs/commit/78d308f))
+* **examples:** add serve to angular architect ([1569f4b](https://github.com/bazelbuild/rules_nodejs/commit/1569f4b))
+* **jasmine:** configure XML reporter to capture detailed testlogs ([8abd20d](https://github.com/bazelbuild/rules_nodejs/commit/8abd20d))
+* **rollup:** add `args` attribute to rollup_bundle rule ([#1681](https://github.com/bazelbuild/rules_nodejs/issues/1681)) ([94c6182](https://github.com/bazelbuild/rules_nodejs/commit/94c6182))
+* **rollup:** add silent attr to rollup_bundle to support --silent flag ([#1680](https://github.com/bazelbuild/rules_nodejs/issues/1680)) ([18e8001](https://github.com/bazelbuild/rules_nodejs/commit/18e8001))
+* **typescript:** use run_node helper to execute tsc ([066a52c](https://github.com/bazelbuild/rules_nodejs/commit/066a52c))
+
+
+
 # [1.3.0](https://github.com/bazelbuild/rules_nodejs/compare/1.2.4...1.3.0) (2020-02-07)
 
 
