@@ -32,6 +32,10 @@ This causes the `@bazel/jasmine` package to be installed as a Bazel workspace na
 
 Runs tests in NodeJS using the Jasmine test runner.
 
+Detailed XML test results are found in the standard `bazel-testlogs`
+directory. This may be symlinked in your workspace.
+See https://docs.bazel.build/versions/master/output_directories.html
+
 To debug the test, see debugging notes in `nodejs_test`.
 
 
