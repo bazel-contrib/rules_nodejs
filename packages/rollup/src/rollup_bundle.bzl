@@ -172,7 +172,7 @@ Otherwise, the outputs are assumed to be a single file.
         doc = """Whether to execute the rollup binary with the --silent flag, defaults to False.
 
 Using --silent can cause rollup to [ignore errors/warnings](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#onwarn) 
-which are only surfaced via logging.  Since bazel expects printing nother on success, setting silent to True
+which are only surfaced via logging.  Since bazel expects printing nothing on success, setting silent to True
 is a more Bazel-idiomatic experience, however could cause rollup to drop important warnings.
 """,
     ),
