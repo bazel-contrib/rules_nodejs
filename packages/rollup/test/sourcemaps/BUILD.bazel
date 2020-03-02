@@ -4,6 +4,11 @@ load("@npm_bazel_rollup//:index.from_src.bzl", "rollup_bundle")
 rollup_bundle(
     name = "bundle",
     srcs = ["s.js"],
+    # Test existance of args attribute
+    args = [
+        "--environment",
+        "FOO,BAR:baz",
+    ],
     # Use the desugared form to assert that it works
     entry_points = {"input.js": "bundle"},
     sourcemap = "true",

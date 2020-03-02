@@ -65,6 +65,16 @@ You must not repeat file(s) passed to entry_point/entry_points.
         # Don't try to constrain the filenames, could be json, svg, whatever
         allow_files = True,
     ),
+    "args": attr.string_list(
+        doc = """Command line arguments to pass to rollup. Can be used to override config file settings.
+
+These argument passed on the command line before all arguments that are always added by the
+rule such as `--output.dir` or `--output.file`, `--format`, `--config` and `--preserveSymlinks` and
+also those that are optionally added by the rule such as `--sourcemap`.
+
+See rollup CLI docs https://rollupjs.org/guide/en/#command-line-flags for complete list of supported arguments.""",
+        default = [],
+    ),
     "config_file": attr.label(
         doc = """A rollup.config.js file
 
@@ -285,6 +295,9 @@ def _rollup_bundle(ctx):
 
     # See CLI documentation at https://rollupjs.org/guide/en/#command-line-reference
     args = ctx.actions.args()
+
+    # Add user specified arguments *before* rule supplied arguments
+    args.add_all(ctx.attr.args)
 
     # List entry point argument first to save some argv space
     # Rollup doc says
