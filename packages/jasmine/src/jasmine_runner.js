@@ -3,6 +3,7 @@ const path = require('path');
 const bazelJasmine = require('@bazel/jasmine');
 
 const JasmineRunner = bazelJasmine.jasmine;
+const JUnitXmlReporter = bazelJasmine.JUnitXmlReporter;
 
 let jasmineCore = null
 if (global.jasmine) {
@@ -112,6 +113,21 @@ function main(args) {
       noSpecsFound = false
     },
   });
+
+  if (JUnitXmlReporter) {
+    const testOutputFile = process.env.XML_OUTPUT_FILE;
+    if (testOutputFile) {
+      jrunner.addReporter(new JUnitXmlReporter({
+        filePrefix: path.basename(testOutputFile),
+        savePath: path.dirname(testOutputFile),
+        consolidate: true,
+        consolidateAll: true
+      }));
+    } else {
+      console.warn('Skipping XML Test Result: $XML_OUTPUT_FILE not found.')
+    }
+  }
+
   // addReporter throws away the default console reporter
   // so we need to add it back
   jrunner.configureDefaultReporter({});
