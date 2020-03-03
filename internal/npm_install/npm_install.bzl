@@ -245,7 +245,7 @@ set -e
         repository_ctx.file(
             "_npm.cmd",
             content = """@echo off
-cd "{root}" && "{npm}" {npm_args}
+cd /D "{root}" && "{npm}" {npm_args}
 """.format(
                 root = root,
                 npm = repository_ctx.path(npm),
@@ -382,7 +382,7 @@ unset YARN_IGNORE_PATH
             "_yarn.cmd",
             content = """@echo off
 set "YARN_IGNORE_PATH="
-cd "{root}" && "{yarn}" {yarn_args}
+cd /D "{root}" && "{yarn}" {yarn_args}
 """.format(
                 root = root,
                 yarn = repository_ctx.path(yarn),
