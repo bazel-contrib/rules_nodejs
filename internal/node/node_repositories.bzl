@@ -509,7 +509,7 @@ SET SCRIPT_DIR=%~dp0
 """ + "".join([
             """
 echo Running npm %* in {root}
-cd "{root}"
+cd /D "{root}"
 CALL "%SCRIPT_DIR%\\{node}" "%SCRIPT_DIR%\\{script}" --scripts-prepend-node-path=false %*
 if %errorlevel% neq 0 exit /b %errorlevel%
 """.format(
@@ -595,7 +595,7 @@ SET SCRIPT_DIR=%~dp0
             """
 echo Running yarn %* in {root}
 SET "YARN_IGNORE_PATH="
-cd "{root}"
+cd /D "{root}"
 CALL "%SCRIPT_DIR%\\{node}" "%SCRIPT_DIR%\\{script}" %*
 if %errorlevel% neq 0 exit /b %errorlevel%
 """.format(
