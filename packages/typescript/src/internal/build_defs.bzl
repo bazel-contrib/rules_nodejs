@@ -25,6 +25,14 @@ load("//internal:ts_config.bzl", "TsConfigInfo")
 _DEFAULT_COMPILER = "@npm//@bazel/typescript/bin:tsc_wrapped"
 _DEFAULT_NODE_MODULES = Label("@npm//typescript:typescript__typings")
 
+_TYPESCRIPT_SCRIPT_TARGETS = ["es3", "es5", "es2015", "es2016", "es2017", "es2018", "esnext"]
+_TYPESCRIPT_MODULE_KINDS = ["none", "commonjs", "amd", "umd", "system", "es2015", "esnext"]
+
+_DEVMODE_TARGET_DEFAULT = "es2015"
+_DEVMODE_MODULE_DEFAULT = "umd"
+_PRODMODE_TARGET_DEFAULT = "es2015"
+_PRODMODE_MODULE_DEFAULT = "esnext"
+
 def _trim_package_node_modules(package_name):
     # trim a package name down to its path prior to a node_modules
     # segment. 'foo/node_modules/bar' would become 'foo' and
@@ -219,9 +227,15 @@ def tsc_wrapped_tsconfig(
     )
     config["bazelOptions"]["nodeModulesPrefix"] = node_modules_root
 
-    # Override the target so we use es2015 for devmode
-    # Since g3 isn't ready to do this yet
-    config["compilerOptions"]["target"] = "es2015"
+    # Control target & module via attributes
+    if devmode_manifest:
+        # NB: devmode target may still be overriden with a tsconfig bazelOpts.devmodeTargetOverride but that
+        #     configuration settings will be removed in a future major release
+        config["compilerOptions"]["target"] = ctx.attr.devmode_target if hasattr(ctx.attr, "devmode_target") else _DEVMODE_TARGET_DEFAULT
+        config["compilerOptions"]["module"] = ctx.attr.devmode_module if hasattr(ctx.attr, "devmode_module") else _DEVMODE_MODULE_DEFAULT
+    else:
+        config["compilerOptions"]["target"] = ctx.attr.prodmode_target if hasattr(ctx.attr, "prodmode_target") else _PRODMODE_TARGET_DEFAULT
+        config["compilerOptions"]["module"] = ctx.attr.prodmode_module if hasattr(ctx.attr, "prodmode_module") else _PRODMODE_MODULE_DEFAULT
 
     # It's fine for users to have types[] in their tsconfig.json to help the editor
     # know which of the node_modules/@types/* entries to include in the program.
@@ -318,6 +332,20 @@ the compiler attribute manually.
             executable = True,
             cfg = "host",
         ),
+        "devmode_module": attr.string(
+            doc = """Set the typescript `module` compiler option for devmode output.
+
+This value will override the `module` option in the user supplied tsconfig.""",
+            values = _TYPESCRIPT_MODULE_KINDS,
+            default = _DEVMODE_MODULE_DEFAULT,
+        ),
+        "devmode_target": attr.string(
+            doc = """Set the typescript `target` compiler option for devmode output.
+
+This value will override the `target` option in the user supplied tsconfig.""",
+            values = _TYPESCRIPT_SCRIPT_TARGETS,
+            default = _DEVMODE_TARGET_DEFAULT,
+        ),
         "internal_testing_type_check_dependencies": attr.bool(default = False, doc = "Testing only, whether to type check inputs that aren't srcs."),
         "node_modules": attr.label(
             doc = """The npm packages which should be available during the compile.
@@ -383,6 +411,20 @@ yarn_install(
 ```
 """,
             default = _DEFAULT_NODE_MODULES,
+        ),
+        "prodmode_module": attr.string(
+            doc = """Set the typescript `module` compiler option for prodmode output.
+
+This value will override the `module` option in the user supplied tsconfig.""",
+            values = _TYPESCRIPT_MODULE_KINDS,
+            default = _PRODMODE_MODULE_DEFAULT,
+        ),
+        "prodmode_target": attr.string(
+            doc = """Set the typescript `target` compiler option for prodmode output.
+
+This value will override the `target` option in the user supplied tsconfig.""",
+            values = _TYPESCRIPT_SCRIPT_TARGETS,
+            default = _PRODMODE_TARGET_DEFAULT,
         ),
         "supports_workers": attr.bool(
             doc = """Intended for internal use only.

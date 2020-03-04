@@ -1,0 +1,8 @@
+{
+    "compilerOptions": {
+        // Explicitly set types settings so typescript doesn't auto-discover types.
+        // If all types are discovered then all types need to be included as deps
+        // or typescript may error out with TS2688: Cannot find type definition file for 'foo'.
+        "types": []
+    },
+}
