@@ -97,7 +97,7 @@ call :rlocation "{sh_script}" run_script
 for %%a in ("{bash_bin}") do set "bash_bin_dir=%%~dpa"
 set PATH=%bash_bin_dir%;%PATH%
 set args=%*
-set args=%args:\=\\%
+set args=%args:\=\\\\%
 set args=%args:"=\"%
 "{bash_bin}" -c "!run_script! %args%"
 """.format(
