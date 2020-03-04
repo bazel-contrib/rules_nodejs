@@ -48,7 +48,7 @@ function test_pass_cmd_args() {
   fi
 
   "$(rlocation ${script})" '/foo bar' "\\foo \\bar" "/foo bar/" \foo\bar /foo/bar \\foo\\bar  "\foo\bar" "\\foo\\bar" '\foo\bar' '\\foo\\bar' >"$TEST_log"
-  
+
   expect_log 'arg2=(/foo bar)'
   expect_log 'arg3=(\\foo \\bar)'
   expect_log 'arg4=(/foo bar/)'
