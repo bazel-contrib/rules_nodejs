@@ -95,3 +95,196 @@ describe('The constant-ness logic', () => {
     }
   });
 });
+
+describe('test AbsoluteMatcher with file path', () => {
+  it('matched path', () => {
+
+    const config = {
+      errorMessage: 'banned name with file path',
+      kind: PatternKind.BANNED_NAME,
+      values: ['./file_0|Foo.bar']
+    };
+    const sources = [
+      `export class Foo { static bar(s: string) {return s + "abc";} }`,
+      `import {Foo} from './file_0';
+       var a = Foo.bar("123");`
+    ];
+    const results =
+        compileAndCheck(new ConformancePatternRule(config), ...sources);
+
+    expect(results).toHaveFailuresMatching(
+        {matchedCode: `bar`, messageText: 'banned name with file path'});
+  });
+
+  it('unmatched path', () => {
+    const config = {
+      errorMessage: 'banned name with file path',
+      kind: PatternKind.BANNED_NAME,
+      values: ['./file_0|Foo.bar']
+    };
+    const sources = [
+      `export class Foo { static bar(s: string) {return s + "abc";} }`,
+      `export class Foo { static bar(s: string) {return s + "abc";} }`,
+      `import {Foo} from './file_1';
+       var a = Foo.bar("123");`
+    ];
+
+    const results =
+        compileAndCheck(new ConformancePatternRule(config), ...sources);
+    expect(results).toHaveNoFailures();
+  });
+
+  it('local exported definition', () => {
+    // This is a match because Foo.bar is an exported symbol.
+    const config = {
+      errorMessage: 'banned name with file path',
+      kind: PatternKind.BANNED_NAME,
+      values: ['./file_0|Foo.bar']
+    };
+    const sources =
+        [`export class Foo { static bar(s: string) {return s + "abc";} }
+          var a = Foo.bar("123");`];
+
+    const results =
+        compileAndCheck(new ConformancePatternRule(config), ...sources);
+    expect(results).toHaveFailuresMatching(
+        {matchedCode: `bar`, messageText: 'banned name with file path'});
+  });
+
+  it('local non-exported definition', () => {
+    // This is not a match because Foo.bar is a non-exported locally defined
+    // symbol.
+    const config = {
+      errorMessage: 'banned name with file path',
+      kind: PatternKind.BANNED_NAME,
+      values: ['./file_0|Foo.bar']
+    };
+    const sources = [`class Foo { static bar(s: string) {return s + "abc";} }
+                      var a = Foo.bar("123");`];
+    const results =
+        compileAndCheck(new ConformancePatternRule(config), ...sources);
+    expect(results).toHaveNoFailures();
+  });
+
+  it('property test 1', () => {
+    const config = {
+      errorMessage: 'banned name with file path',
+      kind: PatternKind.BANNED_NAME,
+      values: ['./file_0|Foo.s']
+    };
+    const sources = [
+      `export class Foo { static s : string; }`,
+      `import {Foo} from './file_0';
+       var a = Foo.s;`,
+    ];
+
+    const results =
+        compileAndCheck(new ConformancePatternRule(config), ...sources);
+    expect(results).toHaveFailuresMatching(
+        {matchedCode: `s`, messageText: 'banned name with file path'});
+  });
+
+  it('property test 2', () => {
+    // This is a match because Moo inherits s from Foo.
+    const config = {
+      errorMessage: 'banned name with file path',
+      kind: PatternKind.BANNED_NAME,
+      values: ['./file_0|Foo.s']
+    };
+    const sources = [
+      `export class Foo { static s : string; }`,
+      `import {Foo} from './file_0';
+       export class Moo extends Foo { static t : string; }`,
+      `import {Moo} from './file_1';
+       var a = Moo.s;`,
+    ];
+
+    const results =
+        compileAndCheck(new ConformancePatternRule(config), ...sources);
+    expect(results).toHaveFailuresMatching(
+        {matchedCode: `s`, messageText: 'banned name with file path'});
+  });
+
+  it('property test 3', () => {
+    // This is not a match because Moo redefines s.
+    const config = {
+      errorMessage: 'banned name with file path',
+      kind: PatternKind.BANNED_NAME,
+      values: ['./file_0|Foo.s']
+    };
+    const sources = [
+      `export class Foo { static s : string; }`,
+      `import {Foo} from './file_0';
+       export class Moo extends Foo { static s : string; }`,
+      `import {Moo} from './file_1';
+       var a = Moo.s;`,
+    ];
+
+    const results =
+        compileAndCheck(new ConformancePatternRule(config), ...sources);
+    expect(results).toHaveNoFailures();
+  });
+
+  it('inheritance test 1', () => {
+    // This is a match because Moo inherits bar from Foo.
+    const config = {
+      errorMessage: 'banned name with file path',
+      kind: PatternKind.BANNED_NAME,
+      values: ['./file_0|Foo.bar']
+    };
+    const sources = [
+      `export class Foo { static bar(s: string) {return s + "abc";} }`,
+      `import {Foo} from './file_0';
+       export class Moo extends Foo { static far(s: string) {return s + "def";} }`,
+      `import {Moo} from './file_1';
+       Moo.bar("abc");`
+    ];
+
+    const results =
+        compileAndCheck(new ConformancePatternRule(config), ...sources);
+    expect(results).toHaveFailuresMatching(
+        {matchedCode: `bar`, messageText: 'banned name with file path'});
+  });
+
+  it('inheritance test 2', () => {
+    // This is not a match because Moo redefines bar.
+    const config = {
+      errorMessage: 'banned name with file path',
+      kind: PatternKind.BANNED_NAME,
+      values: ['./file_0|Foo.bar']
+    };
+    const sources = [
+      `export class Foo { static bar(s: string) {return s + "abc";} }
+       export class Moo extends Foo { static bar(s: string) {return s + "def";} }`,
+      `import {Foo, Moo} from './file_0';
+       Moo.bar("abc");`
+    ];
+
+    const results =
+        compileAndCheck(new ConformancePatternRule(config), ...sources);
+    expect(results).toHaveNoFailures();
+  });
+
+  it('interface', () => {
+    // This is not a match because even though bar specified is interface Moo,
+    // its actual definition is in class Boo.
+    const config = {
+      errorMessage: 'banned name with file path',
+      kind: PatternKind.BANNED_NAME,
+      values: ['./file_1|Moo.bar']
+    };
+    const sources = [
+      `export class Foo { static bar(s: string) {return s + "abc";} }`,
+      `import {Foo} from './file_0';
+       export interface Moo extends Foo { }`,
+      `import {Moo} from './file_1';
+       export class Boo implements Moo { static bar(s: string) {return s + "def";} }`,
+      `import {Boo} from './file_2';
+       Boo.bar("abc");`,
+    ];
+
+    const results =
+        compileAndCheck(new ConformancePatternRule(config), ...sources);
+    expect(results).toHaveNoFailures();
+  });
+});

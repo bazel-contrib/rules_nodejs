@@ -1,10 +1,11 @@
 import * as ts from 'typescript';
 import {dealias, debugLog, isAmbientDeclaration, isDeclaration, isInStockLibraries, isPartOfImportStatement} from './ast_tools';
 
+const PATH_NAME_FORMAT = '[/\\.\\w\\d_-]+';
 const JS_IDENTIFIER_FORMAT = '[\\w\\d_-]+';
 const FQN_FORMAT = `(${JS_IDENTIFIER_FORMAT}\.)*${JS_IDENTIFIER_FORMAT}`;
 // A fqn made out of a dot-separated chain of JS identifiers.
-const ABSOLUTE_RE = new RegExp(`^${FQN_FORMAT}$`);
+const ABSOLUTE_RE = new RegExp(`^(${PATH_NAME_FORMAT}\\|){0,1}${FQN_FORMAT}$`);
 
 /**
  * This class matches symbols given a "foo.bar.baz" name, where none of the
@@ -14,18 +15,59 @@ const ABSOLUTE_RE = new RegExp(`^${FQN_FORMAT}$`);
  * strongly suggest finding the expected symbol in externs to find the object
  * name on which the symbol was initially defined.
  *
- * TODO(rjamet): add a file-based optional filter, since FQNs tell you where
- * your imported symbols were initially defined. That would let us be more
- * specific in matches (say, you want to ban the fromLiteral in foo.ts but not
- * the one from bar.ts).
+ * This matcher supports an optional file path filter. The filter specifies
+ * (part of) the path of the file in which the symbol of interest is defined.
+ * To add a file path filer to name "foo.bar.baz", prepend the path and
+ * the separator "|" to the name. For example, "path/to/file.ts|foo.bar.baz".
+ * With this filter, only symbols named "foo.bar.baz" that are defined in a path
+ * that contains "path/to/file.ts" are matched.
+ *
+ * This filter is useful when mutiple symbols have the same name but
+ * you want to match with a specific one. For example, assume that there are
+ * two classes named "Foo" defined in /path/to/file0 and /path/to/file1.
+ * // in /path/to/file0
+ * export class Foo { static bar() {return "Foo.bar in file0";} }
+ *
+ * // in /path/to/file1
+ * export class Foo { static bar() {return "Foo.bar in file1";} }
+ *
+ * Suppose that these two classes are referenced in two other files.
+ * // in /path/to/file2
+ * import {Foo} from /path/to/file0;
+ * Foo.bar();
+ *
+ * // in /path/to/file3
+ * import {Foo} from /path/to/file1;
+ * Foo.bar();
+ *
+ * An absolute matcher "Foo.bar" without a file filter will match with both
+ * references to "Foo.bar" in /path/to/file2 and /path/to/file3.
+ * An absolute matcher "/path/to/file1|Foo.bar", however, only matches with the
+ * "Foo.bar()" in /path/to/file3 because that references the "Foo.bar" defined
+ * in /path/to/file1.
+ *
+ * Note that an absolute matcher will match with any reference to the symbol
+ * defined in the file(s) specified by the file filter. For example, assume that
+ * Foo from file1 is extended in file4.
+ *
+ * // in /path/to/file4
+ * import {Foo} from /path/to/file1;
+ * class Moo { static tar() {return "Moo.tar in file4";} }
+ * Moo.bar();
+ *
+ * An absolute matcher "/path/to/file1|Foo.bar" matches with "Moo.bar()" because
+ * "bar" is defined as part of Foo in /path/to/file1.
  */
 export class AbsoluteMatcher {
   /**
-   * From a "path/to/file.ts:foo.bar.baz" or "foo.bar.baz" matcher
+   * From a "path/to/file.ts|foo.bar.baz" or "foo.bar.baz" matcher
    * specification, builds a Matcher.
    */
-  constructor(readonly bannedName: string) {
-    if (!bannedName.match(ABSOLUTE_RE)) {
+  readonly filePath: string;
+  readonly bannedName: string;
+
+  constructor(spec: string) {
+    if (!spec.match(ABSOLUTE_RE)) {
       throw new Error('Malformed matcher selector.');
     }
 
@@ -35,11 +77,20 @@ export class AbsoluteMatcher {
     // on `foo`. To avoid any confusion, throw there if we see `prototype` in
     // the spec: that way, it's obvious that you're not trying to match
     // properties.
-    if (this.bannedName.match('.prototype.')) {
+    if (spec.match('.prototype.')) {
       throw new Error(
           'Your pattern includes a .prototype, but the AbsoluteMatcher is ' +
           'meant for non-object matches. Use the PropertyMatcher instead, or ' +
           'the Property-based PatternKinds.');
+    }
+
+    if (spec.includes('|')) {
+      // File path is present so we split spec by the separator "|".
+      [this.filePath, this.bannedName] = spec.split('|', 2);
+    } else {
+      // File path is omitted so spec is bannedName.
+      this.filePath = '';
+      this.bannedName = spec;
     }
   }
 
@@ -79,6 +130,14 @@ export class AbsoluteMatcher {
     // either a declare somewhere, or one of the core libraries that
     // are loaded by default.
     if (!fqn.startsWith('"')) {
+      // If this matcher includes a file path, it means that the targeted symbol
+      // is defined and explicitly exported in some file. If the current symbol
+      // is not associated with a specific file (because it is a local symbol or
+      // ambient symbol), it is not a match.
+      if (this.filePath !== '') {
+        return false;
+      }
+
       // We need to trace things back, so get declarations of the symbol.
       const declarations = s.getDeclarations();
       if (!declarations) {
@@ -89,6 +148,24 @@ export class AbsoluteMatcher {
           !declarations.some(isInStockLibraries)) {
         debugLog(`Symbol neither ambient nor from the stock libraries`);
         return false;
+      }
+    }
+    // If we know the file info of the symbol, and this matcher includes a file
+    // path, we check if they match.
+    else {
+      if (this.filePath !== '') {
+        const last = fqn.indexOf('"', 1);
+        if (last === -1) {
+          throw new Error('Malformed fully-qualified name.');
+        }
+        const sympath = fqn.substring(1, last);
+        debugLog(`The file path of the symbol is ${sympath}`);
+        if (!sympath.match(this.filePath)) {
+          debugLog(
+              `The file path of the symbol does not match the ` +
+              `file path of the matcher`);
+          return false;
+        }
       }
     }
 
