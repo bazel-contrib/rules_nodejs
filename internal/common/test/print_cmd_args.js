@@ -15,9 +15,6 @@
  * limitations under the License.
  */
 
-const process = require('process')
-
-
 for (var i=2; i < process.argv.length; i += 1) {
 	console.log("arg" + i + "=(" + process.argv[i] + ")");
 }

@@ -97,6 +97,7 @@ call :rlocation "{sh_script}" run_script
 for %%a in ("{bash_bin}") do set "bash_bin_dir=%%~dpa"
 set PATH=%bash_bin_dir%;%PATH%
 set args=%*
+rem Escape \ and * in args before passsing it with double quote
 if defined args (
   set args=!args:\=\\\\!
   set args=!args:"=\"!
