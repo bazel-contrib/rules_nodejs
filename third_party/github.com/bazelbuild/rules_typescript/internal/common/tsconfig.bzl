@@ -253,10 +253,17 @@ def create_tsconfig(
         # Interpret JSX as React calls (until someone asks for something different)
         "jsx": "react",
 
-        # Print out full errors. By default TS truncates errors >100 chars. This can make it
-        # impossible to understand some errors.
-        "noErrorTruncation": True,
-        # Do not emit files if they had errors (avoid accidentally serving broken code).
+        # Truncate excessively long errors.
+        # While truncation can make some errors harder to understand, it makes
+        # others easier to read. Additionally, for certain errors, TypeScript
+        # can run out of memory trying to convert them into a humand readable
+        # string (see https://github.com/Microsoft/TypeScript/issues/37230).
+        # That's a bug, but the general default configuration of TypeScript is
+        # to truncate, so following that seems safer and more in line with the
+        # expected developer UX.
+        "noErrorTruncation": False,
+        # Do not emit files if they had errors (avoid accidentally serving
+        # broken code).
         "noEmitOnError": False,
         # Create .d.ts files as part of compilation.
         "declaration": True,
