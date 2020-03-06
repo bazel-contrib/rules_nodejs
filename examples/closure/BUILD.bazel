@@ -1,9 +1,16 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
 load("@npm//google-closure-compiler:index.bzl", "google_closure_compiler")
+load("@rules_java//java:defs.bzl", "java_binary")
 
 java_binary(
-    name = "google_closure_templates_compiler",
+    name = "soy_idom_compiler",
     main_class = "com.google.template.soy.SoyToIncrementalDomSrcCompiler",
+    runtime_deps = ["@maven//:com_google_template_soy"],
+)
+
+java_binary(
+    name = "soy_js_compiler",
+    main_class = "com.google.template.soy.SoyToJsSrcCompiler",
     runtime_deps = ["@maven//:com_google_template_soy"],
 )
 
@@ -11,11 +18,24 @@ genrule(
     name = "compile_soy",
     srcs = ["index.soy"],
     outs = ["index.soy.js"],
-    cmd = """$(location google_closure_templates_compiler) \
-      --srcs $(SRCS) \
-      --outputPathFormat $(@D)/{INPUT_FILE_NAME}.js\
-    """,
-    tools = ["google_closure_templates_compiler"],
+    cmd = " ".join([
+        "$(location :soy_js_compiler)",
+        "--srcs $(SRCS)",
+        "--outputPathFormat $(@D)/{INPUT_FILE_NAME_NO_EXT}.soy.js",
+    ]),
+    tools = [":soy_js_compiler"],
+)
+
+genrule(
+    name = "compile_soy_idom",
+    srcs = ["index.soy"],
+    outs = ["index.soy_idom.js"],
+    cmd = " ".join([
+        "$(location :soy_idom_compiler)",
+        "--srcs $(SRCS)",
+        "--outputPathFormat $(@D)/{INPUT_FILE_NAME_NO_EXT}.soy_idom.js",
+    ]),
+    tools = [":soy_idom_compiler"],
 )
 
 # _CLOSURE_LIB_DEPS = [
@@ -50,11 +70,17 @@ google_closure_compiler(
         "--flagfile=$(location :closure_config)",
         "--js=$(execpath hello.js)",
         "--js=$(execpath index.soy.js)",
+        "--js=$(execpath index.soy_idom.js)",
         "--js_output_file=$@",
-    ] + ["--js=$(execpath %s)" % s for s in _CLOSURE_LIB_DEPS],,
+        "--dependency_mode=STRICT",
+        "--entry_point=$(execpath hello.js)",
+        "--entry_point=$(execpath index.soy.js)",
+        # "--entry_point=$(execpath index.soy_idom.js)",
+    ] + ["--js=$(execpath %s)" % s for s in _CLOSURE_LIB_DEPS],
     data = [
         "hello.js",
         "index.soy.js",
+        "index.soy_idom.js",
         ":closure_config",
         "@closure-templates//:all",
         "@npm//google-protobuf:google-protobuf__files",
