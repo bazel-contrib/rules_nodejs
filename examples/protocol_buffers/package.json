@@ -9,6 +9,8 @@
     "@types/jasmine": "2.8.2",
     "@types/long": "^4.0.0",
     "@types/node": "11.11.1",
+    "google-protobuf": "3.11.4",
+    "grpc-web": "1.0.7",
     "http-server": "^0.11.1",
     "karma": "~4.1.0",
     "karma-chrome-launcher": "2.2.0",
@@ -21,6 +23,8 @@
     "protractor": "^5.4.2",
     "requirejs": "2.3.6",
     "rollup": "1.20.3",
+    "rollup-plugin-commonjs": "10.1.0",
+    "rollup-plugin-node-resolve": "5.2.0",
     "terser": "4.3.1",
     "typescript": "^3.3.1"
   },

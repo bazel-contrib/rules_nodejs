@@ -1,0 +1,151 @@
+/**
+ * Converts a list of generated protobuf-js files from commonjs modules into named AMD modules.
+ *
+ * Initial implementation derived from
+ * https://github.com/Dig-Doug/rules_typescript_proto/blob/master/src/change_import_style.ts
+ *
+ * Arguments:
+ *   --workspace_name
+ *   --input_base_path
+ *   --output_module_name
+ *   --input_file_path
+ *   --output_file_path
+ */
+const minimist = require('minimist');
+const fs = require('fs');
+
+function main() {
+  const args = minimist(process.argv.slice(2));
+
+  /**
+   * Proto files with RPC service definitions will produce an extra file. During a bazel aspect we
+   * have to declare our outputs without knowing the contents of the proto file so we generate an
+   * empty stub for files without service definitions.
+   */
+  if (!fs.existsSync(args.input_file_path)) {
+    fs.writeFileSync(args.input_file_path, '', 'utf8');
+    fs.writeFileSync(args.input_file_path.replace('.js', '.d.ts'), '', 'utf8');
+    fs.writeFileSync(args.output_umd_path, '', 'utf8');
+    fs.writeFileSync(args.output_es6_path, '', 'utf8');
+  }
+
+  const initialContents = fs.readFileSync(args.input_file_path, 'utf8');
+
+  const umdContents = convertToUmd(args, initialContents);
+  fs.writeFileSync(args.output_umd_path, umdContents, 'utf8');
+
+  const commonJsContents = convertToESM(args, initialContents);
+  fs.writeFileSync(args.output_es6_path, commonJsContents, 'utf8');
+}
+
+function replaceRecursiveFilePaths(args) {
+  return (contents) => {
+    return contents.replace(/(\.\.\/)+/g, `${args.workspace_name}/`);
+  };
+}
+
+function removeJsExtensionsFromRequires(contents) {
+  return contents.replace(/(require\(.*).js/g, (_, captureGroup) => {
+    return captureGroup;
+  });
+}
+
+function convertToUmd(args, initialContents) {
+  const wrapInAMDModule = (contents) => {
+    return `// GENERATED CODE DO NOT EDIT
+    (function (factory) {
+      if (typeof module === "object" && typeof module.exports === "object") {
+        var v = factory(require, exports);
+        if (v !== undefined) module.exports = v;
+      }
+      else if (typeof define === "function" && define.amd) {
+        define("${args.input_base_path}/${args.output_module_name}",  factory);
+      }
+    })(function (require, exports) {
+      ${contents.replace(/module.exports =/g, 'return')}
+    });
+`;
+  };
+
+  const transformations =
+      [wrapInAMDModule, replaceRecursiveFilePaths(args), removeJsExtensionsFromRequires];
+  return transformations.reduce((currentContents, transform) => {
+    return transform(currentContents);
+  }, initialContents);
+}
+
+// Converts the CommonJS format from protoc to the ECMAScript Module format.
+// Reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules
+function convertToESM(args, initialContents) {
+  const replaceGoogExtendWithExports = (contents) => {
+    return contents.replace(/goog\.object\.extend\(exports, ([\w\.]+)\);/g, (_, packageName) => {
+      const exportSymbols = /goog\.exportSymbol\('([\w\.]+)',.*\);/g;
+      const symbols = [];
+
+      let match;
+      while ((match = exportSymbols.exec(initialContents))) {
+        // We want to ignore embedded export targets, IE:
+        // `DeliveryPerson.DataCase`.
+        const exportTarget = match[1].substr(packageName.length + 1);
+        if (!exportTarget.includes('.')) {
+          symbols.push(exportTarget);
+        }
+      }
+
+      return `export const { ${symbols.join(', ')} } = ${packageName}`;
+    });
+  };
+
+  const replaceCMDefaultExportWithExports = (contents) => {
+    return contents.replace(/module.exports = ([\w\.]+)\;/g, (_, packageName) => {
+      const exportSymbols = new RegExp(`${packageName.replace('.', '\\.')}\.([\\w\\.]+) =`, 'g');
+
+      const symbols = [];
+
+      let match;
+      while ((match = exportSymbols.exec(initialContents))) {
+        // We want to ignore embedded export targets, IE:
+        // `DeliveryPerson.DataCase`.
+        const exportTarget = match[1];
+        if (!exportTarget.includes('.')) {
+          symbols.push(exportTarget);
+        }
+      }
+
+      return `export const { ${symbols.join(', ')} } = ${packageName};`;
+    });
+  };
+
+  const replaceRequiresWithImports = (contents) => {
+    return contents
+        .replace(
+            /var ([\w\d_]+) = require\((['"][\.\\]*[\w\d@/_-]+['"])\)/g, 'import * as $1 from $2')
+        .replace(
+            /([\.\w\d_]+) = require\((['"][\.\w\d@/_-]+['"])\)/g, (_, variable, importPath) => {
+              const normalizedVariable = variable.replace(/\./g, '_');
+              return `import * as ${normalizedVariable} from ${importPath};\n${variable} = {...${
+                  normalizedVariable}}`;
+            });
+  };
+
+  const replaceRequiresWithSubpackageImports = (contents) => {
+    return contents.replace(
+        /var ([\w\d_]+) = require\((['"][\w\d@/_-]+['"])\)\.([\w\d_]+);/g,
+        'import * as $1 from $2;');
+  };
+
+  const replaceCJSExportsWithECMAExports = (contents) => {
+    return contents.replace(/exports\.([\w\d_]+) = .*;/g, 'export { $1 };');
+  };
+
+  const transformations = [
+    replaceRecursiveFilePaths(args), removeJsExtensionsFromRequires, replaceGoogExtendWithExports,
+    replaceRequiresWithImports, replaceRequiresWithSubpackageImports,
+    replaceCMDefaultExportWithExports, replaceCJSExportsWithECMAExports
+  ];
+  return transformations.reduce((currentContents, transform) => {
+    return transform(currentContents);
+  }, initialContents);
+}
+
+main();

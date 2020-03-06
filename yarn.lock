@@ -3482,6 +3482,11 @@ globby@^5.0.0:
     pify "^2.0.0"
     pinkie-promise "^2.0.0"
 
+google-protobuf@^3.6.1:
+  version "3.11.4"
+  resolved "https://registry.yarnpkg.com/google-protobuf/-/google-protobuf-3.11.4.tgz#598ca405a3cfa917a2132994d008b5932ef42014"
+  integrity sha512-lL6b04rDirurUBOgsY2+LalI6Evq8eH5TcNzi7TYQ3BsIWelT0KSOQSBsXuavEkNf+odQU6c0lgz3UsZXeNX9Q==
+
 got@^6.7.1:
   version "6.7.1"
   resolved "https://registry.yarnpkg.com/got/-/got-6.7.1.tgz#240cd05785a9a18e561dc1b44b41c763ef1e8db0"
@@ -3508,6 +3513,11 @@ graceful-fs@^4.1.15, graceful-fs@^4.2.2, graceful-fs@^4.2.3:
   version "4.2.3"
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.3.tgz#4a12ff1b60376ef09862c2093edd908328be8423"
   integrity sha512-a30VEBm4PEdx1dRB7MFK7BejejvCvBronbLjht+sHuGYj8PHs7M/5Z+rt5lw551vZ7yfTCj4Vuyy3mSJytDWRQ==
+
+grpc-web@^1.0.7:
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/grpc-web/-/grpc-web-1.0.7.tgz#9e4fbcf63d3734515332ab59e42baa7d0d290015"
+  integrity sha512-Fkbz1nyvvt6GC6ODcxh9Fen6LLB3OTCgGHzHwM2Eni44SUhzqPz1UQgFp9sfBEfInOhx3yBdwo9ZLjZAmJ+TtA==
 
 handlebars@^4.0.3, handlebars@^4.1.2:
   version "4.5.3"

@@ -11,6 +11,14 @@ proto_library(
     srcs = ["tire.proto"],
 )
 
+ts_proto_library(
+    # The result will be "tire.d.ts" named after this target.
+    # We could use the output_name attribute if we want the output named
+    # differently than the target.
+    name = "tire",
+    proto = ":tire_proto",
+)
+
 proto_library(
     name = "car_proto",
     srcs = ["car.proto"],
@@ -22,7 +30,7 @@ ts_proto_library(
     # We could use the output_name attribute if we want the output named
     # differently than the target.
     name = "car",
-    deps = [":car_proto"],
+    proto = ":car_proto",
 )
 
 ts_config(
@@ -38,16 +46,17 @@ ts_library(
     tsconfig = "//:tsconfig-test",
     deps = [
         ":car",
+        ":tire",
         "@npm//@types/jasmine",
-        "@npm//@types/long",
         "@npm//@types/node",
-        "@npm//long",
     ],
 )
 
 karma_web_test_suite(
     name = "test",
-    bootstrap = ["@npm_bazel_labs//protobufjs:bootstrap_scripts"],
+    srcs = [
+        "@npm_bazel_labs//grpc_web:bootstrap_scripts",
+    ],
     browsers = [
         "@io_bazel_rules_webtesting//browsers:chromium-local",
         "@io_bazel_rules_webtesting//browsers:firefox-local",
@@ -64,8 +73,8 @@ ts_library(
 
 ts_devserver(
     name = "devserver",
-    bootstrap = ["@npm_bazel_labs//protobufjs:bootstrap_scripts"],
     entry_module = "examples_protocol_buffers/app",
+    scripts = ["@npm_bazel_labs//grpc_web:bootstrap_scripts"],
     deps = [":app"],
 )
 
@@ -75,7 +84,12 @@ rollup_bundle(
     config_file = "rollup.config.js",
     entry_point = ":app.ts",
     format = "iife",
-    deps = [":app"],
+    deps = [
+        ":app",
+        "@npm//:node_modules",
+        "@npm//rollup-plugin-commonjs",
+        "@npm//rollup-plugin-node-resolve",
+    ],
 )
 
 terser_minified(
@@ -83,27 +97,11 @@ terser_minified(
     src = ":bundle",
 )
 
-# Needed because the prodserver only loads static files that appear under this
-# package.
-genrule(
-    name = "protobufjs",
-    srcs = [
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:node_modules/protobufjs/dist/minimal/protobuf.min.js",
-        "@build_bazel_rules_typescript_protobufs_compiletime_deps//:node_modules/long/dist/long.js",
-    ],
-    outs = [
-        "protobuf.min.js",
-        "long.js",
-    ],
-    cmd = "outs=($(OUTS)); d=$$(dirname $${outs[0]}); for s in $(SRCS); do cp $$s $$d; done",
-)
-
 http_server(
     name = "prodserver",
     data = [
         "index.html",
         ":bundle.min",
-        ":protobufjs",
     ],
 )
 

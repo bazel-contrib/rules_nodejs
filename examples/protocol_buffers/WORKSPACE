@@ -32,6 +32,15 @@ http_archive(
     urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.11.4.tar.gz"],
 )
 
+http_archive(
+    name = "rules_proto",
+    sha256 = "4d421d51f9ecfe9bf96ab23b55c6f2b809cbaf0eea24952683e397decfbd0dd0",
+    strip_prefix = "rules_proto-f6b8d89b90a7956f6782a4a3609b2f0eee3ce965",
+    urls = [
+        "https://github.com/bazelbuild/rules_proto/archive/f6b8d89b90a7956f6782a4a3609b2f0eee3ce965.tar.gz",
+    ],
+)
+
 load("@build_bazel_rules_nodejs//:index.bzl", "yarn_install")
 
 yarn_install(
@@ -55,6 +64,12 @@ npm_bazel_karma_dependencies()
 load("@npm_bazel_labs//:package.bzl", "npm_bazel_labs_dependencies")
 
 npm_bazel_labs_dependencies()
+
+load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
+
+rules_proto_dependencies()
+
+rules_proto_toolchains()
 
 load("@io_bazel_rules_webtesting//web:repositories.bzl", "web_test_repositories")
 

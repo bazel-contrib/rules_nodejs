@@ -1,8 +1,9 @@
-import {Proto} from './car';
+import {Car} from 'examples_protocol_buffers/car_pb';
 
-const serverResponse = `{"make": "Porsche"}`;
-const car = Proto.Car.create(JSON.parse(serverResponse));
+const car = new Car();
+car.setMake('Porsche');
+
 const el: HTMLDivElement = document.createElement('div');
-el.innerText = `Car from server: ${car.make}`;
+el.innerText = `Car from server: ${car.getMake()}`;
 el.className = 'ts1';
 document.body.appendChild(el);

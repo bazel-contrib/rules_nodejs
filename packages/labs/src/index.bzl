@@ -15,6 +15,8 @@
 """Public API surface is re-exported here.
 """
 
-load("//protobufjs:ts_proto_library.bzl", _ts_proto_library = "ts_proto_library")
+load("@npm_bazel_labs//grpc_web:ts_proto_library.bzl", _ts_proto_library = "ts_proto_library")
+load("@npm_bazel_labs//protobufjs:ts_proto_library.bzl", _protobufjs_ts_library = "ts_proto_library")
 
 ts_proto_library = _ts_proto_library
+protobufjs_ts_library = _protobufjs_ts_library
