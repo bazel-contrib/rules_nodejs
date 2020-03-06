@@ -46,13 +46,12 @@ google_closure_compiler(
     args = [
         # workaround https://github.com/google/closure-compiler-npm/issues/147
         # --platform native would be faster but is failing on Windows
-        #"--platform=javascript",
-        "--platform=native",
+        # "--platform=javascript",
         "--flagfile=$(location :closure_config)",
-        "--js=$(location hello.js)",
-        "--js=$(location index.soy.js)",
-        "--js_output_file=$(location bundle.js)",
-    ] + ["--js=$(location %s)" % s for s in _CLOSURE_LIB_DEPS],
+        "--js=$(execpath hello.js)",
+        "--js=$(execpath index.soy.js)",
+        "--js_output_file=$@",
+    ] + ["--js=$(execpath %s)" % s for s in _CLOSURE_LIB_DEPS],,
     data = [
         "hello.js",
         "index.soy.js",

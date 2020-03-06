@@ -1,27 +1,20 @@
 load("@npm_bazel_typescript//:index.from_src.bzl", "ts_library")
+load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
 
 package(default_visibility = ["//packages/rollup:__subpackages__"])
 
-genrule(
+copy_file(
     name = "copy_user",
-    srcs = [
-        ":user.mjs",
-    ],
-    outs = [
-        ":user.js",
-    ],
-    cmd = "cp $< $@",
+    src = ":user.mjs",
+    out = ":user.js",
 )
 
 ts_library(
-    name = "foolib",
+    name = "foo_lib",
     srcs = [
         "index.ts",
         "user.d.ts",
     ],
-    module_name = "foolib",
-    # Don't allow deep imports under here,
-    # and give it the AMD name "foolib", not "foolib/index"
-    module_root = "index.d.ts",
+    module_name = "@foo/lib",
     deps = ["@npm//date-fns"],
 )

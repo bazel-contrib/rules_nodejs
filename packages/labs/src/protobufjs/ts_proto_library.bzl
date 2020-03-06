@@ -15,7 +15,7 @@
 
 load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "JSEcmaScriptModuleInfo", "JSNamedModuleInfo")
 
-def _run_pbjs(actions, executable, output_name, proto_files, suffix = ".js", wrap = "amd", amd_name = ""):
+def _run_pbjs(actions, executable, var, output_name, proto_files, suffix = ".js", wrap = "default", amd_name = ""):
     js_file = actions.declare_file(output_name + suffix)
 
     # Create an intermediate file so that we can do some manipulation of the
@@ -36,6 +36,7 @@ def _run_pbjs(actions, executable, output_name, proto_files, suffix = ".js", wra
         inputs = proto_files,
         outputs = [js_tmpl_file],
         arguments = [args],
+        env = {"COMPILATION_MODE": var["COMPILATION_MODE"]},
     )
 
     actions.expand_template(
@@ -51,7 +52,7 @@ def _run_pbjs(actions, executable, output_name, proto_files, suffix = ".js", wra
     )
     return js_file
 
-def _run_pbts(actions, executable, js_file):
+def _run_pbts(actions, executable, var, js_file):
     ts_file = actions.declare_file(js_file.basename[:-len(".js")] + ".d.ts")
 
     # Reference of arguments:
@@ -66,11 +67,12 @@ def _run_pbts(actions, executable, js_file):
         inputs = [js_file],
         outputs = [ts_file],
         arguments = [args],
+        env = {"COMPILATION_MODE": var["COMPILATION_MODE"]},
     )
     return ts_file
 
 def _ts_proto_library(ctx):
-    sources = depset()
+    sources_depsets = []
     for dep in ctx.attr.deps:
         if ProtoInfo not in dep:
             fail("ts_proto_library dep %s must be a proto_library rule" % dep.label)
@@ -79,13 +81,16 @@ def _ts_proto_library(ctx):
         # > should not parse .proto files. Instead, they should use the descriptor
         # > set output from proto_library
         # but protobuf.js doesn't seem to accept that bin format
-        sources = depset(transitive = [sources, dep[ProtoInfo].transitive_sources])
+        sources_depsets.append(dep[ProtoInfo].transitive_sources)
+
+    sources = depset(transitive = sources_depsets)
 
     output_name = ctx.attr.output_name or ctx.label.name
 
     js_es5 = _run_pbjs(
         ctx.actions,
         ctx.executable,
+        ctx.var,
         output_name,
         sources,
         amd_name = "/".join([p for p in [
@@ -96,6 +101,7 @@ def _ts_proto_library(ctx):
     js_es6 = _run_pbjs(
         ctx.actions,
         ctx.executable,
+        ctx.var,
         output_name,
         sources,
         suffix = ".mjs",
@@ -103,7 +109,7 @@ def _ts_proto_library(ctx):
     )
 
     # pbts doesn't understand '.mjs' extension so give it the es5 file
-    dts = _run_pbts(ctx.actions, ctx.executable, js_es5)
+    dts = _run_pbts(ctx.actions, ctx.executable, ctx.var, js_es5)
 
     # Return a structure that is compatible with the deps[] of a ts_library.
     declarations = depset([dts])
@@ -116,6 +122,7 @@ def _ts_proto_library(ctx):
             DeclarationInfo(
                 declarations = declarations,
                 transitive_declarations = declarations,
+                type_blacklisted_declarations = depset([]),
             ),
             JSNamedModuleInfo(
                 direct_sources = es5_sources,
@@ -190,17 +197,17 @@ result will be `car.d.ts`. This means our TypeScript code can just
 name the rule differently from the output file.
 
 The JavaScript produced by protobuf.js has a runtime dependency on a support library.
-Under devmode (e.g. `ts_devserver`, `ts_web_test_suite`) you'll need to include these scripts
+Under devmode (e.g. `ts_devserver`, `karma_web_test_suite`) you'll need to include these scripts
 in the `bootstrap` phase (before Require.js loads). You can use the label
 `@npm_bazel_labs//protobufjs:bootstrap_scripts` to reference these scripts
-in the `bootstrap` attribute of `ts_web_test_suite` or `ts_devserver`.
+in the `bootstrap` attribute of `karma_web_test_suite` or `ts_devserver`.
 
-To complete the example above, you could write a `ts_web_test_suite`:
+To complete the example above, you could write a `karma_web_test_suite`:
 
 ```python
-load("@npm_bazel_karma//:index.bzl", "ts_web_test_suite")
+load("@npm_bazel_karma//:index.bzl", "karma_web_test_suite")
 
-ts_web_test_suite(
+karma_web_test_suite(
     name = "test",
     deps = ["test_lib"],
     bootstrap = ["@npm_bazel_labs//protobufjs:bootstrap_scripts"],

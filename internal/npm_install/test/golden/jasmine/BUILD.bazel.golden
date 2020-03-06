@@ -5,10 +5,7 @@ filegroup(
     name = "jasmine__files",
     srcs = [
         "//:node_modules/jasmine/.editorconfig",
-        "//:node_modules/jasmine/.travis.yml",
         "//:node_modules/jasmine/Gruntfile.js",
-        "//:node_modules/jasmine/MIT.LICENSE",
-        "//:node_modules/jasmine/README.md",
         "//:node_modules/jasmine/bin/jasmine.js",
         "//:node_modules/jasmine/lib/command.js",
         "//:node_modules/jasmine/lib/examples/jasmine.json",
@@ -19,6 +16,23 @@ filegroup(
         "//:node_modules/jasmine/package.json",
         "//:node_modules/jasmine/tasks/jasmine.js",
     ],
+)
+filegroup(
+    name = "jasmine__nested_node_modules",
+    visibility = ["//:__subpackages__"],
+)
+filegroup(
+    name = "jasmine__not_files",
+    srcs = [
+        "//:node_modules/jasmine/.travis.yml",
+        "//:node_modules/jasmine/MIT.LICENSE",
+        "//:node_modules/jasmine/README.md",
+    ],
+    visibility = ["//visibility:private"],
+)
+filegroup(
+    name = "jasmine__all_files",
+    srcs = [":jasmine__files", ":jasmine__not_files"],
 )
 node_module_library(
     name = "jasmine",
@@ -41,7 +55,8 @@ node_module_library(
 )
 node_module_library(
     name = "jasmine__contents",
-    srcs = [":jasmine__files"],
+    srcs = [":jasmine__files", ":jasmine__nested_node_modules"],
+    visibility = ["//:__subpackages__"],
 )
 node_module_library(
     name = "jasmine__typings",

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "npm_package")
+load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "pkg_npm")
 load(":replacements.bzl", "TYPESCRIPT_REPLACEMENTS")
 
 # Ugly genrule depending on local linux environment to build the README out of skylark doc generation.
@@ -21,29 +21,36 @@ load(":replacements.bzl", "TYPESCRIPT_REPLACEMENTS")
 genrule(
     name = "generate_README",
     srcs = [
-        "//packages/typescript/docs:index.md",
+        "@npm_bazel_typescript//:index.md",
         "//packages/typescript/docs:install.md",
     ],
     outs = ["README.md"],
-    cmd = """cat $(location //packages/typescript/docs:install.md) $(location //packages/typescript/docs:index.md) | sed 's/^##/\\\n##/' > $@""",
+    cmd = """cat $(execpath //packages/typescript/docs:install.md) $(execpath @npm_bazel_typescript//:index.md) | sed 's/^##/\\\n##/' > $@""",
+    tags = ["fix-windows"],
     visibility = ["//docs:__pkg__"],
 )
 
-npm_package(
+pkg_npm(
     name = "npm_package",
     srcs = [
         "@npm_bazel_typescript//:package_contents",
     ],
-    packages = [
+    build_file_content = "",
+    nested_packages = [
         "@build_bazel_rules_typescript//:npm_bazel_typescript_package",
     ],
-    replacements = TYPESCRIPT_REPLACEMENTS,
+    substitutions = TYPESCRIPT_REPLACEMENTS,
     vendor_external = [
         "npm_bazel_typescript",
         "build_bazel_rules_typescript",
     ],
     deps = [
-        ":generate_README",
         "@npm_bazel_typescript//internal:BUILD",
-    ],
+    ] + select({
+        # FIXME: fix stardoc on Windows; @npm_bazel_typescript//:index.md generation fails with:
+        #   ERROR: D:/b/62unjjin/external/npm_bazel_typescript/BUILD.bazel:36:1: Couldn't build file
+        #   external/npm_bazelnpm_bazel_typescript_terser/docs.raw: Generating proto for Starlark doc for docs failed (Exit 1)
+        "@bazel_tools//src/conditions:windows": [],
+        "//conditions:default": [":generate_README"],
+    }),
 )

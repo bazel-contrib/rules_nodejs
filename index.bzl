@@ -19,7 +19,8 @@ Users should not load files under "/internal"
 
 load("//internal/common:check_bazel_version.bzl", _check_bazel_version = "check_bazel_version")
 load("//internal/common:check_version.bzl", "check_version")
-load("//internal/jasmine_node_test:jasmine_node_test.bzl", _jasmine_node_test = "jasmine_node_test")
+load("//internal/common:copy_to_bin.bzl", _copy_to_bin = "copy_to_bin")
+load("//internal/common:params_file.bzl", _params_file = "params_file")
 load(
     "//internal/node:node.bzl",
     _nodejs_binary = "nodejs_binary",
@@ -28,17 +29,18 @@ load(
 load("//internal/node:node_repositories.bzl", _node_repositories = "node_repositories")
 load("//internal/node:npm_package_bin.bzl", _npm_bin = "npm_package_bin")
 load("//internal/npm_install:npm_install.bzl", _npm_install = "npm_install", _yarn_install = "yarn_install")
-load("//internal/npm_package:npm_package.bzl", _npm_package = "npm_package")
-load("//internal/rollup:rollup_bundle.bzl", _rollup_bundle = "rollup_bundle")
+load("//internal/pkg_npm:pkg_npm.bzl", _pkg_npm = "pkg_npm")
+load("//internal/pkg_web:pkg_web.bzl", _pkg_web = "pkg_web")
 
 check_bazel_version = _check_bazel_version
 nodejs_binary = _nodejs_binary
 nodejs_test = _nodejs_test
 node_repositories = _node_repositories
-jasmine_node_test = _jasmine_node_test
-rollup_bundle = _rollup_bundle
-npm_package = _npm_package
+pkg_npm = _pkg_npm
 npm_package_bin = _npm_bin
+pkg_web = _pkg_web
+copy_to_bin = _copy_to_bin
+params_file = _params_file
 # ANY RULES ADDED HERE SHOULD BE DOCUMENTED, see index.for_docs.bzl
 
 # Allows us to avoid a transitive dependency on bazel_skylib from leaking to users
@@ -50,7 +52,7 @@ COMMON_REPLACEMENTS = {
     # Replace loads from @bazel_skylib with the dummy rule above
     "(load\\(\"@bazel_skylib//:bzl_library.bzl\", \"bzl_library\"\\))": "# bazel_skylib mocked out\n# $1\nload(\"@build_bazel_rules_nodejs//:index.bzl\", bzl_library = \"dummy_bzl_library\")",
     # Make sure we don't try to load from under tools/ which isn't in the distro
-    "(load\\(\"//:tools/defaults.bzl\", \"codeowners\"\\))": "# defaults.bzl not included in distribution\n# $1",
+    "(load\\(\"//:tools/defaults.bzl\", .*\\))": "# defaults.bzl not included in distribution\n# $1",
     # Cleanup up package.json @bazel/foobar package deps for published packages:
     # "@bazel/foobar": "file:///..." => "@bazel/foobar": "0.0.0-PLACEHOLDER"
     "\"@bazel/([a-zA-Z_-]+)\":\\s+\"(file|bazel)[^\"]+\"": "\"@bazel/$1\": \"0.0.0-PLACEHOLDER\"",
@@ -85,15 +87,23 @@ def yarn_install(**kwargs):
 # It will be automatically synced via the npm "version" script
 # that is run when running `npm version` during the release
 # process. See `Releasing` section in README.md.
-VERSION = "0.38.3"
+VERSION = "1.4.0"
 
-# Currently supported Bazel version. This version is what he rules here are tested
-# against. It is also the version used when testing nested workspaces with
-# bazel_integration_test. In the future, after an LTS version of Bazel is released
-# we will test against multiple versions.
-# This version should be updated together with the version of the @bazel/bazel
-# package in package.json. This is asserted in //internal:package_json_test.
-BAZEL_VERSION = "0.28.1"
+# Currently used Bazel version. This version is what the rules here are tested
+# against.
+# This version should be updated together with the version of the Bazel
+# in .bazelversion. This is asserted in //internal:bazel_version_test.
+BAZEL_VERSION = "2.1.1"
+
+# Versions of Bazel which users should be able to use.
+# Ensures we don't break backwards-compatibility,
+# accidentally forcing users to update their LTS-supported bazel.
+# These are the versions used when testing nested workspaces with
+# bazel_integration_test.
+SUPPORTED_BAZEL_VERSIONS = [
+    # TODO: add LTS versions of bazel like 1.0.0, 2.0.0
+    BAZEL_VERSION,
+]
 
 def check_rules_nodejs_version(minimum_version_string):
     """

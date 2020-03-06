@@ -12,48 +12,50 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "npm_package")
+load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "pkg_npm")
+load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
 
 # We reach inside the @bazel/typescript npm package to grab this one .js file
 # This avoids a complex refactoring where we extract that .ts file from tsc_wrapped to a common library
-_worker_path = "external/build_bazel_rules_typescript/internal/tsc_wrapped/worker"
+_worker_path = "internal/tsc_wrapped/worker"
 
 # Copy the proto file to a matching third_party/... nested directory
 # so the runtime require() statements still work
 _worker_proto_dir = "third_party/github.com/bazelbuild/bazel/src/main/protobuf"
 
+# because the package is a tree artifact, there's no label to address the files we want
+# and so we must use a custom cp command, not the copy_file rule
 genrule(
     name = "copy_worker_js",
     srcs = ["@build_bazel_rules_typescript//:npm_bazel_typescript_package"],
     outs = ["index.js"],
-    cmd = "cp $(location @build_bazel_rules_typescript//:npm_bazel_typescript_package)/%s.js $@" % _worker_path,
+    cmd = "cp $(execpath @build_bazel_rules_typescript//:npm_bazel_typescript_package)/%s.js $@" % _worker_path,
 )
 
 genrule(
     name = "copy_worker_dts",
     srcs = ["@build_bazel_rules_typescript//:npm_bazel_typescript_package"],
     outs = ["index.d.ts"],
-    cmd = "cp $(location @build_bazel_rules_typescript//:npm_bazel_typescript_package)/%s.d.ts $@" % _worker_path,
+    cmd = "cp $(execpath @build_bazel_rules_typescript//:npm_bazel_typescript_package)/%s.d.ts $@" % _worker_path,
 )
 
-genrule(
+copy_file(
     name = "copy_worker_proto",
-    srcs = ["@build_bazel_rules_typescript//%s:worker_protocol.proto" % _worker_proto_dir],
-    outs = ["%s/worker_protocol.proto" % _worker_proto_dir],
-    cmd = "cp $< $@",
+    src = "@build_bazel_rules_typescript//%s:worker_protocol.proto" % _worker_proto_dir,
+    out = "%s/worker_protocol.proto" % _worker_proto_dir,
 )
 
-npm_package(
+pkg_npm(
     name = "npm_package",
     srcs = [
         "README.md",
         "package.json",
     ],
-    replacements = {
+    substitutions = {
         # Fix the require() statement that loads the worker_protocol.proto file
         # we are re-rooting the sources into the @bazel/worker package so it's no longer
         # relative to the build_bazel_rules_typescript workspace.
-        "build_bazel_rules_typescript": "@bazel/worker",
+        "../../third_party": "@bazel/worker/third_party",
     },
     deps = [
         ":copy_worker_dts",

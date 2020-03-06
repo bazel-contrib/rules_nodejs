@@ -17,20 +17,24 @@
 This differs from :index.bzl because we don't have wrapping macros that hide the real doc"""
 
 load("//internal/common:check_bazel_version.bzl", _check_bazel_version = "check_bazel_version")
+load("//internal/common:copy_to_bin.bzl", _copy_to_bin = "copy_to_bin")
+load("//internal/common:params_file.bzl", _params_file = "params_file")
 load("//internal/node:node.bzl", _nodejs_binary = "nodejs_binary", _nodejs_test = "nodejs_test")
 load("//internal/node:node_repositories.bzl", _node_repositories = "node_repositories_rule")
 load("//internal/node:npm_package_bin.bzl", _npm_bin = "npm_package_bin")
 load("//internal/npm_install:npm_install.bzl", _npm_install = "npm_install", _yarn_install = "yarn_install")
-load("//internal/npm_package:npm_package.bzl", _npm_package = "npm_package")
-load("//internal/rollup:rollup_bundle.bzl", _rollup_bundle = "rollup_bundle")
+load("//internal/pkg_npm:pkg_npm.bzl", _pkg_npm = "pkg_npm")
+load("//internal/pkg_web:pkg_web.bzl", _pkg_web = "pkg_web")
 
 check_bazel_version = _check_bazel_version
+copy_to_bin = _copy_to_bin
+params_file = _params_file
 nodejs_binary = _nodejs_binary
 nodejs_test = _nodejs_test
 node_repositories = _node_repositories
-rollup_bundle = _rollup_bundle
-npm_package = _npm_package
+pkg_npm = _pkg_npm
 npm_install = _npm_install
 yarn_install = _yarn_install
 npm_package_bin = _npm_bin
-# ANY RULES ADDED HERE SHOULD BE DOCUMENTED, run yarn skydoc to verify
+pkg_web = _pkg_web
+# ANY RULES ADDED HERE SHOULD BE DOCUMENTED, run yarn stardoc to verify

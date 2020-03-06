@@ -36,7 +36,7 @@ You simply run `yarn` commands shown below, and don't need to install Bazel or a
 If you're a full-stack developer, you might be using Bazel for your backend already.
 In this case, you should install Bazel following instructions at http://bazel.build.
 Also install `ibazel`, which is a watch mode for Bazel not included in the standard distribution. See https://github.com/bazelbuild/bazel-watcher#installation.
-The `WORKSPACE` file has a `check_bazel_version` call which will print an error if your Bazel version is not in the supported range.
+You should have a `.bazelversion` file which will ensure Bazel prints an error if your Bazel version is not in the supported range.
 You simply run `bazel` commands shown below, and don't need to install NodeJS, yarn, or any other dependencies.
 
 ## Development
@@ -79,7 +79,7 @@ $ bazel test //e2e/...
 ```
 
 In this example, there is a unit test for the `hello-world` component which uses
-the `ts_web_test_suite` rule. There are also protractor e2e tests for both the
+the `karma_web_test_suite` rule. There are also protractor e2e tests for both the
 `prodserver` and `devserver` which use the `protractor_web_test_suite` rule.
 
 Note that Bazel will only re-run the tests whose inputs changed since the last run.

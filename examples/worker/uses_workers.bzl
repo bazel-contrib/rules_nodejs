@@ -22,6 +22,7 @@ def _work(ctx):
         execution_requirements = {"supports-workers": "1"},
         # The user can explicitly set the execution strategy
         mnemonic = "DoWork",
+        env = {"COMPILATION_MODE": ctx.var["COMPILATION_MODE"]},
     )
 
     return [DefaultInfo(files = depset([output]))]

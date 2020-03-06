@@ -1,3 +1,494 @@
+# [1.4.0](https://github.com/bazelbuild/rules_nodejs/compare/1.3.0...1.4.0) (2020-03-02)
+
+
+### Bug Fixes
+
+* **builtin:** don't include external files when pkg_npm is in root package ([#1677](https://github.com/bazelbuild/rules_nodejs/issues/1677)) ([8089999](https://github.com/bazelbuild/rules_nodejs/commit/8089999)), closes [#1499](https://github.com/bazelbuild/rules_nodejs/issues/1499)
+* **examples:** change build target label to //src:prodapp ([a7f07d1](https://github.com/bazelbuild/rules_nodejs/commit/a7f07d1))
+* **examples:** fix angular examples to use bazelisk ([02e6462](https://github.com/bazelbuild/rules_nodejs/commit/02e6462))
+* ensure BAZEL_NODE_RUNFILES_HELPER & BAZEL_NODE_PATCH_REQUIRE are absolute ([#1634](https://github.com/bazelbuild/rules_nodejs/issues/1634)) ([25600ea](https://github.com/bazelbuild/rules_nodejs/commit/25600ea))
+* expand_variables helper should handle external labels ([3af3a0d](https://github.com/bazelbuild/rules_nodejs/commit/3af3a0d))
+* logic error in expand_variables ([#1631](https://github.com/bazelbuild/rules_nodejs/issues/1631)) ([32c003f](https://github.com/bazelbuild/rules_nodejs/commit/32c003f))
+* yarn cache path should be a string ([#1679](https://github.com/bazelbuild/rules_nodejs/issues/1679)) ([a43809b](https://github.com/bazelbuild/rules_nodejs/commit/a43809b))
+* **builtin:** use posix paths in assembler ([d635dca](https://github.com/bazelbuild/rules_nodejs/commit/d635dca)), closes [#1635](https://github.com/bazelbuild/rules_nodejs/issues/1635)
+* **create:** use latest typescript ([a8ba18e](https://github.com/bazelbuild/rules_nodejs/commit/a8ba18e)), closes [#1602](https://github.com/bazelbuild/rules_nodejs/issues/1602)
+* **examples:** add fixes to angular architect ([f6f40c3](https://github.com/bazelbuild/rules_nodejs/commit/f6f40c3))
+* remove empty arguments from launcher ([#1650](https://github.com/bazelbuild/rules_nodejs/issues/1650)) ([aa3cd6c](https://github.com/bazelbuild/rules_nodejs/commit/aa3cd6c))
+
+
+### Features
+
+* **@bazel/jasmine:** update dependencies to jasmine v3.5.0 ([98fab93](https://github.com/bazelbuild/rules_nodejs/commit/98fab93))
+* **docs:** add authroing instructions ([4dde728](https://github.com/bazelbuild/rules_nodejs/commit/4dde728))
+* **docs:** add header anchor links ([2002046](https://github.com/bazelbuild/rules_nodejs/commit/2002046))
+* **docs:** add vscode debugging section ([78d308f](https://github.com/bazelbuild/rules_nodejs/commit/78d308f))
+* **examples:** add serve to angular architect ([1569f4b](https://github.com/bazelbuild/rules_nodejs/commit/1569f4b))
+* **jasmine:** configure XML reporter to capture detailed testlogs ([8abd20d](https://github.com/bazelbuild/rules_nodejs/commit/8abd20d))
+* **rollup:** add `args` attribute to rollup_bundle rule ([#1681](https://github.com/bazelbuild/rules_nodejs/issues/1681)) ([94c6182](https://github.com/bazelbuild/rules_nodejs/commit/94c6182))
+* **rollup:** add silent attr to rollup_bundle to support --silent flag ([#1680](https://github.com/bazelbuild/rules_nodejs/issues/1680)) ([18e8001](https://github.com/bazelbuild/rules_nodejs/commit/18e8001))
+* **typescript:** use run_node helper to execute tsc ([066a52c](https://github.com/bazelbuild/rules_nodejs/commit/066a52c))
+
+
+
+# [1.3.0](https://github.com/bazelbuild/rules_nodejs/compare/1.2.4...1.3.0) (2020-02-07)
+
+
+### Bug Fixes
+
+* **builtin:** strip leading v prefix from stamp ([#1591](https://github.com/bazelbuild/rules_nodejs/issues/1591)) ([39bb821](https://github.com/bazelbuild/rules_nodejs/commit/39bb821))
+* angular example ts_scripts path in Windows ([30d0f37](https://github.com/bazelbuild/rules_nodejs/commit/30d0f37)), closes [#1604](https://github.com/bazelbuild/rules_nodejs/issues/1604)
+* html script injection is broken on windows ([7f7a45b](https://github.com/bazelbuild/rules_nodejs/commit/7f7a45b)), closes [#1604](https://github.com/bazelbuild/rules_nodejs/issues/1604)
+* unset YARN_IGNORE_PATH before calling yarn in [@nodejs](https://github.com/nodejs) targets ([aee3003](https://github.com/bazelbuild/rules_nodejs/commit/aee3003)), closes [#1588](https://github.com/bazelbuild/rules_nodejs/issues/1588)
+
+
+### Features
+
+* **builtin:** add environment attribute to yarn_install & npm_install ([#1596](https://github.com/bazelbuild/rules_nodejs/issues/1596)) ([87b2a64](https://github.com/bazelbuild/rules_nodejs/commit/87b2a64))
+* **builtin:** expose `@npm//foo__all_files` filegroup that includes all files in the npm package ([#1600](https://github.com/bazelbuild/rules_nodejs/issues/1600)) ([8d77827](https://github.com/bazelbuild/rules_nodejs/commit/8d77827))
+* **examples:** add protractor angular architect ([#1594](https://github.com/bazelbuild/rules_nodejs/issues/1594)) ([d420019](https://github.com/bazelbuild/rules_nodejs/commit/d420019))
+
+
+
+## [1.2.4](https://github.com/bazelbuild/rules_nodejs/compare/1.2.2...1.2.4) (2020-01-31)
+
+
+### Bug Fixes
+
+* **builtin:** fix logic error in linker conflict resolution ([#1597](https://github.com/bazelbuild/rules_nodejs/issues/1597)) ([b864223](https://github.com/bazelbuild/rules_nodejs/commit/b864223))
+
+
+
+## [1.2.2](https://github.com/bazelbuild/rules_nodejs/compare/1.2.1...1.2.2) (2020-01-31)
+
+
+### Bug Fixes
+
+* unset YARN_IGNORE_PATH in yarn_install before calling yarn ([5a2af71](https://github.com/bazelbuild/rules_nodejs/commit/5a2af71))
+* fixes bazelbuild/rules_nodejs#1567 Recursively copy files from subdirectories into mirrored structure in the npm archive ([c83b026](https://github.com/bazelbuild/rules_nodejs/commit/c83b026))
+
+
+### Code Refactoring
+
+* Replace grep with bash's regex operator ([9fb080b](https://github.com/bazelbuild/rules_nodejs/commit/9fb080b))
+
+
+### Examples
+
+* enable test file crawling for jest example ([8854bfd](https://github.com/bazelbuild/rules_nodejs/commit/8854bfd))
+* add angular bazel architect ([6dc919d](https://github.com/bazelbuild/rules_nodejs/commit/6dc919d))
+
+
+
+## [1.2.1](https://github.com/bazelbuild/rules_nodejs/compare/1.2.0...1.2.1) (2020-01-30)
+
+
+### Bug Fixes
+
+* allow "src" and "bin" module mappings to win over "runfiles" ([110e00e](https://github.com/bazelbuild/rules_nodejs/commit/110e00e))
+* also link "runfiles" mappings from *_test rules ([79bedc5](https://github.com/bazelbuild/rules_nodejs/commit/79bedc5))
+* osx hide-bazel-files issue with fsevents ([#1578](https://github.com/bazelbuild/rules_nodejs/issues/1578)) ([64a31ab](https://github.com/bazelbuild/rules_nodejs/commit/64a31ab))
+* yarn_install failure if yarn is a dependency ([#1581](https://github.com/bazelbuild/rules_nodejs/issues/1581)) ([f712377](https://github.com/bazelbuild/rules_nodejs/commit/f712377))
+
+
+
+# [1.2.0](https://github.com/bazelbuild/rules_nodejs/compare/1.1.0...1.2.0) (2020-01-24)
+
+
+### Bug Fixes
+
+* **builtin:** legacy module_mappings_runtime_aspect handles dep with module_name but no module_root ([9ac0534](https://github.com/bazelbuild/rules_nodejs/commit/9ac0534))
+* **builtin:** nodejs_binary collects module_mappings for linker ([4419f95](https://github.com/bazelbuild/rules_nodejs/commit/4419f95))
+* **builtin:** set cwd before running yarn for yarn_install ([#1569](https://github.com/bazelbuild/rules_nodejs/issues/1569)) ([d7083ac](https://github.com/bazelbuild/rules_nodejs/commit/d7083ac))
+
+
+### Features
+
+* **builtin:** add configuration_env_vars to npm_package_bin ([07d9f5d](https://github.com/bazelbuild/rules_nodejs/commit/07d9f5d))
+
+
+
+# [1.1.0](https://github.com/bazelbuild/rules_nodejs/compare/1.0.1...1.1.0) (2020-01-12)
+
+
+### Bug Fixes
+
+* separate nodejs require patches from loader and —require them first ([b10d230](https://github.com/bazelbuild/rules_nodejs/commit/b10d230))
+* **karma:** pass --node_options to karma ([d48f237](https://github.com/bazelbuild/rules_nodejs/commit/d48f237))
+* **protractor:** pass --node_options to protractor ([a3b39ab](https://github.com/bazelbuild/rules_nodejs/commit/a3b39ab))
+
+
+### Features
+
+* **builtin:** add support for Predefined variables and Custom variable to npm_package_bin ([34176e5](https://github.com/bazelbuild/rules_nodejs/commit/34176e5))
+* **examples:** add nestjs test ([f448931](https://github.com/bazelbuild/rules_nodejs/commit/f448931))
+* **examples:** add nodejs_binary cluster example ([#1515](https://github.com/bazelbuild/rules_nodejs/issues/1515)) ([f217519](https://github.com/bazelbuild/rules_nodejs/commit/f217519))
+
+
+
+## [1.0.1](https://github.com/bazelbuild/rules_nodejs/compare/1.0.0...1.0.1) (2020-01-03)
+
+
+### Bug Fixes
+
+* don't bake COMPILATION_MODE into launcher as exported environment var ([8a931d8](https://github.com/bazelbuild/rules_nodejs/commit/8a931d8))
+* **builtin:** make .pack and .publish targets work again ([43716d3](https://github.com/bazelbuild/rules_nodejs/commit/43716d3)), closes [#1493](https://github.com/bazelbuild/rules_nodejs/issues/1493)
+* **create:** @bazel/create should verbose log based on VERBOSE_LOGS instead of COMPILATION_MODE ([c1b97d6](https://github.com/bazelbuild/rules_nodejs/commit/c1b97d6))
+
+
+### Features
+
+* **builtin:** allow patching require in bootstrap scripts ([842dfb4](https://github.com/bazelbuild/rules_nodejs/commit/842dfb4))
+
+
+
+# [1.0.0](https://github.com/bazelbuild/rules_nodejs/compare/0.42.3...1.0.0) (2019-12-20)
+
+
+### Bug Fixes
+
+* **builtin:** bin folder was included in runfiles path for tests when link type was 'bin' ([f938ab7](https://github.com/bazelbuild/rules_nodejs/commit/f938ab7))
+* **builtin:** link module_name to directories recursively to avoid directory clashes ([#1432](https://github.com/bazelbuild/rules_nodejs/issues/1432)) ([0217724](https://github.com/bazelbuild/rules_nodejs/commit/0217724)), closes [#1411](https://github.com/bazelbuild/rules_nodejs/issues/1411)
+* **builtin:** strip BOM when parsing package.json ([#1453](https://github.com/bazelbuild/rules_nodejs/issues/1453)) ([c65d9b7](https://github.com/bazelbuild/rules_nodejs/commit/c65d9b7)), closes [#1448](https://github.com/bazelbuild/rules_nodejs/issues/1448)
+* **typescript:** remove stray references to ts_auto_deps ([#1449](https://github.com/bazelbuild/rules_nodejs/issues/1449)) ([aacd924](https://github.com/bazelbuild/rules_nodejs/commit/aacd924))
+
+
+### chore
+
+* make defs.bzl error ([3339d46](https://github.com/bazelbuild/rules_nodejs/commit/3339d46)), closes [#1068](https://github.com/bazelbuild/rules_nodejs/issues/1068)
+
+
+### Code Refactoring
+
+* pkg_npm attributes renames packages=>nested_packages & replacements=>substitutions ([7e1b7df](https://github.com/bazelbuild/rules_nodejs/commit/7e1b7df))
+* remove `bootstrap` attribute & fix $(location) expansions in nodejs_binary templated_args ([1860a6a](https://github.com/bazelbuild/rules_nodejs/commit/1860a6a))
+* remove templated_args_file from nodejs_binary & nodejs_test ([799acb4](https://github.com/bazelbuild/rules_nodejs/commit/799acb4))
+* **builtin:** add `args` to yarn_install & npm_install ([#1462](https://github.com/bazelbuild/rules_nodejs/issues/1462)) ([d245d09](https://github.com/bazelbuild/rules_nodejs/commit/d245d09))
+* **builtin:** remove legacy jasmine_node_test ([6d731cf](https://github.com/bazelbuild/rules_nodejs/commit/6d731cf))
+* **builtin:** renamed npm_package to pkg_npm to match naming convention ([7df4109](https://github.com/bazelbuild/rules_nodejs/commit/7df4109))
+* pre-1.0 release breaking changes ([cc64818](https://github.com/bazelbuild/rules_nodejs/commit/cc64818))
+* remove unused exclude_packages from npm_install & yarn_install ([f50dea3](https://github.com/bazelbuild/rules_nodejs/commit/f50dea3))
+
+
+### Features
+
+* **builtin:** introduce copy_to_bin rule ([#1450](https://github.com/bazelbuild/rules_nodejs/issues/1450)) ([f19245b](https://github.com/bazelbuild/rules_nodejs/commit/f19245b))
+
+
+### Performance Improvements
+
+* avoid unnecessary nested depset() ([#1435](https://github.com/bazelbuild/rules_nodejs/issues/1435)) ([f386322](https://github.com/bazelbuild/rules_nodejs/commit/f386322))
+
+
+### BREAKING CHANGES
+
+* `templated_args_file` removed from nodejs_binary, nodejs_test & jasmine_node_test. This was a separation of concerns and complicated node.bzl more than necessary while also being rigid in how the params file is formatted. It is more flexible to expose this functionality as another simple rule named params_file.
+
+To match standard $(location) and $(locations) expansion, params_file args location expansions are also in the standard short_path form (this differs from the old templated_args behavior which was not Bazel idiomatic)
+Usage example:
+
+```
+load("@build_bazel_rules_nodejs//:index.bzl", "params_file", "nodejs_binary")
+
+params_file(
+    name = "params_file",
+    args = [
+        "--some_param",
+        "$(location //path/to/some:file)",
+        "--some_other_param",
+        "$(location //path/to/some/other:file)",
+    ],
+    data = [
+        "//path/to/some:file",
+        "//path/to/some/other:file",
+    ],
+)
+
+nodejs_binary(
+    name = "my_binary",
+    data = [":params_file"],
+    entry_point = ":my_binary.js",
+    templated_args = ["$(location :params_file)"],
+)
+```
+* bootstrap attribute in nodejs_binary, nodejs_test & jasmine_node_test removed
+
+This can be replaced with the `--node_options=--require=$(location label)` argument such as,
+
+```
+nodejs_test(
+name = "bootstrap_test",
+templated_args = ["--node_options=--require=$(rlocation $(location :bootstrap.js))"],
+entry_point = ":bootstrap.spec.js",
+data = ["bootstrap.js"],
+)
+```
+or
+```
+jasmine_node_test(
+name = "bootstrap_test",
+srcs = ["bootstrap.spec.js"],
+templated_args = ["--node_options=--require=$(rlocation $(location :bootstrap.js))"],
+data = ["bootstrap.js"],
+)
+```
+
+`templated_args` `$(location)` and `$(locations)` are now correctly expanded when there is no space before ` $(location`
+such as `templated_args = ["--node_options=--require=$(rlocation $(location :bootstrap.js))"]`.
+
+Path is returned in runfiles manifest path format such as `repo/path/to/file`. This differs from how $(location)
+and $(locations) expansion behaves in expansion the `args` attribute of a *_binary or *_test which returns
+the runfiles short path of the format `./path/to/file` for user repo and `../external_repo/path/to/file` for external
+repositories. We may change this behavior in the future with $(mlocation) and $(mlocations) used to expand
+to the runfiles manifest path.
+See https://docs.bazel.build/versions/master/be/common-definitions.html#common-attributes-binaries.
+* * pkg_npm attribute packages renamed to nested_packages
+* pkg_npm attribute replacements renamed to substitutions
+* **builtin:** legacy @build_bazel_rules_nodejs//internal/jasmine_node_test removed; use jasmine_node_test from @bazel/jasmine npm package instead
+* **builtin:** `args` in yarn_install and npm_install can be used to pass arbitrary arguments so we removed the following attributes:
+* prod_only from yarn_install and npm_install; should be replaced by args = ["--prod"] and args = ["--production"] respectively
+* frozen_lockfile from yarn_install; should be replaced by args = ["--frozen-lockfile"]
+* network_timeout from yanr_install; should be replaced by args = ["--network_timeout", "<time in ms>"]
+* **builtin:** `npm_package` renamed to `pkg_npm`. This is to match the naming convention for package rules https://docs.bazel.build/versions/master/be/pkg.html.
+* Users must now switch to loading from index.bzl
+* Removed unused exclude_packages from npm_install & yarn_install
+* //:declaration_provider.bzl deleted; load from //:providers.bzl instead
+//internal/common:npm_pacakge_info.bzl removed; load from //:providers.bzl instead
+transitive_js_ecma_script_module_info macro removed; use js_ecma_script_module_info instead
+@npm_bazel_karma//:browser_repositories.bzl removed; use @io_bazel_rules_webtesting//web/versioned:browsers-0.3.2.bzl instead
+@npm_bazel_protractor//:browser_repositories.bzl removed; use @io_bazel_rules_webtesting//web/versioned:browsers-0.3.2.bzl instead
+ts_web_test & ts_web_test_suite marcos removed; use karma_web_test & karma_web_test_suite instead
+
+
+
+## [0.42.3](https://github.com/bazelbuild/rules_nodejs/compare/0.42.2...0.42.3) (2019-12-10)
+
+To upgrade:
+
+```python
+http_archive(
+    name = "build_bazel_rules_nodejs",
+    sha256 = "a54b2511d6dae42c1f7cdaeb08144ee2808193a088004fc3b464a04583d5aa2e",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.42.3/rules_nodejs-0.42.3.tar.gz"],
+)
+```
+
+and run `yarn upgrade --scope @bazel` to update all your `@bazel`-scoped npm packages to the latest versions.
+(or manually do the npm equivalent - they don't have a way to update a scope)
+
+### Bug Fixes
+
+* **builtin:** handle scoped packages in generated npm_umd_bundle targets ([#1425](https://github.com/bazelbuild/rules_nodejs/issues/1425)) ([e9e2e8e](https://github.com/bazelbuild/rules_nodejs/commit/e9e2e8e)), closes [#1095](https://github.com/bazelbuild/rules_nodejs/issues/1095)
+* **builtin:** only stamp artifacts when --stamp is passed to bazel ([#1441](https://github.com/bazelbuild/rules_nodejs/issues/1441)) ([cbaab60](https://github.com/bazelbuild/rules_nodejs/commit/cbaab60))
+* **docs** default values are now documented for rule attributes
+
+### Features
+
+* **builtin:** wire linker/node-patches to npm-generated index.bzl rules ([3321ed5](https://github.com/bazelbuild/rules_nodejs/commit/3321ed5)), closes [#1382](https://github.com/bazelbuild/rules_nodejs/issues/1382)
+
+
+
+## [0.42.2](https://github.com/bazelbuild/rules_nodejs/compare/0.42.1...0.42.2) (2019-12-04)
+
+
+### Bug Fixes
+
+* **builtin:** additional_root_paths in pkg_web should also include paths in genfiles and bin dirs ([#1402](https://github.com/bazelbuild/rules_nodejs/issues/1402)) ([9ce8c85](https://github.com/bazelbuild/rules_nodejs/commit/9ce8c85))
+* **typescript:** fix for cross platform ts_devserver issue [#1409](https://github.com/bazelbuild/rules_nodejs/issues/1409) ([#1413](https://github.com/bazelbuild/rules_nodejs/issues/1413)) ([172caff](https://github.com/bazelbuild/rules_nodejs/commit/172caff)), closes [#1415](https://github.com/bazelbuild/rules_nodejs/issues/1415)
+* support realpath.native and fix crash in mkdirp ([b9282b9](https://github.com/bazelbuild/rules_nodejs/commit/b9282b9))
+
+
+
+## [0.42.1](https://github.com/bazelbuild/rules_nodejs/compare/0.41.0...0.42.1) (2019-11-27)
+
+To upgrade:
+
+```python
+http_archive(
+    name = "build_bazel_rules_nodejs",
+    sha256 = "c612d6b76eaa17540e8b8c806e02701ed38891460f9ba3303f4424615437887a",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.42.1/rules_nodejs-0.42.1.tar.gz"],
+)
+```
+
+and run `yarn upgrade --scope @bazel` to update all your `@bazel`-scoped npm packages to the latest versions.
+(or manually do the npm equivalent - they don't have a way to update a scope)
+
+### New stuff
+
+In 0.41.0 we noted that a feature for inserting `<script>` and `<link>` tags was dropped from `ts_devserver` and `pkg_web` but the replacement wasn't available. Now it is thanks to @jbedard who published a standalone npm package `html-insert-assets`. You can see how it's wired in the examples.
+
+If you waited to upgrade before, now you should.
+
+### Bug Fixes
+
+* @npm//foobar:foobar__files target no longer includes nested node_modules ([#1390](https://github.com/bazelbuild/rules_nodejs/issues/1390)) ([a13f2b6](https://github.com/bazelbuild/rules_nodejs/commit/a13f2b6))
+* allow files in protractor data attribute ([3feb13c](https://github.com/bazelbuild/rules_nodejs/commit/3feb13c))
+* **builtin:** $(RULEDIR) npm_package_bin expansion should always be the root output directory ([b494974](https://github.com/bazelbuild/rules_nodejs/commit/b494974))
+* **builtin:** locations arg of npm_package_bin should result in separate argv ([242379f](https://github.com/bazelbuild/rules_nodejs/commit/242379f))
+* **builtin:** use correct genrule-style make vars ([77039b1](https://github.com/bazelbuild/rules_nodejs/commit/77039b1))
+* **examples:** kotlin example server working ([adf6934](https://github.com/bazelbuild/rules_nodejs/commit/adf6934))
+
+
+### BREAKING CHANGES
+
+* **builtin:** We fixed `npm_package_bin` and all rules generated by it, to match genrule behavior as documented at https://docs.bazel.build/versions/master/be/make-variables.html#predefined_genrule_variables
+This means that usage of the `$@` shortcut to refer to the output directory should now be `$(@D)` when `output_dir=True`
+and you can now use `$@` to refer to the location of a single output
+
+
+
+# [0.41.0](https://github.com/bazelbuild/rules_nodejs/compare/0.40.0...0.41.0) (2019-11-22)
+
+To upgrade:
+
+```
+http_archive(
+    name = "build_bazel_rules_nodejs",
+    sha256 = "8dc1466f8563f3aa4ac7ab7aa3c96651eb7764108219f40b2d1c918e1a81c601",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.41.0/rules_nodejs-0.41.0.tar.gz"],
+)
+```
+
+and run `yarn upgrade --scope @bazel` to update all your `@bazel`-scoped npm packages to the latest versions.
+(or manually do the npm equivalent - they don't have a way to update a scope)
+
+### BREAKING CHANGES
+
+As mentioned before, we are close to a 1.0 release, so we are making all our breaking changes now to prepare for a period of stability. Sorry for the long list this time!
+
+* `web_package` rule has been renamed to `pkg_web` and is now a public API
+
+Update your load statements from
+
+```python
+load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_package")
+```
+
+to
+
+```python
+load("@build_bazel_rules_nodejs//:index.bzl", "pkg_web")
+```
+
+* `ts_devserver` and `pkg_web` (previously `web_package`) no longer have an `index_html` attribute.
+
+They expect an index.html file to be among the assets, and to already
+have the script and link tags needed for the app to work.
+
+The feature where those tags were injected into the html dynamically has
+been moved to its own rule, inject_html.
+
+We are in a transition state where the `inject_html` rule is not published, because we want this to be a plain npm package and not Bazel-specific. We will publish this functionality soon. If you depend on it, you may want to delay this upgrade.
+
+* internal/rollup_bundle rule is removed. see https://github.com/bazelbuild/rules_nodejs/wiki for migration instructions
+
+* Removed the expand_location_into_runfiles helper from //internal:node.bzl
+Load it from //internal/common:expand_into_runfiles instead
+
+* npm karma deps for karma_web_test and karma_web_suite are now peer deps so that the versions used can be chosen by the user.
+
+This PR also removes the built-in  `@io_bazel_rules_webtesting//browsers/sauce:chrome-win10` saucelabs support. It is not very useful as it only tests a single browser and it difficult to use. In the angular repo, saucelabs support was implemented with a custom karma config using karma_web_test. This is the recommended approach.
+
+* `--define=DEBUG=1` is no longer functional to request debugging outputs. Use `-c dbg` instead (this matches Bazel's behavior for C++).
+
+* We renamed some of the generated targets in the `@nodejs//` workspace:
+
+`bazel run @nodejs//:npm` is replaced with `bazel run @nodejs//:npm_node_repositories` and `bazel run @nodejs//:yarn` is replaced with `bazel run @nodejs//:yarn_node_repositories`. `@nodejs//:yarn` and `@nodejs//:npm` now run yarn & npm in the current working directory instead of on all of the `package.json` files in `node_repositories()`.
+
+`@nodejs//:bin/node` & `@nodejs//:bin/node.cmd` (on Windows) are no longer valid targets. Use `@nodejs//:node` instead on all platforms. You can still call the old targets in their platform specific node repositories such as `@nodejs_darwin_amd64//:bin/node`.
+
+`@nodejs//:bin/yarn` & `@nodejs//:bin/yarn.cmd` (on Windows) are no longer valid targets. Use `@nodejs//:yarn` instead on all platforms. You can still call the old targets in their platform specific node repositories such as `@nodejs_darwin_amd64//:bin/yarn`.
+
+`@nodejs//:bin/npm` & `@nodejs//:bin/npm.cmd` (on Windows) are no longer valid targets. Use `@nodejs//:npm` instead on all platforms. You can still call the old targets in their platform specific node repositories such as `@nodejs_darwin_amd64//:bin/npm`.
+
+
+### Bug Fixes
+
+* **builtin:** allow .tsx entry_point in node binary/test ([313d484](https://github.com/bazelbuild/rules_nodejs/commit/313d484)), closes [#1351](https://github.com/bazelbuild/rules_nodejs/issues/1351)
+* **terser:** call terser binary instead of uglifyjs ([#1360](https://github.com/bazelbuild/rules_nodejs/issues/1360)) ([a100420](https://github.com/bazelbuild/rules_nodejs/commit/a100420))
+* **terser:** remove ngDevMode & ngI18nClosureMode global_defs from default terser config ([98c8dbc](https://github.com/bazelbuild/rules_nodejs/commit/98c8dbc))
+
+
+### chore
+
+* remove deprecated re-export file ([148bf8a](https://github.com/bazelbuild/rules_nodejs/commit/148bf8a))
+* remove old rollup_bundle ([9a824ac](https://github.com/bazelbuild/rules_nodejs/commit/9a824ac)), closes [#740](https://github.com/bazelbuild/rules_nodejs/issues/740)
+
+
+### Code Refactoring
+
+* move injector feature to own rule ([be06d23](https://github.com/bazelbuild/rules_nodejs/commit/be06d23))
+
+
+### Features
+
+* node-patches\filesystem patcher. ([#1332](https://github.com/bazelbuild/rules_nodejs/issues/1332)) ([0b2f675](https://github.com/bazelbuild/rules_nodejs/commit/0b2f675))
+* support --compilation_mode flag ([9fa4343](https://github.com/bazelbuild/rules_nodejs/commit/9fa4343))
+* **builtin:** rename @nodejs//:npm and @nodejs//:yarn to @nodejs//:[yarn/npm]_node_repositories ([#1369](https://github.com/bazelbuild/rules_nodejs/issues/1369)) ([01079a3](https://github.com/bazelbuild/rules_nodejs/commit/01079a3))
+* **karma:** npm peer deps & remove [@rules](https://github.com/rules)_webtesting//browsers/sauce:chrome-win10 support ([318bbf3](https://github.com/bazelbuild/rules_nodejs/commit/318bbf3))
+* **protractor:** protractor npm package is now a peer deps ([#1352](https://github.com/bazelbuild/rules_nodejs/issues/1352)) ([5db7c8e](https://github.com/bazelbuild/rules_nodejs/commit/5db7c8e))
+
+
+# [0.40.0](https://github.com/bazelbuild/rules_nodejs/compare/0.39.1...0.40.0) (2019-11-13)
+
+
+### Bug Fixes
+
+* fix nodejs_binary cross-platform RBE issue [#1305](https://github.com/bazelbuild/rules_nodejs/issues/1305) ([38d0b3d](https://github.com/bazelbuild/rules_nodejs/commit/38d0b3d))
+* prevent dpulicate entries in owners files for global owners ([afea290](https://github.com/bazelbuild/rules_nodejs/commit/afea290))
+
+
+### Features
+
+* **karma:** remove ts_web_test and ts_web_test_suite rules ([8384562](https://github.com/bazelbuild/rules_nodejs/commit/8384562))
+* **terser:** add `args` attribute to support additional command line arguments ([563bad7](https://github.com/bazelbuild/rules_nodejs/commit/563bad7))
+
+
+
+## [0.39.1](https://github.com/bazelbuild/rules_nodejs/compare/0.39.0...0.39.1) (2019-10-29)
+
+
+### Bug Fixes
+
+* fix for https://github.com/bazelbuild/rules_nodejs/issues/1307 ([7163571](https://github.com/bazelbuild/rules_nodejs/commit/7163571))
+* **karma:** load scripts in strict mode ([5498f93](https://github.com/bazelbuild/rules_nodejs/commit/5498f93)), closes [#922](https://github.com/bazelbuild/rules_nodejs/issues/922)
+
+
+### Features
+
+* **examples:** demonstrate using Webpack to build and serve a React app ([c5d0909](https://github.com/bazelbuild/rules_nodejs/commit/c5d0909))
+
+
+
+# [0.39.0](https://github.com/bazelbuild/rules_nodejs/compare/0.38.3...0.39.0) (2019-10-23)
+
+
+### Bug Fixes
+
+* bundle names in angular examples ([b4f01e2](https://github.com/bazelbuild/rules_nodejs/commit/b4f01e2))
+* **builtin:** allow more than 2 segments in linker module names ([7e98089](https://github.com/bazelbuild/rules_nodejs/commit/7e98089))
+* webpack should be a peerDep of @bazel/labs ([312aa4d](https://github.com/bazelbuild/rules_nodejs/commit/312aa4d))
+
+
+### Code Refactoring
+
+* remove dynamic_deps feature ([#1276](https://github.com/bazelbuild/rules_nodejs/issues/1276)) ([b916d61](https://github.com/bazelbuild/rules_nodejs/commit/b916d61))
+
+
+### Features
+
+* **builtin:** turn off a strict requirement for peer dependencies ([#1163](https://github.com/bazelbuild/rules_nodejs/issues/1163)) ([bd2f108](https://github.com/bazelbuild/rules_nodejs/commit/bd2f108))
+* **examples:** add Jest example ([#1274](https://github.com/bazelbuild/rules_nodejs/issues/1274)) ([f864462](https://github.com/bazelbuild/rules_nodejs/commit/f864462)), closes [/github.com/ecosia/bazel_rules_nodejs_contrib/issues/4#issuecomment-475291612](https://github.com//github.com/ecosia/bazel_rules_nodejs_contrib/issues/4/issues/issuecomment-475291612)
+
+
+### BREAKING CHANGES
+
+* The dynamic_deps attribute of yarn_install and npm_install is removed,
+in favor of declaring needed packages in the deps/data of the rule that
+invokes the tool.
+
+
+
 ## [0.38.3](https://github.com/bazelbuild/rules_nodejs/compare/0.38.2...0.38.3) (2019-10-11)
 
 

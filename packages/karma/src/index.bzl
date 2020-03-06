@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-""" Public API surface is re-exported here.
+"""Public API surface is re-exported here.
 """
 
 load(
@@ -20,15 +20,8 @@ load(
     _karma_web_test = "karma_web_test",
     _karma_web_test_suite = "karma_web_test_suite",
 )
-load(
-    ":ts_web_test.bzl",
-    _ts_web_test = "ts_web_test",
-    _ts_web_test_suite = "ts_web_test_suite",
-)
 
-ts_web_test = _ts_web_test
-ts_web_test_suite = _ts_web_test_suite
 karma_web_test = _karma_web_test
 karma_web_test_suite = _karma_web_test_suite
 # DO NOT ADD MORE rules here unless they appear in the generated docsite.
-# Run yarn skydoc to re-generate the docsite.
+# Run yarn stardoc to re-generate the docsite.

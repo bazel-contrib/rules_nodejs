@@ -10,26 +10,31 @@ echo_and_run() { echo "+ $@" ; "$@" ; }
 readonly workspaceRoots=("e2e" "examples")
 for workspaceRoot in ${workspaceRoots[@]} ; do
   (
-    readonly workspaceFiles=($(find ./${workspaceRoot} -type f -name WORKSPACE -prune))
+    readonly workspaceFiles=($(find ./${workspaceRoot} -type f -name WORKSPACE -prune -maxdepth 2))
+    echo "workspace files: ${workspaceFiles[@]}"
     for workspaceFile in ${workspaceFiles[@]} ; do
       (
         readonly workspaceDir=$(dirname ${workspaceFile})
+        printf "\n============================================\nupdating ${workspaceDir}\n============================================\n\n"
         cd ${workspaceDir}
+        readonly packages=$(cat package.json | grep \"@bazel/ | awk -F: '{ print $1 }' | sed 's/[",]//g' | tr -d ' ')
         if [ -f "./yarn.lock" ]; then
-            printf "\n\nupdating ${workspaceDir}/yarn.lock\n"
+            printf "updating ${workspaceDir}/yarn.lock\n"
             echo_and_run rm -rf node_modules
             # `yarn install` will not update stale deps so we also need to run
-            # `yarn upgrade` for the `@bazel/scope`
-            echo_and_run yarn install
-            echo_and_run yarn upgrade --scope @bazel
+            # `yarn install @bazel/foobar@latest` for each package in the @bazel
+            # scope
+            echo_and_run yarn install --ignore-scripts
+            for package in ${packages[@]} ; do
+              echo_and_run yarn add ${package}@latest --ignore-scripts
+            done
         fi
         if [ -f "./package-lock.json" ]; then
-            printf "\n\nupdating ${workspaceDir}/package-lock.json\n"
+            printf "updating ${workspaceDir}/package-lock.json\n"
             echo_and_run rm -rf node_modules
             # `npm ci` will not update stale deps so we also need to run
             # `npm install @bazel/foobar@latest` for each package in the @bazel
             # scope
-            readonly packages=$(cat package.json | grep \"@bazel/ | awk -F: '{ print $1 }' | sed 's/[",]//g' | tr -d ' ')
             echo_and_run npm ci
             for package in ${packages[@]} ; do
               echo_and_run npm install ${package}@latest

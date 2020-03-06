@@ -15,20 +15,11 @@ http_server(
     templated_args = ["app"],
 )
 
-# BazelCI docker images are missing shares libs to run a subset browser tests:
-# mac: firefox does not work, chrome works
-# ubuntu: firefox and chrome do not work --- there are 0 tests to run
-# windows: firefox works, chrome does not work
-# TODO(gregmagolan): support firefox in protractor rule
 protractor_web_test_suite(
     name = "server_test",
     srcs = ["app.spec.js"],
     on_prepare = ":protractor.on-prepare.js",
     server = ":server",
-    tags = [
-        "no-bazelci-ubuntu",
-        "no-bazelci-windows",
-    ],
 )
 
 mocha_test(

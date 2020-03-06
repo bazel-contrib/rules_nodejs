@@ -14,7 +14,7 @@
 
 "TypeScript compilation"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "NpmPackageInfo", "js_ecma_script_module_info", "js_named_module_info", "node_modules_aspect")
+load("@build_bazel_rules_nodejs//:providers.bzl", "NpmPackageInfo", "js_ecma_script_module_info", "js_named_module_info", "node_modules_aspect", "run_node")
 
 # pylint: disable=unused-argument
 # pylint: disable=missing-docstring
@@ -90,7 +90,7 @@ def _filter_ts_inputs(all_inputs):
     return [
         f
         for f in all_inputs
-        if f.path.endswith(".js") or f.path.endswith(".ts") or f.path.endswith(".json")
+        if f.extension in ["js", "jsx", "ts", "tsx", "json"]
     ]
 
 def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description = "prodmode"):
@@ -142,7 +142,8 @@ def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description 
         arguments.append(tsconfig_file.path)
         mnemonic = "tsc"
 
-    ctx.actions.run(
+    run_node(
+        ctx,
         progress_message = "Compiling TypeScript (%s) %s" % (description, ctx.label),
         mnemonic = mnemonic,
         inputs = action_inputs,
@@ -152,10 +153,11 @@ def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description 
         # See https://github.com/NixOS/nixpkgs/issues/43955#issuecomment-407546331
         use_default_shell_env = True,
         arguments = arguments,
-        executable = ctx.executable.compiler,
+        executable = "compiler",
         execution_requirements = {
             "supports-workers": str(int(ctx.attr.supports_workers)),
         },
+        env = {"COMPILATION_MODE": ctx.var["COMPILATION_MODE"]},
     )
 
     # Enable the replay_params in case an aspect needs to re-build this library.
@@ -264,7 +266,6 @@ def _ts_library_impl(ctx):
     ts_providers = compile_ts(
         ctx,
         is_library = True,
-        deps = ctx.attr.deps,
         compile_action = _compile_action,
         devmode_compile_action = _devmode_compile_action,
         tsc_wrapped_tsconfig = tsc_wrapped_tsconfig,

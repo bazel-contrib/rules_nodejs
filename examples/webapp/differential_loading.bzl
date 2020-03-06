@@ -1,7 +1,6 @@
 "Illustrates how a reusable high-level workflow can be assembled from individual tools"
 
-# TODO(alexeagle): promote web_package rule to the public API
-load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_package")
+load("@build_bazel_rules_nodejs//:index.bzl", "pkg_web")
 load("@npm//@babel/cli:index.bzl", "babel")
 load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
 load("@npm_bazel_terser//:index.bzl", "terser_minified")
@@ -35,11 +34,11 @@ def differential_loading(name, entry_point, srcs):
         ],
         output_dir = True,
         args = [
-            "$(location %s_chunks)" % name,
+            "$(execpath %s_chunks)" % name,
             "--config-file",
-            "$(location es5.babelrc)",
+            "$(execpath es5.babelrc)",
             "--out-dir",
-            "$@",
+            "$(@D)",
         ],
     )
 
@@ -54,15 +53,12 @@ def differential_loading(name, entry_point, srcs):
         src = name + "_chunks",
     )
 
-    web_package(
+    pkg_web(
         name = name,
-        assets = [
-            "styles.css",
-        ],
-        data = [
+        srcs = [
+            "index.html",
             "favicon.png",
             name + "_chunks.min",
             name + "_chunks_es5.min",
         ],
-        index_html = "index.html",
     )

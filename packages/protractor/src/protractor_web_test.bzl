@@ -19,9 +19,11 @@ load("@build_bazel_rules_nodejs//internal/common:windows_utils.bzl", "create_win
 load("@io_bazel_rules_webtesting//web:web.bzl", "web_test_suite")
 load("@io_bazel_rules_webtesting//web/internal:constants.bzl", "DEFAULT_WRAPPED_TEST_TAGS")
 
-_CONF_TMPL = "//:protractor.conf.js"
-_DEFUALT_PROTRACTOR = "@npm//@bazel/protractor"
-_DEFUALT_PROTRACTOR_ENTRY_POINT = "@npm//:node_modules/@bazel/protractor/protractor.js"
+_PROTRACTOR_PEER_DEPS = [
+    "@npm//@bazel/protractor",
+    "@npm//protractor",
+]
+_PROTRACTOR_ENTRY_POINT = "@npm//:node_modules/protractor/bin/protractor"
 
 # Avoid using non-normalized paths (workspace/../other_workspace/path)
 def _to_manifest_path(ctx, file):
@@ -104,31 +106,41 @@ def _protractor_web_test_impl(ctx):
         output = ctx.outputs.script,
         is_executable = True,
         content = """#!/usr/bin/env bash
-# Immediately exit if any command fails.
-set -e
+# --- begin runfiles.bash initialization v2 ---
+# Copy-pasted from the Bazel Bash runfiles library v2.
+set -uo pipefail; f=bazel_tools/tools/bash/runfiles/runfiles.bash
+source "${{RUNFILES_DIR:-/dev/null}}/$f" 2>/dev/null || \
+  source "$(grep -sm1 "^$f " "${{RUNFILES_MANIFEST_FILE:-/dev/null}}" | cut -f2- -d' ')" 2>/dev/null || \
+  source "$0.runfiles/$f" 2>/dev/null || \
+  source "$(grep -sm1 "^$f " "$0.runfiles_manifest" | cut -f2- -d' ')" 2>/dev/null || \
+  source "$(grep -sm1 "^$f " "$0.exe.runfiles_manifest" | cut -f2- -d' ')" 2>/dev/null || \
+  {{ echo>&2 "ERROR: cannot find $f"; exit 1; }}; f=; set -e
+# --- end runfiles.bash initialization v2 ---
 
-if [ -e "$RUNFILES_MANIFEST_FILE" ]; then
-  while read line; do
-    declare -a PARTS=($line)
-    if [ "${{PARTS[0]}}" == "{TMPL_protractor}" ]; then
-      readonly PROTRACTOR=${{PARTS[1]}}
-    elif [ "${{PARTS[0]}}" == "{TMPL_conf}" ]; then
-      readonly CONF=${{PARTS[1]}}
-    fi
-  done < $RUNFILES_MANIFEST_FILE
-else
-  readonly PROTRACTOR=../{TMPL_protractor}
-  readonly CONF=../{TMPL_conf}
-fi
+readonly PROTRACTOR=$(rlocation "{TMPL_protractor}")
+readonly CONF=$(rlocation "{TMPL_conf}")
 
 export HOME=$(mktemp -d)
 
-# Print the protractor version in the test log
-PROTRACTOR_VERSION=$($PROTRACTOR --version)
-echo "Protractor $PROTRACTOR_VERSION"
+# Pass --node_options from args on protractor node process
+NODE_OPTIONS=()
+for ARG in "$@"; do
+  case "${{ARG}}" in
+    --node_options=*) NODE_OPTIONS+=( "${{ARG}}" ) ;;
+  esac
+done
 
-# Run the protractor binary
-$PROTRACTOR $CONF
+PROTRACTOR_VERSION=$(${{PROTRACTOR}} --version)
+
+printf "\n\n\n\nRunning protractor tests\n-----------------------------------------------------------------------------\n"
+echo "version     :" ${{PROTRACTOR_VERSION#Version }}
+echo "pwd         :" ${{PWD}}
+echo "conf        :" ${{CONF}}
+echo "node_options:" ${{NODE_OPTIONS[@]:-}}
+printf "\n"
+
+readonly COMMAND="${{PROTRACTOR}} ${{CONF}} ${{NODE_OPTIONS[@]:-}}"
+${{COMMAND}}
 """.format(
             TMPL_protractor = _to_manifest_path(ctx, ctx.executable.protractor),
             TMPL_conf = _to_manifest_path(ctx, configuration),
@@ -170,6 +182,7 @@ _protractor_web_test = rule(
         ),
         "data": attr.label_list(
             doc = "Runtime dependencies",
+            allow_files = True,
         ),
         "on_prepare": attr.label(
             doc = """A file with a node.js script to run once before all tests run.
@@ -195,7 +208,7 @@ _protractor_web_test = rule(
             aspects = [node_modules_aspect],
         ),
         "_conf_tmpl": attr.label(
-            default = Label(_CONF_TMPL),
+            default = Label("//:protractor.conf.js"),
             allow_single_file = True,
         ),
     },
@@ -210,8 +223,8 @@ def protractor_web_test(
         data = [],
         server = None,
         tags = [],
-        protractor = _DEFUALT_PROTRACTOR,
-        protractor_entry_point = _DEFUALT_PROTRACTOR_ENTRY_POINT,
+        peer_deps = _PROTRACTOR_PEER_DEPS,
+        protractor_entry_point = _PROTRACTOR_ENTRY_POINT,
         **kwargs):
     """Runs a protractor test in a browser.
 
@@ -226,9 +239,10 @@ def protractor_web_test(
       data: Runtime dependencies
       server: Optional server executable target
       tags: Standard Bazel tags, this macro adds one for ibazel
-      protractor: A label providing the @bazel/protractor npm dependency.
-      protractor_entry_point: A label providing the @bazel/protractor entry point.
-      **kwargs: passed through to `_protractor_web_test`
+      peer_deps: List of peer npm deps required by protractor_web_test.
+      protractor_entry_point: A label providing the @npm//protractor entry point.
+          Default to `@npm//:node_modules/protractor/bin/protractor`.
+      **kwargs: passed through to `protractor_web_test`
     """
 
     protractor_bin_name = name + "_protractor_bin"
@@ -236,7 +250,7 @@ def protractor_web_test(
     nodejs_binary(
         name = protractor_bin_name,
         entry_point = protractor_entry_point,
-        data = srcs + deps + data + [protractor],
+        data = srcs + deps + data + peer_deps,
         testonly = 1,
         visibility = ["//visibility:private"],
     )
@@ -265,133 +279,76 @@ def protractor_web_test(
 
 def protractor_web_test_suite(
         name,
-        configuration = None,
-        on_prepare = None,
-        srcs = [],
-        deps = [],
-        data = [],
-        server = None,
         browsers = None,
-        args = None,
-        browser_overrides = None,
-        config = None,
-        flaky = None,
-        local = None,
-        shard_count = None,
-        size = None,
-        tags = [],
-        test_suite_tags = None,
-        timeout = None,
-        visibility = None,
         web_test_data = [],
-        wrapped_test_tags = None,
-        protractor = _DEFUALT_PROTRACTOR,
-        protractor_entry_point = _DEFUALT_PROTRACTOR_ENTRY_POINT,
-        **remaining_keyword_args):
+        wrapped_test_tags = list(DEFAULT_WRAPPED_TEST_TAGS),
+        **kwargs):
     """Defines a test_suite of web_test targets that wrap a protractor_web_test target.
 
     Args:
-      name: The base name of the test.
-      configuration: Protractor configuration file.
-      on_prepare: A file with a node.js script to run once before all tests run.
-          If the script exports a function which returns a promise, protractor
-          will wait for the promise to resolve before beginning tests.
-      srcs: JavaScript source files
-      deps: Other targets which produce JavaScript such as `ts_library`
-      data: Runtime dependencies
-      server: Optional server executable target
+      name: The base name of the test
       browsers: A sequence of labels specifying the browsers to use.
-      args: Args for web_test targets generated by this extension.
-      browser_overrides: Dictionary; optional; default is an empty dictionary. A
-        dictionary mapping from browser names to browser-specific web_test
-        attributes, such as shard_count, flakiness, timeout, etc. For example:
-        {'//browsers:chrome-native': {'shard_count': 3, 'flaky': 1}
-         '//browsers:firefox-native': {'shard_count': 1, 'timeout': 100}}.
-      config: Label; optional; Configuration of web test features.
-      flaky: A boolean specifying that the test is flaky. If set, the test will
-        be retried up to 3 times (default: 0)
-      local: boolean; optional.
-      shard_count: The number of test shards to use per browser. (default: 1)
-      size: A string specifying the test size. (default: 'large')
-      tags: A list of test tag strings to apply to each generated web_test target.
-        This macro adds a couple for ibazel.
-      test_suite_tags: A list of tag strings for the generated test_suite.
-      timeout: A string specifying the test timeout (default: computed from size)
-      visibility: List of labels; optional.
-      web_test_data: Data dependencies for the web_test.
-      wrapped_test_tags: A list of test tag strings to use for the wrapped test
-      protractor: Protractor entry_point. Defaults to @npm//:node_modules/protractor/bin/protractor
-          but should be changed to @your_npm_workspace//:node_modules/protractor/bin/protractor if
-          you are not using @npm for your npm dependencies.
-      **remaining_keyword_args: Arguments for the wrapped test target.
+      web_test_data: Data dependencies for the wrapoer web_test targets.
+      wrapped_test_tags: A list of test tag strings to use for the wrapped
+        karma_web_test target.
+      **kwargs: Arguments for the wrapped karma_web_test target.
     """
 
-    # Check explicitly for None so that users can set this to the empty list
-    if wrapped_test_tags == None:
-        wrapped_test_tags = DEFAULT_WRAPPED_TEST_TAGS
+    # Common attributes
+    args = kwargs.pop("args", None)
+    flaky = kwargs.pop("flaky", None)
+    local = kwargs.pop("local", None)
+    shard_count = kwargs.pop("shard_count", None)
+    size = kwargs.pop("size", "large")
+    timeout = kwargs.pop("timeout", None)
 
+    # Wrapper attributes
+    browser_overrides = kwargs.pop("browser_overrides", None)
+    config = kwargs.pop("config", None)
+    test_suite_tags = kwargs.pop("test_suite_tags", None)
+    visibility = kwargs.pop("visibility", None)
+    tags = kwargs.pop("tags", []) + [
+        # Users don't need to know that this tag is required to run under ibazel
+        "ibazel_notify_changes",
+    ]
     if browsers == None:
         browsers = ["@io_bazel_rules_webtesting//browsers:chromium-local"]
+
+        # rules_webesting requires the "native" tag for browsers
         if not "native" in tags:
             tags = tags + ["native"]
 
-    size = size or "large"
-
+    # The wrapped `karma_web_test` target
     wrapped_test_name = name + "_wrapped_test"
-    protractor_bin_name = name + "_protractor_bin"
-
-    # Users don't need to know that this tag is required to run under ibazel
-    tags = tags + ["ibazel_notify_changes"]
-
-    nodejs_binary(
-        name = protractor_bin_name,
-        entry_point = protractor_entry_point,
-        data = srcs + deps + data + [protractor],
-        testonly = 1,
-        visibility = ["//visibility:private"],
-    )
-
-    # Our binary dependency must be in data[] for collect_data to pick it up
-    # FIXME: maybe we can just ask the :protractor_bin_name for its runfiles attr
-    web_test_data = web_test_data + [":" + protractor_bin_name]
-    if server:
-        web_test_data += [server]
-
-    _protractor_web_test(
+    protractor_web_test(
         name = wrapped_test_name,
-        configuration = configuration,
-        on_prepare = on_prepare,
-        srcs = srcs,
-        deps = deps,
-        data = web_test_data,
-        server = server,
-        protractor = protractor_bin_name,
         args = args,
         flaky = flaky,
         local = local,
         shard_count = shard_count,
         size = size,
-        tags = wrapped_test_tags,
         timeout = timeout,
+        tags = wrapped_test_tags,
         visibility = ["//visibility:private"],
-        **remaining_keyword_args
+        **kwargs
     )
 
+    # The wrapper `web_test_suite` target
     web_test_suite(
         name = name,
-        launcher = ":" + wrapped_test_name,
         args = args,
+        flaky = flaky,
+        local = local,
+        shard_count = shard_count,
+        size = size,
+        timeout = timeout,
+        launcher = ":" + wrapped_test_name,
         browsers = browsers,
         browser_overrides = browser_overrides,
         config = config,
         data = web_test_data,
-        flaky = flaky,
-        local = local,
-        shard_count = shard_count,
-        size = size,
         tags = tags,
         test = wrapped_test_name,
         test_suite_tags = test_suite_tags,
-        timeout = timeout,
         visibility = visibility,
     )

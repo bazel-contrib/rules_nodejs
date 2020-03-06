@@ -14,36 +14,56 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -e
+# --- begin runfiles.bash initialization v2 ---
+# Copy-pasted from the Bazel Bash runfiles library v2.
+set -uo pipefail; f=bazel_tools/tools/bash/runfiles/runfiles.bash
+source "${RUNFILES_DIR:-/dev/null}/$f" 2>/dev/null || \
+  source "$(grep -sm1 "^$f " "${RUNFILES_MANIFEST_FILE:-/dev/null}" | cut -f2- -d' ')" 2>/dev/null || \
+  source "$0.runfiles/$f" 2>/dev/null || \
+  source "$(grep -sm1 "^$f " "$0.runfiles_manifest" | cut -f2- -d' ')" 2>/dev/null || \
+  source "$(grep -sm1 "^$f " "$0.exe.runfiles_manifest" | cut -f2- -d' ')" 2>/dev/null || \
+  { echo>&2 "ERROR: cannot find $f"; exit 1; }; f=; set -e
+# --- end runfiles.bash initialization v2 ---
 
-# --- begin runfiles.bash initialization ---
-# Source the runfiles library:
-# https://github.com/bazelbuild/bazel/blob/master/tools/bash/runfiles/runfiles.bash
-# The runfiles library defines rlocation, which is a platform independent function
-# used to lookup the runfiles locations. This code snippet is needed at the top
-# of scripts that use rlocation to lookup the location of runfiles.bash and source it
-if [[ ! -d "${RUNFILES_DIR:-/dev/null}" && ! -f "${RUNFILES_MANIFEST_FILE:-/dev/null}" ]]; then
-    if [[ -f "$0.runfiles_manifest" ]]; then
-      export RUNFILES_MANIFEST_FILE="$0.runfiles_manifest"
-    elif [[ -f "$0.runfiles/MANIFEST" ]]; then
-      export RUNFILES_MANIFEST_FILE="$0.runfiles/MANIFEST"
-    elif [[ -f "$0.runfiles/bazel_tools/tools/bash/runfiles/runfiles.bash" ]]; then
-      export RUNFILES_DIR="$0.runfiles"
-    fi
-fi
-if [[ -f "${RUNFILES_DIR:-/dev/null}/bazel_tools/tools/bash/runfiles/runfiles.bash" ]]; then
-  source "${RUNFILES_DIR}/bazel_tools/tools/bash/runfiles/runfiles.bash"
-elif [[ -f "${RUNFILES_MANIFEST_FILE:-/dev/null}" ]]; then
-  source "$(grep -m1 "^bazel_tools/tools/bash/runfiles/runfiles.bash " \
-            "$RUNFILES_MANIFEST_FILE" | cut -d ' ' -f 2-)"
+# Check environment for which node path to use
+unameOut="$(uname -s)"
+case "${unameOut}" in
+    Linux*)     machine=linux ;;
+    Darwin*)    machine=darwin ;;
+    CYGWIN*)    machine=windows ;;
+    MINGW*)     machine=windows ;;
+    MSYS_NT*)   machine=windows ;;
+    *)          machine=linux
+                printf "\nUnrecongized uname '${unameOut}'; defaulting to use node for linux.\n" >&2
+                printf "Please file an issue to https://github.com/bazelbuild/rules_nodejs/issues if \n" >&2
+                printf "you would like to add your platform to the supported ts_devserver platforms.\n\n" >&2
+                ;;
+esac
+
+case "${machine}" in
+  # The following paths must match up with @npm_bazel_typescript//devserver binaries
+  darwin) readonly platform_main_manifest="npm_bazel_typescript/devserver/devserver-darwin_x64" ;;
+  windows) readonly platform_main_manifest="npm_bazel_typescript/devserver/devserver-windows_x64.exe" ;;
+  *) readonly platform_main_manifest="npm_bazel_typescript/devserver/devserver-linux_x64" ;;
+esac
+
+readonly platform_main=$(rlocation "${platform_main_manifest}")
+
+if [ -f "${platform_main}" ]; then
+  readonly main=${platform_main}
 else
-  echo >&2 "ERROR: cannot find @bazel_tools//tools/bash/runfiles:runfiles.bash"
-  exit 1
+  # If the devserver binary is overridden then use the templated binary
+  readonly main=$(rlocation "TEMPLATED_main")
 fi
-# --- end runfiles.bash initialization ---
 
+if [ ! -f "${main}" ]; then
+    printf "\n>>>> FAIL: The ts_devserver binary '${main_platform}' not found in runfiles.\n" >&2
+    printf "This node toolchain was chosen based on your uname '${unameOut}'.\n" >&2
+    printf "Please file an issue to https://github.com/bazelbuild/rules_nodejs/issues if \n" >&2
+    printf "you would like to add your platform to the supported ts_devserver platforms. <<<<\n\n" >&2
+    exit 1
+fi
 
-readonly main=$(rlocation "TEMPLATED_main")
 readonly manifest=$(rlocation "TEMPLATED_manifest")
 readonly scripts_manifest=$(rlocation "TEMPLATED_scripts_manifest")
 

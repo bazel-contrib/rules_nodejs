@@ -5,10 +5,24 @@ filegroup(
     name = "test-b__files",
     srcs = [
         "//:node_modules/@gregmagolan/test-b/main.js",
-        "//:node_modules/@gregmagolan/test-b/node_modules/@gregmagolan/test-a/main.js",
-        "//:node_modules/@gregmagolan/test-b/node_modules/@gregmagolan/test-a/package.json",
         "//:node_modules/@gregmagolan/test-b/package.json",
     ],
+)
+filegroup(
+    name = "test-b__nested_node_modules",
+    srcs = [
+        "//:node_modules/@gregmagolan/test-b/node_modules/@gregmagolan/test-a/main.js",
+        "//:node_modules/@gregmagolan/test-b/node_modules/@gregmagolan/test-a/package.json",
+    ],
+    visibility = ["//:__subpackages__"],
+)
+filegroup(
+    name = "test-b__not_files",
+    visibility = ["//visibility:private"],
+)
+filegroup(
+    name = "test-b__all_files",
+    srcs = [":test-b__files", ":test-b__not_files"],
 )
 node_module_library(
     name = "test-b",
@@ -19,7 +33,8 @@ node_module_library(
 )
 node_module_library(
     name = "test-b__contents",
-    srcs = [":test-b__files"],
+    srcs = [":test-b__files", ":test-b__nested_node_modules"],
+    visibility = ["//:__subpackages__"],
 )
 node_module_library(
     name = "test-b__typings",
@@ -27,7 +42,7 @@ node_module_library(
 load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
 npm_umd_bundle(
     name = "test-b__umd",
-    package_name = "test-b",
+    package_name = "@gregmagolan/test-b",
     entry_point = "//:node_modules/@gregmagolan/test-b/main.js",
     package = ":test-b",
 )

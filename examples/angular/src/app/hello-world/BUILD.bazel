@@ -1,7 +1,7 @@
 load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
 load("@npm_angular_bazel//:index.bzl", "ng_module")
+load("@npm_bazel_karma//:index.bzl", "karma_web_test_suite")
 load("@npm_bazel_typescript//:index.bzl", "ts_library")
-load("//tools:defaults.bzl", "ts_web_test_suite")
 
 package(default_visibility = ["//:__subpackages__"])
 
@@ -9,12 +9,6 @@ sass_binary(
     name = "hello-world-styles",
     src = "hello-world.component.scss",
 )
-
-# We don't import from these, but the generated ngfactory code will
-NG_FACTORY_ADDED_IMPORTS = [
-    "@npm//@angular/cdk",
-    "@npm//@angular/material",
-]
 
 ng_module(
     name = "hello-world",
@@ -27,11 +21,9 @@ ng_module(
         ":hello-world-styles",
     ],
     tsconfig = "//src:tsconfig.json",
-    deps = NG_FACTORY_ADDED_IMPORTS + [
+    deps = [
         "//src/lib/shorten",
         "//src/shared/material",
-        "@npm//@angular/core",
-        "@npm//@angular/forms",
         "@npm//@angular/router",
         "@npm//date-fns",
     ],
@@ -44,15 +36,14 @@ ts_library(
     tsconfig = "//src:tsconfig-test",
     deps = [
         ":hello-world",
+        "//src/shared/material",
         "@npm//@angular/core",
         "@npm//@angular/platform-browser",
-        "@npm//@angular/platform-browser-dynamic",
         "@npm//@types/jasmine",
-        "@npm//@types/node",
     ],
 )
 
-ts_web_test_suite(
+karma_web_test_suite(
     name = "test",
     srcs = [
         # We are manaully adding the bazel generated named-UMD date-fns bundle here as
@@ -70,11 +61,14 @@ ts_web_test_suite(
         "@io_bazel_rules_webtesting//browsers:chromium-local",
         "@io_bazel_rules_webtesting//browsers:firefox-local",
     ],
+    tags = ["native"],
     runtime_deps = [
         "//src:initialize_testbed",
     ],
     deps = [
         ":test_lib",
         "//src:rxjs_umd_modules",
+        # explicit tslib dependency comes from @angular/material
+        "@npm//:node_modules/tslib/tslib.js",
     ],
 )

@@ -2,7 +2,11 @@
 
 const fs = require('fs');
 const path = require('path');
-const DEBUG = !!process.env['DEBUG'];
+const VERBOSE_LOGS = !!process.env['VERBOSE_LOGS'];
+
+function log_verbose(...m) {
+  if (VERBOSE_LOGS) console.error('[@bazel/create]', ...m);
+}
 
 /**
  * Detect if the user ran `yarn create @bazel` so we can default
@@ -26,7 +30,7 @@ function validateWorkspaceName(name, error) {
     return true;
   }
   error(`ERROR: ${name} is not a valid Bazel workspace name.
-  
+
   A workspace name must start with a letter and can contain letters, numbers, and underscores
   (this is to maximize the number of languages for which this string can be a valid package/module name).
   It should describe the project in reverse-DNS form, with elements separated by underscores.
@@ -73,10 +77,8 @@ function main(argv, error = console.error, log = console.log) {
   // Which package manager will be used in the new project
   const pkgMgr = args['packageManager'] || detectRunningUnderYarn() ? 'yarn' : 'npm';
 
-  if (DEBUG) {
-    log('Running with', process.argv);
-    log('Environment', process.env);
-  }
+  log_verbose('Running with', process.argv);
+  log_verbose('Environment', process.env);
 
   const [wkspDir] = args['_'];
   // TODO: user might want these to differ
@@ -96,7 +98,7 @@ function main(argv, error = console.error, log = console.log) {
   }
 
   const devDependencies = {
-    '@bazel/bazel': 'latest',
+    '@bazel/bazelisk': 'latest',
     '@bazel/ibazel': 'latest',
     '@bazel/buildifier': 'latest',
   };
@@ -105,7 +107,7 @@ function main(argv, error = console.error, log = console.log) {
 
   if (args['typescript']) {
     devDependencies['@bazel/typescript'] = 'latest';
-    devDependencies['typescript'] = '~3.4.0';
+    devDependencies['typescript'] = 'latest';
     write('tsconfig.json', '');
     rootBuildContent += '# Allow any ts_library rules in this workspace to reference the config\n' +
         '# Note: if you move the tsconfig.json file to a subdirectory, you can add an alias() here instead\n' +
@@ -155,8 +157,8 @@ workspace(
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 http_archive(
     name = "build_bazel_rules_nodejs",
-    sha256 = "ad4be2c6f40f5af70c7edf294955f9d9a0222c8e2756109731b25f79ea2ccea0",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.38.3/rules_nodejs-0.38.3.tar.gz"],
+    sha256 = "c9e59009049fa42198f7087b80398fc4b2698a0f0c7fdde4fb3540c899c9b309",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/1.4.0/rules_nodejs-1.4.0.tar.gz"],
 )
 
 ${pkgMgr === 'yarn' ? yarnInstallCmd : npmInstallCmd}
@@ -167,11 +169,11 @@ install_bazel_dependencies()`;
   if (args['typescript']) {
     workspaceContent += `
 
-# Setup TypeScript toolchain 
+# Setup TypeScript toolchain
 load("@npm_bazel_typescript//:index.bzl", "ts_setup_workspace")
 ts_setup_workspace()`;
   }
-  write('WORKSPACE', workspaceContent);
+  write('WORKSPACE.bazel', workspaceContent);
   write('.bazelignore', `node_modules`);
   write(
       'package.json',
@@ -182,8 +184,8 @@ ts_setup_workspace()`;
             private: true,
             devDependencies,
             scripts: {
-              'build': 'bazel build //...',
-              'test': 'bazel test //...',
+              'build': 'bazelisk build //...',
+              'test': 'bazelisk test //...',
             }
           },
           null, 4));
@@ -195,6 +197,8 @@ node_modules`);
   try {
     const rc = require.resolve('./common.bazelrc');
     write('.bazelrc', fs.readFileSync(rc));
+    const version = require.resolve('./.bazelversion');
+    write('.bazelversion', fs.readFileSync(version));
   } catch (_) {
     // but running locally against sources, it's in the root of the repo two directories up
     if (fs.existsSync('../../common.bazelrc')) {
@@ -202,6 +206,7 @@ node_modules`);
     } else {
       error('ERROR: missing common.bazelrc file, continuing with no bazel settings...');
     }
+    write('.bazelversion', 'latest');
   }
 
   log(`Successfully created new Bazel workspace at ${path.resolve(wkspDir)}`);

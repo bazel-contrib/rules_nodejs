@@ -17,23 +17,51 @@ load("@build_bazel_rules_nodejs//:providers.bzl", "JSNamedModuleInfo", "NpmPacka
 load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "write_amd_names_shim")
 load("@io_bazel_rules_webtesting//web:web.bzl", "web_test_suite")
 load("@io_bazel_rules_webtesting//web/internal:constants.bzl", "DEFAULT_WRAPPED_TEST_TAGS")
-load(":web_test.bzl", "COMMON_WEB_TEST_ATTRS")
 
-_CONF_TMPL = "//:karma.conf.js"
-_DEFAULT_KARMA_BIN = "@npm//@bazel/karma/bin:karma"
+KARMA_PEER_DEPS = [
+    "@npm//@bazel/karma",
+    "@npm//jasmine-core",
+    "@npm//karma",
+    "@npm//karma-chrome-launcher",
+    "@npm//karma-firefox-launcher",
+    "@npm//karma-jasmine",
+    "@npm//karma-requirejs",
+    "@npm//karma-sourcemap-loader",
+    "@npm//requirejs",
+    "@npm//tmp",
+]
 
-# Attributes for karma_web_test that are shared with ts_web_test which
-# uses Karma under the hood
-KARMA_GENERIC_WEB_TEST_ATTRS = dict(COMMON_WEB_TEST_ATTRS, **{
+KARMA_WEB_TEST_ATTRS = {
+    "srcs": attr.label_list(
+        doc = "A list of JavaScript test files",
+        allow_files = [".js"],
+    ),
     "bootstrap": attr.label_list(
         doc = """JavaScript files to include *before* the module loader (require.js).
         For example, you can include Reflect,js for TypeScript decorator metadata reflection,
         or UMD bundles for third-party libraries.""",
         allow_files = [".js"],
     ),
+    "config_file": attr.label(
+        doc = """User supplied Karma configuration file. Bazel will override
+        certain attributes of this configuration file. Attributes that are
+        overridden will be outputted to the test log.""",
+        allow_single_file = True,
+    ),
+    "configuration_env_vars": attr.string_list(
+        doc = """Pass these configuration environment variables to the resulting binary.
+        Chooses a subset of the configuration environment variables (taken from ctx.var), which also
+        includes anything specified via the --define flag.
+        Note, this can lead to different outputs produced by this rule.""",
+        default = [],
+    ),
+    "data": attr.label_list(
+        doc = "Runtime dependencies",
+        allow_files = True,
+    ),
     "karma": attr.label(
         doc = "karma binary label",
-        default = Label(_DEFAULT_KARMA_BIN),
+        default = "@npm//karma/bin:karma",
         executable = True,
         cfg = "target",
         allow_files = True,
@@ -52,21 +80,16 @@ KARMA_GENERIC_WEB_TEST_ATTRS = dict(COMMON_WEB_TEST_ATTRS, **{
         allow_files = True,
         aspects = [node_modules_aspect],
     ),
+    "deps": attr.label_list(
+        doc = "Other targets which produce JavaScript such as `ts_library`",
+        allow_files = True,
+        aspects = [node_modules_aspect],
+    ),
     "_conf_tmpl": attr.label(
-        default = Label(_CONF_TMPL),
+        default = "//:karma.conf.js",
         allow_single_file = True,
     ),
-})
-
-# Attributes for karma_web_test that are specific to karma_web_test
-KARMA_WEB_TEST_ATTRS = dict(KARMA_GENERIC_WEB_TEST_ATTRS, **{
-    "config_file": attr.label(
-        doc = """User supplied Karma configuration file. Bazel will override
-        certain attributes of this configuration file. Attributes that are
-        overridden will be outputted to the test log.""",
-        allow_single_file = True,
-    ),
-})
+}
 
 # Avoid using non-normalized paths (workspace/../other_workspace/path)
 def _to_manifest_path(ctx, file):
@@ -96,8 +119,7 @@ def _write_karma_config(ctx, files, amd_names_shim):
 
     config_file = None
 
-    # Check for config_file since ts_web_test does not have this attribute
-    if hasattr(ctx.attr, "config_file") and ctx.attr.config_file:
+    if ctx.attr.config_file:
         # TODO: switch to JSModuleInfo when it is available
         if JSNamedModuleInfo in ctx.attr.config_file:
             config_file = _filter_js(ctx.attr.config_file[JSNamedModuleInfo].direct_sources.to_list())[0]
@@ -185,18 +207,7 @@ def _write_karma_config(ctx, files, amd_names_shim):
 
     return configuration
 
-def run_karma_web_test(ctx):
-    """Internal utility for use by Bazel rule authors.
-
-    Creates an action that can run karma.
-    This is also used by ts_web_test_rule.
-
-    Args:
-      ctx: Bazel rule execution context
-
-    Returns:
-      The runfiles for the generated action.
-    """
+def _karma_web_test_impl(ctx):
     files_depsets = [depset(ctx.files.srcs)]
     for dep in ctx.attr.deps + ctx.attr.runtime_deps:
         if JSNamedModuleInfo in dep:
@@ -225,41 +236,52 @@ def run_karma_web_test(ctx):
         output = ctx.outputs.executable,
         is_executable = True,
         content = """#!/usr/bin/env bash
-# Immediately exit if any command fails.
-set -e
+# --- begin runfiles.bash initialization v2 ---
+# Copy-pasted from the Bazel Bash runfiles library v2.
+set -uo pipefail; f=bazel_tools/tools/bash/runfiles/runfiles.bash
+source "${{RUNFILES_DIR:-/dev/null}}/$f" 2>/dev/null || \
+  source "$(grep -sm1 "^$f " "${{RUNFILES_MANIFEST_FILE:-/dev/null}}" | cut -f2- -d' ')" 2>/dev/null || \
+  source "$0.runfiles/$f" 2>/dev/null || \
+  source "$(grep -sm1 "^$f " "$0.runfiles_manifest" | cut -f2- -d' ')" 2>/dev/null || \
+  source "$(grep -sm1 "^$f " "$0.exe.runfiles_manifest" | cut -f2- -d' ')" 2>/dev/null || \
+  {{ echo>&2 "ERROR: cannot find $f"; exit 1; }}; f=; set -e
+# --- end runfiles.bash initialization v2 ---
 
-if [ -e "$RUNFILES_MANIFEST_FILE" ]; then
-  while read line; do
-    declare -a PARTS=($line)
-    if [ "${{PARTS[0]}}" == "{TMPL_karma}" ]; then
-      readonly KARMA=${{PARTS[1]}}
-    elif [ "${{PARTS[0]}}" == "{TMPL_conf}" ]; then
-      readonly CONF=${{PARTS[1]}}
-    fi
-  done < $RUNFILES_MANIFEST_FILE
-else
-  readonly KARMA=../{TMPL_karma}
-  readonly CONF=../{TMPL_conf}
-fi
+readonly KARMA=$(rlocation "{TMPL_karma}")
+readonly CONF=$(rlocation "{TMPL_conf}")
 
 export HOME=$(mktemp -d)
 
-# Print the karma version in the test log
-echo $($KARMA --version)
-
-ARGV=( "start" $CONF )
+ARGV=( "start" ${{CONF}} )
 
 # Detect that we are running as a test, by using well-known environment
 # variables. See go/test-encyclopedia
 # Note: in Bazel 0.14 and later, TEST_TMPDIR is set for both bazel test and bazel run
 # so we also check for the BUILD_WORKSPACE_DIRECTORY which is set only for bazel run
-if [[ ! -z "${{TEST_TMPDIR}}" && ! -n "${{BUILD_WORKSPACE_DIRECTORY}}" ]]; then
+if [[ ! -z "${{TEST_TMPDIR:-}}" && ! -n "${{BUILD_WORKSPACE_DIRECTORY:-}}" ]]; then
   ARGV+=( "--single-run" )
 fi
 
-$KARMA ${{ARGV[@]}}
+# Pass --node_options from args on karma node process
+NODE_OPTIONS=()
+for ARG in "$@"; do
+  case "${{ARG}}" in
+    --node_options=*) NODE_OPTIONS+=( "${{ARG}}" ) ;;
+  esac
+done
+
+KARMA_VERSION=$(${{KARMA}} --version)
+
+printf "\n\n\n\nRunning karma tests\n-----------------------------------------------------------------------------\n"
+echo "version     :" ${{KARMA_VERSION#Karma version: }}
+echo "pwd         :" ${{PWD}}
+echo "conf        :" ${{CONF}}
+echo "node_options:" ${{NODE_OPTIONS[@]:-}}
+printf "\n"
+
+readonly COMMAND="${{KARMA}} ${{ARGV[@]}} ${{NODE_OPTIONS[@]:-}}"
+${{COMMAND}}
 """.format(
-            TMPL_workspace = ctx.workspace_name,
             TMPL_karma = _to_manifest_path(ctx, ctx.executable.karma),
             TMPL_conf = _to_manifest_path(ctx, configuration),
         ),
@@ -267,8 +289,7 @@ $KARMA ${{ARGV[@]}}
 
     config_sources = []
 
-    # Check for config_file since ts_web_test does not have this attribute
-    if hasattr(ctx.attr, "config_file") and ctx.attr.config_file:
+    if ctx.attr.config_file:
         # TODO: switch to JSModuleInfo when it is available
         if JSNamedModuleInfo in ctx.attr.config_file:
             config_sources = ctx.attr.config_file[JSNamedModuleInfo].sources.to_list()
@@ -287,17 +308,12 @@ $KARMA ${{ARGV[@]}}
     runfiles += ctx.files.static_files
     runfiles += ctx.files.data
 
-    return ctx.runfiles(
-        files = runfiles,
-        transitive_files = depset(transitive = [files, node_modules]),
-    ).merge(ctx.attr.karma[DefaultInfo].data_runfiles)
-
-def _karma_web_test_impl(ctx):
-    runfiles = run_karma_web_test(ctx)
-
     return [DefaultInfo(
         files = depset([ctx.outputs.executable]),
-        runfiles = runfiles,
+        runfiles = ctx.runfiles(
+            files = runfiles,
+            transitive_files = depset(transitive = [files, node_modules]),
+        ).merge(ctx.attr.karma[DefaultInfo].data_runfiles),
         executable = ctx.outputs.executable,
     )]
 
@@ -318,6 +334,7 @@ def karma_web_test(
         static_files = [],
         config_file = None,
         tags = [],
+        peer_deps = KARMA_PEER_DEPS,
         **kwargs):
     """Runs unit tests in a browser with Karma.
 
@@ -362,12 +379,13 @@ def karma_web_test(
           certain attributes of this configuration file. Attributes that are
           overridden will be outputted to the test log.
       tags: Standard Bazel tags, this macro adds tags for ibazel support
+      peer_deps: list of peer npm deps required by karma_web_test
       **kwargs: Passed through to `karma_web_test`
     """
 
     _karma_web_test(
         srcs = srcs,
-        deps = deps,
+        deps = deps + peer_deps,
         data = data,
         configuration_env_vars = configuration_env_vars,
         bootstrap = bootstrap,
@@ -384,98 +402,81 @@ def karma_web_test(
 def karma_web_test_suite(
         name,
         browsers = None,
-        args = None,
-        browser_overrides = None,
-        config = None,
-        flaky = None,
-        local = None,
-        shard_count = None,
-        size = None,
-        tags = [],
-        test_suite_tags = None,
-        timeout = None,
-        visibility = None,
         web_test_data = [],
-        wrapped_test_tags = None,
-        **remaining_keyword_args):
+        wrapped_test_tags = list(DEFAULT_WRAPPED_TEST_TAGS),
+        **kwargs):
     """Defines a test_suite of web_test targets that wrap a karma_web_test target.
 
-    This macro also accepts all parameters in karma_web_test. See karma_web_test docs
-    for details.
+    This macro accepts all parameters in karma_web_test and adds additional parameters
+    for the suite. See karma_web_test docs for all karma_web_test.
+
+    The wrapping macro is `web_test_suite` which comes from rules_websting:
+    https://github.com/bazelbuild/rules_webtesting/blob/master/web/web.bzl.
 
     Args:
       name: The base name of the test
       browsers: A sequence of labels specifying the browsers to use.
-      args: Args for web_test targets generated by this extension.
-      browser_overrides: Dictionary; optional; default is an empty dictionary. A
-        dictionary mapping from browser names to browser-specific web_test
-        attributes, such as shard_count, flakiness, timeout, etc. For example:
-        ```
-        {
-            '//browsers:chrome-native': {'shard_count': 3, 'flaky': 1},
-            '//browsers:firefox-native': {'shard_count': 1, 'timeout': 100},
-        }
-        ```
-      config: Label; optional; Configuration of web test features.
-      flaky: A boolean specifying that the test is flaky. If set, the test will
-        be retried up to 3 times (default: 0)
-      local: boolean; optional.
-      shard_count: The number of test shards to use per browser. (default: 1)
-      size: A string specifying the test size. (default: 'large')
-      tags: A list of test tag strings to apply to each generated web_test target.
-        This macro adds a couple for ibazel.
-      test_suite_tags: A list of tag strings for the generated test_suite.
-      timeout: A string specifying the test timeout (default: computed from size)
-      visibility: List of labels; optional.
-      web_test_data: Data dependencies for the web_test.
-      wrapped_test_tags: A list of test tag strings to use for the wrapped test
-      **remaining_keyword_args: Arguments for the wrapped test target.
+      web_test_data: Data dependencies for the wrapoer web_test targets.
+      wrapped_test_tags: A list of test tag strings to use for the wrapped
+        karma_web_test target.
+      **kwargs: Arguments for the wrapped karma_web_test target.
     """
 
-    # Check explicitly for None so that users can set this to the empty list
-    if wrapped_test_tags == None:
-        wrapped_test_tags = DEFAULT_WRAPPED_TEST_TAGS
+    # Common attributes
+    args = kwargs.pop("args", None)
+    flaky = kwargs.pop("flaky", None)
+    local = kwargs.pop("local", None)
+    shard_count = kwargs.pop("shard_count", None)
+    size = kwargs.pop("size", "large")
+    timeout = kwargs.pop("timeout", None)
 
+    # Wrapper attributes
+    browser_overrides = kwargs.pop("browser_overrides", None)
+    config = kwargs.pop("config", None)
+    test_suite_tags = kwargs.pop("test_suite_tags", None)
+    visibility = kwargs.pop("visibility", None)
+    tags = kwargs.pop("tags", []) + [
+        # Users don't need to know that this tag is required to run under ibazel
+        "ibazel_notify_changes",
+    ]
     if browsers == None:
         browsers = ["@io_bazel_rules_webtesting//browsers:chromium-local"]
+
+        # rules_webesting requires the "native" tag for browsers
         if not "native" in tags:
             tags = tags + ["native"]
 
-    size = size or "large"
-
+    # The wrapped `karma_web_test` target
     wrapped_test_name = name + "_wrapped_test"
-
-    _karma_web_test(
+    karma_web_test(
         name = wrapped_test_name,
         args = args,
         flaky = flaky,
         local = local,
         shard_count = shard_count,
         size = size,
-        tags = wrapped_test_tags,
         timeout = timeout,
+        tags = wrapped_test_tags,
         visibility = ["//visibility:private"],
-        **remaining_keyword_args
+        **kwargs
     )
 
+    # The wrapper `web_test_suite` target
     web_test_suite(
         name = name,
-        launcher = ":" + wrapped_test_name,
         args = args,
-        browsers = browsers,
-        browser_overrides = browser_overrides,
-        config = config,
-        data = web_test_data,
         flaky = flaky,
         local = local,
         shard_count = shard_count,
         size = size,
-        tags = tags + [
-            # Users don't need to know that this tag is required to run under ibazel
-            "ibazel_notify_changes",
-        ],
+        timeout = timeout,
+        launcher = ":" + wrapped_test_name,
+        browsers = browsers,
+        browser_overrides = browser_overrides,
+        config = config,
+        data = web_test_data,
+        tags = tags,
         test = wrapped_test_name,
         test_suite_tags = test_suite_tags,
-        timeout = timeout,
         visibility = visibility,
     )

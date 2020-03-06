@@ -42,21 +42,14 @@ e2e_integration_test(
 
 e2e_integration_test(
     name = "e2e_packages",
-    workspace_files = "@e2e_packages//:all_files",
 )
 
 e2e_integration_test(
     name = "e2e_symlinked_node_modules_npm",
-    npm_packages = {
-        "//packages/hide-bazel-files:npm_package": "@bazel/hide-bazel-files",
-    },
 )
 
 e2e_integration_test(
     name = "e2e_symlinked_node_modules_yarn",
-    npm_packages = {
-        "//packages/hide-bazel-files:npm_package": "@bazel/hide-bazel-files",
-    },
 )
 
 # terser rules are tested in the e2e_webapp
@@ -82,17 +75,8 @@ e2e_integration_test(
 e2e_integration_test(
     name = "e2e_ts_devserver",
     npm_packages = {
-        "//packages/hide-bazel-files:npm_package": "@bazel/hide-bazel-files",
         "//packages/protractor:npm_package": "@bazel/protractor",
         "//packages/typescript:npm_package": "@bazel/typescript",
-    },
-)
-
-e2e_integration_test(
-    name = "e2e_webpack",
-    npm_packages = {
-        "//packages/jasmine:npm_package": "@bazel/jasmine",
-        "//packages/labs:npm_package": "@bazel/labs",
     },
 )
 
@@ -103,7 +87,7 @@ e2e_integration_test(
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
     # use these package.json packages instead
-    package_json_replacements = {
+    package_json_substitutions = {
         "typescript": tsc_version,
     },
     workspace_root = "typescript",
@@ -116,15 +100,3 @@ e2e_integration_test(
     "3.5.x",
     "3.6.x",
 ]]
-
-e2e_integration_test(
-    name = "e2e_ts_auto_deps",
-    bazel_commands = [
-        "run @nodejs//:yarn",
-        "run @nodejs//:bin/yarn -- generate_build_file",
-        "build //simple:simple",
-    ],
-    npm_packages = {
-        "//packages/typescript:npm_package": "@bazel/typescript",
-    },
-)

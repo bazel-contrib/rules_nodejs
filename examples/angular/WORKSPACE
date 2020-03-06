@@ -17,33 +17,23 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 # Fetch rules_nodejs so we can install our npm dependencies
 http_archive(
     name = "build_bazel_rules_nodejs",
-    sha256 = "ad4be2c6f40f5af70c7edf294955f9d9a0222c8e2756109731b25f79ea2ccea0",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.38.3/rules_nodejs-0.38.3.tar.gz"],
+    sha256 = "c9e59009049fa42198f7087b80398fc4b2698a0f0c7fdde4fb3540c899c9b309",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/1.4.0/rules_nodejs-1.4.0.tar.gz"],
 )
 
 # Fetch sass rules for compiling sass files
 http_archive(
     name = "io_bazel_rules_sass",
-    sha256 = "4f05239080175a3f4efa8982d2b7775892d656bb47e8cf56914d5f9441fb5ea6",
-    strip_prefix = "rules_sass-86ca977cf2a8ed481859f83a286e164d07335116",
-    url = "https://github.com/bazelbuild/rules_sass/archive/86ca977cf2a8ed481859f83a286e164d07335116.zip",
+    sha256 = "c78be58f5e0a29a04686b628cf54faaee0094322ae0ac99da5a8a8afca59a647",
+    strip_prefix = "rules_sass-1.25.0",
+    urls = [
+        "https://github.com/bazelbuild/rules_sass/archive/1.25.0.zip",
+        "https://mirror.bazel.build/github.com/bazelbuild/rules_sass/archive/1.25.0.zip",
+    ],
 )
 
 # Check the bazel version and download npm dependencies
-load("@build_bazel_rules_nodejs//:index.bzl", "check_bazel_version", "yarn_install")
-
-# Bazel version must be at least the following version because:
-#   - 0.27.0 Adds managed directories support
-check_bazel_version(
-    message = """
-You no longer need to install Bazel on your machine.
-Angular has a dependency on the @bazel/bazel package which supplies it.
-Try running `yarn bazel` instead.
-    (If you did run that, check that you've got a fresh `yarn install`)
-
-""",
-    minimum_bazel_version = "0.27.0",
-)
+load("@build_bazel_rules_nodejs//:index.bzl", "yarn_install")
 
 # Setup the Node.js toolchain & install our npm dependencies into @npm
 yarn_install(
@@ -95,10 +85,11 @@ sass_repositories()
 
 http_archive(
     name = "bazel_toolchains",
-    sha256 = "88e818f9f03628eef609c8429c210ecf265ffe46c2af095f36c7ef8b1855fef5",
-    strip_prefix = "bazel-toolchains-92dd8a7",
+    sha256 = "1342f84d4324987f63307eb6a5aac2dff6d27967860a129f5cd40f8f9b6fd7dd",
+    strip_prefix = "bazel-toolchains-2.2.0",
     urls = [
-        "https://github.com/bazelbuild/bazel-toolchains/archive/92dd8a7.zip",
+        "https://mirror.bazel.build/github.com/bazelbuild/bazel-toolchains/releases/download/2.2.0/bazel-toolchains-2.2.0.tar.gz",
+        "https://github.com/bazelbuild/bazel-toolchains/releases/download/2.2.0/bazel-toolchains-2.2.0.tar.gz",
     ],
 )
 
@@ -108,9 +99,10 @@ http_archive(
 
 http_archive(
     name = "io_bazel_rules_docker",
-    sha256 = "413bb1ec0895a8d3249a01edf24b82fd06af3c8633c9fb833a0cb1d4b234d46d",
-    strip_prefix = "rules_docker-0.12.0",
-    urls = ["https://github.com/bazelbuild/rules_docker/releases/download/v0.12.0/rules_docker-v0.12.0.tar.gz"],
+    patches = ["//:rules_docker.patch"],
+    sha256 = "7d453450e1eb70e238eea6b31f4115607ec1200e91afea01c25f9804f37e39c8",
+    strip_prefix = "rules_docker-0.10.0",
+    urls = ["https://github.com/bazelbuild/rules_docker/archive/v0.10.0.tar.gz"],
 )
 
 load("@io_bazel_rules_docker//repositories:repositories.bzl", container_repositories = "repositories")

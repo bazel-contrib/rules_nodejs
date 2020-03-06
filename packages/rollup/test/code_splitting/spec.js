@@ -1,5 +1,5 @@
 const fs = require('fs');
-const {runfiles} = require('build_bazel_rules_nodejs/internal/linker');
+const runfiles = require(process.env['BAZEL_NODE_RUNFILES_HELPER']);
 
 describe('rollup code splitting', () => {
   it('should produce a chunk for lazy loaded code', () => {

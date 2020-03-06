@@ -22,7 +22,17 @@ ts_library(
 ts_library(
     name = "parent",
     srcs = ["parent.ts"],
-    deps = [":grandparent"],
+    # NB: We don't require the `@npm//semver` package for the typescript compile
+    # action as the .d.ts files live in @types/semver. If the resulting
+    # .js file is run downstream in a nodejs_binary rule, however, the
+    # `@npm//semver` dep will be required at that point.
+    # TODO: Is it desirable to automatically add @npm//semver as a transitive
+    #       dep if @npm//@types/semver is a dep so that downtream nodejs_binary
+    #       rules get this automatically?
+    deps = [
+        ":grandparent",
+        "@npm//@types/semver",
+    ],
 )
 
 ts_library(
@@ -30,6 +40,15 @@ ts_library(
     srcs = ["child.ts"],
     expected_diagnostics = [
         "TS2307:child\.ts\(2,.*transitive dependency.*not allowed",
+    ],
+    deps = [":parent"],
+)
+
+ts_library(
+    name = "strict_deps_npm",
+    srcs = ["child2.ts"],
+    expected_diagnostics = [
+        "TS2307:child2\.ts\(2,.*transitive dependency.*not allowed",
     ],
     deps = [":parent"],
 )

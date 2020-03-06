@@ -69,6 +69,7 @@ def _node_module_library_impl(ctx):
             DeclarationInfo(
                 declarations = declarations,
                 transitive_declarations = transitive_declarations,
+                type_blacklisted_declarations = depset([]),
             ),
             js_named_module_info(
                 sources = depset(ctx.files.named_module_srcs),

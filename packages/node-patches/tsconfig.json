@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "lib": ["es2016"],
+    "types":["node","mocha","rimraf"],
+    "typeRoots":["./node_modules/@types"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "es2017"
+  },
+  "include": [
+    "register.ts",
+    "src/**/*.ts",
+    "test/**/*.ts"
+  ]
+}

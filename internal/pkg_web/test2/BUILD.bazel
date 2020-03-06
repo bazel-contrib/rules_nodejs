@@ -1,0 +1,101 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "pkg_web")
+load("@npm//@babel/cli:index.bzl", "babel")
+load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
+load("@npm_bazel_rollup//:index.from_src.bzl", "rollup_bundle")
+load("@npm_bazel_terser//:index.from_src.bzl", "terser_minified")
+
+rollup_bundle(
+    name = "local_bundle",
+    entry_point = ":script.js",
+    sourcemap = "true",
+)
+
+babel(
+    name = "local_bundle.es2015",
+    outs = [
+        "local_bundle.es2015.js",
+        "local_bundle.es2015.js.map",
+    ],
+    args = [
+        "$(execpath :local_bundle.js)",
+        "--no-babelrc",
+        "--source-maps",
+        "--presets=@babel/preset-env",
+        "--out-file",
+        "$(execpath :local_bundle.es2015.js)",
+    ],
+    data = [
+        "local_bundle.js",
+        "local_bundle.js.map",
+        "@npm//@babel/preset-env",
+    ],
+)
+
+terser_minified(
+    name = "local_bundle.min",
+    src = ":local_bundle",
+)
+
+terser_minified(
+    name = "local_bundle.min_debug",
+    src = ":local_bundle",
+    debug = True,
+)
+
+terser_minified(
+    name = "local_bundle.min.es2015",
+    src = ":local_bundle.es2015.js",
+)
+
+terser_minified(
+    name = "local_bundle.min_debug.es2015",
+    src = ":local_bundle.es2015.js",
+    debug = True,
+)
+
+# Same exts as //internal/pkg_web/test-exports, //internal/pkg_web/test2/rel-exports
+EXTS = [
+    "js",
+    "css",
+]
+
+pkg_web(
+    name = "pkg",
+    srcs = [
+               "index.html",
+               # bundles from a different directory
+               "//internal/pkg_web/test:bundle.es2015",
+               "//internal/pkg_web/test:bundle.min.es2015",
+               "//internal/pkg_web/test:bundle.min_debug.es2015",
+               "//internal/pkg_web/test:bundle",
+               "//internal/pkg_web/test:bundle.min",
+               "//internal/pkg_web/test:bundle.min_debug",
+               # bundles in the current path
+               ":local_bundle.es2015",
+               ":local_bundle.min.es2015",
+               ":local_bundle.min_debug.es2015",
+               ":local_bundle",
+               ":local_bundle.min",
+               ":local_bundle.min_debug",
+           ] +
+           # bin + gen + exported files from a different directory
+           ["//internal/pkg_web/test-exports:bin-" + e for e in EXTS] +
+           ["//internal/pkg_web/test-exports:gen-" + e for e in EXTS] +
+           ["//internal/pkg_web/test-exports:file." + e for e in EXTS] +
+           # bin + gen + exported files from a sub directory
+           ["//internal/pkg_web/test2/rel-exports:rel-bin-" + e for e in EXTS] +
+           ["//internal/pkg_web/test2/rel-exports:rel-gen-" + e for e in EXTS] +
+           ["//internal/pkg_web/test2/rel-exports:rel-file." + e for e in EXTS],
+)
+
+jasmine_node_test(
+    name = "test",
+    srcs = ["spec.js"],
+    data = [
+        "index_golden.html_",
+        ":pkg",
+    ],
+    tags = [
+        "fix-windows",
+    ],
+)

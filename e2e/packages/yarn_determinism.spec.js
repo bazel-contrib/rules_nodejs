@@ -8,6 +8,14 @@ const packageJsonPath2 = packageJsonPath.replace(
     '/e2e_packages_yarn_install_duplicate_for_determinism_testing/', '/e2e_packages_yarn_install/');
 const packageJson2 = JSON.parse(fs.readFileSync(packageJsonPath2));
 
+try {
+  require.resolve('tmp');
+  console.error(
+      'expected tmp to not be installed by yarn as --prod was passed via args in yarn_install');
+  process.exitCode = 1;
+} catch (_) {
+}
+
 if (packageJsonPath === packageJsonPath2) {
   console.error('expected different json paths');
   process.exitCode = 1;

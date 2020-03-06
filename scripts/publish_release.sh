@@ -11,16 +11,16 @@ set -u -e -o pipefail
 # $ npm login --registry https://wombat-dressing-room.appspot.com
 
 readonly NPM_COMMAND=${1:-publish}
-readonly BAZEL_BIN=./node_modules/.bin/bazel
+readonly BAZEL_BIN=./node_modules/.bin/bazelisk
 
 # Use a new output_base so we get a clean build
 # Bazel can't know if the git metadata changed
 readonly TMP=$(mktemp -d -t bazel-release.XXXXXXX)
 readonly BAZEL="$BAZEL_BIN --output_base=$TMP"
-readonly NPM_PACKAGE_LABELS=`$BAZEL query --output=label 'kind("npm_package rule", //packages/...) - attr("tags", "\[.*do-not-publish.*\]", //packages/...)'`
+readonly PKG_NPM_LABELS=`$BAZEL query --output=label 'kind("pkg_npm rule", //packages/...) - attr("tags", "\[.*do-not-publish.*\]", //packages/...)'`
 
-$BAZEL build --config=release $NPM_PACKAGE_LABELS
+$BAZEL build --config=release $PKG_NPM_LABELS
 # publish one package at a time to make it easier to spot any errors or warnings
-for pkg in $NPM_PACKAGE_LABELS ; do
-  $BAZEL run -- ${pkg}.${NPM_COMMAND} --access public --tag latest --registry https://wombat-dressing-room.appspot.com
+for pkg in $PKG_NPM_LABELS ; do
+  $BAZEL run --config=release -- ${pkg}.${NPM_COMMAND} --access public --tag latest ${NPM_REGISTRY:-}
 done

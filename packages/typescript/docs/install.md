@@ -1,7 +1,5 @@
 # TypeScript rules for Bazel
 
-**WARNING: this is beta-quality software. Breaking changes are likely. Not recommended for production use without expert support.**
-
 The TypeScript rules integrate the TypeScript compiler with Bazel.
 
 Looking for Karma rules `ts_web_test` and `karma_web_test`?
@@ -34,7 +32,7 @@ tsc(
     outs = [s.replace(".ts", ext) for ext in [".js", ".d.ts"] for s in srcs],
     args = [
         "--outDir",
-        "$@",
+        "$(RULEDIR)",
         "--lib",
         "es2017,dom",
         "--downlevelIteration",
@@ -85,6 +83,8 @@ alias(
 )
 ```
 
+Make sure to remove the `--noEmit` compiler option from your `tsconfig.json`. This is not compatible with the `ts_library` rule.
+
 ## Self-managed npm dependencies
 
 We recommend you use Bazel managed dependencies but if you would like
@@ -99,7 +99,7 @@ node_repositories(package_json = ["//:package.json"])
 You can then run `yarn` in your workspace with:
 
 ```sh
-$ bazel run @nodejs//:yarn
+$ bazel run @nodejs//:yarn_node_repositories
 ```
 
 To use your workspace `node_modules` folder as a dependency in `ts_library` and

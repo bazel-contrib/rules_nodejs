@@ -19,11 +19,7 @@ load(
     "@build_bazel_rules_nodejs//internal/js_library:js_library.bzl",
     "write_amd_names_shim",
 )
-load(
-    "@build_bazel_rules_nodejs//internal/web_package:web_package.bzl",
-    "additional_root_paths",
-    "html_asset_inject",
-)
+load("@nodejs//:index.bzl", "host_platform")
 
 # Avoid using non-normalized paths (workspace/../other_workspace/path)
 def _to_manifest_path(ctx, file):
@@ -91,29 +87,20 @@ def _ts_devserver(ctx):
         for f in script_files
     ]))
 
+    # With cross-platform RBE for OSX & Windows ctx.executable.devserver will be linux as --cpu and
+    # --host_cpu must be overridden to k8. However, we still want to be able to run the devserver on the host
+    # machine so we need to include the host devserver binary, which is ctx.executable.devserver_host, in the
+    # runfiles. For non-RBE and for RBE with a linux host, ctx.executable.devserver & ctx.executable.devserver_host
+    # will be the same binary.
     devserver_runfiles = [
         ctx.executable.devserver,
+        ctx.executable.devserver_host,
         ctx.outputs.manifest,
         ctx.outputs.scripts_manifest,
     ]
     devserver_runfiles += ctx.files.static_files
     devserver_runfiles += script_files
     devserver_runfiles += ctx.files._bash_runfile_helpers
-
-    if ctx.file.index_html:
-        injected_index = ctx.actions.declare_file("index.html")
-        bundle_script = ctx.attr.serving_path
-        if bundle_script.startswith("/"):
-            bundle_script = bundle_script[1:]
-        html_asset_inject(
-            ctx.file.index_html,
-            ctx.actions,
-            ctx.executable._injector,
-            additional_root_paths(ctx),
-            [_to_manifest_path(ctx, f) for f in ctx.files.static_files] + [bundle_script],
-            injected_index,
-        )
-        devserver_runfiles += [injected_index]
 
     packages = depset(["/".join([workspace_name, ctx.label.package])] + ctx.attr.additional_root_paths)
 
@@ -138,7 +125,7 @@ def _ts_devserver(ctx):
             files = devserver_runfiles,
             # We don't expect executable targets to depend on the devserver, but if they do,
             # they can see the JavaScript code.
-            transitive_files = depset(ctx.files.data, transitive = [files, node_modules]),
+            transitive_files = depset(transitive = [files, node_modules]),
             collect_data = True,
             collect_default = True,
         ),
@@ -156,14 +143,24 @@ ts_devserver = rule(
             doc = "Scripts to include in the JS bundle before the module loader (require.js)",
             allow_files = [".js"],
         ),
-        "data": attr.label_list(
-            doc = "Dependencies that can be require'd while the server is running",
-            allow_files = True,
-        ),
         "devserver": attr.label(
             doc = """Go based devserver executable.
+
+            With cross-platform RBE for OSX & Windows ctx.executable.devserver will be linux as --cpu and
+            --host_cpu must be overridden to k8. However, we still want to be able to run the devserver on the host
+            machine so we need to include the host devserver binary, which is ctx.executable.devserver_host, in the
+            runfiles. For non-RBE and for RBE with a linux host, ctx.executable.devserver & ctx.executable.devserver_host
+            will be the same binary.
+
             Defaults to precompiled go binary in @npm_bazel_typescript setup by @bazel/typescript npm package""",
             default = Label("//devserver"),
+            executable = True,
+            cfg = "host",
+        ),
+        "devserver_host": attr.label(
+            doc = """Go based devserver executable for the host platform.
+            Defaults to precompiled go binary in @npm_bazel_typescript setup by @bazel/typescript npm package""",
+            default = Label("//devserver:devserver_%s" % host_platform),
             executable = True,
             cfg = "host",
         ),
@@ -172,12 +169,6 @@ ts_devserver = rule(
             `ts_devserver` concats the following snippet after the bundle to load the application:
             `require(["entry_module"]);`
             """,
-        ),
-        "index_html": attr.label(
-            allow_single_file = True,
-            doc = """An index.html file, we'll inject the script tag for the bundle,
-            as well as script tags for .js static_files and link tags for .css
-            static_files""",
         ),
         "port": attr.int(
             doc = """The port that the devserver will listen on.""",
@@ -205,11 +196,6 @@ ts_devserver = rule(
             aspects = [node_modules_aspect],
         ),
         "_bash_runfile_helpers": attr.label(default = Label("@bazel_tools//tools/bash/runfiles")),
-        "_injector": attr.label(
-            default = "@build_bazel_rules_nodejs//internal/web_package:injector",
-            executable = True,
-            cfg = "host",
-        ),
         "_launcher_template": attr.label(allow_single_file = True, default = Label("//internal/devserver:launcher_template.sh")),
         "_requirejs_script": attr.label(allow_single_file = True, default = Label("//third_party/npm/requirejs:require.js")),
     },
@@ -224,7 +210,7 @@ Additional documentation at https://github.com/alexeagle/angular-bazel-example/w
 """,
 )
 
-def ts_devserver_macro(name, data = [], args = [], visibility = None, tags = [], testonly = 0, **kwargs):
+def ts_devserver_macro(name, args = [], visibility = None, tags = [], testonly = 0, **kwargs):
     """Macro for creating a `ts_devserver`
 
     This macro re-exposes a `sh_binary` and `ts_devserver` target that can run the
@@ -238,7 +224,6 @@ def ts_devserver_macro(name, data = [], args = [], visibility = None, tags = [],
 
     Args:
       name: Name of the devserver target
-      data: Runtime dependencies for the devserver
       args: Command line arguments that will be passed to the devserver Go implementation
       visibility: Visibility of the devserver targets
       tags: Standard Bazel tags, this macro adds a couple for ibazel
@@ -247,7 +232,6 @@ def ts_devserver_macro(name, data = [], args = [], visibility = None, tags = [],
     """
     ts_devserver(
         name = "%s_launcher" % name,
-        data = data + ["@bazel_tools//tools/bash/runfiles"],
         testonly = testonly,
         visibility = ["//visibility:private"],
         tags = tags,

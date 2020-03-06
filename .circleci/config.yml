@@ -9,8 +9,10 @@
 
 ## IMPORTANT
 # If you change the `default_docker_image` version, also change the `cache_key` version
-var_1: &default_docker_image circleci/node:10.16
-var_3: &cache_key node-0.16-{{ checksum "yarn.lock" }}
+var_1: &default_docker_image circleci/node:12.14
+var_2: &browsers_docker_image circleci/node:12.14-browsers
+var_3: &cache_key node-0.16-{{ checksum "yarn.lock" }}-v2
+
 
 var_4: &init_environment
   run:
@@ -56,8 +58,8 @@ var_6: &init_bazel
   run:
     name: Initializing Bazel
     command: |
-      # Symlink fetched bazel to /usr/local/bin/bazel
-      pathToBazel=$(ls $(realpath ./node_modules/@bazel/bazel-linux_x64)/bazel-*)
+      # Symlink fetched bazelisk to /usr/local/bin/bazel
+      pathToBazel=$(realpath ./node_modules/@bazel/bazelisk/bazelisk-linux_amd64)
       sudo ln -fs $pathToBazel /usr/local/bin/bazel
       echo "Bazel version:"
       bazel version
@@ -70,13 +72,6 @@ var_7: &hide_node_and_yarn_local_binaries
       sudo mv /usr/local/bin/node /usr/local/bin/node_
       sudo mv /usr/local/bin/npm /usr/local/bin/npm_
       sudo mv /usr/local/bin/yarn /usr/local/bin/yarn_
-
-var_8: &use_legacy_runfiles
-  run:
-    name: Use legacy runfiles
-    command: |
-      echo 'run --legacy_external_runfiles' >> .bazelrc
-      echo 'test --legacy_external_runfiles' >> .bazelrc
 
 var_9: &job_defaults
   working_directory: ~/rules_nodejs
@@ -106,8 +101,8 @@ jobs:
       - *yarn_install
       - *init_bazel
 
-      # Run yarn on all node_repositories
-      - run: bazel run @nodejs//:bin/yarn
+      # Run yarn
+      - run: bazel run @nodejs//:yarn
 
       # Save all node_modules to the cache
       - save_cache:
@@ -152,7 +147,7 @@ jobs:
       - *init_bazel
       - *hide_node_and_yarn_local_binaries
 
-      - run: bazel test --test_tag_filters=-e2e,-examples,-no-circleci,-manual ...
+      - run: bazel test --test_tag_filters=-e2e,-examples,-manual ...
 
       - store_artifacts:
           path: dist/bin/release.tar.gz
@@ -187,11 +182,14 @@ jobs:
       # to build the release package with this configuration.
       - run: bazel build --build_tag_filters=e2e ...
       - run:
-          command: bazel test --test_tag_filters=e2e --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,7.0,1.0 --test_arg=--test_tag_filters=-no-circleci,-manual ...
+          command: bazel test --test_tag_filters=e2e --local_ram_resources=792 --test_arg=--local_ram_resources=13288 --test_arg=--local_cpu_resources=7 --test_arg=--test_tag_filters=-manual ...
           no_output_timeout: 20m
 
   test_examples:
     <<: *job_defaults
+    docker:
+      # Needed because some tests require local chrome
+      - image: *browsers_docker_image
     resource_class: xlarge
     # We need to reduce the memory & CPU usage of the top-level
     # bazel process for this large bazel-in-bazel test to not
@@ -215,30 +213,23 @@ jobs:
       - run: bazel build --build_tag_filters=examples ...
       - run:
           # We don't have java installed on our circleci docker image
-          command: bazel test --test_tag_filters=examples,-requires-java --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,7.0,1.0 --test_arg=--test_tag_filters=-no-circleci,-manual ...
+          command: bazel test --test_tag_filters=examples,-requires-java --local_ram_resources=792 --test_arg=--local_ram_resources=13288 --test_arg=--local_cpu_resources=7 --test_arg=--test_tag_filters=-manual ...
           no_output_timeout: 20m
       # The following examples only works on linux as it downloads the linux node distribution
       # It is tagged "manual" so we run it explicitly here
       # TODO(gregmagolan): make node_repositories acccept different archives for different platforms
       - run:
-          command: bazel test --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,7.0,1.0 //examples:examples_vendored_node //examples:examples_vendored_node_and_yarn
+          command: bazel test --local_ram_resources=792 --test_arg=--local_ram_resources=13288 --test_arg=--local_cpu_resources=7 //examples:examples_vendored_node //examples:examples_vendored_node_and_yarn
           no_output_timeout: 20m
 
-  test_legacy_runfiles:
+  test_user_managed_deps:
     <<: *job_defaults
+    resource_class: xlarge
     steps:
       - *attach_workspace
       - *init_environment
-      - *use_legacy_runfiles
       - *init_bazel
-      - *hide_node_and_yarn_local_binaries
-
-      # We should also be able to test targets in a different workspace
-      # TODO(gmagolan): move these tests into `build` job once
-      # https://github.com/bazelbuild/bazel/issues/6481 is resolved
-      - run: 'cd examples/user_managed_deps && bazel run @nodejs//:yarn'
-      - run: bazel test @examples_user_managed_deps//...
-      - run: bazel test @e2e_packages//...
+      - run: cd examples/user_managed_deps && yarn install && bazel test ...
 
 workflows:
   version: 2
@@ -255,5 +246,8 @@ workflows:
           requires:
           - setup
       - test_examples:
+          requires:
+          - setup
+      - test_user_managed_deps:
           requires:
           - setup

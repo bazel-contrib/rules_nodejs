@@ -1,16 +1,13 @@
-load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "npm_package")
+load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "pkg_npm")
 
 exports_files(["tsconfig.json"])
 
-npm_package(
+pkg_npm(
     name = "npm_package",
     srcs = [
         "@npm_bazel_labs//:package_contents",
     ],
     vendor_external = [
         "npm_bazel_labs",
-    ],
-    deps = [
-        "@npm_bazel_labs//webpack:cli_lib",
     ],
 )

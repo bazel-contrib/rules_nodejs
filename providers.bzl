@@ -28,7 +28,6 @@ load(
     _JSNamedModuleInfo = "JSNamedModuleInfo",
     _js_ecma_script_module_info = "js_ecma_script_module_info",
     _js_named_module_info = "js_named_module_info",
-    _transitive_js_ecma_script_module_info = "transitive_js_ecma_script_module_info",
 )
 load(
     "//internal/providers:node_runtime_deps_info.bzl",
@@ -47,10 +46,14 @@ JSNamedModuleInfo = _JSNamedModuleInfo
 js_named_module_info = _js_named_module_info
 JSEcmaScriptModuleInfo = _JSEcmaScriptModuleInfo
 js_ecma_script_module_info = _js_ecma_script_module_info
-transitive_js_ecma_script_module_info = _transitive_js_ecma_script_module_info
 NpmPackageInfo = _NpmPackageInfo
 node_modules_aspect = _node_modules_aspect
 
-# TODO: remove transitive_js_ecma_script_module_info alias before 1.0 release
+#Modelled after _GoContextData in rules_go/go/private/context.bzl
+NodeContextInfo = provider(
+    doc = "Provides data about the build context, like config_setting's",
+    fields = ["stamp"],
+)
+
 NodeRuntimeDepsInfo = _NodeRuntimeDepsInfo
 run_node = _run_node

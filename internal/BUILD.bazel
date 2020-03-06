@@ -13,6 +13,7 @@
 # limitations under the License.
 
 load("@build_bazel_rules_nodejs//:index.bzl", "BAZEL_VERSION", "nodejs_test")
+load("//internal/node:context.bzl", "node_context_data")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -23,13 +24,27 @@ filegroup(
 )
 
 nodejs_test(
-    name = "package_json_test",
+    name = "bazel_version_test",
     data = [
-        "check_package_json.js",
-        "//:package.json",
+        "//:.bazelci/presubmit.yml",
+        "//:.bazelversion",
     ],
-    entry_point = ":check_package_json.js",
+    entry_point = ":check_bazel_version.js",
     templated_args = [BAZEL_VERSION],
-    # Not necessary here, just a regression test for #1043
-    templated_args_file = "package_json_test.params",
+)
+
+# Detect if the build is running under --stamp
+config_setting(
+    name = "stamp",
+    values = {"stamp": "true"},
+)
+
+# Modelled after go_context_data from rules_go
+# passes config values to starlark via a provider
+node_context_data(
+    name = "node_context_data",
+    stamp = select({
+        "@build_bazel_rules_nodejs//internal:stamp": True,
+        "//conditions:default": False,
+    }),
 )

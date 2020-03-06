@@ -13,11 +13,44 @@
 # limitations under the License.
 
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
-load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
-load("@build_bazel_rules_nodejs//:index.bzl", "COMMON_REPLACEMENTS", "npm_package")
-load("//:tools/defaults.bzl", "codeowners")
+load("@build_bazel_rules_nodejs//:index.bzl", "COMMON_REPLACEMENTS", "pkg_npm")
+load("//:tools/defaults.bzl", "codeowners", "pkg_tar")
 
 package(default_visibility = ["//visibility:public"])
+
+exports_files([
+    ".bazelci/presubmit.yml",
+    ".bazelversion",
+    "common.bazelrc",
+    "tsconfig.json",
+    "package.json",
+    "bootstrap.js",
+])
+
+bzl_library(
+    name = "bzl",
+    srcs = [
+        "index.bzl",
+        "index.for_docs.bzl",
+        "providers.bzl",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//internal/common:bzl",
+        "//internal/linker:bzl",
+        "//internal/pkg_npm:bzl",
+        "//internal/pkg_web:bzl",
+        "//internal/providers:bzl",
+        "//toolchains/node:bzl",
+    ],
+)
+
+# Empty node_modules filegroup used for the default
+# value of the node_modules attribute in nodejs_binary
+filegroup(
+    name = "node_modules_none",
+    srcs = [],
+)
 
 # BEGIN-INTERNAL
 codeowners(
@@ -28,42 +61,7 @@ codeowners(
     ],
 )
 
-# END-INTERNAL
-exports_files([
-    "common.bazelrc",
-    "tsconfig.json",
-    "package.json",
-])
-
-bzl_library(
-    name = "bzl",
-    srcs = [
-        "declaration_provider.bzl",
-        "index.bzl",
-        "index.for_docs.bzl",
-        "providers.bzl",
-    ],
-    visibility = ["//visibility:public"],
-    deps = [
-        "//internal/common:bzl",
-        "//internal/jasmine_node_test:bzl",
-        "//internal/linker:bzl",
-        "//internal/npm_package:bzl",
-        "//internal/providers:bzl",
-        "//internal/rollup:bzl",
-        "//toolchains/node:bzl",
-    ],
-)
-
-# Empty node_modules filegroup used for the default
-# value of the node_modules attribute in nodejs_binary
-# and rollup_bundle
-filegroup(
-    name = "node_modules_none",
-    srcs = [],
-)
-
-npm_package(
+pkg_npm(
     name = "rules_nodejs_package",
     srcs = glob(["*.bzl"]) + [
         "BUILD.bazel",
@@ -71,15 +69,26 @@ npm_package(
     ],
     # Don't rename BUILD files as this package is not published to npm
     # but is compressed in "release" below and published as a .tar.gz to GitHub
-    rename_build_files = False,
-    # Don't replace the default 0.0.0-PLACEHOLDER for this npm_package since
+    hide_build_files = False,
+    # Don't replace the default 0.0.0-PLACEHOLDER for this pkg_npm since
     # we are packaging up the packager itself and this replacement will break it
     replace_with_version = "",
-    replacements = COMMON_REPLACEMENTS,
+    substitutions = COMMON_REPLACEMENTS,
     deps = [
+        "//internal:package_contents",
+        "//internal/bazel_integration_test:package_contents",
+        "//internal/common:package_contents",
+        "//internal/copy_repository:package_contents",
+        "//internal/golden_file_test:package_contents",
+        "//internal/js_library:package_contents",
+        "//internal/linker:package_contents",
+        "//internal/node:package_contents",
+        "//internal/npm_install:package_contents",
+        "//internal/pkg_npm:package_contents",
+        "//internal/pkg_web:package_contents",
+        "//internal/providers:package_contents",
         "//third_party/github.com/bazelbuild/bazel-skylib:package_contents",
         "//third_party/github.com/buffer-from:package_contents",
-        "//third_party/github.com/inikulin/parse5:package_contents",
         "//third_party/github.com/gjtorikian/isBinaryFile:package_contents",
         "//third_party/github.com/juanjoDiaz/removeNPMAbsolutePaths:package_contents",
         "//third_party/github.com/source-map:package_contents",
@@ -91,21 +100,6 @@ npm_package(
         "//third_party/npm/node_modules/browserify:package_contents",
         "//third_party/npm/node_modules/ieee754:package_contents",
         "//third_party/npm/node_modules/named-amd:package_contents",
-        "//internal:package_contents",
-        "//internal/bazel_integration_test:package_contents",
-        "//internal/golden_file_test:package_contents",
-        "//internal/common:package_contents",
-        "//internal/copy_repository:package_contents",
-        "//internal/jasmine_node_test:package_contents",
-        "//internal/js_library:package_contents",
-        "//internal/linker:package_contents",
-        # TODO(alexeagle): distribute separately as @bazel/rollup
-        "//internal/rollup:package_contents",
-        "//internal/node:package_contents",
-        "//internal/npm_install:package_contents",
-        "//internal/npm_package:package_contents",
-        "//internal/web_package:package_contents",
-        "//internal/providers:package_contents",
         "//toolchains/node:package_contents",
     ],
 )
@@ -118,3 +112,4 @@ pkg_tar(
     strip_prefix = "./rules_nodejs_package",
     tags = ["manual"],
 )
+# END-INTERNAL

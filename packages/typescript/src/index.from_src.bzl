@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-""" Defaults for usage without @npm//@bazel/typescript
+"""Defaults for usage without @npm//@bazel/typescript
 """
 
 load("@build_bazel_rules_nodejs//internal/golden_file_test:golden_file_test.bzl", "golden_file_test")
@@ -25,6 +25,7 @@ load(
 def ts_devserver(**kwargs):
     _ts_devserver(
         devserver = "@build_bazel_rules_typescript//devserver:devserver_bin",
+        devserver_host = "@build_bazel_rules_typescript//devserver:devserver_bin",
         **kwargs
     )
 

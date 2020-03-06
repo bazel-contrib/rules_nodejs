@@ -7,16 +7,17 @@ stylesheet: docs
 ## Custom installation
 
 First, you need Bazel.
-We recommend fetching it from npm to keep your frontend workflow similar.
+We recommend using Bazelisk, which is a version-selection wrapper, similar to
+the `nvm` tool managing your version of Node. This is available on npm.
 
 ```sh
-$ yarn add -D @bazel/bazel @bazel/ibazel
+$ yarn add -D @bazel/bazelisk @bazel/ibazel
 # or
-$ npm install --save-dev @bazel/bazel @bazel/ibazel
+$ npm install --save-dev @bazel/bazelisk @bazel/ibazel
 ```
 
 > You could install a current bazel distribution, following the [bazel instructions].
-> This has the advantage of setting up Bazel command-line completion.
+> If you use Bazelisk, see [this workaround](https://github.com/bazelbuild/bazelisk/issues/29#issuecomment-478062147) to get working command-line completion.
 
 Next, create a `WORKSPACE` file in your project root (or edit the existing one)
 containing:
@@ -25,8 +26,8 @@ containing:
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 http_archive(
     name = "build_bazel_rules_nodejs",
-    sha256 = "ad4be2c6f40f5af70c7edf294955f9d9a0222c8e2756109731b25f79ea2ccea0",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.38.3/rules_nodejs-0.38.3.tar.gz"],
+    sha256 = "c9e59009049fa42198f7087b80398fc4b2698a0f0c7fdde4fb3540c899c9b309",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/1.4.0/rules_nodejs-1.4.0.tar.gz"],
 )
 
 load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories")
@@ -57,25 +58,12 @@ node_repositories(package_json = ["//:package.json"])
 ### Installation with a specific supported version of Node.js and Yarn
 
 You can choose a specific version of Node.js that's built into these rules.
-Currently these versions are:
-
-* 10.13.0 (default)
-* 10.10.0
-* 10.9.0
-* 10.3.0
-* 9.11.1
-* 8.12.0
-* 8.11.1
-* 8.9.1
-
 You can also choose a specific version of Yarn.
-Currently these versions are:
-* 1.12.1 (default)
-* 1.9.4
-* 1.9.2
-* 1.6.0
-* 1.5.1
-* 1.3.2
+Note that some of our packages have started to use features from Node 12, so you may see warnings if you use an older version. 
+
+> Now that Node 12 is LTS (Long-term support) we encourage you to upgrade, and don't intend to fix bugs which are only observed in Node 10 or lower.
+
+The available versions are documented on the `node_repositories` rule in the [Built-ins](Built-ins.md).
 
 Add to `WORKSPACE`:
 
@@ -291,7 +279,7 @@ yarn_install(
 )
 ```
 
-Your application would then reference its deps as (for example) `@app1//lodash`, or `@app2//jquery`.
+Your application would then reference its deps as (for example) `@app1_npm//lodash`, or `@app2_npm//jquery`.
 
 #### Fine-grained npm package nodejs_binary targets
 
@@ -377,16 +365,16 @@ To use the Yarn package manager, which we recommend for its built-in
 verification command, you can run:
 
 ```sh
-$ bazel run @nodejs//:yarn
+$ bazel run @nodejs//:yarn_node_repositories
 ```
 
 If you use npm instead, run:
 
 ```sh
-$ bazel run @nodejs//:npm install
+$ bazel run @nodejs//:npm_node_repositories install
 ```
 
-The `@nodejs//:yarn` and `@nodejs//:npm` targets will run yarn/npm on all of the
+The `@nodejs//:yarn_node_repositories` and `@nodejs//:npm_node_repositories` targets will run yarn/npm on all of the
 package.json contexts listed `package_json` attribute of the `node_repositories`
 repository rule in your WORKSPACE file (`node_repositories(package_json = [...])`).
 
@@ -395,22 +383,20 @@ run the bazel managed yarn or npm on a single context this can be done
 using the following targets:
 
 ```sh
-$ bazel run @nodejs//:bin/yarn -- <arguments passed to yarn>
+$ bazel run @nodejs//:yarn -- <arguments passed to yarn>
 ```
 
 If you use npm instead, run:
 
 ```sh
-$ bazel run @nodejs//:bin/npm -- <arguments passed to npm>
+$ bazel run @nodejs//:npm -- <arguments passed to npm>
 ```
-
-Note: on **Windows** the targets are `@nodejs//:bin/yarn.cmd` and `@nodejs//:bin/npm.cmd`.
 
 This will run yarn/npm in the current working directory. To add a package with the `yarn add` command,
 for example, you would use:
 
 ```sh
-$ bazel run @nodejs//:bin/yarn -- add <package>
+$ bazel run @nodejs//:yarn -- add <package>
 ```
 
 Note: the arguments passed to `bazel run` after `--` are forwarded to the executable being run.

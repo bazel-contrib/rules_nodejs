@@ -10,6 +10,10 @@ describe('kotlin webapp', () => {
     // Make all Domino types available as types in the global env.
     Object.assign(global, domino.impl);
 
-import(path.join(__dirname, 'bundle/bundle.js')).then(() => {expect(global.document.body.textContent).toEqual('Hello from Kotlin!')});
+    // clang-format off
+    // (it doesn't understand dynamic import)
+    import(path.join(__dirname, 'bundle/bundle.js')).then(() => {
+      expect(global.document.body.textContent).toEqual('Hello from Kotlin!');
+    });
   });
 });

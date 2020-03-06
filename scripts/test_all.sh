@@ -43,11 +43,6 @@ echo_and_run bazel run @bazel_workspace_a//subdir:bin
 echo_and_run bazel run @bazel_workspace_b//:bin
 echo_and_run bazel run @bazel_workspace_b//subdir:bin
 
-# bazel test @examples_user_managed_deps//... # DOES NOT WORK WITH --nolegacy_external_runfiles
-# bazel test @e2e_packages//... # DOES NOT WORK WITH --nolegacy_external_runfiles
-# TODO: re-enable when after https://github.com/bazelbuild/bazel/pull/8090 makes it into a Bazel release
-# Related issue https://github.com/bazelbuild/bazel/issues/8088 on Windows
-
 printf "\n\nRunning all e2e tests (this make take some time as these are run sequentially...)\n"
 echo_and_run yarn test_e2e
 

@@ -62,6 +62,7 @@ const RULE_TYPE = args[1];
 const ERROR_ON_BAZEL_FILES = parseInt(args[2]);
 const LOCK_FILE_PATH = args[3];
 const INCLUDED_FILES = args[4] ? args[4].split(',') : [];
+const BAZEL_VERSION = args[5];
 
 if (require.main === module) {
   main();
@@ -90,7 +91,7 @@ function writeFileSync(p: string, content: string) {
 /**
  * Main entrypoint.
  */
-function main() {
+export function main() {
   // find all packages (including packages in nested node_modules)
   const pkgs = findPackages();
 
@@ -102,13 +103,10 @@ function main() {
 
   // generate all BUILD files
   generateBuildFiles(pkgs)
-}
 
-module.exports = {
-  main,
-  printPackageBin,
-  printIndexBzl,
-};
+  // write a .bazelignore file
+  writeFileSync('.bazelignore', 'node_modules');
+}
 
 /**
  * Generates all build files
@@ -148,7 +146,11 @@ function hideBazelFiles(pkg: Dep) {
       // was not run.
       if (!hasHideBazelFiles && ERROR_ON_BAZEL_FILES) {
         console.error(`npm package '${pkg._dir}' from @${WORKSPACE} ${RULE_TYPE} rule
-has a Bazel BUILD file '${file}'. Use the @bazel/hide-bazel-files utility to hide these files.
+has a Bazel BUILD file '${
+            file}'. We recommend updating to Bazel 2.1 or greater which ignores such files.
+
+If you can't update Bazel from ${
+            BAZEL_VERSION}, you can use the @bazel/hide-bazel-files utility to hide these files.
 See https://github.com/bazelbuild/rules_nodejs/blob/master/packages/hide-bazel-files/README.md
 for installation instructions.`);
         process.exit(1);
@@ -170,16 +172,12 @@ for installation instructions.`);
  * Generates the root BUILD file.
  */
 function generateRootBuildFile(pkgs: Dep[]) {
-  let exportsStarlark = '';
-  pkgs.forEach(pkg => {pkg._files.forEach(f => {
-                 exportsStarlark += `    "node_modules/${pkg._dir}/${f}",
-`;
-               })});
-
-  let srcsStarlark = '';
+  let pkgFilesStarlark = '';
   if (pkgs.length) {
-    const list = pkgs.map(pkg => `"//${pkg._dir}:${pkg._name}__files",`).join('\n        ');
-    srcsStarlark = `
+    const list = pkgs.map(pkg => `"//${pkg._dir}:${pkg._name}__files",
+        "//${pkg._dir}:${pkg._name}__nested_node_modules",`)
+                     .join('\n        ');
+    pkgFilesStarlark = `
     # direct sources listed for strict deps support
     srcs = [
         ${list}
@@ -196,6 +194,12 @@ function generateRootBuildFile(pkgs: Dep[]) {
     ],`;
   }
 
+  let exportsStarlark = '';
+  pkgs.forEach(pkg => {pkg._files.forEach(f => {
+                 exportsStarlark += `    "node_modules/${pkg._dir}/${f}",
+`;
+               })});
+
   let buildFile = BUILD_FILE_HEADER +
       `load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
 
@@ -207,7 +211,7 @@ ${exportsStarlark}])
 # there are many files in target.
 # See https://github.com/bazelbuild/bazel/issues/5153.
 node_module_library(
-    name = "node_modules",${srcsStarlark}${depsStarlark}
+    name = "node_modules",${pkgFilesStarlark}${depsStarlark}
 )
 
 `
@@ -431,9 +435,6 @@ function listFiles(rootDir: string, subDir: string = ''): string[] {
             return isDirectory ? files.concat(listFiles(rootDir, relPath)) : files.concat(relPath);
           },
           [])
-      // Files with spaces (\x20) or unicode characters (<\x20 && >\x7E) are not allowed in
-      // Bazel runfiles. See https://github.com/bazelbuild/bazel/issues/4327
-      .filter(f => !/[^\x21-\x7E]/.test(f))
       // We return a sorted array so that the order of files
       // is the same regardless of platform
       .sort();
@@ -477,6 +478,11 @@ function findPackages(p = 'node_modules') {
 
   packages.forEach(f => {
     let hide = true;
+    // Starting in version 2.1, Bazel honors the .bazelignore file we wrote into the
+    // root of the external repository, and won't see BUILD files under node_modules
+    // This parsing of the version number isn't accurate in some cases
+    // (eg. install bazel from commit hash)
+    if (BAZEL_VERSION.startsWith('2.1')) hide = false;
     if (fs.lstatSync(f).isSymbolicLink()) {
       hide = false;
     }
@@ -515,11 +521,13 @@ function findScopes() {
  * package json and return it as an object along with
  * some additional internal attributes prefixed with '_'.
  */
-function parsePackage(p: string, hide: boolean = true): Dep {
+export function parsePackage(p: string, hide: boolean = true): Dep {
   // Parse the package.json file of this package
   const packageJson = path.posix.join(p, 'package.json');
-  const pkg = isFile(packageJson) ? JSON.parse(fs.readFileSync(packageJson, {encoding: 'utf8'})) :
-                                    {version: '0.0.0'};
+  const stripBom = (s: string) => s.charCodeAt(0) === 0xFEFF ? s.slice(1) : s;
+  const pkg = isFile(packageJson) ?
+      JSON.parse(stripBom(fs.readFileSync(packageJson, {encoding: 'utf8'}))) :
+      {version: '0.0.0'};
 
   // Trim the leading node_modules from the path and
   // assign to _dir for future use
@@ -537,6 +545,11 @@ function parsePackage(p: string, hide: boolean = true): Dep {
 
   // List all the files in the npm package for later use
   pkg._files = listFiles(p);
+
+  // The subset of files that are valid in runfiles.
+  // Files with spaces (\x20) or unicode characters (<\x20 && >\x7E) are not allowed in
+  // Bazel runfiles. See https://github.com/bazelbuild/bazel/issues/4327
+  pkg._runfiles = pkg._files.filter((f: string) => !/[^\x21-\x7E]/.test(f))
 
   // Initialize _dependencies to an empty array
   // which is later filled with the flattened dependency list
@@ -767,10 +780,11 @@ function flattenPkgDependencies(pkg: Dep, dep: Dep, pkgsMap: Map<string, Dep>) {
  */
 function printJson(pkg: Dep) {
   // Clone and modify _dependencies to avoid circular issues when JSONifying
-  // & delete _files array
+  // & delete _files & _runfiles arrays
   const cloned: any = {...pkg};
   cloned._dependencies = pkg._dependencies.map(dep => dep._dir);
   delete cloned._files;
+  delete cloned._runfiles;
   return JSON.stringify(cloned, null, 2).split('\n').map(line => `# ${line}`).join('\n');
 }
 
@@ -832,16 +846,6 @@ function isNgApfPackage(pkg: Dep) {
 }
 
 /**
- * If the package is in the Angular package format returns list
- * of package files that end with `.umd.js`, `.ngfactory.js` and `.ngsummary.js`.
- */
-function getNgApfScripts(pkg: Dep) {
-  return isNgApfPackage(pkg) ?
-      filterFiles(pkg._files, ['.umd.js', '.ngfactory.js', '.ngsummary.js']) :
-      [];
-}
-
-/**
  * Looks for a file within a package and returns it if found.
  */
 function findFile(pkg: Dep, m: string) {
@@ -858,49 +862,60 @@ function findFile(pkg: Dep, m: string) {
  * Given a pkg, return the skylark `node_module_library` targets for the package.
  */
 function printPackage(pkg: Dep) {
-  const sources = filterFiles(pkg._files, INCLUDED_FILES);
-  const dtsSources = filterFiles(pkg._files, ['.d.ts']);
+  function starlarkFiles(attr: string, files: string[], comment: string = '') {
+    return `
+    ${comment ? comment + '\n    ' : ''}${attr} = [
+        ${files.map((f: string) => `"//:node_modules/${pkg._dir}/${f}",`).join('\n        ')}
+    ],`;
+  }
+
+  const includedRunfiles = filterFiles(pkg._runfiles, INCLUDED_FILES);
+
+  // Files that are part of the npm package not including its nested node_modules
+  // (filtered by the 'included_files' attribute)
+  const pkgFiles = includedRunfiles.filter((f: string) => !f.startsWith('node_modules/'));
+  const pkgFilesStarlark = pkgFiles.length ? starlarkFiles('srcs', pkgFiles) : '';
+
+  // Files that are in the npm package's nested node_modules
+  // (filtered by the 'included_files' attribute)
+  const nestedNodeModules = includedRunfiles.filter((f: string) => f.startsWith('node_modules/'));
+  const nestedNodeModulesStarlark =
+      nestedNodeModules.length ? starlarkFiles('srcs', nestedNodeModules) : '';
+
+  // Files that have been excluded from the ${pkg._name}__files target above because
+  // they are filtered out by 'included_files' or because they are not valid runfiles
+  // See https://github.com/bazelbuild/bazel/issues/4327.
+  const notPkgFiles = pkg._files.filter(
+      (f: string) => !f.startsWith('node_modules/') && !includedRunfiles.includes(f));
+  const notPkgFilesStarlark = notPkgFiles.length ? starlarkFiles('srcs', notPkgFiles) : '';
+
+  // If the package is in the Angular package format returns list
+  // of package files that end with `.umd.js`, `.ngfactory.js` and `.ngsummary.js`.
   // TODO(gmagolan): add UMD & AMD scripts to scripts even if not an APF package _but_ only if they
   // are named?
-  const namedSources = getNgApfScripts(pkg);
+  const namedSources = isNgApfPackage(pkg) ?
+      filterFiles(pkg._runfiles, ['.umd.js', '.ngfactory.js', '.ngsummary.js']) :
+      [];
+  const namedSourcesStarlark = namedSources.length ?
+      starlarkFiles(
+          'named_module_srcs', namedSources,
+          '# subset of srcs that are javascript named-UMD or named-AMD scripts') :
+      '';
+
+  // Typings files that are part of the npm package not including nested node_modules
+  const dtsSources =
+      filterFiles(pkg._runfiles, ['.d.ts']).filter((f: string) => !f.startsWith('node_modules/'));
+  const dtsStarlark = dtsSources.length ?
+      starlarkFiles(
+          'srcs', dtsSources,
+          `# ${
+              pkg._dir} package declaration files (and declaration files in nested node_modules)`) :
+      '';
+
+  // Flattened list of direct and transitive dependencies hoisted to root by the package manager
   const deps = [pkg].concat(pkg._dependencies.filter(dep => dep !== pkg && !dep._isNested));
-
-  let namedSourcesStarlark = '';
-  if (namedSources.length) {
-    namedSourcesStarlark = `
-    # subset of srcs that are javascript named-UMD or named-AMD scripts
-    named_module_srcs = [
-        ${namedSources.map((f: string) => `"//:node_modules/${pkg._dir}/${f}",`).join('\n        ')}
-    ],`;
-  }
-
-  let srcsStarlark = '';
-  if (sources.length) {
-    srcsStarlark = `
-    # ${pkg._dir} package files (and files in nested node_modules)
-    srcs = [
-        ${sources.map((f: string) => `"//:node_modules/${pkg._dir}/${f}",`).join('\n        ')}
-    ],`;
-  }
-
-  let depsStarlark = '';
-  if (deps.length) {
-    const list = deps.map(dep => `"//${dep._dir}:${dep._name}__contents",`).join('\n        ');
-    depsStarlark = `
-    # flattened list of direct and transitive dependencies hoisted to root by the package manager
-    deps = [
-        ${list}
-    ],`;
-  }
-
-  let dtsStarlark = '';
-  if (dtsSources.length) {
-    dtsStarlark = `
-    # ${pkg._dir} package declaration files (and declaration files in nested node_modules)
-    srcs = [
-        ${dtsSources.map(f => `"//:node_modules/${pkg._dir}/${f}",`).join('\n        ')}
-    ],`;
-  }
+  const depsStarlark =
+      deps.map(dep => `"//${dep._dir}:${dep._name}__contents",`).join('\n        ');
 
   let result =
       `load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
@@ -908,24 +923,55 @@ function printPackage(pkg: Dep) {
 # Generated targets for npm package "${pkg._dir}"
 ${printJson(pkg)}
 
+# Files that are part of the npm package not including its nested node_modules
+# (filtered by the 'included_files' attribute)
 filegroup(
-    name = "${pkg._name}__files",${srcsStarlark}
+    name = "${pkg._name}__files",${pkgFilesStarlark}
 )
 
+# Files that are in the npm package's nested node_modules
+# (filtered by the 'included_files' attribute)
+filegroup(
+    name = "${pkg._name}__nested_node_modules",${nestedNodeModulesStarlark}
+    visibility = ["//:__subpackages__"],
+)
+
+# Files that have been excluded from the ${pkg._name}__files target above because
+# they are filtered out by 'included_files' or because they are not valid runfiles
+# See https://github.com/bazelbuild/bazel/issues/4327.
+filegroup(
+    name = "${pkg._name}__not_files",${notPkgFilesStarlark}
+    visibility = ["//visibility:private"],
+)
+
+# All of the files in the npm package including files that have been
+# filtered out by 'included_files' or because they are not valid runfiles
+# but not including nested node_modules.
+filegroup(
+    name = "${pkg._name}__all_files",
+    srcs = [":${pkg._name}__files", ":${pkg._name}__not_files"],
+)
+
+# The primary target for this package for use in rule deps
 node_module_library(
     name = "${pkg._name}",
     # direct sources listed for strict deps support
-    srcs = [":${pkg._name}__files"],${depsStarlark}
+    srcs = [":${pkg._name}__files"],
+    # nested node_modules for this package plus flattened list of direct and transitive dependencies
+    # hoisted to root by the package manager
+    deps = [
+        ${depsStarlark}
+    ],
 )
 
-# ${pkg._name}__contents target is used as dep for main targets to prevent
-# circular dependencies errors
+# Target is used as dep for main targets to prevent circular dependencies errors
 node_module_library(
     name = "${pkg._name}__contents",
-    srcs = [":${pkg._name}__files"],${namedSourcesStarlark}
+    srcs = [":${pkg._name}__files", ":${pkg._name}__nested_node_modules"],${namedSourcesStarlark}
+    visibility = ["//:__subpackages__"],
 )
 
-# ${pkg._name}__typings is the subset of ${pkg._name}__contents that are declarations
+# Typings files that are part of the npm package not including nested node_modules
 node_module_library(
     name = "${pkg._name}__typings",${dtsStarlark}
 )
@@ -942,7 +988,7 @@ node_module_library(
 
 npm_umd_bundle(
     name = "${pkg._name}__umd",
-    package_name = "${pkg._name}",
+    package_name = "${pkg._moduleName}",
     entry_point = "//:node_modules/${pkg._dir}/${mainEntryPoint}",
     package = ":${pkg._name}",
 )
@@ -1006,7 +1052,7 @@ function additionalAttributes(pkg: Dep, name: string) {
 /**
  * Given a pkg, return the skylark nodejs_binary targets for the package.
  */
-function printPackageBin(pkg: Dep) {
+export function printPackageBin(pkg: Dep) {
   let result = '';
   const executables = _findExecutables(pkg);
   if (executables.size) {
@@ -1033,7 +1079,7 @@ nodejs_binary(
   return result;
 }
 
-function printIndexBzl(pkg: Dep) {
+export function printIndexBzl(pkg: Dep) {
   let result = '';
   const executables = _findExecutables(pkg);
   if (executables.size) {
@@ -1059,7 +1105,8 @@ def ${name.replace(/-/g, '_')}(**kwargs):
         nodejs_binary(
             entry_point = "@${WORKSPACE}//:node_modules/${pkg._dir}/${path}",
             install_source_map_support = False,
-            data = [${data.map(p => `"${p}"`).join(', ')}] + kwargs.pop("data", []),${
+            data = [${data.map(p => `"${p}"`).join(', ')}] + kwargs.pop("data", []),
+            templated_args = ["--nobazel_patch_module_resolver"] + kwargs.pop("templated_args", []),${
           additionalAttributes(pkg, name)}
             **kwargs
         )
@@ -1069,7 +1116,8 @@ def ${name.replace(/-/g, '_')}_test(**kwargs):
     nodejs_test(
       entry_point = "@${WORKSPACE}//:node_modules/${pkg._dir}/${path}",
       install_source_map_support = False,
-      data = [${data.map(p => `"${p}"`).join(', ')}] + kwargs.pop("data", []),${
+      data = [${data.map(p => `"${p}"`).join(', ')}] + kwargs.pop("data", []),
+      templated_args = ["--nobazel_patch_module_resolver"] + kwargs.pop("templated_args", []),${
           additionalAttributes(pkg, name)}
       **kwargs
     )
@@ -1084,6 +1132,7 @@ type Dep = {
   _isNested: boolean,
   _dependencies: Dep[],
   _files: string[],
+  _runfiles: string[],
   [k: string]: any
 }
 
@@ -1099,10 +1148,10 @@ function printScope(scope: string, pkgs: Dep[]) {
   // filter out duplicate deps
   deps = [...pkgs, ...new Set(deps)];
 
-  let srcsStarlark = '';
+  let pkgFilesStarlark = '';
   if (deps.length) {
     const list = deps.map(dep => `"//${dep._dir}:${dep._name}__files",`).join('\n        ');
-    srcsStarlark = `
+    pkgFilesStarlark = `
     # direct sources listed for strict deps support
     srcs = [
         ${list}
@@ -1123,7 +1172,7 @@ function printScope(scope: string, pkgs: Dep[]) {
 
 # Generated target for npm scope ${scope}
 node_module_library(
-    name = "${scope}",${srcsStarlark}${depsStarlark}
+    name = "${scope}",${pkgFilesStarlark}${depsStarlark}
 )
 
 `;

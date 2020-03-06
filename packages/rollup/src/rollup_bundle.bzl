@@ -1,6 +1,6 @@
 "Rules for running Rollup under Bazel"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "JSEcmaScriptModuleInfo", "NpmPackageInfo", "node_modules_aspect", "run_node")
+load("@build_bazel_rules_nodejs//:providers.bzl", "JSEcmaScriptModuleInfo", "NodeContextInfo", "NpmPackageInfo", "node_modules_aspect", "run_node")
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 
 _DOC = """Runs the Rollup.js CLI under Bazel.
@@ -65,6 +65,16 @@ You must not repeat file(s) passed to entry_point/entry_points.
         # Don't try to constrain the filenames, could be json, svg, whatever
         allow_files = True,
     ),
+    "args": attr.string_list(
+        doc = """Command line arguments to pass to rollup. Can be used to override config file settings.
+
+These argument passed on the command line before all arguments that are always added by the
+rule such as `--output.dir` or `--output.file`, `--format`, `--config` and `--preserveSymlinks` and
+also those that are optionally added by the rule such as `--sourcemap`.
+
+See rollup CLI docs https://rollupjs.org/guide/en/#command-line-flags for complete list of supported arguments.""",
+        default = [],
+    ),
     "config_file": attr.label(
         doc = """A rollup.config.js file
 
@@ -98,6 +108,27 @@ rollup_bundle(
     }
 )
 ```
+
+If `rollup_bundle` is used on a `ts_library`, the `rollup_bundle` rule handles selecting the correct outputs from `ts_library`.
+In this case, `entry_point` can be specified as the `.ts` file and `rollup_bundle` will handle the mapping to the `.mjs` output file.
+
+For example:
+
+```python
+ts_library(
+    name = "foo",
+    srcs = [
+        "foo.ts",
+        "index.ts",
+    ],
+)
+
+rollup_bundle(
+    name = "bundle",
+    deps = [ "foo" ],
+    entry_point = "index.ts",
+)
+```
 """,
         allow_single_file = True,
     ),
@@ -126,6 +157,11 @@ Either this attribute or `entry_point` must be specified, but not both.
         values = ["amd", "cjs", "esm", "iife", "umd", "system"],
         default = "esm",
     ),
+    "node_context_data": attr.label(
+        default = "@build_bazel_rules_nodejs//internal:node_context_data",
+        providers = [NodeContextInfo],
+        doc = "Internal use only",
+    ),
     "output_dir": attr.bool(
         doc = """Whether to produce a directory output.
 
@@ -142,13 +178,21 @@ Otherwise, the outputs are assumed to be a single file.
         cfg = "host",
         default = "@npm//rollup/bin:rollup",
     ),
+    "silent": attr.bool(
+        doc = """Whether to execute the rollup binary with the --silent flag, defaults to False.
+
+Using --silent can cause rollup to [ignore errors/warnings](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#onwarn) 
+which are only surfaced via logging.  Since bazel expects printing nothing on success, setting silent to True
+is a more Bazel-idiomatic experience, however could cause rollup to drop important warnings.
+""",
+    ),
     "sourcemap": attr.string(
         doc = """Whether to produce sourcemaps.
 
 Passed to the [`--sourcemap` option](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#outputsourcemap") in Rollup
 """,
         default = "inline",
-        values = ["inline", "true", "false"],
+        values = ["inline", "hidden", "true", "false"],
     ),
     "deps": attr.label_list(
         aspects = [module_mappings_aspect, node_modules_aspect],
@@ -260,6 +304,9 @@ def _rollup_bundle(ctx):
     # See CLI documentation at https://rollupjs.org/guide/en/#command-line-reference
     args = ctx.actions.args()
 
+    # Add user specified arguments *before* rule supplied arguments
+    args.add_all(ctx.attr.args)
+
     # List entry point argument first to save some argv space
     # Rollup doc says
     # When provided as the first options, it is equivalent to not prefix them with --input
@@ -277,19 +324,25 @@ def _rollup_bundle(ctx):
 
     args.add_all(["--format", ctx.attr.format])
 
+    if ctx.attr.silent:
+        # Run the rollup binary with the --silent flag
+        args.add("--silent")
+
+    stamp = ctx.attr.node_context_data[NodeContextInfo].stamp
+
     config = ctx.actions.declare_file("_%s.rollup_config.js" % ctx.label.name)
     ctx.actions.expand_template(
         template = ctx.file.config_file,
         output = config,
         substitutions = {
-            "bazel_stamp_file": "\"%s\"" % ctx.version_file.path if ctx.version_file else "undefined",
+            "bazel_stamp_file": "\"%s\"" % ctx.version_file.path if stamp else "undefined",
         },
     )
 
     args.add_all(["--config", config.path])
     inputs.append(config)
 
-    if ctx.version_file:
+    if stamp:
         inputs.append(ctx.version_file)
 
     # Prevent rollup's module resolver from hopping outside Bazel's sandbox

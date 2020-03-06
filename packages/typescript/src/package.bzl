@@ -27,7 +27,7 @@ def rules_typescript_dev_dependencies():
     Also this allows other repos to reference our sources with local_repository and install the needed deps.
     """
 
-    # For building ts_devserver and ts_auto_deps binaries
+    # For building ts_devserver binary
     # See https://github.com/bazelbuild/rules_go#setup for the latest version.
     _maybe(
         http_archive,
@@ -46,15 +46,6 @@ def rules_typescript_dev_dependencies():
         urls = ["https://github.com/bazelbuild/bazel-gazelle/archive/c0880f7f9d7048b45be5d36115ec2bf444e723c4.zip"],  # 2018-12-05
         strip_prefix = "bazel-gazelle-c0880f7f9d7048b45be5d36115ec2bf444e723c4",
         sha256 = "d9980ae0c91d90aaf9131170adfec4e87464d53e58ce2eb01b350a53e93a87c7",
-    )
-
-    # ts_auto_deps depends on com_github_bazelbuild_buildtools
-    _maybe(
-        http_archive,
-        name = "com_github_bazelbuild_buildtools",
-        url = "https://github.com/bazelbuild/buildtools/archive/0.19.2.1.zip",
-        strip_prefix = "buildtools-0.19.2.1",
-        sha256 = "9176a7df34dbed2cf5171eb56271868824560364e60644348219f852f593ae79",
     )
 
 def _maybe(repo_rule, name, **kwargs):

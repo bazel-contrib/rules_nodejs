@@ -26,7 +26,6 @@ filegroup(
         "README.md",
         "package.json",
         "//protobufjs:package_contents",
-        "//webpack:package_contents",
     ],
 )
 # END-INTERNAL

@@ -1,0 +1,73 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "pkg_npm")
+load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
+load("@npm_bazel_rollup//:index.from_src.bzl", "rollup_bundle")
+load("@npm_bazel_typescript//:index.from_src.bzl", "ts_library")
+load("//internal/node:context.bzl", "node_context_data")
+load("//third_party/github.com/bazelbuild/bazel-skylib:rules/write_file.bzl", "write_file")
+
+write_file(
+    name = "produces_files",
+    out = "a_dep",
+    content = ["a_dep content"],
+)
+
+ts_library(
+    name = "ts_library",
+    srcs = ["foo.ts"],
+    data = ["data.json"],
+)
+
+rollup_bundle(
+    name = "rollup/bundle/subdirectory",
+    entry_points = {
+        "foo.ts": "index",
+    },
+    output_dir = True,
+    deps = [":ts_library"],
+)
+
+pkg_npm(
+    name = "dependent_pkg",
+    srcs = ["dependent_file"],
+)
+
+# Force stamping behavior even in builds without --stamp config
+# by mocking out the config data
+node_context_data(
+    name = "force_stamp",
+    stamp = True,
+)
+
+pkg_npm(
+    name = "test_pkg",
+    srcs = [
+        "package.json",
+        "some_file",
+        "@internal_npm_package_test_vendored_external//:vendored_external_file",
+    ],
+    nested_packages = [":dependent_pkg"],
+    node_context_data = ":force_stamp",
+    substitutions = {"replace_me": "replaced"},
+    vendor_external = [
+        "internal_npm_package_test_vendored_external",
+    ],
+    deps = [
+        ":bundle.min.js",
+        ":produces_files",
+        ":rollup/bundle/subdirectory",
+        ":ts_library",
+        "@internal_npm_package_test_vendored_external//:ts_library",
+    ],
+)
+
+jasmine_node_test(
+    name = "test",
+    srcs = ["pkg_npm.spec.js"],
+    data = [":test_pkg"],
+)
+
+genrule(
+    name = "bundle",
+    outs = ["bundle.min.js"],
+    cmd = "echo -n 'bundle content' > $@",
+)

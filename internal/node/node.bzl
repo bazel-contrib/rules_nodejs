@@ -20,10 +20,13 @@ They support module mapping: any targets in the transitive dependencies with
 a `module_name` attribute can be `require`d by that name.
 """
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "JSNamedModuleInfo", "NodeRuntimeDepsInfo", "NpmPackageInfo", "node_modules_aspect")
+load("//:providers.bzl", "JSNamedModuleInfo", "NodeRuntimeDepsInfo", "NpmPackageInfo", "node_modules_aspect")
 load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
 load("//internal/common:module_mappings.bzl", "module_mappings_runtime_aspect")
+load("//internal/common:path_utils.bzl", "strip_external")
 load("//internal/common:windows_utils.bzl", "create_windows_native_launcher_script", "is_windows")
+load("//internal/linker:link_node_modules.bzl", "module_mappings_aspect", "write_node_modules_manifest")
+load("//internal/node:node_repositories.bzl", "BUILT_IN_NODE_PLATFORMS")
 
 def _trim_package_node_modules(package_name):
     # trim a package name down to its path prior to a node_modules
@@ -75,7 +78,7 @@ def _compute_node_modules_root(ctx):
         ] if f])
     return node_modules_root
 
-def _write_loader_script(ctx):
+def _write_require_patch_script(ctx):
     # Generates the JavaScript snippet of module roots mappings, with each entry
     # in the form:
     #   {module_name: /^mod_name\b/, module_root: 'path/to/mod_name'}
@@ -89,6 +92,22 @@ def _write_loader_script(ctx):
 
     node_modules_root = _compute_node_modules_root(ctx)
 
+    ctx.actions.expand_template(
+        template = ctx.file._require_patch_template,
+        output = ctx.outputs.require_patch_script,
+        substitutions = {
+            "TEMPLATED_bin_dir": ctx.bin_dir.path,
+            "TEMPLATED_gen_dir": ctx.genfiles_dir.path,
+            "TEMPLATED_install_source_map_support": str(ctx.attr.install_source_map_support).lower(),
+            "TEMPLATED_module_roots": "\n  " + ",\n  ".join(module_mappings),
+            "TEMPLATED_node_modules_root": node_modules_root,
+            "TEMPLATED_target": str(ctx.label),
+            "TEMPLATED_user_workspace_name": ctx.workspace_name,
+        },
+        is_executable = True,
+    )
+
+def _write_loader_script(ctx):
     if len(ctx.attr.entry_point.files.to_list()) != 1:
         fail("labels in entry_point must contain exactly one file")
 
@@ -98,23 +117,13 @@ def _write_loader_script(ctx):
     # point to the corresponding .js file
     if entry_point_path.endswith(".ts"):
         entry_point_path = entry_point_path[:-3] + ".js"
+    elif entry_point_path.endswith(".tsx"):
+        entry_point_path = entry_point_path[:-4] + ".jsx"
 
     ctx.actions.expand_template(
         template = ctx.file._loader_template,
-        output = ctx.outputs.loader,
-        substitutions = {
-            "TEMPLATED_bin_dir": ctx.bin_dir.path,
-            "TEMPLATED_bootstrap": "\n  " + ",\n  ".join(
-                ["\"" + d + "\"" for d in ctx.attr.bootstrap],
-            ),
-            "TEMPLATED_entry_point": entry_point_path,
-            "TEMPLATED_gen_dir": ctx.genfiles_dir.path,
-            "TEMPLATED_install_source_map_support": str(ctx.attr.install_source_map_support).lower(),
-            "TEMPLATED_module_roots": "\n  " + ",\n  ".join(module_mappings),
-            "TEMPLATED_node_modules_root": node_modules_root,
-            "TEMPLATED_target": str(ctx.label),
-            "TEMPLATED_user_workspace_name": ctx.workspace_name,
-        },
+        output = ctx.outputs.loader_script,
+        substitutions = {"TEMPLATED_entry_point": entry_point_path},
         is_executable = True,
     )
 
@@ -128,129 +137,129 @@ def _to_manifest_path(ctx, file):
 def _to_execroot_path(ctx, file):
     parts = file.path.split("/")
 
-    #print("_to_execroot", file.path, file.is_source)
     if parts[0] == "external":
         if parts[2] == "node_modules":
             # external/npm/node_modules -> node_modules/foo
             # the linker will make sure we can resolve node_modules from npm
             return "/".join(parts[2:])
-    if file.is_source:
-        return file.path
-
-    return ("<ERROR> _to_execroot_path not yet implemented for " + file.path)
+    return file.path
 
 def _nodejs_binary_impl(ctx):
-    node_modules = depset(ctx.files.node_modules)
+    node_modules_manifest = write_node_modules_manifest(ctx)
+    node_modules_depsets = []
+    node_modules_depsets.append(depset(ctx.files.node_modules))
+    if NpmPackageInfo in ctx.attr.node_modules:
+        node_modules_depsets.append(ctx.attr.node_modules[NpmPackageInfo].sources)
 
     # Also include files from npm fine grained deps as inputs.
     # These deps are identified by the NpmPackageInfo provider.
     for d in ctx.attr.data:
         if NpmPackageInfo in d:
-            node_modules = depset(transitive = [node_modules, d[NpmPackageInfo].sources])
+            node_modules_depsets.append(d[NpmPackageInfo].sources)
 
-    # Using a depset will allow us to avoid flattening files and sources
+    node_modules = depset(transitive = node_modules_depsets)
+
+    # Using an array of depsets will allow us to avoid flattening files and sources
     # inside this loop. This should reduce the performances hits,
     # since we don't need to call .to_list()
-    sources = depset()
+    # Also avoid deap transitive depset()s by creating single array of
+    # transitive depset()s
+    sources_depsets = []
 
     for d in ctx.attr.data:
         # TODO: switch to JSModuleInfo when it is available
         if JSNamedModuleInfo in d:
-            sources = depset(transitive = [sources, d[JSNamedModuleInfo].sources])
+            sources_depsets.append(d[JSNamedModuleInfo].sources)
         if hasattr(d, "files"):
-            sources = depset(transitive = [sources, d.files])
+            sources_depsets.append(d.files)
+    sources = depset(transitive = sources_depsets)
 
+    _write_require_patch_script(ctx)
     _write_loader_script(ctx)
 
-    script_path = _to_manifest_path(ctx, ctx.outputs.loader)
-
     env_vars = "export BAZEL_TARGET=%s\n" % ctx.label
+    env_vars += "export BAZEL_WORKSPACE=%s\n" % ctx.workspace_name
     for k in ctx.attr.configuration_env_vars + ctx.attr.default_env_vars:
+        # Check ctx.var first & if env var not in there then check
+        # ctx.configuration.default_shell_env. The former will contain values from --define=FOO=BAR
+        # and latter will contain values from --action_env=FOO=BAR (but not from --action_env=FOO).
         if k in ctx.var.keys():
             env_vars += "export %s=\"%s\"\n" % (k, ctx.var[k])
+        elif k in ctx.configuration.default_shell_env.keys():
+            env_vars += "export %s=\"%s\"\n" % (k, ctx.configuration.default_shell_env[k])
 
     expected_exit_code = 0
     if hasattr(ctx.attr, "expected_exit_code"):
         expected_exit_code = ctx.attr.expected_exit_code
 
-    node_tool_info = ctx.toolchains["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"].nodeinfo
-
-    # Make a copy so we don't try to mutate a frozen object
-    node_tool_files = node_tool_info.tool_files[:]
-    if node_tool_info.target_tool_path == "":
-        # If tool_path is empty and tool_target is None then there is no local
-        # node tool, we will just print a nice error message if the user
-        # attempts to do bazel run
-        fail("The node toolchain was not properly configured so %s cannot be executed. Make sure that target_tool_path or target_tool is set." % ctx.attr.name)
+    # Add both the node executable for the user's local machine which is in ctx.files._node and comes
+    # from @nodejs//:node_bin and the node executable from the selected node --platform which comes from
+    # ctx.toolchains["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"].nodeinfo.
+    # In most cases these are the same files but for RBE and when explitely setting --platform for cross-compilation
+    # any given nodejs_binary should be able to run on both the user's local machine and on the RBE or selected
+    # platform.
+    #
+    # Rules such as nodejs_image should use only ctx.toolchains["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"].nodeinfo
+    # when building the image as that will reflect the selected --platform.
+    node_tool_files = ctx.files._node[:]
+    node_tool_files.extend(ctx.toolchains["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"].nodeinfo.tool_files)
 
     node_tool_files.append(ctx.file._link_modules_script)
-    node_tool_files.append(ctx.file._bazel_require_script)
+    node_tool_files.append(ctx.file._runfiles_helper_script)
+    node_tool_files.append(ctx.file._node_patches_script)
+    node_tool_files.append(node_modules_manifest)
 
-    if not ctx.outputs.templated_args_file:
-        templated_args = ctx.attr.templated_args
-    else:
-        # Distribute the templated_args between the params file and the node options
-        params = []
-        templated_args = []
-        for a in ctx.attr.templated_args:
-            if a.startswith("--node_options="):
-                templated_args.append(a)
-            else:
-                params.append(a)
-
-        # Put the params into the params file
-        ctx.actions.write(
-            output = ctx.outputs.templated_args_file,
-            content = "\n".join([expand_location_into_runfiles(ctx, p) for p in params]),
-            is_executable = False,
-        )
-
-        # after the node_options args, pass the params file arg
-        templated_args.append(ctx.outputs.templated_args_file.short_path)
-
-        # also be sure to include the params file in the program inputs
-        node_tool_files.append(ctx.outputs.templated_args_file)
+    is_builtin = ctx.attr._node.label.workspace_name in ["nodejs_%s" % p for p in BUILT_IN_NODE_PLATFORMS]
 
     substitutions = {
         "TEMPLATED_args": " ".join([
-            expand_location_into_runfiles(ctx, a)
-            for a in templated_args
+            expand_location_into_runfiles(ctx, a, ctx.attr.data)
+            for a in ctx.attr.templated_args
         ]),
-        "TEMPLATED_bazel_require_script": _to_manifest_path(ctx, ctx.file._bazel_require_script),
         "TEMPLATED_env_vars": env_vars,
         "TEMPLATED_expected_exit_code": str(expected_exit_code),
         "TEMPLATED_link_modules_script": _to_manifest_path(ctx, ctx.file._link_modules_script),
-        "TEMPLATED_loader_path": script_path,
-        "TEMPLATED_node": node_tool_info.target_tool_path,
+        "TEMPLATED_loader_script": _to_manifest_path(ctx, ctx.outputs.loader_script),
+        "TEMPLATED_modules_manifest": _to_manifest_path(ctx, node_modules_manifest),
+        "TEMPLATED_node_patches_script": _to_manifest_path(ctx, ctx.file._node_patches_script),
         "TEMPLATED_repository_args": _to_manifest_path(ctx, ctx.file._repository_args),
+        "TEMPLATED_require_patch_script": _to_manifest_path(ctx, ctx.outputs.require_patch_script),
+        "TEMPLATED_runfiles_helper_script": _to_manifest_path(ctx, ctx.file._runfiles_helper_script),
         "TEMPLATED_script_path": _to_execroot_path(ctx, ctx.file.entry_point),
+        "TEMPLATED_vendored_node": "" if is_builtin else strip_external(ctx.file._node.path),
     }
     ctx.actions.expand_template(
         template = ctx.file._launcher_template,
-        output = ctx.outputs.script,
+        output = ctx.outputs.launcher_sh,
         substitutions = substitutions,
         is_executable = True,
     )
 
-    runfiles = depset(node_tool_files + ctx.files._bash_runfile_helpers + [ctx.outputs.loader, ctx.file._repository_args], transitive = [sources, node_modules])
+    runfiles = []
+    runfiles.extend(node_tool_files)
+    runfiles.extend(ctx.files._bash_runfile_helpers)
+    runfiles.append(ctx.outputs.loader_script)
+    runfiles.append(ctx.outputs.require_patch_script)
+    runfiles.append(ctx.file._repository_args)
 
     if is_windows(ctx):
-        runfiles = depset([ctx.outputs.script], transitive = [runfiles])
-        executable = create_windows_native_launcher_script(ctx, ctx.outputs.script)
+        runfiles.append(ctx.outputs.launcher_sh)
+        executable = create_windows_native_launcher_script(ctx, ctx.outputs.launcher_sh)
     else:
-        executable = ctx.outputs.script
+        executable = ctx.outputs.launcher_sh
 
     # entry point is only needed in runfiles if it is a .js file
     if ctx.file.entry_point.extension == "js":
-        runfiles = depset([ctx.file.entry_point], transitive = [runfiles])
+        runfiles.append(ctx.file.entry_point)
 
     return [
         DefaultInfo(
             executable = executable,
             runfiles = ctx.runfiles(
-                transitive_files = runfiles,
+                transitive_files = depset(runfiles),
                 files = node_tool_files + [
-                            ctx.outputs.loader,
+                            ctx.outputs.loader_script,
+                            ctx.outputs.require_patch_script,
                         ] + ctx.files._source_map_support_files +
 
                         # We need this call to the list of Files.
@@ -270,13 +279,6 @@ def _nodejs_binary_impl(ctx):
     ]
 
 _NODEJS_EXECUTABLE_ATTRS = {
-    "bootstrap": attr.string_list(
-        doc = """JavaScript modules to be loaded before the entry point.
-        For example, Angular uses this to patch the Jasmine async primitives for
-        zone.js before the first `describe`.
-        """,
-        default = [],
-    ),
     "configuration_env_vars": attr.string_list(
         doc = """Pass these configuration environment variables to the resulting binary.
         Chooses a subset of the configuration environment variables (taken from `ctx.var`), which also
@@ -287,7 +289,7 @@ _NODEJS_EXECUTABLE_ATTRS = {
     "data": attr.label_list(
         doc = """Runtime dependencies which may be loaded during execution.""",
         allow_files = True,
-        aspects = [node_modules_aspect, module_mappings_runtime_aspect],
+        aspects = [node_modules_aspect, module_mappings_aspect, module_mappings_runtime_aspect],
     ),
     "default_env_vars": attr.string_list(
         doc = """Default environment variables that are added to `configuration_env_vars`.
@@ -297,11 +299,10 @@ without losing the defaults that should be set in most cases.
 
 The set of default  environment variables is:
 
-- `DEBUG`: rules use this environment variable to turn on debug information in their output artifacts
-- `VERBOSE_LOGS`: rules use this environment variable to turn on debug output in their logs
+- `VERBOSE_LOGS`: use by some rules & tools to turn on debug output in their logs
 - `NODE_DEBUG`: used by node.js itself to print more logs
 """,
-        default = ["DEBUG", "VERBOSE_LOGS", "NODE_DEBUG"],
+        default = ["VERBOSE_LOGS", "NODE_DEBUG"],
     ),
     "entry_point": attr.label(
         doc = """The script which should be executed first, usually containing a main function.
@@ -442,20 +443,9 @@ jasmine_node_test(
         `--node_options=--preserve-symlinks`
         """,
     ),
-    "templated_args_file": attr.output(
-        mandatory = False,
-        doc = """If specified, arguments specified in `templated_args` are instead written to this file,
-        which is then passed as an argument to the program. Arguments prefixed with `--node_options=` are
-        passed directly to node and not included in the params file.
-        """,
-    ),
     "_bash_runfile_helpers": attr.label(default = Label("@bazel_tools//tools/bash/runfiles")),
-    "_bazel_require_script": attr.label(
-        default = Label("//internal/node:bazel_require_script.js"),
-        allow_single_file = True,
-    ),
     "_launcher_template": attr.label(
-        default = Label("//internal/node:node_launcher.sh"),
+        default = Label("//internal/node:launcher.sh"),
         allow_single_file = True,
     ),
     "_link_modules_script": attr.label(
@@ -463,11 +453,27 @@ jasmine_node_test(
         allow_single_file = True,
     ),
     "_loader_template": attr.label(
-        default = Label("//internal/node:node_loader.js"),
+        default = Label("//internal/node:loader.js"),
+        allow_single_file = True,
+    ),
+    "_node": attr.label(
+        default = Label("@nodejs//:node_bin"),
+        allow_single_file = True,
+    ),
+    "_node_patches_script": attr.label(
+        default = Label("//internal/node:node_patches.js"),
         allow_single_file = True,
     ),
     "_repository_args": attr.label(
         default = Label("@nodejs//:bin/node_repo_args.sh"),
+        allow_single_file = True,
+    ),
+    "_require_patch_template": attr.label(
+        default = Label("//internal/node:require_patch.js"),
+        allow_single_file = True,
+    ),
+    "_runfiles_helper_script": attr.label(
+        default = Label("//internal/linker:runfiles_helper.js"),
         allow_single_file = True,
     ),
     "_source_map_support_files": attr.label_list(
@@ -481,8 +487,9 @@ jasmine_node_test(
 }
 
 _NODEJS_EXECUTABLE_OUTPUTS = {
-    "loader": "%{name}_loader.js",
-    "script": "%{name}.sh",
+    "launcher_sh": "%{name}.sh",
+    "loader_script": "%{name}_loader.js",
+    "require_patch_script": "%{name}_require_patch.js",
 }
 
 # The name of the declared rule appears in

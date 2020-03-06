@@ -16,7 +16,7 @@ Existing issues often contain information about workarounds, resolution, or prog
 
 ### Affected Rule
 
-<!-- Can you pin-point one or more rules_nodejs as the source of the bug? -->
+<!-- Can you pin-point one or more rules as the source of the bug? -->
 <!-- ✍️edit: --> The issue is caused by the rule: 
 
 
@@ -41,6 +41,7 @@ Please create and share minimal reproduction of the issue. For the purpose you c
 
 <pre><code>
 <!-- If the issue is accompanied by an exception or an error, please share it below: -->
+<!-- (Please run your build with --define=VERBOSE_LOGS=1 to gather more info for us to understand the problem.) -->
 <!-- ✍️-->
 
 </code></pre>
@@ -64,7 +65,9 @@ Please create and share minimal reproduction of the issue. For the purpose you c
   </code>
 </pre>
 
-**Rules version (SHA):**
+**Rules_nodejs version:**
+
+(Please check that you have matching versions between WORKSPACE file and `@bazel/*` npm packages.)
 
 <pre>
   <code>

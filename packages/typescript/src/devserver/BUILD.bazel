@@ -12,6 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+filegroup(
+    name = "devserver_darwin_amd64",
+    srcs = ["devserver-darwin_x64"],
+    # Don't build on CI
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "devserver_linux_amd64",
+    srcs = ["devserver-linux_x64"],
+    # Don't build on CI
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "devserver_windows_amd64",
+    srcs = ["devserver-windows_x64.exe"],
+    # Don't build on CI
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+)
+
 config_setting(
     name = "darwin_x64",
     constraint_values = [
@@ -39,9 +63,9 @@ config_setting(
 filegroup(
     name = "devserver",
     srcs = select({
-        ":darwin_x64": ["devserver-darwin_x64"],
-        ":linux_x64": ["devserver-linux_x64"],
-        ":windows_x64": ["devserver-windows_x64.exe"],
+        ":darwin_x64": [":devserver_darwin_amd64"],
+        ":linux_x64": [":devserver_linux_amd64"],
+        ":windows_x64": [":devserver_windows_amd64"],
     }),
     # Don't build on CI
     tags = ["manual"],

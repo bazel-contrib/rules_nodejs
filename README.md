@@ -1,16 +1,14 @@
-# NodeJS rules for Bazel
+# JavaScript rules for Bazel
 
 
 Circle CI | Bazel CI
 :---: | :---:
 [![CircleCI](https://circleci.com/gh/bazelbuild/rules_nodejs.svg?style=svg)](https://circleci.com/gh/bazelbuild/rules_nodejs) | [![Build status](https://badge.buildkite.com/af1a592b39b11923ef0f523cbb223dd3dbd61629f8bc813c07.svg?branch=master)](https://buildkite.com/bazel/nodejs-rules-nodejs-postsubmit)
 
-**This is beta-quality software. Breaking changes are likely.**
-
 The nodejs rules integrate NodeJS development toolchain and runtime with Bazel.
 
 This toolchain can be used to build applications that target a browser runtime,
-so this repo can be thought of as "JavaScript rules for Bazel" as well.
+so this repo can be thought of as "JavaScript rules for Bazel" as well. (We would call this `rules_javascript` if renames weren't so disruptive.)
 
 ## Documentation
 
@@ -20,7 +18,7 @@ https://bazelbuild.github.io/rules_nodejs/
 ## Quickstart
 
 This is the fastest way to get started.
-See the [installation documentation](https://bazelbuild.github.io/rules_nodejs/install.html) for details and alternative methods.
+See the [installation documentation](https://bazelbuild.github.io/rules_nodejs/install.html) for details and alternative methods, or if you already have a Bazel project and you're adding Node/JavaScript support to it.
 
 ```sh
 $ npm init @bazel
@@ -51,12 +49,15 @@ Open-source repositories:
 - [dataform](https://github.com/dataform-co/dataform)
 - [Kubernetes test-infra](https://github.com/kubernetes/test-infra)
 - [ts-protoc-gen](https://github.com/improbable-eng/ts-protoc-gen)
+- [protoc-gen-ts](https://github.com/thesayyn/protoc-gen-ts)
 
 Organizations:
 
 - [Evertz](https://www.evertz.com)
 - [Lucidchart](https://www.lucidchart.com)
 - [Webdox](https://www.webdox.cl)
+- [WeMaintain](https://www.wemaintain.com)
+- [LogiOcean](https://www.logiocean.com)
 
 Not on this list? [Send a PR](https://github.com/bazelbuild/rules_nodejs/edit/master/README.md) to add your repo or organization!
 
@@ -71,7 +72,3 @@ From [Lewis Hemens](https://github.com/lewish) at Dataform:
 > - A monorepo that scales: adding new libraries or packages to our repo became easy, which means we do it more and end up write more modular, shared, maintainable code
 > - Developing across machine types: our engineers have both Macbooks and Linux machines, bazel makes it easy to build code across both
 > - Developer setup time: New engineers can build all our code with just 3 dependencies - bazel, docker and the JVM. The last engineer to join our team managed to build all our code in < 30 minutes on a brand new, empty laptop
-
-## Documentation site
-
-https://bazelbuild.github.io/rules_nodejs/

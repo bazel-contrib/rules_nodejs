@@ -100,7 +100,7 @@ if (onPreparePath) {
 }
 
 // Override the user's base protractor configuration as appropriate based on the
-// ts_web_test_suite & rules_webtesting WEB_TEST_METADATA attributes
+// karma_web_test_suite & rules_webtesting WEB_TEST_METADATA attributes
 setConf(conf, 'framework', 'jasmine2', 'is set to jasmine2');
 
 const specs =
@@ -109,31 +109,12 @@ const specs =
 setConf(conf, 'specs', specs, 'are determined by the srcs and deps attribute');
 
 // WEB_TEST_METADATA is configured in rules_webtesting based on value
-// of the browsers attribute passed to ts_web_test_suite
+// of the browsers attribute passed to karma_web_test_suite
 // We setup the protractor configuration based on the values in this object
 if (process.env['WEB_TEST_METADATA']) {
   const webTestMetadata = require(process.env['WEB_TEST_METADATA']);
   log_verbose(`WEB_TEST_METADATA: ${JSON.stringify(webTestMetadata, null, 2)}`);
-  if (webTestMetadata['environment'] === 'sauce') {
-    // If a sauce labs browser is chosen for the test such as
-    // "@io_bazel_rules_webtesting//browsers/sauce:chrome-win10"
-    // than the 'environment' will equal 'sauce'.
-    // We expect that a SAUCE_USERNAME and SAUCE_ACCESS_KEY is available
-    // from the environment for this test to run
-
-    // TODO(gmagolan): implement sauce labs support for protractor
-    throw new Error('Saucelabs not yet support by protractor_web_test_suite.');
-
-    // if (!process.env.SAUCE_USERNAME || !process.env.SAUCE_ACCESS_KEY) {
-    //   console.error('Make sure the SAUCE_USERNAME and SAUCE_ACCESS_KEY environment variables are
-    //   set.');
-    //   process.exit(1);
-    // }
-    // setConf(conf, 'sauceUser', process.env.SAUCE_USERNAME, 'is determined by the SAUCE_USERNAME
-    // environment variable');
-    // setConf(conf, 'sauceKey', process.env.SAUCE_ACCESS_KEY, 'is determined by the
-    // SAUCE_ACCESS_KEY environment variable');
-  } else if (webTestMetadata['environment'] === 'local') {
+  if (webTestMetadata['environment'] === 'local') {
     // When a local chrome or firefox browser is chosen such as
     // "@io_bazel_rules_webtesting//browsers:chromium-local" or
     // "@io_bazel_rules_webtesting//browsers:firefox-local"

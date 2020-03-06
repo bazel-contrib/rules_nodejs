@@ -1,0 +1,46 @@
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+
+# BEGIN-INTERNAL
+load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
+
+# END-INTERNAL
+package(default_visibility = ["//visibility:public"])
+
+exports_files(["pkg_web.bzl"])
+
+bzl_library(
+    name = "bzl",
+    srcs = glob(["*.bzl"]),
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "node_modules_none",
+)
+
+nodejs_binary(
+    name = "assembler",
+    data = ["assembler.js"],
+    entry_point = ":assembler.js",
+    install_source_map_support = False,
+    node_modules = ":node_modules_none",
+)
+
+# BEGIN-INTERNAL
+jasmine_node_test(
+    name = "assembler_test",
+    srcs = ["assembler_spec.js"],
+    deps = [
+        "assembler.js",
+    ],
+)
+
+# END-INTERNAL
+filegroup(
+    name = "package_contents",
+    srcs = glob(
+        ["*"],
+        exclude = ["*_spec.js"],
+    ),
+)

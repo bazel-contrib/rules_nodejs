@@ -24,7 +24,7 @@ const fs = require('fs');
 const path = require('path');
 const tmp = require('tmp');
 
-const DEBUG = !!process.env['DEBUG'];
+const DEBUG = !!process.env['BAZEL_INTEGRATION_TEST_DEBUG'];
 const VERBOSE_LOGS = !!process.env['VERBOSE_LOGS'];
 
 function log(...m) {
@@ -176,8 +176,6 @@ function copyNpmPackage(packagePath) {
   return to;
 }
 
-// testName is like examples_webapp or e2e_bazel_managed_deps
-// transform to the path we expect by changing first underscore to slash
 const workspacePath = config.workspaceRoot.startsWith('external/') ?
     '..' + config.workspaceRoot.slice('external'.length) :
     config.workspaceRoot;
@@ -272,7 +270,7 @@ if (isFile(packageJsonFile)) {
     if (packageJsonContents.includes(`"${packageJsonKey}"`) &&
         !packageJsonContents.includes(`"${packageJsonKey}": "file:`)) {
       console.error(`bazel_integration_test: expected replacement of npm package ${
-          packageJsonKey} for locally generated npm_package not found; add ${
+          packageJsonKey} for locally generated npm package not found; add ${
           packageJsonKey} to npm_packages attribute`);
       process.exit(1);
     }
@@ -285,18 +283,25 @@ const isWindows = process.platform === 'win32';
 const bazelBinary =
     require.resolve(`${config.bazelBinaryWorkspace}/bazel${isWindows ? '.exe' : ''}`);
 
-if (DEBUG || VERBOSE_LOGS) {
-  // If DEBUG is set then the tmp folders created by the `tmp.dirSync` are not
-  // cleaned up so we should log out the location of the workspace under test
-  // tmp folder in that case even if VERBOSE_LOGS is not set as it may be useful
-  // to `cd /path/to/workspace/tmp` for manual testing at that point.
+if (DEBUG) {
   log(`
 
-********************************************************************************
-bazel binary under test is ${bazelBinary}
-workspace under test root is ${workspaceRoot}
-********************************************************************************
+================================================================================
+Integration test put in DEBUG mode with BAZEL_INTEGRATION_TEST_DEBUG env set.
+
+    bazel binary: ${bazelBinary}
+    workspace under test root: ${workspaceRoot}
+
+Change directory to workspace under test root folder,
+
+    cd ${workspaceRoot}
+
+and run integration test manually.
+================================================================================
 `);
+  // Exit with error code so that BAZEL_INTEGRATION_TEST_DEBUG does not lead
+  // to a accidental passing test.
+  process.exit(1);
 }
 
 log(`running 'bazel version'`);

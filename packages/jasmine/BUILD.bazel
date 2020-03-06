@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "npm_package")
+load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "pkg_npm")
 
 # Ugly genrule depending on local linux environment to build the README out of skylark doc generation.
 # Only referenced when we do a release.
@@ -20,23 +20,29 @@ load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "npm_package")
 genrule(
     name = "generate_README",
     srcs = [
-        "//packages/jasmine/docs:index.md",
+        "@npm_bazel_jasmine//:index.md",
         "//packages/jasmine/docs:install.md",
     ],
     outs = ["README.md"],
-    cmd = """cat $(location //packages/jasmine/docs:install.md) $(location //packages/jasmine/docs:index.md) | sed 's/^##/\\\n##/' > $@""",
+    cmd = """cat $(execpath //packages/jasmine/docs:install.md) $(execpath @npm_bazel_jasmine//:index.md) | sed 's/^##/\\\n##/' > $@""",
+    tags = ["fix-windows"],
     visibility = ["//docs:__pkg__"],
 )
 
-npm_package(
+pkg_npm(
     name = "npm_package",
     srcs = [
         "@npm_bazel_jasmine//:package_contents",
     ],
+    build_file_content = "",
     vendor_external = [
         "npm_bazel_jasmine",
     ],
-    deps = [
-        ":generate_README",
-    ],
+    deps = select({
+        # FIXME: fix stardoc on Windows; @npm_bazel_jasmine//:index.md generation fails with:
+        #   ERROR: D:/b/62unjjin/external/npm_bazel_jasmine/BUILD.bazel:34:1: Couldn't build file
+        #   external/npm_bazel_jasmine/docs.raw: Generating proto for Starlark doc for docs failed (Exit 1)
+        "@bazel_tools//src/conditions:windows": [],
+        "//conditions:default": [":generate_README"],
+    }),
 )

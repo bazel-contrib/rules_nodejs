@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("//packages/karma/test:defaults.bzl", "ts_web_test_suite")
+load("@npm_bazel_karma//:index.from_src.bzl", "karma_web_test_suite")
 
-ts_web_test_suite(
+karma_web_test_suite(
     name = "testing",
     srcs = glob(
         ["*.js"],

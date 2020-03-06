@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-""" Custom provider that mimics the Runfiles, but doesn't incur the expense of creating the runfiles symlink tree"""
+"""Custom provider that mimics the Runfiles, but doesn't incur the expense of creating the runfiles symlink tree"""
 
-load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "add_arg", "register_node_modules_linker")
+load("//internal/linker:link_node_modules.bzl", "add_arg", "write_node_modules_manifest")
 
 NodeRuntimeDepsInfo = provider(
     doc = """Stores runtime dependencies of a nodejs_binary or nodejs_test
@@ -54,16 +54,34 @@ def run_node(ctx, inputs, arguments, executable, **kwargs):
         extra_inputs = exec_attr[NodeRuntimeDepsInfo].deps.to_list()
         link_data = exec_attr[NodeRuntimeDepsInfo].pkgs
 
-    register_node_modules_linker(ctx, arguments, inputs, link_data)
+    modules_manifest = write_node_modules_manifest(ctx, link_data)
+    add_arg(arguments, "--bazel_node_modules_manifest=%s" % modules_manifest.path)
+    inputs.append(modules_manifest)
 
     # By using the run_node helper, you suggest that your program
     # doesn't implicitly use runfiles to require() things
-    # To access runfiles, youu must use a runfiles helper in the program instead
+    # To access runfiles, you must use a runfiles helper in the program instead
     add_arg(arguments, "--nobazel_patch_module_resolver")
+
+    env = kwargs.pop("env", {})
+
+    # Always forward the COMPILATION_MODE to node process as an environment variable
+    configuration_env_vars = kwargs.pop("configuration_env_vars", []) + ["COMPILATION_MODE"]
+    for var in configuration_env_vars:
+        if var not in env.keys():
+            # If env is not explicitely specified, check ctx.var first & if env var not in there
+            # then check ctx.configuration.default_shell_env. The former will contain values from
+            # --define=FOO=BAR and latter will contain values from --action_env=FOO=BAR
+            # (but not from --action_env=FOO).
+            if var in ctx.var.keys():
+                env[var] = ctx.var[var]
+            elif var in ctx.configuration.default_shell_env.keys():
+                env[var] = ctx.configuration.default_shell_env[var]
 
     ctx.actions.run(
         inputs = inputs + extra_inputs,
         arguments = arguments,
         executable = exec_exec,
+        env = env,
         **kwargs
     )

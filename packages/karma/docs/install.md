@@ -1,7 +1,5 @@
 # Karma rules for Bazel
 
-**WARNING: this is beta-quality software. Breaking changes are likely. Not recommended for production use without expert support.**
-
 The Karma rules run karma tests with Bazel.
 
 ## Installation
@@ -28,11 +26,15 @@ Finally, configure the rules_webtesting:
 
 ```python
 # Set up web testing, choose browsers we can test on
-load("@io_bazel_rules_webtesting//web:repositories.bzl", "browser_repositories", "web_test_repositories")
+load("@io_bazel_rules_webtesting//web:repositories.bzl", "web_test_repositories")
 
 web_test_repositories()
+
+load("@io_bazel_rules_webtesting//web/versioned:browsers-0.3.2.bzl", "browser_repositories")
+
 browser_repositories(
     chromium = True,
+    firefox = True,
 )
 ```
 

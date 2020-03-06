@@ -11,8 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""
-This BUILD file is auto-generated from toolchains/node/BUILD.tpl
+
+"""This BUILD file is auto-generated from toolchains/node/BUILD.tpl
 """
 
 package(default_visibility = ["//visibility:public"])

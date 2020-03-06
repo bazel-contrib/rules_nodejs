@@ -8,9 +8,9 @@ This repository contains nested workspaces which are tested with the bazel-in-ba
 
 `bazel test ...` includes all these integration tests so if you want to run all tests except the integration tests you can use `bazel test ... --test_tag_filters=-e2e,-examples`. A shortcut for this is `yarn test`.
 
-When running the e2e tests, it is recommended to tune the memory usage of Bazel locally. This can be done with `bazel --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1280m test ... --test_tag_filters=e2e --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,1.0,1.0`. A shortcut for this is `yarn test_e2e`.
+When running the e2e tests, it is recommended to tune the memory usage of Bazel locally. This can be done with `bazel --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1280m test ... --test_tag_filters=e2e --local_ram_resources=792 --test_arg=--local_ram_resources=13288`. A shortcut for this is `yarn test_e2e`.
 
-Similarly, for test examples run  `bazel --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1280m test ... --test_tag_filters=examples --local_resources=792,1.0,1.0 --test_arg=--local_resources=13288,1.0,1.0`. A shortcut for this is `yarn test_examples`.
+Similarly, for test examples run  `bazel --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1280m test ... --test_tag_filters=examples --local_ram_resources=792 --test_arg=--local_ram_resources=13288`. A shortcut for this is `yarn test_examples`.
 
 To test all targets locally in the main workspace and in all nested workspaces run:
 
@@ -39,19 +39,19 @@ Note: if you are using a new clone, you'll need to configure `git-clang-format` 
 
 Googlers: you should npm login using the go/npm-publish service: `$ npm login --registry https://wombat-dressing-room.appspot.com`
 
-Check if there are any breaking changes since the last tag - if so, this will be a minor, if not it's a patch.
-(This may not sound like semver, but since our major version is a zero, the rule is that minors are breaking changes and patches are new features.)
+Check if there are any breaking changes since the last tag - if so, this will be a major. Check if there were new features added since the last tag - if so, this will be a minor.
 
-1. `yarn install`
-1. Re-generate the API docs: `yarn skydoc`
+1. Re-generate the API docs: `yarn stardoc`
 1. `git add docs/` (in case new files were created)
 1. `git commit -a -m 'docs: update docs for release'`
-1. `npm version minor` (replace `minor` with `patch` if no breaking changes)
+1. `npm version [major|minor|patch]` (`major` if there are breaking changes, `minor` if there are new features, otherwise `patch`)
+1. Manually update the CHANGELOG.md based on the commits since the last release. Look for breaking changes that weren't documented.
+1. If publishing from inside Google, set NPM_REGISTRY="--registry https://wombat-dressing-room.appspot.com" in your environment
 1. Build npm packages and publish them: `./scripts/publish_release.sh`
 1. Run `./scripts/update_nested_lock_files.sh` to update the lock files in all nested workspaces to new release
 1. `git commit -a -m 'chore: update lock files for release'`
 1. `git push upstream && git push upstream --tags`
-1. (Manual for now): go to the [releases] page, edit the release with rough changelog (especially note any breaking changes!) and upload the release artifact from `rules_nodejs-[version].tar.gz` 
+1. (Manual for now): go to the [releases] page, edit the release with rough changelog (especially note any breaking changes!) and upload the release artifact from `rules_nodejs-[version].tar.gz`. Also copy the release notes from CHANGELOG.md
 1. Announce the release on Angular slack in `#tools-abc-discuss`
 
 [releases]: https://github.com/bazelbuild/rules_nodejs/releases

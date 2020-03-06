@@ -16,7 +16,7 @@ This JavaScript support lets you build and test code that targets a JavaScript r
 ## Quickstart
 
 This is the fastest way to get started for most use cases.
-See [the installation page](install.md) for details and alternative methods.
+See [the installation page](install.html) for details and alternative methods.
 
 ```sh
 $ npm init @bazel
@@ -42,7 +42,7 @@ See [Built-ins]
 If you have installed the [rollup] package, you could write this rule:
 
 ```python
-load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 
 nodejs_binary(
     name = "rollup",
@@ -66,7 +66,7 @@ See the `examples/parcel` example.
 We can reference a path in the local workspace to run a program we write.
 
 ```python
-load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 
 nodejs_binary(
     name = "example",
@@ -124,18 +124,54 @@ A Chrome DevTools window should open and you should see `Debugger attached.` in 
 
 See https://nodejs.org/en/docs/guides/debugging-getting-started/ for more details.
 
+### Debugging with VS Code
+
+With the above configuration you can use VS Code as your debugger.  
+You will first need to configure your `.vscode/launch.json`:
+
+```
+{
+      "type": "node",
+      "request": "attach",
+      "name": "Attach nodejs_binary",
+      "internalConsoleOptions": "neverOpen",
+      "sourceMapPathOverrides": {
+        "../*": "${workspaceRoot}/*",
+        "../../*": "${workspaceRoot}/*",
+        "../../../*": "${workspaceRoot}/*",
+        "../../../../*": "${workspaceRoot}/*",
+        "../../../../../*": "${workspaceRoot}/*",
+        // do as many levels here as needed for your project
+      }
+``` 
+We use `sourceMapPathOverrides` here to rewrite the source maps produced by `ts_library` so that breakpoints line up with the source maps.  
+Once configured start your process with
+```
+bazel run --config=debug //test:test1
+```
+Then hit `F5` which will start the VS Code debugger with the `Attach nodejs_binary` configuration.  
+VS Code will immediatenly hit a breakpoint to which you can continue and debug using all the normal debug features provided.
+
+
 ### Stamping
 
 Bazel is generally only a build tool, and is unaware of your version control system.
 However, when publishing releases, you typically want to embed version information in the resulting distribution.
 Bazel supports this natively, using the following approach:
 
-First, pass the `workspace_status_command` argument to `bazel build`. We prefer to do this with an entry in `.bazelrc`:
+To stamp a build, you must pass the `--stamp` argument to Bazel.
+
+> Previous releases of rules_nodejs stamped builds always.
+> However this caused stamp-aware actions to never be remotely cached, since the volatile
+> status file is passed as an input and its checksum always changes.
+
+Also pass the `workspace_status_command` argument to `bazel build`.
+We prefer to do these with an entry in `.bazelrc`:
 
 ```sh    
 # This tells Bazel how to interact with the version control system
 # Enable this with --config=release
-build:release --workspace_status_command=./tools/bazel_stamp_vars.sh
+build:release --stamp --workspace_status_command=./tools/bazel_stamp_vars.sh
 ```
 
 Then create `tools/bazel_stamp_vars.sh`.
@@ -150,8 +186,6 @@ echo BUILD_SCM_VERSION $(git describe --abbrev=7 --tags HEAD)
 ```
 
 For a more full-featured script, take a look at the [bazel_stamp_vars in Angular]
-
-Ideally, `rollup_bundle` and `npm_package` should honor the `--stamp` argument to `bazel build`. However this is not currently possible, see https://github.com/bazelbuild/bazel/issues/1054
 
 Finally, we recommend a release script around Bazel. We typically have more than one npm package published from one Bazel workspace, so we do a `bazel query` to find them, and publish in a loop. Here is a template to get you started:
 
@@ -169,12 +203,12 @@ readonly BAZEL_BIN=./node_modules/.bin/bazel
 readonly TMP=$(mktemp -d -t bazel-release.XXXXXXX)
 readonly BAZEL="$BAZEL_BIN --output_base=$TMP"
 # Find all the npm packages in the repo
-readonly NPM_PACKAGE_LABELS=`$BAZEL query --output=label 'kind("npm_package", //...)'`
+readonly PKG_NPM_LABELS=`$BAZEL query --output=label 'kind("pkg_npm", //...)'`
 # Build them in one command to maximize parallelism
-$BAZEL build --config=release $NPM_PACKAGE_LABELS
+$BAZEL build --config=release $PKG_NPM_LABELS
 # publish one package at a time to make it easier to spot any errors or warnings
-for pkg in $NPM_PACKAGE_LABELS ; do
-  $BAZEL run -- ${pkg}.${NPM_COMMAND} --access public --tag latest
+for pkg in $PKG_NPM_LABELS ; do
+  $BAZEL run --config=release -- ${pkg}.${NPM_COMMAND} --access public --tag latest
 done
 ```
 

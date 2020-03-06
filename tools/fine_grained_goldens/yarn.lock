@@ -13,10 +13,10 @@
   resolved "https://registry.yarnpkg.com/@gregmagolan/test-a/-/test-a-0.0.1.tgz#c90ebc0676f13b34400da8d1e55ffe5aa76655b4"
   integrity sha512-nMZ3MKkXZ+uYbrm8R3dfdt3v1gOOLtf88CdDciWxMYGLr29oVjQG11y2fz4IRBR6R7hI2Gj+G9sHZ69wLTnjfA==
 
-"@gregmagolan/test-a@0.0.4":
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/@gregmagolan/test-a/-/test-a-0.0.4.tgz#d2a4cf0dc6be9b503d772bb7af16c279e2daa1d3"
-  integrity sha512-AhnqEFS5ZAC511I0d5/637dAHCRcumvfjgYL7bKw9ltI9ug9kNPCx3AFIpvJlWaColwPWgFCKigAsr8iCoDQHg==
+"@gregmagolan/test-a@0.0.5":
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/@gregmagolan/test-a/-/test-a-0.0.5.tgz#70133ee86d5fd41d7a7bea425275813240ed7e65"
+  integrity sha512-3lapkuCUxoMicBemybiuBdCSMsU3A6RugvFTMlZr7feTw7RHUeal7U52Ys71jAz/Vk+LbSb6FZYP+TFe5/0bwA==
 
 "@gregmagolan/test-b@0.0.2":
   version "0.0.2"

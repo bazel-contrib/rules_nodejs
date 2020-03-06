@@ -12,13 +12,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@npm//html-insert-assets:index.bzl", "html_insert_assets")
 load("@npm_bazel_protractor//:index.bzl", "protractor_web_test_suite")
 load("@npm_bazel_typescript//:index.bzl", "ts_devserver", "ts_library")
 
+html_insert_assets(
+    name = "inject",
+    outs = ["index.html"],
+    args = [
+        "--html=$(execpath index.tmpl.html)",
+        "--out=$@",
+        "--roots=$(RULEDIR)",
+        "--assets",
+        "$(execpath //:red-body-style.css)",
+    ],
+    data = [
+        "index.tmpl.html",
+        "//:red-body-style.css",
+    ],
+)
+
 ts_devserver(
     name = "devserver",
-    index_html = "index.html",
-    static_files = ["//:red-body-style.css"],
+    static_files = [
+        "inject",
+        "//:red-body-style.css",
+    ],
 )
 
 ts_library(
@@ -36,9 +55,5 @@ protractor_web_test_suite(
     name = "devserver_test",
     on_prepare = "//:protractor.on-prepare.js",
     server = ":devserver",
-    tags = [
-        "no-bazelci-ubuntu",
-        "no-bazelci-windows",
-    ],
     deps = [":e2e"],
 )

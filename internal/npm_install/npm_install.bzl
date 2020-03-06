@@ -26,8 +26,15 @@ load("//internal/common:os_name.bzl", "is_windows_os")
 load("//internal/node:node_labels.bzl", "get_node_label", "get_npm_label", "get_yarn_label")
 
 COMMON_ATTRIBUTES = dict(dict(), **{
+    "timeout": attr.int(
+        default = 3600,
+        doc = """Maximum duration of the package manager execution in seconds.""",
+    ),
     "always_hide_bazel_files": attr.bool(
         doc = """Always hide Bazel build files such as `BUILD` and BUILD.bazel` by prefixing them with `_`.
+
+This is only needed in Bazel 2.0 or earlier.
+We recommend upgrading to a later version to avoid the problem this works around.
 
 Defaults to False, in which case Bazel files are _not_ hidden when `symlink_node_modules`
 is True. In this case, the rule will report an error when there are Bazel files detected
@@ -66,8 +73,9 @@ If symlink_node_modules is True, this attribute is ignored since
 the dependency manager will run in the package.json location.
 """,
     ),
-    "exclude_packages": attr.string_list(
-        doc = """DEPRECATED. This attribute is no longer used.""",
+    "environment": attr.string_dict(
+        doc = """Environment variables to set before calling the package manager.""",
+        default = {},
     ),
     "included_files": attr.string_list(
         doc = """List of file extensions to be included in the npm package targets.
@@ -103,10 +111,6 @@ fine grained npm dependencies.
     "package_json": attr.label(
         mandatory = True,
         allow_single_file = True,
-    ),
-    "prod_only": attr.bool(
-        default = False,
-        doc = "Don't install devDependencies",
     ),
     "quiet": attr.bool(
         default = True,
@@ -145,6 +149,7 @@ def _create_build_files(repository_ctx, rule_type, node, lock_file):
         "1" if error_on_build_files else "0",
         repository_ctx.path(lock_file),
         ",".join(repository_ctx.attr.included_files),
+        native.bazel_version,
     ])
     if result.return_code:
         fail("generate_build_file.js failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
@@ -210,10 +215,7 @@ def _npm_install_impl(repository_ctx):
     is_windows_host = is_windows_os(repository_ctx)
     node = repository_ctx.path(get_node_label(repository_ctx))
     npm = get_npm_label(repository_ctx)
-    npm_args = ["install"]
-
-    if repository_ctx.attr.prod_only:
-        npm_args.append("--production")
+    npm_args = ["install"] + repository_ctx.attr.args
 
     # If symlink_node_modules is true then run the package manager
     # in the package.json folder; otherwise, run it in the root of
@@ -225,8 +227,9 @@ def _npm_install_impl(repository_ctx):
 
     # The entry points for npm install for osx/linux and windows
     if not is_windows_host:
+        # Prefix filenames with _ so they don't conflict with the npm package `npm`
         repository_ctx.file(
-            "npm",
+            "_npm.sh",
             content = """#!/usr/bin/env bash
 # Immediately exit if any command fails.
 set -e
@@ -240,9 +243,9 @@ set -e
         )
     else:
         repository_ctx.file(
-            "npm.cmd",
+            "_npm.cmd",
             content = """@echo off
-cd "{root}" && "{npm}" {npm_args}
+cd /D "{root}" && "{npm}" {npm_args}
 """.format(
                 root = root,
                 npm = repository_ctx.path(npm),
@@ -268,11 +271,17 @@ cd "{root}" && "{npm}" {npm_args}
     if result.return_code:
         fail("pre_process_package_json.js failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
 
+    env = dict(repository_ctx.attr.environment)
+    env_key = "BAZEL_NPM_INSTALL"
+    if env_key not in env.keys():
+        env[env_key] = "1"
+
     repository_ctx.report_progress("Running npm install on %s" % repository_ctx.attr.package_json)
     result = repository_ctx.execute(
-        [repository_ctx.path("npm.cmd" if is_windows_host else "npm")],
+        [repository_ctx.path("_npm.cmd" if is_windows_host else "_npm.sh")],
         timeout = repository_ctx.attr.timeout,
         quiet = repository_ctx.attr.quiet,
+        environment = env,
     )
 
     if result.return_code:
@@ -297,17 +306,22 @@ cd "{root}" && "{npm}" {npm_args}
 
 npm_install = repository_rule(
     attrs = dict(COMMON_ATTRIBUTES, **{
-        "timeout": attr.int(
-            default = 3600,
-            doc = """Maximum duration of the command "npm install" in seconds
-            (default is 3600 seconds).""",
+        "args": attr.string_list(
+            doc = """Arguments passed to npm install.
+
+See npm CLI docs https://docs.npmjs.com/cli/install.html for complete list of supported arguments.""",
+            default = [],
         ),
         "package_lock_json": attr.label(
             mandatory = True,
             allow_single_file = True,
         ),
     }),
-    doc = "Runs npm install during workspace setup.",
+    doc = """Runs npm install during workspace setup.
+
+This rule will set the environment variable `BAZEL_NPM_INSTALL` to '1' (unless it
+set to another value in the environment attribute). Scripts may use to this to 
+check if yarn is being run by the `npm_install` repository rule.""",
     implementation = _npm_install_impl,
 )
 
@@ -316,8 +330,22 @@ def _yarn_install_impl(repository_ctx):
 
     _check_min_bazel_version("yarn_install", repository_ctx)
 
+    is_windows_host = is_windows_os(repository_ctx)
     node = repository_ctx.path(get_node_label(repository_ctx))
     yarn = get_yarn_label(repository_ctx)
+
+    yarn_args = []
+    if not repository_ctx.attr.use_global_yarn_cache:
+        yarn_args.extend(["--cache-folder", str(repository_ctx.path("_yarn_cache"))])
+    else:
+        # Multiple yarn rules cannot run simultaneously using a shared cache.
+        # See https://github.com/yarnpkg/yarn/issues/683
+        # The --mutex option ensures only one yarn runs at a time, see
+        # https://yarnpkg.com/en/docs/cli#toc-concurrency-and-mutex
+        # The shared cache is not necessarily hermetic, but we need to cache downloaded
+        # artifacts somewhere, so we rely on yarn to be correct.
+        yarn_args.extend(["--mutex", "network"])
+    yarn_args.extend(repository_ctx.attr.args)
 
     # If symlink_node_modules is true then run the package manager
     # in the package.json folder; otherwise, run it in the root of
@@ -326,6 +354,42 @@ def _yarn_install_impl(repository_ctx):
         root = repository_ctx.path(repository_ctx.attr.package_json).dirname
     else:
         root = repository_ctx.path("")
+
+    # The entry points for npm install for osx/linux and windows
+    if not is_windows_host:
+        # Prefix filenames with _ so they don't conflict with the npm packages.
+        # Unset YARN_IGNORE_PATH before calling yarn incase it is set so that
+        # .yarnrc yarn-path is followed if set. This is for the case when calling
+        # bazel from yarn with `yarn bazel ...` and yarn follows yarn-path in
+        # .yarnrc it will set YARN_IGNORE_PATH=1 which will prevent the bazel
+        # call into yarn from also following the yarn-path as desired.
+        repository_ctx.file(
+            "_yarn.sh",
+            content = """#!/usr/bin/env bash
+# Immediately exit if any command fails.
+set -e
+unset YARN_IGNORE_PATH
+(cd "{root}"; "{yarn}" {yarn_args})
+""".format(
+                root = root,
+                yarn = repository_ctx.path(yarn),
+                yarn_args = " ".join(yarn_args),
+            ),
+            executable = True,
+        )
+    else:
+        repository_ctx.file(
+            "_yarn.cmd",
+            content = """@echo off
+set "YARN_IGNORE_PATH="
+cd /D "{root}" && "{yarn}" {yarn_args}
+""".format(
+                root = root,
+                yarn = repository_ctx.path(yarn),
+                yarn_args = " ".join(yarn_args),
+            ),
+            executable = True,
+        )
 
     if not repository_ctx.attr.symlink_node_modules:
         repository_ctx.symlink(
@@ -344,35 +408,17 @@ def _yarn_install_impl(repository_ctx):
     if result.return_code:
         fail("pre_process_package_json.js failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
 
-    args = [
-        repository_ctx.path(yarn),
-        "--cwd",
-        root,
-        "--network-timeout",
-        str(repository_ctx.attr.network_timeout * 1000),  # in ms
-    ]
-
-    if repository_ctx.attr.frozen_lockfile:
-        args.append("--frozen-lockfile")
-
-    if repository_ctx.attr.prod_only:
-        args.append("--prod")
-    if not repository_ctx.attr.use_global_yarn_cache:
-        args.extend(["--cache-folder", repository_ctx.path("_yarn_cache")])
-    else:
-        # Multiple yarn rules cannot run simultaneously using a shared cache.
-        # See https://github.com/yarnpkg/yarn/issues/683
-        # The --mutex option ensures only one yarn runs at a time, see
-        # https://yarnpkg.com/en/docs/cli#toc-concurrency-and-mutex
-        # The shared cache is not necessarily hermetic, but we need to cache downloaded
-        # artifacts somewhere, so we rely on yarn to be correct.
-        args.extend(["--mutex", "network"])
+    env = dict(repository_ctx.attr.environment)
+    env_key = "BAZEL_YARN_INSTALL"
+    if env_key not in env.keys():
+        env[env_key] = "1"
 
     repository_ctx.report_progress("Running yarn install on %s" % repository_ctx.attr.package_json)
     result = repository_ctx.execute(
-        args,
+        [repository_ctx.path("_yarn.cmd" if is_windows_host else "_yarn.sh")],
         timeout = repository_ctx.attr.timeout,
         quiet = repository_ctx.attr.quiet,
+        environment = env,
     )
     if result.return_code:
         fail("yarn_install failed: %s (%s)" % (result.stdout, result.stderr))
@@ -384,23 +430,11 @@ def _yarn_install_impl(repository_ctx):
 
 yarn_install = repository_rule(
     attrs = dict(COMMON_ATTRIBUTES, **{
-        "timeout": attr.int(
-            default = 3600,
-            doc = """Maximum duration of the command "yarn install" in seconds
-            (default is 3600 seconds).""",
-        ),
-        "frozen_lockfile": attr.bool(
-            default = False,
-            doc = """Passes the --frozen-lockfile flag to prevent updating yarn.lock.
+        "args": attr.string_list(
+            doc = """Arguments passed to yarn install.
 
-Note that enabling this option will require that you run yarn outside of Bazel
-when making changes to package.json.
-""",
-        ),
-        "network_timeout": attr.int(
-            default = 300,
-            doc = """Maximum duration of a network request made by yarn in seconds
-            (default is 300 seconds).""",
+See yarn CLI docs https://yarnpkg.com/en/docs/cli/install for complete list of supported arguments.""",
+            default = [],
         ),
         "use_global_yarn_cache": attr.bool(
             default = True,
@@ -409,8 +443,15 @@ when making changes to package.json.
 The cache lets you avoid downloading packages multiple times.
 However, it can introduce non-hermeticity, and the yarn cache can
 have bugs.
+
 Disabling this attribute causes every run of yarn to have a unique
 cache_directory.
+
+If True, this rule will pass `--mutex network` to yarn to ensure that
+the global cache can be shared by parallelized yarn_install rules.
+
+If False, this rule will pass `--cache-folder /path/to/external/repository/__yarn_cache`
+to yarn so that the local cache is contained within the external repository.
 """,
         ),
         "yarn_lock": attr.label(
@@ -418,6 +459,10 @@ cache_directory.
             allow_single_file = True,
         ),
     }),
-    doc = "Runs yarn install during workspace setup.",
+    doc = """Runs yarn install during workspace setup.
+
+This rule will set the environment variable `BAZEL_YARN_INSTALL` to '1' (unless it
+set to another value in the environment attribute). Scripts may use to this to 
+check if yarn is being run by the `yarn_install` repository rule.""",
     implementation = _yarn_install_impl,
 )

@@ -16,6 +16,7 @@
 # Parts of this BUILD file only necessary when building from source.
 # The generated `@bazel/protractor` npm package contains a trimmed BUILD file using INTERNAL fences.
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("@build_bazel_rules_nodejs//tools/stardoc:index.bzl", "stardoc")
 load("@npm_bazel_typescript//:index.from_src.bzl", "ts_library")
 
 package(default_visibility = ["//visibility:public"])
@@ -27,20 +28,27 @@ bzl_library(
     deps = [
         "@build_bazel_rules_nodejs//:bzl",
         "@build_bazel_rules_nodejs//internal/common:bzl",
+        "@build_bazel_rules_nodejs//internal/node:bzl",
         "@io_bazel_rules_webtesting//web",
     ],
+)
+
+stardoc(
+    name = "docs",
+    testonly = True,
+    out = "index.md",
+    input = "@npm_bazel_protractor//:index.bzl",
+    tags = ["fix-windows"],
+    deps = ["@npm_bazel_protractor//:bzl"],
 )
 
 filegroup(
     name = "package_contents",
     srcs = [
-        "BUILD.bazel",
-        "browser_repositories.bzl",
         "index.bzl",
         "package.bzl",
         "package.json",
         "protractor.conf.js",
-        "protractor.js",
         "protractor_web_test.bzl",
     ],
 )

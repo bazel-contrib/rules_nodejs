@@ -8,3 +8,4 @@ bazel-out
 /packages/*/bazel-*
 node_modules
 !/third_party/npm/node_modules
+yarn-error.log

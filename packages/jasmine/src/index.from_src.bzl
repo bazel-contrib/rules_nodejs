@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-""" Defaults for usage without @npm//@bazel/jasmine
+"""Defaults for usage without @npm//@bazel/jasmine
 """
 
 load(":index.bzl", _jasmine_node_test = "jasmine_node_test")
 
 def jasmine_node_test(
         deps = [],
-        jasmine_deps = ["@npm//jasmine", "@npm//jasmine-core", "@npm//v8-coverage"],
+        jasmine_deps = ["@npm//jasmine", "@npm//jasmine-core", "@npm//jasmine-reporters", "@npm//v8-coverage"],
         **kwargs):
     _jasmine_node_test(
         # When there is no @npm//@bazel/jasmine package we use @npm_bazel_jasmine instead.

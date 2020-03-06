@@ -8,13 +8,27 @@ filegroup(
         "//:node_modules/unidiff/LICENSE",
         "//:node_modules/unidiff/hunk.js",
         "//:node_modules/unidiff/package.json",
-        "//:node_modules/unidiff/readme.md",
         "//:node_modules/unidiff/test/example.js",
         "//:node_modules/unidiff/test/table.js",
         "//:node_modules/unidiff/test/test_hunk.js",
         "//:node_modules/unidiff/test/test_unidiff.js",
         "//:node_modules/unidiff/unidiff.js",
     ],
+)
+filegroup(
+    name = "unidiff__nested_node_modules",
+    visibility = ["//:__subpackages__"],
+)
+filegroup(
+    name = "unidiff__not_files",
+    srcs = [
+        "//:node_modules/unidiff/readme.md",
+    ],
+    visibility = ["//visibility:private"],
+)
+filegroup(
+    name = "unidiff__all_files",
+    srcs = [":unidiff__files", ":unidiff__not_files"],
 )
 node_module_library(
     name = "unidiff",
@@ -26,7 +40,8 @@ node_module_library(
 )
 node_module_library(
     name = "unidiff__contents",
-    srcs = [":unidiff__files"],
+    srcs = [":unidiff__files", ":unidiff__nested_node_modules"],
+    visibility = ["//:__subpackages__"],
 )
 node_module_library(
     name = "unidiff__typings",

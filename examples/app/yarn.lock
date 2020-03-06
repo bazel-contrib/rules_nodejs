@@ -2,32 +2,25 @@
 # yarn lockfile v1
 
 
-"@bazel/hide-bazel-files@^0.38.0":
-  version "0.38.3"
-  resolved "https://registry.yarnpkg.com/@bazel/hide-bazel-files/-/hide-bazel-files-0.38.3.tgz#e98231d3d360d51860d9c1a7c3345b40dab4cf81"
-  integrity sha512-o+dNkfDm3qxWQ8h/04cWuTcjR7qnjZi3pQGv4aklVb16oPWx2jF8BzbkwvWuIkdbOl9VnqYP0vaHzwQVJRRcIA==
+"@bazel/protractor@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-1.4.0.tgz#577bc7243d88b58fc4733e39b233f38ee97eeebb"
+  integrity sha512-flAzhCAfkVjOQQT1JOLvUz5PBiNKgg8/4jMUw90ZcOSj8u6mOSrR0Fh7LT7V+Rc3VLrH+uNaP9Iq31gjEKxl6A==
 
-"@bazel/protractor@^0.38.0":
-  version "0.38.3"
-  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-0.38.3.tgz#e9599271e87527378e56d97de960919f72256746"
-  integrity sha512-vs5Zi9Gw3FZ0OnmdJxDzOZJaA2Aeqq3GcAvK8jlQ6fzVc9w8TP6BmAhraOHJYFPj5rMz2fQF/e3Ovrtn4KA3Zw==
-  dependencies:
-    protractor "^5.4.2"
+"@bazel/rollup@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@bazel/rollup/-/rollup-1.4.0.tgz#30acc9cfb0b3f91a225ec7c20ac09c4254c28da1"
+  integrity sha512-K8uRTKUaK+PacZW9c3ZWE06i9tyRcpO7bYq01yVSeMcgeZ+erHyMrlvH+bF8HHvSASPcMTgGI+KmDnAMX2OUMg==
 
-"@bazel/rollup@^0.38.0":
-  version "0.38.3"
-  resolved "https://registry.yarnpkg.com/@bazel/rollup/-/rollup-0.38.3.tgz#ccf407fbe906333cecfcf28da4f4a3c4228eff7d"
-  integrity sha512-rColSiacPOZLgL/nwsKHIi2ZQ7RPwqGLHFEY959yeKIMp39oUlEuf6ZzNRuSnjCoqgwsFeanodplsWdvsPdxTg==
+"@bazel/terser@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@bazel/terser/-/terser-1.4.0.tgz#cfbf0f317818c2f9e2d51de9d52271318e9a8159"
+  integrity sha512-4mZr7QAuFJPY//A/Mox/kMLxabDM6PEXyGG8AyDo736SRCl0EE8H5tGwzWzgTXZU/oWrPxl+vBzBioQlNxoVUQ==
 
-"@bazel/terser@^0.38.0":
-  version "0.38.3"
-  resolved "https://registry.yarnpkg.com/@bazel/terser/-/terser-0.38.3.tgz#bd1077284745a3e1363dd535daa2777e5e901b14"
-  integrity sha512-vYxAlO7Y7QWP0JILnpfPRh2UEDLS7dvH4AvYmSKxr0PaDhjJGJGZDD/8dBRDou2LxNnMMLG4lH4e0xCVkShhVA==
-
-"@bazel/typescript@^0.38.0":
-  version "0.38.3"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-0.38.3.tgz#0e452413ca81fc9429404ceabf60ebfb4f13474a"
-  integrity sha512-sFPYNDEE5h/k+Arop3q8XWaqoTwSy0IUS0a/YSeLhR/yz7pNmOltjPyeseLmo004BhgH7X4X+LjUQjcgv7lpXw==
+"@bazel/typescript@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-1.4.0.tgz#8a86c3c58c3ebe17ccb2f71b35720457f4bc434a"
+  integrity sha512-VFUCAyGXMZDx/ZyZ8YUj5rn/Rg9xSxoZxcqxJ457YxMzWGISKpNyzgUty9J/ZVcPg1xKKoISSvcjQWFtWOwX2A==
   dependencies:
     protobufjs "6.8.8"
     semver "5.6.0"
@@ -591,6 +584,14 @@ he@^1.1.1:
   resolved "https://registry.yarnpkg.com/he/-/he-1.2.0.tgz#84ae65fa7eafb165fddb61566ae14baf05664f0f"
   integrity sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==
 
+html-insert-assets@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/html-insert-assets/-/html-insert-assets-0.5.0.tgz#c9bed8f04689c9aad3f2be26077a9e05e678dee5"
+  integrity sha512-HFvbKEkQOUZZkYLOAcMJKxpT7U16wPhIsnHAY1XXtTWR4urusQeRFgkONw3HdAQbKPtONOldq/Nse9KEZyYuqQ==
+  dependencies:
+    mkdirp "^0.5.1"
+    parse5 "^5.1.1"
+
 http-proxy@^1.8.1:
   version "1.18.0"
   resolved "https://registry.yarnpkg.com/http-proxy/-/http-proxy-1.18.0.tgz#dbe55f63e75a347db7f3d99974f2692a314a6a3a"
@@ -843,7 +844,7 @@ minimist@~0.0.1:
   resolved "https://registry.yarnpkg.com/minimist/-/minimist-0.0.10.tgz#de3f98543dbf96082be48ad1a0c7cda836301dcf"
   integrity sha1-3j+YVD2/lggr5IrRoMfNqDYwHc8=
 
-mkdirp@0.5.x, mkdirp@^0.5.0, mkdirp@~0.5.x:
+mkdirp@0.5.x, mkdirp@^0.5.0, mkdirp@^0.5.1, mkdirp@~0.5.x:
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-0.5.1.tgz#30057438eac6cf7f8c4767f38648d6697d75c903"
   integrity sha1-MAV0OOrGz3+MR2fzhkjWaX11yQM=
@@ -917,6 +918,11 @@ pako@~1.0.2:
   version "1.0.10"
   resolved "https://registry.yarnpkg.com/pako/-/pako-1.0.10.tgz#4328badb5086a426aa90f541977d4955da5c9732"
   integrity sha512-0DTvPVU3ed8+HNXOu5Bs+o//Mbdj9VNQMUOe9oKCwh8l0GNwpTDMKCWbRjgtD291AWnkAgkqA/LOnQS8AmS1tw==
+
+parse5@^5.1.1:
+  version "5.1.1"
+  resolved "https://registry.yarnpkg.com/parse5/-/parse5-5.1.1.tgz#f68e4e5ba1852ac2cadc00f4555fff6c2abb6178"
+  integrity sha512-ugq4DFI0Ptb+WWjAdOK16+u/nHfiIrcE+sh8kZMaM0WllQKLI9rOUq6c2b7cwPkXdzfQESqvoqK6ug7U/Yyzug==
 
 path-is-absolute@^1.0.0:
   version "1.0.1"

@@ -1,7 +1,7 @@
 # Add rules here to build your software
 # See https://docs.bazel.build/versions/master/build-ref.html#BUILD_files
 
-load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_package")
+load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin", "pkg_web")
 load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kt_js_import", "kt_js_library")
 load("@npm//http-server:index.bzl", "http_server")
 load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
@@ -22,20 +22,19 @@ kt_js_library(
     deps = [":kotlinx-html-js"],
 )
 
-# Copy boostrap.js to the bin folder as _bootstrap.js
-# so that relative import to `./hello.js` is valid
-genrule(
+# Copy bootstrap.js to the output folder, so all files are next to each other at runtime
+# Allows the `./hello.js` relative import to work while referencing an output file
+copy_to_bin(
     name = "bootstrap",
     srcs = ["bootstrap.js"],
-    outs = ["_bootstrap.js"],
-    cmd = "cp $< $@",
 )
 
 rollup_bundle(
     name = "bundle",
     srcs = ["hello.js"],
     config_file = "rollup.config.js",
-    entry_point = "_bootstrap.js",
+    # Reference the copy of bootstrap.js in the output folder
+    entry_point = "bootstrap",
     # TODO: make this example work with format = "esm"
     format = "cjs",
     output_dir = True,
@@ -48,14 +47,17 @@ rollup_bundle(
 )
 
 terser_minified(
+    # This will output bundle.min directory since rollup produces a directory
     name = "bundle.min",
     src = ":bundle",
 )
 
-web_package(
+pkg_web(
     name = "package",
-    data = [":bundle.min"],
-    index_html = "index.html",
+    srcs = [
+        "bundle.min",
+        "index.html",
+    ],
 )
 
 # TODO: fix prodserver; require.js is needed if rollup_bundle output is cjs

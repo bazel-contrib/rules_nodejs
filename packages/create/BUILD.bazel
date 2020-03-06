@@ -1,14 +1,20 @@
-load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "nodejs_test", "npm_package")
+load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "nodejs_test", "pkg_npm")
+load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
 
 # Copy common bazelrc file to be included in this package
-genrule(
+copy_file(
     name = "copy_bazelrc",
-    srcs = ["//:common.bazelrc"],
-    outs = ["common.bazelrc"],
-    cmd = "cp $< $@",
+    src = "//:common.bazelrc",
+    out = "common.bazelrc",
 )
 
-npm_package(
+copy_file(
+    name = "copy_bazelversion",
+    src = "//:.bazelversion",
+    out = ".bazelversion",
+)
+
+pkg_npm(
     name = "npm_package",
     srcs = [
         "README.md",
@@ -17,6 +23,7 @@ npm_package(
     ],
     deps = [
         ":copy_bazelrc",
+        ":copy_bazelversion",
     ],
 )
 

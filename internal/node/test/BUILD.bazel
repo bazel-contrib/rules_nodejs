@@ -1,10 +1,10 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "nodejs_test", "npm_package_bin")
+load("@build_bazel_rules_nodejs//internal/golden_file_test:golden_file_test.bzl", "golden_file_test")
 load("//internal/js_library:js_library.bzl", "js_library")
+load("//internal/node:node_repositories.bzl", "BUILT_IN_NODE_PLATFORMS")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/write_file.bzl", "write_file")
-load(":nodejs_toolchain_test.bzl", "nodejs_binary_test_suite")
-
-nodejs_binary_test_suite()
+load(":nodejs_toolchain_test.bzl", "nodejs_toolchain_test")
 
 # You can have a nodejs_binary with no node_modules attribute
 # and no fine grained deps
@@ -56,12 +56,10 @@ nodejs_binary(
     entry_point = ":entry_file",
 )
 
-# Coverage for issue https://github.com/bazelbuild/rules_nodejs/issues/834
-# where module_name is equal to the workspace naem
 js_library(
     name = "module_name_lib",
     srcs = ["module-name.js"],
-    module_name = "build_bazel_rules_nodejs",
+    module_name = "build_bazel_rules_nodejs/internal/node/test",
 )
 
 nodejs_binary(
@@ -72,7 +70,10 @@ nodejs_binary(
 
 nodejs_test(
     name = "define_var",
-    configuration_env_vars = ["SOME_TEST_ENV"],
+    configuration_env_vars = [
+        "SOME_TEST_ENV",
+        "SOME_OTHER_ENV",
+    ],
     data = glob(["*.spec.js"]),
     entry_point = ":define.spec.js",
 )
@@ -100,6 +101,75 @@ nodejs_test(
     entry_point = ":data_resolution.spec.js",
 )
 
+nodejs_test(
+    name = "bootstrap_test",
+    data = [
+        "bootstrap.js",
+        "@npm//tmp",
+    ],
+    entry_point = ":bootstrap.spec.js",
+    templated_args = ["--node_options=--require=$(rlocation $(location :bootstrap.js))"],
+)
+
+nodejs_test(
+    name = "bootstrap_patch_test",
+    data = ["bootstrap_with_patch.js"],
+    entry_point = ":bootstrap.spec.js",
+    templated_args = ["--node_options=--require=$(rlocation $(location :bootstrap_with_patch.js))"],
+)
+
+# Special case when $(location) is for a root file
+nodejs_test(
+    name = "bootstrap_root_test",
+    data = ["//:bootstrap.js"],
+    entry_point = ":bootstrap.spec.js",
+    templated_args = ["--node_options=--require=$(rlocation $(location //:bootstrap.js))"],
+)
+
+nodejs_test(
+    name = "bootstraps_test",
+    data = [
+        "bootstrap1.js",
+        "bootstrap2.js",
+    ],
+    entry_point = ":bootstraps.spec.js",
+    templated_args = [
+        "--node_options=--require=$(rlocation $(location :bootstrap1.js))",
+        "--node_options=--require=$(rlocation $(location :bootstrap2.js))",
+    ],
+)
+
+nodejs_test(
+    name = "bootstrap_mlocation_test",
+    data = [
+        "bootstrap.js",
+        "@npm//tmp",
+    ],
+    entry_point = ":bootstrap.spec.js",
+    templated_args = ["--node_options=--require=$(rlocation $(mlocation :bootstrap.js))"],
+)
+
+# Special case when $(location) is for a root file
+nodejs_test(
+    name = "bootstrap_mlocation_root_test",
+    data = ["//:bootstrap.js"],
+    entry_point = ":bootstrap.spec.js",
+    templated_args = ["--node_options=--require=$(rlocation $(mlocation //:bootstrap.js))"],
+)
+
+nodejs_test(
+    name = "bootstraps_mlocation_test",
+    data = [
+        "bootstrap1.js",
+        "bootstrap2.js",
+    ],
+    entry_point = ":bootstraps.spec.js",
+    templated_args = [
+        "--node_options=--require=$(rlocation $(mlocation :bootstrap1.js))",
+        "--node_options=--require=$(rlocation $(mlocation :bootstrap2.js))",
+    ],
+)
+
 # Also test resolution from built files.
 copy_file(
     name = "module_resolution_lib",
@@ -114,7 +184,7 @@ copy_file(
 )
 
 # This rule creates a file that alphabetically comes before any source file in this
-# package. This genfile can be then set up as runfile to verify that the "node_loader.js"
+# package. This genfile can be then set up as runfile to verify that the "loader.js"
 # properly determines the local workspace path without incorrectly using the genfile as base
 # for the local workspace path. See: https://github.com/bazelbuild/rules_nodejs/issues/352
 write_file(
@@ -150,9 +220,9 @@ npm_package_bin(
     name = "run_terser",
     outs = ["minified.js"],
     args = [
-        "$(location terser_input.js)",
+        "$(execpath terser_input.js)",
         "--output",
-        "$(location minified.js)",
+        "$@",
     ],
     data = ["terser_input.js"],
     package = "terser",
@@ -167,8 +237,8 @@ npm_package_bin(
     name = "dir_output",
     args = [
         "--output-dir",
-        "$@",
-        "$(location terser_input.js)",
+        "$(@D)",
+        "$(execpath terser_input.js)",
     ],
     data = ["terser_input.js"],
     output_dir = True,
@@ -182,4 +252,93 @@ nodejs_test(
         "minified.js",
     ],
     entry_point = "npm_package_bin.spec.js",
+)
+
+[nodejs_toolchain_test(
+    name = "nodejs_toolchain_%s_test" % platform,
+    platform = platform,
+    # must be run with --platforms=@build_bazel_rules_nodejs//toolchains/node:PLATFORM
+    # where PLATFORM is one of BUILT_IN_NODE_PLATFORMS
+    tags = ["manual"],
+) for platform in BUILT_IN_NODE_PLATFORMS]
+
+nodejs_binary(
+    name = "expand_variables",
+    entry_point = "expand_variables.js",
+)
+
+npm_package_bin(
+    name = "expand_variables_ouput",
+    outs = ["expand_variables.out"],
+    args = [
+        "$@",
+        "$(SOME_TEST_ENV)",
+    ],
+    configuration_env_vars = ["SOME_OTHER_ENV"],
+    tool = ":expand_variables",
+)
+
+golden_file_test(
+    name = "expand_variables_test",
+    actual = ":expand_variables.out",
+    golden = "expand_variables.golden",
+)
+
+nodejs_binary(
+    name = "test_runfiles_helper",
+    data = [":test_runfiles_helper.golden"],
+    entry_point = "test_runfiles_helper.js",
+)
+
+npm_package_bin(
+    name = "test_runfiles_helper_ouput",
+    outs = ["test_runfiles_helper.out"],
+    args = ["$@"],
+    tool = ":test_runfiles_helper",
+)
+
+golden_file_test(
+    name = "test_runfiles_helper_test",
+    actual = ":test_runfiles_helper.out",
+    golden = "test_runfiles_helper.golden",
+)
+
+nodejs_test(
+    name = "fail_test",
+    entry_point = "fail.spec.js",
+    expected_exit_code = 55,
+)
+
+nodejs_test(
+    name = "fail_bootstrap_fail_test",
+    data = ["bootstrap_fail.js"],
+    entry_point = "fail.spec.js",
+    expected_exit_code = 33,
+    templated_args = ["--node_options=--require=$(rlocation $(location :bootstrap_fail.js))"],
+)
+
+nodejs_test(
+    name = "fail_bootstrap_test",
+    data = [
+        "bootstrap.js",
+        "@npm//tmp",
+    ],
+    entry_point = "fail.spec.js",
+    expected_exit_code = 55,
+    templated_args = ["--node_options=--require=$(rlocation $(location :bootstrap.js))"],
+)
+
+nodejs_test(
+    name = "fail_bootstrap_with_patch_test",
+    data = ["bootstrap_with_patch.js"],
+    entry_point = "fail.spec.js",
+    expected_exit_code = 55,
+    templated_args = ["--node_options=--require=$(rlocation $(location :bootstrap_with_patch.js))"],
+)
+
+nodejs_test(
+    name = "binary_with_no_arguments",
+    data = ["empty_args_fail.js"],
+    entry_point = "empty_args_fail.js",
+    expected_exit_code = 0,
 )

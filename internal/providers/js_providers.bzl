@@ -29,8 +29,8 @@ subscribes to these by having a (possibly transitive) dependency on the publishe
 Debug output is considered orthogonal to these providers.
 Any output may or may not have user debugging affordances provided, such as
 readable minification.
-We expect that rules will have a boolean `debug` attribute, and/or accept the `DEBUG`
-environment variable.
+We expect that rules will have a boolean `debug` attribute, and/or accept the
+`COMPILATION_MODE` environment variable.
 Note that this means a given build either produces debug or non-debug output.
 If users really need to produce both in a single build, they'll need two rules with
 differing 'debug' attributes.
@@ -95,10 +95,3 @@ Returns a single JSEcmaScriptModuleInfo.
         direct_sources = sources,
         sources = depset(transitive = transitive_depsets),
     )
-
-def transitive_js_ecma_script_module_info(**kwargs):
-    """Alias of js_ecma_script_module_info.
-
-TODO(gregmagolan): Remove this alias before 1.0 release.
-"""
-    return js_ecma_script_module_info(**kwargs)

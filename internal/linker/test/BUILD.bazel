@@ -15,6 +15,6 @@ jasmine_node_test(
     name = "unit_tests",
     srcs = ["test_lib"],
     # NB: for better dev round-trip, we test against the ts_library target
-    # rather than update the index.js it's transpiled from.
+    # rather than update the index.js it's transpiled to.
     data = ["//internal/linker:linker_lib"],
 )

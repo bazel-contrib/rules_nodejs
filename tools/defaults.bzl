@@ -7,25 +7,37 @@ load(
     "@build_bazel_rules_nodejs//:index.bzl",
     _COMMON_REPLACEMENTS = "COMMON_REPLACEMENTS",
     _nodejs_test = "nodejs_test",
-    _npm_package = "npm_package",
+    _pkg_npm = "pkg_npm",
 )
 load("@rules_codeowners//tools:codeowners.bzl", _codeowners = "codeowners")
+load("@rules_pkg//:pkg.bzl", _pkg_tar = "pkg_tar")
+load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
 
 nodejs_test = _nodejs_test
+pkg_tar = _pkg_tar
 
-def npm_package(**kwargs):
-    "Set some defaults for the npm_package rule"
+def pkg_npm(**kwargs):
+    "Set some defaults for the pkg_npm rule"
 
     # Every package should have a copy of the root LICENSE file
-    native.genrule(
+    copy_file(
         name = "copy_LICENSE",
-        srcs = ["@build_bazel_rules_nodejs//:LICENSE"],
-        outs = ["LICENSE"],
-        cmd = "cp $< $@",
+        src = "@build_bazel_rules_nodejs//:LICENSE",
+        out = "LICENSE",
     )
 
-    deps = kwargs.pop("deps", [])
-    deps.append(":copy_LICENSE")
+    deps = [":copy_LICENSE"] + kwargs.pop("deps", [])
+    build_file_content = kwargs.pop("build_file_content", None)
+    if build_file_content:
+        native.genrule(
+            name = "generate_BUILD",
+            srcs = [],
+            outs = ["_BUILD.bazel"],
+            cmd = """echo '%s' >$@""" % build_file_content,
+        )
+
+        # deps.append() doesn't work here with deps = select({...}) passed in
+        deps = deps + [":generate_BUILD"]
 
     # Make every package visible to tests
     visibility = kwargs.pop("visibility", [
@@ -33,18 +45,20 @@ def npm_package(**kwargs):
         "//examples:__pkg__",
     ])
 
-    # Default replacements to scrub things like skylib references
-    replacements = kwargs.pop("replacements", _COMMON_REPLACEMENTS)
+    # Default substitutions to scrub things like skylib references
+    substitutions = kwargs.pop("substitutions", _COMMON_REPLACEMENTS)
 
     # Finally call through to the rule with our defaults set
-    _npm_package(
+    _pkg_npm(
         deps = deps,
-        replacements = replacements,
+        substitutions = substitutions,
         visibility = visibility,
         **kwargs
     )
 
-_GLOBAL_OWNERS = "@alexeagle"
+_GLOBAL_OWNERS = [
+    "@alexeagle",
+]
 
 def codeowners(name = "OWNERS", no_parent = False, **kwargs):
     """Convenience macro to set some defaults
@@ -62,7 +76,7 @@ def codeowners(name = "OWNERS", no_parent = False, **kwargs):
 
     # Googlers: see http://go/owners#noparent
     if not no_parent:
-        teams.append(_GLOBAL_OWNERS)
+        teams += [owner for owner in _GLOBAL_OWNERS if owner not in teams]
 
     _codeowners(
         name = name,

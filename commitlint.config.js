@@ -20,6 +20,7 @@ module.exports = {
         'terser',
         'typescript',
         'worker',
+        'docs',
       ]
     ]
   }

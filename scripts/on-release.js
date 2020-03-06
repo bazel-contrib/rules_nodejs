@@ -17,7 +17,7 @@ for (const f of ['docs/install.md', 'packages/create/index.js']) {
       `download/${version}/rules_nodejs-${version}.tar.gz`, f);
   shell.sed('-i', 'sha256 = \"[0-9a-f]+\"', `sha256 = "${sha256}"`, f);
 }
-shell.cp(artifact, `rules_nodejs-${version}.tar.gz`);
+shell.cp('-f', artifact, `rules_nodejs-${version}.tar.gz`);
 
 /**
  * Returns an array of all WORKSPACE the files under a directory.
