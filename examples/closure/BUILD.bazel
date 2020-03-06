@@ -74,8 +74,6 @@ google_closure_compiler(
         "--js_output_file=$@",
         "--dependency_mode=STRICT",
         "--entry_point=$(execpath hello.js)",
-        "--entry_point=$(execpath index.soy.js)",
-        # "--entry_point=$(execpath index.soy_idom.js)",
     ] + ["--js=$(execpath %s)" % s for s in _CLOSURE_LIB_DEPS],
     data = [
         "hello.js",

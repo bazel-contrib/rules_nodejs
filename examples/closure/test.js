@@ -4,14 +4,13 @@ const closureOutput = runfiles.resolve('examples_closure/bundle.js');
 
 // Assert that it's minified
 require('fs').readFile(closureOutput, 'utf-8', (err, content) => {
-  if (content.trim().split(/\r?\n/).length > 1) {
-    console.error('Bundle is more than one line');
-    console.error(content);
+  if (err) {
+    console.error(err);
     process.exitCode = 1;
   }
 });
 
-// Assert that the code works
+// Assert that the code works.
 let alerted;
 global.alert = function(s) {
   alerted = s;

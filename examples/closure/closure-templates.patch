@@ -1,5 +1,18 @@
+diff --git a/api_idom.js b/api_idom.js
+index e30a5b2..a68437a 100755
+--- a/api_idom.js
++++ b/api_idom.js
+@@ -5,7 +5,7 @@
+  */
+ goog.module('google3.javascript.template.soy.api_idom');
+ var module = module || { id: 'javascript/template/soy/api_idom.js' };
+-var tslib_1 = goog.require('google3.third_party.javascript.tslib.tslib_closure');
++var tslib_1 = require("tslib"); // goog.require('google3.third_party.javascript.tslib.tslib_closure');
+ var tsickle_module_1_ = goog.require('soy.velog'); // from //javascript/template/soy:soyutils_velog
+ var goog_soy_velog_1 = tsickle_module_1_; // from //javascript/template/soy:soyutils_velog
+ var incrementaldom = goog.require('google3.third_party.javascript.incremental_dom.index'); // from //third_party/javascript/incremental_dom:incrementaldom
 diff --git a/shim.js b/shim.js
-index 9ab438ec..cd2681b6 100644
+index 9ab438e..cd2681b 100755
 --- a/shim.js
 +++ b/shim.js
 @@ -4,6 +4,6 @@
@@ -10,8 +23,21 @@ index 9ab438ec..cd2681b6 100644
 +const incrementaldom = /* @type {?} */(window.incrementaldom.types);//goog.require('incrementaldom');
  
  exports = incrementaldom;
+diff --git a/soyutils_idom.js b/soyutils_idom.js
+index 7be02da..08f9377 100755
+--- a/soyutils_idom.js
++++ b/soyutils_idom.js
+@@ -16,7 +16,7 @@
+  */
+ goog.module('google3.javascript.template.soy.soyutils_idom');
+ var module = module || { id: 'javascript/template/soy/soyutils_idom.js' };
+-var tslib_1 = goog.require('google3.third_party.javascript.tslib.tslib_closure');
++var tslib_1 = require("tslib"); // goog.require('google3.third_party.javascript.tslib.tslib_closure');
+ var googSoy = goog.require('goog.soy'); // from //javascript/closure/soy
+ var goog_goog_soy_data_SanitizedContent_1 = goog.require('goog.soy.data.SanitizedContent');  // from //javascript/closure/soy:data
+ var goog_goog_soy_data_SanitizedContentKind_1 = goog.require('goog.soy.data.SanitizedContentKind'); // from //javascript/closure/soy:data
 diff --git a/soyutils_velog.js b/soyutils_velog.js
-index 3d63b079..792d91cf 100644
+index 3d63b07..792d91c 100755
 --- a/soyutils_velog.js
 +++ b/soyutils_velog.js
 @@ -28,7 +28,7 @@
@@ -24,7 +50,7 @@ index 3d63b079..792d91cf 100644
  const {startsWith} = goog.require('goog.string');
  
 diff --git a/types.js b/types.js
-index ae1ff90b..e34e7211 100644
+index ae1ff90..e34e721 100755
 --- a/types.js
 +++ b/types.js
 @@ -4,6 +4,6 @@
