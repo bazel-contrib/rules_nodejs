@@ -1,3 +1,11 @@
+## [1.4.1](https://github.com/bazelbuild/rules_nodejs/compare/1.4.0...1.4.1) (2020-03-06)
+
+### Bug Fixes
+
+* **builtin:** Bazel build failing when project is not on the system drive on Windows (C:) ([#1641](https://github.com/bazelbuild/rules_nodejs/issues/1641)) ([d9cbb99f](https://github.com/bazelbuild/rules_nodejs/commit/d9cbb99f)
+* **windows_utils:** Escaping \ and " before passing args to bash scrip… ([#1685](https://github.com/bazelbuild/rules_nodejs/pull/1685)) ([f9be953d](https://github.com/bazelbuild/rules_nodejs/commit/f9be953d)
+
+
 # [1.4.0](https://github.com/bazelbuild/rules_nodejs/compare/1.3.0...1.4.0) (2020-03-02)
 
 
