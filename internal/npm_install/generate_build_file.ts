@@ -482,7 +482,11 @@ function findPackages(p = 'node_modules') {
     // root of the external repository, and won't see BUILD files under node_modules
     // This parsing of the version number isn't accurate in some cases
     // (eg. install bazel from commit hash)
-    if (BAZEL_VERSION.startsWith('2.1')) hide = false;
+    // Do a cheap semver check that the major version is at least 2.1
+    // (we don't want to depend on a third-party library like semver here)
+    if (Number(BAZEL_VERSION.split('.')[0]) >= 2 && !BAZEL_VERSION.startsWith('2.0')) {
+      hide = false;
+    }
     if (fs.lstatSync(f).isSymbolicLink()) {
       hide = false;
     }
