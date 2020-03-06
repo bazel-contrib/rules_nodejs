@@ -1,5 +1,5 @@
 load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
-load("@npm_bazel_labs//:index.bzl", "ts_proto_library")
+load("@npm_bazel_labs//:index.bzl", "protobufjs_ts_library")
 load("@npm_bazel_typescript//:index.from_src.bzl", "ts_library")
 load("@rules_proto//proto:defs.bzl", "proto_library")
 
@@ -17,7 +17,7 @@ proto_library(
     srcs = [":test.proto"],
 )
 
-ts_proto_library(
+protobufjs_ts_library(
     name = "test_ts_proto",
     deps = [":test_proto"],
 )

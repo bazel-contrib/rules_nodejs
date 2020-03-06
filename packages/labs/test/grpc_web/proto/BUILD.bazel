@@ -1,0 +1,33 @@
+load("@rules_proto//proto:defs.bzl", "proto_library")
+
+package(default_visibility = ["//:__subpackages__"])
+
+load("@npm_bazel_labs//:index.bzl", "ts_proto_library")
+
+proto_library(
+    name = "naming_styles_proto",
+    srcs = [
+        "naming_styles.proto",
+    ],
+)
+
+ts_proto_library(
+    name = "naming_styles_ts_proto",
+    proto = ":naming_styles_proto",
+)
+
+proto_library(
+    name = "pizza_service_proto",
+    srcs = [
+        "pizza_service.proto",
+    ],
+    deps = [
+        "//packages/labs/test/grpc_web/proto/common:delivery_person_proto",
+        "//packages/labs/test/grpc_web/proto/common:pizza_proto",
+    ],
+)
+
+ts_proto_library(
+    name = "pizza_service_ts_proto",
+    proto = ":pizza_service_proto",
+)

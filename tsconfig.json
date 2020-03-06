@@ -2,6 +2,7 @@
     "compilerOptions": {
         "lib": ["es2017", "dom"],
         "strict": true,
-        "target": "es2015"
+        "baseUrl": ".",
+        "target": "es2015",
     }
 }

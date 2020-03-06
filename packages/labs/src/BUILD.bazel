@@ -17,14 +17,13 @@
 # The generated `@bazel/labs` npm package contains a trimmed BUILD file using INTERNAL fences.
 package(default_visibility = ["//visibility:public"])
 
-exports_files(["tsconfig.json"])
-
 filegroup(
     name = "package_contents",
     srcs = glob(["*.bzl"]) + [
         "BUILD.bazel",
         "README.md",
         "package.json",
+        "//grpc_web:package_contents",
         "//protobufjs:package_contents",
     ],
 )
