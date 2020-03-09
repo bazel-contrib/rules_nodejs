@@ -233,7 +233,7 @@ def _npm_install_impl(repository_ctx):
             content = """#!/usr/bin/env bash
 # Immediately exit if any command fails.
 set -e
-(cd "{root}"; "{npm}" {npm_args})
+(cd "{root}"; "{npm}" {npm_args}) 1>&2
 """.format(
                 root = root,
                 npm = repository_ctx.path(npm),
@@ -245,7 +245,7 @@ set -e
         repository_ctx.file(
             "_npm.cmd",
             content = """@echo off
-cd /D "{root}" && "{npm}" {npm_args}
+cd /D "{root}" && "{npm}" {npm_args} 1>&2
 """.format(
                 root = root,
                 npm = repository_ctx.path(npm),
@@ -369,7 +369,7 @@ def _yarn_install_impl(repository_ctx):
 # Immediately exit if any command fails.
 set -e
 unset YARN_IGNORE_PATH
-(cd "{root}"; "{yarn}" {yarn_args})
+(cd "{root}"; "{yarn}" {yarn_args} 1>&2)
 """.format(
                 root = root,
                 yarn = repository_ctx.path(yarn),
@@ -382,7 +382,7 @@ unset YARN_IGNORE_PATH
             "_yarn.cmd",
             content = """@echo off
 set "YARN_IGNORE_PATH="
-cd /D "{root}" && "{yarn}" {yarn_args}
+cd /D "{root}" && "{yarn}" {yarn_args} 1>&2
 """.format(
                 root = root,
                 yarn = repository_ctx.path(yarn),
