@@ -233,7 +233,7 @@ def _npm_install_impl(repository_ctx):
             content = """#!/usr/bin/env bash
 # Immediately exit if any command fails.
 set -e
-(cd "{root}"; "{npm}" {npm_args}) 1>&2
+(cd "{root}"; "{npm}" {npm_args} 1>&2)
 """.format(
                 root = root,
                 npm = repository_ctx.path(npm),
