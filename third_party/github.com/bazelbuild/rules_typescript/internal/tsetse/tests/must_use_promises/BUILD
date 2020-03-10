@@ -14,6 +14,7 @@
 
 load("@npm_bazel_typescript//:index.bzl", "ts_library")
 
+
 licenses(["notice"])  # Apache 2.0
 
 error_message = "TS21225: All Promises in async functions must either be awaited or used in an expression."
@@ -25,11 +26,11 @@ ts_library(
         "positives.ts",
     ],
     expected_diagnostics = [
-        "\(29,3\)" + error_message,
-        "\(30,3\)" + error_message,
-        "\(31,3\)" + error_message,
-        "\(32,3\)" + error_message,
-        "\(34,3\)" + error_message,
+        "\\(29,3\\)" + error_message,
+        "\\(30,3\\)" + error_message,
+        "\\(31,3\\)" + error_message,
+        "\\(32,3\\)" + error_message,
+        "\\(34,3\\)" + error_message,
     ],
     tsconfig = "//internal:tsetse/tsconfig.json",
 )

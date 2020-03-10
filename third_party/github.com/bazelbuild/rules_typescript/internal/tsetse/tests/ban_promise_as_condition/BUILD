@@ -14,6 +14,7 @@
 
 load("@npm_bazel_typescript//:index.bzl", "ts_library")
 
+
 licenses(["notice"])  # Apache 2.0
 
 error_message = "error TS21226: Found a thenable.*"
@@ -25,16 +26,16 @@ ts_library(
         "positives.ts",
     ],
     expected_diagnostics = [
-        "\(7,7\).*" + error_message,
-        "\(15,7\).*" + error_message,
-        "\(23,19\).*" + error_message,
-        "\(25,10\).*" + error_message,
-        "\(30,34\).*" + error_message,
-        "\(31,34\).*" + error_message,
-        "\(37,19\).*" + error_message,
-        "\(39,10\).*" + error_message,
-        "\(44,34\).*" + error_message,
-        "\(45,34\).*" + error_message,
+        "\\(7,7\\).*" + error_message,
+        "\\(15,7\\).*" + error_message,
+        "\\(23,19\\).*" + error_message,
+        "\\(25,10\\).*" + error_message,
+        "\\(30,34\\).*" + error_message,
+        "\\(31,34\\).*" + error_message,
+        "\\(37,19\\).*" + error_message,
+        "\\(39,10\\).*" + error_message,
+        "\\(44,34\\).*" + error_message,
+        "\\(45,34\\).*" + error_message,
     ],
     tsconfig = "//internal:tsetse/tsconfig.json",
 )

@@ -14,6 +14,7 @@
 
 load("@npm_bazel_typescript//:index.bzl", "ts_library")
 
+
 licenses(["notice"])  # Apache 2.0
 
 error_message = "TS21222: return value is unused.\\n\\tSee http://tsetse.info/check-return-value"
@@ -30,11 +31,11 @@ ts_library(
     testonly = 1,
     srcs = ["expected_diagnostics.ts"],
     expected_diagnostics = [
-        "\(6,1\).*" + error_message,
-        "\(8,1\).*" + error_message,
-        "\(12,1\).*" + error_message,
-        "\(16,1\).*" + error_message,
-        "\(19,1\).*" + error_message,
+        "\\(6,1\\).*" + error_message,
+        "\\(8,1\\).*" + error_message,
+        "\\(12,1\\).*" + error_message,
+        "\\(16,1\\).*" + error_message,
+        "\\(19,1\\).*" + error_message,
     ],
     tsconfig = "//internal:tsetse/tsconfig.json",
 )
@@ -51,11 +52,11 @@ ts_library(
     testonly = 1,
     srcs = ["unused_return_value_user_defined_function.ts"],
     expected_diagnostics = [
-        "\(4,1\).*" + error_message,
-        "\(5,1\).*" + error_message,
-        "\(7,1\).*" + error_message,
-        "\(9,1\).*" + error_message,
-        "\(15,1\).*" + error_message,
+        "\\(4,1\\).*" + error_message,
+        "\\(5,1\\).*" + error_message,
+        "\\(7,1\\).*" + error_message,
+        "\\(9,1\\).*" + error_message,
+        "\\(15,1\\).*" + error_message,
     ],
     tsconfig = "//internal:tsetse/tsconfig.json",
     deps = [

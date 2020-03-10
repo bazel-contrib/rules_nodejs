@@ -14,6 +14,7 @@
 
 load("@npm_bazel_typescript//:index.bzl", "ts_library")
 
+
 licenses(["notice"])  # Apache 2.0
 
 ts_library(
@@ -23,13 +24,13 @@ ts_library(
         "positives.ts",
     ],
     expected_diagnostics = [
-        "\(2,19\): error TS21223: x === NaN is always false; use isNaN\(x\) instead",
-        "\(6,5\): error TS21223: x === NaN is always false; use isNaN\(x\) instead",
-        "\(7,5\): error TS21223: x == NaN is always false; use isNaN\(x\) instead",
-        "\(8,5\): error TS21223: x !== NaN is always true; use !isNaN\(x\) instead",
-        "\(9,5\): error TS21223: x != NaN is always true; use !isNaN\(x\) instead",
-        "\(11,1\): error TS21223: x === NaN is always false; use isNaN\(x\) instead",
-        "\(12,1\): error TS21223: x === NaN is always false; use isNaN\(x\) instead",
+        "\\(2,19\\): error TS21223: x === NaN is always false; use isNaN\\(x\\) instead",
+        "\\(6,5\\): error TS21223: x === NaN is always false; use isNaN\\(x\\) instead",
+        "\\(7,5\\): error TS21223: x == NaN is always false; use isNaN\\(x\\) instead",
+        "\\(8,5\\): error TS21223: x !== NaN is always true; use !isNaN\\(x\\) instead",
+        "\\(9,5\\): error TS21223: x != NaN is always true; use !isNaN\\(x\\) instead",
+        "\\(11,1\\): error TS21223: x === NaN is always false; use isNaN\\(x\\) instead",
+        "\\(12,1\\): error TS21223: x === NaN is always false; use isNaN\\(x\\) instead",
     ],
 )
 
