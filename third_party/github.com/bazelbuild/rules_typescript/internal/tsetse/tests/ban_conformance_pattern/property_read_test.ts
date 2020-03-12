@@ -75,28 +75,6 @@ describe('BANNED_PROPERTY_READ', () => {
       });
     });
   });
-
-  describe('advanced type property tests', () => {
-    const config = {
-      errorMessage: 'do not read window.location',
-      kind: PatternKind.BANNED_PROPERTY_READ,
-      // global variable `window` is of type `Window & typeof globalThis`,
-      // but we can only specify `Window` here. PropertyMatcher should be
-      // able to resolve intersection types by itself. See lib.dom.d.ts.
-      values: ['Window.prototype.location']
-    };
-    const rule = new ConformancePatternRule(config);
-
-    it('check property read from variable initializations', () => {
-      const source = 'var l = window.location;';
-      const results = compileAndCheck(rule, source);
-
-      expect(results).toHaveFailuresMatching({
-        matchedCode: 'var l = window.location;',
-        messageText: 'do not read window.location'
-      });
-    });
-  });
 });
 
 beforeEach(() => {
