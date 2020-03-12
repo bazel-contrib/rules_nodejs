@@ -10,6 +10,7 @@
     "@types/jasmine": "^3.5.0",
     "@types/superagent": "^4.1.4",
     "@types/supertest": "^2.0.8",
+    "jasmine": "^3.5.0",
     "minimist": "1.2.0",
     "reflect-metadata": "0.1.13",
     "rxjs": "6.5.2",

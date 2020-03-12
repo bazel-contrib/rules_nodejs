@@ -17,10 +17,15 @@
     ],
     "main": "index.js",
     "dependencies": {
-        "jasmine": "~3.5.0",
-        "jasmine-core": "~3.5.0",
         "jasmine-reporters": "~2.3.2",
         "c8": "~7.1.0"
+    },
+    "//1": "jasmine depends on jasmine-core, however since we require() it we need it hoisted to the top",
+    "//2": "so we include jasmine-core explicitly as a peerDep",
+    "//3": "version 2.99.0 is the lower bound only because that's what our e2e/jasmine test verifies",
+    "peerDependencies": {
+        "jasmine": ">=2.99.0",
+        "jasmine-core": ">=2.99.0"
     },
     "scripts": {
         "postinstall": "node npm_version_check.js"
