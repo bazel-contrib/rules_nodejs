@@ -223,6 +223,11 @@ export class PropertyMatcher {
     if (this.exactTypeMatches(inspectedType)) {
       return true;
     }
+    // If the type is an intersection/union, check if any of the component matches
+    if (inspectedType.isUnionOrIntersection()) {
+      return inspectedType.types.some(comp => this.typeMatches(comp));
+    }
+
     const baseTypes = inspectedType.getBaseTypes() || [];
     return baseTypes.some(base => this.exactTypeMatches(base));
   }
