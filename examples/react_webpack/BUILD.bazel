@@ -1,7 +1,7 @@
 load("@npm//http-server:index.bzl", "http_server")
 load("@npm//sass:index.bzl", "sass")
-load("@npm//typescript:index.bzl", "tsc")
 load("@npm//webpack-cli:index.bzl", webpack = "webpack_cli")
+load("@npm_bazel_typescript//:index.bzl", "ts_project")
 
 sass(
     name = "styles",
@@ -13,25 +13,27 @@ sass(
     data = ["styles.scss"],
 )
 
-tsc(
-    name = "compile",
-    outs = ["index.js"],
-    args = [
-        "$(execpath index.tsx)",
-        "$(execpath types.d.ts)",
-        "--outDir",
-        "$(RULEDIR)",
-        "--lib",
-        "es2015,dom",
-        "--jsx",
-        "react",
-    ],
-    data = [
+ts_project(
+    name = "tsconfig",
+    srcs = [
         "index.tsx",
         "types.d.ts",
+    ],
+    # The tsconfig.json file doesn't enable "declaration" or "composite"
+    # so tsc won't produce any .d.ts outputs. We need to tell Bazel not
+    # to expect those outputs being produced.
+    declaration = False,
+    deps = [
         "@npm//@types",
         "@npm//csstype",
     ],
+)
+
+# If you don't want to write //:tsconfig as the label for the TypeScript compilation,
+# use an alias like this, so you can write //:compile_ts instead.
+alias(
+    name = "compile_ts",
+    actual = "tsconfig",
 )
 
 webpack(

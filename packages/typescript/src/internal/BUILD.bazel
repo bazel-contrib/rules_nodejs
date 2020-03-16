@@ -47,6 +47,7 @@ filegroup(
     srcs = [
         "build_defs.bzl",
         "ts_config.bzl",
+        "ts_project.bzl",
         "ts_repositories.bzl",
         "//internal/devserver:package_contents",
     ],
