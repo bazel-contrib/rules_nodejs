@@ -26,7 +26,7 @@ _ATTRS = {
         doc = """Files which should be copied into the package""",
     ),
     "substitutions": attr.string_dict(
-        doc = """Key-value pairs which are replaced in all the files while building the package.""",
+        doc = """Key-value pairs are replaced in all files while building the package.""",
     ),
     "_assembler": attr.label(
         default = "@build_bazel_rules_nodejs//internal/pkg_web:assembler",
