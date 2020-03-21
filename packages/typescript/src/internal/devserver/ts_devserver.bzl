@@ -49,14 +49,7 @@ def _ts_devserver(ctx):
             node_modules_depsets.append(dep[NpmPackageInfo].sources)
     node_modules = depset(transitive = node_modules_depsets)
 
-    if ctx.label.workspace_root:
-        # We need the workspace_name for the target being visited.
-        # Skylark doesn't have this - instead they have a workspace_root
-        # which looks like "external/repo_name" - so grab the second path segment.
-        # TODO(alexeagle): investigate a better way to get the workspace name
-        workspace_name = ctx.label.workspace_root.split("/")[1]
-    else:
-        workspace_name = ctx.workspace_name
+    workspace_name = ctx.label.workspace_name if ctx.label.workspace_name else ctx.workspace_name
 
     # Create a manifest file with the sources in arbitrary order, and without
     # bazel-bin prefixes ("root-relative paths").

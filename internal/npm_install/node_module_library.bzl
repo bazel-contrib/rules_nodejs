@@ -18,7 +18,7 @@
 load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "NpmPackageInfo", "js_named_module_info")
 
 def _node_module_library_impl(ctx):
-    workspace = ctx.label.workspace_root.split("/")[1] if ctx.label.workspace_root else ctx.workspace_name
+    workspace_name = ctx.label.workspace_name if ctx.label.workspace_name else ctx.workspace_name
 
     direct_sources = depset(ctx.files.srcs)
     sources_depsets = [direct_sources]
@@ -64,7 +64,7 @@ def _node_module_library_impl(ctx):
             NpmPackageInfo(
                 direct_sources = direct_sources,
                 sources = depset(transitive = sources_depsets),
-                workspace = workspace,
+                workspace = workspace_name,
             ),
             DeclarationInfo(
                 declarations = declarations,
