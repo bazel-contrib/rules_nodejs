@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Update the owners=[] attribute in //.github:gen_codeowners
 
-BAZEL=./node_modules/.bin/bazel
+BAZEL=./node_modules/.bin/bazelisk
 BUILDOZER=./node_modules/.bin/buildozer
 
 readonly new_owners=$(
