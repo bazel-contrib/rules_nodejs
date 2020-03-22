@@ -130,14 +130,7 @@ module_mappings_aspect = aspect(
 # the runfiles directory. This requires the workspace_name to be prefixed on
 # each module root.
 def _module_mappings_runtime_aspect_impl(target, ctx):
-    if target.label.workspace_root:
-        # We need the workspace_name for the target being visited.
-        # Skylark doesn't have this - instead they have a workspace_root
-        # which looks like "external/repo_name" - so grab the second path segment.
-        # TODO(alexeagle): investigate a better way to get the workspace name
-        workspace_name = target.label.workspace_root.split("/")[1]
-    else:
-        workspace_name = ctx.workspace_name
+    workspace_name = target.label.workspace_name if target.label.workspace_name else ctx.workspace_name
     mappings = get_module_mappings(
         target.label,
         ctx.rule.attr,

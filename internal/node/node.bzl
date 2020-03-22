@@ -54,9 +54,9 @@ def _compute_node_modules_root(ctx):
             node_modules_root = "/".join([ctx.attr.node_modules[NpmPackageInfo].workspace, "node_modules"])
         elif ctx.files.node_modules:
             # ctx.files.node_modules is not an empty list
-            workspace = ctx.attr.node_modules.label.workspace_root.split("/")[1] if ctx.attr.node_modules.label.workspace_root else ctx.workspace_name
+            workspace_name = ctx.attr.node_modules.label.workspace_name if ctx.attr.node_modules.label.workspace_name else ctx.workspace_name
             node_modules_root = "/".join([f for f in [
-                workspace,
+                workspace_name,
                 _trim_package_node_modules(ctx.attr.node_modules.label.package),
                 "node_modules",
             ] if f])
@@ -70,9 +70,9 @@ def _compute_node_modules_root(ctx):
     if not node_modules_root:
         # there are no fine grained deps and the node_modules attribute is an empty filegroup
         # but we still need a node_modules_root even if its empty
-        workspace = ctx.attr.node_modules.label.workspace_root.split("/")[1] if ctx.attr.node_modules.label.workspace_root else ctx.workspace_name
+        workspace_name = ctx.attr.node_modules.label.workspace_name if ctx.attr.node_modules.label.workspace_name else ctx.workspace_name
         node_modules_root = "/".join([f for f in [
-            workspace,
+            workspace_name,
             ctx.attr.node_modules.label.package,
             "node_modules",
         ] if f])
