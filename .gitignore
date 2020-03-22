@@ -9,3 +9,4 @@ bazel-out
 node_modules
 !/third_party/npm/node_modules
 yarn-error.log
+internal/node/_node_bin
