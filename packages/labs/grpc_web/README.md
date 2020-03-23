@@ -40,6 +40,9 @@ proto_library(
 ts_proto_library(
   name = "test_ts_proto",
   proto = ":test_proto",
+  # grpc_wire_format can be set to either "text" (default) or "binary"
+  # see https://github.com/grpc/grpc-web#wire-format-mode
+  grpc_wire_format = "grpcwebtext",
 )
 ```
 

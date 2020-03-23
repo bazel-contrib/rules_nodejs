@@ -12,6 +12,7 @@ proto_library(
 
 ts_proto_library(
     name = "naming_styles_ts_proto",
+    grpc_wire_format = "grpcweb",
     proto = ":naming_styles_proto",
 )
 
