@@ -37,7 +37,7 @@ See the output of the tool for command-line options and next steps.
 ### Running a program from npm
 
 The `nodejs_binary` rule lets you run a program with Node.js.
-See [Built-ins]
+See [Built-ins](Built-ins.html)
 
 If you have installed the [rollup] package, you could write this rule:
 
@@ -126,7 +126,7 @@ See https://nodejs.org/en/docs/guides/debugging-getting-started/ for more detail
 
 ### Debugging with VS Code
 
-With the above configuration you can use VS Code as your debugger.  
+With the above configuration you can use VS Code as your debugger.
 You will first need to configure your `.vscode/launch.json`:
 
 ```
@@ -143,13 +143,13 @@ You will first need to configure your `.vscode/launch.json`:
         "../../../../../*": "${workspaceRoot}/*",
         // do as many levels here as needed for your project
       }
-``` 
-We use `sourceMapPathOverrides` here to rewrite the source maps produced by `ts_library` so that breakpoints line up with the source maps.  
+```
+We use `sourceMapPathOverrides` here to rewrite the source maps produced by `ts_library` so that breakpoints line up with the source maps.
 Once configured start your process with
 ```
 bazel run --config=debug //test:test1
 ```
-Then hit `F5` which will start the VS Code debugger with the `Attach nodejs_binary` configuration.  
+Then hit `F5` which will start the VS Code debugger with the `Attach nodejs_binary` configuration.
 VS Code will immediatenly hit a breakpoint to which you can continue and debug using all the normal debug features provided.
 
 
@@ -168,7 +168,7 @@ To stamp a build, you must pass the `--stamp` argument to Bazel.
 Also pass the `workspace_status_command` argument to `bazel build`.
 We prefer to do these with an entry in `.bazelrc`:
 
-```sh    
+```sh
 # This tells Bazel how to interact with the version control system
 # Enable this with --config=release
 build:release --stamp --workspace_status_command=./tools/bazel_stamp_vars.sh
