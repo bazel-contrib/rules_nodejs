@@ -125,6 +125,7 @@ def _out_paths(srcs, ext):
 
 def ts_project_macro(
         name = "tsconfig",
+        tsconfig = None,
         srcs = None,
         deps = [],
         extends = None,
@@ -132,13 +133,14 @@ def ts_project_macro(
         source_map = False,
         declaration_map = False,
         emit_declaration_only = False,
+        tsc = "@npm//typescript/bin:tsc",
         **kwargs):
     """Compiles one TypeScript project using `tsc -p`
 
     Unlike `ts_library`, this rule is the thinnest possible layer of Bazel awareness on top
     of the TypeScript compiler. It shifts the burden of configuring TypeScript into the tsconfig.json file.
     TODO(alexeagle): update https://github.com/bazelbuild/rules_nodejs/blob/master/docs/TypeScript.md#alternatives
-    # to describe the trade-offs between the two rules.
+    to describe the trade-offs between the two rules.
 
     Any code that works with `tsc` should work with `ts_project` with a few caveats:
 
@@ -175,23 +177,25 @@ def ts_project_macro(
     > }
     > ```
 
-    This rule requires that the name match the tsconfig file.
-    The reason is that it makes BUILD file generation (autoconfig) much simpler.
-    If you want to use a different label, you can use a Bazel `alias` rule to give it an additional name.
-
-    If your dependencies are not installed into a workspace called `npm`, or if you want to
-    use a custom TypeScript compiler binary, you can pass `tsc = "@some_wksp//path/to:tsc_bin"`
-    to this rule to override the compiler.
-
     Args:
-        name: The basename (no `.json` extension) of the tsconfig file that should be compiled.
+        name: A name for the target.
+
+            We recommend you use the basename (no `.json` extension) of the tsconfig file that should be compiled.
+
         srcs: List of labels of TypeScript source files to be provided to the compiler.
 
             If absent, defaults to `**/*.ts` (all TypeScript files in the package).
+
         deps: List of labels of other rules that produce TypeScript typings (.d.ts files)
+
+        tsconfig: Label of the tsconfig.json file to use for the compilation.
+
+            By default, we add `.json` to the `name` attribute.
+
         extends: List of labels of tsconfig file(s) referenced in `extends` section of tsconfig.
 
             Must include any tsconfig files "chained" by extends clauses.
+
         declaration: if the `declaration` or `composite` bit are set in the tsconfig.
             Instructs Bazel to expect a `.d.ts` output for each `.ts` source.
         source_map: if the `sourceMap` bit is set in the tsconfig.
@@ -205,15 +209,8 @@ def ts_project_macro(
     if srcs == None:
         srcs = native.glob(["**/*.ts"])
 
-    # Bazel's `name` property is arbitrarily controlled by the user.
-    # But here we constrain it to match the tsconfig file.
-    # The reason for doing this is so that BUILD file generation can be trivial.
-    # If you know the path of a referenced tsconfig file, you know what label to use
-    # to include it in the deps of another rule.
-    # If we allowed users to control it, then BUILD file generation would need
-    # heuristic semantics to do bazel query and try to figure out which label to use
-    # to satisfy a project references dependency.
-    tsconfig = name + ".json"
+    if tsconfig == None:
+        tsconfig = name + ".json"
 
     ts_project(
         name = name,
@@ -225,5 +222,6 @@ def ts_project_macro(
         map_outs = _out_paths(srcs, ".js.map") if source_map and not emit_declaration_only else [],
         typings_outs = _out_paths(srcs, ".d.ts") if declaration else [],
         typing_maps_outs = _out_paths(srcs, ".d.ts.map") if declaration_map else [],
+        tsc = tsc,
         **kwargs
     )

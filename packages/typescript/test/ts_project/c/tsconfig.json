@@ -2,5 +2,7 @@
     "extends": "../tsconfig-base.json",
     "references": [
         {"path": "../b/tsconfig.json"}
-    ]
+    ],
+    // NB: we don't need the compilerOptions.outDir Windows workaround here
+    // because there is no project that references this one.
 }

@@ -1,8 +1,6 @@
 load("@npm_bazel_typescript//:index.bzl", "ts_project")
 
 ts_project(
-    name = "tsconfig",  # This will use ./tsconfig.json
-    srcs = [":a.ts"],
     extends = ["//packages/typescript/test/ts_project:tsconfig-base.json"],
     source_map = True,
     visibility = ["//packages/typescript/test:__subpackages__"],
