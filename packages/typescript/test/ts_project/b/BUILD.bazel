@@ -6,6 +6,7 @@ package(default_visibility = ["//packages/typescript/test:__subpackages__"])
 ts_project(
     name = "tsconfig",  # This will use ./tsconfig.json
     srcs = [":b.ts"],
+    composite = True,
     extends = ["//packages/typescript/test/ts_project:tsconfig-base.json"],
     deps = ["//packages/typescript/test/ts_project/a:tsconfig"],
 )
@@ -14,6 +15,7 @@ ts_project(
     name = "tsconfig-test",  # This will use ./tsconfig-test.json
     testonly = True,
     srcs = [":b.spec.ts"],
+    composite = True,
     extends = ["//packages/typescript/test/ts_project:tsconfig-base.json"],
     deps = [
         ":tsconfig",

@@ -18,6 +18,7 @@ _ATTRS = {
 # NB: the macro `ts_project_macro` will set these outputs based on user
 # telling us which settings are enabled in the tsconfig for this project.
 _OUTPUTS = {
+    "buildinfo_out": attr.output(),
     "js_outs": attr.output_list(),
     "map_outs": attr.output_list(),
     "typing_maps_outs": attr.output_list(),
@@ -77,6 +78,8 @@ def _ts_project_impl(ctx):
     if ctx.attr.extends:
         inputs.extend(ctx.files.extends)
     outputs = ctx.outputs.js_outs + ctx.outputs.map_outs + ctx.outputs.typings_outs + ctx.outputs.typing_maps_outs
+    if ctx.outputs.buildinfo_out:
+        outputs.append(ctx.outputs.buildinfo_out)
 
     if len(outputs) == 0:
         return []
@@ -132,6 +135,7 @@ def ts_project_macro(
         declaration = True,
         source_map = False,
         declaration_map = False,
+        composite = False,
         emit_declaration_only = False,
         tsc = "@npm//typescript/bin:tsc",
         **kwargs):
@@ -196,14 +200,22 @@ def ts_project_macro(
 
             Must include any tsconfig files "chained" by extends clauses.
 
-        declaration: if the `declaration` or `composite` bit are set in the tsconfig.
+        tsc: Label of the TypeScript compiler binary to run.
+
+            Override this if your npm_install or yarn_install isn't named "npm"
+            For example, `tsc = "@my_deps//typescript/bin:tsc"`
+            Or you can pass a custom compiler binary instead.
+
+        declaration: if the `declaration` bit is set in the tsconfig.
             Instructs Bazel to expect a `.d.ts` output for each `.ts` source.
         source_map: if the `sourceMap` bit is set in the tsconfig.
             Instructs Bazel to expect a `.js.map` output for each `.ts` source.
         declaration_map: if the `declarationMap` bit is set in the tsconfig.
             Instructs Bazel to expect a `.d.ts.map` output for each `.ts` source.
+        composite: if the `composite` bit is set in the tsconfig.
+            Instructs Bazel to expect a `.tsbuildinfo` output and a `.d.ts` output for each `.ts` source.
         emit_declaration_only: if the `emitDeclarationOnly` bit is set in the tsconfig.
-            Instructs Bazel *not* to expect `.js` outputs for `.ts` sources.
+            Instructs Bazel *not* to expect `.js` or `.js.map` outputs for `.ts` sources.
     """
 
     if srcs == None:
@@ -220,8 +232,9 @@ def ts_project_macro(
         extends = extends,
         js_outs = _out_paths(srcs, ".js") if not emit_declaration_only else [],
         map_outs = _out_paths(srcs, ".js.map") if source_map and not emit_declaration_only else [],
-        typings_outs = _out_paths(srcs, ".d.ts") if declaration else [],
+        typings_outs = _out_paths(srcs, ".d.ts") if declaration or composite else [],
         typing_maps_outs = _out_paths(srcs, ".d.ts.map") if declaration_map else [],
+        buildinfo_out = tsconfig[:-5] + ".tsbuildinfo" if composite else None,
         tsc = tsc,
         **kwargs
     )
