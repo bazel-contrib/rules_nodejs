@@ -12,11 +12,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# gazelle:exclude worker_protocol.proto
-
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 
+# gazelle:exclude worker_protocol.proto
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+load("@npm//typescript:index.bzl", "tsc")
+
 package(default_visibility = ["//visibility:public"])
+
+tsc(
+    name = "compile",
+    outs = ["ts_project_options_validator.js"],
+    args = [
+        "--outDir $(RULEDIR)",
+        "$(execpath ts_project_options_validator.ts)",
+        "--types node",
+    ],
+    data = [
+        "ts_project_options_validator.ts",
+        "@npm//@types/node",
+    ],
+)
+
+nodejs_binary(
+    name = "local_validator",
+    data = ["@npm//typescript"],
+    entry_point = "ts_project_options_validator.js",
+)
 
 bzl_library(
     name = "bzl",

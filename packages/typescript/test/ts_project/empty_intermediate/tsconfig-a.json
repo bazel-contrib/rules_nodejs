@@ -1,6 +1,3 @@
 {
-    "files": ["a.ts"],
-    "compilerOptions": {
-        "declaration": true
-    }
+    "files": ["a.d.ts"]
 }

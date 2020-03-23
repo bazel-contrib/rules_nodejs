@@ -46,6 +46,7 @@ pkg_npm(
     ],
     deps = [
         "@npm_bazel_typescript//internal:BUILD",
+        "@npm_bazel_typescript//internal:ts_project_options_validator.js",
     ] + select({
         # FIXME: fix stardoc on Windows; @npm_bazel_typescript//:index.md generation fails with:
         #   ERROR: D:/b/62unjjin/external/npm_bazel_typescript/BUILD.bazel:36:1: Couldn't build file
