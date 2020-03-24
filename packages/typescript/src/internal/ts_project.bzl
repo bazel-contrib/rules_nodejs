@@ -2,14 +2,17 @@
 
 load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "NpmPackageInfo", "run_node")
 
+_DEFAULT_TSC = "@npm//typescript/bin:tsc"
+
 _ATTRS = {
     # NB: no restriction on extensions here, because tsc sometimes adds type-check support
     # for more file kinds (like require('some.json')) and also
     # if you swap out the `compiler` attribute (like with ngtsc)
     # that compiler might allow more sources than tsc does.
     "srcs": attr.label_list(allow_files = True, mandatory = True),
+    "args": attr.string_list(),
     "extends": attr.label_list(allow_files = [".json"]),
-    "tsc": attr.label(default = Label("@npm//typescript/bin:tsc"), executable = True, cfg = "host"),
+    "tsc": attr.label(default = Label(_DEFAULT_TSC), executable = True, cfg = "host"),
     "tsconfig": attr.label(mandatory = True, allow_single_file = [".json"]),
     "deps": attr.label_list(providers = [DeclarationInfo]),
 }
@@ -35,8 +38,12 @@ _TsConfigInfo = provider(
 
 def _ts_project_impl(ctx):
     arguments = ctx.actions.args()
+
+    # Add user specified arguments *before* rule supplied arguments
+    arguments.add_all(ctx.attr.args)
+
     arguments.add_all([
-        "-p",
+        "--project",
         ctx.file.tsconfig.short_path,
         "--outDir",
         "/".join([ctx.bin_dir.path, ctx.label.package]),
@@ -71,7 +78,7 @@ def _ts_project_impl(ctx):
             # TODO: we could maybe filter these to be tsconfig.json or *.d.ts only
             # we don't expect tsc wants to read any other files from npm packages.
             deps_depsets.append(dep[NpmPackageInfo].sources)
-        elif DeclarationInfo in dep:
+        if DeclarationInfo in dep:
             deps_depsets.append(dep[DeclarationInfo].transitive_declarations)
 
     inputs = ctx.files.srcs + depset(transitive = deps_depsets).to_list() + [ctx.file.tsconfig]
@@ -80,34 +87,36 @@ def _ts_project_impl(ctx):
     outputs = ctx.outputs.js_outs + ctx.outputs.map_outs + ctx.outputs.typings_outs + ctx.outputs.typing_maps_outs
     if ctx.outputs.buildinfo_out:
         outputs.append(ctx.outputs.buildinfo_out)
+    runtime_outputs = depset(ctx.outputs.js_outs + ctx.outputs.map_outs)
+    typings_outputs = ctx.outputs.typings_outs + [s for s in ctx.files.srcs if s.path.endswith(".d.ts")]
 
-    if len(outputs) == 0:
-        return []
-
-    run_node(
-        ctx,
-        inputs = inputs,
-        arguments = [arguments],
-        outputs = outputs,
-        executable = "tsc",
-        progress_message = "Compiling TypeScript project %s" % ctx.file.tsconfig.short_path,
-    )
-
-    runtime_files = depset(ctx.outputs.js_outs + ctx.outputs.map_outs)
-    typings_files = ctx.outputs.typings_outs + [s for s in ctx.files.srcs if s.path.endswith(".d.ts")]
+    if len(outputs) > 0:
+        run_node(
+            ctx,
+            inputs = inputs,
+            arguments = [arguments],
+            outputs = outputs,
+            executable = "tsc",
+            progress_message = "Compiling TypeScript project %s" % ctx.file.tsconfig.short_path,
+        )
 
     return [
         DeclarationInfo(
-            declarations = depset(typings_files),
-            transitive_declarations = depset(typings_files, transitive = [
+            declarations = depset(typings_outputs),
+            transitive_declarations = depset(typings_outputs, transitive = [
                 dep[DeclarationInfo].transitive_declarations
                 for dep in ctx.attr.deps
             ]),
         ),
+        # DefaultInfo is what you see on the command-line for a built library,
+        # and determines what files are used by a simple non-provider-aware
+        # downstream library.
+        # Only the JavaScript outputs are intended for use in non-TS-aware
+        # dependents.
         DefaultInfo(
-            files = runtime_files,
+            files = runtime_outputs,
             runfiles = ctx.runfiles(
-                transitive_files = runtime_files,
+                transitive_files = runtime_outputs,
                 collect_default = True,
             ),
         ),
@@ -130,6 +139,7 @@ def ts_project_macro(
         name = "tsconfig",
         tsconfig = None,
         srcs = None,
+        args = [],
         deps = [],
         extends = None,
         declaration = False,
@@ -138,14 +148,23 @@ def ts_project_macro(
         composite = False,
         incremental = False,
         emit_declaration_only = False,
-        tsc = "@npm//typescript/bin:tsc",
+        tsc = _DEFAULT_TSC,
         **kwargs):
-    """Compiles one TypeScript project using `tsc -p`
+    """Compiles one TypeScript project using `tsc --project`
+
+    This is a drop-in replacement for the `tsc` rule automatically generated for the "typescript"
+    package, typically loaded from `@npm//typescript:index.bzl`. Unlike bare `tsc`, this rule understands
+    the Bazel interop mechanism (Providers) so that this rule works with others that produce or consume
+    TypeScript typings (`.d.ts` files).
 
     Unlike `ts_library`, this rule is the thinnest possible layer of Bazel interoperability on top
     of the TypeScript compiler. It shifts the burden of configuring TypeScript into the tsconfig.json file.
-    TODO(alexeagle): update https://github.com/bazelbuild/rules_nodejs/blob/master/docs/TypeScript.md#alternatives
-    to describe the trade-offs between the two rules.
+    See https://github.com/bazelbuild/rules_nodejs/blob/master/docs/TypeScript.md#alternatives
+    for more details about the trade-offs between the two rules.
+
+    Some TypeScript options affect which files are emitted, and Bazel wants to know these ahead-of-time.
+    So several options from the tsconfig file must be mirrored as attributes to ts_project.
+    See https://www.typescriptlang.org/v2/en/tsconfig for a listing of the TypeScript options.
 
     Any code that works with `tsc` should work with `ts_project` with a few caveats:
 
@@ -183,34 +202,49 @@ def ts_project_macro(
     > }
     > ```
 
-    > Note: when using a non-sandboxed spawn strategy (which is the default on Windows),
-    > Bazel deletes outputs from the previous execution before running `tsc`.
-    > This causes a problem with TypeScript's incremental mode: if the `.tsbuildinfo` file
-    > is not known to be an output of the rule, then Bazel will leave it in the output
-    > directory, and when `tsc` runs, it may see that the outputs written by the prior
-    > invocation are up-to-date and skip the emit of these files. This will cause Bazel
-    > to intermittently fail with an error that some outputs were not written.
-    > This is why we depend on
-    > `composite` and/or `incremental` attributes to be provided, so we can tell Bazel to
-    > expect a `.tsbuildinfo` output to ensure it is deleted before a subsequent compilation.
-    > At present, we don't do anything useful with the `.tsbuildinfo` output, and this rule
-    > does not actually have incremental behavior. Deleting the file is actually
-    > counter-productive in terms of TypeScript compile performance.
-    > Follow https://github.com/bazelbuild/rules_nodejs/issues/1726
+    ### Issues when running non-sandboxed
 
-    > Note: When using Project References, TypeScript will expect to verify that the outputs of referenced
-    > projects are up-to-date with respect to their inputs (this is true even without using the `--build` option).
-    > When using a non-sandboxed spawn strategy, `tsc` can read the sources from other `ts_project`
-    > rules in your project, and will expect that the `tsconfig.json` file for those references will
-    > indicate where the outputs were written. However the `outDir` is determined by this Bazel rule so
-    > it cannot be known from reading the `tsconfig.json` file.
-    > This problem is manifested as a TypeScript diagnostic like
-    > `error TS6305: Output file '/path/to/execroot/a.d.ts' has not been built from source file '/path/to/execroot/a.ts'.`
-    > As a workaround, you can give the Windows "fastbuild" output directory as the `outDir` in your tsconfig file.
-    > On other platforms, the value isn't read so it does no harm.
-    > See https://github.com/bazelbuild/rules_nodejs/tree/master/packages/typescript/test/ts_project as an example.
-    > We hope this will be fixed in a future release of TypeScript;
-    > follow https://github.com/microsoft/TypeScript/issues/37378
+    When using a non-sandboxed spawn strategy (which is the default on Windows), you may
+    observe these problems which require workarounds:
+
+    1) Bazel deletes outputs from the previous execution before running `tsc`.
+       This causes a problem with TypeScript's incremental mode: if the `.tsbuildinfo` file
+       is not known to be an output of the rule, then Bazel will leave it in the output
+       directory, and when `tsc` runs, it may see that the outputs written by the prior
+       invocation are up-to-date and skip the emit of these files. This will cause Bazel
+       to intermittently fail with an error that some outputs were not written.
+       This is why we depend on `composite` and/or `incremental` attributes to be provided,
+       so we can tell Bazel to expect a `.tsbuildinfo` output to ensure it is deleted before a
+       subsequent compilation.
+       At present, we don't do anything useful with the `.tsbuildinfo` output, and this rule
+       does not actually have incremental behavior. Deleting the file is actually
+       counter-productive in terms of TypeScript compile performance.
+       Follow https://github.com/bazelbuild/rules_nodejs/issues/1726
+
+    2) When using Project References, TypeScript will expect to verify that the outputs of referenced
+       projects are up-to-date with respect to their inputs.
+       (This is true even without using the `--build` option).
+       When using a non-sandboxed spawn strategy, `tsc` can read the sources from other `ts_project`
+       rules in your project, and will expect that the `tsconfig.json` file for those references will
+       indicate where the outputs were written. However the `outDir` is determined by this Bazel rule so
+       it cannot be known from reading the `tsconfig.json` file.
+       This problem is manifested as a TypeScript diagnostic like
+       `error TS6305: Output file '/path/to/execroot/a.d.ts' has not been built from source file '/path/to/execroot/a.ts'.`
+       As a workaround, you can give the Windows "fastbuild" output directory as the `outDir` in your tsconfig file.
+       On other platforms, the value isn't read so it does no harm.
+       See https://github.com/bazelbuild/rules_nodejs/tree/master/packages/typescript/test/ts_project as an example.
+       We hope this will be fixed in a future release of TypeScript;
+       follow https://github.com/microsoft/TypeScript/issues/37378
+
+    3) When TypeScript encounters an import statement, it adds the source file resolved by that reference
+       to the program. However you may have included that source file in a different project, so this causes
+       the problem mentioned above where a source file is in multiple programs.
+       (Note, if you use Project References this is not the case, TS will know the referenced
+       file is part of the other program.)
+       This will result in duplicate emit for the same file, which produces an error
+       since the files written to the output tree are read-only.
+       Workarounds include using using Project References, or simply grouping the whole compilation
+       into one program (if this doesn't exceed your time budget).
 
     Args:
         name: A name for the target.
@@ -219,7 +253,7 @@ def ts_project_macro(
 
         srcs: List of labels of TypeScript source files to be provided to the compiler.
 
-            If absent, defaults to `**/*.ts` (all TypeScript files in the package).
+            If absent, defaults to `**/*.ts[x]` (all TypeScript files in the package).
 
         deps: List of labels of other rules that produce TypeScript typings (.d.ts files)
 
@@ -230,6 +264,8 @@ def ts_project_macro(
         extends: List of labels of tsconfig file(s) referenced in `extends` section of tsconfig.
 
             Must include any tsconfig files "chained" by extends clauses.
+
+        args: List of strings of additional command-line arguments to pass to tsc.
 
         tsc: Label of the TypeScript compiler binary to run.
 
@@ -252,7 +288,7 @@ def ts_project_macro(
     """
 
     if srcs == None:
-        srcs = native.glob(["**/*.ts"])
+        srcs = native.glob(["**/*.ts", "**/*.tsx"])
 
     if tsconfig == None:
         tsconfig = name + ".json"
@@ -261,6 +297,7 @@ def ts_project_macro(
         name = name,
         srcs = srcs,
         deps = deps,
+        args = args,
         tsconfig = tsconfig,
         extends = extends,
         js_outs = _out_paths(srcs, ".js") if not emit_declaration_only else [],

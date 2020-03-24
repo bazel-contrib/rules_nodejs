@@ -2,47 +2,33 @@
 
 The TypeScript rules integrate the TypeScript compiler with Bazel.
 
-Looking for Karma rules `ts_web_test` and `karma_web_test`?
-These are now documented in the README at http://npmjs.com/package/@bazel/karma
-
 ## Alternatives
 
-This package provides Bazel wrappers around the TypeScript compiler, and are how we compile TS code at Google.
+This package provides Bazel wrappers around the TypeScript compiler.
 
-These rules are opinionated, for example:
+At a high level, there are two alternatives provided: `ts_project` and `ts_library`.
+This section describes the trade-offs between these rules.
+
+`ts_project` simply runs `tsc --project`, with Bazel knowing which outputs to expect based on the TypeScript compiler options, and with interoperability with other TypeScript rules via a Bazel Provider (DeclarationInfo) that transmits the type information.
+It is intended as an easy on-boarding for existing TypeScript code and should be familiar if your background is in frontend ecosystem idioms.
+Any behavior of `ts_project` should be reproducible outside of Bazel, with a couple of caveats noted in the rule documentation below.
+
+> We used to recommend using the `tsc` rule directly from the `typescript` project, like
+> `load("@npm//typescript:index.bzl", "tsc")`
+> However `ts_project` is strictly better and should be used instead.
+
+`ts_library` is an open-sourced version of the rule we use to compile TS code at Google.
+It should be familiar if your background is in Bazel idioms.
+It is very complex, involving code generation of the `tsconfig.json` file, a custom compiler binary, and a lot of extra features.
+It is also opinionated, and may not work with existing TypeScript code. For example:
 
 - Your TS code must compile under the `--declaration` flag so that downstream libraries depend only on types, not implementation. This makes Bazel faster by avoiding cascading rebuilds in cases where the types aren't changed.
 - We control the output format and module syntax so that downstream rules can rely on them.
 
-They are also fast and optimized:
-
-- We keep a running TypeScript compile running as a daemon, using Bazel workers. This process avoids re-parse and re-JIT of the >1MB `typescript.js` and keeps cached bound ASTs for input files which saves time.
-
-We understand this is a tradeoff. If you want to use the plain TypeScript compiler provided by the TS team at Microsoft, you can do this by calling its CLI directly. For example,
-
-```python
-load("@npm//typescript:index.bzl", "tsc")
-
-srcs = glob(["*.ts"])
-deps = ["@npm//@types/node"]
-
-tsc(
-    name = "compile",
-    data = srcs + deps,
-    outs = [s.replace(".ts", ext) for ext in [".js", ".d.ts"] for s in srcs],
-    args = [
-        "--outDir",
-        "$(RULEDIR)",
-        "--lib",
-        "es2017,dom",
-        "--downlevelIteration",
-        "--declaration",
-    ] + [
-        "$(location %s)" % s
-        for s in srcs
-    ],
-)
-```
+On the other hand, `ts_library` is also fast and optimized.
+We keep a running TypeScript compile running as a daemon, using Bazel workers.
+This process avoids re-parse and re-JIT of the >1MB `typescript.js` and keeps cached bound ASTs for input files which saves time.
+We also produce JS code which can be loaded faster (using named AMD module format) and which can be consumed by the Closure Compiler (via integration with [tsickle](https://github.com/angular/tsickle)).
 
 ## Installation
 

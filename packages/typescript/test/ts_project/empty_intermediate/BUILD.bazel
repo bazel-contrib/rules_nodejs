@@ -1,0 +1,18 @@
+load("@npm_bazel_typescript//:index.bzl", "ts_project")
+
+ts_project(
+    name = "tsconfig-a",
+    srcs = ["a.d.ts"],
+)
+
+ts_project(
+    name = "tsconfig-b",
+    srcs = [],
+    deps = ["tsconfig-a"],
+)
+
+ts_project(
+    name = "tsconfig-c",
+    srcs = ["c.ts"],
+    deps = ["tsconfig-b"],
+)

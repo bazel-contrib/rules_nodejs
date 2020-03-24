@@ -6,6 +6,8 @@ package(default_visibility = ["//packages/typescript/test:__subpackages__"])
 ts_project(
     name = "tsconfig",  # This will use ./tsconfig.json
     srcs = [":b.ts"],
+    # just a test for the pass-through args attribute
+    args = ["--emitBOM"],
     composite = True,
     extends = ["//packages/typescript/test/ts_project:tsconfig-base.json"],
     deps = ["//packages/typescript/test/ts_project/a:tsconfig"],
@@ -20,6 +22,7 @@ ts_project(
     deps = [
         ":tsconfig",
         "@npm//@types/jasmine",
+        "@npm//@types/node",
     ],
 )
 
