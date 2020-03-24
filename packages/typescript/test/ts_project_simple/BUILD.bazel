@@ -1,0 +1,10 @@
+load("@build_bazel_rules_nodejs//internal/golden_file_test:golden_file_test.bzl", "golden_file_test")
+load("@npm_bazel_typescript//:index.bzl", "ts_project")
+
+ts_project()
+
+golden_file_test(
+    name = "test",
+    actual = "index.js",
+    golden = "index.golden.js",
+)

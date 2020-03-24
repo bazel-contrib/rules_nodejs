@@ -132,7 +132,7 @@ def ts_project_macro(
         srcs = None,
         deps = [],
         extends = None,
-        declaration = True,
+        declaration = False,
         source_map = False,
         declaration_map = False,
         composite = False,
