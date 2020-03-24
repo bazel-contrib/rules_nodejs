@@ -1,0 +1,6 @@
+{
+    "files": ["a.ts"],
+    "compilerOptions": {
+        "declaration": true
+    }
+}

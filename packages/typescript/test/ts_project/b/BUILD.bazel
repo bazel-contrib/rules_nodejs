@@ -1,0 +1,33 @@
+load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
+load("@npm_bazel_typescript//:index.bzl", "ts_project")
+
+package(default_visibility = ["//packages/typescript/test:__subpackages__"])
+
+ts_project(
+    name = "tsconfig",  # This will use ./tsconfig.json
+    srcs = [":b.ts"],
+    # just a test for the pass-through args attribute
+    args = ["--emitBOM"],
+    composite = True,
+    extends = ["//packages/typescript/test/ts_project:tsconfig-base.json"],
+    deps = ["//packages/typescript/test/ts_project/a:tsconfig"],
+)
+
+ts_project(
+    name = "tsconfig-test",  # This will use ./tsconfig-test.json
+    testonly = True,
+    srcs = [":b.spec.ts"],
+    composite = True,
+    extends = ["//packages/typescript/test/ts_project:tsconfig-base.json"],
+    deps = [
+        ":tsconfig",
+        "@npm//@types/jasmine",
+        "@npm//@types/node",
+    ],
+)
+
+jasmine_node_test(
+    name = "test",
+    srcs = ["b.spec.js"],
+    data = [":tsconfig"],
+)
