@@ -136,12 +136,13 @@ def ts_project_macro(
         source_map = False,
         declaration_map = False,
         composite = False,
+        incremental = False,
         emit_declaration_only = False,
         tsc = "@npm//typescript/bin:tsc",
         **kwargs):
     """Compiles one TypeScript project using `tsc -p`
 
-    Unlike `ts_library`, this rule is the thinnest possible layer of Bazel awareness on top
+    Unlike `ts_library`, this rule is the thinnest possible layer of Bazel interoperability on top
     of the TypeScript compiler. It shifts the burden of configuring TypeScript into the tsconfig.json file.
     TODO(alexeagle): update https://github.com/bazelbuild/rules_nodejs/blob/master/docs/TypeScript.md#alternatives
     to describe the trade-offs between the two rules.
@@ -149,15 +150,16 @@ def ts_project_macro(
     Any code that works with `tsc` should work with `ts_project` with a few caveats:
 
     - Bazel requires that the `outDir` (and `declarationDir`) be set to
-      `bazel-out/[arch]/bin/path/to/package`
+      `bazel-out/[target architecture]/bin/path/to/package`
       so we override whatever settings appear in your tsconfig.
     - Bazel expects that each output is produced by a single rule.
-      Thus if you have two `ts_project` rules with overlapping sources (the same .ts file
-      appears in more than one) then you get an error if you try to build both together.
+      Thus if you have two `ts_project` rules with overlapping sources (the same `.ts` file
+      appears in more than one) then you get an error about conflicting `.js` output
+      files if you try to build both together.
       Worse, if you build them separately then the output directory will contain whichever
       one you happened to build most recently. This is highly discouraged.
 
-    > Note, in order for TypeScript to find referenced projects in the bazel-out folder,
+    > Note: in order for TypeScript to resolve relative references to the bazel-out folder,
     > we recommend that the base tsconfig contain a rootDirs section that includes all
     > possible locations they may appear.
     >
@@ -180,6 +182,35 @@ def ts_project_macro(
     >     ]
     > }
     > ```
+
+    > Note: when using a non-sandboxed spawn strategy (which is the default on Windows),
+    > Bazel deletes outputs from the previous execution before running `tsc`.
+    > This causes a problem with TypeScript's incremental mode: if the `.tsbuildinfo` file
+    > is not known to be an output of the rule, then Bazel will leave it in the output
+    > directory, and when `tsc` runs, it may see that the outputs written by the prior
+    > invocation are up-to-date and skip the emit of these files. This will cause Bazel
+    > to intermittently fail with an error that some outputs were not written.
+    > This is why we depend on
+    > `composite` and/or `incremental` attributes to be provided, so we can tell Bazel to
+    > expect a `.tsbuildinfo` output to ensure it is deleted before a subsequent compilation.
+    > At present, we don't do anything useful with the `.tsbuildinfo` output, and this rule
+    > does not actually have incremental behavior. Deleting the file is actually
+    > counter-productive in terms of TypeScript compile performance.
+    > Follow https://github.com/bazelbuild/rules_nodejs/issues/1726
+
+    > Note: When using Project References, TypeScript will expect to verify that the outputs of referenced
+    > projects are up-to-date with respect to their inputs (this is true even without using the `--build` option).
+    > When using a non-sandboxed spawn strategy, `tsc` can read the sources from other `ts_project`
+    > rules in your project, and will expect that the `tsconfig.json` file for those references will
+    > indicate where the outputs were written. However the `outDir` is determined by this Bazel rule so
+    > it cannot be known from reading the `tsconfig.json` file.
+    > This problem is manifested as a TypeScript diagnostic like
+    > `error TS6305: Output file '/path/to/execroot/a.d.ts' has not been built from source file '/path/to/execroot/a.ts'.`
+    > As a workaround, you can give the Windows "fastbuild" output directory as the `outDir` in your tsconfig file.
+    > On other platforms, the value isn't read so it does no harm.
+    > See https://github.com/bazelbuild/rules_nodejs/tree/master/packages/typescript/test/ts_project as an example.
+    > We hope this will be fixed in a future release of TypeScript;
+    > follow https://github.com/microsoft/TypeScript/issues/37378
 
     Args:
         name: A name for the target.
@@ -214,6 +245,8 @@ def ts_project_macro(
             Instructs Bazel to expect a `.d.ts.map` output for each `.ts` source.
         composite: if the `composite` bit is set in the tsconfig.
             Instructs Bazel to expect a `.tsbuildinfo` output and a `.d.ts` output for each `.ts` source.
+        incremental: if the `incremental` bit is set in the tsconfig.
+            Instructs Bazel to expect a `.tsbuildinfo` output.
         emit_declaration_only: if the `emitDeclarationOnly` bit is set in the tsconfig.
             Instructs Bazel *not* to expect `.js` or `.js.map` outputs for `.ts` sources.
     """
@@ -234,7 +267,7 @@ def ts_project_macro(
         map_outs = _out_paths(srcs, ".js.map") if source_map and not emit_declaration_only else [],
         typings_outs = _out_paths(srcs, ".d.ts") if declaration or composite else [],
         typing_maps_outs = _out_paths(srcs, ".d.ts.map") if declaration_map else [],
-        buildinfo_out = tsconfig[:-5] + ".tsbuildinfo" if composite else None,
+        buildinfo_out = tsconfig[:-5] + ".tsbuildinfo" if composite or incremental else None,
         tsc = tsc,
         **kwargs
     )
