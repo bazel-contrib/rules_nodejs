@@ -59,7 +59,7 @@ node_repositories(package_json = ["//:package.json"])
 
 You can choose a specific version of Node.js that's built into these rules.
 You can also choose a specific version of Yarn.
-Note that some of our packages have started to use features from Node 12, so you may see warnings if you use an older version. 
+Note that some of our packages have started to use features from Node 12, so you may see warnings if you use an older version.
 
 > Now that Node 12 is LTS (Long-term support) we encourage you to upgrade, and don't intend to fix bugs which are only observed in Node 10 or lower.
 
@@ -359,7 +359,7 @@ filegroup(
 )
 ```
 
-The example in `examples/program` uses self-managed dependencies.
+The example in `examples/user_managed_deps` uses self-managed dependencies.
 
 To use the Yarn package manager, which we recommend for its built-in
 verification command, you can run:
