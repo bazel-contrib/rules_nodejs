@@ -13,6 +13,7 @@
 # limitations under the License.
 
 load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "codeowners", "pkg_npm")
+load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
 
 codeowners(
     teams = ["@jbedard"],
@@ -33,12 +34,34 @@ genrule(
     visibility = ["//docs:__pkg__"],
 )
 
+# Copy the proto file to a matching third_party/... nested directory
+# so the runtime require() statements still work
+_worker_proto_dir = "third_party/github.com/bazelbuild/bazel/src/main/protobuf"
+
+genrule(
+    name = "copy_worker_js",
+    srcs = ["//packages/worker:npm_package"],
+    outs = ["worker.js"],
+    cmd = "cp $(execpath //packages/worker:npm_package)/index.js $@",
+    visibility = ["//visibility:public"],
+)
+
+copy_file(
+    name = "copy_worker_proto",
+    src = "@build_bazel_rules_typescript//%s:worker_protocol.proto" % _worker_proto_dir,
+    out = "%s/worker_protocol.proto" % _worker_proto_dir,
+    visibility = ["//visibility:public"],
+)
+
 pkg_npm(
     name = "npm_package",
     srcs = [
         "@npm_bazel_rollup//:package_contents",
     ],
     build_file_content = """exports_files(["rollup.config.js"])""",
+    substitutions = {
+        "//:rollup-worker-local": "@npm//@bazel/rollup/bin:rollup-worker",
+    },
     vendor_external = [
         "npm_bazel_rollup",
     ],
@@ -48,5 +71,8 @@ pkg_npm(
         #   external/npm_bazel_rollup/docs.raw: Generating proto for Starlark doc for docs failed (Exit 1)
         "@bazel_tools//src/conditions:windows": [],
         "//conditions:default": [":generate_README"],
-    }),
+    }) + [
+        ":copy_worker_proto",
+        ":worker.js",
+    ],
 )

@@ -1,5 +1,5 @@
 load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
-load("@npm_bazel_rollup//:index.from_src.bzl", "rollup_bundle")
+load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
 
 rollup_bundle(
     name = "bundle",
@@ -10,6 +10,7 @@ rollup_bundle(
     # [!] Error: You must set output.dir instead of output.file when generating multiple chunks.
     # which will confuse users because it references output.dir instead of output_dir
     output_dir = True,
+    supports_workers = True,
 )
 
 jasmine_node_test(

@@ -11,6 +11,9 @@
         "url" : "https://github.com/bazelbuild/rules_nodejs.git",
         "directory": "packages/rollup"
     },
+    "bin": {
+        "rollup-worker": "index.js"
+    },
     "bugs": {
         "url": "https://github.com/bazelbuild/rules_nodejs/issues"
     },
