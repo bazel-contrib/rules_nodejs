@@ -15,80 +15,134 @@ This JavaScript support lets you build and test code that targets a JavaScript r
 
 ## Quickstart
 
+First we create a new workspace, which will be in a new directory.
+We can use the `@bazel/create` npm package to do this in one command.
 This is the fastest way to get started for most use cases.
-See [the installation page](install.html) for details and alternative methods.
+
+> See [the installation page](install.html) for details and alternative methods.
 
 ```sh
-$ npm init @bazel
+$ npm init @bazel my_workspace
+$ cd my_workspace
 ```
 
-or if you prefer yarn,
+> You could do the same thing with yarn:
+> ```sh
+> $ yarn create @bazel my_workspace
+> $ cd my_workspace
+> ```
+> Both of these commands are equivalent to `npx @bazel/create` which downloads the latest version of the `@bazel/create` package from npm and runs the program it contains.
+> Run the tool with no arguments for command-line options and next steps.
+
+Next we install some development tools.
+For this example, we'll use Babel to transpile our JavaScript, Mocha for running tests, and http-server to serve our app.
+This is just an arbitrary choice, you probably already have some tools you prefer.
 
 ```sh
-$ yarn create @bazel
+$ npm install @babel/core @babel/cli @babel/preset-env http-server mocha domino
 ```
 
-> These commands are equivalent to `npx @bazel/create` which downloads the latest version of the `@bazel/create` package from npm and runs the program contained.
+Let's run these tools with Bazel. There are two ways to run tools:
 
-See the output of the tool for command-line options and next steps.
+- Use an auto-generated Bazel rule by importing from an `index.bzl` file in the npm package
+- Use a custom rule in rules_nodejs or write one yourself
 
-## Usage
-
-### Running a program from npm
-
-The `nodejs_binary` rule lets you run a program with Node.js.
-See [Built-ins](Built-ins.html)
-
-If you have installed the [rollup] package, you could write this rule:
+In this example we use the auto-generated rules.
+First we need to import them, using a load statement.
+So edit BUILD.bazel and add:
 
 ```python
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
-
-nodejs_binary(
-    name = "rollup",
-    entry_point = "//:node_modules/rollup/bin/rollup",
-)
+load("@npm//@babel/cli:index.bzl", "babel")
+load("@npm//mocha:index.bzl", "mocha_test")
+load("@npm//http-server:index.bzl", "http_server")
 ```
 
-and run it with
+> This shows us that rules_nodejs has told Bazel that a workspace named @npm is available
+> (think of the at-sign like a scoped package for Bazel).
+> rules_nodejs will add index.bzl files exposing all the binaries the package manager installed
+> (the same as the content of the node_modules/.bin folder).
+> The three tools we installed are in this @npm scope and each has an index file with a .bzl extension.
 
-```sh
-$ bazel run :rollup -- --help
-```
-
-[rollup]: https://www.npmjs.com/package/rollup
-
-You can also wrap an npm program with a Bazel rule, making it easy to integrate with a Bazel build.
-See the `examples/parcel` example.
-
-### Running a program from local sources
-
-We can reference a path in the local workspace to run a program we write.
+Next we teach Bazel how to transform our JavaScript inputs into transpiled outputs.
+Here we assume that you have `app.js` and `es5.babelrc` in your project. See [our example webapp](https://github.com/bazelbuild/rules_nodejs/tree/1.4.0/examples/webapp) for an example of what those files might look like.
+Now we want Babel to produce `app.es5.js` so we add to `BUILD.bazel`:
 
 ```python
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
-
-nodejs_binary(
-    name = "example",
+babel(
+    name = "compile",
     data = [
-        "@//:node_modules",
-        "main.js",
+        "app.js",
+        "es5.babelrc",
+        "@npm//@babel/preset-env",
     ],
-    entry_point = ":main.js",
-    args = ["--node_options=--expose-gc"],
+    outs = ["app.es5.js"],
+    args = [
+        "app.js",
+        "--config-file",
+        "$(execpath es5.babelrc)",
+        "--out-file",
+        "$(execpath app.es5.js)",
+    ],
 )
 ```
 
-This example illustrates how to pass arguments to nodejs (as opposed to passing arguments to the program).
+> This just calls the Babel CLI, so you can see [their documentation](https://babeljs.io/docs/en/babel-cli) for what arguments to pass.
+> We use the $(execpath) helper in Bazel so we don't need to hardcode paths to the inputs or outputs.
 
-The `data` attribute is optional, by default it includes the `node_modules` directory. To include your own
-sources, include a file or target that produces JavaScript.
+We can now build the application: `npm run build`
 
-See the `examples/user_managed_deps` directory in this repository.
+and we see the .js outputs from babel appear in the `dist/bin` folder.
 
-### Testing
+Let's serve the app to see how it looks, by adding to `BUILD.bazel`:
 
-The `examples/user_managed_deps/index.spec.js` file illustrates testing. Another usage is in https://github.com/angular/tsickle/blob/master/test/BUILD
+```
+http_server(
+    name = "server",
+    data = [
+        "index.html",
+        "app.es5.js",
+    ],
+    args = ["."],
+)
+```
+
+Add a `serve` entry to the scripts in `package.json`:
+
+```json
+{
+  "scripts": {
+    "serve": "ibazel run :server"
+  }
+}
+```
+
+> ibazel is the watch mode for bazel.
+>
+> Note that on Windows, you need to pass `--enable_runfiles` flag to Bazel.
+> That's because Bazel creates a directory where inputs and outputs both appear together, for convenience.
+
+Now we can serve the app: `npm run serve`
+
+Finally we'll add a test using Mocha, and the domino package so we don't need a browser. Add to `BUILD.bazel`:
+
+```python
+mocha_test(
+    name = "unit_tests",
+    args = ["*.spec.js"],
+    data = glob(["*.spec.js"]) + [
+        "@npm//domino",
+        "app.es5.js",
+    ],
+)
+```
+
+Run the tests: `npm test`
+
+## Next steps
+
+Look through the `/examples` directory in this repo for many examples of running tools under Bazel.
+
+You might want to look through the API docs for custom rules such as TypeScript, Rollup, and Terser which add support beyond what you get from calling the CLI of those tools.
 
 ### Debugging
 
