@@ -178,6 +178,13 @@ Otherwise, the outputs are assumed to be a single file.
         cfg = "host",
         default = "@npm//rollup/bin:rollup",
     ),
+    "rollup_worker_bin": attr.label(
+        doc = "Internal use only",
+        executable = True,
+        cfg = "host",
+        # NB: will be substituted with "@npm//@bazel/rollup/bin:rollup-worker" when the pkg_npm target is built
+        default = "//:rollup-worker-local",
+    ),
     "silent": attr.bool(
         doc = """Whether to execute the rollup binary with the --silent flag, defaults to False.
 
@@ -193,6 +200,14 @@ Passed to the [`--sourcemap` option](https://github.com/rollup/rollup/blob/maste
 """,
         default = "inline",
         values = ["inline", "hidden", "true", "false"],
+    ),
+    "supports_workers": attr.bool(
+        doc = """Experimental! Use only with caution.
+
+Allows you to enable the Bazel Worker strategy for this library.
+When enabled, this rule invokes the "rollup_worker_bin"
+worker aware binary rather than "rollup_bin".""",
+        default = False,
     ),
     "deps": attr.label_list(
         aspects = [module_mappings_aspect, node_modules_aspect],
@@ -304,6 +319,11 @@ def _rollup_bundle(ctx):
     # See CLI documentation at https://rollupjs.org/guide/en/#command-line-reference
     args = ctx.actions.args()
 
+    if ctx.attr.supports_workers:
+        # Set to use a multiline param-file for worker mode
+        args.use_param_file("@%s", use_always = True)
+        args.set_param_file_format("multiline")
+
     # Add user specified arguments *before* rule supplied arguments
     args.add_all(ctx.attr.args)
 
@@ -354,13 +374,23 @@ def _rollup_bundle(ctx):
     if (ctx.attr.sourcemap and ctx.attr.sourcemap != "false"):
         args.add_all(["--sourcemap", ctx.attr.sourcemap])
 
+    executable = "rollup_bin"
+    execution_requirements = {}
+
+    if ctx.attr.supports_workers:
+        executable = "rollup_worker_bin"
+        execution_requirements["supports-workers"] = str(int(ctx.attr.supports_workers))
+
     run_node(
         ctx,
         progress_message = "Bundling JavaScript %s [rollup]" % outputs[0].short_path,
-        executable = "rollup_bin",
+        executable = executable,
         inputs = inputs,
         outputs = outputs,
         arguments = [args],
+        mnemonic = "Rollup",
+        execution_requirements = execution_requirements,
+        env = {"COMPILATION_MODE": ctx.var["COMPILATION_MODE"]},
     )
 
     return [

@@ -1,6 +1,6 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "npm_package_bin")
 load("@build_bazel_rules_nodejs//internal/golden_file_test:golden_file_test.bzl", "golden_file_test")
-load("@npm_bazel_rollup//:index.from_src.bzl", "rollup_bundle")
+load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
 
 _BUNDLE_FORMATS = [
     "amd",
@@ -23,6 +23,7 @@ _BUNDLE_FORMATS = [
         entry_point = "foo.js",
         format = format,
         sourcemap = "true",
+        supports_workers = True,
         deps = [
             "//%s/fum:fumlib" % package_name(),
             "//%s/foo:foo_lib" % package_name(),

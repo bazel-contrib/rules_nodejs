@@ -1,5 +1,5 @@
 load("@build_bazel_rules_nodejs//internal/golden_file_test:golden_file_test.bzl", "golden_file_test")
-load("@npm_bazel_rollup//:index.from_src.bzl", "rollup_bundle")
+load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
 load("//internal/node:context.bzl", "node_context_data")
 
 # Force stamping behavior even in builds without --stamp config
@@ -15,6 +15,7 @@ rollup_bundle(
     entry_point = "input.js",
     node_context_data = ":force_stamp",
     sourcemap = "false",
+    supports_workers = True,
 )
 
 golden_file_test(

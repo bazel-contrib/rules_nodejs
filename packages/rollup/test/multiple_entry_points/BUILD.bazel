@@ -1,5 +1,5 @@
 load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
-load("@npm_bazel_rollup//:index.from_src.bzl", "rollup_bundle")
+load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
 
 rollup_bundle(
     name = "chunks",
@@ -8,6 +8,7 @@ rollup_bundle(
         "entry2.js": "two",
     },
     output_dir = True,
+    supports_workers = True,
 )
 
 jasmine_node_test(

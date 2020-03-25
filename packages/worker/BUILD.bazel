@@ -52,11 +52,14 @@ pkg_npm(
         "package.json",
     ],
     substitutions = {
+        # Also fix the relative loading case since third_party directory is now a sibling of index.js
+        "../../third_party": "./third_party",
         # Fix the require() statement that loads the worker_protocol.proto file
         # we are re-rooting the sources into the @bazel/worker package so it's no longer
         # relative to the build_bazel_rules_typescript workspace.
-        "../../third_party": "@bazel/worker/third_party",
+        "build_bazel_rules_typescript": "@bazel/worker",
     },
+    visibility = ["//visibility:public"],
     deps = [
         ":copy_worker_dts",
         ":copy_worker_js",

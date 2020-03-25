@@ -13,6 +13,7 @@
 # limitations under the License.
 
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 load("@build_bazel_rules_nodejs//tools/stardoc:index.bzl", "stardoc")
 
 package(default_visibility = ["//visibility:public"])
@@ -42,8 +43,22 @@ filegroup(
     name = "package_contents",
     srcs = [
         "index.bzl",
+        "index.js",
         "package.json",
         "rollup.config.js",
         "rollup_bundle.bzl",
     ],
+)
+
+nodejs_binary(
+    name = "rollup-worker-local",
+    data = [
+        # NOTE: we ought to link to the original location instead of copying
+        # "@build_bazel_rules_nodejs//packages/worker:npm_package",
+        "@build_bazel_rules_nodejs//packages/rollup:worker.js",
+        "@build_bazel_rules_nodejs//packages/rollup:copy_worker_proto",
+        "@npm//protobufjs",
+        "@npm//rollup",
+    ],
+    entry_point = "index.js",
 )
