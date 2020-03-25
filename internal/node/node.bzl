@@ -118,7 +118,7 @@ def _write_loader_script(ctx):
     if entry_point_path.endswith(".ts"):
         entry_point_path = entry_point_path[:-3] + ".js"
     elif entry_point_path.endswith(".tsx"):
-        entry_point_path = entry_point_path[:-4] + ".jsx"
+        entry_point_path = entry_point_path[:-4] + ".js"
 
     ctx.actions.expand_template(
         template = ctx.file._loader_template,
