@@ -262,8 +262,10 @@ each.
 ```python
 workspace(
     name = "my_wksp",
-    managed_directories = {"@app1_npm": ["app1/node_modules"],
-                           "@app2_npm": ["app2/node_modules"]}},
+    managed_directories = {
+        "@app1_npm": ["app1/node_modules"],
+        "@app2_npm": ["app2/node_modules"],
+    },
 )
 
 yarn_install(
