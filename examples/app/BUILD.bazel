@@ -1,11 +1,10 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "pkg_web")
 load("@npm//html-insert-assets:index.bzl", "html_insert_assets")
 load("@npm//http-server:index.bzl", "http_server")
-load("@npm//typescript:index.bzl", "tsc")
 load("@npm_bazel_protractor//:index.bzl", "protractor_web_test_suite")
 load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
 load("@npm_bazel_terser//:index.bzl", "terser_minified")
-load("@npm_bazel_typescript//:index.bzl", "ts_devserver", "ts_library")
+load("@npm_bazel_typescript//:index.bzl", "ts_devserver", "ts_library", "ts_project")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -61,26 +60,13 @@ http_server(
     templated_args = ["package"],
 )
 
-# we could use ts_library here, but we use plain typescript to demonstrate that it works
-tsc(
-    name = "e2e",
+# This could also be `ts_library` but we mix them here to illustrate
+ts_project(
+    name = "tsconfig-test",
     testonly = 1,
-    # Remember that Bazel requires it know what outputs are created ahead of time
-    # so that it can construct a dependency graph.
-    outs = [
-        "app.e2e-spec.js",
-    ],
-    args = [
-        "-p",
-        "$(execpath tsconfig-test.json)",
-        "--outDir",
-        # $(RULEDIR) is a shorthand for the dist/bin directory where Bazel requires we write outputs
-        "$(RULEDIR)",
-    ],
-    data = [
-        "app.e2e-spec.ts",
-        "tsconfig.json",
-        "tsconfig-test.json",
+    srcs = ["app.e2e-spec.ts"],
+    extends = ["tsconfig.json"],
+    deps = [
         "@npm//@types/jasmine",
         "@npm//@types/node",
         "@npm//protractor",
@@ -89,16 +75,16 @@ tsc(
 
 protractor_web_test_suite(
     name = "prodserver_test",
+    srcs = ["app.e2e-spec.js"],
     on_prepare = ":protractor.on-prepare.js",
     server = "//:prodserver",
-    deps = [":e2e"],
 )
 
 protractor_web_test_suite(
     name = "devserver_test",
+    srcs = ["app.e2e-spec.js"],
     on_prepare = ":protractor.on-prepare.js",
     server = "//:devserver",
-    deps = [":e2e"],
 )
 
 # Just a dummy test so that we have a test target for //... on certain bazelci platforms with bazel_integration_test
