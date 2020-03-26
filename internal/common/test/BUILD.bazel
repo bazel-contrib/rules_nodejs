@@ -1,4 +1,5 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "nodejs_test")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
 load("//internal/common:copy_to_bin.bzl", "copy_to_bin")
 load("//internal/common:params_file.bzl", "params_file")
 
@@ -24,7 +25,8 @@ copy_to_bin(
 filegroup(
     name = "locations_in",
     srcs = [
-        "check_params_file.js",
+        "params_file.spec.js",
+        ":a",
         "//:package.json",
     ],
 )
@@ -33,6 +35,7 @@ params_file(
     name = "params_file",
     out = ":params_file.out",
     args = [
+        "$(SOME_TEST_ENV)",
         "$(location //:package.json)",
         "$(locations :locations_in)",
     ],
@@ -42,11 +45,10 @@ params_file(
     ],
 )
 
-nodejs_test(
+jasmine_node_test(
     name = "params_file_test",
+    srcs = [":params_file.spec.js"],
     data = [":params_file.out"],
-    entry_point = ":check_params_file.js",
-    templated_args = ["$(location :params_file.out)"],
 )
 
 nodejs_binary(
