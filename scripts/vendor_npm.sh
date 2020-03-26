@@ -106,7 +106,7 @@ exports_files([\"$1\"])
 js_library(
     name = \"$(basename ${PKG})\",
     srcs = glob([\"**/*.js\"]),
-    module_name = \"${PKG}\",
+    package_name = \"${PKG}\",
 )
 """ > ${DST_DIR}/BUILD.bazel
 }
