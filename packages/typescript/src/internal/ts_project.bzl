@@ -132,6 +132,50 @@ ts_project = rule(
     attrs = dict(_ATTRS, **_OUTPUTS),
 )
 
+def _validate_options_impl(ctx):
+    # Bazel won't run our action unless its output is needed, so make a marker file
+    # We make it a .d.ts file so we can plumb it to the deps of the ts_project compile.
+    marker = ctx.actions.declare_file("%s.optionsvalid.d.ts" % ctx.label.name)
+
+    arguments = ctx.actions.args()
+    arguments.add_all([ctx.file.tsconfig.path, marker.path, ctx.attr.target, struct(
+        declaration = ctx.attr.declaration,
+        declaration_map = ctx.attr.declaration_map,
+        composite = ctx.attr.composite,
+        emit_declaration_only = ctx.attr.emit_declaration_only,
+        source_map = ctx.attr.source_map,
+        incremental = ctx.attr.incremental,
+    ).to_json()])
+
+    run_node(
+        ctx,
+        inputs = [ctx.file.tsconfig] + ctx.files.extends,
+        outputs = [marker],
+        arguments = [arguments],
+        executable = "validator",
+    )
+    return [
+        DeclarationInfo(
+            transitive_declarations = depset([marker]),
+        ),
+    ]
+
+validate_options = rule(
+    implementation = _validate_options_impl,
+    attrs = {
+        "composite": attr.bool(),
+        "declaration": attr.bool(),
+        "declaration_map": attr.bool(),
+        "emit_declaration_only": attr.bool(),
+        "extends": attr.label_list(allow_files = [".json"]),
+        "incremental": attr.bool(),
+        "source_map": attr.bool(),
+        "target": attr.string(),
+        "tsconfig": attr.label(mandatory = True, allow_single_file = [".json"]),
+        "validator": attr.label(default = Label("//internal:local_validator"), executable = True, cfg = "host"),
+    },
+)
+
 def _out_paths(srcs, ext):
     return [f[:f.rindex(".")] + ext for f in srcs if not f.endswith(".d.ts")]
 
@@ -149,6 +193,7 @@ def ts_project_macro(
         incremental = False,
         emit_declaration_only = False,
         tsc = _DEFAULT_TSC,
+        validate = True,
         **kwargs):
     """Compiles one TypeScript project using `tsc --project`
 
@@ -273,6 +318,8 @@ def ts_project_macro(
             For example, `tsc = "@my_deps//typescript/bin:tsc"`
             Or you can pass a custom compiler binary instead.
 
+        validate: boolean; whether to check that the tsconfig settings match the attributes.
+
         declaration: if the `declaration` bit is set in the tsconfig.
             Instructs Bazel to expect a `.d.ts` output for each `.ts` source.
         source_map: if the `sourceMap` bit is set in the tsconfig.
@@ -293,11 +340,28 @@ def ts_project_macro(
     if tsconfig == None:
         tsconfig = name + ".json"
 
+    extra_deps = []
+
+    if validate:
+        validate_options(
+            name = "_validate_%s_options" % name,
+            target = "//%s:%s" % (native.package_name(), name),
+            declaration = declaration,
+            source_map = source_map,
+            declaration_map = declaration_map,
+            composite = composite,
+            incremental = incremental,
+            emit_declaration_only = emit_declaration_only,
+            tsconfig = tsconfig,
+            extends = extends,
+        )
+        extra_deps.append("_validate_%s_options" % name)
+
     ts_project(
         name = name,
         srcs = srcs,
-        deps = deps,
         args = args,
+        deps = deps + extra_deps,
         tsconfig = tsconfig,
         extends = extends,
         js_outs = _out_paths(srcs, ".js") if not emit_declaration_only else [],
