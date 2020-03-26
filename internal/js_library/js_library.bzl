@@ -12,10 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""js_library allows defining a set of javascript sources and assigning a module_name and module_root.
+"""js_library allows defining a set of javascript sources and assigning a package_name.
 
 DO NOT USE - this is not fully designed, and exists only to enable testing within this repo.
 """
+
+load("//internal/providers:linkable_package_info.bzl", "LinkablePackageInfo")
 
 _AMD_NAMES_DOC = """Mapping from require module names to global variables.
 This allows devmode JS sources to load unnamed UMD bundles from third-party libraries."""
@@ -46,23 +48,66 @@ def write_amd_names_shim(actions, amd_names_shim, targets):
                 amd_names_shim_content += "define(\"%s\", function() { return %s });\n" % n
     actions.write(amd_names_shim, amd_names_shim_content)
 
-def _js_library(ctx):
-    return [
+def _impl(ctx):
+    if not ctx.files.srcs:
+        fail("No srcs specified")
+
+    source_files = ctx.files.srcs[0].is_source
+    for src in ctx.files.srcs:
+        if src.is_source != source_files:
+            fail("Mixing of source and generated files not allowed")
+
+    sources_depset = depset(ctx.files.srcs)
+
+    result = [
         DefaultInfo(
-            files = depset(ctx.files.srcs),
+            files = sources_depset,
             runfiles = ctx.runfiles(files = ctx.files.srcs),
         ),
         AmdNamesInfo(names = ctx.attr.amd_names),
     ]
 
-js_library = rule(
-    implementation = _js_library,
+    if ctx.attr.package_name:
+        if source_files:
+            path = "/".join([p for p in [ctx.label.workspace_root, ctx.label.package] if p])
+        else:
+            path = "/".join([p for p in [ctx.bin_dir.path, ctx.label.workspace_root, ctx.label.package] if p])
+        result.append(LinkablePackageInfo(
+            package_name = ctx.attr.package_name,
+            path = path,
+            files = sources_depset,
+        ))
+
+    return result
+
+_js_library = rule(
+    implementation = _impl,
     attrs = {
-        "srcs": attr.label_list(allow_files = [".js"]),
+        "package_name": attr.string(),
+        "srcs": attr.label_list(allow_files = True),
         "amd_names": attr.string_dict(doc = _AMD_NAMES_DOC),
-        "module_from_src": attr.bool(),
-        # Used to determine module mappings
+        # module_name for legagy ts_library module_mapping support
+        # TODO: remove once legacy module_mapping is removed
         "module_name": attr.string(),
-        "module_root": attr.string(),
     },
 )
+
+def js_library(
+        name,
+        srcs,
+        amd_names = {},
+        package_name = None,
+        **kwargs):
+    module_name = kwargs.pop("module_name", None)
+    if module_name:
+        fail("use package_name instead of module_name in target //%s:%s" % (native.package_name(), name))
+    _js_library(
+        name = name,
+        srcs = srcs,
+        amd_names = amd_names,
+        package_name = package_name,
+        # module_name for legagy ts_library module_mapping support
+        # TODO: remove once legacy module_mapping is removed
+        module_name = package_name,
+        **kwargs
+    )

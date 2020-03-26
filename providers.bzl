@@ -30,6 +30,10 @@ load(
     _js_named_module_info = "js_named_module_info",
 )
 load(
+    "//internal/providers:linkable_package_info.bzl",
+    _LinkablePackageInfo = "LinkablePackageInfo",
+)
+load(
     "//internal/providers:node_runtime_deps_info.bzl",
     _NodeRuntimeDepsInfo = "NodeRuntimeDepsInfo",
     _run_node = "run_node",
@@ -48,6 +52,7 @@ JSEcmaScriptModuleInfo = _JSEcmaScriptModuleInfo
 js_ecma_script_module_info = _js_ecma_script_module_info
 NpmPackageInfo = _NpmPackageInfo
 node_modules_aspect = _node_modules_aspect
+LinkablePackageInfo = _LinkablePackageInfo
 
 #Modelled after _GoContextData in rules_go/go/private/context.bzl
 NodeContextInfo = provider(

@@ -10,7 +10,7 @@ This means you need a workflow like `npm link` to symlink the package from the `
 Under Bazel, we have exactly this monorepo feature. But, we want users to have a better experience than lerna: they shouldn't need to run any tool other than `bazel test` or `bazel run` and they expect programs to work, even when they `require()` some local package from the monorepo.
 
 To make this seamless, we run a linker as a separate program inside the Bazel action, right before node.
-It does essentially the same job as Lerna: make sure there is a `$PWD/node_modules` tree and that all the semantics from Bazel (such as `module_name`/`module_root` attributes) are mapped to the node module resolution algorithm, so that the node runtime behaves the same way as if the packages had been installed from npm.
+It does essentially the same job as Lerna: make sure there is a `$PWD/node_modules` tree and that all the semantics from Bazel (such as LinkablePackageInfo provider) are mapped to the node module resolution algorithm, so that the node runtime behaves the same way as if the packages had been installed from npm.
 
 Note that the behavior of the linker depends on whether the package to link was declared as:
 

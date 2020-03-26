@@ -6,7 +6,7 @@ If all users of your library code use Bazel, they should just add your library
 to the `deps` of one of their targets.
 """
 
-load("//:providers.bzl", "DeclarationInfo", "JSNamedModuleInfo", "NodeContextInfo")
+load("//:providers.bzl", "DeclarationInfo", "JSNamedModuleInfo", "LinkablePackageInfo", "NodeContextInfo")
 load("//internal/common:path_utils.bzl", "strip_external")
 
 _DOC = """The pkg_npm rule creates a directory containing a publishable npm artifact.
@@ -77,6 +77,9 @@ You can pass arguments to npm by escaping them from Bazel using a double-hyphen,
 """
 
 PKG_NPM_ATTRS = {
+    "package_name": attr.string(
+        doc = """Optional package_name that this npm package may be imported as.""",
+    ),
     "srcs": attr.label_list(
         doc = """Files inside this directory which are simply copied into the package.""",
         allow_files = True,
@@ -235,11 +238,23 @@ def _pkg_npm(ctx):
 
     # Note: to_list() should be called once per rule!
     package_dir = create_package(ctx, sources.to_list(), ctx.files.nested_packages)
+    package_dir_depset = depset([package_dir])
 
-    return [DefaultInfo(
-        files = depset([package_dir]),
-        runfiles = ctx.runfiles([package_dir]),
-    )]
+    result = [
+        DefaultInfo(
+            files = package_dir_depset,
+            runfiles = ctx.runfiles([package_dir]),
+        ),
+    ]
+
+    if ctx.attr.package_name:
+        result.append(LinkablePackageInfo(
+            package_name = ctx.attr.package_name,
+            path = package_dir.path,
+            files = package_dir_depset,
+        ))
+
+    return result
 
 pkg_npm = rule(
     implementation = _pkg_npm,

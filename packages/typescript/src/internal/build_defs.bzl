@@ -14,7 +14,7 @@
 
 "TypeScript compilation"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "NpmPackageInfo", "js_ecma_script_module_info", "js_named_module_info", "node_modules_aspect", "run_node")
+load("@build_bazel_rules_nodejs//:providers.bzl", "LinkablePackageInfo", "NpmPackageInfo", "js_ecma_script_module_info", "js_named_module_info", "node_modules_aspect", "run_node")
 
 # pylint: disable=unused-argument
 # pylint: disable=missing-docstring
@@ -301,6 +301,15 @@ def _ts_library_impl(ctx):
         # (JSModuleInfo) and remove legacy "typescript" provider
         # once it is no longer needed.
     ])
+
+    if ctx.attr.module_name:
+        path = "/".join([p for p in [ctx.bin_dir.path, ctx.label.workspace_root, ctx.label.package] if p])
+        ts_providers["providers"].append(LinkablePackageInfo(
+            package_name = ctx.attr.module_name,
+            path = path,
+            files = ts_providers["typescript"]["es5_sources"],
+            _tslibrary = True,
+        ))
 
     return ts_providers_dict_to_struct(ts_providers)
 
