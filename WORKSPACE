@@ -91,18 +91,12 @@ install_bazel_dependencies()
 # Install npm_bazel_typescript dependencies
 #
 
-# Uncomment for local development
-# local_repository(
-#     name = "build_bazel_rules_typescript",
-#     path = "../rules_typescript",
-# )
-
 # We use git_repository since Renovate knows how to update it.
 # With http_archive it only sees releases/download/*.tar.gz urls
 git_repository(
     name = "build_bazel_rules_typescript",
     commit = "10a5a86885f95ab788fd841ade47b6a16e0c13d6",
-    patches = ["//:rules_typescript.patch"],
+    patches = ["//:rules_typescript_pr_496.patch"],
     remote = "http://github.com/bazelbuild/rules_typescript.git",
     shallow_since = "1582757372 -0800",
 )
