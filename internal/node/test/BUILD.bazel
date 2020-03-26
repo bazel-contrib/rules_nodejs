@@ -1,5 +1,6 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "nodejs_test", "npm_package_bin")
 load("@build_bazel_rules_nodejs//internal/golden_file_test:golden_file_test.bzl", "golden_file_test")
+load("@npm//typescript:index.bzl", "tsc")
 load("//internal/js_library:js_library.bzl", "js_library")
 load("//internal/node:node_repositories.bzl", "BUILT_IN_NODE_PLATFORMS")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
@@ -341,4 +342,29 @@ nodejs_test(
     data = ["empty_args_fail.js"],
     entry_point = "empty_args_fail.js",
     expected_exit_code = 0,
+)
+
+tsc(
+    name = "main_lib",
+    outs = [
+        "main.js",
+    ],
+    args = [
+        "-p",
+        "$(execpath tsconfig.json)",
+        "--outDir",
+        # $(RULEDIR) is a shorthand for the dist/bin directory where Bazel requires we write outputs
+        "$(RULEDIR)",
+    ],
+    data = [
+        "main.ts",
+        "tsconfig.json",
+    ],
+)
+
+nodejs_test(
+    name = "main_test",
+    data = [":main_lib"],
+    entry_point = ":main.js",
+    templated_args = ["--nobazel_patch_module_resolver"],
 )
