@@ -191,7 +191,10 @@ for ARG in "${ALL_ARGS[@]:-}"; do
   case "$ARG" in
     --bazel_node_modules_manifest=*) MODULES_MANIFEST="${ARG#--bazel_node_modules_manifest=}" ;;
     --nobazel_patch_module_resolver)
-      MAIN="TEMPLATED_script_path"
+      declare MAIN=$(rlocation "TEMPLATED_entry_point_manifest_path")
+      if [[ ! -f "$MAIN" ]]; then
+        MAIN="TEMPLATED_entry_point_execroot_path"
+      fi
       LAUNCHER_NODE_OPTIONS=( "--require" "$node_patches_script" )
 
       # In this case we should always run the linker
