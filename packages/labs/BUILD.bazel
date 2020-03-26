@@ -1,10 +1,7 @@
 load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "codeowners", "pkg_npm")
 
 codeowners(
-    pattern = "*",
-    teams = [
-        "@mrmeku",
-    ],
+    teams = ["@mrmeku"],
 )
 
 exports_files(["tsconfig.json"])

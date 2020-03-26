@@ -8,6 +8,7 @@ generate_codeowners(
     owners = [
         "//:OWNERS",
         "//packages/labs:OWNERS",
+        "//packages/rollup:OWNERS",
         "//examples:OWNERS.examples_nestjs",
     ],
 )
