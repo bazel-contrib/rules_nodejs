@@ -59,8 +59,8 @@ nodejs_binary(
 
 js_library(
     name = "module_name_lib",
+    package_name = "build_bazel_rules_nodejs/internal/node/test",
     srcs = ["module-name.js"],
-    module_name = "build_bazel_rules_nodejs/internal/node/test",
 )
 
 nodejs_binary(

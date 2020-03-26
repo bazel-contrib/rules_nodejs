@@ -52,10 +52,10 @@ filegroup(
 
 js_library(
     name = "jasmine__pkg",
+    package_name = "@bazel/jasmine",
     srcs = [
         "index.js",
         "jasmine_runner.js",
     ],
-    module_name = "@bazel/jasmine",
 )
 # END-INTERNAL

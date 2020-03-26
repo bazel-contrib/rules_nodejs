@@ -4,7 +4,6 @@ package(default_visibility = ["//packages/rollup:__subpackages__"])
 
 js_library(
     name = "fumlib",
+    package_name = "fumlib",
     srcs = ["index.js"],
-    module_from_src = True,
-    module_name = "fumlib",
 )

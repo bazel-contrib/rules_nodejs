@@ -4,8 +4,10 @@ package(default_visibility = ["//internal:__subpackages__"])
 
 js_library(
     name = "lib1",
-    srcs = glob(["**/*.js"]),
-    module_name = "lib1",
-    # Don't allow deep imports under here
-    module_root = "src/index.d.ts",
+    package_name = "lib1",
+    srcs = [
+        "package.json",
+        "src/index.js",
+        "src/some.js",
+    ],
 )

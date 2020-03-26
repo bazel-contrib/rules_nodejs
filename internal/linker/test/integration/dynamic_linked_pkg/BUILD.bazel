@@ -4,7 +4,6 @@ package(default_visibility = ["//internal/linker/test:__subpackages__"])
 
 js_library(
     name = "dynamic_linked_pkg",
+    package_name = "dynamic_linked",
     srcs = ["index.js"],
-    module_from_src = True,
-    module_name = "dynamic_linked",
 )
