@@ -5,9 +5,6 @@ module.exports = {
     'scope-enum': [
       2, 'always',
       [
-        'bazel',
-        'buildifier',
-        'buildozer',
         'builtin',
         'create',
         'examples',
