@@ -3,6 +3,8 @@ load("@npm_bazel_typescript//:index.bzl", "ts_project")
 ts_project(
     composite = True,
     extends = ["//packages/typescript/test/ts_project:tsconfig-base.json"],
-    source_map = True,
+    # Intentionally not syncing this option from tsconfig, to test validator suppression
+    # source_map = True,
+    validate = False,
     visibility = ["//packages/typescript/test:__subpackages__"],
 )

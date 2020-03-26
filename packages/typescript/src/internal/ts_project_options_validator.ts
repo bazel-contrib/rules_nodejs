@@ -27,8 +27,8 @@ function main([tsconfigPath, output, target, attrsStr]: string[]): 0|1 {
   if (fatalErrors.length > 0)
     throw new Error(tsconfigPath + ':' + ts.formatDiagnostics(fatalErrors, diagnosticsHost));
 
-  const failures = [];
-  const buildozerCmds = [];
+  const failures: string[] = [];
+  const buildozerCmds: string[] = [];
   function check(option: string, attr?: string) {
     attr = attr || option;
     // treat compilerOptions undefined as false
@@ -52,9 +52,9 @@ function main([tsconfigPath, output, target, attrsStr]: string[]): 0|1 {
         target} was configured with attributes that don't match the tsconfig`);
     failures.forEach(f => console.error(' - ' + f));
     console.error('You can automatically fix this by running:');
-    console.error(`    npx buildozer ${buildozerCmds.map(c => `'${c}'`).join(' ')} ${target}`);
+    console.error(`    npx @bazel/buildozer ${buildozerCmds.map(c => `'${c}'`).join(' ')} ${target}`);
     console.error('Or to suppress this error, run:');
-    console.error(`    npx buildozer 'set validate False' ${target}`);
+    console.error(`    npx @bazel/buildozer 'set validate False' ${target}`);
     return 1;
   }
 
