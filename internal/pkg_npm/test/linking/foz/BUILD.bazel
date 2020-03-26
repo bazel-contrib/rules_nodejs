@@ -1,0 +1,36 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "pkg_npm")
+load("//internal/js_library:js_library.bzl", "js_library")
+
+js_library(
+    name = "foz_lib",
+    package_name = "foz_js",
+    srcs = [
+        "index.d.ts",
+        "index.js",
+    ],
+    visibility = ["//internal/pkg_npm/test/linking:__pkg__"],
+)
+
+js_library(
+    name = "scoped_foz_lib",
+    package_name = "@scoped/foz_js",
+    srcs = [
+        "index.d.ts",
+        "index.js",
+    ],
+    visibility = ["//internal/pkg_npm/test/linking:__pkg__"],
+)
+
+pkg_npm(
+    name = "foz",
+    package_name = "foz",
+    visibility = ["//internal/pkg_npm/test/linking:__pkg__"],
+    deps = [":foz_lib"],
+)
+
+pkg_npm(
+    name = "scoped_foz",
+    package_name = "@scoped/foz",
+    visibility = ["//internal/pkg_npm/test/linking:__pkg__"],
+    deps = [":scoped_foz_lib"],
+)

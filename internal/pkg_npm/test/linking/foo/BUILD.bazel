@@ -1,0 +1,38 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "pkg_npm")
+load("//internal/js_library:js_library.bzl", "js_library")
+
+js_library(
+    name = "foo_lib",
+    package_name = "foo_js",
+    srcs = [
+        "main.d.ts",
+        "main.js",
+        "package.json",
+    ],
+    visibility = ["//internal/pkg_npm/test/linking:__pkg__"],
+)
+
+js_library(
+    name = "scoped_foo_lib",
+    package_name = "@scoped/foo_js",
+    srcs = [
+        "main.d.ts",
+        "main.js",
+        "package.json",
+    ],
+    visibility = ["//internal/pkg_npm/test/linking:__pkg__"],
+)
+
+pkg_npm(
+    name = "foo",
+    package_name = "foo",
+    visibility = ["//internal/pkg_npm/test/linking:__pkg__"],
+    deps = [":foo_lib"],
+)
+
+pkg_npm(
+    name = "scoped_foo",
+    package_name = "@scoped/foo",
+    visibility = ["//internal/pkg_npm/test/linking:__pkg__"],
+    deps = [":scoped_foo_lib"],
+)
