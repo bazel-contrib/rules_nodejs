@@ -77,3 +77,7 @@ sh_test(
 load(":expand_into_runfiles_test.bzl", "expand_into_runfiles_test_suite")
 
 expand_into_runfiles_test_suite()
+
+load(":preserve_legacy_rlocation_test.bzl", "preserve_legacy_rlocation_test_suite")
+
+preserve_legacy_rlocation_test_suite()

@@ -24,6 +24,7 @@ load("//:providers.bzl", "JSNamedModuleInfo", "NodeRuntimeDepsInfo", "NpmPackage
 load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
 load("//internal/common:module_mappings.bzl", "module_mappings_runtime_aspect")
 load("//internal/common:path_utils.bzl", "strip_external")
+load("//internal/common:preserve_legacy_rlocation.bzl", "preserve_legacy_rlocation")
 load("//internal/common:windows_utils.bzl", "create_windows_native_launcher_script", "is_windows")
 load("//internal/linker:link_node_modules.bzl", "module_mappings_aspect", "write_node_modules_manifest")
 load("//internal/node:node_repositories.bzl", "BUILT_IN_NODE_PLATFORMS")
@@ -211,9 +212,13 @@ def _nodejs_binary_impl(ctx):
 
     is_builtin = ctx.attr._node.label.workspace_name in ["nodejs_%s" % p for p in BUILT_IN_NODE_PLATFORMS]
 
+    # First replace any instances of "$(rlocation " with "$$(rlocation " to preserve
+    # legacy uses of "$(rlocation"
+    expanded_args = [preserve_legacy_rlocation(a) for a in ctx.attr.templated_args]
+
     # First expand predefined source/output path variables:
     # $(execpath), $(rootpath) & legacy $(location)
-    expanded_args = [expand_location_into_runfiles(ctx, a, ctx.attr.data) for a in ctx.attr.templated_args]
+    expanded_args = [expand_location_into_runfiles(ctx, a, ctx.attr.data) for a in expanded_args]
 
     # Next expand predefined variables & custom variables
     expanded_args = [ctx.expand_make_variables("templated_args", e, {}) for e in expanded_args]
@@ -510,7 +515,10 @@ of being expanded. `$(rlocation)` is then evaluated by the bash node launcher sc
 the `rlocation` function in the runfiles.bash helper. For example, the templated arg
 `$$(rlocation $(rootpath //:some_file))` is expanded by Bazel to `$(rlocation ./some_file)` which
 is then converted in bash to the absolute path of `//:some_file` in runfiles by the runfiles.bash helper
-before being passed as an argument to the program
+before being passed as an argument to the program.
+
+NB: nodejs_binary and nodejs_test will preserve the legacy behavior of `$(rlocation)` so users don't
+need to update to `$$(rlocation)`. This may be changed in the future.
 
 2. Subject to predefined variables & custom variable substitutions.
 
