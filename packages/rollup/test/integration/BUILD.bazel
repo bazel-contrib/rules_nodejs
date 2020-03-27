@@ -39,6 +39,7 @@ _BUNDLE_FORMATS = [
     for format in _BUNDLE_FORMATS
 ]
 
+# Verify the bundle .js files
 [
     golden_file_test(
         name = "test_%s" % format,
@@ -56,12 +57,46 @@ nodejs_binary(
     entry_point = ":sha256.js",
 )
 
+# Verify the hash of bundle .map files
+[
+    npm_package_bin(
+        name = "bundle_%s_map_sha256" % format,
+        outs = ["bundle.%s.js.map.sha256" % format],
+        args = [
+            "$(execpath :bundle.%s.js.map)" % format,
+            "$(execpath :bundle.%s.js.map.sha256)" % format,
+        ],
+        data = [
+            # ":bundle.*.js" included as a dep as Bazel requires it for
+            # the "$(execpath :bundle.*.js)" location expansion to work
+            ":bundle.%s.js.map" % format,
+            # Also include ":bundle.*" as a dep so that the module mappings
+            # from the ":bundle.*" as propogated to ensure the linker
+            # handles these propogated mappings property
+            ":bundle.%s" % format,
+        ],
+        tool = ":sha256",
+    )
+    for format in _BUNDLE_FORMATS
+]
+
+[
+    golden_file_test(
+        name = "test_%s_map_sha256" % format,
+        actual = "bundle.%s.js.map.sha256" % format,
+        golden = ":golden.%s.js.map.sha256_" % format,
+        # TODO: fix this test on Windows as sha256 differs
+        tags = ["fix-windows"],
+    )
+    for format in _BUNDLE_FORMATS
+]
+
 npm_package_bin(
     name = "bundle_umd_sha256",
-    outs = ["bundle.umd.sha256"],
+    outs = ["bundle.umd.js.sha256"],
     args = [
         "$(execpath :bundle.umd.js)",
-        "$(execpath :bundle.umd.sha256)",
+        "$(execpath :bundle.umd.js.sha256)",
     ],
     data = [
         # ":bundle.umd.js" included as a dep as Bazel requires it for
@@ -77,8 +112,8 @@ npm_package_bin(
 
 golden_file_test(
     name = "test_umd_sha256",
-    actual = "bundle.umd.sha256",
-    golden = ":golden.umd.sha256_",
+    actual = "bundle.umd.js.sha256",
+    golden = ":golden.umd.js.sha256_",
     # TODO: fix this test on Windows as sha256 differs
     tags = ["fix-windows"],
 )
