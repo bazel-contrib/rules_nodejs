@@ -1,25 +1,26 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "pkg_npm")
+load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin", "pkg_npm")
 load("//internal/js_library:js_library.bzl", "js_library")
 
-js_library(
-    name = "foo_lib",
-    package_name = "foo_js",
+copy_to_bin(
+    name = "foo_copy_to_bin",
     srcs = [
         "main.d.ts",
         "main.js",
         "package.json",
     ],
+)
+
+js_library(
+    name = "foo_lib",
+    package_name = "foo_js",
+    srcs = [":foo_copy_to_bin"],
     visibility = ["//internal/pkg_npm/test/linking:__pkg__"],
 )
 
 js_library(
     name = "scoped_foo_lib",
     package_name = "@scoped/foo_js",
-    srcs = [
-        "main.d.ts",
-        "main.js",
-        "package.json",
-    ],
+    srcs = [":foo_copy_to_bin"],
     visibility = ["//internal/pkg_npm/test/linking:__pkg__"],
 )
 
