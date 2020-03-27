@@ -17,7 +17,7 @@
 DO NOT USE - this is not fully designed, and exists only to enable testing within this repo.
 """
 
-load("//internal/providers:linkable_package_info.bzl", "LinkablePackageInfo")
+load("//:providers.bzl", "LinkablePackageInfo")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/private/copy_file_private.bzl", "copy_bash", "copy_cmd")
 
 _AMD_NAMES_DOC = """Mapping from require module names to global variables.

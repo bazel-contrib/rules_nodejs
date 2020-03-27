@@ -19,14 +19,10 @@ cmd.exe (on Windows). '_copy_xfile' marks the resulting file executable,
 '_copy_file' does not.
 """
 
+# BEGIN LOCAL MOD
 def _hash_file(file):
-    # Strip the minus off of hash if it is negative.
-    # Reduces the hash space by 2 but will still be sufficient large as it
-    # only needs to be unique within a package.
-    result = str(hash(file.path))
-    if result[0] == "-":
-        result = result[1:]
-    return result
+    return str(hash(file.path))
+# END LOCAL MOD
 
 def copy_cmd(ctx, src, dst):
     # Most Windows binaries built with MSVC use a certain argument quoting
