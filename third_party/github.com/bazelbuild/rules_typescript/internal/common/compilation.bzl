@@ -133,7 +133,7 @@ def _outputs(ctx, label, srcs_files = []):
       srcs_files: File list. sources files list.
 
     Returns:
-      A struct of file lists for different output types.
+      A struct of file lists for different output types and their relationship to each other.
     """
     workspace_segments = label.workspace_root.split("/") if label.workspace_root else []
     package_segments = label.package.split("/") if label.package else []
@@ -143,6 +143,7 @@ def _outputs(ctx, label, srcs_files = []):
     closure_js_files = []
     devmode_js_files = []
     declaration_files = []
+    transpilation_infos = []
     for input_file in srcs_files:
         is_dts = input_file.short_path.endswith(".d.ts")
         if is_dts and not create_shim_files:
@@ -152,7 +153,8 @@ def _outputs(ctx, label, srcs_files = []):
             if basename.endswith(ext):
                 basename = basename[:-len(ext)]
                 break
-        closure_js_files += [ctx.actions.declare_file(basename + ".mjs")]
+        closure_js_file = ctx.actions.declare_file(basename + ".mjs")
+        closure_js_files.append(closure_js_file)
 
         # Temporary until all imports of ngfactory/ngsummary files are removed
         # TODO(alexeagle): clean up after Ivy launch
@@ -161,7 +163,9 @@ def _outputs(ctx, label, srcs_files = []):
             closure_js_files += [ctx.actions.declare_file(basename + ".ngsummary.mjs")]
 
         if not is_dts:
-            devmode_js_files += [ctx.actions.declare_file(basename + ".js")]
+            devmode_js_file = ctx.actions.declare_file(basename + ".js")
+            devmode_js_files.append(devmode_js_file)
+            transpilation_infos.append(struct(closure = closure_js_file, devmode = devmode_js_file))
             declaration_files += [ctx.actions.declare_file(basename + ".d.ts")]
 
             # Temporary until all imports of ngfactory/ngsummary files are removed
@@ -175,6 +179,7 @@ def _outputs(ctx, label, srcs_files = []):
         closure_js = closure_js_files,
         devmode_js = devmode_js_files,
         declarations = declaration_files,
+        transpilation_infos = transpilation_infos,
     )
 
 def compile_ts(
@@ -256,6 +261,9 @@ def compile_ts(
     transpiled_closure_js = outs.closure_js
     transpiled_devmode_js = outs.devmode_js
     gen_declarations = outs.declarations
+
+    # Not all existing implementations of outputs() may return transpilation_infos
+    transpilation_infos = getattr(outs, "transpilation_infos", [])
 
     if has_sources and _get_runtime(ctx) != "nodejs":
         # Note: setting this variable controls whether tsickle is run at all.
@@ -475,6 +483,7 @@ def compile_ts(
             "replay_params": replay_params,
             "transitive_es6_sources": transitive_es6_sources,
             "tsickle_externs": tsickle_externs,
+            "transpilation_infos": transpilation_infos,
         },
     }
 
