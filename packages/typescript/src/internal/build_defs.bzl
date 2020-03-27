@@ -22,7 +22,8 @@ load("@build_bazel_rules_typescript//internal:common/compilation.bzl", "COMMON_A
 load("@build_bazel_rules_typescript//internal:common/tsconfig.bzl", "create_tsconfig")
 load("//internal:ts_config.bzl", "TsConfigInfo")
 
-_DEFAULT_COMPILER = "@npm//@bazel/typescript/bin:tsc_wrapped"
+# NB: substituted with "@npm//@bazel/typescript/bin:tsc_wrapped" in the pkg_npm rule
+_DEFAULT_COMPILER = "@build_bazel_rules_typescript//internal:tsc_wrapped_bin"
 _DEFAULT_NODE_MODULES = Label("@npm//typescript:typescript__typings")
 
 _TYPESCRIPT_SCRIPT_TARGETS = ["es3", "es5", "es2015", "es2016", "es2017", "es2018", "esnext"]

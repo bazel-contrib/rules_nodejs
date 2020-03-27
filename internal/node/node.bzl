@@ -87,7 +87,7 @@ def _write_require_patch_script(ctx):
     for d in ctx.attr.data:
         if hasattr(d, "runfiles_module_mappings"):
             for [mn, mr] in d.runfiles_module_mappings.items():
-                escaped = mn.replace("/", "\/").replace(".", "\.")
+                escaped = mn.replace("/", "\\/").replace(".", "\\.")
                 mapping = "{module_name: /^%s\\b/, module_root: '%s'}" % (escaped, mr)
                 module_mappings.append(mapping)
 

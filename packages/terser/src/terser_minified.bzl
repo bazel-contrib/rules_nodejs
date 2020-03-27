@@ -96,7 +96,8 @@ so that it only affects the current build.
     ),
     "terser_bin": attr.label(
         doc = "An executable target that runs Terser",
-        default = Label("@npm//@bazel/terser/bin:terser"),
+        # NB: will be substituted with "@npm//@bazel/terser/bin:terser" in the pkg_npm
+        default = Label("@npm_bazel_terser//:terser-local"),
         executable = True,
         cfg = "host",
     ),

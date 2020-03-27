@@ -1,5 +1,5 @@
 load("@npm_bazel_protractor//:index.from_src.bzl", "protractor_web_test_suite")
-load("@npm_bazel_typescript//:index.from_src.bzl", "ts_library")
+load("@npm_bazel_typescript//:index.bzl", "ts_library")
 
 ts_library(
     name = "ts_spec",
