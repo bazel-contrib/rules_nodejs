@@ -1,0 +1,1 @@
+export {stringCompare} from './lib';

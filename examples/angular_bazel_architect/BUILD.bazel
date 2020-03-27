@@ -36,6 +36,8 @@ architect(
         "@npm//@angular-devkit/architect-cli",
         "@npm//@angular-devkit/build-angular",
         "//projects/frontend-lib",
+        "//libs/ng-lib",
+        "//libs/ts-lib",
     ],
     output_dir = True,
 )
@@ -65,6 +67,8 @@ architect_test(
         "@npm//karma-jasmine",
         "@npm//karma-jasmine-html-reporter",
         "//projects/frontend-lib",
+        "//libs/ng-lib",
+        "//libs/ts-lib",
     ],
     tags = [
         "browser:chromium-local",
@@ -111,6 +115,8 @@ architect_test(
         "@npm//@types/jasminewd2",
         "@npm//@types/node",
         "//projects/frontend-lib",
+        "//libs/ng-lib",
+        "//libs/ts-lib",
     ],
     tags = [
         "browser:chromium-local",
@@ -141,6 +147,8 @@ architect(
         "@npm//@angular-devkit/build-angular",
         "@npm//codelyzer",
         "@npm//tslint",
+        "//libs/ng-lib",
+        "//libs/ts-lib",
     ],
 )
 
@@ -171,6 +179,8 @@ architect(
         "@npm//@angular/platform-browser-dynamic",
         "@npm//@angular-devkit/build-angular",
         "//projects/frontend-lib",
+        "//libs/ng-lib",
+        "//libs/ts-lib",
     ],
     tags = ["ibazel_notify_changes"],
 )

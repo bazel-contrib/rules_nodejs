@@ -1,0 +1,18 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "pkg_npm")
+load("@npm_bazel_typescript//:index.bzl", "ts_project")
+
+package(default_visibility = ["//visibility:public"])
+
+ts_project(
+    declaration = True,
+    tsc = "@npm//@angular/compiler-cli/bin:ngc",
+    deps = [
+        "@npm//@angular/core",
+    ],
+)
+
+pkg_npm(
+    name = "ng-lib",
+    package_name = "@libs/ng-lib",
+    deps = [":tsconfig"],
+)

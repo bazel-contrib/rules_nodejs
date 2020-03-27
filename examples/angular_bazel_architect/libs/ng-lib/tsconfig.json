@@ -1,0 +1,8 @@
+{
+    "compilerOptions": {
+        "experimentalDecorators": true,
+        "lib": ["DOM", "ESNext"],
+        "declaration": true,
+        "types": []
+    }
+}

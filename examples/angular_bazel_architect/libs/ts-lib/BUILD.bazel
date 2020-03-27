@@ -1,0 +1,14 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "pkg_npm")
+load("@npm_bazel_typescript//:index.bzl", "ts_project")
+
+package(default_visibility = ["//visibility:public"])
+
+ts_project(
+    declaration = True,
+)
+
+pkg_npm(
+    name = "ts-lib",
+    package_name = "@libs/ts-lib",
+    deps = [":tsconfig"],
+)
