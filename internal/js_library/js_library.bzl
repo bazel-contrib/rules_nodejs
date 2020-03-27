@@ -49,12 +49,9 @@ def write_amd_names_shim(actions, amd_names_shim, targets):
     actions.write(amd_names_shim, amd_names_shim_content)
 
 def _impl(ctx):
-    if not ctx.files.srcs:
-        fail("No srcs specified")
-
-    source_files = ctx.files.srcs[0].is_source
+    is_all_sources = ctx.files.srcs and ctx.files.srcs[0].is_source
     for src in ctx.files.srcs:
-        if src.is_source != source_files:
+        if src.is_source != is_all_sources:
             fail("Mixing of source and generated files not allowed")
 
     sources_depset = depset(ctx.files.srcs)
@@ -68,7 +65,7 @@ def _impl(ctx):
     ]
 
     if ctx.attr.package_name:
-        if source_files:
+        if is_all_sources:
             path = "/".join([p for p in [ctx.label.workspace_root, ctx.label.package] if p])
         else:
             path = "/".join([p for p in [ctx.bin_dir.path, ctx.label.workspace_root, ctx.label.package] if p])
@@ -84,14 +81,18 @@ _js_library = rule(
     implementation = _impl,
     attrs = {
         "package_name": attr.string(),
-        "srcs": attr.label_list(allow_files = True),
+        "srcs": attr.label_list(
+            allow_files = True,
+            mandatory = True,
+        ),
         "amd_names": attr.string_dict(doc = _AMD_NAMES_DOC),
-        # module_name for legagy ts_library module_mapping support
+        # module_name for legacy ts_library module_mapping support
         # TODO: remove once legacy module_mapping is removed
         "module_name": attr.string(),
     },
 )
 
+# TODO: remove this macro once legacy module_mapping is removed
 def js_library(
         name,
         srcs,
@@ -106,7 +107,7 @@ def js_library(
         srcs = srcs,
         amd_names = amd_names,
         package_name = package_name,
-        # module_name for legagy ts_library module_mapping support
+        # module_name for legacy ts_library module_mapping support
         # TODO: remove once legacy module_mapping is removed
         module_name = package_name,
         **kwargs
