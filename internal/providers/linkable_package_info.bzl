@@ -18,9 +18,25 @@
 LinkablePackageInfo = provider(
     doc = "A doc string",
     fields = {
-        "package_name": "The package name",
+        "package_name": """The package name.
+
+Should be the same as name field in the package's package.json.
+
+In the future, the linker may validate that the names match the name in a package.json file.
+""",
         "files": "Depset of files in this package (must all be contained within path)",
-        "path": "The path to link to",
+        "path": """The path to link to.
+
+Path must be relative to execroot/wksp. It can either an output dir path such as,
+
+'bazel-out/<platform>-<build>/bin/path/to/package' or
+'bazel-out/<platform>-<build>/bin/external/<external_wksp>/path/to/package'
+
+or a source file path such as,
+
+'path/to/package' or
+'external/<external_wksp>/path/to/package'
+""",
         "_tslibrary": "For internal use only",
     },
 )
