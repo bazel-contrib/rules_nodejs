@@ -1,21 +1,19 @@
-load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
-
 package(default_visibility = ["//visibility:public"])
 
 licenses(["notice"])
 
 exports_files(["LICENSE"])
 
-js_library(
-    name = "isBinaryFile",
-    srcs = [
-        "src/index.js",
-        "package.json",
-    ],
-    package_name = "isbinaryfile",
-)
-
 filegroup(
     name = "package_contents",
-    srcs = glob(["*"]) + [":isBinaryFile"],
+    srcs = [
+        "BUILD.bazel",
+        "LICENSE",
+        "//third_party/github.com/gjtorikian/isBinaryFile/src:package_contents",
+    ]
+)
+
+alias(
+    name = "isBinaryFile",
+    actual = "//third_party/github.com/gjtorikian/isBinaryFile/src",
 )
