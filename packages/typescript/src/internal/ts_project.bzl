@@ -47,6 +47,9 @@ def _ts_project_impl(ctx):
         ctx.file.tsconfig.short_path,
         "--outDir",
         "/".join([ctx.bin_dir.path, ctx.label.package]),
+        # Make sure TypeScript writes outputs to same directory structure as inputs
+        "--rootDir",
+        ctx.label.package if ctx.label.package else ".",
     ])
     if len(ctx.outputs.typings_outs) > 0:
         arguments.add_all([
