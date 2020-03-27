@@ -97,7 +97,12 @@ jasmine_node_test(
         "dynamic_import.js",
     ],
     args = [
+        # the --node_options arg will be consumed by the node launcher
         "--node_options=--experimental-modules",
+        # the remaining args should be passed to the spec
+        "arg1",
+        "arg2",
+        "arg3",
     ],
 )
 
@@ -107,8 +112,16 @@ jasmine_node_test(
         "args_test.js",
         "dynamic_import.js",
     ],
+    args = [
+        # args should be passed after templated_args
+        "arg3",
+    ],
     templated_args = [
+        # the --node_options templated arg will be consumed by the node launcher
         "--node_options=--experimental-modules",
+        # the remaining args should be passed to the spec
+        "arg1",
+        "arg2",
     ],
 )
 
