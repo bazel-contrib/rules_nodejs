@@ -1,8 +1,7 @@
+load("@npm_bazel_labs//:index.bzl", "ts_proto_library")
 load("@rules_proto//proto:defs.bzl", "proto_library")
 
 package(default_visibility = ["//:__subpackages__"])
-
-load("@npm_bazel_labs//:index.bzl", "ts_proto_library")
 
 proto_library(
     name = "naming_styles_proto",

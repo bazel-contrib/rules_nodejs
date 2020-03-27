@@ -50,7 +50,7 @@ filegroup(
 )
 
 nodejs_binary(
-    name = "terser",
+    name = "terser-local",
     data = ["@npm//terser"],
     entry_point = "index.js",
 )

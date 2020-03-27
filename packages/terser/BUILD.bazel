@@ -35,6 +35,9 @@ pkg_npm(
         "@npm_bazel_terser//:package_contents",
     ],
     build_file_content = """exports_files(["terser_config.default.json"])""",
+    substitutions = {
+        "@npm_bazel_terser//:terser-local": "@npm//@bazel/terser/bin:terser",
+    },
     vendor_external = [
         "npm_bazel_terser",
     ],

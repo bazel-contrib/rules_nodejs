@@ -12,11 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-package(default_visibility = ["//visibility:public"])
-
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+load("@io_bazel_rules_docker//nodejs:image.bzl", "nodejs_image")
 load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
 load("@npm_bazel_typescript//:index.bzl", "ts_library")
+
+package(default_visibility = ["//visibility:public"])
 
 ts_library(
     name = "app",
@@ -68,8 +69,6 @@ jasmine_node_test(
         ":test_lib",
     ],
 )
-
-load("@io_bazel_rules_docker//nodejs:image.bzl", "nodejs_image")
 
 # bazel build --platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64 //src:docker
 nodejs_image(

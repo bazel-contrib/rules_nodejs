@@ -2,6 +2,8 @@ load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
 load("//internal/common:copy_to_bin.bzl", "copy_to_bin")
 load("//internal/common:params_file.bzl", "params_file")
+load(":expand_into_runfiles_test.bzl", "expand_into_runfiles_test_suite")
+load(":preserve_legacy_rlocation_test.bzl", "preserve_legacy_rlocation_test_suite")
 
 licenses(["notice"])
 
@@ -74,10 +76,6 @@ sh_test(
     deps = ["@bazel_tools//tools/bash/runfiles"],
 )
 
-load(":expand_into_runfiles_test.bzl", "expand_into_runfiles_test_suite")
-
 expand_into_runfiles_test_suite()
-
-load(":preserve_legacy_rlocation_test.bzl", "preserve_legacy_rlocation_test_suite")
 
 preserve_legacy_rlocation_test_suite()

@@ -18,20 +18,14 @@
 load("@build_bazel_rules_nodejs//internal/golden_file_test:golden_file_test.bzl", "golden_file_test")
 load(
     ":index.bzl",
+    "ts_library",
     _ts_devserver = "ts_devserver",
-    _ts_library = "ts_library",
 )
 
 def ts_devserver(**kwargs):
     _ts_devserver(
         devserver = "@build_bazel_rules_typescript//devserver:devserver_bin",
         devserver_host = "@build_bazel_rules_typescript//devserver:devserver_bin",
-        **kwargs
-    )
-
-def ts_library(**kwargs):
-    _ts_library(
-        compiler = "@build_bazel_rules_typescript//internal:tsc_wrapped_bin",
         **kwargs
     )
 

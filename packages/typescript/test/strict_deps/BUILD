@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@npm_bazel_typescript//:index.from_src.bzl", "ts_library")
+load("@npm_bazel_typescript//:index.bzl", "ts_library")
 
 ts_library(
     name = "grandparent",
@@ -39,7 +39,7 @@ ts_library(
     name = "strict_deps",
     srcs = ["child.ts"],
     expected_diagnostics = [
-        "TS2307:child\.ts\(2,.*transitive dependency.*not allowed",
+        "TS2307:child\\.ts\\(2,.*transitive dependency.*not allowed",
     ],
     deps = [":parent"],
 )
@@ -48,7 +48,7 @@ ts_library(
     name = "strict_deps_npm",
     srcs = ["child2.ts"],
     expected_diagnostics = [
-        "TS2307:child2\.ts\(2,.*transitive dependency.*not allowed",
+        "TS2307:child2\\.ts\\(2,.*transitive dependency.*not allowed",
     ],
     deps = [":parent"],
 )

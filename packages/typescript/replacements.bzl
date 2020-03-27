@@ -23,9 +23,11 @@ TYPESCRIPT_REPLACEMENTS = dict(
         # This BEGIN-DEV fencing is required as files pulled in from
         # @build_bazel_rules_typescript//:npm_bazel_typescript_package
         # use this alternate fencing
-        "(#|\/\/)\\s+BEGIN-DEV-ONLY[\\w\W]+?(#|\/\/)\\s+END-DEV-ONLY": "",
+        "(#|\\/\\/)\\s+BEGIN-DEV-ONLY[\\w\\W]+?(#|\\/\\/)\\s+END-DEV-ONLY": "",
         "//internal:local_validator": "@npm//@bazel/typescript/bin:ts_project_options_validator",
         # This file gets vendored into our repo
         "@build_bazel_rules_typescript//internal:common": "//internal:common",
+        # Replace the local compiler label with one that comes from npm
+        "@build_bazel_rules_typescript//internal:tsc_wrapped_bin": "@npm//@bazel/typescript/bin:tsc_wrapped",
     }
 )
