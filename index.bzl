@@ -87,7 +87,7 @@ def yarn_install(**kwargs):
 # It will be automatically synced via the npm "version" script
 # that is run when running `npm version` during the release
 # process. See `Releasing` section in README.md.
-VERSION = "1.4.1"
+VERSION = "1.5.0"
 
 # Currently used Bazel version. This version is what the rules here are tested
 # against.
