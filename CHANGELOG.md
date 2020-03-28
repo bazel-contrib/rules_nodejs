@@ -4,15 +4,11 @@
 ### Bug Fixes
 
 * **builtin:** entry point of a .tsx file is .js ([#1732](https://github.com/bazelbuild/rules_nodejs/issues/1732)) ([24607ed](https://github.com/bazelbuild/rules_nodejs/commit/24607ed)), closes [#1730](https://github.com/bazelbuild/rules_nodejs/issues/1730)
-* **builtin:** fix for nodejs_binary entry point in bazel-out logic ([863c7de](https://github.com/bazelbuild/rules_nodejs/commit/863c7de))
-* **builtin:** fix for nodejs_binary entry point in bazel-out logic ([#1739](https://github.com/bazelbuild/rules_nodejs/issues/1739)) ([a6e29c2](https://github.com/bazelbuild/rules_nodejs/commit/a6e29c2))
-* **docs:** invalid link of examples ([#1728](https://github.com/bazelbuild/rules_nodejs/issues/1728)) ([7afaa48](https://github.com/bazelbuild/rules_nodejs/commit/7afaa48))
-* **docs:** syntax error in example code ([#1731](https://github.com/bazelbuild/rules_nodejs/issues/1731)) ([51785e5](https://github.com/bazelbuild/rules_nodejs/commit/51785e5))
-* **examples:** fix angular examples prod serve doesn't work on windows ([#1699](https://github.com/bazelbuild/rules_nodejs/issues/1699)) ([063fb13](https://github.com/bazelbuild/rules_nodejs/commit/063fb13)), closes [#1606](https://github.com/bazelbuild/rules_nodejs/issues/1606)
+* **builtin:** fix for nodejs_binary entry point in bazel-out logic ([#1739](https://github.com/bazelbuild/rules_nodejs/issues/1739)) ([a6e29c2](https://github.com/bazelbuild/rules_nodejs/commit/a6e29c2)) ([863c7de](https://github.com/bazelbuild/rules_nodejs/commit/863c7de))
+closes [#1606](https://github.com/bazelbuild/rules_nodejs/issues/1606)
 * **jasmine:** user templated_args should be passed to jasmine after 3 internal templated_args ([#1743](https://github.com/bazelbuild/rules_nodejs/issues/1743)) ([baa68c1](https://github.com/bazelbuild/rules_nodejs/commit/baa68c1))
 * **typescript:** fix ts_library to allow deps with module_name but no module_root attrs ([#1738](https://github.com/bazelbuild/rules_nodejs/issues/1738)) ([0b5ad2a](https://github.com/bazelbuild/rules_nodejs/commit/0b5ad2a))
 * **typescript:** pass rootDir to ts_project tsc actions ([#1748](https://github.com/bazelbuild/rules_nodejs/issues/1748)) ([13caf8b](https://github.com/bazelbuild/rules_nodejs/commit/13caf8b))
-* invalid link in index ([b47cc74](https://github.com/bazelbuild/rules_nodejs/commit/b47cc74))
 
 
 ### Features
@@ -26,6 +22,16 @@
 * **typescript:** add ts_project rule ([#1710](https://github.com/bazelbuild/rules_nodejs/issues/1710)) ([26f6698](https://github.com/bazelbuild/rules_nodejs/commit/26f6698))
 
 
+### Examples
+
+* **examples:** fix angular examples prod serve doesn't work on windows ([#1699](https://github.com/bazelbuild/rules_nodejs/issues/1699)) ([063fb13](https://github.com/bazelbuild/rules_nodejs/commit/063fb13)), 
+
+
+### Documentation
+
+* **docs:** invalid link of examples ([#1728](https://github.com/bazelbuild/rules_nodejs/issues/1728)) ([7afaa48](https://github.com/bazelbuild/rules_nodejs/commit/7afaa48))
+* **docs:** syntax error in example code ([#1731](https://github.com/bazelbuild/rules_nodejs/issues/1731)) ([51785e5](https://github.com/bazelbuild/rules_nodejs/commit/51785e5))
+* **docs:** invalid link in index ([b47cc74](https://github.com/bazelbuild/rules_nodejs/commit/b47cc74))
 
 ## [1.4.1](https://github.com/bazelbuild/rules_nodejs/compare/1.4.0...1.4.1) (2020-03-06)
 
