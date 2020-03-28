@@ -13,48 +13,34 @@ stylesheet: docs
 
 The TypeScript rules integrate the TypeScript compiler with Bazel.
 
-Looking for Karma rules `ts_web_test` and `karma_web_test`?
-These are now documented in the README at http://npmjs.com/package/@bazel/karma
-
 
 ## Alternatives
 
-This package provides Bazel wrappers around the TypeScript compiler, and are how we compile TS code at Google.
+This package provides Bazel wrappers around the TypeScript compiler.
 
-These rules are opinionated, for example:
+At a high level, there are two alternatives provided: `ts_project` and `ts_library`.
+This section describes the trade-offs between these rules.
+
+`ts_project` simply runs `tsc --project`, with Bazel knowing which outputs to expect based on the TypeScript compiler options, and with interoperability with other TypeScript rules via a Bazel Provider (DeclarationInfo) that transmits the type information.
+It is intended as an easy on-boarding for existing TypeScript code and should be familiar if your background is in frontend ecosystem idioms.
+Any behavior of `ts_project` should be reproducible outside of Bazel, with a couple of caveats noted in the rule documentation below.
+
+> We used to recommend using the `tsc` rule directly from the `typescript` project, like
+> `load("@npm//typescript:index.bzl", "tsc")`
+> However `ts_project` is strictly better and should be used instead.
+
+`ts_library` is an open-sourced version of the rule we use to compile TS code at Google.
+It should be familiar if your background is in Bazel idioms.
+It is very complex, involving code generation of the `tsconfig.json` file, a custom compiler binary, and a lot of extra features.
+It is also opinionated, and may not work with existing TypeScript code. For example:
 
 - Your TS code must compile under the `--declaration` flag so that downstream libraries depend only on types, not implementation. This makes Bazel faster by avoiding cascading rebuilds in cases where the types aren't changed.
 - We control the output format and module syntax so that downstream rules can rely on them.
 
-They are also fast and optimized:
-
-- We keep a running TypeScript compile running as a daemon, using Bazel workers. This process avoids re-parse and re-JIT of the >1MB `typescript.js` and keeps cached bound ASTs for input files which saves time.
-
-We understand this is a tradeoff. If you want to use the plain TypeScript compiler provided by the TS team at Microsoft, you can do this by calling its CLI directly. For example,
-
-```python
-load("@npm//typescript:index.bzl", "tsc")
-
-srcs = glob(["*.ts"])
-deps = ["@npm//@types/node"]
-
-tsc(
-    name = "compile",
-    data = srcs + deps,
-    outs = [s.replace(".ts", ext) for ext in [".js", ".d.ts"] for s in srcs],
-    args = [
-        "--outDir",
-        "$(RULEDIR)",
-        "--lib",
-        "es2017,dom",
-        "--downlevelIteration",
-        "--declaration",
-    ] + [
-        "$(location %s)" % s
-        for s in srcs
-    ],
-)
-```
+On the other hand, `ts_library` is also fast and optimized.
+We keep a running TypeScript compile running as a daemon, using Bazel workers.
+This process avoids re-parse and re-JIT of the >1MB `typescript.js` and keeps cached bound ASTs for input files which saves time.
+We also produce JS code which can be loaded faster (using named AMD module format) and which can be consumed by the Closure Compiler (via integration with [tsickle](https://github.com/angular/tsickle)).
 
 
 ## Installation
@@ -524,7 +510,7 @@ TypeScript targets and JavaScript for the browser and Closure compiler.
 ### Usage
 
 ```
-ts_library(name, compile_angular_templates, compiler, data, deps, expected_diagnostics, generate_externs, internal_testing_type_check_dependencies, module_name, module_root, node_modules, runtime, runtime_deps, srcs, supports_workers, tsconfig, tsickle_typed)
+ts_library(name, compile_angular_templates, compiler, data, deps, devmode_module, devmode_target, expected_diagnostics, generate_externs, internal_testing_type_check_dependencies, module_name, module_root, node_modules, prodmode_module, prodmode_target, runtime, runtime_deps, srcs, supports_workers, tsconfig, tsickle_typed)
 ```
 
 
@@ -560,6 +546,20 @@ Defaults to `[]`
 (*[labels]*): Compile-time dependencies, typically other ts_library targets
 
 Defaults to `[]`
+
+#### `devmode_module`
+(*String*): Set the typescript `module` compiler option for devmode output.
+
+This value will override the `module` option in the user supplied tsconfig.
+
+Defaults to `"umd"`
+
+#### `devmode_target`
+(*String*): Set the typescript `target` compiler option for devmode output.
+
+This value will override the `target` option in the user supplied tsconfig.
+
+Defaults to `"es2015"`
 
 #### `expected_diagnostics`
 (*List of strings*)
@@ -651,6 +651,20 @@ yarn_install(
 
 Defaults to `@npm//typescript:typescript__typings`
 
+#### `prodmode_module`
+(*String*): Set the typescript `module` compiler option for prodmode output.
+
+This value will override the `module` option in the user supplied tsconfig.
+
+Defaults to `"esnext"`
+
+#### `prodmode_target`
+(*String*): Set the typescript `target` compiler option for prodmode output.
+
+This value will override the `target` option in the user supplied tsconfig.
+
+Defaults to `"es2015"`
+
 #### `runtime`
 (*String*)
 
@@ -692,6 +706,253 @@ Defaults to `None`
 (*Boolean*): If using tsickle, instruct it to translate types to ClosureJS format
 
 Defaults to `True`
+
+
+## ts_project
+
+Compiles one TypeScript project using `tsc --project`
+
+This is a drop-in replacement for the `tsc` rule automatically generated for the "typescript"
+package, typically loaded from `@npm//typescript:index.bzl`. Unlike bare `tsc`, this rule understands
+the Bazel interop mechanism (Providers) so that this rule works with others that produce or consume
+TypeScript typings (`.d.ts` files).
+
+Unlike `ts_library`, this rule is the thinnest possible layer of Bazel interoperability on top
+of the TypeScript compiler. It shifts the burden of configuring TypeScript into the tsconfig.json file.
+See https://github.com/bazelbuild/rules_nodejs/blob/master/docs/TypeScript.md#alternatives
+for more details about the trade-offs between the two rules.
+
+Some TypeScript options affect which files are emitted, and Bazel wants to know these ahead-of-time.
+So several options from the tsconfig file must be mirrored as attributes to ts_project.
+See https://www.typescriptlang.org/v2/en/tsconfig for a listing of the TypeScript options.
+
+Any code that works with `tsc` should work with `ts_project` with a few caveats:
+
+- Bazel requires that the `outDir` (and `declarationDir`) be set to
+  `bazel-out/[target architecture]/bin/path/to/package`
+  so we override whatever settings appear in your tsconfig.
+- Bazel expects that each output is produced by a single rule.
+  Thus if you have two `ts_project` rules with overlapping sources (the same `.ts` file
+  appears in more than one) then you get an error about conflicting `.js` output
+  files if you try to build both together.
+  Worse, if you build them separately then the output directory will contain whichever
+  one you happened to build most recently. This is highly discouraged.
+
+> Note: in order for TypeScript to resolve relative references to the bazel-out folder,
+> we recommend that the base tsconfig contain a rootDirs section that includes all
+> possible locations they may appear.
+>
+> We hope this will not be needed in some future release of TypeScript.
+> Follow https://github.com/microsoft/TypeScript/issues/37257 for more info.
+>
+> For example, if the base tsconfig file relative to the workspace root is
+> `path/to/tsconfig.json` then you should configure like:
+>
+> ```
+> "compilerOptions": {
+>     "rootDirs": [
+>         ".",
+>         "../../bazel-out/darwin-fastbuild/bin/path/to",
+>         "../../bazel-out/k8-fastbuild/bin/path/to",
+>         "../../bazel-out/x64_windows-fastbuild/bin/path/to",
+>         "../../bazel-out/darwin-dbg/bin/path/to",
+>         "../../bazel-out/k8-dbg/bin/path/to",
+>         "../../bazel-out/x64_windows-dbg/bin/path/to",
+>     ]
+> }
+> ```
+
+
+### Issues when running non-sandboxed
+
+When using a non-sandboxed spawn strategy (which is the default on Windows), you may
+observe these problems which require workarounds:
+
+1) Bazel deletes outputs from the previous execution before running `tsc`.
+   This causes a problem with TypeScript's incremental mode: if the `.tsbuildinfo` file
+   is not known to be an output of the rule, then Bazel will leave it in the output
+   directory, and when `tsc` runs, it may see that the outputs written by the prior
+   invocation are up-to-date and skip the emit of these files. This will cause Bazel
+   to intermittently fail with an error that some outputs were not written.
+   This is why we depend on `composite` and/or `incremental` attributes to be provided,
+   so we can tell Bazel to expect a `.tsbuildinfo` output to ensure it is deleted before a
+   subsequent compilation.
+   At present, we don't do anything useful with the `.tsbuildinfo` output, and this rule
+   does not actually have incremental behavior. Deleting the file is actually
+   counter-productive in terms of TypeScript compile performance.
+   Follow https://github.com/bazelbuild/rules_nodejs/issues/1726
+
+2) When using Project References, TypeScript will expect to verify that the outputs of referenced
+   projects are up-to-date with respect to their inputs.
+   (This is true even without using the `--build` option).
+   When using a non-sandboxed spawn strategy, `tsc` can read the sources from other `ts_project`
+   rules in your project, and will expect that the `tsconfig.json` file for those references will
+   indicate where the outputs were written. However the `outDir` is determined by this Bazel rule so
+   it cannot be known from reading the `tsconfig.json` file.
+   This problem is manifested as a TypeScript diagnostic like
+   `error TS6305: Output file '/path/to/execroot/a.d.ts' has not been built from source file '/path/to/execroot/a.ts'.`
+   As a workaround, you can give the Windows "fastbuild" output directory as the `outDir` in your tsconfig file.
+   On other platforms, the value isn't read so it does no harm.
+   See https://github.com/bazelbuild/rules_nodejs/tree/master/packages/typescript/test/ts_project as an example.
+   We hope this will be fixed in a future release of TypeScript;
+   follow https://github.com/microsoft/TypeScript/issues/37378
+
+3) When TypeScript encounters an import statement, it adds the source file resolved by that reference
+   to the program. However you may have included that source file in a different project, so this causes
+   the problem mentioned above where a source file is in multiple programs.
+   (Note, if you use Project References this is not the case, TS will know the referenced
+   file is part of the other program.)
+   This will result in duplicate emit for the same file, which produces an error
+   since the files written to the output tree are read-only.
+   Workarounds include using using Project References, or simply grouping the whole compilation
+   into one program (if this doesn't exceed your time budget).
+
+
+
+### Usage
+
+```
+ts_project(name, tsconfig, srcs, args, deps, extends, declaration, source_map, declaration_map, composite, incremental, emit_declaration_only, tsc, validate, kwargs)
+```
+
+
+
+#### `name`
+      
+A name for the target.
+
+    We recommend you use the basename (no `.json` extension) of the tsconfig file that should be compiled.
+
+Defaults to `"tsconfig"`
+
+
+
+#### `tsconfig`
+      
+Label of the tsconfig.json file to use for the compilation.
+
+    By default, we add `.json` to the `name` attribute.
+
+Defaults to `None`
+
+
+
+#### `srcs`
+      
+List of labels of TypeScript source files to be provided to the compiler.
+
+    If absent, defaults to `**/*.ts[x]` (all TypeScript files in the package).
+
+Defaults to `None`
+
+
+
+#### `args`
+      
+List of strings of additional command-line arguments to pass to tsc.
+
+Defaults to `[]`
+
+
+
+#### `deps`
+      
+List of labels of other rules that produce TypeScript typings (.d.ts files)
+
+Defaults to `[]`
+
+
+
+#### `extends`
+      
+List of labels of tsconfig file(s) referenced in `extends` section of tsconfig.
+
+    Must include any tsconfig files "chained" by extends clauses.
+
+Defaults to `None`
+
+
+
+#### `declaration`
+      
+if the `declaration` bit is set in the tsconfig.
+    Instructs Bazel to expect a `.d.ts` output for each `.ts` source.
+
+Defaults to `False`
+
+
+
+#### `source_map`
+      
+if the `sourceMap` bit is set in the tsconfig.
+    Instructs Bazel to expect a `.js.map` output for each `.ts` source.
+
+Defaults to `False`
+
+
+
+#### `declaration_map`
+      
+if the `declarationMap` bit is set in the tsconfig.
+    Instructs Bazel to expect a `.d.ts.map` output for each `.ts` source.
+
+Defaults to `False`
+
+
+
+#### `composite`
+      
+if the `composite` bit is set in the tsconfig.
+    Instructs Bazel to expect a `.tsbuildinfo` output and a `.d.ts` output for each `.ts` source.
+
+Defaults to `False`
+
+
+
+#### `incremental`
+      
+if the `incremental` bit is set in the tsconfig.
+    Instructs Bazel to expect a `.tsbuildinfo` output.
+
+Defaults to `False`
+
+
+
+#### `emit_declaration_only`
+      
+if the `emitDeclarationOnly` bit is set in the tsconfig.
+    Instructs Bazel *not* to expect `.js` or `.js.map` outputs for `.ts` sources.
+
+Defaults to `False`
+
+
+
+#### `tsc`
+      
+Label of the TypeScript compiler binary to run.
+
+    Override this if your npm_install or yarn_install isn't named "npm"
+    For example, `tsc = "@my_deps//typescript/bin:tsc"`
+    Or you can pass a custom compiler binary instead.
+
+Defaults to `"@npm//typescript/bin:tsc"`
+
+
+
+#### `validate`
+      
+boolean; whether to check that the tsconfig settings match the attributes.
+
+Defaults to `True`
+
+
+
+#### `kwargs`
+      
+
+
+
+
 
 
 ## ts_setup_workspace

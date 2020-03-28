@@ -240,8 +240,9 @@ The set of default  environment variables is:
 
 - `VERBOSE_LOGS`: use by some rules & tools to turn on debug output in their logs
 - `NODE_DEBUG`: used by node.js itself to print more logs
+- `RUNFILES_LIB_DEBUG`: print diagnostic message from Bazel runfiles.bash helper
 
-Defaults to `["VERBOSE_LOGS", "NODE_DEBUG"]`
+Defaults to `["VERBOSE_LOGS", "NODE_DEBUG", "RUNFILES_LIB_DEBUG"]`
 
 #### `entry_point`
 (*[label], mandatory*): The script which should be executed first, usually containing a main function.
@@ -377,7 +378,80 @@ Defaults to `//:node_modules_none`
 #### `templated_args`
 (*List of strings*): Arguments which are passed to every execution of the program.
         To pass a node startup option, prepend it with `--node_options=`, e.g.
-        `--node_options=--preserve-symlinks`
+        `--node_options=--preserve-symlinks`.
+
+Subject to 'Make variable' substitution. See https://docs.bazel.build/versions/master/be/make-variables.html.
+
+1. Subject to predefined source/output path variables substitutions.
+
+The predefined variables `execpath`, `execpaths`, `rootpath`, `rootpaths`, `location`, and `locations` take
+label parameters (e.g. `$(execpath //foo:bar)`) and substitute the file paths denoted by that label.
+
+See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_label_variables for more info.
+
+NB: This $(location) substition returns the manifest file path which differs from the *_binary & *_test
+args and genrule bazel substitions. This will be fixed in a future major release.
+See docs string of `expand_location_into_runfiles` macro in `internal/common/expand_into_runfiles.bzl`
+for more info.
+
+The recommended approach is to now use `$(rootpath)` where you previously used $(location).
+
+To get from a `$(rootpath)` to the absolute path that `$$(rlocation $(location))` returned you can either use
+`$$(rlocation $(rootpath))` if you are in the `templated_args` of a `nodejs_binary` or `nodejs_test`:
+
+BUILD.bazel:
+```
+nodejs_test(
+    name = "my_test",
+    data = [":bootstrap.js"],
+    templated_args = ["--node_options=--require=$$(rlocation $(rootpath :bootstrap.js))"],
+)
+```
+
+or if you're in the context of a .js script you can pass the $(rootpath) as an argument to the script
+and use the javascript runfiles helper to resolve to the absolute path:
+
+BUILD.bazel:
+```
+nodejs_test(
+    name = "my_test",
+    data = [":some_file"],
+    entry_point = ":my_test.js",
+    templated_args = ["$(rootpath :some_file)"],
+)
+```
+
+my_test.js
+```
+const runfiles = require(process.env['BAZEL_NODE_RUNFILES_HELPER']);
+const args = process.argv.slice(2);
+const some_file = runfiles.resolveWorkspaceRelative(args[0]);
+```
+
+NB: Bazel will error if it sees the single dollar sign $(rlocation path) in `templated_args` as it will try to
+expand `$(rlocation)` since we now expand predefined & custom "make" variables such as `$(COMPILATION_MODE)`,
+`$(BINDIR)` & `$(TARGET_CPU)` using `ctx.expand_make_variables`. See https://docs.bazel.build/versions/master/be/make-variables.html.
+
+To prevent expansion of `$(rlocation)` write it as `$$(rlocation)`. Bazel understands `$$` to be
+the string literal `$` and the expansion results in `$(rlocation)` being passed as an arg instead
+of being expanded. `$(rlocation)` is then evaluated by the bash node launcher script and it calls
+the `rlocation` function in the runfiles.bash helper. For example, the templated arg
+`$$(rlocation $(rootpath //:some_file))` is expanded by Bazel to `$(rlocation ./some_file)` which
+is then converted in bash to the absolute path of `//:some_file` in runfiles by the runfiles.bash helper
+before being passed as an argument to the program.
+
+NB: nodejs_binary and nodejs_test will preserve the legacy behavior of `$(rlocation)` so users don't
+need to update to `$$(rlocation)`. This may be changed in the future.
+
+2. Subject to predefined variables & custom variable substitutions.
+
+Predefined "Make" variables such as $(COMPILATION_MODE) and $(TARGET_CPU) are expanded.
+See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_variables.
+
+Custom variables are also expanded including variables set through the Bazel CLI with --define=SOME_VAR=SOME_VALUE.
+See https://docs.bazel.build/versions/master/be/make-variables.html#custom_variables.
+
+Predefined genrule variables are not supported in this context.
 
 Defaults to `[]`
 
@@ -443,8 +517,9 @@ The set of default  environment variables is:
 
 - `VERBOSE_LOGS`: use by some rules & tools to turn on debug output in their logs
 - `NODE_DEBUG`: used by node.js itself to print more logs
+- `RUNFILES_LIB_DEBUG`: print diagnostic message from Bazel runfiles.bash helper
 
-Defaults to `["VERBOSE_LOGS", "NODE_DEBUG"]`
+Defaults to `["VERBOSE_LOGS", "NODE_DEBUG", "RUNFILES_LIB_DEBUG"]`
 
 #### `entry_point`
 (*[label], mandatory*): The script which should be executed first, usually containing a main function.
@@ -585,7 +660,80 @@ Defaults to `//:node_modules_none`
 #### `templated_args`
 (*List of strings*): Arguments which are passed to every execution of the program.
         To pass a node startup option, prepend it with `--node_options=`, e.g.
-        `--node_options=--preserve-symlinks`
+        `--node_options=--preserve-symlinks`.
+
+Subject to 'Make variable' substitution. See https://docs.bazel.build/versions/master/be/make-variables.html.
+
+1. Subject to predefined source/output path variables substitutions.
+
+The predefined variables `execpath`, `execpaths`, `rootpath`, `rootpaths`, `location`, and `locations` take
+label parameters (e.g. `$(execpath //foo:bar)`) and substitute the file paths denoted by that label.
+
+See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_label_variables for more info.
+
+NB: This $(location) substition returns the manifest file path which differs from the *_binary & *_test
+args and genrule bazel substitions. This will be fixed in a future major release.
+See docs string of `expand_location_into_runfiles` macro in `internal/common/expand_into_runfiles.bzl`
+for more info.
+
+The recommended approach is to now use `$(rootpath)` where you previously used $(location).
+
+To get from a `$(rootpath)` to the absolute path that `$$(rlocation $(location))` returned you can either use
+`$$(rlocation $(rootpath))` if you are in the `templated_args` of a `nodejs_binary` or `nodejs_test`:
+
+BUILD.bazel:
+```
+nodejs_test(
+    name = "my_test",
+    data = [":bootstrap.js"],
+    templated_args = ["--node_options=--require=$$(rlocation $(rootpath :bootstrap.js))"],
+)
+```
+
+or if you're in the context of a .js script you can pass the $(rootpath) as an argument to the script
+and use the javascript runfiles helper to resolve to the absolute path:
+
+BUILD.bazel:
+```
+nodejs_test(
+    name = "my_test",
+    data = [":some_file"],
+    entry_point = ":my_test.js",
+    templated_args = ["$(rootpath :some_file)"],
+)
+```
+
+my_test.js
+```
+const runfiles = require(process.env['BAZEL_NODE_RUNFILES_HELPER']);
+const args = process.argv.slice(2);
+const some_file = runfiles.resolveWorkspaceRelative(args[0]);
+```
+
+NB: Bazel will error if it sees the single dollar sign $(rlocation path) in `templated_args` as it will try to
+expand `$(rlocation)` since we now expand predefined & custom "make" variables such as `$(COMPILATION_MODE)`,
+`$(BINDIR)` & `$(TARGET_CPU)` using `ctx.expand_make_variables`. See https://docs.bazel.build/versions/master/be/make-variables.html.
+
+To prevent expansion of `$(rlocation)` write it as `$$(rlocation)`. Bazel understands `$$` to be
+the string literal `$` and the expansion results in `$(rlocation)` being passed as an arg instead
+of being expanded. `$(rlocation)` is then evaluated by the bash node launcher script and it calls
+the `rlocation` function in the runfiles.bash helper. For example, the templated arg
+`$$(rlocation $(rootpath //:some_file))` is expanded by Bazel to `$(rlocation ./some_file)` which
+is then converted in bash to the absolute path of `//:some_file` in runfiles by the runfiles.bash helper
+before being passed as an argument to the program.
+
+NB: nodejs_binary and nodejs_test will preserve the legacy behavior of `$(rlocation)` so users don't
+need to update to `$$(rlocation)`. This may be changed in the future.
+
+2. Subject to predefined variables & custom variable substitutions.
+
+Predefined "Make" variables such as $(COMPILATION_MODE) and $(TARGET_CPU) are expanded.
+See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_variables.
+
+Custom variables are also expanded including variables set through the Bazel CLI with --define=SOME_VAR=SOME_VALUE.
+See https://docs.bazel.build/versions/master/be/make-variables.html#custom_variables.
+
+Predefined genrule variables are not supported in this context.
 
 Defaults to `[]`
 
@@ -805,7 +953,7 @@ You can pass arguments to npm by escaping them from Bazel using a double-hyphen,
 ### Usage
 
 ```
-pkg_npm(name, deps, hide_build_files, nested_packages, node_context_data, replace_with_version, srcs, substitutions, vendor_external)
+pkg_npm(name, deps, hide_build_files, nested_packages, node_context_data, package_name, replace_with_version, srcs, substitutions, vendor_external)
 ```
 
 
@@ -838,6 +986,11 @@ Defaults to `[]`
 (*[label]*): Internal use only
 
 Defaults to `@build_bazel_rules_nodejs//internal:node_context_data`
+
+#### `package_name`
+(*String*): Optional package_name that this npm package may be imported as.
+
+Defaults to `""`
 
 #### `replace_with_version`
 (*String*): If set this value is replaced with the version stamp data.
@@ -1264,14 +1417,14 @@ Defaults to `False`
 
 Generates a UTF-8 encoded params file from a list of arguments.
 
-Handles $(location) expansions for arguments.
+Handles variable substitutions for args.
 
 
 
 ### Usage
 
 ```
-params_file(name, out, args, newline, kwargs)
+params_file(name, out, args, data, newline, kwargs)
 ```
 
 
@@ -1293,7 +1446,38 @@ Path of the output file, relative to this package.
 #### `args`
       
 Arguments to concatenate into a params file.
-    Subject to $(location) substitutions
+
+    Subject to 'Make variable' substitution. See https://docs.bazel.build/versions/master/be/make-variables.html.
+
+    1. Subject to predefined source/output path variables substitutions.
+
+    The predefined variables `execpath`, `execpaths`, `rootpath`, `rootpaths`, `location`, and `locations` take
+    label parameters (e.g. `$(execpath //foo:bar)`) and substitute the file paths denoted by that label.
+
+    See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_label_variables for more info.
+
+    NB: This $(location) substition returns the manifest file path which differs from the *_binary & *_test
+    args and genrule bazel substitions. This will be fixed in a future major release.
+    See docs string of `expand_location_into_runfiles` macro in `internal/common/expand_into_runfiles.bzl`
+    for more info.
+
+    2. Subject to predefined variables & custom variable substitutions.
+
+    Predefined "Make" variables such as $(COMPILATION_MODE) and $(TARGET_CPU) are expanded.
+    See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_variables.
+
+    Custom variables are also expanded including variables set through the Bazel CLI with --define=SOME_VAR=SOME_VALUE.
+    See https://docs.bazel.build/versions/master/be/make-variables.html#custom_variables.
+
+    Predefined genrule variables are not supported in this context.
+
+Defaults to `[]`
+
+
+
+#### `data`
+      
+Data for $(location) expansions in args.
 
 Defaults to `[]`
 
@@ -1301,8 +1485,11 @@ Defaults to `[]`
 
 #### `newline`
       
-one of ["auto", "unix", "windows"]: line endings to use. "auto"
-    for platform-determined, "unix" for LF, and "windows" for CRLF.
+Line endings to use. One of ["auto", "unix", "windows"].
+
+    "auto" for platform-determined
+    "unix" for LF
+    "windows" for CRLF
 
 Defaults to `"auto"`
 
@@ -1310,7 +1497,6 @@ Defaults to `"auto"`
 
 #### `kwargs`
       
-further keyword arguments, e.g. <code>visibility</code>
 
 
 
