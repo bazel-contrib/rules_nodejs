@@ -1,0 +1,13 @@
+bazel run //packages/rollup/test/integration:test_amd.accept
+bazel run //packages/rollup/test/integration:test_cjs.accept
+bazel run //packages/rollup/test/integration:test_esm.accept
+bazel run //packages/rollup/test/integration:test_iife.accept
+bazel run //packages/rollup/test/integration:test_system.accept
+bazel run //packages/rollup/test/integration:test_umd.accept
+bazel run //packages/rollup/test/integration:test_amd_map_sha256.accept
+bazel run //packages/rollup/test/integration:test_cjs_map_sha256.accept
+bazel run //packages/rollup/test/integration:test_esm_map_sha256.accept
+bazel run //packages/rollup/test/integration:test_iife_map_sha256.accept
+bazel run //packages/rollup/test/integration:test_system_map_sha256.accept
+bazel run //packages/rollup/test/integration:test_umd_map_sha256.accept
+bazel run //packages/rollup/test/integration:test_umd_sha256.accept

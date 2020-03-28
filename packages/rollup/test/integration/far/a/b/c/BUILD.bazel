@@ -1,9 +1,14 @@
-load("@npm_bazel_typescript//:index.from_src.bzl", "ts_library")
+load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
+load("@npm_bazel_typescript//:index.bzl", "ts_project")
 
 package(default_visibility = ["//packages/rollup:__subpackages__"])
 
-ts_library(
-    name = "c",
+ts_project(
     srcs = ["index.ts"],
-    module_name = "@far/a/b/c",
+)
+
+js_library(
+    name = "c",
+    package_name = "@far/a/b/c",
+    srcs = [":tsconfig"],
 )
