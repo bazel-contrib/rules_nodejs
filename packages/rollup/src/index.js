@@ -40,9 +40,10 @@ try {
 let cacheMap = Object.create(null);
 
 // Generate a unique cache ID based on the input/outputOptions
-function computeCacheKey(inputOptions, outputOptions) {
+function computeCacheKey(key) {
   const hash = crypto.createHash('sha256');
-  const hashContent = JSON.stringify(inputOptions) + JSON.stringify(outputOptions);
+  const hashContent = JSON.stringify(key);
+
   return hash.update(hashContent).digest('hex');
 }
 
