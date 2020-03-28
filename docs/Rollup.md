@@ -106,7 +106,7 @@ This will produce one output per requested format.
 ### Usage
 
 ```
-rollup_bundle(name, args, config_file, deps, entry_point, entry_points, format, node_context_data, output_dir, rollup_bin, silent, sourcemap, srcs)
+rollup_bundle(name, args, config_file, deps, entry_point, entry_points, format, node_context_data, output_dir, rollup_bin, rollup_worker_bin, silent, sourcemap, srcs, supports_workers)
 ```
 
 
@@ -231,6 +231,11 @@ Defaults to `False`
 
 Defaults to `@npm//rollup/bin:rollup`
 
+#### `rollup_worker_bin`
+(*[label]*): Internal use only
+
+Defaults to `//:rollup-worker-local`
+
 #### `silent`
 (*Boolean*): Whether to execute the rollup binary with the --silent flag, defaults to False.
 
@@ -253,4 +258,13 @@ Defaults to `"inline"`
 You must not repeat file(s) passed to entry_point/entry_points.
 
 Defaults to `[]`
+
+#### `supports_workers`
+(*Boolean*): Experimental! Use only with caution.
+
+Allows you to enable the Bazel Worker strategy for this library.
+When enabled, this rule invokes the "rollup_worker_bin"
+worker aware binary rather than "rollup_bin".
+
+Defaults to `False`
 
