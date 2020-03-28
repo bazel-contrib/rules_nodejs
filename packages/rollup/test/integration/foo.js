@@ -1,5 +1,6 @@
 import far_a from '@far/a';
 import far_a_b_c from '@far/a/b/c';
+import {fez} from '@fez/fez';
 import {foo} from '@foo/lib';
 import {foo as foo_a} from '@foo/lib/a';
 import {foo as foo_a_a_a} from '@foo/lib/a/a/a';
@@ -10,8 +11,8 @@ import {thing} from 'some_global_var';
 import {name} from './bar';
 import {json_key} from './some.json';
 
-console.log(
-    `${hello}, ${name} in ${fum} ${foo} ${foo_a} ${foo_a_a_a} ${far_a} ${far_a_b_c} ${json_key}`);
+console.log(`${hello}, ${name} in ${fez} ${fum} ${foo} ${foo_a} ${foo_a_a_a} ${far_a} ${
+    far_a_b_c} ${json_key}`);
 
 // Tests for @PURE annotations
 /*@__PURE__*/
