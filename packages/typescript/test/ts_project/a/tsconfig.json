@@ -1,5 +1,5 @@
 {
-    "extends": "../tsconfig-base.json",
+    "extends": "./tsconfig-extended.json",
     "compilerOptions": {
         "sourceMap": true,
         // WORKAROUND https://github.com/microsoft/TypeScript/issues/37378

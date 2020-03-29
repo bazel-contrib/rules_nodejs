@@ -2,7 +2,10 @@ load("@npm_bazel_typescript//:index.bzl", "ts_project")
 
 ts_project(
     composite = True,
-    extends = ["//packages/typescript/test/ts_project:tsconfig-base.json"],
+    extends = [
+        ":tsconfig-extended.json",
+        "//packages/typescript/test/ts_project:tsconfig-base.json",
+    ],
     # Intentionally not syncing this option from tsconfig, to test validator suppression
     # source_map = True,
     validate = False,
