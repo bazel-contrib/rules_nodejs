@@ -123,7 +123,7 @@ def _ts_project_impl(ctx):
                 collect_default = True,
             ),
         ),
-        _TsConfigInfo(tsconfigs = depset([ctx.file.tsconfig], transitive = [
+        _TsConfigInfo(tsconfigs = depset([ctx.file.tsconfig] + ctx.files.extends, transitive = [
             dep[_TsConfigInfo].tsconfigs
             for dep in ctx.attr.deps
             if _TsConfigInfo in dep
