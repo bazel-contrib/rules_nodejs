@@ -129,6 +129,14 @@
   resolved "https://registry.yarnpkg.com/@angular/platform-browser/-/platform-browser-9.0.0.tgz#b9454f29d8edaf024668baa9e07083eef73deac2"
   integrity sha512-2PR/o57HjZvKEnAF8ODeqxmeC90oth9dLTMrJNoI5MET0IeErKeI/9Sl5cLQuXC+lSVN5rOMCvDb74VWSno5yw==
 
+"@angular/platform-server@^9.0.0":
+  version "9.1.0"
+  resolved "https://registry.yarnpkg.com/@angular/platform-server/-/platform-server-9.1.0.tgz#a4d5b20724acd54219603e32cee88b0b58ee6617"
+  integrity sha512-JboTIUBgf9yHRjF93q8NJQoeIp5Zp4kg8Nmw1QLWO6SV+OpiOpKSrlScMVncCh0KiU6SIOmiuHJwBhLm78fi+Q==
+  dependencies:
+    domino "^2.1.2"
+    xhr2 "^0.1.4"
+
 "@angular/router@9.0.0":
   version "9.0.0"
   resolved "https://registry.yarnpkg.com/@angular/router/-/router-9.0.0.tgz#11784fc8ce9cb3314c7ec1083ff9be7c611181c2"
@@ -900,6 +908,18 @@
   version "9.0.0-beta.0"
   resolved "https://registry.yarnpkg.com/@ngrx/store/-/store-9.0.0-beta.0.tgz#b352f0394b1b652ee2ae2039ba1757a704290846"
   integrity sha512-yfw+Qwiu3fNjjRD1B2ZSGpjd3a70fLjFfqhu2H636giia5cTnqbzIqOH3EnZzapADzwL6M7yy7tixWpJ24lbpQ==
+
+"@nguniversal/common@9.1.0":
+  version "9.1.0"
+  resolved "https://registry.yarnpkg.com/@nguniversal/common/-/common-9.1.0.tgz#01ac2d2c47c6d04f955f1713697377afcaa1ad91"
+  integrity sha512-Pvb3KhuV44PxLmVOf1dqnuckdaNdfT5tbiUu2/vVbdtyFdQpF40D1Zx4RumRymK0ZzTJGQsJtJSi2DJvvGgwMg==
+
+"@nguniversal/express-engine@^9.0.0":
+  version "9.1.0"
+  resolved "https://registry.yarnpkg.com/@nguniversal/express-engine/-/express-engine-9.1.0.tgz#ddc1cecb4134a365142a9ba6ebb6ae8f99cb2ad1"
+  integrity sha512-uRb8dJD3huk42eY1iOpmr8yfq/LTSOoUfKY4eVREE7nMePyZNSRQHNCEybHDTNh43FvTN38u+cA4dTlmMFD5GQ==
+  dependencies:
+    "@nguniversal/common" "9.1.0"
 
 "@protobufjs/aspromise@^1.1.1", "@protobufjs/aspromise@^1.1.2":
   version "1.1.2"
@@ -2406,6 +2426,11 @@ dom-serialize@^2.2.0:
     ent "~2.2.0"
     extend "^3.0.0"
     void-elements "^2.0.0"
+
+domino@^2.1.2:
+  version "2.1.4"
+  resolved "https://registry.yarnpkg.com/domino/-/domino-2.1.4.tgz#78922e7fab7c610f35792b6c745b7962d342e9c4"
+  integrity sha512-l70mlQ7IjPKC8kT7GljQXJZmt5OqFL+RE91ik5y5WWQtsd9wP8R7gpFnNu96fK5MqAAZRXfLLsnzKtkty5fWGQ==
 
 dot-prop@^4.1.0:
   version "4.2.0"
@@ -7279,6 +7304,11 @@ xdg-basedir@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/xdg-basedir/-/xdg-basedir-3.0.0.tgz#496b2cc109eca8dbacfe2dc72b603c17c5870ad4"
   integrity sha1-SWsswQnsqNus/i3HK2A8F8WHCtQ=
+
+xhr2@^0.1.4:
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/xhr2/-/xhr2-0.1.4.tgz#7f87658847716db5026323812f818cadab387a5f"
+  integrity sha1-f4dliEdxbbUCYyOBL4GMras4el8=
 
 xml2js@^0.4.17:
   version "0.4.22"

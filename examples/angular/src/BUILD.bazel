@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "pkg_web")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "pkg_web")
 load("@io_bazel_rules_docker//container:container.bzl", "container_image")
 load("@io_bazel_rules_docker//nodejs:image.bzl", "nodejs_image")
 load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
@@ -15,6 +15,12 @@ package(default_visibility = ["//:__subpackages__"])
 ts_config(
     name = "tsconfig-test",
     src = "tsconfig-test.json",
+    deps = [":tsconfig.json"],
+)
+
+ts_config(
+    name = "tsconfig-server",
+    src = "tsconfig.server.json",
     deps = [":tsconfig.json"],
 )
 
@@ -231,4 +237,26 @@ container_image(
     # so there is no benefit to running them remotely
     tags = ["local"],
     workdir = "/app/src/nodejs_image.binary.runfiles/examples_angular",
+)
+
+ts_library(
+    name = "universal_server_lib",
+    srcs = [
+        "server.ts",
+    ],
+    deps = [
+        "//src/app:app_server",
+        "@npm//@nguniversal/express-engine",
+        "@npm//@types/node",
+        "@npm//express",
+    ],
+)
+
+nodejs_binary(
+    name = "universal_server",
+    data = [
+        ":prodapp",
+        ":universal_server_lib",
+    ],
+    entry_point = ":server.ts",
 )

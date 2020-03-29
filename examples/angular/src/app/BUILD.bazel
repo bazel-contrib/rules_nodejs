@@ -4,7 +4,10 @@ package(default_visibility = ["//:__subpackages__"])
 
 ng_module(
     name = "app",
-    srcs = glob(["*.ts"]),
+    srcs = glob(
+        include = ["*.ts"],
+        exclude = ["app.server.module.ts"],
+    ),
     assets = ["app.component.html"],
     tsconfig = "//src:tsconfig.json",
     deps = [
@@ -16,5 +19,15 @@ ng_module(
         "@npm//@angular/platform-browser",
         "@npm//@angular/router",
         "@npm//@ngrx/store",
+    ],
+)
+
+ng_module(
+    name = "app_server",
+    srcs = ["app.server.module.ts"],
+    tsconfig = "//src:tsconfig-server",
+    deps = [
+        ":app",
+        "@npm//@angular/platform-server",
     ],
 )
