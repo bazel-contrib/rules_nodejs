@@ -15,7 +15,8 @@ import {todoReducer} from './todos/reducers/reducers';
   declarations: [AppComponent],
   imports: [
     AppRoutingModule, BrowserModule, BrowserAnimationsModule, MaterialModule, HomeModule,
-    StoreModule.forRoot({todoReducer})
+    StoreModule.forRoot({todoReducer}),
+    BrowserModule.withServerTransition({ appId: 'angular-bazel-example' })
   ],
   exports: [AppComponent],
   bootstrap: [AppComponent],

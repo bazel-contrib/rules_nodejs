@@ -24,6 +24,7 @@ This example is a monorepo, meant to show many different features and integratio
 - **Lazy loading**: in production mode, the application is served in chunks. Run `ng serve --prod`
 - **Differential loading**: in production mode, we load a pair of `<script>` tags. Modern browsers will load code in the ES2015 syntax, which is smaller and requires fewer polyfills. Older browsers will load ES5 syntax.
 - **Docker**: see below where we package up the production app for deployment on Kubernetes.
+- **Server Side Rendering**: with the help of Angular Universal you can render your application on the server
 
 ## Installation
 
@@ -97,6 +98,14 @@ $ ng serve --prod
 $ bazel run //src:prodserver
 ```
 
+You can also use server side rendering.
+
+```bash
+$ yarn server-ssr
+# or
+$ bazel run //src:universal_server
+```
+
 ### Code splitting
 
 The production bundle is code split and routes such as `/` and `/todos`
@@ -128,6 +137,7 @@ We use the standard firebase deploy command.
 Run `yarn deploy` to release changes to bazel.angular.io.
 
 ### Kubernetes Engine
+
 We use Bazel's docker support to package up our production server for deployment.
 Each time the app changes, we'll get a slim new docker layer with just the modified files, keeping the round-trip for deployment incremental and fast.
 This example is configured to run on Google Kubernetes Engine, so we can have an elastic pool of backend machines behind a load balancer.
@@ -146,9 +156,9 @@ Deploy to production:
 
 1. Install gcloud and kubectl
 1. Authenticate to the Google Container Registry
-    `gcloud auth configure-docker`
+   `gcloud auth configure-docker`
 1. Authenticate to Kubernetes Engine
-    `gcloud container clusters get-credentials angular-bazel-example --zone=us-west1-a`
+   `gcloud container clusters get-credentials angular-bazel-example --zone=us-west1-a`
 1. For the first deployment: `bazel run :deploy.create`
 1. To update: `bazel run :deploy.replace`
 
