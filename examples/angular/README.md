@@ -16,7 +16,7 @@ This example is deployed at https://bazel.angular.io/example
 This example is a monorepo, meant to show many different features and integrations that we expect are generally useful for enterprise use cases.
 
 - **Angular CLI**: you can use the `ng` command to run build, serve, test, and e2e
-- **Angular Libraries**: to maximize build incrementality, each Angular module is compiled as a separate step. This lets us re-use Angular libraries without having to publish them as npm packages. See `src/todos` for a typical `NgModule` compiled as a library for use in the application, using the `ng_module` rule in the `BUILD.bazel` file.
+- **Angular Libraries**: to maximize build incrementality, each Angular module is compiled as a separate step. This lets us re-use Angular libraries without having to publish them as npm packages. See `src/todos` for a typical `NgModule` compiled as a library for use in the application, using the `ts_library` rule in the `BUILD.bazel` file.
 - **TypeScript Libraries**: see `src/lib` for a trivial example of a pure-TS library that's consumed in the application, using the `ts_library` rule in the `BUILD.bazel` file.
 - **Sass**: we use Sass for all styling. Angular components import Sass files, and these are built by Bazel as independent processes calling the modern Sass compiler (written in Dart).
 - **Material design**: see `src/material` where we collect the material modules we use.

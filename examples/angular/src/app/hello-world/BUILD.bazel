@@ -1,5 +1,4 @@
 load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
-load("@npm_angular_bazel//:index.bzl", "ng_module")
 load("@npm_bazel_karma//:index.bzl", "karma_web_test_suite")
 load("@npm_bazel_typescript//:index.bzl", "ts_library")
 
@@ -10,20 +9,23 @@ sass_binary(
     src = "hello-world.component.scss",
 )
 
-ng_module(
+ts_library(
     name = "hello-world",
     srcs = [
         "hello-world.component.ts",
         "hello-world.module.ts",
     ],
-    assets = [
+    angular_assets = [
         ":hello-world.component.html",
         ":hello-world-styles",
     ],
     tsconfig = "//src:tsconfig.json",
+    use_angular_plugin = True,
     deps = [
         "//src/lib/shorten",
         "//src/shared/material",
+        "@npm//@angular/core",
+        "@npm//@angular/forms",
         "@npm//@angular/router",
         "@npm//date-fns",
     ],

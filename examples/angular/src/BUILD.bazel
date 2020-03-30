@@ -5,7 +5,6 @@ load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
 load("@npm//@babel/cli:index.bzl", "babel")
 load("@npm//history-server:index.bzl", "history_server")
 load("@npm//html-insert-assets:index.bzl", "html_insert_assets")
-load("@npm_angular_bazel//:index.bzl", "ng_module")
 load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
 load("@npm_bazel_terser//:index.bzl", "terser_minified")
 load("@npm_bazel_typescript//:index.bzl", "ts_config", "ts_devserver", "ts_library")
@@ -44,13 +43,14 @@ ts_library(
     ],
 )
 
-ng_module(
+ts_library(
     name = "src",
     srcs = [
         "main.dev.ts",
         "main.prod.ts",
     ],
     tsconfig = ":tsconfig.json",
+    use_angular_plugin = True,
     deps = [
         "//src/app",
         "@npm//@angular/core",
