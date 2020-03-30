@@ -322,8 +322,10 @@ ts_library = rule(
             allow_files = [".ts", ".tsx"],
             mandatory = True,
         ),
-        "compile_angular_templates": attr.bool(
-            doc = """Run the Angular ngtsc compiler under ts_library""",
+        "angular_assets": attr.label_list(
+            doc = """Additional files the Angular compiler will need to read as inputs.
+            Includes .css and .html files""",
+            allow_files = [".css", ".html"],
         ),
         "compiler": attr.label(
             doc = """Sets a different TypeScript compiler binary to use for this library.
@@ -466,6 +468,9 @@ either:
         "tsickle_typed": attr.bool(
             default = True,
             doc = "If using tsickle, instruct it to translate types to ClosureJS format",
+        ),
+        "use_angular_plugin": attr.bool(
+            doc = """Run the Angular ngtsc compiler under ts_library""",
         ),
         "deps": attr.label_list(
             aspects = DEPS_ASPECTS + [node_modules_aspect],

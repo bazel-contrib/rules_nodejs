@@ -1,19 +1,21 @@
-load("@npm_angular_bazel//:index.bzl", "ng_module")
+load("@npm_bazel_typescript//:index.bzl", "ts_library")
 
 package(default_visibility = ["//:__subpackages__"])
 
-ng_module(
+ts_library(
     name = "app",
     srcs = glob(
         include = ["*.ts"],
         exclude = ["app.server.module.ts"],
     ),
-    assets = ["app.component.html"],
+    angular_assets = ["app.component.html"],
     tsconfig = "//src:tsconfig.json",
+    use_angular_plugin = True,
     deps = [
         "//src/app/hello-world",
         "//src/app/home",
         "//src/app/todos",
+        "//src/app/todos/reducers",
         "//src/shared/material",
         "@npm//@angular/core",
         "@npm//@angular/platform-browser",
@@ -22,12 +24,14 @@ ng_module(
     ],
 )
 
-ng_module(
+ts_library(
     name = "app_server",
     srcs = ["app.server.module.ts"],
     tsconfig = "//src:tsconfig-server",
+    use_angular_plugin = True,
     deps = [
         ":app",
+        "@npm//@angular/core",
         "@npm//@angular/platform-server",
     ],
 )

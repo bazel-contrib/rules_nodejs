@@ -1,12 +1,13 @@
-load("@npm_angular_bazel//:index.bzl", "ng_module")
+load("@npm_bazel_typescript//:index.bzl", "ts_library")
 
 package(default_visibility = ["//:__subpackages__"])
 
-ng_module(
+ts_library(
     name = "home",
     srcs = ["home.ts"],
-    assets = ["home.html"],
+    angular_assets = ["home.html"],
     tsconfig = "//src:tsconfig.json",
+    use_angular_plugin = True,
     deps = [
         "@npm//@angular/core",
         "@npm//@angular/router",
