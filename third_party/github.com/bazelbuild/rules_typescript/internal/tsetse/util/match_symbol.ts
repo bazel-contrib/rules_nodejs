@@ -5,7 +5,10 @@ const PATH_NAME_FORMAT = '[/\\.\\w\\d_-]+';
 const JS_IDENTIFIER_FORMAT = '[\\w\\d_-]+';
 const FQN_FORMAT = `(${JS_IDENTIFIER_FORMAT}\.)*${JS_IDENTIFIER_FORMAT}`;
 // A fqn made out of a dot-separated chain of JS identifiers.
-const ABSOLUTE_RE = new RegExp(`^(${PATH_NAME_FORMAT}\\|){0,1}${FQN_FORMAT}$`);
+const ABSOLUTE_RE = new RegExp(`^${PATH_NAME_FORMAT}\\|${FQN_FORMAT}$`);
+const GLOBAL = 'GLOBAL';
+const ANY_SYMBOL = 'ANY_SYMBOL';
+
 
 /**
  * This class matches symbols given a "foo.bar.baz" name, where none of the
@@ -15,10 +18,13 @@ const ABSOLUTE_RE = new RegExp(`^(${PATH_NAME_FORMAT}\\|){0,1}${FQN_FORMAT}$`);
  * strongly suggest finding the expected symbol in externs to find the object
  * name on which the symbol was initially defined.
  *
- * This matcher supports an optional file path filter. The filter specifies
+ * This matcher requires a scope for the symbol, which may be `GLOBAL`,
+ * `ANY_SCOPE`, or a file path filter. The matcher begins with this scope, then
+ * the separator "|", followed by the symbol name. For example, "GLOBAL|eval".
+ *
+ * The file filter specifies
  * (part of) the path of the file in which the symbol of interest is defined.
- * To add a file path filer to name "foo.bar.baz", prepend the path and
- * the separator "|" to the name. For example, "path/to/file.ts|foo.bar.baz".
+ * For example, "path/to/file.ts|foo.bar.baz".
  * With this filter, only symbols named "foo.bar.baz" that are defined in a path
  * that contains "path/to/file.ts" are matched.
  *
@@ -60,8 +66,7 @@ const ABSOLUTE_RE = new RegExp(`^(${PATH_NAME_FORMAT}\\|){0,1}${FQN_FORMAT}$`);
  */
 export class AbsoluteMatcher {
   /**
-   * From a "path/to/file.ts|foo.bar.baz" or "foo.bar.baz" matcher
-   * specification, builds a Matcher.
+   * From a "path/to/file.ts|foo.bar.baz", builds a Matcher.
    */
   readonly filePath: string;
   readonly bannedName: string;
@@ -84,14 +89,8 @@ export class AbsoluteMatcher {
           'the Property-based PatternKinds.');
     }
 
-    if (spec.includes('|')) {
-      // File path is present so we split spec by the separator "|".
-      [this.filePath, this.bannedName] = spec.split('|', 2);
-    } else {
-      // File path is omitted so spec is bannedName.
-      this.filePath = '';
-      this.bannedName = spec;
-    }
+    // Split spec by the separator "|".
+    [this.filePath, this.bannedName] = spec.split('|', 2);
   }
 
   matches(n: ts.Node, tc: ts.TypeChecker): boolean {
@@ -130,11 +129,14 @@ export class AbsoluteMatcher {
     // either a declare somewhere, or one of the core libraries that
     // are loaded by default.
     if (!fqn.startsWith('"')) {
-      // If this matcher includes a file path, it means that the targeted symbol
-      // is defined and explicitly exported in some file. If the current symbol
-      // is not associated with a specific file (because it is a local symbol or
-      // ambient symbol), it is not a match.
-      if (this.filePath !== '') {
+      // If this matcher includes a non-empty file path, it means that the
+      // targeted symbol is defined and explicitly exported in some file. If the
+      // current symbol is not associated with a specific file (because it is a
+      // local symbol or ambient symbol), it is not a match.
+      if (this.filePath !== GLOBAL && this.filePath !== ANY_SYMBOL) {
+        debugLog(
+            `The symbol has no file path and one is specified by the ` +
+            `matcher`);
         return false;
       }
 
@@ -153,14 +155,14 @@ export class AbsoluteMatcher {
     // If we know the file info of the symbol, and this matcher includes a file
     // path, we check if they match.
     else {
-      if (this.filePath !== '') {
+      if (this.filePath !== ANY_SYMBOL) {
         const last = fqn.indexOf('"', 1);
         if (last === -1) {
           throw new Error('Malformed fully-qualified name.');
         }
         const sympath = fqn.substring(1, last);
         debugLog(`The file path of the symbol is ${sympath}`);
-        if (!sympath.match(this.filePath)) {
+        if (!sympath.match(this.filePath) || this.filePath === GLOBAL) {
           debugLog(
               `The file path of the symbol does not match the ` +
               `file path of the matcher`);

@@ -7,7 +7,7 @@ describe('BANNED_NAME', () => {
     const config = {
       errorMessage: 'no Infinity',
       kind: PatternKind.BANNED_NAME,
-      values: ['Infinity']
+      values: ['GLOBAL|Infinity']
     };
     const source = `Infinity; 1+1;`;
     const results = compileAndCheck(new ConformancePatternRule(config), source);
@@ -20,7 +20,7 @@ describe('BANNED_NAME', () => {
     const config = {
       errorMessage: 'no blob url',
       kind: PatternKind.BANNED_NAME,
-      values: ['URL.createObjectURL']
+      values: ['GLOBAL|URL.createObjectURL']
     };
     const source = `URL.createObjectURL({});`;
     const results = compileAndCheck(new ConformancePatternRule(config), source);
@@ -39,7 +39,7 @@ describe('BANNED_NAME', () => {
     const config = {
       errorMessage: 'should not trigger',
       kind: PatternKind.BANNED_NAME,
-      values: ['whatever']
+      values: ['ANY_SYMBOL|whatever']
     };
     const sources = [
       `export type Foo = {bar: number, baz: (x:string)=>void}`,

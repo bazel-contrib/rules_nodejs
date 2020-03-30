@@ -96,7 +96,21 @@ describe('The constant-ness logic', () => {
   });
 });
 
-describe('test AbsoluteMatcher with file path', () => {
+describe('test AbsoluteMatcher', () => {
+  it('requires a scope', () => {
+    const config = {
+      errorMessage: 'banned name with no scope',
+      kind: PatternKind.BANNED_NAME,
+      values: ['exec']
+    };
+    const sources = [`eval('alert("hi");');`];
+
+    const check = () =>
+        compileAndCheck(new ConformancePatternRule(config), ...sources);
+
+    expect(check).toThrowError('Malformed matcher selector.');
+  });
+
   it('matched path', () => {
 
     const config = {
@@ -149,6 +163,35 @@ describe('test AbsoluteMatcher with file path', () => {
         compileAndCheck(new ConformancePatternRule(config), ...sources);
     expect(results).toHaveFailuresMatching(
         {matchedCode: `bar`, messageText: 'banned name with file path'});
+  });
+
+  it('global definition', () => {
+    const config = {
+      errorMessage: 'banned ambient name',
+      kind: PatternKind.BANNED_NAME,
+      values: ['GLOBAL|eval']
+    };
+    const sources = [`eval('alert("hi");');`];
+
+    const results =
+        compileAndCheck(new ConformancePatternRule(config), ...sources);
+    expect(results).toHaveFailuresMatching(
+        {matchedCode: `eval`, messageText: 'banned ambient name'});
+  });
+
+  it('global definition with the same name as a custom method', () => {
+    const config = {
+      errorMessage: 'banned ambient name',
+      kind: PatternKind.BANNED_NAME,
+      values: ['GLOBAL|eval']
+    };
+    const sources =
+        [`export class Foo { static eval(s: string) { return s + "abc";} }
+          var a = Foo.eval("123");`];
+
+    const results =
+        compileAndCheck(new ConformancePatternRule(config), ...sources);
+    expect(results).toHaveNoFailures();
   });
 
   it('local non-exported definition', () => {

@@ -6,7 +6,7 @@ describe('BANNED_NAME_CALL_NON_CONSTANT_ARGUMENT', () => {
   const config = {
     errorMessage: 'do not call bar.foo with non-literal 1st arg',
     kind: PatternKind.BANNED_NAME_CALL_NON_CONSTANT_ARGUMENT,
-    values: ['bar:0']
+    values: ['ANY_SYMBOL|bar:0']
   };
   const rule = new ConformancePatternRule(config);
 
@@ -38,7 +38,7 @@ describe('BANNED_NAME_CALL_NON_CONSTANT_ARGUMENT', () => {
     const rule = new ConformancePatternRule({
       errorMessage: 'non-literal arg',
       kind: PatternKind.BANNED_NAME_CALL_NON_CONSTANT_ARGUMENT,
-      values: ['aaa:1', 'bbb:0']
+      values: ['ANY_SYMBOL|aaa:1', 'ANY_SYMBOL|bbb:0']
     });
 
     const sources = [
@@ -61,7 +61,7 @@ describe('BANNED_NAME_CALL_NON_CONSTANT_ARGUMENT', () => {
     const rule = new ConformancePatternRule({
       errorMessage: 'non-literal arg',
       kind: PatternKind.BANNED_NAME_CALL_NON_CONSTANT_ARGUMENT,
-      values: ['Car.buildFromParts:0']
+      values: ['ANY_SYMBOL|Car.buildFromParts:0']
     });
 
     const sources = [
@@ -81,7 +81,7 @@ describe('BANNED_NAME_CALL_NON_CONSTANT_ARGUMENT', () => {
     const rule = new ConformancePatternRule({
       errorMessage: 'non-literal arg',
       kind: PatternKind.BANNED_NAME_CALL_NON_CONSTANT_ARGUMENT,
-      values: ['URL.createObjectURL:0']
+      values: ['GLOBAL|URL.createObjectURL:0']
     });
 
     const sources = [`URL.createObjectURL(window.name);\n`];
@@ -96,7 +96,7 @@ describe('BANNED_NAME_CALL_NON_CONSTANT_ARGUMENT', () => {
     const rule = new ConformancePatternRule({
       errorMessage: 'non-literal arg',
       kind: PatternKind.BANNED_NAME_CALL_NON_CONSTANT_ARGUMENT,
-      values: ['eval:0']
+      values: ['GLOBAL|eval:0']
     });
 
     const sources = [`eval(window.name);\n`];
