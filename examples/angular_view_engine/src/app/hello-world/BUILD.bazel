@@ -29,6 +29,7 @@ ng_module(
     tsconfig = "//src:tsconfig.json",
     deps = NG_FACTORY_ADDED_IMPORTS + [
         "//src/lib/shorten",
+        "//src/lib/typography",
         "//src/shared/material",
         "@npm//@angular/core",
         "@npm//@angular/forms",
