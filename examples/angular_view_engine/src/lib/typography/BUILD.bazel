@@ -1,0 +1,13 @@
+load("@npm_angular_bazel//:index.bzl", "ng_module")
+
+package(default_visibility = ["//:__subpackages__"])
+
+ng_module(
+    name = "typography",
+    srcs = glob(["*.ts"]),
+    module_name = "@examples/angular/typography",
+    tsconfig = "//src:tsconfig.json",
+    deps = [
+        "@npm//@angular/core",
+    ],
+)
