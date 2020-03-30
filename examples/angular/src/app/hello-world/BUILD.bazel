@@ -23,6 +23,7 @@ ng_module(
     tsconfig = "//src:tsconfig.json",
     deps = [
         "//src/lib/shorten",
+        "//src/lib/typography",
         "//src/shared/material",
         "@npm//@angular/router",
         "@npm//date-fns",
