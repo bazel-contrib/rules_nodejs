@@ -233,7 +233,9 @@ node_repositories(
         "1.12.1": ("yarn-v1.12.1.tar.gz", "yarn-v1.12.1", "09bea8f4ec41e9079fa03093d3b2db7ac5c5331852236d63815f8df42b3ba88d"),
     },
     yarn_version = "1.12.1",
-    yarn_urls = "https://github.com/yarnpkg/yarn/releases/download/v{version}/{filename}",
+    yarn_urls = [
+        "https://github.com/yarnpkg/yarn/releases/download/v{version}/{filename}",
+    ],
 )
 ```
 
