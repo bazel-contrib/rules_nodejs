@@ -1,17 +1,6 @@
 load("@npm//http-server:index.bzl", "http_server")
-load("@npm//sass:index.bzl", "sass")
 load("@npm//webpack-cli:index.bzl", webpack = "webpack_cli")
 load("@npm_bazel_typescript//:index.bzl", "ts_project")
-
-sass(
-    name = "styles",
-    outs = ["styles.css"],
-    args = [
-        "$(execpath styles.scss)",
-        "$(execpath styles.css)",
-    ],
-    data = ["styles.scss"],
-)
 
 ts_project(
     deps = [
