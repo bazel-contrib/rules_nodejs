@@ -24,7 +24,7 @@ load("//:providers.bzl", "JSNamedModuleInfo", "NodeRuntimeDepsInfo", "NpmPackage
 load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
 load("//internal/common:module_mappings.bzl", "module_mappings_runtime_aspect")
 load("//internal/common:path_utils.bzl", "strip_external")
-load("//internal/common:preserve_legacy_rlocation.bzl", "preserve_legacy_rlocation")
+load("//internal/common:preserve_legacy_templated_args.bzl", "preserve_legacy_templated_args")
 load("//internal/common:windows_utils.bzl", "create_windows_native_launcher_script", "is_windows")
 load("//internal/linker:link_node_modules.bzl", "module_mappings_aspect", "write_node_modules_manifest")
 load("//internal/node:node_repositories.bzl", "BUILT_IN_NODE_PLATFORMS")
@@ -214,7 +214,7 @@ def _nodejs_binary_impl(ctx):
 
     # First replace any instances of "$(rlocation " with "$$(rlocation " to preserve
     # legacy uses of "$(rlocation"
-    expanded_args = [preserve_legacy_rlocation(a) for a in ctx.attr.templated_args]
+    expanded_args = [preserve_legacy_templated_args(a) for a in ctx.attr.templated_args]
 
     # First expand predefined source/output path variables:
     # $(execpath), $(rootpath) & legacy $(location)

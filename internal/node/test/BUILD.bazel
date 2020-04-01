@@ -282,6 +282,8 @@ npm_package_bin(
         "$(TARGET_CPU)",
         "$(BINDIR)",
         "$(SOME_TEST_ENV)",
+        "somearg$$",
+        "some0arg",
     ],
     tool = ":expand_variables",
 )
@@ -296,6 +298,9 @@ jasmine_node_test(
         "$(TARGET_CPU)",
         "$(BINDIR)",
         "$(SOME_TEST_ENV)",
+        # Should preserve lone $ in templated_args
+        "somearg$",
+        "some$#arg",
     ],
 )
 
