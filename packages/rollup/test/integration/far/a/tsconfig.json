@@ -5,5 +5,11 @@
     "target": "es2015",
     "module": "esnext",
     "moduleResolution": "node"
-  }
+  },
+  // For Windows, which is not sand-boxed, we need to limit
+  // the typescript files included so the "@far/a" compilation
+  // does not include typescript files from "@far/a/b/c" which
+  // is contained in a subdirectory. By default, typescript will
+  // include all typescript in the containing directory and subdirectories.
+  "include": ["*.ts"]
 }
