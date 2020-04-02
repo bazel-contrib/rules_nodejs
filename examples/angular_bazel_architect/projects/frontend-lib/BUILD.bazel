@@ -8,11 +8,11 @@ architect(
     args = [
         "frontend-lib:build",
         "--",
-        "$(@D)"
+        "$(@D)",
     ],
     data = glob(
         [
-            "src/**/*"
+            "src/**/*",
         ],
         exclude = [
             "src/**/*.spec.ts",
@@ -40,7 +40,7 @@ architect_test(
     name = "test",
     args = ["frontend-lib:test"],
     data = glob([
-         "src/**/*"
+        "src/**/*",
     ]) + [
         "karma.conf.js",
         "tsconfig.spec.json",

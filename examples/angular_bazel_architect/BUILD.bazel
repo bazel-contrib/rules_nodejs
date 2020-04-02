@@ -14,7 +14,7 @@ architect(
     configuration_env_vars = ["NG_BUILD_CACHE"],
     data = glob(
         [
-            "src/**/*"
+            "src/**/*",
         ],
         exclude = [
             "src/**/*.spec.ts",
@@ -35,7 +35,7 @@ architect(
         "@npm//@angular/platform-browser-dynamic",
         "@npm//@angular-devkit/architect-cli",
         "@npm//@angular-devkit/build-angular",
-        "//projects/frontend-lib:npm_package"
+        "//projects/frontend-lib:npm_package",
     ],
     output_dir = True,
 )
@@ -45,7 +45,7 @@ architect_test(
     args = ["frontend:test"],
     configuration_env_vars = ["NG_BUILD_CACHE"],
     data = glob([
-        "src/**/*"
+        "src/**/*",
     ]) + [
         "angular.json",
         "karma.conf.js",
@@ -64,7 +64,7 @@ architect_test(
         "@npm//karma-coverage-istanbul-reporter",
         "@npm//karma-jasmine",
         "@npm//karma-jasmine-html-reporter",
-        "//projects/frontend-lib:npm_package"
+        "//projects/frontend-lib:npm_package",
     ],
     tags = [
         "browser:chromium-local",
@@ -110,7 +110,7 @@ architect_test(
         "@npm//@types/jasmine",
         "@npm//@types/jasminewd2",
         "@npm//@types/node",
-        "//projects/frontend-lib:npm_package"
+        "//projects/frontend-lib:npm_package",
     ],
     tags = [
         "browser:chromium-local",
@@ -170,7 +170,7 @@ architect(
         "@npm//@angular/router",
         "@npm//@angular/platform-browser-dynamic",
         "@npm//@angular-devkit/build-angular",
-        "//projects/frontend-lib:npm_package"
+        "//projects/frontend-lib:npm_package",
     ],
     tags = ["ibazel_notify_changes"],
 )
