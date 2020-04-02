@@ -224,6 +224,7 @@ nodejs_test(
 
 npm_package_bin(
     name = "run_terser",
+    package_name = "@rules_nodejs_tests/internal_node_test_run_terser",
     outs = ["minified.js"],
     args = [
         "$(execpath terser_input.js)",
@@ -241,6 +242,7 @@ nodejs_binary(
 
 npm_package_bin(
     name = "dir_output",
+    package_name = "@rules_nodejs_tests/internal_node_test_dir_output",
     args = [
         "--output-dir",
         "$(@D)",
@@ -255,8 +257,8 @@ jasmine_node_test(
     name = "npm_package_bin_test",
     srcs = ["npm_package_bin.spec.js"],
     data = [
-        "dir_output",
-        "minified.js",
+        ":dir_output",
+        ":run_terser",
     ],
     # Turn on the linker & turn off require patches so that the external workspace jasmine_node_test
     # entry point npm_bazel_jasmine/jasmine_runner.js's require('@bazel/jasmine') is exercised without

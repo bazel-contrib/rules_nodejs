@@ -1,12 +1,13 @@
 "A generic rule to run a tool that appears in node_modules/.bin"
 
-load("//:providers.bzl", "NpmPackageInfo", "node_modules_aspect", "run_node")
+load("//:providers.bzl", "LinkablePackageInfo", "NpmPackageInfo", "node_modules_aspect", "run_node")
 load("//internal/common:expand_variables.bzl", "expand_variables")
 load("//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 
 # Note: this API is chosen to match nodejs_binary
 # so that we can generate macros that act as either an output-producing tool or an executable
 _ATTRS = {
+    "package_name": attr.string(),
     "outs": attr.output_list(),
     "args": attr.string_list(mandatory = True),
     "configuration_env_vars": attr.string_list(default = []),
@@ -60,14 +61,32 @@ def _impl(ctx):
         arguments = [args],
         configuration_env_vars = ctx.attr.configuration_env_vars,
     )
-    return [DefaultInfo(files = depset(outputs))]
+
+    outputs_depset = depset(outputs)
+
+    result = [DefaultInfo(files = outputs_depset)]
+
+    if ctx.attr.package_name:
+        path = "/".join([p for p in [ctx.bin_dir.path, ctx.label.workspace_root, ctx.label.package] if p])
+
+        # if an output_dir then link to the output dir and not the package
+        if ctx.attr.output_dir:
+            path = "/".join([path, ctx.attr.name])
+        print(ctx.attr.package_name)
+        result.append(LinkablePackageInfo(
+            package_name = ctx.attr.package_name,
+            path = path,
+            files = outputs_depset,
+        ))
+
+    return result
 
 _npm_package_bin = rule(
     _impl,
     attrs = _ATTRS,
 )
 
-def npm_package_bin(tool = None, package = None, package_bin = None, data = [], outs = [], args = [], output_dir = False, **kwargs):
+def npm_package_bin(tool = None, package = None, package_bin = None, data = [], outs = [], args = [], output_dir = False, package_name = None, **kwargs):
     """Run an arbitrary npm package binary (e.g. a program under node_modules/.bin/*) under Bazel.
 
     It must produce outputs. If you just want to run a program with `bazel run`, use the nodejs_binary rule.
@@ -85,6 +104,7 @@ def npm_package_bin(tool = None, package = None, package_bin = None, data = [], 
         output_dir: set to True if you want the output to be a directory
                  Exactly one of `outs`, `output_dir` may be used.
                  If you output a directory, there can only be one output, which will be a directory named the same as the target.
+        package_name: Optional package_name that this npm package may be imported as.
 
         args: Command-line arguments to the tool.
 
@@ -141,6 +161,7 @@ def npm_package_bin(tool = None, package = None, package_bin = None, data = [], 
         outs = outs,
         args = args,
         output_dir = output_dir,
+        package_name = package_name,
         tool = tool,
         **kwargs
     )
