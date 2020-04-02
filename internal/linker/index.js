@@ -112,6 +112,11 @@ Include as much of the build output as you can without disclosing anything confi
      */
     function resolveRoot(root, runfiles) {
         return __awaiter(this, void 0, void 0, function* () {
+            if (!runfiles.execroot) {
+                // Under runfiles, the repository should be layed out in the parent directory
+                // since bazel sets our working directory to the repository where the build is happening
+                process.chdir('..');
+            }
             // create a node_modules directory if no root
             // this will be the case if only first-party modules are installed
             if (!root) {
@@ -135,7 +140,7 @@ Include as much of the build output as you can without disclosing anything confi
             else {
                 // Under runfiles, the repository should be layed out in the parent directory
                 // since bazel sets our working directory to the repository where the build is happening
-                return path.join('..', root);
+                return root;
             }
         });
     }
@@ -425,12 +430,14 @@ Include as much of the build output as you can without disclosing anything confi
             const [modulesManifest] = args;
             let { bin, root, modules, workspace } = JSON.parse(fs.readFileSync(modulesManifest));
             modules = modules || {};
-            log_verbose(`module manifest '${modulesManifest}': workspace ${workspace}, bin ${bin}, root ${root} with first-party packages\n`, modules);
+            log_verbose('manifest file', modulesManifest);
+            log_verbose('manifest contents', JSON.stringify({ workspace, bin, root, modules }, null, 2));
+            // Bazel starts actions with pwd=execroot/my_wksp
+            const workspaceDir = path.resolve('.');
+            // resolveRoot will change the cwd when under runfiles
             const rootDir = yield resolveRoot(root, runfiles);
             log_verbose('resolved root', root, 'to', rootDir);
             log_verbose('cwd', process.cwd());
-            // Bazel starts actions with pwd=execroot/my_wksp
-            const workspaceDir = path.resolve('.');
             // Create the $pwd/node_modules directory that node will resolve from
             yield symlink(rootDir, 'node_modules');
             process.chdir(rootDir);
