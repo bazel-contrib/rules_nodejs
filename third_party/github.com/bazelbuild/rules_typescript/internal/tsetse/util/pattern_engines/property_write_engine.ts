@@ -24,21 +24,33 @@ export class PropertyWriteEngine extends PatternEngine {
   }
 
   register(checker: Checker) {
-    checker.on(
-        ts.SyntaxKind.BinaryExpression, this.checkAndFilterResults.bind(this),
+    checker.onNamedPropertyAccess(
+        this.matcher.bannedProperty, this.checkAndFilterResults.bind(this),
         ErrorCode.CONFORMANCE_PATTERN);
   }
 
   check(tc: ts.TypeChecker, n: ts.Node): ts.Node|undefined {
-    if (!isPropertyWriteExpression(n)) {
+    if (!ts.isPropertyAccessExpression(n)) {
+      throw new Error(
+          `Should not happen: node is not a PropertyAccessExpression`);
+    }
+
+    if (!ts.isBinaryExpression(n.parent)) {
       return;
     }
-    debugLog(`inspecting ${n.getText().trim()}`);
-    if (!this.matcher.matches(n.left, tc)) {
+
+    if (n.parent.operatorToken.getText().trim() !== '=') {
       return;
     }
-    debugLog(`Match. Reporting failure (boundaries: ${n.getStart()}, ${
-        n.getEnd()}] on node [${n.getText()}]`);
-    return n;
+
+    if (n.parent.left !== n) {
+      return;
+    }
+
+    debugLog(`inspecting ${n.parent.getText().trim()}`);
+    if (!this.matcher.matches(n, tc)) {
+      return;
+    }
+    return n.parent;
   }
 }

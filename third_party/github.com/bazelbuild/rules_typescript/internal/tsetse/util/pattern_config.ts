@@ -7,9 +7,11 @@
 export enum PatternKind {
   BANNED_NAME = 'banned-name',
   BANNED_PROPERTY_WRITE = 'banned-property-write',
+  /** @deprecated use `BANNED_PROPERTY_WRITE` instead */
   BANNED_PROPERTY_NON_CONSTANT_WRITE = 'banned-property-non-constant-write',
   BANNED_PROPERTY_READ = 'banned-property-read',
   // Not from JSConformance.
+  /** @deprecated use `BANNED_PROPERTY` instead */
   BANNED_NAME_CALL_NON_CONSTANT_ARGUMENT = 'banned-call-non-constant-argument'
 }
 

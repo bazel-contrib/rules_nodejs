@@ -11,11 +11,11 @@ import {compile, compileAndCheck} from '../../util/testing/test_support';
 
 describe('Debug output', () => {
   it('turns on and off', () => {
-    const source = `const obj = {prop:'val'}; obj.prop = 'foo';`;
+    const source = `location.href = 'foo';`;
     const rule = new ConformancePatternRule({
       errorMessage: 'does not matter',
       kind: PatternKind.BANNED_PROPERTY_WRITE,
-      values: ['HTMLQuoteElement.prototype.cite']
+      values: ['Location.prototype.href']
     });
 
     const logs: string[] = [];
@@ -27,13 +27,13 @@ describe('Debug output', () => {
     setDebug(true);
     compileAndCheck(rule, source);
 
-    expect(logs).toEqual([`inspecting obj.prop = 'foo'`]);
+    expect(logs).toEqual([`inspecting location.href = 'foo'`]);
 
     setDebug(false);
     compileAndCheck(rule, source);
 
     // Nothing more appended: debug was false
-    expect(logs).toEqual([`inspecting obj.prop = 'foo'`]);
+    expect(logs).toEqual([`inspecting location.href = 'foo'`]);
   });
 });
 

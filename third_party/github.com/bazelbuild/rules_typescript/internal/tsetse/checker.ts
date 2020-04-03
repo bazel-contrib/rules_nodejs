@@ -22,18 +22,26 @@ interface Handler {
  * possible. Compiler uses execute() to run the Tsetse check.
  */
 export class Checker {
+  /** Node to handlers mapping for all enabled rules. */
+  private readonly nodeHandlersMap = new Map<ts.SyntaxKind, Handler[]>();
   /**
-   * nodeHandlersMap contains node to handlers mapping for all enabled rules.
+   * Mapping from identifier name to handlers for all rules inspecting property
+   * names.
    */
-  private nodeHandlersMap = new Map<ts.SyntaxKind, Handler[]>();
+  private readonly namedIdentifierHandlersMap = new Map<string, Handler[]>();
+  /**
+   * Mapping from property name to handlers for all rules inspecting property
+   * accesses expressions.
+   */
+  private readonly namedPropertyAccessHandlersMap =
+      new Map<string, Handler[]>();
+
   private failures: Failure[] = [];
   private currentSourceFile: ts.SourceFile|undefined;
   // currentCode will be set before invoking any handler functions so the value
   // initialized here is never used.
   private currentCode = 0;
-  /**
-   * Allow typed rules via typeChecker.
-   */
+  /** Allow typed rules via typeChecker. */
   typeChecker: ts.TypeChecker;
 
   constructor(program: ts.Program) {
@@ -50,10 +58,46 @@ export class Checker {
       nodeKind: T['kind'], handlerFunction: (checker: Checker, node: T) => void,
       code: number) {
     const newHandler: Handler = {handlerFunction, code};
-    const registeredHandlers: Handler[]|undefined =
-        this.nodeHandlersMap.get(nodeKind);
+    const registeredHandlers = this.nodeHandlersMap.get(nodeKind);
     if (registeredHandlers === undefined) {
       this.nodeHandlersMap.set(nodeKind, [newHandler]);
+    } else {
+      registeredHandlers.push(newHandler);
+    }
+  }
+
+  /**
+   * Similar to `on`, but registers handlers on more specific node type, i.e.,
+   * identifiers.
+   */
+  onNamedIdentifier(
+      identifierName: string,
+      handlerFunction: (checker: Checker, node: ts.Identifier) => void,
+      code: number) {
+    const newHandler: Handler = {handlerFunction, code};
+    const registeredHandlers =
+        this.namedIdentifierHandlersMap.get(identifierName);
+    if (registeredHandlers === undefined) {
+      this.namedIdentifierHandlersMap.set(identifierName, [newHandler]);
+    } else {
+      registeredHandlers.push(newHandler);
+    }
+  }
+
+  /**
+   * Similar to `on`, but registers handlers on more specific node type, i.e.,
+   * property access expressions.
+   */
+  onNamedPropertyAccess(
+      propertyName: string,
+      handlerFunction:
+          (checker: Checker, node: ts.PropertyAccessExpression) => void,
+      code: number) {
+    const newHandler: Handler = {handlerFunction, code};
+    const registeredHandlers =
+        this.namedPropertyAccessHandlersMap.get(propertyName);
+    if (registeredHandlers === undefined) {
+      this.namedPropertyAccessHandlersMap.set(propertyName, [newHandler]);
     } else {
       registeredHandlers.push(newHandler);
     }
@@ -87,6 +131,47 @@ export class Checker {
         node.getStart(this.currentSourceFile), node.getEnd(), failureText, fix);
   }
 
+  /** Dispatch general handlers registered via `on` */
+  dispatchNodeHandlers(node: ts.Node) {
+    const handlers = this.nodeHandlersMap.get(node.kind);
+    if (handlers === undefined) {
+      return;
+    }
+
+    for (const handler of handlers) {
+      this.currentCode = handler.code;
+      handler.handlerFunction(this, node);
+    }
+  }
+
+  /** Dispatch identifier handlers registered via `onNamedIdentifier` */
+  dispatchNamedIdentifierHandlers(id: ts.Identifier) {
+    const handlers = this.namedIdentifierHandlersMap.get(id.text);
+    if (handlers === undefined) {
+      return;
+    }
+
+    for (const handler of handlers) {
+      this.currentCode = handler.code;
+      handler.handlerFunction(this, id);
+    }
+  }
+
+  /**
+   * Dispatch property access handlers registered via `onNamedPropertyAccess`
+   */
+  dispatchNamedPropertyAccessHandlers(prop: ts.PropertyAccessExpression) {
+    const handlers = this.namedPropertyAccessHandlersMap.get(prop.name.text);
+    if (handlers === undefined) {
+      return;
+    }
+
+    for (const handler of handlers) {
+      this.currentCode = handler.code;
+      handler.handlerFunction(this, prop);
+    }
+  }
+
   /**
    * Walk `sourceFile`, invoking registered handlers with Checker as the first
    * argument and current node as the second argument. Return failures if there
@@ -100,14 +185,16 @@ export class Checker {
     return this.failures;
 
     function run(node: ts.Node) {
-      const handlers: Handler[]|undefined =
-          thisChecker.nodeHandlersMap.get(node.kind);
-      if (handlers !== undefined) {
-        for (const handler of handlers) {
-          thisChecker.currentCode = handler.code;
-          handler.handlerFunction(thisChecker, node);
-        }
+      // Dispatch handlers registered via `on`
+      thisChecker.dispatchNodeHandlers(node);
+
+      // Dispatch handlers for named identifiers and properties
+      if (ts.isIdentifier(node)) {
+        thisChecker.dispatchNamedIdentifierHandlers(node);
+      } else if (ts.isPropertyAccessExpression(node)) {
+        thisChecker.dispatchNamedPropertyAccessHandlers(node);
       }
+
       ts.forEachChild(node, run);
     }
   }

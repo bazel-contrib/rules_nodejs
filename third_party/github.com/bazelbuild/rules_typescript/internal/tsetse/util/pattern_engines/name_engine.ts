@@ -1,4 +1,5 @@
 import * as ts from 'typescript';
+
 import {Checker} from '../../checker';
 import {ErrorCode} from '../../error_code';
 import {debugLog, shouldExamineNode} from '../ast_tools';
@@ -21,15 +22,16 @@ export class NameEngine extends PatternEngine {
   }
 
   register(checker: Checker) {
-    checker.on(
-        ts.SyntaxKind.Identifier, this.checkAndFilterResults.bind(this),
-        ErrorCode.CONFORMANCE_PATTERN);
+    // `String.prototype.split` only returns emtpy array when both the string
+    // and the splitter are empty. Here we should be able to safely assert pop
+    // returns a non-null result.
+    const bannedIdName = this.matcher.bannedName.split('.').pop()!;
+    checker.onNamedIdentifier(bannedIdName, (c: Checker, n: ts.Node) => {
+      this.checkAndFilterResults(c, n);
+    }, ErrorCode.CONFORMANCE_PATTERN);
   }
 
   check(tc: ts.TypeChecker, n: ts.Node): ts.Node|undefined {
-    if (!shouldExamineNode(n) || n.getSourceFile().isDeclarationFile) {
-      return;
-    }
     debugLog(`inspecting ${n.getText().trim()}`);
     if (!this.matcher.matches(n, tc)) {
       debugLog('Not the right global name.');

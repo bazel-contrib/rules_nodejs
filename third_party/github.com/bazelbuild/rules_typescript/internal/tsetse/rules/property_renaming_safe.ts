@@ -50,5 +50,5 @@ function checkIndexSignAccessedWithPropAccess(
           `${typeChecker.typeToString(t)}. The type has a string index ` +
           `signature, but it is being accessed using a dotted property ` +
           `access.
-See http://tsetse.info/property-renaming-safe.`);
+See go/ts-conformance#property-renaming-safe.`);
 }
