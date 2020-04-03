@@ -128,6 +128,49 @@
           }
         }
       }
-    }},
+    },
+    "frontend-lib": {
+      "projectType": "library",
+      "root": "projects/frontend-lib",
+      "sourceRoot": "projects/frontend-lib/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/frontend-lib/tsconfig.lib.json",
+            "project": "projects/frontend-lib/ng-package.js"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/frontend-lib/tsconfig.lib.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "preserveSymlinks": true,
+            "watch": false,
+            "main": "projects/frontend-lib/src/test.ts",
+            "tsConfig": "projects/frontend-lib/tsconfig.spec.json",
+            "karmaConfig": "projects/frontend-lib/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/frontend-lib/tsconfig.lib.json",
+              "projects/frontend-lib/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    }
+  },
   "defaultProject": "frontend"
 }
