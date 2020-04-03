@@ -1,4 +1,5 @@
 load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
+load("//internal/common:copy_to_bin.bzl", "copy_to_bin")
 
 jasmine_node_test(
     name = "underscore_spec_test",
@@ -32,6 +33,39 @@ jasmine_node_test(
     name = "sharding_test",
     srcs = ["sharded_test.js"],
     shard_count = 3,
+)
+
+copy_to_bin(
+    name = "generated_require_spec",
+    srcs = ["generated_require.spec.js"],
+)
+
+jasmine_node_test(
+    name = "generated_require_spec_test",
+    # Use the generated_require.spec.js from the output tree
+    srcs = [":generated_require_spec"],
+    data = ["test.json"],
+    expected_exit_code = select({
+        # Expected to fail on Windows because a relative require from
+        # the output tree to the source tree will not work unless the spec
+        # is run from the correct spot. But without the fix in
+        # #1796, the spec is run incorrectly from
+        # external\npm\node_modules\build_bazel_rules_nodejs\packages\jasmine\test\generated.spec.js
+        "@bazel_tools//src/conditions:host_windows": 3,
+        "//conditions:default": 0,
+    }),
+)
+
+copy_to_bin(
+    name = "generated_runfiles_spec",
+    srcs = ["generated_runfiles.spec.js"],
+)
+
+jasmine_node_test(
+    name = "generated_runfiles_spec_test",
+    # Use the generated_runfiles.spec.js from the output tree
+    srcs = [":generated_runfiles_spec"],
+    data = ["test.json"],
 )
 
 # Verify that a bootstrap script does not break a sharded test
