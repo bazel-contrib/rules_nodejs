@@ -7,7 +7,6 @@ to the `deps` of one of their targets.
 """
 
 load("//:providers.bzl", "DeclarationInfo", "JSNamedModuleInfo", "LinkablePackageInfo", "NodeContextInfo")
-load("//internal/common:path_utils.bzl", "strip_external")
 
 _DOC = """The pkg_npm rule creates a directory containing a publishable npm artifact.
 
@@ -68,14 +67,12 @@ $ bazel run @nodejs//:npm_node_repositories who
 $ bazel run :my_package.publish
 ```
 
-> Note that the `.pack` and `.publish` commands require that the `bazel-out` symlink exists in your project.
-> Also, you must run the command from the workspace root directory containing the `bazel-out` symlink.
-
 You can pass arguments to npm by escaping them from Bazel using a double-hyphen, for example:
 
 `bazel run my_package.publish -- --tag=next`
 """
 
+# Used in angular/angular /packages/bazel/src/ng_package/ng_package.bzl
 PKG_NPM_ATTRS = {
     "package_name": attr.string(
         doc = """Optional package_name that this npm package may be imported as.""",
@@ -119,6 +116,11 @@ PKG_NPM_ATTRS = {
         doc = """Other targets which produce files that should be included in the package, such as `rollup_bundle`""",
         allow_files = True,
     ),
+    "_npm_script_generator": attr.label(
+        default = Label("//internal/pkg_npm:npm_script_generator"),
+        cfg = "host",
+        executable = True,
+    ),
     "_packager": attr.label(
         default = Label("//internal/pkg_npm:packager"),
         cfg = "host",
@@ -130,6 +132,7 @@ PKG_NPM_ATTRS = {
     ),
 }
 
+# Used in angular/angular /packages/bazel/src/ng_package/ng_package.bzl
 PKG_NPM_OUTPUTS = {
     "pack": "%{name}.pack",
     "publish": "%{name}.publish",
@@ -141,6 +144,7 @@ PKG_NPM_OUTPUTS = {
 def _filter_out_external_files(ctx, files, package_path):
     result = []
     for file in files:
+        # NB: package_path may be an empty string
         if file.short_path.startswith(package_path) and not file.short_path.startswith("../"):
             result.append(file.path)
         else:
@@ -149,7 +153,8 @@ def _filter_out_external_files(ctx, files, package_path):
                     result.append(file.path)
     return result
 
-def create_package(ctx, deps_sources, nested_packages):
+# Used in angular/angular /packages/bazel/src/ng_package/ng_package.bzl
+def create_package(ctx, deps_files, nested_packages):
     """Creates an action that produces the npm package.
 
     It copies srcs and deps into the artifact and produces the .pack and .publish
@@ -157,8 +162,8 @@ def create_package(ctx, deps_sources, nested_packages):
 
     Args:
       ctx: the skylark rule context
-      deps_sources: Files which have been specified as dependencies. Usually ".js" or ".d.ts"
-                    generated files.
+      deps_files: list of files to include in the package which have been
+                  specified as dependencies
       nested_packages: list of TreeArtifact outputs from other actions which are
                        to be nested inside this package
 
@@ -167,6 +172,19 @@ def create_package(ctx, deps_sources, nested_packages):
     """
 
     stamp = ctx.attr.node_context_data[NodeContextInfo].stamp
+
+    all_files = deps_files + ctx.files.srcs
+
+    if not stamp and len(all_files) == 1 and all_files[0].is_directory and len(ctx.files.nested_packages) == 0:
+        # Special case where these is a single dep that is a directory artifact and there are no
+        # source files or nested_packages; in that case we assume the package is contained within
+        # that single directory and there is no work to do
+        package_dir = all_files[0]
+
+        _create_npm_scripts(ctx, package_dir)
+
+        return package_dir
+
     package_dir = ctx.actions.declare_directory(ctx.label.name)
     package_path = ctx.label.package
 
@@ -174,7 +192,7 @@ def create_package(ctx, deps_sources, nested_packages):
     # target. Also include files from external repositories that explicitly specified in
     # the vendor_external list. We only want to package deps files which are inside of the
     # current package unless explicitely specified.
-    filtered_deps_sources = _filter_out_external_files(ctx, deps_sources, package_path)
+    filtered_deps_sources = _filter_out_external_files(ctx, deps_files, package_path)
 
     args = ctx.actions.args()
     args.use_param_file("%s", use_always = True)
@@ -186,17 +204,12 @@ def create_package(ctx, deps_sources, nested_packages):
     args.add_joined(filtered_deps_sources, join_with = ",", omit_if_empty = False)
     args.add_joined([p.path for p in nested_packages], join_with = ",", omit_if_empty = False)
     args.add(ctx.attr.substitutions)
-    args.add_all([ctx.outputs.pack.path, ctx.outputs.publish.path])
     args.add(ctx.attr.replace_with_version)
     args.add(ctx.version_file.path if stamp else "")
     args.add_joined(ctx.attr.vendor_external, join_with = ",", omit_if_empty = False)
     args.add("1" if ctx.attr.hide_build_files else "0")
 
-    # require.resolve expects the path to start with the workspace name and not "external"
-    run_npm_template_path = strip_external(ctx.file._run_npm_template.path)
-    args.add(run_npm_template_path)
-
-    inputs = ctx.files.srcs + deps_sources + nested_packages + [ctx.file._run_npm_template]
+    inputs = ctx.files.srcs + deps_files + nested_packages
 
     # The version_file is an undocumented attribute of the ctx that lets us read the volatile-status.txt file
     # produced by the --workspace_status_command. That command will be executed whenever
@@ -210,34 +223,60 @@ def create_package(ctx, deps_sources, nested_packages):
         mnemonic = "AssembleNpmPackage",
         executable = ctx.executable._packager,
         inputs = inputs,
-        outputs = [package_dir, ctx.outputs.pack, ctx.outputs.publish],
+        outputs = [package_dir],
         arguments = [args],
     )
+
+    _create_npm_scripts(ctx, package_dir)
+
     return package_dir
 
+def _create_npm_scripts(ctx, package_dir):
+    args = ctx.actions.args()
+    args.add_all([
+        package_dir.path,
+        ctx.outputs.pack.path,
+        ctx.outputs.publish.path,
+        ctx.file._run_npm_template.path,
+    ])
+
+    ctx.actions.run(
+        progress_message = "Generating npm pack & publish scripts",
+        mnemonic = "GenerateNpmScripts",
+        executable = ctx.executable._npm_script_generator,
+        inputs = [ctx.file._run_npm_template, package_dir],
+        outputs = [ctx.outputs.pack, ctx.outputs.publish],
+        arguments = [args],
+        # Must be run local (no sandbox) so that the pwd is the actual execroot
+        # in the script which is used to generate the path in the pack & publish
+        # scripts.
+        execution_requirements = {"local": "1"},
+    )
+
 def _pkg_npm(ctx):
-    sources_depsets = []
+    deps_files_depsets = []
 
     for dep in ctx.attr.deps:
         # Collect whatever is in the "data"
-        sources_depsets.append(dep.data_runfiles.files)
+        deps_files_depsets.append(dep.data_runfiles.files)
 
         # Only collect DefaultInfo files (not transitive)
-        sources_depsets.append(dep.files)
+        deps_files_depsets.append(dep.files)
 
         # All direct & transitive JavaScript-producing deps
         # TODO: switch to JSModuleInfo when it is available
         if JSNamedModuleInfo in dep:
-            sources_depsets.append(dep[JSNamedModuleInfo].sources)
+            deps_files_depsets.append(dep[JSNamedModuleInfo].sources)
 
         # Include all transitive declerations
         if DeclarationInfo in dep:
-            sources_depsets.append(dep[DeclarationInfo].transitive_declarations)
-
-    sources = depset(transitive = sources_depsets)
+            deps_files_depsets.append(dep[DeclarationInfo].transitive_declarations)
 
     # Note: to_list() should be called once per rule!
-    package_dir = create_package(ctx, sources.to_list(), ctx.files.nested_packages)
+    deps_files = depset(transitive = deps_files_depsets).to_list()
+
+    package_dir = create_package(ctx, deps_files, ctx.files.nested_packages)
+
     package_dir_depset = depset([package_dir])
 
     result = [

@@ -14,6 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/**
+ * @fileoverview This script copies files and nested packages into the output
+ * directory of the pkg_npm rule.
+ */
+'use strict';
+
 const fs = require('fs');
 const path = require('path');
 const isBinary = require('isbinaryfile').isBinaryFileSync;
@@ -66,9 +72,8 @@ function unquoteArgs(s) {
 function main(args) {
   args = fs.readFileSync(args[0], {encoding: 'utf-8'}).split('\n').map(unquoteArgs);
   const
-      [outDir, baseDir, srcsArg, binDir, genDir, depsArg, packagesArg, substitutionsArg, packPath,
-       publishPath, replaceWithVersion, stampFile, vendorExternalArg, hideBuildFilesArg,
-       runNpmTemplatePath] = args;
+      [outDir, baseDir, srcsArg, binDir, genDir, depsArg, packagesArg, substitutionsArg,
+       replaceWithVersion, stampFile, vendorExternalArg, hideBuildFilesArg] = args;
   const renameBuildFiles = parseInt(hideBuildFilesArg);
 
   const substitutions = [
@@ -76,7 +81,7 @@ function main(args) {
     [/(#|\/\/)\s+BEGIN-INTERNAL[\w\W]+?END-INTERNAL/g, ''],
   ];
   const rawReplacements = JSON.parse(substitutionsArg);
-  for (let key of Object.keys(rawReplacements)) {
+  for (const key of Object.keys(rawReplacements)) {
     substitutions.push([new RegExp(key, 'g'), rawReplacements[key]])
   }
   // Replace version last so that earlier substitutions can add
@@ -123,7 +128,7 @@ function main(args) {
   }
 
   function outPath(f) {
-    for (ext of vendorExternalArg.split(',').filter(s => !!s)) {
+    for (const ext of vendorExternalArg.split(',').filter(s => !!s)) {
       const candidate = path.join(binDir, 'external', ext);
       if (!path.relative(candidate, f).startsWith('..')) {
         return path.join(outDir, path.relative(candidate, f));
@@ -145,7 +150,7 @@ function main(args) {
   }
 
   // Deps like bazel-bin/baseDir/my/path is copied to outDir/my/path.
-  for (dep of depsArg.split(',').filter(s => !!s)) {
+  for (const dep of depsArg.split(',').filter(s => !!s)) {
     try {
       copyWithReplace(dep, outPath(dep), substitutions, renameBuildFiles);
     } catch (e) {
@@ -156,7 +161,7 @@ function main(args) {
 
   // package contents like bazel-bin/baseDir/my/directory/* is
   // recursively copied to outDir/my/*
-  for (pkg of packagesArg.split(',').filter(s => !!s)) {
+  for (const pkg of packagesArg.split(',').filter(s => !!s)) {
     const outDir = outPath(path.dirname(pkg));
     function copyRecursive(base, file) {
       file = file.replace(/\\/g, '/');
@@ -167,7 +172,7 @@ function main(args) {
         });
       } else {
         function outFile() {
-          for (ext of vendorExternalArg.split(',').filter(s => !!s)) {
+          for (const ext of vendorExternalArg.split(',').filter(s => !!s)) {
             if (file.startsWith(`external/${ext}`)) {
               return file.substr(`external/${ext}`.length);
             }
@@ -182,10 +187,6 @@ function main(args) {
       copyRecursive(pkg, f);
     });
   }
-
-  const npmTemplate = fs.readFileSync(require.resolve(runNpmTemplatePath), {encoding: 'utf-8'});
-  fs.writeFileSync(packPath, npmTemplate.replace('TMPL_args', `pack "${outDir}"`));
-  fs.writeFileSync(publishPath, npmTemplate.replace('TMPL_args', `publish "${outDir}"`));
 }
 
 if (require.main === module) {
