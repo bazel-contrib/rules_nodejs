@@ -39,10 +39,10 @@ try {
 // Store the cache forever to re-use on each build
 let cacheMap = Object.create(null);
 
-// Generate a unique cache ID based on the input/outputOptions
-function computeCacheKey(inputOptions, outputOptions) {
+// Generate a unique cache ID based on the given json data
+function computeCacheKey(cacheKeyData) {
   const hash = crypto.createHash('sha256');
-  const hashContent = JSON.stringify(inputOptions) + JSON.stringify(outputOptions);
+  const hashContent = JSON.stringify(cacheKeyData);
   return hash.update(hashContent).digest('hex');
 }
 
