@@ -78,10 +78,7 @@ architect_test(
 )
 
 pkg_npm(
-    name = "npm_package",
+    name = "frontend-lib",
     package_name = "frontend-lib",
-    # This is a workaround for the Linker When using `output_dir = True`.
-    # the ':build' target dependency has an output directory so it will end up at 'npm_package/build' instead of
-    # the root of the pkg_npm output directory.
-    nested_packages = [":build"],
+    srcs = [":build"],
 )
