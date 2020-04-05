@@ -440,37 +440,24 @@ Include as much of the build output as you can without disclosing anything confi
                     yield mkdirp(path.dirname(m.name));
                     if (m.link) {
                         const [root, modulePath] = m.link;
-                        const externalPrefix = 'external/';
                         let target = '<package linking failed>';
                         switch (root) {
                             case 'execroot':
                                 if (runfiles.execroot) {
                                     target = path.posix.join(runfiles.workspaceDir, modulePath);
+                                    break;
                                 }
-                                else {
-                                    // If under runfiles, convert from execroot path to runfiles path.
-                                    // First strip the bin portion if it exists:
-                                    let runfilesPath = modulePath;
-                                    if (runfilesPath.startsWith(`${bin}/`)) {
-                                        runfilesPath = runfilesPath.slice(bin.length + 1);
-                                    }
-                                    else if (runfilesPath === bin) {
-                                        runfilesPath = '';
-                                    }
-                                    // Next replace `external/` with `../` if it exists:
-                                    if (runfilesPath.startsWith(externalPrefix)) {
-                                        runfilesPath = `../${runfilesPath.slice(externalPrefix.length)}`;
-                                    }
-                                    target = path.posix.join(runfiles.workspaceDir, runfilesPath);
-                                }
-                                break;
+                            // If under runfiles, the fall through to 'runfiles' case
+                            // so that we handle case where there is only a MANIFEST file
                             case 'runfiles':
                                 // Transform execroot path to the runfiles manifest path so that
-                                // it can be resolved with runfiles.resolve()
+                                // it can be resolved with runfiles.resolve().
                                 let runfilesPath = modulePath;
+                                // First strip the bin portion if it exists
                                 if (runfilesPath.startsWith(`${bin}/`)) {
                                     runfilesPath = runfilesPath.slice(bin.length + 1);
                                 }
+                                const externalPrefix = 'external/';
                                 if (runfilesPath.startsWith(externalPrefix)) {
                                     runfilesPath = runfilesPath.slice(externalPrefix.length);
                                 }
