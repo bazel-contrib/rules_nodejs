@@ -105,6 +105,10 @@ async function loadConfigFile(configFile) {
 
   await runRollup(configFile, inputOptions, outputOptions);
 
+  // Ensure node isn't caching a previous version of the config file
+  // https://github.com/rollup/rollup/blob/v1.31.0/cli/run/loadConfigFile.ts#L52
+  delete require.cache[require.resolve(cjsConfigFile)];
+
   // Read the config file:
   // https://github.com/rollup/rollup/blob/v1.31.0/cli/run/loadConfigFile.ts#L54-L61
   //
