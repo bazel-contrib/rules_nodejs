@@ -7,8 +7,20 @@ const t = require('transitive_static_linked');
 // they should get resolved from the execroot
 const b = require('dynamic_linked');
 const d = require('@linker_scoped/dynamic_linked');
-// We've always supported `require('my_workspace')` for absolute imports like Google does it
-const c = require('build_bazel_rules_nodejs/internal/linker/test/integration/absolute_import');
+
+let c;
+try {
+  // As of 2.0, we no longer support `require('my_workspace/path/to/output/file.js')` for absolute
+  // imports
+  c = require('build_bazel_rules_nodejs/internal/linker/test/integration/absolute_import');
+  console.error('should have failed');
+  process.exit(1);
+} catch (_) {
+  // You now need to use the runfiles helper library to resolve absolute workspace imports
+  const runfiles = require(process.env['BAZEL_NODE_RUNFILES_HELPER']);
+  c = require(runfiles.resolve(
+      'build_bazel_rules_nodejs/internal/linker/test/integration/absolute_import'));
+}
 
 // Third-party package installed in the root node_modules
 const semver = require('semver');
