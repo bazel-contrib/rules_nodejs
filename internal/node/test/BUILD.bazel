@@ -111,8 +111,8 @@ nodejs_test(
         "@npm//tmp",
     ],
     entry_point = ":bootstrap.spec.js",
-    # Ensure that legacy "$(rlocation //:foobar)" usage is preserved so that users
-    # don't have to upgrade to "$$(rlocation //:foobar)"
+    # Also ensure that legacy "$(rlocation $(...))" usage is preserved so that users
+    # don't have to upgrade to "$$(rlocation $(...))"
     templated_args = ["--node_options=--require=$(rlocation $(location :bootstrap.js))"],
 )
 

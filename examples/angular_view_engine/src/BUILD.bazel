@@ -217,6 +217,6 @@ history_server(
     #   /        => src/prodapp
     templated_args = [
         "-a",
-        "$$(rlocation examples_angular_view_engine/src/prodapp)",
+        "$$(rlocation $(rootpath :prodapp))",
     ],
 )
