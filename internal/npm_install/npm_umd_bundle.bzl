@@ -40,7 +40,7 @@ def _npm_umd_bundle(ctx):
     inputs = [
         f
         for f in sources
-        if f.path.endswith(".js") or f.basename == "package.json"
+        if f.path.endswith(".js") or f.path.endswith(".json")
     ]
 
     ctx.actions.run(
