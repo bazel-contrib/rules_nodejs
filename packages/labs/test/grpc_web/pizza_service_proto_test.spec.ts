@@ -1,8 +1,8 @@
 import 'google-protobuf';
 
-import {Pizza, PizzaSize} from 'build_bazel_rules_nodejs/packages/labs/test/grpc_web/proto/common/pizza_pb';
-import {PizzaServiceClient} from 'build_bazel_rules_nodejs/packages/labs/test/grpc_web/proto/pizza_service_grpc_web_pb';
-import {OrderPizzaRequest, OrderPizzaResponse} from 'build_bazel_rules_nodejs/packages/labs/test/grpc_web/proto/pizza_service_pb';
+import {Pizza, PizzaSize} from './proto/common/pizza_pb';
+import {PizzaServiceClient} from './proto/pizza_service_grpc_web_pb';
+import {OrderPizzaRequest, OrderPizzaResponse} from './proto/pizza_service_pb';
 
 declare function require(module: string): any;
 
@@ -27,8 +27,7 @@ describe('DeliveryPerson', () => {
   });
 
   it('delivery_person_ts_proto is included since it is a transitive dependency', () => {
-    const PROTOS = require(
-        'build_bazel_rules_nodejs/packages/labs/test/grpc_web/proto/common/delivery_person_pb');
+    const PROTOS = require('./proto/common/delivery_person_pb');
     const DeliveryPerson = PROTOS.DeliveryPerson;
     const pizza = new Pizza();
     pizza.setSize(PizzaSize.PIZZA_SIZE_LARGE);

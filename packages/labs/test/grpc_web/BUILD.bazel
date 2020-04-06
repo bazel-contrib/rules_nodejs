@@ -81,11 +81,8 @@ karma_web_test_suite(
 rollup_bundle(
     name = "test_es6_bundling",
     config_file = "rollup.config.js",
-    entry_points = {
-        ":test_bundling.ts": "index",
-    },
+    entry_point = ":test_bundling.ts",
     format = "cjs",
-    output_dir = True,
     deps = [
         ":test_bundling_lib",
         "@npm//rollup-plugin-commonjs",
@@ -105,12 +102,22 @@ ts_library(
     ],
 )
 
+ts_library(
+    name = "rollup_test_lib",
+    testonly = 1,
+    srcs = ["rollup_test.spec.ts"],
+    deps = [
+        "@npm//@types/jasmine",
+        "@npm//@types/node",
+    ],
+)
+
 jasmine_node_test(
     name = "rollup_test",
-    srcs = [
-        ":rollup_test.spec.js",
-    ],
     data = [
         ":test_es6_bundling",
+    ],
+    deps = [
+        ":rollup_test_lib",
     ],
 )
