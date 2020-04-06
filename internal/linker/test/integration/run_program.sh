@@ -35,6 +35,12 @@ export VERBOSE_LOGS=1
 # Too spammy for CI logs
 # export NODE_DEBUG=module
 
+# Export the location of the runfiles helpers script
+export BAZEL_NODE_RUNFILES_HELPER=$(rlocation "build_bazel_rules_nodejs/internal/linker/runfiles_helper.js")
+if [[ "${BAZEL_NODE_RUNFILES_HELPER}" != /* ]] && [[ ! "${BAZEL_NODE_RUNFILES_HELPER}" =~ ^[A-Z]:[\\/] ]]; then
+  export BAZEL_NODE_RUNFILES_HELPER=$(pwd)/${BAZEL_NODE_RUNFILES_HELPER}
+fi
+
 for ARG in "$@"; do
   case "$ARG" in
       --bazel_node_modules_manifest=*) MODULES_MANIFEST="${ARG#--bazel_node_modules_manifest=}" ;;

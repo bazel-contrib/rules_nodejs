@@ -41,8 +41,10 @@ sh_binary(
         "//internal/linker:index.js",
         "//internal/linker/test/integration/static_linked_pkg",
         "//internal/linker/test/integration/static_linked_scoped_pkg",
-        "@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles",
-        "@build_bazel_rules_nodejs//toolchains/node:node_bin",
+        "//internal/linker/test/integration/absolute_import:index.js",
+        "//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles",
+        "//toolchains/node:node_bin",
+        "//internal/linker:runfiles_helper.js",
     ],
 )
 
@@ -53,8 +55,6 @@ linked(
     out = "actual",
     program = ":run_program",
     deps = [
-        # NB: reference the copy of index.js in the output folder
-        "//%s/absolute_import:copy_to_bin" % package_name(),
         ":run_program",
         # NB: Verify that a direct dep on :some_program and a transitive dep on
         # the same via :run_program works with the linker. These should both
@@ -80,7 +80,6 @@ linked(
     # do not sort
     deps = [
         # NB: reference the copy of index.js in the output folder
-        "//%s/absolute_import:copy_to_bin" % package_name(),
         # Intentinally include this before static_linked_pkg as order matters for the linker.
         # The order here exercises a different code path in the linker conflict resolution logic
         # than `example_with_conflicts_alt`.
@@ -108,8 +107,6 @@ linked(
     program = ":run_program",
     # do not sort
     deps = [
-        # NB: reference the copy of index.js in the output folder
-        "//%s/absolute_import:copy_to_bin" % package_name(),
         # NB: static_linked maps to both
         # ["runfiles", "build_bazel_rules_nodejs/internal/linker/test/integration/static_linked_pkg"] and
         # ["bin", "build_bazel_rules_nodejs/internal/linker/test/integration/static_linked_pkg"]
