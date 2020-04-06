@@ -13,6 +13,7 @@
  */
 const minimist = require('minimist');
 const fs = require('fs');
+const path = require('path');
 
 function main() {
   const args = minimist(process.argv.slice(2));
@@ -144,20 +145,35 @@ function convertToESM(args, initialContents) {
     return contents
         .replace(
             /(?:var|const|let) ([\w\d_]+) = require\((['"][\.\\]*[\w\d@/_-]+['"])\)/g,
-            'import * as $1 from $2')
+            (_, variable, importPath) => {
+              if (importPath.startsWith(args.workspace_name)) {
+                importPath = `./${path.relative(args.input_base_path, importPath)}`;
+              }
+              return `import * as ${variable} from '${importPath}';`
+            })
         .replace(
-            /([\.\w\d_]+) = require\((['"][\.\w\d@/_-]+['"])\)/g, (_, variable, importPath) => {
+            /([\.\w\d_]+) = require\(['"]([\.\w\d@/_-]+)['"]\)/g, (_, variable, importPath) => {
+              if (importPath.startsWith(args.workspace_name)) {
+                importPath = `./${path.relative(args.input_base_path, importPath)}`;
+              }
+
               const normalizedVariable = variable.replace(/\./g, '_');
-              return `import * as ${normalizedVariable} from ${importPath};\n${variable} = {...${
+              return `import * as ${normalizedVariable} from '${importPath}';\n${variable} = {...${
                   normalizedVariable}}`;
             });
   };
 
-  const replaceRequiresWithSubpackageImports = (contents) => {
-    return contents.replace(
-        /(?:var|const|let) ([\w\d_]+) = require\((['"][\w\d@/_-]+['"])\)\.([\w\d_]+);/g,
-        'import * as $1 from $2;');
-  };
+  const replaceRequiresWithSubpackageImports =
+      (contents) => {
+        return contents.replace(
+            /(?:var|const|let) ([\w\d_]+) = require\((['"][\w\d@/_-]+['"])\)\.([\w\d_]+);/g,
+            (_, variable, importPath) => {
+              if (importPath.startsWith(args.workspace_name)) {
+                importPath = `./${path.relative(args.input_base_path, importPath)}`;
+              }
+              return `import * as ${variable} from '${importPath}';`
+            });
+      }
 
   const replaceCJSExportsWithECMAExports = (contents) => {
     return contents.replace(/exports\.([\w\d_]+) = .*;/g, 'export { $1 };');
