@@ -1,5 +1,5 @@
-import {Car} from 'examples_protocol_buffers/car_pb';
-import {Tire} from 'examples_protocol_buffers/tire_pb';
+import {Car} from './car_pb';
+import {Tire} from './tire_pb';
 
 describe('protocol buffers', () => {
   it('allows creation of an object described by proto', () => {
