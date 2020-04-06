@@ -45,15 +45,6 @@ jasmine_node_test(
     # Use the generated_require.spec.js from the output tree
     srcs = [":generated_require_spec"],
     data = ["test.json"],
-    expected_exit_code = select({
-        # Expected to fail on Windows because a relative require from
-        # the output tree to the source tree will not work unless the spec
-        # is run from the correct spot. But without the fix in
-        # #1796, the spec is run incorrectly from
-        # external\npm\node_modules\build_bazel_rules_nodejs\packages\jasmine\test\generated.spec.js
-        "@bazel_tools//src/conditions:host_windows": 3,
-        "//conditions:default": 0,
-    }),
 )
 
 copy_to_bin(
