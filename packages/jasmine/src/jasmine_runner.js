@@ -66,7 +66,6 @@ function main(args) {
     throw new Error('expected argument missing');
   }
 
-
   // first args is always the path to the manifest
   const manifest = runfiles.resolveWorkspaceRelative(readArg());
   // second is always a flag to enable coverage or not
@@ -87,17 +86,9 @@ function main(args) {
                        .filter(l => l.length > 0)
                        // Filter out files from node_modules
                        .filter(f => !IS_NODE_MODULE.test(f))
-
-  const sourceFiles = allFiles
-                          // Filter out all .spec and .test files so we only report
-                          // coverage against the source files
-                          .filter(f => !IS_TEST_FILE.test(f))
-                          // the jasmine_runner.js gets in here as a file to run
-                          .filter(f => !f.endsWith('jasmine_runner.js'))
-                          .map(f => runfiles.resolve(f))
-                          // the reporting lib resolves the relative path to our cwd instead of
-                          // using the absolute one so match it here
-                          .map(f => path.relative(cwd, f))
+                       // Use runfiles resolve to resolve the file path that
+                       // bazel passes to the runner to its absolute path
+                       .map(f => runfiles.resolveWorkspaceRelative(f))
 
   allFiles
       // Filter here so that only files ending in `spec.js` and `test.js`
@@ -133,13 +124,21 @@ function main(args) {
   // so we need to add it back
   jrunner.configureDefaultReporter({});
 
-
   let covExecutor;
   let covDir;
   if (enableCoverage) {
     // lazily pull these deps in for only when we want to collect coverage
     const crypto = require('crypto');
     const Execute = require('v8-coverage/src/execute');
+
+    // Filter out all .spec and .test files so we only report coverage against the source files
+    const sourceFiles = allFiles
+                            .filter(f => !IS_TEST_FILE.test(f))
+                            // the jasmine_runner.js gets in here as a file to run
+                            .filter(f => !f.endsWith('jasmine_runner.js'))
+                            // the reporting lib resolves the relative path to our cwd instead of
+                            // using the absolute one so match it here
+                            .map(f => path.relative(cwd, f))
 
     // make a tmpdir inside our tmpdir for just this run
     covDir = path.join(process.env['TEST_TMPDIR'], String(crypto.randomBytes(4).readUInt32LE(0)));
@@ -178,8 +177,6 @@ function main(args) {
     } else {
       process.exit(exitCode);
     }
-
-    
   });
 
   if (TOTAL_SHARDS) {

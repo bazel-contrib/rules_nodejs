@@ -18,8 +18,41 @@ These rules let you run tests outside of a browser. This is typically faster
 than launching a test in Karma, for example.
 """
 
-load("@build_bazel_rules_nodejs//internal/common:devmode_js_sources.bzl", "devmode_js_sources")
+load("@build_bazel_rules_nodejs//:providers.bzl", "JSNamedModuleInfo")
 load("@build_bazel_rules_nodejs//internal/node:node.bzl", "nodejs_test")
+
+def _devmode_js_sources_impl(ctx):
+    depsets = []
+    for src in ctx.attr.srcs:
+        if JSNamedModuleInfo in src:
+            depsets.append(src[JSNamedModuleInfo].sources)
+        if hasattr(src, "files"):
+            depsets.append(src.files)
+    sources = depset(transitive = depsets)
+
+    ctx.actions.write(ctx.outputs.manifest, "".join([
+        f.short_path + "\n"
+        for f in sources.to_list()
+        if f.path.endswith(".js") or f.path.endswith(".mjs")
+    ]))
+
+    return [DefaultInfo(files = sources)]
+
+"""Rule to get devmode js sources from deps.
+
+Outputs a manifest file with the sources listed.
+"""
+_devmode_js_sources = rule(
+    implementation = _devmode_js_sources_impl,
+    attrs = {
+        "srcs": attr.label_list(
+            allow_files = True,
+        ),
+    },
+    outputs = {
+        "manifest": "%{name}.MF",
+    },
+)
 
 def jasmine_node_test(
         name,
@@ -62,9 +95,9 @@ def jasmine_node_test(
       jasmine_entry_point: A label providing the `@bazel/jasmine` entry point.
       **kwargs: Remaining arguments are passed to the test rule
     """
-    devmode_js_sources(
+    _devmode_js_sources(
         name = "%s_devmode_srcs" % name,
-        deps = srcs + deps,
+        srcs = srcs + deps,
         testonly = 1,
         tags = tags,
     )
