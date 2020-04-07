@@ -10,5 +10,6 @@ const getMajor = versionString => versionString.split('.')[0];
 if (pkgVersion !== '0.0.0' && getMajor(pkgVersion) !== getMajor(rules_nodejsVersion)) {
   throw new Error(`Expected package major version to equal @build_bazel_rules_nodejs major version
     ${pkg.name} - ${pkgVersion}  
-    @build_bazel_rules_nodejs - ${rules_nodejsVersion}`)
+    @build_bazel_rules_nodejs - ${rules_nodejsVersion}
+  See https://github.com/bazelbuild/rules_nodejs/wiki/Avoiding-version-skew`);
 }
