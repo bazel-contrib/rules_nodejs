@@ -179,7 +179,6 @@ def _nodejs_binary_impl(ctx):
     _write_loader_script(ctx)
 
     env_vars = "export BAZEL_TARGET=%s\n" % ctx.label
-    env_vars += "export BAZEL_WORKSPACE=%s\n" % ctx.workspace_name
     for k in ctx.attr.configuration_env_vars + ctx.attr.default_env_vars:
         # Check ctx.var first & if env var not in there then check
         # ctx.configuration.default_shell_env. The former will contain values from --define=FOO=BAR

@@ -172,10 +172,9 @@ Include as much of the build output as you can without disclosing anything confi
                  If you want to test runfiles manifest behavior, add
                  --spawn_strategy=standalone to the command line.`);
             }
-            const wksp = env['BAZEL_WORKSPACE'];
-            if (!!wksp) {
-                this.workspace = wksp;
-            }
+            // Bazel starts actions with pwd=execroot/my_wksp
+            this.workspaceDir = path.resolve('.');
+            this.workspace = path.basename(this.workspaceDir);
             // If target is from an external workspace such as @npm//rollup/bin:rollup
             // resolvePackageRelative is not supported since package is in an external
             // workspace.
@@ -238,17 +237,11 @@ Include as much of the build output as you can without disclosing anything confi
             throw new Error(`could not resolve modulePath ${modulePath}`);
         }
         resolveWorkspaceRelative(modulePath) {
-            if (!this.workspace) {
-                throw new Error('workspace could not be determined from the environment');
-            }
             return this.resolve(path.posix.join(this.workspace, modulePath));
         }
         resolvePackageRelative(modulePath) {
-            if (!this.workspace) {
-                throw new Error('workspace could not be determined from the environment');
-            }
             if (!this.package) {
-                throw new Error('package could not be determined from the environment');
+                throw new Error('package could not be determined from the environment; make sure BAZEL_TARGET is set');
             }
             return this.resolve(path.posix.join(this.workspace, this.package, modulePath));
         }
@@ -432,17 +425,15 @@ Include as much of the build output as you can without disclosing anything confi
             modules = modules || {};
             log_verbose('manifest file', modulesManifest);
             log_verbose('manifest contents', JSON.stringify({ workspace, bin, root, modules }, null, 2));
-            // Bazel starts actions with pwd=execroot/my_wksp
-            const workspaceDir = path.resolve('.');
-            // resolveRoot will change the cwd when under runfiles
+            // NB: resolveRoot will change the cwd when under runfiles to the runfiles root
             const rootDir = yield resolveRoot(root, runfiles);
-            log_verbose('resolved root', root, 'to', rootDir);
+            log_verbose('resolved node_modules root', root, 'to', rootDir);
             log_verbose('cwd', process.cwd());
-            // Create the $pwd/node_modules directory that node will resolve from
+            // Create the node_modules symlink to the node_modules root that node will resolve from
             yield symlink(rootDir, 'node_modules');
+            // Change directory to the node_modules root directory so that all subsequent
+            // symlinks will be created under node_modules
             process.chdir(rootDir);
-            // Symlinks to packages need to reach back to the workspace/runfiles directory
-            const workspaceAbs = path.resolve(workspaceDir);
             function linkModules(m) {
                 return __awaiter(this, void 0, void 0, function* () {
                     // ensure the parent directory exist
@@ -454,7 +445,7 @@ Include as much of the build output as you can without disclosing anything confi
                         switch (root) {
                             case 'execroot':
                                 if (runfiles.execroot) {
-                                    target = path.posix.join(workspaceAbs, modulePath);
+                                    target = path.posix.join(runfiles.workspaceDir, modulePath);
                                 }
                                 else {
                                     // If under runfiles, convert from execroot path to runfiles path.
@@ -470,7 +461,7 @@ Include as much of the build output as you can without disclosing anything confi
                                     if (runfilesPath.startsWith(externalPrefix)) {
                                         runfilesPath = `../${runfilesPath.slice(externalPrefix.length)}`;
                                     }
-                                    target = path.posix.join(workspaceAbs, runfilesPath);
+                                    target = path.posix.join(runfiles.workspaceDir, runfilesPath);
                                 }
                                 break;
                             case 'runfiles':
