@@ -6,6 +6,7 @@ import {Config, PatternKind} from '../util/pattern_config';
 import {CallNonConstantArgumentEngine} from '../util/pattern_engines/name_call_non_constant_argument';
 import {NameEngine} from '../util/pattern_engines/name_engine';
 import {PatternEngine} from '../util/pattern_engines/pattern_engine';
+import {PropertyEngine} from '../util/pattern_engines/property_engine';
 import {PropertyNonConstantWriteEngine} from '../util/pattern_engines/property_non_constant_write_engine';
 import {PropertyReadEngine} from '../util/pattern_engines/property_read_engine';
 import {PropertyWriteEngine} from '../util/pattern_engines/property_write_engine';
@@ -26,6 +27,9 @@ export class ConformancePatternRule implements AbstractRule {
 
   constructor(config: Config, fixer?: Fixer) {
     switch (config.kind) {
+      case PatternKind.BANNED_PROPERTY:
+        this.engine = new PropertyEngine(config, fixer);
+        break;
       case PatternKind.BANNED_PROPERTY_WRITE:
         this.engine = new PropertyWriteEngine(config, fixer);
         break;

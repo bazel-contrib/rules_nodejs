@@ -5,12 +5,22 @@
  * https://github.com/google/closure-compiler/wiki/JS-Conformance-Framework)
  */
 export enum PatternKind {
+  /** Ban use of fully distinguished names. */
   BANNED_NAME = 'banned-name',
+  /** Ban use of instance properties */
+  BANNED_PROPERTY = 'banned-property',
+  /**
+   * Ban instance property, like BANNED_PROPERTY but where reads of the
+   * property are allowed.
+   */
   BANNED_PROPERTY_WRITE = 'banned-property-write',
   /** @deprecated use `BANNED_PROPERTY_WRITE` instead */
   BANNED_PROPERTY_NON_CONSTANT_WRITE = 'banned-property-non-constant-write',
+  /**
+   * Ban instance property, like BANNED_PROPERTY but where writes of the
+   * property are allowed.
+   */
   BANNED_PROPERTY_READ = 'banned-property-read',
-  // Not from JSConformance.
   /** @deprecated use `BANNED_PROPERTY` instead */
   BANNED_NAME_CALL_NON_CONSTANT_ARGUMENT = 'banned-call-non-constant-argument'
 }
