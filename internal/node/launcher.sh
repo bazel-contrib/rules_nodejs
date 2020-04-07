@@ -217,6 +217,22 @@ fi
 # Bazel always sets the PWD to execroot/my_wksp so we go up one directory.
 export BAZEL_PATCH_ROOT=$(dirname $PWD)
 
+# Set all bazel managed node_modules directories as guarded so no symlinks may
+# escape and no symlinks may enter
+if [ "$(basename ${BAZEL_PATCH_ROOT})" == "execroot" ]; then
+  # We are in execroot, linker node_modules is in the PWD
+  export BAZEL_PATCH_GUARDS="${PWD}/node_modules"
+else
+  # We in runfiles, linker node_modules is at the runfiles root
+  export BAZEL_PATCH_GUARDS="${BAZEL_PATCH_ROOT}/node_modules"
+fi
+if [[ -n "${BAZEL_NODE_MODULES_ROOT:-}" ]]; then
+  # If BAZEL_NODE_MODULES_ROOT is set, add it to the list of bazel patch guards
+  # Also, add the external/${BAZEL_NODE_MODULES_ROOT} which is the correct path under execroot
+  # and under runfiles it is the legacy external runfiles path
+  export BAZEL_PATCH_GUARDS="${BAZEL_PATCH_GUARDS},${BAZEL_PATCH_ROOT}/${BAZEL_NODE_MODULES_ROOT},${PWD}/external/${BAZEL_NODE_MODULES_ROOT}"
+fi
+
 # The EXPECTED_EXIT_CODE lets us write bazel tests which assert that
 # a binary fails to run. Otherwise any failure would make such a test
 # fail before we could assert that we expected that failure.

@@ -22,7 +22,7 @@ import {escapeFunction} from '../../src/fs';
 describe('escape function', () => {
   it('isOutPath is correct', () => {
     const root = '/a/b';
-    const {isOutPath} = escapeFunction(root);
+    const {isOutPath} = escapeFunction(root, []);
 
     assert.ok(isOutPath('/a'));
     assert.ok(isOutPath('/a/c/b'));
@@ -32,7 +32,7 @@ describe('escape function', () => {
 
   it('isEscape is correct', () => {
     const root = '/a/b';
-    const {isEscape} = escapeFunction(root);
+    const {isEscape} = escapeFunction(root, []);
 
     assert.ok(isEscape('/a/c/boop', '/a/b/l'));
     assert.ok(isEscape('/a/c/boop', '/a/b'));
@@ -43,7 +43,7 @@ describe('escape function', () => {
 
   it('isEscape handles relative paths', () => {
     const root = './a/b';
-    const {isEscape} = escapeFunction(root);
+    const {isEscape} = escapeFunction(root, []);
 
     assert.ok(isEscape('./a/c/boop', './a/b/l'));
     assert.ok(isEscape('./a/c/boop', './a/b'));

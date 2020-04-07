@@ -38,7 +38,7 @@ describe('testing lstat', () => {
 
           const patchedFs = Object.assign({}, fs);
           patchedFs.promises = Object.assign({}, fs.promises);
-          patcher(patchedFs, path.join(fixturesDir));
+          patcher(patchedFs, path.join(fixturesDir), []);
 
           const linkPath = path.join(fixturesDir, 'a', 'link');
           assert.ok(
@@ -68,7 +68,7 @@ describe('testing lstat', () => {
 
           const patchedFs = Object.assign({}, fs);
           patchedFs.promises = Object.assign({}, fs.promises);
-          patcher(patchedFs, path.join(fixturesDir, 'a'));
+          patcher(patchedFs, path.join(fixturesDir, 'a'), []);
 
           const linkPath = path.join(fixturesDir, 'a', 'link');
 
@@ -114,7 +114,7 @@ describe('testing lstat', () => {
 
           const patchedFs = Object.assign({}, fs);
           patchedFs.promises = Object.assign({}, fs.promises);
-          patcher(patchedFs, path.join(fixturesDir, 'a'));
+          patcher(patchedFs, path.join(fixturesDir, 'a'), []);
 
           const linkPath = path.join(fixturesDir, 'b', 'link');
 
