@@ -53,11 +53,10 @@ copy_file(
     visibility = ["//visibility:public"],
 )
 
-genrule(
+copy_file(
     name = "npm_version_check",
-    srcs = ["//:tools/npm_version_check.js"],
-    outs = [":npm_version_check.js"],
-    cmd = "cp $< $@",
+    src = "//internal:npm_version_check.js",
+    out = ":npm_version_check.js",
 )
 
 pkg_npm(

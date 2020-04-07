@@ -13,6 +13,7 @@
 # limitations under the License.
 
 load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "pkg_npm")
+load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
 
 # Ugly genrule depending on local linux environment to build the README out of skylark doc generation.
 # Only referenced when we do a release.
@@ -29,11 +30,10 @@ genrule(
     visibility = ["//docs:__pkg__"],
 )
 
-genrule(
+copy_file(
     name = "npm_version_check",
-    srcs = ["//:tools/npm_version_check.js"],
-    outs = [":npm_version_check.js"],
-    cmd = "cp $< $@",
+    src = "//internal:npm_version_check.js",
+    out = ":npm_version_check.js",
 )
 
 pkg_npm(

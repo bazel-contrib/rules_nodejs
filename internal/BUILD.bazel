@@ -17,6 +17,8 @@ load("//internal/node:context.bzl", "node_context_data")
 
 package(default_visibility = ["//visibility:public"])
 
+exports_files(["npm_version_check.js"])
+
 filegroup(
     name = "package_contents",
     srcs = glob(["*"]),
