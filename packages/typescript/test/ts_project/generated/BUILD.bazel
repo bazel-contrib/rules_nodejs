@@ -1,0 +1,16 @@
+load("//packages/typescript/test/ts_project/generated:generate.bzl", "generate_tsconfig")
+
+generate_tsconfig(
+    name = "gen",
+    base = "//packages/typescript/test/ts_project:tsconfig-base.json"
+)
+
+load("@npm_bazel_typescript//:index.bzl", "ts_project")
+
+ts_project(
+    name = "compile",
+    srcs = [":generated.ts"],
+    # composite = True,
+    extends = ["//packages/typescript/test/ts_project:tsconfig-base.json"],
+    tsconfig = ":gen",
+)
