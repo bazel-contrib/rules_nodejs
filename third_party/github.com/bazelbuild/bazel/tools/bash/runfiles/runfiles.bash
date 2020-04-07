@@ -135,9 +135,12 @@ function rlocation() {
     return 1
   else
     # --- begin rules_nodejs custom code ---
-    # Normalize ${BAZEL_WORKSPACE}/$1.
+    # Bazel always sets the PWD to execroot/my_wksp so we derive the workspace
+    # from the PWD.
+    export bazel_workspace=$(basename $PWD)
+    # Normalize ${bazel_workspace}/$1.
     # If $1 is a $(rootpath) this will convert it to the runfiles manifest path
-    readonly from_rootpath=$(normpath ${BAZEL_WORKSPACE:-/dev/null}/$1)
+    readonly from_rootpath=$(normpath ${bazel_workspace}/$1)
     # --- end rules_nodejs custom code ---
     if [[ -e "${RUNFILES_DIR:-/dev/null}/$1" ]]; then
       if [[ "${RUNFILES_LIB_DEBUG:-}" == 1 ]]; then
@@ -148,7 +151,7 @@ function rlocation() {
     # If $1 is a rootpath then check if the converted rootpath to runfiles manifest path file is found
     elif [[ -e "${RUNFILES_DIR:-/dev/null}/${from_rootpath}" ]]; then
       if [[ "${RUNFILES_LIB_DEBUG:-}" == 1 ]]; then
-        echo >&2 "INFO[runfiles.bash]: rlocation($1): found under RUNFILES_DIR/BAZEL_WORKSPACE ($RUNFILES_DIR/$BAZEL_WORKSPACE), return"
+        echo >&2 "INFO[runfiles.bash]: rlocation($1): found under RUNFILES_DIR/WKSP ($RUNFILES_DIR/$bazel_workspace), return"
       fi
       echo "${RUNFILES_DIR}/${from_rootpath}"
     # --- end rules_nodejs custom code ---
