@@ -70,13 +70,21 @@ nodejs_binary(
     entry_point = ":module-name.js",
 )
 
+jasmine_node_test(
+    name = "env_test",
+    srcs = [":env.spec.js"],
+    data = [
+        ":dump_build_env.json",
+        ":dump_build_env_alt.json",
+    ],
+)
+
 nodejs_test(
     name = "define_var",
     configuration_env_vars = [
         "SOME_TEST_ENV",
         "SOME_OTHER_ENV",
     ],
-    data = glob(["*.spec.js"]),
     entry_point = ":define.spec.js",
 )
 
@@ -310,6 +318,31 @@ jasmine_node_test(
         "somearg$",
         "some$#arg",
     ],
+)
+
+nodejs_binary(
+    name = "dump_build_env",
+    entry_point = "dump_build_env.js",
+)
+
+nodejs_binary(
+    name = "dump_build_env_alt",
+    data = ["@npm//tmp"],
+    entry_point = "dump_build_env.js",
+)
+
+npm_package_bin(
+    name = "dump_build_env_json",
+    outs = ["dump_build_env.json"],
+    args = ["$@"],
+    tool = ":dump_build_env",
+)
+
+npm_package_bin(
+    name = "dump_build_env_alt_json",
+    outs = ["dump_build_env_alt.json"],
+    args = ["$@"],
+    tool = ":dump_build_env_alt",
 )
 
 nodejs_binary(

@@ -61,9 +61,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // es modules
 
 // tslint:disable-next-line:no-any
-exports.patcher = (fs = fs$1, root) => {
+exports.patcher = (fs = fs$1, root, guards) => {
     fs = fs || fs$1;
     root = root || '';
+    guards = guards || [];
     if (!root) {
         if (process.env.VERBOSE_LOGS) {
             console.error('fs patcher called without root path ' + __filename);
@@ -83,7 +84,7 @@ exports.patcher = (fs = fs$1, root) => {
     const origReadlinkSync = fs.readlinkSync.bind(fs);
     const origReaddir = fs.readdir.bind(fs);
     const origReaddirSync = fs.readdirSync.bind(fs);
-    const { isEscape, isOutPath } = exports.escapeFunction(root);
+    const { isEscape, isOutPath } = exports.escapeFunction(root, guards);
     // tslint:disable-next-line:no-any
     fs.lstat = (...args) => {
         let cb = args.length > 1 ? args[args.length - 1] : undefined;
@@ -483,9 +484,10 @@ exports.patcher = (fs = fs$1, root) => {
         }
     }
 };
-exports.escapeFunction = (root) => {
-    // ensure root is always absolute.
+exports.escapeFunction = (root, guards) => {
+    // ensure root & guards are always absolute.
     root = path.resolve(root);
+    guards = guards.map(g => path.resolve(g));
     function isEscape(linkTarget, linkPath) {
         if (!path.isAbsolute(linkPath)) {
             linkPath = path.resolve(linkPath);
@@ -493,17 +495,29 @@ exports.escapeFunction = (root) => {
         if (!path.isAbsolute(linkTarget)) {
             linkTarget = path.resolve(linkTarget);
         }
+        if (isGuardPath(linkPath) || isGuardPath(linkTarget)) {
+            // don't escape out of guard paths and don't symlink into guard paths
+            return true;
+        }
         if (root) {
             if (isOutPath(linkTarget) && !isOutPath(linkPath)) {
+                // don't escape out of the root
                 return true;
             }
+        }
+        return false;
+    }
+    function isGuardPath(str) {
+        for (const g of guards) {
+            if (str === g || str.startsWith(g + path.sep))
+                return true;
         }
         return false;
     }
     function isOutPath(str) {
         return !root || (!str.startsWith(root + path.sep) && str !== root);
     }
-    return { isEscape, isOutPath };
+    return { isEscape, isGuardPath, isOutPath };
 };
 function once(fn) {
     let called = false;
@@ -644,12 +658,13 @@ var src_2 = src.subprocess;
  */
 
 // todo auto detect bazel env vars instead of adding a new one.
-const { BAZEL_PATCH_ROOT, NP_SUBPROCESS_BIN_DIR, VERBOSE_LOGS } = process.env;
+const { BAZEL_PATCH_ROOT, BAZEL_PATCH_GUARDS, NP_SUBPROCESS_BIN_DIR, VERBOSE_LOGS } = process.env;
 if (BAZEL_PATCH_ROOT) {
+    const guards = BAZEL_PATCH_GUARDS ? BAZEL_PATCH_GUARDS.split(',') : [];
     if (VERBOSE_LOGS)
         console.error(`bazel node patches enabled. root: ${BAZEL_PATCH_ROOT} symlinks in this directory will not escape`);
     const fs = fs$1;
-    src.fs(fs, BAZEL_PATCH_ROOT);
+    src.fs(fs, BAZEL_PATCH_ROOT, guards);
 }
 else if (VERBOSE_LOGS) {
     console.error(`bazel node patches disabled. set environment BAZEL_PATCH_ROOT`);

@@ -46,6 +46,8 @@ filegroup(
     visibility = ["//:__pkg__"],
 )
 
+# To update node_patches.js run:
+#   bazel run //internal/node:checked_in_node_patches.accept
 golden_file_test(
     name = "checked_in_node_patches",
     actual = "//packages/node-patches:bundle",

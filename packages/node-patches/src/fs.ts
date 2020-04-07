@@ -29,9 +29,10 @@ type Dirent = any;
 const _fs = require('fs');
 
 // tslint:disable-next-line:no-any
-export const patcher = (fs: any = _fs, root: string) => {
+export const patcher = (fs: any = _fs, root: string, guards: string[]) => {
   fs = fs || _fs;
   root = root || '';
+  guards = guards || [];
   if (!root) {
     if (process.env.VERBOSE_LOGS) {
       console.error('fs patcher called without root path ' + __filename);
@@ -54,7 +55,7 @@ export const patcher = (fs: any = _fs, root: string) => {
   const origReaddir = fs.readdir.bind(fs);
   const origReaddirSync = fs.readdirSync.bind(fs);
 
-  const {isEscape, isOutPath} = escapeFunction(root);
+  const {isEscape, isOutPath} = escapeFunction(root, guards);
 
   const logged: {[k: string]: boolean} = {};
 
@@ -471,9 +472,10 @@ export const patcher = (fs: any = _fs, root: string) => {
   }
 };
 
-export const escapeFunction = (root: string) => {
-  // ensure root is always absolute.
+export const escapeFunction = (root: string, guards: string[]) => {
+  // ensure root & guards are always absolute.
   root = path.resolve(root);
+  guards = guards.map(g => path.resolve(g));
   function isEscape(linkTarget: string, linkPath: string) {
     if (!path.isAbsolute(linkPath)) {
       linkPath = path.resolve(linkPath);
@@ -483,10 +485,23 @@ export const escapeFunction = (root: string) => {
       linkTarget = path.resolve(linkTarget);
     }
 
+    if (isGuardPath(linkPath) || isGuardPath(linkTarget)) {
+      // don't escape out of guard paths and don't symlink into guard paths
+      return true;
+    }
+
     if (root) {
       if (isOutPath(linkTarget) && !isOutPath(linkPath)) {
+        // don't escape out of the root
         return true;
       }
+    }
+    return false;
+  }
+
+  function isGuardPath(str) {
+    for (const g of guards) {
+      if (str === g || str.startsWith(g + path.sep)) return true;
     }
     return false;
   }
@@ -495,7 +510,7 @@ export const escapeFunction = (root: string) => {
     return !root || (!str.startsWith(root + path.sep) && str !== root);
   }
 
-  return {isEscape, isOutPath};
+  return {isEscape, isGuardPath, isOutPath};
 };
 
 function once<T>(fn: (...args: unknown[]) => T) {

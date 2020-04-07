@@ -79,7 +79,7 @@ def _compute_node_modules_root(ctx):
         ] if f])
     return node_modules_root
 
-def _write_require_patch_script(ctx):
+def _write_require_patch_script(ctx, node_modules_root):
     # Generates the JavaScript snippet of module roots mappings, with each entry
     # in the form:
     #   {module_name: /^mod_name\b/, module_root: 'path/to/mod_name'}
@@ -90,8 +90,6 @@ def _write_require_patch_script(ctx):
                 escaped = mn.replace("/", "\\/").replace(".", "\\.")
                 mapping = "{module_name: /^%s\\b/, module_root: '%s'}" % (escaped, mr)
                 module_mappings.append(mapping)
-
-    node_modules_root = _compute_node_modules_root(ctx)
 
     ctx.actions.expand_template(
         template = ctx.file._require_patch_template,
@@ -175,7 +173,9 @@ def _nodejs_binary_impl(ctx):
             sources_depsets.append(d.files)
     sources = depset(transitive = sources_depsets)
 
-    _write_require_patch_script(ctx)
+    node_modules_root = _compute_node_modules_root(ctx)
+
+    _write_require_patch_script(ctx, node_modules_root)
     _write_loader_script(ctx)
 
     # Provide the target name as an environment variable avaiable to all actions for the
@@ -189,6 +189,13 @@ def _nodejs_binary_impl(ctx):
     # name here as an environment variable avaiable to all actions for the
     # runfiles helpers to use.
     env_vars += "export BAZEL_WORKSPACE=%s\n" % ctx.workspace_name
+
+    # if BAZEL_NODE_MODULES_ROOT has not already been set by
+    # run_node, then set it to the computed value
+    env_vars += """if [[ -z "${BAZEL_NODE_MODULES_ROOT:-}" ]]; then
+  export BAZEL_NODE_MODULES_ROOT=%s
+fi
+""" % node_modules_root
 
     for k in ctx.attr.configuration_env_vars + ctx.attr.default_env_vars:
         # Check ctx.var first & if env var not in there then check

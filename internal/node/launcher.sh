@@ -217,6 +217,37 @@ fi
 # Bazel always sets the PWD to execroot/my_wksp so we go up one directory.
 export BAZEL_PATCH_ROOT=$(dirname $PWD)
 
+# Set all bazel managed node_modules directories as guarded so no symlinks may
+# escape and no symlinks may enter
+if [[ "$PWD" == *"/bazel-out/"* ]]; then
+  # We in runfiles, find the execroot.
+  # Look for `bazel-out` which is used to determine the the path to `execroot/my_wksp`. This works in
+  # all cases including on rbe where the execroot is a path such as `/b/f/w`. For example, when in
+  # runfiles on rbe, bazel runs the process in a directory such as
+  # `/b/f/w/bazel-out/k8-fastbuild/bin/path/to/pkg/some_test.sh.runfiles/my_wksp`. From here we can
+  # determine the execroot `b/f/w` by finding the first instance of bazel-out.
+  readonly bazel_out="/bazel-out/"
+  readonly rest=${PWD#*$bazel_out}
+  readonly index=$(( ${#PWD} - ${#rest} - ${#bazel_out} ))
+  if [[ ${index} < 0 ]]; then
+    echo "No 'bazel-out' folder found in path '${PWD}'!"
+    exit 1
+  fi
+  readonly execroot=${PWD:0:${index}}
+  export BAZEL_PATCH_GUARDS="${execroot}/node_modules"
+else
+  # We are in execroot, linker node_modules is in the PWD
+  export BAZEL_PATCH_GUARDS="${PWD}/node_modules"
+fi 
+if [[ -n "${BAZEL_NODE_MODULES_ROOT:-}" ]]; then
+  if [[ "${BAZEL_NODE_MODULES_ROOT}" != "${BAZEL_WORKSPACE}/node_modules" ]]; then
+    # If BAZEL_NODE_MODULES_ROOT is set and it is not , add it to the list of bazel patch guards
+    # Also, add the external/${BAZEL_NODE_MODULES_ROOT} which is the correct path under execroot
+    # and under runfiles it is the legacy external runfiles path
+    export BAZEL_PATCH_GUARDS="${BAZEL_PATCH_GUARDS},${BAZEL_PATCH_ROOT}/${BAZEL_NODE_MODULES_ROOT},${PWD}/external/${BAZEL_NODE_MODULES_ROOT}"
+  fi
+fi
+
 # The EXPECTED_EXIT_CODE lets us write bazel tests which assert that
 # a binary fails to run. Otherwise any failure would make such a test
 # fail before we could assert that we expected that failure.
