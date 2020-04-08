@@ -21,6 +21,7 @@ exports.config = {
   capabilities: {
     browserName: 'chrome',
     chromeOptions: {
+      binary: require('puppeteer').executablePath(),
       // `--no-sandbox` flag disables the chrome sandbox because it causes Chrome to crash on some
       // environments
       // http://chromedriver.chromium.org/help/chrome-doesn-t-start

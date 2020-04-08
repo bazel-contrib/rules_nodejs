@@ -10,7 +10,6 @@
 ## IMPORTANT
 # If you change the `default_docker_image` version, also change the `cache_key` version
 var_1: &default_docker_image circleci/node:12.14
-var_2: &browsers_docker_image circleci/node:12.14-browsers
 var_3: &cache_key node-0.16-{{ checksum "yarn.lock" }}-v2
 
 
@@ -155,10 +154,6 @@ jobs:
 
   test_integration:
     <<: *job_defaults
-    docker:
-      # Needed because some tests such as examples/angular_bazel_architect
-      # require local chrome
-      - image: *browsers_docker_image
     resource_class: xlarge
     # We need to reduce the memory & CPU usage of the top-level
     # bazel process for this large bazel-in-bazel test to not

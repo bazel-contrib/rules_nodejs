@@ -8,7 +8,7 @@
     "test": "bazelisk test :test",
     "lint": "bazelisk run :lint",
     "e2e": "bazelisk test :e2e",
-    "postinstall": "patch-package && ngcc --properties es2015 browser module main --first-only"
+    "postinstall": "patch-package && node scripts/webdriver-manager-update.js && ngcc --properties es2015 browser module main --first-only"
   },
   "private": true,
   "dependencies": {
@@ -50,6 +50,7 @@
     "karma-jasmine-html-reporter": "^1.4.0",
     "ng-packagr": "^9.0.0",
     "protractor": "~5.4.0",
+    "puppeteer": "2.1.1",
     "ts-node": "~7.0.0",
     "tslint": "~5.15.0",
     "typescript": "~3.6.3"
