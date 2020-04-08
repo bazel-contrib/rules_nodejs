@@ -35,6 +35,7 @@ yarn_install(
     # do with how the Bazel team has setup their macos virtualization.
     symlink_node_modules = False,
     yarn_lock = "//:yarn.lock",
+    quiet = False,
 )
 
 # Install any Bazel rules which were extracted earlier by the yarn_install rule.
