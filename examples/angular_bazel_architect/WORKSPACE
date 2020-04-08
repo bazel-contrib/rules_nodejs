@@ -29,13 +29,13 @@ yarn_install(
         "//:scripts/webdriver-manager-update.js",
     ],
     package_json = "//:package.json",
+    quiet = False,
     # Turn off symlink_node_modules here as it causes extreme flakiness on buildkite
     # macos CI with missing files in node_modules.
     # TODO: track down the root cause of the flakiness; it may be something to
     # do with how the Bazel team has setup their macos virtualization.
     symlink_node_modules = False,
     yarn_lock = "//:yarn.lock",
-    quiet = False,
 )
 
 # Install any Bazel rules which were extracted earlier by the yarn_install rule.
