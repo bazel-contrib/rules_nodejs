@@ -8,7 +8,7 @@
     "test": "bazelisk test :test",
     "lint": "bazelisk run :lint",
     "e2e": "bazelisk test :e2e",
-    "postinstall": "patch-package && ngcc --properties es2015 browser module main --first-only"
+    "postinstall": "patch-package && webdriver-manager update --gecko=false --standalone=false --versions.chrome 80.0.3987.0 && ngcc --properties es2015 browser module main --first-only"
   },
   "private": true,
   "dependencies": {
