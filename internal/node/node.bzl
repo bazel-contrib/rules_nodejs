@@ -178,7 +178,18 @@ def _nodejs_binary_impl(ctx):
     _write_require_patch_script(ctx)
     _write_loader_script(ctx)
 
+    # Provide the target name as an environment variable avaiable to all actions for the
+    # runfiles helpers to use.
     env_vars = "export BAZEL_TARGET=%s\n" % ctx.label
+
+    # While we can derive the workspace from the pwd when running locally
+    # because it is in the execroot path `execroot/my_wksp`, on RBE the
+    # `execroot/my_wksp` path is reduced a path such as `/w/f/b` so
+    # the workspace name is obfuscated from the path. So we provide the workspace
+    # name here as an environment variable avaiable to all actions for the
+    # runfiles helpers to use.
+    env_vars += "export BAZEL_WORKSPACE=%s\n" % ctx.workspace_name
+
     for k in ctx.attr.configuration_env_vars + ctx.attr.default_env_vars:
         # Check ctx.var first & if env var not in there then check
         # ctx.configuration.default_shell_env. The former will contain values from --define=FOO=BAR

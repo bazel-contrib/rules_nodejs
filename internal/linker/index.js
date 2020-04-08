@@ -106,41 +106,58 @@ Include as much of the build output as you can without disclosing anything confi
         });
     }
     /**
-     * Resolve a root directory string to the actual location on disk
-     * where node_modules was installed
-     * @param root a string like 'npm/node_modules'
+     * Resolve to an absolute root node_modules directory.
+     * @param root The bazel managed node_modules root such as 'npm/node_modules',  which includes the
+     * workspace name as the first segment. May be undefined if there are no third_party node_modules
+     * deps.
+     * @param startCwd The absolute path that bazel started the action at.
+     * @param isExecroot True if the action is run in the execroot, false if the action is run in
+     * runfiles root.
+     * @param runfiles The runfiles helper object.
+     * @return The absolute path on disk where node_modules was installed or if no third party
+     * node_modules are deps of the current target the returns the absolute path to
+     * `execroot/my_wksp/node_modules`.
      */
-    function resolveRoot(root, runfiles) {
+    function resolveRoot(root, startCwd, isExecroot, runfiles) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!runfiles.execroot) {
-                // Under runfiles, the repository should be layed out in the parent directory
-                // since bazel sets our working directory to the repository where the build is happening
-                process.chdir('..');
+            if (isExecroot) {
+                // Under execroot, the root will be under an external folder from the startCwd
+                // `execroot/my_wksp`. For example, `execroot/my_wksp/external/npm/node_modules`. If there is no
+                // root, which will be the case if there are no third-party modules dependencies for this
+                // target, set the root to `execroot/my_wksp/node_modules`.
+                return root ? `${startCwd}/external/${root}` : `${startCwd}/node_modules`;
             }
-            // create a node_modules directory if no root
-            // this will be the case if only first-party modules are installed
+            // Under runfiles, the linker should symlink node_modules at `execroot/my_wksp`
+            // so that when there are no runfiles (default on Windows) and scripts run out of
+            // `execroot/my_wksp` they can resolve node_modules with standard node_module resolution
+            // Look for bazel-out which is used to determine the the path to `execroot/my_wksp`. This works in
+            // all cases including on rbe where the execroot is a path such as `/b/f/w`. For example, when in
+            // runfiles on rbe, bazel runs the process in a directory such as
+            // `/b/f/w/bazel-out/k8-fastbuild/bin/path/to/pkg/some_test.sh.runfiles/my_wksp`. From here we can
+            // determine the execroot `b/f/w` by finding the first instance of bazel-out.
+            const match = startCwd.match(/\/bazel-out\//);
+            if (!match) {
+                panic(`No 'bazel-out' folder found in path '${startCwd}'!`);
+                return '';
+            }
+            const symlinkRoot = startCwd.slice(0, match.index);
+            process.chdir(symlinkRoot);
             if (!root) {
-                if (!(yield exists('node_modules'))) {
-                    log_verbose('no third-party packages; mkdir node_modules in ', process.cwd());
-                    yield fs.promises.mkdir('node_modules');
-                }
-                return 'node_modules';
+                // If there is no root, which will be the case if there are no third-party modules dependencies
+                // for this target, set the root to `execroot/my_wksp/node_modules`.
+                return `${symlinkRoot}/node_modules`;
             }
             // If we got a runfilesManifest map, look through it for a resolution
             // This will happen if we are running a binary that had some npm packages
             // "statically linked" into its runfiles
             const fromManifest = runfiles.lookupDirectory(root);
-            if (fromManifest)
+            if (fromManifest) {
                 return fromManifest;
-            if (runfiles.execroot) {
-                // Under execroot there is an external folder in the root which look
-                // like 'my_wksp/external/npm/node_modules'
-                return path.join('external', root);
             }
             else {
-                // Under runfiles, the repository should be layed out in the parent directory
-                // since bazel sets our working directory to the repository where the build is happening
-                return root;
+                // Under runfiles, the root will be one folder up from the startCwd `runfiles/my_wksp`.
+                // This is true whether legacy external runfiles are on or off.
+                return path.resolve(`${startCwd}/../${root}`);
             }
         });
     }
@@ -172,9 +189,8 @@ Include as much of the build output as you can without disclosing anything confi
                  If you want to test runfiles manifest behavior, add
                  --spawn_strategy=standalone to the command line.`);
             }
-            // Bazel starts actions with pwd=execroot/my_wksp
-            this.workspaceDir = path.resolve('.');
-            this.workspace = path.basename(this.workspaceDir);
+            // Bazel starts actions with pwd=execroot/my_wksp or pwd=runfiles/my_wksp
+            this.workspace = env['BAZEL_WORKSPACE'] || undefined;
             // If target is from an external workspace such as @npm//rollup/bin:rollup
             // resolvePackageRelative is not supported since package is in an external
             // workspace.
@@ -183,9 +199,6 @@ Include as much of the build output as you can without disclosing anything confi
                 // //path/to:target -> path/to
                 this.package = target.split(':')[0].replace(/^\/\//, '');
             }
-            // We can derive if the process is being run in the execroot
-            // if there is a bazel-out folder at the cwd.
-            this.execroot = existsSync('bazel-out');
         }
         lookupDirectory(dir) {
             if (!this.manifest)
@@ -237,10 +250,17 @@ Include as much of the build output as you can without disclosing anything confi
             throw new Error(`could not resolve modulePath ${modulePath}`);
         }
         resolveWorkspaceRelative(modulePath) {
+            if (!this.workspace) {
+                throw new Error('workspace could not be determined from the environment; make sure BAZEL_WORKSPACE is set');
+            }
             return this.resolve(path.posix.join(this.workspace, modulePath));
         }
         resolvePackageRelative(modulePath) {
-            if (!this.package) {
+            if (!this.workspace) {
+                throw new Error('workspace could not be determined from the environment; make sure BAZEL_WORKSPACE is set');
+            }
+            // NB: this.package may be '' if at the root of the workspace
+            if (this.package === undefined) {
                 throw new Error('package could not be determined from the environment; make sure BAZEL_TARGET is set');
             }
             return this.resolve(path.posix.join(this.workspace, this.package, modulePath));
@@ -425,10 +445,24 @@ Include as much of the build output as you can without disclosing anything confi
             modules = modules || {};
             log_verbose('manifest file', modulesManifest);
             log_verbose('manifest contents', JSON.stringify({ workspace, bin, root, modules }, null, 2));
-            // NB: resolveRoot will change the cwd when under runfiles to the runfiles root
-            const rootDir = yield resolveRoot(root, runfiles);
+            // Bazel starts actions with pwd=execroot/my_wksp when under execroot or pwd=runfiles/my_wksp
+            // when under runfiles.
+            // Normalize the slashes in startCwd for easier matching and manipulation.
+            const startCwd = process.cwd().replace(/\\/g, '/');
+            log_verbose('startCwd', startCwd);
+            // We can derive if the process is being run in the execroot if there is a bazel-out folder.
+            const isExecroot = existsSync(`${startCwd}/bazel-out`);
+            log_verbose('isExecroot', isExecroot.toString());
+            // NB: resolveRoot will change the cwd when under runfiles to `execroot/my_wksp`
+            const rootDir = yield resolveRoot(root, startCwd, isExecroot, runfiles);
             log_verbose('resolved node_modules root', root, 'to', rootDir);
             log_verbose('cwd', process.cwd());
+            // Create rootDir if it does not exists. This will be the case if there are no third-party deps
+            // for this target or if outside of the sandbox and there are no node_modules installed.
+            if (!(yield exists(rootDir))) {
+                log_verbose('no third-party packages; mkdir node_modules at ', root);
+                yield fs.promises.mkdir(rootDir);
+            }
             // Create the node_modules symlink to the node_modules root that node will resolve from
             yield symlink(rootDir, 'node_modules');
             // Change directory to the node_modules root directory so that all subsequent
@@ -440,30 +474,15 @@ Include as much of the build output as you can without disclosing anything confi
                     yield mkdirp(path.dirname(m.name));
                     if (m.link) {
                         const [root, modulePath] = m.link;
-                        const externalPrefix = 'external/';
                         let target = '<package linking failed>';
                         switch (root) {
                             case 'execroot':
-                                if (runfiles.execroot) {
-                                    target = path.posix.join(runfiles.workspaceDir, modulePath);
+                                if (isExecroot) {
+                                    target = `${startCwd}/${modulePath}`;
+                                    break;
                                 }
-                                else {
-                                    // If under runfiles, convert from execroot path to runfiles path.
-                                    // First strip the bin portion if it exists:
-                                    let runfilesPath = modulePath;
-                                    if (runfilesPath.startsWith(`${bin}/`)) {
-                                        runfilesPath = runfilesPath.slice(bin.length + 1);
-                                    }
-                                    else if (runfilesPath === bin) {
-                                        runfilesPath = '';
-                                    }
-                                    // Next replace `external/` with `../` if it exists:
-                                    if (runfilesPath.startsWith(externalPrefix)) {
-                                        runfilesPath = `../${runfilesPath.slice(externalPrefix.length)}`;
-                                    }
-                                    target = path.posix.join(runfiles.workspaceDir, runfilesPath);
-                                }
-                                break;
+                            // If under runfiles, the fall through to 'runfiles' case
+                            // so that we handle case where there is only a MANIFEST file
                             case 'runfiles':
                                 // Transform execroot path to the runfiles manifest path so that
                                 // it can be resolved with runfiles.resolve()
@@ -471,6 +490,7 @@ Include as much of the build output as you can without disclosing anything confi
                                 if (runfilesPath.startsWith(`${bin}/`)) {
                                     runfilesPath = runfilesPath.slice(bin.length + 1);
                                 }
+                                const externalPrefix = 'external/';
                                 if (runfilesPath.startsWith(externalPrefix)) {
                                     runfilesPath = runfilesPath.slice(externalPrefix.length);
                                 }
