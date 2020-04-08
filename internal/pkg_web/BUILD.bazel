@@ -15,16 +15,11 @@ bzl_library(
     visibility = ["//visibility:public"],
 )
 
-filegroup(
-    name = "node_modules_none",
-)
-
 nodejs_binary(
     name = "assembler",
     data = ["assembler.js"],
     entry_point = ":assembler.js",
     install_source_map_support = False,
-    node_modules = ":node_modules_none",
 )
 
 # BEGIN-INTERNAL
