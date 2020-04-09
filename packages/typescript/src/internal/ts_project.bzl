@@ -44,7 +44,7 @@ def _ts_project_impl(ctx):
 
     arguments.add_all([
         "--project",
-        ctx.file.tsconfig.short_path,
+        ctx.file.tsconfig.path,
         "--outDir",
         "/".join([ctx.bin_dir.path, ctx.label.package]),
         # Make sure TypeScript writes outputs to same directory structure as inputs
@@ -103,14 +103,7 @@ def _ts_project_impl(ctx):
             progress_message = "Compiling TypeScript project %s" % ctx.file.tsconfig.short_path,
         )
 
-    return [
-        DeclarationInfo(
-            declarations = depset(typings_outputs),
-            transitive_declarations = depset(typings_outputs, transitive = [
-                dep[DeclarationInfo].transitive_declarations
-                for dep in ctx.attr.deps
-            ]),
-        ),
+    providers = [
         # DefaultInfo is what you see on the command-line for a built library,
         # and determines what files are used by a simple non-provider-aware
         # downstream library.
@@ -129,6 +122,24 @@ def _ts_project_impl(ctx):
             if _TsConfigInfo in dep
         ])),
     ]
+
+    # Don't provide DeclarationInfo if there are no typings to provide.
+    # Improves error messaging if a ts_project needs declaration = True
+    if len(typings_outputs) or len(ctx.attr.deps):
+        providers.append(
+            DeclarationInfo(
+                declarations = depset(typings_outputs),
+                transitive_declarations = depset(typings_outputs, transitive = [
+                    dep[DeclarationInfo].transitive_declarations
+                    for dep in ctx.attr.deps
+                ]),
+                # Downstream ts_library rules will fail if they don't find this field
+                # Even though it is only for Google Closure Compiler externs generation
+                type_blacklisted_declarations = depset(),
+            ),
+        )
+
+    return providers
 
 ts_project = rule(
     implementation = _ts_project_impl,

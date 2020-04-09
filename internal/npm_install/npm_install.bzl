@@ -144,7 +144,7 @@ def _create_build_files(repository_ctx, rule_type, node, lock_file):
         repository_ctx.file("manual_build_file_contents", repository_ctx.attr.manual_build_file_contents)
     result = repository_ctx.execute([
         node,
-        "generate_build_file.js",
+        "index.js",
         repository_ctx.attr.name,
         rule_type,
         "1" if error_on_build_files else "0",
@@ -153,7 +153,7 @@ def _create_build_files(repository_ctx, rule_type, node, lock_file):
         native.bazel_version,
     ])
     if result.return_code:
-        fail("generate_build_file.js failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
+        fail("generate_build_file.ts failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
 
 def _add_scripts(repository_ctx):
     repository_ctx.template(
@@ -163,8 +163,8 @@ def _add_scripts(repository_ctx):
     )
 
     repository_ctx.template(
-        "generate_build_file.js",
-        repository_ctx.path(Label("//internal/npm_install:generate_build_file.js")),
+        "index.js",
+        repository_ctx.path(Label("//internal/npm_install:index.js")),
         {},
     )
 

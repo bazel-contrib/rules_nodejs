@@ -1,15 +1,15 @@
 # BEGIN-INTERNAL
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
-load("@npm_bazel_typescript//:index.from_src.bzl", "checked_in_ts_library")
+load("@npm_bazel_typescript//:checked_in_ts_project.bzl", "checked_in_ts_project")
 
 # We can't bootstrap the ts_library rule using the linker itself,
 # because the implementation of ts_library depends on the linker so that would be a cycle.
 # So we compile it to JS and check in the result as index.js.
 # To update index.js run:
 #   bazel run //internal/linker:linker_lib_check_compiled.accept
-checked_in_ts_library(
+checked_in_ts_project(
     name = "linker_lib",
-    srcs = ["link_node_modules.ts"],
+    src = "link_node_modules.ts",
     checked_in_js = "index.js",
     visibility = ["//internal/linker:__subpackages__"],
     deps = ["@npm//@types/node"],

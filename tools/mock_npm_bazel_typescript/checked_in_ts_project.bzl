@@ -3,4 +3,4 @@
 def noop(**kwargs):
     pass
 
-checked_in_ts_library = noop
+checked_in_ts_project = noop
