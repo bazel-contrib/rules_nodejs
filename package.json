@@ -52,7 +52,7 @@
         "karma-requirejs": "1.1.0",
         "karma-sourcemap-loader": "0.3.7",
         "lit-element": "^2.2.1",
-        "minimist": "^1.2.2",
+        "minimist": "^1.2.3",
         "mock-socket": "~9.0.3",
         "node_resolve_index": "file:./tools/npm_packages/node_resolve_index",
         "node_resolve_index_2": "file:./tools/npm_packages/node_resolve_index_2",
