@@ -23,6 +23,8 @@ ts_library(
     deps = [
         "//src/app/todos/reducers",
         "//src/shared/material",
+        # Needed for the angular compiler plugin
+        "@npm//@angular/compiler-cli",
         "@npm//@angular/common",
         "@npm//@angular/core",
         "@npm//@angular/forms",

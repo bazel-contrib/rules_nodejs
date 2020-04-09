@@ -26,6 +26,10 @@ ts_library(
         "TS2322: \\[lit\\] Type '444' is not assignable to 'string",
         "TS2322: \\[lit\\] Type '{ field: number; }' is not assignable to '{ field: string; }'",
     ],
+    # We need the linker to set up a node_modules tree to discover the plugin
+    # but it isn't compatible with worker mode;
+    # see https://github.com/bazelbuild/rules_nodejs/issues/1803
+    supports_workers = False,
     tsconfig = ":tsconfig.json",
     deps = [
         "@npm//lit-element",

@@ -24,6 +24,8 @@ ts_library(
     deps = [
         "//src/lib/shorten",
         "//src/shared/material",
+        # Needed for the angular compiler plugin
+        "@npm//@angular/compiler-cli",
         "@npm//@angular/core",
         "@npm//@angular/forms",
         "@npm//@angular/router",

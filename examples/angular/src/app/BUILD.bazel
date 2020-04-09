@@ -17,6 +17,8 @@ ts_library(
         "//src/app/todos",
         "//src/app/todos/reducers",
         "//src/shared/material",
+        # Needed for the angular compiler plugin
+        "@npm//@angular/compiler-cli",
         "@npm//@angular/core",
         "@npm//@angular/platform-browser",
         "@npm//@angular/router",
@@ -31,6 +33,8 @@ ts_library(
     use_angular_plugin = True,
     deps = [
         ":app",
+        # Needed for the angular compiler plugin
+        "@npm//@angular/compiler-cli",
         "@npm//@angular/core",
         "@npm//@angular/platform-server",
     ],

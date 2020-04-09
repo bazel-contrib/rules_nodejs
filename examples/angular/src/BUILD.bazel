@@ -53,6 +53,8 @@ ts_library(
     use_angular_plugin = True,
     deps = [
         "//src/app",
+        # Needed for the angular compiler plugin
+        "@npm//@angular/compiler-cli",
         "@npm//@angular/core",
         "@npm//@angular/platform-browser",
         "@npm//@angular/router",

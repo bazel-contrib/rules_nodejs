@@ -8,6 +8,8 @@ ts_library(
     tsconfig = "//src:tsconfig.json",
     use_angular_plugin = True,
     deps = [
+        # Needed for the angular compiler plugin
+        "@npm//@angular/compiler-cli",
         "@npm//@angular/core",
         "@npm//@angular/material",
     ],
