@@ -9,11 +9,11 @@
     },
     "dependencies": {
         "@angular/animations": "9.1.0",
-        "@angular/cdk": "9.0.0",
+        "@angular/cdk": "9.2.0",
         "@angular/common": "9.1.0",
         "@angular/core": "9.1.0",
         "@angular/forms": "9.1.0",
-        "@angular/material": "9.0.0",
+        "@angular/material": "9.2.0",
         "@angular/platform-browser": "9.1.0",
         "@angular/platform-browser-dynamic": "9.1.0",
         "@angular/platform-server": "^9.1.0",
@@ -61,7 +61,7 @@
         "rollup-plugin-commonjs": "^10.1.0",
         "rollup-plugin-node-resolve": "^5.2.0",
         "terser": "4.3.1",
-        "typescript": "3.6.4"
+        "typescript": "3.8.3"
     },
     "scripts": {
         "build": "bazelisk build //src:prodapp",

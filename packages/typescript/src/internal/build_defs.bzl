@@ -140,34 +140,54 @@ def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description 
     # Pass actual options for the node binary in the special "--node_options" argument.
     arguments = ["--node_options=%s" % opt for opt in node_opts]
 
-    # One at-sign makes this a params-file, enabling the worker strategy.
-    # Two at-signs escapes the argument so it's passed through to tsc_wrapped
-    # rather than the contents getting expanded.
-    if ctx.attr.supports_workers:
+    # We don't try to use the linker to launch the worker process
+    # because it causes bazel to spawn a new worker for every action
+    # See https://github.com/bazelbuild/rules_nodejs/issues/1803
+    # TODO: understand the interaction between linker and workers better
+    # When using plugins, we need the linker, so we disable workers for that case as well
+    if ctx.attr.supports_workers and not ctx.attr.use_angular_plugin:
+        # One at-sign makes this a params-file, enabling the worker strategy.
+        # Two at-signs escapes the argument so it's passed through to tsc_wrapped
+        # rather than the contents getting expanded.
         arguments.append("@@" + tsconfig_file.path)
-        mnemonic = "TypeScriptCompile"
-    else:
-        arguments.append("-p")
-        arguments.append(tsconfig_file.path)
-        mnemonic = "tsc"
 
-    run_node(
-        ctx,
-        progress_message = "Compiling TypeScript (%s) %s" % (description, ctx.label),
-        mnemonic = mnemonic,
-        inputs = action_inputs,
-        outputs = action_outputs,
-        # Use the built-in shell environment
-        # Allow for users who set a custom shell that can locate standard binaries like tr and uname
-        # See https://github.com/NixOS/nixpkgs/issues/43955#issuecomment-407546331
-        use_default_shell_env = True,
-        arguments = arguments,
-        executable = "compiler",
-        execution_requirements = {
-            "supports-workers": str(int(ctx.attr.supports_workers)),
-        },
-        env = {"COMPILATION_MODE": ctx.var["COMPILATION_MODE"]},
-    )
+        # Spawn a plain action that runs worker process with no linker
+        ctx.actions.run(
+            progress_message = "Compiling TypeScript (%s) %s" % (description, ctx.label),
+            mnemonic = "TypeScriptCompile",
+            inputs = action_inputs,
+            outputs = action_outputs,
+            # Use the built-in shell environment
+            # Allow for users who set a custom shell that can locate standard binaries like tr and uname
+            # See https://github.com/NixOS/nixpkgs/issues/43955#issuecomment-407546331
+            use_default_shell_env = True,
+            arguments = arguments,
+            executable = ctx.executable.compiler,
+            execution_requirements = {
+                "supports-workers": "1",
+            },
+            env = {"COMPILATION_MODE": ctx.var["COMPILATION_MODE"]},
+        )
+    else:
+        # TODO: if compiler is vanilla tsc, then we need the '-p' argument too
+        # arguments.append("-p")
+        arguments.append(tsconfig_file.path)
+
+        # Run with linker but not as a worker process
+        run_node(
+            ctx,
+            progress_message = "Compiling TypeScript (%s) %s" % (description, ctx.label),
+            mnemonic = "tsc",
+            inputs = action_inputs,
+            outputs = action_outputs,
+            # Use the built-in shell environment
+            # Allow for users who set a custom shell that can locate standard binaries like tr and uname
+            # See https://github.com/NixOS/nixpkgs/issues/43955#issuecomment-407546331
+            use_default_shell_env = True,
+            arguments = arguments,
+            executable = "compiler",
+            env = {"COMPILATION_MODE": ctx.var["COMPILATION_MODE"]},
+        )
 
     # Enable the replay_params in case an aspect needs to re-build this library.
     return struct(
