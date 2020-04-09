@@ -43,6 +43,8 @@
         "jasmine": "~3.4.0",
         "jasmine-core": "~3.4.0",
         "jasmine-reporters": "~2.3.2",
+        "jest": "~25.3.0",
+        "jest-websocket-mock": "~2.0.2",
         "karma": "~4.1.0",
         "karma-chrome-launcher": "2.2.0",
         "karma-firefox-launcher": "1.1.0",
@@ -51,6 +53,7 @@
         "karma-sourcemap-loader": "0.3.7",
         "lit-element": "^2.2.1",
         "minimist": "^1.2.2",
+        "mock-socket": "~9.0.3",
         "node_resolve_index": "file:./tools/npm_packages/node_resolve_index",
         "node_resolve_index_2": "file:./tools/npm_packages/node_resolve_index_2",
         "node_resolve_index_3": "file:./tools/npm_packages/node_resolve_index_3",
@@ -59,6 +62,7 @@
         "node_resolve_main_2": "file:./tools/npm_packages/node_resolve_main_2",
         "node_resolve_nested_main": "file:./tools/npm_packages/node_resolve_nested_main",
         "npm": "6.13.7",
+        "patch-package": "^6.2.2",
         "protobufjs": "6.8.8",
         "protractor": "^5.4.2",
         "requirejs": "2.3.6",
@@ -85,6 +89,10 @@
         "v8-coverage": "1.0.9",
         "yarn": "1.22.0",
         "zone.js": "0.8.29"
+    },
+    "// resolutions/**/jest-serializer": "need to resolve to a version that doesn't have a /// <reference path='../v8.d.ts' /> in build/index.d.ts which exposes a bug in ts_library",
+    "resolutions": {
+        "**/jest-serializer": "24.3.0"
     },
     "scripts": {
         "test": "bazelisk test --test_tag_filters=-e2e,-examples,-manual,-browser:firefox-local",
@@ -115,7 +123,7 @@
         "format-all": "clang-format --glob='{internal/**/,examples/**/}*.{js,ts}' -i",
         "stardoc": "bazelisk build //docs && cp -f dist/bin/docs/*.md docs",
         "version": "conventional-changelog -p angular -i CHANGELOG.md -s && node ./scripts/on-version.js && bazel build //:release && node ./scripts/on-release.js && git stage version.bzl docs/install.md packages/create/index.js README.md CHANGELOG.md e2e/*/WORKSPACE examples/*/WORKSPACE",
-        "postinstall": "node internal/npm_install/test/postinstall.js"
+        "postinstall": "patch-package && node internal/npm_install/test/postinstall.js"
     },
     "husky": {
         "hooks": {
