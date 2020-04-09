@@ -45,11 +45,11 @@ import * as path from 'path';
 import * as crypto from 'crypto';
 
 function log_verbose(...m: any[]) {
-  if (!!process.env['VERBOSE_LOGS']) console.error('[generate_build_file.js]', ...m);
+  if (!!process.env['VERBOSE_LOGS']) console.error('[generate_build_file.ts]', ...m);
 }
 
 const BUILD_FILE_HEADER = `# Generated file from yarn_install/npm_install rule.
-# See $(bazel info output_base)/external/build_bazel_rules_nodejs/internal/npm_install/generate_build_file.js
+# See rules_nodejs/internal/npm_install/generate_build_file.ts
 
 # All rules in other repositories can use these targets
 package(default_visibility = ["//visibility:public"])

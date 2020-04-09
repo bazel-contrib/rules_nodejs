@@ -32,7 +32,8 @@ source "${RUNFILES_DIR:-/dev/null}/$f" 2>/dev/null || \
 
 # Turn on extra logging so that test failures are easier to debug
 export VERBOSE_LOGS=1
-export NODE_DEBUG=module
+# Too spammy for CI logs
+# export NODE_DEBUG=module
 
 for ARG in "$@"; do
   case "$ARG" in

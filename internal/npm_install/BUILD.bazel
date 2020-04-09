@@ -3,13 +3,13 @@ load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 
 # BEGIN-INTERNAL
 # avoid leaking a ts dependency
-load("@npm_bazel_typescript//:index.from_src.bzl", "checked_in_ts_library")
+load("@npm_bazel_typescript//:checked_in_ts_project.bzl", "checked_in_ts_project")
 
 # using checked in ts library like the linker
-checked_in_ts_library(
+checked_in_ts_project(
     name = "compile_generate_build_file",
-    srcs = ["generate_build_file.ts"],
-    checked_in_js = "generate_build_file.js",
+    src = "generate_build_file.ts",
+    checked_in_js = "index.js",
     visibility = ["//internal/npm_install:__subpackages__"],
     deps = ["@npm//@types/node"],
 )
@@ -28,7 +28,7 @@ exports_files(["npm_install.bzl"])
 filegroup(
     name = "generate_build_file",
     srcs = [
-        "generate_build_file.js",
+        "index.js",
     ],
     visibility = ["//internal:__subpackages__"],
 )
