@@ -177,7 +177,7 @@ jobs:
 
       - run:
           command: ./scripts/ci/run_integration_tests.sh ${CIRCLE_NODE_INDEX} ${CIRCLE_NODE_TOTAL}
-          no_output_timeout: 10m
+          no_output_timeout: 30m
 
   test_integration_manual:
     <<: *job_defaults
