@@ -33,4 +33,4 @@ done
 echo "Shard index ${SHARD_INDEX} of ${MAX_SHARDS} shards"
 echo "Targets: ${SHARD_TARGETS[@]:-}"
 echo
-bazel test --local_ram_resources=792 --test_arg=--local_ram_resources=13312 --test_arg=--local_cpu_resources=7 ${SHARD_TARGETS[@]:-}
+bazel test --local_ram_resources=792 --test_arg=--local_ram_resources=13312 --test_arg=--local_cpu_resources=7 ${SHARD_TARGETS[@]:-} --test_output=streamed
