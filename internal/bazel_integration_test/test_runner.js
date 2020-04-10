@@ -304,20 +304,6 @@ and run integration test manually.
   process.exit(1);
 }
 
-log(`running 'bazel version'`);
-let spawnedProcess = spawnSync(bazelBinary, ['version'], {cwd: workspaceRoot, stdio: 'inherit'});
-if (spawnedProcess.status) {
-  process.exit(spawnedProcess.status);
-}
-
-if (VERBOSE_LOGS) {
-  log_verbose(`running 'bazel info'`);
-  spawnedProcess = spawnSync(bazelBinary, ['info'], {cwd: workspaceRoot, stdio: 'inherit'});
-  if (spawnedProcess.status) {
-    process.exit(spawnedProcess.status);
-  }
-}
-
 for (const bazelCommand of config.bazelCommands) {
   const bazelArgs = bazelCommand.split(' ');
   // look for `--` argument and insert testArgs before it
@@ -328,8 +314,63 @@ for (const bazelCommand of config.bazelCommands) {
   } else {
     bazelArgs.push(...testArgs);
   }
-  log(`running 'bazel ${bazelArgs.join(' ')}'`);
-  spawnedProcess = spawnSync(bazelBinary, bazelArgs, {cwd: workspaceRoot, stdio: 'inherit'});
+  // Cleanup the env that comes from the outer-bazel execution.
+  // The inner bazel process can be affected by these environment variables
+  // so we need to cleanup the environment to ensure the inner test is hermetic.
+  const env = {...process.env};
+  const keys = Object.keys(env);
+  for (const key of keys) {
+    if (key.startsWith('npm_')) {
+      delete env[key];
+    }
+  }
+  const BAZEL_KEYS = [
+    '_RLOCATION_ISABS_PATTERN',
+    'BASH_FUNC_is_absolute%%',
+    'BASH_FUNC_rlocation%%',
+    'BASH_FUNC_runfiles_export_envvars%%',
+    'BAZEL_NODE_MODULES_ROOT',
+    'BAZEL_NODE_PATCH_REQUIRE',
+    'BAZEL_NODE_RUNFILES_HELPER',
+    'BAZEL_PATCH_GUARDS',
+    'BAZEL_PATCH_ROOT',
+    'BAZEL_TARGET',
+    'BAZEL_WORKSPACE',
+    'BAZELISK_SKIP_WRAPPER',
+    'BUILD_WORKING_DIRECTORY',
+    'BUILD_WORKSPACE_DIRECTORY',
+    'GTEST_TMP_DIR',
+    'INIT_CWD',
+    'JAVA_RUNFILES',
+    'NODE_REPOSITORY_ARGS',
+    'OLDPWD',
+    'PYTHON_RUNFILES',
+    'RUN_UNDER_RUNFILES',
+    'RUNFILES_DIR',
+    'RUNFILES',
+    'TEST_BINARY',
+    'TEST_INFRASTRUCTURE_FAILURE_FILE',
+    'TEST_LOGSPLITTER_OUTPUT_FILE',
+    'TEST_PREMATURE_EXIT_FILE',
+    'TEST_SIZE',
+    'TEST_SRCDIR',
+    'TEST_TARGET',
+    'TEST_TIMEOUT',
+    'TEST_TMPDIR',
+    'TEST_UNDECLARED_OUTPUTS_ANNOTATIONS_DIR',
+    'TEST_UNDECLARED_OUTPUTS_DIR',
+    'TEST_UNUSED_RUNFILES_LOG_FILE',
+    'TEST_WARNINGS_OUTPUT_FILE',
+    'TEST_WORKSPACE',
+    'XML_OUTPUT_FILE',
+  ];
+  for (const key of BAZEL_KEYS) {
+    delete env[key];
+  }
+  env['PWD'] = workspaceRoot;
+  log_verbose(JSON.stringify(env, null, 2));
+  log(`running 'bazel ${bazelArgs.join(' ')}' in ${workspaceRoot}`);
+  spawnedProcess = spawnSync(bazelBinary, bazelArgs, {env, cwd: workspaceRoot, stdio: 'inherit'});
   if (spawnedProcess.status) {
     process.exit(spawnedProcess.status);
   }
