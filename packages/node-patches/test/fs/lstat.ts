@@ -33,12 +33,12 @@ describe('testing lstat', () => {
         },
         async fixturesDir => {
           fixturesDir = fs.realpathSync(fixturesDir);
-          // create symlink from a to b
+          // create symlink from a/link to b/file
           fs.symlinkSync(path.join(fixturesDir, 'b', 'file'), path.join(fixturesDir, 'a', 'link'));
 
           const patchedFs = Object.assign({}, fs);
           patchedFs.promises = Object.assign({}, fs.promises);
-          patcher(patchedFs, path.join(fixturesDir));
+          patcher(patchedFs, path.join(fixturesDir), []);
 
           const linkPath = path.join(fixturesDir, 'a', 'link');
           assert.ok(
@@ -55,6 +55,37 @@ describe('testing lstat', () => {
         });
   });
 
+  it('can lstat symlink in guard is file', async () => {
+    await withFixtures(
+        {
+          a: {g: {}},
+          b: {file: 'contents'},
+        },
+        async fixturesDir => {
+          fixturesDir = fs.realpathSync(fixturesDir);
+          // create symlink from a/g/link to b/file
+          fs.symlinkSync(
+              path.join(fixturesDir, 'b', 'file'), path.join(fixturesDir, 'a', 'g', 'link'));
+
+          const patchedFs = Object.assign({}, fs);
+          patchedFs.promises = Object.assign({}, fs.promises);
+          patcher(patchedFs, path.join(fixturesDir), [path.join(fixturesDir, 'a', 'g')]);
+
+          const linkPath = path.join(fixturesDir, 'a', 'g', 'link');
+          assert.ok(
+              patchedFs.lstatSync(linkPath).isFile(),
+              'lstatSync should find file if link is in guard');
+
+          assert.ok(
+              (await util.promisify(patchedFs.lstat)(linkPath)).isFile(),
+              'lstat should find file if link is in guard');
+
+          assert.ok(
+              (await patchedFs.promises.lstat(linkPath)).isFile(),
+              'promises.lstat should find file if link is in guard');
+        });
+  });
+
   it('lstat of symlink out of root is file.', async () => {
     await withFixtures(
         {
@@ -63,26 +94,26 @@ describe('testing lstat', () => {
         },
         async fixturesDir => {
           fixturesDir = fs.realpathSync(fixturesDir);
-          // create symlink from a to b
+          // create symlink from a/link to b/file
           fs.symlinkSync(path.join(fixturesDir, 'b', 'file'), path.join(fixturesDir, 'a', 'link'));
 
           const patchedFs = Object.assign({}, fs);
           patchedFs.promises = Object.assign({}, fs.promises);
-          patcher(patchedFs, path.join(fixturesDir, 'a'));
+          patcher(patchedFs, path.join(fixturesDir, 'a'), []);
 
           const linkPath = path.join(fixturesDir, 'a', 'link');
 
           assert.ok(
               patchedFs.lstatSync(linkPath).isFile(),
-              'lstatSync should find file it file linked is out of root');
+              'lstatSync should find file it file link is out of root');
 
           assert.ok(
               (await util.promisify(patchedFs.lstat)(linkPath)).isFile(),
-              'lstat should find file it file linked is out of root');
+              'lstat should find file it file link is out of root');
 
           assert.ok(
               (await patchedFs.promises.lstat(linkPath)).isFile(),
-              'promises.lstat should find file it file linked is out of root');
+              'promises.lstat should find file it file link is out of root');
 
           let brokenLinkPath = path.join(fixturesDir, 'a', 'broken-link');
           fs.symlinkSync(path.join(fixturesDir, 'doesnt-exist'), brokenLinkPath);
@@ -109,12 +140,12 @@ describe('testing lstat', () => {
         },
         async fixturesDir => {
           fixturesDir = fs.realpathSync(fixturesDir);
-          // create symlink from a to b
+          // create symlink from a/link to b/file
           fs.symlinkSync(path.join(fixturesDir, 'b', 'file'), path.join(fixturesDir, 'b', 'link'));
 
           const patchedFs = Object.assign({}, fs);
           patchedFs.promises = Object.assign({}, fs.promises);
-          patcher(patchedFs, path.join(fixturesDir, 'a'));
+          patcher(patchedFs, path.join(fixturesDir, 'a'), []);
 
           const linkPath = path.join(fixturesDir, 'b', 'link');
 

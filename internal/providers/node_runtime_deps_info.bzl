@@ -15,6 +15,7 @@
 """Custom provider that mimics the Runfiles, but doesn't incur the expense of creating the runfiles symlink tree"""
 
 load("//internal/linker:link_node_modules.bzl", "add_arg", "write_node_modules_manifest")
+load("//internal/providers:npm_package_info.bzl", "NpmPackageInfo")
 
 NodeRuntimeDepsInfo = provider(
     doc = """Stores runtime dependencies of a nodejs_binary or nodejs_test
@@ -37,6 +38,23 @@ do the same.
         "deps": "depset of runtime dependency labels",
     },
 )
+
+def _compute_node_modules_root(ctx):
+    """Computes the node_modules root (if any) from data & deps targets."""
+    node_modules_root = ""
+    deps = []
+    if hasattr(ctx.attr, "data"):
+        deps += ctx.attr.data
+    if hasattr(ctx.attr, "deps"):
+        deps += ctx.attr.deps
+    for d in deps:
+        if NpmPackageInfo in d:
+            possible_root = "/".join([d[NpmPackageInfo].workspace, "node_modules"])
+            if not node_modules_root:
+                node_modules_root = possible_root
+            elif node_modules_root != possible_root:
+                fail("All npm dependencies need to come from a single workspace. Found '%s' and '%s'." % (node_modules_root, possible_root))
+    return node_modules_root
 
 def run_node(ctx, inputs, arguments, executable, **kwargs):
     """Helper to replace ctx.actions.run
@@ -77,6 +95,7 @@ def run_node(ctx, inputs, arguments, executable, **kwargs):
                 env[var] = ctx.var[var]
             elif var in ctx.configuration.default_shell_env.keys():
                 env[var] = ctx.configuration.default_shell_env[var]
+    env["BAZEL_NODE_MODULES_ROOT"] = _compute_node_modules_root(ctx)
 
     ctx.actions.run(
         inputs = inputs + extra_inputs,
