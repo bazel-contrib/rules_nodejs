@@ -132,8 +132,8 @@ BAZEL_INTEGRATION_TEST_ATTRS = {
 It is assumed by the test runner that the bazel binary is found at label_workspace/bazel (wksp/bazel.exe on Windows)""",
     ),
     "bazel_commands": attr.string_list(
-        default = ["test ..."],
-        doc = """The list of bazel commands to run. Defaults to `["test ..."]`.
+        default = ["info", "test ..."],
+        doc = """The list of bazel commands to run. Defaults to `["info", "test ..."]`.
 
 Note that if a command contains a bare `--` argument, the --test_arg passed to Bazel will appear before it.
 """,
