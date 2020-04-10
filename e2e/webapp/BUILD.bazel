@@ -8,7 +8,8 @@ rollup_bundle(
     entry_point = "app.js",
     output_dir = True,
     # Enable experimental faster builds with Bazel workers
-    supports_workers = True,
+    # TODO: re-enable worker mode once fixed in bazel_integration_test
+    # supports_workers = True,
 )
 
 terser_minified(
