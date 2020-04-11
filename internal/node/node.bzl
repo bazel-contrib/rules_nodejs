@@ -135,12 +135,12 @@ def _to_manifest_path(ctx, file):
 
 def _to_execroot_path(ctx, file):
     parts = file.path.split("/")
-
     if parts[0] == "external":
         if parts[2] == "node_modules":
             # external/npm/node_modules -> node_modules/foo
             # the linker will make sure we can resolve node_modules from npm
             return "/".join(parts[2:])
+
     return file.path
 
 def _nodejs_binary_impl(ctx):
@@ -246,8 +246,6 @@ fi
         #       Need a smarter split operation than `expanded_arg.split(" ")` as it will split
         #       up args with intentional spaces and it will fail for expanded files with spaces.
         "TEMPLATED_args": " ".join(expanded_args),
-        "TEMPLATED_entry_point_execroot_path": _to_execroot_path(ctx, ctx.file.entry_point),
-        "TEMPLATED_entry_point_manifest_path": _to_manifest_path(ctx, ctx.file.entry_point),
         "TEMPLATED_env_vars": env_vars,
         "TEMPLATED_expected_exit_code": str(expected_exit_code),
         "TEMPLATED_link_modules_script": _to_manifest_path(ctx, ctx.file._link_modules_script),
@@ -259,6 +257,16 @@ fi
         "TEMPLATED_runfiles_helper_script": _to_manifest_path(ctx, ctx.file._runfiles_helper_script),
         "TEMPLATED_vendored_node": "" if is_builtin else strip_external(ctx.file._node.path),
     }
+
+    # TODO when we have "link_all_bins" we will only need to look in one place for the entry point
+    #if ctx.file.entry_point.is_source:
+    #    substitutions["TEMPLATED_script_path"] = "\"%s\"" % _to_execroot_path(ctx, ctx.file.entry_point)
+    #else:
+    #    substitutions["TEMPLATED_script_path"] = "$(rlocation \"%s\")" % _to_manifest_path(ctx, ctx.file.entry_point)
+    # For now we need to look in both places
+    substitutions["TEMPLATED_entry_point_execroot_path"] = "\"%s\"" % _to_execroot_path(ctx, ctx.file.entry_point)
+    substitutions["TEMPLATED_entry_point_manifest_path"] = "$(rlocation \"%s\")" % _to_manifest_path(ctx, ctx.file.entry_point)
+
     ctx.actions.expand_template(
         template = ctx.file._launcher_template,
         output = ctx.outputs.launcher_sh,
