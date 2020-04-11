@@ -1,6 +1,13 @@
 # [1.6.0](https://github.com/bazelbuild/rules_nodejs/compare/1.5.0...1.6.0) (2020-04-11)
 
 
+### Features
+
+* **builtin:** export version to npm/yarn install ([011278e](https://github.com/bazelbuild/rules_nodejs/commit/011278e))
+* **jasmine:** check pkg version to rules_nodejs ([22bebbc](https://github.com/bazelbuild/rules_nodejs/commit/22bebbc))
+* **typescript:** wire up use_angular_plugin attribute ([520493d](https://github.com/bazelbuild/rules_nodejs/commit/520493d))
+
+
 ### Bug Fixes
 
 * **builtin:** always symlink node_modules at `execroot/my_wksp/node_modules` even when running in runfiles ([#1805](https://github.com/bazelbuild/rules_nodejs/issues/1805)) ([5c2f6c1](https://github.com/bazelbuild/rules_nodejs/commit/5c2f6c1))
@@ -11,20 +18,20 @@
 * **builtin:** look in the execroot for nodejs_binary source entry_points ([#1816](https://github.com/bazelbuild/rules_nodejs/issues/1816)) ([b84d65e](https://github.com/bazelbuild/rules_nodejs/commit/b84d65e)), closes [#1787](https://github.com/bazelbuild/rules_nodejs/issues/1787) [#1787](https://github.com/bazelbuild/rules_nodejs/issues/1787)
 * **builtin:** preserve lone $ in templated_args for legacy support ([#1772](https://github.com/bazelbuild/rules_nodejs/issues/1772)) ([72c14d8](https://github.com/bazelbuild/rules_nodejs/commit/72c14d8))
 * **builtin:** under runfiles linker should link node_modules folder at root of runfiles tree ([13510ad](https://github.com/bazelbuild/rules_nodejs/commit/13510ad))
-* **docs:** `yarn_urls` should be `string_list`, not `string` ([3357c08](https://github.com/bazelbuild/rules_nodejs/commit/3357c08))
 * **rollup:** fix worker not picking up config file changes ([a19eb2b](https://github.com/bazelbuild/rules_nodejs/commit/a19eb2b)), closes [#1790](https://github.com/bazelbuild/rules_nodejs/issues/1790)
 * **typescript:** don't mix worker mode and linker ([55c6c4a](https://github.com/bazelbuild/rules_nodejs/commit/55c6c4a)), closes [#1803](https://github.com/bazelbuild/rules_nodejs/issues/1803) [#1803](https://github.com/bazelbuild/rules_nodejs/issues/1803)
 * **typescript:** include extended tsconfigs in _TsConfigInfo ([cd8520d](https://github.com/bazelbuild/rules_nodejs/commit/cd8520d)), closes [#1754](https://github.com/bazelbuild/rules_nodejs/issues/1754)
 
 
-### Features
+### Examples
 
-* **builtin:** export version to npm/yarn install ([011278e](https://github.com/bazelbuild/rules_nodejs/commit/011278e))
 * **examples:** add support for server side rendering with universal ([c09ca89](https://github.com/bazelbuild/rules_nodejs/commit/c09ca89))
 * **examples:** build and consume an Angular workspace library  ([#1633](https://github.com/bazelbuild/rules_nodejs/issues/1633)) ([b459d6d](https://github.com/bazelbuild/rules_nodejs/commit/b459d6d))
-* **jasmine:** check pkg version to rules_nodejs ([22bebbc](https://github.com/bazelbuild/rules_nodejs/commit/22bebbc))
-* **typescript:** wire up use_angular_plugin attribute ([520493d](https://github.com/bazelbuild/rules_nodejs/commit/520493d))
 
+
+### Documentation
+
+* **docs:** `yarn_urls` should be `string_list`, not `string` ([3357c08](https://github.com/bazelbuild/rules_nodejs/commit/3357c08))
 
 
 # [1.5.0](https://github.com/bazelbuild/rules_nodejs/compare/1.4.1...1.5.0) (2020-03-28)
