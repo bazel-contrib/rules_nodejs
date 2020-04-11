@@ -145,7 +145,7 @@ class Runfiles {
         if (path.isAbsolute(modulePath)) {
             return modulePath;
         }
-        const result = this._resolve(modulePath, '');
+        const result = this._resolve(modulePath, undefined);
         if (result) {
             return result;
         }
@@ -158,7 +158,7 @@ class Runfiles {
             const result = this.lookupDirectory(moduleBase);
             if (result) {
                 if (moduleTail) {
-                    const maybe = path.join(result, moduleTail);
+                    const maybe = path.join(result, moduleTail || '');
                     if (fs.existsSync(maybe)) {
                         return maybe;
                     }
@@ -169,7 +169,7 @@ class Runfiles {
             }
         }
         if (exports.runfiles.dir) {
-            const maybe = path.join(exports.runfiles.dir, moduleBase, moduleTail);
+            const maybe = path.join(exports.runfiles.dir, moduleBase, moduleTail || '');
             if (fs.existsSync(maybe)) {
                 return maybe;
             }
@@ -178,7 +178,7 @@ class Runfiles {
         if (dirname == '.') {
             return undefined;
         }
-        return this._resolve(dirname, path.join(path.basename(moduleBase), moduleTail));
+        return this._resolve(dirname, path.join(path.basename(moduleBase), moduleTail || ''));
     }
     resolveWorkspaceRelative(modulePath) {
         if (!this.workspace) {
