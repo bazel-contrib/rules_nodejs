@@ -18,8 +18,8 @@ describe('karma_web_test_suite', () => {
       return l.trim().slice(1, -1);
     }).filter(l => !!l);
     expect(files).toEqual([
-      'NODE_MODULES/npm/node_modules/requirejs/require.js',
-      'NODE_MODULES/npm/node_modules/karma-requirejs/lib/adapter.js',
+      'npm/node_modules/requirejs/require.js',
+      'npm/node_modules/karma-requirejs/lib/adapter.js',
       'build_bazel_rules_nodejs/packages/karma/test/karma_typescript/_testing_wrapped_test.amd_names_shim.js',
     ]);
   });
