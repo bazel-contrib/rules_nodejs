@@ -142,17 +142,43 @@ class Runfiles {
         return runfilesEntries;
     }
     resolve(modulePath) {
-        if (this.manifest) {
-            const result = this.lookupDirectory(modulePath);
-            if (result)
-                return result;
+        if (path.isAbsolute(modulePath)) {
+            return modulePath;
         }
-        if (exports.runfiles.dir && fs.existsSync(path.join(exports.runfiles.dir, modulePath))) {
-            return path.join(exports.runfiles.dir, modulePath);
+        const result = this._resolve(modulePath, '');
+        if (result) {
+            return result;
         }
         const e = new Error(`could not resolve modulePath ${modulePath}`);
         e.code = 'MODULE_NOT_FOUND';
         throw e;
+    }
+    _resolve(moduleBase, moduleTail) {
+        if (this.manifest) {
+            const result = this.lookupDirectory(moduleBase);
+            if (result) {
+                if (moduleTail) {
+                    const maybe = path.join(result, moduleTail);
+                    if (fs.existsSync(maybe)) {
+                        return maybe;
+                    }
+                }
+                else {
+                    return result;
+                }
+            }
+        }
+        if (exports.runfiles.dir) {
+            const maybe = path.join(exports.runfiles.dir, moduleBase, moduleTail);
+            if (fs.existsSync(maybe)) {
+                return maybe;
+            }
+        }
+        const dirname = path.dirname(moduleBase);
+        if (dirname == '.') {
+            return undefined;
+        }
+        return this._resolve(dirname, path.join(path.basename(moduleBase), moduleTail));
     }
     resolveWorkspaceRelative(modulePath) {
         if (!this.workspace) {
