@@ -331,7 +331,9 @@ try {
             try {
               process.env.CHROME_BIN = runfiles.resolve(webTestNamedFiles['CHROMIUM']);
             } catch {
-              // Ignore; karma may still find Chrome another way
+              // Fail as this file is expected to be in runfiles
+              throw new Error(`Failed to resolve rules_webtesting Chromium binary '${
+                  webTestNamedFiles['CHROMIUM']}' in runfiles`);
             }
           }
           const browser = process.env['DISPLAY'] ? 'Chrome' : 'ChromeHeadless';
@@ -353,7 +355,9 @@ try {
             try {
               process.env.FIREFOX_BIN = runfiles.resolve(webTestNamedFiles['FIREFOX']);
             } catch {
-              // Ignore; karma may still find Firefox another way
+              // Fail as this file is expected to be in runfiles
+              throw new Error(`Failed to resolve rules_webtesting Firefox binary '${
+                  webTestNamedFiles['FIREFOX']}' in runfiles`);
             }
           }
           conf.browsers.push(process.env['DISPLAY'] ? 'Firefox' : 'FirefoxHeadless');
