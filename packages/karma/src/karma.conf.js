@@ -246,22 +246,7 @@ try {
     // BEGIN USER FILES
       TMPL_user_files
       // END USER FILES
-    ].forEach(f => {
-      let filePath = null;
-      if (f.startsWith('NODE_MODULES/')) {
-        try {
-          // attempt to resolve in nested node_modules first
-          filePath = runfiles.resolve(f.replace(/^NODE_MODULES\//, '@bazel/karma/node_modules/'));
-        } catch (e) {
-          // if that failed then attempt to resolve in root node_modules
-          filePath = runfiles.resolve(f.replace(/^NODE_MODULES\//, ''));
-        }
-      } else {
-        filePath = runfiles.resolve(f);
-      }
-
-      conf.files.push(filePath);
-    });
+    ].forEach(f => conf.files.push(runfiles.resolve(f)))
 
       var requireConfigContent = `
       // A simplified version of Karma's requirejs.config.tpl.js for use with Karma under Bazel.

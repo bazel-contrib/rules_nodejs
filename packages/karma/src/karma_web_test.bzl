@@ -151,12 +151,9 @@ def _write_karma_config(ctx, files, amd_names_shim):
     # That allows bootstrap files to have anonymous AMD modules, or to do some
     # polyfilling before test libraries load.
     # See https://github.com/karma-runner/karma/issues/699
-    # `NODE_MODULES/` is a prefix recogized by karma.conf.js to allow
-    # for a priority require of nested `@bazel/typescript/node_modules` before
-    # looking in root node_modules.
     bootstrap_entries += [
-        "NODE_MODULES/%s" % _find_dep(ctx, "requirejs/require.js"),
-        "NODE_MODULES/%s" % _find_dep(ctx, "karma-requirejs/lib/adapter.js"),
+        _find_dep(ctx, "requirejs/require.js"),
+        _find_dep(ctx, "karma-requirejs/lib/adapter.js"),
         "/".join([ctx.workspace_name, amd_names_shim.short_path]),
     ]
 
