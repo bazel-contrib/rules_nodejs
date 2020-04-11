@@ -142,5 +142,5 @@ If you want to do this, you can pass a filegroup here.
 #### `terser_bin`
 (*[label]*): An executable target that runs Terser
 
-Defaults to `@npm//@bazel/terser/bin:terser`
+Defaults to `@npm_bazel_terser//:terser-local`
 
