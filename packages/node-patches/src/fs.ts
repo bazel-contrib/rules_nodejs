@@ -55,7 +55,7 @@ export const patcher = (fs: any = _fs, root: string, guards: string[]) => {
   const origReaddir = fs.readdir.bind(fs);
   const origReaddirSync = fs.readdirSync.bind(fs);
 
-  const {isEscape, isOutPath} = escapeFunction(root, guards);
+  const {isEscape} = escapeFunction(root, guards);
 
   const logged: {[k: string]: boolean} = {};
 
@@ -74,8 +74,7 @@ export const patcher = (fs: any = _fs, root: string, guards: string[]) => {
         if (err) return cb(err);
 
         const linkPath = path.resolve(args[0]);
-        // if this is not a symlink or the path is not inside the root it has no way to escape.
-        if (!stats.isSymbolicLink() || !root || isOutPath(linkPath)) {
+        if (!stats.isSymbolicLink()) {
           return cb(null, stats);
         }
 
@@ -177,8 +176,9 @@ export const patcher = (fs: any = _fs, root: string, guards: string[]) => {
   fs.lstatSync = (...args: any[]) => {
     const stats = origLstatSync(...args);
     const linkPath = path.resolve(args[0]);
-    // if this is not a symlink or the path is not inside the root it has no way to escape.
-    if (!stats.isSymbolicLink() || isOutPath(linkPath)) return stats;
+    if (!stats.isSymbolicLink()) {
+      return stats;
+    }
     let linkTarget: string;
     try {
       linkTarget = path.resolve(path.dirname(args[0]), origReadlinkSync(linkPath));

@@ -84,7 +84,7 @@ exports.patcher = (fs = fs$1, root, guards) => {
     const origReadlinkSync = fs.readlinkSync.bind(fs);
     const origReaddir = fs.readdir.bind(fs);
     const origReaddirSync = fs.readdirSync.bind(fs);
-    const { isEscape, isOutPath } = exports.escapeFunction(root, guards);
+    const { isEscape } = exports.escapeFunction(root, guards);
     // tslint:disable-next-line:no-any
     fs.lstat = (...args) => {
         let cb = args.length > 1 ? args[args.length - 1] : undefined;
@@ -95,8 +95,7 @@ exports.patcher = (fs = fs$1, root, guards) => {
                 if (err)
                     return cb(err);
                 const linkPath = path.resolve(args[0]);
-                // if this is not a symlink or the path is not inside the root it has no way to escape.
-                if (!stats.isSymbolicLink() || !root || isOutPath(linkPath)) {
+                if (!stats.isSymbolicLink()) {
                     return cb(null, stats);
                 }
                 return origReadlink(args[0], (err, str) => {
@@ -197,9 +196,9 @@ exports.patcher = (fs = fs$1, root, guards) => {
     fs.lstatSync = (...args) => {
         const stats = origLstatSync(...args);
         const linkPath = path.resolve(args[0]);
-        // if this is not a symlink or the path is not inside the root it has no way to escape.
-        if (!stats.isSymbolicLink() || isOutPath(linkPath))
+        if (!stats.isSymbolicLink()) {
             return stats;
+        }
         let linkTarget;
         try {
             linkTarget = path.resolve(path.dirname(args[0]), origReadlinkSync(linkPath));
