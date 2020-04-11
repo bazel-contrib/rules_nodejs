@@ -510,7 +510,7 @@ TypeScript targets and JavaScript for the browser and Closure compiler.
 ### Usage
 
 ```
-ts_library(name, compile_angular_templates, compiler, data, deps, devmode_module, devmode_target, expected_diagnostics, generate_externs, internal_testing_type_check_dependencies, module_name, module_root, node_modules, prodmode_module, prodmode_target, runtime, runtime_deps, srcs, supports_workers, tsconfig, tsickle_typed)
+ts_library(name, angular_assets, compiler, data, deps, devmode_module, devmode_target, expected_diagnostics, generate_externs, internal_testing_type_check_dependencies, module_name, module_root, node_modules, prodmode_module, prodmode_target, runtime, runtime_deps, srcs, supports_workers, tsconfig, tsickle_typed, use_angular_plugin)
 ```
 
 
@@ -518,10 +518,11 @@ ts_library(name, compile_angular_templates, compiler, data, deps, devmode_module
 #### `name`
 (*[name], mandatory*): A unique name for this target.
 
-#### `compile_angular_templates`
-(*Boolean*): Run the Angular ngtsc compiler under ts_library
+#### `angular_assets`
+(*[labels]*): Additional files the Angular compiler will need to read as inputs.
+            Includes .css and .html files
 
-Defaults to `False`
+Defaults to `[]`
 
 #### `compiler`
 (*[label]*): Sets a different TypeScript compiler binary to use for this library.
@@ -535,7 +536,7 @@ the workspace name `@npm` for bazel managed deps so the default
 compiler works out of the box. Otherwise, you'll have to override
 the compiler attribute manually.
 
-Defaults to `@npm//@bazel/typescript/bin:tsc_wrapped`
+Defaults to `@build_bazel_rules_typescript//internal:tsc_wrapped_bin`
 
 #### `data`
 (*[labels]*)
@@ -706,6 +707,11 @@ Defaults to `None`
 (*Boolean*): If using tsickle, instruct it to translate types to ClosureJS format
 
 Defaults to `True`
+
+#### `use_angular_plugin`
+(*Boolean*): Run the Angular ngtsc compiler under ts_library
+
+Defaults to `False`
 
 
 ## ts_project
