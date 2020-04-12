@@ -191,7 +191,7 @@ for ARG in "${ALL_ARGS[@]:-}"; do
   case "$ARG" in
     --bazel_node_modules_manifest=*) MODULES_MANIFEST="${ARG#--bazel_node_modules_manifest=}" ;;
     --nobazel_patch_module_resolver)
-      MAIN=TEMPLATED_entry_point_execroot_path
+      MAIN=TEMPLATED_script_path
       LAUNCHER_NODE_OPTIONS=( "--require" "$node_patches_script" )
 
       # In this case we should always run the linker
@@ -208,11 +208,6 @@ done
 # Link the first-party modules into node_modules directory before running the actual program
 if [[ -n "${MODULES_MANIFEST:-}" ]]; then
   "${node}" "${link_modules_script}" "${MODULES_MANIFEST:-}"
-fi
-
-# TODO: after we link-all-bins we should not need this extra lookup
-if [[ ! -f "$MAIN" ]]; then
-  MAIN=TEMPLATED_entry_point_manifest_path
 fi
 
 # Tell the node_patches_script that programs should not escape the execroot
