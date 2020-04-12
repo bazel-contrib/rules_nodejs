@@ -21,13 +21,13 @@ This is the fastest way to get started.
 See the [installation documentation](https://bazelbuild.github.io/rules_nodejs/install.html) for details and alternative methods, or if you already have a Bazel project and you're adding Node/JavaScript support to it.
 
 ```sh
-$ npm init @bazel
+$ npm init @bazel myproject   # creates './myproject/', sets up Bazel workspace
 ```
 
 or if you prefer yarn,
 
 ```sh
-$ yarn create @bazel
+$ yarn create @bazel myproject
 ```
 
 > These commands are equivalent to `npx @bazel/create` which downloads the latest version of the `@bazel/create` package from npm and runs the program contained.
