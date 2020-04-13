@@ -32,7 +32,7 @@ def pkg_npm(**kwargs):
         native.genrule(
             name = "generate_BUILD",
             srcs = [],
-            outs = ["_BUILD.bazel"],
+            outs = ["BUILD"],
             cmd = """echo '%s' >$@""" % build_file_content,
         )
 

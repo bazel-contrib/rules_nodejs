@@ -17,10 +17,9 @@ package(default_visibility = ["//visibility:public"])
 const args = process.argv.slice(2);
 const WORKSPACE = args[0];
 const RULE_TYPE = args[1];
-const ERROR_ON_BAZEL_FILES = parseInt(args[2]);
-const LOCK_FILE_PATH = args[3];
-const INCLUDED_FILES = args[4] ? args[4].split(',') : [];
-const BAZEL_VERSION = args[5];
+const LOCK_FILE_PATH = args[2];
+const INCLUDED_FILES = args[3] ? args[3].split(',') : [];
+const BAZEL_VERSION = args[4];
 if (require.main === module) {
     main();
 }
@@ -51,32 +50,6 @@ function flattenDependencies(pkgs) {
     const pkgsMap = new Map();
     pkgs.forEach(pkg => pkgsMap.set(pkg._dir, pkg));
     pkgs.forEach(pkg => flattenPkgDependencies(pkg, pkg, pkgsMap));
-}
-function hideBazelFiles(pkg) {
-    const hasHideBazelFiles = isDirectory('node_modules/@bazel/hide-bazel-files');
-    pkg._files = pkg._files.map(file => {
-        const basename = path.basename(file);
-        const basenameUc = basename.toUpperCase();
-        if (basenameUc === 'BUILD' || basenameUc === 'BUILD.BAZEL') {
-            if (!hasHideBazelFiles && ERROR_ON_BAZEL_FILES) {
-                console.error(`npm package '${pkg._dir}' from @${WORKSPACE} ${RULE_TYPE} rule
-has a Bazel BUILD file '${file}'. We recommend updating to Bazel 2.1 or greater which ignores such files.
-
-If you can't update Bazel from ${BAZEL_VERSION}, you can use the @bazel/hide-bazel-files utility to hide these files.
-See https://github.com/bazelbuild/rules_nodejs/blob/master/packages/hide-bazel-files/README.md
-for installation instructions.`);
-                process.exit(1);
-            }
-            else {
-                const newFile = path.posix.join(path.dirname(file), `_${basename}`);
-                const srcPath = path.posix.join('node_modules', pkg._dir, file);
-                const dstPath = path.posix.join('node_modules', pkg._dir, newFile);
-                fs.renameSync(srcPath, dstPath);
-                return newFile;
-            }
-        }
-        return file;
-    });
 }
 function generateRootBuildFile(pkgs) {
     let pkgFilesStarlark = '';
@@ -268,7 +241,8 @@ function listFiles(rootDir, subDir = '') {
 function hasRootBuildFile(pkg, rootPath) {
     for (const file of pkg._files) {
         const fileUc = path.relative(rootPath, file).toUpperCase();
-        if (fileUc === '_BUILD' || fileUc === '_BUILD.BAZEL') {
+        if (fileUc === 'BUILD' || fileUc === 'BUILD.BAZEL' ||
+            fileUc === '_BUILD' || fileUc === '_BUILD.BAZEL') {
             return true;
         }
     }
@@ -286,14 +260,7 @@ function findPackages(p = 'node_modules') {
         .map(f => path.posix.join(p, f))
         .filter(f => isDirectory(f));
     packages.forEach(f => {
-        let hide = true;
-        if (Number(BAZEL_VERSION.split('.')[0]) >= 2 && !BAZEL_VERSION.startsWith('2.0')) {
-            hide = false;
-        }
-        if (fs.lstatSync(f).isSymbolicLink()) {
-            hide = false;
-        }
-        pkgs.push(parsePackage(f, hide), ...findPackages(path.posix.join(f, 'node_modules')));
+        pkgs.push(parsePackage(f), ...findPackages(path.posix.join(f, 'node_modules')));
     });
     const scopes = listing.filter(f => f.startsWith('@'))
         .map(f => path.posix.join(p, f))
@@ -313,7 +280,7 @@ function findScopes() {
         .map(f => f.replace(/^node_modules\//, ''));
     return scopes;
 }
-function parsePackage(p, hide = true) {
+function parsePackage(p) {
     const packageJson = path.posix.join(p, 'package.json');
     const stripBom = (s) => s.charCodeAt(0) === 0xFEFF ? s.slice(1) : s;
     const pkg = isFile(packageJson) ?
@@ -326,8 +293,6 @@ function parsePackage(p, hide = true) {
     pkg._files = listFiles(p);
     pkg._runfiles = pkg._files.filter((f) => !/[^\x21-\x7E]/.test(f));
     pkg._dependencies = [];
-    if (hide)
-        hideBazelFiles(pkg);
     return pkg;
 }
 exports.parsePackage = parsePackage;
@@ -460,7 +425,7 @@ function filterFiles(files, exts = []) {
     }
     return files.filter(file => {
         const basenameUc = path.basename(file).toUpperCase();
-        if (basenameUc === '_BUILD' || basenameUc === '_BUILD.BAZEL') {
+        if (basenameUc === 'BUILD' || basenameUc === 'BUILD.BAZEL') {
             return false;
         }
         return true;

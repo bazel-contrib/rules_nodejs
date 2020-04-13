@@ -31,42 +31,6 @@ COMMON_ATTRIBUTES = dict(dict(), **{
         default = 3600,
         doc = """Maximum duration of the package manager execution in seconds.""",
     ),
-    "always_hide_bazel_files": attr.bool(
-        doc = """Always hide Bazel build files such as `BUILD` and BUILD.bazel` by prefixing them with `_`.
-
-This is only needed in Bazel 2.0 or earlier.
-We recommend upgrading to a later version to avoid the problem this works around.
-
-Defaults to False, in which case Bazel files are _not_ hidden when `symlink_node_modules`
-is True. In this case, the rule will report an error when there are Bazel files detected
-in npm packages.
-
-Reporting the error is desirable as relying on this repository rule to hide
-these files does not work in the case where a user deletes their node_modules folder
-and manually re-creates it with yarn or npm outside of Bazel which would restore them.
-On a subsequent Bazel build, this repository rule does not re-run and the presence
-of the Bazel files leads to a build failure that looks like the following:
-
-```
-ERROR: /private/var/tmp/_bazel_greg/37b273501bbecefcf5ce4f3afcd7c47a/external/npm/BUILD.bazel:9:1:
-Label '@npm//:node_modules/rxjs/src/AsyncSubject.ts' crosses boundary of subpackage '@npm//node_modules/rxjs/src'
-(perhaps you meant to put the colon here: '@npm//node_modules/rxjs/src:AsyncSubject.ts'?)
-```
-
-See https://github.com/bazelbuild/rules_nodejs/issues/802 for more details.
-
-The recommended solution is to use the @bazel/hide-bazel-files utility to hide these files.
-See https://github.com/bazelbuild/rules_nodejs/blob/master/packages/hide-bazel-files/README.md
-for installation instructions.
-
-The alternate solution is to set `always_hide_bazel_files` to True which tell
-this rule to hide Bazel files even when `symlink_node_modules` is True. This means
-you won't need to use `@bazel/hide-bazel-files` utility but if you manually recreate
-your `node_modules` folder via yarn or npm outside of Bazel you may run into the above
-error.
-""",
-        default = False,
-    ),
     "data": attr.label_list(
         doc = """Data files required by this rule.
 
@@ -137,8 +101,6 @@ data attribute.
 })
 
 def _create_build_files(repository_ctx, rule_type, node, lock_file):
-    error_on_build_files = repository_ctx.attr.symlink_node_modules and not repository_ctx.attr.always_hide_bazel_files
-
     repository_ctx.report_progress("Processing node_modules: installing Bazel packages and generating BUILD files")
     if repository_ctx.attr.manual_build_file_contents:
         repository_ctx.file("manual_build_file_contents", repository_ctx.attr.manual_build_file_contents)
@@ -147,7 +109,6 @@ def _create_build_files(repository_ctx, rule_type, node, lock_file):
         "index.js",
         repository_ctx.attr.name,
         rule_type,
-        "1" if error_on_build_files else "0",
         repository_ctx.path(lock_file),
         ",".join(repository_ctx.attr.included_files),
         native.bazel_version,

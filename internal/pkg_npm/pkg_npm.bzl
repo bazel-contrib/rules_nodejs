@@ -81,16 +81,6 @@ PKG_NPM_ATTRS = {
         doc = """Files inside this directory which are simply copied into the package.""",
         allow_files = True,
     ),
-    "hide_build_files": attr.bool(
-        doc = """If set BUILD and BUILD.bazel files are prefixed with `_` in the npm package.
-        The default is True since npm packages that contain BUILD files don't work with
-        `yarn_install` and `npm_install` without a post-install step that deletes or renames them.
-
-        NB: Bazel has a change in https://github.com/bazelbuild/bazel/pull/10261
-        (expected in version 2.1) that adds .bazelignore
-        support for external repositories, which will make this attribute obsolete.""",
-        default = True,
-    ),
     "nested_packages": attr.label_list(
         doc = """Other pkg_npm rules whose content is copied into this package.""",
         allow_files = True,
@@ -207,7 +197,6 @@ def create_package(ctx, deps_files, nested_packages):
     args.add(ctx.attr.replace_with_version)
     args.add(ctx.version_file.path if stamp else "")
     args.add_joined(ctx.attr.vendor_external, join_with = ",", omit_if_empty = False)
-    args.add("1" if ctx.attr.hide_build_files else "0")
 
     inputs = ctx.files.srcs + deps_files + nested_packages
 
