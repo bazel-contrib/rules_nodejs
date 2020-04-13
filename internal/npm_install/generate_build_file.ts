@@ -59,10 +59,9 @@ package(default_visibility = ["//visibility:public"])
 const args = process.argv.slice(2);
 const WORKSPACE = args[0];
 const RULE_TYPE = args[1];
-const ERROR_ON_BAZEL_FILES = parseInt(args[2]);
-const LOCK_FILE_PATH = args[3];
-const INCLUDED_FILES = args[4] ? args[4].split(',') : [];
-const BAZEL_VERSION = args[5];
+const LOCK_FILE_PATH = args[2];
+const INCLUDED_FILES = args[3] ? args[3].split(',') : [];
+const BAZEL_VERSION = args[4];
 
 if (require.main === module) {
   main();
@@ -124,48 +123,6 @@ function flattenDependencies(pkgs: Dep[]) {
   const pkgsMap = new Map();
   pkgs.forEach(pkg => pkgsMap.set(pkg._dir, pkg));
   pkgs.forEach(pkg => flattenPkgDependencies(pkg, pkg, pkgsMap));
-}
-
-/**
- * Handles Bazel files in npm distributions.
- */
-function hideBazelFiles(pkg: Dep) {
-  const hasHideBazelFiles = isDirectory('node_modules/@bazel/hide-bazel-files');
-  pkg._files = pkg._files.map(file => {
-    const basename = path.basename(file);
-    const basenameUc = basename.toUpperCase();
-    if (basenameUc === 'BUILD' || basenameUc === 'BUILD.BAZEL') {
-      // If bazel files are detected and there is no @bazel/hide-bazel-files npm
-      // package then error out and suggest adding the package. It is possible to
-      // have bazel BUILD files with the package installed as it's postinstall
-      // step, which hides bazel BUILD files, only runs when the @bazel/hide-bazel-files
-      // is installed and not when new packages are added (via `yarn add`
-      // for example) after the initial install. In this case, however, the repo rule
-      // will re-run as the package.json && lock file has changed so we just
-      // hide the added BUILD files during the repo rule run here since @bazel/hide-bazel-files
-      // was not run.
-      if (!hasHideBazelFiles && ERROR_ON_BAZEL_FILES) {
-        console.error(`npm package '${pkg._dir}' from @${WORKSPACE} ${RULE_TYPE} rule
-has a Bazel BUILD file '${
-            file}'. We recommend updating to Bazel 2.1 or greater which ignores such files.
-
-If you can't update Bazel from ${
-            BAZEL_VERSION}, you can use the @bazel/hide-bazel-files utility to hide these files.
-See https://github.com/bazelbuild/rules_nodejs/blob/master/packages/hide-bazel-files/README.md
-for installation instructions.`);
-        process.exit(1);
-      } else {
-        // All Bazel files in the npm distribution should be renamed by
-        // adding a `_` prefix so that file targets don't cross package boundaries.
-        const newFile = path.posix.join(path.dirname(file), `_${basename}`);
-        const srcPath = path.posix.join('node_modules', pkg._dir, file);
-        const dstPath = path.posix.join('node_modules', pkg._dir, newFile);
-        fs.renameSync(srcPath, dstPath);
-        return newFile;
-      }
-    }
-    return file;
-  });
 }
 
 /**
@@ -316,7 +273,8 @@ def _maybe(repo_rule, name, **kwargs):
     }
     const basename = path.basename(file);
     const basenameUc = basename.toUpperCase();
-    // Bazel BUILD files from npm distribution would have been renamed earlier with a _ prefix so
+    // Bazel BUILD files from npm distribution of rules_nodejs 1.x
+    // would have been renamed before publishing with a _ prefix so
     // we restore the name on the copy
     if (basenameUc === '_BUILD' || basenameUc === '_BUILD.BAZEL') {
       destFile = path.posix.join(path.dirname(destFile), basename.substr(1));
@@ -446,9 +404,11 @@ function listFiles(rootDir: string, subDir: string = ''): string[] {
  */
 function hasRootBuildFile(pkg: Dep, rootPath: string) {
   for (const file of pkg._files) {
-    // Bazel files would have been renamed earlier with a `_` prefix
     const fileUc = path.relative(rootPath, file).toUpperCase();
-    if (fileUc === '_BUILD' || fileUc === '_BUILD.BAZEL') {
+    if (fileUc === 'BUILD' || fileUc === 'BUILD.BAZEL' ||
+        // Also look for the "hidden" version, from older npm packages published
+        // by rules_nodejs 1.x
+        fileUc === '_BUILD' || fileUc === '_BUILD.BAZEL') {
       return true;
     }
   }
@@ -477,20 +437,7 @@ function findPackages(p = 'node_modules') {
                        .filter(f => isDirectory(f));
 
   packages.forEach(f => {
-    let hide = true;
-    // Starting in version 2.1, Bazel honors the .bazelignore file we wrote into the
-    // root of the external repository, and won't see BUILD files under node_modules
-    // This parsing of the version number isn't accurate in some cases
-    // (eg. install bazel from commit hash)
-    // Do a cheap semver check that the major version is at least 2.1
-    // (we don't want to depend on a third-party library like semver here)
-    if (Number(BAZEL_VERSION.split('.')[0]) >= 2 && !BAZEL_VERSION.startsWith('2.0')) {
-      hide = false;
-    }
-    if (fs.lstatSync(f).isSymbolicLink()) {
-      hide = false;
-    }
-    pkgs.push(parsePackage(f, hide), ...findPackages(path.posix.join(f, 'node_modules')))
+    pkgs.push(parsePackage(f), ...findPackages(path.posix.join(f, 'node_modules')));
   });
 
   const scopes = listing.filter(f => f.startsWith('@'))
@@ -525,7 +472,7 @@ function findScopes() {
  * package json and return it as an object along with
  * some additional internal attributes prefixed with '_'.
  */
-export function parsePackage(p: string, hide: boolean = true): Dep {
+export function parsePackage(p: string): Dep {
   // Parse the package.json file of this package
   const packageJson = path.posix.join(p, 'package.json');
   const stripBom = (s: string) => s.charCodeAt(0) === 0xFEFF ? s.slice(1) : s;
@@ -558,11 +505,6 @@ export function parsePackage(p: string, hide: boolean = true): Dep {
   // Initialize _dependencies to an empty array
   // which is later filled with the flattened dependency list
   pkg._dependencies = [];
-
-  // Hide bazel files in this package. We do this before parsing
-  // the next package to prevent issues caused by symlinks between
-  // package and nested packages setup by the package manager.
-  if (hide) hideBazelFiles(pkg);
 
   return pkg;
 }
@@ -818,7 +760,9 @@ function filterFiles(files: string[], exts: string[] = []) {
   // Filter out BUILD files that came with the npm package
   return files.filter(file => {
     const basenameUc = path.basename(file).toUpperCase();
-    if (basenameUc === '_BUILD' || basenameUc === '_BUILD.BAZEL') {
+    // NB: we don't bother filtering out _BUILD or _BUILD.bazel files
+    // that might have been published by rules_nodejs 1.x
+    if (basenameUc === 'BUILD' || basenameUc === 'BUILD.BAZEL') {
       return false;
     }
     return true;

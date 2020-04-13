@@ -68,9 +68,6 @@ pkg_npm(
         "BUILD.bazel",
         "LICENSE",
     ],
-    # Don't rename BUILD files as this package is not published to npm
-    # but is compressed in "release" below and published as a .tar.gz to GitHub
-    hide_build_files = False,
     # Don't replace the default 0.0.0-PLACEHOLDER for this pkg_npm since
     # we are packaging up the packager itself and this replacement will break it
     replace_with_version = "",

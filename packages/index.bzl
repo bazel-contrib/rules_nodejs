@@ -28,6 +28,5 @@ NESTED_PACKAGES = [
 
 NPM_PACKAGES = [
     "@bazel/create",
-    "@bazel/hide-bazel-files",
     "@bazel/worker",
 ] + ["@bazel/%s" % pkg for pkg in NESTED_PACKAGES]
