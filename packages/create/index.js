@@ -174,7 +174,10 @@ load("@npm_bazel_typescript//:index.bzl", "ts_setup_workspace")
 ts_setup_workspace()`;
   }
   write('WORKSPACE.bazel', workspaceContent);
-  write('.bazelignore', `node_modules`);
+  write('.bazelignore', `node_modules
+dist
+bazel-out
+`);
   write(
       'package.json',
       JSON.stringify(
