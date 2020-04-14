@@ -382,7 +382,7 @@ def ts_project_macro(
         map_outs = _out_paths(srcs, ".js.map") if source_map and not emit_declaration_only else [],
         typings_outs = _out_paths(srcs, ".d.ts") if declaration or composite else [],
         typing_maps_outs = _out_paths(srcs, ".d.ts.map") if declaration_map else [],
-        buildinfo_out = tsconfig[:-5] + ".tsbuildinfo" if composite or incremental else None,
+        buildinfo_out = tsconfig.split(":")[-1][:-5] + ".tsbuildinfo" if composite or incremental else None,
         tsc = tsc,
         **kwargs
     )
