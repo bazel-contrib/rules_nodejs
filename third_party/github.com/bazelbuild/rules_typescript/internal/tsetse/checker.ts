@@ -11,8 +11,8 @@ import {Failure, Fix} from './failure';
  * A Handler contains a handler function and its corresponding error code so
  * when the handler function is triggered we know which rule is violated.
  */
-interface Handler {
-  handlerFunction(checker: Checker, node: ts.Node): void;
+interface Handler<T extends ts.Node> {
+  handlerFunction(checker: Checker, node: T): void;
   code: number;
 }
 
@@ -23,18 +23,20 @@ interface Handler {
  */
 export class Checker {
   /** Node to handlers mapping for all enabled rules. */
-  private readonly nodeHandlersMap = new Map<ts.SyntaxKind, Handler[]>();
+  private readonly nodeHandlersMap =
+      new Map<ts.SyntaxKind, Handler<ts.Node>[]>();
   /**
    * Mapping from identifier name to handlers for all rules inspecting property
    * names.
    */
-  private readonly namedIdentifierHandlersMap = new Map<string, Handler[]>();
+  private readonly namedIdentifierHandlersMap =
+      new Map<string, Handler<ts.Identifier>[]>();
   /**
    * Mapping from property name to handlers for all rules inspecting property
    * accesses expressions.
    */
   private readonly namedPropertyAccessHandlersMap =
-      new Map<string, Handler[]>();
+      new Map<string, Handler<ts.PropertyAccessExpression>[]>();
 
   private failures: Failure[] = [];
   private currentSourceFile: ts.SourceFile|undefined;
@@ -57,7 +59,7 @@ export class Checker {
   on<T extends ts.Node>(
       nodeKind: T['kind'], handlerFunction: (checker: Checker, node: T) => void,
       code: number) {
-    const newHandler: Handler = {handlerFunction, code};
+    const newHandler: Handler<T> = {handlerFunction, code};
     const registeredHandlers = this.nodeHandlersMap.get(nodeKind);
     if (registeredHandlers === undefined) {
       this.nodeHandlersMap.set(nodeKind, [newHandler]);
@@ -74,7 +76,7 @@ export class Checker {
       identifierName: string,
       handlerFunction: (checker: Checker, node: ts.Identifier) => void,
       code: number) {
-    const newHandler: Handler = {handlerFunction, code};
+    const newHandler: Handler<ts.Identifier> = {handlerFunction, code};
     const registeredHandlers =
         this.namedIdentifierHandlersMap.get(identifierName);
     if (registeredHandlers === undefined) {
@@ -93,7 +95,8 @@ export class Checker {
       handlerFunction:
           (checker: Checker, node: ts.PropertyAccessExpression) => void,
       code: number) {
-    const newHandler: Handler = {handlerFunction, code};
+    const newHandler:
+        Handler<ts.PropertyAccessExpression> = {handlerFunction, code};
     const registeredHandlers =
         this.namedPropertyAccessHandlersMap.get(propertyName);
     if (registeredHandlers === undefined) {
