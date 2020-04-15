@@ -369,7 +369,7 @@ for (const bazelCommand of config.bazelCommands) {
   }
   env['PWD'] = workspaceRoot;
   env['HOME'] = require('os').homedir();
-  log_verbose(JSON.stringify(env, null, 2));
+  log(JSON.stringify(env, null, 2));
   log(`running 'bazel ${bazelArgs.join(' ')}' in ${workspaceRoot}`);
   spawnedProcess = spawnSync(bazelBinary, bazelArgs, {env, cwd: workspaceRoot, stdio: 'inherit'});
   if (spawnedProcess.status) {

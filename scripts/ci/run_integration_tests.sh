@@ -33,4 +33,5 @@ done
 echo "Shard index ${SHARD_INDEX} of ${MAX_SHARDS} shards"
 echo "Targets: ${SHARD_TARGETS[@]:-}"
 echo
-bazel test --local_ram_resources=792 --test_arg=--local_ram_resources=13312 --test_arg=--local_cpu_resources=7 ${SHARD_TARGETS[@]:-} --test_output=streamed
+# NB: SSH_AUTH_SOCK enviroment variable needed on CircleCI for git operations in nodejs_image
+bazel test --local_ram_resources=792 --test_arg=--local_ram_resources=13312 --test_arg=--local_cpu_resources=7 --test_env=SSH_AUTH_SOCK --test_output=streamed ${SHARD_TARGETS[@]:-}

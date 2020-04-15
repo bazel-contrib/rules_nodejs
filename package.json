@@ -99,7 +99,7 @@
         "test_windows": "bazelisk test --test_tag_filters=-e2e,-examples,-fix-windows,-manual,-browser:firefox-local",
         "test_e2e": "bazelisk --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1280m test --test_tag_filters=e2e --local_ram_resources=792 --test_arg=--local_ram_resources=13288",
         "test_examples": "bazelisk --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1280m test --test_tag_filters=examples --local_ram_resources=792 --test_arg=--local_ram_resources=13288",
-        "run_integration_test": "bazelisk --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1280m run --local_ram_resources=792 --test_arg=--local_ram_resources=13288",
+        "run_integration_test": "bazelisk --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1280m test --local_ram_resources=792 --test_arg=--local_ram_resources=13288 --test_output=streamed --test_env=SSH_AUTH_SOCK",
         "run_integration_test_debug": "yarn run_integration_test --define=BAZEL_INTEGRATION_TEST_DEBUG=1",
         "test_all": "./scripts/test_all.sh",
         "clean_all": "./scripts/clean_all.sh",

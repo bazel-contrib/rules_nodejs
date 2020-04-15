@@ -17,6 +17,11 @@ load(":test.bzl", "example_integration_test")
 example_integration_test(
     name = "examples_angular",
     timeout = "long",
+    # NB: SSH_AUTH_SOCK enviroment variable needed on CircleCI for git operations in nodejs_image
+    bazel_commands = [
+        "info",
+        "test --action_env=SSH_AUTH_SOCK ...",
+    ],
     npm_packages = {
         "//packages/karma:npm_package": "@bazel/karma",
         "//packages/protractor:npm_package": "@bazel/protractor",
@@ -63,7 +68,10 @@ example_integration_test(
 example_integration_test(
     name = "examples_react_webpack",
     # TODO: add some tests in the example
-    bazel_commands = ["build ..."],
+    bazel_commands = [
+        "info",
+        "build ...",
+    ],
     npm_packages = {
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
@@ -138,10 +146,12 @@ example_integration_test(
 
 example_integration_test(
     name = "examples_nestjs",
+    # NB: SSH_AUTH_SOCK enviroment variable needed on CircleCI for git operations in nodejs_image
     bazel_commands = [
-        "test ...",
+        "info",
+        "test --action_env=SSH_AUTH_SOCK ...",
         # Test cross-platform build
-        "build --platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64 //src:docker",
+        "build --action_env=SSH_AUTH_SOCK --platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64 //src:docker",
     ],
     npm_packages = {
         "//packages/jasmine:npm_package": "@bazel/jasmine",
@@ -153,6 +163,13 @@ example_integration_test(
         "@rayman1104",
         "@siberex",
     ],
+    # Disabled on Windows due to nodejs_image issue
+    # ```
+    # ERROR: Analysis of target '//src:docker' failed; build aborted: no such package '@nodejs_image_base//image': Pull command failed: java.io.IOException: ERROR: src/main/native/windows/process.cc(199): CreateProcessW("C:\users\b\_bazel_b\vanuqgg3\external\go_puller_linux\file\downloaded" -directory C:/users/b/_bazel_b/vanuqgg3/external/nodejs_image_base/image -os linux -os-version "" -os-features "" -architecture amd64 -variant "" -features "" -name gcr.io/google-appengine/debian9@sha256:c05b781371f75d1bd7a199bc83de177173cc80c98dbfb6c1ef7075757addece4): %1 is not a valid Win32 application.
+    # (error: 193) (C:/users/b/_bazel_b/vanuqgg3/external/go_puller_linux/file/downloaded -directory C:/users/b/_bazel_b/vanuqgg3/external/nodejs_image_base/image -os linux -os-version  -os-features  -architecture amd64 -variant  -features  -name gcr.io/google-appengine/debian9@sha256:c05b781371f75d1bd7a199bc83de177173cc80c98dbfb6c1ef7075757addece4)
+    # ```
+    # TODO(gregmagolan): figure out what is broken with the above
+    tags = ["no-bazelci-windows"],
 )
 
 example_integration_test(
@@ -195,6 +212,7 @@ example_integration_test(
     name = "examples_worker",
     # There are no tests in this example
     bazel_commands = [
+        "info",
         # By default this will build with worker enabled
         "build //:do_work",
         # Build again without the worker
@@ -205,9 +223,6 @@ example_integration_test(
 
 example_integration_test(
     name = "examples_angular_bazel_architect",
-    bazel_commands = [
-        "test ...",
-    ],
     # windows fails CI with an error to do with a process fork not being able ot find node
     tags = ["fix-windows"],
 )
