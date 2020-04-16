@@ -89,6 +89,10 @@ function resolveRoot(root, startCwd, isExecroot, runfiles) {
             return fromManifest;
         }
         else {
+            const maybe = path.resolve(`${symlinkRoot}/external/${root}`);
+            if (fs.existsSync(maybe)) {
+                return maybe;
+            }
             return path.resolve(`${startCwd}/../${root}`);
         }
     });
