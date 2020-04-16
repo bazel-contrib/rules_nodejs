@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "esModuleInterop": true,
+        "resolveJsonModule": true,
+        "rootDirs": [
+            ".",
+            "../../../../../bazel-out/darwin-fastbuild/bin/packages/typescript/test/ts_project/generated_json/",
+            "../../../../../bazel-out/k8-fastbuild/bin/packages/typescript/test/ts_project/generated_json/",
+            "../../../../../bazel-out/x64_windows-fastbuild/bin/packages/typescript/test/ts_project/generated_json/",
+            "../../../../../bazel-out/darwin-dbg/bin/packages/typescript/test/ts_project/generated_json/",
+            "../../../../../bazel-out/k8-dbg/bin/packages/typescript/test/ts_project/generated_json/",
+            "../../../../../bazel-out/x64_windows-dbg/bin/packages/typescript/test/ts_project/generated_json/",
+        ],
+    },
+}

@@ -191,7 +191,7 @@ validate_options = rule(
 )
 
 def _out_paths(srcs, ext):
-    return [f[:f.rindex(".")] + ext for f in srcs if not f.endswith(".d.ts")]
+    return [f[:f.rindex(".")] + ext for f in srcs if not f.endswith(".d.ts") and f.endswith(".ts")]
 
 def ts_project_macro(
         name = "tsconfig",

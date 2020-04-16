@@ -1,0 +1,17 @@
+load("@npm_bazel_typescript//:index.bzl", "ts_project")
+load("//third_party/github.com/bazelbuild/bazel-skylib:rules/write_file.bzl", "write_file")
+
+write_file(
+    name = "dummy",
+    out = "dummy.json",
+    content = ["{ }"],
+)
+
+ts_project(
+    name = "generated",
+    srcs = [
+        "dummy",
+        "test.ts",
+    ],
+    tsconfig = "tsconfig.json",
+)
