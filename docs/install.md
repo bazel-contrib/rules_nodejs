@@ -9,6 +9,7 @@ stylesheet: docs
 First, you need Bazel.
 We recommend using Bazelisk, which is a version-selection wrapper, similar to
 the `nvm` tool managing your version of Node. This is available on npm.
+We also recommend installing `ibazel` which is the "watch mode" for Bazel.
 
 ```sh
 $ yarn add -D @bazel/bazelisk @bazel/ibazel
@@ -17,7 +18,11 @@ $ npm install --save-dev @bazel/bazelisk @bazel/ibazel
 ```
 
 > You could install a current bazel distribution, following the [bazel instructions].
+
 > If you use Bazelisk, see [this workaround](https://github.com/bazelbuild/bazelisk/issues/29#issuecomment-478062147) to get working command-line completion.
+
+> It's reasonable to globally-install bazelisk so you get a `bazel` command in your $PATH.
+> We don't recommend this with ibazel as the version is frequently changing.
 
 Next, create a `WORKSPACE` file in your project root (or edit the existing one)
 containing:

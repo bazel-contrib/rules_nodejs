@@ -187,8 +187,8 @@ bazel-out
             private: true,
             devDependencies,
             scripts: {
-              'build': 'bazelisk build //...',
-              'test': 'bazelisk test //...',
+              'build': 'bazel build //...',
+              'test': 'bazel test //...',
             }
           },
           null, 4));

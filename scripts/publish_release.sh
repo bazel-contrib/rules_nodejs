@@ -11,7 +11,7 @@ set -u -e -o pipefail
 # $ npm login --registry https://wombat-dressing-room.appspot.com
 
 readonly NPM_COMMAND=${1:-publish}
-readonly BAZEL_BIN=./node_modules/.bin/bazelisk
+readonly BAZEL_BIN=./node_modules/.bin/bazel
 
 # Use a new output_base so we get a clean build
 # Bazel can't know if the git metadata changed
