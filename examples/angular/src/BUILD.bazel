@@ -8,6 +8,7 @@ load("@npm//html-insert-assets:index.bzl", "html_insert_assets")
 load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
 load("@npm_bazel_terser//:index.bzl", "terser_minified")
 load("@npm_bazel_typescript//:index.bzl", "ts_config", "ts_devserver", "ts_library")
+load("//tools:angular_ts_library.bzl", "ng_ts_library")
 
 package(default_visibility = ["//:__subpackages__"])
 
@@ -43,18 +44,15 @@ ts_library(
     ],
 )
 
-ts_library(
+ng_ts_library(
     name = "src",
     srcs = [
         "main.dev.ts",
         "main.prod.ts",
     ],
     tsconfig = ":tsconfig.json",
-    use_angular_plugin = True,
     deps = [
         "//src/app",
-        # Needed for the angular compiler plugin
-        "@npm//@angular/compiler-cli",
         "@npm//@angular/core",
         "@npm//@angular/platform-browser",
         "@npm//@angular/router",

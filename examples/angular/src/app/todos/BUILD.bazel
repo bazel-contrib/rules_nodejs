@@ -1,5 +1,5 @@
 load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
-load("@npm_bazel_typescript//:index.bzl", "ts_library")
+load("//tools:angular_ts_library.bzl", "ng_ts_library")
 
 package(default_visibility = ["//:__subpackages__"])
 
@@ -8,7 +8,7 @@ sass_binary(
     src = "todos.component.scss",
 )
 
-ts_library(
+ng_ts_library(
     name = "todos",
     srcs = [
         "todos.component.ts",
@@ -19,12 +19,9 @@ ts_library(
         ":todos-styles",
     ],
     tsconfig = "//src:tsconfig.json",
-    use_angular_plugin = True,
     deps = [
         "//src/app/todos/reducers",
         "//src/shared/material",
-        # Needed for the angular compiler plugin
-        "@npm//@angular/compiler-cli",
         "@npm//@angular/common",
         "@npm//@angular/core",
         "@npm//@angular/forms",

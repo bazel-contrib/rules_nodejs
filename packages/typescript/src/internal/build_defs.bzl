@@ -144,8 +144,7 @@ def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description 
     # because it causes bazel to spawn a new worker for every action
     # See https://github.com/bazelbuild/rules_nodejs/issues/1803
     # TODO: understand the interaction between linker and workers better
-    # When using plugins, we need the linker, so we disable workers for that case as well
-    if ctx.attr.supports_workers and not ctx.attr.use_angular_plugin:
+    if ctx.attr.supports_workers:
         # One at-sign makes this a params-file, enabling the worker strategy.
         # Two at-signs escapes the argument so it's passed through to tsc_wrapped
         # rather than the contents getting expanded.
@@ -523,4 +522,13 @@ def ts_library_macro(tsconfig = None, **kwargs):
     if not tsconfig:
         tsconfig = "//:tsconfig.json"
 
-    ts_library(tsconfig = tsconfig, **kwargs)
+    # plugins generally require the linker
+    # (unless the user statically linked them into the compiler binary)
+    # Therefore we disable workers for them by default
+    if "supports_workers" in kwargs.keys():
+        supports_workers = kwargs.pop("supports_workers")
+    else:
+        uses_plugin = kwargs.get("use_angular_plugin", False)
+        supports_workers = not uses_plugin
+
+    ts_library(tsconfig = tsconfig, supports_workers = supports_workers, **kwargs)
