@@ -10,8 +10,8 @@ import {Checker} from '../checker';
 import {ErrorCode} from '../error_code';
 import {AbstractRule} from '../rule';
 
-const FAILURE_STRING = 'return value is unused.'
-    + '\n\tSee go/ts-conformance#check-return-value';
+const FAILURE_STRING = 'return value is unused.' +
+    '\n\tSee http://tsetse.info/check-return-value';
 
 // A list of well-known functions that the return value must be used. If unused
 // then the function call is either a no-op (e.g. 'foo.trim()' foo is unchanged)
@@ -40,6 +40,7 @@ const METHODS_TO_CHECK = new Set<string>([
   ['string', 'trim'],
 ].map(list => list.join('#')));
 
+/** A rule to ensure required return values from common functions are used. */
 export class Rule extends AbstractRule {
   readonly ruleName = 'check-return-value';
   readonly code = ErrorCode.CHECK_RETURN_VALUE;

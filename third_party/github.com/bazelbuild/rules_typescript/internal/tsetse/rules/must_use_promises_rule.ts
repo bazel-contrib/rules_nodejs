@@ -12,8 +12,9 @@ import {AbstractRule} from '../rule';
 
 const FAILURE_STRING =
     'All Promises in async functions must either be awaited or used in an expression.' +
-    '\n\tSee go/ts-conformance#must-use-promises';
+    '\n\tSee http://tsetse.info/must-use-promises';
 
+/** A rule to ensure promises in async functions are awaited or used. */
 export class Rule extends AbstractRule {
   readonly ruleName = 'must-use-promises';
   readonly code = ErrorCode.MUST_USE_PROMISES;
