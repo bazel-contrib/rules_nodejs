@@ -1,6 +1,6 @@
 import 'jasmine';
-import {ConformancePatternRule, PatternKind} from '../../rules/conformance_pattern_rule';
-import {customMatchers} from '../../util/testing/test_support';
+import {ConformancePatternRule, PatternKind} from './conformance_pattern_rule';
+import {customMatchers} from '../util/testing/test_support';
 
 describe('ConformancePatternRule creation', () => {
   describe('naming', () => {

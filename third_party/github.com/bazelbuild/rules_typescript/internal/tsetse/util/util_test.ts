@@ -4,10 +4,10 @@
  */
 
 import 'jasmine';
-import {ConformancePatternRule, PatternKind} from '../../rules/conformance_pattern_rule';
-import {isInStockLibraries, setDebug} from '../../util/ast_tools';
-import {isLiteral} from '../../util/is_literal';
-import {compile, compileAndCheck} from '../../util/testing/test_support';
+import {ConformancePatternRule, PatternKind} from '../rules/conformance_pattern_rule';
+import {isInStockLibraries, setDebug} from './ast_tools';
+import {isLiteral} from './is_literal';
+import {compile, compileAndCheck} from './testing/test_support';
 
 describe('Debug output', () => {
   it('turns on and off', () => {

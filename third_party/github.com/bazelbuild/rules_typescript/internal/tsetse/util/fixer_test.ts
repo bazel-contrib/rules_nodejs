@@ -1,9 +1,9 @@
 import 'jasmine';
 import * as ts from 'typescript';
-import {Failure, Fix} from '../../failure';
-import {ConformancePatternRule, PatternKind} from '../../rules/conformance_pattern_rule';
-import {buildReplacementFixer, Fixer, maybeAddNamedImport, maybeAddNamespaceImport} from '../../util/fixer';
-import {compile, compileAndCheck, customMatchers} from '../../util/testing/test_support';
+import {Failure, Fix} from '../failure';
+import {ConformancePatternRule, PatternKind} from '../rules/conformance_pattern_rule';
+import {buildReplacementFixer, Fixer, maybeAddNamedImport, maybeAddNamespaceImport} from './fixer';
+import {compile, compileAndCheck, customMatchers} from './testing/test_support';
 
 const uppercaseFixer: Fixer = {
   getFixForFlaggedNode(node: ts.Node): Fix {

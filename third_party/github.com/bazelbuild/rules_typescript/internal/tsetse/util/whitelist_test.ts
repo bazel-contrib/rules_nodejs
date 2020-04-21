@@ -1,7 +1,7 @@
 import 'jasmine';
-import {ConformancePatternRule, PatternKind} from '../../rules/conformance_pattern_rule';
-import {WhitelistReason} from '../../util/pattern_config';
-import {compileAndCheck, customMatchers, getTempDirForWhitelist} from '../../util/testing/test_support';
+import {ConformancePatternRule, PatternKind} from '../rules/conformance_pattern_rule';
+import {WhitelistReason} from './pattern_config';
+import {compileAndCheck, customMatchers, getTempDirForWhitelist} from './testing/test_support';
 
 const tmpPrefixForWhitelist = getTempDirForWhitelist();
 const tmpRegexpForWhitelist =
