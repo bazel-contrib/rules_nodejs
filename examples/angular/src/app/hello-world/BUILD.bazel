@@ -1,6 +1,7 @@
 load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
 load("@npm_bazel_karma//:index.bzl", "karma_web_test_suite")
 load("@npm_bazel_typescript//:index.bzl", "ts_library")
+load("//tools:angular_ts_library.bzl", "ng_ts_library")
 
 package(default_visibility = ["//:__subpackages__"])
 
@@ -9,7 +10,7 @@ sass_binary(
     src = "hello-world.component.scss",
 )
 
-ts_library(
+ng_ts_library(
     name = "hello-world",
     srcs = [
         "hello-world.component.ts",
@@ -20,12 +21,9 @@ ts_library(
         ":hello-world-styles",
     ],
     tsconfig = "//src:tsconfig.json",
-    use_angular_plugin = True,
     deps = [
         "//src/lib/shorten",
         "//src/shared/material",
-        # Needed for the angular compiler plugin
-        "@npm//@angular/compiler-cli",
         "@npm//@angular/core",
         "@npm//@angular/forms",
         "@npm//@angular/router",

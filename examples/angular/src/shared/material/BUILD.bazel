@@ -1,15 +1,12 @@
-load("@npm_bazel_typescript//:index.bzl", "ts_library")
+load("//tools:angular_ts_library.bzl", "ng_ts_library")
 
 package(default_visibility = ["//:__subpackages__"])
 
-ts_library(
+ng_ts_library(
     name = "material",
     srcs = glob(["*.ts"]),
     tsconfig = "//src:tsconfig.json",
-    use_angular_plugin = True,
     deps = [
-        # Needed for the angular compiler plugin
-        "@npm//@angular/compiler-cli",
         "@npm//@angular/core",
         "@npm//@angular/material",
     ],

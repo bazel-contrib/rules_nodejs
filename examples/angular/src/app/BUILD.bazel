@@ -1,8 +1,8 @@
-load("@npm_bazel_typescript//:index.bzl", "ts_library")
+load("//tools:angular_ts_library.bzl", "ng_ts_library")
 
 package(default_visibility = ["//:__subpackages__"])
 
-ts_library(
+ng_ts_library(
     name = "app",
     srcs = glob(
         include = ["*.ts"],
@@ -10,15 +10,12 @@ ts_library(
     ),
     angular_assets = ["app.component.html"],
     tsconfig = "//src:tsconfig.json",
-    use_angular_plugin = True,
     deps = [
         "//src/app/hello-world",
         "//src/app/home",
         "//src/app/todos",
         "//src/app/todos/reducers",
         "//src/shared/material",
-        # Needed for the angular compiler plugin
-        "@npm//@angular/compiler-cli",
         "@npm//@angular/core",
         "@npm//@angular/platform-browser",
         "@npm//@angular/router",
@@ -26,15 +23,12 @@ ts_library(
     ],
 )
 
-ts_library(
+ng_ts_library(
     name = "app_server",
     srcs = ["app.server.module.ts"],
     tsconfig = "//src:tsconfig-server",
-    use_angular_plugin = True,
     deps = [
         ":app",
-        # Needed for the angular compiler plugin
-        "@npm//@angular/compiler-cli",
         "@npm//@angular/core",
         "@npm//@angular/platform-server",
     ],
