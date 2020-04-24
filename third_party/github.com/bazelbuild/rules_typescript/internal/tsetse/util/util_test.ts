@@ -268,6 +268,23 @@ describe('test AbsoluteMatcher', () => {
     expect(results).toHaveNoFailures();
   });
 
+  it('Property of type defined in in-stock library', () => {
+    const config = {
+      errorMessage: 'banned name without file path',
+      kind: PatternKind.BANNED_NAME,
+      values: ['GLOBAL|open']
+    };
+    const sources = [
+      'const elem = new XMLHttpRequest();',
+      'elem.open("get", "url");',  // FQN of elem.open is XMLHttpRequest.open
+                                   // and shouldn't be banned
+    ];
+
+    const results =
+        compileAndCheck(new ConformancePatternRule(config), ...sources);
+    expect(results).toHaveNoFailures();
+  });
+
   it('inheritance test 1', () => {
     // This is a match because Moo inherits bar from Foo.
     const config = {

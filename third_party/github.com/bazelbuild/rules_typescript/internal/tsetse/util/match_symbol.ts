@@ -107,8 +107,10 @@ export class AbsoluteMatcher {
     const fqn = tc.getFullyQualifiedName(s);
     debugLog(`got FQN ${fqn}`);
 
-    // Name-based check
-    if (!(fqn.endsWith('.' + this.bannedName) || fqn === this.bannedName)) {
+    // Name-based check: `getFullyQualifiedName` returns `"filename".foo.bar` or
+    // just `foo.bar` if the symbol is ambient. The check here should consider
+    // both cases.
+    if (!(fqn.endsWith('".' + this.bannedName) || fqn === this.bannedName)) {
       debugLog(`FQN ${fqn} doesn't match name ${this.bannedName}`);
       return false;  // not a use of the symbols we want
     }
