@@ -124,22 +124,30 @@ export function isPartOfImportStatement(n: ts.Node) {
       p => p.kind === ts.SyntaxKind.ImportDeclaration);
 }
 
-/**
- * Returns whether `n` is a declaration.
- */
-export function isDeclaration(n: ts.Node): n is ts.VariableDeclaration|
-    ts.ClassDeclaration|ts.FunctionDeclaration|ts.MethodDeclaration|
-    ts.PropertyDeclaration|ts.VariableDeclarationList|ts.InterfaceDeclaration|
+function isWhitelistedNamedDeclaration(n: ts.Node):
+    n is ts.VariableDeclaration|ts.ClassDeclaration|ts.FunctionDeclaration|
+    ts.MethodDeclaration|ts.PropertyDeclaration|ts.InterfaceDeclaration|
     ts.TypeAliasDeclaration|ts.EnumDeclaration|ts.ModuleDeclaration|
-    ts.ImportDeclaration|ts.ImportEqualsDeclaration|ts.ExportDeclaration|
-    ts.MissingDeclaration {
+    ts.ImportEqualsDeclaration|ts.ExportDeclaration|ts.MissingDeclaration|
+    ts.ImportClause|ts.ExportSpecifier|ts.ImportSpecifier {
   return ts.isVariableDeclaration(n) || ts.isClassDeclaration(n) ||
       ts.isFunctionDeclaration(n) || ts.isMethodDeclaration(n) ||
-      ts.isPropertyDeclaration(n) || ts.isVariableDeclarationList(n) ||
-      ts.isInterfaceDeclaration(n) || ts.isTypeAliasDeclaration(n) ||
-      ts.isEnumDeclaration(n) || ts.isModuleDeclaration(n) ||
-      ts.isImportDeclaration(n) || ts.isImportEqualsDeclaration(n) ||
-      ts.isExportDeclaration(n) || ts.isMissingDeclaration(n);
+      ts.isPropertyDeclaration(n) || ts.isInterfaceDeclaration(n) ||
+      ts.isTypeAliasDeclaration(n) || ts.isEnumDeclaration(n) ||
+      ts.isModuleDeclaration(n) || ts.isImportEqualsDeclaration(n) ||
+      ts.isExportDeclaration(n) || ts.isMissingDeclaration(n) ||
+      ts.isImportClause(n) || ts.isExportSpecifier(n) ||
+      ts.isImportSpecifier(n);
+}
+
+/** Returns whether `n` is being declared in a declaration statement. */
+export function isNameInDeclaration(n: ts.Node): boolean {
+  const p = n.parent;
+  if (p === undefined) return false;
+
+  return (isWhitelistedNamedDeclaration(p) && p.name === n) ||
+      // TODO(pwng) Double-check if these two cases are needed
+      ts.isVariableDeclarationList(p) || ts.isImportDeclaration(p);
 }
 
 /** Type guard for expressions that looks like property writes. */

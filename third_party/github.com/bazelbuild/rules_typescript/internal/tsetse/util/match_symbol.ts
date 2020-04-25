@@ -1,5 +1,5 @@
 import * as ts from 'typescript';
-import {dealias, debugLog, isAmbientDeclaration, isDeclaration, isInStockLibraries, isPartOfImportStatement} from './ast_tools';
+import {dealias, debugLog, isAmbientDeclaration, isInStockLibraries, isNameInDeclaration, isPartOfImportStatement} from './ast_tools';
 
 const PATH_NAME_FORMAT = '[/\\.\\w\\d_-]+';
 const JS_IDENTIFIER_FORMAT = '[\\w\\d_-]+';
@@ -120,7 +120,7 @@ export class AbsoluteMatcher {
     // avoid flooding users with warnings (as the actual use will be alerted)
     // and bad fixes.
     const p = n.parent;
-    if (p && (isDeclaration(p) || isPartOfImportStatement(p))) {
+    if (isNameInDeclaration(n) || (p && isPartOfImportStatement(p))) {
       debugLog(`We don't flag symbol declarations`);
       return false;
     }

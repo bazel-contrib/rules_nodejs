@@ -194,6 +194,21 @@ describe('test AbsoluteMatcher', () => {
     expect(results).toHaveNoFailures();
   });
 
+  it('In-stock lib symbol used as part of the initializer in named declaration',
+     () => {
+       const config = {
+         errorMessage: 'banned ambient name',
+         kind: PatternKind.BANNED_NAME,
+         values: ['GLOBAL|open'],
+       };
+       const sources = ['const op = open;'];
+
+       const results =
+           compileAndCheck(new ConformancePatternRule(config), ...sources);
+       expect(results).toHaveFailuresMatching(
+           {matchedCode: 'open', messageText: 'banned ambient name'});
+     });
+
   it('local non-exported definition', () => {
     // This is not a match because Foo.bar is a non-exported locally defined
     // symbol.
