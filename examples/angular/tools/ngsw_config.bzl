@@ -3,6 +3,7 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 
 def ngsw_config(name, config, index_html, src, out = None, **kwargs):
+    "Creates ngsw.json with service worker configuration and hashes for all source files"
     if not out:
         out = name
 
