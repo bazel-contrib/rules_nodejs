@@ -1,11 +1,20 @@
-<!doctype html>
-
-<html>
+<!DOCTYPE html>
+<html lang="en">
   <head>
     <title>Angular Bazel Example</title>
-    <base href="/example">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <base href="/example" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+    />
+    <meta
+      name="description"
+      content="This is an example of building an Angular app at scale. It uses BUILD.bazel files to customize the configuration of Bazel. This means the application is compiled in many small libraries, giving us incremental builds"
+    />
+    <meta name="theme-color" content="#43a047" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="dns-prefetch" href="https://bazel.build/" />
   </head>
   <body>
     <!-- The Angular application will be bootstrapped into this element. -->
@@ -18,6 +27,6 @@
     <!-- TODO: figure out how diff. loading interacts with 
     https://www.npmjs.com/package/rollup-plugin-bundle-html -->
     <script type="module" src="/bundle-es2015.min/index.js"></script>
-    <script nomodule="" src="/bundle-es5.min/index.js"></script>     
+    <script nomodule="" src="/bundle-es5.min/index.js"></script>
   </body>
 </html>
