@@ -10,6 +10,7 @@ load("@npm//history-server:index.bzl", "history_server")
 load("@npm//html-insert-assets:index.bzl", "html_insert_assets")
 load("//tools:angular_prerender.bzl", "ng_prerender", "ng_prerender_test")
 load("//tools:angular_ts_library.bzl", "ng_ts_library")
+load("//tools:ngsw_config.bzl", "ngsw_config")
 
 package(default_visibility = ["//:__subpackages__"])
 
@@ -73,6 +74,8 @@ filegroup(
 _ASSETS = [
     # This label references an output of the "styles" sass_binary above.
     ":styles.css",
+    ":manifest.webmanifest",
+    "//:favicon.ico",
 
     # Directly reference a file that came from @angular/material npm package
     "@npm//:node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css",
@@ -244,30 +247,34 @@ pkg_web(
         ":inject_scripts_for_prod_hello_route_index",
         ":inject_scripts_for_prod_todos_route_index",
         "//src/assets",
+        ":robots.txt",
+        # Service worker
+        "@npm//:node_modules/@angular/service-worker/ngsw-worker.js",
         # Include polyfills that will be requested by old browsers
         "@npm//:node_modules/systemjs/dist/system.js",
         "@npm//:node_modules/core-js/client/core.min.js",
-        "index.html",
+        # NOW needed ?"index.html",
     ],
     # In production mode we serve some polyfills with script tags that have hard-coded paths in the index.html
     # so we must serve them at that path, by stripping a prefix
     additional_root_paths = [
         "npm/node_modules/core-js/client",
         "npm/node_modules/systemjs/dist",
+        "npm/node_modules/@angular/service-worker",
     ],
+)
+
+ngsw_config(
+    name = "pwa",
+    src = ":prodapp",
+    config = "//src:ngsw-config.json",
+    index_html = ":inject_scripts_for_prod",
 )
 
 history_server(
     name = "prodserver",
-    data = [":prodapp"],
-    # '-a src/prodapp' will ask history-server to scan for all apps under the
-    # given folder this will result in the following auto-configuration:
-    #   /example => src/prodapp/example
-    #   /        => src/prodapp
-    templated_args = [
-        "-a",
-        "$$(rlocation $(rootpath :prodapp))",
-    ],
+    data = [":pwa"],
+    templated_args = ["-a $$(rlocation $(rootpath :pwa))"],
 )
 
 nodejs_image(
@@ -288,13 +295,12 @@ container_image(
 
 ts_library(
     name = "universal_server_lib",
-    srcs = [
-        "server.ts",
-    ],
+    srcs = ["server.ts"],
     deps = [
         "//src/app:app_server",
         "@npm//@nguniversal/express-engine",
         "@npm//@types/node",
+        "@npm//compression",
         "@npm//express",
     ],
 )
@@ -302,7 +308,7 @@ ts_library(
 nodejs_binary(
     name = "universal_server",
     data = [
-        ":prodapp",
+        ":pwa",
         ":universal_server_lib",
     ],
     entry_point = ":server.ts",

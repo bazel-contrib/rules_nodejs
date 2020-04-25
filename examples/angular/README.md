@@ -20,6 +20,7 @@ This example is a monorepo, meant to show many different features and integratio
 - **Differential loading**: in production mode, we load a pair of `<script>` tags. Modern browsers will load code in the ES2015 syntax, which is smaller and requires fewer polyfills. Older browsers will load ES5 syntax.
 - **Docker**: see below where we package up the production app for deployment on Kubernetes.
 - **Server Side Rendering**: with the help of Angular Universal you can render your application on the server
+- **Progressive Web App**: support for service worker and the app can be installed on phones and desktops (also has 90+ Lighthouse score)
 
 This example is deployed at https://bazel.angular.io/example
 
