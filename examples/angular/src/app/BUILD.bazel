@@ -16,11 +16,13 @@ ng_ts_library(
         "//src/app/todos",
         "//src/app/todos/reducers",
         "//src/shared/material",
+        "@npm//@angular/common",
         "@npm//@angular/core",
         "@npm//@angular/platform-browser",
         "@npm//@angular/router",
         "@npm//@angular/service-worker",
         "@npm//@ngrx/store",
+        "@npm//rxjs",
     ],
 )
 

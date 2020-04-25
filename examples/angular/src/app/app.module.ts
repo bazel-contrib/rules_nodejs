@@ -11,6 +11,7 @@ import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
 import {HomeModule} from './home/home';
 import {todoReducer} from './todos/reducers/reducers';
+import { ServiceWorkerService } from './service-worker.service';
 
 @NgModule({
   declarations: [AppComponent],
@@ -20,6 +21,7 @@ import {todoReducer} from './todos/reducers/reducers';
     BrowserModule.withServerTransition({ appId: 'angular-bazel-example' }),
     ServiceWorkerModule.register('ngsw-worker.js')
   ],
+  providers:[ServiceWorkerService],
   exports: [AppComponent],
   bootstrap: [AppComponent],
 })
