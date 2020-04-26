@@ -59,6 +59,8 @@ export function findInChildren(
  * blocks, module declarations, JSDoc, lib.d.ts nodes, that kind of things.
  */
 export function shouldExamineNode(n: ts.Node) {
+  // TODO(b/154674207): Only `isInStockLibraries` seems to be effective here.
+  // Remove the others.
   return !(
       ts.isBlock(n) || ts.isModuleBlock(n) || ts.isModuleDeclaration(n) ||
       ts.isSourceFile(n) || (n.parent && ts.isTypeNode(n.parent)) ||

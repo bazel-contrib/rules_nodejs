@@ -1,4 +1,5 @@
 import * as ts from 'typescript';
+
 import {Checker} from '../../checker';
 import {Fix} from '../../failure';
 import {Fixer} from '../../util/fixer';
@@ -37,26 +38,25 @@ export abstract class PatternEngine {
   abstract register(checker: Checker): void;
 
   /**
-   * `check` is the PatternEngine subclass-specific matching logic. Overwrite
-   * with what the engine looks for, i.e., AST matching. The whitelisting logic
-   * and fix generation are handled in `checkAndFilterResults`.
+   * A composer that wraps checking functions with code handling aspects of the
+   * analysis that are not engine-specific, and which defers to the
+   * subclass-specific logic afterwards. Subclasses should transform their
+   * checking logic with this composer before registered on the checker.
    */
-  abstract check(tc: ts.TypeChecker, n: ts.Node): ts.Node|undefined;
-
-  /**
-   * A wrapper for `check` that handles aspects of the analysis that are not
-   * engine-specific, and which defers to the subclass-specific logic
-   * afterwards.
-   */
-  checkAndFilterResults(c: Checker, n: ts.Node) {
-    if (!shouldExamineNode(n) || n.getSourceFile().isDeclarationFile) {
-      return;
-    }
-    const matchedNode = this.check(c.typeChecker, n);
-    if (matchedNode && !this.isWhitelisted(matchedNode)) {
-      const fix: Fix|undefined =
-          this.fixer ? this.fixer.getFixForFlaggedNode(matchedNode) : undefined;
-      c.addFailureAtNode(matchedNode, this.config.errorMessage, fix);
+  protected wrapCheckWithWhitelistingAndFixer<T extends ts.Node>(
+      checkFunction: (tc: ts.TypeChecker, n: T) => ts.Node |
+          undefined): (c: Checker, n: T) => void {
+    return (c: Checker, n: T) => {
+      if (!shouldExamineNode(n) || n.getSourceFile().isDeclarationFile) {
+        return;
+      }
+      const matchedNode = checkFunction(c.typeChecker, n);
+      if (matchedNode && !this.isWhitelisted(matchedNode)) {
+        const fix: Fix|undefined = this.fixer ?
+            this.fixer.getFixForFlaggedNode(matchedNode) :
+            undefined;
+        c.addFailureAtNode(matchedNode, this.config.errorMessage, fix);
+      }
     }
   }
 
