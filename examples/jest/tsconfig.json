@@ -1,0 +1,26 @@
+{
+    "compilerOptions": {
+      "declaration": true,
+      "target": "es2018",
+      "module": "commonjs",
+      "lib": [
+        "ESNext.AsyncIterable",
+        "ES2018",
+        "DOM",
+        "ES6"
+      ],
+      "outDir": "dist",
+      "baseUrl": "./",
+      "paths": {
+        "jest_repro/*": [
+          "*",
+          "bazel-bin/*"
+        ]
+      },
+      "removeComments": true,
+      "strict": true,
+      "esModuleInterop": true,
+      "downlevelIteration": true,
+      "forceConsistentCasingInFileNames": true
+    }
+  }

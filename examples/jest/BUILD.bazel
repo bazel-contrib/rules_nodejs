@@ -1,4 +1,10 @@
-load(":jest.bzl", "jest_test")
+load("@npm_bazel_typescript//:index.bzl", "ts_library")
+load(":jest.bzl", "jest_test", "ts_jest_test")
+
+ts_library(
+    name = "lib",
+    srcs = ["lib.ts"],
+)
 
 jest_test(
     name = "test",
@@ -23,6 +29,17 @@ jest_test(
         "@npm//@babel/preset-env",
         "@npm//@jest/transform",
         "@npm//babel-jest",
+    ],
+)
+
+ts_jest_test(
+    name = "test_ts",
+    srcs = [
+        "lib.test.ts",
+    ],
+    jest_config = "jest.config.js",
+    deps = [
+        ":lib",
     ],
 )
 

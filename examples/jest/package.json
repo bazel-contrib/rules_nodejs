@@ -5,12 +5,15 @@
         "@babel/cli": "^7.6.0",
         "@babel/core": "^7.6.0",
         "@babel/preset-env": "^7.6.0",
+        "@bazel/typescript": "^1.6.0",
         "@jest/core": "24.7.1",
         "@jest/transform": "24.7.1",
+        "@types/jest": "^25.2.1",
         "babel-jest": "24.7.1",
         "babel-plugin-istanbul": "5.1.2",
         "jest-cli": "24.9.0",
-        "patch-package": "^6.2.0"
+        "patch-package": "^6.2.0",
+        "typescript": "^3.8.3"
     },
     "scripts": {
         "postinstall": "patch-package",
