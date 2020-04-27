@@ -25,23 +25,25 @@ function parseSpec(value: string): [AbsoluteMatcher, number] {
 function checkCallExpr(
     tc: ts.TypeChecker, n: ts.CallExpression, matcher: AbsoluteMatcher,
     position: number): ts.CallExpression|undefined {
-  debugLog(`inspecting ${n.getText().trim()}`);
+  debugLog(() => `inspecting ${n.getText().trim()}`);
 
   if (!matcher.matches(n.expression, tc)) {
-    debugLog(`Wrong symbol, not ${matcher.bannedName}`);
+    debugLog(() => `Wrong symbol, not ${matcher.bannedName}`);
     return;
   }
   if (n.arguments.length < position) {
-    debugLog(`Good symbol, not enough arguments to match (got ${
-        n.arguments.length}, want ${position})`);
+    debugLog(
+        () => `Good symbol, not enough arguments to match (got ${
+            n.arguments.length}, want ${position})`);
     return;
   }
   if (isLiteral(tc, n.arguments[position])) {
-    debugLog(`Good symbol, argument literal`);
+    debugLog(() => `Good symbol, argument literal`);
     return;
   }
-  debugLog(`Match. Reporting failure (boundaries: ${n.getStart()}, ${
-      n.getEnd()}] on node [${n.getText()}]`);
+  debugLog(
+      () => `Match. Reporting failure (boundaries: ${n.getStart()}, ${
+          n.getEnd()}] on node [${n.getText()}]`);
   return n;
 
   // No match.

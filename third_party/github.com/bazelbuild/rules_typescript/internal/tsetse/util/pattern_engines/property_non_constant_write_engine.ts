@@ -14,14 +14,15 @@ function checkBinExpr(
   if (!isPropertyWriteExpression(n)) {
     return;
   }
-  debugLog(`inspecting ${n.getFullText().trim()}`);
+  debugLog(() => `inspecting ${n.getFullText().trim()}`);
   if (!matcher.matches(n.left, tc)) {
-    debugLog('Not an assignment to the right property');
+    debugLog(() => 'Not an assignment to the right property');
     return;
   }
   if (isLiteral(tc, n.right)) {
-    debugLog(`Assigned value (${
-        n.right.getFullText()}) is a compile-time constant.`);
+    debugLog(
+        () => `Assigned value (${
+            n.right.getFullText()}) is a compile-time constant.`);
     return;
   }
   return n;

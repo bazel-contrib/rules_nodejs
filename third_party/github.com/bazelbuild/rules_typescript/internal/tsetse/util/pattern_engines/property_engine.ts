@@ -11,7 +11,7 @@ import {PatternEngine} from '../pattern_engines/pattern_engine';
 function checkPropAccessExpr(
     tc: ts.TypeChecker, n: ts.PropertyAccessExpression,
     matcher: PropertyMatcher): ts.Node|undefined {
-  debugLog(`inspecting ${n.getText().trim()}`);
+  debugLog(() => `inspecting ${n.getText().trim()}`);
   if (!matcher.matches(n, tc)) {
     return;
   }

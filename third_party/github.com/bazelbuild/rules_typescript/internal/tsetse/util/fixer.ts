@@ -64,7 +64,7 @@ export function maybeAddNamedImport(
       continue;  // Jump to the next import.
     }
     if (ts.isNamespaceImport(parsedDecl.namedBindings)) {
-      debugLog(`... but it's a wildcard import`);
+      debugLog(() => `... but it's a wildcard import`);
       continue;  // Jump to the next import.
     }
 
@@ -77,12 +77,13 @@ export function maybeAddNamedImport(
             iSpec.name.getText() === importWhat);  // import {foo}
 
     if (foundRightImport) {
-      debugLog(`"${iDecl.getFullText()}" imports ${importWhat} as we want.`);
+      debugLog(
+          () => `"${iDecl.getFullText()}" imports ${importWhat} as we want.`);
       return;  // Our request is already imported under the right name.
     }
 
     // Else, insert our symbol in the list of imports from that file.
-    debugLog(`No named imports from that file, generating new fix`);
+    debugLog(() => `No named imports from that file, generating new fix`);
     return {
       start: parsedDecl.namedBindings.elements[0].getStart(),
       end: parsedDecl.namedBindings.elements[0].getStart(),
@@ -125,18 +126,18 @@ export function maybeAddNamespaceImport(
       // Not an import from the right file, or couldn't understand the import.
       return false;
     }
-    debugLog(`"${iDecl.getFullText()}" is an import from the right file`);
+    debugLog(() => `"${iDecl.getFullText()}" is an import from the right file`);
 
     if (ts.isNamedImports(parsedDecl.namedBindings)) {
-      debugLog(`... but it's a named import`);
+      debugLog(() => `... but it's a named import`);
       return false;  // irrelevant to our namespace imports
     }
     // Else, bindings is a NamespaceImport.
     if (parsedDecl.namedBindings.name.getText() !== importAs) {
-      debugLog(`... but not the right name, we need to reimport`);
+      debugLog(() => `... but not the right name, we need to reimport`);
       return false;
     }
-    debugLog(`... and the right name, no need to reimport`);
+    debugLog(() => `... and the right name, no need to reimport`);
     return true;
   });
 
@@ -167,7 +168,9 @@ function maybeParseImportNode(iDecl: ts.ImportDeclaration): {
 }|undefined {
   if (!iDecl.importClause) {
     // something like import "./file";
-    debugLog(`Ignoring import without imported symbol: ${iDecl.getFullText()}`);
+    debugLog(
+        () =>
+            `Ignoring import without imported symbol: ${iDecl.getFullText()}`);
     return;
   }
   if (iDecl.importClause.name || !iDecl.importClause.namedBindings) {
@@ -175,11 +178,11 @@ function maybeParseImportNode(iDecl: ts.ImportDeclaration): {
     // Not much we can do with that when trying to get a hold of some symbols,
     // so just ignore that line (worst case, we'll suggest another import
     // style).
-    debugLog(`Ignoring import: ${iDecl.getFullText()}`);
+    debugLog(() => `Ignoring import: ${iDecl.getFullText()}`);
     return;
   }
   if (!ts.isStringLiteral(iDecl.moduleSpecifier)) {
-    debugLog(`Ignoring import whose module specifier is not literal`);
+    debugLog(() => `Ignoring import whose module specifier is not literal`);
     return;
   }
   return {

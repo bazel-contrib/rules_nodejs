@@ -11,9 +11,9 @@ import {PatternEngine} from './pattern_engine';
 function checkId(
     tc: ts.TypeChecker, n: ts.Identifier,
     matcher: AbsoluteMatcher): ts.Identifier|undefined {
-  debugLog(`inspecting ${n.getText().trim()}`);
+  debugLog(() => `inspecting ${n.getText().trim()}`);
   if (!matcher.matches(n, tc)) {
-    debugLog('Not the right global name.');
+    debugLog(() => 'Not the right global name.');
     return;
   }
   return n;

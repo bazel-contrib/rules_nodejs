@@ -17,10 +17,11 @@ function checkVarStmt(
   for (const declaration of n.declarationList.declarations) {
     if (declaration.initializer !== undefined &&
         ts.isPropertyAccessExpression(declaration.initializer)) {
-      debugLog(`Inspecting ${n.getText().trim()}`);
+      debugLog(() => `Inspecting ${n.getText().trim()}`);
       if (matcher.matches(declaration.initializer, tc)) {
-        debugLog(`Match. Reporting failure (boundaries: ${n.getStart()}, ${
-            n.getEnd()}] on node [${n.getText()}]`);
+        debugLog(
+            () => `Match. Reporting failure (boundaries: ${n.getStart()}, ${
+                n.getEnd()}] on node [${n.getText()}]`);
         return n;
       }
     }
@@ -35,14 +36,15 @@ function checkVarStmt(
 function checkBinExpr(
     tc: ts.TypeChecker, n: ts.BinaryExpression,
     matcher: PropertyMatcher): ts.Node|undefined {
-  debugLog(`inspecting ${n.getText().trim()}`);
+  debugLog(() => `inspecting ${n.getText().trim()}`);
   // If the expression is an assignment, then the property must appear
   // at the right-hand side of the expression.
   if (n.operatorToken.getText().trim() === '=') {
     if (ts.isPropertyAccessExpression(n.right) &&
         matcher.matches(n.right, tc)) {
-      debugLog(`Match. Reporting failure (boundaries: ${n.getStart()}, ${
-          n.getEnd()}] on node [${n.getText()}]`);
+      debugLog(
+          () => `Match. Reporting failure (boundaries: ${n.getStart()}, ${
+              n.getEnd()}] on node [${n.getText()}]`);
       return n;
     }
   }
@@ -53,8 +55,9 @@ function checkBinExpr(
          matcher.matches(n.right, tc)) ||
         (ts.isPropertyAccessExpression(n.left) &&
          matcher.matches(n.left, tc))) {
-      debugLog(`Match. Reporting failure (boundaries: ${n.getStart()}, ${
-          n.getEnd()}] on node [${n.getText()}]`);
+      debugLog(
+          () => `Match. Reporting failure (boundaries: ${n.getStart()}, ${
+              n.getEnd()}] on node [${n.getText()}]`);
       return n;
     }
   }

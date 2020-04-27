@@ -20,8 +20,10 @@ export function setDebug(state: boolean) {
 /**
  * Debug helper.
  */
-export function debugLog(msg: string) {
-  if (DEBUG) console.log(msg);
+export function debugLog(msg: () => string) {
+  if (DEBUG) {
+    console.log(msg());
+  }
 }
 
 /**
@@ -186,6 +188,6 @@ export function logASTWalkError(verbose: boolean, n: ts.Node, e: Error) {
   } catch {
   }
   debugLog(
-      `Walking node ${nodeText} failed with error ${e}.\n` +
-      `Stacktrace:\n${e.stack}`);
+      () => `Walking node ${nodeText} failed with error ${e}.\n` +
+          `Stacktrace:\n${e.stack}`);
 }

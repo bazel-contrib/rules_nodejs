@@ -98,20 +98,20 @@ export class AbsoluteMatcher {
     // looking at.
     const s = dealias(tc.getSymbolAtLocation(n), tc);
     if (!s) {
-      debugLog(`cannot get symbol`);
+      debugLog(() => `cannot get symbol`);
       return false;
     }
 
     // The TS-provided FQN tells us the full identifier, and the origin file
     // in some circumstances.
     const fqn = tc.getFullyQualifiedName(s);
-    debugLog(`got FQN ${fqn}`);
+    debugLog(() => `got FQN ${fqn}`);
 
     // Name-based check: `getFullyQualifiedName` returns `"filename".foo.bar` or
     // just `foo.bar` if the symbol is ambient. The check here should consider
     // both cases.
     if (!(fqn.endsWith('".' + this.bannedName) || fqn === this.bannedName)) {
-      debugLog(`FQN ${fqn} doesn't match name ${this.bannedName}`);
+      debugLog(() => `FQN ${fqn} doesn't match name ${this.bannedName}`);
       return false;  // not a use of the symbols we want
     }
 
@@ -121,7 +121,7 @@ export class AbsoluteMatcher {
     // and bad fixes.
     const p = n.parent;
     if (isNameInDeclaration(n) || (p && isPartOfImportStatement(p))) {
-      debugLog(`We don't flag symbol declarations`);
+      debugLog(() => `We don't flag symbol declarations`);
       return false;
     }
 
@@ -137,20 +137,20 @@ export class AbsoluteMatcher {
       // local symbol or ambient symbol), it is not a match.
       if (this.filePath !== GLOBAL && this.filePath !== ANY_SYMBOL) {
         debugLog(
-            `The symbol has no file path and one is specified by the ` +
-            `matcher`);
+            () =>
+                `The symbol has no file path and one is specified by the matcher`);
         return false;
       }
 
       // We need to trace things back, so get declarations of the symbol.
       const declarations = s.getDeclarations();
       if (!declarations) {
-        debugLog(`Symbol never declared?`);
+        debugLog(() => `Symbol never declared?`);
         return false;
       }
       if (!declarations.some(isAmbientDeclaration) &&
           !declarations.some(isInStockLibraries)) {
-        debugLog(`Symbol neither ambient nor from the stock libraries`);
+        debugLog(() => `Symbol neither ambient nor from the stock libraries`);
         return false;
       }
     }
@@ -163,17 +163,17 @@ export class AbsoluteMatcher {
           throw new Error('Malformed fully-qualified name.');
         }
         const sympath = fqn.substring(1, last);
-        debugLog(`The file path of the symbol is ${sympath}`);
+        debugLog(() => `The file path of the symbol is ${sympath}`);
         if (!sympath.match(this.filePath) || this.filePath === GLOBAL) {
           debugLog(
-              `The file path of the symbol does not match the ` +
-              `file path of the matcher`);
+              () =>
+                  `The file path of the symbol does not match the file path of the matcher`);
           return false;
         }
       }
     }
 
-    debugLog(`all clear, report finding`);
+    debugLog(() => `all clear, report finding`);
     return true;
   }
 }

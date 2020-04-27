@@ -22,7 +22,7 @@ function checkPropAccessExpr(
     return;
   }
 
-  debugLog(`inspecting ${n.parent.getText().trim()}`);
+  debugLog(() => `inspecting ${n.parent.getText().trim()}`);
   if (!matcher.matches(n, tc)) {
     return;
   }
