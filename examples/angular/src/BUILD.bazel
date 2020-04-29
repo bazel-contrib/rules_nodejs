@@ -253,7 +253,7 @@ pkg_web(
         # Include polyfills that will be requested by old browsers
         "@npm//:node_modules/systemjs/dist/system.js",
         "@npm//:node_modules/core-js/client/core.min.js",
-        # NOW needed ?"index.html",
+        "index.html",
     ],
     # In production mode we serve some polyfills with script tags that have hard-coded paths in the index.html
     # so we must serve them at that path, by stripping a prefix

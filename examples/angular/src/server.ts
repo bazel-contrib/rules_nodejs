@@ -12,13 +12,6 @@ const app = express();
 const port = process.env.PORT || 4000;
 const DIST_FOLDER = join(process.cwd(), 'src/pwa');
 
-/**
- * text compression for smaller download sizes and thus faster load times
- * without compression: 1.4 MB
- * with compresion: 321 kB
- */
-app.use(compression());
-
 app.engine('html', ngExpressEngine({ bootstrap: AppServerModule }) as any);
 app.set('view engine', 'html');
 app.set('views', DIST_FOLDER);
