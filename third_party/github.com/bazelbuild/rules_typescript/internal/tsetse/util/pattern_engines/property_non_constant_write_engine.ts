@@ -1,11 +1,13 @@
 import * as ts from 'typescript';
+
 import {Checker} from '../../checker';
 import {ErrorCode} from '../../error_code';
 import {debugLog, isPropertyWriteExpression} from '../ast_tools';
 import {Fixer} from '../fixer';
 import {isLiteral} from '../is_literal';
-import {PropertyMatcher} from '../match_symbol';
 import {Config} from '../pattern_config';
+import {PropertyMatcher} from '../property_matcher';
+
 import {PatternEngine} from './pattern_engine';
 
 function checkBinExpr(
