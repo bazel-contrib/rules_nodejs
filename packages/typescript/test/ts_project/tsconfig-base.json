@@ -18,5 +18,6 @@
             "../../../../bazel-out/k8-dbg/bin/packages/typescript/test/ts_project",
             "../../../../bazel-out/x64_windows-dbg/bin/packages/typescript/test/ts_project",
         ],
+        "types": []
     }
 }

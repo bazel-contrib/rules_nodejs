@@ -5,5 +5,6 @@
         "declarationMap": true,
         "declaration": true,
         "sourceMap": true,
+        "types": []
     }
 }

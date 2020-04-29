@@ -4,7 +4,8 @@
     "strict": true,
     "target": "es2015",
     "module": "esnext",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "types": []
   },
   // For Windows, which is not sand-boxed, we need to limit
   // the typescript files included so the "@far/a" compilation
