@@ -4,6 +4,11 @@ import {isLiteral} from './is_literal';
 import {compile} from './testing/test_support';
 
 describe('isLiteral', () => {
+  // Different platforms pull in different files (or from different
+  // paths) when compiling a .ts file. We only want to inspect source
+  // defined in the tests. This pattern is determinted by `compile`.
+  const testSrcNamePattern = /file_\d+.ts$/;
+
   it('understands constants', () => {
     // Keep these to single-expression programs.
     const constantExpressionsSources = [
@@ -21,11 +26,12 @@ describe('isLiteral', () => {
     // We don't bother with a rule for this one.
     const constantProgram = compile(...constantExpressionsSources);
     const constantCompiledSources = constantProgram.getSourceFiles();
-    const constantTc = constantProgram.getTypeChecker();
+
     const constantExpressions =
-        constantCompiledSources.filter(s => !isInStockLibraries(s))
+        constantCompiledSources.filter(s => testSrcNamePattern.test(s.fileName))
             .map(s => s.statements[0].getChildren()[0]);
 
+    const constantTc = constantProgram.getTypeChecker();
     for (const expr of constantExpressions) {
       expect(isLiteral(constantTc, expr))
           .toBe(
@@ -33,7 +39,6 @@ describe('isLiteral', () => {
               `Expected "${expr.getFullText()}" to be considered constant.`);
     }
   });
-
 
   it('understands non-constants', () => {
     const nonconstantExpressionsSources = [
@@ -49,7 +54,8 @@ describe('isLiteral', () => {
     const nonconstantCompiledSources = nonconstantProgram.getSourceFiles();
     const nonconstantTc = nonconstantProgram.getTypeChecker();
     const nonconstantExpressions =
-        nonconstantCompiledSources.filter(s => !isInStockLibraries(s))
+        nonconstantCompiledSources
+            .filter(s => testSrcNamePattern.test(s.fileName))
             .map(s => s.statements[0].getChildren()[0]);
 
     for (const expr of nonconstantExpressions) {
