@@ -28,7 +28,7 @@ Uses ts_library prodmode ems output"""
         "--no-watchman",
         "--ci",
     ]
-    args.extend(["--config", "$(rootpath %s)" % jest_config])
+    args.extend(["--config", "$$(rlocation $(rootpath %s))" % jest_config])
 
     _jest_test(
         name = name,

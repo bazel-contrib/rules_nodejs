@@ -25,11 +25,11 @@ Uses ts_library devmode UMD output"""
         "--no-watchman",
         "--ci",
     ]
-    args.extend(["--config", "$(rootpath %s)" % jest_config])
+    args.extend(["--config", "$$(rlocation $(rootpath %s))" % jest_config])
 
     _jest_test(
         name = name,
         data = [jest_config, ":%s_umd" % name] + deps + data,
-        args = args,
+        templated_args = args,
         **kwargs
     )
