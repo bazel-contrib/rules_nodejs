@@ -31,6 +31,7 @@ def checked_in_ts_project(name, src, checked_in_js = None, **kwargs):
                 module = "commonjs",
                 removeComments = True,
                 declaration = True,
+                skipLibCheck = True,
             ),
             files = ["/".join([workspace_root, native.package_name(), src])],
         ).to_json()],
