@@ -299,7 +299,6 @@ ts_library(
         "//src/app:app_server",
         "@npm//@nguniversal/express-engine",
         "@npm//@types/node",
-        "@npm//compression",
         "@npm//express",
     ],
 )
