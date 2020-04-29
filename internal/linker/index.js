@@ -372,6 +372,9 @@ function main(args, runfiles) {
                             if (runfilesPath.startsWith(`${bin}/`)) {
                                 runfilesPath = runfilesPath.slice(bin.length + 1);
                             }
+                            else if (runfilesPath === bin) {
+                                runfilesPath = '';
+                            }
                             const externalPrefix = 'external/';
                             if (runfilesPath.startsWith(externalPrefix)) {
                                 runfilesPath = runfilesPath.slice(externalPrefix.length);
