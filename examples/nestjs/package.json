@@ -2,8 +2,8 @@
   "private": true,
   "dependencies": {
     "@bazel/bazelisk": "^1.4.0",
-    "@bazel/ibazel": "^0.12.4",
-    "@bazel/jasmine": "^1.6.0",
+    "@bazel/ibazel": "^0.13.0",
+    "@bazel/jasmine": "^1.6.1",
     "@nestjs/common": "6.5.2",
     "@nestjs/core": "6.5.2",
     "@nestjs/platform-express": "6.5.2",
@@ -16,7 +16,7 @@
     "supertest": "^4.0.2"
   },
   "devDependencies": {
-    "@bazel/typescript": "^1.6.0",
+    "@bazel/typescript": "^1.6.1",
     "@types/node": "12.6.3",
     "typescript": "3.5.3"
   },
