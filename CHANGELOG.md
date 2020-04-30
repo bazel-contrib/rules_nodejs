@@ -5,9 +5,10 @@
 
 * **builtin:** fix linker issue when running test with "local" tag on osx & linux ([#1835](https://github.com/bazelbuild/rules_nodejs/issues/1835)) ([801935d](https://github.com/bazelbuild/rules_nodejs/commit/801935d))
 * **builtin:** fix regression in 1.6.0 in linker linking root package when under runfiles ([00e13e2](https://github.com/bazelbuild/rules_nodejs/commit/00e13e2)), closes [#1823](https://github.com/bazelbuild/rules_nodejs/issues/1823) [#1850](https://github.com/bazelbuild/rules_nodejs/issues/1850)
+* **typescript:** allow for ts_library(use_angular_plugin) to be used with worker mode and no linker ([#1839](https://github.com/bazelbuild/rules_nodejs/issues/1839)) ([495f665](https://github.com/bazelbuild/rules_nodejs/commit/495f665))
 
 
-### Features
+### Examples
 
 * **examples:** show how to use ts_library(use_angular_plugin) with worker mode ([#1839](https://github.com/bazelbuild/rules_nodejs/issues/1839)) ([495f665](https://github.com/bazelbuild/rules_nodejs/commit/495f665))
 * **examples:** upgrade rules_docker to 0.14.1 ([cfb6d6e](https://github.com/bazelbuild/rules_nodejs/commit/cfb6d6e))
