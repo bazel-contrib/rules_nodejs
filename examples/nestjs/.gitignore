@@ -1,0 +1,6 @@
+# Yarn 2 configuration
+.yarn/*
+!.yarn/cache
+!.yarn/releases
+!.yarn/plugins
+!/yarn/versions

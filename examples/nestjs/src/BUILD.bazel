@@ -49,9 +49,10 @@ ts_library(
     ],
 )
 
+load("//:yarn-node.bzl", "yarn_nodejs_binary")
 # bazel run //src:server -- --port=4000
 # TODO(gregmagolan): add test for nest server with protractor rule once it is brought in
-nodejs_binary(
+yarn_nodejs_binary(
     name = "server",
     data = [
         ":app",

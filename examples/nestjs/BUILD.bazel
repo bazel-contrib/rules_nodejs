@@ -13,3 +13,23 @@
 # limitations under the License.
 
 exports_files(["tsconfig.json"])
+
+load("//:yarn-node.bzl", "yarn_nodejs_binary")
+
+genrule(
+    name = "entry",
+    srcs = [],
+    outs = ["entry.js"],
+    cmd = "echo \"console.log(process.cwd())\" > \"$@\"",
+)
+
+yarn_nodejs_binary(
+    name = "server",
+    data = [
+        ":.yarnrc.yml",
+        ":.pnp.js",
+        ":yarn.lock",
+        ":.yarn/releases/yarn-berry.js",
+    ],
+    entry_point = ":test.js",
+)
