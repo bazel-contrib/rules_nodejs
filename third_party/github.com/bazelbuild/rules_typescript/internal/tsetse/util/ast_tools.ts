@@ -70,15 +70,6 @@ export function shouldExamineNode(n: ts.Node) {
 }
 
 /**
- * Return whether the given declaration is ambient.
- */
-export function isAmbientDeclaration(d: ts.Declaration): boolean {
-  return Boolean(
-      d.modifiers &&
-      d.modifiers.some(m => m.kind === ts.SyntaxKind.DeclareKeyword));
-}
-
-/**
  * Return whether the given Node is (or is in) a library included as default.
  * We currently look for a node_modules/typescript/ prefix, but this could
  * be expanded if needed.

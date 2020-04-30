@@ -1,5 +1,5 @@
 import * as ts from 'typescript';
-import {dealias, debugLog, isAmbientDeclaration, isInStockLibraries, isNameInDeclaration, isPartOfImportStatement} from './ast_tools';
+import {dealias, debugLog, isInStockLibraries, isNameInDeclaration, isPartOfImportStatement} from './ast_tools';
 
 const PATH_NAME_FORMAT = '[/\\.\\w\\d_-]+';
 const JS_IDENTIFIER_FORMAT = '[\\w\\d_-]+';
@@ -148,9 +148,8 @@ export class AbsoluteMatcher {
         debugLog(() => `Symbol never declared?`);
         return false;
       }
-      if (!declarations.some(isAmbientDeclaration) &&
-          !declarations.some(isInStockLibraries)) {
-        debugLog(() => `Symbol neither ambient nor from the stock libraries`);
+      if (!declarations.some(isInStockLibraries)) {
+        debugLog(() => `Symbol not from the stock libraries`);
         return false;
       }
     }
