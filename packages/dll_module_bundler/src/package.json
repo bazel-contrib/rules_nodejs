@@ -1,0 +1,29 @@
+{
+    "name": "@bazel/dll_module_bundler",
+    "peerDependencies": {
+        "webpack": ">=4.0.0"
+    },
+    "description": "Bundle node modules as UMD modules to be loaded at runtime under Bazel",
+    "license": "Apache-2.0",
+    "version": "0.0.0-PLACEHOLDER",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/bazelbuild/rules_nodejs.git",
+        "directory": "packages/dll_module_bundler"
+    },
+    "bin": {
+        "rollup-worker": "index.js"
+    },
+    "bugs": {
+        "url": "https://github.com/bazelbuild/rules_nodejs/issues"
+    },
+    "keywords": [
+        "dll_module_bundler",
+        "bazel"
+    ],
+    "bazelWorkspaces": {
+        "npm_bazel_dll_module_bundler": {
+            "rootPath": "."
+        }
+    }
+}

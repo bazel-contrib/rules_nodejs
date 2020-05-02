@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "strict": true,
+    "jsx": "preserve",
     "lib": ["es2015.promise", "dom", "es5"],
     // Include the output directory in rootDirs so that generated .d.ts files
     // can be used for type-checking in the editor, for example the car.proto
@@ -10,5 +11,5 @@
     // If all types are discovered then all types need to be included as deps
     // or typescript may error out with TS2688: Cannot find type definition file for 'foo'.
     "types": []
- }
+  }
 }

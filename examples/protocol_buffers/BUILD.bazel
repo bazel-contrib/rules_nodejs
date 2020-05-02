@@ -4,7 +4,9 @@ load("@npm//@bazel/rollup:index.bzl", "rollup_bundle")
 load("@npm//@bazel/terser:index.bzl", "terser_minified")
 load("@npm//@bazel/typescript:index.bzl", "ts_config", "ts_devserver", "ts_library")
 load("@npm//http-server:index.bzl", "http_server")
+load("@npm_bazel_dll_module_bundler//:index.bzl", "dll_module_bundler")
 load("@npm_bazel_labs//:index.bzl", "ts_proto_library")
+load("@rules_proto//proto:defs.bzl", "proto_library")
 
 proto_library(
     name = "tire_proto",
@@ -52,10 +54,21 @@ ts_library(
     ],
 )
 
+dll_module_bundler(
+    name = "dll_bundle",
+    dll_modules = [
+        "@npm//google-protobuf",
+        "@npm//grpc-web",
+        "@npm//react",
+        "@npm//react-dom",
+    ],
+    webpack_config = "webpack.config.dlls.js",
+)
+
 karma_web_test_suite(
     name = "test",
     srcs = [
-        "@npm_bazel_labs//grpc_web:bootstrap_scripts",
+        ":dll_bundle",
     ],
     browsers = [
         "@io_bazel_rules_webtesting//browsers:chromium-local",
@@ -67,14 +80,22 @@ karma_web_test_suite(
 
 ts_library(
     name = "app",
-    srcs = ["app.ts"],
-    deps = [":car"],
+    srcs = ["app.tsx"],
+    deps = [
+        ":car",
+        "@npm//@types",
+    ],
 )
 
 ts_devserver(
     name = "devserver",
     entry_module = "examples_protocol_buffers/app",
-    scripts = ["@npm_bazel_labs//grpc_web:bootstrap_scripts"],
+    scripts = [
+        ":dll_bundle",
+    ],
+    static_files = [
+        "index.html",
+    ],
     deps = [":app"],
 )
 

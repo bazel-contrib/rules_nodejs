@@ -168,6 +168,7 @@ example_integration_test(
     name = "examples_protocol_buffers",
     timeout = "long",
     npm_packages = {
+        "//packages/dll_module_bundler:npm_package": "@bazel/dll_module_bundler",
         "//packages/karma:npm_package": "@bazel/karma",
         "//packages/labs:npm_package": "@bazel/labs",
         "//packages/protractor:npm_package": "@bazel/protractor",

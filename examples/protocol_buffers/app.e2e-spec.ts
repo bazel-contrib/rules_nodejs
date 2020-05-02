@@ -12,12 +12,12 @@ describe('protocol_buffers', () => {
   beforeAll(() => {
     browser.get('');
     // Don't run any specs until we see a <div> on the page.
-    browser.wait(ExpectedConditions.presenceOf(element(by.css('div.ts1'))), timeoutMs);
+    browser.wait(ExpectedConditions.presenceOf(element(by.css('h1.ts1'))), timeoutMs);
   }, timeoutMs);
 
   it('should display: Car from server: Porsche', (done) => {
-    const div = element(by.css('div.ts1'));
-    div.getText().then(t => expect(t).toEqual(`Car from server: Porsche`));
+    const h1 = element(by.css('h1.ts1'));
+    h1.getText().then((t) => expect(t).toEqual(`Car from server: Porsche`));
     done();
   });
 });

@@ -1,5 +1,6 @@
 {
   "devDependencies": {
+    "@bazel/dll_module_bundler": "^1.7.0",
     "@bazel/karma": "^1.6.0",
     "@bazel/labs": "^1.6.0",
     "@bazel/protractor": "^1.6.0",
@@ -26,9 +27,18 @@
     "rollup-plugin-commonjs": "10.1.0",
     "rollup-plugin-node-resolve": "5.2.0",
     "terser": "4.3.1",
-    "typescript": "^3.3.1"
+    "typescript": "^3.3.1",
+    "webpack": "^4.43.0"
   },
   "scripts": {
     "test": "bazel test ..."
+  },
+  "dependencies": {
+    "@types/react": "^16.9.34",
+    "@types/react-dom": "^16.9.7",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "rollup-plugin-replace": "^2.2.0",
+    "webpack-cli": "^3.3.11"
   }
 }

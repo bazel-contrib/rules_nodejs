@@ -1,0 +1,15 @@
+load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "codeowners", "pkg_npm")
+
+codeowners(
+    teams = ["@mrmeku"],
+)
+
+pkg_npm(
+    name = "npm_package",
+    srcs = [
+        "@npm_bazel_dll_module_bundler//:package_contents",
+    ],
+    vendor_external = [
+        "npm_bazel_dll_module_bundler",
+    ],
+)
