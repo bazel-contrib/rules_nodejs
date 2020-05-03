@@ -1,5 +1,5 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
-load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
+load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
 
 # Make the jasmine library available at runtime by exposing our node_modules
 # directory.
@@ -41,8 +41,8 @@ nodejs_binary(
 jasmine_node_test(
     name = "test",
     srcs = glob(["*.spec.js"]),
-    jasmine_deps = [],
     node_modules = "//:node_modules",
+    tags = ["no-local-jasmine-deps"],
     deps = [
         ":decrement",
         ":program",

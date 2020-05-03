@@ -1,6 +1,6 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
-load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
+load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
 
 filegroup(
     name = "goldens",
@@ -101,11 +101,12 @@ sh_test(
         "coarse.spec.js",
         "common.spec.js",
     ],
-    jasmine_deps = [
+    node_modules = "@fine_grained_deps_%s//:node_modules" % pkgmgr,
+    tags = ["no-local-jasmine-deps"],
+    deps = [
         "@fine_grained_deps_%s//jasmine" % pkgmgr,
         "@fine_grained_deps_%s//jasmine-core" % pkgmgr,
     ],
-    node_modules = "@fine_grained_deps_%s//:node_modules" % pkgmgr,
 ) for pkgmgr in [
     "yarn",
     "npm",
@@ -120,11 +121,10 @@ sh_test(
         "common.spec.js",
         "fine.spec.js",
     ],
-    jasmine_deps = [
+    tags = ["no-local-jasmine-deps"],
+    deps = [
         "@fine_grained_deps_%s//jasmine" % pkgmgr,
         "@fine_grained_deps_%s//jasmine-core" % pkgmgr,
-    ],
-    deps = [
         "@fine_grained_deps_%s//ajv" % pkgmgr,
         "@fine_grained_deps_%s//typescript" % pkgmgr,
         "@fine_grained_deps_%s//rxjs" % pkgmgr,

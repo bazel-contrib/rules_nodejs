@@ -63,8 +63,10 @@ def jasmine_node_test(
         tags = [],
         config_file = None,
         coverage = False,
-        jasmine = "@npm//@bazel/jasmine",
-        jasmine_entry_point = "@npm//:node_modules/@bazel/jasmine/jasmine_runner.js",
+        # Replaced by pkg_npm with jasmine = "@npm//@bazel/jasmine",
+        jasmine = "@npm_bazel_jasmine//:jasmine__pkg",
+        # Replaced by pkg_npm with jasmine_entry_point = "@npm//:node_modules/@bazel/jasmine/jasmine_runner.js",
+        jasmine_entry_point = "@npm_bazel_jasmine//:jasmine_runner.js",
         **kwargs):
     """Runs tests in NodeJS using the Jasmine test runner.
 
@@ -104,6 +106,13 @@ def jasmine_node_test(
 
     all_data = data + srcs + deps + [Label(jasmine)]
 
+    # BEGIN-INTERNAL
+    # Only used when running tests in the rules_nodejs repo.
+    # Avoid adding duplicate deps though, some rules use this from source and declared the dep
+    if not "@npm//jasmine" in all_data and not str(Label("@npm//jasmine")) in all_data and not "no-local-jasmine-deps" in tags:
+        all_data.extend(["@npm//jasmine", "@npm//jasmine-reporters", "@npm//v8-coverage"])
+
+    # END-INTERNAL
     all_data += [":%s_devmode_srcs.MF" % name]
     all_data += [Label("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles")]
 
