@@ -102,20 +102,52 @@ node_module_library(
     writeFileSync('BUILD.bazel', buildFile);
 }
 function generatePackageBuildFiles(pkg) {
+    let buildFilePath;
+    if (pkg._files.includes('BUILD'))
+        buildFilePath = 'BUILD';
+    if (pkg._files.includes('BUILD.bazel'))
+        buildFilePath = 'BUILD.bazel';
     let buildFile = printPackage(pkg);
-    const binBuildFile = printPackageBin(pkg);
-    if (binBuildFile.length) {
-        writeFileSync(path.posix.join(pkg._dir, 'bin', 'BUILD.bazel'), BUILD_FILE_HEADER + binBuildFile);
+    if (buildFilePath) {
+        buildFile = buildFile + '\n' +
+            fs.readFileSync(path.join('node_modules', pkg._dir, buildFilePath), 'utf-8');
     }
-    const indexFile = printIndexBzl(pkg);
-    if (indexFile.length) {
-        writeFileSync(path.posix.join(pkg._dir, 'index.bzl'), indexFile);
-        buildFile = `${buildFile}
+    else {
+        buildFilePath = 'BUILD.bazel';
+    }
+    if (!pkg._files.includes('bin/BUILD.bazel') && !pkg._files.includes('bin/BUILD')) {
+        const binBuildFile = printPackageBin(pkg);
+        if (binBuildFile.length) {
+            writeFileSync(path.posix.join(pkg._dir, 'bin', 'BUILD.bazel'), BUILD_FILE_HEADER + binBuildFile);
+        }
+    }
+    if (pkg._files.includes('index.bzl')) {
+        pkg._files.filter(f => f !== 'BUILD' && f !== 'BUILD.bazel').forEach(file => {
+            if (/^node_modules[/\\]/.test(file)) {
+                return;
+            }
+            let destFile = path.posix.join(pkg._dir, file);
+            const basename = path.basename(file);
+            const basenameUc = basename.toUpperCase();
+            if (basenameUc === '_BUILD' || basenameUc === '_BUILD.BAZEL') {
+                destFile = path.posix.join(path.dirname(destFile), basename.substr(1));
+            }
+            const src = path.posix.join('node_modules', pkg._dir, file);
+            mkdirp(path.dirname(destFile));
+            fs.copyFileSync(src, destFile);
+        });
+    }
+    else {
+        const indexFile = printIndexBzl(pkg);
+        if (indexFile.length) {
+            writeFileSync(path.posix.join(pkg._dir, 'index.bzl'), indexFile);
+            buildFile += `
 # For integration testing
 exports_files(["index.bzl"])
 `;
+        }
     }
-    writeFileSync(path.posix.join(pkg._dir, 'BUILD.bazel'), BUILD_FILE_HEADER + buildFile);
+    writeFileSync(path.posix.join(pkg._dir, buildFilePath), BUILD_FILE_HEADER + buildFile);
 }
 function generateBazelWorkspaces(pkgs) {
     const workspaces = {};
