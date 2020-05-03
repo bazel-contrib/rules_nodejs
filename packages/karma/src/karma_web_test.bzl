@@ -19,7 +19,8 @@ load("@io_bazel_rules_webtesting//web:web.bzl", "web_test_suite")
 load("@io_bazel_rules_webtesting//web/internal:constants.bzl", "DEFAULT_WRAPPED_TEST_TAGS")
 
 KARMA_PEER_DEPS = [
-    "@npm//@bazel/karma",
+    # NB: uncommented during pkg_npm
+    #@external "@npm//@bazel/karma",
     "@npm//jasmine-core",
     "@npm//karma",
     "@npm//karma-chrome-launcher",
@@ -61,7 +62,8 @@ KARMA_WEB_TEST_ATTRS = {
     ),
     "karma": attr.label(
         doc = "karma binary label",
-        default = "@npm//karma/bin:karma",
+        # NB: replaced during pkg_npm with "@npm//karma/bin:karma"
+        default = "@npm_bazel_karma//:karma_bin",
         executable = True,
         cfg = "target",
         allow_files = True,
