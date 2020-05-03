@@ -186,24 +186,63 @@ node_module_library(
  * Generates all BUILD & bzl files for a package.
  */
 function generatePackageBuildFiles(pkg: Dep) {
+  // If a BUILD file was shipped with the package, append its contents to the end of
+  // what we generate for the package.
+  let buildFilePath: string|undefined;
+  if (pkg._files.includes('BUILD')) buildFilePath = 'BUILD';
+  if (pkg._files.includes('BUILD.bazel')) buildFilePath = 'BUILD.bazel';
   let buildFile = printPackage(pkg);
-
-  const binBuildFile = printPackageBin(pkg);
-  if (binBuildFile.length) {
-    writeFileSync(
-        path.posix.join(pkg._dir, 'bin', 'BUILD.bazel'), BUILD_FILE_HEADER + binBuildFile);
+  if (buildFilePath) {
+    buildFile = buildFile + '\n' +
+        fs.readFileSync(path.join('node_modules', pkg._dir, buildFilePath), 'utf-8');
+  } else {
+    buildFilePath = 'BUILD.bazel'
   }
 
-  const indexFile = printIndexBzl(pkg);
-  if (indexFile.length) {
-    writeFileSync(path.posix.join(pkg._dir, 'index.bzl'), indexFile);
-    buildFile = `${buildFile}
+  // If the package didn't ship a bin/BUILD file, generate one.
+  if (!pkg._files.includes('bin/BUILD.bazel') && !pkg._files.includes('bin/BUILD')) {
+    const binBuildFile = printPackageBin(pkg);
+    if (binBuildFile.length) {
+      writeFileSync(
+          path.posix.join(pkg._dir, 'bin', 'BUILD.bazel'), BUILD_FILE_HEADER + binBuildFile);
+    }
+  }
+
+  // If there's an index.bzl in the package then copy all the package's files
+  // other than the BUILD file which we'll write below.
+  // (maybe we shouldn't copy .js though, since it belongs under node_modules?)
+  if (pkg._files.includes('index.bzl')) {
+    pkg._files.filter(f => f !== 'BUILD' && f !== 'BUILD.bazel').forEach(file => {
+      if (/^node_modules[/\\]/.test(file)) {
+        // don't copy over nested node_modules
+        return;
+      }
+      // don't support rootPath here?
+      let destFile = path.posix.join(pkg._dir, file);
+      const basename = path.basename(file);
+      const basenameUc = basename.toUpperCase();
+      // Bazel BUILD files from npm distribution would have been renamed earlier with a _ prefix so
+      // we restore the name on the copy
+      if (basenameUc === '_BUILD' || basenameUc === '_BUILD.BAZEL') {
+        destFile = path.posix.join(path.dirname(destFile), basename.substr(1));
+      }
+      const src = path.posix.join('node_modules', pkg._dir, file);
+
+      mkdirp(path.dirname(destFile));
+      fs.copyFileSync(src, destFile);
+    });
+  } else {
+    const indexFile = printIndexBzl(pkg);
+    if (indexFile.length) {
+      writeFileSync(path.posix.join(pkg._dir, 'index.bzl'), indexFile);
+      buildFile += `
 # For integration testing
 exports_files(["index.bzl"])
 `;
+    }
   }
 
-  writeFileSync(path.posix.join(pkg._dir, 'BUILD.bazel'), BUILD_FILE_HEADER + buildFile);
+  writeFileSync(path.posix.join(pkg._dir, buildFilePath), BUILD_FILE_HEADER + buildFile);
 }
 
 /**

@@ -31,6 +31,7 @@
         "@types/semver": "6.2.0",
         "babel-jest": "^25.5.1",
         "bazel_workspaces": "file:./tools/npm_packages/bazel_workspaces",
+        "bazel_workspaces_consistent": "file:./tools/npm_packages/bazel_workspaces_consistent",
         "clang-format": "1.2.2",
         "conventional-changelog-cli": "^2.0.21",
         "core-util-is": "^1.0.2",

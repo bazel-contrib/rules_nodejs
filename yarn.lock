@@ -2220,6 +2220,9 @@ base@^0.11.1:
 "bazel_workspaces@file:./tools/npm_packages/bazel_workspaces":
   version "0.0.2"
 
+"bazel_workspaces_consistent@file:./tools/npm_packages/bazel_workspaces_consistent":
+  version "0.0.1"
+
 bcrypt-pbkdf@^1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/bcrypt-pbkdf/-/bcrypt-pbkdf-1.0.2.tgz#a4301d389b6a43f9b67ff3ca11a3f6637e360e9e"

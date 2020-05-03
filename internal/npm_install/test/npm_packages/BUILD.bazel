@@ -1,0 +1,10 @@
+load("@npm//bazel_workspaces_consistent:index.bzl", "some_rule")
+load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
+
+some_rule(name = "test_data")
+
+jasmine_node_test(
+    name = "test",
+    srcs = ["spec.js"],
+    data = ["test_data"],
+)
