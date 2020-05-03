@@ -42,6 +42,9 @@ pkg_npm(
         "@npm_bazel_protractor//:package_contents",
     ],
     build_file_content = """exports_files(["protractor.conf.js"])""",
+    substitutions = {
+        "@npm_bazel_protractor//:utils_lib": "@npm//@bazel/protractor",
+    },
     vendor_external = [
         "npm_bazel_protractor",
     ],
