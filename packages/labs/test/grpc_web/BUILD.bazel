@@ -1,7 +1,7 @@
 load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
 load("@npm_bazel_karma//:index.bzl", "karma_web_test_suite")
-load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
 load("@npm_bazel_typescript//:index.bzl", "ts_library")
+load("//packages/rollup:index.bzl", "rollup_bundle")
 
 # This test checks that the protos can be resolved in a nodejs environment
 jasmine_node_test(

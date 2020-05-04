@@ -1,6 +1,6 @@
 load("@build_bazel_rules_nodejs//internal/golden_file_test:golden_file_test.bzl", "golden_file_test")
-load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
 load("//internal/node:context.bzl", "node_context_data")
+load("//packages/rollup:index.bzl", "rollup_bundle")
 
 # Force stamping behavior even in builds without --stamp config
 # by mocking out the config data

@@ -1,0 +1,21 @@
+"""The default binaries used in our local builds
+
+Note that in the npm distribution, this file is absent, and will be generated on-the-fly when
+the package is installed (possibly with different attribute values).
+"""
+
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+
+nodejs_binary(
+    name = "rollup-worker",
+    data = [
+        # NOTE: we ought to link to the original location instead of copying
+        # "@build_bazel_rules_nodejs//packages/worker:npm_package",
+        "@build_bazel_rules_nodejs//packages/rollup:worker.js",
+        "@build_bazel_rules_nodejs//packages/rollup:copy_worker_proto",
+        "@npm//protobufjs",
+        "@npm//rollup",
+    ],
+    entry_point = "//packages/rollup:index.js",
+    visibility = ["//:__subpackages__"],
+)

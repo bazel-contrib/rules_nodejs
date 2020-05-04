@@ -12,11 +12,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "codeowners", "pkg_npm")
+load("@build_bazel_rules_nodejs//tools/stardoc:index.bzl", "stardoc")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
+
+package(default_visibility = ["//visibility:public"])
 
 codeowners(
     teams = ["@jbedard"],
+)
+
+exports_files(["rollup.config.js"])
+
+bzl_library(
+    name = "bzl",
+    srcs = glob(["*.bzl"]),
+    deps = [
+        "@build_bazel_rules_nodejs//:bzl",
+        "@build_bazel_rules_nodejs//internal/common:bzl",
+        "@build_bazel_rules_nodejs//internal/linker:bzl",
+    ],
+)
+
+stardoc(
+    name = "docs",
+    testonly = True,
+    out = "index.md",
+    input = ":index.bzl",
+    tags = ["fix-windows"],
+    deps = [":bzl"],
 )
 
 # Ugly genrule depending on local linux environment to build the README out of skylark doc generation.
@@ -25,11 +50,11 @@ codeowners(
 genrule(
     name = "generate_README",
     srcs = [
-        "@npm_bazel_rollup//:index.md",
-        "//packages/rollup/docs:install.md",
+        "index.md",
+        "install.md",
     ],
     outs = ["README.md"],
-    cmd = """cat $(execpath //packages/rollup/docs:install.md) $(execpath @npm_bazel_rollup//:index.md) | sed 's/^##/\\\n##/' > $@""",
+    cmd = """cat $(execpath install.md) $(execpath index.md) | sed 's/^##/\\\n##/' > $@""",
     tags = ["fix-windows"],
     visibility = ["//docs:__pkg__"],
 )
@@ -62,19 +87,17 @@ copy_file(
 pkg_npm(
     name = "npm_package",
     srcs = [
-        "@npm_bazel_rollup//:package_contents",
+        "index.bzl",
+        "index.js",
+        "package.json",
+        "rollup.config.js",
+        "rollup_bundle.bzl",
     ],
     build_file_content = """exports_files(["rollup.config.js"])""",
-    substitutions = {
-        "//:rollup-worker-local": "@npm//@bazel/rollup/bin:rollup-worker",
-    },
-    vendor_external = [
-        "npm_bazel_rollup",
-    ],
     deps = [
         ":npm_version_check",
     ] + select({
-        # FIXME: fix stardoc on Windows; @npm_bazel_rollup//:index.md generation fails with:
+        # FIXME: fix stardoc on Windows; //packages/rollup:index.md generation fails with:
         #   ERROR: D:/b/62unjjin/external/npm_bazel_rollup/BUILD.bazel:32:1: Couldn't build file
         #   external/npm_bazel_rollup/docs.raw: Generating proto for Starlark doc for docs failed (Exit 1)
         "@bazel_tools//src/conditions:windows": [],

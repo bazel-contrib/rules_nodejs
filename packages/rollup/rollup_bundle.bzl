@@ -9,7 +9,7 @@ See https://rollupjs.org/guide/en/#command-line-reference
 
 Typical example:
 ```python
-load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
+load("//packages/rollup:index.bzl", "rollup_bundle")
 
 rollup_bundle(
     name = "bundle",
@@ -84,7 +84,7 @@ See https://rollupjs.org/guide/en/#configuration-files
 If not set, a default basic Rollup config is used.
 """,
         allow_single_file = True,
-        default = "@npm_bazel_rollup//:rollup.config.js",
+        default = "//packages/rollup:rollup.config.js",
     ),
     "entry_point": attr.label(
         doc = """The bundle's entry point (e.g. your main.js or app.js or index.js).
@@ -176,14 +176,18 @@ Otherwise, the outputs are assumed to be a single file.
         doc = "Target that executes the rollup binary",
         executable = True,
         cfg = "host",
-        default = "@npm//rollup/bin:rollup",
+        default = (
+            # BEGIN-INTERNAL
+            "@npm" +
+            # END-INTERNAL
+            "//rollup/bin:rollup"
+        ),
     ),
     "rollup_worker_bin": attr.label(
         doc = "Internal use only",
         executable = True,
         cfg = "host",
-        # NB: will be substituted with "@npm//@bazel/rollup/bin:rollup-worker" when the pkg_npm target is built
-        default = "//:rollup-worker-local",
+        default = "//packages/rollup/bin:rollup-worker",
     ),
     "silent": attr.bool(
         doc = """Whether to execute the rollup binary with the --silent flag, defaults to False.
@@ -400,6 +404,6 @@ def _rollup_bundle(ctx):
 rollup_bundle = rule(
     doc = _DOC,
     implementation = _rollup_bundle,
-    attrs = _ROLLUP_ATTRS,
+    attrs = dict(_ROLLUP_ATTRS),
     outputs = _rollup_outs,
 )

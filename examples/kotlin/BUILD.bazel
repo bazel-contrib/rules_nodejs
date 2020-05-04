@@ -3,10 +3,10 @@
 
 load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin", "pkg_web")
 load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kt_js_import", "kt_js_library")
+load("@npm//@bazel/rollup:index.bzl", "rollup_bundle")
 load("@npm//@bazel/terser:index.bzl", "terser_minified")
 load("@npm//http-server:index.bzl", "http_server")
 load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
-load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
 
 # Grab a Maven dependency
 kt_js_import(
