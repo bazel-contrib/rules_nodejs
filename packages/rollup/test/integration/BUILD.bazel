@@ -1,6 +1,6 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "npm_package_bin")
 load("@build_bazel_rules_nodejs//internal/golden_file_test:golden_file_test.bzl", "golden_file_test")
-load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
+load("//packages/rollup:index.bzl", "rollup_bundle")
 
 _BUNDLE_FORMATS = [
     "amd",

@@ -1,6 +1,6 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
+load("@npm//@bazel/rollup:index.bzl", "rollup_bundle")
 load("@npm//@bazel/terser:index.bzl", "terser_minified")
-load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
 
 rollup_bundle(
     name = "app",

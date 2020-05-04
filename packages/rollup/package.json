@@ -21,11 +21,6 @@
         "rollup",
         "bazel"
     ],
-    "bazelWorkspaces": {
-        "npm_bazel_rollup": {
-            "rootPath": "."
-        }
-    },
     "scripts": {
       "postinstall": "node npm_version_check.js"
     }
