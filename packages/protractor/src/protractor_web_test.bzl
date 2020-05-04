@@ -20,7 +20,8 @@ load("@io_bazel_rules_webtesting//web:web.bzl", "web_test_suite")
 load("@io_bazel_rules_webtesting//web/internal:constants.bzl", "DEFAULT_WRAPPED_TEST_TAGS")
 
 _PROTRACTOR_PEER_DEPS = [
-    "@npm//@bazel/protractor",
+    # NB: replaced during pkg_npm with "@npm//@bazel/protractor",
+    "@npm_bazel_protractor//:utils_lib",
     "@npm//protractor",
 ]
 _PROTRACTOR_ENTRY_POINT = "@npm//:node_modules/protractor/bin/protractor"
