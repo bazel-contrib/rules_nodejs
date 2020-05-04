@@ -5,7 +5,7 @@ jasmine_node_test(
     srcs = ["spec.js"],
     coverage = True,
     data = [
-        "@npm_bazel_terser//:index.js",
+        "//packages/terser:index.js",
     ],
     tags = ["exclusive"],
 )

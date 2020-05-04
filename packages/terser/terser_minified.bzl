@@ -20,7 +20,7 @@ _DOC = """Run the terser minifier.
 
 Typical example:
 ```python
-load("@npm_bazel_terser//:index.bzl", "terser_minified")
+load("//packages/terser:index.bzl", "terser_minified")
 
 terser_minified(
     name = "out.min",
@@ -82,7 +82,7 @@ If `config_file` isn't supplied, Bazel will use a default config file.
         allow_single_file = True,
         # These defaults match how terser was run in the legacy built-in rollup_bundle rule.
         # We keep them the same so it's easier for users to migrate.
-        default = Label("@npm_bazel_terser//:terser_config.default.json"),
+        default = Label("//packages/terser:terser_config.default.json"),
     ),
     "debug": attr.bool(
         doc = """Configure terser to produce more readable output.
@@ -98,8 +98,7 @@ so that it only affects the current build.
     ),
     "terser_bin": attr.label(
         doc = "An executable target that runs Terser",
-        # NB: will be substituted with "@npm//@bazel/terser/bin:terser" in the pkg_npm
-        default = Label("@npm_bazel_terser//:terser-local"),
+        default = Label("//packages/terser/bin:terser"),
         executable = True,
         cfg = "host",
     ),

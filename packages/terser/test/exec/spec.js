@@ -3,7 +3,7 @@ const cp = require('child_process');
 const util = require('util');
 const assert = require('assert');
 
-const terserWrap = require.resolve('npm_bazel_terser/index.js');
+const terserWrap = require.resolve('build_bazel_rules_nodejs/packages/terser/index.js');
 
 if (!fs.existsSync(terserWrap)) {
   throw new Error(

@@ -48,10 +48,14 @@ def pkg_npm(**kwargs):
     # Default substitutions to scrub things like skylib references
     substitutions = kwargs.pop("substitutions", _COMMON_REPLACEMENTS)
 
+    pkg = native.package_name().split("/")[-1]
+
     # Finally call through to the rule with our defaults set
     _pkg_npm(
         deps = deps,
-        substitutions = substitutions,
+        substitutions = dict(substitutions, **{
+            "//packages/%s" % pkg: "//@bazel/%s" % pkg,
+        }),
         visibility = visibility,
         **kwargs
     )

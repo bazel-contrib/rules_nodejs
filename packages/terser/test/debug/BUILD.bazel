@@ -1,5 +1,5 @@
 load("@build_bazel_rules_nodejs//internal/golden_file_test:golden_file_test.bzl", "golden_file_test")
-load("@npm_bazel_terser//:index.bzl", "terser_minified")
+load("//packages/terser:index.bzl", "terser_minified")
 
 terser_minified(
     name = "out.min",
