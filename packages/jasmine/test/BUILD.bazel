@@ -1,4 +1,4 @@
-load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
+load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
 load("//internal/common:copy_to_bin.bzl", "copy_to_bin")
 
 jasmine_node_test(

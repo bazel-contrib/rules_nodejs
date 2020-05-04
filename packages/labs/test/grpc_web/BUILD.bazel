@@ -1,4 +1,4 @@
-load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
+load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
 load("@npm_bazel_karma//:index.bzl", "karma_web_test_suite")
 load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
 load("@npm_bazel_typescript//:index.bzl", "ts_library")

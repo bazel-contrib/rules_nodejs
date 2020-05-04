@@ -1,5 +1,5 @@
 load("@build_bazel_rules_nodejs//:tools/declare_directory.bzl", "declare_directory")
-load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
+load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
 load("@npm_bazel_terser//:index.bzl", "terser_minified")
 
 declare_directory(

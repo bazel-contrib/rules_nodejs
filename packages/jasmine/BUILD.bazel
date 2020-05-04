@@ -42,6 +42,10 @@ pkg_npm(
         "@npm_bazel_jasmine//:package_contents",
     ],
     build_file_content = "",
+    substitutions = {
+        "@npm_bazel_jasmine//:jasmine__pkg": "@npm//@bazel/jasmine",
+        "@npm_bazel_jasmine//:jasmine_runner.js": "@npm//:node_modules/@bazel/jasmine/jasmine_runner.js",
+    },
     vendor_external = [
         "npm_bazel_jasmine",
     ],

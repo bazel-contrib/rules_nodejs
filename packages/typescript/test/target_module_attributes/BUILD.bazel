@@ -1,4 +1,4 @@
-load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
+load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
 load("@npm_bazel_typescript//:index.bzl", "ts_library")
 load("//packages/typescript/test/devmode_consumer:devmode_consumer.bzl", "devmode_consumer")
 load("//packages/typescript/test/es6_consumer:es6_consumer.bzl", "es6_consumer")
