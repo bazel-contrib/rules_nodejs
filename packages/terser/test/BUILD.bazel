@@ -4,7 +4,7 @@ jasmine_node_test(
     name = "test",
     srcs = ["directory-args.spec.js"],
     deps = [
+        "//packages/terser:index.js",
         "@npm//tmp",
-        "@npm_bazel_terser//:index.js",
     ],
 )
