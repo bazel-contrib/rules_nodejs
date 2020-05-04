@@ -4,14 +4,13 @@ codeowners(
     teams = ["@mrmeku"],
 )
 
-exports_files(["tsconfig.json"])
-
 pkg_npm(
     name = "npm_package",
-    srcs = [
-        "@npm_bazel_labs//:package_contents",
+    srcs = glob(["*.bzl"]) + [
+        "README.md",
+        "package.json",
+        "//packages/labs/grpc_web:package_contents",
+        "//packages/labs/protobufjs:package_contents",
     ],
-    vendor_external = [
-        "npm_bazel_labs",
-    ],
+    build_file_content = "",
 )

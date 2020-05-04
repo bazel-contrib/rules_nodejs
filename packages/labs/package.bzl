@@ -49,8 +49,8 @@ def npm_bazel_labs_dependencies():
 
     yarn_install(
         name = "build_bazel_rules_typescript_grpc_web_compiletime_deps",
-        package_json = "@npm_bazel_labs//grpc_web:package.json",
-        yarn_lock = "@npm_bazel_labs//grpc_web:yarn.lock",
+        package_json = Label("//packages/labs/grpc_web:package.json"),
+        yarn_lock = Label("//packages/labs/grpc_web:yarn.lock"),
         # Do not symlink node_modules as when used in downstream repos we should not create
         # node_modules folders in the @npm_bazel_typescript external repository. This is
         # not supported by managed_directories.
@@ -59,8 +59,8 @@ def npm_bazel_labs_dependencies():
 
     yarn_install(
         name = "build_bazel_rules_typescript_protobufs_compiletime_deps",
-        package_json = "@npm_bazel_labs//protobufjs:package.json",
-        yarn_lock = "@npm_bazel_labs//protobufjs:yarn.lock",
+        package_json = Label("//packages/labs/protobufjs:package.json"),
+        yarn_lock = Label("//packages/labs/protobufjs:yarn.lock"),
         # Do not symlink node_modules as when used in downstream repos we should not create
         # node_modules folders in the @npm_bazel_typescript external repository. This is
         # not supported by managed_directories.

@@ -299,7 +299,7 @@ load("@build_bazel_integration_testing//tools:repositories.bzl", "bazel_binaries
 bazel_binaries(versions = SUPPORTED_BAZEL_VERSIONS)
 
 # Install labs dependencies
-load("@npm_bazel_labs//:package.bzl", "npm_bazel_labs_dependencies")
+load("//packages/labs:package.bzl", "npm_bazel_labs_dependencies")
 
 npm_bazel_labs_dependencies()
 

@@ -153,12 +153,12 @@ ts_proto_library = rule(
         ),
         "deps": attr.label_list(doc = "proto_library targets"),
         "_pbjs": attr.label(
-            default = Label("//protobufjs:pbjs"),
+            default = Label("//packages/labs/protobufjs:pbjs"),
             executable = True,
             cfg = "host",
         ),
         "_pbts": attr.label(
-            default = Label("//protobufjs:pbts"),
+            default = Label("//packages/labs/protobufjs:pbts"),
             executable = True,
             cfg = "host",
         ),
@@ -199,7 +199,7 @@ name the rule differently from the output file.
 The JavaScript produced by protobuf.js has a runtime dependency on a support library.
 Under devmode (e.g. `ts_devserver`, `karma_web_test_suite`) you'll need to include these scripts
 in the `bootstrap` phase (before Require.js loads). You can use the label
-`@npm_bazel_labs//protobufjs:bootstrap_scripts` to reference these scripts
+`//packages/labs/protobufjs:bootstrap_scripts` to reference these scripts
 in the `bootstrap` attribute of `karma_web_test_suite` or `ts_devserver`.
 
 To complete the example above, you could write a `karma_web_test_suite`:
@@ -210,7 +210,7 @@ load("//packages/karma:index.bzl", "karma_web_test_suite")
 karma_web_test_suite(
     name = "test",
     deps = ["test_lib"],
-    bootstrap = ["@npm_bazel_labs//protobufjs:bootstrap_scripts"],
+    bootstrap = ["//packages/labs/protobufjs:bootstrap_scripts"],
     browsers = [
         "@io_bazel_rules_webtesting//browsers:chromium-local",
         "@io_bazel_rules_webtesting//browsers:firefox-local",
