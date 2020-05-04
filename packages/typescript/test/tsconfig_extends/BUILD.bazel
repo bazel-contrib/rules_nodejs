@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@npm_bazel_typescript//:index.bzl", "ts_config", "ts_library")
+load("//packages/typescript:index.bzl", "ts_config", "ts_library")
 
 # Because our tsconfig.json has an extends property, we must also tell the
 # ts_library to include the extended tsconfig file in compilations.

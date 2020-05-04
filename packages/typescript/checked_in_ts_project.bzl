@@ -2,7 +2,7 @@
 
 load("@build_bazel_rules_nodejs//internal/golden_file_test:golden_file_test.bzl", "golden_file_test")
 load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:rules/write_file.bzl", "write_file")
-load("//:index.bzl", "ts_project")
+load("//packages/typescript:index.bzl", "ts_project")
 
 def checked_in_ts_project(name, src, checked_in_js = None, **kwargs):
     """

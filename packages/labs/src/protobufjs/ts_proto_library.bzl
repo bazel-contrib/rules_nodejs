@@ -171,7 +171,7 @@ a `ts_library` can appear, such as in the `deps[]` of another `ts_library`.
 Example:
 
 ```python
-load("@npm_bazel_typescript//:index.bzl", "ts_library", "ts_proto_library")
+load("//packages/typescript:index.bzl", "ts_library", "ts_proto_library")
 
 proto_library(
     name = "car_proto",

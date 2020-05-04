@@ -52,7 +52,8 @@ function main([tsconfigPath, output, target, attrsStr]: string[]): 0|1 {
         target} was configured with attributes that don't match the tsconfig`);
     failures.forEach(f => console.error(' - ' + f));
     console.error('You can automatically fix this by running:');
-    console.error(`    npx @bazel/buildozer ${buildozerCmds.map(c => `'${c}'`).join(' ')} ${target}`);
+    console.error(
+        `    npx @bazel/buildozer ${buildozerCmds.map(c => `'${c}'`).join(' ')} ${target}`);
     console.error('Or to suppress this error, run:');
     console.error(`    npx @bazel/buildozer 'set validate False' ${target}`);
     return 1;

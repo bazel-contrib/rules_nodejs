@@ -88,7 +88,7 @@ load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
 install_bazel_dependencies()
 
 #
-# Install npm_bazel_typescript dependencies
+# Install @bazel/typescript dependencies
 #
 
 # We use git_repository since Renovate knows how to update it.
@@ -99,6 +99,7 @@ git_repository(
     patches = [
         "//:rules_typescript_pr_494.patch",
         "//:rules_typescript_pr_496.patch",
+        "//:rules_typescript_pr_499.patch",
     ],
     remote = "http://github.com/bazelbuild/rules_typescript.git",
     shallow_since = "1582757372 -0800",
@@ -123,7 +124,7 @@ load("@build_bazel_rules_typescript//internal:ts_repositories.bzl", "ts_setup_de
 
 ts_setup_dev_workspace()
 
-load("@npm_bazel_typescript//internal:ts_repositories.bzl", "ts_setup_workspace")
+load("//packages/typescript/internal:ts_repositories.bzl", "ts_setup_workspace")
 
 ts_setup_workspace()
 

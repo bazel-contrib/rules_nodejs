@@ -1,6 +1,6 @@
 # BEGIN-INTERNAL
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
-load("@npm_bazel_typescript//:checked_in_ts_project.bzl", "checked_in_ts_project")
+load("//packages/typescript:checked_in_ts_project.bzl", "checked_in_ts_project")
 
 # We can't bootstrap the ts_library rule using the linker itself,
 # because the implementation of ts_library depends on the linker so that would be a cycle.

@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@npm//@bazel/typescript:index.bzl", "ts_library")
 load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
-load("@npm_bazel_typescript//:index.bzl", "ts_library")
 
 ts_library(
     name = "lib",
@@ -49,7 +49,7 @@ jasmine_node_test(
     name = "test",
     data = [
         # Verify that worker_protocol.proto can be referenced as a target in the generated npm bazel workspace
-        "@npm_bazel_typescript//third_party/github.com/bazelbuild/bazel/src/main/protobuf:worker_protocol.proto",
+        "@npm//@bazel/typescript/third_party/github.com/bazelbuild/bazel/src/main/protobuf:worker_protocol.proto",
     ],
     deps = [
         ":test_lib",

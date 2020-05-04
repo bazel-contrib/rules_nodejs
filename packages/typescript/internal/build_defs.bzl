@@ -20,11 +20,16 @@ load("@build_bazel_rules_nodejs//:providers.bzl", "LinkablePackageInfo", "NpmPac
 # pylint: disable=missing-docstring
 load("@build_bazel_rules_typescript//internal:common/compilation.bzl", "COMMON_ATTRIBUTES", "DEPS_ASPECTS", "compile_ts", "ts_providers_dict_to_struct")
 load("@build_bazel_rules_typescript//internal:common/tsconfig.bzl", "create_tsconfig")
-load("//internal:ts_config.bzl", "TsConfigInfo")
+load("//packages/typescript/internal:ts_config.bzl", "TsConfigInfo")
 
-# NB: substituted with "@npm//@bazel/typescript/bin:tsc_wrapped" in the pkg_npm rule
+# NB: substituted with "//@bazel/typescript/bin:tsc_wrapped" in the pkg_npm rule
 _DEFAULT_COMPILER = "@build_bazel_rules_typescript//internal:tsc_wrapped_bin"
-_DEFAULT_NODE_MODULES = Label("@npm//typescript:typescript__typings")
+_DEFAULT_NODE_MODULES = Label(
+    # BEGIN-INTERNAL
+    "@npm" +
+    # END-INTERNAL
+    "//typescript:typescript__typings",
+)
 
 _TYPESCRIPT_SCRIPT_TARGETS = ["es3", "es5", "es2015", "es2016", "es2017", "es2018", "esnext"]
 _TYPESCRIPT_MODULE_KINDS = ["none", "commonjs", "amd", "umd", "system", "es2015", "esnext"]
@@ -351,12 +356,9 @@ ts_library = rule(
 For example, we use the vanilla TypeScript tsc.js for bootstrapping,
 and Angular compilations can replace this with `ngc`.
 
-The default ts_library compiler depends on the `@npm//@bazel/typescript`
-target which is setup for projects that use bazel managed npm deps that
-fetch the @bazel/typescript npm package. It is recommended that you use
-the workspace name `@npm` for bazel managed deps so the default
-compiler works out of the box. Otherwise, you'll have to override
-the compiler attribute manually.
+The default ts_library compiler depends on the `//@bazel/typescript`
+target which is setup for projects that use bazel managed npm deps and
+install the @bazel/typescript npm package.
 """,
             default = Label(_DEFAULT_COMPILER),
             allow_files = True,
@@ -381,13 +383,10 @@ This value will override the `target` option in the user supplied tsconfig.""",
         "node_modules": attr.label(
             doc = """The npm packages which should be available during the compile.
 
-The default value is `@npm//typescript:typescript__typings` is setup
-for projects that use bazel managed npm deps that. It is recommended
-that you use the workspace name `@npm` for bazel managed deps so the
-default node_modules works out of the box. Otherwise, you'll have to
-override the node_modules attribute manually. This default is in place
+The default value of `//typescript:typescript__typings` is setup
+for projects that use bazel managed npm deps. This default is in place
 since ts_library will always depend on at least the typescript
-default libs which are provided by `@npm//typescript:typescript__typings`.
+default libs which are provided by `//typescript:typescript__typings`.
 
 This attribute is DEPRECATED. As of version 0.18.0 the recommended
 approach to npm dependencies is to use fine grained npm dependencies

@@ -51,19 +51,6 @@ local_repository(
 #     strip_prefix = "rules_nodejs-x.x.x/packages/jasmine/src",
 # )
 
-# In your code, you'd fetch this repository with an `http_archive` call.
-# We do this local repository only because this example lives in the same
-# repository with the rules_nodejs code and we want to test them together.
-local_repository(
-    name = "npm_bazel_typescript",
-    path = "../../packages/typescript/src",
-)
-# http_archive(
-#     name = "npm_bazel_jasmine",
-#     urls = ["https://github.com/bazelbuild/rules_nodejs/archive/x.x.x.tar.gz"],
-#     strip_prefix = "rules_nodejs-x.x.x/packages/typescript/src",
-# )
-
 # TODO(gregmagolan): keep this in sync with root WORKSPACE programatically
 git_repository(
     name = "build_bazel_rules_typescript",
@@ -90,6 +77,6 @@ load("@build_bazel_rules_typescript//internal:ts_repositories.bzl", "ts_setup_de
 
 ts_setup_dev_workspace()
 
-load("@npm_bazel_typescript//internal:ts_repositories.bzl", "ts_setup_workspace")
+load("@build_bazel_rules_nodejs//packages/typescript/internal:ts_repositories.bzl", "ts_setup_workspace")
 
 ts_setup_workspace()

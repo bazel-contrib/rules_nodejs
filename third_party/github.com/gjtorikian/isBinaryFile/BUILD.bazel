@@ -7,7 +7,7 @@ exports_files(["LICENSE"])
 load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
 
 # BEGIN-INTERNAL
-load("@npm_bazel_typescript//:index.bzl", "ts_project")
+load("//packages/typescript:index.bzl", "ts_project")
 
 ts_project(
     name = "tsconfig",

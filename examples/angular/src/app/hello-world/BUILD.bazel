@@ -1,6 +1,6 @@
 load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
+load("@npm//@bazel/typescript:index.bzl", "ts_library")
 load("@npm_bazel_karma//:index.bzl", "karma_web_test_suite")
-load("@npm_bazel_typescript//:index.bzl", "ts_library")
 load("//tools:angular_ts_library.bzl", "ng_ts_library")
 
 package(default_visibility = ["//:__subpackages__"])

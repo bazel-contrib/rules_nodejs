@@ -4,7 +4,7 @@ load("@build_bazel_rules_nodejs//:index.bzl", "pkg_web")
 load("@npm//@babel/cli:index.bzl", "babel")
 load("@npm//@bazel/rollup:index.bzl", "rollup_bundle")
 load("@npm//@bazel/terser:index.bzl", "terser_minified")
-load("@npm_bazel_typescript//:index.bzl", "ts_library")
+load("@npm//@bazel/typescript:index.bzl", "ts_library")
 
 def differential_loading(name, entry_point, srcs):
     "Common workflow to serve TypeScript to modern browsers"
