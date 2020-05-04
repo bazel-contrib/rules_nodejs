@@ -42,6 +42,10 @@ pkg_npm(
         "@npm_bazel_karma//:package_contents",
     ],
     build_file_content = """exports_files(["karma.conf.js"])""",
+    substitutions = {
+        "#@external ": "",
+        "@npm_bazel_karma//:karma_bin": "@npm//karma/bin:karma",
+    },
     vendor_external = [
         "npm_bazel_karma",
     ],
