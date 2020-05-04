@@ -170,7 +170,7 @@ install_bazel_dependencies()`;
     workspaceContent += `
 
 # Setup TypeScript toolchain
-load("@npm_bazel_typescript//:index.bzl", "ts_setup_workspace")
+load("//packages/typescript:index.bzl", "ts_setup_workspace")
 ts_setup_workspace()`;
   }
   write('WORKSPACE.bazel', workspaceContent);

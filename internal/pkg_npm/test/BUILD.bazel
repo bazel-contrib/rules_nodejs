@@ -1,8 +1,8 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "pkg_npm")
 load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
-load("@npm_bazel_typescript//:index.bzl", "ts_library")
 load("//internal/node:context.bzl", "node_context_data")
 load("//packages/rollup:index.bzl", "rollup_bundle")
+load("//packages/typescript:index.bzl", "ts_library")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/write_file.bzl", "write_file")
 
 write_file(

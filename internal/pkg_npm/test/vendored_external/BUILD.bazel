@@ -1,4 +1,4 @@
-load("@npm_bazel_typescript//:index.bzl", "ts_library")
+load("@build_bazel_rules_nodejs//packages/typescript:index.bzl", "ts_library")
 
 package(default_visibility = ["//visibility:public"])
 

@@ -69,7 +69,7 @@ browser_repositories(
 )
 
 # Setup the rules_typescript tooolchain
-load("@npm_bazel_typescript//:index.bzl", "ts_setup_workspace")
+load("@npm//@bazel/typescript:index.bzl", "ts_setup_workspace")
 
 ts_setup_workspace()
 

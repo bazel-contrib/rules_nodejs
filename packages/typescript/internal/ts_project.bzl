@@ -2,7 +2,12 @@
 
 load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "NpmPackageInfo", "run_node")
 
-_DEFAULT_TSC = "@npm//typescript/bin:tsc"
+_DEFAULT_TSC = (
+    # BEGIN-INTERNAL
+    "@npm" +
+    # END-INTERNAL
+    "//typescript/bin:tsc"
+)
 
 _ATTRS = {
     # NB: no restriction on extensions here, because tsc sometimes adds type-check support
@@ -186,7 +191,7 @@ validate_options = rule(
         "source_map": attr.bool(),
         "target": attr.string(),
         "tsconfig": attr.label(mandatory = True, allow_single_file = [".json"]),
-        "validator": attr.label(default = Label("//internal:local_validator"), executable = True, cfg = "host"),
+        "validator": attr.label(default = Label("//packages/typescript/bin:ts_project_options_validator"), executable = True, cfg = "host"),
     },
 )
 
@@ -206,7 +211,7 @@ def ts_project_macro(
         composite = False,
         incremental = False,
         emit_declaration_only = False,
-        tsc = _DEFAULT_TSC,
+        tsc = None,
         validate = True,
         **kwargs):
     """Compiles one TypeScript project using `tsc --project`
@@ -328,7 +333,6 @@ def ts_project_macro(
 
         tsc: Label of the TypeScript compiler binary to run.
 
-            Override this if your npm_install or yarn_install isn't named "npm"
             For example, `tsc = "@my_deps//typescript/bin:tsc"`
             Or you can pass a custom compiler binary instead.
 

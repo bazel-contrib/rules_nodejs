@@ -75,5 +75,5 @@ filegroup(
 filegroup(
     name = "package_contents",
     srcs = glob(["*"]),
-    visibility = ["//:__pkg__"],
+    visibility = ["//packages/typescript:__pkg__"],
 )

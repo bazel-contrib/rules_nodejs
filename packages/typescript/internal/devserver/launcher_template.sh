@@ -41,10 +41,11 @@ case "${unameOut}" in
 esac
 
 case "${machine}" in
-  # The following paths must match up with @npm_bazel_typescript//devserver binaries
-  darwin) readonly platform_main_manifest="npm_bazel_typescript/devserver/devserver-darwin_x64" ;;
-  windows) readonly platform_main_manifest="npm_bazel_typescript/devserver/devserver-windows_x64.exe" ;;
-  *) readonly platform_main_manifest="npm_bazel_typescript/devserver/devserver-linux_x64" ;;
+  # The following paths must match up with //packages/typescript/devserver binaries
+  # FIXME: we shouldn't hardcode "npm" repository name here
+  darwin) readonly platform_main_manifest="npm/bazel/typescript/devserver/devserver-darwin_x64" ;;
+  windows) readonly platform_main_manifest="npm/bazel/typescript/devserver/devserver-windows_x64.exe" ;;
+  *) readonly platform_main_manifest="npm/bazel/typescript/devserver/devserver-linux_x64" ;;
 esac
 
 readonly platform_main=$(rlocation "${platform_main_manifest}")

@@ -2,6 +2,29 @@ diff --git a/node_modules/@angular/bazel/src/external.bzl b/node_modules/@angula
 index 32b640a..84d37b3 100755
 --- a/node_modules/@angular/bazel/src/external.bzl
 +++ b/node_modules/@angular/bazel/src/external.bzl
+@@ -2,11 +2,11 @@
+ """
+ 
+ load(
+-    "@npm_bazel_typescript//internal:build_defs.bzl",
++    "@npm//@bazel/typescript/internal:build_defs.bzl",
+     _tsc_wrapped_tsconfig = "tsc_wrapped_tsconfig",
+ )
+ load(
+-    "@npm_bazel_typescript//internal:common/compilation.bzl",
++    "@npm//@bazel/typescript/internal:common/compilation.bzl",
+     _COMMON_ATTRIBUTES = "COMMON_ATTRIBUTES",
+     _COMMON_OUTPUTS = "COMMON_OUTPUTS",
+     _DEPS_ASPECTS = "DEPS_ASPECTS",
+@@ -14,7 +14,7 @@ load(
+     _ts_providers_dict_to_struct = "ts_providers_dict_to_struct",
+ )
+ load(
+-    "@npm_bazel_typescript//internal:ts_config.bzl",
++    "@npm//@bazel/typescript/internal:ts_config.bzl",
+     _TsConfigInfo = "TsConfigInfo",
+ )
+ load(
 @@ -19,12 +19,14 @@ load(
  )
  load(

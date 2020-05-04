@@ -12,4 +12,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-workspace(name = "npm_bazel_typescript")
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+
+licenses(["notice"])  # Apache 2.0
+
+package(default_visibility = [
+    "//packages/typescript:__subpackages__",
+    "//third_party/bazel_rules/rules_typescript/internal:__subpackages__",
+])
+
+bzl_library(
+    name = "bzl",
+    srcs = glob(["*.bzl"]),
+    deps = [
+        "@build_bazel_rules_nodejs//internal/js_library:bzl",
+        "@build_bazel_rules_nodejs//internal/pkg_web:bzl",
+    ],
+)
+
+exports_files(["launcher_template.sh"])
+
+filegroup(
+    name = "package_contents",
+    srcs = glob(["*"]),
+)

@@ -42,15 +42,11 @@ $ npm install --save-dev @bazel/typescript
 
 Watch for any peerDependency warnings - we assume you have already installed the `typescript` package from npm.
 
-Your `WORKSPACE` should declare a `yarn_install` or `npm_install` rule named `npm`.
-It should then install the rules found in the npm packages using the `install_bazel_dependencies` function.
-See https://github.com/bazelbuild/rules_nodejs/#quickstart
-
-Add to your `WORKSPACE` file, after `install_bazel_dependencies()`:
+Some rules require you to add this to your `WORKSPACE` file:
 
 ```python
 # Set up TypeScript toolchain
-load("@npm_bazel_typescript//:index.bzl", "ts_setup_workspace")
+load("@npm//@bazel/typescript:index.bzl", "ts_setup_workspace")
 ts_setup_workspace()
 ```
 
@@ -168,7 +164,7 @@ Create a `BUILD` file next to your sources:
 
 ```python
 package(default_visibility=["//visibility:public"])
-load("@npm_bazel_typescript//:index.bzl", "ts_library")
+load("//packages/typescript:index.bzl", "ts_library")
 
 ts_library(
     name = "my_code",
@@ -281,7 +277,7 @@ To use `ts_devserver`, you simply `load` the rule, and call it with `deps` that
 point to your `ts_library` target(s):
 
 ```python
-load("@npm_bazel_typescript//:index.bzl", "ts_devserver", "ts_library")
+load("//packages/typescript:index.bzl", "ts_devserver", "ts_library")
 
 ts_library(
     name = "app",

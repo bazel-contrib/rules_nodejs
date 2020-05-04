@@ -15,7 +15,6 @@
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 
 # gazelle:exclude worker_protocol.proto
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 load("@npm//typescript:index.bzl", "tsc")
 
 package(default_visibility = ["//visibility:public"])
@@ -32,12 +31,6 @@ tsc(
         "ts_project_options_validator.ts",
         "@npm//@types/node",
     ],
-)
-
-nodejs_binary(
-    name = "local_validator",
-    data = ["@npm//typescript"],
-    entry_point = "ts_project_options_validator.js",
 )
 
 bzl_library(
@@ -71,6 +64,7 @@ filegroup(
         "ts_config.bzl",
         "ts_project.bzl",
         "ts_repositories.bzl",
-        "//internal/devserver:package_contents",
+        "//packages/typescript/internal/devserver:package_contents",
     ],
+    visibility = ["//packages/typescript:__subpackages__"],
 )
