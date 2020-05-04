@@ -1,6 +1,6 @@
-load("@npm_bazel_labs//:index.bzl", "protobufjs_ts_library")
 load("@rules_proto//proto:defs.bzl", "proto_library")
 load("//packages/jasmine:index.bzl", "jasmine_node_test")
+load("//packages/labs:index.bzl", "protobufjs_ts_library")
 load("//packages/typescript:index.bzl", "ts_library")
 
 ts_library(

@@ -193,7 +193,7 @@ ts_proto_library_aspect = aspect(
             executable = True,
             cfg = "host",
             allow_files = True,
-            default = Label("@npm_bazel_labs//grpc_web:change_import_style"),
+            default = Label("//packages/labs/grpc_web:change_import_style"),
         ),
         "_protoc": attr.label(
             allow_single_file = True,

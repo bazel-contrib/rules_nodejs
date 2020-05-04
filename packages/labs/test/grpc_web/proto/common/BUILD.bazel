@@ -1,5 +1,5 @@
-load("@npm_bazel_labs//:index.bzl", "ts_proto_library")
 load("@rules_proto//proto:defs.bzl", "proto_library")
+load("//packages/labs:index.bzl", "ts_proto_library")
 
 package(default_visibility = ["//:__subpackages__"])
 

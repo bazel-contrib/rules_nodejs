@@ -12,19 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# BEGIN-INTERNAL
-# Parts of this BUILD file only necessary when building from source.
-# The generated `@bazel/labs` npm package contains a trimmed BUILD file using INTERNAL fences.
-package(default_visibility = ["//visibility:public"])
+"""Public API surface is re-exported here.
+"""
 
-filegroup(
-    name = "package_contents",
-    srcs = glob(["*.bzl"]) + [
-        "BUILD.bazel",
-        "README.md",
-        "package.json",
-        "//grpc_web:package_contents",
-        "//protobufjs:package_contents",
-    ],
-)
-# END-INTERNAL
+load("//packages/labs/grpc_web:ts_proto_library.bzl", _ts_proto_library = "ts_proto_library")
+load("//packages/labs/protobufjs:ts_proto_library.bzl", _protobufjs_ts_library = "ts_proto_library")
+
+ts_proto_library = _ts_proto_library
+protobufjs_ts_library = _protobufjs_ts_library

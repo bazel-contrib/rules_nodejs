@@ -41,7 +41,7 @@ ts_library(
 karma_web_test_suite(
     name = "proto_with_deps_test_suite",
     srcs = [
-        "@npm_bazel_labs//grpc_web:bootstrap_scripts",
+        "//packages/labs/grpc_web:bootstrap_scripts",
     ],
     browsers = [
         "@io_bazel_rules_webtesting//browsers:chromium-local",
@@ -67,7 +67,7 @@ ts_library(
 karma_web_test_suite(
     name = "pizza_service_proto_test_suite",
     srcs = [
-        "@npm_bazel_labs//grpc_web:bootstrap_scripts",
+        "//packages/labs/grpc_web:bootstrap_scripts",
     ],
     browsers = [
         "@io_bazel_rules_webtesting//browsers:chromium-local",

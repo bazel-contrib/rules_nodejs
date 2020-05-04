@@ -52,9 +52,8 @@ def write_amd_names_shim(actions, amd_names_shim, targets):
 def _impl(ctx):
     files = []
 
-    is_all_sources = ctx.files.srcs and ctx.files.srcs[0].is_source
     for src in ctx.files.srcs:
-        if src.is_source:
+        if src.is_source and not src.path.startswith("external/"):
             dst = ctx.actions.declare_file(src.basename, sibling = src)
             if ctx.attr.is_windows:
                 copy_cmd(ctx, src, dst)

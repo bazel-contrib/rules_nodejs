@@ -61,7 +61,7 @@ load("@npm//@bazel/karma:package.bzl", "npm_bazel_karma_dependencies")
 
 npm_bazel_karma_dependencies()
 
-load("@npm_bazel_labs//:package.bzl", "npm_bazel_labs_dependencies")
+load("@npm//@bazel/labs:package.bzl", "npm_bazel_labs_dependencies")
 
 npm_bazel_labs_dependencies()
 

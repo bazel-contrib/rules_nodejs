@@ -51,5 +51,5 @@ js_library(
 filegroup(
     name = "package_contents",
     srcs = glob(["*"]),
-    visibility = ["//:__pkg__"],
+    visibility = ["//packages/labs:__pkg__"],
 )

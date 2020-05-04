@@ -19,7 +19,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 # TODO: Setup rules_proto
 # TODO: Setup rules_nodejs
 
-load("@npm_bazel_labs//:package.bzl", "npm_bazel_labs_dependencies")
+load("//packages/labs:package.bzl", "npm_bazel_labs_dependencies")
 
 npm_bazel_labs_dependencies()
 ```
@@ -28,7 +28,7 @@ Then, in your `BUILD` file:
 
 ```python
 load("@rules_proto//:index.bzl", "typescript_proto_library")
-load("@npm_bazel_labs//:index.bzl", "ts_proto_library")
+load("//packages/labs:index.bzl", "ts_proto_library")
 
 proto_library(
   name = "test_proto",
@@ -48,7 +48,7 @@ You can now use the `test_ts_proto` target as a `dep` in other `ts_library` targ
 - `google-protobuf`
 - `grpc-web`
 
-UMD versions of these runtime dependencies are provided by `@npm_bazel_labs//grpc_web:bootstrap_scripts` (for use within `ts_devserver` and `karma_web_test_suite`)
+UMD versions of these runtime dependencies are provided by `//packages/labs/grpc_web:bootstrap_scripts` (for use within `ts_devserver` and `karma_web_test_suite`)
 
 See `//examples/protocol_buffers/BUILD.bazel` for an example.
 
