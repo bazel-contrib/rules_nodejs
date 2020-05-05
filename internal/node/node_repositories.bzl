@@ -280,6 +280,9 @@ def _download_node(repository_ctx):
       repository_ctx: The repository rule context
     """
     if repository_ctx.attr.vendored_node:
+        repository_ctx.file("node_info", content = "# vendored_node: {vendored_node}".format(
+            vendored_node = repository_ctx.attr.vendored_node,
+        ))
         return
 
     # The host is baked into the repository name by design.
@@ -304,6 +307,15 @@ def _download_node(repository_ctx):
         sha256 = sha256,
     )
 
+    repository_ctx.file("node_info", content = """# filename: {filename}
+# strip_prefix: {strip_prefix}
+# sha256: {sha256}
+""".format(
+        filename = filename,
+        strip_prefix = strip_prefix,
+        sha256 = sha256,
+    ))
+
 def _download_yarn(repository_ctx):
     """Used to download a yarn tool package.
 
@@ -311,6 +323,9 @@ def _download_yarn(repository_ctx):
       repository_ctx: The repository rule context
     """
     if repository_ctx.attr.vendored_yarn:
+        repository_ctx.file("yarn_info", content = "# vendored_yarn: {vendored_yarn}".format(
+            vendored_yarn = repository_ctx.attr.vendored_yarn,
+        ))
         return
 
     yarn_version = repository_ctx.attr.yarn_version
@@ -328,6 +343,15 @@ def _download_yarn(repository_ctx):
         stripPrefix = strip_prefix,
         sha256 = sha256,
     )
+
+    repository_ctx.file("yarn_info", content = """# filename: {filename}
+# strip_prefix: {strip_prefix}
+# sha256: {sha256}
+""".format(
+        filename = filename,
+        strip_prefix = strip_prefix,
+        sha256 = sha256,
+    ))
 
 def _prepare_node(repository_ctx):
     """Sets up BUILD files and shell wrappers for the versions of NodeJS, npm & yarn just set up.
