@@ -51,6 +51,7 @@ load("@build_bazel_rules_nodejs//:index.bzl", "npm_install", "yarn_install")
 yarn_install(
     name = "npm",
     data = [
+        "//:patches/jest-haste-map+25.3.0.patch",
         "//internal/npm_install/test:postinstall.js",
     ],
     environment = {

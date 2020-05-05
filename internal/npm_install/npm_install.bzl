@@ -23,7 +23,7 @@ See discussion in the README.
 
 load("//:version.bzl", "VERSION")
 load("//internal/common:check_bazel_version.bzl", "check_bazel_version")
-load("//internal/common:os_name.bzl", "is_windows_os")
+load("//internal/common:os_name.bzl", "is_windows_os", "os_name")
 load("//internal/node:node_labels.bzl", "get_node_label", "get_npm_label", "get_yarn_label")
 
 COMMON_ATTRIBUTES = dict(dict(), **{
@@ -34,8 +34,14 @@ COMMON_ATTRIBUTES = dict(dict(), **{
     "data": attr.label_list(
         doc = """Data files required by this rule.
 
-If symlink_node_modules is True, this attribute is ignored since
-the dependency manager will run in the package.json location.
+If symlink_node_modules is True, this attribute is optional since the package manager
+will run in your workspace folder. It is recommended, however, that all files that the
+package manager depends on, such as `.rc` files or files used in `postinstall`, are added
+symlink_node_modules is True so that the repository rule is rerun when any of these files
+change.
+
+If symlink_node_modules is False, the package manager is run in the bazel external
+repository so all files that the package manager depends on must be listed.
 """,
     ),
     "environment": attr.string_dict(
@@ -148,6 +154,18 @@ def _add_data_dependencies(repository_ctx):
         # files as npm file:// packages
         repository_ctx.template("/".join(to), f, {})
 
+def _add_node_repositories_info_deps(repository_ctx):
+    # Add a dep to the node_info & yarn_info files from node_repositories
+    # so that if the node or yarn versions change we re-run the repository rule
+    repository_ctx.symlink(
+        Label("@nodejs_%s//:node_info" % os_name(repository_ctx)),
+        repository_ctx.path("_node_info"),
+    )
+    repository_ctx.symlink(
+        Label("@nodejs_%s//:yarn_info" % os_name(repository_ctx)),
+        repository_ctx.path("_yarn_info"),
+    )
+
 def _symlink_node_modules(repository_ctx):
     package_json_dir = repository_ctx.path(repository_ctx.attr.package_json).dirname
     repository_ctx.symlink(repository_ctx.path(str(package_json_dir) + "/node_modules"), repository_ctx.path("node_modules"))
@@ -216,15 +234,14 @@ cd /D "{root}" && "{npm}" {npm_args}
             executable = True,
         )
 
-    if not repository_ctx.attr.symlink_node_modules:
-        repository_ctx.symlink(
-            repository_ctx.attr.package_lock_json,
-            repository_ctx.path("package-lock.json"),
-        )
-        _add_package_json(repository_ctx)
-        _add_data_dependencies(repository_ctx)
-
+    repository_ctx.symlink(
+        repository_ctx.attr.package_lock_json,
+        repository_ctx.path("package-lock.json"),
+    )
+    _add_package_json(repository_ctx)
+    _add_data_dependencies(repository_ctx)
     _add_scripts(repository_ctx)
+    _add_node_repositories_info_deps(repository_ctx)
 
     result = repository_ctx.execute(
         [node, "pre_process_package_json.js", repository_ctx.path(repository_ctx.attr.package_json), "npm"],
@@ -354,15 +371,14 @@ cd /D "{root}" && "{yarn}" {yarn_args}
             executable = True,
         )
 
-    if not repository_ctx.attr.symlink_node_modules:
-        repository_ctx.symlink(
-            repository_ctx.attr.yarn_lock,
-            repository_ctx.path("yarn.lock"),
-        )
-        _add_package_json(repository_ctx)
-        _add_data_dependencies(repository_ctx)
-
+    repository_ctx.symlink(
+        repository_ctx.attr.yarn_lock,
+        repository_ctx.path("yarn.lock"),
+    )
+    _add_package_json(repository_ctx)
+    _add_data_dependencies(repository_ctx)
     _add_scripts(repository_ctx)
+    _add_node_repositories_info_deps(repository_ctx)
 
     result = repository_ctx.execute(
         [node, "pre_process_package_json.js", repository_ctx.path(repository_ctx.attr.package_json), "yarn"],
