@@ -15,14 +15,6 @@ import {Plugin as StrictDepsPlugin} from './strict_deps';
 import {BazelOptions, parseTsconfig, resolveNormalizedPath} from './tsconfig';
 import {debug, log, runAsWorker, runWorkerLoop} from './worker';
 
-// Equivalent of running node with --expose-gc
-// but easier to write tooling since we don't need to inject that arg to
-// nodejs_binary
-if (typeof global.gc !== 'function') {
-  require('v8').setFlagsFromString('--expose_gc');
-  global.gc = require('vm').runInNewContext('gc');
-}
-
 /**
  * Top-level entry point for tsc_wrapped.
  */
@@ -247,37 +239,23 @@ function runOneBuild(
     fileLoader = new UncachedFileLoader();
   }
 
-  const perfTracePath = bazelOpts.perfTracePath;
-  if (!perfTracePath) {
-    const {diagnostics} = createProgramAndEmit(
-        fileLoader, options, bazelOpts, sourceFiles, disabledTsetseRules);
-    if (diagnostics.length > 0) {
-      console.error(bazelDiagnostics.format(bazelOpts.target, diagnostics));
-      return false;
-    }
-    return true;
+  const diagnostics = perfTrace.wrap('createProgramAndEmit', () => {
+    return createProgramAndEmit(
+               fileLoader, options, bazelOpts, sourceFiles, disabledTsetseRules)
+        .diagnostics;
+  });
+
+  if (diagnostics.length > 0) {
+    console.error(bazelDiagnostics.format(bazelOpts.target, diagnostics));
+    return false;
   }
 
-  log('Writing trace to', perfTracePath);
-  const success = perfTrace.wrap('runOneBuild', () => {
-    const {diagnostics} = createProgramAndEmit(
-        fileLoader, options, bazelOpts, sourceFiles, disabledTsetseRules);
-    if (diagnostics.length > 0) {
-      console.error(bazelDiagnostics.format(bazelOpts.target, diagnostics));
-      return false;
-    }
-    return true;
-  });
-  if (!success) return false;
-  // Force a garbage collection pass.  This keeps our memory usage
-  // consistent across multiple compilations, and allows the file
-  // cache to use the current memory usage as a guideline for expiring
-  // data.  Note: this is intentionally not within runFromOptions(), as
-  // we want to gc only after all its locals have gone out of scope.
-  global.gc();
-
-  perfTrace.snapshotMemoryUsage();
-  perfTrace.write(perfTracePath);
+  const perfTracePath = bazelOpts.perfTracePath;
+  if (perfTracePath) {
+    log('Writing trace to', perfTracePath);
+    perfTrace.snapshotMemoryUsage();
+    perfTrace.write(perfTracePath);
+  }
 
   return true;
 }
