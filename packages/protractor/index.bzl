@@ -16,7 +16,7 @@
 """
 
 load(
-    "//:protractor_web_test.bzl",
+    ":protractor_web_test.bzl",
     _protractor_web_test = "protractor_web_test",
     _protractor_web_test_suite = "protractor_web_test_suite",
 )

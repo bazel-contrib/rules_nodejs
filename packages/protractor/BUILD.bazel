@@ -12,8 +12,55 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
 load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "pkg_npm")
+load("@build_bazel_rules_nodejs//packages/typescript:index.bzl", "ts_library")
+load("@build_bazel_rules_nodejs//tools/stardoc:index.bzl", "stardoc")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
+
+package(default_visibility = ["//visibility:public"])
+
+bzl_library(
+    name = "bzl",
+    testonly = True,
+    srcs = glob(["*.bzl"]),
+    deps = [
+        "@build_bazel_rules_nodejs//:bzl",
+        "@build_bazel_rules_nodejs//internal/common:bzl",
+        "@build_bazel_rules_nodejs//internal/node:bzl",
+        "@io_bazel_rules_webtesting//web",
+    ],
+)
+
+stardoc(
+    name = "docs",
+    testonly = True,
+    out = "index.md",
+    input = "//packages/protractor:index.bzl",
+    tags = ["fix-windows"],
+    deps = ["//packages/protractor:bzl"],
+)
+
+nodejs_test(
+    name = "test",
+    data = [
+        "docs_test.js",
+        "index.md",
+    ],
+    entry_point = ":docs_test.js",
+    tags = [
+        "fix-windows",
+    ],
+)
+
+ts_library(
+    name = "protractor",
+    srcs = ["protractor-utils.ts"],
+    module_name = "@bazel/protractor/protractor-utils",
+    module_root = "protractor-utils",
+    deps = ["@npm//@types/node"],
+)
 
 # Ugly genrule depending on local linux environment to build the README out of skylark doc generation.
 # Only referenced when we do a release.
@@ -21,11 +68,11 @@ load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "co
 genrule(
     name = "generate_README",
     srcs = [
-        "@npm_bazel_protractor//:index.md",
-        "//packages/protractor/docs:install.md",
+        "index.md",
+        "install.md",
     ],
     outs = ["README.md"],
-    cmd = """cat $(execpath //packages/protractor/docs:install.md) $(execpath @npm_bazel_protractor//:index.md) | sed 's/^##/\\\n##/' > $@""",
+    cmd = """cat $(execpath install.md) $(execpath index.md) | sed 's/^##/\\\n##/' > $@""",
     tags = ["fix-windows"],
     visibility = ["//docs:__pkg__"],
 )
@@ -39,20 +86,18 @@ copy_file(
 pkg_npm(
     name = "npm_package",
     srcs = [
-        "@npm_bazel_protractor//:package_contents",
+        "index.bzl",
+        "package.bzl",
+        "package.json",
+        "protractor.conf.js",
+        "protractor_web_test.bzl",
     ],
     build_file_content = """exports_files(["protractor.conf.js"])""",
-    substitutions = {
-        "@npm_bazel_protractor//:utils_lib": "@npm//@bazel/protractor",
-    },
-    vendor_external = [
-        "npm_bazel_protractor",
-    ],
     deps = [
         ":npm_version_check",
-        "@npm_bazel_protractor//:utils_lib",
+        "//packages/protractor",
     ] + select({
-        # FIXME: fix stardoc on Windows; @npm_bazel_protractor//:index.md generation fails with:
+        # FIXME: fix stardoc on Windows; //packages/protractor:index.md generation fails with:
         #   ERROR: D:/b/62unjjin/external/npm_bazel_protractor/BUILD.bazel:36:1: Couldn't build file
         #   external/npm_bazel_protractor/docs.raw: Generating proto for Starlark doc for docs failed (Exit 1)
         "@bazel_tools//src/conditions:windows": [],
