@@ -85,8 +85,7 @@ const COMPILER_OPTIONS: ts.CompilerOptions = {
 const defaultBazelOpts = {
   googmodule: true,
   workspaceName: 'google3',
-  prelude:
-      `goog.require('google3.third_party.javascript.tslib.tslib_closure');`,
+  prelude: `goog.require('google3.third_party.javascript.tslib.tslib');`,
 } as BazelOptions;
 
 describe('compiler host', () => {
