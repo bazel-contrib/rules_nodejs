@@ -29,11 +29,6 @@
     "karma-requirejs": ">=1.0.0",
     "karma-sourcemap-loader": ">=0.3.0"
   },
-  "bazelWorkspaces": {
-    "npm_bazel_karma": {
-      "rootPath": "."
-    }
-  },
   "scripts": {
     "postinstall": "node npm_version_check.js"
   }

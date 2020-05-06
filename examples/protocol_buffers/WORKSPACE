@@ -57,7 +57,7 @@ load("@npm_bazel_protractor//:package.bzl", "npm_bazel_protractor_dependencies")
 
 npm_bazel_protractor_dependencies()
 
-load("@npm_bazel_karma//:package.bzl", "npm_bazel_karma_dependencies")
+load("@npm//@bazel/karma:package.bzl", "npm_bazel_karma_dependencies")
 
 npm_bazel_karma_dependencies()
 

@@ -6,17 +6,11 @@ The Karma rules run karma tests with Bazel.
 
 Add the `@bazel/karma` npm package to your `devDependencies` in `package.json`.
 
-Your `WORKSPACE` should declare a `yarn_install` or `npm_install` rule named `npm`.
-It should then install the rules found in the npm packages using the `install_bazel_dependencies' function.
-See https://github.com/bazelbuild/rules_nodejs/#quickstart
-
-This causes the `@bazel/karma` package to be installed as a Bazel workspace named `npm_bazel_karma`.
-
 Now add this to your `WORKSPACE` to install the Karma dependencies:
 
 ```python
 # Fetch transitive Bazel dependencies of npm_bazel_karma
-load("@npm_bazel_karma//:package.bzl", "npm_bazel_karma_dependencies")
+load("@npm//@bazel/karma:package.bzl", "npm_bazel_karma_dependencies")
 npm_bazel_karma_dependencies()
 ```
 

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@npm_bazel_karma//:index.bzl", "karma_web_test_suite")
+load("//packages/karma:index.bzl", "karma_web_test_suite")
 
 karma_web_test_suite(
     name = "testing",

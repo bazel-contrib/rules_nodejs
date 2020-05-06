@@ -132,7 +132,7 @@ ts_setup_workspace()
 # Install npm_bazel_karma dependencies
 #
 
-load("@npm_bazel_karma//:package.bzl", "npm_bazel_karma_dependencies")
+load("//packages/karma:package.bzl", "npm_bazel_karma_dependencies")
 
 npm_bazel_karma_dependencies()
 

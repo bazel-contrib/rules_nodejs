@@ -205,7 +205,7 @@ in the `bootstrap` attribute of `karma_web_test_suite` or `ts_devserver`.
 To complete the example above, you could write a `karma_web_test_suite`:
 
 ```python
-load("@npm_bazel_karma//:index.bzl", "karma_web_test_suite")
+load("//packages/karma:index.bzl", "karma_web_test_suite")
 
 karma_web_test_suite(
     name = "test",

@@ -12,8 +12,75 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "nodejs_test")
 load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "pkg_npm")
+load("@build_bazel_rules_nodejs//packages/typescript:index.bzl", "ts_library")
+load("@build_bazel_rules_nodejs//tools/stardoc:index.bzl", "stardoc")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
+
+package(default_visibility = ["//visibility:public"])
+
+ts_library(
+    name = "bazel_karma_lib",
+    srcs = glob(["*.ts"]),
+    module_name = "@bazel/karma",
+    tsconfig = ":tsconfig.json",
+    deps = [
+        "@npm//@types/node",
+        "@npm//tmp",
+    ],
+)
+
+nodejs_binary(
+    name = "karma_bin",
+    data = [
+        ":bazel_karma_lib",
+        "@npm//jasmine-core",
+        "@npm//karma",
+        "@npm//karma-chrome-launcher",
+        "@npm//karma-firefox-launcher",
+        "@npm//karma-jasmine",
+        "@npm//karma-requirejs",
+        "@npm//karma-sourcemap-loader",
+        "@npm//requirejs",
+        "@npm//tmp",
+    ],
+    entry_point = "@npm//:node_modules/karma/bin/karma",
+    install_source_map_support = False,
+)
+
+bzl_library(
+    name = "bzl",
+    testonly = True,
+    srcs = glob(["*.bzl"]),
+    deps = [
+        "@build_bazel_rules_nodejs//:bzl",
+        "@build_bazel_rules_nodejs//internal/js_library:bzl",
+        "@io_bazel_rules_webtesting//web",
+    ],
+)
+
+stardoc(
+    name = "docs",
+    testonly = True,
+    out = "index.md",
+    input = "index.bzl",
+    tags = ["fix-windows"],
+    deps = [":bzl"],
+)
+
+nodejs_test(
+    name = "test",
+    data = [
+        "docs_test.js",
+        "index.md",
+    ],
+    entry_point = ":docs_test.js",
+    tags = [
+        "fix-windows",
+    ],
+)
 
 # Ugly genrule depending on local linux environment to build the README out of skylark doc generation.
 # Only referenced when we do a release.
@@ -21,11 +88,11 @@ load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "co
 genrule(
     name = "generate_README",
     srcs = [
-        "@npm_bazel_karma//:index.md",
-        "//packages/karma/docs:install.md",
+        "index.md",
+        "install.md",
     ],
     outs = ["README.md"],
-    cmd = """cat $(execpath //packages/karma/docs:install.md) $(execpath @npm_bazel_karma//:index.md) | sed 's/^##/\\\n##/' > $@""",
+    cmd = """cat $(execpath install.md) $(execpath index.md) | sed 's/^##/\\\n##/' > $@""",
     tags = ["fix-windows"],
     visibility = ["//docs:__pkg__"],
 )
@@ -39,21 +106,22 @@ copy_file(
 pkg_npm(
     name = "npm_package",
     srcs = [
-        "@npm_bazel_karma//:package_contents",
+        "index.bzl",
+        "karma.conf.js",
+        "karma_web_test.bzl",
+        "package.bzl",
+        "package.json",
     ],
     build_file_content = """exports_files(["karma.conf.js"])""",
     substitutions = {
         "#@external ": "",
-        "@npm_bazel_karma//:karma_bin": "@npm//karma/bin:karma",
+        "//packages/karma:karma_bin": "@npm//karma/bin:karma",
     },
-    vendor_external = [
-        "npm_bazel_karma",
-    ],
     deps = [
-        "@npm_bazel_karma//:bazel_karma_lib",
+        "//packages/karma:bazel_karma_lib",
         ":npm_version_check",
     ] + select({
-        # FIXME: fix stardoc on Windows; @npm_bazel_karma//:index.md generation fails with:
+        # FIXME: fix stardoc on Windows; //packages/karma:index.md generation fails with:
         #   ERROR: D:/b/62unjjin/external/npm_bazel_karma/BUILD.bazel:65:1: Couldn't build file
         #   external/npm_bazel_karma/docs.raw: Generating proto for Starlark doc for docs failed (Exit 1)
         "@bazel_tools//src/conditions:windows": [],
