@@ -1,6 +1,6 @@
+load("@npm//@bazel/protractor:index.bzl", "protractor_web_test_suite")
 load("@npm//http-server:index.bzl", "http_server")
 load("@npm//mocha:index.bzl", "mocha_test")
-load("@npm_bazel_protractor//:index.bzl", "protractor_web_test_suite")
 load(":differential_loading.bzl", "differential_loading")
 
 differential_loading(

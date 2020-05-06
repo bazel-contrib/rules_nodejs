@@ -47,7 +47,7 @@ load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
 install_bazel_dependencies()
 
 # Load npm_bazel_protractor dependencies
-load("@npm_bazel_protractor//:package.bzl", "npm_bazel_protractor_dependencies")
+load("@npm//@bazel/protractor:package.bzl", "npm_bazel_protractor_dependencies")
 
 npm_bazel_protractor_dependencies()
 

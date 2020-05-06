@@ -20,11 +20,13 @@ load("@io_bazel_rules_webtesting//web:web.bzl", "web_test_suite")
 load("@io_bazel_rules_webtesting//web/internal:constants.bzl", "DEFAULT_WRAPPED_TEST_TAGS")
 
 _PROTRACTOR_PEER_DEPS = [
-    # NB: replaced during pkg_npm with "@npm//@bazel/protractor",
-    "@npm_bazel_protractor//:utils_lib",
-    "@npm//protractor",
+    # BEGIN-INTERNAL
+    "@build_bazel_rules_nodejs" +
+    # END-INTERNAL
+    "//packages/protractor",
+    "//protractor",
 ]
-_PROTRACTOR_ENTRY_POINT = "@npm//:node_modules/protractor/bin/protractor"
+_PROTRACTOR_ENTRY_POINT = "//:node_modules/protractor/bin/protractor"
 
 # Avoid using non-normalized paths (workspace/../other_workspace/path)
 def _to_manifest_path(ctx, file):
@@ -209,11 +211,18 @@ _protractor_web_test = rule(
             aspects = [node_modules_aspect],
         ),
         "_conf_tmpl": attr.label(
-            default = Label("//:protractor.conf.js"),
+            default = Label("//packages/protractor:protractor.conf.js"),
             allow_single_file = True,
         ),
     },
 )
+
+def _relative(npm_workspace, label):
+    if label[0] == "@":
+        return label
+    if label.startswith("//"):
+        return npm_workspace + label
+    return "%s//%s" % (npm_workspace, label)
 
 def protractor_web_test(
         name,
@@ -226,6 +235,7 @@ def protractor_web_test(
         tags = [],
         peer_deps = _PROTRACTOR_PEER_DEPS,
         protractor_entry_point = _PROTRACTOR_ENTRY_POINT,
+        npm_workspace = "@npm",
         **kwargs):
     """Runs a protractor test in a browser.
 
@@ -240,9 +250,12 @@ def protractor_web_test(
       data: Runtime dependencies
       server: Optional server executable target
       tags: Standard Bazel tags, this macro adds one for ibazel
-      peer_deps: List of peer npm deps required by protractor_web_test.
-      protractor_entry_point: A label providing the @npm//protractor entry point.
-          Default to `@npm//:node_modules/protractor/bin/protractor`.
+      peer_deps: List of peer npm deps required by protractor_web_test, relative to npm_workspace
+      protractor_entry_point: A label providing the protractor entry point, relative to npm_workspace.
+          Default to `:node_modules/protractor/bin/protractor`.
+      npm_workspace: the name of the workspace where protractor was installed from npm
+          This is needed so the macro can assemble labels that point into these dependencies
+          Defaults to `@npm`
       **kwargs: passed through to `protractor_web_test`
     """
 
@@ -250,8 +263,8 @@ def protractor_web_test(
 
     nodejs_binary(
         name = protractor_bin_name,
-        entry_point = protractor_entry_point,
-        data = srcs + deps + data + peer_deps,
+        entry_point = _relative(npm_workspace, protractor_entry_point),
+        data = srcs + deps + data + [_relative(npm_workspace, d) for d in peer_deps],
         testonly = 1,
         visibility = ["//visibility:private"],
     )

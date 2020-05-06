@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@npm//@bazel/protractor:index.bzl", "protractor_web_test_suite")
 load("@npm//@bazel/typescript:index.bzl", "ts_devserver", "ts_library")
 load("@npm//html-insert-assets:index.bzl", "html_insert_assets")
-load("@npm_bazel_protractor//:index.bzl", "protractor_web_test_suite")
 
 html_insert_assets(
     name = "inject",

@@ -18,11 +18,6 @@
   "peerDependencies": {
       "protractor": ">=5.0.0"
   },
-  "bazelWorkspaces": {
-      "npm_bazel_protractor": {
-          "rootPath": "."
-      }
-  },
   "scripts": {
     "postinstall": "node npm_version_check.js"
   }

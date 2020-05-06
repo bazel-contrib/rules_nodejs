@@ -7,8 +7,8 @@ ts_library(
     testonly = True,
     srcs = ["index_test.ts"],
     deps = [
+        "//packages/protractor",
         "@npm//@types/jasmine",
-        "@npm_bazel_protractor//:utils_lib",
     ],
 )
 
