@@ -1,5 +1,5 @@
 load("@npm//bazel_workspaces_consistent:index.bzl", "some_rule")
-load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
+load("//packages/jasmine:index.bzl", "jasmine_node_test")
 
 some_rule(name = "test_data")
 

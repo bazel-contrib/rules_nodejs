@@ -62,10 +62,10 @@ def jasmine_node_test(
         expected_exit_code = 0,
         tags = [],
         config_file = None,
-        # Replaced by pkg_npm with jasmine = "@npm//@bazel/jasmine",
-        jasmine = "@npm_bazel_jasmine//:jasmine__pkg",
+        # Replaced by pkg_npm with jasmine = "//@bazel/jasmine",
+        jasmine = "//packages/jasmine",
         # Replaced by pkg_npm with jasmine_entry_point = "@npm//:node_modules/@bazel/jasmine/jasmine_runner.js",
-        jasmine_entry_point = "@npm_bazel_jasmine//:jasmine_runner.js",
+        jasmine_entry_point = "//packages/jasmine:jasmine_runner.js",
         **kwargs):
     """Runs tests in NodeJS using the Jasmine test runner.
 

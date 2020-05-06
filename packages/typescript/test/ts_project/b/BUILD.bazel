@@ -1,4 +1,4 @@
-load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
+load("//packages/jasmine:index.bzl", "jasmine_node_test")
 load("//packages/typescript:index.bzl", "ts_project")
 
 package(default_visibility = ["//packages/typescript/test:__subpackages__"])
