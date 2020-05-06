@@ -76,20 +76,20 @@ function main(args) {
     jrunner.loadConfigFile(runfiles.resolveWorkspaceRelative(configFile));
   }
   fs.readFileSync(manifest, UTF8)
-                       .split('\n')
-                       .filter(l => l.length > 0)
-                       // Filter out files from node_modules
-                       .filter(f => !IS_NODE_MODULE.test(f))
-                       // Use runfiles resolve to resolve the file path that
-                       // bazel passes to the runner to its absolute path
-                       .map(f => runfiles.resolveWorkspaceRelative(f))
-                      // Filter here so that only files ending in `spec.js` and `test.js`
-                      // are added to jasmine as spec files. This is important as other
-                      // deps such as "@npm//typescript" if executed may cause the test to
-                      // fail or have unexpected side-effects. "@npm//typescript" would
-                      // try to execute tsc, print its help, and process.exit(1)
-                      .filter(f => IS_TEST_FILE.test(f))
-                      .forEach(f => jrunner.addSpecFile(f));
+      .split('\n')
+      .filter(l => l.length > 0)
+      // Filter out files from node_modules
+      .filter(f => !IS_NODE_MODULE.test(f))
+      // Use runfiles resolve to resolve the file path that
+      // bazel passes to the runner to its absolute path
+      .map(f => runfiles.resolveWorkspaceRelative(f))
+      // Filter here so that only files ending in `spec.js` and `test.js`
+      // are added to jasmine as spec files. This is important as other
+      // deps such as "@npm//typescript" if executed may cause the test to
+      // fail or have unexpected side-effects. "@npm//typescript" would
+      // try to execute tsc, print its help, and process.exit(1)
+      .filter(f => IS_TEST_FILE.test(f))
+      .forEach(f => jrunner.addSpecFile(f));
 
   var noSpecsFound = true;
   jrunner.addReporter({

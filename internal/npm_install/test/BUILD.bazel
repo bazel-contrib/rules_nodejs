@@ -1,6 +1,6 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
-load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
+load("//packages/jasmine:index.bzl", "jasmine_node_test")
 
 filegroup(
     name = "goldens",

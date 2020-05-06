@@ -12,8 +12,53 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
 load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "pkg_npm")
+load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
+load("@build_bazel_rules_nodejs//tools/stardoc:index.bzl", "stardoc")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
+
+package(default_visibility = ["//visibility:public"])
+
+bzl_library(
+    name = "bzl",
+    srcs = glob(["*.bzl"]),
+    deps = [
+        "@build_bazel_rules_nodejs//:bzl",
+        "@build_bazel_rules_nodejs//internal/common:bzl",
+        "@build_bazel_rules_nodejs//internal/node:bzl",
+    ],
+)
+
+stardoc(
+    name = "docs",
+    out = "index.md",
+    input = "index.bzl",
+    tags = ["fix-windows"],
+    deps = [":bzl"],
+)
+
+nodejs_test(
+    name = "test",
+    data = [
+        "docs_test.js",
+        "index.md",
+    ],
+    entry_point = ":docs_test.js",
+    tags = [
+        "fix-windows",
+    ],
+)
+
+js_library(
+    name = "jasmine",
+    package_name = "@bazel/jasmine",
+    srcs = [
+        "index.js",
+        "jasmine_runner.js",
+    ],
+)
 
 # Ugly genrule depending on local linux environment to build the README out of skylark doc generation.
 # Only referenced when we do a release.
@@ -21,11 +66,11 @@ load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "co
 genrule(
     name = "generate_README",
     srcs = [
-        "@npm_bazel_jasmine//:index.md",
-        "//packages/jasmine/docs:install.md",
+        "index.md",
+        "install.md",
     ],
     outs = ["README.md"],
-    cmd = """cat $(execpath //packages/jasmine/docs:install.md) $(execpath @npm_bazel_jasmine//:index.md) | sed 's/^##/\\\n##/' > $@""",
+    cmd = """cat $(execpath install.md) $(execpath index.md) | sed 's/^##/\\\n##/' > $@""",
     tags = ["fix-windows"],
     visibility = ["//docs:__pkg__"],
 )
@@ -39,12 +84,15 @@ copy_file(
 pkg_npm(
     name = "npm_package",
     srcs = [
-        "@npm_bazel_jasmine//:package_contents",
+        "index.bzl",
+        "index.js",
+        "jasmine_node_test.bzl",
+        "jasmine_runner.js",
+        "package.json",
     ],
     build_file_content = "",
     substitutions = {
-        "@npm_bazel_jasmine//:jasmine__pkg": "@npm//@bazel/jasmine",
-        "@npm_bazel_jasmine//:jasmine_runner.js": "@npm//:node_modules/@bazel/jasmine/jasmine_runner.js",
+        "//packages/jasmine:jasmine_runner.js": "//:node_modules/@bazel/jasmine/jasmine_runner.js",
     },
     vendor_external = [
         "npm_bazel_jasmine",
@@ -52,7 +100,7 @@ pkg_npm(
     deps = [
         ":npm_version_check",
     ] + select({
-        # FIXME: fix stardoc on Windows; @npm_bazel_jasmine//:index.md generation fails with:
+        # FIXME: fix stardoc on Windows; index.md generation fails with:
         #   ERROR: D:/b/62unjjin/external/npm_bazel_jasmine/BUILD.bazel:34:1: Couldn't build file
         #   external/npm_bazel_jasmine/docs.raw: Generating proto for Starlark doc for docs failed (Exit 1)
         "@bazel_tools//src/conditions:windows": [],

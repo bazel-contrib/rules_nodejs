@@ -22,11 +22,6 @@
         "jasmine-reporters": "~2.3.2",
         "c8": "~7.1.0"
     },
-    "bazelWorkspaces": {
-        "npm_bazel_jasmine": {
-            "rootPath": "."
-        }
-    },
     "scripts": {
         "postinstall": "node npm_version_check.js"
     }

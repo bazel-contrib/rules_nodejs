@@ -1,4 +1,4 @@
-load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
+load("//packages/jasmine:index.bzl", "jasmine_node_test")
 load("//packages/rollup:index.bzl", "rollup_bundle")
 
 rollup_bundle(

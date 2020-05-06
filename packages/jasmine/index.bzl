@@ -15,7 +15,7 @@
 """Public API surface is re-exported here.
 """
 
-load("//:jasmine_node_test.bzl", _jasmine_node_test = "jasmine_node_test")
+load(":jasmine_node_test.bzl", _jasmine_node_test = "jasmine_node_test")
 
 jasmine_node_test = _jasmine_node_test
 # DO NOT ADD MORE rules here unless they appear in the generated docsite.

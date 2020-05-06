@@ -4,7 +4,8 @@ index bd2aa0c..ba0ecdd 100644
 +++ internal/BUILD.bazel
 @@ -18,7 +18,7 @@ load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
  load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
- load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
+-load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
++load("@build_bazel_rules_nodejs//packages/jasmine:index.bzl", "jasmine_node_test")
  load("@npm//typescript:index.bzl", "tsc")
 -load("@npm_bazel_typescript//:index.bzl", "ts_library")
 +load("@build_bazel_rules_nodejs//packages/typescript:index.bzl", "ts_library")

@@ -1,4 +1,4 @@
-load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
+load("@npm//@bazel/jasmine:index.bzl", "jasmine_node_test")
 
 # Test what happens when we depend on the catch-all "node_modules" rule rather
 # than declare our dependencies on individual npm packages.
