@@ -1,8 +1,8 @@
+load("@npm//@bazel/karma:index.bzl", "karma_web_test_suite")
 load("@npm//@bazel/rollup:index.bzl", "rollup_bundle")
 load("@npm//@bazel/terser:index.bzl", "terser_minified")
 load("@npm//@bazel/typescript:index.bzl", "ts_config", "ts_devserver", "ts_library")
 load("@npm//http-server:index.bzl", "http_server")
-load("@npm_bazel_karma//:index.bzl", "karma_web_test_suite")
 load("@npm_bazel_labs//:index.bzl", "ts_proto_library")
 load("@npm_bazel_protractor//:index.bzl", "protractor_web_test_suite")
 

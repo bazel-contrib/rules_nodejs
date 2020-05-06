@@ -63,7 +63,7 @@ KARMA_WEB_TEST_ATTRS = {
     "karma": attr.label(
         doc = "karma binary label",
         # NB: replaced during pkg_npm with "@npm//karma/bin:karma"
-        default = "@npm_bazel_karma//:karma_bin",
+        default = "//packages/karma:karma_bin",
         executable = True,
         cfg = "target",
         allow_files = True,
@@ -88,7 +88,7 @@ KARMA_WEB_TEST_ATTRS = {
         aspects = [node_modules_aspect],
     ),
     "_conf_tmpl": attr.label(
-        default = "//:karma.conf.js",
+        default = "//packages/karma:karma.conf.js",
         allow_single_file = True,
     ),
 }
