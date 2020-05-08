@@ -114,9 +114,9 @@ filegroup(
 # compiler attribute when using self-managed dependencies
 nodejs_binary(
     name = "@bazel/typescript/tsc_wrapped",
-    entry_point = "@bazel/typescript/internal/tsc_wrapped/tsc_wrapped.js",
+    entry_point = "@npm//:node_modules/@bazel/typescript/internal/tsc_wrapped/tsc_wrapped.js",
     # Point bazel to your node_modules to find the entry point
-    node_modules = ["//:node_modules"],
+    node_modules = "//:node_modules",
 )
 ```
 
