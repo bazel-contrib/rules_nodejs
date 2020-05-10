@@ -8,6 +8,7 @@ load("@npm//@bazel/terser:index.bzl", "terser_minified")
 load("@npm//@bazel/typescript:index.bzl", "ts_config", "ts_devserver", "ts_library")
 load("@npm//history-server:index.bzl", "history_server")
 load("@npm//html-insert-assets:index.bzl", "html_insert_assets")
+load("//tools:angular_prerender.bzl", "ng_prerender", "ng_prerender_test")
 load("//tools:angular_ts_library.bzl", "ng_ts_library")
 
 package(default_visibility = ["//:__subpackages__"])
@@ -170,6 +171,27 @@ terser_minified(
     src = ":bundle-es5",
 )
 
+# take the skeleton index.html and use it to render the root, /hello and /todos routes
+# this generates multiple index.html files, one for each requested route
+ng_prerender(
+    name = "prerender",
+    index = "//src:example/index.prod.html",
+    # routes added here are rendered out to index files
+    # the root route / is always rendered
+    prerender_roots = [
+        "hello",
+        "todos",
+    ],
+)
+
+# smoke test testing the generated root index for key elements
+ng_prerender_test(
+    name = "prerender_test",
+    expected_elements = ["app-component"],
+    index = ":prerender.root",
+    route = "/",
+)
+
 html_insert_assets(
     name = "inject_scripts_for_prod",
     # we can't output "src/example/index.html" since that collides with the devmode file.
@@ -178,12 +200,38 @@ html_insert_assets(
     # `example/index.html` in the web package.
     outs = ["_prodapp/src/example/index.html"],
     args = [
-        "--html=$(execpath //src:example/index.prod.html)",
+        "--html=$(execpath //src:prerender.root)",
         "--out=$@",
         "--roots=. $(RULEDIR)",
         "--assets",
     ] + ["$(execpath %s)" % s for s in _ASSETS],
-    data = ["//src:example/index.prod.html"] + _ASSETS,
+    data = ["//src:prerender.root"] + _ASSETS,
+)
+
+# as there is a index for the /hello and /todos routes, each index needs the scripts and
+# assets injected in
+html_insert_assets(
+    name = "inject_scripts_for_prod_hello_route_index",
+    outs = ["_prodapp/src/example/hello/index.html"],
+    args = [
+        "--html=$(execpath //src:prerender.hello)",
+        "--out=$@",
+        "--roots=. $(RULEDIR)",
+        "--assets",
+    ] + ["$(execpath %s)" % s for s in _ASSETS],
+    data = ["//src:prerender.hello"] + _ASSETS,
+)
+
+html_insert_assets(
+    name = "inject_scripts_for_prod_todos_route_index",
+    outs = ["_prodapp/src/example/todos/index.html"],
+    args = [
+        "--html=$(execpath //src:prerender.todos)",
+        "--out=$@",
+        "--roots=. $(RULEDIR)",
+        "--assets",
+    ] + ["$(execpath %s)" % s for s in _ASSETS],
+    data = ["//src:prerender.todos"] + _ASSETS,
 )
 
 pkg_web(
@@ -191,7 +239,10 @@ pkg_web(
     srcs = _ASSETS + [
         ":bundle-es2015.min",
         ":bundle-es5.min",
+        # each injected index file should be listed here
         ":inject_scripts_for_prod",
+        ":inject_scripts_for_prod_hello_route_index",
+        ":inject_scripts_for_prod_todos_route_index",
         "//src/assets",
         # Include polyfills that will be requested by old browsers
         "@npm//:node_modules/systemjs/dist/system.js",
