@@ -117,6 +117,14 @@ Note: code splitting is _not_ supported in development mode yet so the
 `import()` statements will resolve to modules that are served in the initial
 JS payload.
 
+### Prerendering
+
+The production build has a number of routes prerendered to `index.html` files. 
+This is similar to the process used in Angular Universal. The `ng_prerender` macro in the `tools` directory is
+used to run the application during the build, and output the `index.html` files for the requested routes.
+
+A smoke test is also included with `ng_prerender_test` macro, which checks key elements in the prerendered output. 
+
 ## Npm dependencies
 
 Having a local `node_modules` folder setup by `yarn` or `npm` is not
