@@ -355,7 +355,7 @@ import {thing} from 'myworkspace/place';
 will import from `/place.ts`.
 
 
-Since this is an extension to the vanillia TypeScript compiler, editors which use the TypeScript language services to provide code completion and inline type checking will not be able to resolve the modules. In the above example, adding
+Since this is an extension to the vanilla TypeScript compiler, editors which use the TypeScript language services to provide code completion and inline type checking will not be able to resolve the modules. In the above example, adding
 ```json
 "paths": {
     "myworkspace/*": ["*"]
