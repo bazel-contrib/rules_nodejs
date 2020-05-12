@@ -4,11 +4,16 @@ import {dealias, debugLog, isInStockLibraries, isNameInDeclaration, isPartOfImpo
 const PATH_NAME_FORMAT = '[/\\.\\w\\d_-]+';
 const JS_IDENTIFIER_FORMAT = '[\\w\\d_-]+';
 const FQN_FORMAT = `(${JS_IDENTIFIER_FORMAT}\.)*${JS_IDENTIFIER_FORMAT}`;
-// A fqn made out of a dot-separated chain of JS identifiers.
-const ABSOLUTE_RE = new RegExp(`^${PATH_NAME_FORMAT}\\|${FQN_FORMAT}$`);
 const GLOBAL = 'GLOBAL';
 const ANY_SYMBOL = 'ANY_SYMBOL';
-
+const CLOSURE = 'CLOSURE';
+/** A fqn made out of a dot-separated chain of JS identifiers. */
+const ABSOLUTE_RE = new RegExp(`^${PATH_NAME_FORMAT}\\|${FQN_FORMAT}$`);
+/**
+ * Clutz glues js symbols to ts namespace by prepending "ಠ_ಠ.clutz.".
+ * We need to include this prefix when the banned name is from Closure.
+ */
+const CLUTZ_SYM_PREFIX = 'ಠ_ಠ.clutz.';
 
 /**
  * This class matches symbols given a "foo.bar.baz" name, where none of the
@@ -19,8 +24,10 @@ const ANY_SYMBOL = 'ANY_SYMBOL';
  * name on which the symbol was initially defined.
  *
  * This matcher requires a scope for the symbol, which may be `GLOBAL`,
- * `ANY_SCOPE`, or a file path filter. The matcher begins with this scope, then
- * the separator "|", followed by the symbol name. For example, "GLOBAL|eval".
+ * `ANY_SYMBOL`, `CLOSURE` or a file path filter. `CLOSURE` indicates that the
+ * symbol is from the JS Closure library processed by clutz. The matcher begins
+ * with this scope, then the separator "|", followed by the symbol name. For
+ * example, "GLOBAL|eval".
  *
  * The file filter specifies
  * (part of) the path of the file in which the symbol of interest is defined.
@@ -91,9 +98,29 @@ export class AbsoluteMatcher {
 
     // Split spec by the separator "|".
     [this.filePath, this.bannedName] = spec.split('|', 2);
+
+    if (this.filePath === CLOSURE) {
+      this.bannedName = CLUTZ_SYM_PREFIX + this.bannedName;
+    }
   }
 
   matches(n: ts.Node, tc: ts.TypeChecker): boolean {
+    debugLog(() => `start matching ${n.getText()} in ${n.parent.getText()}`);
+
+    // Check if the node is being declared. Declaration may be imported without
+    // programmer being aware of. We should not alert them about that.
+    // Since import statments are also declarations, this have two notable
+    // consequences.
+    // - Match is negative for imports without renaming
+    // - Match is positive for imports with renaming, when the imported name
+    //   is the target. Since Tsetse is flow insensitive and we don't track
+    //   symbol aliases, the import statement is the only place we can match
+    //   bad symbols if they get renamed.
+    if (isNameInDeclaration(n)) {
+      debugLog(() => `We don't flag symbol declarations`);
+      return false;
+    }
+
     // Get the symbol (or the one at the other end of this alias) that we're
     // looking at.
     const s = dealias(tc.getSymbolAtLocation(n), tc);
@@ -110,69 +137,44 @@ export class AbsoluteMatcher {
     // Name-based check: `getFullyQualifiedName` returns `"filename".foo.bar` or
     // just `foo.bar` if the symbol is ambient. The check here should consider
     // both cases.
-    if (!(fqn.endsWith('".' + this.bannedName) || fqn === this.bannedName)) {
+    if (!fqn.endsWith('".' + this.bannedName) && fqn !== this.bannedName) {
       debugLog(() => `FQN ${fqn} doesn't match name ${this.bannedName}`);
-      return false;  // not a use of the symbols we want
-    }
-
-    // Check if it's part of a declaration or import. The check is cheap. If
-    // we're looking for the uses of a symbol, we don't alert on the imports, to
-    // avoid flooding users with warnings (as the actual use will be alerted)
-    // and bad fixes.
-    const p = n.parent;
-    if (isNameInDeclaration(n) || (p && isPartOfImportStatement(p))) {
-      debugLog(() => `We don't flag symbol declarations`);
       return false;
     }
 
-    // No file info in the FQN means it's not explicitly imported.
-    // That must therefore be a local variable, or an ambient symbol
-    // (and we only care about ambients here). Those could come from
-    // either a declare somewhere, or one of the core libraries that
-    // are loaded by default.
+    // If `ANY_SYMBOL` or `CLOSURE` is specified, it's sufficient to conclude we
+    // have a match.
+    if (this.filePath === ANY_SYMBOL || this.filePath === CLOSURE) {
+      return true;
+    }
+
+    // If there is no declaration, the symbol is a language built-in object.
+    // This is a match only if `GLOBAL` is specified.
+    const declarations = s.getDeclarations();
+    if (declarations === undefined) {
+      return this.filePath === GLOBAL;
+    }
+
+    // No file info in the FQN means it's imported from a .d.ts declaration
+    // file. This can be from a core library, a JS library, or an exported local
+    // symbol defined in another TS target. We need to extract the name of the
+    // declaration file.
     if (!fqn.startsWith('"')) {
-      // If this matcher includes a non-empty file path, it means that the
-      // targeted symbol is defined and explicitly exported in some file. If the
-      // current symbol is not associated with a specific file (because it is a
-      // local symbol or ambient symbol), it is not a match.
-      if (this.filePath !== GLOBAL && this.filePath !== ANY_SYMBOL) {
-        debugLog(
-            () =>
-                `The symbol has no file path and one is specified by the matcher`);
-        return false;
+      if (this.filePath === GLOBAL) {
+        return declarations.some(isInStockLibraries);
+      } else {
+        return declarations.some((d) => {
+          const srcFilePath = d.getSourceFile()?.fileName;
+          return srcFilePath && srcFilePath.match(this.filePath);
+        })
       }
-
-      // We need to trace things back, so get declarations of the symbol.
-      const declarations = s.getDeclarations();
-      if (!declarations) {
-        debugLog(() => `Symbol never declared?`);
-        return false;
+    } else {
+      const last = fqn.indexOf('"', 1);
+      if (last === -1) {
+        throw new Error('Malformed fully-qualified name.');
       }
-      if (!declarations.some(isInStockLibraries)) {
-        debugLog(() => `Symbol not from the stock libraries`);
-        return false;
-      }
+      const filePath = fqn.substring(1, last);
+      return filePath.match(this.filePath) !== null;
     }
-    // If we know the file info of the symbol, and this matcher includes a file
-    // path, we check if they match.
-    else {
-      if (this.filePath !== ANY_SYMBOL) {
-        const last = fqn.indexOf('"', 1);
-        if (last === -1) {
-          throw new Error('Malformed fully-qualified name.');
-        }
-        const sympath = fqn.substring(1, last);
-        debugLog(() => `The file path of the symbol is ${sympath}`);
-        if (!sympath.match(this.filePath) || this.filePath === GLOBAL) {
-          debugLog(
-              () =>
-                  `The file path of the symbol does not match the file path of the matcher`);
-          return false;
-        }
-      }
-    }
-
-    debugLog(() => `all clear, report finding`);
-    return true;
   }
 }

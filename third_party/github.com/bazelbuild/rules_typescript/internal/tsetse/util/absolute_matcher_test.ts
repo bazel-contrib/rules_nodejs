@@ -40,12 +40,14 @@ describe('AbsoluteMatcher', () => {
           {matchedCode: `bar`, messageText: 'banned name with file path'});
     });
 
-    it('ignores an unmatched file path', () => {
+    it('ignores an exported symbol defined in an unmatched file path', () => {
       const config = {
         errorMessage: 'banned name with file path',
         kind: PatternKind.BANNED_NAME,
         values: ['./file_0|Foo.bar']
       };
+
+      // test exported symbols
       const sources = [
         `export class Foo { static bar(s: string) {return s + "abc";} }`,
         `export class Foo { static bar(s: string) {return s + "abc";} }`,
@@ -57,6 +59,27 @@ describe('AbsoluteMatcher', () => {
           compileAndCheck(new ConformancePatternRule(config), ...sources);
       expect(results).toHaveNoFailures();
     });
+
+    it('ignores an un-exported symbol defined in an unmatched file path',
+       () => {
+         const config = {
+           errorMessage: 'banned name with file path',
+           kind: PatternKind.BANNED_NAME,
+           values: ['./file_0|Foo.bar']
+         };
+
+         // test non-exported symbols
+         const sources = [
+           `export class Foo { static bar(s: string) {return s + "abc";} }`,
+           `class Foo { static bar(s: string) {return s + "abc";} }
+         var a = Foo.bar("123");`
+         ];
+
+         const results =
+             compileAndCheck(new ConformancePatternRule(config), ...sources);
+
+         expect(results).toHaveNoFailures();
+       });
 
     it('matches a local exported definition', () => {
       // This is a match because Foo.bar is an exported symbol.
@@ -73,6 +96,30 @@ describe('AbsoluteMatcher', () => {
           compileAndCheck(new ConformancePatternRule(config), ...sources);
       expect(results).toHaveFailuresMatching(
           {matchedCode: `bar`, messageText: 'banned name with file path'});
+    });
+
+    it('matches names in import statement', () => {
+      const config = {
+        errorMessage: 'banned name with file path',
+        kind: PatternKind.BANNED_NAME,
+        values: ['./file_0|foo', 'ANY_SYMBOL|bar']
+      };
+      const sources = [
+        `export function foo(s: string) {return s + "abc";}
+         function bar() {}
+         export {bar};`,
+        `import {foo} from './file_0';
+         import {bar} from './file_0';`,
+        `import {foo as okFoo} from './file_0';
+         import {bar as okBar} from './file_0';`,
+      ];
+
+      const results =
+          compileAndCheck(new ConformancePatternRule(config), ...sources);
+      expect(results).toHaveFailuresMatching(
+          {matchedCode: `foo`, messageText: 'banned name with file path'},
+          {matchedCode: `bar`, messageText: 'banned name with file path'},
+      );
     });
   });
 
@@ -91,7 +138,7 @@ describe('AbsoluteMatcher', () => {
           {matchedCode: `eval`, messageText: 'banned ambient name'});
     });
 
-    it('does not match a custom method with the same name', () => {
+    it('does not match a custom exported method with the same name', () => {
       const config = {
         errorMessage: 'banned ambient name',
         kind: PatternKind.BANNED_NAME,
@@ -101,6 +148,19 @@ describe('AbsoluteMatcher', () => {
           [`export class Foo { static eval(s: string) { return s + "abc";} }
             var a = Foo.eval("123");`];
 
+      const results =
+          compileAndCheck(new ConformancePatternRule(config), ...sources);
+      expect(results).toHaveNoFailures();
+    });
+
+    it('does not match a custom non-exported method with the same name', () => {
+      const config = {
+        errorMessage: 'banned global name',
+        kind: PatternKind.BANNED_NAME,
+        values: ['GLOBAL|Foo.bar']
+      };
+      const sources = [`class Foo { static bar(s: string) {return s + "abc";} }
+                        var a = Foo.bar("123");`];
       const results =
           compileAndCheck(new ConformancePatternRule(config), ...sources);
       expect(results).toHaveNoFailures();
@@ -118,21 +178,6 @@ describe('AbsoluteMatcher', () => {
           compileAndCheck(new ConformancePatternRule(config), ...sources);
       expect(results).toHaveFailuresMatching(
           {matchedCode: 'open', messageText: 'banned ambient name'});
-    });
-
-    it('does not match a local non-exported definition', () => {
-      // This is not a match because Foo.bar is a non-exported locally defined
-      // symbol.
-      const config = {
-        errorMessage: 'banned name with file path',
-        kind: PatternKind.BANNED_NAME,
-        values: ['./file_0|Foo.bar']
-      };
-      const sources = [`class Foo { static bar(s: string) {return s + "abc";} }
-                        var a = Foo.bar("123");`];
-      const results =
-          compileAndCheck(new ConformancePatternRule(config), ...sources);
-      expect(results).toHaveNoFailures();
     });
   });
 
