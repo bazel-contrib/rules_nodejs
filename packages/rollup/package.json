@@ -1,7 +1,7 @@
 {
     "name": "@bazel/rollup",
     "peerDependencies": {
-        "rollup": ">=1.0.0 <2.0.0"
+        "rollup": ">=2.3.0 <3.0.0"
     },
     "description": "Run rollup.js bundler under Bazel",
     "license": "Apache-2.0",
