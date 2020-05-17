@@ -1,0 +1,15 @@
+load("//packages/typescript:index.bzl", "ts_project")
+load("//:index.bzl", "pkg_npm")
+
+ts_project(
+    name = "ts_compile",
+    declaration = True,
+)
+
+pkg_npm(
+    name = "lib",
+    package_name = "ts_project_lib",
+    srcs = ["package.json"],
+    deps = ["ts_compile"],
+    visibility = ["//packages/typescript/test:__subpackages__"],
+)
