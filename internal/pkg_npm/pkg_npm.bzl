@@ -6,7 +6,7 @@ If all users of your library code use Bazel, they should just add your library
 to the `deps` of one of their targets.
 """
 
-load("//:providers.bzl", "DeclarationInfo", "JSNamedModuleInfo", "LinkablePackageInfo", "NodeContextInfo")
+load("//:providers.bzl", "DeclarationInfo", "JSNamedModuleInfo", "LinkablePackageInfo", "NodeContextInfo", "run_node")
 
 _DOC = """The pkg_npm rule creates a directory containing a publishable npm artifact.
 
@@ -75,7 +75,10 @@ You can pass arguments to npm by escaping them from Bazel using a double-hyphen,
 # Used in angular/angular /packages/bazel/src/ng_package/ng_package.bzl
 PKG_NPM_ATTRS = {
     "package_name": attr.string(
-        doc = """Optional package_name that this npm package may be imported as.""",
+        doc = """Value of the "name" key in package.json.
+        Determines the name of the package if it is published to a registry.
+        Also causes the package to be npm-link'ed into Bazel rules that depend on it.""",
+        mandatory = True,
     ),
     "srcs": attr.label_list(
         doc = """Files inside this directory which are simply copied into the package.""",
@@ -90,6 +93,7 @@ PKG_NPM_ATTRS = {
         providers = [NodeContextInfo],
         doc = "Internal use only",
     ),
+    "package_json": attr.label(allow_single_file = [".json"]),
     "replace_with_version": attr.string(
         doc = """If set this value is replaced with the version stamp data.
         See the section on stamping in the README.""",
@@ -128,6 +132,8 @@ PKG_NPM_OUTPUTS = {
     "publish": "%{name}.publish",
 }
 
+_ValidationMarkerInfo = provider()
+
 # Takes a depset of files and returns a corresponding list of file paths without any files
 # that aren't part of the specified package path. Also include files from external repositories
 # that explicitly specified in the vendor_external list.
@@ -147,8 +153,7 @@ def _filter_out_external_files(ctx, files, package_path):
 def create_package(ctx, deps_files, nested_packages):
     """Creates an action that produces the npm package.
 
-    It copies srcs and deps into the artifact and produces the .pack and .publish
-    scripts.
+    It copies srcs and deps into the artifact.
 
     Args:
       ctx: the skylark rule context
@@ -164,6 +169,16 @@ def create_package(ctx, deps_files, nested_packages):
     stamp = ctx.attr.node_context_data[NodeContextInfo].stamp
 
     all_files = deps_files + ctx.files.srcs
+    all_srcs = ctx.files.srcs[:]
+    if ctx.attr.package_json:
+        all_srcs.append(ctx.file.package_json)
+
+    # TODO: generate a package.json if the user didn't give one?
+    # ...but we want to allow more than one pkg_npm rule per BUILD file
+    # else:
+    #     generated_pkg_json = ctx.actions.declare_file("package.json")
+    #     ctx.actions.write(generated_pkg_json, struct(name = ctx.attr.package_name).to_json())
+    #     deps_files.append(generated_pkg_json)
 
     if not stamp and len(all_files) == 1 and all_files[0].is_directory and len(ctx.files.nested_packages) == 0:
         # Special case where these is a single dep that is a directory artifact and there are no
@@ -188,7 +203,7 @@ def create_package(ctx, deps_files, nested_packages):
     args.use_param_file("%s", use_always = True)
     args.add(package_dir.path)
     args.add(package_path)
-    args.add_joined([s.path for s in ctx.files.srcs], join_with = ",", omit_if_empty = False)
+    args.add_joined([s.path for s in all_srcs], join_with = ",", omit_if_empty = False)
     args.add(ctx.bin_dir.path)
     args.add(ctx.genfiles_dir.path)
     args.add_joined(filtered_deps_sources, join_with = ",", omit_if_empty = False)
@@ -198,7 +213,11 @@ def create_package(ctx, deps_files, nested_packages):
     args.add(ctx.version_file.path if stamp else "")
     args.add_joined(ctx.attr.vendor_external, join_with = ",", omit_if_empty = False)
 
-    inputs = ctx.files.srcs + deps_files + nested_packages
+    validation_marker = []
+    for src in ctx.attr.srcs:
+        if _ValidationMarkerInfo in src:
+            validation_marker = [src[_ValidationMarkerInfo].marker]
+    inputs = all_srcs + deps_files + nested_packages + validation_marker
 
     # The version_file is an undocumented attribute of the ctx that lets us read the volatile-status.txt file
     # produced by the --workspace_status_command. That command will be executed whenever
@@ -242,8 +261,40 @@ def _create_npm_scripts(ctx, package_dir):
         execution_requirements = {"local": "1"},
     )
 
+def _validate_options_impl(ctx):
+    # Bazel won't run our action unless its output is needed, so make a marker file
+    # We make it a .d.ts file so we can plumb it to the deps of the ts_project compile.
+    marker = ctx.actions.declare_file("%s.optionsvalid.json" % ctx.label.name)
+
+    arguments = ctx.actions.args()
+    arguments.add_all([ctx.file.package_json.path, ctx.attr.package_name, ctx.attr.target, marker.path])
+
+    run_node(
+        ctx,
+        inputs = [ctx.file.package_json],
+        outputs = [marker],
+        arguments = [arguments],
+        executable = "validator",
+    )
+    return [
+        _ValidationMarkerInfo(marker = marker),
+    ]
+
+validate_options = rule(
+    implementation = _validate_options_impl,
+    attrs = {
+        "package_name": attr.string(),
+        "package_json": attr.label(mandatory = True, allow_single_file = [".json"]),
+        "target": attr.string(),
+        "validator": attr.label(default = Label("//internal/pkg_npm:validator"), executable = True, cfg = "host"),
+    },
+)
+
 def _pkg_npm(ctx):
     deps_files_depsets = []
+
+    if ctx.label.package + "/package.json" in [s.path for s in ctx.files.srcs]:
+        fail("package.json file should be supplied in the package_json attribute, not in srcs")
 
     for dep in ctx.attr.deps:
         # Collect whatever is in the "data"
@@ -290,3 +341,34 @@ pkg_npm = rule(
     doc = _DOC,
     outputs = PKG_NPM_OUTPUTS,
 )
+
+def pkg_npm_macro(name, srcs = [], package_json = None, package_name = None, validate = True, **kwargs):
+    """
+    pkg_npm rule
+
+    Args:
+      srcs: e
+      package_json: the package.json that describes the package
+      **kwargs: e
+    """
+
+    srcs = srcs[:]  # defensive copy
+
+    # Adapt to the old API where package.json was just passed as one of the srcs
+    if "package.json" in srcs:
+        package_json = "package.json"
+        srcs.remove("package.json")
+
+    if not package_name:
+        package_name = name
+
+    if validate and package_json:
+        validate_options(
+            name = "_validate_%s" % name,
+            target = "//%s:%s" % (native.package_name(), name),
+            package_json = package_json,
+            package_name = package_name,
+        )
+        srcs.append("_validate_%s" % name)
+
+    pkg_npm(name = name, srcs = srcs, package_json = package_json, package_name = package_name, **kwargs)

@@ -2,10 +2,11 @@ diff BUILD.bazel BUILD.bazel
 index 3a519c5..6121ef6 100644
 --- BUILD.bazel
 +++ BUILD.bazel
-@@ -38,6 +38,7 @@ pkg_npm(
+@@ -38,6 +38,8 @@ pkg_npm(
          "//internal:npm_package_assets",
          "//third_party/github.com/bazelbuild/bazel/src/main/protobuf:npm_package_assets",
      ],
++    validate = False,
 +    vendor_external = ["build_bazel_rules_typescript"],
      visibility = ["//visibility:public"],
      deps = [

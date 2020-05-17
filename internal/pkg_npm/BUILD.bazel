@@ -13,6 +13,12 @@ bzl_library(
 exports_files(["pkg_npm.bzl"])
 
 nodejs_binary(
+    name = "validator",
+    entry_point = "pkg_npm_validator.js",
+    visibility = ["//visibility:public"],
+)
+
+nodejs_binary(
     name = "packager",
     data = ["//third_party/github.com/gjtorikian/isBinaryFile"],
     entry_point = ":packager.js",
