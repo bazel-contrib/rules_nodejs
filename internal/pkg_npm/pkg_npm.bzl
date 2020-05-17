@@ -244,6 +244,7 @@ def _create_npm_scripts(ctx, package_dir):
 
 def _pkg_npm(ctx):
     deps_files_depsets = []
+    declarations_depsets = [depset([s for s in ctx.files.srcs if s.path.endswith(".d.ts")])]
 
     for dep in ctx.attr.deps:
         # Collect whatever is in the "data"
@@ -260,6 +261,7 @@ def _pkg_npm(ctx):
         # Include all transitive declerations
         if DeclarationInfo in dep:
             deps_files_depsets.append(dep[DeclarationInfo].transitive_declarations)
+            declarations_depsets.append(dep[DeclarationInfo].transitive_declarations)
 
     # Note: to_list() should be called once per rule!
     deps_files = depset(transitive = deps_files_depsets).to_list()
@@ -281,6 +283,8 @@ def _pkg_npm(ctx):
             path = package_dir.path,
             files = package_dir_depset,
         ))
+    if len(declarations_depsets) > 0:
+        result.append(DeclarationInfo(transitive_declarations = depset(transitive = declarations_depsets)))
 
     return result
 

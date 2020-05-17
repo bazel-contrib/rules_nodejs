@@ -1,6 +1,7 @@
 "ts_project rule"
 
 load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "NpmPackageInfo", "run_node")
+load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 
 _DEFAULT_TSC = (
     # BEGIN-INTERNAL
@@ -19,7 +20,7 @@ _ATTRS = {
     "extends": attr.label_list(allow_files = [".json"]),
     "tsc": attr.label(default = Label(_DEFAULT_TSC), executable = True, cfg = "host"),
     "tsconfig": attr.label(mandatory = True, allow_single_file = [".json"]),
-    "deps": attr.label_list(providers = [DeclarationInfo]),
+    "deps": attr.label_list(providers = [DeclarationInfo], aspects = [module_mappings_aspect]),
 }
 
 # tsc knows how to produce the following kinds of output files.
