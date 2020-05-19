@@ -1,6 +1,7 @@
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
+load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -17,12 +18,34 @@ nodejs_binary(
     visibility = ["//visibility:public"],
 )
 
+well_known_protos = [
+    "any_pb",
+    "api_pb",
+    "descriptor_pb",
+    "duration_pb",
+    "empty_pb",
+    "field_mask_pb",
+    "source_context_pb",
+    "struct_pb",
+    "timestamp_pb",
+    "type_pb",
+    "wrappers_pb",
+]
+
+[npm_umd_bundle(
+    name = "google-protobuf-%s__umd" % p,
+    package_name = "google-protobuf/google/protobuf/%s" % p,
+    entry_point = "@npm//:node_modules/google-protobuf/google-protobuf.js",
+    excluded = ["google-protobuf"],
+    package = "@npm//google-protobuf",
+) for p in well_known_protos]
+
 js_library(
     name = "bootstrap_scripts",
     srcs = [
         "@npm//google-protobuf:google-protobuf__umd",
         "@npm//grpc-web:grpc-web__umd",
-    ],
+    ] + [":google-protobuf-%s__umd" % p for p in well_known_protos],
 )
 
 filegroup(
