@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+option go_package = "stairwell/foundation/vt/api/v3";
+
+import "google/protobuf/timestamp.proto";
+
+message GetFileRequest {
+  // File hash (SHA256, SHA1, MD5) or UUID
+  string id = 1;
+}
+
+enum Type {
+  UNKNOWN = 0;
+  FILE = 1;
+}
+
+message GetFileResponse {
+  Type type = 1;
+  string id = 2;
+  Links links = 3;
+  FileData data = 4;
+}
+
+message Links {
+  // URL to fetch the object again in the future.
+  string self = 1;
+}
+
+message FileData {
+  Attributes attributes = 1;
+}
+
+message Attributes {
+  google.protobuf.Timestamp last_submission_date = 1;
+  repeated string names = 2;
+
+  string md5 = 3;
+  string sha1 = 4;
+  string sha256 = 5;
+  string sha3_256 = 6;
+
+  uint64 size = 7;
+  uint32 times_submitted = 8;
+}
+
+service Files {
+  rpc GetFile(GetFileRequest) returns (GetFileResponse) {
+  }
+}

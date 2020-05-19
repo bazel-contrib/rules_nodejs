@@ -23,10 +23,28 @@ proto_library(
     deps = [
         "//packages/labs/test/grpc_web/proto/common:delivery_person_proto",
         "//packages/labs/test/grpc_web/proto/common:pizza_proto",
+        "@com_google_protobuf//:timestamp_proto",
     ],
 )
 
 ts_proto_library(
     name = "pizza_service_ts_proto",
     proto = ":pizza_service_proto",
+)
+
+proto_library(
+    name = "files_proto",
+    srcs = [
+        "files.proto",
+    ],
+    deps = [
+        "//packages/labs/test/grpc_web/proto/common:delivery_person_proto",
+        "//packages/labs/test/grpc_web/proto/common:pizza_proto",
+        "@com_google_protobuf//:timestamp_proto",
+    ],
+)
+
+ts_proto_library(
+    name = "files_ts_proto",
+    proto = ":files_proto",
 )

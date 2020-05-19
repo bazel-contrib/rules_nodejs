@@ -67,8 +67,11 @@ function convertToUmd(args, initialContents) {
 `;
   };
 
-  const transformations =
-      [wrapInAMDModule, replaceRecursiveFilePaths(args), removeJsExtensionsFromRequires];
+  const transformations = [
+    wrapInAMDModule,
+    replaceRecursiveFilePaths(args),
+    removeJsExtensionsFromRequires,
+  ];
   return transformations.reduce((currentContents, transform) => {
     return transform(currentContents);
   }, initialContents);
@@ -119,7 +122,8 @@ function convertToESM(args, initialContents) {
   const replaceRequiresWithImports = (contents) => {
     return contents
         .replace(
-            /var ([\w\d_]+) = require\((['"][\.\\]*[\w\d@/_-]+['"])\)/g, 'import * as $1 from $2')
+            /(?:var|const|let) ([\w\d_]+) = require\((['"][\.\\]*[\w\d@/_-]+['"])\)/g,
+            'import * as $1 from $2')
         .replace(
             /([\.\w\d_]+) = require\((['"][\.\w\d@/_-]+['"])\)/g, (_, variable, importPath) => {
               const normalizedVariable = variable.replace(/\./g, '_');
@@ -130,7 +134,7 @@ function convertToESM(args, initialContents) {
 
   const replaceRequiresWithSubpackageImports = (contents) => {
     return contents.replace(
-        /var ([\w\d_]+) = require\((['"][\w\d@/_-]+['"])\)\.([\w\d_]+);/g,
+        /(?:var|const|let) ([\w\d_]+) = require\((['"][\w\d@/_-]+['"])\)\.([\w\d_]+);/g,
         'import * as $1 from $2;');
   };
 
@@ -139,9 +143,13 @@ function convertToESM(args, initialContents) {
   };
 
   const transformations = [
-    replaceRecursiveFilePaths(args), removeJsExtensionsFromRequires, replaceGoogExtendWithExports,
-    replaceRequiresWithImports, replaceRequiresWithSubpackageImports,
-    replaceCMDefaultExportWithExports, replaceCJSExportsWithECMAExports
+    replaceRecursiveFilePaths(args),
+    removeJsExtensionsFromRequires,
+    replaceGoogExtendWithExports,
+    replaceRequiresWithImports,
+    replaceRequiresWithSubpackageImports,
+    replaceCMDefaultExportWithExports,
+    replaceCJSExportsWithECMAExports,
   ];
   return transformations.reduce((currentContents, transform) => {
     return transform(currentContents);
