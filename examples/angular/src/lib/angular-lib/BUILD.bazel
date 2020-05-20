@@ -1,0 +1,14 @@
+load("@npm_angular_bazel//:index.bzl", "ng_package")
+
+package(default_visibility = ["//:__subpackages__"])
+
+ng_package(
+    name = "angular-lib",
+    srcs = [
+        "package.json",
+    ],
+    entry_point = ":index.ts",
+    deps = [
+        "//src/lib/angular-lib/button",
+    ],
+)
