@@ -17,7 +17,7 @@
 DO NOT USE - this is not fully designed, and exists only to enable testing within this repo.
 """
 
-load("//:providers.bzl", "LinkablePackageInfo")
+load("//:providers.bzl", "AssetInfo", "LinkablePackageInfo")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/private/copy_file_private.bzl", "copy_bash", "copy_cmd")
 
 _AMD_NAMES_DOC = """Mapping from require module names to global variables.
@@ -71,6 +71,9 @@ def _impl(ctx):
             files = files_depset,
             runfiles = ctx.runfiles(files = ctx.files.srcs),
         ),
+        AssetInfo(
+            assets = depset(ctx.attr.assets),
+        ),
         AmdNamesInfo(names = ctx.attr.amd_names),
     ]
 
@@ -88,11 +91,9 @@ _js_library = rule(
     implementation = _impl,
     attrs = {
         "package_name": attr.string(),
-        "srcs": attr.label_list(
-            allow_files = True,
-            mandatory = True,
-        ),
+        "srcs": attr.label_list(allow_files = True, mandatory = True),
         "amd_names": attr.string_dict(doc = _AMD_NAMES_DOC),
+        "assets": attr.label_list(allow_files = True),
         "is_windows": attr.bool(mandatory = True, doc = "Automatically set by macro"),
         # module_name for legacy ts_library module_mapping support
         # TODO: remove once legacy module_mapping is removed

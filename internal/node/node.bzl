@@ -20,7 +20,7 @@ They support module mapping: any targets in the transitive dependencies with
 a `module_name` attribute can be `require`d by that name.
 """
 
-load("//:providers.bzl", "JSNamedModuleInfo", "NodeRuntimeDepsInfo", "NpmPackageInfo", "node_modules_aspect")
+load("//:providers.bzl", "AssetInfo", "JSNamedModuleInfo", "NodeRuntimeDepsInfo", "NpmPackageInfo", "node_modules_aspect")
 load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
 load("//internal/common:module_mappings.bzl", "module_mappings_runtime_aspect")
 load("//internal/common:path_utils.bzl", "strip_external")
@@ -293,11 +293,17 @@ fi
     if ctx.file.entry_point.extension == "js":
         runfiles.append(ctx.file.entry_point)
 
+    assets_depsets = [
+        d[AssetInfo].assets
+        for d in ctx.attr.data
+        if AssetInfo in d
+    ]
+
     return [
         DefaultInfo(
             executable = executable,
             runfiles = ctx.runfiles(
-                transitive_files = depset(runfiles),
+                transitive_files = depset(runfiles, transitive = assets_depsets),
                 files = node_tool_files + [
                             ctx.outputs.loader_script,
                             ctx.outputs.require_patch_script,
@@ -314,7 +320,7 @@ fi
         # TODO(alexeagle): remove sources and node_modules from the runfiles
         # when downstream usage is ready to rely on linker
         NodeRuntimeDepsInfo(
-            deps = depset([ctx.file.entry_point], transitive = [node_modules, sources]),
+            deps = depset([ctx.file.entry_point], transitive = [node_modules, sources] + assets_depsets),
             pkgs = ctx.attr.data,
         ),
         # indicates that the this binary should be instrumented by coverage

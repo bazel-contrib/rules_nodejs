@@ -14,6 +14,9 @@ sass(
 )
 
 ts_project(
+    assets = [
+        "styles.css",
+    ],
     deps = [
         "@npm//@types",
         "@npm//csstype",
@@ -32,8 +35,8 @@ webpack(
     ],
     data = [
         "index.js",
-        "styles.css",
         "webpack.config.js",
+        ":tsconfig",
         "@npm//:node_modules",
     ],
 )

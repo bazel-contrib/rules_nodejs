@@ -18,6 +18,10 @@ Users should not load files under "/internal"
 """
 
 load(
+    "//internal/providers:asset_info.bzl",
+    _AssetInfo = "AssetInfo",
+)
+load(
     "//internal/providers:declaration_info.bzl",
     _DeclarationInfo = "DeclarationInfo",
     _provide_declarations = "provide_declarations",
@@ -46,6 +50,7 @@ load(
 
 provide_declarations = _provide_declarations
 DeclarationInfo = _DeclarationInfo
+AssetInfo = _AssetInfo
 JSNamedModuleInfo = _JSNamedModuleInfo
 js_named_module_info = _js_named_module_info
 JSEcmaScriptModuleInfo = _JSEcmaScriptModuleInfo

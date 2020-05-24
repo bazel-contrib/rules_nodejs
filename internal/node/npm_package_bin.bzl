@@ -1,6 +1,6 @@
 "A generic rule to run a tool that appears in node_modules/.bin"
 
-load("//:providers.bzl", "NpmPackageInfo", "node_modules_aspect", "run_node")
+load("//:providers.bzl", "AssetInfo", "NpmPackageInfo", "node_modules_aspect", "run_node")
 load("//internal/common:expand_variables.bzl", "expand_variables")
 load("//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 
@@ -33,6 +33,8 @@ def _inputs(ctx):
     for d in ctx.attr.data:
         if NpmPackageInfo in d:
             inputs_depsets.append(d[NpmPackageInfo].sources)
+        if AssetInfo in d:
+            inputs_depsets.append(d[AssetInfo].assets)
     return depset(ctx.files.data, transitive = inputs_depsets).to_list()
 
 def _impl(ctx):

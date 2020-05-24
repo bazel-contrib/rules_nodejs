@@ -1,6 +1,6 @@
 "ts_project rule"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "NpmPackageInfo", "run_node")
+load("@build_bazel_rules_nodejs//:providers.bzl", "AssetInfo", "DeclarationInfo", "NpmPackageInfo", "run_node")
 
 _DEFAULT_TSC = (
     # BEGIN-INTERNAL
@@ -16,6 +16,7 @@ _ATTRS = {
     # that compiler might allow more sources than tsc does.
     "srcs": attr.label_list(allow_files = True, mandatory = True),
     "args": attr.string_list(),
+    "assets": attr.label_list(allow_files = True),
     "extends": attr.label_list(allow_files = [".json"]),
     "tsc": attr.label(default = Label(_DEFAULT_TSC), executable = True, cfg = "host"),
     "tsconfig": attr.label(mandatory = True, allow_single_file = [".json"]),
@@ -120,6 +121,13 @@ def _ts_project_impl(ctx):
                 transitive_files = runtime_outputs,
                 collect_default = True,
             ),
+        ),
+        AssetInfo(
+            assets = depset(direct = ctx.files.assets, transitive = [
+                dep[AssetInfo].assets
+                for dep in ctx.attr.deps
+                if AssetInfo in dep
+            ]),
         ),
         _TsConfigInfo(tsconfigs = depset([ctx.file.tsconfig] + ctx.files.extends, transitive = [
             dep[_TsConfigInfo].tsconfigs
