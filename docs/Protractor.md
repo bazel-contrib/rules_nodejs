@@ -163,7 +163,7 @@ Defaults to `None`
 
 #### `web_test_data`
       
-Data dependencies for the wrapoer web_test targets.
+Data dependencies for the wrapper web_test targets.
 
 Defaults to `[]`
 
