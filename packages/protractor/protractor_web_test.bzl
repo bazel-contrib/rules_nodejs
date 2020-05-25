@@ -302,7 +302,7 @@ def protractor_web_test_suite(
     Args:
       name: The base name of the test
       browsers: A sequence of labels specifying the browsers to use.
-      web_test_data: Data dependencies for the wrapoer web_test targets.
+      web_test_data: Data dependencies for the wrapper web_test targets.
       wrapped_test_tags: A list of test tag strings to use for the wrapped
         karma_web_test target.
       **kwargs: Arguments for the wrapped karma_web_test target.
