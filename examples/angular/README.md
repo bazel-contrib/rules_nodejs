@@ -2,14 +2,9 @@
 
 # Example Angular monorepo using Bazel
 
-**This is experimental, as part of Angular Labs! There may be breaking changes.**
+There are a few ways to use Angular with Bazel. See https://bazelbuild.github.io/rules_nodejs/examples#angular for an overview of all the options.
 
-This is part of the ABC project. The overall goal is to make it possible to
-develop Angular applications the same way we do at Google.
-
-Learn more about Bazel and Angular at https://bazel.angular.io
-
-This example is deployed at https://bazel.angular.io/example
+This example demonstrates the Google-internal toolchain, which is fast but not very compatible with existing applications.
 
 ## Guide to the example
 
@@ -25,6 +20,8 @@ This example is a monorepo, meant to show many different features and integratio
 - **Differential loading**: in production mode, we load a pair of `<script>` tags. Modern browsers will load code in the ES2015 syntax, which is smaller and requires fewer polyfills. Older browsers will load ES5 syntax.
 - **Docker**: see below where we package up the production app for deployment on Kubernetes.
 - **Server Side Rendering**: with the help of Angular Universal you can render your application on the server
+
+This example is deployed at https://bazel.angular.io/example
 
 ## Installation
 

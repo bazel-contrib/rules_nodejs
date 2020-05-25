@@ -15,7 +15,7 @@ Another way to do local development without doing the Ruby setup steps is to use
 $ docker run -it --rm -v "$PWD":/usr/src/app -p "4000:4000" starefossen/github-pages
 ```
 
-# Authroing the docsite
+# Authoring the docsite
 
 The docsite is a mix of stardoc generated markdown and hand written markdown.  
 The files marked with 
