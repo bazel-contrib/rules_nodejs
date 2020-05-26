@@ -2,6 +2,7 @@
 # Don't edit it directly
 
 * @gregmagolan @soldair @alexeagle
+/packages/angular/** @alan-agius4 @alexeagle
 /packages/labs/** @mrmeku @alexeagle
 /packages/rollup/** @jbedard @alexeagle
 /examples/nestjs/** @zachgrayio @zMotivat0r @rayman1104 @siberex @alexeagle
