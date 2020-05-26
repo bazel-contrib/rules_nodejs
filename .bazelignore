@@ -3,3 +3,4 @@ dist
 bazel-out
 e2e/symlinked_node_modules_yarn/node_modules
 e2e/symlinked_node_modules_npm/node_modules/
+packages/angular/node_modules

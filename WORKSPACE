@@ -83,6 +83,12 @@ npm_install(
     package_lock_json = "//packages/node-patches:package-lock.json",
 )
 
+npm_install(
+    name = "angular_deps",
+    package_json = "//packages/angular:package.json",
+    package_lock_json = "//packages/angular:package-lock.json",
+)
+
 # Install all Bazel dependencies needed for npm packages that supply Bazel rules
 load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
 

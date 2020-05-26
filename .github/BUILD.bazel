@@ -7,6 +7,7 @@ generate_codeowners(
     # do not sort
     owners = [
         "//:OWNERS",
+        "//packages/angular:OWNERS",
         "//packages/labs:OWNERS",
         "//packages/rollup:OWNERS",
         "//examples:OWNERS.examples_nestjs",
