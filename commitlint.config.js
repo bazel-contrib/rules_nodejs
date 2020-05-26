@@ -5,6 +5,7 @@ module.exports = {
     'scope-enum': [
       2, 'always',
       [
+        'angular',
         'builtin',
         'create',
         'examples',

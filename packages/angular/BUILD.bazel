@@ -1,0 +1,23 @@
+load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "codeowners", "pkg_npm")
+load("//packages/typescript:index.bzl", "ts_project")
+
+codeowners(
+    teams = ["@alan-agius4"],
+)
+
+ts_project(
+    tsc = "@angular_deps//typescript/bin:tsc",
+    deps = ["@angular_deps//:node_modules"],
+)
+
+pkg_npm(
+    name = "npm_package",
+    srcs = [
+        "README.md",
+        "package.json",
+        "src/builders/builders.json",
+        "src/builders/schema.d.ts",
+        "src/builders/schema.json",
+    ],
+    deps = ["tsconfig"],
+)
