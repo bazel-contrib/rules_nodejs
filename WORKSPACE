@@ -24,17 +24,6 @@ load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 load("//:index.bzl", "BAZEL_VERSION", "SUPPORTED_BAZEL_VERSIONS")
 
 #
-# Nested package workspaces required to build packages & reference rules
-#
-
-load("//packages:index.bzl", "NESTED_PACKAGES")
-
-[local_repository(
-    name = "npm_bazel_%s" % name,
-    path = "packages/%s/src" % name,
-) for name in NESTED_PACKAGES]
-
-#
 # Install rules_nodejs dev dependencies
 #
 
@@ -136,7 +125,7 @@ load("//packages/typescript/internal:ts_repositories.bzl", "ts_setup_workspace")
 ts_setup_workspace()
 
 #
-# Install npm_bazel_karma dependencies
+# Install @bazel/karma dependencies
 #
 
 load("//packages/karma:package.bzl", "npm_bazel_karma_dependencies")

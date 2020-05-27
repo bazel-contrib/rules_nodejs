@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Helper function to setup @npm_bazel_typescript dev dependencies.
+"""Helper function to setup @bazel/typescript dev dependencies.
 """
 
 load("@bazel_gazelle//:deps.bzl", "go_repository")
