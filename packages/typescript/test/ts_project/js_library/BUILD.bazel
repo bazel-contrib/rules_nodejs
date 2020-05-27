@@ -1,5 +1,5 @@
-load("@npm_bazel_typescript//:index.bzl", "ts_project")
 load("//internal/js_library:js_library.bzl", "js_library")
+load("//packages/typescript:index.bzl", "ts_project")
 
 js_library(
     name = "lib_a",
