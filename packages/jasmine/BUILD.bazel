@@ -94,9 +94,6 @@ pkg_npm(
     substitutions = {
         "//packages/jasmine:jasmine_runner.js": "//:node_modules/@bazel/jasmine/jasmine_runner.js",
     },
-    vendor_external = [
-        "npm_bazel_jasmine",
-    ],
     deps = [
         ":npm_version_check",
     ] + select({

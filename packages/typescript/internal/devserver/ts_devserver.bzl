@@ -145,14 +145,14 @@ ts_devserver = rule(
             runfiles. For non-RBE and for RBE with a linux host, ctx.executable.devserver & ctx.executable.devserver_host
             will be the same binary.
 
-            Defaults to precompiled go binary in @npm_bazel_typescript setup by @bazel/typescript npm package""",
+            Defaults to precompiled go binary setup by @bazel/typescript npm package""",
             default = Label("//packages/typescript/devserver"),
             executable = True,
             cfg = "host",
         ),
         "devserver_host": attr.label(
             doc = """Go based devserver executable for the host platform.
-            Defaults to precompiled go binary in @npm_bazel_typescript setup by @bazel/typescript npm package""",
+            Defaults to precompiled go binary setup by @bazel/typescript npm package""",
             default = Label("//packages/typescript/devserver:devserver_%s" % host_platform),
             executable = True,
             cfg = "host",

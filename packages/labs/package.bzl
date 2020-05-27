@@ -52,7 +52,7 @@ def npm_bazel_labs_dependencies():
         package_json = Label("//packages/labs/grpc_web:package.json"),
         yarn_lock = Label("//packages/labs/grpc_web:yarn.lock"),
         # Do not symlink node_modules as when used in downstream repos we should not create
-        # node_modules folders in the @npm_bazel_typescript external repository. This is
+        # node_modules folders in the external repository. This is
         # not supported by managed_directories.
         symlink_node_modules = False,
     )
@@ -62,7 +62,7 @@ def npm_bazel_labs_dependencies():
         package_json = Label("//packages/labs/protobufjs:package.json"),
         yarn_lock = Label("//packages/labs/protobufjs:yarn.lock"),
         # Do not symlink node_modules as when used in downstream repos we should not create
-        # node_modules folders in the @npm_bazel_typescript external repository. This is
+        # node_modules folders in the external repository. This is
         # not supported by managed_directories.
         symlink_node_modules = False,
     )

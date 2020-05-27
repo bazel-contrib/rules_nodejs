@@ -15,8 +15,9 @@
 """Index file for packages.
 """
 
-# packages that have nested workspaces in `src` folder
-NESTED_PACKAGES = [
+NPM_PACKAGES = ["@bazel/%s" % pkg for pkg in [
+    "angular",
+    "create",
     "jasmine",
     "karma",
     "labs",
@@ -24,9 +25,5 @@ NESTED_PACKAGES = [
     "rollup",
     "terser",
     "typescript",
-]
-
-NPM_PACKAGES = [
-    "@bazel/create",
-    "@bazel/worker",
-] + ["@bazel/%s" % pkg for pkg in NESTED_PACKAGES]
+    "worker",
+]]

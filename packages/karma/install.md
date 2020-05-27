@@ -9,7 +9,7 @@ Add the `@bazel/karma` npm package to your `devDependencies` in `package.json`.
 Now add this to your `WORKSPACE` to install the Karma dependencies:
 
 ```python
-# Fetch transitive Bazel dependencies of npm_bazel_karma
+# Fetch transitive Bazel dependencies of @bazel/karma
 load("@npm//@bazel/karma:package.bzl", "npm_bazel_karma_dependencies")
 npm_bazel_karma_dependencies()
 ```
