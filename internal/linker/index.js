@@ -277,6 +277,15 @@ function liftElement(element) {
     if (link && allElementsAlignUnder(name, link, children)) {
         return { name, link };
     }
+    if (!link && allElementsAlign(name, children)) {
+        return {
+            name,
+            link: toParentLink(children[0].link),
+        };
+    }
+    if (children.length === 1 && !link) {
+        return children[0];
+    }
     return element;
 }
 function toParentLink(link) {
