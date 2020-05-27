@@ -36,8 +36,14 @@ This prevents needing an aspect in rules that consume the typings, which improve
 def declaration_info(declarations, deps = []):
     """Constructs a DeclarationInfo including all transitive declarations from DeclarationInfo providers in a list of deps.
 
-Returns a single DeclarationInfo.
-"""
+    # TODO: add some checking actions to ensure the declarations are well-formed and don't have semantic diagnostics
+
+    Args:
+        declarations: list of .d.ts files
+        deps: list of labels of dependencies where we should collect their DeclarationInfo to pass transitively
+    Returns:
+        a single DeclarationInfo provider
+    """
     transitive_depsets = [declarations]
     for dep in deps:
         if DeclarationInfo in dep:
