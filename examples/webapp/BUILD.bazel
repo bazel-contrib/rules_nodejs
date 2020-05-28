@@ -1,6 +1,6 @@
-load("@npm//@bazel/protractor:index.bzl", "protractor_web_test_suite")
-load("@npm//http-server:index.bzl", "http_server")
-load("@npm//mocha:index.bzl", "mocha_test")
+load("@npm_deps//@bazel/protractor:index.bzl", "protractor_web_test_suite")
+load("@npm_deps//http-server:index.bzl", "http_server")
+load("@npm_deps//mocha:index.bzl", "mocha_test")
 load(":differential_loading.bzl", "differential_loading")
 
 differential_loading(
@@ -33,7 +33,7 @@ mocha_test(
         ":app_chunks.min",
         ":app_chunks_es5",
         ":app_chunks_es5.min",
-        "@npm//source-map",
+        "@npm_deps//source-map",
     ],
     tags = [
         # Need to set the pwd to avoid mocha needing a runfiles helper
