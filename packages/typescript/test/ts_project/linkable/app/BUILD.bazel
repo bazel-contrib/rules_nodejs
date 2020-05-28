@@ -1,0 +1,8 @@
+load("//packages/typescript:index.bzl", "ts_project")
+
+ts_project(
+    # This causes the linker to symlink the output directory into our execroot
+    # execroot/node_modules/@bazel/ts_project_lib ->
+    # bazel-out/[arch]/bin/packages/typescript/test/ts_project/linkable_lib
+    deps = ["//packages/typescript/test/ts_project/linkable/lib:tsconfig"],
+)

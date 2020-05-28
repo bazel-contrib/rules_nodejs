@@ -1,6 +1,7 @@
 "ts_project rule"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "NpmPackageInfo", "run_node")
+load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "LinkablePackageInfo", "NpmPackageInfo", "run_node")
+load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 
 _DEFAULT_TSC = (
     # BEGIN-INTERNAL
@@ -10,6 +11,7 @@ _DEFAULT_TSC = (
 )
 
 _ATTRS = {
+    "package_name": attr.string(),
     # NB: no restriction on extensions here, because tsc sometimes adds type-check support
     # for more file kinds (like require('some.json')) and also
     # if you swap out the `compiler` attribute (like with ngtsc)
@@ -19,7 +21,10 @@ _ATTRS = {
     "extends": attr.label_list(allow_files = [".json"]),
     "tsc": attr.label(default = Label(_DEFAULT_TSC), executable = True, cfg = "host"),
     "tsconfig": attr.label(mandatory = True, allow_single_file = [".json"]),
-    "deps": attr.label_list(providers = [DeclarationInfo]),
+    "deps": attr.label_list(
+        aspects = [module_mappings_aspect],
+        providers = [DeclarationInfo],
+    ),
 }
 
 # tsc knows how to produce the following kinds of output files.
@@ -143,6 +148,14 @@ def _ts_project_impl(ctx):
                 type_blacklisted_declarations = depset(),
             ),
         )
+
+    if ctx.attr.package_name:
+        path = "/".join([p for p in [ctx.bin_dir.path, ctx.label.workspace_root, ctx.label.package] if p])
+        providers.append(LinkablePackageInfo(
+            package_name = ctx.attr.package_name,
+            path = path,
+            files = depset(typings_outputs, transitive = [runtime_outputs]),
+        ))
 
     return providers
 
@@ -350,6 +363,7 @@ def ts_project_macro(
             Instructs Bazel to expect a `.tsbuildinfo` output.
         emit_declaration_only: if the `emitDeclarationOnly` bit is set in the tsconfig.
             Instructs Bazel *not* to expect `.js` or `.js.map` outputs for `.ts` sources.
+        **kwargs: undocumented additional attributes to ts_project rule wrapped by this macro
     """
 
     if srcs == None:
