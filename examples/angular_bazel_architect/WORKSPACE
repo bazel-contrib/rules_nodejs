@@ -32,8 +32,3 @@ yarn_install(
     symlink_node_modules = False,
     yarn_lock = "//:yarn.lock",
 )
-
-# Install any Bazel rules which were extracted earlier by the yarn_install rule.
-load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
-
-install_bazel_dependencies()

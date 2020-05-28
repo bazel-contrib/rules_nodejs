@@ -78,10 +78,12 @@ npm_install(
     package_lock_json = "//packages/angular:package-lock.json",
 )
 
-# Install all Bazel dependencies needed for npm packages that supply Bazel rules
+# Install all Bazel dependencies needed for integration test
+# tools/npm_packages/bazel_workspaces
+# (tested on CI and in the scripts/test_all.sh)
 load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
 
-install_bazel_dependencies()
+install_bazel_dependencies(suppress_warning = True)
 
 #
 # Install @bazel/typescript dependencies

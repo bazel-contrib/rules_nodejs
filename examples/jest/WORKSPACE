@@ -36,7 +36,3 @@ yarn_install(
     quiet = False,
     yarn_lock = "//:yarn.lock",
 )
-
-load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
-
-install_bazel_dependencies()
