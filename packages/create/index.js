@@ -161,11 +161,7 @@ http_archive(
     urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/1.6.0/rules_nodejs-1.6.0.tar.gz"],
 )
 
-${pkgMgr === 'yarn' ? yarnInstallCmd : npmInstallCmd}
-
-# Install any Bazel rules which were extracted earlier by the ${pkgMgr}_install rule.
-load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
-install_bazel_dependencies()`;
+${pkgMgr === 'yarn' ? yarnInstallCmd : npmInstallCmd}`;
   if (args['typescript']) {
     workspaceContent += `
 

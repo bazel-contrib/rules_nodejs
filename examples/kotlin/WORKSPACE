@@ -21,11 +21,6 @@ npm_install(
     package_lock_json = "//:package-lock.json",
 )
 
-# Install any Bazel rules which were extracted earlier by the yarn_install rule.
-load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
-
-install_bazel_dependencies()
-
 # Install external Kotlin/Java dependencies
 http_archive(
     name = "rules_jvm_external",

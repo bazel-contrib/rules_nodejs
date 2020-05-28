@@ -360,8 +360,23 @@ function generateInstallBazelDependencies(workspaces: string[]) {
     bzlFile += `load(\":install_${workspace}.bzl\", \"install_${workspace}\")
 `;
   });
-  bzlFile += `def install_bazel_dependencies():
+  bzlFile += `def install_bazel_dependencies(suppress_warning = False):
     """Installs all workspaces listed in bazelWorkspaces of all npm packages"""
+    if not suppress_warning:
+        print("""
+NOTICE: install_bazel_dependencies is no longer needed,
+since @bazel/* npm packages can be load()ed without copying to another repository.
+See https://github.com/bazelbuild/rules_nodejs/issues/1877
+
+install_bazel_dependencies is harmful because it causes npm_install/yarn_install to run even
+if the requested output artifacts for the build don't require nodejs, making multi-language monorepo
+use cases slower.
+
+You should be able to remove install_bazel_workspaces from your WORKSPACE file unless you depend
+on a package that exposes a separate repository, like @angular/bazel exposes @npm_angular_bazel//:index.bzl
+
+You can suppress this message by passing "suppress_warning = True" to install_bazel_dependencies()
+""")
 `;
   workspaces.forEach(workspace => {
     bzlFile += `    install_${workspace}()

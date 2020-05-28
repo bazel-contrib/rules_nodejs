@@ -41,11 +41,6 @@ yarn_install(
     yarn_lock = "//:yarn.lock",
 )
 
-# Install all bazel dependencies of our npm packages
-load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
-
-install_bazel_dependencies()
-
 # Load @bazel/protractor dependencies
 load("@npm//@bazel/protractor:package.bzl", "npm_bazel_protractor_dependencies")
 
