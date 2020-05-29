@@ -1,3 +1,21 @@
+# [1.7.0](https://github.com/bazelbuild/rules_nodejs/compare/1.6.1...1.7.0) (2020-05-29)
+
+
+### Bug Fixes
+
+* backport a fix from master branch ([24cb37e](https://github.com/bazelbuild/rules_nodejs/commit/24cb37e))
+* patch branch needs old typescript load location ([c27d2a7](https://github.com/bazelbuild/rules_nodejs/commit/c27d2a7))
+* **builtin:** fix linker common path reduction bug where reduced path conflicts with node_modules ([3b5350b](https://github.com/bazelbuild/rules_nodejs/commit/3b5350b))
+* **builtin:** rerun yarn_install and npm_install when node version changes ([81bba0c](https://github.com/bazelbuild/rules_nodejs/commit/81bba0c))
+* **labs:** handle const/let syntax in generated protoc js ([54cae78](https://github.com/bazelbuild/rules_nodejs/commit/54cae78))
+
+
+### Features
+
+* **angular:** introduce an Angular CLI builder ([5ac842e](https://github.com/bazelbuild/rules_nodejs/commit/5ac842e))
+
+
+
 ## [1.6.1](https://github.com/bazelbuild/rules_nodejs/compare/1.6.0...1.6.1) (2020-04-30)
 
 
