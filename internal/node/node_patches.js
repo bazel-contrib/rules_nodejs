@@ -593,7 +593,10 @@ fi
         process.env.PATH = nodeDir + path.delimiter + process.env.PATH;
     }
     // fix execPath so folks use the proxy node
-    process.argv[0] = process.execPath = path.join(nodeDir, 'node');
+    if (process.platform == 'win32') ;
+    else {
+        process.argv[0] = process.execPath = path.join(nodeDir, 'node');
+    }
     // replace any instances of require script in execArgv with the absolute path to the script.
     // example: bazel-require-script.js
     process.execArgv.map(v => {
