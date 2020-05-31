@@ -15,6 +15,8 @@
 workspace(
     name = "build_bazel_rules_nodejs",
     managed_directories = {
+        # cypress_deps must be a managed directory to ensure it is downloaded before cypress_repository is run.
+        "@cypress_deps": ["packages/cypress/test/node_modules"],
         "@npm": ["node_modules"],
         "@npm_node_patches": ["packages/node-patches/node_modules"],
     },
@@ -78,6 +80,12 @@ npm_install(
     package_lock_json = "//packages/angular:package-lock.json",
 )
 
+yarn_install(
+    name = "cypress_deps",
+    package_json = "//packages/cypress/test:package.json",
+    yarn_lock = "//packages/cypress/test:yarn.lock",
+)
+
 # Install all Bazel dependencies needed for integration test
 # tools/npm_packages/bazel_workspaces
 # (tested on CI and in the scripts/test_all.sh)
@@ -125,6 +133,16 @@ ts_setup_dev_workspace()
 load("//packages/typescript/internal:ts_repositories.bzl", "ts_setup_workspace")
 
 ts_setup_workspace()
+
+#
+# Install @bazel/cypress dependencies
+#
+load("//packages/cypress:index.bzl", "cypress_repository")
+
+cypress_repository(
+    name = "cypress",
+    cypress_bin = "@cypress_deps//:node_modules/cypress/bin/cypress",
+)
 
 #
 # Install @bazel/karma dependencies

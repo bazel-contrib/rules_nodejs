@@ -1,0 +1,3 @@
+import %workspace%/../../common.bazelrc
+
+build --experimental_inprocess_symlink_creation

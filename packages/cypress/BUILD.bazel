@@ -1,0 +1,97 @@
+# Copyright 2020 The Bazel Authors. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "pkg_npm")
+load("@build_bazel_rules_nodejs//tools/stardoc:index.bzl", "stardoc")
+load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
+
+package(default_visibility = ["//visibility:public"])
+
+bzl_library(
+    name = "bzl",
+    srcs = glob(["**/*.bzl"]),
+    deps = [
+        "@build_bazel_rules_nodejs//:bzl",
+        "@build_bazel_rules_nodejs//internal/common:bzl",
+        "@build_bazel_rules_nodejs//internal/node:bzl",
+    ],
+)
+
+stardoc(
+    name = "docs",
+    testonly = True,
+    out = "index.md",
+    input = "index.bzl",
+    tags = ["fix-windows"],
+    deps = [":bzl"],
+)
+
+# Ugly genrule depending on local linux environment to build the README out of skylark doc generation.
+# Only referenced when we do a release.
+# TODO: This ought to be possible with stardoc alone. Need to coordinate with Chris Parsons.
+genrule(
+    name = "generate_README",
+    srcs = [
+        "index.md",
+        "install.md",
+    ],
+    outs = ["README.md"],
+    cmd = """cat $(execpath install.md) $(execpath index.md) | sed 's/^##/\\\n##/' > $@""",
+    tags = ["fix-windows"],
+    visibility = ["//docs:__pkg__"],
+)
+
+copy_file(
+    name = "npm_version_check",
+    src = "//internal:npm_version_check.js",
+    out = ":npm_version_check.js",
+)
+
+pkg_npm(
+    name = "npm_package",
+    srcs = [
+        "index.bzl",
+        "package.json",
+        "//packages/cypress:internal/cypress-install.js",
+        "//packages/cypress:internal/cypress_repository.bzl",
+        "//packages/cypress:internal/plugins/base.js",
+        "//packages/cypress:internal/plugins/index.template.js",
+        "//packages/cypress:internal/run-cypress.js",
+        "//packages/cypress:internal/template.cypress_web_test.bzl",
+    ],
+    build_file_content = """exports_files([
+    "internal/plugins/base.js",
+    "internal/plugins/index.template.js",
+    "internal/run-cypress.js",
+    "plugins/base.js",
+])""",
+    substitutions = {
+        "@build_bazel_rules_nodejs//packages/cypress:internal/cypress-install.js": "TEMPLATED_node_modules_workspace_name//@bazel/cypress:internal/cypress-install.js",
+        "@build_bazel_rules_nodejs//packages/cypress:internal/cypress_repository.bzl": "//packages/cypress:internal/cypress_repository.bzl",
+        "@build_bazel_rules_nodejs//packages/cypress:internal/plugins/base.js": "TEMPLATED_node_modules_workspace_name//@bazel/cypress:internal/plugins/base.js",
+        "@build_bazel_rules_nodejs//packages/cypress:internal/plugins/index.template.js": "TEMPLATED_node_modules_workspace_name//@bazel/cypress:internal/plugins/index.template.js",
+        "@build_bazel_rules_nodejs//packages/cypress:internal/run-cypress.js": "TEMPLATED_node_modules_workspace_name//@bazel/cypress:internal/run-cypress.js",
+        "\\${cwd}/../cypress_deps/node_modules/@cypress/browserify-preprocessor/index": "@cypress/browserify-preprocessor",
+    },
+    deps = [
+        ":npm_version_check",
+    ] + select({
+        # FIXME: fix stardoc on Windows; //packages/terser:index.md generation fails with:
+        #   ERROR: D:/b/62unjjin/external/npm_bazel_terser/BUILD.bazel:32:1: Couldn't build file
+        #   external/npm_bazel_terser/docs.raw: Generating proto for Starlark doc for docs failed (Exit 1)
+        "@bazel_tools//src/conditions:windows": [],
+        "//conditions:default": [":generate_README"],
+    }),
+)
