@@ -1,0 +1,39 @@
+load("@cypress//:index.bzl", "cypress_web_test")
+load("//packages/typescript:index.bzl", "ts_library")
+
+ts_library(
+    name = "plugins_file",
+    testonly = True,
+    srcs = ["plugin.ts"],
+    node_modules = "@cypress_deps//:node_modules",
+    tags = ["cypress"],
+    tsconfig = ":tsconfig.json",
+    deps = [
+        "@cypress_deps//@types/node",
+        "@cypress_deps//express",
+    ],
+)
+
+ts_library(
+    name = "hello_spec",
+    testonly = True,
+    srcs = ["hello.spec.ts"],
+    node_modules = "@cypress_deps//:node_modules",
+    tags = ["cypress"],
+    tsconfig = ":tsconfig.json",
+    deps = [
+        "@cypress_deps//@types",
+        "@cypress_deps//cypress",
+    ],
+)
+
+cypress_web_test(
+    name = "test",
+    srcs = [
+        "world.spec.js",
+        ":hello_spec",
+    ],
+    config_file = "cypress.json",
+    data = ["@cypress_deps//rxjs"],
+    plugins_file = ":plugins_file",
+)

@@ -1,0 +1,11 @@
+{
+    "name": "cypress_test",
+    "private": true,
+    "dependencies": {
+        "express": "4.17.1",
+        "cypress": "^4.8.0",
+        "@cypress/browserify-preprocessor": "^3.0.0",
+        "@types/node": "14.0.14",
+        "typescript": "3.9.5"
+    }
+}

@@ -97,6 +97,15 @@ example_integration_test(
 )
 
 example_integration_test(
+    name = "examples_cypress",
+    npm_packages = {
+        "//packages/cypress:npm_package": "@bazel/cypress",
+        "//packages/typescript:npm_package": "@bazel/typescript",
+    },
+    tags = ["cypress"],
+)
+
+example_integration_test(
     name = "examples_jest",
 )
 
