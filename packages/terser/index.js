@@ -164,7 +164,7 @@ function main() {
   try {
     // If necessary, get the new `terser` binary, added for >=4.3.0
     terserBinary = terserBinary || require.resolve('terser/bin/terser');
-  } finally {
+  } catch (e) {
     // If necessary, get the old `uglifyjs` binary from <4.3.0
     terserBinary = terserBinary || require.resolve('terser/bin/uglifyjs');
   }
