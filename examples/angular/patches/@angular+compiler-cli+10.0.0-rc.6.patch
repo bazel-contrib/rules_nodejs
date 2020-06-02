@@ -1,0 +1,12 @@
+diff --git a/node_modules/@angular/compiler-cli/src/ngtsc/tsc_plugin.js b/node_modules/@angular/compiler-cli/src/ngtsc/tsc_plugin.js
+index 1f8fde2..05e30bf 100755
+--- a/node_modules/@angular/compiler-cli/src/ngtsc/tsc_plugin.js
++++ b/node_modules/@angular/compiler-cli/src/ngtsc/tsc_plugin.js
+@@ -54,6 +54,7 @@
+             if (this.host === null || this.options === null) {
+                 throw new Error('Lifecycle error: setupCompilation() before wrapHost().');
+             }
++            this.host.postProgramCreationCleanup();
+             var typeCheckStrategy = new augmented_program_1.ReusedProgramStrategy(program, this.host, this.options, this.host.shimExtensionPrefixes);
+             this._compiler = new core_1.NgCompiler(this.host, this.options, program, typeCheckStrategy, new incremental_1.PatchedProgramIncrementalBuildStrategy(), oldProgram, perf_1.NOOP_PERF_RECORDER);
+             return {
