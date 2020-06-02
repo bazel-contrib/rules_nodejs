@@ -79,7 +79,7 @@ export function filterExpected(
   const unmatchedDiags = diagnostics.filter(diag => {
     let line = -1;
     let character = -1;
-    if (diag.file && diag.start) {
+    if (diag.file !== undefined && diag.start !== undefined) {
       ({line, character} =
            ts.getLineAndCharacterOfPosition(diag.file, diag.start));
     }

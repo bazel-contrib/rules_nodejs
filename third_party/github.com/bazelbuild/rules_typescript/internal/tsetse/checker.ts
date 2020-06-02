@@ -107,11 +107,9 @@ export class Checker {
   }
 
   /**
-   * Add a failure with a span. addFailure() is currently private because
-   * `addFailureAtNode` is preferred.
+   * Add a failure with a span.
    */
-  private addFailure(
-      start: number, end: number, failureText: string, fix?: Fix) {
+  addFailure(start: number, end: number, failureText: string, fix?: Fix) {
     if (!this.currentSourceFile) {
       throw new Error('Source file not defined');
     }
