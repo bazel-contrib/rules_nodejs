@@ -218,6 +218,4 @@ example_integration_test(
     bazel_commands = [
         "test ...",
     ],
-    # windows fails CI with an error to do with a process fork not being able ot find node
-    tags = ["fix-windows"],
 )
