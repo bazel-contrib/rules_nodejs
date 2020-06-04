@@ -108,15 +108,16 @@ if [ -n "${vendored_node}" ]; then
   fi
 else
   # Check environment for which node path to use
-  unameOut="$(uname -s)"
-  case "${unameOut}" in
+  unameOs="$(uname -s)"
+  unameArch="$(uname -m)"
+  case "${unameOs}" in
       Linux*)     machine=linux ;;
       Darwin*)    machine=darwin ;;
       CYGWIN*)    machine=windows ;;
       MINGW*)     machine=windows ;;
       MSYS_NT*)   machine=windows ;;
       *)          machine=linux
-                  printf "\nUnrecongized uname '${unameOut}'; defaulting to use node for linux.\n" >&2
+                  printf "\nUnrecongized uname '${unameOs}'; defaulting to use node for linux.\n" >&2
                   printf "Please file an issue to https://github.com/bazelbuild/rules_nodejs/issues if \n" >&2
                   printf "you would like to add your platform to the supported rules_nodejs node platforms.\n\n" >&2
                   ;;
@@ -126,14 +127,19 @@ else
     # The following paths must match up with _download_node in node_repositories
     darwin) readonly node_toolchain="nodejs_darwin_amd64/bin/nodejs/bin/node" ;;
     windows) readonly node_toolchain="nodejs_windows_amd64/bin/nodejs/node.exe" ;;
-    *) readonly node_toolchain="nodejs_linux_amd64/bin/nodejs/bin/node" ;;
+    *)
+      case "${unameArch}" in
+        aarch64*) readonly node_toolchain="nodejs_linux_arm64/bin/nodejs/bin/node" ;;
+        *) readonly node_toolchain="nodejs_linux_amd64/bin/nodejs/bin/node" ;;
+      esac
+      ;;
   esac
 
   readonly node=$(rlocation "${node_toolchain}")
 
   if [ ! -f "${node}" ]; then
       printf "\n>>>> FAIL: The node binary '${node_toolchain}' not found in runfiles.\n" >&2
-      printf "This node toolchain was chosen based on your uname '${unameOut}'.\n" >&2
+      printf "This node toolchain was chosen based on your uname '${unameOs} ${unameArch}'.\n" >&2
       printf "Please file an issue to https://github.com/bazelbuild/rules_nodejs/issues if \n" >&2
       printf "you would like to add your platform to the supported rules_nodejs node platforms. <<<<\n\n" >&2
       exit 1
