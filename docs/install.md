@@ -421,6 +421,7 @@ If you have an advanced use-case you can also register your own toolchains and c
 Toolchains allow us to support cross-compilation, e.g. building a linux binary from mac or windows. To tell Bazel to provide a toolchain for a different platform you have to pass in  the `--platforms` flag. Currently supported values are:
 
 - `@build_bazel_rules_nodejs//toolchains/node:linux_amd64`
+- `@build_bazel_rules_nodejs//toolchains/node:linux_arm64`
 - `@build_bazel_rules_nodejs//toolchains/node:darwin_amd64`
 - `@build_bazel_rules_nodejs//toolchains/node:windows_amd64`
 

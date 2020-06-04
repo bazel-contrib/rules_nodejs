@@ -64,6 +64,7 @@ Running `bazel run @nodejs//:yarn_node_repositories` in this repo would create `
 Note that the dependency installation scripts will run in each subpackage indicated by the `package_json` attribute.
 """
 
+# TODO(kgreenek): Add arm64 versions for all of these.
 _ATTRS = {
     "node_repositories": attr.string_list_dict(
         # @unsorted-dict-items
@@ -107,6 +108,7 @@ _ATTRS = {
             # 12.13.0
             "12.13.0-darwin_amd64": ("node-v12.13.0-darwin-x64.tar.gz", "node-v12.13.0-darwin-x64", "49a7374670a111b033ce16611b20fd1aafd3296bbc662b184fe8fb26a29c22cc"),
             "12.13.0-linux_amd64": ("node-v12.13.0-linux-x64.tar.xz", "node-v12.13.0-linux-x64", "7a57ef2cb3036d7eacd50ae7ba07245a28336a93652641c065f747adb2a356d9"),
+            "12.13.0-linux_arm64": ("node-v12.13.0-linux-arm64.tar.xz", "node-v12.13.0-linux-arm64", "d65b3ce27639f15ae22941e3ff98a1c900aa9049fcc15518038615b0676037d5"),
             "12.13.0-windows_amd64": ("node-v12.13.0-win-x64.zip", "node-v12.13.0-win-x64", "6f920cebeecb4957b4ef0def6d9b04c49d4582864f8d1a207ce8d0665865781a"),
             # When adding a new version. please update /docs/install.md
         },
@@ -253,6 +255,7 @@ and expect the file to have sha256sum `09bea8f4ec41e9079fa03093d3b2db7ac5c533185
 BUILT_IN_NODE_PLATFORMS = [
     "darwin_amd64",
     "linux_amd64",
+    "linux_arm64",
     "windows_amd64",
 ]
 
@@ -754,7 +757,7 @@ def node_repositories(**kwargs):
             name = node_repository_name,
             **kwargs
         )
-        native.register_toolchains("@build_bazel_rules_nodejs//toolchains/node:node_%s_toolchain" % os_arch_name[0])
+        native.register_toolchains("@build_bazel_rules_nodejs//toolchains/node:node_%s_toolchain" % os_name)
         node_toolchain_configure(
             name = "%s_config" % node_repository_name,
             target_tool = "@%s//:node_bin" % node_repository_name,
