@@ -1,5 +1,4 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "nodejs_test", "npm_package_bin")
-load("@build_bazel_rules_nodejs//internal/golden_file_test:golden_file_test.bzl", "golden_file_test")
+load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test", "nodejs_binary", "nodejs_test", "npm_package_bin")
 load("@npm//typescript:index.bzl", "tsc")
 load("//internal/js_library:js_library.bzl", "js_library")
 load("//internal/node:node_repositories.bzl", "BUILT_IN_NODE_PLATFORMS")
@@ -358,10 +357,10 @@ npm_package_bin(
     tool = ":test_runfiles_helper",
 )
 
-golden_file_test(
+generated_file_test(
     name = "test_runfiles_helper_test",
-    actual = ":test_runfiles_helper.out",
-    golden = "test_runfiles_helper.golden",
+    src = "test_runfiles_helper.golden",
+    generated = ":test_runfiles_helper.out",
 )
 
 nodejs_test(

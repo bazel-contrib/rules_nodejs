@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//internal/golden_file_test:golden_file_test.bzl", "golden_file_test")
+load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
 load("//packages/rollup:index.bzl", "rollup_bundle")
 
 rollup_bundle(
@@ -11,8 +11,8 @@ rollup_bundle(
     deps = ["@npm//rollup-plugin-json"],
 )
 
-golden_file_test(
+generated_file_test(
     name = "test",
-    actual = "plugins.js",
-    golden = "golden.js_",
+    src = "golden.js_",
+    generated = "plugins.js",
 )

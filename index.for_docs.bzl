@@ -19,6 +19,7 @@ This differs from :index.bzl because we don't have wrapping macros that hide the
 load("//internal/common:check_bazel_version.bzl", _check_bazel_version = "check_bazel_version")
 load("//internal/common:copy_to_bin.bzl", _copy_to_bin = "copy_to_bin")
 load("//internal/common:params_file.bzl", _params_file = "params_file")
+load("//internal/generated_file_test:generated_file_test.bzl", _generated_file_test = "generated_file_test")
 load("//internal/node:node.bzl", _nodejs_binary = "nodejs_binary", _nodejs_test = "nodejs_test")
 load("//internal/node:node_repositories.bzl", _node_repositories = "node_repositories_rule")
 load("//internal/node:npm_package_bin.bzl", _npm_bin = "npm_package_bin")
@@ -37,4 +38,5 @@ npm_install = _npm_install
 yarn_install = _yarn_install
 npm_package_bin = _npm_bin
 pkg_web = _pkg_web
+generated_file_test = _generated_file_test
 # ANY RULES ADDED HERE SHOULD BE DOCUMENTED, run yarn stardoc to verify

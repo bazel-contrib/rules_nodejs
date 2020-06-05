@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//internal/golden_file_test:golden_file_test.bzl", "golden_file_test")
+load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
 load("//packages/terser:index.bzl", "terser_minified")
 
 terser_minified(
@@ -8,9 +8,9 @@ terser_minified(
     sourcemap = False,
 )
 
-golden_file_test(
+generated_file_test(
     name = "test",
-    actual = "out.min",
-    golden = "output.golden.js_",
-    golden_debug = "output.debug.golden.js_",
+    src = "output.golden.js_",
+    generated = "out.min",
+    src_dbg = "output.debug.golden.js_",
 )

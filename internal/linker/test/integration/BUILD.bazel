@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//internal/golden_file_test:golden_file_test.bzl", "golden_file_test")
+load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
 load(":rule.bzl", "linked")
 
 # Use the node binary supplied by the bazel toolchain
@@ -130,23 +130,23 @@ linked(
     ],
 )
 
-golden_file_test(
+generated_file_test(
     # default rule in this package
     name = "integration",
-    actual = "actual",
-    golden = "golden.txt",
+    src = "golden.txt",
+    generated = "actual",
 )
 
-golden_file_test(
+generated_file_test(
     # default rule in this package
     name = "integration_conflicts",
-    actual = "actual_with_conflicts",
-    golden = "golden.txt",
+    src = "golden.txt",
+    generated = "actual_with_conflicts",
 )
 
-golden_file_test(
+generated_file_test(
     # default rule in this package
     name = "integration_conflicts_alt",
-    actual = "actual_with_conflicts_alt",
-    golden = "golden.txt",
+    src = "golden.txt",
+    generated = "actual_with_conflicts_alt",
 )

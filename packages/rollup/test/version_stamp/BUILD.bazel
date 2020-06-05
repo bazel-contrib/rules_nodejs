@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//internal/golden_file_test:golden_file_test.bzl", "golden_file_test")
+load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
 load("//internal/node:context.bzl", "node_context_data")
 load("//packages/rollup:index.bzl", "rollup_bundle")
 
@@ -18,10 +18,10 @@ rollup_bundle(
     supports_workers = True,
 )
 
-golden_file_test(
+generated_file_test(
     name = "test",
+    src = "golden.js_",
     # Leave off the ".js" extension to test that it's the default output
-    actual = "version_stamp",
-    golden = "golden.js_",
-    golden_debug = "golden_debug.js_",
+    generated = "version_stamp",
+    src_dbg = "golden_debug.js_",
 )

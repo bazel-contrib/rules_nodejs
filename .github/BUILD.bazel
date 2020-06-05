@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//internal/golden_file_test:golden_file_test.bzl", "golden_file_test")
+load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
 load("@rules_codeowners//tools:codeowners.bzl", "generate_codeowners")
 
 generate_codeowners(
@@ -14,8 +14,8 @@ generate_codeowners(
     ],
 )
 
-golden_file_test(
+generated_file_test(
     name = "codeowners",
-    actual = "gen_codeowners",
-    golden = "CODEOWNERS",
+    src = "CODEOWNERS",
+    generated = "gen_codeowners",
 )

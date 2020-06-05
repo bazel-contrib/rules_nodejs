@@ -19,4 +19,4 @@ readonly new_owners=$(
 
 readonly command="set owners [$new_owners]|//.github:gen_codeowners"
 
-echo $command | $BUILDOZER -f - && $BAZEL run //.github:codeowners.accept
+echo $command | $BUILDOZER -f - && $BAZEL run //.github:codeowners.update
