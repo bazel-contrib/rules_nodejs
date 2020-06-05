@@ -66,6 +66,7 @@ def run_node(ctx, inputs, arguments, executable, **kwargs):
     exec_attr = getattr(ctx.attr, executable)
     exec_exec = getattr(ctx.executable, executable)
 
+    outputs = kwargs.pop("outputs", [])
     extra_inputs = []
     link_data = []
     if (NodeRuntimeDepsInfo in exec_attr):
@@ -74,6 +75,16 @@ def run_node(ctx, inputs, arguments, executable, **kwargs):
 
     modules_manifest = write_node_modules_manifest(ctx, link_data)
     add_arg(arguments, "--bazel_node_modules_manifest=%s" % modules_manifest.path)
+
+    stdout_file = kwargs.pop("stdout", None)
+    if stdout_file:
+        add_arg(arguments, "--bazel_capture_stdout=%s" % stdout_file.path)
+        outputs = outputs + [stdout_file]
+
+    stderr_file = kwargs.pop("stderr", None)
+    if stderr_file:
+        add_arg(arguments, "--bazel_capture_stderr=%s" % stderr_file.path)
+        outputs = outputs + [stderr_file]
 
     # By using the run_node helper, you suggest that your program
     # doesn't implicitly use runfiles to require() things
@@ -86,7 +97,7 @@ def run_node(ctx, inputs, arguments, executable, **kwargs):
     configuration_env_vars = kwargs.pop("configuration_env_vars", []) + ["COMPILATION_MODE"]
     for var in configuration_env_vars:
         if var not in env.keys():
-            # If env is not explicitely specified, check ctx.var first & if env var not in there
+            # If env is not explicitly specified, check ctx.var first & if env var not in there
             # then check ctx.configuration.default_shell_env. The former will contain values from
             # --define=FOO=BAR and latter will contain values from --action_env=FOO=BAR
             # (but not from --action_env=FOO).
@@ -97,6 +108,7 @@ def run_node(ctx, inputs, arguments, executable, **kwargs):
     env["BAZEL_NODE_MODULES_ROOT"] = _compute_node_modules_root(ctx)
 
     ctx.actions.run(
+        outputs = outputs,
         inputs = inputs + extra_inputs + [modules_manifest],
         arguments = arguments,
         executable = exec_exec,
