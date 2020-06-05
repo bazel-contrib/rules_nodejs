@@ -1,6 +1,6 @@
 "checked_in_ts_project rule"
 
-load("@build_bazel_rules_nodejs//internal/golden_file_test:golden_file_test.bzl", "golden_file_test")
+load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
 load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:rules/write_file.bzl", "write_file")
 load("//packages/typescript:index.bzl", "ts_project")
 
@@ -57,8 +57,8 @@ def checked_in_ts_project(name, src, checked_in_js = None, **kwargs):
     )
 
     # Assert that we kept the index.js up-to-date when changing the TS code
-    golden_file_test(
+    generated_file_test(
         name = "%s_check_compiled" % name,
-        actual = "_%s_no_format.js" % name,
-        golden = checked_in_js,
+        generated = "_%s_no_format.js" % name,
+        src = checked_in_js,
     )

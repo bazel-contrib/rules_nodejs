@@ -1,5 +1,4 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "npm_package_bin")
-load("@build_bazel_rules_nodejs//internal/golden_file_test:golden_file_test.bzl", "golden_file_test")
+load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test", "nodejs_binary", "npm_package_bin")
 load("//packages/rollup:index.bzl", "rollup_bundle")
 
 _BUNDLE_FORMATS = [
@@ -42,13 +41,13 @@ _BUNDLE_FORMATS = [
 
 # Verify the bundle .js files
 [
-    golden_file_test(
+    generated_file_test(
         name = "test_%s" % format,
-        actual = "bundle.%s.js" % format,
-        golden = "//%s:golden.%s.js_" % (
+        src = "//%s:golden.%s.js_" % (
             package_name(),
             format,
         ),
+        generated = "bundle.%s.js" % format,
     )
     for format in _BUNDLE_FORMATS
 ]
@@ -82,10 +81,10 @@ nodejs_binary(
 ]
 
 [
-    golden_file_test(
+    generated_file_test(
         name = "test_%s_map_sha256" % format,
-        actual = "bundle.%s.js.map.sha256" % format,
-        golden = ":golden.%s.js.map.sha256_" % format,
+        src = ":golden.%s.js.map.sha256_" % format,
+        generated = "bundle.%s.js.map.sha256" % format,
         # TODO: fix this test on Windows as sha256 differs
         tags = ["fix-windows"],
     )
@@ -111,10 +110,10 @@ npm_package_bin(
     tool = ":sha256",
 )
 
-golden_file_test(
+generated_file_test(
     name = "test_umd_sha256",
-    actual = "bundle.umd.js.sha256",
-    golden = ":golden.umd.js.sha256_",
+    src = ":golden.umd.js.sha256_",
+    generated = "bundle.umd.js.sha256",
     # TODO: fix this test on Windows as sha256 differs
     tags = ["fix-windows"],
 )

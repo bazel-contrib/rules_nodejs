@@ -6,7 +6,7 @@ load("//packages/typescript:checked_in_ts_project.bzl", "checked_in_ts_project")
 # because the implementation of ts_library depends on the linker so that would be a cycle.
 # So we compile it to JS and check in the result as index.js.
 # To update index.js run:
-#   bazel run //internal/linker:linker_lib_check_compiled.accept
+#   bazel run //internal/linker:linker_lib_check_compiled.update
 checked_in_ts_project(
     name = "linker_lib",
     src = "link_node_modules.ts",

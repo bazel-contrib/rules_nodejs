@@ -38,6 +38,7 @@ bzl_library(
     visibility = ["//visibility:public"],
     deps = [
         "//internal/common:bzl",
+        "//internal/generated_file_test:bzl",
         "//internal/linker:bzl",
         "//internal/pkg_npm:bzl",
         "//internal/pkg_web:bzl",
@@ -78,7 +79,7 @@ pkg_npm(
         "//internal/common:package_contents",
         "//internal/copy_repository:package_contents",
         "//internal/coverage:package_contents",
-        "//internal/golden_file_test:package_contents",
+        "//internal/generated_file_test:package_contents",
         "//internal/js_library:package_contents",
         "//internal/linker:package_contents",
         "//internal/node:package_contents",

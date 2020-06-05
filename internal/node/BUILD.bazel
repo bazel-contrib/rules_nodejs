@@ -13,7 +13,7 @@
 # limitations under the License.
 
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
-load("//internal/golden_file_test:golden_file_test.bzl", "golden_file_test")
+load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -47,9 +47,9 @@ filegroup(
 )
 
 # To update node_patches.js run:
-#   bazel run //internal/node:checked_in_node_patches.accept
-golden_file_test(
+#   bazel run //internal/node:checked_in_node_patches.update
+generated_file_test(
     name = "checked_in_node_patches",
-    actual = "//packages/node-patches:bundle",
-    golden = "node_patches.js",
+    src = "node_patches.js",
+    generated = "//packages/node-patches:bundle",
 )

@@ -40,7 +40,7 @@ ${prettyDiff}
 
 Update the golden file:
 
-      bazel run ${process.env['TEST_TARGET']}.accept`);
+      bazel run ${process.env['TEST_TARGET']}.update`);
     }
   }
 }
