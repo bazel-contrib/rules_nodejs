@@ -3,8 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "serve": "bazel run :serve",
+    "build": "bazel build :build",
+    "test": "bazel test //...",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
@@ -12,7 +13,7 @@
     "vue": "^2.6.11"
   },
   "devDependencies": {
-    "@bazel/bazelisk": "^1.4.0",
+    "@bazel/bazelisk": "^1.5.0",
     "@bazel/ibazel": "^0.13.1",
     "@vue/cli-plugin-babel": "~4.4.0",
     "@vue/cli-plugin-eslint": "~4.4.0",
