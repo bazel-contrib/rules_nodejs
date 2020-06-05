@@ -213,6 +213,11 @@ example_integration_test(
 )
 
 example_integration_test(
+    name = "examples_vue",
+    npm_packages = {},
+)
+
+example_integration_test(
     name = "examples_worker",
     # There are no tests in this example
     bazel_commands = [
