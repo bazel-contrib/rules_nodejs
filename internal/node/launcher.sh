@@ -194,9 +194,14 @@ ARGS=()
 LAUNCHER_NODE_OPTIONS=( "--require" "$require_patch_script" )
 USER_NODE_OPTIONS=()
 ALL_ARGS=(TEMPLATED_args $NODE_REPOSITORY_ARGS "$@")
+STDOUT_CAPTURE=""
+STDERR_CAPTURE=""
+
 for ARG in "${ALL_ARGS[@]:-}"; do
   case "$ARG" in
     --bazel_node_modules_manifest=*) MODULES_MANIFEST="${ARG#--bazel_node_modules_manifest=}" ;;
+    --bazel_capture_stdout=*) STDOUT_CAPTURE="${ARG#--bazel_capture_stdout=}" ;;
+    --bazel_capture_stderr=*) STDERR_CAPTURE="${ARG#--bazel_capture_stderr=}" ;;
     --nobazel_patch_module_resolver)
       MAIN=TEMPLATED_entry_point_execroot_path
       LAUNCHER_NODE_OPTIONS=( "--require" "$node_patches_script" )
@@ -283,7 +288,17 @@ _int() {
 
 # Execute the main program
 set +e
-"${node}" "${LAUNCHER_NODE_OPTIONS[@]:-}" "${USER_NODE_OPTIONS[@]:-}" "${MAIN}" ${ARGS[@]+"${ARGS[@]}"} <&0 &
+
+if [[ -n "${STDOUT_CAPTURE}" ]] && [[ -n "${STDERR_CAPTURE}" ]]; then
+  "${node}" "${LAUNCHER_NODE_OPTIONS[@]:-}" "${USER_NODE_OPTIONS[@]:-}" "${MAIN}" ${ARGS[@]+"${ARGS[@]}"} <&0 >$STDOUT_CAPTURE 2>$STDERR_CAPTURE &
+elif [[ -n "${STDOUT_CAPTURE}" ]]; then
+  "${node}" "${LAUNCHER_NODE_OPTIONS[@]:-}" "${USER_NODE_OPTIONS[@]:-}" "${MAIN}" ${ARGS[@]+"${ARGS[@]}"} <&0 >$STDOUT_CAPTURE &
+elif [[ -n "${STDERR_CAPTURE}" ]]; then
+  "${node}" "${LAUNCHER_NODE_OPTIONS[@]:-}" "${USER_NODE_OPTIONS[@]:-}" "${MAIN}" ${ARGS[@]+"${ARGS[@]}"} <&0 2>$STDERR_CAPTURE &
+else
+  "${node}" "${LAUNCHER_NODE_OPTIONS[@]:-}" "${USER_NODE_OPTIONS[@]:-}" "${MAIN}" ${ARGS[@]+"${ARGS[@]}"} <&0 &
+fi
+
 readonly child=$!
 trap _term SIGTERM
 trap _int SIGINT

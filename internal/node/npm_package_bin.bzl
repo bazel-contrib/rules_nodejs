@@ -12,6 +12,8 @@ _ATTRS = {
     "data": attr.label_list(allow_files = True, aspects = [module_mappings_aspect, node_modules_aspect]),
     "output_dir": attr.bool(),
     "outs": attr.output_list(),
+    "stderr": attr.output(),
+    "stdout": attr.output(),
     "tool": attr.label(
         executable = True,
         cfg = "host",
@@ -38,12 +40,13 @@ def _inputs(ctx):
 def _impl(ctx):
     if ctx.attr.output_dir and ctx.outputs.outs:
         fail("Only one of output_dir and outs may be specified")
-    if not ctx.attr.output_dir and not ctx.outputs.outs:
-        fail("One of output_dir and outs must be specified")
+    if not ctx.attr.output_dir and not ctx.outputs.outs and not ctx.attr.stdout:
+        fail("One of output_dir, outs or stdout must be specified")
 
     args = ctx.actions.args()
     inputs = _inputs(ctx)
     outputs = []
+
     if ctx.attr.output_dir:
         outputs = [ctx.actions.declare_directory(ctx.attr.name)]
     else:
@@ -52,6 +55,13 @@ def _impl(ctx):
     for a in ctx.attr.args:
         args.add_all([expand_variables(ctx, e, outs = ctx.outputs.outs, output_dir = ctx.attr.output_dir) for e in _expand_locations(ctx, a)])
 
+    tool_outputs = []
+    if ctx.outputs.stdout:
+        tool_outputs.append(ctx.outputs.stdout)
+
+    if ctx.outputs.stderr:
+        tool_outputs.append(ctx.outputs.stderr)
+
     run_node(
         ctx,
         executable = "tool",
@@ -59,8 +69,11 @@ def _impl(ctx):
         outputs = outputs,
         arguments = [args],
         configuration_env_vars = ctx.attr.configuration_env_vars,
+        stdout = ctx.outputs.stdout,
+        stderr = ctx.outputs.stderr,
     )
-    return [DefaultInfo(files = depset(outputs))]
+
+    return [DefaultInfo(files = depset(outputs + tool_outputs))]
 
 _npm_package_bin = rule(
     _impl,
@@ -85,6 +98,10 @@ def npm_package_bin(tool = None, package = None, package_bin = None, data = [], 
         output_dir: set to True if you want the output to be a directory
                  Exactly one of `outs`, `output_dir` may be used.
                  If you output a directory, there can only be one output, which will be a directory named the same as the target.
+        stderr: set to capture the stderr of the binary to a file, which can later be used as an input to another target
+                subject to the same semantics as `outs`
+        stdout: set to capture the stdout of the binary to a file, which can later be used as an input to another target
+                subject to the same semantics as `outs`
 
         args: Command-line arguments to the tool.
 

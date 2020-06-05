@@ -241,6 +241,54 @@ npm_package_bin(
     package = "terser",
 )
 
+# captures stdout of terser_input.js to minified.stdout.js (note args do not include --output flag)
+npm_package_bin(
+    name = "run_terser_stdout",
+    args = [
+        "$(execpath terser_input.js)",
+    ],
+    data = ["terser_input.js"],
+    package = "terser",
+    stdout = "minified.stdout.js",
+)
+
+generated_file_test(
+    name = "stdout_output_test",
+    src = "stdout_output_test.golden",
+    generated = ":minified.stdout.js",
+)
+
+# capture stderr to diagnostics.out, then analyze it in terser_diagnostics_stats printing some stats
+# stdout is captured into greeter.min.js (again, without the --output $@ flags)
+npm_package_bin(
+    name = "diagnostics_producing_bin",
+    args = [
+        "$(execpath terser_input_with_diagnostics.js)",
+        "--compress",
+        "--verbose",
+        "--warn",
+    ],
+    data = ["terser_input_with_diagnostics.js"],
+    package = "terser",
+    stderr = "diagnostics.out",
+    stdout = "greeter.min.js",
+)
+
+nodejs_binary(
+    name = "terser_diagnostics_stats",
+    data = [
+        "diagnostics_producing_bin",
+        "terser_diagnostics_stats.js",
+    ],
+    entry_point = "terser_diagnostics_stats.js",
+)
+
+generated_file_test(
+    name = "stderr_output_test",
+    src = "stderr_output_test.golden",
+    generated = ":diagnostics.out",
+)
+
 nodejs_binary(
     name = "copy_to_directory",
     entry_point = "copy_to_directory.js",
