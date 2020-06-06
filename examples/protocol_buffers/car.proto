@@ -12,3 +12,13 @@ message Car {
   Tire rear_tires = 5;
   int64 mileage = 6;
 }
+
+message GetCarRequest {
+}
+message GetCarResponse {
+}
+
+service CarService {
+  rpc GetCar(GetCarRequest) returns (GetCarResponse) {
+  }
+}

@@ -81,9 +81,15 @@ function convertToUmd(args, initialContents) {
 // Reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules
 function convertToESM(args, initialContents) {
   const replaceGoogExtendWithExports = (contents) => {
-    return contents.replace(/goog\.object\.extend\(exports, ([\w\.]+)\);/g, (_, packageName) => {
+    const symbols = [];
+    let exportVariable;
+    let packageName;
+
+    contents = contents.replace(/goog\.object\.extend\(exports, ([\w\.]+)\);/g, (_, p) => {
+      packageName = p;
+      exportVariable = contents.includes('const grpc = {}') ? 'exportVariable' : packageName;
+
       const exportSymbols = /goog\.exportSymbol\('([\w\.]+)',.*\);/g;
-      const symbols = [];
 
       let match;
       while ((match = exportSymbols.exec(initialContents))) {
@@ -95,15 +101,25 @@ function convertToESM(args, initialContents) {
         }
       }
 
-      return `export const { ${symbols.join(', ')} } = ${packageName}`;
+      return `export const { ${symbols.join(', ')} } = ${exportVariable}`;
     });
+
+    return symbols.reduce(
+        (contents, symbol) => {return contents.replace(
+            new RegExp(`${packageName}\\.${symbol}`, 'g'), `${exportVariable}.${symbol}`)},
+        contents)
   };
 
   const replaceCMDefaultExportWithExports = (contents) => {
-    return contents.replace(/module.exports = ([\w\.]+)\;/g, (_, packageName) => {
-      const exportSymbols = new RegExp(`${packageName.replace('.', '\\.')}\.([\\w\\.]+) =`, 'g');
+    const symbols = [];
+    let exportVariable;
+    let packageName;
 
-      const symbols = [];
+    contents = contents.replace(/module.exports = ([\w\.]+)\;/g, (_, p) => {
+      packageName = p;
+      exportVariable = contents.includes('const grpc = {}') ? 'exportVariable' : packageName;
+
+      const exportSymbols = new RegExp(`${packageName.replace('.', '\\.')}\.([\\w\\.]+) =`, 'g');
 
       let match;
       while ((match = exportSymbols.exec(initialContents))) {
@@ -115,8 +131,13 @@ function convertToESM(args, initialContents) {
         }
       }
 
-      return `export const { ${symbols.join(', ')} } = ${packageName};`;
+      return `export const { ${symbols.join(', ')} } = ${exportVariable};`;
     });
+
+    return symbols.reduce(
+        (contents, symbol) => {return contents.replace(
+            new RegExp(`${packageName}\\.${symbol}`, 'g'), `${exportVariable}.${symbol}`)},
+        contents)
   };
 
   const replaceRequiresWithImports = (contents) => {
@@ -151,7 +172,8 @@ function convertToESM(args, initialContents) {
     replaceCMDefaultExportWithExports,
     replaceCJSExportsWithECMAExports,
   ];
-  return transformations.reduce((currentContents, transform) => {
+
+  return `const exportVariable = {}\n` + transformations.reduce((currentContents, transform) => {
     return transform(currentContents);
   }, initialContents);
 }
