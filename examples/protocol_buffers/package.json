@@ -10,7 +10,7 @@
     "@types/long": "^4.0.0",
     "@types/node": "11.11.1",
     "google-protobuf": "3.11.4",
-    "grpc-web": "1.0.7",
+    "grpc-web": "1.1.0",
     "http-server": "^0.11.1",
     "karma": "~4.1.0",
     "karma-chrome-launcher": "2.2.0",

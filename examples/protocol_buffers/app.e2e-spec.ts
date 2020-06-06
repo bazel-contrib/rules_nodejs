@@ -20,4 +20,10 @@ describe('protocol_buffers', () => {
     div.getText().then(t => expect(t).toEqual(`Car from server: Porsche`));
     done();
   });
+
+  it('should have a grpc service client', (done) => {
+    const div = element(by.css('div.ts2'));
+    div.getText().then(t => expect(t).toEqual(`CarServiceClient is defined: yes!`));
+    done();
+  });
 });
