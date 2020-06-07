@@ -17,6 +17,7 @@ _ATTRS = {
     "srcs": attr.label_list(allow_files = True, mandatory = True),
     "args": attr.string_list(),
     "extends": attr.label_list(allow_files = [".json"]),
+    "outdir": attr.string(),
     "tsc": attr.label(default = Label(_DEFAULT_TSC), executable = True, cfg = "host"),
     "tsconfig": attr.label(mandatory = True, allow_single_file = [".json"]),
     "deps": attr.label_list(providers = [DeclarationInfo]),
@@ -41,6 +42,9 @@ _TsConfigInfo = provider(
     },
 )
 
+def _join(*elements):
+    return "/".join([f for f in elements if f])
+
 def _ts_project_impl(ctx):
     arguments = ctx.actions.args()
 
@@ -51,7 +55,7 @@ def _ts_project_impl(ctx):
         "--project",
         ctx.file.tsconfig.path,
         "--outDir",
-        "/".join([ctx.bin_dir.path, ctx.label.package]),
+        _join(ctx.bin_dir.path, ctx.label.package, ctx.attr.outdir),
         # Make sure TypeScript writes outputs to same directory structure as inputs
         "--rootDir",
         ctx.label.package if ctx.label.package else ".",
@@ -59,7 +63,7 @@ def _ts_project_impl(ctx):
     if len(ctx.outputs.typings_outs) > 0:
         arguments.add_all([
             "--declarationDir",
-            "/".join([ctx.bin_dir.path, ctx.label.package]),
+            _join(ctx.bin_dir.path, ctx.label.package, ctx.attr.outdir),
         ])
 
     # When users report problems, we can ask them to re-build with
@@ -198,8 +202,8 @@ validate_options = rule(
     },
 )
 
-def _out_paths(srcs, ext):
-    return [f[:f.rindex(".")] + ext for f in srcs if not f.endswith(".d.ts")]
+def _out_paths(srcs, outdir, ext):
+    return [_join(outdir, f[:f.rindex(".")] + ext) for f in srcs if not f.endswith(".d.ts")]
 
 def ts_project_macro(
         name = "tsconfig",
@@ -216,6 +220,7 @@ def ts_project_macro(
         emit_declaration_only = False,
         tsc = None,
         validate = True,
+        outdir = None,
         **kwargs):
     """Compiles one TypeScript project using `tsc --project`
 
@@ -341,6 +346,11 @@ def ts_project_macro(
 
         validate: boolean; whether to check that the tsconfig settings match the attributes.
 
+        outdir: a string specifying a subdirectory under the bazel-out folder where outputs are written.
+            Note that Bazel always requires outputs be written under a subdirectory matching the input package,
+            so if your rule appears in path/to/my/package/BUILD.bazel and outdir = "foo" then the .js files
+            will appear in bazel-out/[arch]/bin/path/to/my/package/foo/*.js
+
         declaration: if the `declaration` bit is set in the tsconfig.
             Instructs Bazel to expect a `.d.ts` output for each `.ts` source.
         source_map: if the `sourceMap` bit is set in the tsconfig.
@@ -385,10 +395,11 @@ def ts_project_macro(
         deps = deps + extra_deps,
         tsconfig = tsconfig,
         extends = extends,
-        js_outs = _out_paths(srcs, ".js") if not emit_declaration_only else [],
-        map_outs = _out_paths(srcs, ".js.map") if source_map and not emit_declaration_only else [],
-        typings_outs = _out_paths(srcs, ".d.ts") if declaration or composite else [],
-        typing_maps_outs = _out_paths(srcs, ".d.ts.map") if declaration_map else [],
+        outdir = outdir,
+        js_outs = _out_paths(srcs, outdir, ".js") if not emit_declaration_only else [],
+        map_outs = _out_paths(srcs, outdir, ".js.map") if source_map and not emit_declaration_only else [],
+        typings_outs = _out_paths(srcs, outdir, ".d.ts") if declaration or composite else [],
+        typing_maps_outs = _out_paths(srcs, outdir, ".d.ts.map") if declaration_map else [],
         buildinfo_out = tsconfig[:-5] + ".tsbuildinfo" if composite or incremental else None,
         tsc = tsc,
         **kwargs
