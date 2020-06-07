@@ -105,7 +105,10 @@ def _ts_project_impl(ctx):
             arguments = [arguments],
             outputs = outputs,
             executable = "tsc",
-            progress_message = "Compiling TypeScript project %s" % ctx.file.tsconfig.short_path,
+            progress_message = "Compiling TypeScript project %s [tsc -p %s]" % (
+                ctx.label,
+                ctx.file.tsconfig.short_path,
+            ),
         )
 
     providers = [
