@@ -74,11 +74,8 @@ You can pass arguments to npm by escaping them from Bazel using a double-hyphen,
 
 # Used in angular/angular /packages/bazel/src/ng_package/ng_package.bzl
 PKG_NPM_ATTRS = {
-    "package_name": attr.string(
-        doc = """Optional package_name that this npm package may be imported as.""",
-    ),
-    "srcs": attr.label_list(
-        doc = """Files inside this directory which are simply copied into the package.""",
+    "deps": attr.label_list(
+        doc = """Other targets which produce files that should be included in the package, such as `rollup_bundle`""",
         allow_files = True,
     ),
     "nested_packages": attr.label_list(
@@ -90,10 +87,17 @@ PKG_NPM_ATTRS = {
         providers = [NodeContextInfo],
         doc = "Internal use only",
     ),
+    "package_name": attr.string(
+        doc = """Optional package_name that this npm package may be imported as.""",
+    ),
     "replace_with_version": attr.string(
         doc = """If set this value is replaced with the version stamp data.
         See the section on stamping in the README.""",
         default = "0.0.0-PLACEHOLDER",
+    ),
+    "srcs": attr.label_list(
+        doc = """Files inside this directory which are simply copied into the package.""",
+        allow_files = True,
     ),
     "substitutions": attr.string_dict(
         doc = """Key-value pairs which are replaced in all the files while building the package.""",
@@ -101,10 +105,6 @@ PKG_NPM_ATTRS = {
     "vendor_external": attr.string_list(
         doc = """External workspaces whose contents should be vendored into this workspace.
         Avoids 'external/foo' path segments in the resulting package.""",
-    ),
-    "deps": attr.label_list(
-        doc = """Other targets which produce files that should be included in the package, such as `rollup_bundle`""",
-        allow_files = True,
     ),
     "_npm_script_generator": attr.label(
         default = Label("//internal/pkg_npm:npm_script_generator"),

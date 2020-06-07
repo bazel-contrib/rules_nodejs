@@ -27,10 +27,6 @@ load("//internal/common:os_name.bzl", "is_windows_os", "os_name")
 load("//internal/node:node_labels.bzl", "get_node_label", "get_npm_label", "get_yarn_label")
 
 COMMON_ATTRIBUTES = dict(dict(), **{
-    "timeout": attr.int(
-        default = 3600,
-        doc = """Maximum duration of the package manager execution in seconds.""",
-    ),
     "data": attr.label_list(
         doc = """Data files required by this rule.
 
@@ -103,6 +99,10 @@ the lock file that are required for it to run should be listed in the
 data attribute.
 """,
         default = True,
+    ),
+    "timeout": attr.int(
+        default = 3600,
+        doc = """Maximum duration of the package manager execution in seconds.""",
     ),
 })
 

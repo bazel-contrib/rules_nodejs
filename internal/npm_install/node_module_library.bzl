@@ -81,16 +81,16 @@ def _node_module_library_impl(ctx):
 node_module_library = rule(
     implementation = _node_module_library_impl,
     attrs = {
-        "srcs": attr.label_list(
-            doc = "The list of files that comprise the package",
-            allow_files = True,
+        "deps": attr.label_list(
+            doc = "Transitive dependencies of the package",
         ),
         "named_module_srcs": attr.label_list(
             doc = "A subset of srcs that are javascript named-UMD or named-AMD for use in rules such as ts_devserver",
             allow_files = True,
         ),
-        "deps": attr.label_list(
-            doc = "Transitive dependencies of the package",
+        "srcs": attr.label_list(
+            doc = "The list of files that comprise the package",
+            allow_files = True,
         ),
     },
     doc = "Defines an npm package under node_modules",

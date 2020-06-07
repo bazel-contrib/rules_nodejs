@@ -27,14 +27,14 @@ def _ts_config_impl(ctx):
 ts_config = rule(
     implementation = _ts_config_impl,
     attrs = {
-        "src": attr.label(
-            doc = """The tsconfig.json file passed to the TypeScript compiler""",
-            allow_single_file = True,
-            mandatory = True,
-        ),
         "deps": attr.label_list(
             doc = """Additional tsconfig.json files referenced via extends""",
             allow_files = True,
+            mandatory = True,
+        ),
+        "src": attr.label(
+            doc = """The tsconfig.json file passed to the TypeScript compiler""",
+            allow_single_file = True,
             mandatory = True,
         ),
     },

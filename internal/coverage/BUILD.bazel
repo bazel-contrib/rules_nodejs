@@ -1,9 +1,5 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 
-exports_files([
-    "lcov_merger-js.js",
-])
-
 # BEGIN-INTERNAL
 load("//packages/typescript:checked_in_ts_project.bzl", "checked_in_ts_project")
 
@@ -14,7 +10,11 @@ checked_in_ts_project(
     visibility = ["//visibility:public"],
     deps = ["@npm//@types/node"],
 )
+
 # END-INTERNAL
+exports_files([
+    "lcov_merger-js.js",
+])
 
 nodejs_binary(
     name = "lcov_merger_js",

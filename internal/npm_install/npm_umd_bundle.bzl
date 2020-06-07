@@ -57,10 +57,6 @@ def _npm_umd_bundle(ctx):
     ]
 
 NPM_UMD_ATTRS = {
-    "package_name": attr.string(
-        doc = """The name of the npm package""",
-        mandatory = True,
-    ),
     "entry_point": attr.label(
         doc = """Entry point for the npm package""",
         mandatory = True,
@@ -92,6 +88,10 @@ This target would be then be used instead of the generated `@npm//typeorm:typeor
         doc = """The npm package target""",
         mandatory = True,
         aspects = [node_modules_aspect],
+    ),
+    "package_name": attr.string(
+        doc = """The name of the npm package""",
+        mandatory = True,
     ),
     "_browserify_wrapped": attr.label(
         executable = True,

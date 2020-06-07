@@ -86,16 +86,16 @@ def _impl(ctx):
 _js_library = rule(
     implementation = _impl,
     attrs = {
-        "package_name": attr.string(),
-        "srcs": attr.label_list(
-            allow_files = True,
-            mandatory = True,
-        ),
         "amd_names": attr.string_dict(doc = _AMD_NAMES_DOC),
         "is_windows": attr.bool(mandatory = True, doc = "Automatically set by macro"),
         # module_name for legacy ts_library module_mapping support
         # TODO: remove once legacy module_mapping is removed
         "module_name": attr.string(),
+        "package_name": attr.string(),
+        "srcs": attr.label_list(
+            allow_files = True,
+            mandatory = True,
+        ),
     },
 )
 

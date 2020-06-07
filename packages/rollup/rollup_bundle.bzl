@@ -57,14 +57,6 @@ This will produce one output per requested format.
 """
 
 _ROLLUP_ATTRS = {
-    "srcs": attr.label_list(
-        doc = """Non-entry point JavaScript source files from the workspace.
-
-You must not repeat file(s) passed to entry_point/entry_points.
-""",
-        # Don't try to constrain the filenames, could be json, svg, whatever
-        allow_files = True,
-    ),
     "args": attr.string_list(
         doc = """Command line arguments to pass to rollup. Can be used to override config file settings.
 
@@ -85,6 +77,10 @@ If not set, a default basic Rollup config is used.
 """,
         allow_single_file = True,
         default = "//packages/rollup:rollup.config.js",
+    ),
+    "deps": attr.label_list(
+        aspects = [module_mappings_aspect, node_modules_aspect],
+        doc = """Other libraries that are required by the code, or by the rollup.config.js""",
     ),
     "entry_point": attr.label(
         doc = """The bundle's entry point (e.g. your main.js or app.js or index.js).
@@ -205,6 +201,14 @@ Passed to the [`--sourcemap` option](https://github.com/rollup/rollup/blob/maste
         default = "inline",
         values = ["inline", "hidden", "true", "false"],
     ),
+    "srcs": attr.label_list(
+        doc = """Non-entry point JavaScript source files from the workspace.
+
+You must not repeat file(s) passed to entry_point/entry_points.
+""",
+        # Don't try to constrain the filenames, could be json, svg, whatever
+        allow_files = True,
+    ),
     "supports_workers": attr.bool(
         doc = """Experimental! Use only with caution.
 
@@ -212,10 +216,6 @@ Allows you to enable the Bazel Worker strategy for this library.
 When enabled, this rule invokes the "rollup_worker_bin"
 worker aware binary rather than "rollup_bin".""",
         default = False,
-    ),
-    "deps": attr.label_list(
-        aspects = [module_mappings_aspect, node_modules_aspect],
-        doc = """Other libraries that are required by the code, or by the rollup.config.js""",
     ),
 }
 

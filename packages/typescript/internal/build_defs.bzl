@@ -341,11 +341,6 @@ def _ts_library_impl(ctx):
 ts_library = rule(
     _ts_library_impl,
     attrs = dict(COMMON_ATTRIBUTES, **{
-        "srcs": attr.label_list(
-            doc = "The TypeScript source files to compile.",
-            allow_files = [".ts", ".tsx"],
-            mandatory = True,
-        ),
         "angular_assets": attr.label_list(
             doc = """Additional files the Angular compiler will need to read as inputs.
             Includes .css and .html files""",
@@ -364,6 +359,10 @@ install the @bazel/typescript npm package.
             allow_files = True,
             executable = True,
             cfg = "host",
+        ),
+        "deps": attr.label_list(
+            aspects = DEPS_ASPECTS + [node_modules_aspect],
+            doc = "Compile-time dependencies, typically other ts_library targets",
         ),
         "devmode_module": attr.string(
             doc = """Set the typescript `module` compiler option for devmode output.
@@ -456,6 +455,11 @@ This value will override the `target` option in the user supplied tsconfig.""",
             values = _TYPESCRIPT_SCRIPT_TARGETS,
             default = _PRODMODE_TARGET_DEFAULT,
         ),
+        "srcs": attr.label_list(
+            doc = "The TypeScript source files to compile.",
+            allow_files = [".ts", ".tsx"],
+            mandatory = True,
+        ),
         "supports_workers": attr.bool(
             doc = """Intended for internal use only.
 
@@ -489,10 +493,6 @@ either:
         ),
         "use_angular_plugin": attr.bool(
             doc = """Run the Angular ngtsc compiler under ts_library""",
-        ),
-        "deps": attr.label_list(
-            aspects = DEPS_ASPECTS + [node_modules_aspect],
-            doc = "Compile-time dependencies, typically other ts_library targets",
         ),
     }),
     outputs = {

@@ -183,10 +183,6 @@ _protractor_web_test = rule(
     outputs = {"script": "%{name}.sh"},
     toolchains = ["@bazel_tools//tools/sh:toolchain_type"],
     attrs = {
-        "srcs": attr.label_list(
-            doc = "A list of JavaScript test files",
-            allow_files = [".js"],
-        ),
         "configuration": attr.label(
             doc = "Protractor configuration file",
             allow_single_file = True,
@@ -194,6 +190,11 @@ _protractor_web_test = rule(
         "data": attr.label_list(
             doc = "Runtime dependencies",
             allow_files = True,
+        ),
+        "deps": attr.label_list(
+            doc = "Other targets which produce JavaScript such as `ts_library`",
+            allow_files = True,
+            aspects = [node_modules_aspect],
         ),
         "on_prepare": attr.label(
             doc = """A file with a node.js script to run once before all tests run.
@@ -213,10 +214,9 @@ _protractor_web_test = rule(
             cfg = "target",
             allow_files = True,
         ),
-        "deps": attr.label_list(
-            doc = "Other targets which produce JavaScript such as `ts_library`",
-            allow_files = True,
-            aspects = [node_modules_aspect],
+        "srcs": attr.label_list(
+            doc = "A list of JavaScript test files",
+            allow_files = [".js"],
         ),
         "_conf_tmpl": attr.label(
             default = Label("//packages/protractor:protractor.conf.js"),

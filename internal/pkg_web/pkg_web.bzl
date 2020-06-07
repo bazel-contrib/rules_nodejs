@@ -18,12 +18,12 @@
 _DOC = """Assembles a web application from source files."""
 
 _ATTRS = {
+    "additional_root_paths": attr.string_list(
+        doc = """Path prefixes to strip off all srcs, in addition to the current package. Longest wins.""",
+    ),
     "srcs": attr.label_list(
         allow_files = True,
         doc = """Files which should be copied into the package""",
-    ),
-    "additional_root_paths": attr.string_list(
-        doc = """Path prefixes to strip off all srcs, in addition to the current package. Longest wins.""",
     ),
     "_assembler": attr.label(
         default = "@build_bazel_rules_nodejs//internal/pkg_web:assembler",
