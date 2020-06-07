@@ -33,10 +33,6 @@ KARMA_PEER_DEPS = [
 ]
 
 KARMA_WEB_TEST_ATTRS = {
-    "srcs": attr.label_list(
-        doc = "A list of JavaScript test files",
-        allow_files = [".js"],
-    ),
     "bootstrap": attr.label_list(
         doc = """JavaScript files to include *before* the module loader (require.js).
         For example, you can include Reflect,js for TypeScript decorator metadata reflection,
@@ -60,19 +56,17 @@ KARMA_WEB_TEST_ATTRS = {
         doc = "Runtime dependencies",
         allow_files = True,
     ),
+    "deps": attr.label_list(
+        doc = "Other targets which produce JavaScript such as `ts_library`",
+        allow_files = True,
+        aspects = [node_modules_aspect],
+    ),
     "karma": attr.label(
         doc = "karma binary label",
         # NB: replaced during pkg_npm with "@npm//karma/bin:karma"
         default = "//packages/karma:karma_bin",
         executable = True,
         cfg = "target",
-        allow_files = True,
-    ),
-    "static_files": attr.label_list(
-        doc = """Arbitrary files which are available to be served on request.
-        Files are served at:
-        `/base/<WORKSPACE_NAME>/<path-to-file>`, e.g.
-        `/base/npm_bazel_typescript/examples/testing/static_script.js`""",
         allow_files = True,
     ),
     "runtime_deps": attr.label_list(
@@ -82,10 +76,16 @@ KARMA_WEB_TEST_ATTRS = {
         allow_files = True,
         aspects = [node_modules_aspect],
     ),
-    "deps": attr.label_list(
-        doc = "Other targets which produce JavaScript such as `ts_library`",
+    "srcs": attr.label_list(
+        doc = "A list of JavaScript test files",
+        allow_files = [".js"],
+    ),
+    "static_files": attr.label_list(
+        doc = """Arbitrary files which are available to be served on request.
+        Files are served at:
+        `/base/<WORKSPACE_NAME>/<path-to-file>`, e.g.
+        `/base/npm_bazel_typescript/examples/testing/static_script.js`""",
         allow_files = True,
-        aspects = [node_modules_aspect],
     ),
     "_conf_tmpl": attr.label(
         default = "//packages/karma:karma.conf.js",

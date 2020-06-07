@@ -34,8 +34,8 @@ tree will exist on disk, so we assume node actions/binary/test executions will
 do the same.
 """,
     fields = {
-        "pkgs": "list of labels of packages that provide NpmPackageInfo",
         "deps": "depset of runtime dependency labels",
+        "pkgs": "list of labels of packages that provide NpmPackageInfo",
     },
 )
 

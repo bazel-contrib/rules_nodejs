@@ -35,16 +35,6 @@ If the input is a directory, then the output will also be a directory, named aft
 """
 
 _TERSER_ATTRS = {
-    "src": attr.label(
-        doc = """File(s) to minify.
-
-Can be a .js file, a rule producing .js files as its default output, or a rule producing a directory of .js files.
-
-Note that you can pass multiple files to terser, which it will bundle together.
-If you want to do this, you can pass a filegroup here.""",
-        allow_files = [".js", ".map", ".mjs"],
-        mandatory = True,
-    ),
     "args": attr.string_list(
         doc = """Additional command line arguments to pass to terser.
 
@@ -95,6 +85,16 @@ so that it only affects the current build.
     "sourcemap": attr.bool(
         doc = "Whether to produce a .js.map output",
         default = True,
+    ),
+    "src": attr.label(
+        doc = """File(s) to minify.
+
+Can be a .js file, a rule producing .js files as its default output, or a rule producing a directory of .js files.
+
+Note that you can pass multiple files to terser, which it will bundle together.
+If you want to do this, you can pass a filegroup here.""",
+        allow_files = [".js", ".map", ".mjs"],
+        mandatory = True,
     ),
     "terser_bin": attr.label(
         doc = "An executable target that runs Terser",

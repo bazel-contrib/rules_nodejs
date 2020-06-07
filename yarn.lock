@@ -937,63 +937,25 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@bazel/bazelisk@^1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@bazel/bazelisk/-/bazelisk-1.4.0.tgz#401d7b89b8d89dd579d1e16cc24cd4d9281a4fbb"
-  integrity sha512-VNI/jF7baQiBy4x+u8gmSDsFehqaAuzMyLuCj0j6/aZCZSw2OssytJVj73m8sFYbXgj67D8iYEQ0gbuoafDk6w==
+"@bazel/bazelisk@^1.5.0":
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/@bazel/bazelisk/-/bazelisk-1.5.0.tgz#61f583ed93be138b47be7180403938ea4057f54b"
+  integrity sha512-qhOGN1WmfZYNJXGrRL/0byii9hX5FBomMv3WWI2OEL2+Bxm4t/bR3zMxN3xwQX1C8meSSrAfKGSzxVOZfpJsOg==
 
-"@bazel/buildifier-darwin_x64@0.26.0":
-  version "0.26.0"
-  resolved "https://registry.yarnpkg.com/@bazel/buildifier-darwin_x64/-/buildifier-darwin_x64-0.26.0.tgz#0e4f5066750f7984689857e332f93368e0d782dd"
-  integrity sha512-yvlHuaP2FIMJ4Z4Ucs/R1wgwkDjhDkwvGD1eyhy9Qblqu7Ypgxtv2wz8dygrxDJVxhk3Kiwzlrp3otq6OYjv5A==
+"@bazel/buildifier@^3.2.0":
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/@bazel/buildifier/-/buildifier-3.2.0.tgz#5dbb32e1592a27eac52c74d0f8c8206e1a045240"
+  integrity sha512-gdqRnPClkwZw7YLv9Xc6XLovTtrUB6XFuu6Jo1T7gXn1AB7I09KlCgfJgKRJRMskrVDx3UVZaFK06ztGjyHnWw==
 
-"@bazel/buildifier-linux_x64@0.26.0":
-  version "0.26.0"
-  resolved "https://registry.yarnpkg.com/@bazel/buildifier-linux_x64/-/buildifier-linux_x64-0.26.0.tgz#05020641f17441145056821ec33a2c667e253a3f"
-  integrity sha512-4+ZGEVMQdJr39My2eH6GmQrBIQfuw/DWO3Vwpy5vS1p61EvV0a5+jaukRelA3p//FD0j2cAKaBvwZdsijtDsZw==
+"@bazel/buildozer@^3.2.0":
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/@bazel/buildozer/-/buildozer-3.2.0.tgz#df3f222cc0d395d4b873f9b374d4bbd95df59b32"
+  integrity sha512-zhZtHyzs26rWG1QekzyzRAogeordEulV5yV57pbY+bzuQS60xU4YD15Bau2To5nNnt2HEfSaFpjXzSHRyeOt/Q==
 
-"@bazel/buildifier-win32_x64@0.26.0":
-  version "0.26.0"
-  resolved "https://registry.yarnpkg.com/@bazel/buildifier-win32_x64/-/buildifier-win32_x64-0.26.0.tgz#51d983d36fd41f59063347e027487a447e4ea83e"
-  integrity sha512-S3QvjopF6cQ0rMv8zxi/SWfRBtA+oBGiTPcfpn1wJZa8Q21PdOcjH9ZgPJKpIV53x6sJ8XBVs7HSW44dPrwxQA==
-
-"@bazel/buildifier@^0.26.0":
-  version "0.26.0"
-  resolved "https://registry.yarnpkg.com/@bazel/buildifier/-/buildifier-0.26.0.tgz#65af3851f9ebe8b9ac651185d051b1a155012dbb"
-  integrity sha512-PVzkCOYhjlgcRCXUO31dy/GmtjDWzeTyVmPCFc4pxTFBvlrG7qkVlUW3DCIbBI5neTes0pY8mju837UBdK0OFQ==
-  optionalDependencies:
-    "@bazel/buildifier-darwin_x64" "0.26.0"
-    "@bazel/buildifier-linux_x64" "0.26.0"
-    "@bazel/buildifier-win32_x64" "0.26.0"
-
-"@bazel/buildozer-darwin_x64@0.29.0":
-  version "0.29.0"
-  resolved "https://registry.yarnpkg.com/@bazel/buildozer-darwin_x64/-/buildozer-darwin_x64-0.29.0.tgz#d7b907d96b763f6c8401a664b41c4b0b9efb8a2c"
-  integrity sha512-mXIgemdvCbhHpcOFQzOVLgi/ukogB5NtXFGRQ/jBM5tVv3cbqB7CnlfzA2tNB4FLIGtz5P95EuD2zYi3KUy9Nw==
-
-"@bazel/buildozer-linux_x64@0.29.0":
-  version "0.29.0"
-  resolved "https://registry.yarnpkg.com/@bazel/buildozer-linux_x64/-/buildozer-linux_x64-0.29.0.tgz#c118dd53d6293c517bb8bb71c542a14b7f9f845a"
-  integrity sha512-AZ84DpmGYcuE1C12RjDvvr3K/Jmw0jkuxA0aZHiuEL8+jymBx5UIfpR0HJxGXq4ZLINPOTbdknsLah+ONyClZA==
-
-"@bazel/buildozer-win32_x64@0.29.0":
-  version "0.29.0"
-  resolved "https://registry.yarnpkg.com/@bazel/buildozer-win32_x64/-/buildozer-win32_x64-0.29.0.tgz#440b6cd5ac19f29c92ab8753f3c3a3b11183d348"
-  integrity sha512-yItrsCcUHz/eh5vORBx1g/Hcz4K+uSSq8esiJelBoK5Zxrh4noOLc+ik/8VHTrfXXIa5xu/aWikNMQO22lYh9g==
-
-"@bazel/buildozer@^0.29.0":
-  version "0.29.0"
-  resolved "https://registry.yarnpkg.com/@bazel/buildozer/-/buildozer-0.29.0.tgz#31e3d716011de064aaf3de48ae31588cdfc457ff"
-  integrity sha512-+iVFqueCDSikFRnuwn1UF4xUpoo8ry0spoLVQK6rIHRD0k6XBpHQsPIkIV7OTzzoCw24uF8msdGZY+kiMOcH2Q==
-  optionalDependencies:
-    "@bazel/buildozer-darwin_x64" "0.29.0"
-    "@bazel/buildozer-linux_x64" "0.29.0"
-    "@bazel/buildozer-win32_x64" "0.29.0"
-
-"@bazel/ibazel@^0.10.3":
-  version "0.10.3"
-  resolved "https://registry.yarnpkg.com/@bazel/ibazel/-/ibazel-0.10.3.tgz#2e2b8a1d3e885946eac41db2b1aa6801fb319887"
-  integrity sha512-v1nXbMTHVlMM4z4uWp6XiRoHAyUlYggF1SOboLLWRp0+D22kWixqArWqnozLw2mOtnxr97BdLjluWiho6A8Hjg==
+"@bazel/ibazel@^0.13.1":
+  version "0.13.1"
+  resolved "https://registry.yarnpkg.com/@bazel/ibazel/-/ibazel-0.13.1.tgz#23788f67a6fbe83d96f2d055691df4917c10ac8d"
+  integrity sha512-FO1hBKpzpeBL0adnFYF2Dwl/7gox6ccKM6bb+x26AXrQpLbinXPuTi4zeXRL/MW4383mF6i4RovLCmwUU/YW0w==
 
 "@bcoe/v8-coverage@^0.2.3":
   version "0.2.3"

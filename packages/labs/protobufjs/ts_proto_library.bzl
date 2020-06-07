@@ -147,11 +147,11 @@ def _ts_proto_library(ctx):
 ts_proto_library = rule(
     implementation = _ts_proto_library,
     attrs = {
+        "deps": attr.label_list(doc = "proto_library targets"),
         "output_name": attr.string(
             doc = """Name of the resulting module, which you will import from.
             If not specified, the name will match the target's name.""",
         ),
-        "deps": attr.label_list(doc = "proto_library targets"),
         "_pbjs": attr.label(
             default = Label("//packages/labs/protobufjs:pbjs"),
             executable = True,

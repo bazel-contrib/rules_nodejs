@@ -21,7 +21,6 @@ _DOC = """Generates a params file from a list of arguments."""
 
 # See params_file macro below for docstrings
 _ATTRS = {
-    "out": attr.output(mandatory = True),
     "args": attr.string_list(),
     "data": attr.label_list(allow_files = True),
     "is_windows": attr.bool(mandatory = True),
@@ -29,6 +28,7 @@ _ATTRS = {
         values = ["unix", "windows", "auto"],
         default = "auto",
     ),
+    "out": attr.output(mandatory = True),
 }
 
 def _expand_location_into_runfiles(ctx, s):

@@ -32,8 +32,8 @@ def _copy_to_bin_impl(ctx):
 _copy_to_bin = rule(
     implementation = _copy_to_bin_impl,
     attrs = {
-        "srcs": attr.label_list(mandatory = True, allow_files = True),
         "is_windows": attr.bool(mandatory = True, doc = "Automatically set by macro"),
+        "srcs": attr.label_list(mandatory = True, allow_files = True),
     },
 )
 

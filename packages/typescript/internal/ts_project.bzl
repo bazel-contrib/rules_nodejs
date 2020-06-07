@@ -10,17 +10,17 @@ _DEFAULT_TSC = (
 )
 
 _ATTRS = {
+    "args": attr.string_list(),
+    "deps": attr.label_list(providers = [DeclarationInfo]),
+    "extends": attr.label_list(allow_files = [".json"]),
+    "outdir": attr.string(),
     # NB: no restriction on extensions here, because tsc sometimes adds type-check support
     # for more file kinds (like require('some.json')) and also
     # if you swap out the `compiler` attribute (like with ngtsc)
     # that compiler might allow more sources than tsc does.
     "srcs": attr.label_list(allow_files = True, mandatory = True),
-    "args": attr.string_list(),
-    "extends": attr.label_list(allow_files = [".json"]),
-    "outdir": attr.string(),
     "tsc": attr.label(default = Label(_DEFAULT_TSC), executable = True, cfg = "host"),
     "tsconfig": attr.label(mandatory = True, allow_single_file = [".json"]),
-    "deps": attr.label_list(providers = [DeclarationInfo]),
 }
 
 # tsc knows how to produce the following kinds of output files.

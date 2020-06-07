@@ -18,13 +18,13 @@
 LinkablePackageInfo = provider(
     doc = "A doc string",
     fields = {
+        "files": "Depset of files in this package (must all be contained within path)",
         "package_name": """The package name.
 
 Should be the same as name field in the package's package.json.
 
 In the future, the linker may validate that the names match the name in a package.json file.
 """,
-        "files": "Depset of files in this package (must all be contained within path)",
         "path": """The path to link to.
 
 Path must be relative to execroot/wksp. It can either an output dir path such as,

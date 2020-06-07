@@ -136,6 +136,11 @@ ts_devserver = rule(
             doc = "Scripts to include in the JS bundle before the module loader (require.js)",
             allow_files = [".js"],
         ),
+        "deps": attr.label_list(
+            doc = "Targets that produce JavaScript, such as `ts_library`",
+            allow_files = True,
+            aspects = [node_modules_aspect],
+        ),
         "devserver": attr.label(
             doc = """Go based devserver executable.
 
@@ -182,11 +187,6 @@ ts_devserver = rule(
             doc = """Arbitrary files which to be served, such as index.html.
             They are served relative to the package where this rule is declared.""",
             allow_files = True,
-        ),
-        "deps": attr.label_list(
-            doc = "Targets that produce JavaScript, such as `ts_library`",
-            allow_files = True,
-            aspects = [node_modules_aspect],
         ),
         "_bash_runfile_helpers": attr.label(default = Label("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles")),
         "_launcher_template": attr.label(allow_single_file = True, default = Label("//packages/typescript/internal/devserver:launcher_template.sh")),

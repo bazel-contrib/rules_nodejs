@@ -49,7 +49,6 @@ def _parcel_impl(ctx):
 parcel = rule(
     implementation = _parcel_impl,
     attrs = {
-        "srcs": attr.label_list(allow_files = True),
         "entry_point": attr.label(
             allow_single_file = True,
             mandatory = True,
@@ -60,6 +59,7 @@ parcel = rule(
             executable = True,
             cfg = "host",
         ),
+        "srcs": attr.label_list(allow_files = True),
     },
     outputs = {
         "bundle": "%{name}.js",

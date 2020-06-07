@@ -7,11 +7,11 @@ load("//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 # Note: this API is chosen to match nodejs_binary
 # so that we can generate macros that act as either an output-producing tool or an executable
 _ATTRS = {
-    "outs": attr.output_list(),
     "args": attr.string_list(mandatory = True),
     "configuration_env_vars": attr.string_list(default = []),
     "data": attr.label_list(allow_files = True, aspects = [module_mappings_aspect, node_modules_aspect]),
     "output_dir": attr.bool(),
+    "outs": attr.output_list(),
     "tool": attr.label(
         executable = True,
         cfg = "host",
