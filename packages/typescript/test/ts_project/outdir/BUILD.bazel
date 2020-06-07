@@ -1,0 +1,34 @@
+load("@build_bazel_rules_nodejs//internal/golden_file_test:golden_file_test.bzl", "golden_file_test")
+load("//packages/typescript:index.bzl", "ts_project")
+
+[
+    ts_project(
+        name = "compile_%s" % format,
+        srcs = ["a.ts"],
+        args = [
+            "--module",
+            format,
+        ],
+        # Write the output files to an extra nested directory
+        outdir = format,
+        tsconfig = "tsconfig.json",
+    )
+    for format in [
+        "commonjs",
+        "esnext",
+    ]
+]
+
+golden_file_test(
+    name = "test_cjs",
+    # Refers to the output from ts_project above
+    actual = "commonjs/a.js",
+    golden = "a.golden.cjs",
+)
+
+golden_file_test(
+    name = "test_esm",
+    # Refers to the output from ts_project above
+    actual = "esnext/a.js",
+    golden = "a.golden.js",
+)
