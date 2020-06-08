@@ -89,9 +89,6 @@ example_integration_test(
 
 example_integration_test(
     name = "examples_parcel",
-    npm_packages = {
-        "//packages/jasmine:npm_package": "@bazel/jasmine",
-    },
     # Parcel spawns a subprocess which requires our node-patches
     # but we don't yet have a mechanism on Windows for spawned processes
     # to inherit the --require script needed to install the patches

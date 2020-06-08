@@ -1,5 +1,7 @@
 const fs = require('fs');
 const path = require('path');
+// We run rollup so this import will be vendored into the resulting bundle
+import * as unidiff from 'unidiff/unidiff';
 const runfiles = require(process.env['BAZEL_NODE_RUNFILES_HELPER']);
 
 function main(args) {
@@ -21,7 +23,6 @@ function main(args) {
     return 0;
   }
   if (mode === '--verify') {
-    const unidiff = require('unidiff');
     // Generated does not match golden
     const diff = unidiff.diffLines(goldenContents, actualContents);
     let prettyDiff =
