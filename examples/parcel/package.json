@@ -1,8 +1,6 @@
 {
     "private": true,
     "devDependencies": {
-        "@bazel/jasmine": "^1.6.0",
-        "jasmine": "3.4.0",
         "parcel-bundler": "1.12.3",
         "v8-coverage": "1.0.9"
     },

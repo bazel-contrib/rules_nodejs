@@ -1,4 +1,4 @@
-load("@npm//@bazel/jasmine:index.bzl", "jasmine_node_test")
+load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
 load(":parcel.bzl", "parcel")
 
 parcel(
@@ -9,8 +9,8 @@ parcel(
     entry_point = ":foo.js",
 )
 
-jasmine_node_test(
+generated_file_test(
     name = "test",
-    srcs = glob(["*.spec.js"]),
-    deps = [":bundle"],
+    src = "bundle.golden.js_",
+    generated = ":bundle.js",
 )

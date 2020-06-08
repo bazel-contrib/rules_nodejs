@@ -16,7 +16,7 @@ def generated_file_test(name, generated, src, src_dbg = None, **kwargs):
             In this case you can specify what the dbg version of the output should look like
         **kwargs: extra arguments passed to the underlying nodejs_test or nodejs_binary
     """
-    data = [src, generated, "@npm//unidiff"]
+    data = [src, generated]
 
     if src_dbg:
         data.append(src_dbg)
@@ -26,7 +26,7 @@ def generated_file_test(name, generated, src, src_dbg = None, **kwargs):
     loc = "$(rootpath %s)"
     nodejs_test(
         name = name,
-        entry_point = "@build_bazel_rules_nodejs//internal/generated_file_test:bin.js",
+        entry_point = "@build_bazel_rules_nodejs//internal/generated_file_test:bundle.js",
         templated_args = ["--verify", loc % src, loc % src_dbg, loc % generated],
         data = data,
         **kwargs
@@ -35,7 +35,7 @@ def generated_file_test(name, generated, src, src_dbg = None, **kwargs):
     nodejs_binary(
         name = name + ".update",
         testonly = True,
-        entry_point = "@build_bazel_rules_nodejs//internal/generated_file_test:bin.js",
+        entry_point = "@build_bazel_rules_nodejs//internal/generated_file_test:bundle.js",
         templated_args = ["--out", loc % src, loc % src_dbg, loc % generated],
         data = data,
         **kwargs

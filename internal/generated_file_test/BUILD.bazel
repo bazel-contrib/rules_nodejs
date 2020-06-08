@@ -1,4 +1,6 @@
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("//packages/rollup:index.bzl", "rollup_bundle")
+load("//third_party/github.com/bazelbuild/bazel-skylib:rules/write_file.bzl", "write_file")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -8,9 +10,29 @@ bzl_library(
     visibility = ["//visibility:public"],
 )
 
-exports_files(["bin.js"])
+write_file(
+    name = "write_BUILD",
+    out = "BUILD",
+    content = ["""exports_files(["bundle.js"])"""],
+)
 
 filegroup(
     name = "package_contents",
-    srcs = glob(["*"]),
+    srcs = [
+        "BUILD",
+        "bundle.js",
+        "generated_file_test.bzl",
+    ],
+)
+
+rollup_bundle(
+    name = "bundle",
+    config_file = "rollup.config.js",
+    entry_point = "bin.js",
+    sourcemap = "hidden",
+    deps = [
+        "@npm//rollup-plugin-commonjs",
+        "@npm//rollup-plugin-node-resolve",
+        "@npm//unidiff",
+    ],
 )
