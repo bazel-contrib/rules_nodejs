@@ -21,8 +21,6 @@ export enum PatternKind {
    * property are allowed.
    */
   BANNED_PROPERTY_READ = 'banned-property-read',
-  /** @deprecated use `BANNED_PROPERTY` instead */
-  BANNED_NAME_CALL_NON_CONSTANT_ARGUMENT = 'banned-call-non-constant-argument'
 }
 
 /**
