@@ -25,6 +25,7 @@ example_integration_test(
         "//packages/terser:npm_package": "@bazel/terser",
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
+
     # bazel-in-bazel examples_angular fails on Windows on bazelci cloning a git repo:
     # ```
     # ERROR: no such package '@io_bazel_rules_k8s//k8s': Traceback (most recent call last):
@@ -173,6 +174,7 @@ example_integration_test(
         "//packages/terser:npm_package": "@bazel/terser",
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
+    owners = ["@mrmeku"],
     # Runs out of memory on bazelci windows
     # TODO(gregmagolan): fix on bazelci windows
     tags = ["no-bazelci-windows"],
@@ -215,4 +217,5 @@ example_integration_test(
     bazel_commands = [
         "test ...",
     ],
+    owners = ["@alan-agius4"],
 )
