@@ -98,11 +98,11 @@ def rules_nodejs_dev_dependencies():
 
     http_archive(
         name = "rules_codeowners",
-        strip_prefix = "rules_codeowners-826b742ee0d6703736c8c4f45fd07d65315cf599",
-        sha256 = "64f64459b41201f7236880763e72de9384b237dfc44d61949520a2994bff18cd",
+        patches = ["@build_bazel_rules_nodejs//:rules_codeowners_pr27.patch"],
+        strip_prefix = "rules_codeowners-bdc2f987cd0e15ebfa9b76689a4c9a472730a6f0",
+        sha256 = "efd4aba15e25de49e9e68b1517d789c53104b2cf0b05212ce206ed0d44835952",
         urls = [
-            "https://mirror.bazel.build/github.com/zegl/rules_codeowners/archive/826b742ee0d6703736c8c4f45fd07d65315cf599.zip",
-            "https://github.com/zegl/rules_codeowners/archive/826b742ee0d6703736c8c4f45fd07d65315cf599.zip",
+            "https://github.com/zegl/rules_codeowners/archive/bdc2f987cd0e15ebfa9b76689a4c9a472730a6f0.zip",
         ],
     )
 
