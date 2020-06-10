@@ -32,7 +32,8 @@ def create_tsconfig(
         extra_root_dirs = [],
         module_path_prefixes = None,
         module_roots = None,
-        node_modules_root = None):
+        node_modules_root = None,
+        type_check = True):
     """Creates an object representing the TypeScript configuration to run the compiler under Bazel.
 
     Args:
@@ -156,6 +157,7 @@ def create_tsconfig(
         "addDtsClutzAliases": getattr(ctx.attr, "add_dts_clutz_aliases", False),
         "typeCheckDependencies": getattr(ctx.attr, "internal_testing_type_check_dependencies", False),
         "expectedDiagnostics": getattr(ctx.attr, "expected_diagnostics", []),
+        "typeCheck": True,
     }
 
     if getattr(ctx.attr, "use_angular_plugin", False):

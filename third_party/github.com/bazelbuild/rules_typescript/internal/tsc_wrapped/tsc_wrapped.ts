@@ -59,6 +59,9 @@ export function gatherDiagnostics(
 
   const diagnostics: ts.Diagnostic[] = [];
   perfTrace.wrap('type checking', () => {
+    if (!bazelOpts.typeCheck) {
+      return;
+    }
     // These checks mirror ts.getPreEmitDiagnostics, with the important
     // exception of avoiding b/30708240, which is that if you call
     // program.getDeclarationDiagnostics() it somehow corrupts the emit.

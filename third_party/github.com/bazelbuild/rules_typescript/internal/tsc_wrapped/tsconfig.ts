@@ -201,6 +201,12 @@ export interface BazelOptions {
    * future.
    */
   devmodeTargetOverride?: string;
+
+  /**
+   * Whether to type check.  Differs from typeCheckDependencies in that this
+   * avoids type checking the srcs in addition to the dependencies.
+   */
+  typeCheck: boolean;
 }
 
 export interface ParsedTsConfig {
