@@ -58,6 +58,7 @@ filegroup(
 codeowners(
     pattern = "*",
     teams = [
+        "@mattem",
         "@gregmagolan",
         "@soldair",
     ],
