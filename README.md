@@ -37,7 +37,9 @@ Do not expect the current HEAD of master to be in perfect working order, as that
 The latest release is [1.7.0](https://github.com/bazelbuild/rules_nodejs/releases/tag/1.7.0).
 
 `git checkout 1.7.0`
+
 `cd examples/angular`
+
 `bazel run //src:devserver`
 
 ## Adopters
