@@ -32,12 +32,12 @@ $ cd my_workspace
 ## Examples
 
 In order to run the examples checkout one of the tagged releases and then build your desired target.
-Do not expect the current head of master to be in perfect working order, as that branch reflects work currently still in progress and has not been fully validated.
+Do not expect the current HEAD of master to be in perfect working order, as that branch reflects work currently still in progress and has not been fully validated.
 
 The latest release is [1.7.0](https://github.com/bazelbuild/rules_nodejs/releases/tag/1.7.0).
 
 `git checkout 1.7.0`
-`git cd examples/angular`
+`cd examples/angular`
 `bazel run //src:devserver`
 
 ## Adopters
