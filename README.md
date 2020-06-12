@@ -3,7 +3,7 @@
 
 Circle CI | Bazel CI
 :---: | :---:
-[![CircleCI](https://circleci.com/gh/bazelbuild/rules_nodejs.svg?style=svg)](https://circleci.com/gh/bazelbuild/rules_nodejs) | [![Build status](https://badge.buildkite.com/af1a592b39b11923ef0f523cbb223dd3dbd61629f8bc813c07.svg?branch=master)](https://buildkite.com/bazel/nodejs-rules-nodejs-postsubmit)
+[![CircleCI](https://circleci.com/gh/bazelbuild/rules_nodejs/tree/1.x.svg?style=svg)](https://circleci.com/gh/bazelbuild/rules_nodejs/tree/1.x) | [![Build status](https://badge.buildkite.com/af1a592b39b11923ef0f523cbb223dd3dbd61629f8bc813c07.svg?branch=1.x)](https://buildkite.com/bazel/rules-nodejs-nodejs/builds?branch=1.x)
 
 The nodejs rules integrate NodeJS development toolchain and runtime with Bazel.
 
