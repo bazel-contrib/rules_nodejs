@@ -160,6 +160,9 @@ func CreateFileHandler(servingPath, manifest string, pkgs []string, base string)
 		// When a file is not found, serve a 404 code but serve the index.html from above as its body.
 		// This allows applications to use html5 routing and reload the page at /some/sub/path, but still
 		// get their web app served.
+		// The responses is marked as an error (404) so that requests that are genuinely wrong (e.g.
+		// incorrect URLs for CSS, images, etc) are marked as such. Otherwise they'd seem to succeed but
+		// then fail to process correctly, which makes for a bad debugging experience.
 		writer = &customNotFoundResponseWriter{ResponseWriter: writer, request: request, notFound: indexHandler}
 		fileHandler(writer, request)
 	}
@@ -170,7 +173,7 @@ func CreateFileHandler(servingPath, manifest string, pkgs []string, base string)
 // dirHTTPFileSystem implements http.FileSystem by looking in the list of dirs one after each other.
 type dirHTTPFileSystem struct {
 	packageDirs []string
-	base string
+	base        string
 }
 
 func (fs dirHTTPFileSystem) Open(name string) (http.File, error) {
@@ -210,7 +213,6 @@ func (fs dirHTTPFileSystem) Open(name string) (http.File, error) {
 				continue
 			}
 		}
-
 
 		// We can assume that the file is present, if it's listed in the runfile manifest. Though, we
 		// return the error, in case something prevented the read-access.
