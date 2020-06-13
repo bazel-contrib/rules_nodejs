@@ -10,6 +10,12 @@ The nodejs rules integrate NodeJS development toolchain and runtime with Bazel.
 This toolchain can be used to build applications that target a browser runtime,
 so this repo can be thought of as "JavaScript rules for Bazel" as well. (We would call this `rules_javascript` if renames weren't so disruptive.)
 
+This repository is maintained by volunteers in the Bazel community. Neither Google, nor the Bazel team, provides support for the code. However, this repository is part of the test suite used to vet new Bazel releases.
+
+We follow semantic versioning. Patch releases have bugfixes, minor releases have new features. Only major releases (1.x, 2.x) have breaking changes.
+We strive to give you an easy upgrade path when we do introduce a breaking change by documenting a migration path.
+If you use code from an `/internal` path, or the labs package, these are not subject to our support policy and may have breaking changes or removals with no warning or migration path.
+
 ## Documentation
 
 Comprehensive documentation for installing and using the rules, including generated API docs:
