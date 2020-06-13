@@ -35,3 +35,9 @@ ng_module(
         "@npm//rxjs",
     ],
 )
+
+filegroup(
+    name = "todos_esm",
+    srcs = [":todos"],
+    output_group = "es6_sources",
+)

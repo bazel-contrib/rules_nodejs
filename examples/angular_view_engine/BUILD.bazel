@@ -1,3 +1,5 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "pkg_npm")
+
 package(default_visibility = ["//:__subpackages__"])
 
 # ts_library and ng_module use the `//:tsconfig.json` target
@@ -12,4 +14,24 @@ alias(
 sh_test(
     name = "dummy_test",
     srcs = ["dummy_test.sh"],
+)
+
+# Here we selectively chose which files to include in node_modules/examples_angular_view_engine
+# as node_modules/examples_angular_view_engine is no longer automatically linke to the root of bazel-bin.
+# Because ngfactory files are generated with absolute `examples_angular_view_engine/` imports, we need
+# to ensure all the files that these imports reference are available under
+# node_modules/examples_angular_view_engine for rollup_bundle to find.
+pkg_npm(
+    name = "examples_angular_view_engine",
+    package_name = "examples_angular_view_engine",
+    deps = [
+        "//src:src_esm",
+        "//src/app:app_esm",
+        "//src/app/hello-world:hello-world_esm",
+        "//src/app/home:home_esm",
+        "//src/app/todos:todos_esm",
+        "//src/app/todos/reducers:reducers_esm",
+        "//src/lib/typography:typography_esm",
+        "//src/shared/material:material_esm",
+    ],
 )

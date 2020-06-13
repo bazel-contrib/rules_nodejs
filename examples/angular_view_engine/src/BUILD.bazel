@@ -61,6 +61,12 @@ ng_module(
 )
 
 filegroup(
+    name = "src_esm",
+    srcs = [":src"],
+    output_group = "es6_sources",
+)
+
+filegroup(
     name = "rxjs_umd_modules",
     srcs = [
         ":rxjs_shims.js",
@@ -137,6 +143,7 @@ rollup_bundle(
     },
     output_dir = True,
     deps = [
+        "//:examples_angular_view_engine",
         "//src",
         "@npm//rollup-plugin-amd",
         "@npm//rollup-plugin-commonjs",
