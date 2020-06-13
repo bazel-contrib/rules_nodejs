@@ -144,7 +144,7 @@ function convertToESM(args, initialContents) {
   const replaceRequiresWithImports = (contents) => {
     return contents
         .replace(
-            /(?:var|const|let) ([\w\d_]+) = require\((['"][\.\\]*[\w\d@/_-]+['"])\)/g,
+            /(?:var|const|let) ([\w\d_]+) = require\(['"]([\.\\]*[\w\d@/_-]+)['"]\)/g,
             (_, variable, importPath) => {
               if (importPath.startsWith(args.workspace_name)) {
                 importPath = `./${path.relative(args.input_base_path, importPath)}`;
@@ -166,7 +166,7 @@ function convertToESM(args, initialContents) {
   const replaceRequiresWithSubpackageImports =
       (contents) => {
         return contents.replace(
-            /(?:var|const|let) ([\w\d_]+) = require\((['"][\w\d@/_-]+['"])\)\.([\w\d_]+);/g,
+            /(?:var|const|let) ([\w\d_]+) = require\(['"]([\w\d@/_-]+)['"]\)\.([\w\d_]+);/g,
             (_, variable, importPath) => {
               if (importPath.startsWith(args.workspace_name)) {
                 importPath = `./${path.relative(args.input_base_path, importPath)}`;
