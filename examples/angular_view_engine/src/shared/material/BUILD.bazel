@@ -17,3 +17,9 @@ ng_module(
         "@npm//@angular/material",
     ],
 )
+
+filegroup(
+    name = "material_esm",
+    srcs = [":material"],
+    output_group = "es6_sources",
+)

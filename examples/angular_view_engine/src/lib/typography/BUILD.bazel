@@ -11,3 +11,9 @@ ng_module(
         "@npm//@angular/core",
     ],
 )
+
+filegroup(
+    name = "typography_esm",
+    srcs = [":typography"],
+    output_group = "es6_sources",
+)

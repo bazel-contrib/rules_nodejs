@@ -26,3 +26,9 @@ ng_module(
         "@npm//@ngrx/store",
     ],
 )
+
+filegroup(
+    name = "app_esm",
+    srcs = [":app"],
+    output_group = "es6_sources",
+)

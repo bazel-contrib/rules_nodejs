@@ -38,6 +38,12 @@ ng_module(
     ],
 )
 
+filegroup(
+    name = "hello-world_esm",
+    srcs = [":hello-world"],
+    output_group = "es6_sources",
+)
+
 ts_library(
     name = "test_lib",
     testonly = 1,

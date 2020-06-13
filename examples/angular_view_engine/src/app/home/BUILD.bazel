@@ -12,3 +12,9 @@ ng_module(
         "@npm//@angular/router",
     ],
 )
+
+filegroup(
+    name = "home_esm",
+    srcs = [":home"],
+    output_group = "es6_sources",
+)

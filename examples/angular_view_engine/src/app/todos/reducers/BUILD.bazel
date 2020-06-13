@@ -9,3 +9,9 @@ ts_library(
         "@npm//@ngrx/store",
     ],
 )
+
+filegroup(
+    name = "reducers_esm",
+    srcs = [":reducers"],
+    output_group = "es6_sources",
+)
