@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test", "nodejs_binary", "npm_package_bin")
+load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
 load("//packages/rollup:index.bzl", "rollup_bundle")
 
 _BUNDLE_FORMATS = [
@@ -52,68 +52,14 @@ _BUNDLE_FORMATS = [
     for format in _BUNDLE_FORMATS
 ]
 
-nodejs_binary(
-    name = "sha256",
-    entry_point = ":sha256.js",
-)
-
-# Verify the hash of bundle .map files
-[
-    npm_package_bin(
-        name = "bundle_%s_map_sha256" % format,
-        outs = ["bundle.%s.js.map.sha256" % format],
-        args = [
-            "$(execpath :bundle.%s.js.map)" % format,
-            "$(execpath :bundle.%s.js.map.sha256)" % format,
-        ],
-        data = [
-            # ":bundle.*.js" included as a dep as Bazel requires it for
-            # the "$(execpath :bundle.*.js)" location expansion to work
-            ":bundle.%s.js.map" % format,
-            # Also include ":bundle.*" as a dep so that the module mappings
-            # from the ":bundle.*" as propogated to ensure the linker
-            # handles these propogated mappings property
-            ":bundle.%s" % format,
-        ],
-        tool = ":sha256",
-    )
-    for format in _BUNDLE_FORMATS
-]
-
 [
     generated_file_test(
-        name = "test_%s_map_sha256" % format,
-        src = ":golden.%s.js.map.sha256_" % format,
-        generated = "bundle.%s.js.map.sha256" % format,
-        # TODO: fix this test on Windows as sha256 differs
-        tags = ["fix-windows"],
+        name = "test_%s_map" % format,
+        src = "//%s:golden.%s.js.map_" % (
+            package_name(),
+            format,
+        ),
+        generated = ":bundle.%s.js.map" % format,
     )
     for format in _BUNDLE_FORMATS
 ]
-
-npm_package_bin(
-    name = "bundle_umd_sha256",
-    outs = ["bundle.umd.js.sha256"],
-    args = [
-        "$(execpath :bundle.umd.js)",
-        "$(execpath :bundle.umd.js.sha256)",
-    ],
-    data = [
-        # ":bundle.umd.js" included as a dep as Bazel requires it for
-        # the "$(execpath :bundle.umd.js)" location expansion to work
-        ":bundle.umd.js",
-        # Also include ":bundle.umd" as a dep so that the module mappings
-        # from the ":bundle.umd" as propogated to ensure the linker
-        # handles these propogated mappings property
-        ":bundle.umd",
-    ],
-    tool = ":sha256",
-)
-
-generated_file_test(
-    name = "test_umd_sha256",
-    src = ":golden.umd.js.sha256_",
-    generated = "bundle.umd.js.sha256",
-    # TODO: fix this test on Windows as sha256 differs
-    tags = ["fix-windows"],
-)
