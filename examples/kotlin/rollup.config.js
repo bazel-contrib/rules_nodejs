@@ -1,5 +1,5 @@
-const node = require('rollup-plugin-node-resolve');
-const commonjs = require('rollup-plugin-commonjs');
+const node = require('@rollup/plugin-node-resolve').default;
+const commonjs = require('@rollup/plugin-commonjs');
 
 module.exports = {
   plugins: [

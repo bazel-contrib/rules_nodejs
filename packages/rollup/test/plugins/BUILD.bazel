@@ -8,7 +8,7 @@ rollup_bundle(
     entry_point = "input.js",
     sourcemap = "false",
     supports_workers = True,
-    deps = ["@npm//rollup-plugin-json"],
+    deps = ["@npm//@rollup/plugin-json"],
 )
 
 generated_file_test(

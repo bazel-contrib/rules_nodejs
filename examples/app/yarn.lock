@@ -80,11 +80,6 @@
   resolved "https://registry.yarnpkg.com/@protobufjs/utf8/-/utf8-1.1.0.tgz#a777360b5b39a1a2e5106f8e858f2fd2d060c570"
   integrity sha1-p3c2C1s5oaLlEG+OhY8v0tBgxXA=
 
-"@types/estree@0.0.39":
-  version "0.0.39"
-  resolved "https://registry.yarnpkg.com/@types/estree/-/estree-0.0.39.tgz#e177e699ee1b8c22d23174caaa7422644389509f"
-  integrity sha512-EYNwp3bU+98cpU4lAWYYL7Zz+2gryWH1qbdDTidVd6hkiR6weksdbMadyXKXNPEkQFhXM+hVO9ZygomHXp+AIw==
-
 "@types/jasmine@3.3.15":
   version "3.3.15"
   resolved "https://registry.yarnpkg.com/@types/jasmine/-/jasmine-3.3.15.tgz#545be0670e828ac570566c45be570bbffcbc66d8"
@@ -100,11 +95,6 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.14.21.tgz#4a9db7ef1d1671c0015e632c5fa3d46c86c58c1e"
   integrity sha512-nuFlRdBiqbF+PJIEVxm2jLFcQWN7q7iWEJGsBV4n7v1dbI9qXB8im2pMMKMCUZe092sQb5SQft2DHfuQGK5hqQ==
 
-"@types/node@^12.7.2":
-  version "12.7.8"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.7.8.tgz#cb1bf6800238898bc2ff6ffa5702c3cadd350708"
-  integrity sha512-FMdVn84tJJdV+xe+53sYiZS4R5yn1mAIxfj+DVoNiQjTYz1+OYmjwEZr1ev9nU0axXwda0QDbYl06QHanRVH3A==
-
 "@types/q@^0.0.32":
   version "0.0.32"
   resolved "https://registry.yarnpkg.com/@types/q/-/q-0.0.32.tgz#bd284e57c84f1325da702babfc82a5328190c0c5"
@@ -114,11 +104,6 @@
   version "3.0.16"
   resolved "https://registry.yarnpkg.com/@types/selenium-webdriver/-/selenium-webdriver-3.0.16.tgz#50a4755f8e33edacd9c406729e9b930d2451902a"
   integrity sha512-lMC2G0ItF2xv4UCiwbJGbnJlIuUixHrioOhNGHSCsYCJ8l4t9hMCUimCytvFv7qy6AfSzRxhRHoGa+UqaqwyeA==
-
-acorn@^7.0.0:
-  version "7.1.0"
-  resolved "https://registry.yarnpkg.com/acorn/-/acorn-7.1.0.tgz#949d36f2c292535da602283586c2477c57eb2d6c"
-  integrity sha512-kL5CuoXA/dgxlBbVrflsflzQ3PAas7RYZB52NOm/6839iVYJgKMJ3cQJD+t2i5+qFa8h3MDpEOJiS64E8JLnSQ==
 
 adm-zip@^0.4.9:
   version "0.4.13"
@@ -505,6 +490,11 @@ fs.realpath@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/fs.realpath/-/fs.realpath-1.0.0.tgz#1504ad2523158caa40db4a2787cb01411994ea4f"
   integrity sha1-FQStJSMVjKpA20onh8sBQRmU6k8=
+
+fsevents@~2.1.2:
+  version "2.1.3"
+  resolved "https://registry.yarnpkg.com/fsevents/-/fsevents-2.1.3.tgz#fb738703ae8d2f9fe900c33836ddebee8b97f23e"
+  integrity sha512-Auw9a4AxqWpa9GUfj370BMPzzyncfBABW8Mab7BGWBYDj4Isgq+cDKtx0i6u9jcX9pQDnswsaaOTgTmA5pEjuQ==
 
 function-bind@^1.1.1:
   version "1.1.1"
@@ -1118,14 +1108,12 @@ rimraf@^2.2.8, rimraf@^2.5.2, rimraf@^2.5.4:
   dependencies:
     glob "^7.1.3"
 
-rollup@1.20.3:
-  version "1.20.3"
-  resolved "https://registry.yarnpkg.com/rollup/-/rollup-1.20.3.tgz#6243f6c118ca05f56b2d9433112400cd834a1eb8"
-  integrity sha512-/OMCkY0c6E8tleeVm4vQVDz24CkVgvueK3r8zTYu2AQNpjrcaPwO9hE+pWj5LTFrvvkaxt4MYIp2zha4y0lRvg==
-  dependencies:
-    "@types/estree" "0.0.39"
-    "@types/node" "^12.7.2"
-    acorn "^7.0.0"
+rollup@2.16.1:
+  version "2.16.1"
+  resolved "https://registry.yarnpkg.com/rollup/-/rollup-2.16.1.tgz#97805e88071e2c6727bd0b64904976d14495c873"
+  integrity sha512-UYupMcbFtoWLB6ZtL4hPZNUTlkXjJfGT33Mmhz3hYLNmRj/cOvX2B26ZxDQuEpwtLdcyyyraBGQ7EfzmMJnXXg==
+  optionalDependencies:
+    fsevents "~2.1.2"
 
 safe-buffer@^5.0.1, safe-buffer@^5.1.2:
   version "5.2.0"

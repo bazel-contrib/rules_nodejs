@@ -70,5 +70,5 @@ rollup_bundle(
     entry_point = "register.js",
     format = "cjs",
     sourcemap = "false",
-    deps = ["@npm//rollup-plugin-commonjs"],
+    deps = ["@npm//@rollup/plugin-commonjs"],
 )

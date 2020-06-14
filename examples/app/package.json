@@ -9,7 +9,7 @@
     "http-server": "^0.11.1",
     "less": "^3.10.3",
     "protractor": "^5.4.2",
-    "rollup": "1.20.3",
+    "rollup": "2.16.1",
     "stylus": "^0.54.7",
     "terser": "4.3.1",
     "typescript": "3.6.3"
