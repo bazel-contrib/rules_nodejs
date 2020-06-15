@@ -193,7 +193,8 @@ def compile_ts(
         jsx_factory = None,
         tsc_wrapped_tsconfig = None,
         tsconfig = None,
-        outputs = _outputs):
+        outputs = _outputs,
+        validation_outputs = None):
     """Creates actions to compile TypeScript code.
 
     This rule is shared between ts_library and ts_declaration.
@@ -205,11 +206,13 @@ def compile_ts(
       declaration_infos: list of DeclarationInfo. Explicit list of declarations to be used instead of those on ctx.attr.deps.
       compile_action: function. Creates the compilation action.
       devmode_compile_action: function. Creates the compilation action
-        for devmode.
+          for devmode.
       jsx_factory: optional string. Enables overriding jsx pragma.
       tsc_wrapped_tsconfig: function that produces a tsconfig object.
       tsconfig: The tsconfig file to output, if other than ctx.outputs.tsconfig.
       outputs: function from a ctx to the expected compilation outputs.
+      validation_outputs: Actions that produce validation outputs will be run whenever any part of
+          a rule is run, even if its outputs are not used. This is useful for things like strict deps check.
 
     Returns:
       struct that will be returned by the rule implementation.
@@ -458,6 +461,7 @@ def compile_ts(
                 files = depset(transitive = files_depsets),
             ),
             OutputGroupInfo(
+                _validation = depset(validation_outputs if validation_outputs else []),
                 es5_sources = es5_sources,
                 es6_sources = es6_sources,
             ),
