@@ -216,3 +216,8 @@ example_integration_test(
     # windows fails CI with an error to do with a process fork not being able ot find node
     tags = ["fix-windows"],
 )
+
+example_integration_test(
+    name = "examples_react_cra",
+    bazel_commands = ["build ..."],
+)
