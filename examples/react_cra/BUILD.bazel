@@ -1,0 +1,26 @@
+load("@npm//react-scripts:index.bzl", "react_scripts")
+
+filegroup(
+    name = "public",
+    srcs = glob(["public/**"])
+)
+
+filegroup(
+    name = "src",
+    srcs = glob(["src/**"])
+)
+
+react_scripts(
+    name = "build",
+    args = [
+        "build",
+    ],
+    data = [
+        ":public",
+        ":tsconfig.json",
+        ":src",
+        ":package.json",
+        "@npm//:node_modules",
+    ],
+    output_dir = True,
+)
