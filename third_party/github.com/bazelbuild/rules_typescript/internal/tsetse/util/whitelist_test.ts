@@ -1,7 +1,9 @@
 import 'jasmine';
+
 import {ConformancePatternRule, PatternKind} from '../rules/conformance_pattern_rule';
-import {WhitelistReason} from './pattern_config';
+
 import {compileAndCheck, customMatchers, getTempDirForWhitelist} from './testing/test_support';
+import {WhitelistReason} from './whitelist';
 
 const tmpPrefixForWhitelist = getTempDirForWhitelist();
 const tmpRegexpForWhitelist =
@@ -114,6 +116,46 @@ describe('ConformancePatternRule', () => {
         // tslint:disable-next-line:no-unused-expression
         new ConformancePatternRule(config);
       }).toThrowError(/Invalid regular expression/);
+    });
+
+    it('test memoizer hit', () => {
+      const config = {
+        ...baseConfig,
+        whitelistEntries: [{
+          reason: WhitelistReason.UNSPECIFIED,
+          regexp: [
+            `${tmpRegexpForWhitelist}.+/file_0\\.ts`,
+          ]
+        }]
+      };
+      const rule = new ConformancePatternRule(config);
+      // Compile the same file twice to make sure memoizer doesn't
+      // break things.
+      let results = compileAndCheck(rule, source);
+      results = results.concat(compileAndCheck(rule, source));
+
+      expect(results).toHaveNoFailures();
+    });
+
+    it('test memoizer miss', () => {
+      const config = {
+        ...baseConfig,
+        whitelistEntries: [{
+          reason: WhitelistReason.UNSPECIFIED,
+          regexp: [
+            `${tmpRegexpForWhitelist}.+/file_1\\.ts`,
+          ],
+          prefix: ['###PrefixNotExist###'],
+        }]
+      };
+      const rule = new ConformancePatternRule(config);
+      // Compile the same file twice to make sure memoizer doesn't
+      // break things.
+      let results = compileAndCheck(rule, source);
+      expect(results).toHaveNFailures(1);
+
+      results = compileAndCheck(rule, source);
+      expect(results).toHaveNFailures(1);
     });
   });
 });
