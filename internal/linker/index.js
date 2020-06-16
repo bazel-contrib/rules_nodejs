@@ -74,7 +74,7 @@ function resolveRoot(root, startCwd, isExecroot, runfiles) {
         if (isExecroot) {
             return root ? `${startCwd}/external/${root}` : `${startCwd}/node_modules`;
         }
-        const match = startCwd.match(/(\/bazel-out\/|\/bazel-~1\/x64_wi~1\/)/);
+        const match = startCwd.match(/\/bazel-out\//);
         if (!match) {
             panic(`No 'bazel-out' folder found in path '${startCwd}'!`);
             return '';
