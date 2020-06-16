@@ -283,10 +283,20 @@ nodejs_binary(
     entry_point = "terser_diagnostics_stats.js",
 )
 
+# When we build with --define=VERBOSE_LOGS=1 there is some extra stuff printed to stderr
+# We don't care to assert about that, and it has machine-local paths so we can't assert
+# on the exact content either.
+genrule(
+    name = "scrub_verbose_logs_stderr",
+    srcs = [":diagnostics.out"],
+    outs = [":diagnostics.scrubbed.out"],
+    cmd = "grep -v 'bazel node patches enabled' $< > $@",
+)
+
 generated_file_test(
     name = "stderr_output_test",
     src = "stderr_output_test.golden",
-    generated = ":diagnostics.out",
+    generated = ":diagnostics.scrubbed.out",
 )
 
 nodejs_binary(
