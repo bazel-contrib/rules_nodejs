@@ -20,11 +20,6 @@ export enum PatternKind {
    * literal.
    */
   BANNED_PROPERTY_NON_CONSTANT_WRITE = 'banned-property-non-constant-write',
-  /**
-   * Ban instance property, like BANNED_PROPERTY but where writes of the
-   * property are allowed.
-   */
-  BANNED_PROPERTY_READ = 'banned-property-read',
 }
 
 /**

@@ -7,7 +7,6 @@ import {NameEngine} from '../util/pattern_engines/name_engine';
 import {PatternEngine} from '../util/pattern_engines/pattern_engine';
 import {PropertyEngine} from '../util/pattern_engines/property_engine';
 import {PropertyNonConstantWriteEngine} from '../util/pattern_engines/property_non_constant_write_engine';
-import {PropertyReadEngine} from '../util/pattern_engines/property_read_engine';
 import {PropertyWriteEngine} from '../util/pattern_engines/property_write_engine';
 
 
@@ -37,9 +36,6 @@ export class ConformancePatternRule implements AbstractRule {
         break;
       case PatternKind.BANNED_NAME:
         this.engine = new NameEngine(config, fixer);
-        break;
-      case PatternKind.BANNED_PROPERTY_READ:
-        this.engine = new PropertyReadEngine(config, fixer);
         break;
       default:
         throw new Error('Config type not recognized, or not implemented yet.');
