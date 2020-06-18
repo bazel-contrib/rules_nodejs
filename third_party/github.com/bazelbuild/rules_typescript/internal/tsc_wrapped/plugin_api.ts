@@ -54,10 +54,13 @@ export interface EmitPlugin {
    */
   wrapHost?(compilerHost: ts.CompilerHost, inputFiles: string[], options: ts.CompilerOptions): PluginCompilerHost;
 
-  setupCompilation(program: ts.Program, oldProgram?: ts.Program): void;
+  setupCompilation(program: ts.Program, oldProgram?: ts.Program): {
+    ignoreForDiagnostics: Set<ts.SourceFile>,
+    ignoreForEmit: Set<ts.SourceFile>
+  };
 
   getNextProgram?(): ts.Program;
-  
+
   /**
    * Allow plugins to contribute additional TypeScript CustomTransformers.
    * These can modify the TS AST, JS AST, or .d.ts output AST.
