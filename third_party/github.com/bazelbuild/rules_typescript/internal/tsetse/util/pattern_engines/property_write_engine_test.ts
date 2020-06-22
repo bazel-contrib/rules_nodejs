@@ -1,10 +1,11 @@
 import 'jasmine';
-import {ConformancePatternRule, PatternKind} from '../../rules/conformance_pattern_rule';
+import {ConformancePatternRule, ErrorCode, PatternKind} from '../../rules/conformance_pattern_rule';
 import {compileAndCheck, customMatchers} from '../../util/testing/test_support';
 
 describe('BANNED_PROPERTY_WRITE', () => {
   describe('simpler matcher tests', () => {
     const config = {
+      errorCode: ErrorCode.CONFORMANCE_PATTERN,
       errorMessage: 'do not cite',
       kind: PatternKind.BANNED_PROPERTY_WRITE,
       values: ['HTMLQuoteElement.prototype.cite']
@@ -99,6 +100,7 @@ describe('BANNED_PROPERTY_WRITE', () => {
 
     it('banning Parent.x matches (instance of Child).x', () => {
       const configOnParent = {
+        errorCode: ErrorCode.CONFORMANCE_PATTERN,
         errorMessage: 'found write to x',
         kind: PatternKind.BANNED_PROPERTY_WRITE,
         values: ['Parent.prototype.x']
@@ -111,6 +113,7 @@ describe('BANNED_PROPERTY_WRITE', () => {
 
     it('banning Child.x matches x defined on Parent', () => {
       const configOnChild = {
+        errorCode: ErrorCode.CONFORMANCE_PATTERN,
         errorMessage: 'found write to x',
         kind: PatternKind.BANNED_PROPERTY_WRITE,
         values: ['Child.prototype.x']

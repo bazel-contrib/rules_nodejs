@@ -1,5 +1,6 @@
 import 'jasmine';
-import {ConformancePatternRule, PatternKind} from '../../rules/conformance_pattern_rule';
+
+import {ConformancePatternRule, ErrorCode, PatternKind} from '../../rules/conformance_pattern_rule';
 import {compileAndCheck, customMatchers} from '../../util/testing/test_support';
 
 describe('BANNED_PROPERTY', () => {
@@ -9,6 +10,7 @@ describe('BANNED_PROPERTY', () => {
 
   it('matches a trivial example', () => {
     const config = {
+      errorCode: ErrorCode.CONFORMANCE_PATTERN,
       errorMessage: 'No Location#href access',
       kind: PatternKind.BANNED_PROPERTY,
       values: ['Location.prototype.href'],

@@ -1,5 +1,5 @@
 import 'jasmine';
-import {ConformancePatternRule, PatternKind} from '../rules/conformance_pattern_rule';
+import {ConformancePatternRule, ErrorCode, PatternKind} from '../rules/conformance_pattern_rule';
 import {setDebug} from './ast_tools';
 import {compileAndCheck} from './testing/test_support';
 
@@ -7,6 +7,7 @@ describe('Debug output', () => {
   it('turns on and off', () => {
     const source = `location.href = 'foo';`;
     const rule = new ConformancePatternRule({
+      errorCode: ErrorCode.CONFORMANCE_PATTERN,
       errorMessage: 'does not matter',
       kind: PatternKind.BANNED_PROPERTY_WRITE,
       values: ['Location.prototype.href']

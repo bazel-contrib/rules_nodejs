@@ -5,7 +5,6 @@ import {ErrorCode} from '../../error_code';
 import {debugLog, isPropertyWriteExpression} from '../ast_tools';
 import {Fixer} from '../fixer';
 import {isLiteral} from '../is_literal';
-import {Config} from '../pattern_config';
 import {PropertyMatcher} from '../property_matcher';
 
 import {PatternEngine} from './pattern_engine';
@@ -42,7 +41,7 @@ export class PropertyNonConstantWriteEngine extends PatternEngine {
           ts.SyntaxKind.BinaryExpression,
           this.wrapCheckWithWhitelistingAndFixer(
               (tc, n: ts.BinaryExpression) => checkBinExpr(tc, n, matcher)),
-          ErrorCode.CONFORMANCE_PATTERN);
+          this.config.errorCode);
     }
   }
 }

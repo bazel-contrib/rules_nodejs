@@ -23,11 +23,9 @@ export enum PatternKind {
 }
 
 /**
- * A config for ConformancePatternRule.
+ * A config for `PatternEngine`.
  */
-export interface Config {
-  kind: PatternKind;
-
+export interface PatternEngineConfig {
   /**
    * Values have a pattern-specific syntax.
    *
@@ -36,11 +34,21 @@ export interface Config {
    */
   values: string[];
 
+  /** The error code assigned to this pattern. */
+  errorCode: number;
+
   /** The error message this pattern will create. */
   errorMessage: string;
 
   /** A list of whitelist blocks. */
   whitelistEntries?: WhitelistEntry[];
+}
+
+/**
+ * A config for `ConformancePatternRule`.
+ */
+export interface PatternRuleConfig extends PatternEngineConfig {
+  kind: PatternKind;
 
   /**
    * An optional name for that rule, which will be the rule's `ruleName`.

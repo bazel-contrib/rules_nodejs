@@ -2,7 +2,7 @@ import {Checker} from '../checker';
 import {ErrorCode} from '../error_code';
 import {AbstractRule} from '../rule';
 import {Fixer} from '../util/fixer';
-import {Config, PatternKind} from '../util/pattern_config';
+import {PatternKind, PatternRuleConfig} from '../util/pattern_config';
 import {NameEngine} from '../util/pattern_engines/name_engine';
 import {PatternEngine} from '../util/pattern_engines/pattern_engine';
 import {PropertyEngine} from '../util/pattern_engines/property_engine';
@@ -19,11 +19,14 @@ import {PropertyWriteEngine} from '../util/pattern_engines/property_write_engine
  */
 export class ConformancePatternRule implements AbstractRule {
   readonly ruleName: string;
-  readonly code = ErrorCode.CONFORMANCE_PATTERN;
-
+  readonly code: number;
   private readonly engine: PatternEngine;
 
-  constructor(config: Config, fixer?: Fixer) {
+  constructor(config: PatternRuleConfig, fixer?: Fixer) {
+    this.code = config.errorCode;
+    // Avoid empty rule names.
+    this.ruleName = config.name || `conformance-pattern-${config.kind}`;
+
     switch (config.kind) {
       case PatternKind.BANNED_PROPERTY:
         this.engine = new PropertyEngine(config, fixer);
@@ -40,7 +43,6 @@ export class ConformancePatternRule implements AbstractRule {
       default:
         throw new Error('Config type not recognized, or not implemented yet.');
     }
-    this.ruleName = config.name || `conformance-pattern-${config.kind}`;
   }
 
   register(checker: Checker) {
@@ -55,3 +57,4 @@ export class ConformancePatternRule implements AbstractRule {
  * https://github.com/google/closure-compiler/wiki/JS-Conformance-Framework).
  */
 export {PatternKind};
+export {ErrorCode};

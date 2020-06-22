@@ -4,7 +4,6 @@ import {ErrorCode} from '../../error_code';
 import {AbsoluteMatcher} from '../absolute_matcher';
 import {debugLog} from '../ast_tools';
 import {Fixer} from '../fixer';
-import {Config} from '../pattern_config';
 import {PatternEngine} from './pattern_engine';
 
 function checkId(
@@ -18,6 +17,7 @@ function checkId(
   return n;
 }
 
+/** Engine for the BANNED_NAME pattern */
 export class NameEngine extends PatternEngine {
   register(checker: Checker) {
     for (const value of this.config.values) {
@@ -31,7 +31,7 @@ export class NameEngine extends PatternEngine {
           bannedIdName,
           this.wrapCheckWithWhitelistingAndFixer(
               (tc, n: ts.Identifier) => checkId(tc, n, matcher)),
-          ErrorCode.CONFORMANCE_PATTERN);
+          this.config.errorCode);
     }
   }
 }

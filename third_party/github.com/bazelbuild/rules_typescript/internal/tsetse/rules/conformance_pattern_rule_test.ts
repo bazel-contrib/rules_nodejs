@@ -1,10 +1,12 @@
 import 'jasmine';
-import {ConformancePatternRule, PatternKind} from './conformance_pattern_rule';
+
 import {customMatchers} from '../util/testing/test_support';
+import {ConformancePatternRule, ErrorCode, PatternKind} from './conformance_pattern_rule';
 
 describe('ConformancePatternRule creation', () => {
   describe('naming', () => {
     const baseConfig = {
+      errorCode: ErrorCode.CONFORMANCE_PATTERN,
       errorMessage: 'do not cite',
       kind: PatternKind.BANNED_PROPERTY_WRITE,
       values: ['HTMLQuoteElement.prototype.cite'],

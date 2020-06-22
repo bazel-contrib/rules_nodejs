@@ -1,7 +1,7 @@
 import 'jasmine';
 import * as ts from 'typescript';
 import {Failure, Fix} from '../failure';
-import {ConformancePatternRule, PatternKind} from '../rules/conformance_pattern_rule';
+import {ConformancePatternRule, ErrorCode, PatternKind} from '../rules/conformance_pattern_rule';
 import {buildReplacementFixer, Fixer, maybeAddNamedImport, maybeAddNamespaceImport} from './fixer';
 import {compile, compileAndCheck, customMatchers} from './testing/test_support';
 
@@ -24,6 +24,7 @@ const uppercaseFixerBuilt: Fixer = buildReplacementFixer((node: ts.Node) => {
 
 // The initial config and source off which we run those checks.
 const baseConfig = {
+  errorCode: ErrorCode.CONFORMANCE_PATTERN,
   errorMessage: 'found citation',
   kind: PatternKind.BANNED_PROPERTY_WRITE,
   values: ['HTMLQuoteElement.prototype.cite'],

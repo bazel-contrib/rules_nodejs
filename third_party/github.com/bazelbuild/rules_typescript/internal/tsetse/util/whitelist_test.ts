@@ -1,6 +1,6 @@
 import 'jasmine';
 
-import {ConformancePatternRule, PatternKind} from '../rules/conformance_pattern_rule';
+import {ConformancePatternRule, ErrorCode, PatternKind} from '../rules/conformance_pattern_rule';
 
 import {compileAndCheck, customMatchers, getTempDirForWhitelist} from './testing/test_support';
 import {WhitelistReason} from './whitelist';
@@ -18,6 +18,7 @@ describe('ConformancePatternRule', () => {
 
     // The initial config off which we run those checks.
     const baseConfig = {
+      errorCode: ErrorCode.CONFORMANCE_PATTERN,
       errorMessage: 'do not cite',
       kind: PatternKind.BANNED_PROPERTY_WRITE,
       values: ['HTMLQuoteElement.prototype.cite'],

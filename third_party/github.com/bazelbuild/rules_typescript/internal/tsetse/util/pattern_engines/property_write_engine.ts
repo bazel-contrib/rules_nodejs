@@ -4,7 +4,6 @@ import {Checker} from '../../checker';
 import {ErrorCode} from '../../error_code';
 import {debugLog, isPropertyWriteExpression} from '../ast_tools';
 import {Fixer} from '../fixer';
-import {Config} from '../pattern_config';
 import {PatternEngine} from '../pattern_engines/pattern_engine';
 import {PropertyMatcher} from '../property_matcher';
 
@@ -43,7 +42,7 @@ export class PropertyWriteEngine extends PatternEngine {
           this.wrapCheckWithWhitelistingAndFixer(
               (tc, n: ts.PropertyAccessExpression) =>
                   checkPropAccessExpr(tc, n, matcher)),
-          ErrorCode.CONFORMANCE_PATTERN);
+          this.config.errorCode);
     }
   }
 }

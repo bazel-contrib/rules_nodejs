@@ -3,7 +3,7 @@ import * as ts from 'typescript';
 import {Checker} from '../../checker';
 import {Fix} from '../../failure';
 import {Fixer} from '../../util/fixer';
-import {Config} from '../../util/pattern_config';
+import {PatternEngineConfig} from '../../util/pattern_config';
 import {Whitelist} from '../../util/whitelist';
 import {shouldExamineNode} from '../ast_tools';
 
@@ -14,15 +14,16 @@ export abstract class PatternEngine {
   private readonly whitelist: Whitelist;
 
   constructor(
-      protected readonly config: Config, protected readonly fixer?: Fixer) {
+      protected readonly config: PatternEngineConfig,
+      protected readonly fixer?: Fixer) {
     this.whitelist = new Whitelist(config.whitelistEntries);
   }
 
   /**
    * `register` will be called by the ConformanceRule to tell Tsetse the
    * PatternEngine will handle matching. Implementations should use
-   *`checkAndFilterResults` as a wrapper for `check`.
-   **/
+   * `checkAndFilterResults` as a wrapper for `check`.
+   */
   abstract register(checker: Checker): void;
 
   /**

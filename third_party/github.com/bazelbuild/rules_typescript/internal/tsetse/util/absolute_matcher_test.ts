@@ -1,5 +1,5 @@
 import 'jasmine';
-import {ConformancePatternRule, PatternKind} from '../rules/conformance_pattern_rule';
+import {ConformancePatternRule, ErrorCode, PatternKind} from '../rules/conformance_pattern_rule';
 import {compileAndCheck, customMatchers} from './testing/test_support';
 
 describe('AbsoluteMatcher', () => {
@@ -9,6 +9,7 @@ describe('AbsoluteMatcher', () => {
 
   it('requires a matcher scope', () => {
     const config = {
+      errorCode: ErrorCode.CONFORMANCE_PATTERN,
       errorMessage: 'banned name with no scope',
       kind: PatternKind.BANNED_NAME,
       values: ['exec']
@@ -24,6 +25,7 @@ describe('AbsoluteMatcher', () => {
   describe('file scope', () => {
     it('matches a file path', () => {
       const config = {
+        errorCode: ErrorCode.CONFORMANCE_PATTERN,
         errorMessage: 'banned name with file path',
         kind: PatternKind.BANNED_NAME,
         values: ['./file_0|Foo.bar']
@@ -42,6 +44,7 @@ describe('AbsoluteMatcher', () => {
 
     it('ignores an exported symbol defined in an unmatched file path', () => {
       const config = {
+        errorCode: ErrorCode.CONFORMANCE_PATTERN,
         errorMessage: 'banned name with file path',
         kind: PatternKind.BANNED_NAME,
         values: ['./file_0|Foo.bar']
@@ -63,6 +66,7 @@ describe('AbsoluteMatcher', () => {
     it('ignores an un-exported symbol defined in an unmatched file path',
        () => {
          const config = {
+           errorCode: ErrorCode.CONFORMANCE_PATTERN,
            errorMessage: 'banned name with file path',
            kind: PatternKind.BANNED_NAME,
            values: ['./file_0|Foo.bar']
@@ -84,6 +88,7 @@ describe('AbsoluteMatcher', () => {
     it('matches a local exported definition', () => {
       // This is a match because Foo.bar is an exported symbol.
       const config = {
+        errorCode: ErrorCode.CONFORMANCE_PATTERN,
         errorMessage: 'banned name with file path',
         kind: PatternKind.BANNED_NAME,
         values: ['./file_0|Foo.bar']
@@ -100,6 +105,7 @@ describe('AbsoluteMatcher', () => {
 
     it('matches names in import statement', () => {
       const config = {
+        errorCode: ErrorCode.CONFORMANCE_PATTERN,
         errorMessage: 'banned name with file path',
         kind: PatternKind.BANNED_NAME,
         values: ['./file_0|foo', 'ANY_SYMBOL|bar']
@@ -126,6 +132,7 @@ describe('AbsoluteMatcher', () => {
   describe('global scope', () => {
     it('matches an in-stock library method', () => {
       const config = {
+        errorCode: ErrorCode.CONFORMANCE_PATTERN,
         errorMessage: 'banned ambient name',
         kind: PatternKind.BANNED_NAME,
         values: ['GLOBAL|eval']
@@ -140,6 +147,7 @@ describe('AbsoluteMatcher', () => {
 
     it('does not match a custom exported method with the same name', () => {
       const config = {
+        errorCode: ErrorCode.CONFORMANCE_PATTERN,
         errorMessage: 'banned ambient name',
         kind: PatternKind.BANNED_NAME,
         values: ['GLOBAL|eval']
@@ -155,6 +163,7 @@ describe('AbsoluteMatcher', () => {
 
     it('does not match a custom non-exported method with the same name', () => {
       const config = {
+        errorCode: ErrorCode.CONFORMANCE_PATTERN,
         errorMessage: 'banned global name',
         kind: PatternKind.BANNED_NAME,
         values: ['GLOBAL|Foo.bar']
@@ -168,6 +177,7 @@ describe('AbsoluteMatcher', () => {
 
     it('matches an initializer in a named declaration', () => {
       const config = {
+        errorCode: ErrorCode.CONFORMANCE_PATTERN,
         errorMessage: 'banned ambient name',
         kind: PatternKind.BANNED_NAME,
         values: ['GLOBAL|open'],
@@ -184,6 +194,7 @@ describe('AbsoluteMatcher', () => {
   describe('properties', () => {
     it('matches a static property', () => {
       const config = {
+        errorCode: ErrorCode.CONFORMANCE_PATTERN,
         errorMessage: 'banned name with file path',
         kind: PatternKind.BANNED_NAME,
         values: ['./file_0|Foo.s']
@@ -203,6 +214,7 @@ describe('AbsoluteMatcher', () => {
     it('does not match a property with a name overlapping an in-stock library',
        () => {
          const config = {
+           errorCode: ErrorCode.CONFORMANCE_PATTERN,
            errorMessage: 'banned name without file path',
            kind: PatternKind.BANNED_NAME,
            values: ['GLOBAL|open']
@@ -224,6 +236,7 @@ describe('AbsoluteMatcher', () => {
     it('matches an inherited static property', () => {
       // This is a match because Moo inherits s from Foo.
       const config = {
+        errorCode: ErrorCode.CONFORMANCE_PATTERN,
         errorMessage: 'banned name with file path',
         kind: PatternKind.BANNED_NAME,
         values: ['./file_0|Foo.s']
@@ -245,6 +258,7 @@ describe('AbsoluteMatcher', () => {
     it('matches an inherited static method', () => {
       // This is a match because Moo inherits bar from Foo.
       const config = {
+        errorCode: ErrorCode.CONFORMANCE_PATTERN,
         errorMessage: 'banned name with file path',
         kind: PatternKind.BANNED_NAME,
         values: ['./file_0|Foo.bar']
@@ -266,6 +280,7 @@ describe('AbsoluteMatcher', () => {
     it('does not match a redefined inherited static property', () => {
       // This is not a match because Moo redefines s.
       const config = {
+        errorCode: ErrorCode.CONFORMANCE_PATTERN,
         errorMessage: 'banned name with file path',
         kind: PatternKind.BANNED_NAME,
         values: ['./file_0|Foo.s']
@@ -286,6 +301,7 @@ describe('AbsoluteMatcher', () => {
     it('does not match a redefined inherited static method', () => {
       // This is not a match because Moo redefines bar.
       const config = {
+        errorCode: ErrorCode.CONFORMANCE_PATTERN,
         errorMessage: 'banned name with file path',
         kind: PatternKind.BANNED_NAME,
         values: ['./file_0|Foo.bar']
@@ -306,6 +322,7 @@ describe('AbsoluteMatcher', () => {
       // This is not a match because even though bar specified is interface Moo,
       // its actual definition is in class Boo.
       const config = {
+        errorCode: ErrorCode.CONFORMANCE_PATTERN,
         errorMessage: 'banned name with file path',
         kind: PatternKind.BANNED_NAME,
         values: ['./file_1|Moo.bar']

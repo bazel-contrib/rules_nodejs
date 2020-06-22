@@ -1,10 +1,11 @@
 import 'jasmine';
-import {ConformancePatternRule, PatternKind} from '../../rules/conformance_pattern_rule';
+import {ConformancePatternRule, ErrorCode, PatternKind} from '../../rules/conformance_pattern_rule';
 import {compileAndCheck, customMatchers} from '../../util/testing/test_support';
 
 describe('BANNED_NAME', () => {
   it('matches simple example of globals', () => {
     const config = {
+      errorCode: ErrorCode.CONFORMANCE_PATTERN,
       errorMessage: 'no Infinity',
       kind: PatternKind.BANNED_NAME,
       values: ['GLOBAL|Infinity']
@@ -18,6 +19,7 @@ describe('BANNED_NAME', () => {
 
   it('matches namespaced globals', () => {
     const config = {
+      errorCode: ErrorCode.CONFORMANCE_PATTERN,
       errorMessage: 'no blob url',
       kind: PatternKind.BANNED_NAME,
       values: ['GLOBAL|URL.createObjectURL']
@@ -37,6 +39,7 @@ describe('BANNED_NAME', () => {
     // not acceptable (the typechecker will throw).
 
     const config = {
+      errorCode: ErrorCode.CONFORMANCE_PATTERN,
       errorMessage: 'should not trigger',
       kind: PatternKind.BANNED_NAME,
       values: ['ANY_SYMBOL|whatever']

@@ -1,5 +1,5 @@
 import 'jasmine';
-import {ConformancePatternRule, PatternKind} from '../rules/conformance_pattern_rule';
+import {ConformancePatternRule, ErrorCode, PatternKind} from '../rules/conformance_pattern_rule';
 import {compileAndCheck, customMatchers} from './testing/test_support';
 
 describe('PropertyMatcher', () => {
@@ -9,6 +9,7 @@ describe('PropertyMatcher', () => {
 
   it('matches simple property access on dom properties', () => {
     const config = {
+      errorCode: ErrorCode.CONFORMANCE_PATTERN,
       errorMessage: 'No Location#href access',
       kind: PatternKind.BANNED_PROPERTY,
       values: ['Location.prototype.href'],
@@ -25,6 +26,7 @@ describe('PropertyMatcher', () => {
   it('matches simple property access on properties of TS built-in types',
      () => {
        const config = {
+         errorCode: ErrorCode.CONFORMANCE_PATTERN,
          errorMessage: 'No Array#map access',
          kind: PatternKind.BANNED_PROPERTY,
          values: ['Array.prototype.map'],
@@ -43,6 +45,7 @@ describe('PropertyMatcher', () => {
   it('matches simple property access on properties of user-defined global types',
      () => {
        const config = {
+         errorCode: ErrorCode.CONFORMANCE_PATTERN,
          errorMessage: 'No Ty#foo access',
          kind: PatternKind.BANNED_PROPERTY,
          values: ['Ty.prototype.foo'],
@@ -78,13 +81,14 @@ describe('PropertyMatcher', () => {
 
   it('does not match in-module defined type', () => {
     const config = {
+      errorCode: ErrorCode.CONFORMANCE_PATTERN,
       errorMessage: 'No Location#replace access',
       kind: PatternKind.BANNED_PROPERTY,
       values: ['Location.prototype.location'],
     };
     const source = `export {}; // export makes the file a module
         class Location { replace(x: string) {} }
-        new Location().replace('a');`
+        new Location().replace('a');`;
     const results = compileAndCheck(new ConformancePatternRule(config), source);
 
     expect(results).toHaveNoFailures();
@@ -92,6 +96,7 @@ describe('PropertyMatcher', () => {
 
   it('does not match properties after fancy type casts', () => {
     const config = {
+      errorCode: ErrorCode.CONFORMANCE_PATTERN,
       errorMessage: 'No Location#href access',
       kind: PatternKind.BANNED_PROPERTY,
       values: ['Location.prototype.replace'],
