@@ -1,3 +1,99 @@
+# [2.0.0-rc.0](https://github.com/bazelbuild/rules_nodejs/compare/1.6.0...2.0.0-rc.0) (2020-06-23)
+
+
+### Bug Fixes
+
+* **builtin:** fix linker common path reduction bug where reduced path conflicts with node_modules ([65d6029](https://github.com/bazelbuild/rules_nodejs/commit/65d6029))
+* **builtin:** fix linker issue when running test with "local" tag on osx & linux ([#1835](https://github.com/bazelbuild/rules_nodejs/issues/1835)) ([98d3321](https://github.com/bazelbuild/rules_nodejs/commit/98d3321))
+* **builtin:** fix regression in 1.6.0 in linker linking root package when under runfiles ([b4149d8](https://github.com/bazelbuild/rules_nodejs/commit/b4149d8)), closes [#1823](https://github.com/bazelbuild/rules_nodejs/issues/1823) [#1850](https://github.com/bazelbuild/rules_nodejs/issues/1850)
+* **builtin:** linker no longer makes node_modules symlink to the root of the workspace output tree ([044495c](https://github.com/bazelbuild/rules_nodejs/commit/044495c))
+* **builtin:** rerun yarn_install and npm_install when node version changes ([8c1e035](https://github.com/bazelbuild/rules_nodejs/commit/8c1e035))
+* **builtin:** scrub node-patches VERBOSE_LOGS when asserting on stderr ([45f9443](https://github.com/bazelbuild/rules_nodejs/commit/45f9443))
+* **labs:** handle const/let syntax in generated protoc js ([96a0690](https://github.com/bazelbuild/rules_nodejs/commit/96a0690))
+* **labs:** make grpc service files tree shakable ([a3bd81b](https://github.com/bazelbuild/rules_nodejs/commit/a3bd81b))
+* don't expose an npm dependency from builtin ([7b2b4cf](https://github.com/bazelbuild/rules_nodejs/commit/7b2b4cf))
+* **terser:** allow fallback binary resolution ([3ffb3b1](https://github.com/bazelbuild/rules_nodejs/commit/3ffb3b1))
+
+
+### chore
+
+* remove hide-build-files package ([5d1d006](https://github.com/bazelbuild/rules_nodejs/commit/5d1d006)), closes [#1613](https://github.com/bazelbuild/rules_nodejs/issues/1613)
+
+
+### Code Refactoring
+
+* remove install_source_map_support from nodejs_binary since it is vendored in ([72f19e7](https://github.com/bazelbuild/rules_nodejs/commit/72f19e7))
+
+
+### Features
+
+* add JSModuleInfo provider ([d3fcf85](https://github.com/bazelbuild/rules_nodejs/commit/d3fcf85))
+* **angular:** introduce an Angular CLI builder ([c87c83f](https://github.com/bazelbuild/rules_nodejs/commit/c87c83f))
+* **jasmine:** make jasmine a peerDep ([e6890fc](https://github.com/bazelbuild/rules_nodejs/commit/e6890fc))
+* add stdout capture to npm_package_bin ([3f182f0](https://github.com/bazelbuild/rules_nodejs/commit/3f182f0))
+* **builtin:** add DeclarationInfo to js_library ([2b89f32](https://github.com/bazelbuild/rules_nodejs/commit/2b89f32))
+* introduce generated_file_test ([3fbf2c0](https://github.com/bazelbuild/rules_nodejs/commit/3fbf2c0)), closes [#1893](https://github.com/bazelbuild/rules_nodejs/issues/1893)
+* **builtin:** enable coverage on nodejs_test ([2059ea9](https://github.com/bazelbuild/rules_nodejs/commit/2059ea9))
+* **builtin:** use linker for all generated :bin targets ([007a8f6](https://github.com/bazelbuild/rules_nodejs/commit/007a8f6))
+* **examples:** show how to use ts_library(use_angular_plugin) with worker mode ([#1839](https://github.com/bazelbuild/rules_nodejs/issues/1839)) ([a167311](https://github.com/bazelbuild/rules_nodejs/commit/a167311))
+* **examples:** upgrade rules_docker to 0.14.1 ([ad2eba1](https://github.com/bazelbuild/rules_nodejs/commit/ad2eba1))
+* **rollup:** update the peerDependencies version range to >=2.3.0 <3.0.0 ([e05f5be](https://github.com/bazelbuild/rules_nodejs/commit/e05f5be))
+* **typescript:** add outdir to ts_project ([3942fd9](https://github.com/bazelbuild/rules_nodejs/commit/3942fd9))
+* **typescript:** include label in the ts_project progress message ([#1944](https://github.com/bazelbuild/rules_nodejs/issues/1944)) ([76e8bd1](https://github.com/bazelbuild/rules_nodejs/commit/76e8bd1)), closes [#1927](https://github.com/bazelbuild/rules_nodejs/issues/1927)
+* support bazel+js packages that install into regular @npm//package:index.bzl location ([4f508b1](https://github.com/bazelbuild/rules_nodejs/commit/4f508b1))
+
+
+### BREAKING CHANGES
+
+* Adds JSModuleInfo provider as the common provider for passing & consuming javascript sources and related files such as .js.map, .json, etc.
+
+For 1.0 we added JSNamedModuleInfo and JSEcmaScriptModuleInfo which were provided by ts_library and consumed by rules that needed to differentiate between the two default flavors of ts_library outputs (named-UMD & esm). We left out JSModuleInfo as its use case was unclear at the time.
+
+For 2.0 we're adding JSModuleInfo as generic javascript provided for the rules_nodejs ecosystem. It is not currently opinionated about the module format of the sources or the language level. Consumers of JSModuleInfo should be aware of what module format & language level is being produced if necessary.
+
+The following rules provide JSModuleInfo:
+
+* ts_library (devmode named-UMD .js output flavor)
+* ts_proto_library (devmode named-UMD .js output flavor)
+* node_module_library (this is a behind the scenes rule used by yarn_install & npm_install)
+* js_library (.js, .js.map & . json files)
+* rollup_bundle
+* terser_minfied
+* ts_project
+
+The following rules consume JSModuleInfo:
+
+* nodejs_binary & nodejs_test (along with derivate macros such as jasmine_node_test); these rules no longer consume JSNamedModuleInfo
+* npm_package_bin
+* pkg_npm; no longer consumes JSNamedModuleInfo
+* karma_web_test (for config file instead of JSNamedModuleInfo; JSNamedModuleInfo still used for test files)
+* protractor_web_test (for config & on_prepare files instead of JSModuleInfo; JSNamedModuleInfo still used for test files)
+* rollup_bundle (if JSEcmaScriptModuleInfo not provided)
+* terser_minified
+* **builtin:** Any nodejs_binary/nodejs_test processes with the linker enabled (--nobazel_patch_module_resolver is set) that were relying on standard node_module resolution to resolve manfest file paths such as `my_workspace/path/to/output/file.js` must now use the runfiles helper such as.
+
+Previously:
+```
+const absPath = require.resolve('my_workspace/path/to/output/file.js');
+```
+With runfiles helper:
+```
+const runfiles = require(process.env['BAZEL_NODE_RUNFILES_HELPER']);
+const absPath = runfiles.resolve('my_workspace/path/to/output/file.js');
+```
+* **builtin:** Removed provide_declarations() factory function for DeclarationInfo. Use declaration_info() factory function instead.
+* `install_source_map_support` attribute removed from `nodejs_binary`. `source-map-support` is vendored in at `/third_party/github.com/source-map-support` so it can always be installed.
+* **builtin:** jasmine_node_test not longer has the `coverage`
+attribute
+* rules_nodejs now requires Bazel 2.1 or greater.
+Also the hide_build_files attribute was removed from pkg_npm, and always_hide_bazel_files was removed from yarn_install and npm_install. These are no longer needed since 1.3.0
+* **builtin:** If you use the generated nodejs_binary or nodejs_test rules in the npm
+workspace, for example @npm//typescript/bin:tsc, your custom rule must now link the
+node_modules directory into that process. A typical way to do this is
+with the run_node helper. See updates to examples in this commit.
+
+
+
 # [1.6.0](https://github.com/bazelbuild/rules_nodejs/compare/1.5.0...1.6.0) (2020-04-11)
 
 
