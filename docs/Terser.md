@@ -20,16 +20,10 @@ Wraps the Terser CLI documented at https://github.com/terser-js/terser#command-l
 
 Add the `@bazel/terser` npm package to your `devDependencies` in `package.json`.
 
-Your `WORKSPACE` should declare a `yarn_install` or `npm_install` rule named `npm`.
-It should then install the rules found in the npm packages using the `install_bazel_dependencies` function.
-See https://github.com/bazelbuild/rules_nodejs/#quickstart
-
-This causes the `@bazel/terser` package to be installed as a Bazel workspace named `npm_bazel_terser`.
-
 
 ## Installing with self-managed dependencies
 
-If you didn't use the `yarn_install` or `npm_install` rule to create an `npm` workspace, you'll have to declare a rule in your root `BUILD.bazel` file to execute terser:
+If you didn't use the `yarn_install` or `npm_install` rule, you'll have to declare a rule in your root `BUILD.bazel` file to execute terser:
 
 ```python
 # Create a terser rule to use in terser_minified#terser_bin
@@ -53,7 +47,7 @@ Run the terser minifier.
 
 Typical example:
 ```python
-load("@npm_bazel_terser//:index.bzl", "terser_minified")
+load("//packages/terser:index.bzl", "terser_minified")
 
 terser_minified(
     name = "out.min",
@@ -115,7 +109,7 @@ Will disable the `arrows` compression setting when debugging.
 
 If `config_file` isn't supplied, Bazel will use a default config file.
 
-Defaults to `@npm_bazel_terser//:terser_config.default.json`
+Defaults to `//packages/terser:terser_config.default.json`
 
 #### `debug`
 (*Boolean*): Configure terser to produce more readable output.
@@ -142,5 +136,5 @@ If you want to do this, you can pass a filegroup here.
 #### `terser_bin`
 (*[label]*): An executable target that runs Terser
 
-Defaults to `@npm_bazel_terser//:terser-local`
+Defaults to `//packages/terser/bin:terser`
 
