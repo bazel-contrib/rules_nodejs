@@ -20,16 +20,10 @@ Wraps the rollup CLI documented at https://rollupjs.org/guide/en/#command-line-r
 
 Add the `@bazel/rollup` npm package to your `devDependencies` in `package.json`.
 
-Your `WORKSPACE` should declare a `yarn_install` or `npm_install` rule named `npm`.
-It should then install the rules found in the npm packages using the `install_bazel_dependencies` function.
-See https://github.com/bazelbuild/rules_nodejs/#quickstart
-
-This causes the `@bazel/rollup` package to be installed as a Bazel workspace named `npm_bazel_rollup`.
-
 
 ## Installing with self-managed dependencies
 
-If you didn't use the `yarn_install` or `npm_install` rule to create an `npm` workspace, you'll have to declare a rule in your root `BUILD.bazel` file to execute rollup:
+If you didn't use the `yarn_install` or `npm_install` rule, you'll have to declare a rule in your root `BUILD.bazel` file to execute rollup:
 
 ```python
 # Create a rollup rule to use in rollup_bundle#rollup_bin
@@ -55,7 +49,7 @@ See https://rollupjs.org/guide/en/#command-line-reference
 
 Typical example:
 ```python
-load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
+load("//packages/rollup:index.bzl", "rollup_bundle")
 
 rollup_bundle(
     name = "bundle",
@@ -133,7 +127,7 @@ See https://rollupjs.org/guide/en/#configuration-files
 
 If not set, a default basic Rollup config is used.
 
-Defaults to `@npm_bazel_rollup//:rollup.config.js`
+Defaults to `//packages/rollup:rollup.config.js`
 
 #### `deps`
 (*[labels]*): Other libraries that are required by the code, or by the rollup.config.js
@@ -234,7 +228,7 @@ Defaults to `@npm//rollup/bin:rollup`
 #### `rollup_worker_bin`
 (*[label]*): Internal use only
 
-Defaults to `//:rollup-worker-local`
+Defaults to `//packages/rollup/bin:rollup-worker`
 
 #### `silent`
 (*Boolean*): Whether to execute the rollup binary with the --silent flag, defaults to False.

@@ -55,15 +55,11 @@ $ npm install --save-dev @bazel/typescript
 
 Watch for any peerDependency warnings - we assume you have already installed the `typescript` package from npm.
 
-Your `WORKSPACE` should declare a `yarn_install` or `npm_install` rule named `npm`.
-It should then install the rules found in the npm packages using the `install_bazel_dependencies` function.
-See https://github.com/bazelbuild/rules_nodejs/#quickstart
-
-Add to your `WORKSPACE` file, after `install_bazel_dependencies()`:
+Some rules require you to add this to your `WORKSPACE` file:
 
 ```python
 # Set up TypeScript toolchain
-load("@npm_bazel_typescript//:index.bzl", "ts_setup_workspace")
+load("@npm//@bazel/typescript:index.bzl", "ts_setup_workspace")
 ts_setup_workspace()
 ```
 
@@ -132,9 +128,9 @@ filegroup(
 # compiler attribute when using self-managed dependencies
 nodejs_binary(
     name = "@bazel/typescript/tsc_wrapped",
-    entry_point = "@bazel/typescript/internal/tsc_wrapped/tsc_wrapped.js",
+    entry_point = "@npm//:node_modules/@bazel/typescript/internal/tsc_wrapped/tsc_wrapped.js",
     # Point bazel to your node_modules to find the entry point
-    node_modules = ["//:node_modules"],
+    node_modules = "//:node_modules",
 )
 ```
 
@@ -184,7 +180,7 @@ Create a `BUILD` file next to your sources:
 
 ```python
 package(default_visibility=["//visibility:public"])
-load("@npm_bazel_typescript//:index.bzl", "ts_library")
+load("//packages/typescript:index.bzl", "ts_library")
 
 ts_library(
     name = "my_code",
@@ -299,7 +295,7 @@ To use `ts_devserver`, you simply `load` the rule, and call it with `deps` that
 point to your `ts_library` target(s):
 
 ```python
-load("@npm_bazel_typescript//:index.bzl", "ts_devserver", "ts_library")
+load("//packages/typescript:index.bzl", "ts_devserver", "ts_library")
 
 ts_library(
     name = "app",
@@ -458,15 +454,15 @@ Defaults to `[]`
             runfiles. For non-RBE and for RBE with a linux host, ctx.executable.devserver & ctx.executable.devserver_host
             will be the same binary.
 
-            Defaults to precompiled go binary in @npm_bazel_typescript setup by @bazel/typescript npm package
+            Defaults to precompiled go binary setup by @bazel/typescript npm package
 
-Defaults to `//devserver:devserver`
+Defaults to `//packages/typescript/devserver:devserver`
 
 #### `devserver_host`
 (*[label]*): Go based devserver executable for the host platform.
-            Defaults to precompiled go binary in @npm_bazel_typescript setup by @bazel/typescript npm package
+            Defaults to precompiled go binary setup by @bazel/typescript npm package
 
-Defaults to `//devserver:devserver_darwin_amd64`
+Defaults to `//packages/typescript/devserver:devserver_darwin_amd64`
 
 #### `entry_module`
 (*String*): The `entry_module` should be the AMD module name of the entry module such as `"__main__/src/index".`
@@ -529,12 +525,9 @@ Defaults to `[]`
 For example, we use the vanilla TypeScript tsc.js for bootstrapping,
 and Angular compilations can replace this with `ngc`.
 
-The default ts_library compiler depends on the `@npm//@bazel/typescript`
-target which is setup for projects that use bazel managed npm deps that
-fetch the @bazel/typescript npm package. It is recommended that you use
-the workspace name `@npm` for bazel managed deps so the default
-compiler works out of the box. Otherwise, you'll have to override
-the compiler attribute manually.
+The default ts_library compiler depends on the `//@bazel/typescript`
+target which is setup for projects that use bazel managed npm deps and
+install the @bazel/typescript npm package.
 
 Defaults to `@build_bazel_rules_typescript//internal:tsc_wrapped_bin`
 
@@ -590,13 +583,10 @@ Defaults to `""`
 #### `node_modules`
 (*[label]*): The npm packages which should be available during the compile.
 
-The default value is `@npm//typescript:typescript__typings` is setup
-for projects that use bazel managed npm deps that. It is recommended
-that you use the workspace name `@npm` for bazel managed deps so the
-default node_modules works out of the box. Otherwise, you'll have to
-override the node_modules attribute manually. This default is in place
+The default value of `//typescript:typescript__typings` is setup
+for projects that use bazel managed npm deps. This default is in place
 since ts_library will always depend on at least the typescript
-default libs which are provided by `@npm//typescript:typescript__typings`.
+default libs which are provided by `//typescript:typescript__typings`.
 
 This attribute is DEPRECATED. As of version 0.18.0 the recommended
 approach to npm dependencies is to use fine grained npm dependencies
@@ -818,7 +808,7 @@ observe these problems which require workarounds:
 ### Usage
 
 ```
-ts_project(name, tsconfig, srcs, args, deps, extends, declaration, source_map, declaration_map, composite, incremental, emit_declaration_only, tsc, validate, kwargs)
+ts_project(name, tsconfig, srcs, args, deps, extends, declaration, source_map, declaration_map, composite, incremental, emit_declaration_only, tsc, validate, outdir, kwargs)
 ```
 
 
@@ -937,11 +927,10 @@ Defaults to `False`
       
 Label of the TypeScript compiler binary to run.
 
-    Override this if your npm_install or yarn_install isn't named "npm"
     For example, `tsc = "@my_deps//typescript/bin:tsc"`
     Or you can pass a custom compiler binary instead.
 
-Defaults to `"@npm//typescript/bin:tsc"`
+Defaults to `None`
 
 
 
@@ -950,6 +939,17 @@ Defaults to `"@npm//typescript/bin:tsc"`
 boolean; whether to check that the tsconfig settings match the attributes.
 
 Defaults to `True`
+
+
+
+#### `outdir`
+      
+a string specifying a subdirectory under the bazel-out folder where outputs are written.
+    Note that Bazel always requires outputs be written under a subdirectory matching the input package,
+    so if your rule appears in path/to/my/package/BUILD.bazel and outdir = "foo" then the .js files
+    will appear in bazel-out/[arch]/bin/path/to/my/package/foo/*.js
+
+Defaults to `None`
 
 
 

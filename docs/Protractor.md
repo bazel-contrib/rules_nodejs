@@ -18,12 +18,6 @@ The Protractor rules run tests under the Protractor framework with Bazel.
 
 Add the `@bazel/protractor` npm package to your `devDependencies` in `package.json`.
 
-Your `WORKSPACE` should declare a `yarn_install` or `npm_install` rule named `npm`.
-It should then install the rules found in the npm packages using the `install_bazel_dependencies' function.
-See https://github.com/bazelbuild/rules_nodejs/#quickstart
-
-This causes the `@bazel/protractor` package to be installed as a Bazel workspace named `npm_bazel_protractor`.
-
 [name]: https://bazel.build/docs/build-ref.html#name
 [label]: https://bazel.build/docs/build-ref.html#labels
 [labels]: https://bazel.build/docs/build-ref.html#labels
@@ -109,16 +103,16 @@ Defaults to `[]`
 
 #### `peer_deps`
       
-List of peer npm deps required by protractor_web_test.
+List of peer npm deps required by protractor_web_test
 
-Defaults to `["@npm//@bazel/protractor", "@npm//protractor"]`
+Defaults to `["@build_bazel_rules_nodejs//packages/protractor", "@npm//protractor"]`
 
 
 
 #### `protractor_entry_point`
       
-A label providing the @npm//protractor entry point.
-    Default to `@npm//:node_modules/protractor/bin/protractor`.
+A label providing the protractor entry point
+    Default to `:node_modules/protractor/bin/protractor`.
 
 Defaults to `"@npm//:node_modules/protractor/bin/protractor"`
 
