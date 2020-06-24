@@ -3,7 +3,7 @@
   "dependencies": {
     "@bazel/bazelisk": "^1.5.0",
     "@bazel/ibazel": "^0.13.1",
-    "@bazel/jasmine": "^1.7.0",
+    "@bazel/jasmine": "^2.0.0-rc.0",
     "@nestjs/common": "6.5.2",
     "@nestjs/core": "6.5.2",
     "@nestjs/platform-express": "6.5.2",
@@ -17,7 +17,7 @@
     "supertest": "^4.0.2"
   },
   "devDependencies": {
-    "@bazel/typescript": "^1.7.0",
+    "@bazel/typescript": "^2.0.0-rc.0",
     "@types/node": "12.6.3",
     "typescript": "3.5.3"
   },
