@@ -1,6 +1,6 @@
 
 package(default_visibility = ["//visibility:public"])
-load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
+load("@build_bazel_rules_nodejs//internal/node_module_library:node_module_library.bzl", "node_module_library")
 filegroup(
     name = "unidiff__files",
     srcs = [

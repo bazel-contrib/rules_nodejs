@@ -1,0 +1,9 @@
+#!/bin/bash
+export NP_PATCHED_NODEJS="/usr/local/home/dan/rules_nodejs/internal/node/_node_bin"
+export PATH="/usr/local/home/dan/rules_nodejs/internal/node/_node_bin":$PATH
+if [[ ! "${@}" =~ "node_patches.js" ]]; then
+  exec /usr/local/home/dan/.cache/bazel/_bazel_dan/25190197fc732b646d06b0570e0b6313/external/nodejs_linux_amd64/bin/nodejs/bin/node --require "/usr/local/home/dan/rules_nodejs/internal/node/node_patches.js" "$@"
+else
+  exec /usr/local/home/dan/.cache/bazel/_bazel_dan/25190197fc732b646d06b0570e0b6313/external/nodejs_linux_amd64/bin/nodejs/bin/node "$@"
+fi
+  

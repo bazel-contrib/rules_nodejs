@@ -96,6 +96,10 @@ node_module_library = rule(
             doc = "The list of files that comprise the package",
             allow_files = True,
         ),
+        "assets": attr.label_list(
+            allow_files = True,
+            aspects = [assets_aspect],
+        ),
     },
     doc = "Defines an npm package under node_modules",
 )

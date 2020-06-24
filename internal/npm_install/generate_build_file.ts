@@ -1,3 +1,7 @@
+import * as crypto from 'crypto';
+import * as fs from 'fs';
+import * as path from 'path';
+
 /**
  * @license
  * Copyright 2017 The Bazel Authors. All rights reserved.
@@ -39,10 +43,6 @@
  */
 'use strict';
 
-
-import * as fs from 'fs';
-import * as path from 'path';
-import * as crypto from 'crypto';
 
 function log_verbose(...m: any[]) {
   if (!!process.env['VERBOSE_LOGS']) console.error('[generate_build_file.ts]', ...m);
@@ -158,7 +158,7 @@ function generateRootBuildFile(pkgs: Dep[]) {
                })});
 
   let buildFile = BUILD_FILE_HEADER +
-      `load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
+      `load("@build_bazel_rules_nodejs//internal/node_module_library:node_module_library.bzl", "node_module_library")
 
 exports_files([
 ${exportsStarlark}])
@@ -920,7 +920,7 @@ function printPackage(pkg: Dep) {
       deps.map(dep => `"//${dep._dir}:${dep._name}__contents",`).join('\n        ');
 
   let result =
-      `load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
+      `load("@build_bazel_rules_nodejs//internal/node_module_library:node_module_library.bzl", "node_module_library")
 
 # Generated targets for npm package "${pkg._dir}"
 ${printJson(pkg)}
@@ -1168,7 +1168,7 @@ function printScope(scope: string, pkgs: Dep[]) {
     ],`;
   }
 
-  return `load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
+  return `load("@build_bazel_rules_nodejs//internal/node_module_library:node_module_library.bzl", "node_module_library")
 
 # Generated target for npm scope ${scope}
 node_module_library(
