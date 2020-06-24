@@ -2,21 +2,21 @@ import * as ts from 'typescript';
 
 import {Checker} from '../../checker';
 import {Fix} from '../../failure';
+import {Allowlist} from '../../util/allowlist';
 import {Fixer} from '../../util/fixer';
 import {PatternEngineConfig} from '../../util/pattern_config';
-import {Whitelist} from '../../util/whitelist';
 import {shouldExamineNode} from '../ast_tools';
 
 /**
  * A patternEngine is the logic that handles a specific PatternKind.
  */
 export abstract class PatternEngine {
-  private readonly whitelist: Whitelist;
+  private readonly allowlist: Allowlist;
 
   constructor(
       protected readonly config: PatternEngineConfig,
       protected readonly fixer?: Fixer) {
-    this.whitelist = new Whitelist(config.whitelistEntries);
+    this.allowlist = new Allowlist(config.allowlistEntries);
   }
 
   /**
@@ -32,7 +32,7 @@ export abstract class PatternEngine {
    * subclass-specific logic afterwards. Subclasses should transform their
    * checking logic with this composer before registered on the checker.
    */
-  protected wrapCheckWithWhitelistingAndFixer<T extends ts.Node>(
+  protected wrapCheckWithAllowlistingAndFixer<T extends ts.Node>(
       checkFunction: (tc: ts.TypeChecker, n: T) => ts.Node |
           undefined): (c: Checker, n: T) => void {
     return (c: Checker, n: T) => {
@@ -41,7 +41,7 @@ export abstract class PatternEngine {
         return;
       }
       const matchedNode = checkFunction(c.typeChecker, n);
-      if (matchedNode && !this.whitelist.isWhitelisted(sf.fileName)) {
+      if (matchedNode && !this.allowlist.isAllowlisted(sf.fileName)) {
         const fix: Fix|undefined = this.fixer ?
             this.fixer.getFixForFlaggedNode(matchedNode) :
             undefined;

@@ -119,7 +119,7 @@ export function isPartOfImportStatement(n: ts.Node) {
       p => p.kind === ts.SyntaxKind.ImportDeclaration);
 }
 
-function isWhitelistedNamedDeclaration(n: ts.Node):
+function isAllowlistedNamedDeclaration(n: ts.Node):
     n is ts.VariableDeclaration|ts.ClassDeclaration|ts.FunctionDeclaration|
     ts.MethodDeclaration|ts.PropertyDeclaration|ts.InterfaceDeclaration|
     ts.TypeAliasDeclaration|ts.EnumDeclaration|ts.ModuleDeclaration|
@@ -140,7 +140,7 @@ export function isNameInDeclaration(n: ts.Node): boolean {
   const p = n.parent;
   if (p === undefined) return false;
 
-  return (isWhitelistedNamedDeclaration(p) && p.name === n) ||
+  return (isAllowlistedNamedDeclaration(p) && p.name === n) ||
       // TODO(pwng) Double-check if these two cases are needed
       ts.isVariableDeclarationList(p) || ts.isImportDeclaration(p);
 }

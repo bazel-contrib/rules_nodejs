@@ -77,7 +77,7 @@ export function toFileName(f: Failure) {
  * Returns the location the temp directory for that platform (with forward
  * slashes).
  */
-export function getTempDirForWhitelist() {
+export function getTempDirForAllowlist() {
   // TS uses forward slashes on Windows ¯\_(ツ)_/¯
   return os.platform() === 'win32' ? os.tmpdir().replace(/\\/g, '/') :
                                      os.tmpdir();

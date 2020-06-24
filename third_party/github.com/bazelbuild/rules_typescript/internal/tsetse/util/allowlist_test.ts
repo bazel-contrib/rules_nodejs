@@ -2,16 +2,16 @@ import 'jasmine';
 
 import {ConformancePatternRule, ErrorCode, PatternKind} from '../rules/conformance_pattern_rule';
 
-import {compileAndCheck, customMatchers, getTempDirForWhitelist} from './testing/test_support';
-import {WhitelistReason} from './whitelist';
+import {ExemptionReason} from './allowlist';
+import {compileAndCheck, customMatchers, getTempDirForAllowlist} from './testing/test_support';
 
-const tmpPrefixForWhitelist = getTempDirForWhitelist();
-const tmpRegexpForWhitelist =
-    `^(?:${getTempDirForWhitelist().replace(/\\/g, '\\\\')})`;
+const tmpPrefixForAllowlist = getTempDirForAllowlist();
+const tmpRegexpForAllowlist =
+    `^(?:${getTempDirForAllowlist().replace(/\\/g, '\\\\')})`;
 
 
 describe('ConformancePatternRule', () => {
-  describe('whitelist handling', () => {
+  describe('allowlist handling', () => {
     const source = `export {};\n` +
         `const q = document.createElement('q');\n` +
         `q.cite = 'some example string';\n`;
@@ -24,19 +24,19 @@ describe('ConformancePatternRule', () => {
       values: ['HTMLQuoteElement.prototype.cite'],
     };
 
-    it('matches if no whitelist (sanity check)', () => {
-      const config = {...baseConfig, whitelistEntries: []};
+    it('matches if no allowlist (sanity check)', () => {
+      const config = {...baseConfig, allowlistEntries: []};
       const rule = new ConformancePatternRule(config);
       const results = compileAndCheck(rule, source);
 
       expect(results).toHaveNFailures(1);
     });
 
-    it('matches if there is an empty whitelist group', () => {
+    it('matches if there is an empty allowlist group', () => {
       const config = {
         ...baseConfig,
-        whitelistEntries: [{
-          reason: WhitelistReason.UNSPECIFIED,
+        allowlistEntries: [{
+          reason: ExemptionReason.UNSPECIFIED,
         }]
       };
       const rule = new ConformancePatternRule(config);
@@ -45,12 +45,12 @@ describe('ConformancePatternRule', () => {
       expect(results).toHaveNFailures(1);
     });
 
-    it('respects prefix-based whitelists (matching test)', () => {
+    it('respects prefix-based allowlists (matching test)', () => {
       const config = {
         ...baseConfig,
-        whitelistEntries: [{
-          reason: WhitelistReason.UNSPECIFIED,
-          prefix: [tmpPrefixForWhitelist],
+        allowlistEntries: [{
+          reason: ExemptionReason.UNSPECIFIED,
+          prefix: [tmpPrefixForAllowlist],
         }]
       };
       const rule = new ConformancePatternRule(config);
@@ -59,11 +59,11 @@ describe('ConformancePatternRule', () => {
       expect(results).toHaveNoFailures();
     });
 
-    it('respects prefix-based whitelists (non-matching test)', () => {
+    it('respects prefix-based allowlists (non-matching test)', () => {
       const config = {
         ...baseConfig,
-        whitelistEntries: [{
-          reason: WhitelistReason.UNSPECIFIED,
+        allowlistEntries: [{
+          reason: ExemptionReason.UNSPECIFIED,
           prefix: ['/nowhere in particular/'],
         }]
       };
@@ -73,12 +73,12 @@ describe('ConformancePatternRule', () => {
       expect(results).toHaveNFailures(1);
     });
 
-    it('respects regex-based whitelists', () => {
+    it('respects regex-based allowlists', () => {
       const config = {
         ...baseConfig,
-        whitelistEntries: [{
-          reason: WhitelistReason.UNSPECIFIED,
-          regexp: [`${tmpRegexpForWhitelist}.+/file_0\\.ts`]
+        allowlistEntries: [{
+          reason: ExemptionReason.UNSPECIFIED,
+          regexp: [`${tmpRegexpForAllowlist}.+/file_0\\.ts`]
         }]
       };
       const rule = new ConformancePatternRule(config);
@@ -87,14 +87,14 @@ describe('ConformancePatternRule', () => {
       expect(results).toHaveNoFailures();
     });
 
-    it('accepts several regex-based whitelists', () => {
+    it('accepts several regex-based allowlists', () => {
       const config = {
         ...baseConfig,
-        whitelistEntries: [{
-          reason: WhitelistReason.UNSPECIFIED,
+        allowlistEntries: [{
+          reason: ExemptionReason.UNSPECIFIED,
           regexp: [
-            `${tmpRegexpForWhitelist}.+/file_0\\.ts`,
-            `${tmpRegexpForWhitelist}.+/file_1\\.ts`
+            `${tmpRegexpForAllowlist}.+/file_0\\.ts`,
+            `${tmpRegexpForAllowlist}.+/file_1\\.ts`
           ]
         }]
       };
@@ -108,8 +108,8 @@ describe('ConformancePatternRule', () => {
     it('throws on creation of invalid regexps', () => {
       const config = {
         ...baseConfig,
-        whitelistEntries: [{
-          reason: WhitelistReason.UNSPECIFIED,
+        allowlistEntries: [{
+          reason: ExemptionReason.UNSPECIFIED,
           regexp: ['(', '/tmp/', 'foo'],
         }]
       };
@@ -122,10 +122,10 @@ describe('ConformancePatternRule', () => {
     it('test memoizer hit', () => {
       const config = {
         ...baseConfig,
-        whitelistEntries: [{
-          reason: WhitelistReason.UNSPECIFIED,
+        allowlistEntries: [{
+          reason: ExemptionReason.UNSPECIFIED,
           regexp: [
-            `${tmpRegexpForWhitelist}.+/file_0\\.ts`,
+            `${tmpRegexpForAllowlist}.+/file_0\\.ts`,
           ]
         }]
       };
@@ -141,10 +141,10 @@ describe('ConformancePatternRule', () => {
     it('test memoizer miss', () => {
       const config = {
         ...baseConfig,
-        whitelistEntries: [{
-          reason: WhitelistReason.UNSPECIFIED,
+        allowlistEntries: [{
+          reason: ExemptionReason.UNSPECIFIED,
           regexp: [
-            `${tmpRegexpForWhitelist}.+/file_1\\.ts`,
+            `${tmpRegexpForAllowlist}.+/file_1\\.ts`,
           ],
           prefix: ['###PrefixNotExist###'],
         }]

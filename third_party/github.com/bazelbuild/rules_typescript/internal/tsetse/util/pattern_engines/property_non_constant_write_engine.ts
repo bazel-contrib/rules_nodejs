@@ -39,7 +39,7 @@ export class PropertyNonConstantWriteEngine extends PatternEngine {
 
       checker.on(
           ts.SyntaxKind.BinaryExpression,
-          this.wrapCheckWithWhitelistingAndFixer(
+          this.wrapCheckWithAllowlistingAndFixer(
               (tc, n: ts.BinaryExpression) => checkBinExpr(tc, n, matcher)),
           this.config.errorCode);
     }

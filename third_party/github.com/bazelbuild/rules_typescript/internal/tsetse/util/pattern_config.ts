@@ -1,4 +1,4 @@
-import {WhitelistEntry} from './whitelist';
+import {AllowlistEntry} from './allowlist';
 
 /**
  * The list of supported patterns useable in ConformancePatternRule. The
@@ -40,8 +40,8 @@ export interface PatternEngineConfig {
   /** The error message this pattern will create. */
   errorMessage: string;
 
-  /** A list of whitelist blocks. */
-  whitelistEntries?: WhitelistEntry[];
+  /** A list of allowlist blocks. */
+  allowlistEntries?: AllowlistEntry[];
 }
 
 /**

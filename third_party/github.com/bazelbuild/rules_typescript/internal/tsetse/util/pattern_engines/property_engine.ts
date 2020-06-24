@@ -31,7 +31,7 @@ export class PropertyEngine extends PatternEngine {
       // requires refactoring `PropertyMatcher` or adding new types of matchers.
       checker.onNamedPropertyAccess(
           matcher.bannedProperty,
-          this.wrapCheckWithWhitelistingAndFixer(
+          this.wrapCheckWithAllowlistingAndFixer(
               (tc, n: ts.PropertyAccessExpression) =>
                   checkPropAccessExpr(tc, n, matcher)),
           this.config.errorCode);

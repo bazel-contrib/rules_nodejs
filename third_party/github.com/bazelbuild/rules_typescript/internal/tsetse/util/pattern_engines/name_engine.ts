@@ -29,7 +29,7 @@ export class NameEngine extends PatternEngine {
       const bannedIdName = matcher.bannedName.split('.').pop()!;
       checker.onNamedIdentifier(
           bannedIdName,
-          this.wrapCheckWithWhitelistingAndFixer(
+          this.wrapCheckWithAllowlistingAndFixer(
               (tc, n: ts.Identifier) => checkId(tc, n, matcher)),
           this.config.errorCode);
     }
