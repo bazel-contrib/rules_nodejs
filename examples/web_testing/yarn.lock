@@ -2,17 +2,17 @@
 # yarn lockfile v1
 
 
-"@bazel/karma@^1.7.0":
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/@bazel/karma/-/karma-1.7.0.tgz#ec7e97a2629f5af0b2abe9a99ae30363a34af97d"
-  integrity sha512-mGYVD9DldB3v/DjxJpS39X1vUD6M32Al96DMoilwW3TSAazcRWwUAC6HY9z5Wtyeqwxyk8BY1Mg1/berWpoTxg==
+"@bazel/karma@^2.0.0-rc.0":
+  version "2.0.0-rc.0"
+  resolved "https://registry.yarnpkg.com/@bazel/karma/-/karma-2.0.0-rc.0.tgz#32947f999617e2c938f6bf92889a64d363f7cd38"
+  integrity sha512-SkvDVqdCjD0Gn5V1enWqHAnZ83ULffhT+czXSRrPpITaQbbHWxA9IsU1uojzyJIWR3g2xLJcsqsErBHLIM5qCw==
   dependencies:
     tmp "0.1.0"
 
-"@bazel/typescript@^1.7.0":
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-1.7.0.tgz#8dc02b8a161f4fff3285186066b5f73666793452"
-  integrity sha512-M6JPXJZ+W6457QZfPHmGg/Mejnp7//YTnffGmnmeK9vDqybXeCCRWW1/iEOwopLJYQViBHfaoulde0VXelx9sA==
+"@bazel/typescript@^2.0.0-rc.0":
+  version "2.0.0-rc.0"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-2.0.0-rc.0.tgz#2581569b8ad1c7ec35dbe0528c0b7a66dc084af3"
+  integrity sha512-Lv8p97dNpXsn5cdeMM0afmayJjFHqJL+dR41KrScYQHLvPeF2LMTPI9prgWHFc3XArcEjSN7IK4TCVu4q3ytPw==
   dependencies:
     protobufjs "6.8.8"
     semver "5.6.0"

@@ -7,6 +7,8 @@ set -eu -o pipefail
 
 echo_and_run() { echo "+ $@" ; "$@" ; }
 
+VERSION=${1:-latest}
+
 readonly workspaceRoots=("e2e" "examples")
 for workspaceRoot in ${workspaceRoots[@]} ; do
   (
@@ -22,22 +24,22 @@ for workspaceRoot in ${workspaceRoots[@]} ; do
             printf "updating ${workspaceDir}/yarn.lock\n"
             echo_and_run rm -rf node_modules
             # `yarn install` will not update stale deps so we also need to run
-            # `yarn install @bazel/foobar@latest` for each package in the @bazel
+            # `yarn install @bazel/foobar@${VERSION}` for each package in the @bazel
             # scope
             echo_and_run yarn install --ignore-scripts
             for package in ${packages[@]} ; do
-              echo_and_run yarn add ${package}@latest --ignore-scripts
+              echo_and_run yarn add ${package}@${VERSION} --ignore-scripts
             done
         fi
         if [ -f "./package-lock.json" ]; then
             printf "updating ${workspaceDir}/package-lock.json\n"
             echo_and_run rm -rf node_modules
             # `npm ci` will not update stale deps so we also need to run
-            # `npm install @bazel/foobar@latest` for each package in the @bazel
+            # `npm install @bazel/foobar@${VERSION}` for each package in the @bazel
             # scope
             echo_and_run npm ci
             for package in ${packages[@]} ; do
-              echo_and_run npm install ${package}@latest
+              echo_and_run npm install ${package}@${VERSION}
             done
         fi
         echo_and_run rm -rf node_modules

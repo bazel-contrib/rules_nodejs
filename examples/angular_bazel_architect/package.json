@@ -34,7 +34,7 @@
     "@angular/compiler-cli": "9.0.0",
     "@angular/language-service": "9.0.0",
     "@bazel/bazelisk": "^1.5.0",
-    "@bazel/buildifier": "^3.2.1",
+    "@bazel/buildifier": "^3.3.0",
     "@bazel/ibazel": "^0.13.1",
     "@types/jasmine": "~3.3.8",
     "@types/jasminewd2": "~2.0.3",
