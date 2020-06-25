@@ -73,3 +73,12 @@ From [Lewis Hemens](https://github.com/lewish) at Dataform:
 > - A monorepo that scales: adding new libraries or packages to our repo became easy, which means we do it more and end up write more modular, shared, maintainable code
 > - Developing across machine types: our engineers have both Macbooks and Linux machines, bazel makes it easy to build code across both
 > - Developer setup time: New engineers can build all our code with just 3 dependencies - bazel, docker and the JVM. The last engineer to join our team managed to build all our code in < 30 minutes on a brand new, empty laptop
+
+From [Jason Bedard](https://github.com/jbedard) at [Allocadia](https://www.allocadia.com):
+
+> At Allocadia we use Bazel as the primary build system in a monorepo consisting of multiple applications, services and deployments across a range of technologies. Bazel has provided many benefits over previous build systems including:
+> - reduced CI pipeline time from 60+ to 5-10 minutes
+> - increased build and testing stability
+> - improved developer ergonomics such as initial setup, faster more consistent local builds
+>
+> The use of rules_nodejs has provided these benefits across multiple Angular/TypeScript applications, Karma+Jasmine testing, Rollup, npm packaging, protobuf client/server communication, and a variety of Node.js based tooling.
