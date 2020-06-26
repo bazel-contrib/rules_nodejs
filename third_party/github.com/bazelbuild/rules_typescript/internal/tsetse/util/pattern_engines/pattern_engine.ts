@@ -1,3 +1,4 @@
+import * as path from 'path';
 import * as ts from 'typescript';
 
 import {Checker} from '../../checker';
@@ -41,7 +42,8 @@ export abstract class PatternEngine {
         return;
       }
       const matchedNode = checkFunction(c.typeChecker, n);
-      if (matchedNode && !this.allowlist.isAllowlisted(sf.fileName)) {
+      if (matchedNode &&
+          !this.allowlist.isAllowlisted(path.resolve(sf.fileName))) {
         const fix: Fix|undefined = this.fixer ?
             this.fixer.getFixForFlaggedNode(matchedNode) :
             undefined;

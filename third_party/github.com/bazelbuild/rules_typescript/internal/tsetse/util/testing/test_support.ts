@@ -79,8 +79,7 @@ export function toFileName(f: Failure) {
  */
 export function getTempDirForAllowlist() {
   // TS uses forward slashes on Windows ¯\_(ツ)_/¯
-  return os.platform() === 'win32' ? os.tmpdir().replace(/\\/g, '/') :
-                                     os.tmpdir();
+  return os.platform() === 'win32' ? os.tmpdir() : os.tmpdir();
 }
 
 interface FailureExpectations {
