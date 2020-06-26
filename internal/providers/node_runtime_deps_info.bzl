@@ -73,7 +73,8 @@ def run_node(ctx, inputs, arguments, executable, **kwargs):
         extra_inputs = exec_attr[NodeRuntimeDepsInfo].deps.to_list()
         link_data = exec_attr[NodeRuntimeDepsInfo].pkgs
 
-    modules_manifest = write_node_modules_manifest(ctx, link_data)
+    mnemonic = kwargs.get("mnemonic")
+    modules_manifest = write_node_modules_manifest(ctx, link_data, mnemonic)
     add_arg(arguments, "--bazel_node_modules_manifest=%s" % modules_manifest.path)
 
     stdout_file = kwargs.pop("stdout", None)
