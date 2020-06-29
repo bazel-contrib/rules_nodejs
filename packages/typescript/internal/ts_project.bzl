@@ -143,6 +143,7 @@ def _ts_project_impl(ctx):
     # Improves error messaging if a ts_project needs declaration = True
     if len(typings_outputs) or len(ctx.attr.deps):
         providers.append(declaration_info(depset(typings_outputs), ctx.attr.deps))
+        providers.append(OutputGroupInfo(types = depset(typings_outputs)))
 
     return providers
 
