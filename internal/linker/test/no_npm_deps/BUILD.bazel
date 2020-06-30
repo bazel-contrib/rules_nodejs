@@ -1,0 +1,11 @@
+load(":no_npm_deps.bzl", "no_npm_deps")
+
+# Tests the
+# ```
+# [link_node_modules.js] no third-party packages; mkdir node_modules at npm/node_modules
+# ```
+# path in the linker
+no_npm_deps(
+    name = "no_npm_deps_linker_test",
+    src = "input.js",
+)
