@@ -196,7 +196,7 @@ validate_options = rule(
 )
 
 def _out_paths(srcs, outdir, ext):
-    return [_join(outdir, f[:f.rindex(".")] + ext) for f in srcs if not f.endswith(".d.ts")]
+    return [_join(outdir, f[:f.rindex(".")] + ext) for f in srcs if not f.endswith(".d.ts") and not f.endswith(".json")]
 
 def ts_project_macro(
         name = "tsconfig",
