@@ -10,7 +10,8 @@ import {ErrorCode} from '../error_code';
 import {AbstractRule} from '../rule';
 
 export class Rule extends AbstractRule {
-  readonly ruleName = 'equals-nan';
+  static readonly RULE_NAME = 'equals-nan';
+  readonly ruleName = Rule.RULE_NAME;
   readonly code = ErrorCode.EQUALS_NAN;
 
   register(checker: Checker) {

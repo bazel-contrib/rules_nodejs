@@ -12,7 +12,8 @@ import {ErrorCode} from '../error_code';
 import {AbstractRule} from '../rule';
 
 export class Rule extends AbstractRule {
-  readonly ruleName = 'ban-promise-as-condition';
+  static readonly RULE_NAME = 'ban-promise-as-condition';
+  readonly ruleName = Rule.RULE_NAME;
   readonly code = ErrorCode.BAN_PROMISE_AS_CONDITION;
 
   register(checker: Checker) {

@@ -42,7 +42,8 @@ const METHODS_TO_CHECK = new Set<string>([
 
 /** A rule to ensure required return values from common functions are used. */
 export class Rule extends AbstractRule {
-  readonly ruleName = 'check-return-value';
+  static readonly RULE_NAME = 'check-return-value';
+  readonly ruleName = Rule.RULE_NAME;
   readonly code = ErrorCode.CHECK_RETURN_VALUE;
 
   // registers checkCallExpression() function on ts.CallExpression node.

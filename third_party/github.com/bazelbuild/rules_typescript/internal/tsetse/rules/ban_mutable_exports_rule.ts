@@ -10,7 +10,8 @@ import {ErrorCode} from '../error_code';
 import {AbstractRule} from '../rule';
 
 export class Rule extends AbstractRule {
-  readonly ruleName = 'ban-mutable-exports';
+  static readonly RULE_NAME = 'ban-mutable-exports';
+  readonly ruleName = Rule.RULE_NAME;
   readonly code = ErrorCode.BAN_MUTABLE_EXPORTS;
 
   register(checker: Checker) {

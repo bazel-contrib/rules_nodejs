@@ -16,7 +16,8 @@ const FAILURE_STRING =
 
 /** A rule to ensure promises in async functions are awaited or used. */
 export class Rule extends AbstractRule {
-  readonly ruleName = 'must-use-promises';
+  static readonly RULE_NAME = 'must-use-promises';
+  readonly ruleName = Rule.RULE_NAME;
   readonly code = ErrorCode.MUST_USE_PROMISES;
 
   register(checker: Checker) {

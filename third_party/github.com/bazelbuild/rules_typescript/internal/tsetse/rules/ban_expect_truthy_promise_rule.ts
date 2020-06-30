@@ -12,7 +12,8 @@ import {ErrorCode} from '../error_code';
 import {AbstractRule} from '../rule';
 
 export class Rule extends AbstractRule {
-  readonly ruleName = 'ban-expect-truthy-promise';
+  static readonly RULE_NAME = 'ban-expect-truthy-promise';
+  readonly ruleName = Rule.RULE_NAME;
   readonly code = ErrorCode.BAN_EXPECT_TRUTHY_PROMISE;
 
   register(checker: Checker) {

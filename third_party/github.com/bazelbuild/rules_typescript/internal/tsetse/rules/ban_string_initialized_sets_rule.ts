@@ -16,7 +16,8 @@ const errorMsg = 'Value passed to Set constructor is a string. This will' +
     ' create an Iterable<string>, eg: new Set(myStr as Iterable<string>).';
 
 export class Rule extends AbstractRule {
-  readonly ruleName = 'ban-string-initialized-sets';
+  static readonly RULE_NAME = 'ban-string-initialized-sets';
+  readonly ruleName = Rule.RULE_NAME;
   readonly code = ErrorCode.BAN_STRING_INITIALIZED_SETS;
 
   register(checker: Checker) {

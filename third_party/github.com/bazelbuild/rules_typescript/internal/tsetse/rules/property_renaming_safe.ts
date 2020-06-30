@@ -12,7 +12,8 @@ import {AbstractRule} from '../rule';
  * Note: This rule can have false positives.
  */
 export class Rule extends AbstractRule {
-  readonly ruleName = 'property-renaming-safe';
+  static readonly RULE_NAME = 'property-renaming-safe';
+  readonly ruleName = Rule.RULE_NAME;
   readonly code = ErrorCode.PROPERTY_RENAMING_SAFE;
 
   register(checker: Checker) {
