@@ -341,8 +341,8 @@ function main(args, runfiles) {
         log_verbose('resolved node_modules root', root, 'to', rootDir);
         log_verbose('cwd', process.cwd());
         if (!(yield exists(rootDir))) {
-            log_verbose('no third-party packages; mkdir node_modules at ', root);
-            yield fs.promises.mkdir(rootDir);
+            log_verbose('no third-party packages; mkdir node_modules at', root);
+            yield mkdirp(rootDir);
         }
         yield symlink(rootDir, 'node_modules');
         process.chdir(rootDir);
