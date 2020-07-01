@@ -10,8 +10,10 @@ _ATTRS = {
     "args": attr.string_list(mandatory = True),
     "configuration_env_vars": attr.string_list(default = []),
     "data": attr.label_list(allow_files = True, aspects = [module_mappings_aspect, node_modules_aspect]),
+    "exit_code_out": attr.output(),
     "output_dir": attr.bool(),
     "outs": attr.output_list(),
+    "override_exit_code": attr.int(default = -1),
     "stderr": attr.output(),
     "stdout": attr.output(),
     "tool": attr.label(
@@ -64,6 +66,9 @@ def _impl(ctx):
     if ctx.outputs.stderr:
         tool_outputs.append(ctx.outputs.stderr)
 
+    if ctx.outputs.exit_code_out:
+        tool_outputs.append(ctx.outputs.exit_code_out)
+
     run_node(
         ctx,
         executable = "tool",
@@ -73,6 +78,8 @@ def _impl(ctx):
         configuration_env_vars = ctx.attr.configuration_env_vars,
         stdout = ctx.outputs.stdout,
         stderr = ctx.outputs.stderr,
+        exit_code_out = ctx.outputs.exit_code_out,
+        override_exit_code = ctx.attr.override_exit_code,
     )
 
     return [DefaultInfo(files = depset(outputs + tool_outputs))]
@@ -104,6 +111,10 @@ def npm_package_bin(tool = None, package = None, package_bin = None, data = [], 
                 subject to the same semantics as `outs`
         stdout: set to capture the stdout of the binary to a file, which can later be used as an input to another target
                 subject to the same semantics as `outs`
+        exit_code_out: set to capture the exit code of the binary to a file, which can later be used as an input to another target
+                subject to the same semantics as `outs`
+        override_exit_code: allows the exit code of the binary to be overridden by the caller, for example to allow subsequent actions
+                to run when used in conjunction with exit_code_out. Note that this doesn't affect the contents of exit_code_out
 
         args: Command-line arguments to the tool.
 

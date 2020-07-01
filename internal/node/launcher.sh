@@ -170,6 +170,8 @@ USER_NODE_OPTIONS=()
 ALL_ARGS=(TEMPLATED_args $NODE_REPOSITORY_ARGS "$@")
 STDOUT_CAPTURE=""
 STDERR_CAPTURE=""
+EXIT_CODE_CAPTURE=""
+OVERRIDE_EXIT_CODE="-1"
 
 RUN_LINKER=true
 NODE_PATCHES=true
@@ -179,8 +181,14 @@ for ARG in "${ALL_ARGS[@]:-}"; do
   case "$ARG" in
     # Supply custom linker arguments for first-party dependencies
     --bazel_node_modules_manifest=*) MODULES_MANIFEST="${ARG#--bazel_node_modules_manifest=}" ;;
+    # Captures stdout of the node process to the file specified
     --bazel_capture_stdout=*) STDOUT_CAPTURE="${ARG#--bazel_capture_stdout=}" ;;
+    # Captures stderr of the node process to the file specified
     --bazel_capture_stderr=*) STDERR_CAPTURE="${ARG#--bazel_capture_stderr=}" ;;
+    # Captures the exit code of the node process to the file specified
+    --bazel_capture_exit_code=*) EXIT_CODE_CAPTURE="${ARG#--bazel_capture_exit_code=}" ;;
+    # Overrides the exit code of the node process
+    --bazel_override_exit_code=*) OVERRIDE_EXIT_CODE="${ARG#--bazel_override_exit_code=}" ;;
     # Disable the node_loader.js monkey patches for require()
     # Note that this means you need an explicit runfiles helper library
     --nobazel_patch_module_resolver) PATCH_REQUIRE=false ;;
@@ -327,6 +335,10 @@ wait "${child}"
 RESULT="$?"
 set -e
 
+if [[ -n "${EXIT_CODE_CAPTURE}" ]]; then
+  echo "${RESULT}" > "${EXIT_CODE_CAPTURE}"
+fi
+
 if [ "${EXPECTED_EXIT_CODE}" != "0" ]; then
   if [ ${RESULT} != ${EXPECTED_EXIT_CODE} ]; then
     echo "Expected exit code to be ${EXPECTED_EXIT_CODE}, but got ${RESULT}" >&2
@@ -358,6 +370,10 @@ if [[ -n "${COVERAGE_DIR:-}" ]]; then
   if [ ${RESULT} -ne 0 ]; then
     exit ${RESULT}
   fi
+fi
+
+if [[ "${OVERRIDE_EXIT_CODE}" -gt "-1" ]]; then
+  exit ${OVERRIDE_EXIT_CODE}
 fi
 
 exit ${RESULT}

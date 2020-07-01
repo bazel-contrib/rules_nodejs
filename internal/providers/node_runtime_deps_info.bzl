@@ -87,6 +87,15 @@ def run_node(ctx, inputs, arguments, executable, **kwargs):
         add_arg(arguments, "--bazel_capture_stderr=%s" % stderr_file.path)
         outputs = outputs + [stderr_file]
 
+    exit_code_file = kwargs.pop("exit_code_out", None)
+    if exit_code_file:
+        add_arg(arguments, "--bazel_capture_exit_code=%s" % exit_code_file.path)
+        outputs = outputs + [exit_code_file]
+
+    override_exit_code = kwargs.pop("override_exit_code", None)
+    if override_exit_code != None:
+        add_arg(arguments, "--bazel_override_exit_code=%s" % override_exit_code)
+
     # By using the run_node helper, you suggest that your program
     # doesn't implicitly use runfiles to require() things
     # To access runfiles, you must use a runfiles helper in the program instead
