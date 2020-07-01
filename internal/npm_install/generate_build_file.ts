@@ -476,17 +476,20 @@ function findPackages(p = 'node_modules') {
                        .map(f => path.posix.join(p, f))
                        .filter(f => isDirectory(f));
 
+  // Starting in version 2.1, Bazel honors the .bazelignore file we wrote into the
+  // root of the external repository, and won't see BUILD files under node_modules
+  // This parsing of the version number isn't accurate in some cases
+  // (eg. install bazel from commit hash)
+  // Do a cheap semver check that the major version is at least 2.1
+  // (we don't want to depend on a third-party library like semver here)
+  let defaultHide = !(Number(BAZEL_VERSION.split('.')[0]) >= 2 && !BAZEL_VERSION.startsWith('2.0'));
+  if (BAZEL_VERSION == "") {
+    console.warn("Using a development build of bazel. Please make sure it's running 2.1+");
+    defaultHide = false;
+  }
+
   packages.forEach(f => {
-    let hide = true;
-    // Starting in version 2.1, Bazel honors the .bazelignore file we wrote into the
-    // root of the external repository, and won't see BUILD files under node_modules
-    // This parsing of the version number isn't accurate in some cases
-    // (eg. install bazel from commit hash)
-    // Do a cheap semver check that the major version is at least 2.1
-    // (we don't want to depend on a third-party library like semver here)
-    if (Number(BAZEL_VERSION.split('.')[0]) >= 2 && !BAZEL_VERSION.startsWith('2.0')) {
-      hide = false;
-    }
+    let hide = defaultHide;
     if (fs.lstatSync(f).isSymbolicLink()) {
       hide = false;
     }

@@ -285,11 +285,13 @@ function findPackages(p = 'node_modules') {
         .filter(f => !f.startsWith('.'))
         .map(f => path.posix.join(p, f))
         .filter(f => isDirectory(f));
+    let defaultHide = !(Number(BAZEL_VERSION.split('.')[0]) >= 2 && !BAZEL_VERSION.startsWith('2.0'));
+    if (BAZEL_VERSION == "") {
+        console.warn("Using a development build of bazel. Please make sure it's running 2.1+");
+        defaultHide = false;
+    }
     packages.forEach(f => {
-        let hide = true;
-        if (Number(BAZEL_VERSION.split('.')[0]) >= 2 && !BAZEL_VERSION.startsWith('2.0')) {
-            hide = false;
-        }
+        let hide = defaultHide;
         if (fs.lstatSync(f).isSymbolicLink()) {
             hide = false;
         }
