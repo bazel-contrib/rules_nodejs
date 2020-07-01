@@ -16,8 +16,8 @@ function log_verbose(...m) {
     if (VERBOSE_LOGS)
         console.error('[link_node_modules.js]', ...m);
 }
-function log_error(...m) {
-    console.error('[link_node_modules.js]', ...m);
+function log_error(error) {
+    console.error('[link_node_modules.js] An error has been reported:', error, error.stack);
 }
 function panic(m) {
     throw new Error(`Internal error! Please run again with
