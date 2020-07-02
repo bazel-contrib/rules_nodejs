@@ -1,0 +1,5 @@
+const {statSync} = require('fs')
+const {dirname, join} = require('path')
+const packageJson = require.resolve('folder_pkg/package.json')
+const fileInFolderDeclared = join(dirname(packageJson), 'out', '1.txt')
+statSync(fileInFolderDeclared)

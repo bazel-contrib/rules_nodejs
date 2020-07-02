@@ -1,0 +1,26 @@
+load("//:index.bzl", "nodejs_test", "pkg_npm")
+load(":generate.bzl", "gen_folder")
+
+gen_folder(
+    name = "folder",
+    out = "out",
+)
+
+pkg_npm(
+    name = "folder_pkg",
+    package_name = "folder_pkg",
+    srcs = [
+        "package.json",
+    ],
+    deps = [":folder"],
+)
+
+nodejs_test(
+    name = "test",
+    data = [
+        # bar: pkg_npm with js, d.ts srcs & package.json main & typings
+        ":folder_pkg",
+    ],
+    entry_point = "main.js",
+    templated_args = ["--nobazel_patch_module_resolver"],
+)

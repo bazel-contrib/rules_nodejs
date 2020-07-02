@@ -1,0 +1,6 @@
+{
+  "name": "folder_pkg",
+  "version": "0.0.0-DEVELOPMENT",
+  "main": "main.js",
+  "typings": "main.d.ts"
+}
