@@ -45,6 +45,56 @@ function mkdirp(p) {
         }
     });
 }
+function gracefulLstat(path) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            return yield fs.promises.lstat(path);
+        }
+        catch (e) {
+            if (e.code === 'ENOENT') {
+                return null;
+            }
+            throw e;
+        }
+    });
+}
+function unlink(moduleName) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const stat = yield gracefulLstat(moduleName);
+        if (stat === null) {
+            return;
+        }
+        log_verbose(`unlink( ${moduleName} )`);
+        if (stat.isDirectory()) {
+            yield deleteDirectory(moduleName);
+        }
+        else {
+            log_verbose("Deleting file: ", moduleName);
+            yield fs.promises.unlink(moduleName);
+        }
+    });
+}
+function deleteDirectory(p) {
+    return __awaiter(this, void 0, void 0, function* () {
+        log_verbose("Deleting children of", p);
+        for (let entry of yield fs.promises.readdir(p)) {
+            const childPath = path.join(p, entry);
+            const stat = yield gracefulLstat(childPath);
+            if (stat === null) {
+                throw Error(`File does not exist, but is listed as directory entry: ${childPath}`);
+            }
+            if (stat.isDirectory()) {
+                yield deleteDirectory(childPath);
+            }
+            else {
+                log_verbose("Deleting file", childPath);
+                yield fs.promises.unlink(childPath);
+            }
+        }
+        log_verbose("Cleaning up dir", p);
+        yield fs.promises.rmdir(p);
+    });
+}
 function symlink(target, p) {
     return __awaiter(this, void 0, void 0, function* () {
         log_verbose(`symlink( ${p} -> ${target} )`);
@@ -210,21 +260,12 @@ class Runfiles {
 exports.Runfiles = Runfiles;
 function exists(p) {
     return __awaiter(this, void 0, void 0, function* () {
-        try {
-            yield fs.promises.stat(p);
-            return true;
-        }
-        catch (e) {
-            if (e.code === 'ENOENT') {
-                return false;
-            }
-            throw e;
-        }
+        return ((yield gracefulLstat(p)) !== null);
     });
 }
 function existsSync(p) {
     try {
-        fs.statSync(p);
+        fs.lstatSync(p);
         return true;
     }
     catch (e) {
@@ -324,6 +365,23 @@ function isDirectChildLink([parentRel, parentPath], [childRel, childPath]) {
 function isNameLinkPathTopAligned(namePath, [, linkPath]) {
     return path.basename(namePath) === path.basename(linkPath);
 }
+function visitDirectoryPreserveLinks(dirPath, visit) {
+    return __awaiter(this, void 0, void 0, function* () {
+        for (const entry of yield fs.promises.readdir(dirPath)) {
+            const childPath = path.join(dirPath, entry);
+            const stat = yield gracefulLstat(childPath);
+            if (stat === null) {
+                continue;
+            }
+            if (stat.isDirectory()) {
+                yield visitDirectoryPreserveLinks(childPath, visit);
+            }
+            else {
+                yield visit(childPath, stat);
+            }
+        }
+    });
+}
 function main(args, runfiles) {
     return __awaiter(this, void 0, void 0, function* () {
         if (!args || args.length < 1)
@@ -346,6 +404,41 @@ function main(args, runfiles) {
         }
         yield symlink(rootDir, 'node_modules');
         process.chdir(rootDir);
+        function isLeftoverDirectoryFromLinker(stats, modulePath) {
+            return __awaiter(this, void 0, void 0, function* () {
+                if (runfiles.manifest === undefined) {
+                    return false;
+                }
+                if (!stats.isDirectory()) {
+                    return false;
+                }
+                let isLeftoverFromPreviousLink = true;
+                yield visitDirectoryPreserveLinks(modulePath, (childPath, childStats) => __awaiter(this, void 0, void 0, function* () {
+                    if (!childStats.isSymbolicLink()) {
+                        isLeftoverFromPreviousLink = false;
+                    }
+                }));
+                return isLeftoverFromPreviousLink;
+            });
+        }
+        function createSymlinkAndPreserveContents(stats, modulePath, target) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const tmpPath = `${modulePath}__linker_tmp`;
+                log_verbose(`createSymlinkAndPreserveContents( ${modulePath} )`);
+                yield symlink(target, tmpPath);
+                yield visitDirectoryPreserveLinks(modulePath, (childPath, stat) => __awaiter(this, void 0, void 0, function* () {
+                    if (stat.isSymbolicLink()) {
+                        const targetPath = path.join(tmpPath, path.relative(modulePath, childPath));
+                        log_verbose(`Cloning symlink into temporary created link ( ${childPath} )`);
+                        yield mkdirp(path.dirname(targetPath));
+                        yield symlink(targetPath, yield fs.promises.realpath(childPath));
+                    }
+                }));
+                log_verbose(`Removing existing module so that new link can take place ( ${modulePath} )`);
+                yield unlink(modulePath);
+                yield fs.promises.rename(tmpPath, modulePath);
+            });
+        }
         function linkModules(m) {
             return __awaiter(this, void 0, void 0, function* () {
                 yield mkdirp(path.dirname(m.name));
@@ -381,16 +474,22 @@ function main(args, runfiles) {
                             }
                             break;
                     }
-                    yield symlink(target, m.name);
+                    const stats = yield gracefulLstat(m.name);
+                    if (stats !== null && (yield isLeftoverDirectoryFromLinker(stats, m.name))) {
+                        yield createSymlinkAndPreserveContents(stats, m.name, target);
+                    }
+                    else {
+                        yield symlink(target, m.name);
+                    }
                 }
                 if (m.children) {
                     yield Promise.all(m.children.map(linkModules));
                 }
             });
         }
-        const moduleHeirarchy = reduceModules(modules);
-        log_verbose(`mapping hierarchy ${JSON.stringify(moduleHeirarchy)}`);
-        const links = moduleHeirarchy.map(linkModules);
+        const moduleHierarchy = reduceModules(modules);
+        log_verbose(`mapping hierarchy ${JSON.stringify(moduleHierarchy)}`);
+        const links = moduleHierarchy.map(linkModules);
         let code = 0;
         yield Promise.all(links).catch(e => {
             log_error(e);
