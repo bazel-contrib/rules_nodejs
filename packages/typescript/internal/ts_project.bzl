@@ -29,7 +29,6 @@ _ATTRS = {
 _OUTPUTS = {
     "buildinfo_out": attr.output(),
     "js_outs": attr.output_list(),
-    "json_outs": attr.output_list(),
     "map_outs": attr.output_list(),
     "typing_maps_outs": attr.output_list(),
     "typings_outs": attr.output_list(),
@@ -98,12 +97,20 @@ def _ts_project_impl(ctx):
     if ctx.attr.extends:
         inputs.extend(ctx.files.extends)
 
-    json_outs = ctx.outputs.json_outs
+    # We do not try to predeclare json_outs, because their output locations generally conflict with their path in the source tree.
+    # (The exception is when outdir is used, then the .json output is a different path than the input.)
+    # However tsc will copy .json srcs to the output tree so we want to declare these outputs to include along with .js Default outs
+    # NB: We don't have emit_declaration_only setting here, so use presence of any JS outputs as an equivalent.
+    # tsc will only produce .json if it also produces .js
+    if len(ctx.outputs.js_outs):
+        json_outs = [
+            ctx.actions.declare_file(_join(ctx.attr.outdir, src.short_path[len(ctx.label.package) + 1:]))
+            for src in ctx.files.srcs
+            if src.basename.endswith(".json")
+        ]
+    else:
+        json_outs = []
 
-    # If there are no predeclared json_outs (probably bc of no .json or no outdir),
-    # let's try to search for them in srcs so we can declare them as output
-    if not json_outs:
-        json_outs = [ctx.actions.declare_file(src.basename, sibling = src) for src in ctx.files.srcs if src.basename.endswith(".json")]
     outputs = json_outs + ctx.outputs.js_outs + ctx.outputs.map_outs + ctx.outputs.typings_outs + ctx.outputs.typing_maps_outs
     if ctx.outputs.buildinfo_out:
         outputs.append(ctx.outputs.buildinfo_out)
@@ -398,9 +405,6 @@ def ts_project_macro(
         tsconfig = tsconfig,
         extends = extends,
         outdir = outdir,
-        # JSON files are special. They are output if outdir is set since tsc will
-        # copy them to outdir. Otherwise they are kind of both.
-        json_outs = [_join(outdir, f) for f in srcs if f.endswith(".json")] if outdir and not emit_declaration_only else [],
         js_outs = _out_paths(srcs, outdir, ".js") if not emit_declaration_only else [],
         map_outs = _out_paths(srcs, outdir, ".js.map") if source_map and not emit_declaration_only else [],
         typings_outs = _out_paths(srcs, outdir, ".d.ts") if declaration or composite else [],
