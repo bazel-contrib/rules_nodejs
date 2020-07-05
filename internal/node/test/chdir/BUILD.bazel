@@ -1,0 +1,62 @@
+# Demonstrate and test the workaround for running build/test actions in the output directory
+# Needed for tools like react-scripts and maybe vue-cli which don't allow specifying a path to
+# the project when you call them.
+# See https://github.com/bazelbuild/rules_nodejs/issues/1840
+
+load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin", "nodejs_binary", "nodejs_test", "npm_package_bin")
+load("//third_party/github.com/bazelbuild/bazel-skylib:rules/write_file.bzl", "write_file")
+
+# A tool like react-scripts needs to run in the output directory since it writes outputs
+# to $pwd/build
+# That means it also needs to find inputs in that directory.
+# So we copy all the inputs it needs.
+copy_to_bin(
+    name = "copy_input",
+    srcs = ["package.json"],
+)
+
+# Here's our trick: write a process.chdir one-liner JS script
+write_file(
+    name = "write_chdir_script",
+    out = "chdir.js",
+    # __dirname will be whatever directory the other outputs
+    # from this package are in, either in execroot or runfiles root
+    # depending on where Bazel places this file.
+    content = ["process.chdir(__dirname)"],
+)
+
+# Trivial tool to mock react-scripts
+nodejs_binary(
+    name = "tool_bin",
+    entry_point = "tool.js",
+)
+
+# This tool is like react-scripts and wants to run in our directory
+# with our package.json, and always writes to "build/app.js
+npm_package_bin(
+    name = "call_tool",
+    outs = ["build/app.js"],
+    # This tool produces outputs, so it is a build action and needs execpath helper
+    args = ["--node_options=--require=./$(execpath chdir.js)"],
+    # We can't reference label "package.json" here because it's ambiguous
+    # whether that points to the InputArtifact package.json in the src
+    # folder or the output. Using "copy_input" is unambiguous.
+    data = [
+        "chdir.js",
+        "copy_input",
+    ],
+    tool = ":tool_bin",
+)
+
+nodejs_test(
+    name = "test",
+    data = [
+        "build/app.js",
+        "chdir.js",
+    ],
+    entry_point = "test.js",
+    # Also run a test in the output directory, this needs rootpath helper
+    # NB: --require=./$(rootpath chdir.js) works when runfiles are symlinked
+    # but $$(rlocation) is needed for Windows.
+    templated_args = ["--node_options=--require=$$(rlocation $(rootpath chdir.js))"],
+)

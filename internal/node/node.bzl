@@ -652,8 +652,15 @@ your own test runner. For example, the `ts-api-guardian` library has a way to
 assert the public API of a TypeScript program, and uses `nodejs_test` here:
 https://github.com/angular/angular/blob/master/tools/ts-api-guardian/index.bzl
 
-If you just want to run a standard test using a test runner like Karma or Jasmine,
-use the specific rules for those test runners, e.g. `jasmine_node_test`.
+If you just want to run a standard test using a test runner from npm, use the generated
+*_test target created by npm_install/yarn_install, such as `mocha_test`.
+Some test runners like Karma and Jasmine have custom rules with added features, e.g. `jasmine_node_test`.
+
+Bazel always runs tests with a working directory set to your workspace root.
+If your test needs to run in a different directory, you can write a `process.chdir` helper script
+and invoke it before the test with a `--require` argument, like
+`templated_args = ["--node_options=--require=./$(rootpath chdir.js)"]`.
+See rules_nodejs/internal/node/test/chdir for an example.
 
 To debug a Node.js test, we recommend saving a group of flags together in a "config".
 Put this in your `tools/bazel.rc` so it's shared with your team:
