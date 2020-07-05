@@ -90,6 +90,12 @@ def npm_package_bin(tool = None, package = None, package_bin = None, data = [], 
     This is like a genrule() except that it runs our launcher script that first
     links the node_modules tree before running the program.
 
+    Bazel always runs actions with a working directory set to your workspace root.
+    If your tool needs to run in a different directory, you can write a `process.chdir` helper script
+    and invoke it before the action with a `--require` argument, like
+    `args = ["--node_options=--require=./$(execpath chdir.js)"]`
+    See rules_nodejs/internal/node/test/chdir for an example.
+
     This is a great candidate to wrap with a macro, as documented:
     https://docs.bazel.build/versions/master/skylark/macros.html#full-example
 
