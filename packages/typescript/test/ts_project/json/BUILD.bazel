@@ -1,7 +1,8 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test", "nodejs_test")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
 load("//packages/typescript:index.bzl", "ts_project")
 
-SRCS = glob(["**/*.ts*"]) + [
+SRCS = [
+    "subdir/a.ts",
     "subdir/foo.json",
     "bar.json",
 ]
@@ -18,25 +19,23 @@ ts_project(
     tsconfig = "tsconfig.json",
 )
 
-generated_file_test(
-    name = "test-subdir",
-    src = "foo.golden.json",
-    # Refers to the output from tsconfig ts_project above
-    generated = ":foobar/subdir/foo.json",
-)
-
-generated_file_test(
-    name = "test",
-    src = "bar.golden.json",
-    # Refers to the output from tsconfig ts_project above
-    generated = ":foobar/bar.json",
+# Test that we don't try to declare .json outputs when tsc isn't producing any JS
+ts_project(
+    name = "tsconfig-decl-only",
+    srcs = SRCS,
+    emit_declaration_only = True,
 )
 
 nodejs_test(
-    name = "test-no-outdir",
-    data = [":tsconfig-no-outdir"],
+    name = "test",
+    data = [
+        ":tsconfig",
+        ":tsconfig-decl-only",
+        ":tsconfig-no-outdir",
+    ],
     entry_point = "verify.js",
     templated_args = [
+        "$(locations :tsconfig)",
         "$(locations :tsconfig-no-outdir)",
     ],
 )
