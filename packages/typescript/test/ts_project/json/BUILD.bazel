@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
+load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test", "nodejs_test")
 load("//packages/typescript:index.bzl", "ts_project")
 
 SRCS = glob(["**/*.ts*"]) + [
@@ -32,20 +32,11 @@ generated_file_test(
     generated = ":foobar/bar.json",
 )
 
-# We cannot reuse foo.golden.json bc tsc inserts a newline when
-# it copies to outdir
-generated_file_test(
-    name = "test-subdir-no-outdir",
-    src = "foo-no-outdir.golden.json",
-    # Refers to the output from tsconfig-no-outdir ts_project above
-    generated = ":subdir/foo.json",
-)
-
-# We cannot reuse bar.golden.json bc tsc inserts a newline when
-# it copies to outdir
-generated_file_test(
+nodejs_test(
     name = "test-no-outdir",
-    src = "bar-no-outdir.golden.json",
-    # Refers to the output from tsconfig-no-outdir ts_project above
-    generated = ":bar.json",
+    data = [":tsconfig-no-outdir"],
+    entry_point = "verify.js",
+    templated_args = [
+        "$(locations :tsconfig-no-outdir)",
+    ],
 )
