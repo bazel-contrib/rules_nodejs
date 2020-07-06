@@ -25,6 +25,7 @@ example_integration_test(
         "//packages/terser:npm_package": "@bazel/terser",
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
+    owners = ["@alan-agius4"],
 
     # bazel-in-bazel examples_angular fails on Windows on bazelci cloning a git repo:
     # ```
@@ -102,11 +103,13 @@ example_integration_test(
         "//packages/cypress:npm_package": "@bazel/cypress",
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
+    owners = ["@mrmeku"],
     tags = ["cypress"],
 )
 
 example_integration_test(
     name = "examples_jest",
+    owners = ["@mrmeku"],
 )
 
 example_integration_test(

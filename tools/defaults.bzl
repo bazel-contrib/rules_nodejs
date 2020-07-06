@@ -62,6 +62,7 @@ def pkg_npm(**kwargs):
 
 _GLOBAL_OWNERS = [
     "@alexeagle",
+    "@gregmagolan",
     "@mattem",
 ]
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Update the owners=[] attribute in //.github:gen_codeowners
+set -euo pipefail
 
 BAZEL=./node_modules/.bin/bazel
 BUILDOZER=./node_modules/.bin/buildozer
