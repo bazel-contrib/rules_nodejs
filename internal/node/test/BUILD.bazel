@@ -260,6 +260,7 @@ generated_file_test(
 
 # capture stderr to diagnostics.out, then analyze it in terser_diagnostics_stats printing some stats
 # stdout is captured into greeter.min.js (again, without the --output $@ flags)
+# the exit code is also capture to a file with exit_code_out, allowing downstream actions to read it
 npm_package_bin(
     name = "diagnostics_producing_bin",
     args = [
@@ -269,6 +270,7 @@ npm_package_bin(
         "--warn",
     ],
     data = ["terser_input_with_diagnostics.js"],
+    exit_code_out = "exit.code",
     package = "terser",
     stderr = "diagnostics.out",
     stdout = "greeter.min.js",
@@ -297,6 +299,12 @@ generated_file_test(
     name = "stderr_output_test",
     src = "stderr_output_test.golden",
     generated = ":diagnostics.scrubbed.out",
+)
+
+generated_file_test(
+    name = "exit_code_test",
+    src = "exit_code_test.golden",
+    generated = ":exit.code",
 )
 
 nodejs_binary(
