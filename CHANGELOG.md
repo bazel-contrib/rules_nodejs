@@ -1,3 +1,25 @@
+# [2.0.0-rc.1](https://github.com/bazelbuild/rules_nodejs/compare/2.0.0-rc.0...2.0.0-rc.1) (2020-07-06)
+
+
+### Bug Fixes
+
+* **builtin:** fix linker bug when there are no third-party modules ([becd9bc](https://github.com/bazelbuild/rules_nodejs/commit/becd9bc))
+* **builtin:** fixes nodejs_binary to collect JSNamedModuleInfo ([4f95cc4](https://github.com/bazelbuild/rules_nodejs/commit/4f95cc4)), closes [#1998](https://github.com/bazelbuild/rules_nodejs/issues/1998)
+* **builtin:** linker silently not generating expected links in windows ([2979fad](https://github.com/bazelbuild/rules_nodejs/commit/2979fad))
+* **typescript:** add .proto files from npm deps to inputs of ts_library ([#1991](https://github.com/bazelbuild/rules_nodejs/issues/1991)) ([c1d4885](https://github.com/bazelbuild/rules_nodejs/commit/c1d4885))
+* **typescript:** add json to ts_project DefaultInfo, fix [#1988](https://github.com/bazelbuild/rules_nodejs/issues/1988) ([f6fa264](https://github.com/bazelbuild/rules_nodejs/commit/f6fa264))
+* **typescript:** Exclude .json from _out_paths ([91d81b3](https://github.com/bazelbuild/rules_nodejs/commit/91d81b3))
+* allow multiple run_node calls to be made from the same rule context ([48bb9cc](https://github.com/bazelbuild/rules_nodejs/commit/48bb9cc))
+
+
+### Features
+
+* add support for capturing and overriding the exit code within run_node ([#1990](https://github.com/bazelbuild/rules_nodejs/issues/1990)) ([cbdd3b0](https://github.com/bazelbuild/rules_nodejs/commit/cbdd3b0))
+* **cypress:** add cypress_web_test rule and @bazel/cypress package ([3bac870](https://github.com/bazelbuild/rules_nodejs/commit/3bac870))
+* **typescript:** add OutputGroupInfo to ts_project with type definitions ([d660ca1](https://github.com/bazelbuild/rules_nodejs/commit/d660ca1)), closes [#1978](https://github.com/bazelbuild/rules_nodejs/issues/1978)
+
+
+
 # [2.0.0-rc.0](https://github.com/bazelbuild/rules_nodejs/compare/1.6.0...2.0.0-rc.0) (2020-06-23)
 
 
