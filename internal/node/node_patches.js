@@ -556,7 +556,7 @@ exports.patcher = (requireScriptName, binDir) => {
     const dir = path.dirname(requireScriptName);
     const file = path.basename(requireScriptName);
     const nodeDir = path.join(binDir || dir, '_node_bin');
-    if (!process.env.NP_PATCHED_NODEJS) {
+    if (!process.env.NP_SUBPROCESS_BIN_DIR) {
         // TODO: WINDOWS.
         try {
             fs$1.mkdirSync(nodeDir, { recursive: true });
@@ -569,14 +569,14 @@ exports.patcher = (requireScriptName, binDir) => {
         }
         if (process.platform == 'win32') {
             fs$1.writeFileSync(path.join(nodeDir, 'node.bat'), `@if not defined DEBUG_HELPER @ECHO OFF
-set NP_PATCHED_NODEJS=${nodeDir}
+set NP_SUBPROCESS_BIN_DIR=${nodeDir}
 set Path=${nodeDir};%Path%
 "${process.execPath}" --require "${requireScriptName}" %*
         `);
         }
         else {
             fs$1.writeFileSync(path.join(nodeDir, 'node'), `#!/bin/bash
-export NP_PATCHED_NODEJS="${nodeDir}"
+export NP_SUBPROCESS_BIN_DIR="${nodeDir}"
 export PATH="${nodeDir}":\$PATH
 if [[ ! "\${@}" =~ "${file}" ]]; then
   exec ${process.execPath} --require "${requireScriptName}" "$@"
