@@ -551,39 +551,41 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // but adds support to ensure the registered loader is included in all nested executions of nodejs.
 
 
-exports.patcher = (requireScriptName, binDir) => {
+exports.patcher = (requireScriptName, nodeDir) => {
     requireScriptName = path.resolve(requireScriptName);
-    const dir = path.dirname(requireScriptName);
+    nodeDir = nodeDir || path.join(path.dirname(requireScriptName), '_node_bin');
     const file = path.basename(requireScriptName);
-    const nodeDir = path.join(binDir || dir, '_node_bin');
-    if (!process.env.NP_PATCHED_NODEJS) {
-        // TODO: WINDOWS.
-        try {
-            fs$1.mkdirSync(nodeDir, { recursive: true });
+    try {
+        fs$1.mkdirSync(nodeDir, { recursive: true });
+    }
+    catch (e) {
+        // with node versions that don't have recursive mkdir this may throw an error.
+        if (e.code !== 'EEXIST') {
+            throw e;
         }
-        catch (e) {
-            // with node versions that don't have recursive mkdir this may throw an error.
-            if (e.code !== 'EEXIST') {
-                throw e;
-            }
-        }
-        if (process.platform == 'win32') {
-            fs$1.writeFileSync(path.join(nodeDir, 'node.bat'), `@if not defined DEBUG_HELPER @ECHO OFF
-set NP_PATCHED_NODEJS=${nodeDir}
+    }
+    if (process.platform == 'win32') {
+        const nodeEntry = path.join(nodeDir, 'node.bat');
+        if (!fs$1.existsSync(nodeEntry)) {
+            fs$1.writeFileSync(nodeEntry, `@if not defined DEBUG_HELPER @ECHO OFF
+set NP_SUBPROCESS_NODE_DIR=${nodeDir}
 set Path=${nodeDir};%Path%
-"${process.execPath}" --require "${requireScriptName}" %*
-        `);
+"${process.execPath}" ${process.env.NODE_REPOSITORY_ARGS} --require "${requireScriptName}" %*
+`);
         }
-        else {
-            fs$1.writeFileSync(path.join(nodeDir, 'node'), `#!/bin/bash
-export NP_PATCHED_NODEJS="${nodeDir}"
+    }
+    else {
+        const nodeEntry = path.join(nodeDir, 'node');
+        if (!fs$1.existsSync(nodeEntry)) {
+            fs$1.writeFileSync(nodeEntry, `#!/bin/bash
+export NP_SUBPROCESS_NODE_DIR="${nodeDir}"
 export PATH="${nodeDir}":\$PATH
 if [[ ! "\${@}" =~ "${file}" ]]; then
-  exec ${process.execPath} --require "${requireScriptName}" "$@"
+  exec ${process.execPath} ${process.env.NODE_REPOSITORY_ARGS} --require "${requireScriptName}" "$@"
 else
-  exec ${process.execPath} "$@"
+  exec ${process.execPath} ${process.env.NODE_REPOSITORY_ARGS} "$@"
 fi
-  `, { mode: 0o777 });
+`, { mode: 0o777 });
         }
     }
     if (!process.env.PATH) {
@@ -659,8 +661,7 @@ var src_2 = src.subprocess;
  * @fileoverview Description of this file.
  */
 
-// todo auto detect bazel env vars instead of adding a new one.
-const { BAZEL_PATCH_ROOT, BAZEL_PATCH_GUARDS, NP_SUBPROCESS_BIN_DIR, VERBOSE_LOGS } = process.env;
+const { BAZEL_PATCH_ROOT, BAZEL_PATCH_GUARDS, NP_SUBPROCESS_NODE_DIR, VERBOSE_LOGS } = process.env;
 if (BAZEL_PATCH_ROOT) {
     const guards = BAZEL_PATCH_GUARDS ? BAZEL_PATCH_GUARDS.split(',') : [];
     if (VERBOSE_LOGS)
@@ -671,7 +672,7 @@ if (BAZEL_PATCH_ROOT) {
 else if (VERBOSE_LOGS) {
     console.error(`bazel node patches disabled. set environment BAZEL_PATCH_ROOT`);
 }
-src.subprocess(__filename, NP_SUBPROCESS_BIN_DIR);
+src.subprocess(__filename, NP_SUBPROCESS_NODE_DIR);
 
 var register = {
 

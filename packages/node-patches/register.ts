@@ -18,8 +18,7 @@
  * @fileoverview Description of this file.
  */
 const patcher = require('./src');
-// todo auto detect bazel env vars instead of adding a new one.
-const {BAZEL_PATCH_ROOT, BAZEL_PATCH_GUARDS, NP_SUBPROCESS_BIN_DIR, VERBOSE_LOGS} = process.env;
+const {BAZEL_PATCH_ROOT, BAZEL_PATCH_GUARDS, NP_SUBPROCESS_NODE_DIR, VERBOSE_LOGS} = process.env;
 
 if (BAZEL_PATCH_ROOT) {
   const guards = BAZEL_PATCH_GUARDS ? BAZEL_PATCH_GUARDS.split(',') : [];
@@ -32,4 +31,4 @@ if (BAZEL_PATCH_ROOT) {
   console.error(`bazel node patches disabled. set environment BAZEL_PATCH_ROOT`);
 }
 
-patcher.subprocess(__filename, NP_SUBPROCESS_BIN_DIR);
+patcher.subprocess(__filename, NP_SUBPROCESS_NODE_DIR);

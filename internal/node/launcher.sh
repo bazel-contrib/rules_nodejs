@@ -165,9 +165,9 @@ readonly lcov_merger_script=$(rlocation "TEMPLATED_lcov_merger_script")
 source $repository_args
 
 ARGS=()
-LAUNCHER_NODE_OPTIONS=()
+LAUNCHER_NODE_OPTIONS=($NODE_REPOSITORY_ARGS)
 USER_NODE_OPTIONS=()
-ALL_ARGS=(TEMPLATED_args $NODE_REPOSITORY_ARGS "$@")
+ALL_ARGS=(TEMPLATED_args "$@")
 STDOUT_CAPTURE=""
 STDERR_CAPTURE=""
 EXIT_CODE_CAPTURE=""
@@ -176,7 +176,7 @@ RUN_LINKER=true
 NODE_PATCHES=true
 # TODO(alex): change the default to false
 PATCH_REQUIRE=true
-for ARG in "${ALL_ARGS[@]:-}"; do
+for ARG in ${ALL_ARGS[@]+"${ALL_ARGS[@]}"}; do
   case "$ARG" in
     # Supply custom linker arguments for first-party dependencies
     --bazel_node_modules_manifest=*) MODULES_MANIFEST="${ARG#--bazel_node_modules_manifest=}" ;;
@@ -316,13 +316,13 @@ _int() {
 set +e
 
 if [[ -n "${STDOUT_CAPTURE}" ]] && [[ -n "${STDERR_CAPTURE}" ]]; then
-  "${node}" "${LAUNCHER_NODE_OPTIONS[@]:-}" "${USER_NODE_OPTIONS[@]:-}" "${MAIN}" ${ARGS[@]+"${ARGS[@]}"} <&0 >$STDOUT_CAPTURE 2>$STDERR_CAPTURE &
+  "${node}" ${LAUNCHER_NODE_OPTIONS[@]+"${LAUNCHER_NODE_OPTIONS[@]}"} ${USER_NODE_OPTIONS[@]+"${USER_NODE_OPTIONS[@]}"} "${MAIN}" ${ARGS[@]+"${ARGS[@]}"} <&0 >$STDOUT_CAPTURE 2>$STDERR_CAPTURE &
 elif [[ -n "${STDOUT_CAPTURE}" ]]; then
-  "${node}" "${LAUNCHER_NODE_OPTIONS[@]:-}" "${USER_NODE_OPTIONS[@]:-}" "${MAIN}" ${ARGS[@]+"${ARGS[@]}"} <&0 >$STDOUT_CAPTURE &
+  "${node}" ${LAUNCHER_NODE_OPTIONS[@]+"${LAUNCHER_NODE_OPTIONS[@]}"} ${USER_NODE_OPTIONS[@]+"${USER_NODE_OPTIONS[@]}"} "${MAIN}" ${ARGS[@]+"${ARGS[@]}"} <&0 >$STDOUT_CAPTURE &
 elif [[ -n "${STDERR_CAPTURE}" ]]; then
-  "${node}" "${LAUNCHER_NODE_OPTIONS[@]:-}" "${USER_NODE_OPTIONS[@]:-}" "${MAIN}" ${ARGS[@]+"${ARGS[@]}"} <&0 2>$STDERR_CAPTURE &
+  "${node}" ${LAUNCHER_NODE_OPTIONS[@]+"${LAUNCHER_NODE_OPTIONS[@]}"} ${USER_NODE_OPTIONS[@]+"${USER_NODE_OPTIONS[@]}"} "${MAIN}" ${ARGS[@]+"${ARGS[@]}"} <&0 2>$STDERR_CAPTURE &
 else
-  "${node}" "${LAUNCHER_NODE_OPTIONS[@]:-}" "${USER_NODE_OPTIONS[@]:-}" "${MAIN}" ${ARGS[@]+"${ARGS[@]}"} <&0 &
+  "${node}" ${LAUNCHER_NODE_OPTIONS[@]+"${LAUNCHER_NODE_OPTIONS[@]}"} ${USER_NODE_OPTIONS[@]+"${USER_NODE_OPTIONS[@]}"} "${MAIN}" ${ARGS[@]+"${ARGS[@]}"} <&0 &
 fi
 
 readonly child=$!

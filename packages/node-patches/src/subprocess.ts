@@ -3,39 +3,41 @@
 const fs = require('fs');
 const path = require('path');
 
-export const patcher = (requireScriptName: string, binDir?: string) => {
+export const patcher = (requireScriptName: string, nodeDir?: string) => {
   requireScriptName = path.resolve(requireScriptName);
-  const dir = path.dirname(requireScriptName);
+  nodeDir = nodeDir || path.join(path.dirname(requireScriptName), '_node_bin');
   const file = path.basename(requireScriptName);
-  const nodeDir = path.join(binDir || dir, '_node_bin');
 
-  if (!process.env.NP_PATCHED_NODEJS) {
-    // TODO: WINDOWS.
-    try {
-      fs.mkdirSync(nodeDir, {recursive: true});
-    } catch (e) {
-      // with node versions that don't have recursive mkdir this may throw an error.
-      if (e.code !== 'EEXIST') {
-        throw e;
-      }
+  try {
+    fs.mkdirSync(nodeDir, {recursive: true});
+  } catch (e) {
+    // with node versions that don't have recursive mkdir this may throw an error.
+    if (e.code !== 'EEXIST') {
+      throw e;
     }
-    if (process.platform == 'win32') {
-      fs.writeFileSync(path.join(nodeDir, 'node.bat'), `@if not defined DEBUG_HELPER @ECHO OFF
-set NP_PATCHED_NODEJS=${nodeDir}
+  }
+  if (process.platform == 'win32') {
+    const nodeEntry = path.join(nodeDir, 'node.bat');
+    if (!fs.existsSync(nodeEntry)) {
+      fs.writeFileSync(nodeEntry, `@if not defined DEBUG_HELPER @ECHO OFF
+set NP_SUBPROCESS_NODE_DIR=${nodeDir}
 set Path=${nodeDir};%Path%
-"${process.execPath}" --require "${requireScriptName}" %*
-        `)
-    } else {
+"${process.execPath}" ${process.env.NODE_REPOSITORY_ARGS} --require "${requireScriptName}" %*
+`);
+    }
+  } else {
+    const nodeEntry = path.join(nodeDir, 'node');
+    if (!fs.existsSync(nodeEntry)) {
       fs.writeFileSync(
-          path.join(nodeDir, 'node'), `#!/bin/bash
-export NP_PATCHED_NODEJS="${nodeDir}"
+          nodeEntry, `#!/bin/bash
+export NP_SUBPROCESS_NODE_DIR="${nodeDir}"
 export PATH="${nodeDir}":\$PATH
 if [[ ! "\${@}" =~ "${file}" ]]; then
-  exec ${process.execPath} --require "${requireScriptName}" "$@"
+  exec ${process.execPath} ${process.env.NODE_REPOSITORY_ARGS} --require "${requireScriptName}" "$@"
 else
-  exec ${process.execPath} "$@"
+  exec ${process.execPath} ${process.env.NODE_REPOSITORY_ARGS} "$@"
 fi
-  `,
+`,
           {mode: 0o777});
     }
   }

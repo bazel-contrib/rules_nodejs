@@ -1,27 +1,22 @@
 import * as assert from 'assert';
 import * as cp from 'child_process';
-import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import * as rimraf from 'rimraf';
 
-import {patcher} from '../../src/subprocess';
-
 const requireScript = path.resolve(path.join(__dirname, '..', '..', 'register.js'));
 
-const tmp = path.join(os.tmpdir(), 'node-patches-test-tmp');
+const nodeDir = path.join(os.tmpdir(), 'node-patches-test-tmp', '_node_bin');
 
 // tslint:disable-next-line:no-any
 function assertPatched(prefix: string, arr: any) {
-  const binDir = path.join(tmp, '_node_bin');
-
   const [execPath, execArgv, argv, pathEnv] = arr;
 
   assert.deepStrictEqual(
-      path.join(binDir, 'node'), execPath,
+      path.join(nodeDir, 'node'), execPath,
       prefix + ' exec path has been rewritten to subprocess proxy');
   assert.deepStrictEqual(
-      path.join(binDir, 'node'), argv[0],
+      path.join(nodeDir, 'node'), argv[0],
       prefix + ' argv[0] has been rewritten to subprocess proxy');
 
   let found = false;
@@ -38,23 +33,19 @@ function assertPatched(prefix: string, arr: any) {
   // something.
 
   assert.deepStrictEqual(
-      binDir, pathEnv.split(path.delimiter)[0],
+      nodeDir, pathEnv.split(path.delimiter)[0],
       prefix + ' the highest priority directory in the PATH must be the node shim dir.');
 }
 
 describe('spawning child processes', () => {
-  before(() => {
-    fs.mkdirSync(tmp, {recursive: true});
-  });
-
   it('get patched if run as shell script.', () => {
-    const res = cp.execSync(`NP_SUBPROCESS_BIN_DIR=${tmp} node -r ${
+    const res = cp.execSync(`NP_SUBPROCESS_NODE_DIR=${nodeDir} node -r ${
         requireScript} -e 'console.log(JSON.stringify([process.execPath,process.execArgv,process.argv,process.env.PATH]))'`);
     assertPatched('', JSON.parse(res + ''));
   });
 
   it('overwrites spawn related variables correctly.', () => {
-    const res = cp.execSync(`NP_SUBPROCESS_BIN_DIR=${tmp} node -r ${requireScript} ${
+    const res = cp.execSync(`NP_SUBPROCESS_NODE_DIR=${nodeDir} node -r ${requireScript} ${
         path.join(__dirname, 'worker-threads-script.js')}`);
 
     const {mainThread, worker} = JSON.parse(res + '');
@@ -64,7 +55,7 @@ describe('spawning child processes', () => {
   });
 
   it('can spawn node from the shell', () => {
-    const res = cp.execSync(`NP_SUBPROCESS_BIN_DIR=${tmp} node -r ${requireScript} ${
+    const res = cp.execSync(`NP_SUBPROCESS_NODE_DIR=${nodeDir} node -r ${requireScript} ${
         path.join(__dirname, 'shell-script.js')}`);
     // TODO: this is broken if no environment is passed and a new bash is executed
     // reading only the rc files to build the environment.
@@ -77,7 +68,7 @@ describe('spawning child processes', () => {
 
   it('can spawn node from spawn', () => {
     const res = cp.execSync(
-        `NP_SUBPROCESS_BIN_DIR=${tmp} node -r ${requireScript} ${
+        `NP_SUBPROCESS_NODE_DIR=${nodeDir} node -r ${requireScript} ${
             path.join(__dirname, 'spawn-script.js')}`,
         {env: process.env});
 
@@ -86,6 +77,6 @@ describe('spawning child processes', () => {
   });
 
   after(() => {
-    rimraf.sync(tmp);
+    rimraf.sync(nodeDir);
   });
 });
