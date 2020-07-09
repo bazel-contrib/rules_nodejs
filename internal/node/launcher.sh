@@ -47,6 +47,7 @@ source "${RUNFILES_DIR:-/dev/null}/$f" 2>/dev/null || \
 # blaze.
 # Case 5a is handled like case 1.
 # Case 6a is handled like case 3.
+set -x
 if [[ -n "${RUNFILES_MANIFEST_ONLY:-}" ]]; then
   # Windows only has a manifest file instead of symlinks.
   RUNFILES=${RUNFILES_MANIFEST_FILE%/MANIFEST}
@@ -88,6 +89,7 @@ else
   fi
 fi
 export RUNFILES
+set +x
 # --- end RUNFILES initialization ---
 
 TEMPLATED_env_vars
@@ -246,7 +248,7 @@ if [ "$PATCH_REQUIRE" = true ]; then
   MAIN=$(rlocation "TEMPLATED_loader_script")
 else
   # Entry point is the user-supplied script
-  MAIN=TEMPLATED_entry_point_execroot_path  
+  MAIN=TEMPLATED_entry_point_execroot_path
   # TODO: after we link-all-bins we should not need this extra lookup
   if [[ ! -f "$MAIN" ]]; then
     MAIN=TEMPLATED_entry_point_manifest_path
@@ -347,7 +349,7 @@ if [ "${EXPECTED_EXIT_CODE}" != "0" ]; then
       readonly BAZEL_EXIT_TESTS_FAILED=3;
       exit ${BAZEL_EXIT_TESTS_FAILED}
     fi
-  else 
+  else
     exit 0
   fi
 fi
