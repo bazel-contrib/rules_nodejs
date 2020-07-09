@@ -6,5 +6,6 @@ var theArgs = process.argv.slice(2);
 
 if (theArgs.length != 0) {
   // Non-zero exit code if the argument list is not empty
+  console.error(theArgs)
   process.exit(42)
 }
