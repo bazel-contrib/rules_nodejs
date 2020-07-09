@@ -47,6 +47,7 @@ source "${RUNFILES_DIR:-/dev/null}/$f" 2>/dev/null || \
 # blaze.
 # Case 5a is handled like case 1.
 # Case 6a is handled like case 3.
+set -x
 if [[ -n "${RUNFILES_MANIFEST_ONLY:-}" ]]; then
   # Windows only has a manifest file instead of symlinks.
   RUNFILES=${RUNFILES_MANIFEST_FILE%/MANIFEST}
@@ -88,6 +89,7 @@ else
   fi
 fi
 export RUNFILES
+set +x
 # --- end RUNFILES initialization ---
 
 TEMPLATED_env_vars
@@ -240,7 +242,7 @@ if [[ "$PWD" == *"/bazel-out/"* ]]; then
 else
   # We are in execroot, linker node_modules is in the PWD
   export BAZEL_PATCH_GUARDS="${PWD}/node_modules"
-fi 
+fi
 if [[ -n "${BAZEL_NODE_MODULES_ROOT:-}" ]]; then
   if [[ "${BAZEL_NODE_MODULES_ROOT}" != "${BAZEL_WORKSPACE}/node_modules" ]]; then
     # If BAZEL_NODE_MODULES_ROOT is set and it is not , add it to the list of bazel patch guards

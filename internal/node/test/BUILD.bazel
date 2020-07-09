@@ -7,6 +7,7 @@ load("//internal/node:node_repositories.bzl", "BUILT_IN_NODE_PLATFORMS")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/write_file.bzl", "write_file")
 load(":nodejs_toolchain_test.bzl", "nodejs_toolchain_test")
+load(":nested_tool_test.bzl", "nested_tool_test")
 
 # You can have a nodejs_binary with no node_modules attribute
 # and no fine grained deps
@@ -427,4 +428,17 @@ nodejs_test(
     data = [":main_lib"],
     entry_point = ":main.js",
     templated_args = ["--nobazel_patch_module_resolver"],
+)
+
+# You can have a nodejs_binary with no node_modules attribute
+# and no fine grained deps
+nodejs_binary(
+    name = "nested_tool",
+    data = ["nested_tool.js"],
+    entry_point = ":nested_tool.js",
+)
+
+nested_tool_test(
+    name = "nested_tool_test",
+    nested_tool = ":nested_tool",
 )
