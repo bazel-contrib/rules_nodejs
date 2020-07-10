@@ -17,6 +17,10 @@ for workspaceRoot in ${workspaceRoots[@]} ; do
     for workspaceFile in ${workspaceFiles[@]} ; do
       (
         readonly workspaceDir=$(dirname ${workspaceFile})
+        if [ ${workspaceDir} == "./examples/vue" ]; then
+          # vue 'npm ci' has issues but there are no deps there so we skip it for now
+          continue
+        fi
         printf "\n============================================\nupdating ${workspaceDir}\n============================================\n\n"
         cd ${workspaceDir}
         readonly packages=$(cat package.json | grep \"@bazel/ | awk -F: '{ print $1 }' | sed 's/[",]//g' | tr -d ' ')
