@@ -23,7 +23,8 @@
   "scripts": {
     "start": "ibazel run //:start",
     "build": "bazel build //:build",
-    "test": "ibazel test //:test"
+    "test": "ibazel test //:test",
+    "postinstall": "patch-package"
   },
   "eslintConfig": {
     "extends": "react-app"
