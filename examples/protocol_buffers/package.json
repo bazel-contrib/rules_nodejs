@@ -1,11 +1,11 @@
 {
   "devDependencies": {
-    "@bazel/karma": "^2.0.0-rc.1",
-    "@bazel/labs": "^2.0.0-rc.1",
-    "@bazel/protractor": "^2.0.0-rc.1",
-    "@bazel/rollup": "^2.0.0-rc.1",
-    "@bazel/terser": "^2.0.0-rc.1",
-    "@bazel/typescript": "^2.0.0-rc.1",
+    "@bazel/karma": "^2.0.0-rc.2",
+    "@bazel/labs": "^2.0.0-rc.2",
+    "@bazel/protractor": "^2.0.0-rc.2",
+    "@bazel/rollup": "^2.0.0-rc.2",
+    "@bazel/terser": "^2.0.0-rc.2",
+    "@bazel/typescript": "^2.0.0-rc.2",
     "@types/jasmine": "2.8.2",
     "@types/long": "^4.0.0",
     "@types/node": "11.11.1",
