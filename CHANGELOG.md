@@ -1,3 +1,12 @@
+# [2.0.0-rc.2](https://github.com/bazelbuild/rules_nodejs/compare/2.0.0-rc.1...2.0.0-rc.2) (2020-07-10)
+
+
+### Bug Fixes
+
+* **builtin:** fix node patches subprocess sandbox propogation ([#2017](https://github.com/bazelbuild/rules_nodejs/issues/2017)) ([0bd9b7e](https://github.com/bazelbuild/rules_nodejs/commit/0bd9b7e))
+
+
+
 # [2.0.0-rc.1](https://github.com/bazelbuild/rules_nodejs/compare/2.0.0-rc.0...2.0.0-rc.1) (2020-07-06)
 
 
