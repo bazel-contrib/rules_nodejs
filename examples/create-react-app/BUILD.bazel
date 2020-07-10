@@ -1,5 +1,5 @@
 load("@bazel_skylib//rules:write_file.bzl", "write_file")
-load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin")
+load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin", "nodejs_test")
 load("@npm//react-scripts:index.bzl", "react_scripts", "react_scripts_test")
 
 # Filename conventions described at
@@ -57,6 +57,12 @@ react_scripts(
     output_dir = True,
 )
 
+nodejs_test(
+    name = "build_smoke_test",
+    data = ["build"],
+    entry_point = "build_smoke_test.js",
+)
+
 copy_to_bin(
     name = "copy_test_files",
     srcs = glob(_TESTS),
@@ -81,6 +87,10 @@ react_scripts_test(
         "@npm//@testing-library/react",
         "@npm//@testing-library/user-event",
     ],
+    # Need to set the pwd to avoid jest needing a runfiles helper
+    # Windows users with permissions can use --enable_runfiles
+    # to make this test work
+    tags = ["no-bazelci-windows"],
 )
 
 react_scripts(
