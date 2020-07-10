@@ -16,12 +16,14 @@
     "typescript": "~3.7.2"
   },
   "devDependencies": {
-    "@bazel/bazelisk": "^1.5.0"
+    "@bazel/bazelisk": "^1.5.0",
+    "@bazel/ibazel": "^0.13.1",
+    "patch-package": "^6.2.2"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "ibazel run //:start",
     "build": "bazel build //:build",
-    "test": "react-scripts test"
+    "test": "ibazel test //:test"
   },
   "eslintConfig": {
     "extends": "react-app"
