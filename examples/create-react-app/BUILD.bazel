@@ -29,11 +29,6 @@ copy_to_bin(
     ],
 )
 
-copy_to_bin(
-    name = "copy_test_files",
-    srcs = glob(_TESTS),
-)
-
 # react-scripts can only work if the working directory is the root of the application.
 # So we'll need to chdir before it runs.
 write_file(
@@ -42,6 +37,13 @@ write_file(
     content = ["process.chdir(__dirname)"],
 )
 
+_RUNTIME_DEPS = [
+    "chdir.js",
+    "copy_static_files",
+    "@npm//react",
+    "@npm//react-dom",
+]
+
 react_scripts(
     # Note: this must be named "build" since react-scripts hard-codes that as the output dir
     name = "build",
@@ -49,14 +51,15 @@ react_scripts(
         "--node_options=--require=./$(execpath chdir.js)",
         "build",
     ],
-    data = [
-        "chdir.js",
-        "copy_static_files",
+    data = _RUNTIME_DEPS + [
         "@npm//@types",
-        "@npm//react",
-        "@npm//react-dom",
     ],
     output_dir = True,
+)
+
+copy_to_bin(
+    name = "copy_test_files",
+    srcs = glob(_TESTS),
 )
 
 react_scripts_test(
@@ -71,15 +74,20 @@ react_scripts_test(
         "--no-watchman",
         "--ci",
     ],
-    data = [
-        "chdir.js",
-        "copy_static_files",
+    data = _RUNTIME_DEPS + [
         "copy_test_files",
         "@npm//@testing-library/dom",
         "@npm//@testing-library/jest-dom",
         "@npm//@testing-library/react",
         "@npm//@testing-library/user-event",
-        "@npm//react",
-        "@npm//react-dom",
     ],
+)
+
+react_scripts(
+    name = "start",
+    args = [
+        "--node_options=--require=$(rootpath chdir.js)",
+        "start",
+    ],
+    data = _RUNTIME_DEPS,
 )

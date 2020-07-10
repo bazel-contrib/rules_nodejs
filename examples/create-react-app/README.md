@@ -6,7 +6,7 @@ approaches you can take to build and test your React app with Bazel.
 
 ## Available Scripts
 
-In the project directory, you can run:
+Just like with stock create-react-app, we have the same developer workflow. In the project directory, you can run:
 
 ### `yarn start`
 
@@ -19,7 +19,9 @@ You will also see any lint errors in the console.
 ### `yarn test`
 
 Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Note that it restarts Jest on each change, so there's a large time penalty on each re-run.
+This can be solved by making Jest ibazel-aware as we did with Karma.
+See https://github.com/bazelbuild/rules_nodejs/issues/2028
 
 ### `yarn build`
 
