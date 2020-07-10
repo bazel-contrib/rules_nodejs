@@ -67,10 +67,10 @@ def run_node(ctx, inputs, arguments, executable, **kwargs):
     exec_exec = getattr(ctx.executable, executable)
 
     outputs = kwargs.pop("outputs", [])
-    extra_inputs = []
+    extra_inputs = depset()
     link_data = []
     if (NodeRuntimeDepsInfo in exec_attr):
-        extra_inputs = exec_attr[NodeRuntimeDepsInfo].deps.to_list()
+        extra_inputs = exec_attr[NodeRuntimeDepsInfo].deps
         link_data = exec_attr[NodeRuntimeDepsInfo].pkgs
 
     mnemonic = kwargs.get("mnemonic")
@@ -114,9 +114,17 @@ def run_node(ctx, inputs, arguments, executable, **kwargs):
                 env[var] = ctx.configuration.default_shell_env[var]
     env["BAZEL_NODE_MODULES_ROOT"] = _compute_node_modules_root(ctx)
 
+    # ctx.actions.run accepts both lists and a depset for inputs. Coerce the original inputs to a
+    # depset if they're a list, so that extra inputs can be combined in a performant manner.
+    inputs_depset = depset(transitive = [
+        depset(direct = inputs) if type(inputs) == "list" else inputs,
+        extra_inputs,
+        depset(direct = [modules_manifest]),
+    ])
+
     ctx.actions.run(
         outputs = outputs,
-        inputs = inputs + extra_inputs + [modules_manifest],
+        inputs = inputs_depset,
         arguments = arguments,
         executable = exec_exec,
         env = env,
