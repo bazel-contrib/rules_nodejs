@@ -1,0 +1,41 @@
+load("@bazel_skylib//rules:write_file.bzl", "write_file")
+load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin")
+load("@npm//react-scripts:index.bzl", "react_scripts")
+
+# We don't want to teach react-scripts to include from multiple directories
+# So we copy everything it wants to read to the output "bin" directory
+copy_to_bin(
+    name = "copy_static_files",
+    srcs = glob([
+        "public/*",
+        "src/*",
+    ]) + [
+        "package.json",
+        "tsconfig.json",
+    ],
+)
+
+# react-scripts can only work if the working directory is the root of the application.
+# So we'll need to chdir before it runs.
+write_file(
+    name = "write_chdir_script",
+    out = "chdir.js",
+    content = ["process.chdir(__dirname)"],
+)
+
+react_scripts(
+    # Note: this must be named "build" since react-scripts hard-codes that as the output dir
+    name = "build",
+    args = [
+        "--node_options=--require=./$(execpath chdir.js)",
+        "build",
+    ],
+    data = [
+        "chdir.js",
+        "copy_static_files",
+        "@npm//@types",
+        "@npm//react",
+        "@npm//react-dom",
+    ],
+    output_dir = True,
+)

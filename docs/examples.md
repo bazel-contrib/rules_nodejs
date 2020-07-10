@@ -25,9 +25,33 @@ Example: [examples/angular_view_engine](https://github.com/bazelbuild/rules_node
 
 ## React
 
-There is a basic example at [examples/react_webpack](https://github.com/bazelbuild/rules_nodejs/tree/master/examples/react_webpack)
+Similar to the explanation above for Angular, Bazel is agnostic to what tools you choose to run on your project.
+However, the benefits of using Bazel are unlocked as you adopt it as your build system.
+We think the following examples show a typical migration of adopting Bazel:
 
-We are likely to add more, as the rules_nodejs core maintainers are working on some React projects.
+**create-react-app**: If you run `create-react-app`, it will install a build system called `react-scripts`.
+As a first step into Bazel, you can simply ask Bazel to wrap the existing build system.
+This guarantees compatibility with your current code, and if your objective is just to include a frontend app into
+a bigger full-stack Bazel build, this might be the final step in the migration.
+However it will run `react-scripts` as a single Bazel action, which means that you gain no incrementality benefit.
+So we expect for most applications this is just a first step.
+
+The [create-react-app example](https://github.com/bazelbuild/rules_nodejs/tree/master/examples/create-react-app)
+shows how this will look. We suggest reading the README in that example, and also look at the commit history to that
+directory as an illustration of how we started from create-react-app and added Bazel bits.
+
+**cra-eject**: As a next step to make our Build more incremental and performant, we follow the create-react-app suggestion
+of "ejecting" the configuration. This means the `react-scripts` build system is gone, and Bazel can take its place.
+
+TODO(alexeagle): build an example illustrating how this looks
+
+**custom**: If you really know your JS build tools, Bazel is the perfect way to assemble all the myriad individual tools
+into a custom toolchain. This allows you to unlock any part of the JS ecosystem without waiting for it to be integrated
+for you by maintainers of a project like create-react-app, who have a very high bar for adding features since the
+maintenance and support burden falls on them. However you'll need to understand both the tools as well as Bazel to
+successfully build your own toolchain.
+
+There is a basic example at [examples/react_webpack](https://github.com/bazelbuild/rules_nodejs/tree/master/examples/react_webpack) but it needs a lot more work to show everything that is possible!
 
 ## Vue
 
