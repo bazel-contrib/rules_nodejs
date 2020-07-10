@@ -17,6 +17,11 @@ nodejs_binary(
     entry_point = "js-write-file.js",
 )
 
+nodejs_binary(
+    name = "cloner_bin",
+    entry_point = "js-clone-file.js",
+)
+
 js_write_file(
     name = "write_file",
     content = "test file content",
@@ -32,5 +37,7 @@ js_write_file(
     for file in [
         "out",
         "out2",
+        "out3",
+        "out4",
     ]
 ]
