@@ -61,7 +61,9 @@ LinkablePackageInfo = _LinkablePackageInfo
 #Modelled after _GoContextData in rules_go/go/private/context.bzl
 NodeContextInfo = provider(
     doc = "Provides data about the build context, like config_setting's",
-    fields = ["stamp"],
+    fields = {
+        "stamp": "If stamping is enabled",
+    },
 )
 
 NodeRuntimeDepsInfo = _NodeRuntimeDepsInfo

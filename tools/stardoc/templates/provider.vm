@@ -1,1 +1,13 @@
-PROVIDER TODO
+#[[##]]# ${providerName}
+
+${providerInfo.docString}
+
+#if (!$providerInfo.fieldInfoList.isEmpty())
+#foreach ($field in $providerInfo.fieldInfoList)
+
+#[[####]]# `${field.name}`
+${field.docString}
+
+#end
+
+#end

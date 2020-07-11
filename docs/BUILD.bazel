@@ -25,6 +25,16 @@ stardoc(
     ],
 )
 
+stardoc(
+    name = "providers",
+    out = "providers.api",
+    input = "//:providers.bzl",
+    tags = ["fix-windows"],
+    deps = [
+        "//:bzl",
+    ],
+)
+
 _BUILTINS_README = "# Built-in rules\n\nThese rules are available without any npm installation, via the `WORKSPACE` install of the `build_bazel_rules_nodejs` workspace. This is necessary to bootstrap Bazel to run the package manager to download other rules from NPM.\n\n"
 
 # Ugly genrule depending on local linux environment to build the README out of skylark doc generation.
@@ -32,10 +42,14 @@ _BUILTINS_README = "# Built-in rules\n\nThese rules are available without any np
 # TODO: This ought to be possible with stardoc alone. Need to coordinate with Chris Parsons.
 genrule(
     name = "builtins_md",
-    srcs = [":builtins.api"],
+    srcs = [
+        ":builtins.api",
+        ":providers.api",
+    ],
     outs = ["builtins.doc"],
     cmd = "echo '%s' > $@;" % _BUILTINS_README +
-          "cat $< | sed 's/^##/\\\n##/' >> $@",
+          "cat $(location :builtins.api) | sed 's/^##/\\\n##/' >> $@ &&" +
+          "cat $(location :providers.api) | sed 's/^##/\\\n##/' >> $@",
     tags = ["fix-windows"],
 )
 

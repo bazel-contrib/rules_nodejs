@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""A docstring
+"""LinkablePackageInfo module
 """
 
 LinkablePackageInfo = provider(
-    doc = "A doc string",
+    doc = "The LinkablePackageInfo provider provides information to the linker for linking pkg_npm built packages",
     fields = {
         "files": "Depset of files in this package (must all be contained within path)",
         "package_name": """The package name.
