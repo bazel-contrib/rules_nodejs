@@ -47,8 +47,8 @@ JSModuleInfo = provider(
 def js_module_info(sources, deps = []):
     """Constructs a JSModuleInfo including all transitive sources from JSModuleInfo providers in a list of deps.
 
-Returns a single JSModuleInfo.
-"""
+    Returns a single JSModuleInfo.
+    """
     transitive_depsets = [sources]
     for dep in deps:
         if JSModuleInfo in dep:
@@ -78,8 +78,8 @@ Historical note: this was the typescript.es5_sources output.
 def js_named_module_info(sources, deps = []):
     """Constructs a JSNamedModuleInfo including all transitive sources from JSNamedModuleInfo providers in a list of deps.
 
-Returns a single JSNamedModuleInfo.
-"""
+    Returns a single JSNamedModuleInfo.
+    """
     transitive_depsets = [sources]
     for dep in deps:
         if JSNamedModuleInfo in dep:
@@ -95,9 +95,9 @@ JSEcmaScriptModuleInfo = provider(
 
 They should use modern syntax and ESModules.
 These files should typically be named "foo.mjs"
-TODO: should we require that?
 
 Historical note: this was the typescript.es6_sources output""",
+    # TODO: should we require that these are ESModules with the mjs extension?
     fields = {
         "direct_sources": "Depset of direct JavaScript files and sourcemaps",
         "sources": "Depset of direct and transitive JavaScript files and sourcemaps",
@@ -107,8 +107,8 @@ Historical note: this was the typescript.es6_sources output""",
 def js_ecma_script_module_info(sources, deps = []):
     """Constructs a JSEcmaScriptModuleInfo including all transitive sources from JSEcmaScriptModuleInfo providers in a list of deps.
 
-Returns a single JSEcmaScriptModuleInfo.
-"""
+    Returns a single JSEcmaScriptModuleInfo.
+    """
     transitive_depsets = [sources]
     for dep in deps:
         if JSEcmaScriptModuleInfo in dep:

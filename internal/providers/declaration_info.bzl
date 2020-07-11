@@ -15,15 +15,13 @@
 """This module contains a provider for TypeScript typings files (.d.ts)"""
 
 DeclarationInfo = provider(
-    doc = """The DeclarationInfo provider allows JS rules to communicate typing information.
-TypeScript's .d.ts files are used as the interop format for describing types.
+    doc = """The DeclarationInfo provider allows JS rules to communicate typing information. TypeScript's .d.ts files are used as the interop format for describing types.
 
 Do not create DeclarationInfo instances directly, instead use the declaration_info factory function.
 
-TODO(alexeagle): The ts_library#deps attribute should require that this provider is attached.
-
 Note: historically this was a subset of the string-typed "typescript" provider.
 """,
+    # TODO(alexeagle): The ts_library#deps attribute should require that this provider is attached.
     # TODO: if we ever enable --declarationMap we will have .d.ts.map files too
     fields = {
         "declarations": "A depset of .d.ts files produced by this rule",
@@ -36,14 +34,15 @@ This prevents needing an aspect in rules that consume the typings, which improve
 def declaration_info(declarations, deps = []):
     """Constructs a DeclarationInfo including all transitive declarations from DeclarationInfo providers in a list of deps.
 
-    # TODO: add some checking actions to ensure the declarations are well-formed and don't have semantic diagnostics
-
     Args:
         declarations: list of .d.ts files
         deps: list of labels of dependencies where we should collect their DeclarationInfo to pass transitively
+
     Returns:
         a single DeclarationInfo provider
     """
+
+    # TODO: add some checking actions to ensure the declarations are well-formed and don't have semantic diagnostics
     transitive_depsets = [declarations]
     for dep in deps:
         if DeclarationInfo in dep:

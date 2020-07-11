@@ -1,1 +1,19 @@
-ASPECT TODO
+#[[##]]# ${aspectName}
+
+#[[###]]# Usage
+
+```
+$aspectName(#foreach( $attr in $aspectInfo.getAttributeList() )$attr.name#if( $foreach.hasNext ), #end#end)
+```
+
+#if (!$aspectInfo.getAttributeList().isEmpty())
+#foreach ($attribute in $aspectInfo.getAttributeList())
+
+#[[####]]# `${attribute.name}`
+(*#if ($attribute.type == "NAME")[name]#elseif( $attribute.type == "LABEL" )[label]#elseif( $attribute.type == "LABEL_LIST" )[labels]#else${util.attributeTypeString($attribute)}#end#if( $attribute.mandatory ), mandatory#end*)#if (!$attribute.docString.isEmpty()): ${attribute.docString.trim()}#end
+#if( !$attribute.defaultValue.isEmpty() )
+
+
+Defaults to `$attribute.defaultValue`#end
+#end
+#end

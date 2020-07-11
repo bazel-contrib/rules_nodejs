@@ -58,7 +58,16 @@ def _compute_node_modules_root(ctx):
 
 def run_node(ctx, inputs, arguments, executable, **kwargs):
     """Helper to replace ctx.actions.run
-    This calls node programs with a node_modules directory in place"""
+
+    This calls node programs with a node_modules directory in place
+
+    Args:
+        ctx: rule context from the calling rule implementation function
+        inputs: list or depset of inputs to the action
+        arguments: list or ctx.actions.Args object containing arguments to pass to the executable
+        executable: stringy representation of the executable this action will run, eg eg. "my_executable" rather than ctx.executable.my_executable
+        kwargs: all other args accepted by ctx.actions.run
+    """
     if (type(executable) != "string"):
         fail("""run_node requires that executable be provided as a string,
             eg. my_executable rather than ctx.executable.my_executable
