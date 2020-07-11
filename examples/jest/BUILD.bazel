@@ -8,7 +8,7 @@ jest_test(
         "index.js",
         "index.test.js",
         "index2.test.js",
-    ],
+    ] + glob(["__snapshots__/*.snap"]),
     jest_config = ":jest.config.js",
     tags = [
         # Need to set the pwd to avoid jest needing a runfiles helper
