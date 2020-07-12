@@ -8,14 +8,16 @@ def jest_test(name, srcs, deps, jest_config, **kwargs):
         "--no-cache",
         "--no-watchman",
         "--ci",
+        "--colors",
     ]
     templated_args.extend(["--config", "$(rootpath %s)" % jest_config])
     for src in srcs:
         templated_args.extend(["--runTestsByPath", "$(rootpath %s)" % src])
 
+    data = [jest_config] + srcs + deps + ["jest-reporter.js"]
     _jest_test(
         name = name,
-        data = [jest_config] + srcs + deps,
+        data = data,
         templated_args = templated_args,
         **kwargs
     )
@@ -23,7 +25,7 @@ def jest_test(name, srcs, deps, jest_config, **kwargs):
     # This rule is used specifically to update snapshots via `bazel run`
     jest(
         name = "%s.update" % name,
-        data = [jest_config] + srcs + deps,
+        data = data,
         templated_args = templated_args + ["-u"],
         **kwargs
     )
