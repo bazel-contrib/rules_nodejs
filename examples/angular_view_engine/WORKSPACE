@@ -70,11 +70,6 @@ browser_repositories(
     firefox = True,
 )
 
-# Setup the rules_typescript tooolchain
-load("@npm//@bazel/typescript:index.bzl", "ts_setup_workspace")
-
-ts_setup_workspace()
-
 # Setup the rules_sass toolchain
 load("@io_bazel_rules_sass//sass:sass_repositories.bzl", "sass_repositories")
 

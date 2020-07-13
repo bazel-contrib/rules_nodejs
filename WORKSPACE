@@ -130,10 +130,6 @@ load("@build_bazel_rules_typescript//internal:ts_repositories.bzl", "ts_setup_de
 
 ts_setup_dev_workspace()
 
-load("//packages/typescript/internal:ts_repositories.bzl", "ts_setup_workspace")
-
-ts_setup_workspace()
-
 #
 # Install @bazel/cypress dependencies
 #

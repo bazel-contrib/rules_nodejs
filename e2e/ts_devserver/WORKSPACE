@@ -33,10 +33,6 @@ yarn_install(
     yarn_lock = "//:yarn.lock",
 )
 
-load("@npm//@bazel/typescript:index.bzl", "ts_setup_workspace")
-
-ts_setup_workspace()
-
 load("@npm//@bazel/protractor:package.bzl", "npm_bazel_protractor_dependencies")
 
 npm_bazel_protractor_dependencies()

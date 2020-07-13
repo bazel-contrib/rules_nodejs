@@ -77,7 +77,3 @@ let pkgContent = read('with_ts/package.json');
 if (pkgContent.indexOf('"@bazel/typescript": "latest"') < 0) {
   fail('should install @bazel/typescript dependency', pkgContent);
 }
-wkspContent = read('with_ts/WORKSPACE.bazel');
-if (wkspContent.indexOf('ts_setup_workspace(') < 0) {
-  fail('should install extra TS repositories');
-}

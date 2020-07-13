@@ -42,14 +42,6 @@ $ npm install --save-dev @bazel/typescript
 
 Watch for any peerDependency warnings - we assume you have already installed the `typescript` package from npm.
 
-Some rules require you to add this to your `WORKSPACE` file:
-
-```python
-# Set up TypeScript toolchain
-load("@npm//@bazel/typescript:index.bzl", "ts_setup_workspace")
-ts_setup_workspace()
-```
-
 Create a `BUILD.bazel` file in your workspace root. If your `tsconfig.json` file is in the root, use
 
 ```python

@@ -63,7 +63,3 @@ go_register_toolchains()
 load("@build_bazel_rules_typescript//internal:ts_repositories.bzl", "ts_setup_dev_workspace")
 
 ts_setup_dev_workspace()
-
-load("@build_bazel_rules_nodejs//packages/typescript/internal:ts_repositories.bzl", "ts_setup_workspace")
-
-ts_setup_workspace()

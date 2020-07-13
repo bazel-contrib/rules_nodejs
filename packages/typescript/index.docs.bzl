@@ -21,10 +21,8 @@ So this is a copy of index.bzl with macro indirection removed.
 load("//packages/typescript/internal:build_defs.bzl", _ts_library = "ts_library")
 load("//packages/typescript/internal:ts_config.bzl", _ts_config = "ts_config")
 load("//packages/typescript/internal:ts_project.bzl", _ts_project = "ts_project_macro")
-load("//packages/typescript/internal:ts_repositories.bzl", _ts_setup_workspace = "ts_setup_workspace")
 load("//packages/typescript/internal/devserver:ts_devserver.bzl", _ts_devserver = "ts_devserver")
 
-ts_setup_workspace = _ts_setup_workspace
 ts_library = _ts_library
 ts_config = _ts_config
 ts_project = _ts_project
