@@ -162,13 +162,7 @@ http_archive(
 )
 
 ${pkgMgr === 'yarn' ? yarnInstallCmd : npmInstallCmd}`;
-  if (args['typescript']) {
-    workspaceContent += `
 
-# Setup TypeScript toolchain
-load("//packages/typescript:index.bzl", "ts_setup_workspace")
-ts_setup_workspace()`;
-  }
   write('WORKSPACE.bazel', workspaceContent);
   write('.bazelignore', `node_modules
 dist

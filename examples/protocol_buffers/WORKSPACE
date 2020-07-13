@@ -78,10 +78,6 @@ browser_repositories(
     firefox = True,
 )
 
-load("@npm//@bazel/typescript:index.bzl", "ts_setup_workspace")
-
-ts_setup_workspace()
-
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 
 protobuf_deps()
