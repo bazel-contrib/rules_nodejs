@@ -1,0 +1,24 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
+load("//packages/typescript:index.bzl", "ts_project")
+
+# Ensure that subdir/a.ts produces outDir/a.js
+SRCS = [
+    "subdir/a.ts",
+]
+
+ts_project(
+    name = "tsconfig",
+    srcs = SRCS,
+    rootdir = "subdir",
+)
+
+nodejs_test(
+    name = "test",
+    data = [
+        ":tsconfig",
+    ],
+    entry_point = "verify.js",
+    templated_args = [
+        "$(locations :tsconfig)",
+    ],
+)
