@@ -14,6 +14,7 @@ _ATTRS = {
     "deps": attr.label_list(providers = [DeclarationInfo]),
     "extends": attr.label_list(allow_files = [".json"]),
     "outdir": attr.string(),
+    "rootdir": attr.string(),
     # NB: no restriction on extensions here, because tsc sometimes adds type-check support
     # for more file kinds (like require('some.json')) and also
     # if you swap out the `compiler` attribute (like with ngtsc)
@@ -56,9 +57,8 @@ def _ts_project_impl(ctx):
         ctx.file.tsconfig.path,
         "--outDir",
         _join(ctx.bin_dir.path, ctx.label.package, ctx.attr.outdir),
-        # Make sure TypeScript writes outputs to same directory structure as inputs
         "--rootDir",
-        ctx.label.package if ctx.label.package else ".",
+        _join(ctx.label.package, ctx.attr.rootdir) if ctx.label.package else ".",
     ])
     if len(ctx.outputs.typings_outs) > 0:
         arguments.add_all([
@@ -211,8 +211,9 @@ validate_options = rule(
     },
 )
 
-def _out_paths(srcs, outdir, ext):
-    return [_join(outdir, f[:f.rindex(".")] + ext) for f in srcs if not f.endswith(".d.ts") and not f.endswith(".json")]
+def _out_paths(srcs, outdir, rootdir, ext):
+    rootdir_replace_pattern = rootdir + "/" if rootdir else ""
+    return [_join(outdir, f[:f.rindex(".")].replace(rootdir_replace_pattern, "") + ext) for f in srcs if not f.endswith(".d.ts") and not f.endswith(".json")]
 
 def ts_project_macro(
         name = "tsconfig",
@@ -230,6 +231,7 @@ def ts_project_macro(
         tsc = None,
         validate = True,
         outdir = None,
+        rootdir = None,
         **kwargs):
     """Compiles one TypeScript project using `tsc --project`
 
@@ -360,6 +362,9 @@ def ts_project_macro(
             so if your rule appears in path/to/my/package/BUILD.bazel and outdir = "foo" then the .js files
             will appear in bazel-out/[arch]/bin/path/to/my/package/foo/*.js
 
+        rootdir: a string specifying a subdirectory under the input package which should be consider the
+            root directory of all the input files.
+
         declaration: if the `declaration` bit is set in the tsconfig.
             Instructs Bazel to expect a `.d.ts` output for each `.ts` source.
         source_map: if the `sourceMap` bit is set in the tsconfig.
@@ -405,10 +410,11 @@ def ts_project_macro(
         tsconfig = tsconfig,
         extends = extends,
         outdir = outdir,
-        js_outs = _out_paths(srcs, outdir, ".js") if not emit_declaration_only else [],
-        map_outs = _out_paths(srcs, outdir, ".js.map") if source_map and not emit_declaration_only else [],
-        typings_outs = _out_paths(srcs, outdir, ".d.ts") if declaration or composite else [],
-        typing_maps_outs = _out_paths(srcs, outdir, ".d.ts.map") if declaration_map else [],
+        rootdir = rootdir,
+        js_outs = _out_paths(srcs, outdir, rootdir, ".js") if not emit_declaration_only else [],
+        map_outs = _out_paths(srcs, outdir, rootdir, ".js.map") if source_map and not emit_declaration_only else [],
+        typings_outs = _out_paths(srcs, outdir, rootdir, ".d.ts") if declaration or composite else [],
+        typing_maps_outs = _out_paths(srcs, outdir, rootdir, ".d.ts.map") if declaration_map else [],
         buildinfo_out = tsconfig[:-5] + ".tsbuildinfo" if composite or incremental else None,
         tsc = tsc,
         **kwargs
