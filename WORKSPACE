@@ -15,6 +15,7 @@
 workspace(
     name = "build_bazel_rules_nodejs",
     managed_directories = {
+        "@angular_deps": ["packages/angular/node_modules"],
         # cypress_deps must be a managed directory to ensure it is downloaded before cypress_repository is run.
         "@cypress_deps": ["packages/cypress/test/node_modules"],
         "@npm": ["node_modules"],
