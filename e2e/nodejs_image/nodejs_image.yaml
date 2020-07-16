@@ -1,9 +1,5 @@
 schemaVersion: 2.0.0
 
 metadataTest:
-  cmd: []
-  env:
-    - key: PATH
-      value: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
   entrypoint: ['/app//main']
   workdir: "/app//main.runfiles/e2e_nodejs_image"
