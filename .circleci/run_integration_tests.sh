@@ -10,7 +10,7 @@ readonly MAX_SHARDS=${2:-1}
 
 # Get a sorted list of all test targets. We sort to ensure that each shard gets the same list
 # incase there is any inconstencies with bazel query on different shards.
-readonly QUERY_RESULT=$(bazel query 'kind("bazel_integration_test", //examples/... union //e2e/...)')
+readonly QUERY_RESULT=$(bazel query 'kind("bazel_integration_test", //examples/... union //e2e/...) except attr("tags", "no-circleci", //examples/... union //e2e/...)')
 declare TEST_TARGETS_ARRAY=()
 for target in ${QUERY_RESULT}; do
   TEST_TARGETS_ARRAY+=("${target}")

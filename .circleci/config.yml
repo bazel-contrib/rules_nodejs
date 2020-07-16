@@ -175,7 +175,7 @@ jobs:
       - *init_bazel
       - *hide_node_and_yarn_local_binaries
       - run:
-          command: ./scripts/ci/run_integration_tests.sh ${CIRCLE_NODE_INDEX} ${CIRCLE_NODE_TOTAL}
+          command: ./.circleci/run_integration_tests.sh ${CIRCLE_NODE_INDEX} ${CIRCLE_NODE_TOTAL}
           no_output_timeout: 30m
 
   test_integration_manual:

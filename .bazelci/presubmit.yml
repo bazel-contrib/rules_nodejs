@@ -310,7 +310,7 @@ tasks:
     # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
     skip_use_bazel_version_for_test: true
     test_flags:
-    - "--test_tag_filters=e2e"
+    - "--test_tag_filters=e2e,-no-bazelci-mac"
     - "--local_ram_resources=792"
     # test_args will be passed to the nested bazel process
     # TODO(gregmagolan): fix frequent flake with multiple cores in nested bazel (osx buildkite & local)
@@ -414,7 +414,7 @@ tasks:
     # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
     skip_use_bazel_version_for_test: true
     test_flags:
-    - "--test_tag_filters=e2e,-fix-windows"
+    - "--test_tag_filters=e2e,-fix-windows,-no-bazelci-windows"
     - "--local_ram_resources=792"
     # test_args will be passed to the nested bazel process
     - "--test_arg=--local_ram_resources=13288"
