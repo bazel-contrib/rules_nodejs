@@ -105,18 +105,26 @@ def _write_require_patch_script(ctx, node_modules_root):
         is_executable = True,
     )
 
+def _ts_to_js(entry_point_path):
+    """If the entry point specified is a typescript file then set it to .js.
+
+    Workaround for #1974
+    ts_library doesn't give labels for its .js outputs so users are forced to give .ts labels
+
+    Args:
+        entry_point_path: a file path
+    """
+    if entry_point_path.endswith(".ts"):
+        return entry_point_path[:-3] + ".js"
+    elif entry_point_path.endswith(".tsx"):
+        return entry_point_path[:-4] + ".js"
+    return entry_point_path
+
 def _write_loader_script(ctx):
     if len(ctx.attr.entry_point.files.to_list()) != 1:
         fail("labels in entry_point must contain exactly one file")
 
-    entry_point_path = _to_manifest_path(ctx, ctx.file.entry_point)
-
-    # If the entry point specified is a typescript file then set the entry
-    # point to the corresponding .js file
-    if entry_point_path.endswith(".ts"):
-        entry_point_path = entry_point_path[:-3] + ".js"
-    elif entry_point_path.endswith(".tsx"):
-        entry_point_path = entry_point_path[:-4] + ".js"
+    entry_point_path = _ts_to_js(_to_manifest_path(ctx, ctx.file.entry_point))
 
     ctx.actions.expand_template(
         template = ctx.file._loader_template,
@@ -269,8 +277,8 @@ fi
     #else:
     #    substitutions["TEMPLATED_script_path"] = "$(rlocation \"%s\")" % _to_manifest_path(ctx, ctx.file.entry_point)
     # For now we need to look in both places
-    substitutions["TEMPLATED_entry_point_execroot_path"] = "\"%s\"" % _to_execroot_path(ctx, ctx.file.entry_point)
-    substitutions["TEMPLATED_entry_point_manifest_path"] = "$(rlocation \"%s\")" % _to_manifest_path(ctx, ctx.file.entry_point)
+    substitutions["TEMPLATED_entry_point_execroot_path"] = "\"%s\"" % _ts_to_js(_to_execroot_path(ctx, ctx.file.entry_point))
+    substitutions["TEMPLATED_entry_point_manifest_path"] = "$(rlocation \"%s\")" % _ts_to_js(_to_manifest_path(ctx, ctx.file.entry_point))
 
     ctx.actions.expand_template(
         template = ctx.file._launcher_template,
