@@ -1,0 +1,8 @@
+load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
+
+js_library(
+    name = "foolib",
+    package_name = "@foo/lib",
+    srcs = ["index.js"],
+    visibility = ["//visibility:public"],
+)
