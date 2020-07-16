@@ -276,9 +276,11 @@ if [[ "$PWD" == *"/bazel-out/"* ]]; then
   readonly execroot=${PWD:0:${index}}
   export BAZEL_PATCH_GUARDS="${execroot}/node_modules"
 else
-  # We are in execroot, linker node_modules is in the PWD
+  # We are in execroot or in some other context all together such as a nodejs_image or a manually
+  # run nodejs_binary. If this is execroot then linker node_modules is in the PWD. If this another
+  # context then it is safe to assume the node_modules are there and guard that directory if it exists.
   export BAZEL_PATCH_GUARDS="${PWD}/node_modules"
-fi 
+fi
 if [[ -n "${BAZEL_NODE_MODULES_ROOT:-}" ]]; then
   if [[ "${BAZEL_NODE_MODULES_ROOT}" != "${BAZEL_WORKSPACE}/node_modules" ]]; then
     # If BAZEL_NODE_MODULES_ROOT is set and it is not , add it to the list of bazel patch guards
