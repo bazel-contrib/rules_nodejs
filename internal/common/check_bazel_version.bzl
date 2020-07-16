@@ -43,11 +43,7 @@ def check_bazel_version(minimum_bazel_version, message = ""):
     if "bazel_version" not in dir(native):
         fail("\nCurrent Bazel version is lower than 0.2.1, expected at least %s\n" %
              minimum_bazel_version)
-    elif not native.bazel_version:
-        print("\nCurrent Bazel is not a release version, cannot check for " +
-              "compatibility.")
-        print("Make sure that you are running at least Bazel %s.\n" % minimum_bazel_version)
-    elif not check_version(native.bazel_version, minimum_bazel_version):
+    elif native.bazel_version and not check_version(native.bazel_version, minimum_bazel_version):
         fail("\nCurrent Bazel version is {}, expected at least {}\n{}".format(
             native.bazel_version,
             minimum_bazel_version,
