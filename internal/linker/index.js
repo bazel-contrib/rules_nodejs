@@ -126,8 +126,10 @@ function resolveRoot(root, startCwd, isExecroot, runfiles) {
         }
         const match = startCwd.match(/(\/bazel-out\/|\/bazel-~1\/x64_wi~1\/)/);
         if (!match) {
-            panic(`No 'bazel-out' folder found in path '${startCwd}'!`);
-            return '';
+            if (!root) {
+                return `${startCwd}/node_modules`;
+            }
+            return path.resolve(`${startCwd}/../${root}`);
         }
         const symlinkRoot = startCwd.slice(0, match.index);
         process.chdir(symlinkRoot);
