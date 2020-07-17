@@ -11,8 +11,8 @@ ts_project(
     srcs = SRCS,
     declaration = True,
     declaration_map = True,
-    outdir = "out",
-    rootdir = "subdir",
+    out_dir = "out",
+    root_dir = "subdir",
     source_map = True,
 )
 

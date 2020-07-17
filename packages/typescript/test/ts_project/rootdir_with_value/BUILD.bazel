@@ -9,7 +9,7 @@ SRCS = [
 ts_project(
     name = "tsconfig",
     srcs = SRCS,
-    rootdir = "subdir",
+    root_dir = "subdir",
 )
 
 nodejs_test(

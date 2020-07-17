@@ -10,7 +10,7 @@ load("//packages/typescript:index.bzl", "ts_project")
             format,
         ],
         # Write the output files to an extra nested directory
-        outdir = format,
+        out_dir = format,
         tsconfig = "tsconfig.json",
     )
     for format in [

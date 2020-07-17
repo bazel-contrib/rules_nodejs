@@ -10,10 +10,10 @@ ts_project(
     name = "tsconfig",
     srcs = SRCS,
     declaration = True,
+    declaration_dir = "out/types",
     declaration_map = True,
-    declarationdir = "out/types",
-    outdir = "out/code",
-    rootdir = "subdir",
+    out_dir = "out/code",
+    root_dir = "subdir",
     source_map = True,
 )
 
