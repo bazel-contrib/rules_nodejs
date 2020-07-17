@@ -1,0 +1,26 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+load("@io_bazel_rules_docker//contrib:test.bzl", "container_test")
+load("@io_bazel_rules_docker//nodejs:image.bzl", "nodejs_image")
+
+nodejs_binary(
+    name = "main",
+    data = [
+        "//foolib",
+        "@npm//date-fns",
+    ],
+    entry_point = "main.js",
+    # Turn off require() monkey patches so linker is required to run inside docker container
+    templated_args = ["--nobazel_patch_module_resolver"],
+)
+
+# bazel run --platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64 //:nodejs_image
+nodejs_image(
+    name = "nodejs_image",
+    binary = ":main",
+)
+
+container_test(
+    name = "nodejs_image_test",
+    configs = [":nodejs_image.yaml"],
+    image = ":nodejs_image",
+)

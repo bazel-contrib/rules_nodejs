@@ -9,9 +9,9 @@
 
 ## IMPORTANT
 # If you change the `default_docker_image` version, also change the `cache_key` version
-var_1: &default_docker_image circleci/node:12.16
-var_2: &browsers_docker_image circleci/node:12.16-browsers
-var_3: &cache_key node-12.16-{{ checksum "yarn.lock" }}
+var_1: &default_docker_image circleci/node:12.18.2
+var_2: &browsers_docker_image circleci/node:12.18.2-browsers
+var_3: &cache_key node-12.18.2-{{ checksum "yarn.lock" }}
 
 var_4: &init_environment
   run:
@@ -175,7 +175,7 @@ jobs:
       - *init_bazel
       - *hide_node_and_yarn_local_binaries
       - run:
-          command: ./scripts/ci/run_integration_tests.sh ${CIRCLE_NODE_INDEX} ${CIRCLE_NODE_TOTAL}
+          command: ./.circleci/run_integration_tests.sh ${CIRCLE_NODE_INDEX} ${CIRCLE_NODE_TOTAL}
           no_output_timeout: 30m
 
   test_integration_manual:

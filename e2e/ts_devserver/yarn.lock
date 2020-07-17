@@ -2,15 +2,15 @@
 # yarn lockfile v1
 
 
-"@bazel/protractor@^2.0.0-rc.2":
-  version "2.0.0-rc.2"
-  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-2.0.0-rc.2.tgz#237c1c98fd5d918a703f0f32fd3580ee7314c351"
-  integrity sha512-JR68nnLSOui70GLUijWdUirgwQmfGdfiSWWuF7fxkhiPMMk22pju1/vph62AOY8O4mXpHXrsIBSvlcKznrB3Sw==
+"@bazel/protractor@^2.0.0-rc.3":
+  version "2.0.0-rc.3"
+  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-2.0.0-rc.3.tgz#fa48a1ca604ad0c647c0aed6e2dde56a4eaf5251"
+  integrity sha512-8Wf8ZdkA02zyx9q3h3+i7VxXpm4SDEXGB4vMefZZZP742t1foZNxbsCFABWeepG68IRnHgJkxoncckRr2w+LKQ==
 
-"@bazel/typescript@^2.0.0-rc.2":
-  version "2.0.0-rc.2"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-2.0.0-rc.2.tgz#36f3153c0cb42e09a174471e93deedc059e91b7c"
-  integrity sha512-NFsPToZcyj+h4YOMqC3KyOjJpGrHVK6Evmx3AaoWjv4u+3kRnZBZewlM5A4pq1WUNdVXQnMrroXCyddvW0plbA==
+"@bazel/typescript@^2.0.0-rc.3":
+  version "2.0.0-rc.3"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-2.0.0-rc.3.tgz#d982e56c2cf7eefde1b6ef4a8767603ce9c9d364"
+  integrity sha512-4xNupCgj5PPHfxhZAnQ4RxdVRtPEfKnJWYCZDetGACSMYeyEfUTkzovPA2u+EnaF4KRHUiYCeZmjDABdPgvZgA==
   dependencies:
     protobufjs "6.8.8"
     semver "5.6.0"
