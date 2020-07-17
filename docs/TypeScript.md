@@ -55,14 +55,6 @@ $ npm install --save-dev @bazel/typescript
 
 Watch for any peerDependency warnings - we assume you have already installed the `typescript` package from npm.
 
-Some rules require you to add this to your `WORKSPACE` file:
-
-```python
-# Set up TypeScript toolchain
-load("@npm//@bazel/typescript:index.bzl", "ts_setup_workspace")
-ts_setup_workspace()
-```
-
 Create a `BUILD.bazel` file in your workspace root. If your `tsconfig.json` file is in the root, use
 
 ```python
@@ -808,7 +800,7 @@ observe these problems which require workarounds:
 ### Usage
 
 ```
-ts_project(name, tsconfig, srcs, args, deps, extends, declaration, source_map, declaration_map, composite, incremental, emit_declaration_only, tsc, validate, outdir, kwargs)
+ts_project(name, tsconfig, srcs, args, deps, extends, declaration, source_map, declaration_map, composite, incremental, emit_declaration_only, tsc, validate, outdir, rootdir, kwargs)
 ```
 
 
@@ -953,27 +945,19 @@ Defaults to `None`
 
 
 
+#### `rootdir`
+      
+a string specifying a subdirectory under the input package which should be consider the
+    root directory of all the input files.
+
+Defaults to `None`
+
+
+
 #### `kwargs`
       
 
 
-
-
-
-
-## ts_setup_workspace
-
-This repository rule should be called from your WORKSPACE file.
-
-It creates some additional Bazel external repositories that are used internally
-by the TypeScript rules.
-
-
-### Usage
-
-```
-ts_setup_workspace()
-```
 
 
 
