@@ -14,6 +14,7 @@ ts_project(
     declarationdir = "out/types",
     outdir = "out/code",
     rootdir = "subdir",
+    source_map = True,
 )
 
 filegroup(

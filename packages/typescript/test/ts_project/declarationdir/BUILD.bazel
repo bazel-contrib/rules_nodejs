@@ -13,6 +13,7 @@ ts_project(
     declaration_map = True,
     outdir = "out",
     rootdir = "subdir",
+    source_map = True,
 )
 
 filegroup(
