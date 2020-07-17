@@ -1485,3 +1485,403 @@ Defaults to `"auto"`
 
 
 
+[name]: https://bazel.build/docs/build-ref.html#name
+[label]: https://bazel.build/docs/build-ref.html#labels
+[labels]: https://bazel.build/docs/build-ref.html#labels
+
+
+## DeclarationInfo
+
+The DeclarationInfo provider allows JS rules to communicate typing information. TypeScript's .d.ts files are used as the interop format for describing types.
+
+Do not create DeclarationInfo instances directly, instead use the declaration_info factory function.
+
+Note: historically this was a subset of the string-typed "typescript" provider.
+
+
+
+
+#### `declarations`
+A depset of .d.ts files produced by this rule
+
+
+
+#### `transitive_declarations`
+A depset of .d.ts files produced by this rule and all its transitive dependencies.
+This prevents needing an aspect in rules that consume the typings, which improves performance.
+
+
+
+#### `type_blacklisted_declarations`
+A depset of .d.ts files that we should not use to infer JSCompiler types (via tsickle)
+
+
+
+
+
+## JSEcmaScriptModuleInfo
+
+JavaScript files (and sourcemaps) that are intended to be consumed by downstream tooling.
+
+They should use modern syntax and ESModules.
+These files should typically be named "foo.mjs"
+
+Historical note: this was the typescript.es6_sources output
+
+
+
+#### `direct_sources`
+Depset of direct JavaScript files and sourcemaps
+
+
+
+#### `sources`
+Depset of direct and transitive JavaScript files and sourcemaps
+
+
+
+
+
+## JSModuleInfo
+
+JavaScript files and sourcemaps.
+
+
+
+#### `direct_sources`
+Depset of direct JavaScript files and sourcemaps
+
+
+
+#### `sources`
+Depset of direct and transitive JavaScript files and sourcemaps
+
+
+
+
+
+## JSNamedModuleInfo
+
+JavaScript files whose module name is self-contained.
+
+For example named AMD/UMD or goog.module format.
+These files can be efficiently served with the concatjs bundler.
+These outputs should be named "foo.umd.js"
+(note that renaming it from "foo.js" doesn't affect the module id)
+
+Historical note: this was the typescript.es5_sources output.
+
+
+
+
+#### `direct_sources`
+Depset of direct JavaScript files and sourcemaps
+
+
+
+#### `sources`
+Depset of direct and transitive JavaScript files and sourcemaps
+
+
+
+
+
+## LinkablePackageInfo
+
+The LinkablePackageInfo provider provides information to the linker for linking pkg_npm built packages
+
+
+
+#### `files`
+Depset of files in this package (must all be contained within path)
+
+
+
+#### `package_name`
+The package name.
+
+Should be the same as name field in the package's package.json.
+
+In the future, the linker may validate that the names match the name in a package.json file.
+
+
+
+
+#### `path`
+The path to link to.
+
+Path must be relative to execroot/wksp. It can either an output dir path such as,
+
+'bazel-out/<platform>-<build>/bin/path/to/package' or
+'bazel-out/<platform>-<build>/bin/external/<external_wksp>/path/to/package'
+
+or a source file path such as,
+
+'path/to/package' or
+'external/<external_wksp>/path/to/package'
+
+
+
+
+#### `_tslibrary`
+For internal use only
+
+
+
+
+
+## NodeContextInfo
+
+Provides data about the build context, like config_setting's
+
+
+
+#### `stamp`
+If stamping is enabled
+
+
+
+
+
+## NodeRuntimeDepsInfo
+
+Stores runtime dependencies of a nodejs_binary or nodejs_test
+
+These are files that need to be found by the node module resolver at runtime.
+
+Historically these files were passed using the Runfiles mechanism.
+However runfiles has a big performance penalty of creating a symlink forest
+with FS API calls for every file in node_modules.
+It also causes there to be separate node_modules trees under each binary. This
+prevents user-contributed modules passed as deps[] to a particular action from
+being found by node module resolver, which expects everything in one tree.
+
+In node, this resolution is done dynamically by assuming a node_modules
+tree will exist on disk, so we assume node actions/binary/test executions will
+do the same.
+
+
+
+
+#### `deps`
+depset of runtime dependency labels
+
+
+
+#### `pkgs`
+list of labels of packages that provide NpmPackageInfo
+
+
+
+
+
+## NpmPackageInfo
+
+Provides information about npm dependencies
+
+
+
+#### `direct_sources`
+Depset of direct source files in this npm package
+
+
+
+#### `sources`
+Depset of direct & transitive source files in this npm package and in its dependencies
+
+
+
+#### `workspace`
+The workspace name that this npm package is provided from
+
+
+
+
+
+## declaration_info
+
+Constructs a DeclarationInfo including all transitive declarations from DeclarationInfo providers in a list of deps.
+
+
+### Usage
+
+```
+declaration_info(declarations, deps)
+```
+
+
+
+#### `declarations`
+      
+list of .d.ts files
+
+
+
+
+#### `deps`
+      
+list of labels of dependencies where we should collect their DeclarationInfo to pass transitively
+
+Defaults to `[]`
+
+
+
+
+
+## js_ecma_script_module_info
+
+Constructs a JSEcmaScriptModuleInfo including all transitive sources from JSEcmaScriptModuleInfo providers in a list of deps.
+
+Returns a single JSEcmaScriptModuleInfo.
+
+
+### Usage
+
+```
+js_ecma_script_module_info(sources, deps)
+```
+
+
+
+#### `sources`
+      
+
+
+
+
+#### `deps`
+      
+
+Defaults to `[]`
+
+
+
+
+
+## js_module_info
+
+Constructs a JSModuleInfo including all transitive sources from JSModuleInfo providers in a list of deps.
+
+Returns a single JSModuleInfo.
+
+
+### Usage
+
+```
+js_module_info(sources, deps)
+```
+
+
+
+#### `sources`
+      
+
+
+
+
+#### `deps`
+      
+
+Defaults to `[]`
+
+
+
+
+
+## js_named_module_info
+
+Constructs a JSNamedModuleInfo including all transitive sources from JSNamedModuleInfo providers in a list of deps.
+
+Returns a single JSNamedModuleInfo.
+
+
+### Usage
+
+```
+js_named_module_info(sources, deps)
+```
+
+
+
+#### `sources`
+      
+
+
+
+
+#### `deps`
+      
+
+Defaults to `[]`
+
+
+
+
+
+## run_node
+
+Helper to replace ctx.actions.run
+
+This calls node programs with a node_modules directory in place
+
+
+
+### Usage
+
+```
+run_node(ctx, inputs, arguments, executable, kwargs)
+```
+
+
+
+#### `ctx`
+      
+rule context from the calling rule implementation function
+
+
+
+
+#### `inputs`
+      
+list or depset of inputs to the action
+
+
+
+
+#### `arguments`
+      
+list or ctx.actions.Args object containing arguments to pass to the executable
+
+
+
+
+#### `executable`
+      
+stringy representation of the executable this action will run, eg eg. "my_executable" rather than ctx.executable.my_executable
+
+
+
+
+#### `kwargs`
+      
+all other args accepted by ctx.actions.run
+
+
+
+
+
+
+## node_modules_aspect
+
+
+### Usage
+
+```
+node_modules_aspect(name)
+```
+
+
+
+#### `name`
+(*[name], mandatory*): A unique name for this target.
+
