@@ -10,7 +10,7 @@ SRCS = [
 ts_project(
     name = "tsconfig",
     srcs = SRCS,
-    outdir = "foobar",
+    out_dir = "foobar",
 )
 
 ts_project(
