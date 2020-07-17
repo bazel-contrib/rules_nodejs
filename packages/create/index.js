@@ -157,7 +157,7 @@ workspace(
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 http_archive(
     name = "build_bazel_rules_nodejs",
-    sha256 = "cb6d92c93a1769205d6573c21363bdbdcf5831af114a7fbc3f800b8598207dee",
+    sha256 = "41b5d9796db19a022bc4a4ca7e9e9f72d92195643ccd875dff325c5e980ee470",
     urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/2.0.0-rc.0/rules_nodejs-2.0.0-rc.0.tar.gz"],
 )
 
