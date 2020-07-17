@@ -1,5 +1,5 @@
 diff --git a/node_modules/@angular/bazel/src/external.bzl b/node_modules/@angular/bazel/src/external.bzl
-index 32b640a..84d37b3 100755
+index 32b640a..a787bbb 100755
 --- a/node_modules/@angular/bazel/src/external.bzl
 +++ b/node_modules/@angular/bazel/src/external.bzl
 @@ -2,11 +2,11 @@
@@ -16,16 +16,13 @@ index 32b640a..84d37b3 100755
      _COMMON_ATTRIBUTES = "COMMON_ATTRIBUTES",
      _COMMON_OUTPUTS = "COMMON_OUTPUTS",
      _DEPS_ASPECTS = "DEPS_ASPECTS",
-@@ -14,7 +14,7 @@ load(
+@@ -14,17 +14,19 @@ load(
      _ts_providers_dict_to_struct = "ts_providers_dict_to_struct",
  )
  load(
 -    "@npm_bazel_typescript//internal:ts_config.bzl",
 +    "@npm//@bazel/typescript/internal:ts_config.bzl",
      _TsConfigInfo = "TsConfigInfo",
- )
- load(
-@@ -19,12 +19,14 @@ load(
  )
  load(
      "@build_bazel_rules_nodejs//:providers.bzl",
@@ -41,7 +38,7 @@ index 32b640a..84d37b3 100755
  node_modules_aspect = _node_modules_aspect
  
 diff --git a/node_modules/@angular/bazel/src/ng_module.bzl b/node_modules/@angular/bazel/src/ng_module.bzl
-index 9480c4b..0f67f18 100755
+index a38f6a8..436d83b 100755
 --- a/node_modules/@angular/bazel/src/ng_module.bzl
 +++ b/node_modules/@angular/bazel/src/ng_module.bzl
 @@ -13,6 +13,7 @@ load(
@@ -52,7 +49,7 @@ index 9480c4b..0f67f18 100755
      "NpmPackageInfo",
      "TsConfigInfo",
      "compile_ts",
-@@ -631,6 +632,15 @@ def _ng_module_impl(ctx):
+@@ -629,6 +630,15 @@ def _ng_module_impl(ctx):
          # once it is no longer needed.
      ])
  
