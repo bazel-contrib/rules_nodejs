@@ -64,9 +64,8 @@ def _ts_project_impl(ctx):
     if len(ctx.outputs.typings_outs) > 0:
         arguments.add_all([
             "--declarationDir",
-            (_join(ctx.bin_dir.path, ctx.label.package, ctx.attr.declarationdir)
-             if  ctx.attr.declarationdir
-             else _join(ctx.bin_dir.path, ctx.label.package, ctx.attr.outdir)
+            (
+                _join(ctx.bin_dir.path, ctx.label.package, ctx.attr.declarationdir) if ctx.attr.declarationdir else _join(ctx.bin_dir.path, ctx.label.package, ctx.attr.outdir)
             ),
         ])
 
