@@ -1,0 +1,35 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
+load("//packages/typescript:index.bzl", "ts_project")
+
+# Ensure that subdir/a.ts produces outDir/a.js and outDir/a.d.ts
+SRCS = [
+    "subdir/a.ts",
+]
+
+ts_project(
+    name = "tsconfig",
+    srcs = SRCS,
+    declaration = True,
+    declaration_map = True,
+    outdir = "out",
+    rootdir = "subdir",
+)
+
+filegroup(
+    name = "types",
+    srcs = [":tsconfig"],
+    output_group = "types",
+)
+
+nodejs_test(
+    name = "test",
+    data = [
+        ":tsconfig",
+        ":types",
+    ],
+    entry_point = "verify.js",
+    templated_args = [
+        "$(locations :types)",
+        "$(locations :tsconfig)",
+    ],
+)

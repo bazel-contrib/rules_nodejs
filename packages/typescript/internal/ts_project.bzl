@@ -11,6 +11,7 @@ _DEFAULT_TSC = (
 
 _ATTRS = {
     "args": attr.string_list(),
+    "declarationdir": attr.string(),
     "deps": attr.label_list(providers = [DeclarationInfo]),
     "extends": attr.label_list(allow_files = [".json"]),
     "outdir": attr.string(),
@@ -63,7 +64,10 @@ def _ts_project_impl(ctx):
     if len(ctx.outputs.typings_outs) > 0:
         arguments.add_all([
             "--declarationDir",
-            _join(ctx.bin_dir.path, ctx.label.package, ctx.attr.outdir),
+            (_join(ctx.bin_dir.path, ctx.label.package, ctx.attr.declarationdir)
+             if  ctx.attr.declarationdir
+             else _join(ctx.bin_dir.path, ctx.label.package, ctx.attr.outdir)
+            ),
         ])
 
     # When users report problems, we can ask them to re-build with
@@ -115,7 +119,7 @@ def _ts_project_impl(ctx):
     if ctx.outputs.buildinfo_out:
         outputs.append(ctx.outputs.buildinfo_out)
     runtime_outputs = depset(json_outs + ctx.outputs.js_outs + ctx.outputs.map_outs)
-    typings_outputs = ctx.outputs.typings_outs + [s for s in ctx.files.srcs if s.path.endswith(".d.ts")]
+    typings_outputs = ctx.outputs.typings_outs + ctx.outputs.typing_maps_outs + [s for s in ctx.files.srcs if s.path.endswith(".d.ts")]
 
     if len(outputs) > 0:
         run_node(
@@ -230,6 +234,7 @@ def ts_project_macro(
         emit_declaration_only = False,
         tsc = None,
         validate = True,
+        declarationdir = None,
         outdir = None,
         rootdir = None,
         **kwargs):
@@ -357,6 +362,9 @@ def ts_project_macro(
 
         validate: boolean; whether to check that the tsconfig settings match the attributes.
 
+        declarationdir: a string specifying a subdirectory under the bazel-out folder where generated declaration
+            outputs are written.
+
         outdir: a string specifying a subdirectory under the bazel-out folder where outputs are written.
             Note that Bazel always requires outputs be written under a subdirectory matching the input package,
             so if your rule appears in path/to/my/package/BUILD.bazel and outdir = "foo" then the .js files
@@ -402,6 +410,8 @@ def ts_project_macro(
         )
         extra_deps.append("_validate_%s_options" % name)
 
+    typings_outdir = declarationdir if declarationdir else outdir
+
     ts_project(
         name = name,
         srcs = srcs,
@@ -409,12 +419,13 @@ def ts_project_macro(
         deps = deps + extra_deps,
         tsconfig = tsconfig,
         extends = extends,
+        declarationdir = declarationdir,
         outdir = outdir,
         rootdir = rootdir,
         js_outs = _out_paths(srcs, outdir, rootdir, ".js") if not emit_declaration_only else [],
         map_outs = _out_paths(srcs, outdir, rootdir, ".js.map") if source_map and not emit_declaration_only else [],
-        typings_outs = _out_paths(srcs, outdir, rootdir, ".d.ts") if declaration or composite else [],
-        typing_maps_outs = _out_paths(srcs, outdir, rootdir, ".d.ts.map") if declaration_map else [],
+        typings_outs = _out_paths(srcs, typings_outdir, rootdir, ".d.ts") if declaration or composite else [],
+        typing_maps_outs = _out_paths(srcs, typings_outdir, rootdir, ".d.ts.map") if declaration_map else [],
         buildinfo_out = tsconfig[:-5] + ".tsbuildinfo" if composite or incremental else None,
         tsc = tsc,
         **kwargs
