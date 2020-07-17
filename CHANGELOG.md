@@ -1,3 +1,33 @@
+# [2.0.0-rc.3](https://github.com/bazelbuild/rules_nodejs/compare/2.0.0-rc.2...2.0.0-rc.3) (2020-07-17)
+
+
+### Bug Fixes
+
+* **builtin:** linker fix for when not running in execroot ([b187d50](https://github.com/bazelbuild/rules_nodejs/commit/b187d50))
+* **builtin:** perform the ts-to-js entry_point rewrite ([8cc044f](https://github.com/bazelbuild/rules_nodejs/commit/8cc044f))
+
+
+### chore
+
+* remove ts_setup_workspace ([07d9bb8](https://github.com/bazelbuild/rules_nodejs/commit/07d9bb8)), closes [/github.com/bazelbuild/rules_nodejs/pull/1159/files#diff-fe375cd73fb89504b9b9a9a751518849](https://github.com//github.com/bazelbuild/rules_nodejs/pull/1159/files/issues/diff-fe375cd73fb89504b9b9a9a751518849) [#2033](https://github.com/bazelbuild/rules_nodejs/issues/2033)
+
+
+### Features
+
+* **examples:** add a vanilla cra app ([b7bdab7](https://github.com/bazelbuild/rules_nodejs/commit/b7bdab7))
+* **examples:** convert create-react-app example to bazel run ([a8ff872](https://github.com/bazelbuild/rules_nodejs/commit/a8ff872))
+* **examples:** convert create-react-app example to bazel test ([146e522](https://github.com/bazelbuild/rules_nodejs/commit/146e522))
+* **examples:** show the create-react-app converted to bazel build ([52455e0](https://github.com/bazelbuild/rules_nodejs/commit/52455e0))
+* **typescript:** support for rootdir on ts_project ([bc88536](https://github.com/bazelbuild/rules_nodejs/commit/bc88536))
+* add depset support to run_node inputs, matching ctx.action.run ([ee584f8](https://github.com/bazelbuild/rules_nodejs/commit/ee584f8))
+
+
+### BREAKING CHANGES
+
+* ts_setup_workspace was a no-op and has been removed. Simply remove it from your WORKSPACE file.
+
+
+
 # [2.0.0-rc.2](https://github.com/bazelbuild/rules_nodejs/compare/2.0.0-rc.1...2.0.0-rc.2) (2020-07-10)
 
 
