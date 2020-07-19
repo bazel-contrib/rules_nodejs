@@ -10,4 +10,10 @@ ts_project(
     # source_map = True,
     validate = False,
     visibility = ["//packages/typescript/test:__subpackages__"],
+    # Use @babel/parser since the package.json is required to resolve "typings" field
+    # Repro of #2044
+    deps = [
+        "@npm//@babel/parser",
+        "@npm//@babel/types",
+    ],
 )
