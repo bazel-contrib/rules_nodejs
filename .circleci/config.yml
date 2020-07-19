@@ -188,6 +188,7 @@ jobs:
       - run: cd e2e/symlinked_node_modules_npm && yarn test && bazel clean
       - run: cd e2e/symlinked_node_modules_yarn && yarn test && bazel clean
       - run: cd examples/user_managed_deps && yarn install && bazel test ...
+      - run: cd examples/from_source && bazel test //...
 
 workflows:
   version: 2
