@@ -12,10 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""This module contains a provider for TypeScript typings files (.d.ts)"""
+"""This module contains a provider for TypeScript typings (*.d.ts and package.json#typings)"""
 
 DeclarationInfo = provider(
-    doc = """The DeclarationInfo provider allows JS rules to communicate typing information. TypeScript's .d.ts files are used as the interop format for describing types.
+    doc = """The DeclarationInfo provider allows JS rules to communicate typing information.
+TypeScript's .d.ts files are used as the interop format for describing types.
+package.json files are included as well, as TypeScript needs to read the "typings" property.
 
 Do not create DeclarationInfo instances directly, instead use the declaration_info factory function.
 
@@ -24,18 +26,18 @@ Note: historically this was a subset of the string-typed "typescript" provider.
     # TODO(alexeagle): The ts_library#deps attribute should require that this provider is attached.
     # TODO: if we ever enable --declarationMap we will have .d.ts.map files too
     fields = {
-        "declarations": "A depset of .d.ts files produced by this rule",
-        "transitive_declarations": """A depset of .d.ts files produced by this rule and all its transitive dependencies.
+        "declarations": "A depset of typings files produced by this rule",
+        "transitive_declarations": """A depset of typings files produced by this rule and all its transitive dependencies.
 This prevents needing an aspect in rules that consume the typings, which improves performance.""",
         "type_blacklisted_declarations": """A depset of .d.ts files that we should not use to infer JSCompiler types (via tsickle)""",
     },
 )
 
 def declaration_info(declarations, deps = []):
-    """Constructs a DeclarationInfo including all transitive declarations from DeclarationInfo providers in a list of deps.
+    """Constructs a DeclarationInfo including all transitive files needed to type-check from DeclarationInfo providers in a list of deps.
 
     Args:
-        declarations: list of .d.ts files
+        declarations: list of typings files
         deps: list of labels of dependencies where we should collect their DeclarationInfo to pass transitively
 
     Returns:
