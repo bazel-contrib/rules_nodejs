@@ -26,7 +26,11 @@ def _node_module_library_impl(ctx):
     declarations = depset([
         f
         for f in ctx.files.srcs
-        if f.path.endswith(".d.ts") and
+        if (
+               f.path.endswith(".d.ts") or
+               # package.json may be required to resolve "typings" key
+               f.path.endswith("/package.json")
+           ) and
            # exclude eg. external/npm/node_modules/protobufjs/node_modules/@types/node/index.d.ts
            # these would be duplicates of the typings provided directly in another dependency.
            # also exclude all /node_modules/typescript/lib/lib.*.d.ts files as these are determined by
