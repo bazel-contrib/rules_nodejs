@@ -1,0 +1,16 @@
+{
+  "name": "rules_nodejs_from_source_example",
+  "private": true,
+  "devDependencies": {
+    "@types/node": "12.12.50",
+    "protobufjs": "6.10.1",
+    "rollup": "2.22.1",
+    "rollup-plugin-commonjs": "10.1.0",
+    "rollup-plugin-node-resolve": "5.2.0",
+    "source-map-support": "0.5.19",
+    "tsickle": "0.39.1",
+    "tsutils": "3.17.1",
+    "typescript": "3.9.7",
+    "unidiff": "1.0.2"
+  }
+}

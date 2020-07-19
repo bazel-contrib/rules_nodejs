@@ -23,7 +23,6 @@ workspace(
     },
 )
 
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 load("//:index.bzl", "BAZEL_VERSION", "SUPPORTED_BAZEL_VERSIONS")
 
 #
@@ -93,24 +92,6 @@ yarn_install(
 load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
 
 install_bazel_dependencies(suppress_warning = True)
-
-#
-# Install @bazel/typescript dependencies
-#
-
-# We use git_repository since Renovate knows how to update it.
-# With http_archive it only sees releases/download/*.tar.gz urls
-git_repository(
-    name = "build_bazel_rules_typescript",
-    commit = "10a5a86885f95ab788fd841ade47b6a16e0c13d6",
-    patches = [
-        "//:rules_typescript_pr_494.patch",
-        "//:rules_typescript_pr_496.patch",
-        "//:rules_typescript_pr_499.patch",
-    ],
-    remote = "http://github.com/bazelbuild/rules_typescript.git",
-    shallow_since = "1582757372 -0800",
-)
 
 # We have a source dependency on build_bazel_rules_typescript
 # so we must repeat its transitive toolchain deps
