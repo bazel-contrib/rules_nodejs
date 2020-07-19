@@ -244,7 +244,9 @@ def tsc_wrapped_tsconfig(
     node_modules_root = _compute_node_modules_root(ctx)
     config = create_tsconfig(
         ctx,
-        files,
+        # Filter out package.json files that are included in DeclarationInfo
+        # tsconfig files=[] property should only be .ts/.d.ts
+        [f for f in files if f.path.endswith(".ts")],
         srcs,
         devmode_manifest = devmode_manifest,
         node_modules_root = node_modules_root,
