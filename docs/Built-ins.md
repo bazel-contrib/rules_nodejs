@@ -1492,7 +1492,9 @@ Defaults to `"auto"`
 
 ## DeclarationInfo
 
-The DeclarationInfo provider allows JS rules to communicate typing information. TypeScript's .d.ts files are used as the interop format for describing types.
+The DeclarationInfo provider allows JS rules to communicate typing information.
+TypeScript's .d.ts files are used as the interop format for describing types.
+package.json files are included as well, as TypeScript needs to read the "typings" property.
 
 Do not create DeclarationInfo instances directly, instead use the declaration_info factory function.
 
@@ -1502,12 +1504,12 @@ Note: historically this was a subset of the string-typed "typescript" provider.
 
 
 #### `declarations`
-A depset of .d.ts files produced by this rule
+A depset of typings files produced by this rule
 
 
 
 #### `transitive_declarations`
-A depset of .d.ts files produced by this rule and all its transitive dependencies.
+A depset of typings files produced by this rule and all its transitive dependencies.
 This prevents needing an aspect in rules that consume the typings, which improves performance.
 
 
@@ -1700,7 +1702,7 @@ The workspace name that this npm package is provided from
 
 ## declaration_info
 
-Constructs a DeclarationInfo including all transitive declarations from DeclarationInfo providers in a list of deps.
+Constructs a DeclarationInfo including all transitive files needed to type-check from DeclarationInfo providers in a list of deps.
 
 
 ### Usage
@@ -1713,7 +1715,7 @@ declaration_info(declarations, deps)
 
 #### `declarations`
       
-list of .d.ts files
+list of typings files
 
 
 

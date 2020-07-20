@@ -800,7 +800,7 @@ observe these problems which require workarounds:
 ### Usage
 
 ```
-ts_project(name, tsconfig, srcs, args, deps, extends, declaration, source_map, declaration_map, composite, incremental, emit_declaration_only, tsc, validate, outdir, rootdir, kwargs)
+ts_project(name, tsconfig, srcs, args, deps, extends, declaration, source_map, declaration_map, composite, incremental, emit_declaration_only, tsc, validate, declaration_dir, out_dir, root_dir, kwargs)
 ```
 
 
@@ -934,21 +934,35 @@ Defaults to `True`
 
 
 
-#### `outdir`
+#### `declaration_dir`
       
-a string specifying a subdirectory under the bazel-out folder where outputs are written.
-    Note that Bazel always requires outputs be written under a subdirectory matching the input package,
-    so if your rule appears in path/to/my/package/BUILD.bazel and outdir = "foo" then the .js files
-    will appear in bazel-out/[arch]/bin/path/to/my/package/foo/*.js
+a string specifying a subdirectory under the bazel-out folder where generated declaration
+    outputs are written. Equivalent to the TypeScript --declarationDir option.
+    By default declarations are written to the out_dir.
 
 Defaults to `None`
 
 
 
-#### `rootdir`
+#### `out_dir`
+      
+a string specifying a subdirectory under the bazel-out folder where outputs are written.
+    Equivalent to the TypeScript --outDir option.
+    Note that Bazel always requires outputs be written under a subdirectory matching the input package,
+    so if your rule appears in path/to/my/package/BUILD.bazel and out_dir = "foo" then the .js files
+    will appear in bazel-out/[arch]/bin/path/to/my/package/foo/*.js.
+    By default the out_dir is '.', meaning the packages folder in bazel-out.
+
+Defaults to `None`
+
+
+
+#### `root_dir`
       
 a string specifying a subdirectory under the input package which should be consider the
     root directory of all the input files.
+    Equivalent to the TypeScript --rootDir option.
+    By default it is '.', meaning the source directory where the BUILD file lives.
 
 Defaults to `None`
 
@@ -956,6 +970,7 @@ Defaults to `None`
 
 #### `kwargs`
       
+passed through to underlying rule, allows eg. visibility, tags
 
 
 
