@@ -28,7 +28,8 @@ def rules_nodejs_dev_dependencies():
     """
 
     # Dependencies for generating documentation
-    http_archive(
+    _maybe(
+        http_archive,
         name = "io_bazel_rules_sass",
         sha256 = "c78be58f5e0a29a04686b628cf54faaee0094322ae0ac99da5a8a8afca59a647",
         strip_prefix = "rules_sass-1.25.0",
@@ -39,7 +40,8 @@ def rules_nodejs_dev_dependencies():
     )
 
     # Needed for com_google_protobuf
-    http_archive(
+    _maybe(
+        http_archive,
         name = "zlib",
         build_file = "@com_google_protobuf//:third_party/zlib.BUILD",
         sha256 = "c3e5e9fdd5004dcb542feda5ee4f0ff0744628baf8ed2dd5d66f8ca1197cb1a1",
@@ -50,7 +52,8 @@ def rules_nodejs_dev_dependencies():
         ],
     )
 
-    http_archive(
+    _maybe(
+        http_archive,
         name = "io_bazel_stardoc",
         # Workaround for https://github.com/bazelbuild/stardoc/issues/43
         patches = ["@build_bazel_rules_nodejs//:stardoc.patch"],
@@ -63,7 +66,8 @@ def rules_nodejs_dev_dependencies():
     )
 
     # bazel-skylib master 2019.05.03 to get support for https://github.com/bazelbuild/bazel-skylib/pull/140
-    http_archive(
+    _maybe(
+        http_archive,
         name = "bazel_skylib",
         sha256 = "afbe4d9d033c007940acd24bb9becf1580a0280ae0b2ebbb5a7cb12912d2c115",
         strip_prefix = "bazel-skylib-ffad33e9bfc60bdfa98292ca655a4e7035792046",
@@ -75,7 +79,8 @@ def rules_nodejs_dev_dependencies():
 
     # Needed for Remote Build Execution
     # See https://releases.bazel.build/bazel-toolchains.html
-    http_archive(
+    _maybe(
+        http_archive,
         name = "bazel_toolchains",
         sha256 = "db48eed61552e25d36fe051a65d2a329cc0fb08442627e8f13960c5ab087a44e",
         strip_prefix = "bazel-toolchains-3.2.0",
@@ -85,7 +90,8 @@ def rules_nodejs_dev_dependencies():
         ],
     )
 
-    http_archive(
+    _maybe(
+        http_archive,
         name = "build_bazel_integration_testing",
         urls = [
             "https://github.com/bazelbuild/bazel-integration-testing/archive/165440b2dbda885f8d1ccb8d0f417e6cf8c54f17.zip",
@@ -94,7 +100,8 @@ def rules_nodejs_dev_dependencies():
         sha256 = "2401b1369ef44cc42f91dc94443ef491208dbd06da1e1e10b702d8c189f098e3",
     )
 
-    http_archive(
+    _maybe(
+        http_archive,
         name = "rules_codeowners",
         patches = ["@build_bazel_rules_nodejs//:rules_codeowners_pr27.patch"],
         strip_prefix = "rules_codeowners-bdc2f987cd0e15ebfa9b76689a4c9a472730a6f0",
@@ -104,7 +111,8 @@ def rules_nodejs_dev_dependencies():
         ],
     )
 
-    http_archive(
+    _maybe(
+        http_archive,
         name = "rules_pkg",
         urls = [
             "https://github.com/bazelbuild/rules_pkg/releases/download/0.2.6-1/rules_pkg-0.2.6.tar.gz",
