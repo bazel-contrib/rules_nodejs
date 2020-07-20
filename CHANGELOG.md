@@ -1,3 +1,18 @@
+# [2.0.0](https://github.com/bazelbuild/rules_nodejs/compare/2.0.0-rc.3...2.0.0) (2020-07-20)
+
+
+### Bug Fixes
+
+* **typescript:** exclude package.json from tsconfig#files ([16cbc6f](https://github.com/bazelbuild/rules_nodejs/commit/16cbc6f))
+* **typescript:** include package.json in third-party DeclarationInfo ([1c70656](https://github.com/bazelbuild/rules_nodejs/commit/1c70656)), closes [#2044](https://github.com/bazelbuild/rules_nodejs/issues/2044)
+
+
+### Features
+
+* **typescript:** support for declarationdir on ts_project  ([#2048](https://github.com/bazelbuild/rules_nodejs/issues/2048)) ([981e7c1](https://github.com/bazelbuild/rules_nodejs/commit/981e7c1))
+
+
+
 # [2.0.0-rc.3](https://github.com/bazelbuild/rules_nodejs/compare/2.0.0-rc.2...2.0.0-rc.3) (2020-07-17)
 
 
