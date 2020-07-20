@@ -78,6 +78,7 @@ def _impl(ctx):
         stdout = ctx.outputs.stdout,
         stderr = ctx.outputs.stderr,
         exit_code_out = ctx.outputs.exit_code_out,
+        execution_requirements = {tag: "" for tag in ctx.attr.tags},
     )
 
     return [DefaultInfo(files = depset(outputs + tool_outputs))]
