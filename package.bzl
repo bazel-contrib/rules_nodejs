@@ -103,11 +103,10 @@ def rules_nodejs_dev_dependencies():
     _maybe(
         http_archive,
         name = "rules_codeowners",
-        patches = ["@build_bazel_rules_nodejs//:rules_codeowners_pr27.patch"],
-        strip_prefix = "rules_codeowners-bdc2f987cd0e15ebfa9b76689a4c9a472730a6f0",
-        sha256 = "efd4aba15e25de49e9e68b1517d789c53104b2cf0b05212ce206ed0d44835952",
+        strip_prefix = "rules_codeowners-27fe3bbe6e5b0df196e360fc9e081835f22a10be",
+        sha256 = "0aada1d5df72cb13161a78dff965e02575930f3ea9550e778f6fa45f3f4e2537",
         urls = [
-            "https://github.com/zegl/rules_codeowners/archive/bdc2f987cd0e15ebfa9b76689a4c9a472730a6f0.zip",
+            "https://github.com/zegl/rules_codeowners/archive/27fe3bbe6e5b0df196e360fc9e081835f22a10be.zip",
         ],
     )
 
