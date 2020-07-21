@@ -246,7 +246,7 @@ def tsc_wrapped_tsconfig(
         ctx,
         # Filter out package.json files that are included in DeclarationInfo
         # tsconfig files=[] property should only be .ts/.d.ts
-        [f for f in files if f.path.endswith(".ts")],
+        [f for f in files if f.path.endswith(".ts") or f.path.endswith(".tsx")],
         srcs,
         devmode_manifest = devmode_manifest,
         node_modules_root = node_modules_root,
