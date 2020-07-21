@@ -5,7 +5,7 @@ load(":ts_jest_test.bzl", "ts_jest_test")
 ts_library(
     name = "lib",
     srcs = [
-        "lib.ts",
+        "lib.tsx",
     ],
     # NB: hacky hidden configuration setting so that es6_sources does not include tsickle
     #     .externs.js outputs
