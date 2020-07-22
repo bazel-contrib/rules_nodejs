@@ -21,6 +21,8 @@ load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "co
 
 package(default_visibility = ["//visibility:public"])
 
+exports_files(["jasmine_runner.js"])
+
 bzl_library(
     name = "bzl",
     srcs = glob(["*.bzl"]),

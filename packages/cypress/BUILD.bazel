@@ -19,6 +19,14 @@ load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "co
 
 package(default_visibility = ["//visibility:public"])
 
+exports_files(
+    [
+        "internal/plugins/index.template.js",
+        "internal/run-cypress.js",
+    ],
+    visibility = ["//packages/cypress/test:__subpackages__"],
+)
+
 codeowners(
     teams = ["@mrmeku"],
 )

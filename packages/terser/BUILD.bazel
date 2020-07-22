@@ -21,6 +21,11 @@ package(default_visibility = ["//visibility:public"])
 
 exports_files(["terser_config.default.json"])
 
+exports_files(
+    ["index.js"],
+    visibility = ["//packages/terser:__subpackages__"],
+)
+
 bzl_library(
     name = "bzl",
     srcs = glob(["*.bzl"]),

@@ -21,6 +21,8 @@ load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "co
 
 package(default_visibility = ["//visibility:public"])
 
+exports_files(["karma.conf.js"])
+
 ts_library(
     name = "bazel_karma_lib",
     srcs = glob(["*.ts"]),
