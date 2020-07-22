@@ -1,9 +1,14 @@
 load("@npm//@angular-devkit/architect-cli:index.bzl", "architect", "architect_test")
 
-exports_files([
-    "tsconfig.json",
-    "angular.json",
-])
+# These dependencies are needed for any ng command
+filegroup(
+    name = "common_deps",
+    srcs = [
+        "angular.json",
+        "tsconfig.base.json",
+    ],
+    visibility = ["//:__subpackages__"],
+)
 
 architect(
     name = "build",
@@ -21,10 +26,9 @@ architect(
             "src/test.ts",
         ],
     ) + [
-        "angular.json",
-        "browserslist",
+        "//:common_deps",
+        ".browserslistrc",
         "tsconfig.app.json",
-        "tsconfig.json",
         "@npm//mime",
         "@npm//zone.js",
         "@npm//tslib",
@@ -47,10 +51,9 @@ architect_test(
     data = glob([
         "src/**/*",
     ]) + [
-        "angular.json",
+        "//:common_deps",
         "karma.conf.js",
         "tsconfig.spec.json",
-        "tsconfig.json",
         "@npm//@types/jasmine",
         "@npm//@types/node",
         "@npm//@angular/cli",
@@ -92,10 +95,9 @@ architect_test(
         "e2e/*",
         "e2e/**",
     ]) + [
-        "angular.json",
-        "browserslist",
+        "//:common_deps",
+        ".browserslistrc",
         "tsconfig.app.json",
-        "tsconfig.json",
         "@npm//mime",
         "@npm//@angular/cli",
         "@npm//@angular/core",
@@ -131,8 +133,7 @@ architect(
         "src/**/*",
         "e2e/src/**/*",
     ]) + [
-        "angular.json",
-        "tsconfig.json",
+        "//:common_deps",
         "tsconfig.spec.json",
         "tsconfig.app.json",
         "tslint.json",
@@ -160,10 +161,9 @@ architect(
             "src/test.ts",
         ],
     ) + [
-        "angular.json",
-        "browserslist",
+        "//:common_deps",
+        ".browserslistrc",
         "tsconfig.app.json",
-        "tsconfig.json",
         "@npm//mime",
         "@npm//@angular/cli",
         "@npm//@angular/core",

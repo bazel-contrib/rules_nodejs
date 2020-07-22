@@ -19,12 +19,11 @@ architect(
             "src/test.ts",
         ],
     ) + [
+        "//:common_deps",
         "ng-package.js",
         "package.json",
         "tsconfig.lib.json",
         "tsconfig.lib.prod.json",
-        "@angular_bazel_architect//:angular.json",
-        "@angular_bazel_architect//:tsconfig.json",
         "@npm//@angular/cli",
         "@npm//@angular/core",
         "@npm//zone.js",
@@ -42,10 +41,9 @@ architect_test(
     data = glob([
         "src/**/*",
     ]) + [
+        "//:common_deps",
         "karma.conf.js",
         "tsconfig.spec.json",
-        "@angular_bazel_architect//:angular.json",
-        "@angular_bazel_architect//:tsconfig.json",
         "@npm//@types/jasmine",
         "@npm//@types/node",
         "@npm//@angular/cli",
