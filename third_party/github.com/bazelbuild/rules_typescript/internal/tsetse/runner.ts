@@ -14,6 +14,7 @@ import {Rule as BanPromiseAsConditionRule} from './rules/ban_promise_as_conditio
 import {Rule as BanStringInitializedSetsRule} from './rules/ban_string_initialized_sets_rule';
 import {Rule as CheckReturnValueRule} from './rules/check_return_value_rule';
 import {Rule as EqualsNanRule} from './rules/equals_nan_rule';
+import {Rule as MustTypeAssertJsonParseRule} from './rules/must_type_assert_json_parse_rule';
 import {Rule as MustUsePromisesRule} from './rules/must_use_promises_rule';
 
 /**
@@ -27,6 +28,7 @@ const ENABLED_RULES: AbstractRule[] = [
   new MustUsePromisesRule(),
   new BanPromiseAsConditionRule(),
   new BanStringInitializedSetsRule(),
+  new MustTypeAssertJsonParseRule(),
 ];
 
 /**
