@@ -933,6 +933,11 @@
     lodash "^4.17.19"
     to-fast-properties "^2.0.0"
 
+"@bazel/bazelisk@^1.5.0":
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/@bazel/bazelisk/-/bazelisk-1.5.0.tgz#61f583ed93be138b47be7180403938ea4057f54b"
+  integrity sha512-qhOGN1WmfZYNJXGrRL/0byii9hX5FBomMv3WWI2OEL2+Bxm4t/bR3zMxN3xwQX1C8meSSrAfKGSzxVOZfpJsOg==
+
 "@types/json-schema@^7.0.4":
   version "7.0.5"
   resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.5.tgz#dcce4430e64b443ba8945f0290fb564ad5bac6dd"

@@ -1,0 +1,40 @@
+load("@bazel_skylib//rules:write_file.bzl", "write_file")
+load("@npm//next:index.bzl", "next")
+
+# Next CLI doesn't allow you to specify an output directory
+# See https://github.com/vercel/next.js/issues/9588
+# As a workaround, we can run it with a working directory in the output folder
+# so it produces a directory in the place bazel expects.
+write_file(
+    name = "write_chdir_script",
+    out = "chdir.js",
+    content = ["process.chdir(__dirname)"],
+)
+
+next(
+    # Note: this must be named ".next" since Next CLI hard-codes that as the output dir
+    name = ".next",
+    args = [
+        "--node_options=--require=./$(execpath chdir.js)",
+        "build",
+        # Point to the directory where the sources are, relative to the working directory
+        # That's up three segments (bazel-out/arch/bin) plus the package
+        "../../..",
+    ],
+    data = glob([
+        "components/*",
+        "pages/**",
+        "public/**",
+        "styles/*",
+    ]) + [
+        "package.json",
+        "chdir.js",
+    ],
+    output_dir = True,
+)
+
+# nodejs_test(
+#     name = "build_smoke_test",
+#     data = ["build"],
+#     entry_point = "build_smoke_test.js",
+# )
