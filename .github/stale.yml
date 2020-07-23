@@ -1,0 +1,23 @@
+# See https://github.com/apps/stale
+
+# Number of days of inactivity before an issue becomes stale
+daysUntilStale: 60
+# Number of days of inactivity before a stale issue is closed
+daysUntilClose: 14
+# Issues with these labels will never be considered stale
+exemptLabels:
+  - "need: discussion"
+  - cleanup
+# Label to use when marking an issue as stale
+staleLabel: "Can Close?"
+# Comment to post when marking an issue as stale. Set to `false` to disable
+markComment: >
+  This issue has been automatically marked as stale because it has not had
+  any activity for 60 days.
+  It will be closed if no further activity occurs in two weeks.
+  Collaborators can add a "cleanup" or "need: discussion" label to keep it open indefinitely.
+  Thanks for your contributions to rules_nodejs!
+# Comment to post when closing a stale issue. Set to `false` to disable
+closeComment: >
+  This issue was automatically closed because it went two weeks without a reply
+  since it was labelled "Can Close?"
