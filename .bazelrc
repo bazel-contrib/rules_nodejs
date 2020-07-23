@@ -51,3 +51,4 @@ build:docker-sandbox --experimental_docker_image=gcr.io/cloud-marketplace/google
 
 # Incompatible flags to run with
 build --incompatible_no_implicit_file_export
+build --incompatible_restrict_string_escapes
