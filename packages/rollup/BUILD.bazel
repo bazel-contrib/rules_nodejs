@@ -23,7 +23,10 @@ codeowners(
     teams = ["@jbedard"],
 )
 
-exports_files(["rollup.config.js"])
+exports_files([
+    "rollup.config.js",
+    "index.js",
+])
 
 bzl_library(
     name = "bzl",

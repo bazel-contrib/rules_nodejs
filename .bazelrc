@@ -48,3 +48,7 @@ build:docker-sandbox --experimental_docker_verbose
 build:docker-sandbox --experimental_enable_docker_sandbox
 # This is the same image used on BazelCI rbe_ubuntu1604 job
 build:docker-sandbox --experimental_docker_image=gcr.io/cloud-marketplace/google/rbe-ubuntu16-04
+
+# Incompatible flags to run with
+build --incompatible_no_implicit_file_export
+build --incompatible_restrict_string_escapes

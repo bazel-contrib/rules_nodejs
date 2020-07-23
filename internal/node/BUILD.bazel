@@ -17,6 +17,12 @@ load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
 
 package(default_visibility = ["//visibility:public"])
 
+exports_files([
+    "node_patches.js",
+    "require_patch.js",
+    "loader.js",
+])
+
 bzl_library(
     name = "bzl",
     srcs = glob(["*.bzl"]),

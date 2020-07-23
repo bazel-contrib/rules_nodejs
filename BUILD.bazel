@@ -25,7 +25,16 @@ exports_files([
     "tsconfig.json",
     "package.json",
     "bootstrap.js",
+    "LICENSE",
 ])
+
+exports_files(
+    [
+        "providers.bzl",
+        "index.for_docs.bzl",
+    ],
+    visibility = ["//docs:__subpackages__"],
+)
 
 bzl_library(
     name = "bzl",

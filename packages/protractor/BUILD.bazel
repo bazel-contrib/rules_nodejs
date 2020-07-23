@@ -21,6 +21,11 @@ load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "co
 
 package(default_visibility = ["//visibility:public"])
 
+exports_files(
+    ["protractor.conf.js"],
+    visibility = ["//packages/protractor/test:__subpackages__"],
+)
+
 bzl_library(
     name = "bzl",
     testonly = True,
