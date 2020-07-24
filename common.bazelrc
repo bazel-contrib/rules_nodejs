@@ -57,6 +57,13 @@ run:debug --define=VERBOSE_LOGS=1 -- --node_options=--inspect-brk
 # The following option will change the build output of certain rules such as terser and may not be desirable in all cases
 build:debug --compilation_mode=dbg
 
+# Allow bazelrc to have configs that enable automatically on certain platform
+build --enable_platform_specific_config
+# ... and use it to turn off sandboxing on Mac by default
+# because it's slow: https://github.com/bazelbuild/bazel/issues/8230
+# Syntax, see https://blog.bazel.build/2019/06/19/list-strategy.html
+build:macos --spawn_strategy=worker,local
+
 # Turn off legacy external runfiles
 # This prevents accidentally depending on this feature, which Bazel will remove.
 build --nolegacy_external_runfiles
