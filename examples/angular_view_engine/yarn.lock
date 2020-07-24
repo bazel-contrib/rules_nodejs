@@ -818,10 +818,10 @@
     puppeteer "^0.13.0"
     tempy "^0.2.1"
 
-"@bazel/buildifier@^3.3.0":
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/@bazel/buildifier/-/buildifier-3.3.0.tgz#9c78a5efcea4a38abffdfb18eb8cf9a27babee66"
-  integrity sha512-Jaraa7jLW1OQBoWtTe2XDiuZwsg/YbWvCTys6nYXXRtNIkyoN6I/YZS4RlZj3nD7XlTMFk0yQD6+jpRpXhB6ZQ==
+"@bazel/buildifier@^3.4.0":
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/@bazel/buildifier/-/buildifier-3.4.0.tgz#44ce98b33bf8057f5398a78f7d1c564760b43f6c"
+  integrity sha512-TdugkgxAIxSyXSBZcLlntQKJ/rGV3LSMjlYuvRr3YtQBn/2sIfpHX0dcNZ7zdCPkev9cK0kpEs42MkmKHY9peQ==
 
 "@bazel/ibazel@0.3.1":
   version "0.3.1"

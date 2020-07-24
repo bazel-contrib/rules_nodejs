@@ -34,7 +34,7 @@
         "@babel/preset-env": "^7.6.0",
         "@bazel/bazelisk": "^1.5.0",
         "@bazel/benchmark-runner": "^0.1.0",
-        "@bazel/buildifier": "^3.3.0",
+        "@bazel/buildifier": "^3.4.0",
         "@bazel/ibazel": "^0.13.1",
         "@bazel/karma": "^2.0.0",
         "@bazel/protractor": "^2.0.0",
