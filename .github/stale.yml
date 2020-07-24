@@ -1,4 +1,4 @@
-# See https://github.com/apps/stale
+# See https://github.com/probot/stale
 
 # Number of days of inactivity before an issue becomes stale
 daysUntilStale: 60
@@ -8,6 +8,8 @@ daysUntilClose: 14
 exemptLabels:
   - "need: discussion"
   - cleanup
+exemptMilestones: true
+exemptAssignees: true
 # Label to use when marking an issue as stale
 staleLabel: "Can Close?"
 # Comment to post when marking an issue as stale. Set to `false` to disable
