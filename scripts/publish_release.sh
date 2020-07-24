@@ -11,7 +11,7 @@ set -u -e -o pipefail
 # $ npm login --registry https://wombat-dressing-room.appspot.com
 
 readonly NPM_COMMAND=${1:-publish}
-readonly NPM_TAG=${2:-next}
+readonly NPM_TAG=${2:-latest}
 readonly BAZEL_BIN=./node_modules/.bin/bazel
 
 # Use a new output_base so we get a clean build
