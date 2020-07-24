@@ -1,3 +1,12 @@
+## [2.0.1](https://github.com/bazelbuild/rules_nodejs/compare/2.0.0...2.0.1) (2020-07-24)
+
+
+### Bug Fixes
+
+* **typescript:** ts_library should accept .tsx inputs ([065922b](https://github.com/bazelbuild/rules_nodejs/commit/065922b))
+
+
+
 # [2.0.0](https://github.com/bazelbuild/rules_nodejs/compare/2.0.0-rc.3...2.0.0) (2020-07-20)
 
 
