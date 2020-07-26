@@ -58,7 +58,6 @@ Organizations:
 - [Lucidchart](https://www.lucidchart.com)
 - [Webdox](https://www.webdox.cl)
 - [WeMaintain](https://www.wemaintain.com)
-- [LogiOcean](https://www.logiocean.com)
 
 Not on this list? [Send a PR](https://github.com/bazelbuild/rules_nodejs/edit/master/README.md) to add your repo or organization!
 
