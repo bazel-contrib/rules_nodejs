@@ -10,7 +10,7 @@ Read `index.d.ts` for the worker API. Essentially you call `runWorkerLoop` passi
 
 See the [worker example] for a full example with comments.
 
-[worker example]: https://github.com/bazelbuild/rules_nodejs/tree/master/examples/worker
+[worker example]: https://github.com/bazelbuild/rules_nodejs/tree/stable/examples/worker
 
 ## Restrictions on programs that run as a worker
 

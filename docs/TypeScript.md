@@ -781,7 +781,7 @@ observe these problems which require workarounds:
    `error TS6305: Output file '/path/to/execroot/a.d.ts' has not been built from source file '/path/to/execroot/a.ts'.`
    As a workaround, you can give the Windows "fastbuild" output directory as the `outDir` in your tsconfig file.
    On other platforms, the value isn't read so it does no harm.
-   See https://github.com/bazelbuild/rules_nodejs/tree/master/packages/typescript/test/ts_project as an example.
+   See https://github.com/bazelbuild/rules_nodejs/tree/stable/packages/typescript/test/ts_project as an example.
    We hope this will be fixed in a future release of TypeScript;
    follow https://github.com/microsoft/TypeScript/issues/37378
 
