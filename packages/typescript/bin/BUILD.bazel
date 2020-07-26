@@ -12,3 +12,9 @@ nodejs_binary(
     entry_point = "//packages/typescript/internal:ts_project_options_validator.js",
     visibility = ["//:__subpackages__"],
 )
+
+nodejs_binary(
+    name = "diagnostics_processor",
+    entry_point = ":strict-deps-diagnostics-processor.js",
+    visibility = ["//:__subpackages__"],
+)

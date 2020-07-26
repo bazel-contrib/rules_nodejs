@@ -23,6 +23,7 @@ _ATTRS = {
     "srcs": attr.label_list(allow_files = True, mandatory = True),
     "tsc": attr.label(default = Label(_DEFAULT_TSC), executable = True, cfg = "host"),
     "tsconfig": attr.label(mandatory = True, allow_single_file = [".json"]),
+    "_diagnostics_processor": attr.label(default = Label("//packages/typescript/bin:diagnostics_processor"), executable = True, cfg = "host"),
 }
 
 # tsc knows how to produce the following kinds of output files.
@@ -113,10 +114,15 @@ def _ts_project_impl(ctx):
     else:
         json_outs = []
 
+    # diagnostics outputs from tsc
+    exit_code_output = ctx.actions.declare_file("%s.exit.code" % ctx.label.name)
+    diagnostics_output = ctx.actions.declare_file("%s.diagnostics" % ctx.label.name)
+    processed_diagnostics_output = ctx.actions.declare_file("%s.diagnostics_processed" % ctx.label.name)
+
     outputs = json_outs + ctx.outputs.js_outs + ctx.outputs.map_outs + ctx.outputs.typings_outs + ctx.outputs.typing_maps_outs
     if ctx.outputs.buildinfo_out:
         outputs.append(ctx.outputs.buildinfo_out)
-    runtime_outputs = depset(json_outs + ctx.outputs.js_outs + ctx.outputs.map_outs)
+    runtime_outputs = depset(json_outs + ctx.outputs.js_outs + ctx.outputs.map_outs + [processed_diagnostics_output])
     typings_outputs = ctx.outputs.typings_outs + ctx.outputs.typing_maps_outs + [s for s in ctx.files.srcs if s.path.endswith(".d.ts")]
 
     if len(outputs) > 0:
@@ -126,10 +132,28 @@ def _ts_project_impl(ctx):
             arguments = [arguments],
             outputs = outputs,
             executable = "tsc",
+            mnemonic = "tsc",
             progress_message = "Compiling TypeScript project %s [tsc -p %s]" % (
                 ctx.label,
                 ctx.file.tsconfig.short_path,
             ),
+            exit_code_out = exit_code_output,
+            stdout = diagnostics_output,
+        )
+
+        run_node(
+            ctx,
+            inputs = [diagnostics_output, exit_code_output],
+            outputs = [processed_diagnostics_output],
+            arguments = [
+                diagnostics_output.path,
+                exit_code_output.path,
+                processed_diagnostics_output.path,
+                str(ctx.label),
+            ],
+            executable = "_diagnostics_processor",
+            mnemonic = "diag",
+            progress_message = "Processing diagnostics for %s" % ctx.label,
         )
 
     providers = [
