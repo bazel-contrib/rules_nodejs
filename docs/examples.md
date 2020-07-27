@@ -9,19 +9,27 @@ stylesheet: docs
 ## Angular
 
 Bazel can run any toolchain you want, so there is more than one way to use it with Angular.
-See Alex's post [Angular ❤️ Bazel update](https://dev.to/bazel/angular-bazel-update-n33-temp-slug-9563533?preview=d98c4fd0c1ad788b7f3e01eaf716c5b249d68b976a8697d07815023747be3b8f3277c2b182df7682a4efb81fac76056244b3ce9f7445110c70971bf8) for a longer explanation.
+See Alex's post [Angular ❤️ Bazel update](https://dev.to/bazel/angular-bazel-leaving-angular-labs-51ja) for a longer explanation.
 
-**Architect**: The first approach is the simplest: use Architect (aka. Angular CLI Builders). This is the build tool inside of Angular CLI, so your existing application will continue to work the same way. However, it has the worst performance because the level of incrementality is only as fine as how many libs your application is composed from.
+**Architect**: The first approach is the simplest: use Architect (aka. Angular CLI Builders). This is the build tool inside of Angular CLI, so your existing application will continue to work the same way, and you can still get support from the Angular team. This may be a good choice if your goal is just to include an Angular app in a full-stack Bazel build that includes your backend, and making the Angular build&test faster is not important for you.
+
+However, it has the worst performance because the level of incrementality is only as fine as how many libs your application is composed from.
+Bazel can only make a build more parallel and incremental if you express a wider dependency graph to it.
 
 Example: [examples/angular_bazel_architect](https://github.com/bazelbuild/rules_nodejs/tree/stable/examples/angular_bazel_architect)
 
-**Google**: This toolchain is what we originally advertised as "Angular, Bazel and CLI" (ABC). It is based on Google's internal toolchain for building Angular, and has good performance characteristics. However it is harder to migrate to, because it doesn't have good compatibility for existing applications.
+**Google**: This toolchain is what we originally advertised as "Angular Buildtools Convergence" (ABC). It is based on Google's internal toolchain for building Angular, and has good performance characteristics. However it is harder to migrate to, because it doesn't have good compatibility for existing applications.
 
 The example has its own guide: [examples/angular](https://github.com/bazelbuild/rules_nodejs/tree/stable/examples/angular)
 
 **View Engine**: If you're stuck on the older Angular compiler/runtime before Ivy, called View Engine, then your options are more limited. We don't support Angular 9 + View Engine + Bazel.
 
 Example: [examples/angular_view_engine](https://github.com/bazelbuild/rules_nodejs/tree/stable/examples/angular_view_engine)
+
+**Custom**: Bazel is excellent for advanced use cases where you need to customize your toolchain.
+Take any off-the-shelf tools, follow their README's to call their CLI, and assemble them together in a custom way.
+This lets you take advantage of the latest JS ecosystem innovations without waiting for tooling vendors to
+assemble it all together for you.
 
 ## React
 
@@ -40,8 +48,11 @@ The [create-react-app example](https://github.com/bazelbuild/rules_nodejs/tree/s
 shows how this will look. We suggest reading the README in that example, and also look at the commit history to that
 directory as an illustration of how we started from create-react-app and added Bazel bits.
 
-**cra-eject**: As a next step to make our Build more incremental and performant, we follow the create-react-app suggestion
-of "ejecting" the configuration. This means the `react-scripts` build system is gone, and Bazel can take its place.
+**react-scripts-like**: As a next step to make our Build more incremental and performant, we can replace the `react-scripts` build system with Bazel, but preserve compatibility as much as possible by having Bazel run
+mostly the same tools with mostly identical configuration. We continue to transpile TS to JS using Babel, for example,
+but we do it in a build step before invoking Webpack, just using the Babel CLI.
+
+This is a good middle ground to get some benefits from Bazel while staying on the same supported tools as react-scripts.
 
 TODO(alexeagle): build an example illustrating how this looks
 
