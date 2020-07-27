@@ -9,7 +9,6 @@ stylesheet: docs
 ## Angular
 
 Bazel can run any toolchain you want, so there is more than one way to use it with Angular.
-See Alex's post [Angular ❤️ Bazel update](https://dev.to/bazel/angular-bazel-update-n33-temp-slug-9563533?preview=d98c4fd0c1ad788b7f3e01eaf716c5b249d68b976a8697d07815023747be3b8f3277c2b182df7682a4efb81fac76056244b3ce9f7445110c70971bf8) for a longer explanation.
 
 **Architect**: The first approach is the simplest: use Architect (aka. Angular CLI Builders). This is the build tool inside of Angular CLI, so your existing application will continue to work the same way. However, it has the worst performance because the level of incrementality is only as fine as how many libs your application is composed from.
 
