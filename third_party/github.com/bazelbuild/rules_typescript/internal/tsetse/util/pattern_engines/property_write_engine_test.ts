@@ -1,9 +1,9 @@
 import 'jasmine';
 import {ConformancePatternRule, ErrorCode, PatternKind} from '../../rules/conformance_pattern_rule';
-import {compileAndCheck, customMatchers} from '../../util/testing/test_support';
+import {compileAndCheck, customMatchers} from '../testing/test_support';
 
 describe('BANNED_PROPERTY_WRITE', () => {
-  describe('simpler matcher tests', () => {
+  describe('simple matcher tests', () => {
     const config = {
       errorCode: ErrorCode.CONFORMANCE_PATTERN,
       errorMessage: 'do not cite',
@@ -16,13 +16,19 @@ describe('BANNED_PROPERTY_WRITE', () => {
       const source = [
         `const q = document.createElement('q');`,
         `q.cite = 'some example string';`,
+        `q['cite'] = 'some example string';`,
       ].join('\n');
       const results = compileAndCheck(rule, source);
 
-      expect(results).toHaveFailuresMatching({
-        matchedCode: `q.cite = 'some example string'`,
-        messageText: 'do not cite'
-      });
+      expect(results).toHaveFailuresMatching(
+          {
+            matchedCode: `q.cite = 'some example string'`,
+            messageText: 'do not cite'
+          },
+          {
+            matchedCode: `q['cite'] = 'some example string'`,
+            messageText: 'do not cite'
+          });
     });
 
     it('matches precisely, even with whitespace or comments', () => {

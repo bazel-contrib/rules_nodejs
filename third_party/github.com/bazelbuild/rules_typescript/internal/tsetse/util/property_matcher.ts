@@ -45,7 +45,7 @@ export class PropertyMatcher {
 
   // TODO: Account for unknown types/ '?', and 'loose type matches', i.e. if the
   // actual type is a supertype of the prohibited type.
-  private typeMatches(inspectedType: ts.Type): boolean {
+  typeMatches(inspectedType: ts.Type): boolean {
     if (this.exactTypeMatches(inspectedType)) {
       return true;
     }

@@ -24,19 +24,25 @@ interface Handler<T extends ts.Node> {
 export class Checker {
   /** Node to handlers mapping for all enabled rules. */
   private readonly nodeHandlersMap =
-      new Map<ts.SyntaxKind, Handler<ts.Node>[]>();
+      new Map<ts.SyntaxKind, Array<Handler<ts.Node>>>();
   /**
    * Mapping from identifier name to handlers for all rules inspecting property
    * names.
    */
   private readonly namedIdentifierHandlersMap =
-      new Map<string, Handler<ts.Identifier>[]>();
+      new Map<string, Array<Handler<ts.Identifier>>>();
   /**
    * Mapping from property name to handlers for all rules inspecting property
    * accesses expressions.
    */
   private readonly namedPropertyAccessHandlersMap =
-      new Map<string, Handler<ts.PropertyAccessExpression>[]>();
+      new Map<string, Array<Handler<ts.PropertyAccessExpression>>>();
+  /**
+   * Mapping from string literal value to handlers for all rules inspecting
+   * string literals.
+   */
+  private readonly stringLiteralElementAccessHandlersMap =
+      new Map<string, Array<Handler<ts.ElementAccessExpression>>>();
 
   private failures: Failure[] = [];
   private currentSourceFile: ts.SourceFile|undefined;
@@ -107,6 +113,26 @@ export class Checker {
   }
 
   /**
+   * Similar to `on`, but registers handlers on more specific node type, i.e.,
+   * element access expressions with string literals as keys.
+   */
+  onStringLiteralElementAccess(
+      key: string,
+      handlerFunction:
+          (checker: Checker, node: ts.ElementAccessExpression) => void,
+      code: number) {
+    const newHandler:
+        Handler<ts.ElementAccessExpression> = {handlerFunction, code};
+    const registeredHandlers =
+        this.stringLiteralElementAccessHandlersMap.get(key);
+    if (registeredHandlers === undefined) {
+      this.stringLiteralElementAccessHandlersMap.set(key, [newHandler]);
+    } else {
+      registeredHandlers.push(newHandler);
+    }
+  }
+
+  /**
    * Add a failure with a span.
    */
   addFailure(start: number, end: number, failureText: string, fix?: Fix) {
@@ -135,9 +161,7 @@ export class Checker {
   /** Dispatch general handlers registered via `on` */
   dispatchNodeHandlers(node: ts.Node) {
     const handlers = this.nodeHandlersMap.get(node.kind);
-    if (handlers === undefined) {
-      return;
-    }
+    if (handlers === undefined) return;
 
     for (const handler of handlers) {
       this.currentCode = handler.code;
@@ -148,9 +172,7 @@ export class Checker {
   /** Dispatch identifier handlers registered via `onNamedIdentifier` */
   dispatchNamedIdentifierHandlers(id: ts.Identifier) {
     const handlers = this.namedIdentifierHandlersMap.get(id.text);
-    if (handlers === undefined) {
-      return;
-    }
+    if (handlers === undefined) return;
 
     for (const handler of handlers) {
       this.currentCode = handler.code;
@@ -163,13 +185,28 @@ export class Checker {
    */
   dispatchNamedPropertyAccessHandlers(prop: ts.PropertyAccessExpression) {
     const handlers = this.namedPropertyAccessHandlersMap.get(prop.name.text);
-    if (handlers === undefined) {
-      return;
-    }
+    if (handlers === undefined) return;
 
     for (const handler of handlers) {
       this.currentCode = handler.code;
       handler.handlerFunction(this, prop);
+    }
+  }
+
+  /**
+   * Dispatch string literal handlers registered via
+   * `onStringLiteralElementAccess`.
+   */
+  dispatchStringLiteralElementAccessHandlers(elem: ts.ElementAccessExpression) {
+    const arg = elem.argumentExpression;
+    if (!ts.isStringLiteral(arg)) return;
+
+    const handlers = this.stringLiteralElementAccessHandlersMap.get(arg.text);
+    if (handlers === undefined) return;
+
+    for (const handler of handlers) {
+      this.currentCode = handler.code;
+      handler.handlerFunction(this, elem);
     }
   }
 
@@ -194,6 +231,8 @@ export class Checker {
         thisChecker.dispatchNamedIdentifierHandlers(node);
       } else if (ts.isPropertyAccessExpression(node)) {
         thisChecker.dispatchNamedPropertyAccessHandlers(node);
+      } else if (ts.isElementAccessExpression(node)) {
+        thisChecker.dispatchStringLiteralElementAccessHandlers(node);
       }
 
       ts.forEachChild(node, run);

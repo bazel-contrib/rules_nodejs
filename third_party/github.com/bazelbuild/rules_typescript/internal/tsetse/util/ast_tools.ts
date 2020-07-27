@@ -145,29 +145,6 @@ export function isNameInDeclaration(n: ts.Node): boolean {
       ts.isVariableDeclarationList(p) || ts.isImportDeclaration(p);
 }
 
-/** Type guard for expressions that looks like property writes. */
-export function isPropertyWriteExpression(node: ts.Node):
-    node is(ts.BinaryExpression & {
-      left: ts.PropertyAccessExpression;
-    }) {
-  if (!ts.isBinaryExpression(node)) {
-    return false;
-  }
-  if (node.operatorToken.getText().trim() !== '=') {
-    return false;
-  }
-  if (!ts.isPropertyAccessExpression(node.left) ||
-      node.left.expression.getFullText().trim() === '') {
-    return false;
-  }
-
-  // TODO: Destructuring assigments aren't covered. This would be a potential
-  // bypass, but I doubt we'd catch bugs, so fixing it seems low priority
-  // overall.
-
-  return true;
-}
-
 /**
  * If verbose, logs the given error that happened while walking n, with a
  * stacktrace.

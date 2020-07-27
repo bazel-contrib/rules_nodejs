@@ -2,46 +2,36 @@ import * as ts from 'typescript';
 
 import {Checker} from '../../checker';
 import {ErrorCode} from '../../error_code';
-import {debugLog, isPropertyWriteExpression} from '../ast_tools';
+import {debugLog} from '../ast_tools';
 import {Fixer} from '../fixer';
 import {isLiteral} from '../is_literal';
 import {PropertyMatcher} from '../property_matcher';
 
-import {PatternEngine} from './pattern_engine';
+import {matchPropertyWrite, PropertyWriteEngine} from './property_write_engine';
 
-function checkBinExpr(
-    tc: ts.TypeChecker, n: ts.BinaryExpression,
+function matchPropertyNonConstantWrite(
+    tc: ts.TypeChecker,
+    n: ts.PropertyAccessExpression|ts.ElementAccessExpression,
     matcher: PropertyMatcher): ts.Node|undefined {
-  if (!isPropertyWriteExpression(n)) {
-    return;
-  }
   debugLog(() => `inspecting ${n.getFullText().trim()}`);
-  if (!matcher.matches(n.left, tc)) {
-    debugLog(() => 'Not an assignment to the right property');
+  if (matchPropertyWrite(tc, n, matcher) === undefined) {
     return;
   }
-  if (isLiteral(tc, n.right)) {
+  const rval = (n.parent as ts.BinaryExpression).right;
+  if (isLiteral(tc, rval)) {
     debugLog(
         () => `Assigned value (${
-            n.right.getFullText()}) is a compile-time constant.`);
+            rval.getFullText()}) is a compile-time constant.`);
     return;
   }
-  return n;
+  return n.parent;
 }
 
 /**
  * The engine for BANNED_PROPERTY_NON_CONSTANT_WRITE.
  */
-export class PropertyNonConstantWriteEngine extends PatternEngine {
+export class PropertyNonConstantWriteEngine extends PropertyWriteEngine {
   register(checker: Checker) {
-    for (const value of this.config.values) {
-      const matcher = PropertyMatcher.fromSpec(value);
-
-      checker.on(
-          ts.SyntaxKind.BinaryExpression,
-          this.wrapCheckWithAllowlistingAndFixer(
-              (tc, n: ts.BinaryExpression) => checkBinExpr(tc, n, matcher)),
-          this.config.errorCode);
-    }
+    this.registerWith(checker, matchPropertyNonConstantWrite);
   }
 }

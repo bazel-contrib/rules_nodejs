@@ -2,47 +2,35 @@ import * as ts from 'typescript';
 
 import {Checker} from '../../checker';
 import {ErrorCode} from '../../error_code';
-import {debugLog, isPropertyWriteExpression} from '../ast_tools';
+import {debugLog} from '../ast_tools';
 import {Fixer} from '../fixer';
-import {PatternEngine} from '../pattern_engines/pattern_engine';
 import {PropertyMatcher} from '../property_matcher';
 
-function checkPropAccessExpr(
-    tc: ts.TypeChecker, n: ts.PropertyAccessExpression,
-    matcher: PropertyMatcher): ts.Node|undefined {
-  if (!ts.isBinaryExpression(n.parent)) {
-    return;
-  }
+import {matchProperty, PropertyEngine} from './property_engine';
 
-  if (n.parent.operatorToken.getText().trim() !== '=') {
-    return;
-  }
-
-  if (n.parent.left !== n) {
-    return;
-  }
-
+/** Test if an AST node is a matched property write. */
+export function matchPropertyWrite(
+    tc: ts.TypeChecker,
+    n: ts.PropertyAccessExpression|ts.ElementAccessExpression,
+    matcher: PropertyMatcher): ts.BinaryExpression|undefined {
   debugLog(() => `inspecting ${n.parent.getText().trim()}`);
-  if (!matcher.matches(n, tc)) {
-    return;
-  }
-  return n.parent;
+
+  if (matchProperty(tc, n, matcher) === undefined) return;
+
+  const assignment = n.parent;
+
+  if (!ts.isBinaryExpression(assignment)) return;
+  if (assignment.operatorToken.kind !== ts.SyntaxKind.EqualsToken) return;
+  if (assignment.left !== n) return;
+
+  return assignment;
 }
 
 /**
  * The engine for BANNED_PROPERTY_WRITE.
  */
-export class PropertyWriteEngine extends PatternEngine {
+export class PropertyWriteEngine extends PropertyEngine {
   register(checker: Checker) {
-    for (const value of this.config.values) {
-      const matcher = PropertyMatcher.fromSpec(value);
-
-      checker.onNamedPropertyAccess(
-          matcher.bannedProperty,
-          this.wrapCheckWithAllowlistingAndFixer(
-              (tc, n: ts.PropertyAccessExpression) =>
-                  checkPropAccessExpr(tc, n, matcher)),
-          this.config.errorCode);
-    }
+    this.registerWith(checker, matchPropertyWrite);
   }
 }
