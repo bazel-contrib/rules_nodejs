@@ -55,6 +55,7 @@ genrule(
 
 _PACKAGE_READMES = {
     "Built-ins": ":builtins.doc",
+    "Cypress": "//packages/cypress:README.md",
     "Jasmine": "//packages/jasmine:README.md",
     "Karma": "//packages/karma:README.md",
     "Protractor": "//packages/protractor:README.md",
