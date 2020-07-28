@@ -37,7 +37,11 @@ rules_nodejs_dev_dependencies()
 # Setup rules_nodejs npm dependencies
 #
 
-load("@build_bazel_rules_nodejs//:index.bzl", "npm_install", "yarn_install")
+load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "npm_install", "yarn_install")
+
+node_repositories(
+    vendored_yarn = "//third_party/github.com/yarnpkg/yarn/releases/download/v1.13.0/bin/yarn.js",
+)
 
 yarn_install(
     name = "npm",
