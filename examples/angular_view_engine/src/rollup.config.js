@@ -1,5 +1,5 @@
-const node = require('rollup-plugin-node-resolve');
-const commonjs = require('rollup-plugin-commonjs');
+const {nodeResolve} = require('@rollup/plugin-node-resolve');
+const commonjs = require('@rollup/plugin-commonjs');
 const amd = require('rollup-plugin-amd');
 const replace = require('rollup-plugin-re');
 
@@ -14,7 +14,7 @@ module.exports = {
         replace: '',
       }]
     }),
-    node({
+    nodeResolve({
       mainFields: ['browser', 'es2015', 'module', 'jsnext:main', 'main'],
     }),
     amd({

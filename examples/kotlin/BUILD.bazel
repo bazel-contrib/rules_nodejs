@@ -39,10 +39,10 @@ rollup_bundle(
     format = "cjs",
     output_dir = True,
     deps = [
+        "@npm//@rollup/plugin-commonjs",
+        "@npm//@rollup/plugin-node-resolve",
         "@npm//kotlin",
         "@npm//kotlinx-html-js",
-        "@npm//rollup-plugin-commonjs",
-        "@npm//rollup-plugin-node-resolve",
     ],
 )
 

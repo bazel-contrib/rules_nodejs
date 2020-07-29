@@ -30,10 +30,10 @@ _BUNDLE_FORMATS = [
             "//%s/foo_aaa:foo_lib_a_a_a" % package_name(),
             "//%s/far/a/b/c" % package_name(),
             "//%s/far/a" % package_name(),
+            "@npm//@rollup/plugin-commonjs",
+            "@npm//@rollup/plugin-json",
+            "@npm//@rollup/plugin-node-resolve",
             "@npm//hello",
-            "@npm//rollup-plugin-commonjs",
-            "@npm//rollup-plugin-json",
-            "@npm//rollup-plugin-node-resolve",
         ],
     )
     for format in _BUNDLE_FORMATS

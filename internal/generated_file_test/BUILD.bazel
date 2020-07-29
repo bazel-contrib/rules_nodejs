@@ -31,8 +31,8 @@ rollup_bundle(
     entry_point = "bin.js",
     sourcemap = "hidden",
     deps = [
-        "@npm//rollup-plugin-commonjs",
-        "@npm//rollup-plugin-node-resolve",
+        "@npm//@rollup/plugin-commonjs",
+        "@npm//@rollup/plugin-node-resolve",
         "@npm//unidiff",
     ],
 )

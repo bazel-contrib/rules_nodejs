@@ -6,6 +6,6 @@ describe('rollup code splitting', () => {
     const chunks = runfiles.resolvePackageRelative('bundle');
 
     expect(fs.existsSync(chunks + '/bundle.js')).toBeTruthy();
-    expect(fs.existsSync(chunks + '/chunk.js')).toBeTruthy();
+    expect(fs.existsSync(chunks + '/strings.js')).toBeTruthy();
   });
 });

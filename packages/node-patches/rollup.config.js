@@ -1,4 +1,4 @@
-const commonjs = require('rollup-plugin-commonjs');
+const commonjs = require('@rollup/plugin-commonjs');
 
 module.exports = {
   output: {

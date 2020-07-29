@@ -4,7 +4,7 @@
     "devDependencies": {
         "@bazel/rollup": "^2.0.0",
         "@bazel/terser": "^2.0.0",
-        "rollup": "1.20.3",
+        "rollup": "2.3.0",
         "terser": "4.3.1"
     },
     "scripts": {

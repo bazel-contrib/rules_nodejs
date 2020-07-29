@@ -4,9 +4,9 @@
   "devDependencies": {
     "@types/node": "12.12.50",
     "protobufjs": "6.10.1",
-    "rollup": "2.22.1",
-    "rollup-plugin-commonjs": "10.1.0",
-    "rollup-plugin-node-resolve": "5.2.0",
+    "rollup": "2.3.4",
+    "@rollup/plugin-commonjs": "^14.0.0",
+    "@rollup/plugin-node-resolve": "8.4.0",
     "source-map-support": "0.5.19",
     "tsickle": "0.39.1",
     "tsutils": "3.17.1",

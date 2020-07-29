@@ -5640,17 +5640,16 @@ define(['exports', 'some_global_var'], function (exports, some_global_var) { 'us
     subWeeks: sub_weeks,
     subYears: sub_years
   };
-  var dateFns_50 = dateFns.format;
 
   const user = "user";
 
-  const date = dateFns_50(new Date(2019, 4, 7), 'MMMM D, YYYY');
+  const date = dateFns.format(new Date(2019, 4, 7), 'MMMM D, YYYY');
   const foo = `Sunnyvale ${user} ${date}`;
 
-  const date$1 = dateFns_50(new Date(2019, 4, 7), 'MMMM D, YYYY');
+  const date$1 = dateFns.format(new Date(2019, 4, 7), 'MMMM D, YYYY');
   const foo$1 = `@foo/lib/a ${date$1}`;
 
-  const date$2 = dateFns_50(new Date(2019, 4, 7), 'MMMM D, YYYY');
+  const date$2 = dateFns.format(new Date(2019, 4, 7), 'MMMM D, YYYY');
   const foo$2 = `@foo/lib/a/a/a ${date$2}`;
 
   const fum = 'Wonderland';

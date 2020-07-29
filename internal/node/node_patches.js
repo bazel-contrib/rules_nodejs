@@ -9,12 +9,18 @@ var fs$1 = _interopDefault(require('fs'));
 
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
-function unwrapExports (x) {
-	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
+function createCommonjsModule(fn, basedir, module) {
+	return module = {
+	  path: basedir,
+	  exports: {},
+	  require: function (path, base) {
+      return commonjsRequire(path, (base === undefined || base === null) ? module.path : base);
+    }
+	}, fn(module, module.exports), module.exports;
 }
 
-function createCommonjsModule(fn, module) {
-	return module = { exports: {} }, fn(module, module.exports), module.exports;
+function commonjsRequire () {
+	throw new Error('Dynamic requires are not currently supported by @rollup/plugin-commonjs');
 }
 
 var fs = createCommonjsModule(function (module, exports) {
@@ -541,10 +547,6 @@ function once(fn) {
 }
 });
 
-unwrapExports(fs);
-var fs_1 = fs.patcher;
-var fs_2 = fs.escapeFunction;
-
 var subprocess = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 // this does not actually patch child_process
@@ -610,9 +612,6 @@ fi
 };
 });
 
-unwrapExports(subprocess);
-var subprocess_1 = subprocess.patcher;
-
 var src = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
@@ -636,10 +635,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.fs = fs.patcher;
 exports.subprocess = subprocess.patcher;
 });
-
-unwrapExports(src);
-var src_1 = src.fs;
-var src_2 = src.subprocess;
 
 /**
  * @license
@@ -673,9 +668,3 @@ else if (VERBOSE_LOGS) {
     console.error(`bazel node patches disabled. set environment BAZEL_PATCH_ROOT`);
 }
 src.subprocess(__filename, NP_SUBPROCESS_NODE_DIR);
-
-var register = {
-
-};
-
-module.exports = register;
