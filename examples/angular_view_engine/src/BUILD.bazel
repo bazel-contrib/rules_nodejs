@@ -145,9 +145,9 @@ rollup_bundle(
     deps = [
         "//:examples_angular_view_engine",
         "//src",
+        "@npm//@rollup/plugin-commonjs",
+        "@npm//@rollup/plugin-node-resolve",
         "@npm//rollup-plugin-amd",
-        "@npm//rollup-plugin-commonjs",
-        "@npm//rollup-plugin-node-resolve",
         "@npm//rollup-plugin-re",
     ],
 )

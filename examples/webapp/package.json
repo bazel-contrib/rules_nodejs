@@ -11,7 +11,7 @@
         "http-server": "^0.11.1",
         "mocha": "^6.2.1",
         "protractor": "^5.4.2",
-        "rollup": "1.21.4",
+        "rollup": "2.3.0",
         "source-map": "^0.7.3",
         "terser": "^4.3.1",
         "typescript": "^3.1.6"
