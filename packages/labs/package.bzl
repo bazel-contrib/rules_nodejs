@@ -24,16 +24,6 @@ def npm_bazel_labs_dependencies():
 
     _maybe(
         http_archive,
-        name = "com_github_grpc_grpc_web",
-        sha256 = "04460e28ffa80bfc797a8758da10ba40107347ef0af8e9cc065ade10398da4bb",
-        strip_prefix = "grpc-web-1.0.7",
-        urls = [
-            "https://github.com/grpc/grpc-web/archive/1.0.7.tar.gz",
-        ],
-    )
-
-    _maybe(
-        http_archive,
         name = "rules_proto",
         sha256 = "4d421d51f9ecfe9bf96ab23b55c6f2b809cbaf0eea24952683e397decfbd0dd0",
         strip_prefix = "rules_proto-f6b8d89b90a7956f6782a4a3609b2f0eee3ce965",
