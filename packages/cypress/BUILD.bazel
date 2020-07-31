@@ -76,8 +76,8 @@ pkg_npm(
     srcs = [
         "index.bzl",
         "package.json",
-        "//packages/cypress:internal/cypress-install.js",
         "//packages/cypress:internal/cypress_repository.bzl",
+        "//packages/cypress:internal/install-cypress.js",
         "//packages/cypress:internal/plugins/base.js",
         "//packages/cypress:internal/plugins/index.template.js",
         "//packages/cypress:internal/run-cypress.js",
@@ -90,8 +90,8 @@ pkg_npm(
     "plugins/base.js",
 ])""",
     substitutions = {
-        "@build_bazel_rules_nodejs//packages/cypress:internal/cypress-install.js": "TEMPLATED_node_modules_workspace_name//@bazel/cypress:internal/cypress-install.js",
         "@build_bazel_rules_nodejs//packages/cypress:internal/cypress_repository.bzl": "//packages/cypress:internal/cypress_repository.bzl",
+        "@build_bazel_rules_nodejs//packages/cypress:internal/install-cypress.js": "TEMPLATED_node_modules_workspace_name//@bazel/cypress:internal/install-cypress.js",
         "@build_bazel_rules_nodejs//packages/cypress:internal/plugins/base.js": "TEMPLATED_node_modules_workspace_name//@bazel/cypress:internal/plugins/base.js",
         "@build_bazel_rules_nodejs//packages/cypress:internal/plugins/index.template.js": "TEMPLATED_node_modules_workspace_name//@bazel/cypress:internal/plugins/index.template.js",
         "@build_bazel_rules_nodejs//packages/cypress:internal/run-cypress.js": "TEMPLATED_node_modules_workspace_name//@bazel/cypress:internal/run-cypress.js",

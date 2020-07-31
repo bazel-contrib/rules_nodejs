@@ -41,8 +41,6 @@ def _cypress_plugin_impl(ctx):
         template = ctx.file._plugin_template,
         substitutions = {
             "TEMPLATED_@cypress/browserify-preprocessor": "${cwd}/../cypress_deps/node_modules/@cypress/browserify-preprocessor/index",
-            "TEMPLATED_includeScreenshots": "true" if ctx.attr.include_screenshots else "false",
-            "TEMPLATED_includeVideos": "true" if ctx.attr.include_video else "false",
             "TEMPLATED_integrationFileShortPaths": "[\n  {files}\n]".format(files = ",\n  ".join(integration_files_short_paths)),
             "TEMPLATED_pluginsFile": plugins_file.short_path,
         },
@@ -52,13 +50,6 @@ def _cypress_plugin_impl(ctx):
         files = depset([ctx.outputs.plugin]),
     )]
 
-# Avoid using non-normalized paths (workspace/../other_workspace/path)
-def _to_manifest_path(ctx, file):
-    if file.short_path.startswith("../"):
-        return file.short_path[3:]
-    else:
-        return ctx.workspace_name + "/" + file.short_path
-
 _cypress_plugin = rule(
     implementation = _cypress_plugin_impl,
     outputs = {"plugin": "%{name}_cypress_plugin.js"},
@@ -67,8 +58,6 @@ _cypress_plugin = rule(
             allow_single_file = [".json"],
             mandatory = True,
         ),
-        "include_screenshots": attr.bool(default = False),
-        "include_video": attr.bool(default = False),
         "plugins_file": attr.label(
             default = Label("@build_bazel_rules_nodejs//packages/cypress:internal/plugins/base.js"),
             allow_single_file = True,
@@ -89,8 +78,6 @@ def cypress_web_test(
         name,
         config_file,
         srcs = [],
-        include_screenshots = False,
-        include_video = False,
         plugins_file = Label("@build_bazel_rules_nodejs//packages/cypress:internal/plugins/base.js"),
         cypress = Label("TEMPLATED_node_modules_workspace_name//cypress:cypress"),
         cypress_browserify_preprocessor = Label("TEMPLATED_node_modules_workspace_name//@cypress/browserify-preprocessor"),
@@ -106,8 +93,6 @@ def cypress_web_test(
         name = cypress_plugin,
         srcs = srcs,
         tags = tags,
-        include_screenshots = include_screenshots,
-        include_video = include_video,
         plugins_file = plugins_file,
         config_file = config_file,
         testonly = True,
@@ -123,14 +108,14 @@ def cypress_web_test(
             cypress_browserify_preprocessor,
             cypress_cache,
             cypress_executable,
-            ":{cypress_plugin}".format(cypress_plugin = cypress_plugin),
-            ":{config_file}".format(config_file = config_file),
+            "{cypress_plugin}".format(cypress_plugin = cypress_plugin),
+            "{config_file}".format(config_file = config_file),
         ] + srcs,
         entry_point = "@build_bazel_rules_nodejs//packages/cypress:internal/run-cypress.js",
         templated_args = [
             "--nobazel_patch_module_resolver",
-            "$(rootpath :{config_file})".format(config_file = config_file),
-            "$(rootpath :{cypress_plugin})".format(cypress_plugin = cypress_plugin),
+            "$(rootpath {config_file})".format(config_file = config_file),
+            "$(rootpath {cypress_plugin})".format(cypress_plugin = cypress_plugin),
             "$(rootpath {cypress_executable})".format(cypress_executable = cypress_executable),
         ] + templated_args,
         **kwargs
@@ -140,8 +125,6 @@ def cypress_web_test_global_cache(
         name,
         config_file,
         srcs = [],
-        include_screenshots = False,
-        include_video = False,
         plugins_file = Label("@build_bazel_rules_nodejs//packages/cypress:plugins/base.js"),
         cypress = Label("TEMPLATED_node_modules_workspace_name//cypress:cypress"),
         cypress_browserify_preprocessor = Label("TEMPLATED_node_modules_workspace_name//@cypress/browserify-preprocessor"),
@@ -155,8 +138,6 @@ def cypress_web_test_global_cache(
         name = cypress_plugin,
         srcs = srcs,
         tags = tags,
-        include_screenshots = include_screenshots,
-        include_video = include_video,
         plugins_file = plugins_file,
         config_file = config_file,
         testonly = True,
@@ -170,14 +151,14 @@ def cypress_web_test_global_cache(
             plugins_file,
             cypress,
             cypress_browserify_preprocessor,
-            ":{cypress_plugin}".format(cypress_plugin = cypress_plugin),
-            ":{config_file}".format(config_file = config_file),
+            "{cypress_plugin}".format(cypress_plugin = cypress_plugin),
+            "{config_file}".format(config_file = config_file),
         ] + srcs,
         entry_point = "@build_bazel_rules_nodejs//packages/cypress:internal/run-cypress.js",
         templated_args = [
             "--nobazel_patch_module_resolver",
-            "$(rootpath :{config_file})".format(config_file = config_file),
-            "$(rootpath :{cypress_plugin})".format(cypress_plugin = cypress_plugin),
+            "$(rootpath {config_file})".format(config_file = config_file),
+            "$(rootpath {cypress_plugin})".format(cypress_plugin = cypress_plugin),
         ] + templated_args,
         **kwargs
     )
