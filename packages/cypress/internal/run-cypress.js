@@ -7,10 +7,10 @@ const [node, entry, configFilePath, pluginsFilePath, cypressExecutable, ...args]
 if (cypressExecutable) {
   process.env.CYPRESS_RUN_BINARY =
       join(process.cwd(), cypressExecutable.replace('external/', '../'));
+  process.env.CYPRESS_CACHE_FOLDER =
+      join(process.env.CYPRESS_RUN_BINARY.split('/cypress-cache/')[0], '/cypress-cache');
+  process.env.HOME = process.env['TEST_TMPDIR'];
 }
-
-console.log(process.argv);
-
 
 const pluginsFile = runfiles.resolveWorkspaceRelative(pluginsFilePath).replace(process.cwd(), '.');
 const configFile = runfiles.resolveWorkspaceRelative(configFilePath).replace(process.cwd(), '.');

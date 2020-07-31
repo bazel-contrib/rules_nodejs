@@ -1,5 +1,5 @@
 /**
- * cypress-install is responsible for creating an external repository from which a cypress_web_test
+ * install-cypress is responsible for creating an external repository from which a cypress_web_test
  * can be loaded. The script invokes `cypress install` to download and install the cypress binary
  * and subsequently calls cypress verify to ensure the binary is runnable.
  *
@@ -47,7 +47,12 @@ exports_files([
     _cypress_web_test = "cypress_web_test_global_cache",
 )
 cypress_web_test = _cypress_web_test`)
+
+  const env = {
+    PATH: `${dirname(nodePath)}:${process.env.PATH}`,
+  };
   const spawnOptions = {
+    env,
     stdio: [process.stdin, process.stdout, process.stderr],
     shell: process.env.SHELL
   };
@@ -71,6 +76,7 @@ function installSandboxedCypressCache() {
   const env = {
     CYPRESS_CACHE_FOLDER: join(cwd, 'cypress-cache'),
     PATH: `${dirname(nodePath)}:${process.env.PATH}`,
+    DEBUG: 'cypress:*'
   }
 
   const spawnOptions =
@@ -91,9 +97,7 @@ function installSandboxedCypressCache() {
   };
 
   let CYPRESS_RUN_BINARY;
-  const cacheFiles = [];
   walkDir(env.CYPRESS_CACHE_FOLDER, (filePath) => {
-    cacheFiles.push(filePath);
     if (basename(filePath) === 'Cypress') {
       if (CYPRESS_RUN_BINARY) {
         throw new Error(`More than one cypress executable found: ${CYPRESS_RUN_BINARY} ${filePath}`)
@@ -107,11 +111,18 @@ function installSandboxedCypressCache() {
     throw new Error(`No cypress executable found.`);
   }
 
-  const verify = spawnSync(`${cypressBin}`, ['verify'], spawnOptions);
+  spawnOptions.env.CYPRESS_RUN_BINARY = CYPRESS_RUN_BINARY;
+
+  const verify = spawnSync(cypressBin, ['verify'], spawnOptions);
 
   if (verify.status !== 0) {
     throw new Error(`cypress verify failed`);
   }
+
+  const cacheFiles = [];
+  walkDir(env.CYPRESS_CACHE_FOLDER, (filePath) => {
+    cacheFiles.push(filePath);
+  });
 
   writeFileSync('index.bzl', `load(
     "//:packages/cypress/internal/cypress_web_test.bzl",

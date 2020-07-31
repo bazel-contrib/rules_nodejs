@@ -120,6 +120,8 @@ load("//packages/cypress:index.bzl", "cypress_repository")
 cypress_repository(
     name = "cypress",
     cypress_bin = "@cypress_deps//:node_modules/cypress/bin/cypress",
+    # Currently cypress cannot be installed on our Linux/Windows CI machines
+    fail_on_error = False,
 )
 
 #
