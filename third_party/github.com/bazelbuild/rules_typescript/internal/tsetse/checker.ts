@@ -198,10 +198,11 @@ export class Checker {
    * `onStringLiteralElementAccess`.
    */
   dispatchStringLiteralElementAccessHandlers(elem: ts.ElementAccessExpression) {
-    const arg = elem.argumentExpression;
-    if (!ts.isStringLiteral(arg)) return;
+    const ty = this.typeChecker.getTypeAtLocation(elem.argumentExpression);
 
-    const handlers = this.stringLiteralElementAccessHandlersMap.get(arg.text);
+    if (!ty.isStringLiteral()) return;
+
+    const handlers = this.stringLiteralElementAccessHandlersMap.get(ty.value);
     if (handlers === undefined) return;
 
     for (const handler of handlers) {

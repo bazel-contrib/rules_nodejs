@@ -28,4 +28,18 @@ describe('BANNED_PROPERTY', () => {
           messageText: 'No Location#href access',
         });
   });
+
+  it('matches element access expressions with string literal types', () => {
+    const config = {
+      errorCode: ErrorCode.CONFORMANCE_PATTERN,
+      errorMessage: 'No Location#href access',
+      kind: PatternKind.BANNED_PROPERTY,
+      values: ['Location.prototype.href'],
+    };
+    const source = `declare const key: 'href'; const href = location[key];`;
+    const results = compileAndCheck(new ConformancePatternRule(config), source);
+
+    expect(results).toHaveFailuresMatching(
+        {matchedCode: 'location[key]', messageText: 'No Location#href access'});
+  });
 });
