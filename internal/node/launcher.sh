@@ -362,7 +362,7 @@ if [[ -n "${COVERAGE_DIR:-}" ]]; then
   fi
 
   set +e
-  "${node}" "${lcov_merger_script}" --coverage_dir="${COVERAGE_DIR}" --output_file="${COVERAGE_OUTPUT_FILE}" --source_file_manifest="${COVERAGE_MANIFEST}"
+  "${node}" ${LAUNCHER_NODE_OPTIONS[@]+"${LAUNCHER_NODE_OPTIONS[@]}"} "${lcov_merger_script}" --coverage_dir="${COVERAGE_DIR}" --output_file="${COVERAGE_OUTPUT_FILE}" --source_file_manifest="${COVERAGE_MANIFEST}"
   RESULT="$?"
   set -e
 
