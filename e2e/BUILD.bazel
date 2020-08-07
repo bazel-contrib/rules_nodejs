@@ -22,6 +22,18 @@ e2e_integration_test(
 )
 
 e2e_integration_test(
+    name = "e2e_coverage",
+    bazel_commands = [
+        "info",
+        "coverage ...",
+    ],
+    npm_packages = {
+        "//packages/jasmine:npm_package": "@bazel/jasmine",
+        "//packages/typescript:npm_package": "@bazel/typescript",
+    },
+)
+
+e2e_integration_test(
     name = "e2e_fine_grained_symlinks",
 )
 
