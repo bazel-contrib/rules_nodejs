@@ -20,7 +20,7 @@ _DOC = """Run the terser minifier.
 
 Typical example:
 ```python
-load("//packages/terser:index.bzl", "terser_minified")
+load("@npm//@bazel/terser:index.bzl", "terser_minified")
 
 terser_minified(
     name = "out.min",

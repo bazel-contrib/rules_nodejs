@@ -175,7 +175,7 @@ a `ts_library` can appear, such as in the `deps[]` of another `ts_library`.
 Example:
 
 ```python
-load("//packages/typescript:index.bzl", "ts_library", "ts_proto_library")
+load("@npm//@bazel/typescript:index.bzl", "ts_library", "ts_proto_library")
 
 proto_library(
     name = "car_proto",
@@ -203,18 +203,18 @@ name the rule differently from the output file.
 The JavaScript produced by protobuf.js has a runtime dependency on a support library.
 Under devmode (e.g. `ts_devserver`, `karma_web_test_suite`) you'll need to include these scripts
 in the `bootstrap` phase (before Require.js loads). You can use the label
-`//packages/labs/protobufjs:bootstrap_scripts` to reference these scripts
+`@npm//@bazel/labs/protobufjs:bootstrap_scripts` to reference these scripts
 in the `bootstrap` attribute of `karma_web_test_suite` or `ts_devserver`.
 
 To complete the example above, you could write a `karma_web_test_suite`:
 
 ```python
-load("//packages/karma:index.bzl", "karma_web_test_suite")
+load("@npm//@bazel/karma:index.bzl", "karma_web_test_suite")
 
 karma_web_test_suite(
     name = "test",
     deps = ["test_lib"],
-    bootstrap = ["//packages/labs/protobufjs:bootstrap_scripts"],
+    bootstrap = ["@npm//@bazel/labs/protobufjs:bootstrap_scripts"],
     browsers = [
         "@io_bazel_rules_webtesting//browsers:chromium-local",
         "@io_bazel_rules_webtesting//browsers:firefox-local",
