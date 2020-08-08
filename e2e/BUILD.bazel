@@ -31,6 +31,14 @@ e2e_integration_test(
         "//packages/jasmine:npm_package": "@bazel/jasmine",
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
+    # Coverage not working on Windows. Looks like a bazel issue.
+    # ==================== Test output for //:coverage_test:
+    # ERROR(tools/test/windows/tw.cc:1262) ERROR: src/main/native/windows/process.cc(199): CreateProcessW("C:\users\b\_bazel_b\tpt6yasm\execroot\e2e_coverage\bazel-out\x64_windows-fastbuild\bin\coverage_test.bat.runfiles\bazel_tools\tools\test\collect_coverage.sh"  ./coverage_test.bat): The system cannot find the file specified.
+    #  (error: 2)
+    # ERROR(tools/test/windows/tw.cc:1419) Failed to start test process (arg: C:\users\b\_bazel_b\tpt6yasm\execroot\e2e_coverage\bazel-out\x64_windows-fastbuild\bin\coverage_test.bat.runfiles\bazel_tools\tools\test\collect_coverage.sh)
+    tags = [
+        "no-bazelci-windows",
+    ],
 )
 
 e2e_integration_test(
