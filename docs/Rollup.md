@@ -49,7 +49,7 @@ See https://rollupjs.org/guide/en/#command-line-reference
 
 Typical example:
 ```python
-load("//packages/rollup:index.bzl", "rollup_bundle")
+load("@npm//@bazel/rollup:index.bzl", "rollup_bundle")
 
 rollup_bundle(
     name = "bundle",

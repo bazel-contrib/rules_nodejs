@@ -108,7 +108,7 @@ cypress_web_test(
 ### Usage
 
 ```
-cypress_repository(name, cypress_bin, quiet)
+cypress_repository(name, cypress_bin, fail_on_error, quiet)
 ```
 
 
@@ -120,6 +120,11 @@ cypress_repository(name, cypress_bin, quiet)
 (*[label]*): bazel target of the cypress binary
 
 Defaults to `@npm//:node_modules/cypress/bin/cypress`
+
+#### `fail_on_error`
+(*Boolean*): If the repository rule should allow errors
+
+Defaults to `True`
 
 #### `quiet`
 (*Boolean*): If stdout and stderr should be printed to the terminal
