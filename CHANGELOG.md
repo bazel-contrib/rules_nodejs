@@ -1,3 +1,15 @@
+## [2.0.2](https://github.com/bazelbuild/rules_nodejs/compare/2.0.1...2.0.2) (2020-08-10)
+
+
+### Bug Fixes
+
+* **cypress:** allow for async cypress plugins ([4fd4653](https://github.com/bazelbuild/rules_nodejs/commit/4fd4653))
+* coverage ([#2100](https://github.com/bazelbuild/rules_nodejs/issues/2100)) ([e5fc274](https://github.com/bazelbuild/rules_nodejs/commit/e5fc274))
+* remove duplicate Importing ([23f80cf](https://github.com/bazelbuild/rules_nodejs/commit/23f80cf))
+* test file pattern ([#2089](https://github.com/bazelbuild/rules_nodejs/issues/2089)) ([857471e](https://github.com/bazelbuild/rules_nodejs/commit/857471e))
+
+
+
 ## [2.0.1](https://github.com/bazelbuild/rules_nodejs/compare/2.0.0...2.0.1) (2020-07-24)
 
 
