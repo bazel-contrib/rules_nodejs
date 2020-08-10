@@ -1,10 +1,10 @@
 {
   "name": "e2e-coverage",
   "dependencies": {
-    "@bazel/jasmine": "^2.0.0",
-    "@bazel/typescript": "^2.0.0",
-    "typescript": "3.9.7",
-    "jasmine": "3.6.1"
+    "@bazel/jasmine": "^2.0.2",
+    "@bazel/typescript": "^2.0.2",
+    "jasmine": "3.6.1",
+    "typescript": "3.9.7"
   },
   "scripts": {
     "test": "bazel coverage ..."

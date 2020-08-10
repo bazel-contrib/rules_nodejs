@@ -1,10 +1,10 @@
 {
     "private": true,
     "devDependencies": {
-        "@bazel/bazelisk": "^1.5.0",
+        "@bazel/bazelisk": "^1.6.0",
         "@bazel/buildifier": "^3.4.0",
         "@bazel/ibazel": "^0.13.1",
-        "@bazel/typescript": "^2.0.0",
+        "@bazel/typescript": "^2.0.2",
         "@types/react": "^16.9.5",
         "@types/react-dom": "^16.9.1",
         "css-loader": "^3.2.0",
