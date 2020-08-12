@@ -1,4 +1,4 @@
-# Copyright 2019 The Bazel Authors. All rights reserved.
+# Copyright 2020 The Bazel Authors. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,16 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Contains the node_module_library which is used by yarn_install & npm_install.
+"""Contains the js_library which can be used to expose any library package.
 """
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "NpmPackageInfo", "js_module_info", "js_named_module_info")
+load("@build_bazel_rules_nodejs//:providers.bzl",
+  "DeclarationInfo", "NpmPackageInfo", "LinkablePackageInfo", "js_module_info", "js_named_module_info",
+  "JSModuleInfo", "JSNamedModuleInfo"
+)
 
-def _node_module_library_impl(ctx):
-    workspace_name = ctx.label.workspace_name if ctx.label.workspace_name else ctx.workspace_name
-
+def _js_library_impl(ctx):
     direct_sources = depset(ctx.files.srcs)
+    direct_named_module_sources = depset(ctx.files.named_module_srcs)
     sources_depsets = [direct_sources]
+    named_module_sources_depsets = [direct_named_module_sources]
+
+    include_npm_package_info = False
+    for src in ctx.files.srcs:
+        if src.is_source and src.path.startswith("external/"):
+            include_npm_package_info = True
+            break
 
     declarations = depset([
         f
@@ -45,8 +54,51 @@ def _node_module_library_impl(ctx):
             transitive_declarations_depsets.append(dep[DeclarationInfo].transitive_declarations)
         if NpmPackageInfo in dep:
             sources_depsets.append(dep[NpmPackageInfo].sources)
+        if JSModuleInfo in dep:
+            sources_depsets.append(dep[JSModuleInfo].sources)
+        if JSNamedModuleInfo in dep:
+            named_module_sources_depsets.append(dep[JSNamedModuleInfo].sources)
 
     transitive_declarations = depset(transitive = transitive_declarations_depsets)
+    transitive_sources = depset(transitive = sources_depsets + named_module_sources_depsets)
+
+    providers = [
+        DefaultInfo(
+            files = direct_sources,
+        ),
+        DeclarationInfo(
+            declarations = declarations,
+            transitive_declarations = transitive_declarations,
+            type_blacklisted_declarations = depset([]),
+        ),
+        js_module_info(
+            sources = direct_sources,
+            deps = ctx.attr.deps,
+        ),
+        js_named_module_info(
+            sources = direct_named_module_sources,
+            deps = ctx.attr.deps,
+        ),
+    ]
+
+    if ctx.attr.package_name:
+        path = "/".join([p for p in [ctx.bin_dir.path, ctx.label.workspace_root, ctx.label.package] if p])
+        providers.append(LinkablePackageInfo(
+            package_name = ctx.attr.package_name,
+            path = path,
+            files = depset([
+                transitive_sources,
+                transitive_declarations,
+            ]),
+        ))
+
+    if include_npm_package_info:
+        workspace_name = ctx.label.workspace_name if ctx.label.workspace_name else ctx.workspace_name
+        providers.append(NpmPackageInfo(
+            direct_sources = direct_sources,
+            sources = transitive_sources,
+            workspace = workspace_name,
+        ))
 
     return struct(
         typescript = struct(
@@ -61,33 +113,11 @@ def _node_module_library_impl(ctx):
             tsickle_externs = [],
             type_blacklisted_declarations = depset(),
         ),
-        providers = [
-            DefaultInfo(
-                files = direct_sources,
-            ),
-            NpmPackageInfo(
-                direct_sources = direct_sources,
-                sources = depset(transitive = sources_depsets),
-                workspace = workspace_name,
-            ),
-            DeclarationInfo(
-                declarations = declarations,
-                transitive_declarations = transitive_declarations,
-                type_blacklisted_declarations = depset([]),
-            ),
-            js_module_info(
-                sources = direct_sources,
-                deps = ctx.attr.deps,
-            ),
-            js_named_module_info(
-                sources = depset(ctx.files.named_module_srcs),
-                deps = ctx.attr.deps,
-            ),
-        ],
+        providers = providers,
     )
 
-node_module_library = rule(
-    implementation = _node_module_library_impl,
+js_library = rule(
+    implementation = _js_library_impl,
     attrs = {
         "deps": attr.label_list(
             doc = "Transitive dependencies of the package",
@@ -100,6 +130,9 @@ node_module_library = rule(
             doc = "The list of files that comprise the package",
             allow_files = True,
         ),
+        "package_name": attr.string(
+            doc = """Optional package_name that this package may be imported as.""",
+        ),
     },
-    doc = "Defines an npm package under node_modules",
+    doc = "Defines a js library package",
 )
