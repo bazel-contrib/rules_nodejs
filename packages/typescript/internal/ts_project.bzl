@@ -1,6 +1,7 @@
 "ts_project rule"
 
 load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "NpmPackageInfo", "declaration_info", "js_module_info", "run_node")
+load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 
 _DEFAULT_TSC = (
     # BEGIN-INTERNAL
@@ -12,7 +13,7 @@ _DEFAULT_TSC = (
 _ATTRS = {
     "args": attr.string_list(),
     "declaration_dir": attr.string(),
-    "deps": attr.label_list(providers = [DeclarationInfo]),
+    "deps": attr.label_list(providers = [DeclarationInfo], aspects = [module_mappings_aspect]),
     "extends": attr.label_list(allow_files = [".json"]),
     "out_dir": attr.string(),
     "root_dir": attr.string(),
