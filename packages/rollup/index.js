@@ -103,11 +103,15 @@ function extractEnvironmentVariables(vars) {
 //  input:  https://rollupjs.org/guide/en/#inputoptions-object
 //  output: https://rollupjs.org/guide/en/#outputoptions-object
 async function parseCLIArgs(args) {
-  let inputOptions = {
+  // Options which the CLI args or config file can override
+  const defaultInputOptions = {
     onwarn(...warnArgs) {
       worker.log(...warnArgs);
     },
   };
+
+  // Options which can override the config file
+  let inputOptions = {};
 
   let outputOptions = {};
 
@@ -193,6 +197,9 @@ async function parseCLIArgs(args) {
     // may be external and persisted across runs
     delete inputOptions.output;
   }
+
+  // Provide default inputOptions which can be overwritten
+  inputOptions = {...defaultInputOptions, ...inputOptions};
 
   // The inputs are the rule entry_point[s]
   inputOptions.input = inputs;
