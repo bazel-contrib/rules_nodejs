@@ -11,14 +11,13 @@ load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin")
 load("//packages/typescript:index.bzl", "ts_project")
 
 ts_project(
-    name = "tsconfig",
     srcs = ["src/index.ts"],
     deps = ["@npm//@types/node"],
 )
 # END-INTERNAL
 
 copy_to_bin(
-    name = "srcs",
+    name = "package_json_bin",
     srcs = [
         "package.json",
     ]
@@ -26,8 +25,7 @@ copy_to_bin(
 
 js_library(
     name = "isBinaryFile",
-    srcs = [":srcs"],
-    deps = [":tsconfig"],
+    srcs = [":package_json_bin", "src/index.js"],
     package_name = "isbinaryfile",
     visibility = ["//visibility:public"],
 )
