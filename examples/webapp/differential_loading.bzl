@@ -36,7 +36,7 @@ def differential_loading(name, entry_point, srcs):
         args = [
             "$(execpath %s_chunks)" % name,
             "--config-file",
-            "$(execpath es5.babelrc)",
+            "./$(execpath es5.babelrc)",
             "--out-dir",
             "$(@D)",
         ],
