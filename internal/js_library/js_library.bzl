@@ -104,11 +104,6 @@ def _js_library_impl(ctx):
         DefaultInfo(
             files = direct_sources,
         ),
-        DeclarationInfo(
-            declarations = declarations,
-            transitive_declarations = transitive_declarations,
-            type_blacklisted_declarations = depset([]),
-        ),
         js_module_info(
             sources = direct_sources,
             deps = ctx.attr.deps,
@@ -119,6 +114,13 @@ def _js_library_impl(ctx):
         ),
         AmdNamesInfo(names = ctx.attr.amd_names),
     ]
+
+    if len(transitive_declarations_depsets) > 0:
+        result.append(DeclarationInfo(
+            declarations = declarations,
+            transitive_declarations = transitive_declarations,
+            type_blacklisted_declarations = depset([]),
+        ))
 
     if ctx.attr.package_name:
         path = "/".join([p for p in [ctx.bin_dir.path, ctx.label.workspace_root, ctx.label.package] if p])
