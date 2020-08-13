@@ -145,9 +145,9 @@ on packages which aren't declared as dependencies. For example, if you use [tsic
 ￼
 [tsickle]: https://github.com/angular/tsickle
 
-# Usage
+## Usage
 
-## Compiling TypeScript: `ts_library`
+### Compiling TypeScript: `ts_library`
 
 The `ts_library` rule invokes the TypeScript compiler on one compilation unit,
 or "library" (generally one directory of source files).
@@ -336,7 +336,7 @@ See [path mapping] for more details on the paths syntax.
 Similarly, you can use path mapping to teach the editor how to resolve imports
 from `ts_library` rules which set the `module_name` attribute.
 
-## Notes
+### Notes
 
 If you'd like a "watch mode", try [ibazel].
 
@@ -346,5 +346,3 @@ BUILD files from your source code.
 [gazelle]: https://github.com/bazelbuild/rules_go/tree/master/go/tools/gazelle
 [ibazel]: https://github.com/bazelbuild/bazel-watcher
 [path mapping]: https://www.typescriptlang.org/docs/handbook/module-resolution.html#path-mapping
-
-# API documentation

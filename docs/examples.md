@@ -1,12 +1,13 @@
 ---
 title: Examples
 layout: default
-stylesheet: docs
+toc: true
 ---
+# Examples
 
-# Frameworks
+## Frameworks
 
-## Angular
+### Angular
 
 Bazel can run any toolchain you want, so there is more than one way to use it with Angular.
 See Alex's post [Angular ❤️ Bazel update](https://dev.to/bazel/angular-bazel-leaving-angular-labs-51ja) for a longer explanation.
@@ -31,7 +32,7 @@ Take any off-the-shelf tools, follow their README's to call their CLI, and assem
 This lets you take advantage of the latest JS ecosystem innovations without waiting for tooling vendors to
 assemble it all together for you.
 
-## React
+### React
 
 Similar to the explanation above for Angular, Bazel is agnostic to what tools you choose to run on your project.
 However, the benefits of using Bazel are unlocked as you adopt it as your build system.
@@ -64,76 +65,76 @@ successfully build your own toolchain.
 
 There is a basic example at [examples/react_webpack](https://github.com/bazelbuild/rules_nodejs/tree/stable/examples/react_webpack) but it needs a lot more work to show everything that is possible!
 
-## Vue
+### Vue
 
 We don't have a dedicated example yet, but Vue has been known to work. Follow https://github.com/bazelbuild/rules_nodejs/issues/1840 for an example.
 
-## Svelte
+### Svelte
 
 None yet, please file an issue if you need this.
 
-# Test Runners
+## Test Runners
 
-## Jest
+### Jest
 
 There is a dedicated example for Jest: [examples/jest](https://github.com/bazelbuild/rules_nodejs/tree/stable/examples/jest)
 
-## Cypress
+### Cypress
 
 We have done some early work to run Cypress under Bazel. Follow https://github.com/bazelbuild/rules_nodejs/issues/1904 for an example.
 
-## Mocha
+### Mocha
 
 Example at [examples/webapp](https://github.com/bazelbuild/rules_nodejs/tree/stable/examples/webapp) has a simple `mocha_test`
 
-## Karma and Protractor
+### Karma and Protractor
 
 See Protractor usage in [examples/app](https://github.com/bazelbuild/rules_nodejs/blob/master/examples/app/)
 
-# Bundlers
+## Bundlers
 
-## Webpack
+### Webpack
 
 See [examples/react_webpack](https://github.com/bazelbuild/rules_nodejs/tree/stable/examples/react_webpack)
 
-## Rollup
+### Rollup
 
 The example at [examples/webapp](https://github.com/bazelbuild/rules_nodejs/tree/stable/examples/webapp) uses Rollup, and produces an app with ES5 and ES2015 variants ("differential loading") that gives faster loading in modern browsers without dropping support for legacy ones.
 
-## Parcel
+### Parcel
 
 The example in [examples/parcel](https://github.com/bazelbuild/rules_nodejs/tree/stable/examples/parcel) shows how to write a custom rule, it happens to use the parcel binary to build. It's a very minimal example but might be enough to get you started. 
 
-# Language tooling
+## Language tooling
 
-## LESS, Sass, Stylus
+### LESS, Sass, Stylus
 
 See styles directory inside the [examples/app](https://github.com/bazelbuild/rules_nodejs/tree/stable/examples/app/styles) example.
 
-## TypeScript
+### TypeScript
 
 Most of the examples show TypeScript usage. Also look in [packages/typescript/test](https://github.com/bazelbuild/rules_nodejs/tree/stable/packages/typescript/test) for lots of handling of edge cases.
 
-## Kotlin
+### Kotlin
 
 The Kotlin language can compile to JS. The result has a very large stdlib JS payload, so we don't recommend this for most uses.
 
 Example at [examples/kotlin](https://github.com/bazelbuild/rules_nodejs/tree/stable/examples/kotlin)
 
-## Google Closure Compiler
+### Google Closure Compiler
 
 [rules_closure](https://github.com/bazelbuild/rules_closure) is a whole-cloth approach to using Bazel if you're fully bought-into the Closure ecosystem.
 
 [examples/closure](https://github.com/bazelbuild/rules_nodejs/tree/stable/examples/closure) shows a very simple way to call the closure compiler without jumping into that ecosystem.
 
-## Protocol Buffers and gRPC
+### Protocol Buffers and gRPC
 
 Note: this is considered a "labs" feature in rules_nodejs, so support and stability are not great. gRPC is still a WIP.
 
 See [examples/protocol_buffers](https://github.com/bazelbuild/rules_nodejs/tree/stable/examples/protocol_buffers)
 
-# Bazel-specific
+## Bazel-specific
 
-## Bazel Persistent Workers
+### Bazel Persistent Workers
 
 If you want to speed up Bazel by keeping some tools running warm in the background as daemons, there's a good readme in the [examples/worker](https://github.com/bazelbuild/rules_nodejs/tree/stable/examples/worker)

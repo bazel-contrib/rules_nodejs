@@ -36,7 +36,7 @@ build --experimental_inprocess_symlink_creation
 At this point in time, `cypress_repository` is incompatible with bazel sandboxing on Windows. This may change in the future, but for now using cypress on windows requires windows sandboxing be disabled (it is disabled by default)
 
 ## Example use of cypress_web_test
-This example assumes you've named your external repository for node_modules as `npm` and for cypress as `cypress` 
+This example assumes you've named your external repository for node_modules as `npm` and for cypress as `cypress`
 ```python
 load("@cypress//:index.bzl", "cypress_web_test")
 load("@npm//@bazel/typescript:index.bzl", "ts_library")

@@ -27,20 +27,82 @@ load("//toolchains/node:node_toolchain_configure.bzl", "node_toolchain_configure
 
 _DOC = """To be run in user's WORKSPACE to install rules_nodejs dependencies.
 
-This rule sets up node, npm, and yarn.
+This rule sets up node, npm, and yarn. The versions of these tools can be specified in one of three ways
 
-The versions of these tools can be specified in one of three ways:
-- Simplest Usage:
+### Simplest Usage
+
 Specify no explicit versions. This will download and use the latest NodeJS & Yarn that were available when the
 version of rules_nodejs you're using was released.
 Note that you can skip calling `node_repositories` in your WORKSPACE file - if you later try to `yarn_install` or `npm_install`,
 we'll automatically select this simple usage for you.
-- Forced version(s):
+
+### Forced version(s)
+
 You can select the version of NodeJS and/or Yarn to download & use by specifying it when you call node_repositories,
 using a value that matches a known version (see the default values)
-- Using a custom version:
+
+### Using a custom version
+
 You can pass in a custom list of NodeJS and/or Yarn repositories and URLs for node_resositories to use.
-- Using a local version:
+
+#### Custom NodeJS versions
+
+To specify custom NodeJS versions, use the `node_repositories` attribute
+
+```python
+node_repositories(
+    node_repositories = {
+        "10.10.0-darwin_amd64": ("node-v10.10.0-darwin-x64.tar.gz", "node-v10.10.0-darwin-x64", "00b7a8426e076e9bf9d12ba2d571312e833fe962c70afafd10ad3682fdeeaa5e"),
+        "10.10.0-linux_amd64": ("node-v10.10.0-linux-x64.tar.xz", "node-v10.10.0-linux-x64", "686d2c7b7698097e67bcd68edc3d6b5d28d81f62436c7cf9e7779d134ec262a9"),
+        "10.10.0-windows_amd64": ("node-v10.10.0-win-x64.zip", "node-v10.10.0-win-x64", "70c46e6451798be9d052b700ce5dadccb75cf917f6bf0d6ed54344c856830cfb"),
+    },
+)
+```
+
+These can be mapped to a custom download URL, using `node_urls`
+
+```python
+node_repositories(
+    node_version = "10.10.0",
+    node_repositories = {"10.10.0-darwin_amd64": ("node-v10.10.0-darwin-x64.tar.gz", "node-v10.10.0-darwin-x64", "00b7a8426e076e9bf9d12ba2d571312e833fe962c70afafd10ad3682fdeeaa5e")},
+    node_urls = ["https://mycorpproxy/mirror/node/v{version}/{filename}"],
+)
+```
+
+A Mac client will try to download node from `https://mycorpproxy/mirror/node/v10.10.0/node-v10.10.0-darwin-x64.tar.gz`
+and expect that file to have sha256sum `00b7a8426e076e9bf9d12ba2d571312e833fe962c70afafd10ad3682fdeeaa5e`
+
+#### Custom Yarn versions
+
+To specify custom Yarn versions, use the `yarn_repositories` attribute
+
+```python
+node_repositories(
+    yarn_repositories = {
+        "1.12.1": ("yarn-v1.12.1.tar.gz", "yarn-v1.12.1", "09bea8f4ec41e9079fa03093d3b2db7ac5c5331852236d63815f8df42b3ba88d"),
+    },
+)
+```
+
+Like `node_urls`, the `yarn_urls` attribute can be used to provide a list of custom URLs to use to download yarn
+
+```python
+node_repositories(
+    yarn_repositories = {
+        "1.12.1": ("yarn-v1.12.1.tar.gz", "yarn-v1.12.1", "09bea8f4ec41e9079fa03093d3b2db7ac5c5331852236d63815f8df42b3ba88d"),
+    },
+    yarn_version = "1.12.1",
+    yarn_urls = [
+        "https://github.com/yarnpkg/yarn/releases/download/v{version}/{filename}",
+    ],
+)
+```
+
+Will download yarn from https://github.com/yarnpkg/yarn/releases/download/v1.2.1/yarn-v1.12.1.tar.gz`
+and expect the file to have sha256sum `09bea8f4ec41e9079fa03093d3b2db7ac5c5331852236d63815f8df42b3ba88d`.
+
+### Using a local version
+
 To avoid downloads, you can check in vendored copies of NodeJS and/or Yarn and set vendored_node and or vendored_yarn
 to point to those before calling node_repositories. You can also point to a location where node is installed on your computer,
 but we don't recommend this because it leads to version skew between you, your coworkers, and your Continuous Integration environment.
@@ -52,8 +114,6 @@ See the [the repositories documentation](repositories.html) for how to use the r
 
 You can optionally pass a `package_json` array to node_repositories. This lets you use Bazel's version of yarn or npm, yet always run the package manager yourself.
 This is an advanced scenario you can use in place of the `npm_install` or `yarn_install` rules, but we don't recommend it, and might remove it in the future.
-
-Example:
 
 ```
 load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories")
@@ -73,18 +133,6 @@ _ATTRS = {
 
 A dictionary mapping NodeJS versions to sets of hosts and their corresponding (filename, strip_prefix, sha256) tuples.
 You should list a node binary for every platform users have, likely Mac, Windows, and Linux.
-
-For example,
-
-```python
-node_repositories(
-    node_repositories = {
-        "10.10.0-darwin_amd64": ("node-v10.10.0-darwin-x64.tar.gz", "node-v10.10.0-darwin-x64", "00b7a8426e076e9bf9d12ba2d571312e833fe962c70afafd10ad3682fdeeaa5e"),
-        "10.10.0-linux_amd64": ("node-v10.10.0-linux-x64.tar.xz", "node-v10.10.0-linux-x64", "686d2c7b7698097e67bcd68edc3d6b5d28d81f62436c7cf9e7779d134ec262a9"),
-        "10.10.0-windows_amd64": ("node-v10.10.0-win-x64.zip", "node-v10.10.0-win-x64", "70c46e6451798be9d052b700ce5dadccb75cf917f6bf0d6ed54344c856830cfb"),
-    },
-)
-```
 """,
     ),
     "node_urls": attr.string_list(
@@ -98,19 +146,6 @@ Each entry is a template for downloading a node distribution.
 
 The `{version}` parameter is substituted with the `node_version` attribute,
 and `{filename}` with the matching entry from the `node_repositories` attribute.
-
-For example, given
-
-```python
-node_repositories(
-    node_version = "10.10.0",
-    node_repositories = {"10.10.0-darwin_amd64": ("node-v10.10.0-darwin-x64.tar.gz", "node-v10.10.0-darwin-x64", "00b7a8426e076e9bf9d12ba2d571312e833fe962c70afafd10ad3682fdeeaa5e")},
-    node_urls = ["https://mycorpproxy/mirror/node/v{version}/{filename}"],
-)
-```
-
-A Mac client will try to download node from `https://mycorpproxy/mirror/node/v10.10.0/node-v10.10.0-darwin-x64.tar.gz`
-and expect that file to have sha256sum `00b7a8426e076e9bf9d12ba2d571312e833fe962c70afafd10ad3682fdeeaa5e`
 """,
     ),
     "node_version": attr.string(
@@ -164,16 +199,6 @@ are supported by the node version being used.""",
         doc = """Custom list of yarn repositories to use.
 
 Dictionary mapping Yarn versions to their corresponding (filename, strip_prefix, sha256) tuples.
-
-For example,
-
-```python
-node_repositories(
-    yarn_repositories = {
-        "1.12.1": ("yarn-v1.12.1.tar.gz", "yarn-v1.12.1", "09bea8f4ec41e9079fa03093d3b2db7ac5c5331852236d63815f8df42b3ba88d"),
-    },
-)
-```
 """,
     ),
     "yarn_urls": attr.string_list(
@@ -184,23 +209,6 @@ node_repositories(
         doc = """custom list of URLs to use to download Yarn
 
 Each entry is a template, similar to the `node_urls` attribute, using `yarn_version` and `yarn_repositories` in the substitutions.
-
-For example,
-
-```python
-node_repositories(
-    yarn_repositories = {
-        "1.12.1": ("yarn-v1.12.1.tar.gz", "yarn-v1.12.1", "09bea8f4ec41e9079fa03093d3b2db7ac5c5331852236d63815f8df42b3ba88d"),
-    },
-    yarn_version = "1.12.1",
-    yarn_urls = [
-        "https://github.com/yarnpkg/yarn/releases/download/v{version}/{filename}",
-    ],
-)
-```
-
-Will download yarn from https://github.com/yarnpkg/yarn/releases/download/v1.2.1/yarn-v1.12.1.tar.gz`
-and expect the file to have sha256sum `09bea8f4ec41e9079fa03093d3b2db7ac5c5331852236d63815f8df42b3ba88d`.
 """,
     ),
     "yarn_version": attr.string(

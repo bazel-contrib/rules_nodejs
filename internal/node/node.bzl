@@ -368,7 +368,7 @@ The set of default  environment variables is:
 If the entry JavaScript file belongs to the same package (as the BUILD file),
 you can simply reference it by its relative name to the package directory:
 
-```
+```python
 nodejs_binary(
     name = "my_binary",
     ...
@@ -379,7 +379,7 @@ nodejs_binary(
 You can specify the entry point as a typescript file so long as you also include
 the ts_library target in data:
 
-```
+```python
 ts_library(
     name = "main",
     srcs = ["main.ts"],
@@ -397,7 +397,7 @@ The rule will use the corresponding `.js` output of the ts_library rule as the e
 If the entry point target is a rule, it should produce a single JavaScript entry file that will be passed to the nodejs_binary rule.
 For example:
 
-```
+```python
 filegroup(
     name = "entry_file",
     srcs = ["main.js"],
@@ -411,7 +411,7 @@ nodejs_binary(
 
 The entry_point can also be a label in another workspace:
 
-```
+```python
 nodejs_binary(
     name = "history-server",
     entry_point = "@npm//:node_modules/history-server/modules/cli.js",
@@ -431,7 +431,7 @@ to npm dependencies is to use fine grained npm dependencies which are setup
 with the `yarn_install` or `npm_install` rules. For example, in targets
 that used a `//:node_modules` filegroup,
 
-```
+```python
 nodejs_binary(
     name = "my_binary",
     ...
@@ -444,7 +444,7 @@ to be inputs to the `my_binary`. Using fine grained npm dependencies,
 `my_binary` is defined with only the npm dependencies that are
 needed:
 
-```
+```python
 nodejs_binary(
     name = "my_binary",
     ...
@@ -474,7 +474,7 @@ yarn_install(
 For other rules such as `jasmine_node_test`, fine grained
 npm dependencies are specified in the `deps` attribute:
 
-```
+```python
 jasmine_node_test(
     name = "my_test",
     ...
@@ -514,7 +514,7 @@ To get from a `$(rootpath)` to the absolute path that `$$(rlocation $(location))
 `$$(rlocation $(rootpath))` if you are in the `templated_args` of a `nodejs_binary` or `nodejs_test`:
 
 BUILD.bazel:
-```
+```python
 nodejs_test(
     name = "my_test",
     data = [":bootstrap.js"],
@@ -526,7 +526,7 @@ or if you're in the context of a .js script you can pass the $(rootpath) as an a
 and use the javascript runfiles helper to resolve to the absolute path:
 
 BUILD.bazel:
-```
+```python
 nodejs_test(
     name = "my_test",
     data = [":some_file"],
@@ -536,7 +536,7 @@ nodejs_test(
 ```
 
 my_test.js
-```
+```python
 const runfiles = require(process.env['BAZEL_NODE_RUNFILES_HELPER']);
 const args = process.argv.slice(2);
 const some_file = runfiles.resolveWorkspaceRelative(args[0]);
@@ -672,7 +672,7 @@ See rules_nodejs/internal/node/test/chdir for an example.
 
 To debug a Node.js test, we recommend saving a group of flags together in a "config".
 Put this in your `tools/bazel.rc` so it's shared with your team:
-```
+```python
 # Enable debugging tests with --config=debug
 test:debug --test_arg=--node_options=--inspect-brk --test_output=streamed --test_strategy=exclusive --test_timeout=9999 --nocache_test_results
 ```

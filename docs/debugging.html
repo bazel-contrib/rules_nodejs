@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html itemscope itemtype="https://schema.org/WebPage" lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="width=device-width, initial-scale=1" name="viewport">
+  <link href="/rules_nodejs/debugging.html" rel="canonical">
+  <link href="" rel="shortcut icon" type="image/png">
+
+  <title>rules_nodejs - Debugging</title>
+
+  <!-- Webfont -->
+  <link href="//fonts.googleapis.com/css?family=Source+Code+Pro:400,500,700|Open+Sans:400,600,700,800" rel="stylesheet">
+
+  <!-- Bootstrap -->
+  <link crossorigin="anonymous" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+        integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+
+  <!-- Custom stylesheet -->
+  <link href="/rules_nodejs/css/main.css" rel="stylesheet">
+
+  <!-- metadata -->
+  <meta content="rules_nodejs" name="og:title"/>
+  <meta content="JavaScript and NodeJS rules for Bazel" name="og:description"/>
+</head>
+
+<body>
+<nav class="navbar navbar-inverse navbar-fixed-top" id="common-nav">
+  <div class="container">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button class="navbar-toggle collapsed" data-target="#bs-example-navbar-collapse-1" data-toggle="collapse"
+              type="button">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/rules_nodejs/">
+        <img class="navbar-logo" src="/rules_nodejs/images/bazel-navbar.svg">
+      </a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="https://github.com/bazelbuild/rules_nodejs">GitHub</a></li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+
+<div class="container vpad">
+  <div class="row">
+    <div class="col-md-2 sticky-sidebar">
+  <a aria-controls="sidebar-nav"
+     aria-expanded="false" class="btn btn-default btn-lg btn-block sidebar-toggle" data-toggle="collapse"
+     href="#sidebar-nav">
+    <i class="glyphicon glyphicon-menu-hamburger"></i> Navigation
+  </a>
+
+  <nav class="sidebar collapse" id="sidebar-nav">
+    <h3>rules_nodejs</h3>
+    <ul class="sidebar-nav">
+      <li><a href="/rules_nodejs/">Introduction</a></li>
+      <li><a href="install.html">Installation</a></li>
+      <li><a href="repositories.html">Repositories</a></li>
+      <li><a href="dependencies.html">Dependencies</a></li>
+      <li><a href="debugging.html">Debugging</a></li>
+      <li><a href="stamping.html">Stamping</a></li>
+      <li><a href="changing-rules.html">Making changes to rules_nodejs</a></li>
+      <li><a href="examples.html">Examples</a></li>
+    </ul>
+
+    <h3>Rules</h3>
+    <ul class="sidebar-nav">
+      
+      
+      <li><a href="/rules_nodejs/Built-ins.html">Built-ins</a></li>
+      
+      
+      
+      <li><a href="/rules_nodejs/Cypress.html">Cypress</a></li>
+      
+      
+      
+      <li><a href="/rules_nodejs/Jasmine.html">Jasmine</a></li>
+      
+      
+      
+      <li><a href="/rules_nodejs/Karma.html">Karma</a></li>
+      
+      
+      
+      <li><a href="/rules_nodejs/Protractor.html">Protractor</a></li>
+      
+      
+      
+      <li><a href="/rules_nodejs/Rollup.html">Rollup</a></li>
+      
+      
+      
+      <li><a href="/rules_nodejs/Terser.html">Terser</a></li>
+      
+      
+      
+      <li><a href="/rules_nodejs/TypeScript.html">TypeScript</a></li>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+    </ul>
+
+    <h3>Community</h3>
+    <ul class="sidebar-nav">
+      <li><a href="https://github.com/bazelbuild/rules_nodejs/blob/master/CONTRIBUTING.md">Contribute to
+        rules_nodejs</a></li>
+      <li><a href="https://slack.bazel.build">Join #javascript on Slack</a></li>
+      <li><a href="https://github.com/bazelbuild/rules_nodejs/issues">Issue Tracker</a></li>
+      <li><a href="https://github.com/bazelbuild/rules_nodejs">Github</a></li>
+    </ul>
+  </nav>
+</div>
+
+
+    <div class="col-md-8">
+      <div class="content">
+        <h1 id="debugging">Debugging</h1>
+
+<p>Add the options in the <code class="language-plaintext highlighter-rouge">Support for debugging NodeJS tests</code> section from https://github.com/bazelbuild/rules_nodejs/blob/master/common.bazelrc to your project’s <code class="language-plaintext highlighter-rouge">.bazelrc</code> file to add support for debugging NodeJS programs.</p>
+
+<p>Using the <code class="language-plaintext highlighter-rouge">--config=debug</code> command line option with bazel will set a number of flags that are specified there are useful for debugging. See the comments under <code class="language-plaintext highlighter-rouge">Support for debugging NodeJS tests</code> for details on the flags that are set.</p>
+
+<p>Use  <code class="language-plaintext highlighter-rouge">--config=debug</code> with <code class="language-plaintext highlighter-rouge">bazel test</code> as follow,</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bazel test --config=debug //test:...
+</code></pre></div></div>
+
+<p>or with <code class="language-plaintext highlighter-rouge">bazel run</code>,</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bazel run --config=debug //test:test1
+</code></pre></div></div>
+
+<p>to also turn on the NodeJS inspector agent which will break before any user code starts. You should then see,</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Executing tests from //test:test1
+-----------------------------------------------------------------------------
+Debugger listening on ws://127.0.0.1:9229/3f20777a-242c-4d18-b88b-5ed4b3fed61c
+For help, see: https://nodejs.org/en/docs/inspector
+</code></pre></div></div>
+
+<p>when the test is run.</p>
+
+<p>To inspect with Chrome DevTools 55+, open <code class="language-plaintext highlighter-rouge">chrome://inspect</code> in a Chromium-based browser and attach to the waiting process.
+A Chrome DevTools window should open and you should see <code class="language-plaintext highlighter-rouge">Debugger attached.</code> in the console.</p>
+
+<p>See https://nodejs.org/en/docs/guides/debugging-getting-started/ for more details.</p>
+
+<h2 id="debugging-with-vs-code">Debugging with VS Code</h2>
+
+<p>With the above configuration you can use VS Code as your debugger.
+You will first need to configure your <code class="language-plaintext highlighter-rouge">.vscode/launch.json</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{
+      "type": "node",
+      "request": "attach",
+      "name": "Attach nodejs_binary",
+      "internalConsoleOptions": "neverOpen",
+      "sourceMapPathOverrides": {
+        "../*": "${workspaceRoot}/*",
+        "../../*": "${workspaceRoot}/*",
+        "../../../*": "${workspaceRoot}/*",
+        "../../../../*": "${workspaceRoot}/*",
+        "../../../../../*": "${workspaceRoot}/*",
+        // do as many levels here as needed for your project
+      }
+</code></pre></div></div>
+<p>We use <code class="language-plaintext highlighter-rouge">sourceMapPathOverrides</code> here to rewrite the source maps produced by <code class="language-plaintext highlighter-rouge">ts_library</code> so that breakpoints line up with the source maps.
+Once configured start your process with</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bazel run --config=debug //test:test1
+</code></pre></div></div>
+<p>Then hit <code class="language-plaintext highlighter-rouge">F5</code> which will start the VS Code debugger with the <code class="language-plaintext highlighter-rouge">Attach nodejs_binary</code> configuration.
+VS Code will immediatenly hit a breakpoint to which you can continue and debug using all the normal debug features provided.</p>
+
+      </div>
+    </div>
+
+    <div class="col-md-2 sticky-sidebar">
+      <div class="right-sidebar">
+        <ul class="gh-links">
+          <li>
+            <i class="fa fa-github"></i>
+            <a href="https://github.com/bazelbuild/rules_nodejs/issues/new?title=Documentation issue: Debugging&labels=question/docs">Create
+              issue</a>
+          </li>
+          
+          <li>
+            <i class="fa fa-pencil"></i>
+            <a class="gh-edit" href="https://github.com/bazelbuild/rules_nodejs/tree/stable/docs/debugging.md">Edit
+              this page</a>
+          </li>
+          
+        </ul>
+        <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#debugging-with-vs-code">Debugging with VS Code</a></li>
+</ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+  <div class="row">
+    <div class="col-lg-8">
+      <p class="text-muted">&copy; 2020 Google</p>
+    </div>
+  </div>
+</div>
+
+</footer>
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script crossorigin="anonymous"
+        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<!-- Anchor JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/3.2.0/anchor.min.js" type="text/javascript"></script>
+<script>
+  // Automatically add anchors and links to all header elements that don't already have them.
+  anchors.add();
+</script>
+
+<script>
+  var shiftWindow = function () {
+    if (location.hash.length !== 0) {
+      window.scrollBy(0, -50);
+    }
+  };
+  window.addEventListener("hashchange", shiftWindow);
+
+  var highlightCurrentSidebarNav = function () {
+    var href = location.pathname;
+    var item = $('#sidebar-nav [href$="' + href + '"]');
+    if (item) {
+      var li = item.parent();
+      li.addClass("active");
+
+      if (li.parent() && li.parent().is("ul")) {
+        do {
+          var ul = li.parent();
+          if (ul.hasClass("collapse")) {
+            ul.collapse("show");
+          }
+          li = ul.parent();
+        } while (li && li.is("li"));
+      }
+    }
+  };
+
+  $(document).ready(function () {
+    // Scroll to anchor of location hash, adjusted for fixed navbar.
+    window.setTimeout(function () {
+      shiftWindow();
+    }, 1);
+
+    // Flip the caret when submenu toggles are clicked.
+    $(".sidebar-submenu").on("show.bs.collapse", function () {
+      var toggle = $('[href$="#' + $(this).attr('id') + '"]');
+      if (toggle) {
+        toggle.addClass("dropup");
+      }
+    });
+    $(".sidebar-submenu").on("hide.bs.collapse", function () {
+      var toggle = $('[href$="#' + $(this).attr('id') + '"]');
+      if (toggle) {
+        toggle.removeClass("dropup");
+      }
+    });
+
+    // Highlight the current page on the sidebar nav.
+    highlightCurrentSidebarNav();
+  });
+</script>
+
+</body>
+</html>
+

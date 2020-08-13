@@ -1,6 +1,9 @@
 "Wrap stardoc to set our repo-wide defaults"
 
 load("@io_bazel_stardoc//stardoc:stardoc.bzl", _stardoc = "stardoc")
+load("//tools/stardoc:jekyll.bzl", _rules_nodejs_docs = "rules_nodejs_docs")
+
+rules_nodejs_docs = _rules_nodejs_docs
 
 _PKG = "@build_bazel_rules_nodejs//tools/stardoc"
 

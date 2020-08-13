@@ -1,0 +1,1491 @@
+<!DOCTYPE html>
+<html itemscope itemtype="https://schema.org/WebPage" lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="width=device-width, initial-scale=1" name="viewport">
+  <link href="/rules_nodejs/TypeScript.html" rel="canonical">
+  <link href="" rel="shortcut icon" type="image/png">
+
+  <title>rules_nodejs - TypeScript</title>
+
+  <!-- Webfont -->
+  <link href="//fonts.googleapis.com/css?family=Source+Code+Pro:400,500,700|Open+Sans:400,600,700,800" rel="stylesheet">
+
+  <!-- Bootstrap -->
+  <link crossorigin="anonymous" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+        integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+
+  <!-- Custom stylesheet -->
+  <link href="/rules_nodejs/css/main.css" rel="stylesheet">
+
+  <!-- metadata -->
+  <meta content="rules_nodejs" name="og:title"/>
+  <meta content="JavaScript and NodeJS rules for Bazel" name="og:description"/>
+</head>
+
+<body>
+<nav class="navbar navbar-inverse navbar-fixed-top" id="common-nav">
+  <div class="container">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button class="navbar-toggle collapsed" data-target="#bs-example-navbar-collapse-1" data-toggle="collapse"
+              type="button">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/rules_nodejs/">
+        <img class="navbar-logo" src="/rules_nodejs/images/bazel-navbar.svg">
+      </a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="https://github.com/bazelbuild/rules_nodejs">GitHub</a></li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+
+<div class="container vpad">
+  <div class="row">
+    <div class="col-md-2 sticky-sidebar">
+  <a aria-controls="sidebar-nav"
+     aria-expanded="false" class="btn btn-default btn-lg btn-block sidebar-toggle" data-toggle="collapse"
+     href="#sidebar-nav">
+    <i class="glyphicon glyphicon-menu-hamburger"></i> Navigation
+  </a>
+
+  <nav class="sidebar collapse" id="sidebar-nav">
+    <h3>rules_nodejs</h3>
+    <ul class="sidebar-nav">
+      <li><a href="/rules_nodejs/">Introduction</a></li>
+      <li><a href="install.html">Installation</a></li>
+      <li><a href="repositories.html">Repositories</a></li>
+      <li><a href="dependencies.html">Dependencies</a></li>
+      <li><a href="debugging.html">Debugging</a></li>
+      <li><a href="stamping.html">Stamping</a></li>
+      <li><a href="changing-rules.html">Making changes to rules_nodejs</a></li>
+      <li><a href="examples.html">Examples</a></li>
+    </ul>
+
+    <h3>Rules</h3>
+    <ul class="sidebar-nav">
+      
+      
+      <li><a href="/rules_nodejs/Built-ins.html">Built-ins</a></li>
+      
+      
+      
+      <li><a href="/rules_nodejs/Cypress.html">Cypress</a></li>
+      
+      
+      
+      <li><a href="/rules_nodejs/Jasmine.html">Jasmine</a></li>
+      
+      
+      
+      <li><a href="/rules_nodejs/Karma.html">Karma</a></li>
+      
+      
+      
+      <li><a href="/rules_nodejs/Protractor.html">Protractor</a></li>
+      
+      
+      
+      <li><a href="/rules_nodejs/Rollup.html">Rollup</a></li>
+      
+      
+      
+      <li><a href="/rules_nodejs/Terser.html">Terser</a></li>
+      
+      
+      
+      <li><a href="/rules_nodejs/TypeScript.html">TypeScript</a></li>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+    </ul>
+
+    <h3>Community</h3>
+    <ul class="sidebar-nav">
+      <li><a href="https://github.com/bazelbuild/rules_nodejs/blob/master/CONTRIBUTING.md">Contribute to
+        rules_nodejs</a></li>
+      <li><a href="https://slack.bazel.build">Join #javascript on Slack</a></li>
+      <li><a href="https://github.com/bazelbuild/rules_nodejs/issues">Issue Tracker</a></li>
+      <li><a href="https://github.com/bazelbuild/rules_nodejs">Github</a></li>
+    </ul>
+  </nav>
+</div>
+
+
+    <div class="col-md-8">
+      <div class="content">
+        <!-- *********************
+  DO NOT EDIT THIS FILE
+  It is a generated build output from Stardoc.
+  Instead you must edit the .bzl file where the rules are declared,
+  or possibly a markdown file next to the .bzl file
+ ********************* -->
+<h1 id="typescript-rules-for-bazel">TypeScript rules for Bazel</h1>
+
+<p>The TypeScript rules integrate the TypeScript compiler with Bazel.</p>
+
+<h2 id="alternatives">Alternatives</h2>
+
+<p>This package provides Bazel wrappers around the TypeScript compiler.</p>
+
+<p>At a high level, there are two alternatives provided: <code>ts_project</code> and <code>ts_library</code>.
+This section describes the trade-offs between these rules.</p>
+
+<p><code>ts_project</code> simply runs <code>tsc --project</code>, with Bazel knowing which outputs to expect based on the TypeScript compiler options, and with interoperability with other TypeScript rules via a Bazel Provider (DeclarationInfo) that transmits the type information.
+It is intended as an easy on-boarding for existing TypeScript code and should be familiar if your background is in frontend ecosystem idioms.
+Any behavior of <code>ts_project</code> should be reproducible outside of Bazel, with a couple of caveats noted in the rule documentation below.</p>
+
+<blockquote>
+  <p>We used to recommend using the <code>tsc</code> rule directly from the <code>typescript</code> project, like
+<code>load("@npm//typescript:index.bzl", "tsc")</code>
+However <code>ts_project</code> is strictly better and should be used instead.</p>
+</blockquote>
+
+<p><code>ts_library</code> is an open-sourced version of the rule we use to compile TS code at Google.
+It should be familiar if your background is in Bazel idioms.
+It is very complex, involving code generation of the <code>tsconfig.json</code> file, a custom compiler binary, and a lot of extra features.
+It is also opinionated, and may not work with existing TypeScript code. For example:</p>
+
+<ul>
+  <li>Your TS code must compile under the <code>--declaration</code> flag so that downstream libraries depend only on types, not implementation. This makes Bazel faster by avoiding cascading rebuilds in cases where the types aren’t changed.</li>
+  <li>We control the output format and module syntax so that downstream rules can rely on them.</li>
+</ul>
+
+<p>On the other hand, <code>ts_library</code> is also fast and optimized.
+We keep a running TypeScript compile running as a daemon, using Bazel workers.
+This process avoids re-parse and re-JIT of the &gt;1MB <code>typescript.js</code> and keeps cached bound ASTs for input files which saves time.
+We also produce JS code which can be loaded faster (using named AMD module format) and which can be consumed by the Closure Compiler (via integration with <a href="https://github.com/angular/tsickle">tsickle</a>).</p>
+
+<h2 id="installation">Installation</h2>
+
+<p>Add a devDependency on <code>@bazel/typescript</code></p>
+
+<figure class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>yarn add <span class="nt">-D</span> @bazel/typescript
+<span class="c"># or</span>
+<span class="nv">$ </span>npm <span class="nb">install</span> <span class="nt">--save-dev</span> @bazel/typescript</code></pre></figure>
+
+<p>Watch for any peerDependency warnings - we assume you have already installed the <code>typescript</code> package from npm.</p>
+
+<p>Create a <code>BUILD.bazel</code> file in your workspace root. If your <code>tsconfig.json</code> file is in the root, use</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">exports_files</span><span class="p">([</span><span class="s">"tsconfig.json"</span><span class="p">],</span> <span class="n">visibility</span> <span class="o">=</span> <span class="p">[</span><span class="s">"//visibility:public"</span><span class="p">])</span></code></pre></figure>
+
+<p>otherwise create an alias:</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">alias</span><span class="p">(</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"tsconfig.json"</span><span class="p">,</span>
+    <span class="n">actual</span> <span class="o">=</span> <span class="s">"//path/to/my:tsconfig.json"</span><span class="p">,</span>
+<span class="p">)</span></code></pre></figure>
+
+<p>Make sure to remove the <code>--noEmit</code> compiler option from your <code>tsconfig.json</code>. This is not compatible with the <code>ts_library</code> rule.</p>
+
+<h2 id="self-managed-npm-dependencies">Self-managed npm dependencies</h2>
+
+<p>We recommend you use Bazel managed dependencies but if you would like
+Bazel to also install a <code>node_modules</code> in your workspace you can also
+point the <code>node_repositories</code> repository rule in your WORKSPACE file to
+your <code>package.json</code>.</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">node_repositories</span><span class="p">(</span><span class="n">package_json</span> <span class="o">=</span> <span class="p">[</span><span class="s">"//:package.json"</span><span class="p">])</span></code></pre></figure>
+
+<p>You can then run <code>yarn</code> in your workspace with:</p>
+
+<figure class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>bazel run @nodejs//:yarn_node_repositories</code></pre></figure>
+
+<p>To use your workspace <code>node_modules</code> folder as a dependency in <code>ts_library</code> and
+other rules, add the following to your root <code>BUILD.bazel</code> file:</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">filegroup</span><span class="p">(</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"node_modules"</span><span class="p">,</span>
+    <span class="n">srcs</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span>
+        <span class="n">include</span> <span class="o">=</span> <span class="p">[</span>
+          <span class="s">"node_modules/**/*.js"</span><span class="p">,</span>
+          <span class="s">"node_modules/**/*.d.ts"</span><span class="p">,</span>
+          <span class="s">"node_modules/**/*.json"</span><span class="p">,</span>
+          <span class="s">"node_modules/.bin/*"</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">exclude</span> <span class="o">=</span> <span class="p">[</span>
+          <span class="c1"># Files under test &amp; docs may contain file names that
+</span>          <span class="c1"># are not legal Bazel labels (e.g.,
+</span>          <span class="c1"># node_modules/ecstatic/test/public/中文/檔案.html)
+</span>          <span class="s">"node_modules/**/test/**"</span><span class="p">,</span>
+          <span class="s">"node_modules/**/docs/**"</span><span class="p">,</span>
+          <span class="c1"># Files with spaces in the name are not legal Bazel labels
+</span>          <span class="s">"node_modules/**/* */**"</span><span class="p">,</span>
+          <span class="s">"node_modules/**/* *"</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+
+<span class="c1"># Create a tsc_wrapped compiler rule to use in the ts_library
+# compiler attribute when using self-managed dependencies
+</span><span class="n">nodejs_binary</span><span class="p">(</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"@bazel/typescript/tsc_wrapped"</span><span class="p">,</span>
+    <span class="n">entry_point</span> <span class="o">=</span> <span class="s">"@npm//:node_modules/@bazel/typescript/internal/tsc_wrapped/tsc_wrapped.js"</span><span class="p">,</span>
+    <span class="c1"># Point bazel to your node_modules to find the entry point
+</span>    <span class="n">node_modules</span> <span class="o">=</span> <span class="s">"//:node_modules"</span><span class="p">,</span>
+<span class="p">)</span></code></pre></figure>
+
+<p>See https://github.com/bazelbuild/rules_nodejs#dependencies for more information on
+managing npm dependencies with Bazel.</p>
+
+<h2 id="customizing-the-typescript-compiler-binary">Customizing the TypeScript compiler binary</h2>
+
+<p>An example use case is needing to increase the NodeJS heap size used for compilations.</p>
+
+<p>Similar to above, you declare your own binary for running tsc_wrapped, e.g.:</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">nodejs_binary</span><span class="p">(</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"tsc_wrapped_bin"</span><span class="p">,</span>
+    <span class="n">entry_point</span> <span class="o">=</span> <span class="s">"@npm//:node_modules/@bazel/typescript/internal/tsc_wrapped/tsc_wrapped.js"</span><span class="p">,</span>
+    <span class="n">templated_args</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s">"--node_options=--max-old-space-size=2048"</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s">"@npm//protobufjs"</span><span class="p">,</span>
+        <span class="s">"@npm//source-map-support"</span><span class="p">,</span>
+        <span class="s">"@npm//tsutils"</span><span class="p">,</span>
+        <span class="s">"@npm//typescript"</span><span class="p">,</span>
+        <span class="s">"@npm//@bazel/typescript"</span><span class="p">,</span>
+    <span class="p">],</span>
+<span class="p">)</span></code></pre></figure>
+
+<p>then refer to that target in the <code>compiler</code> attribute of your <code>ts_library</code> rule.</p>
+
+<p>Note that <code>nodejs_binary</code> targets generated by <code>npm_install</code>/<code>yarn_install</code> can include data dependencies
+on packages which aren’t declared as dependencies. For example, if you use [tsickle] to generate Closure Compiler-compatible JS, then it needs to be a <code>data</code> dependency of <code>tsc_wrapped</code> so that it can be loaded at runtime.
+￼
+[tsickle]: https://github.com/angular/tsickle</p>
+
+<h2 id="usage">Usage</h2>
+
+<h3 id="compiling-typescript-ts_library">Compiling TypeScript: <code>ts_library</code></h3>
+
+<p>The <code>ts_library</code> rule invokes the TypeScript compiler on one compilation unit,
+or “library” (generally one directory of source files).</p>
+
+<p>Create a <code>BUILD</code> file next to your sources:</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">package</span><span class="p">(</span><span class="n">default_visibility</span><span class="o">=</span><span class="p">[</span><span class="s">"//visibility:public"</span><span class="p">])</span>
+<span class="n">load</span><span class="p">(</span><span class="s">"//packages/typescript:index.bzl"</span><span class="p">,</span> <span class="s">"ts_library"</span><span class="p">)</span>
+
+<span class="n">ts_library</span><span class="p">(</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"my_code"</span><span class="p">,</span>
+    <span class="n">srcs</span> <span class="o">=</span> <span class="n">glob</span><span class="p">([</span><span class="s">"*.ts"</span><span class="p">]),</span>
+    <span class="n">deps</span> <span class="o">=</span> <span class="p">[</span><span class="s">"//path/to/other:library"</span><span class="p">],</span>
+<span class="p">)</span></code></pre></figure>
+
+<p>If your ts_library target has npm dependencies you can specify these
+with fine grained npm dependency targets created by the <code>yarn_install</code> or
+<code>npm_install</code> rules:</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">ts_library</span><span class="p">(</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"my_code"</span><span class="p">,</span>
+    <span class="n">srcs</span> <span class="o">=</span> <span class="n">glob</span><span class="p">([</span><span class="s">"*.ts"</span><span class="p">]),</span>
+    <span class="n">deps</span> <span class="o">=</span> <span class="p">[</span>
+      <span class="s">"@npm//@types/node"</span><span class="p">,</span>
+      <span class="s">"@npm//@types/foo"</span><span class="p">,</span>
+      <span class="s">"@npm//foo"</span><span class="p">,</span>
+      <span class="s">"//path/to/other:library"</span><span class="p">,</span>
+    <span class="p">],</span>
+<span class="p">)</span></code></pre></figure>
+
+<p>You can also use the <code>@npm//@types</code> target which will include all
+packages in the <code>@types</code> scope as dependencies.</p>
+
+<p>If you are using self-managed npm dependencies, you can use the
+<code>node_modules</code> attribute in <code>ts_library</code> and point it to the
+<code>//:node_modules</code> filegroup defined in your root <code>BUILD.bazel</code> file.
+You’ll also need to override the <code>compiler</code> attribute if you do this
+as the Bazel-managed deps and self-managed cannot be used together
+in the same rule.</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">ts_library</span><span class="p">(</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"my_code"</span><span class="p">,</span>
+    <span class="n">srcs</span> <span class="o">=</span> <span class="n">glob</span><span class="p">([</span><span class="s">"*.ts"</span><span class="p">]),</span>
+    <span class="n">deps</span> <span class="o">=</span> <span class="p">[</span><span class="s">"//path/to/other:library"</span><span class="p">],</span>
+    <span class="n">node_modules</span> <span class="o">=</span> <span class="s">"//:node_modules"</span><span class="p">,</span>
+    <span class="n">compiler</span> <span class="o">=</span> <span class="s">"//:@bazel/typescript/tsc_wrapped"</span><span class="p">,</span>
+<span class="p">)</span></code></pre></figure>
+
+<p>To build a <code>ts_library</code> target run:</p>
+
+<p><code>bazel build //path/to/package:target</code></p>
+
+<p>The resulting <code>.d.ts</code> file paths will be printed. Additionally, the <code>.js</code>
+outputs from TypeScript will be written to disk, next to the <code>.d.ts</code> files <sup>1</sup>.</p>
+
+<p>Note that the <code>tsconfig.json</code> file used for compilation should be the same one
+your editor references, to keep consistent settings for the TypeScript compiler.
+By default, <code>ts_library</code> uses the <code>tsconfig.json</code> file in the workspace root
+directory. See the notes about the <code>tsconfig</code> attribute in the <a href="http://tsetse.info/api/build_defs.html#ts_library">ts_library API docs</a>.</p>
+
+<blockquote>
+  <p><sup>1</sup> The
+<a href="https://www.typescriptlang.org/docs/handbook/compiler-options.html">declarationDir</a>
+compiler option will be silently overwritten if present.</p>
+</blockquote>
+
+<h2 id="accessing-javascript-outputs">Accessing JavaScript outputs</h2>
+
+<p>The default output of the <code>ts_library</code> rule is the <code>.d.ts</code> files.
+This is for a couple reasons:</p>
+
+<ul>
+  <li>help ensure that downstream rules which access default outputs will not require
+a cascading re-build when only the implementation changes but not the types</li>
+  <li>make you think about whether you want the devmode (named UMD) or prodmode outputs</li>
+</ul>
+
+<p>You can access the JS output by adding a <code>filegroup</code> rule after the <code>ts_library</code>,
+for example</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">ts_library</span><span class="p">(</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"compile"</span><span class="p">,</span>
+    <span class="n">srcs</span> <span class="o">=</span> <span class="p">[</span><span class="s">"thing.ts"</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="n">filegroup</span><span class="p">(</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"thing.js"</span><span class="p">,</span>
+    <span class="n">srcs</span> <span class="o">=</span> <span class="p">[</span><span class="s">"compile"</span><span class="p">],</span>
+    <span class="c1"># Change to es6_sources to get the 'prodmode' JS
+</span>    <span class="n">output_group</span> <span class="o">=</span> <span class="s">"es5_sources"</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">my_rule</span><span class="p">(</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"uses_js"</span><span class="p">,</span>
+    <span class="n">deps</span> <span class="o">=</span> <span class="p">[</span><span class="s">"thing.js"</span><span class="p">],</span>
+<span class="p">)</span></code></pre></figure>
+
+<h2 id="serving-typescript-for-development">Serving TypeScript for development</h2>
+
+<p>There are two choices for development mode:</p>
+
+<ol>
+  <li>Use the <code>ts_devserver</code> rule to bring up our simple, fast development server.
+This is intentionally very simple, to help you get started quickly. However,
+since there are many development servers available, we do not want to mirror
+their features in yet another server we maintain.</li>
+  <li>Teach your real frontend server to serve files from Bazel’s output directory.
+This is not yet documented. Choose this option if you have an existing server
+used in development mode, or if your requirements exceed what the
+<code>ts_devserver</code> supports. Be careful that your development round-trip stays
+fast (should be under two seconds).</li>
+</ol>
+
+<p>To use <code>ts_devserver</code>, you simply <code>load</code> the rule, and call it with <code>deps</code> that
+point to your <code>ts_library</code> target(s):</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">load</span><span class="p">(</span><span class="s">"//packages/typescript:index.bzl"</span><span class="p">,</span> <span class="s">"ts_devserver"</span><span class="p">,</span> <span class="s">"ts_library"</span><span class="p">)</span>
+
+<span class="n">ts_library</span><span class="p">(</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"app"</span><span class="p">,</span>
+    <span class="n">srcs</span> <span class="o">=</span> <span class="p">[</span><span class="s">"app.ts"</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="n">ts_devserver</span><span class="p">(</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"devserver"</span><span class="p">,</span>
+    <span class="c1"># We'll collect all the devmode JS sources from these TypeScript libraries
+</span>    <span class="n">deps</span> <span class="o">=</span> <span class="p">[</span><span class="s">":app"</span><span class="p">],</span>
+    <span class="c1"># This is the path we'll request from the browser, see index.html
+</span>    <span class="n">serving_path</span> <span class="o">=</span> <span class="s">"/bundle.js"</span><span class="p">,</span>
+    <span class="c1"># The devserver can serve our static files too
+</span>    <span class="n">static_files</span> <span class="o">=</span> <span class="p">[</span><span class="s">"index.html"</span><span class="p">],</span>
+<span class="p">)</span></code></pre></figure>
+
+<p>The <code>index.html</code> should be the same one you use for production, and it should
+load the JavaScript bundle from the path indicated in <code>serving_path</code>.</p>
+
+<p>If you don’t have an index.html file, a simple one will be generated by the
+<code>ts_devserver</code>.</p>
+
+<p>See <code>examples/app</code> in this repository for a working example. To run the
+devserver, we recommend you use <a href="https://github.com/bazelbuild/bazel-watcher">ibazel</a>:</p>
+
+<figure class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>ibazel run examples/app:devserver</code></pre></figure>
+
+<p><code>ibazel</code> will keep the devserver program running, and provides a LiveReload
+server so the browser refreshes the application automatically when each build
+finishes.</p>
+
+<h2 id="writing-typescript-code-for-bazel">Writing TypeScript code for Bazel</h2>
+
+<p>Bazel’s TypeScript compiler has your workspace path mapped, so you can import
+from an absolute path starting from your workspace.</p>
+
+<p><code>/WORKSPACE</code>:</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">workspace</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"myworkspace"</span><span class="p">)</span></code></pre></figure>
+
+<p><code>/some/long/path/to/deeply/nested/subdirectory.ts</code>:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="k">import</span> <span class="p">{</span><span class="nx">thing</span><span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">myworkspace/place</span><span class="dl">'</span><span class="p">;</span></code></pre></figure>
+
+<p>will import from <code>/place.ts</code>.</p>
+
+<p>Since this is an extension to the vanilla TypeScript compiler, editors which use the TypeScript language services to provide code completion and inline type checking will not be able to resolve the modules. In the above example, adding</p>
+
+<figure class="highlight"><pre><code class="language-json" data-lang="json"><span class="nl">"paths"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"myworkspace/*"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"*"</span><span class="p">]</span><span class="w">
+</span><span class="p">}</span></code></pre></figure>
+
+<p>to <code>tsconfig.json</code> will fix the imports for the common case of using absolute paths.
+See <a href="https://www.typescriptlang.org/docs/handbook/module-resolution.html#path-mapping">path mapping</a> for more details on the paths syntax.</p>
+
+<p>Similarly, you can use path mapping to teach the editor how to resolve imports
+from <code>ts_library</code> rules which set the <code>module_name</code> attribute.</p>
+
+<h3 id="notes">Notes</h3>
+
+<p>If you’d like a “watch mode”, try <a href="https://github.com/bazelbuild/bazel-watcher">ibazel</a>.</p>
+
+<p>At some point, we plan to release a tool similar to <a href="https://github.com/bazelbuild/rules_go/tree/master/go/tools/gazelle">gazelle</a> to generate the
+BUILD files from your source code.</p>
+
+<h2 id="ts_config">ts_config</h2>
+
+<p>Allows a tsconfig.json file to extend another file.</p>
+
+<p>Normally, you just give a single <code>tsconfig.json</code> file as the tsconfig attribute
+of a <code>ts_library</code> rule. However, if your <code>tsconfig.json</code> uses the <code>extends</code>
+feature from TypeScript, then the Bazel implementation needs to know about that
+extended configuration file as well, to pass them both to the TypeScript compiler.</p>
+
+<pre>
+ts_config(<a href="#ts_config-name">name</a>, <a href="#ts_config-deps">deps</a>, <a href="#ts_config-src">src</a>)
+</pre>
+
+<p><strong>ATTRIBUTES</strong></p>
+
+<table class="table table-params">
+  <thead>
+  <tr>
+    <th>Name</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Mandatory</th>
+    <th>Default</th>
+  </tr>
+  </thead>
+  <tbody>
+            <tr id="ts_config-name">
+        <td>name</td>
+        <td>
+                            A unique name for this target.
+                                </td>
+        <td><a href="https://bazel.build/docs/build-ref.html#name">Name</a></td>
+        <td>required</td>
+        <td>
+            
+        </td>
+      </tr>
+            <tr id="ts_config-deps">
+        <td>deps</td>
+        <td>
+                            Additional tsconfig.json files referenced via extends
+                                </td>
+        <td><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></td>
+        <td>required</td>
+        <td>
+            
+        </td>
+      </tr>
+            <tr id="ts_config-src">
+        <td>src</td>
+        <td>
+                            The tsconfig.json file passed to the TypeScript compiler
+                                </td>
+        <td><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></td>
+        <td>required</td>
+        <td>
+            
+        </td>
+      </tr>
+        </tbody>
+</table>
+
+<h2 id="ts_devserver">ts_devserver</h2>
+
+<p>ts_devserver is a simple development server intended for a quick “getting started” experience.</p>
+
+<p>Additional documentation at https://github.com/alexeagle/angular-bazel-example/wiki/Running-a-devserver-under-Bazel</p>
+
+<pre>
+ts_devserver(<a href="#ts_devserver-name">name</a>, <a href="#ts_devserver-additional_root_paths">additional_root_paths</a>, <a href="#ts_devserver-bootstrap">bootstrap</a>, <a href="#ts_devserver-deps">deps</a>, <a href="#ts_devserver-devserver">devserver</a>, <a href="#ts_devserver-devserver_host">devserver_host</a>, <a href="#ts_devserver-entry_module">entry_module</a>,
+             <a href="#ts_devserver-port">port</a>, <a href="#ts_devserver-scripts">scripts</a>, <a href="#ts_devserver-serving_path">serving_path</a>, <a href="#ts_devserver-static_files">static_files</a>)
+</pre>
+
+<p><strong>ATTRIBUTES</strong></p>
+
+<table class="table table-params">
+  <thead>
+  <tr>
+    <th>Name</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Mandatory</th>
+    <th>Default</th>
+  </tr>
+  </thead>
+  <tbody>
+            <tr id="ts_devserver-name">
+        <td>name</td>
+        <td>
+                            A unique name for this target.
+                                </td>
+        <td><a href="https://bazel.build/docs/build-ref.html#name">Name</a></td>
+        <td>required</td>
+        <td>
+            
+        </td>
+      </tr>
+            <tr id="ts_devserver-additional_root_paths">
+        <td>additional_root_paths</td>
+        <td>
+                            Additional root paths to serve <code>static_files</code> from.
+            Paths should include the workspace name such as <code>["__main__/resources"]</code>
+                                </td>
+        <td>List of strings</td>
+        <td>optional</td>
+        <td>
+            []
+        </td>
+      </tr>
+            <tr id="ts_devserver-bootstrap">
+        <td>bootstrap</td>
+        <td>
+                            Scripts to include in the JS bundle before the module loader (require.js)
+                                </td>
+        <td><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></td>
+        <td>optional</td>
+        <td>
+            []
+        </td>
+      </tr>
+            <tr id="ts_devserver-deps">
+        <td>deps</td>
+        <td>
+                            Targets that produce JavaScript, such as <code>ts_library</code>
+                                </td>
+        <td><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></td>
+        <td>optional</td>
+        <td>
+            []
+        </td>
+      </tr>
+            <tr id="ts_devserver-devserver">
+        <td>devserver</td>
+        <td>
+                            Go based devserver executable.
+
+            With cross-platform RBE for OSX &amp; Windows ctx.executable.devserver will be linux as --cpu and
+            --host_cpu must be overridden to k8. However, we still want to be able to run the devserver on the host
+            machine so we need to include the host devserver binary, which is ctx.executable.devserver_host, in the
+            runfiles. For non-RBE and for RBE with a linux host, ctx.executable.devserver &amp; ctx.executable.devserver_host
+            will be the same binary.
+
+            Defaults to precompiled go binary setup by @bazel/typescript npm package
+                                </td>
+        <td><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></td>
+        <td>optional</td>
+        <td>
+            //packages/typescript/devserver:devserver
+        </td>
+      </tr>
+            <tr id="ts_devserver-devserver_host">
+        <td>devserver_host</td>
+        <td>
+                            Go based devserver executable for the host platform.
+            Defaults to precompiled go binary setup by @bazel/typescript npm package
+                                </td>
+        <td><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></td>
+        <td>optional</td>
+        <td>
+            //packages/typescript/devserver:devserver_darwin_amd64
+        </td>
+      </tr>
+            <tr id="ts_devserver-entry_module">
+        <td>entry_module</td>
+        <td>
+                            The <code>entry_module</code> should be the AMD module name of the entry module such as <code>"__main__/src/index".</code>
+            <code>ts_devserver</code> concats the following snippet after the bundle to load the application:
+            <code>require(["entry_module"]);</code>
+                                </td>
+        <td>String</td>
+        <td>optional</td>
+        <td>
+            ""
+        </td>
+      </tr>
+            <tr id="ts_devserver-port">
+        <td>port</td>
+        <td>
+                            The port that the devserver will listen on.
+                                </td>
+        <td>Integer</td>
+        <td>optional</td>
+        <td>
+            5432
+        </td>
+      </tr>
+            <tr id="ts_devserver-scripts">
+        <td>scripts</td>
+        <td>
+                            User scripts to include in the JS bundle before the application sources
+                                </td>
+        <td><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></td>
+        <td>optional</td>
+        <td>
+            []
+        </td>
+      </tr>
+            <tr id="ts_devserver-serving_path">
+        <td>serving_path</td>
+        <td>
+                            The path you can request from the client HTML which serves the JavaScript bundle.
+            If you don't specify one, the JavaScript can be loaded at /_/ts_scripts.js
+                                </td>
+        <td>String</td>
+        <td>optional</td>
+        <td>
+            "/_/ts_scripts.js"
+        </td>
+      </tr>
+            <tr id="ts_devserver-static_files">
+        <td>static_files</td>
+        <td>
+                            Arbitrary files which to be served, such as index.html.
+            They are served relative to the package where this rule is declared.
+                                </td>
+        <td><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></td>
+        <td>optional</td>
+        <td>
+            []
+        </td>
+      </tr>
+        </tbody>
+</table>
+
+<h2 id="ts_library">ts_library</h2>
+
+<p><code>ts_library</code> type-checks and compiles a set of TypeScript sources to JavaScript.</p>
+
+<p>It produces declarations files (<code>.d.ts</code>) which are used for compiling downstream
+TypeScript targets and JavaScript for the browser and Closure compiler.</p>
+
+<pre>
+ts_library(<a href="#ts_library-name">name</a>, <a href="#ts_library-angular_assets">angular_assets</a>, <a href="#ts_library-compiler">compiler</a>, <a href="#ts_library-data">data</a>, <a href="#ts_library-deps">deps</a>, <a href="#ts_library-devmode_module">devmode_module</a>, <a href="#ts_library-devmode_target">devmode_target</a>,
+           <a href="#ts_library-expected_diagnostics">expected_diagnostics</a>, <a href="#ts_library-generate_externs">generate_externs</a>, <a href="#ts_library-internal_testing_type_check_dependencies">internal_testing_type_check_dependencies</a>,
+           <a href="#ts_library-module_name">module_name</a>, <a href="#ts_library-module_root">module_root</a>, <a href="#ts_library-node_modules">node_modules</a>, <a href="#ts_library-prodmode_module">prodmode_module</a>, <a href="#ts_library-prodmode_target">prodmode_target</a>, <a href="#ts_library-runtime">runtime</a>,
+           <a href="#ts_library-runtime_deps">runtime_deps</a>, <a href="#ts_library-srcs">srcs</a>, <a href="#ts_library-supports_workers">supports_workers</a>, <a href="#ts_library-tsconfig">tsconfig</a>, <a href="#ts_library-tsickle_typed">tsickle_typed</a>, <a href="#ts_library-use_angular_plugin">use_angular_plugin</a>)
+</pre>
+
+<p><strong>ATTRIBUTES</strong></p>
+
+<table class="table table-params">
+  <thead>
+  <tr>
+    <th>Name</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Mandatory</th>
+    <th>Default</th>
+  </tr>
+  </thead>
+  <tbody>
+            <tr id="ts_library-name">
+        <td>name</td>
+        <td>
+                            A unique name for this target.
+                                </td>
+        <td><a href="https://bazel.build/docs/build-ref.html#name">Name</a></td>
+        <td>required</td>
+        <td>
+            
+        </td>
+      </tr>
+            <tr id="ts_library-angular_assets">
+        <td>angular_assets</td>
+        <td>
+                            Additional files the Angular compiler will need to read as inputs.
+            Includes .css and .html files
+                                </td>
+        <td><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></td>
+        <td>optional</td>
+        <td>
+            []
+        </td>
+      </tr>
+            <tr id="ts_library-compiler">
+        <td>compiler</td>
+        <td>
+                            Sets a different TypeScript compiler binary to use for this library.
+For example, we use the vanilla TypeScript tsc.js for bootstrapping,
+and Angular compilations can replace this with <code>ngc</code>.
+
+The default ts_library compiler depends on the <code>//@bazel/typescript</code>
+target which is setup for projects that use bazel managed npm deps and
+install the @bazel/typescript npm package.
+                                </td>
+        <td><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></td>
+        <td>optional</td>
+        <td>
+            @build_bazel_rules_typescript//internal:tsc_wrapped_bin
+        </td>
+      </tr>
+            <tr id="ts_library-data">
+        <td>data</td>
+        <td>
+                                </td>
+        <td><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></td>
+        <td>optional</td>
+        <td>
+            []
+        </td>
+      </tr>
+            <tr id="ts_library-deps">
+        <td>deps</td>
+        <td>
+                            Compile-time dependencies, typically other ts_library targets
+                                </td>
+        <td><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></td>
+        <td>optional</td>
+        <td>
+            []
+        </td>
+      </tr>
+            <tr id="ts_library-devmode_module">
+        <td>devmode_module</td>
+        <td>
+                            Set the typescript <code>module</code> compiler option for devmode output.
+
+This value will override the <code>module</code> option in the user supplied tsconfig.
+                                </td>
+        <td>String</td>
+        <td>optional</td>
+        <td>
+            "umd"
+        </td>
+      </tr>
+            <tr id="ts_library-devmode_target">
+        <td>devmode_target</td>
+        <td>
+                            Set the typescript <code>target</code> compiler option for devmode output.
+
+This value will override the <code>target</code> option in the user supplied tsconfig.
+                                </td>
+        <td>String</td>
+        <td>optional</td>
+        <td>
+            "es2015"
+        </td>
+      </tr>
+            <tr id="ts_library-expected_diagnostics">
+        <td>expected_diagnostics</td>
+        <td>
+                                </td>
+        <td>List of strings</td>
+        <td>optional</td>
+        <td>
+            []
+        </td>
+      </tr>
+            <tr id="ts_library-generate_externs">
+        <td>generate_externs</td>
+        <td>
+                                </td>
+        <td>Boolean</td>
+        <td>optional</td>
+        <td>
+            True
+        </td>
+      </tr>
+            <tr id="ts_library-internal_testing_type_check_dependencies">
+        <td>internal_testing_type_check_dependencies</td>
+        <td>
+                            Testing only, whether to type check inputs that aren't srcs.
+                                </td>
+        <td>Boolean</td>
+        <td>optional</td>
+        <td>
+            False
+        </td>
+      </tr>
+            <tr id="ts_library-module_name">
+        <td>module_name</td>
+        <td>
+                                </td>
+        <td>String</td>
+        <td>optional</td>
+        <td>
+            ""
+        </td>
+      </tr>
+            <tr id="ts_library-module_root">
+        <td>module_root</td>
+        <td>
+                                </td>
+        <td>String</td>
+        <td>optional</td>
+        <td>
+            ""
+        </td>
+      </tr>
+            <tr id="ts_library-node_modules">
+        <td>node_modules</td>
+        <td>
+                            The npm packages which should be available during the compile.
+
+The default value of <code>//typescript:typescript__typings</code> is setup
+for projects that use bazel managed npm deps. This default is in place
+since ts_library will always depend on at least the typescript
+default libs which are provided by <code>//typescript:typescript__typings</code>.
+
+This attribute is DEPRECATED. As of version 0.18.0 the recommended
+approach to npm dependencies is to use fine grained npm dependencies
+which are setup with the <code>yarn_install</code> or <code>npm_install</code> rules.
+
+For example, in targets that used a <code>//:node_modules</code> filegroup,
+
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">ts_library</span><span class="p">(</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"my_lib"</span><span class="p">,</span>
+    <span class="p">...</span>
+    <span class="n">node_modules</span> <span class="o">=</span> <span class="s">"//:node_modules"</span><span class="p">,</span>
+<span class="p">)</span></code></pre></figure>
+
+
+which specifies all files within the <code>//:node_modules</code> filegroup
+to be inputs to the <code>my_lib</code>. Using fine grained npm dependencies,
+<code>my_lib</code> is defined with only the npm dependencies that are
+needed:
+
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">ts_library</span><span class="p">(</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"my_lib"</span><span class="p">,</span>
+    <span class="p">...</span>
+    <span class="n">deps</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s">"@npm//@types/foo"</span><span class="p">,</span>
+        <span class="s">"@npm//@types/bar"</span><span class="p">,</span>
+        <span class="s">"@npm//foo"</span><span class="p">,</span>
+        <span class="s">"@npm//bar"</span><span class="p">,</span>
+        <span class="p">...</span>
+    <span class="p">],</span>
+<span class="p">)</span></code></pre></figure>
+
+
+In this case, only the listed npm packages and their
+transitive deps are includes as inputs to the <code>my_lib</code> target
+which reduces the time required to setup the runfiles for this
+target (see https://github.com/bazelbuild/bazel/issues/5153).
+The default typescript libs are also available via the node_modules
+default in this case.
+
+The @npm external repository and the fine grained npm package
+targets are setup using the <code>yarn_install</code> or <code>npm_install</code> rule
+in your WORKSPACE file:
+
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">yarn_install</span><span class="p">(</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"npm"</span><span class="p">,</span>
+    <span class="n">package_json</span> <span class="o">=</span> <span class="s">"//:package.json"</span><span class="p">,</span>
+    <span class="n">yarn_lock</span> <span class="o">=</span> <span class="s">"//:yarn.lock"</span><span class="p">,</span>
+<span class="p">)</span></code></pre></figure>
+
+                                </td>
+        <td><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></td>
+        <td>optional</td>
+        <td>
+            @npm//typescript:typescript__typings
+        </td>
+      </tr>
+            <tr id="ts_library-prodmode_module">
+        <td>prodmode_module</td>
+        <td>
+                            Set the typescript <code>module</code> compiler option for prodmode output.
+
+This value will override the <code>module</code> option in the user supplied tsconfig.
+                                </td>
+        <td>String</td>
+        <td>optional</td>
+        <td>
+            "esnext"
+        </td>
+      </tr>
+            <tr id="ts_library-prodmode_target">
+        <td>prodmode_target</td>
+        <td>
+                            Set the typescript <code>target</code> compiler option for prodmode output.
+
+This value will override the <code>target</code> option in the user supplied tsconfig.
+                                </td>
+        <td>String</td>
+        <td>optional</td>
+        <td>
+            "es2015"
+        </td>
+      </tr>
+            <tr id="ts_library-runtime">
+        <td>runtime</td>
+        <td>
+                                </td>
+        <td>String</td>
+        <td>optional</td>
+        <td>
+            "browser"
+        </td>
+      </tr>
+            <tr id="ts_library-runtime_deps">
+        <td>runtime_deps</td>
+        <td>
+                                      The dependencies of this attribute must provide: JsInfo
+                    </td>
+        <td><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></td>
+        <td>optional</td>
+        <td>
+            []
+        </td>
+      </tr>
+            <tr id="ts_library-srcs">
+        <td>srcs</td>
+        <td>
+                            The TypeScript source files to compile.
+                                </td>
+        <td><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></td>
+        <td>required</td>
+        <td>
+            
+        </td>
+      </tr>
+            <tr id="ts_library-supports_workers">
+        <td>supports_workers</td>
+        <td>
+                            Intended for internal use only.
+
+Allows you to disable the Bazel Worker strategy for this library.
+Typically used together with the "compiler" setting when using a
+non-worker aware compiler binary.
+                                </td>
+        <td>Boolean</td>
+        <td>optional</td>
+        <td>
+            True
+        </td>
+      </tr>
+            <tr id="ts_library-tsconfig">
+        <td>tsconfig</td>
+        <td>
+                            A tsconfig.json file containing settings for TypeScript compilation.
+Note that some properties in the tsconfig are governed by Bazel and will be
+overridden, such as <code>target</code> and <code>module</code>.
+
+The default value is set to <code>//:tsconfig.json</code> by a macro. This means you must
+either:
+
+- Have your <code>tsconfig.json</code> file in the workspace root directory
+- Use an alias in the root BUILD.bazel file to point to the location of tsconfig:
+    <code>alias(name="tsconfig.json", actual="//path/to:tsconfig-something.json")</code>
+- Give an explicit <code>tsconfig</code> attribute to all <code>ts_library</code> targets
+                                </td>
+        <td><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></td>
+        <td>optional</td>
+        <td>
+            None
+        </td>
+      </tr>
+            <tr id="ts_library-tsickle_typed">
+        <td>tsickle_typed</td>
+        <td>
+                            If using tsickle, instruct it to translate types to ClosureJS format
+                                </td>
+        <td>Boolean</td>
+        <td>optional</td>
+        <td>
+            True
+        </td>
+      </tr>
+            <tr id="ts_library-use_angular_plugin">
+        <td>use_angular_plugin</td>
+        <td>
+                            Run the Angular ngtsc compiler under ts_library
+                                </td>
+        <td>Boolean</td>
+        <td>optional</td>
+        <td>
+            False
+        </td>
+      </tr>
+        </tbody>
+</table>
+
+<h2 id="ts_project">ts_project</h2>
+
+<p>Compiles one TypeScript project using <code>tsc --project</code></p>
+
+<p>This is a drop-in replacement for the <code>tsc</code> rule automatically generated for the “typescript”
+package, typically loaded from <code>@npm//typescript:index.bzl</code>. Unlike bare <code>tsc</code>, this rule understands
+the Bazel interop mechanism (Providers) so that this rule works with others that produce or consume
+TypeScript typings (<code>.d.ts</code> files).</p>
+
+<p>Unlike <code>ts_library</code>, this rule is the thinnest possible layer of Bazel interoperability on top
+of the TypeScript compiler. It shifts the burden of configuring TypeScript into the tsconfig.json file.
+See https://github.com/bazelbuild/rules_nodejs/blob/master/docs/TypeScript.md#alternatives
+for more details about the trade-offs between the two rules.</p>
+
+<p>Some TypeScript options affect which files are emitted, and Bazel wants to know these ahead-of-time.
+So several options from the tsconfig file must be mirrored as attributes to ts_project.
+See https://www.typescriptlang.org/v2/en/tsconfig for a listing of the TypeScript options.</p>
+
+<p>Any code that works with <code>tsc</code> should work with <code>ts_project</code> with a few caveats:</p>
+
+<ul>
+  <li>Bazel requires that the <code>outDir</code> (and <code>declarationDir</code>) be set to
+<code>bazel-out/[target architecture]/bin/path/to/package</code>
+so we override whatever settings appear in your tsconfig.</li>
+  <li>Bazel expects that each output is produced by a single rule.
+Thus if you have two <code>ts_project</code> rules with overlapping sources (the same <code>.ts</code> file
+appears in more than one) then you get an error about conflicting <code>.js</code> output
+files if you try to build both together.
+Worse, if you build them separately then the output directory will contain whichever
+one you happened to build most recently. This is highly discouraged.</li>
+</ul>
+
+<blockquote>
+  <p>Note: in order for TypeScript to resolve relative references to the bazel-out folder,
+we recommend that the base tsconfig contain a rootDirs section that includes all
+possible locations they may appear.</p>
+
+  <p>We hope this will not be needed in some future release of TypeScript.
+Follow https://github.com/microsoft/TypeScript/issues/37257 for more info.</p>
+
+  <p>For example, if the base tsconfig file relative to the workspace root is
+<code>path/to/tsconfig.json</code> then you should configure like:</p>
+
+</blockquote>
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="o">&gt;</span> <span class="s">"compilerOptions"</span><span class="p">:</span> <span class="p">{</span>
+<span class="o">&gt;</span>     <span class="s">"rootDirs"</span><span class="p">:</span> <span class="p">[</span>
+<span class="o">&gt;</span>         <span class="s">"."</span><span class="p">,</span>
+<span class="o">&gt;</span>         <span class="s">"../../bazel-out/darwin-fastbuild/bin/path/to"</span><span class="p">,</span>
+<span class="o">&gt;</span>         <span class="s">"../../bazel-out/k8-fastbuild/bin/path/to"</span><span class="p">,</span>
+<span class="o">&gt;</span>         <span class="s">"../../bazel-out/x64_windows-fastbuild/bin/path/to"</span><span class="p">,</span>
+<span class="o">&gt;</span>         <span class="s">"../../bazel-out/darwin-dbg/bin/path/to"</span><span class="p">,</span>
+<span class="o">&gt;</span>         <span class="s">"../../bazel-out/k8-dbg/bin/path/to"</span><span class="p">,</span>
+<span class="o">&gt;</span>         <span class="s">"../../bazel-out/x64_windows-dbg/bin/path/to"</span><span class="p">,</span>
+<span class="o">&gt;</span>     <span class="p">]</span>
+<span class="o">&gt;</span> <span class="p">}</span>
+<span class="o">&gt;</span> </code></pre></figure>
+
+<h3 id="issues-when-running-non-sandboxed">Issues when running non-sandboxed</h3>
+
+<p>When using a non-sandboxed spawn strategy (which is the default on Windows), you may
+observe these problems which require workarounds:</p>
+
+<p>1) Bazel deletes outputs from the previous execution before running <code>tsc</code>.
+   This causes a problem with TypeScript’s incremental mode: if the <code>.tsbuildinfo</code> file
+   is not known to be an output of the rule, then Bazel will leave it in the output
+   directory, and when <code>tsc</code> runs, it may see that the outputs written by the prior
+   invocation are up-to-date and skip the emit of these files. This will cause Bazel
+   to intermittently fail with an error that some outputs were not written.
+   This is why we depend on <code>composite</code> and/or <code>incremental</code> attributes to be provided,
+   so we can tell Bazel to expect a <code>.tsbuildinfo</code> output to ensure it is deleted before a
+   subsequent compilation.
+   At present, we don’t do anything useful with the <code>.tsbuildinfo</code> output, and this rule
+   does not actually have incremental behavior. Deleting the file is actually
+   counter-productive in terms of TypeScript compile performance.
+   Follow https://github.com/bazelbuild/rules_nodejs/issues/1726</p>
+
+<p>2) When using Project References, TypeScript will expect to verify that the outputs of referenced
+   projects are up-to-date with respect to their inputs.
+   (This is true even without using the <code>--build</code> option).
+   When using a non-sandboxed spawn strategy, <code>tsc</code> can read the sources from other <code>ts_project</code>
+   rules in your project, and will expect that the <code>tsconfig.json</code> file for those references will
+   indicate where the outputs were written. However the <code>outDir</code> is determined by this Bazel rule so
+   it cannot be known from reading the <code>tsconfig.json</code> file.
+   This problem is manifested as a TypeScript diagnostic like
+   <code>error TS6305: Output file '/path/to/execroot/a.d.ts' has not been built from source file '/path/to/execroot/a.ts'.</code>
+   As a workaround, you can give the Windows “fastbuild” output directory as the <code>outDir</code> in your tsconfig file.
+   On other platforms, the value isn’t read so it does no harm.
+   See https://github.com/bazelbuild/rules_nodejs/tree/stable/packages/typescript/test/ts_project as an example.
+   We hope this will be fixed in a future release of TypeScript;
+   follow https://github.com/microsoft/TypeScript/issues/37378</p>
+
+<p>3) When TypeScript encounters an import statement, it adds the source file resolved by that reference
+   to the program. However you may have included that source file in a different project, so this causes
+   the problem mentioned above where a source file is in multiple programs.
+   (Note, if you use Project References this is not the case, TS will know the referenced
+   file is part of the other program.)
+   This will result in duplicate emit for the same file, which produces an error
+   since the files written to the output tree are read-only.
+   Workarounds include using using Project References, or simply grouping the whole compilation
+   into one program (if this doesn’t exceed your time budget).</p>
+
+<pre>
+ts_project(<a href="#ts_project-name">name</a>, <a href="#ts_project-tsconfig">tsconfig</a>, <a href="#ts_project-srcs">srcs</a>, <a href="#ts_project-args">args</a>, <a href="#ts_project-deps">deps</a>, <a href="#ts_project-extends">extends</a>, <a href="#ts_project-declaration">declaration</a>, <a href="#ts_project-source_map">source_map</a>, <a href="#ts_project-declaration_map">declaration_map</a>,
+           <a href="#ts_project-composite">composite</a>, <a href="#ts_project-incremental">incremental</a>, <a href="#ts_project-emit_declaration_only">emit_declaration_only</a>, <a href="#ts_project-tsc">tsc</a>, <a href="#ts_project-validate">validate</a>, <a href="#ts_project-declaration_dir">declaration_dir</a>, <a href="#ts_project-out_dir">out_dir</a>,
+           <a href="#ts_project-root_dir">root_dir</a>, <a href="#ts_project-kwargs">kwargs</a>)
+</pre>
+
+<p><strong>PARAMETERS</strong></p>
+
+<table class="table table-params">
+  <thead>
+  <tr>
+    <th>Name</th>
+    <th>Description</th>
+    <th>Default</th>
+  </tr>
+  </thead>
+  <tbody>
+            <tr id="ts_project-name">
+        <td>name</td>
+        <td>
+                            A name for the target.
+
+    We recommend you use the basename (no <code>.json</code> extension) of the tsconfig file that should be compiled.
+                    </td>
+        <td>
+            "tsconfig"
+        </td>
+      </tr>
+            <tr id="ts_project-tsconfig">
+        <td>tsconfig</td>
+        <td>
+                            Label of the tsconfig.json file to use for the compilation.
+
+    By default, we add <code>.json</code> to the <code>name</code> attribute.
+                    </td>
+        <td>
+            None
+        </td>
+      </tr>
+            <tr id="ts_project-srcs">
+        <td>srcs</td>
+        <td>
+                            List of labels of TypeScript source files to be provided to the compiler.
+
+    If absent, defaults to <code>**/*.ts[x]</code> (all TypeScript files in the package).
+                    </td>
+        <td>
+            None
+        </td>
+      </tr>
+            <tr id="ts_project-args">
+        <td>args</td>
+        <td>
+                            List of strings of additional command-line arguments to pass to tsc.
+                    </td>
+        <td>
+            []
+        </td>
+      </tr>
+            <tr id="ts_project-deps">
+        <td>deps</td>
+        <td>
+                            List of labels of other rules that produce TypeScript typings (.d.ts files)
+                    </td>
+        <td>
+            []
+        </td>
+      </tr>
+            <tr id="ts_project-extends">
+        <td>extends</td>
+        <td>
+                            List of labels of tsconfig file(s) referenced in <code>extends</code> section of tsconfig.
+
+    Must include any tsconfig files "chained" by extends clauses.
+                    </td>
+        <td>
+            None
+        </td>
+      </tr>
+            <tr id="ts_project-declaration">
+        <td>declaration</td>
+        <td>
+                            if the <code>declaration</code> bit is set in the tsconfig.
+    Instructs Bazel to expect a <code>.d.ts</code> output for each <code>.ts</code> source.
+                    </td>
+        <td>
+            False
+        </td>
+      </tr>
+            <tr id="ts_project-source_map">
+        <td>source_map</td>
+        <td>
+                            if the <code>sourceMap</code> bit is set in the tsconfig.
+    Instructs Bazel to expect a <code>.js.map</code> output for each <code>.ts</code> source.
+                    </td>
+        <td>
+            False
+        </td>
+      </tr>
+            <tr id="ts_project-declaration_map">
+        <td>declaration_map</td>
+        <td>
+                            if the <code>declarationMap</code> bit is set in the tsconfig.
+    Instructs Bazel to expect a <code>.d.ts.map</code> output for each <code>.ts</code> source.
+                    </td>
+        <td>
+            False
+        </td>
+      </tr>
+            <tr id="ts_project-composite">
+        <td>composite</td>
+        <td>
+                            if the <code>composite</code> bit is set in the tsconfig.
+    Instructs Bazel to expect a <code>.tsbuildinfo</code> output and a <code>.d.ts</code> output for each <code>.ts</code> source.
+                    </td>
+        <td>
+            False
+        </td>
+      </tr>
+            <tr id="ts_project-incremental">
+        <td>incremental</td>
+        <td>
+                            if the <code>incremental</code> bit is set in the tsconfig.
+    Instructs Bazel to expect a <code>.tsbuildinfo</code> output.
+                    </td>
+        <td>
+            False
+        </td>
+      </tr>
+            <tr id="ts_project-emit_declaration_only">
+        <td>emit_declaration_only</td>
+        <td>
+                            if the <code>emitDeclarationOnly</code> bit is set in the tsconfig.
+    Instructs Bazel *not* to expect <code>.js</code> or <code>.js.map</code> outputs for <code>.ts</code> sources.
+                    </td>
+        <td>
+            False
+        </td>
+      </tr>
+            <tr id="ts_project-tsc">
+        <td>tsc</td>
+        <td>
+                            Label of the TypeScript compiler binary to run.
+
+    For example, <code>tsc = "@my_deps//typescript/bin:tsc"</code>
+    Or you can pass a custom compiler binary instead.
+                    </td>
+        <td>
+            None
+        </td>
+      </tr>
+            <tr id="ts_project-validate">
+        <td>validate</td>
+        <td>
+                            boolean; whether to check that the tsconfig settings match the attributes.
+                    </td>
+        <td>
+            True
+        </td>
+      </tr>
+            <tr id="ts_project-declaration_dir">
+        <td>declaration_dir</td>
+        <td>
+                            a string specifying a subdirectory under the bazel-out folder where generated declaration
+    outputs are written. Equivalent to the TypeScript --declarationDir option.
+    By default declarations are written to the out_dir.
+                    </td>
+        <td>
+            None
+        </td>
+      </tr>
+            <tr id="ts_project-out_dir">
+        <td>out_dir</td>
+        <td>
+                            a string specifying a subdirectory under the bazel-out folder where outputs are written.
+    Equivalent to the TypeScript --outDir option.
+    Note that Bazel always requires outputs be written under a subdirectory matching the input package,
+    so if your rule appears in path/to/my/package/BUILD.bazel and out_dir = "foo" then the .js files
+    will appear in bazel-out/[arch]/bin/path/to/my/package/foo/*.js.
+    By default the out_dir is '.', meaning the packages folder in bazel-out.
+                    </td>
+        <td>
+            None
+        </td>
+      </tr>
+            <tr id="ts_project-root_dir">
+        <td>root_dir</td>
+        <td>
+                            a string specifying a subdirectory under the input package which should be consider the
+    root directory of all the input files.
+    Equivalent to the TypeScript --rootDir option.
+    By default it is '.', meaning the source directory where the BUILD file lives.
+                    </td>
+        <td>
+            None
+        </td>
+      </tr>
+            <tr id="ts_project-kwargs">
+        <td>kwargs</td>
+        <td>
+                            passed through to underlying rule, allows eg. visibility, tags
+                    </td>
+        <td>
+            
+        </td>
+      </tr>
+        </tbody>
+</table>
+
+
+      </div>
+    </div>
+
+    <div class="col-md-2 sticky-sidebar">
+      <div class="right-sidebar">
+        <ul class="gh-links">
+          <li>
+            <i class="fa fa-github"></i>
+            <a href="https://github.com/bazelbuild/rules_nodejs/issues/new?title=Documentation issue: TypeScript&labels=question/docs">Create
+              issue</a>
+          </li>
+          
+        </ul>
+        <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#alternatives">Alternatives</a></li>
+<li class="toc-entry toc-h2"><a href="#installation">Installation</a></li>
+<li class="toc-entry toc-h2"><a href="#self-managed-npm-dependencies">Self-managed npm dependencies</a></li>
+<li class="toc-entry toc-h2"><a href="#customizing-the-typescript-compiler-binary">Customizing the TypeScript compiler binary</a></li>
+<li class="toc-entry toc-h2"><a href="#usage">Usage</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#compiling-typescript-ts_library">Compiling TypeScript: ts_library</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#accessing-javascript-outputs">Accessing JavaScript outputs</a></li>
+<li class="toc-entry toc-h2"><a href="#serving-typescript-for-development">Serving TypeScript for development</a></li>
+<li class="toc-entry toc-h2"><a href="#writing-typescript-code-for-bazel">Writing TypeScript code for Bazel</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#notes">Notes</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#ts_config">ts_config</a></li>
+<li class="toc-entry toc-h2"><a href="#ts_devserver">ts_devserver</a></li>
+<li class="toc-entry toc-h2"><a href="#ts_library">ts_library</a></li>
+<li class="toc-entry toc-h2"><a href="#ts_project">ts_project</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#issues-when-running-non-sandboxed">Issues when running non-sandboxed</a></li>
+</ul>
+</li>
+</ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+  <div class="row">
+    <div class="col-lg-8">
+      <p class="text-muted">&copy; 2020 Google</p>
+    </div>
+  </div>
+</div>
+
+</footer>
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script crossorigin="anonymous"
+        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<!-- Anchor JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/3.2.0/anchor.min.js" type="text/javascript"></script>
+<script>
+  // Automatically add anchors and links to all header elements that don't already have them.
+  anchors.add();
+</script>
+
+<script>
+  var shiftWindow = function () {
+    if (location.hash.length !== 0) {
+      window.scrollBy(0, -50);
+    }
+  };
+  window.addEventListener("hashchange", shiftWindow);
+
+  var highlightCurrentSidebarNav = function () {
+    var href = location.pathname;
+    var item = $('#sidebar-nav [href$="' + href + '"]');
+    if (item) {
+      var li = item.parent();
+      li.addClass("active");
+
+      if (li.parent() && li.parent().is("ul")) {
+        do {
+          var ul = li.parent();
+          if (ul.hasClass("collapse")) {
+            ul.collapse("show");
+          }
+          li = ul.parent();
+        } while (li && li.is("li"));
+      }
+    }
+  };
+
+  $(document).ready(function () {
+    // Scroll to anchor of location hash, adjusted for fixed navbar.
+    window.setTimeout(function () {
+      shiftWindow();
+    }, 1);
+
+    // Flip the caret when submenu toggles are clicked.
+    $(".sidebar-submenu").on("show.bs.collapse", function () {
+      var toggle = $('[href$="#' + $(this).attr('id') + '"]');
+      if (toggle) {
+        toggle.addClass("dropup");
+      }
+    });
+    $(".sidebar-submenu").on("hide.bs.collapse", function () {
+      var toggle = $('[href$="#' + $(this).attr('id') + '"]');
+      if (toggle) {
+        toggle.removeClass("dropup");
+      }
+    });
+
+    // Highlight the current page on the sidebar nav.
+    highlightCurrentSidebarNav();
+  });
+</script>
+
+</body>
+</html>
+

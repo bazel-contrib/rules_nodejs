@@ -38,7 +38,7 @@ _copy_to_bin = rule(
 )
 
 def copy_to_bin(name, srcs, **kwargs):
-    """Copies a source file to bazel-bin at the same workspace-relative path path.
+    """Copies a source file to bazel-bin at the same workspace-relative path.
 
     e.g. `<workspace_root>/foo/bar/a.txt -> <bazel-bin>/foo/bar/a.txt`
 

@@ -1,18 +1,19 @@
 # Developing on the docsite
 
-Running locally can be done with Jekyll.
+Running locally can be done with Jekyll via bazel.
 Follow setup instructions at https://help.github.com/en/articles/setting-up-your-github-pages-site-locally-with-jekyll
 
-Run
+You'll also need the `jekyll-toc` gem installed
+
+To build and update the docs in the `/docs` folder, run
 
 ```sh
-docs$ bundle exec jekyll serve
+$ yarn stardoc
 ```
 
-Another way to do local development without doing the Ruby setup steps is to use a docker container:
-
+To serve the docsite locally, use
 ```sh
-$ docker run -it --rm -v "$PWD":/usr/src/app -p "4000:4000" starefossen/github-pages
+$ bazel run //docs
 ```
 
 # Authoring the docsite
@@ -27,4 +28,7 @@ The files marked with
   or possibly a markdown file next to the .bzl file
  ********************* -->
  ```
- Should be edited by modifying the docs in the source `.bzl` files, other files can be freely edited.
+
+Should be edited by modifying the docs in the source `.bzl` files.
+If updating css, then the `scss` in `/docs/css` should be edited.
+The HTML files in `/docs` are also generated and should not be edited directly, other files can be freely edited. 

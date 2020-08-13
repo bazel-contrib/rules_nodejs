@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html itemscope itemtype="https://schema.org/WebPage" lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="width=device-width, initial-scale=1" name="viewport">
+  <link href="/rules_nodejs/install.html" rel="canonical">
+  <link href="" rel="shortcut icon" type="image/png">
+
+  <title>rules_nodejs - Installation</title>
+
+  <!-- Webfont -->
+  <link href="//fonts.googleapis.com/css?family=Source+Code+Pro:400,500,700|Open+Sans:400,600,700,800" rel="stylesheet">
+
+  <!-- Bootstrap -->
+  <link crossorigin="anonymous" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+        integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+
+  <!-- Custom stylesheet -->
+  <link href="/rules_nodejs/css/main.css" rel="stylesheet">
+
+  <!-- metadata -->
+  <meta content="rules_nodejs" name="og:title"/>
+  <meta content="JavaScript and NodeJS rules for Bazel" name="og:description"/>
+</head>
+
+<body>
+<nav class="navbar navbar-inverse navbar-fixed-top" id="common-nav">
+  <div class="container">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button class="navbar-toggle collapsed" data-target="#bs-example-navbar-collapse-1" data-toggle="collapse"
+              type="button">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/rules_nodejs/">
+        <img class="navbar-logo" src="/rules_nodejs/images/bazel-navbar.svg">
+      </a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="https://github.com/bazelbuild/rules_nodejs">GitHub</a></li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+
+<div class="container vpad">
+  <div class="row">
+    <div class="col-md-2 sticky-sidebar">
+  <a aria-controls="sidebar-nav"
+     aria-expanded="false" class="btn btn-default btn-lg btn-block sidebar-toggle" data-toggle="collapse"
+     href="#sidebar-nav">
+    <i class="glyphicon glyphicon-menu-hamburger"></i> Navigation
+  </a>
+
+  <nav class="sidebar collapse" id="sidebar-nav">
+    <h3>rules_nodejs</h3>
+    <ul class="sidebar-nav">
+      <li><a href="/rules_nodejs/">Introduction</a></li>
+      <li><a href="install.html">Installation</a></li>
+      <li><a href="repositories.html">Repositories</a></li>
+      <li><a href="dependencies.html">Dependencies</a></li>
+      <li><a href="debugging.html">Debugging</a></li>
+      <li><a href="stamping.html">Stamping</a></li>
+      <li><a href="changing-rules.html">Making changes to rules_nodejs</a></li>
+      <li><a href="examples.html">Examples</a></li>
+    </ul>
+
+    <h3>Rules</h3>
+    <ul class="sidebar-nav">
+      
+      
+      <li><a href="/rules_nodejs/Built-ins.html">Built-ins</a></li>
+      
+      
+      
+      <li><a href="/rules_nodejs/Cypress.html">Cypress</a></li>
+      
+      
+      
+      <li><a href="/rules_nodejs/Jasmine.html">Jasmine</a></li>
+      
+      
+      
+      <li><a href="/rules_nodejs/Karma.html">Karma</a></li>
+      
+      
+      
+      <li><a href="/rules_nodejs/Protractor.html">Protractor</a></li>
+      
+      
+      
+      <li><a href="/rules_nodejs/Rollup.html">Rollup</a></li>
+      
+      
+      
+      <li><a href="/rules_nodejs/Terser.html">Terser</a></li>
+      
+      
+      
+      <li><a href="/rules_nodejs/TypeScript.html">TypeScript</a></li>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+    </ul>
+
+    <h3>Community</h3>
+    <ul class="sidebar-nav">
+      <li><a href="https://github.com/bazelbuild/rules_nodejs/blob/master/CONTRIBUTING.md">Contribute to
+        rules_nodejs</a></li>
+      <li><a href="https://slack.bazel.build">Join #javascript on Slack</a></li>
+      <li><a href="https://github.com/bazelbuild/rules_nodejs/issues">Issue Tracker</a></li>
+      <li><a href="https://github.com/bazelbuild/rules_nodejs">Github</a></li>
+    </ul>
+  </nav>
+</div>
+
+
+    <div class="col-md-8">
+      <div class="content">
+        <h1 id="custom-installation">Custom installation</h1>
+
+<p>First, you need Bazel.
+We recommend using Bazelisk, which is a version-selection wrapper, similar to
+the <code class="language-plaintext highlighter-rouge">nvm</code> tool managing your version of Node. This is available on npm.
+We also recommend installing <code class="language-plaintext highlighter-rouge">ibazel</code> which is the “watch mode” for Bazel.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>yarn add <span class="nt">-D</span> @bazel/bazelisk @bazel/ibazel
+<span class="c"># or</span>
+<span class="nv">$ </span>npm <span class="nb">install</span> <span class="nt">--save-dev</span> @bazel/bazelisk @bazel/ibazel
+</code></pre></div></div>
+
+<p>You could install a current bazel distribution, following the [bazel instructions].</p>
+
+<p>If you use Bazelisk, see <a href="https://github.com/bazelbuild/bazelisk/issues/29#issuecomment-478062147">this workaround</a> to get working command-line completion.</p>
+
+<p>It’s reasonable to globally-install bazelisk so you get a <code class="language-plaintext highlighter-rouge">bazel</code> command in your $PATH.
+We don’t recommend this with ibazel as the version is frequently changing.</p>
+
+<p>Next, create a <code class="language-plaintext highlighter-rouge">WORKSPACE</code> file in your project root (or edit the existing one)
+containing:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">load</span><span class="p">(</span><span class="s">"@bazel_tools//tools/build_defs/repo:http.bzl"</span><span class="p">,</span> <span class="s">"http_archive"</span><span class="p">)</span>
+<span class="n">http_archive</span><span class="p">(</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"build_bazel_rules_nodejs"</span><span class="p">,</span>
+    <span class="n">sha256</span> <span class="o">=</span> <span class="s">"10fffa29f687aa4d8eb6dfe8731ab5beb63811ab00981fc84a93899641fd4af1"</span><span class="p">,</span>
+    <span class="n">urls</span> <span class="o">=</span> <span class="p">[</span><span class="s">"https://github.com/bazelbuild/rules_nodejs/releases/download/2.0.3/rules_nodejs-2.0.3.tar.gz"</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="n">load</span><span class="p">(</span><span class="s">"@build_bazel_rules_nodejs//:index.bzl"</span><span class="p">,</span> <span class="s">"node_repositories"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Now you can choose from a few options to finish installation.</p>
+
+<p>To choose a version of Node.js:</p>
+
+<ol>
+  <li>(Simplest) use the version of Node.js that comes with these rules by default</li>
+  <li>Choose from one of the versions we support natively</li>
+  <li>Tell Bazel where to download a specific version you require</li>
+  <li>Check Node.js into your repository and don’t download anything</li>
+</ol>
+
+<p>These are described in more detail in the following sections.</p>
+
+<h2 id="simple-usage">Simple usage</h2>
+
+<p>Add this to your <code class="language-plaintext highlighter-rouge">WORKSPACE</code> file. It only tells Bazel how to find your
+<code class="language-plaintext highlighter-rouge">package.json</code> file. It will use default versions of Node.js and npm.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># NOTE: this rule installs nodejs, npm, and yarn, but does NOT install
+# your npm dependencies into your node_modules folder.
+# You must still run the package manager to do this.
+</span><span class="n">node_repositories</span><span class="p">(</span><span class="n">package_json</span> <span class="o">=</span> <span class="p">[</span><span class="s">"//:package.json"</span><span class="p">])</span>
+</code></pre></div></div>
+<h2 id="installation-with-a-specific-supported-version-of-nodejs-and-yarn">Installation with a specific supported version of Node.js and Yarn</h2>
+
+<p>You can choose a specific version of Node.js that’s built into these rules.
+You can also choose a specific version of Yarn.
+Note that some of our packages have started to use features from Node 12, so you may see warnings if you use an older version.</p>
+
+<blockquote>
+  <p>Now that Node 12 is LTS (Long-term support) we encourage you to upgrade, and don’t intend to fix bugs which are only observed in Node 10 or lower.</p>
+</blockquote>
+
+<p>The available versions are documented on the <code class="language-plaintext highlighter-rouge">node_repositories</code> rule in the <a href="Built-ins.md">Built-ins</a>.</p>
+
+<p>Add to <code class="language-plaintext highlighter-rouge">WORKSPACE</code>:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># NOTE: this rule installs nodejs, npm, and yarn, but does NOT install
+# your npm dependencies into your node_modules folder.
+# You must still run the package manager to do this.
+</span><span class="n">node_repositories</span><span class="p">(</span>
+    <span class="n">package_json</span> <span class="o">=</span> <span class="p">[</span><span class="s">"//:package.json"</span><span class="p">],</span>
+    <span class="n">node_version</span> <span class="o">=</span> <span class="s">"8.11.1"</span><span class="p">,</span>
+    <span class="n">yarn_version</span> <span class="o">=</span> <span class="s">"1.5.1"</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="installation-with-a-manually-specified-version-of-nodejs-and-yarn">Installation with a manually specified version of NodeJS and Yarn</h2>
+
+<p>If you’d like to use a version of NodeJS and/or Yarn that are not currently supported here, you can manually
+specify those in your <code class="language-plaintext highlighter-rouge">WORKSPACE</code>:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">load</span><span class="p">(</span><span class="s">"@build_bazel_rules_nodejs//:index.bzl"</span><span class="p">,</span> <span class="s">"node_repositories"</span><span class="p">)</span>
+
+<span class="c1"># NOTE: this rule does NOT install your npm dependencies into your node_modules folder.
+# You must still run the package manager to do this.
+</span><span class="n">node_repositories</span><span class="p">(</span>
+  <span class="n">node_version</span> <span class="o">=</span> <span class="s">"8.10.0"</span><span class="p">,</span>
+  <span class="n">yarn_version</span> <span class="o">=</span> <span class="s">"1.5.1"</span><span class="p">,</span>
+  <span class="n">node_repositories</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">"8.10.0-darwin_amd64"</span><span class="p">:</span> <span class="p">(</span><span class="s">"node-v8.10.0-darwin-x64.tar.gz"</span><span class="p">,</span> <span class="s">"node-v8.10.0-darwin-x64"</span><span class="p">,</span> <span class="s">"7d77bd35bc781f02ba7383779da30bd529f21849b86f14d87e097497671b0271"</span><span class="p">),</span>
+    <span class="s">"8.10.0-linux_amd64"</span><span class="p">:</span> <span class="p">(</span><span class="s">"node-v8.10.0-linux-x64.tar.xz"</span><span class="p">,</span> <span class="s">"node-v8.10.0-linux-x64"</span><span class="p">,</span> <span class="s">"92220638d661a43bd0fee2bf478cb283ead6524f231aabccf14c549ebc2bc338"</span><span class="p">),</span>
+    <span class="s">"8.10.0-windows_amd64"</span><span class="p">:</span> <span class="p">(</span><span class="s">"node-v8.10.0-win-x64.zip"</span><span class="p">,</span> <span class="s">"node-v8.10.0-win-x64"</span><span class="p">,</span> <span class="s">"936ada36cb6f09a5565571e15eb8006e45c5a513529c19e21d070acf0e50321b"</span><span class="p">),</span>
+  <span class="p">},</span>
+  <span class="n">yarn_repositories</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">"1.5.1"</span><span class="p">:</span> <span class="p">(</span><span class="s">"yarn-v1.5.1.tar.gz"</span><span class="p">,</span> <span class="s">"yarn-v1.5.1"</span><span class="p">,</span> <span class="s">"cd31657232cf48d57fdbff55f38bfa058d2fb4950450bd34af72dac796af4de1"</span><span class="p">),</span>
+  <span class="p">},</span>
+  <span class="n">node_urls</span> <span class="o">=</span> <span class="p">[</span><span class="s">"https://nodejs.org/dist/v{version}/{filename}"</span><span class="p">],</span>
+  <span class="n">yarn_urls</span> <span class="o">=</span> <span class="p">[</span><span class="s">"https://github.com/yarnpkg/yarn/releases/download/v{version}/{filename}"</span><span class="p">],</span>
+  <span class="n">package_json</span> <span class="o">=</span> <span class="p">[</span><span class="s">"//:package.json"</span><span class="p">])</span>
+</code></pre></div></div>
+
+<p>Specifying <code class="language-plaintext highlighter-rouge">node_urls</code> and <code class="language-plaintext highlighter-rouge">yarn_urls</code> is optional. If omitted, the default values will be used. You may also use a custom NodeJS version and the default Yarn version or vice-versa.</p>
+
+<h2 id="installation-with-local-vendored-versions-of-nodejs-and-yarn">Installation with local vendored versions of NodeJS and Yarn</h2>
+
+<p>Finally, you could check Node.js and Yarn into your repository, and not fetch
+them from the internet. This is what we do internally at Google.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">load</span><span class="p">(</span><span class="s">"@build_bazel_rules_nodejs//:index.bzl"</span><span class="p">,</span> <span class="s">"node_repositories"</span><span class="p">)</span>
+
+<span class="c1"># Point node_repositories to use locally installed versions of Node.js and Yarn.
+# The vendored_node and vendored_yarn labels point to the extracted contents of
+# https://nodejs.org/dist/v10.12.0/node-v10.12.0-linux-x64.tar.xz and
+# https://github.com/yarnpkg/yarn/releases/download/v1.10.0/yarn-v1.10.0.tar.gz
+# respectively. NOTE: node-v10.12.0-linux-x64 will only work on Linux.
+</span><span class="n">node_repositories</span><span class="p">(</span>
+  <span class="n">vendored_node</span> <span class="o">=</span> <span class="s">"@wksp//:third_party/node-v10.12.0-linux-x64"</span><span class="p">,</span>
+  <span class="n">vendored_yarn</span> <span class="o">=</span> <span class="s">"@wksp//:third_party/yarn-v1.10.0"</span><span class="p">,</span>
+  <span class="n">package_json</span> <span class="o">=</span> <span class="p">[</span><span class="s">"//:package.json"</span><span class="p">])</span>
+</code></pre></div></div>
+
+<p>In this case, the locally installed Node.js and Yarn are located in the <code class="language-plaintext highlighter-rouge">wksp</code> workspace in
+the <code class="language-plaintext highlighter-rouge">third_party/node-v10.12.0-linux-x64</code> and <code class="language-plaintext highlighter-rouge">third_party/yarn-v1.10.0</code> folders. When using
+<code class="language-plaintext highlighter-rouge">vendored_node</code>, you will be restricted to a single platform. <code class="language-plaintext highlighter-rouge">vendored_yarn</code> on the other hand,
+is platform independent. See <code class="language-plaintext highlighter-rouge">/examples/vendored_node</code> in this repository for an example of this
+in use.</p>
+
+<p>NOTE: Vendored Node.js and Yarn are not compatible with Remote Bazel Execution.</p>
+
+<h2 id="toolchains">Toolchains</h2>
+
+<p>When you add <code class="language-plaintext highlighter-rouge">node_repositories()</code> to your <code class="language-plaintext highlighter-rouge">WORKSPACE</code> file it will setup a node toolchain for all currently supported platforms, Linux, macOS and Windows. Amongst other things this adds support for cross-compilations as well as Remote Build Execution support. For more detailed information also see <a href="https://docs.bazel.build/versions/master/toolchains.html">Bazel Toolchains</a>.</p>
+
+<p>If you have an advanced use-case you can also register your own toolchains and call <code class="language-plaintext highlighter-rouge">node_toolchain_configure</code> directly to manually setup a toolchain.</p>
+
+<h3 id="cross-compilation">Cross-compilation</h3>
+
+<p>Toolchains allow us to support cross-compilation, e.g. building a linux binary from mac or windows. To tell Bazel to provide a toolchain for a different platform you have to pass in  the <code class="language-plaintext highlighter-rouge">--platforms</code> flag. Currently supported values are:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">@build_bazel_rules_nodejs//toolchains/node:linux_amd64</code></li>
+  <li><code class="language-plaintext highlighter-rouge">@build_bazel_rules_nodejs//toolchains/node:linux_arm64</code></li>
+  <li><code class="language-plaintext highlighter-rouge">@build_bazel_rules_nodejs//toolchains/node:darwin_amd64</code></li>
+  <li><code class="language-plaintext highlighter-rouge">@build_bazel_rules_nodejs//toolchains/node:windows_amd64</code></li>
+</ul>
+
+<p>So if for example you want to build a docker image from a non-linux platform you would run <code class="language-plaintext highlighter-rouge">bazel build --platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64 //app</code>, which will ensure that the linux nodejs binary is downloaded and provided to the nodejs_binary target.</p>
+
+<p>Note: The toolchain currently only provides a platform-specific nodejs binary. Any native modules will still be fetched/built, by npm/yarn, for your host platform, so they will not work on the target platform. Support for cross-compilation with native dependencies will follow.</p>
+
+      </div>
+    </div>
+
+    <div class="col-md-2 sticky-sidebar">
+      <div class="right-sidebar">
+        <ul class="gh-links">
+          <li>
+            <i class="fa fa-github"></i>
+            <a href="https://github.com/bazelbuild/rules_nodejs/issues/new?title=Documentation issue: Installation&labels=question/docs">Create
+              issue</a>
+          </li>
+          
+          <li>
+            <i class="fa fa-pencil"></i>
+            <a class="gh-edit" href="https://github.com/bazelbuild/rules_nodejs/tree/stable/docs/install.md">Edit
+              this page</a>
+          </li>
+          
+        </ul>
+        <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#simple-usage">Simple usage</a></li>
+<li class="toc-entry toc-h2"><a href="#installation-with-a-specific-supported-version-of-nodejs-and-yarn">Installation with a specific supported version of Node.js and Yarn</a></li>
+<li class="toc-entry toc-h2"><a href="#installation-with-a-manually-specified-version-of-nodejs-and-yarn">Installation with a manually specified version of NodeJS and Yarn</a></li>
+<li class="toc-entry toc-h2"><a href="#installation-with-local-vendored-versions-of-nodejs-and-yarn">Installation with local vendored versions of NodeJS and Yarn</a></li>
+<li class="toc-entry toc-h2"><a href="#toolchains">Toolchains</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#cross-compilation">Cross-compilation</a></li>
+</ul>
+</li>
+</ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+  <div class="row">
+    <div class="col-lg-8">
+      <p class="text-muted">&copy; 2020 Google</p>
+    </div>
+  </div>
+</div>
+
+</footer>
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script crossorigin="anonymous"
+        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<!-- Anchor JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/3.2.0/anchor.min.js" type="text/javascript"></script>
+<script>
+  // Automatically add anchors and links to all header elements that don't already have them.
+  anchors.add();
+</script>
+
+<script>
+  var shiftWindow = function () {
+    if (location.hash.length !== 0) {
+      window.scrollBy(0, -50);
+    }
+  };
+  window.addEventListener("hashchange", shiftWindow);
+
+  var highlightCurrentSidebarNav = function () {
+    var href = location.pathname;
+    var item = $('#sidebar-nav [href$="' + href + '"]');
+    if (item) {
+      var li = item.parent();
+      li.addClass("active");
+
+      if (li.parent() && li.parent().is("ul")) {
+        do {
+          var ul = li.parent();
+          if (ul.hasClass("collapse")) {
+            ul.collapse("show");
+          }
+          li = ul.parent();
+        } while (li && li.is("li"));
+      }
+    }
+  };
+
+  $(document).ready(function () {
+    // Scroll to anchor of location hash, adjusted for fixed navbar.
+    window.setTimeout(function () {
+      shiftWindow();
+    }, 1);
+
+    // Flip the caret when submenu toggles are clicked.
+    $(".sidebar-submenu").on("show.bs.collapse", function () {
+      var toggle = $('[href$="#' + $(this).attr('id') + '"]');
+      if (toggle) {
+        toggle.addClass("dropup");
+      }
+    });
+    $(".sidebar-submenu").on("hide.bs.collapse", function () {
+      var toggle = $('[href$="#' + $(this).attr('id') + '"]');
+      if (toggle) {
+        toggle.removeClass("dropup");
+      }
+    });
+
+    // Highlight the current page on the sidebar nav.
+    highlightCurrentSidebarNav();
+  });
+</script>
+
+</body>
+</html>
+

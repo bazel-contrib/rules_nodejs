@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html itemscope itemtype="https://schema.org/WebPage" lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="width=device-width, initial-scale=1" name="viewport">
+  <link href="/rules_nodejs/Rollup.html" rel="canonical">
+  <link href="" rel="shortcut icon" type="image/png">
+
+  <title>rules_nodejs - Rollup</title>
+
+  <!-- Webfont -->
+  <link href="//fonts.googleapis.com/css?family=Source+Code+Pro:400,500,700|Open+Sans:400,600,700,800" rel="stylesheet">
+
+  <!-- Bootstrap -->
+  <link crossorigin="anonymous" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+        integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+
+  <!-- Custom stylesheet -->
+  <link href="/rules_nodejs/css/main.css" rel="stylesheet">
+
+  <!-- metadata -->
+  <meta content="rules_nodejs" name="og:title"/>
+  <meta content="JavaScript and NodeJS rules for Bazel" name="og:description"/>
+</head>
+
+<body>
+<nav class="navbar navbar-inverse navbar-fixed-top" id="common-nav">
+  <div class="container">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button class="navbar-toggle collapsed" data-target="#bs-example-navbar-collapse-1" data-toggle="collapse"
+              type="button">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/rules_nodejs/">
+        <img class="navbar-logo" src="/rules_nodejs/images/bazel-navbar.svg">
+      </a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="https://github.com/bazelbuild/rules_nodejs">GitHub</a></li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+
+<div class="container vpad">
+  <div class="row">
+    <div class="col-md-2 sticky-sidebar">
+  <a aria-controls="sidebar-nav"
+     aria-expanded="false" class="btn btn-default btn-lg btn-block sidebar-toggle" data-toggle="collapse"
+     href="#sidebar-nav">
+    <i class="glyphicon glyphicon-menu-hamburger"></i> Navigation
+  </a>
+
+  <nav class="sidebar collapse" id="sidebar-nav">
+    <h3>rules_nodejs</h3>
+    <ul class="sidebar-nav">
+      <li><a href="/rules_nodejs/">Introduction</a></li>
+      <li><a href="install.html">Installation</a></li>
+      <li><a href="repositories.html">Repositories</a></li>
+      <li><a href="dependencies.html">Dependencies</a></li>
+      <li><a href="debugging.html">Debugging</a></li>
+      <li><a href="stamping.html">Stamping</a></li>
+      <li><a href="changing-rules.html">Making changes to rules_nodejs</a></li>
+      <li><a href="examples.html">Examples</a></li>
+    </ul>
+
+    <h3>Rules</h3>
+    <ul class="sidebar-nav">
+      
+      
+      <li><a href="/rules_nodejs/Built-ins.html">Built-ins</a></li>
+      
+      
+      
+      <li><a href="/rules_nodejs/Cypress.html">Cypress</a></li>
+      
+      
+      
+      <li><a href="/rules_nodejs/Jasmine.html">Jasmine</a></li>
+      
+      
+      
+      <li><a href="/rules_nodejs/Karma.html">Karma</a></li>
+      
+      
+      
+      <li><a href="/rules_nodejs/Protractor.html">Protractor</a></li>
+      
+      
+      
+      <li><a href="/rules_nodejs/Rollup.html">Rollup</a></li>
+      
+      
+      
+      <li><a href="/rules_nodejs/Terser.html">Terser</a></li>
+      
+      
+      
+      <li><a href="/rules_nodejs/TypeScript.html">TypeScript</a></li>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+    </ul>
+
+    <h3>Community</h3>
+    <ul class="sidebar-nav">
+      <li><a href="https://github.com/bazelbuild/rules_nodejs/blob/master/CONTRIBUTING.md">Contribute to
+        rules_nodejs</a></li>
+      <li><a href="https://slack.bazel.build">Join #javascript on Slack</a></li>
+      <li><a href="https://github.com/bazelbuild/rules_nodejs/issues">Issue Tracker</a></li>
+      <li><a href="https://github.com/bazelbuild/rules_nodejs">Github</a></li>
+    </ul>
+  </nav>
+</div>
+
+
+    <div class="col-md-8">
+      <div class="content">
+        <!-- *********************
+  DO NOT EDIT THIS FILE
+  It is a generated build output from Stardoc.
+  Instead you must edit the .bzl file where the rules are declared,
+  or possibly a markdown file next to the .bzl file
+ ********************* -->
+<h1 id="rollup-rules-for-bazel">rollup rules for Bazel</h1>
+
+<p>The rollup rules run the rollup JS bundler with Bazel.</p>
+
+<p>Wraps the rollup CLI documented at https://rollupjs.org/guide/en/#command-line-reference</p>
+
+<h2 id="installation">Installation</h2>
+
+<p>Add the <code>@bazel/rollup</code> npm package to your <code>devDependencies</code> in <code>package.json</code>.</p>
+
+<h2 id="installing-with-self-managed-dependencies">Installing with self-managed dependencies</h2>
+
+<p>If you didn’t use the <code>yarn_install</code> or <code>npm_install</code> rule, you’ll have to declare a rule in your root <code>BUILD.bazel</code> file to execute rollup:</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="c1"># Create a rollup rule to use in rollup_bundle#rollup_bin
+# attribute when using self-managed dependencies
+</span><span class="n">nodejs_binary</span><span class="p">(</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"rollup_bin"</span><span class="p">,</span>
+    <span class="n">entry_point</span> <span class="o">=</span> <span class="s">"//:node_modules/rollup/bin/rollup"</span><span class="p">,</span>
+    <span class="c1"># Point bazel to your node_modules to find the entry point
+</span>    <span class="n">node_modules</span> <span class="o">=</span> <span class="p">[</span><span class="s">"//:node_modules"</span><span class="p">],</span>
+<span class="p">)</span></code></pre></figure>
+
+<h2 id="rollup_bundle">rollup_bundle</h2>
+
+<p>Runs the Rollup.js CLI under Bazel.</p>
+
+<p>See https://rollupjs.org/guide/en/#command-line-reference</p>
+
+<p>Typical example:</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">load</span><span class="p">(</span><span class="s">"@npm//@bazel/rollup:index.bzl"</span><span class="p">,</span> <span class="s">"rollup_bundle"</span><span class="p">)</span>
+
+<span class="n">rollup_bundle</span><span class="p">(</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"bundle"</span><span class="p">,</span>
+    <span class="n">srcs</span> <span class="o">=</span> <span class="p">[</span><span class="s">"dependency.js"</span><span class="p">],</span>
+    <span class="n">entry_point</span> <span class="o">=</span> <span class="s">"input.js"</span><span class="p">,</span>
+    <span class="n">config_file</span> <span class="o">=</span> <span class="s">"rollup.config.js"</span><span class="p">,</span>
+<span class="p">)</span></code></pre></figure>
+
+<p>Note that the command-line options set by Bazel override what appears in the rollup config file.
+This means that typically a single <code>rollup.config.js</code> can contain settings for your whole repo,
+and multiple <code>rollup_bundle</code> rules can share the configuration.</p>
+
+<p>Thus, setting options that Bazel controls will have no effect, e.g.</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="na">output</span><span class="p">:</span> <span class="p">{</span> <span class="na">file</span><span class="p">:</span> <span class="dl">'</span><span class="s1">this_is_ignored.js</span><span class="dl">'</span> <span class="p">},</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>You must determine ahead of time whether Rollup needs to produce a directory output.
+This is the case if you have dynamic imports which cause code-splitting, or if you
+provide multiple entry points. Use the <code>output_dir</code> attribute to specify that you want a
+directory output.
+Rollup’s CLI has the same behavior, forcing you to pick <code>--output.file</code> or <code>--output.dir</code>.</p>
+
+<p>To get multiple output formats, wrap the rule with a macro or list comprehension, e.g.</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="p">[</span>
+    <span class="n">rollup_bundle</span><span class="p">(</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s">"bundle.%s"</span> <span class="o">%</span> <span class="nb">format</span><span class="p">,</span>
+        <span class="n">entry_point</span> <span class="o">=</span> <span class="s">"foo.js"</span><span class="p">,</span>
+        <span class="nb">format</span> <span class="o">=</span> <span class="nb">format</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="nb">format</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="s">"cjs"</span><span class="p">,</span>
+        <span class="s">"umd"</span><span class="p">,</span>
+    <span class="p">]</span>
+<span class="p">]</span></code></pre></figure>
+
+<p>This will produce one output per requested format.</p>
+
+<pre>
+rollup_bundle(<a href="#rollup_bundle-name">name</a>, <a href="#rollup_bundle-args">args</a>, <a href="#rollup_bundle-config_file">config_file</a>, <a href="#rollup_bundle-deps">deps</a>, <a href="#rollup_bundle-entry_point">entry_point</a>, <a href="#rollup_bundle-entry_points">entry_points</a>, <a href="#rollup_bundle-format">format</a>, <a href="#rollup_bundle-node_context_data">node_context_data</a>,
+              <a href="#rollup_bundle-output_dir">output_dir</a>, <a href="#rollup_bundle-rollup_bin">rollup_bin</a>, <a href="#rollup_bundle-rollup_worker_bin">rollup_worker_bin</a>, <a href="#rollup_bundle-silent">silent</a>, <a href="#rollup_bundle-sourcemap">sourcemap</a>, <a href="#rollup_bundle-srcs">srcs</a>, <a href="#rollup_bundle-supports_workers">supports_workers</a>)
+</pre>
+
+<p><strong>ATTRIBUTES</strong></p>
+
+<table class="table table-params">
+  <thead>
+  <tr>
+    <th>Name</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Mandatory</th>
+    <th>Default</th>
+  </tr>
+  </thead>
+  <tbody>
+            <tr id="rollup_bundle-name">
+        <td>name</td>
+        <td>
+                            A unique name for this target.
+                                </td>
+        <td><a href="https://bazel.build/docs/build-ref.html#name">Name</a></td>
+        <td>required</td>
+        <td>
+            
+        </td>
+      </tr>
+            <tr id="rollup_bundle-args">
+        <td>args</td>
+        <td>
+                            Command line arguments to pass to rollup. Can be used to override config file settings.
+
+These argument passed on the command line before all arguments that are always added by the
+rule such as <code>--output.dir</code> or <code>--output.file</code>, <code>--format</code>, <code>--config</code> and <code>--preserveSymlinks</code> and
+also those that are optionally added by the rule such as <code>--sourcemap</code>.
+
+See rollup CLI docs https://rollupjs.org/guide/en/#command-line-flags for complete list of supported arguments.
+                                </td>
+        <td>List of strings</td>
+        <td>optional</td>
+        <td>
+            []
+        </td>
+      </tr>
+            <tr id="rollup_bundle-config_file">
+        <td>config_file</td>
+        <td>
+                            A rollup.config.js file
+
+Passed to the --config 
+See https://rollupjs.org/guide/en/#configuration-files
+
+If not set, a default basic Rollup config is used.
+                                </td>
+        <td><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></td>
+        <td>optional</td>
+        <td>
+            //packages/rollup:rollup.config.js
+        </td>
+      </tr>
+            <tr id="rollup_bundle-deps">
+        <td>deps</td>
+        <td>
+                            Other libraries that are required by the code, or by the rollup.config.js
+                                </td>
+        <td><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></td>
+        <td>optional</td>
+        <td>
+            []
+        </td>
+      </tr>
+            <tr id="rollup_bundle-entry_point">
+        <td>entry_point</td>
+        <td>
+                            The bundle's entry point (e.g. your main.js or app.js or index.js).
+
+This is just a shortcut for the <code>entry_points</code> attribute with a single output chunk named the same as the rule.
+
+For example, these are equivalent:
+
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">rollup_bundle</span><span class="p">(</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"bundle"</span><span class="p">,</span>
+    <span class="n">entry_point</span> <span class="o">=</span> <span class="s">"index.js"</span><span class="p">,</span>
+<span class="p">)</span></code></pre></figure>
+
+
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">rollup_bundle</span><span class="p">(</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"bundle"</span><span class="p">,</span>
+    <span class="n">entry_points</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">"index.js"</span><span class="p">:</span> <span class="s">"bundle"</span>
+    <span class="p">}</span>
+<span class="p">)</span></code></pre></figure>
+
+
+If <code>rollup_bundle</code> is used on a <code>ts_library</code>, the <code>rollup_bundle</code> rule handles selecting the correct outputs from <code>ts_library</code>.
+In this case, <code>entry_point</code> can be specified as the <code>.ts</code> file and <code>rollup_bundle</code> will handle the mapping to the <code>.mjs</code> output file.
+
+For example:
+
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">ts_library</span><span class="p">(</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"foo"</span><span class="p">,</span>
+    <span class="n">srcs</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s">"foo.ts"</span><span class="p">,</span>
+        <span class="s">"index.ts"</span><span class="p">,</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+
+<span class="n">rollup_bundle</span><span class="p">(</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"bundle"</span><span class="p">,</span>
+    <span class="n">deps</span> <span class="o">=</span> <span class="p">[</span> <span class="s">"foo"</span> <span class="p">],</span>
+    <span class="n">entry_point</span> <span class="o">=</span> <span class="s">"index.ts"</span><span class="p">,</span>
+<span class="p">)</span></code></pre></figure>
+
+                                </td>
+        <td><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></td>
+        <td>optional</td>
+        <td>
+            None
+        </td>
+      </tr>
+            <tr id="rollup_bundle-entry_points">
+        <td>entry_points</td>
+        <td>
+                            The bundle's entry points (e.g. your main.js or app.js or index.js).
+
+Passed to the [<code>--input</code> option](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#input) in Rollup.
+
+Keys in this dictionary are labels pointing to .js entry point files.
+Values are the name to be given to the corresponding output chunk.
+
+Either this attribute or <code>entry_point</code> must be specified, but not both.
+                                </td>
+        <td><a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: Label -&gt; String</a></td>
+        <td>optional</td>
+        <td>
+            {}
+        </td>
+      </tr>
+            <tr id="rollup_bundle-format">
+        <td>format</td>
+        <td>
+                            "Specifies the format of the generated bundle. One of the following:
+
+- <code>amd</code>: Asynchronous Module Definition, used with module loaders like RequireJS
+- <code>cjs</code>: CommonJS, suitable for Node and other bundlers
+- <code>esm</code>: Keep the bundle as an ES module file, suitable for other bundlers and inclusion as a <code><script type="module"></code> tag in modern browsers
+- <code>iife</code>: A self-executing function, suitable for inclusion as a <code><script></code> tag. (If you want to create a bundle for your application, you probably want to use this.)
+- <code>umd</code>: Universal Module Definition, works as amd, cjs and iife all in one
+- <code>system</code>: Native format of the SystemJS loader
+                                </td>
+        <td>String</td>
+        <td>optional</td>
+        <td>
+            "esm"
+        </td>
+      </tr>
+            <tr id="rollup_bundle-node_context_data">
+        <td>node_context_data</td>
+        <td>
+                            Internal use only
+                                      The dependencies of this attribute must provide: NodeContextInfo
+                    </td>
+        <td><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></td>
+        <td>optional</td>
+        <td>
+            @build_bazel_rules_nodejs//internal:node_context_data
+        </td>
+      </tr>
+            <tr id="rollup_bundle-output_dir">
+        <td>output_dir</td>
+        <td>
+                            Whether to produce a directory output.
+
+We will use the [<code>--output.dir</code> option](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#outputdir) in rollup
+rather than <code>--output.file</code>.
+
+If the program produces multiple chunks, you must specify this attribute.
+Otherwise, the outputs are assumed to be a single file.
+                                </td>
+        <td>Boolean</td>
+        <td>optional</td>
+        <td>
+            False
+        </td>
+      </tr>
+            <tr id="rollup_bundle-rollup_bin">
+        <td>rollup_bin</td>
+        <td>
+                            Target that executes the rollup binary
+                                </td>
+        <td><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></td>
+        <td>optional</td>
+        <td>
+            @npm//rollup/bin:rollup
+        </td>
+      </tr>
+            <tr id="rollup_bundle-rollup_worker_bin">
+        <td>rollup_worker_bin</td>
+        <td>
+                            Internal use only
+                                </td>
+        <td><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></td>
+        <td>optional</td>
+        <td>
+            //packages/rollup/bin:rollup-worker
+        </td>
+      </tr>
+            <tr id="rollup_bundle-silent">
+        <td>silent</td>
+        <td>
+                            Whether to execute the rollup binary with the --silent flag, defaults to False.
+
+Using --silent can cause rollup to [ignore errors/warnings](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#onwarn) 
+which are only surfaced via logging.  Since bazel expects printing nothing on success, setting silent to True
+is a more Bazel-idiomatic experience, however could cause rollup to drop important warnings.
+                                </td>
+        <td>Boolean</td>
+        <td>optional</td>
+        <td>
+            False
+        </td>
+      </tr>
+            <tr id="rollup_bundle-sourcemap">
+        <td>sourcemap</td>
+        <td>
+                            Whether to produce sourcemaps.
+
+Passed to the [<code>--sourcemap</code> option](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#outputsourcemap") in Rollup
+                                </td>
+        <td>String</td>
+        <td>optional</td>
+        <td>
+            "inline"
+        </td>
+      </tr>
+            <tr id="rollup_bundle-srcs">
+        <td>srcs</td>
+        <td>
+                            Non-entry point JavaScript source files from the workspace.
+
+You must not repeat file(s) passed to entry_point/entry_points.
+                                </td>
+        <td><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></td>
+        <td>optional</td>
+        <td>
+            []
+        </td>
+      </tr>
+            <tr id="rollup_bundle-supports_workers">
+        <td>supports_workers</td>
+        <td>
+                            Experimental! Use only with caution.
+
+Allows you to enable the Bazel Worker strategy for this library.
+When enabled, this rule invokes the "rollup_worker_bin"
+worker aware binary rather than "rollup_bin".
+                                </td>
+        <td>Boolean</td>
+        <td>optional</td>
+        <td>
+            False
+        </td>
+      </tr>
+        </tbody>
+</table>
+
+
+</script></code></td></tr></tbody></table>
+
+      </div>
+    </div>
+
+    <div class="col-md-2 sticky-sidebar">
+      <div class="right-sidebar">
+        <ul class="gh-links">
+          <li>
+            <i class="fa fa-github"></i>
+            <a href="https://github.com/bazelbuild/rules_nodejs/issues/new?title=Documentation issue: Rollup&labels=question/docs">Create
+              issue</a>
+          </li>
+          
+        </ul>
+        <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#installation">Installation</a></li>
+<li class="toc-entry toc-h2"><a href="#installing-with-self-managed-dependencies">Installing with self-managed dependencies</a></li>
+<li class="toc-entry toc-h2"><a href="#rollup_bundle">rollup_bundle</a></li>
+</ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+  <div class="row">
+    <div class="col-lg-8">
+      <p class="text-muted">&copy; 2020 Google</p>
+    </div>
+  </div>
+</div>
+
+</footer>
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script crossorigin="anonymous"
+        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<!-- Anchor JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/3.2.0/anchor.min.js" type="text/javascript"></script>
+<script>
+  // Automatically add anchors and links to all header elements that don't already have them.
+  anchors.add();
+</script>
+
+<script>
+  var shiftWindow = function () {
+    if (location.hash.length !== 0) {
+      window.scrollBy(0, -50);
+    }
+  };
+  window.addEventListener("hashchange", shiftWindow);
+
+  var highlightCurrentSidebarNav = function () {
+    var href = location.pathname;
+    var item = $('#sidebar-nav [href$="' + href + '"]');
+    if (item) {
+      var li = item.parent();
+      li.addClass("active");
+
+      if (li.parent() && li.parent().is("ul")) {
+        do {
+          var ul = li.parent();
+          if (ul.hasClass("collapse")) {
+            ul.collapse("show");
+          }
+          li = ul.parent();
+        } while (li && li.is("li"));
+      }
+    }
+  };
+
+  $(document).ready(function () {
+    // Scroll to anchor of location hash, adjusted for fixed navbar.
+    window.setTimeout(function () {
+      shiftWindow();
+    }, 1);
+
+    // Flip the caret when submenu toggles are clicked.
+    $(".sidebar-submenu").on("show.bs.collapse", function () {
+      var toggle = $('[href$="#' + $(this).attr('id') + '"]');
+      if (toggle) {
+        toggle.addClass("dropup");
+      }
+    });
+    $(".sidebar-submenu").on("hide.bs.collapse", function () {
+      var toggle = $('[href$="#' + $(this).attr('id') + '"]');
+      if (toggle) {
+        toggle.removeClass("dropup");
+      }
+    });
+
+    // Highlight the current page on the sidebar nav.
+    highlightCurrentSidebarNav();
+  });
+</script>
+
+</body>
+</html>
+

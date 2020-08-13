@@ -2,25 +2,35 @@
 
 $funcInfo.docString
 
-#[[###]]# Usage
+<pre>
+${util.funcSummary($funcInfo)}
+</pre>
 
-```
-${funcInfo.functionName}(#foreach( $param in $funcInfo.getParameterList() )$param.name#if( $foreach.hasNext ), #end#end)
-```
+**PARAMETERS**
 
 #if (!$funcInfo.getParameterList().isEmpty())
-#foreach ($param in $funcInfo.getParameterList())
-
-#[[####]]# `${param.name}`
-      
-#if (!$param.docString.isEmpty())
-${param.docString.trim()}
-#end
-
-#if(!$param.getDefaultValue().isEmpty())
-Defaults to `$param.getDefaultValue()`
-#end
-
-#end
-
+<table class="table table-params">
+  <thead>
+  <tr>
+    <th>Name</th>
+    <th>Description</th>
+    <th>Default</th>
+  </tr>
+  </thead>
+  <tbody>
+      #foreach ($param in $funcInfo.getParameterList())
+      <tr id="${funcInfo.functionName}-${param.name}">
+        <td>${param.name}</td>
+        <td>
+            #if (!$param.docString.isEmpty())
+                ${util.htmlEscape($param.docString.trim())}
+            #end
+        </td>
+        <td>
+            $param.defaultValue
+        </td>
+      </tr>
+      #end
+  </tbody>
+</table>
 #end

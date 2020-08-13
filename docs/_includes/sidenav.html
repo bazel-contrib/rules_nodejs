@@ -1,0 +1,39 @@
+<div class="col-md-2 sticky-sidebar">
+  <a aria-controls="sidebar-nav"
+     aria-expanded="false" class="btn btn-default btn-lg btn-block sidebar-toggle" data-toggle="collapse"
+     href="#sidebar-nav">
+    <i class="glyphicon glyphicon-menu-hamburger"></i> Navigation
+  </a>
+
+  <nav class="sidebar collapse" id="sidebar-nav">
+    <h3>rules_nodejs</h3>
+    <ul class="sidebar-nav">
+      <li><a href="{{ "/" | relative_url }}">Introduction</a></li>
+      <li><a href="install.html">Installation</a></li>
+      <li><a href="repositories.html">Repositories</a></li>
+      <li><a href="dependencies.html">Dependencies</a></li>
+      <li><a href="debugging.html">Debugging</a></li>
+      <li><a href="stamping.html">Stamping</a></li>
+      <li><a href="changing-rules.html">Making changes to rules_nodejs</a></li>
+      <li><a href="examples.html">Examples</a></li>
+    </ul>
+
+    <h3>Rules</h3>
+    <ul class="sidebar-nav">
+      {% for page in site.pages %}
+      {% if page.nav == "rule" %}
+      <li><a href="{{page.url | relative_url }}">{{page.title}}</a></li>
+      {% endif %}
+      {% endfor %}
+    </ul>
+
+    <h3>Community</h3>
+    <ul class="sidebar-nav">
+      <li><a href="https://github.com/bazelbuild/rules_nodejs/blob/master/CONTRIBUTING.md">Contribute to
+        rules_nodejs</a></li>
+      <li><a href="https://slack.bazel.build">Join #javascript on Slack</a></li>
+      <li><a href="https://github.com/bazelbuild/rules_nodejs/issues">Issue Tracker</a></li>
+      <li><a href="https://github.com/bazelbuild/rules_nodejs">Github</a></li>
+    </ul>
+  </nav>
+</div>

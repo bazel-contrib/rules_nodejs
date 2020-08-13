@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html itemscope itemtype="https://schema.org/WebPage" lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="width=device-width, initial-scale=1" name="viewport">
+  <link href="/rules_nodejs/stamping.html" rel="canonical">
+  <link href="" rel="shortcut icon" type="image/png">
+
+  <title>rules_nodejs - Home</title>
+
+  <!-- Webfont -->
+  <link href="//fonts.googleapis.com/css?family=Source+Code+Pro:400,500,700|Open+Sans:400,600,700,800" rel="stylesheet">
+
+  <!-- Bootstrap -->
+  <link crossorigin="anonymous" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+        integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+
+  <!-- Custom stylesheet -->
+  <link href="/rules_nodejs/css/main.css" rel="stylesheet">
+
+  <!-- metadata -->
+  <meta content="rules_nodejs" name="og:title"/>
+  <meta content="JavaScript and NodeJS rules for Bazel" name="og:description"/>
+</head>
+
+<body>
+<nav class="navbar navbar-inverse navbar-fixed-top" id="common-nav">
+  <div class="container">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button class="navbar-toggle collapsed" data-target="#bs-example-navbar-collapse-1" data-toggle="collapse"
+              type="button">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/rules_nodejs/">
+        <img class="navbar-logo" src="/rules_nodejs/images/bazel-navbar.svg">
+      </a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="https://github.com/bazelbuild/rules_nodejs">GitHub</a></li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+
+<div class="container vpad">
+  <div class="row">
+    <div class="col-md-2 sticky-sidebar">
+  <a aria-controls="sidebar-nav"
+     aria-expanded="false" class="btn btn-default btn-lg btn-block sidebar-toggle" data-toggle="collapse"
+     href="#sidebar-nav">
+    <i class="glyphicon glyphicon-menu-hamburger"></i> Navigation
+  </a>
+
+  <nav class="sidebar collapse" id="sidebar-nav">
+    <h3>rules_nodejs</h3>
+    <ul class="sidebar-nav">
+      <li><a href="/rules_nodejs/">Introduction</a></li>
+      <li><a href="install.html">Installation</a></li>
+      <li><a href="repositories.html">Repositories</a></li>
+      <li><a href="dependencies.html">Dependencies</a></li>
+      <li><a href="debugging.html">Debugging</a></li>
+      <li><a href="stamping.html">Stamping</a></li>
+      <li><a href="changing-rules.html">Making changes to rules_nodejs</a></li>
+      <li><a href="examples.html">Examples</a></li>
+    </ul>
+
+    <h3>Rules</h3>
+    <ul class="sidebar-nav">
+      
+      
+      <li><a href="/rules_nodejs/Built-ins.html">Built-ins</a></li>
+      
+      
+      
+      <li><a href="/rules_nodejs/Cypress.html">Cypress</a></li>
+      
+      
+      
+      <li><a href="/rules_nodejs/Jasmine.html">Jasmine</a></li>
+      
+      
+      
+      <li><a href="/rules_nodejs/Karma.html">Karma</a></li>
+      
+      
+      
+      <li><a href="/rules_nodejs/Protractor.html">Protractor</a></li>
+      
+      
+      
+      <li><a href="/rules_nodejs/Rollup.html">Rollup</a></li>
+      
+      
+      
+      <li><a href="/rules_nodejs/Terser.html">Terser</a></li>
+      
+      
+      
+      <li><a href="/rules_nodejs/TypeScript.html">TypeScript</a></li>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+    </ul>
+
+    <h3>Community</h3>
+    <ul class="sidebar-nav">
+      <li><a href="https://github.com/bazelbuild/rules_nodejs/blob/master/CONTRIBUTING.md">Contribute to
+        rules_nodejs</a></li>
+      <li><a href="https://slack.bazel.build">Join #javascript on Slack</a></li>
+      <li><a href="https://github.com/bazelbuild/rules_nodejs/issues">Issue Tracker</a></li>
+      <li><a href="https://github.com/bazelbuild/rules_nodejs">Github</a></li>
+    </ul>
+  </nav>
+</div>
+
+
+    <div class="col-md-8">
+      <div class="content">
+        <h1 id="stamping">Stamping</h1>
+
+<p>Bazel is generally only a build tool, and is unaware of your version control system.
+However, when publishing releases, you typically want to embed version information in the resulting distribution.
+Bazel supports this natively, using the following approach:</p>
+
+<p>To stamp a build, you must pass the <code class="language-plaintext highlighter-rouge">--stamp</code> argument to Bazel.</p>
+
+<blockquote>
+  <p>Previous releases of rules_nodejs stamped builds always.
+However this caused stamp-aware actions to never be remotely cached, since the volatile
+status file is passed as an input and its checksum always changes.</p>
+</blockquote>
+
+<p>Also pass the <code class="language-plaintext highlighter-rouge">workspace_status_command</code> argument to <code class="language-plaintext highlighter-rouge">bazel build</code>.
+We prefer to do these with an entry in <code class="language-plaintext highlighter-rouge">.bazelrc</code>:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># This tells Bazel how to interact with the version control system</span>
+<span class="c"># Enable this with --config=release</span>
+build:release <span class="nt">--stamp</span> <span class="nt">--workspace_status_command</span><span class="o">=</span>./tools/bazel_stamp_vars.sh
+</code></pre></div></div>
+
+<p>Then create <code class="language-plaintext highlighter-rouge">tools/bazel_stamp_vars.sh</code>.</p>
+
+<p>This is a script that prints variable/value pairs.
+Make sure you set the executable bit, eg. <code class="language-plaintext highlighter-rouge">chmod 755 tools/bazel_stamp_vars.sh</code>.
+For example, we could run <code class="language-plaintext highlighter-rouge">git describe</code> to get the current tag:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env bash</span>
+<span class="nb">echo </span>BUILD_SCM_VERSION <span class="si">$(</span>git describe <span class="nt">--abbrev</span><span class="o">=</span>7 <span class="nt">--tags</span> HEAD<span class="si">)</span>
+</code></pre></div></div>
+
+<p>For a more full-featured script, take a look at the <a href="https://github.com/angular/angular/blob/master/tools/bazel_stamp_vars.sh">bazel_stamp_vars in Angular</a></p>
+
+<p>Finally, we recommend a release script around Bazel. We typically have more than one npm package published from one Bazel workspace, so we do a <code class="language-plaintext highlighter-rouge">bazel query</code> to find them, and publish in a loop. Here is a template to get you started:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env bash</span>
+
+<span class="nb">set</span> <span class="nt">-u</span> <span class="nt">-e</span> <span class="nt">-o</span> pipefail
+
+<span class="c"># Call the script with argument "pack" or "publish"</span>
+<span class="nb">readonly </span><span class="nv">NPM_COMMAND</span><span class="o">=</span><span class="k">${</span><span class="nv">1</span><span class="k">:-</span><span class="nv">publish</span><span class="k">}</span>
+<span class="c"># Don't rely on $PATH to have the right version</span>
+<span class="nb">readonly </span><span class="nv">BAZEL_BIN</span><span class="o">=</span>./node_modules/.bin/bazel
+<span class="c"># Use a new output_base so we get a clean build</span>
+<span class="c"># Bazel can't know if the git metadata changed</span>
+<span class="nb">readonly </span><span class="nv">TMP</span><span class="o">=</span><span class="si">$(</span><span class="nb">mktemp</span> <span class="nt">-d</span> <span class="nt">-t</span> bazel-release.XXXXXXX<span class="si">)</span>
+<span class="nb">readonly </span><span class="nv">BAZEL</span><span class="o">=</span><span class="s2">"</span><span class="nv">$BAZEL_BIN</span><span class="s2"> --output_base=</span><span class="nv">$TMP</span><span class="s2">"</span>
+<span class="c"># Find all the npm packages in the repo</span>
+<span class="nb">readonly </span><span class="nv">PKG_NPM_LABELS</span><span class="o">=</span><span class="sb">`</span><span class="nv">$BAZEL</span> query <span class="nt">--output</span><span class="o">=</span>label <span class="s1">'kind("pkg_npm", //...)'</span><span class="sb">`</span>
+<span class="c"># Build them in one command to maximize parallelism</span>
+<span class="nv">$BAZEL</span> build <span class="nt">--config</span><span class="o">=</span>release <span class="nv">$PKG_NPM_LABELS</span>
+<span class="c"># publish one package at a time to make it easier to spot any errors or warnings</span>
+<span class="k">for </span>pkg <span class="k">in</span> <span class="nv">$PKG_NPM_LABELS</span> <span class="p">;</span> <span class="k">do</span>
+  <span class="nv">$BAZEL</span> run <span class="nt">--config</span><span class="o">=</span>release <span class="nt">--</span> <span class="k">${</span><span class="nv">pkg</span><span class="k">}</span>.<span class="k">${</span><span class="nv">NPM_COMMAND</span><span class="k">}</span> <span class="nt">--access</span> public <span class="nt">--tag</span> latest
+<span class="k">done</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>WARNING: Bazel can’t track changes to git tags. That means it won’t rebuild a target if only the result of the workspace_status_command has changed. So changes to the version information may not be reflected if you re-build the package or bundle, and nothing in the package or bundle has changed.</p>
+</blockquote>
+
+<p>See https://www.kchodorow.com/blog/2017/03/27/stamping-your-builds/ for more background.</p>
+
+
+      </div>
+    </div>
+
+    <div class="col-md-2 sticky-sidebar">
+      <div class="right-sidebar">
+        <ul class="gh-links">
+          <li>
+            <i class="fa fa-github"></i>
+            <a href="https://github.com/bazelbuild/rules_nodejs/issues/new?title=Documentation issue: Home&labels=question/docs">Create
+              issue</a>
+          </li>
+          
+          <li>
+            <i class="fa fa-pencil"></i>
+            <a class="gh-edit" href="https://github.com/bazelbuild/rules_nodejs/tree/stable/docs/stamping.md">Edit
+              this page</a>
+          </li>
+          
+        </ul>
+        <ul class="section-nav">
+</ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+  <div class="row">
+    <div class="col-lg-8">
+      <p class="text-muted">&copy; 2020 Google</p>
+    </div>
+  </div>
+</div>
+
+</footer>
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script crossorigin="anonymous"
+        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<!-- Anchor JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/3.2.0/anchor.min.js" type="text/javascript"></script>
+<script>
+  // Automatically add anchors and links to all header elements that don't already have them.
+  anchors.add();
+</script>
+
+<script>
+  var shiftWindow = function () {
+    if (location.hash.length !== 0) {
+      window.scrollBy(0, -50);
+    }
+  };
+  window.addEventListener("hashchange", shiftWindow);
+
+  var highlightCurrentSidebarNav = function () {
+    var href = location.pathname;
+    var item = $('#sidebar-nav [href$="' + href + '"]');
+    if (item) {
+      var li = item.parent();
+      li.addClass("active");
+
+      if (li.parent() && li.parent().is("ul")) {
+        do {
+          var ul = li.parent();
+          if (ul.hasClass("collapse")) {
+            ul.collapse("show");
+          }
+          li = ul.parent();
+        } while (li && li.is("li"));
+      }
+    }
+  };
+
+  $(document).ready(function () {
+    // Scroll to anchor of location hash, adjusted for fixed navbar.
+    window.setTimeout(function () {
+      shiftWindow();
+    }, 1);
+
+    // Flip the caret when submenu toggles are clicked.
+    $(".sidebar-submenu").on("show.bs.collapse", function () {
+      var toggle = $('[href$="#' + $(this).attr('id') + '"]');
+      if (toggle) {
+        toggle.addClass("dropup");
+      }
+    });
+    $(".sidebar-submenu").on("hide.bs.collapse", function () {
+      var toggle = $('[href$="#' + $(this).attr('id') + '"]');
+      if (toggle) {
+        toggle.removeClass("dropup");
+      }
+    });
+
+    // Highlight the current page on the sidebar nav.
+    highlightCurrentSidebarNav();
+  });
+</script>
+
+</body>
+</html>
+
