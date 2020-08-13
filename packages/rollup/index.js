@@ -16,6 +16,7 @@
  */
 const path = require('path');
 const rollup = require('rollup');
+const loadConfigFile = require('rollup/dist/loadConfigFile');
 const crypto = require('crypto')
 
 const MNEMONIC = 'Rollup';
@@ -75,59 +76,13 @@ async function runRollup(cacheKeyData, inputOptions, outputOptions) {
 }
 
 // Run rollup, will use + re-populate the cache
+// Essentially the same as the rollup CLI but using bazel APIs
+// for CLI arguments and FS watching
+// See: https://github.com/rollup/rollup/blob/v2.23.1/cli/run/index.ts#L11
 async function runRollupBundler(args /*, inputs */) {
   const {inputOptions, outputOptions} = await parseCLIArgs(args);
 
   return runRollup(inputOptions.input, inputOptions, outputOptions);
-}
-
-// Load the config file.
-// Must be rollup-ed first to allow use of es6 within the config.
-// See the rollup CLI version:
-// https://github.com/rollup/rollup/blob/v1.31.0/cli/run/loadConfigFile.ts#L14
-async function loadConfigFile(configFile) {
-  const cjsConfigFile = configFile + '.cjs.js';
-
-  // inputOptions: https://github.com/rollup/rollup/blob/v1.31.0/cli/run/loadConfigFile.ts#L21-L28
-  const inputOptions = {
-    external: id => (id[0] !== '.' && !path.isAbsolute(id)) || id.slice(-5, id.length) === '.json',
-    input: configFile,
-    treeshake: false,
-    preserveSymlinks: true,
-  };
-
-  // outputOptions: https://github.com/rollup/rollup/blob/v1.31.0/cli/run/loadConfigFile.ts#L35-L38
-  const outputOptions = {
-    exports: 'named',
-    format: 'cjs',
-    file: cjsConfigFile,
-  };
-
-  await runRollup(configFile, inputOptions, outputOptions);
-
-  // Ensure node isn't caching a previous version of the config file
-  // https://github.com/rollup/rollup/blob/v1.31.0/cli/run/loadConfigFile.ts#L52
-  delete require.cache[require.resolve(cjsConfigFile)];
-
-  // Read the config file:
-  // https://github.com/rollup/rollup/blob/v1.31.0/cli/run/loadConfigFile.ts#L54-L61
-  //
-  // Supports:
-  // * async results
-  // * commonjs "default" export
-  let config = await Promise.resolve(require(cjsConfigFile));
-  if (config.default) {
-    config = config.default;
-  }
-
-  // Does NOT support (unlike rollup CLI):
-  // * factory function
-  // * multiple configs for multiple outputs
-  if (Array.isArray(config) || typeof config === 'function') {
-    throw new Error('Arrays + factory configs unsupported');
-  }
-
-  return config;
 }
 
 // Processing of --environment CLI options into environment vars
@@ -215,10 +170,21 @@ async function parseCLIArgs(args) {
 
   // Additional options passed via config file
   if (configFile) {
-    const config = await loadConfigFile(configFile);
+    const {options, warnings} = await loadConfigFile(configFile);
+
+    // Flush any config file warnings to stderr
+    warnings.flush();
+
+    // Does NOT support (unlike rollup CLI):
+    // * multiple configs for multiple outputs
+    if (options.length !== 1) {
+      throw new Error('Array configs unsupported');
+    }
+
+    const config = options[0];
 
     if (config.output) {
-      outputOptions = {...config.output, ...outputOptions};
+      outputOptions = {...config.output[0], ...outputOptions};
     }
 
     inputOptions = {...config, ...inputOptions};
