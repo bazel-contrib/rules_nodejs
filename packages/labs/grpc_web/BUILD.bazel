@@ -45,7 +45,7 @@ js_library(
     deps = [
         "@npm//google-protobuf:google-protobuf__umd",
         "@npm//grpc-web:grpc-web__umd",
-    ] + [":google-protobuf-%s__umd" % p for p in well_known_protos]
+    ] + [":google-protobuf-%s__umd" % p for p in well_known_protos],
 )
 
 filegroup(
