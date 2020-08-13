@@ -23,6 +23,6 @@ js_library(
     package_name = "lib2",
     srcs = [":srcs"],
     deps = [
-        ":tsconfig"
-    ]
+        ":tsconfig",
+    ],
 )
