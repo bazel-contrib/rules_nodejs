@@ -116,7 +116,7 @@ def _js_library_impl(ctx):
     ]
 
     if len(transitive_declarations_depsets) > 0:
-        result.append(DeclarationInfo(
+        providers.append(DeclarationInfo(
             declarations = declarations,
             transitive_declarations = transitive_declarations,
             type_blacklisted_declarations = depset([]),
