@@ -1,4 +1,5 @@
 load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
+load("//internal/common/copy_to_bin.bzl", "copy_to_bin")
 load("//packages/typescript:index.bzl", "ts_project")
 
 package(default_visibility = ["//packages/rollup:__subpackages__"])
@@ -7,8 +8,13 @@ ts_project(
     srcs = glob(["*.ts"]),
 )
 
+copy_to_bin(
+    name = "index",
+    srcs = [":index.js"]
+)
+
 js_library(
     name = "a",
     package_name = "@far/a",
-    srcs = [":index.js"],
+    srcs = [":index"],
 )

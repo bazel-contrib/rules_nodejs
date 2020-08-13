@@ -1,12 +1,18 @@
 load("//internal/js_library:js_library.bzl", "js_library")
 load("//packages/typescript:index.bzl", "ts_project")
+load("//internal/common/copy_to_bin.bzl", "copy_to_bin")
 
-js_library(
-    name = "lib_a",
+copy_to_bin(
+    name = "srcs",
     srcs = [
         "a.d.ts",
         "a.js",
-    ],
+    ]
+)
+
+js_library(
+    name = "lib_a",
+    srcs = [":srcs"],
 )
 
 ts_project(

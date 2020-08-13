@@ -1,13 +1,19 @@
 load("//internal/js_library:js_library.bzl", "js_library")
+load("//internal/common/copy_to_bin.bzl", "copy_to_bin")
 
 package(default_visibility = ["//internal:__subpackages__"])
 
-js_library(
-    name = "lib1",
-    package_name = "lib1",
+copy_to_bin(
+    name = "srcs",
     srcs = [
         "package.json",
         "src/index.js",
         "src/some.js",
     ],
+)
+
+js_library(
+    name = "lib1",
+    package_name = "lib1",
+    srcs = [":srcs"],
 )

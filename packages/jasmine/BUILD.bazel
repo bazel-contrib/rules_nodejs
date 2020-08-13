@@ -17,6 +17,7 @@ load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
 load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "pkg_npm")
 load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
 load("@build_bazel_rules_nodejs//tools/stardoc:index.bzl", "stardoc")
+load("//internal/common/copy_to_bin.bzl", "copy_to_bin")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
 
 package(default_visibility = ["//visibility:public"])
@@ -53,13 +54,18 @@ nodejs_test(
     ],
 )
 
-js_library(
-    name = "jasmine",
-    package_name = "@bazel/jasmine",
+copy_to_bin(
+    name = "srcs",
     srcs = [
         "index.js",
         "jasmine_runner.js",
     ],
+)
+
+js_library(
+    name = "jasmine",
+    package_name = "@bazel/jasmine",
+    srcs = [":srcs"],
 )
 
 # Ugly genrule depending on local linux environment to build the README out of skylark doc generation.

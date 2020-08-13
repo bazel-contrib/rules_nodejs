@@ -1,9 +1,15 @@
 load("//internal/js_library:js_library.bzl", "js_library")
+load("//internal/common/copy_to_bin.bzl", "copy_to_bin")
 
 package(default_visibility = ["//packages/rollup:__subpackages__"])
+
+copy_to_bin(
+    name = "index",
+    srcs = ["index.js"]
+)
 
 js_library(
     name = "fumlib",
     package_name = "fumlib",
-    srcs = ["index.js"],
+    srcs = [":index"],
 )

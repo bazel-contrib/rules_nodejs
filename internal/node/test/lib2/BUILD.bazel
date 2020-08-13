@@ -1,5 +1,6 @@
 load("//internal/js_library:js_library.bzl", "js_library")
 load("//packages/typescript:index.bzl", "ts_project")
+load("//internal/common/copy_to_bin.bzl", "copy_to_bin")
 
 package(default_visibility = ["//internal:__subpackages__"])
 
@@ -9,12 +10,17 @@ ts_project(
     deps = ["@npm//@types/node"],
 )
 
-js_library(
-    name = "lib2",
-    package_name = "lib2",
+copy_to_bin(
+    name = "srcs",
     srcs = [
         "main.js",
         "package.json",
         "src/some.js",
     ],
+)
+
+js_library(
+    name = "lib2",
+    package_name = "lib2",
+    srcs = [":srcs"],
 )

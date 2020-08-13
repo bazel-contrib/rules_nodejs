@@ -1,9 +1,15 @@
 load("//internal/js_library:js_library.bzl", "js_library")
+load("//internal/common/copy_to_bin.bzl", "copy_to_bin")
 
 package(default_visibility = ["//internal/linker/test:__subpackages__"])
+
+copy_to_bin(
+    name = "srcs",
+    srcs = ["index.js"]
+)
 
 js_library(
     name = "static_linked_scoped_pkg",
     package_name = "@linker_scoped/static_linked",
-    srcs = ["index.js"],
+    srcs = [":srcs"],
 )

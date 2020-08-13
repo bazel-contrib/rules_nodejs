@@ -5,6 +5,7 @@ licenses(["notice"])
 exports_files(["LICENSE"])
 
 load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
+load("@build_bazel_rules_nodejs//internal/common/copy_to_bin.bzl", "copy_to_bin")
 
 # BEGIN-INTERNAL
 load("//packages/typescript:index.bzl", "ts_project")
@@ -16,12 +17,17 @@ ts_project(
 )
 # END-INTERNAL
 
-js_library(
-    name = "isBinaryFile",
+copy_to_bin(
+    name = "srcs",
     srcs = [
         "src/index.js",
         "package.json",
-    ],
+    ]
+)
+
+js_library(
+    name = "isBinaryFile",
+    srcs = [":srcs"],
     package_name = "isbinaryfile",
     visibility = ["//visibility:public"],
 )
