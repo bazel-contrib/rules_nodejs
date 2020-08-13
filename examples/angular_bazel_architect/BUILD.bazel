@@ -10,6 +10,21 @@ filegroup(
     visibility = ["//:__subpackages__"],
 )
 
+APPLICATION_DEPS = [
+    "//:common_deps",
+    "@npm//@angular/cli",
+    "@npm//@angular/core",
+    "@npm//@angular/router",
+    "@npm//@angular/platform-browser-dynamic",
+    "@npm//@angular-devkit/build-angular",
+    "@npm//rxjs",
+    "@npm//mime",
+    "@npm//zone.js",
+    "@npm//tslib",
+    "@npm//typescript",
+    "//projects/frontend-lib",
+]
+
 architect(
     name = "build",
     args = [
@@ -25,21 +40,29 @@ architect(
             "src/**/*.spec.ts",
             "src/test.ts",
         ],
-    ) + [
-        "//:common_deps",
-        ".browserslistrc",
+    ) + APPLICATION_DEPS + [
         "tsconfig.app.json",
-        "@npm//mime",
-        "@npm//zone.js",
-        "@npm//tslib",
-        "@npm//typescript",
-        "@npm//@angular/cli",
-        "@npm//@angular/core",
-        "@npm//@angular/router",
-        "@npm//@angular/platform-browser-dynamic",
-        "@npm//@angular-devkit/architect-cli",
-        "@npm//@angular-devkit/build-angular",
-        "//projects/frontend-lib",
+    ],
+    output_dir = True,
+)
+
+architect(
+    name = "build_prod",
+    args = [
+        "frontend:build:production",
+        "--outputPath=$(@D)",
+    ],
+    configuration_env_vars = ["NG_BUILD_CACHE"],
+    data = glob(
+        [
+            "src/**/*",
+        ],
+        exclude = [
+            "src/**/*.spec.ts",
+            "src/test.ts",
+        ],
+    ) + APPLICATION_DEPS + [
+        "tsconfig.app.json",
     ],
     output_dir = True,
 )
@@ -50,24 +73,16 @@ architect_test(
     configuration_env_vars = ["NG_BUILD_CACHE"],
     data = glob([
         "src/**/*",
-    ]) + [
-        "//:common_deps",
+    ]) + APPLICATION_DEPS + [
         "karma.conf.js",
         "tsconfig.spec.json",
         "@npm//@types/jasmine",
         "@npm//@types/node",
-        "@npm//@angular/cli",
-        "@npm//@angular/core",
-        "@npm//@angular/router",
-        "@npm//@angular/platform-browser-dynamic",
-        "@npm//@angular-devkit/build-angular",
-        "@npm//zone.js",
         "@npm//karma",
         "@npm//karma-chrome-launcher",
         "@npm//karma-coverage-istanbul-reporter",
         "@npm//karma-jasmine",
         "@npm//karma-jasmine-html-reporter",
-        "//projects/frontend-lib",
     ],
     tags = [
         "browser:chromium-local",
@@ -94,25 +109,14 @@ architect_test(
         "src/**",
         "e2e/*",
         "e2e/**",
-    ]) + [
-        "//:common_deps",
-        ".browserslistrc",
+    ]) + APPLICATION_DEPS + [
         "tsconfig.app.json",
-        "@npm//mime",
-        "@npm//@angular/cli",
-        "@npm//@angular/core",
-        "@npm//@angular/router",
-        "@npm//@angular/platform-browser-dynamic",
-        "@npm//@angular-devkit/build-angular",
         "@npm//protractor",
         "@npm//jasmine-spec-reporter",
         "@npm//ts-node",
-        "@npm//tslib",
-        "@npm//typescript",
         "@npm//@types/jasmine",
         "@npm//@types/jasminewd2",
         "@npm//@types/node",
-        "//projects/frontend-lib",
     ],
     tags = [
         "browser:chromium-local",
@@ -160,17 +164,29 @@ architect(
             "src/**/*.spec.ts",
             "src/test.ts",
         ],
-    ) + [
-        "//:common_deps",
-        ".browserslistrc",
+    ) + APPLICATION_DEPS + [
         "tsconfig.app.json",
-        "@npm//mime",
-        "@npm//@angular/cli",
-        "@npm//@angular/core",
-        "@npm//@angular/router",
-        "@npm//@angular/platform-browser-dynamic",
-        "@npm//@angular-devkit/build-angular",
-        "//projects/frontend-lib",
+    ],
+    tags = ["ibazel_notify_changes"],
+)
+
+architect(
+    name = "serve_prod",
+    args = [
+        "frontend:serve:production",
+    ],
+    configuration_env_vars = ["NG_BUILD_CACHE"],
+    data = glob(
+        [
+            "src/*",
+            "src/**",
+        ],
+        exclude = [
+            "src/**/*.spec.ts",
+            "src/test.ts",
+        ],
+    ) + APPLICATION_DEPS + [
+        "tsconfig.app.json",
     ],
     tags = ["ibazel_notify_changes"],
 )
