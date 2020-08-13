@@ -79,7 +79,7 @@ babel(
     args = [
         "app.js",
         "--config-file",
-        "$(execpath es5.babelrc)",
+        "./$(execpath es5.babelrc)",
         "--out-file",
         "$(execpath app.es5.js)",
     ],
