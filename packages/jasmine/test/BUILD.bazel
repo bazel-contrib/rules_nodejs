@@ -1,4 +1,4 @@
-load("//internal/common:copy_to_bin.bzl", "copy_to_bin")
+load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin")
 load("//packages/jasmine:index.bzl", "jasmine_node_test")
 load("//packages/typescript:index.bzl", "ts_library")
 
