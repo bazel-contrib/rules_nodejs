@@ -1,4 +1,4 @@
-# Copyright 2020 The Bazel Authors. All rights reserved.
+# Copyright 2017 The Bazel Authors. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -59,6 +59,11 @@ def _js_library_impl(ctx):
     sources_depsets = [direct_sources]
     named_module_sources_depsets = [direct_named_module_sources]
 
+    # We cannot always expose the NpmPackageInfo as the linker
+    # only allow us to reference node modules from a single workspace at a time.
+    # Here we are automatically decide if we should or not including that provider
+    # by running through the sources and check if we have a src coming from an external
+    # workspace which indicates we should include the provider.
     include_npm_package_info = False
     for src in ctx.files.srcs:
         if src.is_source and src.path.startswith("external/"):
