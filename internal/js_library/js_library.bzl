@@ -153,6 +153,10 @@ def _js_library_impl(ctx):
 js_library = rule(
     implementation = _js_library_impl,
     attrs = {
+        "amd_names": attr.string_dict(
+            doc = _AMD_NAMES_DOC,
+            default = {},
+        ),
         "deps": attr.label_list(
             doc = "Transitive dependencies of the package",
         ),
@@ -160,16 +164,12 @@ js_library = rule(
             doc = "A subset of srcs that are javascript named-UMD or named-AMD for use in rules such as ts_devserver",
             allow_files = True,
         ),
-        "amd_names": attr.string_dict(
-            doc = _AMD_NAMES_DOC,
-            default = {},
+        "package_name": attr.string(
+            doc = """Optional package_name that this package may be imported as.""",
         ),
         "srcs": attr.label_list(
             doc = "The list of files that comprise the package",
             allow_files = True,
-        ),
-        "package_name": attr.string(
-            doc = """Optional package_name that this package may be imported as.""",
         ),
     },
     doc = "Defines a js library package",

@@ -1,5 +1,5 @@
-load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
 load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin")
+load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
 
 copy_to_bin(
     name = "srcs",
