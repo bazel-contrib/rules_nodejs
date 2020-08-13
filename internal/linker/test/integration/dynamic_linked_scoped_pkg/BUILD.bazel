@@ -5,7 +5,7 @@ package(default_visibility = ["//internal/linker/test:__subpackages__"])
 
 copy_to_bin(
     name = "srcs",
-    srcs = ["index.js"]
+    srcs = ["index.js"],
 )
 
 js_library(

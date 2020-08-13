@@ -10,7 +10,7 @@ ts_project(
 
 copy_to_bin(
     name = "tsconfig_bin",
-    srcs = [":tsconfig"]
+    srcs = [":tsconfig"],
 )
 
 js_library(

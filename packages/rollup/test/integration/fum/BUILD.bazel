@@ -5,7 +5,7 @@ package(default_visibility = ["//packages/rollup:__subpackages__"])
 
 copy_to_bin(
     name = "index",
-    srcs = ["index.js"]
+    srcs = ["index.js"],
 )
 
 js_library(

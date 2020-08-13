@@ -7,7 +7,7 @@ copy_to_bin(
     srcs = [
         "a.d.ts",
         "a.js",
-    ]
+    ],
 )
 
 js_library(

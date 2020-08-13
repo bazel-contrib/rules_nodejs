@@ -10,7 +10,7 @@ ts_project(
 
 copy_to_bin(
     name = "index",
-    srcs = [":index.js"]
+    srcs = [":index.js"],
 )
 
 js_library(

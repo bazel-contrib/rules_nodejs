@@ -3,7 +3,7 @@ load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin")
 
 copy_to_bin(
     name = "srcs",
-    srcs = ["index.js"]
+    srcs = ["index.js"],
 )
 
 js_library(

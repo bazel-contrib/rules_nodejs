@@ -21,15 +21,15 @@ ts_project(
 
 copy_to_bin(
     name = "user_d_ts",
-    srcs = ["user.d.ts"]
+    srcs = ["user.d.ts"],
 )
 
 js_library(
     name = "foo_lib",
     package_name = "@foo/lib",
     srcs = [
-        ":user_d_ts",
         ":index.js",
         ":user.js",
+        ":user_d_ts",
     ],
 )

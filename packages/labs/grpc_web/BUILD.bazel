@@ -1,5 +1,5 @@
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "copy_to_bin")
+load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin", "nodejs_binary")
 load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
 load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
 
@@ -50,7 +50,7 @@ copy_to_bin(
 
 js_library(
     name = "bootstrap_scripts",
-    srcs = [":srcs"]
+    srcs = [":srcs"],
 )
 
 filegroup(

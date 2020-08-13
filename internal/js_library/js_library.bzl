@@ -15,9 +15,15 @@
 """Contains the js_library which can be used to expose any library package.
 """
 
-load("@build_bazel_rules_nodejs//:providers.bzl",
-  "DeclarationInfo", "NpmPackageInfo", "LinkablePackageInfo", "js_module_info", "js_named_module_info",
-  "JSModuleInfo", "JSNamedModuleInfo"
+load(
+    "@build_bazel_rules_nodejs//:providers.bzl",
+    "DeclarationInfo",
+    "JSModuleInfo",
+    "JSNamedModuleInfo",
+    "LinkablePackageInfo",
+    "NpmPackageInfo",
+    "js_module_info",
+    "js_named_module_info",
 )
 
 _AMD_NAMES_DOC = """Mapping from require module names to global variables.
