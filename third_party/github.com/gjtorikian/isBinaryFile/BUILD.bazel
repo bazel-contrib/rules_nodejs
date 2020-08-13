@@ -18,16 +18,18 @@ ts_project(
 # END-INTERNAL
 
 copy_to_bin(
-    name = "srcs",
+    name = "package_json_bin",
     srcs = [
-        "src/index.js",
         "package.json",
     ]
 )
 
 js_library(
     name = "isBinaryFile",
-    srcs = [":srcs"],
+    srcs = [
+        ":package_json_bin",
+        "src/index.js"
+    ],
     package_name = "isbinaryfile",
     visibility = ["//visibility:public"],
 )
