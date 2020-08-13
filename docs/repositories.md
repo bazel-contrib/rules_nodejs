@@ -1,8 +1,9 @@
 ---
 title: Generated Repositories
 layout: default
-stylesheet: docs
+toc: true
 ---
+# Generated Repositories
 
 rules_nodejs produces several repositories for you to reference.
 Bazel represents your workspace as one repository, and code fetched or installed from outside your workspace lives in other repositories.
@@ -56,7 +57,7 @@ Commonly used ones are:
 
 > One convenient (maybe also confusing) way to understand what BUILD files are generated is to look at our integration test at https://github.com/bazelbuild/rules_nodejs/tree/stable/internal/npm_install/test/golden - this directory looks similar to the content of an `@npm` repository.
 
-### Generated macros for npm packages with `bin` entries
+## Generated macros for npm packages with `bin` entries
 
 Any installed package that has one or more `bin` entries in the package.json get convenient macros generated.
 These are the Bazel equivalent of the `./node_modules/.bin/*` files in your project which the package manager created.

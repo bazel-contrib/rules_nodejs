@@ -2,20 +2,42 @@
 
 $ruleInfo.docString
 
-#[[###]]# Usage
+<pre>
+${util.ruleSummary($ruleName, $ruleInfo)}
+</pre>
 
-```
-$ruleName(#foreach( $attr in $ruleInfo.getAttributeList() )$attr.name#if( $foreach.hasNext ), #end#end)
-```
+**ATTRIBUTES**
 
 #if (!$ruleInfo.getAttributeList().isEmpty())
-#foreach ($attribute in $ruleInfo.getAttributeList())
-
-#[[####]]# `${attribute.name}`
-(*#if ($attribute.type == "NAME")[name]#elseif( $attribute.type == "LABEL" )[label]#elseif( $attribute.type == "LABEL_LIST" )[labels]#else${util.attributeTypeString($attribute)}#end#if( $attribute.mandatory ), mandatory#end*)#if (!$attribute.docString.isEmpty()): ${attribute.docString.trim()}#end
-#if( !$attribute.defaultValue.isEmpty() )
-
-
-Defaults to `$attribute.defaultValue`#end
-#end
+<table class="table table-params">
+  <thead>
+  <tr>
+    <th>Name</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Mandatory</th>
+    <th>Default</th>
+  </tr>
+  </thead>
+  <tbody>
+      #foreach ($attribute in $ruleInfo.getAttributeList())
+      <tr id="${ruleName}-${attribute.name}">
+        <td>${attribute.name}</td>
+        <td>
+            #if (!$attribute.docString.isEmpty())
+                ${attribute.docString.trim()}
+            #end
+            #if (!$attribute.getProviderNameGroupList().isEmpty())
+              The dependencies of this attribute must provide: ${util.attributeProviders($attribute)}
+            #end
+        </td>
+        <td>${util.attributeTypeString($attribute)}</td>
+        <td>${util.mandatoryString($attribute)}</td>
+        <td>
+            $attribute.defaultValue
+        </td>
+      </tr>
+      #end
+  </tbody>
+</table>
 #end

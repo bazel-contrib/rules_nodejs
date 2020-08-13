@@ -1,21 +1,24 @@
-<header class="mdl-layout__header mdl-layout__header--waterfall">
-    <div class="mdl-layout__header-row">
-      <span class="mdl-layout-title">{{ page.title }}</span>
-      <div class="mdl-layout-spacer"></div>
-      <nav class="mdl-navigation mdl-layout--large-screen-only">
-        <a class="mdl-navigation__link" href="https://github.com/bazelbuild/rules_nodejs">GitHub</a>
-      </nav>
-      <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable
-        mdl-textfield--floating-label mdl-textfield--align-right">
-        <label class="mdl-button mdl-js-button mdl-button--icon"
-          for="cse-search-box">
-          <i class="material-icons">search</i>
-        </label>
-        <div class="mdl-textfield__expandable-holder">
-          <input class="mdl-textfield__input" type="text"
-            id="cse-search-box">
-        </div>
-      </div>
+<nav class="navbar navbar-inverse navbar-fixed-top" id="common-nav">
+  <div class="container">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button class="navbar-toggle collapsed" data-target="#bs-example-navbar-collapse-1" data-toggle="collapse"
+              type="button">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="{{ "/" | relative_url }}">
+        <img class="navbar-logo" src="{{ "images/bazel-navbar.svg" | relative_url }}">
+      </a>
     </div>
-  </header>
-  {% include drawer.html %}
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="https://github.com/bazelbuild/rules_nodejs">GitHub</a></li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>

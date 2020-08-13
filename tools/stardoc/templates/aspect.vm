@@ -1,19 +1,57 @@
 #[[##]]# ${aspectName}
 
-#[[###]]# Usage
+<pre>
+${util.aspectSummary($aspectName, $aspectInfo)}
+</pre>
 
-```
-$aspectName(#foreach( $attr in $aspectInfo.getAttributeList() )$attr.name#if( $foreach.hasNext ), #end#end)
-```
+$aspectInfo.getDocString()
+
+**ASPECT ATTRIBUTES**
 
 #if (!$aspectInfo.getAttributeList().isEmpty())
-#foreach ($attribute in $aspectInfo.getAttributeList())
-
-#[[####]]# `${attribute.name}`
-(*#if ($attribute.type == "NAME")[name]#elseif( $attribute.type == "LABEL" )[label]#elseif( $attribute.type == "LABEL_LIST" )[labels]#else${util.attributeTypeString($attribute)}#end#if( $attribute.mandatory ), mandatory#end*)#if (!$attribute.docString.isEmpty()): ${attribute.docString.trim()}#end
-#if( !$attribute.defaultValue.isEmpty() )
-
-
-Defaults to `$attribute.defaultValue`#end
+<table class="table table-params">
+  <thead>
+  <tr>
+    <th>Name</th>
+    <th>Type</th>
+  </tr>
+  </thead>
+  <tbody>
+      #foreach ($aspectAttribute in $aspectInfo.getAspectAttributeList())
+      <tr id="${aspectName}-${aspectAttribute}">
+        <td>${aspectAttribute}</td>
+        <td>String</td>
+      </tr>
+      #end
+  </tbody>
+</table>
 #end
+
+**ATTRIBUTES**
+
+#if (!$aspectInfo.getAttributeList().isEmpty())
+<table class="table table-params">
+  <thead>
+  <tr>
+    <th>Name</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Mandatory</th>
+    <th>Default</th>
+  </tr>
+  </thead>
+  <tbody>
+      #foreach ($attribute in $aspectInfo.getAttributeList())
+      <tr>
+        <td>${attribute.name}</td>
+        <td>
+            #if(!$attribute.docString.isEmpty()) $attribute.docString.trim() #else - #end
+        </td>
+        <td>${util.attributeTypeString($attribute)}</td>
+        <td>${util.mandatoryString($attribute)}</td>
+        <td>$attribute.defaultValue</td>
+      </tr>
+      #end
+  </tbody>
+</table>
 #end

@@ -50,13 +50,13 @@ https://github.com/terser-js/terser#minify-options documents the content of the 
 
 Bazel will make a copy of your config file, treating it as a template.
 
-> Run bazel with `--subcommands` to see the path to the copied file.
+Run bazel with `--subcommands` to see the path to the copied file.
 
 If you use the magic strings `"bazel_debug"` or `"bazel_no_debug"`, these will be
 replaced with `true` and `false` respecting the value of the `debug` attribute
 or the `--compilation_mode=dbg` bazel flag.
 
-For example,
+For example
 
 ```
 {
@@ -65,6 +65,7 @@ For example,
     }
 }
 ```
+
 Will disable the `arrows` compression setting when debugging.
 
 If `config_file` isn't supplied, Bazel will use a default config file.
