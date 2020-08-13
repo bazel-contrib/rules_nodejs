@@ -1,5 +1,5 @@
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
-load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin", "nodejs_binary")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
 load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
 
@@ -40,17 +40,12 @@ well_known_protos = [
     package = "@npm//google-protobuf",
 ) for p in well_known_protos]
 
-copy_to_bin(
-    name = "srcs",
-    srcs = [
-        "@npm//google-protobuf:google-protobuf__umd",
-        "@npm//grpc-web:grpc-web__umd",
-    ] + [":google-protobuf-%s__umd" % p for p in well_known_protos],
-)
-
 js_library(
     name = "bootstrap_scripts",
-    srcs = [":srcs"],
+    deps = [
+        "@npm//google-protobuf:google-protobuf__umd",
+        "@npm//grpc-web:grpc-web__umd",
+    ] + [":google-protobuf-%s__umd" % p for p in well_known_protos]
 )
 
 filegroup(
