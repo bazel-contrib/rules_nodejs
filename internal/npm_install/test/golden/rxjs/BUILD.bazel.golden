@@ -1,6 +1,6 @@
 
 package(default_visibility = ["//visibility:public"])
-load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
+load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
 filegroup(
     name = "rxjs__files",
     srcs = [
@@ -3627,7 +3627,7 @@ filegroup(
     name = "rxjs__all_files",
     srcs = [":rxjs__files", ":rxjs__not_files"],
 )
-node_module_library(
+js_library(
     name = "rxjs",
     srcs = [":rxjs__files"],
     deps = [
@@ -3635,12 +3635,12 @@ node_module_library(
         "//tslib:tslib__contents",
     ],
 )
-node_module_library(
+js_library(
     name = "rxjs__contents",
     srcs = [":rxjs__files", ":rxjs__nested_node_modules"],
     visibility = ["//:__subpackages__"],
 )
-node_module_library(
+js_library(
     name = "rxjs__typings",
     srcs = [
         "//:node_modules/rxjs/AsyncSubject.d.ts",

@@ -1,6 +1,6 @@
 
 package(default_visibility = ["//visibility:public"])
-load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
+load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
 filegroup(
     name = "unidiff__files",
     srcs = [
@@ -30,7 +30,7 @@ filegroup(
     name = "unidiff__all_files",
     srcs = [":unidiff__files", ":unidiff__not_files"],
 )
-node_module_library(
+js_library(
     name = "unidiff",
     srcs = [":unidiff__files"],
     deps = [
@@ -38,12 +38,12 @@ node_module_library(
         "//diff:diff__contents",
     ],
 )
-node_module_library(
+js_library(
     name = "unidiff__contents",
     srcs = [":unidiff__files", ":unidiff__nested_node_modules"],
     visibility = ["//:__subpackages__"],
 )
-node_module_library(
+js_library(
     name = "unidiff__typings",
 )
 load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")

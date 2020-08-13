@@ -16,8 +16,8 @@
 """
 
 # NpmPackageInfo provider is provided by targets that are npm dependencies by the
-# `node_module_library` rule as well as other targets that have direct or transitive deps on
-# `node_module_library` targets via the `node_modules_aspect` below.
+# `js_library` rule as well as other targets that have direct or transitive deps on
+# `js_library` targets via the `node_modules_aspect` below.
 NpmPackageInfo = provider(
     doc = "Provides information about npm dependencies",
     fields = {
