@@ -28,7 +28,9 @@ js_library(
     name = "isBinaryFile",
     srcs = [
         ":package_json_bin",
-        "src/index.js"
+    ],
+    deps = [
+        ":tsconfig"
     ],
     package_name = "isbinaryfile",
     visibility = ["//visibility:public"],
