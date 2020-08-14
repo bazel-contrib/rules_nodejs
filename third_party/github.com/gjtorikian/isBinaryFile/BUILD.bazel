@@ -5,6 +5,7 @@ licenses(["notice"])
 exports_files(["LICENSE"])
 
 load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
+#load("@build_bazel_rules_nodejs//internal/js_library:js_library2.bzl", "js_library")
 load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin")
 
 # BEGIN-INTERNAL
@@ -25,8 +26,10 @@ copy_to_bin(
 
 js_library(
     name = "isBinaryFile",
-    srcs = [":package_json_bin"],
+    srcs = [":package_json_bin", "src/index.js"],
+    # BEGIN-INTERNAL
     deps = [":tsconfig"],
+    # END-INTERNAL
     package_name = "isbinaryfile",
     visibility = ["//visibility:public"],
 )
