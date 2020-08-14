@@ -120,14 +120,10 @@ def _js_library_impl(ctx):
         providers.append(LinkablePackageInfo(
             package_name = ctx.attr.package_name,
             path = path,
-            files = depset(
-                [
-                    direct_sources,
-                    declarations,
-                    transitive_sources,
-                    transitive_declarations,
-                ],
-            ),
+            files = depset([
+                direct_sources,
+                declarations,
+            ])
         ))
 
     if include_npm_package_info:
