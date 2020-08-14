@@ -55,9 +55,7 @@ def write_amd_names_shim(actions, amd_names_shim, targets):
 
 def _js_library_impl(ctx):
     direct_sources = depset(ctx.files.srcs)
-    direct_named_module_sources = depset(ctx.files.named_module_srcs)
     sources_depsets = [direct_sources]
-    named_module_sources_depsets = [direct_named_module_sources]
 
     # We cannot always expose the NpmPackageInfo as the linker
     # only allow us to reference node modules from a single workspace at a time.
@@ -92,24 +90,21 @@ def _js_library_impl(ctx):
             transitive_declarations_depsets.append(dep[DeclarationInfo].transitive_declarations)
         if NpmPackageInfo in dep:
             sources_depsets.append(dep[NpmPackageInfo].sources)
-        if JSModuleInfo in dep:
-            sources_depsets.append(dep[JSModuleInfo].sources)
-        if JSNamedModuleInfo in dep:
-            named_module_sources_depsets.append(dep[JSNamedModuleInfo].sources)
 
     transitive_declarations = depset(transitive = transitive_declarations_depsets)
-    transitive_sources = depset(transitive = sources_depsets + named_module_sources_depsets)
+    transitive_sources = depset(transitive = sources_depsets)
 
     providers = [
         DefaultInfo(
             files = direct_sources,
+            runfiles = ctx.runfiles(files = ctx.files.srcs),
         ),
         js_module_info(
             sources = direct_sources,
             deps = ctx.attr.deps,
         ),
         js_named_module_info(
-            sources = direct_named_module_sources,
+            sources = depset(ctx.files.named_module_srcs),
             deps = ctx.attr.deps,
         ),
         AmdNamesInfo(names = ctx.attr.amd_names),
@@ -127,10 +122,7 @@ def _js_library_impl(ctx):
         providers.append(LinkablePackageInfo(
             package_name = ctx.attr.package_name,
             path = path,
-            files = depset([
-                transitive_sources,
-                transitive_declarations,
-            ]),
+            files = depset(transitive = [transitive_sources, transitive_declarations])
         ))
 
     if include_npm_package_info:
