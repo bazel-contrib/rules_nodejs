@@ -25,7 +25,8 @@ copy_to_bin(
 
 js_library(
     name = "isBinaryFile",
-    srcs = [":package_json_bin", ":tsconfig"],
+    srcs = [":package_json_bin"],
+    deps = [":tsconfig"],
     package_name = "isbinaryfile",
     visibility = ["//visibility:public"],
 )

@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Contains the js_library which can be used to expose any library package.
+"""js_library can be used to expose and share any library package.
+
+DO NOT USE - this is not fully designed and work in progress.
 """
 
 load(
@@ -34,7 +36,9 @@ AmdNamesInfo = provider(
 
 def write_amd_names_shim(actions, amd_names_shim, targets):
     """Shim AMD names for UMD bundles that were shipped anonymous.
+
     These are collected from our bootstrap deps (the only place global scripts should appear)
+
     Args:
       actions: skylark rule execution context.actions
       amd_names_shim: File where the shim is written
@@ -51,62 +55,70 @@ def write_amd_names_shim(actions, amd_names_shim, targets):
                 amd_names_shim_content += "define(\"%s\", function() { return %s });\n" % n
     actions.write(amd_names_shim, amd_names_shim_content)
 
-def _js_library_impl(ctx):
-    direct_sources = depset(ctx.files.srcs)
-    sources_depsets = [direct_sources]
-
-    # We cannot always expose the NpmPackageInfo as the linker
-    # only allow us to reference node modules from a single workspace at a time.
-    # Here we are automatically decide if we should or not including that provider
-    # by running through the sources and check if we have a src coming from an external
-    # workspace which indicates we should include the provider.
+def _impl(ctx):
+    files = ctx.files.srcs + ctx.files.named_module_srcs
+    typings = []
+    js_files = []
     include_npm_package_info = False
-    for src in ctx.files.srcs:
-        if src.is_source and src.path.startswith("external/"):
-            include_npm_package_info = True
-            break
 
-    declaration_files = [
-        f
-        for f in ctx.files.srcs
+    for file in files:
+        if file.basename.endswith(".js") or file.basename.endswith(".js.map") or file.basename.endswith(".json"):
+            js_files.append(file)
         if (
-               f.path.endswith(".d.ts") or
-               # package.json may be required to resolve "typings" key
-               f.path.endswith("/package.json")
-           ) and
-           # exclude eg. external/npm/node_modules/protobufjs/node_modules/@types/node/index.d.ts
-           # these would be duplicates of the typings provided directly in another dependency.
-           # also exclude all /node_modules/typescript/lib/lib.*.d.ts files as these are determined by
-           # the tsconfig "lib" attribute
-           len(f.path.split("/node_modules/")) < 3 and f.path.find("/node_modules/typescript/lib/lib.") == -1
-    ]
-    declarations = depset(declaration_files)
+            (
+                file.path.endswith(".d.ts") or
+                file.path.endswith(".d.ts.map") or
+                # package.json may be required to resolve "typings" key
+                file.path.endswith("/package.json")
+            )
+            # exclude eg. external/npm/node_modules/protobufjs/node_modules/@types/node/index.d.ts
+            # these would be duplicates of the typings provided directly in another dependency.
+            # also exclude all /node_modules/typescript/lib/lib.*.d.ts files as these are determined by
+            # the tsconfig "lib" attribute
+            and len(file.path.split("/node_modules/")) < 3 and file.path.find("/node_modules/typescript/lib/lib.") == -1
+        ):
+            typings.append(file)
+        if file.is_source and file.path.startswith("external/"):
+            # We cannot always expose the NpmPackageInfo as the linker
+            # only allow us to reference node modules from a single workspace at a time.
+            # Here we are automatically decide if we should or not including that provider
+            # by running through the sources and check if we have a src coming from an external
+            # workspace which indicates we should include the provider.
+            include_npm_package_info = True
+
+    files_depset = depset(files)
+    js_files_depset = depset(js_files)
+    named_module_srcs_depset = depset(ctx.files.named_module_srcs)
+    typings_depset = depset(typings)
+    sources_depsets = [files_depset]
+    transitive_files_depsets = [files_depset]
 
     for dep in ctx.attr.deps:
         if NpmPackageInfo in dep:
             sources_depsets.append(dep[NpmPackageInfo].sources)
+        elif DefaultInfo in dep:
+            transitive_files_depsets.append(dep[DefaultInfo].files)
+
+    transitive_sources = depset(transitive = sources_depsets)
 
     providers = [
         DefaultInfo(
-            files = direct_sources,
-            runfiles = ctx.runfiles(files = ctx.files.srcs),
+            files = depset(transitive = transitive_files_depsets),
+            runfiles = ctx.runfiles(
+                files = files,
+                transitive_files = depset(transitive = transitive_files_depsets)
+            ),
         ),
+        AmdNamesInfo(names = ctx.attr.amd_names),
         js_module_info(
-            sources = direct_sources,
+            sources = js_files_depset,
             deps = ctx.attr.deps,
         ),
         js_named_module_info(
-            sources = depset(ctx.files.named_module_srcs),
+            sources = named_module_srcs_depset,
             deps = ctx.attr.deps,
         ),
-        AmdNamesInfo(names = ctx.attr.amd_names),
     ]
-
-    if len(declaration_files) > 0:
-        providers.append(declaration_info(
-            declarations = declarations,
-            deps = ctx.attr.deps,
-        ))
 
     if ctx.attr.package_name:
         path = "/".join([p for p in [ctx.bin_dir.path, ctx.label.workspace_root, ctx.label.package] if p])
@@ -114,27 +126,44 @@ def _js_library_impl(ctx):
             package_name = ctx.attr.package_name,
             path = path,
             files = depset([
-                direct_sources,
-                declarations,
-            ]),
+                files_depset,
+                named_module_srcs_depset
+            ])
         ))
 
     if include_npm_package_info:
         workspace_name = ctx.label.workspace_name if ctx.label.workspace_name else ctx.workspace_name
         providers.append(NpmPackageInfo(
-            direct_sources = direct_sources,
-            sources = depset(transitive = sources_depsets),
+            direct_sources = files_depset,
+            sources = transitive_sources,
             workspace = workspace_name,
+        ))
+
+    # Don't provide DeclarationInfo if there are no typings to provide.
+    # Improves error messaging downstream if DeclarationInfo is required.
+    if len(typings):
+        providers.append(declaration_info(
+            declarations = typings_depset,
+            deps = ctx.attr.deps,
         ))
 
     return providers
 
-js_library = rule(
-    implementation = _js_library_impl,
+_js_library = rule(
+    implementation = _impl,
     attrs = {
         "amd_names": attr.string_dict(
             doc = _AMD_NAMES_DOC,
-            default = {},
+        ),
+        # module_name for legacy ts_library module_mapping support
+        # TODO: remove once legacy module_mapping is removed
+        "module_name": attr.string(),
+        "package_name": attr.string(
+            doc = """Optional package_name that this package may be imported as.""",
+        ),
+        "srcs": attr.label_list(
+            doc = "The list of files that comprise the package",
+            allow_files = True,
         ),
         "deps": attr.label_list(
             doc = "Transitive dependencies of the package",
@@ -143,13 +172,31 @@ js_library = rule(
             doc = "A subset of srcs that are javascript named-UMD or named-AMD for use in rules such as ts_devserver",
             allow_files = True,
         ),
-        "package_name": attr.string(
-            doc = """Optional package_name that this package may be imported as.""",
-        ),
-        "srcs": attr.label_list(
-            doc = "The list of files that comprise the package",
-            allow_files = True,
-        ),
     },
-    doc = "Defines a js library package",
+    doc = "Defines a js_library package",
 )
+
+def js_library(
+        name,
+        srcs = [],
+        amd_names = {},
+        package_name = None,
+        deps = [],
+        named_module_srcs = [],
+        **kwargs):
+    """Internal use only. May be published to the public API in a future release."""
+    module_name = kwargs.pop("module_name", None)
+    if module_name:
+        fail("use package_name instead of module_name in target //%s:%s" % (native.package_name(), name))
+    _js_library(
+        name = name,
+        srcs = srcs,
+        deps = deps,
+        named_module_srcs = named_module_srcs,
+        amd_names = amd_names,
+        package_name = package_name,
+        # module_name for legacy ts_library module_mapping support
+        # TODO: remove once legacy module_mapping is removed
+        module_name = package_name,
+        **kwargs
+    )

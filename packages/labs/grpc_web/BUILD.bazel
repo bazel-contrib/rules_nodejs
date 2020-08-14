@@ -42,11 +42,10 @@ well_known_protos = [
 
 js_library(
     name = "bootstrap_scripts",
-    named_module_srcs = [":google-protobuf-%s__umd" % p for p in well_known_protos],
-    deps = [
+    named_module_srcs = [
         "@npm//google-protobuf:google-protobuf__umd",
         "@npm//grpc-web:grpc-web__umd",
-    ],
+    ] + [":google-protobuf-%s__umd" % p for p in well_known_protos],
 )
 
 filegroup(
