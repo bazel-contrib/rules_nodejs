@@ -17,9 +17,9 @@
 
 load(
     "@build_bazel_rules_nodejs//:providers.bzl",
-    "DeclarationInfo",
     "LinkablePackageInfo",
     "NpmPackageInfo",
+    "declaration_info",
     "js_module_info",
     "js_named_module_info",
 )
@@ -66,7 +66,7 @@ def _js_library_impl(ctx):
             include_npm_package_info = True
             break
 
-    declarations = depset([
+    declaration_files = [
         f
         for f in ctx.files.srcs
         if (
@@ -79,18 +79,12 @@ def _js_library_impl(ctx):
            # also exclude all /node_modules/typescript/lib/lib.*.d.ts files as these are determined by
            # the tsconfig "lib" attribute
            len(f.path.split("/node_modules/")) < 3 and f.path.find("/node_modules/typescript/lib/lib.") == -1
-    ])
-
-    transitive_declarations_depsets = [declarations]
+    ]
+    declarations = depset(declaration_files)
 
     for dep in ctx.attr.deps:
-        if DeclarationInfo in dep:
-            transitive_declarations_depsets.append(dep[DeclarationInfo].transitive_declarations)
         if NpmPackageInfo in dep:
             sources_depsets.append(dep[NpmPackageInfo].sources)
-
-    transitive_declarations = depset(transitive = transitive_declarations_depsets)
-    transitive_sources = depset(transitive = sources_depsets)
 
     providers = [
         DefaultInfo(
@@ -108,11 +102,10 @@ def _js_library_impl(ctx):
         AmdNamesInfo(names = ctx.attr.amd_names),
     ]
 
-    if len(transitive_declarations_depsets) > 0:
-        providers.append(DeclarationInfo(
+    if len(declaration_files) > 0:
+        providers.append(declaration_info(
             declarations = declarations,
-            transitive_declarations = transitive_declarations,
-            type_blacklisted_declarations = depset([]),
+            deps = ctx.attr.deps,
         ))
 
     if ctx.attr.package_name:
@@ -130,7 +123,7 @@ def _js_library_impl(ctx):
         workspace_name = ctx.label.workspace_name if ctx.label.workspace_name else ctx.workspace_name
         providers.append(NpmPackageInfo(
             direct_sources = direct_sources,
-            sources = transitive_sources,
+            sources = depset(transitive = sources_depsets),
             workspace = workspace_name,
         ))
 
