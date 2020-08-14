@@ -18,8 +18,6 @@
 load(
     "@build_bazel_rules_nodejs//:providers.bzl",
     "DeclarationInfo",
-    "JSModuleInfo",
-    "JSNamedModuleInfo",
     "LinkablePackageInfo",
     "NpmPackageInfo",
     "js_module_info",
@@ -124,12 +122,12 @@ def _js_library_impl(ctx):
             path = path,
             files = depset(
                 [
-                  direct_sources,
-                  declarations,
-                  transitive_sources,
-                  transitive_declarations
+                    direct_sources,
+                    declarations,
+                    transitive_sources,
+                    transitive_declarations,
                 ],
-            )
+            ),
         ))
 
     if include_npm_package_info:
