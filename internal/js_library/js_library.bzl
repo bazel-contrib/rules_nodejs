@@ -123,7 +123,7 @@ def _js_library_impl(ctx):
             files = depset([
                 direct_sources,
                 declarations,
-            ])
+            ]),
         ))
 
     if include_npm_package_info:
