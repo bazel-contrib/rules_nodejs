@@ -70,12 +70,12 @@ def _impl(ctx):
                 file.path.endswith(".d.ts.map") or
                 # package.json may be required to resolve "typings" key
                 file.path.endswith("/package.json")
-            )
+            ) and
             # exclude eg. external/npm/node_modules/protobufjs/node_modules/@types/node/index.d.ts
             # these would be duplicates of the typings provided directly in another dependency.
             # also exclude all /node_modules/typescript/lib/lib.*.d.ts files as these are determined by
             # the tsconfig "lib" attribute
-            and len(file.path.split("/node_modules/")) < 3 and file.path.find("/node_modules/typescript/lib/lib.") == -1
+            len(file.path.split("/node_modules/")) < 3 and file.path.find("/node_modules/typescript/lib/lib.") == -1
         ):
             typings.append(file)
         if file.is_source and file.path.startswith("external/"):
@@ -106,7 +106,7 @@ def _impl(ctx):
             files = depset(transitive = transitive_files_depsets),
             runfiles = ctx.runfiles(
                 files = files,
-                transitive_files = depset(transitive = transitive_files_depsets)
+                transitive_files = depset(transitive = transitive_files_depsets),
             ),
         ),
         AmdNamesInfo(names = ctx.attr.amd_names),
@@ -127,8 +127,8 @@ def _impl(ctx):
             path = path,
             files = depset([
                 files_depset,
-                named_module_srcs_depset
-            ])
+                named_module_srcs_depset,
+            ]),
         ))
 
     if include_npm_package_info:
@@ -155,21 +155,21 @@ _js_library = rule(
         "amd_names": attr.string_dict(
             doc = _AMD_NAMES_DOC,
         ),
+        "deps": attr.label_list(
+            doc = "Transitive dependencies of the package",
+        ),
         # module_name for legacy ts_library module_mapping support
         # TODO: remove once legacy module_mapping is removed
         "module_name": attr.string(),
+        "named_module_srcs": attr.label_list(
+            doc = "A subset of srcs that are javascript named-UMD or named-AMD for use in rules such as ts_devserver",
+            allow_files = True,
+        ),
         "package_name": attr.string(
             doc = """Optional package_name that this package may be imported as.""",
         ),
         "srcs": attr.label_list(
             doc = "The list of files that comprise the package",
-            allow_files = True,
-        ),
-        "deps": attr.label_list(
-            doc = "Transitive dependencies of the package",
-        ),
-        "named_module_srcs": attr.label_list(
-            doc = "A subset of srcs that are javascript named-UMD or named-AMD for use in rules such as ts_devserver",
             allow_files = True,
         ),
     },
