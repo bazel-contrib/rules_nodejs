@@ -18,7 +18,7 @@ DO NOT USE - this is not fully designed yet and it is a work in progress.
 """
 
 load(
-    "@build_bazel_rules_nodejs//:providers.bzl",
+    "//:providers.bzl",
     "DeclarationInfo",
     "JSModuleInfo",
     "JSNamedModuleInfo",
@@ -28,7 +28,11 @@ load(
     "js_module_info",
     "js_named_module_info",
 )
-load("//third_party/github.com/bazelbuild/bazel-skylib:rules/private/copy_file_private.bzl", "copy_bash", "copy_cmd")
+load(
+    "//third_party/github.com/bazelbuild/bazel-skylib:rules/private/copy_file_private.bzl",
+    "copy_bash",
+    "copy_cmd",
+)
 
 _AMD_NAMES_DOC = """Mapping from require module names to global variables.
 This allows devmode JS sources to load unnamed UMD bundles from third-party libraries."""
