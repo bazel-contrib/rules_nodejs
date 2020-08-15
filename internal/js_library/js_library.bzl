@@ -19,6 +19,9 @@ DO NOT USE - this is not fully designed yet and it is a work in progress.
 
 load(
     "@build_bazel_rules_nodejs//:providers.bzl",
+    "DeclarationInfo",
+    "JSModuleInfo",
+    "JSNamedModuleInfo",
     "LinkablePackageInfo",
     "NpmPackageInfo",
     "declaration_info",
@@ -90,34 +93,45 @@ def _impl(ctx):
     js_files_depset = depset(js_files)
     named_module_srcs_depset = depset(ctx.files.named_module_srcs)
     typings_depset = depset(typings)
-    sources_depsets = [files_depset]
-    transitive_files_depsets = [files_depset]
+
+    files_depsets = [files_depset]
+    npm_sources_depsets = [files_depset]
+    direct_sources_depsets = [files_depset]
+    direct_named_module_srcs_depsets = [named_module_srcs_depset]
+    typings_depsets = [typings_depset]
+    js_files_depsets = [js_files_depset]
 
     for dep in ctx.attr.deps:
         if NpmPackageInfo in dep:
-            sources_depsets.append(dep[NpmPackageInfo].sources)
-        elif DefaultInfo in dep:
-            # It includes files from other linkable targets
-            # so we can still propagate them (ts_project for example)
-            transitive_files_depsets.append(dep[DefaultInfo].files)
-
-    transitive_sources = depset(transitive = sources_depsets)
+            npm_sources_depsets.append(dep[NpmPackageInfo].sources)
+        else:
+            if JSModuleInfo in dep:
+                js_files_depsets.append(dep[JSModuleInfo].direct_sources)
+                direct_sources_depsets.append(dep[JSModuleInfo].direct_sources)
+            if JSNamedModuleInfo in dep:
+                direct_named_module_srcs_depsets.append(dep[JSNamedModuleInfo].direct_sources)
+                direct_sources_depsets.append(dep[JSNamedModuleInfo].direct_sources)
+            if DeclarationInfo in dep:
+                typings_depsets.append(dep[DeclarationInfo].declarations)
+                direct_sources_depsets.append(dep[DeclarationInfo].declarations)
+            if DefaultInfo in dep:
+                files_depsets.append(dep[DefaultInfo].files)
 
     providers = [
         DefaultInfo(
-            files = depset(transitive = transitive_files_depsets),
+            files = depset(transitive = files_depsets),
             runfiles = ctx.runfiles(
                 files = files,
-                transitive_files = depset(transitive = transitive_files_depsets),
+                transitive_files = depset(transitive = files_depsets),
             ),
         ),
         AmdNamesInfo(names = ctx.attr.amd_names),
         js_module_info(
-            sources = js_files_depset,
+            sources = depset(transitive = js_files_depsets),
             deps = ctx.attr.deps,
         ),
         js_named_module_info(
-            sources = named_module_srcs_depset,
+            sources = depset(transitive = direct_named_module_srcs_depsets),
             deps = ctx.attr.deps,
         ),
     ]
@@ -127,17 +141,14 @@ def _impl(ctx):
         providers.append(LinkablePackageInfo(
             package_name = ctx.attr.package_name,
             path = path,
-            files = depset([
-                files_depset,
-                named_module_srcs_depset,
-            ]),
+            files = depset(transitive = direct_sources_depsets),
         ))
 
     if include_npm_package_info:
         workspace_name = ctx.label.workspace_name if ctx.label.workspace_name else ctx.workspace_name
         providers.append(NpmPackageInfo(
-            direct_sources = files_depset,
-            sources = transitive_sources,
+            direct_sources = depset(transitive = direct_sources_depsets),
+            sources = depset(transitive = npm_sources_depsets),
             workspace = workspace_name,
         ))
 
@@ -145,7 +156,7 @@ def _impl(ctx):
     # Improves error messaging downstream if DeclarationInfo is required.
     if len(typings):
         providers.append(declaration_info(
-            declarations = typings_depset,
+            declarations = depset(transitive = typings_depsets),
             deps = ctx.attr.deps,
         ))
 
