@@ -28,6 +28,7 @@ load(
     "js_module_info",
     "js_named_module_info",
 )
+load("//third_party/github.com/bazelbuild/bazel-skylib:rules/private/copy_file_private.bzl", "copy_bash", "copy_cmd")
 
 _AMD_NAMES_DOC = """Mapping from require module names to global variables.
 This allows devmode JS sources to load unnamed UMD bundles from third-party libraries."""
@@ -65,6 +66,14 @@ def _impl(ctx):
     include_npm_package_info = False
 
     for file in files:
+        src = file
+        if src.is_source and not src.path.startswith("external/"):
+            dst = ctx.actions.declare_file(src.basename, sibling = src)
+            if ctx.attr.is_windows:
+                copy_cmd(ctx, src, dst)
+            else:
+                copy_bash(ctx, src, dst)
+            file = dst
         if file.basename.endswith(".js") or file.basename.endswith(".js.map") or file.basename.endswith(".json"):
             js_files.append(file)
         if (
@@ -173,6 +182,10 @@ _js_library = rule(
             It should include fine grained npm dependencies from the sources
             or other targets we want to include in the library but also propagate their own deps.""",
         ),
+        "is_windows": attr.bool(
+            doc = "Automatically set by macro",
+            mandatory = True,
+        ),
         # module_name for legacy ts_library module_mapping support
         # which is still being used in a couple of tests
         # TODO: remove once legacy module_mapping is removed
@@ -209,6 +222,8 @@ def js_library(
     module_name = kwargs.pop("module_name", None)
     if module_name:
         fail("use package_name instead of module_name in target //%s:%s" % (native.package_name(), name))
+    if kwargs.pop("is_windows", None):
+        fail("is_windows is set by the js_library macro and should not be set explicitely")
     _js_library(
         name = name,
         amd_names = amd_names,
@@ -220,5 +235,9 @@ def js_library(
         # which is still being used in a couple of tests
         # TODO: remove once legacy module_mapping is removed
         module_name = package_name,
+        is_windows = select({
+            "@bazel_tools//src/conditions:host_windows": True,
+            "//conditions:default": False,
+        }),
         **kwargs
     )
