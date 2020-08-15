@@ -157,10 +157,16 @@ _js_library = rule(
         "amd_names": attr.string_dict(
             doc = _AMD_NAMES_DOC,
         ),
-        "srcs": attr.label_list(
-            doc = """The list of files that comprise the package.
-            They will be copied into the package bin folder if needed.""",
-            allow_files = True,
+        "deps": attr.label_list(
+            doc = """Transitive dependencies of the package.
+            It should include fine grained npm dependencies from the sources
+            or other targets we want to include in the library but also propagate their own deps.""",
+        ),
+        # module_name for legacy ts_library module_mapping support
+        # which is still being used in a couple of tests
+        # TODO: remove once legacy module_mapping is removed
+        "module_name": attr.string(
+            doc = "Internal use only. It will be removed soon.",
         ),
         "named_module_srcs": attr.label_list(
             doc = """A subset of srcs that are javascript named-UMD or
@@ -168,21 +174,14 @@ _js_library = rule(
             They will be copied into the package bin folder if needed.""",
             allow_files = True,
         ),
-        "deps": attr.label_list(
-            doc = """Transitive dependencies of the package.
-            It should include fine grained npm dependencies from the sources
-            or other targets we want to include in the library but also propagate their own deps.""",
-        ),
         "package_name": attr.string(
             doc = """Optional package_name that this package may be imported as.""",
         ),
-        # module_name for legacy ts_library module_mapping support
-        # which is still being used in a couple of tests
-        # TODO: remove once legacy module_mapping is removed
-        "module_name": attr.string(
-            doc = "Internal use only. It will be removed soon."
+        "srcs": attr.label_list(
+            doc = """The list of files that comprise the package.
+            They will be copied into the package bin folder if needed.""",
+            allow_files = True,
         ),
-
     },
     doc = "Defines a js_library package",
 )
