@@ -97,6 +97,8 @@ def _impl(ctx):
         if NpmPackageInfo in dep:
             sources_depsets.append(dep[NpmPackageInfo].sources)
         elif DefaultInfo in dep:
+            # It includes files from other linkable targets
+            # so we can still propagate them (ts_project for example)
             transitive_files_depsets.append(dep[DefaultInfo].files)
 
     transitive_sources = depset(transitive = sources_depsets)
@@ -156,7 +158,9 @@ _js_library = rule(
             doc = _AMD_NAMES_DOC,
         ),
         "deps": attr.label_list(
-            doc = "Transitive dependencies of the package",
+            doc = """Transitive dependencies of the package.
+            It should include fine grained npm dependencies from the sources
+            or other targets we want to include in the library but also propagate their own deps.""",
         ),
         # module_name for legacy ts_library module_mapping support
         # TODO: remove once legacy module_mapping is removed
