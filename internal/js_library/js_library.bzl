@@ -14,7 +14,7 @@
 
 """js_library can be used to expose and share any library package.
 
-DO NOT USE - this is not fully designed and work in progress.
+DO NOT USE - this is not fully designed yet and it is a work in progress.
 """
 
 load(
@@ -157,25 +157,32 @@ _js_library = rule(
         "amd_names": attr.string_dict(
             doc = _AMD_NAMES_DOC,
         ),
+        "srcs": attr.label_list(
+            doc = """The list of files that comprise the package.
+            They will be copied into the package bin folder if needed.""",
+            allow_files = True,
+        ),
+        "named_module_srcs": attr.label_list(
+            doc = """A subset of srcs that are javascript named-UMD or
+            named-AMD for use in rules such as ts_devserver.
+            They will be copied into the package bin folder if needed.""",
+            allow_files = True,
+        ),
         "deps": attr.label_list(
             doc = """Transitive dependencies of the package.
             It should include fine grained npm dependencies from the sources
             or other targets we want to include in the library but also propagate their own deps.""",
         ),
-        # module_name for legacy ts_library module_mapping support
-        # TODO: remove once legacy module_mapping is removed
-        "module_name": attr.string(),
-        "named_module_srcs": attr.label_list(
-            doc = "A subset of srcs that are javascript named-UMD or named-AMD for use in rules such as ts_devserver",
-            allow_files = True,
-        ),
         "package_name": attr.string(
             doc = """Optional package_name that this package may be imported as.""",
         ),
-        "srcs": attr.label_list(
-            doc = "The list of files that comprise the package",
-            allow_files = True,
+        # module_name for legacy ts_library module_mapping support
+        # which is still being used in a couple of tests
+        # TODO: remove once legacy module_mapping is removed
+        "module_name": attr.string(
+            doc = "Internal use only. It will be removed soon."
         ),
+
     },
     doc = "Defines a js_library package",
 )
@@ -188,18 +195,19 @@ def js_library(
         deps = [],
         named_module_srcs = [],
         **kwargs):
-    """Internal use only. May be published to the public API in a future release."""
+    """Internal use only yet. It will be released into a public API in a future release."""
     module_name = kwargs.pop("module_name", None)
     if module_name:
         fail("use package_name instead of module_name in target //%s:%s" % (native.package_name(), name))
     _js_library(
         name = name,
-        srcs = srcs,
-        deps = deps,
-        named_module_srcs = named_module_srcs,
         amd_names = amd_names,
+        srcs = srcs,
+        named_module_srcs = named_module_srcs,
+        deps = deps,
         package_name = package_name,
         # module_name for legacy ts_library module_mapping support
+        # which is still being used in a couple of tests
         # TODO: remove once legacy module_mapping is removed
         module_name = package_name,
         **kwargs
