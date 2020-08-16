@@ -5,6 +5,8 @@ SRCS = [
     "subdir/a.ts",
     "subdir/foo.json",
     "bar.json",
+    # Regression test for #2115 - should not expect baz.js output
+    "baz.svg",
 ]
 
 ts_project(

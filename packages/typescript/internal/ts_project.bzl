@@ -215,7 +215,11 @@ validate_options = rule(
 
 def _out_paths(srcs, outdir, rootdir, ext):
     rootdir_replace_pattern = rootdir + "/" if rootdir else ""
-    return [_join(outdir, f[:f.rindex(".")].replace(rootdir_replace_pattern, "") + ext) for f in srcs if not f.endswith(".d.ts") and not f.endswith(".json")]
+    return [
+        _join(outdir, f[:f.rindex(".")].replace(rootdir_replace_pattern, "") + ext)
+        for f in srcs
+        if not f.endswith(".d.ts") and (f.endswith(".ts") or f.endswith(".tsx"))
+    ]
 
 def ts_project_macro(
         name = "tsconfig",
