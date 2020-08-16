@@ -116,8 +116,9 @@ def _ts_project_impl(ctx):
     outputs = json_outs + ctx.outputs.js_outs + ctx.outputs.map_outs + ctx.outputs.typings_outs + ctx.outputs.typing_maps_outs
     if ctx.outputs.buildinfo_out:
         outputs.append(ctx.outputs.buildinfo_out)
-    runtime_outputs = depset(json_outs + ctx.outputs.js_outs + ctx.outputs.map_outs)
+    runtime_outputs = json_outs + ctx.outputs.js_outs + ctx.outputs.map_outs
     typings_outputs = ctx.outputs.typings_outs + ctx.outputs.typing_maps_outs + [s for s in ctx.files.srcs if s.path.endswith(".d.ts")]
+    default_outputs_depset = depset(runtime_outputs) if len(runtime_outputs) else depset(typings_outputs)
 
     if len(outputs) > 0:
         run_node(
@@ -139,14 +140,14 @@ def _ts_project_impl(ctx):
         # Only the JavaScript outputs are intended for use in non-TS-aware
         # dependents.
         DefaultInfo(
-            files = runtime_outputs,
+            files = default_outputs_depset,
             runfiles = ctx.runfiles(
-                transitive_files = runtime_outputs,
+                transitive_files = default_outputs_depset,
                 collect_default = True,
             ),
         ),
         js_module_info(
-            sources = runtime_outputs,
+            sources = depset(runtime_outputs),
             deps = ctx.attr.deps,
         ),
         _TsConfigInfo(tsconfigs = depset([ctx.file.tsconfig] + ctx.files.extends, transitive = [
