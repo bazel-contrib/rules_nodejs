@@ -61,6 +61,12 @@ copy_to_bin(
     ],
 )
 
+# We need to use ":srcs" here instead of an
+# array for the source files otherwise our
+# logic on js_library will consider this a
+# node_module when used in examples/user_managed_deps
+# which will endup failing as we cannot use node_modules
+# from multiple workspaces.
 js_library(
     name = "jasmine",
     package_name = "@bazel/jasmine",
