@@ -1,14 +1,8 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin")
 load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
-
-copy_to_bin(
-    name = "srcs",
-    srcs = ["index.js"],
-)
 
 js_library(
     name = "foolib",
     package_name = "@foo/lib",
-    srcs = [":srcs"],
+    srcs = ["index.js"],
     visibility = ["//visibility:public"],
 )

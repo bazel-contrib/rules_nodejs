@@ -64,12 +64,15 @@ def write_amd_names_shim(actions, amd_names_shim, targets):
     actions.write(amd_names_shim, amd_names_shim_content)
 
 def _impl(ctx):
-    files = ctx.files.srcs + ctx.files.named_module_srcs
+    input_files = ctx.files.srcs + ctx.files.named_module_srcs
+    all_files = []
     typings = []
     js_files = []
+    named_module_files = []
     include_npm_package_info = False
 
-    for file in files:
+    for idx, f in enumerate(input_files):
+        file = f
         src = file
         if src.is_source and not src.path.startswith("external/"):
             dst = ctx.actions.declare_file(src.basename, sibling = src)
@@ -102,15 +105,22 @@ def _impl(ctx):
             # workspace which indicates we should include the provider.
             include_npm_package_info = True
 
-    files_depset = depset(files)
+        # ctx.files.named_module_srcs are merged after ctx.files.srcs
+        if idx >= len(input_files):
+            named_module_files.append(file)
+
+        # every single file on bin should be added here
+        all_files.append(file)
+
+    files_depset = depset(all_files)
     js_files_depset = depset(js_files)
-    named_module_srcs_depset = depset(ctx.files.named_module_srcs)
+    named_module_files_depset = depset(named_module_files)
     typings_depset = depset(typings)
 
     files_depsets = [files_depset]
     npm_sources_depsets = [files_depset]
     direct_sources_depsets = [files_depset]
-    direct_named_module_srcs_depsets = [named_module_srcs_depset]
+    direct_named_module_sources_depsets = [named_module_files_depset]
     typings_depsets = [typings_depset]
     js_files_depsets = [js_files_depset]
 
@@ -122,7 +132,7 @@ def _impl(ctx):
                 js_files_depsets.append(dep[JSModuleInfo].direct_sources)
                 direct_sources_depsets.append(dep[JSModuleInfo].direct_sources)
             if JSNamedModuleInfo in dep:
-                direct_named_module_srcs_depsets.append(dep[JSNamedModuleInfo].direct_sources)
+                direct_named_module_sources_depsets.append(dep[JSNamedModuleInfo].direct_sources)
                 direct_sources_depsets.append(dep[JSNamedModuleInfo].direct_sources)
             if DeclarationInfo in dep:
                 typings_depsets.append(dep[DeclarationInfo].declarations)
@@ -134,7 +144,7 @@ def _impl(ctx):
         DefaultInfo(
             files = depset(transitive = files_depsets),
             runfiles = ctx.runfiles(
-                files = files,
+                files = all_files,
                 transitive_files = depset(transitive = files_depsets),
             ),
         ),
@@ -144,7 +154,7 @@ def _impl(ctx):
             deps = ctx.attr.deps,
         ),
         js_named_module_info(
-            sources = depset(transitive = direct_named_module_srcs_depsets),
+            sources = depset(transitive = direct_named_module_sources_depsets),
             deps = ctx.attr.deps,
         ),
     ]

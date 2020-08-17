@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin", "generated_file_test", "nodejs_binary", "nodejs_test", "npm_package_bin")
+load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test", "nodejs_binary", "nodejs_test", "npm_package_bin")
 load("@npm//typescript:index.bzl", "tsc")
 load("//internal/js_library:js_library.bzl", "js_library")
 load("//internal/node:node_repositories.bzl", "BUILT_IN_NODE_PLATFORMS")
@@ -57,15 +57,10 @@ nodejs_binary(
     entry_point = ":entry_file",
 )
 
-copy_to_bin(
-    name = "module-name",
-    srcs = ["module-name.js"],
-)
-
 js_library(
     name = "module_name_lib",
     package_name = "build_bazel_rules_nodejs/internal/node/test",
-    srcs = [":module-name"],
+    srcs = ["module-name.js"],
 )
 
 nodejs_binary(

@@ -1,4 +1,3 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin")
 load("//internal/js_library:js_library.bzl", "js_library")
 load("//packages/typescript:index.bzl", "ts_project")
 
@@ -10,18 +9,13 @@ ts_project(
     deps = ["@npm//@types/node"],
 )
 
-copy_to_bin(
-    name = "srcs",
+js_library(
+    name = "lib2",
+    package_name = "lib2",
     srcs = [
         "package.json",
         "src/some.js",
     ],
-)
-
-js_library(
-    name = "lib2",
-    package_name = "lib2",
-    srcs = [":srcs"],
     deps = [
         ":tsconfig",
     ],
