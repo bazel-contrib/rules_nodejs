@@ -106,6 +106,9 @@ def _impl(ctx):
             typings.append(file)
 
         # auto detect if it entirely an npm package
+        #
+        # NOTE: it probably can be removed once we support node_modules from more than
+        # a single workspace
         if file.is_source and file.path.startswith("external/"):
             # We cannot always expose the NpmPackageInfo as the linker
             # only allow us to reference node modules from a single workspace at a time.
