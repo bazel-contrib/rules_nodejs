@@ -73,16 +73,23 @@ def _impl(ctx):
 
     for idx, f in enumerate(input_files):
         file = f
-        src = file
-        if src.is_source and not src.path.startswith("external/"):
-            dst = ctx.actions.declare_file(src.basename, sibling = src)
+
+        # copy files into bin if needed
+        if file.is_source and not file.path.startswith("external/"):
+            dst = ctx.actions.declare_file(file.basename, sibling = file)
             if ctx.attr.is_windows:
-                copy_cmd(ctx, src, dst)
+                copy_cmd(ctx, file, dst)
             else:
-                copy_bash(ctx, src, dst)
+                copy_bash(ctx, file, dst)
+
+            # re-assign file to the one now copied into the bin folder
             file = dst
+
+        # register js files
         if file.basename.endswith(".js") or file.basename.endswith(".js.map") or file.basename.endswith(".json"):
             js_files.append(file)
+
+        # register typings
         if (
             (
                 file.path.endswith(".d.ts") or
@@ -97,6 +104,8 @@ def _impl(ctx):
             len(file.path.split("/node_modules/")) < 3 and file.path.find("/node_modules/typescript/lib/lib.") == -1
         ):
             typings.append(file)
+
+        # auto detect if it entirely an npm package
         if file.is_source and file.path.startswith("external/"):
             # We cannot always expose the NpmPackageInfo as the linker
             # only allow us to reference node modules from a single workspace at a time.
@@ -106,7 +115,7 @@ def _impl(ctx):
             include_npm_package_info = True
 
         # ctx.files.named_module_srcs are merged after ctx.files.srcs
-        if idx >= len(input_files):
+        if idx >= len(ctx.files.srcs):
             named_module_files.append(file)
 
         # every single file on bin should be added here
