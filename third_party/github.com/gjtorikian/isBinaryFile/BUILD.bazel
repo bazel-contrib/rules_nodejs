@@ -10,6 +10,7 @@ load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_librar
 load("//packages/typescript:index.bzl", "ts_project")
 
 ts_project(
+    name = "tsconfig",
     srcs = ["src/index.ts"],
     deps = ["@npm//@types/node"],
 )
