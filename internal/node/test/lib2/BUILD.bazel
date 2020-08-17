@@ -13,8 +13,10 @@ js_library(
     name = "lib2",
     package_name = "lib2",
     srcs = [
-        "main.js",
         "package.json",
         "src/some.js",
+    ],
+    deps = [
+        ":tsconfig",
     ],
 )

@@ -1,6 +1,6 @@
 
 package(default_visibility = ["//visibility:public"])
-load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
+load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
 filegroup(
     name = "core__files",
     srcs = [
@@ -678,7 +678,7 @@ filegroup(
     name = "core__all_files",
     srcs = [":core__files", ":core__not_files"],
 )
-node_module_library(
+js_library(
     name = "core",
     srcs = [":core__files"],
     deps = [
@@ -688,7 +688,7 @@ node_module_library(
         "//zone.js:zone.js__contents",
     ],
 )
-node_module_library(
+js_library(
     name = "core__contents",
     srcs = [":core__files", ":core__nested_node_modules"],
     named_module_srcs = [
@@ -697,7 +697,7 @@ node_module_library(
     ],
     visibility = ["//:__subpackages__"],
 )
-node_module_library(
+js_library(
     name = "core__typings",
     srcs = [
         "//:node_modules/@angular/core/core.d.ts",

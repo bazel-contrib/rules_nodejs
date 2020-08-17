@@ -17,7 +17,7 @@
 /**
  * @fileoverview This script generates BUILD.bazel files by analyzing
  * the node_modules folder layed out by yarn or npm. It generates
- * fine grained Bazel `node_module_library` targets for each root npm package
+ * fine grained Bazel `js_library` targets for each root npm package
  * and all files for that package and its transitive deps are included
  * in the target. For example, `@<workspace>//jasmine` would
  * include all files in the jasmine npm package and all of its
@@ -28,7 +28,7 @@
  * target will be generated for the `jasmine` binary in the `jasmine`
  * npm package.
  *
- * Additionally, a `@<workspace>//:node_modules` `node_module_library`
+ * Additionally, a `@<workspace>//:node_modules` `js_library`
  * is generated that includes all packages under node_modules
  * as well as the .bin folder.
  *
@@ -158,16 +158,16 @@ function generateRootBuildFile(pkgs: Dep[]) {
                })});
 
   let buildFile = BUILD_FILE_HEADER +
-      `load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
+      `load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
 
 exports_files([
 ${exportsStarlark}])
 
-# The node_modules directory in one catch-all node_module_library.
+# The node_modules directory in one catch-all js_library.
 # NB: Using this target may have bad performance implications if
 # there are many files in target.
 # See https://github.com/bazelbuild/bazel/issues/5153.
-node_module_library(
+js_library(
     name = "node_modules",${pkgFilesStarlark}${depsStarlark}
 )
 
@@ -861,7 +861,7 @@ function findFile(pkg: Dep, m: string) {
 }
 
 /**
- * Given a pkg, return the skylark `node_module_library` targets for the package.
+ * Given a pkg, return the skylark `js_library` targets for the package.
  */
 function printPackage(pkg: Dep) {
   function starlarkFiles(attr: string, files: string[], comment: string = '') {
@@ -919,8 +919,7 @@ function printPackage(pkg: Dep) {
   const depsStarlark =
       deps.map(dep => `"//${dep._dir}:${dep._name}__contents",`).join('\n        ');
 
-  let result =
-      `load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
+  let result = `load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
 
 # Generated targets for npm package "${pkg._dir}"
 ${printJson(pkg)}
@@ -955,7 +954,7 @@ filegroup(
 )
 
 # The primary target for this package for use in rule deps
-node_module_library(
+js_library(
     name = "${pkg._name}",
     # direct sources listed for strict deps support
     srcs = [":${pkg._name}__files"],
@@ -967,14 +966,14 @@ node_module_library(
 )
 
 # Target is used as dep for main targets to prevent circular dependencies errors
-node_module_library(
+js_library(
     name = "${pkg._name}__contents",
     srcs = [":${pkg._name}__files", ":${pkg._name}__nested_node_modules"],${namedSourcesStarlark}
     visibility = ["//:__subpackages__"],
 )
 
 # Typings files that are part of the npm package not including nested node_modules
-node_module_library(
+js_library(
     name = "${pkg._name}__typings",${dtsStarlark}
 )
 
@@ -1137,7 +1136,7 @@ type Dep = {
 }
 
 /**
- * Given a scope, return the skylark `node_module_library` target for the scope.
+ * Given a scope, return the skylark `js_library` target for the scope.
  */
 function printScope(scope: string, pkgs: Dep[]) {
   pkgs = pkgs.filter(pkg => !pkg._isNested && pkg._dir.startsWith(`${scope}/`));
@@ -1168,10 +1167,10 @@ function printScope(scope: string, pkgs: Dep[]) {
     ],`;
   }
 
-  return `load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
+  return `load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
 
 # Generated target for npm scope ${scope}
-node_module_library(
+js_library(
     name = "${scope}",${pkgFilesStarlark}${depsStarlark}
 )
 

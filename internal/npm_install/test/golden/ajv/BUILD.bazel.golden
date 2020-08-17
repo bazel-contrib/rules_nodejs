@@ -1,6 +1,6 @@
 
 package(default_visibility = ["//visibility:public"])
-load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
+load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
 filegroup(
     name = "ajv__files",
     srcs = [
@@ -108,7 +108,7 @@ filegroup(
     name = "ajv__all_files",
     srcs = [":ajv__files", ":ajv__not_files"],
 )
-node_module_library(
+js_library(
     name = "ajv",
     srcs = [":ajv__files"],
     deps = [
@@ -119,12 +119,12 @@ node_module_library(
         "//json-schema-traverse:json-schema-traverse__contents",
     ],
 )
-node_module_library(
+js_library(
     name = "ajv__contents",
     srcs = [":ajv__files", ":ajv__nested_node_modules"],
     visibility = ["//:__subpackages__"],
 )
-node_module_library(
+js_library(
     name = "ajv__typings",
     srcs = [
         "//:node_modules/ajv/lib/ajv.d.ts",

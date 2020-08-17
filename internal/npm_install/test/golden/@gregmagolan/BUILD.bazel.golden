@@ -1,7 +1,7 @@
 
 package(default_visibility = ["//visibility:public"])
-load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
-node_module_library(
+load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
+js_library(
     name = "@gregmagolan",
     srcs = [
         "//@gregmagolan/test-a:test-a__files",

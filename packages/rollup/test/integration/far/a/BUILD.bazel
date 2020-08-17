@@ -10,5 +10,5 @@ ts_project(
 js_library(
     name = "a",
     package_name = "@far/a",
-    srcs = [":index.js"],
+    deps = [":tsconfig"],
 )

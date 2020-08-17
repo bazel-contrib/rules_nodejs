@@ -1,15 +1,15 @@
 # Generated file from yarn_install/npm_install rule.
 # See rules_nodejs/internal/npm_install/generate_build_file.ts
 
-load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
+load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
 
 # All rules in other repositories can use these targets
 package(default_visibility = ["//visibility:public"])
 
-# The node_modules directory in one catch-all node_module_library.
+# The node_modules directory in one catch-all js_library.
 # NB: Using this target may have bad performance implications if
 # there are many files in target.
 # See https://github.com/bazelbuild/bazel/issues/5153.
-node_module_library(
+js_library(
     name = "node_modules",
 )

@@ -80,16 +80,16 @@ function generateRootBuildFile(pkgs) {
         });
     });
     let buildFile = BUILD_FILE_HEADER +
-        `load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
+        `load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
 
 exports_files([
 ${exportsStarlark}])
 
-# The node_modules directory in one catch-all node_module_library.
+# The node_modules directory in one catch-all js_library.
 # NB: Using this target may have bad performance implications if
 # there are many files in target.
 # See https://github.com/bazelbuild/bazel/issues/5153.
-node_module_library(
+js_library(
     name = "node_modules",${pkgFilesStarlark}${depsStarlark}
 )
 
@@ -529,7 +529,7 @@ function printPackage(pkg) {
         '';
     const deps = [pkg].concat(pkg._dependencies.filter(dep => dep !== pkg && !dep._isNested));
     const depsStarlark = deps.map(dep => `"//${dep._dir}:${dep._name}__contents",`).join('\n        ');
-    let result = `load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
+    let result = `load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
 
 # Generated targets for npm package "${pkg._dir}"
 ${printJson(pkg)}
@@ -564,7 +564,7 @@ filegroup(
 )
 
 # The primary target for this package for use in rule deps
-node_module_library(
+js_library(
     name = "${pkg._name}",
     # direct sources listed for strict deps support
     srcs = [":${pkg._name}__files"],
@@ -576,14 +576,14 @@ node_module_library(
 )
 
 # Target is used as dep for main targets to prevent circular dependencies errors
-node_module_library(
+js_library(
     name = "${pkg._name}__contents",
     srcs = [":${pkg._name}__files", ":${pkg._name}__nested_node_modules"],${namedSourcesStarlark}
     visibility = ["//:__subpackages__"],
 )
 
 # Typings files that are part of the npm package not including nested node_modules
-node_module_library(
+js_library(
     name = "${pkg._name}__typings",${dtsStarlark}
 )
 
@@ -732,10 +732,10 @@ function printScope(scope, pkgs) {
         ${list}
     ],`;
     }
-    return `load("@build_bazel_rules_nodejs//internal/npm_install:node_module_library.bzl", "node_module_library")
+    return `load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
 
 # Generated target for npm scope ${scope}
-node_module_library(
+js_library(
     name = "${scope}",${pkgFilesStarlark}${depsStarlark}
 )
 
