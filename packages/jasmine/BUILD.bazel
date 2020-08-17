@@ -13,7 +13,7 @@
 # limitations under the License.
 
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
-load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin", "nodejs_test")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
 load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "pkg_npm")
 load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
 load("@build_bazel_rules_nodejs//tools/stardoc:index.bzl", "stardoc")
@@ -53,18 +53,13 @@ nodejs_test(
     ],
 )
 
-copy_to_bin(
-    name = "srcs",
+js_library(
+    name = "jasmine",
+    package_name = "@bazel/jasmine",
     srcs = [
         "index.js",
         "jasmine_runner.js",
     ],
-)
-
-js_library(
-    name = "jasmine",
-    package_name = "@bazel/jasmine",
-    srcs = [":srcs"],
 )
 
 # Ugly genrule depending on local linux environment to build the README out of skylark doc generation.

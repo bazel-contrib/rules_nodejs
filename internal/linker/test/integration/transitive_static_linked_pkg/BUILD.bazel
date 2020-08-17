@@ -1,15 +1,9 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin")
 load("//internal/js_library:js_library.bzl", "js_library")
 
 package(default_visibility = ["//internal/linker/test:__subpackages__"])
 
-copy_to_bin(
-    name = "srcs",
-    srcs = ["index.js"],
-)
-
 js_library(
     name = "transitive_static_linked_pkg",
     package_name = "transitive_static_linked",
-    srcs = [":srcs"],
+    srcs = ["index.js"],
 )

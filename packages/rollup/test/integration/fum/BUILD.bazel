@@ -1,15 +1,9 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin")
 load("//internal/js_library:js_library.bzl", "js_library")
 
 package(default_visibility = ["//packages/rollup:__subpackages__"])
 
-copy_to_bin(
-    name = "index",
-    srcs = ["index.js"],
-)
-
 js_library(
     name = "fumlib",
     package_name = "fumlib",
-    srcs = [":index"],
+    srcs = ["index.js"],
 )
