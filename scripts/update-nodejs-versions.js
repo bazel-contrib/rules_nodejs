@@ -1,5 +1,6 @@
-// This script creates output that can be copy/pasted into /internal/node/node_repositories.bzl to
+// This script creates output that is copy/pasted into /internal/node/node_versions.bzl to
 // add all published NodeJS versions >= 8.0.0.
+// See the update-nodejs-versions script in package.json
 
 const https = require("https");
 
@@ -70,7 +71,11 @@ async function getNodeJsVersion(version) {
 async function main() {
   const versions = await getNodeJsVersions();
   const nodeRepositories = await Promise.all(versions.map(getNodeJsVersion));
-
+  console.log('""" Generated code; do not edit');
+  console.log('Update by running yarn update-nodejs-versions\n"""\n');
+  // Suppress buildifier
+  console.log('# @unsorted-dict-items');
+  console.log('NODE_VERSIONS = {');
   nodeRepositories.forEach(({ version, repositories }) => {
     console.log(
       [
@@ -85,10 +90,13 @@ async function main() {
             )}", "${sha}"),`
         ),
       ]
-        .map((line) => `            ${line}`)
+        .map((line) => `    ${line}`)
         .join("\n")
     );
   });
+  console.log("}");
 }
 
-main();
+if (require.main === module) {
+  main();
+}

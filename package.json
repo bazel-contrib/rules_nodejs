@@ -125,6 +125,7 @@
         "// See comment in .bazelrc": "",
         "bazel:update-deleted-packages": "sed -i.bak \"/--deleted_packages/s#=.*#=$(find {examples,e2e}/*/* \\( -name BUILD -or -name BUILD.bazel \\) | xargs -n 1 dirname | paste -sd, -)#\" .bazelrc && rm .bazelrc.bak",
         "update-codeowners": "./scripts/update_codeowners.sh",
+        "update-nodejs-versions": "node ./scripts/update-nodejs-versions.js > internal/node/node_versions.bzl",
         "format": "git-clang-format",
         "format-all": "clang-format --glob='{internal/**/,examples/**/}*.{js,ts}' -i",
         "stardoc": "bazel build //docs && cp -f dist/bin/docs/*.md docs",
