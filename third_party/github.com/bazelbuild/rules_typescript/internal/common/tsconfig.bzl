@@ -87,7 +87,7 @@ def create_tsconfig(
         ]]
 
         node_modules_mappings = []
-        if (hasattr(ctx.attr, "node_modules")):
+        if hasattr(ctx.attr, "node_modules"):
             node_modules_mappings.append("/".join([p for p in [
                 node_modules_root,
                 "*",
