@@ -1,3 +1,20 @@
+## [2.0.3](https://github.com/bazelbuild/rules_nodejs/compare/2.0.2...2.0.3) (2020-08-18)
+
+
+### Bug Fixes
+
+* **examples:** use ./ prefix on babel config file ([374f56f](https://github.com/bazelbuild/rules_nodejs/commit/374f56f))
+* **typescript:** only expect .js outs for .tsx? srcs ([#2118](https://github.com/bazelbuild/rules_nodejs/issues/2118)) ([83688a1](https://github.com/bazelbuild/rules_nodejs/commit/83688a1)), closes [#2115](https://github.com/bazelbuild/rules_nodejs/issues/2115)
+* **typescript:** produce .d.ts as default output rather than empty ([#2117](https://github.com/bazelbuild/rules_nodejs/issues/2117)) ([3d885e8](https://github.com/bazelbuild/rules_nodejs/commit/3d885e8)), closes [#2116](https://github.com/bazelbuild/rules_nodejs/issues/2116)
+
+
+### Features
+
+* **builtin:** new js_library rule ([#2109](https://github.com/bazelbuild/rules_nodejs/issues/2109)) ([4fe1a17](https://github.com/bazelbuild/rules_nodejs/commit/4fe1a17))
+* **example:** add targets in angular_bazel_architect for production serve and build ([746a6f8](https://github.com/bazelbuild/rules_nodejs/commit/746a6f8))
+
+
+
 ## [2.0.2](https://github.com/bazelbuild/rules_nodejs/compare/2.0.1...2.0.2) (2020-08-10)
 
 
