@@ -744,25 +744,25 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@bazel/bazelisk@^1.6.0":
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/@bazel/bazelisk/-/bazelisk-1.6.0.tgz#3742e9bd2ddaa43ac0c3b4ba167f95cfaf881400"
-  integrity sha512-lHFsZFR5ofj3yL2BtlbblbrglB/okocuY4T53M+tHLG/pV5H8LdzYPXrymzab/qXyyW4zKSPEpX20QITITsvtw==
+"@bazel/bazelisk@^1.6.1":
+  version "1.6.1"
+  resolved "https://registry.yarnpkg.com/@bazel/bazelisk/-/bazelisk-1.6.1.tgz#f9e279d2fecaf6cec6ed676bc8714846f3704e40"
+  integrity sha512-2JpfZb6eYCGrdLdUJamncIpI4pgEAhPURYGg+rCgqoZDJxzADuOnpf/00dEBXPM2XByXNXTqsKEFN2gTaZz2mA==
 
-"@bazel/cypress@^2.0.2":
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/@bazel/cypress/-/cypress-2.0.2.tgz#f72e1cb736e5905f498220d1d5d34f1554274906"
-  integrity sha512-uxcOACM/xTz0rM65y+YueYNdunjEcBm0wQ0/lOGh9f3rv7hctM7yM+XZASdfnPNmOoM79y98IULU2A30CcSvTg==
+"@bazel/cypress@^2.0.3":
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/@bazel/cypress/-/cypress-2.0.3.tgz#823337d5f44461b596b87a4d3cc897e4dda7cc5f"
+  integrity sha512-PqUYYqWAxGYO0hhrZ5fZXhU03Q2LYlp2lTiCfzWEAZlIJQnP+tCqNuvHJqdbX9iTm6U13wGr1RHULMyiDCF1qQ==
 
 "@bazel/ibazel@^0.13.1":
   version "0.13.1"
   resolved "https://registry.yarnpkg.com/@bazel/ibazel/-/ibazel-0.13.1.tgz#23788f67a6fbe83d96f2d055691df4917c10ac8d"
   integrity sha512-FO1hBKpzpeBL0adnFYF2Dwl/7gox6ccKM6bb+x26AXrQpLbinXPuTi4zeXRL/MW4383mF6i4RovLCmwUU/YW0w==
 
-"@bazel/typescript@^2.0.2":
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-2.0.2.tgz#02a2b81e5b73224eace8cec4735a2b0f9975f199"
-  integrity sha512-Ygv3HVxa/y9qnazi8hPvGwXsooeZ2RhgQCJtcIV7QLyGb+X8gv5ZUPlSKkXVI94TFO2x6pxFQHHcgKOEu4HWaw==
+"@bazel/typescript@^2.0.3":
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-2.0.3.tgz#0be019014ef973f3a415c4671c65d943afc62023"
+  integrity sha512-yESlesTHX7gOuBzuc61HtHB8h/gRCaEB3C6guJnBVPuz4tGMLJ069fJz/SW/pfgrACP7ixqWqHXIAEnPsRU+tw==
   dependencies:
     protobufjs "6.8.8"
     semver "5.6.0"

@@ -5,10 +5,10 @@
         "express": "4.17.1"
     },
     "devDependencies": {
-        "@bazel/bazelisk": "^1.6.0",
-        "@bazel/cypress": "^2.0.2",
+        "@bazel/bazelisk": "^1.6.1",
+        "@bazel/cypress": "^2.0.3",
         "@bazel/ibazel": "^0.13.1",
-        "@bazel/typescript": "^2.0.2",
+        "@bazel/typescript": "^2.0.3",
         "@cypress/browserify-preprocessor": "^3.0.0",
         "@types/node": "14.0.13",
         "cypress": "^4.8.0",

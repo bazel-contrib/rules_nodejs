@@ -1,7 +1,7 @@
 {
   "dependencies": {
-    "@bazel/protractor": "^2.0.2",
-    "@bazel/typescript": "^2.0.2",
+    "@bazel/protractor": "^2.0.3",
+    "@bazel/typescript": "^2.0.3",
     "@types/jasmine": "2.8.2",
     "@types/node": "7.0.18",
     "date-fns": "1.30.1",

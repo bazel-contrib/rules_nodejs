@@ -1078,10 +1078,10 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@bazel/bazelisk@^1.6.0":
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/@bazel/bazelisk/-/bazelisk-1.6.0.tgz#3742e9bd2ddaa43ac0c3b4ba167f95cfaf881400"
-  integrity sha512-lHFsZFR5ofj3yL2BtlbblbrglB/okocuY4T53M+tHLG/pV5H8LdzYPXrymzab/qXyyW4zKSPEpX20QITITsvtw==
+"@bazel/bazelisk@^1.6.1":
+  version "1.6.1"
+  resolved "https://registry.yarnpkg.com/@bazel/bazelisk/-/bazelisk-1.6.1.tgz#f9e279d2fecaf6cec6ed676bc8714846f3704e40"
+  integrity sha512-2JpfZb6eYCGrdLdUJamncIpI4pgEAhPURYGg+rCgqoZDJxzADuOnpf/00dEBXPM2XByXNXTqsKEFN2gTaZz2mA==
 
 "@bazel/ibazel@^0.13.1":
   version "0.13.1"

@@ -2,9 +2,9 @@
     "name": "kotlin_example",
     "private": true,
     "devDependencies": {
-        "@bazel/jasmine": "^2.0.2",
-        "@bazel/rollup": "^2.0.2",
-        "@bazel/terser": "^2.0.2",
+        "@bazel/jasmine": "^2.0.3",
+        "@bazel/rollup": "^2.0.3",
+        "@bazel/terser": "^2.0.3",
         "@rollup/plugin-commonjs": "14.0.0",
         "@rollup/plugin-node-resolve": "8.4.0",
         "domino": "^2.1.3",

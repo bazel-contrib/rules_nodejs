@@ -1,11 +1,11 @@
 {
   "devDependencies": {
-    "@bazel/karma": "^2.0.2",
-    "@bazel/labs": "^2.0.2",
-    "@bazel/protractor": "^2.0.2",
-    "@bazel/rollup": "^2.0.2",
-    "@bazel/terser": "^2.0.2",
-    "@bazel/typescript": "^2.0.2",
+    "@bazel/karma": "^2.0.3",
+    "@bazel/labs": "^2.0.3",
+    "@bazel/protractor": "^2.0.3",
+    "@bazel/rollup": "^2.0.3",
+    "@bazel/terser": "^2.0.3",
+    "@bazel/typescript": "^2.0.3",
     "@rollup/plugin-commonjs": "14.0.0",
     "@rollup/plugin-node-resolve": "8.4.0",
     "@types/jasmine": "2.8.2",
