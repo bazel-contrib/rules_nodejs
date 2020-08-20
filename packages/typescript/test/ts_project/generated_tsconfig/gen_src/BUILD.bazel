@@ -1,0 +1,23 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
+load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:rules/write_file.bzl", "write_file")
+load("//packages/typescript:index.bzl", "ts_project")
+
+write_file(
+    name = "gen_src",
+    out = "a.ts",
+    content = ["export const a: string = 'hello world';"],
+)
+
+ts_project(
+    srcs = ["a.ts"],
+    tsconfig = {
+        "types": [],
+    },
+)
+
+generated_file_test(
+    name = "test",
+    src = "expected.js_",
+    generated = ":a.js",
+    tags = ["manual"],
+)

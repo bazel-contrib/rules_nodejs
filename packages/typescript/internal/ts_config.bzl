@@ -55,3 +55,79 @@ feature from TypeScript, then the Bazel implementation needs to know about that
 extended configuration file as well, to pass them both to the TypeScript compiler.
 """,
 )
+
+def _join(*elements):
+    return "/".join([f for f in elements if f])
+
+def _relative_path(tsconfig_path, dest):
+    if dest.is_source:
+        # Calculate a relative path from the directory where we're writing the tsconfig
+        # back to the sources root
+        workspace_root = "/".join([".."] * len(tsconfig_path.dirname.split("/")))
+        return _join(workspace_root, dest.path)
+
+    # TODO: basename isn't exactly correct, there could be a subdir
+    return dest.basename
+
+def _write_tsconfig_rule(ctx):
+    # TODO: is it useful to expand Make variables in the content?
+    content = "\n".join(ctx.attr.content)
+    if ctx.attr.extends:
+        content = content.replace(
+            "__extends__",
+            _relative_path(ctx.outputs.out, ctx.file.extends),
+        )
+    if ctx.attr.files:
+        content = content.replace(
+            "\"__files__\"",
+            str([_relative_path(ctx.outputs.out, f) for f in ctx.files.files]),
+        )
+    ctx.actions.write(
+        output = ctx.outputs.out,
+        content = content,
+    )
+    return [DefaultInfo(files = depset([ctx.outputs.out]))]
+
+write_tsconfig_rule = rule(
+    implementation = _write_tsconfig_rule,
+    attrs = {
+        "content": attr.string_list(),
+        "extends": attr.label(allow_single_file = True),
+        "files": attr.label_list(allow_files = True),
+        "out": attr.output(),
+    },
+)
+
+# Syntax sugar around skylib's write_file
+def write_tsconfig(name, config, files, extends, out):
+    """Wrapper around bazel_skylib's write_file which understands tsconfig paths
+
+    Args:
+        name: name of the resulting write_file rule
+        config: tsconfig dictionary
+        files: list of input .ts files to put in the files[] array
+        extends: a tsconfig.json file to extend from
+        out: the file to write
+    """
+
+    # Allow extends to be a list of labels, as this is what ts_project accepts
+    if type(extends) == type([]):
+        if len(extends):
+            extends = extends[0]
+        else:
+            extends = None
+    if extends:
+        extends = Label(extends)
+        config["extends"] = "__extends__"  #_join(workspace_root, extends.package, extends.name)
+
+    amended_config = struct(
+        files = "__files__",  #[_join(workspace_root, native.package_name(), f) for f in files],
+        **config
+    )
+    write_tsconfig_rule(
+        name = name,
+        files = files,
+        extends = extends,
+        content = [amended_config.to_json()],
+        out = out,
+    )

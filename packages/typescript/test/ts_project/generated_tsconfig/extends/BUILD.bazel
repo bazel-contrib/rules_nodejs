@@ -1,0 +1,19 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
+load("//packages/typescript:index.bzl", "ts_project")
+
+ts_project(
+    extends = ["//packages/typescript/test/ts_project:tsconfig-base.json"],
+    tsconfig = {
+        "compilerOptions": {
+            "declaration": True,
+            "types": [],
+        },
+    },
+)
+
+generated_file_test(
+    name = "test",
+    # test the default output of the ts_project
+    src = "expected.js_",
+    generated = "a.js",
+)

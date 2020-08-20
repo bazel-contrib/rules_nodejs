@@ -1,0 +1,43 @@
+"Test that properties in the tsconfig dict are honored"
+
+load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
+load("//packages/typescript:index.bzl", "ts_project")
+
+ts_project(
+    tsconfig = {
+        "compilerOptions": {
+            "declaration": True,
+            "declarationDir": "types",
+            "declarationMap": True,
+            "module": "esnext",
+            "outDir": "out",
+            "rootDir": "src",
+            "sourceMap": True,
+            "types": [],
+        },
+    },
+)
+
+generated_file_test(
+    name = "test",
+    src = "expected.js_",
+    generated = ":out/a.js",
+)
+
+generated_file_test(
+    name = "test_map",
+    src = "expected.js.map_",
+    generated = ":out/a.js.map",
+)
+
+generated_file_test(
+    name = "test_dts",
+    src = "expected.d.ts_",
+    generated = ":types/a.d.ts",
+)
+
+generated_file_test(
+    name = "test_dtsmap",
+    src = "expected.d.ts.map_",
+    generated = ":types/a.d.ts.map",
+)
