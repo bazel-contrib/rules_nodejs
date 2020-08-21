@@ -1,0 +1,11 @@
+{
+  "capabilities": {
+    "goog:chromeOptions": {
+      "args": [
+        "--remote-debugging-port=9222",
+        "--headless",
+        "--use-gl=swiftshader-webgl"
+      ]
+    }
+  }
+}

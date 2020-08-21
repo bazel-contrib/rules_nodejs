@@ -321,13 +321,23 @@ try {
                   webTestNamedFiles['CHROMIUM']}' in runfiles`);
             }
           }
+          // Read any additional chrome options (as specified by the
+          // rules_webtesting manifest).
+          const chromeOptions = (webTestMetadata['capabilities'] || {})['goog:chromeOptions'];
+          const additionalArgs = (chromeOptions ? chromeOptions['args'] : []).filter(arg => {
+            // We never want to 'run' Chrome in headless mode.
+            return arg != '--headless';
+          });
           const browser = process.env['DISPLAY'] ? 'Chrome' : 'ChromeHeadless';
           if (!supportChromeSandboxing()) {
             const launcher = 'CustomChromeWithoutSandbox';
-            conf.customLaunchers = {[launcher]: {base: browser, flags: ['--no-sandbox']}};
+            conf.customLaunchers =
+                {[launcher]: {base: browser, flags: ['--no-sandbox', ...additionalArgs]}};
             conf.browsers.push(launcher);
           } else {
-            conf.browsers.push(browser);
+            const launcher = 'CustomChrome';
+            conf.customLaunchers = {[launcher]: {base: browser, flags: additionalArgs}};
+            conf.browsers.push(launcher);
           }
         }
         if (webTestNamedFiles['FIREFOX']) {

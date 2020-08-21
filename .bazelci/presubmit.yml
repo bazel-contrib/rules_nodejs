@@ -32,7 +32,7 @@ tasks:
     # on bazelci apt-get fails with permission denied and there is no sudo
     # command to switch to root.
     # TODO(gregmagolan): figure out how to install missing shared libs
-    - "--test_tag_filters=-e2e,-examples,-manual,-browser:chromium-local,-browser:firefox-local,-cypress"
+    - "--test_tag_filters=-e2e,-examples,-manual,-browser:chromium-local,-browser:firefox-local,-browser:custom_chrome,-cypress"
     test_targets:
     - "//..."
     # //internal/node/test:nodejs_toolchain_linux_amd64_test is a "manual" test that must be run
@@ -137,7 +137,7 @@ tasks:
     # on bazelci apt-get fails with permission denied and there is no sudo
     # command to switch to root.
     # TODO(gregmagolan): figure out how to install missing shared libs
-    - "--test_tag_filters=-e2e,-examples,-manual,-browser:chromium-local,-browser:firefox-local,-cypress"
+    - "--test_tag_filters=-e2e,-examples,-manual,-browser:chromium-local,-browser:firefox-local,-browser:custom_chrome,-cypress"
     test_targets:
     - "//..."
     # //internal/node/test:nodejs_toolchain_linux_amd64_test is a "manual" test that must be run
@@ -158,7 +158,7 @@ tasks:
     # on bazelci apt-get fails with permission denied and there is no sudo
     # command to switch to root.
     # TODO(gregmagolan): figure out how to install missing shared libs
-    - "--test_tag_filters=-e2e,-examples,-manual,-browser:chromium-local,-browser:firefox-local,-cypress"
+    - "--test_tag_filters=-e2e,-examples,-manual,-browser:chromium-local,-browser:firefox-local,-browser:custom_chrome,-cypress"
     test_targets:
     - "//..."
   ubuntu1804_e2e:

@@ -1,0 +1,5 @@
+const chromeOptions = (webTestMetadata['capabilities'] || {})['goog:chromeOptions'];
+const additionalArgs = (chromeOptions ? chromeOptions['args'] : []).filter(arg => {
+  // We never want to 'run' Chrome in headless mode.
+  return arg != '--headless';
+});
