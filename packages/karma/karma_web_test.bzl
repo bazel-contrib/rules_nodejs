@@ -120,10 +120,7 @@ def _find_dep(ctx, suffix):
 
 # Generates the karma configuration file for the rule
 def _write_karma_config(ctx, files, amd_names_shim):
-    configuration = ctx.actions.declare_file(
-        "%s.conf.js" % ctx.label.name,
-        sibling = ctx.outputs.executable,
-    )
+    configuration = ctx.outputs.configuration
 
     config_file = None
 
@@ -325,6 +322,9 @@ _karma_web_test = rule(
     test = True,
     executable = True,
     attrs = KARMA_WEB_TEST_ATTRS,
+    outputs = {
+        "configuration": "%{name}.conf.js",
+    },
 )
 
 def karma_web_test(
