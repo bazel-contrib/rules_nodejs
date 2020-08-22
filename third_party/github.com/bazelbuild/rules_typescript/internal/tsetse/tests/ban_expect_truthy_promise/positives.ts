@@ -1,3 +1,5 @@
+import './jasmine_types';
+
 function returnsPromise() {
   return Promise.resolve(true);
 }

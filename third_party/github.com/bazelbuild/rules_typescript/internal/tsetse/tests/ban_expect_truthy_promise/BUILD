@@ -34,13 +34,13 @@ ts_library(
         "positives.ts",
     ],
     expected_diagnostics = [
-        "\\(29,5\\).*" + error_message,
-        "\\(30,5\\).*" + error_message,
         "\\(31,5\\).*" + error_message,
         "\\(32,5\\).*" + error_message,
         "\\(33,5\\).*" + error_message,
         "\\(34,5\\).*" + error_message,
         "\\(35,5\\).*" + error_message,
+        "\\(36,5\\).*" + error_message,
+        "\\(37,5\\).*" + error_message,
     ],
     tsconfig = "//internal:tsetse/tsconfig.json",
     deps = [
