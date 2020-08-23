@@ -170,19 +170,20 @@ export async function runWorkerLoop(
         // to read more input, this message will not be processed again.
         buf = buf.slice(messageStart);
         debug('=== Handling new build request');
-        // Reset accumulated log output.
-        consoleOutput = '';
         const args = req.arguments;
         const inputs: {[path: string]: string} = {};
         for (const input of req.inputs) {
           inputs[input.path] = input.digest.toString('hex');
         }
         debug('Compiling with:\n\t' + args.join('\n\t'));
-        const exitCode = (await runOneBuild(args, inputs)) ? 0 : 1;
-        process.stdout.write((workerpb.WorkResponse.encodeDelimited({
-                               exitCode,
-                               output: consoleOutput,
-                             })).finish() as Buffer);
+        process.stdout.write(
+            workerpb.WorkResponse.encodeDelimited({
+              exitCode: await runOneBuild(args, inputs) ? 0 : 1,
+              output: consoleOutput,
+            }).finish() as Buffer
+        );
+        // Reset accumulated log output now that it has been printed.
+        consoleOutput = '';
         // Force a garbage collection pass.  This keeps our memory usage
         // consistent across multiple compilations, and allows the file
         // cache to use the current memory usage as a guideline for expiring
@@ -200,7 +201,8 @@ export async function runWorkerLoop(
       process.stdout.write(
           workerpb.WorkResponse
               .encodeDelimited({exitCode: 1, output: consoleOutput})
-              .finish() as Buffer);
+              .finish() as Buffer
+      );
       // Clear buffer so the next build won't read an incomplete request.
       buf = Buffer.alloc(0);
     }
