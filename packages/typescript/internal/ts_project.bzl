@@ -116,6 +116,10 @@ def _ts_project_impl(ctx):
 
     outputs = json_outs + ctx.outputs.js_outs + ctx.outputs.map_outs + ctx.outputs.typings_outs + ctx.outputs.typing_maps_outs
     if ctx.outputs.buildinfo_out:
+        arguments.add_all([
+            "--tsBuildInfoFile",
+            ctx.outputs.buildinfo_out.path,
+        ])
         outputs.append(ctx.outputs.buildinfo_out)
     runtime_outputs = json_outs + ctx.outputs.js_outs + ctx.outputs.map_outs
     typings_outputs = ctx.outputs.typings_outs + ctx.outputs.typing_maps_outs + [s for s in ctx.files.srcs if s.path.endswith(".d.ts")]
@@ -184,6 +188,7 @@ def _validate_options_impl(ctx):
         emit_declaration_only = ctx.attr.emit_declaration_only,
         source_map = ctx.attr.source_map,
         incremental = ctx.attr.incremental,
+        ts_build_info_file = ctx.attr.ts_build_info_file,
     ).to_json()])
 
     run_node(
@@ -210,6 +215,7 @@ validate_options = rule(
         "incremental": attr.bool(),
         "source_map": attr.bool(),
         "target": attr.string(),
+        "ts_build_info_file": attr.string(),
         "tsconfig": attr.label(mandatory = True, allow_single_file = [".json"]),
         "validator": attr.label(default = Label("//packages/typescript/bin:ts_project_options_validator"), executable = True, cfg = "host"),
     },
@@ -236,6 +242,7 @@ def ts_project_macro(
         composite = False,
         incremental = False,
         emit_declaration_only = False,
+        ts_build_info_file = None,
         tsc = None,
         validate = True,
         declaration_dir = None,
@@ -394,6 +401,8 @@ def ts_project_macro(
             Instructs Bazel to expect a `.tsbuildinfo` output.
         emit_declaration_only: if the `emitDeclarationOnly` bit is set in the tsconfig.
             Instructs Bazel *not* to expect `.js` or `.js.map` outputs for `.ts` sources.
+        ts_build_info_file: the user-specified value of `tsBuildInfoFile` from the tsconfig.
+            Helps Bazel to predict the path where the .tsbuildinfo output is written.
 
         **kwargs: passed through to underlying rule, allows eg. visibility, tags
     """
@@ -416,12 +425,14 @@ def ts_project_macro(
             composite = composite,
             incremental = incremental,
             emit_declaration_only = emit_declaration_only,
+            ts_build_info_file = ts_build_info_file,
             tsconfig = tsconfig,
             extends = extends,
         )
         extra_deps.append("_validate_%s_options" % name)
 
     typings_out_dir = declaration_dir if declaration_dir else out_dir
+    tsbuildinfo_path = ts_build_info_file if ts_build_info_file else tsconfig[:-5] + ".tsbuildinfo"
 
     ts_project(
         name = name,
@@ -437,7 +448,7 @@ def ts_project_macro(
         map_outs = _out_paths(srcs, out_dir, root_dir, ".js.map") if source_map and not emit_declaration_only else [],
         typings_outs = _out_paths(srcs, typings_out_dir, root_dir, ".d.ts") if declaration or composite else [],
         typing_maps_outs = _out_paths(srcs, typings_out_dir, root_dir, ".d.ts.map") if declaration_map else [],
-        buildinfo_out = tsconfig[:-5] + ".tsbuildinfo" if composite or incremental else None,
+        buildinfo_out = tsbuildinfo_path if composite or incremental else None,
         tsc = tsc,
         **kwargs
     )
