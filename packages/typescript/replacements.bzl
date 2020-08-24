@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Replacements for @npm/typescript package
+"""Replacements for @bazel/typescript package
 """
 
 load("@build_bazel_rules_nodejs//:index.bzl", "COMMON_REPLACEMENTS")
@@ -24,6 +24,7 @@ TYPESCRIPT_REPLACEMENTS = dict(
         # @build_bazel_rules_typescript//:npm_bazel_typescript_package
         # use this alternate fencing
         "(#|\\/\\/)\\s+BEGIN-DEV-ONLY[\\w\\W]+?(#|\\/\\/)\\s+END-DEV-ONLY": "",
+        "//packages/typescript/internal/worker:worker_adapter": "//@bazel/typescript/internal/worker:worker_adapter.js",
         # This file gets vendored into our repo
         "@build_bazel_rules_typescript//internal:common": "//@bazel/typescript/internal:common",
         # Replace the local compiler label with one that comes from npm

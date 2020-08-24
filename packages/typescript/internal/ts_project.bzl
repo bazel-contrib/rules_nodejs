@@ -2,6 +2,7 @@
 
 load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "NpmPackageInfo", "declaration_info", "js_module_info", "run_node")
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
+load("@build_bazel_rules_nodejs//internal/node:node.bzl", "nodejs_binary")
 load(":ts_config.bzl", "TsConfigInfo", "write_tsconfig")
 
 _ValidOptionsInfo = provider()
@@ -11,6 +12,13 @@ _DEFAULT_TSC = (
     "@npm" +
     # END-INTERNAL
     "//typescript/bin:tsc"
+)
+
+_DEFAULT_TSC_BIN = (
+    # BEGIN-INTERNAL
+    "@npm" +
+    # END-INTERNAL
+    "//:node_modules/typescript/bin/tsc"
 )
 
 _ATTRS = {
@@ -33,7 +41,14 @@ _ATTRS = {
     # if you swap out the `compiler` attribute (like with ngtsc)
     # that compiler might allow more sources than tsc does.
     "srcs": attr.label_list(allow_files = True, mandatory = True),
-    "tsc": attr.label(default = Label(_DEFAULT_TSC), executable = True, cfg = "host"),
+    "supports_workers": attr.bool(
+        doc = """Experimental! Use only with caution.
+
+Allows you to enable the Bazel Worker strategy for this project.
+This requires that the tsc binary support it.""",
+        default = False,
+    ),
+    "tsc": attr.label(default = Label(_DEFAULT_TSC), executable = True, cfg = "target"),
     "tsconfig": attr.label(mandatory = True, allow_single_file = [".json"]),
 }
 
@@ -56,6 +71,16 @@ def _join(*elements):
 
 def _ts_project_impl(ctx):
     arguments = ctx.actions.args()
+    execution_requirements = {}
+    progress_prefix = "Compiling TypeScript project"
+
+    if ctx.attr.supports_workers:
+        # Set to use a multiline param-file for worker mode
+        arguments.use_param_file("@%s", use_always = True)
+        arguments.set_param_file_format("multiline")
+        execution_requirements["supports-workers"] = "1"
+        execution_requirements["worker-key-mnemonic"] = "TsProjectMnemonic"
+        progress_prefix = "Compiling TypeScript project (worker mode)"
 
     generated_srcs = False
     for src in ctx.files.srcs:
@@ -162,7 +187,9 @@ def _ts_project_impl(ctx):
             arguments = [arguments],
             outputs = outputs,
             executable = "tsc",
-            progress_message = "Compiling TypeScript project %s [tsc -p %s]" % (
+            execution_requirements = execution_requirements,
+            progress_message = "%s %s [tsc -p %s]" % (
+                progress_prefix,
                 ctx.label,
                 ctx.file.tsconfig.short_path,
             ),
@@ -288,6 +315,7 @@ def ts_project_macro(
         ts_build_info_file = None,
         tsc = None,
         validate = True,
+        supports_workers = False,
         declaration_dir = None,
         out_dir = None,
         root_dir = None,
@@ -455,6 +483,11 @@ def ts_project_macro(
 
         validate: boolean; whether to check that the tsconfig settings match the attributes.
 
+        supports_workers: Experimental! Use only with caution.
+
+            Allows you to enable the Bazel Worker strategy for this project.
+            This requires that the tsc binary support it.
+
         root_dir: a string specifying a subdirectory under the input package which should be consider the
             root directory of all the input files.
             Equivalent to the TypeScript --rootDir option.
@@ -559,6 +592,31 @@ def ts_project_macro(
             )
             extra_deps.append("_validate_%s_options" % name)
 
+    if supports_workers:
+        tsc_worker = "%s_worker" % name
+        nodejs_binary(
+            name = tsc_worker,
+            data = [
+                Label("//packages/typescript/internal/worker:worker"),
+                Label(_DEFAULT_TSC_BIN),
+                tsconfig,
+            ],
+            entry_point = Label("//packages/typescript/internal/worker:worker_adapter"),
+            templated_args = [
+                "--nobazel_patch_module_resolver",
+                "$(execpath {})".format(Label(_DEFAULT_TSC_BIN)),
+                "--project",
+                "$(execpath {})".format(tsconfig),
+                # FIXME: should take out_dir into account
+                "--outDir",
+                "$(RULEDIR)",
+                # FIXME: what about other settings like declaration_dir, root_dir, etc
+                "--watch",
+            ],
+        )
+
+        tsc = ":" + tsc_worker
+
     typings_out_dir = declaration_dir if declaration_dir else out_dir
     tsbuildinfo_path = ts_build_info_file if ts_build_info_file else name + ".tsbuildinfo"
 
@@ -583,5 +641,9 @@ def ts_project_macro(
         buildinfo_out = tsbuildinfo_path if composite or incremental else None,
         tsc = tsc,
         link_workspace_root = link_workspace_root,
+        supports_workers = select({
+            "@bazel_tools//src/conditions:host_windows": False,
+            "//conditions:default": supports_workers,
+        }),
         **kwargs
     )

@@ -1,6 +1,14 @@
 {
     "compilerOptions": {
         "jsx": "react",
-        "lib": ["ES2015", "DOM"]
-    }
+        "lib": [
+            "ES2015",
+            "DOM"
+        ]
+    },
+    // When using ts_project in worker mode, make sure to whitelist the files that should be part of this particular compilation. In worker mode, the CWD is different than by default so typescript will pickup extraneous files without the whitelist.
+    "include": [
+        "*.tsx",
+        "*.ts"
+    ]
 }

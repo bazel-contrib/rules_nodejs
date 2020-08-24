@@ -37,7 +37,7 @@ def _trim_package_node_modules(package_name):
     for n in package_name.split("/"):
         if n == "node_modules":
             break
-        segments += [n]
+        segments.append(n)
     return "/".join(segments)
 
 def _compute_node_modules_root(ctx):
@@ -250,7 +250,15 @@ fi
     expanded_args = [expand_location_into_runfiles(ctx, a, ctx.attr.data) for a in expanded_args]
 
     # Next expand predefined variables & custom variables
-    expanded_args = [ctx.expand_make_variables("templated_args", e, {}) for e in expanded_args]
+    rule_dir = [f for f in [
+        ctx.bin_dir.path,
+        ctx.label.workspace_root,
+        ctx.label.package,
+    ] if f]
+    additional_substitutions = {}
+    additional_substitutions["@D"] = "/".join([o for o in rule_dir if o])
+    additional_substitutions["RULEDIR"] = "/".join([o for o in rule_dir if o])
+    expanded_args = [ctx.expand_make_variables("templated_args", e, additional_substitutions) for e in expanded_args]
 
     substitutions = {
         # TODO: Split up results of multifile expansions into separate args and qoute them with
