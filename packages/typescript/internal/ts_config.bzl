@@ -14,7 +14,14 @@
 
 "tsconfig.json files using extends"
 
-TsConfigInfo = provider()
+TsConfigInfo = provider(
+    doc = """Provides TypeScript configuration, in the form of a tsconfig.json file
+        along with any transitively referenced tsconfig.json files chained by the
+        "extends" feature""",
+    fields = {
+        "deps": "all tsconfig.json files needed to configure TypeScript",
+    },
+)
 
 def _ts_config_impl(ctx):
     files = depset([ctx.file.src])
@@ -22,7 +29,10 @@ def _ts_config_impl(ctx):
     for dep in ctx.attr.deps:
         if TsConfigInfo in dep:
             transitive_deps.extend(dep[TsConfigInfo].deps)
-    return [DefaultInfo(files = files), TsConfigInfo(deps = ctx.files.deps + transitive_deps)]
+    return [
+        DefaultInfo(files = files),
+        TsConfigInfo(deps = [ctx.file.src] + ctx.files.deps + transitive_deps),
+    ]
 
 ts_config = rule(
     implementation = _ts_config_impl,
@@ -30,7 +40,6 @@ ts_config = rule(
         "deps": attr.label_list(
             doc = """Additional tsconfig.json files referenced via extends""",
             allow_files = True,
-            mandatory = True,
         ),
         "src": attr.label(
             doc = """The tsconfig.json file passed to the TypeScript compiler""",
@@ -41,7 +50,7 @@ ts_config = rule(
     doc = """Allows a tsconfig.json file to extend another file.
 
 Normally, you just give a single `tsconfig.json` file as the tsconfig attribute
-of a `ts_library` rule. However, if your `tsconfig.json` uses the `extends`
+of a `ts_library` or `ts_project` rule. However, if your `tsconfig.json` uses the `extends`
 feature from TypeScript, then the Bazel implementation needs to know about that
 extended configuration file as well, to pass them both to the TypeScript compiler.
 """,
