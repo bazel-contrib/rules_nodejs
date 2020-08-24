@@ -2,6 +2,7 @@
 
 load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "NpmPackageInfo", "declaration_info", "js_module_info", "run_node")
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
+load(":ts_config.bzl", "TsConfigInfo")
 
 _DEFAULT_TSC = (
     # BEGIN-INTERNAL
@@ -36,14 +37,6 @@ _OUTPUTS = {
     "typing_maps_outs": attr.output_list(),
     "typings_outs": attr.output_list(),
 }
-
-_TsConfigInfo = provider(
-    doc = """Passes tsconfig.json files to downstream compilations so that TypeScript can read them.
-        This is needed to support Project References""",
-    fields = {
-        "tsconfigs": "depset of tsconfig.json files",
-    },
-)
 
 def _join(*elements):
     return "/".join([f for f in elements if f])
@@ -87,8 +80,8 @@ def _ts_project_impl(ctx):
 
     deps_depsets = []
     for dep in ctx.attr.deps:
-        if _TsConfigInfo in dep:
-            deps_depsets.append(dep[_TsConfigInfo].tsconfigs)
+        if TsConfigInfo in dep:
+            deps_depsets.append(dep[TsConfigInfo].deps)
         if NpmPackageInfo in dep:
             # TODO: we could maybe filter these to be tsconfig.json or *.d.ts only
             # we don't expect tsc wants to read any other files from npm packages.
@@ -96,7 +89,11 @@ def _ts_project_impl(ctx):
         if DeclarationInfo in dep:
             deps_depsets.append(dep[DeclarationInfo].transitive_declarations)
 
-    inputs = ctx.files.srcs + depset(transitive = deps_depsets).to_list() + [ctx.file.tsconfig]
+    inputs = ctx.files.srcs + depset(transitive = deps_depsets).to_list()
+    if TsConfigInfo in ctx.attr.tsconfig:
+        inputs.extend(ctx.attr.tsconfig[TsConfigInfo].deps)
+    else:
+        inputs.append(ctx.file.tsconfig)
     if ctx.attr.extends:
         inputs.extend(ctx.files.extends)
 
@@ -155,10 +152,10 @@ def _ts_project_impl(ctx):
             sources = depset(runtime_outputs),
             deps = ctx.attr.deps,
         ),
-        _TsConfigInfo(tsconfigs = depset([ctx.file.tsconfig] + ctx.files.extends, transitive = [
-            dep[_TsConfigInfo].tsconfigs
+        TsConfigInfo(deps = depset([ctx.file.tsconfig] + ctx.files.extends, transitive = [
+            dep[TsConfigInfo].deps
             for dep in ctx.attr.deps
-            if _TsConfigInfo in dep
+            if TsConfigInfo in dep
         ])),
     ]
 
@@ -191,9 +188,15 @@ def _validate_options_impl(ctx):
         ts_build_info_file = ctx.attr.ts_build_info_file,
     ).to_json()])
 
+    inputs = ctx.files.extends[:]
+    if TsConfigInfo in ctx.attr.tsconfig:
+        inputs.extend(ctx.attr.tsconfig[TsConfigInfo].deps)
+    else:
+        inputs.append(ctx.file.tsconfig)
+
     run_node(
         ctx,
-        inputs = [ctx.file.tsconfig] + ctx.files.extends,
+        inputs = inputs,
         outputs = [marker],
         arguments = [arguments],
         executable = "validator",
@@ -356,13 +359,14 @@ def ts_project_macro(
 
         deps: List of labels of other rules that produce TypeScript typings (.d.ts files)
 
-        tsconfig: Label of the tsconfig.json file to use for the compilation.
+        tsconfig: Label of the tsconfig.json file to use for the compilation, or a target that provides TsConfigInfo.
 
-            By default, we add `.json` to the `name` attribute.
+            By default, we assume the tsconfig file is named by adding `.json` to the `name` attribute.
 
         extends: List of labels of tsconfig file(s) referenced in `extends` section of tsconfig.
 
-            Must include any tsconfig files "chained" by extends clauses.
+            Any tsconfig files "chained" by extends clauses must either be transitive deps of the TsConfigInfo
+            provided to the `tsconfig` attribute, or must be explicitly listed here.
 
         args: List of strings of additional command-line arguments to pass to tsc.
 
@@ -432,7 +436,7 @@ def ts_project_macro(
         extra_deps.append("_validate_%s_options" % name)
 
     typings_out_dir = declaration_dir if declaration_dir else out_dir
-    tsbuildinfo_path = ts_build_info_file if ts_build_info_file else tsconfig[:-5] + ".tsbuildinfo"
+    tsbuildinfo_path = ts_build_info_file if ts_build_info_file else name + ".tsbuildinfo"
 
     ts_project(
         name = name,
