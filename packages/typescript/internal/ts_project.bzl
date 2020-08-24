@@ -365,6 +365,11 @@ def ts_project_macro(
 
         extends: List of labels of tsconfig file(s) referenced in `extends` section of tsconfig.
 
+            DEPRECATED, to be removed in 3.0.
+            Instead, please use a `ts_config` rule to express tsconfig dependencies
+            and set that target as the value of the `tsconfig` attribute
+            Follow this deprecation: https://github.com/bazelbuild/rules_nodejs/issues/2140
+
             Any tsconfig files "chained" by extends clauses must either be transitive deps of the TsConfigInfo
             provided to the `tsconfig` attribute, or must be explicitly listed here.
 
