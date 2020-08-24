@@ -1,0 +1,7 @@
+load("//packages/typescript:index.bzl", "ts_project")
+
+ts_project(
+    name = "tsconfig",
+    composite = True,
+    ts_build_info_file = "my.tsbuildinfo",
+)
