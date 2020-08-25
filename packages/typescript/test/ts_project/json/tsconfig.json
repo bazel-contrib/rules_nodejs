@@ -1,6 +1,5 @@
 {
     "compilerOptions": {
-        "types": [],
         "resolveJsonModule": true
     }
 }

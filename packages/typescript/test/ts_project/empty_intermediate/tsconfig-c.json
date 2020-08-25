@@ -10,7 +10,6 @@
             "../../../../../bazel-out/darwin-dbg/bin/packages/typescript/test/ts_project/empty_intermediate",
             "../../../../../bazel-out/k8-dbg/bin/packages/typescript/test/ts_project/empty_intermediate",
             "../../../../../bazel-out/x64_windows-dbg/bin/packages/typescript/test/ts_project/empty_intermediate",
-        ],
-        "types": []
+        ]
     }
 }
