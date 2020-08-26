@@ -483,7 +483,7 @@ BUILD files from your source code.</p>
 <p>Allows a tsconfig.json file to extend another file.</p>
 
 <p>Normally, you just give a single <code>tsconfig.json</code> file as the tsconfig attribute
-of a <code>ts_library</code> rule. However, if your <code>tsconfig.json</code> uses the <code>extends</code>
+of a <code>ts_library</code> or <code>ts_project</code> rule. However, if your <code>tsconfig.json</code> uses the <code>extends</code>
 feature from TypeScript, then the Bazel implementation needs to know about that
 extended configuration file as well, to pass them both to the TypeScript compiler.</p>
 
@@ -521,9 +521,9 @@ ts_config(<a href="#ts_config-name">name</a>, <a href="#ts_config-deps">deps</a>
                             Additional tsconfig.json files referenced via extends
                                 </td>
         <td><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></td>
-        <td>required</td>
+        <td>optional</td>
         <td>
-            
+            []
         </td>
       </tr>
             <tr id="ts_config-src">
@@ -1157,8 +1157,8 @@ observe these problems which require workarounds:</p>
 
 <pre>
 ts_project(<a href="#ts_project-name">name</a>, <a href="#ts_project-tsconfig">tsconfig</a>, <a href="#ts_project-srcs">srcs</a>, <a href="#ts_project-args">args</a>, <a href="#ts_project-deps">deps</a>, <a href="#ts_project-extends">extends</a>, <a href="#ts_project-declaration">declaration</a>, <a href="#ts_project-source_map">source_map</a>, <a href="#ts_project-declaration_map">declaration_map</a>,
-           <a href="#ts_project-composite">composite</a>, <a href="#ts_project-incremental">incremental</a>, <a href="#ts_project-emit_declaration_only">emit_declaration_only</a>, <a href="#ts_project-tsc">tsc</a>, <a href="#ts_project-validate">validate</a>, <a href="#ts_project-declaration_dir">declaration_dir</a>, <a href="#ts_project-out_dir">out_dir</a>,
-           <a href="#ts_project-root_dir">root_dir</a>, <a href="#ts_project-kwargs">kwargs</a>)
+           <a href="#ts_project-composite">composite</a>, <a href="#ts_project-incremental">incremental</a>, <a href="#ts_project-emit_declaration_only">emit_declaration_only</a>, <a href="#ts_project-ts_build_info_file">ts_build_info_file</a>, <a href="#ts_project-tsc">tsc</a>, <a href="#ts_project-validate">validate</a>,
+           <a href="#ts_project-declaration_dir">declaration_dir</a>, <a href="#ts_project-out_dir">out_dir</a>, <a href="#ts_project-root_dir">root_dir</a>, <a href="#ts_project-kwargs">kwargs</a>)
 </pre>
 
 <p><strong>PARAMETERS</strong></p>
@@ -1186,9 +1186,9 @@ ts_project(<a href="#ts_project-name">name</a>, <a href="#ts_project-tsconfig">t
             <tr id="ts_project-tsconfig">
         <td>tsconfig</td>
         <td>
-                            Label of the tsconfig.json file to use for the compilation.
+                            Label of the tsconfig.json file to use for the compilation, or a target that provides TsConfigInfo.
 
-    By default, we add <code>.json</code> to the <code>name</code> attribute.
+    By default, we assume the tsconfig file is named by adding <code>.json</code> to the <code>name</code> attribute.
                     </td>
         <td>
             None
@@ -1228,7 +1228,8 @@ ts_project(<a href="#ts_project-name">name</a>, <a href="#ts_project-tsconfig">t
         <td>
                             List of labels of tsconfig file(s) referenced in <code>extends</code> section of tsconfig.
 
-    Must include any tsconfig files "chained" by extends clauses.
+    Any tsconfig files "chained" by extends clauses must either be transitive deps of the TsConfigInfo
+    provided to the <code>tsconfig</code> attribute, or must be explicitly listed here.
                     </td>
         <td>
             None
@@ -1292,6 +1293,16 @@ ts_project(<a href="#ts_project-name">name</a>, <a href="#ts_project-tsconfig">t
                     </td>
         <td>
             False
+        </td>
+      </tr>
+            <tr id="ts_project-ts_build_info_file">
+        <td>ts_build_info_file</td>
+        <td>
+                            the user-specified value of <code>tsBuildInfoFile</code> from the tsconfig.
+    Helps Bazel to predict the path where the .tsbuildinfo output is written.
+                    </td>
+        <td>
+            None
         </td>
       </tr>
             <tr id="ts_project-tsc">
