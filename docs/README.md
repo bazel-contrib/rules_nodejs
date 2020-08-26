@@ -13,7 +13,7 @@ $ yarn stardoc
 
 To serve the docsite locally, use
 ```sh
-$ bazel run //docs
+$ bazel run --noincompatible_strict_action_env //docs
 ```
 
 # Authoring the docsite
