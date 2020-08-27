@@ -59,15 +59,20 @@ extended configuration file as well, to pass them both to the TypeScript compile
 def _join(*elements):
     return "/".join([f for f in elements if f])
 
-def _relative_path(tsconfig_path, dest):
+def _relative_path(tsconfig, dest):
+    relative_to = tsconfig.dirname
     if dest.is_source:
         # Calculate a relative path from the directory where we're writing the tsconfig
         # back to the sources root
-        workspace_root = "/".join([".."] * len(tsconfig_path.dirname.split("/")))
+        workspace_root = "/".join([".."] * len(relative_to.split("/")))
         return _join(workspace_root, dest.path)
 
-    # TODO: basename isn't exactly correct, there could be a subdir
-    return dest.basename
+    # Bazel guarantees that srcs are beneath the package directory, and we disallow
+    # tsconfig.json being generated with a "/" in the name.
+    # So we can calculate a relative path from e.g.
+    # bazel-out/darwin-fastbuild/bin/packages/typescript/test/ts_project/generated_tsconfig/gen_src
+    # to <generated file packages/typescript/test/ts_project/generated_tsconfig/gen_src/subdir/a.ts>
+    return dest.path[len(relative_to) + 1:]
 
 def _write_tsconfig_rule(ctx):
     # TODO: is it useful to expand Make variables in the content?
@@ -109,6 +114,8 @@ def write_tsconfig(name, config, files, out, extends = None):
         out: the file to write
         extends: a label for a tsconfig.json file to extend from, if any
     """
+    if out.find("/") >= 0:
+        fail("tsconfig should be generated in the package directory, to make relative pathing simple")
 
     if extends:
         config["extends"] = "__extends__"

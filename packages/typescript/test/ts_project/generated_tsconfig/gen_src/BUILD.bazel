@@ -4,14 +4,17 @@ load("//packages/typescript:index.bzl", "ts_project")
 
 write_file(
     name = "gen_src",
-    out = "a.ts",
+    out = "subdir/a.ts",
     content = ["export const a: string = 'hello world';"],
 )
 
 ts_project(
-    srcs = ["a.ts"],
+    srcs = ["subdir/a.ts"],
     tsconfig = {
-        "types": [],
+        "compilerOptions": {
+            "rootDir": "subdir",
+            "types": [],
+        },
     },
 )
 
@@ -19,5 +22,4 @@ generated_file_test(
     name = "test",
     src = "expected.js_",
     generated = ":a.js",
-    tags = ["manual"],
 )
