@@ -724,10 +724,13 @@ def node_repositories(**kwargs):
         minimum_bazel_version = "2.1.0",
     )
 
+    # allow user to set a custom name (eg: node11, node12) to support multiple versions
+    name = kwargs.get('name', 'nodejs') 
+
     # This needs to be setup so toolchains can access nodejs for all different versions
     for os_arch_name in OS_ARCH_NAMES:
         os_name = "_".join(os_arch_name)
-        node_repository_name = "nodejs_%s" % os_name
+        node_repository_name = "%s_%s" % (os_name, name)
         _maybe(
             node_repositories_rule,
             name = node_repository_name,
@@ -743,7 +746,7 @@ def node_repositories(**kwargs):
     # All it does is create aliases to the @nodejs_<host_os>_<host_arch> repository
     _maybe(
         _nodejs_repo_host_os_alias,
-        name = "nodejs",
+        name = name,
     )
 
 def _maybe(repo_rule, name, **kwargs):
