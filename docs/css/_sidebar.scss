@@ -138,29 +138,26 @@ $sidebar-hover-border-color: #66bb6a;
     padding-left: 0;
     list-style-type: none;
 
-    ul {
-      padding-left: 0;
+    margin-top: .3rem;
+    line-height: 1.7;
+    font-size: $font-size-base * .95;
+
+    a {
+      color: #444;
     }
 
-    li {
-      margin-top: .3rem;
-      line-height: 1.7;
-      font-size: $font-size-base * .95;
-      a {
-        color: #444;
-      }
+    ul {
+      padding-left: 0;
     }
   }
 
   .toc-h3 {
     padding-left: 1em;
     list-style-type: none;
-
-    li {
-      line-height: 1.7;
-      a {
-        color: #666;
-      }
+    line-height: 1.7;
+    
+    a {
+      color: #666;
     }
   }
 }
