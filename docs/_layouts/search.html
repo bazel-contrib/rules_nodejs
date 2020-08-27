@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html itemscope itemtype="https://schema.org/WebPage" lang="en">
+{% include head.html %}
+<body>
+{% include header.html %}
+
+  <div class="container vpad">
+    {{ content }}
+    <div class="gcse-searchresults-only"></div>
+  </div>
+
+  {% include footer.html %}
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    document.getElementById('q').value = params.get('q');
+  </script>
+  <script async src="https://cse.google.com/cse.js?cx=2735dc72dd157bd19"></script>
+
+</body>
+</html>
+
