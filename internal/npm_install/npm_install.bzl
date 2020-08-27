@@ -162,11 +162,11 @@ def _add_node_repositories_info_deps(repository_ctx):
     # Add a dep to the node_info & yarn_info files from node_repositories
     # so that if the node or yarn versions change we re-run the repository rule
     repository_ctx.symlink(
-        Label("@%s_%s//:node_info" % (repository_ctx.attr.node_repository, os_name(repository_ctx))),
+        Label("@%s_%s//:node_info" % (repository_ctx.name, os_name(repository_ctx))),
         repository_ctx.path("_node_info"),
     )
     repository_ctx.symlink(
-        Label("@%s_%s//:yarn_info" % (repository_ctx.attr.node_repository, os_name(repository_ctx))),
+        Label("@%s_%s//:yarn_info" % (repository_ctx.name, os_name(repository_ctx))),
         repository_ctx.path("_yarn_info"),
     )
 
