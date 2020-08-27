@@ -44,6 +44,10 @@ repository so all files that the package manager depends on must be listed.
         doc = """Environment variables to set before calling the package manager.""",
         default = {},
     ),
+    "node_repository": attr.string(
+        doc = """If a custom name was provided to node_repositories, specify it here.""",
+        default = """nodejs""",
+    ),
     "included_files": attr.string_list(
         doc = """List of file extensions to be included in the npm package targets.
 
@@ -158,11 +162,11 @@ def _add_node_repositories_info_deps(repository_ctx):
     # Add a dep to the node_info & yarn_info files from node_repositories
     # so that if the node or yarn versions change we re-run the repository rule
     repository_ctx.symlink(
-        Label("@nodejs_%s//:node_info" % os_name(repository_ctx)),
+        Label("@%s_%s//:node_info" % (repository_ctx.attr.node_repository, os_name(repository_ctx))),
         repository_ctx.path("_node_info"),
     )
     repository_ctx.symlink(
-        Label("@nodejs_%s//:yarn_info" % os_name(repository_ctx)),
+        Label("@%s_%s//:yarn_info" % (repository_ctx.attr.node_repository, os_name(repository_ctx))),
         repository_ctx.path("_yarn_info"),
     )
 
