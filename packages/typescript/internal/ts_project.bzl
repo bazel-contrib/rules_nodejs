@@ -105,12 +105,17 @@ def _ts_project_impl(ctx):
             deps_depsets.append(dep[DeclarationInfo].transitive_declarations)
 
     inputs = ctx.files.srcs + depset(transitive = deps_depsets).to_list()
+
+    # Gather TsConfig info from both the direct (tsconfig) and indirect (extends) attribute
     if TsConfigInfo in ctx.attr.tsconfig:
         inputs.extend(ctx.attr.tsconfig[TsConfigInfo].deps)
     else:
         inputs.append(ctx.file.tsconfig)
-    if ctx.attr.extends:
-        inputs.extend(ctx.files.extends)
+    for extend in ctx.attr.extends:
+        if TsConfigInfo in extend:
+            inputs.extend(extend[TsConfigInfo].deps)
+        else:
+            inputs.extend(extend.files.to_list())
 
     # We do not try to predeclare json_outs, because their output locations generally conflict with their path in the source tree.
     # (The exception is when out_dir is used, then the .json output is a different path than the input.)
@@ -374,7 +379,10 @@ def ts_project_macro(
 
         deps: List of labels of other rules that produce TypeScript typings (.d.ts files)
 
-        tsconfig: Label of the tsconfig.json file to use for the compilation, or a target that provides TsConfigInfo.
+        tsconfig: Label of the tsconfig.json file to use for the compilation
+
+            To support "chaining" of more than one extended config, this label could be a target that
+            provdes `TsConfigInfo` such as `ts_config`.
 
             By default, we assume the tsconfig file is named by adding `.json` to the `name` attribute.
 
@@ -407,10 +415,15 @@ def ts_project_macro(
             )
             ```
 
-        extends: List of labels of tsconfig file(s) referenced in `extends` section of tsconfig.
+        extends: Label of the tsconfig file referenced in the `extends` section of tsconfig
 
-            Any tsconfig files "chained" by extends clauses must either be transitive deps of the TsConfigInfo
-            provided to the `tsconfig` attribute, or must be explicitly listed here.
+            To support "chaining" of more than one extended config, this label could be a target that
+            provdes `TsConfigInfo` such as `ts_config`.
+
+            _DEPRECATED, to be removed in 3.0_:
+            For backwards compatibility, this accepts a list of Labels of the "chained"
+            tsconfig files. You should instead use a single Label of a `ts_config` target.
+            Follow this deprecation: https://github.com/bazelbuild/rules_nodejs/issues/2140
 
         args: List of strings of additional command-line arguments to pass to tsc.
 
@@ -460,6 +473,10 @@ def ts_project_macro(
     extra_deps = []
 
     if type(tsconfig) == type(dict()):
+        # Opt-in to #2140 breaking change at the same time you opt-in to experimental tsconfig dict
+        if type(extends) == type([]):
+            fail("when tsconfig is a dict, extends should have a single value")
+
         # Copy attributes <-> tsconfig properties
         # TODO: fail if compilerOptions includes a conflict with an attribute?
         compiler_options = tsconfig.setdefault("compilerOptions", {})
@@ -482,7 +499,7 @@ def ts_project_macro(
             name = "_gen_tsconfig_%s" % name,
             config = tsconfig,
             files = srcs,
-            extends = extends,
+            extends = Label("//%s:%s" % (native.package_name(), name)).relative(extends) if extends else None,
             out = "tsconfig_%s.json" % name,
         )
 
@@ -512,6 +529,10 @@ def ts_project_macro(
 
     typings_out_dir = declaration_dir if declaration_dir else out_dir
     tsbuildinfo_path = ts_build_info_file if ts_build_info_file else name + ".tsbuildinfo"
+
+    # Backcompat for extends as a list, to cleanup in #2140
+    if (type(extends) == type("")):
+        extends = [extends]
 
     ts_project(
         name = name,

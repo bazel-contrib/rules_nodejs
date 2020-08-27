@@ -99,29 +99,22 @@ write_tsconfig_rule = rule(
 )
 
 # Syntax sugar around skylib's write_file
-def write_tsconfig(name, config, files, extends, out):
+def write_tsconfig(name, config, files, out, extends = None):
     """Wrapper around bazel_skylib's write_file which understands tsconfig paths
 
     Args:
         name: name of the resulting write_file rule
         config: tsconfig dictionary
         files: list of input .ts files to put in the files[] array
-        extends: a tsconfig.json file to extend from
         out: the file to write
+        extends: a label for a tsconfig.json file to extend from, if any
     """
 
-    # Allow extends to be a list of labels, as this is what ts_project accepts
-    if type(extends) == type([]):
-        if len(extends):
-            extends = extends[0]
-        else:
-            extends = None
     if extends:
-        extends = Label(extends)
-        config["extends"] = "__extends__"  #_join(workspace_root, extends.package, extends.name)
+        config["extends"] = "__extends__"
 
     amended_config = struct(
-        files = "__files__",  #[_join(workspace_root, native.package_name(), f) for f in files],
+        files = "__files__",
         **config
     )
     write_tsconfig_rule(
