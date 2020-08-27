@@ -59,6 +59,7 @@ rules_nodejs_docs(
     config = "_config.yml",
     css = "//docs/css",
     docs = [
+        "search.md",
         "install.md",
         "repositories.md",
         "debugging.md",

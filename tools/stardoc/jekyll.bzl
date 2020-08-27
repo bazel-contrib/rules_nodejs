@@ -15,7 +15,7 @@
 """
 Rule to build a Jekyll site and perform post processing
 
-Infulanced by the main bazel.build Jekyll rule here:
+Influenced by the main bazel.build Jekyll rule here:
 https://github.com/bazelbuild/bazel/blob/master/scripts/docs/jekyll.bzl
 """
 

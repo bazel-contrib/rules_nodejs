@@ -16,6 +16,12 @@
 
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <form class="navbar-form navbar-right" action="{{ "/search.html" | relative_url }}" id="cse-search-box">
+        <div class="form-group">
+          <input type="hidden" name="cx" value="2735dc72dd157bd19">
+          <input type="search" name="q" id="q" class="form-control input-sm" placeholder="Search">
+        </div>
+      </form>
       <ul class="nav navbar-nav navbar-right">
         <li><a href="https://github.com/bazelbuild/rules_nodejs">GitHub</a></li>
       </ul>
