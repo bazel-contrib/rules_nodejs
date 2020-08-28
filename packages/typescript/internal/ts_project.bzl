@@ -2,7 +2,7 @@
 
 load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "NpmPackageInfo", "declaration_info", "js_module_info", "run_node")
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
-load(":ts_config.bzl", "TsConfigInfo")
+load(":ts_config.bzl", "TsConfigInfo", "write_tsconfig")
 
 _DEFAULT_TSC = (
     # BEGIN-INTERNAL
@@ -39,10 +39,21 @@ _OUTPUTS = {
 }
 
 def _join(*elements):
-    return "/".join([f for f in elements if f])
+    segments = [f for f in elements if f]
+    if len(segments):
+        return "/".join(segments)
+    return "."
 
 def _ts_project_impl(ctx):
     arguments = ctx.actions.args()
+
+    generated_srcs = False
+    for src in ctx.files.srcs:
+        if src.is_source:
+            if generated_srcs:
+                fail("srcs cannot be a mix of generated files and source files")
+        else:
+            generated_srcs = True
 
     # Add user specified arguments *before* rule supplied arguments
     arguments.add_all(ctx.attr.args)
@@ -53,7 +64,11 @@ def _ts_project_impl(ctx):
         "--outDir",
         _join(ctx.bin_dir.path, ctx.label.package, ctx.attr.out_dir),
         "--rootDir",
-        _join(ctx.label.package, ctx.attr.root_dir) if ctx.label.package else ".",
+        _join(
+            ctx.bin_dir.path if generated_srcs else None,
+            ctx.label.package,
+            ctx.attr.root_dir,
+        ),
     ])
     if len(ctx.outputs.typings_outs) > 0:
         declaration_dir = ctx.attr.declaration_dir if ctx.attr.declaration_dir else ctx.attr.out_dir
@@ -90,12 +105,17 @@ def _ts_project_impl(ctx):
             deps_depsets.append(dep[DeclarationInfo].transitive_declarations)
 
     inputs = ctx.files.srcs + depset(transitive = deps_depsets).to_list()
+
+    # Gather TsConfig info from both the direct (tsconfig) and indirect (extends) attribute
     if TsConfigInfo in ctx.attr.tsconfig:
         inputs.extend(ctx.attr.tsconfig[TsConfigInfo].deps)
     else:
         inputs.append(ctx.file.tsconfig)
-    if ctx.attr.extends:
-        inputs.extend(ctx.files.extends)
+    for extend in ctx.attr.extends:
+        if TsConfigInfo in extend:
+            inputs.extend(extend[TsConfigInfo].deps)
+        else:
+            inputs.extend(extend.files.to_list())
 
     # We do not try to predeclare json_outs, because their output locations generally conflict with their path in the source tree.
     # (The exception is when out_dir is used, then the .json output is a different path than the input.)
@@ -359,14 +379,51 @@ def ts_project_macro(
 
         deps: List of labels of other rules that produce TypeScript typings (.d.ts files)
 
-        tsconfig: Label of the tsconfig.json file to use for the compilation, or a target that provides TsConfigInfo.
+        tsconfig: Label of the tsconfig.json file to use for the compilation
+
+            To support "chaining" of more than one extended config, this label could be a target that
+            provdes `TsConfigInfo` such as `ts_config`.
 
             By default, we assume the tsconfig file is named by adding `.json` to the `name` attribute.
 
-        extends: List of labels of tsconfig file(s) referenced in `extends` section of tsconfig.
+            EXPERIMENTAL: generated tsconfig
 
-            Any tsconfig files "chained" by extends clauses must either be transitive deps of the TsConfigInfo
-            provided to the `tsconfig` attribute, or must be explicitly listed here.
+            Instead of a label, you can pass a dictionary of tsconfig keys.
+
+            In this case, a tsconfig.json file will be generated for this compilation, in the following way:
+            - all top-level keys will be copied by converting the dict to json.
+              So `tsconfig = {"compilerOptions": {"declaration": True}}`
+              will result in a generated `tsconfig.json` with `{"compilerOptions": {"declaration": true}}`
+            - each file in srcs will be converted to a relative path in the `files` section.
+            - the `extends` attribute will be converted to a relative path
+
+            Note that you can mix and match attributes and compilerOptions properties, so these are equivalent:
+
+            ```
+            ts_project(
+                tsconfig = {
+                    "compilerOptions": {
+                        "declaration": True,
+                    },
+                },
+            )
+            ```
+            and
+            ```
+            ts_project(
+                declaration = True,
+            )
+            ```
+
+        extends: Label of the tsconfig file referenced in the `extends` section of tsconfig
+
+            To support "chaining" of more than one extended config, this label could be a target that
+            provdes `TsConfigInfo` such as `ts_config`.
+
+            _DEPRECATED, to be removed in 3.0_:
+            For backwards compatibility, this accepts a list of Labels of the "chained"
+            tsconfig files. You should instead use a single Label of a `ts_config` target.
+            Follow this deprecation: https://github.com/bazelbuild/rules_nodejs/issues/2140
 
         args: List of strings of additional command-line arguments to pass to tsc.
 
@@ -413,30 +470,69 @@ def ts_project_macro(
 
     if srcs == None:
         srcs = native.glob(["**/*.ts", "**/*.tsx"])
-
-    if tsconfig == None:
-        tsconfig = name + ".json"
-
     extra_deps = []
 
-    if validate:
-        validate_options(
-            name = "_validate_%s_options" % name,
-            target = "//%s:%s" % (native.package_name(), name),
-            declaration = declaration,
-            source_map = source_map,
-            declaration_map = declaration_map,
-            composite = composite,
-            incremental = incremental,
-            emit_declaration_only = emit_declaration_only,
-            ts_build_info_file = ts_build_info_file,
-            tsconfig = tsconfig,
-            extends = extends,
+    if type(tsconfig) == type(dict()):
+        # Opt-in to #2140 breaking change at the same time you opt-in to experimental tsconfig dict
+        if type(extends) == type([]):
+            fail("when tsconfig is a dict, extends should have a single value")
+
+        # Copy attributes <-> tsconfig properties
+        # TODO: fail if compilerOptions includes a conflict with an attribute?
+        compiler_options = tsconfig.setdefault("compilerOptions", {})
+        source_map = compiler_options.setdefault("sourceMap", source_map)
+        declaration = compiler_options.setdefault("declaration", declaration)
+        declaration_map = compiler_options.setdefault("declarationMap", declaration_map)
+        emit_declaration_only = compiler_options.setdefault("emitDeclarationOnly", emit_declaration_only)
+
+        # These options are always passed on the tsc command line so don't include them
+        # in the tsconfig. At best they're redundant, but at worst we'll have a conflict
+        if "outDir" in compiler_options.keys():
+            out_dir = compiler_options.pop("outDir")
+        if "declarationDir" in compiler_options.keys():
+            declaration_dir = compiler_options.pop("declarationDir")
+        if "rootDir" in compiler_options.keys():
+            root_dir = compiler_options.pop("rootDir")
+
+        # FIXME: need to remove keys that have a None value?
+        write_tsconfig(
+            name = "_gen_tsconfig_%s" % name,
+            config = tsconfig,
+            files = srcs,
+            extends = Label("//%s:%s" % (native.package_name(), name)).relative(extends) if extends else None,
+            out = "tsconfig_%s.json" % name,
         )
-        extra_deps.append("_validate_%s_options" % name)
+
+        # From here, tsconfig becomes a file, the same as if the
+        # user supplied a tsconfig.json InputArtifact
+        tsconfig = "tsconfig_%s.json" % name
+
+    else:
+        if tsconfig == None:
+            tsconfig = name + ".json"
+
+        if validate:
+            validate_options(
+                name = "_validate_%s_options" % name,
+                target = "//%s:%s" % (native.package_name(), name),
+                declaration = declaration,
+                source_map = source_map,
+                declaration_map = declaration_map,
+                composite = composite,
+                incremental = incremental,
+                ts_build_info_file = ts_build_info_file,
+                emit_declaration_only = emit_declaration_only,
+                tsconfig = tsconfig,
+                extends = extends,
+            )
+            extra_deps.append("_validate_%s_options" % name)
 
     typings_out_dir = declaration_dir if declaration_dir else out_dir
     tsbuildinfo_path = ts_build_info_file if ts_build_info_file else name + ".tsbuildinfo"
+
+    # Backcompat for extends as a list, to cleanup in #2140
+    if (type(extends) == type("")):
+        extends = [extends]
 
     ts_project(
         name = name,

@@ -1,0 +1,16 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
+load("//packages/typescript:index.bzl", "ts_project")
+
+ts_project(
+    tsconfig = {
+        "compilerOptions": {
+            "types": [],
+        },
+    },
+)
+
+generated_file_test(
+    name = "test",
+    src = "expected.js_",
+    generated = ":a.js",
+)

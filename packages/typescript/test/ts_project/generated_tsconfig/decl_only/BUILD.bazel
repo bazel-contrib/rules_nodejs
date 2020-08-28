@@ -1,0 +1,20 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
+load("//packages/typescript:index.bzl", "ts_project")
+
+ts_project(
+    name = "compile",
+    tsconfig = {
+        "compilerOptions": {
+            "declaration": True,
+            "emitDeclarationOnly": True,
+            "types": [],
+        },
+    },
+)
+
+generated_file_test(
+    name = "test",
+    src = "a.d.ts",
+    # test the default output of the ts_project
+    generated = "compile",
+)
