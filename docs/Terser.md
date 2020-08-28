@@ -135,7 +135,7 @@ If <code>config_file</code> isn't supplied, Bazel will use a default config file
         <td><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></td>
         <td>optional</td>
         <td>
-            //packages/terser:terser_config.default.json
+            @npm//@bazel/terser:terser_config.default.json
         </td>
       </tr>
             <tr id="terser_minified-debug">
@@ -188,7 +188,7 @@ If you want to do this, you can pass a filegroup here.
         <td><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></td>
         <td>optional</td>
         <td>
-            //packages/terser/bin:terser
+            @npm//@bazel/bin:terser
         </td>
       </tr>
         </tbody>

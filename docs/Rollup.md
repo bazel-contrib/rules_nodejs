@@ -153,7 +153,7 @@ If not set, a default basic Rollup config is used.
         <td><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></td>
         <td>optional</td>
         <td>
-            //packages/rollup:rollup.config.js
+            @npm//@bazel/rollup:rollup.config.js
         </td>
       </tr>
             <tr id="rollup_bundle-deps">
@@ -303,7 +303,7 @@ Otherwise, the outputs are assumed to be a single file.
         <td><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></td>
         <td>optional</td>
         <td>
-            //packages/rollup/bin:rollup-worker
+            @npm//@bazel/bin:rollup-worker
         </td>
       </tr>
             <tr id="rollup_bundle-silent">

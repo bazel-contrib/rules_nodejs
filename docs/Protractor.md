@@ -121,7 +121,7 @@ protractor_web_test(<a href="#protractor_web_test-name">name</a>, <a href="#prot
                             List of peer npm deps required by protractor_web_test
                     </td>
         <td>
-            ["@build_bazel_rules_nodejs//packages/protractor", "@npm//protractor"]
+            ["@npm//@bazel/protractor", "@npm//protractor"]
         </td>
       </tr>
             <tr id="protractor_web_test-protractor_entry_point">
