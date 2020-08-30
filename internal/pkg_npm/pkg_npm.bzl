@@ -91,8 +91,13 @@ PKG_NPM_ATTRS = {
         doc = """Optional package_name that this npm package may be imported as.""",
     ),
     "replace_with_version": attr.string(
-        doc = """If set this value is replaced with the version stamp data.
-        See the section on stamping in the README.""",
+        doc = """DEPRECATED: use substitutions instead.
+        
+        `replace_with_version = "my_version_placeholder"` is just syntax sugar for
+        `substitutions = {"my_version_placeholder": "{BUILD_SCM_VERSION}"}`.
+
+        Follow this deprecation at https://github.com/bazelbuild/rules_nodejs/issues/2158
+        """,
         default = "0.0.0-PLACEHOLDER",
     ),
     "srcs": attr.label_list(
@@ -100,7 +105,12 @@ PKG_NPM_ATTRS = {
         allow_files = True,
     ),
     "substitutions": attr.string_dict(
-        doc = """Key-value pairs which are replaced in all the files while building the package.""",
+        doc = """Key-value pairs which are replaced in all the files while building the package.
+        
+        You can use values from the workspace status command using curly braces, for example
+        `{"0.0.0-PLACEHOLDER": "{STABLE_GIT_VERSION}"}`.
+        See the section on stamping in the README
+        """,
     ),
     "vendor_external": attr.string_list(
         doc = """External workspaces whose contents should be vendored into this workspace.
@@ -184,7 +194,15 @@ def create_package(ctx, deps_files, nested_packages):
     # current package unless explicitely specified.
     filtered_deps_sources = _filter_out_external_files(ctx, deps_files, package_path)
 
+    # Back-compat for the replace_with_version stamping
+    # see https://github.com/bazelbuild/rules_nodejs/issues/2158 for removal
+    substitutions = dict(**ctx.attr.substitutions)
+    if stamp and ctx.attr.replace_with_version:
+        substitutions[ctx.attr.replace_with_version] = "{BUILD_SCM_VERSION}"
+
     args = ctx.actions.args()
+    inputs = ctx.files.srcs + deps_files + nested_packages
+
     args.use_param_file("%s", use_always = True)
     args.add(package_dir.path)
     args.add(package_path)
@@ -193,19 +211,23 @@ def create_package(ctx, deps_files, nested_packages):
     args.add(ctx.genfiles_dir.path)
     args.add_joined(filtered_deps_sources, join_with = ",", omit_if_empty = False)
     args.add_joined([p.path for p in nested_packages], join_with = ",", omit_if_empty = False)
-    args.add(ctx.attr.substitutions)
-    args.add(ctx.attr.replace_with_version)
-    args.add(ctx.version_file.path if stamp else "")
-    args.add_joined(ctx.attr.vendor_external, join_with = ",", omit_if_empty = False)
+    args.add(substitutions)
 
-    inputs = ctx.files.srcs + deps_files + nested_packages
-
-    # The version_file is an undocumented attribute of the ctx that lets us read the volatile-status.txt file
-    # produced by the --workspace_status_command. That command will be executed whenever
-    # this action runs, so we get the latest version info on each execution.
-    # See https://github.com/bazelbuild/bazel/issues/1054
     if stamp:
+        # The version_file is an undocumented attribute of the ctx that lets us read the volatile-status.txt file
+        # produced by the --workspace_status_command.
+        # Similarly info_file reads the stable-status.txt file.
+        # That command will be executed whenever
+        # this action runs, so we get the latest version info on each execution.
+        # See https://github.com/bazelbuild/bazel/issues/1054
+        args.add(ctx.version_file.path)
         inputs.append(ctx.version_file)
+        args.add(ctx.info_file.path)
+        inputs.append(ctx.info_file)
+    else:
+        args.add_all(["", ""])
+
+    args.add_joined(ctx.attr.vendor_external, join_with = ",", omit_if_empty = False)
 
     ctx.actions.run(
         progress_message = "Assembling npm package %s" % package_dir.short_path,
