@@ -2,7 +2,7 @@
 
 // Fetch the version of this package from its package.json
 const pkg = require('./package.json');
-const pkgVersion = pkg.version || '0.0.0';
+const pkgVersion = pkg.version ? pkg.version.split('-')[0] : '0.0.0';
 
 // BUILD_BAZEL_RULES_NODEJS_VERSION is only set when within the bazel context
 const rulesVersion = process.env['BUILD_BAZEL_RULES_NODEJS_VERSION'] || '0.0.0';

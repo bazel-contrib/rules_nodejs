@@ -60,11 +60,29 @@ function unquoteArgs(s) {
   return s.replace(/^'(.*)'$/, '$1');
 }
 
+/**
+ * The status files are expected to look like
+ * BUILD_SCM_HASH 83c699db39cfd74526cdf9bebb75aa6f122908bb
+ * BUILD_SCM_LOCAL_CHANGES true
+ * STABLE_BUILD_SCM_VERSION 6.0.0-beta.6+12.sha-83c699d.with-local-changes
+ * BUILD_TIMESTAMP 1520021990506
+ *
+ * @param {string} p the path to the status file
+ * @returns a two-dimensional array of key/value pairs
+ */
+function parseStatusFile(p) {
+  if (!p) return [];
+  return fs.readFileSync(p, {encoding: 'utf-8'})
+      .split('\n')
+      .filter(t => !!t)
+      .map(t => t.split(' '));
+}
+
 function main(args) {
   args = fs.readFileSync(args[0], {encoding: 'utf-8'}).split('\n').map(unquoteArgs);
   const
       [outDir, baseDir, srcsArg, binDir, genDir, depsArg, packagesArg, substitutionsArg,
-       replaceWithVersion, stampFile, vendorExternalArg] = args;
+       volatileFile, infoFile, vendorExternalArg] = args;
 
   const substitutions = [
     // Strip content between BEGIN-INTERNAL / END-INTERNAL comments
@@ -74,27 +92,27 @@ function main(args) {
   for (const key of Object.keys(rawReplacements)) {
     substitutions.push([new RegExp(key, 'g'), rawReplacements[key]])
   }
-  // Replace version last so that earlier substitutions can add
-  // the version placeholder
-  if (replaceWithVersion) {
-    let version = '0.0.0';
-    if (stampFile) {
-      // The stamp file is expected to look like
-      // BUILD_SCM_HASH 83c699db39cfd74526cdf9bebb75aa6f122908bb
-      // BUILD_SCM_LOCAL_CHANGES true
-      // BUILD_SCM_VERSION 6.0.0-beta.6+12.sha-83c699d.with-local-changes
-      // BUILD_TIMESTAMP 1520021990506
-      //
-      // We want version to be the 6.0.0-beta... part
-      const versionTag = fs.readFileSync(stampFile, {encoding: 'utf-8'})
-                             .split('\n')
-                             .find(s => s.startsWith('BUILD_SCM_VERSION'));
-      // Don't assume BUILD_SCM_VERSION exists
-      if (versionTag) {
-        version = versionTag.split(' ')[1].replace(/^v/, '').trim();
+  // Replace statuses last so that earlier substitutions can add
+  // status-related placeholders
+  if (volatileFile || infoFile) {
+    const statusEntries = parseStatusFile(volatileFile)
+    statusEntries.push(...parseStatusFile(infoFile))
+    // Looks like {'BUILD_SCM_VERSION': 'v1.2.3'}
+    const statuses = new Map(statusEntries)
+    for (let idx = 0; idx < substitutions.length; idx++) {
+      const match = substitutions[idx][1].match(/\{(.*)\}/);
+      if (!match) continue;
+      const statusKey = match[1];
+      let statusValue = statuses.get(statusKey);
+      if (statusValue) {
+        // npm versions must be numeric, so if the VCS tag starts with leading 'v', strip it
+        // See https://github.com/bazelbuild/rules_nodejs/pull/1591
+        if (statusKey.endsWith('_VERSION')) {
+          statusValue = statusValue.replace(/^v/, '');
+        }
+        substitutions[idx][1] = statusValue;
       }
     }
-    substitutions.push([new RegExp(replaceWithVersion, 'g'), version]);
   }
 
   // src like baseDir/my/path is just copied to outDir/my/path

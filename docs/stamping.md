@@ -7,17 +7,49 @@ toc: true
 # Stamping
 
 Bazel is generally only a build tool, and is unaware of your version control system.
-However, when publishing releases, you typically want to embed version information in the resulting distribution.
-Bazel supports this natively, using the following approach:
+However, when publishing releases, you may want to embed version information in the resulting distribution.
+Bazel supports this with the concept of a "Workspace status" which is evaluated before each build.
+See [the Bazel workspace status docs](https://docs.bazel.build/versions/master/user-manual.html#workspace_status)
 
 To stamp a build, you must pass the `--stamp` argument to Bazel.
 
-> Previous releases of rules_nodejs stamped builds always.
-> However this caused stamp-aware actions to never be remotely cached, since the volatile
-> status file is passed as an input and its checksum always changes.
+Stamping is typically performed on a later action in the graph, like on a packaging rule (`pkg_*`). This means that
+a changed status variable only causes re-packaging, not re-compilation and thus does not cause cascading re-builds.
 
-Also pass the `workspace_status_command` argument to `bazel build`.
-We prefer to do these with an entry in `.bazelrc`:
+Bazel provides a couple of statuses by default, such as `BUILD_EMBED_LABEL` which is the value of the `--embed_label`
+argument, as well as `BUILD_HOST` and `BUILD_USER`. You can supply more with the workspace status script, see below.
+
+Some rules accept an attribute that uses the status variables.
+For example, in a `pkg_npm` you can use the `substitutions` attribute like:
+
+```python
+pkg_npm(
+    name = "npm_package",
+    substitutions = {"0.0.0-PLACEHOLDER": "{STABLE_GIT_COMMIT}"},
+)
+```
+
+In a `--stamp` build, this will replace the string "0.0.0-PLACEHOLDER" in any file included in the package with the current value of the `STABLE_GIT_COMMIT` variable.
+However without stamping the placeholder will be left as-is.
+
+## Stamping with a Workspace status script
+
+To define additional statuses, pass the `--workspace_status_command` argument to `bazel`.
+The value of this flag is a path to a script that prints space-separated key/value pairs, one per line, such as
+
+```bash
+#!/usr/bin/env bash
+echo STABLE_GIT_COMMIT $(git rev-parse HEAD)
+```
+> For a more full-featured script, take a look at the [bazel_stamp_vars in Angular]
+
+Make sure you set the executable bit, eg. `chmod 755 tools/bazel_stamp_vars.sh`.
+
+> **NOTE** keys start start with `STABLE_` will cause a re-build when they change.
+> Other keys will NOT cause a re-build, so stale values can appear in your app.
+> Non-stable (volatile) keys should typically be things like timestamps that always vary between builds.
+
+You might like to encode your setup using an entry in `.bazelrc` such as:
 
 ```sh
 # This tells Bazel how to interact with the version control system
@@ -25,20 +57,11 @@ We prefer to do these with an entry in `.bazelrc`:
 build:release --stamp --workspace_status_command=./tools/bazel_stamp_vars.sh
 ```
 
-Then create `tools/bazel_stamp_vars.sh`.
+## Release script
 
-This is a script that prints variable/value pairs.
-Make sure you set the executable bit, eg. `chmod 755 tools/bazel_stamp_vars.sh`.
-For example, we could run `git describe` to get the current tag:
-
-```bash
-#!/usr/bin/env bash
-echo BUILD_SCM_VERSION $(git describe --abbrev=7 --tags HEAD)
-```
-
-For a more full-featured script, take a look at the [bazel_stamp_vars in Angular]
-
-Finally, we recommend a release script around Bazel. We typically have more than one npm package published from one Bazel workspace, so we do a `bazel query` to find them, and publish in a loop. Here is a template to get you started:
+If you publish more than one package from your workspace, you might want a release script around Bazel.
+A nice pattern is to do a `bazel query` to find publishable targets, build them in parallel, then publish in a loop.
+Here is a template to get you started:
 
 ```sh
 #!/usr/bin/env bash
@@ -62,8 +85,6 @@ for pkg in $PKG_NPM_LABELS ; do
   $BAZEL run --config=release -- ${pkg}.${NPM_COMMAND} --access public --tag latest
 done
 ```
-
-> WARNING: Bazel can't track changes to git tags. That means it won't rebuild a target if only the result of the workspace_status_command has changed. So changes to the version information may not be reflected if you re-build the package or bundle, and nothing in the package or bundle has changed.
 
 See https://www.kchodorow.com/blog/2017/03/27/stamping-your-builds/ for more background.
 
