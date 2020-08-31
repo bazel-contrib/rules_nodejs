@@ -174,7 +174,7 @@ Create a <code>BUILD</code> file next to your sources:
 
 {% highlight python %}
 package(default_visibility=["//visibility:public"])
-load("//packages/typescript:index.bzl", "ts_library")
+load("@npm//@bazel/typescript:index.bzl", "ts_library")
 
 ts_library(
     name = "my_code",
@@ -289,7 +289,7 @@ To use <code>ts_devserver</code>, you simply <code>load</code> the rule, and cal
 point to your <code>ts_library</code> target(s):
 
 {% highlight python %}
-load("//packages/typescript:index.bzl", "ts_devserver", "ts_library")
+load("@npm//@bazel/typescript:index.bzl", "ts_devserver", "ts_library")
 
 ts_library(
     name = "app",
@@ -521,7 +521,7 @@ ts_devserver(<a href="#ts_devserver-name">name</a>, <a href="#ts_devserver-addit
         <td><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></td>
         <td>optional</td>
         <td>
-            //packages/typescript/devserver:devserver
+            @npm//@bazel/devserver:devserver
         </td>
       </tr>
             <tr id="ts_devserver-devserver_host">
@@ -533,7 +533,7 @@ ts_devserver(<a href="#ts_devserver-name">name</a>, <a href="#ts_devserver-addit
         <td><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></td>
         <td>optional</td>
         <td>
-            //packages/typescript/devserver:devserver_darwin_amd64
+            @npm//@bazel/devserver:devserver_darwin_amd64
         </td>
       </tr>
             <tr id="ts_devserver-entry_module">

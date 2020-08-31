@@ -311,7 +311,7 @@ or “library” (generally one directory of source files).</p>
 <p>Create a <code>BUILD</code> file next to your sources:</p>
 
 <figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">package</span><span class="p">(</span><span class="n">default_visibility</span><span class="o">=</span><span class="p">[</span><span class="s">"//visibility:public"</span><span class="p">])</span>
-<span class="n">load</span><span class="p">(</span><span class="s">"//packages/typescript:index.bzl"</span><span class="p">,</span> <span class="s">"ts_library"</span><span class="p">)</span>
+<span class="n">load</span><span class="p">(</span><span class="s">"@npm//@bazel/typescript:index.bzl"</span><span class="p">,</span> <span class="s">"ts_library"</span><span class="p">)</span>
 
 <span class="n">ts_library</span><span class="p">(</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s">"my_code"</span><span class="p">,</span>
@@ -420,7 +420,7 @@ fast (should be under two seconds).</li>
 <p>To use <code>ts_devserver</code>, you simply <code>load</code> the rule, and call it with <code>deps</code> that
 point to your <code>ts_library</code> target(s):</p>
 
-<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">load</span><span class="p">(</span><span class="s">"//packages/typescript:index.bzl"</span><span class="p">,</span> <span class="s">"ts_devserver"</span><span class="p">,</span> <span class="s">"ts_library"</span><span class="p">)</span>
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">load</span><span class="p">(</span><span class="s">"@npm//@bazel/typescript:index.bzl"</span><span class="p">,</span> <span class="s">"ts_devserver"</span><span class="p">,</span> <span class="s">"ts_library"</span><span class="p">)</span>
 
 <span class="n">ts_library</span><span class="p">(</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s">"app"</span><span class="p">,</span>
@@ -633,7 +633,7 @@ ts_devserver(<a href="#ts_devserver-name">name</a>, <a href="#ts_devserver-addit
         <td><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></td>
         <td>optional</td>
         <td>
-            //packages/typescript/devserver:devserver
+            @npm//@bazel/devserver:devserver
         </td>
       </tr>
             <tr id="ts_devserver-devserver_host">
@@ -645,7 +645,7 @@ ts_devserver(<a href="#ts_devserver-name">name</a>, <a href="#ts_devserver-addit
         <td><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></td>
         <td>optional</td>
         <td>
-            //packages/typescript/devserver:devserver_darwin_amd64
+            @npm//@bazel/devserver:devserver_darwin_amd64
         </td>
       </tr>
             <tr id="ts_devserver-entry_module">
