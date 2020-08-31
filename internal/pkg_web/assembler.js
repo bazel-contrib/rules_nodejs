@@ -30,8 +30,13 @@ function mkdirp(p) {
   }
 }
 
-function getMappingsFromVolatileFile(volatileFilePath) {
-  const stampFileLines = fs.readFileSync(volatileFilePath, {encoding: 'utf-8'}).trim().split('\n');
+function unquoteArgs(s) {
+  return s.replace(/^'(.*)'$/, '$1');
+}
+
+function getBazelStatusMappings(statusFilePath) {
+  if (!statusFilePath) return {};
+  const stampFileLines = fs.readFileSync(statusFilePath, {encoding: 'utf-8'}).trim().split('\n');
   const stampMap = {};
   for (const line of stampFileLines) {
     const [key, value] = line.split(' ');
@@ -40,9 +45,8 @@ function getMappingsFromVolatileFile(volatileFilePath) {
   return stampMap;
 }
 
-function normalizeSubstitutions(substitutionsArg, volatileFilePath) {
+function normalizeSubstitutions(substitutionsArg, stampMap) {
   const substitutions = JSON.parse(substitutionsArg);
-  const stampMap = getMappingsFromVolatileFile(volatileFilePath);
 
   const normalizedSubstitutions = {};
 
@@ -51,7 +55,7 @@ function normalizeSubstitutions(substitutionsArg, volatileFilePath) {
     if (substituteWith.match(/^{.*?}$/)) {
       substituteWith = substituteWith.replace(/^{(.*?)}$/, '$1');
       if (!stampMap[substituteWith]) {
-        throw new Error(`Could not find ${substituteWith} key in volatile-status file.`);
+        throw new Error(`Could not find ${substituteWith} key in status file.`);
       }
       substituteWith = stampMap[substituteWith];
     }
@@ -65,9 +69,16 @@ function main(params) {
 
   const volatileFilePath = params.shift();
 
+  const stableFilePath = params.shift();
+
   const rawSubstitutions = params.shift().replace(/^'(.*)'$/, '$1');
 
-  const normalizedSubstitutions = normalizeSubstitutions(rawSubstitutions, volatileFilePath)
+  const stampMap = {
+    ...getBazelStatusMappings(volatileFilePath),
+    ...getBazelStatusMappings(stableFilePath),
+  };
+
+  const normalizedSubstitutions = normalizeSubstitutions(rawSubstitutions, stampMap)
 
   const substitutions = Object.entries(normalizedSubstitutions);
 
@@ -133,6 +144,9 @@ module.exports = {main};
 if (require.main === module) {
   // We always require the arguments are encoded into a flagfile
   // so that we don't exhaust the command-line limit.
-  const params = fs.readFileSync(process.argv[2], {encoding: 'utf-8'}).split('\n').filter(l => !!l);
+  const params = fs.readFileSync(process.argv[2], {encoding: 'utf-8'})
+                     .split('\n')
+                     .filter(l => !!l)
+                     .map(unquoteArgs);
   process.exitCode = main(params);
 }

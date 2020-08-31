@@ -1,15 +1,29 @@
 const fs = require('fs');
 const path = require('path');
+const runfiles = require(process.env['BAZEL_NODE_RUNFILES_HELPER']);
 
-process.chdir(path.join(process.env['TEST_SRCDIR'], 'build_bazel_rules_nodejs'));
-console.error(fs.readdirSync('.'));
+process.chdir(runfiles.resolveWorkspaceRelative('internal/pkg_web/test/pkg'));
+
 describe('pkg_web', () => {
-  it('should match the golden file', () => {
-    const output = 'build_bazel_rules_nodejs/internal/pkg_web/test/pkg/index.html';
-    const golden = 'build_bazel_rules_nodejs/internal/pkg_web/test/index_golden.html_';
-    const actual = fs.readFileSync(require.resolve(output), {encoding: 'utf-8'});
-    const expected = fs.readFileSync(require.resolve(golden), {encoding: 'utf-8'});
-    // make the input hermetic by replacing the cache-buster timestamp
-    expect(actual.replace(/\?v=\d+/g, '?v=123')).toBe(expected);
+  it('should have the right contents', () => {
+    expect(fs.readdirSync('.')).toEqual([
+      'bundle.es2015.js',
+      'bundle.es2015.js.map',
+      'bundle.js',
+      'bundle.js.map',
+      'bundle.min.es2015.js',
+      'bundle.min.es2015.js.map',
+      'bundle.min.js',
+      'bundle.min.js.map',
+      'bundle.min_debug.es2015.js',
+      'bundle.min_debug.es2015.js.map',
+      'bundle.min_debug.js',
+      'bundle.min_debug.js.map',
+      'index.html',
+    ]);
+  });
+
+  it('should replace stamp info', () => {
+    expect(fs.readFileSync('bundle.js', 'utf-8')).toContain('v1.2.3');
   });
 });

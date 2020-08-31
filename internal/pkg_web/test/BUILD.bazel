@@ -1,5 +1,6 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "pkg_web")
 load("@npm//@babel/cli:index.bzl", "babel")
+load("//internal/node:context.bzl", "node_context_data")
 load("//packages/jasmine:index.bzl", "jasmine_node_test")
 load("//packages/rollup:index.bzl", "rollup_bundle")
 load("//packages/terser:index.bzl", "terser_minified")
@@ -62,6 +63,11 @@ terser_minified(
     debug = True,
 )
 
+node_context_data(
+    name = "force_stamp",
+    stamp = True,
+)
+
 pkg_web(
     name = "pkg",
     srcs = [
@@ -73,16 +79,14 @@ pkg_web(
         ":bundle.min_debug",
         ":bundle.min_debug.es2015",
     ],
+    node_context_data = ":force_stamp",
+    substitutions = {
+        "${version}": "{BUILD_SCM_VERSION}",
+    },
 )
 
 jasmine_node_test(
     name = "test",
     srcs = ["spec.js"],
-    data = [
-        "index_golden.html_",
-        ":pkg",
-    ],
-    tags = [
-        "fix-windows",
-    ],
+    data = [":pkg"],
 )

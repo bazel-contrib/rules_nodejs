@@ -1,9 +1,0 @@
-#!/bin/bash
-export NP_PATCHED_NODEJS="/Users/thesayyn/Documents/bazel/rules_nodejs/internal/node/_node_bin"
-export PATH="/Users/thesayyn/Documents/bazel/rules_nodejs/internal/node/_node_bin":$PATH
-if [[ ! "${@}" =~ "node_patches.js" ]]; then
-  exec /private/var/tmp/_bazel_thesayyn/a9a36d475d03232bfeced54055fb3183/external/nodejs_darwin_amd64/bin/nodejs/bin/node --require "/Users/thesayyn/Documents/bazel/rules_nodejs/internal/node/node_patches.js" "$@"
-else
-  exec /private/var/tmp/_bazel_thesayyn/a9a36d475d03232bfeced54055fb3183/external/nodejs_darwin_amd64/bin/nodejs/bin/node "$@"
-fi
-  
