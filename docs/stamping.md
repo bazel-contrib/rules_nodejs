@@ -20,7 +20,10 @@ Bazel provides a couple of statuses by default, such as `BUILD_EMBED_LABEL` whic
 argument, as well as `BUILD_HOST` and `BUILD_USER`. You can supply more with the workspace status script, see below.
 
 Some rules accept an attribute that uses the status variables.
-For example, in a `pkg_npm` you can use the `substitutions` attribute like:
+
+## Substitutions attribute
+
+In a `pkg_npm` or `pkg_web` you can use the `substitutions` attribute like:
 
 ```python
 pkg_npm(
@@ -32,7 +35,10 @@ pkg_npm(
 In a `--stamp` build, this will replace the string "0.0.0-PLACEHOLDER" in any file included in the package with the current value of the `STABLE_GIT_COMMIT` variable.
 However without stamping the placeholder will be left as-is.
 
+## Read the status files
+
 The `rollup_bundle` rule just exposes the Bazel status files so that your custom `rollup.config.js` can read it.
+See [Rollup](Rollup).
 
 ## Stamping with a Workspace status script
 
