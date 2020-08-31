@@ -5,55 +5,7 @@ load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module
 
 _DOC = """Runs the Rollup.js CLI under Bazel.
 
-See https://rollupjs.org/guide/en/#command-line-reference
-
-Typical example:
-```python
-load("@npm//@bazel/rollup:index.bzl", "rollup_bundle")
-
-rollup_bundle(
-    name = "bundle",
-    srcs = ["dependency.js"],
-    entry_point = "input.js",
-    config_file = "rollup.config.js",
-)
-```
-
-Note that the command-line options set by Bazel override what appears in the rollup config file.
-This means that typically a single `rollup.config.js` can contain settings for your whole repo,
-and multiple `rollup_bundle` rules can share the configuration.
-
-Thus, setting options that Bazel controls will have no effect, e.g.
-
-```javascript
-module.exports = {
-    output: { file: 'this_is_ignored.js' },
-}
-```
-
-You must determine ahead of time whether Rollup needs to produce a directory output.
-This is the case if you have dynamic imports which cause code-splitting, or if you
-provide multiple entry points. Use the `output_dir` attribute to specify that you want a
-directory output.
-Rollup's CLI has the same behavior, forcing you to pick `--output.file` or `--output.dir`.
-
-To get multiple output formats, wrap the rule with a macro or list comprehension, e.g.
-
-```python
-[
-    rollup_bundle(
-        name = "bundle.%s" % format,
-        entry_point = "foo.js",
-        format = format,
-    )
-    for format in [
-        "cjs",
-        "umd",
-    ]
-]
-```
-
-This will produce one output per requested format.
+See [the Rollup CLI reference](https://rollupjs.org/guide/en/#command-line-reference)
 """
 
 _ROLLUP_ATTRS = {
