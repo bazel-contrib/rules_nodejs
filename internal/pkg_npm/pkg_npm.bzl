@@ -6,7 +6,7 @@ If all users of your library code use Bazel, they should just add your library
 to the `deps` of one of their targets.
 """
 
-load("//:providers.bzl", "DeclarationInfo", "JSModuleInfo", "LinkablePackageInfo", "NodeContextInfo")
+load("//:providers.bzl", "DeclarationInfo", "JSModuleInfo", "LinkablePackageInfo", "NODE_CONTEXT_ATTRS", "NodeContextInfo")
 
 _DOC = """The pkg_npm rule creates a directory containing a publishable npm artifact.
 
@@ -73,7 +73,7 @@ You can pass arguments to npm by escaping them from Bazel using a double-hyphen,
 """
 
 # Used in angular/angular /packages/bazel/src/ng_package/ng_package.bzl
-PKG_NPM_ATTRS = {
+PKG_NPM_ATTRS = dict(NODE_CONTEXT_ATTRS, **{
     "deps": attr.label_list(
         doc = """Other targets which produce files that should be included in the package, such as `rollup_bundle`""",
         allow_files = True,
@@ -81,11 +81,6 @@ PKG_NPM_ATTRS = {
     "nested_packages": attr.label_list(
         doc = """Other pkg_npm rules whose content is copied into this package.""",
         allow_files = True,
-    ),
-    "node_context_data": attr.label(
-        default = "@build_bazel_rules_nodejs//internal:node_context_data",
-        providers = [NodeContextInfo],
-        doc = "Internal use only",
     ),
     "package_name": attr.string(
         doc = """Optional package_name that this npm package may be imported as.""",
@@ -120,7 +115,7 @@ PKG_NPM_ATTRS = {
         default = Label("@nodejs//:run_npm.sh.template"),
         allow_single_file = True,
     ),
-}
+})
 
 # Used in angular/angular /packages/bazel/src/ng_package/ng_package.bzl
 PKG_NPM_OUTPUTS = {

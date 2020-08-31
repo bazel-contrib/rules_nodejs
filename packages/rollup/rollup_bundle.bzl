@@ -1,6 +1,6 @@
 "Rules for running Rollup under Bazel"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "JSEcmaScriptModuleInfo", "JSModuleInfo", "NodeContextInfo", "NpmPackageInfo", "node_modules_aspect", "run_node")
+load("@build_bazel_rules_nodejs//:providers.bzl", "JSEcmaScriptModuleInfo", "JSModuleInfo", "NODE_CONTEXT_ATTRS", "NodeContextInfo", "NpmPackageInfo", "node_modules_aspect", "run_node")
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 
 _DOC = """Runs the Rollup.js CLI under Bazel.
@@ -56,7 +56,7 @@ To get multiple output formats, wrap the rule with a macro or list comprehension
 This will produce one output per requested format.
 """
 
-_ROLLUP_ATTRS = {
+_ROLLUP_ATTRS = dict(NODE_CONTEXT_ATTRS, **{
     "args": attr.string_list(
         doc = """Command line arguments to pass to rollup. Can be used to override config file settings.
 
@@ -153,11 +153,6 @@ Either this attribute or `entry_point` must be specified, but not both.
         values = ["amd", "cjs", "esm", "iife", "umd", "system"],
         default = "esm",
     ),
-    "node_context_data": attr.label(
-        default = "@build_bazel_rules_nodejs//internal:node_context_data",
-        providers = [NodeContextInfo],
-        doc = "Internal use only",
-    ),
     "output_dir": attr.bool(
         doc = """Whether to produce a directory output.
 
@@ -217,7 +212,7 @@ When enabled, this rule invokes the "rollup_worker_bin"
 worker aware binary rather than "rollup_bin".""",
         default = False,
     ),
-}
+})
 
 def _desugar_entry_point_names(name, entry_point, entry_points):
     """Users can specify entry_point (sugar) or entry_points (long form).
