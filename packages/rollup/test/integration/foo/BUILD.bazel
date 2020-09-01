@@ -11,10 +11,12 @@ copy_file(
 )
 
 ts_project(
+    name = "foo_tslib",
     srcs = [
         "index.ts",
         "user.d.ts",
     ],
+    tsconfig = ":tsconfig.json",
     deps = ["@npm//date-fns"],
 )
 
@@ -22,8 +24,9 @@ js_library(
     name = "foo_lib",
     package_name = "@foo/lib",
     srcs = [
-        "user.d.ts",
-        ":index.js",
         ":user.js",
+    ],
+    deps = [
+        ":foo_tslib",
     ],
 )
