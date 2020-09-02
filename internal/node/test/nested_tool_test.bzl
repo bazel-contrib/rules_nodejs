@@ -15,7 +15,6 @@ source "${RUNFILES_DIR:-/dev/null}/$f" 2>/dev/null || \
 # --- end runfiles.bash initialization v2 ---
 runfiles_export_envvars
 $(rlocation {nested_tool})
-# exit 1
 """
 
 def _runfiles_path(ctx, file):
