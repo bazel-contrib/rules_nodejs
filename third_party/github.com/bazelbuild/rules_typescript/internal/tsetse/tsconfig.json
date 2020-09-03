@@ -11,7 +11,12 @@
       "es2015.promise"
     ],
     "plugins": [
-      // Run `bazel build internal/tsetse:language_service_plugin` for this to work.
+      // Run `bazel build internal:tsc_wrapped` from root folder
+      // (rules_typescript) to build the plugin.
+      //
+      // If you are using VSCode make sure you are using the workspace version
+      // of TS, otherwise the plugin won't be loaded. Also, make sure you have
+      // opened the repo as workspace (from the root folder).
       {
         "name": "../../bazel-bin/internal/tsetse/language_service_plugin.js"
       }
