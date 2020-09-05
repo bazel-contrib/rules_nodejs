@@ -129,6 +129,7 @@ def rules_nodejs_dev_dependencies():
             "@build_bazel_rules_nodejs//:rules_typescript_pr_494.patch",
             "@build_bazel_rules_nodejs//:rules_typescript_pr_496.patch",
             "@build_bazel_rules_nodejs//:rules_typescript_pr_499.patch",
+            "@build_bazel_rules_nodejs//:rules_typescript_pr_508.patch",
         ],
         remote = "http://github.com/bazelbuild/rules_typescript.git",
         shallow_since = "1582757372 -0800",

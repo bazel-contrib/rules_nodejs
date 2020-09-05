@@ -161,38 +161,70 @@
         <h1 id="stamping">Stamping</h1>
 
 <p>Bazel is generally only a build tool, and is unaware of your version control system.
-However, when publishing releases, you typically want to embed version information in the resulting distribution.
-Bazel supports this natively, using the following approach:</p>
+However, when publishing releases, you may want to embed version information in the resulting distribution.
+Bazel supports this with the concept of a “Workspace status” which is evaluated before each build.
+See <a href="https://docs.bazel.build/versions/master/user-manual.html#workspace_status">the Bazel workspace status docs</a></p>
 
 <p>To stamp a build, you must pass the <code class="language-plaintext highlighter-rouge">--stamp</code> argument to Bazel.</p>
 
+<p>Stamping is typically performed on a later action in the graph, like on a packaging rule (<code class="language-plaintext highlighter-rouge">pkg_*</code>). This means that
+a changed status variable only causes re-packaging, not re-compilation and thus does not cause cascading re-builds.</p>
+
+<p>Bazel provides a couple of statuses by default, such as <code class="language-plaintext highlighter-rouge">BUILD_EMBED_LABEL</code> which is the value of the <code class="language-plaintext highlighter-rouge">--embed_label</code>
+argument, as well as <code class="language-plaintext highlighter-rouge">BUILD_HOST</code> and <code class="language-plaintext highlighter-rouge">BUILD_USER</code>. You can supply more with the workspace status script, see below.</p>
+
+<p>Some rules accept an attribute that uses the status variables.</p>
+
+<h2 id="substitutions-attribute">Substitutions attribute</h2>
+
+<p>In a <code class="language-plaintext highlighter-rouge">pkg_npm</code> or <code class="language-plaintext highlighter-rouge">pkg_web</code> you can use the <code class="language-plaintext highlighter-rouge">substitutions</code> attribute like:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">pkg_npm</span><span class="p">(</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"npm_package"</span><span class="p">,</span>
+    <span class="n">substitutions</span> <span class="o">=</span> <span class="p">{</span><span class="s">"0.0.0-PLACEHOLDER"</span><span class="p">:</span> <span class="s">"{STABLE_GIT_COMMIT}"</span><span class="p">},</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<p>In a <code class="language-plaintext highlighter-rouge">--stamp</code> build, this will replace the string “0.0.0-PLACEHOLDER” in any file included in the package with the current value of the <code class="language-plaintext highlighter-rouge">STABLE_GIT_COMMIT</code> variable.
+However without stamping the placeholder will be left as-is.</p>
+
+<h2 id="read-the-status-files">Read the status files</h2>
+
+<p>The <code class="language-plaintext highlighter-rouge">rollup_bundle</code> rule just exposes the Bazel status files so that your custom <code class="language-plaintext highlighter-rouge">rollup.config.js</code> can read it.
+See <a href="Rollup">Rollup</a>.</p>
+
+<h2 id="stamping-with-a-workspace-status-script">Stamping with a Workspace status script</h2>
+
+<p>To define additional statuses, pass the <code class="language-plaintext highlighter-rouge">--workspace_status_command</code> argument to <code class="language-plaintext highlighter-rouge">bazel</code>.
+The value of this flag is a path to a script that prints space-separated key/value pairs, one per line, such as</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env bash</span>
+<span class="nb">echo </span>STABLE_GIT_COMMIT <span class="si">$(</span>git rev-parse HEAD<span class="si">)</span>
+</code></pre></div></div>
 <blockquote>
-  <p>Previous releases of rules_nodejs stamped builds always.
-However this caused stamp-aware actions to never be remotely cached, since the volatile
-status file is passed as an input and its checksum always changes.</p>
+  <p>For a more full-featured script, take a look at the <a href="https://github.com/angular/angular/blob/master/tools/bazel_stamp_vars.sh">bazel_stamp_vars in Angular</a></p>
 </blockquote>
 
-<p>Also pass the <code class="language-plaintext highlighter-rouge">workspace_status_command</code> argument to <code class="language-plaintext highlighter-rouge">bazel build</code>.
-We prefer to do these with an entry in <code class="language-plaintext highlighter-rouge">.bazelrc</code>:</p>
+<p>Make sure you set the executable bit, eg. <code class="language-plaintext highlighter-rouge">chmod 755 tools/bazel_stamp_vars.sh</code>.</p>
+
+<blockquote>
+  <p><strong>NOTE</strong> keys start start with <code class="language-plaintext highlighter-rouge">STABLE_</code> will cause a re-build when they change.
+Other keys will NOT cause a re-build, so stale values can appear in your app.
+Non-stable (volatile) keys should typically be things like timestamps that always vary between builds.</p>
+</blockquote>
+
+<p>You might like to encode your setup using an entry in <code class="language-plaintext highlighter-rouge">.bazelrc</code> such as:</p>
 
 <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># This tells Bazel how to interact with the version control system</span>
 <span class="c"># Enable this with --config=release</span>
 build:release <span class="nt">--stamp</span> <span class="nt">--workspace_status_command</span><span class="o">=</span>./tools/bazel_stamp_vars.sh
 </code></pre></div></div>
 
-<p>Then create <code class="language-plaintext highlighter-rouge">tools/bazel_stamp_vars.sh</code>.</p>
+<h2 id="release-script">Release script</h2>
 
-<p>This is a script that prints variable/value pairs.
-Make sure you set the executable bit, eg. <code class="language-plaintext highlighter-rouge">chmod 755 tools/bazel_stamp_vars.sh</code>.
-For example, we could run <code class="language-plaintext highlighter-rouge">git describe</code> to get the current tag:</p>
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env bash</span>
-<span class="nb">echo </span>BUILD_SCM_VERSION <span class="si">$(</span>git describe <span class="nt">--abbrev</span><span class="o">=</span>7 <span class="nt">--tags</span> HEAD<span class="si">)</span>
-</code></pre></div></div>
-
-<p>For a more full-featured script, take a look at the <a href="https://github.com/angular/angular/blob/master/tools/bazel_stamp_vars.sh">bazel_stamp_vars in Angular</a></p>
-
-<p>Finally, we recommend a release script around Bazel. We typically have more than one npm package published from one Bazel workspace, so we do a <code class="language-plaintext highlighter-rouge">bazel query</code> to find them, and publish in a loop. Here is a template to get you started:</p>
+<p>If you publish more than one package from your workspace, you might want a release script around Bazel.
+A nice pattern is to do a <code class="language-plaintext highlighter-rouge">bazel query</code> to find publishable targets, build them in parallel, then publish in a loop.
+Here is a template to get you started:</p>
 
 <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env bash</span>
 
@@ -215,10 +247,6 @@ For example, we could run <code class="language-plaintext highlighter-rouge">git
   <span class="nv">$BAZEL</span> run <span class="nt">--config</span><span class="o">=</span>release <span class="nt">--</span> <span class="k">${</span><span class="nv">pkg</span><span class="k">}</span>.<span class="k">${</span><span class="nv">NPM_COMMAND</span><span class="k">}</span> <span class="nt">--access</span> public <span class="nt">--tag</span> latest
 <span class="k">done</span>
 </code></pre></div></div>
-
-<blockquote>
-  <p>WARNING: Bazel can’t track changes to git tags. That means it won’t rebuild a target if only the result of the workspace_status_command has changed. So changes to the version information may not be reflected if you re-build the package or bundle, and nothing in the package or bundle has changed.</p>
-</blockquote>
 
 <p>See https://www.kchodorow.com/blog/2017/03/27/stamping-your-builds/ for more background.</p>
 
@@ -243,6 +271,10 @@ For example, we could run <code class="language-plaintext highlighter-rouge">git
           
         </ul>
         <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#substitutions-attribute">Substitutions attribute</a></li>
+<li class="toc-entry toc-h2"><a href="#read-the-status-files">Read the status files</a></li>
+<li class="toc-entry toc-h2"><a href="#stamping-with-a-workspace-status-script">Stamping with a Workspace status script</a></li>
+<li class="toc-entry toc-h2"><a href="#release-script">Release script</a></li>
 </ul>
       </div>
     </div>

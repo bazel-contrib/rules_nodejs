@@ -1380,7 +1380,12 @@ pkg_npm(<a href="#pkg_npm-name">name</a>, <a href="#pkg_npm-deps">deps</a>, <a h
             <tr id="pkg_npm-node_context_data">
         <td>node_context_data</td>
         <td>
-                            Internal use only
+                            Provides info about the build context, such as stamping.
+        
+        By default it reads from the bazel command line, such as the <code>--stamp</code> argument.
+        Use this to override values for this target, such as enabling or disabling stamping.
+        You can use the <code>node_context_data</code> rule in <code>@build_bazel_rules_nodejs//internal/node:context.bzl</code>
+        to create a NodeContextInfo.
                                       The dependencies of this attribute must provide: NodeContextInfo
                     </td>
         <td><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></td>
@@ -1403,8 +1408,12 @@ pkg_npm(<a href="#pkg_npm-name">name</a>, <a href="#pkg_npm-deps">deps</a>, <a h
             <tr id="pkg_npm-replace_with_version">
         <td>replace_with_version</td>
         <td>
-                            If set this value is replaced with the version stamp data.
-        See the section on stamping in the README.
+                            DEPRECATED: use substitutions instead.
+        
+        <code>replace_with_version = "my_version_placeholder"</code> is just syntax sugar for
+        <code>substitutions = {"my_version_placeholder": "{BUILD_SCM_VERSION}"}</code>.
+
+        Follow this deprecation at https://github.com/bazelbuild/rules_nodejs/issues/2158
                                 </td>
         <td>String</td>
         <td>optional</td>
@@ -1427,6 +1436,10 @@ pkg_npm(<a href="#pkg_npm-name">name</a>, <a href="#pkg_npm-deps">deps</a>, <a h
         <td>substitutions</td>
         <td>
                             Key-value pairs which are replaced in all the files while building the package.
+        
+        You can use values from the workspace status command using curly braces, for example
+        <code>{"0.0.0-PLACEHOLDER": "{STABLE_GIT_VERSION}"}</code>.
+        See the section on stamping in the README
                                 </td>
         <td><a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -&gt; String</a></td>
         <td>optional</td>
@@ -1454,7 +1467,7 @@ pkg_npm(<a href="#pkg_npm-name">name</a>, <a href="#pkg_npm-deps">deps</a>, <a h
 <p>Assembles a web application from source files.</p>
 
 <pre>
-pkg_web(<a href="#pkg_web-name">name</a>, <a href="#pkg_web-additional_root_paths">additional_root_paths</a>, <a href="#pkg_web-srcs">srcs</a>)
+pkg_web(<a href="#pkg_web-name">name</a>, <a href="#pkg_web-additional_root_paths">additional_root_paths</a>, <a href="#pkg_web-node_context_data">node_context_data</a>, <a href="#pkg_web-srcs">srcs</a>, <a href="#pkg_web-substitutions">substitutions</a>)
 </pre>
 
 <p><strong>ATTRIBUTES</strong></p>
@@ -1492,6 +1505,23 @@ pkg_web(<a href="#pkg_web-name">name</a>, <a href="#pkg_web-additional_root_path
             []
         </td>
       </tr>
+            <tr id="pkg_web-node_context_data">
+        <td>node_context_data</td>
+        <td>
+                            Provides info about the build context, such as stamping.
+        
+        By default it reads from the bazel command line, such as the <code>--stamp</code> argument.
+        Use this to override values for this target, such as enabling or disabling stamping.
+        You can use the <code>node_context_data</code> rule in <code>@build_bazel_rules_nodejs//internal/node:context.bzl</code>
+        to create a NodeContextInfo.
+                                      The dependencies of this attribute must provide: NodeContextInfo
+                    </td>
+        <td><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></td>
+        <td>optional</td>
+        <td>
+            @build_bazel_rules_nodejs//internal:node_context_data
+        </td>
+      </tr>
             <tr id="pkg_web-srcs">
         <td>srcs</td>
         <td>
@@ -1501,6 +1531,21 @@ pkg_web(<a href="#pkg_web-name">name</a>, <a href="#pkg_web-additional_root_path
         <td>optional</td>
         <td>
             []
+        </td>
+      </tr>
+            <tr id="pkg_web-substitutions">
+        <td>substitutions</td>
+        <td>
+                            Key-value pairs which are replaced in all the files while building the package.
+        
+        You can use values from the workspace status command using curly braces, for example
+        <code>{"0.0.0-PLACEHOLDER": "{STABLE_GIT_VERSION}"}</code>.
+        See the section on stamping in the README.
+                                </td>
+        <td><a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -&gt; String</a></td>
+        <td>optional</td>
+        <td>
+            {}
         </td>
       </tr>
         </tbody>

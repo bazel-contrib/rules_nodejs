@@ -1086,9 +1086,41 @@ ts_project(<a href="#ts_project-name">name</a>, <a href="#ts_project-tsconfig">t
             <tr id="ts_project-tsconfig">
         <td>tsconfig</td>
         <td>
-                            Label of the tsconfig.json file to use for the compilation, or a target that provides TsConfigInfo.
+                            Label of the tsconfig.json file to use for the compilation
+
+    To support "chaining" of more than one extended config, this label could be a target that
+    provdes <code>TsConfigInfo</code> such as <code>ts_config</code>.
 
     By default, we assume the tsconfig file is named by adding <code>.json</code> to the <code>name</code> attribute.
+
+    EXPERIMENTAL: generated tsconfig
+
+    Instead of a label, you can pass a dictionary of tsconfig keys.
+
+    In this case, a tsconfig.json file will be generated for this compilation, in the following way:
+    - all top-level keys will be copied by converting the dict to json.
+      So <code>tsconfig = {"compilerOptions": {"declaration": True}}</code>
+      will result in a generated <code>tsconfig.json</code> with <code>{"compilerOptions": {"declaration": true}}</code>
+    - each file in srcs will be converted to a relative path in the <code>files</code> section.
+    - the <code>extends</code> attribute will be converted to a relative path
+
+    Note that you can mix and match attributes and compilerOptions properties, so these are equivalent:
+
+    {% highlight python %}
+    ts_project(
+        tsconfig = {
+            "compilerOptions": {
+                "declaration": True,
+            },
+        },
+    )
+    {% endhighlight %}
+    and
+    {% highlight python %}
+    ts_project(
+        declaration = True,
+    )
+    {% endhighlight %}
                     </td>
         <td>
             None
@@ -1126,10 +1158,15 @@ ts_project(<a href="#ts_project-name">name</a>, <a href="#ts_project-tsconfig">t
             <tr id="ts_project-extends">
         <td>extends</td>
         <td>
-                            List of labels of tsconfig file(s) referenced in <code>extends</code> section of tsconfig.
+                            Label of the tsconfig file referenced in the <code>extends</code> section of tsconfig
 
-    Any tsconfig files "chained" by extends clauses must either be transitive deps of the TsConfigInfo
-    provided to the <code>tsconfig</code> attribute, or must be explicitly listed here.
+    To support "chaining" of more than one extended config, this label could be a target that
+    provdes <code>TsConfigInfo</code> such as <code>ts_config</code>.
+
+    _DEPRECATED, to be removed in 3.0_:
+    For backwards compatibility, this accepts a list of Labels of the "chained"
+    tsconfig files. You should instead use a single Label of a <code>ts_config</code> target.
+    Follow this deprecation: https://github.com/bazelbuild/rules_nodejs/issues/2140
                     </td>
         <td>
             None

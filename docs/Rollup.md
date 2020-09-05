@@ -10,11 +10,9 @@ nav: rule
   Instead you must edit the .bzl file where the rules are declared,
   or possibly a markdown file next to the .bzl file
  ********************* -->
-# rollup rules for Bazel
+# Rollup rules for Bazel
 
-The rollup rules run the rollup JS bundler with Bazel.
-
-Wraps the rollup CLI documented at https://rollupjs.org/guide/en/#command-line-reference
+The Rollup rules run the Rollup.JS bundler with Bazel.
 
 
 ## Installation
@@ -38,12 +36,10 @@ nodejs_binary(
 {% endhighlight %}
 
 
+## Usage
 
-## rollup_bundle
-
-Runs the Rollup.js CLI under Bazel.
-
-See https://rollupjs.org/guide/en/#command-line-reference
+The <code>rollup_bundle</code> rule is used to invoke Rollup.js on some inputs.
+The API docs appear [below](#rollup_bundle).
 
 Typical example:
 {% highlight python %}
@@ -69,6 +65,9 @@ module.exports = {
 }
 {% endhighlight %}
 
+
+## Output types
+
 You must determine ahead of time whether Rollup needs to produce a directory output.
 This is the case if you have dynamic imports which cause code-splitting, or if you
 provide multiple entry points. Use the <code>output_dir</code> attribute to specify that you want a
@@ -92,6 +91,64 @@ To get multiple output formats, wrap the rule with a macro or list comprehension
 {% endhighlight %}
 
 This will produce one output per requested format.
+
+
+## Stamping
+
+You can stamp the current version control info into the output by writing some code in your rollup config.
+See the [stamping documentation](stamping).
+
+By passing the <code>--stamp</code> option to Bazel, two additional input files will be readable by Rollup.
+
+1. The variable <code>bazel_version_file</code> will point to the path of Bazel's "volatile-status.txt" file which contains
+statuses that change frequently; such changes do not cause a re-build of the rollup_bundle.
+2. The variable <code>bazel_info_file</code> will point to the path of Bazel's "stable-status.txt" file which contains
+statuses that stay the same; any changed values will cause rollup_bundle to rebuild.
+
+Both <code>bazel_version_file</code> and <code>bazel_info_file</code> will be <code>undefined</code> if the build is run without <code>--stamp</code>.
+
+> Note that under <code>--stamp</code>, only the bundling is re-built, but not all the compilation steps.
+> This avoids a slow cascading re-build of a whole tree of actions.
+
+To use these files, just write JS code in the rollup.config.js that reads one of the status files and parses the lines.
+Each line is a space-separated key/value pair.
+
+{% highlight javascript %}
+// Parse the stamp file produced by Bazel from the version control system
+let version = '<unknown>';
+if (bazel_info_file) {
+  const versionTag = require('fs')
+                         .readFileSync(bazel_info_file, {encoding: 'utf-8'})
+                         .split('\n')
+                         .find(s => s.startsWith('STABLE_GIT_COMMIT'));
+  if (versionTag) {
+    version = 'v' + versionTag.split(' ')[1].trim();
+  }
+}
+{% endhighlight %}
+
+
+## Debug and Opt builds
+
+When you use <code>--compilation_mode=dbg</code>, Bazel produces a distinct output-tree in <code>bazel-out/[arch]-dbg/bin</code>.
+Code in your rollup.config.js can look in the environment to detect if a Debug build is being performed,
+and include extra developer information in the bundle that you wouldn't normally ship to production.
+
+Similarly, <code>--compilation_mode=opt</code> is Bazel's signal to perform extra optimizations.
+You could use this value to perform extra production-only optimizations.
+
+For example you could define a constant for enabling Debug:
+
+{% highlight javascript %}
+const DEBUG = process.env['COMPILATION_MODE'] === 'dbg';
+{% endhighlight %}
+
+
+## rollup_bundle
+
+Runs the Rollup.js CLI under Bazel.
+
+See [the Rollup CLI reference](https://rollupjs.org/guide/en/#command-line-reference)
 
 
 <pre>
@@ -258,7 +315,12 @@ Either this attribute or <code>entry_point</code> must be specified, but not bot
             <tr id="rollup_bundle-node_context_data">
         <td>node_context_data</td>
         <td>
-                            Internal use only
+                            Provides info about the build context, such as stamping.
+        
+        By default it reads from the bazel command line, such as the <code>--stamp</code> argument.
+        Use this to override values for this target, such as enabling or disabling stamping.
+        You can use the <code>node_context_data</code> rule in <code>@build_bazel_rules_nodejs//internal/node:context.bzl</code>
+        to create a NodeContextInfo.
                                       The dependencies of this attribute must provide: NodeContextInfo
                     </td>
         <td><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></td>
