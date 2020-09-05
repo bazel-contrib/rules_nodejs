@@ -819,4 +819,9 @@ NODE_VERSIONS = {
     "14.8.0-linux_arm64": ("node-v14.8.0-linux-arm64.tar.xz", "node-v14.8.0-linux-arm64", "0c66a6468c36552c00d45cff0eaa924240f3d2e625be0306f33f8b0d81af4224"),
     "14.8.0-linux_amd64": ("node-v14.8.0-linux-x64.tar.xz", "node-v14.8.0-linux-x64", "c7761fe5d56d045d1540b1f0bc8a20d7edf03e6fd695ee5fbffc1dd9416ccc75"),
     "14.8.0-windows_amd64": ("node-v14.8.0-win-x64.zip", "node-v14.8.0-win-x64", "848ca582bdf8b7fdc21a38d9f3887a45bdf6381b04549fc0f918852889157c9a"),
+    # 14.9.0
+    "14.9.0-darwin_amd64": ("node-v14.9.0-darwin-x64.tar.gz", "node-v14.9.0-darwin-x64", "8427e07e3ca70d6ccf5274dde535c9a42b7f873f5a086323eaf2406cdb324daf"),
+    "14.9.0-linux_arm64": ("node-v14.9.0-linux-arm64.tar.xz", "node-v14.9.0-linux-arm64", "f87573c3c44415b8c8333d37d59adebe762608abc81c2fc42a44fe5fdca16abd"),
+    "14.9.0-linux_amd64": ("node-v14.9.0-linux-x64.tar.xz", "node-v14.9.0-linux-x64", "ded70899f43cf8138f88b838aecff5045e763bcab91c4b7f57fe5b69c6722df4"),
+    "14.9.0-windows_amd64": ("node-v14.9.0-win-x64.zip", "node-v14.9.0-win-x64", "bcd3fc61739e7ac9a4b6103da3fe5f8c9e310b7b0f1b1f0200d5a4b5dd65d723"),
 }
