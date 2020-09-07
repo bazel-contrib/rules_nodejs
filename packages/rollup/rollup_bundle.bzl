@@ -105,6 +105,10 @@ Either this attribute or `entry_point` must be specified, but not both.
         values = ["amd", "cjs", "esm", "iife", "umd", "system"],
         default = "esm",
     ),
+    "link_workspace_root": attr.bool(
+        doc = """Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.
+If source files need to be required then they can be copied to the bin_dir with copy_to_bin.""",
+    ),
     "output_dir": attr.bool(
         doc = """Whether to produce a directory output.
 
@@ -349,6 +353,7 @@ def _rollup_bundle(ctx):
         mnemonic = "Rollup",
         execution_requirements = execution_requirements,
         env = {"COMPILATION_MODE": ctx.var["COMPILATION_MODE"]},
+        link_workspace_root = ctx.attr.link_workspace_root,
     )
 
     outputs_depset = depset(outputs)

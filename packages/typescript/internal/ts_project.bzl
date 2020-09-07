@@ -16,6 +16,7 @@ _ATTRS = {
     "declaration_dir": attr.string(),
     "deps": attr.label_list(providers = [DeclarationInfo], aspects = [module_mappings_aspect]),
     "extends": attr.label_list(allow_files = [".json"]),
+    "link_workspace_root": attr.bool(),
     "out_dir": attr.string(),
     "root_dir": attr.string(),
     # NB: no restriction on extensions here, because tsc sometimes adds type-check support
@@ -153,6 +154,7 @@ def _ts_project_impl(ctx):
                 ctx.label,
                 ctx.file.tsconfig.short_path,
             ),
+            link_workspace_root = ctx.attr.link_workspace_root,
         )
 
     providers = [
@@ -271,6 +273,7 @@ def ts_project_macro(
         declaration_dir = None,
         out_dir = None,
         root_dir = None,
+        link_workspace_root = False,
         **kwargs):
     """Compiles one TypeScript project using `tsc --project`
 
@@ -465,6 +468,9 @@ def ts_project_macro(
         ts_build_info_file: the user-specified value of `tsBuildInfoFile` from the tsconfig.
             Helps Bazel to predict the path where the .tsbuildinfo output is written.
 
+        link_workspace_root: Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.
+            If source files need to be required then they can be copied to the bin_dir with copy_to_bin.
+
         **kwargs: passed through to underlying rule, allows eg. visibility, tags
     """
 
@@ -550,5 +556,6 @@ def ts_project_macro(
         typing_maps_outs = _out_paths(srcs, typings_out_dir, root_dir, ".d.ts.map") if declaration_map else [],
         buildinfo_out = tsbuildinfo_path if composite or incremental else None,
         tsc = tsc,
+        link_workspace_root = link_workspace_root,
         **kwargs
     )

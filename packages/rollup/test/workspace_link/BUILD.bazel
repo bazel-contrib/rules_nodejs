@@ -1,0 +1,30 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin")
+load("//packages/jasmine:index.bzl", "jasmine_node_test")
+load("//packages/rollup:index.bzl", "rollup_bundle")
+
+copy_to_bin(
+    name = "foo",
+    srcs = ["foo.js"],
+)
+
+rollup_bundle(
+    name = "bundle",
+    srcs = [
+        "bar.js",
+        "main.js",
+        ":foo",
+    ],
+    config_file = "rollup.config.js",
+    entry_point = "main.js",
+    link_workspace_root = True,
+    deps = [
+        "@npm//@rollup/plugin-commonjs",
+        "@npm//@rollup/plugin-node-resolve",
+    ],
+)
+
+jasmine_node_test(
+    name = "test",
+    srcs = ["spec.js"],
+    deps = ["bundle"],
+)

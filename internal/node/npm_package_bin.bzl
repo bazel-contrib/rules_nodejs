@@ -11,6 +11,7 @@ _ATTRS = {
     "configuration_env_vars": attr.string_list(default = []),
     "data": attr.label_list(allow_files = True, aspects = [module_mappings_aspect, node_modules_aspect]),
     "exit_code_out": attr.output(),
+    "link_workspace_root": attr.bool(),
     "output_dir": attr.bool(),
     "outs": attr.output_list(),
     "stderr": attr.output(),
@@ -78,6 +79,7 @@ def _impl(ctx):
         stdout = ctx.outputs.stdout,
         stderr = ctx.outputs.stderr,
         exit_code_out = ctx.outputs.exit_code_out,
+        link_workspace_root = ctx.attr.link_workspace_root,
     )
 
     return [DefaultInfo(files = depset(outputs + tool_outputs))]
@@ -87,7 +89,7 @@ _npm_package_bin = rule(
     attrs = _ATTRS,
 )
 
-def npm_package_bin(tool = None, package = None, package_bin = None, data = [], outs = [], args = [], output_dir = False, **kwargs):
+def npm_package_bin(tool = None, package = None, package_bin = None, data = [], outs = [], args = [], output_dir = False, link_workspace_root = False, **kwargs):
     """Run an arbitrary npm package binary (e.g. a program under node_modules/.bin/*) under Bazel.
 
     It must produce outputs. If you just want to run a program with `bazel run`, use the nodejs_binary rule.
@@ -162,6 +164,8 @@ def npm_package_bin(tool = None, package = None, package_bin = None, data = [], 
         package_bin: the "bin" entry from `package` that should be run. By default package_bin is the same string as `package`
         tool: a label for a binary to run, like `@npm//terser/bin:terser`. This is the longer form of package/package_bin.
               Note that you can also refer to a binary in your local workspace.
+        link_workspace_root: Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.
+              If source files need to be required then they can be copied to the bin_dir with copy_to_bin.
     """
     if not tool:
         if not package:
@@ -175,5 +179,6 @@ def npm_package_bin(tool = None, package = None, package_bin = None, data = [], 
         args = args,
         output_dir = output_dir,
         tool = tool,
+        link_workspace_root = link_workspace_root,
         **kwargs
     )
