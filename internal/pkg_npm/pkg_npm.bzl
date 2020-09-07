@@ -193,7 +193,7 @@ def create_package(ctx, deps_files, nested_packages):
     # see https://github.com/bazelbuild/rules_nodejs/issues/2158 for removal
     substitutions = dict(**ctx.attr.substitutions)
     if stamp and ctx.attr.replace_with_version:
-        substitutions[ctx.attr.replace_with_version] = "{BUILD_SCM_VERSION}"
+        substitutions.setdefault(ctx.attr.replace_with_version, "{BUILD_SCM_VERSION}")
 
     args = ctx.actions.args()
     inputs = ctx.files.srcs + deps_files + nested_packages

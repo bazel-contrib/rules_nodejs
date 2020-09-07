@@ -45,16 +45,22 @@ def pkg_npm(**kwargs):
         "//examples:__pkg__",
     ])
 
-    # Default substitutions to scrub things like skylib references
-    substitutions = kwargs.pop("substitutions", _COMMON_REPLACEMENTS)
-
     pkg = native.package_name().split("/")[-1]
+
+    # Default substitutions to scrub things like skylib references
+    substitutions = dict(kwargs.pop("substitutions", _COMMON_REPLACEMENTS), **{
+        "//packages/%s" % pkg: "//@bazel/%s" % pkg,
+    })
+    stamped_substitutions = dict(substitutions, **{
+        "0.0.0-PLACEHOLDER": "{STABLE_BUILD_SCM_VERSION}",
+    })
 
     # Finally call through to the rule with our defaults set
     _pkg_npm(
         deps = deps,
-        substitutions = dict(substitutions, **{
-            "//packages/%s" % pkg: "//@bazel/%s" % pkg,
+        substitutions = select({
+            "@build_bazel_rules_nodejs//internal:stamp": stamped_substitutions,
+            "//conditions:default": substitutions,
         }),
         visibility = visibility,
         **kwargs
