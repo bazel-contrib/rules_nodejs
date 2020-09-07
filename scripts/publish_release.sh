@@ -12,12 +12,7 @@ set -u -e -o pipefail
 
 readonly NPM_COMMAND=${1:-publish}
 readonly NPM_TAG=${2:-latest}
-readonly BAZEL_BIN=./node_modules/.bin/bazel
-
-# Use a new output_base so we get a clean build
-# Bazel can't know if the git metadata changed
-readonly TMP=$(mktemp -d -t bazel-release.XXXXXXX)
-readonly BAZEL="$BAZEL_BIN --output_base=$TMP"
+readonly BAZEL=./node_modules/.bin/bazel
 readonly PKG_NPM_LABELS=`$BAZEL query --output=label 'kind("pkg_npm rule", //packages/...) - attr("tags", "\[.*do-not-publish.*\]", //packages/...)'`
 
 $BAZEL build --config=release $PKG_NPM_LABELS
