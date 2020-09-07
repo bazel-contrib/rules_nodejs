@@ -55,6 +55,6 @@ export class PropertyMatcher {
     }
 
     const baseTypes = inspectedType.getBaseTypes() || [];
-    return baseTypes.some(base => this.exactTypeMatches(base));
+    return baseTypes.some(base => this.typeMatches(base));
   }
 }

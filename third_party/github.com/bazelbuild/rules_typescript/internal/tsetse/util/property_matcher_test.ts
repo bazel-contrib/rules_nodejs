@@ -79,6 +79,27 @@ describe('PropertyMatcher', () => {
        });
      });
 
+  it('matches property on indirect base types', () => {
+    const config = {
+      errorCode: ErrorCode.CONFORMANCE_PATTERN,
+      errorMessage: 'No Element#innerHTML access',
+      kind: PatternKind.BANNED_PROPERTY_WRITE,
+      values: ['Element.prototype.innerHTML'],
+    };
+    // Element is an indirect base of HTMLDivElement (HTMLDivElement extends
+    // HTMLElement, which extends Element).
+    const proprAcessOnIndirectBaseType =
+        `declare var div: HTMLDivElement; div.innerHTML = 'foo'`;
+
+    const results = compileAndCheck(
+        new ConformancePatternRule(config), proprAcessOnIndirectBaseType);
+
+    expect(results).toHaveFailuresMatching({
+      matchedCode: `div.innerHTML = 'foo'`,
+      messageText: 'No Element#innerHTML access',
+    });
+  });
+
   it('does not match in-module defined type', () => {
     const config = {
       errorCode: ErrorCode.CONFORMANCE_PATTERN,
