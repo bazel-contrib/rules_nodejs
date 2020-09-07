@@ -1,3 +1,20 @@
+# [2.1.0](https://github.com/bazelbuild/rules_nodejs/compare/2.0.3...2.1.0) (2020-09-07)
+
+
+### Bug Fixes
+
+* use golden_file_test instead ([1ef6704](https://github.com/bazelbuild/rules_nodejs/commit/1ef6704))
+* **typescript:** add the tsBuildInfoFile option to ts_project ([#2138](https://github.com/bazelbuild/rules_nodejs/issues/2138)) ([16def64](https://github.com/bazelbuild/rules_nodejs/commit/16def64)), closes [#2137](https://github.com/bazelbuild/rules_nodejs/issues/2137)
+
+
+### Features
+
+* **builtin:** accept any stamp vars in pkg_npm ([01bfe4d](https://github.com/bazelbuild/rules_nodejs/commit/01bfe4d)), closes [#1694](https://github.com/bazelbuild/rules_nodejs/issues/1694)
+* **builtin:** support for substitutions ([8a3f9b0](https://github.com/bazelbuild/rules_nodejs/commit/8a3f9b0))
+* **typescript:** generate tsconfig.json for ts_project ([#2130](https://github.com/bazelbuild/rules_nodejs/issues/2130)) ([09ec233](https://github.com/bazelbuild/rules_nodejs/commit/09ec233)), closes [#2058](https://github.com/bazelbuild/rules_nodejs/issues/2058)
+
+
+
 ## [2.0.3](https://github.com/bazelbuild/rules_nodejs/compare/2.0.2...2.0.3) (2020-08-18)
 
 
