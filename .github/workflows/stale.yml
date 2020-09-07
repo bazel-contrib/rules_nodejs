@@ -1,0 +1,51 @@
+# See https://github.com/marketplace/actions/close-stale-issues
+
+name: Mark stale issues and pull requests
+
+on:
+  schedule:
+  # run at 01:30 UTC daily
+  - cron: "30 1 * * *"
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/stale@v3
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+        # The number of days old an issue can be before marking it stale.
+        days-before-stale: 60        
+        # Number of days of inactivity before a stale issue is closed
+        days-before-close: 14
+
+        # Issues with these labels will never be considered stale
+        exempt-issue-labels: "need: discussion,cleanup"
+
+        # Label to use when marking an issue as stale
+        stale-issue-label: 'Can Close?'
+        stale-pr-label: 'Can Close?'
+
+        stale-issue-message: >
+          This issue has been automatically marked as stale because it has not had
+          any activity for 60 days.
+          It will be closed if no further activity occurs in two weeks.
+          Collaborators can add a "cleanup" or "need: discussion" label to keep it open indefinitely.
+          Thanks for your contributions to rules_nodejs!
+
+        stale-pr-message: >
+          This Pull Request has been automatically marked as stale because it has not had
+          any activity for 60 days.
+          It will be closed if no further activity occurs in two weeks.
+          Collaborators can add a "cleanup" or "need: discussion" label to keep it open indefinitely.
+          Thanks for your contributions to rules_nodejs!
+
+        close-issue-message: >
+          This issue was automatically closed because it went two weeks without a reply
+          since it was labelled "Can Close?"
+
+        close-pr-message: >
+          This PR was automatically closed because it went two weeks without a reply
+          since it was labelled "Can Close?"
