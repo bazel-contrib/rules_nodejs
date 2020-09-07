@@ -191,6 +191,7 @@ def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description 
             arguments = arguments,
             executable = "compiler",
             env = {"COMPILATION_MODE": ctx.var["COMPILATION_MODE"]},
+            link_workspace_root = ctx.attr.link_workspace_root,
         )
 
     # Enable the replay_params in case an aspect needs to re-build this library.
@@ -384,6 +385,10 @@ This value will override the `target` option in the user supplied tsconfig.""",
             default = _DEVMODE_TARGET_DEFAULT,
         ),
         "internal_testing_type_check_dependencies": attr.bool(default = False, doc = "Testing only, whether to type check inputs that aren't srcs."),
+        "link_workspace_root": attr.bool(
+            doc = """Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.
+    If source files need to be required then they can be copied to the bin_dir with copy_to_bin.""",
+        ),
         "node_modules": attr.label(
             doc = """The npm packages which should be available during the compile.
 

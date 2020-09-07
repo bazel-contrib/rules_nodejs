@@ -66,6 +66,9 @@ def run_node(ctx, inputs, arguments, executable, **kwargs):
         inputs: list or depset of inputs to the action
         arguments: list or ctx.actions.Args object containing arguments to pass to the executable
         executable: stringy representation of the executable this action will run, eg eg. "my_executable" rather than ctx.executable.my_executable
+        mnemonic: optional action mnemonic, used to differentiate module mapping files from the same rule context
+        link_workspace_root: Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.
+            If source files need to be required then they can be copied to the bin_dir with copy_to_bin.
         kwargs: all other args accepted by ctx.actions.run
     """
     if (type(executable) != "string"):
@@ -82,8 +85,15 @@ def run_node(ctx, inputs, arguments, executable, **kwargs):
         extra_inputs = exec_attr[NodeRuntimeDepsInfo].deps
         link_data = exec_attr[NodeRuntimeDepsInfo].pkgs
 
+    # NB: mnemonic is also passed to ctx.actions.run below
     mnemonic = kwargs.get("mnemonic")
-    modules_manifest = write_node_modules_manifest(ctx, link_data, mnemonic)
+    link_workspace_root = kwargs.pop("link_workspace_root", False)
+    modules_manifest = write_node_modules_manifest(
+        ctx,
+        extra_data = link_data,
+        mnemonic = mnemonic,
+        link_workspace_root = link_workspace_root,
+    )
     add_arg(arguments, "--bazel_node_modules_manifest=%s" % modules_manifest.path)
 
     stdout_file = kwargs.pop("stdout", None)

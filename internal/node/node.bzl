@@ -151,7 +151,7 @@ def _to_execroot_path(ctx, file):
     return file.path
 
 def _nodejs_binary_impl(ctx):
-    node_modules_manifest = write_node_modules_manifest(ctx)
+    node_modules_manifest = write_node_modules_manifest(ctx, link_workspace_root = ctx.attr.link_workspace_root)
     node_modules_depsets = []
     node_modules_depsets.append(depset(ctx.files.node_modules))
     if NpmPackageInfo in ctx.attr.node_modules:
@@ -421,6 +421,10 @@ nodejs_binary(
 """,
         mandatory = True,
         allow_single_file = True,
+    ),
+    "link_workspace_root": attr.bool(
+        doc = """Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.
+If source files need to be required then they can be copied to the bin_dir with copy_to_bin.""",
     ),
     "node_modules": attr.label(
         doc = """The npm packages which should be available to `require()` during

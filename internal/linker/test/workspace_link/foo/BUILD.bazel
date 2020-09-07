@@ -1,0 +1,35 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin")
+load("@npm//typescript:index.bzl", "tsc")
+
+tsc(
+    name = "foo_lib",
+    outs = [
+        "main.d.ts",
+        "main.js",
+    ],
+    args = [
+        "-p",
+        "$(execpath tsconfig.json)",
+        "--outDir",
+        # $(RULEDIR) is a shorthand for the dist/bin directory where Bazel requires we write outputs
+        "$(RULEDIR)",
+    ],
+    data = [
+        "main.ts",
+        "tsconfig.json",
+    ],
+)
+
+copy_to_bin(
+    name = "foo_files",
+    srcs = ["package.json"],
+)
+
+filegroup(
+    name = "foo",
+    srcs = [
+        ":foo_files",
+        ":foo_lib",
+    ],
+    visibility = ["//internal/linker/test/workspace_link:__pkg__"],
+)
