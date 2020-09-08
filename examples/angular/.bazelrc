@@ -1,4 +1,13 @@
-import %workspace%/../../common.bazelrc
 # Use the Angular Ivy compiler
 # See https://github.com/angular/angular/blob/master/docs/BAZEL.md#various-flags-used-for-tests
 build --define=angular_ivy_enabled=True
+
+import %workspace%/../../common.bazelrc
+
+# Workaround bug (?) in rules_docker
+# ERROR: /tmp/tmp-28205N6j30S9graIZ/src/BUILD.bazel:279:1:
+# ImageLayer src/nodejs_image-layer.tar failed due to unexpected I/O exception:
+# execroot/examples_angular/bazel-out/k8-fastbuild/bin/src/prodserver.sh.runfiles/examples_angular/src/pwa (No such file or directory)
+# Maybe rules_docker just needs an upgrade?
+build --build_runfile_links
+
