@@ -4,6 +4,7 @@ import * as ts from 'typescript';
 
 import {CompilerHost} from './compiler_host';
 import {BazelOptions} from './tsconfig';
+import { FileLoader } from './cache';
 
 describe('compiler host', () => {
   describe('computes the amd module name of a .ts source file', () => {
@@ -76,6 +77,39 @@ describe('compiler host', () => {
       it('should not escape valid identifers', () => {
         expect(defaultHost.pathToModuleName('context', 'a1/b2')).toBe('a1.b2');
       });
+    });
+  });
+
+  describe('#getSourceFile', () => {
+
+    it('should not leak generated AMD module name between compilations with cache', () => {
+      const compilerOpts: ts.CompilerOptions = {
+        rootDirs: ['.'],
+        rootDir: '.',
+        outDir: './dist',
+        module: ts.ModuleKind.AMD,
+      };
+      const bazelOptions = {
+        workspaceName: 'my_wksp',
+        package: 'src/test',
+        compilationTargetSrc: ["test.ts"]
+      };
+      const originalFile = ts.createSourceFile('test.ts', 'export const X = 1;',
+          ts.ScriptTarget.ES2015, true);
+      const fileLoader: FileLoader = {
+        fileExists: () => true,
+        loadFile: () => originalFile, 
+      };
+      const tsHost = ts.createCompilerHost(compilerOpts, true);
+      const umdBuildHost = new CompilerHost([], compilerOpts,
+          bazelOptions as any, tsHost, fileLoader);
+      const es2015BuildHost = new CompilerHost([], {...compilerOpts, module: ts.ModuleKind.ES2015},
+          bazelOptions as any, tsHost, fileLoader);
+
+      expect(umdBuildHost.getSourceFile('test.ts', ts.ScriptTarget.ES2015).moduleName)
+        .toBe('my_wksp/test');
+      expect(es2015BuildHost.getSourceFile('test.ts', ts.ScriptTarget.ES2015).moduleName)
+        .toBe(undefined, 'Expected source file to not have module name from previous host.');
     });
   });
 });

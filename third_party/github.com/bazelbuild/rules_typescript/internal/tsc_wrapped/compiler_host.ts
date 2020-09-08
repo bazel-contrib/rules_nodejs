@@ -443,7 +443,9 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
       fileName: string, languageVersion: ts.ScriptTarget,
       onError?: (message: string) => void) {
     return perfTrace.wrap(`getSourceFile ${fileName}`, () => {
-      const sf = this.fileLoader.loadFile(fileName, fileName, languageVersion);
+      const sf = this.fileLoader.loadFile(fileName, fileName, languageVersion) as
+        ts.SourceFile&{_hasGeneratedAmdModuleName?: boolean};
+
       if (!/\.d\.tsx?$/.test(fileName) &&
           (this.options.module === ts.ModuleKind.AMD ||
            this.options.module === ts.ModuleKind.UMD)) {
@@ -456,10 +458,26 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
               `which would be overwritten with ${moduleName} ` +
               `by Bazel's TypeScript compiler.`);
         }
-        // Setting the moduleName is equivalent to the original source having a
-        // ///<amd-module name="some/name"/> directive
+        // Setting the moduleName is equivalent to the original source having the triple
+        // slash `///<amd-module name="some/name"/>` directive. Also note that we tag
+        // source files for which we assigned a generated module name. This is necessary
+        // so that we can reset the module name when the same source file is loaded from
+        // a cache, but with a different module format where the auto-generated module
+        // names are not desirable. The module name should not leak from previous
+        // compilations through a potential source file cache.
+        sf._hasGeneratedAmdModuleName = true;
         sf.moduleName = moduleName;
+        return sf;
       }
+
+      // If the loaded source file has a generated amd module name applied from
+      // previous compilations (in worker mode), reset the file module name
+      // as neither the UMD or AMD module format is used (for which we generate
+      // the AMD module names automatically).
+      if (sf._hasGeneratedAmdModuleName) {
+        sf.moduleName = undefined;
+      }
+
       return sf;
     });
   }
