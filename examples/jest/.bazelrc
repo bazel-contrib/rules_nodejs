@@ -1,1 +1,7 @@
 import %workspace%/../../common.bazelrc
+
+# jest relies on the runfiles generation to find the correct files.
+# To work on windows we have to specify this flags.
+build --enable_runfiles
+run --enable_runfiles
+test --enable_runfiles
