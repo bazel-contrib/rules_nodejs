@@ -19,10 +19,6 @@ jest_test(
     ] + glob(["__snapshots__/*.snap"]),
     jest_config = ":jest.config.js",
     tags = [
-        # Need to set the pwd to avoid jest needing a runfiles helper
-        # Windows users with permissions can use --enable_runfiles
-        # to make this test work
-        "no-bazelci-windows",
         # TODO: why does this fail almost all the time, but pass on local Mac?
         "no-bazelci-mac",
     ],
