@@ -19,7 +19,6 @@ See https://docs.bazel.build/versions/master/skylark/repository_rules.html
 """
 
 load("//internal/common:check_bazel_version.bzl", "check_bazel_version")
-load("//internal/common:check_version.bzl", "check_version")
 load("//internal/common:os_name.bzl", "OS_ARCH_NAMES", "os_name")
 load("//internal/node:node_versions.bzl", "NODE_VERSIONS")
 load("//third_party/github.com/bazelbuild/bazel-skylib:lib/paths.bzl", "paths")
@@ -189,9 +188,7 @@ a stronger guarantee of hermeticity which is required for remote execution.""",
         allow_single_file = True,
         doc = """the local path to a pre-installed NodeJS runtime.
 
-If set then also set node_version to the version that of node that is vendored.
-Bazel will automatically turn on features such as --preserve-symlinks-main if they
-are supported by the node version being used.""",
+If set then also set node_version to the version that of node that is vendored.""",
     ),
     "vendored_yarn": attr.label(
         allow_single_file = True,
@@ -413,13 +410,7 @@ def _prepare_node(repository_ctx):
     yarn_script_relative = yarn_script if repository_ctx.attr.vendored_yarn else paths.relativize(yarn_script, "bin")
 
     if repository_ctx.attr.preserve_symlinks:
-        # --preserve-symlinks-main flag added in node 10.2.0
-        # See https://nodejs.org/api/cli.html#cli_preserve_symlinks_main
-        preserve_symlinks_main_support = check_version(repository_ctx.attr.node_version, "10.2.0")
-        if preserve_symlinks_main_support:
-            node_args = "--preserve-symlinks --preserve-symlinks-main"
-        else:
-            node_args = "--preserve-symlinks"
+        node_args = "--preserve-symlinks"
     else:
         node_args = ""
 
