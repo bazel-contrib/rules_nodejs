@@ -83,10 +83,6 @@ bazel build --compilation_mode=dbg //my/terser:target
 so that it only affects the current build.
 """,
     ),
-    "link_workspace_root": attr.bool(
-        doc = """Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.
-If source files need to be required then they can be copied to the bin_dir with copy_to_bin.""",
-    ),
     "sourcemap": attr.bool(
         doc = "Whether to produce a .js.map output",
         default = True,
@@ -187,7 +183,6 @@ def _terser(ctx):
         arguments = [args],
         env = {"COMPILATION_MODE": ctx.var["COMPILATION_MODE"]},
         progress_message = "Minifying JavaScript %s [terser]" % (outputs[0].short_path),
-        link_workspace_root = ctx.attr.link_workspace_root,
     )
 
     return [
