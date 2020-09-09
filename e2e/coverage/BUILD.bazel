@@ -13,3 +13,11 @@ jasmine_node_test(
         ":coverage_test_srcs",
     ],
 )
+
+# Verify that the error code is propogated out from a failing spec
+# when coverage is on
+jasmine_node_test(
+    name = "fail_test",
+    srcs = ["fail.spec.js"],
+    expected_exit_code = 3,
+)
