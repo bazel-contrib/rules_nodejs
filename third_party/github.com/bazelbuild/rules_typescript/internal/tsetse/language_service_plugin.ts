@@ -10,26 +10,21 @@ function init() {
   return {
     create(info: ts.server.PluginCreateInfo) {
       const oldService = info.languageService;
-      const program = oldService.getProgram();
-
-      // Signature of `getProgram` is `getProgram(): Program | undefined;` in
-      // ts 3.1 so we must check if the return value is valid to compile with
-      // ts 3.1.
-      if (!program) {
-        throw new Error(
-            'Failed to initialize tsetse language_service_plugin: program is undefined');
-      }
-
-      const checker = new Checker(program);
-
-      // Add disabledRules to tsconfig to disable specific rules
-      // "plugins": [
-      //   {"name": "...", "disabledRules": ["equals-nan"]}
-      // ]
-      registerRules(checker, info.config.disabledRules || []);
-
       const proxy = pluginApi.createProxy(oldService);
       proxy.getSemanticDiagnostics = (fileName: string) => {
+        const program = oldService.getProgram();
+        if (!program) {
+          throw new Error(
+              'Failed to initialize tsetse language_service_plugin: program is undefined');
+        }
+
+        const checker = new Checker(program);
+
+        // Add disabledRules to tsconfig to disable specific rules
+        // "plugins": [
+        //   {"name": "...", "disabledRules": ["equals-nan"]}
+        // ]
+        registerRules(checker, info.config.disabledRules || []);
         const result = [...oldService.getSemanticDiagnostics(fileName)];
         // Note that this ignores suggested fixes.
         result.push(...checker.execute(program.getSourceFile(fileName)!)
