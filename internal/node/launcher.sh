@@ -352,6 +352,15 @@ if [ "${EXPECTED_EXIT_CODE}" != "0" ]; then
   fi
 fi
 
+# Do not collect coverage for failed tests
+if [ ${RESULT} -ne 0 ]; then
+  if [[ -n "${EXIT_CODE_CAPTURE}" ]]; then
+    exit 0
+  else
+    exit ${RESULT}
+  fi
+fi
+
 # Post process the coverage information after the process has exited
 if [[ -n "${COVERAGE_DIR:-}" ]]; then
   if [[ -n "${VERBOSE_LOGS:-}" ]]; then
@@ -366,8 +375,8 @@ if [[ -n "${COVERAGE_DIR:-}" ]]; then
   RESULT="$?"
   set -e
 
-  if [ ${RESULT} -ne 0 ]; then
-    exit ${RESULT}
+  if [[ -n "${EXIT_CODE_CAPTURE}" ]]; then
+    echo "${RESULT}" > "${EXIT_CODE_CAPTURE}"
   fi
 fi
 
