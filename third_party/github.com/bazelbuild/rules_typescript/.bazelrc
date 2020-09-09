@@ -7,6 +7,3 @@ test:debug --test_arg=--node_options=--inspect-brk --test_output=streamed --test
 # Turn off legacy external runfiles
 run --nolegacy_external_runfiles
 test --nolegacy_external_runfiles
-
-# Enable the "Managed Directories" feature
-common --experimental_allow_incremental_repository_updates
