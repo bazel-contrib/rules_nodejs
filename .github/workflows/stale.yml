@@ -44,8 +44,8 @@ jobs:
 
         close-issue-message: >
           This issue was automatically closed because it went two weeks without a reply
-          since it was labelled "Can Close?"
+          since it was labeled "Can Close?"
 
         close-pr-message: >
           This PR was automatically closed because it went two weeks without a reply
-          since it was labelled "Can Close?"
+          since it was labeled "Can Close?"

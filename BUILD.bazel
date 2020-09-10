@@ -48,6 +48,7 @@ bzl_library(
     deps = [
         "//internal/common:bzl",
         "//internal/generated_file_test:bzl",
+        "//internal/js_library:bzl",
         "//internal/linker:bzl",
         "//internal/pkg_npm:bzl",
         "//internal/pkg_web:bzl",

@@ -1,6 +1,6 @@
 
 package(default_visibility = ["//visibility:public"])
-load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
+load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 exports_files([
     "node_modules/ajv/.tonic_example.js",
     "node_modules/ajv/LICENSE",

@@ -1,6 +1,6 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test", "nodejs_binary", "nodejs_test", "npm_package_bin")
 load("@npm//typescript:index.bzl", "tsc")
-load("//internal/js_library:js_library.bzl", "js_library")
+load("//:index.bzl", "js_library")
 load("//internal/node:node_repositories.bzl", "BUILT_IN_NODE_PLATFORMS")
 load("//packages/jasmine:index.bzl", "jasmine_node_test")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")

@@ -34,12 +34,37 @@ load(
     "copy_cmd",
 )
 
-_AMD_NAMES_DOC = """Mapping from require module names to global variables.
-This allows devmode JS sources to load unnamed UMD bundles from third-party libraries."""
+_ATTRS = {
+    "amd_names": attr.string_dict(
+        doc = """Non-public legacy API, not recommended to make new usages.
+        See documentation on AmdNamesInfo""",
+    ),
+    "deps": attr.label_list(),
+    "is_windows": attr.bool(
+        doc = "Internal use only. Automatically set by macro",
+        mandatory = True,
+    ),
+    # module_name for legacy ts_library module_mapping support
+    # which is still being used in a couple of tests
+    # TODO: remove once legacy module_mapping is removed
+    "module_name": attr.string(
+        doc = "Internal use only. It will be removed soon.",
+    ),
+    "named_module_srcs": attr.label_list(
+        doc = """Non-public legacy API, not recommended to make new usages.
+        A subset of srcs that are javascript named-UMD or
+        named-AMD for use in rules such as ts_devserver.
+        They will be copied into the package bin folder if needed.""",
+        allow_files = True,
+    ),
+    "package_name": attr.string(),
+    "srcs": attr.label_list(allow_files = True),
+}
 
 AmdNamesInfo = provider(
-    doc = "provide access to the amd_names attribute of js_library",
-    fields = {"names": _AMD_NAMES_DOC},
+    doc = "Non-public API. Provides access to the amd_names attribute of js_library",
+    fields = {"names": """Mapping from require module names to global variables.
+        This allows devmode JS sources to load unnamed UMD bundles from third-party libraries."""},
 )
 
 def write_amd_names_shim(actions, amd_names_shim, targets):
@@ -48,7 +73,7 @@ def write_amd_names_shim(actions, amd_names_shim, targets):
     These are collected from our bootstrap deps (the only place global scripts should appear)
 
     Args:
-      actions: skylark rule execution context.actions
+      actions: starlark rule execution context.actions
       amd_names_shim: File where the shim is written
       targets: dependencies to be scanned for AmdNamesInfo providers
     """
@@ -199,57 +224,88 @@ def _impl(ctx):
 
 _js_library = rule(
     implementation = _impl,
-    attrs = {
-        "amd_names": attr.string_dict(
-            doc = _AMD_NAMES_DOC,
-        ),
-        "deps": attr.label_list(
-            doc = """Transitive dependencies of the package.
-            It should include fine grained npm dependencies from the sources
-            or other targets we want to include in the library but also propagate their own deps.""",
-        ),
-        "is_windows": attr.bool(
-            doc = "Automatically set by macro",
-            mandatory = True,
-        ),
-        # module_name for legacy ts_library module_mapping support
-        # which is still being used in a couple of tests
-        # TODO: remove once legacy module_mapping is removed
-        "module_name": attr.string(
-            doc = "Internal use only. It will be removed soon.",
-        ),
-        "named_module_srcs": attr.label_list(
-            doc = """A subset of srcs that are javascript named-UMD or
-            named-AMD for use in rules such as ts_devserver.
-            They will be copied into the package bin folder if needed.""",
-            allow_files = True,
-        ),
-        "package_name": attr.string(
-            doc = """Optional package_name that this package may be imported as.""",
-        ),
-        "srcs": attr.label_list(
-            doc = """The list of files that comprise the package.
-            They will be copied into the package bin folder if needed.""",
-            allow_files = True,
-        ),
-    },
-    doc = "Defines a js_library package",
+    attrs = _ATTRS,
 )
 
 def js_library(
         name,
         srcs = [],
-        amd_names = {},
         package_name = None,
         deps = [],
-        named_module_srcs = [],
         **kwargs):
-    """Internal use only yet. It will be released into a public API in a future release."""
+    """Groups JavaScript code so that it can be depended on like an npm package.
+
+    ### Behavior
+
+    This rule doesn't perform any build steps ("actions") so it is similar to a `filegroup`.
+    However it produces several Bazel "Providers" for interop with other rules.
+
+    > Compare this to `pkg_npm` which just produces a directory output, and therefore can't expose individual
+    > files to downstream targets and causes a cascading re-build of all transitive dependencies when any file
+    > changes
+
+    These providers are:
+    - DeclarationInfo so this target can be a dependency of a TypeScript rule
+    - NpmPackageInfo so this target can interop with rules that expect third-party npm packages
+    - LinkablePackageInfo for use with our "linker" that makes this package importable (similar to `npm link`)
+    - JsModuleInfo so rules like bundlers can collect the transitive set of .js files
+
+    `js_library` also copies any source files into the bazel-out folder.
+    This is the same behavior as the `copy_to_bin` rule.
+    By copying the complete package to the output tree, we ensure that the linker (our `npm link` equivalent)
+    will make your source files available in the node_modules tree where resolvers expect them.
+    It also means you can have relative imports between the files
+    rather than being forced to use Bazel's "Runfiles" semantics where any program might need a helper library
+    to resolve files between the logical union of the source tree and the output tree.
+
+    ### Usage
+
+    `js_library` is intended to be used internally within Bazel, such as between two libraries in your monorepo.
+
+    > Compare this to `pkg_npm` which is intended to publish your code for external usage outside of Bazel, like
+    > by publishing to npm or artifactory.
+
+    The typical example usage of `js_library` is to expose some sources with a package name:
+
+    ```python
+    ts_project(
+        name = "compile_ts",
+        srcs = glob(["*.ts"]),
+    )
+
+    js_library(
+        name = "my_pkg",
+        # Code that depends on this target can import from "@myco/mypkg"
+        package_name = "@myco/mypkg",
+        # Consumers might need fields like "main" or "typings"
+        srcs = ["package.json"],
+        # The .js and .d.ts outputs from above will be part of the package
+        deps = [":compile_ts"],
+    )
+    ```
+
+    To help work with "named AMD" modules as required by `ts_devserver` and other Google-style "concatjs" rules,
+    `js_library` has some undocumented advanced features you can find in the source code or in our examples.
+    These should not be considered a public API and aren't subject to our usual support and semver guarantees.
+
+    Args:
+        name: a name for the target
+        srcs: the list of files that comprise the package
+        package_name: the name it will be imported by. Should match the "name" field in the package.json file.
+        deps: other targets that provide JavaScript code
+        **kwargs: used for undocumented legacy features
+    """
+
+    # Undocumented features
+    amd_names = kwargs.pop("amd_names", {})
     module_name = kwargs.pop("module_name", None)
+    named_module_srcs = kwargs.pop("named_module_srcs", [])
+
     if module_name:
         fail("use package_name instead of module_name in target //%s:%s" % (native.package_name(), name))
     if kwargs.pop("is_windows", None):
-        fail("is_windows is set by the js_library macro and should not be set explicitely")
+        fail("is_windows is set by the js_library macro and should not be set explicitly")
+
     _js_library(
         name = name,
         amd_names = amd_names,
