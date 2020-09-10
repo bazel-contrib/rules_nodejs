@@ -749,20 +749,20 @@
   resolved "https://registry.yarnpkg.com/@bazel/bazelisk/-/bazelisk-1.6.1.tgz#f9e279d2fecaf6cec6ed676bc8714846f3704e40"
   integrity sha512-2JpfZb6eYCGrdLdUJamncIpI4pgEAhPURYGg+rCgqoZDJxzADuOnpf/00dEBXPM2XByXNXTqsKEFN2gTaZz2mA==
 
-"@bazel/cypress@^2.1.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@bazel/cypress/-/cypress-2.1.0.tgz#64691ea865d6e17d108c4d4b53c0907f701d22b6"
-  integrity sha512-T3LwpMQuEZidQEtFlQ7aMrBv0DuJ4TafSARh7duB6619QgVwvuIPQm65s7QtekV5KUBaaxYXZ6OuSZS09mp39Q==
+"@bazel/cypress@^2.2.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@bazel/cypress/-/cypress-2.2.0.tgz#0ccc176b748f5f0292ff93e805c22200cdcdc47f"
+  integrity sha512-xDU/FfIXNzoT5/FF2IGBDDRKd6FtiyHcRWV3VHaHWW8QnuX/yUc0HCt4xVHQHvu4VN5C/ZuE8oxolwWVcRjoSw==
 
 "@bazel/ibazel@^0.13.1":
   version "0.13.1"
   resolved "https://registry.yarnpkg.com/@bazel/ibazel/-/ibazel-0.13.1.tgz#23788f67a6fbe83d96f2d055691df4917c10ac8d"
   integrity sha512-FO1hBKpzpeBL0adnFYF2Dwl/7gox6ccKM6bb+x26AXrQpLbinXPuTi4zeXRL/MW4383mF6i4RovLCmwUU/YW0w==
 
-"@bazel/typescript@^2.1.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-2.1.0.tgz#2b9f2fa809b07a40e243865e9c7a4f66c86b3755"
-  integrity sha512-v5zCD/zsUhqtZBINapwgtBFS6C+/9bWY82jtiAGwzJ9IUkADwLsxEcugW+o7kEDjB+72ckbwjMNXNVfFanw6AA==
+"@bazel/typescript@^2.2.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-2.2.0.tgz#f2d3dce8715d574fe3146f19fdb8479abcc4d608"
+  integrity sha512-Thf8pXntBzE3EvJtyiTBNsfIf1QnYmGPQmUSGLcKUuuFoplUVYShMRHaxBoPZmYsnD/x+BFLgUKIzlXiEQpGqQ==
   dependencies:
     protobufjs "6.8.8"
     semver "5.6.0"
