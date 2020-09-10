@@ -611,8 +611,9 @@ TypeScript targets and JavaScript for the browser and Closure compiler.
 <pre>
 ts_library(<a href="#ts_library-name">name</a>, <a href="#ts_library-angular_assets">angular_assets</a>, <a href="#ts_library-compiler">compiler</a>, <a href="#ts_library-data">data</a>, <a href="#ts_library-deps">deps</a>, <a href="#ts_library-devmode_module">devmode_module</a>, <a href="#ts_library-devmode_target">devmode_target</a>,
            <a href="#ts_library-expected_diagnostics">expected_diagnostics</a>, <a href="#ts_library-generate_externs">generate_externs</a>, <a href="#ts_library-internal_testing_type_check_dependencies">internal_testing_type_check_dependencies</a>,
-           <a href="#ts_library-module_name">module_name</a>, <a href="#ts_library-module_root">module_root</a>, <a href="#ts_library-node_modules">node_modules</a>, <a href="#ts_library-prodmode_module">prodmode_module</a>, <a href="#ts_library-prodmode_target">prodmode_target</a>, <a href="#ts_library-runtime">runtime</a>,
-           <a href="#ts_library-runtime_deps">runtime_deps</a>, <a href="#ts_library-srcs">srcs</a>, <a href="#ts_library-supports_workers">supports_workers</a>, <a href="#ts_library-tsconfig">tsconfig</a>, <a href="#ts_library-tsickle_typed">tsickle_typed</a>, <a href="#ts_library-use_angular_plugin">use_angular_plugin</a>)
+           <a href="#ts_library-link_workspace_root">link_workspace_root</a>, <a href="#ts_library-module_name">module_name</a>, <a href="#ts_library-module_root">module_root</a>, <a href="#ts_library-node_modules">node_modules</a>, <a href="#ts_library-prodmode_module">prodmode_module</a>,
+           <a href="#ts_library-prodmode_target">prodmode_target</a>, <a href="#ts_library-runtime">runtime</a>, <a href="#ts_library-runtime_deps">runtime_deps</a>, <a href="#ts_library-srcs">srcs</a>, <a href="#ts_library-supports_workers">supports_workers</a>, <a href="#ts_library-tsconfig">tsconfig</a>, <a href="#ts_library-tsickle_typed">tsickle_typed</a>,
+           <a href="#ts_library-use_angular_plugin">use_angular_plugin</a>)
 </pre>
 
 **ATTRIBUTES**
@@ -739,6 +740,18 @@ This value will override the <code>target</code> option in the user supplied tsc
         <td>internal_testing_type_check_dependencies</td>
         <td>
                             Testing only, whether to type check inputs that aren't srcs.
+                                </td>
+        <td>Boolean</td>
+        <td>optional</td>
+        <td>
+            False
+        </td>
+      </tr>
+            <tr id="ts_library-link_workspace_root">
+        <td>link_workspace_root</td>
+        <td>
+                            Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.
+    If source files need to be required then they can be copied to the bin_dir with copy_to_bin.
                                 </td>
         <td>Boolean</td>
         <td>optional</td>
@@ -1058,7 +1071,7 @@ observe these problems which require workarounds:
 <pre>
 ts_project(<a href="#ts_project-name">name</a>, <a href="#ts_project-tsconfig">tsconfig</a>, <a href="#ts_project-srcs">srcs</a>, <a href="#ts_project-args">args</a>, <a href="#ts_project-deps">deps</a>, <a href="#ts_project-extends">extends</a>, <a href="#ts_project-declaration">declaration</a>, <a href="#ts_project-source_map">source_map</a>, <a href="#ts_project-declaration_map">declaration_map</a>,
            <a href="#ts_project-composite">composite</a>, <a href="#ts_project-incremental">incremental</a>, <a href="#ts_project-emit_declaration_only">emit_declaration_only</a>, <a href="#ts_project-ts_build_info_file">ts_build_info_file</a>, <a href="#ts_project-tsc">tsc</a>, <a href="#ts_project-validate">validate</a>,
-           <a href="#ts_project-declaration_dir">declaration_dir</a>, <a href="#ts_project-out_dir">out_dir</a>, <a href="#ts_project-root_dir">root_dir</a>, <a href="#ts_project-kwargs">kwargs</a>)
+           <a href="#ts_project-declaration_dir">declaration_dir</a>, <a href="#ts_project-out_dir">out_dir</a>, <a href="#ts_project-root_dir">root_dir</a>, <a href="#ts_project-link_workspace_root">link_workspace_root</a>, <a href="#ts_project-kwargs">kwargs</a>)
 </pre>
 
 **PARAMETERS**
@@ -1298,6 +1311,16 @@ ts_project(<a href="#ts_project-name">name</a>, <a href="#ts_project-tsconfig">t
                     </td>
         <td>
             None
+        </td>
+      </tr>
+            <tr id="ts_project-link_workspace_root">
+        <td>link_workspace_root</td>
+        <td>
+                            Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.
+    If source files need to be required then they can be copied to the bin_dir with copy_to_bin.
+                    </td>
+        <td>
+            False
         </td>
       </tr>
             <tr id="ts_project-kwargs">

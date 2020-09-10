@@ -233,11 +233,7 @@ Here is a template to get you started:</p>
 <span class="c"># Call the script with argument "pack" or "publish"</span>
 <span class="nb">readonly </span><span class="nv">NPM_COMMAND</span><span class="o">=</span><span class="k">${</span><span class="nv">1</span><span class="k">:-</span><span class="nv">publish</span><span class="k">}</span>
 <span class="c"># Don't rely on $PATH to have the right version</span>
-<span class="nb">readonly </span><span class="nv">BAZEL_BIN</span><span class="o">=</span>./node_modules/.bin/bazel
-<span class="c"># Use a new output_base so we get a clean build</span>
-<span class="c"># Bazel can't know if the git metadata changed</span>
-<span class="nb">readonly </span><span class="nv">TMP</span><span class="o">=</span><span class="si">$(</span><span class="nb">mktemp</span> <span class="nt">-d</span> <span class="nt">-t</span> bazel-release.XXXXXXX<span class="si">)</span>
-<span class="nb">readonly </span><span class="nv">BAZEL</span><span class="o">=</span><span class="s2">"</span><span class="nv">$BAZEL_BIN</span><span class="s2"> --output_base=</span><span class="nv">$TMP</span><span class="s2">"</span>
+<span class="nb">readonly </span><span class="nv">BAZEL</span><span class="o">=</span>./node_modules/.bin/bazel
 <span class="c"># Find all the npm packages in the repo</span>
 <span class="nb">readonly </span><span class="nv">PKG_NPM_LABELS</span><span class="o">=</span><span class="sb">`</span><span class="nv">$BAZEL</span> query <span class="nt">--output</span><span class="o">=</span>label <span class="s1">'kind("pkg_npm", //...)'</span><span class="sb">`</span>
 <span class="c"># Build them in one command to maximize parallelism</span>
@@ -248,7 +244,9 @@ Here is a template to get you started:</p>
 <span class="k">done</span>
 </code></pre></div></div>
 
-<p>See https://www.kchodorow.com/blog/2017/03/27/stamping-your-builds/ for more background.</p>
+<p>See https://www.kchodorow.com/blog/2017/03/27/stamping-your-builds/ for more background.
+Make sure you use a “STABLE_” status key, or else Bazel may use a cached npm artifact rather than
+building a new one with your current version info.</p>
 
 
       </div>

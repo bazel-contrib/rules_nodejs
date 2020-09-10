@@ -236,8 +236,6 @@ a stronger guarantee of hermeticity which is required for remote execution.
                             the local path to a pre-installed NodeJS runtime.
 
 If set then also set node_version to the version that of node that is vendored.
-Bazel will automatically turn on features such as --preserve-symlinks-main if they
-are supported by the node version being used.
                                 </td>
         <td><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></td>
         <td>optional</td>
@@ -305,8 +303,8 @@ Each entry is a template, similar to the <code>node_urls</code> attribute, using
 Runs some JavaScript code in NodeJS.
 
 <pre>
-nodejs_binary(<a href="#nodejs_binary-name">name</a>, <a href="#nodejs_binary-configuration_env_vars">configuration_env_vars</a>, <a href="#nodejs_binary-data">data</a>, <a href="#nodejs_binary-default_env_vars">default_env_vars</a>, <a href="#nodejs_binary-entry_point">entry_point</a>, <a href="#nodejs_binary-node_modules">node_modules</a>,
-              <a href="#nodejs_binary-templated_args">templated_args</a>)
+nodejs_binary(<a href="#nodejs_binary-name">name</a>, <a href="#nodejs_binary-configuration_env_vars">configuration_env_vars</a>, <a href="#nodejs_binary-data">data</a>, <a href="#nodejs_binary-default_env_vars">default_env_vars</a>, <a href="#nodejs_binary-entry_point">entry_point</a>,
+              <a href="#nodejs_binary-link_workspace_root">link_workspace_root</a>, <a href="#nodejs_binary-node_modules">node_modules</a>, <a href="#nodejs_binary-templated_args">templated_args</a>)
 </pre>
 
 **ATTRIBUTES**
@@ -441,6 +439,18 @@ nodejs_binary(
         <td>required</td>
         <td>
             
+        </td>
+      </tr>
+            <tr id="nodejs_binary-link_workspace_root">
+        <td>link_workspace_root</td>
+        <td>
+                            Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.
+If source files need to be required then they can be copied to the bin_dir with copy_to_bin.
+                                </td>
+        <td>Boolean</td>
+        <td>optional</td>
+        <td>
+            False
         </td>
       </tr>
             <tr id="nodejs_binary-node_modules">
@@ -642,7 +652,7 @@ remote debugger.
 
 <pre>
 nodejs_test(<a href="#nodejs_test-name">name</a>, <a href="#nodejs_test-configuration_env_vars">configuration_env_vars</a>, <a href="#nodejs_test-data">data</a>, <a href="#nodejs_test-default_env_vars">default_env_vars</a>, <a href="#nodejs_test-entry_point">entry_point</a>, <a href="#nodejs_test-expected_exit_code">expected_exit_code</a>,
-            <a href="#nodejs_test-node_modules">node_modules</a>, <a href="#nodejs_test-templated_args">templated_args</a>)
+            <a href="#nodejs_test-link_workspace_root">link_workspace_root</a>, <a href="#nodejs_test-node_modules">node_modules</a>, <a href="#nodejs_test-templated_args">templated_args</a>)
 </pre>
 
 **ATTRIBUTES**
@@ -788,6 +798,18 @@ nodejs_binary(
         <td>optional</td>
         <td>
             0
+        </td>
+      </tr>
+            <tr id="nodejs_test-link_workspace_root">
+        <td>link_workspace_root</td>
+        <td>
+                            Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.
+If source files need to be required then they can be copied to the bin_dir with copy_to_bin.
+                                </td>
+        <td>Boolean</td>
+        <td>optional</td>
+        <td>
+            False
         </td>
       </tr>
             <tr id="nodejs_test-node_modules">
@@ -1848,6 +1870,131 @@ generated_file_test(<a href="#generated_file_test-name">name</a>, <a href="#gene
 
 
 
+## js_library
+
+Groups JavaScript code so that it can be depended on like an npm package.
+
+
+### Behavior
+
+This rule doesn't perform any build steps ("actions") so it is similar to a <code>filegroup</code>.
+However it produces several Bazel "Providers" for interop with other rules.
+
+> Compare this to <code>pkg_npm</code> which just produces a directory output, and therefore can't expose individual
+> files to downstream targets and causes a cascading re-build of all transitive dependencies when any file
+> changes
+
+These providers are:
+- DeclarationInfo so this target can be a dependency of a TypeScript rule
+- NpmPackageInfo so this target can interop with rules that expect third-party npm packages
+- LinkablePackageInfo for use with our "linker" that makes this package importable (similar to <code>npm link</code>)
+- JsModuleInfo so rules like bundlers can collect the transitive set of .js files
+
+<code>js_library</code> also copies any source files into the bazel-out folder.
+This is the same behavior as the <code>copy_to_bin</code> rule.
+By copying the complete package to the output tree, we ensure that the linker (our <code>npm link</code> equivalent)
+will make your source files available in the node_modules tree where resolvers expect them.
+It also means you can have relative imports between the files
+rather than being forced to use Bazel's "Runfiles" semantics where any program might need a helper library
+to resolve files between the logical union of the source tree and the output tree.
+
+
+### Usage
+
+<code>js_library</code> is intended to be used internally within Bazel, such as between two libraries in your monorepo.
+
+> Compare this to <code>pkg_npm</code> which is intended to publish your code for external usage outside of Bazel, like
+> by publishing to npm or artifactory.
+
+The typical example usage of <code>js_library</code> is to expose some sources with a package name:
+
+{% highlight python %}
+ts_project(
+    name = "compile_ts",
+    srcs = glob(["*.ts"]),
+)
+
+js_library(
+    name = "my_pkg",
+    # Code that depends on this target can import from "@myco/mypkg"
+    package_name = "@myco/mypkg",
+    # Consumers might need fields like "main" or "typings"
+    srcs = ["package.json"],
+    # The .js and .d.ts outputs from above will be part of the package
+    deps = [":compile_ts"],
+)
+{% endhighlight %}
+
+To help work with "named AMD" modules as required by <code>ts_devserver</code> and other Google-style "concatjs" rules,
+<code>js_library</code> has some undocumented advanced features you can find in the source code or in our examples.
+These should not be considered a public API and aren't subject to our usual support and semver guarantees.
+
+
+<pre>
+js_library(<a href="#js_library-name">name</a>, <a href="#js_library-srcs">srcs</a>, <a href="#js_library-package_name">package_name</a>, <a href="#js_library-deps">deps</a>, <a href="#js_library-kwargs">kwargs</a>)
+</pre>
+
+**PARAMETERS**
+
+<table class="table table-params">
+  <thead>
+  <tr>
+    <th>Name</th>
+    <th>Description</th>
+    <th>Default</th>
+  </tr>
+  </thead>
+  <tbody>
+            <tr id="js_library-name">
+        <td>name</td>
+        <td>
+                            a name for the target
+                    </td>
+        <td>
+            
+        </td>
+      </tr>
+            <tr id="js_library-srcs">
+        <td>srcs</td>
+        <td>
+                            the list of files that comprise the package
+                    </td>
+        <td>
+            []
+        </td>
+      </tr>
+            <tr id="js_library-package_name">
+        <td>package_name</td>
+        <td>
+                            the name it will be imported by. Should match the "name" field in the package.json file.
+                    </td>
+        <td>
+            None
+        </td>
+      </tr>
+            <tr id="js_library-deps">
+        <td>deps</td>
+        <td>
+                            other targets that provide JavaScript code
+                    </td>
+        <td>
+            []
+        </td>
+      </tr>
+            <tr id="js_library-kwargs">
+        <td>kwargs</td>
+        <td>
+                            used for undocumented legacy features
+                    </td>
+        <td>
+            
+        </td>
+      </tr>
+        </tbody>
+</table>
+
+
+
 ## npm_package_bin
 
 Run an arbitrary npm package binary (e.g. a program under node_modules/.bin/*) under Bazel.
@@ -1868,7 +2015,8 @@ https://docs.bazel.build/versions/master/skylark/macros.html#full-example
 
 
 <pre>
-npm_package_bin(<a href="#npm_package_bin-tool">tool</a>, <a href="#npm_package_bin-package">package</a>, <a href="#npm_package_bin-package_bin">package_bin</a>, <a href="#npm_package_bin-data">data</a>, <a href="#npm_package_bin-outs">outs</a>, <a href="#npm_package_bin-args">args</a>, <a href="#npm_package_bin-output_dir">output_dir</a>, <a href="#npm_package_bin-kwargs">kwargs</a>)
+npm_package_bin(<a href="#npm_package_bin-tool">tool</a>, <a href="#npm_package_bin-package">package</a>, <a href="#npm_package_bin-package_bin">package_bin</a>, <a href="#npm_package_bin-data">data</a>, <a href="#npm_package_bin-outs">outs</a>, <a href="#npm_package_bin-args">args</a>, <a href="#npm_package_bin-output_dir">output_dir</a>, <a href="#npm_package_bin-link_workspace_root">link_workspace_root</a>,
+                <a href="#npm_package_bin-kwargs">kwargs</a>)
 </pre>
 
 **PARAMETERS**
@@ -1981,6 +2129,16 @@ npm_package_bin(<a href="#npm_package_bin-tool">tool</a>, <a href="#npm_package_
                             set to True if you want the output to be a directory
          Exactly one of <code>outs</code>, <code>output_dir</code> may be used.
          If you output a directory, there can only be one output, which will be a directory named the same as the target.
+                    </td>
+        <td>
+            False
+        </td>
+      </tr>
+            <tr id="npm_package_bin-link_workspace_root">
+        <td>link_workspace_root</td>
+        <td>
+                            Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.
+      If source files need to be required then they can be copied to the bin_dir with copy_to_bin.
                     </td>
         <td>
             False

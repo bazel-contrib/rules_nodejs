@@ -152,8 +152,9 @@ See [the Rollup CLI reference](https://rollupjs.org/guide/en/#command-line-refer
 
 
 <pre>
-rollup_bundle(<a href="#rollup_bundle-name">name</a>, <a href="#rollup_bundle-args">args</a>, <a href="#rollup_bundle-config_file">config_file</a>, <a href="#rollup_bundle-deps">deps</a>, <a href="#rollup_bundle-entry_point">entry_point</a>, <a href="#rollup_bundle-entry_points">entry_points</a>, <a href="#rollup_bundle-format">format</a>, <a href="#rollup_bundle-node_context_data">node_context_data</a>,
-              <a href="#rollup_bundle-output_dir">output_dir</a>, <a href="#rollup_bundle-rollup_bin">rollup_bin</a>, <a href="#rollup_bundle-rollup_worker_bin">rollup_worker_bin</a>, <a href="#rollup_bundle-silent">silent</a>, <a href="#rollup_bundle-sourcemap">sourcemap</a>, <a href="#rollup_bundle-srcs">srcs</a>, <a href="#rollup_bundle-supports_workers">supports_workers</a>)
+rollup_bundle(<a href="#rollup_bundle-name">name</a>, <a href="#rollup_bundle-args">args</a>, <a href="#rollup_bundle-config_file">config_file</a>, <a href="#rollup_bundle-deps">deps</a>, <a href="#rollup_bundle-entry_point">entry_point</a>, <a href="#rollup_bundle-entry_points">entry_points</a>, <a href="#rollup_bundle-format">format</a>, <a href="#rollup_bundle-link_workspace_root">link_workspace_root</a>,
+              <a href="#rollup_bundle-node_context_data">node_context_data</a>, <a href="#rollup_bundle-output_dir">output_dir</a>, <a href="#rollup_bundle-rollup_bin">rollup_bin</a>, <a href="#rollup_bundle-rollup_worker_bin">rollup_worker_bin</a>, <a href="#rollup_bundle-silent">silent</a>, <a href="#rollup_bundle-sourcemap">sourcemap</a>, <a href="#rollup_bundle-srcs">srcs</a>,
+              <a href="#rollup_bundle-supports_workers">supports_workers</a>)
 </pre>
 
 **ATTRIBUTES**
@@ -310,6 +311,18 @@ Either this attribute or <code>entry_point</code> must be specified, but not bot
         <td>optional</td>
         <td>
             "esm"
+        </td>
+      </tr>
+            <tr id="rollup_bundle-link_workspace_root">
+        <td>link_workspace_root</td>
+        <td>
+                            Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.
+If source files need to be required then they can be copied to the bin_dir with copy_to_bin.
+                                </td>
+        <td>Boolean</td>
+        <td>optional</td>
+        <td>
+            False
         </td>
       </tr>
             <tr id="rollup_bundle-node_context_data">
