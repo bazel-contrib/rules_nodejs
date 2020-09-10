@@ -17,5 +17,5 @@ nodejs_binary(
         "@npm//rollup",
     ],
     entry_point = "//packages/rollup:index.js",
-    visibility = ["//:__subpackages__"],
+    visibility = ["//visibility:public"],
 )
