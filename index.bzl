@@ -23,6 +23,7 @@ load("//internal/common:check_version.bzl", "check_version")
 load("//internal/common:copy_to_bin.bzl", _copy_to_bin = "copy_to_bin")
 load("//internal/common:params_file.bzl", _params_file = "params_file")
 load("//internal/generated_file_test:generated_file_test.bzl", _generated_file_test = "generated_file_test")
+load("//internal/js_library:js_library.bzl", _js_library = "js_library")
 load(
     "//internal/node:node.bzl",
     _nodejs_binary = "nodejs_binary",
@@ -44,6 +45,7 @@ pkg_web = _pkg_web
 copy_to_bin = _copy_to_bin
 params_file = _params_file
 generated_file_test = _generated_file_test
+js_library = _js_library
 # ANY RULES ADDED HERE SHOULD BE DOCUMENTED, see index.for_docs.bzl
 
 # Allows us to avoid a transitive dependency on bazel_skylib from leaking to users

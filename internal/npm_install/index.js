@@ -79,8 +79,7 @@ function generateRootBuildFile(pkgs) {
 `;
         });
     });
-    let buildFile = BUILD_FILE_HEADER +
-        `load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
+    let buildFile = BUILD_FILE_HEADER + `load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 
 exports_files([
 ${exportsStarlark}])
@@ -529,7 +528,7 @@ function printPackage(pkg) {
         '';
     const deps = [pkg].concat(pkg._dependencies.filter(dep => dep !== pkg && !dep._isNested));
     const depsStarlark = deps.map(dep => `"//${dep._dir}:${dep._name}__contents",`).join('\n        ');
-    let result = `load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
+    let result = `load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 
 # Generated targets for npm package "${pkg._dir}"
 ${printJson(pkg)}
@@ -732,7 +731,7 @@ function printScope(scope, pkgs) {
         ${list}
     ],`;
     }
-    return `load("@build_bazel_rules_nodejs//internal/js_library:js_library.bzl", "js_library")
+    return `load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 
 # Generated target for npm scope ${scope}
 js_library(
