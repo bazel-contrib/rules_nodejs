@@ -157,8 +157,8 @@ workspace(
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 http_archive(
     name = "build_bazel_rules_nodejs",
-    sha256 = "b16a03bf63952ae436185c74a5c63bec03c010ed422e230db526af55441a02dd",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/2.1.0/rules_nodejs-2.1.0.tar.gz"],
+    sha256 = "4952ef879704ab4ad6729a29007e7094aef213ea79e9f2e94cbe1c9a753e63ef",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/2.2.0/rules_nodejs-2.2.0.tar.gz"],
 )
 
 ${pkgMgr === 'yarn' ? yarnInstallCmd : npmInstallCmd}`;

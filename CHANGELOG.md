@@ -1,3 +1,21 @@
+# [2.2.0](https://github.com/bazelbuild/rules_nodejs/compare/2.1.0...2.2.0) (2020-09-10)
+
+
+### Bug Fixes
+
+* **builtin:** don't set --preserve-symlinks-main by default ([#2176](https://github.com/bazelbuild/rules_nodejs/issues/2176)) ([df18c61](https://github.com/bazelbuild/rules_nodejs/commit/df18c61))
+* **builtin:** fix bazel coverage masking test failures ([3d0d1f7](https://github.com/bazelbuild/rules_nodejs/commit/3d0d1f7))
+* **rollup:** allow config files to override default onwarn method ([0b80f6a](https://github.com/bazelbuild/rules_nodejs/commit/0b80f6a)), closes [#2084](https://github.com/bazelbuild/rules_nodejs/issues/2084)
+
+
+### Features
+
+* add link_workspace_root to nodejs_binary, npm_package_bin, rollup_bundle, terser_minified, ts_project ([4dcb37f](https://github.com/bazelbuild/rules_nodejs/commit/4dcb37f))
+* link_workspace_root not needed in terser_minified ([c80b816](https://github.com/bazelbuild/rules_nodejs/commit/c80b816))
+* promote js_library to public API ([1e357fd](https://github.com/bazelbuild/rules_nodejs/commit/1e357fd)), closes [#149](https://github.com/bazelbuild/rules_nodejs/issues/149) [#1771](https://github.com/bazelbuild/rules_nodejs/issues/1771)
+
+
+
 # [2.1.0](https://github.com/bazelbuild/rules_nodejs/compare/2.0.3...2.1.0) (2020-09-07)
 
 
