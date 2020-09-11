@@ -22,8 +22,9 @@ Then edit your `angular.json` to invoke Bazel. For example, to have `ng build` d
   "build": {
     "builder": "@bazel/angular:build",
     "options": {
-    "targetLabel": "//:all",
-    "bazelCommand": "build"
+      "targetLabel": "//:all",
+      "bazelCommand": "build"
+    }
   }
 }
 ```
