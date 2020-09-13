@@ -83,6 +83,17 @@ fine grained npm dependencies.
         default = True,
         doc = "If stdout and stderr should be printed to the terminal.",
     ),
+    "strict_visibility": attr.bool(
+        default = False,
+        doc = """Turn on stricter visibility for generated BUILD.bazel files
+
+When enabled, only dependencies within the given `package.json` file are given public visibility.
+All transitive dependencies are given limited visibility, enforcing that all direct dependencies are
+listed in the `package.json` file.
+
+Currently the default is set `False`, but will likely be flipped `True` in rules_nodejs 3.0.0
+""",
+    ),
     "symlink_node_modules": attr.bool(
         doc = """Turn symlinking of node_modules on
 
@@ -115,7 +126,9 @@ def _create_build_files(repository_ctx, rule_type, node, lock_file):
         "index.js",
         repository_ctx.attr.name,
         rule_type,
+        repository_ctx.path(repository_ctx.attr.package_json),
         repository_ctx.path(lock_file),
+        str(repository_ctx.attr.strict_visibility),
         ",".join(repository_ctx.attr.included_files),
         native.bazel_version,
     ])
