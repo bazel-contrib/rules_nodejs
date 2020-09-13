@@ -630,17 +630,19 @@ filegroup(
 )
 filegroup(
   name = "yarn_files",
-  srcs = glob(["bin/yarnpkg/**"]) + [":node_files"],
+  srcs = {yarn_files_glob}[":node_files"],
 )
 filegroup(
   name = "npm_files",
-  srcs = glob(["bin/nodejs/**"]) + [":node_files"],
+  srcs = {npm_files_glob}[":node_files"],
 )
 """.format(
         node_bin_export = "" if repository_ctx.attr.vendored_node else ("\n  \"%s\"," % node_bin),
         npm_bin_export = "" if repository_ctx.attr.vendored_node else ("\n  \"%s\"," % npm_bin),
         npx_bin_export = "" if repository_ctx.attr.vendored_node else ("\n  \"%s\"," % npx_bin),
+        npm_files_glob = "" if repository_ctx.attr.vendored_node else "glob([\"bin/nodejs/**\"]) + ",
         yarn_bin_export = "" if repository_ctx.attr.vendored_yarn else ("\n  \"%s\"," % yarn_bin),
+        yarn_files_glob = "" if repository_ctx.attr.vendored_yarn else "glob([\"bin/yarnpkg/**\"]) + ",
         node_bin_label = node_bin_label,
         npm_bin_label = npm_bin_label,
         npx_bin_label = npx_bin_label,
