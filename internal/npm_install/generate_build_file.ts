@@ -48,20 +48,26 @@ function log_verbose(...m: any[]) {
   if (!!process.env['VERBOSE_LOGS']) console.error('[generate_build_file.ts]', ...m);
 }
 
-const BUILD_FILE_HEADER = `# Generated file from yarn_install/npm_install rule.
-# See rules_nodejs/internal/npm_install/generate_build_file.ts
-
-# All rules in other repositories can use these targets
-package(default_visibility = ["//visibility:public"])
-
-`
-
 const args = process.argv.slice(2);
 const WORKSPACE = args[0];
 const RULE_TYPE = args[1];
-const LOCK_FILE_PATH = args[2];
-const INCLUDED_FILES = args[3] ? args[3].split(',') : [];
-const BAZEL_VERSION = args[4];
+const PKG_JSON_FILE_PATH = args[2];
+const LOCK_FILE_PATH = args[3];
+const STRICT_VISIBILITY = args[4]?.toLowerCase() === 'true';
+const INCLUDED_FILES = args[5] ? args[5].split(',') : [];
+const BAZEL_VERSION = args[6];
+
+const PUBLIC_VISIBILITY = '//visibility:public';
+const LIMITED_VISIBILITY = `@${WORKSPACE}//:__subpackages__`;
+
+function generateBuildFileHeader(visibility = PUBLIC_VISIBILITY): string {
+  return `# Generated file from ${RULE_TYPE} rule.
+# See rules_nodejs/internal/npm_install/generate_build_file.ts
+
+package(default_visibility = ["${visibility}"])
+
+`;
+}
 
 if (require.main === module) {
   main();
@@ -91,8 +97,11 @@ function writeFileSync(p: string, content: string) {
  * Main entrypoint.
  */
 export function main() {
+  // get a set of all the direct dependencies for visibility
+  const deps = getDirectDependencySet(PKG_JSON_FILE_PATH);
+
   // find all packages (including packages in nested node_modules)
-  const pkgs = findPackages();
+  const pkgs = findPackages('node_modules', deps);
 
   // flatten dependencies
   flattenDependencies(pkgs);
@@ -157,7 +166,7 @@ function generateRootBuildFile(pkgs: Dep[]) {
 `;
                })});
 
-  let buildFile = BUILD_FILE_HEADER + `load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+  let buildFile = generateBuildFileHeader() + `load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 
 exports_files([
 ${exportsStarlark}])
@@ -198,12 +207,18 @@ function generatePackageBuildFiles(pkg: Dep) {
     buildFilePath = 'BUILD.bazel'
   }
 
+  // if the dependency doesn't appear in the given package.json file, and the 'strict_visibility' flag is set
+  // on the npm_install / yarn_install rule, then set the visibility to be limited internally to the @repo workspace
+  // if the dependency is listed, set it as public
+  // if the flag is false, then always set public visibility
+  const visibility = !pkg._directDependency && STRICT_VISIBILITY ? LIMITED_VISIBILITY : PUBLIC_VISIBILITY;
+
   // If the package didn't ship a bin/BUILD file, generate one.
   if (!pkg._files.includes('bin/BUILD.bazel') && !pkg._files.includes('bin/BUILD')) {
     const binBuildFile = printPackageBin(pkg);
     if (binBuildFile.length) {
       writeFileSync(
-          path.posix.join(pkg._dir, 'bin', 'BUILD.bazel'), BUILD_FILE_HEADER + binBuildFile);
+          path.posix.join(pkg._dir, 'bin', 'BUILD.bazel'), generateBuildFileHeader(visibility) + binBuildFile);
     }
   }
 
@@ -241,7 +256,7 @@ exports_files(["index.bzl"])
     }
   }
 
-  writeFileSync(path.posix.join(pkg._dir, buildFilePath), BUILD_FILE_HEADER + buildFile);
+  writeFileSync(path.posix.join(pkg._dir, buildFilePath), generateBuildFileHeader(visibility) + buildFile);
 }
 
 /**
@@ -389,7 +404,7 @@ You can suppress this message by passing "suppress_warning = True" to install_ba
  * Generate build files for a scope.
  */
 function generateScopeBuildFiles(scope: string, pkgs: Dep[]) {
-  const buildFile = BUILD_FILE_HEADER + printScope(scope, pkgs);
+  const buildFile = generateBuildFileHeader() + printScope(scope, pkgs);
   writeFileSync(path.posix.join(scope, 'BUILD.bazel'), buildFile);
 }
 
@@ -405,6 +420,13 @@ function isFile(p: string) {
  */
 function isDirectory(p: string) {
   return fs.existsSync(p) && fs.statSync(p).isDirectory();
+}
+
+/**
+ * Strips the byte order mark from a string if present
+ */
+function stripBom(s: string) {
+  return s.charCodeAt(0) === 0xFEFF ? s.slice(1) : s;
 }
 
 /**
@@ -469,9 +491,23 @@ function hasRootBuildFile(pkg: Dep, rootPath: string) {
 }
 
 /**
+ * Returns a set of the root package.json files direct dependencies
+ */
+export function getDirectDependencySet(pkgJsonPath: string): Set<string> {
+  const pkgJson = JSON.parse(
+    stripBom(fs.readFileSync(pkgJsonPath, {encoding: 'utf8'}))
+  );
+
+  const dependencies: string[] = Object.keys(pkgJson.dependencies || {});
+  const devDependencies: string[] = Object.keys(pkgJson.devDependencies || {});
+
+  return new Set([...dependencies, ...devDependencies]);
+}
+
+/**
  * Finds and returns an array of all packages under a given path.
  */
-function findPackages(p = 'node_modules') {
+function findPackages(p: string, dependencies: Set<string>) {
   if (!isDirectory(p)) {
     return [];
   }
@@ -490,13 +526,13 @@ function findPackages(p = 'node_modules') {
                        .filter(f => isDirectory(f));
 
   packages.forEach(f => {
-    pkgs.push(parsePackage(f), ...findPackages(path.posix.join(f, 'node_modules')));
+    pkgs.push(parsePackage(f, dependencies), ...findPackages(path.posix.join(f, 'node_modules'), dependencies));
   });
 
   const scopes = listing.filter(f => f.startsWith('@'))
                      .map(f => path.posix.join(p, f))
                      .filter(f => isDirectory(f));
-  scopes.forEach(f => pkgs.push(...findPackages(f)));
+  scopes.forEach(f => pkgs.push(...findPackages(f, dependencies)));
 
   return pkgs;
 }
@@ -525,10 +561,9 @@ function findScopes() {
  * package json and return it as an object along with
  * some additional internal attributes prefixed with '_'.
  */
-export function parsePackage(p: string): Dep {
+export function parsePackage(p: string, dependencies: Set<string> = new Set()): Dep {
   // Parse the package.json file of this package
   const packageJson = path.posix.join(p, 'package.json');
-  const stripBom = (s: string) => s.charCodeAt(0) === 0xFEFF ? s.slice(1) : s;
   const pkg = isFile(packageJson) ?
       JSON.parse(stripBom(fs.readFileSync(packageJson, {encoding: 'utf8'}))) :
       {version: '0.0.0'};
@@ -558,6 +593,10 @@ export function parsePackage(p: string): Dep {
   // Initialize _dependencies to an empty array
   // which is later filled with the flattened dependency list
   pkg._dependencies = [];
+
+  // set if this is a direct dependency of the root package.json file
+  // which is later used to determine the generated rules visibility
+  pkg._directDependency = dependencies.has(pkg._moduleName);
 
   return pkg;
 }
@@ -1131,6 +1170,7 @@ type Dep = {
   _dependencies: Dep[],
   _files: string[],
   _runfiles: string[],
+  _directDependency: boolean,
   [k: string]: any
 }
 

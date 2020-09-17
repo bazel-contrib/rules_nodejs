@@ -7,7 +7,7 @@ load("//packages/typescript:checked_in_ts_project.bzl", "checked_in_ts_project")
 
 # Using checked in ts library like the linker
 # To update index.js run:
-#   bazel run //internal/npm_install:compile_generate_build_file_check_compiled.accept
+#   bazel run //internal/npm_install:compile_generate_build_file_check_compiled.update
 checked_in_ts_project(
     name = "compile_generate_build_file",
     src = "generate_build_file.ts",

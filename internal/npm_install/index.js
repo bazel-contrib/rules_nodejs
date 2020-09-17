@@ -1,4 +1,5 @@
 /* THIS FILE GENERATED FROM .ts; see BUILD.bazel */ /* clang-format off */'use strict';
+var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs = require("fs");
 const path = require("path");
@@ -7,19 +8,24 @@ function log_verbose(...m) {
     if (!!process.env['VERBOSE_LOGS'])
         console.error('[generate_build_file.ts]', ...m);
 }
-const BUILD_FILE_HEADER = `# Generated file from yarn_install/npm_install rule.
-# See rules_nodejs/internal/npm_install/generate_build_file.ts
-
-# All rules in other repositories can use these targets
-package(default_visibility = ["//visibility:public"])
-
-`;
 const args = process.argv.slice(2);
 const WORKSPACE = args[0];
 const RULE_TYPE = args[1];
-const LOCK_FILE_PATH = args[2];
-const INCLUDED_FILES = args[3] ? args[3].split(',') : [];
-const BAZEL_VERSION = args[4];
+const PKG_JSON_FILE_PATH = args[2];
+const LOCK_FILE_PATH = args[3];
+const STRICT_VISIBILITY = ((_a = args[4]) === null || _a === void 0 ? void 0 : _a.toLowerCase()) === 'true';
+const INCLUDED_FILES = args[5] ? args[5].split(',') : [];
+const BAZEL_VERSION = args[6];
+const PUBLIC_VISIBILITY = '//visibility:public';
+const LIMITED_VISIBILITY = `@${WORKSPACE}//:__subpackages__`;
+function generateBuildFileHeader(visibility = PUBLIC_VISIBILITY) {
+    return `# Generated file from ${RULE_TYPE} rule.
+# See rules_nodejs/internal/npm_install/generate_build_file.ts
+
+package(default_visibility = ["${visibility}"])
+
+`;
+}
 if (require.main === module) {
     main();
 }
@@ -34,7 +40,8 @@ function writeFileSync(p, content) {
     fs.writeFileSync(p, content);
 }
 function main() {
-    const pkgs = findPackages();
+    const deps = getDirectDependencySet(PKG_JSON_FILE_PATH);
+    const pkgs = findPackages('node_modules', deps);
     flattenDependencies(pkgs);
     generateBazelWorkspaces(pkgs);
     generateBuildFiles(pkgs);
@@ -79,7 +86,7 @@ function generateRootBuildFile(pkgs) {
 `;
         });
     });
-    let buildFile = BUILD_FILE_HEADER + `load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+    let buildFile = generateBuildFileHeader() + `load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 
 exports_files([
 ${exportsStarlark}])
@@ -114,10 +121,11 @@ function generatePackageBuildFiles(pkg) {
     else {
         buildFilePath = 'BUILD.bazel';
     }
+    const visibility = !pkg._directDependency && STRICT_VISIBILITY ? LIMITED_VISIBILITY : PUBLIC_VISIBILITY;
     if (!pkg._files.includes('bin/BUILD.bazel') && !pkg._files.includes('bin/BUILD')) {
         const binBuildFile = printPackageBin(pkg);
         if (binBuildFile.length) {
-            writeFileSync(path.posix.join(pkg._dir, 'bin', 'BUILD.bazel'), BUILD_FILE_HEADER + binBuildFile);
+            writeFileSync(path.posix.join(pkg._dir, 'bin', 'BUILD.bazel'), generateBuildFileHeader(visibility) + binBuildFile);
         }
     }
     if (pkg._files.includes('index.bzl')) {
@@ -146,7 +154,7 @@ exports_files(["index.bzl"])
 `;
         }
     }
-    writeFileSync(path.posix.join(pkg._dir, buildFilePath), BUILD_FILE_HEADER + buildFile);
+    writeFileSync(path.posix.join(pkg._dir, buildFilePath), generateBuildFileHeader(visibility) + buildFile);
 }
 function generateBazelWorkspaces(pkgs) {
     const workspaces = {};
@@ -247,7 +255,7 @@ You can suppress this message by passing "suppress_warning = True" to install_ba
     writeFileSync('install_bazel_dependencies.bzl', bzlFile);
 }
 function generateScopeBuildFiles(scope, pkgs) {
-    const buildFile = BUILD_FILE_HEADER + printScope(scope, pkgs);
+    const buildFile = generateBuildFileHeader() + printScope(scope, pkgs);
     writeFileSync(path.posix.join(scope, 'BUILD.bazel'), buildFile);
 }
 function isFile(p) {
@@ -255,6 +263,9 @@ function isFile(p) {
 }
 function isDirectory(p) {
     return fs.existsSync(p) && fs.statSync(p).isDirectory();
+}
+function stripBom(s) {
+    return s.charCodeAt(0) === 0xFEFF ? s.slice(1) : s;
 }
 function listFiles(rootDir, subDir = '') {
     const dir = path.posix.join(rootDir, subDir);
@@ -294,7 +305,14 @@ function hasRootBuildFile(pkg, rootPath) {
     }
     return false;
 }
-function findPackages(p = 'node_modules') {
+function getDirectDependencySet(pkgJsonPath) {
+    const pkgJson = JSON.parse(stripBom(fs.readFileSync(pkgJsonPath, { encoding: 'utf8' })));
+    const dependencies = Object.keys(pkgJson.dependencies || {});
+    const devDependencies = Object.keys(pkgJson.devDependencies || {});
+    return new Set([...dependencies, ...devDependencies]);
+}
+exports.getDirectDependencySet = getDirectDependencySet;
+function findPackages(p, dependencies) {
     if (!isDirectory(p)) {
         return [];
     }
@@ -306,12 +324,12 @@ function findPackages(p = 'node_modules') {
         .map(f => path.posix.join(p, f))
         .filter(f => isDirectory(f));
     packages.forEach(f => {
-        pkgs.push(parsePackage(f), ...findPackages(path.posix.join(f, 'node_modules')));
+        pkgs.push(parsePackage(f, dependencies), ...findPackages(path.posix.join(f, 'node_modules'), dependencies));
     });
     const scopes = listing.filter(f => f.startsWith('@'))
         .map(f => path.posix.join(p, f))
         .filter(f => isDirectory(f));
-    scopes.forEach(f => pkgs.push(...findPackages(f)));
+    scopes.forEach(f => pkgs.push(...findPackages(f, dependencies)));
     return pkgs;
 }
 function findScopes() {
@@ -326,9 +344,8 @@ function findScopes() {
         .map(f => f.replace(/^node_modules\//, ''));
     return scopes;
 }
-function parsePackage(p) {
+function parsePackage(p, dependencies = new Set()) {
     const packageJson = path.posix.join(p, 'package.json');
-    const stripBom = (s) => s.charCodeAt(0) === 0xFEFF ? s.slice(1) : s;
     const pkg = isFile(packageJson) ?
         JSON.parse(stripBom(fs.readFileSync(packageJson, { encoding: 'utf8' }))) :
         { version: '0.0.0' };
@@ -339,6 +356,7 @@ function parsePackage(p) {
     pkg._files = listFiles(p);
     pkg._runfiles = pkg._files.filter((f) => !/[^\x21-\x7E]/.test(f));
     pkg._dependencies = [];
+    pkg._directDependency = dependencies.has(pkg._moduleName);
     return pkg;
 }
 exports.parsePackage = parsePackage;

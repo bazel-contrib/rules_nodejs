@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const {check, files} = require('./check');
-const {parsePackage, printPackageBin, printIndexBzl} = require('../generate_build_file');
+const {parsePackage, printPackageBin, printIndexBzl, getDirectDependencySet} = require('../generate_build_file');
 
 describe('build file generator', () => {
   describe('integration test', () => {
@@ -21,7 +21,7 @@ describe('build file generator', () => {
   });
 
   describe('should exclude nodejs_binary rules when', () => {
-    const pkg = {_name: 'some_name', _dir: 'some_dir', _dependencies: [], _files: []};
+    const pkg = {_name: 'some_name', _dir: 'some_dir', _dependencies: [], _files: [], _directDependency: true};
 
     it('no bin entry is provided', () => {
       expect(printPackageBin({...pkg, _files: []})).not.toContain('nodejs_binary(');
@@ -92,6 +92,19 @@ describe('build file generator', () => {
     it('should encode npm binaries to be valid macro names', () => {
       const bzl = printIndexBzl({_dir: 'http-server', bin: 'http-server'});
       expect(bzl).toContain('def http_server(');
+    });
+  });
+
+  describe('getDirectDependencySet', () => {
+    it('returns a set of all dependencies in a package.json file', () => {
+      const runfiles = require(process.env.BAZEL_NODE_RUNFILES_HELPER);
+      const relPath = runfiles.resolvePackageRelative('package.spec.json');
+      const deps = getDirectDependencySet(relPath);
+
+      expect(deps.has('@angular/core')).toBeTruthy();
+      expect(deps.has('@angular/common')).toBeTruthy();
+      expect(deps.has('zone.js')).toBeTruthy();
+      expect(deps.size).toBe(3);
     });
   });
 });
