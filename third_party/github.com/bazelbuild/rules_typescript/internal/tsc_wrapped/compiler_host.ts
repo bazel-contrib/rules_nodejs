@@ -24,6 +24,10 @@ export interface BazelTsOptions extends ts.CompilerOptions {
   typeRoots: string[];
 }
 
+declare interface packageJson {
+  typings?: string;
+}
+
 export function narrowTsOptions(options: ts.CompilerOptions): BazelTsOptions {
   if (!options.rootDirs) {
     throw new Error(`compilerOptions.rootDirs should be set by tsconfig.bzl`);
@@ -369,7 +373,7 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
     // if it exists
     const pkgFile = path.posix.join(typePath, 'package.json');
     if (this.fileExists(pkgFile)) {
-      const pkg = JSON.parse(fs.readFileSync(pkgFile, 'UTF-8'));
+      const pkg = JSON.parse(fs.readFileSync(pkgFile, 'UTF-8')) as packageJson;
       let typings = pkg['typings'];
       if (typings) {
         if (typings === '.' || typings === './') {
