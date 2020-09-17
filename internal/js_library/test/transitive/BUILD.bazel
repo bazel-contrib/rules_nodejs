@@ -1,0 +1,14 @@
+load("//:index.bzl", "js_library")
+load(":transitive_declarations_test.bzl", "transitive_declarations_test_suite")
+
+js_library(
+    name = "a",
+    srcs = ["a.d.ts"],
+)
+
+js_library(
+    name = "b",
+    deps = ["a"],
+)
+
+transitive_declarations_test_suite()

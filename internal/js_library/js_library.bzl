@@ -214,7 +214,7 @@ def _impl(ctx):
 
     # Don't provide DeclarationInfo if there are no typings to provide.
     # Improves error messaging downstream if DeclarationInfo is required.
-    if len(typings):
+    if len(typings) or len(typings_depsets) > 1:
         providers.append(declaration_info(
             declarations = depset(transitive = typings_depsets),
             deps = ctx.attr.deps,
