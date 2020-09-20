@@ -360,6 +360,10 @@ def karma_web_test(
     Other `browsers` and `customLaunchers` may be set using the a base Karma configuration
     specified in the `config_file` attribute.
 
+    By default we open a headless Chrome. To use a real Chrome browser window, you can pass
+    `--define DISPLAY=true` to Bazel, along with `configuration_env_vars = ["DISPLAY"]` on
+    `karma_web_test`.
+
     Args:
       srcs: A list of JavaScript test files
       deps: Other targets which produce JavaScript such as `ts_library`
