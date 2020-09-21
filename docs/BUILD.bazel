@@ -76,6 +76,7 @@ rules_nodejs_docs(
         "Cypress": "//packages/cypress:README.md",
         "Jasmine": "//packages/jasmine:README.md",
         "Karma": "//packages/karma:README.md",
+        "Labs": "//packages/labs:README.md",
         "Protractor": "//packages/protractor:README.md",
         "Rollup": "//packages/rollup:README.md",
         "Terser": "//packages/terser:README.md",

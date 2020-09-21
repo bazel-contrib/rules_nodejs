@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta content="IE=edge" http-equiv="X-UA-Compatible">
   <meta content="width=device-width, initial-scale=1" name="viewport">
-  <link href="/rules_nodejs/Protractor.html" rel="canonical">
+  <link href="/rules_nodejs/Labs.html" rel="canonical">
   <link href="" rel="shortcut icon" type="image/png">
 
-  <title>rules_nodejs - Protractor</title>
+  <title>rules_nodejs - Labs</title>
 
   <!-- Webfont -->
   <link href="//fonts.googleapis.com/css?family=Source+Code+Pro:400,500,700|Open+Sans:400,600,700,800" rel="stylesheet">
@@ -168,200 +168,164 @@
   Instead you must edit the .bzl file where the rules are declared,
   or possibly a markdown file next to the .bzl file
  ********************* -->
-<h1 id="protractor-rules-for-bazel">Protractor rules for Bazel</h1>
+<h1 id="bazel-nodejs-labs">Bazel nodejs Labs</h1>
 
-<p>The Protractor rules run tests under the Protractor framework with Bazel.</p>
+<p>This package contains experimental code which isn’t at the same quality or stability standard as our main packages.</p>
 
-<h2 id="installation">Installation</h2>
+<p>By using code in Labs, we trust that you understand:</p>
 
-<p>Add the <code>@bazel/protractor</code> npm package to your <code>devDependencies</code> in <code>package.json</code>.</p>
+<ul>
+  <li>It might be deleted at any time</li>
+  <li>We offer no support guarantees for using it</li>
+  <li>Breaking changes can happen in any release</li>
+  <li>We could release with bugs or other brokenness</li>
+  <li>Documentation is sparse</li>
+</ul>
 
-<h2 id="protractor_web_test">protractor_web_test</h2>
+<h2 id="protobufjs_ts_library">protobufjs_ts_library</h2>
 
-<p>Runs a protractor test in a browser.</p>
+<p>Wraps https://github.com/dcodeIO/protobuf.js for use in Bazel.</p>
+
+<p><code>ts_proto_library</code> has identical outputs to <code>ts_library</code>, so it can be used anywhere
+a <code>ts_library</code> can appear, such as in the <code>deps[]</code> of another <code>ts_library</code>.</p>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">load</span><span class="p">(</span><span class="s">"@npm//@bazel/typescript:index.bzl"</span><span class="p">,</span> <span class="s">"ts_library"</span><span class="p">,</span> <span class="s">"ts_proto_library"</span><span class="p">)</span>
+
+<span class="n">proto_library</span><span class="p">(</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"car_proto"</span><span class="p">,</span>
+    <span class="n">srcs</span> <span class="o">=</span> <span class="p">[</span><span class="s">"car.proto"</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="n">ts_proto_library</span><span class="p">(</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"car"</span><span class="p">,</span>
+    <span class="n">deps</span> <span class="o">=</span> <span class="p">[</span><span class="s">":car_proto"</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="n">ts_library</span><span class="p">(</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"test_lib"</span><span class="p">,</span>
+    <span class="n">testonly</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span>
+    <span class="n">srcs</span> <span class="o">=</span> <span class="p">[</span><span class="s">"car.spec.ts"</span><span class="p">],</span>
+    <span class="n">deps</span> <span class="o">=</span> <span class="p">[</span><span class="s">":car"</span><span class="p">],</span>
+<span class="p">)</span></code></pre></figure>
+
+<p>Note in this example we named the <code>ts_proto_library</code> rule <code>car</code> so that the
+result will be <code>car.d.ts</code>. This means our TypeScript code can just
+<code>import {symbols} from './car'</code>. Use the <code>output_name</code> attribute if you want to
+name the rule differently from the output file.</p>
+
+<p>The JavaScript produced by protobuf.js has a runtime dependency on a support library.
+Under devmode (e.g. <code>ts_devserver</code>, <code>karma_web_test_suite</code>) you’ll need to include these scripts
+in the <code>bootstrap</code> phase (before Require.js loads). You can use the label
+<code>@npm//@bazel/labs/protobufjs:bootstrap_scripts</code> to reference these scripts
+in the <code>bootstrap</code> attribute of <code>karma_web_test_suite</code> or <code>ts_devserver</code>.</p>
+
+<p>To complete the example above, you could write a <code>karma_web_test_suite</code>:</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">load</span><span class="p">(</span><span class="s">"@npm//@bazel/karma:index.bzl"</span><span class="p">,</span> <span class="s">"karma_web_test_suite"</span><span class="p">)</span>
+
+<span class="n">karma_web_test_suite</span><span class="p">(</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"test"</span><span class="p">,</span>
+    <span class="n">deps</span> <span class="o">=</span> <span class="p">[</span><span class="s">"test_lib"</span><span class="p">],</span>
+    <span class="n">bootstrap</span> <span class="o">=</span> <span class="p">[</span><span class="s">"@npm//@bazel/labs/protobufjs:bootstrap_scripts"</span><span class="p">],</span>
+    <span class="n">browsers</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s">"@io_bazel_rules_webtesting//browsers:chromium-local"</span><span class="p">,</span>
+        <span class="s">"@io_bazel_rules_webtesting//browsers:firefox-local"</span><span class="p">,</span>
+    <span class="p">],</span>
+<span class="p">)</span></code></pre></figure>
 
 <pre>
-protractor_web_test(<a href="#protractor_web_test-name">name</a>, <a href="#protractor_web_test-configuration">configuration</a>, <a href="#protractor_web_test-on_prepare">on_prepare</a>, <a href="#protractor_web_test-srcs">srcs</a>, <a href="#protractor_web_test-deps">deps</a>, <a href="#protractor_web_test-data">data</a>, <a href="#protractor_web_test-server">server</a>, <a href="#protractor_web_test-tags">tags</a>, <a href="#protractor_web_test-peer_deps">peer_deps</a>,
-                    <a href="#protractor_web_test-protractor_entry_point">protractor_entry_point</a>, <a href="#protractor_web_test-kwargs">kwargs</a>)
+protobufjs_ts_library(<a href="#protobufjs_ts_library-name">name</a>, <a href="#protobufjs_ts_library-deps">deps</a>, <a href="#protobufjs_ts_library-output_name">output_name</a>)
 </pre>
 
-<p><strong>PARAMETERS</strong></p>
+<p><strong>ATTRIBUTES</strong></p>
 
 <table class="table table-params">
   <thead>
   <tr>
     <th>Name</th>
     <th>Description</th>
+    <th>Type</th>
+    <th>Mandatory</th>
     <th>Default</th>
   </tr>
   </thead>
   <tbody>
-            <tr id="protractor_web_test-name">
+            <tr id="protobufjs_ts_library-name">
         <td>name</td>
         <td>
-                            The name of the test
-                    </td>
+                            A unique name for this target.
+                                </td>
+        <td><a href="https://bazel.build/docs/build-ref.html#name">Name</a></td>
+        <td>required</td>
         <td>
             
         </td>
       </tr>
-            <tr id="protractor_web_test-configuration">
-        <td>configuration</td>
-        <td>
-                            Protractor configuration file.
-                    </td>
-        <td>
-            None
-        </td>
-      </tr>
-            <tr id="protractor_web_test-on_prepare">
-        <td>on_prepare</td>
-        <td>
-                            A file with a node.js script to run once before all tests run.
-    If the script exports a function which returns a promise, protractor
-    will wait for the promise to resolve before beginning tests.
-                    </td>
-        <td>
-            None
-        </td>
-      </tr>
-            <tr id="protractor_web_test-srcs">
-        <td>srcs</td>
-        <td>
-                            JavaScript source files
-                    </td>
-        <td>
-            []
-        </td>
-      </tr>
-            <tr id="protractor_web_test-deps">
+            <tr id="protobufjs_ts_library-deps">
         <td>deps</td>
         <td>
-                            Other targets which produce JavaScript such as <code>ts_library</code>
-                    </td>
+                            proto_library targets
+                                </td>
+        <td><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></td>
+        <td>optional</td>
         <td>
             []
         </td>
       </tr>
-            <tr id="protractor_web_test-data">
-        <td>data</td>
+            <tr id="protobufjs_ts_library-output_name">
+        <td>output_name</td>
         <td>
-                            Runtime dependencies
-                    </td>
+                            Name of the resulting module, which you will import from.
+            If not specified, the name will match the target's name.
+                                </td>
+        <td>String</td>
+        <td>optional</td>
         <td>
-            []
-        </td>
-      </tr>
-            <tr id="protractor_web_test-server">
-        <td>server</td>
-        <td>
-                            Optional server executable target
-                    </td>
-        <td>
-            None
-        </td>
-      </tr>
-            <tr id="protractor_web_test-tags">
-        <td>tags</td>
-        <td>
-                            Standard Bazel tags, this macro adds one for ibazel
-                    </td>
-        <td>
-            []
-        </td>
-      </tr>
-            <tr id="protractor_web_test-peer_deps">
-        <td>peer_deps</td>
-        <td>
-                            List of peer npm deps required by protractor_web_test
-                    </td>
-        <td>
-            ["@npm//@bazel/protractor", "@npm//protractor"]
-        </td>
-      </tr>
-            <tr id="protractor_web_test-protractor_entry_point">
-        <td>protractor_entry_point</td>
-        <td>
-                            A label providing the protractor entry point
-    Default to <code>:node_modules/protractor/bin/protractor</code>.
-                    </td>
-        <td>
-            "@npm//:node_modules/protractor/bin/protractor"
-        </td>
-      </tr>
-            <tr id="protractor_web_test-kwargs">
-        <td>kwargs</td>
-        <td>
-                            passed through to <code>protractor_web_test</code>
-                    </td>
-        <td>
-            
+            ""
         </td>
       </tr>
         </tbody>
 </table>
 
-<h2 id="protractor_web_test_suite">protractor_web_test_suite</h2>
-
-<p>Defines a test_suite of web_test targets that wrap a protractor_web_test target.</p>
+<h2 id="ts_proto_library">ts_proto_library</h2>
 
 <pre>
-protractor_web_test_suite(<a href="#protractor_web_test_suite-name">name</a>, <a href="#protractor_web_test_suite-browsers">browsers</a>, <a href="#protractor_web_test_suite-web_test_data">web_test_data</a>, <a href="#protractor_web_test_suite-wrapped_test_tags">wrapped_test_tags</a>, <a href="#protractor_web_test_suite-kwargs">kwargs</a>)
+ts_proto_library(<a href="#ts_proto_library-name">name</a>, <a href="#ts_proto_library-proto">proto</a>)
 </pre>
 
-<p><strong>PARAMETERS</strong></p>
+<p><strong>ATTRIBUTES</strong></p>
 
 <table class="table table-params">
   <thead>
   <tr>
     <th>Name</th>
     <th>Description</th>
+    <th>Type</th>
+    <th>Mandatory</th>
     <th>Default</th>
   </tr>
   </thead>
   <tbody>
-            <tr id="protractor_web_test_suite-name">
+            <tr id="ts_proto_library-name">
         <td>name</td>
         <td>
-                            The base name of the test
-                    </td>
+                            A unique name for this target.
+                                </td>
+        <td><a href="https://bazel.build/docs/build-ref.html#name">Name</a></td>
+        <td>required</td>
         <td>
             
         </td>
       </tr>
-            <tr id="protractor_web_test_suite-browsers">
-        <td>browsers</td>
+            <tr id="ts_proto_library-proto">
+        <td>proto</td>
         <td>
-                            A sequence of labels specifying the browsers to use.
+                                      The dependencies of this attribute must provide: ProtoInfo
                     </td>
-        <td>
-            None
-        </td>
-      </tr>
-            <tr id="protractor_web_test_suite-web_test_data">
-        <td>web_test_data</td>
-        <td>
-                            Data dependencies for the wrapper web_test targets.
-                    </td>
-        <td>
-            []
-        </td>
-      </tr>
-            <tr id="protractor_web_test_suite-wrapped_test_tags">
-        <td>wrapped_test_tags</td>
-        <td>
-                            A list of test tag strings to use for the wrapped
-  karma_web_test target.
-                    </td>
-        <td>
-            ["manual", "noci"]
-        </td>
-      </tr>
-            <tr id="protractor_web_test_suite-kwargs">
-        <td>kwargs</td>
-        <td>
-                            Arguments for the wrapped karma_web_test target.
-                    </td>
+        <td><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></td>
+        <td>required</td>
         <td>
             
         </td>
@@ -378,15 +342,14 @@ protractor_web_test_suite(<a href="#protractor_web_test_suite-name">name</a>, <a
         <ul class="gh-links">
           <li>
             <i class="fa fa-github"></i>
-            <a href="https://github.com/bazelbuild/rules_nodejs/issues/new?title=Documentation issue: Protractor&labels=question/docs">Create
+            <a href="https://github.com/bazelbuild/rules_nodejs/issues/new?title=Documentation issue: Labs&labels=question/docs">Create
               issue</a>
           </li>
           
         </ul>
         <ul class="section-nav">
-<li class="toc-entry toc-h2"><a href="#installation">Installation</a></li>
-<li class="toc-entry toc-h2"><a href="#protractor_web_test">protractor_web_test</a></li>
-<li class="toc-entry toc-h2"><a href="#protractor_web_test_suite">protractor_web_test_suite</a></li>
+<li class="toc-entry toc-h2"><a href="#protobufjs_ts_library">protobufjs_ts_library</a></li>
+<li class="toc-entry toc-h2"><a href="#ts_proto_library">ts_proto_library</a></li>
 </ul>
       </div>
     </div>
