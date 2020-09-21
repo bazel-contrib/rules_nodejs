@@ -7,7 +7,8 @@ package(default_visibility = ["//visibility:public"])
 bzl_library(
     name = "bzl",
     srcs = glob(["*.bzl"]),
-    visibility = ["//:__pkg__"],
+    visibility = ["//packages/labs:__subpackages__"],
+    deps = ["@rules_proto//proto:defs"],
 )
 
 nodejs_binary(

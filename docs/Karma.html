@@ -109,6 +109,10 @@
       
       
       
+      <li><a href="/rules_nodejs/Labs.html">Labs</a></li>
+      
+      
+      
       <li><a href="/rules_nodejs/Protractor.html">Protractor</a></li>
       
       
@@ -229,6 +233,10 @@ cancel the <code>bazel run</code> command.</p>
 environment must specify CHROME_BIN so that the rule will know which Chrome binary to run.
 Other <code>browsers</code> and <code>customLaunchers</code> may be set using the a base Karma configuration
 specified in the <code>config_file</code> attribute.</p>
+
+<p>By default we open a headless Chrome. To use a real Chrome browser window, you can pass
+<code>--define DISPLAY=true</code> to Bazel, along with <code>configuration_env_vars = ["DISPLAY"]</code> on
+<code>karma_web_test</code>.</p>
 
 <pre>
 karma_web_test(<a href="#karma_web_test-srcs">srcs</a>, <a href="#karma_web_test-deps">deps</a>, <a href="#karma_web_test-data">data</a>, <a href="#karma_web_test-configuration_env_vars">configuration_env_vars</a>, <a href="#karma_web_test-bootstrap">bootstrap</a>, <a href="#karma_web_test-runtime_deps">runtime_deps</a>, <a href="#karma_web_test-static_files">static_files</a>,

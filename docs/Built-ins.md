@@ -986,7 +986,7 @@ check if yarn is being run by the <code>npm_install</code> repository rule.
 
 <pre>
 npm_install(<a href="#npm_install-name">name</a>, <a href="#npm_install-args">args</a>, <a href="#npm_install-data">data</a>, <a href="#npm_install-environment">environment</a>, <a href="#npm_install-included_files">included_files</a>, <a href="#npm_install-manual_build_file_contents">manual_build_file_contents</a>, <a href="#npm_install-package_json">package_json</a>,
-            <a href="#npm_install-package_lock_json">package_lock_json</a>, <a href="#npm_install-quiet">quiet</a>, <a href="#npm_install-symlink_node_modules">symlink_node_modules</a>, <a href="#npm_install-timeout">timeout</a>)
+            <a href="#npm_install-package_lock_json">package_lock_json</a>, <a href="#npm_install-quiet">quiet</a>, <a href="#npm_install-strict_visibility">strict_visibility</a>, <a href="#npm_install-symlink_node_modules">symlink_node_modules</a>, <a href="#npm_install-timeout">timeout</a>)
 </pre>
 
 **ATTRIBUTES**
@@ -1130,6 +1130,23 @@ fine grained npm dependencies.
         <td>optional</td>
         <td>
             True
+        </td>
+      </tr>
+            <tr id="npm_install-strict_visibility">
+        <td>strict_visibility</td>
+        <td>
+                            Turn on stricter visibility for generated BUILD.bazel files
+
+When enabled, only dependencies within the given <code>package.json</code> file are given public visibility.
+All transitive dependencies are given limited visibility, enforcing that all direct dependencies are
+listed in the <code>package.json</code> file.
+
+Currently the default is set <code>False</code>, but will likely be flipped <code>True</code> in rules_nodejs 3.0.0
+                                </td>
+        <td>Boolean</td>
+        <td>optional</td>
+        <td>
+            False
         </td>
       </tr>
             <tr id="npm_install-symlink_node_modules">
@@ -1476,7 +1493,8 @@ check if yarn is being run by the <code>yarn_install</code> repository rule.
 
 <pre>
 yarn_install(<a href="#yarn_install-name">name</a>, <a href="#yarn_install-args">args</a>, <a href="#yarn_install-data">data</a>, <a href="#yarn_install-environment">environment</a>, <a href="#yarn_install-included_files">included_files</a>, <a href="#yarn_install-manual_build_file_contents">manual_build_file_contents</a>,
-             <a href="#yarn_install-package_json">package_json</a>, <a href="#yarn_install-quiet">quiet</a>, <a href="#yarn_install-symlink_node_modules">symlink_node_modules</a>, <a href="#yarn_install-timeout">timeout</a>, <a href="#yarn_install-use_global_yarn_cache">use_global_yarn_cache</a>, <a href="#yarn_install-yarn_lock">yarn_lock</a>)
+             <a href="#yarn_install-package_json">package_json</a>, <a href="#yarn_install-quiet">quiet</a>, <a href="#yarn_install-strict_visibility">strict_visibility</a>, <a href="#yarn_install-symlink_node_modules">symlink_node_modules</a>, <a href="#yarn_install-timeout">timeout</a>,
+             <a href="#yarn_install-use_global_yarn_cache">use_global_yarn_cache</a>, <a href="#yarn_install-yarn_lock">yarn_lock</a>)
 </pre>
 
 **ATTRIBUTES**
@@ -1610,6 +1628,23 @@ fine grained npm dependencies.
         <td>optional</td>
         <td>
             True
+        </td>
+      </tr>
+            <tr id="yarn_install-strict_visibility">
+        <td>strict_visibility</td>
+        <td>
+                            Turn on stricter visibility for generated BUILD.bazel files
+
+When enabled, only dependencies within the given <code>package.json</code> file are given public visibility.
+All transitive dependencies are given limited visibility, enforcing that all direct dependencies are
+listed in the <code>package.json</code> file.
+
+Currently the default is set <code>False</code>, but will likely be flipped <code>True</code> in rules_nodejs 3.0.0
+                                </td>
+        <td>Boolean</td>
+        <td>optional</td>
+        <td>
+            False
         </td>
       </tr>
             <tr id="yarn_install-symlink_node_modules">

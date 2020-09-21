@@ -99,6 +99,17 @@ load("@build_bazel_rules_typescript//:package.bzl", "rules_typescript_dev_depend
 
 rules_typescript_dev_dependencies()
 
+# Install labs dependencies
+load("//packages/labs:package.bzl", "npm_bazel_labs_dependencies")
+
+npm_bazel_labs_dependencies()
+
+load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
+
+rules_proto_dependencies()
+
+rules_proto_toolchains()
+
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
 load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
 
@@ -286,14 +297,3 @@ load("@build_bazel_integration_testing//tools:repositories.bzl", "bazel_binaries
 
 # Depend on the Bazel binaries
 bazel_binaries(versions = SUPPORTED_BAZEL_VERSIONS)
-
-# Install labs dependencies
-load("//packages/labs:package.bzl", "npm_bazel_labs_dependencies")
-
-npm_bazel_labs_dependencies()
-
-load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
-
-rules_proto_dependencies()
-
-rules_proto_toolchains()

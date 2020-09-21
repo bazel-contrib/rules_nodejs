@@ -1,16 +1,52 @@
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "codeowners", "pkg_npm")
+load("@build_bazel_rules_nodejs//tools/stardoc:index.bzl", "stardoc")
 
 codeowners(
     teams = ["@mrmeku"],
 )
 
+bzl_library(
+    name = "bzl",
+    srcs = glob(["*.bzl"]),
+    deps = [
+        "@build_bazel_rules_nodejs//:bzl",
+        "@build_bazel_rules_nodejs//packages/labs/grpc_web:bzl",
+        "@build_bazel_rules_nodejs//packages/labs/protobufjs:bzl",
+    ],
+)
+
+stardoc(
+    name = "docs",
+    testonly = True,
+    out = "index.md",
+    input = ":index.bzl",
+    tags = ["fix-windows"],
+    deps = [":bzl"],
+)
+
+# Ugly genrule depending on local linux environment to build the README out of skylark doc generation.
+# Only referenced when we do a release.
+# TODO: This ought to be possible with stardoc alone. Need to coordinate with Chris Parsons.
+genrule(
+    name = "generate_README",
+    srcs = [
+        "index.md",
+        "install.md",
+    ],
+    outs = ["README.md"],
+    cmd = """cat $(execpath install.md) $(execpath index.md) | sed 's/^##/\\\n##/' > $@""",
+    tags = ["fix-windows"],
+    visibility = ["//docs:__pkg__"],
+)
+
 pkg_npm(
     name = "npm_package",
     srcs = glob(["*.bzl"]) + [
-        "README.md",
         "package.json",
         "//packages/labs/grpc_web:package_contents",
         "//packages/labs/protobufjs:package_contents",
     ],
     build_file_content = "",
+    deps = ["README.md"],
 )
