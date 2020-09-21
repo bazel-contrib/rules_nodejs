@@ -124,7 +124,7 @@ def rules_nodejs_dev_dependencies():
     _maybe(
         git_repository,
         name = "build_bazel_rules_typescript",
-        commit = "10a5a86885f95ab788fd841ade47b6a16e0c13d6",
+        commit = "49876e174ca7e8edf11f828a3362d1167c933313",
         patches = [
             "@build_bazel_rules_nodejs//:rules_typescript_pr_494.patch",
             "@build_bazel_rules_nodejs//:rules_typescript_pr_496.patch",
@@ -132,7 +132,7 @@ def rules_nodejs_dev_dependencies():
             "@build_bazel_rules_nodejs//:rules_typescript_pr_508.patch",
         ],
         remote = "http://github.com/bazelbuild/rules_typescript.git",
-        shallow_since = "1582757372 -0800",
+        shallow_since = "2020-09-08T22:00:00.000Z",
     )
 
 def _maybe(repo_rule, name, **kwargs):
