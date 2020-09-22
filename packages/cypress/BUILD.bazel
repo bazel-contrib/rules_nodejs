@@ -95,7 +95,6 @@ pkg_npm(
         "@build_bazel_rules_nodejs//packages/cypress:internal/plugins/base.js": "TEMPLATED_node_modules_workspace_name//@bazel/cypress:internal/plugins/base.js",
         "@build_bazel_rules_nodejs//packages/cypress:internal/plugins/index.template.js": "TEMPLATED_node_modules_workspace_name//@bazel/cypress:internal/plugins/index.template.js",
         "@build_bazel_rules_nodejs//packages/cypress:internal/run-cypress.js": "TEMPLATED_node_modules_workspace_name//@bazel/cypress:internal/run-cypress.js",
-        "\\${cwd}/../cypress_deps/node_modules/@cypress/browserify-preprocessor/index": "@cypress/browserify-preprocessor",
     },
     deps = [
         ":npm_version_check",

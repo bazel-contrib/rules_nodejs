@@ -1,8 +1,7 @@
 {
   "name": "@bazel/cypress",
   "peerDependencies": {
-    "cypress": ">=4.7.0",
-    "@cypress/browserify-preprocessor": ">=3.0.0"
+    "cypress": ">=4.7.0"
   },
   "description": "Run Cypress e2e testing framework under Bazel",
   "license": "Apache-2.0",
