@@ -17,14 +17,14 @@ The Cypress rules run tests under the Cypress e2e testing framework with Bazel.
 
 ## Installation
 
-Add `@bazel/cypress`, `cypress` and `@cypress/browserify-preprocessor` npm packages to your `devDependencies` in `package.json`.
+Add `@bazel/cypress` and `cypress` npm packages to your `devDependencies` in `package.json`.
 
 ```
-npm install --save-dev @bazel/cypress cypress @cypress/browserify-preprocessor
+npm install --save-dev @bazel/cypress cypress
 ```
 or using yarn
 ```
-yarn add -D @bazel/cypress cypress @cypress/browserify-preprocessor
+yarn add -D @bazel/cypress cypress
 ```
 
 Then, load and invoke `cypress_repository` within your `WORKSPACE` file.
