@@ -40,7 +40,6 @@ def _cypress_plugin_impl(ctx):
         output = ctx.outputs.plugin,
         template = ctx.file._plugin_template,
         substitutions = {
-            "TEMPLATED_@cypress/browserify-preprocessor": "${cwd}/../cypress_deps/node_modules/@cypress/browserify-preprocessor/index",
             "TEMPLATED_integrationFileShortPaths": "[\n  {files}\n]".format(files = ",\n  ".join(integration_files_short_paths)),
             "TEMPLATED_pluginsFile": plugins_file.short_path,
         },
@@ -78,9 +77,7 @@ def cypress_web_test(
         name,
         config_file,
         srcs = [],
-        plugins_file = Label("@build_bazel_rules_nodejs//packages/cypress:internal/plugins/base.js"),
-        cypress = Label("TEMPLATED_node_modules_workspace_name//cypress:cypress"),
-        cypress_browserify_preprocessor = Label("TEMPLATED_node_modules_workspace_name//@cypress/browserify-preprocessor"),
+        plugins_file = Label("//plugins/base.js"),
         data = [],
         templated_args = [],
         cypress_cache = Label("//:cypress_cache"),
@@ -104,8 +101,6 @@ def cypress_web_test(
         tags = tags,
         data = data + [
             plugins_file,
-            cypress,
-            cypress_browserify_preprocessor,
             cypress_cache,
             cypress_executable,
             "{cypress_plugin}".format(cypress_plugin = cypress_plugin),
@@ -127,7 +122,6 @@ def cypress_web_test_global_cache(
         srcs = [],
         plugins_file = Label("@build_bazel_rules_nodejs//packages/cypress:plugins/base.js"),
         cypress = Label("TEMPLATED_node_modules_workspace_name//cypress:cypress"),
-        cypress_browserify_preprocessor = Label("TEMPLATED_node_modules_workspace_name//@cypress/browserify-preprocessor"),
         data = [],
         templated_args = [],
         **kwargs):
@@ -150,7 +144,6 @@ def cypress_web_test_global_cache(
         data = data + [
             plugins_file,
             cypress,
-            cypress_browserify_preprocessor,
             "{cypress_plugin}".format(cypress_plugin = cypress_plugin),
             "{config_file}".format(config_file = config_file),
         ] + srcs,

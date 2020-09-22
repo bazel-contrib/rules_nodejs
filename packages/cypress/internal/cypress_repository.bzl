@@ -28,6 +28,12 @@ def _cypress_repository_impl(repository_ctx):
     )
 
     repository_ctx.template(
+        "plugins/base.js",
+        repository_ctx.path(repository_ctx.attr._base_plugin),
+        {},
+    )
+
+    repository_ctx.template(
         "packages/cypress/internal/cypress_web_test.bzl",
         repository_ctx.path(repository_ctx.attr._cypress_web_test),
         {
@@ -58,6 +64,10 @@ cypress_repository = repository_rule(
         "quiet": attr.bool(
             default = True,
             doc = "If stdout and stderr should be printed to the terminal",
+        ),
+        "_base_plugin": attr.label(
+            allow_single_file = True,
+            default = "//packages/cypress:internal/plugins/base.js",
         ),
         "_cypress_web_test": attr.label(
             allow_single_file = True,
