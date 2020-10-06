@@ -130,6 +130,7 @@ else
     *)
       case "${unameArch}" in
         aarch64*) readonly node_toolchain="nodejs_linux_arm64/bin/nodejs/bin/node" ;;
+        s390x*) readonly node_toolchain="nodejs_linux_s390x/bin/nodejs/bin/node" ;;
         *) readonly node_toolchain="nodejs_linux_amd64/bin/nodejs/bin/node" ;;
       esac
       ;;

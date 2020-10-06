@@ -20,6 +20,7 @@ OS_ARCH_NAMES = [
     ("windows", "amd64"),
     ("linux", "amd64"),
     ("linux", "arm64"),
+    ("linux", "s390x"),
 ]
 
 OS_NAMES = ["_".join(os_arch_name) for os_arch_name in OS_ARCH_NAMES]
@@ -43,7 +44,10 @@ def os_name(rctx):
         arch = rctx.execute(["uname", "-m"]).stdout.strip()
         if arch == "aarch64":
             return OS_NAMES[3]
-        return OS_NAMES[2]
+        elif arch == "s390x":
+            return OS_NAMES[4]
+        else:
+            return OS_NAMES[2]
     else:
         fail("Unsupported operating system: " + os_name)
 
@@ -55,4 +59,4 @@ def is_windows_os(rctx):
 
 def is_linux_os(rctx):
     name = os_name(rctx)
-    return name == OS_NAMES[2] or name == OS_NAMES[3]
+    return name == OS_NAMES[2] or name == OS_NAMES[3] or name == OS_NAMES[4]

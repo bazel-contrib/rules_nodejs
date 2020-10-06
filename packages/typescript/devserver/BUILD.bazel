@@ -37,6 +37,14 @@ filegroup(
 )
 
 filegroup(
+    name = "devserver_linux_s390x",
+    srcs = ["devserver-linux_s390x"],
+    # Don't build on CI
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
     name = "devserver_windows_amd64",
     srcs = ["devserver-windows_x64.exe"],
     # Don't build on CI
@@ -69,6 +77,14 @@ config_setting(
 )
 
 config_setting(
+    name = "linux_s390x",
+    constraint_values = [
+        "@bazel_tools//platforms:linux",
+        "@bazel_tools//platforms:s390x",
+    ],
+)
+
+config_setting(
     name = "windows_x64",
     constraint_values = [
         "@bazel_tools//platforms:windows",
@@ -81,6 +97,7 @@ filegroup(
     srcs = select({
         ":darwin_x64": [":devserver_darwin_amd64"],
         ":linux_arm64": [":devserver_linux_arm64"],
+        ":linux_s390x": [":devserver_linux_s390x"],
         ":linux_x64": [":devserver_linux_amd64"],
         ":windows_x64": [":devserver_windows_amd64"],
     }),

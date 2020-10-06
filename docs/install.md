@@ -150,6 +150,7 @@ Toolchains allow us to support cross-compilation, e.g. building a linux binary f
 
 - `@build_bazel_rules_nodejs//toolchains/node:linux_amd64`
 - `@build_bazel_rules_nodejs//toolchains/node:linux_arm64`
+- `@build_bazel_rules_nodejs//toolchains/node:linux_s390x`
 - `@build_bazel_rules_nodejs//toolchains/node:darwin_amd64`
 - `@build_bazel_rules_nodejs//toolchains/node:windows_amd64`
 
