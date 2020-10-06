@@ -76,6 +76,10 @@ def _join(*elements):
         return "/".join(segments)
     return "."
 
+def _is_ts_file(file):
+    ext = file.extension
+    return ext == "js" or ext == "mjs" or ext == "ts" or ext == "tsx" or ext == "json"
+
 def _ts_project_impl(ctx):
     arguments = ctx.actions.args()
     execution_requirements = {}
@@ -89,13 +93,20 @@ def _ts_project_impl(ctx):
         execution_requirements["worker-key-mnemonic"] = "TsProject"
         progress_prefix = "Compiling TypeScript project (worker mode)"
 
-    generated_srcs = False
+    has_generated = None
+    has_source = None
+    root_dir_pre = None
     for src in ctx.files.srcs:
-        if src.is_source:
-            if generated_srcs:
-                fail("srcs cannot be a mix of generated files and source files")
-        else:
-            generated_srcs = True
+        if _is_ts_file(src):
+            if src.is_source:
+                has_source = src.path
+                root_dir_pre = src.root.path
+            else:
+                has_generated = src.path
+                root_dir_pre = ctx.bin_dir.path
+
+    if has_source and has_generated:
+        fail("srcs cannot be a mix of generated files and source files: %s, %s" % (has_generated, has_source))
 
     # Add user specified arguments *before* rule supplied arguments
     arguments.add_all(ctx.attr.args)
@@ -107,7 +118,7 @@ def _ts_project_impl(ctx):
         _join(ctx.bin_dir.path, ctx.label.package, ctx.attr.out_dir),
         "--rootDir",
         _join(
-            ctx.bin_dir.path if generated_srcs else None,
+            root_dir_pre,
             ctx.label.package,
             ctx.attr.root_dir,
         ),
