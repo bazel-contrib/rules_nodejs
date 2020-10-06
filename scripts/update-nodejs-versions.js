@@ -8,6 +8,7 @@ const REPOSITORY_TYPES = {
   "darwin-x64.tar.gz": "darwin_amd64",
   "linux-x64.tar.xz": "linux_amd64",
   "linux-arm64.tar.xz": "linux_arm64",
+  "linux-s390x.tar.xz": "linux_s390x",
   "win-x64.zip": "windows_amd64",
 };
 

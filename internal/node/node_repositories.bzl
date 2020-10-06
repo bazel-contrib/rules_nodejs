@@ -223,6 +223,7 @@ BUILT_IN_NODE_PLATFORMS = [
     "linux_amd64",
     "linux_arm64",
     "windows_amd64",
+    "linux_s390x",
 ]
 
 NODE_EXTRACT_DIR = "bin/nodejs"

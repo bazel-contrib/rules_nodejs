@@ -49,6 +49,14 @@ platform(
     ],
 )
 
+platform(
+    name = "linux_s390x",
+    constraint_values = [
+        "@bazel_tools//platforms:linux",
+        "@bazel_tools//platforms:s390x",
+    ],
+)
+
 bzl_library(
     name = "bzl",
     srcs = glob(["*.bzl"]),
@@ -72,6 +80,7 @@ alias(
         "@bazel_tools//src/conditions:darwin": "@nodejs_darwin_amd64_config//:toolchain",
         "@bazel_tools//src/conditions:darwin_x86_64": "@nodejs_darwin_amd64_config//:toolchain",
         "@bazel_tools//src/conditions:linux_aarch64": "@nodejs_linux_arm64_config//:toolchain",
+        "@bazel_tools//src/conditions:linux_s390x": "@nodejs_linux_s390x_config//:toolchain",
         "@bazel_tools//src/conditions:linux_x86_64": "@nodejs_linux_amd64_config//:toolchain",
         "@bazel_tools//src/conditions:windows": "@nodejs_windows_amd64_config//:toolchain",
         "//conditions:default": "@nodejs_linux_amd64_config//:toolchain",
@@ -86,6 +95,7 @@ alias(
         "@bazel_tools//src/conditions:darwin": "@nodejs_darwin_amd64//:node_bin",
         "@bazel_tools//src/conditions:darwin_x86_64": "@nodejs_darwin_amd64//:node_bin",
         "@bazel_tools//src/conditions:linux_aarch64": "@nodejs_linux_arm64//:node_bin",
+        "@bazel_tools//src/conditions:linux_s390x": "@nodejs_linux_s390x//:node_bin",
         "@bazel_tools//src/conditions:linux_x86_64": "@nodejs_linux_amd64//:node_bin",
         "@bazel_tools//src/conditions:windows": "@nodejs_windows_amd64//:node_bin",
         "//conditions:default": "@nodejs_linux_amd64//:node_bin",
@@ -130,5 +140,15 @@ toolchain(
         "@bazel_tools//platforms:x86_64",
     ],
     toolchain = "@nodejs_windows_amd64_config//:toolchain",
+    toolchain_type = ":toolchain_type",
+)
+
+toolchain(
+    name = "node_linux_s390x_toolchain",
+    target_compatible_with = [
+        "@bazel_tools//platforms:linux",
+        "@bazel_tools//platforms:s390x",
+    ],
+    toolchain = "@nodejs_linux_s390x_config//:toolchain",
     toolchain_type = ":toolchain_type",
 )
