@@ -1840,7 +1840,7 @@ so that you can code review changes to the generated output.
 
 
 <pre>
-generated_file_test(<a href="#generated_file_test-name">name</a>, <a href="#generated_file_test-generated">generated</a>, <a href="#generated_file_test-src">src</a>, <a href="#generated_file_test-src_dbg">src_dbg</a>, <a href="#generated_file_test-kwargs">kwargs</a>)
+generated_file_test(<a href="#generated_file_test-name">name</a>, <a href="#generated_file_test-generated">generated</a>, <a href="#generated_file_test-src">src</a>, <a href="#generated_file_test-substring_search">substring_search</a>, <a href="#generated_file_test-src_dbg">src_dbg</a>, <a href="#generated_file_test-kwargs">kwargs</a>)
 </pre>
 
 **PARAMETERS**
@@ -1879,6 +1879,16 @@ generated_file_test(<a href="#generated_file_test-name">name</a>, <a href="#gene
                     </td>
         <td>
             
+        </td>
+      </tr>
+            <tr id="generated_file_test-substring_search">
+        <td>substring_search</td>
+        <td>
+                            When true, creates a test that will fail only if the golden file is not found
+    anywhere within the generated file. Note that the .update rule is not generated in substring mode.
+                    </td>
+        <td>
+            False
         </td>
       </tr>
             <tr id="generated_file_test-src_dbg">
