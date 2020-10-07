@@ -55,17 +55,31 @@ function initConcatJs(logger, emitter, basePath, hostname, port) {
     // global variables, even with 'use strict'; (unlike eval).
     bundleFile.content = `
 (function() {  // Hide local variables
+  // Use policy to support Trusted Types enforcement.
+  var policy = null;
+  if (window.trustedTypes) {
+    try {
+      policy = window.trustedTypes.createPolicy('bazel-karma', {
+        createScript: function(s) { return s; }
+      });
+    } catch (e) {
+      // In case the policy has been unexpectedly created before, log the error
+      // and fall back to the old behavior.
+      console.log(e);
+    }
+  }
   // IE 8 and below do not support document.head.
   var parent = document.getElementsByTagName('head')[0] ||
                     document.documentElement;
   function loadFile(path, src) {
+    var trustedSrc = policy ? policy.createScript(src) : src;
     try {
       var script = document.createElement('script');
       if ('textContent' in script) {
-        script.textContent = src;
+        script.textContent = trustedSrc;
       } else {
         // This is for IE 8 and below.
-        script.text = src;
+        script.text = trustedSrc;
       }
       parent.appendChild(script);
       // Don't pollute the DOM with hundreds of <script> tags.
