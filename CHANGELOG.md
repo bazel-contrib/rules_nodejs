@@ -1,3 +1,21 @@
+## [2.2.1](https://github.com/bazelbuild/rules_nodejs/compare/2.2.0...2.2.1) (2020-10-07)
+
+
+### Bug Fixes
+
+* **builtin:** js_library: correctly propagate DeclarationInfos ([41f8719](https://github.com/bazelbuild/rules_nodejs/commit/41f8719))
+* **examples:** prevent ibazel EOF ([96aea69](https://github.com/bazelbuild/rules_nodejs/commit/96aea69)), closes [#2143](https://github.com/bazelbuild/rules_nodejs/issues/2143)
+* **karma:** allow custom browsers to specify args (fixes [#595](https://github.com/bazelbuild/rules_nodejs/issues/595)) ([5a58030](https://github.com/bazelbuild/rules_nodejs/commit/5a58030))
+* don't glob yarn or node files when using vendored_node or vendored_yarn ([f5ef64f](https://github.com/bazelbuild/rules_nodejs/commit/f5ef64f))
+
+
+### Features
+
+* add strict_visibility to npm_install / yarn_install rules ([#2193](https://github.com/bazelbuild/rules_nodejs/issues/2193)) ([18c6e80](https://github.com/bazelbuild/rules_nodejs/commit/18c6e80)), closes [#2110](https://github.com/bazelbuild/rules_nodejs/issues/2110)
+* update nodejs versions ([#2207](https://github.com/bazelbuild/rules_nodejs/issues/2207)) ([5478dab](https://github.com/bazelbuild/rules_nodejs/commit/5478dab))
+
+
+
 # [2.2.0](https://github.com/bazelbuild/rules_nodejs/compare/2.1.0...2.2.0) (2020-09-10)
 
 
