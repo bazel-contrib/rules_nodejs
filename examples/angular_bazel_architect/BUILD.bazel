@@ -102,7 +102,10 @@ architect_test(
 
 architect_test(
     name = "e2e",
-    args = ["frontend:e2e"],
+    args = [
+        "frontend:e2e",
+        "--webdriverUpdate=false",
+    ],
     configuration_env_vars = ["NG_BUILD_CACHE"],
     data = glob([
         "src/*",
