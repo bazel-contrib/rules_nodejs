@@ -744,25 +744,25 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@bazel/bazelisk@^1.6.1":
-  version "1.6.1"
-  resolved "https://registry.yarnpkg.com/@bazel/bazelisk/-/bazelisk-1.6.1.tgz#f9e279d2fecaf6cec6ed676bc8714846f3704e40"
-  integrity sha512-2JpfZb6eYCGrdLdUJamncIpI4pgEAhPURYGg+rCgqoZDJxzADuOnpf/00dEBXPM2XByXNXTqsKEFN2gTaZz2mA==
+"@bazel/bazelisk@^1.7.1":
+  version "1.7.1"
+  resolved "https://registry.yarnpkg.com/@bazel/bazelisk/-/bazelisk-1.7.1.tgz#e277a50821125edfed12fbddeaf0a297e10846c3"
+  integrity sha512-mYriXNuwGb/2bP5mjTUH6ls7/pBDKCg0dBVwmJaLISBVculCjayxtNVFdcX8y2tmNegP8UFqnF6/dTY/uSD8NA==
 
-"@bazel/cypress@^2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@bazel/cypress/-/cypress-2.2.0.tgz#0ccc176b748f5f0292ff93e805c22200cdcdc47f"
-  integrity sha512-xDU/FfIXNzoT5/FF2IGBDDRKd6FtiyHcRWV3VHaHWW8QnuX/yUc0HCt4xVHQHvu4VN5C/ZuE8oxolwWVcRjoSw==
+"@bazel/cypress@^2.2.1":
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/@bazel/cypress/-/cypress-2.2.1.tgz#62ea0a8f431337665f099ad37bfa2a9a649a84a4"
+  integrity sha512-gyytCyFubpUWeYPVXfffjKLaaz3NNC/wJ4L6xzMUw9617VYEDKFjoX6drsooTT6bZ62qpf1rTH0pg1gTlUgYrg==
 
-"@bazel/ibazel@^0.13.1":
-  version "0.13.1"
-  resolved "https://registry.yarnpkg.com/@bazel/ibazel/-/ibazel-0.13.1.tgz#23788f67a6fbe83d96f2d055691df4917c10ac8d"
-  integrity sha512-FO1hBKpzpeBL0adnFYF2Dwl/7gox6ccKM6bb+x26AXrQpLbinXPuTi4zeXRL/MW4383mF6i4RovLCmwUU/YW0w==
+"@bazel/ibazel@^0.13.2":
+  version "0.13.2"
+  resolved "https://registry.yarnpkg.com/@bazel/ibazel/-/ibazel-0.13.2.tgz#eb914c41c66af4606db786457a7b130634355e8f"
+  integrity sha512-q5fGwjTY76MLNcYpF2zEu/y1Clu4DjdjhvJM9+yDKc3+3mBlbX+uiMJYiCz5b0oSYdJTlw1QSRptTYA7CID8EQ==
 
-"@bazel/typescript@^2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-2.2.0.tgz#f2d3dce8715d574fe3146f19fdb8479abcc4d608"
-  integrity sha512-Thf8pXntBzE3EvJtyiTBNsfIf1QnYmGPQmUSGLcKUuuFoplUVYShMRHaxBoPZmYsnD/x+BFLgUKIzlXiEQpGqQ==
+"@bazel/typescript@^2.2.1":
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-2.2.1.tgz#46d6dcedd91a7fd0421e9286790aff94ec45bece"
+  integrity sha512-nFdwkJYzKsmu9IzbQ8Wtt6YI7AlTEv5JHWTbMmZB4HBOi7xjhgFKiq3HQRhZ963EVoJ481Kb6M0wtkzARCb3YA==
   dependencies:
     protobufjs "6.8.8"
     semver "5.6.0"
