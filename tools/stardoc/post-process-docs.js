@@ -7,7 +7,7 @@ const content = readFileSync(md, {encoding: 'utf8'});
 // so we have to replace a single backtick with a <code></code> block, and a code fence ``` with
 // the Jekyll highlighter syntax
 const out = content
-  .replace(/(?<!`)`([^`]+)`(?!`)/g, `<code>$1</code>`)
+  .replace(/(?<!`)`([^`]+)`(?!`)/g, (_, p1) => `<code>${escapeHtml(p1)}</code>`)
   .replace(/```(\w*?)\n((?:(?!```)[\s\S])+)```/g, (str, lang, block) => {
     // if no lang is defined, assume Python, it's likely right and the param is required
     return `{% highlight ${lang ? lang.trim() : 'python'} %}\n${block}{% endhighlight %}`;
@@ -22,7 +22,7 @@ const out = content
   });
 
 // stamp the frontmatter into the post processed stardoc HTML
-const frontmatter = [  
+const frontmatter = [
   '---',
   `title: ${title}`,
   'layout: default',
@@ -39,3 +39,13 @@ const frontmatter = [
 
 // write out to stdout, this script is run as part of a genrule that redirects the output the to expected file
 process.stdout.write(frontmatter + out);
+
+function escapeHtml(unsafe) {
+  // From https://stackoverflow.com/questions/6234773
+  return unsafe
+       .replace(/&/g, "&amp;")
+       .replace(/</g, "&lt;")
+       .replace(/>/g, "&gt;")
+       .replace(/"/g, "&quot;")
+       .replace(/'/g, "&#039;");
+}
