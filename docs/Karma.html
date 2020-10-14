@@ -235,7 +235,7 @@ Other <code>browsers</code> and <code>customLaunchers</code> may be set using th
 specified in the <code>config_file</code> attribute.</p>
 
 <p>By default we open a headless Chrome. To use a real Chrome browser window, you can pass
-<code>--define DISPLAY=true</code> to Bazel, along with <code>configuration_env_vars = ["DISPLAY"]</code> on
+<code>--define DISPLAY=true</code> to Bazel, along with <code>configuration_env_vars = [&quot;DISPLAY&quot;]</code> on
 <code>karma_web_test</code>.</p>
 
 <pre>
@@ -320,7 +320,7 @@ karma_web_test(<a href="#karma_web_test-srcs">srcs</a>, <a href="#karma_web_test
         <td>
                             Arbitrary files which are available to be served on request.
     Files are served at:
-    <code>/base/&lt;WORKSPACE_NAME&gt;/&lt;path-to-file&gt;</code>, e.g.
+    <code>/base/&amp;lt;WORKSPACE_NAME&amp;gt;/&amp;lt;path-to-file&amp;gt;</code>, e.g.
     <code>/base/npm_bazel_typescript/examples/testing/static_script.js</code>
                     </td>
         <td>

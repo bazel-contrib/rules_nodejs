@@ -55,7 +55,7 @@ ts_library(
 
 Note in this example we named the <code>ts_proto_library</code> rule <code>car</code> so that the
 result will be <code>car.d.ts</code>. This means our TypeScript code can just
-<code>import {symbols} from './car'</code>. Use the <code>output_name</code> attribute if you want to
+<code>import {symbols} from &#039;./car&#039;</code>. Use the <code>output_name</code> attribute if you want to
 name the rule differently from the output file.
 
 The JavaScript produced by protobuf.js has a runtime dependency on a support library.

@@ -27,7 +27,7 @@ It is intended as an easy on-boarding for existing TypeScript code and should be
 Any behavior of <code>ts_project</code> should be reproducible outside of Bazel, with a couple of caveats noted in the rule documentation below.
 
 > We used to recommend using the <code>tsc</code> rule directly from the <code>typescript</code> project, like
-> <code>load("@npm//typescript:index.bzl", "tsc")</code>
+> <code>load(&quot;@npm//typescript:index.bzl&quot;, &quot;tsc&quot;)</code>
 > However <code>ts_project</code> is strictly better and should be used instead.
 
 <code>ts_library</code> is an open-sourced version of the rule we use to compile TS code at Google.
@@ -475,7 +475,7 @@ ts_devserver(<a href="#ts_devserver-name">name</a>, <a href="#ts_devserver-addit
         <td>additional_root_paths</td>
         <td>
                             Additional root paths to serve <code>static_files</code> from.
-            Paths should include the workspace name such as <code>["__main__/resources"]</code>
+            Paths should include the workspace name such as <code>[&quot;__main__/resources&quot;]</code>
                                 </td>
         <td>List of strings</td>
         <td>optional</td>
@@ -533,15 +533,15 @@ ts_devserver(<a href="#ts_devserver-name">name</a>, <a href="#ts_devserver-addit
         <td><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></td>
         <td>optional</td>
         <td>
-            @npm//@bazel/devserver:devserver_darwin_amd64
+            @npm//@bazel/devserver:devserver_linux_amd64
         </td>
       </tr>
             <tr id="ts_devserver-entry_module">
         <td>entry_module</td>
         <td>
-                            The <code>entry_module</code> should be the AMD module name of the entry module such as <code>"__main__/src/index".</code>
+                            The <code>entry_module</code> should be the AMD module name of the entry module such as <code>&quot;__main__/src/index&quot;.</code>
             <code>ts_devserver</code> concats the following snippet after the bundle to load the application:
-            <code>require(["entry_module"]);</code>
+            <code>require([&quot;entry_module&quot;]);</code>
                                 </td>
         <td>String</td>
         <td>optional</td>
@@ -932,7 +932,7 @@ either:
 
 - Have your <code>tsconfig.json</code> file in the workspace root directory
 - Use an alias in the root BUILD.bazel file to point to the location of tsconfig:
-    <code>alias(name="tsconfig.json", actual="//path/to:tsconfig-something.json")</code>
+    <code>alias(name=&quot;tsconfig.json&quot;, actual=&quot;//path/to:tsconfig-something.json&quot;)</code>
 - Give an explicit <code>tsconfig</code> attribute to all <code>ts_library</code> targets
                                 </td>
         <td><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></td>
@@ -1050,7 +1050,7 @@ observe these problems which require workarounds:
    indicate where the outputs were written. However the <code>outDir</code> is determined by this Bazel rule so
    it cannot be known from reading the <code>tsconfig.json</code> file.
    This problem is manifested as a TypeScript diagnostic like
-   <code>error TS6305: Output file '/path/to/execroot/a.d.ts' has not been built from source file '/path/to/execroot/a.ts'.</code>
+   <code>error TS6305: Output file &#039;/path/to/execroot/a.d.ts&#039; has not been built from source file &#039;/path/to/execroot/a.ts&#039;.</code>
    As a workaround, you can give the Windows "fastbuild" output directory as the <code>outDir</code> in your tsconfig file.
    On other platforms, the value isn't read so it does no harm.
    See https://github.com/bazelbuild/rules_nodejs/tree/stable/packages/typescript/test/ts_project as an example.
@@ -1112,8 +1112,8 @@ ts_project(<a href="#ts_project-name">name</a>, <a href="#ts_project-tsconfig">t
 
     In this case, a tsconfig.json file will be generated for this compilation, in the following way:
     - all top-level keys will be copied by converting the dict to json.
-      So <code>tsconfig = {"compilerOptions": {"declaration": True}}</code>
-      will result in a generated <code>tsconfig.json</code> with <code>{"compilerOptions": {"declaration": true}}</code>
+      So <code>tsconfig = {&quot;compilerOptions&quot;: {&quot;declaration&quot;: True}}</code>
+      will result in a generated <code>tsconfig.json</code> with <code>{&quot;compilerOptions&quot;: {&quot;declaration&quot;: true}}</code>
     - each file in srcs will be converted to a relative path in the <code>files</code> section.
     - the <code>extends</code> attribute will be converted to a relative path
 
@@ -1260,7 +1260,7 @@ ts_project(<a href="#ts_project-name">name</a>, <a href="#ts_project-tsconfig">t
         <td>
                             Label of the TypeScript compiler binary to run.
 
-    For example, <code>tsc = "@my_deps//typescript/bin:tsc"</code>
+    For example, <code>tsc = &quot;@my_deps//typescript/bin:tsc&quot;</code>
     Or you can pass a custom compiler binary instead.
                     </td>
         <td>

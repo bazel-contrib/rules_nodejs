@@ -767,7 +767,7 @@ Some test runners like Karma and Jasmine have custom rules with added features, 
 <p>Bazel always runs tests with a working directory set to your workspace root.
 If your test needs to run in a different directory, you can write a <code>process.chdir</code> helper script
 and invoke it before the test with a <code>--require</code> argument, like
-<code>templated_args = ["--node_options=--require=./$(rootpath chdir.js)"]</code>.
+<code>templated_args = [&quot;--node_options=--require=./$(rootpath chdir.js)&quot;]</code>.
 See rules_nodejs/internal/node/test/chdir for an example.</p>
 
 <p>To debug a Node.js test, we recommend saving a group of flags together in a “config”.
@@ -1453,8 +1453,8 @@ pkg_npm(<a href="#pkg_npm-name">name</a>, <a href="#pkg_npm-deps">deps</a>, <a h
         <td>
                             DEPRECATED: use substitutions instead.
         
-        <code>replace_with_version = "my_version_placeholder"</code> is just syntax sugar for
-        <code>substitutions = {"my_version_placeholder": "{BUILD_SCM_VERSION}"}</code>.
+        <code>replace_with_version = &quot;my_version_placeholder&quot;</code> is just syntax sugar for
+        <code>substitutions = {&quot;my_version_placeholder&quot;: &quot;{BUILD_SCM_VERSION}&quot;}</code>.
 
         Follow this deprecation at https://github.com/bazelbuild/rules_nodejs/issues/2158
                                 </td>
@@ -1481,7 +1481,7 @@ pkg_npm(<a href="#pkg_npm-name">name</a>, <a href="#pkg_npm-deps">deps</a>, <a h
                             Key-value pairs which are replaced in all the files while building the package.
         
         You can use values from the workspace status command using curly braces, for example
-        <code>{"0.0.0-PLACEHOLDER": "{STABLE_GIT_VERSION}"}</code>.
+        <code>{&quot;0.0.0-PLACEHOLDER&quot;: &quot;{STABLE_GIT_VERSION}&quot;}</code>.
         See the section on stamping in the README
                                 </td>
         <td><a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -&gt; String</a></td>
@@ -1582,7 +1582,7 @@ pkg_web(<a href="#pkg_web-name">name</a>, <a href="#pkg_web-additional_root_path
                             Key-value pairs which are replaced in all the files while building the package.
         
         You can use values from the workspace status command using curly braces, for example
-        <code>{"0.0.0-PLACEHOLDER": "{STABLE_GIT_VERSION}"}</code>.
+        <code>{&quot;0.0.0-PLACEHOLDER&quot;: &quot;{STABLE_GIT_VERSION}&quot;}</code>.
         See the section on stamping in the README.
                                 </td>
         <td><a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -&gt; String</a></td>
@@ -1881,7 +1881,7 @@ check_bazel_version(<a href="#check_bazel_version-minimum_bazel_version">minimum
 
 <p>Copies a source file to bazel-bin at the same workspace-relative path.</p>
 
-<p>e.g. <code><workspace_root>/foo/bar/a.txt -&gt; <bazel-bin>/foo/bar/a.txt&lt;/code&gt;</bazel-bin></workspace_root></code></p>
+<p>e.g. <code>&lt;workspace_root&gt;/foo/bar/a.txt -&gt; &lt;bazel-bin&gt;/foo/bar/a.txt</code></p>
 
 <p>This is useful to populate the output folder with all files needed at runtime, even
 those which aren’t outputs of a Bazel rule.</p>
@@ -2152,7 +2152,7 @@ links the node_modules tree before running the program.</p>
 <p>Bazel always runs actions with a working directory set to your workspace root.
 If your tool needs to run in a different directory, you can write a <code>process.chdir</code> helper script
 and invoke it before the action with a <code>--require</code> argument, like
-<code>args = ["--node_options=--require=./$(execpath chdir.js)"]</code>
+<code>args = [&quot;--node_options=--require=./$(execpath chdir.js)&quot;]</code>
 See rules_nodejs/internal/node/test/chdir for an example.</p>
 
 <p>This is a great candidate to wrap with a macro, as documented:
@@ -2591,13 +2591,13 @@ In the future, the linker may validate that the names match the name in a packag
 
 Path must be relative to execroot/wksp. It can either an output dir path such as,
 
-<code>bazel-out/&lt;platform&gt;-&lt;build&gt;/bin/path/to/package</code> or
-<code>bazel-out/&lt;platform&gt;-&lt;build&gt;/bin/external/&llt;external_wksp&gt;/path/to/package</code>
+<code>bazel-out/&amp;lt;platform&amp;gt;-&amp;lt;build&amp;gt;/bin/path/to/package</code> or
+<code>bazel-out/&amp;lt;platform&amp;gt;-&amp;lt;build&amp;gt;/bin/external/&amp;llt;external_wksp&amp;gt;/path/to/package</code>
 
 or a source file path such as,
 
 <code>path/to/package</code> or
-<code>external/&lt;external_wksp&gt;/path/to/package</code>         </td>
+<code>external/&amp;lt;external_wksp&amp;gt;/path/to/package</code>         </td>
       </tr>
             <tr id="LinkablePackageInfo-_tslibrary">
         <td>_tslibrary</td>
