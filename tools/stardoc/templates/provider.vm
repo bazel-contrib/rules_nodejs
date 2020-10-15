@@ -1,5 +1,7 @@
 #[[##]]# ${providerName}
 
+**USAGE**
+
 <pre>
 ${util.providerSummary($providerName, $providerInfo)}
 </pre>
@@ -9,22 +11,9 @@ ${providerInfo.docString}
 **FIELDS**
 
 #if (!$providerInfo.fieldInfoList.isEmpty())
-<table class="table table-params">
-  <thead>
-  <tr>
-    <th>Name</th>
-    <th>Description</th>
-  </tr>
-  </thead>
-  <tbody>
-      #foreach ($field in $providerInfo.fieldInfoList)
-      <tr id="${providerName}-${field.name}">
-        <td>${field.name}</td>
-        <td>
-          #if(!$field.docString.isEmpty()) $field.docString.trim() #else - #end
-        </td>
-      </tr>
-      #end
-  </tbody>
-</table>
+#foreach ($field in $providerInfo.fieldInfoList)
+<h4 id="${providerName}-${field.name}">${field.name}</h4>
+
+#if(!$field.docString.isEmpty()) $field.docString.trim() #else - #end
+#end
 #end
