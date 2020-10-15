@@ -1,36 +1,26 @@
 #[[##]]# ${funcInfo.functionName}
 
-$funcInfo.docString
+**USAGE**
 
 <pre>
 ${util.funcSummary($funcInfo)}
 </pre>
 
+$funcInfo.docString
+
 **PARAMETERS**
 
 #if (!$funcInfo.getParameterList().isEmpty())
-<table class="table table-params">
-  <thead>
-  <tr>
-    <th>Name</th>
-    <th>Description</th>
-    <th>Default</th>
-  </tr>
-  </thead>
-  <tbody>
-      #foreach ($param in $funcInfo.getParameterList())
-      <tr id="${funcInfo.functionName}-${param.name}">
-        <td>${param.name}</td>
-        <td>
-            #if (!$param.docString.isEmpty())
-                ${util.htmlEscape($param.docString.trim())}
-            #end
-        </td>
-        <td>
-            $param.defaultValue
-        </td>
-      </tr>
-      #end
-  </tbody>
-</table>
+#foreach ($param in $funcInfo.getParameterList())
+
+<h4 id="${funcInfo.functionName}-${param.name}">${param.name}</h4>
+
+#if (!$param.docString.isEmpty())
+${util.htmlEscape($param.docString.trim())}
+#end
+
+#if( !$param.defaultValue.isEmpty() )
+Defaults to `$param.defaultValue`#end
+
+#end
 #end

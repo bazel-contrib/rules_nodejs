@@ -3,19 +3,11 @@ const md = process.argv[2];
 const title = process.argv[3];
 const content = readFileSync(md, {encoding: 'utf8'});
 
-// it seems more natural for devs to author with markdown, but the docs are generated into stardoc with HTML tables,
-// so we have to replace a single backtick with a <code></code> block, and a code fence ``` with
-// the Jekyll highlighter syntax
+// replace the //packages/foo from the docs with references to @npm//@bazel/foo
+// @npm is not the required name, but it seems to be the common case
+// this reflects the similar transformation made when publishing the packages to npm
+// via pkg_npm defined in //tools:defaults.bzl
 const out = content
-  .replace(/(?<!`)`([^`]+)`(?!`)/g, `<code>$1</code>`)
-  .replace(/```(\w*?)\n((?:(?!```)[\s\S])+)```/g, (str, lang, block) => {
-    // if no lang is defined, assume Python, it's likely right and the param is required
-    return `{% highlight ${lang ? lang.trim() : 'python'} %}\n${block}{% endhighlight %}`;
-  })
-  // replace the //packages/foo from the docs with references to @npm//@bazel/foo
-  // @npm is not the required name, but it seems to be the common case
-  // this reflects the similar transformation made when publishing the packages to npm
-  // via pkg_npm defined in //tools:defaults.bzl
   .replace(/(?:@.*)*?\/\/packages\/([^:"\s]*)/g, (str, pkg) => {
     const parts = pkg.split('/');
     return `@npm//@bazel/${parts[parts.length - 1]}`;
