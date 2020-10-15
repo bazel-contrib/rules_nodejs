@@ -1,5 +1,5 @@
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
-load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test", "nodejs_binary", "npm_package_bin")
+load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test", "nodejs_binary", "npm_package_bin", "pkg_web")
 load("@io_bazel_stardoc//stardoc:stardoc.bzl", "stardoc")
 load("//:index.bzl", "custom_ts_library")
 
@@ -53,3 +53,10 @@ generated_file_test(
     src = "out.golden",
     generated = ":out",
 )
+
+# https://github.com/bazelbuild/rules_nodejs/issues/2224
+pkg_web(
+    name = "prodapp",
+    srcs = [],
+)
+

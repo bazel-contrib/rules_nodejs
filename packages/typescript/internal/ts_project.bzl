@@ -63,10 +63,11 @@ def _ts_project_impl(ctx):
         "--project",
         ctx.file.tsconfig.path,
         "--outDir",
-        _join(ctx.bin_dir.path, ctx.label.package, ctx.attr.out_dir),
+        _join(ctx.bin_dir.path, ctx.label.workspace_root, ctx.label.package, ctx.attr.out_dir),
         "--rootDir",
         _join(
             ctx.bin_dir.path if generated_srcs else None,
+            ctx.label.workspace_root,
             ctx.label.package,
             ctx.attr.root_dir,
         ),
@@ -75,7 +76,7 @@ def _ts_project_impl(ctx):
         declaration_dir = ctx.attr.declaration_dir if ctx.attr.declaration_dir else ctx.attr.out_dir
         arguments.add_all([
             "--declarationDir",
-            _join(ctx.bin_dir.path, ctx.label.package, declaration_dir),
+            _join(ctx.bin_dir.path, ctx.label.workspace_root, ctx.label.package, declaration_dir),
         ])
 
     # When users report problems, we can ask them to re-build with
@@ -125,7 +126,7 @@ def _ts_project_impl(ctx):
     # tsc will only produce .json if it also produces .js
     if len(ctx.outputs.js_outs):
         json_outs = [
-            ctx.actions.declare_file(_join(ctx.attr.out_dir, src.short_path[len(ctx.label.package) + 1:]))
+            ctx.actions.declare_file(_join(ctx.attr.out_dir, ctx.label.workspace_root, src.short_path[len(ctx.label.package) + 1:]))
             for src in ctx.files.srcs
             if src.basename.endswith(".json")
         ]
@@ -154,7 +155,7 @@ def _ts_project_impl(ctx):
                 ctx.label,
                 ctx.file.tsconfig.short_path,
             ),
-            link_workspace_root = ctx.attr.link_workspace_root,
+	    link_workspace_root = False, # TODO(doug): ctx.attr.link_workspace_root,
         )
 
     providers = [
