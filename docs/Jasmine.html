@@ -174,133 +174,89 @@
 
 <h2 id="installation">Installation</h2>
 
-<p>Add the <code>@bazel/jasmine</code> npm package to your <code>devDependencies</code> in <code>package.json</code>.</p>
+<p>Add the <code class="language-plaintext highlighter-rouge">@bazel/jasmine</code> npm package to your <code class="language-plaintext highlighter-rouge">devDependencies</code> in <code class="language-plaintext highlighter-rouge">package.json</code>.</p>
 
 <h2 id="jasmine_node_test">jasmine_node_test</h2>
 
-<p>Runs tests in NodeJS using the Jasmine test runner.</p>
-
-<p>Detailed XML test results are found in the standard <code>bazel-testlogs</code>
-directory. This may be symlinked in your workspace.
-See https://docs.bazel.build/versions/master/output_directories.html</p>
-
-<p>To debug the test, see debugging notes in <code>nodejs_test</code>.</p>
+<p><strong>USAGE</strong></p>
 
 <pre>
 jasmine_node_test(<a href="#jasmine_node_test-name">name</a>, <a href="#jasmine_node_test-srcs">srcs</a>, <a href="#jasmine_node_test-data">data</a>, <a href="#jasmine_node_test-deps">deps</a>, <a href="#jasmine_node_test-expected_exit_code">expected_exit_code</a>, <a href="#jasmine_node_test-tags">tags</a>, <a href="#jasmine_node_test-config_file">config_file</a>, <a href="#jasmine_node_test-jasmine">jasmine</a>,
                   <a href="#jasmine_node_test-jasmine_entry_point">jasmine_entry_point</a>, <a href="#jasmine_node_test-kwargs">kwargs</a>)
 </pre>
 
+<p>Runs tests in NodeJS using the Jasmine test runner.</p>
+
+<p>Detailed XML test results are found in the standard <code class="language-plaintext highlighter-rouge">bazel-testlogs</code>
+directory. This may be symlinked in your workspace.
+See https://docs.bazel.build/versions/master/output_directories.html</p>
+
+<p>To debug the test, see debugging notes in <code class="language-plaintext highlighter-rouge">nodejs_test</code>.</p>
+
 <p><strong>PARAMETERS</strong></p>
 
-<table class="table table-params">
-  <thead>
-  <tr>
-    <th>Name</th>
-    <th>Description</th>
-    <th>Default</th>
-  </tr>
-  </thead>
-  <tbody>
-            <tr id="jasmine_node_test-name">
-        <td>name</td>
-        <td>
-                            Name of the resulting label
-                    </td>
-        <td>
-            
-        </td>
-      </tr>
-            <tr id="jasmine_node_test-srcs">
-        <td>srcs</td>
-        <td>
-                            JavaScript source files containing Jasmine specs
-                    </td>
-        <td>
-            []
-        </td>
-      </tr>
-            <tr id="jasmine_node_test-data">
-        <td>data</td>
-        <td>
-                            Runtime dependencies which will be loaded while the test executes
-                    </td>
-        <td>
-            []
-        </td>
-      </tr>
-            <tr id="jasmine_node_test-deps">
-        <td>deps</td>
-        <td>
-                            Other targets which produce JavaScript, such as ts_library
-                    </td>
-        <td>
-            []
-        </td>
-      </tr>
-            <tr id="jasmine_node_test-expected_exit_code">
-        <td>expected_exit_code</td>
-        <td>
-                            The expected exit code for the test.
-                    </td>
-        <td>
-            0
-        </td>
-      </tr>
-            <tr id="jasmine_node_test-tags">
-        <td>tags</td>
-        <td>
-                            Bazel tags applied to test
-                    </td>
-        <td>
-            []
-        </td>
-      </tr>
-            <tr id="jasmine_node_test-config_file">
-        <td>config_file</td>
-        <td>
-                            (experimental) label of a file containing Jasmine JSON config.
+<h4 id="jasmine_node_test-name">name</h4>
 
-  Note that not all configuration options are honored, and
-  we expect some strange feature interations.
-  For example, the filter for which files are instrumented for
-  code coverage doesn't understand the spec_files setting in the config.
+<p>Name of the resulting label</p>
 
-  See https://jasmine.github.io/setup/nodejs.html#configuration
-                    </td>
-        <td>
-            None
-        </td>
-      </tr>
-            <tr id="jasmine_node_test-jasmine">
-        <td>jasmine</td>
-        <td>
-                            A label providing the <code>@bazel/jasmine</code> npm dependency.
-                    </td>
-        <td>
-            "@npm//@bazel/jasmine"
-        </td>
-      </tr>
-            <tr id="jasmine_node_test-jasmine_entry_point">
-        <td>jasmine_entry_point</td>
-        <td>
-                            A label providing the <code>@bazel/jasmine</code> entry point.
-                    </td>
-        <td>
-            "@npm//@bazel/jasmine:jasmine_runner.js"
-        </td>
-      </tr>
-            <tr id="jasmine_node_test-kwargs">
-        <td>kwargs</td>
-        <td>
-                            Remaining arguments are passed to the test rule
-                    </td>
-        <td>
-            
-        </td>
-      </tr>
-        </tbody>
-</table>
+<h4 id="jasmine_node_test-srcs">srcs</h4>
+
+<p>JavaScript source files containing Jasmine specs</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+
+<h4 id="jasmine_node_test-data">data</h4>
+
+<p>Runtime dependencies which will be loaded while the test executes</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+
+<h4 id="jasmine_node_test-deps">deps</h4>
+
+<p>Other targets which produce JavaScript, such as ts_library</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+
+<h4 id="jasmine_node_test-expected_exit_code">expected_exit_code</h4>
+
+<p>The expected exit code for the test.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">0</code></p>
+
+<h4 id="jasmine_node_test-tags">tags</h4>
+
+<p>Bazel tags applied to test</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+
+<h4 id="jasmine_node_test-config_file">config_file</h4>
+
+<p>(experimental) label of a file containing Jasmine JSON config.</p>
+
+<p>Note that not all configuration options are honored, and
+we expect some strange feature interations.
+For example, the filter for which files are instrumented for
+code coverage doesn’t understand the spec_files setting in the config.</p>
+
+<p>See https://jasmine.github.io/setup/nodejs.html#configuration</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">None</code></p>
+
+<h4 id="jasmine_node_test-jasmine">jasmine</h4>
+
+<p>A label providing the <code class="language-plaintext highlighter-rouge">@bazel/jasmine</code> npm dependency.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">"@npm//@bazel/jasmine"</code></p>
+
+<h4 id="jasmine_node_test-jasmine_entry_point">jasmine_entry_point</h4>
+
+<p>A label providing the <code class="language-plaintext highlighter-rouge">@bazel/jasmine</code> entry point.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">"@npm//@bazel/jasmine:jasmine_runner.js"</code></p>
+
+<h4 id="jasmine_node_test-kwargs">kwargs</h4>
+
+<p>Remaining arguments are passed to the test rule</p>
 
 
       </div>
@@ -347,6 +303,7 @@ jasmine_node_test(<a href="#jasmine_node_test-name">name</a>, <a href="#jasmine_
 <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/3.2.0/anchor.min.js" type="text/javascript"></script>
 <script>
   // Automatically add anchors and links to all header elements that don't already have them.
+  anchors.options = { placement: 'left' };
   anchors.add();
 </script>
 

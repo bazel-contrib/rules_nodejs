@@ -17,43 +17,43 @@ The Cypress rules run tests under the Cypress e2e testing framework with Bazel.
 
 ## Installation
 
-Add <code>@bazel/cypress</code>, <code>cypress</code> and <code>@cypress/browserify-preprocessor</code> npm packages to your <code>devDependencies</code> in <code>package.json</code>.
+Add `@bazel/cypress`, `cypress` and `@cypress/browserify-preprocessor` npm packages to your `devDependencies` in `package.json`.
 
-{% highlight python %}
+```
 npm install --save-dev @bazel/cypress cypress @cypress/browserify-preprocessor
-{% endhighlight %}
+```
 or using yarn
-{% highlight python %}
+```
 yarn add -D @bazel/cypress cypress @cypress/browserify-preprocessor
-{% endhighlight %}
+```
 
-Then, load and invoke <code>cypress_repository</code> within your <code>WORKSPACE</code> file.
+Then, load and invoke `cypress_repository` within your `WORKSPACE` file.
 
-{% highlight python %}
+```python
 # Assuming your external repository for node_modules is named @npm
 
 load("@npm//@bazel/cypress:index.bzl", "cypress_repository")
 
 # The name you pass here names the external repository you can load cypress_web_test from
 cypress_repository(name = "cypress")
-{% endhighlight %}
+```
 
 
 ### macOS install requirements
-On macOS, <code>cypress_repository</code> generates an external repository containing files whose names contain spaces. In order to make these files compatible with bazel you will need to add the following flag to your <code>.bazelrc</code> file:
-{% highlight python %}
+On macOS, `cypress_repository` generates an external repository containing files whose names contain spaces. In order to make these files compatible with bazel you will need to add the following flag to your `.bazelrc` file:
+```python
 # Required for cypress_repository on macOS
 build --experimental_inprocess_symlink_creation
-{% endhighlight %}
+```
 
 
 ### windows install requirements
-At this point in time, <code>cypress_repository</code> is incompatible with bazel sandboxing on Windows. This may change in the future, but for now using cypress on windows requires windows sandboxing be disabled (it is disabled by default)
+At this point in time, `cypress_repository` is incompatible with bazel sandboxing on Windows. This may change in the future, but for now using cypress on windows requires windows sandboxing be disabled (it is disabled by default)
 
 
 ## Example use of cypress_web_test
-This example assumes you've named your external repository for node_modules as <code>npm</code> and for cypress as <code>cypress</code>
-{% highlight python %}
+This example assumes you've named your external repository for node_modules as `npm` and for cypress as `cypress`
+```python
 load("@cypress//:index.bzl", "cypress_web_test")
 load("@npm//@bazel/typescript:index.bzl", "ts_library")
 
@@ -96,75 +96,45 @@ cypress_web_test(
     # Your cypress plugin used to configure cypress and boot your server
     plugins_file = ":plugins_file",
 )
-{% endhighlight %}
+```
 
 
 ## cypress_repository
 
-
+**USAGE**
 
 <pre>
-cypress_repository(<a href="#cypress_repository-name">name</a>, <a href="#cypress_repository-cypress_bin">cypress_bin</a>, <a href="#cypress_repository-fail_on_error">fail_on_error</a>, <a href="#cypress_repository-quiet">quiet</a>)
+cypress_repository(<a href="#cypress_repository-name">name</a>, <a href="#cypress_repository-cypress_bin">cypress_bin</a>, <a href="#cypress_repository-fail_on_error">fail_on_error</a>, <a href="#cypress_repository-quiet">quiet</a>, <a href="#cypress_repository-repo_mapping">repo_mapping</a>)
 </pre>
+
+
 
 **ATTRIBUTES**
 
-<table class="table table-params">
-  <thead>
-  <tr>
-    <th>Name</th>
-    <th>Description</th>
-    <th>Type</th>
-    <th>Mandatory</th>
-    <th>Default</th>
-  </tr>
-  </thead>
-  <tbody>
-            <tr id="cypress_repository-name">
-        <td>name</td>
-        <td>
-                            A unique name for this repository.
-                                </td>
-        <td><a href="https://bazel.build/docs/build-ref.html#name">Name</a></td>
-        <td>required</td>
-        <td>
-            
-        </td>
-      </tr>
-            <tr id="cypress_repository-cypress_bin">
-        <td>cypress_bin</td>
-        <td>
-                            bazel target of the cypress binary
-                                </td>
-        <td><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></td>
-        <td>optional</td>
-        <td>
-            @npm//:node_modules/cypress/bin/cypress
-        </td>
-      </tr>
-            <tr id="cypress_repository-fail_on_error">
-        <td>fail_on_error</td>
-        <td>
-                            If the repository rule should allow errors
-                                </td>
-        <td>Boolean</td>
-        <td>optional</td>
-        <td>
-            True
-        </td>
-      </tr>
-            <tr id="cypress_repository-quiet">
-        <td>quiet</td>
-        <td>
-                            If stdout and stderr should be printed to the terminal
-                                </td>
-        <td>Boolean</td>
-        <td>optional</td>
-        <td>
-            True
-        </td>
-      </tr>
-        </tbody>
-</table>
+
+<h4 id="cypress_repository-name">name</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#name">Name</a>, mandatory*): A unique name for this repository.
+
+
+<h4 id="cypress_repository-cypress_bin">cypress_bin</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): bazel target of the cypress binary
+Defaults to `@npm//:node_modules/cypress/bin/cypress`
+
+<h4 id="cypress_repository-fail_on_error">fail_on_error</h4>
+
+(*Boolean*): If the repository rule should allow errors
+Defaults to `True`
+
+<h4 id="cypress_repository-quiet">quiet</h4>
+
+(*Boolean*): If stdout and stderr should be printed to the terminal
+Defaults to `True`
+
+<h4 id="cypress_repository-repo_mapping">repo_mapping</h4>
+
+(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>, mandatory*): A dictionary from local repository name to global repository name. This allows controls over workspace dependency resolution for dependencies of this repository.<p>For example, an entry `"@foo": "@bar"` declares that, for any time this repository depends on `@foo` (such as a dependency on `@foo//some:target`, it should actually resolve that dependency within globally-declared `@bar` (`@bar//some:target`).
+
 
 

@@ -17,14 +17,14 @@ The Rollup rules run the Rollup.JS bundler with Bazel.
 
 ## Installation
 
-Add the <code>@bazel/rollup</code> npm package to your <code>devDependencies</code> in <code>package.json</code>.
+Add the `@bazel/rollup` npm package to your `devDependencies` in `package.json`.
 
 
 ## Installing with self-managed dependencies
 
-If you didn't use the <code>yarn_install</code> or <code>npm_install</code> rule, you'll have to declare a rule in your root <code>BUILD.bazel</code> file to execute rollup:
+If you didn't use the `yarn_install` or `npm_install` rule, you'll have to declare a rule in your root `BUILD.bazel` file to execute rollup:
 
-{% highlight python %}
+```python
 # Create a rollup rule to use in rollup_bundle#rollup_bin
 # attribute when using self-managed dependencies
 nodejs_binary(
@@ -33,16 +33,16 @@ nodejs_binary(
     # Point bazel to your node_modules to find the entry point
     node_modules = ["//:node_modules"],
 )
-{% endhighlight %}
+```
 
 
 ## Usage
 
-The <code>rollup_bundle</code> rule is used to invoke Rollup.js on some inputs.
+The `rollup_bundle` rule is used to invoke Rollup.js on some inputs.
 The API docs appear [below](#rollup_bundle).
 
 Typical example:
-{% highlight python %}
+```python
 load("@npm//@bazel/rollup:index.bzl", "rollup_bundle")
 
 rollup_bundle(
@@ -51,32 +51,32 @@ rollup_bundle(
     entry_point = "input.js",
     config_file = "rollup.config.js",
 )
-{% endhighlight %}
+```
 
 Note that the command-line options set by Bazel override what appears in the rollup config file.
-This means that typically a single <code>rollup.config.js</code> can contain settings for your whole repo,
-and multiple <code>rollup_bundle</code> rules can share the configuration.
+This means that typically a single `rollup.config.js` can contain settings for your whole repo,
+and multiple `rollup_bundle` rules can share the configuration.
 
 Thus, setting options that Bazel controls will have no effect, e.g.
 
-{% highlight javascript %}
+```javascript
 module.exports = {
     output: { file: 'this_is_ignored.js' },
 }
-{% endhighlight %}
+```
 
 
 ## Output types
 
 You must determine ahead of time whether Rollup needs to produce a directory output.
 This is the case if you have dynamic imports which cause code-splitting, or if you
-provide multiple entry points. Use the <code>output_dir</code> attribute to specify that you want a
+provide multiple entry points. Use the `output_dir` attribute to specify that you want a
 directory output.
-Rollup's CLI has the same behavior, forcing you to pick <code>--output.file</code> or <code>--output.dir</code>.
+Rollup's CLI has the same behavior, forcing you to pick `--output.file` or `--output.dir`.
 
 To get multiple output formats, wrap the rule with a macro or list comprehension, e.g.
 
-{% highlight python %}
+```python
 [
     rollup_bundle(
         name = "bundle.%s" % format,
@@ -88,7 +88,7 @@ To get multiple output formats, wrap the rule with a macro or list comprehension
         "umd",
     ]
 ]
-{% endhighlight %}
+```
 
 This will produce one output per requested format.
 
@@ -98,22 +98,22 @@ This will produce one output per requested format.
 You can stamp the current version control info into the output by writing some code in your rollup config.
 See the [stamping documentation](stamping).
 
-By passing the <code>--stamp</code> option to Bazel, two additional input files will be readable by Rollup.
+By passing the `--stamp` option to Bazel, two additional input files will be readable by Rollup.
 
-1. The variable <code>bazel_version_file</code> will point to the path of Bazel's "volatile-status.txt" file which contains
+1. The variable `bazel_version_file` will point to the path of Bazel's "volatile-status.txt" file which contains
 statuses that change frequently; such changes do not cause a re-build of the rollup_bundle.
-2. The variable <code>bazel_info_file</code> will point to the path of Bazel's "stable-status.txt" file which contains
+2. The variable `bazel_info_file` will point to the path of Bazel's "stable-status.txt" file which contains
 statuses that stay the same; any changed values will cause rollup_bundle to rebuild.
 
-Both <code>bazel_version_file</code> and <code>bazel_info_file</code> will be <code>undefined</code> if the build is run without <code>--stamp</code>.
+Both `bazel_version_file` and `bazel_info_file` will be `undefined` if the build is run without `--stamp`.
 
-> Note that under <code>--stamp</code>, only the bundling is re-built, but not all the compilation steps.
+> Note that under `--stamp`, only the bundling is re-built, but not all the compilation steps.
 > This avoids a slow cascading re-build of a whole tree of actions.
 
 To use these files, just write JS code in the rollup.config.js that reads one of the status files and parses the lines.
 Each line is a space-separated key/value pair.
 
-{% highlight javascript %}
+```javascript
 // Parse the stamp file produced by Bazel from the version control system
 let version = '<unknown>';
 if (bazel_info_file) {
@@ -125,31 +125,28 @@ if (bazel_info_file) {
     version = 'v' + versionTag.split(' ')[1].trim();
   }
 }
-{% endhighlight %}
+```
 
 
 ## Debug and Opt builds
 
-When you use <code>--compilation_mode=dbg</code>, Bazel produces a distinct output-tree in <code>bazel-out/[arch]-dbg/bin</code>.
+When you use `--compilation_mode=dbg`, Bazel produces a distinct output-tree in `bazel-out/[arch]-dbg/bin`.
 Code in your rollup.config.js can look in the environment to detect if a Debug build is being performed,
 and include extra developer information in the bundle that you wouldn't normally ship to production.
 
-Similarly, <code>--compilation_mode=opt</code> is Bazel's signal to perform extra optimizations.
+Similarly, `--compilation_mode=opt` is Bazel's signal to perform extra optimizations.
 You could use this value to perform extra production-only optimizations.
 
 For example you could define a constant for enabling Debug:
 
-{% highlight javascript %}
+```javascript
 const DEBUG = process.env['COMPILATION_MODE'] === 'dbg';
-{% endhighlight %}
+```
 
 
 ## rollup_bundle
 
-Runs the Rollup.js CLI under Bazel.
-
-See [the Rollup CLI reference](https://rollupjs.org/guide/en/#command-line-reference)
-
+**USAGE**
 
 <pre>
 rollup_bundle(<a href="#rollup_bundle-name">name</a>, <a href="#rollup_bundle-args">args</a>, <a href="#rollup_bundle-config_file">config_file</a>, <a href="#rollup_bundle-deps">deps</a>, <a href="#rollup_bundle-entry_point">entry_point</a>, <a href="#rollup_bundle-entry_points">entry_points</a>, <a href="#rollup_bundle-format">format</a>, <a href="#rollup_bundle-link_workspace_root">link_workspace_root</a>,
@@ -157,105 +154,75 @@ rollup_bundle(<a href="#rollup_bundle-name">name</a>, <a href="#rollup_bundle-ar
               <a href="#rollup_bundle-supports_workers">supports_workers</a>)
 </pre>
 
+Runs the Rollup.js CLI under Bazel.
+
+See [the Rollup CLI reference](https://rollupjs.org/guide/en/#command-line-reference)
+
+
 **ATTRIBUTES**
 
-<table class="table table-params">
-  <thead>
-  <tr>
-    <th>Name</th>
-    <th>Description</th>
-    <th>Type</th>
-    <th>Mandatory</th>
-    <th>Default</th>
-  </tr>
-  </thead>
-  <tbody>
-            <tr id="rollup_bundle-name">
-        <td>name</td>
-        <td>
-                            A unique name for this target.
-                                </td>
-        <td><a href="https://bazel.build/docs/build-ref.html#name">Name</a></td>
-        <td>required</td>
-        <td>
-            
-        </td>
-      </tr>
-            <tr id="rollup_bundle-args">
-        <td>args</td>
-        <td>
-                            Command line arguments to pass to rollup. Can be used to override config file settings.
+
+<h4 id="rollup_bundle-name">name</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#name">Name</a>, mandatory*): A unique name for this target.
+
+
+<h4 id="rollup_bundle-args">args</h4>
+
+(*List of strings*): Command line arguments to pass to rollup. Can be used to override config file settings.
 
 These argument passed on the command line before all arguments that are always added by the
-rule such as <code>--output.dir</code> or <code>--output.file</code>, <code>--format</code>, <code>--config</code> and <code>--preserveSymlinks</code> and
-also those that are optionally added by the rule such as <code>--sourcemap</code>.
+rule such as `--output.dir` or `--output.file`, `--format`, `--config` and `--preserveSymlinks` and
+also those that are optionally added by the rule such as `--sourcemap`.
 
 See rollup CLI docs https://rollupjs.org/guide/en/#command-line-flags for complete list of supported arguments.
-                                </td>
-        <td>List of strings</td>
-        <td>optional</td>
-        <td>
-            []
-        </td>
-      </tr>
-            <tr id="rollup_bundle-config_file">
-        <td>config_file</td>
-        <td>
-                            A rollup.config.js file
+Defaults to `[]`
+
+<h4 id="rollup_bundle-config_file">config_file</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): A rollup.config.js file
 
 Passed to the --config 
 See https://rollupjs.org/guide/en/#configuration-files
 
 If not set, a default basic Rollup config is used.
-                                </td>
-        <td><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></td>
-        <td>optional</td>
-        <td>
-            @npm//@bazel/rollup:rollup.config.js
-        </td>
-      </tr>
-            <tr id="rollup_bundle-deps">
-        <td>deps</td>
-        <td>
-                            Other libraries that are required by the code, or by the rollup.config.js
-                                </td>
-        <td><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></td>
-        <td>optional</td>
-        <td>
-            []
-        </td>
-      </tr>
-            <tr id="rollup_bundle-entry_point">
-        <td>entry_point</td>
-        <td>
-                            The bundle's entry point (e.g. your main.js or app.js or index.js).
+Defaults to `@npm//@bazel/rollup:rollup.config.js`
 
-This is just a shortcut for the <code>entry_points</code> attribute with a single output chunk named the same as the rule.
+<h4 id="rollup_bundle-deps">deps</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*): Other libraries that are required by the code, or by the rollup.config.js
+Defaults to `[]`
+
+<h4 id="rollup_bundle-entry_point">entry_point</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): The bundle's entry point (e.g. your main.js or app.js or index.js).
+
+This is just a shortcut for the `entry_points` attribute with a single output chunk named the same as the rule.
 
 For example, these are equivalent:
 
-{% highlight python %}
+```python
 rollup_bundle(
     name = "bundle",
     entry_point = "index.js",
 )
-{% endhighlight %}
+```
 
-{% highlight python %}
+```python
 rollup_bundle(
     name = "bundle",
     entry_points = {
         "index.js": "bundle"
     }
 )
-{% endhighlight %}
+```
 
-If <code>rollup_bundle</code> is used on a <code>ts_library</code>, the <code>rollup_bundle</code> rule handles selecting the correct outputs from <code>ts_library</code>.
-In this case, <code>entry_point</code> can be specified as the <code>.ts</code> file and <code>rollup_bundle</code> will handle the mapping to the <code>.mjs</code> output file.
+If `rollup_bundle` is used on a `ts_library`, the `rollup_bundle` rule handles selecting the correct outputs from `ts_library`.
+In this case, `entry_point` can be specified as the `.ts` file and `rollup_bundle` will handle the mapping to the `.mjs` output file.
 
 For example:
 
-{% highlight python %}
+```python
 ts_library(
     name = "foo",
     srcs = [
@@ -269,175 +236,101 @@ rollup_bundle(
     deps = [ "foo" ],
     entry_point = "index.ts",
 )
-{% endhighlight %}
-                                </td>
-        <td><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></td>
-        <td>optional</td>
-        <td>
-            None
-        </td>
-      </tr>
-            <tr id="rollup_bundle-entry_points">
-        <td>entry_points</td>
-        <td>
-                            The bundle's entry points (e.g. your main.js or app.js or index.js).
+```
+Defaults to `None`
 
-Passed to the [<code>--input</code> option](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#input) in Rollup.
+<h4 id="rollup_bundle-entry_points">entry_points</h4>
+
+(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: Label -> String</a>*): The bundle's entry points (e.g. your main.js or app.js or index.js).
+
+Passed to the [`--input` option](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#input) in Rollup.
 
 Keys in this dictionary are labels pointing to .js entry point files.
 Values are the name to be given to the corresponding output chunk.
 
-Either this attribute or <code>entry_point</code> must be specified, but not both.
-                                </td>
-        <td><a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: Label -> String</a></td>
-        <td>optional</td>
-        <td>
-            {}
-        </td>
-      </tr>
-            <tr id="rollup_bundle-format">
-        <td>format</td>
-        <td>
-                            "Specifies the format of the generated bundle. One of the following:
+Either this attribute or `entry_point` must be specified, but not both.
+Defaults to `{}`
 
-- <code>amd</code>: Asynchronous Module Definition, used with module loaders like RequireJS
-- <code>cjs</code>: CommonJS, suitable for Node and other bundlers
-- <code>esm</code>: Keep the bundle as an ES module file, suitable for other bundlers and inclusion as a <code><script type=module></code> tag in modern browsers
-- <code>iife</code>: A self-executing function, suitable for inclusion as a <code><script></code> tag. (If you want to create a bundle for your application, you probably want to use this.)
-- <code>umd</code>: Universal Module Definition, works as amd, cjs and iife all in one
-- <code>system</code>: Native format of the SystemJS loader
-                                </td>
-        <td>String</td>
-        <td>optional</td>
-        <td>
-            "esm"
-        </td>
-      </tr>
-            <tr id="rollup_bundle-link_workspace_root">
-        <td>link_workspace_root</td>
-        <td>
-                            Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.
+<h4 id="rollup_bundle-format">format</h4>
+
+(*String*): "Specifies the format of the generated bundle. One of the following:
+
+- `amd`: Asynchronous Module Definition, used with module loaders like RequireJS
+- `cjs`: CommonJS, suitable for Node and other bundlers
+- `esm`: Keep the bundle as an ES module file, suitable for other bundlers and inclusion as a `<script type=module>` tag in modern browsers
+- `iife`: A self-executing function, suitable for inclusion as a `<script>` tag. (If you want to create a bundle for your application, you probably want to use this.)
+- `umd`: Universal Module Definition, works as amd, cjs and iife all in one
+- `system`: Native format of the SystemJS loader
+Defaults to `"esm"`
+
+<h4 id="rollup_bundle-link_workspace_root">link_workspace_root</h4>
+
+(*Boolean*): Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.
 If source files need to be required then they can be copied to the bin_dir with copy_to_bin.
-                                </td>
-        <td>Boolean</td>
-        <td>optional</td>
-        <td>
-            False
-        </td>
-      </tr>
-            <tr id="rollup_bundle-node_context_data">
-        <td>node_context_data</td>
-        <td>
-                            Provides info about the build context, such as stamping.
-        
-        By default it reads from the bazel command line, such as the <code>--stamp</code> argument.
-        Use this to override values for this target, such as enabling or disabling stamping.
-        You can use the <code>node_context_data</code> rule in <code>@build_bazel_rules_nodejs//internal/node:context.bzl</code>
-        to create a NodeContextInfo.
-                                      The dependencies of this attribute must provide: NodeContextInfo
-                    </td>
-        <td><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></td>
-        <td>optional</td>
-        <td>
-            @build_bazel_rules_nodejs//internal:node_context_data
-        </td>
-      </tr>
-            <tr id="rollup_bundle-output_dir">
-        <td>output_dir</td>
-        <td>
-                            Whether to produce a directory output.
+Defaults to `False`
 
-We will use the [<code>--output.dir</code> option](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#outputdir) in rollup
-rather than <code>--output.file</code>.
+<h4 id="rollup_bundle-node_context_data">node_context_data</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): Provides info about the build context, such as stamping.
+        
+        By default it reads from the bazel command line, such as the `--stamp` argument.
+        Use this to override values for this target, such as enabling or disabling stamping.
+        You can use the `node_context_data` rule in `@build_bazel_rules_nodejs//internal/node:context.bzl`
+        to create a NodeContextInfo.  The dependencies of this attribute must provide: NodeContextInfo
+
+Defaults to `@build_bazel_rules_nodejs//internal:node_context_data`
+
+<h4 id="rollup_bundle-output_dir">output_dir</h4>
+
+(*Boolean*): Whether to produce a directory output.
+
+We will use the [`--output.dir` option](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#outputdir) in rollup
+rather than `--output.file`.
 
 If the program produces multiple chunks, you must specify this attribute.
 Otherwise, the outputs are assumed to be a single file.
-                                </td>
-        <td>Boolean</td>
-        <td>optional</td>
-        <td>
-            False
-        </td>
-      </tr>
-            <tr id="rollup_bundle-rollup_bin">
-        <td>rollup_bin</td>
-        <td>
-                            Target that executes the rollup binary
-                                </td>
-        <td><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></td>
-        <td>optional</td>
-        <td>
-            @npm//rollup/bin:rollup
-        </td>
-      </tr>
-            <tr id="rollup_bundle-rollup_worker_bin">
-        <td>rollup_worker_bin</td>
-        <td>
-                            Internal use only
-                                </td>
-        <td><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></td>
-        <td>optional</td>
-        <td>
-            @npm//@bazel/bin:rollup-worker
-        </td>
-      </tr>
-            <tr id="rollup_bundle-silent">
-        <td>silent</td>
-        <td>
-                            Whether to execute the rollup binary with the --silent flag, defaults to False.
+Defaults to `False`
+
+<h4 id="rollup_bundle-rollup_bin">rollup_bin</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): Target that executes the rollup binary
+Defaults to `@npm//rollup/bin:rollup`
+
+<h4 id="rollup_bundle-rollup_worker_bin">rollup_worker_bin</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): Internal use only
+Defaults to `@npm//@bazel/bin:rollup-worker`
+
+<h4 id="rollup_bundle-silent">silent</h4>
+
+(*Boolean*): Whether to execute the rollup binary with the --silent flag, defaults to False.
 
 Using --silent can cause rollup to [ignore errors/warnings](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#onwarn) 
 which are only surfaced via logging.  Since bazel expects printing nothing on success, setting silent to True
 is a more Bazel-idiomatic experience, however could cause rollup to drop important warnings.
-                                </td>
-        <td>Boolean</td>
-        <td>optional</td>
-        <td>
-            False
-        </td>
-      </tr>
-            <tr id="rollup_bundle-sourcemap">
-        <td>sourcemap</td>
-        <td>
-                            Whether to produce sourcemaps.
+Defaults to `False`
 
-Passed to the [<code>--sourcemap</code> option](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#outputsourcemap") in Rollup
-                                </td>
-        <td>String</td>
-        <td>optional</td>
-        <td>
-            "inline"
-        </td>
-      </tr>
-            <tr id="rollup_bundle-srcs">
-        <td>srcs</td>
-        <td>
-                            Non-entry point JavaScript source files from the workspace.
+<h4 id="rollup_bundle-sourcemap">sourcemap</h4>
+
+(*String*): Whether to produce sourcemaps.
+
+Passed to the [`--sourcemap` option](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#outputsourcemap") in Rollup
+Defaults to `"inline"`
+
+<h4 id="rollup_bundle-srcs">srcs</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*): Non-entry point JavaScript source files from the workspace.
 
 You must not repeat file(s) passed to entry_point/entry_points.
-                                </td>
-        <td><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></td>
-        <td>optional</td>
-        <td>
-            []
-        </td>
-      </tr>
-            <tr id="rollup_bundle-supports_workers">
-        <td>supports_workers</td>
-        <td>
-                            Experimental! Use only with caution.
+Defaults to `[]`
+
+<h4 id="rollup_bundle-supports_workers">supports_workers</h4>
+
+(*Boolean*): Experimental! Use only with caution.
 
 Allows you to enable the Bazel Worker strategy for this library.
 When enabled, this rule invokes the "rollup_worker_bin"
 worker aware binary rather than "rollup_bin".
-                                </td>
-        <td>Boolean</td>
-        <td>optional</td>
-        <td>
-            False
-        </td>
-      </tr>
-        </tbody>
-</table>
+Defaults to `False`
 
 
