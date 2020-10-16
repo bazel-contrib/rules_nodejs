@@ -3,27 +3,22 @@
 load("@build_bazel_rules_nodejs//:providers.bzl", "JSEcmaScriptModuleInfo", "JSModuleInfo", "NODE_CONTEXT_ATTRS", "NodeContextInfo", "NpmPackageInfo", "node_modules_aspect", "run_node")
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 
-_DOC = """Runs the Rollup.js CLI under Bazel.
-
-See [the Rollup CLI reference](https://rollupjs.org/guide/en/#command-line-reference)
-"""
+_DOC = "Runs the rollup.js CLI under Bazel."
 
 _ROLLUP_ATTRS = dict(NODE_CONTEXT_ATTRS, **{
     "args": attr.string_list(
-        doc = """Command line arguments to pass to rollup. Can be used to override config file settings.
+        doc = """Command line arguments to pass to Rollup. Can be used to override config file settings.
 
-These argument passed on the command line before all arguments that are always added by the
-rule such as `--output.dir` or `--output.file`, `--format`, `--config` and `--preserveSymlinks` and
-also those that are optionally added by the rule such as `--sourcemap`.
+These argument passed on the command line before arguments that are added by the rule.
+Run `bazel` with `--subcommands` to see what Rollup CLI command line was invoked.
 
-See rollup CLI docs https://rollupjs.org/guide/en/#command-line-flags for complete list of supported arguments.""",
+See the <a href="https://rollupjs.org/guide/en/#command-line-flags">Rollup CLI docs</a> for a complete list of supported arguments.""",
         default = [],
     ),
     "config_file": attr.label(
-        doc = """A rollup.config.js file
+        doc = """A `rollup.config.js` file
 
-Passed to the --config 
-See https://rollupjs.org/guide/en/#configuration-files
+Passed to the `--config` option, see [the config doc](https://rollupjs.org/guide/en/#configuration-files)
 
 If not set, a default basic Rollup config is used.
 """,
@@ -93,7 +88,7 @@ Either this attribute or `entry_point` must be specified, but not both.
         allow_files = True,
     ),
     "format": attr.string(
-        doc = """"Specifies the format of the generated bundle. One of the following:
+        doc = """Specifies the format of the generated bundle. One of the following:
 
 - `amd`: Asynchronous Module Definition, used with module loaders like RequireJS
 - `cjs`: CommonJS, suitable for Node and other bundlers

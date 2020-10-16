@@ -29,13 +29,13 @@ In the future, the linker may validate that the names match the name in a packag
 
 Path must be relative to execroot/wksp. It can either an output dir path such as,
 
-`bazel-out/&lt;platform&gt;-&lt;build&gt;/bin/path/to/package` or
-`bazel-out/&lt;platform&gt;-&lt;build&gt;/bin/external/&llt;external_wksp&gt;/path/to/package`
+`bazel-out/<platform>-<build>/bin/path/to/package` or
+`bazel-out/<platform>-<build>/bin/external/external_wksp>/path/to/package`
 
 or a source file path such as,
 
 `path/to/package` or
-`external/&lt;external_wksp&gt;/path/to/package`
+`external/<external_wksp>/path/to/package`
 """,
         "_tslibrary": "For internal use only",
     },
