@@ -184,14 +184,20 @@
 
 <h2 id="protobufjs_ts_library">protobufjs_ts_library</h2>
 
+<p><strong>USAGE</strong></p>
+
+<pre>
+protobufjs_ts_library(<a href="#protobufjs_ts_library-name">name</a>, <a href="#protobufjs_ts_library-deps">deps</a>, <a href="#protobufjs_ts_library-output_name">output_name</a>)
+</pre>
+
 <p>Wraps https://github.com/dcodeIO/protobuf.js for use in Bazel.</p>
 
-<p><code>ts_proto_library</code> has identical outputs to <code>ts_library</code>, so it can be used anywhere
-a <code>ts_library</code> can appear, such as in the <code>deps[]</code> of another <code>ts_library</code>.</p>
+<p><code class="language-plaintext highlighter-rouge">ts_proto_library</code> has identical outputs to <code class="language-plaintext highlighter-rouge">ts_library</code>, so it can be used anywhere
+a <code class="language-plaintext highlighter-rouge">ts_library</code> can appear, such as in the <code class="language-plaintext highlighter-rouge">deps[]</code> of another <code class="language-plaintext highlighter-rouge">ts_library</code>.</p>
 
 <p>Example:</p>
 
-<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">load</span><span class="p">(</span><span class="s">"@npm//@bazel/typescript:index.bzl"</span><span class="p">,</span> <span class="s">"ts_library"</span><span class="p">,</span> <span class="s">"ts_proto_library"</span><span class="p">)</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">load</span><span class="p">(</span><span class="s">"@npm//@bazel/typescript:index.bzl"</span><span class="p">,</span> <span class="s">"ts_library"</span><span class="p">,</span> <span class="s">"ts_proto_library"</span><span class="p">)</span>
 
 <span class="n">proto_library</span><span class="p">(</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s">"car_proto"</span><span class="p">,</span>
@@ -208,22 +214,23 @@ a <code>ts_library</code> can appear, such as in the <code>deps[]</code> of anot
     <span class="n">testonly</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span>
     <span class="n">srcs</span> <span class="o">=</span> <span class="p">[</span><span class="s">"car.spec.ts"</span><span class="p">],</span>
     <span class="n">deps</span> <span class="o">=</span> <span class="p">[</span><span class="s">":car"</span><span class="p">],</span>
-<span class="p">)</span></code></pre></figure>
+<span class="p">)</span>
+</code></pre></div></div>
 
-<p>Note in this example we named the <code>ts_proto_library</code> rule <code>car</code> so that the
-result will be <code>car.d.ts</code>. This means our TypeScript code can just
-<code>import {symbols} from './car'</code>. Use the <code>output_name</code> attribute if you want to
+<p>Note in this example we named the <code class="language-plaintext highlighter-rouge">ts_proto_library</code> rule <code class="language-plaintext highlighter-rouge">car</code> so that the
+result will be <code class="language-plaintext highlighter-rouge">car.d.ts</code>. This means our TypeScript code can just
+<code class="language-plaintext highlighter-rouge">import {symbols} from './car'</code>. Use the <code class="language-plaintext highlighter-rouge">output_name</code> attribute if you want to
 name the rule differently from the output file.</p>
 
 <p>The JavaScript produced by protobuf.js has a runtime dependency on a support library.
-Under devmode (e.g. <code>ts_devserver</code>, <code>karma_web_test_suite</code>) you’ll need to include these scripts
-in the <code>bootstrap</code> phase (before Require.js loads). You can use the label
-<code>@npm//@bazel/labs/protobufjs:bootstrap_scripts</code> to reference these scripts
-in the <code>bootstrap</code> attribute of <code>karma_web_test_suite</code> or <code>ts_devserver</code>.</p>
+Under devmode (e.g. <code class="language-plaintext highlighter-rouge">ts_devserver</code>, <code class="language-plaintext highlighter-rouge">karma_web_test_suite</code>) you’ll need to include these scripts
+in the <code class="language-plaintext highlighter-rouge">bootstrap</code> phase (before Require.js loads). You can use the label
+<code class="language-plaintext highlighter-rouge">@npm//@bazel/labs/protobufjs:bootstrap_scripts</code> to reference these scripts
+in the <code class="language-plaintext highlighter-rouge">bootstrap</code> attribute of <code class="language-plaintext highlighter-rouge">karma_web_test_suite</code> or <code class="language-plaintext highlighter-rouge">ts_devserver</code>.</p>
 
-<p>To complete the example above, you could write a <code>karma_web_test_suite</code>:</p>
+<p>To complete the example above, you could write a <code class="language-plaintext highlighter-rouge">karma_web_test_suite</code>:</p>
 
-<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">load</span><span class="p">(</span><span class="s">"@npm//@bazel/karma:index.bzl"</span><span class="p">,</span> <span class="s">"karma_web_test_suite"</span><span class="p">)</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">load</span><span class="p">(</span><span class="s">"@npm//@bazel/karma:index.bzl"</span><span class="p">,</span> <span class="s">"karma_web_test_suite"</span><span class="p">)</span>
 
 <span class="n">karma_web_test_suite</span><span class="p">(</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s">"test"</span><span class="p">,</span>
@@ -233,63 +240,29 @@ in the <code>bootstrap</code> attribute of <code>karma_web_test_suite</code> or 
         <span class="s">"@io_bazel_rules_webtesting//browsers:chromium-local"</span><span class="p">,</span>
         <span class="s">"@io_bazel_rules_webtesting//browsers:firefox-local"</span><span class="p">,</span>
     <span class="p">],</span>
-<span class="p">)</span></code></pre></figure>
-
-<pre>
-protobufjs_ts_library(<a href="#protobufjs_ts_library-name">name</a>, <a href="#protobufjs_ts_library-deps">deps</a>, <a href="#protobufjs_ts_library-output_name">output_name</a>)
-</pre>
+<span class="p">)</span>
+</code></pre></div></div>
 
 <p><strong>ATTRIBUTES</strong></p>
 
-<table class="table table-params">
-  <thead>
-  <tr>
-    <th>Name</th>
-    <th>Description</th>
-    <th>Type</th>
-    <th>Mandatory</th>
-    <th>Default</th>
-  </tr>
-  </thead>
-  <tbody>
-            <tr id="protobufjs_ts_library-name">
-        <td>name</td>
-        <td>
-                            A unique name for this target.
-                                </td>
-        <td><a href="https://bazel.build/docs/build-ref.html#name">Name</a></td>
-        <td>required</td>
-        <td>
-            
-        </td>
-      </tr>
-            <tr id="protobufjs_ts_library-deps">
-        <td>deps</td>
-        <td>
-                            proto_library targets
-                                </td>
-        <td><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></td>
-        <td>optional</td>
-        <td>
-            []
-        </td>
-      </tr>
-            <tr id="protobufjs_ts_library-output_name">
-        <td>output_name</td>
-        <td>
-                            Name of the resulting module, which you will import from.
-            If not specified, the name will match the target's name.
-                                </td>
-        <td>String</td>
-        <td>optional</td>
-        <td>
-            ""
-        </td>
-      </tr>
-        </tbody>
-</table>
+<h4 id="protobufjs_ts_library-name">name</h4>
+
+<p>(<em><a href="https://bazel.build/docs/build-ref.html#name">Name</a>, mandatory</em>): A unique name for this target.</p>
+
+<h4 id="protobufjs_ts_library-deps">deps</h4>
+
+<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></em>): proto_library targets
+Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+
+<h4 id="protobufjs_ts_library-output_name">output_name</h4>
+
+<p>(<em>String</em>): Name of the resulting module, which you will import from.
+            If not specified, the name will match the target’s name.
+Defaults to <code class="language-plaintext highlighter-rouge">""</code></p>
 
 <h2 id="ts_proto_library">ts_proto_library</h2>
+
+<p><strong>USAGE</strong></p>
 
 <pre>
 ts_proto_library(<a href="#ts_proto_library-name">name</a>, <a href="#ts_proto_library-proto">proto</a>)
@@ -297,41 +270,13 @@ ts_proto_library(<a href="#ts_proto_library-name">name</a>, <a href="#ts_proto_l
 
 <p><strong>ATTRIBUTES</strong></p>
 
-<table class="table table-params">
-  <thead>
-  <tr>
-    <th>Name</th>
-    <th>Description</th>
-    <th>Type</th>
-    <th>Mandatory</th>
-    <th>Default</th>
-  </tr>
-  </thead>
-  <tbody>
-            <tr id="ts_proto_library-name">
-        <td>name</td>
-        <td>
-                            A unique name for this target.
-                                </td>
-        <td><a href="https://bazel.build/docs/build-ref.html#name">Name</a></td>
-        <td>required</td>
-        <td>
-            
-        </td>
-      </tr>
-            <tr id="ts_proto_library-proto">
-        <td>proto</td>
-        <td>
-                                      The dependencies of this attribute must provide: ProtoInfo
-                    </td>
-        <td><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></td>
-        <td>required</td>
-        <td>
-            
-        </td>
-      </tr>
-        </tbody>
-</table>
+<h4 id="ts_proto_library-name">name</h4>
+
+<p>(<em><a href="https://bazel.build/docs/build-ref.html#name">Name</a>, mandatory</em>): A unique name for this target.</p>
+
+<h4 id="ts_proto_library-proto">proto</h4>
+
+<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">Label</a>, mandatory</em>)  The dependencies of this attribute must provide: ProtoInfo</p>
 
 
       </div>
@@ -378,6 +323,7 @@ ts_proto_library(<a href="#ts_proto_library-name">name</a>, <a href="#ts_proto_l
 <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/3.2.0/anchor.min.js" type="text/javascript"></script>
 <script>
   // Automatically add anchors and links to all header elements that don't already have them.
+  anchors.options = { placement: 'left' };
   anchors.add();
 </script>
 

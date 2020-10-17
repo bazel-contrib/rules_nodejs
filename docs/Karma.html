@@ -174,19 +174,20 @@
 
 <h2 id="installation">Installation</h2>
 
-<p>Add the <code>@bazel/karma</code> npm package to your <code>devDependencies</code> in <code>package.json</code>.</p>
+<p>Add the <code class="language-plaintext highlighter-rouge">@bazel/karma</code> npm package to your <code class="language-plaintext highlighter-rouge">devDependencies</code> in <code class="language-plaintext highlighter-rouge">package.json</code>.</p>
 
-<p>Now add this to your <code>WORKSPACE</code> to install the Karma dependencies:</p>
+<p>Now add this to your <code class="language-plaintext highlighter-rouge">WORKSPACE</code> to install the Karma dependencies:</p>
 
-<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="c1"># Fetch transitive Bazel dependencies of @bazel/karma
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Fetch transitive Bazel dependencies of @bazel/karma
 </span><span class="n">load</span><span class="p">(</span><span class="s">"@npm//@bazel/karma:package.bzl"</span><span class="p">,</span> <span class="s">"npm_bazel_karma_dependencies"</span><span class="p">)</span>
-<span class="n">npm_bazel_karma_dependencies</span><span class="p">()</span></code></pre></figure>
+<span class="n">npm_bazel_karma_dependencies</span><span class="p">()</span>
+</code></pre></div></div>
 
-<p>This installs the <code>io_bazel_rules_webtesting</code> repository, if you haven’t installed it earlier.</p>
+<p>This installs the <code class="language-plaintext highlighter-rouge">io_bazel_rules_webtesting</code> repository, if you haven’t installed it earlier.</p>
 
 <p>Finally, configure the rules_webtesting:</p>
 
-<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="c1"># Set up web testing, choose browsers we can test on
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Set up web testing, choose browsers we can test on
 </span><span class="n">load</span><span class="p">(</span><span class="s">"@io_bazel_rules_webtesting//web:repositories.bzl"</span><span class="p">,</span> <span class="s">"web_test_repositories"</span><span class="p">)</span>
 
 <span class="n">web_test_repositories</span><span class="p">()</span>
@@ -196,251 +197,179 @@
 <span class="n">browser_repositories</span><span class="p">(</span>
     <span class="n">chromium</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span>
     <span class="n">firefox</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span>
-<span class="p">)</span></code></pre></figure>
+<span class="p">)</span>
+</code></pre></div></div>
 
 <h2 id="installing-with-self-managed-dependencies">Installing with self-managed dependencies</h2>
 
-<p>If you didn’t use the <code>yarn_install</code> or <code>npm_install</code> rule to create an <code>npm</code> workspace, you’ll have to declare a rule in your root <code>BUILD.bazel</code> file to execute karma:</p>
+<p>If you didn’t use the <code class="language-plaintext highlighter-rouge">yarn_install</code> or <code class="language-plaintext highlighter-rouge">npm_install</code> rule to create an <code class="language-plaintext highlighter-rouge">npm</code> workspace, you’ll have to declare a rule in your root <code class="language-plaintext highlighter-rouge">BUILD.bazel</code> file to execute karma:</p>
 
-<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="c1"># Create a karma rule to use in ts_web_test_suite karma
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Create a karma rule to use in ts_web_test_suite karma
 # attribute when using self-managed dependencies
 </span><span class="n">nodejs_binary</span><span class="p">(</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s">"karma/karma"</span><span class="p">,</span>
     <span class="n">entry_point</span> <span class="o">=</span> <span class="s">"//:node_modules/karma/bin/karma"</span><span class="p">,</span>
     <span class="c1"># Point bazel to your node_modules to find the entry point
 </span>    <span class="n">node_modules</span> <span class="o">=</span> <span class="p">[</span><span class="s">"//:node_modules"</span><span class="p">],</span>
-<span class="p">)</span></code></pre></figure>
+<span class="p">)</span>
+</code></pre></div></div>
 
 <h2 id="karma_web_test">karma_web_test</h2>
 
-<p>Runs unit tests in a browser with Karma.</p>
-
-<p>When executed under <code>bazel test</code>, this uses a headless browser for speed.
-This is also because <code>bazel test</code> allows multiple targets to be tested together,
-and we don’t want to open a Chrome window on your machine for each one. Also,
-under <code>bazel test</code> the test will execute and immediately terminate.</p>
-
-<p>Running under <code>ibazel test</code> gives you a “watch mode” for your tests. The rule is
-optimized for this case - the test runner server will stay running and just
-re-serve the up-to-date JavaScript source bundle.</p>
-
-<p>To debug a single test target, run it with <code>bazel run</code> instead. This will open a
-browser window on your computer. Also you can use any other browser by opening
-the URL printed when the test starts up. The test will remain running until you
-cancel the <code>bazel run</code> command.</p>
-
-<p>This rule will use your system Chrome by default. In the default case, your
-environment must specify CHROME_BIN so that the rule will know which Chrome binary to run.
-Other <code>browsers</code> and <code>customLaunchers</code> may be set using the a base Karma configuration
-specified in the <code>config_file</code> attribute.</p>
-
-<p>By default we open a headless Chrome. To use a real Chrome browser window, you can pass
-<code>--define DISPLAY=true</code> to Bazel, along with <code>configuration_env_vars = ["DISPLAY"]</code> on
-<code>karma_web_test</code>.</p>
+<p><strong>USAGE</strong></p>
 
 <pre>
 karma_web_test(<a href="#karma_web_test-srcs">srcs</a>, <a href="#karma_web_test-deps">deps</a>, <a href="#karma_web_test-data">data</a>, <a href="#karma_web_test-configuration_env_vars">configuration_env_vars</a>, <a href="#karma_web_test-bootstrap">bootstrap</a>, <a href="#karma_web_test-runtime_deps">runtime_deps</a>, <a href="#karma_web_test-static_files">static_files</a>,
                <a href="#karma_web_test-config_file">config_file</a>, <a href="#karma_web_test-tags">tags</a>, <a href="#karma_web_test-peer_deps">peer_deps</a>, <a href="#karma_web_test-kwargs">kwargs</a>)
 </pre>
 
+<p>Runs unit tests in a browser with Karma.</p>
+
+<p>When executed under <code class="language-plaintext highlighter-rouge">bazel test</code>, this uses a headless browser for speed.
+This is also because <code class="language-plaintext highlighter-rouge">bazel test</code> allows multiple targets to be tested together,
+and we don’t want to open a Chrome window on your machine for each one. Also,
+under <code class="language-plaintext highlighter-rouge">bazel test</code> the test will execute and immediately terminate.</p>
+
+<p>Running under <code class="language-plaintext highlighter-rouge">ibazel test</code> gives you a “watch mode” for your tests. The rule is
+optimized for this case - the test runner server will stay running and just
+re-serve the up-to-date JavaScript source bundle.</p>
+
+<p>To debug a single test target, run it with <code class="language-plaintext highlighter-rouge">bazel run</code> instead. This will open a
+browser window on your computer. Also you can use any other browser by opening
+the URL printed when the test starts up. The test will remain running until you
+cancel the <code class="language-plaintext highlighter-rouge">bazel run</code> command.</p>
+
+<p>This rule will use your system Chrome by default. In the default case, your
+environment must specify CHROME_BIN so that the rule will know which Chrome binary to run.
+Other <code class="language-plaintext highlighter-rouge">browsers</code> and <code class="language-plaintext highlighter-rouge">customLaunchers</code> may be set using the a base Karma configuration
+specified in the <code class="language-plaintext highlighter-rouge">config_file</code> attribute.</p>
+
+<p>By default we open a headless Chrome. To use a real Chrome browser window, you can pass
+<code class="language-plaintext highlighter-rouge">--define DISPLAY=true</code> to Bazel, along with <code class="language-plaintext highlighter-rouge">configuration_env_vars = ["DISPLAY"]</code> on
+<code class="language-plaintext highlighter-rouge">karma_web_test</code>.</p>
+
 <p><strong>PARAMETERS</strong></p>
 
-<table class="table table-params">
-  <thead>
-  <tr>
-    <th>Name</th>
-    <th>Description</th>
-    <th>Default</th>
-  </tr>
-  </thead>
-  <tbody>
-            <tr id="karma_web_test-srcs">
-        <td>srcs</td>
-        <td>
-                            A list of JavaScript test files
-                    </td>
-        <td>
-            []
-        </td>
-      </tr>
-            <tr id="karma_web_test-deps">
-        <td>deps</td>
-        <td>
-                            Other targets which produce JavaScript such as <code>ts_library</code>
-                    </td>
-        <td>
-            []
-        </td>
-      </tr>
-            <tr id="karma_web_test-data">
-        <td>data</td>
-        <td>
-                            Runtime dependencies
-                    </td>
-        <td>
-            []
-        </td>
-      </tr>
-            <tr id="karma_web_test-configuration_env_vars">
-        <td>configuration_env_vars</td>
-        <td>
-                            Pass these configuration environment variables to the resulting binary.
-    Chooses a subset of the configuration environment variables (taken from ctx.var), which also
-    includes anything specified via the --define flag.
-    Note, this can lead to different outputs produced by this rule.
-                    </td>
-        <td>
-            []
-        </td>
-      </tr>
-            <tr id="karma_web_test-bootstrap">
-        <td>bootstrap</td>
-        <td>
-                            JavaScript files to include *before* the module loader (require.js).
-    For example, you can include Reflect,js for TypeScript decorator metadata reflection,
-    or UMD bundles for third-party libraries.
-                    </td>
-        <td>
-            []
-        </td>
-      </tr>
-            <tr id="karma_web_test-runtime_deps">
-        <td>runtime_deps</td>
-        <td>
-                            Dependencies which should be loaded after the module loader but before the srcs and deps.
-    These should be a list of targets which produce JavaScript such as <code>ts_library</code>.
-    The files will be loaded in the same order they are declared by that rule.
-                    </td>
-        <td>
-            []
-        </td>
-      </tr>
-            <tr id="karma_web_test-static_files">
-        <td>static_files</td>
-        <td>
-                            Arbitrary files which are available to be served on request.
-    Files are served at:
-    <code>/base/&lt;WORKSPACE_NAME&gt;/&lt;path-to-file&gt;</code>, e.g.
-    <code>/base/npm_bazel_typescript/examples/testing/static_script.js</code>
-                    </td>
-        <td>
-            []
-        </td>
-      </tr>
-            <tr id="karma_web_test-config_file">
-        <td>config_file</td>
-        <td>
-                            User supplied Karma configuration file. Bazel will override
-    certain attributes of this configuration file. Attributes that are
-    overridden will be outputted to the test log.
-                    </td>
-        <td>
-            None
-        </td>
-      </tr>
-            <tr id="karma_web_test-tags">
-        <td>tags</td>
-        <td>
-                            Standard Bazel tags, this macro adds tags for ibazel support
-                    </td>
-        <td>
-            []
-        </td>
-      </tr>
-            <tr id="karma_web_test-peer_deps">
-        <td>peer_deps</td>
-        <td>
-                            list of peer npm deps required by karma_web_test
-                    </td>
-        <td>
-            ["@npm//jasmine-core", "@npm//karma", "@npm//karma-chrome-launcher", "@npm//karma-firefox-launcher", "@npm//karma-jasmine", "@npm//karma-requirejs", "@npm//karma-sourcemap-loader", "@npm//requirejs", "@npm//tmp"]
-        </td>
-      </tr>
-            <tr id="karma_web_test-kwargs">
-        <td>kwargs</td>
-        <td>
-                            Passed through to <code>karma_web_test</code>
-                    </td>
-        <td>
-            
-        </td>
-      </tr>
-        </tbody>
-</table>
+<h4 id="karma_web_test-srcs">srcs</h4>
+
+<p>A list of JavaScript test files</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+
+<h4 id="karma_web_test-deps">deps</h4>
+
+<p>Other targets which produce JavaScript such as <code class="language-plaintext highlighter-rouge">ts_library</code></p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+
+<h4 id="karma_web_test-data">data</h4>
+
+<p>Runtime dependencies</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+
+<h4 id="karma_web_test-configuration_env_vars">configuration_env_vars</h4>
+
+<p>Pass these configuration environment variables to the resulting binary.
+Chooses a subset of the configuration environment variables (taken from ctx.var), which also
+includes anything specified via the –define flag.
+Note, this can lead to different outputs produced by this rule.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+
+<h4 id="karma_web_test-bootstrap">bootstrap</h4>
+
+<p>JavaScript files to include <em>before</em> the module loader (require.js).
+For example, you can include Reflect,js for TypeScript decorator metadata reflection,
+or UMD bundles for third-party libraries.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+
+<h4 id="karma_web_test-runtime_deps">runtime_deps</h4>
+
+<p>Dependencies which should be loaded after the module loader but before the srcs and deps.
+These should be a list of targets which produce JavaScript such as <code class="language-plaintext highlighter-rouge">ts_library</code>.
+The files will be loaded in the same order they are declared by that rule.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+
+<h4 id="karma_web_test-static_files">static_files</h4>
+
+<p>Arbitrary files which are available to be served on request.
+Files are served at:
+<code class="language-plaintext highlighter-rouge">/base/&amp;lt;WORKSPACE_NAME&amp;gt;/&amp;lt;path-to-file&amp;gt;</code>, e.g.
+<code class="language-plaintext highlighter-rouge">/base/npm_bazel_typescript/examples/testing/static_script.js</code></p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+
+<h4 id="karma_web_test-config_file">config_file</h4>
+
+<p>User supplied Karma configuration file. Bazel will override
+certain attributes of this configuration file. Attributes that are
+overridden will be outputted to the test log.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">None</code></p>
+
+<h4 id="karma_web_test-tags">tags</h4>
+
+<p>Standard Bazel tags, this macro adds tags for ibazel support</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+
+<h4 id="karma_web_test-peer_deps">peer_deps</h4>
+
+<p>list of peer npm deps required by karma_web_test</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">["@npm//jasmine-core", "@npm//karma", "@npm//karma-chrome-launcher", "@npm//karma-firefox-launcher", "@npm//karma-jasmine", "@npm//karma-requirejs", "@npm//karma-sourcemap-loader", "@npm//requirejs", "@npm//tmp"]</code></p>
+
+<h4 id="karma_web_test-kwargs">kwargs</h4>
+
+<p>Passed through to <code class="language-plaintext highlighter-rouge">karma_web_test</code></p>
 
 <h2 id="karma_web_test_suite">karma_web_test_suite</h2>
+
+<p><strong>USAGE</strong></p>
+
+<pre>
+karma_web_test_suite(<a href="#karma_web_test_suite-name">name</a>, <a href="#karma_web_test_suite-browsers">browsers</a>, <a href="#karma_web_test_suite-web_test_data">web_test_data</a>, <a href="#karma_web_test_suite-wrapped_test_tags">wrapped_test_tags</a>, <a href="#karma_web_test_suite-kwargs">kwargs</a>)
+</pre>
 
 <p>Defines a test_suite of web_test targets that wrap a karma_web_test target.</p>
 
 <p>This macro accepts all parameters in karma_web_test and adds additional parameters
 for the suite. See karma_web_test docs for all karma_web_test.</p>
 
-<p>The wrapping macro is <code>web_test_suite</code> which comes from rules_websting:
+<p>The wrapping macro is <code class="language-plaintext highlighter-rouge">web_test_suite</code> which comes from rules_websting:
 https://github.com/bazelbuild/rules_webtesting/blob/master/web/web.bzl.</p>
-
-<pre>
-karma_web_test_suite(<a href="#karma_web_test_suite-name">name</a>, <a href="#karma_web_test_suite-browsers">browsers</a>, <a href="#karma_web_test_suite-web_test_data">web_test_data</a>, <a href="#karma_web_test_suite-wrapped_test_tags">wrapped_test_tags</a>, <a href="#karma_web_test_suite-kwargs">kwargs</a>)
-</pre>
 
 <p><strong>PARAMETERS</strong></p>
 
-<table class="table table-params">
-  <thead>
-  <tr>
-    <th>Name</th>
-    <th>Description</th>
-    <th>Default</th>
-  </tr>
-  </thead>
-  <tbody>
-            <tr id="karma_web_test_suite-name">
-        <td>name</td>
-        <td>
-                            The base name of the test
-                    </td>
-        <td>
-            
-        </td>
-      </tr>
-            <tr id="karma_web_test_suite-browsers">
-        <td>browsers</td>
-        <td>
-                            A sequence of labels specifying the browsers to use.
-                    </td>
-        <td>
-            None
-        </td>
-      </tr>
-            <tr id="karma_web_test_suite-web_test_data">
-        <td>web_test_data</td>
-        <td>
-                            Data dependencies for the wrapper web_test targets.
-                    </td>
-        <td>
-            []
-        </td>
-      </tr>
-            <tr id="karma_web_test_suite-wrapped_test_tags">
-        <td>wrapped_test_tags</td>
-        <td>
-                            A list of test tag strings to use for the wrapped
-  karma_web_test target.
-                    </td>
-        <td>
-            ["manual", "noci"]
-        </td>
-      </tr>
-            <tr id="karma_web_test_suite-kwargs">
-        <td>kwargs</td>
-        <td>
-                            Arguments for the wrapped karma_web_test target.
-                    </td>
-        <td>
-            
-        </td>
-      </tr>
-        </tbody>
-</table>
+<h4 id="karma_web_test_suite-name">name</h4>
+
+<p>The base name of the test</p>
+
+<h4 id="karma_web_test_suite-browsers">browsers</h4>
+
+<p>A sequence of labels specifying the browsers to use.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">None</code></p>
+
+<h4 id="karma_web_test_suite-web_test_data">web_test_data</h4>
+
+<p>Data dependencies for the wrapper web_test targets.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+
+<h4 id="karma_web_test_suite-wrapped_test_tags">wrapped_test_tags</h4>
+
+<p>A list of test tag strings to use for the wrapped
+karma_web_test target.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">["manual", "noci"]</code></p>
+
+<h4 id="karma_web_test_suite-kwargs">kwargs</h4>
+
+<p>Arguments for the wrapped karma_web_test target.</p>
 
 
       </div>
@@ -489,6 +418,7 @@ karma_web_test_suite(<a href="#karma_web_test_suite-name">name</a>, <a href="#ka
 <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/3.2.0/anchor.min.js" type="text/javascript"></script>
 <script>
   // Automatically add anchors and links to all header elements that don't already have them.
+  anchors.options = { placement: 'left' };
   anchors.add();
 </script>
 

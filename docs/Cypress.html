@@ -174,36 +174,36 @@
 
 <h2 id="installation">Installation</h2>
 
-<p>Add <code>@bazel/cypress</code>, <code>cypress</code> and <code>@cypress/browserify-preprocessor</code> npm packages to your <code>devDependencies</code> in <code>package.json</code>.</p>
+<p>Add <code class="language-plaintext highlighter-rouge">@bazel/cypress</code>, <code class="language-plaintext highlighter-rouge">cypress</code> and <code class="language-plaintext highlighter-rouge">@cypress/browserify-preprocessor</code> npm packages to your <code class="language-plaintext highlighter-rouge">devDependencies</code> in <code class="language-plaintext highlighter-rouge">package.json</code>.</p>
 
-<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">npm</span> <span class="n">install</span> <span class="o">--</span><span class="n">save</span><span class="o">-</span><span class="n">dev</span> <span class="o">@</span><span class="n">bazel</span><span class="o">/</span><span class="n">cypress</span> <span class="n">cypress</span> <span class="o">@</span><span class="n">cypress</span><span class="o">/</span><span class="n">browserify</span><span class="o">-</span><span class="n">preprocessor</span></code></pre></figure>
-
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm install --save-dev @bazel/cypress cypress @cypress/browserify-preprocessor
+</code></pre></div></div>
 <p>or using yarn</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>yarn add -D @bazel/cypress cypress @cypress/browserify-preprocessor
+</code></pre></div></div>
 
-<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">yarn</span> <span class="n">add</span> <span class="o">-</span><span class="n">D</span> <span class="o">@</span><span class="n">bazel</span><span class="o">/</span><span class="n">cypress</span> <span class="n">cypress</span> <span class="o">@</span><span class="n">cypress</span><span class="o">/</span><span class="n">browserify</span><span class="o">-</span><span class="n">preprocessor</span></code></pre></figure>
+<p>Then, load and invoke <code class="language-plaintext highlighter-rouge">cypress_repository</code> within your <code class="language-plaintext highlighter-rouge">WORKSPACE</code> file.</p>
 
-<p>Then, load and invoke <code>cypress_repository</code> within your <code>WORKSPACE</code> file.</p>
-
-<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="c1"># Assuming your external repository for node_modules is named @npm
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Assuming your external repository for node_modules is named @npm
 </span>
 <span class="n">load</span><span class="p">(</span><span class="s">"@npm//@bazel/cypress:index.bzl"</span><span class="p">,</span> <span class="s">"cypress_repository"</span><span class="p">)</span>
 
 <span class="c1"># The name you pass here names the external repository you can load cypress_web_test from
-</span><span class="n">cypress_repository</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"cypress"</span><span class="p">)</span></code></pre></figure>
+</span><span class="n">cypress_repository</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"cypress"</span><span class="p">)</span>
+</code></pre></div></div>
 
 <h3 id="macos-install-requirements">macOS install requirements</h3>
-<p>On macOS, <code>cypress_repository</code> generates an external repository containing files whose names contain spaces. In order to make these files compatible with bazel you will need to add the following flag to your <code>.bazelrc</code> file:</p>
-
-<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="c1"># Required for cypress_repository on macOS
-</span><span class="n">build</span> <span class="o">--</span><span class="n">experimental_inprocess_symlink_creation</span></code></pre></figure>
+<p>On macOS, <code class="language-plaintext highlighter-rouge">cypress_repository</code> generates an external repository containing files whose names contain spaces. In order to make these files compatible with bazel you will need to add the following flag to your <code class="language-plaintext highlighter-rouge">.bazelrc</code> file:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Required for cypress_repository on macOS
+</span><span class="n">build</span> <span class="o">--</span><span class="n">experimental_inprocess_symlink_creation</span>
+</code></pre></div></div>
 
 <h3 id="windows-install-requirements">windows install requirements</h3>
-<p>At this point in time, <code>cypress_repository</code> is incompatible with bazel sandboxing on Windows. This may change in the future, but for now using cypress on windows requires windows sandboxing be disabled (it is disabled by default)</p>
+<p>At this point in time, <code class="language-plaintext highlighter-rouge">cypress_repository</code> is incompatible with bazel sandboxing on Windows. This may change in the future, but for now using cypress on windows requires windows sandboxing be disabled (it is disabled by default)</p>
 
 <h2 id="example-use-of-cypress_web_test">Example use of cypress_web_test</h2>
-<p>This example assumes you’ve named your external repository for node_modules as <code>npm</code> and for cypress as <code>cypress</code></p>
-
-<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">load</span><span class="p">(</span><span class="s">"@cypress//:index.bzl"</span><span class="p">,</span> <span class="s">"cypress_web_test"</span><span class="p">)</span>
+<p>This example assumes you’ve named your external repository for node_modules as <code class="language-plaintext highlighter-rouge">npm</code> and for cypress as <code class="language-plaintext highlighter-rouge">cypress</code></p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">load</span><span class="p">(</span><span class="s">"@cypress//:index.bzl"</span><span class="p">,</span> <span class="s">"cypress_web_test"</span><span class="p">)</span>
 <span class="n">load</span><span class="p">(</span><span class="s">"@npm//@bazel/typescript:index.bzl"</span><span class="p">,</span> <span class="s">"ts_library"</span><span class="p">)</span>
 
 <span class="c1"># You must create a cypress plugin in order to boot a server to serve your application. It can be written as a javascript file or in typescript using ts_library or ts_project.
@@ -244,73 +244,41 @@
 </span>    <span class="n">data</span> <span class="o">=</span> <span class="p">[],</span>
     <span class="c1"># Your cypress plugin used to configure cypress and boot your server
 </span>    <span class="n">plugins_file</span> <span class="o">=</span> <span class="s">":plugins_file"</span><span class="p">,</span>
-<span class="p">)</span></code></pre></figure>
+<span class="p">)</span>
+</code></pre></div></div>
 
 <h2 id="cypress_repository">cypress_repository</h2>
 
+<p><strong>USAGE</strong></p>
+
 <pre>
-cypress_repository(<a href="#cypress_repository-name">name</a>, <a href="#cypress_repository-cypress_bin">cypress_bin</a>, <a href="#cypress_repository-fail_on_error">fail_on_error</a>, <a href="#cypress_repository-quiet">quiet</a>)
+cypress_repository(<a href="#cypress_repository-name">name</a>, <a href="#cypress_repository-cypress_bin">cypress_bin</a>, <a href="#cypress_repository-fail_on_error">fail_on_error</a>, <a href="#cypress_repository-quiet">quiet</a>, <a href="#cypress_repository-repo_mapping">repo_mapping</a>)
 </pre>
 
 <p><strong>ATTRIBUTES</strong></p>
 
-<table class="table table-params">
-  <thead>
-  <tr>
-    <th>Name</th>
-    <th>Description</th>
-    <th>Type</th>
-    <th>Mandatory</th>
-    <th>Default</th>
-  </tr>
-  </thead>
-  <tbody>
-            <tr id="cypress_repository-name">
-        <td>name</td>
-        <td>
-                            A unique name for this repository.
-                                </td>
-        <td><a href="https://bazel.build/docs/build-ref.html#name">Name</a></td>
-        <td>required</td>
-        <td>
-            
-        </td>
-      </tr>
-            <tr id="cypress_repository-cypress_bin">
-        <td>cypress_bin</td>
-        <td>
-                            bazel target of the cypress binary
-                                </td>
-        <td><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></td>
-        <td>optional</td>
-        <td>
-            @npm//:node_modules/cypress/bin/cypress
-        </td>
-      </tr>
-            <tr id="cypress_repository-fail_on_error">
-        <td>fail_on_error</td>
-        <td>
-                            If the repository rule should allow errors
-                                </td>
-        <td>Boolean</td>
-        <td>optional</td>
-        <td>
-            True
-        </td>
-      </tr>
-            <tr id="cypress_repository-quiet">
-        <td>quiet</td>
-        <td>
-                            If stdout and stderr should be printed to the terminal
-                                </td>
-        <td>Boolean</td>
-        <td>optional</td>
-        <td>
-            True
-        </td>
-      </tr>
-        </tbody>
-</table>
+<h4 id="cypress_repository-name">name</h4>
+
+<p>(<em><a href="https://bazel.build/docs/build-ref.html#name">Name</a>, mandatory</em>): A unique name for this repository.</p>
+
+<h4 id="cypress_repository-cypress_bin">cypress_bin</h4>
+
+<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></em>): bazel target of the cypress binary
+Defaults to <code class="language-plaintext highlighter-rouge">@npm//:node_modules/cypress/bin/cypress</code></p>
+
+<h4 id="cypress_repository-fail_on_error">fail_on_error</h4>
+
+<p>(<em>Boolean</em>): If the repository rule should allow errors
+Defaults to <code class="language-plaintext highlighter-rouge">True</code></p>
+
+<h4 id="cypress_repository-quiet">quiet</h4>
+
+<p>(<em>Boolean</em>): If stdout and stderr should be printed to the terminal
+Defaults to <code class="language-plaintext highlighter-rouge">True</code></p>
+
+<h4 id="cypress_repository-repo_mapping">repo_mapping</h4>
+
+<p>(<em><a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -&gt; String</a>, mandatory</em>): A dictionary from local repository name to global repository name. This allows controls over workspace dependency resolution for dependencies of this repository.&lt;p&gt;For example, an entry <code class="language-plaintext highlighter-rouge">"@foo": "@bar"</code> declares that, for any time this repository depends on <code class="language-plaintext highlighter-rouge">@foo</code> (such as a dependency on <code class="language-plaintext highlighter-rouge">@foo//some:target</code>, it should actually resolve that dependency within globally-declared <code class="language-plaintext highlighter-rouge">@bar</code> (<code class="language-plaintext highlighter-rouge">@bar//some:target</code>).</p>
 
 
       </div>
@@ -363,6 +331,7 @@ cypress_repository(<a href="#cypress_repository-name">name</a>, <a href="#cypres
 <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/3.2.0/anchor.min.js" type="text/javascript"></script>
 <script>
   // Automatically add anchors and links to all header elements that don't already have them.
+  anchors.options = { placement: 'left' };
   anchors.add();
 </script>
 

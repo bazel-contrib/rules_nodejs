@@ -25,14 +25,20 @@ By using code in Labs, we trust that you understand:
 
 ## protobufjs_ts_library
 
+**USAGE**
+
+<pre>
+protobufjs_ts_library(<a href="#protobufjs_ts_library-name">name</a>, <a href="#protobufjs_ts_library-deps">deps</a>, <a href="#protobufjs_ts_library-output_name">output_name</a>)
+</pre>
+
 Wraps https://github.com/dcodeIO/protobuf.js for use in Bazel.
 
-<code>ts_proto_library</code> has identical outputs to <code>ts_library</code>, so it can be used anywhere
-a <code>ts_library</code> can appear, such as in the <code>deps[]</code> of another <code>ts_library</code>.
+`ts_proto_library` has identical outputs to `ts_library`, so it can be used anywhere
+a `ts_library` can appear, such as in the `deps[]` of another `ts_library`.
 
 Example:
 
-{% highlight python %}
+```python
 load("@npm//@bazel/typescript:index.bzl", "ts_library", "ts_proto_library")
 
 proto_library(
@@ -51,22 +57,22 @@ ts_library(
     srcs = ["car.spec.ts"],
     deps = [":car"],
 )
-{% endhighlight %}
+```
 
-Note in this example we named the <code>ts_proto_library</code> rule <code>car</code> so that the
-result will be <code>car.d.ts</code>. This means our TypeScript code can just
-<code>import {symbols} from './car'</code>. Use the <code>output_name</code> attribute if you want to
+Note in this example we named the `ts_proto_library` rule `car` so that the
+result will be `car.d.ts`. This means our TypeScript code can just
+`import {symbols} from './car'`. Use the `output_name` attribute if you want to
 name the rule differently from the output file.
 
 The JavaScript produced by protobuf.js has a runtime dependency on a support library.
-Under devmode (e.g. <code>ts_devserver</code>, <code>karma_web_test_suite</code>) you'll need to include these scripts
-in the <code>bootstrap</code> phase (before Require.js loads). You can use the label
-<code>@npm//@bazel/labs/protobufjs:bootstrap_scripts</code> to reference these scripts
-in the <code>bootstrap</code> attribute of <code>karma_web_test_suite</code> or <code>ts_devserver</code>.
+Under devmode (e.g. `ts_devserver`, `karma_web_test_suite`) you'll need to include these scripts
+in the `bootstrap` phase (before Require.js loads). You can use the label
+`@npm//@bazel/labs/protobufjs:bootstrap_scripts` to reference these scripts
+in the `bootstrap` attribute of `karma_web_test_suite` or `ts_devserver`.
 
-To complete the example above, you could write a <code>karma_web_test_suite</code>:
+To complete the example above, you could write a `karma_web_test_suite`:
 
-{% highlight python %}
+```python
 load("@npm//@bazel/karma:index.bzl", "karma_web_test_suite")
 
 karma_web_test_suite(
@@ -78,109 +84,52 @@ karma_web_test_suite(
         "@io_bazel_rules_webtesting//browsers:firefox-local",
     ],
 )
-{% endhighlight %}
+```
 
-
-<pre>
-protobufjs_ts_library(<a href="#protobufjs_ts_library-name">name</a>, <a href="#protobufjs_ts_library-deps">deps</a>, <a href="#protobufjs_ts_library-output_name">output_name</a>)
-</pre>
 
 **ATTRIBUTES**
 
-<table class="table table-params">
-  <thead>
-  <tr>
-    <th>Name</th>
-    <th>Description</th>
-    <th>Type</th>
-    <th>Mandatory</th>
-    <th>Default</th>
-  </tr>
-  </thead>
-  <tbody>
-            <tr id="protobufjs_ts_library-name">
-        <td>name</td>
-        <td>
-                            A unique name for this target.
-                                </td>
-        <td><a href="https://bazel.build/docs/build-ref.html#name">Name</a></td>
-        <td>required</td>
-        <td>
-            
-        </td>
-      </tr>
-            <tr id="protobufjs_ts_library-deps">
-        <td>deps</td>
-        <td>
-                            proto_library targets
-                                </td>
-        <td><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></td>
-        <td>optional</td>
-        <td>
-            []
-        </td>
-      </tr>
-            <tr id="protobufjs_ts_library-output_name">
-        <td>output_name</td>
-        <td>
-                            Name of the resulting module, which you will import from.
+
+<h4 id="protobufjs_ts_library-name">name</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#name">Name</a>, mandatory*): A unique name for this target.
+
+
+<h4 id="protobufjs_ts_library-deps">deps</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*): proto_library targets
+Defaults to `[]`
+
+<h4 id="protobufjs_ts_library-output_name">output_name</h4>
+
+(*String*): Name of the resulting module, which you will import from.
             If not specified, the name will match the target's name.
-                                </td>
-        <td>String</td>
-        <td>optional</td>
-        <td>
-            ""
-        </td>
-      </tr>
-        </tbody>
-</table>
+Defaults to `""`
 
 
 
 ## ts_proto_library
 
-
+**USAGE**
 
 <pre>
 ts_proto_library(<a href="#ts_proto_library-name">name</a>, <a href="#ts_proto_library-proto">proto</a>)
 </pre>
 
+
+
 **ATTRIBUTES**
 
-<table class="table table-params">
-  <thead>
-  <tr>
-    <th>Name</th>
-    <th>Description</th>
-    <th>Type</th>
-    <th>Mandatory</th>
-    <th>Default</th>
-  </tr>
-  </thead>
-  <tbody>
-            <tr id="ts_proto_library-name">
-        <td>name</td>
-        <td>
-                            A unique name for this target.
-                                </td>
-        <td><a href="https://bazel.build/docs/build-ref.html#name">Name</a></td>
-        <td>required</td>
-        <td>
-            
-        </td>
-      </tr>
-            <tr id="ts_proto_library-proto">
-        <td>proto</td>
-        <td>
-                                      The dependencies of this attribute must provide: ProtoInfo
-                    </td>
-        <td><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></td>
-        <td>required</td>
-        <td>
-            
-        </td>
-      </tr>
-        </tbody>
-</table>
+
+<h4 id="ts_proto_library-name">name</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#name">Name</a>, mandatory*): A unique name for this target.
+
+
+<h4 id="ts_proto_library-proto">proto</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>, mandatory*)  The dependencies of this attribute must provide: ProtoInfo
+
+
 
 

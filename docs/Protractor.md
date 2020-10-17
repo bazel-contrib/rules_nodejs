@@ -17,203 +17,137 @@ The Protractor rules run tests under the Protractor framework with Bazel.
 
 ## Installation
 
-Add the <code>@bazel/protractor</code> npm package to your <code>devDependencies</code> in <code>package.json</code>.
+Add the `@bazel/protractor` npm package to your `devDependencies` in `package.json`.
 
 
 
 ## protractor_web_test
 
-Runs a protractor test in a browser.
+**USAGE**
 
 <pre>
 protractor_web_test(<a href="#protractor_web_test-name">name</a>, <a href="#protractor_web_test-configuration">configuration</a>, <a href="#protractor_web_test-on_prepare">on_prepare</a>, <a href="#protractor_web_test-srcs">srcs</a>, <a href="#protractor_web_test-deps">deps</a>, <a href="#protractor_web_test-data">data</a>, <a href="#protractor_web_test-server">server</a>, <a href="#protractor_web_test-tags">tags</a>, <a href="#protractor_web_test-peer_deps">peer_deps</a>,
                     <a href="#protractor_web_test-protractor_entry_point">protractor_entry_point</a>, <a href="#protractor_web_test-kwargs">kwargs</a>)
 </pre>
 
+Runs a protractor test in a browser.
+
 **PARAMETERS**
 
-<table class="table table-params">
-  <thead>
-  <tr>
-    <th>Name</th>
-    <th>Description</th>
-    <th>Default</th>
-  </tr>
-  </thead>
-  <tbody>
-            <tr id="protractor_web_test-name">
-        <td>name</td>
-        <td>
-                            The name of the test
-                    </td>
-        <td>
-            
-        </td>
-      </tr>
-            <tr id="protractor_web_test-configuration">
-        <td>configuration</td>
-        <td>
-                            Protractor configuration file.
-                    </td>
-        <td>
-            None
-        </td>
-      </tr>
-            <tr id="protractor_web_test-on_prepare">
-        <td>on_prepare</td>
-        <td>
-                            A file with a node.js script to run once before all tests run.
-    If the script exports a function which returns a promise, protractor
-    will wait for the promise to resolve before beginning tests.
-                    </td>
-        <td>
-            None
-        </td>
-      </tr>
-            <tr id="protractor_web_test-srcs">
-        <td>srcs</td>
-        <td>
-                            JavaScript source files
-                    </td>
-        <td>
-            []
-        </td>
-      </tr>
-            <tr id="protractor_web_test-deps">
-        <td>deps</td>
-        <td>
-                            Other targets which produce JavaScript such as <code>ts_library</code>
-                    </td>
-        <td>
-            []
-        </td>
-      </tr>
-            <tr id="protractor_web_test-data">
-        <td>data</td>
-        <td>
-                            Runtime dependencies
-                    </td>
-        <td>
-            []
-        </td>
-      </tr>
-            <tr id="protractor_web_test-server">
-        <td>server</td>
-        <td>
-                            Optional server executable target
-                    </td>
-        <td>
-            None
-        </td>
-      </tr>
-            <tr id="protractor_web_test-tags">
-        <td>tags</td>
-        <td>
-                            Standard Bazel tags, this macro adds one for ibazel
-                    </td>
-        <td>
-            []
-        </td>
-      </tr>
-            <tr id="protractor_web_test-peer_deps">
-        <td>peer_deps</td>
-        <td>
-                            List of peer npm deps required by protractor_web_test
-                    </td>
-        <td>
-            ["@npm//@bazel/protractor", "@npm//protractor"]
-        </td>
-      </tr>
-            <tr id="protractor_web_test-protractor_entry_point">
-        <td>protractor_entry_point</td>
-        <td>
-                            A label providing the protractor entry point
-    Default to <code>:node_modules/protractor/bin/protractor</code>.
-                    </td>
-        <td>
-            "@npm//:node_modules/protractor/bin/protractor"
-        </td>
-      </tr>
-            <tr id="protractor_web_test-kwargs">
-        <td>kwargs</td>
-        <td>
-                            passed through to <code>protractor_web_test</code>
-                    </td>
-        <td>
-            
-        </td>
-      </tr>
-        </tbody>
-</table>
+
+<h4 id="protractor_web_test-name">name</h4>
+
+The name of the test
+
+
+
+<h4 id="protractor_web_test-configuration">configuration</h4>
+
+Protractor configuration file.
+
+Defaults to `None`
+
+<h4 id="protractor_web_test-on_prepare">on_prepare</h4>
+
+A file with a node.js script to run once before all tests run.
+If the script exports a function which returns a promise, protractor
+will wait for the promise to resolve before beginning tests.
+
+Defaults to `None`
+
+<h4 id="protractor_web_test-srcs">srcs</h4>
+
+JavaScript source files
+
+Defaults to `[]`
+
+<h4 id="protractor_web_test-deps">deps</h4>
+
+Other targets which produce JavaScript such as `ts_library`
+
+Defaults to `[]`
+
+<h4 id="protractor_web_test-data">data</h4>
+
+Runtime dependencies
+
+Defaults to `[]`
+
+<h4 id="protractor_web_test-server">server</h4>
+
+Optional server executable target
+
+Defaults to `None`
+
+<h4 id="protractor_web_test-tags">tags</h4>
+
+Standard Bazel tags, this macro adds one for ibazel
+
+Defaults to `[]`
+
+<h4 id="protractor_web_test-peer_deps">peer_deps</h4>
+
+List of peer npm deps required by protractor_web_test
+
+Defaults to `["@npm//@bazel/protractor", "@npm//protractor"]`
+
+<h4 id="protractor_web_test-protractor_entry_point">protractor_entry_point</h4>
+
+A label providing the protractor entry point
+Default to `:node_modules/protractor/bin/protractor`.
+
+Defaults to `"@npm//:node_modules/protractor/bin/protractor"`
+
+<h4 id="protractor_web_test-kwargs">kwargs</h4>
+
+passed through to `protractor_web_test`
+
+
 
 
 
 ## protractor_web_test_suite
 
-Defines a test_suite of web_test targets that wrap a protractor_web_test target.
+**USAGE**
 
 <pre>
 protractor_web_test_suite(<a href="#protractor_web_test_suite-name">name</a>, <a href="#protractor_web_test_suite-browsers">browsers</a>, <a href="#protractor_web_test_suite-web_test_data">web_test_data</a>, <a href="#protractor_web_test_suite-wrapped_test_tags">wrapped_test_tags</a>, <a href="#protractor_web_test_suite-kwargs">kwargs</a>)
 </pre>
 
+Defines a test_suite of web_test targets that wrap a protractor_web_test target.
+
 **PARAMETERS**
 
-<table class="table table-params">
-  <thead>
-  <tr>
-    <th>Name</th>
-    <th>Description</th>
-    <th>Default</th>
-  </tr>
-  </thead>
-  <tbody>
-            <tr id="protractor_web_test_suite-name">
-        <td>name</td>
-        <td>
-                            The base name of the test
-                    </td>
-        <td>
-            
-        </td>
-      </tr>
-            <tr id="protractor_web_test_suite-browsers">
-        <td>browsers</td>
-        <td>
-                            A sequence of labels specifying the browsers to use.
-                    </td>
-        <td>
-            None
-        </td>
-      </tr>
-            <tr id="protractor_web_test_suite-web_test_data">
-        <td>web_test_data</td>
-        <td>
-                            Data dependencies for the wrapper web_test targets.
-                    </td>
-        <td>
-            []
-        </td>
-      </tr>
-            <tr id="protractor_web_test_suite-wrapped_test_tags">
-        <td>wrapped_test_tags</td>
-        <td>
-                            A list of test tag strings to use for the wrapped
-  karma_web_test target.
-                    </td>
-        <td>
-            ["manual", "noci"]
-        </td>
-      </tr>
-            <tr id="protractor_web_test_suite-kwargs">
-        <td>kwargs</td>
-        <td>
-                            Arguments for the wrapped karma_web_test target.
-                    </td>
-        <td>
-            
-        </td>
-      </tr>
-        </tbody>
-</table>
+
+<h4 id="protractor_web_test_suite-name">name</h4>
+
+The base name of the test
+
+
+
+<h4 id="protractor_web_test_suite-browsers">browsers</h4>
+
+A sequence of labels specifying the browsers to use.
+
+Defaults to `None`
+
+<h4 id="protractor_web_test_suite-web_test_data">web_test_data</h4>
+
+Data dependencies for the wrapper web_test targets.
+
+Defaults to `[]`
+
+<h4 id="protractor_web_test_suite-wrapped_test_tags">wrapped_test_tags</h4>
+
+A list of test tag strings to use for the wrapped
+karma_web_test target.
+
+Defaults to `["manual", "noci"]`
+
+<h4 id="protractor_web_test_suite-kwargs">kwargs</h4>
+
+Arguments for the wrapped karma_web_test target.
+
+
 
 
