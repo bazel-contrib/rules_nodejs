@@ -1,6 +1,6 @@
 "node_context_data rule"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "NodeContextInfo")
+load("@rules_nodejs//:providers.bzl", "NodeContextInfo")
 
 _DOC = """node_context_data gathers information about the build configuration.
 It is a common dependency of all targets that are sensitive to configuration.

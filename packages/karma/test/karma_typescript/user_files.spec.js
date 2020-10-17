@@ -6,7 +6,7 @@ describe('karma_web_test_suite', () => {
   beforeAll(() => {
     config = fs.readFileSync(
         require.resolve(
-            'build_bazel_rules_nodejs/packages/karma/test/karma_typescript/testing_wrapped_test.conf.js'),
+            'rules_nodejs/packages/karma/test/karma_typescript/testing_wrapped_test.conf.js'),
         'utf-8');
   });
 
@@ -20,7 +20,7 @@ describe('karma_web_test_suite', () => {
     expect(files).toEqual([
       'npm/node_modules/requirejs/require.js',
       'npm/node_modules/karma-requirejs/lib/adapter.js',
-      'build_bazel_rules_nodejs/packages/karma/test/karma_typescript/_testing_wrapped_test.amd_names_shim.js',
+      'rules_nodejs/packages/karma/test/karma_typescript/_testing_wrapped_test.amd_names_shim.js',
     ]);
   });
 
@@ -34,14 +34,14 @@ describe('karma_web_test_suite', () => {
     // These are files that Karma should load, they are not necessarily
     // topologically sorted.
     expect(files).toEqual([
-      'build_bazel_rules_nodejs/packages/karma/test/karma_typescript/foobar.js',
-      'build_bazel_rules_nodejs/packages/karma/test/karma_typescript/hello_world.spec.js',
-      'build_bazel_rules_nodejs/packages/karma/test/karma_typescript/decrement.spec.js',
-      'build_bazel_rules_nodejs/packages/karma/test/karma_typescript/foobar.spec.js',
-      'build_bazel_rules_nodejs/packages/karma/test/karma_typescript/decrement.js',
+      'rules_nodejs/packages/karma/test/karma_typescript/foobar.js',
+      'rules_nodejs/packages/karma/test/karma_typescript/hello_world.spec.js',
+      'rules_nodejs/packages/karma/test/karma_typescript/decrement.spec.js',
+      'rules_nodejs/packages/karma/test/karma_typescript/foobar.spec.js',
+      'rules_nodejs/packages/karma/test/karma_typescript/decrement.js',
       'npm/node_modules/rxjs/bundles/rxjs.umd.js',
-      'build_bazel_rules_nodejs/packages/karma/test/karma_typescript/rxjs_shims.js',
-      'build_bazel_rules_nodejs/packages/karma/test/karma_typescript/hello_world.js',
+      'rules_nodejs/packages/karma/test/karma_typescript/rxjs_shims.js',
+      'rules_nodejs/packages/karma/test/karma_typescript/hello_world.js',
     ]);
   });
 });

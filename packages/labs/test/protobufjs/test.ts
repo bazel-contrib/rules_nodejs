@@ -1,4 +1,4 @@
-import {TestMessage} from 'build_bazel_rules_nodejs/packages/labs/test/protobufjs/test_ts_proto';
+import {TestMessage} from 'rules_nodejs/packages/labs/test/protobufjs/test_ts_proto';
 
 describe('protobufjs', () => {
   it('should work in node', () => {

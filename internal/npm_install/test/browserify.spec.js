@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
-const mainFile = 'build_bazel_rules_nodejs/third_party/npm/node_modules/browserify/index.js';
-const directory = 'build_bazel_rules_nodejs/internal/npm_install/test';
+const mainFile = 'rules_nodejs/third_party/npm/node_modules/browserify/index.js';
+const directory = 'rules_nodejs/internal/npm_install/test';
 
 describe('our bundled, vendored browserify binary', () => {
   it('should preserve licenses', () => {

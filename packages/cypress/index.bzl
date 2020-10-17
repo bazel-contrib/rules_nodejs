@@ -16,7 +16,7 @@
 """
 
 load(
-    "@build_bazel_rules_nodejs//packages/cypress:internal/cypress_repository.bzl",
+    "@rules_nodejs//packages/cypress:internal/cypress_repository.bzl",
     _cypress_repository = "cypress_repository",
 )
 

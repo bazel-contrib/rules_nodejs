@@ -170,7 +170,7 @@
  ********************* -->
 <h1 id="built-in-rules">Built-in rules</h1>
 
-<p>These rules are available without any npm installation, via the <code class="language-plaintext highlighter-rouge">WORKSPACE</code> install of the <code class="language-plaintext highlighter-rouge">build_bazel_rules_nodejs</code> workspace. This is necessary to bootstrap Bazel to run the package manager to download other rules from NPM.</p>
+<p>These rules are available without any npm installation, via the <code class="language-plaintext highlighter-rouge">WORKSPACE</code> install of the <code class="language-plaintext highlighter-rouge">rules_nodejs</code> workspace. This is necessary to bootstrap Bazel to run the package manager to download other rules from NPM.</p>
 
 <h2 id="node_repositories">node_repositories</h2>
 
@@ -268,7 +268,7 @@ It also ties your build to a single platform, preventing you from cross-compilin
 <p>You can optionally pass a <code class="language-plaintext highlighter-rouge">package_json</code> array to node_repositories. This lets you use Bazel’s version of yarn or npm, yet always run the package manager yourself.
 This is an advanced scenario you can use in place of the <code class="language-plaintext highlighter-rouge">npm_install</code> or <code class="language-plaintext highlighter-rouge">yarn_install</code> rules, but we don’t recommend it, and might remove it in the future.</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories")
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>load("@rules_nodejs//:index.bzl", "node_repositories")
 node_repositories(package_json = ["//:package.json", "//subpkg:package.json"])
 </code></pre></div></div>
 
@@ -1071,7 +1071,7 @@ pkg_npm(<a href="#pkg_npm-name">name</a>, <a href="#pkg_npm-deps">deps</a>, <a h
 
 <p>Example:</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">load</span><span class="p">(</span><span class="s">"@build_bazel_rules_nodejs//:index.bzl"</span><span class="p">,</span> <span class="s">"pkg_npm"</span><span class="p">)</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">load</span><span class="p">(</span><span class="s">"@rules_nodejs//:index.bzl"</span><span class="p">,</span> <span class="s">"pkg_npm"</span><span class="p">)</span>
 
 <span class="n">pkg_npm</span><span class="p">(</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s">"my_package"</span><span class="p">,</span>
@@ -1149,10 +1149,10 @@ my-package-name-1.2.3.tgz
 
 <p>By default it reads from the bazel command line, such as the <code class="language-plaintext highlighter-rouge">--stamp</code> argument.
 Use this to override values for this target, such as enabling or disabling stamping.
-You can use the <code class="language-plaintext highlighter-rouge">node_context_data</code> rule in <code class="language-plaintext highlighter-rouge">@build_bazel_rules_nodejs//internal/node:context.bzl</code>
+You can use the <code class="language-plaintext highlighter-rouge">node_context_data</code> rule in <code class="language-plaintext highlighter-rouge">@rules_nodejs//internal/node:context.bzl</code>
 to create a NodeContextInfo.  The dependencies of this attribute must provide: NodeContextInfo</p>
 
-<p>Defaults to <code class="language-plaintext highlighter-rouge">@build_bazel_rules_nodejs//internal:node_context_data</code></p>
+<p>Defaults to <code class="language-plaintext highlighter-rouge">@rules_nodejs//internal:node_context_data</code></p>
 
 <h4 id="pkg_npm-package_name">package_name</h4>
 
@@ -1223,10 +1223,10 @@ pkg_web(<a href="#pkg_web-name">name</a>, <a href="#pkg_web-additional_root_path
 
 <p>By default it reads from the bazel command line, such as the <code class="language-plaintext highlighter-rouge">--stamp</code> argument.
 Use this to override values for this target, such as enabling or disabling stamping.
-You can use the <code class="language-plaintext highlighter-rouge">node_context_data</code> rule in <code class="language-plaintext highlighter-rouge">@build_bazel_rules_nodejs//internal/node:context.bzl</code>
+You can use the <code class="language-plaintext highlighter-rouge">node_context_data</code> rule in <code class="language-plaintext highlighter-rouge">@rules_nodejs//internal/node:context.bzl</code>
 to create a NodeContextInfo.  The dependencies of this attribute must provide: NodeContextInfo</p>
 
-<p>Defaults to <code class="language-plaintext highlighter-rouge">@build_bazel_rules_nodejs//internal:node_context_data</code></p>
+<p>Defaults to <code class="language-plaintext highlighter-rouge">@rules_nodejs//internal:node_context_data</code></p>
 
 <h4 id="pkg_web-srcs">srcs</h4>
 

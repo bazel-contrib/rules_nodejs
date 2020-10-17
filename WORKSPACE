@@ -13,7 +13,7 @@
 # limitations under the License.
 
 workspace(
-    name = "build_bazel_rules_nodejs",
+    name = "rules_nodejs",
     managed_directories = {
         "@angular_deps": ["packages/angular/node_modules"],
         # cypress_deps must be a managed directory to ensure it is downloaded before cypress_repository is run.
@@ -37,7 +37,7 @@ rules_nodejs_dev_dependencies()
 # Setup rules_nodejs npm dependencies
 #
 
-load("@build_bazel_rules_nodejs//:index.bzl", "npm_install", "yarn_install")
+load("@rules_nodejs//:index.bzl", "npm_install", "yarn_install")
 
 yarn_install(
     name = "npm",

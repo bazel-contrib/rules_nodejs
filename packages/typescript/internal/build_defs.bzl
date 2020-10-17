@@ -14,12 +14,11 @@
 
 "TypeScript compilation"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "LinkablePackageInfo", "NpmPackageInfo", "js_ecma_script_module_info", "js_module_info", "js_named_module_info", "node_modules_aspect", "run_node")
-
 # pylint: disable=unused-argument
 # pylint: disable=missing-docstring
 load("@build_bazel_rules_typescript//internal:common/compilation.bzl", "COMMON_ATTRIBUTES", "DEPS_ASPECTS", "compile_ts", "ts_providers_dict_to_struct")
 load("@build_bazel_rules_typescript//internal:common/tsconfig.bzl", "create_tsconfig")
+load("@rules_nodejs//:providers.bzl", "LinkablePackageInfo", "NpmPackageInfo", "js_ecma_script_module_info", "js_module_info", "js_named_module_info", "node_modules_aspect", "run_node")
 load("//packages/typescript/internal:ts_config.bzl", "TsConfigInfo")
 
 # NB: substituted with "//@bazel/typescript/bin:tsc_wrapped" in the pkg_npm rule

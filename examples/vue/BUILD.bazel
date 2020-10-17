@@ -1,5 +1,5 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin", "nodejs_test")
 load("@npm//@vue/cli-service:index.bzl", "vue_cli_service")
+load("@rules_nodejs//:index.bzl", "copy_to_bin", "nodejs_test")
 
 vue_cli_service(
     name = "serve",

@@ -1,7 +1,7 @@
 "ts_project rule"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "NpmPackageInfo", "declaration_info", "js_module_info", "run_node")
-load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
+load("@rules_nodejs//:providers.bzl", "DeclarationInfo", "NpmPackageInfo", "declaration_info", "js_module_info", "run_node")
+load("@rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 load(":ts_config.bzl", "TsConfigInfo", "write_tsconfig")
 
 _DEFAULT_TSC = (

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@build_bazel_rules_nodejs//:index.bzl", "BAZEL_VERSION", "nodejs_test")
+load("@rules_nodejs//:index.bzl", "BAZEL_VERSION", "nodejs_test")
 load("//internal/node:context.bzl", "node_context_data")
 
 package(default_visibility = ["//visibility:public"])
@@ -46,7 +46,7 @@ config_setting(
 node_context_data(
     name = "node_context_data",
     stamp = select({
-        "@build_bazel_rules_nodejs//internal:stamp": True,
+        "@rules_nodejs//internal:stamp": True,
         "//conditions:default": False,
     }),
 )

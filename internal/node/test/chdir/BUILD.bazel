@@ -3,7 +3,7 @@
 # the project when you call them.
 # See https://github.com/bazelbuild/rules_nodejs/issues/1840
 
-load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin", "nodejs_binary", "nodejs_test", "npm_package_bin")
+load("@rules_nodejs//:index.bzl", "copy_to_bin", "nodejs_binary", "nodejs_test", "npm_package_bin")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/write_file.bzl", "write_file")
 
 # A tool like react-scripts needs to run in the output directory since it writes outputs

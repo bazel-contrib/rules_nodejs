@@ -17,7 +17,7 @@
 This is not a full-featured Parcel bazel rule, just enough to demonstrate how to write one.
 """
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "run_node")
+load("@rules_nodejs//:providers.bzl", "run_node")
 
 def _parcel_impl(ctx):
     """The "implementation function" for our rule.

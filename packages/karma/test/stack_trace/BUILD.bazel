@@ -48,7 +48,7 @@ sh_test(
     srcs = ["test_sourcemap.sh"],
     data = [
         ":karma_test_chromium-local",
-        "@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles",
+        "@rules_nodejs//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles",
     ],
     tags = [
         "browser:chromium-local",

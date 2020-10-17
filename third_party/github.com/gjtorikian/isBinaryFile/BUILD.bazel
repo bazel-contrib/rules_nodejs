@@ -4,7 +4,7 @@ licenses(["notice"])
 
 exports_files(["LICENSE"])
 
-load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+load("@rules_nodejs//:index.bzl", "js_library")
 
 # BEGIN-INTERNAL
 load("//packages/typescript:index.bzl", "ts_project")

@@ -13,8 +13,8 @@
 # limitations under the License.
 "E2E testing with Cypress"
 
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
-load("@build_bazel_rules_nodejs//:providers.bzl", "JSNamedModuleInfo")
+load("@rules_nodejs//:index.bzl", "nodejs_test")
+load("@rules_nodejs//:providers.bzl", "JSNamedModuleInfo")
 
 def _filter_js(files):
     return [f for f in files if f.extension == "js" or f.extension == "mjs"]
@@ -59,7 +59,7 @@ _cypress_plugin = rule(
             mandatory = True,
         ),
         "plugins_file": attr.label(
-            default = Label("@build_bazel_rules_nodejs//packages/cypress:internal/plugins/base.js"),
+            default = Label("@rules_nodejs//packages/cypress:internal/plugins/base.js"),
             allow_single_file = True,
         ),
         "srcs": attr.label_list(
@@ -68,7 +68,7 @@ _cypress_plugin = rule(
         ),
         # Unused by this rule, but here to require that a user supplies one for the downstream nodejs_test
         "_plugin_template": attr.label(
-            default = Label("@build_bazel_rules_nodejs//packages/cypress:internal/plugins/index.template.js"),
+            default = Label("@rules_nodejs//packages/cypress:internal/plugins/index.template.js"),
             allow_single_file = True,
         ),
     },
@@ -78,7 +78,7 @@ def cypress_web_test(
         name,
         config_file,
         srcs = [],
-        plugins_file = Label("@build_bazel_rules_nodejs//packages/cypress:internal/plugins/base.js"),
+        plugins_file = Label("@rules_nodejs//packages/cypress:internal/plugins/base.js"),
         cypress = Label("TEMPLATED_node_modules_workspace_name//cypress:cypress"),
         cypress_browserify_preprocessor = Label("TEMPLATED_node_modules_workspace_name//@cypress/browserify-preprocessor"),
         data = [],
@@ -111,7 +111,7 @@ def cypress_web_test(
             "{cypress_plugin}".format(cypress_plugin = cypress_plugin),
             "{config_file}".format(config_file = config_file),
         ] + srcs,
-        entry_point = "@build_bazel_rules_nodejs//packages/cypress:internal/run-cypress.js",
+        entry_point = "@rules_nodejs//packages/cypress:internal/run-cypress.js",
         templated_args = [
             "--nobazel_patch_module_resolver",
             "$(rootpath {config_file})".format(config_file = config_file),
@@ -125,7 +125,7 @@ def cypress_web_test_global_cache(
         name,
         config_file,
         srcs = [],
-        plugins_file = Label("@build_bazel_rules_nodejs//packages/cypress:plugins/base.js"),
+        plugins_file = Label("@rules_nodejs//packages/cypress:plugins/base.js"),
         cypress = Label("TEMPLATED_node_modules_workspace_name//cypress:cypress"),
         cypress_browserify_preprocessor = Label("TEMPLATED_node_modules_workspace_name//@cypress/browserify-preprocessor"),
         data = [],
@@ -154,7 +154,7 @@ def cypress_web_test_global_cache(
             "{cypress_plugin}".format(cypress_plugin = cypress_plugin),
             "{config_file}".format(config_file = config_file),
         ] + srcs,
-        entry_point = "@build_bazel_rules_nodejs//packages/cypress:internal/run-cypress.js",
+        entry_point = "@rules_nodejs//packages/cypress:internal/run-cypress.js",
         templated_args = [
             "--nobazel_patch_module_resolver",
             "$(rootpath {config_file})".format(config_file = config_file),

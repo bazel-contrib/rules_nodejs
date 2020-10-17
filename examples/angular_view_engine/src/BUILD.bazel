@@ -1,4 +1,3 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "pkg_web")
 load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
 load("@npm//@babel/cli:index.bzl", "babel")
 load("@npm//@bazel/rollup:index.bzl", "rollup_bundle")
@@ -7,6 +6,7 @@ load("@npm//@bazel/typescript:index.bzl", "ts_config", "ts_devserver", "ts_libra
 load("@npm//history-server:index.bzl", "history_server")
 load("@npm//html-insert-assets:index.bzl", "html_insert_assets")
 load("@npm_angular_bazel//:index.bzl", "ng_module")
+load("@rules_nodejs//:index.bzl", "pkg_web")
 
 package(default_visibility = ["//:__subpackages__"])
 

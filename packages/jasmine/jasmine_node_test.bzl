@@ -18,8 +18,8 @@ These rules let you run tests outside of a browser. This is typically faster
 than launching a test in Karma, for example.
 """
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "JSModuleInfo")
-load("@build_bazel_rules_nodejs//internal/node:node.bzl", "nodejs_test")
+load("@rules_nodejs//:providers.bzl", "JSModuleInfo")
+load("@rules_nodejs//internal/node:node.bzl", "nodejs_test")
 
 def _js_sources_impl(ctx):
     depsets = []
@@ -115,7 +115,7 @@ def jasmine_node_test(
 
     # END-INTERNAL
     all_data += [":%s_js_sources.MF" % name]
-    all_data += [Label("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles")]
+    all_data += [Label("@rules_nodejs//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles")]
 
     # jasmine_runner.js consumes the first 3 args.
     # The remaining target templated_args will be passed through to jasmine or

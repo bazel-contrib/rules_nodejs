@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin")
+load("@rules_nodejs//:index.bzl", "copy_to_bin")
 load("//packages/typescript:index.bzl", "ts_library")
 load(":ts_jest_test.bzl", "ts_jest_test")
 

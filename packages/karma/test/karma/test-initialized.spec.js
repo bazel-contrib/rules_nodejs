@@ -1,4 +1,4 @@
-define('build_bazel_rules_nodejs/packages/karma/test/karma/test-initialized.spec', [], () => {
+define('rules_nodejs/packages/karma/test/karma/test-initialized.spec', [], () => {
   // Test that ensures that the "init-test.js" file has been included in the
   // ConcatJS module and was actually executed by the browser. The "init-test.js"
   // file is included in "static_files" and in the "deps" but should not be treated

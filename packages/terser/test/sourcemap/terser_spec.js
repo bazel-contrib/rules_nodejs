@@ -1,6 +1,6 @@
 const fs = require('fs');
 const sm = require('source-map');
-const DIR = 'build_bazel_rules_nodejs/packages/terser/test/sourcemap';
+const DIR = 'rules_nodejs/packages/terser/test/sourcemap';
 
 describe('terser sourcemap handling', () => {
   it('should produce a sourcemap output', async () => {

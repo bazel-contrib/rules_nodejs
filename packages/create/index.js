@@ -121,7 +121,7 @@ function main(argv, error = console.error, log = console.log) {
   const yarnInstallCmd =
       `# The yarn_install rule runs yarn anytime the package.json or yarn.lock file changes.
 # It also extracts and installs any Bazel rules distributed in an npm package.
-load("@build_bazel_rules_nodejs//:index.bzl", "yarn_install")
+load("@rules_nodejs//:index.bzl", "yarn_install")
 yarn_install(
     # Name this npm so that Bazel Label references look like @npm//package
     name = "npm",
@@ -132,7 +132,7 @@ yarn_install(
   const npmInstallCmd =
       `# The npm_install rule runs yarn anytime the package.json or package-lock.json file changes.
 # It also extracts any Bazel rules distributed in an npm package.
-load("@build_bazel_rules_nodejs//:index.bzl", "npm_install")
+load("@rules_nodejs//:index.bzl", "npm_install")
 npm_install(
     # Name this npm so that Bazel Label references look like @npm//package
     name = "npm",
@@ -156,7 +156,7 @@ workspace(
 # This provides the basic tools for running and packaging nodejs programs in Bazel
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 http_archive(
-    name = "build_bazel_rules_nodejs",
+    name = "rules_nodejs",
     sha256 = "f2194102720e662dbf193546585d705e645314319554c6ce7e47d8b59f459e9c",
     urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/2.2.2/rules_nodejs-2.2.2.tar.gz"],
 )

@@ -15,7 +15,7 @@
 """Custom copy_repository rule used by npm_install and yarn_install.
 """
 
-load("@build_bazel_rules_nodejs//internal/common:os_name.bzl", "is_windows_os")
+load("@rules_nodejs//internal/common:os_name.bzl", "is_windows_os")
 
 def _copy_file(rctx, src):
     rctx.template(src.basename, src)
@@ -23,10 +23,10 @@ def _copy_file(rctx, src):
 def _copy_repository_impl(rctx):
     src_path = "/".join(str(rctx.path(rctx.attr.marker_file)).split("/")[:-1])
     if is_windows_os(rctx):
-        _copy_file(rctx, rctx.path(Label("@build_bazel_rules_nodejs//internal/copy_repository:_copy.bat")))
+        _copy_file(rctx, rctx.path(Label("@rules_nodejs//internal/copy_repository:_copy.bat")))
         result = rctx.execute(["cmd.exe", "/C", "_copy.bat", src_path.replace("/", "\\"), "."])
     else:
-        _copy_file(rctx, rctx.path(Label("@build_bazel_rules_nodejs//internal/copy_repository:_copy.sh")))
+        _copy_file(rctx, rctx.path(Label("@rules_nodejs//internal/copy_repository:_copy.sh")))
         result = rctx.execute(["./_copy.sh", src_path, "."])
     if result.return_code:
         fail("copy_repository failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))

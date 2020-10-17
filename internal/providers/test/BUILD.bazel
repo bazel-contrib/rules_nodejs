@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test", "nodejs_binary")
+load("@rules_nodejs//:index.bzl", "generated_file_test", "nodejs_binary")
 load("//internal/providers/test:run_node_test.bzl", "js_write_file")
 
 # two nodejs_binary targets provide two separate executables in the run_node test

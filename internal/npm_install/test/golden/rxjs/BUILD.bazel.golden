@@ -1,6 +1,6 @@
 
 package(default_visibility = ["//visibility:public"])
-load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+load("@rules_nodejs//:index.bzl", "js_library")
 filegroup(
     name = "rxjs__files",
     srcs = [
@@ -4313,7 +4313,7 @@ js_library(
         "//:node_modules/rxjs/webSocket/index.d.ts",
     ],
 )
-load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
+load("@rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
 npm_umd_bundle(
     name = "rxjs__umd",
     package_name = "rxjs",

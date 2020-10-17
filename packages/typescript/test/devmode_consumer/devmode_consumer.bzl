@@ -15,7 +15,7 @@
 """Example of a rule that requires es2015 (devmode) inputs.
 """
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "JSNamedModuleInfo")
+load("@rules_nodejs//:providers.bzl", "JSNamedModuleInfo")
 
 def _devmode_consumer(ctx):
     sources_depsets = []

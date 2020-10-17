@@ -1,6 +1,6 @@
 """Example package for generating stardoc from rules_nodejs at source"""
 
-load("@build_bazel_rules_nodejs//packages/typescript:index.bzl", "ts_library")
+load("@rules_nodejs//packages/typescript:index.bzl", "ts_library")
 
 def custom_ts_library(name, deps = [], **kwargs):
     """

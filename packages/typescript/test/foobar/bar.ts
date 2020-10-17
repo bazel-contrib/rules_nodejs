@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-import {Greeter} from 'build_bazel_rules_nodejs/packages/typescript/test/foobar/foo';
-import {a} from 'build_bazel_rules_nodejs/packages/typescript/test/generated_ts/foo';
 // Repro for #31, should automatically discover @types/node
 import * as fs from 'fs';
+import {Greeter} from 'rules_nodejs/packages/typescript/test/foobar/foo';
+import {a} from 'rules_nodejs/packages/typescript/test/generated_ts/foo';
 import {cool} from 'some-lib';
 // Verify that typescript/lib/typescript.d.ts and typescript/lib/tsserverlibrary.d.ts
 // are available since we must exclude all other typescript/lib/*.d.ts which are

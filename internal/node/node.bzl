@@ -223,15 +223,15 @@ fi
 
     # Add both the node executable for the user's local machine which is in ctx.files._node and comes
     # from @nodejs//:node_bin and the node executable from the selected node --platform which comes from
-    # ctx.toolchains["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"].nodeinfo.
+    # ctx.toolchains["@rules_nodejs//toolchains/node:toolchain_type"].nodeinfo.
     # In most cases these are the same files but for RBE and when explitely setting --platform for cross-compilation
     # any given nodejs_binary should be able to run on both the user's local machine and on the RBE or selected
     # platform.
     #
-    # Rules such as nodejs_image should use only ctx.toolchains["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"].nodeinfo
+    # Rules such as nodejs_image should use only ctx.toolchains["@rules_nodejs//toolchains/node:toolchain_type"].nodeinfo
     # when building the image as that will reflect the selected --platform.
     node_tool_files = ctx.files._node[:]
-    node_tool_files.extend(ctx.toolchains["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"].nodeinfo.tool_files)
+    node_tool_files.extend(ctx.toolchains["@rules_nodejs//toolchains/node:toolchain_type"].nodeinfo.tool_files)
 
     node_tool_files.append(ctx.file._link_modules_script)
     node_tool_files.append(ctx.file._runfiles_helper_script)
@@ -572,7 +572,7 @@ See https://docs.bazel.build/versions/master/be/make-variables.html#custom_varia
 Predefined genrule variables are not supported in this context.
 """,
     ),
-    "_bash_runfile_helper": attr.label(default = Label("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles")),
+    "_bash_runfile_helper": attr.label(default = Label("@rules_nodejs//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles")),
     "_launcher_template": attr.label(
         default = Label("//internal/node:launcher.sh"),
         allow_single_file = True,
@@ -636,7 +636,7 @@ nodejs_binary = rule(
     executable = True,
     outputs = _NODEJS_EXECUTABLE_OUTPUTS,
     toolchains = [
-        "@build_bazel_rules_nodejs//toolchains/node:toolchain_type",
+        "@rules_nodejs//toolchains/node:toolchain_type",
         "@bazel_tools//tools/sh:toolchain_type",
     ],
 )
@@ -651,7 +651,7 @@ nodejs_test = rule(
         # See the content of lcov_merger_sh for the reason we need this
         "_lcov_merger": attr.label(
             executable = True,
-            default = Label("@build_bazel_rules_nodejs//internal/coverage:lcov_merger_sh"),
+            default = Label("@rules_nodejs//internal/coverage:lcov_merger_sh"),
             cfg = "target",
         ),
     }),
@@ -688,7 +688,7 @@ remote debugger.
     test = True,
     outputs = _NODEJS_EXECUTABLE_OUTPUTS,
     toolchains = [
-        "@build_bazel_rules_nodejs//toolchains/node:toolchain_type",
+        "@rules_nodejs//toolchains/node:toolchain_type",
         "@bazel_tools//tools/sh:toolchain_type",
     ],
 )

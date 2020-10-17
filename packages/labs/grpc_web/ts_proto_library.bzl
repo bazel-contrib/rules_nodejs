@@ -13,7 +13,7 @@
 # limitations under the License.
 "Protocol Buffers"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "JSEcmaScriptModuleInfo", "JSModuleInfo", "JSNamedModuleInfo")
+load("@rules_nodejs//:providers.bzl", "DeclarationInfo", "JSEcmaScriptModuleInfo", "JSModuleInfo", "JSNamedModuleInfo")
 load("@rules_proto//proto:defs.bzl", "ProtoInfo")
 
 typescript_proto_library_aspect = provider(

@@ -63,7 +63,7 @@ def check_bazel_version_range(minimum_bazel_version, maximum_bazel_version, mess
 
     ```
     # in WORKSPACE:
-    load("@build_bazel_rules_nodejs//:index.bzl", "check_bazel_version_range")
+    load("@rules_nodejs//:index.bzl", "check_bazel_version_range")
     check_bazel_version_range("0.11.0", "0.22.0")
     ```
 

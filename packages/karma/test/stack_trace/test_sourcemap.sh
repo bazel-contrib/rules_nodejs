@@ -1,5 +1,5 @@
 # Execute first test.
-OUTPUT=$(${RUNFILES_DIR}/build_bazel_rules_nodejs/packages/karma/test/stack_trace/karma_test_chromium-local.sh)
+OUTPUT=$(${RUNFILES_DIR}/rules_nodejs/packages/karma/test/stack_trace/karma_test_chromium-local.sh)
 
 # Test whether the package relative TS path is printed in stack trace.
 echo ${OUTPUT} | grep -q "(packages/karma/test/stack_trace/failing.spec.ts:7:17"

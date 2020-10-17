@@ -1,5 +1,5 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
 load("@rules_codeowners//tools:codeowners.bzl", "generate_codeowners")
+load("@rules_nodejs//:index.bzl", "generated_file_test")
 
 generate_codeowners(
     name = "gen_codeowners",

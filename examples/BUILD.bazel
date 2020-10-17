@@ -30,9 +30,9 @@ example_integration_test(
     # bazel-in-bazel examples_angular fails on Windows on bazelci cloning a git repo:
     # ```
     # ERROR: no such package '@io_bazel_rules_k8s//k8s': Traceback (most recent call last):
-    # 	File "D:/b/ftxm343s/execroot/build_bazel_rules_nodejs/_tmp/3726d3573001cb4068a18af89eb255de/_bazel_b/ktluxf26/external/bazel_tools/tools/build_defs/repo/git.bzl", line 163
+    # 	File "D:/b/ftxm343s/execroot/rules_nodejs/_tmp/3726d3573001cb4068a18af89eb255de/_bazel_b/ktluxf26/external/bazel_tools/tools/build_defs/repo/git.bzl", line 163
     # 		_clone_or_update(ctx)
-    # 	File "D:/b/ftxm343s/execroot/build_bazel_rules_nodejs/_tmp/3726d3573001cb4068a18af89eb255de/_bazel_b/ktluxf26/external/bazel_tools/tools/build_defs/repo/git.bzl", line 36, in _clone_or_update
+    # 	File "D:/b/ftxm343s/execroot/rules_nodejs/_tmp/3726d3573001cb4068a18af89eb255de/_bazel_b/ktluxf26/external/bazel_tools/tools/build_defs/repo/git.bzl", line 36, in _clone_or_update
     # 		git_repo(ctx, directory)
     # ```
     # This is most likely due to a memory issue with this large bazel-in-bazel test.
@@ -53,9 +53,9 @@ example_integration_test(
     # bazel-in-bazel examples_angular_view_engine fails on Windows on bazelci cloning a git repo:
     # ```
     # ERROR: no such package '@io_bazel_rules_k8s//k8s': Traceback (most recent call last):
-    # 	File "D:/b/ftxm343s/execroot/build_bazel_rules_nodejs/_tmp/3726d3573001cb4068a18af89eb255de/_bazel_b/ktluxf26/external/bazel_tools/tools/build_defs/repo/git.bzl", line 163
+    # 	File "D:/b/ftxm343s/execroot/rules_nodejs/_tmp/3726d3573001cb4068a18af89eb255de/_bazel_b/ktluxf26/external/bazel_tools/tools/build_defs/repo/git.bzl", line 163
     # 		_clone_or_update(ctx)
-    # 	File "D:/b/ftxm343s/execroot/build_bazel_rules_nodejs/_tmp/3726d3573001cb4068a18af89eb255de/_bazel_b/ktluxf26/external/bazel_tools/tools/build_defs/repo/git.bzl", line 36, in _clone_or_update
+    # 	File "D:/b/ftxm343s/execroot/rules_nodejs/_tmp/3726d3573001cb4068a18af89eb255de/_bazel_b/ktluxf26/external/bazel_tools/tools/build_defs/repo/git.bzl", line 36, in _clone_or_update
     # 		git_repo(ctx, directory)
     # ```
     # This is most likely due to a memory issue with this large bazel-in-bazel test.
@@ -156,7 +156,7 @@ example_integration_test(
     bazel_commands = [
         "test ...",
         # Test cross-platform build
-        "build --platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64 //src:docker",
+        "build --platforms=@rules_nodejs//toolchains/node:linux_amd64 //src:docker",
     ],
     npm_packages = {
         "//packages/jasmine:npm_package": "@bazel/jasmine",

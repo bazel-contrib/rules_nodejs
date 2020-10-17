@@ -22,6 +22,6 @@
     "typescript": "3.5.3"
   },
   "scripts": {
-    "test": "bazel test ... && bazel build --platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64 //src:docker"
+    "test": "bazel test ... && bazel build --platforms=@rules_nodejs//toolchains/node:linux_amd64 //src:docker"
   }
 }

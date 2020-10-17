@@ -15,7 +15,7 @@
 """Repository rule used to install cypress binary.
 """
 
-load("@build_bazel_rules_nodejs//internal/node:node_labels.bzl", "get_node_label")
+load("@rules_nodejs//internal/node:node_labels.bzl", "get_node_label")
 
 def _cypress_repository_impl(repository_ctx):
     node = repository_ctx.path(get_node_label(repository_ctx))

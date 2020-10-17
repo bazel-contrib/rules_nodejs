@@ -41,9 +41,9 @@ bzl_library(
     ),
     visibility = ["//:__subpackages__"],
     deps = [
-        "@build_bazel_rules_nodejs//:bzl",
-        "@build_bazel_rules_nodejs//internal/common:bzl",
         "@build_bazel_rules_typescript//internal:bzl",
+        "@rules_nodejs//:bzl",
+        "@rules_nodejs//internal/common:bzl",
     ],
 )
 

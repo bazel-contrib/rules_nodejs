@@ -15,7 +15,7 @@
 """Example of a rule that requires ES6 inputs.
 """
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "JSEcmaScriptModuleInfo")
+load("@rules_nodejs//:providers.bzl", "JSEcmaScriptModuleInfo")
 
 def _es6_consumer(ctx):
     sources_depsets = []

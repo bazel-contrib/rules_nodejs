@@ -1,5 +1,5 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
 load("@npm//google-closure-compiler:index.bzl", "google_closure_compiler")
+load("@rules_nodejs//:index.bzl", "nodejs_test")
 
 google_closure_compiler(
     name = "closure",

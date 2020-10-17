@@ -17,7 +17,7 @@
 For use by yarn_install and npm_install. Not meant to be part of the public API.
 """
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "NpmPackageInfo", "node_modules_aspect")
+load("@rules_nodejs//:providers.bzl", "NpmPackageInfo", "node_modules_aspect")
 
 def _npm_umd_bundle(ctx):
     if len(ctx.attr.entry_point.files.to_list()) != 1:
@@ -96,7 +96,7 @@ This target would be then be used instead of the generated `@npm//typeorm:typeor
     "_browserify_wrapped": attr.label(
         executable = True,
         cfg = "host",
-        default = Label("@build_bazel_rules_nodejs//internal/npm_install:browserify-wrapped"),
+        default = Label("@rules_nodejs//internal/npm_install:browserify-wrapped"),
     ),
 }
 

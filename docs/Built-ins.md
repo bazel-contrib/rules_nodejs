@@ -12,7 +12,7 @@ nav: rule
  ********************* -->
 # Built-in rules
 
-These rules are available without any npm installation, via the `WORKSPACE` install of the `build_bazel_rules_nodejs` workspace. This is necessary to bootstrap Bazel to run the package manager to download other rules from NPM.
+These rules are available without any npm installation, via the `WORKSPACE` install of the `rules_nodejs` workspace. This is necessary to bootstrap Bazel to run the package manager to download other rules from NPM.
 
 
 
@@ -125,7 +125,7 @@ You can optionally pass a `package_json` array to node_repositories. This lets y
 This is an advanced scenario you can use in place of the `npm_install` or `yarn_install` rules, but we don't recommend it, and might remove it in the future.
 
 ```
-load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories")
+load("@rules_nodejs//:index.bzl", "node_repositories")
 node_repositories(package_json = ["//:package.json", "//subpkg:package.json"])
 ```
 
@@ -963,7 +963,7 @@ The pkg_npm rule creates a directory containing a publishable npm artifact.
 Example:
 
 ```python
-load("@build_bazel_rules_nodejs//:index.bzl", "pkg_npm")
+load("@rules_nodejs//:index.bzl", "pkg_npm")
 
 pkg_npm(
     name = "my_package",
@@ -1048,11 +1048,11 @@ Defaults to `[]`
         
 By default it reads from the bazel command line, such as the `--stamp` argument.
 Use this to override values for this target, such as enabling or disabling stamping.
-You can use the `node_context_data` rule in `@build_bazel_rules_nodejs//internal/node:context.bzl`
+You can use the `node_context_data` rule in `@rules_nodejs//internal/node:context.bzl`
 to create a NodeContextInfo.  The dependencies of this attribute must provide: NodeContextInfo
 
 
-Defaults to `@build_bazel_rules_nodejs//internal:node_context_data`
+Defaults to `@rules_nodejs//internal:node_context_data`
 
 <h4 id="pkg_npm-package_name">package_name</h4>
 
@@ -1127,11 +1127,11 @@ Defaults to `[]`
         
 By default it reads from the bazel command line, such as the `--stamp` argument.
 Use this to override values for this target, such as enabling or disabling stamping.
-You can use the `node_context_data` rule in `@build_bazel_rules_nodejs//internal/node:context.bzl`
+You can use the `node_context_data` rule in `@rules_nodejs//internal/node:context.bzl`
 to create a NodeContextInfo.  The dependencies of this attribute must provide: NodeContextInfo
 
 
-Defaults to `@build_bazel_rules_nodejs//internal:node_context_data`
+Defaults to `@rules_nodejs//internal:node_context_data`
 
 <h4 id="pkg_web-srcs">srcs</h4>
 

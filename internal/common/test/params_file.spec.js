@@ -43,11 +43,11 @@ const expected = [
   // $rootpath
   './package.json',
   // $locations (expands to runfiles manifest path of format repo/path/to/file)
-  'build_bazel_rules_nodejs/package.json',
-  'build_bazel_rules_nodejs/internal/common/test/foo/bar/a.txt',
-  'build_bazel_rules_nodejs/internal/common/test/params_file.spec.js',
+  'rules_nodejs/package.json',
+  'rules_nodejs/internal/common/test/foo/bar/a.txt',
+  'rules_nodejs/internal/common/test/params_file.spec.js',
   // $location (expands to runfiles manifest path of format repo/path/to/file)
-  'build_bazel_rules_nodejs/package.json',
+  'rules_nodejs/package.json',
 ];
 
 describe('params_file', function() {

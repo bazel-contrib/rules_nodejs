@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin", "pkg_npm")
+load("@rules_nodejs//:index.bzl", "copy_to_bin", "pkg_npm")
 load("//:index.bzl", "js_library")
 
 copy_to_bin(

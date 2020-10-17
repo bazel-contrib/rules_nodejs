@@ -1,6 +1,6 @@
 
 package(default_visibility = ["//visibility:public"])
-load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+load("@rules_nodejs//:index.bzl", "js_library")
 filegroup(
     name = "test-b__files",
     srcs = [
@@ -39,7 +39,7 @@ js_library(
 js_library(
     name = "test-b__typings",
 )
-load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
+load("@rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
 npm_umd_bundle(
     name = "test-b__umd",
     package_name = "@gregmagolan/test-b",

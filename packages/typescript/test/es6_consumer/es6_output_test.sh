@@ -2,7 +2,7 @@
 
 # --- begin runfiles.bash initialization v2 ---
 # Copy-pasted from the Bazel Bash runfiles library v2.
-set -uo pipefail; f=build_bazel_rules_nodejs/third_party/github.com/bazelbuild/bazel/tools/bash/runfiles/runfiles.bash
+set -uo pipefail; f=rules_nodejs/third_party/github.com/bazelbuild/bazel/tools/bash/runfiles/runfiles.bash
 source "${RUNFILES_DIR:-/dev/null}/$f" 2>/dev/null || \
   source "$(grep -sm1 "^$f " "${RUNFILES_MANIFEST_FILE:-/dev/null}" | cut -f2- -d' ')" 2>/dev/null || \
   source "$0.runfiles/$f" 2>/dev/null || \
@@ -11,9 +11,9 @@ source "${RUNFILES_DIR:-/dev/null}/$f" 2>/dev/null || \
   { echo>&2 "ERROR: cannot find $f"; exit 1; }; f=; set -e
 # --- end runfiles.bash initialization v2 ---
 
-readonly FOO_JS=$(cat $(rlocation "build_bazel_rules_nodejs/packages/typescript/test/foobar/foo.mjs"))
-readonly BAR_JS=$(cat $(rlocation "build_bazel_rules_nodejs/packages/typescript/test/foobar/bar.mjs"))
-readonly LIBRARY_JS=$(cat $(rlocation "build_bazel_rules_nodejs/packages/typescript/test/some_library/library.mjs"))
+readonly FOO_JS=$(cat $(rlocation "rules_nodejs/packages/typescript/test/foobar/foo.mjs"))
+readonly BAR_JS=$(cat $(rlocation "rules_nodejs/packages/typescript/test/foobar/bar.mjs"))
+readonly LIBRARY_JS=$(cat $(rlocation "rules_nodejs/packages/typescript/test/some_library/library.mjs"))
 
 # should not down-level ES2015 syntax, eg. `class`
 if [[ "$FOO_JS" != *"class Greeter"* ]]; then

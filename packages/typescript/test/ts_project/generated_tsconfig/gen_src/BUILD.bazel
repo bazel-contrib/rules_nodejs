@@ -1,5 +1,5 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
-load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:rules/write_file.bzl", "write_file")
+load("@rules_nodejs//:index.bzl", "generated_file_test")
+load("@rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:rules/write_file.bzl", "write_file")
 load("//packages/typescript:index.bzl", "ts_project")
 
 write_file(

@@ -10,6 +10,6 @@ sh_test(
     srcs = ["devmode_consumer_test.sh"],
     data = [
         ":devmode_consumer",
-        "@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles",
+        "@rules_nodejs//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles",
     ],
 )

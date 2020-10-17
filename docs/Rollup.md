@@ -308,11 +308,11 @@ Defaults to `False`
         
 By default it reads from the bazel command line, such as the `--stamp` argument.
 Use this to override values for this target, such as enabling or disabling stamping.
-You can use the `node_context_data` rule in `@build_bazel_rules_nodejs//internal/node:context.bzl`
+You can use the `node_context_data` rule in `@rules_nodejs//internal/node:context.bzl`
 to create a NodeContextInfo.  The dependencies of this attribute must provide: NodeContextInfo
 
 
-Defaults to `@build_bazel_rules_nodejs//internal:node_context_data`
+Defaults to `@rules_nodejs//internal:node_context_data`
 
 <h4 id="rollup_bundle-output_dir">output_dir</h4>
 

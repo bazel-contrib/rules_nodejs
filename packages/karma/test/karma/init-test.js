@@ -3,6 +3,6 @@
  * to ensure that the Karma bazel rules properly include the file in the ConcatJS bundle.
  */
 
-define('build_bazel_rules_nodejs/packages/karma/test/karma/init-test', [], () => {
+define('rules_nodejs/packages/karma/test/karma/init-test', [], () => {
   window['__testInitialized'] = true;
 });

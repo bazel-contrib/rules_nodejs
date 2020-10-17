@@ -5,7 +5,7 @@ load("//tools/stardoc:jekyll.bzl", _rules_nodejs_docs = "rules_nodejs_docs")
 
 rules_nodejs_docs = _rules_nodejs_docs
 
-_PKG = "@build_bazel_rules_nodejs//tools/stardoc"
+_PKG = "@rules_nodejs//tools/stardoc"
 
 def stardoc(**kwargs):
     _stardoc(

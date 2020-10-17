@@ -13,8 +13,8 @@
 # limitations under the License.
 
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
-load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "codeowners", "pkg_npm")
-load("@build_bazel_rules_nodejs//tools/stardoc:index.bzl", "stardoc")
+load("@rules_nodejs//:tools/defaults.bzl", "codeowners", "pkg_npm")
+load("@rules_nodejs//tools/stardoc:index.bzl", "stardoc")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
 
 package(default_visibility = ["//visibility:public"])
@@ -35,9 +35,9 @@ bzl_library(
     name = "bzl",
     srcs = glob(["**/*.bzl"]),
     deps = [
-        "@build_bazel_rules_nodejs//:bzl",
-        "@build_bazel_rules_nodejs//internal/common:bzl",
-        "@build_bazel_rules_nodejs//internal/node:bzl",
+        "@rules_nodejs//:bzl",
+        "@rules_nodejs//internal/common:bzl",
+        "@rules_nodejs//internal/node:bzl",
     ],
 )
 
@@ -90,11 +90,11 @@ pkg_npm(
     "plugins/base.js",
 ])""",
     substitutions = {
-        "@build_bazel_rules_nodejs//packages/cypress:internal/cypress_repository.bzl": "//packages/cypress:internal/cypress_repository.bzl",
-        "@build_bazel_rules_nodejs//packages/cypress:internal/install-cypress.js": "TEMPLATED_node_modules_workspace_name//@bazel/cypress:internal/install-cypress.js",
-        "@build_bazel_rules_nodejs//packages/cypress:internal/plugins/base.js": "TEMPLATED_node_modules_workspace_name//@bazel/cypress:internal/plugins/base.js",
-        "@build_bazel_rules_nodejs//packages/cypress:internal/plugins/index.template.js": "TEMPLATED_node_modules_workspace_name//@bazel/cypress:internal/plugins/index.template.js",
-        "@build_bazel_rules_nodejs//packages/cypress:internal/run-cypress.js": "TEMPLATED_node_modules_workspace_name//@bazel/cypress:internal/run-cypress.js",
+        "@rules_nodejs//packages/cypress:internal/cypress_repository.bzl": "//packages/cypress:internal/cypress_repository.bzl",
+        "@rules_nodejs//packages/cypress:internal/install-cypress.js": "TEMPLATED_node_modules_workspace_name//@bazel/cypress:internal/install-cypress.js",
+        "@rules_nodejs//packages/cypress:internal/plugins/base.js": "TEMPLATED_node_modules_workspace_name//@bazel/cypress:internal/plugins/base.js",
+        "@rules_nodejs//packages/cypress:internal/plugins/index.template.js": "TEMPLATED_node_modules_workspace_name//@bazel/cypress:internal/plugins/index.template.js",
+        "@rules_nodejs//packages/cypress:internal/run-cypress.js": "TEMPLATED_node_modules_workspace_name//@bazel/cypress:internal/run-cypress.js",
         "\\${cwd}/../cypress_deps/node_modules/@cypress/browserify-preprocessor/index": "@cypress/browserify-preprocessor",
     },
     deps = [

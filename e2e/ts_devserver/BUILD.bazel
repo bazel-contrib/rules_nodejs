@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
 load("@npm//@bazel/protractor:index.bzl", "protractor_web_test_suite")
 load("@npm//@bazel/typescript:index.bzl", "ts_devserver", "ts_library")
+load("@rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
 
 exports_files([
     "red-body-style.css",

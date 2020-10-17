@@ -38,7 +38,7 @@ Then copy the patch file somewhere in your repo and point to it from your `WORKS
 
 ```python
 http_archive(
-    name = "build_bazel_rules_nodejs",
+    name = "rules_nodejs",
     patch_args = ["-p1"],
     patches = ["//path/to/my.patch"],
     sha256 = "6d4edbf28ff6720aedf5f97f9b9a7679401bf7fca9d14a0fff80f644a99992b4",

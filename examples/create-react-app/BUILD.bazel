@@ -1,6 +1,6 @@
 load("@bazel_skylib//rules:write_file.bzl", "write_file")
-load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin", "nodejs_test")
 load("@npm//react-scripts:index.bzl", "react_scripts", "react_scripts_test")
+load("@rules_nodejs//:index.bzl", "copy_to_bin", "nodejs_test")
 
 # Filename conventions described at
 # https://create-react-app.dev/docs/running-tests#filename-conventions

@@ -24,6 +24,6 @@ sh_test(
     srcs = ["es6_output_test.sh"],
     data = [
         ":es6_output",
-        "@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles",
+        "@rules_nodejs//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles",
     ],
 )

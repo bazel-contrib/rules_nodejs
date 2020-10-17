@@ -41,7 +41,7 @@ file:
 Using Yarn (preferred):
 
 ```python
-load("@build_bazel_rules_nodejs//:index.bzl", "yarn_install")
+load("@rules_nodejs//:index.bzl", "yarn_install")
 
 yarn_install(
     name = "npm",
@@ -53,7 +53,7 @@ yarn_install(
 Using NPM:
 
 ```python
-load("@build_bazel_rules_nodejs//:index.bzl", "npm_install")
+load("@rules_nodejs//:index.bzl", "npm_install")
 
 npm_install(
     name = "npm",
@@ -93,7 +93,7 @@ common --experimental_allow_incremental_repository_updates
 You can then reference individual npm packages in your `BUILD` rules via:
 
 ```python
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+load("@rules_nodejs//:index.bzl", "nodejs_binary")
 
 nodejs_binary(
     name = "bar",
@@ -197,7 +197,7 @@ with the `node_modules` attribute of nodejs rules.
 * `@npm//:node_modules` includes all packages under `node_modules` as well as the `.bin` folder
 
 ```python
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+load("@rules_nodejs//:index.bzl", "nodejs_binary")
 
 nodejs_binary(
     name = "bar",

@@ -35,16 +35,16 @@ describe('launcher.sh environment', function() {
     expect(!!match).toBe(true);
     const execroot = runfilesRoot.slice(0, match.index);
     expectPathsToMatch(path.basename(runfilesRoot), `env_test.${runfilesExt}.runfiles`);
-    expectPathsToMatch(process.env['BAZEL_WORKSPACE'], 'build_bazel_rules_nodejs');
+    expectPathsToMatch(process.env['BAZEL_WORKSPACE'], 'rules_nodejs');
     expectPathsToMatch(process.env['BAZEL_TARGET'], '//internal/node/test:env_test');
-    expectPathsToMatch(process.cwd(), `${process.env['RUNFILES']}/build_bazel_rules_nodejs`);
-    expectPathsToMatch(process.env['PWD'], `${process.env['RUNFILES']}/build_bazel_rules_nodejs`);
+    expectPathsToMatch(process.cwd(), `${process.env['RUNFILES']}/rules_nodejs`);
+    expectPathsToMatch(process.env['PWD'], `${process.env['RUNFILES']}/rules_nodejs`);
     expectPathsToMatch(process.env['BAZEL_PATCH_ROOT'], process.env['RUNFILES']);
     expectPathsToMatch(process.env['BAZEL_NODE_MODULES_ROOT'], 'npm/node_modules');
     const expectedGuards = [
       `${execroot}/node_modules`,
       `${runfilesRoot}/npm/node_modules`,
-      `${runfilesRoot}/build_bazel_rules_nodejs/external/npm/node_modules`,
+      `${runfilesRoot}/rules_nodejs/external/npm/node_modules`,
     ]
     expectPathsToMatch(process.env['BAZEL_PATCH_GUARDS'].split(','), expectedGuards);
   });
@@ -58,11 +58,11 @@ describe('launcher.sh environment', function() {
        expect(!!match).toBe(true);
        const execroot = runfilesRoot.slice(0, match.index);
        expectPathsToMatch(path.basename(runfilesRoot), `dump_build_env.${runfilesExt}.runfiles`);
-       expectPathsToMatch(env['BAZEL_WORKSPACE'], 'build_bazel_rules_nodejs');
+       expectPathsToMatch(env['BAZEL_WORKSPACE'], 'rules_nodejs');
        expectPathsToMatch(env['BAZEL_TARGET'], '//internal/node/test:dump_build_env');
        expectPathsToMatch(env['PWD'], execroot);
        expectPathsToMatch(env['BAZEL_PATCH_ROOT'], path.dirname(execroot));
-       expectPathsToMatch(env['BAZEL_NODE_MODULES_ROOT'], 'build_bazel_rules_nodejs/node_modules');
+       expectPathsToMatch(env['BAZEL_NODE_MODULES_ROOT'], 'rules_nodejs/node_modules');
        const expectedGuards = [
          `${execroot}/node_modules`,
        ]
@@ -79,7 +79,7 @@ describe('launcher.sh environment', function() {
        const execroot = runfilesRoot.slice(0, match.index);
        expectPathsToMatch(
            path.basename(runfilesRoot), `dump_build_env_alt.${runfilesExt}.runfiles`);
-       expectPathsToMatch(env['BAZEL_WORKSPACE'], 'build_bazel_rules_nodejs');
+       expectPathsToMatch(env['BAZEL_WORKSPACE'], 'rules_nodejs');
        expectPathsToMatch(env['BAZEL_TARGET'], '//internal/node/test:dump_build_env_alt');
        expectPathsToMatch(env['PWD'], execroot);
        expectPathsToMatch(env['BAZEL_PATCH_ROOT'], path.dirname(execroot));

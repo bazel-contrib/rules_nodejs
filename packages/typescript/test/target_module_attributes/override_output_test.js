@@ -12,7 +12,7 @@ describe('googmodule', () => {
   it('should have amd module syntax in devmode', () => {
     expect(fs.readFileSync(devmodeOutput, {encoding: 'utf-8'}))
         .toContain(
-            `define("build_bazel_rules_nodejs/packages/typescript/test/target_module_attributes/a", ["require", "exports"], function (require, exports) {`);
+            `define("rules_nodejs/packages/typescript/test/target_module_attributes/a", ["require", "exports"], function (require, exports) {`);
   });
 
   it('should have es5 in devmode', () => {
@@ -24,7 +24,7 @@ describe('googmodule', () => {
   it('should have amd module syntax in prodmode', () => {
     expect(fs.readFileSync(prodmodeOutput, {encoding: 'utf-8'}))
         .toContain(
-            `define("build_bazel_rules_nodejs/packages/typescript/test/target_module_attributes/a", ["require", "exports"], function (require, exports) {`);
+            `define("rules_nodejs/packages/typescript/test/target_module_attributes/a", ["require", "exports"], function (require, exports) {`);
   });
 
   it('should have es5 in prodmode', () => {

@@ -1,4 +1,4 @@
-const {directoryArgs} = require('build_bazel_rules_nodejs/packages/terser/index')
+const {directoryArgs} = require('rules_nodejs/packages/terser/index')
 const fs = require('fs');
 const path = require('path');
 const tmp = require('tmp');

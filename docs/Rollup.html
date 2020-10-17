@@ -454,10 +454,10 @@ If source files need to be required then they can be copied to the bin_dir with 
 
 <p>By default it reads from the bazel command line, such as the <code class="language-plaintext highlighter-rouge">--stamp</code> argument.
 Use this to override values for this target, such as enabling or disabling stamping.
-You can use the <code class="language-plaintext highlighter-rouge">node_context_data</code> rule in <code class="language-plaintext highlighter-rouge">@build_bazel_rules_nodejs//internal/node:context.bzl</code>
+You can use the <code class="language-plaintext highlighter-rouge">node_context_data</code> rule in <code class="language-plaintext highlighter-rouge">@rules_nodejs//internal/node:context.bzl</code>
 to create a NodeContextInfo.  The dependencies of this attribute must provide: NodeContextInfo</p>
 
-<p>Defaults to <code class="language-plaintext highlighter-rouge">@build_bazel_rules_nodejs//internal:node_context_data</code></p>
+<p>Defaults to <code class="language-plaintext highlighter-rouge">@rules_nodejs//internal:node_context_data</code></p>
 
 <h4 id="rollup_bundle-output_dir">output_dir</h4>
 

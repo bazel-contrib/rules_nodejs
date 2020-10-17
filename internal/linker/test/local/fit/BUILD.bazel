@@ -1,5 +1,5 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "pkg_npm")
 load("@npm//typescript:index.bzl", "tsc")
+load("@rules_nodejs//:index.bzl", "pkg_npm")
 
 tsc(
     name = "fit_lib",

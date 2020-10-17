@@ -1,5 +1,5 @@
 define(
-    'build_bazel_rules_nodejs/packages/karma/test/karma/amd-modules.spec', ['require'], require => {
+    'rules_nodejs/packages/karma/test/karma/amd-modules.spec', ['require'], require => {
       describe('AMD module loading', () => {
         describe('unnamed amd modules', () => {
           it('should not warn if module is configured as static file', doneFn => {

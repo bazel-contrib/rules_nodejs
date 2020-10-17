@@ -200,7 +200,7 @@ file:</p>
 
 <p>Using Yarn (preferred):</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">load</span><span class="p">(</span><span class="s">"@build_bazel_rules_nodejs//:index.bzl"</span><span class="p">,</span> <span class="s">"yarn_install"</span><span class="p">)</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">load</span><span class="p">(</span><span class="s">"@rules_nodejs//:index.bzl"</span><span class="p">,</span> <span class="s">"yarn_install"</span><span class="p">)</span>
 
 <span class="n">yarn_install</span><span class="p">(</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s">"npm"</span><span class="p">,</span>
@@ -211,7 +211,7 @@ file:</p>
 
 <p>Using NPM:</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">load</span><span class="p">(</span><span class="s">"@build_bazel_rules_nodejs//:index.bzl"</span><span class="p">,</span> <span class="s">"npm_install"</span><span class="p">)</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">load</span><span class="p">(</span><span class="s">"@rules_nodejs//:index.bzl"</span><span class="p">,</span> <span class="s">"npm_install"</span><span class="p">)</span>
 
 <span class="n">npm_install</span><span class="p">(</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s">"npm"</span><span class="p">,</span>
@@ -252,7 +252,7 @@ Add the <code class="language-plaintext highlighter-rouge">workspace</code> rule
 
 <p>You can then reference individual npm packages in your <code class="language-plaintext highlighter-rouge">BUILD</code> rules via:</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">load</span><span class="p">(</span><span class="s">"@build_bazel_rules_nodejs//:index.bzl"</span><span class="p">,</span> <span class="s">"nodejs_binary"</span><span class="p">)</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">load</span><span class="p">(</span><span class="s">"@rules_nodejs//:index.bzl"</span><span class="p">,</span> <span class="s">"nodejs_binary"</span><span class="p">)</span>
 
 <span class="n">nodejs_binary</span><span class="p">(</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s">"bar"</span><span class="p">,</span>
@@ -355,7 +355,7 @@ with the <code class="language-plaintext highlighter-rouge">node_modules</code> 
   <li><code class="language-plaintext highlighter-rouge">@npm//:node_modules</code> includes all packages under <code class="language-plaintext highlighter-rouge">node_modules</code> as well as the <code class="language-plaintext highlighter-rouge">.bin</code> folder</li>
 </ul>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">load</span><span class="p">(</span><span class="s">"@build_bazel_rules_nodejs//:index.bzl"</span><span class="p">,</span> <span class="s">"nodejs_binary"</span><span class="p">)</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">load</span><span class="p">(</span><span class="s">"@rules_nodejs//:index.bzl"</span><span class="p">,</span> <span class="s">"nodejs_binary"</span><span class="p">)</span>
 
 <span class="n">nodejs_binary</span><span class="p">(</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s">"bar"</span><span class="p">,</span>

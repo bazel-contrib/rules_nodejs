@@ -1,6 +1,6 @@
 "checked_in_ts_project rule"
 
-load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
+load("@rules_nodejs//:index.bzl", "generated_file_test")
 load("//packages/typescript:index.bzl", "ts_project")
 
 def checked_in_ts_project(name, src, checked_in_js = None, **kwargs):

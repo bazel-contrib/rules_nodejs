@@ -15,8 +15,8 @@
 """Bazel integration testing
 """
 
-load("@build_bazel_rules_nodejs//:index.bzl", "SUPPORTED_BAZEL_VERSIONS")
-load("@build_bazel_rules_nodejs//packages:index.bzl", "NPM_PACKAGES")
+load("@rules_nodejs//:index.bzl", "SUPPORTED_BAZEL_VERSIONS")
+load("@rules_nodejs//packages:index.bzl", "NPM_PACKAGES")
 load("//internal/common:windows_utils.bzl", "BATCH_RLOCATION_FUNCTION", "is_windows")
 
 BAZEL_BINARY = "@build_bazel_bazel_%s//:bazel_binary" % SUPPORTED_BAZEL_VERSIONS[0].replace(".", "_")
@@ -89,7 +89,7 @@ call :rlocation {TMPL_args} ARGS
         launcher_content = """#!/usr/bin/env bash
 # --- begin runfiles.bash initialization v2 ---
 # Copy-pasted from the Bazel Bash runfiles library v2.
-set -uo pipefail; f=build_bazel_rules_nodejs/third_party/github.com/bazelbuild/bazel/tools/bash/runfiles/runfiles.bash
+set -uo pipefail; f=rules_nodejs/third_party/github.com/bazelbuild/bazel/tools/bash/runfiles/runfiles.bash
 source "${{RUNFILES_DIR:-/dev/null}}/$f" 2>/dev/null || \
   source "$(grep -sm1 "^$f " "${{RUNFILES_MANIFEST_FILE:-/dev/null}}" | cut -f2- -d' ')" 2>/dev/null || \
   source "$0.runfiles/$f" 2>/dev/null || \
@@ -226,10 +226,10 @@ file with generated workspace archive targets. The targets should be pkg_tar rul
 This can be used to test against .tar.gz release artifacts in integration tests. For example,
 ```
 repositories = {
-    "//:release": "build_bazel_rules_nodejs",
+    "//:release": "rules_nodejs",
 },
 ```
-where `//:release` is the pkg_tar target that generates the `build_bazel_rules_nodejs` `.tar.gz` release artifact that
+where `//:release` is the pkg_tar target that generates the `rules_nodejs` `.tar.gz` release artifact that
 is published on GitHub.
 """,
     ),
@@ -239,7 +239,7 @@ is published on GitHub.
     "_test_runner": attr.label(
         executable = True,
         cfg = "host",
-        default = Label("@build_bazel_rules_nodejs//internal/bazel_integration_test:test_runner"),
+        default = Label("@rules_nodejs//internal/bazel_integration_test:test_runner"),
     ),
 }
 
@@ -269,7 +269,7 @@ def rules_nodejs_integration_test(name, **kwargs):
 
     # replace the following repositories with the generated archives
     repositories = kwargs.pop("repositories", {})
-    repositories["//:release"] = "build_bazel_rules_nodejs"
+    repositories["//:release"] = "rules_nodejs"
 
     bazel_integration_test(
         name = name,

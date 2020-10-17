@@ -25,8 +25,8 @@ bzl_library(
     name = "bzl",
     srcs = glob(["*.bzl"]),
     deps = [
-        "@build_bazel_rules_nodejs//internal/js_library:bzl",
-        "@build_bazel_rules_nodejs//internal/pkg_web:bzl",
+        "@rules_nodejs//internal/js_library:bzl",
+        "@rules_nodejs//internal/pkg_web:bzl",
     ],
 )
 

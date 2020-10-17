@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+load("@rules_nodejs//:index.bzl", "nodejs_binary")
 
 # BEGIN-INTERNAL
 load("//packages/typescript:checked_in_ts_project.bzl", "checked_in_ts_project")

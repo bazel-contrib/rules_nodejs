@@ -130,7 +130,7 @@ You can optionally pass a `package_json` array to node_repositories. This lets y
 This is an advanced scenario you can use in place of the `npm_install` or `yarn_install` rules, but we don't recommend it, and might remove it in the future.
 
 ```
-load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories")
+load("@rules_nodejs//:index.bzl", "node_repositories")
 node_repositories(package_json = ["//:package.json", "//subpkg:package.json"])
 ```
 
@@ -713,7 +713,7 @@ def node_repositories(**kwargs):
     # 2.1.0: bazelignore support in external workspaces
     check_bazel_version(
         message = """
-    A minimum Bazel version of 2.1.0 is required to use build_bazel_rules_nodejs.
+    A minimum Bazel version of 2.1.0 is required to use rules_nodejs.
     """,
         minimum_bazel_version = "2.1.0",
     )
@@ -727,7 +727,7 @@ def node_repositories(**kwargs):
             name = node_repository_name,
             **kwargs
         )
-        native.register_toolchains("@build_bazel_rules_nodejs//toolchains/node:node_%s_toolchain" % os_name)
+        native.register_toolchains("@rules_nodejs//toolchains/node:node_%s_toolchain" % os_name)
         node_toolchain_configure(
             name = "%s_config" % node_repository_name,
             target_tool = "@%s//:node_bin" % node_repository_name,

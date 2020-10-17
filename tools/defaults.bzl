@@ -3,13 +3,13 @@
 These set common default attributes and behaviors for our local repo
 """
 
+load("@rules_codeowners//tools:codeowners.bzl", _codeowners = "codeowners")
 load(
-    "@build_bazel_rules_nodejs//:index.bzl",
+    "@rules_nodejs//:index.bzl",
     _COMMON_REPLACEMENTS = "COMMON_REPLACEMENTS",
     _nodejs_test = "nodejs_test",
     _pkg_npm = "pkg_npm",
 )
-load("@rules_codeowners//tools:codeowners.bzl", _codeowners = "codeowners")
 load("@rules_pkg//:pkg.bzl", _pkg_tar = "pkg_tar")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
 
@@ -22,7 +22,7 @@ def pkg_npm(**kwargs):
     # Every package should have a copy of the root LICENSE file
     copy_file(
         name = "copy_LICENSE",
-        src = "@build_bazel_rules_nodejs//:LICENSE",
+        src = "@rules_nodejs//:LICENSE",
         out = "LICENSE",
     )
 
@@ -59,7 +59,7 @@ def pkg_npm(**kwargs):
     _pkg_npm(
         deps = deps,
         substitutions = select({
-            "@build_bazel_rules_nodejs//internal:stamp": stamped_substitutions,
+            "@rules_nodejs//internal:stamp": stamped_substitutions,
             "//conditions:default": substitutions,
         }),
         visibility = visibility,

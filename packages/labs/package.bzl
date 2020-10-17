@@ -1,7 +1,7 @@
 "Install toolchain dependencies"
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-load("@build_bazel_rules_nodejs//:index.bzl", "yarn_install")
+load("@rules_nodejs//:index.bzl", "yarn_install")
 load(":mock_io_bazel_rules_closure.bzl", "mock_io_bazel_rules_closure")
 
 def npm_bazel_labs_dependencies():

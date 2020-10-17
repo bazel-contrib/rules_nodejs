@@ -13,15 +13,15 @@
 # limitations under the License.
 "Run end-to-end tests with Protractor"
 
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
-load("@build_bazel_rules_nodejs//:providers.bzl", "JSModuleInfo", "JSNamedModuleInfo", "NpmPackageInfo", "node_modules_aspect")
-load("@build_bazel_rules_nodejs//internal/common:windows_utils.bzl", "create_windows_native_launcher_script", "is_windows")
 load("@io_bazel_rules_webtesting//web:web.bzl", "web_test_suite")
 load("@io_bazel_rules_webtesting//web/internal:constants.bzl", "DEFAULT_WRAPPED_TEST_TAGS")
+load("@rules_nodejs//:index.bzl", "nodejs_binary")
+load("@rules_nodejs//:providers.bzl", "JSModuleInfo", "JSNamedModuleInfo", "NpmPackageInfo", "node_modules_aspect")
+load("@rules_nodejs//internal/common:windows_utils.bzl", "create_windows_native_launcher_script", "is_windows")
 
 _PROTRACTOR_PEER_DEPS = [
     # BEGIN-INTERNAL
-    "@build_bazel_rules_nodejs" +
+    "@rules_nodejs" +
     # END-INTERNAL
     "//packages/protractor",
     # BEGIN-INTERNAL
@@ -117,7 +117,7 @@ def _protractor_web_test_impl(ctx):
         content = """#!/usr/bin/env bash
 # --- begin runfiles.bash initialization v2 ---
 # Copy-pasted from the Bazel Bash runfiles library v2.
-set -uo pipefail; f=build_bazel_rules_nodejs/third_party/github.com/bazelbuild/bazel/tools/bash/runfiles/runfiles.bash
+set -uo pipefail; f=rules_nodejs/third_party/github.com/bazelbuild/bazel/tools/bash/runfiles/runfiles.bash
 source "${{RUNFILES_DIR:-/dev/null}}/$f" 2>/dev/null || \
   source "$(grep -sm1 "^$f " "${{RUNFILES_MANIFEST_FILE:-/dev/null}}" | cut -f2- -d' ')" 2>/dev/null || \
   source "$0.runfiles/$f" 2>/dev/null || \

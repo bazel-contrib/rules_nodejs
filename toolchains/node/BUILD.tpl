@@ -17,7 +17,7 @@
 
 package(default_visibility = ["//visibility:public"])
 
-load("@build_bazel_rules_nodejs//toolchains/node:node_toolchain.bzl", "node_toolchain")
+load("@rules_nodejs//toolchains/node:node_toolchain.bzl", "node_toolchain")
 
 node_toolchain(
     name = "toolchain",

@@ -10,11 +10,11 @@
         // so that tsc can know where to look for the .d.ts outputs
         // Error looks like
         //  (05:54:49) ERROR: C:/b/bk-windows-b4qr/bazel/rules-nodejs-nodejs/packages/typescript/test/ts_project/b/BUILD.bazel:6:1: Compiling TypeScript project packages/typescript/test/ts_project/b/tsconfig.json failed (Exit 2): tsc.bat failed: error executing command
-        //    cd C:/b/uuxnwop3/execroot/build_bazel_rules_nodejs
+        //    cd C:/b/uuxnwop3/execroot/rules_nodejs
         //    SET COMPILATION_MODE=fastbuild
         //    bazel-out/host/bin/external/npm/typescript/bin/tsc.bat -p packages/typescript/test/ts_project/b/tsconfig.json --outDir bazel-out/x64_windows-fastbuild/bin/packages/typescript/test/ts_project/b --declarationDir bazel-out/x64_windows-fastbuild/bin/packages/typescript/test/ts_project/b --bazel_node_modules_manifest=bazel-out/x64_windows-fastbuild/bin/packages/typescript/test/ts_project/b/_tsconfig.module_mappings.json --nobazel_patch_module_resolver
         //  Execution platform: @local_config_platform//:host
-        //  packages/typescript/test/ts_project/b/b.ts(1,17): error TS6305: Output file 'C:/b/uuxnwop3/execroot/build_bazel_rules_nodejs/packages/typescript/test/ts_project/a/a.d.ts' has not been built from source file 'C:/b/uuxnwop3/execroot/build_bazel_rules_nodejs/packages/typescript/test/ts_project/a/a.ts'.
+        //  packages/typescript/test/ts_project/b/b.ts(1,17): error TS6305: Output file 'C:/b/uuxnwop3/execroot/rules_nodejs/packages/typescript/test/ts_project/a/a.d.ts' has not been built from source file 'C:/b/uuxnwop3/execroot/rules_nodejs/packages/typescript/test/ts_project/a/a.ts'.
         "outDir": "../../../../../bazel-out/x64_windows-fastbuild/bin/packages/typescript/test/ts_project/a",
     }
 }

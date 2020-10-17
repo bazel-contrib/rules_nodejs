@@ -1,5 +1,5 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "pkg_npm")
 load("@npm//@angular-devkit/architect-cli:index.bzl", "architect", "architect_test")
+load("@rules_nodejs//:index.bzl", "pkg_npm")
 
 package(default_visibility = ["//visibility:public"])
 

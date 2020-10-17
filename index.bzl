@@ -55,7 +55,7 @@ def dummy_bzl_library(name, **kwargs):
 # @unsorted-dict-items
 COMMON_REPLACEMENTS = {
     # Replace loads from @bazel_skylib with the dummy rule above
-    "(load\\(\"@bazel_skylib//:bzl_library.bzl\", \"bzl_library\"\\))": "# bazel_skylib mocked out\n# $1\nload(\"@build_bazel_rules_nodejs//:index.bzl\", bzl_library = \"dummy_bzl_library\")",
+    "(load\\(\"@bazel_skylib//:bzl_library.bzl\", \"bzl_library\"\\))": "# bazel_skylib mocked out\n# $1\nload(\"@rules_nodejs//:index.bzl\", bzl_library = \"dummy_bzl_library\")",
     # Make sure we don't try to load from under tools/ which isn't in the distro
     "(load\\(\"//:tools/defaults.bzl\", .*\\))": "# defaults.bzl not included in distribution\n# $1",
     # Cleanup up package.json @bazel/foobar package deps for published packages:
@@ -106,14 +106,14 @@ SUPPORTED_BAZEL_VERSIONS = [
 
 def check_rules_nodejs_version(minimum_version_string):
     """
-    Verify that a minimum build_bazel_rules_nodejs is loaded a WORKSPACE.
+    Verify that a minimum rules_nodejs is loaded a WORKSPACE.
 
     This should be called from the `WORKSPACE` file so that the build fails as
     early as possible. For example:
 
     ```
     # in WORKSPACE:
-    load("@build_bazel_rules_nodejs//:package.bzl", "check_rules_nodejs_version")
+    load("@rules_nodejs//:package.bzl", "check_rules_nodejs_version")
     check_rules_nodejs_version("0.11.2")
     ```
 
@@ -121,7 +121,7 @@ def check_rules_nodejs_version(minimum_version_string):
       minimum_version_string: a string indicating the minimum version
     """
     if not check_version(VERSION, minimum_version_string):
-        fail("\nCurrent build_bazel_rules_nodejs version is {}, expected at least {}\n".format(
+        fail("\nCurrent rules_nodejs version is {}, expected at least {}\n".format(
             VERSION,
             minimum_version_string,
         ))

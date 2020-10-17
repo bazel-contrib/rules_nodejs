@@ -1,7 +1,7 @@
 # Generated file from yarn_install/npm_install rule.
 # See rules_nodejs/internal/npm_install/generate_build_file.ts
 
-load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+load("@rules_nodejs//:index.bzl", "js_library")
 
 # All rules in other repositories can use these targets
 package(default_visibility = ["//visibility:public"])

@@ -1,5 +1,5 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
-load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
+load("@rules_nodejs//:index.bzl", "nodejs_binary")
+load("@rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
 load("//packages/jasmine:index.bzl", "jasmine_node_test")
 
 filegroup(
@@ -87,8 +87,8 @@ sh_test(
     name = "bazel_bin_test",
     srcs = ["bazel_bin_test.sh"],
     data = [
-        "@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles",
         "@npm//testy/bin:testy",
+        "@rules_nodejs//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles",
     ],
 )
 

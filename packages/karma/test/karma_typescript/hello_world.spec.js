@@ -5,7 +5,7 @@
   }
   else if (typeof define === "function" && define.amd) {
     define(
-        'build_bazel_rules_nodejs/packages/karma/test/karma_typescript/hello_world.spec',
+        'rules_nodejs/packages/karma/test/karma_typescript/hello_world.spec',
         ['require', 'exports'], factory);
   }
 })(function (require, exports) {

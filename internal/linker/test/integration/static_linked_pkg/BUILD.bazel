@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin")
+load("@rules_nodejs//:index.bzl", "copy_to_bin")
 load("//:index.bzl", "js_library")
 
 package(default_visibility = ["//internal/linker/test:__subpackages__"])

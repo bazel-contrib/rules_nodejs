@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
+load("@rules_nodejs//:index.bzl", "generated_file_test")
 load(":rule.bzl", "linked")
 
 # Use the node binary supplied by the bazel toolchain
@@ -9,7 +9,7 @@ genrule(
     srcs = [":run_program.sh"],
     outs = ["run_program_with_node.sh"],
     cmd = "sed s#NODE_PATH#$(NODE_PATH)# $< > $@",
-    toolchains = ["@build_bazel_rules_nodejs//toolchains/node:toolchain"],
+    toolchains = ["@rules_nodejs//toolchains/node:toolchain"],
 )
 
 # A program from a *_test rule with a module mapped package that will
@@ -59,7 +59,7 @@ linked(
         # NB: Verify that a direct dep on :some_program and a transitive dep on
         # the same via :run_program works with the linker. These should both
         # bring in the transitive_static_linked mapping to
-        # ["runfiles", "build_bazel_rules_nodejs/internal/linker/test/integration/transitive_static_linked_pkg"].
+        # ["runfiles", "rules_nodejs/internal/linker/test/integration/transitive_static_linked_pkg"].
         # This tests that the linker does "runfiles" mappings for both  *_binary target
         # and *_test targets.
         ":some_program",
@@ -85,13 +85,13 @@ linked(
         # than `example_with_conflicts_alt`.
         ":run_program",
         # NB: static_linked maps to both
-        # ["runfiles", "build_bazel_rules_nodejs/internal/linker/test/integration/static_linked_pkg"] and
-        # ["bin", "build_bazel_rules_nodejs/internal/linker/test/integration/static_linked_pkg"]
+        # ["runfiles", "rules_nodejs/internal/linker/test/integration/static_linked_pkg"] and
+        # ["bin", "rules_nodejs/internal/linker/test/integration/static_linked_pkg"]
         # as the "runfiles" mapping comes from `:run_program`
         "//internal/linker/test/integration/static_linked_pkg",
         # NB: @linker_scoped/static_linked maps to both
-        # ["runfiles", "build_bazel_rules_nodejs/internal/linker/test/integration/static_linked_scoped_pkg"] and
-        # ["src", "build_bazel_rules_nodejs/internal/linker/test/integration/static_linked_scoped_pkg"]
+        # ["runfiles", "rules_nodejs/internal/linker/test/integration/static_linked_scoped_pkg"] and
+        # ["src", "rules_nodejs/internal/linker/test/integration/static_linked_scoped_pkg"]
         # as the "runfiles" mapping comes from `:run_program`
         "//internal/linker/test/integration/static_linked_scoped_pkg",
         "//internal/linker/test/integration/dynamic_linked_pkg",
@@ -108,13 +108,13 @@ linked(
     # do not sort
     deps = [
         # NB: static_linked maps to both
-        # ["runfiles", "build_bazel_rules_nodejs/internal/linker/test/integration/static_linked_pkg"] and
-        # ["bin", "build_bazel_rules_nodejs/internal/linker/test/integration/static_linked_pkg"]
+        # ["runfiles", "rules_nodejs/internal/linker/test/integration/static_linked_pkg"] and
+        # ["bin", "rules_nodejs/internal/linker/test/integration/static_linked_pkg"]
         # as the "runfiles" mapping comes from `:run_program`
         "//internal/linker/test/integration/static_linked_pkg",
         # NB: @linker_scoped/static_linked maps to both
-        # ["runfiles", "build_bazel_rules_nodejs/internal/linker/test/integration/static_linked_scoped_pkg"] and
-        # ["src", "build_bazel_rules_nodejs/internal/linker/test/integration/static_linked_scoped_pkg"]
+        # ["runfiles", "rules_nodejs/internal/linker/test/integration/static_linked_scoped_pkg"] and
+        # ["src", "rules_nodejs/internal/linker/test/integration/static_linked_scoped_pkg"]
         # as the "runfiles" mapping comes from `:run_program`
         "//internal/linker/test/integration/static_linked_scoped_pkg",
         # Intentinally include this before static_linked_pkg as order matters for the linker.

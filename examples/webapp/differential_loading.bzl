@@ -1,10 +1,10 @@
 "Illustrates how a reusable high-level workflow can be assembled from individual tools"
 
-load("@build_bazel_rules_nodejs//:index.bzl", "pkg_web")
 load("@npm_deps//@babel/cli:index.bzl", "babel")
 load("@npm_deps//@bazel/rollup:index.bzl", "rollup_bundle")
 load("@npm_deps//@bazel/terser:index.bzl", "terser_minified")
 load("@npm_deps//@bazel/typescript:index.bzl", "ts_library")
+load("@rules_nodejs//:index.bzl", "pkg_web")
 
 def differential_loading(name, entry_point, srcs):
     "Common workflow to serve TypeScript to modern browsers"

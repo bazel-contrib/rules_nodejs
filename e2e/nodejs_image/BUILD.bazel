@@ -1,6 +1,6 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 load("@io_bazel_rules_docker//contrib:test.bzl", "container_test")
 load("@io_bazel_rules_docker//nodejs:image.bzl", "nodejs_image")
+load("@rules_nodejs//:index.bzl", "nodejs_binary")
 
 nodejs_binary(
     name = "main",
@@ -13,7 +13,7 @@ nodejs_binary(
     templated_args = ["--nobazel_patch_module_resolver"],
 )
 
-# bazel run --platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64 //:nodejs_image
+# bazel run --platforms=@rules_nodejs//toolchains/node:linux_amd64 //:nodejs_image
 nodejs_image(
     name = "nodejs_image",
     binary = ":main",

@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+load("@rules_nodejs//:index.bzl", "nodejs_binary")
 load("//packages/typescript:index.bzl", "ts_library")
 load("//packages/typescript/test/some_module:run_node_test.bzl", "ts_write_file")
 
@@ -32,7 +32,7 @@ sh_test(
     srcs = ["module_load_test.sh"],
     data = [
         ":bin",
-        "@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles",
+        "@rules_nodejs//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles",
     ],
 )
 

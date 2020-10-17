@@ -14,9 +14,9 @@
 
 """Testing for node toolchains
 
-This test verifies that if --platforms=@build_bazel_rules_nodejs//toolchains/node:<platform> is set then
+This test verifies that if --platforms=@rules_nodejs//toolchains/node:<platform> is set then
 the correct node path is available to rules via
-ctx.toolchains["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"].nodeinfo.tool_files[0].path
+ctx.toolchains["@rules_nodejs//toolchains/node:toolchain_type"].nodeinfo.tool_files[0].path
 """
 
 load("//internal/node:node_repositories.bzl", "NODE_EXTRACT_DIR")
@@ -46,7 +46,7 @@ def _nodejs_toolchain_test(ctx):
         script,
         _SCRIPT_TEMPLATE.format(
             expected_node_path = expected_node_path,
-            toolchain_node_path = ctx.toolchains["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"].nodeinfo.tool_files[0].path,
+            toolchain_node_path = ctx.toolchains["@rules_nodejs//toolchains/node:toolchain_type"].nodeinfo.tool_files[0].path,
         ),
         is_executable = True,
     )
@@ -57,7 +57,7 @@ nodejs_toolchain_test = rule(
     attrs = _ATTRS,
     test = True,
     toolchains = [
-        "@build_bazel_rules_nodejs//toolchains/node:toolchain_type",
+        "@rules_nodejs//toolchains/node:toolchain_type",
         "@bazel_tools//tools/sh:toolchain_type",
     ],
 )

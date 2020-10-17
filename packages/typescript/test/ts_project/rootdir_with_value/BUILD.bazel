@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
+load("@rules_nodejs//:index.bzl", "nodejs_test")
 load("//packages/typescript:index.bzl", "ts_project")
 
 # Ensure that subdir/a.ts produces outDir/a.js

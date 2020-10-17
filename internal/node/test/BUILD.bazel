@@ -1,5 +1,5 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test", "nodejs_binary", "nodejs_test", "npm_package_bin")
 load("@npm//typescript:index.bzl", "tsc")
+load("@rules_nodejs//:index.bzl", "generated_file_test", "nodejs_binary", "nodejs_test", "npm_package_bin")
 load("//:index.bzl", "js_library")
 load("//internal/node:node_repositories.bzl", "BUILT_IN_NODE_PLATFORMS")
 load("//packages/jasmine:index.bzl", "jasmine_node_test")
@@ -59,7 +59,7 @@ nodejs_binary(
 
 js_library(
     name = "module_name_lib",
-    package_name = "build_bazel_rules_nodejs/internal/node/test",
+    package_name = "rules_nodejs/internal/node/test",
     srcs = ["module-name.js"],
 )
 
@@ -344,7 +344,7 @@ jasmine_node_test(
 [nodejs_toolchain_test(
     name = "nodejs_toolchain_%s_test" % platform,
     platform = platform,
-    # must be run with --platforms=@build_bazel_rules_nodejs//toolchains/node:PLATFORM
+    # must be run with --platforms=@rules_nodejs//toolchains/node:PLATFORM
     # where PLATFORM is one of BUILT_IN_NODE_PLATFORMS
     tags = ["manual"],
 ) for platform in BUILT_IN_NODE_PLATFORMS]

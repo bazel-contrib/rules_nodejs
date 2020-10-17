@@ -15,7 +15,7 @@
 """Replacements for @npm/typescript package
 """
 
-load("@build_bazel_rules_nodejs//:index.bzl", "COMMON_REPLACEMENTS")
+load("@rules_nodejs//:index.bzl", "COMMON_REPLACEMENTS")
 
 TYPESCRIPT_REPLACEMENTS = dict(
     COMMON_REPLACEMENTS,

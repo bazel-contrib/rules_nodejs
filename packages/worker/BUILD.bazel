@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "pkg_npm")
+load("@rules_nodejs//:tools/defaults.bzl", "pkg_npm")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
 
 # We reach inside the @bazel/typescript npm package to grab this one .js file

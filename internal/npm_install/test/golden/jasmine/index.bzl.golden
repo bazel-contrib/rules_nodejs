@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "nodejs_test", "npm_package_bin")
+load("@rules_nodejs//:index.bzl", "nodejs_binary", "nodejs_test", "npm_package_bin")
 def jasmine(**kwargs):
     output_dir = kwargs.pop("output_dir", False)
     if "outs" in kwargs or output_dir:

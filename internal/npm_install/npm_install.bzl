@@ -190,7 +190,7 @@ def _check_min_bazel_version(rule, repository_ctx):
             message = """
         A minimum Bazel version of 0.26.0 is required for the %s @%s repository rule.
 
-        By default, yarn_install and npm_install in build_bazel_rules_nodejs >= 0.30.0
+        By default, yarn_install and npm_install in rules_nodejs >= 0.30.0
         depends on the managed directory feature added in Bazel 0.26.0. See
         https://github.com/bazelbuild/rules_nodejs/wiki#migrating-to-rules_nodejs-030.
 
@@ -267,7 +267,7 @@ cd /D "{root}" && "{npm}" {npm_args}
     env_key = "BAZEL_NPM_INSTALL"
     if env_key not in env.keys():
         env[env_key] = "1"
-    env["BUILD_BAZEL_RULES_NODEJS_VERSION"] = VERSION
+    env["rules_nodejs_VERSION"] = VERSION
 
     repository_ctx.report_progress("Running npm install on %s" % repository_ctx.attr.package_json)
     result = repository_ctx.execute(
@@ -404,7 +404,7 @@ cd /D "{root}" && "{yarn}" {yarn_args}
     env_key = "BAZEL_YARN_INSTALL"
     if env_key not in env.keys():
         env[env_key] = "1"
-    env["BUILD_BAZEL_RULES_NODEJS_VERSION"] = VERSION
+    env["rules_nodejs_VERSION"] = VERSION
 
     repository_ctx.report_progress("Running yarn install on %s" % repository_ctx.attr.package_json)
     result = repository_ctx.execute(

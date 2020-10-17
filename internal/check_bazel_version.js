@@ -21,10 +21,9 @@ const args = process.argv.slice(2);
 
 const BAZEL_VERSION = args[0];
 
-const version =
-    fs.readFileSync(require.resolve('build_bazel_rules_nodejs/.bazelversion'), 'utf-8').trim();
+const version = fs.readFileSync(require.resolve('rules_nodejs/.bazelversion'), 'utf-8').trim();
 const bazelci_version =
-    fs.readFileSync(require.resolve('build_bazel_rules_nodejs/.bazelci/presubmit.yml'), 'utf-8')
+    fs.readFileSync(require.resolve('rules_nodejs/.bazelci/presubmit.yml'), 'utf-8')
         .split('\n')
         .find(v => v.startsWith('bazel:'));
 

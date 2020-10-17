@@ -1,6 +1,6 @@
 "Test that attributes set on ts_project are honored"
 
-load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
+load("@rules_nodejs//:index.bzl", "generated_file_test")
 load("//packages/typescript:index.bzl", "ts_project")
 
 ts_project(

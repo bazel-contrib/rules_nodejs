@@ -1,6 +1,6 @@
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
-load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test", "nodejs_binary", "npm_package_bin")
 load("@io_bazel_stardoc//stardoc:stardoc.bzl", "stardoc")
+load("@rules_nodejs//:index.bzl", "generated_file_test", "nodejs_binary", "npm_package_bin")
 load("//:index.bzl", "custom_ts_library")
 
 # thin macro around ts_library that sets some implicit dependencies
@@ -25,8 +25,8 @@ bzl_library(
         "index.bzl",
     ],
     deps = [
-        "@build_bazel_rules_nodejs//packages/typescript:bzl",
         "@build_bazel_rules_typescript//internal:bzl",
+        "@rules_nodejs//packages/typescript:bzl",
     ],
 )
 

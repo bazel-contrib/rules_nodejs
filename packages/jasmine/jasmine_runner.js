@@ -148,7 +148,7 @@ function main(args) {
     };
     // Special case!
     // To allow us to test sharding, always run the specs in the order they are declared
-    if (process.env['TEST_WORKSPACE'] === 'build_bazel_rules_nodejs' &&
+    if (process.env['TEST_WORKSPACE'] === 'rules_nodejs' &&
         process.env['TEST_TARGET'].startsWith('//packages/jasmine/test:sharding_')) {
       jrunner.randomizeTests(false);
     }

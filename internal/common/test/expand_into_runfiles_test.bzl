@@ -7,10 +7,10 @@ def _impl(ctx):
     env = unittest.begin(ctx)
 
     conversions = {
-        "$(location //:package.json)": "build_bazel_rules_nodejs/package.json",
-        "$(location :a)": "build_bazel_rules_nodejs/internal/common/test/foo/bar/a.txt",
-        "$(location params_file.spec.js)": "build_bazel_rules_nodejs/internal/common/test/params_file.spec.js",
-        "$(locations :locations_in)": "build_bazel_rules_nodejs/package.json build_bazel_rules_nodejs/internal/common/test/foo/bar/a.txt build_bazel_rules_nodejs/internal/common/test/params_file.spec.js",
+        "$(location //:package.json)": "rules_nodejs/package.json",
+        "$(location :a)": "rules_nodejs/internal/common/test/foo/bar/a.txt",
+        "$(location params_file.spec.js)": "rules_nodejs/internal/common/test/params_file.spec.js",
+        "$(locations :locations_in)": "rules_nodejs/package.json rules_nodejs/internal/common/test/foo/bar/a.txt rules_nodejs/internal/common/test/params_file.spec.js",
         "$(rootpath //:package.json)": "./package.json",
         "$(rootpath :a)": "internal/common/test/foo/bar/a.txt",
         "$(rootpath params_file.spec.js)": "internal/common/test/params_file.spec.js",

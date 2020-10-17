@@ -30,9 +30,9 @@ try {
   const helper = process.env['BAZEL_NODE_RUNFILES_HELPER'];
   if (!helper) throw new Error('No runfiles helper and no @bazel/worker npm package');
   const runfiles = require(helper);
-  const workerRequire = runfiles.resolve('build_bazel_rules_nodejs/packages/rollup/worker.js');
+  const workerRequire = runfiles.resolve('rules_nodejs/packages/rollup/worker.js');
   if (!workerRequire)
-    throw new Error(`build_bazel_rules_nodejs/packages/rollup/worker.js missing in runfiles ${
+    throw new Error(`rules_nodejs/packages/rollup/worker.js missing in runfiles ${
         JSON.stringify(runfiles.manifest)}, ${runfiles.dir}`);
   worker = require(workerRequire);
 }

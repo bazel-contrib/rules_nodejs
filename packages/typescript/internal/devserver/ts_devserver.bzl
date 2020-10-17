@@ -14,12 +14,12 @@
 
 "Simple development server"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "JSNamedModuleInfo", "NpmPackageInfo", "node_modules_aspect")
+load("@nodejs//:index.bzl", "host_platform")
+load("@rules_nodejs//:providers.bzl", "JSNamedModuleInfo", "NpmPackageInfo", "node_modules_aspect")
 load(
-    "@build_bazel_rules_nodejs//internal/js_library:js_library.bzl",
+    "@rules_nodejs//internal/js_library:js_library.bzl",
     "write_amd_names_shim",
 )
-load("@nodejs//:index.bzl", "host_platform")
 
 # Avoid using non-normalized paths (workspace/../other_workspace/path)
 def _to_manifest_path(ctx, file):
@@ -188,7 +188,7 @@ ts_devserver = rule(
             They are served relative to the package where this rule is declared.""",
             allow_files = True,
         ),
-        "_bash_runfile_helpers": attr.label(default = Label("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles")),
+        "_bash_runfile_helpers": attr.label(default = Label("@rules_nodejs//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles")),
         "_launcher_template": attr.label(allow_single_file = True, default = Label("//packages/typescript/internal/devserver:launcher_template.sh")),
         "_requirejs_script": attr.label(allow_single_file = True, default = Label("//packages/typescript/third_party/npm/requirejs:require.js")),
     },

@@ -1,5 +1,5 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
-load("@build_bazel_rules_nodejs//packages/jasmine:index.bzl", "jasmine_node_test")
+load("@rules_nodejs//:index.bzl", "nodejs_binary")
+load("@rules_nodejs//packages/jasmine:index.bzl", "jasmine_node_test")
 
 # Make the jasmine library available at runtime by exposing our node_modules
 # directory.

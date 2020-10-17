@@ -32,7 +32,7 @@ def _impl(repository_ctx):
 
     repository_ctx.template(
         "BUILD",
-        Label("@build_bazel_rules_nodejs//toolchains/node:BUILD.tpl"),
+        Label("@rules_nodejs//toolchains/node:BUILD.tpl"),
         substitutions,
         False,
     )

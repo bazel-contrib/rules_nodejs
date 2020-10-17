@@ -13,10 +13,10 @@
 # limitations under the License.
 
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "nodejs_test")
-load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "pkg_npm")
-load("@build_bazel_rules_nodejs//packages/typescript:index.bzl", "ts_library")
-load("@build_bazel_rules_nodejs//tools/stardoc:index.bzl", "stardoc")
+load("@rules_nodejs//:index.bzl", "nodejs_binary", "nodejs_test")
+load("@rules_nodejs//:tools/defaults.bzl", "pkg_npm")
+load("@rules_nodejs//packages/typescript:index.bzl", "ts_library")
+load("@rules_nodejs//tools/stardoc:index.bzl", "stardoc")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
 
 package(default_visibility = ["//visibility:public"])
@@ -56,9 +56,9 @@ bzl_library(
     testonly = True,
     srcs = glob(["*.bzl"]),
     deps = [
-        "@build_bazel_rules_nodejs//:bzl",
-        "@build_bazel_rules_nodejs//internal/js_library:bzl",
         "@io_bazel_rules_webtesting//web",
+        "@rules_nodejs//:bzl",
+        "@rules_nodejs//internal/js_library:bzl",
     ],
 )
 

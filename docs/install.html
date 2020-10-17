@@ -186,12 +186,12 @@ containing:</p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">load</span><span class="p">(</span><span class="s">"@bazel_tools//tools/build_defs/repo:http.bzl"</span><span class="p">,</span> <span class="s">"http_archive"</span><span class="p">)</span>
 <span class="n">http_archive</span><span class="p">(</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="s">"build_bazel_rules_nodejs"</span><span class="p">,</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"rules_nodejs"</span><span class="p">,</span>
     <span class="n">sha256</span> <span class="o">=</span> <span class="s">"64a71a64ac58b8969bb19b1c9258a973b6433913e958964da698943fb5521d98"</span><span class="p">,</span>
     <span class="n">urls</span> <span class="o">=</span> <span class="p">[</span><span class="s">"https://github.com/bazelbuild/rules_nodejs/releases/download/2.2.1/rules_nodejs-2.2.1.tar.gz"</span><span class="p">],</span>
 <span class="p">)</span>
 
-<span class="n">load</span><span class="p">(</span><span class="s">"@build_bazel_rules_nodejs//:index.bzl"</span><span class="p">,</span> <span class="s">"node_repositories"</span><span class="p">)</span>
+<span class="n">load</span><span class="p">(</span><span class="s">"@rules_nodejs//:index.bzl"</span><span class="p">,</span> <span class="s">"node_repositories"</span><span class="p">)</span>
 </code></pre></div></div>
 
 <p>Now you can choose from a few options to finish installation.</p>
@@ -246,7 +246,7 @@ Note that some of our packages have started to use features from Node 12, so you
 <p>If you’d like to use a version of NodeJS and/or Yarn that are not currently supported here, you can manually
 specify those in your <code class="language-plaintext highlighter-rouge">WORKSPACE</code>:</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">load</span><span class="p">(</span><span class="s">"@build_bazel_rules_nodejs//:index.bzl"</span><span class="p">,</span> <span class="s">"node_repositories"</span><span class="p">)</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">load</span><span class="p">(</span><span class="s">"@rules_nodejs//:index.bzl"</span><span class="p">,</span> <span class="s">"node_repositories"</span><span class="p">)</span>
 
 <span class="c1"># NOTE: this rule does NOT install your npm dependencies into your node_modules folder.
 # You must still run the package manager to do this.
@@ -273,7 +273,7 @@ specify those in your <code class="language-plaintext highlighter-rouge">WORKSPA
 <p>Finally, you could check Node.js and Yarn into your repository, and not fetch
 them from the internet. This is what we do internally at Google.</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">load</span><span class="p">(</span><span class="s">"@build_bazel_rules_nodejs//:index.bzl"</span><span class="p">,</span> <span class="s">"node_repositories"</span><span class="p">)</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">load</span><span class="p">(</span><span class="s">"@rules_nodejs//:index.bzl"</span><span class="p">,</span> <span class="s">"node_repositories"</span><span class="p">)</span>
 
 <span class="c1"># Point node_repositories to use locally installed versions of Node.js and Yarn.
 # The vendored_node and vendored_yarn labels point to the extracted contents of
@@ -305,14 +305,14 @@ in use.</p>
 <p>Toolchains allow us to support cross-compilation, e.g. building a linux binary from mac or windows. To tell Bazel to provide a toolchain for a different platform you have to pass in  the <code class="language-plaintext highlighter-rouge">--platforms</code> flag. Currently supported values are:</p>
 
 <ul>
-  <li><code class="language-plaintext highlighter-rouge">@build_bazel_rules_nodejs//toolchains/node:linux_amd64</code></li>
-  <li><code class="language-plaintext highlighter-rouge">@build_bazel_rules_nodejs//toolchains/node:linux_arm64</code></li>
-  <li><code class="language-plaintext highlighter-rouge">@build_bazel_rules_nodejs//toolchains/node:linux_s390x</code></li>
-  <li><code class="language-plaintext highlighter-rouge">@build_bazel_rules_nodejs//toolchains/node:darwin_amd64</code></li>
-  <li><code class="language-plaintext highlighter-rouge">@build_bazel_rules_nodejs//toolchains/node:windows_amd64</code></li>
+  <li><code class="language-plaintext highlighter-rouge">@rules_nodejs//toolchains/node:linux_amd64</code></li>
+  <li><code class="language-plaintext highlighter-rouge">@rules_nodejs//toolchains/node:linux_arm64</code></li>
+  <li><code class="language-plaintext highlighter-rouge">@rules_nodejs//toolchains/node:linux_s390x</code></li>
+  <li><code class="language-plaintext highlighter-rouge">@rules_nodejs//toolchains/node:darwin_amd64</code></li>
+  <li><code class="language-plaintext highlighter-rouge">@rules_nodejs//toolchains/node:windows_amd64</code></li>
 </ul>
 
-<p>So if for example you want to build a docker image from a non-linux platform you would run <code class="language-plaintext highlighter-rouge">bazel build --platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64 //app</code>, which will ensure that the linux nodejs binary is downloaded and provided to the nodejs_binary target.</p>
+<p>So if for example you want to build a docker image from a non-linux platform you would run <code class="language-plaintext highlighter-rouge">bazel build --platforms=@rules_nodejs//toolchains/node:linux_amd64 //app</code>, which will ensure that the linux nodejs binary is downloaded and provided to the nodejs_binary target.</p>
 
 <p>Note: The toolchain currently only provides a platform-specific nodejs binary. Any native modules will still be fetched/built, by npm/yarn, for your host platform, so they will not work on the target platform. Support for cross-compilation with native dependencies will follow.</p>
 

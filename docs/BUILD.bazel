@@ -35,7 +35,7 @@ stardoc(
     ],
 )
 
-_BUILTINS_README = "# Built-in rules\n\nThese rules are available without any npm installation, via the `WORKSPACE` install of the `build_bazel_rules_nodejs` workspace. This is necessary to bootstrap Bazel to run the package manager to download other rules from NPM.\n\n"
+_BUILTINS_README = "# Built-in rules\n\nThese rules are available without any npm installation, via the `WORKSPACE` install of the `rules_nodejs` workspace. This is necessary to bootstrap Bazel to run the package manager to download other rules from NPM.\n\n"
 
 # Ugly genrule depending on local linux environment to build the README out of skylark doc generation.
 # Only referenced when we do a release.

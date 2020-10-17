@@ -14,7 +14,7 @@
 
 "Rule to run the terser binary under bazel"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "JSModuleInfo", "run_node")
+load("@rules_nodejs//:providers.bzl", "JSModuleInfo", "run_node")
 
 _DOC = """Run the terser minifier.
 

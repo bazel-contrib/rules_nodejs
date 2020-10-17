@@ -7,11 +7,11 @@ workspace(
 # We do this local repository only because this example lives in the same
 # repository with the rules_nodejs code and we want to test them together.
 local_repository(
-    name = "build_bazel_rules_nodejs",
+    name = "rules_nodejs",
     path = "../../",
 )
 
-load("@build_bazel_rules_nodejs//:package.bzl", "rules_nodejs_dev_dependencies")
+load("@rules_nodejs//:package.bzl", "rules_nodejs_dev_dependencies")
 
 rules_nodejs_dev_dependencies()
 
@@ -29,7 +29,7 @@ load("@io_bazel_stardoc//:setup.bzl", "stardoc_repositories")
 
 stardoc_repositories()
 
-load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "yarn_install")
+load("@rules_nodejs//:index.bzl", "node_repositories", "yarn_install")
 
 node_repositories(
     node_version = "12.13.0",

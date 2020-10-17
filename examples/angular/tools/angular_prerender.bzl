@@ -1,7 +1,7 @@
 """Helper macros for rendering parts of an Angular application at build time"""
 
-load("@build_bazel_rules_nodejs//:index.bzl", _nodejs_binary = "nodejs_binary", _nodejs_test = "nodejs_test")
 load("@npm//@bazel/typescript:index.bzl", _ts_library = "ts_library")
+load("@rules_nodejs//:index.bzl", _nodejs_binary = "nodejs_binary", _nodejs_test = "nodejs_test")
 
 def _get_output_path(route, root_at):
     return root_at + "/" + route + "/index.html"

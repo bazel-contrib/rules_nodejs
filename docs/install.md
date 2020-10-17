@@ -30,12 +30,12 @@ containing:
 ```python
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 http_archive(
-    name = "build_bazel_rules_nodejs",
+    name = "rules_nodejs",
     sha256 = "f2194102720e662dbf193546585d705e645314319554c6ce7e47d8b59f459e9c",
     urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/2.2.2/rules_nodejs-2.2.2.tar.gz"],
 )
 
-load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories")
+load("@rules_nodejs//:index.bzl", "node_repositories")
 ```
 
 Now you can choose from a few options to finish installation.
@@ -89,7 +89,7 @@ If you'd like to use a version of NodeJS and/or Yarn that are not currently supp
 specify those in your `WORKSPACE`:
 
 ```python
-load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories")
+load("@rules_nodejs//:index.bzl", "node_repositories")
 
 # NOTE: this rule does NOT install your npm dependencies into your node_modules folder.
 # You must still run the package manager to do this.
@@ -117,7 +117,7 @@ Finally, you could check Node.js and Yarn into your repository, and not fetch
 them from the internet. This is what we do internally at Google.
 
 ```python
-load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories")
+load("@rules_nodejs//:index.bzl", "node_repositories")
 
 # Point node_repositories to use locally installed versions of Node.js and Yarn.
 # The vendored_node and vendored_yarn labels point to the extracted contents of
@@ -148,12 +148,12 @@ If you have an advanced use-case you can also register your own toolchains and c
 
 Toolchains allow us to support cross-compilation, e.g. building a linux binary from mac or windows. To tell Bazel to provide a toolchain for a different platform you have to pass in  the `--platforms` flag. Currently supported values are:
 
-- `@build_bazel_rules_nodejs//toolchains/node:linux_amd64`
-- `@build_bazel_rules_nodejs//toolchains/node:linux_arm64`
-- `@build_bazel_rules_nodejs//toolchains/node:linux_s390x`
-- `@build_bazel_rules_nodejs//toolchains/node:darwin_amd64`
-- `@build_bazel_rules_nodejs//toolchains/node:windows_amd64`
+- `@rules_nodejs//toolchains/node:linux_amd64`
+- `@rules_nodejs//toolchains/node:linux_arm64`
+- `@rules_nodejs//toolchains/node:linux_s390x`
+- `@rules_nodejs//toolchains/node:darwin_amd64`
+- `@rules_nodejs//toolchains/node:windows_amd64`
 
-So if for example you want to build a docker image from a non-linux platform you would run `bazel build --platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64 //app`, which will ensure that the linux nodejs binary is downloaded and provided to the nodejs_binary target.
+So if for example you want to build a docker image from a non-linux platform you would run `bazel build --platforms=@rules_nodejs//toolchains/node:linux_amd64 //app`, which will ensure that the linux nodejs binary is downloaded and provided to the nodejs_binary target.
 
 Note: The toolchain currently only provides a platform-specific nodejs binary. Any native modules will still be fetched/built, by npm/yarn, for your host platform, so they will not work on the target platform. Support for cross-compilation with native dependencies will follow.

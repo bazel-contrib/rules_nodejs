@@ -489,8 +489,8 @@ module.constructor._resolveFilename =
 // Before loading anything that might print a stack, install the
 // source-map-support.
 try {
-  const sourcemap_support_package = path.resolve(
-      process.cwd(), '../build_bazel_rules_nodejs/third_party/github.com/source-map-support');
+  const sourcemap_support_package =
+      path.resolve(process.cwd(), '../rules_nodejs/third_party/github.com/source-map-support');
   require(sourcemap_support_package).install();
 } catch (_) {
   log_verbose(`WARNING: source-map-support module not installed.

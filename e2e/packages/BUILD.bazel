@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
+load("@rules_nodejs//:index.bzl", "nodejs_test")
 
 # This is like a "js_library", but there are no actions to run on JS files so a
 # filegroup is semantically equivalent.

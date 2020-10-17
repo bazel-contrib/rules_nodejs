@@ -4,7 +4,7 @@ Note that in the npm distribution, this file is absent, and will be generated on
 the package is installed (possibly with different attribute values).
 """
 
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+load("@rules_nodejs//:index.bzl", "nodejs_binary")
 
 nodejs_binary(
     name = "ts_project_options_validator",

@@ -21,7 +21,9 @@ describe('Bazel protractor utils', () => {
   it('should be able to start devserver', async () => {
     // Test will automatically time out if the server couldn't be launched as expected.
     await runServer(
-        'build_bazel_rules_nodejs', 'packages/protractor/test/protractor-utils/fake-devserver' + (process.platform == "win32" ? ".bat" : ".sh"),
+        'rules_nodejs',
+        'packages/protractor/test/protractor-utils/fake-devserver' +
+            (process.platform == 'win32' ? '.bat' : '.sh'),
         '--port', []);
   });
 });

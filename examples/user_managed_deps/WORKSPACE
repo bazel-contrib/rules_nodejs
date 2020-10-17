@@ -6,20 +6,20 @@ load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 # We do this local repository only because this example lives in the same
 # repository with the rules_nodejs code and we want to test them together.
 local_repository(
-    name = "build_bazel_rules_nodejs",
+    name = "rules_nodejs",
     path = "../..",
 )
 # http_archive(
-#     name = "build_bazel_rules_nodejs",
+#     name = "rules_nodejs",
 #     urls = ["https://github.com/bazelbuild/rules_nodejs/archive/x.x.x.tar.gz"],
 #     strip_prefix = "rules_nodejs-x.x.x",
 # )
 
-load("@build_bazel_rules_nodejs//:package.bzl", "rules_nodejs_dev_dependencies")
+load("@rules_nodejs//:package.bzl", "rules_nodejs_dev_dependencies")
 
 rules_nodejs_dev_dependencies()
 
-load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories")
+load("@rules_nodejs//:index.bzl", "node_repositories")
 
 # Install a hermetic version of node.
 # After this is run, these labels will be available:

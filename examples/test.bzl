@@ -1,6 +1,6 @@
 "Define a convenience macro for examples integration testing"
 
-load("@build_bazel_rules_nodejs//internal/bazel_integration_test:bazel_integration_test.bzl", "rules_nodejs_integration_test")
+load("@rules_nodejs//internal/bazel_integration_test:bazel_integration_test.bzl", "rules_nodejs_integration_test")
 load("//:tools/defaults.bzl", "codeowners")
 
 def example_integration_test(name, owners = [], **kwargs):

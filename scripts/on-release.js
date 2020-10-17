@@ -43,9 +43,9 @@ const workspaceFiles = [
 
 for (const f of workspaceFiles) {
   let workspaceContents = fs.readFileSync(f, {encoding: 'utf-8'});
-  const regex = new RegExp(`http_archive\\(\\s*name\\s*\\=\\s*"build_bazel_rules_nodejs"[^)]+`);
+  const regex = new RegExp(`http_archive\\(\\s*name\\s*\\=\\s*"rules_nodejs"[^)]+`);
   const replacement = `http_archive(
-    name = "build_bazel_rules_nodejs",
+    name = "rules_nodejs",
     sha256 = "${sha256}",
     urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/${version}/rules_nodejs-${
       version}.tar.gz"],

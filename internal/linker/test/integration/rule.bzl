@@ -1,6 +1,6 @@
 "Minimal fixture for executing the linker's starlark code"
 
-load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect", "write_node_modules_manifest")
+load("@rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect", "write_node_modules_manifest")
 
 def _linked(ctx):
     modules_manifest = write_node_modules_manifest(ctx)

@@ -21,7 +21,7 @@
 
 # --- begin runfiles.bash initialization v2 ---
 # Copy-pasted from the Bazel Bash runfiles library v2.
-set -uo pipefail; f=build_bazel_rules_nodejs/third_party/github.com/bazelbuild/bazel/tools/bash/runfiles/runfiles.bash
+set -uo pipefail; f=rules_nodejs/third_party/github.com/bazelbuild/bazel/tools/bash/runfiles/runfiles.bash
 source "${RUNFILES_DIR:-/dev/null}/$f" 2>/dev/null || \
   source "$(grep -sm1 "^$f " "${RUNFILES_MANIFEST_FILE:-/dev/null}" | cut -f2- -d' ')" 2>/dev/null || \
   source "$0.runfiles/$f" 2>/dev/null || \
@@ -36,7 +36,7 @@ export VERBOSE_LOGS=1
 # export NODE_DEBUG=module
 
 # Export the location of the runfiles helpers script
-export BAZEL_NODE_RUNFILES_HELPER=$(rlocation "build_bazel_rules_nodejs/internal/linker/runfiles_helper.js")
+export BAZEL_NODE_RUNFILES_HELPER=$(rlocation "rules_nodejs/internal/linker/runfiles_helper.js")
 if [[ "${BAZEL_NODE_RUNFILES_HELPER}" != /* ]] && [[ ! "${BAZEL_NODE_RUNFILES_HELPER}" =~ ^[A-Z]:[\\/] ]]; then
   export BAZEL_NODE_RUNFILES_HELPER=$(pwd)/${BAZEL_NODE_RUNFILES_HELPER}
 fi
@@ -48,7 +48,7 @@ for ARG in "$@"; do
   esac
 done
 
-readonly DIR="build_bazel_rules_nodejs/internal/linker"
+readonly DIR="rules_nodejs/internal/linker"
 
 $(rlocation NODE_PATH) \
   $(rlocation $DIR/index.js) \

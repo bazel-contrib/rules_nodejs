@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "codeowners", "pkg_npm")
+load("@rules_nodejs//:tools/defaults.bzl", "codeowners", "pkg_npm")
 load("//packages/typescript:index.bzl", "ts_project")
 
 codeowners(

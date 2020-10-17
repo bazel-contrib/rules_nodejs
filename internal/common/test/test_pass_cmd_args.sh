@@ -23,8 +23,8 @@ source "${RUNFILES_DIR:-/dev/null}/$f" 2>/dev/null || \
   { echo>&2 "ERROR: cannot find $f"; exit 1; }; f=; set -e
 # --- end runfiles.bash initialization v2 ---
 
-source "$(rlocation build_bazel_rules_nodejs/third_party/github.com/bazelbuild/bazel-skylib/tests/unittest.bash)" \
-  || { echo "Could not source build_bazel_rules_nodejs/third_party/github.com/bazelbuild/bazel-skylib/tests/unittest.bash" >&2; exit 1; }
+source "$(rlocation rules_nodejs/third_party/github.com/bazelbuild/bazel-skylib/tests/unittest.bash)" \
+  || { echo "Could not source rules_nodejs/third_party/github.com/bazelbuild/bazel-skylib/tests/unittest.bash" >&2; exit 1; }
 
 case "$(uname -s | tr [:upper:] [:lower:])" in
 msys*|mingw*|cygwin*)
@@ -42,9 +42,9 @@ fi
 
 function test_pass_cmd_args() {
   if "$is_windows"; then
-    script=build_bazel_rules_nodejs/internal/common/test/print_cmd_args.bat
+    script=rules_nodejs/internal/common/test/print_cmd_args.bat
   else
-    script=build_bazel_rules_nodejs/internal/common/test/print_cmd_args.sh
+    script=rules_nodejs/internal/common/test/print_cmd_args.sh
   fi
 
   "$(rlocation ${script})" '/foo bar' "\\foo \\bar" "/foo bar/" \foo\bar /foo/bar \\foo\\bar  "\foo\bar" "\\foo\\bar" '\foo\bar' '\\foo\\bar' >"$TEST_log"

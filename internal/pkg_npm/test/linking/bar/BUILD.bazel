@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "pkg_npm")
+load("@rules_nodejs//:index.bzl", "pkg_npm")
 
 pkg_npm(
     name = "bar",

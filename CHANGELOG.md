@@ -549,7 +549,7 @@ To match standard $(location) and $(locations) expansion, params_file args locat
 Usage example:
 
 ```
-load("@build_bazel_rules_nodejs//:index.bzl", "params_file", "nodejs_binary")
+load("@rules_nodejs//:index.bzl", "params_file", "nodejs_binary")
 
 params_file(
     name = "params_file",
@@ -605,7 +605,7 @@ to the runfiles manifest path.
 See https://docs.bazel.build/versions/master/be/common-definitions.html#common-attributes-binaries.
 * * pkg_npm attribute packages renamed to nested_packages
 * pkg_npm attribute replacements renamed to substitutions
-* **builtin:** legacy @build_bazel_rules_nodejs//internal/jasmine_node_test removed; use jasmine_node_test from @bazel/jasmine npm package instead
+* **builtin:** legacy @rules_nodejs//internal/jasmine_node_test removed; use jasmine_node_test from @bazel/jasmine npm package instead
 * **builtin:** `args` in yarn_install and npm_install can be used to pass arbitrary arguments so we removed the following attributes:
 * prod_only from yarn_install and npm_install; should be replaced by args = ["--prod"] and args = ["--production"] respectively
 * frozen_lockfile from yarn_install; should be replaced by args = ["--frozen-lockfile"]
@@ -628,7 +628,7 @@ To upgrade:
 
 ```python
 http_archive(
-    name = "build_bazel_rules_nodejs",
+    name = "rules_nodejs",
     sha256 = "a54b2511d6dae42c1f7cdaeb08144ee2808193a088004fc3b464a04583d5aa2e",
     urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.42.3/rules_nodejs-0.42.3.tar.gz"],
 )
@@ -666,7 +666,7 @@ To upgrade:
 
 ```python
 http_archive(
-    name = "build_bazel_rules_nodejs",
+    name = "rules_nodejs",
     sha256 = "c612d6b76eaa17540e8b8c806e02701ed38891460f9ba3303f4424615437887a",
     urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.42.1/rules_nodejs-0.42.1.tar.gz"],
 )
@@ -705,7 +705,7 @@ To upgrade:
 
 ```
 http_archive(
-    name = "build_bazel_rules_nodejs",
+    name = "rules_nodejs",
     sha256 = "8dc1466f8563f3aa4ac7ab7aa3c96651eb7764108219f40b2d1c918e1a81c601",
     urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.41.0/rules_nodejs-0.41.0.tar.gz"],
 )
@@ -723,13 +723,13 @@ As mentioned before, we are close to a 1.0 release, so we are making all our bre
 Update your load statements from
 
 ```python
-load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_package")
+load("@rules_nodejs//internal/web_package:web_package.bzl", "web_package")
 ```
 
 to
 
 ```python
-load("@build_bazel_rules_nodejs//:index.bzl", "pkg_web")
+load("@rules_nodejs//:index.bzl", "pkg_web")
 ```
 
 * `ts_devserver` and `pkg_web` (previously `web_package`) no longer have an `index_html` attribute.
@@ -1096,7 +1096,7 @@ Then load("@npm//http-server:index.bzl", "http_server")
 
 ### BREAKING CHANGES
 
-* **jasmine:** You can no longer get jasmine_node_test from @build_bazel_rules_nodejs.
+* **jasmine:** You can no longer get jasmine_node_test from @rules_nodejs.
 - Use `load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")`
 instead
 - You need to remove `@npm//jasmine` from the deps of the

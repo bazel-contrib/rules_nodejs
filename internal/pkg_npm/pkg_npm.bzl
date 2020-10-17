@@ -13,7 +13,7 @@ _DOC = """The pkg_npm rule creates a directory containing a publishable npm arti
 Example:
 
 ```python
-load("@build_bazel_rules_nodejs//:index.bzl", "pkg_npm")
+load("@rules_nodejs//:index.bzl", "pkg_npm")
 
 pkg_npm(
     name = "my_package",
