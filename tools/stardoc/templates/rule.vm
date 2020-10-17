@@ -21,6 +21,7 @@ $ruleInfo.docString
 #end
 
 #if( !$attribute.defaultValue.isEmpty() )
+
 Defaults to `$attribute.defaultValue`#end
 
 #end

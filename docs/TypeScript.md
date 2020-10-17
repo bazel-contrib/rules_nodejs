@@ -397,6 +397,7 @@ extended configuration file as well, to pass them both to the TypeScript compile
 <h4 id="ts_config-deps">deps</h4>
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*): Additional tsconfig.json files referenced via extends
+
 Defaults to `[]`
 
 <h4 id="ts_config-src">src</h4>
@@ -432,16 +433,19 @@ Additional documentation at https://github.com/alexeagle/angular-bazel-example/w
 
 (*List of strings*): Additional root paths to serve `static_files` from.
             Paths should include the workspace name such as `["__main__/resources"]`
+
 Defaults to `[]`
 
 <h4 id="ts_devserver-bootstrap">bootstrap</h4>
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*): Scripts to include in the JS bundle before the module loader (require.js)
+
 Defaults to `[]`
 
 <h4 id="ts_devserver-deps">deps</h4>
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*): Targets that produce JavaScript, such as `ts_library`
+
 Defaults to `[]`
 
 <h4 id="ts_devserver-devserver">devserver</h4>
@@ -455,12 +459,14 @@ Defaults to `[]`
             will be the same binary.
 
             Defaults to precompiled go binary setup by @bazel/typescript npm package
+
 Defaults to `@npm//@bazel/devserver:devserver`
 
 <h4 id="ts_devserver-devserver_host">devserver_host</h4>
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): Go based devserver executable for the host platform.
             Defaults to precompiled go binary setup by @bazel/typescript npm package
+
 Defaults to `@npm//@bazel/devserver:devserver_darwin_amd64`
 
 <h4 id="ts_devserver-entry_module">entry_module</h4>
@@ -468,28 +474,33 @@ Defaults to `@npm//@bazel/devserver:devserver_darwin_amd64`
 (*String*): The `entry_module` should be the AMD module name of the entry module such as `"__main__/src/index".`
             `ts_devserver` concats the following snippet after the bundle to load the application:
             `require(["entry_module"]);`
+
 Defaults to `""`
 
 <h4 id="ts_devserver-port">port</h4>
 
 (*Integer*): The port that the devserver will listen on.
+
 Defaults to `5432`
 
 <h4 id="ts_devserver-scripts">scripts</h4>
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*): User scripts to include in the JS bundle before the application sources
+
 Defaults to `[]`
 
 <h4 id="ts_devserver-serving_path">serving_path</h4>
 
 (*String*): The path you can request from the client HTML which serves the JavaScript bundle.
             If you don't specify one, the JavaScript can be loaded at /_/ts_scripts.js
+
 Defaults to `"/_/ts_scripts.js"`
 
 <h4 id="ts_devserver-static_files">static_files</h4>
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*): Arbitrary files which to be served, such as index.html.
             They are served relative to the package where this rule is declared.
+
 Defaults to `[]`
 
 
@@ -524,6 +535,7 @@ TypeScript targets and JavaScript for the browser and Closure compiler.
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*): Additional files the Angular compiler will need to read as inputs.
             Includes .css and .html files
+
 Defaults to `[]`
 
 <h4 id="ts_library-compiler">compiler</h4>
@@ -535,16 +547,19 @@ and Angular compilations can replace this with `ngc`.
 The default ts_library compiler depends on the `//@bazel/typescript`
 target which is setup for projects that use bazel managed npm deps and
 install the @bazel/typescript npm package.
+
 Defaults to `@build_bazel_rules_typescript//internal:tsc_wrapped_bin`
 
 <h4 id="ts_library-data">data</h4>
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*)
+
 Defaults to `[]`
 
 <h4 id="ts_library-deps">deps</h4>
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*): Compile-time dependencies, typically other ts_library targets
+
 Defaults to `[]`
 
 <h4 id="ts_library-devmode_module">devmode_module</h4>
@@ -552,6 +567,7 @@ Defaults to `[]`
 (*String*): Set the typescript `module` compiler option for devmode output.
 
 This value will override the `module` option in the user supplied tsconfig.
+
 Defaults to `"umd"`
 
 <h4 id="ts_library-devmode_target">devmode_target</h4>
@@ -559,37 +575,44 @@ Defaults to `"umd"`
 (*String*): Set the typescript `target` compiler option for devmode output.
 
 This value will override the `target` option in the user supplied tsconfig.
+
 Defaults to `"es2015"`
 
 <h4 id="ts_library-expected_diagnostics">expected_diagnostics</h4>
 
 (*List of strings*)
+
 Defaults to `[]`
 
 <h4 id="ts_library-generate_externs">generate_externs</h4>
 
 (*Boolean*)
+
 Defaults to `True`
 
 <h4 id="ts_library-internal_testing_type_check_dependencies">internal_testing_type_check_dependencies</h4>
 
 (*Boolean*): Testing only, whether to type check inputs that aren't srcs.
+
 Defaults to `False`
 
 <h4 id="ts_library-link_workspace_root">link_workspace_root</h4>
 
 (*Boolean*): Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.
     If source files need to be required then they can be copied to the bin_dir with copy_to_bin.
+
 Defaults to `False`
 
 <h4 id="ts_library-module_name">module_name</h4>
 
 (*String*)
+
 Defaults to `""`
 
 <h4 id="ts_library-module_root">module_root</h4>
 
 (*String*)
+
 Defaults to `""`
 
 <h4 id="ts_library-node_modules">node_modules</h4>
@@ -652,6 +675,7 @@ yarn_install(
     yarn_lock = "//:yarn.lock",
 )
 ```
+
 Defaults to `@npm//typescript:typescript__typings`
 
 <h4 id="ts_library-prodmode_module">prodmode_module</h4>
@@ -659,6 +683,7 @@ Defaults to `@npm//typescript:typescript__typings`
 (*String*): Set the typescript `module` compiler option for prodmode output.
 
 This value will override the `module` option in the user supplied tsconfig.
+
 Defaults to `"esnext"`
 
 <h4 id="ts_library-prodmode_target">prodmode_target</h4>
@@ -666,16 +691,19 @@ Defaults to `"esnext"`
 (*String*): Set the typescript `target` compiler option for prodmode output.
 
 This value will override the `target` option in the user supplied tsconfig.
+
 Defaults to `"es2015"`
 
 <h4 id="ts_library-runtime">runtime</h4>
 
 (*String*)
+
 Defaults to `"browser"`
 
 <h4 id="ts_library-runtime_deps">runtime_deps</h4>
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*)  The dependencies of this attribute must provide: JsInfo
+
 
 Defaults to `[]`
 
@@ -691,6 +719,7 @@ Defaults to `[]`
 Allows you to disable the Bazel Worker strategy for this library.
 Typically used together with the "compiler" setting when using a
 non-worker aware compiler binary.
+
 Defaults to `True`
 
 <h4 id="ts_library-tsconfig">tsconfig</h4>
@@ -706,16 +735,19 @@ either:
 - Use an alias in the root BUILD.bazel file to point to the location of tsconfig:
     `alias(name="tsconfig.json", actual="//path/to:tsconfig-something.json")`
 - Give an explicit `tsconfig` attribute to all `ts_library` targets
+
 Defaults to `None`
 
 <h4 id="ts_library-tsickle_typed">tsickle_typed</h4>
 
 (*Boolean*): If using tsickle, instruct it to translate types to ClosureJS format
+
 Defaults to `True`
 
 <h4 id="ts_library-use_angular_plugin">use_angular_plugin</h4>
 
 (*Boolean*): Run the Angular ngtsc compiler under ts_library
+
 Defaults to `False`
 
 

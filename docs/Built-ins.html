@@ -289,8 +289,9 @@ node_repositories(package_json = ["//:package.json", "//subpkg:package.json"])
 <p>A dictionary mapping NodeJS versions to sets of hosts and their corresponding (filename, strip_prefix, sha256) tuples.
 You should list a node binary for every platform users have, likely Mac, Windows, and Linux.</p>
 
-<p>By default, if this attribute has no items, we’ll use a list of all public NodeJS releases.
-Defaults to <code class="language-plaintext highlighter-rouge">{}</code></p>
+<p>By default, if this attribute has no items, we’ll use a list of all public NodeJS releases.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">{}</code></p>
 
 <h4 id="node_repositories-node_urls">node_urls</h4>
 
@@ -299,13 +300,15 @@ Defaults to <code class="language-plaintext highlighter-rouge">{}</code></p>
 <p>Each entry is a template for downloading a node distribution.</p>
 
 <p>The <code class="language-plaintext highlighter-rouge">{version}</code> parameter is substituted with the <code class="language-plaintext highlighter-rouge">node_version</code> attribute,
-and <code class="language-plaintext highlighter-rouge">{filename}</code> with the matching entry from the <code class="language-plaintext highlighter-rouge">node_repositories</code> attribute.
-Defaults to <code class="language-plaintext highlighter-rouge">["https://mirror.bazel.build/nodejs.org/dist/v{version}/{filename}", "https://nodejs.org/dist/v{version}/{filename}"]</code></p>
+and <code class="language-plaintext highlighter-rouge">{filename}</code> with the matching entry from the <code class="language-plaintext highlighter-rouge">node_repositories</code> attribute.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">["https://mirror.bazel.build/nodejs.org/dist/v{version}/{filename}", "https://nodejs.org/dist/v{version}/{filename}"]</code></p>
 
 <h4 id="node_repositories-node_version">node_version</h4>
 
-<p>(<em>String</em>): the specific version of NodeJS to install or, if vendored_node is specified, the vendored version of node
-Defaults to <code class="language-plaintext highlighter-rouge">"12.13.0"</code></p>
+<p>(<em>String</em>): the specific version of NodeJS to install or, if vendored_node is specified, the vendored version of node</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">"12.13.0"</code></p>
 
 <h4 id="node_repositories-package_json">package_json</h4>
 
@@ -313,8 +316,9 @@ Defaults to <code class="language-plaintext highlighter-rouge">"12.13.0"</code><
             a list of labels, which indicate the package.json files that will be installed
             when you manually run the package manager, e.g. with
             <code class="language-plaintext highlighter-rouge">bazel run @nodejs//:yarn_node_repositories</code> or <code class="language-plaintext highlighter-rouge">bazel run @nodejs//:npm_node_repositories install</code>.
-            If you use bazel-managed dependencies, you should omit this attribute.
-Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+            If you use bazel-managed dependencies, you should omit this attribute.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
 <h4 id="node_repositories-preserve_symlinks">preserve_symlinks</h4>
 
@@ -324,8 +328,9 @@ Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 behavior of resolving to the real path. This means that all required files must be in be included in your
 runfiles as it prevents the default behavior of potentially resolving outside of the runfiles. For example,
 all required files need to be included in your node_modules filegroup. This option is desirable as it gives
-a stronger guarantee of hermeticity which is required for remote execution.
-Defaults to <code class="language-plaintext highlighter-rouge">True</code></p>
+a stronger guarantee of hermeticity which is required for remote execution.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">True</code></p>
 
 <h4 id="node_repositories-repo_mapping">repo_mapping</h4>
 
@@ -335,13 +340,15 @@ Defaults to <code class="language-plaintext highlighter-rouge">True</code></p>
 
 <p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></em>): the local path to a pre-installed NodeJS runtime.</p>
 
-<p>If set then also set node_version to the version that of node that is vendored.
-Defaults to <code class="language-plaintext highlighter-rouge">None</code></p>
+<p>If set then also set node_version to the version that of node that is vendored.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">None</code></p>
 
 <h4 id="node_repositories-vendored_yarn">vendored_yarn</h4>
 
-<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></em>): the local path to a pre-installed yarn tool
-Defaults to <code class="language-plaintext highlighter-rouge">None</code></p>
+<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></em>): the local path to a pre-installed yarn tool</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">None</code></p>
 
 <h4 id="node_repositories-yarn_repositories">yarn_repositories</h4>
 
@@ -349,20 +356,23 @@ Defaults to <code class="language-plaintext highlighter-rouge">None</code></p>
 
 <p>Dictionary mapping Yarn versions to their corresponding (filename, strip_prefix, sha256) tuples.</p>
 
-<p>By default, if this attribute has no items, we’ll use a list of all public NodeJS releases.
-Defaults to <code class="language-plaintext highlighter-rouge">{}</code></p>
+<p>By default, if this attribute has no items, we’ll use a list of all public NodeJS releases.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">{}</code></p>
 
 <h4 id="node_repositories-yarn_urls">yarn_urls</h4>
 
 <p>(<em>List of strings</em>): custom list of URLs to use to download Yarn</p>
 
-<p>Each entry is a template, similar to the <code class="language-plaintext highlighter-rouge">node_urls</code> attribute, using <code class="language-plaintext highlighter-rouge">yarn_version</code> and <code class="language-plaintext highlighter-rouge">yarn_repositories</code> in the substitutions.
-Defaults to <code class="language-plaintext highlighter-rouge">["https://mirror.bazel.build/github.com/yarnpkg/yarn/releases/download/v{version}/{filename}", "https://github.com/yarnpkg/yarn/releases/download/v{version}/{filename}"]</code></p>
+<p>Each entry is a template, similar to the <code class="language-plaintext highlighter-rouge">node_urls</code> attribute, using <code class="language-plaintext highlighter-rouge">yarn_version</code> and <code class="language-plaintext highlighter-rouge">yarn_repositories</code> in the substitutions.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">["https://mirror.bazel.build/github.com/yarnpkg/yarn/releases/download/v{version}/{filename}", "https://github.com/yarnpkg/yarn/releases/download/v{version}/{filename}"]</code></p>
 
 <h4 id="node_repositories-yarn_version">yarn_version</h4>
 
-<p>(<em>String</em>): the specific version of Yarn to install
-Defaults to <code class="language-plaintext highlighter-rouge">"1.19.1"</code></p>
+<p>(<em>String</em>): the specific version of Yarn to install</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">"1.19.1"</code></p>
 
 <h2 id="nodejs_binary">nodejs_binary</h2>
 
@@ -386,13 +396,15 @@ nodejs_binary(<a href="#nodejs_binary-name">name</a>, <a href="#nodejs_binary-co
 <p>(<em>List of strings</em>): Pass these configuration environment variables to the resulting binary.
         Chooses a subset of the configuration environment variables (taken from <code class="language-plaintext highlighter-rouge">ctx.var</code>), which also
         includes anything specified via the –define flag.
-        Note, this can lead to different outputs produced by this rule.
-Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+        Note, this can lead to different outputs produced by this rule.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
 <h4 id="nodejs_binary-data">data</h4>
 
-<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></em>): Runtime dependencies which may be loaded during execution.
-Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></em>): Runtime dependencies which may be loaded during execution.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
 <h4 id="nodejs_binary-default_env_vars">default_env_vars</h4>
 
@@ -406,9 +418,10 @@ without losing the defaults that should be set in most cases.</p>
 <ul>
   <li><code class="language-plaintext highlighter-rouge">VERBOSE_LOGS</code>: use by some rules &amp; tools to turn on debug output in their logs</li>
   <li><code class="language-plaintext highlighter-rouge">NODE_DEBUG</code>: used by node.js itself to print more logs</li>
-  <li><code class="language-plaintext highlighter-rouge">RUNFILES_LIB_DEBUG</code>: print diagnostic message from Bazel runfiles.bash helper
-Defaults to <code class="language-plaintext highlighter-rouge">["VERBOSE_LOGS", "NODE_DEBUG", "RUNFILES_LIB_DEBUG"]</code></li>
+  <li><code class="language-plaintext highlighter-rouge">RUNFILES_LIB_DEBUG</code>: print diagnostic message from Bazel runfiles.bash helper</li>
 </ul>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">["VERBOSE_LOGS", "NODE_DEBUG", "RUNFILES_LIB_DEBUG"]</code></p>
 
 <h4 id="nodejs_binary-entry_point">entry_point</h4>
 
@@ -467,8 +480,9 @@ For example:</p>
 <h4 id="nodejs_binary-link_workspace_root">link_workspace_root</h4>
 
 <p>(<em>Boolean</em>): Link the workspace root to the bin_dir to support absolute requires like ‘my_wksp/path/to/file’.
-If source files need to be required then they can be copied to the bin_dir with copy_to_bin.
-Defaults to <code class="language-plaintext highlighter-rouge">False</code></p>
+If source files need to be required then they can be copied to the bin_dir with copy_to_bin.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">False</code></p>
 
 <h4 id="nodejs_binary-node_modules">node_modules</h4>
 
@@ -532,6 +546,7 @@ npm dependencies are specified in the <code class="language-plaintext highlighte
     <span class="p">],</span>
 <span class="p">)</span>
 </code></pre></div></div>
+
 <p>Defaults to <code class="language-plaintext highlighter-rouge">//:node_modules_none</code></p>
 
 <h4 id="nodejs_binary-templated_args">templated_args</h4>
@@ -612,8 +627,9 @@ See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_v
 <p>Custom variables are also expanded including variables set through the Bazel CLI with –define=SOME_VAR=SOME_VALUE.
 See https://docs.bazel.build/versions/master/be/make-variables.html#custom_variables.</p>
 
-<p>Predefined genrule variables are not supported in this context.
-Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+<p>Predefined genrule variables are not supported in this context.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
 <h2 id="nodejs_test">nodejs_test</h2>
 
@@ -663,13 +679,15 @@ remote debugger.</p>
 <p>(<em>List of strings</em>): Pass these configuration environment variables to the resulting binary.
         Chooses a subset of the configuration environment variables (taken from <code class="language-plaintext highlighter-rouge">ctx.var</code>), which also
         includes anything specified via the –define flag.
-        Note, this can lead to different outputs produced by this rule.
-Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+        Note, this can lead to different outputs produced by this rule.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
 <h4 id="nodejs_test-data">data</h4>
 
-<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></em>): Runtime dependencies which may be loaded during execution.
-Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></em>): Runtime dependencies which may be loaded during execution.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
 <h4 id="nodejs_test-default_env_vars">default_env_vars</h4>
 
@@ -683,9 +701,10 @@ without losing the defaults that should be set in most cases.</p>
 <ul>
   <li><code class="language-plaintext highlighter-rouge">VERBOSE_LOGS</code>: use by some rules &amp; tools to turn on debug output in their logs</li>
   <li><code class="language-plaintext highlighter-rouge">NODE_DEBUG</code>: used by node.js itself to print more logs</li>
-  <li><code class="language-plaintext highlighter-rouge">RUNFILES_LIB_DEBUG</code>: print diagnostic message from Bazel runfiles.bash helper
-Defaults to <code class="language-plaintext highlighter-rouge">["VERBOSE_LOGS", "NODE_DEBUG", "RUNFILES_LIB_DEBUG"]</code></li>
+  <li><code class="language-plaintext highlighter-rouge">RUNFILES_LIB_DEBUG</code>: print diagnostic message from Bazel runfiles.bash helper</li>
 </ul>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">["VERBOSE_LOGS", "NODE_DEBUG", "RUNFILES_LIB_DEBUG"]</code></p>
 
 <h4 id="nodejs_test-entry_point">entry_point</h4>
 
@@ -743,14 +762,16 @@ For example:</p>
 
 <h4 id="nodejs_test-expected_exit_code">expected_exit_code</h4>
 
-<p>(<em>Integer</em>): The expected exit code for the test. Defaults to 0.
-Defaults to <code class="language-plaintext highlighter-rouge">0</code></p>
+<p>(<em>Integer</em>): The expected exit code for the test. Defaults to 0.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">0</code></p>
 
 <h4 id="nodejs_test-link_workspace_root">link_workspace_root</h4>
 
 <p>(<em>Boolean</em>): Link the workspace root to the bin_dir to support absolute requires like ‘my_wksp/path/to/file’.
-If source files need to be required then they can be copied to the bin_dir with copy_to_bin.
-Defaults to <code class="language-plaintext highlighter-rouge">False</code></p>
+If source files need to be required then they can be copied to the bin_dir with copy_to_bin.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">False</code></p>
 
 <h4 id="nodejs_test-node_modules">node_modules</h4>
 
@@ -814,6 +835,7 @@ npm dependencies are specified in the <code class="language-plaintext highlighte
     <span class="p">],</span>
 <span class="p">)</span>
 </code></pre></div></div>
+
 <p>Defaults to <code class="language-plaintext highlighter-rouge">//:node_modules_none</code></p>
 
 <h4 id="nodejs_test-templated_args">templated_args</h4>
@@ -894,8 +916,9 @@ See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_v
 <p>Custom variables are also expanded including variables set through the Bazel CLI with –define=SOME_VAR=SOME_VALUE.
 See https://docs.bazel.build/versions/master/be/make-variables.html#custom_variables.</p>
 
-<p>Predefined genrule variables are not supported in this context.
-Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+<p>Predefined genrule variables are not supported in this context.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
 <h2 id="npm_install">npm_install</h2>
 
@@ -922,8 +945,9 @@ check if yarn is being run by the <code class="language-plaintext highlighter-ro
 
 <p>(<em>List of strings</em>): Arguments passed to npm install.</p>
 
-<p>See npm CLI docs https://docs.npmjs.com/cli/install.html for complete list of supported arguments.
-Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+<p>See npm CLI docs https://docs.npmjs.com/cli/install.html for complete list of supported arguments.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
 <h4 id="npm_install-data">data</h4>
 
@@ -936,13 +960,15 @@ symlink_node_modules is True so that the repository rule is rerun when any of th
 change.</p>
 
 <p>If symlink_node_modules is False, the package manager is run in the bazel external
-repository so all files that the package manager depends on must be listed.
-Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+repository so all files that the package manager depends on must be listed.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
 <h4 id="npm_install-environment">environment</h4>
 
-<p>(<em><a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -&gt; String</a></em>): Environment variables to set before calling the package manager.
-Defaults to <code class="language-plaintext highlighter-rouge">{}</code></p>
+<p>(<em><a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -&gt; String</a></em>): Environment variables to set before calling the package manager.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">{}</code></p>
 
 <h4 id="npm_install-included_files">included_files</h4>
 
@@ -961,8 +987,9 @@ string that denotes that files with no extensions such as <code class="language-
 be included in the package targets.</p>
 
 <p>This attribute applies to both the coarse <code class="language-plaintext highlighter-rouge">@wksp//:node_modules</code> target
-as well as the fine grained targets such as <code class="language-plaintext highlighter-rouge">@wksp//foo</code>.
-Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+as well as the fine grained targets such as <code class="language-plaintext highlighter-rouge">@wksp//foo</code>.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
 <h4 id="npm_install-manual_build_file_contents">manual_build_file_contents</h4>
 
@@ -973,8 +1000,9 @@ default <code class="language-plaintext highlighter-rouge">@wksp//:node_modules<
 See https://github.com/bazelbuild/bazel/issues/5153. If
 you are running into performance issues due to a large
 node_modules target it is recommended to switch to using
-fine grained npm dependencies.
-Defaults to <code class="language-plaintext highlighter-rouge">""</code></p>
+fine grained npm dependencies.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">""</code></p>
 
 <h4 id="npm_install-package_json">package_json</h4>
 
@@ -986,8 +1014,9 @@ Defaults to <code class="language-plaintext highlighter-rouge">""</code></p>
 
 <h4 id="npm_install-quiet">quiet</h4>
 
-<p>(<em>Boolean</em>): If stdout and stderr should be printed to the terminal.
-Defaults to <code class="language-plaintext highlighter-rouge">True</code></p>
+<p>(<em>Boolean</em>): If stdout and stderr should be printed to the terminal.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">True</code></p>
 
 <h4 id="npm_install-repo_mapping">repo_mapping</h4>
 
@@ -1001,8 +1030,9 @@ Defaults to <code class="language-plaintext highlighter-rouge">True</code></p>
 All transitive dependencies are given limited visibility, enforcing that all direct dependencies are
 listed in the <code class="language-plaintext highlighter-rouge">package.json</code> file.</p>
 
-<p>Currently the default is set <code class="language-plaintext highlighter-rouge">False</code>, but will likely be flipped <code class="language-plaintext highlighter-rouge">True</code> in rules_nodejs 3.0.0
-Defaults to <code class="language-plaintext highlighter-rouge">False</code></p>
+<p>Currently the default is set <code class="language-plaintext highlighter-rouge">False</code>, but will likely be flipped <code class="language-plaintext highlighter-rouge">True</code> in rules_nodejs 3.0.0</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">False</code></p>
 
 <h4 id="npm_install-symlink_node_modules">symlink_node_modules</h4>
 
@@ -1018,13 +1048,15 @@ external repository create by this rule.</p>
 <p>When false, the package manager will run in the external repository
 created by this rule and any files other than the package.json file and
 the lock file that are required for it to run should be listed in the
-data attribute.
-Defaults to <code class="language-plaintext highlighter-rouge">True</code></p>
+data attribute.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">True</code></p>
 
 <h4 id="npm_install-timeout">timeout</h4>
 
-<p>(<em>Integer</em>): Maximum duration of the package manager execution in seconds.
-Defaults to <code class="language-plaintext highlighter-rouge">3600</code></p>
+<p>(<em>Integer</em>): Maximum duration of the package manager execution in seconds.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">3600</code></p>
 
 <h2 id="pkg_npm">pkg_npm</h2>
 
@@ -1101,60 +1133,67 @@ my-package-name-1.2.3.tgz
 
 <h4 id="pkg_npm-deps">deps</h4>
 
-<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></em>): Other targets which produce files that should be included in the package, such as <code class="language-plaintext highlighter-rouge">rollup_bundle</code>
-Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></em>): Other targets which produce files that should be included in the package, such as <code class="language-plaintext highlighter-rouge">rollup_bundle</code></p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
 <h4 id="pkg_npm-nested_packages">nested_packages</h4>
 
-<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></em>): Other pkg_npm rules whose content is copied into this package.
-Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></em>): Other pkg_npm rules whose content is copied into this package.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
 <h4 id="pkg_npm-node_context_data">node_context_data</h4>
 
 <p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></em>): Provides info about the build context, such as stamping.</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    By default it reads from the bazel command line, such as the `--stamp` argument.
-    Use this to override values for this target, such as enabling or disabling stamping.
-    You can use the `node_context_data` rule in `@build_bazel_rules_nodejs//internal/node:context.bzl`
-    to create a NodeContextInfo.  The dependencies of this attribute must provide: NodeContextInfo
-</code></pre></div></div>
+<p>By default it reads from the bazel command line, such as the <code class="language-plaintext highlighter-rouge">--stamp</code> argument.
+Use this to override values for this target, such as enabling or disabling stamping.
+You can use the <code class="language-plaintext highlighter-rouge">node_context_data</code> rule in <code class="language-plaintext highlighter-rouge">@build_bazel_rules_nodejs//internal/node:context.bzl</code>
+to create a NodeContextInfo.  The dependencies of this attribute must provide: NodeContextInfo</p>
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">@build_bazel_rules_nodejs//internal:node_context_data</code></p>
 
 <h4 id="pkg_npm-package_name">package_name</h4>
 
-<p>(<em>String</em>): Optional package_name that this npm package may be imported as.
-Defaults to <code class="language-plaintext highlighter-rouge">""</code></p>
+<p>(<em>String</em>): Optional package_name that this npm package may be imported as.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">""</code></p>
 
 <h4 id="pkg_npm-replace_with_version">replace_with_version</h4>
 
 <p>(<em>String</em>): DEPRECATED: use substitutions instead.</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    `replace_with_version = "my_version_placeholder"` is just syntax sugar for
-    `substitutions = {"my_version_placeholder": "{BUILD_SCM_VERSION}"}`.
+<p><code class="language-plaintext highlighter-rouge">replace_with_version = "my_version_placeholder"</code> is just syntax sugar for
+<code class="language-plaintext highlighter-rouge">substitutions = {"my_version_placeholder": "{BUILD_SCM_VERSION}"}</code>.</p>
 
-    Follow this deprecation at https://github.com/bazelbuild/rules_nodejs/issues/2158 Defaults to `"0.0.0-PLACEHOLDER"`
-</code></pre></div></div>
+<p>Follow this deprecation at https://github.com/bazelbuild/rules_nodejs/issues/2158</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">"0.0.0-PLACEHOLDER"</code></p>
 
 <h4 id="pkg_npm-srcs">srcs</h4>
 
-<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></em>): Files inside this directory which are simply copied into the package.
-Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></em>): Files inside this directory which are simply copied into the package.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
 <h4 id="pkg_npm-substitutions">substitutions</h4>
 
 <p>(<em><a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -&gt; String</a></em>): Key-value pairs which are replaced in all the files while building the package.</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    You can use values from the workspace status command using curly braces, for example
-    `{"0.0.0-PLACEHOLDER": "{STABLE_GIT_VERSION}"}`.
-    See the section on stamping in the README Defaults to `{}`
-</code></pre></div></div>
+<p>You can use values from the workspace status command using curly braces, for example
+<code class="language-plaintext highlighter-rouge">{"0.0.0-PLACEHOLDER": "{STABLE_GIT_VERSION}"}</code>.</p>
+
+<p>See the section on stamping in the <a href="stamping">README</a></p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">{}</code></p>
 
 <h4 id="pkg_npm-vendor_external">vendor_external</h4>
 
 <p>(<em>List of strings</em>): External workspaces whose contents should be vendored into this workspace.
-        Avoids ‘external/foo’ path segments in the resulting package.
-Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+        Avoids <code class="language-plaintext highlighter-rouge">external/foo</code> path segments in the resulting package.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
 <h2 id="pkg_web">pkg_web</h2>
 
@@ -1174,34 +1213,36 @@ pkg_web(<a href="#pkg_web-name">name</a>, <a href="#pkg_web-additional_root_path
 
 <h4 id="pkg_web-additional_root_paths">additional_root_paths</h4>
 
-<p>(<em>List of strings</em>): Path prefixes to strip off all srcs, in addition to the current package. Longest wins.
-Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+<p>(<em>List of strings</em>): Path prefixes to strip off all srcs, in addition to the current package. Longest wins.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
 <h4 id="pkg_web-node_context_data">node_context_data</h4>
 
 <p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></em>): Provides info about the build context, such as stamping.</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    By default it reads from the bazel command line, such as the `--stamp` argument.
-    Use this to override values for this target, such as enabling or disabling stamping.
-    You can use the `node_context_data` rule in `@build_bazel_rules_nodejs//internal/node:context.bzl`
-    to create a NodeContextInfo.  The dependencies of this attribute must provide: NodeContextInfo
-</code></pre></div></div>
+<p>By default it reads from the bazel command line, such as the <code class="language-plaintext highlighter-rouge">--stamp</code> argument.
+Use this to override values for this target, such as enabling or disabling stamping.
+You can use the <code class="language-plaintext highlighter-rouge">node_context_data</code> rule in <code class="language-plaintext highlighter-rouge">@build_bazel_rules_nodejs//internal/node:context.bzl</code>
+to create a NodeContextInfo.  The dependencies of this attribute must provide: NodeContextInfo</p>
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">@build_bazel_rules_nodejs//internal:node_context_data</code></p>
 
 <h4 id="pkg_web-srcs">srcs</h4>
 
-<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></em>): Files which should be copied into the package
-Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></em>): Files which should be copied into the package</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
 <h4 id="pkg_web-substitutions">substitutions</h4>
 
 <p>(<em><a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -&gt; String</a></em>): Key-value pairs which are replaced in all the files while building the package.</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    You can use values from the workspace status command using curly braces, for example
-    `{"0.0.0-PLACEHOLDER": "{STABLE_GIT_VERSION}"}`.
-    See the section on stamping in the README. Defaults to `{}`
-</code></pre></div></div>
+<p>You can use values from the workspace status command using curly braces, for example
+<code class="language-plaintext highlighter-rouge">{"0.0.0-PLACEHOLDER": "{STABLE_GIT_VERSION}"}</code>.
+See the section on stamping in the README.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">{}</code></p>
 
 <h2 id="yarn_install">yarn_install</h2>
 
@@ -1229,8 +1270,9 @@ check if yarn is being run by the <code class="language-plaintext highlighter-ro
 
 <p>(<em>List of strings</em>): Arguments passed to yarn install.</p>
 
-<p>See yarn CLI docs https://yarnpkg.com/en/docs/cli/install for complete list of supported arguments.
-Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+<p>See yarn CLI docs https://yarnpkg.com/en/docs/cli/install for complete list of supported arguments.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
 <h4 id="yarn_install-data">data</h4>
 
@@ -1243,13 +1285,15 @@ symlink_node_modules is True so that the repository rule is rerun when any of th
 change.</p>
 
 <p>If symlink_node_modules is False, the package manager is run in the bazel external
-repository so all files that the package manager depends on must be listed.
-Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+repository so all files that the package manager depends on must be listed.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
 <h4 id="yarn_install-environment">environment</h4>
 
-<p>(<em><a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -&gt; String</a></em>): Environment variables to set before calling the package manager.
-Defaults to <code class="language-plaintext highlighter-rouge">{}</code></p>
+<p>(<em><a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -&gt; String</a></em>): Environment variables to set before calling the package manager.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">{}</code></p>
 
 <h4 id="yarn_install-included_files">included_files</h4>
 
@@ -1268,8 +1312,9 @@ string that denotes that files with no extensions such as <code class="language-
 be included in the package targets.</p>
 
 <p>This attribute applies to both the coarse <code class="language-plaintext highlighter-rouge">@wksp//:node_modules</code> target
-as well as the fine grained targets such as <code class="language-plaintext highlighter-rouge">@wksp//foo</code>.
-Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+as well as the fine grained targets such as <code class="language-plaintext highlighter-rouge">@wksp//foo</code>.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
 <h4 id="yarn_install-manual_build_file_contents">manual_build_file_contents</h4>
 
@@ -1280,8 +1325,9 @@ default <code class="language-plaintext highlighter-rouge">@wksp//:node_modules<
 See https://github.com/bazelbuild/bazel/issues/5153. If
 you are running into performance issues due to a large
 node_modules target it is recommended to switch to using
-fine grained npm dependencies.
-Defaults to <code class="language-plaintext highlighter-rouge">""</code></p>
+fine grained npm dependencies.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">""</code></p>
 
 <h4 id="yarn_install-package_json">package_json</h4>
 
@@ -1289,8 +1335,9 @@ Defaults to <code class="language-plaintext highlighter-rouge">""</code></p>
 
 <h4 id="yarn_install-quiet">quiet</h4>
 
-<p>(<em>Boolean</em>): If stdout and stderr should be printed to the terminal.
-Defaults to <code class="language-plaintext highlighter-rouge">True</code></p>
+<p>(<em>Boolean</em>): If stdout and stderr should be printed to the terminal.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">True</code></p>
 
 <h4 id="yarn_install-repo_mapping">repo_mapping</h4>
 
@@ -1304,8 +1351,9 @@ Defaults to <code class="language-plaintext highlighter-rouge">True</code></p>
 All transitive dependencies are given limited visibility, enforcing that all direct dependencies are
 listed in the <code class="language-plaintext highlighter-rouge">package.json</code> file.</p>
 
-<p>Currently the default is set <code class="language-plaintext highlighter-rouge">False</code>, but will likely be flipped <code class="language-plaintext highlighter-rouge">True</code> in rules_nodejs 3.0.0
-Defaults to <code class="language-plaintext highlighter-rouge">False</code></p>
+<p>Currently the default is set <code class="language-plaintext highlighter-rouge">False</code>, but will likely be flipped <code class="language-plaintext highlighter-rouge">True</code> in rules_nodejs 3.0.0</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">False</code></p>
 
 <h4 id="yarn_install-symlink_node_modules">symlink_node_modules</h4>
 
@@ -1321,13 +1369,15 @@ external repository create by this rule.</p>
 <p>When false, the package manager will run in the external repository
 created by this rule and any files other than the package.json file and
 the lock file that are required for it to run should be listed in the
-data attribute.
-Defaults to <code class="language-plaintext highlighter-rouge">True</code></p>
+data attribute.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">True</code></p>
 
 <h4 id="yarn_install-timeout">timeout</h4>
 
-<p>(<em>Integer</em>): Maximum duration of the package manager execution in seconds.
-Defaults to <code class="language-plaintext highlighter-rouge">3600</code></p>
+<p>(<em>Integer</em>): Maximum duration of the package manager execution in seconds.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">3600</code></p>
 
 <h4 id="yarn_install-use_global_yarn_cache">use_global_yarn_cache</h4>
 
@@ -1344,8 +1394,9 @@ cache_directory.</p>
 the global cache can be shared by parallelized yarn_install rules.</p>
 
 <p>If False, this rule will pass <code class="language-plaintext highlighter-rouge">--cache-folder /path/to/external/repository/__yarn_cache</code>
-to yarn so that the local cache is contained within the external repository.
-Defaults to <code class="language-plaintext highlighter-rouge">True</code></p>
+to yarn so that the local cache is contained within the external repository.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">True</code></p>
 
 <h4 id="yarn_install-yarn_lock">yarn_lock</h4>
 
@@ -1789,10 +1840,12 @@ package.json files are included as well, as TypeScript needs to read the “typi
 
 <h4 id="DeclarationInfo-declarations">declarations</h4>
 
-<p>A depset of typings files produced by this rule &lt;h4 id="DeclarationInfo-transitive_declarations"&gt;transitive_declarations&lt;/h4&gt;</p>
+<p>A depset of typings files produced by this rule</p>
+<h4 id="DeclarationInfo-transitive_declarations">transitive_declarations</h4>
 
 <p>A depset of typings files produced by this rule and all its transitive dependencies.
-This prevents needing an aspect in rules that consume the typings, which improves performance. &lt;h4 id="DeclarationInfo-type_blacklisted_declarations"&gt;type_blacklisted_declarations&lt;/h4&gt;</p>
+This prevents needing an aspect in rules that consume the typings, which improves performance.</p>
+<h4 id="DeclarationInfo-type_blacklisted_declarations">type_blacklisted_declarations</h4>
 
 <p>A depset of .d.ts files that we should not use to infer JSCompiler types (via tsickle)</p>
 
@@ -1815,7 +1868,8 @@ These files should typically be named “foo.mjs”</p>
 
 <h4 id="JSEcmaScriptModuleInfo-direct_sources">direct_sources</h4>
 
-<p>Depset of direct JavaScript files and sourcemaps &lt;h4 id="JSEcmaScriptModuleInfo-sources"&gt;sources&lt;/h4&gt;</p>
+<p>Depset of direct JavaScript files and sourcemaps</p>
+<h4 id="JSEcmaScriptModuleInfo-sources">sources</h4>
 
 <p>Depset of direct and transitive JavaScript files and sourcemaps</p>
 
@@ -1833,7 +1887,8 @@ JSModuleInfo(<a href="#JSModuleInfo-direct_sources">direct_sources</a>, <a href=
 
 <h4 id="JSModuleInfo-direct_sources">direct_sources</h4>
 
-<p>Depset of direct JavaScript files and sourcemaps &lt;h4 id="JSModuleInfo-sources"&gt;sources&lt;/h4&gt;</p>
+<p>Depset of direct JavaScript files and sourcemaps</p>
+<h4 id="JSModuleInfo-sources">sources</h4>
 
 <p>Depset of direct and transitive JavaScript files and sourcemaps</p>
 
@@ -1858,7 +1913,8 @@ These outputs should be named “foo.umd.js”
 
 <h4 id="JSNamedModuleInfo-direct_sources">direct_sources</h4>
 
-<p>Depset of direct JavaScript files and sourcemaps &lt;h4 id="JSNamedModuleInfo-sources"&gt;sources&lt;/h4&gt;</p>
+<p>Depset of direct JavaScript files and sourcemaps</p>
+<h4 id="JSNamedModuleInfo-sources">sources</h4>
 
 <p>Depset of direct and transitive JavaScript files and sourcemaps</p>
 
@@ -1876,13 +1932,15 @@ LinkablePackageInfo(<a href="#LinkablePackageInfo-files">files</a>, <a href="#Li
 
 <h4 id="LinkablePackageInfo-files">files</h4>
 
-<p>Depset of files in this package (must all be contained within path) &lt;h4 id="LinkablePackageInfo-package_name"&gt;package_name&lt;/h4&gt;</p>
+<p>Depset of files in this package (must all be contained within path)</p>
+<h4 id="LinkablePackageInfo-package_name">package_name</h4>
 
 <p>The package name.</p>
 
 <p>Should be the same as name field in the package’s package.json.</p>
 
-<p>In the future, the linker may validate that the names match the name in a package.json file. &lt;h4 id="LinkablePackageInfo-path"&gt;path&lt;/h4&gt;</p>
+<p>In the future, the linker may validate that the names match the name in a package.json file.</p>
+<h4 id="LinkablePackageInfo-path">path</h4>
 
 <p>The path to link to.</p>
 
@@ -1894,7 +1952,8 @@ LinkablePackageInfo(<a href="#LinkablePackageInfo-files">files</a>, <a href="#Li
 <p>or a source file path such as,</p>
 
 <p><code class="language-plaintext highlighter-rouge">path/to/package</code> or
-<code class="language-plaintext highlighter-rouge">external/&lt;external_wksp&gt;/path/to/package</code> &lt;h4 id="LinkablePackageInfo-_tslibrary"&gt;_tslibrary&lt;/h4&gt;</p>
+<code class="language-plaintext highlighter-rouge">external/&lt;external_wksp&gt;/path/to/package</code></p>
+<h4 id="LinkablePackageInfo-_tslibrary">_tslibrary</h4>
 
 <p>For internal use only</p>
 
@@ -1941,7 +2000,8 @@ do the same.</p>
 
 <h4 id="NodeRuntimeDepsInfo-deps">deps</h4>
 
-<p>depset of runtime dependency labels &lt;h4 id="NodeRuntimeDepsInfo-pkgs"&gt;pkgs&lt;/h4&gt;</p>
+<p>depset of runtime dependency labels</p>
+<h4 id="NodeRuntimeDepsInfo-pkgs">pkgs</h4>
 
 <p>list of labels of packages that provide NpmPackageInfo</p>
 
@@ -1959,9 +2019,11 @@ NpmPackageInfo(<a href="#NpmPackageInfo-direct_sources">direct_sources</a>, <a h
 
 <h4 id="NpmPackageInfo-direct_sources">direct_sources</h4>
 
-<p>Depset of direct source files in this npm package &lt;h4 id="NpmPackageInfo-sources"&gt;sources&lt;/h4&gt;</p>
+<p>Depset of direct source files in this npm package</p>
+<h4 id="NpmPackageInfo-sources">sources</h4>
 
-<p>Depset of direct &amp; transitive source files in this npm package and in its dependencies &lt;h4 id="NpmPackageInfo-workspace"&gt;workspace&lt;/h4&gt;</p>
+<p>Depset of direct &amp; transitive source files in this npm package and in its dependencies</p>
+<h4 id="NpmPackageInfo-workspace">workspace</h4>
 
 <p>The workspace name that this npm package is provided from</p>
 

@@ -203,6 +203,7 @@ These argument passed on the command line before arguments that are added by the
 Run `bazel` with `--subcommands` to see what Rollup CLI command line was invoked.
 
 See the <a href="https://rollupjs.org/guide/en/#command-line-flags">Rollup CLI docs</a> for a complete list of supported arguments.
+
 Defaults to `[]`
 
 <h4 id="rollup_bundle-config_file">config_file</h4>
@@ -212,11 +213,13 @@ Defaults to `[]`
 Passed to the `--config` option, see [the config doc](https://rollupjs.org/guide/en/#configuration-files)
 
 If not set, a default basic Rollup config is used.
+
 Defaults to `@npm//@bazel/rollup:rollup.config.js`
 
 <h4 id="rollup_bundle-deps">deps</h4>
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*): Other libraries that are required by the code, or by the rollup.config.js
+
 Defaults to `[]`
 
 <h4 id="rollup_bundle-entry_point">entry_point</h4>
@@ -263,6 +266,7 @@ rollup_bundle(
     entry_point = "index.ts",
 )
 ```
+
 Defaults to `None`
 
 <h4 id="rollup_bundle-entry_points">entry_points</h4>
@@ -275,6 +279,7 @@ Keys in this dictionary are labels pointing to .js entry point files.
 Values are the name to be given to the corresponding output chunk.
 
 Either this attribute or `entry_point` must be specified, but not both.
+
 Defaults to `{}`
 
 <h4 id="rollup_bundle-format">format</h4>
@@ -287,22 +292,25 @@ Defaults to `{}`
 - `iife`: A self-executing function, suitable for inclusion as a `<script>` tag. (If you want to create a bundle for your application, you probably want to use this.)
 - `umd`: Universal Module Definition, works as amd, cjs and iife all in one
 - `system`: Native format of the SystemJS loader
+
 Defaults to `"esm"`
 
 <h4 id="rollup_bundle-link_workspace_root">link_workspace_root</h4>
 
 (*Boolean*): Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.
 If source files need to be required then they can be copied to the bin_dir with copy_to_bin.
+
 Defaults to `False`
 
 <h4 id="rollup_bundle-node_context_data">node_context_data</h4>
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): Provides info about the build context, such as stamping.
         
-        By default it reads from the bazel command line, such as the `--stamp` argument.
-        Use this to override values for this target, such as enabling or disabling stamping.
-        You can use the `node_context_data` rule in `@build_bazel_rules_nodejs//internal/node:context.bzl`
-        to create a NodeContextInfo.  The dependencies of this attribute must provide: NodeContextInfo
+By default it reads from the bazel command line, such as the `--stamp` argument.
+Use this to override values for this target, such as enabling or disabling stamping.
+You can use the `node_context_data` rule in `@build_bazel_rules_nodejs//internal/node:context.bzl`
+to create a NodeContextInfo.  The dependencies of this attribute must provide: NodeContextInfo
+
 
 Defaults to `@build_bazel_rules_nodejs//internal:node_context_data`
 
@@ -315,16 +323,19 @@ rather than `--output.file`.
 
 If the program produces multiple chunks, you must specify this attribute.
 Otherwise, the outputs are assumed to be a single file.
+
 Defaults to `False`
 
 <h4 id="rollup_bundle-rollup_bin">rollup_bin</h4>
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): Target that executes the rollup binary
+
 Defaults to `@npm//rollup/bin:rollup`
 
 <h4 id="rollup_bundle-rollup_worker_bin">rollup_worker_bin</h4>
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): Internal use only
+
 Defaults to `@npm//@bazel/bin:rollup-worker`
 
 <h4 id="rollup_bundle-silent">silent</h4>
@@ -334,6 +345,7 @@ Defaults to `@npm//@bazel/bin:rollup-worker`
 Using --silent can cause rollup to [ignore errors/warnings](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#onwarn) 
 which are only surfaced via logging.  Since bazel expects printing nothing on success, setting silent to True
 is a more Bazel-idiomatic experience, however could cause rollup to drop important warnings.
+
 Defaults to `False`
 
 <h4 id="rollup_bundle-sourcemap">sourcemap</h4>
@@ -341,6 +353,7 @@ Defaults to `False`
 (*String*): Whether to produce sourcemaps.
 
 Passed to the [`--sourcemap` option](https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#outputsourcemap") in Rollup
+
 Defaults to `"inline"`
 
 <h4 id="rollup_bundle-srcs">srcs</h4>
@@ -348,6 +361,7 @@ Defaults to `"inline"`
 (*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*): Non-entry point JavaScript source files from the workspace.
 
 You must not repeat file(s) passed to entry_point/entry_points.
+
 Defaults to `[]`
 
 <h4 id="rollup_bundle-supports_workers">supports_workers</h4>
@@ -357,6 +371,7 @@ Defaults to `[]`
 Allows you to enable the Bazel Worker strategy for this library.
 When enabled, this rule invokes the "rollup_worker_bin"
 worker aware binary rather than "rollup_bin".
+
 Defaults to `False`
 
 

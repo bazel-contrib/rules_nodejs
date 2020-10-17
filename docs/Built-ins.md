@@ -150,6 +150,7 @@ A dictionary mapping NodeJS versions to sets of hosts and their corresponding (f
 You should list a node binary for every platform users have, likely Mac, Windows, and Linux.
 
 By default, if this attribute has no items, we'll use a list of all public NodeJS releases.
+
 Defaults to `{}`
 
 <h4 id="node_repositories-node_urls">node_urls</h4>
@@ -160,11 +161,13 @@ Each entry is a template for downloading a node distribution.
 
 The `{version}` parameter is substituted with the `node_version` attribute,
 and `{filename}` with the matching entry from the `node_repositories` attribute.
+
 Defaults to `["https://mirror.bazel.build/nodejs.org/dist/v{version}/{filename}", "https://nodejs.org/dist/v{version}/{filename}"]`
 
 <h4 id="node_repositories-node_version">node_version</h4>
 
 (*String*): the specific version of NodeJS to install or, if vendored_node is specified, the vendored version of node
+
 Defaults to `"12.13.0"`
 
 <h4 id="node_repositories-package_json">package_json</h4>
@@ -174,6 +177,7 @@ Defaults to `"12.13.0"`
             when you manually run the package manager, e.g. with
             `bazel run @nodejs//:yarn_node_repositories` or `bazel run @nodejs//:npm_node_repositories install`.
             If you use bazel-managed dependencies, you should omit this attribute.
+
 Defaults to `[]`
 
 <h4 id="node_repositories-preserve_symlinks">preserve_symlinks</h4>
@@ -185,6 +189,7 @@ behavior of resolving to the real path. This means that all required files must 
 runfiles as it prevents the default behavior of potentially resolving outside of the runfiles. For example,
 all required files need to be included in your node_modules filegroup. This option is desirable as it gives
 a stronger guarantee of hermeticity which is required for remote execution.
+
 Defaults to `True`
 
 <h4 id="node_repositories-repo_mapping">repo_mapping</h4>
@@ -197,11 +202,13 @@ Defaults to `True`
 (*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): the local path to a pre-installed NodeJS runtime.
 
 If set then also set node_version to the version that of node that is vendored.
+
 Defaults to `None`
 
 <h4 id="node_repositories-vendored_yarn">vendored_yarn</h4>
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): the local path to a pre-installed yarn tool
+
 Defaults to `None`
 
 <h4 id="node_repositories-yarn_repositories">yarn_repositories</h4>
@@ -211,6 +218,7 @@ Defaults to `None`
 Dictionary mapping Yarn versions to their corresponding (filename, strip_prefix, sha256) tuples.
 
 By default, if this attribute has no items, we'll use a list of all public NodeJS releases.
+
 Defaults to `{}`
 
 <h4 id="node_repositories-yarn_urls">yarn_urls</h4>
@@ -218,11 +226,13 @@ Defaults to `{}`
 (*List of strings*): custom list of URLs to use to download Yarn
 
 Each entry is a template, similar to the `node_urls` attribute, using `yarn_version` and `yarn_repositories` in the substitutions.
+
 Defaults to `["https://mirror.bazel.build/github.com/yarnpkg/yarn/releases/download/v{version}/{filename}", "https://github.com/yarnpkg/yarn/releases/download/v{version}/{filename}"]`
 
 <h4 id="node_repositories-yarn_version">yarn_version</h4>
 
 (*String*): the specific version of Yarn to install
+
 Defaults to `"1.19.1"`
 
 
@@ -252,11 +262,13 @@ Runs some JavaScript code in NodeJS.
         Chooses a subset of the configuration environment variables (taken from `ctx.var`), which also
         includes anything specified via the --define flag.
         Note, this can lead to different outputs produced by this rule.
+
 Defaults to `[]`
 
 <h4 id="nodejs_binary-data">data</h4>
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*): Runtime dependencies which may be loaded during execution.
+
 Defaults to `[]`
 
 <h4 id="nodejs_binary-default_env_vars">default_env_vars</h4>
@@ -271,6 +283,7 @@ The set of default  environment variables is:
 - `VERBOSE_LOGS`: use by some rules & tools to turn on debug output in their logs
 - `NODE_DEBUG`: used by node.js itself to print more logs
 - `RUNFILES_LIB_DEBUG`: print diagnostic message from Bazel runfiles.bash helper
+
 Defaults to `["VERBOSE_LOGS", "NODE_DEBUG", "RUNFILES_LIB_DEBUG"]`
 
 <h4 id="nodejs_binary-entry_point">entry_point</h4>
@@ -336,6 +349,7 @@ nodejs_binary(
 
 (*Boolean*): Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.
 If source files need to be required then they can be copied to the bin_dir with copy_to_bin.
+
 Defaults to `False`
 
 <h4 id="nodejs_binary-node_modules">node_modules</h4>
@@ -403,6 +417,7 @@ jasmine_node_test(
     ],
 )
 ```
+
 Defaults to `//:node_modules_none`
 
 <h4 id="nodejs_binary-templated_args">templated_args</h4>
@@ -483,6 +498,7 @@ Custom variables are also expanded including variables set through the Bazel CLI
 See https://docs.bazel.build/versions/master/be/make-variables.html#custom_variables.
 
 Predefined genrule variables are not supported in this context.
+
 Defaults to `[]`
 
 
@@ -541,11 +557,13 @@ remote debugger.
         Chooses a subset of the configuration environment variables (taken from `ctx.var`), which also
         includes anything specified via the --define flag.
         Note, this can lead to different outputs produced by this rule.
+
 Defaults to `[]`
 
 <h4 id="nodejs_test-data">data</h4>
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*): Runtime dependencies which may be loaded during execution.
+
 Defaults to `[]`
 
 <h4 id="nodejs_test-default_env_vars">default_env_vars</h4>
@@ -560,6 +578,7 @@ The set of default  environment variables is:
 - `VERBOSE_LOGS`: use by some rules & tools to turn on debug output in their logs
 - `NODE_DEBUG`: used by node.js itself to print more logs
 - `RUNFILES_LIB_DEBUG`: print diagnostic message from Bazel runfiles.bash helper
+
 Defaults to `["VERBOSE_LOGS", "NODE_DEBUG", "RUNFILES_LIB_DEBUG"]`
 
 <h4 id="nodejs_test-entry_point">entry_point</h4>
@@ -624,12 +643,14 @@ nodejs_binary(
 <h4 id="nodejs_test-expected_exit_code">expected_exit_code</h4>
 
 (*Integer*): The expected exit code for the test. Defaults to 0.
+
 Defaults to `0`
 
 <h4 id="nodejs_test-link_workspace_root">link_workspace_root</h4>
 
 (*Boolean*): Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.
 If source files need to be required then they can be copied to the bin_dir with copy_to_bin.
+
 Defaults to `False`
 
 <h4 id="nodejs_test-node_modules">node_modules</h4>
@@ -697,6 +718,7 @@ jasmine_node_test(
     ],
 )
 ```
+
 Defaults to `//:node_modules_none`
 
 <h4 id="nodejs_test-templated_args">templated_args</h4>
@@ -777,6 +799,7 @@ Custom variables are also expanded including variables set through the Bazel CLI
 See https://docs.bazel.build/versions/master/be/make-variables.html#custom_variables.
 
 Predefined genrule variables are not supported in this context.
+
 Defaults to `[]`
 
 
@@ -809,6 +832,7 @@ check if yarn is being run by the `npm_install` repository rule.
 (*List of strings*): Arguments passed to npm install.
 
 See npm CLI docs https://docs.npmjs.com/cli/install.html for complete list of supported arguments.
+
 Defaults to `[]`
 
 <h4 id="npm_install-data">data</h4>
@@ -823,11 +847,13 @@ change.
 
 If symlink_node_modules is False, the package manager is run in the bazel external
 repository so all files that the package manager depends on must be listed.
+
 Defaults to `[]`
 
 <h4 id="npm_install-environment">environment</h4>
 
 (*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): Environment variables to set before calling the package manager.
+
 Defaults to `{}`
 
 <h4 id="npm_install-included_files">included_files</h4>
@@ -848,6 +874,7 @@ be included in the package targets.
 
 This attribute applies to both the coarse `@wksp//:node_modules` target
 as well as the fine grained targets such as `@wksp//foo`.
+
 Defaults to `[]`
 
 <h4 id="npm_install-manual_build_file_contents">manual_build_file_contents</h4>
@@ -860,6 +887,7 @@ See https://github.com/bazelbuild/bazel/issues/5153. If
 you are running into performance issues due to a large
 node_modules target it is recommended to switch to using
 fine grained npm dependencies.
+
 Defaults to `""`
 
 <h4 id="npm_install-package_json">package_json</h4>
@@ -875,6 +903,7 @@ Defaults to `""`
 <h4 id="npm_install-quiet">quiet</h4>
 
 (*Boolean*): If stdout and stderr should be printed to the terminal.
+
 Defaults to `True`
 
 <h4 id="npm_install-repo_mapping">repo_mapping</h4>
@@ -891,6 +920,7 @@ All transitive dependencies are given limited visibility, enforcing that all dir
 listed in the `package.json` file.
 
 Currently the default is set `False`, but will likely be flipped `True` in rules_nodejs 3.0.0
+
 Defaults to `False`
 
 <h4 id="npm_install-symlink_node_modules">symlink_node_modules</h4>
@@ -908,11 +938,13 @@ When false, the package manager will run in the external repository
 created by this rule and any files other than the package.json file and
 the lock file that are required for it to run should be listed in the
 data attribute.
+
 Defaults to `True`
 
 <h4 id="npm_install-timeout">timeout</h4>
 
 (*Integer*): Maximum duration of the package manager execution in seconds.
+
 Defaults to `3600`
 
 
@@ -1001,57 +1033,66 @@ You can pass arguments to npm by escaping them from Bazel using a double-hyphen,
 <h4 id="pkg_npm-deps">deps</h4>
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*): Other targets which produce files that should be included in the package, such as `rollup_bundle`
+
 Defaults to `[]`
 
 <h4 id="pkg_npm-nested_packages">nested_packages</h4>
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*): Other pkg_npm rules whose content is copied into this package.
+
 Defaults to `[]`
 
 <h4 id="pkg_npm-node_context_data">node_context_data</h4>
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): Provides info about the build context, such as stamping.
         
-        By default it reads from the bazel command line, such as the `--stamp` argument.
-        Use this to override values for this target, such as enabling or disabling stamping.
-        You can use the `node_context_data` rule in `@build_bazel_rules_nodejs//internal/node:context.bzl`
-        to create a NodeContextInfo.  The dependencies of this attribute must provide: NodeContextInfo
+By default it reads from the bazel command line, such as the `--stamp` argument.
+Use this to override values for this target, such as enabling or disabling stamping.
+You can use the `node_context_data` rule in `@build_bazel_rules_nodejs//internal/node:context.bzl`
+to create a NodeContextInfo.  The dependencies of this attribute must provide: NodeContextInfo
+
 
 Defaults to `@build_bazel_rules_nodejs//internal:node_context_data`
 
 <h4 id="pkg_npm-package_name">package_name</h4>
 
 (*String*): Optional package_name that this npm package may be imported as.
+
 Defaults to `""`
 
 <h4 id="pkg_npm-replace_with_version">replace_with_version</h4>
 
 (*String*): DEPRECATED: use substitutions instead.
-        
-        `replace_with_version = "my_version_placeholder"` is just syntax sugar for
-        `substitutions = {"my_version_placeholder": "{BUILD_SCM_VERSION}"}`.
 
-        Follow this deprecation at https://github.com/bazelbuild/rules_nodejs/issues/2158
+`replace_with_version = "my_version_placeholder"` is just syntax sugar for
+`substitutions = {"my_version_placeholder": "{BUILD_SCM_VERSION}"}`.
+
+Follow this deprecation at https://github.com/bazelbuild/rules_nodejs/issues/2158
+
 Defaults to `"0.0.0-PLACEHOLDER"`
 
 <h4 id="pkg_npm-srcs">srcs</h4>
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*): Files inside this directory which are simply copied into the package.
+
 Defaults to `[]`
 
 <h4 id="pkg_npm-substitutions">substitutions</h4>
 
 (*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): Key-value pairs which are replaced in all the files while building the package.
         
-        You can use values from the workspace status command using curly braces, for example
-        `{"0.0.0-PLACEHOLDER": "{STABLE_GIT_VERSION}"}`.
-        See the section on stamping in the README
+You can use values from the workspace status command using curly braces, for example
+`{"0.0.0-PLACEHOLDER": "{STABLE_GIT_VERSION}"}`.
+
+See the section on stamping in the [README](stamping)
+
 Defaults to `{}`
 
 <h4 id="pkg_npm-vendor_external">vendor_external</h4>
 
 (*List of strings*): External workspaces whose contents should be vendored into this workspace.
-        Avoids 'external/foo' path segments in the resulting package.
+        Avoids `external/foo` path segments in the resulting package.
+
 Defaults to `[]`
 
 
@@ -1077,31 +1118,35 @@ Assembles a web application from source files.
 <h4 id="pkg_web-additional_root_paths">additional_root_paths</h4>
 
 (*List of strings*): Path prefixes to strip off all srcs, in addition to the current package. Longest wins.
+
 Defaults to `[]`
 
 <h4 id="pkg_web-node_context_data">node_context_data</h4>
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): Provides info about the build context, such as stamping.
         
-        By default it reads from the bazel command line, such as the `--stamp` argument.
-        Use this to override values for this target, such as enabling or disabling stamping.
-        You can use the `node_context_data` rule in `@build_bazel_rules_nodejs//internal/node:context.bzl`
-        to create a NodeContextInfo.  The dependencies of this attribute must provide: NodeContextInfo
+By default it reads from the bazel command line, such as the `--stamp` argument.
+Use this to override values for this target, such as enabling or disabling stamping.
+You can use the `node_context_data` rule in `@build_bazel_rules_nodejs//internal/node:context.bzl`
+to create a NodeContextInfo.  The dependencies of this attribute must provide: NodeContextInfo
+
 
 Defaults to `@build_bazel_rules_nodejs//internal:node_context_data`
 
 <h4 id="pkg_web-srcs">srcs</h4>
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*): Files which should be copied into the package
+
 Defaults to `[]`
 
 <h4 id="pkg_web-substitutions">substitutions</h4>
 
 (*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): Key-value pairs which are replaced in all the files while building the package.
-        
-        You can use values from the workspace status command using curly braces, for example
-        `{"0.0.0-PLACEHOLDER": "{STABLE_GIT_VERSION}"}`.
-        See the section on stamping in the README.
+
+You can use values from the workspace status command using curly braces, for example
+`{"0.0.0-PLACEHOLDER": "{STABLE_GIT_VERSION}"}`.
+See the section on stamping in the README.
+
 Defaults to `{}`
 
 
@@ -1135,6 +1180,7 @@ check if yarn is being run by the `yarn_install` repository rule.
 (*List of strings*): Arguments passed to yarn install.
 
 See yarn CLI docs https://yarnpkg.com/en/docs/cli/install for complete list of supported arguments.
+
 Defaults to `[]`
 
 <h4 id="yarn_install-data">data</h4>
@@ -1149,11 +1195,13 @@ change.
 
 If symlink_node_modules is False, the package manager is run in the bazel external
 repository so all files that the package manager depends on must be listed.
+
 Defaults to `[]`
 
 <h4 id="yarn_install-environment">environment</h4>
 
 (*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): Environment variables to set before calling the package manager.
+
 Defaults to `{}`
 
 <h4 id="yarn_install-included_files">included_files</h4>
@@ -1174,6 +1222,7 @@ be included in the package targets.
 
 This attribute applies to both the coarse `@wksp//:node_modules` target
 as well as the fine grained targets such as `@wksp//foo`.
+
 Defaults to `[]`
 
 <h4 id="yarn_install-manual_build_file_contents">manual_build_file_contents</h4>
@@ -1186,6 +1235,7 @@ See https://github.com/bazelbuild/bazel/issues/5153. If
 you are running into performance issues due to a large
 node_modules target it is recommended to switch to using
 fine grained npm dependencies.
+
 Defaults to `""`
 
 <h4 id="yarn_install-package_json">package_json</h4>
@@ -1196,6 +1246,7 @@ Defaults to `""`
 <h4 id="yarn_install-quiet">quiet</h4>
 
 (*Boolean*): If stdout and stderr should be printed to the terminal.
+
 Defaults to `True`
 
 <h4 id="yarn_install-repo_mapping">repo_mapping</h4>
@@ -1212,6 +1263,7 @@ All transitive dependencies are given limited visibility, enforcing that all dir
 listed in the `package.json` file.
 
 Currently the default is set `False`, but will likely be flipped `True` in rules_nodejs 3.0.0
+
 Defaults to `False`
 
 <h4 id="yarn_install-symlink_node_modules">symlink_node_modules</h4>
@@ -1229,11 +1281,13 @@ When false, the package manager will run in the external repository
 created by this rule and any files other than the package.json file and
 the lock file that are required for it to run should be listed in the
 data attribute.
+
 Defaults to `True`
 
 <h4 id="yarn_install-timeout">timeout</h4>
 
 (*Integer*): Maximum duration of the package manager execution in seconds.
+
 Defaults to `3600`
 
 <h4 id="yarn_install-use_global_yarn_cache">use_global_yarn_cache</h4>
@@ -1252,6 +1306,7 @@ the global cache can be shared by parallelized yarn_install rules.
 
 If False, this rule will pass `--cache-folder /path/to/external/repository/__yarn_cache`
 to yarn so that the local cache is contained within the external repository.
+
 Defaults to `True`
 
 <h4 id="yarn_install-yarn_lock">yarn_lock</h4>
@@ -1464,7 +1519,7 @@ so this target can be a dependency of a TypeScript rule. This includes any `.d.t
 as transitive ones from `deps`.
 It will also provide [OutputGroupInfo] with a "types" field, so you can select the typings outputs with
 `bazel build //some:js_library_target --output_groups=types` or with a `filegroup` rule using the
-[output_group](https://docs.bazel.build/versions/master/be/general.html#filegroup.output_group) attribute.
+[output_group] attribute.
 
 In order to work with the linker (similar to `npm link` for first-party monorepo deps), `js_library` provides
 [LinkablePackageInfo](#linkablepackageinfo) for use with our "linker" that makes this package importable.
@@ -1476,6 +1531,7 @@ It also provides:
 
 [OutputGroupInfo]: https://docs.bazel.build/versions/master/skylark/lib/OutputGroupInfo.html
 [DefaultInfo]: https://docs.bazel.build/versions/master/skylark/lib/DefaultInfo.html
+[output_group]: https://docs.bazel.build/versions/master/be/general.html#filegroup.output_group
 
 
 **PARAMETERS**
@@ -1742,12 +1798,15 @@ Note: historically this was a subset of the string-typed "typescript" provider.
 
 <h4 id="DeclarationInfo-declarations">declarations</h4>
 
- A depset of typings files produced by this rule <h4 id="DeclarationInfo-transitive_declarations">transitive_declarations</h4>
+ A depset of typings files produced by this rule 
+<h4 id="DeclarationInfo-transitive_declarations">transitive_declarations</h4>
 
  A depset of typings files produced by this rule and all its transitive dependencies.
-This prevents needing an aspect in rules that consume the typings, which improves performance. <h4 id="DeclarationInfo-type_blacklisted_declarations">type_blacklisted_declarations</h4>
+This prevents needing an aspect in rules that consume the typings, which improves performance. 
+<h4 id="DeclarationInfo-type_blacklisted_declarations">type_blacklisted_declarations</h4>
 
  A depset of .d.ts files that we should not use to infer JSCompiler types (via tsickle) 
+
 
 
 ## JSEcmaScriptModuleInfo
@@ -1769,9 +1828,11 @@ Historical note: this was the typescript.es6_sources output
 
 <h4 id="JSEcmaScriptModuleInfo-direct_sources">direct_sources</h4>
 
- Depset of direct JavaScript files and sourcemaps <h4 id="JSEcmaScriptModuleInfo-sources">sources</h4>
+ Depset of direct JavaScript files and sourcemaps 
+<h4 id="JSEcmaScriptModuleInfo-sources">sources</h4>
 
  Depset of direct and transitive JavaScript files and sourcemaps 
+
 
 
 ## JSModuleInfo
@@ -1788,9 +1849,11 @@ JavaScript files and sourcemaps.
 
 <h4 id="JSModuleInfo-direct_sources">direct_sources</h4>
 
- Depset of direct JavaScript files and sourcemaps <h4 id="JSModuleInfo-sources">sources</h4>
+ Depset of direct JavaScript files and sourcemaps 
+<h4 id="JSModuleInfo-sources">sources</h4>
 
  Depset of direct and transitive JavaScript files and sourcemaps 
+
 
 
 ## JSNamedModuleInfo
@@ -1815,9 +1878,11 @@ Historical note: this was the typescript.es5_sources output.
 
 <h4 id="JSNamedModuleInfo-direct_sources">direct_sources</h4>
 
- Depset of direct JavaScript files and sourcemaps <h4 id="JSNamedModuleInfo-sources">sources</h4>
+ Depset of direct JavaScript files and sourcemaps 
+<h4 id="JSNamedModuleInfo-sources">sources</h4>
 
  Depset of direct and transitive JavaScript files and sourcemaps 
+
 
 
 ## LinkablePackageInfo
@@ -1834,13 +1899,15 @@ The LinkablePackageInfo provider provides information to the linker for linking 
 
 <h4 id="LinkablePackageInfo-files">files</h4>
 
- Depset of files in this package (must all be contained within path) <h4 id="LinkablePackageInfo-package_name">package_name</h4>
+ Depset of files in this package (must all be contained within path) 
+<h4 id="LinkablePackageInfo-package_name">package_name</h4>
 
  The package name.
 
 Should be the same as name field in the package's package.json.
 
-In the future, the linker may validate that the names match the name in a package.json file. <h4 id="LinkablePackageInfo-path">path</h4>
+In the future, the linker may validate that the names match the name in a package.json file. 
+<h4 id="LinkablePackageInfo-path">path</h4>
 
  The path to link to.
 
@@ -1852,9 +1919,11 @@ Path must be relative to execroot/wksp. It can either an output dir path such as
 or a source file path such as,
 
 `path/to/package` or
-`external/<external_wksp>/path/to/package` <h4 id="LinkablePackageInfo-_tslibrary">_tslibrary</h4>
+`external/<external_wksp>/path/to/package` 
+<h4 id="LinkablePackageInfo-_tslibrary">_tslibrary</h4>
 
  For internal use only 
+
 
 
 ## NodeContextInfo
@@ -1872,6 +1941,7 @@ Provides data about the build context, like config_setting's
 <h4 id="NodeContextInfo-stamp">stamp</h4>
 
  If stamping is enabled 
+
 
 
 ## NodeRuntimeDepsInfo
@@ -1902,9 +1972,11 @@ do the same.
 
 <h4 id="NodeRuntimeDepsInfo-deps">deps</h4>
 
- depset of runtime dependency labels <h4 id="NodeRuntimeDepsInfo-pkgs">pkgs</h4>
+ depset of runtime dependency labels 
+<h4 id="NodeRuntimeDepsInfo-pkgs">pkgs</h4>
 
  list of labels of packages that provide NpmPackageInfo 
+
 
 
 ## NpmPackageInfo
@@ -1921,11 +1993,14 @@ Provides information about npm dependencies
 
 <h4 id="NpmPackageInfo-direct_sources">direct_sources</h4>
 
- Depset of direct source files in this npm package <h4 id="NpmPackageInfo-sources">sources</h4>
+ Depset of direct source files in this npm package 
+<h4 id="NpmPackageInfo-sources">sources</h4>
 
- Depset of direct & transitive source files in this npm package and in its dependencies <h4 id="NpmPackageInfo-workspace">workspace</h4>
+ Depset of direct & transitive source files in this npm package and in its dependencies 
+<h4 id="NpmPackageInfo-workspace">workspace</h4>
 
  The workspace name that this npm package is provided from 
+
 
 
 ## declaration_info

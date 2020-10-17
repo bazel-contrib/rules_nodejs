@@ -29,10 +29,10 @@ _ATTRS = dict(NODE_CONTEXT_ATTRS, **{
     ),
     "substitutions": attr.string_dict(
         doc = """Key-value pairs which are replaced in all the files while building the package.
-        
-        You can use values from the workspace status command using curly braces, for example
-        `{"0.0.0-PLACEHOLDER": "{STABLE_GIT_VERSION}"}`.
-        See the section on stamping in the README.""",
+
+You can use values from the workspace status command using curly braces, for example
+`{"0.0.0-PLACEHOLDER": "{STABLE_GIT_VERSION}"}`.
+See the section on stamping in the README.""",
     ),
     "_assembler": attr.label(
         default = "@build_bazel_rules_nodejs//internal/pkg_web:assembler",

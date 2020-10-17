@@ -15,5 +15,6 @@ ${providerInfo.docString}
 <h4 id="${providerName}-${field.name}">${field.name}</h4>
 
 #if(!$field.docString.isEmpty()) $field.docString.trim() #else - #end
+
 #end
 #end

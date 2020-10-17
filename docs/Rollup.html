@@ -349,8 +349,9 @@ rollup_bundle(<a href="#rollup_bundle-name">name</a>, <a href="#rollup_bundle-ar
 <p>These argument passed on the command line before arguments that are added by the rule.
 Run <code class="language-plaintext highlighter-rouge">bazel</code> with <code class="language-plaintext highlighter-rouge">--subcommands</code> to see what Rollup CLI command line was invoked.</p>
 
-<p>See the <a href="https://rollupjs.org/guide/en/#command-line-flags">Rollup CLI docs</a> for a complete list of supported arguments.
-Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+<p>See the <a href="https://rollupjs.org/guide/en/#command-line-flags">Rollup CLI docs</a> for a complete list of supported arguments.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
 <h4 id="rollup_bundle-config_file">config_file</h4>
 
@@ -358,13 +359,15 @@ Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
 <p>Passed to the <code class="language-plaintext highlighter-rouge">--config</code> option, see <a href="https://rollupjs.org/guide/en/#configuration-files">the config doc</a></p>
 
-<p>If not set, a default basic Rollup config is used.
-Defaults to <code class="language-plaintext highlighter-rouge">@npm//@bazel/rollup:rollup.config.js</code></p>
+<p>If not set, a default basic Rollup config is used.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">@npm//@bazel/rollup:rollup.config.js</code></p>
 
 <h4 id="rollup_bundle-deps">deps</h4>
 
-<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></em>): Other libraries that are required by the code, or by the rollup.config.js
-Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></em>): Other libraries that are required by the code, or by the rollup.config.js</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
 <h4 id="rollup_bundle-entry_point">entry_point</h4>
 
@@ -407,6 +410,7 @@ In this case, <code class="language-plaintext highlighter-rouge">entry_point</co
     <span class="n">entry_point</span> <span class="o">=</span> <span class="s">"index.ts"</span><span class="p">,</span>
 <span class="p">)</span>
 </code></pre></div></div>
+
 <p>Defaults to <code class="language-plaintext highlighter-rouge">None</code></p>
 
 <h4 id="rollup_bundle-entry_points">entry_points</h4>
@@ -418,8 +422,9 @@ In this case, <code class="language-plaintext highlighter-rouge">entry_point</co
 <p>Keys in this dictionary are labels pointing to .js entry point files.
 Values are the name to be given to the corresponding output chunk.</p>
 
-<p>Either this attribute or <code class="language-plaintext highlighter-rouge">entry_point</code> must be specified, but not both.
-Defaults to <code class="language-plaintext highlighter-rouge">{}</code></p>
+<p>Either this attribute or <code class="language-plaintext highlighter-rouge">entry_point</code> must be specified, but not both.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">{}</code></p>
 
 <h4 id="rollup_bundle-format">format</h4>
 
@@ -431,25 +436,26 @@ Defaults to <code class="language-plaintext highlighter-rouge">{}</code></p>
   <li><code class="language-plaintext highlighter-rouge">esm</code>: Keep the bundle as an ES module file, suitable for other bundlers and inclusion as a <code class="language-plaintext highlighter-rouge">&lt;script type=module&gt;</code> tag in modern browsers</li>
   <li><code class="language-plaintext highlighter-rouge">iife</code>: A self-executing function, suitable for inclusion as a <code class="language-plaintext highlighter-rouge">&lt;script&gt;</code> tag. (If you want to create a bundle for your application, you probably want to use this.)</li>
   <li><code class="language-plaintext highlighter-rouge">umd</code>: Universal Module Definition, works as amd, cjs and iife all in one</li>
-  <li><code class="language-plaintext highlighter-rouge">system</code>: Native format of the SystemJS loader
-Defaults to <code class="language-plaintext highlighter-rouge">"esm"</code></li>
+  <li><code class="language-plaintext highlighter-rouge">system</code>: Native format of the SystemJS loader</li>
 </ul>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">"esm"</code></p>
 
 <h4 id="rollup_bundle-link_workspace_root">link_workspace_root</h4>
 
 <p>(<em>Boolean</em>): Link the workspace root to the bin_dir to support absolute requires like ‘my_wksp/path/to/file’.
-If source files need to be required then they can be copied to the bin_dir with copy_to_bin.
-Defaults to <code class="language-plaintext highlighter-rouge">False</code></p>
+If source files need to be required then they can be copied to the bin_dir with copy_to_bin.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">False</code></p>
 
 <h4 id="rollup_bundle-node_context_data">node_context_data</h4>
 
 <p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></em>): Provides info about the build context, such as stamping.</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    By default it reads from the bazel command line, such as the `--stamp` argument.
-    Use this to override values for this target, such as enabling or disabling stamping.
-    You can use the `node_context_data` rule in `@build_bazel_rules_nodejs//internal/node:context.bzl`
-    to create a NodeContextInfo.  The dependencies of this attribute must provide: NodeContextInfo
-</code></pre></div></div>
+<p>By default it reads from the bazel command line, such as the <code class="language-plaintext highlighter-rouge">--stamp</code> argument.
+Use this to override values for this target, such as enabling or disabling stamping.
+You can use the <code class="language-plaintext highlighter-rouge">node_context_data</code> rule in <code class="language-plaintext highlighter-rouge">@build_bazel_rules_nodejs//internal/node:context.bzl</code>
+to create a NodeContextInfo.  The dependencies of this attribute must provide: NodeContextInfo</p>
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">@build_bazel_rules_nodejs//internal:node_context_data</code></p>
 
@@ -461,18 +467,21 @@ Defaults to <code class="language-plaintext highlighter-rouge">False</code></p>
 rather than <code class="language-plaintext highlighter-rouge">--output.file</code>.</p>
 
 <p>If the program produces multiple chunks, you must specify this attribute.
-Otherwise, the outputs are assumed to be a single file.
-Defaults to <code class="language-plaintext highlighter-rouge">False</code></p>
+Otherwise, the outputs are assumed to be a single file.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">False</code></p>
 
 <h4 id="rollup_bundle-rollup_bin">rollup_bin</h4>
 
-<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></em>): Target that executes the rollup binary
-Defaults to <code class="language-plaintext highlighter-rouge">@npm//rollup/bin:rollup</code></p>
+<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></em>): Target that executes the rollup binary</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">@npm//rollup/bin:rollup</code></p>
 
 <h4 id="rollup_bundle-rollup_worker_bin">rollup_worker_bin</h4>
 
-<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></em>): Internal use only
-Defaults to <code class="language-plaintext highlighter-rouge">@npm//@bazel/bin:rollup-worker</code></p>
+<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></em>): Internal use only</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">@npm//@bazel/bin:rollup-worker</code></p>
 
 <h4 id="rollup_bundle-silent">silent</h4>
 
@@ -480,22 +489,25 @@ Defaults to <code class="language-plaintext highlighter-rouge">@npm//@bazel/bin:
 
 <p>Using –silent can cause rollup to <a href="https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#onwarn">ignore errors/warnings</a> 
 which are only surfaced via logging.  Since bazel expects printing nothing on success, setting silent to True
-is a more Bazel-idiomatic experience, however could cause rollup to drop important warnings.
-Defaults to <code class="language-plaintext highlighter-rouge">False</code></p>
+is a more Bazel-idiomatic experience, however could cause rollup to drop important warnings.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">False</code></p>
 
 <h4 id="rollup_bundle-sourcemap">sourcemap</h4>
 
 <p>(<em>String</em>): Whether to produce sourcemaps.</p>
 
-<p>Passed to the <a href="https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#outputsourcemap&quot;"><code class="language-plaintext highlighter-rouge">--sourcemap</code> option</a> in Rollup
-Defaults to <code class="language-plaintext highlighter-rouge">"inline"</code></p>
+<p>Passed to the <a href="https://github.com/rollup/rollup/blob/master/docs/999-big-list-of-options.md#outputsourcemap&quot;"><code class="language-plaintext highlighter-rouge">--sourcemap</code> option</a> in Rollup</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">"inline"</code></p>
 
 <h4 id="rollup_bundle-srcs">srcs</h4>
 
 <p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></em>): Non-entry point JavaScript source files from the workspace.</p>
 
-<p>You must not repeat file(s) passed to entry_point/entry_points.
-Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+<p>You must not repeat file(s) passed to entry_point/entry_points.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
 <h4 id="rollup_bundle-supports_workers">supports_workers</h4>
 
@@ -503,8 +515,9 @@ Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
 <p>Allows you to enable the Bazel Worker strategy for this library.
 When enabled, this rule invokes the “rollup_worker_bin”
-worker aware binary rather than “rollup_bin”.
-Defaults to <code class="language-plaintext highlighter-rouge">False</code></p>
+worker aware binary rather than “rollup_bin”.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">False</code></p>
 
 
       </div>

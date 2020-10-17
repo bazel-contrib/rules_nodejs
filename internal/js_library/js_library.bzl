@@ -290,7 +290,7 @@ def js_library(
     as transitive ones from `deps`.
     It will also provide [OutputGroupInfo] with a "types" field, so you can select the typings outputs with
     `bazel build //some:js_library_target --output_groups=types` or with a `filegroup` rule using the
-    [output_group](https://docs.bazel.build/versions/master/be/general.html#filegroup.output_group) attribute.
+    [output_group] attribute.
 
     In order to work with the linker (similar to `npm link` for first-party monorepo deps), `js_library` provides
     [LinkablePackageInfo](#linkablepackageinfo) for use with our "linker" that makes this package importable.
@@ -302,6 +302,7 @@ def js_library(
 
     [OutputGroupInfo]: https://docs.bazel.build/versions/master/skylark/lib/OutputGroupInfo.html
     [DefaultInfo]: https://docs.bazel.build/versions/master/skylark/lib/DefaultInfo.html
+    [output_group]: https://docs.bazel.build/versions/master/be/general.html#filegroup.output_group
 
     Args:
         name: a name for the target

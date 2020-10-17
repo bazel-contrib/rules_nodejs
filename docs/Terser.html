@@ -228,8 +228,9 @@ If the input is a directory, then the output will also be a directory, named aft
 
 <p>Terser only parses minify() args from the config file so additional arguments such as <code class="language-plaintext highlighter-rouge">--comments</code> may
 be passed to the rule using this attribute. See https://github.com/terser/terser#command-line-usage for the
-full list of terser CLI options.
-Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+full list of terser CLI options.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
 <h4 id="terser_minified-config_file">config_file</h4>
 
@@ -257,8 +258,9 @@ or the <code class="language-plaintext highlighter-rouge">--compilation_mode=dbg
 
 <p>Will disable the <code class="language-plaintext highlighter-rouge">arrows</code> compression setting when debugging.</p>
 
-<p>If <code class="language-plaintext highlighter-rouge">config_file</code> isn’t supplied, Bazel will use a default config file.
-Defaults to <code class="language-plaintext highlighter-rouge">@npm//@bazel/terser:terser_config.default.json</code></p>
+<p>If <code class="language-plaintext highlighter-rouge">config_file</code> isn’t supplied, Bazel will use a default config file.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">@npm//@bazel/terser:terser_config.default.json</code></p>
 
 <h4 id="terser_minified-debug">debug</h4>
 
@@ -266,13 +268,15 @@ Defaults to <code class="language-plaintext highlighter-rouge">@npm//@bazel/ters
 
 <p>Instead of setting this attribute, consider using debugging compilation mode instead
 bazel build –compilation_mode=dbg //my/terser:target
-so that it only affects the current build.
-Defaults to <code class="language-plaintext highlighter-rouge">False</code></p>
+so that it only affects the current build.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">False</code></p>
 
 <h4 id="terser_minified-sourcemap">sourcemap</h4>
 
-<p>(<em>Boolean</em>): Whether to produce a .js.map output
-Defaults to <code class="language-plaintext highlighter-rouge">True</code></p>
+<p>(<em>Boolean</em>): Whether to produce a .js.map output</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">True</code></p>
 
 <h4 id="terser_minified-src">src</h4>
 
@@ -285,8 +289,9 @@ If you want to do this, you can pass a filegroup here.</p>
 
 <h4 id="terser_minified-terser_bin">terser_bin</h4>
 
-<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></em>): An executable target that runs Terser
-Defaults to <code class="language-plaintext highlighter-rouge">@npm//@bazel/bin:terser</code></p>
+<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></em>): An executable target that runs Terser</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">@npm//@bazel/bin:terser</code></p>
 
 
       </div>

@@ -120,16 +120,19 @@ cypress_repository(<a href="#cypress_repository-name">name</a>, <a href="#cypres
 <h4 id="cypress_repository-cypress_bin">cypress_bin</h4>
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): bazel target of the cypress binary
+
 Defaults to `@npm//:node_modules/cypress/bin/cypress`
 
 <h4 id="cypress_repository-fail_on_error">fail_on_error</h4>
 
 (*Boolean*): If the repository rule should allow errors
+
 Defaults to `True`
 
 <h4 id="cypress_repository-quiet">quiet</h4>
 
 (*Boolean*): If stdout and stderr should be printed to the terminal
+
 Defaults to `True`
 
 <h4 id="cypress_repository-repo_mapping">repo_mapping</h4>

@@ -80,6 +80,7 @@ If the input is a directory, then the output will also be a directory, named aft
 Terser only parses minify() args from the config file so additional arguments such as `--comments` may
 be passed to the rule using this attribute. See https://github.com/terser/terser#command-line-usage for the
 full list of terser CLI options.
+
 Defaults to `[]`
 
 <h4 id="terser_minified-config_file">config_file</h4>
@@ -110,6 +111,7 @@ For example
 Will disable the `arrows` compression setting when debugging.
 
 If `config_file` isn't supplied, Bazel will use a default config file.
+
 Defaults to `@npm//@bazel/terser:terser_config.default.json`
 
 <h4 id="terser_minified-debug">debug</h4>
@@ -119,11 +121,13 @@ Defaults to `@npm//@bazel/terser:terser_config.default.json`
 Instead of setting this attribute, consider using debugging compilation mode instead
 bazel build --compilation_mode=dbg //my/terser:target
 so that it only affects the current build.
+
 Defaults to `False`
 
 <h4 id="terser_minified-sourcemap">sourcemap</h4>
 
 (*Boolean*): Whether to produce a .js.map output
+
 Defaults to `True`
 
 <h4 id="terser_minified-src">src</h4>
@@ -139,6 +143,7 @@ If you want to do this, you can pass a filegroup here.
 <h4 id="terser_minified-terser_bin">terser_bin</h4>
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): An executable target that runs Terser
+
 Defaults to `@npm//@bazel/bin:terser`
 
 

@@ -98,12 +98,14 @@ karma_web_test_suite(
 <h4 id="protobufjs_ts_library-deps">deps</h4>
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*): proto_library targets
+
 Defaults to `[]`
 
 <h4 id="protobufjs_ts_library-output_name">output_name</h4>
 
 (*String*): Name of the resulting module, which you will import from.
             If not specified, the name will match the target's name.
+
 Defaults to `""`
 
 

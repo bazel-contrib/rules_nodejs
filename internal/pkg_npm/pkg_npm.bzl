@@ -87,12 +87,12 @@ PKG_NPM_ATTRS = dict(NODE_CONTEXT_ATTRS, **{
     ),
     "replace_with_version": attr.string(
         doc = """DEPRECATED: use substitutions instead.
-        
-        `replace_with_version = "my_version_placeholder"` is just syntax sugar for
-        `substitutions = {"my_version_placeholder": "{BUILD_SCM_VERSION}"}`.
 
-        Follow this deprecation at https://github.com/bazelbuild/rules_nodejs/issues/2158
-        """,
+`replace_with_version = "my_version_placeholder"` is just syntax sugar for
+`substitutions = {"my_version_placeholder": "{BUILD_SCM_VERSION}"}`.
+
+Follow this deprecation at https://github.com/bazelbuild/rules_nodejs/issues/2158
+""",
         default = "0.0.0-PLACEHOLDER",
     ),
     "srcs": attr.label_list(
@@ -102,14 +102,15 @@ PKG_NPM_ATTRS = dict(NODE_CONTEXT_ATTRS, **{
     "substitutions": attr.string_dict(
         doc = """Key-value pairs which are replaced in all the files while building the package.
         
-        You can use values from the workspace status command using curly braces, for example
-        `{"0.0.0-PLACEHOLDER": "{STABLE_GIT_VERSION}"}`.
-        See the section on stamping in the README
-        """,
+You can use values from the workspace status command using curly braces, for example
+`{"0.0.0-PLACEHOLDER": "{STABLE_GIT_VERSION}"}`.
+
+See the section on stamping in the [README](stamping)
+""",
     ),
     "vendor_external": attr.string_list(
         doc = """External workspaces whose contents should be vendored into this workspace.
-        Avoids 'external/foo' path segments in the resulting package.""",
+        Avoids `external/foo` path segments in the resulting package.""",
     ),
     "_npm_script_generator": attr.label(
         default = Label("//internal/pkg_npm:npm_script_generator"),
