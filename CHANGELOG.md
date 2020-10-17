@@ -1,3 +1,23 @@
+## [2.2.2](https://github.com/bazelbuild/rules_nodejs/compare/2.2.1...2.2.2) (2020-10-17)
+
+
+### Bug Fixes
+
+* **builtin:** js_library supports --output_groups=types ([c060a22](https://github.com/bazelbuild/rules_nodejs/commit/c060a22))
+* **example:** remove compression dependencies ([75bf720](https://github.com/bazelbuild/rules_nodejs/commit/75bf720))
+* **example:** remove index.html from prodapp srcs ([c7be89b](https://github.com/bazelbuild/rules_nodejs/commit/c7be89b))
+* **example:** remove server side compression ([6d5aafb](https://github.com/bazelbuild/rules_nodejs/commit/6d5aafb))
+* **exmaple:** add docstring to ngsw_config rule ([481fa21](https://github.com/bazelbuild/rules_nodejs/commit/481fa21))
+
+
+### Features
+
+* **example:** add full pwa support ([4d5b9c7](https://github.com/bazelbuild/rules_nodejs/commit/4d5b9c7))
+* **example:** service worker update handling ([bb66235](https://github.com/bazelbuild/rules_nodejs/commit/bb66235))
+* **karma:** use Trusted Types policy when loading scripts for Karma ([af9feb4](https://github.com/bazelbuild/rules_nodejs/commit/af9feb4))
+
+
+
 ## [2.2.1](https://github.com/bazelbuild/rules_nodejs/compare/2.2.0...2.2.1) (2020-10-07)
 
 
