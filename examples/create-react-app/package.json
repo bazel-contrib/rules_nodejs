@@ -16,7 +16,7 @@
     "typescript": "~3.7.2"
   },
   "devDependencies": {
-    "@bazel/bazelisk": "^1.7.1",
+    "@bazel/bazelisk": "^1.7.2",
     "@bazel/ibazel": "^0.13.2",
     "patch-package": "^6.2.2"
   },

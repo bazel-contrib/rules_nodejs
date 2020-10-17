@@ -1,7 +1,7 @@
 {
   "dependencies": {
-    "@bazel/jasmine": "^2.2.1",
-    "@bazel/typescript": "^2.2.1",
+    "@bazel/jasmine": "^2.2.2",
+    "@bazel/typescript": "^2.2.2",
     "@types/jasmine": "2.8.2",
     "@types/node": "7.0.18",
     "date-fns": "^1.30.1",
