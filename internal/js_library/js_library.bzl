@@ -12,10 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""js_library can be used to expose and share any library package.
-
-DO NOT USE - this is not fully designed yet and it is a work in progress.
-"""
+"js_library can be used to expose and share any library package."
 
 load(
     "//:providers.bzl",
@@ -215,10 +212,12 @@ def _impl(ctx):
     # Don't provide DeclarationInfo if there are no typings to provide.
     # Improves error messaging downstream if DeclarationInfo is required.
     if len(typings) or len(typings_depsets) > 1:
+        decls = depset(transitive = typings_depsets)
         providers.append(declaration_info(
-            declarations = depset(transitive = typings_depsets),
+            declarations = decls,
             deps = ctx.attr.deps,
         ))
+        providers.append(OutputGroupInfo(types = decls))
 
     return providers
 
@@ -235,20 +234,14 @@ def js_library(
         **kwargs):
     """Groups JavaScript code so that it can be depended on like an npm package.
 
-    ### Behavior
-
+    `js_library` is intended to be used internally within Bazel, such as between two libraries in your monorepo.
     This rule doesn't perform any build steps ("actions") so it is similar to a `filegroup`.
-    However it produces several Bazel "Providers" for interop with other rules.
+    However it provides several Bazel "Providers" for interop with other rules.
 
     > Compare this to `pkg_npm` which just produces a directory output, and therefore can't expose individual
     > files to downstream targets and causes a cascading re-build of all transitive dependencies when any file
-    > changes
-
-    These providers are:
-    - DeclarationInfo so this target can be a dependency of a TypeScript rule
-    - NpmPackageInfo so this target can interop with rules that expect third-party npm packages
-    - LinkablePackageInfo for use with our "linker" that makes this package importable (similar to `npm link`)
-    - JsModuleInfo so rules like bundlers can collect the transitive set of .js files
+    > changes. Also `pkg_npm` is intended to publish your code for external usage outside of Bazel, like
+    > by publishing to npm or artifactory, while `js_library` is for internal dependencies within your repo.
 
     `js_library` also copies any source files into the bazel-out folder.
     This is the same behavior as the `copy_to_bin` rule.
@@ -258,14 +251,9 @@ def js_library(
     rather than being forced to use Bazel's "Runfiles" semantics where any program might need a helper library
     to resolve files between the logical union of the source tree and the output tree.
 
-    ### Usage
+    ### Example
 
-    `js_library` is intended to be used internally within Bazel, such as between two libraries in your monorepo.
-
-    > Compare this to `pkg_npm` which is intended to publish your code for external usage outside of Bazel, like
-    > by publishing to npm or artifactory.
-
-    The typical example usage of `js_library` is to expose some sources with a package name:
+    A typical example usage of `js_library` is to expose some sources with a package name:
 
     ```python
     ts_project(
@@ -284,9 +272,36 @@ def js_library(
     )
     ```
 
-    To help work with "named AMD" modules as required by `ts_devserver` and other Google-style "concatjs" rules,
-    `js_library` has some undocumented advanced features you can find in the source code or in our examples.
-    These should not be considered a public API and aren't subject to our usual support and semver guarantees.
+    > To help work with "named AMD" modules as required by `ts_devserver` and other Google-style "concatjs" rules,
+    > `js_library` has some undocumented advanced features you can find in the source code or in our examples.
+    > These should not be considered a public API and aren't subject to our usual support and semver guarantees.
+
+    ### Outputs
+
+    Like all Bazel rules it produces a default output by providing [DefaultInfo].
+    You'll get these outputs if you include this in the `srcs` of a typical rule like `filegroup`,
+    and these will be the printed result when you `bazel build //some:js_library_target`.
+    The default outputs are all of:
+    - [DefaultInfo] produced by targets in `deps`
+    - A copy of all sources (InputArtifacts from your source tree) in the bazel-out directory
+
+    When there are TypeScript typings files, `js_library` provides [DeclarationInfo](#declarationinfo)
+    so this target can be a dependency of a TypeScript rule. This includes any `.d.ts` files in `srcs` as well
+    as transitive ones from `deps`.
+    It will also provide [OutputGroupInfo] with a "types" field, so you can select the typings outputs with
+    `bazel build //some:js_library_target --output_groups=types` or with a `filegroup` rule using the
+    [output_group](https://docs.bazel.build/versions/master/be/general.html#filegroup.output_group) attribute.
+
+    In order to work with the linker (similar to `npm link` for first-party monorepo deps), `js_library` provides
+    [LinkablePackageInfo](#linkablepackageinfo) for use with our "linker" that makes this package importable.
+
+    It also provides:
+    - [NpmPackageInfo](#npmpackageinfo) to interop with rules that expect third-party npm packages.
+    - [JsModuleInfo](#jsmoduleinfo) so rules like bundlers can collect the transitive set of .js files
+    - [JsNamedModuleInfo](#jsnamedmoduleinfo) for rules that expect named AMD or `goog.module` format JS
+
+    [OutputGroupInfo]: https://docs.bazel.build/versions/master/skylark/lib/OutputGroupInfo.html
+    [DefaultInfo]: https://docs.bazel.build/versions/master/skylark/lib/DefaultInfo.html
 
     Args:
         name: a name for the target
