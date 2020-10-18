@@ -19,6 +19,27 @@ filegroup(
 )
 filegroup(
     name = "jasmine__nested_node_modules",
+    srcs = [
+        "//:node_modules/jasmine/node_modules/jasmine-core/.editorconfig",
+        "//:node_modules/jasmine/node_modules/jasmine-core/.ruby-version",
+        "//:node_modules/jasmine/node_modules/jasmine-core/bower.json",
+        "//:node_modules/jasmine/node_modules/jasmine-core/jasmine_core.egg-info/PKG-INFO",
+        "//:node_modules/jasmine/node_modules/jasmine-core/lib/jasmine-core.js",
+        "//:node_modules/jasmine/node_modules/jasmine-core/lib/jasmine-core/boot.js",
+        "//:node_modules/jasmine/node_modules/jasmine-core/lib/jasmine-core/example/node_example/lib/jasmine_examples/Player.js",
+        "//:node_modules/jasmine/node_modules/jasmine-core/lib/jasmine-core/example/node_example/lib/jasmine_examples/Song.js",
+        "//:node_modules/jasmine/node_modules/jasmine-core/lib/jasmine-core/example/node_example/spec/helpers/jasmine_examples/SpecHelper.js",
+        "//:node_modules/jasmine/node_modules/jasmine-core/lib/jasmine-core/example/node_example/spec/jasmine_examples/PlayerSpec.js",
+        "//:node_modules/jasmine/node_modules/jasmine-core/lib/jasmine-core/example/spec/PlayerSpec.js",
+        "//:node_modules/jasmine/node_modules/jasmine-core/lib/jasmine-core/example/spec/SpecHelper.js",
+        "//:node_modules/jasmine/node_modules/jasmine-core/lib/jasmine-core/example/src/Player.js",
+        "//:node_modules/jasmine/node_modules/jasmine-core/lib/jasmine-core/example/src/Song.js",
+        "//:node_modules/jasmine/node_modules/jasmine-core/lib/jasmine-core/jasmine-html.js",
+        "//:node_modules/jasmine/node_modules/jasmine-core/lib/jasmine-core/jasmine.js",
+        "//:node_modules/jasmine/node_modules/jasmine-core/lib/jasmine-core/json2.js",
+        "//:node_modules/jasmine/node_modules/jasmine-core/lib/jasmine-core/node_boot.js",
+        "//:node_modules/jasmine/node_modules/jasmine-core/package.json",
+    ],
     visibility = ["//:__subpackages__"],
 )
 filegroup(
@@ -50,7 +71,6 @@ js_library(
         "//balanced-match:balanced-match__contents",
         "//concat-map:concat-map__contents",
         "//path-is-absolute:path-is-absolute__contents",
-        "//jasmine-core:jasmine-core__contents",
     ],
 )
 js_library(

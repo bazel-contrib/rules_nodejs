@@ -84,14 +84,12 @@ fine grained npm dependencies.
         doc = "If stdout and stderr should be printed to the terminal.",
     ),
     "strict_visibility": attr.bool(
-        default = False,
+        default = True,
         doc = """Turn on stricter visibility for generated BUILD.bazel files
 
 When enabled, only dependencies within the given `package.json` file are given public visibility.
 All transitive dependencies are given limited visibility, enforcing that all direct dependencies are
 listed in the `package.json` file.
-
-Currently the default is set `False`, but will likely be flipped `True` in rules_nodejs 3.0.0
 """,
     ),
     "symlink_node_modules": attr.bool(

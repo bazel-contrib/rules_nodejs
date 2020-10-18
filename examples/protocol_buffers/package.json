@@ -15,6 +15,8 @@
     "google-protobuf": "3.11.4",
     "grpc-web": "1.1.0",
     "http-server": "^0.11.1",
+    "jasmine": "2.8.0",
+    "jasmine-core": "2.8.0",
     "karma": "~4.1.0",
     "karma-chrome-launcher": "2.2.0",
     "karma-firefox-launcher": "1.1.0",
@@ -27,6 +29,7 @@
     "requirejs": "2.3.6",
     "rollup": "2.3.4",
     "terser": "4.3.1",
+    "tmp": "0.1.0",
     "typescript": "^3.3.1"
   },
   "scripts": {

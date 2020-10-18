@@ -50,6 +50,8 @@
         "firebase-tools": "7.1.0",
         "history-server": "^1.3.1",
         "html-insert-assets": "^0.6.0",
+        "jasmine": "2.8.0",
+        "jasmine-core": "2.8.0",
         "karma": "~4.1.0",
         "karma-chrome-launcher": "2.2.0",
         "karma-firefox-launcher": "1.1.0",
@@ -63,6 +65,7 @@
         "rollup-plugin-amd": "^4.0.0",
         "rollup-plugin-re": "^1.0.7",
         "terser": "4.3.1",
+        "tmp": "0.1.0",
         "typescript": "3.4.5"
     },
     "scripts": {

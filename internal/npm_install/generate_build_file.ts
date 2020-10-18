@@ -596,7 +596,7 @@ export function parsePackage(p: string, dependencies: Set<string> = new Set()): 
 
   // set if this is a direct dependency of the root package.json file
   // which is later used to determine the generated rules visibility
-  pkg._directDependency = dependencies.has(pkg._moduleName);
+  pkg._directDependency = dependencies.has(pkg._moduleName) || dependencies.has(pkg._name);
 
   return pkg;
 }
