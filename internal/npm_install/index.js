@@ -356,7 +356,7 @@ function parsePackage(p, dependencies = new Set()) {
     pkg._files = listFiles(p);
     pkg._runfiles = pkg._files.filter((f) => !/[^\x21-\x7E]/.test(f));
     pkg._dependencies = [];
-    pkg._directDependency = dependencies.has(pkg._moduleName);
+    pkg._directDependency = dependencies.has(pkg._moduleName) || dependencies.has(pkg._name);
     return pkg;
 }
 exports.parsePackage = parsePackage;

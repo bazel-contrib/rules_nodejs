@@ -2,6 +2,7 @@
   "description": "runtime dependencies fine_grained_deps e2e test",
   "devDependencies": {
     "jasmine": "3.3.0",
+    "jasmine-core": "3.3.0",
     "typescript": "3.0.3"
   },
   "dependencies": {

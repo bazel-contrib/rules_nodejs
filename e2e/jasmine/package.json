@@ -9,6 +9,7 @@
     "test": "bazel test ..."
   },
   "devDependencies": {
-    "jasmine": "2.99.0"
+    "jasmine": "2.99.0",
+    "jasmine-core": "2.99.0"
   }
 }
