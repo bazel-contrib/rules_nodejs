@@ -28,7 +28,7 @@ def _to_manifest_path(ctx, file):
     else:
         return ctx.workspace_name + "/" + file.short_path
 
-def _ts_devserver(ctx):
+def _concatjs_devserver(ctx):
     files_depsets = []
     for dep in ctx.attr.deps:
         if JSNamedModuleInfo in dep:
@@ -124,8 +124,8 @@ def _ts_devserver(ctx):
         ),
     )]
 
-ts_devserver = rule(
-    implementation = _ts_devserver,
+concatjs_devserver = rule(
+    implementation = _concatjs_devserver,
     attrs = {
         "additional_root_paths": attr.string_list(
             doc = """Additional root paths to serve `static_files` from.
@@ -151,20 +151,20 @@ ts_devserver = rule(
             will be the same binary.
 
             Defaults to precompiled go binary setup by @bazel/typescript npm package""",
-            default = Label("//packages/typescript/devserver"),
+            default = Label("//packages/concatjs/devserver"),
             executable = True,
             cfg = "host",
         ),
         "devserver_host": attr.label(
             doc = """Go based devserver executable for the host platform.
             Defaults to precompiled go binary setup by @bazel/typescript npm package""",
-            default = Label("//packages/typescript/devserver:devserver_%s" % host_platform),
+            default = Label("//packages/concatjs/devserver:devserver_%s" % host_platform),
             executable = True,
             cfg = "host",
         ),
         "entry_module": attr.string(
             doc = """The `entry_module` should be the AMD module name of the entry module such as `"__main__/src/index".`
-            `ts_devserver` concats the following snippet after the bundle to load the application:
+            `concatjs_devserver` concats the following snippet after the bundle to load the application:
             `require(["entry_module"]);`
             """,
         ),
@@ -189,30 +189,30 @@ ts_devserver = rule(
             allow_files = True,
         ),
         "_bash_runfile_helpers": attr.label(default = Label("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles")),
-        "_launcher_template": attr.label(allow_single_file = True, default = Label("//packages/typescript/internal/devserver:launcher_template.sh")),
-        "_requirejs_script": attr.label(allow_single_file = True, default = Label("//packages/typescript/third_party/npm/requirejs:require.js")),
+        "_launcher_template": attr.label(allow_single_file = True, default = Label("//packages/concatjs/devserver:launcher_template.sh")),
+        "_requirejs_script": attr.label(allow_single_file = True, default = Label("//packages/concatjs/third_party/npm/requirejs:require.js")),
     },
     outputs = {
         "manifest": "%{name}.MF",
         "script": "%{name}.sh",
         "scripts_manifest": "scripts_%{name}.MF",
     },
-    doc = """ts_devserver is a simple development server intended for a quick "getting started" experience.
+    doc = """concatjs_devserver is a simple development server intended for a quick "getting started" experience.
 
 Additional documentation at https://github.com/alexeagle/angular-bazel-example/wiki/Running-a-devserver-under-Bazel
 """,
 )
 
-def ts_devserver_macro(name, args = [], visibility = None, tags = [], testonly = 0, **kwargs):
-    """Macro for creating a `ts_devserver`
+def concatjs_devserver_macro(name, args = [], visibility = None, tags = [], testonly = 0, **kwargs):
+    """Macro for creating a `concatjs_devserver`
 
-    This macro re-exposes a `sh_binary` and `ts_devserver` target that can run the
+    This macro re-exposes a `sh_binary` and `concatjs_devserver` target that can run the
     actual devserver implementation.
-    The `ts_devserver` rule is just responsible for generating a launcher script
+    The `concatjs_devserver` rule is just responsible for generating a launcher script
     that runs the Go devserver implementation. The `sh_binary` is the primary
     target that matches the specified "name" and executes the generated bash
     launcher script.
-    This is re-exported in `//:index.bzl` as `ts_devserver` so if you load the rule
+    This is re-exported in `//:index.bzl` as `concatjs_devserver` so if you load the rule
     from there, you actually get this macro.
 
     Args:
@@ -221,9 +221,9 @@ def ts_devserver_macro(name, args = [], visibility = None, tags = [], testonly =
       visibility: Visibility of the devserver targets
       tags: Standard Bazel tags, this macro adds a couple for ibazel
       testonly: Whether the devserver should only run in `bazel test`
-      **kwargs: passed through to `ts_devserver`
+      **kwargs: passed through to `concatjs_devserver`
     """
-    ts_devserver(
+    concatjs_devserver(
         name = "%s_launcher" % name,
         testonly = testonly,
         visibility = ["//visibility:private"],

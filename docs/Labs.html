@@ -97,6 +97,10 @@
       
       
       
+      <li><a href="/rules_nodejs/Concatjs.html">Concatjs</a></li>
+      
+      
+      
       <li><a href="/rules_nodejs/Cypress.html">Cypress</a></li>
       
       
@@ -223,10 +227,10 @@ result will be <code class="language-plaintext highlighter-rouge">car.d.ts</code
 name the rule differently from the output file.</p>
 
 <p>The JavaScript produced by protobuf.js has a runtime dependency on a support library.
-Under devmode (e.g. <code class="language-plaintext highlighter-rouge">ts_devserver</code>, <code class="language-plaintext highlighter-rouge">karma_web_test_suite</code>) you’ll need to include these scripts
+Under devmode (e.g. <code class="language-plaintext highlighter-rouge">concatjs_devserver</code>, <code class="language-plaintext highlighter-rouge">karma_web_test_suite</code>) you’ll need to include these scripts
 in the <code class="language-plaintext highlighter-rouge">bootstrap</code> phase (before Require.js loads). You can use the label
 <code class="language-plaintext highlighter-rouge">@npm//@bazel/labs/protobufjs:bootstrap_scripts</code> to reference these scripts
-in the <code class="language-plaintext highlighter-rouge">bootstrap</code> attribute of <code class="language-plaintext highlighter-rouge">karma_web_test_suite</code> or <code class="language-plaintext highlighter-rouge">ts_devserver</code>.</p>
+in the <code class="language-plaintext highlighter-rouge">bootstrap</code> attribute of <code class="language-plaintext highlighter-rouge">karma_web_test_suite</code> or <code class="language-plaintext highlighter-rouge">concatjs_devserver</code>.</p>
 
 <p>To complete the example above, you could write a <code class="language-plaintext highlighter-rouge">karma_web_test_suite</code>:</p>
 

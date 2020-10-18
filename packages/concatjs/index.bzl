@@ -12,27 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+"""Public API surface is re-exported here.
 
-licenses(["notice"])  # Apache 2.0
+Users should not load files under "/internal"
+"""
 
-package(default_visibility = [
-    "//packages/typescript:__subpackages__",
-    "//third_party/bazel_rules/rules_typescript/internal:__subpackages__",
-])
+load("//packages/concatjs/devserver:concatjs_devserver.bzl", _concatjs_devserver = "concatjs_devserver_macro")
 
-bzl_library(
-    name = "bzl",
-    srcs = glob(["*.bzl"]),
-    deps = [
-        "@build_bazel_rules_nodejs//internal/js_library:bzl",
-        "@build_bazel_rules_nodejs//internal/pkg_web:bzl",
-    ],
-)
-
-exports_files(["launcher_template.sh"])
-
-filegroup(
-    name = "package_contents",
-    srcs = glob(["*"]),
-)
+concatjs_devserver = _concatjs_devserver

@@ -13,7 +13,7 @@
 # limitations under the License.
 
 workspace(
-    name = "e2e_ts_devserver",
+    name = "e2e_concatjs_devserver",
     managed_directories = {"@npm": ["node_modules"]},
 )
 

@@ -1500,7 +1500,7 @@ js_library(
 )
 ```
 
-> To help work with "named AMD" modules as required by `ts_devserver` and other Google-style "concatjs" rules,
+> To help work with "named AMD" modules as required by `concatjs_devserver` and other Google-style "concatjs" rules,
 > `js_library` has some undocumented advanced features you can find in the source code or in our examples.
 > These should not be considered a public API and aren't subject to our usual support and semver guarantees.
 

@@ -8,6 +8,7 @@ module.exports = {
       [
         'angular',
         'builtin',
+        'concatjs',
         'create',
         'cypress',
         'examples',

@@ -1,8 +1,9 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "pkg_web")
+load("@npm//@bazel/concatjs:index.bzl", "concatjs_devserver")
 load("@npm//@bazel/protractor:index.bzl", "protractor_web_test_suite")
 load("@npm//@bazel/rollup:index.bzl", "rollup_bundle")
 load("@npm//@bazel/terser:index.bzl", "terser_minified")
-load("@npm//@bazel/typescript:index.bzl", "ts_devserver", "ts_library", "ts_project")
+load("@npm//@bazel/typescript:index.bzl", "ts_library", "ts_project")
 load("@npm//html-insert-assets:index.bzl", "html_insert_assets")
 load("@npm//http-server:index.bzl", "http_server")
 
@@ -13,7 +14,7 @@ ts_library(
     srcs = ["app.ts"],
 )
 
-ts_devserver(
+concatjs_devserver(
     name = "devserver",
     # We'll collect all the devmode JS sources from these TypeScript libraries
     deps = [":app"],

@@ -1,8 +1,9 @@
 load("@npm//http-server:index.bzl", "http_server")
+load("//packages/concatjs:index.bzl", "concatjs_devserver")
 load("//packages/protractor:index.bzl", "protractor_web_test_suite")
 load("//packages/rollup:index.bzl", "rollup_bundle")
 load("//packages/terser:index.bzl", "terser_minified")
-load("//packages/typescript:index.bzl", "ts_config", "ts_devserver", "ts_library")
+load("//packages/typescript:index.bzl", "ts_config", "ts_library")
 
 ts_config(
     name = "tsconfig-test",
@@ -27,7 +28,7 @@ terser_minified(
     src = ":bundle",
 )
 
-ts_devserver(
+concatjs_devserver(
     name = "devserver",
     devserver = "@build_bazel_rules_typescript//devserver:devserver_bin",
     devserver_host = "@build_bazel_rules_typescript//devserver:devserver_bin",

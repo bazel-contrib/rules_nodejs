@@ -36,16 +36,16 @@ case "${unameOut}" in
     *)          machine=linux
                 printf "\nUnrecongized uname '${unameOut}'; defaulting to use node for linux.\n" >&2
                 printf "Please file an issue to https://github.com/bazelbuild/rules_nodejs/issues if \n" >&2
-                printf "you would like to add your platform to the supported ts_devserver platforms.\n\n" >&2
+                printf "you would like to add your platform to the supported concatjs_devserver platforms.\n\n" >&2
                 ;;
 esac
 
 case "${machine}" in
-  # The following paths must match up with //packages/typescript/devserver binaries
+  # The following paths must match up with //packages/concatjs/devserver binaries
   # FIXME: we shouldn't hardcode "npm" repository name here
-  darwin) readonly platform_main_manifest="npm/@bazel/typescript/devserver/devserver-darwin_x64" ;;
-  windows) readonly platform_main_manifest="npm/@bazel/typescript/devserver/devserver-windows_x64.exe" ;;
-  *) readonly platform_main_manifest="npm/@bazel/typescript/devserver/devserver-linux_x64" ;;
+  darwin) readonly platform_main_manifest="npm/@bazel/concatjs/devserver/devserver-darwin_x64" ;;
+  windows) readonly platform_main_manifest="npm/@bazel/concatjs/devserver/devserver-windows_x64.exe" ;;
+  *) readonly platform_main_manifest="npm/@bazel/concatjs/devserver/devserver-linux_x64" ;;
 esac
 
 readonly platform_main=$(rlocation "${platform_main_manifest}")
@@ -58,10 +58,10 @@ else
 fi
 
 if [ ! -f "${main}" ]; then
-    printf "\n>>>> FAIL: The ts_devserver binary '${main_platform}' not found in runfiles.\n" >&2
+    printf "\n>>>> FAIL: The concatjs_devserver binary '${main_platform}' not found in runfiles.\n" >&2
     printf "This node toolchain was chosen based on your uname '${unameOut}'.\n" >&2
     printf "Please file an issue to https://github.com/bazelbuild/rules_nodejs/issues if \n" >&2
-    printf "you would like to add your platform to the supported ts_devserver platforms. <<<<\n\n" >&2
+    printf "you would like to add your platform to the supported concatjs_devserver platforms. <<<<\n\n" >&2
     exit 1
 fi
 
