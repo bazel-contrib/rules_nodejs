@@ -27,7 +27,7 @@ def rules_typescript_dev_dependencies():
     Also this allows other repos to reference our sources with local_repository and install the needed deps.
     """
 
-    # For building ts_devserver binary
+    # For building concatjs_devserver binary
     # See https://github.com/bazelbuild/rules_go#setup for the latest version.
     _maybe(
         http_archive,

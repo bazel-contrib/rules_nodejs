@@ -12,8 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@npm//@bazel/concatjs:index.bzl", "concatjs_devserver")
 load("@npm//@bazel/protractor:index.bzl", "protractor_web_test_suite")
-load("@npm//@bazel/typescript:index.bzl", "ts_devserver", "ts_library")
+load("@npm//@bazel/typescript:index.bzl", "ts_library")
 
 ts_library(
     name = "app",
@@ -34,11 +35,11 @@ ts_library(
     ],
 )
 
-ts_devserver(
+concatjs_devserver(
     name = "devserver",
     additional_root_paths = [
         "npm/node_modules/tslib",
-        "e2e_ts_devserver/genrule/devserver/",
+        "e2e_concatjs_devserver/genrule/devserver/",
     ],
     serving_path = "/bundle.js",
     static_files = [

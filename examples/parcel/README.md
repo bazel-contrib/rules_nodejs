@@ -11,7 +11,6 @@ Parcel can do many jobs which overlap with Bazel, such as development serving an
 Parcel can do file-system watching, but this overlaps with [ibazel](https://github.com/bazelbuild/bazel-watcher) so this mode is probably undesirable under Bazel.
 
 Also, Parcel has a development server.
-This could be an alternative to the `ts_devserver` we recommend under Bazel.
 It would need to be hosted properly to see generated Bazel outputs from other build steps.
 See https://github.com/angular/angular-bazel-example/wiki/Running-a-devserver-under-Bazel
 

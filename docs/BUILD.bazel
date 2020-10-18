@@ -73,6 +73,7 @@ rules_nodejs_docs(
     layouts = glob(["_layouts/*"]),
     readmes = {
         "Built-ins": ":builtins.doc",
+        "Concatjs": "//packages/concatjs:README.md",
         "Cypress": "//packages/cypress:README.md",
         "Jasmine": "//packages/jasmine:README.md",
         "Karma": "//packages/karma:README.md",

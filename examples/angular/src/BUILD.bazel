@@ -3,9 +3,10 @@ load("@io_bazel_rules_docker//container:container.bzl", "container_image")
 load("@io_bazel_rules_docker//nodejs:image.bzl", "nodejs_image")
 load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
 load("@npm//@babel/cli:index.bzl", "babel")
+load("@npm//@bazel/concatjs:index.bzl", "concatjs_devserver")
 load("@npm//@bazel/rollup:index.bzl", "rollup_bundle")
 load("@npm//@bazel/terser:index.bzl", "terser_minified")
-load("@npm//@bazel/typescript:index.bzl", "ts_config", "ts_devserver", "ts_library")
+load("@npm//@bazel/typescript:index.bzl", "ts_config", "ts_library")
 load("@npm//history-server:index.bzl", "history_server")
 load("@npm//html-insert-assets:index.bzl", "html_insert_assets")
 load("//tools:angular_prerender.bzl", "ng_prerender", "ng_prerender_test")
@@ -97,7 +98,7 @@ html_insert_assets(
         "--roots=. $(RULEDIR)",
         "--assets",
     ] + ["$(execpath %s)" % s for s in _ASSETS] + [
-        # This file doesn't exist during the build, but will be served by ts_devserver
+        # This file doesn't exist during the build, but will be served by concatjs_devserver
         "./_/ts_scripts.js",
     ],
     data = ["//src:example/index.html"] + _ASSETS,
@@ -107,7 +108,7 @@ html_insert_assets(
 # It doesn't run any bundler or code splitter. Instead, it concatenates
 # named UMD and named AMD JavaScript code on-the-fly in-memory.
 # This scales really well for massive codebases.
-ts_devserver(
+concatjs_devserver(
     name = "devserver",
     # Serve src/example/index.html at /index.html
     additional_root_paths = ["src/example"],

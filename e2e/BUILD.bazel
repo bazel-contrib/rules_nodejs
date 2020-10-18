@@ -110,8 +110,9 @@ e2e_integration_test(
 )
 
 e2e_integration_test(
-    name = "e2e_ts_devserver",
+    name = "e2e_concatjs_devserver",
     npm_packages = {
+        "//packages/concatjs:npm_package": "@bazel/concatjs",
         "//packages/protractor:npm_package": "@bazel/protractor",
         "//packages/typescript:npm_package": "@bazel/typescript",
     },

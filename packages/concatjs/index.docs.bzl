@@ -18,12 +18,8 @@ We can't point stardoc to the top-level index.bzl since then it will see macros 
 So this is a copy of index.bzl with macro indirection removed.
 """
 
-load("//packages/typescript/internal:build_defs.bzl", _ts_library = "ts_library")
-load("//packages/typescript/internal:ts_config.bzl", _ts_config = "ts_config")
-load("//packages/typescript/internal:ts_project.bzl", _ts_project = "ts_project_macro")
+load("//packages/concatjs/devserver:concatjs_devserver.bzl", _concatjs_devserver = "concatjs_devserver")
 
-ts_library = _ts_library
-ts_config = _ts_config
-ts_project = _ts_project
+concatjs_devserver = _concatjs_devserver
 # DO NOT ADD MORE rules here unless they appear in the generated docsite.
 # Run yarn stardoc to re-generate the docsite.

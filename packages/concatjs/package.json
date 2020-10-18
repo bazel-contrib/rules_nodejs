@@ -1,0 +1,25 @@
+{
+    "name": "@bazel/concatjs",
+    "description": "Fast JavaScript bundler for Bazel",
+    "license": "Apache-2.0",
+    "version": "0.0.0-PLACEHOLDER",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/bazelbuild/rules_nodejs.git",
+        "directory": "packages/concatjs"
+    },
+    "bugs": {
+        "url": "https://github.com/bazelbuild/rules_nodejs/issues"
+    },
+    "keywords": [
+        "bazel"
+    ],
+    "dependencies": {
+        "protobufjs": "6.8.8",
+        "source-map-support": "0.5.9",
+        "tsutils": "2.27.2"
+    },
+    "scripts": {
+      "postinstall": "node npm_version_check.js"
+    }
+}

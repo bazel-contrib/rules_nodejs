@@ -19,6 +19,7 @@ example_integration_test(
     timeout = "long",
     npm_packages = {
         "//packages/angular:npm_package": "@bazel/angular",
+        "//packages/concatjs:npm_package": "@bazel/concatjs",
         "//packages/karma:npm_package": "@bazel/karma",
         "//packages/protractor:npm_package": "@bazel/protractor",
         "//packages/rollup:npm_package": "@bazel/rollup",
@@ -44,6 +45,7 @@ example_integration_test(
     name = "examples_angular_view_engine",
     timeout = "long",
     npm_packages = {
+        "//packages/concatjs:npm_package": "@bazel/concatjs",
         "//packages/karma:npm_package": "@bazel/karma",
         "//packages/protractor:npm_package": "@bazel/protractor",
         "//packages/rollup:npm_package": "@bazel/rollup",
@@ -82,6 +84,7 @@ example_integration_test(
 example_integration_test(
     name = "examples_app",
     npm_packages = {
+        "//packages/concatjs:npm_package": "@bazel/concatjs",
         "//packages/protractor:npm_package": "@bazel/protractor",
         "//packages/rollup:npm_package": "@bazel/rollup",
         "//packages/terser:npm_package": "@bazel/terser",
@@ -183,6 +186,7 @@ example_integration_test(
     name = "examples_protocol_buffers",
     timeout = "long",
     npm_packages = {
+        "//packages/concatjs:npm_package": "@bazel/concatjs",
         "//packages/karma:npm_package": "@bazel/karma",
         "//packages/labs:npm_package": "@bazel/labs",
         "//packages/protractor:npm_package": "@bazel/protractor",

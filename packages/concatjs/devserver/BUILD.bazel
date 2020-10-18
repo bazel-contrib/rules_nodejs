@@ -12,6 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+
+licenses(["notice"])  # Apache 2.0
+
+package(default_visibility = [
+    "//packages/concatjs:__subpackages__",
+])
+
+bzl_library(
+    name = "bzl",
+    srcs = glob(["*.bzl"]),
+    deps = [
+        "@build_bazel_rules_nodejs//internal/js_library:bzl",
+        "@build_bazel_rules_nodejs//internal/pkg_web:bzl",
+    ],
+)
+
+exports_files(["launcher_template.sh"])
+
 filegroup(
     name = "devserver_darwin_amd64",
     srcs = ["devserver-darwin_x64"],
@@ -109,5 +128,5 @@ filegroup(
 filegroup(
     name = "package_contents",
     srcs = glob(["*"]),
-    visibility = ["//packages/typescript:__pkg__"],
+    visibility = ["//packages/concatjs:__pkg__"],
 )
