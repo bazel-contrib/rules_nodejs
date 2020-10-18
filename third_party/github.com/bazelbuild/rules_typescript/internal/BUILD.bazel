@@ -14,11 +14,11 @@
 
 # gazelle:exclude worker_protocol.proto
 
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
-load("@npm_bazel_jasmine//:index.bzl", "jasmine_node_test")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+load("@build_bazel_rules_nodejs//packages/jasmine:index.bzl", "jasmine_node_test")
+load("@build_bazel_rules_nodejs//packages/typescript:index.bzl", "ts_library")
 load("@npm//typescript:index.bzl", "tsc")
-load("@npm_bazel_typescript//:index.bzl", "ts_library")
 
 package(default_visibility = ["//visibility:public"])
 

@@ -33,6 +33,11 @@ load("//:package.bzl", "rules_nodejs_dev_dependencies")
 
 rules_nodejs_dev_dependencies()
 
+local_repository(
+    name = "build_bazel_rules_typescript",
+    path = "third_party/github.com/bazelbuild/rules_typescript",
+)
+
 #
 # Setup rules_nodejs npm dependencies
 #

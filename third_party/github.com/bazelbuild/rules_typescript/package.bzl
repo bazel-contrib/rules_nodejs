@@ -48,9 +48,14 @@ def rules_typescript_dev_dependencies():
         http_archive,
         name = "io_bazel_rules_go",
         patch_args = ["-p1"],
-        # Patch out a breaking change to runfiles support library
-        # See discussion on https://github.com/bazelbuild/rules_go/pull/2076
-        patches = ["@build_bazel_rules_typescript//:revert_rules_go_commit_4442d82a001f378d0605cbbca3fb529979a1c3a6.patch"],
+        patches = [
+            # Patch out a breaking change to runfiles support library
+            # See discussion on https://github.com/bazelbuild/rules_go/pull/2076
+            "@build_bazel_rules_typescript//:revert_rules_go_commit_4442d82a001f378d0605cbbca3fb529979a1c3a6.patch",
+            # This old SHA seems no longer available on go.googlesource.com?
+            # Fetching @org_golang_x_tools; Cloning c8855242db9c1762032abe33c2dff50de3ec9d05 of https://go.googlesource.com/tools 99s
+            "@build_bazel_rules_typescript//:replace_go_googlesource_com_remote.patch",
+        ],
         sha256 = "8df59f11fb697743cbb3f26cfb8750395f30471e9eabde0d174c3aebc7a1cd39",
         urls = [
             "https://storage.googleapis.com/bazel-mirror/github.com/bazelbuild/rules_go/releases/download/0.19.1/rules_go-0.19.1.tar.gz",

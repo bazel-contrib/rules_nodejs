@@ -38,6 +38,7 @@ pkg_npm(
         "//internal:npm_package_assets",
         "//third_party/github.com/bazelbuild/bazel/src/main/protobuf:npm_package_assets",
     ],
+    vendor_external = ["build_bazel_rules_typescript"],
     visibility = ["//visibility:public"],
     deps = [
         "//devserver:devserver-darwin",

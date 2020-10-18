@@ -44,7 +44,6 @@ COMMON_ATTRIBUTES = {
     "expected_diagnostics": attr.string_list(),
     # Whether to generate externs.js from any "declare" statement.
     "generate_externs": attr.bool(default = True),
-    "licenses": attr.license(),
     # Used to determine module mappings
     "module_name": attr.string(),
     "module_root": attr.string(),
