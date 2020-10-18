@@ -4,6 +4,8 @@ load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "NpmPackage
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 load(":ts_config.bzl", "TsConfigInfo", "write_tsconfig")
 
+_ValidOptionsInfo = provider()
+
 _DEFAULT_TSC = (
     # BEGIN-INTERNAL
     "@npm" +
@@ -14,7 +16,14 @@ _DEFAULT_TSC = (
 _ATTRS = {
     "args": attr.string_list(),
     "declaration_dir": attr.string(),
-    "deps": attr.label_list(providers = [DeclarationInfo], aspects = [module_mappings_aspect]),
+    "deps": attr.label_list(
+        providers = [
+            # Provide one or the other of these
+            [DeclarationInfo],
+            [_ValidOptionsInfo],
+        ],
+        aspects = [module_mappings_aspect],
+    ),
     "extends": attr.label_list(allow_files = [".json"]),
     "link_workspace_root": attr.bool(),
     "out_dir": attr.string(),
@@ -95,6 +104,7 @@ def _ts_project_impl(ctx):
         ])
 
     deps_depsets = []
+    inputs = ctx.files.srcs[:]
     for dep in ctx.attr.deps:
         if TsConfigInfo in dep:
             deps_depsets.append(dep[TsConfigInfo].deps)
@@ -104,8 +114,10 @@ def _ts_project_impl(ctx):
             deps_depsets.append(dep[NpmPackageInfo].sources)
         if DeclarationInfo in dep:
             deps_depsets.append(dep[DeclarationInfo].transitive_declarations)
+        if _ValidOptionsInfo in dep:
+            inputs.append(dep[_ValidOptionsInfo].marker)
 
-    inputs = ctx.files.srcs + depset(transitive = deps_depsets).to_list()
+    inputs.extend(depset(transitive = deps_depsets).to_list())
 
     # Gather TsConfig info from both the direct (tsconfig) and indirect (extends) attribute
     if TsConfigInfo in ctx.attr.tsconfig:
@@ -224,9 +236,7 @@ def _validate_options_impl(ctx):
         executable = "validator",
     )
     return [
-        DeclarationInfo(
-            transitive_declarations = depset([marker]),
-        ),
+        _ValidOptionsInfo(marker = marker),
     ]
 
 validate_options = rule(
