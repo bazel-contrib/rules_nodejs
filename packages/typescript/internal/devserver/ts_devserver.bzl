@@ -199,7 +199,7 @@ ts_devserver = rule(
     },
     doc = """ts_devserver is a simple development server intended for a quick "getting started" experience.
 
-Additional documentation at https://github.com/alexeagle/angular-bazel-example/wiki/Running-a-devserver-under-Bazel
+Additional documentation [here](https://github.com/alexeagle/angular-bazel-example/wiki/Running-a-devserver-under-Bazel)
 """,
 )
 

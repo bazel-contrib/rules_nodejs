@@ -16,15 +16,13 @@ This JavaScript support lets you build and test code that targets a JavaScript r
 
 ## Scope of the project
 
-This repository contains an orthogonal set of rules which covers an opinionated toolchain for JavaScript development. When requesting a new rule, describe your use case, why it's important, and why you can't do it with the existing rules. This is because we have limited resources to maintain additional rules.
+This repository contains an orthogonal set of rules which covers an opinionated toolchain for JavaScript development. If you would like to request a new rule, please open a [feature request](https://github.com/bazelbuild/rules_nodejs/issues/new), describe your use case, why it's important, and why you can't do it within the existing rules. Then the maintainers can decide if it is within the scope of the project and will have a large enough impact to warrant the time required to impliment.  
 
-The repository accepts contributions in terms of bug fixes or implementing new features in existing rules. If you're planning to implement a new rule, please strongly consider opening a [feature request](https://github.com/bazelbuild/rules_nodejs/issues/new) first so the project's maintainers can decide if it belongs to the scope of this project or not.
-
-For rules outside of the scope of the projects we recommend hosting them in your GitHub account or the one of your organization.
+If you would like to write a rule outside the scope of the projects we recommend hosting them in your GitHub account or the one of your organization.
 
 ## Design
 
-Most bazel rules include package management. That is, the `WORKSPACE` file installs your dependencies as well as the toolchain. In some environments, this is the normal workflow, for example in Java, Gradle and Maven are each both a build tool and a package manager.
+Most bazel rules include package management. That is, the `WORKSPACE` file installs both your dependencies and toolchain at the same time. For example, in Java, Gradle and Maven they each install both a build tool and a packagae at the same time. 
 
 In nodejs, there are a variety of package managers and build tools which can interoperate. Also, there is a well-known package installation location (`node_modules` directory in your project). Command-line and other tools look in this directory to find packages. So we must either download packages twice (risking version skew between them) or point all tools to Bazel's `external` directory with `NODE_PATH` which would be very inconvenient.
 
@@ -38,10 +36,10 @@ Both NPM and Yarn have a lockfile, which ensures that dependencies only change w
 
 References:
 
-- npm: https://docs.npmjs.com/files/package-lock.json
-- yarn: https://yarnpkg.com/lang/en/docs/yarn-lock/
+- npm: [https://docs.npmjs.com/files/package-lock.json](https://docs.npmjs.com/files/package-lock.json)
+- yarn: [https://yarnpkg.com/lang/en/docs/yarn-lock/](https://yarnpkg.com/lang/en/docs/yarn-lock/)
 
-Note that https://github.com/bazelbuild/rules_nodejs/issues/1 will take the guarantee further: by using the lockfile as an input to Bazel, the nodejs rules can verify the integrity of the dependencies. This would make it impossible for a build to be non-reproducible, so long as you have the same lockfile.
+Note that [https://github.com/bazelbuild/rules_nodejs/issues/1](https://github.com/bazelbuild/rules_nodejs/issues/1) will take the guarantee further: by using the lockfile as an input to Bazel, the nodejs rules can verify the integrity of the dependencies. This would make it impossible for a build to be non-reproducible, so long as you have the same lockfile.
 
 
 ## Quickstart
@@ -67,7 +65,7 @@ $ cd my_workspace
 
 Next we install some development tools.
 For this example, we'll use Babel to transpile our JavaScript, Mocha for running tests, and http-server to serve our app.
-This is just an arbitrary choice, you probably already have some tools you prefer.
+These are arbitrary choices, you may use whatever are your favorites.  
 
 ```sh
 $ npm install @babel/core @babel/cli @babel/preset-env http-server mocha domino
@@ -80,7 +78,7 @@ Let's run these tools with Bazel. There are two ways to run tools:
 
 In this example we use the auto-generated rules.
 First we need to import them, using a load statement.
-So edit BUILD.bazel and add:
+So edit `BUILD.bazel` and add:
 
 ```python
 load("@npm//@babel/cli:index.bzl", "babel")
@@ -90,8 +88,8 @@ load("@npm//http-server:index.bzl", "http_server")
 
 > This shows us that rules_nodejs has told Bazel that a workspace named @npm is available
 > (think of the at-sign like a scoped package for Bazel).
-> rules_nodejs will add index.bzl files exposing all the binaries the package manager installed
-> (the same as the content of the node_modules/.bin folder).
+> rules_nodejs will add `index.bzl` files exposing all the binaries the package manager installed
+> (the same as the content of the `node_modules/.bin folder`).
 > The three tools we installed are in this @npm scope and each has an index file with a .bzl extension.
 
 Next we teach Bazel how to transform our JavaScript inputs into transpiled outputs.
@@ -150,7 +148,7 @@ Add a `serve` entry to the scripts in `package.json`:
 > ibazel is the watch mode for bazel.
 >
 > Note that on Windows, you need to pass `--enable_runfiles` flag to Bazel.
-> That's because Bazel creates a directory where inputs and outputs both appear together, for convenience.
+> That's because Bazel creates a directory where inputs and outputs both conveniently appear together.
 
 Now we can serve the app: `npm run serve`
 
