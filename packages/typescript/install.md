@@ -112,7 +112,7 @@ nodejs_binary(
 )
 ```
 
-See [https://github.com/bazelbuild/rules_nodejs#dependencies](https://github.com/bazelbuild/rules_nodejs#dependencies) for more information on
+See <https://github.com/bazelbuild/rules_nodejs#dependencies> for more information on
 managing npm dependencies with Bazel.
 
 ## Customizing the TypeScript compiler binary
@@ -331,15 +331,18 @@ Since this is an extension to the vanilla TypeScript compiler, editors which use
 }
 ```
 to `tsconfig.json` will fix the imports for the common case of using absolute paths.
-See [path mapping](https://www.typescriptlang.org/docs/handbook/module-resolution.html#path-mapping) for more details on the paths syntax.
+See [path mapping] for more details on the paths syntax.
 
 Similarly, you can use path mapping to teach the editor how to resolve imports
 from `ts_library` rules which set the `module_name` attribute.
 
 ### Notes
 
-If you'd like a "watch mode", try [ibazel](https://github.com/bazelbuild/bazel-watcher).
+If you'd like a "watch mode", try [ibazel].
 
-At some point, we plan to release a tool similar to [gazelle](https://github.com/bazelbuild/bazel-gazelle) to generate the
+At some point, we plan to release a tool similar to [gazelle] to generate the
 `BUILD` files from your source code.
 
+[gazelle]: https://github.com/bazelbuild/bazel-gazelle
+[ibazel]: https://github.com/bazelbuild/bazel-watcher
+[path mapping]: https://www.typescriptlang.org/docs/handbook/module-resolution.html#path-mapping

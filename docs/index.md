@@ -16,7 +16,7 @@ This JavaScript support lets you build and test code that targets a JavaScript r
 
 ## Scope of the project
 
-This repository contains an orthogonal set of rules which covers an opinionated toolchain for JavaScript development. If you would like to request a new rule, please open a [feature request](https://github.com/bazelbuild/rules_nodejs/issues/new), describe your use case, why it's important, and why you can't do it within the existing rules. Then the maintainers can decide if it is within the scope of the project and will have a large enough impact to warrant the time required to impliment.  
+This repository contains an orthogonal set of rules which covers an opinionated toolchain for JavaScript development. If you would like to request a new rule, please open a [feature request](https://github.com/bazelbuild/rules_nodejs/issues/new), describe your use case, why it's important, and why you can't do it within the existing rules. Then the maintainers can decide if it is within the scope of the project and will have a large enough impact to warrant the time required to implement.  
 
 If you would like to write a rule outside the scope of the projects we recommend hosting them in your GitHub account or the one of your organization.
 
@@ -36,10 +36,10 @@ Both NPM and Yarn have a lockfile, which ensures that dependencies only change w
 
 References:
 
-- npm: [https://docs.npmjs.com/files/package-lock.json](https://docs.npmjs.com/files/package-lock.json)
-- yarn: [https://yarnpkg.com/lang/en/docs/yarn-lock/](https://yarnpkg.com/lang/en/docs/yarn-lock/)
+- npm: <https://docs.npmjs.com/files/package-lock.json>
+- yarn: <https://yarnpkg.com/lang/en/docs/yarn-lock/>
 
-Note that [https://github.com/bazelbuild/rules_nodejs/issues/1](https://github.com/bazelbuild/rules_nodejs/issues/1) will take the guarantee further: by using the lockfile as an input to Bazel, the nodejs rules can verify the integrity of the dependencies. This would make it impossible for a build to be non-reproducible, so long as you have the same lockfile.
+Note that <https://github.com/bazelbuild/rules_nodejs/issues/1> will take the guarantee further: by using the lockfile as an input to Bazel, the nodejs rules can verify the integrity of the dependencies. This would make it impossible for a build to be non-reproducible, so long as you have the same lockfile.
 
 
 ## Quickstart
