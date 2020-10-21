@@ -22,7 +22,7 @@ If you would like to write a rule outside the scope of the projects we recommend
 
 ## Design
 
-Most bazel rules include package management. That is, the `WORKSPACE` file installs both your dependencies and toolchain at the same time. For example, in Java, Gradle and Maven they each install both a build tool and a packagae at the same time. 
+Most bazel rules include package management. That is, the `WORKSPACE` file installs both your dependencies and toolchain at the same time. For example, in Java, Gradle and Maven they each install both a build tool and a package at the same time. 
 
 In nodejs, there are a variety of package managers and build tools which can interoperate. Also, there is a well-known package installation location (`node_modules` directory in your project). Command-line and other tools look in this directory to find packages. So we must either download packages twice (risking version skew between them) or point all tools to Bazel's `external` directory with `NODE_PATH` which would be very inconvenient.
 
