@@ -7,7 +7,7 @@ ts_library(
         "**/*.ts",
     ]),
     deps = [
-        "//ts/src:src",
+        "//ts/src",
         "@npm//@types",
     ],
 )
@@ -15,8 +15,8 @@ ts_library(
 jest_test(
     name = "jest_typescript_test",
     data = [
-        "//ts:jest.config.js",
         ":test_lib",
+        "//ts:jest.config.js",
     ],
     tags = [
         # Need to set the pwd to avoid jest needing a runfiles helper
