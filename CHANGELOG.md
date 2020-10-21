@@ -7,7 +7,7 @@
 * **example:** remove compression dependencies ([75bf720](https://github.com/bazelbuild/rules_nodejs/commit/75bf720))
 * **example:** remove index.html from prodapp srcs ([c7be89b](https://github.com/bazelbuild/rules_nodejs/commit/c7be89b))
 * **example:** remove server side compression ([6d5aafb](https://github.com/bazelbuild/rules_nodejs/commit/6d5aafb))
-* **exmaple:** add docstring to ngsw_config rule ([481fa21](https://github.com/bazelbuild/rules_nodejs/commit/481fa21))
+* **example:** add docstring to ngsw_config rule ([481fa21](https://github.com/bazelbuild/rules_nodejs/commit/481fa21))
 
 
 ### Features
