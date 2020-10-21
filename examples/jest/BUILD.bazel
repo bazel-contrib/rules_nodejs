@@ -3,7 +3,7 @@ load(":jest.bzl", "jest_test")
 alias(
     name = "tsconfig.json",
     actual = "//ts:tsconfig.json",
-    visibility = ["//visibility:public"]
+    visibility = ["//visibility:public"],
 )
 
 exports_files(
