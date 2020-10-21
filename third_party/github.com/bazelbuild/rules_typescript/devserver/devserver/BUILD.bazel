@@ -1,0 +1,23 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["devserver.go"],
+    importpath = "github.com/bazelbuild/rules_typescript/devserver/devserver",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//devserver/runfiles:go_default_library",
+    ],
+)
+
+go_test(
+    name = "go_default_test",
+    srcs = ["devserver_test.go"],
+    # Required runfiles for the devserver tests.
+    data = [
+        "test/index.html",
+        "test/relative.html",
+        "@devserver_test_workspace//:sources",
+    ],
+    embed = [":go_default_library"],
+)

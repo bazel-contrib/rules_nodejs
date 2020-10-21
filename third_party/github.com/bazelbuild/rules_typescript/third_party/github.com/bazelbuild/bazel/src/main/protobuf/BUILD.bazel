@@ -1,0 +1,42 @@
+# BEGIN-DEV-ONLY
+# Parts of this BUILD file only necessary when building within the bazelbuild/rules_typescript repo.
+# The generated `@bazel/typescript` npm package contains a trimmed BUILD file using # DEV-ONLY fences.
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+load("@io_bazel_rules_go//proto:def.bzl", "go_proto_library")
+load("@rules_proto//proto:defs.bzl", "proto_library")
+
+package(default_visibility = ["//:__pkg__"])
+
+licenses(["notice"])  # Apache 2.0
+# END-DEV-ONLY
+
+# Export the raw proto file so protobufjs can be used reflectively without codegen
+exports_files(["worker_protocol.proto"])
+
+# BEGIN-DEV-ONLY
+proto_library(
+    name = "blaze_worker_proto",
+    srcs = ["worker_protocol.proto"],
+    visibility = ["//visibility:public"],
+)
+
+go_proto_library(
+    name = "blaze_worker_go_proto",
+    importpath = "github.com/bazelbuild/rules_typescript/third_party/github.com/bazelbuild/bazel/src/main/protobuf",
+    proto = ":blaze_worker_proto",
+    visibility = ["//visibility:public"],
+)
+
+go_library(
+    name = "go_default_library",
+    embed = [":blaze_worker_go_proto"],
+    importpath = "github.com/bazelbuild/rules_typescript/third_party/github.com/bazelbuild/bazel/src/main/protobuf",
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "npm_package_assets",
+    srcs = glob(["*"]),
+    visibility = ["//visibility:public"],
+)
+# END-DEV-ONLY

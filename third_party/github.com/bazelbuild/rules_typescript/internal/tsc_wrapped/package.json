@@ -1,0 +1,13 @@
+{
+  "description": "legacy build-time dependencies to compile and run tsc_wrapped",
+  "devDependencies": {
+    "@types/jasmine": "2.8.2",
+    "@types/node": "10.12.20",
+    "@types/tmp": "0.0.33",
+    "protobufjs": "5.0.3",
+    "tmp": "0.0.33",
+    "tsickle": "0.28.0",
+    "tsutils": "2.27.2",
+    "typescript": "2.7.2"
+  }
+}

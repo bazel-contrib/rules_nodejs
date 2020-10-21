@@ -1,0 +1,66 @@
+# Copyright 2017 The Bazel Authors. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "main.go",
+        "runfile-filesystem.go",
+    ],
+    importpath = "github.com/bazelbuild/rules_typescript/devserver",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//devserver/concatjs:go_default_library",
+        "//devserver/devserver:go_default_library",
+        "//devserver/runfiles:go_default_library",
+    ],
+)
+
+go_binary(
+    name = "devserver_bin",
+    embed = [":go_default_library"],
+    visibility = ["//visibility:public"],
+)
+
+go_binary(
+    name = "devserver-darwin",
+    out = "devserver-darwin_x64",
+    embed = [":go_default_library"],
+    goarch = "amd64",
+    goos = "darwin",
+    pure = "on",
+    visibility = ["//visibility:public"],
+)
+
+go_binary(
+    name = "devserver-linux",
+    out = "devserver-linux_x64",
+    embed = [":go_default_library"],
+    goarch = "amd64",
+    goos = "linux",
+    pure = "on",
+    visibility = ["//visibility:public"],
+)
+
+go_binary(
+    name = "devserver-windows",
+    out = "devserver-windows_x64.exe",
+    embed = [":go_default_library"],
+    goarch = "amd64",
+    goos = "windows",
+    pure = "on",
+    visibility = ["//visibility:public"],
+)

@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "types": [
+      // Normally "node" should be listed here since we depend on it.
+      // However this library is built with vanilla tsc.
+      // Since the deps[] are passed into the ts.Program as files
+      // (starting with https://github.com/bazelbuild/rules_nodejs/pull/756)
+      // we cannot also list node as a types[] since vanilla tsc will load
+      // both into the program and get a conflict.
+      // Under tsc_wrapped this isn't a problem since we control the resolution.
+    ],
+    "lib": [
+      "dom",
+      "es5",
+      "es2015.core",
+      "es2015.collection",
+      "es2015.iterable",
+      "es2015.promise",
+      // This will need to become es2018.asynciterable when
+      // bumping the version of TypeScript in rules_typescript/package.json
+      "esnext.asynciterable"
+    ]
+  }
+}
