@@ -1,5 +1,16 @@
 load(":jest.bzl", "jest_test")
 
+alias(
+    name = "tsconfig.json",
+    actual = "//ts:tsconfig.json",
+    visibility = ["//visibility:public"]
+)
+
+exports_files(
+    ["jest.ts.config.js"],
+    visibility = ["//visibility:public"],
+)
+
 jest_test(
     name = "test",
     srcs = [

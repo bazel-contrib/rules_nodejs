@@ -13,10 +13,18 @@ ts_library(
 )
 
 jest_test(
-    name = "jest_typescript_test",
+    name = "test",
     data = [
         ":test_lib",
-        "//ts:jest.config.js",
+        "//:jest.ts.config.js",
+    ],
+    args = [
+        "--no-cache",
+        "--no-watchman",
+        "--ci",
+        "--colors",
+        "--config",
+        "jest.ts.config.js"
     ],
     tags = [
         # Need to set the pwd to avoid jest needing a runfiles helper
