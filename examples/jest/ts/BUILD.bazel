@@ -1,0 +1,1 @@
+exports_files(["jest.config.js"], visibility = ["//visibility:public"])

@@ -1,0 +1,29 @@
+load("@npm//@bazel/typescript:index.bzl", "ts_library")
+load("@npm//jest-cli:index.bzl", "jest_test")
+
+ts_library(
+    name = "test_lib",
+    srcs = glob([
+        "**/*.ts",
+    ]),
+    deps = [
+        "//ts/src:src",
+        "@npm//@types",
+    ],
+)
+
+jest_test(
+    name = "jest_typescript_test",
+    data = [
+        "//ts:jest.config.js",
+        ":test_lib",
+    ],
+    tags = [
+        # Need to set the pwd to avoid jest needing a runfiles helper
+        # Windows users with permissions can use --enable_runfiles
+        # to make this test work
+        "no-bazelci-windows",
+        # TODO: why does this fail almost all the time, but pass on local Mac?
+        "no-bazelci-mac",
+    ],
+)
