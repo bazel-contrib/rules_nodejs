@@ -68,7 +68,9 @@ build --nolegacy_external_runfiles
 # when running bazel via `yarn bazel`.
 # See https://github.com/angular/angular/issues/27514.
 build --incompatible_strict_action_env
-run --incompatible_strict_action_env
+build --incompatible_no_implicit_file_export
+build --incompatible_restrict_string_escapes
+build --incompatible_use_platforms_repo_for_constraints
 
 # When running `bazel coverage` --instrument_test_targets needs to be set in order to 
 # collect coverage information from test targets
