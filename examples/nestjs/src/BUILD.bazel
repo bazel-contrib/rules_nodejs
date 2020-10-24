@@ -25,6 +25,7 @@ ts_library(
         ["*.ts"],
         exclude = ["*.spec.ts"],
     ),
+    module_name = "examples_nestjs",
     deps = [
         "@npm//@nestjs/common",
         "@npm//@nestjs/core",
@@ -59,7 +60,7 @@ nodejs_binary(
         "@npm//@nestjs/core",
         "@npm//minimist",
     ],
-    entry_point = ":main",
+    entry_point = ":main.ts",
     templated_args = ["--nobazel_patch_module_resolver"],
 )
 
