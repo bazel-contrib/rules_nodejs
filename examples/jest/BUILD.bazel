@@ -1,7 +1,10 @@
 load(":jest.bzl", "jest_test")
 
 exports_files(
-    ["jest.ts.config.js", "tsconfig.json"],
+    [
+        "jest.ts.config.js",
+        "tsconfig.json",
+    ],
     visibility = ["//visibility:public"],
 )
 
