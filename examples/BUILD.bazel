@@ -113,7 +113,6 @@ example_integration_test(
 
 example_integration_test(
     name = "examples_jest",
-    bazel_commands = ["build ..."],
     npm_packages = {
         "//packages/typescript:npm_package": "@bazel/typescript",
     },
