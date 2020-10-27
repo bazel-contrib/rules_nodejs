@@ -122,6 +122,10 @@ See the section on stamping in the [README](stamping)
         cfg = "host",
         executable = True,
     ),
+    "_run_npm_bat_template": attr.label(
+        default = Label("@nodejs//:run_npm.bat.template"),
+        allow_single_file = True,
+    ),
     "_run_npm_template": attr.label(
         default = Label("@nodejs//:run_npm.sh.template"),
         allow_single_file = True,
@@ -130,8 +134,10 @@ See the section on stamping in the [README](stamping)
 
 # Used in angular/angular /packages/bazel/src/ng_package/ng_package.bzl
 PKG_NPM_OUTPUTS = {
-    "pack": "%{name}.pack",
-    "publish": "%{name}.publish",
+    "pack_bat": "%{name}.pack.bat",
+    "pack_sh": "%{name}.pack.sh",
+    "publish_bat": "%{name}.publish.bat",
+    "publish_sh": "%{name}.publish.sh",
 }
 
 # Takes a depset of files and returns a corresponding list of file paths without any files
@@ -240,19 +246,23 @@ def create_package(ctx, deps_files, nested_packages):
 
 def _create_npm_scripts(ctx, package_dir):
     args = ctx.actions.args()
+
     args.add_all([
         package_dir.path,
-        ctx.outputs.pack.path,
-        ctx.outputs.publish.path,
+        ctx.outputs.pack_sh.path,
+        ctx.outputs.publish_sh.path,
         ctx.file._run_npm_template.path,
+        ctx.outputs.pack_bat.path,
+        ctx.outputs.publish_bat.path,
+        ctx.file._run_npm_bat_template.path,
     ])
 
     ctx.actions.run(
         progress_message = "Generating npm pack & publish scripts",
         mnemonic = "GenerateNpmScripts",
         executable = ctx.executable._npm_script_generator,
-        inputs = [ctx.file._run_npm_template, package_dir],
-        outputs = [ctx.outputs.pack, ctx.outputs.publish],
+        inputs = [ctx.file._run_npm_template, ctx.file._run_npm_bat_template, package_dir],
+        outputs = [ctx.outputs.pack_sh, ctx.outputs.publish_sh, ctx.outputs.pack_bat, ctx.outputs.publish_bat],
         arguments = [args],
         # Must be run local (no sandbox) so that the pwd is the actual execroot
         # in the script which is used to generate the path in the pack & publish
@@ -307,3 +317,23 @@ pkg_npm = rule(
     doc = _DOC,
     outputs = PKG_NPM_OUTPUTS,
 )
+
+def pkg_npm_macro(name, **kwargs):
+    pkg_npm(
+        name = name,
+        **kwargs
+    )
+    native.alias(
+        name = name + ".pack",
+        actual = select({
+            "@bazel_tools//src/conditions:host_windows": name + ".pack.bat",
+            "//conditions:default": name + ".pack.sh",
+        }),
+    )
+    native.alias(
+        name = name + ".publish",
+        actual = select({
+            "@bazel_tools//src/conditions:host_windows": name + ".publish.bat",
+            "//conditions:default": name + ".publish.sh",
+        }),
+    )

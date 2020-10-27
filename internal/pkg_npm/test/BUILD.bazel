@@ -76,6 +76,32 @@ pkg_npm(
     srcs = [":rollup/bundle/subdirectory"],
 )
 
+genrule(
+    name = "gen_test_pkg_pack",
+    outs = [
+        "test-pkg.tgz",
+    ],
+    cmd = "$(location :test_pkg.pack) && cp test-pkg-1.2.3.tgz $@",
+    tags = ["pkg_npm.pack"],
+    tools = [
+        ":test_pkg.pack",
+    ],
+)
+
+sh_test(
+    name = "test_pkg_pack",
+    srcs = ["diff_pack_dir.sh"],
+    args = [
+        "$(location :gen_test_pkg_pack)",
+        "$(location :test_pkg)",
+    ],
+    data = [
+        ":gen_test_pkg_pack",
+        ":test_pkg",
+    ],
+    tags = ["pkg_npm.pack"],
+)
+
 jasmine_node_test(
     name = "test",
     srcs = ["pkg_npm.spec.js"],
