@@ -29,7 +29,6 @@ KARMA_PEER_DEPS = [
     "@npm//karma-requirejs",
     "@npm//karma-sourcemap-loader",
     "@npm//requirejs",
-    "@npm//tmp",
 ]
 
 KARMA_WEB_TEST_ATTRS = {

@@ -17,9 +17,6 @@
   ],
   "main": "./index.js",
   "typings": "./index.d.ts",
-  "dependencies": {
-    "tmp": "0.1.0"
-  },
   "peerDependencies": {
     "jasmine-core": ">=2.0.0",
     "karma": ">=4.0.0",
