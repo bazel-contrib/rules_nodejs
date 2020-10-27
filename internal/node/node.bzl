@@ -150,6 +150,9 @@ def _to_execroot_path(ctx, file):
 
     return file.path
 
+def _join(*elements):
+    return "/".join([f for f in elements if f])
+
 def _nodejs_binary_impl(ctx):
     node_modules_manifest = write_node_modules_manifest(ctx, link_workspace_root = ctx.attr.link_workspace_root)
     node_modules_depsets = []
@@ -250,14 +253,11 @@ fi
     expanded_args = [expand_location_into_runfiles(ctx, a, ctx.attr.data) for a in expanded_args]
 
     # Next expand predefined variables & custom variables
-    rule_dir = [f for f in [
-        ctx.bin_dir.path,
-        ctx.label.workspace_root,
-        ctx.label.package,
-    ] if f]
-    additional_substitutions = {}
-    additional_substitutions["@D"] = "/".join([o for o in rule_dir if o])
-    additional_substitutions["RULEDIR"] = "/".join([o for o in rule_dir if o])
+    rule_dir = _join(ctx.bin_dir.path, ctx.label.workspace_root, ctx.label.package)
+    additional_substitutions = {
+        "@D": rule_dir,
+        "RULEDIR": rule_dir,
+    }
     expanded_args = [ctx.expand_make_variables("templated_args", e, additional_substitutions) for e in expanded_args]
 
     substitutions = {

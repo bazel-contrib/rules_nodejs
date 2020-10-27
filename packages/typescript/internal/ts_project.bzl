@@ -594,11 +594,18 @@ def ts_project_macro(
 
     if supports_workers:
         tsc_worker = "%s_worker" % name
+        protobufjs = (
+            # BEGIN-INTERNAL
+            "@npm" +
+            # END-INTERNAL
+            "//protobufjs"
+        )
         nodejs_binary(
             name = tsc_worker,
             data = [
                 Label("//packages/typescript/internal/worker:worker"),
                 Label(_DEFAULT_TSC_BIN),
+                Label(protobufjs),
                 tsconfig,
             ],
             entry_point = Label("//packages/typescript/internal/worker:worker_adapter"),

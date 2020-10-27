@@ -6,7 +6,8 @@
             "DOM"
         ]
     },
-    // When using ts_project in worker mode, make sure to whitelist the files that should be part of this particular compilation. In worker mode, the CWD is different than by default so typescript will pickup extraneous files without the whitelist.
+    // When using ts_project in worker mode, we run outside the Bazel sandbox (unless using --worker_sandboxing).
+    // We list the files that should be part of this particular compilation to avoid TypeScript discovering others.
     "include": [
         "*.tsx",
         "*.ts"
