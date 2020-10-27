@@ -552,6 +552,13 @@ if %errorlevel% neq 0 exit /b %errorlevel%
         script = repository_ctx.path(npm_script),
     ))
 
+    repository_ctx.file("run_npm.bat.template", content = """
+"{node}" "{script}" TMPL_args "%*"
+""".format(
+        node = repository_ctx.path(node_entry),
+        script = repository_ctx.path(npm_script),
+    ))
+
     # The entry points for yarn for osx/linux and windows.
     # Runs yarn using appropriate node entry point.
     # Unset YARN_IGNORE_PATH before calling yarn incase it is set so that
@@ -634,6 +641,7 @@ if %errorlevel% neq 0 exit /b %errorlevel%
 package(default_visibility = ["//visibility:public"])
 exports_files([
   "run_npm.sh.template",
+  "run_npm.bat.template",
   "bin/node_repo_args.sh",{node_bin_export}{npm_bin_export}{npx_bin_export}{yarn_bin_export}
   "{node_entry}",
   "{npm_entry}",
@@ -699,6 +707,7 @@ def _nodejs_host_os_alias_impl(repository_ctx):
 package(default_visibility = ["//visibility:public"])
 # aliases for exports_files
 alias(name = "run_npm.sh.template", actual = "{node_repository}//:run_npm.sh.template")
+alias(name = "run_npm.bat.template", actual = "{node_repository}//:run_npm.bat.template")
 alias(name = "bin/node_repo_args.sh", actual = "{node_repository}//:bin/node_repo_args.sh")
 # aliases for other aliases
 alias(name = "node_bin", actual = "{node_repository}//:node_bin")
