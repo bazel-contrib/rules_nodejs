@@ -29,7 +29,6 @@
     "requirejs": "2.3.6",
     "rollup": "2.3.4",
     "terser": "4.3.1",
-    "tmp": "0.1.0",
     "typescript": "^3.3.1"
   },
   "scripts": {

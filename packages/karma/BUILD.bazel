@@ -30,7 +30,6 @@ ts_library(
     tsconfig = ":tsconfig.json",
     deps = [
         "@npm//@types/node",
-        "@npm//tmp",
     ],
 )
 
@@ -46,7 +45,6 @@ nodejs_binary(
         "@npm//karma-requirejs",
         "@npm//karma-sourcemap-loader",
         "@npm//requirejs",
-        "@npm//tmp",
     ],
     entry_point = "@npm//:node_modules/karma/bin/karma",
 )

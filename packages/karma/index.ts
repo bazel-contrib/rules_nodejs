@@ -6,7 +6,6 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as process from 'process';
 import {createInterface} from 'readline';
-import * as tmp from 'tmp';
 ///<reference types="lib.dom"/>
 
 /**
@@ -24,14 +23,14 @@ function sha1(data) {
 function initConcatJs(logger, emitter, basePath, hostname, port) {
   const log = logger.create('framework.concat_js');
 
-  // Create a tmp file for the concat bundle that is automatically cleaned up on
-  // exit.
-  const tmpFile = tmp.fileSync({keep: false, dir: process.env['TEST_TMPDIR']});
+  // Create a tmp file for the concat bundle, rely on Bazel to clean the TMPDIR
+  const tmpFile =
+      path.join(process.env['TEST_TMPDIR'], crypto.randomBytes(6).readUIntLE(0, 6).toString(36));
 
   emitter.on('file_list_modified', files => {
     const bundleFile = {
       path: '/concatjs_bundle.js',
-      contentPath: tmpFile.name,
+      contentPath: tmpFile,
       isUrl: false,
       content: '',
       encodings: {},
