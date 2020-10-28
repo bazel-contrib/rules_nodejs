@@ -35,6 +35,9 @@ if "%RUNFILES_MANIFEST_ONLY%" neq "1" (
   set %~2=%~1
   exit /b 0
 )
+if "%RUN_UNDER_RUNFILES%" equ "1" (
+  set RUNFILES_MANIFEST_FILE=%RUNFILES_DIR%\MANIFEST
+)
 if "%RUNFILES_MANIFEST_FILE%" equ "" (
   set RUNFILES_MANIFEST_FILE=%~f0.runfiles\MANIFEST
 )
