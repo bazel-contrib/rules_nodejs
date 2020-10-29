@@ -64,6 +64,7 @@ function main([tsconfigPath, output, target, attrsStr]: string[]): 0|1 {
     }
   }
 
+  check('allowJs', 'allow_js');
   check('declarationMap', 'declaration_map');
   check('emitDeclarationOnly', 'emit_declaration_only');
   check('sourceMap', 'source_map');
@@ -89,6 +90,7 @@ function main([tsconfigPath, output, target, attrsStr]: string[]): 0|1 {
   require('fs').writeFileSync(
       output, `
 // ${process.argv[1]} checked attributes for ${target}
+// allow_js:              ${attrs.allow_js}
 // composite:             ${attrs.composite}
 // declaration:           ${attrs.declaration}
 // declaration_map:       ${attrs.declaration_map}
