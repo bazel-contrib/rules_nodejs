@@ -213,6 +213,7 @@ def _validate_options_impl(ctx):
 
     arguments = ctx.actions.args()
     arguments.add_all([ctx.file.tsconfig.path, marker.path, ctx.attr.target, struct(
+        allow_js = ctx.attr.allow_js,
         declaration = ctx.attr.declaration,
         declaration_map = ctx.attr.declaration_map,
         composite = ctx.attr.composite,
@@ -242,6 +243,7 @@ def _validate_options_impl(ctx):
 validate_options = rule(
     implementation = _validate_options_impl,
     attrs = {
+        "allow_js": attr.bool(),
         "composite": attr.bool(),
         "declaration": attr.bool(),
         "declaration_map": attr.bool(),
@@ -256,12 +258,17 @@ validate_options = rule(
     },
 )
 
-def _out_paths(srcs, outdir, rootdir, ext):
+def _is_ts_src(src, allow_js):
+    if not src.endswith(".d.ts") and (src.endswith(".ts") or src.endswith(".tsx")):
+        return True
+    return allow_js and (src.endswith(".js") or src.endswith(".jsx"))
+
+def _out_paths(srcs, outdir, rootdir, allow_js, ext):
     rootdir_replace_pattern = rootdir + "/" if rootdir else ""
     return [
         _join(outdir, f[:f.rindex(".")].replace(rootdir_replace_pattern, "") + ext)
         for f in srcs
-        if not f.endswith(".d.ts") and (f.endswith(".ts") or f.endswith(".tsx"))
+        if _is_ts_src(f, allow_js)
     ]
 
 def ts_project_macro(
@@ -271,6 +278,7 @@ def ts_project_macro(
         args = [],
         deps = [],
         extends = None,
+        allow_js = False,
         declaration = False,
         source_map = False,
         declaration_map = False,
@@ -459,6 +467,9 @@ def ts_project_macro(
             will appear in bazel-out/[arch]/bin/path/to/my/package/foo/*.js.
             By default the out_dir is '.', meaning the packages folder in bazel-out.
 
+        allow_js: boolean; Specifies whether TypeScript will read .js and .jsx files. When used with declaration,
+            TypeScript will generate .d.ts files from .js files.
+
         declaration_dir: a string specifying a subdirectory under the bazel-out folder where generated declaration
             outputs are written. Equivalent to the TypeScript --declarationDir option.
             By default declarations are written to the out_dir.
@@ -485,7 +496,10 @@ def ts_project_macro(
     """
 
     if srcs == None:
-        srcs = native.glob(["**/*.ts", "**/*.tsx"])
+        if allow_js == True:
+            srcs = native.glob(["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"])
+        else:
+            srcs = native.glob(["**/*.ts", "**/*.tsx"])
     extra_deps = []
 
     if type(tsconfig) == type(dict()):
@@ -500,6 +514,7 @@ def ts_project_macro(
         declaration = compiler_options.setdefault("declaration", declaration)
         declaration_map = compiler_options.setdefault("declarationMap", declaration_map)
         emit_declaration_only = compiler_options.setdefault("emitDeclarationOnly", emit_declaration_only)
+        allow_js = compiler_options.setdefault("allowJs", allow_js)
 
         # These options are always passed on the tsc command line so don't include them
         # in the tsconfig. At best they're redundant, but at worst we'll have a conflict
@@ -538,6 +553,7 @@ def ts_project_macro(
                 incremental = incremental,
                 ts_build_info_file = ts_build_info_file,
                 emit_declaration_only = emit_declaration_only,
+                allow_js = allow_js,
                 tsconfig = tsconfig,
                 extends = extends,
             )
@@ -560,10 +576,10 @@ def ts_project_macro(
         declaration_dir = declaration_dir,
         out_dir = out_dir,
         root_dir = root_dir,
-        js_outs = _out_paths(srcs, out_dir, root_dir, ".js") if not emit_declaration_only else [],
-        map_outs = _out_paths(srcs, out_dir, root_dir, ".js.map") if source_map and not emit_declaration_only else [],
-        typings_outs = _out_paths(srcs, typings_out_dir, root_dir, ".d.ts") if declaration or composite else [],
-        typing_maps_outs = _out_paths(srcs, typings_out_dir, root_dir, ".d.ts.map") if declaration_map else [],
+        js_outs = _out_paths(srcs, out_dir, root_dir, False, ".js") if not emit_declaration_only else [],
+        map_outs = _out_paths(srcs, out_dir, root_dir, False, ".js.map") if source_map and not emit_declaration_only else [],
+        typings_outs = _out_paths(srcs, typings_out_dir, root_dir, allow_js, ".d.ts") if declaration or composite else [],
+        typing_maps_outs = _out_paths(srcs, typings_out_dir, root_dir, allow_js, ".d.ts.map") if declaration_map else [],
         buildinfo_out = tsbuildinfo_path if composite or incremental else None,
         tsc = tsc,
         link_workspace_root = link_workspace_root,
