@@ -141,6 +141,12 @@ Note that the dependency installation scripts will run in each subpackage indica
 
 # TODO(kgreenek): Add arm64 versions for all of these.
 _ATTRS = {
+    "node_download_auth": attr.string_dict(
+        default = {},
+        doc = """auth to use for all url requests
+Example: {\"type\": \"basic\", \"login\": \"<UserName>\", \"password\": \"<Password>\" }
+""",
+    ),
     "node_repositories": attr.string_list_dict(
         doc = """Custom list of node repositories to use
 
@@ -193,6 +199,12 @@ If set then also set node_version to the version that of node that is vendored."
     "vendored_yarn": attr.label(
         allow_single_file = True,
         doc = "the local path to a pre-installed yarn tool",
+    ),
+    "yarn_download_auth": attr.string_dict(
+        default = {},
+        doc = """auth to use for all url requests
+Example: {\"type\": \"basic\", \"login\": \"<UserName>\", \"password\": \"<Password>\" }
+""",
     ),
     "yarn_repositories": attr.string_list_dict(
         doc = """Custom list of yarn repositories to use.
@@ -275,8 +287,14 @@ def _download_node(repository_ctx):
         fail("Unknown NodeJS version-host %s" % version_host_os)
     filename, strip_prefix, sha256 = node_repositories[version_host_os]
 
+    urls = [url.format(version = node_version, filename = filename) for url in node_urls]
+    auth = {}
+    for url in urls:
+        auth[url] = repository_ctx.attr.node_download_auth
+
     repository_ctx.download_and_extract(
-        url = [url.format(version = node_version, filename = filename) for url in node_urls],
+        auth = auth,
+        url = urls,
         output = NODE_EXTRACT_DIR,
         stripPrefix = strip_prefix,
         sha256 = sha256,
@@ -317,8 +335,15 @@ def _download_yarn(repository_ctx):
     else:
         fail("Unknown Yarn version %s" % yarn_version)
 
+    urls = [url.format(version = yarn_version, filename = filename) for url in yarn_urls]
+
+    auth = {}
+    for url in urls:
+        auth[url] = repository_ctx.attr.yarn_download_auth
+
     repository_ctx.download_and_extract(
-        url = [url.format(version = yarn_version, filename = filename) for url in yarn_urls],
+        auth = auth,
+        url = urls,
         output = YARN_EXTRACT_DIR,
         stripPrefix = strip_prefix,
         sha256 = sha256,
