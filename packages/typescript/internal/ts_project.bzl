@@ -79,7 +79,7 @@ def _ts_project_impl(ctx):
         arguments.use_param_file("@%s", use_always = True)
         arguments.set_param_file_format("multiline")
         execution_requirements["supports-workers"] = "1"
-        execution_requirements["worker-key-mnemonic"] = "TsProjectMnemonic"
+        execution_requirements["worker-key-mnemonic"] = "TsProject"
         progress_prefix = "Compiling TypeScript project (worker mode)"
 
     generated_srcs = False
@@ -618,7 +618,6 @@ def ts_project_macro(
                 "--outDir",
                 "$(RULEDIR)",
                 # FIXME: what about other settings like declaration_dir, root_dir, etc
-                "--watch",
             ],
         )
 

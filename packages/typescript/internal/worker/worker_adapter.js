@@ -1,16 +1,14 @@
 const child_process = require('child_process');
-
+const MNEMONIC = 'TsProject';
 const worker = require('./worker');
 
 const workerArg = process.argv.indexOf('--persistent_worker')
 if (workerArg > 0) {
-  process.argv.splice(workerArg, 1)
+  process.argv.splice(workerArg, 1, '--watch')
 
   if (process.platform !== 'linux' && process.platform !== 'darwin') {
     throw new Error('Worker mode is only supported on unix type systems.');
   }
-
-  worker.runWorkerLoop(awaitOneBuild);
 }
 
 const [tscBin, ...tscArgs] = process.argv.slice(2);
@@ -20,7 +18,6 @@ const child = child_process.spawn(
     tscArgs,
     {stdio: 'pipe'},
 );
-
 function awaitOneBuild() {
   child.kill('SIGCONT')
 
@@ -49,4 +46,25 @@ function awaitOneBuild() {
     };
     child.stdout.on('data', awaitBuild);
   });
+}
+
+async function main() {
+  // Bazel will pass a special argument to the program when it's running us as a worker
+  if (workerArg > 0) {
+    worker.log(`Running ${MNEMONIC} as a Bazel worker`);
+
+    worker.runWorkerLoop(awaitOneBuild);
+  } else {
+    // Running standalone so stdout is available as usual
+    console.log(`Running ${MNEMONIC} as a standalone process`);
+    console.error(
+        `Started a new process to perform this action. Your build might be misconfigured, try
+      --strategy=${MNEMONIC}=worker`);
+
+    child.on('exit', code => process.exit(code));
+  }
+}
+
+if (require.main === module) {
+  main();
 }
