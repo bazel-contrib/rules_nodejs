@@ -23,7 +23,10 @@ ts_proto_library(
 proto_library(
     name = "car_proto",
     srcs = ["car.proto"],
-    deps = [":tire_proto"],
+    deps = [
+        ":tire_proto",
+        "@com_google_googleapis//google/api:annotations_proto",
+    ],
 )
 
 ts_proto_library(
