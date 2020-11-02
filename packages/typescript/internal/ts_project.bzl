@@ -21,6 +21,13 @@ _DEFAULT_TSC_BIN = (
     "//:node_modules/typescript/bin/tsc"
 )
 
+_DEFAULT_TYPESCRIP_MODULE = (
+    # BEGIN-INTERNAL
+    "@npm" +
+    # END-INTERNAL
+    "//typescript"
+)
+
 _ATTRS = {
     "args": attr.string_list(),
     "declaration_dir": attr.string(),
@@ -314,6 +321,8 @@ def ts_project_macro(
         emit_declaration_only = False,
         ts_build_info_file = None,
         tsc = None,
+        worker_tsc_bin = _DEFAULT_TSC_BIN,
+        worker_typescript_module = _DEFAULT_TYPESCRIP_MODULE,
         validate = True,
         supports_workers = False,
         declaration_dir = None,
@@ -481,6 +490,15 @@ def ts_project_macro(
             For example, `tsc = "@my_deps//typescript/bin:tsc"`
             Or you can pass a custom compiler binary instead.
 
+        worker_tsc_bin: Label of the TypeScript compiler binary to run when running in worker mode.
+
+            For example, `tsc = "@my_deps//node_modules/typescript/bin/tsc"`
+            Or you can pass a custom compiler binary instead.
+
+        worker_typescript_module: Label of the package containing all data deps of worker_tsc_bin.
+
+            For example, `tsc = "@my_deps//typescript"`
+
         validate: boolean; whether to check that the tsconfig settings match the attributes.
 
         supports_workers: Experimental! Use only with caution.
@@ -604,14 +622,15 @@ def ts_project_macro(
             name = tsc_worker,
             data = [
                 Label("//packages/typescript/internal/worker:worker"),
-                Label(_DEFAULT_TSC_BIN),
+                Label(worker_tsc_bin),
+                Label(worker_typescript_module),
                 Label(protobufjs),
                 tsconfig,
             ],
             entry_point = Label("//packages/typescript/internal/worker:worker_adapter"),
             templated_args = [
                 "--nobazel_patch_module_resolver",
-                "$(execpath {})".format(Label(_DEFAULT_TSC_BIN)),
+                "$(execpath {})".format(Label(worker_tsc_bin)),
                 "--project",
                 "$(execpath {})".format(tsconfig),
                 # FIXME: should take out_dir into account

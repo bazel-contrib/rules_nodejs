@@ -61,7 +61,25 @@ async function main() {
         `Started a new process to perform this action. Your build might be misconfigured, try
       --strategy=${MNEMONIC}=worker`);
 
-    child.on('exit', code => process.exit(code));
+    const stdoutbuffer = [];
+    child.stdout.on('data', data => stdoutbuffer.push(data));
+
+    const stderrbuffer = [];
+    child.stderr.on('data', data => stderrbuffer.push(data));
+
+    child.on('exit', code => {
+      if (code !== 0) {
+        console.error(
+            `\nstdout from tsc:\n\n  ${
+                stdoutbuffer.map(s => s.toString()).join('').replace(/\n/g, '\n  ')}`,
+        )
+        console.error(
+            `\nstderr from tsc:\n\n  ${
+                stderrbuffer.map(s => s.toString()).join('').replace(/\n/g, '\n  ')}`,
+        )
+      }
+      process.exit(code)
+    });
   }
 }
 
