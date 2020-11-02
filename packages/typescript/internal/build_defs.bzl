@@ -15,6 +15,7 @@
 "TypeScript compilation"
 
 load("@build_bazel_rules_nodejs//:providers.bzl", "LinkablePackageInfo", "NpmPackageInfo", "js_ecma_script_module_info", "js_module_info", "js_named_module_info", "node_modules_aspect", "run_node")
+load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:rules/private/copy_file_private.bzl", "copy_bash", "copy_cmd")
 
 # pylint: disable=unused-argument
 # pylint: disable=missing-docstring
@@ -497,6 +498,76 @@ def _devmode_compile_action(ctx, inputs, outputs, tsconfig_file, node_opts):
         description = "devmode",
     )
 
+def _is_src_json(file):
+    return (file.basename.endswith(".json") and
+            not file.basename.endswith("package.json") and
+            not file.path.startswith("external/"))
+
+def _outputs(ctx, label, srcs_files = []):
+    """Returns closure js, devmode js, and .d.ts output files.
+
+    Args:
+      ctx: ctx.
+      label: Label. package label.
+      srcs_files: File list. sources files list.
+    Returns:
+      A struct of file lists for different output types and their relationship to each other.
+    """
+    if ctx.attr.allow_json_srcs:
+        # JSON srcs are treated incorrectly by the internal output-generator, so remove them.
+        srcs_files = [f for f in srcs_files if not _is_src_json(f)]
+
+    # After this line, it is a duplicate of the internal rules_typescript '_outputs'.
+    # As taken from https://github.com/bazelbuild/rules_typescript/blob/master/internal/common/compilation.bzl
+
+    workspace_segments = label.workspace_root.split("/") if label.workspace_root else []
+    package_segments = label.package.split("/") if label.package else []
+    trim = len(workspace_segments) + len(package_segments)
+    create_shim_files = False
+
+    closure_js_files = []
+    devmode_js_files = []
+    declaration_files = []
+    transpilation_infos = []
+    for input_file in srcs_files:
+        is_dts = input_file.short_path.endswith(".d.ts")
+        if is_dts and not create_shim_files:
+            continue
+        basename = "/".join(input_file.short_path.split("/")[trim:])
+        for ext in [".d.ts", ".tsx", ".ts"]:
+            if basename.endswith(ext):
+                basename = basename[:-len(ext)]
+                break
+
+        closure_js_file = ctx.actions.declare_file(basename + ".mjs")
+        closure_js_files.append(closure_js_file)
+
+        # Temporary until all imports of ngfactory/ngsummary files are removed
+        # TODO(alexeagle): clean up after Ivy launch
+        if getattr(ctx.attr, "use_angular_plugin", False):
+            closure_js_files.append(ctx.actions.declare_file(basename + ".ngfactory.mjs"))
+            closure_js_files.append(ctx.actions.declare_file(basename + ".ngsummary.mjs"))
+
+        if not is_dts:
+            devmode_js_file = ctx.actions.declare_file(basename + ".js")
+            devmode_js_files.append(devmode_js_file)
+            transpilation_infos.append(struct(closure = closure_js_file, devmode = devmode_js_file))
+            declaration_files.append(ctx.actions.declare_file(basename + ".d.ts"))
+
+            # Temporary until all imports of ngfactory/ngsummary files are removed
+            # TODO(alexeagle): clean up after Ivy launch
+            if getattr(ctx.attr, "use_angular_plugin", False):
+                devmode_js_files.append(ctx.actions.declare_file(basename + ".ngfactory.js"))
+                devmode_js_files.append(ctx.actions.declare_file(basename + ".ngsummary.js"))
+                declaration_files.append(ctx.actions.declare_file(basename + ".ngfactory.d.ts"))
+                declaration_files.append(ctx.actions.declare_file(basename + ".ngsummary.d.ts"))
+    return struct(
+        closure_js = closure_js_files,
+        devmode_js = devmode_js_files,
+        declarations = declaration_files,
+        transpilation_infos = transpilation_infos,
+    )
+
 def tsc_wrapped_tsconfig(
         ctx,
         files,
@@ -531,7 +602,7 @@ def tsc_wrapped_tsconfig(
         ctx,
         # Filter out package.json files that are included in DeclarationInfo
         # tsconfig files=[] property should only be .ts/.d.ts
-        [f for f in files if f.path.endswith(".ts") or f.path.endswith(".tsx")],
+        [f for f in files if f.path.endswith(".ts") or f.path.endswith(".tsx") or _is_src_json(f)],
         srcs,
         devmode_manifest = devmode_manifest,
         node_modules_root = node_modules_root,
@@ -595,22 +666,34 @@ def _ts_library_impl(ctx):
         compile_action = _compile_action,
         devmode_compile_action = _devmode_compile_action,
         tsc_wrapped_tsconfig = tsc_wrapped_tsconfig,
+        outputs = _outputs,
     )
+
+    json_outs = []
+    if ctx.attr.allow_json_srcs:
+        for f in ctx.files.srcs:
+            if _is_src_json(f):
+                json_file = ctx.actions.declare_file(f.basename, sibling = f)
+                if ctx.attr.is_windows:
+                    copy_cmd(ctx, f, json_file)
+                else:
+                    copy_bash(ctx, f, json_file)
+                json_outs.append(json_file)
 
     # Add in shared JS providers.
     # See design doc https://docs.google.com/document/d/1ggkY5RqUkVL4aQLYm7esRW978LgX3GUCnQirrk5E1C0/edit#
     # and issue https://github.com/bazelbuild/rules_nodejs/issues/57 for more details.
     ts_providers["providers"].extend([
         js_module_info(
-            sources = ts_providers["typescript"]["es5_sources"],
+            sources = depset(ts_providers["typescript"]["es5_sources"].to_list() + json_outs),
             deps = ctx.attr.deps,
         ),
         js_named_module_info(
-            sources = ts_providers["typescript"]["es5_sources"],
+            sources = depset(ts_providers["typescript"]["es5_sources"].to_list() + json_outs),
             deps = ctx.attr.deps,
         ),
         js_ecma_script_module_info(
-            sources = ts_providers["typescript"]["es6_sources"],
+            sources = depset(ts_providers["typescript"]["es6_sources"].to_list() + json_outs),
             deps = ctx.attr.deps,
         ),
         # TODO: remove legacy "typescript" provider
@@ -631,6 +714,10 @@ def _ts_library_impl(ctx):
 ts_library = rule(
     _ts_library_impl,
     attrs = dict(COMMON_ATTRIBUTES, **{
+        "allow_json_srcs": attr.bool(
+            doc = "Whether or not to expect JSON source files.",
+            default = False,
+        ),
         "angular_assets": attr.label_list(
             doc = """Additional files the Angular compiler will need to read as inputs.
             Includes .css and .html files""",
@@ -669,6 +756,10 @@ This value will override the `target` option in the user supplied tsconfig.""",
             default = _DEVMODE_TARGET_DEFAULT,
         ),
         "internal_testing_type_check_dependencies": attr.bool(default = False, doc = "Testing only, whether to type check inputs that aren't srcs."),
+        "is_windows": attr.bool(
+            doc = "Internal use only. Automatically set by macro",
+            mandatory = True,
+        ),
         "link_workspace_root": attr.bool(
             doc = """Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.
     If source files need to be required then they can be copied to the bin_dir with copy_to_bin.""",
@@ -751,7 +842,7 @@ This value will override the `target` option in the user supplied tsconfig.""",
         ),
         "srcs": attr.label_list(
             doc = "The TypeScript source files to compile.",
-            allow_files = [".ts", ".tsx"],
+            allow_files = [".ts", ".tsx", ".json"],
             mandatory = True,
         ),
         "supports_workers": attr.bool(
@@ -831,4 +922,15 @@ def ts_library_macro(tsconfig = None, **kwargs):
         uses_plugin = kwargs.get("use_angular_plugin", False)
         supports_workers = not uses_plugin
 
-    ts_library(tsconfig = tsconfig, supports_workers = supports_workers, **kwargs)
+    is_windows = select({
+        "@bazel_tools//src/conditions:host_windows": True,
+        "//conditions:default": False,
+    })
+
+    # Unless this is set true, manually prevent JSON in the srcs attribute.
+    if not kwargs.get("allow_json_srcs", False):
+        for f in kwargs.get("srcs", []):
+            if f.endswith(".json"):
+                fail("json srcs are not allowed without 'allow_json_srcs' set to True\nFound source: {}".format(f))
+
+    ts_library(tsconfig = tsconfig, supports_workers = supports_workers, is_windows = is_windows, **kwargs)
