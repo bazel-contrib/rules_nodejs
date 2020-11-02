@@ -1,5 +1,6 @@
 syntax = "proto3";
 
+import "google/api/annotations.proto";
 import "tire.proto";
 
 package Proto;
@@ -20,5 +21,8 @@ message GetCarResponse {
 
 service CarService {
   rpc GetCar(GetCarRequest) returns (GetCarResponse) {
+    option (google.api.http) = {
+      get: "/v1/car"
+    };
   }
 }

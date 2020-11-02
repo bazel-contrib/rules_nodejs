@@ -41,6 +41,14 @@ http_archive(
     ],
 )
 
+http_archive(
+    # Commit landed on: 2020-10-30
+    name = "com_google_googleapis",
+    sha256 = "c2f33ad4ba3ce5f7df990ab8c02e817415dfbc6393dbce31d4e63402e5a33506",
+    strip_prefix = "googleapis-7f31f40209008ad24058579e7112e45fc9d5715e",
+    urls = ["https://github.com/googleapis/googleapis/archive/7f31f40209008ad24058579e7112e45fc9d5715e.tar.gz"],
+)
+
 load("@build_bazel_rules_nodejs//:index.bzl", "yarn_install")
 
 yarn_install(
@@ -81,3 +89,11 @@ browser_repositories(
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 
 protobuf_deps()
+
+load("@com_google_googleapis//:repository_rules.bzl", "switched_rules_by_language")
+
+switched_rules_by_language(
+    name = "com_google_googleapis_imports",
+    grpc = True,
+    nodejs = True,
+)
