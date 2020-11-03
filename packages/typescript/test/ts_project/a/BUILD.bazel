@@ -1,11 +1,17 @@
-load("//packages/typescript:index.bzl", "ts_project")
+load("//packages/typescript:index.bzl", "ts_config", "ts_project")
+
+ts_config(
+    name = "config",
+    src = "tsconfig.json",
+    deps = [
+        "tsconfig-extended.json",
+        "//packages/typescript/test/ts_project:tsconfig",
+    ],
+)
 
 ts_project(
     composite = True,
-    extends = [
-        ":tsconfig-extended.json",
-        "//packages/typescript/test/ts_project:tsconfig-base.json",
-    ],
+    tsconfig = "config",
     # Intentionally not syncing this option from tsconfig, to test validator suppression
     # source_map = True,
     validate = False,

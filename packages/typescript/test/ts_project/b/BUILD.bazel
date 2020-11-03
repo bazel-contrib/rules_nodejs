@@ -9,7 +9,7 @@ ts_project(
     # just a test for the pass-through args attribute
     args = ["--emitBOM"],
     composite = True,
-    extends = ["//packages/typescript/test/ts_project:tsconfig-base.json"],
+    extends = "//packages/typescript/test/ts_project:tsconfig-base.json",
     deps = ["//packages/typescript/test/ts_project/a:tsconfig"],
 )
 
@@ -18,7 +18,7 @@ ts_project(
     testonly = True,
     srcs = [":b.spec.ts"],
     composite = True,
-    extends = ["//packages/typescript/test/ts_project:tsconfig-base.json"],
+    extends = "//packages/typescript/test/ts_project:tsconfig-base.json",
     deps = [
         ":tsconfig",
         "@npm//@types/jasmine",
