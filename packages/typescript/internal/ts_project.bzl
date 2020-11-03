@@ -24,7 +24,7 @@ _ATTRS = {
         ],
         aspects = [module_mappings_aspect],
     ),
-    "extends": attr.label_list(allow_files = [".json"]),
+    "extends": attr.label(allow_files = [".json"]),
     "link_workspace_root": attr.bool(),
     "out_dir": attr.string(),
     "root_dir": attr.string(),
@@ -120,15 +120,17 @@ def _ts_project_impl(ctx):
     inputs.extend(depset(transitive = deps_depsets).to_list())
 
     # Gather TsConfig info from both the direct (tsconfig) and indirect (extends) attribute
+    tsconfig_inputs = []
     if TsConfigInfo in ctx.attr.tsconfig:
-        inputs.extend(ctx.attr.tsconfig[TsConfigInfo].deps)
+        tsconfig_inputs.extend(ctx.attr.tsconfig[TsConfigInfo].deps)
     else:
-        inputs.append(ctx.file.tsconfig)
-    for extend in ctx.attr.extends:
-        if TsConfigInfo in extend:
-            inputs.extend(extend[TsConfigInfo].deps)
+        tsconfig_inputs.append(ctx.file.tsconfig)
+    if hasattr(ctx.attr, "extends") and ctx.attr.extends:
+        if TsConfigInfo in ctx.attr.extends:
+            tsconfig_inputs.extend(ctx.attr.extends[TsConfigInfo].deps)
         else:
-            inputs.extend(extend.files.to_list())
+            tsconfig_inputs.extend(ctx.attr.extends.files.to_list())
+    inputs.extend(tsconfig_inputs)
 
     # We do not try to predeclare json_outs, because their output locations generally conflict with their path in the source tree.
     # (The exception is when out_dir is used, then the .json output is a different path than the input.)
@@ -186,7 +188,7 @@ def _ts_project_impl(ctx):
             sources = depset(runtime_outputs),
             deps = ctx.attr.deps,
         ),
-        TsConfigInfo(deps = depset([ctx.file.tsconfig] + ctx.files.extends, transitive = [
+        TsConfigInfo(deps = depset(tsconfig_inputs, transitive = [
             dep[TsConfigInfo].deps
             for dep in ctx.attr.deps
             if TsConfigInfo in dep
@@ -246,7 +248,7 @@ validate_options = rule(
         "declaration": attr.bool(),
         "declaration_map": attr.bool(),
         "emit_declaration_only": attr.bool(),
-        "extends": attr.label_list(allow_files = [".json"]),
+        "extends": attr.label(allow_files = [".json"]),
         "incremental": attr.bool(),
         "source_map": attr.bool(),
         "target": attr.string(),
@@ -433,11 +435,6 @@ def ts_project_macro(
             To support "chaining" of more than one extended config, this label could be a target that
             provdes `TsConfigInfo` such as `ts_config`.
 
-            _DEPRECATED, to be removed in 3.0_:
-            For backwards compatibility, this accepts a list of Labels of the "chained"
-            tsconfig files. You should instead use a single Label of a `ts_config` target.
-            Follow this deprecation: https://github.com/bazelbuild/rules_nodejs/issues/2140
-
         args: List of strings of additional command-line arguments to pass to tsc.
 
         tsc: Label of the TypeScript compiler binary to run.
@@ -488,11 +485,11 @@ def ts_project_macro(
         srcs = native.glob(["**/*.ts", "**/*.tsx"])
     extra_deps = []
 
-    if type(tsconfig) == type(dict()):
-        # Opt-in to #2140 breaking change at the same time you opt-in to experimental tsconfig dict
-        if type(extends) == type([]):
-            fail("when tsconfig is a dict, extends should have a single value")
+    if type(extends) == type([]):
+        fail("As of rules_nodejs 3.0, extends should have a single value, not a list.\n" +
+             "Use a ts_config rule to group together a chain of extended tsconfigs.")
 
+    if type(tsconfig) == type(dict()):
         # Copy attributes <-> tsconfig properties
         # TODO: fail if compilerOptions includes a conflict with an attribute?
         compiler_options = tsconfig.setdefault("compilerOptions", {})
@@ -545,10 +542,6 @@ def ts_project_macro(
 
     typings_out_dir = declaration_dir if declaration_dir else out_dir
     tsbuildinfo_path = ts_build_info_file if ts_build_info_file else name + ".tsbuildinfo"
-
-    # Backcompat for extends as a list, to cleanup in #2140
-    if (type(extends) == type("")):
-        extends = [extends]
 
     ts_project(
         name = name,
