@@ -13,7 +13,10 @@ http_archive(
 
 load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "npm_install")
 
-node_repositories(package_json = ["//:package.json"])
+node_repositories(
+    node_version = "15.0.1",
+    package_json = ["//:package.json"],
+)
 
 npm_install(
     name = "npm",
