@@ -4,6 +4,7 @@ jasmine_node_test(
     name = "test",
     srcs = ["test.js"],
     link_workspace_root = True,
+    tags = ["fix-windows"],
     templated_args = ["--nobazel_patch_module_resolver"],
     deps = [
         "//internal/linker/test/workspace_link/bar",
