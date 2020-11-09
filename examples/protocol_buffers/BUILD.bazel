@@ -25,7 +25,6 @@ proto_library(
     srcs = ["car.proto"],
     deps = [
         ":tire_proto",
-        "@com_google_googleapis//google/api:annotations_proto",
     ],
 )
 
@@ -128,6 +127,9 @@ proto_library(
         "tire.proto",
     ],
     visibility = ["//visibility:public"],
+    deps = [
+        "@com_google_googleapis//google/api:annotations_proto",
+    ],
 )
 
 protractor_web_test_suite(
