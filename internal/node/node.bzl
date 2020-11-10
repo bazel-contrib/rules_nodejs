@@ -37,7 +37,7 @@ def _trim_package_node_modules(package_name):
     for n in package_name.split("/"):
         if n == "node_modules":
             break
-        segments += [n]
+        segments.append(n)
     return "/".join(segments)
 
 def _compute_node_modules_root(ctx):
@@ -150,6 +150,9 @@ def _to_execroot_path(ctx, file):
 
     return file.path
 
+def _join(*elements):
+    return "/".join([f for f in elements if f])
+
 def _nodejs_binary_impl(ctx):
     node_modules_manifest = write_node_modules_manifest(ctx, link_workspace_root = ctx.attr.link_workspace_root)
     node_modules_depsets = []
@@ -250,7 +253,12 @@ fi
     expanded_args = [expand_location_into_runfiles(ctx, a, ctx.attr.data) for a in expanded_args]
 
     # Next expand predefined variables & custom variables
-    expanded_args = [ctx.expand_make_variables("templated_args", e, {}) for e in expanded_args]
+    rule_dir = _join(ctx.bin_dir.path, ctx.label.workspace_root, ctx.label.package)
+    additional_substitutions = {
+        "@D": rule_dir,
+        "RULEDIR": rule_dir,
+    }
+    expanded_args = [ctx.expand_make_variables("templated_args", e, additional_substitutions) for e in expanded_args]
 
     substitutions = {
         # TODO: Split up results of multifile expansions into separate args and qoute them with

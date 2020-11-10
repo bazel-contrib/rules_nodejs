@@ -1,0 +1,55 @@
+# BEGIN-INTERNAL
+
+load("//internal/common:copy_to_bin.bzl", "copy_to_bin")
+load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
+
+# Copy the proto file to a matching third_party/... nested directory
+# so the runtime require() statements still work
+_worker_proto_dir = "third_party/github.com/bazelbuild/bazel/src/main/protobuf"
+
+genrule(
+    name = "copy_worker_js",
+    srcs = ["//packages/worker:npm_package"],
+    outs = ["worker.js"],
+    cmd = "cp $(execpath //packages/worker:npm_package)/index.js $@",
+    visibility = ["//visibility:public"],
+)
+
+copy_file(
+    name = "copy_worker_proto",
+    src = "@build_bazel_rules_typescript//%s:worker_protocol.proto" % _worker_proto_dir,
+    out = "%s/worker_protocol.proto" % _worker_proto_dir,
+    visibility = ["//visibility:public"],
+)
+
+copy_to_bin(
+    name = "worker_adapter",
+    srcs = [
+        "worker_adapter.js",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "package_contents",
+    srcs = [
+        "BUILD.bazel",
+    ],
+    visibility = ["//packages/typescript:__subpackages__"],
+)
+
+# END-INTERNAL
+
+exports_files([
+    "worker_adapter.js",
+])
+
+filegroup(
+    name = "worker",
+    srcs = [
+        "third_party/github.com/bazelbuild/bazel/src/main/protobuf/worker_protocol.proto",
+        "worker.js",
+        "worker_adapter.js",
+    ],
+    visibility = ["//visibility:public"],
+)
