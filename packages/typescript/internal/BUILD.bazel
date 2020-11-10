@@ -63,6 +63,7 @@ filegroup(
         "build_defs.bzl",
         "ts_config.bzl",
         "ts_project.bzl",
+        "//packages/typescript/internal/worker:package_contents",
     ],
     visibility = ["//packages/typescript:__subpackages__"],
 )
