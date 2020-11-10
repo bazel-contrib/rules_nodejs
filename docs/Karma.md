@@ -171,7 +171,7 @@ Defaults to `[]`
 
 list of peer npm deps required by karma_web_test
 
-Defaults to `["@npm//jasmine-core", "@npm//karma", "@npm//karma-chrome-launcher", "@npm//karma-firefox-launcher", "@npm//karma-jasmine", "@npm//karma-requirejs", "@npm//karma-sourcemap-loader", "@npm//requirejs", "@npm//tmp"]`
+Defaults to `["@npm//jasmine-core", "@npm//karma", "@npm//karma-chrome-launcher", "@npm//karma-firefox-launcher", "@npm//karma-jasmine", "@npm//karma-requirejs", "@npm//karma-sourcemap-loader", "@npm//requirejs"]`
 
 <h4 id="karma_web_test-kwargs">kwargs</h4>
 

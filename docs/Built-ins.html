@@ -177,9 +177,9 @@
 <p><strong>USAGE</strong></p>
 
 <pre>
-node_repositories(<a href="#node_repositories-name">name</a>, <a href="#node_repositories-node_repositories">node_repositories</a>, <a href="#node_repositories-node_urls">node_urls</a>, <a href="#node_repositories-node_version">node_version</a>, <a href="#node_repositories-package_json">package_json</a>, <a href="#node_repositories-preserve_symlinks">preserve_symlinks</a>,
-                  <a href="#node_repositories-repo_mapping">repo_mapping</a>, <a href="#node_repositories-vendored_node">vendored_node</a>, <a href="#node_repositories-vendored_yarn">vendored_yarn</a>, <a href="#node_repositories-yarn_repositories">yarn_repositories</a>, <a href="#node_repositories-yarn_urls">yarn_urls</a>,
-                  <a href="#node_repositories-yarn_version">yarn_version</a>)
+node_repositories(<a href="#node_repositories-name">name</a>, <a href="#node_repositories-node_download_auth">node_download_auth</a>, <a href="#node_repositories-node_repositories">node_repositories</a>, <a href="#node_repositories-node_urls">node_urls</a>, <a href="#node_repositories-node_version">node_version</a>,
+                  <a href="#node_repositories-package_json">package_json</a>, <a href="#node_repositories-preserve_symlinks">preserve_symlinks</a>, <a href="#node_repositories-repo_mapping">repo_mapping</a>, <a href="#node_repositories-vendored_node">vendored_node</a>, <a href="#node_repositories-vendored_yarn">vendored_yarn</a>,
+                  <a href="#node_repositories-yarn_download_auth">yarn_download_auth</a>, <a href="#node_repositories-yarn_repositories">yarn_repositories</a>, <a href="#node_repositories-yarn_urls">yarn_urls</a>, <a href="#node_repositories-yarn_version">yarn_version</a>)
 </pre>
 
 <p>To be run in user’s WORKSPACE to install rules_nodejs dependencies.</p>
@@ -282,6 +282,13 @@ node_repositories(package_json = ["//:package.json", "//subpkg:package.json"])
 
 <p>(<em><a href="https://bazel.build/docs/build-ref.html#name">Name</a>, mandatory</em>): A unique name for this repository.</p>
 
+<h4 id="node_repositories-node_download_auth">node_download_auth</h4>
+
+<p>(<em><a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -&gt; String</a></em>): auth to use for all url requests
+Example: {“type”: “basic”, “login”: “<UserName>", "password": "<Password>" }</Password></UserName></p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">{}</code></p>
+
 <h4 id="node_repositories-node_repositories">node_repositories</h4>
 
 <p>(<em><a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -&gt; List of strings</a></em>): Custom list of node repositories to use</p>
@@ -349,6 +356,13 @@ a stronger guarantee of hermeticity which is required for remote execution.</p>
 <p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></em>): the local path to a pre-installed yarn tool</p>
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">None</code></p>
+
+<h4 id="node_repositories-yarn_download_auth">yarn_download_auth</h4>
+
+<p>(<em><a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -&gt; String</a></em>): auth to use for all url requests
+Example: {“type”: “basic”, “login”: “<UserName>", "password": "<Password>" }</Password></UserName></p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">{}</code></p>
 
 <h4 id="node_repositories-yarn_repositories">yarn_repositories</h4>
 
