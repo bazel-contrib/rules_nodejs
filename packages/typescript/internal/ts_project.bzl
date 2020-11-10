@@ -48,13 +48,7 @@ _ATTRS = {
     # if you swap out the `compiler` attribute (like with ngtsc)
     # that compiler might allow more sources than tsc does.
     "srcs": attr.label_list(allow_files = True, mandatory = True),
-    "supports_workers": attr.bool(
-        doc = """Experimental! Use only with caution.
-
-Allows you to enable the Bazel Worker strategy for this project.
-This requires that the tsc binary support it.""",
-        default = False,
-    ),
+    "supports_workers": attr.bool(default = False),
     "tsc": attr.label(default = Label(_DEFAULT_TSC), executable = True, cfg = "target"),
     "tsconfig": attr.label(mandatory = True, allow_single_file = [".json"]),
 }
@@ -76,9 +70,37 @@ def _join(*elements):
         return "/".join(segments)
     return "."
 
-def _is_ts_file(file):
-    ext = file.extension
-    return ext == "js" or ext == "mjs" or ext == "ts" or ext == "tsx" or ext == "json"
+def _calculate_root_dir(ctx):
+    some_generated_path = None
+    some_source_path = None
+    root_path = None
+
+    # Note we don't have access to the ts_project macro allow_js param here.
+    # For error-handling purposes, we can assume that any .js/.jsx
+    # input is meant to be in the rootDir alongside .ts/.tsx sources,
+    # whether the user meant for them to be sources or not.
+    # It's a non-breaking change to relax this constraint later, but would be
+    # a breaking change to restrict it further.
+    allow_js = True
+    for src in ctx.files.srcs:
+        if _is_ts_src(src.path, allow_js):
+            if src.is_source:
+                some_source_path = src.path
+            else:
+                some_generated_path = src.path
+                root_path = ctx.bin_dir.path
+
+    if some_source_path and some_generated_path:
+        fail("ERROR: %s srcs cannot be a mix of generated files and source files " % ctx.label +
+             "since this would prevent giving a single rootDir to the TypeScript compiler\n" +
+             "    found generated file %s and source file %s" %
+             (some_generated_path, some_source_path))
+
+    return _join(
+        root_path,
+        ctx.label.package,
+        ctx.attr.root_dir,
+    )
 
 def _ts_project_impl(ctx):
     arguments = ctx.actions.args()
@@ -93,21 +115,6 @@ def _ts_project_impl(ctx):
         execution_requirements["worker-key-mnemonic"] = "TsProject"
         progress_prefix = "Compiling TypeScript project (worker mode)"
 
-    has_generated = None
-    has_source = None
-    root_dir_pre = None
-    for src in ctx.files.srcs:
-        if _is_ts_file(src):
-            if src.is_source:
-                has_source = src.path
-                root_dir_pre = src.root.path
-            else:
-                has_generated = src.path
-                root_dir_pre = ctx.bin_dir.path
-
-    if has_source and has_generated:
-        fail("srcs cannot be a mix of generated files and source files: %s, %s" % (has_generated, has_source))
-
     # Add user specified arguments *before* rule supplied arguments
     arguments.add_all(ctx.attr.args)
 
@@ -117,11 +124,7 @@ def _ts_project_impl(ctx):
         "--outDir",
         _join(ctx.bin_dir.path, ctx.label.package, ctx.attr.out_dir),
         "--rootDir",
-        _join(
-            root_dir_pre,
-            ctx.label.package,
-            ctx.attr.root_dir,
-        ),
+        _calculate_root_dir(ctx),
     ])
     if len(ctx.outputs.typings_outs) > 0:
         declaration_dir = ctx.attr.declaration_dir if ctx.attr.declaration_dir else ctx.attr.out_dir
