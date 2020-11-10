@@ -23,7 +23,7 @@ for workspaceRoot in ${workspaceRoots[@]} ; do
         fi
         printf "\n============================================\nupdating ${workspaceDir}\n============================================\n\n"
         cd ${workspaceDir}
-        readonly packages=$(cat package.json | grep \"@bazel/ | awk -F: '{ print $1 }' | sed 's/[",]//g' | tr -d ' ')
+        readonly packages=$(cat package.json | grep \"@bazel/ | grep -v \"@bazel/bazelisk | awk -F: '{ print $1 }' | sed 's/[",]//g' | tr -d ' ')
         if [ -f "./yarn.lock" ]; then
             printf "updating ${workspaceDir}/yarn.lock\n"
             echo_and_run rm -rf node_modules

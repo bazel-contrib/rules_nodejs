@@ -14,7 +14,7 @@
   },
   "devDependencies": {
     "@bazel/bazelisk": "^1.7.2",
-    "@bazel/ibazel": "^0.13.2",
+    "@bazel/ibazel": "^0.14.0",
     "@vue/cli-plugin-babel": "~4.4.0",
     "@vue/cli-plugin-eslint": "~4.4.0",
     "@vue/cli-service": "~4.4.0",

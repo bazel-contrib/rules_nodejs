@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@bazel/worker@^2.2.2":
-  version "2.2.2"
-  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-2.2.2.tgz#0c1293d4b75e59422e5482c39b7fe9037679545a"
-  integrity sha512-t5Mxh38exW7+AK0Wjv52Impm3DKttlHY24pboUUMZD5y8EsBIIfYZJVg3zP9DH/QV7VuR+2MieT6UgPCyUQhmw==
+"@bazel/worker@^2.3.0":
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-2.3.0.tgz#c2eca9505332377381c79715ec8d4fea70cad64f"
+  integrity sha512-kz84SxTVokbkzB/WsLjH1qN6P045wG3oNbpRGFn4u1+rmAbklxVoQljxjmdh1o1KfBGYJaZx1SaxVLBPwVjMng==
   dependencies:
     protobufjs "6.8.8"
 
