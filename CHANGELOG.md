@@ -1,3 +1,25 @@
+# [2.3.0](https://github.com/bazelbuild/rules_nodejs/compare/2.2.2...2.3.0) (2020-11-10)
+
+
+### Bug Fixes
+
+* **typescript:** specify rootDir as absolute path ([86bef24](https://github.com/bazelbuild/rules_nodejs/commit/86bef24))
+* npm_package.pack should work in windows os ([bc36519](https://github.com/bazelbuild/rules_nodejs/commit/bc36519))
+* **builtin:** give a longer timeout for _create_build_files ([e72c145](https://github.com/bazelbuild/rules_nodejs/commit/e72c145)), closes [#2231](https://github.com/bazelbuild/rules_nodejs/issues/2231)
+* **exmaples/nestjs:** add module_name field in ts_library ([700374a](https://github.com/bazelbuild/rules_nodejs/commit/700374a))
+* **typescript:** don't include _valid_options marker file in outs ([6305db3](https://github.com/bazelbuild/rules_nodejs/commit/6305db3)), closes [#2078](https://github.com/bazelbuild/rules_nodejs/issues/2078)
+
+
+### Features
+
+* **cypress:** remove browiserify preprocessor ([1eeabbe](https://github.com/bazelbuild/rules_nodejs/commit/1eeabbe))
+* **examples:** adds example for running jest with typescript ([#2245](https://github.com/bazelbuild/rules_nodejs/issues/2245)) ([3c11800](https://github.com/bazelbuild/rules_nodejs/commit/3c11800))
+* **node_repositories:** Added auth option for downloading nodejs and yarn ([51de4e0](https://github.com/bazelbuild/rules_nodejs/commit/51de4e0))
+* **typescript:** add allow_js support to ts_project ([12571ee](https://github.com/bazelbuild/rules_nodejs/commit/12571ee))
+* **typescript:** worker mode for ts_project ([#2136](https://github.com/bazelbuild/rules_nodejs/issues/2136)) ([9663b85](https://github.com/bazelbuild/rules_nodejs/commit/9663b85))
+
+
+
 ## [2.2.2](https://github.com/bazelbuild/rules_nodejs/compare/2.2.1...2.2.2) (2020-10-17)
 
 
