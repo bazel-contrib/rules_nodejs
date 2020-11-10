@@ -1,3 +1,13 @@
+/**
+ * @fileoverview wrapper program around the TypeScript compiler, tsc
+ *
+ * It intercepts the Bazel Persistent Worker protocol, using it to remote-control tsc running as a
+ * child process. In between builds, the tsc process is stopped (akin to ctrl-z in a shell) and then
+ * resumed (akin to `fg`) when the inputs have changed.
+ *
+ * See https://medium.com/@mmorearty/how-to-create-a-persistent-worker-for-bazel-7738bba2cabb
+ * for more background (note, that is documenting a different implementation)
+ */
 const child_process = require('child_process');
 const MNEMONIC = 'TsProject';
 const worker = require('./worker');
@@ -7,7 +17,8 @@ if (workerArg > 0) {
   process.argv.splice(workerArg, 1, '--watch')
 
   if (process.platform !== 'linux' && process.platform !== 'darwin') {
-    throw new Error('Worker mode is only supported on unix type systems.');
+    throw new Error(`Worker mode is only supported on linux and darwin, not ${process.platform}.
+        See https://github.com/bazelbuild/rules_nodejs/issues/2277`);
   }
 }
 

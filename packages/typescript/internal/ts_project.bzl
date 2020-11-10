@@ -21,7 +21,7 @@ _DEFAULT_TSC_BIN = (
     "//:node_modules/typescript/bin/tsc"
 )
 
-_DEFAULT_TYPESCRIP_MODULE = (
+_DEFAULT_TYPESCRIPT_MODULE = (
     # BEGIN-INTERNAL
     "@npm" +
     # END-INTERNAL
@@ -322,7 +322,7 @@ def ts_project_macro(
         ts_build_info_file = None,
         tsc = None,
         worker_tsc_bin = _DEFAULT_TSC_BIN,
-        worker_typescript_module = _DEFAULT_TYPESCRIP_MODULE,
+        worker_typescript_module = _DEFAULT_TYPESCRIPT_MODULE,
         validate = True,
         supports_workers = False,
         declaration_dir = None,
@@ -503,8 +503,14 @@ def ts_project_macro(
 
         supports_workers: Experimental! Use only with caution.
 
-            Allows you to enable the Bazel Worker strategy for this project.
-            This requires that the tsc binary support it.
+            Allows you to enable the Bazel Persistent Workers strategy for this project.
+            See https://docs.bazel.build/versions/master/persistent-workers.html
+
+            This requires that the tsc binary support a `--watch` option.
+
+            NOTE: this does not work on Windows yet.
+            We will silently fallback to non-worker mode on Windows regardless of the value of this attribute.
+            Follow https://github.com/bazelbuild/rules_nodejs/issues/2277 for progress on this feature.
 
         root_dir: a string specifying a subdirectory under the input package which should be consider the
             root directory of all the input files.
