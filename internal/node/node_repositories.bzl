@@ -553,7 +553,7 @@ if %errorlevel% neq 0 exit /b %errorlevel%
     ))
 
     repository_ctx.file("run_npm.bat.template", content = """
-"{node}" "{script}" TMPL_args "%*"
+"{node}" "{script}" TMPL_args %*
 """.format(
         node = repository_ctx.path(node_entry),
         script = repository_ctx.path(npm_script),
