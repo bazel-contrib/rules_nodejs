@@ -4,6 +4,9 @@
 
 const https = require("https");
 
+const MIN_VERSION = [8, 0, 0];
+const MAX_VERSION = [14, 99, 99];
+
 const REPOSITORY_TYPES = {
   "darwin-x64.tar.gz": "darwin_amd64",
   "linux-x64.tar.xz": "linux_amd64",
@@ -29,25 +32,24 @@ async function getJson(url) {
   return JSON.parse(await getText(url));
 }
 
+function versionCompare(lhs, rhs) {
+  if (lhs[0] !== rhs[0]) {
+    return lhs[0] - rhs[0];
+  }
+  if (lhs[1] !== rhs[1]) {
+    return lhs[1] - rhs[1];
+  }
+  return lhs[2] - rhs[2];
+}
+
 async function getNodeJsVersions() {
   const json = await getJson("https://nodejs.org/dist/index.json");
 
-  return (
-    json
-      .map(({ version }) => version.slice(1).split(".").map(Number))
-      // take only version >= 8.0.0
-      .filter((version) => version[0] >= 8)
-      .sort((lhs, rhs) => {
-        if (lhs[0] === rhs[0]) {
-          if (lhs[1] === rhs[1]) {
-            return lhs[2] - rhs[2];
-          } else {
-            return lhs[1] - rhs[1];
-          }
-        }
-        return lhs[0] - rhs[0];
-      })
-  );
+  return (json.map(({version}) => version.slice(1).split('.').map(Number))
+              .filter(
+                  (version) => versionCompare(version, MIN_VERSION) >= 0 &&
+                      versionCompare(version, MAX_VERSION) <= 0)
+              .sort(versionCompare));
 }
 
 async function getNodeJsVersion(version) {
