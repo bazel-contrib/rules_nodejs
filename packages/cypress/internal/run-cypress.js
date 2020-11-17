@@ -1,21 +1,22 @@
 const runfiles = require(process.env['BAZEL_NODE_RUNFILES_HELPER']);
 const init = require('cypress/lib/cli').init;
 const {join} = require('path');
+const {readFileSync} = require('fs');
 
-const [node, entry, configFilePath, pluginsFilePath, cypressExecutable, ...args] = process.argv;
-
-if (cypressExecutable) {
-  process.env.CYPRESS_RUN_BINARY =
-      join(process.cwd(), cypressExecutable.replace('external/', '../'));
-  process.env.CYPRESS_CACHE_FOLDER =
-      join(process.env.CYPRESS_RUN_BINARY.split('/cypress-cache/')[0], '/cypress-cache');
-  process.env.HOME = process.env['TEST_TMPDIR'];
-}
+const [node, entry, configFilePath, pluginsFilePath, cypressTarPath, cypressBin, ...args] =
+    process.argv;
 
 const pluginsFile = runfiles.resolveWorkspaceRelative(pluginsFilePath).replace(process.cwd(), '.');
 const configFile = runfiles.resolveWorkspaceRelative(configFilePath).replace(process.cwd(), '.');
 
-function invokeCypressWithCommand(command) {
+async function invokeCypressWithCommand(command) {
+  process.env.HOME = process.env['TEST_TMPDIR'];
+
+  if (cypressTarPath) {
+    const resolvedArchivePath = join(cypressTarPath.replace('external/', '../'));
+    await untarCypress(resolvedArchivePath, join(process.env['TEST_TMPDIR']))
+  }
+
   init([
     node,
     entry,
@@ -28,10 +29,61 @@ function invokeCypressWithCommand(command) {
   ]);
 }
 
-// Detect that we are running as a test, by using well-known environment
-// variables. See go/test-encyclopedia
-if (!process.env.BUILD_WORKSPACE_DIRECTORY) {
-  invokeCypressWithCommand('run');
-} else {
-  invokeCypressWithCommand('open');
+
+
+function untarCypress(cypressTarPath, outputPath) {
+  return new Promise((resolve, reject) => {
+    const nodeModulesPath = join(
+        process.cwd(), cypressBin.replace('external/', '../').split('node_modules')[0],
+        'node_modules');
+
+    const tar = require(require.resolve('tar', {
+      paths: [
+        join(nodeModulesPath, '@bazel', 'cypress', 'node_modules'),
+        nodeModulesPath,
+      ]
+    }));
+
+
+    tar.x(
+        {
+          cwd: outputPath,
+          file: cypressTarPath,
+          noMtime: true,
+        },
+        err => {
+          if (err) {
+            return reject(err);
+          }
+
+          try {
+            const {cypressExecutable} =
+                JSON.parse(readFileSync(join(outputPath, 'cypress-install', 'bazel_cypress.json')));
+
+            process.env.CYPRESS_RUN_BINARY = join(outputPath, cypressExecutable);
+            process.env.CYPRESS_CACHE_FOLDER = outputPath;
+          } catch (err) {
+            return reject(err)
+          }
+
+          return resolve();
+        })
+  });
 }
+
+async function main() {
+  try {
+    // Detect that we are running as a test, by using well-known environment
+    // variables. See go/test-encyclopedia
+    if (!process.env.BUILD_WORKSPACE_DIRECTORY) {
+      await invokeCypressWithCommand('run');
+    } else {
+      await invokeCypressWithCommand('open');
+    }
+  } catch (e) {
+    console.error(e);
+    process.exit(1)
+  }
+}
+
+main();
