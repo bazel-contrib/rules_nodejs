@@ -9,31 +9,42 @@
  * repository rule while the file system remains read/write.
  */
 
-const {spawnSync, spawn} = require('child_process');
-const {readdirSync, statSync, writeFileSync, mkdirSync} = require('fs');
+const {spawnSync} = require('child_process');
+const {readdirSync, statSync, writeFileSync, mkdirSync, createWriteStream} = require('fs');
 const {
   join,
   basename,
   relative,
   dirname,
 } = require('path');
+
 const nodePath = process.argv[1];
 const cwd = process.cwd();
 const cypressBin = process.argv[2];
 
-// Sandboxing doesn't work on windows, so we can just use the global cypress cache.
-if (process.platform === 'win32') {
-  installGlobalCypressCache();
-  process.exit(0);
-}
+const nodeModulesPath = join(cypressBin.split('node_modules')[0], 'node_modules');
+const tar = require(require.resolve('tar', {
+  paths: [
+    join(nodeModulesPath, '@bazel', 'cypress', 'node_modules'),
+    nodeModulesPath,
+  ]
+}));
 
-// Attempt to install the cypress cache within the bazel sandbox and fallback to a global cypress
-// cache as a last resort.
-try {
-  installSandboxedCypressCache()
-} catch (e) {
-  console.error('ERROR', e);
-  installGlobalCypressCache();
+async function main() {
+  // Sandboxing doesn't work on windows, so we can just use the global cypress cache.
+  if (process.platform === 'win32') {
+    installGlobalCypressCache();
+    process.exit(0);
+  }
+
+  // Attempt to install the cypress cache within the bazel sandbox and fallback to a global cypress
+  // cache as a last resort.
+  try {
+    await installSandboxedCypressCache()
+  } catch (e) {
+    console.error('ERROR', e);
+    installGlobalCypressCache();
+  }
 }
 
 function installGlobalCypressCache() {
@@ -70,11 +81,11 @@ cypress_web_test = _cypress_web_test`)
 }
 
 
-function installSandboxedCypressCache() {
-  mkdirSync(join(cwd, 'cypress-cache'))
+async function installSandboxedCypressCache() {
+  mkdirSync(join(cwd, 'cypress-install'))
 
   const env = {
-    CYPRESS_CACHE_FOLDER: join(cwd, 'cypress-cache'),
+    CYPRESS_CACHE_FOLDER: join(cwd, 'cypress-install'),
     PATH: `${dirname(nodePath)}:${process.env.PATH}`,
     DEBUG: 'cypress:*'
   }
@@ -119,19 +130,24 @@ function installSandboxedCypressCache() {
     throw new Error(`cypress verify failed`);
   }
 
+  writeFileSync(join(env.CYPRESS_CACHE_FOLDER, 'bazel_cypress.json'), JSON.stringify({
+    cypressExecutable: relative(cwd, CYPRESS_RUN_BINARY),
+  }));
+
   const cacheFiles = [];
   walkDir(env.CYPRESS_CACHE_FOLDER, (filePath) => {
-    cacheFiles.push(filePath);
+    cacheFiles.push(relative(cwd, filePath));
   });
+
+  const archiveName = 'cypress.archive';
+  await createCypressArchive(cacheFiles, join(cwd, archiveName));
 
   writeFileSync('index.bzl', `load(
     "//:packages/cypress/internal/cypress_web_test.bzl",
     _cypress_web_test = "cypress_web_test",
 )
 cypress_web_test = _cypress_web_test`)
-  writeFileSync(
-      'BUILD.bazel',
-      `
+  writeFileSync('BUILD.bazel', `
 package(default_visibility = ["//visibility:public"])
 
 exports_files([
@@ -140,62 +156,32 @@ exports_files([
 ])
 
 filegroup(
-    name = "cypress_cache",
-    srcs = ${
-          process.platform === 'darwin' ?
-              // On mac we are required to include cache files including spaces. These can only be
-              // included using a glob.
-              'glob(["cypress-cache/**/*"]),' :
-              // On unix the only no files containing spaces are required to run cypress.
-              `      [
-        ${
-                  cacheFiles.filter(f => !f.includes(' '))
-                      .map(f => `"${relative(cwd, f)}"`)
-                      .join(',\n      ')}
-    ]`}
-)
-
-filegroup(
-    name = "cypress_executable",
-    srcs = ["${relative(cwd, CYPRESS_RUN_BINARY)}"]
+    name = "cypress_archive",
+    srcs = ["${relative(cwd, archiveName)}"],
 )
 `.trim())
-
-
-  // On mac, the first run of cypress requires write access to the filesystem.
-  if (process.platform === 'darwin') {
-    const http = require('http');
-    const server = http.createServer((_request, response) => {
-                         response.writeHead(200, {'Content-Type': 'text/html'});
-                         response.write('<html><body>hello-world</body></html>\n');
-                         response.end();
-                       })
-                       .listen(0, '127.0.0.1');
-    server.on('listening', () => {
-      const baseUrl = `http://127.0.0.1:${server.address().port}`;
-      writeFileSync(
-          'cypress.json', JSON.stringify({baseUrl, 'integrationFolder': cwd, video: false}))
-      writeFileSync('spec.js', `
-    describe('hello', () => {
-      it('should find hello', () => {
-        cy.visit('${baseUrl}');
-    
-        cy.contains('hello');
-      });
-    });  
-    `)
-
-
-      spawn(
-          `${cypressBin}`, ['run', '--config-file=cypress.json', '--headless', '--spec=spec.js'],
-          spawnOptions)
-          .on('exit', (code) => {
-            server.close();
-
-            if (code !== 0) {
-              throw new Error('Failed to perform a dry-run of cypress')
-            }
-          })
-    })
-  }
 }
+
+function createCypressArchive(cypressFiles, archiveName) {
+  return new Promise((resolve, reject) => {
+    const writeStream = createWriteStream(archiveName);
+
+    tar.create(
+           {
+             gzip: false,
+             portable: true,
+             noMtime: true,
+           },
+           cypressFiles)
+        .pipe(writeStream)
+        .on('finish', (err) => {
+          if (err) {
+            return reject(err);
+          }
+
+          return resolve();
+        })
+  });
+}
+
+main()
