@@ -80,8 +80,10 @@ def cypress_web_test(
         plugins_file = Label("//plugins/base.js"),
         data = [],
         templated_args = [],
-        cypress_cache = Label("//:cypress_cache"),
-        cypress_executable = Label("//:cypress_executable"),
+        cypress = Label("TEMPLATED_node_modules_workspace_name//cypress"),
+        cypress_archive = Label("//:cypress_archive"),
+        cypress_bin = Label("TEMPLATED_node_modules_workspace_name//:node_modules/cypress/bin/cypress"),
+        tar = Label("TEMPLATED_node_modules_workspace_name//tar"),
         **kwargs):
     cypress_plugin = "{name}_cypress_plugin".format(name = name)
     tags = kwargs.pop("tags", []) + ["cypress"]
@@ -101,8 +103,10 @@ def cypress_web_test(
         tags = tags,
         data = data + [
             plugins_file,
-            cypress_cache,
-            cypress_executable,
+            cypress_archive,
+            cypress_bin,
+            cypress,
+            tar,
             "{cypress_plugin}".format(cypress_plugin = cypress_plugin),
             "{config_file}".format(config_file = config_file),
         ] + srcs,
@@ -111,7 +115,8 @@ def cypress_web_test(
             "--nobazel_patch_module_resolver",
             "$(rootpath {config_file})".format(config_file = config_file),
             "$(rootpath {cypress_plugin})".format(cypress_plugin = cypress_plugin),
-            "$(rootpath {cypress_executable})".format(cypress_executable = cypress_executable),
+            "$(rootpath {cypress_archive})".format(cypress_archive = cypress_archive),
+            "$(rootpath {cypress_bin})".format(cypress_bin = cypress_bin),
         ] + templated_args,
         **kwargs
     )
