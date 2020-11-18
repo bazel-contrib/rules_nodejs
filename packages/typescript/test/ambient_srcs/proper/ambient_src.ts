@@ -1,0 +1,1 @@
+type AGlobalNumber3 = 3;
