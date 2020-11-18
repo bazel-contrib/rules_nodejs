@@ -2,7 +2,7 @@
 package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 filegroup(
-    name = "unidiff__files",
+    name = "unidiff__nonambient_files",
     srcs = [
         "//:node_modules/unidiff/.npmignore",
         "//:node_modules/unidiff/LICENSE",
@@ -14,6 +14,13 @@ filegroup(
         "//:node_modules/unidiff/test/test_unidiff.js",
         "//:node_modules/unidiff/unidiff.js",
     ],
+)
+filegroup(
+    name = "unidiff__ambient_files",
+)
+filegroup(
+    name = "unidiff__files",
+    srcs = ["unidiff__nonambient_files", "unidiff__ambient_files"]
 )
 filegroup(
     name = "unidiff__nested_node_modules",
@@ -40,7 +47,8 @@ js_library(
 )
 js_library(
     name = "unidiff__contents",
-    srcs = [":unidiff__files", ":unidiff__nested_node_modules"],
+    srcs = [":unidiff__nonambient_files", ":unidiff__nested_node_modules"],
+    ambient_srcs = [":unidiff__ambient_files"],
     visibility = ["//:__subpackages__"],
 )
 js_library(

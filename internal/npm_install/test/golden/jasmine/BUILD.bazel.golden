@@ -2,7 +2,7 @@
 package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 filegroup(
-    name = "jasmine__files",
+    name = "jasmine__nonambient_files",
     srcs = [
         "//:node_modules/jasmine/.editorconfig",
         "//:node_modules/jasmine/Gruntfile.js",
@@ -16,6 +16,13 @@ filegroup(
         "//:node_modules/jasmine/package.json",
         "//:node_modules/jasmine/tasks/jasmine.js",
     ],
+)
+filegroup(
+    name = "jasmine__ambient_files",
+)
+filegroup(
+    name = "jasmine__files",
+    srcs = ["jasmine__nonambient_files", "jasmine__ambient_files"]
 )
 filegroup(
     name = "jasmine__nested_node_modules",
@@ -75,7 +82,8 @@ js_library(
 )
 js_library(
     name = "jasmine__contents",
-    srcs = [":jasmine__files", ":jasmine__nested_node_modules"],
+    srcs = [":jasmine__nonambient_files", ":jasmine__nested_node_modules"],
+    ambient_srcs = [":jasmine__ambient_files"],
     visibility = ["//:__subpackages__"],
 )
 js_library(

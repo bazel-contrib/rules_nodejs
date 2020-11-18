@@ -2,7 +2,7 @@
 package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 filegroup(
-    name = "zone.js__files",
+    name = "zone.js__nonambient_files",
     srcs = [
         "//:node_modules/zone.js/LICENSE",
         "//:node_modules/zone.js/dist/async-test.js",
@@ -65,7 +65,6 @@ filegroup(
         "//:node_modules/zone.js/dist/zone-testing-node-bundle.js",
         "//:node_modules/zone.js/dist/zone-testing.js",
         "//:node_modules/zone.js/dist/zone.js",
-        "//:node_modules/zone.js/dist/zone.js.d.ts",
         "//:node_modules/zone.js/dist/zone.min.js",
         "//:node_modules/zone.js/dist/zone_externs.js",
         "//:node_modules/zone.js/lib/browser/api-util.ts",
@@ -132,6 +131,16 @@ filegroup(
     ],
 )
 filegroup(
+    name = "zone.js__ambient_files",
+    srcs = [
+        "//:node_modules/zone.js/dist/zone.js.d.ts",
+    ],
+)
+filegroup(
+    name = "zone.js__files",
+    srcs = ["zone.js__nonambient_files", "zone.js__ambient_files"]
+)
+filegroup(
     name = "zone.js__nested_node_modules",
     visibility = ["//:__subpackages__"],
 )
@@ -157,12 +166,13 @@ js_library(
 )
 js_library(
     name = "zone.js__contents",
-    srcs = [":zone.js__files", ":zone.js__nested_node_modules"],
+    srcs = [":zone.js__nonambient_files", ":zone.js__nested_node_modules"],
+    ambient_srcs = [":zone.js__ambient_files"],
     visibility = ["//:__subpackages__"],
 )
 js_library(
     name = "zone.js__typings",
-    srcs = [
+    ambient_srcs = [
         "//:node_modules/zone.js/dist/zone.js.d.ts",
     ],
 )

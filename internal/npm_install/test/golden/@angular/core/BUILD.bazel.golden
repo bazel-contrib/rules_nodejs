@@ -2,7 +2,7 @@
 package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 filegroup(
-    name = "core__files",
+    name = "core__nonambient_files",
     srcs = [
         "//:node_modules/@angular/core/ANGULAR_PACKAGE",
         "//:node_modules/@angular/core/BUILD_INFO",
@@ -664,6 +664,13 @@ filegroup(
     ],
 )
 filegroup(
+    name = "core__ambient_files",
+)
+filegroup(
+    name = "core__files",
+    srcs = ["core__nonambient_files", "core__ambient_files"]
+)
+filegroup(
     name = "core__nested_node_modules",
     visibility = ["//:__subpackages__"],
 )
@@ -690,7 +697,8 @@ js_library(
 )
 js_library(
     name = "core__contents",
-    srcs = [":core__files", ":core__nested_node_modules"],
+    srcs = [":core__nonambient_files", ":core__nested_node_modules"],
+    ambient_srcs = [":core__ambient_files"],
     named_module_srcs = [
         "//:node_modules/@angular/core/bundles/core-testing.umd.js",
         "//:node_modules/@angular/core/bundles/core.umd.js",

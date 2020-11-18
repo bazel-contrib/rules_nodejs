@@ -2,11 +2,18 @@
 package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 filegroup(
-    name = "test-b__files",
+    name = "test-b__nonambient_files",
     srcs = [
         "//:node_modules/@gregmagolan/test-b/main.js",
         "//:node_modules/@gregmagolan/test-b/package.json",
     ],
+)
+filegroup(
+    name = "test-b__ambient_files",
+)
+filegroup(
+    name = "test-b__files",
+    srcs = ["test-b__nonambient_files", "test-b__ambient_files"]
 )
 filegroup(
     name = "test-b__nested_node_modules",
@@ -33,7 +40,8 @@ js_library(
 )
 js_library(
     name = "test-b__contents",
-    srcs = [":test-b__files", ":test-b__nested_node_modules"],
+    srcs = [":test-b__nonambient_files", ":test-b__nested_node_modules"],
+    ambient_srcs = [":test-b__ambient_files"],
     visibility = ["//:__subpackages__"],
 )
 js_library(

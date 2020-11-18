@@ -4,8 +4,12 @@ load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 js_library(
     name = "@gregmagolan",
     srcs = [
-        "//@gregmagolan/test-a:test-a__files",
-        "//@gregmagolan/test-b:test-b__files",
+        "//@gregmagolan/test-a:test-a__nonambient_files",
+        "//@gregmagolan/test-b:test-b__nonambient_files",
+    ],
+    ambient_srcs = [
+        "//@gregmagolan/test-a:test-a__ambient_files",
+        "//@gregmagolan/test-b:test-b__ambient_files",
     ],
     deps = [
         "//@gregmagolan/test-a:test-a__contents",

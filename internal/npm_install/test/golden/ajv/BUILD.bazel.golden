@@ -2,7 +2,7 @@
 package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 filegroup(
-    name = "ajv__files",
+    name = "ajv__nonambient_files",
     srcs = [
         "//:node_modules/ajv/.tonic_example.js",
         "//:node_modules/ajv/LICENSE",
@@ -87,6 +87,13 @@ filegroup(
     ],
 )
 filegroup(
+    name = "ajv__ambient_files",
+)
+filegroup(
+    name = "ajv__files",
+    srcs = ["ajv__nonambient_files", "ajv__ambient_files"]
+)
+filegroup(
     name = "ajv__nested_node_modules",
     visibility = ["//:__subpackages__"],
 )
@@ -121,7 +128,8 @@ js_library(
 )
 js_library(
     name = "ajv__contents",
-    srcs = [":ajv__files", ":ajv__nested_node_modules"],
+    srcs = [":ajv__nonambient_files", ":ajv__nested_node_modules"],
+    ambient_srcs = [":ajv__ambient_files"],
     visibility = ["//:__subpackages__"],
 )
 js_library(
