@@ -27,7 +27,8 @@ export function main(args: string[]) {
   } else {
     debug('Running a single build...');
     if (args.length === 0) throw new Error('Not enough arguments');
-    if (!runOneBuild(args)) {
+    const unusedInputsFilePath = args.length === 2 && args.pop() ?.replace(/^@+/, '') || undefined;
+    if (!runOneBuild(args, undefined, unusedInputsFilePath)) {
       return 1;
     }
   }
@@ -191,7 +192,7 @@ function expandSourcesFromDirectories(fileList: string[], filePath: string) {
  * Any encountered errors are written to stderr.
  */
 function runOneBuild(
-    args: string[], inputs?: {[path: string]: string}): boolean {
+    args: string[], inputs?: {[path: string]: string}, unusedInputsFilePath?: string): boolean {
   if (args.length !== 1) {
     console.error('Expected one argument: path to tsconfig.json');
     return false;
@@ -231,13 +232,17 @@ function runOneBuild(
 
   let fileLoader: FileLoader;
   if (inputs) {
-    fileLoader = new CachedFileLoader(cache);
     // Resolve the inputs to absolute paths to match TypeScript internals
     const resolvedInputs = new Map<string, string>();
+    const normalizedPathToInput = new Map<string, string>();
     for (const key of Object.keys(inputs)) {
-      resolvedInputs.set(resolveNormalizedPath(key), inputs[key]);
+      const normalizedKey = resolveNormalizedPath(key);
+      normalizedPathToInput.set(normalizedKey, key);
+      resolvedInputs.set(normalizedKey, inputs[key]);
     }
     cache.updateCache(resolvedInputs);
+    fileLoader = new CachedFileLoader(cache, normalizedPathToInput);
+
   } else {
     fileLoader = new UncachedFileLoader();
   }
@@ -251,6 +256,16 @@ function runOneBuild(
   if (diagnostics.length > 0) {
     console.error(bazelDiagnostics.format(bazelOpts.target, diagnostics));
     return false;
+  }
+
+  if (unusedInputsFilePath) {
+    fs.writeFileSync(
+        unusedInputsFilePath,
+        Array.from(fileLoader.unusedFiles.values())
+            .filter((v) => {
+              return v.endsWith('.ts');
+            })
+            .join('\n'));
   }
 
   const perfTracePath = bazelOpts.perfTracePath;

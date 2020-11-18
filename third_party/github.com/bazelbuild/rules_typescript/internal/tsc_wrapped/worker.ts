@@ -129,8 +129,9 @@ const workerpb = loadWorkerPb();
  *   https://www.npmjs.com/package/@bazel/worker
  */
 export async function runWorkerLoop(
-    runOneBuild: (args: string[], inputs?: {[path: string]: string}) =>
-        boolean | Promise<boolean>) {
+    runOneBuild:
+        (args: string[], inputs?: {[path: string]: string}, unusedInputsFilePath?: string) =>
+            boolean | Promise<boolean>) {
   // Hook all output to stderr and write it to a buffer, then include
   // that buffer's in the worker protcol proto's textual output.  This
   // means you can log via console.error() and it will appear to the
@@ -171,17 +172,20 @@ export async function runWorkerLoop(
         buf = buf.slice(messageStart);
         debug('=== Handling new build request');
         const args = req.arguments;
+        const unusedInputsFilePath =
+            args.length === 2 && args.pop() ?.replace(/^@+/, '') || undefined;
         const inputs: {[path: string]: string} = {};
         for (const input of req.inputs) {
           inputs[input.path] = input.digest.toString('hex');
         }
         debug('Compiling with:\n\t' + args.join('\n\t'));
         process.stdout.write(
-            workerpb.WorkResponse.encodeDelimited({
-              exitCode: await runOneBuild(args, inputs) ? 0 : 1,
-              output: consoleOutput,
-            }).finish() as Buffer
-        );
+            workerpb.WorkResponse
+                .encodeDelimited({
+                  exitCode: await runOneBuild(args, inputs, unusedInputsFilePath) ? 0 : 1,
+                  output: consoleOutput,
+                })
+                .finish() as Buffer);
         // Reset accumulated log output now that it has been printed.
         consoleOutput = '';
         // Force a garbage collection pass.  This keeps our memory usage

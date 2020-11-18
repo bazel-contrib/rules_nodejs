@@ -117,20 +117,26 @@ def create_tsconfig(
     # so we create a new hash that contains the module_mappings and insert the
     # default lookup locations at the end.
     mapped_module_roots = {}
-    for name, path in module_mappings.items():
-        # Each module name maps to the immediate path, to resolve "index(.d).ts",
-        # or module mappings that directly point to files (like index.d.ts).
-        mapped_module_roots[name] = [
-            "%s%s" % (p, path.replace(".d.ts", ""))
-            for p in module_path_prefixes
-        ]
-        if not path.endswith(".d.ts"):
-            # If not just mapping to a single .d.ts file, include a path glob that
-            # maps the entire module root.
-            mapped_module_roots["{}/*".format(name)] = [
-                "%s%s/*" % (p, path)
+    for name, paths in module_mappings.items():
+        asteriskName = "{}/*".format(name)
+        if name not in mapped_module_roots:
+            mapped_module_roots[name] = []
+        for path in paths:
+            # Each module name maps to the immediate path, to resolve "index(.d).ts",
+            # or module mappings that directly point to files (like index.d.ts).
+            mapped_module_roots[name].extend([
+                "%s%s" % (p, path)
                 for p in module_path_prefixes
-            ]
+            ])
+            if not path.endswith(".d.ts") and not path.endswith("*"):
+                # If not just mapping to a single .d.ts file, include a path glob that
+                # maps the entire module root.
+                if asteriskName not in mapped_module_roots:
+                     mapped_module_roots[asteriskName] = []
+                mapped_module_roots[asteriskName].extend([
+                    "%s%s/*" % (p, path)
+                    for p in module_path_prefixes
+                ])
     for name, path in module_roots.items():
         mapped_module_roots[name] = path
 

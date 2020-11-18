@@ -155,12 +155,17 @@ def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description 
         # rather than the contents getting expanded.
         arguments.append("@@" + tsconfig_file.path)
 
+        unused_inputs_list = ctx.actions.declare_file("{}.{}.unused".format(ctx.label.name, description))
+        arguments.append("@@" + unused_inputs_list.path)
+        action_outputs.append(unused_inputs_list)
+
         # Spawn a plain action that runs worker process with no linker
         ctx.actions.run(
             progress_message = "Compiling TypeScript (%s) %s" % (description, ctx.label),
             mnemonic = "TypeScriptCompile",
             inputs = action_inputs,
             outputs = action_outputs,
+            unused_inputs_list = unused_inputs_list,
             # Use the built-in shell environment
             # Allow for users who set a custom shell that can locate standard binaries like tr and uname
             # See https://github.com/NixOS/nixpkgs/issues/43955#issuecomment-407546331

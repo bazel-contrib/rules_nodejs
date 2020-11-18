@@ -73,11 +73,6 @@ const SOURCE_EXT = /((\.d)?\.tsx?|\.js)$/;
  */
 export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
   /**
-   * Lookup table to answer file stat's without looking on disk.
-   */
-  private knownFiles = new Set<string>();
-
-  /**
    * rootDirs relative to the rootDir, eg "bazel-out/local-fastbuild/bin"
    */
   private relativeRoots: string[];
@@ -109,9 +104,6 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
     this.options = narrowTsOptions(options);
     this.relativeRoots =
         this.options.rootDirs.map(r => path.relative(this.options.rootDir, r));
-    inputFiles.forEach((f) => {
-      this.knownFiles.add(f);
-    });
 
     // getCancelationToken is an optional method on the delegate. If we
     // unconditionally implement the method, we will be forced to return null,
@@ -579,7 +571,7 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
       }
       return result;
     }
-    return this.knownFiles.has(filePath);
+    return this.fileLoader.fileExists(filePath);
   }
 
   getDefaultLibLocation(): string {

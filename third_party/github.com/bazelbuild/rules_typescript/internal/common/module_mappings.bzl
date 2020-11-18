@@ -63,19 +63,30 @@ def get_module_mappings(label, attrs, srcs = [], workspace_name = None, mappings
         if not hasattr(dep, mappings_attr):
             continue
         for k, v in getattr(dep, mappings_attr).items():
-            if k in mappings and mappings[k] != v:
-                fail(("duplicate module mapping at %s: %s maps to both %s and %s" %
-                      (label, k, mappings[k], v)), "deps")
-            mappings[k] = v
+            if k in mappings:
+                mappings[k].extend(v)
+            else:
+                # unfreeze the entry
+                mappings[k] = v + []
+
+    mr = "/".join([p for p in [
+        workspace_name or label.workspace_root,
+        label.package,
+    ] if p])
+
+    if hasattr(attrs, "declared_modules"):
+        for key in attrs.declared_modules:
+            if not key in mappings:
+                mappings[key] = []
+            for declared_module in attrs.declared_modules[key]:
+                root = "%s/%s" % (mr, declared_module.replace(".ts", ".d.ts") if declared_module.endswith(".ts") and not declared_module.endswith(".d.ts") else declared_module)
+                mappings[key].append(root)
+
     if ((hasattr(attrs, "module_name") and attrs.module_name) or
         (hasattr(attrs, "module_root") and attrs.module_root)):
         mn = attrs.module_name
         if not mn:
             mn = label.name
-        mr = "/".join([p for p in [
-            workspace_name or label.workspace_root,
-            label.package,
-        ] if p])
         if hasattr(attrs, "module_root") and attrs.module_root and attrs.module_root != ".":
             mr = "%s/%s" % (mr, attrs.module_root)
             if attrs.module_root.endswith(".ts"):
@@ -101,10 +112,10 @@ def get_module_mappings(label, attrs, srcs = [], workspace_name = None, mappings
                     if not short_path.startswith(mr):
                         fail(("all sources must be under module root: %s, but found: %s" %
                               (mr, short_path)))
-        if mn in mappings and mappings[mn] != mr:
-            fail(("duplicate module mapping at %s: %s maps to both %s and %s" %
-                  (label, mn, mappings[mn], mr)), "deps")
-        mappings[mn] = mr
+        if mn in mappings and mr not in mappings[mn]:
+            mappings[mn].append(mr)
+        else:
+            mappings[mn] = [mr]
 
     debug("Mappings at %s: %s", (label, mappings))
     return mappings

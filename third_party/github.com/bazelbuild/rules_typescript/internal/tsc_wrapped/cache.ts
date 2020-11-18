@@ -72,7 +72,7 @@ class Cache<T> {
     // Drop half the cache, the least recently used entry == the first entry.
     this.debug('Evicting from the', this.name, 'cache...');
     const originalSize = this.map.size;
-    let numberKeysToDrop = originalSize / 2;
+    let numberKeysToDrop = Math.ceil(originalSize / 2);
     if (numberKeysToDrop === 0) {
       return 0;
     }
@@ -339,6 +339,7 @@ export interface FileLoader {
   loadFile(fileName: string, filePath: string, langVer: ts.ScriptTarget):
       ts.SourceFile;
   fileExists(filePath: string): boolean;
+  unusedFiles: Map<string, string>;
 }
 
 /**
@@ -348,16 +349,18 @@ export class CachedFileLoader implements FileLoader {
   /** Total amount of time spent loading files, for the perf trace. */
   private totalReadTimeMs = 0;
 
-  // TODO(alexeagle): remove unused param after usages updated:
-  // angular:packages/bazel/src/ngc-wrapped/index.ts
-  constructor(private readonly cache: FileCache, unused?: boolean) {}
+  constructor(
+      private readonly cache: FileCache,
+      public readonly unusedFiles: Map<string, string> = new Map()) {}
 
   fileExists(filePath: string) {
+    this.unusedFiles.delete(filePath);
     return this.cache.isKnownInput(filePath);
   }
 
   loadFile(fileName: string, filePath: string, langVer: ts.ScriptTarget):
       ts.SourceFile {
+    this.unusedFiles.delete(filePath);
     let sourceFile = this.cache.getCache(filePath);
     if (!sourceFile) {
       const readStart = Date.now();
@@ -383,6 +386,7 @@ export class CachedFileLoader implements FileLoader {
 
 /** Load a source file from disk. */
 export class UncachedFileLoader implements FileLoader {
+  public readonly unusedFiles = new Map<string, string>();
   fileExists(filePath: string): boolean {
     return ts.sys.fileExists(filePath);
   }
