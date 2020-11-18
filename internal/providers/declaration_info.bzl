@@ -26,14 +26,16 @@ Note: historically this was a subset of the string-typed "typescript" provider.
     # TODO(alexeagle): The ts_library#deps attribute should require that this provider is attached.
     # TODO: if we ever enable --declarationMap we will have .d.ts.map files too
     fields = {
+        "ambient_declarations": "A depset of typings files for ambient srcs",
         "declarations": "A depset of typings files produced by this rule",
+        "transitive_ambient_declarations": "A depset of the typings files that should be included to all transitive dependencies",
         "transitive_declarations": """A depset of typings files produced by this rule and all its transitive dependencies.
 This prevents needing an aspect in rules that consume the typings, which improves performance.""",
         "type_blacklisted_declarations": """A depset of .d.ts files that we should not use to infer JSCompiler types (via tsickle)""",
     },
 )
 
-def declaration_info(declarations, deps = []):
+def declaration_info(declarations, ambient_declarations, deps = []):
     """Constructs a DeclarationInfo including all transitive files needed to type-check from DeclarationInfo providers in a list of deps.
 
     Args:
@@ -46,13 +48,18 @@ def declaration_info(declarations, deps = []):
 
     # TODO: add some checking actions to ensure the declarations are well-formed and don't have semantic diagnostics
     transitive_depsets = [declarations]
+    transitive_ambient_depsets = [ambient_declarations]
     for dep in deps:
         if DeclarationInfo in dep:
             transitive_depsets.append(dep[DeclarationInfo].transitive_declarations)
+            if getattr(dep[DeclarationInfo], "transitive_ambient_declarations", None):
+                transitive_ambient_depsets.append(dep[DeclarationInfo].transitive_ambient_declarations)
 
     return DeclarationInfo(
         declarations = declarations,
         transitive_declarations = depset(transitive = transitive_depsets),
+        ambient_declarations = ambient_declarations,
+        transitive_ambient_declarations = depset(transitive = transitive_ambient_depsets),
         # Downstream ts_library rules will fail if they don't find this field
         # Even though it is only for Google Closure Compiler externs generation
         type_blacklisted_declarations = depset(),

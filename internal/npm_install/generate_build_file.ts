@@ -60,6 +60,11 @@ const BAZEL_VERSION = args[6];
 const PUBLIC_VISIBILITY = '//visibility:public';
 const LIMITED_VISIBILITY = `@${WORKSPACE}//:__subpackages__`;
 
+const isModuleRegExp = /^export|^import(?!declare globa)/m;
+const declaresGlobalRegExp = /^declare global/m;
+const isNotOnlyDeclaredModuleRegExp = /^\w(?!eclare module)/m;
+const declaredModulesRegExp = /^declare module ["']([\w-_/]+)["'] \{/gm;
+
 function generateBuildFileHeader(visibility = PUBLIC_VISIBILITY): string {
   return `# Generated file from ${RULE_TYPE} rule.
 # See rules_nodejs/internal/npm_install/generate_build_file.ts
@@ -756,7 +761,8 @@ type Bag<T> =
  * Flattens all transitive dependencies of a package
  * into a _dependencies array.
  */
-function flattenPkgDependencies(pkg: Dep, dep: Dep, pkgsMap: Map<string, Dep>) {
+function
+flattenPkgDependencies(pkg: Dep, dep: Dep, pkgsMap: Map<string, Dep>) {
   if (pkg._dependencies.indexOf(dep) !== -1) {
     // circular dependency
     return;
@@ -816,7 +822,8 @@ function flattenPkgDependencies(pkg: Dep, dep: Dep, pkgsMap: Map<string, Dep>) {
  * Reformat/pretty-print a json object as a skylark comment (each line
  * starts with '# ').
  */
-function printJson(pkg: Dep) {
+function
+printJson(pkg: Dep) {
   // Clone and modify _dependencies to avoid circular issues when JSONifying
   // & delete _files & _runfiles arrays
   const cloned: any = {...pkg};
@@ -833,7 +840,8 @@ function printJson(pkg: Dep) {
  *             done on extensions; '' empty string denotes to allow files with no extensions,
  *             other extensions are listed with '.ext' notation such as '.d.ts'.
  */
-function filterFiles(files: string[], exts: string[] = []) {
+function
+filterFiles(files: string[], exts: string[] = []) {
   if (exts.length) {
     const allowNoExts = exts.includes('');
     files = files.filter(f => {
@@ -866,7 +874,8 @@ function filterFiles(files: string[], exts: string[] = []) {
  * false otherwise. If the package contains `*.metadata.json` and a
  * corresponding sibling `.d.ts` file, then the package is considered to be APF.
  */
-function isNgApfPackage(pkg: Dep) {
+function
+isNgApfPackage(pkg: Dep) {
   const set = new Set(pkg._files);
   if (set.has('ANGULAR_PACKAGE')) {
     // This file is used by the npm/yarn_install rule to detect APF. See
@@ -888,7 +897,8 @@ function isNgApfPackage(pkg: Dep) {
 /**
  * Looks for a file within a package and returns it if found.
  */
-function findFile(pkg: Dep, m: string) {
+function
+findFile(pkg: Dep, m: string) {
   const ml = m.toLowerCase();
   for (const f of pkg._files) {
     if (f.toLowerCase() === ml) {
@@ -896,6 +906,28 @@ function findFile(pkg: Dep, m: string) {
     }
   }
   return undefined;
+}
+
+function
+mapOfSetsToObjOfArray<V>(map: Map<string, Set<V>>, mapFn: (v: V, k: number) => V) {
+  const ret: {[key: string]: V[]} = {};
+  for (const [key, value] of map.entries()) {
+    ret[key] = Array.from(value, mapFn);
+  }
+  return ret;
+}
+
+function matchAll(string: string, regex: RegExp) {
+  if (regex.flags.indexOf('g') === -1) {
+    throw new Error('matchAll will infinitely loop without the `g` flag set');
+  }
+  const matches: RegExpExecArray[] = [];
+  let match: RegExpExecArray|undefined|null;
+
+  while ((match = regex.exec(string)) !== null) {
+    matches.push(match);
+  }
+  return matches;
 }
 
 /**
@@ -909,12 +941,58 @@ function printPackage(pkg: Dep) {
     ],`;
   }
 
+  function starlarkStringListDict(attr: string, dict: {[key: string]: string[]}) {
+    return `\n${attr} = ${JSON.stringify(dict, undefined, '    ')},`.split('\n').join('\n    ');
+  }
+
   const includedRunfiles = filterFiles(pkg._runfiles, INCLUDED_FILES);
+  let declaredModules: Map<string, Set<string>>|undefined = undefined;
 
   // Files that are part of the npm package not including its nested node_modules
   // (filtered by the 'included_files' attribute)
   const pkgFiles = includedRunfiles.filter((f: string) => !f.startsWith('node_modules/'));
-  const pkgFilesStarlark = pkgFiles.length ? starlarkFiles('srcs', pkgFiles) : '';
+  const ambientFiles = pkgFiles.filter((fileName) => {
+    if (!fileName.endsWith('.d.ts')) {
+      return false;
+    }
+    const fileContents =
+        fs.readFileSync(path.join('node_modules', pkg._dir, fileName), {encoding: 'utf-8'});
+    if (isModuleRegExp.test(fileContents) && !declaresGlobalRegExp.test(fileContents)) {
+      return false;
+    } else {
+      let modulesDeclaredHere = matchAll(fileContents, declaredModulesRegExp);
+      if (modulesDeclaredHere.length > 0) {
+        if (!declaredModules) {
+          declaredModules = new Map();
+        }
+        for (const moduleDeclaredHere of modulesDeclaredHere) {
+          const moduleName = moduleDeclaredHere[1];
+          if (!declaredModules.has(moduleName)) {
+            declaredModules.set(moduleName, new Set());
+          }
+          declaredModules.get(moduleName)!.add(fileName);
+        }
+        // this is not a module, but we need to determine if it has only a "declare module" or if it
+        // is an ambient declaration.
+        if (!isNotOnlyDeclaredModuleRegExp.test(fileContents)) {
+          return false;
+        }
+      }
+      return true;
+    }
+  });
+  const pkgAmbientFilesStarlark = ambientFiles.length ? starlarkFiles('srcs', ambientFiles) : '';
+  const nonAmbientFiles = pkgFiles.filter((f) => ambientFiles.indexOf(f) === -1);
+  const nonAmbientFilesStarlark =
+      nonAmbientFiles.length ? starlarkFiles('srcs', nonAmbientFiles) : '';
+  const declaredModulesStarlark = declaredModules ?
+      starlarkStringListDict(
+          'declared_modules',
+          mapOfSetsToObjOfArray(
+              declaredModules,
+              (fileName) =>
+                  `${pkg._dir.replace(/[^\/]*./g, '../')}node_modules/${pkg._dir}/${fileName}`)) :
+      '';
 
   // Files that are in the npm package's nested node_modules
   // (filtered by the 'included_files' attribute)
@@ -944,13 +1022,17 @@ function printPackage(pkg: Dep) {
 
   // Typings files that are part of the npm package not including nested node_modules
   const dtsSources =
-      filterFiles(pkg._runfiles, ['.d.ts']).filter((f: string) => !f.startsWith('node_modules/'));
-  const dtsStarlark = dtsSources.length ?
-      starlarkFiles(
-          'srcs', dtsSources,
-          `# ${
-              pkg._dir} package declaration files (and declaration files in nested node_modules)`) :
-      '';
+      filterFiles(pkg._runfiles, [
+        '.d.ts'
+      ]).filter((f: string) => !f.startsWith('node_modules/') && ambientFiles.indexOf(f) === -1);
+  const dtsStarlark =
+      (dtsSources.length ?
+           starlarkFiles(
+               'srcs', dtsSources,
+               `# ${
+                   pkg._dir} package declaration files (and declaration files in nested node_modules)`) :
+           '') +
+      (ambientFiles.length ? starlarkFiles('ambient_srcs', ambientFiles) : '');
 
   // Flattened list of direct and transitive dependencies hoisted to root by the package manager
   const deps = [pkg].concat(pkg._dependencies.filter(dep => dep !== pkg && !dep._isNested));
@@ -965,7 +1047,19 @@ ${printJson(pkg)}
 # Files that are part of the npm package not including its nested node_modules
 # (filtered by the 'included_files' attribute)
 filegroup(
-    name = "${pkg._name}__files",${pkgFilesStarlark}
+    name = "${pkg._name}__nonambient_files",${nonAmbientFilesStarlark}
+)
+
+# Files that have side-effects and must always be loaded
+filegroup(
+    name = "${pkg._name}__ambient_files",${pkgAmbientFilesStarlark}
+)
+
+# Files that are part of the npm package not including its nested node_modules
+# (filtered by the 'included_files' attribute)
+filegroup(
+    name = "${pkg._name}__files",
+    srcs = ["${pkg._name}__nonambient_files", "${pkg._name}__ambient_files"]
 )
 
 # Files that are in the npm package's nested node_modules
@@ -1006,13 +1100,15 @@ js_library(
 # Target is used as dep for main targets to prevent circular dependencies errors
 js_library(
     name = "${pkg._name}__contents",
-    srcs = [":${pkg._name}__files", ":${pkg._name}__nested_node_modules"],${namedSourcesStarlark}
+    srcs = [":${pkg._name}__nonambient_files", ":${pkg._name}__nested_node_modules"],
+    ambient_srcs = [":${pkg._name}__ambient_files"],${declaredModulesStarlark}${
+      namedSourcesStarlark}
     visibility = ["//:__subpackages__"],
 )
 
 # Typings files that are part of the npm package not including nested node_modules
 js_library(
-    name = "${pkg._name}__typings",${dtsStarlark}
+    name = "${pkg._name}__typings",${dtsStarlark}${declaredModulesStarlark}
 )
 
 `;
@@ -1188,11 +1284,17 @@ function printScope(scope: string, pkgs: Dep[]) {
 
   let pkgFilesStarlark = '';
   if (deps.length) {
-    const list = deps.map(dep => `"//${dep._dir}:${dep._name}__files",`).join('\n        ');
+    const nonambientList =
+        deps.map(dep => `"//${dep._dir}:${dep._name}__nonambient_files",`).join('\n        ');
+    const ambientList =
+        deps.map(dep => `"//${dep._dir}:${dep._name}__ambient_files",`).join('\n        ');
     pkgFilesStarlark = `
     # direct sources listed for strict deps support
     srcs = [
-        ${list}
+        ${nonambientList}
+    ],
+    ambient_srcs = [
+        ${ambientList}
     ],`;
   }
 

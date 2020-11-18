@@ -18,6 +18,10 @@ const INCLUDED_FILES = args[5] ? args[5].split(',') : [];
 const BAZEL_VERSION = args[6];
 const PUBLIC_VISIBILITY = '//visibility:public';
 const LIMITED_VISIBILITY = `@${WORKSPACE}//:__subpackages__`;
+const isModuleRegExp = /^export|^import(?!declare globa)/m;
+const declaresGlobalRegExp = /^declare global/m;
+const isNotOnlyDeclaredModuleRegExp = /^\w(?!eclare module)/m;
+const declaredModulesRegExp = /^declare module ["']([\w-_/]+)["'] \{/gm;
 function generateBuildFileHeader(visibility = PUBLIC_VISIBILITY) {
     return `# Generated file from ${RULE_TYPE} rule.
 # See rules_nodejs/internal/npm_install/generate_build_file.ts
@@ -520,6 +524,24 @@ function findFile(pkg, m) {
     }
     return undefined;
 }
+function mapOfSetsToObjOfArray(map, mapFn) {
+    const ret = {};
+    for (const [key, value] of map.entries()) {
+        ret[key] = Array.from(value, mapFn);
+    }
+    return ret;
+}
+function matchAll(string, regex) {
+    if (regex.flags.indexOf('g') === -1) {
+        throw new Error('matchAll will infinitely loop without the `g` flag set');
+    }
+    const matches = [];
+    let match;
+    while ((match = regex.exec(string)) !== null) {
+        matches.push(match);
+    }
+    return matches;
+}
 function printPackage(pkg) {
     function starlarkFiles(attr, files, comment = '') {
         return `
@@ -527,9 +549,46 @@ function printPackage(pkg) {
         ${files.map((f) => `"//:node_modules/${pkg._dir}/${f}",`).join('\n        ')}
     ],`;
     }
+    function starlarkStringListDict(attr, dict) {
+        return `\n${attr} = ${JSON.stringify(dict, undefined, '    ')},`.split('\n').join('\n    ');
+    }
     const includedRunfiles = filterFiles(pkg._runfiles, INCLUDED_FILES);
+    let declaredModules = undefined;
     const pkgFiles = includedRunfiles.filter((f) => !f.startsWith('node_modules/'));
-    const pkgFilesStarlark = pkgFiles.length ? starlarkFiles('srcs', pkgFiles) : '';
+    const ambientFiles = pkgFiles.filter((fileName) => {
+        if (!fileName.endsWith('.d.ts')) {
+            return false;
+        }
+        const fileContents = fs.readFileSync(path.join('node_modules', pkg._dir, fileName), { encoding: 'utf-8' });
+        if (isModuleRegExp.test(fileContents) && !declaresGlobalRegExp.test(fileContents)) {
+            return false;
+        }
+        else {
+            let modulesDeclaredHere = matchAll(fileContents, declaredModulesRegExp);
+            if (modulesDeclaredHere.length > 0) {
+                if (!declaredModules) {
+                    declaredModules = new Map();
+                }
+                for (const moduleDeclaredHere of modulesDeclaredHere) {
+                    const moduleName = moduleDeclaredHere[1];
+                    if (!declaredModules.has(moduleName)) {
+                        declaredModules.set(moduleName, new Set());
+                    }
+                    declaredModules.get(moduleName).add(fileName);
+                }
+                if (!isNotOnlyDeclaredModuleRegExp.test(fileContents)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    });
+    const pkgAmbientFilesStarlark = ambientFiles.length ? starlarkFiles('srcs', ambientFiles) : '';
+    const nonAmbientFiles = pkgFiles.filter((f) => ambientFiles.indexOf(f) === -1);
+    const nonAmbientFilesStarlark = nonAmbientFiles.length ? starlarkFiles('srcs', nonAmbientFiles) : '';
+    const declaredModulesStarlark = declaredModules ?
+        starlarkStringListDict('declared_modules', mapOfSetsToObjOfArray(declaredModules, (fileName) => `${pkg._dir.replace(/[^\/]*./g, '../')}node_modules/${pkg._dir}/${fileName}`)) :
+        '';
     const nestedNodeModules = includedRunfiles.filter((f) => f.startsWith('node_modules/'));
     const nestedNodeModulesStarlark = nestedNodeModules.length ? starlarkFiles('srcs', nestedNodeModules) : '';
     const notPkgFiles = pkg._files.filter((f) => !f.startsWith('node_modules/') && !includedRunfiles.includes(f));
@@ -540,10 +599,13 @@ function printPackage(pkg) {
     const namedSourcesStarlark = namedSources.length ?
         starlarkFiles('named_module_srcs', namedSources, '# subset of srcs that are javascript named-UMD or named-AMD scripts') :
         '';
-    const dtsSources = filterFiles(pkg._runfiles, ['.d.ts']).filter((f) => !f.startsWith('node_modules/'));
-    const dtsStarlark = dtsSources.length ?
+    const dtsSources = filterFiles(pkg._runfiles, [
+        '.d.ts'
+    ]).filter((f) => !f.startsWith('node_modules/') && ambientFiles.indexOf(f) === -1);
+    const dtsStarlark = (dtsSources.length ?
         starlarkFiles('srcs', dtsSources, `# ${pkg._dir} package declaration files (and declaration files in nested node_modules)`) :
-        '';
+        '') +
+        (ambientFiles.length ? starlarkFiles('ambient_srcs', ambientFiles) : '');
     const deps = [pkg].concat(pkg._dependencies.filter(dep => dep !== pkg && !dep._isNested));
     const depsStarlark = deps.map(dep => `"//${dep._dir}:${dep._name}__contents",`).join('\n        ');
     let result = `load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
@@ -554,7 +616,19 @@ ${printJson(pkg)}
 # Files that are part of the npm package not including its nested node_modules
 # (filtered by the 'included_files' attribute)
 filegroup(
-    name = "${pkg._name}__files",${pkgFilesStarlark}
+    name = "${pkg._name}__nonambient_files",${nonAmbientFilesStarlark}
+)
+
+# Files that have side-effects and must always be loaded
+filegroup(
+    name = "${pkg._name}__ambient_files",${pkgAmbientFilesStarlark}
+)
+
+# Files that are part of the npm package not including its nested node_modules
+# (filtered by the 'included_files' attribute)
+filegroup(
+    name = "${pkg._name}__files",
+    srcs = ["${pkg._name}__nonambient_files", "${pkg._name}__ambient_files"]
 )
 
 # Files that are in the npm package's nested node_modules
@@ -595,13 +669,14 @@ js_library(
 # Target is used as dep for main targets to prevent circular dependencies errors
 js_library(
     name = "${pkg._name}__contents",
-    srcs = [":${pkg._name}__files", ":${pkg._name}__nested_node_modules"],${namedSourcesStarlark}
+    srcs = [":${pkg._name}__nonambient_files", ":${pkg._name}__nested_node_modules"],
+    ambient_srcs = [":${pkg._name}__ambient_files"],${declaredModulesStarlark}${namedSourcesStarlark}
     visibility = ["//:__subpackages__"],
 )
 
 # Typings files that are part of the npm package not including nested node_modules
 js_library(
-    name = "${pkg._name}__typings",${dtsStarlark}
+    name = "${pkg._name}__typings",${dtsStarlark}${declaredModulesStarlark}
 )
 
 `;
@@ -733,11 +808,15 @@ function printScope(scope, pkgs) {
     deps = [...pkgs, ...new Set(deps)];
     let pkgFilesStarlark = '';
     if (deps.length) {
-        const list = deps.map(dep => `"//${dep._dir}:${dep._name}__files",`).join('\n        ');
+        const nonambientList = deps.map(dep => `"//${dep._dir}:${dep._name}__nonambient_files",`).join('\n        ');
+        const ambientList = deps.map(dep => `"//${dep._dir}:${dep._name}__ambient_files",`).join('\n        ');
         pkgFilesStarlark = `
     # direct sources listed for strict deps support
     srcs = [
-        ${list}
+        ${nonambientList}
+    ],
+    ambient_srcs = [
+        ${ambientList}
     ],`;
     }
     let depsStarlark = '';

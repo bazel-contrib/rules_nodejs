@@ -32,10 +32,12 @@ load(
 )
 
 _ATTRS = {
+    "ambient_srcs": attr.label_list(allow_files = True),
     "amd_names": attr.string_dict(
         doc = """Non-public legacy API, not recommended to make new usages.
         See documentation on AmdNamesInfo""",
     ),
+    "declared_modules": attr.string_list_dict(),
     "deps": attr.label_list(),
     "is_windows": attr.bool(
         doc = "Internal use only. Automatically set by macro",
@@ -86,9 +88,10 @@ def write_amd_names_shim(actions, amd_names_shim, targets):
     actions.write(amd_names_shim, amd_names_shim_content)
 
 def _impl(ctx):
-    input_files = ctx.files.srcs + ctx.files.named_module_srcs
+    input_files = ctx.files.srcs + ctx.files.ambient_srcs + ctx.files.named_module_srcs
     all_files = []
     typings = []
+    ambient_typings = []
     js_files = []
     named_module_files = []
     include_npm_package_info = False
@@ -125,7 +128,10 @@ def _impl(ctx):
             # the tsconfig "lib" attribute
             len(file.path.split("/node_modules/")) < 3 and file.path.find("/node_modules/typescript/lib/lib.") == -1
         ):
-            typings.append(file)
+            if file in ctx.files.ambient_srcs:
+                ambient_typings.append(file)
+            else:
+                typings.append(file)
 
         # auto detect if it entirely an npm package
         #
@@ -140,7 +146,7 @@ def _impl(ctx):
             include_npm_package_info = True
 
         # ctx.files.named_module_srcs are merged after ctx.files.srcs
-        if idx >= len(ctx.files.srcs):
+        if idx >= len(ctx.files.srcs) + len(ctx.files.ambient_srcs):
             named_module_files.append(file)
 
         # every single file on bin should be added here
@@ -150,12 +156,14 @@ def _impl(ctx):
     js_files_depset = depset(js_files)
     named_module_files_depset = depset(named_module_files)
     typings_depset = depset(typings)
+    ambient_typings_depset = depset(ambient_typings)
 
     files_depsets = [files_depset]
     npm_sources_depsets = [files_depset]
     direct_sources_depsets = [files_depset]
     direct_named_module_sources_depsets = [named_module_files_depset]
     typings_depsets = [typings_depset]
+    ambient_typings_depsets = [ambient_typings_depset]
     js_files_depsets = [js_files_depset]
 
     for dep in ctx.attr.deps:
@@ -171,6 +179,8 @@ def _impl(ctx):
             if DeclarationInfo in dep:
                 typings_depsets.append(dep[DeclarationInfo].declarations)
                 direct_sources_depsets.append(dep[DeclarationInfo].declarations)
+                if getattr(dep[DeclarationInfo], "transitive_ambient_declarations"):
+                    ambient_typings_depsets.append(dep[DeclarationInfo].transitive_ambient_declarations)
             if DefaultInfo in dep:
                 files_depsets.append(dep[DefaultInfo].files)
 
@@ -216,6 +226,7 @@ def _impl(ctx):
         providers.append(declaration_info(
             declarations = decls,
             deps = ctx.attr.deps,
+            ambient_declarations = depset(transitive = ambient_typings_depsets),
         ))
         providers.append(OutputGroupInfo(types = decls))
 
