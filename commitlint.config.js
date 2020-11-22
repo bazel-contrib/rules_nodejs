@@ -8,6 +8,7 @@ module.exports = {
       [
         'angular',
         'builtin',
+        'browsers',
         'create',
         'cypress',
         'examples',

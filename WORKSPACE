@@ -155,6 +155,11 @@ browser_repositories(
     firefox = True,
 )
 
+# Browser binaries wrapper
+load("//packages/browsers:index.bzl", _browser_repositories = "browser_repositories")
+
+_browser_repositories()
+
 #
 # Dependencies to run stardoc & generating documentation
 #
