@@ -43,7 +43,10 @@ ts_config(
 ts_library(
     name = "test_lib",
     testonly = True,
-    srcs = ["car.spec.ts"],
+    srcs = [
+        "car.spec.ts",
+        "external.spec.ts",
+    ],
     tsconfig = "//:tsconfig-test",
     deps = [
         ":car",
