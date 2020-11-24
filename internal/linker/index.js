@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const fs = require("fs");
 const path = require("path");
 const VERBOSE_LOGS = !!process.env['VERBOSE_LOGS'];
+const BAZEL_OUT_REGEX = /(\/bazel-out\/|\/bazel-~1\/x64_wi~1\/)/;
 function log_verbose(...m) {
     if (VERBOSE_LOGS)
         console.error('[link_node_modules.js]', ...m);
@@ -124,7 +125,7 @@ function resolveRoot(root, startCwd, isExecroot, runfiles) {
         if (isExecroot) {
             return root ? `${startCwd}/external/${root}` : `${startCwd}/node_modules`;
         }
-        const match = startCwd.match(/(\/bazel-out\/|\/bazel-~1\/x64_wi~1\/)/);
+        const match = startCwd.match(BAZEL_OUT_REGEX);
         if (!match) {
             if (!root) {
                 return `${startCwd}/node_modules`;
@@ -176,14 +177,22 @@ class Runfiles {
     lookupDirectory(dir) {
         if (!this.manifest)
             return undefined;
+        let result;
         for (const [k, v] of this.manifest) {
             if (k.startsWith(`${dir}/external`))
                 continue;
             if (k.startsWith(dir)) {
                 const l = k.length - dir.length;
-                return v.substring(0, v.length - l);
+                const maybe = v.substring(0, v.length - l);
+                if (maybe.match(BAZEL_OUT_REGEX)) {
+                    return maybe;
+                }
+                else {
+                    result = maybe;
+                }
             }
         }
+        return result;
     }
     loadRunfilesManifest(manifestPath) {
         log_verbose(`using runfiles manifest ${manifestPath}`);
@@ -470,6 +479,13 @@ function main(args, runfiles) {
                             }
                             try {
                                 target = runfiles.resolve(runfilesPath);
+                                if (runfiles.manifest && root == 'execroot' && modulePath.startsWith(`${bin}/`)) {
+                                    if (!target.includes(`/${bin}/`)) {
+                                        const e = new Error(`could not resolve modulePath ${modulePath}`);
+                                        e.code = 'MODULE_NOT_FOUND';
+                                        throw e;
+                                    }
+                                }
                             }
                             catch (_a) {
                                 target = '<runfiles resolution failed>';
