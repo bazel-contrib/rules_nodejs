@@ -1,3 +1,18 @@
+## [2.3.1](https://github.com/bazelbuild/rules_nodejs/compare/2.3.0...2.3.1) (2020-11-24)
+
+
+### Bug Fixes
+
+* **builtin:** make linker deterministic when resolving from manifest & fix link_workspace_root with no runfiles ([8adebda](https://github.com/bazelbuild/rules_nodejs/commit/8adebda))
+* npm_package.pack on Windows should not generate undefined.tgz ([76c3f51](https://github.com/bazelbuild/rules_nodejs/commit/76c3f51))
+
+
+### Performance Improvements
+
+* **cypress:** pack cypress runfiles into a single tar ([185c632](https://github.com/bazelbuild/rules_nodejs/commit/185c632))
+
+
+
 # [2.3.0](https://github.com/bazelbuild/rules_nodejs/compare/2.2.2...2.3.0) (2020-11-10)
 
 
