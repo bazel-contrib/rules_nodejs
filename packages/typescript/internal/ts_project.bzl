@@ -629,19 +629,17 @@ def ts_project_macro(
 
     if supports_workers:
         tsc_worker = "%s_worker" % name
-        protobufjs = (
-            # BEGIN-INTERNAL
-            "@npm" +
-            # END-INTERNAL
-            "//protobufjs"
-        )
         nodejs_binary(
             name = tsc_worker,
             data = [
+                # BEGIN-INTERNAL
+                # Users get this dependency transitively from @bazel/typescript
+                # but that's our own code, so we don't.
+                "@npm//protobufjs",
+                # END-INTERNAL
                 Label("//packages/typescript/internal/worker:worker"),
                 Label(worker_tsc_bin),
                 Label(worker_typescript_module),
-                Label(protobufjs),
                 tsconfig,
             ],
             entry_point = Label("//packages/typescript/internal/worker:worker_adapter"),
