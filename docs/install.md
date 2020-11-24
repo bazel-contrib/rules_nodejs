@@ -68,7 +68,7 @@ Note that some of our packages have started to use features from Node 12, so you
 
 > Now that Node 12 is LTS (Long-term support) we encourage you to upgrade, and don't intend to fix bugs which are only observed in Node 10 or lower.
 
-The available versions are documented on the `node_repositories` rule in the [Built-ins](Built-ins.md).
+The available versions are documented on the `node_repositories` rule in the <Built-ins>.
 
 Add to `WORKSPACE`:
 
