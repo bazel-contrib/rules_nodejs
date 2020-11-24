@@ -48,10 +48,11 @@ Check if there are any breaking changes since the last tag - if so, this will be
 1. Manually update the CHANGELOG.md based on the commits since the last release. Look for breaking changes that weren't documented.
 1. If publishing from inside Google, set NPM_REGISTRY="--registry https://wombat-dressing-room.appspot.com" in your environment
 1. Build npm packages and publish them: `./scripts/publish_release.sh`
-1. Run `./scripts/update_nested_lock_files.sh` to update the lock files in all nested workspaces to new release
-1. `git commit -a -m 'chore: update lock files for release'`
 1. `git push upstream && git push upstream --tags`
 1. (Manual for now): go to the [releases] page, edit the release with rough changelog (especially note any breaking changes!) and upload the release artifact from `rules_nodejs-[version].tar.gz`. Also copy the release notes from CHANGELOG.md
-1. Announce the release on Angular slack in `#tools-abc-discuss`
+1. Announce the release on Bazel slack in `#javascript`
+1. Run `yarn stardoc` again so the new release http_archive gets updated in the .html copy of install.md
+1. Run `./scripts/update_nested_lock_files.sh` to update the lock files in all nested workspaces to new release
+1. `git commit -a -m 'chore: update lock files for release'; git push upstream`
 
 [releases]: https://github.com/bazelbuild/rules_nodejs/releases
