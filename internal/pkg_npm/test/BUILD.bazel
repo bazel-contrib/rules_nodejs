@@ -47,7 +47,10 @@ pkg_npm(
     ],
     nested_packages = [":dependent_pkg"],
     node_context_data = ":force_stamp",
-    substitutions = {"replace_me": "replaced"},
+    substitutions = {
+        "0.0.0-PLACEHOLDER": "{BUILD_SCM_VERSION}",
+        "replace_me": "replaced",
+    },
     vendor_external = [
         "internal_npm_package_test_vendored_external",
     ],
