@@ -332,6 +332,12 @@ readonly child=$!
 trap _term SIGTERM
 trap _int SIGINT
 wait "${child}"
+# Remove trap after first signal has been receieved and wait for child to exit
+# (first wait returns immediatel if SIGTERM is received while waiting). Second
+# wait is a no-op if child has already terminated.
+trap - SIGTERM SIGINT
+wait "${child}"
+
 RESULT="$?"
 set -e
 
