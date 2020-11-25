@@ -85,16 +85,6 @@ PKG_NPM_ATTRS = dict(NODE_CONTEXT_ATTRS, **{
     "package_name": attr.string(
         doc = """Optional package_name that this npm package may be imported as.""",
     ),
-    "replace_with_version": attr.string(
-        doc = """DEPRECATED: use substitutions instead.
-
-`replace_with_version = "my_version_placeholder"` is just syntax sugar for
-`substitutions = {"my_version_placeholder": "{BUILD_SCM_VERSION}"}`.
-
-Follow this deprecation at https://github.com/bazelbuild/rules_nodejs/issues/2158
-""",
-        default = "0.0.0-PLACEHOLDER",
-    ),
     "srcs": attr.label_list(
         doc = """Files inside this directory which are simply copied into the package.""",
         allow_files = True,
@@ -196,12 +186,6 @@ def create_package(ctx, deps_files, nested_packages):
     # current package unless explicitely specified.
     filtered_deps_sources = _filter_out_external_files(ctx, deps_files, package_path)
 
-    # Back-compat for the replace_with_version stamping
-    # see https://github.com/bazelbuild/rules_nodejs/issues/2158 for removal
-    substitutions = dict(**ctx.attr.substitutions)
-    if stamp and ctx.attr.replace_with_version:
-        substitutions.setdefault(ctx.attr.replace_with_version, "{BUILD_SCM_VERSION}")
-
     args = ctx.actions.args()
     inputs = ctx.files.srcs + deps_files + nested_packages
 
@@ -213,7 +197,7 @@ def create_package(ctx, deps_files, nested_packages):
     args.add(ctx.genfiles_dir.path)
     args.add_joined(filtered_deps_sources, join_with = ",", omit_if_empty = False)
     args.add_joined([p.path for p in nested_packages], join_with = ",", omit_if_empty = False)
-    args.add(substitutions)
+    args.add(ctx.attr.substitutions)
 
     if stamp:
         # The version_file is an undocumented attribute of the ctx that lets us read the volatile-status.txt file

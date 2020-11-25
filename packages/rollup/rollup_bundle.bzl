@@ -308,9 +308,6 @@ def _rollup_bundle(ctx):
         output = config,
         substitutions = {
             "bazel_info_file": "\"%s\"" % ctx.info_file.path if stamp else "undefined",
-            # Back-compat: we used to replace a variable "bazel_stamp_file"
-            # Remove in 3.0: https://github.com/bazelbuild/rules_nodejs/issues/2158
-            "bazel_stamp_file": "\"%s\"" % ctx.version_file.path if stamp else "undefined",
             "bazel_version_file": "\"%s\"" % ctx.version_file.path if stamp else "undefined",
         },
     )
