@@ -137,14 +137,14 @@ try {
   }
 
   /**
-   * Configuration settings for karma under Bazel common to karma_web_test
-   * and karma_web_test_suite.
+   * Configuration settings for karma under Bazel common to concatjs_web_test
+   * and concatjs_web_test_suite.
    */
   function configureBazelConfig(config, conf) {
     // list of karma plugins
     mergeConfigArray(conf, 'plugins', [
       // Loads 'concat_js'
-      require('@bazel/karma'),
+      require('@bazel/concatjs'),
       // Load plugins that are peer deps. These packages are used in this config file.
       require('karma-chrome-launcher'),
       require('karma-firefox-launcher'),
@@ -279,7 +279,7 @@ try {
   }
 
   /**
-   * Configure karma under karma_web_test_suite.
+   * Configure karma under concatjs_web_test_suite.
    * `browsers` and `customLaunchers` are setup by Bazel.
    */
   function configureTsWebTestSuiteConfig(conf) {
@@ -287,7 +287,7 @@ try {
     // of the browsers attribute passed to karms_web_test_suite
     // We setup the karma configuration based on the values in this object
     if (!process.env['WEB_TEST_METADATA']) {
-      // This is a karma_web_test rule since there is no WEB_TEST_METADATA
+      // This is a concatjs_web_test rule since there is no WEB_TEST_METADATA
       return;
     }
 
@@ -369,7 +369,7 @@ try {
 
   function configureTsWebTestConfig(conf) {
     if (process.env['WEB_TEST_METADATA']) {
-      // This is a karma_web_test_suite rule since there is a WEB_TEST_METADATA
+      // This is a concatjs_web_test_suite rule since there is a WEB_TEST_METADATA
       return;
     }
 

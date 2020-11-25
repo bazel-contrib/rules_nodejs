@@ -100,7 +100,7 @@ if (onPreparePath) {
 }
 
 // Override the user's base protractor configuration as appropriate based on the
-// karma_web_test_suite & rules_webtesting WEB_TEST_METADATA attributes
+// concatjs_web_test_suite & rules_webtesting WEB_TEST_METADATA attributes
 setConf(conf, 'framework', 'jasmine2', 'is set to jasmine2');
 
 const specs =
@@ -109,7 +109,7 @@ const specs =
 setConf(conf, 'specs', specs, 'are determined by the srcs and deps attribute');
 
 // WEB_TEST_METADATA is configured in rules_webtesting based on value
-// of the browsers attribute passed to karma_web_test_suite
+// of the browsers attribute passed to concatjs_web_test_suite
 // We setup the protractor configuration based on the values in this object
 if (process.env['WEB_TEST_METADATA']) {
   const webTestMetadata = require(process.env['WEB_TEST_METADATA']);

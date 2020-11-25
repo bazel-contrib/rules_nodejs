@@ -299,8 +299,8 @@ def protractor_web_test_suite(
       browsers: A sequence of labels specifying the browsers to use.
       web_test_data: Data dependencies for the wrapper web_test targets.
       wrapped_test_tags: A list of test tag strings to use for the wrapped
-        karma_web_test target.
-      **kwargs: Arguments for the wrapped karma_web_test target.
+        concatjs_web_test target.
+      **kwargs: Arguments for the wrapped concatjs_web_test target.
     """
 
     # Common attributes
@@ -327,7 +327,7 @@ def protractor_web_test_suite(
         if not "native" in tags:
             tags = tags + ["native"]
 
-    # The wrapped `karma_web_test` target
+    # The wrapped `concatjs_web_test` target
     wrapped_test_name = name + "_wrapped_test"
     protractor_web_test(
         name = wrapped_test_name,

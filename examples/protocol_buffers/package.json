@@ -1,7 +1,6 @@
 {
   "devDependencies": {
     "@bazel/concatjs": "^2.2.2",
-    "@bazel/karma": "^2.2.2",
     "@bazel/labs": "^2.2.2",
     "@bazel/protractor": "^2.2.2",
     "@bazel/rollup": "^2.2.2",

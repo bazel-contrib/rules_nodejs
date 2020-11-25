@@ -1,4 +1,4 @@
-load("@npm//@bazel/karma:index.bzl", "karma_web_test_suite")
+load("@npm//@bazel/concatjs:index.bzl", "concatjs_web_test_suite")
 load("@npm//@bazel/typescript:index.bzl", "ts_config", "ts_library")
 
 ts_library(
@@ -35,7 +35,7 @@ ts_library(
     ],
 )
 
-karma_web_test_suite(
+concatjs_web_test_suite(
     name = "config_test",
     browsers = [
         "@io_bazel_rules_webtesting//browsers:chromium-local",
@@ -55,7 +55,7 @@ karma_web_test_suite(
     ],
 )
 
-karma_web_test_suite(
+concatjs_web_test_suite(
     name = "no_config_test",
     browsers = [
         "@io_bazel_rules_webtesting//browsers:chromium-local",

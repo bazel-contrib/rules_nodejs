@@ -4,7 +4,7 @@ if (typeof module === 'object' && typeof module.exports === 'object') {
   if (v !== undefined) module.exports = v;
 } else if (typeof define === 'function' && define.amd) {
   define(
-      'build_bazel_rules_nodejs/packages/karma/test/karma/decrement', ['require', 'exports'],
+      'build_bazel_rules_nodejs/packages/concatjs/web_test/test/karma/decrement', ['require', 'exports'],
       factory);
 }
 })(function(require, exports) {

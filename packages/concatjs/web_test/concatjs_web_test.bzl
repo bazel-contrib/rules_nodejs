@@ -20,7 +20,7 @@ load("@io_bazel_rules_webtesting//web/internal:constants.bzl", "DEFAULT_WRAPPED_
 
 KARMA_PEER_DEPS = [
     # NB: uncommented during pkg_npm
-    #@external "@npm//@bazel/karma",
+    #@external "@npm//@bazel/concatjs",
     "@npm//jasmine-core",
     "@npm//karma",
     "@npm//karma-chrome-launcher",
@@ -31,7 +31,7 @@ KARMA_PEER_DEPS = [
     "@npm//requirejs",
 ]
 
-KARMA_WEB_TEST_ATTRS = {
+CONCATJS_WEB_TEST_ATTRS = {
     "bootstrap": attr.label_list(
         doc = """JavaScript files to include *before* the module loader (require.js).
         For example, you can include Reflect,js for TypeScript decorator metadata reflection,
@@ -63,7 +63,7 @@ KARMA_WEB_TEST_ATTRS = {
     "karma": attr.label(
         doc = "karma binary label",
         # NB: replaced during pkg_npm with "@npm//karma/bin:karma"
-        default = "//packages/karma:karma_bin",
+        default = "//packages/concatjs/web_test:karma_bin",
         executable = True,
         cfg = "target",
         allow_files = True,
@@ -87,7 +87,7 @@ KARMA_WEB_TEST_ATTRS = {
         allow_files = True,
     ),
     "_conf_tmpl": attr.label(
-        default = "//packages/karma:karma.conf.js",
+        default = "//packages/concatjs/web_test:karma.conf.js",
         allow_single_file = True,
     ),
 }
@@ -207,7 +207,7 @@ def _write_karma_config(ctx, files, amd_names_shim):
 
     return configuration
 
-def _karma_web_test_impl(ctx):
+def _concatjs_web_test_impl(ctx):
     files_depsets = [depset(ctx.files.srcs)]
     for dep in ctx.attr.deps + ctx.attr.runtime_deps:
         if JSNamedModuleInfo in dep:
@@ -316,17 +316,17 @@ ${{COMMAND}}
         executable = ctx.outputs.executable,
     )]
 
-_karma_web_test = rule(
-    implementation = _karma_web_test_impl,
+_concatjs_web_test = rule(
+    implementation = _concatjs_web_test_impl,
     test = True,
     executable = True,
-    attrs = KARMA_WEB_TEST_ATTRS,
+    attrs = CONCATJS_WEB_TEST_ATTRS,
     outputs = {
         "configuration": "%{name}.conf.js",
     },
 )
 
-def karma_web_test(
+def concatjs_web_test(
         srcs = [],
         deps = [],
         data = [],
@@ -361,7 +361,7 @@ def karma_web_test(
 
     By default we open a headless Chrome. To use a real Chrome browser window, you can pass
     `--define DISPLAY=true` to Bazel, along with `configuration_env_vars = ["DISPLAY"]` on
-    `karma_web_test`.
+    `concatjs_web_test`.
 
     Args:
       srcs: A list of JavaScript test files
@@ -385,11 +385,11 @@ def karma_web_test(
           certain attributes of this configuration file. Attributes that are
           overridden will be outputted to the test log.
       tags: Standard Bazel tags, this macro adds tags for ibazel support
-      peer_deps: list of peer npm deps required by karma_web_test
-      **kwargs: Passed through to `karma_web_test`
+      peer_deps: list of peer npm deps required by concatjs_web_test
+      **kwargs: Passed through to `concatjs_web_test`
     """
 
-    _karma_web_test(
+    _concatjs_web_test(
         srcs = srcs,
         deps = deps + peer_deps,
         data = data,
@@ -405,16 +405,16 @@ def karma_web_test(
         **kwargs
     )
 
-def karma_web_test_suite(
+def concatjs_web_test_suite(
         name,
         browsers = None,
         web_test_data = [],
         wrapped_test_tags = list(DEFAULT_WRAPPED_TEST_TAGS),
         **kwargs):
-    """Defines a test_suite of web_test targets that wrap a karma_web_test target.
+    """Defines a test_suite of web_test targets that wrap a concatjs_web_test target.
 
-    This macro accepts all parameters in karma_web_test and adds additional parameters
-    for the suite. See karma_web_test docs for all karma_web_test.
+    This macro accepts all parameters in concatjs_web_test and adds additional parameters
+    for the suite. See concatjs_web_test docs for all concatjs_web_test.
 
     The wrapping macro is `web_test_suite` which comes from rules_websting:
     https://github.com/bazelbuild/rules_webtesting/blob/master/web/web.bzl.
@@ -424,8 +424,8 @@ def karma_web_test_suite(
       browsers: A sequence of labels specifying the browsers to use.
       web_test_data: Data dependencies for the wrapper web_test targets.
       wrapped_test_tags: A list of test tag strings to use for the wrapped
-        karma_web_test target.
-      **kwargs: Arguments for the wrapped karma_web_test target.
+        concatjs_web_test target.
+      **kwargs: Arguments for the wrapped concatjs_web_test target.
     """
 
     # Common attributes
@@ -452,9 +452,9 @@ def karma_web_test_suite(
         if not "native" in tags:
             tags = tags + ["native"]
 
-    # The wrapped `karma_web_test` target
+    # The wrapped `concatjs_web_test` target
     wrapped_test_name = name + "_wrapped_test"
-    karma_web_test(
+    concatjs_web_test(
         name = wrapped_test_name,
         args = args,
         flaky = flaky,
