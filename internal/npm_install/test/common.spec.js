@@ -15,6 +15,10 @@ describe('dependencies', () => {
     require('ajv/lib/$data');
   });
 
+  it(`should resolve local-module`, () => {
+    require('local-module');
+  });
+
   it(`should resolve rxjs/src/tsconfig.json`, () => {
     // the BUILD.bazel file in rxjs/src should have been
     // deleted by fine grained deps and rxjs/src/tsconfig.json

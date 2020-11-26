@@ -126,6 +126,7 @@ sh_test(
         "@fine_grained_deps_%s//jasmine" % pkgmgr,
         "@fine_grained_deps_%s//jasmine-core" % pkgmgr,
         "@fine_grained_deps_%s//ajv" % pkgmgr,
+        "@fine_grained_deps_%s//local-module" % pkgmgr,
         "@fine_grained_deps_%s//typescript" % pkgmgr,
         "@fine_grained_deps_%s//rxjs" % pkgmgr,
         # Note, test-b depends on test-a@0.0.1 which should be

@@ -192,6 +192,9 @@ local_repository(
 yarn_install(
     name = "fine_grained_deps_yarn",
     data = [
+        "//:tools/npm_packages/local_module/BUILD.bazel",
+        "//:tools/npm_packages/local_module/index.js",
+        "//:tools/npm_packages/local_module/package.json",
         "//internal/npm_install/test:postinstall.js",
     ],
     environment = {
@@ -212,6 +215,9 @@ yarn_install(
 npm_install(
     name = "fine_grained_deps_npm",
     data = [
+        "//:tools/npm_packages/local_module/BUILD.bazel",
+        "//:tools/npm_packages/local_module/index.js",
+        "//:tools/npm_packages/local_module/package.json",
         "//internal/npm_install/test:postinstall.js",
     ],
     environment = {
