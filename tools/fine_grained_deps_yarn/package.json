@@ -12,6 +12,7 @@
     "chokidar": "2.0.4",
     "http-server": "github:alexeagle/http-server#97205e945b69091606ed83aa0c8489e9ce65d282",
     "klaw": "1.3.1",
+    "local-module": "link:tools/npm_packages/local_module/yarn",
     "rxjs": "6.5.0"
   },
   "scripts": {

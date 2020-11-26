@@ -947,6 +947,24 @@ Defaults to `True`
 
 Defaults to `3600`
 
+**LOCAL MODULES**
+
+When using a monorepo is common to have locally written modules that we both 
+want to use locally while publicly publishing them. To achieve it, we need 
+to declare the package with `file:` in the monorepo `package.json` and 
+define a `BUILD` file for that local package with a `js_library` rule 
+defining its `package_name` argument.
+
+Doing what is mentioned above will be creating a link to the previous 
+created `BUILD` file from the npm external Bazel repository, which require 
+us to complete a last step which writing the expected targets on that 
+same `BUILD` file to be later used by the `npm_install` rule, which 
+are: `<package_name__files>`, `<package_name__nested_node_modules>`, 
+`<package_name__contents>`, `<package_name__typings>` and the last 
+one just `<package_name>`.
+
+If you doubt what those targets should look like, check the 
+generated `BUILD` file for a given node module. 
 
 
 ## pkg_npm
@@ -1314,6 +1332,24 @@ Defaults to `True`
 (*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>, mandatory*)
 
 
+**LOCAL MODULES**
+
+When using a monorepo is common to have locally written modules that we both 
+want to use locally while publicly publishing them. To achieve it, we need 
+to declare the package with `link:` in the monorepo `package.json` and 
+define a `BUILD` file for that local package with a `js_library` rule 
+defining its `package_name` argument.
+
+Doing what is mentioned above will be creating a link to the previous 
+created `BUILD` file from the npm external Bazel repository, which require 
+us to complete a last step which writing the expected targets on that 
+same `BUILD` file to be later used by the `yarn_install` rule, which 
+are: `<package_name__files>`, `<package_name__nested_node_modules>`, 
+`<package_name__contents>`, `<package_name__typings>` and the last 
+one just `<package_name>`.
+
+If you doubt what those targets should look like, check the 
+generated `BUILD` file for a given node module. 
 
 
 ## check_bazel_version
