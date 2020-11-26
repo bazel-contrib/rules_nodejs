@@ -1,0 +1,13 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test", "nodejs_binary")
+
+nodejs_binary(
+    name = "binary",
+    data = [":test.js"],
+    entry_point = ":test.js",
+)
+
+nodejs_test(
+    name = "test",
+    data = [":test.js"],
+    entry_point = ":test.js",   
+)

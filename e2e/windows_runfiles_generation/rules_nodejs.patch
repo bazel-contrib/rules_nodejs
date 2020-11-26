@@ -1,0 +1,14 @@
+diff --git internal/common/windows_utils.bzl =internal/common/windows_utils.bzl
+index 1ae88c20..e984ddd2 100644
+--- internal/common/windows_utils.bzl
++++ =internal/common/windows_utils.bzl
+@@ -35,6 +35,9 @@ if "%RUNFILES_MANIFEST_ONLY%" neq "1" (
+   set %~2=%~1
+   exit /b 0
+ )
++if exist "%RUNFILES_DIR%" (
++  set RUNFILES_MANIFEST_FILE=%RUNFILES_DIR%_manifest
++)
+ if "%RUNFILES_MANIFEST_FILE%" equ "" (
+   set RUNFILES_MANIFEST_FILE=%~f0.runfiles\MANIFEST
+ )

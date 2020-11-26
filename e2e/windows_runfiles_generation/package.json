@@ -1,0 +1,9 @@
+{
+    "name": "e2e-windows-runfiles-generation",
+    "private": true,
+    "devDependencies": {
+    },
+    "scripts": {
+        "test": "bazel test ..."
+    }
+}

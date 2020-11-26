@@ -1,0 +1,23 @@
+diff --git internal/node/launcher.sh internal/node/launcher.sh
+index e685da73..ba38076e 100644
+--- internal/node/launcher.sh
++++ internal/node/launcher.sh
+@@ -148,14 +148,16 @@ fi
+
+ # Export the location of the runfiles helpers script
+ export BAZEL_NODE_RUNFILES_HELPER=$(rlocation "TEMPLATED_runfiles_helper_script")
+-if [[ "${BAZEL_NODE_RUNFILES_HELPER}" != /* ]] && [[ ! "${BAZEL_NODE_RUNFILES_HELPER}" =~ ^[A-Z]:[\\/] ]]; then
++# Paths can be with lower and upper case on windows because of the msys64 package in the powershell
++if [[ "${BAZEL_NODE_RUNFILES_HELPER}" != /* ]] && [[ ! "${BAZEL_NODE_RUNFILES_HELPER}" =~ ^[A-Za-z]:[\/\\] ]]; then
+   export BAZEL_NODE_RUNFILES_HELPER=$(pwd)/${BAZEL_NODE_RUNFILES_HELPER}
+ fi
+
+ # Export the location of the require patch script as it can be used to bootstrap
+ # node require patch if needed
+ export BAZEL_NODE_PATCH_REQUIRE=$(rlocation "TEMPLATED_require_patch_script")
+-if [[ "${BAZEL_NODE_PATCH_REQUIRE}" != /* ]] && [[ ! "${BAZEL_NODE_PATCH_REQUIRE}" =~ ^[A-Z]:[\\/] ]]; then
++# Paths can be with lower and upper case on windows because of the msys64 package in the powershell
++if [[ "${BAZEL_NODE_PATCH_REQUIRE}" != /* ]] && [[ ! "${BAZEL_NODE_PATCH_REQUIRE}" =~ ^[A-Za-z]:[\/\\] ]]; then
+   export BAZEL_NODE_PATCH_REQUIRE=$(pwd)/${BAZEL_NODE_PATCH_REQUIRE}
+ fi
+
