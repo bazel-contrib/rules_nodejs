@@ -41,48 +41,40 @@ See the section on stamping in the README.""",
     ),
 })
 
-def move_files(output_name, substitutions, version_file, info_file, stamp, files, action_factory, var, assembler, root_paths):
+def _move_files(ctx, root_paths):
     """Moves files into an output directory
 
     Args:
-      output_name: The name of the output directory
-      substitutions: key/value pairs to replace
-      version_file: bazel-out/volatile-status.txt
-      info_file: bazel-out/stable-status.txt
-      stamp: whether the build is performed with --stamp
-      files: The files to move
-      action_factory: Bazel's actions module from ctx.actions - see https://docs.bazel.build/versions/master/skylark/lib/actions.html
-      var: environment variables
-      assembler: The assembler executable
+      ctx: bazel's action context
       root_paths: Path prefixes to strip off all srcs. Longest wins.
 
     Returns:
       The output directory tree-artifact
     """
-    www_dir = action_factory.declare_directory(output_name)
-    args = action_factory.args()
-    inputs = files[:]
+    www_dir = ctx.actions.declare_directory(ctx.label.name)
+    args = ctx.actions.args()
+    inputs = ctx.files.srcs[:]
     args.add(www_dir.path)
-    if stamp:
-        args.add(version_file.path)
-        inputs.append(version_file)
-        args.add(info_file.path)
-        inputs.append(info_file)
+    if ctx.attr.node_context_data[NodeContextInfo].stamp:
+        args.add(ctx.version_file.path)
+        inputs.append(ctx.version_file)
+        args.add(ctx.info_file.path)
+        inputs.append(ctx.info_file)
     else:
         args.add_all(["", ""])
-    args.add(substitutions)
+    args.add(ctx.attr.substitutions)
     args.add_all(root_paths)
     args.add("--assets")
-    args.add_all([f.path for f in files])
+    args.add_all([f.path for f in ctx.files.srcs])
     args.use_param_file("%s", use_always = True)
 
-    action_factory.run(
+    ctx.actions.run(
         inputs = inputs,
         outputs = [www_dir],
-        executable = assembler,
+        executable = ctx.executable._assembler,
         arguments = [args],
         execution_requirements = {"local": "1"},
-        env = {"COMPILATION_MODE": var["COMPILATION_MODE"]},
+        env = {"COMPILATION_MODE": ctx.var["COMPILATION_MODE"]},
     )
     return depset([www_dir])
 
@@ -110,18 +102,7 @@ def additional_root_paths(ctx):
 
 def _impl(ctx):
     root_paths = additional_root_paths(ctx)
-    package_layout = move_files(
-        ctx.label.name,
-        ctx.attr.substitutions,
-        ctx.version_file,
-        ctx.info_file,
-        ctx.attr.node_context_data[NodeContextInfo].stamp,
-        ctx.files.srcs,
-        ctx.actions,
-        ctx.var,
-        ctx.executable._assembler,
-        root_paths,
-    )
+    package_layout = _move_files(ctx, root_paths)
     return [
         DefaultInfo(files = package_layout),
     ]
