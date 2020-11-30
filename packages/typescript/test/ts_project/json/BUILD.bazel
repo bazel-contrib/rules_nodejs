@@ -25,7 +25,14 @@ ts_project(
 ts_project(
     name = "tsconfig-decl-only",
     srcs = SRCS,
-    emit_declaration_only = True,
+    tsconfig = {
+        "compilerOptions": {
+            "declaration": True,
+            "emitDeclarationOnly": True,
+            "resolveJsonModule": True,
+            "types": [],
+        },
+    },
 )
 
 nodejs_test(
