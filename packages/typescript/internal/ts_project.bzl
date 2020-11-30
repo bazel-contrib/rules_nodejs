@@ -597,7 +597,7 @@ def ts_project_macro(
         write_tsconfig(
             name = "_gen_tsconfig_%s" % name,
             config = tsconfig,
-            files = srcs,
+            files = [s for s in srcs if _is_ts_src(s, allow_js)],
             extends = Label("//%s:%s" % (native.package_name(), name)).relative(extends) if extends else None,
             out = "tsconfig_%s.json" % name,
         )
@@ -659,6 +659,26 @@ def ts_project_macro(
 
     typings_out_dir = declaration_dir if declaration_dir else out_dir
     tsbuildinfo_path = ts_build_info_file if ts_build_info_file else name + ".tsbuildinfo"
+    js_outs = []
+    map_outs = []
+    typings_outs = []
+    typing_maps_outs = []
+
+    if not emit_declaration_only:
+        js_outs.extend(_out_paths(srcs, out_dir, root_dir, False, ".js"))
+    if source_map and not emit_declaration_only:
+        map_outs.extend(_out_paths(srcs, out_dir, root_dir, False, ".js.map"))
+    if declaration or composite:
+        typings_outs.extend(_out_paths(srcs, typings_out_dir, root_dir, allow_js, ".d.ts"))
+    if declaration_map:
+        typing_maps_outs.extend(_out_paths(srcs, typings_out_dir, root_dir, allow_js, ".d.ts.map"))
+
+    if not len(js_outs) and not len(typings_outs):
+        fail("""ts_project target "//{}:{}" is configured to produce no outputs.
+
+Note that ts_project must know the srcs in advance in order to predeclare the outputs.
+Check the srcs attribute to see that some .ts files are present (or .js files with allow_js=True).
+""".format(native.package_name(), name))
 
     ts_project(
         name = name,
@@ -670,10 +690,10 @@ def ts_project_macro(
         declaration_dir = declaration_dir,
         out_dir = out_dir,
         root_dir = root_dir,
-        js_outs = _out_paths(srcs, out_dir, root_dir, False, ".js") if not emit_declaration_only else [],
-        map_outs = _out_paths(srcs, out_dir, root_dir, False, ".js.map") if source_map and not emit_declaration_only else [],
-        typings_outs = _out_paths(srcs, typings_out_dir, root_dir, allow_js, ".d.ts") if declaration or composite else [],
-        typing_maps_outs = _out_paths(srcs, typings_out_dir, root_dir, allow_js, ".d.ts.map") if declaration_map else [],
+        js_outs = js_outs,
+        map_outs = map_outs,
+        typings_outs = typings_outs,
+        typing_maps_outs = typing_maps_outs,
         buildinfo_out = tsbuildinfo_path if composite or incremental else None,
         tsc = tsc,
         link_workspace_root = link_workspace_root,
