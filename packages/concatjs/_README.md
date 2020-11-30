@@ -13,13 +13,27 @@ around each file so that the Chrome DevTools shows the files in the tree as if t
 However at its core, concatjs requires a big tradeoff of a migration cost to buy-in, to get this incredible performance.
 The path of the JavaScript files is lost in the bundling process, so they must contain their module ID internally.
 
-Named AMD/UMD (non-anonymous require.js modules) and `goog.module` are the two JS module formats that are compatible with concatjs.
-Most packages do not ship with this format, so in order to use concatjs tooling, you have to shim your code and dependencies.
+[Named AMD/UMD modules](https://requirejs.org/docs/whyamd.html#namedmodules) and `goog.module` are the two JS module formats that are compatible with concatjs.
+Most packages do not ship with this format, so in order to use concatjs tooling, you have to shim your code and dependencies. See the [Compatibility](#compatibility) section below.
 
 This is at the core of how Google does JavaScript development.
 So Bazel rules that originated in Google's codebase have affordances for concatjs.
 For example `ts_library` produces named AMD modules in its "devmode" output, and
 `karma_web_test` expects to bundle inputs using concatjs.
+
+## Compatibility
+
+To make it easier to produce a UMD version of a third-party npm package, we automatically generate a target that uses Browserify to build one, using the `main` entry from the package's `package.json`.
+In most cases this will make the package loadable under concatjs.
+This target has a `__umd` suffix. For example, if your library is at `@npm//foo` then the UMD target is `@npm//foo:foo__umd`.
+
+An example where this fixes a users issue: <https://github.com/bazelbuild/rules_nodejs/issues/2317#issuecomment-735921318>
+
+In some cases, the generated UMD bundle is not sufficient, and in others it fails to build because it requires some special Browserify configuration.
+You can always write your own shim that grabs a symbol from a package you use, and exposes it in an AMD/require.js-compatible way.
+For example, even though RxJS ships with a UMD bundle, it contains multiple entry points and uses anonymous modules, not named modules. So our Angular/concatjs example has a `rxjs_shims.js` file that exposes some RxJS operators, then at <https://github.com/bazelbuild/rules_nodejs/blob/2.3.1/examples/angular/src/BUILD.bazel#L65-L71> this is combined in a `filegroup` with the `rxjs.umd.js` file. Now we use this filegroup target when depending on RxJS in a `concatjs_*` rule.
+
+Ultimately by using concatjs, you're signing up for at least a superficial understanding of these shims and may need to update them when you change your dependencies.
 
 ## Serving JS in development mode under Bazel
 
