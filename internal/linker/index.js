@@ -519,6 +519,12 @@ function main(args, runfiles) {
 exports.main = main;
 exports.runfiles = new Runfiles(process.env);
 if (require.main === module) {
+    if (Number(process.versions.node.split('.')[0]) < 10) {
+        console.error(`ERROR: rules_nodejs linker requires Node v10 or greater, but is running on ${process.versions.node}`);
+        console.error('Note that earlier Node versions are no longer in long-term-support, see');
+        console.error('https://nodejs.org/en/about/releases/');
+        process.exit(1);
+    }
     (() => __awaiter(void 0, void 0, void 0, function* () {
         try {
             process.exitCode = yield main(process.argv.slice(2), exports.runfiles);
