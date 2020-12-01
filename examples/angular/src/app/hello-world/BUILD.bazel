@@ -1,5 +1,5 @@
 load("@io_bazel_rules_sass//:defs.bzl", "multi_sass_binary")
-load("@npm//@bazel/concatjs:index.bzl", "concatjs_web_test_suite")
+load("@npm//@bazel/concatjs:index.bzl", "karma_web_test_suite")
 load("@npm//@bazel/typescript:index.bzl", "ts_library")
 load("//tools:angular_ts_library.bzl", "ng_ts_library")
 
@@ -49,7 +49,7 @@ ts_library(
     ],
 )
 
-concatjs_web_test_suite(
+karma_web_test_suite(
     name = "test",
     srcs = [
         # We are manaully adding the bazel generated named-UMD date-fns bundle here as

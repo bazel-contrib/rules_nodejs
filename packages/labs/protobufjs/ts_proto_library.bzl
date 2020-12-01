@@ -201,17 +201,17 @@ result will be `car.d.ts`. This means our TypeScript code can just
 name the rule differently from the output file.
 
 The JavaScript produced by protobuf.js has a runtime dependency on a support library.
-Under devmode (e.g. `concatjs_devserver`, `concatjs_web_test_suite`) you'll need to include these scripts
+Under devmode (e.g. `concatjs_devserver`, `karma_web_test_suite`) you'll need to include these scripts
 in the `bootstrap` phase (before Require.js loads). You can use the label
 `@npm//@bazel/labs/protobufjs:bootstrap_scripts` to reference these scripts
-in the `bootstrap` attribute of `concatjs_web_test_suite` or `concatjs_devserver`.
+in the `bootstrap` attribute of `karma_web_test_suite` or `concatjs_devserver`.
 
-To complete the example above, you could write a `concatjs_web_test_suite`:
+To complete the example above, you could write a `karma_web_test_suite`:
 
 ```python
-load("@npm//@bazel/concatjs:index.bzl", "concatjs_web_test_suite")
+load("@npm//@bazel/concatjs:index.bzl", "karma_web_test_suite")
 
-concatjs_web_test_suite(
+karma_web_test_suite(
     name = "test",
     deps = ["test_lib"],
     bootstrap = ["@npm//@bazel/labs/protobufjs:bootstrap_scripts"],

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("//packages/concatjs:index.bzl", "concatjs_web_test_suite")
+load("//packages/concatjs:index.bzl", "karma_web_test_suite")
 load("//packages/typescript:index.bzl", "ts_library")
 
 ts_library(
@@ -27,7 +27,7 @@ ts_library(
 # This is a test with failing test. This test is not directly run by CI.
 # The sh_test below invokes this test and checks the source mapped lines in the
 # stack trace.
-concatjs_web_test_suite(
+karma_web_test_suite(
     name = "karma_test",
     browsers = [
         "@io_bazel_rules_webtesting//browsers:chromium-local",

@@ -48,7 +48,7 @@ You can now use the `test_ts_proto` target as a `dep` in other `ts_library` targ
 - `google-protobuf`
 - `grpc-web`
 
-UMD versions of these runtime dependencies are provided by `//packages/labs/grpc_web:bootstrap_scripts` (for use within `concatjs_devserver` and `concatjs_web_test_suite`)
+UMD versions of these runtime dependencies are provided by `//packages/labs/grpc_web:bootstrap_scripts` (for use within `concatjs_devserver` and `karma_web_test_suite`)
 
 See `//examples/protocol_buffers/BUILD.bazel` for an example.
 

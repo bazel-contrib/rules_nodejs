@@ -14,9 +14,9 @@
 
 load("@build_bazel_rules_nodejs//:index.bzl", "generated_file_test")
 load("@io_bazel_rules_webtesting//web:web.bzl", "custom_browser")
-load("//packages/concatjs:index.bzl", "concatjs_web_test_suite")
+load("//packages/concatjs:index.bzl", "karma_web_test_suite")
 
-concatjs_web_test_suite(
+karma_web_test_suite(
     name = "testing",
     srcs = glob(
         ["*.js"],

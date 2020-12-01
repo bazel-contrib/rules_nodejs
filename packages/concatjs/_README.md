@@ -19,7 +19,7 @@ Most packages do not ship with this format, so in order to use concatjs tooling,
 This is at the core of how Google does JavaScript development.
 So Bazel rules that originated in Google's codebase have affordances for concatjs.
 For example `ts_library` produces named AMD modules in its "devmode" output, and
-`concatjs_web_test` expects to bundle inputs using concatjs.
+`karma_web_test` expects to bundle inputs using concatjs.
 
 ## Serving JS in development mode under Bazel
 
@@ -78,13 +78,13 @@ finishes.
 
 ## Testing with Karma
 
-The `concatjs_web_test` rule runs karma tests with Bazel.
+The `karma_web_test` rule runs karma tests with Bazel.
 
 It depends on rules_webtesting, so you need to add this to your `WORKSPACE`
 if you use the web testing rules in `@bazel/concatjs`:
 
 ```python
-# Fetch transitive Bazel dependencies of concatjs_web_test
+# Fetch transitive Bazel dependencies of karma_web_test
 http_archive(
     name = "io_bazel_rules_webtesting",
     sha256 = "9bb461d5ef08e850025480bab185fd269242d4e533bca75bfb748001ceb343c3",
@@ -109,7 +109,7 @@ browser_repositories(
 If you didn't use the `yarn_install` or `npm_install` rule to create an `npm` workspace, you'll have to declare a rule in your root `BUILD.bazel` file to execute karma:
 
 ```python
-# Create a karma rule to use in concatjs_web_test_suite karma
+# Create a karma rule to use in karma_web_test_suite karma
 # attribute when using self-managed dependencies
 nodejs_binary(
     name = "karma/karma",

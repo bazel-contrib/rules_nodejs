@@ -50,7 +50,7 @@ filegroup(
     name = "package_contents",
     srcs = [
         "BUILD.bazel",
-        "concatjs_web_test.bzl",
         "karma.conf.js",
+        "karma_web_test.bzl",
     ],
 )

@@ -1,4 +1,4 @@
-load("@npm//@bazel/concatjs:index.bzl", "concatjs_devserver", "concatjs_web_test_suite")
+load("@npm//@bazel/concatjs:index.bzl", "concatjs_devserver", "karma_web_test_suite")
 load("@npm//@bazel/labs:index.bzl", "ts_proto_library")
 load("@npm//@bazel/protractor:index.bzl", "protractor_web_test_suite")
 load("@npm//@bazel/rollup:index.bzl", "rollup_bundle")
@@ -53,7 +53,7 @@ ts_library(
     ],
 )
 
-concatjs_web_test_suite(
+karma_web_test_suite(
     name = "test",
     srcs = [
         "@npm//@bazel/labs/grpc_web:bootstrap_scripts",
