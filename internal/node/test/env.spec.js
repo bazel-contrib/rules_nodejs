@@ -30,16 +30,16 @@ function expectPathsToMatch(a, b) {
 
 describe('launcher.sh environment', function() {
   it('should setup correct bazel environment variables when in runfiles', function() {
-    const runfilesRoot = normPath(process.env['RUNFILES']);
+    const runfilesRoot = normPath(process.env['RUNFILES_DIR']);
     const match = runfilesRoot.match(/\/bazel-out\//);
     expect(!!match).toBe(true);
     const execroot = runfilesRoot.slice(0, match.index);
     expectPathsToMatch(path.basename(runfilesRoot), `env_test.${runfilesExt}.runfiles`);
     expectPathsToMatch(process.env['BAZEL_WORKSPACE'], 'build_bazel_rules_nodejs');
     expectPathsToMatch(process.env['BAZEL_TARGET'], '//internal/node/test:env_test');
-    expectPathsToMatch(process.cwd(), `${process.env['RUNFILES']}/build_bazel_rules_nodejs`);
-    expectPathsToMatch(process.env['PWD'], `${process.env['RUNFILES']}/build_bazel_rules_nodejs`);
-    expectPathsToMatch(process.env['BAZEL_PATCH_ROOT'], process.env['RUNFILES']);
+    expectPathsToMatch(process.cwd(), `${process.env['RUNFILES_DIR']}/build_bazel_rules_nodejs`);
+    expectPathsToMatch(process.env['PWD'], `${process.env['RUNFILES_DIR']}/build_bazel_rules_nodejs`);
+    expectPathsToMatch(process.env['BAZEL_PATCH_ROOT'], process.env['RUNFILES_DIR']);
     expectPathsToMatch(process.env['BAZEL_NODE_MODULES_ROOT'], 'npm/node_modules');
     const expectedGuards = [
       `${execroot}/node_modules`,
