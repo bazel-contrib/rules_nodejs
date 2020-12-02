@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+const runfiles = require(process.env['BAZEL_NODE_RUNFILES_HELPER']!);
 import * as child_process from 'child_process';
 import * as net from 'net';
 
@@ -98,7 +99,7 @@ export interface ServerSpec {
 export async function runServer(
     workspace: string, serverTarget: string, portFlag: string, serverArgs: string[],
     timeout = 5000): Promise<ServerSpec> {
-  const serverPath = require.resolve(`${workspace}/${serverTarget}`);
+  const serverPath = runfiles.resolve(`${workspace}/${serverTarget}`);
   const port = await findFreeTcpPort();
 
   // Start the Bazel server binary with a random free TCP port.

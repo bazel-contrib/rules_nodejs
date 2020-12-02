@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+const runfiles = require(process.env['BAZEL_NODE_RUNFILES_HELPER']);
 const path = require('path');
 
 function log_verbose(...m) {
@@ -76,7 +77,7 @@ let conf = {};
 
 // Import the user's base protractor configuration if specified
 if (configPath) {
-  const baseConf = require(configPath);
+  const baseConf = require(runfiles.resolve(configPath));
   if (!baseConf.config) {
     throw new Error('Invalid base protractor configuration. Expected config to be exported.');
   }
@@ -86,7 +87,7 @@ if (configPath) {
 
 // Import the user's on prepare function if specified
 if (onPreparePath) {
-  const onPrepare = require(onPreparePath);
+  const onPrepare = require(runfiles.resolve(onPreparePath));
   if (typeof onPrepare === 'function') {
     const original = conf.onPrepare;
     conf.onPrepare = function() {
