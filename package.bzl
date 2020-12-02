@@ -31,11 +31,13 @@ def rules_nodejs_dev_dependencies():
     _maybe(
         http_archive,
         name = "io_bazel_rules_sass",
-        sha256 = "c78be58f5e0a29a04686b628cf54faaee0094322ae0ac99da5a8a8afca59a647",
-        strip_prefix = "rules_sass-1.25.0",
+        patch_args = ["-p1"],
+        patches = ["//:rules_sass.pr126.patch"],
+        sha256 = "cf28ff1bcfafb3c97f138bbc8ca9fe386e968ed3faaa9f8e6214abb5e88a2ecd",
+        strip_prefix = "rules_sass-1.29.0",
         urls = [
-            "https://github.com/bazelbuild/rules_sass/archive/1.25.0.zip",
-            "https://mirror.bazel.build/github.com/bazelbuild/rules_sass/archive/1.25.0.zip",
+            "https://github.com/bazelbuild/rules_sass/archive/1.29.0.zip",
+            "https://mirror.bazel.build/github.com/bazelbuild/rules_sass/archive/1.29.0.zip",
         ],
     )
 
