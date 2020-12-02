@@ -9,6 +9,7 @@ ts_library(
     deps = [
         ":test_ts_proto",
         "@npm//@types/jasmine",
+        "@npm//@types/node",
     ],
 )
 
@@ -25,6 +26,7 @@ protobufjs_ts_library(
 jasmine_node_test(
     name = "protobuf_test",
     srcs = [":test"],
+    #templated_args = ["--bazel_patch_module_resolver"],
     deps = [
         "@npm//protobufjs",
     ],
