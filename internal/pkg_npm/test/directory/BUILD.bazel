@@ -22,5 +22,4 @@ nodejs_test(
         ":folder_pkg",
     ],
     entry_point = "main.js",
-    templated_args = ["--nobazel_patch_module_resolver"],
 )

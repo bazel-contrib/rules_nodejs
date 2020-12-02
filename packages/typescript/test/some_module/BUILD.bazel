@@ -54,8 +54,7 @@ nodejs_binary(
 
 # custom rule using the executable above via run_node
 # invoked via bazel build //packages/typescript/test/some_module:test
-# as --nobazel_patch_module_resolver is added by default by run_node, the entry_point on the executable is resolved
-# to the ts file - writer.ts
+# the entry_point on the executable is resolved to the ts file - writer.ts
 # this works for bazel run //packages/typescript/test/some_module:writer_bin as this will patch require and resolve the
 # ts to js
 ts_write_file(

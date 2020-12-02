@@ -331,14 +331,6 @@ jasmine_node_test(
         "dir_output",
         "minified.js",
     ],
-    # Turn on the linker & turn off require patches so that the external workspace jasmine_node_test
-    # entry point npm/@bazel/jasmine/jasmine_runner.js's require('@bazel/jasmine') is exercised without
-    # require patches.
-    templated_args = select({
-        # TODO: fix this linker assertion on Windows
-        "@bazel_tools//src/conditions:host_windows": [],
-        "//conditions:default": ["--nobazel_patch_module_resolver"],
-    }),
 )
 
 [nodejs_toolchain_test(
@@ -491,5 +483,4 @@ nodejs_test(
     name = "main_test",
     data = [":main_lib"],
     entry_point = ":main.js",
-    templated_args = ["--nobazel_patch_module_resolver"],
 )
