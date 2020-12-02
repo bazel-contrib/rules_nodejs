@@ -101,6 +101,8 @@ nodejs_test(
         "@npm//node_resolve_nested_main",
     ],
     entry_point = ":module_resolution.spec.js",
+    # this is a test for the patched module resolver
+    templated_args = ["--bazel_patch_module_resolver"],
 )
 
 nodejs_test(

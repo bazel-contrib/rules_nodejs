@@ -27,6 +27,8 @@ nodejs_binary(
     ],
     entry_point = ":assembler.js",
     node_modules = ":node_modules_none",
+    # TODO: figure out why isbinaryfile isn't resolved properly
+    templated_args = ["--bazel_patch_module_resolver"],
 )
 
 # BEGIN-INTERNAL
