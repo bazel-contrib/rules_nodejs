@@ -206,7 +206,11 @@ def _npm_install_impl(repository_ctx):
     is_windows_host = is_windows_os(repository_ctx)
     node = repository_ctx.path(get_node_label(repository_ctx))
     npm = get_npm_label(repository_ctx)
-    npm_args = ["install"] + repository_ctx.attr.args
+
+    # Set the base command (install or ci)
+    npm_args = [repository_ctx.attr.npm_command]
+
+    npm_args.extend(repository_ctx.attr.args)
 
     # If symlink_node_modules is true then run the package manager
     # in the package.json folder; otherwise, run it in the root of
@@ -302,6 +306,11 @@ npm_install = repository_rule(
 
 See npm CLI docs https://docs.npmjs.com/cli/install.html for complete list of supported arguments.""",
             default = [],
+        ),
+        "npm_command": attr.string(
+            default = "ci",
+            doc = "The npm command to run, to install dependencies.",
+            values = ["ci", "install"],
         ),
         "package_lock_json": attr.label(
             mandatory = True,

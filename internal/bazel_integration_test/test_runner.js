@@ -226,6 +226,11 @@ if (config.bazelrcAppend) {
     workspaceContents =
         workspaceContents.replace(/(yarn_lock[\s\S]+?,)/gm, 'frozen_lockfile = False,\n    $1')
 
+    // We have to use npm install in favour of npm ci as the package-lock.json would not match the
+    // replaced version
+    workspaceContents = workspaceContents.replace(
+        /(package_lock_json[\s\S]+?,)/gm, 'npm_command = "install",\n    $1')
+
     if (!workspaceContents.includes(archiveFile)) {
       console.error(
           `bazel_integration_test: WORKSPACE replacement for repository ${repositoryKey} failed!`)

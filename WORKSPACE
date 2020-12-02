@@ -214,6 +214,7 @@ npm_install(
         ".json",
         ".proto",
     ],
+    npm_command = "install",
     package_json = "//:tools/fine_grained_deps_npm/package.json",
     package_lock_json = "//:tools/fine_grained_deps_npm/package-lock.json",
     symlink_node_modules = False,
