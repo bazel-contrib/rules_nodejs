@@ -1,5 +1,5 @@
+load("//packages/concatjs:index.bzl", "karma_web_test_suite")
 load("//packages/jasmine:index.bzl", "jasmine_node_test")
-load("//packages/karma:index.bzl", "karma_web_test_suite")
 load("//packages/rollup:index.bzl", "rollup_bundle")
 load("//packages/typescript:index.bzl", "ts_library")
 

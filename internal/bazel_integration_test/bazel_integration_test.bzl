@@ -170,7 +170,6 @@ replaced in all integration tests. For example,
 ```
 check_npm_packages = [
     "@bazel/jasmine",
-    "@bazel/karma",
     "@bazel/labs",
     "@bazel/protractor",
     "@bazel/typescript",
@@ -190,7 +189,6 @@ For example,
 ```
 npm_packages = {
     "//packages/jasmine:npm_package": "@bazel/jasmine",
-    "//packages/karma:npm_package": "@bazel/karma",
     "//packages/typescript:npm_package": "@bazel/typescript",
 }
 ```""",

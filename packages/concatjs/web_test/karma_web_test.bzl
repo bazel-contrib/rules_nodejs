@@ -20,7 +20,7 @@ load("@io_bazel_rules_webtesting//web/internal:constants.bzl", "DEFAULT_WRAPPED_
 
 KARMA_PEER_DEPS = [
     # NB: uncommented during pkg_npm
-    #@external "@npm//@bazel/karma",
+    #@external "@npm//@bazel/concatjs",
     "@npm//jasmine-core",
     "@npm//karma",
     "@npm//karma-chrome-launcher",
@@ -63,7 +63,7 @@ KARMA_WEB_TEST_ATTRS = {
     "karma": attr.label(
         doc = "karma binary label",
         # NB: replaced during pkg_npm with "@npm//karma/bin:karma"
-        default = "//packages/karma:karma_bin",
+        default = "//packages/concatjs/web_test:karma_bin",
         executable = True,
         cfg = "target",
         allow_files = True,
@@ -87,7 +87,7 @@ KARMA_WEB_TEST_ATTRS = {
         allow_files = True,
     ),
     "_conf_tmpl": attr.label(
-        default = "//packages/karma:karma.conf.js",
+        default = "//packages/concatjs/web_test:karma.conf.js",
         allow_single_file = True,
     ),
 }

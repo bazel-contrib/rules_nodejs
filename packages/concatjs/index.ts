@@ -1,3 +1,4 @@
+///<amd-module name="@bazel/concatjs"/>
 /*
  * Concat all JS files before serving.
  */

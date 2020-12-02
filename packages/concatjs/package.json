@@ -14,10 +14,21 @@
     "keywords": [
         "bazel"
     ],
+    "main": "./index.js",
+    "typings": "./index.d.ts",
     "dependencies": {
         "protobufjs": "6.8.8",
         "source-map-support": "0.5.9",
         "tsutils": "2.27.2"
+    },
+    "peerDependencies": {
+        "jasmine-core": ">=2.0.0",
+        "karma": ">=4.0.0",
+        "karma-chrome-launcher": ">=2.0.0",
+        "karma-firefox-launcher": ">=1.0.0",
+        "karma-jasmine": ">=2.0.0",
+        "karma-requirejs": ">=1.0.0",
+        "karma-sourcemap-loader": ">=0.3.0"
     },
     "scripts": {
       "postinstall": "node npm_version_check.js"

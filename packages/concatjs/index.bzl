@@ -18,5 +18,12 @@ Users should not load files under "/internal"
 """
 
 load("//packages/concatjs/devserver:concatjs_devserver.bzl", _concatjs_devserver = "concatjs_devserver_macro")
+load(
+    "//packages/concatjs/web_test:karma_web_test.bzl",
+    _karma_web_test = "karma_web_test",
+    _karma_web_test_suite = "karma_web_test_suite",
+)
 
+karma_web_test = _karma_web_test
+karma_web_test_suite = _karma_web_test_suite
 concatjs_devserver = _concatjs_devserver

@@ -883,13 +883,6 @@
   resolved "https://registry.yarnpkg.com/@bazel/ibazel/-/ibazel-0.13.2.tgz#eb914c41c66af4606db786457a7b130634355e8f"
   integrity sha512-q5fGwjTY76MLNcYpF2zEu/y1Clu4DjdjhvJM9+yDKc3+3mBlbX+uiMJYiCz5b0oSYdJTlw1QSRptTYA7CID8EQ==
 
-"@bazel/karma@^2.2.2":
-  version "2.2.2"
-  resolved "https://registry.yarnpkg.com/@bazel/karma/-/karma-2.2.2.tgz#89470c42c527973bb59a02527b55ef9225dcbfc0"
-  integrity sha512-V5y2N5d6RXde/4TQ8UcNg3IBdLx1tob6drYlHB7nYF3soShucTOfvEyENCLzn4LVeFgTrR8gdob5b3TzvYUCCw==
-  dependencies:
-    tmp "0.1.0"
-
 "@bazel/protractor@^2.2.2":
   version "2.2.2"
   resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-2.2.2.tgz#0660837a193994ee349e15cb022de76f3262af5e"

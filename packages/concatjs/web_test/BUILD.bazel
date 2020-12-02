@@ -1,0 +1,56 @@
+# Copyright 2019 The Bazel Authors. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+
+package(default_visibility = ["//visibility:public"])
+
+exports_files(["karma.conf.js"])
+
+nodejs_binary(
+    name = "karma_bin",
+    data = [
+        "//packages/concatjs:bazel_concatjs",
+        "@npm//jasmine-core",
+        "@npm//karma",
+        "@npm//karma-chrome-launcher",
+        "@npm//karma-firefox-launcher",
+        "@npm//karma-jasmine",
+        "@npm//karma-requirejs",
+        "@npm//karma-sourcemap-loader",
+        "@npm//requirejs",
+    ],
+    entry_point = "@npm//:node_modules/karma/bin/karma",
+)
+
+bzl_library(
+    name = "bzl",
+    testonly = True,
+    srcs = glob(["*.bzl"]),
+    deps = [
+        "@build_bazel_rules_nodejs//:bzl",
+        "@build_bazel_rules_nodejs//internal/js_library:bzl",
+        "@io_bazel_rules_webtesting//web",
+    ],
+)
+
+filegroup(
+    name = "package_contents",
+    srcs = [
+        "BUILD.bazel",
+        "karma.conf.js",
+        "karma_web_test.bzl",
+    ],
+)

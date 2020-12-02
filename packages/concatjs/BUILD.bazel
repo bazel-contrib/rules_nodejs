@@ -13,12 +13,36 @@
 # limitations under the License.
 
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "pkg_npm")
+load("@build_bazel_rules_nodejs//packages/typescript:index.bzl", "ts_project")
 load("@build_bazel_rules_nodejs//tools/stardoc:index.bzl", "stardoc")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
 
+ts_project(
+    name = "bazel_concatjs_lib",
+    srcs = glob(["*.ts"]),
+    tsconfig = {
+        "compilerOptions": {
+            "declaration": True,
+            "module": "umd",
+            "moduleResolution": "node",
+            "types": ["node"],
+        },
+    },
+    deps = ["@npm//@types/node"],
+)
+
+js_library(
+    name = "bazel_concatjs",
+    package_name = "@bazel/concatjs",
+    srcs = ["bazel_concatjs_lib"],
+    visibility = ["//packages/concatjs:__subpackages__"],
+)
+
 bzl_library(
     name = "bzl",
+    testonly = True,
     srcs = glob(["*.bzl"]) + [
         # Work-around since we don't have and don't wnat a bzl_library in the generated
         # @nodejs//:BUILD.bazel file
@@ -26,6 +50,7 @@ bzl_library(
     ],
     deps = [
         "//packages/concatjs/devserver:bzl",
+        "//packages/concatjs/web_test:bzl",
         "@build_bazel_rules_nodejs//:bzl",
         "@build_bazel_rules_nodejs//internal/common:bzl",
         "@build_bazel_rules_nodejs//internal/node:bzl",
@@ -34,6 +59,7 @@ bzl_library(
 
 stardoc(
     name = "docs",
+    testonly = True,
     out = "index.md",
     input = "index.docs.bzl",
     tags = ["fix-windows"],
@@ -68,16 +94,22 @@ pkg_npm(
         "package.json",
         "//packages/concatjs/devserver:package_contents",
         "//packages/concatjs/third_party/npm/requirejs:package_contents",
+        "//packages/concatjs/web_test:package_contents",
     ],
     build_file_content = "",
     nested_packages = [
         "@build_bazel_rules_typescript//:npm_bazel_typescript_package",
     ],
+    substitutions = {
+        "#@external ": "",
+        "//packages/concatjs/web_test:karma_bin": "@npm//karma/bin:karma",
+    },
     vendor_external = [
         "build_bazel_rules_typescript",
     ],
     deps = [
         ":npm_version_check",
+        ":bazel_concatjs_lib",
     ] + select({
         # FIXME: fix stardoc on Windows
         "@bazel_tools//src/conditions:windows": [],

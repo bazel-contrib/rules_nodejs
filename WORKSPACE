@@ -140,14 +140,6 @@ cypress_repository(
     fail_on_error = False,
 )
 
-#
-# Install @bazel/karma dependencies
-#
-
-load("//packages/karma:package.bzl", "npm_bazel_karma_dependencies")
-
-npm_bazel_karma_dependencies()
-
 # Setup the rules_webtesting toolchain
 load("@io_bazel_rules_webtesting//web:repositories.bzl", "web_test_repositories")
 

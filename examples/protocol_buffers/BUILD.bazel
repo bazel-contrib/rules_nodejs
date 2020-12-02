@@ -1,5 +1,4 @@
-load("@npm//@bazel/concatjs:index.bzl", "concatjs_devserver")
-load("@npm//@bazel/karma:index.bzl", "karma_web_test_suite")
+load("@npm//@bazel/concatjs:index.bzl", "concatjs_devserver", "karma_web_test_suite")
 load("@npm//@bazel/labs:index.bzl", "ts_proto_library")
 load("@npm//@bazel/protractor:index.bzl", "protractor_web_test_suite")
 load("@npm//@bazel/rollup:index.bzl", "rollup_bundle")

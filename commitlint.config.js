@@ -13,7 +13,6 @@ module.exports = {
         'cypress',
         'examples',
         'jasmine',
-        'karma',
         'labs',
         'protractor',
         'rollup',

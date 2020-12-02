@@ -144,7 +144,7 @@ try {
     // list of karma plugins
     mergeConfigArray(conf, 'plugins', [
       // Loads 'concat_js'
-      require('@bazel/karma'),
+      require('@bazel/concatjs'),
       // Load plugins that are peer deps. These packages are used in this config file.
       require('karma-chrome-launcher'),
       require('karma-firefox-launcher'),

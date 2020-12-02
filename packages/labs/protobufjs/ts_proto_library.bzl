@@ -209,7 +209,7 @@ in the `bootstrap` attribute of `karma_web_test_suite` or `concatjs_devserver`.
 To complete the example above, you could write a `karma_web_test_suite`:
 
 ```python
-load("@npm//@bazel/karma:index.bzl", "karma_web_test_suite")
+load("@npm//@bazel/concatjs:index.bzl", "karma_web_test_suite")
 
 karma_web_test_suite(
     name = "test",

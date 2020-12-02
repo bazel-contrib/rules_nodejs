@@ -89,3 +89,47 @@ server so the browser refreshes the application automatically when each build
 finishes.
 
 [ibazel]: https://github.com/bazelbuild/bazel-watcher
+
+## Testing with Karma
+
+The `karma_web_test` rule runs karma tests with Bazel.
+
+It depends on rules_webtesting, so you need to add this to your `WORKSPACE`
+if you use the web testing rules in `@bazel/concatjs`:
+
+```python
+# Fetch transitive Bazel dependencies of karma_web_test
+http_archive(
+    name = "io_bazel_rules_webtesting",
+    sha256 = "9bb461d5ef08e850025480bab185fd269242d4e533bca75bfb748001ceb343c3",
+    urls = ["https://github.com/bazelbuild/rules_webtesting/releases/download/0.3.3/rules_webtesting.tar.gz"],
+)
+
+# Set up web testing, choose browsers we can test on
+load("@io_bazel_rules_webtesting//web:repositories.bzl", "web_test_repositories")
+
+web_test_repositories()
+
+load("@io_bazel_rules_webtesting//web/versioned:browsers-0.3.2.bzl", "browser_repositories")
+
+browser_repositories(
+    chromium = True,
+    firefox = True,
+)
+```
+
+## Installing with self-managed dependencies
+
+If you didn't use the `yarn_install` or `npm_install` rule to create an `npm` workspace, you'll have to declare a rule in your root `BUILD.bazel` file to execute karma:
+
+```python
+# Create a karma rule to use in karma_web_test_suite karma
+# attribute when using self-managed dependencies
+nodejs_binary(
+    name = "karma/karma",
+    entry_point = "//:node_modules/karma/bin/karma",
+    # Point bazel to your node_modules to find the entry point
+    node_modules = ["//:node_modules"],
+)
+```
+

@@ -2,13 +2,6 @@
 # yarn lockfile v1
 
 
-"@bazel/karma@^2.2.2":
-  version "2.2.2"
-  resolved "https://registry.yarnpkg.com/@bazel/karma/-/karma-2.2.2.tgz#89470c42c527973bb59a02527b55ef9225dcbfc0"
-  integrity sha512-V5y2N5d6RXde/4TQ8UcNg3IBdLx1tob6drYlHB7nYF3soShucTOfvEyENCLzn4LVeFgTrR8gdob5b3TzvYUCCw==
-  dependencies:
-    tmp "0.1.0"
-
 "@bazel/labs@^2.2.2":
   version "2.2.2"
   resolved "https://registry.yarnpkg.com/@bazel/labs/-/labs-2.2.2.tgz#0f57547d845bf3539c629b912ce74fc1391a7e20"
