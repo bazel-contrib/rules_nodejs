@@ -7,11 +7,9 @@ SRCS = [
     "package.json",
 ]
 
-exports_files(SRCS)
-
 filegroup(
     name = "local-module__files",
-    srcs = ["//:node_modules/local-module/%s" % file for file in SRCS],
+    srcs = ["@fine_grained_deps_npm//:node_modules/local-module/%s" % file for file in SRCS],
 )
 
 js_library(
