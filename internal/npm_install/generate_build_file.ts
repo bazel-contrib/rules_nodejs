@@ -214,10 +214,13 @@ function generatePackageBuildFiles(pkg: Dep) {
   const nodeModulesPkgDir = `node_modules/${pkg._dir}`;
   // Check if the current package dep dir is a symlink (which happens when we install a node_module
   // with link:)
-  const isPkgDirASymlink = fs.lstatSync(nodeModulesPkgDir).isSymbolicLink();
-  // Mark build file as one to symlink instead of generate as the package dir is a symlink and we
-  // have a BUILD file
-  const symlinkBuildFile = isPkgDirASymlink && buildFilePath;
+  const isPkgDirASymlink =
+      fs.existsSync(nodeModulesPkgDir) && fs.lstatSync(nodeModulesPkgDir).isSymbolicLink();
+  // Check if the current package is also written inside the workspace
+  const isPkgInsideWorkspace = fs.realpathSync(nodeModulesPkgDir).includes(fs.realpathSync(`.`));
+  // Mark build file as one to symlink instead of generate as the package dir is a symlink, we
+  // have a BUILD file and the pkg is written inside the workspace
+  const symlinkBuildFile = isPkgDirASymlink && buildFilePath && isPkgInsideWorkspace;
 
   // Log if a BUILD file was expected but was not found
   if (!symlinkBuildFile && isPkgDirASymlink) {

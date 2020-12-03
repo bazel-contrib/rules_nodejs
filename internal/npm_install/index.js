@@ -118,8 +118,9 @@ function generatePackageBuildFiles(pkg) {
     if (pkg._files.includes('BUILD.bazel'))
         buildFilePath = 'BUILD.bazel';
     const nodeModulesPkgDir = `node_modules/${pkg._dir}`;
-    const isPkgDirASymlink = fs.lstatSync(nodeModulesPkgDir).isSymbolicLink();
-    const symlinkBuildFile = isPkgDirASymlink && buildFilePath;
+    const isPkgDirASymlink = fs.existsSync(nodeModulesPkgDir) && fs.lstatSync(nodeModulesPkgDir).isSymbolicLink();
+    const isPkgInsideWorkspace = fs.realpathSync(nodeModulesPkgDir).includes(fs.realpathSync(`.`));
+    const symlinkBuildFile = isPkgDirASymlink && buildFilePath && isPkgInsideWorkspace;
     if (!symlinkBuildFile && isPkgDirASymlink) {
         console.log(`[yarn_install/npm_install]: package ${nodeModulesPkgDir} is local symlink and as such a BUILD file for it is expected but none was found. Please add one at ${fs.realpathSync(nodeModulesPkgDir)}`);
     }
