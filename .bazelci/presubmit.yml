@@ -398,7 +398,7 @@ tasks:
     test_flags:
     # Firefox not supported on Windows with rules_webtesting (if run it exit with success)
     # See https://github.com/bazelbuild/rules_webtesting/blob/0.3.3/browsers/BUILD.bazel#L66.
-    - "--test_tag_filters=-e2e,-examples,-fix-windows,-manual,-browser:firefox-local,-cypress"
+    - "--test_tag_filters=-e2e,-examples,-fix-windows,-manual,-browser:firefox-local"
     test_targets:
     - "//..."
     # //internal/node/test:nodejs_toolchain_windows_amd64_test is a "manual" test that must be run

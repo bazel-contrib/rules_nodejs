@@ -38,6 +38,7 @@ function untarCypress(cypressTarPath, outputPath) {
         'node_modules');
 
     const tar = require(require.resolve('tar', {
+      unlink: true,
       paths: [
         join(nodeModulesPath, '@bazel', 'cypress', 'node_modules'),
         nodeModulesPath,

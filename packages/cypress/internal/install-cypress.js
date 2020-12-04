@@ -30,58 +30,7 @@ const tar = require(require.resolve('tar', {
   ]
 }));
 
-async function main() {
-  // Sandboxing doesn't work on windows, so we can just use the global cypress cache.
-  if (process.platform === 'win32') {
-    installGlobalCypressCache();
-    process.exit(0);
-  }
-
-  // Attempt to install the cypress cache within the bazel sandbox and fallback to a global cypress
-  // cache as a last resort.
-  try {
-    await installSandboxedCypressCache()
-  } catch (e) {
-    console.error('ERROR', e);
-    installGlobalCypressCache();
-  }
-}
-
-function installGlobalCypressCache() {
-  writeFileSync('BUILD.bazel', `package(default_visibility = ["//visibility:public"])
-exports_files([
-  "packages/cypress/internal/plugins/index.template.js",
-  "packages/cypress/internal/plugins/base.js",
-])`);
-  writeFileSync('index.bzl', `load(
-    "//:packages/cypress/internal/cypress_web_test.bzl",
-    _cypress_web_test = "cypress_web_test_global_cache",
-)
-cypress_web_test = _cypress_web_test`)
-
-  const env = {
-    PATH: `${dirname(nodePath)}:${process.env.PATH}`,
-  };
-  const spawnOptions = {
-    env,
-    stdio: [process.stdin, process.stdout, process.stderr],
-    shell: process.env.SHELL
-  };
-
-  const install = spawnSync(`${cypressBin}`, ['install'], spawnOptions);
-  if (install.status !== 0) {
-    throw new Error('cypress install failed')
-  }
-
-  const verify = spawnSync(`${cypressBin}`, ['verify'], spawnOptions);
-
-  if (verify.status !== 0) {
-    throw new Error('cypress verify failed')
-  }
-}
-
-
-async function installSandboxedCypressCache() {
+async function installCypress() {
   mkdirSync(join(cwd, 'cypress-install'))
 
   const env = {
@@ -166,13 +115,7 @@ function createCypressArchive(cypressFiles, archiveName) {
   return new Promise((resolve, reject) => {
     const writeStream = createWriteStream(archiveName);
 
-    tar.create(
-           {
-             gzip: false,
-             portable: true,
-             noMtime: true,
-           },
-           cypressFiles)
+    tar.create({gzip: false, portable: true, noMtime: true, follow: true, mode: 777}, cypressFiles)
         .pipe(writeStream)
         .on('finish', (err) => {
           if (err) {
@@ -182,6 +125,10 @@ function createCypressArchive(cypressFiles, archiveName) {
           return resolve();
         })
   });
+}
+
+async function main() {
+  await installCypress()
 }
 
 main()
