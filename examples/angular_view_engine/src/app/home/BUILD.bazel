@@ -1,4 +1,4 @@
-load("@npm_angular_bazel//:index.bzl", "ng_module")
+load("@npm//@angular/bazel:index.bzl", "ng_module")
 
 package(default_visibility = ["//:__subpackages__"])
 

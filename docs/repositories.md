@@ -53,7 +53,6 @@ Commonly used ones are:
 - If you had a dependency on the `foo` package, you can reference `@npm//foo` to get all the files. We mirror the npm dependency graph, so if `foo` declares a dependency on another package `dep`, Bazel will include that dependency when `foo` is used.
 - If the `foo` package has an executable program `bar`, then `@npm//foo/bin:bar` is a `nodejs_binary` that you can call with `bazel run` or can pass as the `executable` to your own rules.
 - Sometimes you need a UMD bundle, but a package doesn't ship one. For example, the `ts_devserver` rule depends on third-party libraries having a named UMD entry point. The `@npm//foo:foo__umd` target will automatically run Browserify to convert the package's `main` entry into UMD.
-- DEPRECATED: A helper to install npm packages into their own Bazel repository: `@npm//:install_bazel_dependencies.bzl` provides a `install_bazel_dependencies` function. Some npm packages ship custom bazel rules, for example, the `@angular/bazel` package provides rules which you should load from `@npm_angular_bazel//:index.bzl`. However this causes the build to always fetch npm packages even when not needed, so we plan to remove this in a future release.
 
 > One convenient (maybe also confusing) way to understand what BUILD files are generated is to look at our integration test at https://github.com/bazelbuild/rules_nodejs/tree/stable/internal/npm_install/test/golden - this directory looks similar to the content of an `@npm` repository.
 

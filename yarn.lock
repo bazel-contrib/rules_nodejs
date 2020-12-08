@@ -2205,9 +2205,6 @@ base@^0.11.1:
     mixin-deep "^1.2.0"
     pascalcase "^0.1.1"
 
-"bazel_workspaces@file:./tools/npm_packages/bazel_workspaces":
-  version "0.0.2"
-
 "bazel_workspaces_consistent@file:./tools/npm_packages/bazel_workspaces_consistent":
   version "0.0.1"
 

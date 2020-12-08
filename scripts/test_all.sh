@@ -36,13 +36,6 @@ echo_and_run bazel run //internal/node/test:module_name_test
 echo_and_run bazel run //internal/npm_install/test:index
 echo_and_run bazel run @fine_grained_deps_yarn//typescript/bin:tsc
 
-# TODO: Once https://github.com/bazelbuild/bazel/pull/8090 lands targets
-# can be changed to test targets and we can run them with `bazel test`
-echo_and_run bazel run @bazel_workspace_a//:bin
-echo_and_run bazel run @bazel_workspace_a//subdir:bin
-echo_and_run bazel run @bazel_workspace_b//:bin
-echo_and_run bazel run @bazel_workspace_b//subdir:bin
-
 printf "\n\nRunning all e2e tests (this make take some time as these are run sequentially...)\n"
 echo_and_run yarn test_e2e
 
