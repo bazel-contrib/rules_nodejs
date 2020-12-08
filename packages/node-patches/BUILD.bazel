@@ -60,7 +60,11 @@ nodejs_test(
     ],
     entry_point = "@npm_node_patches//:node_modules/mocha/bin/mocha",
     tags = ["fix-windows"],
-    templated_args = ["$$(rlocation $(rootpath %s))" % s for s in test_js] + ["--nobazel_node_patches"],
+    templated_args = ["$$(rlocation $(rootpath %s))" % s for s in test_js] + [
+        # TODO: passes locally on mac without this flag but fails on CircleCI
+        "--bazel_patch_module_resolver",
+        "--nobazel_node_patches",
+    ],
 )
 
 rollup_bundle(
