@@ -16,10 +16,6 @@ tasks:
     - "//internal/npm_install/test:index"
     # Disabled due to https://github.com/bazelbuild/rules_nodejs/issues/1486
     #- "@fine_grained_deps_yarn//typescript/bin:tsc"
-    - "@bazel_workspace_a//:bin"
-    - "@bazel_workspace_a//subdir:bin"
-    - "@bazel_workspace_b//:bin"
-    - "@bazel_workspace_b//subdir:bin"
     build_targets:
     - "//..."
     build_flags:
@@ -118,10 +114,6 @@ tasks:
     - "//internal/npm_install/test:index"
     # Disabled due to https://github.com/bazelbuild/rules_nodejs/issues/1486
     #- "@fine_grained_deps_yarn//typescript/bin:tsc"
-    - "@bazel_workspace_a//:bin"
-    - "@bazel_workspace_a//subdir:bin"
-    - "@bazel_workspace_b//:bin"
-    - "@bazel_workspace_b//subdir:bin"
     build_targets:
     - "//..."
     build_flags:
@@ -277,10 +269,6 @@ tasks:
     - "//internal/npm_install/test:index"
     # Disabled due to https://github.com/bazelbuild/rules_nodejs/issues/1486
     #- "@fine_grained_deps_yarn//typescript/bin:tsc"
-    - "@bazel_workspace_a//:bin"
-    - "@bazel_workspace_a//subdir:bin"
-    - "@bazel_workspace_b//:bin"
-    - "@bazel_workspace_b//subdir:bin"
     build_targets:
     - "//..."
     test_flags:
@@ -387,10 +375,6 @@ tasks:
     - "//internal/npm_install/test:index"
     # Disabled due to https://github.com/bazelbuild/rules_nodejs/issues/1486
     #- "@fine_grained_deps_yarn//typescript/bin:tsc"
-    - "@bazel_workspace_a//:bin"
-    - "@bazel_workspace_a//subdir:bin"
-    - "@bazel_workspace_b//:bin"
-    - "@bazel_workspace_b//subdir:bin"
     build_flags:
     - "--build_tag_filters=-e2e,-examples,-fix-windows,-manual"
     build_targets:
