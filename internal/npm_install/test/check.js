@@ -49,7 +49,6 @@ module.exports = {
   check,
   files: [
     'BUILD.bazel',
-    'install_bazel_dependencies.bzl',
     'manual_build_file_contents',
     'WORKSPACE',
     '@angular/core/BUILD.bazel',
