@@ -4,7 +4,6 @@
     "@bazel/typescript": "^2.2.2",
     "@types/jasmine": "2.8.2",
     "@types/node": "11.11.1",
-    "jasmine-core": "^3.3.0",
     "karma": "~4.1.0",
     "karma-chrome-launcher": "2.2.0",
     "karma-firefox-launcher": "1.1.0",
