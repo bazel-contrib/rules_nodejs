@@ -23,6 +23,8 @@ http_archive(
 # Fetch sass rules for compiling sass files
 http_archive(
     name = "io_bazel_rules_sass",
+    patch_args = ["-p1"],
+    patches = ["@build_bazel_rules_nodejs//:rules_sass.pr126.patch"],
     sha256 = "c78be58f5e0a29a04686b628cf54faaee0094322ae0ac99da5a8a8afca59a647",
     strip_prefix = "rules_sass-1.25.0",
     urls = [

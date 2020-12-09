@@ -105,7 +105,7 @@ if (onPreparePath) {
 setConf(conf, 'framework', 'jasmine2', 'is set to jasmine2');
 
 const specs =
-    [TMPL_specs].map(s => require.resolve(s)).filter(s => /(\b|_)(spec|test)\.js$/.test(s));
+    [TMPL_specs].map(s => runfiles.resolve(s)).filter(s => /(\b|_)(spec|test)\.js$/.test(s));
 
 setConf(conf, 'specs', specs, 'are determined by the srcs and deps attribute');
 
@@ -113,7 +113,7 @@ setConf(conf, 'specs', specs, 'are determined by the srcs and deps attribute');
 // of the browsers attribute passed to karma_web_test_suite
 // We setup the protractor configuration based on the values in this object
 if (process.env['WEB_TEST_METADATA']) {
-  const webTestMetadata = require(process.env['WEB_TEST_METADATA']);
+  const webTestMetadata = require(runfiles.resolve(process.env['WEB_TEST_METADATA']));
   log_verbose(`WEB_TEST_METADATA: ${JSON.stringify(webTestMetadata, null, 2)}`);
   if (webTestMetadata['environment'] === 'local') {
     // When a local chrome or firefox browser is chosen such as
@@ -124,8 +124,8 @@ if (process.env['WEB_TEST_METADATA']) {
     const webTestNamedFiles = webTestMetadata['webTestFiles'][0]['namedFiles'];
     const headless = !process.env['DISPLAY'];
     if (webTestNamedFiles['CHROMIUM']) {
-      const chromeBin = require.resolve(webTestNamedFiles['CHROMIUM']);
-      const chromeDriver = require.resolve(webTestNamedFiles['CHROMEDRIVER']);
+      const chromeBin = runfiles.resolve(webTestNamedFiles['CHROMIUM']);
+      const chromeDriver = runfiles.resolve(webTestNamedFiles['CHROMEDRIVER']);
 
       // The sandbox needs to be disabled, because it causes Chrome to crash on some environments.
       // See: http://chromedriver.chromium.org/help/chrome-doesn-t-start
@@ -147,7 +147,7 @@ if (process.env['WEB_TEST_METADATA']) {
       // TODO(gmagolan): implement firefox support for protractor
       throw new Error('Firefox not yet support by protractor_web_test_suite');
 
-      // const firefoxBin = require.resolve(webTestNamedFiles['FIREFOX'])
+      // const firefoxBin = runfiles.resolve(webTestNamedFiles['FIREFOX'])
       // const args = [];
       // if (headless) {
       //   args.push("--headless")

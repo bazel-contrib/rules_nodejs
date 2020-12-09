@@ -127,6 +127,8 @@ jasmine_node_test(
         "dynamic_import.js",
     ],
     args = [
+        # TODO: investigate why this fails without the patched require() function
+        "--bazel_patch_module_resolver",
         # the --node_options arg will be consumed by the node launcher
         "--node_options=--experimental-modules",
         # the remaining args should be passed to the spec
@@ -147,6 +149,8 @@ jasmine_node_test(
         "arg3",
     ],
     templated_args = [
+        # TODO: investigate why this fails without the patched require() function
+        "--bazel_patch_module_resolver",
         # the --node_options templated arg will be consumed by the node launcher
         "--node_options=--experimental-modules",
         # the remaining args should be passed to the spec

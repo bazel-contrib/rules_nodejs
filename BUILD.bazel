@@ -79,6 +79,7 @@ pkg_npm(
     srcs = glob(["*.bzl"]) + [
         "BUILD.bazel",
         "LICENSE",
+        "rules_sass.pr126.patch",
     ],
     substitutions = COMMON_REPLACEMENTS,
     deps = [

@@ -20,14 +20,18 @@ VARIANTS = [
     ],
     entry_point = ":%s.spec.js" % variant,
     node_modules = "@e2e_packages_" + variant + "//:node_modules",
-    # On Windows, the yarn and npm variants fight over who creates the link
-    # [link_node_modules.js] [Error: EEXIST: file already exists, mkdir 'C:\users\b\_bazel_b\p4se2lwa\execroot\e2e_packages\node_modules'] {
-    # errno: -4075,
-    # code: 'EEXIST',
-    # syscall: 'mkdir',
-    # path: 'C:\\users\\b\\_bazel_b\\p4se2lwa\\execroot\\e2e_packages\\node_modules'
-    # }
-    templated_args = ["--nobazel_run_linker"],
+    templated_args = [
+        # TODO: use runfiles
+        "--bazel_patch_module_resolver",
+        # On Windows, the yarn and npm variants fight over who creates the link
+        # [link_node_modules.js] [Error: EEXIST: file already exists, mkdir 'C:\users\b\_bazel_b\p4se2lwa\execroot\e2e_packages\node_modules'] {
+        # errno: -4075,
+        # code: 'EEXIST',
+        # syscall: 'mkdir',
+        # path: 'C:\\users\\b\\_bazel_b\\p4se2lwa\\execroot\\e2e_packages\\node_modules'
+        # }
+        "--nobazel_run_linker",
+    ],
 ) for variant in VARIANTS]
 
 nodejs_test(
@@ -40,6 +44,8 @@ nodejs_test(
     node_modules = "@e2e_packages_npm_install_duplicate_for_determinism_testing//:node_modules",
     # TODO(gregmagolan): fix this test on windows
     tags = ["fix-windows"],
+    # TODO: use runfiles
+    templated_args = ["--bazel_patch_module_resolver"],
 )
 
 nodejs_test(
@@ -52,4 +58,6 @@ nodejs_test(
     node_modules = "@e2e_packages_yarn_install_duplicate_for_determinism_testing//:node_modules",
     # TODO(gregmagolan): fix this test on windows
     tags = ["fix-windows"],
+    # TODO: use runfiles
+    templated_args = ["--bazel_patch_module_resolver"],
 )
