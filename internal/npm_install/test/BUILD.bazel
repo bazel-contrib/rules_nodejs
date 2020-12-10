@@ -18,6 +18,9 @@ jasmine_node_test(
         "@fine_grained_goldens//:golden_files",
         "@npm//unidiff",
     ],
+    # Depends on having the .js file in source tree but resolve relative paths
+    # to .js files in the output tree
+    templated_args = ["--bazel_patch_module_resolver"],
 )
 
 nodejs_binary(
@@ -103,6 +106,8 @@ sh_test(
     ],
     node_modules = "@fine_grained_deps_%s//:node_modules" % pkgmgr,
     tags = ["no-local-jasmine-deps"],
+    # TODO: get this test running with just linker: failing under --config=no-runfiles
+    templated_args = ["--bazel_patch_module_resolver"],
     deps = [
         "@fine_grained_deps_%s//jasmine" % pkgmgr,
         "@fine_grained_deps_%s//jasmine-core" % pkgmgr,
@@ -122,6 +127,8 @@ sh_test(
         "fine.spec.js",
     ],
     tags = ["no-local-jasmine-deps"],
+    # TODO: get this test running with just linker: failing under --config=no-runfiles
+    templated_args = ["--bazel_patch_module_resolver"],
     deps = [
         "@fine_grained_deps_%s//jasmine" % pkgmgr,
         "@fine_grained_deps_%s//jasmine-core" % pkgmgr,
