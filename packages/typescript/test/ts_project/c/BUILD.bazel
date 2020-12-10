@@ -5,6 +5,11 @@ ts_project(
     srcs = [":c.ts"],
     composite = True,
     extends = "//packages/typescript/test/ts_project:tsconfig-base.json",
-    tsconfig = "tsconfig.json",
+    tsconfig = {
+        "extends": "../tsconfig-base.json",
+        "compilerOptions": {
+            "declaration": True,
+        },
+    },
     deps = ["//packages/typescript/test/ts_project/b:tsconfig"],
 )
