@@ -46,6 +46,8 @@ jasmine_node_test(
     # Use the generated_require.spec.js from the output tree
     srcs = [":generated_require_spec"],
     data = ["test.json"],
+    # TODO: fails under --config=no-runfiles without this flag
+    templated_args = ["--bazel_patch_module_resolver"],
 )
 
 copy_to_bin(
@@ -118,6 +120,8 @@ jasmine_node_test(
         "coverage.spec.js",
         ":coverage_test_srcs",
     ],
+    # TODO: fails under --config=no-runfiles without this flag
+    templated_args = ["--bazel_patch_module_resolver"],
 )
 
 jasmine_node_test(

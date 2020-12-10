@@ -30,4 +30,6 @@ jasmine_node_test(
         ":fake-devserver",
         "//packages/protractor",
     ],
+    # TODO: fails under --config=no-runfiles without this flag
+    templated_args = ["--bazel_patch_module_resolver"],
 )

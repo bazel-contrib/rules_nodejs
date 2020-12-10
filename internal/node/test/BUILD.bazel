@@ -232,6 +232,8 @@ nodejs_test(
         ":genfile-runfile",
     ],
     entry_point = ":data_resolution_built.spec.js",
+    # TODO: fails on Windows without this flag
+    templated_args = ["--bazel_patch_module_resolver"],
 )
 
 npm_package_bin(
