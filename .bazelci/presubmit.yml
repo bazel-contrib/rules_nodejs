@@ -447,6 +447,8 @@ tasks:
     # TODO(gregmagolan): figure out how to install missing shared libs
     # Without this filter the @cypress external repository will be built and that build will fail due to missing shared libs.
     - "--build_tag_filters=-cypress,-pkg_npm.pack"
+    - "--define=NODE_DEBUG=module"
+    - "--define=VERBOSE_LOGS=1"
     test_flags:
     # TODO(gregmagolan): figure out how to install missing shared libs
     - "--test_arg=-cypress"
