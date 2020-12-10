@@ -83,8 +83,8 @@ nodejs_binary(
     ],
     entry_point = ":tsc_wrapped/tsc_wrapped.js",
     visibility = ["//visibility:public"],
-    # With RBE or --worker_sandboxing you'll see that worker doesn't run_node
-    # so it doesn't have the linker
+    # With RBE or --worker_sandboxing you'll see that when supports_workers=True it doesn't run_node
+    # so it doesn't have the linker. Still needs our custom patches on require()
     templated_args = ["--bazel_patch_module_resolver"],
 )
 
