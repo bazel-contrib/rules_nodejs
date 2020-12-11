@@ -11,5 +11,7 @@ nodejs_binary(
         "@npm//@bazel/typescript",
     ],
     entry_point = "@npm//:node_modules/@bazel/typescript/internal/tsc_wrapped/tsc_wrapped.js",
+    # TODO: turn on --worker_sandboxing and remove this flag to see failure to load the plugin
+    templated_args = ["--bazel_patch_module_resolver"],
     visibility = ["//:__subpackages__"],
 )

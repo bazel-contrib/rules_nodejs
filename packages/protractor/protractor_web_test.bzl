@@ -261,6 +261,8 @@ def protractor_web_test(
         entry_point = Label(protractor_entry_point),
         data = srcs + deps + data + [Label(d) for d in peer_deps],
         testonly = 1,
+        # TODO: make protractor binary not depend on monkey-patched require()
+        templated_args = ["--bazel_patch_module_resolver"],
         visibility = ["//visibility:private"],
     )
 

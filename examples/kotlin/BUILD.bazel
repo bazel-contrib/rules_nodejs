@@ -74,5 +74,9 @@ jasmine_node_test(
         ":bundle",
         "@npm//domino",
     ],
-    templated_args = ["--node_options=--experimental-modules"],
+    templated_args = [
+        # TODO: don't rely on patching require()
+        "--bazel_patch_module_resolver",
+        "--node_options=--experimental-modules",
+    ],
 )

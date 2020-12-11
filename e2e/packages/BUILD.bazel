@@ -40,6 +40,8 @@ nodejs_test(
     node_modules = "@e2e_packages_npm_install_duplicate_for_determinism_testing//:node_modules",
     # TODO(gregmagolan): fix this test on windows
     tags = ["fix-windows"],
+    # TODO: use runfiles
+    templated_args = ["--bazel_patch_module_resolver"],
 )
 
 nodejs_test(
@@ -52,4 +54,6 @@ nodejs_test(
     node_modules = "@e2e_packages_yarn_install_duplicate_for_determinism_testing//:node_modules",
     # TODO(gregmagolan): fix this test on windows
     tags = ["fix-windows"],
+    # TODO: use runfiles
+    templated_args = ["--bazel_patch_module_resolver"],
 )
