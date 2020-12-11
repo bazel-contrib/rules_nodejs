@@ -1,4 +1,6 @@
-const {directoryArgs} = require('build_bazel_rules_nodejs/packages/terser/index')
+const runfiles = require(process.env['BAZEL_NODE_RUNFILES_HELPER']);
+const {directoryArgs} =
+    require(runfiles.resolve('build_bazel_rules_nodejs/packages/terser/index.js'));
 const fs = require('fs');
 const path = require('path');
 const tmp = require('tmp');
