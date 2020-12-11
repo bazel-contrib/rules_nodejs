@@ -1,11 +1,12 @@
 const fs = require('fs');
+const runfiles = require(process.env['BAZEL_NODE_RUNFILES_HELPER']);
 
 describe('karma_web_test_suite', () => {
   let config;
 
   beforeAll(() => {
     config = fs.readFileSync(
-        require.resolve(
+        runfiles.resolve(
             'build_bazel_rules_nodejs/packages/concatjs/web_test/test/karma_typescript/testing_wrapped_test.conf.js'),
         'utf-8');
   });
