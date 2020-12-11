@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import * as protractorUtils from '@bazel/protractor/protractor-utils';
+import * as protractorUtils from '@bazel/protractor';
 import {browser} from 'protractor';
 
 const http = require('http');

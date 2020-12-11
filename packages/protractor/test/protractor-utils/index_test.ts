@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import {runServer} from '@bazel/protractor/protractor-utils';
+import {runServer} from '@bazel/protractor';
 
 describe('Bazel protractor utils', () => {
   it('should be able to start devserver', async () => {

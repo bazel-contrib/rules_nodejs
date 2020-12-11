@@ -62,7 +62,8 @@ nodejs_test(
 ts_library(
     name = "protractor",
     srcs = ["protractor-utils.ts"],
-    module_name = "@bazel/protractor/protractor-utils",
+    data = ["package.json"],
+    module_name = "@bazel/protractor",
     module_root = "protractor-utils",
     deps = ["@npm//@types/node"],
 )
