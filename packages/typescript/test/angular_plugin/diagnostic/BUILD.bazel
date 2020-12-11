@@ -20,14 +20,13 @@ ts_library(
     angular_assets = [
         "comp.ng.html",
     ],
+    compiler = "//packages/typescript/test/angular_plugin:tsc_wrapped_with_angular",
     expected_diagnostics = [
         "TS2339: \\[ngtsc\\] Property 'thing' does not exist on type 'Comp'",
     ],
     tsconfig = ":tsconfig.json",
     use_angular_plugin = True,
     deps = [
-        # Needed for the angular compiler plugin
-        "@npm//@angular/compiler-cli",
         "@npm//@angular/core",
     ],
 )
