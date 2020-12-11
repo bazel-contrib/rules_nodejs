@@ -4,6 +4,5 @@ jasmine_node_test(
     name = "test",
     srcs = ["test.js"],
     tags = ["local"],
-    templated_args = ["--nobazel_patch_module_resolver"],
     deps = ["//internal/linker/test/local/fit"],
 )

@@ -5,5 +5,4 @@ nodejs_binary(
     name = "jasmine",
     entry_point = "//:node_modules/jasmine/bin/jasmine.js",
     data = ["//jasmine:jasmine"],
-    templated_args = ["--nobazel_patch_module_resolver"],
 )

@@ -7,13 +7,11 @@ def test(**kwargs):
         nodejs_binary(
             entry_point = "@fine_grained_goldens//:node_modules/@gregmagolan/test-a/@bin/test.js",
             data = ["@fine_grained_goldens//@gregmagolan/test-a:test-a"] + kwargs.pop("data", []),
-            templated_args = ["--nobazel_patch_module_resolver"] + kwargs.pop("templated_args", []),
             **kwargs
         )
 def test_test(**kwargs):
     nodejs_test(
       entry_point = "@fine_grained_goldens//:node_modules/@gregmagolan/test-a/@bin/test.js",
       data = ["@fine_grained_goldens//@gregmagolan/test-a:test-a"] + kwargs.pop("data", []),
-      templated_args = ["--nobazel_patch_module_resolver"] + kwargs.pop("templated_args", []),
       **kwargs
     )

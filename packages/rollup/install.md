@@ -144,7 +144,6 @@ nodejs_binary(
     data = ["@npm//rollup:rollup"],
     entry_point = "@npm//:node_modules/rollup/dist/bin/rollup",
     templated_args = [
-        "--nobazel_patch_module_resolver",
         "--node_options=--max-old-space-size=<SOME_SIZE>",
     ],
 )

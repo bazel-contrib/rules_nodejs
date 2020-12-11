@@ -112,7 +112,6 @@ def cypress_web_test(
         ] + srcs,
         entry_point = "@build_bazel_rules_nodejs//packages/cypress:internal/run-cypress.js",
         templated_args = [
-            "--nobazel_patch_module_resolver",
             "$(rootpath {config_file})".format(config_file = config_file),
             "$(rootpath {cypress_plugin})".format(cypress_plugin = cypress_plugin),
             "$(rootpath {cypress_archive})".format(cypress_archive = cypress_archive),
@@ -154,7 +153,6 @@ def cypress_web_test_global_cache(
         ] + srcs,
         entry_point = "@build_bazel_rules_nodejs//packages/cypress:internal/run-cypress.js",
         templated_args = [
-            "--nobazel_patch_module_resolver",
             "$(rootpath {config_file})".format(config_file = config_file),
             "$(rootpath {cypress_plugin})".format(cypress_plugin = cypress_plugin),
         ] + templated_args,
