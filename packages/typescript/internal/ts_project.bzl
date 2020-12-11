@@ -648,7 +648,6 @@ def ts_project_macro(
             ],
             entry_point = Label("//packages/typescript/internal/worker:worker_adapter"),
             templated_args = [
-                "--nobazel_patch_module_resolver",
                 "$(execpath {})".format(Label(worker_tsc_bin)),
                 "--project",
                 "$(execpath {})".format(tsconfig),

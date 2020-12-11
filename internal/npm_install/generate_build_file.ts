@@ -1069,8 +1069,7 @@ export function printPackageBin(pkg: Dep) {
 nodejs_binary(
     name = "${name}",
     entry_point = "//:node_modules/${pkg._dir}/${path}",
-    data = [${data.map(p => `"${p}"`).join(', ')}],
-    templated_args = ["--nobazel_patch_module_resolver"],${additionalAttributes(pkg, name)}
+    data = [${data.map(p => `"${p}"`).join(', ')}],${additionalAttributes(pkg, name)}
 )
 `;
     }
@@ -1104,8 +1103,7 @@ def ${name.replace(/-/g, '_')}(**kwargs):
     else:
         nodejs_binary(
             entry_point = "@${WORKSPACE}//:node_modules/${pkg._dir}/${path}",
-            data = [${data.map(p => `"${p}"`).join(', ')}] + kwargs.pop("data", []),
-            templated_args = ["--nobazel_patch_module_resolver"] + kwargs.pop("templated_args", []),${
+            data = [${data.map(p => `"${p}"`).join(', ')}] + kwargs.pop("data", []),${
           additionalAttributes(pkg, name)}
             **kwargs
         )
@@ -1114,8 +1112,7 @@ def ${name.replace(/-/g, '_')}(**kwargs):
 def ${name.replace(/-/g, '_')}_test(**kwargs):
     nodejs_test(
       entry_point = "@${WORKSPACE}//:node_modules/${pkg._dir}/${path}",
-      data = [${data.map(p => `"${p}"`).join(', ')}] + kwargs.pop("data", []),
-      templated_args = ["--nobazel_patch_module_resolver"] + kwargs.pop("templated_args", []),${
+      data = [${data.map(p => `"${p}"`).join(', ')}] + kwargs.pop("data", []),${
           additionalAttributes(pkg, name)}
       **kwargs
     )
