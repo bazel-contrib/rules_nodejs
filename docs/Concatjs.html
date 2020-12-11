@@ -109,10 +109,6 @@
       
       
       
-      <li><a href="/rules_nodejs/Karma.html">Karma</a></li>
-      
-      
-      
       <li><a href="/rules_nodejs/Labs.html">Labs</a></li>
       
       
@@ -186,11 +182,27 @@ around each file so that the Chrome DevTools shows the files in the tree as if t
 <p>However at its core, concatjs requires a big tradeoff of a migration cost to buy-in, to get this incredible performance.
 The path of the JavaScript files is lost in the bundling process, so they must contain their module ID internally.</p>
 
-<p>Named AMD/UMD (non-anonymous require.js modules) and <code class="language-plaintext highlighter-rouge">goog.module</code> are the two JS module formats that are compatible with concatjs.
-Most packages do not ship with this format, so in order to use concatjs tooling, you have to shim your code and dependencies.</p>
+<p><a href="https://requirejs.org/docs/whyamd.html#namedmodules">Named AMD/UMD modules</a> and <code class="language-plaintext highlighter-rouge">goog.module</code> are the two JS module formats that are compatible with concatjs.
+Most packages do not ship with this format, so in order to use concatjs tooling, you have to shim your code and dependencies. See the <a href="#compatibility">Compatibility</a> section below.</p>
 
 <p>This is at the core of how Google does JavaScript development.
-So Bazel rules that originated in Google’s codebase, such as <code class="language-plaintext highlighter-rouge">ts_library</code> depend in some ways on producing concatjs output.</p>
+So Bazel rules that originated in Google’s codebase have affordances for concatjs.
+For example <code class="language-plaintext highlighter-rouge">ts_library</code> produces named AMD modules in its “devmode” output, and
+<code class="language-plaintext highlighter-rouge">karma_web_test</code> expects to bundle inputs using concatjs.</p>
+
+<h2 id="compatibility">Compatibility</h2>
+
+<p>To make it easier to produce a UMD version of a third-party npm package, we automatically generate a target that uses Browserify to build one, using the <code class="language-plaintext highlighter-rouge">main</code> entry from the package’s <code class="language-plaintext highlighter-rouge">package.json</code>.
+In most cases this will make the package loadable under concatjs.
+This target has a <code class="language-plaintext highlighter-rouge">__umd</code> suffix. For example, if your library is at <code class="language-plaintext highlighter-rouge">@npm//foo</code> then the UMD target is <code class="language-plaintext highlighter-rouge">@npm//foo:foo__umd</code>.</p>
+
+<p>An example where this fixes a users issue: <a href="https://github.com/bazelbuild/rules_nodejs/issues/2317#issuecomment-735921318">https://github.com/bazelbuild/rules_nodejs/issues/2317#issuecomment-735921318</a></p>
+
+<p>In some cases, the generated UMD bundle is not sufficient, and in others it fails to build because it requires some special Browserify configuration.
+You can always write your own shim that grabs a symbol from a package you use, and exposes it in an AMD/require.js-compatible way.
+For example, even though RxJS ships with a UMD bundle, it contains multiple entry points and uses anonymous modules, not named modules. So our Angular/concatjs example has a <code class="language-plaintext highlighter-rouge">rxjs_shims.js</code> file that exposes some RxJS operators, then at <a href="https://github.com/bazelbuild/rules_nodejs/blob/2.3.1/examples/angular/src/BUILD.bazel#L65-L71">https://github.com/bazelbuild/rules_nodejs/blob/2.3.1/examples/angular/src/BUILD.bazel#L65-L71</a> this is combined in a <code class="language-plaintext highlighter-rouge">filegroup</code> with the <code class="language-plaintext highlighter-rouge">rxjs.umd.js</code> file. Now we use this filegroup target when depending on RxJS in a <code class="language-plaintext highlighter-rouge">concatjs_*</code> rule.</p>
+
+<p>Ultimately by using concatjs, you’re signing up for at least a superficial understanding of these shims and may need to update them when you change your dependencies.</p>
 
 <h2 id="serving-js-in-development-mode-under-bazel">Serving JS in development mode under Bazel</h2>
 
@@ -245,6 +257,47 @@ devserver, we recommend you use <a href="https://github.com/bazelbuild/bazel-wat
 server so the browser refreshes the application automatically when each build
 finishes.</p>
 
+<h2 id="testing-with-karma">Testing with Karma</h2>
+
+<p>The <code class="language-plaintext highlighter-rouge">karma_web_test</code> rule runs karma tests with Bazel.</p>
+
+<p>It depends on rules_webtesting, so you need to add this to your <code class="language-plaintext highlighter-rouge">WORKSPACE</code>
+if you use the web testing rules in <code class="language-plaintext highlighter-rouge">@bazel/concatjs</code>:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Fetch transitive Bazel dependencies of karma_web_test
+</span><span class="n">http_archive</span><span class="p">(</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"io_bazel_rules_webtesting"</span><span class="p">,</span>
+    <span class="n">sha256</span> <span class="o">=</span> <span class="s">"9bb461d5ef08e850025480bab185fd269242d4e533bca75bfb748001ceb343c3"</span><span class="p">,</span>
+    <span class="n">urls</span> <span class="o">=</span> <span class="p">[</span><span class="s">"https://github.com/bazelbuild/rules_webtesting/releases/download/0.3.3/rules_webtesting.tar.gz"</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="c1"># Set up web testing, choose browsers we can test on
+</span><span class="n">load</span><span class="p">(</span><span class="s">"@io_bazel_rules_webtesting//web:repositories.bzl"</span><span class="p">,</span> <span class="s">"web_test_repositories"</span><span class="p">)</span>
+
+<span class="n">web_test_repositories</span><span class="p">()</span>
+
+<span class="n">load</span><span class="p">(</span><span class="s">"@io_bazel_rules_webtesting//web/versioned:browsers-0.3.2.bzl"</span><span class="p">,</span> <span class="s">"browser_repositories"</span><span class="p">)</span>
+
+<span class="n">browser_repositories</span><span class="p">(</span>
+    <span class="n">chromium</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span>
+    <span class="n">firefox</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="installing-with-self-managed-dependencies">Installing with self-managed dependencies</h2>
+
+<p>If you didn’t use the <code class="language-plaintext highlighter-rouge">yarn_install</code> or <code class="language-plaintext highlighter-rouge">npm_install</code> rule to create an <code class="language-plaintext highlighter-rouge">npm</code> workspace, you’ll have to declare a rule in your root <code class="language-plaintext highlighter-rouge">BUILD.bazel</code> file to execute karma:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Create a karma rule to use in karma_web_test_suite karma
+# attribute when using self-managed dependencies
+</span><span class="n">nodejs_binary</span><span class="p">(</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"karma/karma"</span><span class="p">,</span>
+    <span class="n">entry_point</span> <span class="o">=</span> <span class="s">"//:node_modules/karma/bin/karma"</span><span class="p">,</span>
+    <span class="c1"># Point bazel to your node_modules to find the entry point
+</span>    <span class="n">node_modules</span> <span class="o">=</span> <span class="p">[</span><span class="s">"//:node_modules"</span><span class="p">],</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
 <h2 id="concatjs_devserver">concatjs_devserver</h2>
 
 <p><strong>USAGE</strong></p>
@@ -256,7 +309,7 @@ concatjs_devserver(<a href="#concatjs_devserver-name">name</a>, <a href="#concat
 
 <p>concatjs_devserver is a simple development server intended for a quick “getting started” experience.</p>
 
-<p>Additional documentation at https://github.com/alexeagle/angular-bazel-example/wiki/Running-a-devserver-under-Bazel</p>
+<p>Additional documentation <a href="https://github.com/alexeagle/angular-bazel-example/wiki/Running-a-devserver-under-Bazel">here</a></p>
 
 <p><strong>ATTRIBUTES</strong></p>
 
@@ -339,6 +392,163 @@ concatjs_devserver(<a href="#concatjs_devserver-name">name</a>, <a href="#concat
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
+<h2 id="karma_web_test">karma_web_test</h2>
+
+<p><strong>USAGE</strong></p>
+
+<pre>
+karma_web_test(<a href="#karma_web_test-srcs">srcs</a>, <a href="#karma_web_test-deps">deps</a>, <a href="#karma_web_test-data">data</a>, <a href="#karma_web_test-configuration_env_vars">configuration_env_vars</a>, <a href="#karma_web_test-bootstrap">bootstrap</a>, <a href="#karma_web_test-runtime_deps">runtime_deps</a>, <a href="#karma_web_test-static_files">static_files</a>,
+               <a href="#karma_web_test-config_file">config_file</a>, <a href="#karma_web_test-tags">tags</a>, <a href="#karma_web_test-peer_deps">peer_deps</a>, <a href="#karma_web_test-kwargs">kwargs</a>)
+</pre>
+
+<p>Runs unit tests in a browser with Karma.</p>
+
+<p>When executed under <code class="language-plaintext highlighter-rouge">bazel test</code>, this uses a headless browser for speed.
+This is also because <code class="language-plaintext highlighter-rouge">bazel test</code> allows multiple targets to be tested together,
+and we don’t want to open a Chrome window on your machine for each one. Also,
+under <code class="language-plaintext highlighter-rouge">bazel test</code> the test will execute and immediately terminate.</p>
+
+<p>Running under <code class="language-plaintext highlighter-rouge">ibazel test</code> gives you a “watch mode” for your tests. The rule is
+optimized for this case - the test runner server will stay running and just
+re-serve the up-to-date JavaScript source bundle.</p>
+
+<p>To debug a single test target, run it with <code class="language-plaintext highlighter-rouge">bazel run</code> instead. This will open a
+browser window on your computer. Also you can use any other browser by opening
+the URL printed when the test starts up. The test will remain running until you
+cancel the <code class="language-plaintext highlighter-rouge">bazel run</code> command.</p>
+
+<p>This rule will use your system Chrome by default. In the default case, your
+environment must specify CHROME_BIN so that the rule will know which Chrome binary to run.
+Other <code class="language-plaintext highlighter-rouge">browsers</code> and <code class="language-plaintext highlighter-rouge">customLaunchers</code> may be set using the a base Karma configuration
+specified in the <code class="language-plaintext highlighter-rouge">config_file</code> attribute.</p>
+
+<p>By default we open a headless Chrome. To use a real Chrome browser window, you can pass
+<code class="language-plaintext highlighter-rouge">--define DISPLAY=true</code> to Bazel, along with <code class="language-plaintext highlighter-rouge">configuration_env_vars = ["DISPLAY"]</code> on
+<code class="language-plaintext highlighter-rouge">karma_web_test</code>.</p>
+
+<p><strong>PARAMETERS</strong></p>
+
+<h4 id="karma_web_test-srcs">srcs</h4>
+
+<p>A list of JavaScript test files</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+
+<h4 id="karma_web_test-deps">deps</h4>
+
+<p>Other targets which produce JavaScript such as <code class="language-plaintext highlighter-rouge">ts_library</code></p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+
+<h4 id="karma_web_test-data">data</h4>
+
+<p>Runtime dependencies</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+
+<h4 id="karma_web_test-configuration_env_vars">configuration_env_vars</h4>
+
+<p>Pass these configuration environment variables to the resulting binary.
+Chooses a subset of the configuration environment variables (taken from ctx.var), which also
+includes anything specified via the –define flag.
+Note, this can lead to different outputs produced by this rule.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+
+<h4 id="karma_web_test-bootstrap">bootstrap</h4>
+
+<p>JavaScript files to include <em>before</em> the module loader (require.js).
+For example, you can include Reflect,js for TypeScript decorator metadata reflection,
+or UMD bundles for third-party libraries.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+
+<h4 id="karma_web_test-runtime_deps">runtime_deps</h4>
+
+<p>Dependencies which should be loaded after the module loader but before the srcs and deps.
+These should be a list of targets which produce JavaScript such as <code class="language-plaintext highlighter-rouge">ts_library</code>.
+The files will be loaded in the same order they are declared by that rule.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+
+<h4 id="karma_web_test-static_files">static_files</h4>
+
+<p>Arbitrary files which are available to be served on request.
+Files are served at:
+<code class="language-plaintext highlighter-rouge">/base/&amp;lt;WORKSPACE_NAME&amp;gt;/&amp;lt;path-to-file&amp;gt;</code>, e.g.
+<code class="language-plaintext highlighter-rouge">/base/npm_bazel_typescript/examples/testing/static_script.js</code></p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+
+<h4 id="karma_web_test-config_file">config_file</h4>
+
+<p>User supplied Karma configuration file. Bazel will override
+certain attributes of this configuration file. Attributes that are
+overridden will be outputted to the test log.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">None</code></p>
+
+<h4 id="karma_web_test-tags">tags</h4>
+
+<p>Standard Bazel tags, this macro adds tags for ibazel support</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+
+<h4 id="karma_web_test-peer_deps">peer_deps</h4>
+
+<p>list of peer npm deps required by karma_web_test</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">["@npm//karma", "@npm//karma-chrome-launcher", "@npm//karma-firefox-launcher", "@npm//karma-jasmine", "@npm//karma-requirejs", "@npm//karma-sourcemap-loader", "@npm//requirejs"]</code></p>
+
+<h4 id="karma_web_test-kwargs">kwargs</h4>
+
+<p>Passed through to <code class="language-plaintext highlighter-rouge">karma_web_test</code></p>
+
+<h2 id="karma_web_test_suite">karma_web_test_suite</h2>
+
+<p><strong>USAGE</strong></p>
+
+<pre>
+karma_web_test_suite(<a href="#karma_web_test_suite-name">name</a>, <a href="#karma_web_test_suite-browsers">browsers</a>, <a href="#karma_web_test_suite-web_test_data">web_test_data</a>, <a href="#karma_web_test_suite-wrapped_test_tags">wrapped_test_tags</a>, <a href="#karma_web_test_suite-kwargs">kwargs</a>)
+</pre>
+
+<p>Defines a test_suite of web_test targets that wrap a karma_web_test target.</p>
+
+<p>This macro accepts all parameters in karma_web_test and adds additional parameters
+for the suite. See karma_web_test docs for all karma_web_test.</p>
+
+<p>The wrapping macro is <code class="language-plaintext highlighter-rouge">web_test_suite</code> which comes from rules_websting:
+https://github.com/bazelbuild/rules_webtesting/blob/master/web/web.bzl.</p>
+
+<p><strong>PARAMETERS</strong></p>
+
+<h4 id="karma_web_test_suite-name">name</h4>
+
+<p>The base name of the test</p>
+
+<h4 id="karma_web_test_suite-browsers">browsers</h4>
+
+<p>A sequence of labels specifying the browsers to use.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">None</code></p>
+
+<h4 id="karma_web_test_suite-web_test_data">web_test_data</h4>
+
+<p>Data dependencies for the wrapper web_test targets.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+
+<h4 id="karma_web_test_suite-wrapped_test_tags">wrapped_test_tags</h4>
+
+<p>A list of test tag strings to use for the wrapped
+karma_web_test target.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">["manual", "noci"]</code></p>
+
+<h4 id="karma_web_test_suite-kwargs">kwargs</h4>
+
+<p>Arguments for the wrapped karma_web_test target.</p>
+
 
       </div>
     </div>
@@ -354,8 +564,13 @@ concatjs_devserver(<a href="#concatjs_devserver-name">name</a>, <a href="#concat
           
         </ul>
         <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#compatibility">Compatibility</a></li>
 <li class="toc-entry toc-h2"><a href="#serving-js-in-development-mode-under-bazel">Serving JS in development mode under Bazel</a></li>
+<li class="toc-entry toc-h2"><a href="#testing-with-karma">Testing with Karma</a></li>
+<li class="toc-entry toc-h2"><a href="#installing-with-self-managed-dependencies">Installing with self-managed dependencies</a></li>
 <li class="toc-entry toc-h2"><a href="#concatjs_devserver">concatjs_devserver</a></li>
+<li class="toc-entry toc-h2"><a href="#karma_web_test">karma_web_test</a></li>
+<li class="toc-entry toc-h2"><a href="#karma_web_test_suite">karma_web_test_suite</a></li>
 </ul>
       </div>
     </div>

@@ -109,10 +109,6 @@
       
       
       
-      <li><a href="/rules_nodejs/Karma.html">Karma</a></li>
-      
-      
-      
       <li><a href="/rules_nodejs/Labs.html">Labs</a></li>
       
       
@@ -181,9 +177,9 @@
 <p><strong>USAGE</strong></p>
 
 <pre>
-node_repositories(<a href="#node_repositories-name">name</a>, <a href="#node_repositories-node_repositories">node_repositories</a>, <a href="#node_repositories-node_urls">node_urls</a>, <a href="#node_repositories-node_version">node_version</a>, <a href="#node_repositories-package_json">package_json</a>, <a href="#node_repositories-preserve_symlinks">preserve_symlinks</a>,
-                  <a href="#node_repositories-repo_mapping">repo_mapping</a>, <a href="#node_repositories-vendored_node">vendored_node</a>, <a href="#node_repositories-vendored_yarn">vendored_yarn</a>, <a href="#node_repositories-yarn_repositories">yarn_repositories</a>, <a href="#node_repositories-yarn_urls">yarn_urls</a>,
-                  <a href="#node_repositories-yarn_version">yarn_version</a>)
+node_repositories(<a href="#node_repositories-name">name</a>, <a href="#node_repositories-node_download_auth">node_download_auth</a>, <a href="#node_repositories-node_repositories">node_repositories</a>, <a href="#node_repositories-node_urls">node_urls</a>, <a href="#node_repositories-node_version">node_version</a>,
+                  <a href="#node_repositories-package_json">package_json</a>, <a href="#node_repositories-preserve_symlinks">preserve_symlinks</a>, <a href="#node_repositories-repo_mapping">repo_mapping</a>, <a href="#node_repositories-vendored_node">vendored_node</a>, <a href="#node_repositories-vendored_yarn">vendored_yarn</a>,
+                  <a href="#node_repositories-yarn_download_auth">yarn_download_auth</a>, <a href="#node_repositories-yarn_repositories">yarn_repositories</a>, <a href="#node_repositories-yarn_urls">yarn_urls</a>, <a href="#node_repositories-yarn_version">yarn_version</a>)
 </pre>
 
 <p>To be run in user’s WORKSPACE to install rules_nodejs dependencies.</p>
@@ -286,6 +282,13 @@ node_repositories(package_json = ["//:package.json", "//subpkg:package.json"])
 
 <p>(<em><a href="https://bazel.build/docs/build-ref.html#name">Name</a>, mandatory</em>): A unique name for this repository.</p>
 
+<h4 id="node_repositories-node_download_auth">node_download_auth</h4>
+
+<p>(<em><a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -&gt; String</a></em>): auth to use for all url requests
+Example: {“type”: “basic”, “login”: “<UserName>", "password": "<Password>" }</Password></UserName></p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">{}</code></p>
+
 <h4 id="node_repositories-node_repositories">node_repositories</h4>
 
 <p>(<em><a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -&gt; List of strings</a></em>): Custom list of node repositories to use</p>
@@ -353,6 +356,13 @@ a stronger guarantee of hermeticity which is required for remote execution.</p>
 <p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></em>): the local path to a pre-installed yarn tool</p>
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">None</code></p>
+
+<h4 id="node_repositories-yarn_download_auth">yarn_download_auth</h4>
+
+<p>(<em><a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -&gt; String</a></em>): auth to use for all url requests
+Example: {“type”: “basic”, “login”: “<UserName>", "password": "<Password>" }</Password></UserName></p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">{}</code></p>
 
 <h4 id="node_repositories-yarn_repositories">yarn_repositories</h4>
 
@@ -1034,9 +1044,7 @@ fine grained npm dependencies.</p>
 All transitive dependencies are given limited visibility, enforcing that all direct dependencies are
 listed in the <code class="language-plaintext highlighter-rouge">package.json</code> file.</p>
 
-<p>Currently the default is set <code class="language-plaintext highlighter-rouge">False</code>, but will likely be flipped <code class="language-plaintext highlighter-rouge">True</code> in rules_nodejs 3.0.0</p>
-
-<p>Defaults to <code class="language-plaintext highlighter-rouge">False</code></p>
+<p>Defaults to <code class="language-plaintext highlighter-rouge">True</code></p>
 
 <h4 id="npm_install-symlink_node_modules">symlink_node_modules</h4>
 
@@ -1067,8 +1075,8 @@ data attribute.</p>
 <p><strong>USAGE</strong></p>
 
 <pre>
-pkg_npm(<a href="#pkg_npm-name">name</a>, <a href="#pkg_npm-deps">deps</a>, <a href="#pkg_npm-nested_packages">nested_packages</a>, <a href="#pkg_npm-node_context_data">node_context_data</a>, <a href="#pkg_npm-package_name">package_name</a>, <a href="#pkg_npm-replace_with_version">replace_with_version</a>, <a href="#pkg_npm-srcs">srcs</a>,
-        <a href="#pkg_npm-substitutions">substitutions</a>, <a href="#pkg_npm-vendor_external">vendor_external</a>)
+pkg_npm(<a href="#pkg_npm-name">name</a>, <a href="#pkg_npm-deps">deps</a>, <a href="#pkg_npm-nested_packages">nested_packages</a>, <a href="#pkg_npm-node_context_data">node_context_data</a>, <a href="#pkg_npm-package_name">package_name</a>, <a href="#pkg_npm-srcs">srcs</a>, <a href="#pkg_npm-substitutions">substitutions</a>,
+        <a href="#pkg_npm-vendor_external">vendor_external</a>)
 </pre>
 
 <p>The pkg_npm rule creates a directory containing a publishable npm artifact.</p>
@@ -1163,17 +1171,6 @@ to create a NodeContextInfo.  The dependencies of this attribute must provide: N
 <p>(<em>String</em>): Optional package_name that this npm package may be imported as.</p>
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">""</code></p>
-
-<h4 id="pkg_npm-replace_with_version">replace_with_version</h4>
-
-<p>(<em>String</em>): DEPRECATED: use substitutions instead.</p>
-
-<p><code class="language-plaintext highlighter-rouge">replace_with_version = "my_version_placeholder"</code> is just syntax sugar for
-<code class="language-plaintext highlighter-rouge">substitutions = {"my_version_placeholder": "{BUILD_SCM_VERSION}"}</code>.</p>
-
-<p>Follow this deprecation at https://github.com/bazelbuild/rules_nodejs/issues/2158</p>
-
-<p>Defaults to <code class="language-plaintext highlighter-rouge">"0.0.0-PLACEHOLDER"</code></p>
 
 <h4 id="pkg_npm-srcs">srcs</h4>
 
@@ -1355,9 +1352,7 @@ fine grained npm dependencies.</p>
 All transitive dependencies are given limited visibility, enforcing that all direct dependencies are
 listed in the <code class="language-plaintext highlighter-rouge">package.json</code> file.</p>
 
-<p>Currently the default is set <code class="language-plaintext highlighter-rouge">False</code>, but will likely be flipped <code class="language-plaintext highlighter-rouge">True</code> in rules_nodejs 3.0.0</p>
-
-<p>Defaults to <code class="language-plaintext highlighter-rouge">False</code></p>
+<p>Defaults to <code class="language-plaintext highlighter-rouge">True</code></p>
 
 <h4 id="yarn_install-symlink_node_modules">symlink_node_modules</h4>
 

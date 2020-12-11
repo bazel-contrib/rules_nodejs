@@ -22,9 +22,9 @@ These rules are available without any npm installation, via the `WORKSPACE` inst
 **USAGE**
 
 <pre>
-node_repositories(<a href="#node_repositories-name">name</a>, <a href="#node_repositories-node_repositories">node_repositories</a>, <a href="#node_repositories-node_urls">node_urls</a>, <a href="#node_repositories-node_version">node_version</a>, <a href="#node_repositories-package_json">package_json</a>, <a href="#node_repositories-preserve_symlinks">preserve_symlinks</a>,
-                  <a href="#node_repositories-repo_mapping">repo_mapping</a>, <a href="#node_repositories-vendored_node">vendored_node</a>, <a href="#node_repositories-vendored_yarn">vendored_yarn</a>, <a href="#node_repositories-yarn_repositories">yarn_repositories</a>, <a href="#node_repositories-yarn_urls">yarn_urls</a>,
-                  <a href="#node_repositories-yarn_version">yarn_version</a>)
+node_repositories(<a href="#node_repositories-name">name</a>, <a href="#node_repositories-node_download_auth">node_download_auth</a>, <a href="#node_repositories-node_repositories">node_repositories</a>, <a href="#node_repositories-node_urls">node_urls</a>, <a href="#node_repositories-node_version">node_version</a>,
+                  <a href="#node_repositories-package_json">package_json</a>, <a href="#node_repositories-preserve_symlinks">preserve_symlinks</a>, <a href="#node_repositories-repo_mapping">repo_mapping</a>, <a href="#node_repositories-vendored_node">vendored_node</a>, <a href="#node_repositories-vendored_yarn">vendored_yarn</a>,
+                  <a href="#node_repositories-yarn_download_auth">yarn_download_auth</a>, <a href="#node_repositories-yarn_repositories">yarn_repositories</a>, <a href="#node_repositories-yarn_urls">yarn_urls</a>, <a href="#node_repositories-yarn_version">yarn_version</a>)
 </pre>
 
 To be run in user's WORKSPACE to install rules_nodejs dependencies.
@@ -142,6 +142,13 @@ Note that the dependency installation scripts will run in each subpackage indica
 (*<a href="https://bazel.build/docs/build-ref.html#name">Name</a>, mandatory*): A unique name for this repository.
 
 
+<h4 id="node_repositories-node_download_auth">node_download_auth</h4>
+
+(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): auth to use for all url requests
+Example: {"type": "basic", "login": "<UserName>", "password": "<Password>" }
+
+Defaults to `{}`
+
 <h4 id="node_repositories-node_repositories">node_repositories</h4>
 
 (*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> List of strings</a>*): Custom list of node repositories to use
@@ -210,6 +217,13 @@ Defaults to `None`
 (*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): the local path to a pre-installed yarn tool
 
 Defaults to `None`
+
+<h4 id="node_repositories-yarn_download_auth">yarn_download_auth</h4>
+
+(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): auth to use for all url requests
+Example: {"type": "basic", "login": "<UserName>", "password": "<Password>" }
+
+Defaults to `{}`
 
 <h4 id="node_repositories-yarn_repositories">yarn_repositories</h4>
 
@@ -919,9 +933,7 @@ When enabled, only dependencies within the given `package.json` file are given p
 All transitive dependencies are given limited visibility, enforcing that all direct dependencies are
 listed in the `package.json` file.
 
-Currently the default is set `False`, but will likely be flipped `True` in rules_nodejs 3.0.0
-
-Defaults to `False`
+Defaults to `True`
 
 <h4 id="npm_install-symlink_node_modules">symlink_node_modules</h4>
 
@@ -954,8 +966,8 @@ Defaults to `3600`
 **USAGE**
 
 <pre>
-pkg_npm(<a href="#pkg_npm-name">name</a>, <a href="#pkg_npm-deps">deps</a>, <a href="#pkg_npm-nested_packages">nested_packages</a>, <a href="#pkg_npm-node_context_data">node_context_data</a>, <a href="#pkg_npm-package_name">package_name</a>, <a href="#pkg_npm-replace_with_version">replace_with_version</a>, <a href="#pkg_npm-srcs">srcs</a>,
-        <a href="#pkg_npm-substitutions">substitutions</a>, <a href="#pkg_npm-vendor_external">vendor_external</a>)
+pkg_npm(<a href="#pkg_npm-name">name</a>, <a href="#pkg_npm-deps">deps</a>, <a href="#pkg_npm-nested_packages">nested_packages</a>, <a href="#pkg_npm-node_context_data">node_context_data</a>, <a href="#pkg_npm-package_name">package_name</a>, <a href="#pkg_npm-srcs">srcs</a>, <a href="#pkg_npm-substitutions">substitutions</a>,
+        <a href="#pkg_npm-vendor_external">vendor_external</a>)
 </pre>
 
 The pkg_npm rule creates a directory containing a publishable npm artifact.
@@ -1059,17 +1071,6 @@ Defaults to `@build_bazel_rules_nodejs//internal:node_context_data`
 (*String*): Optional package_name that this npm package may be imported as.
 
 Defaults to `""`
-
-<h4 id="pkg_npm-replace_with_version">replace_with_version</h4>
-
-(*String*): DEPRECATED: use substitutions instead.
-
-`replace_with_version = "my_version_placeholder"` is just syntax sugar for
-`substitutions = {"my_version_placeholder": "{BUILD_SCM_VERSION}"}`.
-
-Follow this deprecation at https://github.com/bazelbuild/rules_nodejs/issues/2158
-
-Defaults to `"0.0.0-PLACEHOLDER"`
 
 <h4 id="pkg_npm-srcs">srcs</h4>
 
@@ -1262,9 +1263,7 @@ When enabled, only dependencies within the given `package.json` file are given p
 All transitive dependencies are given limited visibility, enforcing that all direct dependencies are
 listed in the `package.json` file.
 
-Currently the default is set `False`, but will likely be flipped `True` in rules_nodejs 3.0.0
-
-Defaults to `False`
+Defaults to `True`
 
 <h4 id="yarn_install-symlink_node_modules">symlink_node_modules</h4>
 
