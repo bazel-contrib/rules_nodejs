@@ -10,6 +10,8 @@ jasmine_node_test(
         "@npm//google-protobuf",
         "@npm//grpc-web",
     ],
+    # TODO: make the test work with generated protobuf code that isn't runfiles-aware
+    templated_args = ["--bazel_patch_module_resolver"],
     deps = [
         ":commonjs_test_lib",
     ],

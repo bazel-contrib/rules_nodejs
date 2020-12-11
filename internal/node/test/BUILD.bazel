@@ -16,12 +16,13 @@ nodejs_binary(
 )
 
 # You can have a nodejs_binary with a node_modules attribute
-# and no fine grained deps
+# and no fine grained deps, but it requires patching the module resolver
 nodejs_binary(
     name = "has_deps_legacy",
     data = ["has-deps.js"],
     entry_point = ":has-deps.js",
     node_modules = "@fine_grained_deps_yarn//:node_modules",
+    templated_args = ["--bazel_patch_module_resolver"],
 )
 
 # You can have a nodejs_binary with no node_modules attribute
@@ -101,6 +102,8 @@ nodejs_test(
         "@npm//node_resolve_nested_main",
     ],
     entry_point = ":module_resolution.spec.js",
+    # this is a test for the patched module resolver
+    templated_args = ["--bazel_patch_module_resolver"],
 )
 
 nodejs_test(
@@ -218,6 +221,8 @@ nodejs_test(
         "@npm//node_resolve_nested_main",
     ],
     entry_point = ":module_resolution_built.spec.js",
+    # TODO: passes locally without this flag but fails on CircleCI
+    templated_args = ["--bazel_patch_module_resolver"],
 )
 
 nodejs_test(
@@ -227,6 +232,8 @@ nodejs_test(
         ":genfile-runfile",
     ],
     entry_point = ":data_resolution_built.spec.js",
+    # TODO: fails on Windows without this flag
+    templated_args = ["--bazel_patch_module_resolver"],
 )
 
 npm_package_bin(
