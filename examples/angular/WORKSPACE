@@ -36,11 +36,17 @@ http_archive(
 # Fetch sass rules for compiling sass files
 http_archive(
     name = "io_bazel_rules_sass",
-    sha256 = "c78be58f5e0a29a04686b628cf54faaee0094322ae0ac99da5a8a8afca59a647",
-    strip_prefix = "rules_sass-1.25.0",
+    patch_args = ["-p1"],
+    # We need the latest rules_sass to get the --bazel_patch_module_resolver behavior
+    # However it seems to have a bug, so we patch back to the prior dart-sass version.
+    # See https://github.com/bazelbuild/rules_sass/issues/127
+    # TODO(alexeagle): fix upstream and remove patch
+    patches = ["@build_bazel_rules_nodejs//:rules_sass.issue127.patch"],
+    sha256 = "8392cf8910db2b1dc3b488ea18113bfe4fd666037bf8ec30d2a3f08fc602a6d8",
+    strip_prefix = "rules_sass-1.30.0",
     urls = [
-        "https://github.com/bazelbuild/rules_sass/archive/1.25.0.zip",
-        "https://mirror.bazel.build/github.com/bazelbuild/rules_sass/archive/1.25.0.zip",
+        "https://github.com/bazelbuild/rules_sass/archive/1.30.0.zip",
+        "https://mirror.bazel.build/github.com/bazelbuild/rules_sass/archive/1.30.0.zip",
     ],
 )
 
