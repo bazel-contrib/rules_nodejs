@@ -199,7 +199,9 @@ for ARG in ${ALL_ARGS[@]+"${ALL_ARGS[@]}"}; do
     # Disable the --require node-patches (undocumented and unused; only here as an escape value)
     --nobazel_node_patches) NODE_PATCHES=false ;;
     # Disable the linker pre-process (undocumented and unused; only here as an escape value)
-    --nobazel_run_linker) RUN_LINKER=false ;;
+    # It also enables the --bazel_patch_module_resolver flag, as either the linker or require() patch
+    # is needed for resolving third-party node modules.
+    --nobazel_run_linker) RUN_LINKER=false PATCH_REQUIRE=true ;;
     # Let users pass through arguments to node itself
     --node_options=*) USER_NODE_OPTIONS+=( "${ARG#--node_options=}" ) ;;
     # Remaining argv is collected to pass to the program
