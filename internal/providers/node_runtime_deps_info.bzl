@@ -112,6 +112,11 @@ def run_node(ctx, inputs, arguments, executable, **kwargs):
         add_arg(arguments, "--bazel_capture_exit_code=%s" % exit_code_file.path)
         outputs = outputs + [exit_code_file]
 
+    # By using the run_node helper, you suggest that your program
+    # doesn't implicitly use runfiles to require() things
+    # To access runfiles, you must use a runfiles helper in the program instead
+    add_arg(arguments, "--nobazel_patch_module_resolver")
+
     env = kwargs.pop("env", {})
 
     # Always forward the COMPILATION_MODE to node process as an environment variable

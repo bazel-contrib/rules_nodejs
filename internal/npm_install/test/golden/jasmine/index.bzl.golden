@@ -7,13 +7,13 @@ def jasmine(**kwargs):
         nodejs_binary(
             entry_point = "@fine_grained_goldens//:node_modules/jasmine/bin/jasmine.js",
             data = ["@fine_grained_goldens//jasmine:jasmine"] + kwargs.pop("data", []),
-            templated_args = kwargs.pop("templated_args", []),
+            templated_args = ["--nobazel_patch_module_resolver"] + kwargs.pop("templated_args", []),
             **kwargs
         )
 def jasmine_test(**kwargs):
     nodejs_test(
       entry_point = "@fine_grained_goldens//:node_modules/jasmine/bin/jasmine.js",
       data = ["@fine_grained_goldens//jasmine:jasmine"] + kwargs.pop("data", []),
-      templated_args = kwargs.pop("templated_args", []),
+      templated_args = ["--nobazel_patch_module_resolver"] + kwargs.pop("templated_args", []),
       **kwargs
     )

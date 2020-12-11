@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@bazel_skylib//rules:write_file.bzl", "write_file")
 load("@npm//@bazel/jasmine:index.bzl", "jasmine_node_test")
 load("@npm//@bazel/typescript:index.bzl", "ts_library")
 
@@ -46,24 +45,15 @@ ts_library(
     ],
 )
 
-# Run the test with cwd in the output folder
-write_file(
-    name = "write_chdir_script",
-    out = "chdir.js",
-    content = ["process.chdir(__dirname)"],
-)
-
 jasmine_node_test(
     name = "test",
     data = [
-        "chdir.js",
         # Verify that worker_protocol.proto can be referenced as a target in the generated npm bazel workspace
         "@npm//@bazel/typescript/third_party/github.com/bazelbuild/bazel/src/main/protobuf:worker_protocol.proto",
     ],
     templated_args = [
         # ts_library produces named AMD output with repo name in the require statement
         "--bazel_patch_module_resolver",
-        "--node_options=--require=$$(rlocation $(rootpath chdir.js))",
     ],
     deps = [
         ":test_lib",

@@ -61,6 +61,7 @@ nodejs_binary(
         "@npm//minimist",
     ],
     entry_point = ":main.ts",
+    templated_args = ["--nobazel_patch_module_resolver"],
 )
 
 jasmine_node_test(

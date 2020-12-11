@@ -86,4 +86,5 @@ nodejs_test(
         "//internal/pkg_npm/test/linking/fuz:scoped_fuz",
     ],
     entry_point = ":main.js",
+    templated_args = ["--nobazel_patch_module_resolver"],
 )

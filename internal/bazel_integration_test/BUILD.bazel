@@ -22,10 +22,7 @@ nodejs_binary(
     configuration_env_vars = ["BAZEL_INTEGRATION_TEST_DEBUG"],
     data = ["@npm//tmp"],
     entry_point = ":test_runner.js",
-    templated_args = [
-        #"--bazel_patch_module_resolver",
-        "--node_options=--max-old-space-size=1024",
-    ],
+    templated_args = ["--node_options=--max-old-space-size=1024"],
 )
 
 filegroup(

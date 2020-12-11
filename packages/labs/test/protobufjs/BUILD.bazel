@@ -26,7 +26,6 @@ protobufjs_ts_library(
 jasmine_node_test(
     name = "protobuf_test",
     srcs = [":test"],
-    #templated_args = ["--bazel_patch_module_resolver"],
     deps = [
         "@npm//protobufjs",
     ],
