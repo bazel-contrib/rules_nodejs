@@ -1,3 +1,157 @@
+# [3.0.0-rc.0](https://github.com/bazelbuild/rules_nodejs/compare/2.2.2...3.0.0-rc.0) (2020-12-11)
+
+
+### Bug Fixes
+
+* **builtin:** --nobazel_run_linker implies --bazel_patch_module_resolver ([7100277](https://github.com/bazelbuild/rules_nodejs/commit/7100277))
+* remove jasmine-core as a peer dep ([#2336](https://github.com/bazelbuild/rules_nodejs/issues/2336)) ([bb2a302](https://github.com/bazelbuild/rules_nodejs/commit/bb2a302))
+* **builtin:** give a longer timeout for _create_build_files ([5d405a7](https://github.com/bazelbuild/rules_nodejs/commit/5d405a7)), closes [#2231](https://github.com/bazelbuild/rules_nodejs/issues/2231)
+* **builtin:** give better error when linker runs on Node <10 ([b9dc2c1](https://github.com/bazelbuild/rules_nodejs/commit/b9dc2c1)), closes [#2304](https://github.com/bazelbuild/rules_nodejs/issues/2304)
+* **builtin:** make linker deterministic when resolving from manifest & fix link_workspace_root with no runfiles ([f7c342f](https://github.com/bazelbuild/rules_nodejs/commit/f7c342f))
+* **devserver:** static assets sometimes incorrectly injected ([4529d6e](https://github.com/bazelbuild/rules_nodejs/commit/4529d6e)), closes [#409](https://github.com/bazelbuild/rules_nodejs/issues/409) [#423](https://github.com/bazelbuild/rules_nodejs/issues/423)
+* **examples:** fix jest example on windows ([3ffefa1](https://github.com/bazelbuild/rules_nodejs/commit/3ffefa1)), closes [#1454](https://github.com/bazelbuild/rules_nodejs/issues/1454)
+* **exmaples/nestjs:** add module_name field in ts_library ([3a4155c](https://github.com/bazelbuild/rules_nodejs/commit/3a4155c))
+* **karma:** do not show error message if unnamed amd module is loaded ([db56ca2](https://github.com/bazelbuild/rules_nodejs/commit/db56ca2)), closes [#371](https://github.com/bazelbuild/rules_nodejs/issues/371)
+* **tsetse:** avoid double type discover in failure condition for ban-expect-truthy-promise rule ([50121e9](https://github.com/bazelbuild/rules_nodejs/commit/50121e9)), closes [#372](https://github.com/bazelbuild/rules_nodejs/issues/372)
+* **typescript:** don't depend on protobufjs, it's transitive ([1b344db](https://github.com/bazelbuild/rules_nodejs/commit/1b344db))
+* **typescript:** fail the build when ts_project produces zero outputs ([3ca6cac](https://github.com/bazelbuild/rules_nodejs/commit/3ca6cac)), closes [#2301](https://github.com/bazelbuild/rules_nodejs/issues/2301)
+* debug messages before request being dropped ([02aac76](https://github.com/bazelbuild/rules_nodejs/commit/02aac76))
+* devserver not working on windows ([97bb894](https://github.com/bazelbuild/rules_nodejs/commit/97bb894)), closes [#385](https://github.com/bazelbuild/rules_nodejs/issues/385)
+* do not return empty struct if there is no compile action ([195b192](https://github.com/bazelbuild/rules_nodejs/commit/195b192)), closes [#326](https://github.com/bazelbuild/rules_nodejs/issues/326)
+* don't allow absolute imports without workspace name ([d21d628](https://github.com/bazelbuild/rules_nodejs/commit/d21d628)), closes [#119](https://github.com/bazelbuild/rules_nodejs/issues/119) [#118](https://github.com/bazelbuild/rules_nodejs/issues/118)
+* npm_package.pack on Windows should not generate undefined.tgz ([715ad22](https://github.com/bazelbuild/rules_nodejs/commit/715ad22))
+* **typescript:** specify rootDir as absolute path ([535fa51](https://github.com/bazelbuild/rules_nodejs/commit/535fa51))
+* enforce buildifier lint on CI ([2a32cdc](https://github.com/bazelbuild/rules_nodejs/commit/2a32cdc)), closes [#357](https://github.com/bazelbuild/rules_nodejs/issues/357)
+* npm_package.pack should work in windows os ([503d6fb](https://github.com/bazelbuild/rules_nodejs/commit/503d6fb))
+* **typescript:** don't include _valid_options marker file in outs ([570e34d](https://github.com/bazelbuild/rules_nodejs/commit/570e34d)), closes [#2078](https://github.com/bazelbuild/rules_nodejs/issues/2078)
+* fix formatting of Karma stack traces ([29d6c57](https://github.com/bazelbuild/rules_nodejs/commit/29d6c57)), closes [#369](https://github.com/bazelbuild/rules_nodejs/issues/369)
+* ts_auto_deps workaround for https://github.com/bazelbuild/bazel/issues/3325 no longer needed ([ac318d6](https://github.com/bazelbuild/rules_nodejs/commit/ac318d6)), closes [#467](https://github.com/bazelbuild/rules_nodejs/issues/467)
+* tsetse checker must be initialized with latest program ([8bd9734](https://github.com/bazelbuild/rules_nodejs/commit/8bd9734)), closes [#506](https://github.com/bazelbuild/rules_nodejs/issues/506)
+* use Buffer.from instead of the deprecated Buffer constructor ([f1011af](https://github.com/bazelbuild/rules_nodejs/commit/f1011af))
+
+
+### chore
+
+* move karma_web_test to concatjs ([#2313](https://github.com/bazelbuild/rules_nodejs/issues/2313)) ([252b8e5](https://github.com/bazelbuild/rules_nodejs/commit/252b8e5))
+* remove old stamping ([68b18d8](https://github.com/bazelbuild/rules_nodejs/commit/68b18d8)), closes [#2158](https://github.com/bazelbuild/rules_nodejs/issues/2158)
+
+
+### Code Refactoring
+
+* bazel_patch_module_resolver default to false ([fdde32f](https://github.com/bazelbuild/rules_nodejs/commit/fdde32f)), closes [#1440](https://github.com/bazelbuild/rules_nodejs/issues/1440) [#2125](https://github.com/bazelbuild/rules_nodejs/issues/2125)
+* make pkg_web#move_files private ([815a3ca](https://github.com/bazelbuild/rules_nodejs/commit/815a3ca))
+
+
+### Features
+
+* **builtin:** flip the default of the strict_visibility flag on the npm and yarn install rules to True ([2c34857](https://github.com/bazelbuild/rules_nodejs/commit/2c34857))
+* **concatjs:** ts_devserver -> concatjs_devserver; move to @bazel/concatjs ([baeae89](https://github.com/bazelbuild/rules_nodejs/commit/baeae89)), closes [#1082](https://github.com/bazelbuild/rules_nodejs/issues/1082)
+* **cypress:** remove browiserify preprocessor ([98ee87d](https://github.com/bazelbuild/rules_nodejs/commit/98ee87d))
+* **examples:** adds example for running jest with typescript ([#2245](https://github.com/bazelbuild/rules_nodejs/issues/2245)) ([d977c73](https://github.com/bazelbuild/rules_nodejs/commit/d977c73))
+* **node_repositories:** Added auth option for downloading nodejs and yarn ([c89ff38](https://github.com/bazelbuild/rules_nodejs/commit/c89ff38))
+* **ts_library:** bump default target to es2015 ([8f10dd1](https://github.com/bazelbuild/rules_nodejs/commit/8f10dd1)), closes [#406](https://github.com/bazelbuild/rules_nodejs/issues/406)
+* **ts_library:** bump default target to es2015 ([7157ab9](https://github.com/bazelbuild/rules_nodejs/commit/7157ab9)), closes [#217](https://github.com/bazelbuild/rules_nodejs/issues/217)
+* **ts_library:** bump default target to es2015 ([7493eb1](https://github.com/bazelbuild/rules_nodejs/commit/7493eb1)), closes [#217](https://github.com/bazelbuild/rules_nodejs/issues/217)
+* **typescript:** add allow_js support to ts_project ([91a95b8](https://github.com/bazelbuild/rules_nodejs/commit/91a95b8))
+* **typescript:** worker mode for ts_project ([#2136](https://github.com/bazelbuild/rules_nodejs/issues/2136)) ([5d70997](https://github.com/bazelbuild/rules_nodejs/commit/5d70997))
+* depend on devserver binaries ([b441248](https://github.com/bazelbuild/rules_nodejs/commit/b441248)), closes [#347](https://github.com/bazelbuild/rules_nodejs/issues/347)
+
+
+### Performance Improvements
+
+* **cypress:** pack cypress runfiles into a single tar ([e8484a0](https://github.com/bazelbuild/rules_nodejs/commit/e8484a0))
+
+
+* Renames `build_bazel_rules_typescript` and `build_bazel_rules_karma` to `npm_bazel_typescript` and `npm_bazel_karma` respectively ([a9b74c9](https://github.com/bazelbuild/rules_nodejs/commit/a9b74c9)), closes [#412](https://github.com/bazelbuild/rules_nodejs/issues/412)
+* Remove an unneeded parameter from CompilerHost constructor. ([7ee3453](https://github.com/bazelbuild/rules_nodejs/commit/7ee3453))
+* Bump bazel go dependencies & update to CI to bazel 0.16.0 ([9aab3b9](https://github.com/bazelbuild/rules_nodejs/commit/9aab3b9)), closes [#247](https://github.com/bazelbuild/rules_nodejs/issues/247)
+* Updated to rules_nodejs 0.11.2 ([30c1da8](https://github.com/bazelbuild/rules_nodejs/commit/30c1da8)), closes [#237](https://github.com/bazelbuild/rules_nodejs/issues/237)
+* nodejs_binaries tsc and tsc_wrapped_bin should not depend on @build_bazel_rules_typescript_tsc_wrapped_deps//:node_modules ([a99cf7c](https://github.com/bazelbuild/rules_nodejs/commit/a99cf7c)), closes [#234](https://github.com/bazelbuild/rules_nodejs/issues/234)
+* Make tsconfig default to label //:tsconfig.json ([882d3dc](https://github.com/bazelbuild/rules_nodejs/commit/882d3dc)), closes [#232](https://github.com/bazelbuild/rules_nodejs/issues/232)
+* Refactor go library code to make concatjs reusable outside the repo. ([14577dd](https://github.com/bazelbuild/rules_nodejs/commit/14577dd)), closes [#164](https://github.com/bazelbuild/rules_nodejs/issues/164)
+* Move our deps to devDependencies ([938379d](https://github.com/bazelbuild/rules_nodejs/commit/938379d)), closes [#88](https://github.com/bazelbuild/rules_nodejs/issues/88) [#64](https://github.com/bazelbuild/rules_nodejs/issues/64) [#48](https://github.com/bazelbuild/rules_nodejs/issues/48) [#95](https://github.com/bazelbuild/rules_nodejs/issues/95)
+* Switch devmode to UMD format ([62ea85e](https://github.com/bazelbuild/rules_nodejs/commit/62ea85e)), closes [#39](https://github.com/bazelbuild/rules_nodejs/issues/39)
+
+
+### BREAKING CHANGES
+
+* By default, we no longer patch the require() function, instead you should rely on the linker to make node modules resolvable at the standard location
+if this breaks you, the quickest fix is to flip the flag back on a nodejs_binary/nodejs_test/npm_package_bin with `templated_args = ["--bazel_patch_module_resolver"]`, see https://github.com/bazelbuild/rules_nodejs/pull/2344 as an example.
+Another fix is to explicitly use our runfiles helper library, see https://github.com/bazelbuild/rules_nodejs/pull/2341 as an example.
+* `packages/karma:package.bzl` is gone, in your WORKSPACE replace
+
+```
+load("//packages/karma:package.bzl", "npm_bazel_karma_dependencies")
+
+npm_bazel_karma_dependencies()
+```
+
+with the equivalent
+
+```
+http_archive(
+    name = "io_bazel_rules_webtesting",
+    sha256 = "9bb461d5ef08e850025480bab185fd269242d4e533bca75bfb748001ceb343c3",
+    urls = ["https://github.com/bazelbuild/rules_webtesting/releases/download/0.3.3/rules_webtesting.tar.gz"],
+)
+```
+
+Then in BUILD files replace
+`load("@npm//@bazel/karma:index.bzl", "karma_web_test_suite")`
+with
+`load("@npm//@bazel/concatjs:index.bzl", "concatjs_web_test_suite")`
+
+finally drop npm dependencies on `@bazel/karma` and depend on `@bazel/concatjs` instead
+
+* concatjs_web back to karma_web
+* **typescript:** any ts_project rule that produces no outputs must be fixed or removed
+* pkg_web#move_files helper is now a private API
+* - rollup_bundle config_file no longer has substitutions from a "bazel_stamp_file" - use bazel_version_file instead
+- pkg_npm no longer has replace_with_version attribute, use substitutions instead
+* **concatjs:** users need to change their load statements for ts_devserver
+* Users will need to rename `build_bazel_rules_typescript` to `npm_bazel_typescript` and `build_bazel_rules_karma` to `npm_bazel_karma` in their projects
+* If you use the internal API of tsc_wrapped you need to update the CompilerHost constructor calls.
+
+PiperOrigin-RevId: 221634093
+* @bazel_gazelle is now required in your WORKSPACE file when using rules_typescript:
+
+http_archive(
+    name = "bazel_gazelle",
+    urls = ["https://github.com/bazelbuild/bazel-gazelle/releases/download/0.13.0/bazel-gazelle-0.13.0.tar.gz"],
+    sha256 = "bc653d3e058964a5a26dcad02b6c72d7d63e6bb88d94704990b908a1445b8758",
+)
+
+load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
+
+gazelle_dependencies()
+* rules_typescript depends on a change in rules_nodejs so that must be updated as well.
+In addition, Angular will need a change to work with this version of rules_typescript.
+We plan to add runtime version checks before this is released.
+* If you don't have an npm dependency on `@bazel/typescript`, you may be missing libraries like protobufjs which are required at runtime.
+Run `yarn add -D @bazel/typescript` or `npm install --save-dev @bazel/typescript` to fix.
+* ts_library targets with no tsconfig attribute will now
+default to //:tsconfig.json.
+
+If this breaks you, do one of these:
+1) create a file at that location (in the WORKSPACE root)
+2) create an alias rule in the root BUILD.bazel file like
+     alias(name="tsconfig.json", actual="//path/to:tsconfig-something.json")
+3) give an explicit tsconfig attribute to your ts_library rules
+* If you depended on the Go library code in concatjs, your import location needs to change to
+import "github.com/bazelbuild/rules_typescript/devserver/concatjs"
+* All absolute imports must now be prefixed with the workspace name.
+* Users now need to load and run the ts_repositories() repository rule.
+* This allows faster loading in the browser (no need to transpile commonjs
+modules).
+We give each module a name (equivalent to the original TS sources using
+the ///<amd-module name="some/name"/> directive) so that they can be
+concatenated together when served to the browser.
+Also contains a transformer workaround for an upstream UMD bug in
+TypeScript, which is only needed until users move to a TS release that
+has the fix.
+
+
+
 ## [2.2.2](https://github.com/bazelbuild/rules_nodejs/compare/2.2.1...2.2.2) (2020-10-17)
 
 
