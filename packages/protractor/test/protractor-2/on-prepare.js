@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-const protractorUtils = require('@bazel/protractor/protractor-utils');
+const protractorUtils = require('@bazel/protractor');
 const protractor = require('protractor');
 const path = require('path');
 
