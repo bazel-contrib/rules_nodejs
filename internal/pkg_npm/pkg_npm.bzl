@@ -135,9 +135,9 @@ See the section on stamping in the [README](stamping)
 # Used in angular/angular /packages/bazel/src/ng_package/ng_package.bzl
 PKG_NPM_OUTPUTS = {
     "pack_bat": "%{name}.pack.bat",
-    "pack_sh": "%{name}.pack.sh",
+    "pack_sh": "%{name}.pack",
     "publish_bat": "%{name}.publish.bat",
-    "publish_sh": "%{name}.publish.sh",
+    "publish_sh": "%{name}.publish",
 }
 
 # Takes a depset of files and returns a corresponding list of file paths without any files
@@ -327,13 +327,13 @@ def pkg_npm_macro(name, **kwargs):
         name = name + ".pack",
         actual = select({
             "@bazel_tools//src/conditions:host_windows": name + ".pack.bat",
-            "//conditions:default": name + ".pack.sh",
+            "//conditions:default": name + ".pack",
         }),
     )
     native.alias(
         name = name + ".publish",
         actual = select({
             "@bazel_tools//src/conditions:host_windows": name + ".publish.bat",
-            "//conditions:default": name + ".publish.sh",
+            "//conditions:default": name + ".publish",
         }),
     )
