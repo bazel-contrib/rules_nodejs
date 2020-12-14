@@ -219,7 +219,13 @@ if (config.bazelrcAppend) {
     const replacement =
         `load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")\nhttp_archive(\n  name = "${
             repositoryKey}",\n  url="file:${archiveFile}"\n`;
-    workspaceContents = workspaceContents.replace(regex, replacement);
+
+    workspaceContents = workspaceContents.replace(regex, replacement)
+    // We have to disable the frozen lockfile option for the tests it won't match with the version
+    // from the yarn.lock file.
+    workspaceContents =
+        workspaceContents.replace(/(yarn_lock[\s\S]+?,)/gm, 'frozen_lockfile = False,\n    $1')
+
     if (!workspaceContents.includes(archiveFile)) {
       console.error(
           `bazel_integration_test: WORKSPACE replacement for repository ${repositoryKey} failed!`)

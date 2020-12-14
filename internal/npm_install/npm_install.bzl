@@ -157,8 +157,8 @@ def _add_data_dependencies(repository_ctx):
     for f in repository_ctx.attr.data:
         to = []
         if f.package:
-            to += [f.package]
-        to += [f.name]
+            to.append(f.package)
+        to.append(f.name)
 
         # Make copies of the data files instead of symlinking
         # as yarn under linux will have trouble using symlinked
@@ -326,6 +326,13 @@ def _yarn_install_impl(repository_ctx):
     yarn = get_yarn_label(repository_ctx)
 
     yarn_args = []
+
+    # Set frozen lockfile as default install to install the exact version from the yarn.lock
+    # file. To perform an yarn install use the vendord yarn binary with:
+    # `bazel run @nodejs//:yarn install` or `bazel run @nodejs//:yarn install -- -D <dep-name>`
+    if repository_ctx.attr.frozen_lockfile:
+        yarn_args.append("--frozen-lockfile")
+
     if not repository_ctx.attr.use_global_yarn_cache:
         yarn_args.extend(["--cache-folder", str(repository_ctx.path("_yarn_cache"))])
     else:
@@ -426,6 +433,20 @@ yarn_install = repository_rule(
 
 See yarn CLI docs https://yarnpkg.com/en/docs/cli/install for complete list of supported arguments.""",
             default = [],
+        ),
+        "frozen_lockfile": attr.bool(
+            default = True,
+            doc = """Use the `--frozen-lockfile` flag for yarn.
+
+Don’t generate a `yarn.lock` lockfile and fail if an update is needed.
+
+This flag enables an exact install of the version that is specified in the `yarn.lock`
+file. This helps to have reproduceable builds across builds.
+
+To update a dependency or install a new one run the `yarn install` command with the
+vendored yarn binary. `bazel run @nodejs//:yarn install`. You can pass the options like
+`bazel run @nodejs//:yarn install -- -D <dep-name>`.
+""",
         ),
         "use_global_yarn_cache": attr.bool(
             default = True,
