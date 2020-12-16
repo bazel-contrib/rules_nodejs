@@ -317,13 +317,11 @@ check if yarn is being run by the `npm_install` repository rule.
 
 **LOCAL MODULES WITH THE NEED TO BE USED BOTH INSIDE AND OUTSIDE BAZEL**
 
-When using a monorepo is common to have locally written modules that we both
-want to use locally while publicly publishing them. That is not much of a problem
-as we can use a `js_library` rule with a `package_name` attribute defined inside the
-local package `BUILD` file. However, if we are in the middle of transition into bazel,
-or we have any other requirement to use that local package outside bazel we will also
-have to declare and install the local package with `file:` in the monorepo `package.json`
-dependencies, which could introduce a race condition within the `npm_install rule`.
+When using a monorepo it's common to have modules that we want to use locally and
+publish to an external package repository. This can be achieved using a `js_library` rule
+with a `package_name` attribute defined inside the local package `BUILD` file. However,
+if the project relies on the local package dependency with `file:`, this could introduce a
+race condition with the `npm_install` rule.
 
 In order to overcome it, a link will be created to the package `BUILD` file from the
 npm external Bazel repository, which require us to complete a last step which is writing
@@ -501,13 +499,11 @@ check if yarn is being run by the `yarn_install` repository rule.
 
 **LOCAL MODULES WITH THE NEED TO BE USED BOTH INSIDE AND OUTSIDE BAZEL**
 
-When using a monorepo is common to have locally written modules that we both
-want to use locally while publicly publishing them. That is not much of a problem
-as we can use a `js_library` rule with a `package_name` attribute defined inside the
-local package `BUILD` file. However, if we are in the middle of transition into bazel,
-or we have any other requirement to use that local package outside bazel we will also
-have to declare and install the local package with `link:` in the monorepo `package.json`
-dependencies, which could introduce a race condition within the `yarn_install rule`.
+When using a monorepo it's common to have modules that we want to use locally and
+publish to an external package repository. This can be achieved using a `js_library` rule
+with a `package_name` attribute defined inside the local package `BUILD` file. However,
+if the project relies on the local package dependency with `link:`, this could introduce a
+race condition with the `yarn_install` rule.
 
 In order to overcome it, a link will be created to the package `BUILD` file from the
 npm external Bazel repository, which require us to complete a last step which is writing
