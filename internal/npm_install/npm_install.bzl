@@ -438,10 +438,10 @@ See yarn CLI docs https://yarnpkg.com/en/docs/cli/install for complete list of s
             default = True,
             doc = """Use the `--frozen-lockfile` flag for yarn.
 
-Don’t generate a `yarn.lock` lockfile and fail if an update is needed.
+Don't generate a `yarn.lock` lockfile and fail if an update is needed.
 
 This flag enables an exact install of the version that is specified in the `yarn.lock`
-file. This helps to have reproduceable builds across builds.
+file. This helps to have reproducible builds across builds.
 
 To update a dependency or install a new one run the `yarn install` command with the
 vendored yarn binary. `bazel run @nodejs//:yarn install`. You can pass the options like
