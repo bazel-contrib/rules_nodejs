@@ -2156,7 +2156,7 @@ Returns a single JSNamedModuleInfo.
 
 
 
-<h id="js_named_module_info-deps">deps</h4>
+<h4 id="js_named_module_info-deps">deps</h4>
 
 
 Defaults to `[]`
