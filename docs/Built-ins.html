@@ -949,6 +949,26 @@ npm_install(<a href="#npm_install-name">name</a>, <a href="#npm_install-args">ar
 set to another value in the environment attribute). Scripts may use to this to 
 check if yarn is being run by the <code class="language-plaintext highlighter-rouge">npm_install</code> repository rule.</p>
 
+<p><strong>LOCAL MODULES WITH THE NEED TO BE USED BOTH INSIDE AND OUTSIDE BAZEL</strong></p>
+
+<p>When using a monorepo is common to have locally written modules that we both
+want to use locally while publicly publishing them. That is not much of a problem
+as we can use a <code class="language-plaintext highlighter-rouge">js_library</code> rule with a <code class="language-plaintext highlighter-rouge">package_name</code> attribute defined inside the
+local package <code class="language-plaintext highlighter-rouge">BUILD</code> file. However, if we are in the middle of transition into bazel,
+or we have any other requirement to use that local package outside bazel we will also
+have to declare and install the local package with <code class="language-plaintext highlighter-rouge">file:</code> in the monorepo <code class="language-plaintext highlighter-rouge">package.json</code>
+dependencies, which could introduce a race condition within the <code class="language-plaintext highlighter-rouge">npm_install rule</code>.</p>
+
+<p>In order to overcome it, a link will be created to the package <code class="language-plaintext highlighter-rouge">BUILD</code> file from the
+npm external Bazel repository, which require us to complete a last step which is writing
+the expected targets on that same <code class="language-plaintext highlighter-rouge">BUILD</code> file to be later used by the <code class="language-plaintext highlighter-rouge">npm_install</code>
+rule, which are: <code class="language-plaintext highlighter-rouge">&lt;package_name__files&gt;</code>, <code class="language-plaintext highlighter-rouge">&lt;package_name__nested_node_modules&gt;</code>,
+<code class="language-plaintext highlighter-rouge">&lt;package_name__contents&gt;</code>, <code class="language-plaintext highlighter-rouge">&lt;package_name__typings&gt;</code> and the last
+one just <code class="language-plaintext highlighter-rouge">&lt;package_name&gt;</code>.</p>
+
+<p>If you doubt what those targets should look like, check the
+generated <code class="language-plaintext highlighter-rouge">BUILD</code> file for a given node module.</p>
+
 <p><strong>ATTRIBUTES</strong></p>
 
 <h4 id="npm_install-name">name</h4>
@@ -1250,9 +1270,9 @@ See the section on stamping in the README.</p>
 <p><strong>USAGE</strong></p>
 
 <pre>
-yarn_install(<a href="#yarn_install-name">name</a>, <a href="#yarn_install-args">args</a>, <a href="#yarn_install-data">data</a>, <a href="#yarn_install-environment">environment</a>, <a href="#yarn_install-included_files">included_files</a>, <a href="#yarn_install-manual_build_file_contents">manual_build_file_contents</a>,
-             <a href="#yarn_install-package_json">package_json</a>, <a href="#yarn_install-quiet">quiet</a>, <a href="#yarn_install-repo_mapping">repo_mapping</a>, <a href="#yarn_install-strict_visibility">strict_visibility</a>, <a href="#yarn_install-symlink_node_modules">symlink_node_modules</a>, <a href="#yarn_install-timeout">timeout</a>,
-             <a href="#yarn_install-use_global_yarn_cache">use_global_yarn_cache</a>, <a href="#yarn_install-yarn_lock">yarn_lock</a>)
+yarn_install(<a href="#yarn_install-name">name</a>, <a href="#yarn_install-args">args</a>, <a href="#yarn_install-data">data</a>, <a href="#yarn_install-environment">environment</a>, <a href="#yarn_install-frozen_lockfile">frozen_lockfile</a>, <a href="#yarn_install-included_files">included_files</a>,
+             <a href="#yarn_install-manual_build_file_contents">manual_build_file_contents</a>, <a href="#yarn_install-package_json">package_json</a>, <a href="#yarn_install-quiet">quiet</a>, <a href="#yarn_install-repo_mapping">repo_mapping</a>, <a href="#yarn_install-strict_visibility">strict_visibility</a>,
+             <a href="#yarn_install-symlink_node_modules">symlink_node_modules</a>, <a href="#yarn_install-timeout">timeout</a>, <a href="#yarn_install-use_global_yarn_cache">use_global_yarn_cache</a>, <a href="#yarn_install-yarn_lock">yarn_lock</a>)
 </pre>
 
 <p>Runs yarn install during workspace setup.</p>
@@ -1260,6 +1280,26 @@ yarn_install(<a href="#yarn_install-name">name</a>, <a href="#yarn_install-args"
 <p>This rule will set the environment variable <code class="language-plaintext highlighter-rouge">BAZEL_YARN_INSTALL</code> to ‘1’ (unless it
 set to another value in the environment attribute). Scripts may use to this to 
 check if yarn is being run by the <code class="language-plaintext highlighter-rouge">yarn_install</code> repository rule.</p>
+
+<p><strong>LOCAL MODULES WITH THE NEED TO BE USED BOTH INSIDE AND OUTSIDE BAZEL</strong></p>
+
+<p>When using a monorepo is common to have locally written modules that we both
+want to use locally while publicly publishing them. That is not much of a problem
+as we can use a <code class="language-plaintext highlighter-rouge">js_library</code> rule with a <code class="language-plaintext highlighter-rouge">package_name</code> attribute defined inside the
+local package <code class="language-plaintext highlighter-rouge">BUILD</code> file. However, if we are in the middle of transition into bazel,
+or we have any other requirement to use that local package outside bazel we will also
+have to declare and install the local package with <code class="language-plaintext highlighter-rouge">link:</code> in the monorepo <code class="language-plaintext highlighter-rouge">package.json</code>
+dependencies, which could introduce a race condition within the <code class="language-plaintext highlighter-rouge">yarn_install rule</code>.</p>
+
+<p>In order to overcome it, a link will be created to the package <code class="language-plaintext highlighter-rouge">BUILD</code> file from the
+npm external Bazel repository, which require us to complete a last step which is writing
+the expected targets on that same <code class="language-plaintext highlighter-rouge">BUILD</code> file to be later used by the <code class="language-plaintext highlighter-rouge">yarn_install</code>
+rule, which are: <code class="language-plaintext highlighter-rouge">&lt;package_name__files&gt;</code>, <code class="language-plaintext highlighter-rouge">&lt;package_name__nested_node_modules&gt;</code>,
+<code class="language-plaintext highlighter-rouge">&lt;package_name__contents&gt;</code>, <code class="language-plaintext highlighter-rouge">&lt;package_name__typings&gt;</code> and the last
+one just <code class="language-plaintext highlighter-rouge">&lt;package_name&gt;</code>.</p>
+
+<p>If you doubt what those targets should look like, check the
+generated <code class="language-plaintext highlighter-rouge">BUILD</code> file for a given node module.</p>
 
 <p><strong>ATTRIBUTES</strong></p>
 
@@ -1295,6 +1335,21 @@ repository so all files that the package manager depends on must be listed.</p>
 <p>(<em><a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -&gt; String</a></em>): Environment variables to set before calling the package manager.</p>
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">{}</code></p>
+
+<h4 id="yarn_install-frozen_lockfile">frozen_lockfile</h4>
+
+<p>(<em>Boolean</em>): Use the <code class="language-plaintext highlighter-rouge">--frozen-lockfile</code> flag for yarn.</p>
+
+<p>Donât generate a <code class="language-plaintext highlighter-rouge">yarn.lock</code> lockfile and fail if an update is needed.</p>
+
+<p>This flag enables an exact install of the version that is specified in the <code class="language-plaintext highlighter-rouge">yarn.lock</code>
+file. This helps to have reproduceable builds across builds.</p>
+
+<p>To update a dependency or install a new one run the <code class="language-plaintext highlighter-rouge">yarn install</code> command with the
+vendored yarn binary. <code class="language-plaintext highlighter-rouge">bazel run @nodejs//:yarn install</code>. You can pass the options like
+<code class="language-plaintext highlighter-rouge">bazel run @nodejs//:yarn install -- -D &lt;dep-name&gt;</code>.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">True</code></p>
 
 <h4 id="yarn_install-included_files">included_files</h4>
 

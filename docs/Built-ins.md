@@ -833,6 +833,27 @@ This rule will set the environment variable `BAZEL_NPM_INSTALL` to '1' (unless i
 set to another value in the environment attribute). Scripts may use to this to 
 check if yarn is being run by the `npm_install` repository rule.
 
+
+**LOCAL MODULES WITH THE NEED TO BE USED BOTH INSIDE AND OUTSIDE BAZEL**
+
+When using a monorepo is common to have locally written modules that we both
+want to use locally while publicly publishing them. That is not much of a problem
+as we can use a `js_library` rule with a `package_name` attribute defined inside the
+local package `BUILD` file. However, if we are in the middle of transition into bazel,
+or we have any other requirement to use that local package outside bazel we will also
+have to declare and install the local package with `file:` in the monorepo `package.json`
+dependencies, which could introduce a race condition within the `npm_install rule`.
+
+In order to overcome it, a link will be created to the package `BUILD` file from the
+npm external Bazel repository, which require us to complete a last step which is writing
+the expected targets on that same `BUILD` file to be later used by the `npm_install`
+rule, which are: `<package_name__files>`, `<package_name__nested_node_modules>`,
+`<package_name__contents>`, `<package_name__typings>` and the last
+one just `<package_name>`.
+
+If you doubt what those targets should look like, check the
+generated `BUILD` file for a given node module.
+
 **ATTRIBUTES**
 
 
@@ -1157,9 +1178,9 @@ Defaults to `{}`
 **USAGE**
 
 <pre>
-yarn_install(<a href="#yarn_install-name">name</a>, <a href="#yarn_install-args">args</a>, <a href="#yarn_install-data">data</a>, <a href="#yarn_install-environment">environment</a>, <a href="#yarn_install-included_files">included_files</a>, <a href="#yarn_install-manual_build_file_contents">manual_build_file_contents</a>,
-             <a href="#yarn_install-package_json">package_json</a>, <a href="#yarn_install-quiet">quiet</a>, <a href="#yarn_install-repo_mapping">repo_mapping</a>, <a href="#yarn_install-strict_visibility">strict_visibility</a>, <a href="#yarn_install-symlink_node_modules">symlink_node_modules</a>, <a href="#yarn_install-timeout">timeout</a>,
-             <a href="#yarn_install-use_global_yarn_cache">use_global_yarn_cache</a>, <a href="#yarn_install-yarn_lock">yarn_lock</a>)
+yarn_install(<a href="#yarn_install-name">name</a>, <a href="#yarn_install-args">args</a>, <a href="#yarn_install-data">data</a>, <a href="#yarn_install-environment">environment</a>, <a href="#yarn_install-frozen_lockfile">frozen_lockfile</a>, <a href="#yarn_install-included_files">included_files</a>,
+             <a href="#yarn_install-manual_build_file_contents">manual_build_file_contents</a>, <a href="#yarn_install-package_json">package_json</a>, <a href="#yarn_install-quiet">quiet</a>, <a href="#yarn_install-repo_mapping">repo_mapping</a>, <a href="#yarn_install-strict_visibility">strict_visibility</a>,
+             <a href="#yarn_install-symlink_node_modules">symlink_node_modules</a>, <a href="#yarn_install-timeout">timeout</a>, <a href="#yarn_install-use_global_yarn_cache">use_global_yarn_cache</a>, <a href="#yarn_install-yarn_lock">yarn_lock</a>)
 </pre>
 
 Runs yarn install during workspace setup.
@@ -1167,6 +1188,27 @@ Runs yarn install during workspace setup.
 This rule will set the environment variable `BAZEL_YARN_INSTALL` to '1' (unless it
 set to another value in the environment attribute). Scripts may use to this to 
 check if yarn is being run by the `yarn_install` repository rule.
+
+
+**LOCAL MODULES WITH THE NEED TO BE USED BOTH INSIDE AND OUTSIDE BAZEL**
+
+When using a monorepo is common to have locally written modules that we both
+want to use locally while publicly publishing them. That is not much of a problem
+as we can use a `js_library` rule with a `package_name` attribute defined inside the
+local package `BUILD` file. However, if we are in the middle of transition into bazel,
+or we have any other requirement to use that local package outside bazel we will also
+have to declare and install the local package with `link:` in the monorepo `package.json`
+dependencies, which could introduce a race condition within the `yarn_install rule`.
+
+In order to overcome it, a link will be created to the package `BUILD` file from the
+npm external Bazel repository, which require us to complete a last step which is writing
+the expected targets on that same `BUILD` file to be later used by the `yarn_install`
+rule, which are: `<package_name__files>`, `<package_name__nested_node_modules>`,
+`<package_name__contents>`, `<package_name__typings>` and the last
+one just `<package_name>`.
+
+If you doubt what those targets should look like, check the
+generated `BUILD` file for a given node module.
 
 **ATTRIBUTES**
 
@@ -1204,6 +1246,21 @@ Defaults to `[]`
 (*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): Environment variables to set before calling the package manager.
 
 Defaults to `{}`
+
+<h4 id="yarn_install-frozen_lockfile">frozen_lockfile</h4>
+
+(*Boolean*): Use the `--frozen-lockfile` flag for yarn.
+
+Donât generate a `yarn.lock` lockfile and fail if an update is needed.
+
+This flag enables an exact install of the version that is specified in the `yarn.lock`
+file. This helps to have reproduceable builds across builds.
+
+To update a dependency or install a new one run the `yarn install` command with the
+vendored yarn binary. `bazel run @nodejs//:yarn install`. You can pass the options like
+`bazel run @nodejs//:yarn install -- -D <dep-name>`.
+
+Defaults to `True`
 
 <h4 id="yarn_install-included_files">included_files</h4>
 
