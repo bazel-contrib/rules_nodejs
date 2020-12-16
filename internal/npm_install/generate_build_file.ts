@@ -94,6 +94,15 @@ function writeFileSync(p: string, content: string) {
 }
 
 /**
+ * Creates a file symlink, first ensuring that the directory to
+ * create it into exists.
+ */
+function createFileSymlinkSync(target: string, p: string) {
+  mkdirp(path.dirname(p));
+  fs.symlinkSync(target, p, 'file');
+}
+
+/**
  * Main entrypoint.
  */
 export function main() {
@@ -194,11 +203,37 @@ js_library(
  * Generates all BUILD & bzl files for a package.
  */
 function generatePackageBuildFiles(pkg: Dep) {
-  // If a BUILD file was shipped with the package, append its contents to the end of
-  // what we generate for the package.
+  // If a BUILD file was shipped with the package we should symlink the generated BUILD file
+  // instead of append its contents to the end of the one we were going to generate.
+  // https://github.com/bazelbuild/rules_nodejs/issues/2131
   let buildFilePath: string|undefined;
   if (pkg._files.includes('BUILD')) buildFilePath = 'BUILD';
   if (pkg._files.includes('BUILD.bazel')) buildFilePath = 'BUILD.bazel';
+
+  // Recreate the pkg dir inside the node_modules folder
+  const nodeModulesPkgDir = `node_modules/${pkg._dir}`;
+  // Check if the current package dep dir is a symlink (which happens when we
+  // install a node_module with link:)
+  const isPkgDirASymlink =
+      fs.existsSync(nodeModulesPkgDir) && fs.lstatSync(nodeModulesPkgDir).isSymbolicLink();
+  // Check if the current package is also written inside the workspace
+  // NOTE: It's a corner case but fs.realpathSync(.) will not be the root of
+  // the workspace if symlink_node_modules = False as yarn & npm are run in the root of the
+  // external repository and  anything linked with a relative path would have to be copied
+  // over via that data attribute
+  const isPkgInsideWorkspace = fs.realpathSync(nodeModulesPkgDir).includes(fs.realpathSync(`.`));
+  // Mark build file as one to symlink instead of generate as the package dir is a symlink, we
+  // have a BUILD file and the pkg is written inside the workspace
+  const symlinkBuildFile = isPkgDirASymlink && buildFilePath && isPkgInsideWorkspace;
+
+  // Log if a BUILD file was expected but was not found
+  if (!symlinkBuildFile && isPkgDirASymlink) {
+    console.log(`[yarn_install/npm_install]: package ${
+        nodeModulesPkgDir} is local symlink and as such a BUILD file for it is expected but none was found. Please add one at ${
+        fs.realpathSync(nodeModulesPkgDir)}`)
+  }
+
+  // The following won't be used in a symlink build file case
   let buildFile = printPackage(pkg);
   if (buildFilePath) {
     buildFile = buildFile + '\n' +
@@ -256,7 +291,14 @@ exports_files(["index.bzl"])
     }
   }
 
-  writeFileSync(path.posix.join(pkg._dir, buildFilePath), generateBuildFileHeader(visibility) + buildFile);
+  if (!symlinkBuildFile) {
+    writeFileSync(
+        path.posix.join(pkg._dir, buildFilePath), generateBuildFileHeader(visibility) + buildFile);
+  } else {
+    const realPathBuildFileForPkg =
+        fs.realpathSync(path.posix.join(nodeModulesPkgDir, buildFilePath));
+    createFileSymlinkSync(realPathBuildFileForPkg, path.posix.join(pkg._dir, buildFilePath));
+  }
 }
 
 /**

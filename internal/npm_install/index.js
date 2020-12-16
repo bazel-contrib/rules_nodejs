@@ -39,6 +39,10 @@ function writeFileSync(p, content) {
     mkdirp(path.dirname(p));
     fs.writeFileSync(p, content);
 }
+function createFileSymlinkSync(target, p) {
+    mkdirp(path.dirname(p));
+    fs.symlinkSync(target, p, 'file');
+}
 function main() {
     const deps = getDirectDependencySet(PKG_JSON_FILE_PATH);
     const pkgs = findPackages('node_modules', deps);
@@ -113,6 +117,13 @@ function generatePackageBuildFiles(pkg) {
         buildFilePath = 'BUILD';
     if (pkg._files.includes('BUILD.bazel'))
         buildFilePath = 'BUILD.bazel';
+    const nodeModulesPkgDir = `node_modules/${pkg._dir}`;
+    const isPkgDirASymlink = fs.existsSync(nodeModulesPkgDir) && fs.lstatSync(nodeModulesPkgDir).isSymbolicLink();
+    const isPkgInsideWorkspace = fs.realpathSync(nodeModulesPkgDir).includes(fs.realpathSync(`.`));
+    const symlinkBuildFile = isPkgDirASymlink && buildFilePath && isPkgInsideWorkspace;
+    if (!symlinkBuildFile && isPkgDirASymlink) {
+        console.log(`[yarn_install/npm_install]: package ${nodeModulesPkgDir} is local symlink and as such a BUILD file for it is expected but none was found. Please add one at ${fs.realpathSync(nodeModulesPkgDir)}`);
+    }
     let buildFile = printPackage(pkg);
     if (buildFilePath) {
         buildFile = buildFile + '\n' +
@@ -154,7 +165,13 @@ exports_files(["index.bzl"])
 `;
         }
     }
-    writeFileSync(path.posix.join(pkg._dir, buildFilePath), generateBuildFileHeader(visibility) + buildFile);
+    if (!symlinkBuildFile) {
+        writeFileSync(path.posix.join(pkg._dir, buildFilePath), generateBuildFileHeader(visibility) + buildFile);
+    }
+    else {
+        const realPathBuildFileForPkg = fs.realpathSync(path.posix.join(nodeModulesPkgDir, buildFilePath));
+        createFileSymlinkSync(realPathBuildFileForPkg, path.posix.join(pkg._dir, buildFilePath));
+    }
 }
 function generateBazelWorkspaces(pkgs) {
     const workspaces = {};
