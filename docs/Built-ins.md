@@ -22,9 +22,9 @@ These rules are available without any npm installation, via the `WORKSPACE` inst
 **USAGE**
 
 <pre>
-node_repositories(<a href="#node_repositories-name">name</a>, <a href="#node_repositories-node_repositories">node_repositories</a>, <a href="#node_repositories-node_urls">node_urls</a>, <a href="#node_repositories-node_version">node_version</a>, <a href="#node_repositories-package_json">package_json</a>, <a href="#node_repositories-preserve_symlinks">preserve_symlinks</a>,
-                  <a href="#node_repositories-repo_mapping">repo_mapping</a>, <a href="#node_repositories-vendored_node">vendored_node</a>, <a href="#node_repositories-vendored_yarn">vendored_yarn</a>, <a href="#node_repositories-yarn_repositories">yarn_repositories</a>, <a href="#node_repositories-yarn_urls">yarn_urls</a>,
-                  <a href="#node_repositories-yarn_version">yarn_version</a>)
+node_repositories(<a href="#node_repositories-name">name</a>, <a href="#node_repositories-node_download_auth">node_download_auth</a>, <a href="#node_repositories-node_repositories">node_repositories</a>, <a href="#node_repositories-node_urls">node_urls</a>, <a href="#node_repositories-node_version">node_version</a>,
+                  <a href="#node_repositories-package_json">package_json</a>, <a href="#node_repositories-preserve_symlinks">preserve_symlinks</a>, <a href="#node_repositories-repo_mapping">repo_mapping</a>, <a href="#node_repositories-vendored_node">vendored_node</a>, <a href="#node_repositories-vendored_yarn">vendored_yarn</a>,
+                  <a href="#node_repositories-yarn_download_auth">yarn_download_auth</a>, <a href="#node_repositories-yarn_repositories">yarn_repositories</a>, <a href="#node_repositories-yarn_urls">yarn_urls</a>, <a href="#node_repositories-yarn_version">yarn_version</a>)
 </pre>
 
 To be run in user's WORKSPACE to install rules_nodejs dependencies.
@@ -142,6 +142,13 @@ Note that the dependency installation scripts will run in each subpackage indica
 (*<a href="https://bazel.build/docs/build-ref.html#name">Name</a>, mandatory*): A unique name for this repository.
 
 
+<h4 id="node_repositories-node_download_auth">node_download_auth</h4>
+
+(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): auth to use for all url requests
+Example: {"type": "basic", "login": "<UserName>", "password": "<Password>" }
+
+Defaults to `{}`
+
 <h4 id="node_repositories-node_repositories">node_repositories</h4>
 
 (*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> List of strings</a>*): Custom list of node repositories to use
@@ -210,6 +217,13 @@ Defaults to `None`
 (*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): the local path to a pre-installed yarn tool
 
 Defaults to `None`
+
+<h4 id="node_repositories-yarn_download_auth">yarn_download_auth</h4>
+
+(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): auth to use for all url requests
+Example: {"type": "basic", "login": "<UserName>", "password": "<Password>" }
+
+Defaults to `{}`
 
 <h4 id="node_repositories-yarn_repositories">yarn_repositories</h4>
 
@@ -819,6 +833,27 @@ This rule will set the environment variable `BAZEL_NPM_INSTALL` to '1' (unless i
 set to another value in the environment attribute). Scripts may use to this to 
 check if yarn is being run by the `npm_install` repository rule.
 
+
+**LOCAL MODULES WITH THE NEED TO BE USED BOTH INSIDE AND OUTSIDE BAZEL**
+
+When using a monorepo is common to have locally written modules that we both
+want to use locally while publicly publishing them. That is not much of a problem
+as we can use a `js_library` rule with a `package_name` attribute defined inside the
+local package `BUILD` file. However, if we are in the middle of transition into bazel,
+or we have any other requirement to use that local package outside bazel we will also
+have to declare and install the local package with `file:` in the monorepo `package.json`
+dependencies, which could introduce a race condition within the `npm_install rule`.
+
+In order to overcome it, a link will be created to the package `BUILD` file from the
+npm external Bazel repository, which require us to complete a last step which is writing
+the expected targets on that same `BUILD` file to be later used by the `npm_install`
+rule, which are: `<package_name__files>`, `<package_name__nested_node_modules>`,
+`<package_name__contents>`, `<package_name__typings>` and the last
+one just `<package_name>`.
+
+If you doubt what those targets should look like, check the
+generated `BUILD` file for a given node module.
+
 **ATTRIBUTES**
 
 
@@ -919,9 +954,7 @@ When enabled, only dependencies within the given `package.json` file are given p
 All transitive dependencies are given limited visibility, enforcing that all direct dependencies are
 listed in the `package.json` file.
 
-Currently the default is set `False`, but will likely be flipped `True` in rules_nodejs 3.0.0
-
-Defaults to `False`
+Defaults to `True`
 
 <h4 id="npm_install-symlink_node_modules">symlink_node_modules</h4>
 
@@ -947,24 +980,6 @@ Defaults to `True`
 
 Defaults to `3600`
 
-**LOCAL MODULES**
-
-When using a monorepo is common to have locally written modules that we both 
-want to use locally while publicly publishing them. To achieve it, we need 
-to declare the package with `file:` in the monorepo `package.json` and 
-define a `BUILD` file for that local package with a `js_library` rule 
-defining its `package_name` argument.
-
-Doing what is mentioned above will be creating a link to the previous 
-created `BUILD` file from the npm external Bazel repository, which require 
-us to complete a last step which writing the expected targets on that 
-same `BUILD` file to be later used by the `npm_install` rule, which 
-are: `<package_name__files>`, `<package_name__nested_node_modules>`, 
-`<package_name__contents>`, `<package_name__typings>` and the last 
-one just `<package_name>`.
-
-If you doubt what those targets should look like, check the 
-generated `BUILD` file for a given node module. 
 
 
 ## pkg_npm
@@ -972,8 +987,8 @@ generated `BUILD` file for a given node module.
 **USAGE**
 
 <pre>
-pkg_npm(<a href="#pkg_npm-name">name</a>, <a href="#pkg_npm-deps">deps</a>, <a href="#pkg_npm-nested_packages">nested_packages</a>, <a href="#pkg_npm-node_context_data">node_context_data</a>, <a href="#pkg_npm-package_name">package_name</a>, <a href="#pkg_npm-replace_with_version">replace_with_version</a>, <a href="#pkg_npm-srcs">srcs</a>,
-        <a href="#pkg_npm-substitutions">substitutions</a>, <a href="#pkg_npm-vendor_external">vendor_external</a>)
+pkg_npm(<a href="#pkg_npm-name">name</a>, <a href="#pkg_npm-deps">deps</a>, <a href="#pkg_npm-nested_packages">nested_packages</a>, <a href="#pkg_npm-node_context_data">node_context_data</a>, <a href="#pkg_npm-package_name">package_name</a>, <a href="#pkg_npm-srcs">srcs</a>, <a href="#pkg_npm-substitutions">substitutions</a>,
+        <a href="#pkg_npm-vendor_external">vendor_external</a>)
 </pre>
 
 The pkg_npm rule creates a directory containing a publishable npm artifact.
@@ -1078,17 +1093,6 @@ Defaults to `@build_bazel_rules_nodejs//internal:node_context_data`
 
 Defaults to `""`
 
-<h4 id="pkg_npm-replace_with_version">replace_with_version</h4>
-
-(*String*): DEPRECATED: use substitutions instead.
-
-`replace_with_version = "my_version_placeholder"` is just syntax sugar for
-`substitutions = {"my_version_placeholder": "{BUILD_SCM_VERSION}"}`.
-
-Follow this deprecation at https://github.com/bazelbuild/rules_nodejs/issues/2158
-
-Defaults to `"0.0.0-PLACEHOLDER"`
-
 <h4 id="pkg_npm-srcs">srcs</h4>
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*): Files inside this directory which are simply copied into the package.
@@ -1185,6 +1189,27 @@ This rule will set the environment variable `BAZEL_YARN_INSTALL` to '1' (unless 
 set to another value in the environment attribute). Scripts may use to this to 
 check if yarn is being run by the `yarn_install` repository rule.
 
+
+**LOCAL MODULES WITH THE NEED TO BE USED BOTH INSIDE AND OUTSIDE BAZEL**
+
+When using a monorepo is common to have locally written modules that we both
+want to use locally while publicly publishing them. That is not much of a problem
+as we can use a `js_library` rule with a `package_name` attribute defined inside the
+local package `BUILD` file. However, if we are in the middle of transition into bazel,
+or we have any other requirement to use that local package outside bazel we will also
+have to declare and install the local package with `link:` in the monorepo `package.json`
+dependencies, which could introduce a race condition within the `yarn_install rule`.
+
+In order to overcome it, a link will be created to the package `BUILD` file from the
+npm external Bazel repository, which require us to complete a last step which is writing
+the expected targets on that same `BUILD` file to be later used by the `yarn_install`
+rule, which are: `<package_name__files>`, `<package_name__nested_node_modules>`,
+`<package_name__contents>`, `<package_name__typings>` and the last
+one just `<package_name>`.
+
+If you doubt what those targets should look like, check the
+generated `BUILD` file for a given node module.
+
 **ATTRIBUTES**
 
 
@@ -1280,9 +1305,7 @@ When enabled, only dependencies within the given `package.json` file are given p
 All transitive dependencies are given limited visibility, enforcing that all direct dependencies are
 listed in the `package.json` file.
 
-Currently the default is set `False`, but will likely be flipped `True` in rules_nodejs 3.0.0
-
-Defaults to `False`
+Defaults to `True`
 
 <h4 id="yarn_install-symlink_node_modules">symlink_node_modules</h4>
 
@@ -1332,24 +1355,6 @@ Defaults to `True`
 (*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>, mandatory*)
 
 
-**LOCAL MODULES**
-
-When using a monorepo is common to have locally written modules that we both 
-want to use locally while publicly publishing them. To achieve it, we need 
-to declare the package with `link:` in the monorepo `package.json` and 
-define a `BUILD` file for that local package with a `js_library` rule 
-defining its `package_name` argument.
-
-Doing what is mentioned above will be creating a link to the previous 
-created `BUILD` file from the npm external Bazel repository, which require 
-us to complete a last step which writing the expected targets on that 
-same `BUILD` file to be later used by the `yarn_install` rule, which 
-are: `<package_name__files>`, `<package_name__nested_node_modules>`, 
-`<package_name__contents>`, `<package_name__typings>` and the last 
-one just `<package_name>`.
-
-If you doubt what those targets should look like, check the 
-generated `BUILD` file for a given node module. 
 
 
 ## check_bazel_version

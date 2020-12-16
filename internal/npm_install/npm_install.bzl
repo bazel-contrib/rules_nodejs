@@ -312,7 +312,28 @@ See npm CLI docs https://docs.npmjs.com/cli/install.html for complete list of su
 
 This rule will set the environment variable `BAZEL_NPM_INSTALL` to '1' (unless it
 set to another value in the environment attribute). Scripts may use to this to 
-check if yarn is being run by the `npm_install` repository rule.""",
+check if yarn is being run by the `npm_install` repository rule.
+
+
+**LOCAL MODULES WITH THE NEED TO BE USED BOTH INSIDE AND OUTSIDE BAZEL**
+
+When using a monorepo is common to have locally written modules that we both
+want to use locally while publicly publishing them. That is not much of a problem
+as we can use a `js_library` rule with a `package_name` attribute defined inside the
+local package `BUILD` file. However, if we are in the middle of transition into bazel,
+or we have any other requirement to use that local package outside bazel we will also
+have to declare and install the local package with `file:` in the monorepo `package.json`
+dependencies, which could introduce a race condition within the `npm_install rule`.
+
+In order to overcome it, a link will be created to the package `BUILD` file from the
+npm external Bazel repository, which require us to complete a last step which is writing
+the expected targets on that same `BUILD` file to be later used by the `npm_install`
+rule, which are: `<package_name__files>`, `<package_name__nested_node_modules>`,
+`<package_name__contents>`, `<package_name__typings>` and the last
+one just `<package_name>`.
+
+If you doubt what those targets should look like, check the
+generated `BUILD` file for a given node module.""",
     implementation = _npm_install_impl,
 )
 
@@ -454,6 +475,27 @@ to yarn so that the local cache is contained within the external repository.
 
 This rule will set the environment variable `BAZEL_YARN_INSTALL` to '1' (unless it
 set to another value in the environment attribute). Scripts may use to this to 
-check if yarn is being run by the `yarn_install` repository rule.""",
+check if yarn is being run by the `yarn_install` repository rule.
+
+
+**LOCAL MODULES WITH THE NEED TO BE USED BOTH INSIDE AND OUTSIDE BAZEL**
+
+When using a monorepo is common to have locally written modules that we both
+want to use locally while publicly publishing them. That is not much of a problem
+as we can use a `js_library` rule with a `package_name` attribute defined inside the
+local package `BUILD` file. However, if we are in the middle of transition into bazel,
+or we have any other requirement to use that local package outside bazel we will also
+have to declare and install the local package with `link:` in the monorepo `package.json`
+dependencies, which could introduce a race condition within the `yarn_install rule`.
+
+In order to overcome it, a link will be created to the package `BUILD` file from the
+npm external Bazel repository, which require us to complete a last step which is writing
+the expected targets on that same `BUILD` file to be later used by the `yarn_install`
+rule, which are: `<package_name__files>`, `<package_name__nested_node_modules>`,
+`<package_name__contents>`, `<package_name__typings>` and the last
+one just `<package_name>`.
+
+If you doubt what those targets should look like, check the
+generated `BUILD` file for a given node module.""",
     implementation = _yarn_install_impl,
 )
