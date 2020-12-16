@@ -1,6 +1,6 @@
 "A generic rule to run a tool that appears in node_modules/.bin"
 
-load("//:providers.bzl", "JSModuleInfo", "NpmPackageInfo", "node_modules_aspect", "run_node")
+load("//:providers.bzl", "DeclarationInfo", "JSModuleInfo", "NpmPackageInfo", "node_modules_aspect", "run_node")
 load("//internal/common:expand_variables.bzl", "expand_variables")
 load("//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 
@@ -39,6 +39,8 @@ def _inputs(ctx):
             inputs_depsets.append(d[NpmPackageInfo].sources)
         if JSModuleInfo in d:
             inputs_depsets.append(d[JSModuleInfo].sources)
+        if DeclarationInfo in d:
+            inputs_depsets.append(d[DeclarationInfo].declarations)
     return depset(ctx.files.data, transitive = inputs_depsets).to_list()
 
 def _impl(ctx):
