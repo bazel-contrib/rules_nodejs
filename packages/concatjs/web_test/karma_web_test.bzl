@@ -21,7 +21,6 @@ load("@io_bazel_rules_webtesting//web/internal:constants.bzl", "DEFAULT_WRAPPED_
 KARMA_PEER_DEPS = [
     # NB: uncommented during pkg_npm
     #@external "@npm//@bazel/concatjs",
-    "@npm//jasmine-core",
     "@npm//karma",
     "@npm//karma-chrome-launcher",
     "@npm//karma-firefox-launcher",
@@ -132,7 +131,6 @@ def _write_karma_config(ctx, files, amd_names_shim):
     # The files in the bootstrap attribute come before the require.js support.
     # Note that due to frameworks = ['jasmine'], a few scripts will come before
     # the bootstrap entries:
-    # jasmine-core/lib/jasmine-core/jasmine.js
     # karma-jasmine/lib/boot.js
     # karma-jasmine/lib/adapter.js
     # This is desired so that the bootstrap entries can patch jasmine, as zone.js does.

@@ -1,4 +1,5 @@
-import {TestMessage} from 'build_bazel_rules_nodejs/packages/labs/test/protobufjs/test_ts_proto';
+const runfiles = require(process.env['BAZEL_NODE_RUNFILES_HELPER']!);
+const {TestMessage} = require(runfiles.resolvePackageRelative('test_ts_proto.js'));
 
 describe('protobufjs', () => {
   it('should work in node', () => {

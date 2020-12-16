@@ -1,10 +1,11 @@
 const fs = require('fs');
 const sm = require('source-map');
+const runfiles = require(process.env['BAZEL_NODE_RUNFILES_HELPER']);
 const DIR = 'build_bazel_rules_nodejs/packages/terser/test/sourcemap';
 
 describe('terser sourcemap handling', () => {
   it('should produce a sourcemap output', async () => {
-    const file = require.resolve(DIR + '/src1.min.js.map');
+    const file = runfiles.resolve(DIR + '/src1.min.js.map');
     const debugBuild = /\/bazel-out\/[^/\s]*-dbg\//.test(file);
     const rawSourceMap = JSON.parse(fs.readFileSync(file, 'utf-8'));
     await sm.SourceMapConsumer.with(rawSourceMap, null, consumer => {

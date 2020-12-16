@@ -16,15 +16,16 @@
  */
 'use strict';
 
+const runfiles = require(process.env['BAZEL_NODE_RUNFILES_HELPER']);
 const fs = require('fs');
 const args = process.argv.slice(2);
 
 const BAZEL_VERSION = args[0];
 
 const version =
-    fs.readFileSync(require.resolve('build_bazel_rules_nodejs/.bazelversion'), 'utf-8').trim();
+    fs.readFileSync(runfiles.resolve('build_bazel_rules_nodejs/.bazelversion'), 'utf-8').trim();
 const bazelci_version =
-    fs.readFileSync(require.resolve('build_bazel_rules_nodejs/.bazelci/presubmit.yml'), 'utf-8')
+    fs.readFileSync(runfiles.resolve('build_bazel_rules_nodejs/.bazelci/presubmit.yml'), 'utf-8')
         .split('\n')
         .find(v => v.startsWith('bazel:'));
 

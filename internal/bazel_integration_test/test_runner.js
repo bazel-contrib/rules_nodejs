@@ -23,7 +23,7 @@ const spawnSync = require('child_process').spawnSync;
 const fs = require('fs');
 const path = require('path');
 const tmp = require('tmp');
-
+const runfiles = require(process.env['BAZEL_NODE_RUNFILES_HELPER']);
 const DEBUG = !!process.env['BAZEL_INTEGRATION_TEST_DEBUG'];
 const VERBOSE_LOGS = !!process.env['VERBOSE_LOGS'];
 
@@ -189,7 +189,7 @@ if (bazelrcImportsKeys.length && isFile(bazelrcFile)) {
   let bazelrcContents = fs.readFileSync(bazelrcFile, {encoding: 'utf-8'});
   for (const importKey of bazelrcImportsKeys) {
     const importContents =
-        fs.readFileSync(require.resolve(config.bazelrcImports[importKey]), {encoding: 'utf-8'});
+        fs.readFileSync(runfiles.resolve(config.bazelrcImports[importKey]), {encoding: 'utf-8'});
     bazelrcContents = bazelrcContents.replace(importKey, importContents);
   }
   fs.writeFileSync(bazelrcFile, bazelrcContents);
@@ -212,14 +212,20 @@ if (config.bazelrcAppend) {
   let workspaceContents = fs.readFileSync(workspaceFile, {encoding: 'utf-8'});
   // replace repositories
   for (const repositoryKey of Object.keys(config.repositories)) {
-    const archiveFile = require.resolve(config.repositories[repositoryKey]).replace(/\\/g, '/');
+    const archiveFile = runfiles.resolve(config.repositories[repositoryKey]).replace(/\\/g, '/');
     const regex =
         new RegExp(`(local_repository|http_archive|git_repository)\\(\\s*name\\s*\\=\\s*"${
             repositoryKey}"[^)]+`);
     const replacement =
         `load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")\nhttp_archive(\n  name = "${
             repositoryKey}",\n  url="file:${archiveFile}"\n`;
-    workspaceContents = workspaceContents.replace(regex, replacement);
+
+    workspaceContents = workspaceContents.replace(regex, replacement)
+    // We have to disable the frozen lockfile option for the tests it won't match with the version
+    // from the yarn.lock file.
+    workspaceContents =
+        workspaceContents.replace(/(yarn_lock[\s\S]+?,)/gm, 'frozen_lockfile = False,\n    $1')
+
     if (!workspaceContents.includes(archiveFile)) {
       console.error(
           `bazel_integration_test: WORKSPACE replacement for repository ${repositoryKey} failed!`)
@@ -281,7 +287,7 @@ if (isFile(packageJsonFile)) {
 
 const isWindows = process.platform === 'win32';
 const bazelBinary =
-    require.resolve(`${config.bazelBinaryWorkspace}/bazel${isWindows ? '.exe' : ''}`);
+    runfiles.resolve(`${config.bazelBinaryWorkspace}/bazel${isWindows ? '.exe' : ''}`);
 
 if (DEBUG) {
   log(`

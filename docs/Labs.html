@@ -109,10 +109,6 @@
       
       
       
-      <li><a href="/rules_nodejs/Karma.html">Karma</a></li>
-      
-      
-      
       <li><a href="/rules_nodejs/Labs.html">Labs</a></li>
       
       
@@ -234,7 +230,7 @@ in the <code class="language-plaintext highlighter-rouge">bootstrap</code> attri
 
 <p>To complete the example above, you could write a <code class="language-plaintext highlighter-rouge">karma_web_test_suite</code>:</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">load</span><span class="p">(</span><span class="s">"@npm//@bazel/karma:index.bzl"</span><span class="p">,</span> <span class="s">"karma_web_test_suite"</span><span class="p">)</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">load</span><span class="p">(</span><span class="s">"@npm//@bazel/concatjs:index.bzl"</span><span class="p">,</span> <span class="s">"karma_web_test_suite"</span><span class="p">)</span>
 
 <span class="n">karma_web_test_suite</span><span class="p">(</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s">"test"</span><span class="p">,</span>

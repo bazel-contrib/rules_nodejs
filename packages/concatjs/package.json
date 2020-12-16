@@ -22,7 +22,6 @@
         "tsutils": "2.27.2"
     },
     "peerDependencies": {
-        "jasmine-core": ">=2.0.0",
         "karma": ">=4.0.0",
         "karma-chrome-launcher": ">=2.0.0",
         "karma-firefox-launcher": ">=1.0.0",

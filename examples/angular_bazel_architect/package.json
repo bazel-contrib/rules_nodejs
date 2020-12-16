@@ -42,7 +42,6 @@
     "@types/node": "12.12.6",
     "codelyzer": "^6.0.0",
     "html-webpack-plugin": "^3.2.0",
-    "jasmine-core": "~3.5.0",
     "jasmine-spec-reporter": "~5.0.0",
     "karma": "~5.0.0",
     "karma-chrome-launcher": "~3.1.0",

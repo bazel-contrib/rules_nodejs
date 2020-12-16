@@ -91,13 +91,6 @@ yarn_install(
     yarn_lock = "//packages/cypress/test:yarn.lock",
 )
 
-# Install all Bazel dependencies needed for integration test
-# tools/npm_packages/bazel_workspaces
-# (tested on CI and in the scripts/test_all.sh)
-load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
-
-install_bazel_dependencies(suppress_warning = True)
-
 # We have a source dependency on build_bazel_rules_typescript
 # so we must repeat its transitive toolchain deps
 load("@build_bazel_rules_typescript//:package.bzl", "rules_typescript_dev_dependencies")
@@ -256,7 +249,6 @@ filegroup(
   name = "golden_files",
   srcs = [
     "//:BUILD.bazel",
-    "//:install_bazel_dependencies.bzl",
     "//:manual_build_file_contents",
     "//:WORKSPACE",
     "//@angular/core:BUILD.bazel",

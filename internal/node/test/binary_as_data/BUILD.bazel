@@ -9,4 +9,6 @@ nodejs_test(
     name = "main_bin_data_test",
     data = [":main_bin"],
     entry_point = "test.js",
+    # TODO: fails on Windows without this flag
+    templated_args = ["--bazel_patch_module_resolver"],
 )

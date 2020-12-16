@@ -15,6 +15,7 @@
       "protractor",
       "bazel"
   ],
+  "main": "protractor-utils.js",
   "peerDependencies": {
       "protractor": ">=5.0.0"
   },

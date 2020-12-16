@@ -21,8 +21,8 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "build_bazel_rules_nodejs",
-    sha256 = "f2194102720e662dbf193546585d705e645314319554c6ce7e47d8b59f459e9c",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/2.2.2/rules_nodejs-2.2.2.tar.gz"],
+    sha256 = "290b659e7a6323e442db922175a4838e4ac622509f9e9fa0dd16b7ca30377d68",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/3.0.0-rc.0/rules_nodejs-3.0.0-rc.0.tar.gz"],
 )
 
 http_archive(
@@ -34,10 +34,10 @@ http_archive(
 
 http_archive(
     name = "rules_proto",
-    sha256 = "4d421d51f9ecfe9bf96ab23b55c6f2b809cbaf0eea24952683e397decfbd0dd0",
-    strip_prefix = "rules_proto-f6b8d89b90a7956f6782a4a3609b2f0eee3ce965",
+    sha256 = "3bce0e2fcf502619119c7cac03613fb52ce3034b2159dd3ae9d35f7339558aa3",
+    strip_prefix = "rules_proto-84ba6ec814eebbf5312b2cc029256097ae0042c3",
     urls = [
-        "https://github.com/bazelbuild/rules_proto/archive/f6b8d89b90a7956f6782a4a3609b2f0eee3ce965.tar.gz",
+        "https://github.com/bazelbuild/rules_proto/archive/84ba6ec814eebbf5312b2cc029256097ae0042c3.tar.gz",
     ],
 )
 

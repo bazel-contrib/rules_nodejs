@@ -397,6 +397,10 @@ def ts_project_macro(
     >     ]
     > }
     > ```
+    >
+    > See some related discussion including both "rootDirs" and "paths" for a monorepo setup
+    > using custom import paths:
+    > https://github.com/bazelbuild/rules_nodejs/issues/2298
 
     ### Issues when running non-sandboxed
 
@@ -644,7 +648,6 @@ def ts_project_macro(
             ],
             entry_point = Label("//packages/typescript/internal/worker:worker_adapter"),
             templated_args = [
-                "--nobazel_patch_module_resolver",
                 "$(execpath {})".format(Label(worker_tsc_bin)),
                 "--project",
                 "$(execpath {})".format(tsconfig),

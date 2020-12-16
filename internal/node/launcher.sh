@@ -179,8 +179,7 @@ EXIT_CODE_CAPTURE=""
 
 RUN_LINKER=true
 NODE_PATCHES=true
-# TODO(alex): change the default to false
-PATCH_REQUIRE=true
+PATCH_REQUIRE=false
 for ARG in ${ALL_ARGS[@]+"${ALL_ARGS[@]}"}; do
   case "$ARG" in
     # Supply custom linker arguments for first-party dependencies
@@ -193,15 +192,16 @@ for ARG in ${ALL_ARGS[@]+"${ALL_ARGS[@]}"}; do
     --bazel_capture_exit_code=*) EXIT_CODE_CAPTURE="${ARG#--bazel_capture_exit_code=}" ;;
     # Disable the node_loader.js monkey patches for require()
     # Note that this means you need an explicit runfiles helper library
+    # This flag is now a no-op since the default is also false
     --nobazel_patch_module_resolver) PATCH_REQUIRE=false ;;
     # Enable the node_loader.js monkey patches for require()
-    # Currently a no-op, but specifying this makes the behavior unchanged when we update
-    # the default for PATCH_REQUIRE above
     --bazel_patch_module_resolver) PATCH_REQUIRE=true ;;
     # Disable the --require node-patches (undocumented and unused; only here as an escape value)
     --nobazel_node_patches) NODE_PATCHES=false ;;
     # Disable the linker pre-process (undocumented and unused; only here as an escape value)
-    --nobazel_run_linker) RUN_LINKER=false ;;
+    # It also enables the --bazel_patch_module_resolver flag, as either the linker or require() patch
+    # is needed for resolving third-party node modules.
+    --nobazel_run_linker) RUN_LINKER=false PATCH_REQUIRE=true ;;
     # Let users pass through arguments to node itself
     --node_options=*) USER_NODE_OPTIONS+=( "${ARG#--node_options=}" ) ;;
     # Remaining argv is collected to pass to the program

@@ -9,6 +9,7 @@ ts_library(
     deps = [
         ":test_ts_proto",
         "@npm//@types/jasmine",
+        "@npm//@types/node",
     ],
 )
 

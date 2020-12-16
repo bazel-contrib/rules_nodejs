@@ -109,10 +109,6 @@
       
       
       
-      <li><a href="/rules_nodejs/Karma.html">Karma</a></li>
-      
-      
-      
       <li><a href="/rules_nodejs/Labs.html">Labs</a></li>
       
       
@@ -177,15 +173,13 @@ Read more at <a href="https://bazel.build">https://bazel.build</a></p>
 
 <h2 id="scope-of-the-project">Scope of the project</h2>
 
-<p>This repository contains an orthogonal set of rules which covers an opinionated toolchain for JavaScript development. When requesting a new rule, describe your use case, why it’s important, and why you can’t do it with the existing rules. This is because we have limited resources to maintain additional rules.</p>
+<p>This repository contains an orthogonal set of rules which covers an opinionated toolchain for JavaScript development. If you would like to request a new rule, please open a <a href="https://github.com/bazelbuild/rules_nodejs/issues/new">feature request</a>, describe your use case, why it’s important, and why you can’t do it within the existing rules. Then the maintainers can decide if it is within the scope of the project and will have a large enough impact to warrant the time required to implement.</p>
 
-<p>The repository accepts contributions in terms of bug fixes or implementing new features in existing rules. If you’re planning to implement a new rule, please strongly consider opening a <a href="https://github.com/bazelbuild/rules_nodejs/issues/new">feature request</a> first so the project’s maintainers can decide if it belongs to the scope of this project or not.</p>
-
-<p>For rules outside of the scope of the projects we recommend hosting them in your GitHub account or the one of your organization.</p>
+<p>If you would like to write a rule outside the scope of the projects we recommend hosting them in your GitHub account or the one of your organization.</p>
 
 <h2 id="design">Design</h2>
 
-<p>Most bazel rules include package management. That is, the <code class="language-plaintext highlighter-rouge">WORKSPACE</code> file installs your dependencies as well as the toolchain. In some environments, this is the normal workflow, for example in Java, Gradle and Maven are each both a build tool and a package manager.</p>
+<p>Most bazel rules include package management. That is, the <code class="language-plaintext highlighter-rouge">WORKSPACE</code> file installs both your dependencies and toolchain at the same time. For example, in Java, Gradle and Maven they each install both a build tool and a package at the same time.</p>
 
 <p>In nodejs, there are a variety of package managers and build tools which can interoperate. Also, there is a well-known package installation location (<code class="language-plaintext highlighter-rouge">node_modules</code> directory in your project). Command-line and other tools look in this directory to find packages. So we must either download packages twice (risking version skew between them) or point all tools to Bazel’s <code class="language-plaintext highlighter-rouge">external</code> directory with <code class="language-plaintext highlighter-rouge">NODE_PATH</code> which would be very inconvenient.</p>
 
@@ -200,11 +194,11 @@ Read more at <a href="https://bazel.build">https://bazel.build</a></p>
 <p>References:</p>
 
 <ul>
-  <li>npm: https://docs.npmjs.com/files/package-lock.json</li>
-  <li>yarn: https://yarnpkg.com/lang/en/docs/yarn-lock/</li>
+  <li>npm: <a href="https://docs.npmjs.com/files/package-lock.json">https://docs.npmjs.com/files/package-lock.json</a></li>
+  <li>yarn: <a href="https://yarnpkg.com/lang/en/docs/yarn-lock/">https://yarnpkg.com/lang/en/docs/yarn-lock/</a></li>
 </ul>
 
-<p>Note that https://github.com/bazelbuild/rules_nodejs/issues/1 will take the guarantee further: by using the lockfile as an input to Bazel, the nodejs rules can verify the integrity of the dependencies. This would make it impossible for a build to be non-reproducible, so long as you have the same lockfile.</p>
+<p>Note that <a href="https://github.com/bazelbuild/rules_nodejs/issues/1">https://github.com/bazelbuild/rules_nodejs/issues/1</a> will take the guarantee further: by using the lockfile as an input to Bazel, the nodejs rules can verify the integrity of the dependencies. This would make it impossible for a build to be non-reproducible, so long as you have the same lockfile.</p>
 
 <h2 id="quickstart">Quickstart</h2>
 
@@ -231,7 +225,7 @@ Run the tool with no arguments for command-line options and next steps.</p>
 
 <p>Next we install some development tools.
 For this example, we’ll use Babel to transpile our JavaScript, Mocha for running tests, and http-server to serve our app.
-This is just an arbitrary choice, you probably already have some tools you prefer.</p>
+These are arbitrary choices, you may use whatever are your favorites.</p>
 
 <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>npm <span class="nb">install</span> @babel/core @babel/cli @babel/preset-env http-server mocha domino
 </code></pre></div></div>
@@ -245,7 +239,7 @@ This is just an arbitrary choice, you probably already have some tools you prefe
 
 <p>In this example we use the auto-generated rules.
 First we need to import them, using a load statement.
-So edit BUILD.bazel and add:</p>
+So edit <code class="language-plaintext highlighter-rouge">BUILD.bazel</code> and add:</p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">load</span><span class="p">(</span><span class="s">"@npm//@babel/cli:index.bzl"</span><span class="p">,</span> <span class="s">"babel"</span><span class="p">)</span>
 <span class="n">load</span><span class="p">(</span><span class="s">"@npm//mocha:index.bzl"</span><span class="p">,</span> <span class="s">"mocha_test"</span><span class="p">)</span>
@@ -255,8 +249,8 @@ So edit BUILD.bazel and add:</p>
 <blockquote>
   <p>This shows us that rules_nodejs has told Bazel that a workspace named @npm is available
 (think of the at-sign like a scoped package for Bazel).
-rules_nodejs will add index.bzl files exposing all the binaries the package manager installed
-(the same as the content of the node_modules/.bin folder).
+rules_nodejs will add <code class="language-plaintext highlighter-rouge">index.bzl</code> files exposing all the binaries the package manager installed
+(the same as the content of the <code class="language-plaintext highlighter-rouge">node_modules/.bin folder</code>).
 The three tools we installed are in this @npm scope and each has an index file with a .bzl extension.</p>
 </blockquote>
 
@@ -316,7 +310,7 @@ We use the $(execpath) helper in Bazel so we don’t need to hardcode paths to t
   <p>ibazel is the watch mode for bazel.</p>
 
   <p>Note that on Windows, you need to pass <code class="language-plaintext highlighter-rouge">--enable_runfiles</code> flag to Bazel.
-That’s because Bazel creates a directory where inputs and outputs both appear together, for convenience.</p>
+That’s because Bazel creates a directory where inputs and outputs both conveniently appear together.</p>
 </blockquote>
 
 <p>Now we can serve the app: <code class="language-plaintext highlighter-rouge">npm run serve</code></p>

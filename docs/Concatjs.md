@@ -25,11 +25,28 @@ around each file so that the Chrome DevTools shows the files in the tree as if t
 However at its core, concatjs requires a big tradeoff of a migration cost to buy-in, to get this incredible performance.
 The path of the JavaScript files is lost in the bundling process, so they must contain their module ID internally.
 
-Named AMD/UMD (non-anonymous require.js modules) and `goog.module` are the two JS module formats that are compatible with concatjs.
-Most packages do not ship with this format, so in order to use concatjs tooling, you have to shim your code and dependencies.
+[Named AMD/UMD modules](https://requirejs.org/docs/whyamd.html#namedmodules) and `goog.module` are the two JS module formats that are compatible with concatjs.
+Most packages do not ship with this format, so in order to use concatjs tooling, you have to shim your code and dependencies. See the [Compatibility](#compatibility) section below.
 
 This is at the core of how Google does JavaScript development.
-So Bazel rules that originated in Google's codebase, such as `ts_library` depend in some ways on producing concatjs output.
+So Bazel rules that originated in Google's codebase have affordances for concatjs.
+For example `ts_library` produces named AMD modules in its "devmode" output, and
+`karma_web_test` expects to bundle inputs using concatjs.
+
+
+## Compatibility
+
+To make it easier to produce a UMD version of a third-party npm package, we automatically generate a target that uses Browserify to build one, using the `main` entry from the package's `package.json`.
+In most cases this will make the package loadable under concatjs.
+This target has a `__umd` suffix. For example, if your library is at `@npm//foo` then the UMD target is `@npm//foo:foo__umd`.
+
+An example where this fixes a users issue: <https://github.com/bazelbuild/rules_nodejs/issues/2317#issuecomment-735921318>
+
+In some cases, the generated UMD bundle is not sufficient, and in others it fails to build because it requires some special Browserify configuration.
+You can always write your own shim that grabs a symbol from a package you use, and exposes it in an AMD/require.js-compatible way.
+For example, even though RxJS ships with a UMD bundle, it contains multiple entry points and uses anonymous modules, not named modules. So our Angular/concatjs example has a `rxjs_shims.js` file that exposes some RxJS operators, then at <https://github.com/bazelbuild/rules_nodejs/blob/2.3.1/examples/angular/src/BUILD.bazel#L65-L71> this is combined in a `filegroup` with the `rxjs.umd.js` file. Now we use this filegroup target when depending on RxJS in a `concatjs_*` rule.
+
+Ultimately by using concatjs, you're signing up for at least a superficial understanding of these shims and may need to update them when you change your dependencies.
 
 
 ## Serving JS in development mode under Bazel
@@ -40,7 +57,7 @@ There are two choices for development mode:
    This is intentionally very simple, to help you get started quickly. However,
    since there are many development servers available, we do not want to mirror
    their features in yet another server we maintain.
-1. Teach your real frontend server to serve files from Bazel's output directory.
+2. Teach your real frontend server to serve files from Bazel's output directory.
    This is not yet documented. Choose this option if you have an existing server
    used in development mode, or if your requirements exceed what the
    `concatjs_devserver` supports. Be careful that your development round-trip stays
@@ -88,6 +105,52 @@ finishes.
 [ibazel]: https://github.com/bazelbuild/bazel-watcher
 
 
+## Testing with Karma
+
+The `karma_web_test` rule runs karma tests with Bazel.
+
+It depends on rules_webtesting, so you need to add this to your `WORKSPACE`
+if you use the web testing rules in `@bazel/concatjs`:
+
+```python
+# Fetch transitive Bazel dependencies of karma_web_test
+http_archive(
+    name = "io_bazel_rules_webtesting",
+    sha256 = "9bb461d5ef08e850025480bab185fd269242d4e533bca75bfb748001ceb343c3",
+    urls = ["https://github.com/bazelbuild/rules_webtesting/releases/download/0.3.3/rules_webtesting.tar.gz"],
+)
+
+# Set up web testing, choose browsers we can test on
+load("@io_bazel_rules_webtesting//web:repositories.bzl", "web_test_repositories")
+
+web_test_repositories()
+
+load("@io_bazel_rules_webtesting//web/versioned:browsers-0.3.2.bzl", "browser_repositories")
+
+browser_repositories(
+    chromium = True,
+    firefox = True,
+)
+```
+
+
+## Installing with self-managed dependencies
+
+If you didn't use the `yarn_install` or `npm_install` rule to create an `npm` workspace, you'll have to declare a rule in your root `BUILD.bazel` file to execute karma:
+
+```python
+# Create a karma rule to use in karma_web_test_suite karma
+# attribute when using self-managed dependencies
+nodejs_binary(
+    name = "karma/karma",
+    entry_point = "//:node_modules/karma/bin/karma",
+    # Point bazel to your node_modules to find the entry point
+    node_modules = ["//:node_modules"],
+)
+```
+
+
+
 ## concatjs_devserver
 
 **USAGE**
@@ -99,7 +162,7 @@ concatjs_devserver(<a href="#concatjs_devserver-name">name</a>, <a href="#concat
 
 concatjs_devserver is a simple development server intended for a quick "getting started" experience.
 
-Additional documentation at https://github.com/alexeagle/angular-bazel-example/wiki/Running-a-devserver-under-Bazel
+Additional documentation [here](https://github.com/alexeagle/angular-bazel-example/wiki/Running-a-devserver-under-Bazel)
 
 
 **ATTRIBUTES**
@@ -183,5 +246,176 @@ Defaults to `"/_/ts_scripts.js"`
             They are served relative to the package where this rule is declared.
 
 Defaults to `[]`
+
+
+
+## karma_web_test
+
+**USAGE**
+
+<pre>
+karma_web_test(<a href="#karma_web_test-srcs">srcs</a>, <a href="#karma_web_test-deps">deps</a>, <a href="#karma_web_test-data">data</a>, <a href="#karma_web_test-configuration_env_vars">configuration_env_vars</a>, <a href="#karma_web_test-bootstrap">bootstrap</a>, <a href="#karma_web_test-runtime_deps">runtime_deps</a>, <a href="#karma_web_test-static_files">static_files</a>,
+               <a href="#karma_web_test-config_file">config_file</a>, <a href="#karma_web_test-tags">tags</a>, <a href="#karma_web_test-peer_deps">peer_deps</a>, <a href="#karma_web_test-kwargs">kwargs</a>)
+</pre>
+
+Runs unit tests in a browser with Karma.
+
+When executed under `bazel test`, this uses a headless browser for speed.
+This is also because `bazel test` allows multiple targets to be tested together,
+and we don't want to open a Chrome window on your machine for each one. Also,
+under `bazel test` the test will execute and immediately terminate.
+
+Running under `ibazel test` gives you a "watch mode" for your tests. The rule is
+optimized for this case - the test runner server will stay running and just
+re-serve the up-to-date JavaScript source bundle.
+
+To debug a single test target, run it with `bazel run` instead. This will open a
+browser window on your computer. Also you can use any other browser by opening
+the URL printed when the test starts up. The test will remain running until you
+cancel the `bazel run` command.
+
+This rule will use your system Chrome by default. In the default case, your
+environment must specify CHROME_BIN so that the rule will know which Chrome binary to run.
+Other `browsers` and `customLaunchers` may be set using the a base Karma configuration
+specified in the `config_file` attribute.
+
+By default we open a headless Chrome. To use a real Chrome browser window, you can pass
+`--define DISPLAY=true` to Bazel, along with `configuration_env_vars = ["DISPLAY"]` on
+`karma_web_test`.
+
+
+**PARAMETERS**
+
+
+<h4 id="karma_web_test-srcs">srcs</h4>
+
+A list of JavaScript test files
+
+Defaults to `[]`
+
+<h4 id="karma_web_test-deps">deps</h4>
+
+Other targets which produce JavaScript such as `ts_library`
+
+Defaults to `[]`
+
+<h4 id="karma_web_test-data">data</h4>
+
+Runtime dependencies
+
+Defaults to `[]`
+
+<h4 id="karma_web_test-configuration_env_vars">configuration_env_vars</h4>
+
+Pass these configuration environment variables to the resulting binary.
+Chooses a subset of the configuration environment variables (taken from ctx.var), which also
+includes anything specified via the --define flag.
+Note, this can lead to different outputs produced by this rule.
+
+Defaults to `[]`
+
+<h4 id="karma_web_test-bootstrap">bootstrap</h4>
+
+JavaScript files to include *before* the module loader (require.js).
+For example, you can include Reflect,js for TypeScript decorator metadata reflection,
+or UMD bundles for third-party libraries.
+
+Defaults to `[]`
+
+<h4 id="karma_web_test-runtime_deps">runtime_deps</h4>
+
+Dependencies which should be loaded after the module loader but before the srcs and deps.
+These should be a list of targets which produce JavaScript such as `ts_library`.
+The files will be loaded in the same order they are declared by that rule.
+
+Defaults to `[]`
+
+<h4 id="karma_web_test-static_files">static_files</h4>
+
+Arbitrary files which are available to be served on request.
+Files are served at:
+`/base/&lt;WORKSPACE_NAME&gt;/&lt;path-to-file&gt;`, e.g.
+`/base/npm_bazel_typescript/examples/testing/static_script.js`
+
+Defaults to `[]`
+
+<h4 id="karma_web_test-config_file">config_file</h4>
+
+User supplied Karma configuration file. Bazel will override
+certain attributes of this configuration file. Attributes that are
+overridden will be outputted to the test log.
+
+Defaults to `None`
+
+<h4 id="karma_web_test-tags">tags</h4>
+
+Standard Bazel tags, this macro adds tags for ibazel support
+
+Defaults to `[]`
+
+<h4 id="karma_web_test-peer_deps">peer_deps</h4>
+
+list of peer npm deps required by karma_web_test
+
+Defaults to `["@npm//karma", "@npm//karma-chrome-launcher", "@npm//karma-firefox-launcher", "@npm//karma-jasmine", "@npm//karma-requirejs", "@npm//karma-sourcemap-loader", "@npm//requirejs"]`
+
+<h4 id="karma_web_test-kwargs">kwargs</h4>
+
+Passed through to `karma_web_test`
+
+
+
+
+
+## karma_web_test_suite
+
+**USAGE**
+
+<pre>
+karma_web_test_suite(<a href="#karma_web_test_suite-name">name</a>, <a href="#karma_web_test_suite-browsers">browsers</a>, <a href="#karma_web_test_suite-web_test_data">web_test_data</a>, <a href="#karma_web_test_suite-wrapped_test_tags">wrapped_test_tags</a>, <a href="#karma_web_test_suite-kwargs">kwargs</a>)
+</pre>
+
+Defines a test_suite of web_test targets that wrap a karma_web_test target.
+
+This macro accepts all parameters in karma_web_test and adds additional parameters
+for the suite. See karma_web_test docs for all karma_web_test.
+
+The wrapping macro is `web_test_suite` which comes from rules_websting:
+https://github.com/bazelbuild/rules_webtesting/blob/master/web/web.bzl.
+
+
+**PARAMETERS**
+
+
+<h4 id="karma_web_test_suite-name">name</h4>
+
+The base name of the test
+
+
+
+<h4 id="karma_web_test_suite-browsers">browsers</h4>
+
+A sequence of labels specifying the browsers to use.
+
+Defaults to `None`
+
+<h4 id="karma_web_test_suite-web_test_data">web_test_data</h4>
+
+Data dependencies for the wrapper web_test targets.
+
+Defaults to `[]`
+
+<h4 id="karma_web_test_suite-wrapped_test_tags">wrapped_test_tags</h4>
+
+A list of test tag strings to use for the wrapped
+karma_web_test target.
+
+Defaults to `["manual", "noci"]`
+
+<h4 id="karma_web_test_suite-kwargs">kwargs</h4>
+
+Arguments for the wrapped karma_web_test target.
+
+
 
 

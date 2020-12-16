@@ -2,7 +2,8 @@
  * Simple node program to test that workspace creation works.
  * We don't use a test framework here since dependencies are awkward.
  */
-const pkg = 'build_bazel_rules_nodejs/packages/create/npm_package';
+const runfiles = require(process.env['BAZEL_NODE_RUNFILES_HELPER']);
+const pkg = runfiles.resolve('build_bazel_rules_nodejs/packages/create/npm_package');
 const fs = require('fs');
 const {main} = require(pkg);
 

@@ -1,0 +1,12 @@
+diff --git a/sass/package.json b/sass/package.json
+index 584a86c..1f54da3 100644
+--- a/sass/package.json
++++ b/sass/package.json
+@@ -1,6 +1,6 @@
+ {
+   "devDependencies": {
+     "@bazel/worker": "2.3.1",
+-    "sass": "1.30.0"
++    "sass": "1.29.0"
+   }
+ }

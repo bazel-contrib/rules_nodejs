@@ -15,7 +15,6 @@
     "grpc-web": "1.1.0",
     "http-server": "^0.11.1",
     "jasmine": "2.8.0",
-    "jasmine-core": "2.8.0",
     "karma": "~4.1.0",
     "karma-chrome-launcher": "2.2.0",
     "karma-firefox-launcher": "1.1.0",

@@ -43,6 +43,8 @@ jasmine_node_test(
     srcs = glob(["*.spec.js"]),
     node_modules = "//:node_modules",
     tags = ["no-local-jasmine-deps"],
+    # user-managed deps don't expose the provider the linker needs to make require work
+    templated_args = ["--bazel_patch_module_resolver"],
     deps = [
         ":decrement",
         ":program",

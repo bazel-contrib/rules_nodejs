@@ -51,6 +51,10 @@ jasmine_node_test(
         # Verify that worker_protocol.proto can be referenced as a target in the generated npm bazel workspace
         "@npm//@bazel/typescript/third_party/github.com/bazelbuild/bazel/src/main/protobuf:worker_protocol.proto",
     ],
+    templated_args = [
+        # ts_library produces named AMD output with repo name in the require statement
+        "--bazel_patch_module_resolver",
+    ],
     deps = [
         ":test_lib",
     ],
