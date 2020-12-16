@@ -655,25 +655,25 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@bazel/protractor@^2.2.2":
-  version "2.2.2"
-  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-2.2.2.tgz#0660837a193994ee349e15cb022de76f3262af5e"
-  integrity sha512-ZF2ejkyJzc1U8h5NPfeEt4yc/RiL3pAetUw4LnDFggs6bJhIcBytE4e+HqeUXvwzcdVEU/ZdDoDZLba/QG98dg==
+"@bazel/protractor@^3.0.0-rc.0":
+  version "3.0.0-rc.0"
+  resolved "https://registry.yarnpkg.com/@bazel/protractor/-/protractor-3.0.0-rc.0.tgz#aa401b33cdf9fcaa41598367ee0a8654da263698"
+  integrity sha512-1xk7p4hOIGPKiahEhlkR6vPRQxKJ2gce2U+TjULfzjn1kWv4vSCErnFthH6NaGJZNW4aKGfhs93SioinStMPhg==
 
-"@bazel/rollup@^2.2.2":
-  version "2.2.2"
-  resolved "https://registry.yarnpkg.com/@bazel/rollup/-/rollup-2.2.2.tgz#1abfc5cbf5eb65db2aa145e584d225684d961055"
-  integrity sha512-z3sK0dt7pftjxlLuo66e3PMMGyjq6vD/8B+OEFN3LD3GjE34e8X0/KeRX5lXWs1ecVlrnTroiBxLCJSHwqBrEA==
+"@bazel/rollup@^3.0.0-rc.0":
+  version "3.0.0-rc.0"
+  resolved "https://registry.yarnpkg.com/@bazel/rollup/-/rollup-3.0.0-rc.0.tgz#b16c5177e871e3c409d6d9831c7469697e944ea1"
+  integrity sha512-g4gzjeeGvkY7wdkxavI8DyvGDHgcarwKYHt+IHYQ1QO3eQ+rkbb/UvP/0gbNht/8NQCIpiy1V39r9kDCo1Qh4Q==
 
-"@bazel/terser@^2.2.2":
-  version "2.2.2"
-  resolved "https://registry.yarnpkg.com/@bazel/terser/-/terser-2.2.2.tgz#2a72b739de8a12ab9ca1cfe60c6c118215acc10f"
-  integrity sha512-pPhNr21g8PN0jGhzQHOIL9pOicMgU1Jfrh+liI4PVBfSFrJbTjJw3iNRDX0skYAlsR0WG433kn8CkEjY4IvJVw==
+"@bazel/terser@^3.0.0-rc.0":
+  version "3.0.0-rc.0"
+  resolved "https://registry.yarnpkg.com/@bazel/terser/-/terser-3.0.0-rc.0.tgz#58659d7c17d91c282263e80d6cf6e7bdcad80d37"
+  integrity sha512-9yELgTCMSsp484Pf8NwUYv+6ak7Vq43Kppc/1BtB5jYuuPTVgH4q0oTk9Xpl+LlFt46rCUHCXAlPmHl7cbyrIA==
 
-"@bazel/typescript@^2.2.2":
-  version "2.2.2"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-2.2.2.tgz#c7cd49cb630ca3720c04c94046ba8ca4c0d5b0aa"
-  integrity sha512-hkx/7L3s8q5gIgaSFmkUZWPqdKmdJmQ04GaLnsI/YEp9EhPObqATSKnOHeDdT7bzqLO7giDAwAiXhEmsO1Smcw==
+"@bazel/typescript@^3.0.0-rc.0":
+  version "3.0.0-rc.0"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-3.0.0-rc.0.tgz#4a1a21534e1bb0888638166653e3b0523a47c6b5"
+  integrity sha512-qb6zX99eR+uUA+WWGUZGtkDM4A0AJEEUA2pPcDuOW/zkpoVostI71gHQVp2EyAf6lKsPMCCJ28q/UsaNBVnLcw==
   dependencies:
     protobufjs "6.8.8"
     semver "5.6.0"
