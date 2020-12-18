@@ -180,6 +180,7 @@ EXIT_CODE_CAPTURE=""
 RUN_LINKER=true
 NODE_PATCHES=true
 PATCH_REQUIRE=false
+FROM_EXECROOT=false
 for ARG in ${ALL_ARGS[@]+"${ALL_ARGS[@]}"}; do
   case "$ARG" in
     # Supply custom linker arguments for first-party dependencies
@@ -202,6 +203,8 @@ for ARG in ${ALL_ARGS[@]+"${ALL_ARGS[@]}"}; do
     # It also enables the --bazel_patch_module_resolver flag, as either the linker or require() patch
     # is needed for resolving third-party node modules.
     --nobazel_run_linker) RUN_LINKER=false PATCH_REQUIRE=true ;;
+    # If running an NPM package, run it from execroot instead of from external
+    --bazel_run_from_execroot) FROM_EXECROOT=true ;;
     # Let users pass through arguments to node itself
     --node_options=*) USER_NODE_OPTIONS+=( "${ARG#--node_options=}" ) ;;
     # Remaining argv is collected to pass to the program
@@ -235,29 +238,6 @@ if [ "$NODE_PATCHES" = true ]; then
   LAUNCHER_NODE_OPTIONS+=( "--require" "$node_patches_script" )
 fi
 
-if [ "$PATCH_REQUIRE" = true ]; then
-  require_patch_script=${BAZEL_NODE_PATCH_REQUIRE}
-  # See comment above
-  case "${require_patch_script}" in
-    # Absolute path on unix
-    /*          ) ;;
-    # Absolute path on Windows, e.g. C:/path/to/thing
-    [a-zA-Z]:/* ) ;;
-    # Otherwise it needs to be made relative
-    *           ) require_patch_script="./${require_patch_script}" ;;
-  esac
-  LAUNCHER_NODE_OPTIONS+=( "--require" "$require_patch_script" )
-  # Change the entry point to be the loader.js script so we run code before node
-  MAIN=$(rlocation "TEMPLATED_loader_script")
-else
-  # Entry point is the user-supplied script
-  MAIN=TEMPLATED_entry_point_execroot_path  
-  # TODO: after we link-all-bins we should not need this extra lookup
-  if [[ ! -f "$MAIN" ]]; then
-    MAIN=TEMPLATED_entry_point_manifest_path
-  fi
-fi
-
 # Tell the node_patches_script that programs should not escape the execroot
 # Bazel always sets the PWD to execroot/my_wksp so we go up one directory.
 export BAZEL_PATCH_ROOT=$(dirname $PWD)
@@ -278,20 +258,47 @@ if [[ "$PWD" == *"/bazel-out/"* ]]; then
     echo "No 'bazel-out' folder found in path '${PWD}'!"
     exit 1
   fi
-  readonly execroot=${PWD:0:${index}}
-  export BAZEL_PATCH_GUARDS="${execroot}/node_modules"
+  EXECROOT=${PWD:0:${index}}
 else
   # We are in execroot or in some other context all together such as a nodejs_image or a manually
   # run nodejs_binary. If this is execroot then linker node_modules is in the PWD. If this another
   # context then it is safe to assume the node_modules are there and guard that directory if it exists.
-  export BAZEL_PATCH_GUARDS="${PWD}/node_modules"
+  EXECROOT=${PWD}
 fi
+export BAZEL_PATCH_GUARDS="${EXECROOT}/node_modules"
 if [[ -n "${BAZEL_NODE_MODULES_ROOT:-}" ]]; then
   if [[ "${BAZEL_NODE_MODULES_ROOT}" != "${BAZEL_WORKSPACE}/node_modules" ]]; then
     # If BAZEL_NODE_MODULES_ROOT is set and it is not , add it to the list of bazel patch guards
     # Also, add the external/${BAZEL_NODE_MODULES_ROOT} which is the correct path under execroot
     # and under runfiles it is the legacy external runfiles path
     export BAZEL_PATCH_GUARDS="${BAZEL_PATCH_GUARDS},${BAZEL_PATCH_ROOT}/${BAZEL_NODE_MODULES_ROOT},${PWD}/external/${BAZEL_NODE_MODULES_ROOT}"
+  fi
+fi
+
+if [ "$PATCH_REQUIRE" = true ]; then
+  require_patch_script=${BAZEL_NODE_PATCH_REQUIRE}
+  # See comment above
+  case "${require_patch_script}" in
+    # Absolute path on unix
+    /*          ) ;;
+    # Absolute path on Windows, e.g. C:/path/to/thing
+    [a-zA-Z]:/* ) ;;
+    # Otherwise it needs to be made relative
+    *           ) require_patch_script="./${require_patch_script}" ;;
+  esac
+  LAUNCHER_NODE_OPTIONS+=( "--require" "$require_patch_script" )
+  # Change the entry point to be the loader.js script so we run code before node
+  MAIN=$(rlocation "TEMPLATED_loader_script")
+else
+  # Entry point is the user-supplied script
+  MAIN=TEMPLATED_entry_point_execroot_path  
+  # TODO: after we link-all-bins we should not need this extra lookup
+  if [[ ! -f "$MAIN" ]]; then
+    if [ "$FROM_EXECROOT" = true ]; then
+      MAIN="$EXECROOT/$MAIN"
+    else
+      MAIN=TEMPLATED_entry_point_manifest_path
+    fi
   fi
 fi
 
