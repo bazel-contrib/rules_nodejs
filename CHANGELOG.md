@@ -1,3 +1,19 @@
+## [2.3.2](https://github.com/bazelbuild/rules_nodejs/compare/2.3.1...2.3.2) (2020-12-18)
+
+
+### Bug Fixes
+
+* **builtin:** add DeclarationInfo sources from dependencies as inputs to npm_package_bin driven actions ([#2353](https://github.com/bazelbuild/rules_nodejs/issues/2353)) ([85dc132](https://github.com/bazelbuild/rules_nodejs/commit/85dc132))
+* **builtin:** give better error when linker runs on Node <10 ([c344401](https://github.com/bazelbuild/rules_nodejs/commit/c344401)), closes [#2304](https://github.com/bazelbuild/rules_nodejs/issues/2304)
+* **examples:** fix jest example on windows ([cc04f6c](https://github.com/bazelbuild/rules_nodejs/commit/cc04f6c)), closes [#1454](https://github.com/bazelbuild/rules_nodejs/issues/1454)
+
+
+### Features
+
+* allow running NPM tools from execroot ([#2297](https://github.com/bazelbuild/rules_nodejs/issues/2297)) ([364ac89](https://github.com/bazelbuild/rules_nodejs/commit/364ac89))
+
+
+
 ## [2.3.1](https://github.com/bazelbuild/rules_nodejs/compare/2.3.0...2.3.1) (2020-11-24)
 
 
