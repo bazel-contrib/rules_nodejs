@@ -180,7 +180,7 @@ EXIT_CODE_CAPTURE=""
 RUN_LINKER=true
 NODE_PATCHES=true
 PATCH_REQUIRE=false
-FROM_EXECROOT=false
+FROM_EXECROOT=true
 for ARG in ${ALL_ARGS[@]+"${ALL_ARGS[@]}"}; do
   case "$ARG" in
     # Supply custom linker arguments for first-party dependencies
@@ -203,8 +203,8 @@ for ARG in ${ALL_ARGS[@]+"${ALL_ARGS[@]}"}; do
     # It also enables the --bazel_patch_module_resolver flag, as either the linker or require() patch
     # is needed for resolving third-party node modules.
     --nobazel_run_linker) RUN_LINKER=false PATCH_REQUIRE=true ;;
-    # If running an NPM package, run it from execroot instead of from external
-    --bazel_run_from_execroot) FROM_EXECROOT=true ;;
+    # If running an NPM package, run it from external instead of from execroot
+    --nobazel_run_from_execroot) FROM_EXECROOT=false ;;
     # Let users pass through arguments to node itself
     --node_options=*) USER_NODE_OPTIONS+=( "${ARG#--node_options=}" ) ;;
     # Remaining argv is collected to pass to the program

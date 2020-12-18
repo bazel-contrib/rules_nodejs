@@ -490,4 +490,5 @@ nodejs_test(
     name = "main_test",
     data = [":main_lib"],
     entry_point = ":main.js",
+    templated_args = ["--nobazel_run_from_execroot"],
 )
