@@ -1,3 +1,20 @@
+# [3.0.0-rc.1](https://github.com/bazelbuild/rules_nodejs/compare/3.0.0-rc.0...3.0.0-rc.1) (2020-12-18)
+
+
+### Bug Fixes
+
+* **builtin:** add DeclarationInfo sources from dependencies as inputs to npm_package_bin driven actions ([#2353](https://github.com/bazelbuild/rules_nodejs/issues/2353)) ([a549411](https://github.com/bazelbuild/rules_nodejs/commit/a549411))
+
+
+### Features
+
+* **builtin:** use npm ci as default behaviour for installing node_modules ([#2328](https://github.com/bazelbuild/rules_nodejs/issues/2328)) ([1d650fb](https://github.com/bazelbuild/rules_nodejs/commit/1d650fb)), closes [#159](https://github.com/bazelbuild/rules_nodejs/issues/159)
+* allow running NPM tools from execroot ([#2297](https://github.com/bazelbuild/rules_nodejs/issues/2297)) ([2a4ba8f](https://github.com/bazelbuild/rules_nodejs/commit/2a4ba8f))
+* create symlink for build files present on node modules installed with relative paths ([#2330](https://github.com/bazelbuild/rules_nodejs/issues/2330)) ([6f4fc17](https://github.com/bazelbuild/rules_nodejs/commit/6f4fc17))
+* **builtin:** yarn install use --frozen-lockfile as default ([b6a8cbb](https://github.com/bazelbuild/rules_nodejs/commit/b6a8cbb)), closes [#941](https://github.com/bazelbuild/rules_nodejs/issues/941)
+
+
+
 # [3.0.0-rc.0](https://github.com/bazelbuild/rules_nodejs/compare/2.2.2...3.0.0-rc.0) (2020-12-11)
 
 

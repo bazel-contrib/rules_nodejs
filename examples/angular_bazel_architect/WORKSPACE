@@ -12,8 +12,8 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "build_bazel_rules_nodejs",
-    sha256 = "290b659e7a6323e442db922175a4838e4ac622509f9e9fa0dd16b7ca30377d68",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/3.0.0-rc.0/rules_nodejs-3.0.0-rc.0.tar.gz"],
+    sha256 = "84b1d11b1f3bda68c24d992dc6e830bca9db8fa12276f2ca7fcb7761c893976b",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/3.0.0-rc.1/rules_nodejs-3.0.0-rc.1.tar.gz"],
 )
 
 # The yarn_install rule runs yarn anytime the package.json or yarn.lock file changes.
