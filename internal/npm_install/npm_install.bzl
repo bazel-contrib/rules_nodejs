@@ -309,7 +309,13 @@ See npm CLI docs https://docs.npmjs.com/cli/install.html for complete list of su
         ),
         "npm_command": attr.string(
             default = "ci",
-            doc = "The npm command to run, to install dependencies.",
+            doc = """The npm command to run, to install dependencies.
+            
+            See npm docs <https://docs.npmjs.com/cli/v6/commands>
+            
+            In particular, for "ci" it says:
+            > If dependencies in the package lock do not match those in package.json, npm ci will exit with an error, instead of updating the package lock.
+            """,
             values = ["ci", "install"],
         ),
         "package_lock_json": attr.label(
