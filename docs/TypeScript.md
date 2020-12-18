@@ -814,6 +814,10 @@ Any code that works with `tsc` should work with `ts_project` with a few caveats:
 >     ]
 > }
 > ```
+>
+> See some related discussion including both "rootDirs" and "paths" for a monorepo setup
+> using custom import paths:
+> https://github.com/bazelbuild/rules_nodejs/issues/2298
 
 
 ### Issues when running non-sandboxed
