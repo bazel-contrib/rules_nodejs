@@ -181,7 +181,6 @@ RUN_LINKER=true
 NODE_PATCHES=true
 # TODO(alex): change the default to false
 PATCH_REQUIRE=true
-FROM_EXECROOT=false
 for ARG in ${ALL_ARGS[@]+"${ALL_ARGS[@]}"}; do
   case "$ARG" in
     # Supply custom linker arguments for first-party dependencies
@@ -203,8 +202,6 @@ for ARG in ${ALL_ARGS[@]+"${ALL_ARGS[@]}"}; do
     --nobazel_node_patches) NODE_PATCHES=false ;;
     # Disable the linker pre-process (undocumented and unused; only here as an escape value)
     --nobazel_run_linker) RUN_LINKER=false ;;
-    # If running an NPM package, run it from execroot instead of from external
-    --bazel_run_from_execroot) FROM_EXECROOT=true ;;
     # Let users pass through arguments to node itself
     --node_options=*) USER_NODE_OPTIONS+=( "${ARG#--node_options=}" ) ;;
     # Remaining argv is collected to pass to the program
@@ -294,10 +291,10 @@ else
   MAIN=TEMPLATED_entry_point_execroot_path  
   # TODO: after we link-all-bins we should not need this extra lookup
   if [[ ! -f "$MAIN" ]]; then
-    if [ "$FROM_EXECROOT" = true ]; then
-      MAIN="$EXECROOT/$MAIN"
-    else
+    if [[ "TEMPLATED_entry_point_manifest_path" == *"$BAZEL_WORKSPACE"* ]]; then
       MAIN=TEMPLATED_entry_point_manifest_path
+    else
+      MAIN="$EXECROOT/$MAIN"
     fi
   fi
 fi
