@@ -1,30 +1,33 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
-load("@build_bazel_rules_nodejs//packages/jasmine:index.bzl", "jasmine_node_test")
+load("@build_bazel_rules_nodejs//:index.bzl", "js_library", "nodejs_binary", "nodejs_test")
 
-# Make the jasmine library available at runtime by exposing our node_modules
-# directory.
 # This is "user-managed" dependencies - Bazel knows nothing about our package manager.
 # We assume that developers will install the `node_modules` directory themselves and
 # keep it up-to-date.
-# This rule simply exposes files in the node_modules directory to Bazel so it can read
-# them as inputs to processes it spawns.
-filegroup(
+# This rule simply exposes files in the node_modules directory to Bazel using js_library
+# with external_npm_package set to True so it can read them as inputs to processes it spawns.
+js_library(
     name = "node_modules",
-    srcs = glob([
-        "node_modules/**/*.js",
-        "node_modules/**/*.d.ts",
-        "node_modules/**/*.json",
-    ]),
-)
-
-filegroup(
-    name = "decrement",
-    srcs = ["decrement.js"],
-)
-
-filegroup(
-    name = "program",
-    srcs = ["index.js"],
+    srcs = glob(
+        include = [
+            "node_modules/**/*.js",
+            "node_modules/**/*.d.ts",
+            "node_modules/**/*.json",
+            "node_modules/.bin/*",
+        ],
+        exclude = [
+            # Files under test & docs may contain file names that
+            # are not legal Bazel labels (e.g.,
+            # node_modules/ecstatic/test/public/中文/檔案.html)
+            "node_modules/**/test/**",
+            "node_modules/**/docs/**",
+            # Files with spaces in the name are not legal Bazel labels
+            "node_modules/**/* */**",
+            "node_modules/**/* *",
+        ],
+    ),
+    # Provide ExternalNpmPackageInfo which is used by downstream rules
+    # that use these npm dependencies
+    external_npm_package = True,
 )
 
 nodejs_binary(
@@ -38,15 +41,12 @@ nodejs_binary(
     entry_point = ":index.js",
 )
 
-jasmine_node_test(
+nodejs_test(
     name = "test",
-    srcs = glob(["*.spec.js"]),
-    node_modules = "//:node_modules",
-    tags = ["no-local-jasmine-deps"],
-    # user-managed deps don't expose the provider the linker needs to make require work
-    templated_args = ["--bazel_patch_module_resolver"],
-    deps = [
-        ":decrement",
-        ":program",
+    data = [
+        "decrement.js",
+        "index.js",
+        ":node_modules",
     ],
+    entry_point = "index.spec.js",
 )

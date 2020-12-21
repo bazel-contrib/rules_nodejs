@@ -67,7 +67,7 @@ alias(
 
 Make sure to remove the `--noEmit` compiler option from your `tsconfig.json`. This is not compatible with the `ts_library` rule.
 
-## Self-managed npm dependencies
+## User-managed npm dependencies
 
 We recommend you use Bazel managed dependencies, but if you would like
 Bazel to also install a `node_modules` in your workspace you can also
@@ -88,7 +88,7 @@ To use your workspace `node_modules` folder as a dependency in `ts_library` and
 other rules, add the following to your root `BUILD.bazel` file:
 
 ```python
-filegroup(
+js_library(
     name = "node_modules",
     srcs = glob(
         include = [
@@ -108,15 +108,18 @@ filegroup(
           "node_modules/**/* *",
         ],
     ),
+    # Provide ExternalNpmPackageInfo which is used by downstream rules
+    # that use these npm dependencies
+    external_npm_package = True,
 )
 
 # Create a tsc_wrapped compiler rule to use in the ts_library
-# compiler attribute when using self-managed dependencies
+# compiler attribute when using user-managed dependencies
 nodejs_binary(
     name = "@bazel/typescript/tsc_wrapped",
     entry_point = "@npm//:node_modules/@bazel/typescript/internal/tsc_wrapped/tsc_wrapped.js",
     # Point bazel to your node_modules to find the entry point
-    node_modules = "//:node_modules",
+    data = ["//:node_modules"],
 )
 ```
 
@@ -193,19 +196,20 @@ ts_library(
 You can also use the `@npm//@types` target which will include all
 packages in the `@types` scope as dependencies.
 
-If you are using self-managed npm dependencies, you can use the
-`node_modules` attribute in `ts_library` and point it to the
-`//:node_modules` filegroup defined in your root `BUILD.bazel` file.
+If you are using user-managed npm dependencies, you can pass your `//:node_modules`
+target defined in your root `BUILD.bazel` file to the deps of `ts_library`.
 You'll also need to override the `compiler` attribute if you do this
-as the Bazel-managed deps and self-managed cannot be used together
+as the Bazel-managed deps and user-managed cannot be used together
 in the same rule.
 
 ```python
 ts_library(
     name = "my_code",
     srcs = glob(["*.ts"]),
-    deps = ["//path/to/other:library"],
-    node_modules = "//:node_modules",
+    deps = [
+        "//path/to/other:library",
+        "//:node_modules",
+    ],
     compiler = "//:@bazel/typescript/tsc_wrapped",
 )
 ```

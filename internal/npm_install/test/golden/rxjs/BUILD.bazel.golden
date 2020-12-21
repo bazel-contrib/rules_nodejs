@@ -3629,6 +3629,7 @@ filegroup(
 )
 js_library(
     name = "rxjs",
+    external_npm_package = True,
     srcs = [":rxjs__files"],
     deps = [
         "//rxjs:rxjs__contents",
@@ -3637,11 +3638,13 @@ js_library(
 )
 js_library(
     name = "rxjs__contents",
+    external_npm_package = True,
     srcs = [":rxjs__files", ":rxjs__nested_node_modules"],
     visibility = ["//:__subpackages__"],
 )
 js_library(
     name = "rxjs__typings",
+    external_npm_package = True,
     srcs = [
         "//:node_modules/rxjs/AsyncSubject.d.ts",
         "//:node_modules/rxjs/BehaviorSubject.d.ts",

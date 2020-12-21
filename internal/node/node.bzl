@@ -20,7 +20,7 @@ They support module mapping: any targets in the transitive dependencies with
 a `module_name` attribute can be `require`d by that name.
 """
 
-load("//:providers.bzl", "JSModuleInfo", "JSNamedModuleInfo", "NodeRuntimeDepsInfo", "NpmPackageInfo", "node_modules_aspect")
+load("//:providers.bzl", "ExternalNpmPackageInfo", "JSModuleInfo", "JSNamedModuleInfo", "NodeRuntimeDepsInfo", "node_modules_aspect")
 load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
 load("//internal/common:module_mappings.bzl", "module_mappings_runtime_aspect")
 load("//internal/common:path_utils.bzl", "strip_external")
@@ -41,7 +41,7 @@ def _trim_package_node_modules(package_name):
     return "/".join(segments)
 
 def _compute_node_modules_root(ctx):
-    """Computes the node_modules root from the node_modules and deps attributes.
+    """Computes the node_modules root from the deps attributes.
 
     Args:
       ctx: the skylark execution context
@@ -50,33 +50,16 @@ def _compute_node_modules_root(ctx):
       The node_modules root as a string
     """
     node_modules_root = None
-    if ctx.attr.node_modules:
-        if NpmPackageInfo in ctx.attr.node_modules:
-            node_modules_root = "/".join([ctx.attr.node_modules[NpmPackageInfo].workspace, "node_modules"])
-        elif ctx.files.node_modules:
-            # ctx.files.node_modules is not an empty list
-            workspace_name = ctx.attr.node_modules.label.workspace_name if ctx.attr.node_modules.label.workspace_name else ctx.workspace_name
-            node_modules_root = "/".join([f for f in [
-                workspace_name,
-                _trim_package_node_modules(ctx.attr.node_modules.label.package),
-                "node_modules",
-            ] if f])
     for d in ctx.attr.data:
-        if NpmPackageInfo in d:
-            possible_root = "/".join([d[NpmPackageInfo].workspace, "node_modules"])
+        if ExternalNpmPackageInfo in d:
+            possible_root = "/".join([d[ExternalNpmPackageInfo].workspace, "node_modules"])
             if not node_modules_root:
                 node_modules_root = possible_root
             elif node_modules_root != possible_root:
                 fail("All npm dependencies need to come from a single workspace. Found '%s' and '%s'." % (node_modules_root, possible_root))
     if not node_modules_root:
-        # there are no fine grained deps and the node_modules attribute is an empty filegroup
-        # but we still need a node_modules_root even if its empty
-        workspace_name = ctx.attr.node_modules.label.workspace_name if ctx.attr.node_modules.label.workspace_name else ctx.workspace_name
-        node_modules_root = "/".join([f for f in [
-            workspace_name,
-            ctx.attr.node_modules.label.package,
-            "node_modules",
-        ] if f])
+        # there are no fine grained deps but we still need a node_modules_root even if it is a non-existant one
+        node_modules_root = "build_bazel_rules_nodejs/node_modules"
     return node_modules_root
 
 def _write_require_patch_script(ctx, node_modules_root):
@@ -156,15 +139,12 @@ def _join(*elements):
 def _nodejs_binary_impl(ctx):
     node_modules_manifest = write_node_modules_manifest(ctx, link_workspace_root = ctx.attr.link_workspace_root)
     node_modules_depsets = []
-    node_modules_depsets.append(depset(ctx.files.node_modules))
-    if NpmPackageInfo in ctx.attr.node_modules:
-        node_modules_depsets.append(ctx.attr.node_modules[NpmPackageInfo].sources)
 
     # Also include files from npm fine grained deps as inputs.
-    # These deps are identified by the NpmPackageInfo provider.
+    # These deps are identified by the ExternalNpmPackageInfo provider.
     for d in ctx.attr.data:
-        if NpmPackageInfo in d:
-            node_modules_depsets.append(d[NpmPackageInfo].sources)
+        if ExternalNpmPackageInfo in d:
+            node_modules_depsets.append(d[ExternalNpmPackageInfo].sources)
 
     node_modules = depset(transitive = node_modules_depsets)
 
@@ -433,73 +413,6 @@ nodejs_binary(
     "link_workspace_root": attr.bool(
         doc = """Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.
 If source files need to be required then they can be copied to the bin_dir with copy_to_bin.""",
-    ),
-    "node_modules": attr.label(
-        doc = """The npm packages which should be available to `require()` during
-        execution.
-
-This attribute is DEPRECATED. As of version 0.13.0 the recommended approach
-to npm dependencies is to use fine grained npm dependencies which are setup
-with the `yarn_install` or `npm_install` rules. For example, in targets
-that used a `//:node_modules` filegroup,
-
-```python
-nodejs_binary(
-    name = "my_binary",
-    ...
-    node_modules = "//:node_modules",
-)
-```
-
-which specifies all files within the `//:node_modules` filegroup
-to be inputs to the `my_binary`. Using fine grained npm dependencies,
-`my_binary` is defined with only the npm dependencies that are
-needed:
-
-```python
-nodejs_binary(
-    name = "my_binary",
-    ...
-    data = [
-        "@npm//foo",
-        "@npm//bar",
-        ...
-    ],
-)
-```
-
-In this case, only the `foo` and `bar` npm packages and their
-transitive deps are includes as inputs to the `my_binary` target
-which reduces the time required to setup the runfiles for this
-target (see https://github.com/bazelbuild/bazel/issues/5153).
-
-The @npm external repository and the fine grained npm package
-targets are setup using the `yarn_install` or `npm_install` rule
-in your WORKSPACE file:
-
-yarn_install(
-    name = "npm",
-    package_json = "//:package.json",
-    yarn_lock = "//:yarn.lock",
-)
-
-For other rules such as `jasmine_node_test`, fine grained
-npm dependencies are specified in the `deps` attribute:
-
-```python
-jasmine_node_test(
-    name = "my_test",
-    ...
-    deps = [
-        "@npm//jasmine",
-        "@npm//foo",
-        "@npm//bar",
-        ...
-    ],
-)
-```
-""",
-        default = Label("//:node_modules_none"),
     ),
     "templated_args": attr.string_list(
         doc = """Arguments which are passed to every execution of the program.

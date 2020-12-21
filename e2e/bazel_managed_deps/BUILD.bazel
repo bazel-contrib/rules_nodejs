@@ -1,15 +1,5 @@
 load("@npm//@bazel/jasmine:index.bzl", "jasmine_node_test")
 
-# Test what happens when we depend on the catch-all "node_modules" rule rather
-# than declare our dependencies on individual npm packages.
-# This is the legacy behavior prior to 0.13, so it also proves backwards-compatibility.
-jasmine_node_test(
-    name = "test",
-    srcs = glob(["*.spec.js"]),
-    data = ["@npm//:bin_files"],
-    node_modules = "@npm//:node_modules",
-)
-
 # Test what happens when only certain NPM packages are in our dependencies.
 # These packages and their dependencies are copied to the execroot, but
 # the rest are not.

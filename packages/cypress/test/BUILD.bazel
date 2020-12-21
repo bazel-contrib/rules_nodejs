@@ -5,10 +5,10 @@ ts_library(
     name = "plugins_file",
     testonly = True,
     srcs = ["plugin.ts"],
-    node_modules = "@cypress_deps//:node_modules",
     tags = ["cypress"],
     tsconfig = ":tsconfig.json",
     deps = [
+        "@cypress_deps//:node_modules",
         "@cypress_deps//@types/node",
         "@cypress_deps//express",
     ],
@@ -18,10 +18,10 @@ ts_library(
     name = "hello_spec",
     testonly = True,
     srcs = ["hello.spec.ts"],
-    node_modules = "@cypress_deps//:node_modules",
     tags = ["cypress"],
     tsconfig = ":tsconfig.json",
     deps = [
+        "@cypress_deps//:node_modules",
         "@cypress_deps//@types",
         "@cypress_deps//cypress",
     ],

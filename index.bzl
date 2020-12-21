@@ -63,21 +63,6 @@ COMMON_REPLACEMENTS = {
     "\"@bazel/([a-zA-Z_-]+)\":\\s+\"(file|bazel)[^\"]+\"": "\"@bazel/$1\": \"0.0.0-PLACEHOLDER\"",
 }
 
-def node_modules_filegroup(packages, patterns = [], **kwargs):
-    native.filegroup(
-        srcs = native.glob(["/".join([
-            "node_modules",
-            pkg,
-            "**",
-            ext,
-        ]) for pkg in packages for ext in [
-            "*.js",
-            "*.json",
-            "*.d.ts",
-        ]] + patterns),
-        **kwargs
-    )
-
 def npm_install(**kwargs):
     # Just in case the user didn't install nodejs, do it now
     _node_repositories()

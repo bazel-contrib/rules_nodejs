@@ -1,9 +1,7 @@
 {
   "description": "runtime dependencies for program example",
-  "devDependencies": {
-    "jasmine": "~3.4.0",
-    "jasmine-core": "~3.4.0",
-    "v8-coverage": "1.0.9"
+  "dependencies": {
+    "lodash": "4.17.20"
   },
   "scripts": {
     "pretest": "bazel run @nodejs//:yarn_node_repositories",

@@ -92,12 +92,15 @@ def _collect_dep_declarations(ctx, declaration_infos):
     transitive_deps_declarations = [dep.transitive_declarations for dep in declaration_infos]
 
     # all reachable .d.ts files from node_modules attribute (if it has a typescript provider)
+    # "node_modules" still checked for backward compat for ng_module
     if hasattr(ctx.attr, "node_modules"):
         if DeclarationInfo in ctx.attr.node_modules:
             transitive_deps_declarations.append(ctx.attr.node_modules[DeclarationInfo].transitive_declarations)
         elif hasattr(ctx.attr.node_modules, "typescript"):
             # TODO(b/139705078): remove this case after bazel BUILD file generation for node_modules is updated
             transitive_deps_declarations.append([ctx.attr.node_modules.typescript.transitive_declarations])
+    if hasattr(ctx.attr, "_typescript_typings"):
+        transitive_deps_declarations.append(ctx.attr._typescript_typings[DeclarationInfo].transitive_declarations)
 
     # .d.ts files whose types tsickle will not emit (used for ts_declaration(generate_externs=False).
     type_blacklisted_declarations = [dep.type_blacklisted_declarations for dep in declaration_infos]

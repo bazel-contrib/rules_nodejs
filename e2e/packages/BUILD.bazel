@@ -17,9 +17,9 @@ VARIANTS = [
     data = [
         variant + ".spec.js",
         ":test_version",
+        "@e2e_packages_" + variant + "//:node_modules",
     ],
     entry_point = ":%s.spec.js" % variant,
-    node_modules = "@e2e_packages_" + variant + "//:node_modules",
     # On Windows, the yarn and npm variants fight over who creates the link
     # [link_node_modules.js] [Error: EEXIST: file already exists, mkdir 'C:\users\b\_bazel_b\p4se2lwa\execroot\e2e_packages\node_modules'] {
     # errno: -4075,
@@ -35,9 +35,9 @@ nodejs_test(
     data = [
         "npm_determinism.spec.js",
         "@e2e_packages_npm_install//:node_modules/jsesc/package.json",
+        "@e2e_packages_npm_install_duplicate_for_determinism_testing//:node_modules",
     ],
     entry_point = ":npm_determinism.spec.js",
-    node_modules = "@e2e_packages_npm_install_duplicate_for_determinism_testing//:node_modules",
     # TODO(gregmagolan): fix this test on windows
     tags = ["fix-windows"],
     # TODO: use runfiles
@@ -49,9 +49,9 @@ nodejs_test(
     data = [
         "yarn_determinism.spec.js",
         "@e2e_packages_yarn_install//:node_modules/jsesc/package.json",
+        "@e2e_packages_yarn_install_duplicate_for_determinism_testing//:node_modules",
     ],
     entry_point = ":yarn_determinism.spec.js",
-    node_modules = "@e2e_packages_yarn_install_duplicate_for_determinism_testing//:node_modules",
     # TODO(gregmagolan): fix this test on windows
     tags = ["fix-windows"],
     # TODO: use runfiles

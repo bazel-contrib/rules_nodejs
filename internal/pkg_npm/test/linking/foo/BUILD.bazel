@@ -1,6 +1,8 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin", "pkg_npm")
 load("//:index.bzl", "js_library")
 
+# js_library will do a copy_to_bin internally, but we need this broken
+# out copy_to_bin for Windows CI where there is no sandbox or runfiles
 copy_to_bin(
     name = "foo_copy_to_bin",
     srcs = [

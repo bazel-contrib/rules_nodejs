@@ -87,7 +87,8 @@ def create_tsconfig(
         ]]
 
         node_modules_mappings = []
-        if hasattr(ctx.attr, "node_modules"):
+        # "node_modules" still checked for backward compat for ng_module
+        if hasattr(ctx.attr, "_typescript_typings") or hasattr(ctx.attr, "node_modules"):
             node_modules_mappings.append("/".join([p for p in [
                 node_modules_root,
                 "*",
@@ -282,7 +283,8 @@ def create_tsconfig(
         "sourceMap": False,
     }
 
-    if hasattr(ctx.attr, "node_modules"):
+    # "node_modules" still checked for backward compat for ng_module
+    if hasattr(ctx.attr, "_typescript_typings") or hasattr(ctx.attr, "node_modules"):
         compiler_options["typeRoots"] = ["/".join([p for p in [
             workspace_path,
             node_modules_root,

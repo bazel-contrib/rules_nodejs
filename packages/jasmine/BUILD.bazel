@@ -13,7 +13,7 @@
 # limitations under the License.
 
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
-load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin", "js_library", "nodejs_test")
+load("@build_bazel_rules_nodejs//:index.bzl", "js_library", "nodejs_test")
 load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "pkg_npm")
 load("@build_bazel_rules_nodejs//tools/stardoc:index.bzl", "stardoc")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
@@ -52,24 +52,13 @@ nodejs_test(
     ],
 )
 
-copy_to_bin(
-    name = "srcs",
+js_library(
+    name = "jasmine",
+    package_name = "@bazel/jasmine",
     srcs = [
         "index.js",
         "jasmine_runner.js",
     ],
-)
-
-# We need to use ":srcs" here instead of an
-# array for the source files otherwise our
-# logic on js_library will consider this a
-# node_module when used in examples/user_managed_deps
-# which will endup failing as we cannot use node_modules
-# from multiple workspaces.
-js_library(
-    name = "jasmine",
-    package_name = "@bazel/jasmine",
-    srcs = [":srcs"],
 )
 
 # Ugly genrule depending on local linux environment to build the README out of skylark doc generation.

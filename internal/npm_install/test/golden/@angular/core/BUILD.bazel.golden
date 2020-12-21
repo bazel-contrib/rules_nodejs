@@ -680,6 +680,7 @@ filegroup(
 )
 js_library(
     name = "core",
+    external_npm_package = True,
     srcs = [":core__files"],
     deps = [
         "//@angular/core:core__contents",
@@ -690,6 +691,7 @@ js_library(
 )
 js_library(
     name = "core__contents",
+    external_npm_package = True,
     srcs = [":core__files", ":core__nested_node_modules"],
     named_module_srcs = [
         "//:node_modules/@angular/core/bundles/core-testing.umd.js",
@@ -699,6 +701,7 @@ js_library(
 )
 js_library(
     name = "core__typings",
+    external_npm_package = True,
     srcs = [
         "//:node_modules/@angular/core/core.d.ts",
         "//:node_modules/@angular/core/schematics/migrations/missing-injectable/import_manager.d.ts",

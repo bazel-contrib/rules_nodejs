@@ -15,7 +15,7 @@
 """Custom provider that mimics the Runfiles, but doesn't incur the expense of creating the runfiles symlink tree"""
 
 load("//internal/linker:link_node_modules.bzl", "add_arg", "write_node_modules_manifest")
-load("//internal/providers:npm_package_info.bzl", "NpmPackageInfo")
+load("//internal/providers:external_npm_package_info.bzl", "ExternalNpmPackageInfo")
 
 NodeRuntimeDepsInfo = provider(
     doc = """Stores runtime dependencies of a nodejs_binary or nodejs_test
@@ -35,7 +35,7 @@ do the same.
 """,
     fields = {
         "deps": "depset of runtime dependency labels",
-        "pkgs": "list of labels of packages that provide NpmPackageInfo",
+        "pkgs": "list of labels of packages that provide ExternalNpmPackageInfo",
     },
 )
 
@@ -48,8 +48,8 @@ def _compute_node_modules_root(ctx):
     if hasattr(ctx.attr, "deps"):
         deps += ctx.attr.deps
     for d in deps:
-        if NpmPackageInfo in d:
-            possible_root = "/".join([d[NpmPackageInfo].workspace, "node_modules"])
+        if ExternalNpmPackageInfo in d:
+            possible_root = "/".join([d[ExternalNpmPackageInfo].workspace, "node_modules"])
             if not node_modules_root:
                 node_modules_root = possible_root
             elif node_modules_root != possible_root:

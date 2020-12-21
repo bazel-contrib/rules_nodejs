@@ -14,7 +14,7 @@
 
 "Simple development server"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "JSNamedModuleInfo", "NpmPackageInfo", "node_modules_aspect")
+load("@build_bazel_rules_nodejs//:providers.bzl", "ExternalNpmPackageInfo", "JSNamedModuleInfo", "node_modules_aspect")
 load(
     "@build_bazel_rules_nodejs//internal/js_library:js_library.bzl",
     "write_amd_names_shim",
@@ -33,20 +33,20 @@ def _concatjs_devserver(ctx):
     for dep in ctx.attr.deps:
         if JSNamedModuleInfo in dep:
             files_depsets.append(dep[JSNamedModuleInfo].sources)
-        if not JSNamedModuleInfo in dep and not NpmPackageInfo in dep and hasattr(dep, "files"):
+        if not JSNamedModuleInfo in dep and not ExternalNpmPackageInfo in dep and hasattr(dep, "files"):
             # These are javascript files provided by DefaultInfo from a direct
-            # dep that has no JSNamedModuleInfo provider or NpmPackageInfo
+            # dep that has no JSNamedModuleInfo provider or ExternalNpmPackageInfo
             # provider (not an npm dep). These files must be in named AMD or named
             # UMD format.
             files_depsets.append(dep.files)
     files = depset(transitive = files_depsets)
 
     # Also include files from npm fine grained deps as inputs.
-    # These deps are identified by the NpmPackageInfo provider.
+    # These deps are identified by the ExternalNpmPackageInfo provider.
     node_modules_depsets = []
     for dep in ctx.attr.deps:
-        if NpmPackageInfo in dep:
-            node_modules_depsets.append(dep[NpmPackageInfo].sources)
+        if ExternalNpmPackageInfo in dep:
+            node_modules_depsets.append(dep[ExternalNpmPackageInfo].sources)
     node_modules = depset(transitive = node_modules_depsets)
 
     workspace_name = ctx.label.workspace_name if ctx.label.workspace_name else ctx.workspace_name

@@ -2,24 +2,11 @@ load("//packages/jasmine:index.bzl", "jasmine_node_test")
 load("//packages/typescript:index.bzl", "ts_library")
 
 ts_library(
-    name = "tsconfig_types",
-    srcs = ["tsconfig_types.ts"],
-    expected_diagnostics = [
-        "TS2304: Cannot find name 'Hammer'",
-    ],
-    # Use a filegroup to simulate user-managed node modules
-    # This exercises logic in build_defs.bzl that must preserve
-    # the types[] in tsconfig.json so that jasmine is found.
-    node_modules = "@npm//:node_modules_filegroup",
-    tsconfig = ":tsconfig.json",
-)
-
-ts_library(
     name = "test_lib",
     testonly = True,
     srcs = glob(["*.spec.ts"]),
-    node_modules = "@npm//:node_modules",
     tsconfig = ":tsconfig.json",
+    deps = ["@npm//:node_modules"],
 )
 
 jasmine_node_test(

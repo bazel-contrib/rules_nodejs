@@ -57,13 +57,6 @@ bzl_library(
     ],
 )
 
-# Empty node_modules filegroup used for the default
-# value of the node_modules attribute in nodejs_binary
-filegroup(
-    name = "node_modules_none",
-    srcs = [],
-)
-
 # BEGIN-INTERNAL
 codeowners(
     pattern = "*",

@@ -1,14 +1,13 @@
+const _ = require('lodash');
 const {increment} = require('./index');
 const {decrement} = require('./decrement');
 
-describe('incrementing', () => {
-  it('should do that', () => {
-    expect(increment(1)).toBe(2);
-  });
-});
+if (!_.eq(increment(1), 2)) {
+  console.error('increment test failed');
+  process.exitCode = 1;
+}
 
-describe('decrementing', () => {
-  it('should do that', () => {
-    expect(decrement(1)).toBe(0);
-  });
-});
+if (!_.eq(decrement(1), 0)) {
+  console.error('decrement test failed');
+  process.exitCode = 1;
+}
