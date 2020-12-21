@@ -26,6 +26,7 @@ filegroup(
 )
 js_library(
     name = "test-b",
+    external_npm_package = True,
     srcs = [":test-b__files"],
     deps = [
         "//@gregmagolan/test-b:test-b__contents",
@@ -33,11 +34,13 @@ js_library(
 )
 js_library(
     name = "test-b__contents",
+    external_npm_package = True,
     srcs = [":test-b__files", ":test-b__nested_node_modules"],
     visibility = ["//:__subpackages__"],
 )
 js_library(
     name = "test-b__typings",
+    external_npm_package = True,
 )
 load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
 npm_umd_bundle(

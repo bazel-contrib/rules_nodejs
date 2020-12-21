@@ -1,16 +1,9 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin")
 load("//:index.bzl", "js_library")
 
 package(default_visibility = ["//internal/linker/test:__subpackages__"])
 
-# Copy index.js to the output folder so we can link this as a "bin" module mapping
-copy_to_bin(
-    name = "index",
-    srcs = ["index.js"],
-)
-
 js_library(
     name = "static_linked_pkg",
     package_name = "static_linked",
-    srcs = [":index"],
+    srcs = ["index.js"],
 )

@@ -23,6 +23,11 @@ load(
     _declaration_info = "declaration_info",
 )
 load(
+    "//internal/providers:external_npm_package_info.bzl",
+    _ExternalNpmPackageInfo = "ExternalNpmPackageInfo",
+    _node_modules_aspect = "node_modules_aspect",
+)
+load(
     "//internal/providers:js_providers.bzl",
     _JSEcmaScriptModuleInfo = "JSEcmaScriptModuleInfo",
     _JSModuleInfo = "JSModuleInfo",
@@ -40,11 +45,6 @@ load(
     _NodeRuntimeDepsInfo = "NodeRuntimeDepsInfo",
     _run_node = "run_node",
 )
-load(
-    "//internal/providers:npm_package_info.bzl",
-    _NpmPackageInfo = "NpmPackageInfo",
-    _node_modules_aspect = "node_modules_aspect",
-)
 
 DeclarationInfo = _DeclarationInfo
 declaration_info = _declaration_info
@@ -54,7 +54,11 @@ JSNamedModuleInfo = _JSNamedModuleInfo
 js_named_module_info = _js_named_module_info
 JSEcmaScriptModuleInfo = _JSEcmaScriptModuleInfo
 js_ecma_script_module_info = _js_ecma_script_module_info
-NpmPackageInfo = _NpmPackageInfo
+ExternalNpmPackageInfo = _ExternalNpmPackageInfo
+
+# Export NpmPackageInfo for pre-3.0 legacy support in downstream rule sets
+# such as rules_docker
+NpmPackageInfo = _ExternalNpmPackageInfo
 node_modules_aspect = _node_modules_aspect
 LinkablePackageInfo = _LinkablePackageInfo
 

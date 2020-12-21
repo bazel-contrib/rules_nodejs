@@ -15,14 +15,14 @@ nodejs_binary(
     entry_point = ":no-deps.js",
 )
 
-# You can have a nodejs_binary with a node_modules attribute
-# and no fine grained deps, but it requires patching the module resolver
+# You can have a nodejs_binary with a //:node_modules in deps
 nodejs_binary(
     name = "has_deps_legacy",
-    data = ["has-deps.js"],
+    data = [
+        "has-deps.js",
+        "@fine_grained_deps_yarn//:node_modules",
+    ],
     entry_point = ":has-deps.js",
-    node_modules = "@fine_grained_deps_yarn//:node_modules",
-    templated_args = ["--bazel_patch_module_resolver"],
 )
 
 # You can have a nodejs_binary with no node_modules attribute
@@ -36,16 +36,16 @@ nodejs_binary(
     entry_point = ":has-deps.js",
 )
 
-# You can have a nodejs_binary with both a node_modules attribute
+# You can have a nodejs_binary with both a //:node_modules and
 # and fine grained deps so long as they come from the same root
 nodejs_binary(
     name = "has_deps_hybrid",
     data = [
         "has-deps.js",
+        "@fine_grained_deps_yarn//:node_modules",
         "@fine_grained_deps_yarn//typescript",
     ],
     entry_point = ":has-deps.js",
-    node_modules = "@fine_grained_deps_yarn//:node_modules",
 )
 
 filegroup(

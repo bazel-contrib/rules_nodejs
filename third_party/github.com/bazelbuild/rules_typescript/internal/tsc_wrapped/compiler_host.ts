@@ -408,11 +408,13 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
       let resolved: ts.ResolvedTypeReferenceDirective | undefined;
 
       // primary search
-      this.options.typeRoots.forEach(typeRoot => {
-        if (!resolved) {
-          resolved = this.resolveTypingFromDirectory(path.posix.join(typeRoot, name), true);
-        }
-      });
+      if (this.options.typeRoots) {
+        this.options.typeRoots.forEach(typeRoot => {
+          if (!resolved) {
+            resolved = this.resolveTypingFromDirectory(path.posix.join(typeRoot, name), true);
+          }
+        });
+      }
 
       // secondary search
       if (!resolved) {

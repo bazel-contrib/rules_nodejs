@@ -100,7 +100,8 @@ ${exportsStarlark}])
 # there are many files in target.
 # See https://github.com/bazelbuild/bazel/issues/5153.
 js_library(
-    name = "node_modules",${pkgFilesStarlark}${depsStarlark}
+    name = "node_modules",
+    external_npm_package = True,${pkgFilesStarlark}${depsStarlark}
 )
 
 `;
@@ -568,6 +569,7 @@ filegroup(
 # The primary target for this package for use in rule deps
 js_library(
     name = "${pkg._name}",
+    external_npm_package = True,
     # direct sources listed for strict deps support
     srcs = [":${pkg._name}__files"],
     # nested node_modules for this package plus flattened list of direct and transitive dependencies
@@ -580,13 +582,15 @@ js_library(
 # Target is used as dep for main targets to prevent circular dependencies errors
 js_library(
     name = "${pkg._name}__contents",
+    external_npm_package = True,
     srcs = [":${pkg._name}__files", ":${pkg._name}__nested_node_modules"],${namedSourcesStarlark}
     visibility = ["//:__subpackages__"],
 )
 
 # Typings files that are part of the npm package not including nested node_modules
 js_library(
-    name = "${pkg._name}__typings",${dtsStarlark}
+    name = "${pkg._name}__typings",
+    external_npm_package = True,${dtsStarlark}
 )
 
 `;
@@ -735,7 +739,8 @@ function printScope(scope, pkgs) {
 
 # Generated target for npm scope ${scope}
 js_library(
-    name = "${scope}",${pkgFilesStarlark}${depsStarlark}
+    name = "${scope}",
+    external_npm_package = True,${pkgFilesStarlark}${depsStarlark}
 )
 
 `;

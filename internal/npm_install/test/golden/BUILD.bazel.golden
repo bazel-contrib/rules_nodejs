@@ -4726,6 +4726,7 @@ exports_files([
 ])
 js_library(
     name = "node_modules",
+    external_npm_package = True,
     srcs = [
         "//ajv:ajv__files",
         "//ajv:ajv__nested_node_modules",

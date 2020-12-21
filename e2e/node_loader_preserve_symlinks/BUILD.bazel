@@ -6,9 +6,7 @@ nodejs_test(
     name = "test",
     data = [
         "node_loader_test.spec.js",
+        "@npm//:node_modules",
     ],
     entry_point = ":node_loader_test.spec.js",
-    node_modules = "@npm//:node_modules",
-    # legacy "node_modules" attribute means linker didn't see deps
-    templated_args = ["--bazel_patch_module_resolver"],
 )

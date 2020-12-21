@@ -97,14 +97,13 @@ sh_test(
 
 # Test what happens when we depend on the catch-all "node_modules" target rather
 # than declare our dependencies on individual npm packages.
-# This is the legacy behavior prior to 0.13, so it also proves backwards-compatibility.
 [jasmine_node_test(
     name = "test_%s" % pkgmgr,
     srcs = [
         "coarse.spec.js",
         "common.spec.js",
+        "@fine_grained_deps_%s//:node_modules" % pkgmgr,
     ],
-    node_modules = "@fine_grained_deps_%s//:node_modules" % pkgmgr,
     tags = ["no-local-jasmine-deps"],
     # TODO: get this test running with just linker: failing under --config=no-runfiles
     templated_args = ["--bazel_patch_module_resolver"],

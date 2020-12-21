@@ -15,10 +15,6 @@ bzl_library(
     visibility = ["//visibility:public"],
 )
 
-filegroup(
-    name = "node_modules_none",
-)
-
 nodejs_binary(
     name = "assembler",
     data = [
@@ -26,7 +22,6 @@ nodejs_binary(
         "//third_party/github.com/gjtorikian/isBinaryFile",
     ],
     entry_point = ":assembler.js",
-    node_modules = ":node_modules_none",
     # TODO: figure out why isbinaryfile isn't resolved properly
     templated_args = ["--bazel_patch_module_resolver"],
 )

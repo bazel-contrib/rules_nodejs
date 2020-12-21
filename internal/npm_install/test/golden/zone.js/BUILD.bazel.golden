@@ -150,6 +150,7 @@ filegroup(
 )
 js_library(
     name = "zone.js",
+    external_npm_package = True,
     srcs = [":zone.js__files"],
     deps = [
         "//zone.js:zone.js__contents",
@@ -157,11 +158,13 @@ js_library(
 )
 js_library(
     name = "zone.js__contents",
+    external_npm_package = True,
     srcs = [":zone.js__files", ":zone.js__nested_node_modules"],
     visibility = ["//:__subpackages__"],
 )
 js_library(
     name = "zone.js__typings",
+    external_npm_package = True,
     srcs = [
         "//:node_modules/zone.js/dist/zone.js.d.ts",
     ],

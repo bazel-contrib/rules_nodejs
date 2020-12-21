@@ -1,6 +1,6 @@
 "A generic rule to run a tool that appears in node_modules/.bin"
 
-load("//:providers.bzl", "DeclarationInfo", "JSModuleInfo", "NpmPackageInfo", "node_modules_aspect", "run_node")
+load("//:providers.bzl", "DeclarationInfo", "ExternalNpmPackageInfo", "JSModuleInfo", "node_modules_aspect", "run_node")
 load("//internal/common:expand_variables.bzl", "expand_variables")
 load("//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 
@@ -32,11 +32,11 @@ def _expand_locations(ctx, s):
 
 def _inputs(ctx):
     # Also include files from npm fine grained deps as inputs.
-    # These deps are identified by the NpmPackageInfo provider.
+    # These deps are identified by the ExternalNpmPackageInfo provider.
     inputs_depsets = []
     for d in ctx.attr.data:
-        if NpmPackageInfo in d:
-            inputs_depsets.append(d[NpmPackageInfo].sources)
+        if ExternalNpmPackageInfo in d:
+            inputs_depsets.append(d[ExternalNpmPackageInfo].sources)
         if JSModuleInfo in d:
             inputs_depsets.append(d[JSModuleInfo].sources)
         if DeclarationInfo in d:

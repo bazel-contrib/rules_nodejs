@@ -17,10 +17,10 @@
 load(
     "//:providers.bzl",
     "DeclarationInfo",
+    "ExternalNpmPackageInfo",
     "JSModuleInfo",
     "JSNamedModuleInfo",
     "LinkablePackageInfo",
-    "NpmPackageInfo",
     "declaration_info",
     "js_module_info",
     "js_named_module_info",
@@ -37,6 +37,42 @@ _ATTRS = {
         See documentation on AmdNamesInfo""",
     ),
     "deps": attr.label_list(),
+    "external_npm_package": attr.bool(
+        doc = """Indictates that this js_library target is one or more external npm packages in node_modules.
+        This is used by the yarn_install & npm_install repository rules for npm dependencies installed by
+        yarn & npm. When true, js_library will provide ExternalNpmPackageInfo.
+        
+        It can also be used for user-managed npm dependencies if node_modules is layed out outside of bazel.
+        For example,
+
+        js_library(
+            name = "node_modules",
+            srcs = glob(
+                include = [
+                    "node_modules/**/*.js",
+                    "node_modules/**/*.d.ts",
+                    "node_modules/**/*.json",
+                    "node_modules/.bin/*",
+                ],
+                exclude = [
+                    # Files under test & docs may contain file names that
+                    # are not legal Bazel labels (e.g.,
+                    # node_modules/ecstatic/test/public/中文/檔案.html)
+                    "node_modules/**/test/**",
+                    "node_modules/**/docs/**",
+                    # Files with spaces in the name are not legal Bazel labels
+                    "node_modules/**/* */**",
+                    "node_modules/**/* *",
+                ],
+            ),
+            # Provide ExternalNpmPackageInfo which is used by downstream rules
+            # that use these npm dependencies
+            external_npm_package = True,
+        )
+
+        See `examples/user_managed_deps` for a working example of user-managed npm dependencies.""",
+        default = False,
+    ),
     "is_windows": attr.bool(
         doc = "Internal use only. Automatically set by macro",
         mandatory = True,
@@ -91,7 +127,6 @@ def _impl(ctx):
     typings = []
     js_files = []
     named_module_files = []
-    include_npm_package_info = False
 
     for idx, f in enumerate(input_files):
         file = f
@@ -127,18 +162,6 @@ def _impl(ctx):
         ):
             typings.append(file)
 
-        # auto detect if it entirely an npm package
-        #
-        # NOTE: it probably can be removed once we support node_modules from more than
-        # a single workspace
-        if file.is_source and file.path.startswith("external/"):
-            # We cannot always expose the NpmPackageInfo as the linker
-            # only allow us to reference node modules from a single workspace at a time.
-            # Here we are automatically decide if we should or not including that provider
-            # by running through the sources and check if we have a src coming from an external
-            # workspace which indicates we should include the provider.
-            include_npm_package_info = True
-
         # ctx.files.named_module_srcs are merged after ctx.files.srcs
         if idx >= len(ctx.files.srcs):
             named_module_files.append(file)
@@ -159,8 +182,8 @@ def _impl(ctx):
     js_files_depsets = [js_files_depset]
 
     for dep in ctx.attr.deps:
-        if NpmPackageInfo in dep:
-            npm_sources_depsets.append(dep[NpmPackageInfo].sources)
+        if ExternalNpmPackageInfo in dep:
+            npm_sources_depsets.append(dep[ExternalNpmPackageInfo].sources)
         else:
             if JSModuleInfo in dep:
                 js_files_depsets.append(dep[JSModuleInfo].direct_sources)
@@ -201,9 +224,9 @@ def _impl(ctx):
             files = depset(transitive = direct_sources_depsets),
         ))
 
-    if include_npm_package_info:
+    if ctx.attr.external_npm_package:
         workspace_name = ctx.label.workspace_name if ctx.label.workspace_name else ctx.workspace_name
-        providers.append(NpmPackageInfo(
+        providers.append(ExternalNpmPackageInfo(
             direct_sources = depset(transitive = direct_sources_depsets),
             sources = depset(transitive = npm_sources_depsets),
             workspace = workspace_name,
@@ -296,7 +319,7 @@ def js_library(
     [LinkablePackageInfo](#linkablepackageinfo) for use with our "linker" that makes this package importable.
 
     It also provides:
-    - [NpmPackageInfo](#npmpackageinfo) to interop with rules that expect third-party npm packages.
+    - [ExternalNpmPackageInfo](#externalnpmpackageinfo) to interop with rules that expect third-party npm packages.
     - [JsModuleInfo](#jsmoduleinfo) so rules like bundlers can collect the transitive set of .js files
     - [JsNamedModuleInfo](#jsnamedmoduleinfo) for rules that expect named AMD or `goog.module` format JS
 
