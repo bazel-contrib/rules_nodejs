@@ -1,3 +1,93 @@
+# [3.0.0](https://github.com/bazelbuild/rules_nodejs/compare/3.0.0-rc.1...3.0.0) (2020-12-22)
+
+
+### Bug Fixes
+
+* **builtin:** only pass kwargs to the test, not the .update binary ([#2361](https://github.com/bazelbuild/rules_nodejs/issues/2361)) ([afa095b](https://github.com/bazelbuild/rules_nodejs/commit/afa095b))
+
+
+### Code Refactoring
+
+* **builtin:** remove node_modules attribute from nodejs_binary, nodejs_test & ts_library ([c2927af](https://github.com/bazelbuild/rules_nodejs/commit/c2927af))
+
+
+### BREAKING CHANGES
+
+* **builtin:** We removed the node_modules attribute from `nodejs_binary`, `nodejs_test`, `jasmine_node_test` & `ts_library`.
+
+If you are using the `node_modules` attribute, you can simply add the target specified there to the `data` or `deps` attribute of the rule instead.
+
+For example,
+
+```
+nodejs_test(
+    name = "test",
+    data = [
+        "test.js",
+        "@npm//:node_modules",
+    ],
+    entry_point = "test.js",
+)
+```
+
+or
+
+```
+ts_library(
+    name = "lib",
+    srcs = glob(["*.ts"]),
+    tsconfig = ":tsconfig.json",
+    deps = ["@npm//:node_modules"],
+)
+```
+
+We also dropped support for filegroup based node_modules target and removed `node_modules_filegroup` from `index.bzl`.
+
+If you are using this feature for user-managed deps, you must now a `js_library` target
+with `external_npm_package` set to `True` instead.
+
+For example,
+
+```
+js_library(
+    name = "node_modules",
+    srcs = glob(
+        include = [
+            "node_modules/**/*.js",
+            "node_modules/**/*.d.ts",
+            "node_modules/**/*.json",
+            "node_modules/.bin/*",
+        ],
+        exclude = [
+            # Files under test & docs may contain file names that
+            # are not legal Bazel labels (e.g.,
+            # node_modules/ecstatic/test/public/中文/檔案.html)
+            "node_modules/**/test/**",
+            "node_modules/**/docs/**",
+            # Files with spaces in the name are not legal Bazel labels
+            "node_modules/**/* */**",
+            "node_modules/**/* *",
+        ],
+    ),
+    # Provide ExternalNpmPackageInfo which is used by downstream rules
+    # that use these npm dependencies
+    external_npm_package = True,
+)
+
+nodejs_test(
+    name = "test",
+    data = [
+        "test.js",
+        ":node_modules",
+    ],
+    entry_point = "test.js",
+)
+```
+
+See `examples/user_managed_deps` for a working example of user-managed npm dependencies.
+
+
+
 # [3.0.0-rc.1](https://github.com/bazelbuild/rules_nodejs/compare/3.0.0-rc.0...3.0.0-rc.1) (2020-12-18)
 
 
