@@ -77,7 +77,14 @@
   </a>
 
   <nav class="sidebar collapse" id="sidebar-nav">
+    <select onchange="location.href=this.value">
+      <option selected disabled hidden>Version: 3.0</option>
+      <option value="/rules_nodejs/Concatjs.html">3.0</option>
+      <option value="https://docs.aspect.dev/rules_nodejs/Concatjs.html">2.3</option>
+    </select>
+
     <h3>rules_nodejs</h3>
+
     <ul class="sidebar-nav">
       <li><a href="/rules_nodejs/">Introduction</a></li>
       <li><a href="install.html">Installation</a></li>
@@ -284,17 +291,17 @@ if you use the web testing rules in <code class="language-plaintext highlighter-
 <span class="p">)</span>
 </code></pre></div></div>
 
-<h2 id="installing-with-self-managed-dependencies">Installing with self-managed dependencies</h2>
+<h2 id="installing-with-user-managed-dependencies">Installing with user-managed dependencies</h2>
 
 <p>If you didn’t use the <code class="language-plaintext highlighter-rouge">yarn_install</code> or <code class="language-plaintext highlighter-rouge">npm_install</code> rule to create an <code class="language-plaintext highlighter-rouge">npm</code> workspace, you’ll have to declare a rule in your root <code class="language-plaintext highlighter-rouge">BUILD.bazel</code> file to execute karma:</p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Create a karma rule to use in karma_web_test_suite karma
-# attribute when using self-managed dependencies
+# attribute when using user-managed dependencies
 </span><span class="n">nodejs_binary</span><span class="p">(</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s">"karma/karma"</span><span class="p">,</span>
     <span class="n">entry_point</span> <span class="o">=</span> <span class="s">"//:node_modules/karma/bin/karma"</span><span class="p">,</span>
     <span class="c1"># Point bazel to your node_modules to find the entry point
-</span>    <span class="n">node_modules</span> <span class="o">=</span> <span class="p">[</span><span class="s">"//:node_modules"</span><span class="p">],</span>
+</span>    <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="s">"//:node_modules"</span><span class="p">],</span>
 <span class="p">)</span>
 </code></pre></div></div>
 
@@ -567,7 +574,7 @@ karma_web_test target.</p>
 <li class="toc-entry toc-h2"><a href="#compatibility">Compatibility</a></li>
 <li class="toc-entry toc-h2"><a href="#serving-js-in-development-mode-under-bazel">Serving JS in development mode under Bazel</a></li>
 <li class="toc-entry toc-h2"><a href="#testing-with-karma">Testing with Karma</a></li>
-<li class="toc-entry toc-h2"><a href="#installing-with-self-managed-dependencies">Installing with self-managed dependencies</a></li>
+<li class="toc-entry toc-h2"><a href="#installing-with-user-managed-dependencies">Installing with user-managed dependencies</a></li>
 <li class="toc-entry toc-h2"><a href="#concatjs_devserver">concatjs_devserver</a></li>
 <li class="toc-entry toc-h2"><a href="#karma_web_test">karma_web_test</a></li>
 <li class="toc-entry toc-h2"><a href="#karma_web_test_suite">karma_web_test_suite</a></li>

@@ -134,21 +134,20 @@ browser_repositories(
 ```
 
 
-## Installing with self-managed dependencies
+## Installing with user-managed dependencies
 
 If you didn't use the `yarn_install` or `npm_install` rule to create an `npm` workspace, you'll have to declare a rule in your root `BUILD.bazel` file to execute karma:
 
 ```python
 # Create a karma rule to use in karma_web_test_suite karma
-# attribute when using self-managed dependencies
+# attribute when using user-managed dependencies
 nodejs_binary(
     name = "karma/karma",
     entry_point = "//:node_modules/karma/bin/karma",
     # Point bazel to your node_modules to find the entry point
-    node_modules = ["//:node_modules"],
+    data = ["//:node_modules"],
 )
 ```
-
 
 
 ## concatjs_devserver

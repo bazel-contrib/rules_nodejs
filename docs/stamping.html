@@ -77,7 +77,14 @@
   </a>
 
   <nav class="sidebar collapse" id="sidebar-nav">
+    <select onchange="location.href=this.value">
+      <option selected disabled hidden>Version: 3.0</option>
+      <option value="/rules_nodejs/stamping.html">3.0</option>
+      <option value="https://docs.aspect.dev/rules_nodejs/stamping.html">2.3</option>
+    </select>
+
     <h3>rules_nodejs</h3>
+
     <ul class="sidebar-nav">
       <li><a href="/rules_nodejs/">Introduction</a></li>
       <li><a href="install.html">Installation</a></li>

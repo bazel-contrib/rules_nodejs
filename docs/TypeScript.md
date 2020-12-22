@@ -82,7 +82,7 @@ alias(
 Make sure to remove the `--noEmit` compiler option from your `tsconfig.json`. This is not compatible with the `ts_library` rule.
 
 
-## Self-managed npm dependencies
+## User-managed npm dependencies
 
 We recommend you use Bazel managed dependencies, but if you would like
 Bazel to also install a `node_modules` in your workspace you can also
@@ -103,7 +103,7 @@ To use your workspace `node_modules` folder as a dependency in `ts_library` and
 other rules, add the following to your root `BUILD.bazel` file:
 
 ```python
-filegroup(
+js_library(
     name = "node_modules",
     srcs = glob(
         include = [
@@ -123,15 +123,18 @@ filegroup(
           "node_modules/**/* *",
         ],
     ),
+    # Provide ExternalNpmPackageInfo which is used by downstream rules
+    # that use these npm dependencies
+    external_npm_package = True,
 )
 
 # Create a tsc_wrapped compiler rule to use in the ts_library
-# compiler attribute when using self-managed dependencies
+# compiler attribute when using user-managed dependencies
 nodejs_binary(
     name = "@bazel/typescript/tsc_wrapped",
     entry_point = "@npm//:node_modules/@bazel/typescript/internal/tsc_wrapped/tsc_wrapped.js",
     # Point bazel to your node_modules to find the entry point
-    node_modules = "//:node_modules",
+    data = ["//:node_modules"],
 )
 ```
 
@@ -211,19 +214,20 @@ ts_library(
 You can also use the `@npm//@types` target which will include all
 packages in the `@types` scope as dependencies.
 
-If you are using self-managed npm dependencies, you can use the
-`node_modules` attribute in `ts_library` and point it to the
-`//:node_modules` filegroup defined in your root `BUILD.bazel` file.
+If you are using user-managed npm dependencies, you can pass your `//:node_modules`
+target defined in your root `BUILD.bazel` file to the deps of `ts_library`.
 You'll also need to override the `compiler` attribute if you do this
-as the Bazel-managed deps and self-managed cannot be used together
+as the Bazel-managed deps and user-managed cannot be used together
 in the same rule.
 
 ```python
 ts_library(
     name = "my_code",
     srcs = glob(["*.ts"]),
-    deps = ["//path/to/other:library"],
-    node_modules = "//:node_modules",
+    deps = [
+        "//path/to/other:library",
+        "//:node_modules",
+    ],
     compiler = "//:@bazel/typescript/tsc_wrapped",
 )
 ```
@@ -371,9 +375,8 @@ Defaults to `[]`
 <pre>
 ts_library(<a href="#ts_library-name">name</a>, <a href="#ts_library-angular_assets">angular_assets</a>, <a href="#ts_library-compiler">compiler</a>, <a href="#ts_library-data">data</a>, <a href="#ts_library-deps">deps</a>, <a href="#ts_library-devmode_module">devmode_module</a>, <a href="#ts_library-devmode_target">devmode_target</a>,
            <a href="#ts_library-expected_diagnostics">expected_diagnostics</a>, <a href="#ts_library-generate_externs">generate_externs</a>, <a href="#ts_library-internal_testing_type_check_dependencies">internal_testing_type_check_dependencies</a>,
-           <a href="#ts_library-link_workspace_root">link_workspace_root</a>, <a href="#ts_library-module_name">module_name</a>, <a href="#ts_library-module_root">module_root</a>, <a href="#ts_library-node_modules">node_modules</a>, <a href="#ts_library-prodmode_module">prodmode_module</a>,
-           <a href="#ts_library-prodmode_target">prodmode_target</a>, <a href="#ts_library-runtime">runtime</a>, <a href="#ts_library-runtime_deps">runtime_deps</a>, <a href="#ts_library-srcs">srcs</a>, <a href="#ts_library-supports_workers">supports_workers</a>, <a href="#ts_library-tsconfig">tsconfig</a>, <a href="#ts_library-tsickle_typed">tsickle_typed</a>,
-           <a href="#ts_library-use_angular_plugin">use_angular_plugin</a>)
+           <a href="#ts_library-link_workspace_root">link_workspace_root</a>, <a href="#ts_library-module_name">module_name</a>, <a href="#ts_library-module_root">module_root</a>, <a href="#ts_library-prodmode_module">prodmode_module</a>, <a href="#ts_library-prodmode_target">prodmode_target</a>, <a href="#ts_library-runtime">runtime</a>,
+           <a href="#ts_library-runtime_deps">runtime_deps</a>, <a href="#ts_library-srcs">srcs</a>, <a href="#ts_library-supports_workers">supports_workers</a>, <a href="#ts_library-tsconfig">tsconfig</a>, <a href="#ts_library-tsickle_typed">tsickle_typed</a>, <a href="#ts_library-use_angular_plugin">use_angular_plugin</a>)
 </pre>
 
 `ts_library` type-checks and compiles a set of TypeScript sources to JavaScript.
@@ -473,69 +476,6 @@ Defaults to `""`
 (*String*)
 
 Defaults to `""`
-
-<h4 id="ts_library-node_modules">node_modules</h4>
-
-(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): The npm packages which should be available during the compile.
-
-The default value of `//typescript:typescript__typings` is setup
-for projects that use bazel managed npm deps. This default is in place
-since ts_library will always depend on at least the typescript
-default libs which are provided by `//typescript:typescript__typings`.
-
-This attribute is DEPRECATED. As of version 0.18.0 the recommended
-approach to npm dependencies is to use fine grained npm dependencies
-which are setup with the `yarn_install` or `npm_install` rules.
-
-For example, in targets that used a `//:node_modules` filegroup,
-
-```
-ts_library(
-    name = "my_lib",
-    ...
-    node_modules = "//:node_modules",
-)
-```
-
-which specifies all files within the `//:node_modules` filegroup
-to be inputs to the `my_lib`. Using fine grained npm dependencies,
-`my_lib` is defined with only the npm dependencies that are
-needed:
-
-```
-ts_library(
-    name = "my_lib",
-    ...
-    deps = [
-        "@npm//@types/foo",
-        "@npm//@types/bar",
-        "@npm//foo",
-        "@npm//bar",
-        ...
-    ],
-)
-```
-
-In this case, only the listed npm packages and their
-transitive deps are includes as inputs to the `my_lib` target
-which reduces the time required to setup the runfiles for this
-target (see https://github.com/bazelbuild/bazel/issues/5153).
-The default typescript libs are also available via the node_modules
-default in this case.
-
-The @npm external repository and the fine grained npm package
-targets are setup using the `yarn_install` or `npm_install` rule
-in your WORKSPACE file:
-
-```
-yarn_install(
-    name = "npm",
-    package_json = "//:package.json",
-    yarn_lock = "//:yarn.lock",
-)
-```
-
-Defaults to `@npm//typescript:typescript__typings`
 
 <h4 id="ts_library-prodmode_module">prodmode_module</h4>
 

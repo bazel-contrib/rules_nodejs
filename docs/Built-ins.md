@@ -257,7 +257,7 @@ Defaults to `"1.19.1"`
 
 <pre>
 nodejs_binary(<a href="#nodejs_binary-name">name</a>, <a href="#nodejs_binary-configuration_env_vars">configuration_env_vars</a>, <a href="#nodejs_binary-data">data</a>, <a href="#nodejs_binary-default_env_vars">default_env_vars</a>, <a href="#nodejs_binary-entry_point">entry_point</a>,
-              <a href="#nodejs_binary-link_workspace_root">link_workspace_root</a>, <a href="#nodejs_binary-node_modules">node_modules</a>, <a href="#nodejs_binary-templated_args">templated_args</a>)
+              <a href="#nodejs_binary-link_workspace_root">link_workspace_root</a>, <a href="#nodejs_binary-templated_args">templated_args</a>)
 </pre>
 
 Runs some JavaScript code in NodeJS.
@@ -366,74 +366,6 @@ If source files need to be required then they can be copied to the bin_dir with 
 
 Defaults to `False`
 
-<h4 id="nodejs_binary-node_modules">node_modules</h4>
-
-(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): The npm packages which should be available to `require()` during
-        execution.
-
-This attribute is DEPRECATED. As of version 0.13.0 the recommended approach
-to npm dependencies is to use fine grained npm dependencies which are setup
-with the `yarn_install` or `npm_install` rules. For example, in targets
-that used a `//:node_modules` filegroup,
-
-```python
-nodejs_binary(
-    name = "my_binary",
-    ...
-    node_modules = "//:node_modules",
-)
-```
-
-which specifies all files within the `//:node_modules` filegroup
-to be inputs to the `my_binary`. Using fine grained npm dependencies,
-`my_binary` is defined with only the npm dependencies that are
-needed:
-
-```python
-nodejs_binary(
-    name = "my_binary",
-    ...
-    data = [
-        "@npm//foo",
-        "@npm//bar",
-        ...
-    ],
-)
-```
-
-In this case, only the `foo` and `bar` npm packages and their
-transitive deps are includes as inputs to the `my_binary` target
-which reduces the time required to setup the runfiles for this
-target (see https://github.com/bazelbuild/bazel/issues/5153).
-
-The @npm external repository and the fine grained npm package
-targets are setup using the `yarn_install` or `npm_install` rule
-in your WORKSPACE file:
-
-yarn_install(
-    name = "npm",
-    package_json = "//:package.json",
-    yarn_lock = "//:yarn.lock",
-)
-
-For other rules such as `jasmine_node_test`, fine grained
-npm dependencies are specified in the `deps` attribute:
-
-```python
-jasmine_node_test(
-    name = "my_test",
-    ...
-    deps = [
-        "@npm//jasmine",
-        "@npm//foo",
-        "@npm//bar",
-        ...
-    ],
-)
-```
-
-Defaults to `//:node_modules_none`
-
 <h4 id="nodejs_binary-templated_args">templated_args</h4>
 
 (*List of strings*): Arguments which are passed to every execution of the program.
@@ -523,7 +455,7 @@ Defaults to `[]`
 
 <pre>
 nodejs_test(<a href="#nodejs_test-name">name</a>, <a href="#nodejs_test-configuration_env_vars">configuration_env_vars</a>, <a href="#nodejs_test-data">data</a>, <a href="#nodejs_test-default_env_vars">default_env_vars</a>, <a href="#nodejs_test-entry_point">entry_point</a>, <a href="#nodejs_test-expected_exit_code">expected_exit_code</a>,
-            <a href="#nodejs_test-link_workspace_root">link_workspace_root</a>, <a href="#nodejs_test-node_modules">node_modules</a>, <a href="#nodejs_test-templated_args">templated_args</a>)
+            <a href="#nodejs_test-link_workspace_root">link_workspace_root</a>, <a href="#nodejs_test-templated_args">templated_args</a>)
 </pre>
 
 
@@ -666,74 +598,6 @@ Defaults to `0`
 If source files need to be required then they can be copied to the bin_dir with copy_to_bin.
 
 Defaults to `False`
-
-<h4 id="nodejs_test-node_modules">node_modules</h4>
-
-(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): The npm packages which should be available to `require()` during
-        execution.
-
-This attribute is DEPRECATED. As of version 0.13.0 the recommended approach
-to npm dependencies is to use fine grained npm dependencies which are setup
-with the `yarn_install` or `npm_install` rules. For example, in targets
-that used a `//:node_modules` filegroup,
-
-```python
-nodejs_binary(
-    name = "my_binary",
-    ...
-    node_modules = "//:node_modules",
-)
-```
-
-which specifies all files within the `//:node_modules` filegroup
-to be inputs to the `my_binary`. Using fine grained npm dependencies,
-`my_binary` is defined with only the npm dependencies that are
-needed:
-
-```python
-nodejs_binary(
-    name = "my_binary",
-    ...
-    data = [
-        "@npm//foo",
-        "@npm//bar",
-        ...
-    ],
-)
-```
-
-In this case, only the `foo` and `bar` npm packages and their
-transitive deps are includes as inputs to the `my_binary` target
-which reduces the time required to setup the runfiles for this
-target (see https://github.com/bazelbuild/bazel/issues/5153).
-
-The @npm external repository and the fine grained npm package
-targets are setup using the `yarn_install` or `npm_install` rule
-in your WORKSPACE file:
-
-yarn_install(
-    name = "npm",
-    package_json = "//:package.json",
-    yarn_lock = "//:yarn.lock",
-)
-
-For other rules such as `jasmine_node_test`, fine grained
-npm dependencies are specified in the `deps` attribute:
-
-```python
-jasmine_node_test(
-    name = "my_test",
-    ...
-    deps = [
-        "@npm//jasmine",
-        "@npm//foo",
-        "@npm//bar",
-        ...
-    ],
-)
-```
-
-Defaults to `//:node_modules_none`
 
 <h4 id="nodejs_test-templated_args">templated_args</h4>
 
@@ -1509,7 +1373,7 @@ Defaults to `None`
 
 <h4 id="generated_file_test-kwargs">kwargs</h4>
 
-extra arguments passed to the underlying nodejs_test or nodejs_binary
+extra arguments passed to the underlying nodejs_test
 
 
 
@@ -1589,7 +1453,7 @@ In order to work with the linker (similar to `npm link` for first-party monorepo
 [LinkablePackageInfo](#linkablepackageinfo) for use with our "linker" that makes this package importable.
 
 It also provides:
-- [NpmPackageInfo](#npmpackageinfo) to interop with rules that expect third-party npm packages.
+- [ExternalNpmPackageInfo](#externalnpmpackageinfo) to interop with rules that expect third-party npm packages.
 - [JsModuleInfo](#jsmoduleinfo) so rules like bundlers can collect the transitive set of .js files
 - [JsNamedModuleInfo](#jsnamedmoduleinfo) for rules that expect named AMD or `goog.module` format JS
 
@@ -1873,6 +1737,30 @@ This prevents needing an aspect in rules that consume the typings, which improve
 
 
 
+## ExternalNpmPackageInfo
+
+**USAGE**
+
+<pre>
+ExternalNpmPackageInfo(<a href="#ExternalNpmPackageInfo-direct_sources">direct_sources</a>, <a href="#ExternalNpmPackageInfo-sources">sources</a>, <a href="#ExternalNpmPackageInfo-workspace">workspace</a>)
+</pre>
+
+Provides information about one or more external npm packages
+
+**FIELDS**
+
+<h4 id="ExternalNpmPackageInfo-direct_sources">direct_sources</h4>
+
+ Depset of direct source files in these external npm package(s) 
+<h4 id="ExternalNpmPackageInfo-sources">sources</h4>
+
+ Depset of direct & transitive source files in these external npm package(s) and transitive dependencies 
+<h4 id="ExternalNpmPackageInfo-workspace">workspace</h4>
+
+ The workspace name that these external npm package(s) are provided from 
+
+
+
 ## JSEcmaScriptModuleInfo
 
 **USAGE**
@@ -2039,7 +1927,7 @@ do the same.
  depset of runtime dependency labels 
 <h4 id="NodeRuntimeDepsInfo-pkgs">pkgs</h4>
 
- list of labels of packages that provide NpmPackageInfo 
+ list of labels of packages that provide ExternalNpmPackageInfo 
 
 
 
@@ -2051,19 +1939,19 @@ do the same.
 NpmPackageInfo(<a href="#NpmPackageInfo-direct_sources">direct_sources</a>, <a href="#NpmPackageInfo-sources">sources</a>, <a href="#NpmPackageInfo-workspace">workspace</a>)
 </pre>
 
-Provides information about npm dependencies
+Provides information about one or more external npm packages
 
 **FIELDS**
 
 <h4 id="NpmPackageInfo-direct_sources">direct_sources</h4>
 
- Depset of direct source files in this npm package 
+ Depset of direct source files in these external npm package(s) 
 <h4 id="NpmPackageInfo-sources">sources</h4>
 
- Depset of direct & transitive source files in this npm package and in its dependencies 
+ Depset of direct & transitive source files in these external npm package(s) and transitive dependencies 
 <h4 id="NpmPackageInfo-workspace">workspace</h4>
 
- The workspace name that this npm package is provided from 
+ The workspace name that these external npm package(s) are provided from 
 
 
 

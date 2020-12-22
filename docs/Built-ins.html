@@ -77,7 +77,14 @@
   </a>
 
   <nav class="sidebar collapse" id="sidebar-nav">
+    <select onchange="location.href=this.value">
+      <option selected disabled hidden>Version: 3.0</option>
+      <option value="/rules_nodejs/Built-ins.html">3.0</option>
+      <option value="https://docs.aspect.dev/rules_nodejs/Built-ins.html">2.3</option>
+    </select>
+
     <h3>rules_nodejs</h3>
+
     <ul class="sidebar-nav">
       <li><a href="/rules_nodejs/">Introduction</a></li>
       <li><a href="install.html">Installation</a></li>
@@ -394,7 +401,7 @@ Example: {“type”: “basic”, “login”: “<UserName>", "password": "<Pa
 
 <pre>
 nodejs_binary(<a href="#nodejs_binary-name">name</a>, <a href="#nodejs_binary-configuration_env_vars">configuration_env_vars</a>, <a href="#nodejs_binary-data">data</a>, <a href="#nodejs_binary-default_env_vars">default_env_vars</a>, <a href="#nodejs_binary-entry_point">entry_point</a>,
-              <a href="#nodejs_binary-link_workspace_root">link_workspace_root</a>, <a href="#nodejs_binary-node_modules">node_modules</a>, <a href="#nodejs_binary-templated_args">templated_args</a>)
+              <a href="#nodejs_binary-link_workspace_root">link_workspace_root</a>, <a href="#nodejs_binary-templated_args">templated_args</a>)
 </pre>
 
 <p>Runs some JavaScript code in NodeJS.</p>
@@ -498,71 +505,6 @@ If source files need to be required then they can be copied to the bin_dir with 
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">False</code></p>
 
-<h4 id="nodejs_binary-node_modules">node_modules</h4>
-
-<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></em>): The npm packages which should be available to <code class="language-plaintext highlighter-rouge">require()</code> during
-        execution.</p>
-
-<p>This attribute is DEPRECATED. As of version 0.13.0 the recommended approach
-to npm dependencies is to use fine grained npm dependencies which are setup
-with the <code class="language-plaintext highlighter-rouge">yarn_install</code> or <code class="language-plaintext highlighter-rouge">npm_install</code> rules. For example, in targets
-that used a <code class="language-plaintext highlighter-rouge">//:node_modules</code> filegroup,</p>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">nodejs_binary</span><span class="p">(</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="s">"my_binary"</span><span class="p">,</span>
-    <span class="p">...</span>
-    <span class="n">node_modules</span> <span class="o">=</span> <span class="s">"//:node_modules"</span><span class="p">,</span>
-<span class="p">)</span>
-</code></pre></div></div>
-
-<p>which specifies all files within the <code class="language-plaintext highlighter-rouge">//:node_modules</code> filegroup
-to be inputs to the <code class="language-plaintext highlighter-rouge">my_binary</code>. Using fine grained npm dependencies,
-<code class="language-plaintext highlighter-rouge">my_binary</code> is defined with only the npm dependencies that are
-needed:</p>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">nodejs_binary</span><span class="p">(</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="s">"my_binary"</span><span class="p">,</span>
-    <span class="p">...</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s">"@npm//foo"</span><span class="p">,</span>
-        <span class="s">"@npm//bar"</span><span class="p">,</span>
-        <span class="p">...</span>
-    <span class="p">],</span>
-<span class="p">)</span>
-</code></pre></div></div>
-
-<p>In this case, only the <code class="language-plaintext highlighter-rouge">foo</code> and <code class="language-plaintext highlighter-rouge">bar</code> npm packages and their
-transitive deps are includes as inputs to the <code class="language-plaintext highlighter-rouge">my_binary</code> target
-which reduces the time required to setup the runfiles for this
-target (see https://github.com/bazelbuild/bazel/issues/5153).</p>
-
-<p>The @npm external repository and the fine grained npm package
-targets are setup using the <code class="language-plaintext highlighter-rouge">yarn_install</code> or <code class="language-plaintext highlighter-rouge">npm_install</code> rule
-in your WORKSPACE file:</p>
-
-<p>yarn_install(
-    name = “npm”,
-    package_json = “//:package.json”,
-    yarn_lock = “//:yarn.lock”,
-)</p>
-
-<p>For other rules such as <code class="language-plaintext highlighter-rouge">jasmine_node_test</code>, fine grained
-npm dependencies are specified in the <code class="language-plaintext highlighter-rouge">deps</code> attribute:</p>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">jasmine_node_test</span><span class="p">(</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="s">"my_test"</span><span class="p">,</span>
-    <span class="p">...</span>
-    <span class="n">deps</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s">"@npm//jasmine"</span><span class="p">,</span>
-        <span class="s">"@npm//foo"</span><span class="p">,</span>
-        <span class="s">"@npm//bar"</span><span class="p">,</span>
-        <span class="p">...</span>
-    <span class="p">],</span>
-<span class="p">)</span>
-</code></pre></div></div>
-
-<p>Defaults to <code class="language-plaintext highlighter-rouge">//:node_modules_none</code></p>
-
 <h4 id="nodejs_binary-templated_args">templated_args</h4>
 
 <p>(<em>List of strings</em>): Arguments which are passed to every execution of the program.
@@ -651,7 +593,7 @@ See https://docs.bazel.build/versions/master/be/make-variables.html#custom_varia
 
 <pre>
 nodejs_test(<a href="#nodejs_test-name">name</a>, <a href="#nodejs_test-configuration_env_vars">configuration_env_vars</a>, <a href="#nodejs_test-data">data</a>, <a href="#nodejs_test-default_env_vars">default_env_vars</a>, <a href="#nodejs_test-entry_point">entry_point</a>, <a href="#nodejs_test-expected_exit_code">expected_exit_code</a>,
-            <a href="#nodejs_test-link_workspace_root">link_workspace_root</a>, <a href="#nodejs_test-node_modules">node_modules</a>, <a href="#nodejs_test-templated_args">templated_args</a>)
+            <a href="#nodejs_test-link_workspace_root">link_workspace_root</a>, <a href="#nodejs_test-templated_args">templated_args</a>)
 </pre>
 
 <p>Identical to <code class="language-plaintext highlighter-rouge">nodejs_binary</code>, except this can be used with <code class="language-plaintext highlighter-rouge">bazel test</code> as well.
@@ -786,71 +728,6 @@ For example:</p>
 If source files need to be required then they can be copied to the bin_dir with copy_to_bin.</p>
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">False</code></p>
-
-<h4 id="nodejs_test-node_modules">node_modules</h4>
-
-<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></em>): The npm packages which should be available to <code class="language-plaintext highlighter-rouge">require()</code> during
-        execution.</p>
-
-<p>This attribute is DEPRECATED. As of version 0.13.0 the recommended approach
-to npm dependencies is to use fine grained npm dependencies which are setup
-with the <code class="language-plaintext highlighter-rouge">yarn_install</code> or <code class="language-plaintext highlighter-rouge">npm_install</code> rules. For example, in targets
-that used a <code class="language-plaintext highlighter-rouge">//:node_modules</code> filegroup,</p>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">nodejs_binary</span><span class="p">(</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="s">"my_binary"</span><span class="p">,</span>
-    <span class="p">...</span>
-    <span class="n">node_modules</span> <span class="o">=</span> <span class="s">"//:node_modules"</span><span class="p">,</span>
-<span class="p">)</span>
-</code></pre></div></div>
-
-<p>which specifies all files within the <code class="language-plaintext highlighter-rouge">//:node_modules</code> filegroup
-to be inputs to the <code class="language-plaintext highlighter-rouge">my_binary</code>. Using fine grained npm dependencies,
-<code class="language-plaintext highlighter-rouge">my_binary</code> is defined with only the npm dependencies that are
-needed:</p>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">nodejs_binary</span><span class="p">(</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="s">"my_binary"</span><span class="p">,</span>
-    <span class="p">...</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s">"@npm//foo"</span><span class="p">,</span>
-        <span class="s">"@npm//bar"</span><span class="p">,</span>
-        <span class="p">...</span>
-    <span class="p">],</span>
-<span class="p">)</span>
-</code></pre></div></div>
-
-<p>In this case, only the <code class="language-plaintext highlighter-rouge">foo</code> and <code class="language-plaintext highlighter-rouge">bar</code> npm packages and their
-transitive deps are includes as inputs to the <code class="language-plaintext highlighter-rouge">my_binary</code> target
-which reduces the time required to setup the runfiles for this
-target (see https://github.com/bazelbuild/bazel/issues/5153).</p>
-
-<p>The @npm external repository and the fine grained npm package
-targets are setup using the <code class="language-plaintext highlighter-rouge">yarn_install</code> or <code class="language-plaintext highlighter-rouge">npm_install</code> rule
-in your WORKSPACE file:</p>
-
-<p>yarn_install(
-    name = “npm”,
-    package_json = “//:package.json”,
-    yarn_lock = “//:yarn.lock”,
-)</p>
-
-<p>For other rules such as <code class="language-plaintext highlighter-rouge">jasmine_node_test</code>, fine grained
-npm dependencies are specified in the <code class="language-plaintext highlighter-rouge">deps</code> attribute:</p>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">jasmine_node_test</span><span class="p">(</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="s">"my_test"</span><span class="p">,</span>
-    <span class="p">...</span>
-    <span class="n">deps</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s">"@npm//jasmine"</span><span class="p">,</span>
-        <span class="s">"@npm//foo"</span><span class="p">,</span>
-        <span class="s">"@npm//bar"</span><span class="p">,</span>
-        <span class="p">...</span>
-    <span class="p">],</span>
-<span class="p">)</span>
-</code></pre></div></div>
-
-<p>Defaults to <code class="language-plaintext highlighter-rouge">//:node_modules_none</code></p>
 
 <h4 id="nodejs_test-templated_args">templated_args</h4>
 
@@ -1571,7 +1448,7 @@ In this case you can specify what the dbg version of the output should look like
 
 <h4 id="generated_file_test-kwargs">kwargs</h4>
 
-<p>extra arguments passed to the underlying nodejs_test or nodejs_binary</p>
+<p>extra arguments passed to the underlying nodejs_test</p>
 
 <h2 id="js_library">js_library</h2>
 
@@ -1651,7 +1528,7 @@ It will also provide <a href="https://docs.bazel.build/versions/master/skylark/l
 
 <p>It also provides:</p>
 <ul>
-  <li><a href="#npmpackageinfo">NpmPackageInfo</a> to interop with rules that expect third-party npm packages.</li>
+  <li><a href="#externalnpmpackageinfo">ExternalNpmPackageInfo</a> to interop with rules that expect third-party npm packages.</li>
   <li><a href="#jsmoduleinfo">JsModuleInfo</a> so rules like bundlers can collect the transitive set of .js files</li>
   <li><a href="#jsnamedmoduleinfo">JsNamedModuleInfo</a> for rules that expect named AMD or <code class="language-plaintext highlighter-rouge">goog.module</code> format JS</li>
 </ul>
@@ -1912,6 +1789,28 @@ This prevents needing an aspect in rules that consume the typings, which improve
 
 <p>A depset of .d.ts files that we should not use to infer JSCompiler types (via tsickle)</p>
 
+<h2 id="externalnpmpackageinfo">ExternalNpmPackageInfo</h2>
+
+<p><strong>USAGE</strong></p>
+
+<pre>
+ExternalNpmPackageInfo(<a href="#ExternalNpmPackageInfo-direct_sources">direct_sources</a>, <a href="#ExternalNpmPackageInfo-sources">sources</a>, <a href="#ExternalNpmPackageInfo-workspace">workspace</a>)
+</pre>
+
+<p>Provides information about one or more external npm packages</p>
+
+<p><strong>FIELDS</strong></p>
+
+<h4 id="ExternalNpmPackageInfo-direct_sources">direct_sources</h4>
+
+<p>Depset of direct source files in these external npm package(s)</p>
+<h4 id="ExternalNpmPackageInfo-sources">sources</h4>
+
+<p>Depset of direct &amp; transitive source files in these external npm package(s) and transitive dependencies</p>
+<h4 id="ExternalNpmPackageInfo-workspace">workspace</h4>
+
+<p>The workspace name that these external npm package(s) are provided from</p>
+
 <h2 id="jsecmascriptmoduleinfo">JSEcmaScriptModuleInfo</h2>
 
 <p><strong>USAGE</strong></p>
@@ -2066,7 +1965,7 @@ do the same.</p>
 <p>depset of runtime dependency labels</p>
 <h4 id="NodeRuntimeDepsInfo-pkgs">pkgs</h4>
 
-<p>list of labels of packages that provide NpmPackageInfo</p>
+<p>list of labels of packages that provide ExternalNpmPackageInfo</p>
 
 <h2 id="npmpackageinfo">NpmPackageInfo</h2>
 
@@ -2076,19 +1975,19 @@ do the same.</p>
 NpmPackageInfo(<a href="#NpmPackageInfo-direct_sources">direct_sources</a>, <a href="#NpmPackageInfo-sources">sources</a>, <a href="#NpmPackageInfo-workspace">workspace</a>)
 </pre>
 
-<p>Provides information about npm dependencies</p>
+<p>Provides information about one or more external npm packages</p>
 
 <p><strong>FIELDS</strong></p>
 
 <h4 id="NpmPackageInfo-direct_sources">direct_sources</h4>
 
-<p>Depset of direct source files in this npm package</p>
+<p>Depset of direct source files in these external npm package(s)</p>
 <h4 id="NpmPackageInfo-sources">sources</h4>
 
-<p>Depset of direct &amp; transitive source files in this npm package and in its dependencies</p>
+<p>Depset of direct &amp; transitive source files in these external npm package(s) and transitive dependencies</p>
 <h4 id="NpmPackageInfo-workspace">workspace</h4>
 
-<p>The workspace name that this npm package is provided from</p>
+<p>The workspace name that these external npm package(s) are provided from</p>
 
 <h2 id="declaration_info">declaration_info</h2>
 
@@ -2269,6 +2168,7 @@ mandatory: true
 <li class="toc-entry toc-h2"><a href="#npm_package_bin">npm_package_bin</a></li>
 <li class="toc-entry toc-h2"><a href="#params_file">params_file</a></li>
 <li class="toc-entry toc-h2"><a href="#declarationinfo">DeclarationInfo</a></li>
+<li class="toc-entry toc-h2"><a href="#externalnpmpackageinfo">ExternalNpmPackageInfo</a></li>
 <li class="toc-entry toc-h2"><a href="#jsecmascriptmoduleinfo">JSEcmaScriptModuleInfo</a></li>
 <li class="toc-entry toc-h2"><a href="#jsmoduleinfo">JSModuleInfo</a></li>
 <li class="toc-entry toc-h2"><a href="#jsnamedmoduleinfo">JSNamedModuleInfo</a></li>

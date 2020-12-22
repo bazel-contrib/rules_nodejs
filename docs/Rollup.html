@@ -77,7 +77,14 @@
   </a>
 
   <nav class="sidebar collapse" id="sidebar-nav">
+    <select onchange="location.href=this.value">
+      <option selected disabled hidden>Version: 3.0</option>
+      <option value="/rules_nodejs/Rollup.html">3.0</option>
+      <option value="https://docs.aspect.dev/rules_nodejs/Rollup.html">2.3</option>
+    </select>
+
     <h3>rules_nodejs</h3>
+
     <ul class="sidebar-nav">
       <li><a href="/rules_nodejs/">Introduction</a></li>
       <li><a href="install.html">Installation</a></li>
@@ -176,17 +183,17 @@
 
 <p>Add the <code class="language-plaintext highlighter-rouge">@bazel/rollup</code> npm package to your <code class="language-plaintext highlighter-rouge">devDependencies</code> in <code class="language-plaintext highlighter-rouge">package.json</code>.</p>
 
-<h3 id="installing-with-self-managed-dependencies">Installing with self-managed dependencies</h3>
+<h3 id="installing-with-user-managed-dependencies">Installing with user-managed dependencies</h3>
 
 <p>If you didn’t use the <code class="language-plaintext highlighter-rouge">yarn_install</code> or <code class="language-plaintext highlighter-rouge">npm_install</code> rule, you’ll have to declare a rule in your root <code class="language-plaintext highlighter-rouge">BUILD.bazel</code> file to execute rollup:</p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Create a rollup rule to use in rollup_bundle#rollup_bin
-# attribute when using self-managed dependencies
+# attribute when using user-managed dependencies
 </span><span class="n">nodejs_binary</span><span class="p">(</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s">"rollup_bin"</span><span class="p">,</span>
     <span class="n">entry_point</span> <span class="o">=</span> <span class="s">"//:node_modules/rollup/bin/rollup"</span><span class="p">,</span>
     <span class="c1"># Point bazel to your node_modules to find the entry point
-</span>    <span class="n">node_modules</span> <span class="o">=</span> <span class="p">[</span><span class="s">"//:node_modules"</span><span class="p">],</span>
+</span>    <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="s">"//:node_modules"</span><span class="p">],</span>
 <span class="p">)</span>
 </code></pre></div></div>
 
@@ -535,7 +542,7 @@ worker aware binary rather than “rollup_bin”.</p>
         <ul class="section-nav">
 <li class="toc-entry toc-h2"><a href="#installation">Installation</a>
 <ul>
-<li class="toc-entry toc-h3"><a href="#installing-with-self-managed-dependencies">Installing with self-managed dependencies</a></li>
+<li class="toc-entry toc-h3"><a href="#installing-with-user-managed-dependencies">Installing with user-managed dependencies</a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h2"><a href="#usage">Usage</a>

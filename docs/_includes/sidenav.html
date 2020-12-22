@@ -6,7 +6,14 @@
   </a>
 
   <nav class="sidebar collapse" id="sidebar-nav">
+    <select onchange="location.href=this.value">
+      <option selected disabled hidden>Version: 3.0</option>
+      <option value="{{ page.url | relative_url }}">3.0</option>
+      <option value="https://docs.aspect.dev{{ page.url | relative_url }}">2.3</option>
+    </select>
+
     <h3>rules_nodejs</h3>
+
     <ul class="sidebar-nav">
       <li><a href="{{ "/" | relative_url }}">Introduction</a></li>
       <li><a href="install.html">Installation</a></li>

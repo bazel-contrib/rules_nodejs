@@ -20,18 +20,18 @@ The Rollup rules run the [rollup.js](https://rollupjs.org/) bundler with Bazel.
 Add the `@bazel/rollup` npm package to your `devDependencies` in `package.json`.
 
 
-### Installing with self-managed dependencies
+### Installing with user-managed dependencies
 
 If you didn't use the `yarn_install` or `npm_install` rule, you'll have to declare a rule in your root `BUILD.bazel` file to execute rollup:
 
 ```python
 # Create a rollup rule to use in rollup_bundle#rollup_bin
-# attribute when using self-managed dependencies
+# attribute when using user-managed dependencies
 nodejs_binary(
     name = "rollup_bin",
     entry_point = "//:node_modules/rollup/bin/rollup",
     # Point bazel to your node_modules to find the entry point
-    node_modules = ["//:node_modules"],
+    data = ["//:node_modules"],
 )
 ```
 

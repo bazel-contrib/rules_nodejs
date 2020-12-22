@@ -77,7 +77,14 @@
   </a>
 
   <nav class="sidebar collapse" id="sidebar-nav">
+    <select onchange="location.href=this.value">
+      <option selected disabled hidden>Version: 3.0</option>
+      <option value="/rules_nodejs/TypeScript.html">3.0</option>
+      <option value="https://docs.aspect.dev/rules_nodejs/TypeScript.html">2.3</option>
+    </select>
+
     <h3>rules_nodejs</h3>
+
     <ul class="sidebar-nav">
       <li><a href="/rules_nodejs/">Introduction</a></li>
       <li><a href="install.html">Installation</a></li>
@@ -236,7 +243,7 @@ We also produce JS code which can be loaded faster (using named AMD module forma
 
 <p>Make sure to remove the <code class="language-plaintext highlighter-rouge">--noEmit</code> compiler option from your <code class="language-plaintext highlighter-rouge">tsconfig.json</code>. This is not compatible with the <code class="language-plaintext highlighter-rouge">ts_library</code> rule.</p>
 
-<h2 id="self-managed-npm-dependencies">Self-managed npm dependencies</h2>
+<h2 id="user-managed-npm-dependencies">User-managed npm dependencies</h2>
 
 <p>We recommend you use Bazel managed dependencies, but if you would like
 Bazel to also install a <code class="language-plaintext highlighter-rouge">node_modules</code> in your workspace you can also
@@ -254,7 +261,7 @@ your <code class="language-plaintext highlighter-rouge">package.json</code>.</p>
 <p>To use your workspace <code class="language-plaintext highlighter-rouge">node_modules</code> folder as a dependency in <code class="language-plaintext highlighter-rouge">ts_library</code> and
 other rules, add the following to your root <code class="language-plaintext highlighter-rouge">BUILD.bazel</code> file:</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">filegroup</span><span class="p">(</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">js_library</span><span class="p">(</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s">"node_modules"</span><span class="p">,</span>
     <span class="n">srcs</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span>
         <span class="n">include</span> <span class="o">=</span> <span class="p">[</span>
@@ -274,15 +281,18 @@ other rules, add the following to your root <code class="language-plaintext high
           <span class="s">"node_modules/**/* *"</span><span class="p">,</span>
         <span class="p">],</span>
     <span class="p">),</span>
+    <span class="c1"># Provide ExternalNpmPackageInfo which is used by downstream rules
+</span>    <span class="c1"># that use these npm dependencies
+</span>    <span class="n">external_npm_package</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="c1"># Create a tsc_wrapped compiler rule to use in the ts_library
-# compiler attribute when using self-managed dependencies
+# compiler attribute when using user-managed dependencies
 </span><span class="n">nodejs_binary</span><span class="p">(</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s">"@bazel/typescript/tsc_wrapped"</span><span class="p">,</span>
     <span class="n">entry_point</span> <span class="o">=</span> <span class="s">"@npm//:node_modules/@bazel/typescript/internal/tsc_wrapped/tsc_wrapped.js"</span><span class="p">,</span>
     <span class="c1"># Point bazel to your node_modules to find the entry point
-</span>    <span class="n">node_modules</span> <span class="o">=</span> <span class="s">"//:node_modules"</span><span class="p">,</span>
+</span>    <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="s">"//:node_modules"</span><span class="p">],</span>
 <span class="p">)</span>
 </code></pre></div></div>
 
@@ -356,18 +366,19 @@ with fine grained npm dependency targets created by the <code class="language-pl
 <p>You can also use the <code class="language-plaintext highlighter-rouge">@npm//@types</code> target which will include all
 packages in the <code class="language-plaintext highlighter-rouge">@types</code> scope as dependencies.</p>
 
-<p>If you are using self-managed npm dependencies, you can use the
-<code class="language-plaintext highlighter-rouge">node_modules</code> attribute in <code class="language-plaintext highlighter-rouge">ts_library</code> and point it to the
-<code class="language-plaintext highlighter-rouge">//:node_modules</code> filegroup defined in your root <code class="language-plaintext highlighter-rouge">BUILD.bazel</code> file.
+<p>If you are using user-managed npm dependencies, you can pass your <code class="language-plaintext highlighter-rouge">//:node_modules</code>
+target defined in your root <code class="language-plaintext highlighter-rouge">BUILD.bazel</code> file to the deps of <code class="language-plaintext highlighter-rouge">ts_library</code>.
 You’ll also need to override the <code class="language-plaintext highlighter-rouge">compiler</code> attribute if you do this
-as the Bazel-managed deps and self-managed cannot be used together
+as the Bazel-managed deps and user-managed cannot be used together
 in the same rule.</p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ts_library</span><span class="p">(</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s">"my_code"</span><span class="p">,</span>
     <span class="n">srcs</span> <span class="o">=</span> <span class="n">glob</span><span class="p">([</span><span class="s">"*.ts"</span><span class="p">]),</span>
-    <span class="n">deps</span> <span class="o">=</span> <span class="p">[</span><span class="s">"//path/to/other:library"</span><span class="p">],</span>
-    <span class="n">node_modules</span> <span class="o">=</span> <span class="s">"//:node_modules"</span><span class="p">,</span>
+    <span class="n">deps</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s">"//path/to/other:library"</span><span class="p">,</span>
+        <span class="s">"//:node_modules"</span><span class="p">,</span>
+    <span class="p">],</span>
     <span class="n">compiler</span> <span class="o">=</span> <span class="s">"//:@bazel/typescript/tsc_wrapped"</span><span class="p">,</span>
 <span class="p">)</span>
 </code></pre></div></div>
@@ -497,9 +508,8 @@ extended configuration file as well, to pass them both to the TypeScript compile
 <pre>
 ts_library(<a href="#ts_library-name">name</a>, <a href="#ts_library-angular_assets">angular_assets</a>, <a href="#ts_library-compiler">compiler</a>, <a href="#ts_library-data">data</a>, <a href="#ts_library-deps">deps</a>, <a href="#ts_library-devmode_module">devmode_module</a>, <a href="#ts_library-devmode_target">devmode_target</a>,
            <a href="#ts_library-expected_diagnostics">expected_diagnostics</a>, <a href="#ts_library-generate_externs">generate_externs</a>, <a href="#ts_library-internal_testing_type_check_dependencies">internal_testing_type_check_dependencies</a>,
-           <a href="#ts_library-link_workspace_root">link_workspace_root</a>, <a href="#ts_library-module_name">module_name</a>, <a href="#ts_library-module_root">module_root</a>, <a href="#ts_library-node_modules">node_modules</a>, <a href="#ts_library-prodmode_module">prodmode_module</a>,
-           <a href="#ts_library-prodmode_target">prodmode_target</a>, <a href="#ts_library-runtime">runtime</a>, <a href="#ts_library-runtime_deps">runtime_deps</a>, <a href="#ts_library-srcs">srcs</a>, <a href="#ts_library-supports_workers">supports_workers</a>, <a href="#ts_library-tsconfig">tsconfig</a>, <a href="#ts_library-tsickle_typed">tsickle_typed</a>,
-           <a href="#ts_library-use_angular_plugin">use_angular_plugin</a>)
+           <a href="#ts_library-link_workspace_root">link_workspace_root</a>, <a href="#ts_library-module_name">module_name</a>, <a href="#ts_library-module_root">module_root</a>, <a href="#ts_library-prodmode_module">prodmode_module</a>, <a href="#ts_library-prodmode_target">prodmode_target</a>, <a href="#ts_library-runtime">runtime</a>,
+           <a href="#ts_library-runtime_deps">runtime_deps</a>, <a href="#ts_library-srcs">srcs</a>, <a href="#ts_library-supports_workers">supports_workers</a>, <a href="#ts_library-tsconfig">tsconfig</a>, <a href="#ts_library-tsickle_typed">tsickle_typed</a>, <a href="#ts_library-use_angular_plugin">use_angular_plugin</a>)
 </pre>
 
 <p><code class="language-plaintext highlighter-rouge">ts_library</code> type-checks and compiles a set of TypeScript sources to JavaScript.</p>
@@ -596,66 +606,6 @@ install the @bazel/typescript npm package.</p>
 <p>(<em>String</em>)</p>
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">""</code></p>
-
-<h4 id="ts_library-node_modules">node_modules</h4>
-
-<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></em>): The npm packages which should be available during the compile.</p>
-
-<p>The default value of <code class="language-plaintext highlighter-rouge">//typescript:typescript__typings</code> is setup
-for projects that use bazel managed npm deps. This default is in place
-since ts_library will always depend on at least the typescript
-default libs which are provided by <code class="language-plaintext highlighter-rouge">//typescript:typescript__typings</code>.</p>
-
-<p>This attribute is DEPRECATED. As of version 0.18.0 the recommended
-approach to npm dependencies is to use fine grained npm dependencies
-which are setup with the <code class="language-plaintext highlighter-rouge">yarn_install</code> or <code class="language-plaintext highlighter-rouge">npm_install</code> rules.</p>
-
-<p>For example, in targets that used a <code class="language-plaintext highlighter-rouge">//:node_modules</code> filegroup,</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ts_library(
-    name = "my_lib",
-    ...
-    node_modules = "//:node_modules",
-)
-</code></pre></div></div>
-
-<p>which specifies all files within the <code class="language-plaintext highlighter-rouge">//:node_modules</code> filegroup
-to be inputs to the <code class="language-plaintext highlighter-rouge">my_lib</code>. Using fine grained npm dependencies,
-<code class="language-plaintext highlighter-rouge">my_lib</code> is defined with only the npm dependencies that are
-needed:</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ts_library(
-    name = "my_lib",
-    ...
-    deps = [
-        "@npm//@types/foo",
-        "@npm//@types/bar",
-        "@npm//foo",
-        "@npm//bar",
-        ...
-    ],
-)
-</code></pre></div></div>
-
-<p>In this case, only the listed npm packages and their
-transitive deps are includes as inputs to the <code class="language-plaintext highlighter-rouge">my_lib</code> target
-which reduces the time required to setup the runfiles for this
-target (see https://github.com/bazelbuild/bazel/issues/5153).
-The default typescript libs are also available via the node_modules
-default in this case.</p>
-
-<p>The @npm external repository and the fine grained npm package
-targets are setup using the <code class="language-plaintext highlighter-rouge">yarn_install</code> or <code class="language-plaintext highlighter-rouge">npm_install</code> rule
-in your WORKSPACE file:</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>yarn_install(
-    name = "npm",
-    package_json = "//:package.json",
-    yarn_lock = "//:yarn.lock",
-)
-</code></pre></div></div>
-
-<p>Defaults to <code class="language-plaintext highlighter-rouge">@npm//typescript:typescript__typings</code></p>
 
 <h4 id="ts_library-prodmode_module">prodmode_module</h4>
 
@@ -1081,7 +1031,7 @@ If source files need to be required then they can be copied to the bin_dir with 
         <ul class="section-nav">
 <li class="toc-entry toc-h2"><a href="#alternatives">Alternatives</a></li>
 <li class="toc-entry toc-h2"><a href="#installation">Installation</a></li>
-<li class="toc-entry toc-h2"><a href="#self-managed-npm-dependencies">Self-managed npm dependencies</a></li>
+<li class="toc-entry toc-h2"><a href="#user-managed-npm-dependencies">User-managed npm dependencies</a></li>
 <li class="toc-entry toc-h2"><a href="#customizing-the-typescript-compiler-binary">Customizing the TypeScript compiler binary</a></li>
 <li class="toc-entry toc-h2"><a href="#usage">Usage</a>
 <ul>
