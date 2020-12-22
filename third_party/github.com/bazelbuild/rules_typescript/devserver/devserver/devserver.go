@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"path/filepath"
+	"path"
 	"strings"
 	"time"
 
@@ -118,7 +118,7 @@ func CreateFileHandler(servingPath, manifest string, pkgs []string, base string)
 		// search through pkgs for the first index.html file found if any exists
 		for _, pkg := range pkgs {
 			// File path is not cached, so that a user's edits will be reflected.
-			userIndexFile, err := runfiles.Runfile(base, pathReplacer.Replace(filepath.Join(pkg, "index.html")))
+			userIndexFile, err := runfiles.Runfile(base, pathReplacer.Replace(path.Join(pkg, "index.html")))
 
 			// In case the potential user index file couldn't be found in the runfiles,
 			// continue searching within other packages.
@@ -178,7 +178,7 @@ type dirHTTPFileSystem struct {
 
 func (fs dirHTTPFileSystem) Open(name string) (http.File, error) {
 	for _, packageName := range fs.packageDirs {
-		manifestFilePath := filepath.Join(packageName, name)
+		manifestFilePath := path.Join(packageName, name)
 		realFilePath, err := runfiles.Runfile(fs.base, manifestFilePath)
 
 		if err != nil {
@@ -186,7 +186,7 @@ func (fs dirHTTPFileSystem) Open(name string) (http.File, error) {
 			// path does not refer to a directory containing an "index.html" file. This can
 			// happen if Bazel runs without runfile symlinks, where only files can be resolved
 			// from the manifest. In that case we dirty check if there is a "index.html" file.
-			realFilePath, err = runfiles.Runfile(fs.base, filepath.Join(manifestFilePath, "index.html"))
+			realFilePath, err = runfiles.Runfile(fs.base, path.Join(manifestFilePath, "index.html"))
 
 			// Continue searching if the runfile couldn't be found for the requested file.
 			if err != nil {
@@ -205,7 +205,7 @@ func (fs dirHTTPFileSystem) Open(name string) (http.File, error) {
 		// Bazel runs with symlinked runfiles (e.g. on MacOS, linux). In that case, we
 		// just look for a index.html in the directory.
 		if stat.IsDir() {
-			realFilePath, err = runfiles.Runfile(fs.base, filepath.Join(manifestFilePath, "index.html"))
+			realFilePath, err = runfiles.Runfile(fs.base, path.Join(manifestFilePath, "index.html"))
 
 			// In case the index.html file of the requested directory couldn't be found,
 			// we just continue searching.

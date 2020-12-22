@@ -84,15 +84,15 @@ func main() {
 	// Include all user scripts in preScripts. This should always include
 	// the requirejs script which is added to scriptFiles by the devserver
 	// skylark rule.
-	for _, v := range scriptFiles {
-		runfile, err := runfiles.Runfile(*base, v)
+	for _, manifestPath := range scriptFiles {
+		runfile, err := runfiles.Runfile(*base, manifestPath)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Could not find runfile %s, got error %s", v, err)
+			fmt.Fprintf(os.Stderr, "Could not find runfile %s, got error %s", manifestPath, err)
 		}
 
 		js, err := loadScript(runfile)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Failed to read script %s: %v\n", v, err)
+			fmt.Fprintf(os.Stderr, "Failed to read script %s: %v\n", manifestPath, err)
 		} else {
 			preScripts = append(preScripts, js)
 		}
