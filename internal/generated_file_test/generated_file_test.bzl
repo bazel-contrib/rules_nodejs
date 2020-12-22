@@ -16,7 +16,7 @@ def generated_file_test(name, generated, src, substring_search = False, src_dbg 
             anywhere within the generated file. Note that the .update rule is not generated in substring mode.
         src_dbg: if the build uses `--compilation_mode dbg` then some rules will produce different output.
             In this case you can specify what the dbg version of the output should look like
-        **kwargs: extra arguments passed to the underlying nodejs_test or nodejs_binary
+        **kwargs: extra arguments passed to the underlying nodejs_test
     """
     data = [src, generated]
 
@@ -46,5 +46,4 @@ def generated_file_test(name, generated, src, substring_search = False, src_dbg 
             entry_point = "@build_bazel_rules_nodejs//internal/generated_file_test:bundle.js",
             templated_args = ["--out", loc % src, loc % src_dbg, loc % generated],
             data = data,
-            **kwargs
         )
