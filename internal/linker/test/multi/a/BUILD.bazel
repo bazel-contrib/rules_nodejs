@@ -1,0 +1,14 @@
+load("//:index.bzl", "js_library")
+
+js_library(
+    name = "a",
+    package_name = "@alpha/a",
+    srcs = [
+        "a.js",
+        "package.json",
+    ],
+    deps = [
+        "@npm//semver",
+    ],
+    visibility = ["//internal/linker/test/multi:__subpackages__"],
+)

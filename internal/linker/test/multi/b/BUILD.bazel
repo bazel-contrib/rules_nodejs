@@ -1,0 +1,14 @@
+load("//:index.bzl", "js_library")
+
+js_library(
+    name = "b",
+    package_name = "@alpha/b",
+    srcs = [
+        "b.js",
+        "package.json",
+    ],
+    deps = [
+        "@angular_deps//typescript",
+    ],
+    visibility = ["//internal/linker/test/multi:__subpackages__"],
+)

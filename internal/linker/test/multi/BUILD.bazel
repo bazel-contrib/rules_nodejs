@@ -1,0 +1,12 @@
+load("//:index.bzl", "nodejs_binary")
+
+nodejs_binary(
+    name = "bin",
+    entry_point = "prog.js",
+    data = [
+        "prog.js",
+        "//internal/linker/test/multi/a",
+        "//internal/linker/test/multi/b",
+    ],
+    tags = ["--nobazel_patch_module_resolver"],
+)
