@@ -1,5 +1,5 @@
 describe('vendored node', () => {
-  it('version should be 10.12.0', () => {
-    expect(process.version).toBe('v10.12.0');
+  it('version should be 15.0.1', () => {
+    expect(process.version).toBe('v15.0.1');
   });
 });

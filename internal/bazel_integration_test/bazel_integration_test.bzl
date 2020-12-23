@@ -269,6 +269,12 @@ def rules_nodejs_integration_test(name, **kwargs):
     repositories = kwargs.pop("repositories", {})
     repositories["//:release"] = "build_bazel_rules_nodejs"
 
+    # convert the npm packages into the tar output
+    npm_packages = kwargs.pop("npm_packages", {})
+    _tar_npm_packages = {}
+    for key in npm_packages:
+        _tar_npm_packages[key + ".tar"] = npm_packages[key]
+
     bazel_integration_test(
         name = name,
         check_npm_packages = NPM_PACKAGES,
@@ -278,6 +284,7 @@ def rules_nodejs_integration_test(name, **kwargs):
         bazelrc_imports = {
             "//:common.bazelrc": "import %workspace%/../../common.bazelrc",
         },
+        npm_packages = _tar_npm_packages,
         tags = tags,
         **kwargs
     )
