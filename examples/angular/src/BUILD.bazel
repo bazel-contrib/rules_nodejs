@@ -311,4 +311,5 @@ nodejs_binary(
         ":universal_server_lib",
     ],
     entry_point = ":server.ts",
+    templated_args = ["--bazel_patch_module_resolver"],
 )
