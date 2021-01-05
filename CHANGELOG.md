@@ -1,5 +1,6 @@
 # [3.0.0](https://github.com/bazelbuild/rules_nodejs/compare/3.0.0-rc.1...3.0.0) (2020-12-22)
 
+> ### For a full list for the breaking changes in 3.0.0 and other notes on migrating, see the [Migrating to 3.0.0 wiki](https://github.com/bazelbuild/rules_nodejs/wiki#migrating-to-30) page.
 
 ### Bug Fixes
 
