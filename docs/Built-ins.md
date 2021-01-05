@@ -1454,8 +1454,8 @@ In order to work with the linker (similar to `npm link` for first-party monorepo
 
 It also provides:
 - [ExternalNpmPackageInfo](#externalnpmpackageinfo) to interop with rules that expect third-party npm packages.
-- [JsModuleInfo](#jsmoduleinfo) so rules like bundlers can collect the transitive set of .js files
-- [JsNamedModuleInfo](#jsnamedmoduleinfo) for rules that expect named AMD or `goog.module` format JS
+- [JSModuleInfo](#jsmoduleinfo) so rules like bundlers can collect the transitive set of .js files
+- [JSNamedModuleInfo](#jsnamedmoduleinfo) for rules that expect named AMD or `goog.module` format JS
 
 [OutputGroupInfo]: https://docs.bazel.build/versions/master/skylark/lib/OutputGroupInfo.html
 [DefaultInfo]: https://docs.bazel.build/versions/master/skylark/lib/DefaultInfo.html
