@@ -60,7 +60,6 @@ webpack(
     outs = ["app.bundle.js"],
     args = [
         "$(locations :app_js)",
-        #"--entry=./bazel-out/k8-fastbuild/bin/index.js",
         "--mode=development",
         "--stats",
         "--config",
