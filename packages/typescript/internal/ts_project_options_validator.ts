@@ -65,6 +65,7 @@ function main([tsconfigPath, output, target, attrsStr]: string[]): 0|1 {
   }
 
   check('allowJs', 'allow_js');
+  check('resolveJsonModule', 'resolve_json_module');
   check('declarationMap', 'declaration_map');
   check('emitDeclarationOnly', 'emit_declaration_only');
   check('sourceMap', 'source_map');
@@ -91,6 +92,7 @@ function main([tsconfigPath, output, target, attrsStr]: string[]): 0|1 {
       output, `
 // ${process.argv[1]} checked attributes for ${target}
 // allow_js:              ${attrs.allow_js}
+// resolve_json_module:   ${attrs.resolve_json_module}
 // composite:             ${attrs.composite}
 // declaration:           ${attrs.declaration}
 // declaration_map:       ${attrs.declaration_map}

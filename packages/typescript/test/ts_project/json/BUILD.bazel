@@ -13,18 +13,21 @@ ts_project(
     name = "tsconfig",
     srcs = SRCS,
     out_dir = "foobar",
+    validate = False,  # resolveJsonModule is in tsconfig.json but not ts_project
 )
 
 ts_project(
     name = "tsconfig-no-outdir",
     srcs = SRCS,
     tsconfig = "tsconfig.json",
+    validate = False,  # resolveJsonModule is in tsconfig.json but not ts_project
 )
 
 # Test that we don't try to declare .json outputs when tsc isn't producing any JS
 ts_project(
     name = "tsconfig-decl-only",
     srcs = SRCS,
+    resolve_json_module = True,
     tsconfig = {
         "compilerOptions": {
             "declaration": True,

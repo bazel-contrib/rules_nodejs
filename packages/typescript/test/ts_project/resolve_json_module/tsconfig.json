@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+      "resolveJsonModule": true,
+      "sourceMap": true,
+      "declaration": true,
+      "declarationMap": true,
+      "esModuleInterop": true,
+      "types": []
+  }
+}

@@ -556,7 +556,7 @@ Defaults to `False`
 **USAGE**
 
 <pre>
-ts_project(<a href="#ts_project-name">name</a>, <a href="#ts_project-tsconfig">tsconfig</a>, <a href="#ts_project-srcs">srcs</a>, <a href="#ts_project-args">args</a>, <a href="#ts_project-deps">deps</a>, <a href="#ts_project-extends">extends</a>, <a href="#ts_project-allow_js">allow_js</a>, <a href="#ts_project-declaration">declaration</a>, <a href="#ts_project-source_map">source_map</a>,
+ts_project(<a href="#ts_project-name">name</a>, <a href="#ts_project-tsconfig">tsconfig</a>, <a href="#ts_project-srcs">srcs</a>, <a href="#ts_project-args">args</a>, <a href="#ts_project-deps">deps</a>, <a href="#ts_project-extends">extends</a>, <a href="#ts_project-allow_js">allow_js</a>, <a href="#ts_project-resolve_json_module">resolve_json_module</a>, <a href="#ts_project-declaration">declaration</a>, <a href="#ts_project-source_map">source_map</a>,
            <a href="#ts_project-declaration_map">declaration_map</a>, <a href="#ts_project-composite">composite</a>, <a href="#ts_project-incremental">incremental</a>, <a href="#ts_project-emit_declaration_only">emit_declaration_only</a>, <a href="#ts_project-ts_build_info_file">ts_build_info_file</a>, <a href="#ts_project-tsc">tsc</a>,
            <a href="#ts_project-worker_tsc_bin">worker_tsc_bin</a>, <a href="#ts_project-worker_typescript_module">worker_typescript_module</a>, <a href="#ts_project-validate">validate</a>, <a href="#ts_project-supports_workers">supports_workers</a>, <a href="#ts_project-declaration_dir">declaration_dir</a>,
            <a href="#ts_project-out_dir">out_dir</a>, <a href="#ts_project-root_dir">root_dir</a>, <a href="#ts_project-link_workspace_root">link_workspace_root</a>, <a href="#ts_project-kwargs">kwargs</a>)
@@ -748,6 +748,13 @@ Defaults to `None`
 
 boolean; Specifies whether TypeScript will read .js and .jsx files. When used with declaration,
 TypeScript will generate .d.ts files from .js files.
+
+Defaults to `False`
+
+<h4 id="ts_project-resolve_json_module">resolve_json_module</h4>
+
+boolean; Specifies whether TypeScript will import and extract types from
+.json files.
 
 Defaults to `False`
 

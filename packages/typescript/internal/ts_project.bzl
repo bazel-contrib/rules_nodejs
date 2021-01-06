@@ -75,15 +75,16 @@ def _calculate_root_dir(ctx):
     some_source_path = None
     root_path = None
 
-    # Note we don't have access to the ts_project macro allow_js param here.
-    # For error-handling purposes, we can assume that any .js/.jsx
-    # input is meant to be in the rootDir alongside .ts/.tsx sources,
-    # whether the user meant for them to be sources or not.
-    # It's a non-breaking change to relax this constraint later, but would be
-    # a breaking change to restrict it further.
+    # Note we don't have access to the ts_project macro allow_js and
+    # resolve_json_module params here. For error-handling purposes, we can
+    # assume that any .js/.jsx/.json input is meant to be in the rootDir
+    # alongside .ts/.tsx sources, whether the user meant for them to be sources
+    # or not. It's a non-breaking change to relax this constraint later, but
+    # would be a breaking change to restrict it further.
     allow_js = True
+    resolve_json_module = True
     for src in ctx.files.srcs:
-        if _is_ts_src(src.path, allow_js):
+        if _is_ts_src(src.path, allow_js, resolve_json_module):
             if src.is_source:
                 some_source_path = src.path
             else:
@@ -268,6 +269,7 @@ def _validate_options_impl(ctx):
         declaration_map = ctx.attr.declaration_map,
         composite = ctx.attr.composite,
         emit_declaration_only = ctx.attr.emit_declaration_only,
+        resolve_json_module = ctx.attr.resolve_json_module,
         source_map = ctx.attr.source_map,
         incremental = ctx.attr.incremental,
         ts_build_info_file = ctx.attr.ts_build_info_file,
@@ -300,6 +302,7 @@ validate_options = rule(
         "emit_declaration_only": attr.bool(),
         "extends": attr.label(allow_files = [".json"]),
         "incremental": attr.bool(),
+        "resolve_json_module": attr.bool(),
         "source_map": attr.bool(),
         "target": attr.string(),
         "ts_build_info_file": attr.string(),
@@ -308,18 +311,32 @@ validate_options = rule(
     },
 )
 
-def _is_ts_src(src, allow_js):
+def _is_ts_src(src, allow_js, resolve_json_module):
     if not src.endswith(".d.ts") and (src.endswith(".ts") or src.endswith(".tsx")):
         return True
+
+    if resolve_json_module and src.endswith(".json"):
+        return True
+
     return allow_js and (src.endswith(".js") or src.endswith(".jsx"))
 
-def _out_paths(srcs, outdir, rootdir, allow_js, ext):
+def _out_paths(srcs, outdir, rootdir, allow_js, resolve_json_module, ext):
     rootdir_replace_pattern = rootdir + "/" if rootdir else ""
-    return [
+
+    out_paths = [
         _join(outdir, f[:f.rindex(".")].replace(rootdir_replace_pattern, "") + ext)
         for f in srcs
-        if _is_ts_src(f, allow_js)
+        if _is_ts_src(f, allow_js, False)
     ]
+
+    if resolve_json_module == True:
+        out_paths = out_paths + [
+            _join(outdir, f.replace(rootdir_replace_pattern, ""))
+            for f in srcs
+            if f.endswith(".json")
+        ]
+
+    return out_paths
 
 def ts_project_macro(
         name = "tsconfig",
@@ -329,6 +346,7 @@ def ts_project_macro(
         deps = [],
         extends = None,
         allow_js = False,
+        resolve_json_module = False,
         declaration = False,
         source_map = False,
         declaration_map = False,
@@ -541,6 +559,8 @@ def ts_project_macro(
 
         allow_js: boolean; Specifies whether TypeScript will read .js and .jsx files. When used with declaration,
             TypeScript will generate .d.ts files from .js files.
+        resolve_json_module: boolean; Specifies whether TypeScript will read import and extract types from
+            .json files. TypeScript will generate .d.ts files from .json files.
 
         declaration_dir: a string specifying a subdirectory under the bazel-out folder where generated declaration
             outputs are written. Equivalent to the TypeScript --declarationDir option.
@@ -568,10 +588,16 @@ def ts_project_macro(
     """
 
     if srcs == None:
+        globs = ["**/*.ts", "**/*.tsx"]
+
         if allow_js == True:
-            srcs = native.glob(["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"])
-        else:
-            srcs = native.glob(["**/*.ts", "**/*.tsx"])
+            globs = globs + ["**/*.js", "**/*.jsx"]
+
+        if resolve_json_module == True:
+            globs = globs + ["**/*.json"]
+
+        srcs = native.glob(globs)
+
     extra_deps = []
 
     if type(extends) == type([]):
@@ -587,6 +613,7 @@ def ts_project_macro(
         declaration_map = compiler_options.setdefault("declarationMap", declaration_map)
         emit_declaration_only = compiler_options.setdefault("emitDeclarationOnly", emit_declaration_only)
         allow_js = compiler_options.setdefault("allowJs", allow_js)
+        resolve_json_module = compiler_options.setdefault("resolveJsonModule", resolve_json_module)
 
         # These options are always passed on the tsc command line so don't include them
         # in the tsconfig. At best they're redundant, but at worst we'll have a conflict
@@ -601,7 +628,7 @@ def ts_project_macro(
         write_tsconfig(
             name = "_gen_tsconfig_%s" % name,
             config = tsconfig,
-            files = [s for s in srcs if _is_ts_src(s, allow_js)],
+            files = [s for s in srcs if _is_ts_src(s, allow_js, resolve_json_module)],
             extends = Label("//%s:%s" % (native.package_name(), name)).relative(extends) if extends else None,
             out = "tsconfig_%s.json" % name,
         )
@@ -626,6 +653,7 @@ def ts_project_macro(
                 ts_build_info_file = ts_build_info_file,
                 emit_declaration_only = emit_declaration_only,
                 allow_js = allow_js,
+                resolve_json_module = resolve_json_module,
                 tsconfig = tsconfig,
                 extends = extends,
             )
@@ -668,13 +696,13 @@ def ts_project_macro(
     typing_maps_outs = []
 
     if not emit_declaration_only:
-        js_outs.extend(_out_paths(srcs, out_dir, root_dir, False, ".js"))
+        js_outs.extend(_out_paths(srcs, out_dir, root_dir, False, resolve_json_module, ".js"))
     if source_map and not emit_declaration_only:
-        map_outs.extend(_out_paths(srcs, out_dir, root_dir, False, ".js.map"))
+        map_outs.extend(_out_paths(srcs, out_dir, root_dir, False, False, ".js.map"))
     if declaration or composite:
-        typings_outs.extend(_out_paths(srcs, typings_out_dir, root_dir, allow_js, ".d.ts"))
+        typings_outs.extend(_out_paths(srcs, typings_out_dir, root_dir, allow_js, False, ".d.ts"))
     if declaration_map:
-        typing_maps_outs.extend(_out_paths(srcs, typings_out_dir, root_dir, allow_js, ".d.ts.map"))
+        typing_maps_outs.extend(_out_paths(srcs, typings_out_dir, root_dir, allow_js, False, ".d.ts.map"))
 
     if not len(js_outs) and not len(typings_outs):
         fail("""ts_project target "//{}:{}" is configured to produce no outputs.

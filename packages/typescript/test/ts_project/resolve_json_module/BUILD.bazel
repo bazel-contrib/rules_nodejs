@@ -1,0 +1,37 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
+load("//packages/typescript:index.bzl", "ts_project")
+
+# Ensure that config.json produces outDir/config.json
+SRCS = [
+    "index.ts",
+    "config.json",
+]
+
+ts_project(
+    name = "tsconfig",
+    srcs = SRCS,
+    declaration = True,
+    declaration_map = True,
+    out_dir = "out",
+    resolve_json_module = True,
+    source_map = True,
+)
+
+filegroup(
+    name = "types",
+    srcs = [":tsconfig"],
+    output_group = "types",
+)
+
+nodejs_test(
+    name = "test",
+    data = [
+        ":tsconfig",
+        ":types",
+    ],
+    entry_point = "verify.js",
+    templated_args = [
+        "$(locations :types)",
+        "$(locations :tsconfig)",
+    ],
+)
