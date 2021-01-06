@@ -1,0 +1,86 @@
+load("@npm//@bazel/typescript:index.bzl", "ts_library")
+load("@npm//http-server:index.bzl", "http_server")
+load("@npm//sass:index.bzl", "sass")
+load(
+    "@npm//webpack-cli:index.bzl",
+    webpack = "webpack_cli",
+)
+
+sass(
+    name = "styles",
+    outs = ["styles.css"],
+    args = [
+        "$(execpath styles.scss)",
+        "$(execpath styles.css)",
+    ],
+    data = ["styles.scss"],
+)
+
+ts_library(
+    name = "ts",
+    srcs = [
+        "index.tsx",
+        "types.d.ts",
+    ],
+    # By default devmode emits UMD modules. UMD modules will cause problems
+    # with the WebPack bundling. In this example, the webpack rule will succeed,
+    # but the generated bundle file will be unable to load React at runtime.
+    devmode_module = "es2015",
+    deps = [
+        "@npm//@types",
+        "@npm//csstype",
+        "@npm//react",
+    ],
+)
+
+# This filegroup chooses between the groups of files (devmode and prodmode)
+# emitted by the ts rule.
+filegroup(
+    name = "ts_js",
+    srcs = [
+        ":styles",
+        ":ts",
+    ],
+    output_group = "es5_sources",
+)
+
+# This is a convenience filegroup that gathers together all the files webpack
+# needs to see so we don't need to add multiple $(locations) invocations and
+# deps.
+filegroup(
+    name = "app_js",
+    srcs = [
+        ":styles",
+        ":ts_js",
+    ],
+)
+
+webpack(
+    name = "bundle",
+    outs = ["app.bundle.js"],
+    args = [
+        "$(locations :app_js)",
+        #"--entry=./bazel-out/k8-fastbuild/bin/index.js",
+        "--mode=development",
+        "--stats",
+        "--config",
+        "$(execpath webpack.config.js)",
+        "-o",
+        "$@",
+    ],
+    data = [
+        "webpack.config.js",
+        ":app_js",
+        "@npm//:node_modules",
+    ],
+)
+
+# Note, on Windows you need `--enable_runfiles`
+http_server(
+    name = "server",
+    data = [
+        "app.bundle.js",
+        "index.html",
+    ],
+    templated_args = ["."],
+)
