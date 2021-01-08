@@ -39,9 +39,9 @@ do the same.
     },
 )
 
-def _compute_node_modules_root(ctx):
+def _compute_node_modules_roots(ctx):
     """Computes the node_modules root (if any) from data & deps targets."""
-    node_modules_root = ""
+    node_modules_roots = {}
     deps = []
     if hasattr(ctx.attr, "data"):
         deps += ctx.attr.data
@@ -49,12 +49,14 @@ def _compute_node_modules_root(ctx):
         deps += ctx.attr.deps
     for d in deps:
         if ExternalNpmPackageInfo in d:
-            possible_root = "/".join([d[ExternalNpmPackageInfo].workspace, "node_modules"])
-            if not node_modules_root:
-                node_modules_root = possible_root
-            elif node_modules_root != possible_root:
-                fail("All npm dependencies need to come from a single workspace. Found '%s' and '%s'." % (node_modules_root, possible_root))
-    return node_modules_root
+            path = d[ExternalNpmPackageInfo].path
+            workspace = d[ExternalNpmPackageInfo].workspace
+            if path in node_modules_roots:
+                other_workspace = node_modules_roots[path]
+                if other_workspace != workspace:
+                    fail("All npm dependencies at the path '%s' must come from a single workspace. Found '%s' and '%s'." % (path, other_workspace, workspace))
+            node_modules_roots[path] = workspace
+    return node_modules_roots
 
 def run_node(ctx, inputs, arguments, executable, chdir = None, **kwargs):
     """Helper to replace ctx.actions.run
@@ -127,7 +129,13 @@ def run_node(ctx, inputs, arguments, executable, chdir = None, **kwargs):
                 env[var] = ctx.var[var]
             elif var in ctx.configuration.default_shell_env.keys():
                 env[var] = ctx.configuration.default_shell_env[var]
-    env["BAZEL_NODE_MODULES_ROOT"] = _compute_node_modules_root(ctx)
+    bazel_node_module_roots = ""
+    node_modules_roots = _compute_node_modules_roots(ctx)
+    for path, root in node_modules_roots.items():
+        if bazel_node_module_roots:
+            bazel_node_module_roots = bazel_node_module_roots + ","
+        bazel_node_module_roots = bazel_node_module_roots + "%s:%s" % (path, root)
+    env["BAZEL_NODE_MODULES_ROOTS"] = bazel_node_module_roots
 
     # ctx.actions.run accepts both lists and a depset for inputs. Coerce the original inputs to a
     # depset if they're a list, so that extra inputs can be combined in a performant manner.

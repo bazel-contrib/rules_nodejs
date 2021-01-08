@@ -1,0 +1,14 @@
+load("//:index.bzl", "js_library")
+
+js_library(
+    name = "onepa",
+    package_name = "@rules_nodejs/onepa",
+    srcs = [
+        "index.js",
+        "package.json",
+    ],
+    visibility = ["//internal/linker/test/multi_linker:__pkg__"],
+    deps = [
+        "@onepa_npm_deps//:node_modules",
+    ],
+)

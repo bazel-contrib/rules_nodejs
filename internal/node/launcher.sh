@@ -240,12 +240,7 @@ if [ "$NODE_PATCHES" = true ]; then
   LAUNCHER_NODE_OPTIONS+=( "--require" "$node_patches_script" )
 fi
 
-# Tell the node_patches_script that programs should not escape the execroot
-# Bazel always sets the PWD to execroot/my_wksp so we go up one directory.
-export BAZEL_PATCH_ROOT=$(dirname $PWD)
-
-# Set all bazel managed node_modules directories as guarded so no symlinks may
-# escape and no symlinks may enter
+# Find the execroot
 if [[ "$PWD" == *"/bazel-out/"* ]]; then
   # We in runfiles, find the execroot.
   # Look for `bazel-out` which is used to determine the the path to `execroot/my_wksp`. This works in
@@ -257,24 +252,80 @@ if [[ "$PWD" == *"/bazel-out/"* ]]; then
   readonly rest=${PWD#*$bazel_out}
   readonly index=$(( ${#PWD} - ${#rest} - ${#bazel_out} ))
   if [[ ${index} < 0 ]]; then
-    echo "No 'bazel-out' folder found in path '${PWD}'!"
+    echo "No 'bazel-out' folder found in path '${PWD}'!" >&2
     exit 1
   fi
   EXECROOT=${PWD:0:${index}}
+  RUNFILES_ROOT=$(dirname $PWD)
 else
   # We are in execroot or in some other context all together such as a nodejs_image or a manually
   # run nodejs_binary. If this is execroot then linker node_modules is in the PWD. If this another
   # context then it is safe to assume the node_modules are there and guard that directory if it exists.
   EXECROOT=${PWD}
+  RUNFILES_ROOT=
 fi
-export BAZEL_PATCH_GUARDS="${EXECROOT}/node_modules"
-if [[ -n "${BAZEL_NODE_MODULES_ROOT:-}" ]]; then
-  if [[ "${BAZEL_NODE_MODULES_ROOT}" != "${BAZEL_WORKSPACE}/node_modules" ]]; then
-    # If BAZEL_NODE_MODULES_ROOT is set and it is not , add it to the list of bazel patch guards
-    # Also, add the external/${BAZEL_NODE_MODULES_ROOT} which is the correct path under execroot
-    # and under runfiles it is the legacy external runfiles path
-    export BAZEL_PATCH_GUARDS="${BAZEL_PATCH_GUARDS},${BAZEL_PATCH_ROOT}/${BAZEL_NODE_MODULES_ROOT},${PWD}/external/${BAZEL_NODE_MODULES_ROOT}"
+
+# Tell the node_patches_script that programs should not escape the execroot
+export BAZEL_PATCH_ROOTS="${EXECROOT}"
+# Set all bazel managed node_modules directories as guarded so no symlinks may
+# escape and no symlinks may enter.
+# We always guard against the root node_modules where 1st party deps go.
+# (e.g., /private/.../execroot/build_bazel_rules_nodejs/node_modules)
+export BAZEL_PATCH_ROOTS="${BAZEL_PATCH_ROOTS},${EXECROOT}/node_modules"
+if [[ "${RUNFILES_ROOT}" ]]; then
+  # If in runfiles, guard the runfiles root itself
+  export BAZEL_PATCH_ROOTS="${BAZEL_PATCH_ROOTS},${RUNFILES_ROOT}"
+  # If in runfiles guard the node_modules location in runfiles as well
+  # (e.g., /private/.../execroot/build_bazel_rules_nodejs/bazel-out/darwin-fastbuild/bin/internal/linker/test/multi_linker/test.sh.runfiles/build_bazel_rules_nodejs/node_modules)
+  export BAZEL_PATCH_ROOTS="${BAZEL_PATCH_ROOTS},${RUNFILES_ROOT}/${BAZEL_WORKSPACE}/node_modules"
+fi
+if [[ -n "${BAZEL_NODE_MODULES_ROOTS:-}" ]]; then
+  # BAZEL_NODE_MODULES_ROOTS is in the format "<path>:<workspace>,<path>:<workspace>"
+  # (e.g., "internal/linker/test:npm_internal_linker_test,:npm")
+  if [[ -n "${VERBOSE_LOGS:-}" ]]; then
+    echo "BAZEL_NODE_MODULES_ROOTS=${BAZEL_NODE_MODULES_ROOTS}" >&2
   fi
+  OLDIFS="${IFS}"
+  IFS=","
+  roots=(${BAZEL_NODE_MODULES_ROOTS})
+  IFS="${OLDIFS}"
+  for root in "${roots[@]}"; do
+    if [[ "${root}" ]]; then
+      OLDIFS="${IFS}"
+      IFS=":"
+      root_pair=(${root})
+      IFS="${OLDIFS}"
+      root_path="${root_pair[0]}"
+      root_workspace="${root_pair[1]}"
+      if [[ "${root_path}" ]]; then
+        # Guard non-root node_modules as well
+        # (e.g., /private/.../execroot/build_bazel_rules_nodejs/internal/linker/test/node_modules)
+        export BAZEL_PATCH_ROOTS="${BAZEL_PATCH_ROOTS},${EXECROOT}/${root_path}/node_modules"
+        if [[ "${RUNFILES_ROOT}" ]]; then
+          # If in runfiles guard the node_modules location in runfiles as well
+          # (e.g., /private/.../execroot/build_bazel_rules_nodejs/bazel-out/darwin-fastbuild/bin/internal/linker/test/multi_linker/test.sh.runfiles/build_bazel_rules_nodejs/internal/linker/test/node_modules)
+          export BAZEL_PATCH_ROOTS="${BAZEL_PATCH_ROOTS},${RUNFILES_ROOT}/${BAZEL_WORKSPACE}/${root_path}/node_modules"
+        fi
+      fi
+      # TODO: the following guards on the external workspaces may not be necessary and could be removed in the future with care
+      if [[ "${root_workspace}" ]] && [[ "${root_workspace}" != "${BAZEL_WORKSPACE}" ]]; then
+        # Guard the external workspaces if they are not the user workspace
+        # (e.g., /private/.../execroot/build_bazel_rules_nodejs/external/npm_internal_linker_test/node_modules)
+        export BAZEL_PATCH_ROOTS="${BAZEL_PATCH_ROOTS},${EXECROOT}/external/${root_workspace}/node_modules"
+        if [[ "${RUNFILES_ROOT}" ]]; then
+          # If in runfiles guard the external workspace location in runfiles as well
+          # (e.g., /private/.../execroot/build_bazel_rules_nodejs/bazel-out/darwin-fastbuild/bin/internal/linker/test/multi_linker/test.sh.runfiles/npm_internal_linker_test/node_modules)
+          export BAZEL_PATCH_ROOTS="${BAZEL_PATCH_ROOTS},${RUNFILES_ROOT}/${root_workspace}/node_modules"
+          # and include the legacy runfiles location incase legacy runfiles are enabled
+          # (e.g., /private/.../bazel-out/darwin-fastbuild/bin/internal/linker/test/multi_linker/test.sh.runfiles/build_bazel_rules_nodejs/external/npm_internal_linker_test/node_modules)
+          export BAZEL_PATCH_ROOTS="${BAZEL_PATCH_ROOTS},${RUNFILES_ROOT}/${BAZEL_WORKSPACE}/external/${root_workspace}/node_modules"
+        fi
+      fi
+    fi
+  done
+fi
+if [[ -n "${VERBOSE_LOGS:-}" ]]; then
+  echo "BAZEL_PATCH_ROOTS=${BAZEL_PATCH_ROOTS}" >&2
 fi
 
 if [ "$PATCH_REQUIRE" = true ]; then
@@ -311,7 +362,7 @@ readonly EXPECTED_EXIT_CODE="TEMPLATED_expected_exit_code"
 
 if [[ -n "${COVERAGE_DIR:-}" ]]; then
   if [[ -n "${VERBOSE_LOGS:-}" ]]; then
-    echo "Turning on node coverage with NODE_V8_COVERAGE=${COVERAGE_DIR}"
+    echo "Turning on node coverage with NODE_V8_COVERAGE=${COVERAGE_DIR}" >&2
   fi
   # Setting NODE_V8_COVERAGE=${COVERAGE_DIR} causes NodeJS to write coverage
   # information our to the COVERAGE_DIR once the process exits
@@ -387,10 +438,10 @@ fi
 # Post process the coverage information after the process has exited
 if [[ -n "${COVERAGE_DIR:-}" ]]; then
   if [[ -n "${VERBOSE_LOGS:-}" ]]; then
-    echo "Running coverage lcov merger script with arguments"
-    echo "  --coverage_dir="${COVERAGE_DIR}""
-    echo "  --output_file="${COVERAGE_OUTPUT_FILE}""
-    echo "  --source_file_manifest="${COVERAGE_MANIFEST}""
+    echo "Running coverage lcov merger script with arguments" >&2
+    echo "  --coverage_dir="${COVERAGE_DIR}"" >&2
+    echo "  --output_file="${COVERAGE_OUTPUT_FILE}"" >&2
+    echo "  --source_file_manifest="${COVERAGE_MANIFEST}"" >&2
   fi
 
   set +e
@@ -399,7 +450,7 @@ if [[ -n "${COVERAGE_DIR:-}" ]]; then
   set -e
 
   if [[ -n "${EXIT_CODE_CAPTURE}" ]]; then
-    echo "${RESULT}" > "${EXIT_CODE_CAPTURE}"
+    echo "${RESULT}" > "${EXIT_CODE_CAPTURE}" >&2
   fi
 fi
 

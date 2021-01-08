@@ -29,18 +29,16 @@ type Dirent = any;
 const _fs = require('fs');
 
 // tslint:disable-next-line:no-any
-export const patcher = (fs: any = _fs, root: string, guards: string[]) => {
+export const patcher = (fs: any = _fs, roots: string[]) => {
   fs = fs || _fs;
-  root = root || '';
-  guards = guards || [];
-  if (!root) {
+  roots = roots || [];
+  roots = roots.filter(root => fs.existsSync(root));
+  if (!roots.length) {
     if (process.env.VERBOSE_LOGS) {
-      console.error('fs patcher called without root path ' + __filename);
+      console.error('fs patcher called without any valid root paths ' + __filename);
     }
     return;
   }
-
-  root = fs.realpathSync(root);
 
   const origRealpath = fs.realpath.bind(fs);
   const origRealpathNative = fs.realpath.native;
@@ -55,7 +53,7 @@ export const patcher = (fs: any = _fs, root: string, guards: string[]) => {
   const origReaddir = fs.readdir.bind(fs);
   const origReaddirSync = fs.readdirSync.bind(fs);
 
-  const {isEscape} = escapeFunction(root, guards);
+  const {isEscape} = escapeFunction(roots);
 
   const logged: {[k: string]: boolean} = {};
 
@@ -375,7 +373,7 @@ export const patcher = (fs: any = _fs, root: string, guards: string[]) => {
         if (fs.DEBUG)
           console.error(
               handleCounter + ' opendir: escapes? [target]', path.resolve(target),
-              '[link] ' + linkName, isEscape(path.resolve(target), linkName), root);
+              '[link] ' + linkName, isEscape(path.resolve(target), linkName), roots);
 
         if (!isEscape(path.resolve(target), linkName)) {
           return resolve(v);
@@ -472,10 +470,13 @@ export const patcher = (fs: any = _fs, root: string, guards: string[]) => {
   }
 };
 
-export const escapeFunction = (root: string, guards: string[]) => {
-  // ensure root & guards are always absolute.
-  root = path.resolve(root);
-  guards = guards.map(g => path.resolve(g));
+export function isOutPath(root: string, str: string) {
+  return !root || (!str.startsWith(root + path.sep) && str !== root);
+}
+
+export const escapeFunction = (roots: string[]) => {
+  // ensure roots are always absolute
+  roots = roots.map(root => path.resolve(root));
   function isEscape(linkTarget: string, linkPath: string) {
     if (!path.isAbsolute(linkPath)) {
       linkPath = path.resolve(linkPath);
@@ -485,32 +486,17 @@ export const escapeFunction = (root: string, guards: string[]) => {
       linkTarget = path.resolve(linkTarget);
     }
 
-    if (isGuardPath(linkPath) || isGuardPath(linkTarget)) {
-      // don't escape out of guard paths and don't symlink into guard paths
-      return true;
-    }
-
-    if (root) {
-      if (isOutPath(linkTarget) && !isOutPath(linkPath)) {
+    for (const root of roots) {
+      if (isOutPath(root, linkTarget) && !isOutPath(root, linkPath)) {
         // don't escape out of the root
         return true;
       }
     }
+
     return false;
   }
 
-  function isGuardPath(str) {
-    for (const g of guards) {
-      if (str === g || str.startsWith(g + path.sep)) return true;
-    }
-    return false;
-  }
-
-  function isOutPath(str: string) {
-    return !root || (!str.startsWith(root + path.sep) && str !== root);
-  }
-
-  return {isEscape, isGuardPath, isOutPath};
+  return {isEscape, isOutPath};
 };
 
 function once<T>(fn: (...args: unknown[]) => T) {

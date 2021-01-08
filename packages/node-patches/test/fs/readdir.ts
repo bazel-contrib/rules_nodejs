@@ -38,7 +38,7 @@ describe('testing readdir', () => {
 
           const patchedFs = Object.assign({}, fs);
           patchedFs.promises = Object.assign({}, fs.promises);
-          patcher(patchedFs, fixturesDir, []);
+          patcher(patchedFs, [fixturesDir]);
 
           let dirents = patchedFs.readdirSync(path.join(fixturesDir, 'a'), {
             withFileTypes: true,
@@ -77,7 +77,7 @@ describe('testing readdir', () => {
 
           const patchedFs = Object.assign({}, fs);
           patchedFs.promises = Object.assign({}, fs.promises);
-          patcher(patchedFs, path.join(fixturesDir, 'a'), []);
+          patcher(patchedFs, [path.join(fixturesDir, 'a')]);
 
           let dirents = patchedFs.readdirSync(path.join(fixturesDir, 'a'), {
             withFileTypes: true,

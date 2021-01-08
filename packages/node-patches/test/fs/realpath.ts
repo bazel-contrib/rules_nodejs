@@ -40,7 +40,7 @@ describe('testing realpath', () => {
           const patchedFs = Object.assign({}, fs);
           patchedFs.promises = Object.assign({}, fs.promises);
 
-          patcher(patchedFs, path.join(fixturesDir), []);
+          patcher(patchedFs, [path.join(fixturesDir)]);
           const linkPath = path.join(fs.realpathSync(fixturesDir), 'a', 'link');
 
           assert.deepStrictEqual(
@@ -83,7 +83,7 @@ describe('testing realpath', () => {
           const patchedFs = Object.assign({}, fs);
           patchedFs.promises = Object.assign({}, fs.promises);
 
-          patcher(patchedFs, path.join(fixturesDir, 'a'), []);
+          patcher(patchedFs, [path.join(fixturesDir, 'a')]);
           const linkPath = path.join(fs.realpathSync(fixturesDir), 'a', 'link');
 
           assert.deepStrictEqual(

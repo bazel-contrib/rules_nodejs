@@ -39,7 +39,7 @@ describe('testing opendir', () => {
 
           const patchedFs = Object.assign({}, fs);
           patchedFs.promises = Object.assign({}, fs.promises);
-          patcher(patchedFs, fixturesDir, []);
+          patcher(patchedFs, [fixturesDir]);
           (patchedFs as any).DEBUG = true;
 
           let dir;
@@ -74,7 +74,7 @@ describe('testing opendir', () => {
 
           const patchedFs = Object.assign({}, fs);
           patchedFs.promises = Object.assign({}, fs.promises);
-          patcher(patchedFs, path.join(fixturesDir, 'a'), []);
+          patcher(patchedFs, [path.join(fixturesDir, 'a')]);
           (patchedFs as any).DEBUG = true;
 
           let dir;
@@ -109,7 +109,7 @@ describe('testing opendir', () => {
 
           const patchedFs = Object.assign({}, fs);
           patchedFs.promises = Object.assign({}, fs.promises);
-          patcher(patchedFs, path.join(fixturesDir), []);
+          patcher(patchedFs, [path.join(fixturesDir)]);
           (patchedFs as any).DEBUG = true;
 
           const dir = await util.promisify(patchedFs.opendir)(path.join(fixturesDir, 'a'));
@@ -140,7 +140,7 @@ describe('testing opendir', () => {
 
           const patchedFs = Object.assign({}, fs);
           patchedFs.promises = Object.assign({}, fs.promises);
-          patcher(patchedFs, path.join(fixturesDir, 'a'), []);
+          patcher(patchedFs, [path.join(fixturesDir, 'a')]);
           (patchedFs as any).DEBUG = true;
 
           const dir = await util.promisify(patchedFs.opendir)(path.join(fixturesDir, 'a'));
