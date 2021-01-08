@@ -1,0 +1,38 @@
+load("//packages/jasmine:index.bzl", "jasmine_node_test")
+load("//packages/typescript:checked_in_ts_project.bzl", "checked_in_ts_project")
+
+checked_in_ts_project(
+    name = "checked_in_from_sources_test",
+    src = "test.ts",
+    checked_in_js = "from_sources_test.js",
+    deps = [
+        "@npm//@types/jest",
+        "@npm//@types/node",
+    ],
+)
+
+# Test with a .js file in the output-tree to ensure that we can
+# resolve multi-linked node_modules from that context
+jasmine_node_test(
+    name = "test",
+    srcs = ["test.js"],
+    deps = [
+        "//internal/linker/test/multi_linker/onepa",
+        "//internal/linker/test/multi_linker/onepb",
+        "@npm//semver",
+        "@npm_internal_linker_test_multi_linker//semver",
+    ],
+)
+
+# Test with a .js file from the source tree to ensure that we can
+# resolve multi-linked node_modules from that context
+jasmine_node_test(
+    name = "from_sources_test",
+    srcs = ["from_sources_test.js"],
+    deps = [
+        "//internal/linker/test/multi_linker/onepa",
+        "//internal/linker/test/multi_linker/onepb",
+        "@npm//semver",
+        "@npm_internal_linker_test_multi_linker//semver",
+    ],
+)

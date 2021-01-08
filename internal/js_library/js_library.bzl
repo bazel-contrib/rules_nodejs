@@ -38,7 +38,7 @@ _ATTRS = {
     ),
     "deps": attr.label_list(),
     "external_npm_package": attr.bool(
-        doc = """Indictates that this js_library target is one or more external npm packages in node_modules.
+        doc = """Internal use only. Indictates that this js_library target is one or more external npm packages in node_modules.
         This is used by the yarn_install & npm_install repository rules for npm dependencies installed by
         yarn & npm. When true, js_library will provide ExternalNpmPackageInfo.
         
@@ -72,6 +72,12 @@ _ATTRS = {
 
         See `examples/user_managed_deps` for a working example of user-managed npm dependencies.""",
         default = False,
+    ),
+    "external_npm_package_path": attr.string(
+        doc = """Internal use only. The local workspace path that the linker should link these node_modules to.
+
+        Used only when external_npm_package is True. If empty, the linker will link these node_modules at the root.""",
+        default = "",
     ),
     "is_windows": attr.bool(
         doc = "Internal use only. Automatically set by macro",
@@ -230,6 +236,7 @@ def _impl(ctx):
             direct_sources = depset(transitive = direct_sources_depsets),
             sources = depset(transitive = npm_sources_depsets),
             workspace = workspace_name,
+            path = ctx.attr.external_npm_package_path,
         ))
 
     # Don't provide DeclarationInfo if there are no typings to provide.

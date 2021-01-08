@@ -18,17 +18,17 @@
  * @fileoverview Description of this file.
  */
 const patcher = require('./src');
-const {BAZEL_PATCH_ROOT, BAZEL_PATCH_GUARDS, NP_SUBPROCESS_NODE_DIR, VERBOSE_LOGS} = process.env;
+const {BAZEL_PATCH_ROOTS, NP_SUBPROCESS_NODE_DIR, VERBOSE_LOGS} = process.env;
 
-if (BAZEL_PATCH_ROOT) {
-  const guards = BAZEL_PATCH_GUARDS ? BAZEL_PATCH_GUARDS.split(',') : [];
+if (BAZEL_PATCH_ROOTS) {
+  const roots = BAZEL_PATCH_ROOTS ? BAZEL_PATCH_ROOTS.split(',') : [];
   if (VERBOSE_LOGS)
-    console.error(`bazel node patches enabled. root: ${
-        BAZEL_PATCH_ROOT} symlinks in this directory will not escape`);
+    console.error(`bazel node patches enabled. roots: ${
+        roots} symlinks in these directories will not escape`);
   const fs = require('fs');
-  patcher.fs(fs, BAZEL_PATCH_ROOT, guards);
+  patcher.fs(fs, roots);
 } else if (VERBOSE_LOGS) {
-  console.error(`bazel node patches disabled. set environment BAZEL_PATCH_ROOT`);
+  console.error(`bazel node patches disabled. set environment BAZEL_PATCH_ROOTS`);
 }
 
 patcher.subprocess(__filename, NP_SUBPROCESS_NODE_DIR);

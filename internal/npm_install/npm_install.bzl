@@ -79,6 +79,14 @@ fine grained npm dependencies.
         mandatory = True,
         allow_single_file = True,
     ),
+    "package_path": attr.string(
+        default = "",
+        doc = """If set, link the 3rd party node_modules dependencies under the package path specified.
+
+In most cases, this should be the directory of the package.json file so that the linker links the node_modules
+in the same location they are found in the source tree. In a future release, this will default to the package.json
+directory. This is planned for 4.0: https://github.com/bazelbuild/rules_nodejs/issues/2451""",
+    ),
     "quiet": attr.bool(
         default = True,
         doc = "If stdout and stderr should be printed to the terminal.",
@@ -130,6 +138,7 @@ def _create_build_files(repository_ctx, rule_type, node, lock_file):
         str(repository_ctx.attr.strict_visibility),
         ",".join(repository_ctx.attr.included_files),
         native.bazel_version,
+        repository_ctx.attr.package_path,
         # double the default timeout in case of many packages, see #2231
     ], timeout = 1200, quiet = repository_ctx.attr.quiet)
     if result.return_code:
