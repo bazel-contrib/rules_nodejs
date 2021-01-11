@@ -9,6 +9,9 @@ jobs:
   updateNodejsVersions:
     runs-on: ubuntu-latest
 
+    # Skip this on forks
+    if: github.repository == 'bazelbuild/rules_nodejs'
+
     steps:
       - name: Git Checkout
         uses: actions/checkout@v2
