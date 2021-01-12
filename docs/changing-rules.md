@@ -26,7 +26,7 @@ See `/tools/postinstall-patches.js` in the [Angular repo] for an example.
 
 rules_nodejs has a distribution format which is a tgz published to GitHub, and this can make it tricky to make casual changes without forking the project and building your own release artifacts.
 
-Bazel has a handy patching mechanism that lets you easily apply a local patch to the release artifact for built-in rules: the `patches` attribute to `http_archive`.
+Bazel has a handy patching mechanism that lets you easily apply a local patch to the release artifact for built-in rules: [the `patches` attribute to `http_archive`](https://docs.bazel.build/versions/master/repo/http.html#attributes).
 
 First, make your changes in a clone of the rules_nodejs repo. Export a patch file simply using `git diff`:
 
