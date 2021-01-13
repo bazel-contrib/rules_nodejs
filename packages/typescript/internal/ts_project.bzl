@@ -668,7 +668,7 @@ def ts_project_macro(
     typing_maps_outs = []
 
     if not emit_declaration_only:
-        js_outs.extend(_out_paths(srcs, out_dir, root_dir, False, ".js"))
+        js_outs.extend(_out_paths(srcs, out_dir, root_dir, allow_js, ".js"))
     if source_map and not emit_declaration_only:
         map_outs.extend(_out_paths(srcs, out_dir, root_dir, False, ".js.map"))
     if declaration or composite:

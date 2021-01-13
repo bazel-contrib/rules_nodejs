@@ -1,7 +1,7 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
 load("//packages/typescript:index.bzl", "ts_project")
 
-# Ensure that a.js produces outDir/a.js and outDir/a.d.ts
+# Ensure that a.js produces outDir/a.js, outDir/a.d.ts, and outDir/a.d.ts.map
 SRCS = [
     "a.js",
 ]
