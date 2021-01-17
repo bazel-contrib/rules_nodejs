@@ -9,8 +9,12 @@ pkg_npm(
     srcs = glob(["*.bzl"]) + [
         "README.md",
         "package.json",
+        "//packages/labs/esbuild:package_contents",
         "//packages/labs/grpc_web:package_contents",
         "//packages/labs/protobufjs:package_contents",
     ],
     build_file_content = "",
+    deps = [
+        "//packages/labs/esbuild:package_deps",
+    ],
 )

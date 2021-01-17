@@ -1,0 +1,59 @@
+load("//packages/jasmine:index.bzl", "jasmine_node_test")
+load("//packages/labs:index.bzl", "esbuild_bundle")
+load("//packages/typescript:index.bzl", "ts_library")
+
+ts_library(
+    name = "lib_under_test",
+    srcs = [
+        "a.ts",
+        "main.ts",
+    ],
+)
+
+esbuild_bundle(
+    name = "bundle_esm",
+    entry_points = [
+        "main.ts",
+    ],
+    format = "esm",
+    outdir = True,
+    sourcemap = "external",
+    deps = [
+        ":lib_under_test",
+    ],
+)
+
+esbuild_bundle(
+    name = "bundle_iife",
+    entry_points = [
+        "main.ts",
+    ],
+    format = "iife",
+    outdir = True,
+    sourcemap = "external",
+    deps = [
+        ":lib_under_test",
+    ],
+)
+
+ts_library(
+    name = "test",
+    srcs = [
+        "test.ts",
+    ],
+    deps = [
+        "@npm//@types/jasmine",
+        "@npm//@types/node",
+    ],
+)
+
+jasmine_node_test(
+    name = "esbuild_test",
+    srcs = [":test"],
+    data = [
+        ":bundle_esm",
+        ":bundle_iife",
+    ],
+    deps = [
+    ],
+)
