@@ -388,6 +388,7 @@ def ts_project_macro(
     > "compilerOptions": {
     >     "rootDirs": [
     >         ".",
+    >         "../../bazel-out/host/bin/path/to",
     >         "../../bazel-out/darwin-fastbuild/bin/path/to",
     >         "../../bazel-out/k8-fastbuild/bin/path/to",
     >         "../../bazel-out/x64_windows-fastbuild/bin/path/to",
