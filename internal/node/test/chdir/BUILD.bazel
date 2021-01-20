@@ -3,26 +3,29 @@
 # the project when you call them.
 # See https://github.com/bazelbuild/rules_nodejs/issues/1840
 
-load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin", "nodejs_binary", "nodejs_test", "npm_package_bin")
-load("//third_party/github.com/bazelbuild/bazel-skylib:rules/write_file.bzl", "write_file")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "nodejs_test", "npm_package_bin")
+
+# Trivial tool that expects to run in source directory under the package
+nodejs_binary(
+    name = "tool_cp",
+    entry_point = "cp.js",
+)
 
 # A tool like react-scripts needs to run in the output directory since it writes outputs
 # to $pwd/build
 # That means it also needs to find inputs in that directory.
 # So we copy all the inputs it needs.
-copy_to_bin(
-    name = "copy_input",
-    srcs = ["package.json"],
-)
+_package_segments = len(package_name().split("/"))
 
-# Here's our trick: write a process.chdir one-liner JS script
-write_file(
-    name = "write_chdir_script",
-    out = "chdir.js",
-    # __dirname will be whatever directory the other outputs
-    # from this package are in, either in execroot or runfiles root
-    # depending on where Bazel places this file.
-    content = ["process.chdir(__dirname)"],
+npm_package_bin(
+    name = "do_copy",
+    outs = ["package.json"],
+    # We have to compensate for the changed directory, adapting other arguments
+    # to reach back to parent directory
+    args = ["/".join([".."] * _package_segments + ["$@"])],
+    chdir = package_name(),
+    data = ["_package.json"],
+    tool = ":tool_cp",
 )
 
 # Trivial tool to mock react-scripts
@@ -36,27 +39,15 @@ nodejs_binary(
 npm_package_bin(
     name = "call_tool",
     outs = ["build/app.js"],
-    # This tool produces outputs, so it is a build action and needs execpath helper
-    args = ["--node_options=--require=./$(execpath chdir.js)"],
-    # We can't reference label "package.json" here because it's ambiguous
-    # whether that points to the InputArtifact package.json in the src
-    # folder or the output. Using "copy_input" is unambiguous.
-    data = [
-        "chdir.js",
-        "copy_input",
-    ],
+    chdir = "$(RULEDIR)",
+    data = ["package.json"],
     tool = ":tool_bin",
 )
 
 nodejs_test(
     name = "test",
-    data = [
-        "build/app.js",
-        "chdir.js",
-    ],
+    # Also run a test in the output directory
+    chdir = package_name(),
+    data = ["build/app.js"],
     entry_point = "test.js",
-    # Also run a test in the output directory, this needs rootpath helper
-    # NB: --require=./$(rootpath chdir.js) works when runfiles are symlinked
-    # but $$(rlocation) is needed for Windows.
-    templated_args = ["--node_options=--require=$$(rlocation $(rootpath chdir.js))"],
 )

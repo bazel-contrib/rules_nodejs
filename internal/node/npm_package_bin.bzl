@@ -8,6 +8,7 @@ load("//internal/linker:link_node_modules.bzl", "module_mappings_aspect")
 # so that we can generate macros that act as either an output-producing tool or an executable
 _ATTRS = {
     "args": attr.string_list(mandatory = True),
+    "chdir": attr.string(),
     "configuration_env_vars": attr.string_list(default = []),
     "data": attr.label_list(allow_files = True, aspects = [module_mappings_aspect, node_modules_aspect]),
     "exit_code_out": attr.output(),
@@ -78,6 +79,7 @@ def _impl(ctx):
         outputs = outputs,
         arguments = [args],
         configuration_env_vars = ctx.attr.configuration_env_vars,
+        chdir = expand_variables(ctx, ctx.attr.chdir),
         stdout = ctx.outputs.stdout,
         stderr = ctx.outputs.stderr,
         exit_code_out = ctx.outputs.exit_code_out,
@@ -91,7 +93,7 @@ _npm_package_bin = rule(
     attrs = _ATTRS,
 )
 
-def npm_package_bin(tool = None, package = None, package_bin = None, data = [], outs = [], args = [], output_dir = False, link_workspace_root = False, **kwargs):
+def npm_package_bin(tool = None, package = None, package_bin = None, data = [], outs = [], args = [], output_dir = False, link_workspace_root = False, chdir = None, **kwargs):
     """Run an arbitrary npm package binary (e.g. a program under node_modules/.bin/*) under Bazel.
 
     It must produce outputs. If you just want to run a program with `bazel run`, use the nodejs_binary rule.
@@ -99,11 +101,8 @@ def npm_package_bin(tool = None, package = None, package_bin = None, data = [], 
     This is like a genrule() except that it runs our launcher script that first
     links the node_modules tree before running the program.
 
-    Bazel always runs actions with a working directory set to your workspace root.
-    If your tool needs to run in a different directory, you can write a `process.chdir` helper script
-    and invoke it before the action with a `--require` argument, like
-    `args = ["--node_options=--require=./$(execpath chdir.js)"]`
-    See rules_nodejs/internal/node/test/chdir for an example.
+    By default, Bazel runs actions with a working directory set to your workspace root.
+    Use the `chdir` attribute to change the working directory before the program runs.
 
     This is a great candidate to wrap with a macro, as documented:
     https://docs.bazel.build/versions/master/skylark/macros.html#full-example
@@ -168,6 +167,30 @@ def npm_package_bin(tool = None, package = None, package_bin = None, data = [], 
               Note that you can also refer to a binary in your local workspace.
         link_workspace_root: Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.
               If source files need to be required then they can be copied to the bin_dir with copy_to_bin.
+        chdir: Working directory to run the binary or test in, relative to the workspace.
+
+            By default, Bazel always runs in the workspace root.
+
+            To run in the directory containing the `npm_package_bin` under the source tree, use
+            `chdir = package_name()`
+            (or if you're in a macro, use `native.package_name()`).
+
+            To run in the output directory where the npm_package_bin writes outputs, use
+            `chdir = "$(RULEDIR)"`
+
+            NOTE that this can affect other paths passed to the program, which are workspace-relative.
+            You may need `../../` segments to re-relativize such paths to the new working directory.
+            In a BUILD file you could do something like this to point to the output path:
+
+            ```python
+            _package_segments = len(package_name().split("/"))
+            npm_package_bin(
+                ...
+                chdir = package_name(),
+                args = ["/".join([".."] * _package_segments + ["$@"])],
+            )
+            ```
+        **kwargs: additional undocumented keyword args
     """
     if not tool:
         if not package:
@@ -179,6 +202,7 @@ def npm_package_bin(tool = None, package = None, package_bin = None, data = [], 
         data = data,
         outs = outs,
         args = args,
+        chdir = chdir,
         output_dir = output_dir,
         tool = tool,
         link_workspace_root = link_workspace_root,

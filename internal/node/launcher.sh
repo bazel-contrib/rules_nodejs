@@ -176,6 +176,7 @@ ALL_ARGS=(TEMPLATED_args "$@")
 STDOUT_CAPTURE=""
 STDERR_CAPTURE=""
 EXIT_CODE_CAPTURE=""
+NODE_WORKING_DIR=""
 
 RUN_LINKER=true
 NODE_PATCHES=true
@@ -205,6 +206,7 @@ for ARG in ${ALL_ARGS[@]+"${ALL_ARGS[@]}"}; do
     --nobazel_run_linker) RUN_LINKER=false PATCH_REQUIRE=true ;;
     # If running an NPM package, run it from execroot instead of from external
     --bazel_run_from_execroot) FROM_EXECROOT=true ;;
+    --bazel_node_working_dir=*) NODE_WORKING_DIR="${ARG#--bazel_node_working_dir=}" ;;
     # Let users pass through arguments to node itself
     --node_options=*) USER_NODE_OPTIONS+=( "${ARG#--node_options=}" ) ;;
     # Remaining argv is collected to pass to the program
@@ -300,6 +302,11 @@ else
       MAIN=TEMPLATED_entry_point_manifest_path
     fi
   fi
+fi
+
+if [[ -n "$NODE_WORKING_DIR" ]]; then
+  echo "process.chdir(__dirname)" > "$NODE_WORKING_DIR/__chdir.js"
+  LAUNCHER_NODE_OPTIONS+=( "--require" "./$NODE_WORKING_DIR/__chdir.js" )
 fi
 
 # The EXPECTED_EXIT_CODE lets us write bazel tests which assert that

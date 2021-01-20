@@ -56,7 +56,7 @@ def _compute_node_modules_root(ctx):
                 fail("All npm dependencies need to come from a single workspace. Found '%s' and '%s'." % (node_modules_root, possible_root))
     return node_modules_root
 
-def run_node(ctx, inputs, arguments, executable, **kwargs):
+def run_node(ctx, inputs, arguments, executable, chdir = None, **kwargs):
     """Helper to replace ctx.actions.run
 
     This calls node programs with a node_modules directory in place
@@ -66,10 +66,8 @@ def run_node(ctx, inputs, arguments, executable, **kwargs):
         inputs: list or depset of inputs to the action
         arguments: list or ctx.actions.Args object containing arguments to pass to the executable
         executable: stringy representation of the executable this action will run, eg eg. "my_executable" rather than ctx.executable.my_executable
-        mnemonic: optional action mnemonic, used to differentiate module mapping files from the same rule context
-        link_workspace_root: Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.
-            If source files need to be required then they can be copied to the bin_dir with copy_to_bin.
-        kwargs: all other args accepted by ctx.actions.run
+        chdir: directory we should change to be the working dir
+        **kwargs: all other args accepted by ctx.actions.run
     """
     if (type(executable) != "string"):
         fail("""run_node requires that executable be provided as a string,
@@ -111,6 +109,9 @@ def run_node(ctx, inputs, arguments, executable, **kwargs):
         # this will force the script to exit 0, all declared outputs must still be created
         add_arg(arguments, "--bazel_capture_exit_code=%s" % exit_code_file.path)
         outputs = outputs + [exit_code_file]
+
+    if chdir:
+        add_arg(arguments, "--bazel_node_working_dir=" + chdir)
 
     env = kwargs.pop("env", {})
 
