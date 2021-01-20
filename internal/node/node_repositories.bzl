@@ -158,7 +158,6 @@ By default, if this attribute has no items, we'll use a list of all public NodeJ
     ),
     "node_urls": attr.string_list(
         default = [
-            "https://mirror.bazel.build/nodejs.org/dist/v{version}/{filename}",
             "https://nodejs.org/dist/v{version}/{filename}",
         ],
         doc = """custom list of URLs to use to download NodeJS
@@ -216,7 +215,6 @@ By default, if this attribute has no items, we'll use a list of all public NodeJ
     ),
     "yarn_urls": attr.string_list(
         default = [
-            "https://mirror.bazel.build/github.com/yarnpkg/yarn/releases/download/v{version}/{filename}",
             "https://github.com/yarnpkg/yarn/releases/download/v{version}/{filename}",
         ],
         doc = """custom list of URLs to use to download Yarn
