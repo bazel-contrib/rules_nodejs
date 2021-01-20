@@ -129,7 +129,8 @@ def _create_build_files(repository_ctx, rule_type, node, lock_file):
         str(repository_ctx.attr.strict_visibility),
         ",".join(repository_ctx.attr.included_files),
         native.bazel_version,
-    ], timeout = 1200)  # double the default timeout in case of many packages, see #2231
+        # double the default timeout in case of many packages, see #2231
+    ], timeout = 1200, quiet = repository_ctx.attr.quiet)
     if result.return_code:
         fail("generate_build_file.ts failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
 
