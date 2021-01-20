@@ -228,11 +228,15 @@ fi
     # legacy uses of "$(rlocation"
     expanded_args = [preserve_legacy_templated_args(a) for a in ctx.attr.templated_args]
 
-    # First expand predefined source/output path variables:
+    # Add the working dir argument before expansions
+    if ctx.attr.chdir:
+        expanded_args.append("--bazel_node_working_dir=" + ctx.attr.chdir)
+
+    # Next expand predefined source/output path variables:
     # $(execpath), $(rootpath) & legacy $(location)
     expanded_args = [expand_location_into_runfiles(ctx, a, ctx.attr.data) for a in expanded_args]
 
-    # Next expand predefined variables & custom variables
+    # Finally expand predefined variables & custom variables
     rule_dir = _join(ctx.bin_dir.path, ctx.label.workspace_root, ctx.label.package)
     additional_substitutions = {
         "@D": rule_dir,
@@ -324,6 +328,18 @@ fi
     ]
 
 _NODEJS_EXECUTABLE_ATTRS = {
+    "chdir": attr.string(
+        doc = """Working directory to run the binary or test in, relative to the workspace.
+        By default, Bazel always runs in the workspace root.
+
+        To run in the directory containing the `nodejs_binary` / `nodejs_test` use
+        `chdir = package_name()`
+        (or if you're in a macro, use `native.package_name()`)
+        
+        NOTE that this can affect other paths passed to the program, which are workspace-relative.
+        You may need `../../` segments to re-relativize such paths to the new working directory.
+        """,
+    ),
     "configuration_env_vars": attr.string_list(
         doc = """Pass these configuration environment variables to the resulting binary.
         Chooses a subset of the configuration environment variables (taken from `ctx.var`), which also
@@ -589,11 +605,8 @@ If you just want to run a standard test using a test runner from npm, use the ge
 *_test target created by npm_install/yarn_install, such as `mocha_test`.
 Some test runners like Karma and Jasmine have custom rules with added features, e.g. `jasmine_node_test`.
 
-Bazel always runs tests with a working directory set to your workspace root.
-If your test needs to run in a different directory, you can write a `process.chdir` helper script
-and invoke it before the test with a `--require` argument, like
-`templated_args = ["--node_options=--require=./$(rootpath chdir.js)"]`.
-See rules_nodejs/internal/node/test/chdir for an example.
+By default, Bazel runs tests with a working directory set to your workspace root.
+Use the `chdir` attribute to change the working directory before the program starts.
 
 To debug a Node.js test, we recommend saving a group of flags together in a "config".
 Put this in your `tools/bazel.rc` so it's shared with your team:
