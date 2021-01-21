@@ -65,6 +65,10 @@ successfully build your own toolchain.
 
 There is a basic example at [examples/react_webpack](https://github.com/bazelbuild/rules_nodejs/tree/stable/examples/react_webpack) but it needs a lot more work to show everything that is possible!
 
+### React Native
+
+Currently, rules_nodejs is incompatible with building React Native.  This is due to a [long standing issue](https://github.com/facebook/metro/issues/1) with the React Native Metro Bundler being unable to support symlinks, which the build process for npm_package_bin and nodejs_binary rely on.
+
 ### Vue
 
 We don't have a dedicated example yet, but Vue has been known to work. Follow https://github.com/bazelbuild/rules_nodejs/issues/1840 for an example.
