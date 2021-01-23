@@ -1,7 +1,17 @@
 # BEGIN-INTERNAL
-
-load("//internal/common:copy_to_bin.bzl", "copy_to_bin")
+load("//packages/typescript:checked_in_ts_project.bzl", "checked_in_ts_project")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
+
+# To update index.js run:
+#   bazel run //packages/typescript/internal/worker:worker_adapter_check_compiled.update
+
+checked_in_ts_project(
+    name = "worker_adapter",
+    src = "worker_adapter.ts",
+    checked_in_js = "index.js",
+    visibility = ["//visibility:public"],
+    deps = ["@npm//@types/node"],
+)
 
 # Copy the proto file to a matching third_party/... nested directory
 # so the runtime require() statements still work
@@ -22,14 +32,6 @@ copy_file(
     visibility = ["//visibility:public"],
 )
 
-copy_to_bin(
-    name = "worker_adapter",
-    srcs = [
-        "worker_adapter.js",
-    ],
-    visibility = ["//visibility:public"],
-)
-
 filegroup(
     name = "package_contents",
     srcs = [
@@ -41,12 +43,13 @@ filegroup(
 # END-INTERNAL
 
 exports_files([
-    "worker_adapter.js",
+    "index.js",
 ])
 
 filegroup(
-    name = "worker",
+    name = "filegroup",
     srcs = [
+        "index.js",
         "third_party/github.com/bazelbuild/bazel/src/main/protobuf/worker_protocol.proto",
         "worker.js",
         "worker_adapter.js",
