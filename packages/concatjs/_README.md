@@ -53,7 +53,8 @@ To use `concatjs_devserver`, you simply `load` the rule, and call it with `deps`
 point to your `ts_library` target(s):
 
 ```python
-load("//packages/typescript:index.bzl", "concatjs_devserver", "ts_library")
+load("//packages/concatjs:index.bzl", "concatjs_devserver")
+load("//packages/typescript:index.bzl", "ts_library")
 
 ts_library(
     name = "app",
