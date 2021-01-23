@@ -253,3 +253,13 @@ example_integration_test(
     ],
     owners = ["@alan-agius4"],
 )
+
+example_integration_test(
+    name = "examples_esbuild",
+    timeout = "long",
+    npm_packages = {
+        "//packages/esbuild:npm_package": "@bazel/esbuild",
+        "//packages/typescript:npm_package": "@bazel/typescript",
+    },
+    owners = ["@mattem"],
+)
