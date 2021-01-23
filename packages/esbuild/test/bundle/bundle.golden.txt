@@ -1,0 +1,8 @@
+(() => {
+  
+  var NAME = "bazel";
+
+  
+  console.log(`Hello ${NAME}`);
+})();
+//# sourceMappingURL=bundle.js.map

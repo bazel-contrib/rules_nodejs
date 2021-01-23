@@ -1,0 +1,9 @@
+load("//internal/js_library:js_library.bzl", "js_library")
+
+package(default_visibility = ["//packages/esbuild/test:__subpackages__"])
+
+js_library(
+    name = "module-two",
+    package_name = "@alias-mapping/module-two",
+    srcs = [":index.js"],
+)

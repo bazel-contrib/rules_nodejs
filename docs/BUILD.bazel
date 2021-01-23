@@ -81,6 +81,7 @@ rules_nodejs_docs(
         "Rollup": "//packages/rollup:README.md",
         "Terser": "//packages/terser:README.md",
         "TypeScript": "//packages/typescript:README.md",
+        "esbuild": "//packages/esbuild:README.md",
     },
     tags = [
         "fix-windows",

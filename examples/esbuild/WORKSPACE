@@ -1,0 +1,66 @@
+# Copyright 2019 The Bazel Authors. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+workspace(
+    name = "examples_esbuild",
+    managed_directories = {"@npm": ["node_modules"]},
+)
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+    name = "build_bazel_rules_nodejs",
+    sha256 = "6142e9586162b179fdd570a55e50d1332e7d9c030efd853453438d607569721d",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/3.0.0/rules_nodejs-3.0.0.tar.gz"],
+)
+
+_ESBUILD_VERSION = "0.8.34"
+
+http_archive(
+    name = "esbuild_darwin",
+    build_file_content = """exports_files(["bin/esbuild"])""",
+    sha256 = "3bf980b5175df873dd84fd614d57722f3b1b9c7e74929504e26192d23075d5c3",
+    strip_prefix = "package",
+    urls = [
+        "https://registry.npmjs.org/esbuild-darwin-64/-/esbuild-darwin-64-%s.tgz" % _ESBUILD_VERSION,
+    ],
+)
+
+http_archive(
+    name = "esbuild_windows",
+    build_file_content = """exports_files(["esbuild.exe"])""",
+    sha256 = "826cd58553e7b6910dd22aba001cd72af34e05c9c3e9af567b5b2a6b1c9f3941",
+    strip_prefix = "package",
+    urls = [
+        "https://registry.npmjs.org/esbuild-windows-64/-/esbuild-windows-64-%s.tgz" % _ESBUILD_VERSION,
+    ],
+)
+
+http_archive(
+    name = "esbuild_linux",
+    build_file_content = """exports_files(["bin/esbuild"])""",
+    sha256 = "9dff3f5b06fd964a1cbb6aa9ea5ebf797767f1bd2bac71e084fb0bbefeba24a3",
+    strip_prefix = "package",
+    urls = [
+        "https://registry.npmjs.org/esbuild-linux-64/-/esbuild-linux-64-%s.tgz" % _ESBUILD_VERSION,
+    ],
+)
+
+load("@build_bazel_rules_nodejs//:index.bzl", "npm_install")
+
+npm_install(
+    name = "npm",
+    package_json = "//:package.json",
+    package_lock_json = "//:package-lock.json",
+)

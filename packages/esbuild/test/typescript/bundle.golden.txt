@@ -1,0 +1,62 @@
+var __create = Object.create;
+var __defProp = Object.defineProperty;
+var __getProtoOf = Object.getPrototypeOf;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __markAsModule = (target) => __defProp(target, "__esModule", {value: true});
+var __name = (target, value) => __defProp(target, "name", {value, configurable: true});
+var __commonJS = (callback, module) => () => {
+  if (!module) {
+    module = {exports: {}};
+    callback(module.exports, module);
+  }
+  return module.exports;
+};
+var __exportStar = (target, module, desc) => {
+  __markAsModule(target);
+  if (module && typeof module === "object" || typeof module === "function") {
+    for (let key of __getOwnPropNames(module))
+      if (!__hasOwnProp.call(target, key) && key !== "default")
+        __defProp(target, key, {get: () => module[key], enumerable: !(desc = __getOwnPropDesc(module, key)) || desc.enumerable});
+  }
+  return target;
+};
+var __toModule = (module) => {
+  if (module && module.__esModule)
+    return module;
+  return __exportStar(__defProp(module != null ? __create(__getProtoOf(module)) : {}, "default", {value: module, enumerable: true}), module);
+};
+
+
+var require_module_dynamic = __commonJS((exports, module) => {
+  (function(factory) {
+    if (typeof module === "object" && typeof module.exports === "object") {
+      var v = factory(require, exports);
+      if (v !== void 0)
+        module.exports = v;
+    } else if (typeof define === "function" && define.amd) {
+      define("build_bazel_rules_nodejs/packages/esbuild/test/typescript/module-dynamic/index", ["require", "exports"], factory);
+    }
+  })(function(require2, exports2) {
+    "use strict";
+    Object.defineProperty(exports2, "__esModule", {value: true});
+    exports2.getId = () => "dynamic-id";
+  });
+});
+
+
+var import_module_dynamic = __toModule(require_module_dynamic());
+
+
+var getId = /* @__PURE__ */ __name(() => "module-one", "getId");
+
+
+var getId2 = /* @__PURE__ */ __name(() => "module-two", "getId");
+
+
+var main_default = `Full ID: ${getId} - ${getId2} - ${import_module_dynamic.getId}`;
+export {
+  main_default as default
+};
+//# sourceMappingURL=bundle.js.map
