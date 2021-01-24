@@ -68,16 +68,6 @@
 #       cat "$(rlocation my_workspace/path/to/my/data.txt)"
 #
 
-if [[ ! -d "${RUNFILES_DIR:-/dev/null}" && ! -f "${RUNFILES_MANIFEST_FILE:-/dev/null}" ]]; then
-  if [[ -f "$0.runfiles_manifest" ]]; then
-    export RUNFILES_MANIFEST_FILE="$0.runfiles_manifest"
-  elif [[ -f "$0.runfiles/MANIFEST" ]]; then
-    export RUNFILES_MANIFEST_FILE="$0.runfiles/MANIFEST"
-  elif [[ -f "$0.runfiles/build_bazel_rules_nodejs/third_party/github.com/bazelbuild/bazel/tools/bash/runfiles/runfiles.bash" ]]; then
-    export RUNFILES_DIR="$0.runfiles"
-  fi
-fi
-
 case "$(uname -s | tr [:upper:] [:lower:])" in
 msys*|mingw*|cygwin*)
   # matches an absolute Windows path
@@ -85,9 +75,30 @@ msys*|mingw*|cygwin*)
   ;;
 *)
   # matches an absolute Unix path
-  export _RLOCATION_ISABS_PATTERN="^/[^/].*"
+  # rules_nodejs modification
+  # In the upstream this pattern requires a second character which is not a slash
+  # https://github.com/bazelbuild/bazel/blob/22d376cf41d50bfee129a0a7fa656d66af2dbf14/tools/bash/runfiles/runfiles.bash#L88
+  # However in integration testing with rules_docker we observe runfiles path starting with two slashes
+  # This fails on Linux CI (not Mac or Windows) in our //e2e:e2e_nodejs_image:
+  # ERROR[runfiles.bash]: cannot look up runfile "nodejs_linux_amd64/bin/nodejs/bin/node"
+  # (RUNFILES_DIR="/app/main.runfiles/e2e_nodejs_image//app//main.runfiles", RUNFILES_MANIFEST_FILE="")
+  export _RLOCATION_ISABS_PATTERN="^/.*"
   ;;
 esac
+
+if [[ ! -d "${RUNFILES_DIR:-/dev/null}" && ! -f "${RUNFILES_MANIFEST_FILE:-/dev/null}" ]]; then
+  if [[ -f "$0.runfiles_manifest" ]]; then
+    export RUNFILES_MANIFEST_FILE="$0.runfiles_manifest"
+  elif [[ -f "$0.runfiles/MANIFEST" ]]; then
+    export RUNFILES_MANIFEST_FILE="$0.runfiles/MANIFEST"
+  elif [[ -f "$0.runfiles/build_bazel_rules_nodejs/third_party/github.com/bazelbuild/bazel/tools/bash/runfiles/runfiles.bash" ]]; then
+    if [[ "${0}" =~ $_RLOCATION_ISABS_PATTERN ]]; then
+      export RUNFILES_DIR="${0}.runfiles"
+    else
+      export RUNFILES_DIR="${PWD}/${0}.runfiles"
+    fi
+  fi
+fi
 
 # --- begin rules_nodejs custom code ---
 # normpath() function removes all `/./` and `dir/..` sequences from a path
