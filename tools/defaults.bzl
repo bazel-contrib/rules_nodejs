@@ -55,7 +55,7 @@ def pkg_npm(**kwargs):
         "0.0.0-PLACEHOLDER": "{STABLE_BUILD_SCM_VERSION}",
     })
 
-    # Finally call through to the rule with our defaults set
+    # Call through to the rule with our defaults set
     _pkg_npm(
         deps = deps,
         substitutions = select({

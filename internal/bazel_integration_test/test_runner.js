@@ -169,11 +169,13 @@ function copyNpmPackage(packagePath) {
   const to = tmp.dirSync({keep: DEBUG, unsafeCleanup: !DEBUG}).name;
   const from = RUNFILES_MANIFEST ? RUNFILES_MANIFEST[packagePath] :
                                    path.posix.join(process.cwd(), '..', packagePath);
-  if (!isDirectory(from)) {
+  if (!isFile(from)) {
     throw new Error(`npm package ${packagePath} not found at ${from}`);
   }
-  copyFolderSync(from, to);
-  return to;
+
+  const parsed = path.parse(from);
+  copyFolderSync(parsed.dir, to);
+  return path.join(to, parsed.base);
 }
 
 const workspacePath = config.workspaceRoot.startsWith('external/') ?
@@ -243,6 +245,11 @@ if (config.bazelrcAppend) {
 
 // Handle package.json replacements
 const packageJsonFile = path.posix.join(workspaceRoot, 'package.json');
+const packageJsonLockFile = path.posix.join(workspaceRoot, 'package-lock.json');
+const packageJsonLockContents = isFile(packageJsonLockFile) ?
+    JSON.parse(fs.readFileSync(packageJsonLockFile, {encoding: 'utf-8'})) :
+    undefined;
+
 if (isFile(packageJsonFile)) {
   let packageJsonContents = fs.readFileSync(packageJsonFile, {encoding: 'utf-8'});
 
@@ -259,8 +266,19 @@ if (isFile(packageJsonFile)) {
             packageJsonKey} failed!`)
         process.exit(1);
       }
+
+      if (packageJsonLockContents && packageJsonLockContents.packages && packageJsonKey) {
+        // keeping the entry results in a npm error, but removing it solves it
+        // TODO(matt): regenerate the entry here when I understand the filepaths :/
+        delete packageJsonLockContents.packages[`node_modules/${packageJsonKey}`];
+      }
     }
+
     fs.writeFileSync(packageJsonFile, packageJsonContents);
+
+    if (packageJsonLockContents) {
+      fs.writeFileSync(packageJsonLockFile, JSON.stringify(packageJsonLockContents, null, 2));
+    }
   }
 
   const packageJsonReplacementKeys = Object.keys(config.packageJsonRepacements);

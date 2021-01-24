@@ -40,7 +40,7 @@ See the [stamping documentation](https://github.com/bazelbuild/rules_nodejs/blob
 
 Usage:
 
-`pkg_npm` yields three labels. Build the package directory using the default label:
+`pkg_npm` yields four labels. Build the package directory using the default label:
 
 ```sh
 $ bazel build :my_package
@@ -70,6 +70,17 @@ $ bazel run :my_package.publish
 You can pass arguments to npm by escaping them from Bazel using a double-hyphen, for example:
 
 `bazel run my_package.publish -- --tag=next`
+
+It is also possible to use the resulting tar file file from the `.pack` as an action input via the `.tar` label:
+
+```python
+my_rule(
+    name = "foo",
+    srcs = [
+        "//:my_package.tar",
+    ],
+)
+```
 """
 
 # Used in angular/angular /packages/bazel/src/ng_package/ng_package.bzl
@@ -307,6 +318,7 @@ def pkg_npm_macro(name, **kwargs):
         name = name,
         **kwargs
     )
+
     native.alias(
         name = name + ".pack",
         actual = select({
@@ -314,10 +326,29 @@ def pkg_npm_macro(name, **kwargs):
             "//conditions:default": name + ".pack.sh",
         }),
     )
+
     native.alias(
         name = name + ".publish",
         actual = select({
             "@bazel_tools//src/conditions:host_windows": name + ".publish.bat",
             "//conditions:default": name + ".publish.sh",
         }),
+    )
+
+    native.genrule(
+        name = "%s.tar" % name,
+        outs = ["%s.tgz" % name],
+        cmd = "$(location :%s.pack) | xargs -I {} cp {} $@" % name,
+        # NOTE(mattem): on windows, it seems to output a buch of other stuff on stdout when piping, so pipe to tail
+        # and grab the last line
+        cmd_bat = "$(location :%s.pack) | tail -1 | xargs -I {} cp {} $@" % name,
+        tools = [
+            ":%s.pack" % name,
+        ],
+        # tagged as manual so this doesn't case two actions for each input with builds for "host" (as used as a tool)
+        tags = [
+            "local",
+            "manual",
+        ],
+        visibility = kwargs.get("visibility"),
     )
