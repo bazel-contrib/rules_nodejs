@@ -224,13 +224,34 @@ fi
 
     is_builtin = ctx.attr._node.label.workspace_name in ["nodejs_%s" % p for p in BUILT_IN_NODE_PLATFORMS]
 
+    runfiles = []
+    runfiles.extend(node_tool_files)
+    runfiles.extend(ctx.files._bash_runfile_helper)
+    runfiles.append(ctx.outputs.loader_script)
+    runfiles.append(ctx.outputs.require_patch_script)
+    runfiles.append(ctx.file._repository_args)
+
     # First replace any instances of "$(rlocation " with "$$(rlocation " to preserve
     # legacy uses of "$(rlocation"
     expanded_args = [preserve_legacy_templated_args(a) for a in ctx.attr.templated_args]
 
-    # Add the working dir argument before expansions
+    # chdir has to include rlocation lookup for windows
+    # that means we have to generate a script so there's an entry in the runfiles manifest
     if ctx.attr.chdir:
-        expanded_args.append("--bazel_node_working_dir=" + ctx.attr.chdir)
+        # limitation of ctx.actions.declare_file - you have to chdir within the package
+        if ctx.attr.chdir == ctx.label.package:
+            relative_dir = None
+        elif ctx.attr.chdir.startswith(ctx.label.package + "/"):
+            relative_dir = ctx.attr.chdir[len(ctx.label.package) + 1:]
+        else:
+            fail("""nodejs_binary/nodejs_test only support chdir inside the current package
+                    but %s is not a subfolder of %s""" % (ctx.attr.chdir, ctx.label.package))
+        chdir_script = ctx.actions.declare_file(_join(relative_dir, "__chdir.js__"))
+        ctx.actions.write(chdir_script, "process.chdir(__dirname)")
+        runfiles.append(chdir_script)
+
+        # this join is effectively a $(rootdir) expansion
+        expanded_args.append("--node_options=--require=$$(rlocation %s)" % _join(ctx.workspace_name, chdir_script.short_path))
 
     # Next expand predefined source/output path variables:
     # $(execpath), $(rootpath) & legacy $(location)
@@ -279,13 +300,6 @@ fi
         is_executable = True,
     )
 
-    runfiles = []
-    runfiles.extend(node_tool_files)
-    runfiles.extend(ctx.files._bash_runfile_helper)
-    runfiles.append(ctx.outputs.loader_script)
-    runfiles.append(ctx.outputs.require_patch_script)
-    runfiles.append(ctx.file._repository_args)
-
     if is_windows(ctx):
         runfiles.append(ctx.outputs.launcher_sh)
         executable = create_windows_native_launcher_script(ctx, ctx.outputs.launcher_sh)
@@ -331,12 +345,14 @@ _NODEJS_EXECUTABLE_ATTRS = {
     "chdir": attr.string(
         doc = """Working directory to run the binary or test in, relative to the workspace.
         By default, Bazel always runs in the workspace root.
+        Due to implementation details, this argument must be underneath this package directory.
 
         To run in the directory containing the `nodejs_binary` / `nodejs_test` use
         `chdir = package_name()`
         (or if you're in a macro, use `native.package_name()`)
         
-        NOTE that this can affect other paths passed to the program, which are workspace-relative.
+        WARNING: this will affect other paths passed to the program, either as arguments or in configuration files,
+        which are workspace-relative.
         You may need `../../` segments to re-relativize such paths to the new working directory.
         """,
     ),

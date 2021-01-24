@@ -47,7 +47,7 @@ npm_package_bin(
 nodejs_test(
     name = "test",
     # Also run a test in the output directory
-    chdir = package_name(),
+    chdir = package_name() + "/build",
     data = ["build/app.js"],
     entry_point = "test.js",
 )
