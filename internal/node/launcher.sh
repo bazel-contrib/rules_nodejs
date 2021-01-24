@@ -235,7 +235,7 @@ if [ "$NODE_PATCHES" = true ]; then
     # Absolute path on Windows, e.g. C:/path/to/thing
     [a-zA-Z]:/* ) ;;
     # Otherwise it needs to be made relative
-    *           ) node_patches_script="./${node_patches_script}" ;;
+    *           ) node_patches_script="${PWD}/${node_patches_script}" ;;
   esac
   LAUNCHER_NODE_OPTIONS+=( "--require" "$node_patches_script" )
 fi
@@ -286,14 +286,14 @@ if [ "$PATCH_REQUIRE" = true ]; then
     # Absolute path on Windows, e.g. C:/path/to/thing
     [a-zA-Z]:/* ) ;;
     # Otherwise it needs to be made relative
-    *           ) require_patch_script="./${require_patch_script}" ;;
+    *           ) require_patch_script="${PWD}/${require_patch_script}" ;;
   esac
   LAUNCHER_NODE_OPTIONS+=( "--require" "$require_patch_script" )
   # Change the entry point to be the loader.js script so we run code before node
   MAIN=$(rlocation "TEMPLATED_loader_script")
 else
   # Entry point is the user-supplied script
-  MAIN=TEMPLATED_entry_point_execroot_path  
+  MAIN="${PWD}/"TEMPLATED_entry_point_execroot_path
   # TODO: after we link-all-bins we should not need this extra lookup
   if [[ ! -f "$MAIN" ]]; then
     if [ "$FROM_EXECROOT" = true ]; then
@@ -302,11 +302,6 @@ else
       MAIN=TEMPLATED_entry_point_manifest_path
     fi
   fi
-fi
-
-if [[ -n "$NODE_WORKING_DIR" ]]; then
-  echo "process.chdir(__dirname)" > "$NODE_WORKING_DIR/__chdir.js"
-  LAUNCHER_NODE_OPTIONS+=( "--require" "./$NODE_WORKING_DIR/__chdir.js" )
 fi
 
 # The EXPECTED_EXIT_CODE lets us write bazel tests which assert that
@@ -334,6 +329,9 @@ _int() {
 }
 
 # Execute the main program
+if [[ -n "$NODE_WORKING_DIR" ]]; then
+  cd "$NODE_WORKING_DIR"
+fi
 set +e
 
 if [[ -n "${STDOUT_CAPTURE}" ]] && [[ -n "${STDERR_CAPTURE}" ]]; then
