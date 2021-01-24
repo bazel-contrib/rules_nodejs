@@ -178,15 +178,17 @@ def npm_package_bin(tool = None, package = None, package_bin = None, data = [], 
             To run in the output directory where the npm_package_bin writes outputs, use
             `chdir = "$(RULEDIR)"`
 
-            NOTE that this can affect other paths passed to the program, which are workspace-relative.
+            WARNING: this will affect other paths passed to the program, either as arguments or in configuration files,
+            which are workspace-relative.
             You may need `../../` segments to re-relativize such paths to the new working directory.
-            In a BUILD file you could do something like this to point to the output path:
+            In a `BUILD` file you could do something like this to point to the output path:
 
             ```python
             _package_segments = len(package_name().split("/"))
             npm_package_bin(
                 ...
                 chdir = package_name(),
+                # ../.. segments to re-relative paths from the chdir back to workspace
                 args = ["/".join([".."] * _package_segments + ["$@"])],
             )
             ```
