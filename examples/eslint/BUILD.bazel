@@ -32,8 +32,7 @@ write_file(
 eslint_test(
     name = "lint",
     args = [
-        # Bazel invokes node binaries from the root of the monorepo, this switches the context to
-        # the directory this build file is in (home/client)
+        # Bazel invokes node binaries from the root of the monorepo
         "--node_options=--require=./$(rootpath :write_eslint_chdir_script)",
         "--max-warnings 0",
         "--ext=js",
