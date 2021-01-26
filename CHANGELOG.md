@@ -1,3 +1,12 @@
+## [2.3.3](https://github.com/bazelbuild/rules_nodejs/compare/2.3.2...2.3.3) (2021-01-26)
+
+
+### Bug Fixes
+
+* linker fix for invalid symlink creation path in createSymlinkAndPreserveContents ([d18a1ff](https://github.com/bazelbuild/rules_nodejs/commit/d18a1ff))
+
+
+
 ## [2.3.2](https://github.com/bazelbuild/rules_nodejs/compare/2.3.1...2.3.2) (2020-12-18)
 
 
