@@ -245,3 +245,8 @@ example_integration_test(
     ],
     owners = ["@alan-agius4"],
 )
+
+example_integration_test(
+    name = "examples_grpc",
+    bazel_commands = ["build ..."],
+)

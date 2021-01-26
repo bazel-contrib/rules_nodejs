@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package bazel.example.rgrpc.simple_service;
+
+service Testing {
+  rpc Create(CreateRequest) returns (CreateResponse);
+}
+
+message CreateRequest {
+  string name = 1;
+}
+
+message CreateResponse {
+  int64 id = 1;
+  string name = 2;
+}

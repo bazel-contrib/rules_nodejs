@@ -1,0 +1,8 @@
+{
+    "name": "grpc_example",
+    "private": true,
+    "devDependencies": {
+        "grpc_tools_node_protoc_ts": "^5.1.1",
+        "grpc-tools": "^1.10.0"
+    }
+}

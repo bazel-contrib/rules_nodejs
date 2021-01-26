@@ -1,0 +1,28 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "npm_package_bin")
+
+npm_package_bin(
+    name = "grpc",
+    outs = [
+        "api_grpc_pb.d.ts",
+        "api_grpc_pb.js",
+        "api_pb.d.ts",
+        "api_pb.js",
+    ],
+    args = [
+        "-I./" + package_name(),
+        "$(execpath api.proto)",
+        "--plugin=protoc-gen-ts=$(execpath @npm//:node_modules/grpc_tools_node_protoc_ts/bin/protoc-gen-ts)",
+        "--ts_out=$(@D)",
+        "--js_out=import_style=commonjs:$(@D)",
+        "--grpc_out=grpc_js:$(@D)",
+    ],
+    data = [
+        "api.proto",
+        "@npm//:node_modules/grpc_tools_node_protoc_ts/bin/protoc-gen-ts",
+        "@npm//grpc_tools_node_protoc_ts",
+    ],
+    package = "grpc-tools",
+    package_bin = "grpc_tools_node_protoc",
+)
+
+# TODO(alexeagle): consume the .d.ts and .js in some type-checked example service/client
