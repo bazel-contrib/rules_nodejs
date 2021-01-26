@@ -490,9 +490,10 @@ function main(args, runfiles) {
                             }
                             break;
                     }
-                    if (target) {
-                        const stats = yield gracefulLstat(m.name);
-                        if (stats !== null && (yield isLeftoverDirectoryFromLinker(stats, m.name))) {
+                    const stats = yield gracefulLstat(m.name);
+                    const isLeftOver = (stats !== null && (yield isLeftoverDirectoryFromLinker(stats, m.name)));
+                    if (target && (yield exists(target))) {
+                        if (stats !== null && isLeftOver) {
                             yield createSymlinkAndPreserveContents(stats, m.name, target);
                         }
                         else {
@@ -500,7 +501,15 @@ function main(args, runfiles) {
                         }
                     }
                     else {
-                        log_verbose(`no symlink target found for module ${m.name}`);
+                        if (!target) {
+                            log_verbose(`no symlink target found for module ${m.name}`);
+                        }
+                        else {
+                            log_verbose(`potential target ${target} does not exists for module ${m.name}`);
+                        }
+                        if (isLeftOver) {
+                            yield unlink(m.name);
+                        }
                     }
                 }
                 if (m.children) {
