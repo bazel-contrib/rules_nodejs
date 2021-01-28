@@ -55,8 +55,12 @@ def pkg_npm(**kwargs):
         "0.0.0-PLACEHOLDER": "{STABLE_BUILD_SCM_VERSION}",
     })
 
+    name = kwargs.pop("name")
+
     # Call through to the rule with our defaults set
     _pkg_npm(
+        name = name,
+        tgz = "%s.tgz" % name,
         deps = deps,
         substitutions = select({
             "@build_bazel_rules_nodejs//internal:stamp": stamped_substitutions,
