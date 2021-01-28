@@ -1,0 +1,18 @@
+load("//packages/webpack:index.bzl", "webpack")
+
+webpack(
+    name = "bundle",
+    outs = ["app.bundle.js"],
+    args = [
+        "$(execpath index.js)",
+        "--config",
+        "$(execpath webpack.config.js)",
+        "-o",
+        "$@",
+    ],
+    data = [
+        "index.js",
+        "module.js",
+        "webpack.config.js",
+    ],
+)
