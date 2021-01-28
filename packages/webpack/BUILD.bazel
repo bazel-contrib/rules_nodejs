@@ -1,0 +1,92 @@
+# Copyright 2017 The Bazel Authors. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
+load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "pkg_npm")
+load("@build_bazel_rules_nodejs//tools/stardoc:index.bzl", "stardoc")
+load(":replacements.bzl", "WEBPACK_REPLACEMENTS")
+
+package(default_visibility = ["//visibility:public"])
+
+bzl_library(
+    name = "bzl",
+    srcs = glob(["*.bzl"]) + [
+        # Work-around since we don't have and don't wnat a bzl_library in the generated
+        # @nodejs//:BUILD.bazel file
+        "@nodejs//:index.bzl",
+    ],
+    deps = [
+        "//packages/webpack/internal:bzl",
+        "@build_bazel_rules_nodejs//:bzl",
+        "@build_bazel_rules_nodejs//internal/common:bzl",
+        "@build_bazel_rules_nodejs//internal/node:bzl",
+    ],
+)
+
+stardoc(
+    name = "docs",
+    out = "index.md",
+    input = "index.docs.bzl",
+    tags = ["fix-windows"],
+    deps = [":bzl"],
+)
+
+nodejs_test(
+    name = "test",
+    data = [
+        "docs_test.js",
+        "index.md",
+    ],
+    entry_point = ":docs_test.js",
+    tags = [
+        "fix-windows",
+    ],
+)
+
+# Ugly genrule depending on local linux environment to build the README out of skylark doc generation.
+# Only referenced when we do a release.
+# TODO: This ought to be possible with stardoc alone. Need to coordinate with Chris Parsons.
+genrule(
+    name = "generate_README",
+    srcs = [
+        "index.md",
+        "install.md",
+    ],
+    outs = ["README.md"],
+    cmd = """cat $(execpath install.md) $(execpath index.md) | sed 's/^##/\\\n##/' > $@""",
+    tags = ["fix-windows"],
+    visibility = ["//docs:__pkg__"],
+)
+
+pkg_npm(
+    name = "npm_package",
+    srcs = [
+        "index.bzl",
+        "package.json",
+        "//packages/webpack/internal:package_contents",
+    ],
+    build_file_content = "",
+    substitutions = WEBPACK_REPLACEMENTS,
+    deps = [
+        "//packages/webpack/internal:BUILD",
+        "//packages/webpack/internal/worker:filegroup",
+    ] + select({
+        # FIXME: fix stardoc on Windows; //packages/typescript:index.md generation fails with:
+        #   ERROR: D:/b/62unjjin/external/npm_bazel_typescript/BUILD.bazel:36:1: Couldn't build file
+        #   external/npm_bazelnpm_bazel_typescript_terser/docs.raw: Generating proto for Starlark doc for docs failed (Exit 1)
+        "@bazel_tools//src/conditions:windows": [],
+        "//conditions:default": [":generate_README"],
+    }),
+)

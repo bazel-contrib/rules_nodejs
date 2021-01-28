@@ -1,0 +1,21 @@
+{
+    "name": "@bazel/webpack",
+    "description": "Webpack rules for Bazel",
+    "license": "Apache-2.0",
+    "version": "0.0.0-PLACEHOLDER",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/bazelbuild/rules_nodejs.git",
+        "directory": "packages/webpack"
+    },
+    "bugs": {
+        "url": "https://github.com/bazelbuild/rules_nodejs/issues"
+    },
+    "keywords": [
+        "webpack",
+        "bazel"
+    ],
+    "peerDependencies": {
+        "webpack": ">=4.0"
+    }
+}
