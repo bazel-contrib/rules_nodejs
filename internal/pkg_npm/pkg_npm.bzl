@@ -71,9 +71,18 @@ You can pass arguments to npm by escaping them from Bazel using a double-hyphen,
 
 `bazel run my_package.publish -- --tag=next`
 
-It is also possible to use the resulting tar file file from the `.pack` as an action input via the `.tar` label:
+It is also possible to use the resulting tar file file from the `.pack` as an action input via the `.tar` label.
+To make use of this label, the `tgz` attribute must be set, and the generating `pkg_npm` rule must have a valid `package.json` file
+as part of its sources:
 
 ```python
+pkg_npm(
+    name = "my_package",
+    srcs = ["package.json"],
+    deps = [":my_typescript_lib"],
+    tgz = "my_package.tgz",
+)
+
 my_rule(
     name = "foo",
     srcs = [
@@ -108,6 +117,12 @@ You can use values from the workspace status command using curly braces, for exa
 
 See the section on stamping in the [README](stamping)
 """,
+    ),
+    "tgz": attr.string(
+        doc = """If set, will create a `.tgz` file that can be used as an input to another rule, the tar will be given the name assigned to this attribute.
+
+        NOTE: If this attribute is set, a valid `package.json` file must be included in the sources of this target
+        """,
     ),
     "vendor_external": attr.string_list(
         doc = """External workspaces whose contents should be vendored into this workspace.
@@ -313,7 +328,14 @@ pkg_npm = rule(
     outputs = PKG_NPM_OUTPUTS,
 )
 
-def pkg_npm_macro(name, **kwargs):
+def pkg_npm_macro(name, tgz = None, **kwargs):
+    """Wrapper macro around pkg_npm
+
+    Args:
+        name: Unique name for this target
+        tgz: If provided, creates a `.tar` target that can be used as an action input version of `.pack`
+        **kwargs: All other args forwarded to pkg_npm
+    """
     pkg_npm(
         name = name,
         **kwargs
@@ -335,20 +357,25 @@ def pkg_npm_macro(name, **kwargs):
         }),
     )
 
-    native.genrule(
-        name = "%s.tar" % name,
-        outs = ["%s.tgz" % name],
-        cmd = "$(location :%s.pack) | xargs -I {} cp {} $@" % name,
-        # NOTE(mattem): on windows, it seems to output a buch of other stuff on stdout when piping, so pipe to tail
-        # and grab the last line
-        cmd_bat = "$(location :%s.pack) | tail -1 | xargs -I {} cp {} $@" % name,
-        tools = [
-            ":%s.pack" % name,
-        ],
-        # tagged as manual so this doesn't case two actions for each input with builds for "host" (as used as a tool)
-        tags = [
-            "local",
-            "manual",
-        ],
-        visibility = kwargs.get("visibility"),
-    )
+    if tgz != None:
+        if not tgz.endswith(".tgz"):
+            fail("tgz output for pkg_npm %s must produce a .tgz file" % name)
+
+        native.genrule(
+            name = "%s.tar" % name,
+            outs = [tgz],
+            cmd = "$(location :%s.pack) | xargs -I {} cp {} $@" % name,
+            # NOTE(mattem): on windows, it seems to output a buch of other stuff on stdout when piping, so pipe to tail
+            # and grab the last line
+            cmd_bat = "$(location :%s.pack) | tail -1 | xargs -I {} cp {} $@" % name,
+            srcs = [
+                name,
+            ],
+            tools = [
+                ":%s.pack" % name,
+            ],
+            tags = [
+                "local",
+            ],
+            visibility = kwargs.get("visibility"),
+        )

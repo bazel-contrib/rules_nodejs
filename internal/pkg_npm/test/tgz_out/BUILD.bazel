@@ -1,0 +1,31 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "pkg_npm")
+
+pkg_npm(
+    name = "pkg",
+    srcs = [
+        "main.js",
+        "package.json",
+    ],
+    tgz = "my_tar.tgz",
+)
+
+sh_test(
+    name = "pkg_test",
+    size = "small",
+    srcs = [
+        "test.sh",
+    ],
+    data = [
+        "my_tar.tgz",
+        "//third_party/github.com/bazelbuild/bazel-skylib:tests/unittest.bash",
+    ],
+    # Disabled on windows due to how tar interprets the colons in file paths as remotes, and the --force-local
+    # only being an option in GNU tar...
+    # This feature has additional coverage as it used by all bazel tests for examples
+    tags = [
+        "fix-windows",
+    ],
+    deps = [
+        "@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles",
+    ],
+)
