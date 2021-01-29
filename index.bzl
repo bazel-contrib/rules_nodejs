@@ -49,8 +49,12 @@ js_library = _js_library
 # ANY RULES ADDED HERE SHOULD BE DOCUMENTED, see index.for_docs.bzl
 
 # Allows us to avoid a transitive dependency on bazel_skylib from leaking to users
-def dummy_bzl_library(name, **kwargs):
-    native.filegroup(name = name)
+def dummy_bzl_library(name, srcs = [], deps = [], visibility = ["//visibility:public"], **kwargs):
+    native.filegroup(
+        name = name,
+        srcs = srcs + deps,
+        visibility = visibility,
+    )
 
 # @unsorted-dict-items
 COMMON_REPLACEMENTS = {
