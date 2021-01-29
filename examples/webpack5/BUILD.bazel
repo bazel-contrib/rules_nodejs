@@ -1,0 +1,57 @@
+load("@npm//@babel/cli:index.bzl", "babel")
+load("@npm//webpack:index.bzl", "webpack")
+
+babel(
+    name = "src",
+    args = [
+        "src",
+        "--out-dir",
+        # This is bazel short hand for the output directory
+        # https://docs.bazel.build/versions/master/be/make-variables.html#predefined_genrule_variables
+        "$(@D)",
+        "--extensions",
+        ".js",
+        "--config-file",
+        "./$(execpath babel.config.json)",
+    ],
+    data = glob(
+        [
+            "src/**/*",
+        ],
+    ) + [
+        "babel.config.json",
+        "@npm//@babel",
+        "@npm//babel-plugin-dynamic-import-node",
+        "@npm//browserslist",
+        "@npm//core-js-compat",
+        "@npm//regexpu-core",
+        "@npm//regenerator-transform",
+    ],
+    # This flag requires that the output dir be the same as the name of this rule
+    output_dir = True,
+)
+
+webpack(
+    name = "serve",
+    args = [
+        "serve",
+        # Don't apply node patches so the webpack watcher can follow symlinks
+        # out of the execroot.
+        # NB: resolve: {symlinks: false} MUST be set so webpack _doesn't_ follow
+        # symlinks out of the execroot & sandbox when building & bundling.
+        # Leaving the sandbox & execroot during build actions is non-hermetic.
+        "--nobazel_node_patches",
+    ],
+    data = [
+        "package.json",
+        # Take the output from the babel transpilation and feed it to webpack
+        ":src",
+        "webpack.config.js",
+        "@npm//html-webpack-plugin",
+        "@npm//webpack-dev-server",
+    ],
+    tags = [
+        # Keeps the server alive under ibazel
+        "ibazel_notify_changes",
+    ],
+)
