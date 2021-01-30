@@ -12,7 +12,6 @@ bzl_library(
     deps = [
         "@build_bazel_rules_nodejs//:bzl",
         "@build_bazel_rules_nodejs//packages/labs/grpc_web:bzl",
-        "@build_bazel_rules_nodejs//packages/labs/protobufjs:bzl",
     ],
 )
 
@@ -45,7 +44,6 @@ pkg_npm(
     srcs = glob(["*.bzl"]) + [
         "package.json",
         "//packages/labs/grpc_web:package_contents",
-        "//packages/labs/protobufjs:package_contents",
     ],
     build_file_content = "",
     deps = ["README.md"],

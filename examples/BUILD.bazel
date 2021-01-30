@@ -201,6 +201,14 @@ example_integration_test(
 )
 
 example_integration_test(
+    name = "examples_protobufjs",
+    npm_packages = {
+        "//packages/jasmine:npm_package": "@bazel/jasmine",
+        "//packages/typescript:npm_package": "@bazel/typescript",
+    },
+)
+
+example_integration_test(
     name = "examples_vendored_node",
     npm_packages = {
         "//packages/jasmine:npm_package": "@bazel/jasmine",
