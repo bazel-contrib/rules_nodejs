@@ -129,9 +129,21 @@ Example at [examples/kotlin](https://github.com/bazelbuild/rules_nodejs/tree/sta
 
 ### Protocol Buffers and gRPC
 
-Note: this is considered a "labs" feature in rules_nodejs, so support and stability are not great. gRPC is still a WIP.
+Note: this is under active development. Come chat in the #javascript channel on Slack to get the latest.
+Support and stability are not great but expected to improve.
 
-See [examples/protocol_buffers](https://github.com/bazelbuild/rules_nodejs/tree/stable/examples/protocol_buffers)
+There are many alternative implementations for protobuf and RPC.
+We generally intend to support all of them, with a small layer in rules_nodejs that allows you to build around any of those tools.
+
+<https://github.com/rules-proto-grpc/rules_proto_grpc> is an excellent, broad ruleset based on the tooling from <http://grpc.io>. We may point to this as the canonical example in the future.
+
+The `@bazel/labs` package has an experimental `ts_proto_library` rule.
+It integrates with the "concatjs" bundler and is suitable for projects using `ts_library`.
+However it's not clear whether this will be promoted to a stable API.
+See the example in [examples/protocol_buffers](https://github.com/bazelbuild/rules_nodejs/tree/stable/examples/protocol_buffers)
+
+[protobuf.js](https://github.com/protobufjs/protobuf.js) from https://github.com/dcodeIO is a simple alternative.
+See the example in [examples/protobufjs](https://github.com/bazelbuild/rules_nodejs/tree/stable/examples/protobufjs)
 
 ## Bazel-specific
 

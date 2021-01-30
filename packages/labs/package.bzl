@@ -47,16 +47,6 @@ def npm_bazel_labs_dependencies():
         symlink_node_modules = False,
     )
 
-    yarn_install(
-        name = "build_bazel_rules_typescript_protobufs_compiletime_deps",
-        package_json = Label("//packages/labs/protobufjs:package.json"),
-        yarn_lock = Label("//packages/labs/protobufjs:yarn.lock"),
-        # Do not symlink node_modules as when used in downstream repos we should not create
-        # node_modules folders in the external repository. This is
-        # not supported by managed_directories.
-        symlink_node_modules = False,
-    )
-
 def _maybe(repo_rule, name, **kwargs):
     if name not in native.existing_rules():
         repo_rule(name = name, **kwargs)
