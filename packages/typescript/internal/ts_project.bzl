@@ -14,14 +14,7 @@ _DEFAULT_TSC = (
     "//typescript/bin:tsc"
 )
 
-_DEFAULT_TSC_BIN = (
-    # BEGIN-INTERNAL
-    "@npm" +
-    # END-INTERNAL
-    "//:node_modules/typescript/bin/tsc"
-)
-
-_DEFAULT_TYPESCRIPT_MODULE = (
+_DEFAULT_TYPESCRIPT_PACKAGE = (
     # BEGIN-INTERNAL
     "@npm" +
     # END-INTERNAL
@@ -49,7 +42,7 @@ _ATTRS = {
     # that compiler might allow more sources than tsc does.
     "srcs": attr.label_list(allow_files = True, mandatory = True),
     "supports_workers": attr.bool(default = False),
-    "tsc": attr.label(default = Label(_DEFAULT_TSC), executable = True, cfg = "target"),
+    "tsc": attr.label(default = Label(_DEFAULT_TSC), executable = True, cfg = "host"),
     "tsconfig": attr.label(mandatory = True, allow_single_file = [".json"]),
 }
 
@@ -209,6 +202,7 @@ def _ts_project_impl(ctx):
             inputs = inputs,
             arguments = [arguments],
             outputs = outputs,
+            mnemonic = "TsProject",
             executable = "tsc",
             execution_requirements = execution_requirements,
             progress_message = "%s %s [tsc -p %s]" % (
@@ -337,8 +331,8 @@ def ts_project_macro(
         emit_declaration_only = False,
         ts_build_info_file = None,
         tsc = None,
-        worker_tsc_bin = _DEFAULT_TSC_BIN,
-        worker_typescript_module = _DEFAULT_TYPESCRIPT_MODULE,
+        typescript_package = _DEFAULT_TYPESCRIPT_PACKAGE,
+        typescript_require_path = "typescript",
         validate = True,
         supports_workers = False,
         declaration_dir = None,
@@ -506,14 +500,13 @@ def ts_project_macro(
             For example, `tsc = "@my_deps//typescript/bin:tsc"`
             Or you can pass a custom compiler binary instead.
 
-        worker_tsc_bin: Label of the TypeScript compiler binary to run when running in worker mode.
+        typescript_package: Label of the package containing all data deps of tsc.
 
-            For example, `tsc = "@my_deps//node_modules/typescript/bin/tsc"`
-            Or you can pass a custom compiler binary instead.
+            For example, `typescript_package = "@my_deps//typescript"`
 
-        worker_typescript_module: Label of the package containing all data deps of worker_tsc_bin.
+        typescript_require_path: Module name which resolves to typescript_package when required
 
-            For example, `tsc = "@my_deps//typescript"`
+            For example, `typescript_require_path = "typescript"`
 
         validate: boolean; whether to check that the tsconfig settings match the attributes.
 
@@ -642,25 +635,18 @@ def ts_project_macro(
                 # but that's our own code, so we don't.
                 "@npm//protobufjs",
                 # END-INTERNAL
-                Label("//packages/typescript/internal/worker:worker"),
-                Label(worker_tsc_bin),
-                Label(worker_typescript_module),
+                Label(typescript_package),
+                Label("//packages/typescript/internal/worker:filegroup"),
                 tsconfig,
             ],
             entry_point = Label("//packages/typescript/internal/worker:worker_adapter"),
             templated_args = [
-                "$(execpath {})".format(Label(worker_tsc_bin)),
-                "--project",
-                "$(execpath {})".format(tsconfig),
-                # FIXME: should take out_dir into account
-                "--outDir",
-                "$(RULEDIR)",
-                # FIXME: what about other settings like declaration_dir, root_dir, etc
+                "--typescript_require_path",
+                typescript_require_path,
             ],
         )
 
         tsc = ":" + tsc_worker
-
     typings_out_dir = declaration_dir if declaration_dir else out_dir
     tsbuildinfo_path = ts_build_info_file if ts_build_info_file else name + ".tsbuildinfo"
     js_outs = []
@@ -701,9 +687,6 @@ Check the srcs attribute to see that some .ts files are present (or .js files wi
         buildinfo_out = tsbuildinfo_path if composite or incremental else None,
         tsc = tsc,
         link_workspace_root = link_workspace_root,
-        supports_workers = select({
-            "@bazel_tools//src/conditions:host_windows": False,
-            "//conditions:default": supports_workers,
-        }),
+        supports_workers = supports_workers,
         **kwargs
     )

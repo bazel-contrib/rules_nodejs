@@ -1,3 +1,3 @@
 // TODO: make it big enough to slow down tsc
 
-export const a: number = 2;
+export const a: number = 2350;
