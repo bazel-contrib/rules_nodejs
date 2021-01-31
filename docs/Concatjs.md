@@ -48,6 +48,34 @@ For example, even though RxJS ships with a UMD bundle, it contains multiple entr
 
 Ultimately by using concatjs, you're signing up for at least a superficial understanding of these shims and may need to update them when you change your dependencies.
 
+It depends on rules_webtesting, so you need to add this to your `WORKSPACE`
+if you use the web testing rules in `@bazel/concatjs`:
+
+## Dependencies
+
+Both `concatjs_devserver` and `karma_web_test` depend on rules_webtesting, so you need to add this to your `WORKSPACE`:
+
+```python
+# Fetch transitive Bazel dependencies of karma_web_test
+http_archive(
+    name = "io_bazel_rules_webtesting",
+    sha256 = "9bb461d5ef08e850025480bab185fd269242d4e533bca75bfb748001ceb343c3",
+    urls = ["https://github.com/bazelbuild/rules_webtesting/releases/download/0.3.3/rules_webtesting.tar.gz"],
+)
+
+# Set up web testing, choose browsers we can test on
+load("@io_bazel_rules_webtesting//web:repositories.bzl", "web_test_repositories")
+
+web_test_repositories()
+
+load("@io_bazel_rules_webtesting//web/versioned:browsers-0.3.2.bzl", "browser_repositories")
+
+browser_repositories(
+    chromium = True,
+    firefox = True,
+)
+```
+
 
 ## Serving JS in development mode under Bazel
 
@@ -67,7 +95,8 @@ To use `concatjs_devserver`, you simply `load` the rule, and call it with `deps`
 point to your `ts_library` target(s):
 
 ```python
-load("@npm//@bazel/typescript:index.bzl", "concatjs_devserver", "ts_library")
+load("@npm//@bazel/typescript:index.bzl", "ts_library")
+load("@npm//@bazel/concatjs:index.bzl", "concatjs_devserver")
 
 ts_library(
     name = "app",
@@ -108,31 +137,6 @@ finishes.
 ## Testing with Karma
 
 The `karma_web_test` rule runs karma tests with Bazel.
-
-It depends on rules_webtesting, so you need to add this to your `WORKSPACE`
-if you use the web testing rules in `@bazel/concatjs`:
-
-```python
-# Fetch transitive Bazel dependencies of karma_web_test
-http_archive(
-    name = "io_bazel_rules_webtesting",
-    sha256 = "9bb461d5ef08e850025480bab185fd269242d4e533bca75bfb748001ceb343c3",
-    urls = ["https://github.com/bazelbuild/rules_webtesting/releases/download/0.3.3/rules_webtesting.tar.gz"],
-)
-
-# Set up web testing, choose browsers we can test on
-load("@io_bazel_rules_webtesting//web:repositories.bzl", "web_test_repositories")
-
-web_test_repositories()
-
-load("@io_bazel_rules_webtesting//web/versioned:browsers-0.3.2.bzl", "browser_repositories")
-
-browser_repositories(
-    chromium = True,
-    firefox = True,
-)
-```
-
 
 ## Installing with user-managed dependencies
 
