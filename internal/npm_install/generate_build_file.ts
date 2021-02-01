@@ -53,9 +53,11 @@ const WORKSPACE = args[0];
 const RULE_TYPE = args[1];
 const PKG_JSON_FILE_PATH = args[2];
 const LOCK_FILE_PATH = args[3];
-const STRICT_VISIBILITY = args[4]?.toLowerCase() === 'true';
-const INCLUDED_FILES = args[5] ? args[5].split(',') : [];
-const BAZEL_VERSION = args[6];
+const WORKSPACE_ROOT_PREFIX = args[4];
+const WORKSPACE_ROOT_BASE = WORKSPACE_ROOT_PREFIX ?.split('/')[0];
+const STRICT_VISIBILITY = args[5]?.toLowerCase() === 'true';
+const INCLUDED_FILES = args[6] ? args[6].split(',') : [];
+const BAZEL_VERSION = args[7];
 
 const PUBLIC_VISIBILITY = '//visibility:public';
 const LIMITED_VISIBILITY = `@${WORKSPACE}//:__subpackages__`;
@@ -122,7 +124,7 @@ export function main() {
   generateBuildFiles(pkgs)
 
   // write a .bazelignore file
-  writeFileSync('.bazelignore', 'node_modules');
+  writeFileSync('.bazelignore', `node_modules\n${WORKSPACE_ROOT_BASE}`);
 }
 
 /**
@@ -171,8 +173,7 @@ function generateRootBuildFile(pkgs: Dep[]) {
 
   let exportsStarlark = '';
   pkgs.forEach(pkg => {pkg._files.forEach(f => {
-                 exportsStarlark += `    "node_modules/${pkg._dir}/${f}",
-`;
+                 exportsStarlark += `    "node_modules/${pkg._dir}/${f}",\n`;
                })});
 
   let buildFile =
@@ -556,7 +557,8 @@ function findScopes() {
   const scopes = listing.filter(f => f.startsWith('@'))
                      .map(f => path.posix.join(p, f))
                      .filter(f => isDirectory(f))
-                     .map(f => f.replace(/^node_modules\//, ''));
+                     // strip 'node_modules/' from filename
+                     .map(f => f.substring('node_modules/'.length));
 
   return scopes;
 }
@@ -575,7 +577,7 @@ export function parsePackage(p: string, dependencies: Set<string> = new Set()): 
 
   // Trim the leading node_modules from the path and
   // assign to _dir for future use
-  pkg._dir = p.replace(/^node_modules\//, '');
+  pkg._dir = p.substring('node_modules/'.length)
 
   // Stash the package directory name for future use
   pkg._name = pkg._dir.split('/').pop();
@@ -585,7 +587,7 @@ export function parsePackage(p: string, dependencies: Set<string> = new Set()): 
   pkg._moduleName = pkg.name || `${pkg._dir}/${pkg._name}`;
 
   // Keep track of whether or not this is a nested package
-  pkg._isNested = /\/node_modules\//.test(p);
+  pkg._isNested = /\/node_modules\//.test(pkg._dir);
 
   // List all the files in the npm package for later use
   pkg._files = listFiles(p);

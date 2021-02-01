@@ -8,6 +8,6 @@
     "tmp": "0.1.0"
   },
   "scripts": {
-    "postinstall": "node ./postinstall.js"
+    "postinstall": "node ../postinstall.js"
   }
 }

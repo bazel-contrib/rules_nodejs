@@ -1,5 +1,5 @@
 /* THIS FILE GENERATED FROM .ts; see BUILD.bazel */ /* clang-format off */'use strict';
-var _a;
+var _a, _b;
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs = require("fs");
 const path = require("path");
@@ -13,9 +13,11 @@ const WORKSPACE = args[0];
 const RULE_TYPE = args[1];
 const PKG_JSON_FILE_PATH = args[2];
 const LOCK_FILE_PATH = args[3];
-const STRICT_VISIBILITY = ((_a = args[4]) === null || _a === void 0 ? void 0 : _a.toLowerCase()) === 'true';
-const INCLUDED_FILES = args[5] ? args[5].split(',') : [];
-const BAZEL_VERSION = args[6];
+const WORKSPACE_ROOT_PREFIX = args[4];
+const WORKSPACE_ROOT_BASE = (_a = WORKSPACE_ROOT_PREFIX) === null || _a === void 0 ? void 0 : _a.split('/')[0];
+const STRICT_VISIBILITY = ((_b = args[5]) === null || _b === void 0 ? void 0 : _b.toLowerCase()) === 'true';
+const INCLUDED_FILES = args[6] ? args[6].split(',') : [];
+const BAZEL_VERSION = args[7];
 const PUBLIC_VISIBILITY = '//visibility:public';
 const LIMITED_VISIBILITY = `@${WORKSPACE}//:__subpackages__`;
 function generateBuildFileHeader(visibility = PUBLIC_VISIBILITY) {
@@ -49,7 +51,7 @@ function main() {
     flattenDependencies(pkgs);
     generateBazelWorkspaces(pkgs);
     generateBuildFiles(pkgs);
-    writeFileSync('.bazelignore', 'node_modules');
+    writeFileSync('.bazelignore', `node_modules\n${WORKSPACE_ROOT_BASE}`);
 }
 exports.main = main;
 function generateBuildFiles(pkgs) {
@@ -86,8 +88,7 @@ function generateRootBuildFile(pkgs) {
     let exportsStarlark = '';
     pkgs.forEach(pkg => {
         pkg._files.forEach(f => {
-            exportsStarlark += `    "node_modules/${pkg._dir}/${f}",
-`;
+            exportsStarlark += `    "node_modules/${pkg._dir}/${f}",\n`;
         });
     });
     let buildFile = generateBuildFileHeader() + `load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
@@ -327,7 +328,7 @@ function findScopes() {
     const scopes = listing.filter(f => f.startsWith('@'))
         .map(f => path.posix.join(p, f))
         .filter(f => isDirectory(f))
-        .map(f => f.replace(/^node_modules\//, ''));
+        .map(f => f.substring('node_modules/'.length));
     return scopes;
 }
 function parsePackage(p, dependencies = new Set()) {
@@ -335,10 +336,10 @@ function parsePackage(p, dependencies = new Set()) {
     const pkg = isFile(packageJson) ?
         JSON.parse(stripBom(fs.readFileSync(packageJson, { encoding: 'utf8' }))) :
         { version: '0.0.0' };
-    pkg._dir = p.replace(/^node_modules\//, '');
+    pkg._dir = p.substring('node_modules/'.length);
     pkg._name = pkg._dir.split('/').pop();
     pkg._moduleName = pkg.name || `${pkg._dir}/${pkg._name}`;
-    pkg._isNested = /\/node_modules\//.test(p);
+    pkg._isNested = /\/node_modules\//.test(pkg._dir);
     pkg._files = listFiles(p);
     pkg._runfiles = pkg._files.filter((f) => !/[^\x21-\x7E]/.test(f));
     pkg._dependencies = [];
