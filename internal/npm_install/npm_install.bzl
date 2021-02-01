@@ -126,6 +126,7 @@ def _create_build_files(repository_ctx, rule_type, node, lock_file):
         rule_type,
         repository_ctx.path(repository_ctx.attr.package_json),
         repository_ctx.path(lock_file),
+        _workspace_root_prefix(repository_ctx),
         str(repository_ctx.attr.strict_visibility),
         ",".join(repository_ctx.attr.included_files),
         native.bazel_version,
@@ -147,24 +148,55 @@ def _add_scripts(repository_ctx):
         {},
     )
 
-def _add_package_json(repository_ctx):
-    repository_ctx.symlink(
-        repository_ctx.attr.package_json,
-        repository_ctx.path("package.json"),
-    )
+def _workspace_root_path(repository_ctx, f):
+    segments = ["_"]
+    if f.package:
+        segments.append(f.package)
+    segments.append(f.name)
+    return "/".join(segments)
 
-def _add_data_dependencies(repository_ctx):
+def _workspace_root_prefix(repository_ctx):
+    package_json = repository_ctx.attr.package_json
+    segments = ["_"]
+    if package_json.package:
+        segments.append(package_json.package)
+    segments.extend(package_json.name.split("/"))
+    segments.pop()
+    return "/".join(segments) + "/"
+
+def _copy_file(repository_ctx, f):
+    to = _workspace_root_path(repository_ctx, f)
+
+    # ensure the destination directory exists
+    to_segments = to.split("/")
+    if len(to_segments) > 1:
+        dirname = "/".join(to_segments[:-1])
+        result = repository_ctx.execute(
+            ["mkdir", "-p", dirname],
+            quiet = repository_ctx.attr.quiet,
+        )
+        if result.return_code:
+            fail("mkdir -p %s failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (dirname, result.stdout, result.stderr))
+
+    # copy the file; don't use the repository_ctx.template trick with empty substitution as this
+    # does not copy over binary files properly
+    result = repository_ctx.execute(
+        ["cp", "-f", repository_ctx.path(f), to],
+        quiet = repository_ctx.attr.quiet,
+    )
+    if result.return_code:
+        fail("cp -f %s %s failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (repository_ctx.path(f), to, result.stdout, result.stderr))
+
+def _symlink_file(repository_ctx, f):
+    repository_ctx.symlink(f, _workspace_root_path(repository_ctx, f))
+
+def _copy_data_dependencies(repository_ctx):
     """Add data dependencies to the repository."""
     for f in repository_ctx.attr.data:
-        to = []
-        if f.package:
-            to.append(f.package)
-        to.append(f.name)
-
         # Make copies of the data files instead of symlinking
         # as yarn under linux will have trouble using symlinked
         # files as npm file:// packages
-        repository_ctx.template("/".join(to), f, {})
+        _copy_file(repository_ctx, f)
 
 def _add_node_repositories_info_deps(repository_ctx):
     # Add a dep to the node_info & yarn_info files from node_repositories
@@ -180,7 +212,16 @@ def _add_node_repositories_info_deps(repository_ctx):
 
 def _symlink_node_modules(repository_ctx):
     package_json_dir = repository_ctx.path(repository_ctx.attr.package_json).dirname
-    repository_ctx.symlink(repository_ctx.path(str(package_json_dir) + "/node_modules"), repository_ctx.path("node_modules"))
+    if repository_ctx.attr.symlink_node_modules:
+        repository_ctx.symlink(
+            repository_ctx.path(str(package_json_dir) + "/node_modules"),
+            repository_ctx.path("node_modules"),
+        )
+    else:
+        repository_ctx.symlink(
+            repository_ctx.path(_workspace_root_prefix(repository_ctx) + "node_modules"),
+            repository_ctx.path("node_modules"),
+        )
 
 def _check_min_bazel_version(rule, repository_ctx):
     if repository_ctx.attr.symlink_node_modules:
@@ -213,13 +254,11 @@ def _npm_install_impl(repository_ctx):
 
     npm_args.extend(repository_ctx.attr.args)
 
-    # If symlink_node_modules is true then run the package manager
-    # in the package.json folder; otherwise, run it in the root of
-    # the external repository
+    # Run the package manager in the package.json folder
     if repository_ctx.attr.symlink_node_modules:
-        root = repository_ctx.path(repository_ctx.attr.package_json).dirname
+        root = str(repository_ctx.path(repository_ctx.attr.package_json).dirname)
     else:
-        root = repository_ctx.path("")
+        root = str(repository_ctx.path(_workspace_root_prefix(repository_ctx)))
 
     # The entry points for npm install for osx/linux and windows
     if not is_windows_host:
@@ -250,12 +289,9 @@ cd /D "{root}" && "{npm}" {npm_args}
             executable = True,
         )
 
-    repository_ctx.symlink(
-        repository_ctx.attr.package_lock_json,
-        repository_ctx.path("package-lock.json"),
-    )
-    _add_package_json(repository_ctx)
-    _add_data_dependencies(repository_ctx)
+    _symlink_file(repository_ctx, repository_ctx.attr.package_lock_json)
+    _copy_file(repository_ctx, repository_ctx.attr.package_json)
+    _copy_data_dependencies(repository_ctx)
     _add_scripts(repository_ctx)
     _add_node_repositories_info_deps(repository_ctx)
 
@@ -288,15 +324,15 @@ cd /D "{root}" && "{npm}" {npm_args}
     # removeNPMAbsolutePaths is run on node_modules after npm install as the package.json files
     # generated by npm are non-deterministic. They contain absolute install paths and other private
     # information fields starting with "_". removeNPMAbsolutePaths removes all fields starting with "_".
+    print([node, repository_ctx.path(remove_npm_absolute_paths), root + "/node_modules"])
     result = repository_ctx.execute(
-        [node, repository_ctx.path(remove_npm_absolute_paths), "/".join([str(root), "node_modules"])],
+        [node, repository_ctx.path(remove_npm_absolute_paths), root + "/node_modules"],
     )
 
     if result.return_code:
         fail("remove_npm_absolute_paths failed: %s (%s)" % (result.stdout, result.stderr))
 
-    if repository_ctx.attr.symlink_node_modules:
-        _symlink_node_modules(repository_ctx)
+    _symlink_node_modules(repository_ctx)
 
     _create_build_files(repository_ctx, "npm_install", node, repository_ctx.attr.package_lock_json)
 
@@ -380,13 +416,11 @@ def _yarn_install_impl(repository_ctx):
         yarn_args.extend(["--mutex", "network"])
     yarn_args.extend(repository_ctx.attr.args)
 
-    # If symlink_node_modules is true then run the package manager
-    # in the package.json folder; otherwise, run it in the root of
-    # the external repository
+    # Run the package manager in the package.json folder
     if repository_ctx.attr.symlink_node_modules:
-        root = repository_ctx.path(repository_ctx.attr.package_json).dirname
+        root = str(repository_ctx.path(repository_ctx.attr.package_json).dirname)
     else:
-        root = repository_ctx.path("")
+        root = str(repository_ctx.path(_workspace_root_prefix(repository_ctx)))
 
     # The entry points for npm install for osx/linux and windows
     if not is_windows_host:
@@ -424,12 +458,9 @@ cd /D "{root}" && "{yarn}" {yarn_args}
             executable = True,
         )
 
-    repository_ctx.symlink(
-        repository_ctx.attr.yarn_lock,
-        repository_ctx.path("yarn.lock"),
-    )
-    _add_package_json(repository_ctx)
-    _add_data_dependencies(repository_ctx)
+    _symlink_file(repository_ctx, repository_ctx.attr.yarn_lock)
+    _copy_file(repository_ctx, repository_ctx.attr.package_json)
+    _copy_data_dependencies(repository_ctx)
     _add_scripts(repository_ctx)
     _add_node_repositories_info_deps(repository_ctx)
 
@@ -456,8 +487,7 @@ cd /D "{root}" && "{yarn}" {yarn_args}
     if result.return_code:
         fail("yarn_install failed: %s (%s)" % (result.stdout, result.stderr))
 
-    if repository_ctx.attr.symlink_node_modules:
-        _symlink_node_modules(repository_ctx)
+    _symlink_node_modules(repository_ctx)
 
     _create_build_files(repository_ctx, "yarn_install", node, repository_ctx.attr.yarn_lock)
 
