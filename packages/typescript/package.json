@@ -23,7 +23,7 @@
     },
     "//": "note that typescript doesn't follow semver, so technically anything 3.6 or higher might break us",
     "peerDependencies": {
-        "typescript": ">=3.0.0 <4.0"
+        "typescript": ">=3.0.0 <4.3"
     },
     "dependencies": {
         "protobufjs": "6.8.8",
