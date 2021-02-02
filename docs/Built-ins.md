@@ -169,7 +169,7 @@ Each entry is a template for downloading a node distribution.
 The `{version}` parameter is substituted with the `node_version` attribute,
 and `{filename}` with the matching entry from the `node_repositories` attribute.
 
-Defaults to `["https://mirror.bazel.build/nodejs.org/dist/v{version}/{filename}", "https://nodejs.org/dist/v{version}/{filename}"]`
+Defaults to `["https://nodejs.org/dist/v{version}/{filename}"]`
 
 <h4 id="node_repositories-node_version">node_version</h4>
 
@@ -241,7 +241,7 @@ Defaults to `{}`
 
 Each entry is a template, similar to the `node_urls` attribute, using `yarn_version` and `yarn_repositories` in the substitutions.
 
-Defaults to `["https://mirror.bazel.build/github.com/yarnpkg/yarn/releases/download/v{version}/{filename}", "https://github.com/yarnpkg/yarn/releases/download/v{version}/{filename}"]`
+Defaults to `["https://github.com/yarnpkg/yarn/releases/download/v{version}/{filename}"]`
 
 <h4 id="node_repositories-yarn_version">yarn_version</h4>
 
@@ -256,7 +256,7 @@ Defaults to `"1.19.1"`
 **USAGE**
 
 <pre>
-nodejs_binary(<a href="#nodejs_binary-name">name</a>, <a href="#nodejs_binary-configuration_env_vars">configuration_env_vars</a>, <a href="#nodejs_binary-data">data</a>, <a href="#nodejs_binary-default_env_vars">default_env_vars</a>, <a href="#nodejs_binary-entry_point">entry_point</a>,
+nodejs_binary(<a href="#nodejs_binary-name">name</a>, <a href="#nodejs_binary-chdir">chdir</a>, <a href="#nodejs_binary-configuration_env_vars">configuration_env_vars</a>, <a href="#nodejs_binary-data">data</a>, <a href="#nodejs_binary-default_env_vars">default_env_vars</a>, <a href="#nodejs_binary-entry_point">entry_point</a>,
               <a href="#nodejs_binary-link_workspace_root">link_workspace_root</a>, <a href="#nodejs_binary-templated_args">templated_args</a>)
 </pre>
 
@@ -269,6 +269,22 @@ Runs some JavaScript code in NodeJS.
 
 (*<a href="https://bazel.build/docs/build-ref.html#name">Name</a>, mandatory*): A unique name for this target.
 
+
+<h4 id="nodejs_binary-chdir">chdir</h4>
+
+(*String*): Working directory to run the binary or test in, relative to the workspace.
+        By default, Bazel always runs in the workspace root.
+        Due to implementation details, this argument must be underneath this package directory.
+
+        To run in the directory containing the `nodejs_binary` / `nodejs_test` use
+        `chdir = package_name()`
+        (or if you're in a macro, use `native.package_name()`)
+        
+        WARNING: this will affect other paths passed to the program, either as arguments or in configuration files,
+        which are workspace-relative.
+        You may need `../../` segments to re-relativize such paths to the new working directory.
+
+Defaults to `""`
 
 <h4 id="nodejs_binary-configuration_env_vars">configuration_env_vars</h4>
 
@@ -454,8 +470,8 @@ Defaults to `[]`
 **USAGE**
 
 <pre>
-nodejs_test(<a href="#nodejs_test-name">name</a>, <a href="#nodejs_test-configuration_env_vars">configuration_env_vars</a>, <a href="#nodejs_test-data">data</a>, <a href="#nodejs_test-default_env_vars">default_env_vars</a>, <a href="#nodejs_test-entry_point">entry_point</a>, <a href="#nodejs_test-expected_exit_code">expected_exit_code</a>,
-            <a href="#nodejs_test-link_workspace_root">link_workspace_root</a>, <a href="#nodejs_test-templated_args">templated_args</a>)
+nodejs_test(<a href="#nodejs_test-name">name</a>, <a href="#nodejs_test-chdir">chdir</a>, <a href="#nodejs_test-configuration_env_vars">configuration_env_vars</a>, <a href="#nodejs_test-data">data</a>, <a href="#nodejs_test-default_env_vars">default_env_vars</a>, <a href="#nodejs_test-entry_point">entry_point</a>,
+            <a href="#nodejs_test-expected_exit_code">expected_exit_code</a>, <a href="#nodejs_test-link_workspace_root">link_workspace_root</a>, <a href="#nodejs_test-templated_args">templated_args</a>)
 </pre>
 
 
@@ -471,11 +487,8 @@ If you just want to run a standard test using a test runner from npm, use the ge
 *_test target created by npm_install/yarn_install, such as `mocha_test`.
 Some test runners like Karma and Jasmine have custom rules with added features, e.g. `jasmine_node_test`.
 
-Bazel always runs tests with a working directory set to your workspace root.
-If your test needs to run in a different directory, you can write a `process.chdir` helper script
-and invoke it before the test with a `--require` argument, like
-`templated_args = ["--node_options=--require=./$(rootpath chdir.js)"]`.
-See rules_nodejs/internal/node/test/chdir for an example.
+By default, Bazel runs tests with a working directory set to your workspace root.
+Use the `chdir` attribute to change the working directory before the program starts.
 
 To debug a Node.js test, we recommend saving a group of flags together in a "config".
 Put this in your `tools/bazel.rc` so it's shared with your team:
@@ -496,6 +509,22 @@ remote debugger.
 
 (*<a href="https://bazel.build/docs/build-ref.html#name">Name</a>, mandatory*): A unique name for this target.
 
+
+<h4 id="nodejs_test-chdir">chdir</h4>
+
+(*String*): Working directory to run the binary or test in, relative to the workspace.
+        By default, Bazel always runs in the workspace root.
+        Due to implementation details, this argument must be underneath this package directory.
+
+        To run in the directory containing the `nodejs_binary` / `nodejs_test` use
+        `chdir = package_name()`
+        (or if you're in a macro, use `native.package_name()`)
+        
+        WARNING: this will affect other paths passed to the program, either as arguments or in configuration files,
+        which are workspace-relative.
+        You may need `../../` segments to re-relativize such paths to the new working directory.
+
+Defaults to `""`
 
 <h4 id="nodejs_test-configuration_env_vars">configuration_env_vars</h4>
 
@@ -861,7 +890,7 @@ Defaults to `3600`
 **USAGE**
 
 <pre>
-pkg_npm(<a href="#pkg_npm-name">name</a>, <a href="#pkg_npm-deps">deps</a>, <a href="#pkg_npm-nested_packages">nested_packages</a>, <a href="#pkg_npm-node_context_data">node_context_data</a>, <a href="#pkg_npm-package_name">package_name</a>, <a href="#pkg_npm-srcs">srcs</a>, <a href="#pkg_npm-substitutions">substitutions</a>,
+pkg_npm(<a href="#pkg_npm-name">name</a>, <a href="#pkg_npm-deps">deps</a>, <a href="#pkg_npm-nested_packages">nested_packages</a>, <a href="#pkg_npm-node_context_data">node_context_data</a>, <a href="#pkg_npm-package_name">package_name</a>, <a href="#pkg_npm-srcs">srcs</a>, <a href="#pkg_npm-substitutions">substitutions</a>, <a href="#pkg_npm-tgz">tgz</a>,
         <a href="#pkg_npm-vendor_external">vendor_external</a>)
 </pre>
 
@@ -897,7 +926,7 @@ See the [stamping documentation](https://github.com/bazelbuild/rules_nodejs/blob
 
 Usage:
 
-`pkg_npm` yields three labels. Build the package directory using the default label:
+`pkg_npm` yields four labels. Build the package directory using the default label:
 
 ```sh
 $ bazel build :my_package
@@ -927,6 +956,26 @@ $ bazel run :my_package.publish
 You can pass arguments to npm by escaping them from Bazel using a double-hyphen, for example:
 
 `bazel run my_package.publish -- --tag=next`
+
+It is also possible to use the resulting tar file file from the `.pack` as an action input via the `.tar` label.
+To make use of this label, the `tgz` attribute must be set, and the generating `pkg_npm` rule must have a valid `package.json` file
+as part of its sources:
+
+```python
+pkg_npm(
+    name = "my_package",
+    srcs = ["package.json"],
+    deps = [":my_typescript_lib"],
+    tgz = "my_package.tgz",
+)
+
+my_rule(
+    name = "foo",
+    srcs = [
+        "//:my_package.tar",
+    ],
+)
+```
 
 
 **ATTRIBUTES**
@@ -983,6 +1032,14 @@ You can use values from the workspace status command using curly braces, for exa
 See the section on stamping in the [README](stamping)
 
 Defaults to `{}`
+
+<h4 id="pkg_npm-tgz">tgz</h4>
+
+(*String*): If set, will create a `.tgz` file that can be used as an input to another rule, the tar will be given the name assigned to this attribute.
+
+        NOTE: If this attribute is set, a valid `package.json` file must be included in the sources of this target
+
+Defaults to `""`
 
 <h4 id="pkg_npm-vendor_external">vendor_external</h4>
 
@@ -1503,7 +1560,7 @@ used for undocumented legacy features
 
 <pre>
 npm_package_bin(<a href="#npm_package_bin-tool">tool</a>, <a href="#npm_package_bin-package">package</a>, <a href="#npm_package_bin-package_bin">package_bin</a>, <a href="#npm_package_bin-data">data</a>, <a href="#npm_package_bin-outs">outs</a>, <a href="#npm_package_bin-args">args</a>, <a href="#npm_package_bin-output_dir">output_dir</a>, <a href="#npm_package_bin-link_workspace_root">link_workspace_root</a>,
-                <a href="#npm_package_bin-kwargs">kwargs</a>)
+                <a href="#npm_package_bin-chdir">chdir</a>, <a href="#npm_package_bin-kwargs">kwargs</a>)
 </pre>
 
 Run an arbitrary npm package binary (e.g. a program under node_modules/.bin/*) under Bazel.
@@ -1513,11 +1570,8 @@ It must produce outputs. If you just want to run a program with `bazel run`, use
 This is like a genrule() except that it runs our launcher script that first
 links the node_modules tree before running the program.
 
-Bazel always runs actions with a working directory set to your workspace root.
-If your tool needs to run in a different directory, you can write a `process.chdir` helper script
-and invoke it before the action with a `--require` argument, like
-`args = ["--node_options=--require=./$(execpath chdir.js)"]`
-See rules_nodejs/internal/node/test/chdir for an example.
+By default, Bazel runs actions with a working directory set to your workspace root.
+Use the `chdir` attribute to change the working directory before the program runs.
 
 This is a great candidate to wrap with a macro, as documented:
 https://docs.bazel.build/versions/master/skylark/macros.html#full-example
@@ -1616,8 +1670,39 @@ If source files need to be required then they can be copied to the bin_dir with 
 
 Defaults to `False`
 
+<h4 id="npm_package_bin-chdir">chdir</h4>
+
+Working directory to run the binary or test in, relative to the workspace.
+
+By default, Bazel always runs in the workspace root.
+
+To run in the directory containing the `npm_package_bin` under the source tree, use
+`chdir = package_name()`
+(or if you're in a macro, use `native.package_name()`).
+
+To run in the output directory where the npm_package_bin writes outputs, use
+`chdir = "$(RULEDIR)"`
+
+WARNING: this will affect other paths passed to the program, either as arguments or in configuration files,
+which are workspace-relative.
+You may need `../../` segments to re-relativize such paths to the new working directory.
+In a `BUILD` file you could do something like this to point to the output path:
+
+```python
+_package_segments = len(package_name().split("/"))
+npm_package_bin(
+    ...
+    chdir = package_name(),
+    # ../.. segments to re-relative paths from the chdir back to workspace
+    args = ["/".join([".."] * _package_segments + ["$@"])],
+)
+```
+
+Defaults to `None`
+
 <h4 id="npm_package_bin-kwargs">kwargs</h4>
 
+additional undocumented keyword args
 
 
 
@@ -2068,7 +2153,7 @@ Defaults to `[]`
 **USAGE**
 
 <pre>
-run_node(<a href="#run_node-ctx">ctx</a>, <a href="#run_node-inputs">inputs</a>, <a href="#run_node-arguments">arguments</a>, <a href="#run_node-executable">executable</a>, <a href="#run_node-kwargs">kwargs</a>)
+run_node(<a href="#run_node-ctx">ctx</a>, <a href="#run_node-inputs">inputs</a>, <a href="#run_node-arguments">arguments</a>, <a href="#run_node-executable">executable</a>, <a href="#run_node-chdir">chdir</a>, <a href="#run_node-kwargs">kwargs</a>)
 </pre>
 
 Helper to replace ctx.actions.run
@@ -2103,8 +2188,15 @@ stringy representation of the executable this action will run, eg eg. "my_execut
 
 
 
+<h4 id="run_node-chdir">chdir</h4>
+
+directory we should change to be the working dir
+
+Defaults to `None`
+
 <h4 id="run_node-kwargs">kwargs</h4>
 
+all other args accepted by ctx.actions.run
 
 
 

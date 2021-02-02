@@ -230,7 +230,8 @@ fast (should be under two seconds).</li>
 <p>To use <code class="language-plaintext highlighter-rouge">concatjs_devserver</code>, you simply <code class="language-plaintext highlighter-rouge">load</code> the rule, and call it with <code class="language-plaintext highlighter-rouge">deps</code> that
 point to your <code class="language-plaintext highlighter-rouge">ts_library</code> target(s):</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">load</span><span class="p">(</span><span class="s">"@npm//@bazel/typescript:index.bzl"</span><span class="p">,</span> <span class="s">"concatjs_devserver"</span><span class="p">,</span> <span class="s">"ts_library"</span><span class="p">)</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">load</span><span class="p">(</span><span class="s">"@npm//@bazel/concatjs:index.bzl"</span><span class="p">,</span> <span class="s">"concatjs_devserver"</span><span class="p">)</span>
+<span class="n">load</span><span class="p">(</span><span class="s">"@npm//@bazel/typescript:index.bzl"</span><span class="p">,</span> <span class="s">"ts_library"</span><span class="p">)</span>
 
 <span class="n">ts_library</span><span class="p">(</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s">"app"</span><span class="p">,</span>
@@ -588,7 +589,7 @@ karma_web_test target.</p>
   <div class="container">
   <div class="row">
     <div class="col-lg-8">
-      <p class="text-muted">&copy; 2020 The rules_nodejs authors</p>
+      <p class="text-muted">&copy; 2021 The rules_nodejs authors</p>
     </div>
   </div>
 </div>

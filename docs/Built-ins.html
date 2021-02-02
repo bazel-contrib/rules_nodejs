@@ -316,7 +316,7 @@ You should list a node binary for every platform users have, likely Mac, Windows
 <p>The <code class="language-plaintext highlighter-rouge">{version}</code> parameter is substituted with the <code class="language-plaintext highlighter-rouge">node_version</code> attribute,
 and <code class="language-plaintext highlighter-rouge">{filename}</code> with the matching entry from the <code class="language-plaintext highlighter-rouge">node_repositories</code> attribute.</p>
 
-<p>Defaults to <code class="language-plaintext highlighter-rouge">["https://mirror.bazel.build/nodejs.org/dist/v{version}/{filename}", "https://nodejs.org/dist/v{version}/{filename}"]</code></p>
+<p>Defaults to <code class="language-plaintext highlighter-rouge">["https://nodejs.org/dist/v{version}/{filename}"]</code></p>
 
 <h4 id="node_repositories-node_version">node_version</h4>
 
@@ -387,7 +387,7 @@ Example: {“type”: “basic”, “login”: “<UserName>", "password": "<Pa
 
 <p>Each entry is a template, similar to the <code class="language-plaintext highlighter-rouge">node_urls</code> attribute, using <code class="language-plaintext highlighter-rouge">yarn_version</code> and <code class="language-plaintext highlighter-rouge">yarn_repositories</code> in the substitutions.</p>
 
-<p>Defaults to <code class="language-plaintext highlighter-rouge">["https://mirror.bazel.build/github.com/yarnpkg/yarn/releases/download/v{version}/{filename}", "https://github.com/yarnpkg/yarn/releases/download/v{version}/{filename}"]</code></p>
+<p>Defaults to <code class="language-plaintext highlighter-rouge">["https://github.com/yarnpkg/yarn/releases/download/v{version}/{filename}"]</code></p>
 
 <h4 id="node_repositories-yarn_version">yarn_version</h4>
 
@@ -400,7 +400,7 @@ Example: {“type”: “basic”, “login”: “<UserName>", "password": "<Pa
 <p><strong>USAGE</strong></p>
 
 <pre>
-nodejs_binary(<a href="#nodejs_binary-name">name</a>, <a href="#nodejs_binary-configuration_env_vars">configuration_env_vars</a>, <a href="#nodejs_binary-data">data</a>, <a href="#nodejs_binary-default_env_vars">default_env_vars</a>, <a href="#nodejs_binary-entry_point">entry_point</a>,
+nodejs_binary(<a href="#nodejs_binary-name">name</a>, <a href="#nodejs_binary-chdir">chdir</a>, <a href="#nodejs_binary-configuration_env_vars">configuration_env_vars</a>, <a href="#nodejs_binary-data">data</a>, <a href="#nodejs_binary-default_env_vars">default_env_vars</a>, <a href="#nodejs_binary-entry_point">entry_point</a>,
               <a href="#nodejs_binary-link_workspace_root">link_workspace_root</a>, <a href="#nodejs_binary-templated_args">templated_args</a>)
 </pre>
 
@@ -411,6 +411,23 @@ nodejs_binary(<a href="#nodejs_binary-name">name</a>, <a href="#nodejs_binary-co
 <h4 id="nodejs_binary-name">name</h4>
 
 <p>(<em><a href="https://bazel.build/docs/build-ref.html#name">Name</a>, mandatory</em>): A unique name for this target.</p>
+
+<h4 id="nodejs_binary-chdir">chdir</h4>
+
+<p>(<em>String</em>): Working directory to run the binary or test in, relative to the workspace.
+        By default, Bazel always runs in the workspace root.
+        Due to implementation details, this argument must be underneath this package directory.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    To run in the directory containing the `nodejs_binary` / `nodejs_test` use
+    `chdir = package_name()`
+    (or if you're in a macro, use `native.package_name()`)
+    
+    WARNING: this will affect other paths passed to the program, either as arguments or in configuration files,
+    which are workspace-relative.
+    You may need `../../` segments to re-relativize such paths to the new working directory.
+</code></pre></div></div>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">""</code></p>
 
 <h4 id="nodejs_binary-configuration_env_vars">configuration_env_vars</h4>
 
@@ -592,8 +609,8 @@ See https://docs.bazel.build/versions/master/be/make-variables.html#custom_varia
 <p><strong>USAGE</strong></p>
 
 <pre>
-nodejs_test(<a href="#nodejs_test-name">name</a>, <a href="#nodejs_test-configuration_env_vars">configuration_env_vars</a>, <a href="#nodejs_test-data">data</a>, <a href="#nodejs_test-default_env_vars">default_env_vars</a>, <a href="#nodejs_test-entry_point">entry_point</a>, <a href="#nodejs_test-expected_exit_code">expected_exit_code</a>,
-            <a href="#nodejs_test-link_workspace_root">link_workspace_root</a>, <a href="#nodejs_test-templated_args">templated_args</a>)
+nodejs_test(<a href="#nodejs_test-name">name</a>, <a href="#nodejs_test-chdir">chdir</a>, <a href="#nodejs_test-configuration_env_vars">configuration_env_vars</a>, <a href="#nodejs_test-data">data</a>, <a href="#nodejs_test-default_env_vars">default_env_vars</a>, <a href="#nodejs_test-entry_point">entry_point</a>,
+            <a href="#nodejs_test-expected_exit_code">expected_exit_code</a>, <a href="#nodejs_test-link_workspace_root">link_workspace_root</a>, <a href="#nodejs_test-templated_args">templated_args</a>)
 </pre>
 
 <p>Identical to <code class="language-plaintext highlighter-rouge">nodejs_binary</code>, except this can be used with <code class="language-plaintext highlighter-rouge">bazel test</code> as well.
@@ -608,11 +625,8 @@ https://github.com/angular/angular/blob/master/tools/ts-api-guardian/index.bzl</
 *_test target created by npm_install/yarn_install, such as <code class="language-plaintext highlighter-rouge">mocha_test</code>.
 Some test runners like Karma and Jasmine have custom rules with added features, e.g. <code class="language-plaintext highlighter-rouge">jasmine_node_test</code>.</p>
 
-<p>Bazel always runs tests with a working directory set to your workspace root.
-If your test needs to run in a different directory, you can write a <code class="language-plaintext highlighter-rouge">process.chdir</code> helper script
-and invoke it before the test with a <code class="language-plaintext highlighter-rouge">--require</code> argument, like
-<code class="language-plaintext highlighter-rouge">templated_args = ["--node_options=--require=./$(rootpath chdir.js)"]</code>.
-See rules_nodejs/internal/node/test/chdir for an example.</p>
+<p>By default, Bazel runs tests with a working directory set to your workspace root.
+Use the <code class="language-plaintext highlighter-rouge">chdir</code> attribute to change the working directory before the program starts.</p>
 
 <p>To debug a Node.js test, we recommend saving a group of flags together in a “config”.
 Put this in your <code class="language-plaintext highlighter-rouge">tools/bazel.rc</code> so it’s shared with your team:</p>
@@ -629,6 +643,23 @@ remote debugger.</p>
 <h4 id="nodejs_test-name">name</h4>
 
 <p>(<em><a href="https://bazel.build/docs/build-ref.html#name">Name</a>, mandatory</em>): A unique name for this target.</p>
+
+<h4 id="nodejs_test-chdir">chdir</h4>
+
+<p>(<em>String</em>): Working directory to run the binary or test in, relative to the workspace.
+        By default, Bazel always runs in the workspace root.
+        Due to implementation details, this argument must be underneath this package directory.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    To run in the directory containing the `nodejs_binary` / `nodejs_test` use
+    `chdir = package_name()`
+    (or if you're in a macro, use `native.package_name()`)
+    
+    WARNING: this will affect other paths passed to the program, either as arguments or in configuration files,
+    which are workspace-relative.
+    You may need `../../` segments to re-relativize such paths to the new working directory.
+</code></pre></div></div>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">""</code></p>
 
 <h4 id="nodejs_test-configuration_env_vars">configuration_env_vars</h4>
 
@@ -983,7 +1014,7 @@ data attribute.</p>
 <p><strong>USAGE</strong></p>
 
 <pre>
-pkg_npm(<a href="#pkg_npm-name">name</a>, <a href="#pkg_npm-deps">deps</a>, <a href="#pkg_npm-nested_packages">nested_packages</a>, <a href="#pkg_npm-node_context_data">node_context_data</a>, <a href="#pkg_npm-package_name">package_name</a>, <a href="#pkg_npm-srcs">srcs</a>, <a href="#pkg_npm-substitutions">substitutions</a>,
+pkg_npm(<a href="#pkg_npm-name">name</a>, <a href="#pkg_npm-deps">deps</a>, <a href="#pkg_npm-nested_packages">nested_packages</a>, <a href="#pkg_npm-node_context_data">node_context_data</a>, <a href="#pkg_npm-package_name">package_name</a>, <a href="#pkg_npm-srcs">srcs</a>, <a href="#pkg_npm-substitutions">substitutions</a>, <a href="#pkg_npm-tgz">tgz</a>,
         <a href="#pkg_npm-vendor_external">vendor_external</a>)
 </pre>
 
@@ -1017,7 +1048,7 @@ See the <a href="https://github.com/bazelbuild/rules_nodejs/blob/master/docs/ind
 
 <p>Usage:</p>
 
-<p><code class="language-plaintext highlighter-rouge">pkg_npm</code> yields three labels. Build the package directory using the default label:</p>
+<p><code class="language-plaintext highlighter-rouge">pkg_npm</code> yields four labels. Build the package directory using the default label:</p>
 
 <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>bazel build :my_package
 Target //:my_package up-to-date:
@@ -1044,6 +1075,25 @@ my-package-name-1.2.3.tgz
 <p>You can pass arguments to npm by escaping them from Bazel using a double-hyphen, for example:</p>
 
 <p><code class="language-plaintext highlighter-rouge">bazel run my_package.publish -- --tag=next</code></p>
+
+<p>It is also possible to use the resulting tar file file from the <code class="language-plaintext highlighter-rouge">.pack</code> as an action input via the <code class="language-plaintext highlighter-rouge">.tar</code> label.
+To make use of this label, the <code class="language-plaintext highlighter-rouge">tgz</code> attribute must be set, and the generating <code class="language-plaintext highlighter-rouge">pkg_npm</code> rule must have a valid <code class="language-plaintext highlighter-rouge">package.json</code> file
+as part of its sources:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">pkg_npm</span><span class="p">(</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"my_package"</span><span class="p">,</span>
+    <span class="n">srcs</span> <span class="o">=</span> <span class="p">[</span><span class="s">"package.json"</span><span class="p">],</span>
+    <span class="n">deps</span> <span class="o">=</span> <span class="p">[</span><span class="s">":my_typescript_lib"</span><span class="p">],</span>
+    <span class="n">tgz</span> <span class="o">=</span> <span class="s">"my_package.tgz"</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">my_rule</span><span class="p">(</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"foo"</span><span class="p">,</span>
+    <span class="n">srcs</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s">"//:my_package.tar"</span><span class="p">,</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+</code></pre></div></div>
 
 <p><strong>ATTRIBUTES</strong></p>
 
@@ -1096,6 +1146,15 @@ to create a NodeContextInfo.  The dependencies of this attribute must provide: N
 <p>See the section on stamping in the <a href="stamping">README</a></p>
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">{}</code></p>
+
+<h4 id="pkg_npm-tgz">tgz</h4>
+
+<p>(<em>String</em>): If set, will create a <code class="language-plaintext highlighter-rouge">.tgz</code> file that can be used as an input to another rule, the tar will be given the name assigned to this attribute.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    NOTE: If this attribute is set, a valid `package.json` file must be included in the sources of this target
+</code></pre></div></div>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">""</code></p>
 
 <h4 id="pkg_npm-vendor_external">vendor_external</h4>
 
@@ -1567,7 +1626,7 @@ It will also provide <a href="https://docs.bazel.build/versions/master/skylark/l
 
 <pre>
 npm_package_bin(<a href="#npm_package_bin-tool">tool</a>, <a href="#npm_package_bin-package">package</a>, <a href="#npm_package_bin-package_bin">package_bin</a>, <a href="#npm_package_bin-data">data</a>, <a href="#npm_package_bin-outs">outs</a>, <a href="#npm_package_bin-args">args</a>, <a href="#npm_package_bin-output_dir">output_dir</a>, <a href="#npm_package_bin-link_workspace_root">link_workspace_root</a>,
-                <a href="#npm_package_bin-kwargs">kwargs</a>)
+                <a href="#npm_package_bin-chdir">chdir</a>, <a href="#npm_package_bin-kwargs">kwargs</a>)
 </pre>
 
 <p>Run an arbitrary npm package binary (e.g. a program under node_modules/.bin/*) under Bazel.</p>
@@ -1577,11 +1636,8 @@ npm_package_bin(<a href="#npm_package_bin-tool">tool</a>, <a href="#npm_package_
 <p>This is like a genrule() except that it runs our launcher script that first
 links the node_modules tree before running the program.</p>
 
-<p>Bazel always runs actions with a working directory set to your workspace root.
-If your tool needs to run in a different directory, you can write a <code class="language-plaintext highlighter-rouge">process.chdir</code> helper script
-and invoke it before the action with a <code class="language-plaintext highlighter-rouge">--require</code> argument, like
-<code class="language-plaintext highlighter-rouge">args = ["--node_options=--require=./$(execpath chdir.js)"]</code>
-See rules_nodejs/internal/node/test/chdir for an example.</p>
+<p>By default, Bazel runs actions with a working directory set to your workspace root.
+Use the <code class="language-plaintext highlighter-rouge">chdir</code> attribute to change the working directory before the program runs.</p>
 
 <p>This is a great candidate to wrap with a macro, as documented:
 https://docs.bazel.build/versions/master/skylark/macros.html#full-example</p>
@@ -1684,7 +1740,38 @@ If source files need to be required then they can be copied to the bin_dir with 
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">False</code></p>
 
+<h4 id="npm_package_bin-chdir">chdir</h4>
+
+<p>Working directory to run the binary or test in, relative to the workspace.</p>
+
+<p>By default, Bazel always runs in the workspace root.</p>
+
+<p>To run in the directory containing the <code class="language-plaintext highlighter-rouge">npm_package_bin</code> under the source tree, use
+<code class="language-plaintext highlighter-rouge">chdir = package_name()</code>
+(or if you’re in a macro, use <code class="language-plaintext highlighter-rouge">native.package_name()</code>).</p>
+
+<p>To run in the output directory where the npm_package_bin writes outputs, use
+<code class="language-plaintext highlighter-rouge">chdir = "$(RULEDIR)"</code></p>
+
+<p>WARNING: this will affect other paths passed to the program, either as arguments or in configuration files,
+which are workspace-relative.
+You may need <code class="language-plaintext highlighter-rouge">../../</code> segments to re-relativize such paths to the new working directory.
+In a <code class="language-plaintext highlighter-rouge">BUILD</code> file you could do something like this to point to the output path:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">_package_segments</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">package_name</span><span class="p">().</span><span class="n">split</span><span class="p">(</span><span class="s">"/"</span><span class="p">))</span>
+<span class="n">npm_package_bin</span><span class="p">(</span>
+    <span class="p">...</span>
+    <span class="n">chdir</span> <span class="o">=</span> <span class="n">package_name</span><span class="p">(),</span>
+    <span class="c1"># ../.. segments to re-relative paths from the chdir back to workspace
+</span>    <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s">"/"</span><span class="p">.</span><span class="n">join</span><span class="p">([</span><span class="s">".."</span><span class="p">]</span> <span class="o">*</span> <span class="n">_package_segments</span> <span class="o">+</span> <span class="p">[</span><span class="s">"$@"</span><span class="p">])],</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">None</code></p>
+
 <h4 id="npm_package_bin-kwargs">kwargs</h4>
+
+<p>additional undocumented keyword args</p>
 
 <h2 id="params_file">params_file</h2>
 
@@ -2076,7 +2163,7 @@ js_named_module_info(<a href="#js_named_module_info-sources">sources</a>, <a hre
 <p><strong>USAGE</strong></p>
 
 <pre>
-run_node(<a href="#run_node-ctx">ctx</a>, <a href="#run_node-inputs">inputs</a>, <a href="#run_node-arguments">arguments</a>, <a href="#run_node-executable">executable</a>, <a href="#run_node-kwargs">kwargs</a>)
+run_node(<a href="#run_node-ctx">ctx</a>, <a href="#run_node-inputs">inputs</a>, <a href="#run_node-arguments">arguments</a>, <a href="#run_node-executable">executable</a>, <a href="#run_node-chdir">chdir</a>, <a href="#run_node-kwargs">kwargs</a>)
 </pre>
 
 <p>Helper to replace ctx.actions.run</p>
@@ -2101,7 +2188,15 @@ run_node(<a href="#run_node-ctx">ctx</a>, <a href="#run_node-inputs">inputs</a>,
 
 <p>stringy representation of the executable this action will run, eg eg. “my_executable” rather than ctx.executable.my_executable</p>
 
+<h4 id="run_node-chdir">chdir</h4>
+
+<p>directory we should change to be the working dir</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">None</code></p>
+
 <h4 id="run_node-kwargs">kwargs</h4>
+
+<p>all other args accepted by ctx.actions.run</p>
 
 <h2 id="node_modules_aspect">node_modules_aspect</h2>
 
@@ -2192,7 +2287,7 @@ mandatory: true
   <div class="container">
   <div class="row">
     <div class="col-lg-8">
-      <p class="text-muted">&copy; 2020 The rules_nodejs authors</p>
+      <p class="text-muted">&copy; 2021 The rules_nodejs authors</p>
     </div>
   </div>
 </div>

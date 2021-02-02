@@ -189,86 +189,6 @@
   <li>Documentation is sparse</li>
 </ul>
 
-<h2 id="protobufjs_ts_library">protobufjs_ts_library</h2>
-
-<p><strong>USAGE</strong></p>
-
-<pre>
-protobufjs_ts_library(<a href="#protobufjs_ts_library-name">name</a>, <a href="#protobufjs_ts_library-deps">deps</a>, <a href="#protobufjs_ts_library-output_name">output_name</a>)
-</pre>
-
-<p>Wraps https://github.com/dcodeIO/protobuf.js for use in Bazel.</p>
-
-<p><code class="language-plaintext highlighter-rouge">ts_proto_library</code> has identical outputs to <code class="language-plaintext highlighter-rouge">ts_library</code>, so it can be used anywhere
-a <code class="language-plaintext highlighter-rouge">ts_library</code> can appear, such as in the <code class="language-plaintext highlighter-rouge">deps[]</code> of another <code class="language-plaintext highlighter-rouge">ts_library</code>.</p>
-
-<p>Example:</p>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">load</span><span class="p">(</span><span class="s">"@npm//@bazel/typescript:index.bzl"</span><span class="p">,</span> <span class="s">"ts_library"</span><span class="p">,</span> <span class="s">"ts_proto_library"</span><span class="p">)</span>
-
-<span class="n">proto_library</span><span class="p">(</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="s">"car_proto"</span><span class="p">,</span>
-    <span class="n">srcs</span> <span class="o">=</span> <span class="p">[</span><span class="s">"car.proto"</span><span class="p">],</span>
-<span class="p">)</span>
-
-<span class="n">ts_proto_library</span><span class="p">(</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="s">"car"</span><span class="p">,</span>
-    <span class="n">deps</span> <span class="o">=</span> <span class="p">[</span><span class="s">":car_proto"</span><span class="p">],</span>
-<span class="p">)</span>
-
-<span class="n">ts_library</span><span class="p">(</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="s">"test_lib"</span><span class="p">,</span>
-    <span class="n">testonly</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span>
-    <span class="n">srcs</span> <span class="o">=</span> <span class="p">[</span><span class="s">"car.spec.ts"</span><span class="p">],</span>
-    <span class="n">deps</span> <span class="o">=</span> <span class="p">[</span><span class="s">":car"</span><span class="p">],</span>
-<span class="p">)</span>
-</code></pre></div></div>
-
-<p>Note in this example we named the <code class="language-plaintext highlighter-rouge">ts_proto_library</code> rule <code class="language-plaintext highlighter-rouge">car</code> so that the
-result will be <code class="language-plaintext highlighter-rouge">car.d.ts</code>. This means our TypeScript code can just
-<code class="language-plaintext highlighter-rouge">import {symbols} from './car'</code>. Use the <code class="language-plaintext highlighter-rouge">output_name</code> attribute if you want to
-name the rule differently from the output file.</p>
-
-<p>The JavaScript produced by protobuf.js has a runtime dependency on a support library.
-Under devmode (e.g. <code class="language-plaintext highlighter-rouge">concatjs_devserver</code>, <code class="language-plaintext highlighter-rouge">karma_web_test_suite</code>) you’ll need to include these scripts
-in the <code class="language-plaintext highlighter-rouge">bootstrap</code> phase (before Require.js loads). You can use the label
-<code class="language-plaintext highlighter-rouge">@npm//@bazel/labs/protobufjs:bootstrap_scripts</code> to reference these scripts
-in the <code class="language-plaintext highlighter-rouge">bootstrap</code> attribute of <code class="language-plaintext highlighter-rouge">karma_web_test_suite</code> or <code class="language-plaintext highlighter-rouge">concatjs_devserver</code>.</p>
-
-<p>To complete the example above, you could write a <code class="language-plaintext highlighter-rouge">karma_web_test_suite</code>:</p>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">load</span><span class="p">(</span><span class="s">"@npm//@bazel/concatjs:index.bzl"</span><span class="p">,</span> <span class="s">"karma_web_test_suite"</span><span class="p">)</span>
-
-<span class="n">karma_web_test_suite</span><span class="p">(</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="s">"test"</span><span class="p">,</span>
-    <span class="n">deps</span> <span class="o">=</span> <span class="p">[</span><span class="s">"test_lib"</span><span class="p">],</span>
-    <span class="n">bootstrap</span> <span class="o">=</span> <span class="p">[</span><span class="s">"@npm//@bazel/labs/protobufjs:bootstrap_scripts"</span><span class="p">],</span>
-    <span class="n">browsers</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s">"@io_bazel_rules_webtesting//browsers:chromium-local"</span><span class="p">,</span>
-        <span class="s">"@io_bazel_rules_webtesting//browsers:firefox-local"</span><span class="p">,</span>
-    <span class="p">],</span>
-<span class="p">)</span>
-</code></pre></div></div>
-
-<p><strong>ATTRIBUTES</strong></p>
-
-<h4 id="protobufjs_ts_library-name">name</h4>
-
-<p>(<em><a href="https://bazel.build/docs/build-ref.html#name">Name</a>, mandatory</em>): A unique name for this target.</p>
-
-<h4 id="protobufjs_ts_library-deps">deps</h4>
-
-<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></em>): proto_library targets</p>
-
-<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
-
-<h4 id="protobufjs_ts_library-output_name">output_name</h4>
-
-<p>(<em>String</em>): Name of the resulting module, which you will import from.
-            If not specified, the name will match the target’s name.</p>
-
-<p>Defaults to <code class="language-plaintext highlighter-rouge">""</code></p>
-
 <h2 id="ts_proto_library">ts_proto_library</h2>
 
 <p><strong>USAGE</strong></p>
@@ -302,7 +222,6 @@ ts_proto_library(<a href="#ts_proto_library-name">name</a>, <a href="#ts_proto_l
           
         </ul>
         <ul class="section-nav">
-<li class="toc-entry toc-h2"><a href="#protobufjs_ts_library">protobufjs_ts_library</a></li>
 <li class="toc-entry toc-h2"><a href="#ts_proto_library">ts_proto_library</a></li>
 </ul>
       </div>
@@ -314,7 +233,7 @@ ts_proto_library(<a href="#ts_proto_library-name">name</a>, <a href="#ts_proto_l
   <div class="container">
   <div class="row">
     <div class="col-lg-8">
-      <p class="text-muted">&copy; 2020 The rules_nodejs authors</p>
+      <p class="text-muted">&copy; 2021 The rules_nodejs authors</p>
     </div>
   </div>
 </div>

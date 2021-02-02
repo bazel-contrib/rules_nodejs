@@ -191,7 +191,7 @@
 
 <p>rules_nodejs has a distribution format which is a tgz published to GitHub, and this can make it tricky to make casual changes without forking the project and building your own release artifacts.</p>
 
-<p>Bazel has a handy patching mechanism that lets you easily apply a local patch to the release artifact for built-in rules: the <code class="language-plaintext highlighter-rouge">patches</code> attribute to <code class="language-plaintext highlighter-rouge">http_archive</code>.</p>
+<p>Bazel has a handy patching mechanism that lets you easily apply a local patch to the release artifact for built-in rules: <a href="https://docs.bazel.build/versions/master/repo/http.html#attributes">the <code class="language-plaintext highlighter-rouge">patches</code> attribute to <code class="language-plaintext highlighter-rouge">http_archive</code></a>.</p>
 
 <p>First, make your changes in a clone of the rules_nodejs repo. Export a patch file simply using <code class="language-plaintext highlighter-rouge">git diff</code>:</p>
 
@@ -241,7 +241,7 @@
   <div class="container">
   <div class="row">
     <div class="col-lg-8">
-      <p class="text-muted">&copy; 2020 The rules_nodejs authors</p>
+      <p class="text-muted">&copy; 2021 The rules_nodejs authors</p>
     </div>
   </div>
 </div>

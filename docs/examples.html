@@ -295,9 +295,21 @@ successfully build your own toolchain.</p>
 
 <h3 id="protocol-buffers-and-grpc">Protocol Buffers and gRPC</h3>
 
-<p>Note: this is considered a “labs” feature in rules_nodejs, so support and stability are not great. gRPC is still a WIP.</p>
+<p>Note: this is under active development. Come chat in the #javascript channel on Slack to get the latest.
+Support and stability are not great but expected to improve.</p>
 
-<p>See <a href="https://github.com/bazelbuild/rules_nodejs/tree/stable/examples/protocol_buffers">examples/protocol_buffers</a></p>
+<p>There are many alternative implementations for protobuf and RPC.
+We generally intend to support all of them, with a small layer in rules_nodejs that allows you to build around any of those tools.</p>
+
+<p><a href="https://github.com/rules-proto-grpc/rules_proto_grpc">https://github.com/rules-proto-grpc/rules_proto_grpc</a> is an excellent, broad ruleset based on the tooling from <a href="http://grpc.io">http://grpc.io</a>. We may point to this as the canonical example in the future.</p>
+
+<p>The <code class="language-plaintext highlighter-rouge">@bazel/labs</code> package has an experimental <code class="language-plaintext highlighter-rouge">ts_proto_library</code> rule.
+It integrates with the “concatjs” bundler and is suitable for projects using <code class="language-plaintext highlighter-rouge">ts_library</code>.
+However it’s not clear whether this will be promoted to a stable API.
+See the example in <a href="https://github.com/bazelbuild/rules_nodejs/tree/stable/examples/protocol_buffers">examples/protocol_buffers</a></p>
+
+<p><a href="https://github.com/protobufjs/protobuf.js">protobuf.js</a> from https://github.com/dcodeIO is a simple alternative.
+See the example in <a href="https://github.com/bazelbuild/rules_nodejs/tree/stable/examples/protobufjs">examples/protobufjs</a></p>
 
 <h2 id="bazel-specific">Bazel-specific</h2>
 
@@ -372,7 +384,7 @@ successfully build your own toolchain.</p>
   <div class="container">
   <div class="row">
     <div class="col-lg-8">
-      <p class="text-muted">&copy; 2020 The rules_nodejs authors</p>
+      <p class="text-muted">&copy; 2021 The rules_nodejs authors</p>
     </div>
   </div>
 </div>

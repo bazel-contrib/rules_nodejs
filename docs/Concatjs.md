@@ -67,7 +67,8 @@ To use `concatjs_devserver`, you simply `load` the rule, and call it with `deps`
 point to your `ts_library` target(s):
 
 ```python
-load("@npm//@bazel/typescript:index.bzl", "concatjs_devserver", "ts_library")
+load("@npm//@bazel/concatjs:index.bzl", "concatjs_devserver")
+load("@npm//@bazel/typescript:index.bzl", "ts_library")
 
 ts_library(
     name = "app",
