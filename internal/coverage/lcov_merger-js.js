@@ -60,6 +60,7 @@ function main() {
             reportsDirectory: c8OutputDir,
             tempDirectory: coverageDir,
             resolve: '',
+            all: true,
             reporter: ['lcovonly']
         })
             .run();

@@ -98,6 +98,7 @@ async function main() {
         // tempDirectory as actually the dir that c8 will read from for the v8 json files
         tempDirectory: coverageDir,
         resolve: '',
+        all: true,
         // TODO: maybe add an attribute to allow more reporters
         // or maybe an env var?
         reporter: ['lcovonly']
