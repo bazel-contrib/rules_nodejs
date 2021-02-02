@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
+const readline = require("readline");
 function _getArg(argv, key) {
     return argv.find(a => a.startsWith(key)).split('=')[1];
 }
@@ -62,7 +63,15 @@ function main() {
             reporter: ['lcovonly']
         })
             .run();
-        fs.copyFileSync(path.join(c8OutputDir, 'lcov.info'), outputFile);
+        const inputFile = path.join(c8OutputDir, 'lcov.info');
+        const input = readline.createInterface({
+            input: fs.createReadStream(inputFile),
+        });
+        const output = fs.createWriteStream(outputFile);
+        input.on('line', line => {
+            const patched = line.replace('SF:../../../', 'SF:');
+            output.write(patched + '\n');
+        });
     });
 }
 if (require.main === module) {

@@ -18,6 +18,7 @@
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as readline from 'readline';
 
 function _getArg(argv: string[], key: string): string {
   return argv.find(a => a.startsWith(key))!.split('=')[1];
@@ -103,8 +104,18 @@ async function main() {
       })
       .run();
   // moves the report into the files bazel expects
-  // lcovonly names this file lcov.info
-  fs.copyFileSync(path.join(c8OutputDir, 'lcov.info'), outputFile);
+  // and fixes the paths as we're moving it up 3 dirs
+  const inputFile = path.join(c8OutputDir, 'lcov.info');
+  // we want to do this 1 line at a time to avoid using too much memory
+  const input = readline.createInterface({
+    input: fs.createReadStream(inputFile),
+  });
+  const output = fs.createWriteStream(outputFile);
+
+  input.on('line', line => {
+    const patched = line.replace('SF:../../../', 'SF:')
+    output.write(patched + '\n');
+  });
 }
 
 if (require.main === module) {
