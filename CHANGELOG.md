@@ -1,3 +1,29 @@
+# [3.1.0](https://github.com/bazelbuild/rules_nodejs/compare/3.0.0...3.1.0) (2021-02-02)
+
+
+### Bug Fixes
+
+* forward srcs, deps and visibility of dummy_bzl_library to the filegroup when publishing ([0466084](https://github.com/bazelbuild/rules_nodejs/commit/0466084))
+* linker fix for invalid symlink creation path in createSymlinkAndPreserveContents ([14086a8](https://github.com/bazelbuild/rules_nodejs/commit/14086a8))
+* relative data paths in yarn_install & npm_install when symlink_node_modules=False and package.json is not at root ([3c12dfe](https://github.com/bazelbuild/rules_nodejs/commit/3c12dfe))
+* **builtin:** only generate a .tar pkg_npm output when requested ([#2428](https://github.com/bazelbuild/rules_nodejs/issues/2428)) ([4d8f15c](https://github.com/bazelbuild/rules_nodejs/commit/4d8f15c))
+* **builtin:** pass quiet attr though to build file generation on npm / yarn install ([#2400](https://github.com/bazelbuild/rules_nodejs/issues/2400)) ([ceb76d6](https://github.com/bazelbuild/rules_nodejs/commit/ceb76d6))
+* **builtin:** when using chdir attribute, don't write to source dir ([3eb4260](https://github.com/bazelbuild/rules_nodejs/commit/3eb4260))
+* **typescript:** capture js files in outputs of ts_project if allow_js ([9d7827b](https://github.com/bazelbuild/rules_nodejs/commit/9d7827b))
+* remove mirror.bazel.build from list of node_urls used to fetch NodeJS by default ([#2408](https://github.com/bazelbuild/rules_nodejs/issues/2408)) ([67b494b](https://github.com/bazelbuild/rules_nodejs/commit/67b494b))
+* skip update NodeJS versions action on forks ([#2396](https://github.com/bazelbuild/rules_nodejs/issues/2396)) ([4e40d25](https://github.com/bazelbuild/rules_nodejs/commit/4e40d25))
+* **examples:** angualr universal_server ([d5e8413](https://github.com/bazelbuild/rules_nodejs/commit/d5e8413))
+* **update-nodejs-versions:** Fix NodeJS version for running GitHub Action ([4ab8252](https://github.com/bazelbuild/rules_nodejs/commit/4ab8252))
+
+
+### Features
+
+* **builtin:** add a chdir attribute to nodejs_test and npm_package_bin ([0fde42b](https://github.com/bazelbuild/rules_nodejs/commit/0fde42b)), closes [#2323](https://github.com/bazelbuild/rules_nodejs/issues/2323)
+* **typescript:** create a better ts_project worker ([#2416](https://github.com/bazelbuild/rules_nodejs/issues/2416)) ([99bfe5f](https://github.com/bazelbuild/rules_nodejs/commit/99bfe5f))
+* add support for NodeJS 15.x ([#2366](https://github.com/bazelbuild/rules_nodejs/issues/2366)) ([924fa41](https://github.com/bazelbuild/rules_nodejs/commit/924fa41))
+
+
+
 # [3.0.0](https://github.com/bazelbuild/rules_nodejs/compare/3.0.0-rc.1...3.0.0) (2020-12-22)
 
 > ### For a full list for the breaking changes in 3.0.0 and other notes on migrating, see the [Migrating to 3.0.0 wiki](https://github.com/bazelbuild/rules_nodejs/wiki#migrating-to-30) page.
