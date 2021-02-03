@@ -335,7 +335,7 @@ Defaults to `@npm//rollup/bin:rollup`
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): Internal use only
 
-Defaults to `@npm//@bazel/bin:rollup-worker`
+Defaults to `@npm//@bazel/rollup/bin:rollup-worker`
 
 <h4 id="rollup_bundle-silent">silent</h4>
 

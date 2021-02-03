@@ -144,6 +144,6 @@ If you want to do this, you can pass a filegroup here.
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): An executable target that runs Terser
 
-Defaults to `@npm//@bazel/bin:terser`
+Defaults to `@npm//@bazel/terser/bin:terser`
 
 

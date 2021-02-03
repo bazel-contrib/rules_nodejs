@@ -165,8 +165,12 @@ function main() {
     // If necessary, get the new `terser` binary, added for >=4.3.0
     terserBinary = terserBinary || require.resolve('terser/bin/terser');
   } catch (e) {
-    // If necessary, get the old `uglifyjs` binary from <4.3.0
-    terserBinary = terserBinary || require.resolve('terser/bin/uglifyjs');
+    try {
+      // If necessary, get the old `uglifyjs` binary from <4.3.0
+      terserBinary = terserBinary || require.resolve('terser/bin/uglifyjs');
+    } catch (e) {
+      throw new Error('terser binary not found. Maybe you need to set the terser_bin attribute?')
+    }
   }
   // choose a default concurrency of the number of cores -1 but at least 1.
 
