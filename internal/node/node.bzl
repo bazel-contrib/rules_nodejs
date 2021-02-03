@@ -344,23 +344,25 @@ fi
 _NODEJS_EXECUTABLE_ATTRS = {
     "chdir": attr.string(
         doc = """Working directory to run the binary or test in, relative to the workspace.
-        By default, Bazel always runs in the workspace root.
-        Due to implementation details, this argument must be underneath this package directory.
+By default, Bazel always runs in the workspace root.
+Due to implementation details, this argument must be underneath this package directory.
 
-        To run in the directory containing the `nodejs_binary` / `nodejs_test` use
-        `chdir = package_name()`
-        (or if you're in a macro, use `native.package_name()`)
-        
-        WARNING: this will affect other paths passed to the program, either as arguments or in configuration files,
-        which are workspace-relative.
-        You may need `../../` segments to re-relativize such paths to the new working directory.
-        """,
+To run in the directory containing the `nodejs_binary` / `nodejs_test`, use
+    
+    chdir = package_name()
+
+(or if you're in a macro, use `native.package_name()`)
+
+WARNING: this will affect other paths passed to the program, either as arguments or in configuration files,
+which are workspace-relative.
+You may need `../../` segments to re-relativize such paths to the new working directory.
+""",
     ),
     "configuration_env_vars": attr.string_list(
         doc = """Pass these configuration environment variables to the resulting binary.
-        Chooses a subset of the configuration environment variables (taken from `ctx.var`), which also
-        includes anything specified via the --define flag.
-        Note, this can lead to different outputs produced by this rule.""",
+Chooses a subset of the configuration environment variables (taken from `ctx.var`), which also
+includes anything specified via the --define flag.
+Note, this can lead to different outputs produced by this rule.""",
         default = [],
     ),
     "data": attr.label_list(

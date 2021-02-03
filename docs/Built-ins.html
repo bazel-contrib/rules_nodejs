@@ -415,26 +415,28 @@ nodejs_binary(<a href="#nodejs_binary-name">name</a>, <a href="#nodejs_binary-ch
 <h4 id="nodejs_binary-chdir">chdir</h4>
 
 <p>(<em>String</em>): Working directory to run the binary or test in, relative to the workspace.
-        By default, Bazel always runs in the workspace root.
-        Due to implementation details, this argument must be underneath this package directory.</p>
+By default, Bazel always runs in the workspace root.
+Due to implementation details, this argument must be underneath this package directory.</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    To run in the directory containing the `nodejs_binary` / `nodejs_test` use
-    `chdir = package_name()`
-    (or if you're in a macro, use `native.package_name()`)
-    
-    WARNING: this will affect other paths passed to the program, either as arguments or in configuration files,
-    which are workspace-relative.
-    You may need `../../` segments to re-relativize such paths to the new working directory.
+<p>To run in the directory containing the <code class="language-plaintext highlighter-rouge">nodejs_binary</code> / <code class="language-plaintext highlighter-rouge">nodejs_test</code>, use</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>chdir = package_name()
 </code></pre></div></div>
+
+<p>(or if you’re in a macro, use <code class="language-plaintext highlighter-rouge">native.package_name()</code>)</p>
+
+<p>WARNING: this will affect other paths passed to the program, either as arguments or in configuration files,
+which are workspace-relative.
+You may need <code class="language-plaintext highlighter-rouge">../../</code> segments to re-relativize such paths to the new working directory.</p>
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">""</code></p>
 
 <h4 id="nodejs_binary-configuration_env_vars">configuration_env_vars</h4>
 
 <p>(<em>List of strings</em>): Pass these configuration environment variables to the resulting binary.
-        Chooses a subset of the configuration environment variables (taken from <code class="language-plaintext highlighter-rouge">ctx.var</code>), which also
-        includes anything specified via the –define flag.
-        Note, this can lead to different outputs produced by this rule.</p>
+Chooses a subset of the configuration environment variables (taken from <code class="language-plaintext highlighter-rouge">ctx.var</code>), which also
+includes anything specified via the –define flag.
+Note, this can lead to different outputs produced by this rule.</p>
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
@@ -647,26 +649,28 @@ remote debugger.</p>
 <h4 id="nodejs_test-chdir">chdir</h4>
 
 <p>(<em>String</em>): Working directory to run the binary or test in, relative to the workspace.
-        By default, Bazel always runs in the workspace root.
-        Due to implementation details, this argument must be underneath this package directory.</p>
+By default, Bazel always runs in the workspace root.
+Due to implementation details, this argument must be underneath this package directory.</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    To run in the directory containing the `nodejs_binary` / `nodejs_test` use
-    `chdir = package_name()`
-    (or if you're in a macro, use `native.package_name()`)
-    
-    WARNING: this will affect other paths passed to the program, either as arguments or in configuration files,
-    which are workspace-relative.
-    You may need `../../` segments to re-relativize such paths to the new working directory.
+<p>To run in the directory containing the <code class="language-plaintext highlighter-rouge">nodejs_binary</code> / <code class="language-plaintext highlighter-rouge">nodejs_test</code>, use</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>chdir = package_name()
 </code></pre></div></div>
+
+<p>(or if you’re in a macro, use <code class="language-plaintext highlighter-rouge">native.package_name()</code>)</p>
+
+<p>WARNING: this will affect other paths passed to the program, either as arguments or in configuration files,
+which are workspace-relative.
+You may need <code class="language-plaintext highlighter-rouge">../../</code> segments to re-relativize such paths to the new working directory.</p>
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">""</code></p>
 
 <h4 id="nodejs_test-configuration_env_vars">configuration_env_vars</h4>
 
 <p>(<em>List of strings</em>): Pass these configuration environment variables to the resulting binary.
-        Chooses a subset of the configuration environment variables (taken from <code class="language-plaintext highlighter-rouge">ctx.var</code>), which also
-        includes anything specified via the –define flag.
-        Note, this can lead to different outputs produced by this rule.</p>
+Chooses a subset of the configuration environment variables (taken from <code class="language-plaintext highlighter-rouge">ctx.var</code>), which also
+includes anything specified via the –define flag.
+Note, this can lead to different outputs produced by this rule.</p>
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 
