@@ -7,11 +7,10 @@ const content = readFileSync(md, {encoding: 'utf8'});
 // @npm is not the required name, but it seems to be the common case
 // this reflects the similar transformation made when publishing the packages to npm
 // via pkg_npm defined in //tools:defaults.bzl
-const out = content
-  .replace(/(?:@.*)*?\/\/packages\/([^:"\s]*)/g, (str, pkg) => {
-    const parts = pkg.split('/');
-    return `@npm//@bazel/${parts[parts.length - 1]}`;
-  });
+const out = content.replace(/(?:@.*)*?\/\/packages\/([^/:"\s]*)/g, (str, pkg) => {
+  const parts = pkg.split('/');
+  return `@npm//@bazel/${parts[parts.length - 1]}`;
+});
 
 // stamp the frontmatter into the post processed stardoc HTML
 const frontmatter = [  

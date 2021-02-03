@@ -204,14 +204,14 @@ Defaults to `[]`
 
             Defaults to precompiled go binary setup by @bazel/typescript npm package
 
-Defaults to `@npm//@bazel/devserver:devserver`
+Defaults to `@npm//@bazel/concatjs/devserver:devserver`
 
 <h4 id="concatjs_devserver-devserver_host">devserver_host</h4>
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): Go based devserver executable for the host platform.
             Defaults to precompiled go binary setup by @bazel/typescript npm package
 
-Defaults to `@npm//@bazel/devserver:devserver_darwin_amd64`
+Defaults to `@npm//@bazel/concatjs/devserver:devserver_darwin_amd64`
 
 <h4 id="concatjs_devserver-entry_module">entry_module</h4>
 
