@@ -113,9 +113,32 @@ data attribute.
         default = 3600,
         doc = """Maximum duration of the package manager execution in seconds.""",
     ),
+    "generate_local_modules_build_files": attr.bool(
+        default = True,
+        doc = """Enables the BUILD files auto generation for local modules installed with `file:` (npm) or `link:` (yarn)
+
+When using a monorepo it's common to have modules that we want to use locally and
+publish to an external package repository. This can be achieved using a `js_library` rule
+with a `package_name` attribute defined inside the local package `BUILD` file. However,
+if the project relies on the local package dependency with `file:` (npm) or `link:` (yarn) to be used outside Bazel, this
+could introduce a race condition with both `npm_install` or `yarn_install` rules.
+
+In order to overcome it, a link could be created to the package `BUILD` file from the
+npm external Bazel repository (so we can use a local BUILD file instead of an auto generated one),
+which require us to set `generate_local_modules_build_files = False` and complete a last step which is writing the
+expected targets on that same `BUILD` file to be later used both by `npm_install` or `yarn_install`
+rules, which are: `<package_name__files>`, `<package_name__nested_node_modules>`,
+`<package_name__contents>`, `<package_name__typings>` and the last one just `<package_name>`. If you doubt what those targets
+should look like, check the generated `BUILD` file for a given node module.
+
+When true, the rule will follow the default behaviour of auto generating BUILD files for each `node_module` at install time.
+
+When False, the rule will not auto generate BUILD files for `node_modules` that are installed as symlinks for local modules.
+""",
+    ),
 })
 
-def _create_build_files(repository_ctx, rule_type, node, lock_file):
+def _create_build_files(repository_ctx, rule_type, node, lock_file, generate_local_modules_build_files):
     repository_ctx.report_progress("Processing node_modules: installing Bazel packages and generating BUILD files")
     if repository_ctx.attr.manual_build_file_contents:
         repository_ctx.file("manual_build_file_contents", repository_ctx.attr.manual_build_file_contents)
@@ -129,6 +152,7 @@ def _create_build_files(repository_ctx, rule_type, node, lock_file):
         _workspace_root_prefix(repository_ctx),
         str(repository_ctx.attr.strict_visibility),
         ",".join(repository_ctx.attr.included_files),
+        str(generate_local_modules_build_files),
         native.bazel_version,
         # double the default timeout in case of many packages, see #2231
     ], timeout = 1200, quiet = repository_ctx.attr.quiet)
@@ -334,7 +358,7 @@ cd /D "{root}" && "{npm}" {npm_args}
 
     _symlink_node_modules(repository_ctx)
 
-    _create_build_files(repository_ctx, "npm_install", node, repository_ctx.attr.package_lock_json)
+    _create_build_files(repository_ctx, "npm_install", node, repository_ctx.attr.package_lock_json, repository_ctx.attr.generate_local_modules_build_files)
 
 npm_install = repository_rule(
     attrs = dict(COMMON_ATTRIBUTES, **{
@@ -373,17 +397,7 @@ When using a monorepo it's common to have modules that we want to use locally an
 publish to an external package repository. This can be achieved using a `js_library` rule
 with a `package_name` attribute defined inside the local package `BUILD` file. However,
 if the project relies on the local package dependency with `file:`, this could introduce a
-race condition with the `npm_install` rule.
-
-In order to overcome it, a link will be created to the package `BUILD` file from the
-npm external Bazel repository, which require us to complete a last step which is writing
-the expected targets on that same `BUILD` file to be later used by the `npm_install`
-rule, which are: `<package_name__files>`, `<package_name__nested_node_modules>`,
-`<package_name__contents>`, `<package_name__typings>` and the last
-one just `<package_name>`.
-
-If you doubt what those targets should look like, check the
-generated `BUILD` file for a given node module.""",
+race condition with the `npm_install` rule.""",
     implementation = _npm_install_impl,
 )
 
@@ -489,7 +503,7 @@ cd /D "{root}" && "{yarn}" {yarn_args}
 
     _symlink_node_modules(repository_ctx)
 
-    _create_build_files(repository_ctx, "yarn_install", node, repository_ctx.attr.yarn_lock)
+    _create_build_files(repository_ctx, "yarn_install", node, repository_ctx.attr.yarn_lock, repository_ctx.attr.generate_local_modules_build_files)
 
 yarn_install = repository_rule(
     attrs = dict(COMMON_ATTRIBUTES, **{
@@ -540,25 +554,6 @@ to yarn so that the local cache is contained within the external repository.
 
 This rule will set the environment variable `BAZEL_YARN_INSTALL` to '1' (unless it
 set to another value in the environment attribute). Scripts may use to this to 
-check if yarn is being run by the `yarn_install` repository rule.
-
-
-**LOCAL MODULES WITH THE NEED TO BE USED BOTH INSIDE AND OUTSIDE BAZEL**
-
-When using a monorepo it's common to have modules that we want to use locally and
-publish to an external package repository. This can be achieved using a `js_library` rule
-with a `package_name` attribute defined inside the local package `BUILD` file. However,
-if the project relies on the local package dependency with `link:`, this could introduce a
-race condition with the `yarn_install` rule.
-
-In order to overcome it, a link will be created to the package `BUILD` file from the
-npm external Bazel repository, which require us to complete a last step which is writing
-the expected targets on that same `BUILD` file to be later used by the `yarn_install`
-rule, which are: `<package_name__files>`, `<package_name__nested_node_modules>`,
-`<package_name__contents>`, `<package_name__typings>` and the last
-one just `<package_name>`.
-
-If you doubt what those targets should look like, check the
-generated `BUILD` file for a given node module.""",
+check if yarn is being run by the `yarn_install` repository rule.""",
     implementation = _yarn_install_impl,
 )
