@@ -44,6 +44,29 @@ repository so all files that the package manager depends on must be listed.
         doc = """Environment variables to set before calling the package manager.""",
         default = {},
     ),
+    "generate_local_modules_build_files": attr.bool(
+        default = True,
+        doc = """Enables the BUILD files auto generation for local modules installed with `file:` (npm) or `link:` (yarn)
+
+When using a monorepo it's common to have modules that we want to use locally and
+publish to an external package repository. This can be achieved using a `js_library` rule
+with a `package_name` attribute defined inside the local package `BUILD` file. However,
+if the project relies on the local package dependency with `file:` (npm) or `link:` (yarn) to be used outside Bazel, this
+could introduce a race condition with both `npm_install` or `yarn_install` rules.
+
+In order to overcome it, a link could be created to the package `BUILD` file from the
+npm external Bazel repository (so we can use a local BUILD file instead of an auto generated one),
+which require us to set `generate_local_modules_build_files = False` and complete a last step which is writing the
+expected targets on that same `BUILD` file to be later used both by `npm_install` or `yarn_install`
+rules, which are: `<package_name__files>`, `<package_name__nested_node_modules>`,
+`<package_name__contents>`, `<package_name__typings>` and the last one just `<package_name>`. If you doubt what those targets
+should look like, check the generated `BUILD` file for a given node module.
+
+When true, the rule will follow the default behaviour of auto generating BUILD files for each `node_module` at install time.
+
+When False, the rule will not auto generate BUILD files for `node_modules` that are installed as symlinks for local modules.
+""",
+    ),
     "included_files": attr.string_list(
         doc = """List of file extensions to be included in the npm package targets.
 
@@ -112,29 +135,6 @@ data attribute.
     "timeout": attr.int(
         default = 3600,
         doc = """Maximum duration of the package manager execution in seconds.""",
-    ),
-    "generate_local_modules_build_files": attr.bool(
-        default = True,
-        doc = """Enables the BUILD files auto generation for local modules installed with `file:` (npm) or `link:` (yarn)
-
-When using a monorepo it's common to have modules that we want to use locally and
-publish to an external package repository. This can be achieved using a `js_library` rule
-with a `package_name` attribute defined inside the local package `BUILD` file. However,
-if the project relies on the local package dependency with `file:` (npm) or `link:` (yarn) to be used outside Bazel, this
-could introduce a race condition with both `npm_install` or `yarn_install` rules.
-
-In order to overcome it, a link could be created to the package `BUILD` file from the
-npm external Bazel repository (so we can use a local BUILD file instead of an auto generated one),
-which require us to set `generate_local_modules_build_files = False` and complete a last step which is writing the
-expected targets on that same `BUILD` file to be later used both by `npm_install` or `yarn_install`
-rules, which are: `<package_name__files>`, `<package_name__nested_node_modules>`,
-`<package_name__contents>`, `<package_name__typings>` and the last one just `<package_name>`. If you doubt what those targets
-should look like, check the generated `BUILD` file for a given node module.
-
-When true, the rule will follow the default behaviour of auto generating BUILD files for each `node_module` at install time.
-
-When False, the rule will not auto generate BUILD files for `node_modules` that are installed as symlinks for local modules.
-""",
     ),
 })
 

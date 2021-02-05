@@ -174,6 +174,7 @@ yarn_install(
     environment = {
         "SOME_USER_ENV": "yarn is great!",
     },
+    generate_local_modules_build_files = False,
     included_files = [
         "",
         ".js",
@@ -184,7 +185,6 @@ yarn_install(
     package_json = "//:tools/fine_grained_deps_yarn/package.json",
     symlink_node_modules = False,
     yarn_lock = "//:tools/fine_grained_deps_yarn/yarn.lock",
-    generate_local_modules_build_files = False,
 )
 
 npm_install(
@@ -198,6 +198,7 @@ npm_install(
     environment = {
         "SOME_USER_ENV": "npm is cool!",
     },
+    generate_local_modules_build_files = False,
     included_files = [
         "",
         ".js",
@@ -209,7 +210,6 @@ npm_install(
     package_json = "//:tools/fine_grained_deps_npm/package.json",
     package_lock_json = "//:tools/fine_grained_deps_npm/package-lock.json",
     symlink_node_modules = False,
-    generate_local_modules_build_files = False,
 )
 
 yarn_install(
