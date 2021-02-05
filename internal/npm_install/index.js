@@ -17,7 +17,7 @@ const WORKSPACE_ROOT_PREFIX = args[4];
 const WORKSPACE_ROOT_BASE = (_a = WORKSPACE_ROOT_PREFIX) === null || _a === void 0 ? void 0 : _a.split('/')[0];
 const STRICT_VISIBILITY = ((_b = args[5]) === null || _b === void 0 ? void 0 : _b.toLowerCase()) === 'true';
 const INCLUDED_FILES = args[6] ? args[6].split(',') : [];
-const GENERATE_LOCAL_MODULES_BUILD_FILES = JSON.parse(String(args[7]).toLowerCase());
+const GENERATE_LOCAL_MODULES_BUILD_FILES = (`${args[7]}`.toLowerCase()) === 'true';
 const BAZEL_VERSION = args[8];
 const PUBLIC_VISIBILITY = '//visibility:public';
 const LIMITED_VISIBILITY = `@${WORKSPACE}//:__subpackages__`;
