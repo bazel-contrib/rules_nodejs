@@ -1,0 +1,14 @@
+load("//:index.bzl", "js_library")
+
+# For negative testing, an alternative to 'onepb'
+# that doesn't include the transitive semver npm dep
+# that @onepa_npm_deps//:node_modules does
+js_library(
+    name = "onepb",
+    package_name = "@rules_nodejs/onepb",
+    srcs = [
+        "index.js",
+        "package.json",
+    ],
+    visibility = ["//internal/linker/test/multi_linker:__pkg__"],
+)

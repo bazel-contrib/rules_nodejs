@@ -40,27 +40,19 @@ def _trim_package_node_modules(package_name):
         segments.append(n)
     return "/".join(segments)
 
-def _compute_node_modules_root(ctx):
-    """Computes the node_modules root from the deps attributes.
-
-    Args:
-      ctx: the skylark execution context
-
-    Returns:
-      The node_modules root as a string
-    """
-    node_modules_root = None
+def _compute_node_modules_roots(ctx):
+    """Computes the node_modules root (if any) from data attribute."""
+    node_modules_roots = {}
     for d in ctx.attr.data:
         if ExternalNpmPackageInfo in d:
-            possible_root = "/".join([d[ExternalNpmPackageInfo].workspace, "node_modules"])
-            if not node_modules_root:
-                node_modules_root = possible_root
-            elif node_modules_root != possible_root:
-                fail("All npm dependencies need to come from a single workspace. Found '%s' and '%s'." % (node_modules_root, possible_root))
-    if not node_modules_root:
-        # there are no fine grained deps but we still need a node_modules_root even if it is a non-existant one
-        node_modules_root = "build_bazel_rules_nodejs/node_modules"
-    return node_modules_root
+            path = d[ExternalNpmPackageInfo].path
+            workspace = d[ExternalNpmPackageInfo].workspace
+            if path in node_modules_roots:
+                other_workspace = node_modules_roots[path]
+                if other_workspace != workspace:
+                    fail("All npm dependencies at the path '%s' must come from a single workspace. Found '%s' and '%s'." % (path, other_workspace, workspace))
+            node_modules_roots[path] = workspace
+    return node_modules_roots
 
 def _write_require_patch_script(ctx, node_modules_root):
     # Generates the JavaScript snippet of module roots mappings, with each entry
@@ -167,9 +159,15 @@ def _nodejs_binary_impl(ctx):
             sources_depsets.append(d.files)
     sources = depset(transitive = sources_depsets)
 
-    node_modules_root = _compute_node_modules_root(ctx)
+    node_modules_roots = _compute_node_modules_roots(ctx)
 
+    if "" in node_modules_roots:
+        node_modules_root = node_modules_roots[""] + "/node_modules"
+    else:
+        # there are no fine grained deps but we still need a node_modules_root even if it is a non-existant one
+        node_modules_root = "build_bazel_rules_nodejs/node_modules"
     _write_require_patch_script(ctx, node_modules_root)
+
     _write_loader_script(ctx)
 
     # Provide the target name as an environment variable avaiable to all actions for the
@@ -184,12 +182,18 @@ def _nodejs_binary_impl(ctx):
     # runfiles helpers to use.
     env_vars += "export BAZEL_WORKSPACE=%s\n" % ctx.workspace_name
 
-    # if BAZEL_NODE_MODULES_ROOT has not already been set by
+    bazel_node_module_roots = ""
+    for path, root in node_modules_roots.items():
+        if bazel_node_module_roots:
+            bazel_node_module_roots = bazel_node_module_roots + ","
+        bazel_node_module_roots = bazel_node_module_roots + "%s:%s" % (path, root)
+
+    # if BAZEL_NODE_MODULES_ROOTS has not already been set by
     # run_node, then set it to the computed value
-    env_vars += """if [[ -z "${BAZEL_NODE_MODULES_ROOT:-}" ]]; then
-  export BAZEL_NODE_MODULES_ROOT=%s
+    env_vars += """if [[ -z "${BAZEL_NODE_MODULES_ROOTS:-}" ]]; then
+  export BAZEL_NODE_MODULES_ROOTS=%s
 fi
-""" % node_modules_root
+""" % bazel_node_module_roots
 
     for k in ctx.attr.configuration_env_vars + ctx.attr.default_env_vars:
         # Check ctx.var first & if env var not in there then check

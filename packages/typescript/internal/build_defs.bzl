@@ -51,8 +51,6 @@ def _trim_package_node_modules(package_name):
         segments += [n]
     return "/".join(segments)
 
-# This function is similar but slightly different than _compute_node_modules_root
-# in /internal/node/node.bzl. TODO(gregmagolan): consolidate these functions
 def _compute_node_modules_root(ctx):
     """Computes the node_modules root from the node_modules and deps attributes.
 

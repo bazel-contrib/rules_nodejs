@@ -4,7 +4,7 @@ The Rollup rules run the [rollup.js](https://rollupjs.org/) bundler with Bazel.
 
 ## Installation
 
-Add the `@bazel/rollup` npm package to your `devDependencies` in `package.json`.
+Add the `@bazel/rollup` npm package to your `devDependencies` in `package.json`. (`rollup` itself should also be included in `devDependencies`, unless you plan on providing it via a custom target.)
 
 ### Installing with user-managed dependencies
 

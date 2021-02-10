@@ -1,0 +1,7 @@
+{
+    "private": true,
+    "//": "semver intentionally pinned to unique 1.0.1 to assert this version is found",
+    "dependencies": {
+        "semver": "1.0.1"
+    }
+}

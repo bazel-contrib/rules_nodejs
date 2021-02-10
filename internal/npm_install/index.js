@@ -19,6 +19,7 @@ const STRICT_VISIBILITY = ((_b = args[5]) === null || _b === void 0 ? void 0 : _
 const INCLUDED_FILES = args[6] ? args[6].split(',') : [];
 const GENERATE_LOCAL_MODULES_BUILD_FILES = (`${args[7]}`.toLowerCase()) === 'true';
 const BAZEL_VERSION = args[8];
+const PACKAGE_PATH = args[9];
 const PUBLIC_VISIBILITY = '//visibility:public';
 const LIMITED_VISIBILITY = `@${WORKSPACE}//:__subpackages__`;
 function generateBuildFileHeader(visibility = PUBLIC_VISIBILITY) {
@@ -103,7 +104,8 @@ ${exportsStarlark}])
 # See https://github.com/bazelbuild/bazel/issues/5153.
 js_library(
     name = "node_modules",
-    external_npm_package = True,${pkgFilesStarlark}${depsStarlark}
+    external_npm_package = True,
+    external_npm_package_path = "${PACKAGE_PATH}",${pkgFilesStarlark}${depsStarlark}
 )
 
 `;
@@ -571,6 +573,7 @@ filegroup(
 js_library(
     name = "${pkg._name}",
     external_npm_package = True,
+    external_npm_package_path = "${PACKAGE_PATH}",
     # direct sources listed for strict deps support
     srcs = [":${pkg._name}__files"],
     # nested node_modules for this package plus flattened list of direct and transitive dependencies
@@ -584,6 +587,7 @@ js_library(
 js_library(
     name = "${pkg._name}__contents",
     external_npm_package = True,
+    external_npm_package_path = "${PACKAGE_PATH}",
     srcs = [":${pkg._name}__files", ":${pkg._name}__nested_node_modules"],${namedSourcesStarlark}
     visibility = ["//:__subpackages__"],
 )
@@ -591,7 +595,8 @@ js_library(
 # Typings files that are part of the npm package not including nested node_modules
 js_library(
     name = "${pkg._name}__typings",
-    external_npm_package = True,${dtsStarlark}
+    external_npm_package = True,
+    external_npm_package_path = "${PACKAGE_PATH}",${dtsStarlark}
 )
 
 `;
@@ -741,7 +746,8 @@ function printScope(scope, pkgs) {
 # Generated target for npm scope ${scope}
 js_library(
     name = "${scope}",
-    external_npm_package = True,${pkgFilesStarlark}${depsStarlark}
+    external_npm_package = True,
+    external_npm_package_path = "${PACKAGE_PATH}",${pkgFilesStarlark}${depsStarlark}
 )
 
 `;

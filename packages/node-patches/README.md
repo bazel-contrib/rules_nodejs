@@ -32,10 +32,10 @@ this should not change the behavior of any paths that are outside of the root.
 ### loader
 
 you can use the register script to include it in a -r flag to preload the patch before user code.
-This depends on setting the environment variable BAZEL_PATCH_ROOT
+This depends on setting the environment variable BAZEL_PATCH_ROOTS
 
 ```sh
-BAZEL_PATCH_ROOT=~/.cache/bazel node -r @bazel/node-patches/register <your app js>
+BAZEL_PATCH_ROOTS=~/.cache/bazel node -r @bazel/node-patches/register <your app js>
 ```
 
 ### api
