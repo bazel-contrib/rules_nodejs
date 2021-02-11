@@ -41,10 +41,11 @@ Googlers: you should npm login using the go/npm-publish service: `$ npm login --
 
 Check if there are any breaking changes since the last tag - if so, this will be a major. Check if there were new features added since the last tag - if so, this will be a minor.
 
+1. `npm version [major|minor|patch]` (`major` if there are breaking changes, `minor` if there are new features, otherwise `patch`)
+1. If this is a minor release, manually update `docs/_includes/sidenav.html` to change the docs version selector to show the new `major.minor` version, eg: from `3.1` to `3.2`
 1. Re-generate the API docs: `yarn stardoc`
 1. `git add docs/` (in case new files were created)
 1. `git commit -a -m 'docs: update docs for release'`
-1. `npm version [major|minor|patch]` (`major` if there are breaking changes, `minor` if there are new features, otherwise `patch`)
 1. Manually update the CHANGELOG.md based on the commits since the last release. Look for breaking changes that weren't documented.
 1. If publishing from inside Google, set NPM_REGISTRY="--registry https://wombat-dressing-room.appspot.com" in your environment
 1. Build npm packages and publish them: `./scripts/publish_release.sh` (for a release candidate, add arguments `publish next`)
