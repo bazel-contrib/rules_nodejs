@@ -263,3 +263,8 @@ example_integration_test(
     },
     owners = ["@mattem"],
 )
+
+example_integration_test(
+    name = "examples_eslint",
+    npm_packages = {},
+)
