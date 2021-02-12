@@ -1,14 +1,7 @@
 {
   "name": "rules_nodejs_eslint_example",
-  "version": "1.0.0",
   "description": "Example of how to run ESLint under Bazel with rules_nodejs",
-  "main": "index.js",
-  "scripts": {
-    "start": "node src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC",
+  "private": true,
   "devDependencies": {
     "eslint": "^7.18.0",
     "eslint-config-airbnb": "^18.2.1",
