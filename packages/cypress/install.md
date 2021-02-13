@@ -1,3 +1,8 @@
+<!-- *********************
+title: Cypress
+toc: true
+nav: rule
+********************* -->
 # Cypress rules for Bazel
 
 The Cypress rules run tests under the Cypress e2e testing framework with Bazel.

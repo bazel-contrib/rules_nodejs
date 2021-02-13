@@ -1,0 +1,21 @@
+load("//docs-site:docs.bzl", "READMES")
+
+[
+    genrule(
+        name = "%s_md" % readme[0],
+        srcs = [readme[1]],
+        outs = [readme[0] + ".md"],
+        cmd = "cat $(location %s) > $@" % readme[1],
+        visibility = ["//docs-site:__subpackages__"],
+    )
+    for readme in READMES.items()
+]
+
+filegroup(
+    name = "readmes",
+    srcs = [
+        ":%s.md" % r
+        for r in READMES.keys()
+    ] + glob(["*.md"]),
+    visibility = ["//docs-site:__subpackages__"],
+)

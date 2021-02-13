@@ -1,0 +1,55 @@
+load("//:index.bzl", "nodejs_binary", "npm_package_bin")
+load("//docs-site/tools:defaults.bzl", "ts_library")
+
+ts_library(
+    name = "generated_versions_lib",
+    srcs = ["generate_versions.ts"],
+    deps = [
+        "//docs-site/src/app:doc_types",
+        "@npm//@types/node",
+        "@npm//semver",
+    ],
+)
+
+nodejs_binary(
+    name = "generated_versions_tool",
+    data = [":generated_versions_lib"],
+    entry_point = ":generate_versions.ts",
+    visibility = ["//docs-site/src/app:__pkg__"],
+)
+
+filegroup(
+    name = "pages",
+    srcs = [
+        "//docs-site/src/pages/HEAD:readmes",
+    ] + glob(["**/*.md"]),
+    visibility = ["//docs-site:__subpackages__"],
+)
+
+ts_library(
+    name = "generated_index_lib",
+    srcs = ["generate_index.ts"],
+    deps = [
+        "@npm//@types/node",
+        "@npm//flexsearch",
+    ],
+)
+
+nodejs_binary(
+    name = "generate_index_bin",
+    data = [":generated_index_lib"],
+    entry_point = ":generate_index.ts",
+)
+
+npm_package_bin(
+    name = "generate_index",
+    outs = ["index"],
+    args = [
+        "$(locations //docs-site/src/pages)",
+    ],
+    data = [
+        "//docs-site/src/pages",
+    ],
+    # stdout = "index.json",
+    tool = ":generate_index_bin",
+)

@@ -1,3 +1,8 @@
+<!-- *********************
+title: esbuild
+toc: true
+nav: rule
+********************* -->
 # esbuild rules for Bazel
 
 The esbuild rules runs the [esbuild](https://github.com/evanw/esbuild) bundler tool with Bazel.

@@ -1,0 +1,43 @@
+<app-title-bar></app-title-bar>
+
+<div class="container vpad">
+  <div class="row">
+    <app-sidenav></app-sidenav>
+
+    <div class="col-md-8">
+      <div class="content">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+
+    <div class="col-md-2 sticky-sidebar">
+      <div class="right-sidebar">
+        <ul class="gh-links">
+          <ng-container *ngIf="meta$ | async as meta">
+            <li>
+              <i class="fab fa-github"></i>
+              <a href="https://github.com/bazelbuild/rules_nodejs/issues/new?title=Documentation issue: {{ meta.md }}&labels=question/docs">Create issue</a>
+            </li>
+            <li *ngIf="meta.nav === 'rule'">
+              <i class="far fa-edit"></i>
+              <a class="gh-edit" 
+                href="https://github.com/bazelbuild/rules_nodejs/tree/stable/docs-site/src/pages/{{ version$ | async }}/{{ meta.md }}.md">
+                Edit this page
+              </a>
+            </li>
+          </ng-container>
+        </ul>
+        <app-toc></app-toc>
+      </div>
+    </div>
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8">
+        <p class="text-muted">&copy; {{ now | date: "Y" }} The rules_nodejs authors</p>
+      </div>
+    </div>
+  </div>
+</footer>

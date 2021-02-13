@@ -1,0 +1,24 @@
+# TODO:
+# * search page
+# * update 3.1.0 docs to actually be those docs
+
+load("//packages/typescript:index.bzl", "ts_config")
+
+ts_config(
+    name = "tsconfig",
+    src = "tsconfig.json",
+    visibility = [
+        "//docs-site:__subpackages__",
+        "//tools/stardoc:__pkg__",
+    ],
+)
+
+alias(
+    name = "docs-site",
+    actual = "//docs-site/src:pkg",
+)
+
+alias(
+    name = "serve",
+    actual = "//docs-site/src:serve",
+)

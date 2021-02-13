@@ -1,0 +1,5 @@
+<ul *ngIf="toc$ | async as toc" class="section-nav">
+    <li class="toc-entry toc-h{{item.level}}" *ngFor="let item of toc">
+        <a [href]="item.href">{{ item.text }}</a>
+    </li>
+</ul>

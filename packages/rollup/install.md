@@ -1,3 +1,8 @@
+<!-- *********************
+title: Rollup
+toc: true
+nav: rule
+********************* -->
 # Rollup rules for Bazel
 
 The Rollup rules run the [rollup.js](https://rollupjs.org/) bundler with Bazel.

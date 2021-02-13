@@ -41,10 +41,9 @@ bzl_library(
 stardoc(
     name = "docs",
     testonly = True,
-    out = "index.md",
-    input = "//packages/protractor:index.bzl",
-    tags = ["fix-windows"],
-    deps = ["//packages/protractor:bzl"],
+    input = "index.bzl",
+    preamble = "install.md",
+    deps = [":bzl"],
 )
 
 nodejs_test(
@@ -68,21 +67,6 @@ ts_library(
     deps = ["@npm//@types/node"],
 )
 
-# Ugly genrule depending on local linux environment to build the README out of skylark doc generation.
-# Only referenced when we do a release.
-# TODO: This ought to be possible with stardoc alone. Need to coordinate with Chris Parsons.
-genrule(
-    name = "generate_README",
-    srcs = [
-        "index.md",
-        "install.md",
-    ],
-    outs = ["README.md"],
-    cmd = """cat $(execpath install.md) $(execpath index.md) | sed 's/^##/\\\n##/' > $@""",
-    tags = ["fix-windows"],
-    visibility = ["//docs:__pkg__"],
-)
-
 copy_file(
     name = "npm_version_check",
     src = "//internal:npm_version_check.js",
@@ -100,13 +84,8 @@ pkg_npm(
     ],
     build_file_content = """exports_files(["protractor.conf.js"])""",
     deps = [
+        ":README.md",
         ":npm_version_check",
         "//packages/protractor",
-    ] + select({
-        # FIXME: fix stardoc on Windows; //packages/protractor:index.md generation fails with:
-        #   ERROR: D:/b/62unjjin/external/npm_bazel_protractor/BUILD.bazel:36:1: Couldn't build file
-        #   external/npm_bazel_protractor/docs.raw: Generating proto for Starlark doc for docs failed (Exit 1)
-        "@bazel_tools//src/conditions:windows": [],
-        "//conditions:default": [":generate_README"],
-    }),
+    ],
 )

@@ -1,0 +1,46 @@
+load("//:index.bzl", "npm_package_bin")
+load("//docs-site/tools:defaults.bzl", "ng_module", "ts_library")
+
+ts_library(
+    name = "doc_types",
+    srcs = ["doc.types.ts"],
+    visibility = ["//docs-site/src:__subpackages__"],
+)
+
+ng_module(
+    name = "app",
+    srcs = glob(
+        ["**/*.ts"],
+        exclude = [
+            "doc.types.ts",
+            "app.server.module.ts",
+        ],
+    ) + ["versions.ts"],
+    assets = glob(["**/*.html"]),
+    styles = glob(["**/*.scss"]),
+    deps = [
+        ":doc_types",
+        "@npm//@angular/platform-browser",
+        "@npm//@angular/router",
+        "@npm//ngx-markdown",
+        "@npm//semver",
+    ],
+)
+
+npm_package_bin(
+    name = "versions",
+    args = ["$(locations //docs-site/src/pages)"],
+    data = ["//docs-site/src/pages"],
+    stdout = "versions.ts",
+    tool = "//docs-site/src/pages:generated_versions_tool",
+)
+
+ng_module(
+    name = "app_server",
+    srcs = ["app.server.module.ts"],
+    deps = [
+        ":app",
+        "@npm//@angular/platform-server",
+        "@npm//@types/node",
+    ],
+)

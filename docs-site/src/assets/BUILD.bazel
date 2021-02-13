@@ -1,0 +1,24 @@
+load("@io_bazel_rules_sass//:defs.bzl", "sass_binary", "sass_library")
+
+sass_library(
+    name = "scss",
+    srcs = glob(["_*.scss"]),
+)
+
+sass_binary(
+    name = "styles",
+    src = "main.scss",
+    deps = [
+        ":scss",
+    ],
+)
+
+filegroup(
+    name = "assets",
+    srcs = glob([
+        "*.svg",
+        "*.png",
+        "*.ico",
+    ]) + [":main.css"],
+    visibility = ["//docs-site/src:__pkg__"],
+)

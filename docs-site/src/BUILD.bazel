@@ -1,0 +1,74 @@
+load("@npm//history-server:index.bzl", "history_server")
+load("//:index.bzl", "pkg_web")
+load("//docs-site/tools:defaults.bzl", "esbuild", "ng_module", "ts_library")
+
+ng_module(
+    name = "src",
+    srcs = [
+        "main.ts",
+    ],
+    deps = [
+        "//docs-site/src/app",
+        "@npm//@angular/platform-browser",
+    ],
+)
+
+ts_library(
+    name = "polyfills",
+    srcs = ["polyfills.ts"],
+    deps = [
+        "@npm//marked",
+        "@npm//prismjs",
+        "@npm//zone.js",
+    ],
+)
+
+esbuild(
+    name = "bundle",
+    entry_point = "main.ts",
+    # minify = True,
+    deps = [
+        ":src",
+    ],
+)
+
+esbuild(
+    name = "runtime",
+    entry_point = ":polyfills.ts",
+    format = "iife",
+    minify = True,
+    deps = [":polyfills"],
+)
+
+# hacky trick to get Github pages to deal with client side routing
+# define a custom 404 to just be a copy of the index page
+genrule(
+    name = "404_html",
+    srcs = ["index.html"],
+    outs = ["404.html"],
+    cmd = "cat $< > $@",
+)
+
+pkg_web(
+    name = "pkg",
+    srcs = [
+        "404.html",
+        "bundle.js",
+        "index.html",
+        "runtime.js",
+        "//docs-site/src/assets",
+        "//docs-site/src/pages",
+        "@npm//:node_modules/prismjs/themes/prism-okaidia.css",
+    ],
+    additional_root_paths = [
+        "npm/node_modules/prismjs/themes",
+    ],
+    visibility = ["//docs-site:__pkg__"],
+)
+
+history_server(
+    name = "serve",
+    data = [":pkg"],
+    templated_args = ["-a $$(rlocation $(rootpath :pkg))"],
+    visibility = ["//docs-site:__pkg__"],
+)

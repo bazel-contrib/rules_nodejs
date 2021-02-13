@@ -1,3 +1,8 @@
+<!-- *********************
+title: Protractor
+toc: true
+nav: rule
+********************* -->
 # Protractor rules for Bazel
 
 The Protractor rules run tests under the Protractor framework with Bazel.

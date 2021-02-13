@@ -1,3 +1,8 @@
+<!-- *********************
+title: Labs
+toc: true
+nav: rule
+********************* -->
 # Bazel nodejs Labs
 
 This package contains experimental code which isn't at the same quality or stability standard as our main packages.

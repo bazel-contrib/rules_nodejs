@@ -1,3 +1,8 @@
+<!-- *********************
+title: Terser
+toc: true
+nav: rule
+********************* -->
 # Terser rules for Bazel
 
 The Terser rules run the Terser JS minifier with Bazel.

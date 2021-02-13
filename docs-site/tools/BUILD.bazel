@@ -1,0 +1,18 @@
+load("//:index.bzl", "nodejs_binary")
+
+nodejs_binary(
+    name = "tsc_wrapped_with_angular",
+    data = [
+        "@build_bazel_rules_typescript//internal:tsc_wrapped",
+        "@build_bazel_rules_typescript//third_party/github.com/bazelbuild/bazel/src/main/protobuf:worker_protocol.proto",
+        "@npm//@angular/compiler-cli",
+        "@npm//protobufjs",
+        "@npm//source-map-support",
+        "@npm//tsickle",
+        "@npm//tsutils",
+        "@npm//typescript",
+    ],
+    entry_point = "@build_bazel_rules_typescript//internal:tsc_wrapped/tsc_wrapped.js",
+    templated_args = ["--bazel_patch_module_resolver"],
+    visibility = ["//docs-site:__subpackages__"],
+)

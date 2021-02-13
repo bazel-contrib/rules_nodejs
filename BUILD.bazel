@@ -15,6 +15,7 @@
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@build_bazel_rules_nodejs//:index.bzl", "COMMON_REPLACEMENTS", "pkg_npm")
 load("//:tools/defaults.bzl", "codeowners", "pkg_tar")
+load("//tools/stardoc:index.bzl", "stardoc")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -33,7 +34,7 @@ exports_files(
         "providers.bzl",
         "index.for_docs.bzl",
     ],
-    visibility = ["//docs:__subpackages__"],
+    visibility = ["//docs-site:__subpackages__"],
 )
 
 bzl_library(
@@ -115,5 +116,36 @@ pkg_tar(
     extension = "tar.gz",
     strip_prefix = "./rules_nodejs_package",
     tags = ["manual"],
+)
+
+stardoc(
+    name = "builtins",
+    out = "builtins.md",
+    input = ":index.for_docs.bzl",
+    preamble = "//internal:_README.md",
+    deps = [
+        "//:bzl",
+        "//internal/node:bzl",
+    ],
+)
+
+stardoc(
+    name = "providers",
+    out = "providers.md",
+    input = ":providers.bzl",
+    deps = [
+        "//:bzl",
+    ],
+)
+
+genrule(
+    name = "builtins_md",
+    srcs = [
+        ":builtins.site.md",
+        ":providers.site.md",
+    ],
+    outs = ["Built-ins.md"],
+    cmd = "cat $(location :builtins.site.md) $(location :providers.site.md) > $@",
+    visibility = ["//docs-site:__subpackages__"],
 )
 # END-INTERNAL

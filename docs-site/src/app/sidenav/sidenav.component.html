@@ -1,0 +1,45 @@
+<div class="col-md-2">
+  <a class="btn btn-default btn-lg btn-block sidebar-toggle" (click)="isSidebarClosed = !isSidebarClosed">
+    <i class="glyphicon glyphicon-menu-hamburger"></i> Navigation
+  </a>
+
+  <nav class="sidebar" [class.collapse]="isSidebarClosed">  
+    <ng-container *ngIf="selectedVesion$ | async as selectedVesion">
+      <select (change)="onVersionSelect($event.target.value)">
+        <option *ngFor="let version of versions$ | async" [value]="version" [selected]="version === selectedVesion">
+          {{ version }}
+          <span *ngIf="version === latest">(latest)</span>
+        </option>
+      </select>
+  
+      <h3>rules_nodejs</h3>
+
+      <ng-container *ngIf="info$ | async as info">
+        <ul class="sidebar-nav">
+            <li routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" >
+              <a routerLink="/docs/{{ selectedVesion }}">Introduction</a>
+            </li>
+            <li *ngFor="let page of info.page" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" >
+              <a routerLink="/docs/{{ selectedVesion }}/{{ page.md }}">{{ page.title }}</a>
+            </li>
+        </ul>
+      
+        <h3>Rules</h3>
+        <ul class="sidebar-nav">
+            <li *ngFor="let page of info.rule" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+              <a routerLink="/docs/{{ selectedVesion }}/{{ page.md }}">{{ page.title }}</a>
+            </li>
+        </ul>
+      </ng-container>
+    </ng-container>
+
+    <h3>Community</h3>
+    <ul class="sidebar-nav">
+      <li><a href="https://github.com/bazelbuild/rules_nodejs/blob/master/CONTRIBUTING.md">Contribute to rules_nodejs</a></li>
+      <li><a href="https://slack.bazel.build">Join #javascript on Slack</a></li>
+      <li><a href="https://github.com/bazelbuild/rules_nodejs/issues">Issue Tracker</a></li>
+      <li><a href="https://github.com/bazelbuild/rules_nodejs">Github</a></li>
+    </ul>
+  </nav>
+</div>
+  

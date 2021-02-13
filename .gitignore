@@ -11,3 +11,4 @@ node_modules
 yarn-error.log
 internal/node/_node_bin
 .DS_Store
+node_modules

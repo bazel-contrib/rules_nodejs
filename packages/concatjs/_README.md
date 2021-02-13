@@ -1,3 +1,8 @@
+<!-- *********************
+title: Concatjs
+toc: true
+nav: rule
+********************* -->
 # @bazel/concatjs
 
 Concatjs is a JavaScript bundler, in a trivial sense: the UNIX `cat` command is a basic implementation:

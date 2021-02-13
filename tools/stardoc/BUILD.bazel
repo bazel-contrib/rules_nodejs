@@ -1,4 +1,37 @@
-exports_files(glob(["templates/*.vm"] + [
-    "post-process-docs.js",
-    "jekyll_serve_tpl.sh",
-]))
+load("@rules_proto//proto:defs.bzl", "proto_library")
+load("//:index.bzl", "nodejs_binary")
+load("//packages/labs:index.bzl", "ts_proto_library")
+load("//packages/typescript:index.bzl", "ts_library")
+
+proto_library(
+    name = "stardoc_proto",
+    srcs = [
+        "stardoc_output.proto",
+    ],
+)
+
+ts_proto_library(
+    name = "stardoc_output_ts_proto",
+    proto = ":stardoc_proto",
+)
+
+ts_library(
+    name = "renderer",
+    srcs = ["renderer.ts"],
+    tsconfig = "//docs-site:tsconfig",
+    deps = [
+        ":stardoc_output_ts_proto",
+        "@npm//@angular/common",
+        "@npm//@types/node",
+        "@npm//google-protobuf",
+    ],
+)
+
+nodejs_binary(
+    name = "renderer_tool",
+    data = [
+        ":renderer",
+    ],
+    entry_point = "renderer.ts",
+    visibility = ["//:__subpackages__"],
+)

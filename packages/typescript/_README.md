@@ -1,3 +1,8 @@
+<!-- *********************
+title: Typescript
+toc: true
+nav: rule
+********************* -->
 # TypeScript rules for Bazel
 
 The TypeScript rules integrate the TypeScript compiler with Bazel.

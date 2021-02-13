@@ -1,0 +1,35 @@
+:host {
+    ::ng-deep :hover > .anchor {
+        opacity: 1;
+    }
+
+    ::ng-deep .anchor {
+        opacity: 0;
+        position: absolute;
+        margin-left: -1em;
+        margin-top: -0.1em;
+    
+        &::after {
+            font-style: normal;
+            font-variant: normal;
+            text-rendering: auto;
+            -webkit-font-smoothing: antialiased;
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            content: "\f0c1";
+            font-size: 16px;
+        }
+    }
+
+    ::ng-deep h5.attribute {
+        margin-bottom: 6px;
+        margin-top: 24px;
+        font-weight: 600;
+    }
+
+    ::ng-deep h6.attribute-type {
+        margin-top: 0;
+        margin-bottom: 6px;
+        font-size: 12px;
+    }
+}

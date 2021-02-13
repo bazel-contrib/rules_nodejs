@@ -40,26 +40,9 @@ bzl_library(
 
 stardoc(
     name = "docs",
-    testonly = True,
-    out = "index.md",
     input = ":index.bzl",
-    tags = ["fix-windows"],
+    preamble = "install.md",
     deps = [":bzl"],
-)
-
-# Ugly genrule depending on local linux environment to build the README out of skylark doc generation.
-# Only referenced when we do a release.
-# TODO: This ought to be possible with stardoc alone. Need to coordinate with Chris Parsons.
-genrule(
-    name = "generate_README",
-    srcs = [
-        "index.md",
-        "install.md",
-    ],
-    outs = ["README.md"],
-    cmd = """cat $(execpath install.md) $(execpath index.md) | sed 's/^##/\\\n##/' > $@""",
-    tags = ["fix-windows"],
-    visibility = ["//docs:__pkg__"],
 )
 
 # Copy the proto file to a matching third_party/... nested directory
@@ -98,15 +81,9 @@ pkg_npm(
     ],
     build_file_content = """exports_files(["rollup.config.js"])""",
     deps = [
-        ":npm_version_check",
-    ] + select({
-        # FIXME: fix stardoc on Windows; //packages/rollup:index.md generation fails with:
-        #   ERROR: D:/b/62unjjin/external/npm_bazel_rollup/BUILD.bazel:32:1: Couldn't build file
-        #   external/npm_bazel_rollup/docs.raw: Generating proto for Starlark doc for docs failed (Exit 1)
-        "@bazel_tools//src/conditions:windows": [],
-        "//conditions:default": [":generate_README"],
-    }) + [
+        "README.md",
         ":copy_worker_proto",
+        ":npm_version_check",
         ":worker.js",
     ],
 )
