@@ -78,8 +78,8 @@
 
   <nav class="sidebar collapse" id="sidebar-nav">
     <select onchange="location.href=this.value">
-      <option selected disabled hidden>Version: 3.0</option>
-      <option value="/rules_nodejs/Rollup.html">3.0</option>
+      <option selected disabled hidden>Version: 3.x</option>
+      <option value="/rules_nodejs/Rollup.html">3.x</option>
       <option value="https://docs.aspect.dev/rules_nodejs/Rollup.html">2.3</option>
     </select>
 
@@ -142,6 +142,10 @@
       
       
       
+      <li><a href="/rules_nodejs/esbuild.html">esbuild</a></li>
+      
+      
+      
       
       
       
@@ -181,7 +185,7 @@
 
 <h2 id="installation">Installation</h2>
 
-<p>Add the <code class="language-plaintext highlighter-rouge">@bazel/rollup</code> npm package to your <code class="language-plaintext highlighter-rouge">devDependencies</code> in <code class="language-plaintext highlighter-rouge">package.json</code>.</p>
+<p>Add the <code class="language-plaintext highlighter-rouge">@bazel/rollup</code> npm package to your <code class="language-plaintext highlighter-rouge">devDependencies</code> in <code class="language-plaintext highlighter-rouge">package.json</code>. (<code class="language-plaintext highlighter-rouge">rollup</code> itself should also be included in <code class="language-plaintext highlighter-rouge">devDependencies</code>, unless you plan on providing it via a custom target.)</p>
 
 <h3 id="installing-with-user-managed-dependencies">Installing with user-managed dependencies</h3>
 
