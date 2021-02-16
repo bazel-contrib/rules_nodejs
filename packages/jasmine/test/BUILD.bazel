@@ -111,7 +111,10 @@ jasmine_node_test(
 
 ts_library(
     name = "coverage_test_srcs",
-    srcs = ["coverage_source.ts"],
+    srcs = [
+        "coverage_source.ts",
+        "coverage_source_uncovered.ts",
+    ],
 )
 
 jasmine_node_test(

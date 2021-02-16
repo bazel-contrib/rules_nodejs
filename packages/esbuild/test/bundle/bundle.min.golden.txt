@@ -1,0 +1,2 @@
+(()=>{var o="bazel";console.log(`Hello ${o}`);})();
+//# sourceMappingURL=bundle.min.js.map

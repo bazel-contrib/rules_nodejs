@@ -1,3 +1,26 @@
+# [3.2.0](https://github.com/bazelbuild/rules_nodejs/compare/3.1.0...3.2.0) (2021-02-13)
+
+
+### Bug Fixes
+
+* multi-linker linking when only output files in sandbox ([ebb9481](https://github.com/bazelbuild/rules_nodejs/commit/ebb9481))
+* **builtin:** fix coverage source file paths ([ae4ec78](https://github.com/bazelbuild/rules_nodejs/commit/ae4ec78))
+* **docs:** fix formatting of nodejs_binary#chdir ([1caced8](https://github.com/bazelbuild/rules_nodejs/commit/1caced8))
+* **docs:** fix regex that replaces //packages with [@bazel](https://github.com/bazel) ([c31c0b6](https://github.com/bazelbuild/rules_nodejs/commit/c31c0b6))
+* **docs:** version selector shows 3.x ([38f4f78](https://github.com/bazelbuild/rules_nodejs/commit/38f4f78))
+* **typescript:** allow up to typescript 4.2, add tests for 3.7-4.1 ([ea168a7](https://github.com/bazelbuild/rules_nodejs/commit/ea168a7))
+* **typescript:** fixed build for external ts_project targets ([c89e0aa](https://github.com/bazelbuild/rules_nodejs/commit/c89e0aa))
+* version number not edited after release candidate ([ac2bb62](https://github.com/bazelbuild/rules_nodejs/commit/ac2bb62))
+
+
+### Features
+
+* add esbuild package ([e7e5286](https://github.com/bazelbuild/rules_nodejs/commit/e7e5286))
+* **builtin:** add coverage all: true support ([8386b97](https://github.com/bazelbuild/rules_nodejs/commit/8386b97))
+* support for nested node_modules in linker ([2c2cc6e](https://github.com/bazelbuild/rules_nodejs/commit/2c2cc6e))
+
+
+
 # [3.1.0](https://github.com/bazelbuild/rules_nodejs/compare/3.0.0...3.1.0) (2021-02-02)
 
 

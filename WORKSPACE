@@ -91,6 +91,14 @@ yarn_install(
     yarn_lock = "//packages/cypress/test:yarn.lock",
 )
 
+yarn_install(
+    name = "rollup_test_multi_linker_deps",
+    package_json = "//packages/rollup/test/multi_linker:package.json",
+    package_path = "packages/rollup/test/multi_linker",
+    symlink_node_modules = False,
+    yarn_lock = "//packages/rollup/test/multi_linker:yarn.lock",
+)
+
 # We have a source dependency on build_bazel_rules_typescript
 # so we must repeat its transitive toolchain deps
 load("@build_bazel_rules_typescript//:package.bzl", "rules_typescript_dev_dependencies")
@@ -144,6 +152,11 @@ browser_repositories(
     chromium = True,
     firefox = True,
 )
+
+# Setup esbuild dependencies
+load("//packages/esbuild:esbuild_repo.bzl", "esbuild_dependencies")
+
+esbuild_dependencies()
 
 #
 # Dependencies to run stardoc & generating documentation

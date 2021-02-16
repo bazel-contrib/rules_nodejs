@@ -721,7 +721,7 @@ Defaults to `[]`
 
 <pre>
 npm_install(<a href="#npm_install-name">name</a>, <a href="#npm_install-args">args</a>, <a href="#npm_install-data">data</a>, <a href="#npm_install-environment">environment</a>, <a href="#npm_install-included_files">included_files</a>, <a href="#npm_install-manual_build_file_contents">manual_build_file_contents</a>, <a href="#npm_install-npm_command">npm_command</a>,
-            <a href="#npm_install-package_json">package_json</a>, <a href="#npm_install-package_lock_json">package_lock_json</a>, <a href="#npm_install-quiet">quiet</a>, <a href="#npm_install-repo_mapping">repo_mapping</a>, <a href="#npm_install-strict_visibility">strict_visibility</a>,
+            <a href="#npm_install-package_json">package_json</a>, <a href="#npm_install-package_lock_json">package_lock_json</a>, <a href="#npm_install-package_path">package_path</a>, <a href="#npm_install-quiet">quiet</a>, <a href="#npm_install-repo_mapping">repo_mapping</a>, <a href="#npm_install-strict_visibility">strict_visibility</a>,
             <a href="#npm_install-symlink_node_modules">symlink_node_modules</a>, <a href="#npm_install-timeout">timeout</a>)
 </pre>
 
@@ -841,6 +841,16 @@ Defaults to `"ci"`
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>, mandatory*)
 
+
+<h4 id="npm_install-package_path">package_path</h4>
+
+(*String*): If set, link the 3rd party node_modules dependencies under the package path specified.
+
+In most cases, this should be the directory of the package.json file so that the linker links the node_modules
+in the same location they are found in the source tree. In a future release, this will default to the package.json
+directory. This is planned for 4.0: https://github.com/bazelbuild/rules_nodejs/issues/2451
+
+Defaults to `""`
 
 <h4 id="npm_install-quiet">quiet</h4>
 
@@ -1114,8 +1124,8 @@ Defaults to `{}`
 
 <pre>
 yarn_install(<a href="#yarn_install-name">name</a>, <a href="#yarn_install-args">args</a>, <a href="#yarn_install-data">data</a>, <a href="#yarn_install-environment">environment</a>, <a href="#yarn_install-frozen_lockfile">frozen_lockfile</a>, <a href="#yarn_install-included_files">included_files</a>,
-             <a href="#yarn_install-manual_build_file_contents">manual_build_file_contents</a>, <a href="#yarn_install-package_json">package_json</a>, <a href="#yarn_install-quiet">quiet</a>, <a href="#yarn_install-repo_mapping">repo_mapping</a>, <a href="#yarn_install-strict_visibility">strict_visibility</a>,
-             <a href="#yarn_install-symlink_node_modules">symlink_node_modules</a>, <a href="#yarn_install-timeout">timeout</a>, <a href="#yarn_install-use_global_yarn_cache">use_global_yarn_cache</a>, <a href="#yarn_install-yarn_lock">yarn_lock</a>)
+             <a href="#yarn_install-manual_build_file_contents">manual_build_file_contents</a>, <a href="#yarn_install-package_json">package_json</a>, <a href="#yarn_install-package_path">package_path</a>, <a href="#yarn_install-quiet">quiet</a>, <a href="#yarn_install-repo_mapping">repo_mapping</a>,
+             <a href="#yarn_install-strict_visibility">strict_visibility</a>, <a href="#yarn_install-symlink_node_modules">symlink_node_modules</a>, <a href="#yarn_install-timeout">timeout</a>, <a href="#yarn_install-use_global_yarn_cache">use_global_yarn_cache</a>, <a href="#yarn_install-yarn_lock">yarn_lock</a>)
 </pre>
 
 Runs yarn install during workspace setup.
@@ -1233,6 +1243,16 @@ Defaults to `""`
 
 (*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>, mandatory*)
 
+
+<h4 id="yarn_install-package_path">package_path</h4>
+
+(*String*): If set, link the 3rd party node_modules dependencies under the package path specified.
+
+In most cases, this should be the directory of the package.json file so that the linker links the node_modules
+in the same location they are found in the source tree. In a future release, this will default to the package.json
+directory. This is planned for 4.0: https://github.com/bazelbuild/rules_nodejs/issues/2451
+
+Defaults to `""`
 
 <h4 id="yarn_install-quiet">quiet</h4>
 
@@ -1831,7 +1851,7 @@ This prevents needing an aspect in rules that consume the typings, which improve
 **USAGE**
 
 <pre>
-ExternalNpmPackageInfo(<a href="#ExternalNpmPackageInfo-direct_sources">direct_sources</a>, <a href="#ExternalNpmPackageInfo-sources">sources</a>, <a href="#ExternalNpmPackageInfo-workspace">workspace</a>)
+ExternalNpmPackageInfo(<a href="#ExternalNpmPackageInfo-direct_sources">direct_sources</a>, <a href="#ExternalNpmPackageInfo-path">path</a>, <a href="#ExternalNpmPackageInfo-sources">sources</a>, <a href="#ExternalNpmPackageInfo-workspace">workspace</a>)
 </pre>
 
 Provides information about one or more external npm packages
@@ -1841,6 +1861,9 @@ Provides information about one or more external npm packages
 <h4 id="ExternalNpmPackageInfo-direct_sources">direct_sources</h4>
 
  Depset of direct source files in these external npm package(s) 
+<h4 id="ExternalNpmPackageInfo-path">path</h4>
+
+ The local workspace path that these external npm deps should be linked at. If empty, they will be linked at the root. 
 <h4 id="ExternalNpmPackageInfo-sources">sources</h4>
 
  Depset of direct & transitive source files in these external npm package(s) and transitive dependencies 
@@ -2025,7 +2048,7 @@ do the same.
 **USAGE**
 
 <pre>
-NpmPackageInfo(<a href="#NpmPackageInfo-direct_sources">direct_sources</a>, <a href="#NpmPackageInfo-sources">sources</a>, <a href="#NpmPackageInfo-workspace">workspace</a>)
+NpmPackageInfo(<a href="#NpmPackageInfo-direct_sources">direct_sources</a>, <a href="#NpmPackageInfo-path">path</a>, <a href="#NpmPackageInfo-sources">sources</a>, <a href="#NpmPackageInfo-workspace">workspace</a>)
 </pre>
 
 Provides information about one or more external npm packages
@@ -2035,6 +2058,9 @@ Provides information about one or more external npm packages
 <h4 id="NpmPackageInfo-direct_sources">direct_sources</h4>
 
  Depset of direct source files in these external npm package(s) 
+<h4 id="NpmPackageInfo-path">path</h4>
+
+ The local workspace path that these external npm deps should be linked at. If empty, they will be linked at the root. 
 <h4 id="NpmPackageInfo-sources">sources</h4>
 
  Depset of direct & transitive source files in these external npm package(s) and transitive dependencies 

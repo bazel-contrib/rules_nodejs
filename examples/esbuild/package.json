@@ -1,0 +1,13 @@
+{
+    "private": true,
+    "devDependencies": {
+        "@bazel/esbuild": "^3.2.0",
+        "@bazel/typescript": "^3.2.0",
+        "@types/node": "12.6.3",
+        "tslib": "1.9.0",
+        "typescript": "3.5.3"
+    },
+    "scripts": {
+        "test": "bazel test //..."
+    }
+}

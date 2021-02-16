@@ -1,7 +1,7 @@
 {
     "name": "@bazel/javascript",
     "description": "Build JavaScript with Bazel",
-    "version": "3.1.0",
+    "version": "3.2.0",
     "keywords": [
         "javascript",
         "bazel"
@@ -96,7 +96,7 @@
         "typescript": "^3.7.5",
         "unidiff": "1.0.1",
         "yarn": "1.22.0",
-        "c8": "7.1.0",
+        "c8": "7.5.0",
         "zone.js": "0.8.29"
     },
     "// resolutions/**/jest-serializer": "need to resolve to a version that doesn't have a /// <reference path='../v8.d.ts' /> in build/index.d.ts which exposes a bug in ts_library",

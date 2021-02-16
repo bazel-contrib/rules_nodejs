@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@bazel/cypress@^3.1.0":
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/@bazel/cypress/-/cypress-3.1.0.tgz#96f323a9cb47e3f9e6db82a08a27328d1924d97f"
-  integrity sha512-aH44RyDHoPanK0x+rbSvYHBNe43HQ5wP1Xh2/eIYQ+e+qkE6bEx7rPjAt54oY+zjLYDWG5rqTiQKRJX4oVQd/A==
+"@bazel/cypress@^3.2.0":
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/@bazel/cypress/-/cypress-3.2.0.tgz#283daafa825f6bf7c073f7fc3fdf2c521007ef85"
+  integrity sha512-vRZUu89J5Pm7Kt6MTiRnc/ri0T3mNcGstjnGst7ZHzE/LsWV2mNnNCamVEn+2wGkCUmrlmJBWF1akIwguMGEtA==
   dependencies:
     tar "6.0.5"
 
@@ -14,10 +14,10 @@
   resolved "https://registry.yarnpkg.com/@bazel/ibazel/-/ibazel-0.14.0.tgz#86fa0002bed2ce1123b7ad98d4dd4623a0d93244"
   integrity sha512-s0gyec6lArcRDwVfIP6xpY8iEaFpzrSpyErSppd3r2O49pOEg7n6HGS/qJ8ncvme56vrDk6crl/kQ6VAdEO+rg==
 
-"@bazel/typescript@^3.1.0":
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-3.1.0.tgz#a07999ad7956b8c624604a521e653570bba32025"
-  integrity sha512-sEWuvkUGIDeRhjLENHtJyop7wu4UqKN8h/nSgUwc5gkpWXQiT2wGH5jKVxBqODOBHB+IInEMtAjyRmCT+HbSHA==
+"@bazel/typescript@^3.2.0":
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-3.2.0.tgz#299bd173fe04f98407ab9be4f654662c1c28470e"
+  integrity sha512-RKdy9ThbcUAqZR3AJK7AR/nxbJqdHi7pPayIGUSMIpxVkeTxVRQpf1aGe2H02HdZ9fR/uk1xXhO/Ff9TLvTgHQ==
   dependencies:
     protobufjs "6.8.8"
     semver "5.6.0"
