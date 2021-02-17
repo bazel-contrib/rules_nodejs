@@ -23,6 +23,7 @@ _DEFAULT_TYPESCRIPT_PACKAGE = (
 
 _ATTRS = {
     "args": attr.string_list(),
+    "data": attr.label_list(default = [], allow_files = True),
     "declaration_dir": attr.string(),
     "deps": attr.label_list(
         providers = [
@@ -223,7 +224,9 @@ def _ts_project_impl(ctx):
         DefaultInfo(
             files = default_outputs_depset,
             runfiles = ctx.runfiles(
-                transitive_files = default_outputs_depset,
+                transitive_files = depset(ctx.files.data, transitive = [
+                    default_outputs_depset,
+                ]),
                 collect_default = True,
             ),
         ),
