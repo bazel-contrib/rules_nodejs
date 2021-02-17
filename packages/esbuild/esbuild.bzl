@@ -105,7 +105,7 @@ def _esbuild_impl(ctx):
         DefaultInfo(files = depset(outputs + [jsconfig_file])),
     ]
 
-_esbuild = rule(
+esbuild = rule(
     attrs = {
         "args": attr.string_list(
             default = [],
@@ -236,13 +236,13 @@ def esbuild_macro(name, output_dir = False, **kwargs):
     """
 
     if output_dir == True:
-        _esbuild(
+        esbuild(
             name = name,
             output_dir = True,
             **kwargs
         )
     else:
-        _esbuild(
+        esbuild(
             name = name,
             output = "%s.js" % name,
             output_map = "%s.js.map" % name,
