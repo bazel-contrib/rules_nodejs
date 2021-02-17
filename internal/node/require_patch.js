@@ -491,7 +491,7 @@ module.constructor._resolveFilename =
 try {
   const sourcemap_support_package = path.resolve(
       process.cwd(), '../build_bazel_rules_nodejs/third_party/github.com/source-map-support');
-  require(sourcemap_support_package).install();
+  require(sourcemap_support_package).install({ environment: 'node' });
 } catch (_) {
   log_verbose(`WARNING: source-map-support module not installed.
     Stack traces from languages like TypeScript will point to generated .js files.`);
