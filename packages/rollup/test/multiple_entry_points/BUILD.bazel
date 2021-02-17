@@ -1,5 +1,6 @@
 load("//packages/jasmine:index.bzl", "jasmine_node_test")
 load("//packages/rollup:index.bzl", "rollup_bundle")
+load(":build_defs.bzl", "simple_dir")
 
 rollup_bundle(
     name = "chunks",
@@ -16,4 +17,24 @@ jasmine_node_test(
     srcs = ["spec.js"],
     data = ["@npm//source-map"],
     deps = [":chunks"],
+)
+
+simple_dir(
+    name = "entries_dir",
+    files = [
+        "entry1.js",
+        "entry2.js",
+    ],
+)
+
+rollup_bundle(
+    name = "dir",
+    entry_point = ":entries_dir",
+    output_dir = True,
+)
+
+jasmine_node_test(
+    name = "dir_test",
+    srcs = ["dir.spec.js"],
+    deps = [":dir"],
 )

@@ -244,6 +244,10 @@ def _no_ext(f):
 def _filter_js(files):
     return [f for f in files if f.extension == "js" or f.extension == "mjs"]
 
+def _entry_point_mapper(entry_point):
+    chunk = ".".join(entry_point.basename.split(".")[:-1])
+    return "%s=%s" % (chunk, entry_point.path)
+
 def _rollup_bundle(ctx):
     "Generate a rollup config file and run rollup"
 
@@ -265,7 +269,10 @@ def _rollup_bundle(ctx):
             deps_depsets.append(dep[ExternalNpmPackageInfo].sources)
     deps_inputs = depset(transitive = deps_depsets).to_list()
 
-    inputs = _filter_js(ctx.files.entry_point) + _filter_js(ctx.files.entry_points) + ctx.files.srcs + deps_inputs
+    inputs = ([ctx.file.entry_point] +
+               _filter_js(ctx.files.entry_points) +
+               ctx.files.srcs +
+               deps_inputs)
     outputs = [getattr(ctx.outputs, o) for o in dir(ctx.outputs)]
 
     # See CLI documentation at https://rollupjs.org/guide/en/#command-line-reference
@@ -279,21 +286,13 @@ def _rollup_bundle(ctx):
     # Add user specified arguments *before* rule supplied arguments
     args.add_all(ctx.attr.args)
 
-    # List entry point argument first to save some argv space
-    # Rollup doc says
-    # When provided as the first options, it is equivalent to not prefix them with --input
-    entry_points = _desugar_entry_points(ctx.label.name, ctx.attr.entry_point, ctx.attr.entry_points, inputs).items()
-
     # If user requests an output_dir, then use output.dir rather than output.file
-    if ctx.attr.output_dir:
-        outputs.append(ctx.actions.declare_directory(ctx.label.name))
-        for entry_point in entry_points:
-            args.add_joined([entry_point[1], entry_point[0]], join_with = "=")
-        args.add_all(["--output.dir", outputs[0].path])
-    else:
-        args.add(entry_points[0][0])
-        args.add_all(["--output.file", outputs[0].path])
+    outputs.append(ctx.actions.declare_directory(ctx.label.name))
 
+    # Expand the entry point directory to all of the files it contains.
+    args.add_all([ctx.file.entry_point], map_each = _entry_point_mapper)
+
+    args.add_all(["--output.dir", outputs[0].path])
     args.add_all(["--format", ctx.attr.format])
 
     if ctx.attr.silent:
