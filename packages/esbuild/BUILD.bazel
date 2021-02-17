@@ -38,7 +38,7 @@ stardoc(
     name = "docs",
     testonly = True,
     out = "index.md",
-    input = "index.bzl",
+    input = "index.docs.bzl",
     tags = ["fix-windows"],
     deps = [":bzl"],
 )
