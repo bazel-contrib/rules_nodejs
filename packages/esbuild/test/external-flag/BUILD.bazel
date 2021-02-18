@@ -1,0 +1,28 @@
+load("//packages/esbuild/test:tests.bzl", "esbuild")
+load("//packages/jasmine:index.bzl", "jasmine_node_test")
+load("//packages/typescript:index.bzl", "ts_library")
+
+ts_library(
+    name = "main",
+    srcs = [
+        "main.ts",
+    ],
+    deps = [
+        "@npm//@types/node",
+    ],
+)
+
+esbuild(
+    name = "bundle",
+    entry_point = "main.ts",
+    external = [
+        "fs",
+    ],
+    deps = [":main"],
+)
+
+jasmine_node_test(
+    name = "bundle_test",
+    srcs = ["bundle_test.js"],
+    data = [":bundle"],
+)
