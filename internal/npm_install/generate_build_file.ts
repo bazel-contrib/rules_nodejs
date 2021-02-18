@@ -57,8 +57,9 @@ const WORKSPACE_ROOT_PREFIX = args[4];
 const WORKSPACE_ROOT_BASE = WORKSPACE_ROOT_PREFIX ?.split('/')[0];
 const STRICT_VISIBILITY = args[5]?.toLowerCase() === 'true';
 const INCLUDED_FILES = args[6] ? args[6].split(',') : [];
-const BAZEL_VERSION = args[7];
-const PACKAGE_PATH = args[8];
+const GENERATE_LOCAL_MODULES_BUILD_FILES = (`${args[7]}`.toLowerCase()) === 'true';
+const BAZEL_VERSION = args[8];
+const PACKAGE_PATH = args[9];
 
 const PUBLIC_VISIBILITY = '//visibility:public';
 const LIMITED_VISIBILITY = `@${WORKSPACE}//:__subpackages__`;
@@ -221,18 +222,12 @@ function generatePackageBuildFiles(pkg: Dep) {
   // install a node_module with link:)
   const isPkgDirASymlink =
       fs.existsSync(nodeModulesPkgDir) && fs.lstatSync(nodeModulesPkgDir).isSymbolicLink();
-  // Check if the current package is also written inside the workspace
-  // NOTE: It's a corner case but fs.realpathSync(.) will not be the root of
-  // the workspace if symlink_node_modules = False as yarn & npm are run in the root of the
-  // external repository and  anything linked with a relative path would have to be copied
-  // over via that data attribute
-  const isPkgInsideWorkspace = fs.realpathSync(nodeModulesPkgDir).includes(fs.realpathSync(`.`));
   // Mark build file as one to symlink instead of generate as the package dir is a symlink, we
   // have a BUILD file and the pkg is written inside the workspace
-  const symlinkBuildFile = isPkgDirASymlink && buildFilePath && isPkgInsideWorkspace;
+  const symlinkBuildFile = isPkgDirASymlink && buildFilePath && !GENERATE_LOCAL_MODULES_BUILD_FILES;
 
   // Log if a BUILD file was expected but was not found
-  if (!symlinkBuildFile && isPkgDirASymlink) {
+  if (isPkgDirASymlink && !buildFilePath && !GENERATE_LOCAL_MODULES_BUILD_FILES) {
     console.log(`[yarn_install/npm_install]: package ${
         nodeModulesPkgDir} is local symlink and as such a BUILD file for it is expected but none was found. Please add one at ${
         fs.realpathSync(nodeModulesPkgDir)}`)

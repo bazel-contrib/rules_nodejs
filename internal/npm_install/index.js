@@ -17,8 +17,9 @@ const WORKSPACE_ROOT_PREFIX = args[4];
 const WORKSPACE_ROOT_BASE = (_a = WORKSPACE_ROOT_PREFIX) === null || _a === void 0 ? void 0 : _a.split('/')[0];
 const STRICT_VISIBILITY = ((_b = args[5]) === null || _b === void 0 ? void 0 : _b.toLowerCase()) === 'true';
 const INCLUDED_FILES = args[6] ? args[6].split(',') : [];
-const BAZEL_VERSION = args[7];
-const PACKAGE_PATH = args[8];
+const GENERATE_LOCAL_MODULES_BUILD_FILES = (`${args[7]}`.toLowerCase()) === 'true';
+const BAZEL_VERSION = args[8];
+const PACKAGE_PATH = args[9];
 const PUBLIC_VISIBILITY = '//visibility:public';
 const LIMITED_VISIBILITY = `@${WORKSPACE}//:__subpackages__`;
 function generateBuildFileHeader(visibility = PUBLIC_VISIBILITY) {
@@ -123,9 +124,8 @@ function generatePackageBuildFiles(pkg) {
         buildFilePath = 'BUILD.bazel';
     const nodeModulesPkgDir = `node_modules/${pkg._dir}`;
     const isPkgDirASymlink = fs.existsSync(nodeModulesPkgDir) && fs.lstatSync(nodeModulesPkgDir).isSymbolicLink();
-    const isPkgInsideWorkspace = fs.realpathSync(nodeModulesPkgDir).includes(fs.realpathSync(`.`));
-    const symlinkBuildFile = isPkgDirASymlink && buildFilePath && isPkgInsideWorkspace;
-    if (!symlinkBuildFile && isPkgDirASymlink) {
+    const symlinkBuildFile = isPkgDirASymlink && buildFilePath && !GENERATE_LOCAL_MODULES_BUILD_FILES;
+    if (isPkgDirASymlink && !buildFilePath && !GENERATE_LOCAL_MODULES_BUILD_FILES) {
         console.log(`[yarn_install/npm_install]: package ${nodeModulesPkgDir} is local symlink and as such a BUILD file for it is expected but none was found. Please add one at ${fs.realpathSync(nodeModulesPkgDir)}`);
     }
     let buildFile = printPackage(pkg);

@@ -203,6 +203,7 @@ yarn_install(
     environment = {
         "SOME_USER_ENV": "yarn is great!",
     },
+    generate_local_modules_build_files = False,
     included_files = [
         "",
         ".js",
@@ -226,6 +227,7 @@ npm_install(
     environment = {
         "SOME_USER_ENV": "npm is cool!",
     },
+    generate_local_modules_build_files = False,
     included_files = [
         "",
         ".js",
