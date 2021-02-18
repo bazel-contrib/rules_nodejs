@@ -11,6 +11,7 @@ module.exports = {
         'concatjs',
         'create',
         'cypress',
+        'esbuild',
         'examples',
         'jasmine',
         'labs',
