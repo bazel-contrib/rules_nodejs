@@ -14,7 +14,6 @@ var __commonJS = (callback, module) => () => {
   return module.exports;
 };
 var __exportStar = (target, module, desc) => {
-  __markAsModule(target);
   if (module && typeof module === "object" || typeof module === "function") {
     for (let key of __getOwnPropNames(module))
       if (!__hasOwnProp.call(target, key) && key !== "default")
@@ -25,7 +24,7 @@ var __exportStar = (target, module, desc) => {
 var __toModule = (module) => {
   if (module && module.__esModule)
     return module;
-  return __exportStar(__defProp(module != null ? __create(__getProtoOf(module)) : {}, "default", {value: module, enumerable: true}), module);
+  return __exportStar(__markAsModule(__defProp(module != null ? __create(__getProtoOf(module)) : {}, "default", {value: module, enumerable: true})), module);
 };
 
 
@@ -55,8 +54,15 @@ var getId = /* @__PURE__ */ __name(() => "module-one", "getId");
 var getId2 = /* @__PURE__ */ __name(() => "module-two", "getId");
 
 
-var main_default = `Full ID: ${getId} - ${getId2} - ${import_module_dynamic.getId}`;
+var getId3 = /* @__PURE__ */ __name(() => `generated-module`, "getId");
+
+
+var getId4 = /* @__PURE__ */ __name(() => "relative-module", "getId");
+
+
+var ID = `Full ID: ${getId()} - ${getId2()} - ${import_module_dynamic.getId()} - ${getId4()} - ${getId3()}`;
+console.log(ID);
 export {
-  main_default as default
+  ID
 };
 //# sourceMappingURL=bundle.js.map
