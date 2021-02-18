@@ -1,0 +1,15 @@
+load("//packages/typescript:index.bzl", "ts_library")
+
+package(default_visibility = ["//packages/esbuild/test:__subpackages__"])
+
+genrule(
+    name = "lib",
+    outs = ["lib.ts"],
+    cmd = "echo 'export const getId = () => `generated-module`;' > $@",
+)
+
+ts_library(
+    name = "generated-module",
+    srcs = ["lib.ts"],
+    tsconfig = "//packages/esbuild/test/typescript:tsconfig.json",
+)

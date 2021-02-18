@@ -14,6 +14,7 @@ def _esbuild_impl(ctx):
     # Path alias mapings are used to create a jsconfig with mappings so that esbuild
     # how to resolve custom package or module names
     path_alias_mappings = dict()
+    npm_workspaces = []
 
     if (ctx.attr.link_workspace_root):
         path_alias_mappings.update(generate_path_mapping(ctx.workspace_name, "."))
@@ -29,11 +30,18 @@ def _esbuild_impl(ctx):
 
         if NpmPackageInfo in dep:
             deps_depsets.append(dep[NpmPackageInfo].sources)
+            npm_workspaces.append(dep[NpmPackageInfo].workspace)
 
         # Collect the path alias mapping to resolve packages correctly
         if hasattr(dep, MODULE_MAPPINGS_ASPECT_RESULTS_NAME):
             for key, value in getattr(dep, MODULE_MAPPINGS_ASPECT_RESULTS_NAME).items():
                 path_alias_mappings.update(generate_path_mapping(key, value[1].replace(ctx.bin_dir.path + "/", "")))
+
+    node_modules_mappings = [
+        "../../../external/%s/node_modules/*" % workspace
+        for workspace in depset(npm_workspaces).to_list()
+    ]
+    path_alias_mappings.update({"*": node_modules_mappings})
 
     deps_inputs = depset(transitive = deps_depsets).to_list()
     inputs = filter_files(ctx.files.entry_point, [".mjs", ".js"]) + ctx.files.srcs + deps_inputs
@@ -48,6 +56,7 @@ def _esbuild_impl(ctx):
     args.add("--bundle", entry_point.path)
     args.add("--sourcemap")
     args.add("--keep-names")
+    args.add("--preserve-symlinks")
     args.add_joined(["--platform", ctx.attr.platform], join_with = "=")
     args.add_joined(["--target", ctx.attr.target], join_with = "=")
     args.add_joined(["--log-level", "info"], join_with = "=")

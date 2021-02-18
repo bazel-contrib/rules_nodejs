@@ -1,0 +1,9 @@
+load("//packages/typescript:index.bzl", "ts_library")
+
+package(default_visibility = ["//packages/esbuild/test:__subpackages__"])
+
+ts_library(
+    name = "relative-module",
+    srcs = ["lib.ts"],
+    tsconfig = "//packages/esbuild/test/typescript:tsconfig.json",
+)
