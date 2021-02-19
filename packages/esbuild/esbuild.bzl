@@ -15,6 +15,9 @@ def _esbuild_impl(ctx):
     # how to resolve custom package or module names
     path_alias_mappings = dict()
 
+    if (ctx.attr.link_workspace_root):
+        path_alias_mappings.update(generate_path_mapping(ctx.workspace_name, "."))
+
     for dep in ctx.attr.deps:
         if JSEcmaScriptModuleInfo in dep:
             deps_depsets.append(dep[JSEcmaScriptModuleInfo].sources)
@@ -152,6 +155,10 @@ and cjs when platform is node. If performing code splitting, defaults to esm.
 
 See https://esbuild.github.io/api/#format for more details
         """,
+        ),
+        "link_workspace_root": attr.bool(
+            doc = """Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.
+    If source files need to be required then they can be copied to the bin_dir with copy_to_bin.""",
         ),
         "minify": attr.bool(
             default = False,

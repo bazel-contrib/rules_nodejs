@@ -1,0 +1,30 @@
+load("//:index.bzl", "generated_file_test")
+load("//packages/esbuild/test:tests.bzl", "esbuild")
+
+esbuild(
+    name = "bundle",
+    entry_point = "main.js",
+    format = "esm",
+    link_workspace_root = True,
+    deps = [
+        "//packages/esbuild/test/workspace-mapping/module-one",
+        "//packages/esbuild/test/workspace-mapping/module-two",
+    ],
+)
+
+# esbuild will put the filepath in a comment within the non-minified file,
+# on different platforms this will cause the golden test to differ
+# strip them here
+# note that this regex doesn't strip the sourcemap URI comment
+genrule(
+    name = "strip_bundle_comments",
+    srcs = ["bundle.js"],
+    outs = ["bundle.stripped.js"],
+    cmd = "cat $(location :bundle.js) | sed \"s#// .*##\" > $@",
+)
+
+generated_file_test(
+    name = "bundle_test",
+    src = "bundle.golden.txt",
+    generated = "bundle.stripped.js",
+)
