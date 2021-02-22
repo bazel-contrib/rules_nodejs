@@ -3,6 +3,7 @@ load("//packages/esbuild/test:tests.bzl", "esbuild")
 
 esbuild(
     name = "bundle",
+    args = ["--keep-names"],
     entry_point = "main.js",
     format = "esm",
     link_workspace_root = True,

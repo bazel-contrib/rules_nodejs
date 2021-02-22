@@ -16,6 +16,7 @@ ts_library(
 
 esbuild(
     name = "bundle",
+    args = ["--keep-names"],
     entry_point = "main.ts",
     output_dir = True,
     deps = [":main"],

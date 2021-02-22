@@ -55,7 +55,6 @@ def _esbuild_impl(ctx):
 
     args.add("--bundle", entry_point.path)
     args.add("--sourcemap")
-    args.add("--keep-names")
     args.add("--preserve-symlinks")
     args.add_joined(["--platform", ctx.attr.platform], join_with = "=")
     args.add_joined(["--target", ctx.attr.target], join_with = "=")
