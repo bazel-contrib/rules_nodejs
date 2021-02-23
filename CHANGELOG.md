@@ -1,3 +1,23 @@
+## [3.2.1](https://github.com/bazelbuild/rules_nodejs/compare/3.2.0...3.2.1) (2021-02-23)
+
+
+### Bug Fixes
+
+* remove `--keep-names` ([4a26898](https://github.com/bazelbuild/rules_nodejs/commit/4a26898))
+* update node versions map ([#2484](https://github.com/bazelbuild/rules_nodejs/issues/2484)) ([9506fe0](https://github.com/bazelbuild/rules_nodejs/commit/9506fe0))
+* **esbuild:** add --preserve-symlinks flag by default ([eb71285](https://github.com/bazelbuild/rules_nodejs/commit/eb71285))
+* **esbuild:** add link_workspace_root for workspace absolute imports ([#2476](https://github.com/bazelbuild/rules_nodejs/issues/2476)) ([ba7e48e](https://github.com/bazelbuild/rules_nodejs/commit/ba7e48e)), closes [#2474](https://github.com/bazelbuild/rules_nodejs/issues/2474)
+* use ':' instead of '=' for esbuild 'define' argument ([#2469](https://github.com/bazelbuild/rules_nodejs/issues/2469)) ([b0fddae](https://github.com/bazelbuild/rules_nodejs/commit/b0fddae))
+* use ':' instead of '=' for esbuild 'external' argument ([#2475](https://github.com/bazelbuild/rules_nodejs/issues/2475)) ([bc7dc82](https://github.com/bazelbuild/rules_nodejs/commit/bc7dc82))
+
+
+### Features
+
+* add generate_local_modules_build_files flag to yarn_install and npm_install rules ([#2449](https://github.com/bazelbuild/rules_nodejs/issues/2449)) ([a6449b7](https://github.com/bazelbuild/rules_nodejs/commit/a6449b7))
+* **typescript:** add `data` attribute ([ac2097c](https://github.com/bazelbuild/rules_nodejs/commit/ac2097c))
+
+
+
 # [3.2.0](https://github.com/bazelbuild/rules_nodejs/compare/3.1.0...3.2.0) (2021-02-13)
 
 
