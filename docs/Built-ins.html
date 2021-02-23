@@ -855,34 +855,16 @@ See https://docs.bazel.build/versions/master/be/make-variables.html#custom_varia
 <p><strong>USAGE</strong></p>
 
 <pre>
-npm_install(<a href="#npm_install-name">name</a>, <a href="#npm_install-args">args</a>, <a href="#npm_install-data">data</a>, <a href="#npm_install-environment">environment</a>, <a href="#npm_install-included_files">included_files</a>, <a href="#npm_install-manual_build_file_contents">manual_build_file_contents</a>, <a href="#npm_install-npm_command">npm_command</a>,
-            <a href="#npm_install-package_json">package_json</a>, <a href="#npm_install-package_lock_json">package_lock_json</a>, <a href="#npm_install-package_path">package_path</a>, <a href="#npm_install-quiet">quiet</a>, <a href="#npm_install-repo_mapping">repo_mapping</a>, <a href="#npm_install-strict_visibility">strict_visibility</a>,
-            <a href="#npm_install-symlink_node_modules">symlink_node_modules</a>, <a href="#npm_install-timeout">timeout</a>)
+npm_install(<a href="#npm_install-name">name</a>, <a href="#npm_install-args">args</a>, <a href="#npm_install-data">data</a>, <a href="#npm_install-environment">environment</a>, <a href="#npm_install-generate_local_modules_build_files">generate_local_modules_build_files</a>, <a href="#npm_install-included_files">included_files</a>,
+            <a href="#npm_install-manual_build_file_contents">manual_build_file_contents</a>, <a href="#npm_install-npm_command">npm_command</a>, <a href="#npm_install-package_json">package_json</a>, <a href="#npm_install-package_lock_json">package_lock_json</a>, <a href="#npm_install-package_path">package_path</a>,
+            <a href="#npm_install-quiet">quiet</a>, <a href="#npm_install-repo_mapping">repo_mapping</a>, <a href="#npm_install-strict_visibility">strict_visibility</a>, <a href="#npm_install-symlink_node_modules">symlink_node_modules</a>, <a href="#npm_install-timeout">timeout</a>)
 </pre>
 
 <p>Runs npm install during workspace setup.</p>
 
 <p>This rule will set the environment variable <code class="language-plaintext highlighter-rouge">BAZEL_NPM_INSTALL</code> to ‘1’ (unless it
-set to another value in the environment attribute). Scripts may use to this to 
+set to another value in the environment attribute). Scripts may use to this to
 check if yarn is being run by the <code class="language-plaintext highlighter-rouge">npm_install</code> repository rule.</p>
-
-<p><strong>LOCAL MODULES WITH THE NEED TO BE USED BOTH INSIDE AND OUTSIDE BAZEL</strong></p>
-
-<p>When using a monorepo it’s common to have modules that we want to use locally and
-publish to an external package repository. This can be achieved using a <code class="language-plaintext highlighter-rouge">js_library</code> rule
-with a <code class="language-plaintext highlighter-rouge">package_name</code> attribute defined inside the local package <code class="language-plaintext highlighter-rouge">BUILD</code> file. However,
-if the project relies on the local package dependency with <code class="language-plaintext highlighter-rouge">file:</code>, this could introduce a
-race condition with the <code class="language-plaintext highlighter-rouge">npm_install</code> rule.</p>
-
-<p>In order to overcome it, a link will be created to the package <code class="language-plaintext highlighter-rouge">BUILD</code> file from the
-npm external Bazel repository, which require us to complete a last step which is writing
-the expected targets on that same <code class="language-plaintext highlighter-rouge">BUILD</code> file to be later used by the <code class="language-plaintext highlighter-rouge">npm_install</code>
-rule, which are: <code class="language-plaintext highlighter-rouge">&lt;package_name__files&gt;</code>, <code class="language-plaintext highlighter-rouge">&lt;package_name__nested_node_modules&gt;</code>,
-<code class="language-plaintext highlighter-rouge">&lt;package_name__contents&gt;</code>, <code class="language-plaintext highlighter-rouge">&lt;package_name__typings&gt;</code> and the last
-one just <code class="language-plaintext highlighter-rouge">&lt;package_name&gt;</code>.</p>
-
-<p>If you doubt what those targets should look like, check the
-generated <code class="language-plaintext highlighter-rouge">BUILD</code> file for a given node module.</p>
 
 <p><strong>ATTRIBUTES</strong></p>
 
@@ -918,6 +900,30 @@ repository so all files that the package manager depends on must be listed.</p>
 <p>(<em><a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -&gt; String</a></em>): Environment variables to set before calling the package manager.</p>
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">{}</code></p>
+
+<h4 id="npm_install-generate_local_modules_build_files">generate_local_modules_build_files</h4>
+
+<p>(<em>Boolean</em>): Enables the BUILD files auto generation for local modules installed with <code class="language-plaintext highlighter-rouge">file:</code> (npm) or <code class="language-plaintext highlighter-rouge">link:</code> (yarn)</p>
+
+<p>When using a monorepo it’s common to have modules that we want to use locally and
+publish to an external package repository. This can be achieved using a <code class="language-plaintext highlighter-rouge">js_library</code> rule
+with a <code class="language-plaintext highlighter-rouge">package_name</code> attribute defined inside the local package <code class="language-plaintext highlighter-rouge">BUILD</code> file. However,
+if the project relies on the local package dependency with <code class="language-plaintext highlighter-rouge">file:</code> (npm) or <code class="language-plaintext highlighter-rouge">link:</code> (yarn) to be used outside Bazel, this
+could introduce a race condition with both <code class="language-plaintext highlighter-rouge">npm_install</code> or <code class="language-plaintext highlighter-rouge">yarn_install</code> rules.</p>
+
+<p>In order to overcome it, a link could be created to the package <code class="language-plaintext highlighter-rouge">BUILD</code> file from the
+npm external Bazel repository (so we can use a local BUILD file instead of an auto generated one),
+which require us to set <code class="language-plaintext highlighter-rouge">generate_local_modules_build_files = False</code> and complete a last step which is writing the
+expected targets on that same <code class="language-plaintext highlighter-rouge">BUILD</code> file to be later used both by <code class="language-plaintext highlighter-rouge">npm_install</code> or <code class="language-plaintext highlighter-rouge">yarn_install</code>
+rules, which are: <code class="language-plaintext highlighter-rouge">&lt;package_name__files&gt;</code>, <code class="language-plaintext highlighter-rouge">&lt;package_name__nested_node_modules&gt;</code>,
+<code class="language-plaintext highlighter-rouge">&lt;package_name__contents&gt;</code>, <code class="language-plaintext highlighter-rouge">&lt;package_name__typings&gt;</code> and the last one just <code class="language-plaintext highlighter-rouge">&lt;package_name&gt;</code>. If you doubt what those targets
+should look like, check the generated <code class="language-plaintext highlighter-rouge">BUILD</code> file for a given node module.</p>
+
+<p>When true, the rule will follow the default behaviour of auto generating BUILD files for each <code class="language-plaintext highlighter-rouge">node_module</code> at install time.</p>
+
+<p>When False, the rule will not auto generate BUILD files for <code class="language-plaintext highlighter-rouge">node_modules</code> that are installed as symlinks for local modules.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">True</code></p>
 
 <h4 id="npm_install-included_files">included_files</h4>
 
@@ -958,7 +964,7 @@ fine grained npm dependencies.</p>
 <p>(<em>String</em>): The npm command to run, to install dependencies.</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>        See npm docs &lt;https://docs.npmjs.com/cli/v6/commands&gt;
-        
+
         In particular, for "ci" it says:
         &gt; If dependencies in the package lock do not match those in package.json, npm ci will exit with an error, instead of updating the package lock.
 </code></pre></div></div>
@@ -1235,34 +1241,17 @@ See the section on stamping in the README.</p>
 <p><strong>USAGE</strong></p>
 
 <pre>
-yarn_install(<a href="#yarn_install-name">name</a>, <a href="#yarn_install-args">args</a>, <a href="#yarn_install-data">data</a>, <a href="#yarn_install-environment">environment</a>, <a href="#yarn_install-frozen_lockfile">frozen_lockfile</a>, <a href="#yarn_install-included_files">included_files</a>,
-             <a href="#yarn_install-manual_build_file_contents">manual_build_file_contents</a>, <a href="#yarn_install-package_json">package_json</a>, <a href="#yarn_install-package_path">package_path</a>, <a href="#yarn_install-quiet">quiet</a>, <a href="#yarn_install-repo_mapping">repo_mapping</a>,
-             <a href="#yarn_install-strict_visibility">strict_visibility</a>, <a href="#yarn_install-symlink_node_modules">symlink_node_modules</a>, <a href="#yarn_install-timeout">timeout</a>, <a href="#yarn_install-use_global_yarn_cache">use_global_yarn_cache</a>, <a href="#yarn_install-yarn_lock">yarn_lock</a>)
+yarn_install(<a href="#yarn_install-name">name</a>, <a href="#yarn_install-args">args</a>, <a href="#yarn_install-data">data</a>, <a href="#yarn_install-environment">environment</a>, <a href="#yarn_install-frozen_lockfile">frozen_lockfile</a>, <a href="#yarn_install-generate_local_modules_build_files">generate_local_modules_build_files</a>,
+             <a href="#yarn_install-included_files">included_files</a>, <a href="#yarn_install-manual_build_file_contents">manual_build_file_contents</a>, <a href="#yarn_install-package_json">package_json</a>, <a href="#yarn_install-package_path">package_path</a>, <a href="#yarn_install-quiet">quiet</a>,
+             <a href="#yarn_install-repo_mapping">repo_mapping</a>, <a href="#yarn_install-strict_visibility">strict_visibility</a>, <a href="#yarn_install-symlink_node_modules">symlink_node_modules</a>, <a href="#yarn_install-timeout">timeout</a>, <a href="#yarn_install-use_global_yarn_cache">use_global_yarn_cache</a>,
+             <a href="#yarn_install-yarn_lock">yarn_lock</a>)
 </pre>
 
 <p>Runs yarn install during workspace setup.</p>
 
 <p>This rule will set the environment variable <code class="language-plaintext highlighter-rouge">BAZEL_YARN_INSTALL</code> to ‘1’ (unless it
-set to another value in the environment attribute). Scripts may use to this to 
+set to another value in the environment attribute). Scripts may use to this to
 check if yarn is being run by the <code class="language-plaintext highlighter-rouge">yarn_install</code> repository rule.</p>
-
-<p><strong>LOCAL MODULES WITH THE NEED TO BE USED BOTH INSIDE AND OUTSIDE BAZEL</strong></p>
-
-<p>When using a monorepo it’s common to have modules that we want to use locally and
-publish to an external package repository. This can be achieved using a <code class="language-plaintext highlighter-rouge">js_library</code> rule
-with a <code class="language-plaintext highlighter-rouge">package_name</code> attribute defined inside the local package <code class="language-plaintext highlighter-rouge">BUILD</code> file. However,
-if the project relies on the local package dependency with <code class="language-plaintext highlighter-rouge">link:</code>, this could introduce a
-race condition with the <code class="language-plaintext highlighter-rouge">yarn_install</code> rule.</p>
-
-<p>In order to overcome it, a link will be created to the package <code class="language-plaintext highlighter-rouge">BUILD</code> file from the
-npm external Bazel repository, which require us to complete a last step which is writing
-the expected targets on that same <code class="language-plaintext highlighter-rouge">BUILD</code> file to be later used by the <code class="language-plaintext highlighter-rouge">yarn_install</code>
-rule, which are: <code class="language-plaintext highlighter-rouge">&lt;package_name__files&gt;</code>, <code class="language-plaintext highlighter-rouge">&lt;package_name__nested_node_modules&gt;</code>,
-<code class="language-plaintext highlighter-rouge">&lt;package_name__contents&gt;</code>, <code class="language-plaintext highlighter-rouge">&lt;package_name__typings&gt;</code> and the last
-one just <code class="language-plaintext highlighter-rouge">&lt;package_name&gt;</code>.</p>
-
-<p>If you doubt what those targets should look like, check the
-generated <code class="language-plaintext highlighter-rouge">BUILD</code> file for a given node module.</p>
 
 <p><strong>ATTRIBUTES</strong></p>
 
@@ -1311,6 +1300,30 @@ file. This helps to have reproducible builds across builds.</p>
 <p>To update a dependency or install a new one run the <code class="language-plaintext highlighter-rouge">yarn install</code> command with the
 vendored yarn binary. <code class="language-plaintext highlighter-rouge">bazel run @nodejs//:yarn install</code>. You can pass the options like
 <code class="language-plaintext highlighter-rouge">bazel run @nodejs//:yarn install -- -D &lt;dep-name&gt;</code>.</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">True</code></p>
+
+<h4 id="yarn_install-generate_local_modules_build_files">generate_local_modules_build_files</h4>
+
+<p>(<em>Boolean</em>): Enables the BUILD files auto generation for local modules installed with <code class="language-plaintext highlighter-rouge">file:</code> (npm) or <code class="language-plaintext highlighter-rouge">link:</code> (yarn)</p>
+
+<p>When using a monorepo it’s common to have modules that we want to use locally and
+publish to an external package repository. This can be achieved using a <code class="language-plaintext highlighter-rouge">js_library</code> rule
+with a <code class="language-plaintext highlighter-rouge">package_name</code> attribute defined inside the local package <code class="language-plaintext highlighter-rouge">BUILD</code> file. However,
+if the project relies on the local package dependency with <code class="language-plaintext highlighter-rouge">file:</code> (npm) or <code class="language-plaintext highlighter-rouge">link:</code> (yarn) to be used outside Bazel, this
+could introduce a race condition with both <code class="language-plaintext highlighter-rouge">npm_install</code> or <code class="language-plaintext highlighter-rouge">yarn_install</code> rules.</p>
+
+<p>In order to overcome it, a link could be created to the package <code class="language-plaintext highlighter-rouge">BUILD</code> file from the
+npm external Bazel repository (so we can use a local BUILD file instead of an auto generated one),
+which require us to set <code class="language-plaintext highlighter-rouge">generate_local_modules_build_files = False</code> and complete a last step which is writing the
+expected targets on that same <code class="language-plaintext highlighter-rouge">BUILD</code> file to be later used both by <code class="language-plaintext highlighter-rouge">npm_install</code> or <code class="language-plaintext highlighter-rouge">yarn_install</code>
+rules, which are: <code class="language-plaintext highlighter-rouge">&lt;package_name__files&gt;</code>, <code class="language-plaintext highlighter-rouge">&lt;package_name__nested_node_modules&gt;</code>,
+<code class="language-plaintext highlighter-rouge">&lt;package_name__contents&gt;</code>, <code class="language-plaintext highlighter-rouge">&lt;package_name__typings&gt;</code> and the last one just <code class="language-plaintext highlighter-rouge">&lt;package_name&gt;</code>. If you doubt what those targets
+should look like, check the generated <code class="language-plaintext highlighter-rouge">BUILD</code> file for a given node module.</p>
+
+<p>When true, the rule will follow the default behaviour of auto generating BUILD files for each <code class="language-plaintext highlighter-rouge">node_module</code> at install time.</p>
+
+<p>When False, the rule will not auto generate BUILD files for <code class="language-plaintext highlighter-rouge">node_modules</code> that are installed as symlinks for local modules.</p>
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">True</code></p>
 

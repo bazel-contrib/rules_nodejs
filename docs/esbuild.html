@@ -290,28 +290,139 @@ esbuild is an extremely fast JavaScript bundler written in Go, its <a href="http
 <p><strong>USAGE</strong></p>
 
 <pre>
-esbuild(<a href="#esbuild-name">name</a>, <a href="#esbuild-output_dir">output_dir</a>, <a href="#esbuild-kwargs">kwargs</a>)
+esbuild(<a href="#esbuild-name">name</a>, <a href="#esbuild-args">args</a>, <a href="#esbuild-define">define</a>, <a href="#esbuild-deps">deps</a>, <a href="#esbuild-entry_point">entry_point</a>, <a href="#esbuild-external">external</a>, <a href="#esbuild-format">format</a>, <a href="#esbuild-link_workspace_root">link_workspace_root</a>, <a href="#esbuild-minify">minify</a>,
+        <a href="#esbuild-output">output</a>, <a href="#esbuild-output_dir">output_dir</a>, <a href="#esbuild-output_map">output_map</a>, <a href="#esbuild-platform">platform</a>, <a href="#esbuild-sources_content">sources_content</a>, <a href="#esbuild-srcs">srcs</a>, <a href="#esbuild-target">target</a>, <a href="#esbuild-tool">tool</a>)
 </pre>
 
-<p>esbuild helper macro around the <code class="language-plaintext highlighter-rouge">esbuild_bundle</code> rule</p>
+<p>Runs the esbuild bundler under Bazel</p>
 
-<p>For a full list of attributes, see the <code class="language-plaintext highlighter-rouge">esbuild_bundle</code> rule</p>
+<p>For further information about esbuild, see https://esbuild.github.io/</p>
 
-<p><strong>PARAMETERS</strong></p>
+<p><strong>ATTRIBUTES</strong></p>
 
 <h4 id="esbuild-name">name</h4>
 
-<p>The name used for this rule and output files</p>
+<p>(<em><a href="https://bazel.build/docs/build-ref.html#name">Name</a>, mandatory</em>): A unique name for this target.</p>
 
-<h4 id="esbuild-output_dir">output_dir</h4>
+<h4 id="esbuild-args">args</h4>
 
-<p>If <code class="language-plaintext highlighter-rouge">True</code>, produce a code split bundle in an output directory</p>
+<p>(<em>List of strings</em>): A list of extra arguments that are included in the call to esbuild</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+
+<h4 id="esbuild-define">define</h4>
+
+<p>(<em>List of strings</em>): A list of global identifier replacements.
+Example:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">esbuild</span><span class="p">(</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"bundle"</span><span class="p">,</span>
+    <span class="n">define</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s">"process.env.NODE_ENV=</span><span class="se">\"</span><span class="s">production</span><span class="se">\"</span><span class="s">"</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<p>See https://esbuild.github.io/api/#define for more details</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+
+<h4 id="esbuild-deps">deps</h4>
+
+<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></em>): A list of direct dependencies that are required to build the bundle</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+
+<h4 id="esbuild-entry_point">entry_point</h4>
+
+<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">Label</a>, mandatory</em>): The bundle’s entry point (e.g. your main.js or app.js or index.js)</p>
+
+<h4 id="esbuild-external">external</h4>
+
+<p>(<em>List of strings</em>): A list of module names that are treated as external and not included in the resulting bundle</p>
+
+<p>See https://esbuild.github.io/api/#external for more details</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+
+<h4 id="esbuild-format">format</h4>
+
+<p>(<em>String</em>): The output format of the bundle, defaults to iife when platform is browser
+and cjs when platform is node. If performing code splitting, defaults to esm.</p>
+
+<p>See https://esbuild.github.io/api/#format for more details</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">""</code></p>
+
+<h4 id="esbuild-link_workspace_root">link_workspace_root</h4>
+
+<p>(<em>Boolean</em>): Link the workspace root to the bin_dir to support absolute requires like ‘my_wksp/path/to/file’.
+    If source files need to be required then they can be copied to the bin_dir with copy_to_bin.</p>
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">False</code></p>
 
-<h4 id="esbuild-kwargs">kwargs</h4>
+<h4 id="esbuild-minify">minify</h4>
 
-<p>All other args from <code class="language-plaintext highlighter-rouge">esbuild_bundle</code></p>
+<p>(<em>Boolean</em>): Minifies the bundle with the built in minification.
+Removes whitespace, shortens identifieres and uses equivalent but shorter syntax.</p>
+
+<p>Sets all –minify-* flags</p>
+
+<p>See https://esbuild.github.io/api/#minify for more details</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">False</code></p>
+
+<h4 id="esbuild-output">output</h4>
+
+<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></em>): Name of the output file when bundling</p>
+
+<h4 id="esbuild-output_dir">output_dir</h4>
+
+<p>(<em>Boolean</em>): If true, esbuild produces an output directory containing all the output files from code splitting</p>
+
+<p>See https://esbuild.github.io/api/#splitting for more details</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">False</code></p>
+
+<h4 id="esbuild-output_map">output_map</h4>
+
+<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">Label</a></em>): Name of the output source map when bundling</p>
+
+<h4 id="esbuild-platform">platform</h4>
+
+<p>(<em>String</em>): The platform to bundle for.</p>
+
+<p>See https://esbuild.github.io/api/#platform for more details</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">"browser"</code></p>
+
+<h4 id="esbuild-sources_content">sources_content</h4>
+
+<p>(<em>Boolean</em>): If False, omits the <code class="language-plaintext highlighter-rouge">sourcesContent</code> field from generated source maps</p>
+
+<p>See https://esbuild.github.io/api/#sources-content for more details</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">False</code></p>
+
+<h4 id="esbuild-srcs">srcs</h4>
+
+<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a></em>): Non-entry point JavaScript source files from the workspace.</p>
+
+<p>You must not repeat file(s) passed to entry_point</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+
+<h4 id="esbuild-target">target</h4>
+
+<p>(<em>String</em>): Environment target (e.g. es2017, chrome58, firefox57, safari11, 
+edge16, node10, default esnext)</p>
+
+<p>See https://esbuild.github.io/api/#target for more details</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">"es2015"</code></p>
+
+<h4 id="esbuild-tool">tool</h4>
+
+<p>(<em><a href="https://bazel.build/docs/build-ref.html#labels">Label</a>, mandatory</em>): An executable for the esbuild binary</p>
 
 
       </div>
