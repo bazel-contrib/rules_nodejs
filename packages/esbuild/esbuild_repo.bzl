@@ -4,7 +4,9 @@ Helper macro for fetching esbuild versions for internal tests and examples in ru
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-_VERSION = "0.8.48"
+# IMPORTANT: Keep this file in sync with the documentation in _README.md
+
+_VERSION = "0.8.48"  # reminder: update SHAs below when changing this version
 
 def esbuild_dependencies():
     """Helper to install required dependencies for the esbuild rules"""

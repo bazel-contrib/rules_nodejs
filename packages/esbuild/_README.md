@@ -17,8 +17,9 @@ yarn add -D @bazel/esbuild
 
 Add an `http_archive` fetching the esbuild binary for each platform that you need to support. 
 
+<!-- IMPORTANT: Keep this in sync with ./esbuild_repo.bzl -->
 ```python
-_ESBUILD_VERSION = "0.8.48"
+_ESBUILD_VERSION = "0.8.48"  # reminder: update SHAs below when changing this value
 http_archive(
     name = "esbuild_darwin",
     urls = [
