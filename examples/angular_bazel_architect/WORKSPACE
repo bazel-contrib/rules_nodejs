@@ -23,7 +23,7 @@ load("@build_bazel_rules_nodejs//:index.bzl", "yarn_install")
 yarn_install(
     # Name this npm so that Bazel Label references look like @npm//package
     name = "npm",
-    data = ["//:patches/@angular-devkit+architect-cli+0.900.1.patch"],
+    data = ["//:patches/@angular-devkit+architect-cli+0.1102.2.patch"],
     package_json = "//:package.json",
     # Turn off symlink_node_modules here as it causes extreme flakiness on buildkite
     # macos CI with missing files in node_modules.
