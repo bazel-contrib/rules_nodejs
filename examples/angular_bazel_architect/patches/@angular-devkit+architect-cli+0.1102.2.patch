@@ -1,0 +1,18 @@
+diff --git a/node_modules/@angular-devkit/architect-cli/bin/architect.js b/node_modules/@angular-devkit/architect-cli/bin/architect.js
+index 3ec3d0a..088459d 100755
+--- a/node_modules/@angular-devkit/architect-cli/bin/architect.js
++++ b/node_modules/@angular-devkit/architect-cli/bin/architect.js
+@@ -74,6 +74,13 @@ async function _executeTarget(parentLogger, workspace, root, argv, registry) {
+     const { _, ...options } = argv;
+     const run = await architect.scheduleTarget(targetSpec, options, { logger });
+     const bars = new progress_1.MultiProgressBar(':name :bar (:current/:total) :status');
++    const exit = process.exit.bind(process);
++    process.exit = (code) => {
++        if(code != 0) {
++            console.error('Exiting with code ', code, new Error().stack);
++        }
++        exit(code);
++    };
+     run.progress.subscribe(update => {
+         const data = bars.get(update.id) || {
+             id: update.id,
