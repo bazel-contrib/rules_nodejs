@@ -96,4 +96,10 @@ describe('launcher.sh environment', function() {
        ]
        expectPathsToMatch(env['BAZEL_PATCH_ROOTS'].split(','), expectedRoots);
      });
+
+  it('should setup correct bazel environment variables from env attr', function() {
+    const env = require(runfiles.resolvePackageRelative('dump_build_env_attr.json'));
+    expect(env['FOO']).toBe('BAR');
+    expect(env['LOC']).toBe('build_bazel_rules_nodejs/internal/node/test/dump_build_env.js');
+  });
 });

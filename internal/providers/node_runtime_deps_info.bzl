@@ -14,6 +14,7 @@
 
 """Custom provider that mimics the Runfiles, but doesn't incur the expense of creating the runfiles symlink tree"""
 
+load("//internal/common:expand_into_runfiles.bzl", "expand_location_into_runfiles")
 load("//internal/linker:link_node_modules.bzl", "add_arg", "write_node_modules_manifest")
 load("//internal/providers:external_npm_package_info.bzl", "ExternalNpmPackageInfo")
 
@@ -115,7 +116,10 @@ def run_node(ctx, inputs, arguments, executable, chdir = None, **kwargs):
     if chdir:
         add_arg(arguments, "--bazel_node_working_dir=" + chdir)
 
-    env = kwargs.pop("env", {})
+    env = dict({}, **kwargs.pop("env", {}))
+    if hasattr(ctx.attr, "data"):
+        for [key, value] in env.items():
+            env[key] = expand_location_into_runfiles(ctx, value, ctx.attr.data)
 
     # Always forward the COMPILATION_MODE to node process as an environment variable
     configuration_env_vars = kwargs.pop("configuration_env_vars", []) + ["COMPILATION_MODE"]
