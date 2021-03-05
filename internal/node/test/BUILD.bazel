@@ -76,6 +76,7 @@ jasmine_node_test(
     data = [
         ":dump_build_env.json",
         ":dump_build_env_alt.json",
+        ":dump_build_env_attr_json",
     ],
 )
 
@@ -385,6 +386,15 @@ jasmine_node_test(
 )
 
 nodejs_binary(
+    name = "dump_build_env_attr",
+    data = ["dump_build_env.js"],
+    entry_point = "dump_build_env.js",
+    env = {
+        "LOC": "$(location :dump_build_env.js)",
+    },
+)
+
+nodejs_binary(
     name = "dump_build_env",
     entry_point = "dump_build_env.js",
 )
@@ -407,6 +417,16 @@ npm_package_bin(
     outs = ["dump_build_env_alt.json"],
     args = ["$@"],
     tool = ":dump_build_env_alt",
+)
+
+npm_package_bin(
+    name = "dump_build_env_attr_json",
+    outs = ["dump_build_env_attr.json"],
+    args = ["$@"],
+    env = {
+        "FOO": "BAR",
+    },
+    tool = ":dump_build_env_attr",
 )
 
 nodejs_binary(

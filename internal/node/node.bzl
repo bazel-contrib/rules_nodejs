@@ -174,6 +174,10 @@ def _nodejs_binary_impl(ctx):
     # runfiles helpers to use.
     env_vars = "export BAZEL_TARGET=%s\n" % ctx.label
 
+    # Add all env vars from the ctx attr
+    for [key, value] in ctx.attr.env.items():
+        env_vars += "export %s=%s\n" % (key, expand_location_into_runfiles(ctx, value, ctx.attr.data))
+
     # While we can derive the workspace from the pwd when running locally
     # because it is in the execroot path `execroot/my_wksp`, on RBE the
     # `execroot/my_wksp` path is reduced a path such as `/w/f/b` so
@@ -447,6 +451,12 @@ nodejs_binary(
 """,
         mandatory = True,
         allow_single_file = True,
+    ),
+    "env": attr.string_dict(
+        doc = """Specifies additional environment variables to set when the target is executed, subject to location
+expansion.
+        """,
+        default = {},
     ),
     "link_workspace_root": attr.bool(
         doc = """Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.
