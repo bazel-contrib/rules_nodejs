@@ -7,6 +7,9 @@
         "tslib": "1.9.0",
         "typescript": "3.5.3"
     },
+    "dependencies": {
+        "chalk": "4.1.0"
+    },
     "scripts": {
         "test": "bazel test //..."
     }

@@ -9,7 +9,14 @@ ts_project(
         "main.ts",
         "name.ts",
     ],
-    tsconfig = {},
+    tsconfig = {
+        "compilerOptions": {
+            "esModuleInterop": True,
+        },
+    },
+    deps = [
+        "@npm//chalk",
+    ],
 )
 
 # create a single bundle of the JS sources
