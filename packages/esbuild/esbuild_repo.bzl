@@ -6,7 +6,7 @@ Helper macro for fetching esbuild versions for internal tests and examples in ru
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-_VERSION = "0.8.53"
+_VERSION = "0.8.56"
 
 def esbuild_dependencies():
     """Helper to install required dependencies for the esbuild rules"""
@@ -20,7 +20,7 @@ def esbuild_dependencies():
         ],
         strip_prefix = "package",
         build_file_content = """exports_files(["bin/esbuild"])""",
-        sha256 = "3b5691b3d5eb7706479e1727ec333640c5a5769a2b3477c13c93f96a473d5c77",
+        sha256 = "4355521afc38a322aeab751c631adfffb2610f595e39e0ed5c01ec07bfc93533",
     )
     http_archive(
         name = "esbuild_windows",
@@ -29,7 +29,7 @@ def esbuild_dependencies():
         ],
         strip_prefix = "package",
         build_file_content = """exports_files(["bin/esbuild"])""",
-        sha256 = "79a98b0c2e0409eb5e0fecf4c6e46a12759af4c062a2284737812b15faf01919",
+        sha256 = "6a29c2bbf1df89e5348cb979e559dced9e90b5464c07e945d3f33a9e9473d36e",
     )
     http_archive(
         name = "esbuild_linux",
@@ -38,5 +38,5 @@ def esbuild_dependencies():
         ],
         strip_prefix = "package",
         build_file_content = """exports_files(["bin/esbuild"])""",
-        sha256 = "d49f41fc310d4c12494c68e7fd3b03e0e0301440f2ad50ca9b2c14b65c8124c6",
+        sha256 = "ba49dfb125adfe5fed2d38bbcf400fa41eac42eeaf0bf5c59a71446c68fdff0b",
     )

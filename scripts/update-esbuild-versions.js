@@ -41,15 +41,17 @@ function downloadFile(url, dest) {
 };
 
 async function main() {
-  console.log('""" Generated code; do not edit\nUpdate by running yarn update-esbuild-versions\n\nHelper macro for fetching esbuild versions for internal tests and examples in rules_nodejs\n"""\n');
-  console.log('load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")\n')
+  const content = [];
+
+  content.push('""" Generated code; do not edit\nUpdate by running yarn update-esbuild-versions\n\nHelper macro for fetching esbuild versions for internal tests and examples in rules_nodejs\n"""\n');
+  content.push('load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")\n')
 
   const latestVersion = JSON.parse(await getUrlAsString('https://registry.npmjs.org/esbuild/latest')).version;
-  console.log(`_VERSION = "${latestVersion}"\n`);
+  content.push(`_VERSION = "${latestVersion}"\n`);
 
-  console.log('def esbuild_dependencies():');
-  console.log('    """Helper to install required dependencies for the esbuild rules"""\n');
-  console.log('    version = _VERSION\n');
+  content.push('def esbuild_dependencies():');
+  content.push('    """Helper to install required dependencies for the esbuild rules"""\n');
+  content.push('    version = _VERSION\n');
 
   const tmpDir = tmpdir();
   mkdirSync(tmpDir, {recursive: true});
@@ -63,19 +65,21 @@ async function main() {
     const shasum = shasumOutput.split(' ')[0];
 
 
-    console.log('    http_archive(');
-    console.log(`        name = "${platform}",`);
-    console.log('        urls = [');
-    console.log(`            "https://registry.npmjs.org/${PLATFORMS[platform]}/-/${PLATFORMS[platform]}-%s.tgz" % version,`);
-    console.log('        ],');
-    console.log('        strip_prefix = "package",');
-    console.log('        build_file_content = """exports_files(["bin/esbuild"])""",');
-    console.log(`        sha256 = "${shasum}",`);
-    console.log('    )');
+    content.push('    http_archive(');
+    content.push(`        name = "${platform}",`);
+    content.push('        urls = [');
+    content.push(`            "https://registry.npmjs.org/${PLATFORMS[platform]}/-/${PLATFORMS[platform]}-%s.tgz" % version,`);
+    content.push('        ],');
+    content.push('        strip_prefix = "package",');
+    content.push('        build_file_content = """exports_files(["bin/esbuild"])""",');
+    content.push(`        sha256 = "${shasum}",`);
+    content.push('    )');
   }
 
 
   rmdirSync(tmpDir, {recursive: true});
+
+  console.log(content.join('\n'));
 }
 
 main();
