@@ -30,7 +30,7 @@ architect(
         "@npm//tslib",
         "@npm//typescript",
         "@npm//@angular-devkit/architect-cli",
-        "@npm//@angular-devkit/build-ng-packagr",
+        "@npm//@angular-devkit/build-angular",
     ],
     output_dir = True,
 )

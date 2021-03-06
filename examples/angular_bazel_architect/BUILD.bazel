@@ -5,7 +5,7 @@ filegroup(
     name = "common_deps",
     srcs = [
         "angular.json",
-        "tsconfig.base.json",
+        "tsconfig.json",
     ],
     visibility = ["//:__subpackages__"],
 )

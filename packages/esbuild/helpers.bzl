@@ -82,6 +82,8 @@ def write_jsconfig_file(ctx, path_alias_mappings):
         ctx: The rule context
         path_alias_mappings: Dict with the mappings
 
+    Returns:
+        File object reference for the jsconfig file
     """
 
     # The package path
@@ -90,7 +92,10 @@ def write_jsconfig_file(ctx, path_alias_mappings):
     # Replace all segments in the path with .. join them with "/" and postfix
     # it with another / to get a relative path from the build file dir
     # to the workspace root.
-    base_url_path = "/".join([".." for segment in rule_path.split("/")]) + "/"
+    if len(rule_path) == 0:
+        base_url_path = "."
+    else:
+        base_url_path = "/".join([".." for segment in rule_path.split("/")]) + "/"
 
     # declare the jsconfig_file
     jsconfig_file = ctx.actions.declare_file("%s.config.json" % ctx.attr.name)
