@@ -1,0 +1,39 @@
+load("//:index.bzl", "generated_file_test", "nodejs_binary", "npm_package_bin")
+load("//packages/esbuild/test:tests.bzl", "esbuild")
+
+esbuild(
+    name = "bundle",
+    # JS sources can be set directly on the esbuild rule
+    srcs = [
+        "env.js",
+        "main.js",
+    ],
+    entry_point = "main.js",
+    # Setting this to test the code path
+    # This isn't needed for this bundle to run
+    max_threads = 1,
+    platform = "node",
+)
+
+nodejs_binary(
+    name = "bin",
+    data = [
+        ":bundle",
+    ],
+    entry_point = "bundle.js",
+)
+
+npm_package_bin(
+    name = "runner",
+    env = {
+        "ESBUILD_TEST": "YES",
+    },
+    stdout = "out.txt",
+    tool = ":bin",
+)
+
+generated_file_test(
+    name = "test",
+    src = "out.golden.txt",
+    generated = "out.txt",
+)
