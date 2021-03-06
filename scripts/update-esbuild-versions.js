@@ -10,7 +10,7 @@ const PLATFORMS = {
   "esbuild_linux": "esbuild-linux-64"
 }
 
-function getUrlAsString(url) {
+function fetch(url) {
   return new Promise((resolve, reject) => {
     https.get(url, (res) => {
       if (res.statusCode !== 200) {
@@ -20,7 +20,7 @@ function getUrlAsString(url) {
       
       let body = '';
       res.on("data", (chunk) => body += chunk);
-      res.on("end", () => resolve(String(body)));
+      res.on("end", () => resolve(JSON.parse(String(body))));
     });
   });
 }
@@ -46,7 +46,7 @@ async function main() {
   content.push('""" Generated code; do not edit\nUpdate by running yarn update-esbuild-versions\n\nHelper macro for fetching esbuild versions for internal tests and examples in rules_nodejs\n"""\n');
   content.push('load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")\n')
 
-  const latestVersion = JSON.parse(await getUrlAsString('https://registry.npmjs.org/esbuild/latest')).version;
+  const latestVersion = (await fetch('https://registry.npmjs.org/esbuild/latest')).version;
   content.push(`_VERSION = "${latestVersion}"\n`);
 
   content.push('def esbuild_dependencies():');
