@@ -128,6 +128,7 @@
         "bazel:update-deleted-packages": "sed -i.bak \"/--deleted_packages/s#=.*#=$(find {examples,e2e}/*/* \\( -name BUILD -or -name BUILD.bazel \\) | xargs -n 1 dirname | paste -sd, -)#\" .bazelrc && rm .bazelrc.bak",
         "update-codeowners": "./scripts/update_codeowners.sh",
         "update-nodejs-versions": "node ./scripts/update-nodejs-versions.js > internal/node/node_versions.bzl",
+        "update-esbuild-versions": "node ./scripts/update-esbuild-versions.js > packages/esbuild/esbuild_repo.bzl",
         "format": "git-clang-format",
         "format-all": "clang-format --glob='{internal/**/,examples/**/}*.{js,ts}' -i",
         "stardoc": "bazel build --noincompatible_strict_action_env //docs && cp -f dist/bin/docs/*.md ./docs && cp -f dist/bin/docs/docs-out/*.html ./docs && cp -f dist/bin/docs/docs-out/css/*.css ./docs/css",
