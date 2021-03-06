@@ -71,7 +71,7 @@ async function main() {
     content.push(`            "https://registry.npmjs.org/${PLATFORMS[platform]}/-/${PLATFORMS[platform]}-%s.tgz" % version,`);
     content.push('        ],');
     content.push('        strip_prefix = "package",');
-    content.push('        build_file_content = """exports_files(["bin/esbuild"])""",');
+    content.push(`        build_file_content = """exports_files(["${platform === 'esbuild_windows' ? 'esbuild.exe' : 'bin/esbuild'}"])""",`);
     content.push(`        sha256 = "${shasum}",`);
     content.push('    )');
   }

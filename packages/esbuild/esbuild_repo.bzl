@@ -28,7 +28,7 @@ def esbuild_dependencies():
             "https://registry.npmjs.org/esbuild-windows-64/-/esbuild-windows-64-%s.tgz" % version,
         ],
         strip_prefix = "package",
-        build_file_content = """exports_files(["bin/esbuild"])""",
+        build_file_content = """exports_files(["esbuild.exe"])""",
         sha256 = "6a29c2bbf1df89e5348cb979e559dced9e90b5464c07e945d3f33a9e9473d36e",
     )
     http_archive(
