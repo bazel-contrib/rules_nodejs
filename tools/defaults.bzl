@@ -48,9 +48,11 @@ def pkg_npm(**kwargs):
     pkg = native.package_name().split("/")[-1]
 
     # Default substitutions to scrub things like skylib references
-    substitutions = dict(kwargs.pop("substitutions", _COMMON_REPLACEMENTS), **{
+    default_substitutions = dict(_COMMON_REPLACEMENTS, **{
         "//packages/%s" % pkg: "//@bazel/%s" % pkg,
     })
+    substitutions = dict(kwargs.pop("substitutions", {}), **default_substitutions)
+
     stamped_substitutions = dict(substitutions, **{
         "0.0.0-PLACEHOLDER": "{STABLE_BUILD_SCM_VERSION}",
     })
