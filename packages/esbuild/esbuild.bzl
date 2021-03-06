@@ -101,6 +101,10 @@ def _esbuild_impl(ctx):
 
     args.add_all(ctx.attr.args)
 
+    env = {}
+    if ctx.attr.max_threads > 0:
+        env["GOMAXPROCS"] = str(ctx.attr.max_threads)
+
     ctx.actions.run(
         inputs = inputs,
         outputs = outputs,
@@ -110,6 +114,8 @@ def _esbuild_impl(ctx):
         execution_requirements = {
             "no-remote-exec": "1",
         },
+        mnemonic = "esbuild",
+        env = env,
     )
 
     return [
@@ -167,6 +173,13 @@ See https://esbuild.github.io/api/#format for more details
         "link_workspace_root": attr.bool(
             doc = """Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.
     If source files need to be required then they can be copied to the bin_dir with copy_to_bin.""",
+        ),
+        "max_threads": attr.int(
+            mandatory = False,
+            doc = """Sets the `GOMAXPROCS` variable to limit the number of threads that esbuild can run with.
+This can be useful if running many esbuild rule invocations in parallel, which has the potential to cause slowdown.
+For general use, leave this attribute unset.
+            """,
         ),
         "minify": attr.bool(
             default = False,
