@@ -1,6 +1,6 @@
 const https = require("https");
 const { exec } = require('shelljs');
-const { mkdirSync, rmdirSync, createWriteStream } = require('fs');
+const { mkdirSync, rmdirSync, createWriteStream, readFileSync, writeFileSync } = require('fs');
 const { join } = require('path');
 const { tmpdir } = require('os');
 
@@ -8,6 +8,20 @@ const PLATFORMS = {
   "esbuild_darwin": "esbuild-darwin-64",
   "esbuild_windows": "esbuild-windows-64",
   "esbuild_linux": "esbuild-linux-64"
+}
+
+function replaceFileContent(filepath, replacements) {
+  let fileContent = readFileSync(filepath, 'utf8');
+
+  replacements.forEach(replacement => {
+    const match = replacement[0].exec(fileContent);
+
+    if(match.length > 1) {
+      fileContent = fileContent.replace(match[1], replacement[1]);
+    }
+  });
+
+  writeFileSync(filepath, fileContent);
 }
 
 function fetch(url) {
@@ -42,12 +56,14 @@ function downloadFile(url, dest) {
 
 async function main() {
   const content = [];
+  const fileReplacements = [];
 
   content.push('""" Generated code; do not edit\nUpdate by running yarn update-esbuild-versions\n\nHelper macro for fetching esbuild versions for internal tests and examples in rules_nodejs\n"""\n');
   content.push('load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")\n')
 
   const latestVersion = (await fetch('https://registry.npmjs.org/esbuild/latest')).version;
   content.push(`_VERSION = "${latestVersion}"\n`);
+  fileReplacements.push([/_ESBUILD_VERSION = "(.+?)"/, latestVersion])
 
   content.push('def esbuild_dependencies():');
   content.push('    """Helper to install required dependencies for the esbuild rules"""\n');
@@ -64,6 +80,7 @@ async function main() {
     const shasumOutput = exec(`shasum -a 256 ${downloadPath}`, { silent: true }).stdout;
     const shasum = shasumOutput.split(' ')[0];
 
+    fileReplacements.push([new RegExp(`"${platform}",.+?sha256 = "(.+?)"`, 's'), shasum])
 
     content.push('    http_archive(');
     content.push(`        name = "${platform}",`);
@@ -80,6 +97,10 @@ async function main() {
   rmdirSync(tmpDir, {recursive: true});
 
   console.log(content.join('\n'));
+
+  // replace shasums in some manually edited files
+  replaceFileContent('examples/esbuild/WORKSPACE', fileReplacements);
+  replaceFileContent('packages/esbuild/_README.md', fileReplacements);
 }
 
 main();

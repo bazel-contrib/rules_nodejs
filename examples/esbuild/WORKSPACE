@@ -25,12 +25,12 @@ http_archive(
     urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/3.2.0/rules_nodejs-3.2.0.tar.gz"],
 )
 
-_ESBUILD_VERSION = "0.8.48"
+_ESBUILD_VERSION = "0.8.56"
 
 http_archive(
     name = "esbuild_darwin",
     build_file_content = """exports_files(["bin/esbuild"])""",
-    sha256 = "d21a722873ed24586f071973b77223553fca466946f3d7e3976eeaccb14424e6",
+    sha256 = "4355521afc38a322aeab751c631adfffb2610f595e39e0ed5c01ec07bfc93533",
     strip_prefix = "package",
     urls = [
         "https://registry.npmjs.org/esbuild-darwin-64/-/esbuild-darwin-64-%s.tgz" % _ESBUILD_VERSION,
@@ -40,7 +40,7 @@ http_archive(
 http_archive(
     name = "esbuild_windows",
     build_file_content = """exports_files(["esbuild.exe"])""",
-    sha256 = "fe5dcb97b4c47f9567012f0a45c19c655f3d2e0d76932f6dd12715dbebbd6eb0",
+    sha256 = "6a29c2bbf1df89e5348cb979e559dced9e90b5464c07e945d3f33a9e9473d36e",
     strip_prefix = "package",
     urls = [
         "https://registry.npmjs.org/esbuild-windows-64/-/esbuild-windows-64-%s.tgz" % _ESBUILD_VERSION,
@@ -50,7 +50,7 @@ http_archive(
 http_archive(
     name = "esbuild_linux",
     build_file_content = """exports_files(["bin/esbuild"])""",
-    sha256 = "60dabe141e5dfcf99e7113bded6012868132068a582a102b258fb7b1cfdac14b",
+    sha256 = "ba49dfb125adfe5fed2d38bbcf400fa41eac42eeaf0bf5c59a71446c68fdff0b",
     strip_prefix = "package",
     urls = [
         "https://registry.npmjs.org/esbuild-linux-64/-/esbuild-linux-64-%s.tgz" % _ESBUILD_VERSION,
