@@ -244,15 +244,14 @@ def _tsconfig_inputs(ctx):
     """Returns all transitively referenced tsconfig files from "tsconfig" and "extends" attributes."""
     inputs = []
     if TsConfigInfo in ctx.attr.tsconfig:
-        tsconfig_inputs.extend(ctx.attr.tsconfig[TsConfigInfo].deps)
+        inputs.extend(ctx.attr.tsconfig[TsConfigInfo].deps)
     else:
-        tsconfig_inputs.append(ctx.file.tsconfig)
+        inputs.append(ctx.file.tsconfig)
     if hasattr(ctx.attr, "extends") and ctx.attr.extends:
         if TsConfigInfo in ctx.attr.extends:
-            tsconfig_inputs.extend(ctx.attr.extends[TsConfigInfo].deps)
+            inputs.extend(ctx.attr.extends[TsConfigInfo].deps)
         else:
-            tsconfig_inputs.append(ctx.file.extends)
-
+            inputs.append(ctx.file.extends)
     return inputs
 
 ts_project = rule(
