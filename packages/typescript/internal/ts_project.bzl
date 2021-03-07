@@ -161,16 +161,7 @@ def _ts_project_impl(ctx):
     inputs.extend(depset(transitive = deps_depsets).to_list())
 
     # Gather TsConfig info from both the direct (tsconfig) and indirect (extends) attribute
-    tsconfig_inputs = []
-    if TsConfigInfo in ctx.attr.tsconfig:
-        tsconfig_inputs.extend(ctx.attr.tsconfig[TsConfigInfo].deps)
-    else:
-        tsconfig_inputs.append(ctx.file.tsconfig)
-    if hasattr(ctx.attr, "extends") and ctx.attr.extends:
-        if TsConfigInfo in ctx.attr.extends:
-            tsconfig_inputs.extend(ctx.attr.extends[TsConfigInfo].deps)
-        else:
-            tsconfig_inputs.extend(ctx.attr.extends.files.to_list())
+    tsconfig_inputs = _tsconfig_inputs(ctx)
     inputs.extend(tsconfig_inputs)
 
     # We do not try to predeclare json_outs, because their output locations generally conflict with their path in the source tree.
@@ -249,6 +240,18 @@ def _ts_project_impl(ctx):
 
     return providers
 
+def _tsconfig_inputs(ctx):
+    """Returns all transitively referenced tsconfig files from "tsconfig" and "extends" attributes."""
+    inputs = []
+    for key in ["tsconfig", "extends"]:
+        if not hasattr(ctx.attr, key):
+            break
+        if TsConfigInfo in getattr(ctx.attr, key):
+            inputs.extend(getattr(ctx.attr, key)[TsConfigInfo].deps)
+        else:
+            inputs.append(getattr(ctx.file, key))
+    return inputs
+
 ts_project = rule(
     implementation = _ts_project_impl,
     attrs = dict(_ATTRS, **_OUTPUTS),
@@ -271,11 +274,7 @@ def _validate_options_impl(ctx):
         ts_build_info_file = ctx.attr.ts_build_info_file,
     ).to_json()])
 
-    inputs = ctx.files.extends[:]
-    if TsConfigInfo in ctx.attr.tsconfig:
-        inputs.extend(ctx.attr.tsconfig[TsConfigInfo].deps)
-    else:
-        inputs.append(ctx.file.tsconfig)
+    inputs = _tsconfig_inputs(ctx)
 
     run_node(
         ctx,
