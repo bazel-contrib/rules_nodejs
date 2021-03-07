@@ -1,7 +1,9 @@
 {
   "extends": "./tsconfig.json",
+  "references": [{ "path": "./tsconfig.json" }],
 
   "compilerOptions": {
+    "composite": true,
     "types": ["jasmine", "node"]
   }
 }

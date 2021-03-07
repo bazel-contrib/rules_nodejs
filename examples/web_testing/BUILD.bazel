@@ -1,9 +1,11 @@
 load("@npm//@bazel/concatjs:index.bzl", "karma_web_test_suite")
-load("@npm//@bazel/typescript:index.bzl", "ts_config", "ts_library")
+load("@npm//@bazel/typescript:index.bzl", "ts_config", "ts_project")
 
-ts_library(
+ts_project(
     name = "lib",
     srcs = ["decrement.ts"],
+    composite = True,
+    tsconfig = "tsconfig.json",
 )
 
 ts_config(
@@ -12,10 +14,11 @@ ts_config(
     deps = [":tsconfig.json"],
 )
 
-ts_library(
+ts_project(
     name = "tests",
     testonly = 1,
     srcs = glob(["*.spec.ts"]),
+    composite = True,
     tsconfig = ":tsconfig-test",
     deps = [
         ":lib",
@@ -24,10 +27,11 @@ ts_library(
     ],
 )
 
-ts_library(
+ts_project(
     name = "tests_setup",
     testonly = 1,
     srcs = ["setup_script.ts"],
+    composite = True,
     tsconfig = ":tsconfig-test",
     deps = [
         "@npm//@types/jasmine",

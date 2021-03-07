@@ -1,7 +1,17 @@
 {
   "compilerOptions": {
     "strict": true,
+    "composite": true,
     "lib": ["es2015.promise", "dom", "es5"],
+    "rootDirs": [
+      ".",
+      "bazel-out/host/bin",
+      "bazel-out/darwin-fastbuild/bin",
+      "bazel-out/k8-fastbuild/bin",
+      "bazel-out/x64_windows/bin",
+      "bazel-out/darwin-dbg/bin",
+      "bazel-out/k8-dbg/bin",
+      "bazel-out/x64_windows-dbg/bin"
+    ]
   }
 }
-
