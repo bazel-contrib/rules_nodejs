@@ -251,7 +251,7 @@ def _tsconfig_inputs(ctx):
         if TsConfigInfo in ctx.attr.extends:
             inputs.extend(ctx.attr.extends[TsConfigInfo].deps)
         else:
-            inputs.append(ctx.file.extends)
+            inputs.extend(ctx.attr.extends.files.to_list())
     return inputs
 
 ts_project = rule(
