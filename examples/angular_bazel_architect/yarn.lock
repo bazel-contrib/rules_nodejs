@@ -1348,10 +1348,15 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@bazel/buildifier@^4.0.0":
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/@bazel/buildifier/-/buildifier-4.0.0.tgz#c99fb21295c7e2858fa176c2b950c589217ae8ac"
-  integrity sha512-e242AK+shp+5bpAc9l93pmG5YRYRfM0INV3gfbdxNeBxccx1MJUagaiwxqAV+Mw55zk92gsb99f2TAc9tt6C7w==
+"@bazel/bazelisk@^1.7.5":
+  version "1.7.5"
+  resolved "https://registry.yarnpkg.com/@bazel/bazelisk/-/bazelisk-1.7.5.tgz#dd1a52e3d23464f72de55aa3dc4777847fa85373"
+  integrity sha512-JHwP9JhfZUSoj4sku471Bjw4uE773U2Agujnx0CdPkeRk25khy1l3VyjaPaHB+z1fmMnM6ED3M7tetQUsovUQg==
+
+"@bazel/buildifier@^4.0.1":
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/@bazel/buildifier/-/buildifier-4.0.1.tgz#52cfbad5cbb86e9183a29dde2370cd465730ea0d"
+  integrity sha512-BTmtvJbeeEVrqRApI1gr5hvPgYcHLpdGJ5EXNXEWO692ztMPSj5fB/dH0xUlaW45jn6LimYx8ymqTMhj3538og==
 
 "@bazel/ibazel@^0.14.0":
   version "0.14.0"
@@ -5853,17 +5858,10 @@ istanbul-reports@^3.0.2:
     html-escaper "^2.0.0"
     istanbul-lib-report "^3.0.0"
 
-<<<<<<< HEAD
-jasmine-core@^3.5.0:
-  version "3.5.0"
-  resolved "https://registry.yarnpkg.com/jasmine-core/-/jasmine-core-3.5.0.tgz#132c23e645af96d85c8bca13c8758b18429fc1e4"
-  integrity sha512-nCeAiw37MIMA9w9IXso7bRaLl+c/ef3wnxsoSAlYrzS+Ot0zTG6nU8G/cIfGkqpkjX2wNaIW9RFG0TwIFnG6bA==
-=======
 jasmine-core@^3.6.0, jasmine-core@~3.6.0:
   version "3.6.0"
   resolved "https://registry.yarnpkg.com/jasmine-core/-/jasmine-core-3.6.0.tgz#491f3bb23941799c353ceb7a45b38a950ebc5a20"
   integrity sha512-8uQYa7zJN8hq9z+g8z1bqCfdC8eoDAeVnM5sfqs7KHv9/ifoJ500m018fpFc7RDaO6SWCLCXwo/wPSNcdYTgcw==
->>>>>>> 8c9e6aa8... feat(examples): update angular_bazel_architect to version 11
 
 jasmine-core@~2.8.0:
   version "2.8.0"
