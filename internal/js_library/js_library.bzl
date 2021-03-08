@@ -98,6 +98,10 @@ _ATTRS = {
     ),
     "package_name": attr.string(),
     "srcs": attr.label_list(allow_files = True),
+    "strip_path": attr.string(
+        doc = "Path components to strip from the package import path",
+        default = "",
+    ),
 }
 
 AmdNamesInfo = provider(
@@ -223,7 +227,9 @@ def _impl(ctx):
     ]
 
     if ctx.attr.package_name:
-        path = "/".join([p for p in [ctx.bin_dir.path, ctx.label.workspace_root, ctx.label.package] if p])
+        path = "/".join([
+            p for p in [ctx.bin_dir.path, ctx.label.workspace_root, ctx.label.package, ctx.attr.strip_path] if p
+        ])
         providers.append(LinkablePackageInfo(
             package_name = ctx.attr.package_name,
             path = path,
@@ -339,6 +345,7 @@ def js_library(
         srcs: the list of files that comprise the package
         package_name: the name it will be imported by. Should match the "name" field in the package.json file.
         deps: other targets that provide JavaScript code
+        strip_path: path components to strip from the package import path
         **kwargs: used for undocumented legacy features
     """
 
