@@ -1,3 +1,21 @@
+## [3.2.2](https://github.com/bazelbuild/rules_nodejs/compare/3.2.1...3.2.2) (2021-03-08)
+
+
+### Bug Fixes
+
+* **esbuild:** run npm version check as postinstall ([#2500](https://github.com/bazelbuild/rules_nodejs/issues/2500)) ([2efe437](https://github.com/bazelbuild/rules_nodejs/commit/2efe437))
+* **esbuild:** set correct base url when rule is at root ([#2506](https://github.com/bazelbuild/rules_nodejs/issues/2506)) ([92e8169](https://github.com/bazelbuild/rules_nodejs/commit/92e8169))
+* **rollup:** include externals config in worker cache key ([de9dd86](https://github.com/bazelbuild/rules_nodejs/commit/de9dd86))
+
+
+### Features
+
+* **builtin:** add env attribute to nodejs test and binary and run_node helper ([#2499](https://github.com/bazelbuild/rules_nodejs/issues/2499)) ([c9b159f](https://github.com/bazelbuild/rules_nodejs/commit/c9b159f))
+* **esbuild:** add max_threads setting to limit number of threads used ([8e7c731](https://github.com/bazelbuild/rules_nodejs/commit/8e7c731))
+* **examples:** update angular_bazel_architect to version 11 ([#2495](https://github.com/bazelbuild/rules_nodejs/issues/2495)) ([b8a4dcd](https://github.com/bazelbuild/rules_nodejs/commit/b8a4dcd))
+
+
+
 ## [3.2.1](https://github.com/bazelbuild/rules_nodejs/compare/3.2.0...3.2.1) (2021-02-23)
 
 
