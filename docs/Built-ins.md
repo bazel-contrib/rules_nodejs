@@ -256,7 +256,7 @@ Defaults to `"1.19.1"`
 **USAGE**
 
 <pre>
-nodejs_binary(<a href="#nodejs_binary-name">name</a>, <a href="#nodejs_binary-chdir">chdir</a>, <a href="#nodejs_binary-configuration_env_vars">configuration_env_vars</a>, <a href="#nodejs_binary-data">data</a>, <a href="#nodejs_binary-default_env_vars">default_env_vars</a>, <a href="#nodejs_binary-entry_point">entry_point</a>,
+nodejs_binary(<a href="#nodejs_binary-name">name</a>, <a href="#nodejs_binary-chdir">chdir</a>, <a href="#nodejs_binary-configuration_env_vars">configuration_env_vars</a>, <a href="#nodejs_binary-data">data</a>, <a href="#nodejs_binary-default_env_vars">default_env_vars</a>, <a href="#nodejs_binary-entry_point">entry_point</a>, <a href="#nodejs_binary-env">env</a>,
               <a href="#nodejs_binary-link_workspace_root">link_workspace_root</a>, <a href="#nodejs_binary-templated_args">templated_args</a>)
 </pre>
 
@@ -377,6 +377,13 @@ nodejs_binary(
 ```
 
 
+<h4 id="nodejs_binary-env">env</h4>
+
+(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): Specifies additional environment variables to set when the target is executed, subject to location
+expansion.
+
+Defaults to `{}`
+
 <h4 id="nodejs_binary-link_workspace_root">link_workspace_root</h4>
 
 (*Boolean*): Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.
@@ -472,7 +479,7 @@ Defaults to `[]`
 **USAGE**
 
 <pre>
-nodejs_test(<a href="#nodejs_test-name">name</a>, <a href="#nodejs_test-chdir">chdir</a>, <a href="#nodejs_test-configuration_env_vars">configuration_env_vars</a>, <a href="#nodejs_test-data">data</a>, <a href="#nodejs_test-default_env_vars">default_env_vars</a>, <a href="#nodejs_test-entry_point">entry_point</a>,
+nodejs_test(<a href="#nodejs_test-name">name</a>, <a href="#nodejs_test-chdir">chdir</a>, <a href="#nodejs_test-configuration_env_vars">configuration_env_vars</a>, <a href="#nodejs_test-data">data</a>, <a href="#nodejs_test-default_env_vars">default_env_vars</a>, <a href="#nodejs_test-entry_point">entry_point</a>, <a href="#nodejs_test-env">env</a>,
             <a href="#nodejs_test-expected_exit_code">expected_exit_code</a>, <a href="#nodejs_test-link_workspace_root">link_workspace_root</a>, <a href="#nodejs_test-templated_args">templated_args</a>)
 </pre>
 
@@ -618,6 +625,13 @@ nodejs_binary(
 )
 ```
 
+
+<h4 id="nodejs_test-env">env</h4>
+
+(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): Specifies additional environment variables to set when the target is executed, subject to location
+expansion.
+
+Defaults to `{}`
 
 <h4 id="nodejs_test-expected_exit_code">expected_exit_code</h4>
 
@@ -1594,7 +1608,7 @@ used for undocumented legacy features
 **USAGE**
 
 <pre>
-npm_package_bin(<a href="#npm_package_bin-tool">tool</a>, <a href="#npm_package_bin-package">package</a>, <a href="#npm_package_bin-package_bin">package_bin</a>, <a href="#npm_package_bin-data">data</a>, <a href="#npm_package_bin-outs">outs</a>, <a href="#npm_package_bin-args">args</a>, <a href="#npm_package_bin-output_dir">output_dir</a>, <a href="#npm_package_bin-link_workspace_root">link_workspace_root</a>,
+npm_package_bin(<a href="#npm_package_bin-tool">tool</a>, <a href="#npm_package_bin-package">package</a>, <a href="#npm_package_bin-package_bin">package_bin</a>, <a href="#npm_package_bin-data">data</a>, <a href="#npm_package_bin-env">env</a>, <a href="#npm_package_bin-outs">outs</a>, <a href="#npm_package_bin-args">args</a>, <a href="#npm_package_bin-output_dir">output_dir</a>, <a href="#npm_package_bin-link_workspace_root">link_workspace_root</a>,
                 <a href="#npm_package_bin-chdir">chdir</a>, <a href="#npm_package_bin-kwargs">kwargs</a>)
 </pre>
 
@@ -1640,6 +1654,12 @@ similar to [genrule.srcs](https://docs.bazel.build/versions/master/be/general.ht
 may also include targets that produce or reference npm packages which are needed by the tool
 
 Defaults to `[]`
+
+<h4 id="npm_package_bin-env">env</h4>
+
+specifies additional environment variables to set when the target is executed
+
+Defaults to `{}`
 
 <h4 id="npm_package_bin-outs">outs</h4>
 

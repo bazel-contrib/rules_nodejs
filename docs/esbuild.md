@@ -31,7 +31,7 @@ yarn add -D @bazel/esbuild
 Add an `http_archive` fetching the esbuild binary for each platform that you need to support. 
 
 ```python
-_ESBUILD_VERSION = "0.8.34"
+_ESBUILD_VERSION = "0.8.48"  # reminder: update SHAs below when changing this value
 http_archive(
     name = "esbuild_darwin",
     urls = [
@@ -39,7 +39,7 @@ http_archive(
     ],
     strip_prefix = "package",
     build_file_content = """exports_files(["bin/esbuild"])""",
-    sha256 = "3bf980b5175df873dd84fd614d57722f3b1b9c7e74929504e26192d23075d5c3",
+    sha256 = "d21a722873ed24586f071973b77223553fca466946f3d7e3976eeaccb14424e6",
 )
 
 http_archive(
@@ -49,7 +49,7 @@ http_archive(
     ],
     strip_prefix = "package",
     build_file_content = """exports_files(["esbuild.exe"])""",
-    sha256 = "826cd58553e7b6910dd22aba001cd72af34e05c9c3e9af567b5b2a6b1c9f3941",
+    sha256 = "fe5dcb97b4c47f9567012f0a45c19c655f3d2e0d76932f6dd12715dbebbd6eb0",
 )
 
 http_archive(
@@ -59,7 +59,7 @@ http_archive(
     ],
     strip_prefix = "package",
     build_file_content = """exports_files(["bin/esbuild"])""",
-    sha256 = "9dff3f5b06fd964a1cbb6aa9ea5ebf797767f1bd2bac71e084fb0bbefeba24a3",
+    sha256 = "60dabe141e5dfcf99e7113bded6012868132068a582a102b258fb7b1cfdac14b",
 )
 ```
 
@@ -129,8 +129,8 @@ This will create an output directory containing all the code split chunks, along
 **USAGE**
 
 <pre>
-esbuild(<a href="#esbuild-name">name</a>, <a href="#esbuild-args">args</a>, <a href="#esbuild-define">define</a>, <a href="#esbuild-deps">deps</a>, <a href="#esbuild-entry_point">entry_point</a>, <a href="#esbuild-external">external</a>, <a href="#esbuild-format">format</a>, <a href="#esbuild-link_workspace_root">link_workspace_root</a>, <a href="#esbuild-minify">minify</a>,
-        <a href="#esbuild-output">output</a>, <a href="#esbuild-output_dir">output_dir</a>, <a href="#esbuild-output_map">output_map</a>, <a href="#esbuild-platform">platform</a>, <a href="#esbuild-sources_content">sources_content</a>, <a href="#esbuild-srcs">srcs</a>, <a href="#esbuild-target">target</a>, <a href="#esbuild-tool">tool</a>)
+esbuild(<a href="#esbuild-name">name</a>, <a href="#esbuild-args">args</a>, <a href="#esbuild-define">define</a>, <a href="#esbuild-deps">deps</a>, <a href="#esbuild-entry_point">entry_point</a>, <a href="#esbuild-external">external</a>, <a href="#esbuild-format">format</a>, <a href="#esbuild-link_workspace_root">link_workspace_root</a>, <a href="#esbuild-max_threads">max_threads</a>,
+        <a href="#esbuild-minify">minify</a>, <a href="#esbuild-output">output</a>, <a href="#esbuild-output_dir">output_dir</a>, <a href="#esbuild-output_map">output_map</a>, <a href="#esbuild-platform">platform</a>, <a href="#esbuild-sources_content">sources_content</a>, <a href="#esbuild-srcs">srcs</a>, <a href="#esbuild-target">target</a>, <a href="#esbuild-tool">tool</a>)
 </pre>
 
 Runs the esbuild bundler under Bazel
@@ -203,6 +203,14 @@ Defaults to `""`
     If source files need to be required then they can be copied to the bin_dir with copy_to_bin.
 
 Defaults to `False`
+
+<h4 id="esbuild-max_threads">max_threads</h4>
+
+(*Integer*): Sets the `GOMAXPROCS` variable to limit the number of threads that esbuild can run with.
+This can be useful if running many esbuild rule invocations in parallel, which has the potential to cause slowdown.
+For general use, leave this attribute unset.
+
+Defaults to `0`
 
 <h4 id="esbuild-minify">minify</h4>
 
