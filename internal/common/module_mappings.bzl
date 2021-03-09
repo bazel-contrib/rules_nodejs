@@ -73,7 +73,7 @@ def _get_module_mappings(target, ctx):
         # When building a mapping for use at runtime, we need paths to be relative to
         # the runfiles directory. This requires the workspace_name to be prefixed on
         # each module root.
-        mr = "/".join([p for p in [workspace_name, target.label.package, ctx.rule.attr.strip_prefix] if p])
+        mr = "/".join([p for p in [workspace_name, target.label.package] if p])
         if hasattr(ctx.rule.attr, "module_root") and ctx.rule.attr.module_root and ctx.rule.attr.module_root != ".":
             if ctx.rule.attr.module_root.endswith(".ts"):
                 # Validate that sources are underneath the module root.
