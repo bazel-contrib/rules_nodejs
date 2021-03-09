@@ -228,7 +228,9 @@ def _impl(ctx):
 
     if ctx.attr.package_name:
         path = "/".join([
-            p for p in [ctx.bin_dir.path, ctx.label.workspace_root, ctx.label.package] if p
+            p
+            for p in [ctx.bin_dir.path, ctx.label.workspace_root, ctx.label.package]
+            if p
         ])
 
         # Strip a prefix from the package require path
