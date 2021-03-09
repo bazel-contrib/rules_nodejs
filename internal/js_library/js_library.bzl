@@ -228,8 +228,24 @@ def _impl(ctx):
 
     if ctx.attr.package_name:
         path = "/".join([
-            p for p in [ctx.bin_dir.path, ctx.label.workspace_root, ctx.label.package, ctx.attr.strip_prefix] if p
+            p for p in [ctx.bin_dir.path, ctx.label.workspace_root, ctx.label.package] if p
         ])
+
+        # Strip a prefix from the package require path
+        if ctx.attr.strip_prefix:
+            path += "/" + ctx.attr.strip_prefix
+
+            # Check that strip_prefix contains at least one src path
+            check_prefix = "/".join([p for p in [ctx.label.package, ctx.attr.strip_prefix] if p])
+            prefix_contains_src = False
+            for file in all_files:
+                if file.short_path.startswith(check_prefix):
+                    prefix_contains_src = True
+                    break
+
+            if not prefix_contains_src:
+                fail("js_library %s strip_prefix path does not contain any of the provided sources" % ctx.label)
+
         providers.append(LinkablePackageInfo(
             package_name = ctx.attr.package_name,
             path = path,
