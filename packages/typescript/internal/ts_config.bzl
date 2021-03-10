@@ -120,10 +120,14 @@ def write_tsconfig(name, config, files, out, extends = None):
     if extends:
         config["extends"] = "__extends__"
 
-    amended_config = struct(
-        files = "__files__",
-        **config
-    )
+    if len(files):
+        amended_config = struct(
+            files = "__files__",
+            **config
+        )
+    else:
+        amended_config = struct(**config)
+
     write_tsconfig_rule(
         name = name,
         files = files,

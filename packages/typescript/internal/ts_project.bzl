@@ -24,6 +24,8 @@ _DEFAULT_TYPESCRIPT_PACKAGE = (
 _ATTRS = {
     "args": attr.string_list(),
     "data": attr.label_list(default = [], allow_files = True),
+    "declaration": attr.bool(default = False),
+    "declaration_map": attr.bool(default = False),
     "declaration_dir": attr.string(),
     "deps": attr.label_list(
         providers = [
@@ -42,6 +44,7 @@ _ATTRS = {
     # if you swap out the `compiler` attribute (like with ngtsc)
     # that compiler might allow more sources than tsc does.
     "srcs": attr.label_list(allow_files = True, mandatory = True),
+    "source_map": attr.bool(default = False),
     "supports_workers": attr.bool(default = False),
     "tsc": attr.label(default = Label(_DEFAULT_TSC), executable = True, cfg = "host"),
     "tsconfig": attr.label(mandatory = True, allow_single_file = [".json"]),
@@ -121,7 +124,28 @@ def _ts_project_impl(ctx):
         "--rootDir",
         _calculate_root_dir(ctx),
     ])
-    if len(ctx.outputs.typings_outs) > 0:
+
+    if len(ctx.outputs.js_outs) < 1:
+        js_outs = []
+        typings_outs = []
+        map_outs = []
+        typings_map_outs = []
+        for src in ctx.files.srcs:
+            if src.basename.endswith(".ts"):
+                js_outs.append(ctx.actions.declare_file(_join(ctx.attr.out_dir, src.basename.replace(".ts",".js"))))
+                if ctx.attr.source_map:
+                    map_outs.append(ctx.actions.declare_file(_join(ctx.attr.out_dir, src.basename.replace(".ts",".js.map"))))
+                if ctx.attr.declaration:
+                    typings_outs.append(ctx.actions.declare_file(_join(ctx.attr.out_dir, src.basename.replace(".ts",".d.ts"))))
+                if ctx.attr.declaration_map:
+                    typings_map_outs.append(ctx.actions.declare_file(_join(ctx.attr.out_dir, src.basename.replace(".ts",".d.ts.map"))))
+    else:
+        js_outs = []
+        typings_outs = []
+        map_outs = []
+        typings_map_outs = []
+
+    if len(ctx.outputs.typings_outs) > 0 or len(typings_outs) > 0:
         declaration_dir = ctx.attr.declaration_dir if ctx.attr.declaration_dir else ctx.attr.out_dir
         arguments.add_all([
             "--declarationDir",
@@ -187,17 +211,16 @@ def _ts_project_impl(ctx):
     else:
         json_outs = []
 
-    outputs = json_outs + ctx.outputs.js_outs + ctx.outputs.map_outs + ctx.outputs.typings_outs + ctx.outputs.typing_maps_outs
+    outputs = json_outs + js_outs + typings_outs + map_outs + typings_map_outs + ctx.outputs.js_outs + ctx.outputs.map_outs + ctx.outputs.typings_outs + ctx.outputs.typing_maps_outs
     if ctx.outputs.buildinfo_out:
         arguments.add_all([
             "--tsBuildInfoFile",
             ctx.outputs.buildinfo_out.path,
         ])
         outputs.append(ctx.outputs.buildinfo_out)
-    runtime_outputs = json_outs + ctx.outputs.js_outs + ctx.outputs.map_outs
-    typings_outputs = ctx.outputs.typings_outs + ctx.outputs.typing_maps_outs + [s for s in ctx.files.srcs if s.path.endswith(".d.ts")]
+    runtime_outputs = json_outs + js_outs + map_outs + ctx.outputs.js_outs + ctx.outputs.map_outs
+    typings_outputs = typings_outs + typings_map_outs + ctx.outputs.typings_outs + ctx.outputs.typing_maps_outs + [s for s in ctx.files.srcs if s.path.endswith(".d.ts")]
     default_outputs_depset = depset(runtime_outputs) if len(runtime_outputs) else depset(typings_outputs)
-
     if len(outputs) > 0:
         run_node(
             ctx,
@@ -667,13 +690,6 @@ def ts_project_macro(
     if declaration_map:
         typing_maps_outs.extend(_out_paths(srcs, typings_out_dir, root_dir, allow_js, ".d.ts.map"))
 
-    if not len(js_outs) and not len(typings_outs):
-        fail("""ts_project target "//{}:{}" is configured to produce no outputs.
-
-Note that ts_project must know the srcs in advance in order to predeclare the outputs.
-Check the srcs attribute to see that some .ts files are present (or .js files with allow_js=True).
-""".format(native.package_name(), name))
-
     ts_project(
         name = name,
         srcs = srcs,
@@ -681,6 +697,9 @@ Check the srcs attribute to see that some .ts files are present (or .js files wi
         deps = deps + extra_deps,
         tsconfig = tsconfig,
         extends = extends,
+        declaration = declaration or composite,
+        declaration_map = declaration_map,
+        source_map = source_map and not emit_declaration_only,
         declaration_dir = declaration_dir,
         out_dir = out_dir,
         root_dir = root_dir,
