@@ -474,7 +474,7 @@ def compile_ts(
         "declarations": declarations_provider,
         "instrumented_files": {
             "dependency_attributes": ["deps", "runtime_deps"],
-            "extensions": ["ts"],
+            "extensions": ["ts", "tsx"],
             "source_attributes": ["srcs"],
         },
         # Expose the module_name so that packaging rules can access it.
