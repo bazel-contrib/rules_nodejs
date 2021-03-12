@@ -353,7 +353,7 @@ else
   # TODO: after we link-all-bins we should not need this extra lookup
   if [[ ! -f "$MAIN" ]]; then
     if [ "$FROM_EXECROOT" = true ]; then
-      MAIN="$EXECROOT/$MAIN"
+      MAIN="$EXECROOT/"TEMPLATED_entry_point_execroot_path
     else
       MAIN=TEMPLATED_entry_point_manifest_path
     fi
