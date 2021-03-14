@@ -54,8 +54,13 @@ def _esbuild_impl(ctx):
     args = ctx.actions.args()
 
     args.add("--bundle", entry_point.path)
-    args.add("--sourcemap")
     args.add("--preserve-symlinks")
+
+    if ctx.attr.sourcemap_inline:
+        args.add_joined(["--sourcemap", "both"], join_with = "=")
+    else:
+        args.add("--sourcemap")
+
     args.add_joined(["--platform", ctx.attr.platform], join_with = "=")
     args.add_joined(["--target", ctx.attr.target], join_with = "=")
     args.add_joined(["--log-level", "info"], join_with = "=")
@@ -212,6 +217,14 @@ See https://esbuild.github.io/api/#splitting for more details
             doc = """The platform to bundle for.
 
 See https://esbuild.github.io/api/#platform for more details
+            """,
+        ),
+        "sourcemap_inline": attr.bool(
+            mandatory = False,
+            default = False,
+            doc = """If True, esbuild inlines the sourcemap in the generated js file in addition to generating the external sourcemap.
+
+See '--sourcemap=both' at https://esbuild.github.io/api/#sourcemap for more details
             """,
         ),
         "sources_content": attr.bool(
