@@ -187,9 +187,14 @@
 
 <h2 id="patching-the-npm-packages">Patching the npm packages</h2>
 
-<p>The pattern we use most commonly is to add a <code class="language-plaintext highlighter-rouge">postinstall</code> hook to your <code class="language-plaintext highlighter-rouge">package.json</code> that patches files after they’ve been fetched from npm.</p>
+<p>The pattern we use most commonly is to use <a href="https://www.npmjs.com/package/patch-package">patch-package</a>. To store your local changes to the npm packages follow the steps:</p>
 
-<p>See <code class="language-plaintext highlighter-rouge">/tools/postinstall-patches.js</code> in the <a href="https://github.com/angular/angular/tree/master/tools/postinstall-patches.js">Angular repo</a> for an example.</p>
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">npm i -D patch-package</code></li>
+  <li>Edit the target package in your <code class="language-plaintext highlighter-rouge">node_modules</code></li>
+  <li>Run <code class="language-plaintext highlighter-rouge">npx patch-package &lt;npm package&gt;</code>. This will store the patch in the <code class="language-plaintext highlighter-rouge">patches/</code> directory in the root of the workspace</li>
+  <li>Add <code class="language-plaintext highlighter-rouge">"postinstall": "patch-package"</code> to the <code class="language-plaintext highlighter-rouge">package.json</code> in your repo to apply the patches when building dependencies (aka at <code class="language-plaintext highlighter-rouge">npm install</code>)</li>
+</ol>
 
 <h2 id="patching-the-built-in-release">Patching the built-in release</h2>
 
