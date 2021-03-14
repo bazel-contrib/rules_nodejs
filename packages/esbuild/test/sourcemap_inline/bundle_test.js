@@ -2,9 +2,9 @@ const {readFileSync, exists} = require('fs');
 
 const helper = require(process.env.BAZEL_NODE_RUNFILES_HELPER);
 const location =
-    helper.resolve('build_bazel_rules_nodejs/packages/esbuild/test/sourcemap/bundle.js');
+    helper.resolve('build_bazel_rules_nodejs/packages/esbuild/test/sourcemap_inline/bundle.js');
 const externalSourcemapLocation =
-    helper.resolve('build_bazel_rules_nodejs/packages/esbuild/test/sourcemap/bundle.js.map');
+    helper.resolve('build_bazel_rules_nodejs/packages/esbuild/test/sourcemap_inline/bundle.js.map');
 
 describe('esbuild sourcemap_inline', () => {
   it('inlines the sourcemap', () => {
@@ -15,6 +15,7 @@ describe('esbuild sourcemap_inline', () => {
   it('still creates the external sourcemap', () => {
     const externalSourcemap = readFileSync(externalSourcemapLocation, {encoding: 'utf8'});
     expect(externalSourcemap)
-        .toContain('"sources": ["../../../../../../../packages/esbuild/test/sourcemap/main.ts"]');
+        .toContain(
+            '"sources": ["../../../../../../../packages/esbuild/test/sourcemap_inline/main.ts"]');
   });
 })
