@@ -7,7 +7,7 @@ const externalSourcemapLocation =
     helper.resolve('build_bazel_rules_nodejs/packages/esbuild/test/sourcemap/bundle.js.map');
 
 describe('esbuild sourcemap_inline', () => {
-  it('defines variables', () => {
+  it('inlines the sourcemap', () => {
     const bundle = readFileSync(location, {encoding: 'utf8'});
     expect(bundle).toContain('//# sourceMappingURL=data:application/json;base64');
   });
