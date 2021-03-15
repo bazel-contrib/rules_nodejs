@@ -209,6 +209,13 @@ js_library(
  * Generates all BUILD & bzl files for a package.
  */
 function generatePackageBuildFiles(pkg: Dep) {
+  let customPackageBuildFileContent = ''
+  try {
+    customPackageBuildFileContent =
+        fs.readFileSync(`manual_package_build_file_contents/${pkg._dir}`, 'utf-8')
+  } catch (e) {
+    // Ignore
+  }
   // If a BUILD file was shipped with the package we should symlink the generated BUILD file
   // instead of append its contents to the end of the one we were going to generate.
   // https://github.com/bazelbuild/rules_nodejs/issues/2131
@@ -235,6 +242,9 @@ function generatePackageBuildFiles(pkg: Dep) {
 
   // The following won't be used in a symlink build file case
   let buildFile = printPackage(pkg);
+  if (customPackageBuildFileContent) {
+    buildFile += `\n${customPackageBuildFileContent}`
+  }
   if (buildFilePath) {
     buildFile = buildFile + '\n' +
         fs.readFileSync(path.join('node_modules', pkg._dir, buildFilePath), 'utf-8');

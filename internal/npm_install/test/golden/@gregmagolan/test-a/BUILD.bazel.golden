@@ -53,4 +53,10 @@ npm_umd_bundle(
     entry_point = "//:node_modules/@gregmagolan/test-a/main.js",
     package = ":test-a",
 )
+filegroup(
+    name = "golden_files",
+    srcs = [
+        "//:BUILD.bazel",
+    ],
+)
 exports_files(["index.bzl"])

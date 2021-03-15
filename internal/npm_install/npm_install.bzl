@@ -98,6 +98,22 @@ node_modules target it is recommended to switch to using
 fine grained npm dependencies.
 """,
     ),
+    "manual_package_build_file_contents": attr.string_dict(
+        doc = """Experimental attribute that can be used to append to the end of the generated BUILD.bazel file for each package.
+
+This can be used to add `filegroup` to access assets from certain npm packages (e.g CSS/fonts/imgs...). Example:
+```
+{
+    "package-1": \"\"\"
+filegroup(
+    name = "css",
+    srcs = glob(["**/*.css"]),
+)
+\"\"\",
+}
+```
+""",
+    ),
     "package_json": attr.label(
         mandatory = True,
         allow_single_file = True,
@@ -150,6 +166,8 @@ def _create_build_files(repository_ctx, rule_type, node, lock_file, generate_loc
     repository_ctx.report_progress("Processing node_modules: installing Bazel packages and generating BUILD files")
     if repository_ctx.attr.manual_build_file_contents:
         repository_ctx.file("manual_build_file_contents", repository_ctx.attr.manual_build_file_contents)
+    for pkg, content in repository_ctx.attr.manual_package_build_file_contents.items():
+        repository_ctx.file("manual_package_build_file_contents/%s" % pkg, content)
     result = repository_ctx.execute([
         node,
         "index.js",

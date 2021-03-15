@@ -282,6 +282,15 @@ filegroup(
     "//zone.js:BUILD.bazel",
   ],
 )""",
+    manual_package_build_file_contents = {
+        "@gregmagolan/test-a": """
+filegroup(
+    name = "golden_files",
+    srcs = [
+        "//:BUILD.bazel",
+    ],
+)""",
+    },
     package_json = "//:tools/fine_grained_goldens/package.json",
     symlink_node_modules = False,
     yarn_lock = "//:tools/fine_grained_goldens/yarn.lock",
