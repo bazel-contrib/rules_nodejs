@@ -4726,8 +4726,8 @@ exports_files([
 ])
 js_library(
     name = "node_modules",
-    external_npm_package = True,
-    external_npm_package_path = "",
+    package_name = "$node_modules$",
+    package_path = "",
     srcs = [
         "//ajv:ajv__files",
         "//ajv:ajv__nested_node_modules",
@@ -4830,5 +4830,9 @@ filegroup(
     "//rxjs:BUILD.bazel",
     "//unidiff:BUILD.bazel",
     "//zone.js:BUILD.bazel",
+    "//some-target-a:BUILD.bazel",
+    "//some-target-a2:BUILD.bazel",
+    "//@some-scope/some-target-b:BUILD.bazel",
+    "//@some-scope/some-target-b2:BUILD.bazel",
   ],
 )

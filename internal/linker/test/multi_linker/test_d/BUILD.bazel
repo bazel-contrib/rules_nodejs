@@ -1,0 +1,36 @@
+load("//:index.bzl", "nodejs_test")
+
+nodejs_test(
+    name = "test",
+    data = [
+        # links to root /node_modules/@test_multi_linker/lib-a
+        "@npm//@test_multi_linker/lib-a",
+
+        # links to root /node_modules/@test_multi_linker/lib-a2
+        "@npm//@test_multi_linker/lib-a2",
+
+        # links to root /node_modules/@test_multi_linker/lib-b
+        "@npm//@test_multi_linker/lib-b",
+
+        # links to root /node_modules/@test_multi_linker/lib-b2
+        "@npm//@test_multi_linker/lib-b2",
+
+        # links to root /node_modules/@test_multi_linker/lib-c
+        "@npm//@test_multi_linker/lib-c",
+
+        # links to root /node_modules/@test_multi_linker/lib-c2
+        "@npm//@test_multi_linker/lib-c2",
+
+        # links to root /node_modules/@test_multi_linker/lib-d
+        "@npm//@test_multi_linker/lib-d",
+
+        # links to root /node_modules/@test_multi_linker/lib-d2
+        "@npm//@test_multi_linker/lib-d2",
+
+        # third-party deps
+        "@npm//semver",
+        "@internal_test_multi_linker_deps//semver",
+        "@internal_test_multi_linker_test_d_deps//semver",
+    ],
+    entry_point = "test.js",
+)

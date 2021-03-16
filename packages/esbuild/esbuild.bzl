@@ -34,7 +34,9 @@ def _esbuild_impl(ctx):
         # Collect the path alias mapping to resolve packages correctly
         if hasattr(dep, MODULE_MAPPINGS_ASPECT_RESULTS_NAME):
             for key, value in getattr(dep, MODULE_MAPPINGS_ASPECT_RESULTS_NAME).items():
-                path_alias_mappings.update(generate_path_mapping(key, value[1].replace(ctx.bin_dir.path + "/", "")))
+                # key is of format "package_name:package_path"
+                package_name = key.split(":")[0]
+                path_alias_mappings.update(generate_path_mapping(package_name, value[1].replace(ctx.bin_dir.path + "/", "")))
 
     deps_inputs = depset(transitive = deps_depsets).to_list()
     inputs = filter_files(ctx.files.entry_point) + ctx.files.srcs + deps_inputs

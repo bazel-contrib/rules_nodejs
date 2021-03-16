@@ -1,0 +1,27 @@
+load("//:index.bzl", "copy_to_bin")
+
+# Verify that npm_link handles a filegroup with mixed source files & generated files
+copy_to_bin(
+    name = "index",
+    srcs = ["index.js"],
+)
+
+filegroup(
+    name = "lib_d",
+    srcs = [
+        "other.js",
+        "package.json",
+        ":index",
+    ],
+    visibility = [
+        "//internal/linker/test/multi_linker:__subpackages__",
+        "@internal_test_multi_linker_deps//@test_multi_linker/lib-d:__pkg__",
+        "@internal_test_multi_linker_deps//@test_multi_linker/lib-d2:__pkg__",
+        "@internal_test_multi_linker_sub_deps//@test_multi_linker/lib-d:__pkg__",
+        "@internal_test_multi_linker_sub_deps//@test_multi_linker/lib-d2:__pkg__",
+        "@internal_test_multi_linker_test_a_deps//@test_multi_linker/lib-d:__pkg__",
+        "@internal_test_multi_linker_test_a_deps//@test_multi_linker/lib-d2:__pkg__",
+        "@npm//@test_multi_linker/lib-d:__pkg__",
+        "@npm//@test_multi_linker/lib-d2:__pkg__",
+    ],
+)

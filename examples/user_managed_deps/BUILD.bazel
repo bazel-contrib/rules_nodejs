@@ -1,12 +1,15 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library", "nodejs_binary", "nodejs_test")
 
-# This is "user-managed" dependencies - Bazel knows nothing about our package manager.
-# We assume that developers will install the `node_modules` directory themselves and
-# keep it up-to-date.
-# This rule simply exposes files in the node_modules directory to Bazel using js_library
-# with external_npm_package set to True so it can read them as inputs to processes it spawns.
+# This is "user-managed" dependencies - Bazel knows nothing about our package
+# manager. We assume that developers will install the `node_modules` directory
+# themselves and keep it up-to-date. This rule simply exposes files in the
+# node_modules directory to Bazel using js_library with package_name set to
+# "node_modules" so it can read them as inputs to processes it spawns.
 js_library(
     name = "node_modules",
+    # Special value to provide ExternalNpmPackageInfo which is used by downstream
+    # rules that use these npm dependencies
+    package_name = "$node_modules$",
     srcs = glob(
         include = [
             "node_modules/**/*.js",
@@ -25,9 +28,6 @@ js_library(
             "node_modules/**/* *",
         ],
     ),
-    # Provide ExternalNpmPackageInfo which is used by downstream rules
-    # that use these npm dependencies
-    external_npm_package = True,
 )
 
 nodejs_binary(

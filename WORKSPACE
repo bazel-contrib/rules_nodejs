@@ -18,8 +18,8 @@ workspace(
         "@angular_deps": ["packages/angular/node_modules"],
         # cypress_deps must be a managed directory to ensure it is downloaded before cypress_repository is run.
         "@cypress_deps": ["packages/cypress/test/node_modules"],
+        "@internal_test_multi_linker_sub_deps": ["internal/linker/test/multi_linker/sub/node_modules"],
         "@npm": ["node_modules"],
-        "@npm_internal_linker_test_multi_linker": ["internal/linker/test/multi_linker/node_modules"],
         "@npm_node_patches": ["packages/node-patches/node_modules"],
     },
 )
@@ -54,23 +54,145 @@ yarn_install(
     environment = {
         "SOME_USER_ENV": "yarn is great!",
     },
+    links = {
+        "@test_multi_linker/lib-a": "//internal/linker/test/multi_linker/lib_a",
+        "@test_multi_linker/lib-a2": "//internal/linker/test/multi_linker/lib_a",
+        "@test_multi_linker/lib-b": "@//internal/linker/test/multi_linker/lib_b",
+        "@test_multi_linker/lib-b2": "@//internal/linker/test/multi_linker/lib_b",
+        "@test_multi_linker/lib-c": "@build_bazel_rules_nodejs//internal/linker/test/multi_linker/lib_c",
+        "@test_multi_linker/lib-c2": "@build_bazel_rules_nodejs//internal/linker/test/multi_linker/lib_c",
+        "@test_multi_linker/lib-d": "@build_bazel_rules_nodejs//internal/linker/test/multi_linker/lib_d",
+        "@test_multi_linker/lib-d2": "@build_bazel_rules_nodejs//internal/linker/test/multi_linker/lib_d",
+    },
     package_json = "//:package.json",
     yarn_lock = "//:yarn.lock",
 )
 
 yarn_install(
-    name = "npm_internal_linker_test_multi_linker",
+    name = "internal_test_multi_linker_deps",
+    links = {
+        "@test_multi_linker/lib-a": "@//internal/linker/test/multi_linker/lib_a",
+        "@test_multi_linker/lib-a2": "@//internal/linker/test/multi_linker/lib_a",
+        "@test_multi_linker/lib-b": "@//internal/linker/test/multi_linker/lib_b",
+        "@test_multi_linker/lib-b2": "@//internal/linker/test/multi_linker/lib_b",
+        "@test_multi_linker/lib-c": "@//internal/linker/test/multi_linker/lib_c",
+        "@test_multi_linker/lib-c2": "@//internal/linker/test/multi_linker/lib_c",
+        "@test_multi_linker/lib-d": "@//internal/linker/test/multi_linker/lib_d",
+        "@test_multi_linker/lib-d2": "@//internal/linker/test/multi_linker/lib_d",
+    },
     package_json = "//internal/linker/test/multi_linker:package.json",
     package_path = "internal/linker/test/multi_linker",
+    symlink_node_modules = False,
     yarn_lock = "//internal/linker/test/multi_linker:yarn.lock",
 )
 
 yarn_install(
-    name = "onepa_npm_deps",
-    package_json = "//internal/linker/test/multi_linker/onepa:package.json",
-    package_path = "internal/linker/test/multi_linker/onepa",
+    name = "internal_test_multi_linker_test_a_deps",
+    links = {
+        "@test_multi_linker/lib-a": "@//internal/linker/test/multi_linker/lib_a",
+        "@test_multi_linker/lib-a2": "@//internal/linker/test/multi_linker/lib_a",
+        "@test_multi_linker/lib-b": "@//internal/linker/test/multi_linker/lib_b",
+        "@test_multi_linker/lib-b2": "@//internal/linker/test/multi_linker/lib_b",
+        "@test_multi_linker/lib-c": "@//internal/linker/test/multi_linker/lib_c",
+        "@test_multi_linker/lib-c2": "@//internal/linker/test/multi_linker/lib_c",
+        "@test_multi_linker/lib-d": "@//internal/linker/test/multi_linker/lib_d",
+        "@test_multi_linker/lib-d2": "@//internal/linker/test/multi_linker/lib_d",
+    },
+    package_json = "//internal/linker/test/multi_linker/test_a:package.json",
+    package_path = "internal/linker/test/multi_linker/test_a",
     symlink_node_modules = False,
-    yarn_lock = "//internal/linker/test/multi_linker/onepa:yarn.lock",
+    yarn_lock = "//internal/linker/test/multi_linker/test_a:yarn.lock",
+)
+
+yarn_install(
+    name = "internal_test_multi_linker_test_b_deps",
+    package_json = "//internal/linker/test/multi_linker/test_b:package.json",
+    package_path = "internal/linker/test/multi_linker/test_b",
+    symlink_node_modules = False,
+    yarn_lock = "//internal/linker/test/multi_linker/test_b:yarn.lock",
+)
+
+yarn_install(
+    name = "internal_test_multi_linker_test_c_deps",
+    package_json = "//internal/linker/test/multi_linker/test_c:package.json",
+    package_path = "internal/linker/test/multi_linker/test_c",
+    symlink_node_modules = False,
+    yarn_lock = "//internal/linker/test/multi_linker/test_c:yarn.lock",
+)
+
+yarn_install(
+    name = "internal_test_multi_linker_test_d_deps",
+    package_json = "//internal/linker/test/multi_linker/test_d:package.json",
+    package_path = "internal/linker/test/multi_linker/test_d",
+    symlink_node_modules = False,
+    yarn_lock = "//internal/linker/test/multi_linker/test_d:yarn.lock",
+)
+
+yarn_install(
+    name = "internal_test_multi_linker_lib_b_deps",
+    # transitive deps for this first party lib should not include dev dependencies
+    args = ["--production"],
+    package_json = "//internal/linker/test/multi_linker/lib_b:package.json",
+    package_path = "internal/linker/test/multi_linker/lib_b",
+    symlink_node_modules = False,
+    yarn_lock = "//internal/linker/test/multi_linker/lib_b:yarn.lock",
+)
+
+yarn_install(
+    name = "internal_test_multi_linker_lib_c_deps",
+    # transitive deps for this first party lib should not include dev dependencies
+    args = ["--production"],
+    package_json = "//internal/linker/test/multi_linker/lib_c:lib/package.json",
+    package_path = "internal/linker/test/multi_linker/lib_c/lib",
+    symlink_node_modules = False,
+    yarn_lock = "//internal/linker/test/multi_linker/lib_c:lib/yarn.lock",
+)
+
+yarn_install(
+    name = "internal_test_multi_linker_sub_dev_deps",
+    links = {
+        "@test_multi_linker/lib-a": "//internal/linker/test/multi_linker/lib_a",
+        "@test_multi_linker/lib-a2": "//internal/linker/test/multi_linker/lib_a",
+        "@test_multi_linker/lib-b": "//internal/linker/test/multi_linker/lib_b",
+        "@test_multi_linker/lib-b2": "//internal/linker/test/multi_linker/lib_b",
+        "@test_multi_linker/lib-c": "//internal/linker/test/multi_linker/lib_c",
+        "@test_multi_linker/lib-c2": "//internal/linker/test/multi_linker/lib_c",
+        "@test_multi_linker/lib-d": "//internal/linker/test/multi_linker/lib_d",
+        "@test_multi_linker/lib-d2": "//internal/linker/test/multi_linker/lib_d",
+    },
+    package_json = "//internal/linker/test/multi_linker/sub:package.json",
+    package_path = "internal/linker/test/multi_linker/sub/dev",
+    symlink_node_modules = False,
+    yarn_lock = "//internal/linker/test/multi_linker/sub:yarn.lock",
+)
+
+yarn_install(
+    name = "internal_test_multi_linker_sub_deps",
+    # transitive deps for this first party lib should not include dev dependencies
+    args = ["--production"],
+    links = {
+        "@test_multi_linker/lib-a": "@build_bazel_rules_nodejs//internal/linker/test/multi_linker/lib_a",
+        "@test_multi_linker/lib-a2": "@build_bazel_rules_nodejs//internal/linker/test/multi_linker/lib_a",
+        "@test_multi_linker/lib-b": "@build_bazel_rules_nodejs//internal/linker/test/multi_linker/lib_b",
+        "@test_multi_linker/lib-b2": "@build_bazel_rules_nodejs//internal/linker/test/multi_linker/lib_b",
+        "@test_multi_linker/lib-c": "@build_bazel_rules_nodejs//internal/linker/test/multi_linker/lib_c",
+        "@test_multi_linker/lib-c2": "@build_bazel_rules_nodejs//internal/linker/test/multi_linker/lib_c",
+        "@test_multi_linker/lib-d": "@build_bazel_rules_nodejs//internal/linker/test/multi_linker/lib_d",
+        "@test_multi_linker/lib-d2": "@build_bazel_rules_nodejs//internal/linker/test/multi_linker/lib_d",
+    },
+    package_json = "//internal/linker/test/multi_linker/sub:package.json",
+    package_path = "internal/linker/test/multi_linker/sub",
+    yarn_lock = "//internal/linker/test/multi_linker/sub:yarn.lock",
+)
+
+yarn_install(
+    name = "internal_test_multi_linker_onep_a_deps",
+    # transitive deps for this first party lib should not include dev dependencies
+    args = ["--production"],
+    package_json = "//internal/linker/test/multi_linker/onep_a:package.json",
+    package_path = "internal/linker/test/multi_linker/onep_a",
+    symlink_node_modules = False,
+    yarn_lock = "//internal/linker/test/multi_linker/onep_a:yarn.lock",
 )
 
 npm_install(
@@ -273,6 +395,12 @@ yarn_install(
         ".json",
         ".proto",
     ],
+    links = {
+        "@some-scope/some-target-b": "@//some/target/b",
+        "@some-scope/some-target-b2": "@//some/target/b",
+        "some-target-a": "//some/target/a",
+        "some-target-a2": "//some/target/a",
+    },
     manual_build_file_contents = """
 filegroup(
   name = "golden_files",
@@ -293,9 +421,63 @@ filegroup(
     "//rxjs:BUILD.bazel",
     "//unidiff:BUILD.bazel",
     "//zone.js:BUILD.bazel",
+    "//some-target-a:BUILD.bazel",
+    "//some-target-a2:BUILD.bazel",
+    "//@some-scope/some-target-b:BUILD.bazel",
+    "//@some-scope/some-target-b2:BUILD.bazel",
   ],
 )""",
     package_json = "//:tools/fine_grained_goldens/package.json",
+    symlink_node_modules = False,
+    yarn_lock = "//:tools/fine_grained_goldens/yarn.lock",
+)
+
+yarn_install(
+    name = "fine_grained_goldens_multi_linked",
+    included_files = [
+        "",
+        ".js",
+        ".jst",
+        ".ts",
+        ".map",
+        ".d.ts",
+        ".json",
+        ".proto",
+    ],
+    links = {
+        "@some-scope/some-target-b": "@//some/target/b",
+        "@some-scope/some-target-b2": "@//some/target/b",
+        "some-target-a": "@build_bazel_rules_nodejs//some/target/a",
+        "some-target-a2": "@build_bazel_rules_nodejs//some/target/a",
+    },
+    manual_build_file_contents = """
+filegroup(
+  name = "golden_files",
+  srcs = [
+    "//:BUILD.bazel",
+    "//:manual_build_file_contents",
+    "//:WORKSPACE",
+    "//@angular/core:BUILD.bazel",
+    "//@gregmagolan:BUILD.bazel",
+    "//@gregmagolan/test-a/bin:BUILD.bazel",
+    "//@gregmagolan/test-a:BUILD.bazel",
+    "//@gregmagolan/test-a:index.bzl",
+    "//@gregmagolan/test-b:BUILD.bazel",
+    "//ajv:BUILD.bazel",
+    "//jasmine/bin:BUILD.bazel",
+    "//jasmine:BUILD.bazel",
+    "//jasmine:index.bzl",
+    "//rxjs:BUILD.bazel",
+    "//unidiff:BUILD.bazel",
+    "//zone.js:BUILD.bazel",
+    "//some-target-a:BUILD.bazel",
+    "//some-target-a2:BUILD.bazel",
+    "//@some-scope/some-target-b:BUILD.bazel",
+    "//@some-scope/some-target-b2:BUILD.bazel",
+  ],
+)""",
+    package_json = "//:tools/fine_grained_goldens/package.json",
+    package_path = "tools/fine_grained_goldens",
     symlink_node_modules = False,
     yarn_lock = "//:tools/fine_grained_goldens/yarn.lock",
 )

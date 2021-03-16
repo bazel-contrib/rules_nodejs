@@ -58,6 +58,7 @@ ExternalNpmPackageInfo = _ExternalNpmPackageInfo
 
 # Export NpmPackageInfo for pre-3.0 legacy support in downstream rule sets
 # such as rules_docker
+# TODO(4.0): remove NpmPackageInfo
 NpmPackageInfo = _ExternalNpmPackageInfo
 node_modules_aspect = _node_modules_aspect
 LinkablePackageInfo = _LinkablePackageInfo

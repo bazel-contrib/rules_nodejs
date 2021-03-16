@@ -20,3 +20,11 @@ Note that the behavior of the linker depends on whether the package to link was 
 In the future the linker should also generate `package.json` files so that things like `main` and `typings` fields are present and reflect the Bazel semantics, so that we can entirely eliminate custom loading and pathmapping logic from binaries we execute.
 
 [lerna]: https://github.com/lerna/lerna
+
+# Developing
+
+Update checked in generated linker index.js with
+
+```
+bazel run //internal/linker:linker_lib_check_compiled.update
+```

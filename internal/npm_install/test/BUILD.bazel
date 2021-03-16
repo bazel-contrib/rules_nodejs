@@ -7,6 +7,11 @@ filegroup(
     srcs = glob(["golden/**"]),
 )
 
+filegroup(
+    name = "goldens_multi_linked",
+    srcs = glob(["golden_multi_linked/**"]),
+)
+
 jasmine_node_test(
     name = "test",
     srcs = ["generate_build_file.spec.js"],
@@ -14,8 +19,10 @@ jasmine_node_test(
         "package.spec.json",
         ":check.js",
         ":goldens",
+        ":goldens_multi_linked",
         "//internal/npm_install:compile_generate_build_file",
         "@fine_grained_goldens//:golden_files",
+        "@fine_grained_goldens_multi_linked//:golden_files",
         "@npm//unidiff",
     ],
     # Depends on having the .js file in source tree but resolve relative paths
@@ -28,8 +35,10 @@ nodejs_binary(
     data = [
         ":check.js",
         ":goldens",
+        ":goldens_multi_linked",
         ":update_golden.js",
         "@fine_grained_goldens//:golden_files",
+        "@fine_grained_goldens_multi_linked//:golden_files",
         "@npm//jasmine",
         "@npm//unidiff",
     ],

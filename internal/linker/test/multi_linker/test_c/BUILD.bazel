@@ -1,0 +1,36 @@
+load("//:index.bzl", "nodejs_test")
+
+nodejs_test(
+    name = "test",
+    data = [
+        # links to .../internal/linker/test/multi_linker/node_modules/@test_multi_linker/lib-a
+        "@internal_test_multi_linker_deps//@test_multi_linker/lib-a",
+
+        # links to .../internal/linker/test/multi_linker/node_modules/@test_multi_linker/lib-a2
+        "@internal_test_multi_linker_deps//@test_multi_linker/lib-a2",
+
+        # links to .../internal/linker/test/multi_linker/node_modules/@test_multi_linker/lib-b
+        "@internal_test_multi_linker_deps//@test_multi_linker/lib-b",
+
+        # links to .../internal/linker/test/multi_linker/node_modules/@test_multi_linker/lib-b2
+        "@internal_test_multi_linker_deps//@test_multi_linker/lib-b2",
+
+        # links to .../internal/linker/test/multi_linker/node_modules/@test_multi_linker/lib-c
+        "@internal_test_multi_linker_deps//@test_multi_linker/lib-c",
+
+        # links to .../internal/linker/test/multi_linker/node_modules/@test_multi_linker/lib-c2
+        "@internal_test_multi_linker_deps//@test_multi_linker/lib-c2",
+
+        # links to .../internal/linker/test/multi_linker/node_modules/@test_multi_linker/lib-d
+        "@internal_test_multi_linker_deps//@test_multi_linker/lib-d",
+
+        # links to .../internal/linker/test/multi_linker/node_modules/@test_multi_linker/lib-d2
+        "@internal_test_multi_linker_deps//@test_multi_linker/lib-d2",
+
+        # third-party deps
+        "@npm//semver",
+        "@internal_test_multi_linker_deps//semver",
+        "@internal_test_multi_linker_test_c_deps//semver",
+    ],
+    entry_point = "test.js",
+)

@@ -2,9 +2,9 @@ load("//packages/jasmine:index.bzl", "jasmine_node_test")
 load("//packages/typescript:checked_in_ts_project.bzl", "checked_in_ts_project")
 
 checked_in_ts_project(
-    name = "checked_in_from_sources_test",
+    name = "checked_in_test",
     src = "test.ts",
-    checked_in_js = "from_sources_test.js",
+    checked_in_js = "checked_in_test.js",
     deps = [
         "@npm//@types/jest",
         "@npm//@types/node",
@@ -17,10 +17,10 @@ jasmine_node_test(
     name = "test",
     srcs = ["test.js"],
     deps = [
-        "//internal/linker/test/multi_linker/onepa",
-        "//internal/linker/test/multi_linker/onepb",
+        "//internal/linker/test/multi_linker/onep_a",
+        "//internal/linker/test/multi_linker/onep_b",
+        "@internal_test_multi_linker_deps//semver",
         "@npm//semver",
-        "@npm_internal_linker_test_multi_linker//semver",
     ],
 )
 
@@ -28,11 +28,11 @@ jasmine_node_test(
 # resolve multi-linked node_modules from that context
 jasmine_node_test(
     name = "from_sources_test",
-    srcs = ["from_sources_test.js"],
+    srcs = ["checked_in_test.js"],
     deps = [
-        "//internal/linker/test/multi_linker/onepa",
-        "//internal/linker/test/multi_linker/onepb",
+        "//internal/linker/test/multi_linker/onep_a",
+        "//internal/linker/test/multi_linker/onep_b",
+        "@internal_test_multi_linker_deps//semver",
         "@npm//semver",
-        "@npm_internal_linker_test_multi_linker//semver",
     ],
 )

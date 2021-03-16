@@ -32,8 +32,8 @@ filegroup(
 )
 js_library(
     name = "unidiff",
-    external_npm_package = True,
-    external_npm_package_path = "",
+    package_name = "$node_modules$",
+    package_path = "",
     srcs = [":unidiff__files"],
     deps = [
         "//unidiff:unidiff__contents",
@@ -42,15 +42,15 @@ js_library(
 )
 js_library(
     name = "unidiff__contents",
-    external_npm_package = True,
-    external_npm_package_path = "",
+    package_name = "$node_modules$",
+    package_path = "",
     srcs = [":unidiff__files", ":unidiff__nested_node_modules"],
     visibility = ["//:__subpackages__"],
 )
 js_library(
     name = "unidiff__typings",
-    external_npm_package = True,
-    external_npm_package_path = "",
+    package_name = "$node_modules$",
+    package_path = "",
 )
 load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
 npm_umd_bundle(

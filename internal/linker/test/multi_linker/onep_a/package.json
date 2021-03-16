@@ -1,0 +1,10 @@
+{
+    "private": true,
+    "//": "semver intentionally pinned to unique version within multi_linker tests to assert the version in this node_modules is found",
+    "dependencies": {
+        "semver": "1.0.1"
+    },
+    "devDependencies": {
+        "smallest": "1.0.1"
+    }
+}

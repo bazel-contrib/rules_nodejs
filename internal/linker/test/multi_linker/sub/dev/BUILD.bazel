@@ -1,0 +1,7 @@
+load("//:index.bzl", "nodejs_test")
+
+nodejs_test(
+    name = "dev_deps_test",
+    data = ["@internal_test_multi_linker_sub_dev_deps//:node_modules"],
+    entry_point = "dev_deps_test.js",
+)

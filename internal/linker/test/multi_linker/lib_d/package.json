@@ -1,0 +1,9 @@
+{
+  "//": "no direct dep on semver to test which peer version is resolved",
+  "peerDependencies": {
+    "semver": ">=1.0.0"
+  },
+  "devDependencies": {
+    "smallest": "1.0.1"
+  }
+}

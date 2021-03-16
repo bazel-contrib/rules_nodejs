@@ -3,10 +3,10 @@ const path = require('path');
 const unidiff = require('unidiff');
 const runfiles = require(process.env['BAZEL_NODE_RUNFILES_HELPER']);
 
-function check(file, updateGolden = false) {
+function check(workspace, golden_path, file, updateGolden = false) {
   // Strip comments from generated file for comparison to golden
   // to make comparison less brittle
-  const actual = runfiles.resolve(path.posix.join('fine_grained_goldens', file));
+  const actual = runfiles.resolve(path.posix.join(workspace, file));
   const actualContents =
       fs.readFileSync(actual, {encoding: 'utf-8'})
           .replace(/\r\n/g, '\n')
@@ -19,7 +19,7 @@ function check(file, updateGolden = false) {
           .replace(/[\n]+/g, '\n');
 
   // Load the golden file for comparison
-  const golden = runfiles.resolvePackageRelative('./golden/' + file + '.golden');
+  const golden = runfiles.resolvePackageRelative(`./${golden_path}/${file}.golden`);
 
   if (updateGolden) {
     // Write to golden file
@@ -58,11 +58,15 @@ module.exports = {
     '@gregmagolan/test-a/BUILD.bazel',
     '@gregmagolan/test-a/index.bzl',
     '@gregmagolan/test-b/BUILD.bazel',
+    '@some-scope/some-target-b/BUILD.bazel',
+    '@some-scope/some-target-b2/BUILD.bazel',
     'ajv/BUILD.bazel',
     'jasmine/bin/BUILD.bazel',
     'jasmine/BUILD.bazel',
     'jasmine/index.bzl',
     'rxjs/BUILD.bazel',
+    'some-target-a/BUILD.bazel',
+    'some-target-a2/BUILD.bazel',
     'unidiff/BUILD.bazel',
     'zone.js/BUILD.bazel',
   ],

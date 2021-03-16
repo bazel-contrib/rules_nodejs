@@ -296,7 +296,7 @@ if [[ -n "${BAZEL_NODE_MODULES_ROOTS:-}" ]]; then
       root_pair=(${root})
       IFS="${OLDIFS}"
       root_path="${root_pair[0]}"
-      root_workspace="${root_pair[1]}"
+      root_workspace="${root_pair[1]:-}"
       if [[ "${root_path}" ]]; then
         # Guard non-root node_modules as well
         # (e.g., /private/.../execroot/build_bazel_rules_nodejs/internal/linker/test/node_modules)
