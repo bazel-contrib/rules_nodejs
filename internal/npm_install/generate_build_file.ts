@@ -39,7 +39,6 @@
  */
 'use strict';
 
-
 import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
@@ -48,24 +47,24 @@ function log_verbose(...m: any[]) {
   if (!!process.env['VERBOSE_LOGS']) console.error('[generate_build_file.ts]', ...m);
 }
 
-const args = process.argv.slice(2);
-const WORKSPACE = args[0];
-const RULE_TYPE = args[1];
-const PKG_JSON_FILE_PATH = args[2];
-const LOCK_FILE_PATH = args[3];
-const WORKSPACE_ROOT_PREFIX = args[4];
-const WORKSPACE_ROOT_BASE = WORKSPACE_ROOT_PREFIX ?.split('/')[0];
-const STRICT_VISIBILITY = args[5]?.toLowerCase() === 'true';
-const INCLUDED_FILES = args[6] ? args[6].split(',') : [];
-const GENERATE_LOCAL_MODULES_BUILD_FILES = (`${args[7]}`.toLowerCase()) === 'true';
-const BAZEL_VERSION = args[8];
-const PACKAGE_PATH = args[9];
-
 const PUBLIC_VISIBILITY = '//visibility:public';
-const LIMITED_VISIBILITY = `@${WORKSPACE}//:__subpackages__`;
+
+// Default values for unit testing; overridden in main()
+let config: any = {
+  generate_local_modules_build_files: false,
+  included_files: [],
+  deps: {},
+  package_json: 'package.json',
+  package_lock: 'yarn.lock',
+  package_path: '',
+  rule_type: 'yarn_install',
+  strict_visibility: true,
+  workspace: '',
+  workspace_root_prefix: '',
+};
 
 function generateBuildFileHeader(visibility = PUBLIC_VISIBILITY): string {
-  return `# Generated file from ${RULE_TYPE} rule.
+  return `# Generated file from ${config.rule_type} rule.
 # See rules_nodejs/internal/npm_install/generate_build_file.ts
 
 package(default_visibility = ["${visibility}"])
@@ -110,8 +109,12 @@ function createFileSymlinkSync(target: string, p: string) {
  * Main entrypoint.
  */
 export function main() {
+  config = require('./generate_config.json')
+  config.workspace_root_base = config.workspace_root_prefix?.split('/')[0];
+  config.limited_visibility = `@${config.workspace}//:__subpackages__`;
+
   // get a set of all the direct dependencies for visibility
-  const deps = getDirectDependencySet(PKG_JSON_FILE_PATH);
+  const deps = getDirectDependencySet(config.package_json);
 
   // find all packages (including packages in nested node_modules)
   const pkgs = findPackages('node_modules', deps);
@@ -126,7 +129,7 @@ export function main() {
   generateBuildFiles(pkgs)
 
   // write a .bazelignore file
-  writeFileSync('.bazelignore', `node_modules\n${WORKSPACE_ROOT_BASE}`);
+  writeFileSync('.bazelignore', `node_modules\n${config.workspace_root_base}`);
 }
 
 /**
@@ -136,6 +139,25 @@ function generateBuildFiles(pkgs: Dep[]) {
   generateRootBuildFile(pkgs.filter(pkg => !pkg._isNested))
   pkgs.filter(pkg => !pkg._isNested).forEach(pkg => generatePackageBuildFiles(pkg));
   findScopes().forEach(scope => generateScopeBuildFiles(scope, pkgs));
+  // Allow this to overwrite any previously generated BUILD files so that user links take priority
+  // over package manager installed npm packages
+  generateLinksBuildFiles(config.links)
+}
+
+function generateLinksBuildFiles(deps: {[key: string]: string}) {
+  for (const packageName of Object.keys(deps)) {
+    const target = deps[packageName];
+    const basename = packageName.split('/').pop();
+    const starlark = generateBuildFileHeader() +
+        `load("@build_bazel_rules_nodejs//internal/linker:npm_link.bzl", "npm_link")
+npm_link(
+    name = "${basename}",
+    target = "${target}",
+    package_name = "${packageName}",
+    package_path = "${config.package_path}",
+)`;
+    writeFileSync(path.posix.join(packageName, 'BUILD.bazel'), starlark);
+  }
 }
 
 /**
@@ -190,8 +212,8 @@ ${exportsStarlark}])
 # See https://github.com/bazelbuild/bazel/issues/5153.
 js_library(
     name = "node_modules",
-    external_npm_package = True,
-    external_npm_package_path = "${PACKAGE_PATH}",${pkgFilesStarlark}${depsStarlark}
+    package_name = "$node_modules$",
+    package_path = "${config.package_path}",${pkgFilesStarlark}${depsStarlark}
 )
 
 `
@@ -224,10 +246,11 @@ function generatePackageBuildFiles(pkg: Dep) {
       fs.existsSync(nodeModulesPkgDir) && fs.lstatSync(nodeModulesPkgDir).isSymbolicLink();
   // Mark build file as one to symlink instead of generate as the package dir is a symlink, we
   // have a BUILD file and the pkg is written inside the workspace
-  const symlinkBuildFile = isPkgDirASymlink && buildFilePath && !GENERATE_LOCAL_MODULES_BUILD_FILES;
+  const symlinkBuildFile =
+      isPkgDirASymlink && buildFilePath && !config.generate_local_modules_build_files;
 
   // Log if a BUILD file was expected but was not found
-  if (isPkgDirASymlink && !buildFilePath && !GENERATE_LOCAL_MODULES_BUILD_FILES) {
+  if (isPkgDirASymlink && !buildFilePath && !config.generate_local_modules_build_files) {
     console.log(`[yarn_install/npm_install]: package ${
         nodeModulesPkgDir} is local symlink and as such a BUILD file for it is expected but none was found. Please add one at ${
         fs.realpathSync(nodeModulesPkgDir)}`)
@@ -246,7 +269,9 @@ function generatePackageBuildFiles(pkg: Dep) {
   // on the npm_install / yarn_install rule, then set the visibility to be limited internally to the @repo workspace
   // if the dependency is listed, set it as public
   // if the flag is false, then always set public visibility
-  const visibility = !pkg._directDependency && STRICT_VISIBILITY ? LIMITED_VISIBILITY : PUBLIC_VISIBILITY;
+  const visibility = !pkg._directDependency && config.strict_visibility ?
+      config.limited_visibility :
+      PUBLIC_VISIBILITY;
 
   // If the package didn't ship a bin/BUILD file, generate one.
   if (!pkg._files.includes('bin/BUILD.bazel') && !pkg._files.includes('bin/BUILD')) {
@@ -387,7 +412,7 @@ def _maybe(repo_rule, name, **kwargs):
         '# Marker file that this directory is a bazel package');
   }
   const sha256sum = crypto.createHash('sha256');
-  sha256sum.update(fs.readFileSync(LOCK_FILE_PATH, {encoding: 'utf8'}));
+  sha256sum.update(fs.readFileSync(config.package_lock, {encoding: 'utf8'}));
   writeFileSync(
       path.posix.join(workspaceSourcePath, '_bazel_workspace_marker'),
       `# Marker file to used by custom copy_repository rule\n${sha256sum.digest('hex')}`);
@@ -396,7 +421,7 @@ def _maybe(repo_rule, name, **kwargs):
     _maybe(
         copy_repository,
         name = "${workspace}",
-        marker_file = "@${WORKSPACE}//_workspaces/${workspace}:_bazel_workspace_marker",
+        marker_file = "@${config.workspace}//_workspaces/${workspace}:_bazel_workspace_marker",
     )
 `;
 
@@ -913,7 +938,7 @@ function printPackage(pkg: Dep) {
     ],`;
   }
 
-  const includedRunfiles = filterFiles(pkg._runfiles, INCLUDED_FILES);
+  const includedRunfiles = filterFiles(pkg._runfiles, config.included_files);
 
   // Files that are part of the npm package not including its nested node_modules
   // (filtered by the 'included_files' attribute)
@@ -998,8 +1023,8 @@ filegroup(
 # The primary target for this package for use in rule deps
 js_library(
     name = "${pkg._name}",
-    external_npm_package = True,
-    external_npm_package_path = "${PACKAGE_PATH}",
+    package_name = "$node_modules$",
+    package_path = "${config.package_path}",
     # direct sources listed for strict deps support
     srcs = [":${pkg._name}__files"],
     # nested node_modules for this package plus flattened list of direct and transitive dependencies
@@ -1012,8 +1037,8 @@ js_library(
 # Target is used as dep for main targets to prevent circular dependencies errors
 js_library(
     name = "${pkg._name}__contents",
-    external_npm_package = True,
-    external_npm_package_path = "${PACKAGE_PATH}",
+    package_name = "$node_modules$",
+    package_path = "${config.package_path}",
     srcs = [":${pkg._name}__files", ":${pkg._name}__nested_node_modules"],${namedSourcesStarlark}
     visibility = ["//:__subpackages__"],
 )
@@ -1021,8 +1046,8 @@ js_library(
 # Typings files that are part of the npm package not including nested node_modules
 js_library(
     name = "${pkg._name}__typings",
-    external_npm_package = True,
-    external_npm_package_path = "${PACKAGE_PATH}",${dtsStarlark}
+    package_name = "$node_modules$",
+    package_path = "${config.package_path}",${dtsStarlark}
 )
 
 `;
@@ -1135,7 +1160,7 @@ export function printIndexBzl(pkg: Dep) {
         `load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "nodejs_test", "npm_package_bin")
 
 `;
-    const data = [`@${WORKSPACE}//${pkg._dir}:${pkg._name}`];
+    const data = [`@${config.workspace}//${pkg._dir}:${pkg._name}`];
     if (pkg._dynamicDependencies) {
       data.push(...pkg._dynamicDependencies);
     }
@@ -1147,11 +1172,11 @@ export function printIndexBzl(pkg: Dep) {
 def ${name.replace(/-/g, '_')}(**kwargs):
     output_dir = kwargs.pop("output_dir", False)
     if "outs" in kwargs or output_dir:
-        npm_package_bin(tool = "@${WORKSPACE}//${pkg._dir}/bin:${
+        npm_package_bin(tool = "@${config.workspace}//${pkg._dir}/bin:${
           name}", output_dir = output_dir, **kwargs)
     else:
         nodejs_binary(
-            entry_point = "@${WORKSPACE}//:node_modules/${pkg._dir}/${path}",
+            entry_point = "@${config.workspace}//:node_modules/${pkg._dir}/${path}",
             data = [${data.map(p => `"${p}"`).join(', ')}] + kwargs.pop("data", []),${
           additionalAttributes(pkg, name)}
             **kwargs
@@ -1160,7 +1185,7 @@ def ${name.replace(/-/g, '_')}(**kwargs):
 # Just in case ${name} is a test runner, also make a test rule for it
 def ${name.replace(/-/g, '_')}_test(**kwargs):
     nodejs_test(
-      entry_point = "@${WORKSPACE}//:node_modules/${pkg._dir}/${path}",
+      entry_point = "@${config.workspace}//:node_modules/${pkg._dir}/${path}",
       data = [${data.map(p => `"${p}"`).join(', ')}] + kwargs.pop("data", []),${
           additionalAttributes(pkg, name)}
       **kwargs
@@ -1218,8 +1243,8 @@ function printScope(scope: string, pkgs: Dep[]) {
 # Generated target for npm scope ${scope}
 js_library(
     name = "${scope}",
-    external_npm_package = True,
-    external_npm_package_path = "${PACKAGE_PATH}",${pkgFilesStarlark}${depsStarlark}
+    package_name = "$node_modules$",
+    package_path = "${config.package_path}",${pkgFilesStarlark}${depsStarlark}
 )
 
 `;

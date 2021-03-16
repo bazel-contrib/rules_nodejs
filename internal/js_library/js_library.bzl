@@ -37,48 +37,6 @@ _ATTRS = {
         See documentation on AmdNamesInfo""",
     ),
     "deps": attr.label_list(),
-    "external_npm_package": attr.bool(
-        doc = """Internal use only. Indicates that this js_library target is one or more external npm packages in node_modules.
-        This is used by the yarn_install & npm_install repository rules for npm dependencies installed by
-        yarn & npm. When true, js_library will provide ExternalNpmPackageInfo.
-
-        It can also be used for user-managed npm dependencies if node_modules is layed out outside of bazel.
-        For example,
-
-        js_library(
-            name = "node_modules",
-            srcs = glob(
-                include = [
-                    "node_modules/**/*.js",
-                    "node_modules/**/*.d.ts",
-                    "node_modules/**/*.json",
-                    "node_modules/.bin/*",
-                ],
-                exclude = [
-                    # Files under test & docs may contain file names that
-                    # are not legal Bazel labels (e.g.,
-                    # node_modules/ecstatic/test/public/中文/檔案.html)
-                    "node_modules/**/test/**",
-                    "node_modules/**/docs/**",
-                    # Files with spaces in the name are not legal Bazel labels
-                    "node_modules/**/* */**",
-                    "node_modules/**/* *",
-                ],
-            ),
-            # Provide ExternalNpmPackageInfo which is used by downstream rules
-            # that use these npm dependencies
-            external_npm_package = True,
-        )
-
-        See `examples/user_managed_deps` for a working example of user-managed npm dependencies.""",
-        default = False,
-    ),
-    "external_npm_package_path": attr.string(
-        doc = """Internal use only. The local workspace path that the linker should link these node_modules to.
-
-        Used only when external_npm_package is True. If empty, the linker will link these node_modules at the root.""",
-        default = "",
-    ),
     "is_windows": attr.bool(
         doc = "Internal use only. Automatically set by macro",
         mandatory = True,
@@ -97,6 +55,7 @@ _ATTRS = {
         allow_files = True,
     ),
     "package_name": attr.string(),
+    "package_path": attr.string(),
     "srcs": attr.label_list(allow_files = True),
     "strip_prefix": attr.string(
         doc = "Path components to strip from the start of the package import path",
@@ -130,6 +89,25 @@ def write_amd_names_shim(actions, amd_names_shim, targets):
             for n in t[AmdNamesInfo].names.items():
                 amd_names_shim_content += "define(\"%s\", function() { return %s });\n" % n
     actions.write(amd_names_shim, amd_names_shim_content)
+
+def _link_path(ctx, all_files):
+    link_path = "/".join([p for p in [ctx.bin_dir.path, ctx.label.workspace_root, ctx.label.package] if p])
+
+    # Strip a prefix from the package require path
+    if ctx.attr.strip_prefix:
+        link_path += "/" + ctx.attr.strip_prefix
+
+        # Check that strip_prefix contains at least one src path
+        check_prefix = "/".join([p for p in [ctx.label.package, ctx.attr.strip_prefix] if p])
+        prefix_contains_src = False
+        for file in all_files:
+            if file.short_path.startswith(check_prefix):
+                prefix_contains_src = True
+                break
+        if not prefix_contains_src:
+            fail("js_library %s strip_prefix path does not contain any of the provided sources" % ctx.label)
+
+    return link_path
 
 def _impl(ctx):
     input_files = ctx.files.srcs + ctx.files.named_module_srcs
@@ -228,41 +206,21 @@ def _impl(ctx):
         ),
     ]
 
-    if ctx.attr.package_name:
-        path = "/".join([
-            p
-            for p in [ctx.bin_dir.path, ctx.label.workspace_root, ctx.label.package]
-            if p
-        ])
-
-        # Strip a prefix from the package require path
-        if ctx.attr.strip_prefix:
-            path += "/" + ctx.attr.strip_prefix
-
-            # Check that strip_prefix contains at least one src path
-            check_prefix = "/".join([p for p in [ctx.label.package, ctx.attr.strip_prefix] if p])
-            prefix_contains_src = False
-            for file in all_files:
-                if file.short_path.startswith(check_prefix):
-                    prefix_contains_src = True
-                    break
-
-            if not prefix_contains_src:
-                fail("js_library %s strip_prefix path does not contain any of the provided sources" % ctx.label)
-
-        providers.append(LinkablePackageInfo(
-            package_name = ctx.attr.package_name,
-            path = path,
-            files = depset(transitive = direct_sources_depsets),
-        ))
-
-    if ctx.attr.external_npm_package:
+    if ctx.attr.package_name == "$node_modules$":
+        # special case for external npm deps
         workspace_name = ctx.label.workspace_name if ctx.label.workspace_name else ctx.workspace_name
         providers.append(ExternalNpmPackageInfo(
             direct_sources = depset(transitive = direct_sources_depsets),
             sources = depset(transitive = npm_sources_depsets),
             workspace = workspace_name,
-            path = ctx.attr.external_npm_package_path,
+            path = ctx.attr.package_path,
+        ))
+    else:
+        providers.append(LinkablePackageInfo(
+            package_name = ctx.attr.package_name,
+            package_path = ctx.attr.package_path,
+            path = _link_path(ctx, all_files),
+            files = depset(transitive = direct_sources_depsets),
         ))
 
     # Don't provide DeclarationInfo if there are no typings to provide.
@@ -286,6 +244,7 @@ def js_library(
         name,
         srcs = [],
         package_name = None,
+        package_path = "",
         deps = [],
         **kwargs):
     """Groups JavaScript code so that it can be depended on like an npm package.
@@ -361,12 +320,52 @@ def js_library(
     [output_group]: https://docs.bazel.build/versions/master/be/general.html#filegroup.output_group
 
     Args:
-        name: a name for the target
-        srcs: the list of files that comprise the package
-        package_name: the name it will be imported by. Should match the "name" field in the package.json file.
-        deps: other targets that provide JavaScript code
-        strip_prefix: path components to strip from the start of the package import path
-        **kwargs: used for undocumented legacy features
+        name: The name for the target
+        srcs: The list of files that comprise the package
+        package_name: The name it will be imported by. Should match the "name" field in the package.json file.
+
+            If package_name == "$node_modules$" this indictates that this js_library target is one or more external npm
+            packages in node_modules. This is a special case that used be covered by the internal only
+            `external_npm_package` attribute. NB: '$' is an illegal character
+            for npm packages names so this reserved name will not conflict with any valid package_name values
+
+            This is used by the yarn_install & npm_install repository rules for npm dependencies installed by
+            yarn & npm. When true, js_library will provide ExternalNpmPackageInfo.
+
+            It can also be used for user-managed npm dependencies if node_modules is layed out outside of bazel.
+            For example,
+
+            js_library(
+                name = "node_modules",
+                srcs = glob(
+                    include = [
+                        "node_modules/**/*.js",
+                        "node_modules/**/*.d.ts",
+                        "node_modules/**/*.json",
+                        "node_modules/.bin/*",
+                    ],
+                    exclude = [
+                        # Files under test & docs may contain file names that
+                        # are not legal Bazel labels (e.g.,
+                        # node_modules/ecstatic/test/public/中文/檔案.html)
+                        "node_modules/**/test/**",
+                        "node_modules/**/docs/**",
+                        # Files with spaces in the name are not legal Bazel labels
+                        "node_modules/**/* */**",
+                        "node_modules/**/* *",
+                    ],
+                ),
+                # Special value to provide ExternalNpmPackageInfo which is used by downstream
+                # rules that use these npm dependencies
+                package_name = "$node_modules$",
+            )
+
+            See `examples/user_managed_deps` for a working example of user-managed npm dependencies.
+        package_path: The directory in the workspace to link to.
+            If set, link this js_library to the node_modules under the package path specified.
+            If unset, the default is to link to the node_modules root of the workspace.
+        deps: Other targets that provide JavaScript code
+        **kwargs: Other attributes
     """
 
     # Undocumented features
@@ -386,10 +385,11 @@ def js_library(
         named_module_srcs = named_module_srcs,
         deps = deps,
         package_name = package_name,
+        package_path = package_path,
         # module_name for legacy ts_library module_mapping support
         # which is still being used in a couple of tests
         # TODO: remove once legacy module_mapping is removed
-        module_name = package_name,
+        module_name = package_name if package_name != "$node_modules$" else None,
         is_windows = select({
             "@bazel_tools//src/conditions:host_windows": True,
             "//conditions:default": False,

@@ -110,8 +110,8 @@ filegroup(
 )
 js_library(
     name = "ajv",
-    external_npm_package = True,
-    external_npm_package_path = "",
+    package_name = "$node_modules$",
+    package_path = "",
     srcs = [":ajv__files"],
     deps = [
         "//ajv:ajv__contents",
@@ -123,15 +123,15 @@ js_library(
 )
 js_library(
     name = "ajv__contents",
-    external_npm_package = True,
-    external_npm_package_path = "",
+    package_name = "$node_modules$",
+    package_path = "",
     srcs = [":ajv__files", ":ajv__nested_node_modules"],
     visibility = ["//:__subpackages__"],
 )
 js_library(
     name = "ajv__typings",
-    external_npm_package = True,
-    external_npm_package_path = "",
+    package_name = "$node_modules$",
+    package_path = "",
     srcs = [
         "//:node_modules/ajv/lib/ajv.d.ts",
     ],

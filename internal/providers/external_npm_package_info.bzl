@@ -16,7 +16,7 @@
 """
 
 # ExternalNpmPackageInfo provider is provided by targets that are external npm packages by
-# `js_library` rule when external_npm_package is set to True, as well as other targets that
+# `js_library` rule when package_name is set to "node_modules", as well as other targets that
 # have direct or transitive deps on `js_library` targets via the `node_modules_aspect` below.
 ExternalNpmPackageInfo = provider(
     doc = "Provides information about one or more external npm packages",

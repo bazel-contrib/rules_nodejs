@@ -1,0 +1,14 @@
+load("//:index.bzl", "js_library")
+
+js_library(
+    name = "onep_a",
+    package_name = "@test_multi_linker/onep-a",
+    srcs = [
+        "index.js",
+        "package.json",
+    ],
+    visibility = ["//internal/linker/test/multi_linker:__subpackages__"],
+    deps = [
+        "@internal_test_multi_linker_onep_a_deps//:node_modules",
+    ],
+)

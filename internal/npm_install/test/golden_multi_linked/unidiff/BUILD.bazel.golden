@@ -1,0 +1,61 @@
+
+package(default_visibility = ["//visibility:public"])
+load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+filegroup(
+    name = "unidiff__files",
+    srcs = [
+        "//:node_modules/unidiff/.npmignore",
+        "//:node_modules/unidiff/LICENSE",
+        "//:node_modules/unidiff/hunk.js",
+        "//:node_modules/unidiff/package.json",
+        "//:node_modules/unidiff/test/example.js",
+        "//:node_modules/unidiff/test/table.js",
+        "//:node_modules/unidiff/test/test_hunk.js",
+        "//:node_modules/unidiff/test/test_unidiff.js",
+        "//:node_modules/unidiff/unidiff.js",
+    ],
+)
+filegroup(
+    name = "unidiff__nested_node_modules",
+    visibility = ["//:__subpackages__"],
+)
+filegroup(
+    name = "unidiff__not_files",
+    srcs = [
+        "//:node_modules/unidiff/readme.md",
+    ],
+    visibility = ["//visibility:private"],
+)
+filegroup(
+    name = "unidiff__all_files",
+    srcs = [":unidiff__files", ":unidiff__not_files"],
+)
+js_library(
+    name = "unidiff",
+    package_name = "$node_modules$",
+    package_path = "tools/fine_grained_goldens",
+    srcs = [":unidiff__files"],
+    deps = [
+        "//unidiff:unidiff__contents",
+        "//diff:diff__contents",
+    ],
+)
+js_library(
+    name = "unidiff__contents",
+    package_name = "$node_modules$",
+    package_path = "tools/fine_grained_goldens",
+    srcs = [":unidiff__files", ":unidiff__nested_node_modules"],
+    visibility = ["//:__subpackages__"],
+)
+js_library(
+    name = "unidiff__typings",
+    package_name = "$node_modules$",
+    package_path = "tools/fine_grained_goldens",
+)
+load("@build_bazel_rules_nodejs//internal/npm_install:npm_umd_bundle.bzl", "npm_umd_bundle")
+npm_umd_bundle(
+    name = "unidiff__umd",
+    package_name = "unidiff",
+    entry_point = "//:node_modules/unidiff/unidiff.js",
+    package = ":unidiff",
+)

@@ -1,0 +1,14 @@
+load("//:index.bzl", "js_library")
+
+# For negative testing, an alternative to 'onep-a'
+# that doesn't include the transitive semver npm dep
+# that @internal_test_multi_linker_onep_a_deps//:node_modules does
+js_library(
+    name = "onep_b",
+    package_name = "@test_multi_linker/onep-b",
+    srcs = [
+        "index.js",
+        "package.json",
+    ],
+    visibility = ["//internal/linker/test/multi_linker:__subpackages__"],
+)

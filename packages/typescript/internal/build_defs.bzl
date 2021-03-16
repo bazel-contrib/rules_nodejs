@@ -351,6 +351,11 @@ def _ts_library_impl(ctx):
         path = "/".join([p for p in [ctx.bin_dir.path, ctx.label.workspace_root, ctx.label.package] if p])
         ts_providers["providers"].append(LinkablePackageInfo(
             package_name = ctx.attr.module_name,
+            # TODO(4.0): ts_library doesn't support multi-linked first party deps yet.
+            # it can be added in 4.0 on the next set of breaking change when we
+            # also add the package_name attribute to separate turning on the linker
+            # from the module_name attribute
+            package_path = "",
             path = path,
             files = ts_providers["typescript"]["es5_sources"],
             _tslibrary = True,

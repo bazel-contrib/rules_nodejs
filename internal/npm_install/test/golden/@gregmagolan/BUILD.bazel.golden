@@ -3,8 +3,8 @@ package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 js_library(
     name = "@gregmagolan",
-    external_npm_package = True,
-    external_npm_package_path = "",
+    package_name = "$node_modules$",
+    package_path = "",
     srcs = [
         "//@gregmagolan/test-a:test-a__files",
         "//@gregmagolan/test-b:test-b__files",

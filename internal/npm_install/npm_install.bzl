@@ -87,6 +87,65 @@ as well as the fine grained targets such as `@wksp//foo`.
 """,
         default = [],
     ),
+    "links": attr.string_dict(
+        doc = """Targets to link as npm packages.
+
+A mapping of npm package names to bazel targets to linked into node_modules.
+
+If `package_path` is also set, the bazel target will be linked to the node_modules at `package_path`
+along with other 3rd party npm packages from this rule.
+
+For example,
+
+```
+yarn_install(
+    name = "npm",
+    package_json = "//web:package.json",
+    yarn_lock = "//web:yarn.lock",
+    package_path = "web",
+    links = {
+        "@scope/target": "//some/scoped/target",
+        "target": "//some/target",
+    },
+)
+```
+
+creates targets in the @npm external workspace that can be used by other rules which
+are linked into `web/node_modules` along side the 3rd party deps since the `project_path` is `web`.
+
+The above links will create the targets,
+
+```
+@npm//@scope/target
+@npm//target
+```
+
+that can be referenced as `data` or `deps` by other rules such as `nodejs_binary` and `ts_project`
+and can be required as `@scope/target` and `target` with standard node_modules resolution at runtime,
+
+```
+nodejs_binary(
+    name = "bin",
+    entry_point = "bin.js",
+    deps = [
+        "@npm//@scope/target",
+        "@npm//target"
+        "@npm//other/dep"
+    ],
+)
+
+ts_project(
+    name = "test",
+    srcs = [...],
+    deps = [
+        "@npm//@scope/target",
+        "@npm//target"
+        "@npm//other/dep"
+    ],
+)
+```
+""",
+    ),
     "manual_build_file_contents": attr.string(
         doc = """Experimental attribute that can be used to override the generated BUILD.bazel file and set its contents manually.
 
@@ -150,21 +209,34 @@ def _create_build_files(repository_ctx, rule_type, node, lock_file, generate_loc
     repository_ctx.report_progress("Processing node_modules: installing Bazel packages and generating BUILD files")
     if repository_ctx.attr.manual_build_file_contents:
         repository_ctx.file("manual_build_file_contents", repository_ctx.attr.manual_build_file_contents)
-    result = repository_ctx.execute([
-        node,
-        "index.js",
-        repository_ctx.attr.name,
-        rule_type,
-        repository_ctx.path(repository_ctx.attr.package_json),
-        repository_ctx.path(lock_file),
-        _workspace_root_prefix(repository_ctx),
-        str(repository_ctx.attr.strict_visibility),
-        ",".join(repository_ctx.attr.included_files),
-        str(generate_local_modules_build_files),
-        native.bazel_version,
-        repository_ctx.attr.package_path,
+
+    # validate links
+    validated_links = {}
+    for k, v in repository_ctx.attr.links.items():
+        if v.startswith("//"):
+            v = "@%s" % v
+        if not v.startswith("@"):
+            fail("link target must be label of form '@wksp//path/to:target', '@//path/to:target' or '//path/to:target'")
+        validated_links[k] = v
+    generate_config_json = struct(
+        generate_local_modules_build_files = generate_local_modules_build_files,
+        included_files = repository_ctx.attr.included_files,
+        links = validated_links,
+        package_json = str(repository_ctx.path(repository_ctx.attr.package_json)),
+        package_lock = str(repository_ctx.path(lock_file)),
+        package_path = repository_ctx.attr.package_path,
+        rule_type = rule_type,
+        strict_visibility = repository_ctx.attr.strict_visibility,
+        workspace = repository_ctx.attr.name,
+        workspace_root_prefix = _workspace_root_prefix(repository_ctx),
+    ).to_json()
+    repository_ctx.file("generate_config.json", generate_config_json)
+    result = repository_ctx.execute(
+        [node, "index.js"],
         # double the default timeout in case of many packages, see #2231
-    ], timeout = 1200, quiet = repository_ctx.attr.quiet)
+        timeout = 1200,
+        quiet = repository_ctx.attr.quiet,
+    )
     if result.return_code:
         fail("generate_build_file.ts failed: \nSTDOUT:\n%s\nSTDERR:\n%s" % (result.stdout, result.stderr))
 
