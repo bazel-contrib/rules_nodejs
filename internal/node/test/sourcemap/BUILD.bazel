@@ -1,0 +1,22 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "nodejs_test", "npm_package_bin")
+
+nodejs_binary(
+    name = "bin",
+    entry_point = "index.js",
+)
+
+npm_package_bin(
+    name = "run",
+    # throw away the exit code, so this action succeeds despite the program exiting 1
+    exit_code_out = "ignore_exit_code",
+    # this is where the stack trace appears
+    stderr = "actual",
+    stdout = "ignore_stdout",
+    tool = "bin",
+)
+
+nodejs_test(
+    name = "test",
+    data = ["actual"],
+    entry_point = "test.js",
+)
