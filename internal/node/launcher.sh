@@ -353,6 +353,9 @@ else
       MAIN=TEMPLATED_entry_point_manifest_path
     fi
   fi
+  # Always set up source-map-support using our vendored copy, just like the require_patch_script
+  register_source_map_support=$(rlocation build_bazel_rules_nodejs/third_party/github.com/source-map-support/register.js)
+  LAUNCHER_NODE_OPTIONS+=( "--require" "${register_source_map_support}" )
 fi
 
 # The EXPECTED_EXIT_CODE lets us write bazel tests which assert that
