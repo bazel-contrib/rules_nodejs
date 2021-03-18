@@ -54,13 +54,13 @@ def _esbuild_impl(ctx):
     args = ctx.actions.args()
 
     args.add("--bundle", entry_point.path)
-    args.add("--preserve-symlinks")
 
-    if ctx.attr.sourcemap_inline:
-        args.add_joined(["--sourcemap", "both"], join_with = "=")
+    if len(ctx.attr.sourcemap) > 0:
+        args.add_joined(["--sourcemap", ctx.attr.sourcemap], join_with = "=")
     else:
         args.add("--sourcemap")
 
+    args.add("--preserve-symlinks")
     args.add_joined(["--platform", ctx.attr.platform], join_with = "=")
     args.add_joined(["--target", ctx.attr.target], join_with = "=")
     args.add_joined(["--log-level", "info"], join_with = "=")
@@ -92,8 +92,13 @@ def _esbuild_impl(ctx):
         args.add_joined(["--outdir", js_out.path], join_with = "=")
     else:
         js_out = ctx.outputs.output
+        outputs.append(js_out)
+
         js_out_map = ctx.outputs.output_map
-        outputs.extend([js_out, js_out_map])
+        if ctx.attr.sourcemap != "inline":
+            if js_out_map == None:
+                fail("output_map must be specified if sourcemap is not set to 'inline'")
+            outputs.append(js_out_map)
 
         if ctx.attr.format:
             args.add_joined(["--format", ctx.attr.format], join_with = "=")
@@ -219,12 +224,12 @@ See https://esbuild.github.io/api/#splitting for more details
 See https://esbuild.github.io/api/#platform for more details
             """,
         ),
-        "sourcemap_inline": attr.bool(
+        "sourcemap": attr.string(
+            values = ["external", "inline", "both"],
             mandatory = False,
-            default = False,
-            doc = """If True, esbuild inlines the sourcemap in the generated js file in addition to generating the external sourcemap.
+            doc = """Defines where sourcemaps are output and how they are included in the bundle. By default, a separate `.js.map` file is generated and referenced by the bundle. If 'external', a separate `.js.map` file is generated but not referenced by the bundle. If 'inline', a sourcemap is generated and its contents are inlined into the bundle (and no external sourcemap file is created). If 'both', a sourcemap is inlined and a `.js.map` file is created.
 
-See '--sourcemap=both' at https://esbuild.github.io/api/#sourcemap for more details
+See https://esbuild.github.io/api/#sourcemap for more details
             """,
         ),
         "sources_content": attr.bool(
@@ -283,9 +288,13 @@ def esbuild_macro(name, output_dir = False, **kwargs):
             **kwargs
         )
     else:
+        output_map = None
+        sourcemap = kwargs.get("sourcemap", None)
+        if sourcemap != "inline":
+            output_map = "%s.js.map" % name
         esbuild(
             name = name,
             output = "%s.js" % name,
-            output_map = "%s.js.map" % name,
+            output_map = output_map,
             **kwargs
         )
