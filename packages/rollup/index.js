@@ -82,7 +82,16 @@ async function runRollup(cacheKeyData, inputOptions, outputOptions) {
 async function runRollupBundler(args /*, inputs */) {
   const {inputOptions, outputOptions} = await parseCLIArgs(args);
 
-  return runRollup(inputOptions.input, inputOptions, outputOptions);
+  const cacheKeyData = [
+    inputOptions.input,
+
+    // Include changes to externals in the cache key because rollup currently
+    // ignores such changes when using the caching API
+    // See https://github.com/rollup/rollup/issues/3874
+    inputOptions.external
+  ];
+
+  return runRollup(cacheKeyData, inputOptions, outputOptions);
 }
 
 // Processing of --environment CLI options into environment vars

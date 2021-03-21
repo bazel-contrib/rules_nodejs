@@ -31,7 +31,7 @@ yarn add -D @bazel/esbuild
 Add an `http_archive` fetching the esbuild binary for each platform that you need to support. 
 
 ```python
-_ESBUILD_VERSION = "0.8.34"
+_ESBUILD_VERSION = "0.8.48"  # reminder: update SHAs below when changing this value
 http_archive(
     name = "esbuild_darwin",
     urls = [
@@ -39,7 +39,7 @@ http_archive(
     ],
     strip_prefix = "package",
     build_file_content = """exports_files(["bin/esbuild"])""",
-    sha256 = "3bf980b5175df873dd84fd614d57722f3b1b9c7e74929504e26192d23075d5c3",
+    sha256 = "d21a722873ed24586f071973b77223553fca466946f3d7e3976eeaccb14424e6",
 )
 
 http_archive(
@@ -49,7 +49,7 @@ http_archive(
     ],
     strip_prefix = "package",
     build_file_content = """exports_files(["esbuild.exe"])""",
-    sha256 = "826cd58553e7b6910dd22aba001cd72af34e05c9c3e9af567b5b2a6b1c9f3941",
+    sha256 = "fe5dcb97b4c47f9567012f0a45c19c655f3d2e0d76932f6dd12715dbebbd6eb0",
 )
 
 http_archive(
@@ -59,7 +59,7 @@ http_archive(
     ],
     strip_prefix = "package",
     build_file_content = """exports_files(["bin/esbuild"])""",
-    sha256 = "9dff3f5b06fd964a1cbb6aa9ea5ebf797767f1bd2bac71e084fb0bbefeba24a3",
+    sha256 = "60dabe141e5dfcf99e7113bded6012868132068a582a102b258fb7b1cfdac14b",
 )
 ```
 
@@ -129,33 +129,154 @@ This will create an output directory containing all the code split chunks, along
 **USAGE**
 
 <pre>
-esbuild(<a href="#esbuild-name">name</a>, <a href="#esbuild-output_dir">output_dir</a>, <a href="#esbuild-kwargs">kwargs</a>)
+esbuild(<a href="#esbuild-name">name</a>, <a href="#esbuild-args">args</a>, <a href="#esbuild-define">define</a>, <a href="#esbuild-deps">deps</a>, <a href="#esbuild-entry_point">entry_point</a>, <a href="#esbuild-external">external</a>, <a href="#esbuild-format">format</a>, <a href="#esbuild-link_workspace_root">link_workspace_root</a>, <a href="#esbuild-max_threads">max_threads</a>,
+        <a href="#esbuild-minify">minify</a>, <a href="#esbuild-output">output</a>, <a href="#esbuild-output_dir">output_dir</a>, <a href="#esbuild-output_map">output_map</a>, <a href="#esbuild-platform">platform</a>, <a href="#esbuild-sources_content">sources_content</a>, <a href="#esbuild-srcs">srcs</a>, <a href="#esbuild-target">target</a>, <a href="#esbuild-tool">tool</a>)
 </pre>
 
-esbuild helper macro around the `esbuild_bundle` rule
+Runs the esbuild bundler under Bazel
 
-For a full list of attributes, see the `esbuild_bundle` rule
+For further information about esbuild, see https://esbuild.github.io/
+    
 
-
-**PARAMETERS**
+**ATTRIBUTES**
 
 
 <h4 id="esbuild-name">name</h4>
 
-The name used for this rule and output files
+(*<a href="https://bazel.build/docs/build-ref.html#name">Name</a>, mandatory*): A unique name for this target.
 
+
+<h4 id="esbuild-args">args</h4>
+
+(*List of strings*): A list of extra arguments that are included in the call to esbuild
+
+Defaults to `[]`
+
+<h4 id="esbuild-define">define</h4>
+
+(*List of strings*): A list of global identifier replacements.
+Example:
+```python
+esbuild(
+    name = "bundle",
+    define = [
+        "process.env.NODE_ENV=\"production\""
+    ],
+)
+```
+
+See https://esbuild.github.io/api/#define for more details
+
+Defaults to `[]`
+
+<h4 id="esbuild-deps">deps</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*): A list of direct dependencies that are required to build the bundle
+
+Defaults to `[]`
+
+<h4 id="esbuild-entry_point">entry_point</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>, mandatory*): The bundle's entry point (e.g. your main.js or app.js or index.js)
+
+
+<h4 id="esbuild-external">external</h4>
+
+(*List of strings*): A list of module names that are treated as external and not included in the resulting bundle
+
+See https://esbuild.github.io/api/#external for more details
+
+Defaults to `[]`
+
+<h4 id="esbuild-format">format</h4>
+
+(*String*): The output format of the bundle, defaults to iife when platform is browser
+and cjs when platform is node. If performing code splitting, defaults to esm.
+
+See https://esbuild.github.io/api/#format for more details
+
+Defaults to `""`
+
+<h4 id="esbuild-link_workspace_root">link_workspace_root</h4>
+
+(*Boolean*): Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.
+    If source files need to be required then they can be copied to the bin_dir with copy_to_bin.
+
+Defaults to `False`
+
+<h4 id="esbuild-max_threads">max_threads</h4>
+
+(*Integer*): Sets the `GOMAXPROCS` variable to limit the number of threads that esbuild can run with.
+This can be useful if running many esbuild rule invocations in parallel, which has the potential to cause slowdown.
+For general use, leave this attribute unset.
+
+Defaults to `0`
+
+<h4 id="esbuild-minify">minify</h4>
+
+(*Boolean*): Minifies the bundle with the built in minification.
+Removes whitespace, shortens identifieres and uses equivalent but shorter syntax.
+
+Sets all --minify-* flags
+
+See https://esbuild.github.io/api/#minify for more details
+
+Defaults to `False`
+
+<h4 id="esbuild-output">output</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): Name of the output file when bundling
 
 
 <h4 id="esbuild-output_dir">output_dir</h4>
 
-If `True`, produce a code split bundle in an output directory
+(*Boolean*): If true, esbuild produces an output directory containing all the output files from code splitting
+
+See https://esbuild.github.io/api/#splitting for more details
 
 Defaults to `False`
 
-<h4 id="esbuild-kwargs">kwargs</h4>
+<h4 id="esbuild-output_map">output_map</h4>
 
-All other args from `esbuild_bundle`
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>*): Name of the output source map when bundling
 
+
+<h4 id="esbuild-platform">platform</h4>
+
+(*String*): The platform to bundle for.
+
+See https://esbuild.github.io/api/#platform for more details
+
+Defaults to `"browser"`
+
+<h4 id="esbuild-sources_content">sources_content</h4>
+
+(*Boolean*): If False, omits the `sourcesContent` field from generated source maps
+
+See https://esbuild.github.io/api/#sources-content for more details
+
+Defaults to `False`
+
+<h4 id="esbuild-srcs">srcs</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a>*): Non-entry point JavaScript source files from the workspace.
+
+You must not repeat file(s) passed to entry_point
+
+Defaults to `[]`
+
+<h4 id="esbuild-target">target</h4>
+
+(*String*): Environment target (e.g. es2017, chrome58, firefox57, safari11, 
+edge16, node10, default esnext)
+
+See https://esbuild.github.io/api/#target for more details
+
+Defaults to `"es2015"`
+
+<h4 id="esbuild-tool">tool</h4>
+
+(*<a href="https://bazel.build/docs/build-ref.html#labels">Label</a>, mandatory*): An executable for the esbuild binary
 
 
 

@@ -16,11 +16,14 @@ If you have a small change, it's easiest to just patch the distributed artifacts
 
 ## Patching the npm packages
 
-The pattern we use most commonly is to add a `postinstall` hook to your `package.json` that patches files after they've been fetched from npm.
+The pattern we use most commonly is to use [patch-package]. To store your local changes to the npm packages follow the steps:
 
-See `/tools/postinstall-patches.js` in the [Angular repo] for an example.
+1. `npm i -D patch-package`
+1. Edit the target package in your `node_modules`
+1. Run `npx patch-package <npm package>`. This will store the patch in the `patches/` directory in the root of the workspace
+1. Add `"postinstall": "patch-package"` to the `package.json` in your repo to apply the patches when building dependencies (aka at `npm install`)
 
-[Angular repo]: https://github.com/angular/angular/tree/master/tools/postinstall-patches.js
+[patch-package]: https://www.npmjs.com/package/patch-package
 
 ## Patching the built-in release
 

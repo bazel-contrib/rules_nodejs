@@ -256,7 +256,7 @@ Defaults to `"1.19.1"`
 **USAGE**
 
 <pre>
-nodejs_binary(<a href="#nodejs_binary-name">name</a>, <a href="#nodejs_binary-chdir">chdir</a>, <a href="#nodejs_binary-configuration_env_vars">configuration_env_vars</a>, <a href="#nodejs_binary-data">data</a>, <a href="#nodejs_binary-default_env_vars">default_env_vars</a>, <a href="#nodejs_binary-entry_point">entry_point</a>,
+nodejs_binary(<a href="#nodejs_binary-name">name</a>, <a href="#nodejs_binary-chdir">chdir</a>, <a href="#nodejs_binary-configuration_env_vars">configuration_env_vars</a>, <a href="#nodejs_binary-data">data</a>, <a href="#nodejs_binary-default_env_vars">default_env_vars</a>, <a href="#nodejs_binary-entry_point">entry_point</a>, <a href="#nodejs_binary-env">env</a>,
               <a href="#nodejs_binary-link_workspace_root">link_workspace_root</a>, <a href="#nodejs_binary-templated_args">templated_args</a>)
 </pre>
 
@@ -377,6 +377,13 @@ nodejs_binary(
 ```
 
 
+<h4 id="nodejs_binary-env">env</h4>
+
+(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): Specifies additional environment variables to set when the target is executed, subject to location
+expansion.
+
+Defaults to `{}`
+
 <h4 id="nodejs_binary-link_workspace_root">link_workspace_root</h4>
 
 (*Boolean*): Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.
@@ -472,7 +479,7 @@ Defaults to `[]`
 **USAGE**
 
 <pre>
-nodejs_test(<a href="#nodejs_test-name">name</a>, <a href="#nodejs_test-chdir">chdir</a>, <a href="#nodejs_test-configuration_env_vars">configuration_env_vars</a>, <a href="#nodejs_test-data">data</a>, <a href="#nodejs_test-default_env_vars">default_env_vars</a>, <a href="#nodejs_test-entry_point">entry_point</a>,
+nodejs_test(<a href="#nodejs_test-name">name</a>, <a href="#nodejs_test-chdir">chdir</a>, <a href="#nodejs_test-configuration_env_vars">configuration_env_vars</a>, <a href="#nodejs_test-data">data</a>, <a href="#nodejs_test-default_env_vars">default_env_vars</a>, <a href="#nodejs_test-entry_point">entry_point</a>, <a href="#nodejs_test-env">env</a>,
             <a href="#nodejs_test-expected_exit_code">expected_exit_code</a>, <a href="#nodejs_test-link_workspace_root">link_workspace_root</a>, <a href="#nodejs_test-templated_args">templated_args</a>)
 </pre>
 
@@ -619,6 +626,13 @@ nodejs_binary(
 ```
 
 
+<h4 id="nodejs_test-env">env</h4>
+
+(*<a href="https://bazel.build/docs/skylark/lib/dict.html">Dictionary: String -> String</a>*): Specifies additional environment variables to set when the target is executed, subject to location
+expansion.
+
+Defaults to `{}`
+
 <h4 id="nodejs_test-expected_exit_code">expected_exit_code</h4>
 
 (*Integer*): The expected exit code for the test. Defaults to 0.
@@ -720,35 +734,16 @@ Defaults to `[]`
 **USAGE**
 
 <pre>
-npm_install(<a href="#npm_install-name">name</a>, <a href="#npm_install-args">args</a>, <a href="#npm_install-data">data</a>, <a href="#npm_install-environment">environment</a>, <a href="#npm_install-included_files">included_files</a>, <a href="#npm_install-manual_build_file_contents">manual_build_file_contents</a>, <a href="#npm_install-npm_command">npm_command</a>,
-            <a href="#npm_install-package_json">package_json</a>, <a href="#npm_install-package_lock_json">package_lock_json</a>, <a href="#npm_install-package_path">package_path</a>, <a href="#npm_install-quiet">quiet</a>, <a href="#npm_install-repo_mapping">repo_mapping</a>, <a href="#npm_install-strict_visibility">strict_visibility</a>,
-            <a href="#npm_install-symlink_node_modules">symlink_node_modules</a>, <a href="#npm_install-timeout">timeout</a>)
+npm_install(<a href="#npm_install-name">name</a>, <a href="#npm_install-args">args</a>, <a href="#npm_install-data">data</a>, <a href="#npm_install-environment">environment</a>, <a href="#npm_install-generate_local_modules_build_files">generate_local_modules_build_files</a>, <a href="#npm_install-included_files">included_files</a>,
+            <a href="#npm_install-manual_build_file_contents">manual_build_file_contents</a>, <a href="#npm_install-npm_command">npm_command</a>, <a href="#npm_install-package_json">package_json</a>, <a href="#npm_install-package_lock_json">package_lock_json</a>, <a href="#npm_install-package_path">package_path</a>,
+            <a href="#npm_install-quiet">quiet</a>, <a href="#npm_install-repo_mapping">repo_mapping</a>, <a href="#npm_install-strict_visibility">strict_visibility</a>, <a href="#npm_install-symlink_node_modules">symlink_node_modules</a>, <a href="#npm_install-timeout">timeout</a>)
 </pre>
 
 Runs npm install during workspace setup.
 
 This rule will set the environment variable `BAZEL_NPM_INSTALL` to '1' (unless it
-set to another value in the environment attribute). Scripts may use to this to 
+set to another value in the environment attribute). Scripts may use to this to
 check if yarn is being run by the `npm_install` repository rule.
-
-
-**LOCAL MODULES WITH THE NEED TO BE USED BOTH INSIDE AND OUTSIDE BAZEL**
-
-When using a monorepo it's common to have modules that we want to use locally and
-publish to an external package repository. This can be achieved using a `js_library` rule
-with a `package_name` attribute defined inside the local package `BUILD` file. However,
-if the project relies on the local package dependency with `file:`, this could introduce a
-race condition with the `npm_install` rule.
-
-In order to overcome it, a link will be created to the package `BUILD` file from the
-npm external Bazel repository, which require us to complete a last step which is writing
-the expected targets on that same `BUILD` file to be later used by the `npm_install`
-rule, which are: `<package_name__files>`, `<package_name__nested_node_modules>`,
-`<package_name__contents>`, `<package_name__typings>` and the last
-one just `<package_name>`.
-
-If you doubt what those targets should look like, check the
-generated `BUILD` file for a given node module.
 
 **ATTRIBUTES**
 
@@ -787,6 +782,30 @@ Defaults to `[]`
 
 Defaults to `{}`
 
+<h4 id="npm_install-generate_local_modules_build_files">generate_local_modules_build_files</h4>
+
+(*Boolean*): Enables the BUILD files auto generation for local modules installed with `file:` (npm) or `link:` (yarn)
+
+When using a monorepo it's common to have modules that we want to use locally and
+publish to an external package repository. This can be achieved using a `js_library` rule
+with a `package_name` attribute defined inside the local package `BUILD` file. However,
+if the project relies on the local package dependency with `file:` (npm) or `link:` (yarn) to be used outside Bazel, this
+could introduce a race condition with both `npm_install` or `yarn_install` rules.
+
+In order to overcome it, a link could be created to the package `BUILD` file from the
+npm external Bazel repository (so we can use a local BUILD file instead of an auto generated one),
+which require us to set `generate_local_modules_build_files = False` and complete a last step which is writing the
+expected targets on that same `BUILD` file to be later used both by `npm_install` or `yarn_install`
+rules, which are: `<package_name__files>`, `<package_name__nested_node_modules>`,
+`<package_name__contents>`, `<package_name__typings>` and the last one just `<package_name>`. If you doubt what those targets
+should look like, check the generated `BUILD` file for a given node module.
+
+When true, the rule will follow the default behaviour of auto generating BUILD files for each `node_module` at install time.
+
+When False, the rule will not auto generate BUILD files for `node_modules` that are installed as symlinks for local modules.
+
+Defaults to `True`
+
 <h4 id="npm_install-included_files">included_files</h4>
 
 (*List of strings*): List of file extensions to be included in the npm package targets.
@@ -824,9 +843,9 @@ Defaults to `""`
 <h4 id="npm_install-npm_command">npm_command</h4>
 
 (*String*): The npm command to run, to install dependencies.
-            
+
             See npm docs <https://docs.npmjs.com/cli/v6/commands>
-            
+
             In particular, for "ci" it says:
             > If dependencies in the package lock do not match those in package.json, npm ci will exit with an error, instead of updating the package lock.
 
@@ -1123,35 +1142,17 @@ Defaults to `{}`
 **USAGE**
 
 <pre>
-yarn_install(<a href="#yarn_install-name">name</a>, <a href="#yarn_install-args">args</a>, <a href="#yarn_install-data">data</a>, <a href="#yarn_install-environment">environment</a>, <a href="#yarn_install-frozen_lockfile">frozen_lockfile</a>, <a href="#yarn_install-included_files">included_files</a>,
-             <a href="#yarn_install-manual_build_file_contents">manual_build_file_contents</a>, <a href="#yarn_install-package_json">package_json</a>, <a href="#yarn_install-package_path">package_path</a>, <a href="#yarn_install-quiet">quiet</a>, <a href="#yarn_install-repo_mapping">repo_mapping</a>,
-             <a href="#yarn_install-strict_visibility">strict_visibility</a>, <a href="#yarn_install-symlink_node_modules">symlink_node_modules</a>, <a href="#yarn_install-timeout">timeout</a>, <a href="#yarn_install-use_global_yarn_cache">use_global_yarn_cache</a>, <a href="#yarn_install-yarn_lock">yarn_lock</a>)
+yarn_install(<a href="#yarn_install-name">name</a>, <a href="#yarn_install-args">args</a>, <a href="#yarn_install-data">data</a>, <a href="#yarn_install-environment">environment</a>, <a href="#yarn_install-frozen_lockfile">frozen_lockfile</a>, <a href="#yarn_install-generate_local_modules_build_files">generate_local_modules_build_files</a>,
+             <a href="#yarn_install-included_files">included_files</a>, <a href="#yarn_install-manual_build_file_contents">manual_build_file_contents</a>, <a href="#yarn_install-package_json">package_json</a>, <a href="#yarn_install-package_path">package_path</a>, <a href="#yarn_install-quiet">quiet</a>,
+             <a href="#yarn_install-repo_mapping">repo_mapping</a>, <a href="#yarn_install-strict_visibility">strict_visibility</a>, <a href="#yarn_install-symlink_node_modules">symlink_node_modules</a>, <a href="#yarn_install-timeout">timeout</a>, <a href="#yarn_install-use_global_yarn_cache">use_global_yarn_cache</a>,
+             <a href="#yarn_install-yarn_lock">yarn_lock</a>)
 </pre>
 
 Runs yarn install during workspace setup.
 
 This rule will set the environment variable `BAZEL_YARN_INSTALL` to '1' (unless it
-set to another value in the environment attribute). Scripts may use to this to 
+set to another value in the environment attribute). Scripts may use to this to
 check if yarn is being run by the `yarn_install` repository rule.
-
-
-**LOCAL MODULES WITH THE NEED TO BE USED BOTH INSIDE AND OUTSIDE BAZEL**
-
-When using a monorepo it's common to have modules that we want to use locally and
-publish to an external package repository. This can be achieved using a `js_library` rule
-with a `package_name` attribute defined inside the local package `BUILD` file. However,
-if the project relies on the local package dependency with `link:`, this could introduce a
-race condition with the `yarn_install` rule.
-
-In order to overcome it, a link will be created to the package `BUILD` file from the
-npm external Bazel repository, which require us to complete a last step which is writing
-the expected targets on that same `BUILD` file to be later used by the `yarn_install`
-rule, which are: `<package_name__files>`, `<package_name__nested_node_modules>`,
-`<package_name__contents>`, `<package_name__typings>` and the last
-one just `<package_name>`.
-
-If you doubt what those targets should look like, check the
-generated `BUILD` file for a given node module.
 
 **ATTRIBUTES**
 
@@ -1202,6 +1203,30 @@ file. This helps to have reproducible builds across builds.
 To update a dependency or install a new one run the `yarn install` command with the
 vendored yarn binary. `bazel run @nodejs//:yarn install`. You can pass the options like
 `bazel run @nodejs//:yarn install -- -D <dep-name>`.
+
+Defaults to `True`
+
+<h4 id="yarn_install-generate_local_modules_build_files">generate_local_modules_build_files</h4>
+
+(*Boolean*): Enables the BUILD files auto generation for local modules installed with `file:` (npm) or `link:` (yarn)
+
+When using a monorepo it's common to have modules that we want to use locally and
+publish to an external package repository. This can be achieved using a `js_library` rule
+with a `package_name` attribute defined inside the local package `BUILD` file. However,
+if the project relies on the local package dependency with `file:` (npm) or `link:` (yarn) to be used outside Bazel, this
+could introduce a race condition with both `npm_install` or `yarn_install` rules.
+
+In order to overcome it, a link could be created to the package `BUILD` file from the
+npm external Bazel repository (so we can use a local BUILD file instead of an auto generated one),
+which require us to set `generate_local_modules_build_files = False` and complete a last step which is writing the
+expected targets on that same `BUILD` file to be later used both by `npm_install` or `yarn_install`
+rules, which are: `<package_name__files>`, `<package_name__nested_node_modules>`,
+`<package_name__contents>`, `<package_name__typings>` and the last one just `<package_name>`. If you doubt what those targets
+should look like, check the generated `BUILD` file for a given node module.
+
+When true, the rule will follow the default behaviour of auto generating BUILD files for each `node_module` at install time.
+
+When False, the rule will not auto generate BUILD files for `node_modules` that are installed as symlinks for local modules.
 
 Defaults to `True`
 
@@ -1583,7 +1608,7 @@ used for undocumented legacy features
 **USAGE**
 
 <pre>
-npm_package_bin(<a href="#npm_package_bin-tool">tool</a>, <a href="#npm_package_bin-package">package</a>, <a href="#npm_package_bin-package_bin">package_bin</a>, <a href="#npm_package_bin-data">data</a>, <a href="#npm_package_bin-outs">outs</a>, <a href="#npm_package_bin-args">args</a>, <a href="#npm_package_bin-output_dir">output_dir</a>, <a href="#npm_package_bin-link_workspace_root">link_workspace_root</a>,
+npm_package_bin(<a href="#npm_package_bin-tool">tool</a>, <a href="#npm_package_bin-package">package</a>, <a href="#npm_package_bin-package_bin">package_bin</a>, <a href="#npm_package_bin-data">data</a>, <a href="#npm_package_bin-env">env</a>, <a href="#npm_package_bin-outs">outs</a>, <a href="#npm_package_bin-args">args</a>, <a href="#npm_package_bin-output_dir">output_dir</a>, <a href="#npm_package_bin-link_workspace_root">link_workspace_root</a>,
                 <a href="#npm_package_bin-chdir">chdir</a>, <a href="#npm_package_bin-kwargs">kwargs</a>)
 </pre>
 
@@ -1629,6 +1654,12 @@ similar to [genrule.srcs](https://docs.bazel.build/versions/master/be/general.ht
 may also include targets that produce or reference npm packages which are needed by the tool
 
 Defaults to `[]`
+
+<h4 id="npm_package_bin-env">env</h4>
+
+specifies additional environment variables to set when the target is executed
+
+Defaults to `{}`
 
 <h4 id="npm_package_bin-outs">outs</h4>
 

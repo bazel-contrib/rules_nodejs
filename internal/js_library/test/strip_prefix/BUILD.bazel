@@ -1,0 +1,17 @@
+load("//:index.bzl", "js_library", "nodejs_test")
+
+js_library(
+    name = "stripped_library",
+    package_name = "stripped_library",
+    srcs = ["library/file.js"],
+    strip_prefix = "library",
+)
+
+nodejs_test(
+    name = "test",
+    data = [
+        "test.js",
+        ":stripped_library",
+    ],
+    entry_point = "test.js",
+)

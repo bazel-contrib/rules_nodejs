@@ -14,6 +14,7 @@ ts_library(
 
 esbuild(
     name = "bundle",
+    args = ["--keep-names"],
     define = [
         "process.env.NODE_ENV=\"defined_in_bundle\"",
     ],

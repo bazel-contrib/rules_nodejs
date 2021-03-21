@@ -11,6 +11,7 @@ _ATTRS = {
     "chdir": attr.string(),
     "configuration_env_vars": attr.string_list(default = []),
     "data": attr.label_list(allow_files = True, aspects = [module_mappings_aspect, node_modules_aspect]),
+    "env": attr.string_dict(default = {}),
     "exit_code_out": attr.output(),
     "link_workspace_root": attr.bool(),
     "output_dir": attr.bool(),
@@ -80,6 +81,7 @@ def _impl(ctx):
         arguments = [args],
         configuration_env_vars = ctx.attr.configuration_env_vars,
         chdir = expand_variables(ctx, ctx.attr.chdir),
+        env = ctx.attr.env,
         stdout = ctx.outputs.stdout,
         stderr = ctx.outputs.stderr,
         exit_code_out = ctx.outputs.exit_code_out,
@@ -93,7 +95,21 @@ _npm_package_bin = rule(
     attrs = _ATTRS,
 )
 
-def npm_package_bin(tool = None, package = None, package_bin = None, data = [], outs = [], args = [], output_dir = False, link_workspace_root = False, chdir = None, **kwargs):
+def npm_package_bin(
+        tool = None,
+        package = None,
+        package_bin = None,
+        data = [],
+        env = {},
+        outs = [],
+        args = [],
+        stderr = None,
+        stdout = None,
+        exit_code_out = None,
+        output_dir = False,
+        link_workspace_root = False,
+        chdir = None,
+        **kwargs):
     """Run an arbitrary npm package binary (e.g. a program under node_modules/.bin/*) under Bazel.
 
     It must produce outputs. If you just want to run a program with `bazel run`, use the nodejs_binary rule.
@@ -192,6 +208,7 @@ def npm_package_bin(tool = None, package = None, package_bin = None, data = [], 
                 args = ["/".join([".."] * _package_segments + ["$@"])],
             )
             ```
+        env: specifies additional environment variables to set when the target is executed
         **kwargs: additional undocumented keyword args
     """
     if not tool:
@@ -205,6 +222,10 @@ def npm_package_bin(tool = None, package = None, package_bin = None, data = [], 
         outs = outs,
         args = args,
         chdir = chdir,
+        env = env,
+        stdout = stdout,
+        stderr = stderr,
+        exit_code_out = exit_code_out,
         output_dir = output_dir,
         tool = tool,
         link_workspace_root = link_workspace_root,

@@ -8,6 +8,7 @@ exports_files(["LICENSE"])
 
 _CONTENT = [
     "package.json",
+    "register.js",
     "source-map-support.js",
 ]
 

@@ -16,12 +16,14 @@ ts_library(
 
 esbuild(
     name = "bundle",
+    args = ["--keep-names"],
     entry_point = "a.ts",
     deps = [":lib"],
 )
 
 esbuild(
     name = "bundle.min",
+    args = ["--keep-names"],
     entry_point = "a.ts",
     minify = True,
     deps = [":lib"],
@@ -29,6 +31,7 @@ esbuild(
 
 esbuild(
     name = "bundle.split",
+    args = ["--keep-names"],
     entry_point = "a.ts",
     output_dir = True,
     deps = [":lib"],

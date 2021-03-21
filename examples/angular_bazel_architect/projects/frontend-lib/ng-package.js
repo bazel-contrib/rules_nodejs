@@ -1,10 +1,8 @@
-
 const { resolve } = require('path');
 
-module.exports = {
-  dest: resolve(process.argv.pop()),
-  lib: {
-    entryFile: 'src/public-api.ts'
-  }
-}
+const [outputPath] = process.argv.slice(-1);
 
+module.exports = {
+  dest: resolve(outputPath),
+  lib: {entryFile: 'src/public-api.ts'}
+}
