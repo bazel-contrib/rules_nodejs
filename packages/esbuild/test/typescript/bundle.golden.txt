@@ -22,9 +22,7 @@ var __exportStar = (target, module, desc) => {
   return target;
 };
 var __toModule = (module) => {
-  if (module && module.__esModule)
-    return module;
-  return __exportStar(__markAsModule(__defProp(module != null ? __create(__getProtoOf(module)) : {}, "default", {value: module, enumerable: true})), module);
+  return __exportStar(__markAsModule(__defProp(module != null ? __create(__getProtoOf(module)) : {}, "default", module && module.__esModule && "default" in module ? {get: () => module.default, enumerable: true} : {value: module, enumerable: true})), module);
 };
 
 
@@ -60,7 +58,7 @@ var getId3 = /* @__PURE__ */ __name(() => `generated-module`, "getId");
 var getId4 = /* @__PURE__ */ __name(() => "relative-module", "getId");
 
 
-var ID = `Full ID: ${getId()} - ${getId2()} - ${import_module_dynamic.getId()} - ${getId4()} - ${getId3()}`;
+var ID = `Full ID: ${getId()} - ${getId2()} - ${(0, import_module_dynamic.getId)()} - ${getId4()} - ${getId3()}`;
 console.log(ID);
 export {
   ID
