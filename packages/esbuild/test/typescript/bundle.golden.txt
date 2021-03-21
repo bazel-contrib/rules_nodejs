@@ -43,6 +43,40 @@ var require_module_dynamic = __commonJS((exports, module) => {
 });
 
 
+var require_lib = __commonJS((exports, module) => {
+  (function(factory) {
+    if (typeof module === "object" && typeof module.exports === "object") {
+      var v = factory(require, exports);
+      if (v !== void 0)
+        module.exports = v;
+    } else if (typeof define === "function" && define.amd) {
+      define("build_bazel_rules_nodejs/packages/esbuild/test/typescript/generated-module/lib", ["require", "exports"], factory);
+    }
+  })(function(require2, exports2) {
+    "use strict";
+    Object.defineProperty(exports2, "__esModule", {value: true});
+    exports2.getId = () => `generated-module`;
+  });
+});
+
+
+var require_lib2 = __commonJS((exports, module) => {
+  (function(factory) {
+    if (typeof module === "object" && typeof module.exports === "object") {
+      var v = factory(require, exports);
+      if (v !== void 0)
+        module.exports = v;
+    } else if (typeof define === "function" && define.amd) {
+      define("build_bazel_rules_nodejs/packages/esbuild/test/typescript/relative-module/lib", ["require", "exports"], factory);
+    }
+  })(function(require2, exports2) {
+    "use strict";
+    Object.defineProperty(exports2, "__esModule", {value: true});
+    exports2.getId = () => "relative-module";
+  });
+});
+
+
 var import_module_dynamic = __toModule(require_module_dynamic());
 
 
@@ -52,13 +86,9 @@ var getId = /* @__PURE__ */ __name(() => "module-one", "getId");
 var getId2 = /* @__PURE__ */ __name(() => "module-two", "getId");
 
 
-var getId3 = /* @__PURE__ */ __name(() => `generated-module`, "getId");
-
-
-var getId4 = /* @__PURE__ */ __name(() => "relative-module", "getId");
-
-
-var ID = `Full ID: ${getId()} - ${getId2()} - ${(0, import_module_dynamic.getId)()} - ${getId4()} - ${getId3()}`;
+var import_lib = __toModule(require_lib());
+var import_lib2 = __toModule(require_lib2());
+var ID = `Full ID: ${getId()} - ${getId2()} - ${(0, import_module_dynamic.getId)()} - ${(0, import_lib2.getId)()} - ${(0, import_lib.getId)()}`;
 console.log(ID);
 export {
   ID
