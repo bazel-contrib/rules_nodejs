@@ -79,6 +79,19 @@ npm_install(
     package_lock_json = "//packages/node-patches:package-lock.json",
 )
 
+load("@build_bazel_rules_nodejs//internal/npm_tarballs:translate_package_lock.bzl", "translate_package_lock")
+
+# Translate our package.lock file from JSON to Starlark
+translate_package_lock(
+    name = "npm_node_patches_lock",
+    package_lock = "//packages/node-patches:package-lock.json",
+)
+
+load("@npm_node_patches_lock//:index.bzl", _npm_patches_repositories = "npm_repositories")
+
+# # Declare an external repository for each npm package fetchable by the lock file
+_npm_patches_repositories()
+
 npm_install(
     name = "angular_deps",
     package_json = "//packages/angular:package.json",

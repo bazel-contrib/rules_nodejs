@@ -1,0 +1,58 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
+
+# In normal usage, some other rule would extract the NpmTarballInfo
+# For testing we simply want to grab the file
+filegroup(
+    name = "get_typescript",
+    # the internal/node-patches package-lock.json depends on this version of typescript
+    srcs = ["@npm_typescript-3.5.3"],
+    output_group = "direct",
+)
+
+nodejs_test(
+    name = "test_some_package_fetched",
+    data = [":get_typescript"],
+    entry_point = "test_some_package_fetched.js",
+)
+
+filegroup(
+    name = "get_typescript_alias",
+    # Since typescript is a direct dependency, we can point to the version used by this package
+    # without having to specify (it's an alias)
+    srcs = ["@npm_node_patches_lock//typescript"],
+    output_group = "direct",
+)
+
+# Run the same test again but point to this filegroup to be sure the same typescript was there
+nodejs_test(
+    name = "test_alias",
+    data = [":get_typescript_alias"],
+    entry_point = "test_some_package_fetched.js",
+)
+
+filegroup(
+    name = "get_all_devdeps",
+    # Check that there's also a syntax-sugar for "all the devDependencies listed"
+    srcs = ["@npm_node_patches_lock//:devDependencies"],
+    output_group = "transitive",
+)
+
+# Run that same test again, typescript should be in here
+nodejs_test(
+    name = "test_alldevdeps",
+    data = [":get_all_devdeps"],
+    entry_point = "test_some_package_fetched.js",
+)
+
+filegroup(
+    name = "get_ansi-align",
+    # According to package-lock.json, it depends on string-width@3.1.0
+    srcs = ["@npm_ansi-align-3.0.0"],
+    output_group = "transitive",
+)
+
+nodejs_test(
+    name = "test_dependencies_available",
+    data = [":get_ansi-align"],
+    entry_point = "test_dependencies_available.js",
+)
