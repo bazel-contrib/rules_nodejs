@@ -81,7 +81,7 @@ def yarn_install(**kwargs):
 # against.
 # This version should be updated together with the version of the Bazel
 # in .bazelversion. This is asserted in //internal:bazel_version_test.
-BAZEL_VERSION = "3.6.0"
+BAZEL_VERSION = "4.0.0"
 
 # Versions of Bazel which users should be able to use.
 # Ensures we don't break backwards-compatibility,
@@ -89,8 +89,9 @@ BAZEL_VERSION = "3.6.0"
 # These are the versions used when testing nested workspaces with
 # bazel_integration_test.
 SUPPORTED_BAZEL_VERSIONS = [
-    # TODO: add LTS versions of bazel like 1.0.0, 2.0.0
     BAZEL_VERSION,
+    "3.6.0",
+    "2.2.0",
 ]
 
 def check_rules_nodejs_version(minimum_version_string):
