@@ -1,4 +1,4 @@
-const { stat } = require("fs");
+const { readFileSync } = require("fs");
 const path = require("path");
 
 const helper = require(process.env.BAZEL_NODE_RUNFILES_HELPER);
@@ -14,8 +14,7 @@ describe("esbuild css", () => {
   });
 
   it("css if requested", () => {
-    stat(cssExpected, (err, stats) => {
-      expect(err).toBeNull();
-    });
+    const contents = readFileSync(cssExpected, { encoding: "utf8" });
+    expect(contents).toContain("external-content");
   });
 });
