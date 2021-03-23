@@ -225,7 +225,7 @@ See https://esbuild.github.io/api/#platform for more details
             """,
         ),
         "sourcemap": attr.string(
-            values = ["external", "inline", "both"],
+            values = ["external", "inline", "both", ""],
             mandatory = False,
             doc = """Defines where sourcemaps are output and how they are included in the bundle. By default, a separate `.js.map` file is generated and referenced by the bundle. If 'external', a separate `.js.map` file is generated but not referenced by the bundle. If 'inline', a sourcemap is generated and its contents are inlined into the bundle (and no external sourcemap file is created). If 'both', a sourcemap is inlined and a `.js.map` file is created.
 
