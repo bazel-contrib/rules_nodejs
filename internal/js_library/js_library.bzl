@@ -212,7 +212,9 @@ def _impl(ctx):
             files = depset(transitive = files_depsets),
             runfiles = ctx.runfiles(
                 files = all_files,
-                transitive_files = depset(transitive = files_depsets),
+                transitive_files = depset(
+                    transitive = files_depsets + typings_depsets,
+                ),
             ),
         ),
         AmdNamesInfo(names = ctx.attr.amd_names),
