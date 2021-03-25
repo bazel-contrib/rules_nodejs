@@ -1680,8 +1680,8 @@ It will also provide <a href="https://docs.bazel.build/versions/master/skylark/l
 <p><strong>USAGE</strong></p>
 
 <pre>
-npm_package_bin(<a href="#npm_package_bin-tool">tool</a>, <a href="#npm_package_bin-package">package</a>, <a href="#npm_package_bin-package_bin">package_bin</a>, <a href="#npm_package_bin-data">data</a>, <a href="#npm_package_bin-env">env</a>, <a href="#npm_package_bin-outs">outs</a>, <a href="#npm_package_bin-args">args</a>, <a href="#npm_package_bin-output_dir">output_dir</a>, <a href="#npm_package_bin-link_workspace_root">link_workspace_root</a>,
-                <a href="#npm_package_bin-chdir">chdir</a>, <a href="#npm_package_bin-kwargs">kwargs</a>)
+npm_package_bin(<a href="#npm_package_bin-tool">tool</a>, <a href="#npm_package_bin-package">package</a>, <a href="#npm_package_bin-package_bin">package_bin</a>, <a href="#npm_package_bin-data">data</a>, <a href="#npm_package_bin-env">env</a>, <a href="#npm_package_bin-outs">outs</a>, <a href="#npm_package_bin-args">args</a>, <a href="#npm_package_bin-stderr">stderr</a>, <a href="#npm_package_bin-stdout">stdout</a>, <a href="#npm_package_bin-exit_code_out">exit_code_out</a>,
+                <a href="#npm_package_bin-output_dir">output_dir</a>, <a href="#npm_package_bin-link_workspace_root">link_workspace_root</a>, <a href="#npm_package_bin-chdir">chdir</a>, <a href="#npm_package_bin-kwargs">kwargs</a>)
 </pre>
 
 <p>Run an arbitrary npm package binary (e.g. a program under node_modules/.bin/*) under Bazel.</p>
@@ -1785,6 +1785,28 @@ See https://docs.bazel.build/versions/master/be/make-variables.html#predefined_v
 See https://docs.bazel.build/versions/master/be/make-variables.html#custom_variables.</p>
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
+
+<h4 id="npm_package_bin-stderr">stderr</h4>
+
+<p>set to capture the stderr of the binary to a file, which can later be used as an input to another target
+subject to the same semantics as <code class="language-plaintext highlighter-rouge">outs</code></p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">None</code></p>
+
+<h4 id="npm_package_bin-stdout">stdout</h4>
+
+<p>set to capture the stdout of the binary to a file, which can later be used as an input to another target
+subject to the same semantics as <code class="language-plaintext highlighter-rouge">outs</code></p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">None</code></p>
+
+<h4 id="npm_package_bin-exit_code_out">exit_code_out</h4>
+
+<p>set to capture the exit code of the binary to a file, which can later be used as an input to another target
+subject to the same semantics as <code class="language-plaintext highlighter-rouge">outs</code>. Note that setting this will force the binary to exit 0.
+If the binary creates outputs and these are declared, they must still be created</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">None</code></p>
 
 <h4 id="npm_package_bin-output_dir">output_dir</h4>
 

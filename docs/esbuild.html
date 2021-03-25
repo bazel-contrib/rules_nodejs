@@ -291,7 +291,8 @@ esbuild is an extremely fast JavaScript bundler written in Go, its <a href="http
 
 <pre>
 esbuild(<a href="#esbuild-name">name</a>, <a href="#esbuild-args">args</a>, <a href="#esbuild-define">define</a>, <a href="#esbuild-deps">deps</a>, <a href="#esbuild-entry_point">entry_point</a>, <a href="#esbuild-external">external</a>, <a href="#esbuild-format">format</a>, <a href="#esbuild-link_workspace_root">link_workspace_root</a>, <a href="#esbuild-max_threads">max_threads</a>,
-        <a href="#esbuild-minify">minify</a>, <a href="#esbuild-output">output</a>, <a href="#esbuild-output_dir">output_dir</a>, <a href="#esbuild-output_map">output_map</a>, <a href="#esbuild-platform">platform</a>, <a href="#esbuild-sources_content">sources_content</a>, <a href="#esbuild-srcs">srcs</a>, <a href="#esbuild-target">target</a>, <a href="#esbuild-tool">tool</a>)
+        <a href="#esbuild-minify">minify</a>, <a href="#esbuild-output">output</a>, <a href="#esbuild-output_dir">output_dir</a>, <a href="#esbuild-output_map">output_map</a>, <a href="#esbuild-platform">platform</a>, <a href="#esbuild-sourcemap">sourcemap</a>, <a href="#esbuild-sources_content">sources_content</a>, <a href="#esbuild-srcs">srcs</a>, <a href="#esbuild-target">target</a>,
+        <a href="#esbuild-tool">tool</a>)
 </pre>
 
 <p>Runs the esbuild bundler under Bazel</p>
@@ -402,6 +403,14 @@ Removes whitespace, shortens identifieres and uses equivalent but shorter syntax
 <p>See https://esbuild.github.io/api/#platform for more details</p>
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">"browser"</code></p>
+
+<h4 id="esbuild-sourcemap">sourcemap</h4>
+
+<p>(<em>String</em>): Defines where sourcemaps are output and how they are included in the bundle. By default, a separate <code class="language-plaintext highlighter-rouge">.js.map</code> file is generated and referenced by the bundle. If ‘external’, a separate <code class="language-plaintext highlighter-rouge">.js.map</code> file is generated but not referenced by the bundle. If ‘inline’, a sourcemap is generated and its contents are inlined into the bundle (and no external sourcemap file is created). If ‘both’, a sourcemap is inlined and a <code class="language-plaintext highlighter-rouge">.js.map</code> file is created.</p>
+
+<p>See https://esbuild.github.io/api/#sourcemap for more details</p>
+
+<p>Defaults to <code class="language-plaintext highlighter-rouge">""</code></p>
 
 <h4 id="esbuild-sources_content">sources_content</h4>
 
