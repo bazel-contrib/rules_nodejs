@@ -1078,10 +1078,10 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@bazel/ibazel@^0.14.0":
-  version "0.14.0"
-  resolved "https://registry.yarnpkg.com/@bazel/ibazel/-/ibazel-0.14.0.tgz#86fa0002bed2ce1123b7ad98d4dd4623a0d93244"
-  integrity sha512-s0gyec6lArcRDwVfIP6xpY8iEaFpzrSpyErSppd3r2O49pOEg7n6HGS/qJ8ncvme56vrDk6crl/kQ6VAdEO+rg==
+"@bazel/ibazel@^0.15.6":
+  version "0.15.6"
+  resolved "https://registry.yarnpkg.com/@bazel/ibazel/-/ibazel-0.15.6.tgz#8f4359cbf4c57963a7648346a8541591f049cef0"
+  integrity sha512-3acACvwVJSVLSs7FrIh4ocicyvlaGxA+07Pg1sngzKbzym91Js1QcO8N1aqLTOPYmc5X5/cZQctqwYIZP0Y1XQ==
 
 "@cnakazawa/watch@^1.0.3":
   version "1.0.4"
