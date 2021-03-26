@@ -1,1 +1,1 @@
-const a=()=>{return"hello"};
+const a=()=>"hello";
