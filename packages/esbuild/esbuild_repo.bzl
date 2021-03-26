@@ -6,7 +6,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 # IMPORTANT: Keep this file in sync with the documentation in _README.md
 
-_VERSION = "0.8.48"  # reminder: update SHAs below when changing this version
+_VERSION = "0.11.5"  # reminder: update SHAs below when changing this version
 
 def esbuild_dependencies():
     """Helper to install required dependencies for the esbuild rules"""
@@ -20,7 +20,7 @@ def esbuild_dependencies():
         ],
         strip_prefix = "package",
         build_file_content = """exports_files(["bin/esbuild"])""",
-        sha256 = "d21a722873ed24586f071973b77223553fca466946f3d7e3976eeaccb14424e6",
+        sha256 = "98436890727bdb0d4beddd9c9e07d0aeff0e8dfe0169f85e568eca0dd43f665e",
     )
 
     http_archive(
@@ -30,7 +30,7 @@ def esbuild_dependencies():
         ],
         strip_prefix = "package",
         build_file_content = """exports_files(["esbuild.exe"])""",
-        sha256 = "fe5dcb97b4c47f9567012f0a45c19c655f3d2e0d76932f6dd12715dbebbd6eb0",
+        sha256 = "589c8ff97210bd41de106e6317ce88f9e88d2cacfd8178ae1217f2b857ff6c3a",
     )
 
     http_archive(
@@ -40,5 +40,5 @@ def esbuild_dependencies():
         ],
         strip_prefix = "package",
         build_file_content = """exports_files(["bin/esbuild"])""",
-        sha256 = "60dabe141e5dfcf99e7113bded6012868132068a582a102b258fb7b1cfdac14b",
+        sha256 = "113c2e84895f4422a3676db4e15d9f01b2b4fac041edab25284fdb9574ba58a0",
     )
