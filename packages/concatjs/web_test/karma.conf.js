@@ -123,6 +123,25 @@ try {
   }
 
   /**
+   * Helper function to override nested karma config values.
+   */
+  function overrideNestedConfigValue(conf, name, value) {
+    const nameParts = name.split('.');
+    const finalName = nameParts.pop();
+    for (const property of nameParts) {
+      if (!(property in conf)) {
+        conf[property] = {};
+      }
+      conf = conf[property];
+    }
+    if (conf.hasOwnProperty(name)) {
+      console.warn(
+          `Your karma configuration specifies '${name}' which will be overwritten by Bazel`);
+    }
+    conf[finalName] = value;
+  }
+
+  /**
    * Helper function to merge base karma config values that are arrays.
    */
   function mergeConfigArray(conf, name, values) {
@@ -207,6 +226,21 @@ try {
           conf.client, 'requireJsShowNoTimestampsError', requireJsShowNoTimestampsError);
     } else {
       conf.client = {requireJsShowNoTimestampsError};
+    }
+
+    // Enable the junit reporter if the XML_OUTPUT_FILE environment variable
+    // is defined. The configuration for the junit reporter will be created
+    // or overridden with the configuration required for bazel to work properly.
+    const testOutputFile = process.env.XML_OUTPUT_FILE;
+    if (testOutputFile) {
+      mergeConfigArray(conf, 'plugins', [
+        require('karma-junit-reporter'),
+      ]);
+
+      mergeConfigArray(conf, 'reporters', ['junit']);
+      overrideNestedConfigValue(conf, 'junitReporter.outputDir', path.dirname(testOutputFile));
+      overrideNestedConfigValue(conf, 'junitReporter.outputFile', path.basename(testOutputFile));
+      overrideNestedConfigValue(conf, 'junitReporter.useBrowserName', false);
     }
   }
 

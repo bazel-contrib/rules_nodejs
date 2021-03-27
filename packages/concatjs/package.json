@@ -17,6 +17,7 @@
     "main": "./index.js",
     "typings": "./index.d.ts",
     "dependencies": {
+        "karma-junit-reporter": "2.0.1",
         "protobufjs": "6.8.8",
         "source-map-support": "0.5.9",
         "tsutils": "2.27.2"

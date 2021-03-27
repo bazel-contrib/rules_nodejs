@@ -21,6 +21,9 @@ karma_web_test_suite(
     srcs = glob(
         ["*.js"],
         exclude = [
+            "coverage_source_uncovered.js",
+            "coverage_source.js",
+            "coverage.spec.js",
             "unnamed-amd-module.js",
             "init-test.js",
         ],
@@ -43,6 +46,20 @@ karma_web_test_suite(
         "init-test.js",
         "requirejs-config.js",
     ],
+)
+
+karma_web_test_suite(
+    name = "coverage_test",
+    srcs = [
+        "coverage.spec.js",
+        "coverage_source.js",
+        "coverage_source_uncovered.js",
+    ],
+    browsers = [
+        "@io_bazel_rules_webtesting//browsers:chromium-local",
+        "@io_bazel_rules_webtesting//browsers:firefox-local",
+    ],
+    tags = ["native"],
 )
 
 custom_browser(

@@ -25,6 +25,7 @@ KARMA_PEER_DEPS = [
     "@npm//karma-chrome-launcher",
     "@npm//karma-firefox-launcher",
     "@npm//karma-jasmine",
+    "@npm//karma-junit-reporter",
     "@npm//karma-requirejs",
     "@npm//karma-sourcemap-loader",
     "@npm//requirejs",
@@ -386,6 +387,10 @@ def karma_web_test(
       peer_deps: list of peer npm deps required by karma_web_test
       **kwargs: Passed through to `karma_web_test`
     """
+
+    # Filter out dependencies that were declared in peer_deps in order to avoid duplicated
+    # dependencies, which would cause bazel to throw.
+    deps = [dep for dep in deps if not dep in peer_deps]
 
     _karma_web_test(
         srcs = srcs,
