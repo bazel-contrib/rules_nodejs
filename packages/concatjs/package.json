@@ -26,6 +26,7 @@
         "karma-chrome-launcher": ">=2.0.0",
         "karma-firefox-launcher": ">=1.0.0",
         "karma-jasmine": ">=2.0.0",
+        "karma-junit-reporter": ">=2.0.0",
         "karma-requirejs": ">=1.0.0",
         "karma-sourcemap-loader": ">=0.3.0"
     },

@@ -8,6 +8,7 @@
     "karma-chrome-launcher": "2.2.0",
     "karma-firefox-launcher": "1.1.0",
     "karma-jasmine": "2.0.1",
+    "karma-junit-reporter": "2.0.1",
     "karma-json-result-reporter": "1.0.0",
     "karma-requirejs": "1.1.0",
     "karma-sourcemap-loader": "0.3.7",

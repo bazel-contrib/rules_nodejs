@@ -78,6 +78,36 @@ filegroup(
     ],
 )
 
+ts_library(
+    name = "coverage_test_srcs",
+    srcs = [
+        "coverage_source.ts",
+        "coverage_source_uncovered.ts",
+    ],
+)
+
+ts_library(
+    name = "coverage_test_spec_srcs",
+    srcs = ["coverage.spec.ts"],
+    deps = [
+        ":coverage_test_srcs",
+        "@npm//@types/jasmine",
+    ],
+)
+
+karma_web_test_suite(
+    name = "coverage_test",
+    browsers = [
+        "@io_bazel_rules_webtesting//browsers:chromium-local",
+        "@io_bazel_rules_webtesting//browsers:firefox-local",
+    ],
+    tags = ["native"],
+    deps = [
+        # ts_library target, must be TS module
+        ":coverage_test_spec_srcs",
+    ],
+)
+
 jasmine_node_test(
     name = "user_files_test",
     srcs = [
