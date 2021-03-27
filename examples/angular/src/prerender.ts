@@ -14,7 +14,12 @@ const routes = process.argv.slice(routesFlagIdx + 1, process.argv.length);
 const outsFlagIdx = process.argv.findIndex(arg => arg === '--outs');
 const outs = process.argv.slice(outsFlagIdx + 1, routesFlagIdx);
 
-const document = readFileSync(rootIndexPath, { encoding: 'utf8' });
+const document = readFileSync(rootIndexPath, {encoding: 'utf8'})
+                     // Replace the timestamp placeholder for cache busting.
+                     // This is done per build and not per request, so the timestamp
+                     // remains the same, until the app (or more precisely the prerender
+                     // target) is rebuilt.
+                     .replace(/TIMESTAMP-VARIABLE/g, `${Date.now()}`);
 
 const win: any = domino.createWindow(document);
 declare const global: any;

@@ -155,6 +155,7 @@ babel(
         "--no-babelrc",
         "--source-maps",
         "--presets=@babel/preset-env",
+        "--plugins=@babel/plugin-transform-modules-systemjs",
         "--out-dir",
         "$(@D)",
     ],
