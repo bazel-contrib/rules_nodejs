@@ -28,6 +28,9 @@ def _esbuild_impl(ctx):
         elif hasattr(dep, "files"):
             deps_depsets.append(dep.files)
 
+        if DefaultInfo in dep:
+            deps_depsets.append(dep[DefaultInfo].data_runfiles.files)
+
         if NpmPackageInfo in dep:
             deps_depsets.append(dep[NpmPackageInfo].sources)
             npm_workspaces.append(dep[NpmPackageInfo].workspace)

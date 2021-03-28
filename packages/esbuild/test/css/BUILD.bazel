@@ -9,11 +9,25 @@ copy_to_bin(
 )
 
 ts_library(
+    name = "dep",
+    srcs = [
+        "dep.ts",
+    ],
+    data = [
+        ":external_copied",
+    ],
+    deps = [
+        "@npm//@types/node",
+    ],
+)
+
+ts_library(
     name = "main",
     srcs = [
         "main.ts",
     ],
     deps = [
+        ":dep",
         "@npm//@types/node",
     ],
 )
@@ -22,7 +36,6 @@ esbuild(
     name = "default",
     entry_point = "main.ts",
     deps = [
-        "external_copied",
         ":main",
     ],
 )
@@ -32,7 +45,6 @@ esbuild(
     entry_point = "main.ts",
     output_css = True,
     deps = [
-        "external_copied",
         ":main",
     ],
 )

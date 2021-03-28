@@ -1,1 +1,3 @@
-import "./external.css";
+import { dep } from "./dep";
+
+dep();
