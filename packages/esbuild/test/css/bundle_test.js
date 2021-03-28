@@ -8,6 +8,11 @@ const cssExpected = helper.resolve(path.join(locationBase, "with_css.css"));
 
 describe("esbuild css", () => {
   it("no css by default", () => {
+    if (process.platform === "win32") {
+      // Windows has no sandbox, and the runfiles helper will return files
+      // that happen to exist in the folder, even if they are not declared outputs
+      return;
+    }
     expect(() =>
       helper.resolve(path.join(locationBase, "default.css"))
     ).toThrow();
