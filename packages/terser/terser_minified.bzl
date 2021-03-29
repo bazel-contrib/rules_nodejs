@@ -32,6 +32,8 @@ terser_minified(
 Note that the `name` attribute determines what the resulting files will be called.
 So the example above will output `out.min.js` and `out.min.js.map` (since `sourcemap` defaults to `true`).
 If the input is a directory, then the output will also be a directory, named after the `name` attribute.
+Note that this rule is **NOT** recursive. It assumes a flat file structure. Passing in a folder with nested folder
+will result in an empty output directory.
 """
 
 _TERSER_ATTRS = {
