@@ -115,15 +115,17 @@ def _esbuild_impl(ctx):
     if ctx.attr.max_threads > 0:
         env["GOMAXPROCS"] = str(ctx.attr.max_threads)
 
+    execution_requirements = {}
+    if "no-remote-exec" in ctx.attr.tags:
+        execution_requirements = {"no-remote-exec": "1"}
+
     ctx.actions.run(
         inputs = inputs,
         outputs = outputs,
         executable = ctx.executable.tool,
         arguments = [args],
         progress_message = "%s Javascript %s [esbuild]" % ("Bundling" if not ctx.attr.output_dir else "Splitting", entry_point.short_path),
-        execution_requirements = {
-            "no-remote-exec": "1",
-        },
+        execution_requirements = execution_requirements,
         mnemonic = "esbuild",
         env = env,
     )
