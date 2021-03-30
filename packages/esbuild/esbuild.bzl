@@ -109,7 +109,7 @@ def _esbuild_impl(ctx):
     args.add_joined(["--tsconfig", jsconfig_file.path], join_with = "=")
     inputs.append(jsconfig_file)
 
-    args.add_all(ctx.attr.args)
+    args.add_all([ctx.expand_location(arg) for arg in ctx.attr.args])
 
     env = {}
     if ctx.attr.max_threads > 0:
@@ -138,7 +138,8 @@ esbuild = rule(
     attrs = {
         "args": attr.string_list(
             default = [],
-            doc = "A list of extra arguments that are included in the call to esbuild",
+            doc = """A list of extra arguments that are included in the call to esbuild.
+    $(location ...) can be used to resolve the path to a Bazel target.""",
         ),
         "define": attr.string_list(
             default = [],
