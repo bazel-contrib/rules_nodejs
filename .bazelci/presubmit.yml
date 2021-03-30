@@ -22,6 +22,7 @@ tasks:
     # TODO(gregmagolan): figure out how to install missing shared libs
     # Without this filter the @cypress external repository will be built and that build will fail due to missing shared libs.
     - "--build_tag_filters=-cypress"
+    - "--keep_going"
     test_flags:
     # Both chrome & firefox are missing shared libs on bazelci ubuntu.
     # On circleci we have the same issue but we can work around it using apt-get.
@@ -29,6 +30,7 @@ tasks:
     # command to switch to root.
     # TODO(gregmagolan): figure out how to install missing shared libs
     - "--test_tag_filters=-e2e,-examples,-manual,-browser:chromium-local,-browser:firefox-local,-browser:custom_chrome,-cypress"
+    - "--keep_going"
     test_targets:
     - "//..."
     # //internal/node/test:nodejs_toolchain_linux_amd64_test is a "manual" test that must be run
@@ -47,6 +49,7 @@ tasks:
     - echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1536m' >> .bazelrc
     build_flags:
     - "--build_tag_filters=e2e,-cypress"
+    - "--keep_going"
     build_targets:
     - "//..."
     # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
@@ -63,6 +66,7 @@ tasks:
     # command to switch to root.
     # TODO(gregmagolan): figure out how to install missing shared libs
     - "--test_arg=--test_tag_filters=-manual,-browser:chromium-local,-browser:firefox-local,-cypress"
+    - "--keep_going"
     test_targets:
     - "//..."
   ubuntu1604_examples:
@@ -78,6 +82,7 @@ tasks:
     - echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1536m' >> .bazelrc
     build_flags:
     - "--build_tag_filters=examples,-cypress"
+    - "--keep_going"
     build_targets:
     - "//..."
     # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
@@ -94,6 +99,7 @@ tasks:
     # command to switch to root.
     # TODO(gregmagolan): figure out how to install missing shared libs
     - "--test_arg=--test_tag_filters=-manual,-browser:chromium-local,-browser:firefox-local,-cypress"
+    - "--keep_going"
     test_targets:
     - "//..."
     # The following examples only works on linux as it downloads the linux node distribution
@@ -123,6 +129,7 @@ tasks:
     # Build the docs up to the point of running Jekyll as this requires some locally installed deps
     # Building the stardoc targets provides a little test coverage in formatting etc
     - "//docs:builtins_md"
+    - "--keep_going"
     test_flags:
     # Both chrome & firefox are missing shared libs on bazelci ubuntu.
     # On circleci we have the same issue but we can work around it using apt-get.
@@ -130,6 +137,7 @@ tasks:
     # command to switch to root.
     # TODO(gregmagolan): figure out how to install missing shared libs
     - "--test_tag_filters=-e2e,-examples,-manual,-browser:chromium-local,-browser:firefox-local,-browser:custom_chrome,-cypress"
+    - "--keep_going"
     test_targets:
     - "//..."
     # //internal/node/test:nodejs_toolchain_linux_amd64_test is a "manual" test that must be run
@@ -142,6 +150,7 @@ tasks:
     # TODO(gregmagolan): figure out how to install missing shared libs
     # Without this filter the @cypress external repository will be built and that build will fail due to missing shared libs.
     - "--build_tag_filters=-cypress"
+    - "--keep_going"
     test_flags:
     - "--compilation_mode=dbg"
     - "--define=VERBOSE_LOGS=1"
@@ -151,6 +160,7 @@ tasks:
     # command to switch to root.
     # TODO(gregmagolan): figure out how to install missing shared libs
     - "--test_tag_filters=-e2e,-examples,-manual,-browser:chromium-local,-browser:firefox-local,-browser:custom_chrome,-cypress"
+    - "--keep_going"
     test_targets:
     - "//..."
   ubuntu1804_e2e:
@@ -166,6 +176,7 @@ tasks:
     - echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1536m' >> .bazelrc
     build_flags:
     - "--build_tag_filters=e2e,-cypress"
+    - "--keep_going"
     build_targets:
     - "//..."
     # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
@@ -182,6 +193,7 @@ tasks:
     # command to switch to root.
     # TODO(gregmagolan): figure out how to install missing shared libs
     - "--test_arg=--test_tag_filters=-manual,-browser:chromium-local,-browser:firefox-local,-cypress"
+    - "--keep_going"
     test_targets:
     - "//..."
   ubuntu1804_examples:
@@ -197,6 +209,7 @@ tasks:
     - echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1536m' >> .bazelrc
     build_flags:
     - "--build_tag_filters=examples,-cypress"
+    - "--keep_going"
     build_targets:
     - "//..."
     # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
@@ -213,6 +226,7 @@ tasks:
     # command to switch to root.
     # TODO(gregmagolan): figure out how to install missing shared libs
     - "--test_arg=--test_tag_filters=-manual,-browser:chromium-local,-browser:firefox-local,-cypress"
+    - "--keep_going"
     test_targets:
     - "//..."
     # The following examples only works on linux as it downloads the linux node distribution
@@ -229,10 +243,12 @@ tasks:
     # TODO(gregmagolan): figure out how to install missing shared libs
     # Without this filter the @cypress external repository will be built and that build will fail due to missing shared libs.
     - "--build_tag_filters=-cypress"
+    - "--keep_going"
     build_targets:
     - "//internal/..."
     test_flags:
     - "--platforms=@build_bazel_rules_nodejs//toolchains/node:darwin_amd64"
+    - "--keep_going"
     test_targets:
     # //internal/node/test:nodejs_toolchain_darwin_amd64_test is a "manual" test that must be run
     # explicitly with --platforms=@build_bazel_rules_nodejs//toolchains/node:darwin_amd64 set
@@ -246,6 +262,7 @@ tasks:
     # TODO(gregmagolan): figure out how to install missing shared libs
     # Without this filter the @cypress external repository will be built and that build will fail due to missing shared libs.
     - "--build_tag_filters=-cypress"
+    - "--keep_going"
     build_targets:
     - "//internal/..."
     test_flags:
@@ -254,6 +271,7 @@ tasks:
     # //internal/node/test:nodejs_toolchain_windows_amd64_test is a "manual" test that must be run
     # explicitly with --platforms=@build_bazel_rules_nodejs//toolchains/node:windows_amd64 set
     - "//internal/node/test:nodejs_toolchain_windows_amd64_test"
+    - "--keep_going"
   macos:
     name: macos
     platform: macos
@@ -275,6 +293,7 @@ tasks:
     # Firefox are missing shared libs on bazelci mac
     # TODO(gregmagolan): figure out how to install missing shared libs
     - "--test_tag_filters=-e2e,-examples,-manual,-browser:firefox-local"
+    - "--keep_going"
     test_targets:
     - "//..."
     # //internal/node/test:nodejs_toolchain_darwin_amd64_test is a "manual" test that must be run
@@ -293,6 +312,7 @@ tasks:
     - echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1536m' >> .bazelrc
     build_flags:
     - "--build_tag_filters=e2e"
+    - "--keep_going"
     build_targets:
     - "//..."
     # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
@@ -306,6 +326,7 @@ tasks:
     # Firefox are missing shared libs on bazelci mac
     # TODO(gregmagolan): figure out how to install missing shared libs
     - "--test_arg=--test_tag_filters=-manual,-browser:firefox-local"
+    - "--keep_going"
     test_targets:
     - "//..."
   macos_examples:
@@ -321,6 +342,7 @@ tasks:
     - echo 'startup --host_jvm_args=-Xms256m --host_jvm_args=-Xmx1536m' >> .bazelrc
     build_flags:
     - "--build_tag_filters=examples"
+    - "--keep_going"
     build_targets:
     - "//..."
     # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
@@ -334,6 +356,7 @@ tasks:
     # Firefox are missing shared libs on bazelci mac
     # TODO(gregmagolan): figure out how to install missing shared libs
     - "--test_arg=--test_tag_filters=-no-bazelci-mac,-manual,-browser:firefox-local"
+    - "--keep_going"
     test_targets:
     - "//..."
   macos_cross_compile_linux:
@@ -342,10 +365,12 @@ tasks:
     # Build on mac with the node --platform set to linux
     build_flags:
     - "--platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64"
+    - "--keep_going"
     build_targets:
     - "//internal/..."
     test_flags:
     - "--platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64"
+    - "--keep_going"
     test_targets:
     # //internal/node/test:nodejs_toolchain_linux_amd64_test is a "manual" test that must be run
     # explicitly with --platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64 set
@@ -377,12 +402,14 @@ tasks:
     #- "@fine_grained_deps_yarn//typescript/bin:tsc"
     build_flags:
     - "--build_tag_filters=-e2e,-examples,-fix-windows,-manual"
+    - "--keep_going"
     build_targets:
     - "//..."
     test_flags:
     # Firefox not supported on Windows with rules_webtesting (if run it exit with success)
     # See https://github.com/bazelbuild/rules_webtesting/blob/0.3.3/browsers/BUILD.bazel#L66.
     - "--test_tag_filters=-e2e,-examples,-fix-windows,-manual,-browser:firefox-local,-cypress"
+    - "--keep_going"
     test_targets:
     - "//..."
     # //internal/node/test:nodejs_toolchain_windows_amd64_test is a "manual" test that must be run
@@ -393,6 +420,7 @@ tasks:
     platform: windows
     build_flags:
     - "--build_tag_filters=e2e,-fix-windows"
+    - "--keep_going"
     build_targets:
     - "//..."
     # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
@@ -407,6 +435,7 @@ tasks:
     # Chrome fails to launch on Windows inside bazel-in-bazel with: [17:12:04] E/launcher -
     # spawn D:\...\external\io_bazel_rules_webtesting\third_party\chromedriver\chromedriver.out\chromedriver_win32\chromedriver.exe ENOENT
     - "--test_arg=--test_tag_filters=-fix-windows,-manual,-browser:chromium-local,-browser:firefox-local"
+    - "--keep_going"
     test_targets:
     - "//..."
   windows_examples:
@@ -414,6 +443,7 @@ tasks:
     platform: windows
     build_flags:
     - "--build_tag_filters=examples,-fix-windows"
+    - "--keep_going"
     build_targets:
     - "//..."
     # We control Bazel version in integration tests, so we don't need USE_BAZEL_VERSION for tests.
@@ -428,6 +458,7 @@ tasks:
     # Chrome fails to launch on Windows inside bazel-in-bazel with: [17:12:04] E/launcher -
     # spawn D:\...\external\io_bazel_rules_webtesting\third_party\chromedriver\chromedriver.out\chromedriver_win32\chromedriver.exe ENOENT
     - "--test_arg=--test_tag_filters=-no-bazelci-windows,-fix-windows,-manual,-browser:chromium-local,-browser:firefox-local,-cypress"
+    - "--keep_going"
     test_targets:
     - "//..."
   windows_cross_compile_linux:
@@ -436,6 +467,7 @@ tasks:
     # Build on windows with the node --platform set to linux
     build_flags:
     - "--platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64"
+    - "--keep_going"
     build_targets:
     - "//internal/..."
   rbe_ubuntu1604:
@@ -447,6 +479,8 @@ tasks:
     # TODO(gregmagolan): figure out how to install missing shared libs
     # Without this filter the @cypress external repository will be built and that build will fail due to missing shared libs.
     - "--build_tag_filters=-cypress,-pkg_npm.pack"
+    - "--keep_going"
     test_flags:
     # TODO(gregmagolan): figure out how to install missing shared libs
     - "--test_arg=-cypress"
+    - "--keep_going"
