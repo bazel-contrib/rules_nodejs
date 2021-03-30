@@ -1,0 +1,11 @@
+{
+    "private": true,
+    "devDependencies": {
+        "next": "10.0.1",
+        "react": "17.0.1",
+        "react-dom": "17.0.1"
+    },
+    "scripts": {
+        "test": "bazel test ..."
+    }
+}

@@ -1,0 +1,20 @@
+module.exports = {
+    distDir: "TEMPLATED_output_dir",
+    poweredByHeader: false,
+    reactStrictMode: true,
+    webpack: config => {
+        config.watchOptions = {
+            aggregateTimeout: 200,
+            poll: 500,
+        }
+        config.resolve = {
+            ...config.resolve,
+            symlinks: false,
+        }
+        config.resolveLoader = {
+            ...config.resolveLoader,
+            symlinks: false,
+        }
+        return config
+    },
+}

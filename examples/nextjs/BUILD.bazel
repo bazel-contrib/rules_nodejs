@@ -1,0 +1,5 @@
+load(":index.bzl", "nextjs")
+
+nextjs(
+    name = "example",
+)
