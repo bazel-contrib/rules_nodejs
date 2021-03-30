@@ -3,9 +3,18 @@ package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 filegroup(
     name = "ajv__files",
+    srcs = [ "//:node_modules/ajv" ],
+)
+filegroup(
+    name = "ajv__nested_node_modules",
+    visibility = ["//:__subpackages__"],
+)
+filegroup(
+    name = "ajv__all_files",
     srcs = [
         "//:node_modules/ajv/.tonic_example.js",
         "//:node_modules/ajv/LICENSE",
+        "//:node_modules/ajv/README.md",
         "//:node_modules/ajv/dist/ajv.bundle.js",
         "//:node_modules/ajv/dist/ajv.min.js",
         "//:node_modules/ajv/dist/ajv.min.js.map",
@@ -32,13 +41,18 @@ filegroup(
         "//:node_modules/ajv/lib/dot/_limitProperties.jst",
         "//:node_modules/ajv/lib/dot/allOf.jst",
         "//:node_modules/ajv/lib/dot/anyOf.jst",
+        "//:node_modules/ajv/lib/dot/coerce.def",
         "//:node_modules/ajv/lib/dot/const.jst",
         "//:node_modules/ajv/lib/dot/contains.jst",
         "//:node_modules/ajv/lib/dot/custom.jst",
+        "//:node_modules/ajv/lib/dot/defaults.def",
+        "//:node_modules/ajv/lib/dot/definitions.def",
         "//:node_modules/ajv/lib/dot/dependencies.jst",
         "//:node_modules/ajv/lib/dot/enum.jst",
+        "//:node_modules/ajv/lib/dot/errors.def",
         "//:node_modules/ajv/lib/dot/format.jst",
         "//:node_modules/ajv/lib/dot/items.jst",
+        "//:node_modules/ajv/lib/dot/missing.def",
         "//:node_modules/ajv/lib/dot/multipleOf.jst",
         "//:node_modules/ajv/lib/dot/not.jst",
         "//:node_modules/ajv/lib/dot/oneOf.jst",
@@ -49,6 +63,7 @@ filegroup(
         "//:node_modules/ajv/lib/dot/required.jst",
         "//:node_modules/ajv/lib/dot/uniqueItems.jst",
         "//:node_modules/ajv/lib/dot/validate.jst",
+        "//:node_modules/ajv/lib/dotjs/README.md",
         "//:node_modules/ajv/lib/dotjs/_limit.js",
         "//:node_modules/ajv/lib/dotjs/_limitItems.js",
         "//:node_modules/ajv/lib/dotjs/_limitLength.js",
@@ -79,6 +94,7 @@ filegroup(
         "//:node_modules/ajv/lib/refs/json-schema-draft-06.json",
         "//:node_modules/ajv/lib/refs/json-schema-v5.json",
         "//:node_modules/ajv/package.json",
+        "//:node_modules/ajv/scripts/.eslintrc.yml",
         "//:node_modules/ajv/scripts/bundle.js",
         "//:node_modules/ajv/scripts/compile-dots.js",
         "//:node_modules/ajv/scripts/info",
@@ -86,32 +102,11 @@ filegroup(
         "//:node_modules/ajv/scripts/travis-gh-pages",
     ],
 )
-filegroup(
-    name = "ajv__nested_node_modules",
-    visibility = ["//:__subpackages__"],
-)
-filegroup(
-    name = "ajv__not_files",
-    srcs = [
-        "//:node_modules/ajv/README.md",
-        "//:node_modules/ajv/lib/dot/coerce.def",
-        "//:node_modules/ajv/lib/dot/defaults.def",
-        "//:node_modules/ajv/lib/dot/definitions.def",
-        "//:node_modules/ajv/lib/dot/errors.def",
-        "//:node_modules/ajv/lib/dot/missing.def",
-        "//:node_modules/ajv/lib/dotjs/README.md",
-        "//:node_modules/ajv/scripts/.eslintrc.yml",
-    ],
-    visibility = ["//visibility:private"],
-)
-filegroup(
-    name = "ajv__all_files",
-    srcs = [":ajv__files", ":ajv__not_files"],
-)
 js_library(
     name = "ajv",
     external_npm_package = True,
     external_npm_package_path = "",
+    experimental_directory_labels = True,
     srcs = [":ajv__files"],
     deps = [
         "//ajv:ajv__contents",
@@ -125,6 +120,7 @@ js_library(
     name = "ajv__contents",
     external_npm_package = True,
     external_npm_package_path = "",
+    experimental_directory_labels = True,
     srcs = [":ajv__files", ":ajv__nested_node_modules"],
     visibility = ["//:__subpackages__"],
 )

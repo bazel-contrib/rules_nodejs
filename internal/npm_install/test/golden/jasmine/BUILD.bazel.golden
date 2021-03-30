@@ -3,9 +3,20 @@ package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 filegroup(
     name = "jasmine__files",
+    srcs = [ "//:node_modules/jasmine" ],
+)
+filegroup(
+    name = "jasmine__nested_node_modules",
+    visibility = ["//:__subpackages__"],
+)
+filegroup(
+    name = "jasmine__all_files",
     srcs = [
         "//:node_modules/jasmine/.editorconfig",
+        "//:node_modules/jasmine/.travis.yml",
         "//:node_modules/jasmine/Gruntfile.js",
+        "//:node_modules/jasmine/MIT.LICENSE",
+        "//:node_modules/jasmine/README.md",
         "//:node_modules/jasmine/bin/jasmine.js",
         "//:node_modules/jasmine/lib/command.js",
         "//:node_modules/jasmine/lib/examples/jasmine.json",
@@ -17,48 +28,11 @@ filegroup(
         "//:node_modules/jasmine/tasks/jasmine.js",
     ],
 )
-filegroup(
-    name = "jasmine__nested_node_modules",
-    srcs = [
-        "//:node_modules/jasmine/node_modules/jasmine-core/.editorconfig",
-        "//:node_modules/jasmine/node_modules/jasmine-core/.ruby-version",
-        "//:node_modules/jasmine/node_modules/jasmine-core/bower.json",
-        "//:node_modules/jasmine/node_modules/jasmine-core/jasmine_core.egg-info/PKG-INFO",
-        "//:node_modules/jasmine/node_modules/jasmine-core/lib/jasmine-core.js",
-        "//:node_modules/jasmine/node_modules/jasmine-core/lib/jasmine-core/boot.js",
-        "//:node_modules/jasmine/node_modules/jasmine-core/lib/jasmine-core/example/node_example/lib/jasmine_examples/Player.js",
-        "//:node_modules/jasmine/node_modules/jasmine-core/lib/jasmine-core/example/node_example/lib/jasmine_examples/Song.js",
-        "//:node_modules/jasmine/node_modules/jasmine-core/lib/jasmine-core/example/node_example/spec/helpers/jasmine_examples/SpecHelper.js",
-        "//:node_modules/jasmine/node_modules/jasmine-core/lib/jasmine-core/example/node_example/spec/jasmine_examples/PlayerSpec.js",
-        "//:node_modules/jasmine/node_modules/jasmine-core/lib/jasmine-core/example/spec/PlayerSpec.js",
-        "//:node_modules/jasmine/node_modules/jasmine-core/lib/jasmine-core/example/spec/SpecHelper.js",
-        "//:node_modules/jasmine/node_modules/jasmine-core/lib/jasmine-core/example/src/Player.js",
-        "//:node_modules/jasmine/node_modules/jasmine-core/lib/jasmine-core/example/src/Song.js",
-        "//:node_modules/jasmine/node_modules/jasmine-core/lib/jasmine-core/jasmine-html.js",
-        "//:node_modules/jasmine/node_modules/jasmine-core/lib/jasmine-core/jasmine.js",
-        "//:node_modules/jasmine/node_modules/jasmine-core/lib/jasmine-core/json2.js",
-        "//:node_modules/jasmine/node_modules/jasmine-core/lib/jasmine-core/node_boot.js",
-        "//:node_modules/jasmine/node_modules/jasmine-core/package.json",
-    ],
-    visibility = ["//:__subpackages__"],
-)
-filegroup(
-    name = "jasmine__not_files",
-    srcs = [
-        "//:node_modules/jasmine/.travis.yml",
-        "//:node_modules/jasmine/MIT.LICENSE",
-        "//:node_modules/jasmine/README.md",
-    ],
-    visibility = ["//visibility:private"],
-)
-filegroup(
-    name = "jasmine__all_files",
-    srcs = [":jasmine__files", ":jasmine__not_files"],
-)
 js_library(
     name = "jasmine",
     external_npm_package = True,
     external_npm_package_path = "",
+    experimental_directory_labels = True,
     srcs = [":jasmine__files"],
     deps = [
         "//jasmine:jasmine__contents",
@@ -79,6 +53,7 @@ js_library(
     name = "jasmine__contents",
     external_npm_package = True,
     external_npm_package_path = "",
+    experimental_directory_labels = True,
     srcs = [":jasmine__files", ":jasmine__nested_node_modules"],
     visibility = ["//:__subpackages__"],
 )

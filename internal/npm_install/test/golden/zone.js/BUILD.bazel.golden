@@ -3,8 +3,19 @@ package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 filegroup(
     name = "zone.js__files",
+    srcs = [ "//:node_modules/zone.js" ],
+)
+filegroup(
+    name = "zone.js__nested_node_modules",
+    visibility = ["//:__subpackages__"],
+)
+filegroup(
+    name = "zone.js__all_files",
     srcs = [
+        "//:node_modules/zone.js/CHANGELOG.md",
         "//:node_modules/zone.js/LICENSE",
+        "//:node_modules/zone.js/LICENSE.wrapped",
+        "//:node_modules/zone.js/README.md",
         "//:node_modules/zone.js/dist/async-test.js",
         "//:node_modules/zone.js/dist/fake-async-test.js",
         "//:node_modules/zone.js/dist/jasmine-patch.js",
@@ -131,27 +142,11 @@ filegroup(
         "//:node_modules/zone.js/package.json",
     ],
 )
-filegroup(
-    name = "zone.js__nested_node_modules",
-    visibility = ["//:__subpackages__"],
-)
-filegroup(
-    name = "zone.js__not_files",
-    srcs = [
-        "//:node_modules/zone.js/CHANGELOG.md",
-        "//:node_modules/zone.js/LICENSE.wrapped",
-        "//:node_modules/zone.js/README.md",
-    ],
-    visibility = ["//visibility:private"],
-)
-filegroup(
-    name = "zone.js__all_files",
-    srcs = [":zone.js__files", ":zone.js__not_files"],
-)
 js_library(
     name = "zone.js",
     external_npm_package = True,
     external_npm_package_path = "",
+    experimental_directory_labels = True,
     srcs = [":zone.js__files"],
     deps = [
         "//zone.js:zone.js__contents",
@@ -161,6 +156,7 @@ js_library(
     name = "zone.js__contents",
     external_npm_package = True,
     external_npm_package_path = "",
+    experimental_directory_labels = True,
     srcs = [":zone.js__files", ":zone.js__nested_node_modules"],
     visibility = ["//:__subpackages__"],
 )

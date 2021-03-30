@@ -60,6 +60,7 @@ yarn_install(
 
 yarn_install(
     name = "npm_internal_linker_test_multi_linker",
+    experimental_directory_labels = True,
     package_json = "//internal/linker/test/multi_linker:package.json",
     package_path = "internal/linker/test/multi_linker",
     yarn_lock = "//internal/linker/test/multi_linker:yarn.lock",
@@ -67,6 +68,7 @@ yarn_install(
 
 yarn_install(
     name = "onepa_npm_deps",
+    experimental_directory_labels = True,
     package_json = "//internal/linker/test/multi_linker/onepa:package.json",
     package_path = "internal/linker/test/multi_linker/onepa",
     symlink_node_modules = False,
@@ -75,6 +77,7 @@ yarn_install(
 
 npm_install(
     name = "npm_node_patches",
+    experimental_directory_labels = True,
     package_json = "//packages/node-patches:package.json",
     package_lock_json = "//packages/node-patches:package-lock.json",
 )
@@ -100,12 +103,14 @@ npm_install(
 
 yarn_install(
     name = "cypress_deps",
+    experimental_directory_labels = True,
     package_json = "//packages/cypress/test:package.json",
     yarn_lock = "//packages/cypress/test:yarn.lock",
 )
 
 yarn_install(
     name = "rollup_test_multi_linker_deps",
+    experimental_directory_labels = True,
     package_json = "//packages/rollup/test/multi_linker:package.json",
     package_path = "packages/rollup/test/multi_linker",
     symlink_node_modules = False,
@@ -216,6 +221,7 @@ yarn_install(
     environment = {
         "SOME_USER_ENV": "yarn is great!",
     },
+    experimental_directory_labels = True,
     generate_local_modules_build_files = False,
     included_files = [
         "",
@@ -240,6 +246,7 @@ npm_install(
     environment = {
         "SOME_USER_ENV": "npm is cool!",
     },
+    experimental_directory_labels = True,
     generate_local_modules_build_files = False,
     included_files = [
         "",
@@ -256,6 +263,7 @@ npm_install(
 
 yarn_install(
     name = "fine_grained_no_bin",
+    experimental_directory_labels = True,
     package_json = "//:tools/fine_grained_no_bin/package.json",
     symlink_node_modules = False,
     yarn_lock = "//:tools/fine_grained_no_bin/yarn.lock",
@@ -263,6 +271,7 @@ yarn_install(
 
 yarn_install(
     name = "fine_grained_goldens",
+    experimental_directory_labels = True,
     included_files = [
         "",
         ".js",

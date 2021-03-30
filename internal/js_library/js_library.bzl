@@ -37,6 +37,10 @@ _ATTRS = {
         See documentation on AmdNamesInfo""",
     ),
     "deps": attr.label_list(),
+    "experimental_directory_labels": attr.bool(
+        doc = """Internal use only. TODO.""",
+        default = False,
+    ),
     "external_npm_package": attr.bool(
         doc = """Internal use only. Indictates that this js_library target is one or more external npm packages in node_modules.
         This is used by the yarn_install & npm_install repository rules for npm dependencies installed by
@@ -142,15 +146,16 @@ def _impl(ctx):
         file = f
 
         # copy files into bin if needed
-        if file.is_source and not file.path.startswith("external/"):
-            dst = ctx.actions.declare_file(file.basename, sibling = file)
-            if ctx.attr.is_windows:
-                copy_cmd(ctx, file, dst)
-            else:
-                copy_bash(ctx, file, dst)
+        if not ctx.attr.external_npm_package:
+            if file.is_source and not file.path.startswith("external/"):
+                dst = ctx.actions.declare_file(file.basename, sibling = file)
+                if ctx.attr.is_windows:
+                    copy_cmd(ctx, file, dst)
+                else:
+                    copy_bash(ctx, file, dst)
 
-            # re-assign file to the one now copied into the bin folder
-            file = dst
+                # re-assign file to the one now copied into the bin folder
+                file = dst
 
         # register js files
         if file.basename.endswith(".js") or file.basename.endswith(".js.map") or file.basename.endswith(".json"):
@@ -175,6 +180,9 @@ def _impl(ctx):
         # ctx.files.named_module_srcs are merged after ctx.files.srcs
         if idx >= len(ctx.files.srcs):
             named_module_files.append(file)
+        elif ctx.attr.experimental_directory_labels:
+            js_files.append(file)
+            typings.append(file)
 
         # every single file on bin should be added here
         all_files.append(file)
@@ -183,13 +191,12 @@ def _impl(ctx):
     js_files_depset = depset(js_files)
     named_module_files_depset = depset(named_module_files)
     typings_depset = depset(typings)
-
     files_depsets = [files_depset]
     npm_sources_depsets = [files_depset]
     direct_sources_depsets = [files_depset]
     direct_named_module_sources_depsets = [named_module_files_depset]
-    typings_depsets = [typings_depset]
     js_files_depsets = [js_files_depset]
+    typings_depsets = [typings_depset]
 
     for dep in ctx.attr.deps:
         if ExternalNpmPackageInfo in dep:

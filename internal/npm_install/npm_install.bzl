@@ -44,6 +44,10 @@ repository so all files that the package manager depends on must be listed.
         doc = """Environment variables to set before calling the package manager.""",
         default = {},
     ),
+    "experimental_directory_labels": attr.bool(
+        default = False,
+        doc = """TODO""",
+    ),
     "generate_local_modules_build_files": attr.bool(
         default = True,
         doc = """Enables the BUILD files auto generation for local modules installed with `file:` (npm) or `link:` (yarn)
@@ -163,6 +167,7 @@ def _create_build_files(repository_ctx, rule_type, node, lock_file, generate_loc
         str(generate_local_modules_build_files),
         native.bazel_version,
         repository_ctx.attr.package_path,
+        str(repository_ctx.attr.experimental_directory_labels),
         # double the default timeout in case of many packages, see #2231
     ], timeout = 1200, quiet = repository_ctx.attr.quiet)
     if result.return_code:

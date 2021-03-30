@@ -3,9 +3,18 @@ package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 filegroup(
     name = "core__files",
+    srcs = [ "//:node_modules/@angular/core" ],
+)
+filegroup(
+    name = "core__nested_node_modules",
+    visibility = ["//:__subpackages__"],
+)
+filegroup(
+    name = "core__all_files",
     srcs = [
         "//:node_modules/@angular/core/ANGULAR_PACKAGE",
         "//:node_modules/@angular/core/BUILD_INFO",
+        "//:node_modules/@angular/core/README.md",
         "//:node_modules/@angular/core/bundles/core-testing.umd.js",
         "//:node_modules/@angular/core/bundles/core-testing.umd.js.map",
         "//:node_modules/@angular/core/bundles/core-testing.umd.min.js",
@@ -663,25 +672,11 @@ filegroup(
         "//:node_modules/@angular/core/testing/testing.metadata.json",
     ],
 )
-filegroup(
-    name = "core__nested_node_modules",
-    visibility = ["//:__subpackages__"],
-)
-filegroup(
-    name = "core__not_files",
-    srcs = [
-        "//:node_modules/@angular/core/README.md",
-    ],
-    visibility = ["//visibility:private"],
-)
-filegroup(
-    name = "core__all_files",
-    srcs = [":core__files", ":core__not_files"],
-)
 js_library(
     name = "core",
     external_npm_package = True,
     external_npm_package_path = "",
+    experimental_directory_labels = True,
     srcs = [":core__files"],
     deps = [
         "//@angular/core:core__contents",
@@ -694,6 +689,7 @@ js_library(
     name = "core__contents",
     external_npm_package = True,
     external_npm_package_path = "",
+    experimental_directory_labels = True,
     srcs = [":core__files", ":core__nested_node_modules"],
     named_module_srcs = [
         "//:node_modules/@angular/core/bundles/core-testing.umd.js",

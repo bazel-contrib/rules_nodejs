@@ -13,4 +13,5 @@ js_library(
         "//@gregmagolan/test-a:test-a__contents",
         "//@gregmagolan/test-b:test-b__contents",
     ],
+    experimental_directory_labels = True,
 )

@@ -3,6 +3,14 @@ package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 filegroup(
     name = "rxjs__files",
+    srcs = [ "//:node_modules/rxjs" ],
+)
+filegroup(
+    name = "rxjs__nested_node_modules",
+    visibility = ["//:__subpackages__"],
+)
+filegroup(
+    name = "rxjs__all_files",
     srcs = [
         "//:node_modules/rxjs/AsyncSubject.d.ts",
         "//:node_modules/rxjs/AsyncSubject.js",
@@ -13,6 +21,7 @@ filegroup(
         "//:node_modules/rxjs/InnerSubscriber.d.ts",
         "//:node_modules/rxjs/InnerSubscriber.js",
         "//:node_modules/rxjs/InnerSubscriber.js.map",
+        "//:node_modules/rxjs/LICENSE.txt",
         "//:node_modules/rxjs/Notification.d.ts",
         "//:node_modules/rxjs/Notification.js",
         "//:node_modules/rxjs/Notification.js.map",
@@ -28,6 +37,7 @@ filegroup(
         "//:node_modules/rxjs/OuterSubscriber.d.ts",
         "//:node_modules/rxjs/OuterSubscriber.js",
         "//:node_modules/rxjs/OuterSubscriber.js.map",
+        "//:node_modules/rxjs/README.md",
         "//:node_modules/rxjs/ReplaySubject.d.ts",
         "//:node_modules/rxjs/ReplaySubject.js",
         "//:node_modules/rxjs/ReplaySubject.js.map",
@@ -49,6 +59,8 @@ filegroup(
         "//:node_modules/rxjs/Subscription.d.ts",
         "//:node_modules/rxjs/Subscription.js",
         "//:node_modules/rxjs/Subscription.js.map",
+        "//:node_modules/rxjs/_esm2015/LICENSE.txt",
+        "//:node_modules/rxjs/_esm2015/README.md",
         "//:node_modules/rxjs/_esm2015/ajax/index.js",
         "//:node_modules/rxjs/_esm2015/ajax/index.js.map",
         "//:node_modules/rxjs/_esm2015/fetch/index.js",
@@ -500,6 +512,8 @@ filegroup(
         "//:node_modules/rxjs/_esm2015/testing/index.js.map",
         "//:node_modules/rxjs/_esm2015/webSocket/index.js",
         "//:node_modules/rxjs/_esm2015/webSocket/index.js.map",
+        "//:node_modules/rxjs/_esm5/LICENSE.txt",
+        "//:node_modules/rxjs/_esm5/README.md",
         "//:node_modules/rxjs/_esm5/ajax/index.js",
         "//:node_modules/rxjs/_esm5/ajax/index.js.map",
         "//:node_modules/rxjs/_esm5/fetch/index.js",
@@ -2813,12 +2827,14 @@ filegroup(
         "//:node_modules/rxjs/src/AsyncSubject.ts",
         "//:node_modules/rxjs/src/BehaviorSubject.ts",
         "//:node_modules/rxjs/src/InnerSubscriber.ts",
+        "//:node_modules/rxjs/src/LICENSE.txt",
         "//:node_modules/rxjs/src/MiscJSDoc.ts",
         "//:node_modules/rxjs/src/Notification.ts",
         "//:node_modules/rxjs/src/Observable.ts",
         "//:node_modules/rxjs/src/Observer.ts",
         "//:node_modules/rxjs/src/Operator.ts",
         "//:node_modules/rxjs/src/OuterSubscriber.ts",
+        "//:node_modules/rxjs/src/README.md",
         "//:node_modules/rxjs/src/ReplaySubject.ts",
         "//:node_modules/rxjs/src/Rx.global.js",
         "//:node_modules/rxjs/src/Rx.ts",
@@ -3605,32 +3621,11 @@ filegroup(
         "//:node_modules/rxjs/webSocket/package.json",
     ],
 )
-filegroup(
-    name = "rxjs__nested_node_modules",
-    visibility = ["//:__subpackages__"],
-)
-filegroup(
-    name = "rxjs__not_files",
-    srcs = [
-        "//:node_modules/rxjs/LICENSE.txt",
-        "//:node_modules/rxjs/README.md",
-        "//:node_modules/rxjs/_esm2015/LICENSE.txt",
-        "//:node_modules/rxjs/_esm2015/README.md",
-        "//:node_modules/rxjs/_esm5/LICENSE.txt",
-        "//:node_modules/rxjs/_esm5/README.md",
-        "//:node_modules/rxjs/src/LICENSE.txt",
-        "//:node_modules/rxjs/src/README.md",
-    ],
-    visibility = ["//visibility:private"],
-)
-filegroup(
-    name = "rxjs__all_files",
-    srcs = [":rxjs__files", ":rxjs__not_files"],
-)
 js_library(
     name = "rxjs",
     external_npm_package = True,
     external_npm_package_path = "",
+    experimental_directory_labels = True,
     srcs = [":rxjs__files"],
     deps = [
         "//rxjs:rxjs__contents",
@@ -3641,6 +3636,7 @@ js_library(
     name = "rxjs__contents",
     external_npm_package = True,
     external_npm_package_path = "",
+    experimental_directory_labels = True,
     srcs = [":rxjs__files", ":rxjs__nested_node_modules"],
     visibility = ["//:__subpackages__"],
 )

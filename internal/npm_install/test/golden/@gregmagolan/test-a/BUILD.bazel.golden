@@ -3,32 +3,27 @@ package(default_visibility = ["//visibility:public"])
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 filegroup(
     name = "test-a__files",
-    srcs = [
-        "//:node_modules/@gregmagolan/test-a/@bin/test.js",
-        "//:node_modules/@gregmagolan/test-a/main.js",
-        "//:node_modules/@gregmagolan/test-a/package.json",
-    ],
+    srcs = [ "//:node_modules/@gregmagolan/test-a" ],
 )
 filegroup(
     name = "test-a__nested_node_modules",
     visibility = ["//:__subpackages__"],
 )
 filegroup(
-    name = "test-a__not_files",
+    name = "test-a__all_files",
     srcs = [
+        "//:node_modules/@gregmagolan/test-a/@bin/test.js",
         "//:node_modules/@gregmagolan/test-a/filename with spaces.js",
         "//:node_modules/@gregmagolan/test-a/filenamË-with-unicodË-chars.js",
+        "//:node_modules/@gregmagolan/test-a/main.js",
+        "//:node_modules/@gregmagolan/test-a/package.json",
     ],
-    visibility = ["//visibility:private"],
-)
-filegroup(
-    name = "test-a__all_files",
-    srcs = [":test-a__files", ":test-a__not_files"],
 )
 js_library(
     name = "test-a",
     external_npm_package = True,
     external_npm_package_path = "",
+    experimental_directory_labels = True,
     srcs = [":test-a__files"],
     deps = [
         "//@gregmagolan/test-a:test-a__contents",
@@ -38,6 +33,7 @@ js_library(
     name = "test-a__contents",
     external_npm_package = True,
     external_npm_package_path = "",
+    experimental_directory_labels = True,
     srcs = [":test-a__files", ":test-a__nested_node_modules"],
     visibility = ["//:__subpackages__"],
 )

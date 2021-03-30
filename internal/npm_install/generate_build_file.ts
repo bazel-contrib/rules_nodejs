@@ -60,6 +60,7 @@ const INCLUDED_FILES = args[6] ? args[6].split(',') : [];
 const GENERATE_LOCAL_MODULES_BUILD_FILES = (`${args[7]}`.toLowerCase()) === 'true';
 const BAZEL_VERSION = args[8];
 const PACKAGE_PATH = args[9];
+const EXPERIMENTAL_DIRECTORY_LABELS = args[10]?.toLowerCase() === 'true';
 
 const PUBLIC_VISIBILITY = '//visibility:public';
 const LIMITED_VISIBILITY = `@${WORKSPACE}//:__subpackages__`;
@@ -206,6 +207,7 @@ js_library(
     name = "node_modules",
     external_npm_package = True,
     external_npm_package_path = "${PACKAGE_PATH}",${pkgFilesStarlark}${depsStarlark}
+    experimental_directory_labels = ${EXPERIMENTAL_DIRECTORY_LABELS ? 'True' : 'False'},
 )
 
 `
@@ -927,25 +929,39 @@ function printPackage(pkg: Dep) {
     ],`;
   }
 
+  function starlarkDir(attr: string, comment: string = '') {
+    return `
+    ${comment ? comment + '\n    ' : ''}${attr} = [ "//:node_modules/${pkg._dir}" ],`;
+  }
+
   const includedRunfiles = filterFiles(pkg._runfiles, INCLUDED_FILES);
 
   // Files that are part of the npm package not including its nested node_modules
   // (filtered by the 'included_files' attribute)
-  const pkgFiles = includedRunfiles.filter((f: string) => !f.startsWith('node_modules/'));
-  const pkgFilesStarlark = pkgFiles.length ? starlarkFiles('srcs', pkgFiles) : '';
+  let pkgFilesStarlark = '';
+  if (EXPERIMENTAL_DIRECTORY_LABELS) {
+    pkgFilesStarlark = starlarkDir('srcs');
+  } else {
+    const pkgFiles = includedRunfiles.filter((f: string) => !f.startsWith('node_modules/'));
+    if (pkgFiles.length) {
+      pkgFilesStarlark = starlarkFiles('srcs', pkgFiles);
+    }
+  }
 
   // Files that are in the npm package's nested node_modules
   // (filtered by the 'included_files' attribute)
+  // If EXPERIMENTAL_DIRECTORY_LABELS is on, nested_node modules are included in pkgFilesStarlark
+  // so do not need to be included twice.
   const nestedNodeModules = includedRunfiles.filter((f: string) => f.startsWith('node_modules/'));
-  const nestedNodeModulesStarlark =
-      nestedNodeModules.length ? starlarkFiles('srcs', nestedNodeModules) : '';
+  const nestedNodeModulesStarlark = EXPERIMENTAL_DIRECTORY_LABELS || !nestedNodeModules.length ?
+      '' :
+      starlarkFiles('srcs', nestedNodeModules);
 
-  // Files that have been excluded from the ${pkg._name}__files target above because
-  // they are filtered out by 'included_files' or because they are not valid runfiles
-  // See https://github.com/bazelbuild/bazel/issues/4327.
-  const notPkgFiles = pkg._files.filter(
-      (f: string) => !f.startsWith('node_modules/') && !includedRunfiles.includes(f));
-  const notPkgFilesStarlark = notPkgFiles.length ? starlarkFiles('srcs', notPkgFiles) : '';
+  // All files in the package including files that are not valid runfiles
+  // and excluding nested node_modules. Should not be used for runfiles;
+  // see https://github.com/bazelbuild/bazel/issues/4327.
+  const allFiles = pkg._files.filter((f: string) => !f.startsWith('node_modules/'));
+  const allFilesStarlark = allFiles.length ? starlarkFiles('srcs', allFiles) : '';
 
   // If the package is in the Angular package format returns list
   // of package files that end with `.umd.js`, `.ngfactory.js` and `.ngsummary.js`.
@@ -993,20 +1009,11 @@ filegroup(
     visibility = ["//:__subpackages__"],
 )
 
-# Files that have been excluded from the ${pkg._name}__files target above because
-# they are filtered out by 'included_files' or because they are not valid runfiles
-# See https://github.com/bazelbuild/bazel/issues/4327.
+# All files in the package including files that are not valid runfiles
+# and excluding nested node_modules. Should not be used for runfiles;
+# see https://github.com/bazelbuild/bazel/issues/4327.
 filegroup(
-    name = "${pkg._name}__not_files",${notPkgFilesStarlark}
-    visibility = ["//visibility:private"],
-)
-
-# All of the files in the npm package including files that have been
-# filtered out by 'included_files' or because they are not valid runfiles
-# but not including nested node_modules.
-filegroup(
-    name = "${pkg._name}__all_files",
-    srcs = [":${pkg._name}__files", ":${pkg._name}__not_files"],
+    name = "${pkg._name}__all_files",${allFilesStarlark}
 )
 
 # The primary target for this package for use in rule deps
@@ -1014,6 +1021,7 @@ js_library(
     name = "${pkg._name}",
     external_npm_package = True,
     external_npm_package_path = "${PACKAGE_PATH}",
+    experimental_directory_labels = ${EXPERIMENTAL_DIRECTORY_LABELS ? 'True' : 'False'},
     # direct sources listed for strict deps support
     srcs = [":${pkg._name}__files"],
     # nested node_modules for this package plus flattened list of direct and transitive dependencies
@@ -1028,6 +1036,7 @@ js_library(
     name = "${pkg._name}__contents",
     external_npm_package = True,
     external_npm_package_path = "${PACKAGE_PATH}",
+    experimental_directory_labels = ${EXPERIMENTAL_DIRECTORY_LABELS ? 'True' : 'False'},
     srcs = [":${pkg._name}__files", ":${pkg._name}__nested_node_modules"],${namedSourcesStarlark}
     visibility = ["//:__subpackages__"],
 )
@@ -1234,6 +1243,7 @@ js_library(
     name = "${scope}",
     external_npm_package = True,
     external_npm_package_path = "${PACKAGE_PATH}",${pkgFilesStarlark}${depsStarlark}
+    experimental_directory_labels = ${EXPERIMENTAL_DIRECTORY_LABELS ? 'True' : 'False'},
 )
 
 `;
