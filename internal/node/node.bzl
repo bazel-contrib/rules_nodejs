@@ -106,11 +106,17 @@ def _ts_to_js(entry_point_path):
         return entry_point_path[:-4] + ".js"
     return entry_point_path
 
-def _write_loader_script(ctx):
-    if len(ctx.attr.entry_point.files.to_list()) != 1:
+def _get_entry_point_file(ctx):
+    if len(ctx.attr.entry_point.files.to_list()) > 1:
         fail("labels in entry_point must contain exactly one file")
+    if len(ctx.files.entry_point) == 1:
+        return ctx.files.entry_point[0]
+    if EntryPointInfo in ctx.attr.entry_point:
+        return ctx.attr.entry_point[EntryPointInfo].directory
+    fail("entry_point must either be a file, or produce EntryPointInfo")
 
-    entry_point_path = _ts_to_js(_to_manifest_path(ctx, ctx.file.entry_point))
+def _write_loader_script(ctx):
+    entry_point_path = _ts_to_js(_to_manifest_path(ctx, _get_entry_point_file(ctx)))
 
     ctx.actions.expand_template(
         template = ctx.file._loader_template,
@@ -310,8 +316,12 @@ fi
     #else:
     #    substitutions["TEMPLATED_script_path"] = "$(rlocation \"%s\")" % _to_manifest_path(ctx, ctx.file.entry_point)
     # For now we need to look in both places
-    substitutions["TEMPLATED_entry_point_execroot_path"] = "\"%s\"" % _ts_to_js(_to_execroot_path(ctx, ctx.file.entry_point))
-    substitutions["TEMPLATED_entry_point_manifest_path"] = "$(rlocation \"%s\")" % _ts_to_js(_to_manifest_path(ctx, ctx.file.entry_point))
+    substitutions["TEMPLATED_entry_point_execroot_path"] = "\"%s\"" % _ts_to_js(_to_execroot_path(ctx, _get_entry_point_file(ctx)))
+    substitutions["TEMPLATED_entry_point_manifest_path"] = "$(rlocation \"%s\")" % _ts_to_js(_to_manifest_path(ctx, _get_entry_point_file(ctx)))
+    if EntryPointInfo in ctx.attr.entry_point:
+        substitutions["TEMPLATED_entry_point_main"] = ctx.attr.entry_point[EntryPointInfo].main
+    else:
+        substitutions["TEMPLATED_entry_point_main"] = ""
 
     ctx.actions.expand_template(
         template = ctx.file._launcher_template,
@@ -326,9 +336,10 @@ fi
     else:
         executable = ctx.outputs.launcher_sh
 
+    # syntax sugar: allows you to avoid repeating the entry point in data
     # entry point is only needed in runfiles if it is a .js file
-    if ctx.file.entry_point.extension == "js":
-        runfiles.append(ctx.file.entry_point)
+    if len(ctx.files.entry_point) == 1 and ctx.files.entry_point[0].extension == "js":
+        runfiles.extend(ctx.files.entry_point)
 
     return [
         DefaultInfo(
@@ -351,7 +362,7 @@ fi
         # TODO(alexeagle): remove sources and node_modules from the runfiles
         # when downstream usage is ready to rely on linker
         NodeRuntimeDepsInfo(
-            deps = depset([ctx.file.entry_point], transitive = [node_modules, sources]),
+            deps = depset(ctx.files.entry_point, transitive = [node_modules, sources]),
             pkgs = ctx.attr.data,
         ),
         # indicates that the this binary should be instrumented by coverage
@@ -462,7 +473,7 @@ nodejs_binary(
 ```
 """,
         mandatory = True,
-        allow_single_file = True,
+        allow_files = True,
     ),
     "env": attr.string_dict(
         doc = """Specifies additional environment variables to set when the target is executed, subject to location
@@ -673,4 +684,27 @@ remote debugger.
         "@build_bazel_rules_nodejs//toolchains/node:toolchain_type",
         "@bazel_tools//tools/sh:toolchain_type",
     ],
+)
+
+EntryPointInfo = provider(
+    doc = "Tells runners about what JS file is the entry point, or main where node should begin evaluation",
+    fields = {
+        "directory": "a TreeArtifact (ctx.actions.declare_directory) containing the entry point",
+        "main": "path relative to the directory, same as package.json's main property",
+    },
+)
+
+def _package_main(ctx):
+    if not ctx.file.directory.is_directory:
+        fail("directory attribute must be created with Bazel declare_directory (TreeArtifact)")
+    return [EntryPointInfo(main = ctx.attr.main, directory = ctx.file.directory)]
+
+package_main = rule(
+    doc = """Provide EntryPointInfo to give an entry_point within a directory.
+        Otherwise there is no way to give a Bazel label for it.""",
+    implementation = _package_main,
+    attrs = {
+        "directory": attr.label(doc = "a directory containing the entry point", mandatory = True, allow_single_file = True),
+        "main": attr.string(doc = "entry point for the program, same as package.json main", mandatory = True),
+    },
 )
