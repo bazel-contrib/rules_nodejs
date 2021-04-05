@@ -59,11 +59,22 @@ async function main() {
   const fileReplacements = [];
 
   content.push('""" Generated code; do not edit\nUpdate by running yarn update-esbuild-versions\n\nHelper macro for fetching esbuild versions for internal tests and examples in rules_nodejs\n"""\n');
-  content.push('load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")\n')
+  content.push('load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")\n');
 
-  const latestVersion = (await fetch('https://registry.npmjs.org/esbuild/latest')).version;
-  content.push(`_VERSION = "${latestVersion}"\n`);
-  fileReplacements.push([/_ESBUILD_VERSION = "(.+?)"/, latestVersion])
+  if(process.argv.length !== 2 && process.argv.length !== 3) {
+    console.log("Expected number of arguments is 0 or 1");
+    process.exit(1);
+  }
+
+  let version;
+  if(process.argv.length === 3) {
+    version = process.argv[2];
+  } else {
+    version = (await fetch('https://registry.npmjs.org/esbuild/latest')).version;
+  }
+
+  content.push(`_VERSION = "${version}"\n`);
+  fileReplacements.push([/_ESBUILD_VERSION = "(.+?)"/, version]);
 
   content.push('def esbuild_dependencies():');
   content.push('    """Helper to install required dependencies for the esbuild rules"""\n');
@@ -73,14 +84,14 @@ async function main() {
   mkdirSync(tmpDir, {recursive: true});
 
   for(const platform of Object.keys(PLATFORMS)) {
-    const downloadUrl = `https://registry.npmjs.org/${PLATFORMS[platform]}/-/${PLATFORMS[platform]}-${latestVersion}.tgz`;
+    const downloadUrl = `https://registry.npmjs.org/${PLATFORMS[platform]}/-/${PLATFORMS[platform]}-${version}.tgz`;
 
     const downloadPath = join(tmpDir, PLATFORMS[platform]);
     await downloadFile(downloadUrl, downloadPath);
     const shasumOutput = exec(`shasum -a 256 ${downloadPath}`, { silent: true }).stdout;
     const shasum = shasumOutput.split(' ')[0];
 
-    fileReplacements.push([new RegExp(`"${platform}",.+?sha256 = "(.+?)"`, 's'), shasum])
+    fileReplacements.push([new RegExp(`"${platform}",.+?sha256 = "(.+?)"`, 's'), shasum]);
 
     content.push('    http_archive(');
     content.push(`        name = "${platform}",`);
