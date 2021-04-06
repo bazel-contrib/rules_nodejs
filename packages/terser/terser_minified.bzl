@@ -187,9 +187,14 @@ def _terser(ctx):
         progress_message = "Minifying JavaScript %s [terser]" % (outputs[0].short_path),
     )
 
+    outputs_depset = depset(outputs)
+
     return [
-        DefaultInfo(files = depset(outputs)),
-        JSModuleInfo(sources = depset(outputs)),
+        DefaultInfo(files = outputs_depset),
+        JSModuleInfo(
+            direct_sources = outputs_depset,
+            sources = outputs_depset,
+        ),
     ]
 
 terser_minified = rule(

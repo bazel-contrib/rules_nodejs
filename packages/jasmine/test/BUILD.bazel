@@ -1,3 +1,4 @@
+load("//:index.bzl", "js_library")
 load("//internal/common:copy_to_bin.bzl", "copy_to_bin")
 load("//packages/jasmine:index.bzl", "jasmine_node_test")
 load("//packages/typescript:index.bzl", "ts_library")
@@ -208,4 +209,18 @@ jasmine_node_test(
 jasmine_node_test(
     name = "stack_test",
     srcs = ["stack.spec.js"],
+    deps = [":fail_test"],
+)
+
+# Verify that transitive specs are not added to the execution
+js_library(
+    name = "lib_with_fail_spec",
+    srcs = ["fail.spec.js"],
+)
+
+jasmine_node_test(
+    name = "transitive_spec_test",
+    srcs = ["foo.spec.js"],
+    use_direct_specs = True,
+    deps = [":lib_with_fail_spec"],
 )

@@ -25,7 +25,9 @@ def _js_sources_impl(ctx):
     depsets = []
     for src in ctx.attr.srcs:
         if JSModuleInfo in src:
-            depsets.append(src[JSModuleInfo].sources)
+            provider = src[JSModuleInfo]
+            files = provider.direct_sources if ctx.attr.use_direct_specs else provider.sources
+            depsets.append(files)
         if hasattr(src, "files"):
             depsets.append(src.files)
     sources = depset(transitive = depsets)
@@ -48,6 +50,7 @@ _js_sources = rule(
         "srcs": attr.label_list(
             allow_files = True,
         ),
+        "use_direct_specs": attr.bool(),
     },
     outputs = {
         "manifest": "%{name}.MF",
@@ -62,6 +65,7 @@ def jasmine_node_test(
         expected_exit_code = 0,
         tags = [],
         config_file = None,
+        use_direct_specs = None,
         # Replaced by pkg_npm with jasmine = "//@bazel/jasmine",
         jasmine = "//packages/jasmine",
         # Replaced by pkg_npm with jasmine_entry_point = "//:node_modules/@bazel/jasmine/jasmine_runner.js",
@@ -91,6 +95,13 @@ def jasmine_node_test(
 
         See https://jasmine.github.io/setup/nodejs.html#configuration
 
+      use_direct_specs: Limits the list of specs added to the execution (test suite) to direct sources.
+
+        Note that this is a bug fix opt-in flag, which will be the default
+        behavior in the next major release.
+
+        More info: https://github.com/bazelbuild/rules_nodejs/pull/2576
+
       jasmine: A label providing the `@bazel/jasmine` npm dependency.
       jasmine_entry_point: A label providing the `@bazel/jasmine` entry point.
       **kwargs: Remaining arguments are passed to the test rule
@@ -100,9 +111,10 @@ def jasmine_node_test(
 
     _js_sources(
         name = "%s_js_sources" % name,
-        srcs = srcs + deps,
+        srcs = srcs if use_direct_specs else (srcs + deps),
         testonly = 1,
         tags = tags,
+        use_direct_specs = use_direct_specs,
     )
 
     all_data = data + srcs + deps + [Label(jasmine)]
