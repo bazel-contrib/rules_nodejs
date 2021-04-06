@@ -1,0 +1,38 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
+load("//packages/typescript:index.bzl", "ts_project")
+
+# Ensure that jsx inputs result in jsx outputs with preserve_jsx = True
+SRCS = [
+    "a.tsx",
+    "b.jsx",
+]
+
+ts_project(
+    name = "tsconfig",
+    srcs = SRCS,
+    allow_js = True,
+    declaration = True,
+    declaration_map = True,
+    out_dir = "out",
+    preserve_jsx = True,
+    source_map = True,
+)
+
+filegroup(
+    name = "types",
+    srcs = [":tsconfig"],
+    output_group = "types",
+)
+
+nodejs_test(
+    name = "test",
+    data = [
+        ":tsconfig",
+        ":types",
+    ],
+    entry_point = "verify-preserve.js",
+    templated_args = [
+        "$(locations :types)",
+        "$(locations :tsconfig)",
+    ],
+)
