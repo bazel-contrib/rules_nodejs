@@ -68,8 +68,8 @@ def _esbuild_impl(ctx):
     args.add_all(ctx.attr.define, format_each = "--define:%s")
     args.add_all(ctx.attr.external, format_each = "--external:%s")
 
-    # disable the error limit and show all errors
-    args.add_joined(["--error-limit", "0"], join_with = "=")
+    # disable the log limit and show all logs
+    args.add_joined(["--log-limit", "0"], join_with = "=")
 
     if ctx.attr.minify:
         args.add("--minify")
