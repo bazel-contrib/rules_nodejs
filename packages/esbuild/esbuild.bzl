@@ -291,13 +291,18 @@ def esbuild_macro(name, output_dir = False, **kwargs):
             **kwargs
         )
     else:
+        output = "%s.js" % name
+        if "output" in kwargs:
+            output = kwargs.pop("output")
+
         output_map = None
         sourcemap = kwargs.get("sourcemap", None)
         if sourcemap != "inline":
-            output_map = "%s.js.map" % name
+            output_map = "%s.map" % output
+
         esbuild(
             name = name,
-            output = "%s.js" % name,
+            output = output,
             output_map = output_map,
             **kwargs
         )
