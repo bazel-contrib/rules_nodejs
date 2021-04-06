@@ -269,6 +269,7 @@ def _validate_options_impl(ctx):
         allow_js = ctx.attr.allow_js,
         declaration = ctx.attr.declaration,
         declaration_map = ctx.attr.declaration_map,
+        preserve_jsx = ctx.attr.preserve_jsx,
         composite = ctx.attr.composite,
         emit_declaration_only = ctx.attr.emit_declaration_only,
         source_map = ctx.attr.source_map,
@@ -299,6 +300,7 @@ validate_options = rule(
         "emit_declaration_only": attr.bool(),
         "extends": attr.label(allow_files = [".json"]),
         "incremental": attr.bool(),
+        "preserve_jsx": attr.bool(),
         "source_map": attr.bool(),
         "target": attr.string(),
         "ts_build_info_file": attr.string(),
@@ -312,10 +314,20 @@ def _is_ts_src(src, allow_js):
         return True
     return allow_js and (src.endswith(".js") or src.endswith(".jsx"))
 
-def _out_paths(srcs, outdir, rootdir, allow_js, ext):
+def _replace_ext(f, ext_map):
+    cur_ext = f[f.rindex("."):]
+    new_ext = ext_map.get(cur_ext)
+    if new_ext != None:
+        return new_ext
+    new_ext = ext_map.get("*")
+    if new_ext != None:
+        return new_ext
+    return None
+
+def _out_paths(srcs, outdir, rootdir, allow_js, ext_map):
     rootdir_replace_pattern = rootdir + "/" if rootdir else ""
     return [
-        _join(outdir, f[:f.rindex(".")].replace(rootdir_replace_pattern, "") + ext)
+        _join(outdir, f[:f.rindex(".")].replace(rootdir_replace_pattern, "") + _replace_ext(f, ext_map))
         for f in srcs
         if _is_ts_src(f, allow_js)
     ]
@@ -331,6 +343,7 @@ def ts_project_macro(
         declaration = False,
         source_map = False,
         declaration_map = False,
+        preserve_jsx = False,
         composite = False,
         incremental = False,
         emit_declaration_only = False,
@@ -551,6 +564,8 @@ def ts_project_macro(
             Instructs Bazel to expect a `.js.map` output for each `.ts` source.
         declaration_map: if the `declarationMap` bit is set in the tsconfig.
             Instructs Bazel to expect a `.d.ts.map` output for each `.ts` source.
+        preserve_jsx: if the `jsx` value is set to "preserve" in the tsconfig.
+            Instructs Bazel to expect a `.jsx` or `.jsx.map` output for each `.tsx` source.
         composite: if the `composite` bit is set in the tsconfig.
             Instructs Bazel to expect a `.tsbuildinfo` output and a `.d.ts` output for each `.ts` source.
         incremental: if the `incremental` bit is set in the tsconfig.
@@ -620,6 +635,7 @@ def ts_project_macro(
                 declaration = declaration,
                 source_map = source_map,
                 declaration_map = declaration_map,
+                preserve_jsx = preserve_jsx,
                 composite = composite,
                 incremental = incremental,
                 ts_build_info_file = ts_build_info_file,
@@ -660,13 +676,22 @@ def ts_project_macro(
     typing_maps_outs = []
 
     if not emit_declaration_only:
-        js_outs.extend(_out_paths(srcs, out_dir, root_dir, allow_js, ".js"))
+        exts = {
+            "*": ".js",
+            ".jsx": ".jsx",
+            ".tsx": ".jsx",
+        } if preserve_jsx else {"*": ".js"}
+        js_outs.extend(_out_paths(srcs, out_dir, root_dir, allow_js, exts))
     if source_map and not emit_declaration_only:
-        map_outs.extend(_out_paths(srcs, out_dir, root_dir, False, ".js.map"))
+        exts = {
+            "*": ".js.map",
+            ".tsx": ".jsx.map",
+        } if preserve_jsx else {"*": ".js.map"}
+        map_outs.extend(_out_paths(srcs, out_dir, root_dir, False, exts))
     if declaration or composite:
-        typings_outs.extend(_out_paths(srcs, typings_out_dir, root_dir, allow_js, ".d.ts"))
+        typings_outs.extend(_out_paths(srcs, typings_out_dir, root_dir, allow_js, {"*": ".d.ts"}))
     if declaration_map:
-        typing_maps_outs.extend(_out_paths(srcs, typings_out_dir, root_dir, allow_js, ".d.ts.map"))
+        typing_maps_outs.extend(_out_paths(srcs, typings_out_dir, root_dir, allow_js, {"*": ".d.ts.map"}))
 
     if not len(js_outs) and not len(typings_outs):
         fail("""ts_project target "//{}:{}" is configured to produce no outputs.

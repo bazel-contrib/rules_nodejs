@@ -1,8 +1,8 @@
 {
   "dependencies": {
-    "@bazel/concatjs": "^3.2.2",
-    "@bazel/protractor": "^3.2.2",
-    "@bazel/typescript": "^3.2.2",
+    "@bazel/concatjs": "^3.2.3",
+    "@bazel/protractor": "^3.2.3",
+    "@bazel/typescript": "^3.2.3",
     "@types/jasmine": "2.8.2",
     "@types/node": "7.0.18",
     "date-fns": "1.30.1",

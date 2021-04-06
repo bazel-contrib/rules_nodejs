@@ -2,22 +2,22 @@
 # yarn lockfile v1
 
 
-"@bazel/cypress@^3.2.2":
-  version "3.2.2"
-  resolved "https://registry.yarnpkg.com/@bazel/cypress/-/cypress-3.2.2.tgz#2cd35b090005a99a7cfd2e8d491099d0272038b1"
-  integrity sha512-ak7MrUXF/iL75e7gCqp/TMK2/dJlL9mMGpa6Dg4Z1ewiTVKTXL06GHq4TWOLfIZALViIaSw8wMkDjk/eezpYgg==
+"@bazel/cypress@^3.2.3":
+  version "3.2.3"
+  resolved "https://registry.yarnpkg.com/@bazel/cypress/-/cypress-3.2.3.tgz#bf2a97ba6f1e79270031569df07869c7c1bde6d6"
+  integrity sha512-fVXOuil84IWnAQYHbvHStEQuTgAE6AuiN+JIwynx+Bw4MIGu8lgCfh1+TSNC+DqhZl+0xN5CiXsniylOFGU6nw==
   dependencies:
     tar "6.0.5"
 
-"@bazel/ibazel@^0.14.0":
-  version "0.14.0"
-  resolved "https://registry.yarnpkg.com/@bazel/ibazel/-/ibazel-0.14.0.tgz#86fa0002bed2ce1123b7ad98d4dd4623a0d93244"
-  integrity sha512-s0gyec6lArcRDwVfIP6xpY8iEaFpzrSpyErSppd3r2O49pOEg7n6HGS/qJ8ncvme56vrDk6crl/kQ6VAdEO+rg==
+"@bazel/ibazel@^0.15.6":
+  version "0.15.6"
+  resolved "https://registry.yarnpkg.com/@bazel/ibazel/-/ibazel-0.15.6.tgz#8f4359cbf4c57963a7648346a8541591f049cef0"
+  integrity sha512-3acACvwVJSVLSs7FrIh4ocicyvlaGxA+07Pg1sngzKbzym91Js1QcO8N1aqLTOPYmc5X5/cZQctqwYIZP0Y1XQ==
 
-"@bazel/typescript@^3.2.2":
-  version "3.2.2"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-3.2.2.tgz#b53ee35dee68952abd711a2d472485748c7521c1"
-  integrity sha512-fTPtX3kZAQ50fWJaBvHtHf4w0fqMCrOhK9A8c5GgbqRrIWF8GG/+Tbt4OPwsG0N3+JDYOsHATacJI0qkjIeG1g==
+"@bazel/typescript@^3.2.3":
+  version "3.2.3"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-3.2.3.tgz#6e40bdb7c5294e588bac3b7d1269e58b98a1856c"
+  integrity sha512-Q1Yin/AYdh9yrkSJo3H6nVn6mMaohr5syjLd0Df0w7WI4zerdJTxrY5nhoWZwO/S1rPj8/MedDwZudCqPDeDMA==
   dependencies:
     protobufjs "6.8.8"
     semver "5.6.0"

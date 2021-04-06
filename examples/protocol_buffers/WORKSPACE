@@ -21,15 +21,15 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "build_bazel_rules_nodejs",
-    sha256 = "55a25a762fcf9c9b88ab54436581e671bc9f4f523cb5a1bd32459ebec7be68a8",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/3.2.2/rules_nodejs-3.2.2.tar.gz"],
+    sha256 = "dd7ea7efda7655c218ca707f55c3e1b9c68055a70c31a98f264b3445bc8f4cb1",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/3.2.3/rules_nodejs-3.2.3.tar.gz"],
 )
 
 http_archive(
     name = "com_google_protobuf",
-    sha256 = "65e020a42bdab44a66664d34421995829e9e79c60e5adaa08282fd14ca552f57",
-    strip_prefix = "protobuf-3.15.6",
-    urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.15.6.tar.gz"],
+    sha256 = "efdd6b932a2c0a88a90c4c80f88e4b2e1bf031e7514dbb5a5db5d0bf4f295504",
+    strip_prefix = "protobuf-3.15.7",
+    urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.15.7.tar.gz"],
 )
 
 http_archive(

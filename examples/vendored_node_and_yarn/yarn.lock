@@ -2,13 +2,13 @@
 # yarn lockfile v1
 
 
-"@bazel/jasmine@^3.2.2":
-  version "3.2.2"
-  resolved "https://registry.yarnpkg.com/@bazel/jasmine/-/jasmine-3.2.2.tgz#e4c088d8267f83c4c718ac46e5923f549d47fef6"
-  integrity sha512-fSz0fRdk9IgyN/9Ietzasdp2QAhMGz/E4LKdiu+WyZrPjwd06zQ4ypb3DzzT1g+M/7NXJqV8X6ahTGQMrm/Rpw==
+"@bazel/jasmine@^3.2.3":
+  version "3.2.3"
+  resolved "https://registry.yarnpkg.com/@bazel/jasmine/-/jasmine-3.2.3.tgz#fee0372af7ee85354a58cb1457b61c53ce76f50a"
+  integrity sha512-d1VxXVbpahnQrCihXyzHRcINeDKubA2v7VkMuDhRLrf/VagUkmg0PC6fYQ7AwniNUoR74s5sv/McMnpxfwOQ8g==
   dependencies:
     c8 "~7.5.0"
-    jasmine-reporters "~2.3.2"
+    jasmine-reporters "~2.4.0"
 
 "@bcoe/v8-coverage@^0.2.3":
   version "0.2.3"
@@ -255,13 +255,13 @@ jasmine-core@~3.5.0:
   resolved "https://registry.yarnpkg.com/jasmine-core/-/jasmine-core-3.5.0.tgz#132c23e645af96d85c8bca13c8758b18429fc1e4"
   integrity sha512-nCeAiw37MIMA9w9IXso7bRaLl+c/ef3wnxsoSAlYrzS+Ot0zTG6nU8G/cIfGkqpkjX2wNaIW9RFG0TwIFnG6bA==
 
-jasmine-reporters@~2.3.2:
-  version "2.3.2"
-  resolved "https://registry.yarnpkg.com/jasmine-reporters/-/jasmine-reporters-2.3.2.tgz#898818ffc234eb8b3f635d693de4586f95548d43"
-  integrity sha512-u/7AT9SkuZsUfFBLLzbErohTGNsEUCKaQbsVYnLFW1gEuL2DzmBL4n8v90uZsqIqlWvWUgian8J6yOt5Fyk/+A==
+jasmine-reporters@~2.4.0:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/jasmine-reporters/-/jasmine-reporters-2.4.0.tgz#708c17ae70ba6671e3a930bb1b202aab80a31409"
+  integrity sha512-jxONSrBLN1vz/8zCx5YNWQSS8iyDAlXQ5yk1LuqITe4C6iXCDx5u6Q0jfNtkKhL4qLZPe69fL+AWvXFt9/x38w==
   dependencies:
     mkdirp "^0.5.1"
-    xmldom "^0.1.22"
+    xmldom "^0.5.0"
 
 jasmine@^3.5.0:
   version "3.5.0"
@@ -446,10 +446,10 @@ wrappy@1:
   resolved "https://registry.yarnpkg.com/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
   integrity sha1-tSQ9jz7BqjXxNkYFvA0QNuMKtp8=
 
-xmldom@^0.1.22:
-  version "0.1.31"
-  resolved "https://registry.yarnpkg.com/xmldom/-/xmldom-0.1.31.tgz#b76c9a1bd9f0a9737e5a72dc37231cf38375e2ff"
-  integrity sha512-yS2uJflVQs6n+CyjHoaBmVSqIDevTAWrzMmjG1Gc7h1qQ7uVozNhEPJAwZXWyGQ/Gafo3fCwrcaokezLPupVyQ==
+xmldom@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/xmldom/-/xmldom-0.5.0.tgz#193cb96b84aa3486127ea6272c4596354cb4962e"
+  integrity sha512-Foaj5FXVzgn7xFzsKeNIde9g6aFBxTPi37iwsno8QvApmtg7KYrr+OPyRHcJF7dud2a5nGRBXK3n0dL62Gf7PA==
 
 y18n@^5.0.5:
   version "5.0.5"

@@ -68,8 +68,8 @@ def _esbuild_impl(ctx):
     args.add_all(ctx.attr.define, format_each = "--define:%s")
     args.add_all(ctx.attr.external, format_each = "--external:%s")
 
-    # disable the error limit and show all errors
-    args.add_joined(["--error-limit", "0"], join_with = "=")
+    # disable the log limit and show all logs
+    args.add_joined(["--log-limit", "0"], join_with = "=")
 
     if ctx.attr.minify:
         args.add("--minify")
@@ -109,11 +109,15 @@ def _esbuild_impl(ctx):
     args.add_joined(["--tsconfig", jsconfig_file.path], join_with = "=")
     inputs.append(jsconfig_file)
 
-    args.add_all(ctx.attr.args)
+    args.add_all([ctx.expand_location(arg) for arg in ctx.attr.args])
 
     env = {}
     if ctx.attr.max_threads > 0:
         env["GOMAXPROCS"] = str(ctx.attr.max_threads)
+
+    execution_requirements = {}
+    if "no-remote-exec" in ctx.attr.tags:
+        execution_requirements = {"no-remote-exec": "1"}
 
     ctx.actions.run(
         inputs = inputs,
@@ -121,9 +125,7 @@ def _esbuild_impl(ctx):
         executable = ctx.executable.tool,
         arguments = [args],
         progress_message = "%s Javascript %s [esbuild]" % ("Bundling" if not ctx.attr.output_dir else "Splitting", entry_point.short_path),
-        execution_requirements = {
-            "no-remote-exec": "1",
-        },
+        execution_requirements = execution_requirements,
         mnemonic = "esbuild",
         env = env,
     )
@@ -136,7 +138,8 @@ esbuild = rule(
     attrs = {
         "args": attr.string_list(
             default = [],
-            doc = "A list of extra arguments that are included in the call to esbuild",
+            doc = """A list of extra arguments that are included in the call to esbuild.
+    $(location ...) can be used to resolve the path to a Bazel target.""",
         ),
         "define": attr.string_list(
             default = [],
@@ -225,7 +228,7 @@ See https://esbuild.github.io/api/#platform for more details
             """,
         ),
         "sourcemap": attr.string(
-            values = ["external", "inline", "both"],
+            values = ["external", "inline", "both", ""],
             mandatory = False,
             doc = """Defines where sourcemaps are output and how they are included in the bundle. By default, a separate `.js.map` file is generated and referenced by the bundle. If 'external', a separate `.js.map` file is generated but not referenced by the bundle. If 'inline', a sourcemap is generated and its contents are inlined into the bundle (and no external sourcemap file is created). If 'both', a sourcemap is inlined and a `.js.map` file is created.
 
@@ -288,13 +291,18 @@ def esbuild_macro(name, output_dir = False, **kwargs):
             **kwargs
         )
     else:
+        output = "%s.js" % name
+        if "output" in kwargs:
+            output = kwargs.pop("output")
+
         output_map = None
         sourcemap = kwargs.get("sourcemap", None)
         if sourcemap != "inline":
-            output_map = "%s.js.map" % name
+            output_map = "%s.map" % output
+
         esbuild(
             name = name,
-            output = "%s.js" % name,
+            output = output,
             output_map = output_map,
             **kwargs
         )

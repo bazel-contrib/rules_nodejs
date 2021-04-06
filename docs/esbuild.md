@@ -130,7 +130,8 @@ This will create an output directory containing all the code split chunks, along
 
 <pre>
 esbuild(<a href="#esbuild-name">name</a>, <a href="#esbuild-args">args</a>, <a href="#esbuild-define">define</a>, <a href="#esbuild-deps">deps</a>, <a href="#esbuild-entry_point">entry_point</a>, <a href="#esbuild-external">external</a>, <a href="#esbuild-format">format</a>, <a href="#esbuild-link_workspace_root">link_workspace_root</a>, <a href="#esbuild-max_threads">max_threads</a>,
-        <a href="#esbuild-minify">minify</a>, <a href="#esbuild-output">output</a>, <a href="#esbuild-output_dir">output_dir</a>, <a href="#esbuild-output_map">output_map</a>, <a href="#esbuild-platform">platform</a>, <a href="#esbuild-sources_content">sources_content</a>, <a href="#esbuild-srcs">srcs</a>, <a href="#esbuild-target">target</a>, <a href="#esbuild-tool">tool</a>)
+        <a href="#esbuild-minify">minify</a>, <a href="#esbuild-output">output</a>, <a href="#esbuild-output_dir">output_dir</a>, <a href="#esbuild-output_map">output_map</a>, <a href="#esbuild-platform">platform</a>, <a href="#esbuild-sourcemap">sourcemap</a>, <a href="#esbuild-sources_content">sources_content</a>, <a href="#esbuild-srcs">srcs</a>, <a href="#esbuild-target">target</a>,
+        <a href="#esbuild-tool">tool</a>)
 </pre>
 
 Runs the esbuild bundler under Bazel
@@ -248,6 +249,14 @@ Defaults to `False`
 See https://esbuild.github.io/api/#platform for more details
 
 Defaults to `"browser"`
+
+<h4 id="esbuild-sourcemap">sourcemap</h4>
+
+(*String*): Defines where sourcemaps are output and how they are included in the bundle. By default, a separate `.js.map` file is generated and referenced by the bundle. If 'external', a separate `.js.map` file is generated but not referenced by the bundle. If 'inline', a sourcemap is generated and its contents are inlined into the bundle (and no external sourcemap file is created). If 'both', a sourcemap is inlined and a `.js.map` file is created.
+
+See https://esbuild.github.io/api/#sourcemap for more details
+
+Defaults to `""`
 
 <h4 id="esbuild-sources_content">sources_content</h4>
 

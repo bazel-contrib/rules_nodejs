@@ -17,7 +17,7 @@
     "typescript": "~3.7.2"
   },
   "devDependencies": {
-    "@bazel/ibazel": "^0.14.0",
+    "@bazel/ibazel": "^0.15.6",
     "patch-package": "^6.2.2"
   },
   "scripts": {

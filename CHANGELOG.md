@@ -1,3 +1,23 @@
+## [3.2.3](https://github.com/bazelbuild/rules_nodejs/compare/3.2.2...3.2.3) (2021-03-25)
+
+
+### Bug Fixes
+
+* **builtin:** add transitive typings to runfiles provider produced by js_library ([#2547](https://github.com/bazelbuild/rules_nodejs/issues/2547)) ([41117fa](https://github.com/bazelbuild/rules_nodejs/commit/41117fa))
+* **builtin:** always install source-map-support ([#2538](https://github.com/bazelbuild/rules_nodejs/issues/2538)) ([97b3886](https://github.com/bazelbuild/rules_nodejs/commit/97b3886)), closes [#2520](https://github.com/bazelbuild/rules_nodejs/issues/2520)
+* **esbuild:** allow empty string as an input to sourcemap for bazel 2.x support ([#2549](https://github.com/bazelbuild/rules_nodejs/issues/2549)) ([3b3e020](https://github.com/bazelbuild/rules_nodejs/commit/3b3e020))
+* **typescript:** update documentation now that ts_project is recommended ([#2548](https://github.com/bazelbuild/rules_nodejs/issues/2548)) ([a8d8b0f](https://github.com/bazelbuild/rules_nodejs/commit/a8d8b0f))
+* tsconfig validator fails on chained tsconfig references ([#2512](https://github.com/bazelbuild/rules_nodejs/issues/2512)) ([bfd74e5](https://github.com/bazelbuild/rules_nodejs/commit/bfd74e5))
+* **examples:** remove relativeLinkResolution ([#2530](https://github.com/bazelbuild/rules_nodejs/issues/2530)) ([8ef60e5](https://github.com/bazelbuild/rules_nodejs/commit/8ef60e5))
+
+
+### Features
+
+* **builtin:** first experimental rules for npm tarballs ([#2544](https://github.com/bazelbuild/rules_nodejs/issues/2544)) ([aa09b57](https://github.com/bazelbuild/rules_nodejs/commit/aa09b57))
+* **esbuild:** add 'sourcemap' option to configure sourcemap generation ([#2528](https://github.com/bazelbuild/rules_nodejs/issues/2528)) ([8d0218c](https://github.com/bazelbuild/rules_nodejs/commit/8d0218c))
+
+
+
 ## [3.2.2](https://github.com/bazelbuild/rules_nodejs/compare/3.2.1...3.2.2) (2021-03-08)
 
 

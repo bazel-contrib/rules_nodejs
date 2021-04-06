@@ -64,6 +64,25 @@ function main([tsconfigPath, output, target, attrsStr]: string[]): 0|1 {
     }
   }
 
+  const jsxEmit: Record<ts.JsxEmit, string|undefined> =
+      {
+        [ts.JsxEmit.None]: 'none',
+        [ts.JsxEmit.Preserve]: 'preserve',
+        [ts.JsxEmit.React]: 'react',
+        [ts.JsxEmit.ReactNative]: 'react-native',
+      }
+
+  function
+  check_preserve_jsx() {
+    const attr = 'preserve_jsx'
+    const jsxVal = options['jsx'] as ts.JsxEmit
+    if ((jsxVal === ts.JsxEmit.Preserve) !== Boolean(attrs[attr])) {
+      failures.push(
+          `attribute ${attr}=${attrs[attr]} does not match compilerOptions.jsx=${jsxEmit[jsxVal]}`);
+      buildozerCmds.push(`set ${attr} ${jsxVal === ts.JsxEmit.Preserve ? 'True' : 'False'}`);
+    }
+  }
+
   check('allowJs', 'allow_js');
   check('declarationMap', 'declaration_map');
   check('emitDeclarationOnly', 'emit_declaration_only');
@@ -72,6 +91,7 @@ function main([tsconfigPath, output, target, attrsStr]: string[]): 0|1 {
   check('declaration');
   check('incremental');
   check('tsBuildInfoFile', 'ts_build_info_file');
+  check_preserve_jsx();
 
   if (failures.length > 0) {
     console.error(`ERROR: ts_project rule ${
@@ -98,6 +118,7 @@ function main([tsconfigPath, output, target, attrsStr]: string[]): 0|1 {
 // source_map:            ${attrs.source_map}
 // emit_declaration_only: ${attrs.emit_declaration_only}
 // ts_build_info_file:    ${attrs.ts_build_info_file}
+// preserve_jsx:          ${attrs.preserve_jsx}
 `,
       'utf-8');
   return 0;

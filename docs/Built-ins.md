@@ -1608,8 +1608,8 @@ used for undocumented legacy features
 **USAGE**
 
 <pre>
-npm_package_bin(<a href="#npm_package_bin-tool">tool</a>, <a href="#npm_package_bin-package">package</a>, <a href="#npm_package_bin-package_bin">package_bin</a>, <a href="#npm_package_bin-data">data</a>, <a href="#npm_package_bin-env">env</a>, <a href="#npm_package_bin-outs">outs</a>, <a href="#npm_package_bin-args">args</a>, <a href="#npm_package_bin-output_dir">output_dir</a>, <a href="#npm_package_bin-link_workspace_root">link_workspace_root</a>,
-                <a href="#npm_package_bin-chdir">chdir</a>, <a href="#npm_package_bin-kwargs">kwargs</a>)
+npm_package_bin(<a href="#npm_package_bin-tool">tool</a>, <a href="#npm_package_bin-package">package</a>, <a href="#npm_package_bin-package_bin">package_bin</a>, <a href="#npm_package_bin-data">data</a>, <a href="#npm_package_bin-env">env</a>, <a href="#npm_package_bin-outs">outs</a>, <a href="#npm_package_bin-args">args</a>, <a href="#npm_package_bin-stderr">stderr</a>, <a href="#npm_package_bin-stdout">stdout</a>, <a href="#npm_package_bin-exit_code_out">exit_code_out</a>,
+                <a href="#npm_package_bin-output_dir">output_dir</a>, <a href="#npm_package_bin-link_workspace_root">link_workspace_root</a>, <a href="#npm_package_bin-chdir">chdir</a>, <a href="#npm_package_bin-kwargs">kwargs</a>)
 </pre>
 
 Run an arbitrary npm package binary (e.g. a program under node_modules/.bin/*) under Bazel.
@@ -1709,6 +1709,28 @@ Custom variables are also expanded including variables set through the Bazel CLI
 See https://docs.bazel.build/versions/master/be/make-variables.html#custom_variables.
 
 Defaults to `[]`
+
+<h4 id="npm_package_bin-stderr">stderr</h4>
+
+set to capture the stderr of the binary to a file, which can later be used as an input to another target
+subject to the same semantics as `outs`
+
+Defaults to `None`
+
+<h4 id="npm_package_bin-stdout">stdout</h4>
+
+set to capture the stdout of the binary to a file, which can later be used as an input to another target
+subject to the same semantics as `outs`
+
+Defaults to `None`
+
+<h4 id="npm_package_bin-exit_code_out">exit_code_out</h4>
+
+set to capture the exit code of the binary to a file, which can later be used as an input to another target
+subject to the same semantics as `outs`. Note that setting this will force the binary to exit 0.
+If the binary creates outputs and these are declared, they must still be created
+
+Defaults to `None`
 
 <h4 id="npm_package_bin-output_dir">output_dir</h4>
 

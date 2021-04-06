@@ -6,7 +6,7 @@ Helper macro for fetching esbuild versions for internal tests and examples in ru
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-_VERSION = "0.8.57"
+_VERSION = "0.11.5"
 
 def esbuild_dependencies():
     """Helper to install required dependencies for the esbuild rules"""
@@ -38,5 +38,5 @@ def esbuild_dependencies():
         ],
         strip_prefix = "package",
         build_file_content = """exports_files(["bin/esbuild"])""",
-        sha256 = "76762543a555ecccf834013c92a1245ec3707241595b243e8e3a92546d4dbe50",
+        sha256 = "113c2e84895f4422a3676db4e15d9f01b2b4fac041edab25284fdb9574ba58a0",
     )

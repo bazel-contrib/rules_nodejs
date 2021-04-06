@@ -7,15 +7,15 @@
   resolved "https://registry.yarnpkg.com/@bazel/buildifier/-/buildifier-4.0.1.tgz#52cfbad5cbb86e9183a29dde2370cd465730ea0d"
   integrity sha512-BTmtvJbeeEVrqRApI1gr5hvPgYcHLpdGJ5EXNXEWO692ztMPSj5fB/dH0xUlaW45jn6LimYx8ymqTMhj3538og==
 
-"@bazel/ibazel@^0.14.0":
-  version "0.14.0"
-  resolved "https://registry.yarnpkg.com/@bazel/ibazel/-/ibazel-0.14.0.tgz#86fa0002bed2ce1123b7ad98d4dd4623a0d93244"
-  integrity sha512-s0gyec6lArcRDwVfIP6xpY8iEaFpzrSpyErSppd3r2O49pOEg7n6HGS/qJ8ncvme56vrDk6crl/kQ6VAdEO+rg==
+"@bazel/ibazel@^0.15.6":
+  version "0.15.6"
+  resolved "https://registry.yarnpkg.com/@bazel/ibazel/-/ibazel-0.15.6.tgz#8f4359cbf4c57963a7648346a8541591f049cef0"
+  integrity sha512-3acACvwVJSVLSs7FrIh4ocicyvlaGxA+07Pg1sngzKbzym91Js1QcO8N1aqLTOPYmc5X5/cZQctqwYIZP0Y1XQ==
 
-"@bazel/typescript@^3.2.2":
-  version "3.2.2"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-3.2.2.tgz#b53ee35dee68952abd711a2d472485748c7521c1"
-  integrity sha512-fTPtX3kZAQ50fWJaBvHtHf4w0fqMCrOhK9A8c5GgbqRrIWF8GG/+Tbt4OPwsG0N3+JDYOsHATacJI0qkjIeG1g==
+"@bazel/typescript@^3.2.3":
+  version "3.2.3"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-3.2.3.tgz#6e40bdb7c5294e588bac3b7d1269e58b98a1856c"
+  integrity sha512-Q1Yin/AYdh9yrkSJo3H6nVn6mMaohr5syjLd0Df0w7WI4zerdJTxrY5nhoWZwO/S1rPj8/MedDwZudCqPDeDMA==
   dependencies:
     protobufjs "6.8.8"
     semver "5.6.0"

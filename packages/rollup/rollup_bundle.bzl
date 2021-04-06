@@ -352,7 +352,10 @@ def _rollup_bundle(ctx):
 
     return [
         DefaultInfo(files = outputs_depset),
-        JSModuleInfo(sources = outputs_depset),
+        JSModuleInfo(
+            direct_sources = outputs_depset,
+            sources = outputs_depset,
+        ),
     ]
 
 rollup_bundle = rule(

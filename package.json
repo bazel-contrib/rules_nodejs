@@ -1,7 +1,7 @@
 {
     "name": "@bazel/javascript",
     "description": "Build JavaScript with Bazel",
-    "version": "3.2.2",
+    "version": "3.2.3",
     "keywords": [
         "javascript",
         "bazel"
@@ -50,7 +50,7 @@
         "is-builtin-module": "3.0.0",
         "jasmine": "~3.4.0",
         "jasmine-core": "~3.4.0",
-        "jasmine-reporters": "~2.3.2",
+        "jasmine-reporters": "~2.4.0",
         "jest": "~25.3.0",
         "jest-cli": "~25.3.0",
         "jest-websocket-mock": "~2.0.2",
