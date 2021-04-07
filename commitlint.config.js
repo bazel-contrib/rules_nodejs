@@ -17,6 +17,7 @@ module.exports = {
         'labs',
         'protractor',
         'rollup',
+        'runfiles',
         'terser',
         'typescript',
         'worker',

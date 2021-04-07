@@ -39,12 +39,13 @@ sh_binary(
         # "runfiles" module mappings from `:some_program` in `:run_program` under the
         ":some_program",
         "//internal/linker:index.js",
+        "//internal/runfiles:index.js",
+        "//internal/runfiles:runfile_helper_main.js",
         "//internal/linker/test/integration/static_linked_pkg",
         "//internal/linker/test/integration/static_linked_scoped_pkg",
         "//internal/linker/test/integration/absolute_import:index.js",
         "//third_party/github.com/bazelbuild/bazel/tools/bash/runfiles",
         "//toolchains/node:node_bin",
-        "//internal/linker:runfiles_helper.js",
     ],
 )
 

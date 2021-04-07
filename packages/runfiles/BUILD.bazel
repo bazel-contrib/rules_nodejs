@@ -1,0 +1,30 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "pkg_npm")
+load("//packages/typescript:index.bzl", "ts_project")
+
+ts_project(
+    name = "runfiles_lib",
+    srcs = glob(["*.ts"]),
+    declaration = True,
+    tsconfig = "tsconfig.json",
+    visibility = ["//internal/runfiles:__pkg__"],
+    deps = ["@npm//@types/node"],
+)
+
+js_library(
+    name = "bazel_runfiles",
+    package_name = "@bazel/runfiles",
+    visibility = ["//internal/linker:__subpackages__"],
+    deps = [":runfiles_lib"],
+)
+
+pkg_npm(
+    name = "npm_package",
+    srcs = [
+        "README.md",
+        "package.json",
+    ],
+    deps = [
+        ":runfiles_lib",
+    ],
+)

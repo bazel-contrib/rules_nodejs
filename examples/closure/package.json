@@ -1,6 +1,8 @@
 {
     "private": true,
+    "//comment": "TODO: Change runfiles dependency to an actual version once released.",
     "dependencies": {
+        "@bazel/runfiles": "latest",
         "google-closure-compiler": "20190729.0.0"
     }
 }

@@ -1,5 +1,6 @@
 # BEGIN-INTERNAL
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("//:index.bzl", "js_library")
 load("//packages/typescript:checked_in_ts_project.bzl", "checked_in_ts_project")
 
 # We can't bootstrap the ts_library rule using the linker itself,
@@ -12,7 +13,17 @@ checked_in_ts_project(
     src = "link_node_modules.ts",
     checked_in_js = "index.js",
     visibility = ["//internal/linker:__subpackages__"],
-    deps = ["@npm//@types/node"],
+    deps = [
+        "//packages/runfiles:bazel_runfiles",
+        "@npm//@types/node",
+    ],
+)
+
+js_library(
+    name = "linker_js",
+    srcs = ["index.js"],
+    visibility = ["//internal/linker/test:__pkg__"],
+    deps = ["//internal/runfiles:runfiles_js"],
 )
 
 bzl_library(
@@ -24,7 +35,6 @@ bzl_library(
 # END-INTERNAL
 exports_files([
     "index.js",
-    "runfiles_helper.js",
 ])
 
 filegroup(

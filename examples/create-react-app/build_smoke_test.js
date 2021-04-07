@@ -1,6 +1,6 @@
 const assert = require('assert');
 const fs = require('fs');
-const runfiles = require(process.env['BAZEL_NODE_RUNFILES_HELPER']);
+const {runfiles} = require('@bazel/runfiles');
 
 // Make sure there's a file like build/static/js/main.12345678.chunk.js
 const jsDir = runfiles.resolvePackageRelative('build/static/js');
