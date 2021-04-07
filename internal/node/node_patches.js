@@ -1,29 +1,24 @@
 // clang-format off
 'use strict';
 
-function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
+var path = require('path');
+var util = require('util');
+var fs$2 = require('fs');
 
-var path = _interopDefault(require('path'));
-var util = _interopDefault(require('util'));
-var fs$1 = _interopDefault(require('fs'));
+function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
+
+var path__default = /*#__PURE__*/_interopDefaultLegacy(path);
+var util__default = /*#__PURE__*/_interopDefaultLegacy(util);
+var fs__default = /*#__PURE__*/_interopDefaultLegacy(fs$2);
 
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
-function createCommonjsModule(fn, basedir, module) {
-	return module = {
-	  path: basedir,
-	  exports: {},
-	  require: function (path, base) {
-      return commonjsRequire(path, (base === undefined || base === null) ? module.path : base);
-    }
-	}, fn(module, module.exports), module.exports;
+function createCommonjsModule(fn) {
+  var module = { exports: {} };
+	return fn(module, module.exports), module.exports;
 }
 
-function commonjsRequire () {
-	throw new Error('Dynamic requires are not currently supported by @rollup/plugin-commonjs');
-}
-
-var fs = createCommonjsModule(function (module, exports) {
+var fs$1 = createCommonjsModule(function (module, exports) {
 /**
  * @license
  * Copyright 2019 The Bazel Authors. All rights reserved.
@@ -67,8 +62,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // es modules
 
 // tslint:disable-next-line:no-any
-exports.patcher = (fs = fs$1, roots) => {
-    fs = fs || fs$1;
+exports.patcher = (fs = fs__default['default'], roots) => {
+    fs = fs || fs__default['default'];
     roots = roots || [];
     roots = roots.filter(root => fs.existsSync(root));
     if (!roots.length) {
@@ -99,7 +94,7 @@ exports.patcher = (fs = fs$1, roots) => {
             args[args.length - 1] = (err, stats) => {
                 if (err)
                     return cb(err);
-                const linkPath = path.resolve(args[0]);
+                path__default['default'].resolve(args[0]);
                 if (!stats.isSymbolicLink()) {
                     return cb(null, stats);
                 }
@@ -120,7 +115,7 @@ exports.patcher = (fs = fs$1, roots) => {
                             return cb(err);
                         }
                     }
-                    str = path.resolve(path.dirname(args[0]), str);
+                    str = path__default['default'].resolve(path__default['default'].dirname(args[0]), str);
                     if (isEscape(str, args[0])) {
                         // if it's an out link we have to return the original stat.
                         return origStat(args[0], (err, plainStat) => {
@@ -147,7 +142,7 @@ exports.patcher = (fs = fs$1, roots) => {
                 if (err)
                     return cb(err);
                 if (isEscape(str, args[0])) {
-                    cb(false, path.resolve(args[0]));
+                    cb(false, path__default['default'].resolve(args[0]));
                 }
                 else {
                     cb(false, str);
@@ -165,7 +160,7 @@ exports.patcher = (fs = fs$1, roots) => {
                     if (err)
                         return cb(err);
                     if (isEscape(str, args[0])) {
-                        cb(false, path.resolve(args[0]));
+                        cb(false, path__default['default'].resolve(args[0]));
                     }
                     else {
                         cb(false, str);
@@ -180,9 +175,9 @@ exports.patcher = (fs = fs$1, roots) => {
         if (cb) {
             cb = once(cb);
             args[args.length - 1] = (err, str) => {
-                args[0] = path.resolve(args[0]);
+                args[0] = path__default['default'].resolve(args[0]);
                 if (str)
-                    str = path.resolve(path.dirname(args[0]), str);
+                    str = path__default['default'].resolve(path__default['default'].dirname(args[0]), str);
                 if (err)
                     return cb(err);
                 if (isEscape(str, args[0])) {
@@ -200,13 +195,13 @@ exports.patcher = (fs = fs$1, roots) => {
     // tslint:disable-next-line:no-any
     fs.lstatSync = (...args) => {
         const stats = origLstatSync(...args);
-        const linkPath = path.resolve(args[0]);
+        const linkPath = path__default['default'].resolve(args[0]);
         if (!stats.isSymbolicLink()) {
             return stats;
         }
         let linkTarget;
         try {
-            linkTarget = path.resolve(path.dirname(args[0]), origReadlinkSync(linkPath));
+            linkTarget = path__default['default'].resolve(path__default['default'].dirname(args[0]), origReadlinkSync(linkPath));
         }
         catch (e) {
             if (e.code === 'ENOENT') {
@@ -232,7 +227,7 @@ exports.patcher = (fs = fs$1, roots) => {
     fs.realpathSync = (...args) => {
         const str = origRealpathSync(...args);
         if (isEscape(str, args[0])) {
-            return path.resolve(args[0]);
+            return path__default['default'].resolve(args[0]);
         }
         return str;
     };
@@ -240,14 +235,14 @@ exports.patcher = (fs = fs$1, roots) => {
     fs.realpathSync.native = (...args) => {
         const str = origRealpathSyncNative(...args);
         if (isEscape(str, args[0])) {
-            return path.resolve(args[0]);
+            return path__default['default'].resolve(args[0]);
         }
         return str;
     };
     // tslint:disable-next-line:no-any
     fs.readlinkSync = (...args) => {
-        args[0] = path.resolve(args[0]);
-        const str = path.resolve(path.dirname(args[0]), origReadlinkSync(...args));
+        args[0] = path__default['default'].resolve(args[0]);
+        const str = path__default['default'].resolve(path__default['default'].dirname(args[0]), origReadlinkSync(...args));
         if (isEscape(str, args[0]) || str === args[0]) {
             const e = new Error('EINVAL: invalid argument, readlink \'' + args[0] + '\'');
             // tslint:disable-next-line:no-any
@@ -258,7 +253,7 @@ exports.patcher = (fs = fs$1, roots) => {
     };
     // tslint:disable-next-line:no-any
     fs.readdir = (...args) => {
-        const p = path.resolve(args[0]);
+        const p = path__default['default'].resolve(args[0]);
         let cb = args[args.length - 1];
         if (typeof cb !== 'function') {
             // this will likely throw callback required error.
@@ -288,7 +283,7 @@ exports.patcher = (fs = fs$1, roots) => {
     // tslint:disable-next-line:no-any
     fs.readdirSync = (...args) => {
         const res = origReaddirSync(...args);
-        const p = path.resolve(args[0]);
+        const p = path__default['default'].resolve(args[0]);
         // tslint:disable-next-line:no-any
         res.forEach((v) => {
             handleDirentSync(p, v);
@@ -337,7 +332,7 @@ exports.patcher = (fs = fs$1, roots) => {
         };
     }
     async function handleDir(dir) {
-        const p = path.resolve(dir.path);
+        const p = path__default['default'].resolve(dir.path);
         const origIterator = dir[Symbol.asyncIterator].bind(dir);
         // tslint:disable-next-line:no-any
         const origRead = dir.read.bind(dir);
@@ -390,25 +385,25 @@ exports.patcher = (fs = fs$1, roots) => {
         handleCounter++;
         return new Promise((resolve, reject) => {
             if (fs.DEBUG)
-                console.error(handleCounter + ' opendir: found link? ', path.join(p, v.name), v.isSymbolicLink());
+                console.error(handleCounter + ' opendir: found link? ', path__default['default'].join(p, v.name), v.isSymbolicLink());
             if (!v.isSymbolicLink()) {
                 return resolve(v);
             }
-            const linkName = path.join(p, v.name);
+            const linkName = path__default['default'].join(p, v.name);
             origReadlink(linkName, (err, target) => {
                 if (err) {
                     return reject(err);
                 }
                 if (fs.DEBUG)
-                    console.error(handleCounter + ' opendir: escapes? [target]', path.resolve(target), '[link] ' + linkName, isEscape(path.resolve(target), linkName), roots);
-                if (!isEscape(path.resolve(target), linkName)) {
+                    console.error(handleCounter + ' opendir: escapes? [target]', path__default['default'].resolve(target), '[link] ' + linkName, isEscape(path__default['default'].resolve(target), linkName), roots);
+                if (!isEscape(path__default['default'].resolve(target), linkName)) {
                     return resolve(v);
                 }
                 fs.stat(target, (err, stat) => {
                     if (err) {
                         if (err.code === 'ENOENT') {
                             if (fs.DEBUG)
-                                console.error(handleCounter + ' opendir: broken link! resolving to link ', path.resolve(target));
+                                console.error(handleCounter + ' opendir: broken link! resolving to link ', path__default['default'].resolve(target));
                             // this is a broken symlink
                             // even though this broken symlink points outside of the root
                             // we'll return it.
@@ -423,7 +418,7 @@ exports.patcher = (fs = fs$1, roots) => {
                         return reject(err);
                     }
                     if (fs.DEBUG)
-                        console.error(handleCounter + ' opendir: patching dirent to look like it\'s target', path.resolve(target));
+                        console.error(handleCounter + ' opendir: patching dirent to look like it\'s target', path__default['default'].resolve(target));
                     // add all stat is methods to Dirent instances with their result.
                     patchDirent(v, stat);
                     v.isSymbolicLink = () => false;
@@ -436,8 +431,8 @@ exports.patcher = (fs = fs$1, roots) => {
         if (v && v.isSymbolicLink) {
             if (v.isSymbolicLink()) {
                 // any errors thrown here are valid. things like transient fs errors
-                const target = path.resolve(p, origReadlinkSync(path.join(p, v.name)));
-                if (isEscape(target, path.join(p, v.name))) {
+                const target = path__default['default'].resolve(p, origReadlinkSync(path__default['default'].join(p, v.name)));
+                if (isEscape(target, path__default['default'].join(p, v.name))) {
                     // Dirent exposes file type so if we want to hide that this is a link
                     // we need to find out if it's a file or directory.
                     v.isSymbolicLink = () => false;
@@ -463,13 +458,13 @@ exports.patcher = (fs = fs$1, roots) => {
     if (promisePropertyDescriptor) {
         // tslint:disable-next-line:no-any
         const promises = {};
-        promises.lstat = util.promisify(fs.lstat);
+        promises.lstat = util__default['default'].promisify(fs.lstat);
         // NOTE: node core uses the newer realpath function fs.promises.native instead of fs.realPath
-        promises.realpath = util.promisify(fs.realpath.native);
-        promises.readlink = util.promisify(fs.readlink);
-        promises.readdir = util.promisify(fs.readdir);
+        promises.realpath = util__default['default'].promisify(fs.realpath.native);
+        promises.readlink = util__default['default'].promisify(fs.readlink);
+        promises.readdir = util__default['default'].promisify(fs.readdir);
         if (fs.opendir)
-            promises.opendir = util.promisify(fs.opendir);
+            promises.opendir = util__default['default'].promisify(fs.opendir);
         // handle experimental api warnings.
         // only applies to version of node where promises is a getter property.
         if (promisePropertyDescriptor.get) {
@@ -489,18 +484,18 @@ exports.patcher = (fs = fs$1, roots) => {
     }
 };
 function isOutPath(root, str) {
-    return !root || (!str.startsWith(root + path.sep) && str !== root);
+    return !root || (!str.startsWith(root + path__default['default'].sep) && str !== root);
 }
 exports.isOutPath = isOutPath;
 exports.escapeFunction = (roots) => {
     // ensure roots are always absolute
-    roots = roots.map(root => path.resolve(root));
+    roots = roots.map(root => path__default['default'].resolve(root));
     function isEscape(linkTarget, linkPath) {
-        if (!path.isAbsolute(linkPath)) {
-            linkPath = path.resolve(linkPath);
+        if (!path__default['default'].isAbsolute(linkPath)) {
+            linkPath = path__default['default'].resolve(linkPath);
         }
-        if (!path.isAbsolute(linkTarget)) {
-            linkTarget = path.resolve(linkTarget);
+        if (!path__default['default'].isAbsolute(linkTarget)) {
+            linkTarget = path__default['default'].resolve(linkTarget);
         }
         for (const root of roots) {
             if (isOutPath(root, linkTarget) && !isOutPath(root, linkPath)) {
@@ -535,18 +530,16 @@ function once(fn) {
 }
 });
 
-var subprocess = createCommonjsModule(function (module, exports) {
-Object.defineProperty(exports, "__esModule", { value: true });
 // this does not actually patch child_process
 // but adds support to ensure the registered loader is included in all nested executions of nodejs.
 
 
-exports.patcher = (requireScriptName, nodeDir) => {
-    requireScriptName = path.resolve(requireScriptName);
-    nodeDir = nodeDir || path.join(path.dirname(requireScriptName), '_node_bin');
-    const file = path.basename(requireScriptName);
+var patcher = (requireScriptName, nodeDir) => {
+    requireScriptName = path__default['default'].resolve(requireScriptName);
+    nodeDir = nodeDir || path__default['default'].join(path__default['default'].dirname(requireScriptName), '_node_bin');
+    const file = path__default['default'].basename(requireScriptName);
     try {
-        fs$1.mkdirSync(nodeDir, { recursive: true });
+        fs__default['default'].mkdirSync(nodeDir, { recursive: true });
     }
     catch (e) {
         // with node versions that don't have recursive mkdir this may throw an error.
@@ -555,9 +548,9 @@ exports.patcher = (requireScriptName, nodeDir) => {
         }
     }
     if (process.platform == 'win32') {
-        const nodeEntry = path.join(nodeDir, 'node.bat');
-        if (!fs$1.existsSync(nodeEntry)) {
-            fs$1.writeFileSync(nodeEntry, `@if not defined DEBUG_HELPER @ECHO OFF
+        const nodeEntry = path__default['default'].join(nodeDir, 'node.bat');
+        if (!fs__default['default'].existsSync(nodeEntry)) {
+            fs__default['default'].writeFileSync(nodeEntry, `@if not defined DEBUG_HELPER @ECHO OFF
 set NP_SUBPROCESS_NODE_DIR=${nodeDir}
 set Path=${nodeDir};%Path%
 "${process.execPath}" ${process.env.NODE_REPOSITORY_ARGS} --require "${requireScriptName}" %*
@@ -565,9 +558,9 @@ set Path=${nodeDir};%Path%
         }
     }
     else {
-        const nodeEntry = path.join(nodeDir, 'node');
-        if (!fs$1.existsSync(nodeEntry)) {
-            fs$1.writeFileSync(nodeEntry, `#!/bin/bash
+        const nodeEntry = path__default['default'].join(nodeDir, 'node');
+        if (!fs__default['default'].existsSync(nodeEntry)) {
+            fs__default['default'].writeFileSync(nodeEntry, `#!/bin/bash
 export NP_SUBPROCESS_NODE_DIR="${nodeDir}"
 export PATH="${nodeDir}":\$PATH
 if [[ ! "\${@}" =~ "${file}" ]]; then
@@ -581,13 +574,13 @@ fi
     if (!process.env.PATH) {
         process.env.PATH = nodeDir;
     }
-    else if (process.env.PATH.indexOf(nodeDir + path.delimiter) === -1) {
-        process.env.PATH = nodeDir + path.delimiter + process.env.PATH;
+    else if (process.env.PATH.indexOf(nodeDir + path__default['default'].delimiter) === -1) {
+        process.env.PATH = nodeDir + path__default['default'].delimiter + process.env.PATH;
     }
     // fix execPath so folks use the proxy node
     if (process.platform == 'win32') ;
     else {
-        process.argv[0] = process.execPath = path.join(nodeDir, 'node');
+        process.argv[0] = process.execPath = path__default['default'].join(nodeDir, 'node');
     }
     // replace any instances of require script in execArgv with the absolute path to the script.
     // example: bazel-require-script.js
@@ -598,31 +591,10 @@ fi
         return v;
     });
 };
-});
 
-var src = createCommonjsModule(function (module, exports) {
-Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * @license
- * Copyright 2019 The Bazel Authors. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- *
- * You may obtain a copy of the License at
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-
-exports.fs = fs.patcher;
-exports.subprocess = subprocess.patcher;
-});
+var subprocess$1 = /*#__PURE__*/Object.defineProperty({
+	patcher: patcher
+}, '__esModule', {value: true});
 
 /**
  * @license
@@ -640,6 +612,33 @@ exports.subprocess = subprocess.patcher;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+
+var fs = fs$1.patcher;
+var subprocess = subprocess$1.patcher;
+
+var src = /*#__PURE__*/Object.defineProperty({
+	fs: fs,
+	subprocess: subprocess
+}, '__esModule', {value: true});
+
+/**
+ * @license
+ * Copyright 2019 The Bazel Authors. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ *
+ * You may obtain a copy of the License at
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /**
  * @fileoverview Description of this file.
  */
@@ -649,10 +648,16 @@ if (BAZEL_PATCH_ROOTS) {
     const roots = BAZEL_PATCH_ROOTS ? BAZEL_PATCH_ROOTS.split(',') : [];
     if (VERBOSE_LOGS)
         console.error(`bazel node patches enabled. roots: ${roots} symlinks in these directories will not escape`);
-    const fs = fs$1;
+    const fs = fs__default['default'];
     src.fs(fs, roots);
 }
 else if (VERBOSE_LOGS) {
     console.error(`bazel node patches disabled. set environment BAZEL_PATCH_ROOTS`);
 }
 src.subprocess(__filename, NP_SUBPROCESS_NODE_DIR);
+
+var register = {
+
+};
+
+module.exports = register;
