@@ -13,7 +13,7 @@ var far_a = `@far/a`;
 
 var far_a_b_c = `@far/a/b/c`;
 
-var MILLISECONDS_IN_MINUTE = 60000;
+var MILLISECONDS_IN_MINUTE$6 = 60000;
 
 /**
  * Google Chrome as of 67.0.3396.87 introduced timezones with offset that includes seconds.
@@ -30,9 +30,9 @@ var getTimezoneOffsetInMilliseconds = function getTimezoneOffsetInMilliseconds (
   var date = new Date(dirtyDate.getTime());
   var baseTimezoneOffset = date.getTimezoneOffset();
   date.setSeconds(0, 0);
-  var millisecondsPartOfTimezoneOffset = date.getTime() % MILLISECONDS_IN_MINUTE;
+  var millisecondsPartOfTimezoneOffset = date.getTime() % MILLISECONDS_IN_MINUTE$6;
 
-  return baseTimezoneOffset * MILLISECONDS_IN_MINUTE + millisecondsPartOfTimezoneOffset
+  return baseTimezoneOffset * MILLISECONDS_IN_MINUTE$6 + millisecondsPartOfTimezoneOffset
 };
 
 /**
@@ -56,8 +56,8 @@ function isDate (argument) {
 
 var is_date = isDate;
 
-var MILLISECONDS_IN_HOUR = 3600000;
-var MILLISECONDS_IN_MINUTE$1 = 60000;
+var MILLISECONDS_IN_HOUR$2 = 3600000;
+var MILLISECONDS_IN_MINUTE$5 = 60000;
 var DEFAULT_ADDITIONAL_DIGITS = 2;
 
 var parseTokenDateTimeDelimeter = /[T ]/;
@@ -163,7 +163,7 @@ function parse (argument, dirtyOptions) {
     }
 
     if (dateStrings.timezone) {
-      offset = parseTimezone(dateStrings.timezone) * MILLISECONDS_IN_MINUTE$1;
+      offset = parseTimezone(dateStrings.timezone) * MILLISECONDS_IN_MINUTE$5;
     } else {
       var fullTime = timestamp + time;
       var fullTimeDate = new Date(fullTime);
@@ -319,7 +319,7 @@ function parseTime (timeString) {
   token = parseTokenHH.exec(timeString);
   if (token) {
     hours = parseFloat(token[1].replace(',', '.'));
-    return (hours % 24) * MILLISECONDS_IN_HOUR
+    return (hours % 24) * MILLISECONDS_IN_HOUR$2
   }
 
   // hh:mm or hhmm
@@ -327,8 +327,8 @@ function parseTime (timeString) {
   if (token) {
     hours = parseInt(token[1], 10);
     minutes = parseFloat(token[2].replace(',', '.'));
-    return (hours % 24) * MILLISECONDS_IN_HOUR +
-      minutes * MILLISECONDS_IN_MINUTE$1
+    return (hours % 24) * MILLISECONDS_IN_HOUR$2 +
+      minutes * MILLISECONDS_IN_MINUTE$5
   }
 
   // hh:mm:ss or hhmmss
@@ -337,8 +337,8 @@ function parseTime (timeString) {
     hours = parseInt(token[1], 10);
     minutes = parseInt(token[2], 10);
     var seconds = parseFloat(token[3].replace(',', '.'));
-    return (hours % 24) * MILLISECONDS_IN_HOUR +
-      minutes * MILLISECONDS_IN_MINUTE$1 +
+    return (hours % 24) * MILLISECONDS_IN_HOUR$2 +
+      minutes * MILLISECONDS_IN_MINUTE$5 +
       seconds * 1000
   }
 
@@ -618,8 +618,8 @@ function startOfDay (dirtyDate) {
 
 var start_of_day = startOfDay;
 
-var MILLISECONDS_IN_MINUTE$2 = 60000;
-var MILLISECONDS_IN_DAY = 86400000;
+var MILLISECONDS_IN_MINUTE$4 = 60000;
+var MILLISECONDS_IN_DAY$1 = 86400000;
 
 /**
  * @category Day Helpers
@@ -646,14 +646,14 @@ function differenceInCalendarDays (dirtyDateLeft, dirtyDateRight) {
   var startOfDayRight = start_of_day(dirtyDateRight);
 
   var timestampLeft = startOfDayLeft.getTime() -
-    startOfDayLeft.getTimezoneOffset() * MILLISECONDS_IN_MINUTE$2;
+    startOfDayLeft.getTimezoneOffset() * MILLISECONDS_IN_MINUTE$4;
   var timestampRight = startOfDayRight.getTime() -
-    startOfDayRight.getTimezoneOffset() * MILLISECONDS_IN_MINUTE$2;
+    startOfDayRight.getTimezoneOffset() * MILLISECONDS_IN_MINUTE$4;
 
   // Round the number of days to the nearest integer
   // because the number of milliseconds in a day is not constant
   // (e.g. it's different in the day of the daylight saving time clock shift)
-  return Math.round((timestampLeft - timestampRight) / MILLISECONDS_IN_DAY)
+  return Math.round((timestampLeft - timestampRight) / MILLISECONDS_IN_DAY$1)
 }
 
 var difference_in_calendar_days = differenceInCalendarDays;
@@ -1131,8 +1131,8 @@ function compareDesc (dirtyDateLeft, dirtyDateRight) {
 
 var compare_desc = compareDesc;
 
-var MILLISECONDS_IN_MINUTE$4 = 60000;
-var MILLISECONDS_IN_WEEK = 604800000;
+var MILLISECONDS_IN_MINUTE$2 = 60000;
+var MILLISECONDS_IN_WEEK$3 = 604800000;
 
 /**
  * @category ISO Week Helpers
@@ -1160,14 +1160,14 @@ function differenceInCalendarISOWeeks (dirtyDateLeft, dirtyDateRight) {
   var startOfISOWeekRight = start_of_iso_week(dirtyDateRight);
 
   var timestampLeft = startOfISOWeekLeft.getTime() -
-    startOfISOWeekLeft.getTimezoneOffset() * MILLISECONDS_IN_MINUTE$4;
+    startOfISOWeekLeft.getTimezoneOffset() * MILLISECONDS_IN_MINUTE$2;
   var timestampRight = startOfISOWeekRight.getTime() -
-    startOfISOWeekRight.getTimezoneOffset() * MILLISECONDS_IN_MINUTE$4;
+    startOfISOWeekRight.getTimezoneOffset() * MILLISECONDS_IN_MINUTE$2;
 
   // Round the number of days to the nearest integer
   // because the number of milliseconds in a week is not constant
   // (e.g. it's different in the week of the daylight saving time clock shift)
-  return Math.round((timestampLeft - timestampRight) / MILLISECONDS_IN_WEEK)
+  return Math.round((timestampLeft - timestampRight) / MILLISECONDS_IN_WEEK$3)
 }
 
 var difference_in_calendar_iso_weeks = differenceInCalendarISOWeeks;
@@ -1284,8 +1284,8 @@ function differenceInCalendarQuarters (dirtyDateLeft, dirtyDateRight) {
 
 var difference_in_calendar_quarters = differenceInCalendarQuarters;
 
-var MILLISECONDS_IN_MINUTE$5 = 60000;
-var MILLISECONDS_IN_WEEK$1 = 604800000;
+var MILLISECONDS_IN_MINUTE$1 = 60000;
+var MILLISECONDS_IN_WEEK$2 = 604800000;
 
 /**
  * @category Week Helpers
@@ -1323,14 +1323,14 @@ function differenceInCalendarWeeks (dirtyDateLeft, dirtyDateRight, dirtyOptions)
   var startOfWeekRight = start_of_week(dirtyDateRight, dirtyOptions);
 
   var timestampLeft = startOfWeekLeft.getTime() -
-    startOfWeekLeft.getTimezoneOffset() * MILLISECONDS_IN_MINUTE$5;
+    startOfWeekLeft.getTimezoneOffset() * MILLISECONDS_IN_MINUTE$1;
   var timestampRight = startOfWeekRight.getTime() -
-    startOfWeekRight.getTimezoneOffset() * MILLISECONDS_IN_MINUTE$5;
+    startOfWeekRight.getTimezoneOffset() * MILLISECONDS_IN_MINUTE$1;
 
   // Round the number of days to the nearest integer
   // because the number of milliseconds in a week is not constant
   // (e.g. it's different in the week of the daylight saving time clock shift)
-  return Math.round((timestampLeft - timestampRight) / MILLISECONDS_IN_WEEK$1)
+  return Math.round((timestampLeft - timestampRight) / MILLISECONDS_IN_WEEK$2)
 }
 
 var difference_in_calendar_weeks = differenceInCalendarWeeks;
@@ -1427,7 +1427,7 @@ function differenceInMilliseconds (dirtyDateLeft, dirtyDateRight) {
 
 var difference_in_milliseconds = differenceInMilliseconds;
 
-var MILLISECONDS_IN_HOUR$2 = 3600000;
+var MILLISECONDS_IN_HOUR = 3600000;
 
 /**
  * @category Hour Helpers
@@ -1449,7 +1449,7 @@ var MILLISECONDS_IN_HOUR$2 = 3600000;
  * //=> 12
  */
 function differenceInHours (dirtyDateLeft, dirtyDateRight) {
-  var diff = difference_in_milliseconds(dirtyDateLeft, dirtyDateRight) / MILLISECONDS_IN_HOUR$2;
+  var diff = difference_in_milliseconds(dirtyDateLeft, dirtyDateRight) / MILLISECONDS_IN_HOUR;
   return diff > 0 ? Math.floor(diff) : Math.ceil(diff)
 }
 
@@ -1518,7 +1518,7 @@ function differenceInISOYears (dirtyDateLeft, dirtyDateRight) {
 
 var difference_in_iso_years = differenceInISOYears;
 
-var MILLISECONDS_IN_MINUTE$6 = 60000;
+var MILLISECONDS_IN_MINUTE = 60000;
 
 /**
  * @category Minute Helpers
@@ -1540,7 +1540,7 @@ var MILLISECONDS_IN_MINUTE$6 = 60000;
  * //=> 12
  */
 function differenceInMinutes (dirtyDateLeft, dirtyDateRight) {
-  var diff = difference_in_milliseconds(dirtyDateLeft, dirtyDateRight) / MILLISECONDS_IN_MINUTE$6;
+  var diff = difference_in_milliseconds(dirtyDateLeft, dirtyDateRight) / MILLISECONDS_IN_MINUTE;
   return diff > 0 ? Math.floor(diff) : Math.ceil(diff)
 }
 
@@ -1920,9 +1920,9 @@ var en = {
   format: build_format_locale()
 };
 
-var MINUTES_IN_DAY = 1440;
+var MINUTES_IN_DAY$1 = 1440;
 var MINUTES_IN_ALMOST_TWO_DAYS = 2520;
-var MINUTES_IN_MONTH = 43200;
+var MINUTES_IN_MONTH$1 = 43200;
 var MINUTES_IN_TWO_MONTHS = 86400;
 
 /**
@@ -2070,7 +2070,7 @@ function distanceInWords (dirtyDateToCompare, dirtyDate, dirtyOptions) {
     return localize('aboutXHours', 1, localizeOptions)
 
   // 1.5 hrs up to 24 hrs
-  } else if (minutes < MINUTES_IN_DAY) {
+  } else if (minutes < MINUTES_IN_DAY$1) {
     var hours = Math.round(minutes / 60);
     return localize('aboutXHours', hours, localizeOptions)
 
@@ -2079,13 +2079,13 @@ function distanceInWords (dirtyDateToCompare, dirtyDate, dirtyOptions) {
     return localize('xDays', 1, localizeOptions)
 
   // 1.75 days up to 30 days
-  } else if (minutes < MINUTES_IN_MONTH) {
-    var days = Math.round(minutes / MINUTES_IN_DAY);
+  } else if (minutes < MINUTES_IN_MONTH$1) {
+    var days = Math.round(minutes / MINUTES_IN_DAY$1);
     return localize('xDays', days, localizeOptions)
 
   // 1 month up to 2 months
   } else if (minutes < MINUTES_IN_TWO_MONTHS) {
-    months = Math.round(minutes / MINUTES_IN_MONTH);
+    months = Math.round(minutes / MINUTES_IN_MONTH$1);
     return localize('aboutXMonths', months, localizeOptions)
   }
 
@@ -2093,7 +2093,7 @@ function distanceInWords (dirtyDateToCompare, dirtyDate, dirtyOptions) {
 
   // 2 months up to 12 months
   if (months < 12) {
-    var nearestMonth = Math.round(minutes / MINUTES_IN_MONTH);
+    var nearestMonth = Math.round(minutes / MINUTES_IN_MONTH$1);
     return localize('xMonths', nearestMonth, localizeOptions)
 
   // 1 year up to max Date
@@ -2118,8 +2118,8 @@ function distanceInWords (dirtyDateToCompare, dirtyDate, dirtyOptions) {
 
 var distance_in_words = distanceInWords;
 
-var MINUTES_IN_DAY$1 = 1440;
-var MINUTES_IN_MONTH$1 = 43200;
+var MINUTES_IN_DAY = 1440;
+var MINUTES_IN_MONTH = 43200;
 var MINUTES_IN_YEAR = 525600;
 
 /**
@@ -2245,9 +2245,9 @@ function distanceInWordsStrict (dirtyDateToCompare, dirtyDate, dirtyOptions) {
       unit = 's';
     } else if (minutes < 60) {
       unit = 'm';
-    } else if (minutes < MINUTES_IN_DAY$1) {
+    } else if (minutes < MINUTES_IN_DAY) {
       unit = 'h';
-    } else if (minutes < MINUTES_IN_MONTH$1) {
+    } else if (minutes < MINUTES_IN_MONTH) {
       unit = 'd';
     } else if (minutes < MINUTES_IN_YEAR) {
       unit = 'M';
@@ -2271,12 +2271,12 @@ function distanceInWordsStrict (dirtyDateToCompare, dirtyDate, dirtyOptions) {
 
   // 1 up to 30 days
   } else if (unit === 'd') {
-    days = mathPartial(minutes / MINUTES_IN_DAY$1);
+    days = mathPartial(minutes / MINUTES_IN_DAY);
     return localize('xDays', days, localizeOptions)
 
   // 1 up to 12 months
   } else if (unit === 'M') {
-    months = mathPartial(minutes / MINUTES_IN_MONTH$1);
+    months = mathPartial(minutes / MINUTES_IN_MONTH);
     return localize('xMonths', months, localizeOptions)
 
   // 1 year up to max Date
@@ -2820,7 +2820,7 @@ function getDayOfYear (dirtyDate) {
 
 var get_day_of_year = getDayOfYear;
 
-var MILLISECONDS_IN_WEEK$2 = 604800000;
+var MILLISECONDS_IN_WEEK$1 = 604800000;
 
 /**
  * @category ISO Week Helpers
@@ -2846,7 +2846,7 @@ function getISOWeek (dirtyDate) {
   // Round the number of days to the nearest integer
   // because the number of milliseconds in a week is not constant
   // (e.g. it's different in the week of the daylight saving time clock shift)
-  return Math.round(diff / MILLISECONDS_IN_WEEK$2) + 1
+  return Math.round(diff / MILLISECONDS_IN_WEEK$1) + 1
 }
 
 var get_iso_week = getISOWeek;
@@ -3351,7 +3351,7 @@ function getISODay (dirtyDate) {
 
 var get_iso_day = getISODay;
 
-var MILLISECONDS_IN_WEEK$3 = 604800000;
+var MILLISECONDS_IN_WEEK = 604800000;
 
 /**
  * @category ISO Week-Numbering Year Helpers
@@ -3377,7 +3377,7 @@ function getISOWeeksInYear (dirtyDate) {
   // Round the number of weeks to the nearest integer
   // because the number of milliseconds in a week is not constant
   // (e.g. it's different in the week of the daylight saving time clock shift)
-  return Math.round(diff / MILLISECONDS_IN_WEEK$3)
+  return Math.round(diff / MILLISECONDS_IN_WEEK)
 }
 
 var get_iso_weeks_in_year = getISOWeeksInYear;
@@ -3451,7 +3451,7 @@ function getMonth (dirtyDate) {
 
 var get_month = getMonth;
 
-var MILLISECONDS_IN_DAY$1 = 24 * 60 * 60 * 1000;
+var MILLISECONDS_IN_DAY = 24 * 60 * 60 * 1000;
 
 /**
  * @category Range Helpers
@@ -3507,7 +3507,7 @@ function getOverlappingDaysInRanges (dirtyInitialRangeStartDate, dirtyInitialRan
 
   var differenceInMs = overlapEndDate - overlapStartDate;
 
-  return Math.ceil(differenceInMs / MILLISECONDS_IN_DAY$1)
+  return Math.ceil(differenceInMs / MILLISECONDS_IN_DAY)
 }
 
 var get_overlapping_days_in_ranges = getOverlappingDaysInRanges;
@@ -5647,14 +5647,14 @@ var dateFns = {
 
 const user = "user";
 
-const date = dateFns.format(new Date(2019, 4, 7), 'MMMM D, YYYY');
-const foo = `Sunnyvale ${user} ${date}`;
+const date$2 = dateFns.format(new Date(2019, 4, 7), 'MMMM D, YYYY');
+const foo$2 = `Sunnyvale ${user} ${date$2}`;
 
 const date$1 = dateFns.format(new Date(2019, 4, 7), 'MMMM D, YYYY');
 const foo$1 = `@foo/lib/a ${date$1}`;
 
-const date$2 = dateFns.format(new Date(2019, 4, 7), 'MMMM D, YYYY');
-const foo$2 = `@foo/lib/a/a/a ${date$2}`;
+const date = dateFns.format(new Date(2019, 4, 7), 'MMMM D, YYYY');
+const foo = `@foo/lib/a/a/a ${date}`;
 
 const fum = 'Wonderland';
 
@@ -5665,7 +5665,7 @@ const name = 'Alice';
 const json_key = "json_value";
 
 console.log(
-    `${hello}, ${name} in ${fum} ${foo} ${foo$1} ${foo$2} ${far_a} ${far_a_b_c} ${json_key}`);
+    `${hello}, ${name} in ${fum} ${foo$2} ${foo$1} ${foo} ${far_a} ${far_a_b_c} ${json_key}`);
 
 // Test for sequences = false
 class A {
