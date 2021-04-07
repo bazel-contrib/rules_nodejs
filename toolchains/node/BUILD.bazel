@@ -70,7 +70,10 @@ filegroup(
 )
 
 # node toolchain type
-toolchain_type(name = "toolchain_type")
+toolchain_type(
+    name = "toolchain_type",
+    visibility = ["//visibility:public"],
+)
 
 # Allow targets to use a toolchains attribute, such as sh_binary and genrule
 # This way they can reference the NODE_PATH make variable.
