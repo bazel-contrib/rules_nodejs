@@ -16,6 +16,7 @@ load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@build_bazel_rules_nodejs//:tools/defaults.bzl", "codeowners", "pkg_npm")
 load("@build_bazel_rules_nodejs//tools/stardoc:index.bzl", "stardoc")
 load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "copy_file")
+load("//packages/esbuild:toolchain.bzl", "define_default_toolchains")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -61,17 +62,34 @@ copy_file(
     out = ":npm_version_check.js",
 )
 
+toolchain_type(
+    name = "toolchain_type",
+)
+
+define_default_toolchains()
+
 pkg_npm(
     name = "npm_package",
     srcs = [
         "esbuild.bzl",
+        "esbuild_repo.bzl",
         "helpers.bzl",
         "index.bzl",
         "package.json",
+        "toolchain.bzl",
     ],
-    build_file_content = " ",
+    build_file_content = """\
+load(":toolchain.bzl", "define_default_toolchains")
+
+toolchain_type(
+    name = "toolchain_type",
+    visibility = ["//visibility:public"]
+)
+
+define_default_toolchains()
+""",
     substitutions = dict({
-        "@build_bazel_rules_nodejs//packages/esbuild:esbuild.bzl": "//@bazel/esbuild:esbuild.bzl",
+        "@build_bazel_rules_nodejs//packages/esbuild": "//@bazel/esbuild",
     }),
     deps = [
         ":npm_version_check",

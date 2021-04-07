@@ -19,8 +19,13 @@ load(
     "@build_bazel_rules_nodejs//packages/esbuild:esbuild.bzl",
     _esbuild_macro = "esbuild_macro",
 )
+load(
+    "@build_bazel_rules_nodejs//packages/esbuild:esbuild_repo.bzl",
+    _esbuild_dependencies = "esbuild_dependencies",
+)
 
 esbuild = _esbuild_macro
+esbuild_dependencies = _esbuild_dependencies
 
 # DO NOT ADD MORE rules here unless they appear in the generated docsite.
 # Run yarn stardoc to re-generate the docsite.

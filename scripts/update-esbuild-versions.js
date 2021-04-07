@@ -58,8 +58,11 @@ async function main() {
   const content = [];
   const fileReplacements = [];
 
-  content.push('""" Generated code; do not edit\nUpdate by running yarn update-esbuild-versions\n\nHelper macro for fetching esbuild versions for internal tests and examples in rules_nodejs\n"""\n');
-  content.push('load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")\n');
+  content.push('""" Generated code; do not edit\nUpdate by running yarn update-esbuild-versions\n\nHelper macro for fetching esbuild binaries\n"""\n');
+  content.push('load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")');
+  content.push('load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")');
+  content.push('load("@build_bazel_rules_nodejs//packages/esbuild:toolchain.bzl", "register_default_toolchains")');
+  content.push('');
 
   if(process.argv.length !== 2 && process.argv.length !== 3) {
     console.log("Expected number of arguments is 0 or 1");
@@ -93,7 +96,8 @@ async function main() {
 
     fileReplacements.push([new RegExp(`"${platform}",.+?sha256 = "(.+?)"`, 's'), shasum]);
 
-    content.push('    http_archive(');
+    content.push('    maybe(');
+    content.push('        http_archive,')
     content.push(`        name = "${platform}",`);
     content.push('        urls = [');
     content.push(`            "https://registry.npmjs.org/${PLATFORMS[platform]}/-/${PLATFORMS[platform]}-%s.tgz" % version,`);
@@ -103,6 +107,9 @@ async function main() {
     content.push(`        sha256 = "${shasum}",`);
     content.push('    )');
   }
+
+  content.push('');
+  content.push('    register_default_toolchains()');
 
 
   rmdirSync(tmpDir, {recursive: true});
