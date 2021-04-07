@@ -65,6 +65,9 @@ example_integration_test(
 
 example_integration_test(
     name = "examples_create-react-app",
+    npm_packages = {
+        "//packages/runfiles:npm_package": "@bazel/runfiles",
+    },
 )
 
 example_integration_test(
@@ -92,6 +95,9 @@ example_integration_test(
 
 example_integration_test(
     name = "examples_closure",
+    npm_packages = {
+        "//packages/runfiles:npm_package": "@bazel/runfiles",
+    },
 )
 
 example_integration_test(

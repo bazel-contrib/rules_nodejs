@@ -36,7 +36,7 @@ export VERBOSE_LOGS=1
 # export NODE_DEBUG=module
 
 # Export the location of the runfiles helpers script
-export BAZEL_NODE_RUNFILES_HELPER=$(rlocation "build_bazel_rules_nodejs/internal/linker/runfiles_helper.js")
+export BAZEL_NODE_RUNFILES_HELPER=$(rlocation "build_bazel_rules_nodejs/internal/runfiles/runfile_helper_main.js")
 if [[ "${BAZEL_NODE_RUNFILES_HELPER}" != /* ]] && [[ ! "${BAZEL_NODE_RUNFILES_HELPER}" =~ ^[A-Z]:[\\/] ]]; then
   export BAZEL_NODE_RUNFILES_HELPER=$(pwd)/${BAZEL_NODE_RUNFILES_HELPER}
 fi

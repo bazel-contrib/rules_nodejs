@@ -1,4 +1,4 @@
-const runfiles = require(process.env['BAZEL_NODE_RUNFILES_HELPER']);
+const {runfiles} = require('@bazel/runfiles');
 
 const closureOutput = runfiles.resolve('examples_closure/bundle.js');
 

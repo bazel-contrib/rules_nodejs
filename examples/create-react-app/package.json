@@ -16,8 +16,10 @@
     "react-scripts": "3.4.1",
     "typescript": "~3.7.2"
   },
+  "//comment": "TODO: Change runfiles dependency to an actual version once released.",
   "devDependencies": {
     "@bazel/ibazel": "^0.15.6",
+    "@bazel/runfiles": "latest",
     "patch-package": "^6.2.2"
   },
   "scripts": {

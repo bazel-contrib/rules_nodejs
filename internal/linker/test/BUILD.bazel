@@ -6,6 +6,7 @@ ts_library(
     srcs = glob(["*.ts"]),
     deps = [
         "//internal/linker:linker_lib",
+        "//packages/runfiles:bazel_runfiles",
         "@npm//@types/jasmine",
         "@npm//@types/node",
     ],
@@ -14,7 +15,7 @@ ts_library(
 jasmine_node_test(
     name = "unit_tests",
     srcs = ["test_lib"],
-    # NB: for better dev round-trip, we test against the ts_library target
-    # rather than update the index.js it's transpiled to.
-    data = ["//internal/linker:linker_lib"],
+    data = [
+        "//internal/linker:linker_js",
+    ],
 )

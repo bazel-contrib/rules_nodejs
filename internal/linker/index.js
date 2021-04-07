@@ -11,24 +11,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs = require("fs");
 const path = require("path");
+const { runfiles: _defaultRunfiles, _BAZEL_OUT_REGEX } = require('../runfiles/index.js');
 const VERBOSE_LOGS = !!process.env['VERBOSE_LOGS'];
-const BAZEL_OUT_REGEX = /(\/bazel-out\/|\/bazel-~1\/x64_wi~1\/)/;
 function log_verbose(...m) {
     if (VERBOSE_LOGS)
         console.error('[link_node_modules.js]', ...m);
 }
 function log_error(error) {
     console.error('[link_node_modules.js] An error has been reported:', error, error.stack);
-}
-function panic(m) {
-    throw new Error(`Internal error! Please run again with
-   --define=VERBOSE_LOG=1
-and file an issue: https://github.com/bazelbuild/rules_nodejs/issues/new?template=bug_report.md
-Include as much of the build output as you can without disclosing anything confidential.
-
-  Error:
-  ${m}
-  `);
 }
 function mkdirp(p) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -141,125 +131,6 @@ function resolveExternalWorkspacePath(workspace, startCwd, isExecroot, execroot,
         }
     });
 }
-class Runfiles {
-    constructor(env) {
-        if (!!env['RUNFILES_MANIFEST_FILE']) {
-            this.manifest = this.loadRunfilesManifest(env['RUNFILES_MANIFEST_FILE']);
-        }
-        else if (!!env['RUNFILES_DIR']) {
-            this.dir = path.resolve(env['RUNFILES_DIR']);
-        }
-        else {
-            panic('Every node program run under Bazel must have a $RUNFILES_DIR or $RUNFILES_MANIFEST_FILE environment variable');
-        }
-        if (env['RUNFILES_MANIFEST_ONLY'] === '1' && !env['RUNFILES_MANIFEST_FILE']) {
-            log_verbose(`Workaround https://github.com/bazelbuild/bazel/issues/7994
-                 RUNFILES_MANIFEST_FILE should have been set but wasn't.
-                 falling back to using runfiles symlinks.
-                 If you want to test runfiles manifest behavior, add
-                 --spawn_strategy=standalone to the command line.`);
-        }
-        this.workspace = env['BAZEL_WORKSPACE'] || undefined;
-        const target = env['BAZEL_TARGET'];
-        if (!!target && !target.startsWith('@')) {
-            this.package = target.split(':')[0].replace(/^\/\//, '');
-        }
-    }
-    lookupDirectory(dir) {
-        if (!this.manifest)
-            return undefined;
-        let result;
-        for (const [k, v] of this.manifest) {
-            if (k.startsWith(`${dir}/external`))
-                continue;
-            if (k.startsWith(dir)) {
-                const l = k.length - dir.length;
-                const maybe = v.substring(0, v.length - l);
-                if (maybe.match(BAZEL_OUT_REGEX)) {
-                    return maybe;
-                }
-                else {
-                    result = maybe;
-                }
-            }
-        }
-        return result;
-    }
-    loadRunfilesManifest(manifestPath) {
-        log_verbose(`using runfiles manifest ${manifestPath}`);
-        const runfilesEntries = new Map();
-        const input = fs.readFileSync(manifestPath, { encoding: 'utf-8' });
-        for (const line of input.split('\n')) {
-            if (!line)
-                continue;
-            const [runfilesPath, realPath] = line.split(' ');
-            runfilesEntries.set(runfilesPath, realPath);
-        }
-        return runfilesEntries;
-    }
-    resolve(modulePath) {
-        if (path.isAbsolute(modulePath)) {
-            return modulePath;
-        }
-        const result = this._resolve(modulePath, undefined);
-        if (result) {
-            return result;
-        }
-        const e = new Error(`could not resolve module ${modulePath}`);
-        e.code = 'MODULE_NOT_FOUND';
-        throw e;
-    }
-    _resolve(moduleBase, moduleTail) {
-        if (this.manifest) {
-            const result = this.lookupDirectory(moduleBase);
-            if (result) {
-                if (moduleTail) {
-                    const maybe = path.join(result, moduleTail || '');
-                    if (fs.existsSync(maybe)) {
-                        return maybe;
-                    }
-                }
-                else {
-                    return result;
-                }
-            }
-        }
-        if (exports.runfiles.dir) {
-            const maybe = path.join(exports.runfiles.dir, moduleBase, moduleTail || '');
-            if (fs.existsSync(maybe)) {
-                return maybe;
-            }
-        }
-        const dirname = path.dirname(moduleBase);
-        if (dirname == '.') {
-            return undefined;
-        }
-        return this._resolve(dirname, path.join(path.basename(moduleBase), moduleTail || ''));
-    }
-    resolveWorkspaceRelative(modulePath) {
-        if (!this.workspace) {
-            throw new Error('workspace could not be determined from the environment; make sure BAZEL_WORKSPACE is set');
-        }
-        return this.resolve(path.posix.join(this.workspace, modulePath));
-    }
-    resolvePackageRelative(modulePath) {
-        if (!this.workspace) {
-            throw new Error('workspace could not be determined from the environment; make sure BAZEL_WORKSPACE is set');
-        }
-        if (this.package === undefined) {
-            throw new Error('package could not be determined from the environment; make sure BAZEL_TARGET is set');
-        }
-        return this.resolve(path.posix.join(this.workspace, this.package, modulePath));
-    }
-    patchRequire() {
-        const requirePatch = process.env['BAZEL_NODE_PATCH_REQUIRE'];
-        if (!requirePatch) {
-            throw new Error('require patch location could not be determined from the environment');
-        }
-        require(requirePatch);
-    }
-}
-exports.Runfiles = Runfiles;
 function exists(p) {
     return __awaiter(this, void 0, void 0, function* () {
         return ((yield gracefulLstat(p)) !== null);
@@ -372,7 +243,7 @@ function findExecroot(startCwd) {
     if (existsSync(`${startCwd}/bazel-out`)) {
         return startCwd;
     }
-    const bazelOutMatch = startCwd.match(BAZEL_OUT_REGEX);
+    const bazelOutMatch = startCwd.match(_BAZEL_OUT_REGEX);
     return bazelOutMatch ? startCwd.slice(0, bazelOutMatch.index) : undefined;
 }
 function main(args, runfiles) {
@@ -511,7 +382,7 @@ function main(args, runfiles) {
                         try {
                             target = runfiles.resolve(runfilesPath);
                             if (runfiles.manifest && modulePath.startsWith(`${bin}/`)) {
-                                if (!target.match(BAZEL_OUT_REGEX)) {
+                                if (!target.match(_BAZEL_OUT_REGEX)) {
                                     const e = new Error(`could not resolve module ${runfilesPath} in output tree`);
                                     e.code = 'MODULE_NOT_FOUND';
                                     throw e;
@@ -565,7 +436,6 @@ function main(args, runfiles) {
     });
 }
 exports.main = main;
-exports.runfiles = new Runfiles(process.env);
 if (require.main === module) {
     if (Number(process.versions.node.split('.')[0]) < 10) {
         console.error(`ERROR: rules_nodejs linker requires Node v10 or greater, but is running on ${process.versions.node}`);
@@ -575,7 +445,7 @@ if (require.main === module) {
     }
     (() => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            process.exitCode = yield main(process.argv.slice(2), exports.runfiles);
+            process.exitCode = yield main(process.argv.slice(2), _defaultRunfiles);
         }
         catch (e) {
             log_error(e);

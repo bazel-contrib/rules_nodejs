@@ -225,7 +225,8 @@ fi
     node_tool_files.extend(ctx.toolchains["@build_bazel_rules_nodejs//toolchains/node:toolchain_type"].nodeinfo.tool_files)
 
     node_tool_files.append(ctx.file._link_modules_script)
-    node_tool_files.append(ctx.file._runfiles_helper_script)
+    node_tool_files.append(ctx.file._runfile_helpers_bundle)
+    node_tool_files.append(ctx.file._runfile_helpers_main)
     node_tool_files.append(ctx.file._node_patches_script)
     node_tool_files.append(ctx.file._lcov_merger_script)
     node_tool_files.append(node_modules_manifest)
@@ -288,7 +289,7 @@ fi
         "TEMPLATED_node_patches_script": _to_manifest_path(ctx, ctx.file._node_patches_script),
         "TEMPLATED_repository_args": _to_manifest_path(ctx, ctx.file._repository_args),
         "TEMPLATED_require_patch_script": _to_manifest_path(ctx, ctx.outputs.require_patch_script),
-        "TEMPLATED_runfiles_helper_script": _to_manifest_path(ctx, ctx.file._runfiles_helper_script),
+        "TEMPLATED_runfiles_helper_script": _to_manifest_path(ctx, ctx.file._runfile_helpers_main),
         "TEMPLATED_vendored_node": "" if is_builtin else strip_external(ctx.file._node.path),
     }
 
@@ -356,7 +357,7 @@ By default, Bazel always runs in the workspace root.
 Due to implementation details, this argument must be underneath this package directory.
 
 To run in the directory containing the `nodejs_binary` / `nodejs_test`, use
-    
+
     chdir = package_name()
 
 (or if you're in a macro, use `native.package_name()`)
@@ -574,8 +575,12 @@ Predefined genrule variables are not supported in this context.
         default = Label("//internal/node:require_patch.js"),
         allow_single_file = True,
     ),
-    "_runfiles_helper_script": attr.label(
-        default = Label("//internal/linker:runfiles_helper.js"),
+    "_runfile_helpers_bundle": attr.label(
+        default = Label("//internal/runfiles:index.js"),
+        allow_single_file = True,
+    ),
+    "_runfile_helpers_main": attr.label(
+        default = Label("//internal/runfiles:runfile_helper_main.js"),
         allow_single_file = True,
     ),
     "_source_map_support_files": attr.label_list(

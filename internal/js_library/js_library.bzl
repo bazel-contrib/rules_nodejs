@@ -38,10 +38,10 @@ _ATTRS = {
     ),
     "deps": attr.label_list(),
     "external_npm_package": attr.bool(
-        doc = """Internal use only. Indictates that this js_library target is one or more external npm packages in node_modules.
+        doc = """Internal use only. Indicates that this js_library target is one or more external npm packages in node_modules.
         This is used by the yarn_install & npm_install repository rules for npm dependencies installed by
         yarn & npm. When true, js_library will provide ExternalNpmPackageInfo.
-        
+
         It can also be used for user-managed npm dependencies if node_modules is layed out outside of bazel.
         For example,
 
