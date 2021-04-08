@@ -1,8 +1,8 @@
 {
   "name": "e2e-coverage",
   "dependencies": {
-    "@bazel/jasmine": "^3.2.3",
-    "@bazel/typescript": "^3.2.3",
+    "@bazel/jasmine": "^3.3.0",
+    "@bazel/typescript": "^3.3.0",
     "jasmine": "3.6.1",
     "typescript": "3.9.7"
   },

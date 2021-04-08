@@ -1,10 +1,10 @@
 {
   "devDependencies": {
-    "@bazel/concatjs": "^3.2.3",
-    "@bazel/protractor": "^3.2.3",
-    "@bazel/rollup": "^3.2.3",
-    "@bazel/terser": "^3.2.3",
-    "@bazel/typescript": "^3.2.3",
+    "@bazel/concatjs": "^3.3.0",
+    "@bazel/protractor": "^3.3.0",
+    "@bazel/rollup": "^3.3.0",
+    "@bazel/terser": "^3.3.0",
+    "@bazel/typescript": "^3.3.0",
     "@types/jasmine": "3.3.15",
     "@types/node": "^12.12.2",
     "html-insert-assets": "^0.6.0",
