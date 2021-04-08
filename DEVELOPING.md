@@ -73,7 +73,12 @@ yarn clean_all
 
 ## Debugging
 
-See `/docs/debugging.md`.
+See [this page](./docs/debugging.md).
+
+## Patching
+
+For small changes, you may find it easier to [patch the standard
+rules](./docs/changing-rules.md) instead of building your own release products.
 
 ## Releasing
 
