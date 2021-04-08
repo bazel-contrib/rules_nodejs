@@ -227,7 +227,11 @@ See https://esbuild.github.io/api/#splitting for more details
         ),
         "output_css": attr.output(
             mandatory = False,
-            doc = "Name of the output css file when bundling",
+            doc = """Declare a .css file will be output next to output bundle.
+
+If your JS code contains import statements that import .css files, esbuild will place the
+content in a file next to the main output file, which you'll need to declare. If your output
+file is named 'foo.js', you should set this to 'foo.css'.""",
         ),
         "platform": attr.string(
             default = "browser",
@@ -283,7 +287,7 @@ For further information about esbuild, see https://esbuild.github.io/
     """,
 )
 
-def esbuild_macro(name, output_dir = False, output_css = False, **kwargs):
+def esbuild_macro(name, output_dir = False, **kwargs):
     """esbuild helper macro around the `esbuild_bundle` rule
 
     For a full list of attributes, see the `esbuild_bundle` rule
@@ -291,8 +295,6 @@ def esbuild_macro(name, output_dir = False, output_css = False, **kwargs):
     Args:
         name: The name used for this rule and output files
         output_dir: If `True`, produce a code split bundle in an output directory
-        output_css: If `True`, declare name.css as an output, which is the
-                    case when your code imports a css file.
         **kwargs: All other args from `esbuild_bundle`
     """
 
@@ -316,6 +318,5 @@ def esbuild_macro(name, output_dir = False, output_css = False, **kwargs):
             name = name,
             output = output,
             output_map = output_map,
-            output_css = None if not output_css else "%s.css" % name,
             **kwargs
         )

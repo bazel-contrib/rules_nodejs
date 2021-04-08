@@ -51,7 +51,7 @@ esbuild(
         "--resolve-extensions=.mjs,.js",
     ],
     entry_point = "main.ts",
-    output_css = True,
+    output_css = "with_css.css",
     deps = [
         ":main",
     ],
