@@ -31,7 +31,7 @@ yarn add -D @bazel/esbuild
 Add an `http_archive` fetching the esbuild binary for each platform that you need to support. 
 
 ```python
-_ESBUILD_VERSION = "0.8.48"  # reminder: update SHAs below when changing this value
+_ESBUILD_VERSION = "0.11.5"  # reminder: update SHAs below when changing this value
 http_archive(
     name = "esbuild_darwin",
     urls = [
@@ -39,7 +39,7 @@ http_archive(
     ],
     strip_prefix = "package",
     build_file_content = """exports_files(["bin/esbuild"])""",
-    sha256 = "d21a722873ed24586f071973b77223553fca466946f3d7e3976eeaccb14424e6",
+    sha256 = "98436890727bdb0d4beddd9c9e07d0aeff0e8dfe0169f85e568eca0dd43f665e",
 )
 
 http_archive(
@@ -49,7 +49,7 @@ http_archive(
     ],
     strip_prefix = "package",
     build_file_content = """exports_files(["esbuild.exe"])""",
-    sha256 = "fe5dcb97b4c47f9567012f0a45c19c655f3d2e0d76932f6dd12715dbebbd6eb0",
+    sha256 = "589c8ff97210bd41de106e6317ce88f9e88d2cacfd8178ae1217f2b857ff6c3a",
 )
 
 http_archive(
@@ -59,7 +59,7 @@ http_archive(
     ],
     strip_prefix = "package",
     build_file_content = """exports_files(["bin/esbuild"])""",
-    sha256 = "60dabe141e5dfcf99e7113bded6012868132068a582a102b258fb7b1cfdac14b",
+    sha256 = "113c2e84895f4422a3676db4e15d9f01b2b4fac041edab25284fdb9574ba58a0",
 )
 ```
 
@@ -149,7 +149,8 @@ For further information about esbuild, see https://esbuild.github.io/
 
 <h4 id="esbuild-args">args</h4>
 
-(*List of strings*): A list of extra arguments that are included in the call to esbuild
+(*List of strings*): A list of extra arguments that are included in the call to esbuild.
+    $(location ...) can be used to resolve the path to a Bazel target.
 
 Defaults to `[]`
 

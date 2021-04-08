@@ -450,9 +450,9 @@ Defaults to `False`
 
 <pre>
 ts_project(<a href="#ts_project-name">name</a>, <a href="#ts_project-tsconfig">tsconfig</a>, <a href="#ts_project-srcs">srcs</a>, <a href="#ts_project-args">args</a>, <a href="#ts_project-deps">deps</a>, <a href="#ts_project-extends">extends</a>, <a href="#ts_project-allow_js">allow_js</a>, <a href="#ts_project-declaration">declaration</a>, <a href="#ts_project-source_map">source_map</a>,
-           <a href="#ts_project-declaration_map">declaration_map</a>, <a href="#ts_project-composite">composite</a>, <a href="#ts_project-incremental">incremental</a>, <a href="#ts_project-emit_declaration_only">emit_declaration_only</a>, <a href="#ts_project-ts_build_info_file">ts_build_info_file</a>, <a href="#ts_project-tsc">tsc</a>,
-           <a href="#ts_project-typescript_package">typescript_package</a>, <a href="#ts_project-typescript_require_path">typescript_require_path</a>, <a href="#ts_project-validate">validate</a>, <a href="#ts_project-supports_workers">supports_workers</a>, <a href="#ts_project-declaration_dir">declaration_dir</a>,
-           <a href="#ts_project-out_dir">out_dir</a>, <a href="#ts_project-root_dir">root_dir</a>, <a href="#ts_project-link_workspace_root">link_workspace_root</a>, <a href="#ts_project-kwargs">kwargs</a>)
+           <a href="#ts_project-declaration_map">declaration_map</a>, <a href="#ts_project-preserve_jsx">preserve_jsx</a>, <a href="#ts_project-composite">composite</a>, <a href="#ts_project-incremental">incremental</a>, <a href="#ts_project-emit_declaration_only">emit_declaration_only</a>,
+           <a href="#ts_project-ts_build_info_file">ts_build_info_file</a>, <a href="#ts_project-tsc">tsc</a>, <a href="#ts_project-typescript_package">typescript_package</a>, <a href="#ts_project-typescript_require_path">typescript_require_path</a>, <a href="#ts_project-validate">validate</a>,
+           <a href="#ts_project-supports_workers">supports_workers</a>, <a href="#ts_project-declaration_dir">declaration_dir</a>, <a href="#ts_project-out_dir">out_dir</a>, <a href="#ts_project-root_dir">root_dir</a>, <a href="#ts_project-link_workspace_root">link_workspace_root</a>, <a href="#ts_project-kwargs">kwargs</a>)
 </pre>
 
 Compiles one TypeScript project using `tsc --project`
@@ -663,6 +663,13 @@ Defaults to `False`
 
 if the `declarationMap` bit is set in the tsconfig.
 Instructs Bazel to expect a `.d.ts.map` output for each `.ts` source.
+
+Defaults to `False`
+
+<h4 id="ts_project-preserve_jsx">preserve_jsx</h4>
+
+if the `jsx` value is set to "preserve" in the tsconfig.
+Instructs Bazel to expect a `.jsx` or `.jsx.map` output for each `.tsx` source.
 
 Defaults to `False`
 

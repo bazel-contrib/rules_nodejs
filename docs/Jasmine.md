@@ -25,8 +25,8 @@ Add the `@bazel/jasmine` npm package to your `devDependencies` in `package.json`
 **USAGE**
 
 <pre>
-jasmine_node_test(<a href="#jasmine_node_test-name">name</a>, <a href="#jasmine_node_test-srcs">srcs</a>, <a href="#jasmine_node_test-data">data</a>, <a href="#jasmine_node_test-deps">deps</a>, <a href="#jasmine_node_test-expected_exit_code">expected_exit_code</a>, <a href="#jasmine_node_test-tags">tags</a>, <a href="#jasmine_node_test-config_file">config_file</a>, <a href="#jasmine_node_test-jasmine">jasmine</a>,
-                  <a href="#jasmine_node_test-jasmine_entry_point">jasmine_entry_point</a>, <a href="#jasmine_node_test-kwargs">kwargs</a>)
+jasmine_node_test(<a href="#jasmine_node_test-name">name</a>, <a href="#jasmine_node_test-srcs">srcs</a>, <a href="#jasmine_node_test-data">data</a>, <a href="#jasmine_node_test-deps">deps</a>, <a href="#jasmine_node_test-expected_exit_code">expected_exit_code</a>, <a href="#jasmine_node_test-tags">tags</a>, <a href="#jasmine_node_test-config_file">config_file</a>, <a href="#jasmine_node_test-use_direct_specs">use_direct_specs</a>,
+                  <a href="#jasmine_node_test-jasmine">jasmine</a>, <a href="#jasmine_node_test-jasmine_entry_point">jasmine_entry_point</a>, <a href="#jasmine_node_test-kwargs">kwargs</a>)
 </pre>
 
 Runs tests in NodeJS using the Jasmine test runner.
@@ -87,6 +87,17 @@ For example, the filter for which files are instrumented for
 code coverage doesn't understand the spec_files setting in the config.
 
 See https://jasmine.github.io/setup/nodejs.html#configuration
+
+Defaults to `None`
+
+<h4 id="jasmine_node_test-use_direct_specs">use_direct_specs</h4>
+
+Limits the list of specs added to the execution (test suite) to direct sources.
+
+Note that this is a bug fix opt-in flag, which will be the default
+behavior in the next major release.
+
+More info: https://github.com/bazelbuild/rules_nodejs/pull/2576
 
 Defaults to `None`
 

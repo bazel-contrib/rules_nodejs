@@ -225,7 +225,9 @@ terser_minified(<a href="#terser_minified-name">name</a>, <a href="#terser_minif
 
 <p>Note that the <code class="language-plaintext highlighter-rouge">name</code> attribute determines what the resulting files will be called.
 So the example above will output <code class="language-plaintext highlighter-rouge">out.min.js</code> and <code class="language-plaintext highlighter-rouge">out.min.js.map</code> (since <code class="language-plaintext highlighter-rouge">sourcemap</code> defaults to <code class="language-plaintext highlighter-rouge">true</code>).
-If the input is a directory, then the output will also be a directory, named after the <code class="language-plaintext highlighter-rouge">name</code> attribute.</p>
+If the input is a directory, then the output will also be a directory, named after the <code class="language-plaintext highlighter-rouge">name</code> attribute.
+Note that this rule is <strong>NOT</strong> recursive. It assumes a flat file structure. Passing in a folder with nested folder
+will result in an empty output directory.</p>
 
 <p><strong>ATTRIBUTES</strong></p>
 

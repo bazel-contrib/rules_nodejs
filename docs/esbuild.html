@@ -196,7 +196,7 @@ esbuild is an extremely fast JavaScript bundler written in Go, its <a href="http
 
 <p>Add an <code class="language-plaintext highlighter-rouge">http_archive</code> fetching the esbuild binary for each platform that you need to support.</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">_ESBUILD_VERSION</span> <span class="o">=</span> <span class="s">"0.8.48"</span>  <span class="c1"># reminder: update SHAs below when changing this value
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">_ESBUILD_VERSION</span> <span class="o">=</span> <span class="s">"0.11.5"</span>  <span class="c1"># reminder: update SHAs below when changing this value
 </span><span class="n">http_archive</span><span class="p">(</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s">"esbuild_darwin"</span><span class="p">,</span>
     <span class="n">urls</span> <span class="o">=</span> <span class="p">[</span>
@@ -204,7 +204,7 @@ esbuild is an extremely fast JavaScript bundler written in Go, its <a href="http
     <span class="p">],</span>
     <span class="n">strip_prefix</span> <span class="o">=</span> <span class="s">"package"</span><span class="p">,</span>
     <span class="n">build_file_content</span> <span class="o">=</span> <span class="s">"""exports_files(["bin/esbuild"])"""</span><span class="p">,</span>
-    <span class="n">sha256</span> <span class="o">=</span> <span class="s">"d21a722873ed24586f071973b77223553fca466946f3d7e3976eeaccb14424e6"</span><span class="p">,</span>
+    <span class="n">sha256</span> <span class="o">=</span> <span class="s">"98436890727bdb0d4beddd9c9e07d0aeff0e8dfe0169f85e568eca0dd43f665e"</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="n">http_archive</span><span class="p">(</span>
@@ -214,7 +214,7 @@ esbuild is an extremely fast JavaScript bundler written in Go, its <a href="http
     <span class="p">],</span>
     <span class="n">strip_prefix</span> <span class="o">=</span> <span class="s">"package"</span><span class="p">,</span>
     <span class="n">build_file_content</span> <span class="o">=</span> <span class="s">"""exports_files(["esbuild.exe"])"""</span><span class="p">,</span>
-    <span class="n">sha256</span> <span class="o">=</span> <span class="s">"fe5dcb97b4c47f9567012f0a45c19c655f3d2e0d76932f6dd12715dbebbd6eb0"</span><span class="p">,</span>
+    <span class="n">sha256</span> <span class="o">=</span> <span class="s">"589c8ff97210bd41de106e6317ce88f9e88d2cacfd8178ae1217f2b857ff6c3a"</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="n">http_archive</span><span class="p">(</span>
@@ -224,7 +224,7 @@ esbuild is an extremely fast JavaScript bundler written in Go, its <a href="http
     <span class="p">],</span>
     <span class="n">strip_prefix</span> <span class="o">=</span> <span class="s">"package"</span><span class="p">,</span>
     <span class="n">build_file_content</span> <span class="o">=</span> <span class="s">"""exports_files(["bin/esbuild"])"""</span><span class="p">,</span>
-    <span class="n">sha256</span> <span class="o">=</span> <span class="s">"60dabe141e5dfcf99e7113bded6012868132068a582a102b258fb7b1cfdac14b"</span><span class="p">,</span>
+    <span class="n">sha256</span> <span class="o">=</span> <span class="s">"113c2e84895f4422a3676db4e15d9f01b2b4fac041edab25284fdb9574ba58a0"</span><span class="p">,</span>
 <span class="p">)</span>
 </code></pre></div></div>
 
@@ -307,7 +307,8 @@ esbuild(<a href="#esbuild-name">name</a>, <a href="#esbuild-args">args</a>, <a h
 
 <h4 id="esbuild-args">args</h4>
 
-<p>(<em>List of strings</em>): A list of extra arguments that are included in the call to esbuild</p>
+<p>(<em>List of strings</em>): A list of extra arguments that are included in the call to esbuild.
+    $(location …) can be used to resolve the path to a Bazel target.</p>
 
 <p>Defaults to <code class="language-plaintext highlighter-rouge">[]</code></p>
 

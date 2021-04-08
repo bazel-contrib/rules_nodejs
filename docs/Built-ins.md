@@ -277,7 +277,7 @@ By default, Bazel always runs in the workspace root.
 Due to implementation details, this argument must be underneath this package directory.
 
 To run in the directory containing the `nodejs_binary` / `nodejs_test`, use
-    
+
     chdir = package_name()
 
 (or if you're in a macro, use `native.package_name()`)
@@ -526,7 +526,7 @@ By default, Bazel always runs in the workspace root.
 Due to implementation details, this argument must be underneath this package directory.
 
 To run in the directory containing the `nodejs_binary` / `nodejs_test`, use
-    
+
     chdir = package_name()
 
 (or if you're in a macro, use `native.package_name()`)
