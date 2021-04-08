@@ -26,7 +26,7 @@ yarn clean_all
 
 ## Debugging
 
-See `Debugging` section under `/docs/index.md`.
+See `/docs/debugging.md`.
 
 ## Releasing
 
