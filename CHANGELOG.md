@@ -1,3 +1,25 @@
+# [3.3.0](https://github.com/bazelbuild/rules_nodejs/compare/3.2.3...3.3.0) (2021-04-08)
+
+
+### Bug Fixes
+
+* **builtin:** provide proper error if npm_package_bin has no outs ([#2557](https://github.com/bazelbuild/rules_nodejs/issues/2557)) ([c47b770](https://github.com/bazelbuild/rules_nodejs/commit/c47b770))
+* **esbuild:** 'output' is passed twice when used ([#2587](https://github.com/bazelbuild/rules_nodejs/issues/2587)) ([57218a6](https://github.com/bazelbuild/rules_nodejs/commit/57218a6))
+* **esbuild:** files not being found when building external repo ([#2563](https://github.com/bazelbuild/rules_nodejs/issues/2563)) ([d10e17c](https://github.com/bazelbuild/rules_nodejs/commit/d10e17c))
+* **esbuild:** update to esbuild 0.11 ([#2559](https://github.com/bazelbuild/rules_nodejs/issues/2559)) ([e9e8fe7](https://github.com/bazelbuild/rules_nodejs/commit/e9e8fe7)), closes [#2552](https://github.com/bazelbuild/rules_nodejs/issues/2552)
+* **jasmine:** transitive specs are no longer added to the test suite ([#2576](https://github.com/bazelbuild/rules_nodejs/issues/2576)) ([e7eaf34](https://github.com/bazelbuild/rules_nodejs/commit/e7eaf34))
+
+
+### Features
+
+* introduce package for runfile helpers ([2c883d1](https://github.com/bazelbuild/rules_nodejs/commit/2c883d1))
+* make node toolchain_type public so new toolchains can be added ([#2591](https://github.com/bazelbuild/rules_nodejs/issues/2591)) ([b606b79](https://github.com/bazelbuild/rules_nodejs/commit/b606b79)), closes [#2565](https://github.com/bazelbuild/rules_nodejs/issues/2565)
+* **esbuild:** Script to update esbuild to the latest available version ([#2492](https://github.com/bazelbuild/rules_nodejs/issues/2492)) ([472ed62](https://github.com/bazelbuild/rules_nodejs/commit/472ed62))
+* **esbuild:** support location expansion in esbuild args ([#2564](https://github.com/bazelbuild/rules_nodejs/issues/2564)) ([eb3bd7e](https://github.com/bazelbuild/rules_nodejs/commit/eb3bd7e))
+* **typescript:** add support for "jsx: preserve" compiler option ([#2574](https://github.com/bazelbuild/rules_nodejs/issues/2574)) ([425dbd6](https://github.com/bazelbuild/rules_nodejs/commit/425dbd6))
+
+
+
 ## [3.2.3](https://github.com/bazelbuild/rules_nodejs/compare/3.2.2...3.2.3) (2021-03-25)
 
 
