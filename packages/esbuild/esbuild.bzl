@@ -4,7 +4,7 @@ esbuild rule
 
 load("@build_bazel_rules_nodejs//:providers.bzl", "JSEcmaScriptModuleInfo", "JSModuleInfo", "NpmPackageInfo", "node_modules_aspect")
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "MODULE_MAPPINGS_ASPECT_RESULTS_NAME", "module_mappings_aspect")
-load(":helpers.bzl", "filter_files", "generate_path_mapping", "resolve_js_input", "write_jsconfig_file")
+load(":helpers.bzl", "filter_files", "generate_path_mapping", "resolve_entry_point", "write_jsconfig_file")
 
 def _esbuild_impl(ctx):
     # For each dep, JSEcmaScriptModuleInfo is used if found, then JSModuleInfo and finally
@@ -47,12 +47,12 @@ def _esbuild_impl(ctx):
     path_alias_mappings.update({"*": node_modules_mappings})
 
     deps_inputs = depset(transitive = deps_depsets).to_list()
-    inputs = filter_files(ctx.files.entry_point, [".mjs", ".js"]) + ctx.files.srcs + deps_inputs
+    inputs = filter_files(ctx.files.entry_point) + ctx.files.srcs + deps_inputs
 
     metafile = ctx.actions.declare_file("%s_metadata.json" % ctx.attr.name)
     outputs = [metafile]
 
-    entry_point = resolve_js_input(ctx.file.entry_point, inputs)
+    entry_point = resolve_entry_point(ctx.file.entry_point, inputs, ctx.files.srcs)
 
     args = ctx.actions.args()
 
@@ -126,7 +126,7 @@ def _esbuild_impl(ctx):
         execution_requirements = {"no-remote-exec": "1"}
 
     ctx.actions.run(
-        inputs = inputs,
+        inputs = depset(inputs),
         outputs = outputs,
         executable = ctx.executable.tool,
         arguments = [args],
@@ -260,9 +260,7 @@ See https://esbuild.github.io/api/#sources-content for more details
         "srcs": attr.label_list(
             allow_files = True,
             default = [],
-            doc = """Non-entry point JavaScript source files from the workspace.
-
-You must not repeat file(s) passed to entry_point""",
+            doc = """Source files to be made available to esbuild""",
         ),
         "target": attr.string(
             default = "es2015",

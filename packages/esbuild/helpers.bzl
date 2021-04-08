@@ -4,31 +4,43 @@ Utility helper functions for the esbuild rule
 
 load("@build_bazel_rules_nodejs//third_party/github.com/bazelbuild/bazel-skylib:lib/paths.bzl", "paths")
 
+TS_EXTENSIONS = ["ts", "tsx"]
+JS_EXTENSIONS = ["js", "mjs"]
+ALLOWED_EXTENSIONS = JS_EXTENSIONS + TS_EXTENSIONS
+
 def strip_ext(f):
     "Strips the extension of a file."
     return f.short_path[:-len(f.extension) - 1]
 
-def resolve_js_input(f, inputs):
+def resolve_entry_point(f, inputs, srcs):
     """Find a corresponding javascript entrypoint for a provided file
 
     Args:
         f: The file where its basename is used to match the entrypoint
-        inputs: The list of files where it should take a look at
+        inputs: The list of all inputs
+        srcs: List of direct src files to check
 
     Returns:
         Returns the file that is the corresponding entrypoint
     """
-    if f.extension == "js" or f.extension == "mjs":
-        return f
 
     no_ext = strip_ext(f)
-    for i in inputs:
-        if i.extension == "js" or i.extension == "mjs":
+
+    # check for the ts file in srcs
+    for i in srcs:
+        if i.extension in TS_EXTENSIONS:
             if strip_ext(i) == no_ext:
                 return i
-    fail("Could not find corresponding javascript entry point for %s. Add the %s.js to your deps." % (f.path, no_ext))
 
-def filter_files(input, endings = [".js"]):
+    # check for a js files everywhere else
+    for i in inputs:
+        if i.extension in JS_EXTENSIONS:
+            if strip_ext(i) == no_ext:
+                return i
+
+    fail("Could not find corresponding entry point for %s. Add the %s.js to your deps or %s.ts to your srcs" % (f.path, no_ext, no_ext))
+
+def filter_files(input, endings = ALLOWED_EXTENSIONS):
     """Filters a list of files for specific endings
 
     Args:
@@ -45,7 +57,7 @@ def filter_files(input, endings = [".js"]):
 
     for file in input_list:
         for ending in endings:
-            if file.path.endswith(ending):
+            if file.path.endswith("." + ending):
                 filtered.append(file)
                 continue
 

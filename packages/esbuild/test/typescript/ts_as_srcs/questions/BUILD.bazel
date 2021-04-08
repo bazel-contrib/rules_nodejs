@@ -1,0 +1,23 @@
+load("//internal/js_library:js_library.bzl", "js_library")
+load("//packages/typescript:index.bzl", "ts_project")
+
+ts_project(
+    name = "lib",
+    srcs = [
+        "index.ts",
+        "wood-chuck.ts",
+    ],
+    tsconfig = {
+        "compilerOptions": {
+            "declaration": True,
+            "types": [],
+        },
+    },
+)
+
+js_library(
+    name = "questions",
+    package_name = "@rnj/questions",
+    visibility = ["//packages/esbuild/test/typescript/ts_as_srcs:__pkg__"],
+    deps = [":lib"],
+)
