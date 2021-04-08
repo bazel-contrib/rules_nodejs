@@ -214,6 +214,14 @@ See https://esbuild.github.io/api/#minify for more details
             mandatory = False,
             doc = "Name of the output file when bundling",
         ),
+        "output_css": attr.output(
+            mandatory = False,
+            doc = """Declare a .css file will be output next to output bundle.
+
+If your JS code contains import statements that import .css files, esbuild will place the
+content in a file next to the main output file, which you'll need to declare. If your output
+file is named 'foo.js', you should set this to 'foo.css'.""",
+        ),
         "output_dir": attr.bool(
             default = False,
             doc = """If true, esbuild produces an output directory containing all the output files from code splitting
@@ -224,14 +232,6 @@ See https://esbuild.github.io/api/#splitting for more details
         "output_map": attr.output(
             mandatory = False,
             doc = "Name of the output source map when bundling",
-        ),
-        "output_css": attr.output(
-            mandatory = False,
-            doc = """Declare a .css file will be output next to output bundle.
-
-If your JS code contains import statements that import .css files, esbuild will place the
-content in a file next to the main output file, which you'll need to declare. If your output
-file is named 'foo.js', you should set this to 'foo.css'.""",
         ),
         "platform": attr.string(
             default = "browser",
