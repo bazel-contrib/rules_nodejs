@@ -1,0 +1,25 @@
+load("//packages/esbuild/test:tests.bzl", "esbuild")
+load("//packages/typescript:index.bzl", "ts_project")
+
+ts_project(
+    name = "lib",
+    srcs = [
+        "main.ts",
+        "module_1/other.ts",
+    ],
+    tsconfig = {
+        "compilerOptions": {
+            "declaration": True,
+            "types": [],
+        },
+    },
+)
+
+esbuild(
+    name = "bundle",
+    entry_point = "main.ts",
+    format = "esm",
+    deps = [
+        ":lib",
+    ],
+)
