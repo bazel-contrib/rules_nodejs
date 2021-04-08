@@ -2,7 +2,8 @@
 esbuild rule
 """
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "JSEcmaScriptModuleInfo", "JSModuleInfo", "NpmPackageInfo", "node_modules_aspect")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+load("@build_bazel_rules_nodejs//:providers.bzl", "JSEcmaScriptModuleInfo", "JSModuleInfo", "NpmPackageInfo", "node_modules_aspect", "run_node")
 load("@build_bazel_rules_nodejs//internal/linker:link_node_modules.bzl", "MODULE_MAPPINGS_ASPECT_RESULTS_NAME", "module_mappings_aspect")
 load(":helpers.bzl", "filter_files", "generate_path_mapping", "resolve_entry_point", "write_jsconfig_file")
 
@@ -14,10 +15,6 @@ def _esbuild_impl(ctx):
     # Path alias mapings are used to create a jsconfig with mappings so that esbuild
     # how to resolve custom package or module names
     path_alias_mappings = dict()
-    npm_workspaces = []
-
-    if (ctx.attr.link_workspace_root):
-        path_alias_mappings.update(generate_path_mapping(ctx.workspace_name, "."))
 
     for dep in ctx.attr.deps:
         if JSEcmaScriptModuleInfo in dep:
@@ -33,18 +30,11 @@ def _esbuild_impl(ctx):
 
         if NpmPackageInfo in dep:
             deps_depsets.append(dep[NpmPackageInfo].sources)
-            npm_workspaces.append(dep[NpmPackageInfo].workspace)
 
         # Collect the path alias mapping to resolve packages correctly
         if hasattr(dep, MODULE_MAPPINGS_ASPECT_RESULTS_NAME):
             for key, value in getattr(dep, MODULE_MAPPINGS_ASPECT_RESULTS_NAME).items():
                 path_alias_mappings.update(generate_path_mapping(key, value[1].replace(ctx.bin_dir.path + "/", "")))
-
-    node_modules_mappings = [
-        "../../../external/%s/node_modules/*" % workspace
-        for workspace in depset(npm_workspaces).to_list()
-    ]
-    path_alias_mappings.update({"*": node_modules_mappings})
 
     deps_inputs = depset(transitive = deps_depsets).to_list()
     inputs = filter_files(ctx.files.entry_point) + ctx.files.srcs + deps_inputs
@@ -55,6 +45,7 @@ def _esbuild_impl(ctx):
     entry_point = resolve_entry_point(ctx.file.entry_point, inputs, ctx.files.srcs)
 
     args = ctx.actions.args()
+    args.use_param_file(param_file_arg = "--esbuild_flags=%s", use_always = True)
 
     args.add("--bundle", entry_point.path)
 
@@ -125,19 +116,25 @@ def _esbuild_impl(ctx):
     if "no-remote-exec" in ctx.attr.tags:
         execution_requirements = {"no-remote-exec": "1"}
 
-    ctx.actions.run(
+    launcher_args = ctx.actions.args()
+    launcher_args.add("--esbuild=%s" % ctx.executable.tool.path)
+
+    run_node(
+        ctx = ctx,
         inputs = depset(inputs),
         outputs = outputs,
-        executable = ctx.executable.tool,
-        arguments = [args],
+        arguments = [launcher_args, args],
         progress_message = "%s Javascript %s [esbuild]" % ("Bundling" if not ctx.attr.output_dir else "Splitting", entry_point.short_path),
         execution_requirements = execution_requirements,
         mnemonic = "esbuild",
         env = env,
+        executable = "launcher",
+        link_workspace_root = ctx.attr.link_workspace_root,
+        tools = [ctx.executable.tool],
     )
 
     return [
-        DefaultInfo(files = depset(outputs + [jsconfig_file])),
+        DefaultInfo(files = depset(outputs)),
     ]
 
 esbuild = rule(
@@ -188,6 +185,12 @@ and cjs when platform is node. If performing code splitting, defaults to esm.
 
 See https://esbuild.github.io/api/#format for more details
         """,
+        ),
+        "launcher": attr.label(
+            mandatory = True,
+            executable = True,
+            doc = "Internal use only",
+            cfg = "exec",
         ),
         "link_workspace_root": attr.bool(
             doc = """Link the workspace root to the bin_dir to support absolute requires like 'my_wksp/path/to/file'.
@@ -296,10 +299,18 @@ def esbuild_macro(name, output_dir = False, **kwargs):
         **kwargs: All other args from `esbuild_bundle`
     """
 
+    kwargs.pop("launcher", None)
+    _launcher = "_%s_esbuild_launcher" % name
+    nodejs_binary(
+        name = _launcher,
+        entry_point = Label("@build_bazel_rules_nodejs//packages/esbuild:launcher.js"),
+    )
+
     if output_dir == True:
         esbuild(
             name = name,
             output_dir = True,
+            launcher = _launcher,
             **kwargs
         )
     else:
@@ -316,5 +327,6 @@ def esbuild_macro(name, output_dir = False, **kwargs):
             name = name,
             output = output,
             output_map = output_map,
+            launcher = _launcher,
             **kwargs
         )

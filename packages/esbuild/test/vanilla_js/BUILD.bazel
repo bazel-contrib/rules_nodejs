@@ -8,6 +8,9 @@ esbuild(
         "name.js",
     ],
     entry_point = "main.js",
+    deps = [
+        "@npm//date-fns",
+    ],
 )
 
 nodejs_binary(

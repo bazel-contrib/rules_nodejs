@@ -19,6 +19,8 @@ load("//third_party/github.com/bazelbuild/bazel-skylib:rules/copy_file.bzl", "co
 
 package(default_visibility = ["//visibility:public"])
 
+exports_files(["launcher.js"])
+
 codeowners(
     teams = ["@mattem"],
 )
@@ -67,11 +69,14 @@ pkg_npm(
         "esbuild.bzl",
         "helpers.bzl",
         "index.bzl",
+        "launcher.js",
         "package.json",
     ],
-    build_file_content = " ",
+    build_file_content = """exports_files(["launcher.js"])
+    """,
     substitutions = dict({
         "@build_bazel_rules_nodejs//packages/esbuild:esbuild.bzl": "//@bazel/esbuild:esbuild.bzl",
+        "@build_bazel_rules_nodejs//packages/esbuild:launcher.js": "//@bazel/esbuild:launcher.js",
     }),
     deps = [
         ":npm_version_check",
