@@ -28,6 +28,9 @@ def _esbuild_impl(ctx):
         elif hasattr(dep, "files"):
             deps_depsets.append(dep.files)
 
+        if DefaultInfo in dep:
+            deps_depsets.append(dep[DefaultInfo].data_runfiles.files)
+
         if NpmPackageInfo in dep:
             deps_depsets.append(dep[NpmPackageInfo].sources)
             npm_workspaces.append(dep[NpmPackageInfo].workspace)
@@ -99,6 +102,9 @@ def _esbuild_impl(ctx):
             if js_out_map == None:
                 fail("output_map must be specified if sourcemap is not set to 'inline'")
             outputs.append(js_out_map)
+
+        if ctx.outputs.output_css:
+            outputs.append(ctx.outputs.output_css)
 
         if ctx.attr.format:
             args.add_joined(["--format", ctx.attr.format], join_with = "=")
@@ -218,6 +224,14 @@ See https://esbuild.github.io/api/#splitting for more details
         "output_map": attr.output(
             mandatory = False,
             doc = "Name of the output source map when bundling",
+        ),
+        "output_css": attr.output(
+            mandatory = False,
+            doc = """Declare a .css file will be output next to output bundle.
+
+If your JS code contains import statements that import .css files, esbuild will place the
+content in a file next to the main output file, which you'll need to declare. If your output
+file is named 'foo.js', you should set this to 'foo.css'.""",
         ),
         "platform": attr.string(
             default = "browser",

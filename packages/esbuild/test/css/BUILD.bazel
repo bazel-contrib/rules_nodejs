@@ -1,0 +1,67 @@
+load("//packages/esbuild/test:tests.bzl", "esbuild")
+load("//packages/jasmine:index.bzl", "jasmine_node_test")
+load("//packages/typescript:index.bzl", "ts_library")
+load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin")
+
+copy_to_bin(
+    name = "external_copied",
+    srcs = ["external.css"],
+)
+
+ts_library(
+    name = "dep",
+    srcs = [
+        "dep.ts",
+    ],
+    data = [
+        ":external_copied",
+    ],
+    deps = [
+        "@npm//@types/node",
+    ],
+)
+
+ts_library(
+    name = "main",
+    srcs = [
+        "main.ts",
+    ],
+    deps = [
+        ":dep",
+        "@npm//@types/node",
+    ],
+)
+
+esbuild(
+    name = "default",
+    args = [
+        "--keep-names",
+        "--resolve-extensions=.mjs,.js",
+    ],
+    entry_point = "main.ts",
+    deps = [
+        ":main",
+    ],
+)
+
+esbuild(
+    name = "with_css",
+    args = [
+        "--keep-names",
+        "--resolve-extensions=.mjs,.js",
+    ],
+    entry_point = "main.ts",
+    output_css = "with_css.css",
+    deps = [
+        ":main",
+    ],
+)
+
+jasmine_node_test(
+    name = "bundle_test",
+    srcs = ["bundle_test.js"],
+    data = [
+        ":default",
+        ":with_css",
+    ],
+)
