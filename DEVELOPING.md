@@ -5,7 +5,8 @@ We strongly encourage you to review the project's scope described in the `README
 ## Architecture
 
 Unlike some other Bazel rules, these rules require a separate build step, and
-can not be used by just pointing your workspace file at this git repo.
+can not be used by just pointing your workspace file at this git repo without
+[some extra work](./examples/from_source/).
 
 When you run 'bazel build release', the core parts of these rules will be
 bundled up into dist/bin/release.tar.gz, and that file can be used in your own
