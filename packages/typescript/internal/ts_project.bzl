@@ -170,8 +170,9 @@ def _ts_project_impl(ctx):
     # NB: We don't have emit_declaration_only setting here, so use presence of any JS outputs as an equivalent.
     # tsc will only produce .json if it also produces .js
     if len(ctx.outputs.js_outs):
+        pkg_len = len(ctx.label.package) + 1 if len(ctx.label.package) else 0
         json_outs = [
-            ctx.actions.declare_file(_join(ctx.attr.out_dir, src.short_path[len(ctx.label.package) + 1:]))
+            ctx.actions.declare_file(_join(ctx.attr.out_dir, src.short_path[pkg_len:]))
             for src in ctx.files.srcs
             if src.basename.endswith(".json")
         ]
