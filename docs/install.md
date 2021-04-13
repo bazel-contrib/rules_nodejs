@@ -157,3 +157,22 @@ Toolchains allow us to support cross-compilation, e.g. building a linux binary f
 So if for example you want to build a docker image from a non-linux platform you would run `bazel build --platforms=@build_bazel_rules_nodejs//toolchains/node:linux_amd64 //app`, which will ensure that the linux nodejs binary is downloaded and provided to the nodejs_binary target.
 
 Note: The toolchain currently only provides a platform-specific nodejs binary. Any native modules will still be fetched/built, by npm/yarn, for your host platform, so they will not work on the target platform. Support for cross-compilation with native dependencies will follow.
+
+Because these rules use the target platform to decide which node binary to use, you will run into trouble if you are trying to invoke these rules as part of a cross-compilation
+to a platform that is not supported by the default node repositories, eg when trying to bundle some js products into a binary targeting Android or iOS. You can work around this
+by defining your own toolchain, and specifying the host platform as an execution requirement instead. For example, if you are building on a Mac, you could add the following
+to your workspace:
+
+    register_toolchains("//node_toolchain")
+
+And the following in node_toolchain/BUILD.bazel:
+
+    toolchain(
+        name = "node_toolchain",
+        exec_compatible_with = [
+            "@platforms//os:osx",
+            "@platforms//cpu:x86_64",
+        ],
+        toolchain = "@nodejs_darwin_amd64_config//:toolchain",
+        toolchain_type = "@build_bazel_rules_nodejs//toolchains/node:toolchain_type",
+    )
