@@ -4,6 +4,7 @@
  */
 import * as crypto from 'crypto';
 import * as fs from 'fs';
+import * as File from 'karma/lib/file';
 import * as path from 'path';
 import * as process from 'process';
 import {createInterface} from 'readline';
@@ -29,13 +30,8 @@ function initConcatJs(logger, emitter, basePath, hostname, port) {
       path.join(process.env['TEST_TMPDIR'], crypto.randomBytes(6).readUIntLE(0, 6).toString(36));
 
   emitter.on('file_list_modified', files => {
-    const bundleFile = {
-      path: '/concatjs_bundle.js',
-      contentPath: tmpFile,
-      isUrl: false,
-      content: '',
-      encodings: {},
-    } as any;
+    const bundleFile = new File('/concatjs_bundle.js') as any;
+    bundleFile.contentPath = tmpFile;
     // Preserve all non-JS that were there in the included list.
     const included = files.included.filter(f => path.extname(f.originalPath) !== '.js');
     const bundledFiles =

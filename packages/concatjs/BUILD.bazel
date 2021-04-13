@@ -30,7 +30,10 @@ ts_project(
             "types": ["node"],
         },
     },
-    deps = ["@npm//@types/node"],
+    deps = [
+        "@npm//@types/node",
+        "@npm//karma",
+    ],
 )
 
 js_library(
