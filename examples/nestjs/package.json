@@ -1,8 +1,8 @@
 {
   "private": true,
   "dependencies": {
-    "@bazel/ibazel": "^0.15.8",
-    "@bazel/jasmine": "^3.3.0",
+    "@bazel/ibazel": "^0.15.9",
+    "@bazel/jasmine": "^3.4.0",
     "@nestjs/common": "6.5.2",
     "@nestjs/core": "6.5.2",
     "@nestjs/platform-express": "6.5.2",
@@ -17,7 +17,7 @@
     "supertest": "^4.0.2"
   },
   "devDependencies": {
-    "@bazel/typescript": "^3.3.0",
+    "@bazel/typescript": "^3.4.0",
     "@types/node": "12.6.3",
     "tslib": "^1.9.0",
     "typescript": "3.5.3"

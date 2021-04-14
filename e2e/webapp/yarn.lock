@@ -2,15 +2,15 @@
 # yarn lockfile v1
 
 
-"@bazel/rollup@^3.3.0":
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/@bazel/rollup/-/rollup-3.3.0.tgz#f3b8a9593080f9dce1cf25dd5f3e6afc6a2afd61"
-  integrity sha512-LuAIikmze3/KQgw2z6KHGX5YGhXQm7kdsSd8SXvrkauO0LFjorB2bReOMWBsjIA7dvqP48skOvM2OrFsDWeZqQ==
+"@bazel/rollup@^3.4.0":
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/@bazel/rollup/-/rollup-3.4.0.tgz#cdecb2b90535ef51fb3d56cc8bc19996918bac1a"
+  integrity sha512-QKnttbYyEQjRbWrOlkH2JuDnSww+9K7Ppil91zBTtr/qYTGW9XO0v7Ft3cs30s2NIWSGIuKj9/N5as+Uyratrw==
 
-"@bazel/terser@^3.3.0":
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/@bazel/terser/-/terser-3.3.0.tgz#8f4036bcd9e00cf0add15020962d6eb513c9fc74"
-  integrity sha512-F5RqBLYqev9zSuPCpz8CpQui3I6DuPgrOBIadGq8D+c3341dyR2QxwYcJ2ZEiMtCMWtNM1KsOF2vQsvE7HnqqQ==
+"@bazel/terser@^3.4.0":
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/@bazel/terser/-/terser-3.4.0.tgz#9a25892977f00974e4195ff6cbe71ec0313a77d5"
+  integrity sha512-E26ijh44aXIXcg3EQEZcL2nkGlWZtMka0gwmYo9bDRyGt6rCRhFuSBC0mz9YCifUhKuACKWXLHPz9wvh1CDkEA==
 
 buffer-from@^1.0.0:
   version "1.1.1"
